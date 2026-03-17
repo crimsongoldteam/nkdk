@@ -55,7 +55,10 @@ import {
   CheckBoxField,
   CheckBoxFieldEnterprise,
   CheckBoxFieldPartialYAML,
-  CheckBoxFieldTypedYAML,
+  TableCheckBoxField,
+  TableCheckBoxFieldEnterprise,
+  TableCheckBoxFieldPartialYAML,
+  TableCheckBoxFieldTypedYAML,
 } from "../../forms/elements/checkBoxField/types"
 import {
   ColumnGroup,
@@ -104,7 +107,10 @@ import {
   InputField,
   InputFieldEnterprise,
   InputFieldPartialYAML,
-  InputFieldTypedYAML,
+  TableInputField,
+  TableInputFieldEnterprise,
+  TableInputFieldPartialYAML,
+  TableInputFieldTypedYAML,
 } from "../../forms/elements/inputField/types"
 import {
   LabelDecoration,
@@ -115,7 +121,10 @@ import {
   LabelField,
   LabelFieldEnterprise,
   LabelFieldPartialYAML,
-  LabelFieldTypedYAML,
+  TableLabelField,
+  TableLabelFieldEnterprise,
+  TableLabelFieldPartialYAML,
+  TableLabelFieldTypedYAML,
 } from "../../forms/elements/labelField/types"
 import { Page, PageEnterprise, PagePartialYAML } from "../../forms/elements/page/types"
 import { Pages, PagesEnterprise, PagesPartialYAML } from "../../forms/elements/pages/types"
@@ -134,7 +143,10 @@ import {
   PictureField,
   PictureFieldEnterprise,
   PictureFieldPartialYAML,
-  PictureFieldTypedYAML,
+  TablePictureField,
+  TablePictureFieldEnterprise,
+  TablePictureFieldPartialYAML,
+  TablePictureFieldTypedYAML,
 } from "../../forms/elements/pictureField/types"
 import { PlannerField, PlannerFieldEnterprise, PlannerFieldPartialYAML } from "../../forms/elements/plannerField/types"
 import { Popup, PopupEnterprise, PopupPartialYAML, PopupTypedYAML } from "../../forms/elements/popup/types"
@@ -211,8 +223,13 @@ export type MetadataItemTypeRegistry = {
   CheckBoxField: {
     metadata: CheckBoxField
     yaml: CheckBoxFieldPartialYAML
-    yamlTyped: CheckBoxFieldTypedYAML
     enterprise: CheckBoxFieldEnterprise
+  }
+  TableCheckBoxField: {
+    metadata: TableCheckBoxField
+    yaml: TableCheckBoxFieldPartialYAML
+    yamlTyped: TableCheckBoxFieldTypedYAML
+    enterprise: TableCheckBoxFieldEnterprise
   }
   ColumnGroup: {
     metadata: ColumnGroup
@@ -258,8 +275,13 @@ export type MetadataItemTypeRegistry = {
   InputField: {
     metadata: InputField
     yaml: InputFieldPartialYAML
-    yamlTyped: InputFieldTypedYAML
     enterprise: InputFieldEnterprise
+  }
+  TableInputField: {
+    metadata: TableInputField
+    yaml: TableInputFieldPartialYAML
+    yamlTyped: TableInputFieldTypedYAML
+    enterprise: TableInputFieldEnterprise
   }
   LabelDecoration: {
     metadata: LabelDecoration
@@ -269,8 +291,13 @@ export type MetadataItemTypeRegistry = {
   LabelField: {
     metadata: LabelField
     yaml: LabelFieldPartialYAML
-    yamlTyped: LabelFieldTypedYAML
     enterprise: LabelFieldEnterprise
+  }
+  TableLabelField: {
+    metadata: TableLabelField
+    yaml: TableLabelFieldPartialYAML
+    yamlTyped: TableLabelFieldTypedYAML
+    enterprise: TableLabelFieldEnterprise
   }
   Page: {
     metadata: Page
@@ -300,8 +327,13 @@ export type MetadataItemTypeRegistry = {
   PictureField: {
     metadata: PictureField
     yaml: PictureFieldPartialYAML
-    yamlTyped: PictureFieldTypedYAML
     enterprise: PictureFieldEnterprise
+  }
+  TablePictureField: {
+    metadata: TablePictureField
+    yaml: TablePictureFieldPartialYAML
+    yamlTyped: TablePictureFieldTypedYAML
+    enterprise: TablePictureFieldEnterprise
   }
   PlannerField: {
     metadata: PlannerField

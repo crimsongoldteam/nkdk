@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const TextDocumentFieldRules = {
@@ -23,7 +23,15 @@ export const TextDocumentFieldRules = {
       type: "SystemEnumeration",
       typeSE: "UseOutput",
     },
-    selectedText: { yaml: "ВыделенныйТекст", type: "string" },
+    selectedText: {
+      yaml: "ВыделенныйТекст",
+      type: "string",
+      toYAML: false,
+      fromYAML: false,
+      toXML: false,
+      fromXML: false,
+      toEnterprise: false,
+    },
     textColor: { yaml: "ЦветТекста", type: "Color" },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
@@ -46,7 +54,7 @@ export const TextDocumentFieldRules = {
       defaultType: "string",
     },
     ...formFieldCommonProperties,
-    ...formFieldTableRelatedProperties,
+    ...formFieldDisabledTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

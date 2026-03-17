@@ -2,7 +2,10 @@ import {
   PictureField,
   PictureFieldEnterprise,
   PictureFieldPartialYAML,
-  PictureFieldTypedYAML,
+  TablePictureField,
+  TablePictureFieldEnterprise,
+  TablePictureFieldPartialYAML,
+  TablePictureFieldTypedYAML,
 } from "~/metadata/forms/elements/pictureField/types"
 
 import {
@@ -60,8 +63,13 @@ export const fullPictureField: RequiredFieldsElement<PictureField> = {
     dragCheck: "ПроцедураПроверкаПеретаскивания",
   },
   ...fullFormFieldCommonFixture,
-  ...fullFormFieldTableRelatedFixture,
 } satisfies RequiredFieldsElement<PictureField>
+
+export const fullTablePictureField: RequiredFieldsElement<TablePictureField> = {
+  ...fullPictureField,
+  itemType: "TablePictureField",
+  ...fullFormFieldTableRelatedFixture,
+} satisfies RequiredFieldsElement<TablePictureField>
 
 export const fullPictureFieldEnterprise = {
   ElementType: "FormField",
@@ -93,8 +101,12 @@ export const fullPictureFieldEnterprise = {
   Border: { Type: "Border", Value: "ControlBorderType.Single", Width: 0 },
   ValuesPicture: { Type: "Picture", Value: "PictureLib.Print" },
   ...fullFormFieldEnterpriseCommonFixture,
-  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<PictureFieldEnterprise>
+
+export const fullTablePictureFieldEnterprise = {
+  ...fullPictureFieldEnterprise,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
+} satisfies Required<TablePictureFieldEnterprise>
 
 export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
   Высота: 200,
@@ -127,11 +139,15 @@ export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   ...fullFormFieldPartialYAMLCommonFixture,
-  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<PictureFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
-export const fullPictureFieldTypedYAML: PictureFieldTypedYAML = {
+export const fullTablePictureFieldPartialYAML: TablePictureFieldPartialYAML = {
   ...fullPictureFieldPartialYAML,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
+}
+
+export const fullTablePictureFieldTypedYAML: TablePictureFieldTypedYAML = {
+  ...fullTablePictureFieldPartialYAML,
   ПутьКДанным: "Реквизит",
   Тип: "ПолеРисунка",
   Заголовок: "Поле картинки",
@@ -144,7 +160,13 @@ export const minimalPictureField: PictureField = {
 
 export const minimalPictureFieldPartialYAML: PictureFieldPartialYAML = {}
 
-export const minimalPictureFieldTypedYAML: PictureFieldTypedYAML = {
+export const minimalTablePictureField: TablePictureField = {
+  itemType: "TablePictureField",
+  name: "ПолеКартинки",
+}
+
+export const minimalTablePictureFieldPartialYAML: TablePictureFieldPartialYAML = {}
+
+export const minimalTablePictureFieldTypedYAML: TablePictureFieldTypedYAML = {
   Тип: "ПолеРисунка",
-  ПутьКДанным: "",
 }

@@ -230,8 +230,18 @@ export const InputFieldRules = {
       defaultType: "string",
     },
     ...formFieldCommonProperties,
+  },
+} as const satisfies ElementRule
+
+export const TableInputFieldRules = {
+  itemType: "TableInputField",
+  enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.InputField",
+  properties: {
+    ...InputFieldRules.properties,
     ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 
 registerElementRule("InputField", InputFieldRules)
+registerElementRule("TableInputField", TableInputFieldRules)

@@ -3,37 +3,17 @@ import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/meta
 import {
   fullPictureField,
   fullPictureFieldPartialYAML,
-  fullPictureFieldTypedYAML,
+  fullTablePictureField,
+  fullTablePictureFieldTypedYAML,
   minimalPictureField,
   minimalPictureFieldPartialYAML,
-  minimalPictureFieldTypedYAML,
+  minimalTablePictureField,
+  minimalTablePictureFieldTypedYAML,
 } from "~/tests/fixtures/forms/pictureField/data"
 import { mockContext } from "~/tests/mockContext"
-import { PictureField } from "./types"
+import { TablePictureField } from "./types"
 
 describe("importPictureFieldFromYAML", () => {
-  describe("importPictureFieldTypedFromYAML", () => {
-    it("should import all fields from YAML", () => {
-      const result = importElementFromTypedYAML<PictureField>({
-        context: mockContext,
-        yaml: fullPictureFieldTypedYAML,
-        name: "ПолеКартинки",
-      })
-
-      expect(result).toEqual(fullPictureField)
-    })
-
-    it("should import minimal", () => {
-      const result = importElementFromTypedYAML<PictureField>({
-        context: mockContext,
-        yaml: minimalPictureFieldTypedYAML,
-        name: "ПолеКартинки",
-      })
-
-      expect(result).toEqual(minimalPictureField)
-    })
-  })
-
   describe("importPictureFieldPartialFromYAML", () => {
     it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
@@ -55,6 +35,28 @@ describe("importPictureFieldFromYAML", () => {
       })
 
       expect(result).toEqual(minimalPictureField)
+    })
+  })
+
+  describe("importTablePictureFieldTypedFromYAML", () => {
+    it("should import all fields from YAML", () => {
+      const result = importElementFromTypedYAML<TablePictureField>({
+        context: mockContext,
+        yaml: fullTablePictureFieldTypedYAML,
+        name: "ПолеКартинки",
+      })
+
+      expect(result).toEqual(fullTablePictureField)
+    })
+
+    it("should import minimal", () => {
+      const result = importElementFromTypedYAML<TablePictureField>({
+        context: mockContext,
+        yaml: minimalTablePictureFieldTypedYAML,
+        name: "ПолеКартинки",
+      })
+
+      expect(result).toEqual(minimalTablePictureField)
     })
   })
 })

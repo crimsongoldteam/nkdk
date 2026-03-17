@@ -3,37 +3,17 @@ import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/meta
 import {
   fullLabelField,
   fullLabelFieldPartialYAML,
-  fullLabelFieldTypedYAML,
+  fullTableLabelField,
+  fullTableLabelFieldTypedYAML,
   minimalLabelField,
   minimalLabelFieldPartialYAML,
-  minimalLabelFieldTypedYAML,
+  minimalTableLabelField,
+  minimalTableLabelFieldTypedYAML,
 } from "~/tests/fixtures/forms/labelField/data"
 import { mockContext } from "~/tests/mockContext"
-import { LabelField } from "./types"
+import { TableLabelField } from "./types"
 
 describe("importLabelFieldFromYAML", () => {
-  describe("importLabelFieldTypedFromYAML", () => {
-    it("should import all fields from YAML", () => {
-      const result = importElementFromTypedYAML<LabelField>({
-        context: mockContext,
-        yaml: fullLabelFieldTypedYAML,
-        name: "ПолеНадписи",
-      })
-
-      expect(result).toEqual(fullLabelField)
-    })
-
-    it("should import minimal", () => {
-      const result = importElementFromTypedYAML<LabelField>({
-        context: mockContext,
-        yaml: minimalLabelFieldTypedYAML,
-        name: "ПолеНадписи",
-      })
-
-      expect(result).toEqual(minimalLabelField)
-    })
-  })
-
   describe("importLabelFieldPartialFromYAML", () => {
     it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
@@ -55,6 +35,28 @@ describe("importLabelFieldFromYAML", () => {
       })
 
       expect(result).toEqual(minimalLabelField)
+    })
+  })
+
+  describe("importTableLabelFieldTypedFromYAML", () => {
+    it("should import all fields from YAML", () => {
+      const result = importElementFromTypedYAML<TableLabelField>({
+        context: mockContext,
+        yaml: fullTableLabelFieldTypedYAML,
+        name: "ПолеНадписи",
+      })
+
+      expect(result).toEqual(fullTableLabelField)
+    })
+
+    it("should import minimal", () => {
+      const result = importElementFromTypedYAML<TableLabelField>({
+        context: mockContext,
+        yaml: minimalTableLabelFieldTypedYAML,
+        name: "ПолеНадписи",
+      })
+
+      expect(result).toEqual(minimalTableLabelField)
     })
   })
 })

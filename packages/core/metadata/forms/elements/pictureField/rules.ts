@@ -60,8 +60,18 @@ export const PictureFieldRules = {
       defaultType: "Picture",
     },
     ...formFieldCommonProperties,
+  },
+} as const satisfies ElementRule
+
+export const TablePictureFieldRules = {
+  itemType: "TablePictureField",
+  enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.PictureField",
+  properties: {
+    ...PictureFieldRules.properties,
     ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
 
 registerElementRule("PictureField", PictureFieldRules)
+registerElementRule("TablePictureField", TablePictureFieldRules)

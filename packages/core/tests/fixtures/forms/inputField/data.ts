@@ -2,7 +2,10 @@ import {
   InputField,
   InputFieldEnterprise,
   InputFieldPartialYAML,
-  InputFieldTypedYAML,
+  TableInputField,
+  TableInputFieldEnterprise,
+  TableInputFieldPartialYAML,
+  TableInputFieldTypedYAML,
 } from "~/metadata/forms/elements/inputField/types"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import {
@@ -147,8 +150,13 @@ export const fullInputField: RequiredFieldsElement<InputField> = {
     multipleValuesDelete: "ПроцедураУдаленияМножественныхЗначений",
   },
   ...fullFormFieldCommonFixture,
-  ...fullFormFieldTableRelatedFixture,
 } satisfies RequiredFieldsElement<InputField>
+
+export const fullTableInputField: RequiredFieldsElement<TableInputField> = {
+  ...fullInputField,
+  itemType: "TableInputField",
+  ...fullFormFieldTableRelatedFixture,
+} satisfies RequiredFieldsElement<TableInputField>
 
 export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
   АвтоВыборНезаполненного: "Истина",
@@ -245,11 +253,15 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
     УдалениеМножественныхЗначений: "ПроцедураУдаленияМножественныхЗначений",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<InputFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
-export const fullInputFieldTypedYAML: InputFieldTypedYAML = {
+export const fullTableInputFieldPartialYAML: TableInputFieldPartialYAML = {
   ...fullInputFieldPartialYAML,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
+}
+
+export const fullTableInputFieldTypedYAML: TableInputFieldTypedYAML = {
+  ...fullTableInputFieldPartialYAML,
   Тип: "ПолеВвода",
   Заголовок: "Поле ввода",
   ПутьКДанным: "Реквизит",
@@ -258,14 +270,19 @@ export const fullInputFieldTypedYAML: InputFieldTypedYAML = {
 export const minimalInputField: InputField = {
   itemType: "InputField",
   name: "ПолеВвода",
-  dataPath: "Реквизит",
 }
 
 export const minimalInputFieldPartialYAML: InputFieldPartialYAML = {}
 
-export const minimalInputFieldTypedYAML: InputFieldTypedYAML = {
+export const minimalTableInputField: TableInputField = {
+  itemType: "TableInputField",
+  name: "ПолеВвода",
+}
+
+export const minimalTableInputFieldPartialYAML: TableInputFieldPartialYAML = {}
+
+export const minimalTableInputFieldTypedYAML: TableInputFieldTypedYAML = {
   Тип: "ПолеВвода",
-  ПутьКДанным: "Реквизит",
 }
 
 export interface InputFieldStructureFixture {
@@ -426,8 +443,12 @@ export const fullInputFieldEnterprise = {
   Width: 200,
   Wrap: false,
   ...fullFormFieldEnterpriseCommonFixture,
-  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<InputFieldEnterprise>
+
+export const fullTableInputFieldEnterprise = {
+  ...fullInputFieldEnterprise,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
+} satisfies Required<TableInputFieldEnterprise>
 
 export const minimalInputFieldEnterprise = {
   ElementType: "FormField",

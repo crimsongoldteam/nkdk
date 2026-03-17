@@ -1,28 +1,31 @@
-<TableCheckBoxField name="Флажок" id="1" DisplayImportance="High">
+<TablePictureField name="ПолеКартинки" id="1" DisplayImportance="High">
 	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
 	<AutoCellHeight>false</AutoCellHeight>
-	<BackColor>web:Blue</BackColor>
-	<BorderColor>web:Green</BorderColor>
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<Border width="0">
+		<v8ui:style xsi:type="v8ui:ControlBorderType">Single</v8ui:style>
+	</Border>
+	<BorderColor>web:Black</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
-	<CheckBoxType>Switch</CheckBoxType>
-	<ContextMenu name="ФлажокКонтекстноеМеню" id="2">
+	<ContextMenu name="ПолеКартинкиКонтекстноеМеню" id="2">
 		<Autofill>false</Autofill>
 	</ContextMenu>
 	<DataPath>Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
-	<EditFormat>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Формат редактирования</v8:content>
-		</v8:item>
-	</EditFormat>
 	<EditMode>EnterOnInput</EditMode>
 	<Enabled>false</Enabled>
-	<EqualItemsWidth>true</EqualItemsWidth>
+	<EnableDrag>true</EnableDrag>
+	<EnableStartDrag>true</EnableStartDrag>
 	<Events>
+		<Event name="Click">ПроцедураНажатие</Event>
+		<Event name="Drag">ПроцедураПеретаскивание</Event>
+		<Event name="DragCheck">ПроцедураПроверкаПеретаскивания</Event>
+		<Event name="DragEnd">ПроцедураОкончаниеПеретаскивания</Event>
+		<Event name="DragStart">ПроцедураНачалоПеретаскивания</Event>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
-	<ExtendedTooltip name="ФлажокРасширеннаяПодсказка" id="3">
+	<ExtendedTooltip name="ПолеКартинкиРасширеннаяПодсказка" id="3">
 		<Title formatted="false">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -30,6 +33,7 @@
 			</v8:item>
 		</Title>
 	</ExtendedTooltip>
+	<FileDragMode>AsFile</FileDragMode>
 	<FixingInTable>None</FixingInTable>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<FooterBackColor>web:White</FooterBackColor>
@@ -54,22 +58,31 @@
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</HeaderPicture>
+	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
-	<ItemHeight>20</ItemHeight>
-	<ItemTitleHeight>15</ItemTitleHeight>
-	<ItemWidth>100</ItemWidth>
+	<HorizontalStretch>false</HorizontalStretch>
+	<Hyperlink>true</Hyperlink>
+	<ImageScale>95</ImageScale>
+	<MaxHeight>500</MaxHeight>
+	<MaxWidth>400</MaxWidth>
+	<NonselectedPictureText>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Текст невыбранной картинки</v8:content>
+		</v8:item>
+	</NonselectedPictureText>
 	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+	<PictureSize>AutoSize</PictureSize>
 	<ReadOnly>true</ReadOnly>
 	<Shortcut>S</Shortcut>
 	<ShowInFooter>false</ShowInFooter>
 	<ShowInHeader>false</ShowInHeader>
 	<SkipOnInput>true</SkipOnInput>
-	<TextColor>web:Yellow</TextColor>
-	<ThreeState>true</ThreeState>
+	<TextColor>web:Black</TextColor>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Флажок формы</v8:content>
+			<v8:content>Поле картинки</v8:content>
 		</v8:item>
 	</Title>
 	<TitleBackColor>web:Blue</TitleBackColor>
@@ -95,7 +108,12 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">false</xr:Value>
 	</UserVisible>
+	<ValuesPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</ValuesPicture>
 	<VerticalAlign>Top</VerticalAlign>
+	<VerticalStretch>false</VerticalStretch>
 	<Visible>false</Visible>
 	<WarningOnEdit>
 		<v8:item>
@@ -104,4 +122,6 @@
 		</v8:item>
 	</WarningOnEdit>
 	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
-</TableCheckBoxField>
+	<Width>300</Width>
+	<Zoomable>true</Zoomable>
+</TablePictureField>

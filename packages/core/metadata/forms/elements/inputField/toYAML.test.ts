@@ -3,13 +3,16 @@ import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata
 import {
   fullInputField,
   fullInputFieldPartialYAML,
-  fullInputFieldTypedYAML,
+  fullTableInputField,
+  fullTableInputFieldTypedYAML,
   minimalInputField,
+  minimalTableInputField,
+  minimalTableInputFieldTypedYAML,
 } from "~/tests/fixtures/forms/inputField/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportInputFieldToYAML", () => {
-  describe("exportElementToPartialYAML", () => {
+  describe("InputField partial", () => {
     it("should export all fields to YAML", () => {
       const result = exportElementToPartialYAML({ context: mockContext, element: fullInputField })
 
@@ -23,11 +26,17 @@ describe("exportInputFieldToYAML", () => {
     })
   })
 
-  describe("exportElementToTypedYAML", () => {
+  describe("TableInputField typed", () => {
     it("should export all fields to YAML", () => {
-      const result = exportElementToTypedYAML({ context: mockContext, element: fullInputField })
+      const result = exportElementToTypedYAML({ context: mockContext, element: fullTableInputField })
 
-      expect(result).toEqual(fullInputFieldTypedYAML)
+      expect(result).toEqual(fullTableInputFieldTypedYAML)
+    })
+
+    it("should export minimal", () => {
+      const result = exportElementToTypedYAML({ context: mockContext, element: minimalTableInputField })
+
+      expect(result).toEqual(minimalTableInputFieldTypedYAML)
     })
   })
 })

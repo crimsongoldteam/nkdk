@@ -3,37 +3,17 @@ import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/meta
 import {
   fullCheckBoxField,
   fullCheckBoxFieldPartialYAML,
-  fullCheckBoxFieldTypedYAML,
+  fullTableCheckBoxField,
+  fullTableCheckBoxFieldTypedYAML,
   minimalCheckBoxField,
   minimalCheckBoxFieldPartialYAML,
-  minimalCheckBoxFieldTypedYAML,
+  minimalTableCheckBoxField,
+  minimalTableCheckBoxFieldTypedYAML,
 } from "~/tests/fixtures/forms/checkBoxField/data"
 import { mockContext } from "~/tests/mockContext"
-import { CheckBoxField } from "./types"
+import { TableCheckBoxField } from "./types"
 
 describe("importCheckBoxFieldFromYAML", () => {
-  describe("importCheckBoxFieldTypedFromYAML", () => {
-    it("should import all fields from YAML", () => {
-      const result = importElementFromTypedYAML<CheckBoxField>({
-        context: mockContext,
-        yaml: fullCheckBoxFieldTypedYAML,
-        name: "Флажок",
-      })
-
-      expect(result).toEqual(fullCheckBoxField)
-    })
-
-    it("should import minimal", () => {
-      const result = importElementFromTypedYAML<CheckBoxField>({
-        context: mockContext,
-        yaml: minimalCheckBoxFieldTypedYAML,
-        name: "Флажок",
-      })
-
-      expect(result).toEqual(minimalCheckBoxField)
-    })
-  })
-
   describe("importCheckBoxFieldPartialFromYAML", () => {
     it("should import all fields from YAML", () => {
       const result = importElementFromPartialYAML({
@@ -55,6 +35,28 @@ describe("importCheckBoxFieldFromYAML", () => {
       })
 
       expect(result).toEqual(minimalCheckBoxField)
+    })
+  })
+
+  describe("importTableCheckBoxFieldTypedFromYAML", () => {
+    it("should import all fields from YAML", () => {
+      const result = importElementFromTypedYAML<TableCheckBoxField>({
+        context: mockContext,
+        yaml: fullTableCheckBoxFieldTypedYAML,
+        name: "Флажок",
+      })
+
+      expect(result).toEqual(fullTableCheckBoxField)
+    })
+
+    it("should import minimal", () => {
+      const result = importElementFromTypedYAML<TableCheckBoxField>({
+        context: mockContext,
+        yaml: minimalTableCheckBoxFieldTypedYAML,
+        name: "Флажок",
+      })
+
+      expect(result).toEqual(minimalTableCheckBoxField)
     })
   })
 })

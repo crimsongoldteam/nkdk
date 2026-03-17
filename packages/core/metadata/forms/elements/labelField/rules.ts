@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const LabelFieldRules = {
@@ -39,12 +39,22 @@ export const LabelFieldRules = {
     dataPath: {
       yaml: "ПутьКДанным",
       type: "DataPath",
-      toYAML: false,
-      fromYAML: false,
+      toPartialYAML: false,
       defaultType: "string",
     },
     ...formFieldCommonProperties,
   },
 } as const satisfies ElementRule
 
+export const TableLabelFieldRules = {
+  itemType: "TableLabelField",
+  enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.LabelField",
+  properties: {
+    ...LabelFieldRules.properties,
+    ...formFieldTableRelatedProperties,
+  },
+} as const satisfies ElementRule
+
 registerElementRule("LabelField", LabelFieldRules)
+registerElementRule("TableLabelField", TableLabelFieldRules)

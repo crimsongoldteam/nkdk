@@ -2,7 +2,10 @@ import {
   CheckBoxField,
   CheckBoxFieldEnterprise,
   CheckBoxFieldPartialYAML,
-  CheckBoxFieldTypedYAML,
+  TableCheckBoxField,
+  TableCheckBoxFieldEnterprise,
+  TableCheckBoxFieldPartialYAML,
+  TableCheckBoxFieldTypedYAML,
 } from "~/metadata/forms/elements/checkBoxField/types"
 
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
@@ -16,7 +19,7 @@ import {
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
-const fullCheckBoxFieldCommon: RequiredFieldsElement<CheckBoxField> = {
+const fullCheckBoxFieldCommon: Omit<RequiredFieldsElement<CheckBoxField>, "itemType"> = {
   name: "Флажок",
   title: {
     items: { ru: "Флажок формы" },
@@ -43,11 +46,11 @@ export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
   ...fullCheckBoxFieldCommon,
 } satisfies RequiredFieldsElement<CheckBoxField>
 
-export const fullTableCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
-  itemType: "TableCheckBoxField",
+export const fullTableCheckBoxField: RequiredFieldsElement<TableCheckBoxField> = {
   ...fullCheckBoxFieldCommon,
+  itemType: "TableCheckBoxField",
   ...fullFormFieldTableRelatedFixture,
-} satisfies RequiredFieldsElement<CheckBoxField>
+} satisfies RequiredFieldsElement<TableCheckBoxField>
 
 export const fullCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {
   События: {
@@ -65,13 +68,18 @@ export const fullCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {
   ШиринаЭлемента: 100,
   Шрифт: "ОбычныйШрифтТекста",
   ...fullFormFieldPartialYAMLCommonFixture,
-  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<CheckBoxFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
-export const fullCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
+export const fullTableCheckBoxFieldPartialYAML: TableCheckBoxFieldPartialYAML = {
   ...fullCheckBoxFieldPartialYAML,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
+}
+
+export const fullTableCheckBoxFieldTypedYAML: TableCheckBoxFieldTypedYAML = {
+  ...fullTableCheckBoxFieldPartialYAML,
   Тип: "ПолеФлажок",
   Заголовок: "Флажок формы",
+  ПутьКДанным: "Реквизит",
 }
 
 export const minimalCheckBoxField: CheckBoxField = {
@@ -81,7 +89,14 @@ export const minimalCheckBoxField: CheckBoxField = {
 
 export const minimalCheckBoxFieldPartialYAML: CheckBoxFieldPartialYAML = {}
 
-export const minimalCheckBoxFieldTypedYAML: CheckBoxFieldTypedYAML = {
+export const minimalTableCheckBoxField: TableCheckBoxField = {
+  itemType: "TableCheckBoxField",
+  name: "Флажок",
+}
+
+export const minimalTableCheckBoxFieldPartialYAML: TableCheckBoxFieldPartialYAML = {}
+
+export const minimalTableCheckBoxFieldTypedYAML: TableCheckBoxFieldTypedYAML = {
   Тип: "ПолеФлажок",
 }
 
@@ -294,5 +309,9 @@ export const fullCheckBoxFieldEnterprise = {
   TextColor: { Type: "Color", Value: "WebColors.Yellow" },
   ThreeState: true,
   ...fullFormFieldEnterpriseCommonFixture,
-  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<CheckBoxFieldEnterprise>
+
+export const fullTableCheckBoxFieldEnterprise = {
+  ...fullCheckBoxFieldEnterprise,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
+} satisfies Required<TableCheckBoxFieldEnterprise>

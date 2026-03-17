@@ -2,7 +2,10 @@ import {
   LabelField,
   LabelFieldEnterprise,
   LabelFieldPartialYAML,
-  LabelFieldTypedYAML,
+  TableLabelField,
+  TableLabelFieldEnterprise,
+  TableLabelFieldPartialYAML,
+  TableLabelFieldTypedYAML,
 } from "~/metadata/forms/elements/labelField/types"
 
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
@@ -47,6 +50,11 @@ export const fullLabelField: RequiredFieldsElement<LabelField> = {
     uRLProcessing: "ПроцедураОбработкиURL",
   },
   ...fullFormFieldCommonFixture,
+}
+
+export const fullTableLabelField: RequiredFieldsElement<TableLabelField> = {
+  ...fullLabelField,
+  itemType: "TableLabelField",
   ...fullFormFieldTableRelatedFixture,
 }
 
@@ -74,13 +82,18 @@ export const fullLabelFieldPartialYAML: LabelFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   ...fullFormFieldPartialYAMLCommonFixture,
-  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<LabelFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
-export const fullLabelFieldTypedYAML: LabelFieldTypedYAML = {
+export const fullTableLabelFieldPartialYAML: TableLabelFieldPartialYAML = {
   ...fullLabelFieldPartialYAML,
+  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
+}
+
+export const fullTableLabelFieldTypedYAML: TableLabelFieldTypedYAML = {
+  ...fullTableLabelFieldPartialYAML,
   Тип: "ПолеНадписи",
   Заголовок: "Поле надписи",
+  ПутьКДанным: "Реквизит",
 }
 
 export const minimalLabelField: LabelField = {
@@ -90,7 +103,14 @@ export const minimalLabelField: LabelField = {
 
 export const minimalLabelFieldPartialYAML: LabelFieldPartialYAML = {}
 
-export const minimalLabelFieldTypedYAML: LabelFieldTypedYAML = {
+export const minimalTableLabelField: TableLabelField = {
+  itemType: "TableLabelField",
+  name: "ПолеНадписи",
+}
+
+export const minimalTableLabelFieldPartialYAML: TableLabelFieldPartialYAML = {}
+
+export const minimalTableLabelFieldTypedYAML: TableLabelFieldTypedYAML = {
   Тип: "ПолеНадписи",
 }
 
@@ -160,5 +180,9 @@ export const fullLabelFieldEnterprise = {
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
-  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<LabelFieldEnterprise>
+
+export const fullTableLabelFieldEnterprise = {
+  ...fullLabelFieldEnterprise,
+  ...fullFormFieldEnterpriseTableRelatedFixture,
+} satisfies Required<TableLabelFieldEnterprise>

@@ -32,8 +32,7 @@ const CheckBoxFieldCommonRulesProperties = {
   dataPath: {
     yaml: "ПутьКДанным",
     type: "DataPath",
-    toYAML: false,
-    fromYAML: false,
+    toPartialYAML: false,
     defaultType: "boolean",
   },
   ...formFieldCommonProperties,

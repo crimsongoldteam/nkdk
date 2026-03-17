@@ -64,10 +64,10 @@
 	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
 	<Width>300</Width>
-	<AutoMaxWidth>false</AutoMaxWidth>
+	<AutoMaxWidth>true</AutoMaxWidth>
 	<MaxWidth>400</MaxWidth>
 	<Height>200</Height>
-	<AutoMaxHeight>false</AutoMaxHeight>
+	<AutoMaxHeight>true</AutoMaxHeight>
 	<MaxHeight>500</MaxHeight>
 	<HorizontalStretch>true</HorizontalStretch>
 	<VerticalStretch>true</VerticalStretch>
@@ -80,7 +80,7 @@
 	</Format>
 	<Hiperlink>true</Hiperlink>
 	<PasswordMode>true</PasswordMode>
-	<Border width="0">
+	<Border>
 		<v8ui:style xsi:type="v8ui:ControlBorderType">Single</v8ui:style>
 	</Border>
 	<BorderColor>web:Green</BorderColor>
