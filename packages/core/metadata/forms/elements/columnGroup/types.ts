@@ -10,7 +10,7 @@ export type ColumnGroupPartialYAML = YAMLTypeByRule<typeof ColumnGroupRules>
 
 export interface ColumnGroupTypedYAML extends ColumnGroupPartialYAML {
   Тип: "ГруппаКолонок"
-  Группировка?: SE.ColumnsGroup
+  Группировка?: SE.ColumnsGroupYAML
 }
 
 export type ColumnGroupEnterprise = EnterpriseType<typeof ColumnGroupRules>
