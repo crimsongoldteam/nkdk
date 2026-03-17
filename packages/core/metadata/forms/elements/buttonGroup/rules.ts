@@ -30,17 +30,30 @@ export const ButtonGroupRules = {
       type: "SystemEnumeration",
       typeSE: "ButtonGroupRepresentation",
     },
-    enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
-    enabled: { yaml: "Доступность", type: "boolean", defaultValue: true },
+    enableContentChange: {
+      yaml: "РазрешитьИзменениеСостава",
+      type: "boolean",
+      defaultValueYAML: true,
+    },
+    enabled: {
+      yaml: "Доступность",
+      type: "boolean",
+      defaultValueYAML: true,
+    },
     height: { yaml: "Высота", type: "number" },
     horizontalAlignInGroup: {
       yaml: "ГоризонтальноеПоложениеВГруппе",
       xml: "GroupHorizontalAlign",
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
+      defaultValueYAML: "Auto",
     },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    readOnly: { yaml: "ТолькоПросмотр", type: "boolean", defaultValue: false },
+    readOnly: {
+      yaml: "ТолькоПросмотр",
+      type: "boolean",
+      defaultValueYAML: false,
+    },
     shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
     title: {
       yaml: "Заголовок",

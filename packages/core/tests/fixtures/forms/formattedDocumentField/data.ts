@@ -20,19 +20,18 @@ export const fullFormattedDocumentField: RequiredFieldsElement<FormattedDocument
   title: {
     items: { ru: "Поле форматированного документа" },
   },
-  autoMaxHeight: true,
-  autoMaxWidth: true,
+  autoMaxHeight: false,
+  autoMaxWidth: false,
   backColor: { type: "WebColor", value: "White" },
   borderColor: { type: "WebColor", value: "Black" },
   font: { kind: "StyleItem", ref: "NormalTextFont" },
   height: 200,
-  horizontalStretch: true,
+  horizontalStretch: false,
   maxHeight: 500,
   maxWidth: 400,
   output: "Enable",
-  selectedText: "Выделенный текст",
   textColor: { type: "WebColor", value: "Blue" },
-  verticalStretch: true,
+  verticalStretch: false,
   width: 300,
   events: {
     onChange: "ПроцедураПриИзменении",
@@ -52,8 +51,8 @@ export const fullFormattedDocumentFieldEnterprise = {
     Value: "FormFieldType.FormattedDocumentField",
   },
   Title: "Поле форматированного документа",
-  AutoMaxHeight: true,
-  AutoMaxWidth: true,
+  AutoMaxHeight: false,
+  AutoMaxWidth: false,
   BackColor: {
     Type: "Color",
     Value: "WebColors.White",
@@ -67,34 +66,32 @@ export const fullFormattedDocumentFieldEnterprise = {
     Value: "StyleFonts.NormalTextFont",
   },
   Height: 200,
-  HorizontalStretch: true,
+  HorizontalStretch: false,
   MaxHeight: 500,
   MaxWidth: 400,
   Output: {
     Type: "SystemEnumeration",
     Value: "UseOutput.Enable",
   },
-  SelectedText: "Выделенный текст",
   TextColor: {
     Type: "Color",
     Value: "WebColors.Blue",
   },
-  VerticalStretch: true,
+  VerticalStretch: false,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
   ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<FormattedDocumentFieldEnterprise>
 
 export const fullFormattedDocumentFieldPartialYAML: FormattedDocumentFieldPartialYAML = {
-  АвтоМаксимальнаяВысота: "Истина",
-  АвтоМаксимальнаяШирина: "Истина",
+  АвтоМаксимальнаяВысота: "Ложь",
+  АвтоМаксимальнаяШирина: "Ложь",
   Вывод: "Разрешить",
-  ВыделенныйТекст: "Выделенный текст",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
+  РастягиватьПоВертикали: "Ложь",
+  РастягиватьПоГоризонтали: "Ложь",
   ЦветРамки: "Черный",
   ЦветТекста: "Синий",
   ЦветФона: "Белый",
@@ -108,7 +105,10 @@ export const fullFormattedDocumentFieldPartialYAML: FormattedDocumentFieldPartia
   },
   ...fullFormFieldPartialYAMLCommonFixture,
   ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
-} satisfies Omit<Required<FormattedDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<
+  Required<FormattedDocumentFieldPartialYAML>,
+  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+>
 
 export const minimalFormattedDocumentField: FormattedDocumentField = {
   itemType: "FormattedDocumentField",

@@ -20,13 +20,13 @@ export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
   title: {
     items: { ru: "Поле дендрограммы" },
   },
-  autoMaxHeight: true,
-  autoMaxWidth: true,
+  autoMaxHeight: false,
+  autoMaxWidth: false,
   height: 200,
-  horizontalStretch: true,
+  horizontalStretch: false,
   maxHeight: 500,
   maxWidth: 400,
-  verticalStretch: true,
+  verticalStretch: false,
   width: 300,
   events: {
     onChange: "ПроцедураПриИзменении",
@@ -45,26 +45,26 @@ export const fullDendrogramFieldEnterprise = {
     Value: "FormFieldType.DendrogramField",
   },
   Title: "Поле дендрограммы",
-  AutoMaxHeight: true,
-  AutoMaxWidth: true,
+  AutoMaxHeight: false,
+  AutoMaxWidth: false,
   Height: 200,
-  HorizontalStretch: true,
+  HorizontalStretch: false,
   MaxHeight: 500,
   MaxWidth: 400,
-  VerticalStretch: true,
+  VerticalStretch: false,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
   ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<DendrogramFieldEnterprise>
 
 export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
-  АвтоМаксимальнаяВысота: "Истина",
-  АвтоМаксимальнаяШирина: "Истина",
+  АвтоМаксимальнаяВысота: "Ложь",
+  АвтоМаксимальнаяШирина: "Ложь",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
+  РастягиватьПоВертикали: "Ложь",
+  РастягиватьПоГоризонтали: "Ложь",
   Ширина: 300,
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
@@ -74,7 +74,10 @@ export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
 
   ...fullFormFieldPartialYAMLCommonFixture,
   ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
-} satisfies Omit<Required<DendrogramFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<
+  Required<DendrogramFieldPartialYAML>,
+  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+>
 
 export const minimalDendrogramField: DendrogramField = {
   itemType: "DendrogramField",

@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const PlannerFieldRules = {
@@ -11,9 +11,10 @@ export const PlannerFieldRules = {
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
+    commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
     dimensionItemHyperlink: { yaml: "ГиперссылкаЭлементаИзмерения", type: "boolean" },
-    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
-    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
+    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean", runtimeOnly: true },
+    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean", runtimeOnly: true },
     height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
@@ -60,7 +61,7 @@ export const PlannerFieldRules = {
       defaultType: "Planner",
     },
     ...formFieldCommonProperties,
-    ...formFieldTableRelatedProperties,
+    ...formFieldDisabledTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

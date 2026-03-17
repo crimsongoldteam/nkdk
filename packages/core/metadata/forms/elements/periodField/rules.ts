@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const PeriodFieldRules = {
@@ -37,7 +37,7 @@ export const PeriodFieldRules = {
       defaultType: "dateTime",
     },
     ...formFieldCommonProperties,
-    ...formFieldTableRelatedProperties,
+    ...formFieldDisabledTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

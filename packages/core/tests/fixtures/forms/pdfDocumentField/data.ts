@@ -149,7 +149,10 @@ export const fullPDFDocumentFieldPartialYAML = {
     НажатиеНаНавигационнойСсылке: "НажатиеНаНавигационнойСсылке",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<PDFDocumentFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<
+  Required<PDFDocumentFieldPartialYAML>,
+  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+>
 
 export const minimalPDFDocumentField: PDFDocumentField = {
   itemType: "PDFDocumentField",

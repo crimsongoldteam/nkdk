@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { getOrderedKeysFromXML } from "./helpers"
 
-const createRule = (properties: Record<string, { xml?: string; tag?: string }>): any => {
+const createRule = (properties: Record<string, { xml?: string; tag?: string; runtimeOnly?: true }>): any => {
   return {
     // Остальное для этих тестов не важно, используются только свойства
     properties: Object.fromEntries(
@@ -82,6 +82,20 @@ describe("getOrderedKeysFromXML", () => {
       rule,
       xml: undefined,
       tags: ["export"],
+    })
+
+    expect(result).toEqual(["visible"])
+  })
+
+  it("исключает свойства с runtimeOnly из результатов", () => {
+    const rule = createRule({
+      visible: { xml: "Visible" },
+      hidden: { xml: "Hidden", runtimeOnly: true },
+    })
+
+    const result = getOrderedKeysFromXML({
+      rule,
+      xml: undefined,
     })
 
     expect(result).toEqual(["visible"])

@@ -23,7 +23,11 @@ export const FormattedDocumentFieldRules = {
       type: "SystemEnumeration",
       typeSE: "UseOutput",
     },
-    selectedText: { yaml: "ВыделенныйТекст", type: "string" },
+    selectedText: {
+      yaml: "ВыделенныйТекст",
+      type: "string",
+      runtimeOnly: true,
+    },
     textColor: { yaml: "ЦветТекста", type: "Color" },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },

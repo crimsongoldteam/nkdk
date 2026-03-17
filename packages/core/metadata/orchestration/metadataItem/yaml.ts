@@ -51,7 +51,9 @@ export type YAMLTypeByRule<
 type PropertiesByRule<Rule extends { properties: Record<string, PropertyRule> }> =
   Rule["properties"] extends infer Properties
     ? {
-        [K in keyof Properties as Properties[K] extends { toYAML: false; fromYAML: false }
+        [K in keyof Properties as Properties[K] extends { runtimeOnly: true }
+          ? never
+          : Properties[K] extends { toYAML: false; fromYAML: false }
           ? never
           : Properties[K] extends { toPartialYAML: false }
             ? never

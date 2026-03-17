@@ -2,7 +2,7 @@ import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { MetadataItemRule, PropertyRule, ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
-import { getOrderedKeysFromXML, getValueOrDefault } from "./helpers"
+import { getOrderedKeysFromXML, getValueOrDefault, shouldProcessProperty } from "./helpers"
 
 export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
   context: ConfigurationContextFromXML
@@ -22,6 +22,7 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
 
   for (const key of orderedKeys) {
     const currentRule = rule.properties[key]
+    if (!shouldProcessProperty({ rule: currentRule, operation: "importFromXML" })) continue
     if (!forReference && currentRule.forReferenceOnly === true) continue
 
     const value =

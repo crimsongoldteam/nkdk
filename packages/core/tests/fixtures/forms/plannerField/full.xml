@@ -68,8 +68,15 @@
 	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
 	<Width>300</Width>
 	<Height>200</Height>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<MaxWidth>5</MaxWidth>
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<MaxHeight>10</MaxHeight>
 	<HorizontalStretch>false</HorizontalStretch>
 	<VerticalStretch>false</VerticalStretch>
+	<TimeScaleItemHyperlink>true</TimeScaleItemHyperlink>
+	<DimensionItemHyperlink>true</DimensionItemHyperlink>
+	<WrappedTimeScaleHeaderHyperlink>true</WrappedTimeScaleHeaderHyperlink>
 	<ContextMenu name="ПолеПланировщикаКонтекстноеМеню" id="4">
 		<Autofill>false</Autofill>
 	</ContextMenu>

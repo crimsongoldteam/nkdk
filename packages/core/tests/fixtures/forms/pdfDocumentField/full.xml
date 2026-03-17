@@ -87,6 +87,7 @@
 			</v8:item>
 		</Title>
 	</ExtendedTooltip>
+	<ViewStatusLocation>Top</ViewStatusLocation>
 	<ViewStatusAddition name="ЭлементФормыСостояниеПросмотра" id="6" DisplayImportance="VeryHigh">
 		<Enabled>false</Enabled>
 		<ToolTipRepresentation>Balloon</ToolTipRepresentation>

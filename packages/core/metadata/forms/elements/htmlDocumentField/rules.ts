@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const HTMLDocumentFieldRules = {
@@ -21,10 +21,11 @@ export const HTMLDocumentFieldRules = {
       type: "SystemEnumeration",
       typeSE: "UseOutput",
     },
-    // userAgentInformation: {
-    //   yaml: "ИнформацияПрограммыПросмотра",
-    //   type: "string",
-    // },
+    userAgentInformation: {
+      yaml: "ИнформацияПрограммыПросмотра",
+      type: "string",
+      runtimeOnly: true,
+    },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     events: {
@@ -48,7 +49,7 @@ export const HTMLDocumentFieldRules = {
       defaultType: "string",
     },
     ...formFieldCommonProperties,
-    ...formFieldTableRelatedProperties,
+    ...formFieldDisabledTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

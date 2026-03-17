@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const SpreadSheetDocumentFieldRules = {
@@ -13,14 +13,15 @@ export const SpreadSheetDocumentFieldRules = {
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     blackAndWhiteView: { yaml: "ЧерноБелыйПросмотр", type: "boolean" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
+    commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
     drawingSelectionShowMode: {
       yaml: "РежимОтображенияВыделенияРисунков",
       type: "SystemEnumeration",
       typeSE: "DrawingSelectionShowMode",
     },
-    edit: { yaml: "Редактирование", type: "boolean" },
-    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
-    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
+    edit: { yaml: "Редактирование", type: "boolean", runtimeOnly: true },
+    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean", runtimeOnly: true },
+    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean", runtimeOnly: true },
     height: { yaml: "Высота", type: "number" },
     horizontalScrollBar: {
       yaml: "ГоризонтальнаяПолосаПрокрутки",
@@ -86,7 +87,7 @@ export const SpreadSheetDocumentFieldRules = {
         drag: "Перетаскивание",
         afterWrite: "ПослеЗаписи",
         onActivate: "ПриАктивизации",
-        onChangeAreaContentEvent: "ПриИзмененииСодержимогоОбласти",
+        onChangeAreaContent: "ПриИзмененииСодержимогоОбласти",
         dragCheck: "ПроверкаПеретаскивания",
       },
     },
@@ -98,7 +99,7 @@ export const SpreadSheetDocumentFieldRules = {
       defaultType: "SpreadsheetDocument",
     },
     ...formFieldCommonProperties,
-    ...formFieldTableRelatedProperties,
+    ...formFieldDisabledTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

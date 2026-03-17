@@ -4,7 +4,7 @@ import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
-import { getOrderedKeysToXML } from "./helpers"
+import { getOrderedKeysToXML, shouldProcessProperty } from "./helpers"
 import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
@@ -23,7 +23,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   for (const key of orderedKeys) {
     if (key === "itemType") continue
     const ruleProp = rule.properties[key]
-    if (ruleProp.toXML === false) continue
+    if (!shouldProcessProperty({ rule: ruleProp, operation: "exportToXML" })) continue
 
     const currentContext: ConfigurationContextWithExportToXML = {
       ...context,

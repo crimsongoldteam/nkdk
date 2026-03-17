@@ -72,8 +72,8 @@ export const PictureDecorationRules = {
     width: { yaml: "Ширина", type: "number" },
     border: { yaml: "Рамка", type: "Border" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
-    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
-    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
+    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean", runtimeOnly: true },
+    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean", runtimeOnly: true },
     fileDragMode: {
       yaml: "СпособПеретаскиванияФайлов",
       type: "SystemEnumeration",

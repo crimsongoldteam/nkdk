@@ -2,7 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { MetadataItemType, ToMetadata, ToYAML } from "~/metadata/orchestration/metadataItem/registry"
 import { getTypeRule } from "../formElement/factory"
 import { importFromYAMLFunction, importFromYAMLFunctionNew } from "./fn"
-import { getValueOrDefault } from "./helpers"
+import { getValueOrDefault, shouldProcessProperty } from "./helpers"
 import { MetadataItemRule, PropertyRule } from "./types"
 
 export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: {
@@ -35,6 +35,7 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
     keyof ToMetadata<Rule["itemType"]>,
     PropertyRule,
   ][]) {
+    if (!shouldProcessProperty({ rule: curRule, operation: "importFromYAML" })) continue
     const yamlKey = curRule.yaml as keyof ToYAML<Rule["itemType"]>
     // if (yamlKey === undefined) continue
     if (curRule.fromYAML === false) continue

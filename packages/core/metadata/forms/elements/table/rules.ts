@@ -56,7 +56,7 @@ export const TableRules = {
       typeSE: "DisplayImportance",
     },
     enabled: { yaml: "Доступность", type: "boolean" },
-    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
+    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean", runtimeOnly: true },
     enableStartDrag: {
       yaml: "РазрешитьНачалоПеретаскивания",
       type: "boolean",
