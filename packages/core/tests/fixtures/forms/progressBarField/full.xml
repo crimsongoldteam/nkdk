@@ -70,8 +70,13 @@
 	<AutoMaxHeight>false</AutoMaxHeight>
 	<MaxHeight>500</MaxHeight>
 	<HorizontalStretch>false</HorizontalStretch>
+	<MinValue>10</MinValue>
+	<MaxValue>90</MaxValue>
+	<Representation>Broken</Representation>
 	<ShowPercent>true</ShowPercent>
 	<BorderColor>web:Black</BorderColor>
+	<Orientation>Vertical</Orientation>
+	<VerticalStretch>false</VerticalStretch>
 	<ContextMenu name="ПолеИндикатораКонтекстноеМеню" id="4">
 		<Autofill>false</Autofill>
 	</ContextMenu>

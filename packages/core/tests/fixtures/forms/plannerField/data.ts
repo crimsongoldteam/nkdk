@@ -7,10 +7,7 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
-  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
-  fullFormFieldTableRelatedFixture,
-  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -20,20 +17,20 @@ export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
   title: {
     items: { ru: "Поле планировщика" },
   },
-  autoMaxHeight: undefined as never,
-  autoMaxWidth: undefined as never,
+  autoMaxHeight: false,
+  autoMaxWidth: false,
   commandSet: ["Begin"],
-  dimensionItemHyperlink: undefined as never,
-  enableDrag: undefined as never,
-  enableStartDrag: undefined as never,
+  dimensionItemHyperlink: true,
+  // enableDrag: undefined as never,
+  // enableStartDrag: undefined as never,
   height: 200,
   horizontalStretch: false,
-  maxHeight: undefined as never,
-  maxWidth: undefined as never,
-  timeScaleItemHyperlink: undefined as never,
+  maxHeight: 10,
+  maxWidth: 5,
+  timeScaleItemHyperlink: true,
   verticalStretch: false,
   width: 300,
-  wrappedTimeScaleHeaderHyperlink: undefined as never,
+  wrappedTimeScaleHeaderHyperlink: true,
   events: {
     onChange: "ПроцедураПриИзменении",
     selection: "ПроцедураВыбора",
@@ -60,7 +57,6 @@ export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
     insideDragCheck: "ПроцедураПроверкиПеретаскиванияВнутри",
   },
   ...fullFormFieldCommonFixture,
-  ...fullFormFieldTableRelatedFixture,
 }
 
 export const fullPlannerFieldEnterprise = {
@@ -74,8 +70,8 @@ export const fullPlannerFieldEnterprise = {
   AutoMaxHeight: undefined as never,
   AutoMaxWidth: undefined as never,
   DimensionItemHyperlink: undefined as never,
-  EnableDrag: undefined as never,
-  EnableStartDrag: undefined as never,
+  // EnableDrag: undefined as never,
+  // EnableStartDrag: undefined as never,
   Height: 200,
   HorizontalStretch: false,
   MaxHeight: undefined as never,
@@ -85,7 +81,6 @@ export const fullPlannerFieldEnterprise = {
   Width: 300,
   WrappedTimeScaleHeaderHyperlink: undefined as never,
   ...fullFormFieldEnterpriseCommonFixture,
-  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<PlannerFieldEnterprise>
 
 export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
@@ -93,8 +88,8 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
   АвтоМаксимальнаяШирина: undefined as never,
   Команда: ["Begin"],
   ГиперссылкаЭлементаИзмерения: undefined as never,
-  РазрешитьПеретаскивание: undefined as never,
-  РазрешитьНачалоПеретаскивания: undefined as never,
+  // РазрешитьПеретаскивание: undefined as never,
+  // РазрешитьНачалоПеретаскивания: undefined as never,
   Высота: 200,
   МаксимальнаяВысота: undefined as never,
   МаксимальнаяШирина: undefined as never,
@@ -129,7 +124,6 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
     ПроверкаПеретаскиванияВнутри: "ПроцедураПроверкиПеретаскиванияВнутри",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<PlannerFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalPlannerField: PlannerField = {

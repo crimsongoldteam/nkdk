@@ -22,15 +22,19 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
 
   for (const key of orderedKeys) {
     const currentRule = rule.properties[key]
-    if (!shouldProcessProperty({ rule: currentRule, operation: "importFromXML" })) continue
     if (!forReference && currentRule.forReferenceOnly === true) continue
 
+    const xmlValue = getXMLValue(key, xml, currentRule)
+    const shouldImportForReference = forReference && currentRule.fromXML === false && xmlValue !== undefined
+
+    if (!shouldProcessProperty({ rule: currentRule, operation: "importFromXML" }) && !shouldImportForReference) continue
+
     const value =
-      currentRule.fromXML !== false
+      shouldImportForReference || currentRule.fromXML !== false
         ? importPropertyFromXML({
             context,
             rule: currentRule,
-            value: getXMLValue(key, xml, currentRule),
+            value: xmlValue,
             name: key,
           })
         : undefined

@@ -23,4 +23,3 @@ registerTypeRule("SystemEnumeration", "importFromXML", (context, rule, xml) => {
   void context
   return importSystemEnumerationFromXML({ rule: rule as SystemEnumerationPropertyRule, xml })
 })
-

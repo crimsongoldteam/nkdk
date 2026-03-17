@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const ProgressBarFieldRules = {
@@ -16,8 +16,8 @@ export const ProgressBarFieldRules = {
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
     maxValue: { yaml: "МаксимальноеЗначение", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    minValue: { yaml: "МинимальноеЗначение", type: "number" },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", defaultValueYAML: 100 },
+    minValue: { yaml: "МинимальноеЗначение", type: "number", defaultValueYAML: 0 },
     orientation: {
       yaml: "Ориентация",
       type: "SystemEnumeration",
@@ -47,7 +47,7 @@ export const ProgressBarFieldRules = {
       defaultType: "decimal",
     },
     ...formFieldCommonProperties,
-    ...formFieldTableRelatedProperties,
+    ...formFieldDisabledTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

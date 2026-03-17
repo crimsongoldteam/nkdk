@@ -3,9 +3,7 @@ import { ChartField, ChartFieldEnterprise, ChartFieldPartialYAML } from "~/metad
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
-  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
-  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -46,7 +44,6 @@ export const fullChartFieldEnterprise = {
   VerticalStretch: true,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
-  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<ChartFieldEnterprise>
 
 export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {
@@ -65,7 +62,6 @@ export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {
     ПриАктивизации: "ПроцедураПриАктивизации",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<ChartFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalChartField: ChartField = {

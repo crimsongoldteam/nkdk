@@ -63,7 +63,7 @@
 	</FooterPicture>
 	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
-	<RadioButtonType>RadioButtons</RadioButtonType>
+	<RadioButtonType>RadioButton</RadioButtonType>
 	<ItemWidth>100</ItemWidth>
 	<ItemHeight>20</ItemHeight>
 	<ItemTitleHeight>15</ItemTitleHeight>

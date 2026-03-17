@@ -1,4 +1,4 @@
-<TrackBarField name="ПолеПолосыПрокрутки" id="3" DisplayImportance="High">
+<TrackBarField name="ЭлементФормы" id="3" DisplayImportance="High">
 	<DataPath>Реквизит</DataPath>
 	<Visible>false</Visible>
 	<UserVisible>
@@ -12,7 +12,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Поле полосы прокрутки</v8:content>
+			<v8:content>Заголовок элемента</v8:content>
 		</v8:item>
 	</Title>
 	<TitleTextColor>web:Black</TitleTextColor>
@@ -70,11 +70,16 @@
 	<AutoMaxHeight>false</AutoMaxHeight>
 	<MaxHeight>200</MaxHeight>
 	<HorizontalStretch>false</HorizontalStretch>
+	<MinValue>10</MinValue>
+	<MaxValue>90</MaxValue>
+	<Step>2</Step>
+	<LargeStep>5</LargeStep>
+	<MarkingStep>6</MarkingStep>
 	<MarkingAppearance>TopLeft</MarkingAppearance>
-	<ContextMenu name="ПолеПолосыПрокруткиКонтекстноеМеню" id="4">
+	<ContextMenu name="ЭлементФормыКонтекстноеМеню" id="4">
 		<Autofill>false</Autofill>
 	</ContextMenu>
-	<ExtendedTooltip name="ПолеПолосыПрокруткиРасширеннаяПодсказка" id="5">
+	<ExtendedTooltip name="ЭлементФормыРасширеннаяПодсказка" id="5">
 		<Title formatted="false">
 			<v8:item>
 				<v8:lang>ru</v8:lang>

@@ -1,13 +1,15 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { TableAdditionalSourceXML } from "./types"
 
 const importTableAdditionalSourceFromXML = (
-  _context: ConfigurationContext,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: TableAdditionalSourceXML | undefined
 ): string | undefined => {
   if (!xml) return undefined
+
+  if (context.fromXML.forReference) return ""
 
   return xml.Item
 }

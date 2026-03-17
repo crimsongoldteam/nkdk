@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const TrackBarFieldRules = {
@@ -13,23 +13,23 @@ export const TrackBarFieldRules = {
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    largeStep: { yaml: "БольшойШаг", type: "number" },
+    largeStep: { yaml: "БольшойШаг", type: "number", defaultValueYAML: 10 },
     markingAppearance: {
       yaml: "ОтображениеРазметки",
       type: "SystemEnumeration",
       typeSE: "TrackBarMarkingAppearance",
     },
-    markingStep: { yaml: "ШагРазметки", type: "number" },
+    markingStep: { yaml: "ШагРазметки", type: "number", defaultValueYAML: 5 },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxValue: { yaml: "МаксимальноеЗначение", type: "number" },
+    maxValue: { yaml: "МаксимальноеЗначение", type: "number", defaultValueYAML: 100 },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    minValue: { yaml: "МинимальноеЗначение", type: "number" },
+    minValue: { yaml: "МинимальноеЗначение", type: "number", defaultValueYAML: 0 },
     orientation: {
       yaml: "Ориентация",
       type: "SystemEnumeration",
       typeSE: "FormItemOrientation",
     },
-    step: { yaml: "Шаг", type: "number" },
+    step: { yaml: "Шаг", type: "number", defaultValueYAML: 1 },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     events: {
@@ -48,7 +48,7 @@ export const TrackBarFieldRules = {
       defaultType: "decimal",
     },
     ...formFieldCommonProperties,
-    ...formFieldTableRelatedProperties,
+    ...formFieldDisabledTableRelatedProperties,
   },
 } as const satisfies ElementRule
 

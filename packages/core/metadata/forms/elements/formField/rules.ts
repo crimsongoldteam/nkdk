@@ -39,13 +39,9 @@ export const formFieldDisabledTableRelatedProperties = Object.fromEntries(
     key,
     {
       ...property,
-      toYAML: false,
-      fromYAML: false,
-      toXML: false,
-      fromXML: false,
-      toEnterprise: false,
+      runtimeOnly: true,
     },
-  ]),
+  ])
 ) satisfies MetadataItemRule["properties"]
 
 export const formFieldCommonProperties = {

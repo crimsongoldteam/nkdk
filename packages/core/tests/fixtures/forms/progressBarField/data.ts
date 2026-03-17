@@ -7,38 +7,34 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
-  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
-  fullFormFieldTableRelatedFixture,
-  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullProgressBarField: RequiredFieldsElement<ProgressBarField> = {
+export const fullProgressBarField = {
   itemType: "ProgressBarField",
   name: "ПолеИндикатора",
   title: {
     items: { ru: "Поле индикатора" },
   },
-  autoMaxHeight: true,
-  autoMaxWidth: true,
+  autoMaxHeight: false,
+  autoMaxWidth: false,
   borderColor: { type: "WebColor", value: "Black" },
   height: 200,
-  horizontalStretch: true,
+  horizontalStretch: false,
   maxHeight: 500,
-  maxValue: 100,
   maxWidth: 400,
-  minValue: 0,
-  orientation: "Horizontal",
-  representation: "Smooth",
   showPercent: true,
-  verticalStretch: true,
   width: 300,
+  maxValue: 90,
+  minValue: 10,
+  orientation: "Vertical",
+  representation: "Broken",
+  verticalStretch: false,
   events: {
     onChange: "ПроцедураПриИзменении",
   },
   ...fullFormFieldCommonFixture,
-  ...fullFormFieldTableRelatedFixture,
 } satisfies RequiredFieldsElement<ProgressBarField>
 
 export const fullProgressBarFieldEnterprise = {
@@ -46,43 +42,42 @@ export const fullProgressBarFieldEnterprise = {
   Name: "prefix_ПолеИндикатора",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.ProgressBarField" },
   Title: "Поле индикатора",
-  AutoMaxHeight: true,
-  AutoMaxWidth: true,
+  AutoMaxHeight: false,
+  AutoMaxWidth: false,
   BorderColor: { Type: "Color", Value: "WebColors.Black" },
   Height: 200,
-  HorizontalStretch: true,
+  HorizontalStretch: false,
   MaxHeight: 500,
-  MaxValue: 100,
+  MaxValue: 90,
   MaxWidth: 400,
-  MinValue: 0,
+  MinValue: 10,
   Orientation: {
     Type: "SystemEnumeration",
-    Value: "FormItemOrientation.Horizontal",
+    Value: "FormItemOrientation.Vertical",
   },
   Representation: {
     Type: "SystemEnumeration",
-    Value: "ProgressBarSmoothingMode.Smooth",
+    Value: "ProgressBarSmoothingMode.Broken",
   },
   ShowPercent: true,
-  VerticalStretch: true,
+  VerticalStretch: false,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
-  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<ProgressBarFieldEnterprise>
 
 export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
-  АвтоМаксимальнаяВысота: "Истина",
-  АвтоМаксимальнаяШирина: "Истина",
+  АвтоМаксимальнаяВысота: "Ложь",
+  АвтоМаксимальнаяШирина: "Ложь",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
-  МаксимальноеЗначение: 100,
-  МинимальноеЗначение: 0,
-  Ориентация: "Горизонтально",
+  МаксимальноеЗначение: 90,
+  МинимальноеЗначение: 10,
+  Ориентация: "Вертикально",
   ОтображатьПроценты: "Истина",
-  Отображение: "Плавный",
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
+  Отображение: "Прерывистый",
+  РастягиватьПоВертикали: "Ложь",
+  РастягиватьПоГоризонтали: "Ложь",
   ЦветРамки: "Черный",
   Ширина: 300,
   События: {
@@ -90,7 +85,6 @@ export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
-  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<ProgressBarFieldPartialYAML>,
   "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"

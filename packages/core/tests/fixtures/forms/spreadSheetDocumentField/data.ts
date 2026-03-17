@@ -7,7 +7,6 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
-  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -101,12 +100,15 @@ export const fullSpreadSheetDocumentFieldEnterprise = {
     Value: "ScrollBarUse.DontUse",
   },
   Protection: true,
-  SelectionShowMode: undefined as never,
   ShowCellNames: true,
   ShowGrid: true,
   ShowGroups: false,
   ShowHeaders: true,
   ShowRowAndColumnNames: true,
+  SelectionShowMode: {
+    Type: "SystemEnumeration",
+    Value: "SelectionShowMode.DontShow",
+  },
   VerticalScrollBar: {
     Type: "SystemEnumeration",
     Value: "ScrollBarUse.DontUse",
@@ -117,10 +119,9 @@ export const fullSpreadSheetDocumentFieldEnterprise = {
     Value: "ViewScalingMode.Normal",
   },
   Width: 300,
-  ...fullFormFieldEnterpriseCommonFixture,
-  ...fullFormFieldEnterpriseTableRelatedFixture,
   EnableDrag: false,
   EnableStartDrag: false,
+  ...fullFormFieldEnterpriseCommonFixture,
 } satisfies Required<SpreadSheetDocumentFieldEnterprise>
 
 export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPartialYAML = {
@@ -165,9 +166,9 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
     ПриАктивизации: "ПроцедураПриАктивизации",
     ПриИзмененииСодержимогоОбласти: "ПолеТабличногоДокументаПриИзмененииСодержимогоОбласти",
   },
-  ...fullFormFieldPartialYAMLCommonFixture,
   РазрешитьПеретаскивание: "Ложь",
   РазрешитьНачалоПеретаскивания: "Ложь",
+  ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<SpreadSheetDocumentFieldPartialYAML>,
   "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
