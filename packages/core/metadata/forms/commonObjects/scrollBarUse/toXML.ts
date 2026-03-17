@@ -1,4 +1,3 @@
-import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 
@@ -17,4 +16,3 @@ const exportScrollBarUseToXML = (
 }
 
 registerTypeRule("ScrollBarUseBoolean", "exportToXML", exportScrollBarUseToXML)
-

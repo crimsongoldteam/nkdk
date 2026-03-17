@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importTypeRule } from "~/metadata/orchestration"
+import { PropertyRule, importPropertyFromXML } from "~/metadata/orchestration"
 import "./fromXML"
 
 describe("importScrollBarUseFromXML (ScrollBarUseBoolean)", () => {
@@ -8,26 +8,28 @@ describe("importScrollBarUseFromXML (ScrollBarUseBoolean)", () => {
     fromXML: {},
   } as unknown as ConfigurationContextFromXML
 
-  const rule = undefined
+  const rule = {
+    type: "ScrollBarUseBoolean",
+  } as PropertyRule
 
-  it("возвращает undefined для undefined и null", () => {
-    expect(importTypeRule("ScrollBarUseBoolean", "importFromXML", context, rule, undefined)).toBeUndefined()
-    expect(importTypeRule("ScrollBarUseBoolean", "importFromXML", context, rule, null)).toBeUndefined()
+  it("returns undefined for undefined and null", () => {
+    expect(importPropertyFromXML({ context, rule, value: undefined })).toBeUndefined()
+    expect(importPropertyFromXML({ context, rule, value: null })).toBeUndefined()
   })
 
-  it("конвертирует true / 'true' в UseAlways", () => {
-    expect(importTypeRule("ScrollBarUseBoolean", "importFromXML", context, rule, true)).toBe("UseAlways")
-    expect(importTypeRule("ScrollBarUseBoolean", "importFromXML", context, rule, "true")).toBe("UseAlways")
+  it("converts true / 'true' to UseAlways", () => {
+    expect(importPropertyFromXML({ context, rule, value: true })).toBe("UseAlways")
+    expect(importPropertyFromXML({ context, rule, value: "true" })).toBe("UseAlways")
   })
 
-  it("конвертирует false / 'false' в DontUse", () => {
-    expect(importTypeRule("ScrollBarUseBoolean", "importFromXML", context, rule, false)).toBe("DontUse")
-    expect(importTypeRule("ScrollBarUseBoolean", "importFromXML", context, rule, "false")).toBe("DontUse")
+  it("converts false / 'false' to DontUse", () => {
+    expect(importPropertyFromXML({ context, rule, value: false })).toBe("DontUse")
+    expect(importPropertyFromXML({ context, rule, value: "false" })).toBe("DontUse")
   })
 
-  it("возвращает undefined для неизвестных значений", () => {
-    expect(importTypeRule("ScrollBarUseBoolean", "importFromXML", context, rule, "unknown")).toBeUndefined()
-    expect(importTypeRule("ScrollBarUseBoolean", "importFromXML", context, rule, 123 as unknown as boolean)).toBeUndefined()
+  it("returns undefined for unknown values", () => {
+    expect(importPropertyFromXML({ context, rule, value: "unknown" })).toBeUndefined()
+    expect(importPropertyFromXML({ context, rule, value: 123 as unknown as boolean })).toBeUndefined()
   })
-})
+}
 

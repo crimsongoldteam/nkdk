@@ -20,16 +20,8 @@ export const ButtonGroupRules = {
       defaultValue: [],
       required: true,
     },
-    extendedTooltip: {
-      yaml: "РасширеннаяПодсказка",
-      type: "ExtendedTooltip",
-      toEnterprise: false,
-    },
-    representation: {
-      yaml: "Отображение",
-      type: "SystemEnumeration",
-      typeSE: "ButtonGroupRepresentation",
-    },
+    // В XML CommandSource идёт сразу после ChildItems
+    commandSource: { yaml: "ИсточникКоманд", type: "string" },
     enableContentChange: {
       yaml: "РазрешитьИзменениеСостава",
       type: "boolean",
@@ -40,7 +32,11 @@ export const ButtonGroupRules = {
       type: "boolean",
       defaultValueYAML: true,
     },
-    height: { yaml: "Высота", type: "number" },
+    extendedTooltip: {
+      yaml: "РасширеннаяПодсказка",
+      type: "ExtendedTooltip",
+      toEnterprise: false,
+    },
     horizontalAlignInGroup: {
       yaml: "ГоризонтальноеПоложениеВГруппе",
       xml: "GroupHorizontalAlign",
@@ -48,11 +44,23 @@ export const ButtonGroupRules = {
       typeSE: "ItemHorizontalLocation",
       defaultValueYAML: "Auto",
     },
+    verticalAlignInGroup: {
+      yaml: "ВертикальноеПоложениеВГруппе",
+      xml: "GroupVerticalAlign",
+      type: "SystemEnumeration",
+      typeSE: "ItemVerticalAlign",
+    },
+    height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     readOnly: {
       yaml: "ТолькоПросмотр",
       type: "boolean",
       defaultValueYAML: false,
+    },
+    representation: {
+      yaml: "Отображение",
+      type: "SystemEnumeration",
+      typeSE: "ButtonGroupRepresentation",
     },
     shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
     title: {
@@ -79,16 +87,9 @@ export const ButtonGroupRules = {
       type: "UserVisible",
       toEnterprise: false,
     },
-    verticalAlignInGroup: {
-      yaml: "ВертикальноеПоложениеВГруппе",
-      xml: "GroupVerticalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemVerticalAlign",
-    },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-    commandSource: { yaml: "ИсточникКоманд", type: "string" },
   },
 } as const satisfies ElementRule
 

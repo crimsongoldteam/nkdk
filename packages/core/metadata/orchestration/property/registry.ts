@@ -437,6 +437,12 @@ export type PropertyTypeRegistry = {
   // }
 
   //#endregion
+
+  ScrollBarUseBoolean: {
+    item: "AutoUse" | "DontUse" | "UseAlways"
+    enterprise: boolean
+    yaml: StringboolYAML
+  }
 }
 
 export type PropertyRuleType = keyof PropertyTypeRegistry
@@ -506,6 +512,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   FormAttributeColumns: "FormAttributeColumns",
   FormParameters: "FormParameters",
   InternalInfo: "InternalInfo",
+  ScrollBarUseBoolean: "ScrollBarUseBoolean",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends PropertyRuleType
