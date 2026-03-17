@@ -80,6 +80,7 @@ export type CollectableElement = ToMetadata<CollectableElementType>
 
 export interface ElementRule extends Omit<MetadataItemRule, "itemType"> {
   itemType: ElementType
+  xmlTag?: string
   enterpriseField: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
   enterpriseFieldType:
     | `FormFieldType.${FormFieldType}`

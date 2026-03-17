@@ -16,4 +16,3 @@ const importScrollBarUseFromXML = (
 }
 
 registerTypeRule("ScrollBarUseBoolean", "importFromXML", importScrollBarUseFromXML)
-

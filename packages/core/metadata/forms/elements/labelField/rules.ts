@@ -48,6 +48,7 @@ export const LabelFieldRules = {
 
 export const TableLabelFieldRules = {
   itemType: "TableLabelField",
+  xmlTag: "LabelField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.LabelField",
   properties: {

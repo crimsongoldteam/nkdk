@@ -5,11 +5,7 @@ import { Button, ButtonTypedYAML } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedYAML } from "../../elements/buttonGroup/types"
 import { CalendarField } from "../../elements/calendarField/types"
 import { ChartField } from "../../elements/chartField/types"
-import {
-  CheckBoxField,
-  TableCheckBoxField,
-  TableCheckBoxFieldTypedYAML,
-} from "../../elements/checkBoxField/types"
+import { CheckBoxField, TableCheckBoxField, TableCheckBoxFieldTypedYAML } from "../../elements/checkBoxField/types"
 import { ColumnGroup, ColumnGroupTypedYAML } from "../../elements/columnGroup/types"
 import { CommandBar } from "../../elements/commandBar/types"
 import { ContextMenu } from "../../elements/contextMenu/types"
@@ -28,11 +24,7 @@ import { Pages } from "../../elements/pages/types"
 import { PDFDocumentField } from "../../elements/pdfDocumentField/types"
 import { PeriodField } from "../../elements/periodField/types"
 import { PictureDecoration } from "../../elements/pictureDecoration/types"
-import {
-  PictureField,
-  TablePictureField,
-  TablePictureFieldTypedYAML,
-} from "../../elements/pictureField/types"
+import { PictureField, TablePictureField, TablePictureFieldTypedYAML } from "../../elements/pictureField/types"
 import { PlannerField } from "../../elements/plannerField/types"
 import { Popup, PopupTypedYAML } from "../../elements/popup/types"
 import { ProgressBarField } from "../../elements/progressBarField/types"
@@ -46,18 +38,7 @@ import { TrackBarField } from "../../elements/trackBarField/types"
 import { UsualGroup } from "../../elements/usualGroup/types"
 import { ViewStatusAddition } from "../../elements/viewStatusAddition/types"
 
-// #region ChildItem
-
-// export type AllChildItems = ChildItem[]
-
-// export type AllChildItem = ChildItem
-
-// export type AllChildItemsPartialYAML = Record<string, ToYAML<AllChildItem>>
-
-// export type AllChildItemsEnterprise = ToEnterprise<AllChildItem>[]
-// #endregion
-
-// #region ClientApplicationFormChildItem
+// #region GroupChildItem
 
 export type GroupChildItem =
   | Button
@@ -105,7 +86,7 @@ export type CommandBarChildItemsPartialYAML = Record<string, ToYAML<CommandBarCh
 
 export type CommandBarChildItemsTypedYAML = Record<
   string,
-  ToYAML<Button["itemType"] | ButtonGroup["itemType"] | Popup["itemType"]>
+  ToTypedYAML<Button["itemType"] | ButtonGroup["itemType"] | Popup["itemType"]>
 >
 
 export type CommandBarChildItemsEnterprise = ToEnterprise<CommandBarChildItem["itemType"]>[]
@@ -158,13 +139,19 @@ export type TableChildItemsPartialYAML = Record<string, ToYAML<TableChildItem["i
 
 // #endregion
 
+// #region FormChildItem
+
 export type ChildItem = GroupChildItem | CommandBarChildItem | TableChildItem | PagesChildItem
 
-export type AllChildItemsPartialYAML =
+export type FormChildItem = GroupChildItem
+
+export type FormChildItemsPartialYAML =
   | GroupChildItemsPartialYAML
   | CommandBarChildItemsPartialYAML
   | TableChildItemsPartialYAML
   | PagesChildItemsPartialYAML
+
+// #endregion
 
 // #region TypedElement
 

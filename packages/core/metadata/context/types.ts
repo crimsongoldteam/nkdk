@@ -1,6 +1,6 @@
 import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
-import { AllChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
+import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
 import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "../orchestration"
 
 export type ContextElementToXML = {
@@ -64,7 +64,7 @@ export interface FormExportToYAMLContext {
 }
 
 export interface FormimportFromYAMLContext {
-  allElements?: AllChildItemsPartialYAML
+  allElements?: FormChildItemsPartialYAML
 }
 
 export interface EnterpriseContext {

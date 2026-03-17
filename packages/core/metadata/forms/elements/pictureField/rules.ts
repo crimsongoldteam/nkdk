@@ -65,6 +65,7 @@ export const PictureFieldRules = {
 
 export const TablePictureFieldRules = {
   itemType: "TablePictureField",
+  xmlTag: "PictureField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.PictureField",
   properties: {

@@ -235,6 +235,7 @@ export const InputFieldRules = {
 
 export const TableInputFieldRules = {
   itemType: "TableInputField",
+  xmlTag: "InputField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.InputField",
   properties: {

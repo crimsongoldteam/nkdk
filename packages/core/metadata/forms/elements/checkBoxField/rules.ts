@@ -49,6 +49,7 @@ export const CheckBoxFieldRules = {
 
 export const TableCheckBoxFieldRules = {
   itemType: "TableCheckBoxField",
+  xmlTag: "CheckBoxField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.CheckBoxField",
   properties: {

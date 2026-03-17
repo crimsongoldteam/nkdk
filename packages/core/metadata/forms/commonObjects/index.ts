@@ -1,7 +1,11 @@
 import "./tableAdditionalSource/fromXML"
 import "./tableAdditionalSource/toXML"
 import "./scrollBarUse/fromXML"
+import "./scrollBarUse/fromYAML"
+import "./scrollBarUse/toEnterprise"
+import "./scrollBarUse/toJSONSchema"
 import "./scrollBarUse/toXML"
+import "./scrollBarUse/toYAML"
 
 import "./commandSet/fromXML"
 import "./commandSet/fromYAML"

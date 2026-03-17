@@ -16,7 +16,7 @@ export const ButtonGroupRules = {
     childItems: {
       yaml: "Элементы",
       type: "CommandBarChildItems",
-      toPartialYAML: false,
+      // toPartialYAML: false,
       defaultValue: [],
       required: true,
     },
@@ -87,7 +87,11 @@ export const ButtonGroupRules = {
       type: "UserVisible",
       toEnterprise: false,
     },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
+    verticalStretch: {
+      yaml: "РастягиватьПоВертикали",
+      type: "boolean",
+      defaultValueYAML: true,
+    },
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
   },

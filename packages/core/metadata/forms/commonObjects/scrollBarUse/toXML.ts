@@ -1,7 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-
-type ScrollBarUse = "AutoUse" | "DontUse" | "UseAlways"
+import { ScrollBarUse } from "./types"
 
 const exportScrollBarUseToXML = (
   _context: ConfigurationContextWithExportToXML,

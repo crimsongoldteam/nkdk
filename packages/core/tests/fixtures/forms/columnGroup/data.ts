@@ -152,6 +152,7 @@ export const fullColumnGroupTypedYAML: ColumnGroupTypedYAML = {
   ФиксацияВТаблице: "Нет",
   ФорматШапки: "Формат",
   ЦветФонаЗаголовка: "Синий",
+  Группировка: "Горизонтальная",
 }
 
 export const minimalColumnGroup: ColumnGroup = {
