@@ -2,7 +2,7 @@ import { exportTitleToNKDK } from "~/metadata/commonObjects/title/toNKDK"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
-import { CheckBoxField } from "./types"
+import { CheckBoxField, TableCheckBoxField } from "./types"
 
 export const exportCheckBoxFieldToNKDK = (params: {
   context: ConfigurationContext
@@ -28,6 +28,16 @@ export const exportCheckBoxFieldContentToNKDK = (params: {
     strings: [result],
     toOneLineGroup: true,
   }
+}
+
+export const exportTableCheckBoxFieldContentToNKDK = (params: {
+  context: ConfigurationContext
+  element: TableCheckBoxField
+}): ToNKDKResult => {
+  return exportCheckBoxFieldContentToNKDK({
+    context: params.context,
+    element: params.element as unknown as Parameters<typeof exportCheckBoxFieldContentToNKDK>[0]["element"],
+  })
 }
 
 const formatCheckBoxFieldContent = (

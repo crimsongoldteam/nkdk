@@ -5,18 +5,18 @@ import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { exportButtonContentToNKDK, exportButtonToNKDK } from "~/metadata/forms/elements/button/toNKDK"
 import { exportButtonGroupContentToNKDK } from "~/metadata/forms/elements/buttonGroup/toNKDK"
 import {
-  exportCheckBoxFieldContentToNKDK,
   exportCheckBoxFieldToNKDK,
+  exportTableCheckBoxFieldContentToNKDK,
 } from "~/metadata/forms/elements/checkBoxField/toNKDK"
 import { exportColumnGroupContentToNKDK } from "~/metadata/forms/elements/columnGroup/toNKDK"
 import { exportCommandBarToNKDK } from "~/metadata/forms/elements/commandBar/toNKDK"
-import { exportInputFieldContentToNKDK, exportInputFieldToNKDK } from "~/metadata/forms/elements/inputField/toNKDK"
+import { exportInputFieldToNKDK, exportTableInputFieldContentToNKDK } from "~/metadata/forms/elements/inputField/toNKDK"
 import { exportLabelDecorationToNKDK } from "~/metadata/forms/elements/labelDecoration/toNKDK"
-import { exportLabelFieldContentToNKDK, exportLabelFieldToNKDK } from "~/metadata/forms/elements/labelField/toNKDK"
+import { exportLabelFieldToNKDK, exportTableLabelFieldContentToNKDK } from "~/metadata/forms/elements/labelField/toNKDK"
 import { exportPageToNKDK } from "~/metadata/forms/elements/page/toNKDK"
 import { exportPagesToNKDK } from "~/metadata/forms/elements/pages/toNKDK"
 import { exportPictureDecorationToNKDK } from "~/metadata/forms/elements/pictureDecoration/toNKDK"
-import { exportPictureFieldContentToNKDK } from "~/metadata/forms/elements/pictureField/toNKDK"
+import { exportTablePictureFieldContentToNKDK } from "~/metadata/forms/elements/pictureField/toNKDK"
 import { exportPopupContentToNKDK } from "~/metadata/forms/elements/popup/toNKDK"
 import { exportTableToNKDK } from "~/metadata/forms/elements/table/toNKDK"
 import { exportUsualGroupToNKDK } from "~/metadata/forms/elements/usualGroup/toNKDK"
@@ -76,11 +76,11 @@ export const ExportToNKDKGeneratorFn: ExportToNKDKFnMap<GenerateChildItem> = {
 export type ExportToNKDKGeneratorFnFor<K extends GenerateChildItem["itemType"]> = (typeof ExportToNKDKGeneratorFn)[K]
 
 export const ExportToNKDKTableChildItemsGeneratorFn = {
-  InputField: exportInputFieldContentToNKDK,
-  LabelField: exportLabelFieldContentToNKDK,
-  PictureField: exportPictureFieldContentToNKDK,
+  TableInputField: exportTableInputFieldContentToNKDK,
+  TableLabelField: exportTableLabelFieldContentToNKDK,
+  TablePictureField: exportTablePictureFieldContentToNKDK,
   ColumnGroup: exportColumnGroupContentToNKDK,
-  CheckBoxField: exportCheckBoxFieldContentToNKDK,
+  TableCheckBoxField: exportTableCheckBoxFieldContentToNKDK,
 } as const satisfies ExportToNKDKFnMap<TableChildItem>
 
 export const ExportToNKDKCommandBarChildItemsGeneratorFn = {

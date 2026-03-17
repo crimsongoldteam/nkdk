@@ -21,7 +21,13 @@ export const exportSystemEnumerationToXML = (params: {
   return value
 }
 
-registerTypeRule("SystemEnumeration", "exportToXML", ({ rule, value }) =>
-  exportSystemEnumerationToXML({ rule: rule as SystemEnumerationPropertyRule, value })
+registerTypeRule(
+  "SystemEnumeration",
+  "exportToXML",
+  (params: { rule: unknown; value: unknown }) =>
+  exportSystemEnumerationToXML({
+    rule: params.rule as SystemEnumerationPropertyRule,
+    value: params.value,
+  })
 )
 
