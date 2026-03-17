@@ -31,8 +31,6 @@ export const fullChartField: RequiredFieldsElement<ChartField> = {
 } as const satisfies RequiredFieldsElement<ChartField>
 
 export const fullChartFieldEnterprise = {
-  // Явно задаём DataPath, чтобы он совпадал с результатом exportElementToEnterprise
-  DataPath: "prefix_Реквизит",
   Name: "prefix_ПолеДиаграммы",
   Type: { Type: "SystemEnumeration", Value: "FormFieldType.ChartField" },
   ElementType: "FormField",

@@ -90,4 +90,6 @@
 	<Events>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
+	<Orientation>Vertical</Orientation>
+	<VerticalStretch>false</VerticalStretch>
 </TrackBarField>

@@ -1,5 +1,7 @@
 import "./tableAdditionalSource/fromXML"
 import "./tableAdditionalSource/toXML"
+import "./scrollBarUse/fromXML"
+import "./scrollBarUse/toXML"
 
 import "./commandSet/fromXML"
 import "./commandSet/fromYAML"
