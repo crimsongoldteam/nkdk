@@ -76,10 +76,10 @@
 	<IntervalsSelectionMode>Single</IntervalsSelectionMode>
 	<ShowHorizontalLinesFlag>false</ShowHorizontalLinesFlag>
 	<ShowVerticalLinesFlag>false</ShowVerticalLinesFlag>
-	<ContextMenu name="ПолеДиаграммыГантаКонтекстноеМеню" id="4">
+	<ContextMenu name="ЭлементФормыКонтекстноеМеню" id="4">
 		<Autofill>false</Autofill>
 	</ContextMenu>
-	<ExtendedTooltip name="ПолеДиаграммыГантаРасширеннаяПодсказка" id="5">
+	<ExtendedTooltip name="ЭлементФормыРасширеннаяПодсказка" id="5">
 		<Title formatted="false">
 			<v8:item>
 				<v8:lang>ru</v8:lang>

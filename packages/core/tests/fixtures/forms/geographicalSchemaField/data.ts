@@ -7,10 +7,7 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
-  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
-  fullFormFieldTableRelatedFixture,
-  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
@@ -20,25 +17,22 @@ export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSche
   title: {
     items: { ru: "Поле географической схемы" },
   },
-  autoMaxHeight: true,
-  autoMaxWidth: true,
+  autoMaxHeight: false,
+  autoMaxWidth: false,
   borderColor: { type: "WebColor", value: "Black" },
   height: 200,
-  horizontalStretch: true,
+  horizontalStretch: false,
   maxHeight: 500,
   maxWidth: 400,
   output: "Enable",
-  verticalStretch: true,
+  verticalStretch: false,
   width: 300,
   events: {
     onChange: "ПроцедураПриИзменении",
     detailProcessing: "ПроцедураОбработкиРасшифровки",
-    beforeWrite: "ПроцедураПередЗаписью",
     beforePrint: "ПроцедураПередПечатью",
-    afterWrite: "ПроцедураПослеЗаписи",
   },
   ...fullFormFieldCommonFixture,
-  ...fullFormFieldTableRelatedFixture,
 }
 
 export const fullGeographicalSchemaFieldEnterprise = {
@@ -49,47 +43,43 @@ export const fullGeographicalSchemaFieldEnterprise = {
     Value: "FormFieldType.GeographicalSchemaField",
   },
   Title: "Поле географической схемы",
-  AutoMaxHeight: true,
-  AutoMaxWidth: true,
+  AutoMaxHeight: false,
+  AutoMaxWidth: false,
   BorderColor: {
     Type: "Color",
     Value: "WebColors.Black",
   },
   Height: 200,
-  HorizontalStretch: true,
+  HorizontalStretch: false,
   MaxHeight: 500,
   MaxWidth: 400,
   Output: {
     Type: "SystemEnumeration",
     Value: "UseOutput.Enable",
   },
-  VerticalStretch: true,
+  VerticalStretch: false,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
-  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<GeographicalSchemaFieldEnterprise>
 
 export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPartialYAML = {
-  АвтоМаксимальнаяВысота: "Истина",
-  АвтоМаксимальнаяШирина: "Истина",
+  АвтоМаксимальнаяВысота: "Ложь",
+  АвтоМаксимальнаяШирина: "Ложь",
   Вывод: "Разрешить",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
+  РастягиватьПоВертикали: "Ложь",
+  РастягиватьПоГоризонтали: "Ложь",
   ЦветРамки: "Черный",
   Ширина: 300,
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     ОбработкаРасшифровки: "ПроцедураОбработкиРасшифровки",
-    ПередЗаписью: "ПроцедураПередЗаписью",
     ПередПечатью: "ПроцедураПередПечатью",
-    ПослеЗаписи: "ПроцедураПослеЗаписи",
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
-  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<GeographicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalGeographicalSchemaField: GeographicalSchemaField = {

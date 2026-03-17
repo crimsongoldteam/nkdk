@@ -7,31 +7,28 @@ import {
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
-  fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
-  fullFormFieldTableRelatedFixture,
-  fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
   itemType: "GanttChartField",
-  name: "ПолеДиаграммыГанта",
+  name: "ЭлементФормы",
   title: {
     items: { ru: "Поле диаграммы Ганта" },
   },
-  autoMaxHeight: true,
-  autoMaxWidth: true,
+  autoMaxHeight: false,
+  autoMaxWidth: false,
   height: 200,
-  horizontalLines: true,
-  horizontalStretch: true,
+  horizontalLines: false,
+  horizontalStretch: false,
   intervalsSelectionMode: "Single",
   maxHeight: 500,
   maxWidth: 400,
   tableLocation: "None",
   valuesSelectionMode: "Single",
-  verticalLines: true,
-  verticalStretch: true,
+  verticalLines: false,
+  verticalStretch: false,
   width: 300,
   events: {
     onChange: "ПроцедураПриИзменении",
@@ -44,22 +41,21 @@ export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
     onIntervalEditEnd: "ПроцедураПриОкончанииРедактированияИнтервала",
   },
   ...fullFormFieldCommonFixture,
-  ...fullFormFieldTableRelatedFixture,
 }
 
 export const fullGanttChartFieldEnterprise = {
   ElementType: "FormField",
-  Name: "prefix_ПолеДиаграммыГанта",
+  Name: "prefix_ЭлементФормы",
   Type: {
     Type: "SystemEnumeration",
     Value: "FormFieldType.GanttChartField",
   },
   Title: "Поле диаграммы Ганта",
-  AutoMaxHeight: true,
-  AutoMaxWidth: true,
+  AutoMaxHeight: false,
+  AutoMaxWidth: false,
   Height: 200,
-  HorizontalLines: true,
-  HorizontalStretch: true,
+  HorizontalLines: false,
+  HorizontalStretch: false,
   IntervalsSelectionMode: {
     Type: "SystemEnumeration",
     Value: "GanttChartIntervalsSelectionMode.Single",
@@ -74,24 +70,23 @@ export const fullGanttChartFieldEnterprise = {
     Type: "SystemEnumeration",
     Value: "GanttChartValuesSelectionMode.Single",
   },
-  VerticalLines: true,
-  VerticalStretch: true,
+  VerticalLines: false,
+  VerticalStretch: false,
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
-  ...fullFormFieldEnterpriseTableRelatedFixture,
 } satisfies Required<GanttChartFieldEnterprise>
 
 export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
-  АвтоМаксимальнаяВысота: "Истина",
-  АвтоМаксимальнаяШирина: "Истина",
-  ВертикальныеЛинии: "Истина",
+  АвтоМаксимальнаяВысота: "Ложь",
+  АвтоМаксимальнаяШирина: "Ложь",
+  ВертикальныеЛинии: "Ложь",
   Высота: 200,
-  ГоризонтальныеЛинии: "Истина",
+  ГоризонтальныеЛинии: "Ложь",
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
   ПоложениеТаблицы: "Нет",
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
+  РастягиватьПоВертикали: "Ложь",
+  РастягиватьПоГоризонтали: "Ложь",
   РежимВыделенияЗначений: "Одиночный",
   РежимВыделенияИнтервалов: "Одиночный",
   Ширина: 300,
@@ -106,7 +101,6 @@ export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
     ПриОкончанииРедактированияИнтервала: "ПроцедураПриОкончанииРедактированияИнтервала",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-  ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } satisfies Omit<Required<GanttChartFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
 export const minimalGanttChartField: GanttChartField = {

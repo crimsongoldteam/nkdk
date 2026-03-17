@@ -12,7 +12,7 @@ export const GanttChartFieldRules = {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     height: { yaml: "Высота", type: "number" },
-    horizontalLines: { yaml: "ГоризонтальныеЛинии", type: "boolean" },
+    horizontalLines: { yaml: "ГоризонтальныеЛинии", xml: "ShowHorizontalLinesFlag", type: "boolean" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     intervalsSelectionMode: {
       yaml: "РежимВыделенияИнтервалов",
@@ -31,7 +31,7 @@ export const GanttChartFieldRules = {
       type: "SystemEnumeration",
       typeSE: "GanttChartValuesSelectionMode",
     },
-    verticalLines: { yaml: "ВертикальныеЛинии", type: "boolean" },
+    verticalLines: { yaml: "ВертикальныеЛинии", xml: "ShowVerticalLinesFlag", type: "boolean" },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     events: {
