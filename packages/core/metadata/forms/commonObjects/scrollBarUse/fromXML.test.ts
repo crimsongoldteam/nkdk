@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule, importPropertyFromXML } from "~/metadata/orchestration"
-import "./fromXML"
 
 describe("importScrollBarUseFromXML (ScrollBarUseBoolean)", () => {
   const context = {
@@ -31,5 +30,4 @@ describe("importScrollBarUseFromXML (ScrollBarUseBoolean)", () => {
     expect(importPropertyFromXML({ context, rule, value: "unknown" })).toBeUndefined()
     expect(importPropertyFromXML({ context, rule, value: 123 as unknown as boolean })).toBeUndefined()
   })
-}
-
+})

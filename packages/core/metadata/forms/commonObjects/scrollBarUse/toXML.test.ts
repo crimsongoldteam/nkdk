@@ -1,7 +1,6 @@
-import { describe, expect, it } from "vitest"
+import { describe, it, expect } from "vitest"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule, exportPropertyToXML } from "~/metadata/orchestration"
-import "./toXML"
 
 describe("exportScrollBarUseToXML (ScrollBarUseBoolean)", () => {
   const context = {} as unknown as ConfigurationContextWithExportToXML
