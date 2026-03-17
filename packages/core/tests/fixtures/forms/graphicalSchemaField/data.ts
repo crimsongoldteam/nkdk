@@ -27,7 +27,6 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
   horizontalStretch: false,
   maxHeight: 500,
   maxWidth: 400,
-  edit: undefined as never,
   output: "Enable",
   verticalStretch: false,
   width: 300,
@@ -61,7 +60,6 @@ export const fullGraphicalSchemaFieldEnterprise = {
   HorizontalStretch: false,
   MaxHeight: 500,
   MaxWidth: 400,
-  Edit: undefined as never,
   Output: {
     Type: "SystemEnumeration",
     Value: "UseOutput.Enable",
@@ -76,7 +74,6 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Вывод: "Разрешить",
-  Редактирование: undefined as never,
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
@@ -94,7 +91,10 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
   },
   ...fullFormFieldPartialYAMLCommonFixture,
   ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
-} satisfies Omit<Required<GraphicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<
+  Required<GraphicalSchemaFieldPartialYAML>,
+  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+>
 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {
   itemType: "GraphicalSchemaField",

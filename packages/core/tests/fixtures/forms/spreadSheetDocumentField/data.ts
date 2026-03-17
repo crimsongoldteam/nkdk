@@ -26,7 +26,7 @@ export const fullSpreadSheetDocumentField = {
   drawingSelectionShowMode: "DontShow",
   edit: true,
   height: 200,
-  horizontalScrollBar: false as any,
+  horizontalScrollBar: "DontUse",
   horizontalStretch: false,
   maxHeight: 500,
   maxWidth: 400,
@@ -42,6 +42,9 @@ export const fullSpreadSheetDocumentField = {
   verticalStretch: false,
   viewScalingMode: "Normal",
   width: 300,
+  selectionShowMode: "DontShow",
+  enableDrag: false,
+  enableStartDrag: false,
   events: {
     onChange: "ПроцедураПриИзменении",
     selection: "ПроцедураПриВыборе",
@@ -59,9 +62,6 @@ export const fullSpreadSheetDocumentField = {
     onChangeAreaContent: "ПолеТабличногоДокументаПриИзмененииСодержимогоОбласти",
   },
   ...fullFormFieldCommonFixture,
-  selectionShowMode: "DontShow",
-  statePresentation: "Picture",
-  usedFileName: "",
 } satisfies RequiredFieldsElement<SpreadSheetDocumentField>
 
 export const fullSpreadSheetDocumentFieldEnterprise = {
@@ -96,7 +96,10 @@ export const fullSpreadSheetDocumentFieldEnterprise = {
     Type: "SystemEnumeration",
     Value: "SpreadsheetDocumentPointerType.Regular",
   },
-  HorizontalScrollBar: undefined as never,
+  HorizontalScrollBar: {
+    Type: "SystemEnumeration",
+    Value: "ScrollBarUse.DontUse",
+  },
   Protection: true,
   SelectionShowMode: undefined as never,
   ShowCellNames: true,
@@ -104,7 +107,10 @@ export const fullSpreadSheetDocumentFieldEnterprise = {
   ShowGroups: false,
   ShowHeaders: true,
   ShowRowAndColumnNames: true,
-  VerticalScrollBar: "DontUse",
+  VerticalScrollBar: {
+    Type: "SystemEnumeration",
+    Value: "ScrollBarUse.DontUse",
+  },
   VerticalStretch: false,
   ViewScalingMode: {
     Type: "SystemEnumeration",
@@ -113,6 +119,8 @@ export const fullSpreadSheetDocumentFieldEnterprise = {
   Width: 300,
   ...fullFormFieldEnterpriseCommonFixture,
   ...fullFormFieldEnterpriseTableRelatedFixture,
+  EnableDrag: false,
+  EnableStartDrag: false,
 } satisfies Required<SpreadSheetDocumentFieldEnterprise>
 
 export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPartialYAML = {
@@ -158,6 +166,8 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
     ПриИзмененииСодержимогоОбласти: "ПолеТабличногоДокументаПриИзмененииСодержимогоОбласти",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
+  РазрешитьПеретаскивание: "Истина",
+  РазрешитьНачалоПеретаскивания: "Истина",
 } satisfies Omit<
   Required<SpreadSheetDocumentFieldPartialYAML>,
   "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"

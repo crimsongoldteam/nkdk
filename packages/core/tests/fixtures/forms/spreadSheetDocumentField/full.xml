@@ -91,6 +91,7 @@
 	<ShowCellNames>true</ShowCellNames>
 	<ShowRowAndColumnNames>true</ShowRowAndColumnNames>
 	<ViewScalingMode>Normal</ViewScalingMode>
+	<SelectionShowMode>DontShow</SelectionShowMode>
 	<ContextMenu name="ПолеТабличногоДокументаКонтекстноеМеню" id="4">
 		<Autofill>false</Autofill>
 	</ContextMenu>

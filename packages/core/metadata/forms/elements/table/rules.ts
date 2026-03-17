@@ -87,6 +87,7 @@ export const TableRules = {
       yaml: "ГоризонтальнаяПолосаПрокрутки",
       type: "SystemEnumeration",
       typeSE: "ScrollBarUse",
+      defaultValue: "AutoUse",
     },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     initialListView: {
@@ -213,6 +214,7 @@ export const TableRules = {
       yaml: "ВертикальнаяПолосаПрокрутки",
       type: "SystemEnumeration",
       typeSE: "ScrollBarUse",
+      defaultValue: "AutoUse",
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     viewStatusLocation: {
