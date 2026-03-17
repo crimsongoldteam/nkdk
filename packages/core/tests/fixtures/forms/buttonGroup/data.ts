@@ -9,12 +9,8 @@ import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 
 export const fullButtonGroup: ButtonGroup = {
   itemType: "ButtonGroup",
-  enableContentChange: true,
-  enabled: true,
   height: 200,
   horizontalAlignInGroup: "Left",
-  horizontalStretch: true,
-  readOnly: false,
   shortcut: "S",
   titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
   titleTextColor: { type: "WebColor", value: "Black" },
@@ -28,7 +24,6 @@ export const fullButtonGroup: ButtonGroup = {
     values: [{ name: "Администратор", value: true }],
   },
   verticalAlignInGroup: "Top",
-  verticalStretch: true,
   visible: true,
   width: 300,
   name: "ГруппаКнопок",
@@ -43,6 +38,11 @@ export const fullButtonGroup: ButtonGroup = {
   },
   representation: "Compact",
   commandSource: "FormCommandPanelGlobalCommands",
+  enableContentChange: false,
+  enabled: false,
+  horizontalStretch: false,
+  readOnly: true,
+  verticalStretch: false,
   extendedTooltip: {
     itemType: "ExtendedTooltip",
     title: { items: { ru: "ГруппаКнопокРасширеннаяПодсказка" }, formatted: false },
