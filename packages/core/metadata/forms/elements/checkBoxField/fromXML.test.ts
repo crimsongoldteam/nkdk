@@ -5,37 +5,75 @@ import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importCheckBoxFieldFromXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importElementFromXML({
-      context: mockContextFromXML(),
-      itemType: "CheckBoxField",
-      xml: undefined,
+  describe("importCheckBoxField", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importElementFromXML({
+        context: mockContextFromXML(),
+        itemType: "CheckBoxField",
+        xml: undefined,
+      })
+
+      expect(result).toBeUndefined()
     })
 
-    expect(result).toBeUndefined()
+    it("should import all fields from XML", () => {
+      const xmlData = readAndParseXMLFile<{ CheckBoxField: ElementXML }>("forms/checkBoxField/full.xml")
+
+      const result = importElementFromXML({
+        context: mockContextFromXML(),
+        itemType: "CheckBoxField",
+        xml: xmlData.CheckBoxField,
+      })
+
+      expect(result).toEqual(fullCheckBoxField)
+    })
+
+    it("should import minimal", () => {
+      const xmlData = readAndParseXMLFile<{ CheckBoxField: ElementXML }>("forms/checkBoxField/minimal.xml")
+
+      const result = importElementFromXML({
+        context: mockContextFromXML(),
+        itemType: "CheckBoxField",
+        xml: xmlData.CheckBoxField,
+      })
+
+      expect(result).toEqual(minimalCheckBoxField)
+    })
   })
 
-  it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ CheckBoxField: ElementXML }>("forms/checkBoxField/full.xml")
+  describe("importTableCheckBoxField", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importElementFromXML({
+        context: mockContextFromXML(),
+        itemType: "CheckBoxField",
+        xml: undefined,
+      })
 
-    const result = importElementFromXML({
-      context: mockContextFromXML(),
-      itemType: "CheckBoxField",
-      xml: xmlData.CheckBoxField,
+      expect(result).toBeUndefined()
     })
 
-    expect(result).toEqual(fullCheckBoxField)
-  })
+    it("should import all fields from XML", () => {
+      const xmlData = readAndParseXMLFile<{ CheckBoxField: ElementXML }>("forms/checkBoxField/full.xml")
 
-  it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ CheckBoxField: ElementXML }>("forms/checkBoxField/minimal.xml")
+      const result = importElementFromXML({
+        context: mockContextFromXML(),
+        itemType: "CheckBoxField",
+        xml: xmlData.CheckBoxField,
+      })
 
-    const result = importElementFromXML({
-      context: mockContextFromXML(),
-      itemType: "CheckBoxField",
-      xml: xmlData.CheckBoxField,
+      expect(result).toEqual(fullCheckBoxField)
     })
 
-    expect(result).toEqual(minimalCheckBoxField)
+    it("should import minimal", () => {
+      const xmlData = readAndParseXMLFile<{ CheckBoxField: ElementXML }>("forms/checkBoxField/minimal.xml")
+
+      const result = importElementFromXML({
+        context: mockContextFromXML(),
+        itemType: "CheckBoxField",
+        xml: xmlData.CheckBoxField,
+      })
+
+      expect(result).toEqual(minimalCheckBoxField)
+    })
   })
 })

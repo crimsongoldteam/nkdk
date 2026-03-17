@@ -16,8 +16,7 @@ import {
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
-  itemType: "CheckBoxField",
+const fullCheckBoxFieldCommon: RequiredFieldsElement<CheckBoxField> = {
   name: "Флажок",
   title: {
     items: { ru: "Флажок формы" },
@@ -37,6 +36,16 @@ export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
   textColor: { type: "WebColor", value: "Yellow" },
   threeState: true,
   ...fullFormFieldCommonFixture,
+}
+
+export const fullCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
+  itemType: "CheckBoxField",
+  ...fullCheckBoxFieldCommon,
+} satisfies RequiredFieldsElement<CheckBoxField>
+
+export const fullTableCheckBoxField: RequiredFieldsElement<CheckBoxField> = {
+  itemType: "TableCheckBoxField",
+  ...fullCheckBoxFieldCommon,
   ...fullFormFieldTableRelatedFixture,
 } satisfies RequiredFieldsElement<CheckBoxField>
 
