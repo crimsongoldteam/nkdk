@@ -10,7 +10,6 @@ const baseExtendedTooltip = {
 } as const
 
 export const fullFormFieldCommonFixture = {
-  autoCellHeight: false,
   defaultItem: true,
   displayImportance: "High" as const,
   verticalAlign: "Top" as const,
@@ -68,6 +67,7 @@ export const fullFormFieldCommonFixture = {
 }
 
 export const fullFormFieldTableRelatedFixture = {
+  autoCellHeight: false,
   headerHorizontalAlign: "Left" as const,
   typeRestriction: { type: ["string"] },
   table: "Таблица" as const,
@@ -75,7 +75,6 @@ export const fullFormFieldTableRelatedFixture = {
 }
 
 export const fullFormFieldEnterpriseCommonFixture = {
-  AutoCellHeight: false,
   CellHyperlink: true,
   DataPath: "prefix_Реквизит",
   DefaultItem: true,
@@ -145,6 +144,7 @@ export const fullFormFieldEnterpriseCommonFixture = {
 } as const
 
 export const fullFormFieldEnterpriseTableRelatedFixture = {
+  AutoCellHeight: false,
   HeaderHorizontalAlign: {
     Type: "SystemEnumeration",
     Value: "ItemHorizontalLocation.Left",
@@ -156,7 +156,6 @@ export const fullFormFieldEnterpriseTableRelatedFixture = {
 } as const
 
 export const fullFormFieldPartialYAMLCommonFixture = {
-  АвтоВысотаЯчейки: "Ложь",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
   ВертикальноеПоложение: "Верх",
@@ -198,6 +197,7 @@ export const fullFormFieldPartialYAMLCommonFixture = {
 } as const
 
 export const fullFormFieldTableRelatedPartialYAMLCommonFixture = {
+  АвтоВысотаЯчейки: "Ложь",
   ГоризонтальноеПоложениеВШапке: "Лево",
   ОграничениеТипа: "Строка",
   Таблица: "Таблица",

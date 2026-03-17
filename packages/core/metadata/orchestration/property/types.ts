@@ -44,20 +44,21 @@ export interface BasePropertyRule {
    * Название в xml, если не заполнено - будет использован ключ
    */
   xml?: string
+  defaultValueXML?: any
+  fromXML?: false
+  toXML?: false
+  /**
+   * Родительские элементы в xml
+   */
+  xmlParents?: string[]
 
   /**
    * Передавать значение в форму в 1С
    */
   toEnterprise?: false
   fromEnterprise?: false
-  fromXML?: false
   defaultValue?: any | DefaultValueFunction
-  defaultValueXML?: any
 
-  /**
-   * Родительские элементы в xml
-   */
-  xmlParents?: string[]
   /**
    * Теги, по которым будет выгружаться свойство
    */

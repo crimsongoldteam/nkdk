@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { formFieldCommonProperties } from "../formField/rules"
+import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const CalendarFieldRules = {
@@ -56,6 +56,7 @@ export const CalendarFieldRules = {
       fromYAML: false,
       defaultType: "dateTime",
     },
+    ...formFieldDisabledTableRelatedProperties,
     ...formFieldCommonProperties,
   },
 } as const satisfies ElementRule

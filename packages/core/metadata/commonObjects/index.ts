@@ -189,6 +189,7 @@ import "./metadataRef/fromYAML"
 import "./metadataRef/toXML"
 import "./metadataRef/toYAML"
 
+import "./number/fromXML"
 import "./characteristicsDescription/fromXML"
 import "./characteristicsDescription/fromYAML"
 import "./characteristicsDescription/toXML"
