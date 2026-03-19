@@ -16,7 +16,7 @@ export type ChoiceParameters = ChoiceParameter[]
 
 export interface ChoiceParameterXML {
   _name: string
-  "app:value": MetadataValueXML
+  "app:value"?: MetadataValueXML<{ type: "MetadataValue" }, MetadataValue>
 }
 
 export interface ChoiceParametersXML {
@@ -27,12 +27,11 @@ export interface ChoiceParametersXML {
 
 //#region ChoiceParametersYAML
 
-export type ChoiceParameterYAML = string
-
 export const ChoiceParametersJSONSchema = Type.Record(
   Type.String(),
   Type.Union([MetadataValueJSONSchema, Type.Undefined()])
 )
+
 export type ChoiceParametersYAML = Static<typeof ChoiceParametersJSONSchema>
 
 //#endregion

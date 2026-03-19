@@ -1,4 +1,5 @@
 import { Static, Type } from "@sinclair/typebox"
+import { BasePropertyRule } from "~/metadata/orchestration"
 import { I8nText, I8nTextJSONSchema, I8nTextXML } from "../i8nText/types"
 
 //#region MetadataValue
@@ -188,7 +189,7 @@ export type MetadataValueYAML = Static<typeof MetadataValueJSONSchema>
 
 //#endregion
 
-export type MetadataValuePropertyRule = {
+export interface MetadataValuePropertyRule extends BasePropertyRule {
   type: "MetadataValue"
 
   /**

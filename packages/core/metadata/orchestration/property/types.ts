@@ -1,5 +1,6 @@
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
 import { StandartAttributeName } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
@@ -157,6 +158,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "CommandBarChildItems"
     | "TableChildItems"
     | "PagesChildItems"
+    | "MetadataValue"
   >
 }
 
@@ -181,6 +183,7 @@ export type PropertyRule =
   | TypeDescriptionPropertyRule
   | DataPathPropertyRule
   | MetadataTypePropertyRule
+  | MetadataValuePropertyRule
 
 type PropertiesType = Record<string, PropertyRule>
 
