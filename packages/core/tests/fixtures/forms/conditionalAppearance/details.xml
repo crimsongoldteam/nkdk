@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://v8.1c.ru/8.1/data-composition-system/details" targetNamespace="http://v8.1c.ru/8.1/data-composition-system/details" elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns:dcss="http://v8.1c.ru/8.1/data-composition-system/settings">
+	<xs:import namespace="http://v8.1c.ru/8.1/data-composition-system/settings" schemaLocation="settings.xsd"/>
+
+	<xs:simpleType name="DetailsID">
+        <xs:annotation>
+        	<xs:documentation>Идентификатор расшифровки</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:decimal"></xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="DetailsInformation">
+		<xs:annotation>
+			<xs:documentation>
+				Информация о расшифровке
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+            <xs:element name="detailsInformationKey" type="xs:string" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Ключ данных расшифровки</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="itemsCount" type="xs:decimal" maxOccurs="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Количество элементов расшифровки</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="settings" type="dcss:Settings" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Настройки</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="item" type="tns:DetailsItem" maxOccurs="unbounded" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Элементы расшифровки</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+        </xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="DetailsItem" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Элемент расшифровки</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ID" type="tns:DetailsID">
+				<xs:annotation>
+					<xs:documentation>Идентификатор элемента расшифровки</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="parentID" type="tns:DetailsID" maxOccurs="unbounded" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Идентификаторы родительских элементов</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="DetailsItemGroup">
+        <xs:annotation>
+        	<xs:documentation>Элемент расшифровки - группировка</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+			<xs:extension base="tns:DetailsItem">
+				<xs:sequence>
+					<xs:element name="group" type="xs:string">
+						<xs:annotation>
+							<xs:documentation>Имя группировки</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="DetailsItemFields">
+        <xs:annotation>
+        	<xs:documentation>Элемент расшифровки - поля</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+			<xs:extension base="tns:DetailsItem">
+				<xs:sequence>
+					<xs:element name="fieldValue" type="tns:FieldValue" maxOccurs="unbounded" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>Значения полей</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+          <xs:element name="mainAction" type="tns:DataCompositionDetailsProcessingAction" maxOccurs="1" minOccurs="0"></xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="FieldValue">
+        <xs:annotation>
+        	<xs:documentation>Значение поля</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+			<xs:element name="field" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Поле</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="value" maxOccurs="1" minOccurs="0" type="xs:anyType" nillable="true">
+				<xs:annotation>
+					<xs:documentation>Значение</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="hierarchy" type="xs:boolean" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Значение для иерархии</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+        </xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="detailsInformation" type="tns:DetailsInformation"></xs:element>
+    
+    <xs:simpleType name="DataCompositionDetailsProcessingAction">
+        <xs:annotation>
+            <xs:documentation>ДействиеОбработкиРасшифровкиКомпоновкиДанных</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="None"></xs:enumeration>
+            <xs:enumeration value="DrillDown"></xs:enumeration>
+            <xs:enumeration value="Filter"></xs:enumeration>
+            <xs:enumeration value="Order"></xs:enumeration>
+            <xs:enumeration value="Group"></xs:enumeration>
+            <xs:enumeration value="OpenValue"></xs:enumeration>
+            <xs:enumeration value="ApplyAppearance"></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="DetailsProcessDescription">
+        <xs:annotation>
+            <xs:documentation>Описание обработки расшифровки</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="data" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Адрес хранилища с информацией о расшифровке</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ID" type="tns:DetailsID">
+                <xs:annotation>
+                    <xs:documentation>Идентификатор расшифровки</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="settingsToApply" type="dcss:Settings">
+                <xs:annotation>
+                    <xs:documentation>Применяемые настройки</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

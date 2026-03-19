@@ -1,0 +1,615 @@
+﻿<model xmlns="http://v8.1c.ru/8.1/xdto" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<package targetNamespace="http://v8.1c.ru/8.1/data-composition-system/core" elementFormQualified="true" attributeFormQualified="false">
+		<valueType name="DataCompositionFieldsTitleType" base="xs:string">
+			<enumeration>Auto</enumeration>
+			<enumeration>Full</enumeration>
+			<enumeration>Short</enumeration>
+		</valueType>
+		<valueType name="DataCompositionGroupType" base="xs:string">
+			<enumeration>Items</enumeration>
+			<enumeration>Hierarchy</enumeration>
+			<enumeration>HierarchyOnly</enumeration>
+		</valueType>
+		<valueType name="DataCompositionParameterUse" base="xs:string">
+			<enumeration>Always</enumeration>
+			<enumeration>Auto</enumeration>
+		</valueType>
+		<valueType name="DataCompositionPeriodAdditionType" base="xs:string">
+			<enumeration>None</enumeration>
+			<enumeration>Year</enumeration>
+			<enumeration>HalfYear</enumeration>
+			<enumeration>Quarter</enumeration>
+			<enumeration>Month</enumeration>
+			<enumeration>TenDays</enumeration>
+			<enumeration>Week</enumeration>
+			<enumeration>Day</enumeration>
+			<enumeration>Hour</enumeration>
+			<enumeration>Minute</enumeration>
+			<enumeration>Second</enumeration>
+			<enumeration>YearSinceBeginOfPeriod</enumeration>
+			<enumeration>HalfYearSinceBeginOfPeriod</enumeration>
+			<enumeration>QuarterSinceBeginOfPeriod</enumeration>
+			<enumeration>MonthSinceBeginOfPeriod</enumeration>
+			<enumeration>WeekSinceBeginOfPeriod</enumeration>
+			<enumeration>DaySinceBeginOfPeriod</enumeration>
+			<enumeration>HourSinceBeginOfPeriod</enumeration>
+			<enumeration>MinuteSinceBeginOfPeriod</enumeration>
+			<enumeration>YearSinceBeginOfPeriod445</enumeration>
+			<enumeration>HalfYearSinceBeginOfPeriod445</enumeration>
+			<enumeration>QuarterSinceBeginOfPeriod445</enumeration>
+			<enumeration>MonthSinceBeginOfPeriod445</enumeration>
+		</valueType>
+		<valueType name="DataCompositionSortDirection" base="xs:string">
+			<enumeration>Asc</enumeration>
+			<enumeration>Desc</enumeration>
+		</valueType>
+		<valueType name="DataCompositionTextPlacementType" base="xs:string">
+			<enumeration>Block</enumeration>
+			<enumeration>Cut</enumeration>
+			<enumeration>Wrap</enumeration>
+			<enumeration>Overflow</enumeration>
+		</valueType>
+		<valueType name="DataCompositionTotalPlacement" base="xs:string">
+			<enumeration>Begin</enumeration>
+			<enumeration>End</enumeration>
+			<enumeration>BeginAndEnd</enumeration>
+			<enumeration>None</enumeration>
+			<enumeration>Auto</enumeration>
+		</valueType>
+		<valueType name="DesignTimeValue" base="xs:string"/>
+		<valueType name="Field" base="xs:string"/>
+		<valueType name="ID" base="xs:string"/>
+		<valueType name="Parameter" base="xs:string"/>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/core" name="Appearance" base="d3p1:ParameterValues"/>
+		<objectType name="ChoiceParameter">
+			<property name="choiceParameter" type="xs:string"/>
+			<property name="value" lowerBound="0" upperBound="-1"/>
+		</objectType>
+		<objectType name="ChoiceParameterLink">
+			<property name="choiceParameter" type="xs:string"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="value" type="d4p1:Field"/>
+			<property name="mode" lowerBound="0"/>
+		</objectType>
+		<objectType name="ChoiceParameterLinks">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="item" type="d4p1:ChoiceParameterLink" lowerBound="0" upperBound="-1"/>
+		</objectType>
+		<objectType name="ChoiceParameters">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="item" type="d4p1:ChoiceParameter" lowerBound="0" upperBound="-1"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/core" name="InputParameters" base="d3p1:ParameterValues"/>
+		<objectType name="ParameterValue">
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="parameter" type="d4p1:Parameter"/>
+			<property name="value" lowerBound="0" upperBound="-1" nillable="true"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="item" type="d4p1:ParameterValue" lowerBound="0" upperBound="-1"/>
+		</objectType>
+		<objectType name="ParameterValues" abstract="true">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="item" type="d4p1:ParameterValue" lowerBound="0" upperBound="-1"/>
+		</objectType>
+		<objectType name="TypeLink">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="field" type="d4p1:Field" lowerBound="0"/>
+			<property name="linkItem" type="xs:decimal" lowerBound="0"/>
+		</objectType>
+	</package>
+	<package targetNamespace="http://v8.1c.ru/8.1/data-composition-system/settings" elementFormQualified="true" attributeFormQualified="false">
+		<import namespace="http://v8.1c.ru/8.1/data/core"/>
+		<import namespace="http://v8.1c.ru/8.1/data-composition-system/core"/>
+		<property xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="settings" type="d3p1:Settings"/>
+		<valueType name="DataCompositionAttributesPlacement" base="xs:string">
+			<enumeration>WithOwnerField</enumeration>
+			<enumeration>Separately</enumeration>
+			<enumeration>Together</enumeration>
+			<enumeration>SpecialPosition</enumeration>
+		</valueType>
+		<valueType name="DataCompositionChartLegendPlacement" base="xs:string">
+			<enumeration>None</enumeration>
+			<enumeration>Left</enumeration>
+			<enumeration>Right</enumeration>
+			<enumeration>Top</enumeration>
+			<enumeration>Bottom</enumeration>
+		</valueType>
+		<valueType name="DataCompositionComparisonType" base="xs:string">
+			<enumeration>Equal</enumeration>
+			<enumeration>NotEqual</enumeration>
+			<enumeration>Less</enumeration>
+			<enumeration>LessOrEqual</enumeration>
+			<enumeration>Greater</enumeration>
+			<enumeration>GreaterOrEqual</enumeration>
+			<enumeration>Contains</enumeration>
+			<enumeration>InList</enumeration>
+			<enumeration>InListByHierarchy</enumeration>
+			<enumeration>InHierarchy</enumeration>
+			<enumeration>NotContains</enumeration>
+			<enumeration>NotInList</enumeration>
+			<enumeration>NotInListByHierarchy</enumeration>
+			<enumeration>NotInHierarchy</enumeration>
+			<enumeration>Filled</enumeration>
+			<enumeration>NotFilled</enumeration>
+			<enumeration>BeginsWith</enumeration>
+			<enumeration>NotBeginsWith</enumeration>
+			<enumeration>Like</enumeration>
+			<enumeration>NotLike</enumeration>
+		</valueType>
+		<valueType name="DataCompositionConditionalAppearanceUse" base="xs:string">
+			<enumeration>Use</enumeration>
+			<enumeration>DontUse</enumeration>
+		</valueType>
+		<valueType name="DataCompositionDataRelevanceOutputType" base="xs:string">
+			<enumeration>DontOutput</enumeration>
+			<enumeration>Output</enumeration>
+			<enumeration>Auto</enumeration>
+		</valueType>
+		<valueType name="DataCompositionDatabaseCopyOutputType" base="xs:string">
+			<enumeration>DontOutput</enumeration>
+			<enumeration>Output</enumeration>
+			<enumeration>Auto</enumeration>
+		</valueType>
+		<valueType name="DataCompositionFieldPlacement" base="xs:string">
+			<enumeration>Auto</enumeration>
+			<enumeration>Horizontally</enumeration>
+			<enumeration>Vertically</enumeration>
+			<enumeration>SpecialColumn</enumeration>
+			<enumeration>Together</enumeration>
+		</valueType>
+		<valueType name="DataCompositionFilterApplicationType" base="xs:string">
+			<enumeration>Items</enumeration>
+			<enumeration>Hierarchy</enumeration>
+			<enumeration>HierarchyOnly</enumeration>
+		</valueType>
+		<valueType name="DataCompositionFilterItemsGroupType" base="xs:string">
+			<enumeration>AndGroup</enumeration>
+			<enumeration>OrGroup</enumeration>
+			<enumeration>NotGroup</enumeration>
+		</valueType>
+		<valueType name="DataCompositionFixation" base="xs:string">
+			<enumeration>Auto</enumeration>
+			<enumeration>DontUse</enumeration>
+		</valueType>
+		<valueType name="DataCompositionGroupFieldsPlacement" base="xs:string">
+			<enumeration>Together</enumeration>
+			<enumeration>Separately</enumeration>
+			<enumeration>SeparatelyAndInTotalsOnly</enumeration>
+		</valueType>
+		<valueType name="DataCompositionGroupPlacement" base="xs:string">
+			<enumeration>Begin</enumeration>
+			<enumeration>End</enumeration>
+			<enumeration>BeginAndEnd</enumeration>
+			<enumeration>None</enumeration>
+		</valueType>
+		<valueType name="DataCompositionGroupTemplateType" base="xs:string">
+			<enumeration>Vertical</enumeration>
+			<enumeration>Horizontal</enumeration>
+			<enumeration>Auto</enumeration>
+		</valueType>
+		<valueType name="DataCompositionGroupUseVariant" base="xs:string">
+			<enumeration>Auto</enumeration>
+			<enumeration>AdditionalInformation</enumeration>
+		</valueType>
+		<valueType name="DataCompositionPictureOutputType" base="xs:string">
+			<enumeration>Auto</enumeration>
+			<enumeration>DontOutput</enumeration>
+			<enumeration>OutputByRef</enumeration>
+			<enumeration>OutputByValue</enumeration>
+		</valueType>
+		<valueType name="DataCompositionResourcesAutoPosition" base="xs:string">
+			<enumeration>DontUse</enumeration>
+			<enumeration>AfterAllFields</enumeration>
+		</valueType>
+		<valueType name="DataCompositionResourcesPlacement" base="xs:string">
+			<enumeration>Vertically</enumeration>
+			<enumeration>Horizontally</enumeration>
+		</valueType>
+		<valueType name="DataCompositionResourcesPlacementInChart" base="xs:string">
+			<enumeration>Auto</enumeration>
+			<enumeration>Series</enumeration>
+			<enumeration>Points</enumeration>
+		</valueType>
+		<valueType name="DataCompositionSettingsItemState" base="xs:string">
+			<enumeration>Enabled</enumeration>
+			<enumeration>Disabled</enumeration>
+			<enumeration>DeletedByUser</enumeration>
+		</valueType>
+		<valueType name="DataCompositionSettingsItemViewMode" base="xs:string">
+			<enumeration>Normal</enumeration>
+			<enumeration>QuickAccess</enumeration>
+			<enumeration>Inaccessible</enumeration>
+			<enumeration>Auto</enumeration>
+		</valueType>
+		<valueType name="DataCompositionSettingsViewMode" base="xs:string">
+			<enumeration>All</enumeration>
+			<enumeration>QuickAccess</enumeration>
+		</valueType>
+		<valueType name="DataCompositionTextOutputType" base="xs:string">
+			<enumeration>DontOutput</enumeration>
+			<enumeration>Output</enumeration>
+			<enumeration>Auto</enumeration>
+		</valueType>
+		<valueType name="SaveDataCompositionAppearance" base="xs:string">
+			<enumeration>Auto</enumeration>
+			<enumeration>ForUser</enumeration>
+			<enumeration>ForCurrentResult</enumeration>
+			<enumeration>ByKeyForUser</enumeration>
+			<enumeration>DontUse</enumeration>
+		</valueType>
+		<objectType name="AppearanceField">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="field" type="d4p1:Field"/>
+		</objectType>
+		<objectType name="AppearanceFields">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:AppearanceField" lowerBound="0" upperBound="-1"/>
+		</objectType>
+		<objectType name="AvailableFieldUseRestriction">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="field" type="d4p1:Field"/>
+			<property name="enabled" type="xs:boolean" lowerBound="0"/>
+		</objectType>
+		<objectType name="AvailableFieldUseRestrictions">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:AvailableFieldUseRestriction" upperBound="-1"/>
+		</objectType>
+		<objectType name="AvailableFields"/>
+		<objectType name="AvailableParameterUseRestriction">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="parameter" type="d4p1:Parameter"/>
+			<property name="enabled" type="xs:boolean" lowerBound="0"/>
+		</objectType>
+		<objectType name="AvailableParameterUseRestrictions">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:AvailableParameterUseRestriction" upperBound="-1"/>
+		</objectType>
+		<objectType name="AvailableSettingsSource">
+			<property name="behaviour" type="xs:decimal" lowerBound="0" form="Attribute"/>
+			<property name="sourceID" lowerBound="0"/>
+		</objectType>
+		<objectType name="Case">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:CaseItem" lowerBound="0" upperBound="-1"/>
+		</objectType>
+		<objectType name="CaseItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="filter" type="d4p1:Filter" lowerBound="0"/>
+			<property name="value" lowerBound="0" nillable="true"/>
+			<property name="presentationValue" type="xs:string" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data/core" name="lwsPresentationValue" type="d4p1:LocalStringType" lowerBound="0"/>
+		</objectType>
+		<objectType name="ChartGroup">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property name="name" type="xs:string" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="groupItems" type="d4p1:GroupItems" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="filter" type="d4p1:Filter" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="order" type="d4p1:Order" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="selection" type="d4p1:Selection" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="conditionalAppearance" type="d4p1:ConditionalAppearance" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="outputParameters" type="d4p1:ChartGroupOutputParameterValues" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:ChartGroup" lowerBound="0" upperBound="-1"/>
+			<property name="id" type="xs:string" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="viewMode" type="d4p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="itemsViewMode" type="d4p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="itemsUserSettingID" type="xs:string" lowerBound="0"/>
+			<property name="itemsUserSettingPresentation" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="groupState" type="d4p1:DataCompositionSettingsItemState" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/core" name="ChartGroupOutputParameterValues" base="d3p1:ParameterValues"/>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/core" name="ChartOutputParameterValues" base="d3p1:ParameterValues"/>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/core" name="CompositionOutputParameterValues" base="d3p1:ParameterValues"/>
+		<objectType name="ConditionalAppearance">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:ConditionalAppearanceItem" lowerBound="0" upperBound="-1"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="viewMode" type="d4p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+		</objectType>
+		<objectType name="ConditionalAppearanceItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="selection" type="d4p1:AppearanceFields" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="filter" type="d4p1:Filter" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="appearance" type="d4p1:Appearance" lowerBound="0"/>
+			<property name="presentation" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="viewMode" type="d4p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="useInGroup" type="d4p1:DataCompositionConditionalAppearanceUse" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="useInHierarchicalGroup" type="d4p1:DataCompositionConditionalAppearanceUse" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="useInOverall" type="d4p1:DataCompositionConditionalAppearanceUse" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="useInFieldsHeader" type="d4p1:DataCompositionConditionalAppearanceUse" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="useInHeader" type="d4p1:DataCompositionConditionalAppearanceUse" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="useInParameters" type="d4p1:DataCompositionConditionalAppearanceUse" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="useInFilter" type="d4p1:DataCompositionConditionalAppearanceUse" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="useInResourceFieldsHeader" type="d4p1:DataCompositionConditionalAppearanceUse" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="useInOverallHeader" type="d4p1:DataCompositionConditionalAppearanceUse" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="useInOverallResourceFieldsHeader" type="d4p1:DataCompositionConditionalAppearanceUse" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/core" name="DataParameterValues" base="d3p1:ParameterValues"/>
+		<objectType name="Filter">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:FilterItem" lowerBound="0" upperBound="-1"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="viewMode" type="d4p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+		</objectType>
+		<objectType name="FilterItem" abstract="true"/>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="FilterItemComparison" base="d3p1:FilterItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property name="left" lowerBound="0" nillable="true"/>
+			<property name="comparisonType" type="d3p1:DataCompositionComparisonType"/>
+			<property name="right" lowerBound="0" upperBound="-1" nillable="true"/>
+			<property name="presentation" lowerBound="0"/>
+			<property name="application" type="d3p1:DataCompositionFilterApplicationType" lowerBound="0"/>
+			<property name="viewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="FilterItemGroup" base="d3p1:FilterItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property name="groupType" type="d3p1:DataCompositionFilterItemsGroupType"/>
+			<property name="item" type="d3p1:FilterItem" lowerBound="0" upperBound="-1"/>
+			<property name="presentation" lowerBound="0"/>
+			<property name="application" type="d3p1:DataCompositionFilterApplicationType" lowerBound="0"/>
+			<property name="viewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+		</objectType>
+		<objectType name="GroupItem" abstract="true"/>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="GroupItemAuto" base="d3p1:GroupItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="GroupItemField" base="d3p1:GroupItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="field" type="d4p1:Field"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="groupType" type="d4p1:DataCompositionGroupType" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="periodAdditionType" type="d4p1:DataCompositionPeriodAdditionType" lowerBound="0"/>
+			<property name="periodAdditionBegin" lowerBound="0" nillable="true"/>
+			<property name="periodAdditionEnd" lowerBound="0" nillable="true"/>
+		</objectType>
+		<objectType name="GroupItems">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:GroupItem" lowerBound="0" upperBound="-1"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/core" name="GroupOutputParameterValues" base="d3p1:ParameterValues"/>
+		<objectType name="Order">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:OrderItem" lowerBound="0" upperBound="-1"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="viewMode" type="d4p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+		</objectType>
+		<objectType name="OrderItem" abstract="true"/>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="OrderItemAuto" base="d3p1:OrderItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="OrderItemField" base="d3p1:OrderItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="field" type="d4p1:Field"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="orderType" type="d4p1:DataCompositionSortDirection" lowerBound="0"/>
+			<property name="autoOrder" type="xs:boolean" lowerBound="0"/>
+			<property name="distinctNullValues" type="xs:boolean" lowerBound="0"/>
+			<property name="viewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+		</objectType>
+		<objectType name="SelectedItem" abstract="true"/>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="SelectedItemAuto" base="d3p1:SelectedItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="SelectedItemField" base="d3p1:SelectedItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="field" type="d4p1:Field"/>
+			<property name="title" type="xs:string" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data/core" name="lwsTitle" type="d4p1:LocalStringType" lowerBound="0"/>
+			<property name="viewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="SelectedItemFolder" base="d3p1:SelectedItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/core" name="field" type="d4p1:Field" lowerBound="0"/>
+			<property name="title" type="xs:string" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data/core" name="lwsTitle" type="d4p1:LocalStringType" lowerBound="0"/>
+			<property name="item" type="d3p1:SelectedItem" lowerBound="0" upperBound="-1"/>
+			<property name="placement" type="d3p1:DataCompositionFieldPlacement" lowerBound="0"/>
+			<property name="viewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+		</objectType>
+		<objectType name="Selection">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:SelectedItem" lowerBound="0" upperBound="-1"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="viewMode" type="d4p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+		</objectType>
+		<objectType name="SettingStructure">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:StructureItem" lowerBound="0" upperBound="-1"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="viewMode" type="d4p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+		</objectType>
+		<objectType name="Settings">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="userFields" type="d4p1:UserFields" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="selection" type="d4p1:Selection" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="filter" type="d4p1:Filter" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="dataParameters" type="d4p1:DataParameterValues" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="order" type="d4p1:Order" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="conditionalAppearance" type="d4p1:ConditionalAppearance" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="outputParameters" type="d4p1:CompositionOutputParameterValues" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:StructureItem" lowerBound="0" upperBound="-1"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data/core" name="additionalProperties" type="d4p1:Structure" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="itemsViewMode" type="d4p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="itemsUserSettingID" type="xs:string" lowerBound="0"/>
+			<property name="itemsUserSettingPresentation" lowerBound="0"/>
+		</objectType>
+		<objectType name="SettingsComposer">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" ref="d4p1:settings" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="source" type="d4p1:AvailableSettingsSource" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="userSettings" type="d4p1:UserSettings" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="fixedSettings" type="d4p1:Settings" lowerBound="0"/>
+			<property name="emptyUserSettings" type="xs:boolean" lowerBound="0"/>
+			<property name="emptyFixedSettings" type="xs:boolean" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/core" name="SettingsParameterValue" base="d3p1:ParameterValue">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="viewMode" type="d4p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+		</objectType>
+		<objectType name="SettingsVariant">
+			<property name="name" type="xs:string"/>
+			<property name="presentation" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" ref="d4p1:settings"/>
+		</objectType>
+		<objectType name="StructureItem" abstract="true"/>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="StructureItemChart" base="d3p1:StructureItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property name="name" type="xs:string" lowerBound="0"/>
+			<property name="point" type="d3p1:ChartGroup" lowerBound="0" upperBound="-1"/>
+			<property name="series" type="d3p1:ChartGroup" lowerBound="0" upperBound="-1"/>
+			<property name="selection" type="d3p1:Selection" lowerBound="0"/>
+			<property name="conditionalAppearance" type="d3p1:ConditionalAppearance" lowerBound="0"/>
+			<property name="outputParameters" type="d3p1:ChartOutputParameterValues" lowerBound="0"/>
+			<property name="id" type="xs:string" lowerBound="0"/>
+			<property name="viewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+			<property name="pointsViewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="pointsUserSettingID" type="xs:string" lowerBound="0"/>
+			<property name="pointsUserSettingPresentation" lowerBound="0"/>
+			<property name="seriesViewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="seriesUserSettingID" type="xs:string" lowerBound="0"/>
+			<property name="seriesUserSettingPresentation" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="StructureItemGroup" base="d3p1:StructureItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property name="name" type="xs:string" lowerBound="0"/>
+			<property name="groupItems" type="d3p1:GroupItems" lowerBound="0"/>
+			<property name="filter" type="d3p1:Filter" lowerBound="0"/>
+			<property name="order" type="d3p1:Order" lowerBound="0"/>
+			<property name="selection" type="d3p1:Selection" lowerBound="0"/>
+			<property name="conditionalAppearance" type="d3p1:ConditionalAppearance" lowerBound="0"/>
+			<property name="outputParameters" type="d3p1:GroupOutputParameterValues" lowerBound="0"/>
+			<property name="item" type="d3p1:StructureItem" lowerBound="0" upperBound="-1"/>
+			<property name="id" type="xs:string" lowerBound="0"/>
+			<property name="viewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+			<property name="itemsViewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="itemsUserSettingID" type="xs:string" lowerBound="0"/>
+			<property name="itemsUserSettingPresentation" lowerBound="0"/>
+			<property name="groupState" type="d3p1:DataCompositionSettingsItemState" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="StructureItemNestedObject" base="d3p1:StructureItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property name="name" type="xs:string" lowerBound="0"/>
+			<property name="objectID" type="xs:string"/>
+			<property ref="d3p1:settings"/>
+			<property name="id" type="xs:string" lowerBound="0"/>
+			<property name="viewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="StructureItemTable" base="d3p1:StructureItem">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property name="name" type="xs:string" lowerBound="0"/>
+			<property name="column" type="d3p1:TableGroup" lowerBound="0" upperBound="-1"/>
+			<property name="row" type="d3p1:TableGroup" lowerBound="0" upperBound="-1"/>
+			<property name="selection" type="d3p1:Selection" lowerBound="0"/>
+			<property name="conditionalAppearance" type="d3p1:ConditionalAppearance" lowerBound="0"/>
+			<property name="outputParameters" type="d3p1:TableOutputParameterValues" lowerBound="0"/>
+			<property name="id" type="xs:string" lowerBound="0"/>
+			<property name="viewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+			<property name="columnsViewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="columnsUserSettingID" type="xs:string" lowerBound="0"/>
+			<property name="columnsUserSettingPresentation" lowerBound="0"/>
+			<property name="rowsViewMode" type="d3p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="rowsUserSettingID" type="xs:string" lowerBound="0"/>
+			<property name="rowsUserSettingPresentation" lowerBound="0"/>
+		</objectType>
+		<objectType name="TableGroup">
+			<property name="iID" type="xs:decimal" lowerBound="0" default="0" form="Attribute"/>
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property name="name" type="xs:string" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="groupItems" type="d4p1:GroupItems" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="filter" type="d4p1:Filter" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="order" type="d4p1:Order" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="selection" type="d4p1:Selection" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="conditionalAppearance" type="d4p1:ConditionalAppearance" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="outputParameters" type="d4p1:TableGroupOutputParameterValues" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:TableGroup" lowerBound="0" upperBound="-1"/>
+			<property name="id" type="xs:string" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="viewMode" type="d4p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="userSettingID" type="xs:string" lowerBound="0"/>
+			<property name="userSettingPresentation" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="itemsViewMode" type="d4p1:DataCompositionSettingsItemViewMode" lowerBound="0"/>
+			<property name="itemsUserSettingID" type="xs:string" lowerBound="0"/>
+			<property name="itemsUserSettingPresentation" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="groupState" type="d4p1:DataCompositionSettingsItemState" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/core" name="TableGroupOutputParameterValues" base="d3p1:ParameterValues"/>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/core" name="TableOutputParameterValues" base="d3p1:ParameterValues"/>
+		<objectType name="UserField" abstract="true">
+			<property name="use" type="xs:boolean" lowerBound="0"/>
+			<property name="dataPath" type="xs:string"/>
+			<property name="title" type="xs:string" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data/core" name="lwsTitle" type="d4p1:LocalStringType" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="UserFieldCase" base="d3p1:UserField">
+			<property name="cases" type="d3p1:Case"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="UserFieldExpression" base="d3p1:UserField">
+			<property name="detailExpression" type="xs:string"/>
+			<property name="detailExpressionPresentation" type="xs:string" lowerBound="0"/>
+			<property name="totalExpression" type="xs:string"/>
+			<property name="totalExpressionPresentation" type="xs:string" lowerBound="0"/>
+		</objectType>
+		<objectType name="UserFields">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="item" type="d4p1:UserField" lowerBound="0" upperBound="-1"/>
+		</objectType>
+		<objectType name="UserSettings">
+			<property name="item" lowerBound="0" upperBound="-1"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data/core" name="additionalProperties" type="d4p1:Structure" lowerBound="0"/>
+		</objectType>
+	</package>
+	<package targetNamespace="http://v8.1c.ru/8.1/data-composition-system/details" elementFormQualified="true" attributeFormQualified="false">
+		<import namespace="http://v8.1c.ru/8.1/data-composition-system/settings"/>
+		<property xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/details" name="detailsInformation" type="d3p1:DetailsInformation"/>
+		<valueType name="DataCompositionDetailsProcessingAction" base="xs:string">
+			<enumeration>None</enumeration>
+			<enumeration>DrillDown</enumeration>
+			<enumeration>Filter</enumeration>
+			<enumeration>Order</enumeration>
+			<enumeration>Group</enumeration>
+			<enumeration>OpenValue</enumeration>
+			<enumeration>ApplyAppearance</enumeration>
+		</valueType>
+		<valueType name="DetailsID" base="xs:decimal"/>
+		<objectType name="DetailsInformation">
+			<property name="detailsInformationKey" type="xs:string" lowerBound="0"/>
+			<property name="itemsCount" type="xs:decimal" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="settings" type="d4p1:Settings" lowerBound="0"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/details" name="item" type="d4p1:DetailsItem" lowerBound="0" upperBound="-1"/>
+		</objectType>
+		<objectType name="DetailsItem" abstract="true">
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/details" name="ID" type="d4p1:DetailsID"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/details" name="parentID" type="d4p1:DetailsID" lowerBound="0" upperBound="-1"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/details" name="DetailsItemFields" base="d3p1:DetailsItem">
+			<property name="fieldValue" type="d3p1:FieldValue" lowerBound="0" upperBound="-1"/>
+			<property name="mainAction" type="d3p1:DataCompositionDetailsProcessingAction" lowerBound="0"/>
+		</objectType>
+		<objectType xmlns:d3p1="http://v8.1c.ru/8.1/data-composition-system/details" name="DetailsItemGroup" base="d3p1:DetailsItem">
+			<property name="group" type="xs:string"/>
+		</objectType>
+		<objectType name="DetailsProcessDescription">
+			<property name="data" type="xs:string"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/details" name="ID" type="d4p1:DetailsID"/>
+			<property xmlns:d4p1="http://v8.1c.ru/8.1/data-composition-system/settings" name="settingsToApply" type="d4p1:Settings"/>
+		</objectType>
+		<objectType name="FieldValue">
+			<property name="field" type="xs:string"/>
+			<property name="value" lowerBound="0" nillable="true"/>
+			<property name="hierarchy" type="xs:boolean" lowerBound="0"/>
+		</objectType>
+	</package>
+</model>

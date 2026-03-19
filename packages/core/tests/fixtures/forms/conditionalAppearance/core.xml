@@ -1,0 +1,290 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://v8.1c.ru/8.1/data-composition-system/core"
+           targetNamespace="http://v8.1c.ru/8.1/data-composition-system/core"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+    <xs:complexType name="ParameterValues" abstract="true">
+        <xs:annotation>
+            <xs:documentation>Значения параметров (базовый)</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="item" type="tns:ParameterValue" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>Параметр</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ParameterValue">
+        <xs:annotation>
+            <xs:documentation>Значение параметра</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="use" type="xs:boolean" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Значение параметра используется.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="parameter" type="tns:Parameter">
+                <xs:annotation>
+                    <xs:documentation>Параметр</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="value" type="xs:anyType" nillable="true" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Значение параметра. Может содержать либо константное значение, либо значение - поле.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="item" type="tns:ParameterValue" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>Вложенные параметры</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="Parameter">
+        <xs:annotation>
+            <xs:documentation>Параметр компоновки данных</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string" />
+    </xs:simpleType>
+    <xs:simpleType name="Field">
+        <xs:annotation>
+            <xs:documentation>Поле компоновки данных</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string" />
+    </xs:simpleType>
+    <xs:simpleType name="ID">
+        <xs:annotation>
+            <xs:documentation>Идентификатор компоновки данных</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string" />
+    </xs:simpleType>
+    <xs:simpleType name="DataCompositionTotalPlacement">
+        <xs:annotation>
+            <xs:documentation>Тип размещения итогов</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Begin" />
+            <xs:enumeration value="End" />
+            <xs:enumeration value="BeginAndEnd" />
+            <xs:enumeration value="None" />
+            <xs:enumeration value="Auto" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Appearance">
+        <xs:annotation>
+        	<xs:documentation>Оформление. Доступны следующие параметры:
+BackgroundColor
+TextColor
+ColorInChart
+BorderColor
+BorderColor.Left
+BorderColor.Top
+BorderColor.Right
+BorderColor.Bottom
+BorderStyle
+BorderStyle.Left
+BorderStyle.Top
+BorderStyle.Right
+BorderStyle.Bottom
+Font
+Indent
+AutoIndent
+HorizontalAlign
+VerticalAlign
+TextOrientation
+Format
+MarkNegatives
+Text
+MinWidth
+MinHeight
+MaxWidth
+MaxHeigth</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="tns:ParameterValues" />
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="DataCompositionSortDirection">
+        <xs:annotation>
+            <xs:documentation>Тип упорядочивания</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Asc" />
+            <xs:enumeration value="Desc" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="DataCompositionGroupType">
+        <xs:annotation>
+            <xs:documentation>Тип группировки</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Items" />
+            <xs:enumeration value="Hierarchy" />
+            <xs:enumeration value="HierarchyOnly" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="DataCompositionPeriodAdditionType">
+        <xs:annotation>
+            <xs:documentation>Тип дополнения периода</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="None" />
+            <xs:enumeration value="Year" />
+            <xs:enumeration value="HalfYear" />
+            <xs:enumeration value="Quarter" />
+            <xs:enumeration value="Month" />
+            <xs:enumeration value="TenDays" />
+            <xs:enumeration value="Week" />
+            <xs:enumeration value="Day" />
+            <xs:enumeration value="Hour" />
+            <xs:enumeration value="Minute" />
+            <xs:enumeration value="Second" />
+            <xs:enumeration value="YearSinceBeginOfPeriod" />
+            <xs:enumeration value="HalfYearSinceBeginOfPeriod" />
+            <xs:enumeration value="QuarterSinceBeginOfPeriod" />
+            <xs:enumeration value="MonthSinceBeginOfPeriod" />
+            <xs:enumeration value="WeekSinceBeginOfPeriod" />
+            <xs:enumeration value="DaySinceBeginOfPeriod" />
+            <xs:enumeration value="HourSinceBeginOfPeriod" />
+            <xs:enumeration value="MinuteSinceBeginOfPeriod" />
+            <xs:enumeration value="YearSinceBeginOfPeriod445" />
+            <xs:enumeration value="HalfYearSinceBeginOfPeriod445" />
+            <xs:enumeration value="QuarterSinceBeginOfPeriod445" />
+            <xs:enumeration value="MonthSinceBeginOfPeriod445" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="DataCompositionTextPlacementType">
+        <xs:annotation>
+            <xs:documentation>Тип размещения текста системы компоновки данных</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Block" />
+            <xs:enumeration value="Cut" />
+            <xs:enumeration value="Wrap" />
+            <xs:enumeration value="Overflow"></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="DataCompositionFieldsTitleType">
+        <xs:annotation>
+            <xs:documentation>Тип заголовков полей</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Auto" />
+            <xs:enumeration value="Full" />
+            <xs:enumeration value="Short" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="DesignTimeValue">
+        <xs:restriction base="xs:string" />
+    </xs:simpleType>
+    <xs:complexType name="InputParameters">
+        <xs:annotation>
+            <xs:documentation>
+                Параметры ввода. Доступны следующие параметры:
+                Mask
+                ChoiceParameters
+                LinkByType
+                LinkByTypeItem
+                ChoiceForm
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="tns:ParameterValues" />
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="TypeLink">
+        <xs:annotation>
+            <xs:documentation>СвязьПоТипуКомпоновкиДанных</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="field" type="tns:Field" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Поле</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="linkItem" type="xs:decimal" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Элемент связи. По умолчанию 0.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ChoiceParameterLink">
+        <xs:annotation>
+            <xs:documentation>Связь параметра выбора значения</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="choiceParameter" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Параметр выбора</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="value" type="tns:Field">
+                <xs:annotation>
+                    <xs:documentation>Значение</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="mode" type="xs:anyType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Изменение значения</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ChoiceParameterLinks">
+        <xs:annotation>
+            <xs:documentation>Связи параметров выбора значения</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="item" type="tns:ChoiceParameterLink" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Элемент</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ChoiceParameter">
+        <xs:annotation>
+            <xs:documentation>Параметр выбора значения</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="choiceParameter" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Параметр выбора</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="value" type="xs:anyType" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Значение</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ChoiceParameters">
+        <xs:annotation>
+            <xs:documentation>Параметры выбора значения</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="item" type="tns:ChoiceParameter" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Элемент</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+  <xs:simpleType name="DataCompositionParameterUse">
+    <xs:annotation>
+      <xs:documentation>ИспользованиеПараметраКомпоновкиДанных</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Always" />
+      <xs:enumeration value="Auto" />
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
