@@ -1,6 +1,6 @@
 import { Static, Type } from "@sinclair/typebox"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { MetadataSimpleValueXML } from "../metadataValue/types"
+import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 
 //#region ChoiceParameterLink
 
@@ -17,7 +17,7 @@ export type ChoiceParameterLinks = ChoiceParameterLink[]
 
 export interface ChoiceParameterLinkXML {
   "xr:Name": string
-  "xr:DataPath": MetadataSimpleValueXML
+  "xr:DataPath": MetadataPrimitiveValueXML
   "xr:ValueChange"?: SE.LinkedValueChangeMode
 }
 

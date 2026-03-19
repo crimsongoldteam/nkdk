@@ -1,0 +1,93 @@
+<ConditionalAppearance>
+    <dcsset:item>
+        <dcsset:selection>
+            <dcsset:item>
+                <dcsset:field>Реквизит2</dcsset:field>
+            </dcsset:item>
+            <dcsset:item>
+                <dcsset:field>Реквизит2РасширеннаяПодсказка</dcsset:field>
+            </dcsset:item>
+        </dcsset:selection>
+        <dcsset:filter>
+            <dcsset:item xsi:type="dcsset:FilterItemComparison">
+                <dcsset:left xsi:type="dcscor:Field">Реквизит1</dcsset:left>
+                <dcsset:comparisonType>Equal</dcsset:comparisonType>
+                <dcsset:right xsi:type="xs:boolean">true</dcsset:right>
+            </dcsset:item>
+            <dcsset:item xsi:type="dcsset:FilterItemGroup">
+                <dcsset:groupType>AndGroup</dcsset:groupType>
+                <dcsset:item xsi:type="dcsset:FilterItemComparison">
+                    <dcsset:left xsi:type="dcscor:Field">Реквизит2</dcsset:left>
+                    <dcsset:comparisonType>Contains</dcsset:comparisonType>
+                    <dcsset:right xsi:type="dcscor:Field">Реквизит1</dcsset:right>
+                    <dcsset:presentation xsi:type="v8:LocalStringType">
+                        <v8:item>
+                            <v8:lang>ru</v8:lang>
+                            <v8:content>Представление</v8:content>
+                        </v8:item>
+                    </dcsset:presentation>
+                </dcsset:item>
+            </dcsset:item>
+        </dcsset:filter>
+        <dcsset:appearance>
+            <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+                <dcscor:parameter>ЦветФона</dcscor:parameter>
+                <dcscor:value xsi:type="v8ui:Color">web:Red</dcscor:value>
+            </dcscor:item>
+            <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+                <dcscor:parameter>ЦветТекста</dcscor:parameter>
+                <dcscor:value xsi:type="v8ui:Color">web:Blue</dcscor:value>
+            </dcscor:item>
+            <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+                <dcscor:parameter>Шрифт</dcscor:parameter>
+                <dcscor:value xsi:type="v8ui:Font" ref="style:ExtraLargeTextFont" kind="StyleItem"/>
+            </dcscor:item>
+            <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+                <dcscor:parameter>ГоризонтальноеПоложение</dcscor:parameter>
+                <dcscor:value xsi:type="v8ui:HorizontalAlign">Center</dcscor:value>
+            </dcscor:item>
+            <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+                <dcscor:parameter>Формат</dcscor:parameter>
+                <dcscor:value xsi:type="v8:LocalStringType">
+                    <v8:item>
+                        <v8:lang>ru</v8:lang>
+                        <v8:content>ЧЦ=3; ЧДЦ=2</v8:content>
+                    </v8:item>
+                </dcscor:value>
+            </dcscor:item>
+            <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+                <dcscor:parameter>ВыделятьОтрицательные</dcscor:parameter>
+                <dcscor:value xsi:type="xs:boolean">true</dcscor:value>
+            </dcscor:item>
+            <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+                <dcscor:parameter>ОтметкаНезаполненного</dcscor:parameter>
+                <dcscor:value xsi:type="xs:boolean">true</dcscor:value>
+            </dcscor:item>
+            <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+                <dcscor:parameter>Текст</dcscor:parameter>
+                <dcscor:value xsi:type="v8:LocalStringType">
+                    <v8:item>
+                        <v8:lang>ru</v8:lang>
+                        <v8:content>Текст</v8:content>
+                    </v8:item>
+                </dcscor:value>
+            </dcscor:item>
+            <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+                <dcscor:parameter>Видимость</dcscor:parameter>
+                <dcscor:value xsi:type="xs:boolean">false</dcscor:value>
+            </dcscor:item>
+            <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+                <dcscor:parameter>Доступность</dcscor:parameter>
+                <dcscor:value xsi:type="xs:boolean">false</dcscor:value>
+            </dcscor:item>
+            <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+                <dcscor:parameter>ТолькоПросмотр</dcscor:parameter>
+                <dcscor:value xsi:type="xs:boolean">true</dcscor:value>
+            </dcscor:item>
+            <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+                <dcscor:parameter>Отображать</dcscor:parameter>
+                <dcscor:value xsi:type="xs:boolean">false</dcscor:value>
+            </dcscor:item>
+        </dcsset:appearance>
+    </dcsset:item>
+</ConditionalAppearance>

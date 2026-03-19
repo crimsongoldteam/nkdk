@@ -1,7 +1,7 @@
 //#region MetadataValueCollection
 
 import { Static, Type } from "@sinclair/typebox"
-import { MetadataSimpleValueXML } from "../metadataValue/types"
+import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 
 export type MetadataValueCollectionItem = string
 
@@ -14,7 +14,7 @@ export type MetadataValueCollection = MetadataValueCollectionItem[]
 export type MetadataValueCollectionItemXML = string
 
 export type MetadataValueCollectionXML = {
-  "xr:Item": MetadataSimpleValueXML | MetadataSimpleValueXML[]
+  "xr:Item": MetadataPrimitiveValueXML | MetadataPrimitiveValueXML[]
 }
 
 //#endregion

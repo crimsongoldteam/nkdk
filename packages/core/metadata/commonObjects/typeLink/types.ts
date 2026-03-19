@@ -1,9 +1,9 @@
 import { Static, Type } from "@sinclair/typebox"
 import { MetadataField } from "../metadataField/types"
-import { MetadataSimpleValueXML } from "../metadataValue/types"
+import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 
 export interface TypeLinkXML {
-  "xr:DataPath": string | MetadataSimpleValueXML
+  "xr:DataPath": string | MetadataPrimitiveValueXML
   "xr:LinkItem": number
 }
 

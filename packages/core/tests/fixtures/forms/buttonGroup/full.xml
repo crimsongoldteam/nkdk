@@ -1,6 +1,7 @@
 <ButtonGroup name="ГруппаКнопок" id="1">
 	<ChildItems>
 		<Button name="Кнопка" id="2">
+			<ExtendedTooltip name="КнопкаРасширеннаяПодсказка" id="3"/>
 		</Button>
 	</ChildItems>
 	<CommandSource>FormCommandPanelGlobalCommands</CommandSource>
@@ -39,7 +40,7 @@
 	<Type>UsualGroup</Type>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
-		<xr:Value name="Администратор">true</xr:Value>
+		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalStretch>false</VerticalStretch>
 	<Visible>true</Visible>

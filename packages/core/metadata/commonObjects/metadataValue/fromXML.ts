@@ -8,21 +8,19 @@ import {
   MetadataFixedArrayValueXML,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueXML,
-  MetadataSimpleValue,
-  MetadataSimpleValueXML,
-  MetadataValue,
+  MetadataTypedPrimitiveValue,
   MetadataValueType,
   MetadataValueTypeFromXML,
   MetadataValueTypeXML,
-  MetadataValueXML,
 } from "./types"
 
-export const importMetadataValueFromXML = (
-  context: ConfigurationContextFromXML,
-  _rule: PropertyRule | undefined,
-  data: MetadataValueXML | undefined,
+export const importMetadataValueFromXML = (params: {
+  context: ConfigurationContextFromXML
+  rule: PropertyRule | undefined
+  value: any
   type?: MetadataValueType
-): MetadataValue | undefined => {
+}): any => {
+  const { context, value: data, type, rule } = params
   if (!data) return undefined
 
   const resultedType = type ?? extractType(data["_xsi:type"])
@@ -37,9 +35,9 @@ export const importMetadataValueFromXML = (
     return importFormChoiceListValueFromXML(context, undefined, data as MetadataFormChoiceListValueXML)
   }
 
-  const textValue = (data as MetadataSimpleValueXML)["#text"] as string | boolean | number | undefined
+  const textValue = (data as any)["#text"] as string | boolean | number | undefined
 
-  const simpleValueTypes: MetadataSimpleValue["type"][] = [
+  const simpleValueTypes: MetadataTypedPrimitiveValue["type"][] = [
     "string",
     "decimal",
     "dateTime",
@@ -47,7 +45,7 @@ export const importMetadataValueFromXML = (
     "ref",
     "objectRef",
   ]
-  if (!simpleValueTypes.includes(resultedType as MetadataSimpleValue["type"])) {
+  if (!simpleValueTypes.includes(resultedType as MetadataTypedPrimitiveValue["type"])) {
     throw new Error(`Invalid simple value type: ${resultedType}`)
   }
 
@@ -56,35 +54,23 @@ export const importMetadataValueFromXML = (
     return undefined
   }
 
-  return {
-    type: resultedType as MetadataSimpleValue["type"],
-    value: importedValue,
-  } as MetadataSimpleValue
-}
+  const withType = Boolean((rule as any)?.withType) || type !== undefined
 
-export const importMetadataValueFromXMLAsPrimitive = <T extends MetadataValueType>(
-  context: ConfigurationContextFromXML,
-  _rule: PropertyRule | undefined,
-  data: MetadataValueXML | undefined,
-  type: T
-): T extends "string"
-  ? string
-  : T extends "boolean"
-    ? boolean
-    : T extends "decimal"
-      ? number
-      : T extends "dateTime"
-        ? string
-        : never => {
-  return importMetadataValueFromXML(context, undefined, data, type)?.value as T extends "string"
-    ? string
-    : T extends "boolean"
-      ? boolean
-      : T extends "decimal"
-        ? number
-        : T extends "dateTime"
-          ? string
-          : never
+  // Без `withType` стараемся возвращать примитив там, где это ожидается в YAML/XML пайплайне.
+  if (!withType && rule && resultedType === "string") {
+    const s = String(importedValue)
+    if ((rule as any)?.valueType === "string") {
+      // "numberAsString" кейс: в ряде мест строковый xsi:type используется для чисел
+      if (/^-?\d+(?:\.\d+)?$/.test(s)) return Number(s)
+    }
+    // обычная строка
+    if ((rule as any)?.valueType === undefined) return s
+  }
+
+  return {
+    type: resultedType as MetadataTypedPrimitiveValue["type"],
+    value: importedValue,
+  } as MetadataTypedPrimitiveValue
 }
 
 const importSimpleValueFromXML = (
@@ -93,7 +79,12 @@ const importSimpleValueFromXML = (
   textValue: string | boolean | number | undefined,
   type: MetadataValueType
 ): string | boolean | number | undefined => {
-  if (type === "string") return importMetadataStringValueFromXML(context, undefined, textValue as string | undefined)
+  if (type === "string")
+    return importMetadataStringValueFromXML(
+      context,
+      undefined,
+      textValue === undefined ? undefined : String(textValue)
+    )
   if (type === "decimal") return importMetadataDecimalValueFromXML(context, undefined, textValue as string | undefined)
   if (type === "dateTime")
     return importMetadataDateTimeValueFromXML(context, undefined, textValue as string | undefined)
@@ -107,19 +98,19 @@ const importSimpleValueFromXML = (
 export const importMetadataValuesFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  data: MetadataValueXML[] | undefined
-): MetadataValue[] | undefined => {
+  data: any[] | undefined
+): any[] | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => importMetadataValueFromXML(context, undefined, value)!)
+  return data.map((value) => importMetadataValueFromXML({ context, rule: undefined, value })!)
 }
 
 export const importMetadataSimpleValueFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  data: MetadataSimpleValueXML | undefined
+  data: any
 ): string | boolean | number | undefined => {
-  const result = importMetadataValueFromXML(context, undefined, data)
+  const result = importMetadataValueFromXML({ context, rule: undefined, value: data })
   if (!result) return undefined
 
   if (!isPrimitiveType(result.type)) throw new Error(`Invalid type: ${result.type}`)
@@ -187,11 +178,11 @@ const importFixedArrayFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   data: MetadataFixedArrayValueXML | { "v8:Value": string | string[] }
-): MetadataValue => {
+): any => {
   const values = Array.isArray(data["v8:Value"]) ? data["v8:Value"] : [data["v8:Value"]]
   return {
     type: "fixedArray",
-    value: values.map((v) => importMetadataValueFromXML(context, undefined, v as MetadataValueXML)!),
+    value: values.map((v) => importMetadataValueFromXML({ context, rule: undefined, value: v as any })!),
   }
 }
 
@@ -200,7 +191,7 @@ export const importFormChoiceListValueFromXML = (
   _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValueXML
 ): MetadataFormChoiceListValue | undefined => {
-  const value = importMetadataValueFromXML(context, undefined, data.Value)
+  const value = importMetadataValueFromXML({ context, rule: undefined, value: data.Value })
   const presentation = importI8nTextFromXML(context, { type: "I8nText" }, data.Presentation)
   return { type: "formChoiceListDesTimeValue", value, presentation }
 }
@@ -212,13 +203,14 @@ const isPrimitiveType = (type: MetadataValueType): boolean => {
 export const importAssociatedTableFromXML = (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
-  data: MetadataValueXML | undefined
+  data: any
 ): string | undefined => {
-  return importMetadataValueFromXMLAsPrimitive(context, rule, data, "string")
+  const result = importMetadataValueFromXML({ context, rule, value: data, type: "string" })
+  return result?.value as string | undefined
 }
 
 const importMetadataValueFromXMLForRule: importFromXMLFunction = (context, rule, value) =>
-  importMetadataValueFromXML(context, rule, value)
+  importMetadataValueFromXML({ context, rule, value })
 
 registerTypeRule("MetadataValue", "importFromXML", importMetadataValueFromXMLForRule)
 

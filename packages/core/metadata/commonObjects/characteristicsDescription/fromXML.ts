@@ -65,7 +65,11 @@ export const importCharacteristicsDescriptionFromXML = (
   const typesFilterField = extractFieldValue(characteristicTypes?.["xr:TypesFilterField"])
   if (typesFilterField !== undefined) result.typesFilterField = typesFilterField
 
-  const typesFilterValue = importMetadataValueFromXML(context, undefined, characteristicTypes?.["xr:TypesFilterValue"])
+  const typesFilterValue = importMetadataValueFromXML({
+    context,
+    rule: undefined,
+    value: characteristicTypes?.["xr:TypesFilterValue"],
+  })
   if (typesFilterValue !== undefined) result.typesFilterValue = typesFilterValue
 
   const valueField = extractFieldValue(characteristicValues?.["xr:ValueField"])

@@ -2,6 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/orchestration"
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { getDefaults } from "./defaults"
 import { MetadataTabularSectionRules } from "./rules"
 import {
@@ -27,6 +28,9 @@ export const importMetadataTabularSectionFromYAML = (
   }) as MetadataTabularSection
 
   result.name = name
+  if (result.synonym === undefined) {
+    result.synonym = addDefaultLanguageNameToSynonym(context, undefined, name)
+  }
 
   const defaults = getDefaults(context, result)
   return removeDefaults(result, defaults)

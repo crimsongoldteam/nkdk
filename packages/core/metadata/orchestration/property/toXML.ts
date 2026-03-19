@@ -1,5 +1,6 @@
 import { capitalize } from "~/helpers/capitalize"
-import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
+import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
+import { MetadataPrimitiveValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
@@ -104,7 +105,12 @@ export const exportPropertyToXML = (params: {
         return referenceMetadata
       }
 
-      return exportMetadataSimpleValueToXML(context, undefined, value, "decimal")
+      if (value === undefined) return undefined
+      return exportMetadataValueToXML({
+        context,
+        rule: { type: "MetadataValue", valueType: "decimal" },
+        value,
+      }) as MetadataPrimitiveValueXML
     }
 
     if (value === rule.defaultValue) {

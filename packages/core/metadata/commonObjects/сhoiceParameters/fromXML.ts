@@ -23,7 +23,7 @@ const importChoiceParameterFromXML = (
   _rule: PropertyRule | undefined,
   xml: ChoiceParameterXML
 ): ChoiceParameter => {
-  const value = importMetadataValueFromXML(context, undefined, xml["app:value"])
+  const value = importMetadataValueFromXML({ context, rule: undefined, value: xml["app:value"] })
 
   return {
     name: xml._name,

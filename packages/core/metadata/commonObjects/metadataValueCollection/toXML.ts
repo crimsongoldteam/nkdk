@@ -2,7 +2,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToXML } from "../metadataValue/toXML"
-import { MetadataSimpleValueXML, MetadataValue } from "../metadataValue/types"
+import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 import { MetadataValueCollection, MetadataValueCollectionXML } from "./types"
 
 export const exportMetadataValueCollectionToXML = (
@@ -13,11 +13,15 @@ export const exportMetadataValueCollectionToXML = (
   if (!data || data.length === 0) return undefined
 
   const items = data.map((item) => {
-    const metadataValue: MetadataValue = {
+    const metadataValue: any = {
       type: "objectRef",
       value: item,
     }
-    return exportMetadataValueToXML(context, undefined, metadataValue)! as MetadataSimpleValueXML
+    return exportMetadataValueToXML({
+      context,
+      rule: { type: "MetadataValue" },
+      value: metadataValue,
+    })! as MetadataPrimitiveValueXML
   })
 
   return {

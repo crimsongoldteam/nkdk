@@ -12,8 +12,8 @@ export const importI8nTextFromYAML: importFromYAMLFunctionNew = (params: {
   name?: string
 }): I8nText | undefined => {
   const { context, rule, value, source, name } = params
-  if (source === undefined && value === undefined) return undefined
   const i8nRule = rule as I8nTextPropertyRule
+  if (source === undefined && value === undefined) return undefined
 
   const result: I8nText = {
     items: {},

@@ -41,7 +41,11 @@ export const exportCharacteristicsDescriptionToXML = (
   }
 
   if (data.typesFilterValue) {
-    characteristicTypesData["xr:TypesFilterValue"] = exportMetadataValueToXML(context, undefined, data.typesFilterValue)
+    characteristicTypesData["xr:TypesFilterValue"] = exportMetadataValueToXML({
+      context,
+      rule: { type: "MetadataValue" },
+      value: data.typesFilterValue,
+    })
   }
 
   const characteristicValuesData: CharacteristicsDescriptionXML["xr:CharacteristicValues"] = {}
