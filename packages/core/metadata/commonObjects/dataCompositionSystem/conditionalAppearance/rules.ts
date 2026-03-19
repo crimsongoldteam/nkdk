@@ -1,0 +1,117 @@
+import { MetadataItemRule } from "~/metadata/orchestration"
+
+export const ConditionalAppearanceItemRules = {
+  itemType: "ConditionalAppearanceItem",
+  properties: {
+    use: {
+      type: "boolean",
+      xml: "dcsset:use",
+      yaml: "Использование",
+    },
+    fields: {
+      type: "AppearanceFields",
+      xml: "dcsset:selection",
+      yaml: "Поля",
+    },
+    filter: {
+      type: "Filter",
+      xml: "dcsset:filter",
+      yaml: "Отбор",
+    },
+    appearance: {
+      type: "Appearance",
+      xml: "dcsset:appearance",
+      yaml: "Оформление",
+    },
+    presentation: {
+      type: "string",
+      xml: "dcsset:presentation",
+      yaml: "Представление",
+    },
+    viewMode: {
+      type: "DataCompositionSettingsItemViewMode",
+      xml: "dcsset:viewMode",
+      yaml: "РежимОтображения",
+    },
+    userSettingID: {
+      type: "string",
+      xml: "dcsset:userSettingID",
+      yaml: "ИдентификаторПользовательскойНастройки",
+    },
+    userSettingPresentation: {
+      type: "string",
+      xml: "dcsset:userSettingPresentation",
+      yaml: "ПредставлениеПользовательскойНастройки",
+    },
+    useInGroup: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionConditionalAppearanceUse",
+      xml: "dcsset:useInGroup",
+      yaml: "ИспользоватьВГруппировке",
+      defaultValueYAML: "Use",
+    },
+    useInHierarchicalGroup: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionConditionalAppearanceUse",
+      xml: "dcsset:useInHierarchicalGroup",
+      yaml: "ИспользоватьВИерархическойГруппировке",
+      defaultValueYAML: "Use",
+    },
+    useInOverall: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionConditionalAppearanceUse",
+      xml: "dcsset:useInOverall",
+      yaml: "ИспользоватьВОбщемИтоге",
+      defaultValueYAML: "Use",
+    },
+    useInFieldsHeader: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionConditionalAppearanceUse",
+      xml: "dcsset:useInFieldsHeader",
+      yaml: "ИспользоватьВЗаголовкеПолей",
+      defaultValueYAML: "Use",
+    },
+    useInHeader: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionConditionalAppearanceUse",
+      xml: "dcsset:useInHeader",
+      yaml: "ИспользоватьВЗаголовке",
+      defaultValueYAML: "Use",
+    },
+    useInParameters: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionConditionalAppearanceUse",
+      xml: "dcsset:useInParameters",
+      yaml: "ИспользоватьВПараметрах",
+      defaultValueYAML: "Use",
+    },
+    useInFilter: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionConditionalAppearanceUse",
+      xml: "dcsset:useInFilter",
+      yaml: "ИспользоватьВОтборе",
+      defaultValueYAML: "Use",
+    },
+    useInResourceFieldsHeader: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionConditionalAppearanceUse",
+      xml: "dcsset:useInResourceFieldsHeader",
+      yaml: "ИспользоватьВЗаголовкеПолейРесурсов",
+      defaultValueYAML: "Use",
+    },
+    useInOverallHeader: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionConditionalAppearanceUse",
+      xml: "dcsset:useInOverallHeader",
+      yaml: "ИспользоватьВЗаголовкеОбщегоИтога",
+      defaultValueYAML: "Use",
+    },
+    useInOverallResourceFieldsHeader: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionConditionalAppearanceUse",
+      xml: "dcsset:useInOverallResourceFieldsHeader",
+      yaml: "ИспользоватьВЗаголовкеПолейРесурсовОбщегоИтога",
+      defaultValueYAML: "Use",
+    },
+  },
+} as const satisfies MetadataItemRule
