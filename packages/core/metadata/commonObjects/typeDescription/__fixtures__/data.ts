@@ -1,4 +1,4 @@
-import { TypeDescription, TypeDescriptionYAML } from "../../../metadata/commonObjects/typeDescription/types"
+import { TypeDescription, TypeDescriptionYAML } from "../types"
 
 export interface TypeFixture {
   internal: TypeDescription

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { typeFixturesTable } from "../../../tests/fixtures/typeDescription/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
+import { typeFixturesTable } from "./__fixtures__/data"
 import { exportTypeDescriptionToYAML } from "./toYAML"
 
 describe("exportTypeDescriptionToYAML", () => {

@@ -1,29 +1,24 @@
 import { MetadataItemRule } from "~/metadata/orchestration"
 
-export const FilterItemComparisonRules = {
-  itemType: "FilterItemComparison",
+export const FilterItemGroupRules = {
+  itemType: "FilterItemGroup",
   properties: {
     use: {
       type: "boolean",
       xml: "dcsset:use",
       yaml: "Использование",
     },
-    leftValue: {
-      type: "string",
-      xml: "dcsset:left",
-      yaml: "ЛевоеЗначение",
-    },
-    comparisonType: {
+    groupType: {
       type: "SystemEnumeration",
-      typeSE: "DataCompositionComparisonType",
-      xml: "dcsset:comparisonType",
-      yaml: "ВидСравнения",
-      defaultValueYAML: "Equal",
+      typeSE: "DataCompositionFilterItemsGroupType",
+      xml: "dcsset:groupType",
+      yaml: "ТипГруппы",
+      defaultValueYAML: "AndGroup",
     },
-    rightValue: {
-      type: "string",
-      xml: "dcsset:right",
-      yaml: "ПравоеЗначение",
+    items: {
+      type: "FilterItem",
+      xml: "dcsset:item",
+      yaml: "Элементы",
     },
     presentation: {
       type: "string",
@@ -35,7 +30,7 @@ export const FilterItemComparisonRules = {
       typeSE: "DataCompositionFilterApplicationType",
       xml: "dcsset:application",
       yaml: "Применение",
-      //   defaultValueYAML: "Items",
+      //   defaultValueYAML: "",
     },
     viewMode: {
       type: "SystemEnumeration",

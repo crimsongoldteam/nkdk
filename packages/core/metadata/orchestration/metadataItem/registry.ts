@@ -1,4 +1,22 @@
 import {
+  ConditionalAppearanceItem,
+  ConditionalAppearanceItemYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
+import {
+  FilterItemComparison,
+  FilterItemComparisonYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
+import {
+  FilterItemGroup,
+  FilterItemGroupYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/filterItemGroup/types"
+import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
+import {
+  MetadataTabularSection,
+  MetadataTabularSectionYAML,
+} from "~/metadata/commonObjects/metadataTabularSection/types"
+import {
   AutoCommandBar,
   AutoCommandBarEnterprise,
   AutoCommandBarYAML,
@@ -9,11 +27,6 @@ import {
   ViewStatusAdditionYAML,
 } from "~/metadata/forms/elements/viewStatusAddition/types"
 // import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
-import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
-import {
-  MetadataTabularSection,
-  MetadataTabularSectionYAML,
-} from "~/metadata/commonObjects/metadataTabularSection/types"
 import {
   StandardAttributeDescription,
   StandardAttributeDescriptionYAML,
@@ -478,6 +491,23 @@ export type MetadataItemTypeRegistry = {
   StandardAttributeDescription: {
     metadata: StandardAttributeDescription
     yaml: StandardAttributeDescriptionYAML
+  }
+
+  ConditionalAppearanceItem: {
+    metadata: ConditionalAppearanceItem
+    yaml: ConditionalAppearanceItemYAML
+  }
+  Filter: {
+    metadata: Filter
+    yaml: FilterYAML
+  }
+  FilterItemComparison: {
+    metadata: FilterItemComparison
+    yaml: FilterItemComparisonYAML
+  }
+  FilterItemGroup: {
+    metadata: FilterItemGroup
+    yaml: FilterItemGroupYAML
   }
 
   //#endregion

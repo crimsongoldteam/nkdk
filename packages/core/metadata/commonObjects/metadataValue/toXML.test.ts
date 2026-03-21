@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { metadataValueFixtures } from "~/tests/fixtures/metadataValue/data"
+import { metadataValueFixtures } from "~/metadata/commonObjects/metadataValue/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportMetadataValueToXML } from "./toXML"

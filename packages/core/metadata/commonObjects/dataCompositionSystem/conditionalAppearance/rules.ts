@@ -7,6 +7,7 @@ export const ConditionalAppearanceItemRules = {
       type: "boolean",
       xml: "dcsset:use",
       yaml: "Использование",
+      defaultValueYAML: true,
     },
     fields: {
       type: "AppearanceFields",
@@ -24,14 +25,16 @@ export const ConditionalAppearanceItemRules = {
       yaml: "Оформление",
     },
     presentation: {
-      type: "string",
+      type: "I8nText",
       xml: "dcsset:presentation",
       yaml: "Представление",
     },
     viewMode: {
-      type: "DataCompositionSettingsItemViewMode",
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
+      defaultValueYAML: "Auto",
     },
     userSettingID: {
       type: "string",
@@ -39,7 +42,7 @@ export const ConditionalAppearanceItemRules = {
       yaml: "ИдентификаторПользовательскойНастройки",
     },
     userSettingPresentation: {
-      type: "string",
+      type: "I8nText",
       xml: "dcsset:userSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройки",
     },

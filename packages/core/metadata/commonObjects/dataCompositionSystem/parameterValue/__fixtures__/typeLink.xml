@@ -1,0 +1,7 @@
+<dcscor:item>
+    <dcscor:parameter>СвязьПоТипу</dcscor:parameter>
+    <dcscor:value xsi:type="dcscor:TypeLink">
+        <dcscor:field>Поле1</dcscor:field>
+        <dcscor:linkItem>2</dcscor:linkItem>
+    </dcscor:value>
+</dcscor:item>

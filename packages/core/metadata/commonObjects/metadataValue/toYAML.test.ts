@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
+import { metadataValueFixtures } from "~/metadata/commonObjects/metadataValue/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
-import { metadataValueFixtures } from "~/tests/fixtures/metadataValue/data"
 import { exportMetadataValueToYAML } from "./toYAML"
 
 describe("exportMetadataValueToYAML", () => {

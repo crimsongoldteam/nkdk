@@ -1,4 +1,5 @@
 import {
+  MetadataTypedValuePropertyRule,
   MetadataValue,
   MetadataValuePropertyRule,
   MetadataValueYAML,
@@ -7,7 +8,7 @@ import {
 type MetadataValueFixture = {
   name: string
   rule: MetadataValuePropertyRule
-  ruleWithType: MetadataValuePropertyRule
+  ruleWithType: MetadataTypedValuePropertyRule
   internal: MetadataValue | string | boolean | number | undefined
   internalWithType: MetadataValue | string | boolean | number | undefined
   YAML: MetadataValueYAML | string | boolean | number | undefined

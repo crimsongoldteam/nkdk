@@ -1,0 +1,9 @@
+<dcscor:item>
+    <dcscor:parameter>ПараметрыВыбора</dcscor:parameter>
+    <dcscor:value xsi:type="dcscor:ChoiceParameters">
+        <dcscor:item>
+            <dcscor:choiceParameter>Параметр</dcscor:choiceParameter>
+            <dcscor:value xsi:type="xs:decimal">123</dcscor:value>
+        </dcscor:item>
+    </dcscor:value>
+</dcscor:item>

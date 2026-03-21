@@ -78,7 +78,7 @@ export interface MetadataFormChoiceListValue {
   value?: MetadataTypedValue
 }
 
-type MetadataSimpleValue =
+export type MetadataSimpleValue =
   | MetadataTypedPrimitiveValue["value"]
   | MetadataTypedPrimitiveValue["value"][]
   | {
@@ -192,18 +192,13 @@ export type MetadataValueYAML = Static<typeof MetadataValueJSONSchema>
 export interface MetadataValuePropertyRule extends BasePropertyRule {
   type: "MetadataValue"
 
-  /**
-   * Тип значения
-   */
-  valueType?: MetadataValueType
+  valueType: MetadataValueType
 
-  /**
-   * Для YAML: принудительно выгружать строковые значения с кавычками
-   */
-  withType?: true
+  exportNilValue?: true
+}
 
-  /**
-   * Если включен, то значение undefined будет выгружено с `_xsi:nil="true"`
-   */
+export interface MetadataTypedValuePropertyRule extends BasePropertyRule {
+  type: "MetadataTypedValue"
+
   exportNilValue?: true
 }

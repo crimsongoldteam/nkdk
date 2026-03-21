@@ -8,6 +8,10 @@ import {
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
+import {
+  SettingsParameterValue,
+  SettingsParameterValueYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
 import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
 import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
 import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"
@@ -444,6 +448,10 @@ export type PropertyTypeRegistry = {
     enterprise: ScrollBarUseEnterprise
     yaml: ScrollBarUseYAML
   }
+  SettingsParameterValue: {
+    item: SettingsParameterValue
+    yaml: SettingsParameterValueYAML
+  }
 }
 
 export type PropertyRuleType = keyof PropertyTypeRegistry
@@ -514,6 +522,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   FormParameters: "FormParameters",
   InternalInfo: "InternalInfo",
   ScrollBarUseBoolean: "ScrollBarUseBoolean",
+  SettingsParameterValue: "SettingsParameterValue",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends PropertyRuleType

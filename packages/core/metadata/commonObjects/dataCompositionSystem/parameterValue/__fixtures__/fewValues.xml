@@ -1,0 +1,6 @@
+<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+    <dcscor:use>false</dcscor:use>
+    <dcscor:parameter>ИмяПараметра</dcscor:parameter>
+    <dcscor:value xsi:type="dcscor:DesignTimeValue">Перечисление.ИмяПеречисления.Значение1</dcscor:value>
+    <dcscor:value xsi:type="dcscor:DesignTimeValue">Перечисление.ИмяПеречисления.Значение2</dcscor:value>
+</dcscor:item>

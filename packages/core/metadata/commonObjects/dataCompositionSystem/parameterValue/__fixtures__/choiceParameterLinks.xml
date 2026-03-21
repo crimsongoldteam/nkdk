@@ -1,0 +1,10 @@
+<dcscor:item>
+    <dcscor:parameter>СвязиПараметровВыбора</dcscor:parameter>
+    <dcscor:value xsi:type="dcscor:ChoiceParameterLinks">
+        <dcscor:item>
+            <dcscor:choiceParameter>ПараметрВыбора</dcscor:choiceParameter>
+            <dcscor:value>Поле1</dcscor:value>
+            <dcscor:mode xsi:type="ent:LinkedValueChangeMode">DontChange</dcscor:mode>
+        </dcscor:item>
+    </dcscor:value>
+</dcscor:item>
