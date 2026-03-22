@@ -1,4 +1,14 @@
-import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
+import { ChoiceParameter, ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
+
+//#region DCS (один параметр для фрагмента СКД)
+export const dcsDecimalChoiceParameter: ChoiceParameter = {
+  name: "Параметр",
+  value: {
+    type: "decimal",
+    value: 123,
+  },
+}
+//#endregion
 
 //#region Single
 export const singleChoiceParameter: ChoiceParameters = [
