@@ -1,4 +1,8 @@
 import {
+  AppearanceFields,
+  AppearanceFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
+import {
   ConditionalAppearanceItem,
   ConditionalAppearanceItemYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
@@ -493,6 +497,10 @@ export type MetadataItemTypeRegistry = {
     yaml: StandardAttributeDescriptionYAML
   }
 
+  AppearanceFields: {
+    metadata: AppearanceFields
+    yaml: AppearanceFieldsYAML
+  }
   ConditionalAppearanceItem: {
     metadata: ConditionalAppearanceItem
     yaml: ConditionalAppearanceItemYAML

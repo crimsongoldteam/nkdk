@@ -1,6 +1,7 @@
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
+import { SettingsParameterValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
 import { StandartAttributeName } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
@@ -159,6 +160,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "TableChildItems"
     | "PagesChildItems"
     | "MetadataValue"
+    | "SettingsParameterValue"
   >
 }
 
@@ -184,6 +186,7 @@ export type PropertyRule =
   | DataPathPropertyRule
   | MetadataTypePropertyRule
   | MetadataValuePropertyRule
+  | SettingsParameterValuePropertyRule
 
 type PropertiesType = Record<string, PropertyRule>
 

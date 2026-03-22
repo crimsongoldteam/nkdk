@@ -9,9 +9,14 @@ import {
 import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
 import {
+  AppearanceFields,
+  AppearanceFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
+import {
   MetadataDcsMetadataValue,
   MetadataDcsMetadataValueYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
+import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import {
   SettingsParameterValue,
   SettingsParameterValueYAML,
@@ -460,6 +465,18 @@ export type PropertyTypeRegistry = {
     item: MetadataDcsMetadataValue
     yaml: MetadataDcsMetadataValueYAML
   }
+  AppearanceFields: {
+    item: AppearanceFields
+    yaml: AppearanceFieldsYAML
+  }
+  Appearance: {
+    item: AppearanceFields
+    yaml: AppearanceFieldsYAML
+  }
+  Filter: {
+    item: Filter
+    yaml: FilterYAML
+  }
 }
 
 export type PropertyRuleType = keyof PropertyTypeRegistry
@@ -532,6 +549,9 @@ export const PropertyRuleTypeKeys = Object.keys({
   ScrollBarUseBoolean: "ScrollBarUseBoolean",
   SettingsParameterValue: "SettingsParameterValue",
   MetadataDcsMetadataValue: "MetadataDcsMetadataValue",
+  AppearanceFields: "AppearanceFields",
+  Appearance: "Appearance",
+  Filter: "Filter",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends PropertyRuleType
