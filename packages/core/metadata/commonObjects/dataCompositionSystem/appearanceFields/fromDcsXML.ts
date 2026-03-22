@@ -38,5 +38,8 @@ export const importAppearanceFieldsFromDcsXML = (
     ) as SettingsParameterValue
   }
 
-  return result as AppearanceFields
+  return {
+    itemType: "AppearanceFields",
+    ...result,
+  } as AppearanceFields
 }

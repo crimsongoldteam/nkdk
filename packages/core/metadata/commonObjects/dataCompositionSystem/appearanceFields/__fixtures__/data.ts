@@ -24,6 +24,7 @@ const pv = (
 })
 
 export const fixtureAppearanceFields: AppearanceFields = {
+  itemType: "AppearanceFields",
   ЦветФона: pv("ЦветФона", colorRed, false),
   ЦветТекста: pv("ЦветТекста", colorBlue),
   Шрифт: pv("Шрифт", fontExtraLarge),

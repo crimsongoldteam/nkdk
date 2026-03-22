@@ -30,5 +30,8 @@ export const importAppearanceFieldsFromYAML = (
     ) as SettingsParameterValue
   }
 
-  return result as AppearanceFields
+  return {
+    itemType: "AppearanceFields",
+    ...result,
+  } as AppearanceFields
 }
