@@ -1,12 +1,13 @@
 import { BasePropertyRule } from "~/metadata/orchestration"
+import type { SystemEnumerationTypeMap } from "~/metadata/systemEnumerations/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import type { I8nText, I8nTextXML, I8nTextYAML } from "../../i8nText/types"
-import {
-  MetadataSimpleValue,
-  MetadataSimpleValueXML,
-  MetadataTypedPrimitiveValue,
-  MetadataValueType,
-} from "../../metadataValue/types"
+import type {
+  DcsMetadataValueValueType,
+  MetadataDcsMetadataValue,
+  MetadataDcsMetadataValueDcsRootXML,
+  MetadataDcsMetadataValueYAML,
+} from "../dcsMetadataValue/types"
 
 //#region Property rules
 
@@ -16,7 +17,9 @@ import {
  */
 export interface SettingsParameterValuePropertyRule extends BasePropertyRule {
   type: "SettingsParameterValue"
-  valueType: MetadataValueType
+  valueType: DcsMetadataValueValueType
+  /** Для `SystemEnumeration` — ключ из `SystemEnumerationTypeMap`. */
+  typeSE?: keyof SystemEnumerationTypeMap
 }
 
 //#endregion
@@ -26,7 +29,7 @@ export interface SettingsParameterValuePropertyRule extends BasePropertyRule {
 export type ParameterValue = {
   use?: boolean
   parameter: string
-  value?: MetadataTypedPrimitiveValue | MetadataTypedPrimitiveValue[]
+  value?: MetadataDcsMetadataValue | MetadataDcsMetadataValue[]
   item?: ParameterValue[]
 }
 
@@ -43,11 +46,11 @@ export type SettingsParameterValue = ParameterValue & {
 export type ParameterValueYAMLObject = {
   Параметр?: string
   Использовать?: "Ложь"
-  Значение?: MetadataSimpleValue | MetadataSimpleValue[]
+  Значение?: MetadataDcsMetadataValueYAML | MetadataDcsMetadataValueYAML[]
   Элементы?: ParameterValueYAML[]
 }
 
-export type ParameterValueYAML = MetadataSimpleValue | ParameterValueYAMLObject
+export type ParameterValueYAML = MetadataDcsMetadataValueYAML | ParameterValueYAMLObject
 
 export type SettingsParameterValueYAMLObject = Omit<ParameterValueYAMLObject, "Элементы"> & {
   РежимОтображения?: SE.DataCompositionSettingsItemViewModeYAML
@@ -56,20 +59,20 @@ export type SettingsParameterValueYAMLObject = Omit<ParameterValueYAMLObject, "�
   Элементы?: SettingsParameterValueYAML[]
 }
 
-export type SettingsParameterValueYAML = MetadataSimpleValue | SettingsParameterValueYAMLObject
+export type SettingsParameterValueYAML = MetadataDcsMetadataValueYAML | SettingsParameterValueYAMLObject
 
 //#endregion
 
 //#region XML
 
-export type ParameterValueContentXML = MetadataSimpleValueXML
-
-export type SettingsParameterValueContentXML = ParameterValueContentXML
+/** Один узел `dcscor:value` (см. `MetadataDcsMetadataValueDcsRootXML` в dcsMetadataValue). */
+export type ParameterValueDcsValueFragment = NonNullable<MetadataDcsMetadataValueDcsRootXML["dcscor:value"]>
 
 export type ParameterValueXML = {
+  "_xsi:type"?: string
   "dcscor:use"?: string | boolean
   "dcscor:parameter": string
-  "dcscor:value"?: ParameterValueContentXML | ParameterValueContentXML[]
+  "dcscor:value"?: ParameterValueDcsValueFragment | ParameterValueDcsValueFragment[]
   "dcscor:item"?: ParameterValueXML | ParameterValueXML[]
 }
 

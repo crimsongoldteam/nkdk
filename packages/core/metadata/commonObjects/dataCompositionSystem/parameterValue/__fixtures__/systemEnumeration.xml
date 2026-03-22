@@ -1,4 +1,4 @@
-<dcscor:item>
+<dcscor:item xsi:type="dcsset:SettingsParameterValue">
     <dcscor:parameter>ВыборГруппИЭлементов</dcscor:parameter>
     <dcscor:value xsi:type="ent:FoldersAndItemsUse">Items</dcscor:value>
 </dcscor:item>

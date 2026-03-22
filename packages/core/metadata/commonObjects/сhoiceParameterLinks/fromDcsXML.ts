@@ -5,6 +5,7 @@ import {
   ChoiceParameterLink,
   ChoiceParameterLinkDcsItemXML,
   ChoiceParameterLinkDcsValueRootXML,
+  ChoiceParameterLinks,
 } from "./types"
 
 const textNode = (value: string | { "#text"?: string } | undefined): string => {
@@ -33,29 +34,36 @@ const optionalMode = (
   return mode["#text"] as SE.LinkedValueChangeMode | undefined
 }
 
-export const importChoiceParameterLinkFromDcsXML = (
+const importChoiceParameterLinkDcsItem = (item: ChoiceParameterLinkDcsItemXML): ChoiceParameterLink => ({
+  name: textNode(item["dcscor:choiceParameter"]),
+  dataPath: textNode(item["dcscor:value"]),
+  valueChange: optionalMode(item["dcscor:mode"]),
+})
+
+export const importChoiceParameterLinksFromDcsXML = (
   _context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: ChoiceParameterLinkDcsValueRootXML
-): ChoiceParameterLink => {
+): ChoiceParameterLinks => {
   const root = xml["dcscor:value"]
   if (!root) {
-    throw new Error("DCS ChoiceParameterLink: missing dcscor:value")
+    throw new Error("DCS ChoiceParameterLinks: missing dcscor:value")
   }
 
   const rawItem = root["dcscor:item"]
-  const item: ChoiceParameterLinkDcsItemXML | undefined = Array.isArray(rawItem) ? rawItem[0] : rawItem
+  const items: ChoiceParameterLinkDcsItemXML[] = Array.isArray(rawItem) ? rawItem : rawItem ? [rawItem] : []
 
-  if (!item) {
-    throw new Error("DCS ChoiceParameterLink: missing dcscor:item")
+  if (items.length === 0) {
+    throw new Error("DCS ChoiceParameterLinks: missing dcscor:item")
   }
 
-  const name = textNode(item["dcscor:choiceParameter"])
-  const dataPath = textNode(item["dcscor:value"])
+  return items.map(importChoiceParameterLinkDcsItem)
+}
 
-  return {
-    name,
-    dataPath,
-    valueChange: optionalMode(item["dcscor:mode"]),
-  }
+export const importChoiceParameterLinkFromDcsXML = (
+  context: ConfigurationContextFromXML,
+  rule: PropertyRule | undefined,
+  xml: ChoiceParameterLinkDcsValueRootXML
+): ChoiceParameterLink => {
+  return importChoiceParameterLinksFromDcsXML(context, rule, xml)[0]
 }

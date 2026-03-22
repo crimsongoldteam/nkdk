@@ -1,4 +1,4 @@
-<dcscor:item>
+<dcscor:item xsi:type="dcsset:SettingsParameterValue">
     <dcscor:parameter>СвязиПараметровВыбора</dcscor:parameter>
     <dcscor:value xsi:type="dcscor:ChoiceParameterLinks">
         <dcscor:item>

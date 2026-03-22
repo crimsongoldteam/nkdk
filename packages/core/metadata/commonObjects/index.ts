@@ -172,6 +172,16 @@ import "./typeLink/toJSONSchema"
 import "./typeLink/toXML"
 import "./typeLink/toYAML"
 
+import "./dataCompositionSystem/dcsMetadataValue/fromDcsXML"
+import "./dataCompositionSystem/dcsMetadataValue/toDcsXML"
+import "./dataCompositionSystem/dcsMetadataValue/fromYAML"
+import "./dataCompositionSystem/dcsMetadataValue/toYAML"
+
+import "./dataCompositionSystem/parameterValue/fromDcsXML"
+import "./dataCompositionSystem/parameterValue/toDcsXML"
+import "./dataCompositionSystem/parameterValue/fromYAML"
+import "./dataCompositionSystem/parameterValue/toYAML"
+
 import "./usePurposes/fromXML"
 import "./usePurposes/fromYAML"
 import "./usePurposes/toJSONSchema"
