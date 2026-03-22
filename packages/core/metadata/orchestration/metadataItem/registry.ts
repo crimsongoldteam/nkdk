@@ -2,6 +2,7 @@ import {
   AppearanceFields,
   AppearanceFieldsYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
+import { AvailableFields, AvailableFieldsYAML } from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
 import {
   ConditionalAppearanceItem,
   ConditionalAppearanceItemYAML,
@@ -508,6 +509,10 @@ export type MetadataItemTypeRegistry = {
   Filter: {
     metadata: Filter
     yaml: FilterYAML
+  }
+  AvailableFields: {
+    metadata: AvailableFields
+    yaml: AvailableFieldsYAML
   }
   FilterItemComparison: {
     metadata: FilterItemComparison
