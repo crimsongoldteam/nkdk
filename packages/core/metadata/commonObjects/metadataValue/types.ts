@@ -192,13 +192,8 @@ export type MetadataValueYAML = Static<typeof MetadataValueJSONSchema>
 export interface MetadataValuePropertyRule extends BasePropertyRule {
   type: "MetadataValue"
 
-  valueType: MetadataValueType
+  valueType?: MetadataValueType
 
   exportNilValue?: true
-}
-
-export interface MetadataTypedValuePropertyRule extends BasePropertyRule {
-  type: "MetadataTypedValue"
-
-  exportNilValue?: true
+  withType?: true
 }
