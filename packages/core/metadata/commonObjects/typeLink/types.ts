@@ -12,6 +12,19 @@ export interface TypeLink {
   linkItem: number
 }
 
+//#region TypeLink DCS (dcscor)
+
+/** Корень фрагмента для `xmlExport`: узел `dcscor:value` с типом TypeLink. */
+export interface TypeLinkDcsValueRootXML {
+  "dcscor:value": {
+    "_xsi:type": "dcscor:TypeLink"
+    "dcscor:field": string | { "#text"?: string }
+    "dcscor:linkItem": number | string | { "#text"?: string }
+  }
+}
+
+//#endregion
+
 export const TypeLinkJSONSchema = Type.String()
 
 export type TypeLinkYAML = Static<typeof TypeLinkJSONSchema>

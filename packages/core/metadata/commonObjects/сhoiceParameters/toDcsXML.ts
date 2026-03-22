@@ -8,7 +8,7 @@ import {
   ChoiceParameterDcsValueRootXML,
 } from "./types"
 
-export const exportToDcsXML = (
+export const exportChoiceParameterToDcsXML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   param: ChoiceParameter

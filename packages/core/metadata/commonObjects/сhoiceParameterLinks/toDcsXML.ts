@@ -6,7 +6,7 @@ import {
   ChoiceParameterLinkDcsValueRootXML,
 } from "./types"
 
-export const exportToDcsXML = (
+export const exportChoiceParameterLinkToDcsXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   link: ChoiceParameterLink

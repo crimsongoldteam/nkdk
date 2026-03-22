@@ -33,7 +33,7 @@ const optionalMode = (
   return mode["#text"] as SE.LinkedValueChangeMode | undefined
 }
 
-export const importFromDcsXML = (
+export const importChoiceParameterLinkFromDcsXML = (
   _context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: ChoiceParameterLinkDcsValueRootXML

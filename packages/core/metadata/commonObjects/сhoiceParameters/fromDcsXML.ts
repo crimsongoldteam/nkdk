@@ -21,7 +21,7 @@ const textNode = (value: string | { "#text"?: string } | undefined): string => {
   throw new Error("DCS ChoiceParameter: invalid choiceParameter text")
 }
 
-export const importFromDcsXML = (
+export const importChoiceParameterFromDcsXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: ChoiceParameterDcsValueRootXML
