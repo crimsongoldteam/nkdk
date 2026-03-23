@@ -1,5 +1,4 @@
-import { ClientApplicationFormRule } from "~/metadata/metadataFactory/form/types"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../orchestration/formElement/types"
 import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
@@ -363,4 +362,4 @@ export const ClientApplicationFormRules = {
     },
   },
   eventsTag: FormRulesTags.Form,
-} as const satisfies ClientApplicationFormRule
+} as const satisfies MetadataItemRule
