@@ -1,8 +1,11 @@
-import type { ChoiceParameter } from "~/metadata/commonObjects/сhoiceParameters/types"
-import type { ChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import type { Color } from "~/metadata/commonObjects/color/types"
-import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
-import type { TypeLink } from "~/metadata/commonObjects/typeLink/types"
+import type { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
+import type { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import type {
+  ChoiceParameterLinks,
+  ChoiceParameterLinksYAML,
+} from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import type { ChoiceParameter, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
+import { fixtureTypeLink } from "../../dcsMetadataValue/__fixtures__/data"
 import type { ParameterValue, SettingsParameterValue } from "../types"
 
 export const fixtureColorWebRed: Color = {
@@ -10,16 +13,15 @@ export const fixtureColorWebRed: Color = {
   value: "Red",
 }
 
+export const fixtureColorWebRedYAML: ColorYAML = "Красный"
+
 export const fixtureFormatLocalString: I8nText = {
   items: {
     ru: "ЧЦ=3; ЧДЦ=2",
   },
 }
 
-export const fixtureTypeLink: TypeLink = {
-  dataPath: "Поле1",
-  linkItem: 2,
-}
+export const fixtureFormatLocalStringYAML: I8nTextYAML = "ЧЦ=3; ЧДЦ=2"
 
 export const fixtureChoiceParameterDecimal: ChoiceParameter = {
   name: "Параметр",
@@ -29,6 +31,10 @@ export const fixtureChoiceParameterDecimal: ChoiceParameter = {
   },
 }
 
+export const fixtureChoiceParameterDecimalYAML: ChoiceParametersYAML = {
+  Параметр: 123,
+}
+
 export const fixtureChoiceParameterLinks: ChoiceParameterLinks = [
   {
     name: "ПараметрВыбора",
@@ -36,6 +42,8 @@ export const fixtureChoiceParameterLinks: ChoiceParameterLinks = [
     valueChange: "DontChange",
   },
 ]
+
+export const fixtureChoiceParameterLinksYAML: ChoiceParameterLinksYAML = "ПараметрВыбора(Поле1, НеИзменять)"
 
 /** `full.xml` — `dcsset:SettingsParameterValue`, LocalStringType. */
 export const fixtureFullSettingsParameter: SettingsParameterValue = {

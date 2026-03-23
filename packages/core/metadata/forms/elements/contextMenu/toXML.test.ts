@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
+import { fullContextMenu } from "~/metadata/forms/elements/contextMenu/__fixtures__/data"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/exportElementToXML"
-import { fullContextMenu } from "~/tests/fixtures/forms/contextMenu/data"
 
 const rule: PropertyRule = {
   type: "ContextMenu",

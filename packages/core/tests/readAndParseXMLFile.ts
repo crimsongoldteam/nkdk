@@ -3,12 +3,14 @@ import { join } from "path"
 import { importContentFromXML } from "../xml/import/importer"
 
 /**
- * Reads XML file from lib/tests/fixtures directory and parses it
- * @param filePath - path to file relative to lib/tests/fixtures (e.g., "characteristic/simple.xml")
+ * Reads XML file from lib/tests/fixtures (default) or from `baseDir` and parses it
+ * @param filePath - path to file relative to base directory (e.g., "characteristic/simple.xml")
+ * @param baseDir - optional directory containing the file (e.g., `__fixtures__` next to a test)
  * @returns parsed XML data
  */
-export const readAndParseXMLFile = <T>(filePath: string): T => {
-  const fullPath = join(process.cwd(), "/tests/fixtures", filePath)
+export const readAndParseXMLFile = <T>(filePath: string, baseDir?: string): T => {
+  const dir = baseDir ?? join(process.cwd(), "/tests/fixtures")
+  const fullPath = join(dir, filePath)
   const xml = readFileSync(fullPath, "utf-8")
   return importContentFromXML<T>(xml)
 }

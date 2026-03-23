@@ -1,33 +1,30 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
-import { fullContextMenu } from "~/tests/fixtures/forms/contextMenu/data"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { fullContextMenu } from "~/metadata/forms/elements/contextMenu/__fixtures__/data"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testImportPropertyFromXML } from "~/tests/importPropertyFromXML"
 
 const rule: PropertyRule = {
   type: "ContextMenu",
 }
 
-describe("importContextMenuFromXML", () => {
-  it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ ContextMenu: any }>("forms/contextMenu/full.xml")
-
-    const result = importPropertyFromXML({
-      context: mockContextFromXML(),
-      rule: rule,
-      value: xmlData.ContextMenu,
+describe("import ContextMenu from XML", () => {
+  it("should import full from XML", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "full.xml",
+      xmlRootTag: "ContextMenu",
+      importMetaUrl: import.meta.url,
     })
 
     expect(result).toEqual(fullContextMenu)
   })
 
-  it("should return undefined for defaults", () => {
-    const xmlData = readAndParseXMLFile<{ ContextMenu: any }>("forms/contextMenu/minimal.xml")
-
-    const result = importPropertyFromXML({
-      context: mockContextFromXML(),
-      rule: rule,
-      value: xmlData.ContextMenu,
+  it("should import minimal from XML", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "minimal.xml",
+      xmlRootTag: "ContextMenu",
+      importMetaUrl: import.meta.url,
     })
 
     expect(result).toBeUndefined()

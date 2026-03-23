@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
+import { fullContextMenu, fullContextMenuYAML } from "~/metadata/forms/elements/contextMenu/__fixtures__/data"
 import { exportPropertyToYAML } from "~/metadata/orchestration"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { fullContextMenu, fullContextMenuYAML } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockContext } from "~/tests/mockContext"
 
 const rule: PropertyRule = {
