@@ -1,5 +1,5 @@
 ---
-name: core-properties-tests
+name: core-tests
 description: >-
   Тесты и фикстуры в packages/core: Vitest, *.test.ts, __fixtures__, эталоны в data.ts.
   Без round-trip. Эталонный XML, forReference и порядок узлов в toXML — скил core-xml-reference-tests.

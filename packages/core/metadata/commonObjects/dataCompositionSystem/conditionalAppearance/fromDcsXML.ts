@@ -52,12 +52,7 @@ const parseUse = (v: string | boolean | undefined): boolean | undefined => {
   return undefined
 }
 
-/**
- * Parses dcsset:selection (list of field names) into AppearanceFields.
- * Note: the `fields` property type "AppearanceFields" is a known mismatch in ConditionalAppearanceItemRules —
- * dcsset:selection stores data field path strings, not appearance parameters.
- * We store them in a custom structure and cast.
- */
+/** dcsset:selection — список имён полей данных; в модели лежит в том же представлении, что и для YAML (`_fieldNames`). */
 const importSelectionFromDcsXML = (xml: SelectionXML | undefined): AppearanceFields | undefined => {
   if (!xml) return undefined
   const items = asArray(xml["dcsset:item"])

@@ -7,10 +7,7 @@ import { exportFilterToYAML } from "../filter/toYAML"
 import type { Filter } from "../filter/types"
 import type { ConditionalAppearanceItem, ConditionalAppearanceItemYAML } from "./types"
 
-/**
- * Exports selection fields to YAML as a list of field name strings under key "Поля".
- * See importSelectionFromYAML for the known type mismatch note.
- */
+/** См. importSelectionFromYAML. */
 const exportSelectionToYAML = (fields: AppearanceFields | undefined): string[] | undefined => {
   if (!fields) return undefined
   const names = (fields as unknown as { _fieldNames?: string[] })._fieldNames

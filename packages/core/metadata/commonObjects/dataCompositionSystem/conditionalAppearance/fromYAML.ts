@@ -7,10 +7,7 @@ import { importFilterFromYAML } from "../filter/fromYAML"
 import type { FilterYAML } from "../filter/types"
 import type { ConditionalAppearanceItem, ConditionalAppearanceItemYAML } from "./types"
 
-/**
- * Imports selection fields from YAML. The YAML stores a list of field name strings
- * under key "Поля", while the data model type is AppearanceFields (a known mismatch).
- */
+/** Ключ «Поля» — массив строк; в модели то же внутреннее представление, что и для DCS. */
 const importSelectionFromYAML = (value: unknown): AppearanceFields | undefined => {
   if (!value) return undefined
   const names = Array.isArray(value) ? value.map(String) : [String(value)]

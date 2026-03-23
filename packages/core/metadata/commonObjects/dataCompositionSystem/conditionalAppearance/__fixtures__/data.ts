@@ -1,14 +1,16 @@
 import type { AppearanceFields } from "../../appearanceFields/types"
 import { fixtureAppearanceFields } from "../../appearanceFields/__fixtures__/data"
+import { exportAppearanceFieldsToYAML } from "../../appearanceFields/toYAML"
 import type { Filter } from "../../filter/types"
+import { exportFilterToYAML } from "../../filter/toYAML"
 import type { FilterItem, FilterItemComparison } from "../../filterItem/types"
 import type { FilterItemGroup } from "../../filterItemGroup/types"
-import type { ConditionalAppearanceItem } from "../types"
+import { mockContext } from "~/tests/mockContext"
+import type { ConditionalAppearanceItem, ConditionalAppearanceItemYAML } from "../types"
 
 /**
- * The `fields` (dcsset:selection) property holds a list of data field names that the appearance
- * applies to. The current rules map this to type "AppearanceFields" which is incorrect —
- * the actual structure is a list of field path strings. We use a cast here.
+ * В XML/YAML для условного оформления `Поля` — список путей к полям данных; в типе правил
+ * свойство помечено как AppearanceFields — внутри храним `_fieldNames` и приводим тип.
  */
 const makeSelectionFields = (...names: string[]): AppearanceFields =>
   ({ itemType: "AppearanceFields" as const, _fieldNames: names } as unknown as AppearanceFields)
@@ -34,14 +36,35 @@ const filterItemGroup: FilterItemGroup = {
   items: filterItemComparison2,
 }
 
-const fixtureFilter: Filter = {
+const fullFixtureFilter: Filter = {
   itemType: "Filter",
   items: [filterItemComparison1, filterItemGroup] as unknown as FilterItem,
 }
 
-export const fixtureConditionalAppearanceItem: ConditionalAppearanceItem = {
+/** Полный элемент условного оформления (соответствует `full.xml`). */
+export const fullConditionalAppearanceItem: ConditionalAppearanceItem = {
   itemType: "ConditionalAppearanceItem",
   fields: makeSelectionFields("Реквизит2", "Реквизит2РасширеннаяПодсказка"),
-  filter: fixtureFilter,
+  filter: fullFixtureFilter,
   appearance: fixtureAppearanceFields,
 }
+
+/** Минимальный элемент — только выбор полей (`minimal.xml`). */
+export const minimalConditionalAppearanceItem: ConditionalAppearanceItem = {
+  itemType: "ConditionalAppearanceItem",
+  fields: makeSelectionFields("ОдноПоле"),
+}
+
+const fullFilterYAML = exportFilterToYAML(mockContext, fullFixtureFilter)
+const fullAppearanceYAML = exportAppearanceFieldsToYAML(mockContext, fixtureAppearanceFields)
+
+/** Эталон YAML для полного кейса (вложенные части строятся теми же экспортёрами, что и в toYAML). */
+export const fullConditionalAppearanceItemYAML = {
+  Поля: ["Реквизит2", "Реквизит2РасширеннаяПодсказка"],
+  ...(fullFilterYAML !== undefined ? { Отбор: fullFilterYAML } : {}),
+  Оформление: fullAppearanceYAML,
+} as const satisfies ConditionalAppearanceItemYAML
+
+export const minimalConditionalAppearanceItemYAML = {
+  Поля: ["ОдноПоле"],
+} as const satisfies ConditionalAppearanceItemYAML

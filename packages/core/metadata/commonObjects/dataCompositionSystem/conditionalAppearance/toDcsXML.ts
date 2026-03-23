@@ -12,10 +12,7 @@ type SelectionXML = {
   "dcsset:item"?: SelectionItemXML | SelectionItemXML[]
 }
 
-/**
- * Exports the selection fields (dcsset:selection) from the custom internal representation.
- * See importSelectionFromDcsXML for the known type mismatch note.
- */
+/** См. importSelectionFromDcsXML — выгрузка списка полей в dcsset:selection. */
 const exportSelectionToDcsXML = (fields: AppearanceFields | undefined): SelectionXML | undefined => {
   if (!fields) return undefined
   const fieldNames = (fields as unknown as { _fieldNames?: string[] })._fieldNames

@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
-import { fixtureConditionalAppearanceItem } from "./__fixtures__/data"
+import {
+  fullConditionalAppearanceItem,
+  minimalConditionalAppearanceItem,
+} from "./__fixtures__/data"
 import { importConditionalAppearanceFromDcsXML } from "./fromDcsXML"
 import type { ConditionalAppearanceXML } from "./fromDcsXML"
 
@@ -11,11 +14,18 @@ describe("importConditionalAppearanceFromDcsXML", () => {
       import.meta.url,
       "full.xml"
     )
-    const result = importConditionalAppearanceFromDcsXML(
-      mockContextFromXML(),
-      parsed.ConditionalAppearance
+    expect(importConditionalAppearanceFromDcsXML(mockContextFromXML(), parsed.ConditionalAppearance)).toEqual([
+      fullConditionalAppearanceItem,
+    ])
+  })
+
+  it("imports minimal.xml", () => {
+    const parsed = readAndParseXMLFixture<{ ConditionalAppearance: ConditionalAppearanceXML }>(
+      import.meta.url,
+      "minimal.xml"
     )
-    expect(result).toHaveLength(1)
-    expect(result[0]).toEqual(fixtureConditionalAppearanceItem)
+    expect(importConditionalAppearanceFromDcsXML(mockContextFromXML(), parsed.ConditionalAppearance)).toEqual([
+      minimalConditionalAppearanceItem,
+    ])
   })
 })
