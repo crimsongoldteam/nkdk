@@ -6,16 +6,15 @@ import {
   minimalContextMenu,
   minimalContextMenuYAML,
 } from "~/metadata/forms/elements/contextMenu/__fixtures__/data"
-import { importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
-import { mockContext } from "~/tests/mockContext"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 
 const rule: PropertyRule = { type: "ContextMenu" }
 
-describe("importContextMenuFromYAML", () => {
-  it("should import all fields from YAML", () => {
-    const result = importPropertyFromYAML({
-      context: mockContext,
-      rule: rule,
+describe("import ContextMenu from YAML", () => {
+  it("should import full from YAML", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
       value: fullContextMenuYAML,
       sourceValue: fullContextMenuSource,
     })
@@ -24,9 +23,8 @@ describe("importContextMenuFromYAML", () => {
   })
 
   it("should import minimal", () => {
-    const result = importPropertyFromYAML({
-      context: mockContext,
-      rule: rule,
+    const result = testImportPropertyFromYAML({
+      rule,
       value: minimalContextMenuYAML,
       sourceValue: minimalContextMenu,
     })

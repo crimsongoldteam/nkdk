@@ -12,18 +12,18 @@ description: Общие правила тестирования объектов
    - импортируй в модель,
    - сравнивай результат с полной fixture-моделью.
 3. Для `fromYAML`:
-   - бери YAML-фикстуру (`*YAML`) из `data.ts`,
-   - импортируй в модель,
-   - сравнивай с полной fixture-моделью.
+   - либо бери YAML-фикстуру (`*YAML`) из `data.ts` и вызывай функцию импорта напрямую,
+   - либо для **свойств** (`importPropertyFromYAML`) используй `testImportPropertyFromYAML` (`~/tests/property/importPropertyFromYAML`) как обёртку и передавай `value` напрямую (обычно `*YAML` из `data.ts`);
+   - сравнивай результат с полной fixture-моделью из `data.ts`.
 4. Для `toXML` / `toDcsXML`:
    - бери полную fixture-модель из `data.ts`,
    - экспортируй в XML,
    - сравнивай с XML-эталоном через парсинг XML-структуры (не строкой).
 5. Для `toYAML`:
-   - бери полную fixture-модель из `data.ts`,
-   - экспортируй в YAML,
-   - сравнивай с полной YAML-фикстурой (`*YAML`).
-6. Используй стандартные контексты (`mockContext`, `mockContextFromXML`) и шаблоны тестов из профильных скиллов (`fromXML`, `toXML`, `fromYAML`, `toYAML`).
+   - либо бери полную fixture-модель из `data.ts`, экспортируй и сравнивай с YAML-эталоном (`*YAML`) из `data.ts`,
+   - либо для **свойств** (`exportPropertyToYAML`) клади ожидаемый объект в `__fixtures__/*.yaml` и используй `testExportPropertyToYAML` (`~/tests/property/exportPropertyToYAML`) — по смыслу как `testExportPropertyToXML` для XML; в `PropertyRule` нужен `yaml` (ключ выхода).
+6. Общее чтение YAML-файлов в тестах: `~/tests/readAndParseYAMLFile` (аналог разбора XML-фикстур).
+7. Используй стандартные контексты (`mockContext`, `mockContextFromXML`) и шаблоны тестов из профильных скиллов (`fromXML`, `toXML`, `fromYAML`, `toYAML`).
 
 ## Что не нужно делать
 

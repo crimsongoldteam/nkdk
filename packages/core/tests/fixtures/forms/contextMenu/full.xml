@@ -1,0 +1,8 @@
+<ContextMenu name="КакойТоЭлементКонтекстноеМеню" id="1" DisplayImportance="High">
+	<Autofill>true</Autofill>
+	<ChildItems>
+		<Button name="Кнопка" id="2">
+			<ExtendedTooltip name="КнопкаРасширеннаяПодсказка" id="3"/>
+		</Button>
+	</ChildItems>
+</ContextMenu>

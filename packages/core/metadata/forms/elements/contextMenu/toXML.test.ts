@@ -13,7 +13,8 @@ describe("exportContextMenuToXML", () => {
       rule,
       value: undefined,
       xmlRootTag: "ContextMenu",
-      path: "forms/contextMenu/minimal.xml",
+      importMetaUrl: import.meta.url,
+      path: "minimal.xml",
       itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
     })
 
@@ -26,6 +27,7 @@ describe("exportContextMenuToXML", () => {
       value: fullContextMenu,
       xmlRootTag: "ContextMenu",
       path: "forms/contextMenu/full.xml",
+      importMetaUrl: import.meta.url,
       itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
     })
 

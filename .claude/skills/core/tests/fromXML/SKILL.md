@@ -2,30 +2,35 @@
 description: Сгенерировать fromXML.test.ts (или fromDcsXML.test.ts) для открытого файла конвертера
 ---
 
-1. Прочитай открытый `fromXML.ts` / `fromDcsXML.ts` — найди имя экспортируемой функции импорта и XML-тип, который она принимает.
-2. Прочитай `__fixtures__/data.ts` рядом — найди константы-эталоны (ожидаемый результат).
-3. Посмотри какие XML-файлы есть в `__fixtures__/` — по одному `it()` на каждый файл.
-4. Создай тестовый файл рядом с исходником по шаблону:
+Цель: быстро собрать `fromXML.test.ts`/`fromDcsXML.test.ts` по фикстурам рядом с конвертером.
+
+1. Прочитай открытый `fromXML.ts` / `fromDcsXML.ts` и определи тип свойства (`rule.type`).
+2. Прочитай `./__fixtures__/data.ts` и найди эталоны для `expect(...)`.
+3. Проверь `./__fixtures__/*.xml`: на каждый XML-файл должен быть отдельный `it()`.
+4. Сгенерируй тест рядом с конвертером по шаблону ниже. Рабочий пример: [contextMenu/fromXML.test.ts](../../../../../packages/core/metadata/forms/elements/contextMenu/fromXML.test.ts).
 
 ```ts
-import { describe, expect, it } from "vitest"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
-import { <fixtureConst> } from "./__fixtures__/data"
-import { <importFn> } from "./fromXML"
-import type { <XmlType> } from "./types"
+const rule: PropertyRule = {
+  type: "<Type>",
+}
 
 describe("import <Type> from XML", () => {
-  it("import full from XML", () => {
-    const parsed = readAndParseXMLFixture<{ <RootTag>: <XmlType> }>(import.meta.url, "<fixture>.xml")
-    expect(<importFn>(mockContextFromXML(), parsed.<RootTag>)).toEqual(<fixtureConst>)
+  it("should import <fixture name> from XML", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "<fixture>.xml",
+      xmlRootTag: "<RootTag>",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(<fixtureConst>)
   })
 })
 ```
 
-Правила:
+Уточнения:
 
-- Контекст — `mockContextFromXML()`, не `mockContext`.
-- Корневой тег берётся из самого XML-файла — прочитай его.
-- XML-тип импортируй из `./types`, если он там определён, или из `./fromXML` если объявлен inline.
-- Без комментариев в сгенерированном файле.
+- Используй `testImportPropertyFromXML` (контекст внутри helper уже корректный).
+- `xmlRootTag` берется из корневого тега соответствующего XML-фикстура.
+- Имена тестов делай по сценарию (`full`, `minimal`, и т.д.), а не только `full`.
+- Без лишних импортов и без комментариев в тесте.

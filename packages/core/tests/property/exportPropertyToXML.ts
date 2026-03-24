@@ -9,6 +9,7 @@ export const testExportPropertyToXML = (params: {
   rule: PropertyRule
   value: unknown
   xmlRootTag: string
+  importMetaUrl?: string
   path: string
   itemsTree?: ContextElementToXML[]
 }): { expectedResult: string; result: string } => {

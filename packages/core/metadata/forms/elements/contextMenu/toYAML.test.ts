@@ -1,32 +1,29 @@
 import { describe, expect, it } from "vitest"
 import { fullContextMenu, fullContextMenuYAML } from "~/metadata/forms/elements/contextMenu/__fixtures__/data"
-import { exportPropertyToYAML } from "~/metadata/orchestration"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { mockContext } from "~/tests/mockContext"
+import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 
 const rule: PropertyRule = {
   type: "ContextMenu",
   yaml: "КонтекстноеМеню",
 }
 
-describe("exportContextMenuToYAML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportPropertyToYAML({
-      context: mockContext,
-      rule: rule,
+describe("export ContextMenu to YAML", () => {
+  it("should export minimal", () => {
+    const result = testExportPropertyToYAML({
+      rule,
       value: undefined,
     })
 
     expect(result).toBeUndefined()
   })
 
-  it("should export all fields to YAML", () => {
-    const result = exportPropertyToYAML({
-      context: mockContext,
-      rule: rule,
+  it("should export full to YAML", () => {
+    const result = testExportPropertyToYAML({
+      rule,
       value: fullContextMenu,
     })
 
-    expect(result).toHaveProperty("КонтекстноеМеню", fullContextMenuYAML)
+    expect(result).toEqual({ КонтекстноеМеню: fullContextMenuYAML })
   })
 })

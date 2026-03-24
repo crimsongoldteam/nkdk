@@ -7,21 +7,14 @@ export const testImportPropertyFromXML = (params: {
   rule: PropertyRule
   path: string
   xmlRootTag: string
-  /**
-   * `import.meta.url` тестового модуля — XML из `__fixtures__` рядом с ним.
-   * Без параметра — каталог `tests/fixtures` относительно cwd.
-   */
+
   importMetaUrl?: string
 }): unknown => {
   const { rule, path, xmlRootTag, importMetaUrl } = params
 
-  const fixturesDir =
-    importMetaUrl !== undefined ? testFixturesDir(importMetaUrl) : undefined
+  const fixturesDir = importMetaUrl !== undefined ? testFixturesDir(importMetaUrl) : undefined
 
-  const referenceXMLData = readAndParseXMLFile<{ [key: string]: ElementXML }>(
-    path,
-    fixturesDir,
-  )
+  const referenceXMLData = readAndParseXMLFile<{ [key: string]: ElementXML }>(path, fixturesDir)
   const referenceXML = referenceXMLData[xmlRootTag]
 
   return importPropertyFromXML({
