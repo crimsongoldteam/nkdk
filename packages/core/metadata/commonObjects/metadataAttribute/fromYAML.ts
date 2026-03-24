@@ -10,7 +10,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/orchestration"
+import { importMetadataItemFromYAML, registerTypeRule } from "~/metadata/orchestration"
 import { getDefaultsAttribute } from "./defaults"
 import { MetadataAttributeRules } from "./rules"
 
@@ -38,23 +38,22 @@ const importMetadataAttributeFromYAML = (
     if (!type) throw new Error("Type is required")
 
     return {
-      itemType: "MetadataAttribute",
+      itemType: MetadataAttributeRules.itemType,
       name,
       type,
       synonym: { items: { [context.defaultLanguage]: splitPascalCase(name) } },
     }
   }
 
-  const properties = importPropertiesFromYAML({
+  const properties = importMetadataItemFromYAML({
     context,
     yaml: yaml as MetadataAttributeYAML,
-    metadataRule: MetadataAttributeRules,
+    rule: MetadataAttributeRules,
     name,
   })
 
   const result: MetadataAttribute = {
     ...properties,
-    itemType: "MetadataAttribute",
     name,
   }
 

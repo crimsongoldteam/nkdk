@@ -1,7 +1,7 @@
 import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/orchestration"
+import { importMetadataItemFromYAML, registerTypeRule } from "~/metadata/orchestration"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
@@ -43,17 +43,16 @@ const importFormAttributeFromYAML = (
   yaml: FormAttributeYAML | TypeDescriptionYAML,
   name: string
 ): FormAttribute => {
-  const properties = importPropertiesFromYAML({
+  const properties = importMetadataItemFromYAML({
     context: context,
     yaml: yaml as FormAttributeYAML,
-    metadataRule: FormAttributeRules,
+    rule: FormAttributeRules,
     name,
   })
 
   const attribute = {
     ...properties,
     name,
-    itemType: "FormAttribute",
   } as const
 
   const columns = importFormAttributeColumnsFromYAML(context, yaml, attribute as FormAttribute)
@@ -107,16 +106,15 @@ const importColumnFromYAML = (
   data: FormAttributeColumnYAML,
   name: string
 ): FormAttributeColumn => {
-  const properties = importPropertiesFromYAML({
+  const properties = importMetadataItemFromYAML({
     context: context,
     yaml: data,
-    metadataRule: FormAttributeColumnRules,
+    rule: FormAttributeColumnRules,
     name,
   })
 
   const result: FormAttributeColumn = {
     ...properties,
-    itemType: "FormAttributeColumn",
     name,
   }
 

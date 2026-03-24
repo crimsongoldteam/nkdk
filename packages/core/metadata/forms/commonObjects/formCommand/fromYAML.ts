@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/orchestration"
+import { importMetadataItemFromYAML, registerTypeRule } from "~/metadata/orchestration"
 import { FormCommandRules } from "./rules"
 import { FormCommand, FormCommands, FormCommandsYAML, FormCommandYAML } from "./types"
 
@@ -23,16 +23,15 @@ const importCommandFromYAML = (
 ): FormCommand | undefined => {
   if (!yaml) return undefined
 
-  const properties = importPropertiesFromYAML({
+  const properties = importMetadataItemFromYAML({
     context,
     yaml,
-    metadataRule: FormCommandRules,
+    rule: FormCommandRules,
     name,
   })
 
   return {
     ...properties,
-    itemType: "FormCommand",
     name,
   }
 }

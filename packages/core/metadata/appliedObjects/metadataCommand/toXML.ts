@@ -1,7 +1,7 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { getUUID } from "~/metadata/helpers/uuid"
-import { exportPropertiesToXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { exportMetadataItemToXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { getDefaults } from "./defaults"
 import { MetadataCommandRules } from "./rules"
 import { MetadataCommand, MetadataCommands, MetadataCommandsXML, MetadataCommandXML } from "./types"
@@ -14,11 +14,11 @@ const exportMetadataCommandToXML = (
   if (!data) return undefined
 
   const defaults = getDefaults(data, context)
-  const mergedData = { ...defaults, ...data, itemType: "MetadataCommand" as const }
+  const mergedData = { ...defaults, ...data }
 
-  const propertiesFlat = exportPropertiesToXML({
+  const propertiesFlat = exportMetadataItemToXML({
     context,
-    metadata: mergedData,
+    data: mergedData,
     rule: MetadataCommandRules,
   })
 

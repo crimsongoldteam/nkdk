@@ -1,18 +1,18 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
+import { importMetadataItemFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormCommandRules } from "./rules"
 import { FormCommand, FormCommands, FormCommandsXML, FormCommandXML } from "./types"
 
 const importCommandFromXML = (context: ConfigurationContextFromXML, xml: FormCommandXML): FormCommand => {
-  const properties = importPropertiesFromXML({
+  const properties = importMetadataItemFromXML({
     context,
     xml,
     rule: FormCommandRules,
   })
 
   return {
-    itemType: "FormCommand",
+    itemType: FormCommandRules.itemType,
     name: xml._name,
     ...properties,
   }

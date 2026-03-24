@@ -8,7 +8,7 @@ import {
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import {
-  exportPropertiesToXML,
+  exportMetadataItemToXML,
   registerTypeRule,
   StandardAttributeDescriptionPropertyRule,
   StandardAttributeDescriptionsPropertyRule,
@@ -38,9 +38,9 @@ const exportStandardAttributeDescriptionToXML = (
   const defaults = getDefaults(context, data)
   const mergedData = { ...defaults, ...data }
 
-  const flat = exportPropertiesToXML({
+  const flat = exportMetadataItemToXML({
     context,
-    metadata: { ...mergedData, itemType: "StandardAttributeDescription" as const },
+    data: mergedData,
     rule: StandardAttributeDescriptionRules,
   })
 
@@ -59,7 +59,7 @@ const getExtendedStandardAttributeDescriptions = (
   const result: StandardAttributeDescriptions = []
   for (const name of standartAttributeNames) {
     const existingItem = dataMap.get(name)
-    result.push(existingItem ?? { name, itemType: "StandardAttributeDescription" as const })
+    result.push(existingItem ?? { name, itemType: StandardAttributeDescriptionRules.itemType })
   }
   return result
 }

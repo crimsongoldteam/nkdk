@@ -8,7 +8,7 @@ import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataVal
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
+import { importMetadataItemFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { getDefaultsAttribute } from "./defaults"
 import { MetadataAttributeRules } from "./rules"
 
@@ -32,14 +32,14 @@ const importMetadataAttributeFromXML = (
   const props = xml.Properties
   if (!props) {
     return {
-      itemType: "MetadataAttribute",
+      itemType: MetadataAttributeRules.itemType,
       name: "",
       type: { type: ["string"] },
       synonym: { items: { [context.defaultLanguage]: "" } },
     }
   }
 
-  const properties = importPropertiesFromXML({
+  const properties = importMetadataItemFromXML({
     context,
     xml: props,
     rule: MetadataAttributeRules,
@@ -80,7 +80,7 @@ const importMetadataAttributeFromXML = (
   }
 
   const result: MetadataAttribute = {
-    itemType: "MetadataAttribute",
+    itemType: MetadataAttributeRules.itemType,
     ...properties,
     name: properties!.name!,
     type: properties!.type!,

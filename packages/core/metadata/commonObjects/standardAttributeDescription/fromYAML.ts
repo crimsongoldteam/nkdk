@@ -1,12 +1,11 @@
 import {
-  StandardAttributeDescription,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/orchestration"
+import { importMetadataItemFromYAML, registerTypeRule } from "~/metadata/orchestration"
 import { getDefaults } from "./defaults"
 import { StandardAttributeDescriptionRules } from "./rules"
 
@@ -20,15 +19,12 @@ export const importStandardAttributeDescriptionsFromYAML = (
   const result: StandardAttributeDescriptions = []
 
   for (const [yamlName, yamlValue] of Object.entries(data)) {
-    const withItemType = importPropertiesFromYAML({
+    const item = importMetadataItemFromYAML({
       context,
       yaml: yamlValue,
-      metadataRule: StandardAttributeDescriptionRules,
+      rule: StandardAttributeDescriptionRules,
       name: yamlName,
     })
-
-    const { itemType: _itemType, ...rest } = withItemType as StandardAttributeDescription & { itemType: string }
-    const item: StandardAttributeDescription = { ...rest, itemType: "StandardAttributeDescription" as const }
 
     const defaults = getDefaults(context, item)
     result.push(removeDefaults(item, defaults))

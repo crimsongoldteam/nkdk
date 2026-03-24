@@ -2,16 +2,18 @@ import type { ConfigurationContext } from "~/metadata/context/types"
 import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importAppearanceFieldsFromYAML } from "../appearanceFields/fromYAML"
+import { AppearanceFieldsRules } from "../appearanceFields/rules"
 import type { AppearanceFields, AppearanceFieldsYAML } from "../appearanceFields/types"
 import { importFilterFromYAML } from "../filter/fromYAML"
 import type { FilterYAML } from "../filter/types"
+import { ConditionalAppearanceItemRules } from "./rules"
 import type { ConditionalAppearanceItem, ConditionalAppearanceItemYAML } from "./types"
 
 /** Ключ «Поля» — массив строк; в модели то же внутреннее представление, что и для DCS. */
 const importSelectionFromYAML = (value: unknown): AppearanceFields | undefined => {
   if (!value) return undefined
   const names = Array.isArray(value) ? value.map(String) : [String(value)]
-  return { itemType: "AppearanceFields" as const, _fieldNames: names } as unknown as AppearanceFields
+  return { itemType: AppearanceFieldsRules.itemType, _fieldNames: names } as unknown as AppearanceFields
 }
 
 export const importConditionalAppearanceItemFromYAML = (
@@ -73,7 +75,7 @@ export const importConditionalAppearanceItemFromYAML = (
     | undefined
 
   return {
-    itemType: "ConditionalAppearanceItem",
+    itemType: ConditionalAppearanceItemRules.itemType,
     ...(use !== undefined ? { use } : {}),
     ...(fields !== undefined ? { fields } : {}),
     ...(filter !== undefined ? { filter } : {}),

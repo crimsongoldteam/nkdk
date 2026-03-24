@@ -6,7 +6,7 @@ import {
 } from "~/metadata/appliedObjects/metadataCommand/types"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { importPropertiesFromXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { importMetadataItemFromXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { getDefaults } from "./defaults"
 import { MetadataCommandRules } from "./rules"
 
@@ -31,14 +31,14 @@ const importMetadataCommandFromXML = (
   const props = xml.Properties
   if (!props) {
     return {
-      itemType: "MetadataCommand",
+      itemType: MetadataCommandRules.itemType,
       name: "",
       group: "",
       synonym: { items: { [context.defaultLanguage]: "" } },
     }
   }
 
-  const properties = importPropertiesFromXML({
+  const properties = importMetadataItemFromXML({
     context,
     xml: props,
     rule: MetadataCommandRules,
@@ -48,7 +48,6 @@ const importMetadataCommandFromXML = (
 
   const result: MetadataCommand = {
     ...properties,
-    itemType: "MetadataCommand",
     name: props.Name,
   }
 

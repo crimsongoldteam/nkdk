@@ -6,7 +6,7 @@ import {
 } from "~/metadata/appliedObjects/metadataCommand/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { importPropertiesFromYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { importMetadataItemFromYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { getDefaults } from "./defaults"
 import { MetadataCommandRules } from "./rules"
 
@@ -17,18 +17,15 @@ export const importMetadataCommandFromYAML = (
 ): MetadataCommand | undefined => {
   if (!data) return undefined
 
-  const raw = importPropertiesFromYAML({
+  const raw = importMetadataItemFromYAML({
     context,
     yaml: data,
-    metadataRule: MetadataCommandRules,
+    rule: MetadataCommandRules,
     name,
     source: { name } as MetadataCommand,
-  }) as MetadataCommand & { itemType?: "MetadataCommand" }
-
-  const { itemType: _itemType, ...rest } = raw
+  })
   const result: MetadataCommand = {
-    ...rest,
-    itemType: "MetadataCommand",
+    ...raw,
     name,
   }
 

@@ -1,7 +1,10 @@
 import type { ConfigurationContext } from "~/metadata/context/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { FilterItemComparisonRules } from "../filterItem/rules"
 import type { FilterItem, FilterItemComparison, FilterItemYAML } from "../filterItem/types"
+import { FilterItemGroupRules } from "../filterItemGroup/rules"
 import type { FilterItemGroup, FilterItemGroupYAML } from "../filterItemGroup/types"
+import { FilterRules } from "./rules"
 import type { Filter, FilterYAML } from "./types"
 
 const asArray = <T>(x: T | T[] | undefined): T[] => {
@@ -25,7 +28,7 @@ const importFilterItemFromYAML = (_context: ConfigurationContext, yaml: FilterIt
       importFilterItemFromYAML(_context, item)
     )
     const result: FilterItemGroup = {
-      itemType: "FilterItemGroup",
+      itemType: FilterItemGroupRules.itemType,
       ...(use !== undefined ? { use } : {}),
       ...(groupType !== undefined
         ? { groupType: SE.DataCompositionFilterItemsGroupTypeFromYAML[groupType] }
@@ -53,7 +56,7 @@ const importFilterItemFromYAML = (_context: ConfigurationContext, yaml: FilterIt
   const appTypeYaml = cy["Применение"] as SE.DataCompositionFilterApplicationTypeYAML | undefined
   const vmYaml = cy["РежимОтображения"] as SE.DataCompositionSettingsItemViewModeYAML | undefined
   const result: FilterItemComparison = {
-    itemType: "FilterItemComparison",
+    itemType: FilterItemComparisonRules.itemType,
     ...(use !== undefined ? { use } : {}),
     ...(cy["ЛевоеЗначение"] !== undefined ? { leftValue: String(cy["ЛевоеЗначение"]) } : {}),
     ...(compTypeYaml !== undefined
@@ -82,7 +85,7 @@ export const importFilterFromYAML = (
   const items = asArray(itemsRaw).map((item) => importFilterItemFromYAML(context, item))
   const vmYaml = y["РежимОтображения"] as SE.DataCompositionSettingsItemViewModeYAML | undefined
   return {
-    itemType: "Filter",
+    itemType: FilterRules.itemType,
     ...(items.length > 0 ? { items: (items.length === 1 ? items[0] : items) as FilterItem } : {}),
     ...(vmYaml !== undefined ? { viewMode: SE.DataCompositionSettingsItemViewModeFromYAML[vmYaml] } : {}),
     ...(y["ИдентификаторПользовательскойНастройки"]
