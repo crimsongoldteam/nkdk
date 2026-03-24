@@ -1,4 +1,5 @@
 ---
+name: core-tests-toXML
 description: Сгенерировать toXML.test.ts (или toDcsXML.test.ts) для открытого файла конвертера
 ---
 

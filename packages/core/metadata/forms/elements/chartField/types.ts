@@ -8,5 +8,3 @@ export type ChartField = FormTypeByRule<typeof ChartFieldRules>
 export type ChartFieldPartialYAML = YAMLTypeByRule<typeof ChartFieldRules>
 
 export type ChartFieldEnterprise = EnterpriseType<typeof ChartFieldRules>
-
-export type ChartFieldYAML = YAMLTypeByRule<typeof ChartFieldRules>

@@ -1,4 +1,5 @@
 ---
+name: core-tests-general
 description: Общие правила тестирования объектов метаданных (XML/YAML/DCS)
 ---
 
@@ -24,6 +25,7 @@ description: Общие правила тестирования объектов
    - либо для **свойств** (`exportPropertyToYAML`) клади ожидаемый объект в `__fixtures__/*.yaml` и используй `testExportPropertyToYAML` (`~/tests/property/exportPropertyToYAML`) — по смыслу как `testExportPropertyToXML` для XML; в `PropertyRule` нужен `yaml` (ключ выхода).
 6. Общее чтение YAML-файлов в тестах: `~/tests/readAndParseYAMLFile` (аналог разбора XML-фикстур).
 7. Используй стандартные контексты (`mockContext`, `mockContextFromXML`) и шаблоны тестов из профильных скиллов (`fromXML`, `toXML`, `fromYAML`, `toYAML`).
+8. В XML-фикстурах не оставляй последнюю пустую строку: файл должен заканчиваться последним содержательным XML-тегом.
 
 ## Что не нужно делать
 
