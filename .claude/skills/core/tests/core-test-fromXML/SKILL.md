@@ -1,5 +1,5 @@
 ---
-name: core-tests-fromXML
+name: core-test-fromXML
 description: Сгенерировать fromXML.test.ts (или fromDcsXML.test.ts) для открытого файла конвертера
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: core-tests-fromYAML
+name: core-test-fromYAML
 description: Сгенерировать fromYAML.test.ts для открытого файла конвертера
 ---
 
