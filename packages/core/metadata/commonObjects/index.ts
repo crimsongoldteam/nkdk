@@ -149,11 +149,8 @@ import "./predifined/toJSONSchema"
 import "./predifined/toXML"
 import "./predifined/toYAML"
 
-import "./standardAttributeDescription/fromXML"
-import "./standardAttributeDescription/fromYAML"
+import "./standardAttributeDescription/types"
 import "./standardAttributeDescription/toJSONSchema"
-import "./standardAttributeDescription/toXML"
-import "./standardAttributeDescription/toYAML"
 
 import "./string/fromXML"
 import "./string/toJSONSchema"

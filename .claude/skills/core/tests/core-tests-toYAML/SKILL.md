@@ -12,6 +12,8 @@ description: Сгенерировать toYAML.test.ts для открытого
 3. Добавляй minimal-кейс с `value: undefined` и проверкой `expect(result).toBeUndefined()`.
 4. Для заполненного значения проверяй именно объект верхнего уровня с YAML-ключом: `expect(result).toEqual({ <YamlKey>: <fixtureYAML> })`.
 5. Рабочий пример: [contextMenu/toYAML.test.ts](../../../../../packages/core/metadata/forms/elements/contextMenu/toYAML.test.ts).
+6. Если `rule.type` требует доп. полей (например, `standartAttributeNames`), укажи их в `rule`.
+7. Если коллекция маппит внутреннее `name` в человекочитаемый YAML-ключ (`yamlKeyFromName`), ожидай именно mapped-ключи из фикстур.
 
 ```ts
 const rule: PropertyRule = {

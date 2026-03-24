@@ -8,7 +8,6 @@ import { importMetadataAttributesFromXML } from "~/metadata/commonObjects/metada
 import { importMetadataFieldsFromXML } from "~/metadata/commonObjects/metadataField/fromXML"
 import { importMetadataItemLinksFromXML } from "~/metadata/commonObjects/metadataRef/fromXML"
 import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/metadataTabularSection/fromXML"
-import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/fromXML"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 
@@ -131,8 +130,8 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.SequenceFilling !== undefined) result.sequenceFilling = xml.SequenceFilling
 
-  const standardAttributes = importStandardAttributeDescriptionsFromXML(context, undefined, xml.StandardAttributes)
-  if (standardAttributes !== undefined) result.standardAttributes = standardAttributes
+  // const standardAttributes = importStandardAttributeDescriptionsFromXML(context, undefined, xml.StandardAttributes)
+  // if (standardAttributes !== undefined) result.standardAttributes = standardAttributes
 
   const synonym = importI8nTextFromXML(context, { type: "I8nText" }, xml.Synonym)
   if (synonym !== undefined) result.synonym = synonym

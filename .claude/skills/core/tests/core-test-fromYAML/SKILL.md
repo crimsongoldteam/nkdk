@@ -12,6 +12,8 @@ description: Сгенерировать fromYAML.test.ts для открытог
 3. Если импорт поддерживает merge/defaults, обязательно передавай `sourceValue` (как в `contextMenu`: для full — `fullContextMenuSource`, для minimal — `minimalContextMenu`).
 4. Делай минимум 2 сценария, если есть соответствующие фикстуры: `full` и `minimal`.
 5. Рабочий пример: [contextMenu/fromYAML.test.ts](../../../../../packages/core/metadata/forms/elements/contextMenu/fromYAML.test.ts).
+6. Если `rule.type` требует доп. полей (например, `standartAttributeNames`), добавляй их в `rule` явно.
+7. Для коллекций с `returnUndefinedWhenEmptyYAML: true` проверяй `undefined` для `value: undefined` и `{}`.
 
 ```ts
 const rule: PropertyRule = { type: "<Type>" }

@@ -32,7 +32,10 @@ describe("export <PropertyType> to XML", () => {
 Правила:
 
 - Используй helper `testExportPropertyToXML`.
-- Передавай `importMetaUrl: import.meta.url`.
+- Всегда передавай `importMetaUrl: import.meta.url`, если fixture лежат в локальном `__fixtures__` рядом с тестом.
 - Для property внутри элемента формы указывай `itemsTree`.
+- Если проверяешь XML без служебных `id` после нумерации, передавай `applyNumberingIds: false`.
+- Если fixture в `tests/fixtures`, можно не передавать `importMetaUrl`.
 - Рабочий пример: [contextMenu/toXML.test.ts](../../../../../packages/core/metadata/forms/elements/contextMenu/toXML.test.ts).
+- Доп. пример с локальными `__fixtures__`: `standardAttributeDescription/toXML.test.ts`.
 - Без комментариев в сгенерированном файле.

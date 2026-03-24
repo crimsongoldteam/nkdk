@@ -4,7 +4,9 @@ import { MetadataValueXML, MetadataValueYAML } from "~/metadata/commonObjects/me
 import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { ChoiceParameterLinksXML, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import { registerMetadataItemCollectionRule } from "~/metadata/orchestration"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChoiceParametersXML, ChoiceParametersYAML } from "../сhoiceParameters/types"
 import { StandardAttributeDescriptionRules } from "./rules"
@@ -102,3 +104,34 @@ export type StandardAttributeDescriptions = StandardAttributeDescription[]
 export type StandardAttributeDescriptionsXML = { "xr:StandardAttribute": StandardAttributeDescriptionXML[] }
 
 export type StandardAttributeDescriptionsYAML = Partial<Record<StandartAttributeYAML, StandardAttributeDescriptionYAML>>
+
+registerMetadataItemCollectionRule({
+  propertyType: "StandardAttributeDescriptions",
+  itemRule: StandardAttributeDescriptionRules,
+  xmlElement: "xr:StandardAttribute",
+  nameFromYAMLKey: (yamlKey) => StandartAttributeNameFromYAML(yamlKey),
+  yamlKeyFromName: (name) => StandartAttributeNameToYAML[name as StandartAttributeName] ?? name,
+  returnUndefinedWhenEmptyYAML: true,
+  extendDataForExportToXML: ({ data, rule }) => getExtendedStandardAttributeDescriptions(data as any, rule) as any,
+  omitIdAttributeInXML: true,
+})
+
+const getExtendedStandardAttributeDescriptions = (
+  data: StandardAttributeDescription[],
+  rule: PropertyRule | undefined
+): StandardAttributeDescription[] => {
+  const standartAttributeNames = (rule as StandardAttributeDescriptionsPropertyRule | undefined)?.standartAttributeNames
+  if (!standartAttributeNames) return data
+
+  const dataMap = new Map<StandartAttributeName, StandardAttributeDescription>()
+  for (const item of data) {
+    dataMap.set(item.name as StandartAttributeName, item)
+  }
+
+  const result: StandardAttributeDescription[] = []
+  for (const name of standartAttributeNames) {
+    const existingItem = dataMap.get(name)
+    result.push(existingItem ?? { name, itemType: StandardAttributeDescriptionRules.itemType })
+  }
+  return result
+}

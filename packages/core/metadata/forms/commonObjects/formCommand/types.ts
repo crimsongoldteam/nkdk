@@ -4,6 +4,7 @@ import { PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection"
 import { ButtonRepresentation, CurrentRowUse } from "~/metadata/systemEnumerations/types"
 import { FormCommandRules } from "./rules"
 
@@ -31,3 +32,11 @@ export type FormCommandsXML = FormCommandXML | FormCommandXML[]
 export type FormCommandYAML = YAMLTypeByRule<typeof FormCommandRules>
 
 export type FormCommandsYAML = Record<string, FormCommandYAML>
+
+registerMetadataItemCollectionRule(
+  {
+    propertyType: "FormCommands",
+    itemRule: FormCommandRules,
+    xmlElement: "Command",
+  }
+)

@@ -4,6 +4,7 @@ import { ElementXML, exportPropertyToXML, importPropertyFromXML, PropertyRule } 
 import { xmlExport } from "~/xml/export/exporter"
 import { mockContextFromXML, mockContextToXML } from "../mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
+import { readAndParseXMLFixture, readXMLFixtureAsString } from "../readFixtureXML"
 
 export const testExportPropertyToXML = (params: {
   rule: PropertyRule
@@ -12,12 +13,15 @@ export const testExportPropertyToXML = (params: {
   importMetaUrl?: string
   path: string
   itemsTree?: ContextElementToXML[]
+  applyNumberingIds?: boolean
 }): { expectedResult: string; result: string } => {
-  const { rule, value, xmlRootTag, path } = params
+  const { rule, value, xmlRootTag, path, importMetaUrl } = params
 
-  const expectedResult = readXMLFileAsString(path)
+  const expectedResult = importMetaUrl ? readXMLFixtureAsString(importMetaUrl, path) : readXMLFileAsString(path)
 
-  const referenceXMLData = readAndParseXMLFile<{ [key: string]: ElementXML }>(path)
+  const referenceXMLData = importMetaUrl
+    ? readAndParseXMLFixture<{ [key: string]: ElementXML }>(importMetaUrl, path)
+    : readAndParseXMLFile<{ [key: string]: ElementXML }>(path)
   const referenceXML = referenceXMLData
   const importContext = mockContextFromXML({ forReference: true })
   const referenceProperty = importPropertyFromXML({
@@ -47,7 +51,9 @@ export const testExportPropertyToXML = (params: {
     referenceMetadata: referenceProperty,
   })
 
-  setIdsToElements(exportContext)
+  if (params.applyNumberingIds !== false) {
+    setIdsToElements(exportContext)
+  }
 
   const result = xmlExport({ [xmlRootTag]: xmlData }, false)
 

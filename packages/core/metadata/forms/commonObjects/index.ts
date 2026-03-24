@@ -19,11 +19,8 @@ import "./commandInterface/toJSONSchema"
 import "./commandInterface/toXML"
 import "./commandInterface/toYAML"
 
-import "./formCommand/fromXML"
-import "./formCommand/fromYAML"
 import "./formCommand/toJSONSchema"
-import "./formCommand/toXML"
-import "./formCommand/toYAML"
+import "./formCommand/types"
 
 import "./formParameter/fromXML"
 import "./formParameter/fromYAML"
