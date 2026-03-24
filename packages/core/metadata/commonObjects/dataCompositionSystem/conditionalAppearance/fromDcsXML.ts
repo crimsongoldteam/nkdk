@@ -1,11 +1,11 @@
-import type { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
 import type { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import type { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { importPropertyFromXML } from "~/metadata/orchestration"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importAppearanceFieldsFromDcsXML } from "../appearanceFields/fromDcsXML"
 import type { AppearanceFields, AppearanceFieldsXML } from "../appearanceFields/types"
-import { importFilterFromDcsXML } from "../filter/fromDcsXML"
 import type { FilterXML } from "../filter/fromDcsXML"
+import { importFilterFromDcsXML } from "../filter/fromDcsXML"
 import type { ConditionalAppearanceItem } from "./types"
 
 type SelectionItemXML = { "dcsset:field": string }
@@ -70,7 +70,11 @@ const importConditionalAppearanceItemFromDcsXML = (
   const filter = importFilterFromDcsXML(context, xml["dcsset:filter"])
   const appearance =
     xml["dcsset:appearance"] !== undefined
-      ? importAppearanceFieldsFromDcsXML(context, xml["dcsset:appearance"])
+      ? (importPropertyFromXML({
+          context,
+          rule: { type: "Appearance" },
+          value: xml["dcsset:appearance"],
+        }) as AppearanceFields | undefined)
       : undefined
   const presentation =
     xml["dcsset:presentation"] !== undefined
@@ -98,8 +102,7 @@ const importConditionalAppearanceItemFromDcsXML = (
       : {}),
     ...(xml["dcsset:useInHierarchicalGroup"] !== undefined
       ? {
-          useInHierarchicalGroup:
-            xml["dcsset:useInHierarchicalGroup"] as SE.DataCompositionConditionalAppearanceUse,
+          useInHierarchicalGroup: xml["dcsset:useInHierarchicalGroup"] as SE.DataCompositionConditionalAppearanceUse,
         }
       : {}),
     ...(xml["dcsset:useInOverall"] !== undefined
@@ -107,8 +110,7 @@ const importConditionalAppearanceItemFromDcsXML = (
       : {}),
     ...(xml["dcsset:useInFieldsHeader"] !== undefined
       ? {
-          useInFieldsHeader:
-            xml["dcsset:useInFieldsHeader"] as SE.DataCompositionConditionalAppearanceUse,
+          useInFieldsHeader: xml["dcsset:useInFieldsHeader"] as SE.DataCompositionConditionalAppearanceUse,
         }
       : {}),
     ...(xml["dcsset:useInHeader"] !== undefined
@@ -124,20 +126,21 @@ const importConditionalAppearanceItemFromDcsXML = (
       : {}),
     ...(xml["dcsset:useInResourceFieldsHeader"] !== undefined
       ? {
-          useInResourceFieldsHeader:
-            xml["dcsset:useInResourceFieldsHeader"] as SE.DataCompositionConditionalAppearanceUse,
+          useInResourceFieldsHeader: xml[
+            "dcsset:useInResourceFieldsHeader"
+          ] as SE.DataCompositionConditionalAppearanceUse,
         }
       : {}),
     ...(xml["dcsset:useInOverallHeader"] !== undefined
       ? {
-          useInOverallHeader:
-            xml["dcsset:useInOverallHeader"] as SE.DataCompositionConditionalAppearanceUse,
+          useInOverallHeader: xml["dcsset:useInOverallHeader"] as SE.DataCompositionConditionalAppearanceUse,
         }
       : {}),
     ...(xml["dcsset:useInOverallResourceFieldsHeader"] !== undefined
       ? {
-          useInOverallResourceFieldsHeader:
-            xml["dcsset:useInOverallResourceFieldsHeader"] as SE.DataCompositionConditionalAppearanceUse,
+          useInOverallResourceFieldsHeader: xml[
+            "dcsset:useInOverallResourceFieldsHeader"
+          ] as SE.DataCompositionConditionalAppearanceUse,
         }
       : {}),
   }
@@ -147,7 +150,5 @@ export const importConditionalAppearanceFromDcsXML = (
   context: ConfigurationContextFromXML,
   xml: ConditionalAppearanceXML
 ): ConditionalAppearanceItem[] => {
-  return asArray(xml["dcsset:item"]).map((item) =>
-    importConditionalAppearanceItemFromDcsXML(context, item)
-  )
+  return asArray(xml["dcsset:item"]).map((item) => importConditionalAppearanceItemFromDcsXML(context, item))
 }

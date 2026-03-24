@@ -1,18 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { importContentFromXML } from "~/xml/import/importer"
-import { xmlExport } from "~/xml/export/exporter"
-import { fixtureAppearanceFields } from "./__fixtures__/data"
-import { exportAppearanceFieldsToDcsXML } from "./toDcsXML"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { fixtureAppearanceFields, fixtureAppearanceRule } from "./__fixtures__/data"
 
-describe("exportAppearanceFieldsToDcsXML", () => {
-  it("exports appearance.xml", () => {
-    const exported = exportAppearanceFieldsToDcsXML(mockContext, fixtureAppearanceFields)
-    const wrapped = { "dcsset:appearance": exported }
-    const xml = xmlExport(wrapped, false)
-    expect(importContentFromXML(xml)).toEqual(
-      importContentFromXML(readXMLFixtureAsString(import.meta.url, "appearance.xml"))
-    )
+describe("export Appearance to XML", () => {
+  it("should export appearance.xml", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule: fixtureAppearanceRule,
+      value: fixtureAppearanceFields,
+      xmlRootTag: "dcsset:appearance",
+      path: "appearance.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
   })
 })

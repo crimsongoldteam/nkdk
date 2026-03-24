@@ -82,7 +82,7 @@ description: Работа с построителем объектов чере�
 - `importElementFromYAML` -> `packages/core/metadata/orchestration/formElement/fromYAML.ts`
 - `exportElementToYAML` -> `packages/core/metadata/orchestration/formElement/toYAML.ts`
 
-Отдельные `fromXML.ts`/`toXML.ts`/`fromYAML.ts`/`toYAML.ts` для конкретного элемента нужны только если стандартного поведения rule-системы недостаточно.
+Отдельные `fromXML.ts`/`toXML.ts`/`fromYAML.ts`/`toYAML.ts` для конкретного элемента **крайне желательно не создавать**. Они допустимы только как исключение, если стандартного поведения rule-системы действительно недостаточно.
 
 # Где лежат отдельные правила типов (registry)
 
@@ -129,4 +129,4 @@ description: Работа с построителем объектов чере�
 2. Добавь регистрацию через `registerElementRule("<ItemType>", ...Rules)`.
 3. Создай `types.ts` и выведи типы через `FormTypeByRule` / `YAMLTypeByRule` / `EnterpriseType`.
 4. Убедись, что `type` каждого свойства существует в `PropertyTypeRegistry`.
-5. Если хватает стандартного пайплайна, не создавай отдельные `from*/to*` файлы.
+5. Если хватает стандартного пайплайна, отдельные `fromXML.ts`/`toXML.ts`/`fromYAML.ts`/`toYAML.ts` **крайне желательно не создавать**.

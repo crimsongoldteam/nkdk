@@ -2,8 +2,9 @@ import type { Color } from "~/metadata/commonObjects/color/types"
 import type { Font } from "~/metadata/commonObjects/font/types"
 import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import type { MetadataTypedPrimitiveValue } from "~/metadata/commonObjects/metadataValue/types"
+import type { PropertyRule } from "~/metadata/orchestration"
 import type { SettingsParameterValue } from "../../parameterValue/types"
-import type { AppearanceFields } from "../types"
+import type { AppearanceFields, AppearanceFieldsYAML } from "../types"
 
 const colorRed: Color = { type: "WebColor", value: "Red" }
 const colorBlue: Color = { type: "WebColor", value: "Blue" }
@@ -13,15 +14,15 @@ const i8nText: I8nText = { items: { ru: "Текст" } }
 const boolTrue: MetadataTypedPrimitiveValue = { type: "boolean", value: true }
 const boolFalse: MetadataTypedPrimitiveValue = { type: "boolean", value: false }
 
-const pv = (
-  parameter: string,
-  value: SettingsParameterValue["value"],
-  use?: false
-): SettingsParameterValue => ({
+const pv = (parameter: string, value: SettingsParameterValue["value"], use?: false): SettingsParameterValue => ({
   parameter,
   ...(use !== undefined ? { use } : {}),
   value,
 })
+
+export const fixtureAppearanceRule: PropertyRule = {
+  type: "Appearance",
+}
 
 export const fixtureAppearanceFields: AppearanceFields = {
   itemType: "AppearanceFields",
@@ -37,4 +38,17 @@ export const fixtureAppearanceFields: AppearanceFields = {
   Доступность: pv("Доступность", boolFalse),
   ТолькоПросмотр: pv("ТолькоПросмотр", boolTrue),
   Отображать: pv("Отображать", boolFalse),
+}
+
+export const fixtureAppearanceFieldsMinimal: AppearanceFields = {
+  itemType: "AppearanceFields",
+  ЦветФона: pv("ЦветФона", colorRed, false),
+}
+
+export const fixtureAppearanceFieldsMinimalYAML: AppearanceFieldsYAML = {
+  ЦветФона: {
+    Параметр: "ЦветФона",
+    Использовать: "Ложь",
+    Значение: "Красный",
+  },
 }

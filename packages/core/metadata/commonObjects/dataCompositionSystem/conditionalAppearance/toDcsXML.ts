@@ -1,6 +1,6 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/toXML"
-import { exportAppearanceFieldsToDcsXML } from "../appearanceFields/toDcsXML"
+import type { ConfigurationContext } from "~/metadata/context/types"
+import { exportPropertyToXML } from "~/metadata/orchestration"
 import type { AppearanceFields } from "../appearanceFields/types"
 import { exportFilterToDcsXML } from "../filter/toDcsXML"
 import type { Filter } from "../filter/types"
@@ -29,11 +29,15 @@ export const exportConditionalAppearanceToDcsXML = (
     const selection = exportSelectionToDcsXML(item.fields)
     const filter = exportFilterToDcsXML(context, item.filter as Filter | undefined)
     const appearance =
-      item.appearance !== undefined ? exportAppearanceFieldsToDcsXML(context, item.appearance) : undefined
-    const presentation =
-      item.presentation !== undefined
-        ? exportI8nTextToXML(context, { type: "I8nText" }, item.presentation)
+      item.appearance !== undefined
+        ? (exportPropertyToXML({
+            context,
+            rule: { type: "Appearance" },
+            value: item.appearance,
+          }) as Record<string, unknown> | undefined)
         : undefined
+    const presentation =
+      item.presentation !== undefined ? exportI8nTextToXML(context, { type: "I8nText" }, item.presentation) : undefined
     const userSettingPresentation =
       item.userSettingPresentation !== undefined
         ? exportI8nTextToXML(context, { type: "I8nText" }, item.userSettingPresentation)
@@ -47,26 +51,20 @@ export const exportConditionalAppearanceToDcsXML = (
       ...(presentation !== undefined ? { "dcsset:presentation": presentation } : {}),
       ...(item.viewMode !== undefined ? { "dcsset:viewMode": item.viewMode } : {}),
       ...(item.userSettingID ? { "dcsset:userSettingID": item.userSettingID } : {}),
-      ...(userSettingPresentation !== undefined
-        ? { "dcsset:userSettingPresentation": userSettingPresentation }
-        : {}),
+      ...(userSettingPresentation !== undefined ? { "dcsset:userSettingPresentation": userSettingPresentation } : {}),
       ...(item.useInGroup !== undefined ? { "dcsset:useInGroup": item.useInGroup } : {}),
       ...(item.useInHierarchicalGroup !== undefined
         ? { "dcsset:useInHierarchicalGroup": item.useInHierarchicalGroup }
         : {}),
       ...(item.useInOverall !== undefined ? { "dcsset:useInOverall": item.useInOverall } : {}),
-      ...(item.useInFieldsHeader !== undefined
-        ? { "dcsset:useInFieldsHeader": item.useInFieldsHeader }
-        : {}),
+      ...(item.useInFieldsHeader !== undefined ? { "dcsset:useInFieldsHeader": item.useInFieldsHeader } : {}),
       ...(item.useInHeader !== undefined ? { "dcsset:useInHeader": item.useInHeader } : {}),
       ...(item.useInParameters !== undefined ? { "dcsset:useInParameters": item.useInParameters } : {}),
       ...(item.useInFilter !== undefined ? { "dcsset:useInFilter": item.useInFilter } : {}),
       ...(item.useInResourceFieldsHeader !== undefined
         ? { "dcsset:useInResourceFieldsHeader": item.useInResourceFieldsHeader }
         : {}),
-      ...(item.useInOverallHeader !== undefined
-        ? { "dcsset:useInOverallHeader": item.useInOverallHeader }
-        : {}),
+      ...(item.useInOverallHeader !== undefined ? { "dcsset:useInOverallHeader": item.useInOverallHeader } : {}),
       ...(item.useInOverallResourceFieldsHeader !== undefined
         ? { "dcsset:useInOverallResourceFieldsHeader": item.useInOverallResourceFieldsHeader }
         : {}),

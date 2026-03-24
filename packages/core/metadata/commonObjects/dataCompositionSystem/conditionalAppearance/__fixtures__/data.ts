@@ -1,11 +1,11 @@
-import type { AppearanceFields } from "../../appearanceFields/types"
+import { mockContext } from "~/tests/mockContext"
+import { exportPropertyToYAML } from "~/metadata/orchestration"
 import { fixtureAppearanceFields } from "../../appearanceFields/__fixtures__/data"
-import { exportAppearanceFieldsToYAML } from "../../appearanceFields/toYAML"
-import type { Filter } from "../../filter/types"
+import type { AppearanceFields, AppearanceFieldsYAML } from "../../appearanceFields/types"
 import { exportFilterToYAML } from "../../filter/toYAML"
+import type { Filter } from "../../filter/types"
 import type { FilterItem, FilterItemComparison } from "../../filterItem/types"
 import type { FilterItemGroup } from "../../filterItemGroup/types"
-import { mockContext } from "~/tests/mockContext"
 import type { ConditionalAppearanceItem, ConditionalAppearanceItemYAML } from "../types"
 
 /**
@@ -13,7 +13,7 @@ import type { ConditionalAppearanceItem, ConditionalAppearanceItemYAML } from ".
  * свойство помечено как AppearanceFields — внутри храним `_fieldNames` и приводим тип.
  */
 const makeSelectionFields = (...names: string[]): AppearanceFields =>
-  ({ itemType: "AppearanceFields" as const, _fieldNames: names } as unknown as AppearanceFields)
+  ({ itemType: "AppearanceFields" as const, _fieldNames: names }) as unknown as AppearanceFields
 
 const filterItemComparison1: FilterItemComparison = {
   itemType: "FilterItemComparison",
@@ -56,7 +56,11 @@ export const minimalConditionalAppearanceItem: ConditionalAppearanceItem = {
 }
 
 const fullFilterYAML = exportFilterToYAML(mockContext, fullFixtureFilter)
-const fullAppearanceYAML = exportAppearanceFieldsToYAML(mockContext, fixtureAppearanceFields)
+const fullAppearanceYAML = exportPropertyToYAML({
+  context: mockContext,
+  rule: { type: "Appearance" },
+  value: fixtureAppearanceFields,
+}) as AppearanceFieldsYAML
 
 /** Эталон YAML для полного кейса (вложенные части строятся теми же экспортёрами, что и в toYAML). */
 export const fullConditionalAppearanceItemYAML = {

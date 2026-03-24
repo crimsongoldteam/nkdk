@@ -8,24 +8,25 @@ description: Общие правила тестирования объектов
 ## Что нужно делать
 
 1. Тестируй конвертацию целиком через сверку с эталонной фикстурой модели из `__fixtures__/data.ts`.
-2. Для `fromXML` / `fromDcsXML`:
+2. Храни **все тестовые фикстуры** в `__fixtures__/data.ts` (включая модели, YAML-представления, `PropertyRule` и другие входные/ожидаемые данные). Не объявляй fixture-объекты внутри `*.test.ts`.
+3. Для `fromXML` / `fromDcsXML`:
    - читай XML-фикстуру из `__fixtures__/*.xml`,
    - импортируй в модель,
    - сравнивай результат с полной fixture-моделью.
-3. Для `fromYAML`:
+4. Для `fromYAML`:
    - либо бери YAML-фикстуру (`*YAML`) из `data.ts` и вызывай функцию импорта напрямую,
    - либо для **свойств** (`importPropertyFromYAML`) используй `testImportPropertyFromYAML` (`~/tests/property/importPropertyFromYAML`) как обёртку и передавай `value` напрямую (обычно `*YAML` из `data.ts`);
    - сравнивай результат с полной fixture-моделью из `data.ts`.
-4. Для `toXML` / `toDcsXML`:
+5. Для `toXML` / `toDcsXML`:
    - бери полную fixture-модель из `data.ts`,
    - экспортируй в XML,
    - сравнивай с XML-эталоном через парсинг XML-структуры (не строкой).
-5. Для `toYAML`:
+6. Для `toYAML`:
    - либо бери полную fixture-модель из `data.ts`, экспортируй и сравнивай с YAML-эталоном (`*YAML`) из `data.ts`,
    - либо для **свойств** (`exportPropertyToYAML`) клади ожидаемый объект в `__fixtures__/*.yaml` и используй `testExportPropertyToYAML` (`~/tests/property/exportPropertyToYAML`) — по смыслу как `testExportPropertyToXML` для XML; в `PropertyRule` нужен `yaml` (ключ выхода).
-6. Общее чтение YAML-файлов в тестах: `~/tests/readAndParseYAMLFile` (аналог разбора XML-фикстур).
-7. Используй стандартные контексты (`mockContext`, `mockContextFromXML`) и шаблоны тестов из профильных скиллов (`fromXML`, `toXML`, `fromYAML`, `toYAML`).
-8. В XML-фикстурах не оставляй последнюю пустую строку: файл должен заканчиваться последним содержательным XML-тегом.
+7. Общее чтение YAML-файлов в тестах: `~/tests/readAndParseYAMLFile` (аналог разбора XML-фикстур).
+8. Используй стандартные контексты (`mockContext`, `mockContextFromXML`) и шаблоны тестов из профильных скиллов (`fromXML`, `toXML`, `fromYAML`, `toYAML`).
+9. В XML-фикстурах не оставляй последнюю пустую строку: файл должен заканчиваться последним содержательным XML-тегом.
 
 ## Что не нужно делать
 

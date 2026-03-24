@@ -1,7 +1,7 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
 import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
+import type { ConfigurationContext } from "~/metadata/context/types"
+import { importPropertyFromYAML } from "~/metadata/orchestration"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importAppearanceFieldsFromYAML } from "../appearanceFields/fromYAML"
 import { AppearanceFieldsRules } from "../appearanceFields/rules"
 import type { AppearanceFields, AppearanceFieldsYAML } from "../appearanceFields/types"
 import { importFilterFromYAML } from "../filter/fromYAML"
@@ -26,10 +26,13 @@ export const importConditionalAppearanceItemFromYAML = (
   const fields = importSelectionFromYAML(y["Поля"])
   const appearance =
     y["Оформление"] !== undefined
-      ? importAppearanceFieldsFromYAML(context, y["Оформление"] as AppearanceFieldsYAML)
+      ? (importPropertyFromYAML({
+          context,
+          rule: { type: "Appearance" },
+          value: y["Оформление"] as AppearanceFieldsYAML,
+        }) as AppearanceFields | undefined)
       : undefined
-  const filter =
-    y["Отбор"] !== undefined ? importFilterFromYAML(context, y["Отбор"] as FilterYAML) : undefined
+  const filter = y["Отбор"] !== undefined ? importFilterFromYAML(context, y["Отбор"] as FilterYAML) : undefined
   const presentation =
     y["Представление"] !== undefined
       ? importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: y["Представление"] as never })
@@ -43,27 +46,15 @@ export const importConditionalAppearanceItemFromYAML = (
         })
       : undefined
   const vmYaml = y["РежимОтображения"] as SE.DataCompositionSettingsItemViewModeYAML | undefined
-  const useInGroupYaml = y["ИспользоватьВГруппировке"] as
-    | SE.DataCompositionConditionalAppearanceUseYAML
-    | undefined
+  const useInGroupYaml = y["ИспользоватьВГруппировке"] as SE.DataCompositionConditionalAppearanceUseYAML | undefined
   const useInHGYaml = y["ИспользоватьВИерархическойГруппировке"] as
     | SE.DataCompositionConditionalAppearanceUseYAML
     | undefined
-  const useInOverallYaml = y["ИспользоватьВОбщемИтоге"] as
-    | SE.DataCompositionConditionalAppearanceUseYAML
-    | undefined
-  const useInFHYaml = y["ИспользоватьВЗаголовкеПолей"] as
-    | SE.DataCompositionConditionalAppearanceUseYAML
-    | undefined
-  const useInHeaderYaml = y["ИспользоватьВЗаголовке"] as
-    | SE.DataCompositionConditionalAppearanceUseYAML
-    | undefined
-  const useInParamsYaml = y["ИспользоватьВПараметрах"] as
-    | SE.DataCompositionConditionalAppearanceUseYAML
-    | undefined
-  const useInFilterYaml = y["ИспользоватьВОтборе"] as
-    | SE.DataCompositionConditionalAppearanceUseYAML
-    | undefined
+  const useInOverallYaml = y["ИспользоватьВОбщемИтоге"] as SE.DataCompositionConditionalAppearanceUseYAML | undefined
+  const useInFHYaml = y["ИспользоватьВЗаголовкеПолей"] as SE.DataCompositionConditionalAppearanceUseYAML | undefined
+  const useInHeaderYaml = y["ИспользоватьВЗаголовке"] as SE.DataCompositionConditionalAppearanceUseYAML | undefined
+  const useInParamsYaml = y["ИспользоватьВПараметрах"] as SE.DataCompositionConditionalAppearanceUseYAML | undefined
+  const useInFilterYaml = y["ИспользоватьВОтборе"] as SE.DataCompositionConditionalAppearanceUseYAML | undefined
   const useInRFHYaml = y["ИспользоватьВЗаголовкеПолейРесурсов"] as
     | SE.DataCompositionConditionalAppearanceUseYAML
     | undefined
@@ -81,9 +72,7 @@ export const importConditionalAppearanceItemFromYAML = (
     ...(filter !== undefined ? { filter } : {}),
     ...(appearance !== undefined ? { appearance } : {}),
     ...(presentation !== undefined ? { presentation } : {}),
-    ...(vmYaml !== undefined
-      ? { viewMode: SE.DataCompositionSettingsItemViewModeFromYAML[vmYaml] }
-      : {}),
+    ...(vmYaml !== undefined ? { viewMode: SE.DataCompositionSettingsItemViewModeFromYAML[vmYaml] } : {}),
     ...(y["ИдентификаторПользовательскойНастройки"]
       ? { userSettingID: String(y["ИдентификаторПользовательскойНастройки"]) }
       : {}),
@@ -93,8 +82,7 @@ export const importConditionalAppearanceItemFromYAML = (
       : {}),
     ...(useInHGYaml !== undefined
       ? {
-          useInHierarchicalGroup:
-            SE.DataCompositionConditionalAppearanceUseFromYAML[useInHGYaml],
+          useInHierarchicalGroup: SE.DataCompositionConditionalAppearanceUseFromYAML[useInHGYaml],
         }
       : {}),
     ...(useInOverallYaml !== undefined
@@ -118,8 +106,7 @@ export const importConditionalAppearanceItemFromYAML = (
       : {}),
     ...(useInRFHYaml !== undefined
       ? {
-          useInResourceFieldsHeader:
-            SE.DataCompositionConditionalAppearanceUseFromYAML[useInRFHYaml],
+          useInResourceFieldsHeader: SE.DataCompositionConditionalAppearanceUseFromYAML[useInRFHYaml],
         }
       : {}),
     ...(useInOHYaml !== undefined
@@ -129,8 +116,7 @@ export const importConditionalAppearanceItemFromYAML = (
       : {}),
     ...(useInORFHYaml !== undefined
       ? {
-          useInOverallResourceFieldsHeader:
-            SE.DataCompositionConditionalAppearanceUseFromYAML[useInORFHYaml],
+          useInOverallResourceFieldsHeader: SE.DataCompositionConditionalAppearanceUseFromYAML[useInORFHYaml],
         }
       : {}),
   }

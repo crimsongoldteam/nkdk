@@ -1,18 +1,22 @@
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { fixtureAppearanceFields } from "./__fixtures__/data"
-import { importAppearanceFieldsFromDcsXML } from "./fromDcsXML"
-import type { AppearanceFieldsXML } from "./types"
+import "./types"
 
-describe("importAppearanceFieldsFromDcsXML", () => {
-  it("imports appearance.xml", () => {
-    const parsed = readAndParseXMLFixture<{ "dcsset:appearance": AppearanceFieldsXML }>(
-      import.meta.url,
-      "appearance.xml"
-    )
-    expect(importAppearanceFieldsFromDcsXML(mockContextFromXML(), parsed["dcsset:appearance"])).toEqual(
-      fixtureAppearanceFields
-    )
+const rule: PropertyRule = {
+  type: "Appearance",
+}
+
+describe("import Appearance from XML", () => {
+  it("should import appearance.xml", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "appearance.xml",
+      xmlRootTag: "dcsset:appearance",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(fixtureAppearanceFields)
   })
 })

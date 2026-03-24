@@ -1,8 +1,8 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
+import type { ConfigurationContext } from "~/metadata/context/types"
+import { exportPropertyToYAML } from "~/metadata/orchestration"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportAppearanceFieldsToYAML } from "../appearanceFields/toYAML"
-import type { AppearanceFields } from "../appearanceFields/types"
+import type { AppearanceFields, AppearanceFieldsYAML } from "../appearanceFields/types"
 import { exportFilterToYAML } from "../filter/toYAML"
 import type { Filter } from "../filter/types"
 import type { ConditionalAppearanceItem, ConditionalAppearanceItemYAML } from "./types"
@@ -19,10 +19,15 @@ export const exportConditionalAppearanceItemToYAML = (
   item: ConditionalAppearanceItem
 ): ConditionalAppearanceItemYAML => {
   const selectionNames = exportSelectionToYAML(item.fields)
-  const filter =
-    item.filter !== undefined ? exportFilterToYAML(context, item.filter as Filter | undefined) : undefined
+  const filter = item.filter !== undefined ? exportFilterToYAML(context, item.filter as Filter | undefined) : undefined
   const appearance =
-    item.appearance !== undefined ? exportAppearanceFieldsToYAML(context, item.appearance) : undefined
+    item.appearance !== undefined
+      ? (exportPropertyToYAML({
+          context,
+          rule: { type: "Appearance" },
+          value: item.appearance,
+        }) as AppearanceFieldsYAML | undefined)
+      : undefined
   const presentation =
     item.presentation !== undefined
       ? exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: item.presentation })
@@ -53,24 +58,19 @@ export const exportConditionalAppearanceItemToYAML = (
       : {}),
     ...(item.useInGroup !== undefined
       ? {
-          ИспользоватьВГруппировке: SE.DataCompositionConditionalAppearanceUseToYAML[
-            item.useInGroup
-          ] as never,
+          ИспользоватьВГруппировке: SE.DataCompositionConditionalAppearanceUseToYAML[item.useInGroup] as never,
         }
       : {}),
     ...(item.useInHierarchicalGroup !== undefined
       ? {
-          ИспользоватьВИерархическойГруппировке:
-            SE.DataCompositionConditionalAppearanceUseToYAML[
-              item.useInHierarchicalGroup
-            ] as never,
+          ИспользоватьВИерархическойГруппировке: SE.DataCompositionConditionalAppearanceUseToYAML[
+            item.useInHierarchicalGroup
+          ] as never,
         }
       : {}),
     ...(item.useInOverall !== undefined
       ? {
-          ИспользоватьВОбщемИтоге: SE.DataCompositionConditionalAppearanceUseToYAML[
-            item.useInOverall
-          ] as never,
+          ИспользоватьВОбщемИтоге: SE.DataCompositionConditionalAppearanceUseToYAML[item.useInOverall] as never,
         }
       : {}),
     ...(item.useInFieldsHeader !== undefined
@@ -82,45 +82,38 @@ export const exportConditionalAppearanceItemToYAML = (
       : {}),
     ...(item.useInHeader !== undefined
       ? {
-          ИспользоватьВЗаголовке: SE.DataCompositionConditionalAppearanceUseToYAML[
-            item.useInHeader
-          ] as never,
+          ИспользоватьВЗаголовке: SE.DataCompositionConditionalAppearanceUseToYAML[item.useInHeader] as never,
         }
       : {}),
     ...(item.useInParameters !== undefined
       ? {
-          ИспользоватьВПараметрах: SE.DataCompositionConditionalAppearanceUseToYAML[
-            item.useInParameters
-          ] as never,
+          ИспользоватьВПараметрах: SE.DataCompositionConditionalAppearanceUseToYAML[item.useInParameters] as never,
         }
       : {}),
     ...(item.useInFilter !== undefined
       ? {
-          ИспользоватьВОтборе: SE.DataCompositionConditionalAppearanceUseToYAML[
-            item.useInFilter
-          ] as never,
+          ИспользоватьВОтборе: SE.DataCompositionConditionalAppearanceUseToYAML[item.useInFilter] as never,
         }
       : {}),
     ...(item.useInResourceFieldsHeader !== undefined
       ? {
-          ИспользоватьВЗаголовкеПолейРесурсов:
-            SE.DataCompositionConditionalAppearanceUseToYAML[
-              item.useInResourceFieldsHeader
-            ] as never,
+          ИспользоватьВЗаголовкеПолейРесурсов: SE.DataCompositionConditionalAppearanceUseToYAML[
+            item.useInResourceFieldsHeader
+          ] as never,
         }
       : {}),
     ...(item.useInOverallHeader !== undefined
       ? {
-          ИспользоватьВЗаголовкеОбщегоИтога:
-            SE.DataCompositionConditionalAppearanceUseToYAML[item.useInOverallHeader] as never,
+          ИспользоватьВЗаголовкеОбщегоИтога: SE.DataCompositionConditionalAppearanceUseToYAML[
+            item.useInOverallHeader
+          ] as never,
         }
       : {}),
     ...(item.useInOverallResourceFieldsHeader !== undefined
       ? {
-          ИспользоватьВЗаголовкеПолейРесурсовОбщегоИтога:
-            SE.DataCompositionConditionalAppearanceUseToYAML[
-              item.useInOverallResourceFieldsHeader
-            ] as never,
+          ИспользоватьВЗаголовкеПолейРесурсовОбщегоИтога: SE.DataCompositionConditionalAppearanceUseToYAML[
+            item.useInOverallResourceFieldsHeader
+          ] as never,
         }
       : {}),
   } as ConditionalAppearanceItemYAML
