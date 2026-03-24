@@ -1,4 +1,4 @@
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { PropertyRule, MetadataItemRule } from "~/metadata/orchestration"
 import { ElementRule } from "../../orchestration/formElement/types"
 import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }

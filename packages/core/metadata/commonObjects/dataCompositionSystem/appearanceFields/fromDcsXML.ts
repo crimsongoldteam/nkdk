@@ -1,6 +1,6 @@
 import type { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importParameterValueFromDcsXML } from "../parameterValue/fromDcsXML"
-import type { ParameterValueXML, SettingsParameterValue, SettingsParameterValuePropertyRule } from "../parameterValue/types"
+import { importPropertiesFromXML } from "~/metadata/orchestration"
+import type { ParameterValueXML } from "../parameterValue/types"
 import { AppearanceFieldsRules } from "./rules"
 import type { AppearanceFields, AppearanceFieldsXML } from "./types"
 
@@ -16,30 +16,22 @@ export const importAppearanceFieldsFromDcsXML = (
   xml: AppearanceFieldsXML
 ): AppearanceFields => {
   const items = asArray(xml["dcscor:item"])
-  const result: Partial<AppearanceFields> = {}
+  const preparedXML: Partial<Record<PropertyKey, ParameterValueXML>> = {}
 
   for (const item of items) {
     const parameterName = (item as ParameterValueXML)["dcscor:parameter"] as PropertyKey
-    const propertyRule = AppearanceFieldsRules.properties[parameterName]
-    if (propertyRule === undefined) continue
-
-    const rule: SettingsParameterValuePropertyRule = {
-      type: "SettingsParameterValue",
-      valueType: (propertyRule as SettingsParameterValuePropertyRule).valueType,
-      ...((propertyRule as SettingsParameterValuePropertyRule).typeSE !== undefined
-        ? { typeSE: (propertyRule as SettingsParameterValuePropertyRule).typeSE }
-        : {}),
-    }
-
-    result[parameterName] = importParameterValueFromDcsXML(
-      context,
-      rule,
-      item as ParameterValueXML
-    ) as SettingsParameterValue
+    if (AppearanceFieldsRules.properties[parameterName] === undefined) continue
+    preparedXML[parameterName] = item as ParameterValueXML
   }
+
+  const result = importPropertiesFromXML({
+    context,
+    xml: preparedXML,
+    rule: AppearanceFieldsRules,
+  })
 
   return {
     itemType: "AppearanceFields",
-    ...result,
+    ...(result ?? {}),
   } as AppearanceFields
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { fullAutoCommandBar, minimalAutoCommandBar } from "~/tests/fixtures/forms/autoCommandBar/data"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { testExportPropertyToXML } from "~/tests/exportElementToXML"
 
 describe("exportAutoCommandBarToXML", () => {
   describe("exportFormAutoCommandBarToXML", () => {

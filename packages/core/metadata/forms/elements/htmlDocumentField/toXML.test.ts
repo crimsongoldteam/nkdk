@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportElementToXML } from "~/tests/exportElementToXML"
+import { testExportElementToXML } from "~/tests/element/exportElementToXML"
 import { fullHtmlDocumentField, minimalHtmlDocumentField } from "~/tests/fixtures/forms/htmlDocumentField/data"
 
 describe("exportHTMLDocumentFieldToXML", () => {

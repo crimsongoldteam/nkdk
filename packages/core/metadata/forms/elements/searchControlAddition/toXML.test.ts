@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { testExportElementToXML, testExportPropertyToXML } from "~/tests/exportElementToXML"
+import { testExportElementToXML } from "~/tests/element/exportElementToXML"
 import {
   fullSearchControlAddition,
   fullSingleSearchControlAddition,
   minimalSearchControlAddition,
   minimalSingleSearchControlAddition,
 } from "~/tests/fixtures/forms/searchControlAddition/data"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 
 const rule: PropertyRule = {
   type: "SingleSearchControlAddition",

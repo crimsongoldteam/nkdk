@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { testExportPropertyToXML } from "~/tests/exportElementToXML"
 import { fullExtendedTooltip } from "~/tests/fixtures/forms/extendedTooltip/data"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 
 const rule: PropertyRule = { type: "ExtendedTooltip" }
 

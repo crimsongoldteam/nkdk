@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { fullViewStatusAddition } from "~/tests/fixtures/forms/viewStatusAddition/data"
-import { testExportPropertyToXML } from "~/tests/exportElementToXML"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 
 const rule: PropertyRule = { type: "ViewStatusAddition" }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportElementToXML } from "~/tests/exportElementToXML"
+import { testExportElementToXML } from "~/tests/element/exportElementToXML"
 import { fullUsualGroup, minimalUsualGroup } from "~/tests/fixtures/forms/usualGroup/data"
 
 describe("exportUsualGroupToXML", () => {

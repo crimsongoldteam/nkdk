@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { testExportElementToXML, testExportPropertyToXML } from "~/tests/exportElementToXML"
+import { testExportElementToXML } from "~/tests/element/exportElementToXML"
 import {
   fullSearchStringAddition,
   fullSingleSearchStringAddition,
   minimalSearchStringAddition,
   minimalSingleSearchStringAddition,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 
 const normalizeXML = (value: string): string => value.replace(/\s+/g, " ").trim()
 

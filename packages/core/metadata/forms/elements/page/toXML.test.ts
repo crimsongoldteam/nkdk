@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportElementToXML } from "~/tests/exportElementToXML"
+import { testExportElementToXML } from "~/tests/element/exportElementToXML"
 import { fullPage, minimalPage } from "~/tests/fixtures/forms/page/data"
 
 describe("exportPageToXML", () => {
