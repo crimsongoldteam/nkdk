@@ -8,8 +8,8 @@ import "./boolean/fromXML"
 import "./boolean/toJSONSchema"
 
 import "./userSettingsID/fromXML"
-import "./userSettingsID/toXML"
 import "./userSettingsID/fromYAML"
+import "./userSettingsID/toXML"
 import "./userSettingsID/toYAML"
 
 import "./border/fromXML"

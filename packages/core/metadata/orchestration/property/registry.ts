@@ -81,6 +81,7 @@ import {
 } from "~/metadata/commonObjects/typeDescription/types"
 import { TypeLink, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { UsePurposes, UsePurposesYAML } from "~/metadata/commonObjects/usePurposes/types"
+import { UserSettingsID, UserSettingsIDYAML } from "~/metadata/commonObjects/userSettingsID/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
@@ -142,6 +143,10 @@ export type PropertyTypeRegistry = {
     item: boolean
     enterprise: boolean
     yaml: StringboolYAML
+  }
+  UserSettingsID: {
+    item: UserSettingsID
+    yaml: UserSettingsIDYAML
   }
   //#endregion
 
@@ -506,6 +511,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   number: "number",
   string: "string",
   boolean: "boolean",
+  UserSettingsID: "UserSettingsID",
   SystemEnumeration: "SystemEnumeration",
   Color: "Color",
   TypeDescription: "TypeDescription",

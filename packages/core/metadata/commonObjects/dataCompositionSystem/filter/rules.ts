@@ -21,9 +21,10 @@ export const FilterRules = {
       defaultValueYAML: "Auto",
     },
     userSettingID: {
-      type: "string",
+      type: "UserSettingsID",
       xml: "dcsset:userSettingID",
-      yaml: "ИдентификаторПользовательскойНастройки",
+      yaml: "ИспользоватьПользовательскуюНастройку",
+      // yaml: "ИдентификаторПользовательскойНастройки",
     },
     userSettingPresentation: {
       type: "string",

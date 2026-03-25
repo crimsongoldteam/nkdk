@@ -12,6 +12,11 @@ type TestExportPropertyToXMLParamsBase = {
   xmlRootTag: string
   itemsTree?: ContextElementToXML[]
   applyNumberingIds?: boolean
+  /**
+   * Явный референс для `exportPropertyToXML`. Если ключ передан (в т.ч. `undefined`),
+   * импорт референса из `path` не выполняется.
+   */
+  referenceMetadata?: unknown
 }
 
 export function testExportPropertyToXML(
@@ -40,15 +45,21 @@ export function testExportPropertyToXML(
   if (path !== undefined) {
     expectedResult = importMetaUrl ? readXMLFixtureAsString(importMetaUrl, path) : readXMLFileAsString(path)
 
-    const referenceXMLData = importMetaUrl
-      ? readAndParseXMLFixture<{ [key: string]: ElementXML }>(importMetaUrl, path)
-      : readAndParseXMLFile<{ [key: string]: ElementXML }>(path)
-    const importContext = mockContextFromXML({ forReference: true })
-    referenceProperty = importPropertyFromXML({
-      context: importContext,
-      rule: rule,
-      value: referenceXMLData[xmlRootTag],
-    })
+    if (!("referenceMetadata" in params)) {
+      const referenceXMLData = importMetaUrl
+        ? readAndParseXMLFixture<{ [key: string]: ElementXML }>(importMetaUrl, path)
+        : readAndParseXMLFile<{ [key: string]: ElementXML }>(path)
+      const importContext = mockContextFromXML({ forReference: true })
+      referenceProperty = importPropertyFromXML({
+        context: importContext,
+        rule: rule,
+        value: referenceXMLData[xmlRootTag],
+      })
+    }
+  }
+
+  if ("referenceMetadata" in params) {
+    referenceProperty = params.referenceMetadata
   }
 
   const exportContext: ConfigurationContextWithExportToXML = {
