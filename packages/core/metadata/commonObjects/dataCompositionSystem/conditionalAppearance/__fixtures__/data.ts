@@ -1,12 +1,18 @@
 import { mockContext } from "~/tests/mockContext"
-import { exportPropertyToYAML } from "~/metadata/orchestration"
-import { fixtureAppearanceFields } from "../../appearanceFields/__fixtures__/data"
-import type { AppearanceFields, AppearanceFieldsYAML } from "../../appearanceFields/types"
+import {
+  fixtureAppearanceFields,
+  fixtureAppearanceFieldsYAML,
+} from "../../appearanceFields/__fixtures__/data"
+import type { AppearanceFields } from "../../appearanceFields/types"
 import { exportFilterToYAML } from "../../filter/toYAML"
 import type { Filter } from "../../filter/types"
 import type { FilterItem, FilterItemComparison } from "../../filterItem/types"
 import type { FilterItemGroup } from "../../filterItemGroup/types"
-import type { ConditionalAppearanceItem, ConditionalAppearanceItemYAML } from "../types"
+import type {
+  ConditionalAppearanceItem,
+  ConditionalAppearanceItemYAML,
+  ConditionalAppearanceYAML,
+} from "../types"
 
 /**
  * В XML/YAML для условного оформления `Поля` — список путей к полям данных; в типе правил
@@ -56,19 +62,23 @@ export const minimalConditionalAppearanceItem: ConditionalAppearanceItem = {
 }
 
 const fullFilterYAML = exportFilterToYAML(mockContext, fullFixtureFilter)
-const fullAppearanceYAML = exportPropertyToYAML({
-  context: mockContext,
-  rule: { type: "Appearance" },
-  value: fixtureAppearanceFields,
-}) as AppearanceFieldsYAML
 
-/** Эталон YAML для полного кейса (вложенные части строятся теми же экспортёрами, что и в toYAML). */
+/** Эталон YAML одного элемента (полный кейс). */
 export const fullConditionalAppearanceItemYAML = {
   Поля: ["Реквизит2", "Реквизит2РасширеннаяПодсказка"],
   ...(fullFilterYAML !== undefined ? { Отбор: fullFilterYAML } : {}),
-  Оформление: fullAppearanceYAML,
+  Оформление: fixtureAppearanceFieldsYAML,
 } as const satisfies ConditionalAppearanceItemYAML
 
 export const minimalConditionalAppearanceItemYAML = {
   Поля: ["ОдноПоле"],
 } as const satisfies ConditionalAppearanceItemYAML
+
+/** Коллекция в YAML: ключ — имя элемента (как в registerMetadataItemCollectionRule). */
+export const fullConditionalAppearanceCollectionYAML = {
+  full: fullConditionalAppearanceItemYAML,
+} as const satisfies ConditionalAppearanceYAML
+
+export const minimalConditionalAppearanceCollectionYAML = {
+  minimal: minimalConditionalAppearanceItemYAML,
+} as const satisfies ConditionalAppearanceYAML

@@ -12,7 +12,14 @@ import {
   AppearanceFields,
   AppearanceFieldsYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
-import { AvailableFields, AvailableFieldsYAML } from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
+import {
+  ConditionalAppearanceItem,
+  ConditionalAppearanceYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import {
+  AvailableFields,
+  AvailableFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
 import {
   MetadataDcsMetadataValue,
   MetadataDcsMetadataValueYAML,
@@ -487,6 +494,10 @@ export type PropertyTypeRegistry = {
     item: FilterItem
     yaml: FilterItemYAML
   }
+  ConditionalAppearance: {
+    item: ConditionalAppearanceItem[]
+    yaml: ConditionalAppearanceYAML
+  }
 }
 
 export type PropertyRuleType = keyof PropertyTypeRegistry
@@ -564,6 +575,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   Filter: "Filter",
   AvailableFields: "AvailableFields",
   FilterItem: "FilterItem",
+  ConditionalAppearance: "ConditionalAppearance",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends PropertyRuleType

@@ -1,3 +1,6 @@
+import "./filter/registerPropertyTypeRules"
+
+import "./appearanceFields/registerDataCompositionSelectionTypeRules"
 import "./appearanceFields/fromXML"
 import "./appearanceFields/fromYAML"
 import "./appearanceFields/toXML"

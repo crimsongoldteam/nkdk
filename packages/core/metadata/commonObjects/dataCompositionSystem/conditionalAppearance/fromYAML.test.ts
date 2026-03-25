@@ -1,23 +1,34 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 import {
+  fullConditionalAppearanceCollectionYAML,
   fullConditionalAppearanceItem,
-  fullConditionalAppearanceItemYAML,
+  minimalConditionalAppearanceCollectionYAML,
   minimalConditionalAppearanceItem,
-  minimalConditionalAppearanceItemYAML,
 } from "./__fixtures__/data"
-import { importConditionalAppearanceItemFromYAML } from "./fromYAML"
+import "./types"
 
-describe("importConditionalAppearanceItemFromYAML", () => {
-  it("imports full fixture YAML from data.ts", () => {
-    expect(
-      importConditionalAppearanceItemFromYAML(mockContext, fullConditionalAppearanceItemYAML)
-    ).toEqual(fullConditionalAppearanceItem)
+const rule: PropertyRule = {
+  type: "ConditionalAppearance",
+}
+
+describe("import ConditionalAppearance from YAML", () => {
+  it("imports full collection", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: fullConditionalAppearanceCollectionYAML,
+    })
+
+    expect(result).toEqual([{ ...fullConditionalAppearanceItem, name: "full" }])
   })
 
-  it("imports minimal fixture YAML from data.ts", () => {
-    expect(
-      importConditionalAppearanceItemFromYAML(mockContext, minimalConditionalAppearanceItemYAML)
-    ).toEqual(minimalConditionalAppearanceItem)
+  it("imports minimal collection", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: minimalConditionalAppearanceCollectionYAML,
+    })
+
+    expect(result).toEqual([{ ...minimalConditionalAppearanceItem, name: "minimal" }])
   })
 })

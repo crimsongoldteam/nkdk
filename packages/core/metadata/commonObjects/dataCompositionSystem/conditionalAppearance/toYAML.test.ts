@@ -1,23 +1,35 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 import {
+  fullConditionalAppearanceCollectionYAML,
   fullConditionalAppearanceItem,
-  fullConditionalAppearanceItemYAML,
+  minimalConditionalAppearanceCollectionYAML,
   minimalConditionalAppearanceItem,
-  minimalConditionalAppearanceItemYAML,
 } from "./__fixtures__/data"
-import { exportConditionalAppearanceItemToYAML } from "./toYAML"
+import "./types"
 
-describe("exportConditionalAppearanceItemToYAML", () => {
-  it("exports full model to YAML matching data.ts", () => {
-    expect(exportConditionalAppearanceItemToYAML(mockContext, fullConditionalAppearanceItem)).toEqual(
-      fullConditionalAppearanceItemYAML
-    )
+const rule: PropertyRule = {
+  type: "ConditionalAppearance",
+  yaml: "УсловноеОформлениеКомпоновкиДанных",
+}
+
+describe("export ConditionalAppearance to YAML", () => {
+  it("exports full collection", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: [{ ...fullConditionalAppearanceItem, name: "full" }],
+    })
+
+    expect(result).toEqual({ [rule.yaml!]: fullConditionalAppearanceCollectionYAML })
   })
 
-  it("exports minimal model to YAML matching data.ts", () => {
-    expect(exportConditionalAppearanceItemToYAML(mockContext, minimalConditionalAppearanceItem)).toEqual(
-      minimalConditionalAppearanceItemYAML
-    )
+  it("exports minimal collection", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: [{ ...minimalConditionalAppearanceItem, name: "minimal" }],
+    })
+
+    expect(result).toEqual({ [rule.yaml!]: minimalConditionalAppearanceCollectionYAML })
   })
 })
