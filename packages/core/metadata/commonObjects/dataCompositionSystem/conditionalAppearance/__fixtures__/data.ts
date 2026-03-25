@@ -6,8 +6,7 @@ import {
 import type { AppearanceFields } from "../../appearanceFields/types"
 import { exportFilterToYAML } from "../../filter/toYAML"
 import type { Filter } from "../../filter/types"
-import type { FilterItem, FilterItemComparison } from "../../filterItem/types"
-import type { FilterItemGroup } from "../../filterItemGroup/types"
+import type { FilterItem, FilterItemComparison, FilterItemGroup } from "../../filterItem/types"
 import type {
   ConditionalAppearanceItem,
   ConditionalAppearanceItemYAML,

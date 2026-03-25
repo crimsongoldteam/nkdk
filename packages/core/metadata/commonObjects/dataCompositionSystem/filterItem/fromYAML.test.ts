@@ -1,16 +1,28 @@
 import { describe, expect, it } from "vitest"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
-import { mockContext } from "~/tests/mockContext"
-import { fullFilterItemComparison, fullFilterItemComparisonYAML } from "./__fixtures__/data"
-import { FilterItemComparisonRules } from "./rules"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { fullFilterItemComparison, fullFilterItemComparisonYAML, fullFilterItemGroup, fullFilterItemGroupYAML } from "./__fixtures__/data"
 
-describe("import FilterItemComparison from YAML", () => {
-  it("should import full from YAML", () => {
-    const result = importMetadataItemFromYAML({
-      context: mockContext,
-      rule: FilterItemComparisonRules,
-      yaml: fullFilterItemComparisonYAML,
+const rule: PropertyRule = {
+  type: "FilterItem",
+}
+
+describe("import FilterItem from YAML", () => {
+  it("imports FilterItemComparison from YAML", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: fullFilterItemComparisonYAML,
     })
+
     expect(result).toEqual(fullFilterItemComparison)
+  })
+
+  it("imports FilterItemGroup from YAML", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: fullFilterItemGroupYAML,
+    })
+
+    expect(result).toEqual(fullFilterItemGroup)
   })
 })

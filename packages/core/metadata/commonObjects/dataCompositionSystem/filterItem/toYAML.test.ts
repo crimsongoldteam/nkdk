@@ -1,17 +1,29 @@
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToYAML } from "~/metadata/orchestration/metadataItem/toYAML"
-import { mockContext } from "~/tests/mockContext"
-import { fullFilterItemComparison, fullFilterItemComparisonYAML } from "./__fixtures__/data"
-import { FilterItemComparisonRules } from "./rules"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
+import { fullFilterItemComparison, fullFilterItemComparisonYAML, fullFilterItemGroup, fullFilterItemGroupYAML } from "./__fixtures__/data"
 
-describe("export FilterItemComparison to YAML", () => {
-  it("should export full to YAML", () => {
-    expect(
-      exportMetadataItemToYAML({
-        context: mockContext,
-        data: fullFilterItemComparison,
-        rule: FilterItemComparisonRules,
-      })
-    ).toEqual(fullFilterItemComparisonYAML)
+const rule: PropertyRule = {
+  type: "FilterItem",
+  yaml: "Элементы",
+}
+
+describe("export FilterItem to YAML", () => {
+  it("exports FilterItemComparison to YAML", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: fullFilterItemComparison,
+    })
+
+    expect(result).toEqual({ Элементы: fullFilterItemComparisonYAML })
+  })
+
+  it("exports FilterItemGroup to YAML", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: fullFilterItemGroup,
+    })
+
+    expect(result).toEqual({ Элементы: fullFilterItemGroupYAML })
   })
 })

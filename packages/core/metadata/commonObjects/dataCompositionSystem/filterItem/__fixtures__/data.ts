@@ -1,4 +1,4 @@
-import type { FilterItemComparison, FilterItemComparisonYAML } from "../types"
+import type { FilterItemComparison, FilterItemComparisonYAML, FilterItemGroup, FilterItemGroupYAML } from "../types"
 
 export const fullFilterItemComparison = {
   itemType: "FilterItemComparison",
@@ -14,7 +14,7 @@ export const fullFilterItemComparison = {
 
 export const fullFilterItemComparisonYAML = {
   Использование: "Ложь",
-  ЛевоеЗначение: "Реквизит1",
+  ЛевоеЗначение: ".Реквизит1",
   ВидСравнения: "Равно",
   ПравоеЗначение: "true",
   Представление: "Представление",
@@ -26,3 +26,24 @@ export const fullFilterItemComparisonYAML = {
 > & {
   ВидСравнения: "Равно"
 }
+
+export const fullFilterItemGroup = {
+  itemType: "FilterItemGroup",
+  use: false,
+  groupType: "OrGroup",
+  presentation: "ГруппаОтбора",
+  application: "Items",
+  viewMode: "QuickAccess",
+  userSettingPresentation: "НастройкиГруппы",
+} as const satisfies Required<Omit<FilterItemGroup, "id" | "items" | "userSettingID">>
+
+export const fullFilterItemGroupYAML = {
+  Использование: "Ложь",
+  ТипГруппы: "ГруппаИли",
+  Представление: "ГруппаОтбора",
+  Применение: "Элементы",
+  РежимОтображения: "БыстрыйДоступ",
+  ПредставлениеПользовательскойНастройки: "НастройкиГруппы",
+} as const satisfies Required<
+  Omit<FilterItemGroupYAML, "Элементы" | "ИспользоватьПользовательскуюНастройку" | "РежимОтображения">
+> & { РежимОтображения: "БыстрыйДоступ" }

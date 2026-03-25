@@ -1,30 +1,35 @@
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { importContentFromXML } from "~/xml/import/importer"
-import { xmlExport } from "~/xml/export/exporter"
-import { mockContextToXML } from "~/tests/mockContext"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { FilterItemComparisonRules } from "./rules"
-import { fullFilterItemComparison } from "./__fixtures__/data"
+import { fullFilterItemComparison, fullFilterItemGroup } from "./__fixtures__/data"
 
-describe("export FilterItemComparison to XML", () => {
-  it("should export full to XML", () => {
-    const exported = exportMetadataItemToXML({
-      context: mockContextToXML(),
-      data: fullFilterItemComparison,
-      rule: FilterItemComparisonRules,
+const rule: PropertyRule = {
+  type: "FilterItem",
+}
+
+describe("export FilterItem to XML", () => {
+  it("exports FilterItemComparison to XML", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule,
+      value: fullFilterItemComparison,
+      xmlRootTag: "dcsset:item",
+      path: "full.xml",
+      importMetaUrl: import.meta.url,
     })
 
-    const wrapped = {
-      "dcsset:item": {
-        "_xsi:type": "dcsset:FilterItemComparison",
-        ...exported,
-      },
-    }
+    expect(importContentFromXML(result)).toEqual(importContentFromXML(expectedResult!))
+  })
 
-    const result = xmlExport(wrapped, false)
-    const expectedXml = readXMLFixtureAsString(import.meta.url, "full.xml")
+  it("exports FilterItemGroup to XML", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule,
+      value: fullFilterItemGroup,
+      xmlRootTag: "dcsset:item",
+      path: "full-group.xml",
+      importMetaUrl: import.meta.url,
+    })
 
-    expect(importContentFromXML(result)).toEqual(importContentFromXML(expectedXml))
+    expect(importContentFromXML(result)).toEqual(importContentFromXML(expectedResult!))
   })
 })

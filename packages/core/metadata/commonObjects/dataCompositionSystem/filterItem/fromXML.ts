@@ -2,8 +2,7 @@ import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importMetadataItemFromXML } from "~/metadata/orchestration/metadataItem/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { FilterItemGroupRules } from "../filterItemGroup/rules"
-import { FilterItemComparisonRules } from "./rules"
+import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 
 export const importFilterItemFromXML = (
   context: ConfigurationContextFromXML,

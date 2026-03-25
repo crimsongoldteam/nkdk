@@ -1,0 +1,8 @@
+<dcsset:item xsi:type="dcsset:FilterItemGroup">
+	<dcsset:application>Items</dcsset:application>
+	<dcsset:groupType>OrGroup</dcsset:groupType>
+	<dcsset:presentation>ГруппаОтбора</dcsset:presentation>
+	<dcsset:use>false</dcsset:use>
+	<dcsset:userSettingPresentation>НастройкиГруппы</dcsset:userSettingPresentation>
+	<dcsset:viewMode>QuickAccess</dcsset:viewMode>
+</dcsset:item>

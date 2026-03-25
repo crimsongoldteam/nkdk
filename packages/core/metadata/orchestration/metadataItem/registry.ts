@@ -11,11 +11,9 @@ import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSyst
 import {
   FilterItemComparison,
   FilterItemComparisonYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
-import {
   FilterItemGroup,
   FilterItemGroupYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/filterItemGroup/types"
+} from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
 import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
 import {
   MetadataTabularSection,

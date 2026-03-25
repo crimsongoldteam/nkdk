@@ -63,3 +63,53 @@ export const FilterItemComparisonRules = {
     },
   },
 } as const satisfies MetadataItemRule
+
+export const FilterItemGroupRules = {
+  itemType: "FilterItemGroup",
+  properties: {
+    use: {
+      type: "boolean",
+      xml: "dcsset:use",
+      yaml: "Использование",
+    },
+    groupType: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionFilterItemsGroupType",
+      xml: "dcsset:groupType",
+      yaml: "ТипГруппы",
+    },
+    items: {
+      type: "FilterItem",
+      xml: "dcsset:item",
+      yaml: "Элементы",
+    },
+    presentation: {
+      type: "string",
+      xml: "dcsset:presentation",
+      yaml: "Представление",
+    },
+    application: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionFilterApplicationType",
+      xml: "dcsset:application",
+      yaml: "Применение",
+    },
+    viewMode: {
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionSettingsItemViewMode",
+      xml: "dcsset:viewMode",
+      yaml: "РежимОтображения",
+      defaultValueYAML: "Auto",
+    },
+    userSettingID: {
+      type: "UserSettingsID",
+      xml: "dcsset:userSettingID",
+      yaml: "ИспользоватьПользовательскуюНастройку",
+    },
+    userSettingPresentation: {
+      type: "string",
+      xml: "dcsset:userSettingPresentation",
+      yaml: "ПредставлениеПользовательскойНастройки",
+    },
+  },
+} as const satisfies MetadataItemRule

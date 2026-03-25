@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { fullFilterItemComparison } from "./__fixtures__/data"
+import { fullFilterItemComparison, fullFilterItemGroup } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
   type: "FilterItem",
 }
 
 describe("import FilterItem from XML", () => {
-  it("should import full from XML", () => {
+  it("imports FilterItemComparison from XML", () => {
     const result = testImportPropertyFromXML({
       rule,
       path: "full.xml",
@@ -17,5 +17,16 @@ describe("import FilterItem from XML", () => {
     })
 
     expect(result).toEqual(fullFilterItemComparison)
+  })
+
+  it("imports FilterItemGroup from XML", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "full-group.xml",
+      xmlRootTag: "dcsset:item",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(fullFilterItemGroup)
   })
 })
