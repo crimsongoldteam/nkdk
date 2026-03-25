@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fullDynamicList, fullDynamicListYAML } from "~/tests/fixtures/dynamicList/data"
+import { fullDynamicList, fullDynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportDynamicListToYAML } from "./toYAML"
 

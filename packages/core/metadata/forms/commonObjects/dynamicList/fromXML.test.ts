@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fullDynamicList, minimalDynamicList } from "~/tests/fixtures/dynamicList/data"
+import { fullDynamicList, minimalDynamicList } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importDynamicListFromXML } from "./fromXML"
