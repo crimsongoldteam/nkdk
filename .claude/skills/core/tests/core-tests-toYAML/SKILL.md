@@ -1,19 +1,21 @@
 ---
 name: core-tests-toYAML
-description: Сгенерировать toYAML.test.ts для открытого файла конвертера
+description: Сгенерировать toYAML.test.ts — через testExportPropertyToYAML из ~/tests/property; не вызывай exportMetadataItemToYAML в тестах. Прямой exportFooToYAML по шаблону. См. core-tests-general.
 ---
 
-## Свойство (`PropertyRule`, `exportPropertyToYAML`)
+**Когда открывать:** тест экспорта в YAML. Сначала [core-tests-general](./../core-tests-general/SKILL.md) — в т.ч. раздел про эталоны в `data.ts` (`Required`, `Omit`, YAML и `defaultValueYAML`).
 
-Если тестируется **экспорт свойства** через `exportPropertyToYAML`:
+---
 
-1. В `PropertyRule` обязательно укажи `yaml` (ключ в выходном объекте), например `yaml: "КонтекстноеМеню"`.
-2. Используй `testExportPropertyToYAML` из `~/tests/property/exportPropertyToYAML` как **тонкую обёртку** над `exportPropertyToYAML` (контекст `mockContext` уже внутри helper).
-3. Добавляй minimal-кейс с `value: undefined` и проверкой `expect(result).toBeUndefined()`.
-4. Для заполненного значения проверяй именно объект верхнего уровня с YAML-ключом: `expect(result).toEqual({ <YamlKey>: <fixtureYAML> })`.
-5. Рабочий пример: [contextMenu/toYAML.test.ts](../../../../../packages/core/metadata/forms/elements/contextMenu/toYAML.test.ts).
-6. Если `rule.type` требует доп. полей (например, `standartAttributeNames`), укажи их в `rule`.
-7. Если коллекция маппит внутреннее `name` в человекочитаемый YAML-ключ (`yamlKeyFromName`), ожидай именно mapped-ключи из фикстур.
+## Свойство (`PropertyRule`, `testExportPropertyToYAML`)
+
+Если тестируется **свойство** через `exportPropertyToYAML`:
+
+1. В `PropertyRule` укажи `yaml` (ключ в выходном объекте).
+2. Используй `testExportPropertyToYAML` из `~/tests/property/exportPropertyToYAML`.
+3. Минимальный кейс: `value: undefined` → `expect(result).toBeUndefined()`.
+4. Полный кейс: `expect(result).toEqual({ <YamlKey>: <fixtureYAML> })`.
+5. Пример: [contextMenu/toYAML.test.ts](../../../../../packages/core/metadata/forms/elements/contextMenu/toYAML.test.ts).
 
 ```ts
 const rule: PropertyRule = {
@@ -44,24 +46,27 @@ describe("export <Type> to YAML", () => {
 
 ---
 
-## Прямой конвертер (`exportFooToYAML` и т.п.)
+## Прямой конвертер (`exportFooToYAML`)
 
-Если это **не** property-helper, а вызов функции из `toYAML.ts` с `mockContext` и эталоном из `data.ts`:
+Если в `toYAML.ts` своя функция с `mockContext` и эталонами в `data.ts` — см. прежний шаблон: `expect(<exportFn>(mockContext, <fixtureModel>)).toEqual(<fixtureModelYAML>)`.
 
-1. Прочитай открытый `toYAML.ts` — найди имя экспортируемой функции и её сигнатуру.
-2. Прочитай `__fixtures__/data.ts` рядом — найди пары констант: модель и YAML-эталон (`*YAML`).
-3. Создай тестовый файл рядом с исходником по шаблону:
+---
+
+## MetadataItemRule (через property, не `exportMetadataItemToYAML`)
+
+Если экспорт идёт через `exportMetadataItemToYAML` в коде, **в тесте** используй **`testExportPropertyToYAML`** с `PropertyRule { type: "<Type>", yaml: "<YamlKey>" }`, зарегистрированным для `exportPropertyToYAML`:
 
 ```ts
-describe("export <Type> to YAML", () => {
-  it("export full to YAML", () => {
-    expect(<exportFn>(mockContext, <fixtureModel>)).toEqual(<fixtureModelYAML>)
-  })
+const rule: PropertyRule = { type: "<Type>", yaml: "<YamlKey>" }
+
+const result = testExportPropertyToYAML({
+  rule,
+  value: <fixtureModel>,
 })
+
+expect(result).toEqual({ <YamlKey>: <fixtureYAML> })
 ```
 
-Правила:
+**Не** вызывай `exportMetadataItemToYAML` в тестах напрямую ([core-tests-general](../core-tests-general/SKILL.md)). Эталон `*YAML` в `__fixtures__/data.ts`. Парный скилл: [core-test-fromYAML](../core-test-fromYAML/SKILL.md).
 
-- Контекст — `mockContext`.
-- По одному `it()` на каждую пару констант в `data.ts`.
-- Без комментариев в сгенерированном файле.
+Без комментариев в сгенерированном файле.

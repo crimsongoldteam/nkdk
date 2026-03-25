@@ -1,14 +1,19 @@
 ---
 name: core-test-fromXML
-description: Сгенерировать fromXML.test.ts (или fromDcsXML.test.ts) для открытого файла конвертера
+description: Сгенерировать fromXML.test.ts или fromDcsXML.test.ts — только через testImportPropertyFromXML из ~/tests/property; не вызывай importMetadataItemFromXML в тестах. См. core-tests-general.
 ---
 
-Цель: быстро собрать `fromXML.test.ts`/`fromDcsXML.test.ts` по фикстурам рядом с конвертером.
+**Когда открывать:** тест импорта из XML, открыт `fromXML.ts` / `fromDcsXML.ts`, или только `rules.ts` с `MetadataItemRule`. Сначала [core-tests-general](./../core-tests-general/SKILL.md).
 
-1. Прочитай открытый `fromXML.ts` / `fromDcsXML.ts` и определи тип свойства (`rule.type`).
-2. Прочитай `./__fixtures__/data.ts` и найди эталоны для `expect(...)`.
-3. Проверь `./__fixtures__/*.xml`: на каждый XML-файл должен быть отдельный `it()`.
-4. Сгенерируй тест рядом с конвертером по шаблону ниже. Рабочий пример: [contextMenu/fromXML.test.ts](../../../../../packages/core/metadata/forms/elements/contextMenu/fromXML.test.ts).
+---
+
+## A. Свойство (`PropertyRule`, `testImportPropertyFromXML`)
+
+Если тип в `rule.type` зарегистрирован и есть фикстура с **корневым тегом** под `xmlRootTag`:
+
+1. Прочитай `fromXML.ts` / `fromDcsXML.ts` и `rule.type`.
+2. `__fixtures__/data.ts` — эталон модели; `__fixtures__/*.xml` — по одному `it()` на файл.
+3. Шаблон:
 
 ```ts
 const rule: PropertyRule = {
@@ -29,9 +34,16 @@ describe("import <Type> from XML", () => {
 })
 ```
 
-Уточнения:
+Используй **`testImportPropertyFromXML`** из `~/tests/property/importPropertyFromXML` — **не** вызывай в тестах `importMetadataItemFromXML` напрямую ([core-tests-general](../core-tests-general/SKILL.md)). Пример: [contextMenu/fromXML.test.ts](../../../../../packages/core/metadata/forms/elements/contextMenu/fromXML.test.ts).
 
-- Используй `testImportPropertyFromXML` (контекст внутри helper уже корректный).
-- `xmlRootTag` берется из корневого тега соответствующего XML-фикстура.
-- Имена тестов делай по сценарию (`full`, `minimal`, и т.д.), а не только `full`.
-- Без лишних импортов и без комментариев в тесте.
+---
+
+## B. MetadataItemRule без отдельного `fromXML.ts`
+
+Объект описан только `...Rules`, но тест всё равно через **property**: зарегистрируй в `PropertyTypeRegistry` тип-обёртку (union или конкретная ветка) с `registerTypeRule(..., "importFromXML", …)` и проверяй импорт через **`testImportPropertyFromXML`** с `PropertyRule { type: "<Type>" }`, `path`, `xmlRootTag`, `importMetaUrl` — эталон в `data.ts`. Пример: [filterItem/fromXML.test.ts](../../../../../packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXML.test.ts) (`type: "FilterItem"`).
+
+Если для сценария ещё нет зарегистрированного `type` для `importFromXML` — **сначала** добавь регистрацию, **затем** генерируй тест по разделу A.
+
+Парный скилл экспорта: [core-tests-toXML](../core-tests-toXML/SKILL.md).
+
+Без лишних импортов и без комментариев в сгенерированном тесте.

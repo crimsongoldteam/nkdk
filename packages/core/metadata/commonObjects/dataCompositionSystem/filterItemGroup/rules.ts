@@ -13,7 +13,6 @@ export const FilterItemGroupRules = {
       typeSE: "DataCompositionFilterItemsGroupType",
       xml: "dcsset:groupType",
       yaml: "ТипГруппы",
-      defaultValueYAML: "AndGroup",
     },
     items: {
       type: "FilterItem",

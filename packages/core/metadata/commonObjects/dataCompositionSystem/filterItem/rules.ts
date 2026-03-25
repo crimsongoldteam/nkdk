@@ -27,7 +27,7 @@ export const FilterItemComparisonRules = {
       yaml: "ПравоеЗначение",
     },
     presentation: {
-      type: "string",
+      type: "I8nText",
       xml: "dcsset:presentation",
       yaml: "Представление",
     },
@@ -49,16 +49,17 @@ export const FilterItemComparisonRules = {
       type: "UserSettingsID",
       xml: "dcsset:userSettingID",
       yaml: "ИспользоватьПользовательскуюНастройку",
+      defaultValueYAML: false,
     },
     userSettingPresentation: {
       type: "string",
       xml: "dcsset:userSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройки",
     },
-    // parent: {
-    //   type: "string",
-    //   yaml: "Родитель",
-    //   runtimeOnly: true,
-    // },
+    parent: {
+      type: "string",
+      yaml: "Родитель",
+      runtimeOnly: true,
+    },
   },
 } as const satisfies MetadataItemRule

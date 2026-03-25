@@ -1,7 +1,9 @@
 ---
 name: core-tests-toXML
-description: Сгенерировать toXML.test.ts (или toDcsXML.test.ts) для открытого файла конвертера
+description: Сгенерировать toXML.test.ts через testExportPropertyToXML из ~/tests/property; не вызывай exportMetadataItemToXML в тестах. См. core-tests-general.
 ---
+
+Сначала [core-tests-general](../core-tests-general/SKILL.md) — раздел про обёртки `testExportPropertyToXML`.
 
 1. Прочитай открытый `toXML.ts` / `toDcsXML.ts` — найди имя экспортируемой функции и её сигнатуру.
 2. Прочитай `__fixtures__/data.ts` рядом — найди константы-эталоны (исходная модель).
@@ -33,7 +35,7 @@ describe("export <PropertyType> to XML", () => {
 
 Правила:
 
-- Используй helper `testExportPropertyToXML`.
+- Используй **`testExportPropertyToXML`** из `~/tests/property/exportPropertyToXML` — **не** вызывай в тестах `exportMetadataItemToXML` напрямую; для metadata-item нужен зарегистрированный `PropertyRule.type` с `exportPropertyToXML` (как для `FilterItem` и т.п.).
 - Без `path` (и без пары с `importMetaUrl` для локальных `__fixtures__`) `expectedResult` не заполняется — эталон задавай в самом тесте.
 - Всегда передавай `importMetaUrl: import.meta.url`, если fixture лежат в локальном `__fixtures__` рядом с тестом.
 - Для property внутри элемента формы указывай `itemsTree`.

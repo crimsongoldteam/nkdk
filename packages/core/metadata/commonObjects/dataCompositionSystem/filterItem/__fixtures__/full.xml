@@ -1,0 +1,15 @@
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+	<dcsset:application>Items</dcsset:application>
+	<dcsset:comparisonType>Equal</dcsset:comparisonType>
+	<dcsset:left>Реквизит1</dcsset:left>
+	<dcsset:presentation>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Представление</v8:content>
+		</v8:item>
+	</dcsset:presentation>
+	<dcsset:right>true</dcsset:right>
+	<dcsset:use>false</dcsset:use>
+	<dcsset:userSettingPresentation>ТекстПредставленияНастройки</dcsset:userSettingPresentation>
+	<dcsset:viewMode>QuickAccess</dcsset:viewMode>
+</dcsset:item>

@@ -89,6 +89,8 @@ Each property type lives in its own directory with consistently named files:
 
 Tests use **Vitest** with `globals: true`. Test files are colocated with the source (e.g. `toDcsXML.test.ts` next to `toDcsXML.ts`). Fixtures are in `__fixtures__/data.ts` files. Setup file: `packages/core/tests/setupTests.ts`.
 
+For **property-style** metadata conversion tests, use the helpers in `packages/core/tests/property/` — `testImportPropertyFromXML`, `testExportPropertyToXML`, `testImportPropertyFromYAML`, `testExportPropertyToYAML` — instead of calling `importMetadataItemFromXML`, `exportMetadataItemToXML`, `importMetadataItemFromYAML`, or `exportMetadataItemToYAML` directly in `*.test.ts`. Details: `.claude/skills/core/tests/core-tests-general/SKILL.md`.
+
 Each conversion direction has its own `.test.ts` file and a distinct pattern:
 
 Для быстрой генерации тестов используй скиллы: `/test-from-xml`, `/test-to-xml`, `/test-from-yaml`, `/test-to-yaml` — каждый читает открытый файл конвертера и `__fixtures__/data.ts` и создаёт готовый тест.

@@ -7,8 +7,6 @@ export type FilterItemComparison = FormTypeByRule<typeof FilterItemComparisonRul
 
 export type FilterItemComparisonYAML = YAMLTypeByRule<typeof FilterItemComparisonRules>
 
-/** Абстрактный `FilterItem` в XSD: сравнение или группа. */
 export type FilterItem = FilterItemComparison | FilterItemGroup
 
 export type FilterItemYAML = FilterItemComparisonYAML | FilterItemGroupYAML
-

@@ -1,4 +1,5 @@
-import "./filter/registerPropertyTypeRules"
+import "./filter/types"
+import "./filterItem/fromXML"
 
 import "./appearanceFields/fromXML"
 import "./appearanceFields/fromYAML"
