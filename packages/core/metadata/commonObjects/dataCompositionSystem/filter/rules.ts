@@ -24,7 +24,6 @@ export const FilterRules = {
       type: "UserSettingsID",
       xml: "dcsset:userSettingID",
       yaml: "ИспользоватьПользовательскуюНастройку",
-      // yaml: "ИдентификаторПользовательскойНастройки",
     },
     userSettingPresentation: {
       type: "string",

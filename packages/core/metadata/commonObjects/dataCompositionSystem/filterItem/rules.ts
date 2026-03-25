@@ -7,6 +7,7 @@ export const FilterItemComparisonRules = {
       type: "boolean",
       xml: "dcsset:use",
       yaml: "Использование",
+      defaultValueYAML: true,
     },
     leftValue: {
       type: "string",
@@ -45,19 +46,19 @@ export const FilterItemComparisonRules = {
       defaultValueYAML: "Auto",
     },
     userSettingID: {
-      type: "string",
+      type: "UserSettingsID",
       xml: "dcsset:userSettingID",
-      yaml: "ИдентификаторПользовательскойНастройки",
+      yaml: "ИспользоватьПользовательскуюНастройку",
     },
     userSettingPresentation: {
       type: "string",
       xml: "dcsset:userSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройки",
     },
-    parent: {
-      type: "string",
-      yaml: "Родитель",
-      runtimeOnly: true,
-    },
+    // parent: {
+    //   type: "string",
+    //   yaml: "Родитель",
+    //   runtimeOnly: true,
+    // },
   },
 } as const satisfies MetadataItemRule

@@ -40,19 +40,19 @@ export const FilterItemGroupRules = {
       defaultValueYAML: "Auto",
     },
     userSettingID: {
-      type: "string",
+      type: "UserSettingsID",
       xml: "dcsset:userSettingID",
-      yaml: "ИдентификаторПользовательскойНастройки",
+      yaml: "ИспользоватьПользовательскуюНастройку",
     },
     userSettingPresentation: {
       type: "string",
       xml: "dcsset:userSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройки",
     },
-    parent: {
-      type: "string",
-      yaml: "Родитель",
-      runtimeOnly: true,
-    },
+    // parent: {
+    //   type: "string",
+    //   yaml: "Родитель",
+    //   runtimeOnly: true,
+    // },
   },
 } as const satisfies MetadataItemRule
