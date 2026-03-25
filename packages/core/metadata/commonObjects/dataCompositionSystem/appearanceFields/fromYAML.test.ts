@@ -15,9 +15,6 @@ describe("import Appearance from YAML", () => {
       value: fixtureAppearanceFieldsYAML,
     })
 
-    expect(result).toEqual({
-      itemType: "AppearanceFields",
-      ЦветФона: fixtureAppearanceFields.ЦветФона,
-    })
+    expect(result).toEqual(fixtureAppearanceFields)
   })
 })
