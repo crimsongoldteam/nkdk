@@ -49,9 +49,22 @@ description: Работа с построителем объектов чере�
 
 # Как строятся типы в types.ts
 
-Для простых случаев типы выводятся из rule-объекта автоматически:
+Для простых случаев типы выводятся из rule-объекта автоматически.
 
-- `FormTypeByRule<typeof ChartFieldRules>` -> внутренняя metadata-модель
+**Внутренняя metadata-модель** — выбор между двумя обёртками над общей структурой свойств (`packages/core/metadata/orchestration/metadataItem/element.ts`):
+
+- **`MetadataTypeByRule<typeof SomeRules>`** — добавляет к полям из правил опциональное поле `uuid?`. Используй для metadataItem **без** идентификатора элемента формы: прикладные объекты метаданных (`MetadataCatalog`, `MetadataCommand`), общие объекты (`MetadataAttribute`, `StandardAttributeDescription`), DCS-структуры, **`DynamicList`** и т.п.
+
+**Фикстуры full в тестах:** для эталонной модели со всеми свойствами в `__fixtures__/data.ts` используй `satisfies Required<…>` с соответствующим типом (например `satisfies Required<DynamicList>`) — см. скилл `core-tests-general`.
+- **`FormTypeByRule<typeof SomeRules>`** — добавляет опциональное поле `id?`. Используй для **элементов формы** (узлы на форме: `ChartField`, `InputField`, `Table`, …), где в модели фигурирует id элемента.
+
+Примеры:
+
+- `MetadataTypeByRule<typeof MetadataCatalogRules>` — внутренняя модель справочника
+- `FormTypeByRule<typeof ChartFieldRules>` — внутренняя модель поля диаграммы на форме
+
+Дополнительно:
+
 - `YAMLTypeByRule<typeof ChartFieldRules>` -> YAML-тип
 - `EnterpriseType<typeof ChartFieldRules>` -> enterprise-тип
 
@@ -121,12 +134,14 @@ description: Работа с построителем объектов чере�
 - `useAsShortValueYAML`
 - `forReferenceOnly`
 
+**`xml`:** не указывай, если имя XML-элемента совпадает с **дефолтом** — `capitalize(ключ)` (реализация: `packages/core/metadata/orchestration/property/fromXML.ts`, `toXML.ts`). Ключ свойства в `properties` обычно в camelCase с **строчной** первой буквой; по умолчанию в XML используется то же имя с **заглавной** первой буквой (например, `minValue` → `MinValue`). Указывай `xml` только когда тег в XML другой (например, `dcsset:filter`, другое имя в PascalCase и т.п.).
+
 Плюс есть специализированные rule-интерфейсы (`EventsPropertyRule`, `DataPathPropertyRule`, `TypeDescriptionPropertyRule` и др.) для типов, которым нужны дополнительные поля.
 
 # Быстрый чеклист при добавлении нового элемента
 
 1. Создай `rules.ts` рядом с элементом и опиши `...Rules` с `satisfies ElementRule`.
 2. Добавь регистрацию через `registerElementRule("<ItemType>", ...Rules)`.
-3. Создай `types.ts` и выведи типы через `FormTypeByRule` / `YAMLTypeByRule` / `EnterpriseType`.
+3. Создай `types.ts` и выведи типы: для metadata-модели — `MetadataTypeByRule` или `FormTypeByRule` в зависимости от контекста (см. раздел «Как строятся типы в types.ts»); плюс YAML/enterprise через `YAMLTypeByRule` / `EnterpriseType` где нужно.
 4. Убедись, что `type` каждого свойства существует в `PropertyTypeRegistry`.
 5. Если хватает стандартного пайплайна, отдельные `fromXML.ts`/`toXML.ts`/`fromYAML.ts`/`toYAML.ts` **крайне желательно не создавать**.

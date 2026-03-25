@@ -7,6 +7,11 @@ import "./additionalIndex/toYAML"
 import "./boolean/fromXML"
 import "./boolean/toJSONSchema"
 
+import "./userSettingsID/fromXML"
+import "./userSettingsID/toXML"
+import "./userSettingsID/fromYAML"
+import "./userSettingsID/toYAML"
+
 import "./border/fromXML"
 import "./border/fromYAML"
 import "./border/toEnterprise"
@@ -45,10 +50,7 @@ import "./color/toJSONSchema"
 import "./color/toXML"
 import "./color/toYAML"
 
-import "../forms/commonObjects/dynamicList/fromXML"
-import "../forms/commonObjects/dynamicList/fromYAML"
-import "../forms/commonObjects/dynamicList/toXML"
-import "../forms/commonObjects/dynamicList/toYAML"
+import "../forms/commonObjects/dynamicList/types"
 
 import "./fieldsList/fromXML"
 import "./fieldsList/fromYAML"

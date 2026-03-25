@@ -20,6 +20,7 @@ description: Где регистрировать новый metadataItem
    - объявление вида:
      - `itemType: "<SameNameAsRegistryKey>"`
      - `... as const satisfies MetadataItemRule`
+   - в `properties` не указывай `xml`, если тег в XML совпадает с дефолтом от ключа (camelCase со строчной первой буквой → `capitalize(ключ)`); см. skill `metadataItem-rules`.
 
 3. Side-effect подключение конвертеров (иначе регистрация не сработает при использовании пакета):
    - для форм: `packages/core/metadata/forms/index.ts`
@@ -37,7 +38,7 @@ description: Где регистрировать новый metadataItem
 1. `itemType` совпадает во всех местах (`types.ts`, `rules.ts`, `registry.ts`).
 2. Есть импорты конвертеров `fromXML/fromYAML/toXML/toYAML` в нужном index-файле.
 3. Для `enterprise`-экспорта тип содержит `enterprise` в `MetadataItemTypeRegistry`.
-4. Добавлены тесты конвертеров на fixture-данных.
+4. Добавлены тесты конвертеров на fixture-данных; для сценария **full** эталон в `__fixtures__/data.ts` — через `satisfies Required<…>` (например `Required<DynamicList>`), см. `core-tests-general`.
 
 ## Как понять, что забыта регистрация
 

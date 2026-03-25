@@ -1,17 +1,26 @@
 import { describe, expect, it } from "vitest"
 import { fullDynamicList, fullDynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importDynamicListFromYAML } from "./fromYAML"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 
-describe("importDynamicListFromYAML", () => {
+const rule: PropertyRule = {
+  type: "DynamicList",
+}
+
+describe("import DynamicList from YAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importDynamicListFromYAML(mockContext, mockRule, undefined)
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: undefined,
+    })
     expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
-    const result = importDynamicListFromYAML(mockContext, mockRule, fullDynamicListYAML)
-
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: fullDynamicListYAML,
+    })
     expect(result).toEqual(fullDynamicList)
   })
 })

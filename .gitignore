@@ -12,3 +12,5 @@ out/
 *.tsbuildinfo
 *.vsix
 .vsix-pack/
+
+delete/

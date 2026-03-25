@@ -1,107 +1,67 @@
+import type { ConditionalAppearance } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import type { Filter } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
+import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 
-export const fullDynamicList: DynamicList = {
-  "@attributes": {
-    "xsi:type": "DynamicList",
+const listSettingsFilter = {
+  itemType: "Filter",
+  items: {
+    itemType: "FilterItemComparison",
+    leftValue: "Поле1",
+    comparisonType: "Contains",
   },
-  ManualQuery: false,
-  DynamicDataRead: true,
-  Parameter: [
-    {
-      "dcssch:name": "НачалоПериода",
-      "dcssch:title": {
-        "_xsi:type": "v8:LocalStringType",
-        "v8:item": [
-          {
-            "v8:lang": "ru",
-            "v8:content": "Начало периода",
-          },
-        ],
-      },
-      "dcssch:valueType": {
-        "v8:Type": "xs:dateTime",
-        "v8:DateQualifiers": {
-          "v8:DateFractions": "DateTime",
+} satisfies Filter
+
+const listSettingsConditionalAppearance = [
+  {
+    itemType: "ConditionalAppearanceItem",
+    fields: {
+      itemType: "AppearanceFields",
+      fieldNames: ["Наименование", "ПометкаУдаления"],
+    },
+    filter: {
+      itemType: "Filter",
+      items: [
+        {
+          itemType: "FilterItemComparison",
+          leftValue: "Наименование",
+          comparisonType: "Contains",
+          rightValue: "Текст",
         },
-      },
-      "dcssch:value": {
-        "_xsi:type": "xs:dateTime",
-        "#text": "0001-01-01T00:00:00",
-      },
-      "dcssch:useRestriction": false,
+      ],
     },
-    {
-      "dcssch:name": "КонецПериода",
-      "dcssch:title": {
-        "_xsi:type": "v8:LocalStringType",
-        "v8:item": [
-          {
-            "v8:lang": "ru",
-            "v8:content": "Конец периода",
-          },
-        ],
+    appearance: {
+      itemType: "AppearanceFields",
+      Текст: {
+        parameter: "Текст",
+        value: { items: { ru: 6678 } },
       },
-      "dcssch:valueType": {
-        "v8:Type": "xs:dateTime",
-        "v8:DateQualifiers": {
-          "v8:DateFractions": "DateTime",
-        },
-      },
-      "dcssch:value": {
-        "_xsi:type": "xs:dateTime",
-        "#text": "0001-01-01T00:00:00",
-      },
-      "dcssch:useRestriction": false,
     },
-    {
-      "dcssch:name": "Первые",
-      "dcssch:title": {
-        "_xsi:type": "v8:LocalStringType",
-        "v8:item": [
-          {
-            "v8:lang": "ru",
-            "v8:content": "Первые",
-          },
-        ],
-      },
-      "dcssch:valueType": {
-        "v8:Type": "xs:decimal",
-        "v8:NumberQualifiers": {
-          "v8:Digits": 0,
-          "v8:FractionDigits": 0,
-          "v8:AllowedSign": "Any",
-        },
-      },
-      "dcssch:value": {
-        "_xsi:type": "xs:decimal",
-        "#text": 0,
-      },
-      "dcssch:useRestriction": false,
-    },
-  ],
-  MainTable: "AccountingRegister.Международный.RecordsWithExtDimensions",
-  ListSettings: {
-    "dcsset:filter": {
-      "dcsset:viewMode": "Normal",
-      "dcsset:userSettingID": "dfcece9d-5077-440b-b6b3-45a5cb4538eb",
-    },
-    "dcsset:order": {
-      "dcsset:viewMode": "Normal",
-      "dcsset:userSettingID": "88619765-ccb3-46c6-ac52-38e9c992ebd4",
-    },
-    "dcsset:conditionalAppearance": {
-      "dcsset:viewMode": "Normal",
-      "dcsset:userSettingID": "b75fecce-942b-4aed-abc9-e6a02e460fb3",
-    },
-    "dcsset:itemsViewMode": "Normal",
-    "dcsset:itemsUserSettingID": "911b6018-f537-43e8-a417-da56b22f9aec",
   },
+] satisfies ConditionalAppearance[]
+
+const listSettingsItemsUserSettingPresentation: I8nText = {
+  items: { ru: "Представление группировки" },
 }
 
-export const fullDynamicListYAML: DynamicListYAML = fullDynamicList
+/** Эталон внутренней модели после `importFromXML` (ключи по `DynamicListRules`, вложенные DCS-типы). */
+export const fullDynamicList = {
+  autoFillAvailableFields: false,
+  customQuery: true,
+  dynamicDataRead: true,
+  queryText: "ВЫБРАТЬ\nСправочник1.Реквизит1 КАК Реквизит1\nИЗ\nСправочник.Справочник1 КАК Справочник1",
+  mainTable: "Catalog.Справочник1",
+  listSettingsFilter,
+  listSettingsConditionalAppearance,
+  listSettingsItemsUserSettingID: "911b6018-f537-43e8-a417-da56b22f9aec",
+  listSettingsItemsUserSettingPresentation,
+  itemType: "DynamicList",
+  listSettingsItemsViewMode: "Auto",
+  uuid: "",
+} satisfies Required<DynamicList>
+
+export const fullDynamicListYAML: DynamicListYAML = {}
 
 export const minimalDynamicList: DynamicList = {
-  "@attributes": {
-    "xsi:type": "DynamicList",
-  },
-}
+  itemType: "DynamicList",
+} as DynamicList

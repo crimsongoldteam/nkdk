@@ -16,6 +16,7 @@ description: Работа с metadataItem в packages/core/metadata/orchestratio
 1. Создай/обнови `rules.ts` рядом с объектом:
    - `itemType` должен совпадать с ключом в `MetadataItemTypeRegistry`.
    - правило должно быть `as const satisfies MetadataItemRule`.
+   - у свойств не дублируй `xml`, если имя XML-тега совпадает с дефолтом `capitalize(ключ)` (ключ в camelCase со строчной первой буквой → в XML та же строка с прописной первой буквой); см. skill `metadataItem-rules`.
 2. Добавь тип в `MetadataItemTypeRegistry`:
    - файл: `packages/core/metadata/orchestration/metadataItem/registry.ts`;
    - укажи минимум `metadata` и `yaml`;
@@ -27,7 +28,7 @@ description: Работа с metadataItem в packages/core/metadata/orchestratio
 4. Для элементов формы проверь регистрацию element-правила:
    - `registerElementRule(...)` в `rules.ts`;
    - при необходимости `registerElementAsType(...)` для property-type привязки.
-5. Добавь/обнови тесты `fromXML`, `toXML`, `fromYAML`, `toYAML` по fixture-паттерну проекта.
+5. Добавь/обнови тесты `fromXML`, `toXML`, `fromYAML`, `toYAML` по fixture-паттерну проекта (в `__fixtures__/data.ts` для сценария **full** используй `satisfies Required<ИмяТипаМодели>` — см. `core-tests-general`).
 
 ## Частые ошибки
 

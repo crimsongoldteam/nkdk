@@ -1,29 +1,40 @@
 import { describe, expect, it } from "vitest"
 import { fullDynamicList, minimalDynamicList } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importDynamicListFromXML } from "./fromXML"
-import { DynamicListXML } from "./types"
+import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
+import { mockContextFromXML } from "~/tests/mockContext"
+import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 
-describe("importDynamicListFromXML", () => {
+const rule: PropertyRule = {
+  type: "DynamicList",
+}
+
+describe("import DynamicList from XML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importDynamicListFromXML(mockContextFromXML(), mockRule, undefined)
+    const result = importPropertyFromXML({
+      context: mockContextFromXML(),
+      rule,
+      value: undefined,
+    })
     expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
-    const xmlData = readAndParseXMLFile<{ Settings: DynamicListXML }>("dynamicList/full.xml")
-
-    const result = importDynamicListFromXML(mockContextFromXML(), mockRule, xmlData.Settings)
-
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "full.xml",
+      xmlRootTag: "Settings",
+      importMetaUrl: import.meta.url,
+    })
     expect(result).toEqual(fullDynamicList)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ Settings: DynamicListXML }>("dynamicList/minimal.xml")
-
-    const result = importDynamicListFromXML(mockContextFromXML(), mockRule, xmlData.Settings)
-
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "minimal.xml",
+      xmlRootTag: "Settings",
+      importMetaUrl: import.meta.url,
+    })
     expect(result).toEqual(minimalDynamicList)
   })
 })

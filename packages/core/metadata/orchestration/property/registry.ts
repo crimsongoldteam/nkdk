@@ -13,13 +13,13 @@ import {
   AppearanceFieldsYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
 import {
-  ConditionalAppearanceItem,
-  ConditionalAppearanceYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
-import {
   AvailableFields,
   AvailableFieldsYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
+import {
+  ConditionalAppearanceItem,
+  ConditionalAppearanceYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
 import {
   MetadataDcsMetadataValue,
   MetadataDcsMetadataValueYAML,
