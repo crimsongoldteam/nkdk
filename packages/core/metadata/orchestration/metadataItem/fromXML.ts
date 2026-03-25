@@ -5,17 +5,16 @@ import { ToMetadata } from "./registry"
 
 export const importMetadataItemFromXML = <Rule extends MetadataItemRule>(params: {
   context: ConfigurationContextFromXML
-  xml: any
   rule: Rule
   tags?: string[]
-}): ToMetadata<Rule["itemType"]> | undefined => {
-  const { context, xml, rule, tags } = params
+} & ({ xml: any } | { xmlString: string })): ToMetadata<Rule["itemType"]> | undefined => {
+  const { context, rule, tags } = params
 
   const properties = importPropertiesFromXML({
     context,
-    xml,
     rule,
     tags,
+    ...("xmlString" in params ? { xmlString: params.xmlString } : { xml: params.xml }),
   })
 
   if (!properties) return undefined

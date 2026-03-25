@@ -1,20 +1,32 @@
 import { ElementXML, importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
+import { importContentFromXML } from "~/xml/import/importer"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { testFixturesDir } from "~/tests/testFixturesDir"
 
-export const testImportPropertyFromXML = (params: {
-  rule: PropertyRule
-  path: string
-  xmlRootTag: string
+export const testImportPropertyFromXML = (
+  params: {
+    rule: PropertyRule
+    xmlRootTag: string
+  } & (
+    | {
+        path: string
+        importMetaUrl?: string
+      }
+    | {
+        xmlString: string
+      }
+  )
+): unknown => {
+  const { rule, xmlRootTag } = params
 
-  importMetaUrl?: string
-}): unknown => {
-  const { rule, path, xmlRootTag, importMetaUrl } = params
-
-  const fixturesDir = importMetaUrl !== undefined ? testFixturesDir(importMetaUrl) : undefined
-
-  const referenceXMLData = readAndParseXMLFile<{ [key: string]: ElementXML }>(path, fixturesDir)
+  const referenceXMLData =
+    "xmlString" in params
+      ? importContentFromXML<{ [key: string]: ElementXML }>(params.xmlString)
+      : readAndParseXMLFile<{ [key: string]: ElementXML }>(
+          params.path,
+          params.importMetaUrl !== undefined ? testFixturesDir(params.importMetaUrl) : undefined
+        )
   const referenceXML = referenceXMLData[xmlRootTag]
 
   return importPropertyFromXML({

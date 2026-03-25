@@ -149,8 +149,8 @@ import "./predifined/toJSONSchema"
 import "./predifined/toXML"
 import "./predifined/toYAML"
 
-import "./standardAttributeDescription/types"
 import "./standardAttributeDescription/toJSONSchema"
+import "./standardAttributeDescription/types"
 
 import "./string/fromXML"
 import "./string/toJSONSchema"
@@ -170,13 +170,13 @@ import "./typeLink/toXML"
 import "./typeLink/toYAML"
 
 import "./dataCompositionSystem/dcsMetadataValue/fromDcsXML"
-import "./dataCompositionSystem/dcsMetadataValue/toDcsXML"
 import "./dataCompositionSystem/dcsMetadataValue/fromYAML"
+import "./dataCompositionSystem/dcsMetadataValue/toDcsXML"
 import "./dataCompositionSystem/dcsMetadataValue/toYAML"
 
-import "./dataCompositionSystem/parameterValue/fromDcsXML"
-import "./dataCompositionSystem/parameterValue/toDcsXML"
+import "./dataCompositionSystem/parameterValue/fromXML"
 import "./dataCompositionSystem/parameterValue/fromYAML"
+import "./dataCompositionSystem/parameterValue/toXML"
 import "./dataCompositionSystem/parameterValue/toYAML"
 
 import "./usePurposes/fromXML"
@@ -196,11 +196,11 @@ import "./metadataRef/fromYAML"
 import "./metadataRef/toXML"
 import "./metadataRef/toYAML"
 
-import "./number/fromXML"
 import "./characteristicsDescription/fromXML"
 import "./characteristicsDescription/fromYAML"
 import "./characteristicsDescription/toXML"
 import "./characteristicsDescription/toYAML"
+import "./number/fromXML"
 
 import "./characteristicsDescription/fromXML"
 import "./characteristicsDescription/fromYAML"
@@ -211,3 +211,5 @@ import "./number/toJSONSchema"
 
 import "./internalInfo/fromXML"
 import "./internalInfo/toXML"
+
+import "./dataCompositionSystem"

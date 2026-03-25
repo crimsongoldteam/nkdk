@@ -40,6 +40,24 @@ export const fixtureAppearanceFields: AppearanceFields = {
   Отображать: pv("Отображать", boolFalse),
 }
 
+export const fixtureAppearanceFieldsYAML: AppearanceFieldsYAML = {
+  ЦветФона: {
+    Использовать: "Ложь",
+    Значение: "Красный",
+  },
+  ЦветТекста: "Синий",
+  Шрифт: "ExtraLargeTextFont",
+  ГоризонтальноеПоложение: "ПоЦентру",
+  Формат: "ЧЦ=3; ЧДЦ=2",
+  ВыделятьОтрицательные: "Истина",
+  ОтметкаНезаполненного: "Истина",
+  Текст: "Текст",
+  Видимость: "Ложь",
+  Доступность: "Ложь",
+  ТолькоПросмотр: "Истина",
+  Отображать: "Ложь",
+}
+
 export const fixtureAppearanceFieldsMinimal: AppearanceFields = {
   itemType: "AppearanceFields",
   ЦветФона: pv("ЦветФона", colorRed, false),
@@ -47,7 +65,7 @@ export const fixtureAppearanceFieldsMinimal: AppearanceFields = {
 
 export const fixtureAppearanceFieldsMinimalYAML: AppearanceFieldsYAML = {
   ЦветФона: {
-    Параметр: "ЦветФона",
+    // Параметр: "ЦветФона",
     Использовать: "Ложь",
     Значение: "Красный",
   },

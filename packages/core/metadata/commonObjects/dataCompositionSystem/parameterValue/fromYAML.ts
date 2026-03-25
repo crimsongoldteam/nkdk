@@ -23,15 +23,10 @@ export const importParameterValueFromYAML = (
 ): ParameterValue | SettingsParameterValue => {
   const dcsRule = toDcsMetadataValueRule(rule)
 
-  if (!isYamlObject(yaml)) {
-    throw new Error("SettingsParameterValue YAML: expected object root")
-  }
-
-  const y = yaml as Record<string, unknown>
-
-  const parameter = String(y["Параметр"] ?? "")
-
-  const rawValue = y["Значение"]
+  const y = isYamlObject(yaml) ? (yaml as Record<string, unknown>) : undefined
+  const parameterFromRule = typeof rule.yaml === "string" ? rule.yaml : undefined
+  const parameter = String(y?.["Параметр"] ?? parameterFromRule ?? "")
+  const rawValue = y?.["Значение"] ?? yaml
   const rawList = rawValue === undefined ? [] : Array.isArray(rawValue) ? rawValue : [rawValue]
   const valueParts = rawList
     .map((v) => importDcsMetadataValueFromYAML(context, dcsRule, v as never))
@@ -40,7 +35,7 @@ export const importParameterValueFromYAML = (
   const value: ParameterValue["value"] =
     valueParts.length === 0 ? undefined : valueParts.length === 1 ? valueParts[0] : valueParts
 
-  const rawElements = y["Элементы"]
+  const rawElements = y?.["Элементы"]
   const elementList =
     rawElements === undefined ? [] : Array.isArray(rawElements) ? rawElements : [rawElements]
   const item =
@@ -50,32 +45,32 @@ export const importParameterValueFromYAML = (
 
   const base: ParameterValue = {
     parameter,
-    ...(y["Использовать"] === "Ложь" ? { use: false } : {}),
+    ...(y?.["Использовать"] === "Ложь" ? { use: false } : {}),
     ...(value !== undefined ? { value } : {}),
     ...(item !== undefined ? { item } : {}),
   }
 
   const hasSettingsYaml =
-    y["РежимОтображения"] !== undefined ||
-    y["ИдентификаторПользовательскойНастройки"] !== undefined ||
-    y["ПредставлениеПользовательскойНастройки"] !== undefined
+    y?.["РежимОтображения"] !== undefined ||
+    y?.["ИдентификаторПользовательскойНастройки"] !== undefined ||
+    y?.["ПредставлениеПользовательскойНастройки"] !== undefined
 
   if (hasSettingsYaml) {
-    const viewKey = y["РежимОтображения"] as SE.DataCompositionSettingsItemViewModeYAML | undefined
+    const viewKey = y?.["РежимОтображения"] as SE.DataCompositionSettingsItemViewModeYAML | undefined
     return {
       ...base,
       ...(viewKey !== undefined
         ? { viewMode: SE.DataCompositionSettingsItemViewModeFromYAML[viewKey] }
         : {}),
-      ...(y["ИдентификаторПользовательскойНастройки"] !== undefined
-        ? { userSettingID: String(y["ИдентификаторПользовательскойНастройки"]) }
+      ...(y?.["ИдентификаторПользовательскойНастройки"] !== undefined
+        ? { userSettingID: String(y?.["ИдентификаторПользовательскойНастройки"]) }
         : {}),
-      ...(y["ПредставлениеПользовательскойНастройки"] !== undefined
+      ...(y?.["ПредставлениеПользовательскойНастройки"] !== undefined
         ? {
             userSettingPresentation: importI8nTextFromYAML({
               context,
               rule: { type: "I8nText" },
-              value: y["ПредставлениеПользовательскойНастройки"] as never,
+              value: y?.["ПредставлениеПользовательскойНастройки"] as never,
             }),
           }
         : {}),

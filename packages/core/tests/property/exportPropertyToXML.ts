@@ -6,29 +6,50 @@ import { mockContextFromXML, mockContextToXML } from "../mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "../readFixtureXML"
 
-export const testExportPropertyToXML = (params: {
+type TestExportPropertyToXMLParamsBase = {
   rule: PropertyRule
   value: unknown
   xmlRootTag: string
-  importMetaUrl?: string
-  path: string
   itemsTree?: ContextElementToXML[]
   applyNumberingIds?: boolean
-}): { expectedResult: string; result: string } => {
+}
+
+export function testExportPropertyToXML(
+  params: TestExportPropertyToXMLParamsBase & {
+    importMetaUrl?: string
+    path: string
+  }
+): { expectedResult: string; result: string }
+
+export function testExportPropertyToXML(params: TestExportPropertyToXMLParamsBase): {
+  expectedResult: undefined
+  result: string
+}
+
+export function testExportPropertyToXML(
+  params: TestExportPropertyToXMLParamsBase & {
+    importMetaUrl?: string
+    path?: string
+  }
+): { expectedResult: string | undefined; result: string } {
   const { rule, value, xmlRootTag, path, importMetaUrl } = params
 
-  const expectedResult = importMetaUrl ? readXMLFixtureAsString(importMetaUrl, path) : readXMLFileAsString(path)
+  let referenceProperty: unknown | undefined
 
-  const referenceXMLData = importMetaUrl
-    ? readAndParseXMLFixture<{ [key: string]: ElementXML }>(importMetaUrl, path)
-    : readAndParseXMLFile<{ [key: string]: ElementXML }>(path)
-  const referenceXML = referenceXMLData
-  const importContext = mockContextFromXML({ forReference: true })
-  const referenceProperty = importPropertyFromXML({
-    context: importContext,
-    rule: rule,
-    value: referenceXML[xmlRootTag],
-  })
+  let expectedResult: string | undefined
+  if (path !== undefined) {
+    expectedResult = importMetaUrl ? readXMLFixtureAsString(importMetaUrl, path) : readXMLFileAsString(path)
+
+    const referenceXMLData = importMetaUrl
+      ? readAndParseXMLFixture<{ [key: string]: ElementXML }>(importMetaUrl, path)
+      : readAndParseXMLFile<{ [key: string]: ElementXML }>(path)
+    const importContext = mockContextFromXML({ forReference: true })
+    referenceProperty = importPropertyFromXML({
+      context: importContext,
+      rule: rule,
+      value: referenceXMLData[xmlRootTag],
+    })
+  }
 
   const exportContext: ConfigurationContextWithExportToXML = {
     ...mockContextToXML(),

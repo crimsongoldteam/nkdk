@@ -6,7 +6,13 @@ import type {
 } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import type { ChoiceParameter, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
 import { fixtureTypeLink } from "../../dcsMetadataValue/__fixtures__/data"
-import type { ParameterValue, SettingsParameterValue } from "../types"
+import type {
+  ParameterValue,
+  ParameterValueYAML,
+  SettingsParameterValue,
+  SettingsParameterValuePropertyRule,
+  SettingsParameterValueYAML,
+} from "../types"
 
 export const fixtureColorWebRed: Color = {
   type: "WebColor",
@@ -45,49 +51,202 @@ export const fixtureChoiceParameterLinks: ChoiceParameterLinks = [
 
 export const fixtureChoiceParameterLinksYAML: ChoiceParameterLinksYAML = "ПараметрВыбора(Поле1, НеИзменять)"
 
-/** `full.xml` — `dcsset:SettingsParameterValue`, LocalStringType. */
-export const fixtureFullSettingsParameter: SettingsParameterValue = {
-  parameter: "Формат",
-  value: fixtureFormatLocalString,
+const xmlFull = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:parameter>Формат</dcscor:parameter>
+	<dcscor:value xsi:type="v8:LocalStringType">
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>ЧЦ=3; ЧДЦ=2</v8:content>
+		</v8:item>
+	</dcscor:value>
+</dcscor:item>`
+
+const xmlUseFalse = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:parameter>ЦветФона</dcscor:parameter>
+	<dcscor:use>false</dcscor:use>
+	<dcscor:value xsi:type="v8ui:Color">web:Red</dcscor:value>
+</dcscor:item>`
+
+const xmlTypeLink = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:parameter>СвязьПоТипу</dcscor:parameter>
+	<dcscor:value xsi:type="dcscor:TypeLink">
+		<dcscor:field>Поле1</dcscor:field>
+		<dcscor:linkItem>2</dcscor:linkItem>
+	</dcscor:value>
+</dcscor:item>`
+
+const xmlChoiceParameters = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:parameter>ПараметрыВыбора</dcscor:parameter>
+	<dcscor:value xsi:type="dcscor:ChoiceParameters">
+		<dcscor:item>
+			<dcscor:choiceParameter>Параметр</dcscor:choiceParameter>
+			<dcscor:value xsi:type="xs:decimal">123</dcscor:value>
+		</dcscor:item>
+	</dcscor:value>
+</dcscor:item>`
+
+const xmlChoiceParameterLinks = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:parameter>СвязиПараметровВыбора</dcscor:parameter>
+	<dcscor:value xsi:type="dcscor:ChoiceParameterLinks">
+		<dcscor:item>
+			<dcscor:choiceParameter>ПараметрВыбора</dcscor:choiceParameter>
+			<dcscor:value>Поле1</dcscor:value>
+			<dcscor:mode xsi:type="ent:LinkedValueChangeMode">DontChange</dcscor:mode>
+		</dcscor:item>
+	</dcscor:value>
+</dcscor:item>`
+
+const xmlSystemEnumeration = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:parameter>ВыборГруппИЭлементов</dcscor:parameter>
+	<dcscor:value xsi:type="ent:FoldersAndItemsUse">Items</dcscor:value>
+</dcscor:item>`
+
+const xmlFewValues = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:parameter>ИмяПараметра</dcscor:parameter>
+	<dcscor:use>false</dcscor:use>
+	<dcscor:value xsi:type="v8:LocalStringType">
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Перечисление.ИмяПеречисления.Значение1</v8:content>
+		</v8:item>
+	</dcscor:value>
+	<dcscor:value xsi:type="v8:LocalStringType">
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Перечисление.ИмяПеречисления.Значение2</v8:content>
+		</v8:item>
+	</dcscor:value>
+</dcscor:item>`
+
+export type ParameterValueFixture = {
+  id: string
+  title: string
+  rule: SettingsParameterValuePropertyRule
+  value: ParameterValue | SettingsParameterValue
+  yaml: ParameterValueYAML | SettingsParameterValueYAML
+  xml?: string
 }
 
-/** `useFalse.xml` */
-export const fixtureUseFalseColor: SettingsParameterValue = {
-  use: false,
-  parameter: "ЦветФона",
-  value: fixtureColorWebRed,
-}
-
-/** `typeLink.xml` — базовый `dcscor:item` без `xsi:type`. */
-export const fixtureTypeLinkParameter: ParameterValue = {
-  parameter: "СвязьПоТипу",
-  value: fixtureTypeLink,
-}
-
-/** `choiceParameters.xml` — `importChoiceParameterFromDcsXML` возвращает первый `dcscor:item`. */
-export const fixtureChoiceParametersRoot: ParameterValue = {
-  parameter: "ПараметрыВыбора",
-  value: fixtureChoiceParameterDecimal,
-}
-
-/** `choiceParameterLinks.xml` */
-export const fixtureChoiceParameterLinksRoot: ParameterValue = {
-  parameter: "СвязиПараметровВыбора",
-  value: fixtureChoiceParameterLinks,
-}
-
-/** `systemEnumeration.xml` — `ent:FoldersAndItemsUse`. */
-export const fixtureFoldersAndItemsRoot: ParameterValue = {
-  parameter: "ВыборГруппИЭлементов",
-  value: "Items",
-}
-
-/** `fewValues.xml` — два `v8:LocalStringType` (как при экспорте DesignTimeValue). */
-export const fixtureFewDesignTimeValues: SettingsParameterValue = {
-  use: false,
-  parameter: "ИмяПараметра",
-  value: [
-    { items: { ru: "Перечисление.ИмяПеречисления.Значение1" } },
-    { items: { ru: "Перечисление.ИмяПеречисления.Значение2" } },
-  ],
-}
+export const parameterValueFixtures: ParameterValueFixture[] = [
+  {
+    id: "full",
+    title: "full (DesignTimeValue / LocalStringType)",
+    rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue" },
+    value: {
+      parameter: "Формат",
+      value: fixtureFormatLocalString,
+    },
+    yaml: {
+      Параметр: "Формат",
+      Значение: fixtureFormatLocalStringYAML,
+    },
+    xml: xmlFull,
+  },
+  {
+    id: "useFalse",
+    title: "useFalse (Color)",
+    rule: { type: "SettingsParameterValue", valueType: "Color" },
+    value: {
+      use: false,
+      parameter: "ЦветФона",
+      value: fixtureColorWebRed,
+    },
+    yaml: {
+      Параметр: "ЦветФона",
+      Использовать: "Ложь",
+      Значение: fixtureColorWebRedYAML,
+    },
+    xml: xmlUseFalse,
+  },
+  {
+    id: "typeLink",
+    title: "typeLink (TypeLink, без xsi:type на вложенном item)",
+    rule: { type: "SettingsParameterValue", valueType: "TypeLink", yaml: "СвязьПоТипу" },
+    value: {
+      parameter: "СвязьПоТипу",
+      value: fixtureTypeLink,
+    },
+    yaml: "Поле1(2)",
+    xml: xmlTypeLink,
+  },
+  {
+    id: "choiceParameters",
+    title: "choiceParameters (Parameter)",
+    rule: { type: "SettingsParameterValue", valueType: "Parameter" },
+    value: {
+      parameter: "ПараметрыВыбора",
+      value: fixtureChoiceParameterDecimal,
+    },
+    yaml: {
+      Параметр: "ПараметрыВыбора",
+      Значение: fixtureChoiceParameterDecimalYAML,
+    },
+    xml: xmlChoiceParameters,
+  },
+  {
+    id: "choiceParameterLinks",
+    title: "choiceParameterLinks (ChoiceParameterLinks)",
+    rule: {
+      type: "SettingsParameterValue",
+      valueType: "ChoiceParameterLinks",
+      yaml: "СвязиПараметровВыбора",
+    },
+    value: {
+      parameter: "СвязиПараметровВыбора",
+      value: fixtureChoiceParameterLinks,
+    },
+    yaml: fixtureChoiceParameterLinksYAML,
+    xml: xmlChoiceParameterLinks,
+  },
+  {
+    id: "systemEnumeration",
+    title: "systemEnumeration (FoldersAndItemsUse)",
+    rule: {
+      type: "SettingsParameterValue",
+      valueType: "SystemEnumeration",
+      typeSE: "FoldersAndItemsUse",
+      yaml: "ВыборГруппИЭлементов",
+    },
+    value: {
+      parameter: "ВыборГруппИЭлементов",
+      value: "Items",
+    },
+    yaml: "Элементы",
+    xml: xmlSystemEnumeration,
+  },
+  {
+    id: "fewValues",
+    title: "fewValues (два v8:LocalStringType)",
+    rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "ИмяПараметра" },
+    value: {
+      use: false,
+      parameter: "ИмяПараметра",
+      value: [
+        { items: { ru: "Перечисление.ИмяПеречисления.Значение1" } },
+        { items: { ru: "Перечисление.ИмяПеречисления.Значение2" } },
+      ],
+    },
+    yaml: {
+      Использовать: "Ложь",
+      Значение: ["Перечисление.ИмяПеречисления.Значение1", "Перечисление.ИмяПеречисления.Значение2"],
+    },
+    xml: xmlFewValues,
+  },
+  {
+    id: "shortOnlyValue",
+    title: "short value-only (Color)",
+    rule: { type: "SettingsParameterValue", valueType: "Color", yaml: "ЦветТекста" },
+    value: {
+      parameter: "ЦветТекста",
+      value: {
+        type: "WebColor",
+        value: "Blue",
+      },
+    },
+    yaml: "Синий",
+    xml: `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:parameter>ЦветТекста</dcscor:parameter>
+	<dcscor:value xsi:type="v8ui:Color">web:Blue</dcscor:value>
+</dcscor:item>`,
+  },
+]

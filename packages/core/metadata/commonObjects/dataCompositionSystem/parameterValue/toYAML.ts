@@ -56,11 +56,22 @@ export const exportParameterValueToYAML = (params: {
 
   const elements = data.item?.map((child) => exportParameterValueToYAML({ context, rule, data: child }))
 
+  const parameterFromRule = typeof rule.yaml === "string" ? rule.yaml : undefined
+  const shouldExportParameter =
+    data.parameter !== "" && (parameterFromRule === undefined || data.parameter !== parameterFromRule)
+  const hasUse = data.use === false
+  const hasValue = значение !== undefined
+  const hasElements = elements !== undefined && elements.length > 0
+
   const base: Record<string, unknown> = {
-    Параметр: data.parameter,
-    ...(data.use === false ? { Использовать: "Ложь" as const } : {}),
-    ...(значение !== undefined ? { Значение: значение } : {}),
-    ...(elements !== undefined && elements.length > 0 ? { Элементы: elements } : {}),
+    ...(shouldExportParameter ? { Параметр: data.parameter } : {}),
+    ...(hasUse ? { Использовать: "Ложь" as const } : {}),
+    ...(hasValue ? { Значение: значение } : {}),
+    ...(hasElements ? { Элементы: elements } : {}),
+  }
+
+  if (!hasSettingsExtension(data) && !shouldExportParameter && !hasUse && hasValue && !hasElements) {
+    return значение as ParameterValueYAML
   }
 
   if (hasSettingsExtension(data)) {

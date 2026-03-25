@@ -29,9 +29,12 @@ describe("export <PropertyType> to XML", () => {
 })
 ```
 
+Если `path` и `importMetaUrl` не указывать, эталонный XML из файла не читается: `expectedResult` будет `undefined`, сравнение делай сам (например с XML из `__fixtures__/data.ts` через `importContentFromXML`).
+
 Правила:
 
 - Используй helper `testExportPropertyToXML`.
+- Без `path` (и без пары с `importMetaUrl` для локальных `__fixtures__`) `expectedResult` не заполняется — эталон задавай в самом тесте.
 - Всегда передавай `importMetaUrl: import.meta.url`, если fixture лежат в локальном `__fixtures__` рядом с тестом.
 - Для property внутри элемента формы указывай `itemsTree`.
 - Если проверяешь XML без служебных `id` после нумерации, передавай `applyNumberingIds: false`.

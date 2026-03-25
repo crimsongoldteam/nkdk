@@ -9,22 +9,11 @@ import type {
   MetadataDcsMetadataValueYAML,
 } from "../dcsMetadataValue/types"
 
-//#region Property rules
-
-/**
- * Правило свойства для `dcsset:SettingsParameterValue` (расширение `dcscore:ParameterValue` в XSD).
- * Базовый `ParameterValue` в реестре свойств не регистрируется — только этот тип.
- */
 export interface SettingsParameterValuePropertyRule extends BasePropertyRule {
   type: "SettingsParameterValue"
   valueType: DcsMetadataValueValueType
-  /** Для `SystemEnumeration` — ключ из `SystemEnumerationTypeMap`. */
   typeSE?: keyof SystemEnumerationTypeMap
 }
-
-//#endregion
-
-//#region Item (dcscore:ParameterValue → dcsset:SettingsParameterValue)
 
 export type ParameterValue = {
   use?: boolean
@@ -38,10 +27,6 @@ export type SettingsParameterValue = ParameterValue & {
   userSettingID?: string
   userSettingPresentation?: I8nText
 }
-
-//#endregion
-
-//#region YAML
 
 export type ParameterValueYAMLObject = {
   Параметр?: string
@@ -61,11 +46,6 @@ export type SettingsParameterValueYAMLObject = Omit<ParameterValueYAMLObject, "�
 
 export type SettingsParameterValueYAML = MetadataDcsMetadataValueYAML | SettingsParameterValueYAMLObject
 
-//#endregion
-
-//#region XML
-
-/** Один узел `dcscor:value` (см. `MetadataDcsMetadataValueDcsRootXML` в dcsMetadataValue). */
 export type ParameterValueDcsValueFragment = NonNullable<MetadataDcsMetadataValueDcsRootXML["dcscor:value"]>
 
 export type ParameterValueXML = {
@@ -82,5 +62,3 @@ export type SettingsParameterValueXML = ParameterValueXML & {
   "dcsset:userSettingID"?: string
   "dcsset:userSettingPresentation"?: I8nTextXML
 }
-
-//#endregion
