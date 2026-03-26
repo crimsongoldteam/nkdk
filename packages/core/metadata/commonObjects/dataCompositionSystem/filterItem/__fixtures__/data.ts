@@ -3,7 +3,7 @@ import type { FilterItemComparison, FilterItemComparisonYAML, FilterItemGroup, F
 export const fullFilterItemComparison = {
   itemType: "FilterItemComparison",
   use: false,
-  leftValue: "Реквизит1",
+  leftValue: { type: "Field", value: "Реквизит1" },
   comparisonType: "Equal",
   rightValue: { type: "boolean", value: true },
   presentation: { items: { ru: "Представление" } },

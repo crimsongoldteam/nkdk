@@ -10,7 +10,7 @@ export const FilterItemComparisonRules = {
       defaultValueYAML: true,
     },
     leftValue: {
-      type: "FilterItemFieldValue",
+      type: "DcsMetadataTypedValue",
       xml: "dcsset:left",
       yaml: "ЛевоеЗначение",
     },
@@ -22,7 +22,7 @@ export const FilterItemComparisonRules = {
       defaultValueYAML: "Equal",
     },
     rightValue: {
-      type: "FilterItemPrimitiveValue",
+      type: "DcsMetadataTypedValue",
       xml: "dcsset:right",
       yaml: "ПравоеЗначение",
     },
