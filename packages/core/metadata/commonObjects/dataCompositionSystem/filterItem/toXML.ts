@@ -1,5 +1,4 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
@@ -7,10 +6,10 @@ import { FilterItem } from "./types"
 import "./inlineTypes"
 import "./typedValues"
 
-const exportFilterItemToXML = (
+const exportFilterItemElementToXML = (
   context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule,
-  value: FilterItem | undefined
+  value: FilterItem[number] | undefined
 ) => {
   if (!value) return undefined
 
@@ -31,4 +30,15 @@ const exportFilterItemToXML = (
   return undefined
 }
 
-registerTypeRule("FilterItem", "exportToXML", exportFilterItemToXML)
+export const exportFilterItemToXML = (
+  context: ConfigurationContextWithExportToXML,
+  rule: PropertyRule,
+  value: FilterItem | undefined
+) => {
+  if (!value || value.length === 0) return undefined
+  const exported = value.flatMap((item) => {
+    const xml = exportFilterItemElementToXML(context, rule, item)
+    return xml ? [xml] : []
+  })
+  return exported.length > 0 ? exported : undefined
+}

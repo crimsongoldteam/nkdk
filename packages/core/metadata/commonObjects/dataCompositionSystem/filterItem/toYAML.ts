@@ -1,5 +1,4 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportMetadataItemToYAML } from "~/metadata/orchestration/metadataItem/toYAML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
@@ -7,10 +6,10 @@ import { FilterItem } from "./types"
 import "./inlineTypes"
 import "./typedValues"
 
-const exportFilterItemToYAML = (
+const exportFilterItemElementToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule,
-  value: FilterItem | undefined
+  value: FilterItem[number] | undefined
 ) => {
   if (!value) return undefined
 
@@ -25,4 +24,15 @@ const exportFilterItemToYAML = (
   return undefined
 }
 
-registerTypeRule("FilterItem", "exportToYAML", exportFilterItemToYAML)
+export const exportFilterItemToYAML = (
+  context: ConfigurationContext,
+  rule: PropertyRule,
+  value: FilterItem | undefined
+) => {
+  if (!value || value.length === 0) return undefined
+  const exported = value.flatMap((item) => {
+    const exportedItem = exportFilterItemElementToYAML(context, rule, item)
+    return exportedItem ? [exportedItem] : []
+  })
+  return exported.length > 0 ? exported : undefined
+}

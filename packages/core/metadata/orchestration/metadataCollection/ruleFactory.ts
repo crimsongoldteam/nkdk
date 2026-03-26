@@ -1,5 +1,12 @@
+import {
+  ExportToXMLFunction,
+  ExportToYAMLFunction,
+  importFromXMLFunction,
+  importFromYAMLFunction,
+} from "~/metadata/orchestration/property/fn"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "../formElement/factory"
 import { ToMetadata } from "../metadataItem/registry"
 import { registerExportToXML } from "./registerExportToXML"
 import { registerExportToYAML } from "./registerExportToYAML"
@@ -19,6 +26,10 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
     rule: PropertyRule | undefined
   }) => (ToMetadata<Rule["itemType"]> & NamedMetadataItem)[]
   omitIdAttributeInXML?: boolean
+  fromXML?: importFromXMLFunction
+  toXML?: ExportToXMLFunction
+  fromYAML?: importFromYAMLFunction
+  toYAML?: ExportToYAMLFunction
 }
 
 export const registerMetadataItemCollectionRule = <
@@ -30,8 +41,33 @@ export const registerMetadataItemCollectionRule = <
 ): void => {
   const { propertyType, itemRule, xmlElement } = params
 
-  registerImportFromXML(propertyType, itemRule, xmlElement)
-  registerImportFromYAML(propertyType, itemRule, params.nameFromYAMLKey, params.returnUndefinedWhenEmptyYAML)
-  registerExportToYAML(propertyType, itemRule, params.yamlKeyFromName)
-  registerExportToXML(propertyType, itemRule, xmlElement, params.extendDataForExportToXML, params.omitIdAttributeInXML)
+  if (params.fromXML) {
+    registerTypeRule(propertyType, "importFromXML", params.fromXML)
+  } else {
+    registerImportFromXML(propertyType, itemRule, xmlElement)
+  }
+
+  if (params.fromYAML) {
+    registerTypeRule(propertyType, "importFromYAML", params.fromYAML)
+  } else {
+    registerImportFromYAML(propertyType, itemRule, params.nameFromYAMLKey, params.returnUndefinedWhenEmptyYAML)
+  }
+
+  if (params.toYAML) {
+    registerTypeRule(propertyType, "exportToYAML", params.toYAML)
+  } else {
+    registerExportToYAML(propertyType, itemRule, params.yamlKeyFromName)
+  }
+
+  if (params.toXML) {
+    registerTypeRule(propertyType, "exportToXML", params.toXML)
+  } else {
+    registerExportToXML(
+      propertyType,
+      itemRule,
+      xmlElement,
+      params.extendDataForExportToXML,
+      params.omitIdAttributeInXML
+    )
+  }
 }

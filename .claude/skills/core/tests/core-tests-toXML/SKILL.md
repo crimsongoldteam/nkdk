@@ -31,7 +31,7 @@ describe("export <PropertyType> to XML", () => {
 })
 ```
 
-Если `path` и `importMetaUrl` не указывать, эталонный XML из файла не читается: `expectedResult` будет `undefined`, сравнение делай сам (например с XML из `__fixtures__/data.ts` через `importContentFromXML`).
+Если `path` и `importMetaUrl` не указывать, эталонный XML из файла не читается: `expectedResult` будет `undefined`, сравнение делай сам (например сравни `result` со строкой XML из `__fixtures__/data.ts` напрямую).
 
 Правила:
 

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
-import { importContentFromXML } from "~/xml/import/importer"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { fullConditionalAppearanceItem, minimalConditionalAppearanceItem } from "./__fixtures__/data"
 import "./types"
@@ -20,7 +19,7 @@ describe("export ConditionalAppearance to XML", () => {
       applyNumberingIds: false,
     })
 
-    expect(importContentFromXML(result)).toEqual(importContentFromXML(expectedResult!))
+    expect(result).toEqual(expectedResult)
   })
 
   it("exports minimal.xml", () => {
@@ -33,6 +32,6 @@ describe("export ConditionalAppearance to XML", () => {
       applyNumberingIds: false,
     })
 
-    expect(importContentFromXML(result)).toEqual(importContentFromXML(expectedResult!))
+    expect(result).toEqual(expectedResult)
   })
 })

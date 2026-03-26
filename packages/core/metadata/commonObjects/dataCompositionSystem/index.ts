@@ -1,8 +1,5 @@
 import "./filter/types"
-import "./filterItem/fromXML"
-import "./filterItem/toXML"
-import "./filterItem/fromYAML"
-import "./filterItem/toYAML"
+import "./filterItem/types"
 
 import "./appearanceFields/fromXML"
 import "./appearanceFields/fromYAML"

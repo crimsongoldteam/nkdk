@@ -65,8 +65,11 @@ import {
   MetadataTabularSections,
   MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
-import { MetadataValue, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
-import { MetadataTypedPrimitiveValue } from "~/metadata/commonObjects/metadataValue/types"
+import {
+  MetadataTypedPrimitiveValue,
+  MetadataValue,
+  MetadataValueYAML,
+} from "~/metadata/commonObjects/metadataValue/types"
 import {
   MetadataValueCollection,
   MetadataValueCollectionYAML,

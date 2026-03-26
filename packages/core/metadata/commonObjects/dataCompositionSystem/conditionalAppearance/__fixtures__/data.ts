@@ -1,7 +1,7 @@
 import { fixtureAppearanceFields, fixtureAppearanceFieldsYAML } from "../../appearanceFields/__fixtures__/data"
 import { AppearanceFields } from "../../appearanceFields/types"
 import { Filter } from "../../filter/types"
-import { FilterItem, FilterItemComparison, FilterItemGroup } from "../../filterItem/types"
+import { FilterItemComparison, FilterItemGroup } from "../../filterItem/types"
 import { ConditionalAppearanceItem, ConditionalAppearanceItemYAML, ConditionalAppearanceYAML } from "../types"
 
 /**
@@ -11,31 +11,31 @@ import { ConditionalAppearanceItem, ConditionalAppearanceItemYAML, ConditionalAp
 const makeSelectionFields = (...names: string[]): AppearanceFields =>
   ({ itemType: "AppearanceFields" as const, _fieldNames: names }) as unknown as AppearanceFields
 
-const filterItemComparison1: FilterItemComparison = {
+const filterItemComparison1 = {
   itemType: "FilterItemComparison",
   leftValue: { type: "Field", value: "Реквизит1" },
   comparisonType: "Equal",
   rightValue: { type: "boolean", value: true },
-}
+} satisfies FilterItemComparison
 
-const filterItemComparison2: FilterItemComparison = {
+const filterItemComparison2 = {
   itemType: "FilterItemComparison",
   leftValue: { type: "Field", value: "Реквизит2" },
   comparisonType: "Contains",
   rightValue: { type: "string", value: "Реквизит1" },
   presentation: { items: { ru: "Представление" } },
-}
+} satisfies FilterItemComparison
 
-const filterItemGroup: FilterItemGroup = {
+const filterItemGroup = {
   itemType: "FilterItemGroup",
   groupType: "AndGroup",
-  items: filterItemComparison2,
-}
+  items: [filterItemComparison2],
+} satisfies FilterItemGroup
 
-const fullFixtureFilter: Filter = {
+const fullFixtureFilter = {
   itemType: "Filter",
-  items: [filterItemComparison1, filterItemGroup] as unknown as FilterItem,
-}
+  items: [filterItemComparison1, filterItemGroup],
+} as const satisfies Filter
 
 /** Полный элемент условного оформления (соответствует `full.xml`). */
 export const fullConditionalAppearanceItem: ConditionalAppearanceItem = {
@@ -59,12 +59,14 @@ const fullFilterYAML = {
     },
     {
       ТипГруппы: "ГруппаИ",
-      Элементы: {
-        ЛевоеЗначение: ".Реквизит2",
-        ВидСравнения: "Содержит",
-        ПравоеЗначение: "Реквизит1",
-        Представление: "Представление",
-      },
+      Элементы: [
+        {
+          ЛевоеЗначение: ".Реквизит2",
+          ВидСравнения: "Содержит",
+          ПравоеЗначение: "Реквизит1",
+          Представление: "Представление",
+        },
+      ],
     },
   ],
 }
