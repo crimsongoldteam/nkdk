@@ -72,6 +72,14 @@ Form elements additionally register an `ElementRule` (via `registerElementRule` 
 
 Registries are populated via **side-effect imports**. The index files (`packages/core/metadata/forms/index.ts`, `packages/core/metadata/appliedObjects/index.ts`) import all converter modules, causing registration. Consumers must import these index files before using any conversion functions.
 
+### `forms/commonObjects/`
+
+Shared form types that aren't form elements: `formAttribute`, `formCommand`, `dynamicList`, `commandInterface`, `formParameter`, `event`, `childItems`, etc. Structured the same way as `commonObjects/` (per-type dirs with `types.ts`, `fromXML.ts`, `toXML.ts`, etc.) but scoped to form-specific concepts.
+
+### `systemEnumerations/`
+
+1C system enumeration values used across metadata. Registered into `PropertyTypeRegistry` the same way as `commonObjects/`.
+
 ## Key Conventions
 
 ### Path alias
@@ -93,7 +101,7 @@ For **property-style** metadata conversion tests, use the helpers in `packages/c
 
 Each conversion direction has its own `.test.ts` file and a distinct pattern:
 
-Для быстрой генерации тестов используй скиллы: `/test-from-xml`, `/test-to-xml`, `/test-from-yaml`, `/test-to-yaml` — каждый читает открытый файл конвертера и `__fixtures__/data.ts` и создаёт готовый тест.
+Для быстрой генерации тестов используй скиллы из `.claude/skills/core/tests/`: `core-test-fromXML`, `core-tests-toXML`, `core-test-fromYAML`, `core-tests-toYAML` — каждый читает открытый файл конвертера и `__fixtures__/data.ts` и создаёт готовый тест.
 
 **`fromXML.test.ts` / `fromDcsXML.test.ts`** — читает XML-фикстуру из `__fixtures__/*.xml`, парсит её через `readAndParseXMLFixture`, вызывает функцию импорта и сравнивает результат с эталонным объектом из `__fixtures__/data.ts`. Контекст: `mockContextFromXML()`.
 
@@ -174,3 +182,22 @@ YAML    →  fromYAML.ts →  internal metadata (item)  →  toXML.ts   →  1C 
 ```
 
 The `ConfigurationContext` object threads through all conversion functions carrying configuration state, the items tree (parent chain), and format-specific sub-contexts (`exportToXML`, `enterprise`).
+
+### `ConfigurationContext` variants
+
+Use the appropriate context variant for each conversion direction (see `packages/core/tests/mockContext.ts`):
+
+| Context | When to use |
+|---------|-------------|
+| `mockContext` | `toXML`, `fromYAML`, `toYAML`, `toEnterprise` |
+| `mockContextFromXML()` | `fromXML`, `fromDcsXML` |
+| `mockContextToXML()` | `toXML`, `toDcsXML` when `exportToXML` sub-context is required |
+
+### Orchestration skills
+
+For adding/changing metadataItem types or rules, use the skills in `.claude/skills/orchestration/`:
+- `metadataItem-general` — workflow for new/modified metadataItem
+- `metadataItem-rules` — how `rules.ts` works for form elements
+- `metadataItem-register-property-rule` — adding a property rule to an existing item
+- `metadataItem-register-new-item` — registering a brand-new item type
+- `metadataCollection-register-rule` — registering a collection rule
