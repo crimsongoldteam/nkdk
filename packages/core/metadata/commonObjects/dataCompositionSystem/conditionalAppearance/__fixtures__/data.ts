@@ -13,14 +13,14 @@ const makeSelectionFields = (...names: string[]): AppearanceFields =>
 
 const filterItemComparison1: FilterItemComparison = {
   itemType: "FilterItemComparison",
-  leftValue: "Реквизит1",
+  leftValue: { type: "Field", value: "Реквизит1" },
   comparisonType: "Equal",
   rightValue: { type: "boolean", value: true },
 }
 
 const filterItemComparison2: FilterItemComparison = {
   itemType: "FilterItemComparison",
-  leftValue: "Реквизит2",
+  leftValue: { type: "Field", value: "Реквизит2" },
   comparisonType: "Contains",
   rightValue: { type: "string", value: "Реквизит1" },
   presentation: { items: { ru: "Представление" } },
