@@ -1,4 +1,5 @@
 import type { ConditionalAppearance } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import type { AppearanceFields } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
 import type { Filter } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
@@ -17,28 +18,26 @@ const listSettingsConditionalAppearance = [
     itemType: "ConditionalAppearanceItem",
     fields: {
       itemType: "AppearanceFields",
-      fieldNames: ["Наименование", "ПометкаУдаления"],
-    },
+      _fieldNames: ["Наименование", "ПометкаУдаления"],
+    } as unknown as AppearanceFields,
     filter: {
       itemType: "Filter",
-      items: [
-        {
-          itemType: "FilterItemComparison",
-          leftValue: "Наименование",
-          comparisonType: "Contains",
-          rightValue: "Текст",
-        },
-      ],
+      items: {
+        itemType: "FilterItemComparison",
+        leftValue: "Наименование",
+        comparisonType: "Contains",
+        rightValue: { type: "string", value: "Текст" },
+      },
     },
     appearance: {
       itemType: "AppearanceFields",
       Текст: {
         parameter: "Текст",
-        value: { items: { ru: 6678 } },
+        value: { items: { ru: "6678" } },
       },
     },
   },
-] satisfies ConditionalAppearance[]
+] satisfies ConditionalAppearance
 
 const listSettingsItemsUserSettingPresentation: I8nText = {
   items: { ru: "Представление группировки" },

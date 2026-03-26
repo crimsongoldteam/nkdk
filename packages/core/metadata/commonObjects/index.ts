@@ -171,9 +171,9 @@ import "./typeLink/toJSONSchema"
 import "./typeLink/toXML"
 import "./typeLink/toYAML"
 
-import "./dataCompositionSystem/dcsMetadataValue/fromDcsXML"
+import "./dataCompositionSystem/dcsMetadataValue/fromXML"
 import "./dataCompositionSystem/dcsMetadataValue/fromYAML"
-import "./dataCompositionSystem/dcsMetadataValue/toDcsXML"
+import "./dataCompositionSystem/dcsMetadataValue/toXML"
 import "./dataCompositionSystem/dcsMetadataValue/toYAML"
 
 import "./dataCompositionSystem/parameterValue/fromXML"

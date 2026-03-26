@@ -1,6 +1,3 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportColorToXML } from "~/metadata/commonObjects/color/toXML"
 import { Color } from "~/metadata/commonObjects/color/types"
 import { exportFontToXML } from "~/metadata/commonObjects/font/toXML"
@@ -9,19 +6,18 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/toXML"
 import { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
 import { MetadataValue } from "~/metadata/commonObjects/metadataValue/types"
-import { exportChoiceParameterToDcsXML } from "~/metadata/commonObjects/сhoiceParameters/toDcsXML"
-import { ChoiceParameter } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { exportChoiceParameterLinksToDcsXML } from "~/metadata/commonObjects/сhoiceParameterLinks/toDcsXML"
-import { ChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { exportToDcsXML as exportTypeLinkToDcsXML } from "~/metadata/commonObjects/typeLink/toDcsXML"
 import { TypeLink } from "~/metadata/commonObjects/typeLink/types"
+import { exportChoiceParameterLinksToDcsXML } from "~/metadata/commonObjects/сhoiceParameterLinks/toDcsXML"
+import { ChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import { exportChoiceParameterToDcsXML } from "~/metadata/commonObjects/сhoiceParameters/toDcsXML"
+import { ChoiceParameter } from "~/metadata/commonObjects/сhoiceParameters/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportSystemEnumerationToDcsXML } from "~/metadata/systemEnumerations/toDcsXML"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
-import {
-  DcsMetadataValuePropertyRule,
-  MetadataDcsMetadataValue,
-  MetadataDcsMetadataValueDcsRootXML,
-} from "./types"
+import { ConfigurationContext } from "../../../context/types"
+import { DcsMetadataValuePropertyRule, MetadataDcsMetadataValue, MetadataDcsMetadataValueDcsRootXML } from "./types"
 
 export const exportDcsMetadataValueToDcsXML = (params: {
   context: ConfigurationContext
@@ -95,10 +91,8 @@ export const exportDcsMetadataValueToDcsXML = (params: {
         },
       }
     }
-    default: {
-      const _exhaustive: never = rule.valueType
-      throw new Error(`DCS MetadataValue: unsupported valueType ${String(_exhaustive)}`)
-    }
+    default:
+      throw new Error("DCS MetadataValue: unsupported valueType")
   }
 }
 

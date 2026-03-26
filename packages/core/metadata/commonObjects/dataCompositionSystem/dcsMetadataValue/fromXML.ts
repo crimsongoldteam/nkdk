@@ -1,6 +1,3 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { ConfigurationContextFromXML } from "../../../context/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importColorFromXML } from "~/metadata/commonObjects/color/fromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/fromXML"
 import { FontXML } from "~/metadata/commonObjects/font/types"
@@ -8,15 +5,18 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
 import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/fromXML"
 import { MetadataValueTypeFromXML, MetadataValueTypeXML } from "~/metadata/commonObjects/metadataValue/types"
-import { importChoiceParameterFromDcsXML } from "~/metadata/commonObjects/сhoiceParameters/fromDcsXML"
+import { importFromDcsXML as importTypeLinkFromDcsXML } from "~/metadata/commonObjects/typeLink/fromDcsXML"
+import { TypeLinkDcsValueRootXML } from "~/metadata/commonObjects/typeLink/types"
 import { importChoiceParameterLinksFromDcsXML } from "~/metadata/commonObjects/сhoiceParameterLinks/fromDcsXML"
 import { ChoiceParameterLinkDcsValueRootXML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import { importFromDcsXML as importTypeLinkFromDcsXML } from "~/metadata/commonObjects/typeLink/fromDcsXML"
+import { importChoiceParameterFromDcsXML } from "~/metadata/commonObjects/сhoiceParameters/fromDcsXML"
 import { ChoiceParameterDcsValueRootXML } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { TypeLinkDcsValueRootXML } from "~/metadata/commonObjects/typeLink/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { SystemEnumerationDcsValueRootXML } from "~/metadata/systemEnumerations/dcsTypes"
 import { importSystemEnumerationFromDcsXML } from "~/metadata/systemEnumerations/fromDcsXML"
-import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
+import { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "~/metadata/systemEnumerations/types"
+import { ConfigurationContextFromXML } from "../../../context/types"
 import { DcsMetadataValuePropertyRule, MetadataDcsMetadataValue, MetadataDcsMetadataValueDcsRootXML } from "./types"
 
 const textNode = (value: string | { "#text"?: string } | undefined): string => {
@@ -40,6 +40,11 @@ const getXsiType = (root: unknown): string | undefined => {
   return undefined
 }
 
+const hasSystemEnumeration = (
+  rule: DcsMetadataValuePropertyRule
+): rule is DcsMetadataValuePropertyRule & { valueType: "SystemEnumeration"; typeSE: keyof SystemEnumerationTypeMap } =>
+  rule.valueType === "SystemEnumeration" && rule.typeSE !== undefined
+
 export const importDcsMetadataValueFromDcsXML = (
   context: ConfigurationContextFromXML,
   rule: DcsMetadataValuePropertyRule,
@@ -51,7 +56,7 @@ export const importDcsMetadataValueFromDcsXML = (
   }
 
   if (typeof root === "string") {
-    if (rule.typeSE === undefined) {
+    if (!hasSystemEnumeration(rule)) {
       throw new Error("DCS MetadataValue: string dcscor:value requires rule.typeSE for system enumeration")
     }
     return importSystemEnumerationFromDcsXML(
@@ -76,7 +81,11 @@ export const importDcsMetadataValueFromDcsXML = (
   }
 
   if (xsi === "dcscor:ChoiceParameters") {
-    return importChoiceParameterFromDcsXML(context, rule as unknown as PropertyRule, xml as ChoiceParameterDcsValueRootXML)
+    return importChoiceParameterFromDcsXML(
+      context,
+      rule as unknown as PropertyRule,
+      xml as ChoiceParameterDcsValueRootXML
+    )
   }
 
   if (xsi === "dcscor:DesignTimeValue") {
@@ -111,7 +120,7 @@ export const importDcsMetadataValueFromDcsXML = (
     }) as MetadataDcsMetadataValue
   }
 
-  if (rule.typeSE !== undefined) {
+  if (hasSystemEnumeration(rule)) {
     return importSystemEnumerationFromDcsXML(
       context,
       { type: "SystemEnumeration", typeSE: rule.typeSE } as SystemEnumerationPropertyRule,

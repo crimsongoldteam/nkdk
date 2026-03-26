@@ -1,0 +1,145 @@
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ДинамическийСписок.Ссылка</dcsset:left>
+    <dcsset:comparisonType>InList</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:DesignTimeValue">Справочник.Справочник1.ПустаяСсылка</dcsset:right>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">Число</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="xs:decimal">0</dcsset:right>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">Дата</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="v8:StandardBeginningDate">
+        <v8:variant xsi:type="v8:StandardBeginningDateVariant">BeginningOfThisDay</v8:variant>
+    </dcsset:right>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">Произвольный</dcsset:left>
+    <dcsset:comparisonType>Like</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:Field">Булево</dcsset:right>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">Булево</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="xs:boolean">false</dcsset:right>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">СписокЗначений.Значение</dcsset:left>
+    <dcsset:comparisonType>Contains</dcsset:comparisonType>
+    <dcsset:right xsi:type="xs:string">Какой-то текс</dcsset:right>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ТаблицаЗначений.КолонкаТаблицыЗначений</dcsset:left>
+    <dcsset:comparisonType>Filled</dcsset:comparisonType>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">СправочникСсылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:DesignTimeValue">Справочник.Справочник1.ПустаяСсылка</dcsset:right>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">СправочникСсылкаСправочник1</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:DesignTimeValue">Справочник.Справочник1.ПустаяСсылка</dcsset:right>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ДокументСсылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:Field"/>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ПеречислениеСсылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:Field"/>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ПланВидовХарактеристикСсылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:Field"/>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ПланСчетовСсылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:Field"/>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ПланВидовРасчетаСсылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:Field"/>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">БизнесПроцессСсылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:Field"/>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ТочкаМаршрутаБизнесПроцессаСсылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:Field"/>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ЗадачаСсылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:Field"/>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ПланОбменаСсылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:Field"/>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ЛюбаяСсылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:DesignTimeValue">Справочник.Справочник1.ПустаяСсылка</dcsset:right>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">СправочникОбъектСправочник1.Ссылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ДокументОбъектДокумент1.Ссылка</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">КомпоновщикНастроекКомпоновкиДанных.Настройки.ЭлементОтбор.ПравоеЗначение</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="dcscor:Field"/>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">ДиаграммаГанта.Точка</dcsset:left>
+    <dcsset:comparisonType>Contains</dcsset:comparisonType>
+    <dcsset:right xsi:type="xs:string"/>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">Планировщик.НачалоПериодаОтображения</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="v8:StandardBeginningDate">
+        <v8:variant xsi:type="v8:StandardBeginningDateVariant">Custom</v8:variant>
+        <v8:date>2026-03-25T00:00:00</v8:date>
+    </dcsset:right>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">СтандартнаяДатаНачала.Дата</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="v8:StandardBeginningDate">
+        <v8:variant xsi:type="v8:StandardBeginningDateVariant">BeginningOfNextWeek</v8:variant>
+    </dcsset:right>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">СтандартныйПериод.ДатаНачала</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="v8:StandardBeginningDate">
+        <v8:variant xsi:type="v8:StandardBeginningDateVariant">Custom</v8:variant>
+        <v8:date>0001-01-01T00:00:00</v8:date>
+    </dcsset:right>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+    <dcsset:left xsi:type="dcscor:Field">СтандартныйПериод.ДатаОкончания</dcsset:left>
+    <dcsset:comparisonType>Equal</dcsset:comparisonType>
+    <dcsset:right xsi:type="v8:StandardBeginningDate">
+        <v8:variant xsi:type="v8:StandardBeginningDateVariant">Custom</v8:variant>
+        <v8:date>0001-01-01T00:00:00</v8:date>
+    </dcsset:right>
+</dcsset:item>

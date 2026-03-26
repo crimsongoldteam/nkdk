@@ -1,17 +1,8 @@
-import { mockContext } from "~/tests/mockContext"
-import {
-  fixtureAppearanceFields,
-  fixtureAppearanceFieldsYAML,
-} from "../../appearanceFields/__fixtures__/data"
-import type { AppearanceFields } from "../../appearanceFields/types"
-import { exportFilterToYAML } from "../../filter/toYAML"
-import type { Filter } from "../../filter/types"
-import type { FilterItem, FilterItemComparison, FilterItemGroup } from "../../filterItem/types"
-import type {
-  ConditionalAppearanceItem,
-  ConditionalAppearanceItemYAML,
-  ConditionalAppearanceYAML,
-} from "../types"
+import { fixtureAppearanceFields, fixtureAppearanceFieldsYAML } from "../../appearanceFields/__fixtures__/data"
+import { AppearanceFields } from "../../appearanceFields/types"
+import { Filter } from "../../filter/types"
+import { FilterItem, FilterItemComparison, FilterItemGroup } from "../../filterItem/types"
+import { ConditionalAppearanceItem, ConditionalAppearanceItemYAML, ConditionalAppearanceYAML } from "../types"
 
 /**
  * В XML/YAML для условного оформления `Поля` — список путей к полям данных; в типе правил
@@ -24,15 +15,15 @@ const filterItemComparison1: FilterItemComparison = {
   itemType: "FilterItemComparison",
   leftValue: "Реквизит1",
   comparisonType: "Equal",
-  rightValue: "true",
+  rightValue: { type: "boolean", value: true },
 }
 
 const filterItemComparison2: FilterItemComparison = {
   itemType: "FilterItemComparison",
   leftValue: "Реквизит2",
   comparisonType: "Contains",
-  rightValue: "Реквизит1",
-  presentation: "Представление",
+  rightValue: { type: "string", value: "Реквизит1" },
+  presentation: { items: { ru: "Представление" } },
 }
 
 const filterItemGroup: FilterItemGroup = {
@@ -60,7 +51,23 @@ export const minimalConditionalAppearanceItem: ConditionalAppearanceItem = {
   fields: makeSelectionFields("ОдноПоле"),
 }
 
-const fullFilterYAML = exportFilterToYAML(mockContext, fullFixtureFilter)
+const fullFilterYAML = {
+  Элементы: [
+    {
+      ЛевоеЗначение: ".Реквизит1",
+      ПравоеЗначение: "Истина",
+    },
+    {
+      ТипГруппы: "ГруппаИ",
+      Элементы: {
+        ЛевоеЗначение: ".Реквизит2",
+        ВидСравнения: "Содержит",
+        ПравоеЗначение: "Реквизит1",
+        Представление: "Представление",
+      },
+    },
+  ],
+}
 
 /** Эталон YAML одного элемента (полный кейс). */
 export const fullConditionalAppearanceItemYAML = {

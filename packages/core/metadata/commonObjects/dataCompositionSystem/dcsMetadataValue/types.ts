@@ -23,12 +23,18 @@ export type DcsMetadataValueValueType =
   | "SystemEnumeration"
   | "Font"
 
-export interface DcsMetadataValuePropertyRule extends BasePropertyRule {
+interface DcsMetadataValueBasePropertyRule extends BasePropertyRule {
   type: "MetadataDcsMetadataValue"
-  valueType: DcsMetadataValueValueType
-  /** Для `SystemEnumeration` — ключ из `SystemEnumerationTypeMap`. */
-  typeSE?: keyof SystemEnumerationTypeMap
+  valueType: Exclude<DcsMetadataValueValueType, "SystemEnumeration">
 }
+
+interface SystemEnumerationPropertyRule extends BasePropertyRule {
+  type: "MetadataDcsMetadataValue"
+  valueType: "SystemEnumeration"
+  typeSE: keyof SystemEnumerationTypeMap
+}
+
+export type DcsMetadataValuePropertyRule = DcsMetadataValueBasePropertyRule | SystemEnumerationPropertyRule
 
 export type MetadataDcsMetadataValue =
   | Color
@@ -52,7 +58,6 @@ export type MetadataDcsMetadataValueYAML =
   | FontYAML
   | string
 
-/** Корень DCS-фрагмента: один `dcscor:value` с `xsi:type` и содержимым. */
 export type MetadataDcsMetadataValueDcsRootXML = {
   "dcscor:value":
     | string

@@ -1,9 +1,9 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/toXML"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { ConfigurationContext } from "../../../context/types"
+import { exportDcsMetadataValueToDcsXML } from "../dcsMetadataValue/toXML"
 import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
-import { exportDcsMetadataValueToDcsXML } from "../dcsMetadataValue/toDcsXML"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
 import type {
   ParameterValue,

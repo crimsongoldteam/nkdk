@@ -1,10 +1,10 @@
 import type { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { exportDcsMetadataValueToDcsXML } from "../dcsMetadataValue/toDcsXML"
-import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromDcsXML"
-import { exportDcsMetadataValueToYAML } from "../dcsMetadataValue/toYAML"
+import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
+import { exportDcsMetadataValueToDcsXML } from "../dcsMetadataValue/toXML"
+import { exportDcsMetadataValueToYAML } from "../dcsMetadataValue/toYAML"
 
 type DcsValueXml = string | { "_xsi:type"?: string; "#text"?: string; [key: string]: unknown }
 
@@ -55,7 +55,9 @@ const exportFilterItemLocalStringTypeToXML = (
   value: unknown
 ): DcsValueXml | undefined => {
   if (value === undefined) return undefined
-  return exportDcsMetadataValueToDcsXML({ context, rule: localStringRule as any, data: value as any })["dcscor:value"] as any
+  return exportDcsMetadataValueToDcsXML({ context, rule: localStringRule as any, data: value as any })[
+    "dcscor:value"
+  ] as any
 }
 
 const importFilterItemLocalStringTypeFromXML = (
@@ -131,4 +133,3 @@ registerTypeRule("FilterItemPrimitiveValue", "exportToXML", exportFilterItemPrim
 registerTypeRule("FilterItemPrimitiveValue", "importFromXML", importFilterItemPrimitiveValueFromXML as any)
 registerTypeRule("FilterItemPrimitiveValue", "exportToYAML", exportFilterItemPrimitiveValueToYAML as any)
 registerTypeRule("FilterItemPrimitiveValue", "importFromYAML", importFilterItemPrimitiveValueFromYAML as any)
-

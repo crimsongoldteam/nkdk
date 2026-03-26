@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { dcsMetadataValueFixtures } from "./__fixtures__/data"
 
-describe("import MetadataDcsMetadataValue from YAML", () => {
+describe("import MetadataDcsMetadataValue from XML", () => {
   it.each(dcsMetadataValueFixtures)("imports $title", (fixture) => {
     expect(
-      testImportPropertyFromYAML({
+      testImportPropertyFromXML({
         rule: fixture.rule,
-        value: fixture.yaml,
+        xmlRootTag: "root",
+        xmlString: `<root>${fixture.xml}</root>`,
       })
     ).toEqual(fixture.value)
   })

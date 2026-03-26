@@ -1,23 +1,19 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportColorToYAML } from "~/metadata/commonObjects/color/toYAML"
 import { exportFontToYAML } from "~/metadata/commonObjects/font/toYAML"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { exportMetadataFieldToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
 import { exportMetadataValueToYAML } from "~/metadata/commonObjects/metadataValue/toYAML"
+import { exportTypeLinkToYAML } from "~/metadata/commonObjects/typeLink/toYAML"
+import { exportChoiceParameterLinksToYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/toYAML"
 import { exportChoiceParametersToYAML } from "~/metadata/commonObjects/сhoiceParameters/toYAML"
 import { ChoiceParameter } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { exportChoiceParameterLinksToYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/toYAML"
-import { exportTypeLinkToYAML } from "~/metadata/commonObjects/typeLink/toYAML"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
-import {
-  DcsMetadataValuePropertyRule,
-  MetadataDcsMetadataValue,
-  MetadataDcsMetadataValueYAML,
-} from "./types"
+import { ConfigurationContext } from "../../../context/types"
+import { DcsMetadataValuePropertyRule, MetadataDcsMetadataValue, MetadataDcsMetadataValueYAML } from "./types"
 
 export const exportDcsMetadataValueToYAML = (
   context: ConfigurationContext,
@@ -53,10 +49,8 @@ export const exportDcsMetadataValueToYAML = (
     }
     case "Font":
       return exportFontToYAML(context, undefined, data as any)
-    default: {
-      const _exhaustive: never = rule.valueType
-      throw new Error(`MetadataDcsMetadataValue YAML: unsupported valueType ${String(_exhaustive)}`)
-    }
+    default:
+      throw new Error("MetadataDcsMetadataValue YAML: unsupported valueType")
   }
 }
 
@@ -65,6 +59,10 @@ const exportDcsMetadataValueToYAMLForRule = (
   rule: PropertyRule,
   value: unknown
 ): MetadataDcsMetadataValueYAML | undefined =>
-  exportDcsMetadataValueToYAML(context, rule as unknown as DcsMetadataValuePropertyRule, value as MetadataDcsMetadataValue)
+  exportDcsMetadataValueToYAML(
+    context,
+    rule as unknown as DcsMetadataValuePropertyRule,
+    value as MetadataDcsMetadataValue
+  )
 
 registerTypeRule("MetadataDcsMetadataValue", "exportToYAML", exportDcsMetadataValueToYAMLForRule)

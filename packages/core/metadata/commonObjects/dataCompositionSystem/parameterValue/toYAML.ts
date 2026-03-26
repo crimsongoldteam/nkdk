@@ -101,11 +101,14 @@ export const exportSettingsParameterValueToYAML = (
   context: ConfigurationContext,
   rule: PropertyRule,
   value: unknown
-): ParameterValueYAML | SettingsParameterValueYAML | undefined =>
-  exportParameterValueToYAML({
+): ParameterValueYAML | SettingsParameterValueYAML | undefined => {
+  if (value === undefined) return undefined
+
+  return exportParameterValueToYAML({
     context,
     rule: rule as unknown as SettingsParameterValuePropertyRule,
     data: value as ParameterValue | SettingsParameterValue,
   })
+}
 
 registerTypeRule("SettingsParameterValue", "exportToYAML", exportSettingsParameterValueToYAML)
