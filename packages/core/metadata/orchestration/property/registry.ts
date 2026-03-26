@@ -24,6 +24,10 @@ import {
   MetadataDcsMetadataValue,
   MetadataDcsMetadataValueYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
+import {
+  DcsMetadataTypedValue,
+  DcsMetadataTypedValueYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/types"
 import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import { FilterItem, FilterItemYAML } from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
 import {
@@ -480,6 +484,10 @@ export type PropertyTypeRegistry = {
     item: MetadataDcsMetadataValue
     yaml: MetadataDcsMetadataValueYAML
   }
+  DcsMetadataTypedValue: {
+    item: DcsMetadataTypedValue
+    yaml: DcsMetadataTypedValueYAML
+  }
   DcsField: {
     item: string
     yaml: string
@@ -605,6 +613,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   ScrollBarUseBoolean: "ScrollBarUseBoolean",
   SettingsParameterValue: "SettingsParameterValue",
   MetadataDcsMetadataValue: "MetadataDcsMetadataValue",
+  DcsMetadataTypedValue: "DcsMetadataTypedValue",
   DcsField: "DcsField",
   DcsBoolean: "DcsBoolean",
   DcsLocalStringType: "DcsLocalStringType",

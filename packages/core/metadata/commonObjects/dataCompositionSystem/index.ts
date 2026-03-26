@@ -16,3 +16,8 @@ import "./availableFields/types"
 import "./conditionalAppearance/types"
 
 import "./parameterValue/types"
+
+import "./dscMetadataTypedValue/fromXML"
+import "./dscMetadataTypedValue/toXML"
+import "./dscMetadataTypedValue/fromYAML"
+import "./dscMetadataTypedValue/toYAML"
