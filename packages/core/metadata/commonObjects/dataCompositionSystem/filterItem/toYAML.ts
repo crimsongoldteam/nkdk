@@ -4,6 +4,8 @@ import { exportMetadataItemToYAML } from "~/metadata/orchestration/metadataItem/
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 import { FilterItem } from "./types"
+import "./inlineTypes"
+import "./typedValues"
 
 const exportFilterItemToYAML = (
   context: ConfigurationContext,

@@ -4,6 +4,8 @@ import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataIte
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 import { FilterItemYAML } from "./types"
+import "./inlineTypes"
+import "./typedValues"
 
 const importFilterItemFromYAML = (
   context: ConfigurationContext,

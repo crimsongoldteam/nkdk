@@ -4,6 +4,8 @@ import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/t
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 import { FilterItem } from "./types"
+import "./inlineTypes"
+import "./typedValues"
 
 const exportFilterItemToXML = (
   context: ConfigurationContextWithExportToXML,

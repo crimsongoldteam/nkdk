@@ -3,6 +3,8 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importMetadataItemFromXML } from "~/metadata/orchestration/metadataItem/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
+import "./inlineTypes"
+import "./typedValues"
 
 export const importFilterItemFromXML = (
   context: ConfigurationContextFromXML,

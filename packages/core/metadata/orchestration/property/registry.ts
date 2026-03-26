@@ -62,6 +62,7 @@ import {
   MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { MetadataValue, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
+import { MetadataTypedPrimitiveValue } from "~/metadata/commonObjects/metadataValue/types"
 import {
   MetadataValueCollection,
   MetadataValueCollectionYAML,
@@ -479,6 +480,34 @@ export type PropertyTypeRegistry = {
     item: MetadataDcsMetadataValue
     yaml: MetadataDcsMetadataValueYAML
   }
+  DcsField: {
+    item: string
+    yaml: string
+  }
+  DcsBoolean: {
+    item: string
+    yaml: string
+  }
+  DcsLocalStringType: {
+    item: I8nText
+    yaml: I8nTextYAML
+  }
+  FilterItemFieldValue: {
+    item: string
+    yaml: string
+  }
+  FilterItemLocalStringTypeValue: {
+    item: I8nText
+    yaml: I8nTextYAML
+  }
+  FilterItemPresentationValue: {
+    item: I8nText
+    yaml: I8nTextYAML
+  }
+  FilterItemPrimitiveValue: {
+    item: MetadataTypedPrimitiveValue
+    yaml: MetadataValueYAML
+  }
   AppearanceFields: {
     item: AppearanceFields
     yaml: AppearanceFieldsYAML
@@ -576,6 +605,13 @@ export const PropertyRuleTypeKeys = Object.keys({
   ScrollBarUseBoolean: "ScrollBarUseBoolean",
   SettingsParameterValue: "SettingsParameterValue",
   MetadataDcsMetadataValue: "MetadataDcsMetadataValue",
+  DcsField: "DcsField",
+  DcsBoolean: "DcsBoolean",
+  DcsLocalStringType: "DcsLocalStringType",
+  FilterItemFieldValue: "FilterItemFieldValue",
+  FilterItemLocalStringTypeValue: "FilterItemLocalStringTypeValue",
+  FilterItemPresentationValue: "FilterItemPresentationValue",
+  FilterItemPrimitiveValue: "FilterItemPrimitiveValue",
   AppearanceFields: "AppearanceFields",
   Appearance: "Appearance",
   Filter: "Filter",

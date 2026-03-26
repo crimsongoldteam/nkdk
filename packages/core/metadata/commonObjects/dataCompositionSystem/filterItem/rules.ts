@@ -10,7 +10,7 @@ export const FilterItemComparisonRules = {
       defaultValueYAML: true,
     },
     leftValue: {
-      type: "string",
+      type: "FilterItemFieldValue",
       xml: "dcsset:left",
       yaml: "ЛевоеЗначение",
     },
@@ -22,12 +22,12 @@ export const FilterItemComparisonRules = {
       defaultValueYAML: "Equal",
     },
     rightValue: {
-      type: "string",
+      type: "FilterItemPrimitiveValue",
       xml: "dcsset:right",
       yaml: "ПравоеЗначение",
     },
     presentation: {
-      type: "I8nText",
+      type: "FilterItemPresentationValue",
       xml: "dcsset:presentation",
       yaml: "Представление",
     },
