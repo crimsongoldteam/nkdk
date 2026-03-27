@@ -1,7 +1,11 @@
-import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import { AvailableFieldsRules } from "./rules"
+export type AvailableFields = string[]
 
-export type AvailableFields = FormTypeByRule<typeof AvailableFieldsRules>
+export type AvailableFieldsYAML = string[]
 
-export type AvailableFieldsYAML = YAMLTypeByRule<typeof AvailableFieldsRules>
+export type AvailableFieldXML = {
+  "dcsset:field": string
+}
+
+export type AvailableFieldsXML = {
+  "dcsset:item"?: AvailableFieldXML | AvailableFieldXML[]
+}

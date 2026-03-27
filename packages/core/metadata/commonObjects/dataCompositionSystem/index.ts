@@ -9,6 +9,10 @@ import "./appearanceFields/toYAML"
 import "./appearanceFields/types"
 
 import "./availableFields/types"
+import "./availableFields/fromXML"
+import "./availableFields/toXML"
+import "./availableFields/fromYAML"
+import "./availableFields/toYAML"
 
 import "./conditionalAppearance/types"
 
