@@ -1,15 +1,7 @@
 import { fixtureAppearanceFields, fixtureAppearanceFieldsYAML } from "../../appearanceFields/__fixtures__/data"
-import { AppearanceFields } from "../../appearanceFields/types"
 import { Filter } from "../../filter/types"
 import { FilterItemComparison, FilterItemGroup } from "../../filterItem/types"
-import { ConditionalAppearanceItem, ConditionalAppearanceItemYAML, ConditionalAppearanceYAML } from "../types"
-
-/**
- * В XML/YAML для условного оформления `Поля` — список путей к полям данных; в типе правил
- * свойство помечено как AppearanceFields — внутри храним `_fieldNames` и приводим тип.
- */
-const makeSelectionFields = (...names: string[]): AppearanceFields =>
-  ({ itemType: "AppearanceFields" as const, _fieldNames: names }) as unknown as AppearanceFields
+import { ConditionalAppearanceItem, ConditionalAppearanceItemYAML } from "../types"
 
 const filterItemComparison1 = {
   itemType: "FilterItemComparison",
@@ -22,7 +14,7 @@ const filterItemComparison2 = {
   itemType: "FilterItemComparison",
   leftValue: { type: "Field", value: "Реквизит2" },
   comparisonType: "Contains",
-  rightValue: { type: "string", value: "Реквизит1" },
+  rightValue: { type: "Field", value: "Реквизит1" },
   presentation: { items: { ru: "Представление" } },
 } satisfies FilterItemComparison
 
@@ -37,10 +29,11 @@ const fullFixtureFilter = {
   items: [filterItemComparison1, filterItemGroup],
 } as const satisfies Filter
 
-/** Полный элемент условного оформления (соответствует `full.xml`). */
 export const fullConditionalAppearanceItem: ConditionalAppearanceItem = {
   itemType: "ConditionalAppearanceItem",
-  fields: makeSelectionFields("Реквизит2", "Реквизит2РасширеннаяПодсказка"),
+  fields: {
+    itemType: "AvailableFields",
+  },
   filter: fullFixtureFilter,
   appearance: fixtureAppearanceFields,
 }
@@ -48,7 +41,6 @@ export const fullConditionalAppearanceItem: ConditionalAppearanceItem = {
 /** Минимальный элемент — только выбор полей (`minimal.xml`). */
 export const minimalConditionalAppearanceItem: ConditionalAppearanceItem = {
   itemType: "ConditionalAppearanceItem",
-  fields: makeSelectionFields("ОдноПоле"),
 }
 
 const fullFilterYAML = {
@@ -63,7 +55,7 @@ const fullFilterYAML = {
         {
           ЛевоеЗначение: ".Реквизит2",
           ВидСравнения: "Содержит",
-          ПравоеЗначение: "Реквизит1",
+          ПравоеЗначение: ".Реквизит1",
           Представление: "Представление",
         },
       ],
@@ -81,12 +73,3 @@ export const fullConditionalAppearanceItemYAML = {
 export const minimalConditionalAppearanceItemYAML = {
   Поля: ["ОдноПоле"],
 } as const satisfies ConditionalAppearanceItemYAML
-
-/** Коллекция в YAML: ключ — имя элемента (как в registerMetadataItemCollectionRule). */
-export const fullConditionalAppearanceCollectionYAML = {
-  full: fullConditionalAppearanceItemYAML,
-} as const satisfies ConditionalAppearanceYAML
-
-export const minimalConditionalAppearanceCollectionYAML = {
-  minimal: minimalConditionalAppearanceItemYAML,
-} as const satisfies ConditionalAppearanceYAML

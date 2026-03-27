@@ -1,5 +1,4 @@
 import type { ConditionalAppearance } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
-import type { AppearanceFields } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
 import type { Filter } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
@@ -18,8 +17,9 @@ const listSettingsConditionalAppearance = [
     itemType: "ConditionalAppearanceItem",
     fields: {
       itemType: "AppearanceFields",
+
       _fieldNames: ["Наименование", "ПометкаУдаления"],
-    } as unknown as AppearanceFields,
+    },
     filter: {
       itemType: "Filter",
       items: {

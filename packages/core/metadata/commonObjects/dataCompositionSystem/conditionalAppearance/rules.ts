@@ -10,7 +10,7 @@ export const ConditionalAppearanceItemRules = {
       defaultValueYAML: true,
     },
     fields: {
-      type: "AppearanceFields",
+      type: "AvailableFields",
       xml: "dcsset:selection",
       yaml: "Поля",
     },
@@ -20,7 +20,7 @@ export const ConditionalAppearanceItemRules = {
       yaml: "Отбор",
     },
     appearance: {
-      type: "Appearance",
+      type: "AppearanceFields",
       xml: "dcsset:appearance",
       yaml: "Оформление",
     },

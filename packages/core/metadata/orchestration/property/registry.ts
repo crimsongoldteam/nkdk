@@ -523,10 +523,6 @@ export type PropertyTypeRegistry = {
     item: AppearanceFields
     yaml: AppearanceFieldsYAML
   }
-  Appearance: {
-    item: AppearanceFields
-    yaml: AppearanceFieldsYAML
-  }
   Filter: {
     item: Filter
     yaml: FilterYAML
@@ -625,7 +621,6 @@ export const PropertyRuleTypeKeys = Object.keys({
   FilterItemPresentationValue: "FilterItemPresentationValue",
   FilterItemPrimitiveValue: "FilterItemPrimitiveValue",
   AppearanceFields: "AppearanceFields",
-  Appearance: "Appearance",
   Filter: "Filter",
   AvailableFields: "AvailableFields",
   FilterItem: "FilterItem",
