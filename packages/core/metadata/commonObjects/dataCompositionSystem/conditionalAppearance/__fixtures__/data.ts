@@ -31,9 +31,7 @@ const fullFixtureFilter = {
 
 export const fullConditionalAppearanceItem: ConditionalAppearanceItem = {
   itemType: "ConditionalAppearanceItem",
-  fields: {
-    itemType: "AvailableFields",
-  },
+  fields: ["Реквизит2", "Реквизит2РасширеннаяПодсказка"],
   filter: fullFixtureFilter,
   appearance: fixtureAppearanceFields,
 }
@@ -41,6 +39,7 @@ export const fullConditionalAppearanceItem: ConditionalAppearanceItem = {
 /** Минимальный элемент — только выбор полей (`minimal.xml`). */
 export const minimalConditionalAppearanceItem: ConditionalAppearanceItem = {
   itemType: "ConditionalAppearanceItem",
+  fields: ["ОдноПоле"],
 }
 
 const fullFilterYAML = {

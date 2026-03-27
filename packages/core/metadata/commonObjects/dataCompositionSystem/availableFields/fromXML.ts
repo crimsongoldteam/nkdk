@@ -15,6 +15,14 @@ const importAvailableFieldsFromXML = (
   const fieldItems = Array.isArray(items) ? items : [items]
   const fields = fieldItems
     .map((item) => item?.["dcsset:field"])
+    .map((field) => {
+      if (typeof field === "string") return field
+      if (field && typeof field === "object" && "#text" in field) {
+        const text = field["#text"]
+        return typeof text === "string" ? text : undefined
+      }
+      return undefined
+    })
     .filter((field): field is string => Boolean(field))
 
   return fields.length > 0 ? fields : undefined

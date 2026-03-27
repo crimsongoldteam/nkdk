@@ -16,4 +16,4 @@ const exportAppearanceToYAML = (
   })
 }
 
-registerTypeRule("Appearance", "exportToYAML", exportAppearanceToYAML)
+registerTypeRule("AppearanceFields", "exportToYAML", exportAppearanceToYAML)

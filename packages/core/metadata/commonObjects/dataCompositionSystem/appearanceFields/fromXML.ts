@@ -48,4 +48,4 @@ const importAppearanceFieldItem = (
   return { parameter, value }
 }
 
-registerTypeRule("Appearance", "importFromXML", importAppearanceFromXML)
+registerTypeRule("AppearanceFields", "importFromXML", importAppearanceFromXML)

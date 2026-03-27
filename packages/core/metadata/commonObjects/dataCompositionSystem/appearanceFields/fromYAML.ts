@@ -16,4 +16,4 @@ const importAppearanceFromYAML = (
   })
 }
 
-registerTypeRule("Appearance", "importFromYAML", importAppearanceFromYAML)
+registerTypeRule("AppearanceFields", "importFromYAML", importAppearanceFromYAML)

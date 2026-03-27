@@ -42,7 +42,7 @@ export const registerImportFromXML = <
           if (hasNoMeaningfulProperties) return undefined
           return {
             ...properties,
-            name: item._name,
+            ...(item._name !== undefined ? { name: item._name } : {}),
           } as ToMetadata<Rule["itemType"]> & NamedMetadataItem
         })
         .filter((item): item is ToMetadata<Rule["itemType"]> & NamedMetadataItem => item !== undefined)

@@ -21,7 +21,7 @@ const pv = (parameter: string, value: SettingsParameterValue["value"], use?: fal
 })
 
 export const fixtureAppearanceRule: PropertyRule = {
-  type: "Appearance",
+  type: "AppearanceFields",
 }
 
 export const fixtureAppearanceFields: AppearanceFields = {

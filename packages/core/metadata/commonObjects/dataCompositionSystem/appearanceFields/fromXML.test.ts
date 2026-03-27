@@ -5,7 +5,7 @@ import { fixtureAppearanceFields } from "./__fixtures__/data"
 import "./types"
 
 const rule: PropertyRule = {
-  type: "Appearance",
+  type: "AppearanceFields",
 }
 
 describe("import Appearance from XML", () => {

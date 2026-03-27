@@ -50,4 +50,4 @@ function exportAppearanceFieldParameterItem(
   return itemXml !== undefined ? (itemXml as ParameterValueXML) : undefined
 }
 
-registerTypeRule("Appearance", "exportToXML", exportAppearanceToXML)
+registerTypeRule("AppearanceFields", "exportToXML", exportAppearanceToXML)
