@@ -1,4 +1,5 @@
 import { ConfigurationContextWithExportToXML, ContextElementToXML } from "~/metadata/context/types"
+import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
 import { ElementXML, exportPropertyToXML, importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { xmlExport } from "~/xml/export/exporter"
 import { mockContextFromXML, mockContextToXML } from "../mockContext"
@@ -81,6 +82,8 @@ export function testExportPropertyToXML(
     value,
     referenceMetadata: referenceProperty,
   })
+
+  setIdsToElements(exportContext)
 
   const result = xmlExport({ [xmlRootTag]: xmlData }, false)
 

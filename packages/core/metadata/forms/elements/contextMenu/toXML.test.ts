@@ -26,7 +26,7 @@ describe("exportContextMenuToXML", () => {
       rule,
       value: fullContextMenu,
       xmlRootTag: "ContextMenu",
-      path: "forms/contextMenu/full.xml",
+      path: "full.xml",
       importMetaUrl: import.meta.url,
       itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
     })

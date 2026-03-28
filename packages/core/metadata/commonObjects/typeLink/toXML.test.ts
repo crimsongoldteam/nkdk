@@ -1,44 +1,36 @@
 import { describe, expect, it } from "vitest"
+import { catalogTabularAttributeTypeLink } from "./__fixtures__/data"
+import { exportTypeLinkWithXSITypeToXML } from "./toXML"
+import { PropertyRule } from "~/metadata/orchestration"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import importContentFromXML from "~/xml/import/importer"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportTypeLinkToXML, exportTypeLinkWithXSITypeToXML } from "./toXML"
-import { TypeLink } from "./types"
 
-describe("exportTypeLinkToXML", () => {
-  it("should export type link to XML", () => {
-    const mockTypeLink: TypeLink = {
-      dataPath: "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
-      linkItem: 1,
-    }
+const rule: PropertyRule = {
+  type: "TypeLink",
+}
 
-    const expectedResult = readXMLFileAsString("typeLink/simple.xml").trimEnd()
+describe("export TypeLink to XML", () => {
+  it("exports simple.xml", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: catalogTabularAttributeTypeLink,
+      xmlRootTag: "TypeLink",
+      importMetaUrl: import.meta.url,
+      path: "simple.xml",
+    })
 
-    const result = { TypeLink: exportTypeLinkToXML(mockContext, mockRule, mockTypeLink) }
-    const xmlString = xmlExport(result, false)
-
-    expect(xmlString).toEqual(expectedResult)
+    expect(result).toEqual(expectedResult)
   })
 
-  it("should return undefined for undefined input", () => {
-    const result = exportTypeLinkToXML(mockContext, mockRule, undefined)
+  it("exports withXSIType.xml", () => {
+    const exported = exportTypeLinkWithXSITypeToXML(mockContext, mockRule, catalogTabularAttributeTypeLink)
+    const xml = xmlExport({ TypeLink: exported }, false)
 
-    expect(result).toBeUndefined()
-  })
-})
-
-describe("exportTypeLinkWithXSITypeToXML", () => {
-  it("should export type link with xsi:type to XML", () => {
-    const mockTypeLink: TypeLink = {
-      dataPath: "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
-      linkItem: 1,
-    }
-
-    const expectedResult = readXMLFileAsString("typeLink/withXSIType.xml").trimEnd()
-
-    const result = { TypeLink: exportTypeLinkWithXSITypeToXML(mockContext, mockRule, mockTypeLink) }
-    const xmlString = xmlExport(result, false)
-
-    expect(xmlString).toEqual(expectedResult)
+    expect(importContentFromXML(xml)).toEqual(
+      importContentFromXML(readXMLFixtureAsString(import.meta.url, "withXSIType.xml"))
+    )
   })
 })

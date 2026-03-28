@@ -17,7 +17,6 @@ describe("export AvailableFields to XML", () => {
       xmlRootTag: "dcsset:selection",
       path: "full.xml",
       importMetaUrl: import.meta.url,
-      applyNumberingIds: false,
     })
 
     expect(importContentFromXML(result)).toEqual(importContentFromXML(expectedResult))

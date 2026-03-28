@@ -5,11 +5,13 @@ import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dyn
 
 const listSettingsFilter = {
   itemType: "Filter",
-  items: {
-    itemType: "FilterItemComparison",
-    leftValue: "Поле1",
-    comparisonType: "Contains",
-  },
+  items: [
+    {
+      itemType: "FilterItemComparison",
+      leftValue: { type: "Field", value: "Поле1" },
+      comparisonType: "Contains",
+    },
+  ],
 } satisfies Filter
 
 const listSettingsConditionalAppearance = [
