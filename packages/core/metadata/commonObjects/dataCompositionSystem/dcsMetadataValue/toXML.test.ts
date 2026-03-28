@@ -9,7 +9,6 @@ describe("export MetadataDcsMetadataValue to XML", () => {
       rule: fixture.rule,
       value: fixture.value,
       xmlRootTag: "root",
-      applyNumberingIds: false,
     })
 
     expect(importContentFromXML(result)).toEqual(importContentFromXML(`<root>${fixture.xml}</root>`))

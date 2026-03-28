@@ -1,39 +1,43 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "../formElement/factory"
+import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { ToMetadata, ToYAML } from "../metadataItem/registry"
 import { exportPropertiesToYAML } from "../property/toYAML"
 import { NamedMetadataItem } from "./types"
 
-export const registerExportToYAML = <Rule extends MetadataItemRule, CollectionType extends PropertyRuleType>(
-  propertyType: CollectionType,
-  itemRule: Rule,
-  yamlKeyFromName?: (name: string) => string,
-  yamlAsArray?: true
-): void => {
-  registerTypeRule(
-    propertyType,
-    "exportToYAML",
-    (
-      context: ConfigurationContext,
-      _rule: PropertyRule | undefined,
-      data: (ToMetadata<Rule["itemType"]> & NamedMetadataItem)[] | undefined
-    ): Record<string, ToYAML<Rule["itemType"]>> | ToYAML<Rule["itemType"]>[] | undefined => {
-      if (!data || data.length === 0) return undefined
+export const exportMetadataCollectionToYAMLAsArray = <Rule extends MetadataItemRule>(params: {
+  context: ConfigurationContext
+  data: (ToMetadata<Rule["itemType"]> & NamedMetadataItem)[] | undefined
+  itemRule: Rule
+}): ToYAML<Rule["itemType"]>[] | undefined => {
+  const { context, data, itemRule } = params
+  if (!data || data.length === 0) return undefined
 
-      if (yamlAsArray) {
-        return data.map(
-          (item) => (exportPropertiesToYAML({ context, data: item, rule: itemRule }) ?? {}) as ToYAML<Rule["itemType"]>
-        )
-      }
+  return data.map(
+    (item) => (exportPropertiesToYAML({ context, data: item, rule: itemRule }) ?? {}) as ToYAML<Rule["itemType"]>
+  )
+}
 
-      return Object.fromEntries(
-        data.map((item) => [
-          yamlKeyFromName ? yamlKeyFromName(item.name) : item.name,
-          (exportPropertiesToYAML({ context, data: item, rule: itemRule }) ?? {}) as ToYAML<Rule["itemType"]>,
-        ])
-      )
-    }
+export const exportMetadataCollectionToYAMLAsRecord = <Rule extends MetadataItemRule>(params: {
+  context: ConfigurationContext
+  data: (ToMetadata<Rule["itemType"]> & NamedMetadataItem)[] | undefined
+  itemRule: Rule
+  keyField: keyof Rule["properties"]
+  /** Ключ записи в YAML-объекте коллекции; по умолчанию — строковое значение item[keyField] */
+  recordYamlKeyFromItem?: (item: ToMetadata<Rule["itemType"]> & NamedMetadataItem) => string
+}): Record<string, ToYAML<Rule["itemType"]>> | undefined => {
+  const { context, data, itemRule, keyField, recordYamlKeyFromItem } = params
+  if (!data || data.length === 0) return undefined
+
+  return Object.fromEntries(
+    data.map((item) => {
+      const yamlEntryKey =
+        recordYamlKeyFromItem !== undefined
+          ? recordYamlKeyFromItem(item)
+          : String((item as Record<string, unknown>)[keyField as string])
+      return [
+        yamlEntryKey,
+        (exportPropertiesToYAML({ context, data: item, rule: itemRule }) ?? {}) as ToYAML<Rule["itemType"]>,
+      ]
+    })
   )
 }

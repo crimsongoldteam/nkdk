@@ -21,7 +21,7 @@ describe("export ConditionalAppearance to YAML", () => {
       value: fullConditionalAppearanceItems,
     })
 
-    expect(result).toEqual(fullConditionalAppearanceItemsYAML)
+    expect(result).toEqual({ УсловноеОформлениеКомпоновкиДанных: fullConditionalAppearanceItemsYAML })
   })
 
   it("exports minimal collection", () => {
@@ -30,6 +30,6 @@ describe("export ConditionalAppearance to YAML", () => {
       value: minimalConditionalAppearanceItems,
     })
 
-    expect(result).toEqual(minimalConditionalAppearanceItemsYAML)
+    expect(result).toEqual({ УсловноеОформлениеКомпоновкиДанных: minimalConditionalAppearanceItemsYAML })
   })
 })

@@ -17,5 +17,4 @@ registerMetadataItemCollectionRule({
   itemRule: ConditionalAppearanceItemRules,
   xmlElement: "dcsset:item",
   yamlAsArray: true,
-  omitIdAttributeInXML: true,
 })

@@ -16,7 +16,6 @@ describe("export ConditionalAppearance to XML", () => {
       xmlRootTag: "ConditionalAppearance",
       path: "full.xml",
       importMetaUrl: import.meta.url,
-      applyNumberingIds: false,
     })
 
     expect(result).toEqual(expectedResult)
@@ -29,7 +28,6 @@ describe("export ConditionalAppearance to XML", () => {
       xmlRootTag: "ConditionalAppearance",
       path: "minimal.xml",
       importMetaUrl: import.meta.url,
-      applyNumberingIds: false,
     })
 
     expect(result).toEqual(expectedResult)

@@ -6,7 +6,6 @@ import { ChoiceParameterLinksXML } from "~/metadata/commonObjects/сhoiceParamet
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChoiceParametersXML } from "../сhoiceParameters/types"
 import { StandardAttributeDescriptionRules } from "./rules"
@@ -82,28 +81,7 @@ registerMetadataItemCollectionRule({
   propertyType: "StandardAttributeDescriptions",
   itemRule: StandardAttributeDescriptionRules,
   xmlElement: "xr:StandardAttribute",
-  // nameFromYAMLKey: (yamlKey) => StandartAttributeNameFromYAML(yamlKey),
-  // yamlKeyFromName: (name) => StandartAttributeNameToYAML[name as StandartAttributeName] ?? name,
-  // extendDataForExportToXML: ({ data, rule }) => getExtendedStandardAttributeDescriptions(data as any, rule) as any,
-  // omitIdAttributeInXML: true,
+  keyField: "name",
+  nameFromYAMLKey: StandartAttributeNameFromYAML,
+  recordYamlKeyFromItem: (item) => StandartAttributeNameToYAML[item.name as StandartAttributeName],
 })
-
-const getExtendedStandardAttributeDescriptions = (
-  data: StandardAttributeDescription[],
-  rule: PropertyRule | undefined
-): StandardAttributeDescription[] => {
-  const standartAttributeNames = (rule as StandardAttributeDescriptionsPropertyRule | undefined)?.standartAttributeNames
-  if (!standartAttributeNames) return data
-
-  const dataMap = new Map<StandartAttributeName, StandardAttributeDescription>()
-  for (const item of data) {
-    dataMap.set(item.name as StandartAttributeName, item)
-  }
-
-  const result: StandardAttributeDescription[] = []
-  for (const name of standartAttributeNames) {
-    const existingItem = dataMap.get(name)
-    result.push(existingItem ?? { name, itemType: StandardAttributeDescriptionRules.itemType })
-  }
-  return result
-}

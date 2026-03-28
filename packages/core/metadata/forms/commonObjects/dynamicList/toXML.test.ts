@@ -25,7 +25,6 @@ describe("export DynamicList to XML", () => {
       xmlRootTag: "Settings",
       path: "full.xml",
       importMetaUrl: import.meta.url,
-      applyNumberingIds: false,
     })
     expect(result).toEqual(expectedResult)
   })
@@ -37,7 +36,6 @@ describe("export DynamicList to XML", () => {
       xmlRootTag: "Settings",
       path: "minimal.xml",
       importMetaUrl: import.meta.url,
-      applyNumberingIds: false,
     })
     expect(result).toEqual(expectedResult)
   })

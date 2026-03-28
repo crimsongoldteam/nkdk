@@ -14,7 +14,6 @@ describe("export DcsMetadataTypedValue to XML", () => {
       rule,
       value: fixture.model,
       xmlRootTag: "value",
-      applyNumberingIds: false,
     })
 
     expect(result).toEqual(fixture.XML)

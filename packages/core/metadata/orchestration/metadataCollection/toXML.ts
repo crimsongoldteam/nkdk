@@ -1,7 +1,7 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { ToMetadata } from "../metadataItem/registry"
-import { exportPropertiesToXML } from "../property/toXML"
+import { exportMetadataItemToXML } from "../metadataItem/toXML"
 import { NamedElementXML } from "./types"
 
 export const exportMetadataCollectionToXML = <Rule extends MetadataItemRule, XMLKey extends string>(params: {
@@ -13,34 +13,34 @@ export const exportMetadataCollectionToXML = <Rule extends MetadataItemRule, XML
   xmlElement: XMLKey
   keyField?: keyof Rule["properties"]
 }): Record<XMLKey, NamedElementXML[]> | undefined => {
-  const { context, data, referenceData, xmlElement, keyField, rule } = params
+  const { context, data, referenceData, xmlElement, keyField, itemRule } = params
+  type Item = ToMetadata<Rule["itemType"]>
 
-  const inputData = data ?? []
+  const inputData =
+    data != null && data.length > 0
+      ? data
+      : referenceData != null && referenceData.length > 0
+        ? referenceData
+        : []
   if (inputData.length === 0) return undefined
 
   const result = inputData.map((item) => {
-    const referenceItem = keyField ? findReferenceByKey(item, referenceData, keyField) : undefined
+    const referenceItem = keyField ? findReferenceByKey<Item>(item, referenceData, keyField as keyof Item) : undefined
 
-    const properties = exportPropertiesToXML({
+    const result = exportMetadataItemToXML({
       context,
-      metadata: item as ToMetadata<Rule["itemType"]>,
-      referenceMetadata: referenceItem as ToMetadata<Rule["itemType"]> | undefined,
-      rule: rule,
+      data: item,
+      rule: itemRule,
+      referenceData: referenceItem,
     })
 
-    context.exportToXML?.context?.metadataForNumbering.push({
-      element: item as any,
-      referenceElement: referenceItem as any,
-      xmlElement: xmlItem,
-    })
-
-    return xmlItem
+    return result
   })
 
   return { [xmlElement]: result } as Record<XMLKey, NamedElementXML[]>
 }
 
-const findReferenceByKey = <T extends MetadataItem>(
+const findReferenceByKey = <T extends object>(
   item: T,
   referenceData: T[] | undefined,
   keyField: keyof T

@@ -30,18 +30,22 @@ export const importMetadataItemCollectionFromYAMLAsRecord = <Rule extends Metada
   context: ConfigurationContext
   itemRule: Rule
   yaml: Record<string, ToYAML<Rule["itemType"]>> | undefined
+  nameFromYAMLKey?: (yamlKey: string) => string
 }): ToMetadata<Rule["itemType"]>[] | undefined => {
-  const { context, itemRule, yaml } = params
+  const { context, itemRule, yaml, nameFromYAMLKey } = params
 
   if (yaml == undefined) return undefined
 
   const result = Object.entries(yaml).map(([key, value]) => {
-    return importMetadataItemFromYAML({
+    const name = nameFromYAMLKey !== undefined ? nameFromYAMLKey(key) : key
+    const item = importMetadataItemFromYAML({
       context,
       rule: itemRule,
       yaml: value,
-      name: nameFromYAMLKey ? nameFromYAMLKey(key) : key,
+      name,
     })
+    // Ключ записи в YAML — имя элемента коллекции (реквизит, команда и т.д.)
+    return { ...item, name } as ToMetadata<Rule["itemType"]>
   })
 
   return result.length > 0 ? result : undefined

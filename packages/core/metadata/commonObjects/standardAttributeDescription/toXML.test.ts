@@ -30,7 +30,6 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
       xmlRootTag: "StandardAttributes",
       path: "multiple.xml",
       importMetaUrl: import.meta.url,
-      applyNumberingIds: false,
     })
     expect(result).toEqual(expectedResult)
   })
@@ -46,7 +45,6 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
       xmlRootTag: "StandardAttributes",
       path: "default.xml",
       importMetaUrl: import.meta.url,
-      applyNumberingIds: false,
     })
     expect(result).toEqual(expectedResult)
   })
@@ -62,7 +60,6 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
       xmlRootTag: "StandardAttributes",
       path: "default.xml",
       importMetaUrl: import.meta.url,
-      applyNumberingIds: false,
     })
     expect(result).toEqual(expectedResult)
   })
