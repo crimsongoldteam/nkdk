@@ -1,5 +1,4 @@
 import { ConfigurationContextWithExportToXML, ContextElementToXML } from "~/metadata/context/types"
-import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
 import { ElementXML, exportPropertyToXML, importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { xmlExport } from "~/xml/export/exporter"
 import { mockContextFromXML, mockContextToXML } from "../mockContext"
@@ -11,7 +10,7 @@ type TestExportPropertyToXMLParamsBase = {
   value: unknown
   xmlRootTag: string
   itemsTree?: ContextElementToXML[]
-  applyNumberingIds?: boolean
+  // applyNumberingIds?: boolean
   /**
    * Явный референс для `exportPropertyToXML`. Если ключ передан (в т.ч. `undefined`),
    * импорт референса из `path` не выполняется.
@@ -82,10 +81,6 @@ export function testExportPropertyToXML(
     value,
     referenceMetadata: referenceProperty,
   })
-
-  if (params.applyNumberingIds !== false) {
-    setIdsToElements(exportContext)
-  }
 
   const result = xmlExport({ [xmlRootTag]: xmlData }, false)
 

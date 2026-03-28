@@ -1,6 +1,6 @@
+import { registerMetadataItemCollectionRule } from "~/metadata/orchestration"
 import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import { registerMetadataItemCollectionRule } from "~/metadata/orchestration"
 import { importFilterItemFromXML } from "./fromXML"
 import { importFilterItemFromYAML } from "./fromYAML"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
@@ -24,5 +24,5 @@ registerMetadataItemCollectionRule({
   fromYAML: importFilterItemFromYAML,
   toYAML: exportFilterItemToYAML,
   toXML: exportFilterItemToXML,
-  omitIdAttributeInXML: true,
+  yamlAsArray: true,
 })

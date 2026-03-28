@@ -2,7 +2,7 @@
 	<dcsset:item>
 		<dcsset:selection>
 			<dcsset:item>
-				<dcsset:field xsi:type="dcscor:Field">ОдноПоле</dcsset:field>
+				<dcsset:field>ОдноПоле</dcsset:field>
 			</dcsset:item>
 		</dcsset:selection>
 	</dcsset:item>

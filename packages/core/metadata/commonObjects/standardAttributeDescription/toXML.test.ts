@@ -15,7 +15,6 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
       xmlRootTag: "StandardAttributes",
       path: "all.xml",
       importMetaUrl: import.meta.url,
-      applyNumberingIds: false,
     })
     expect(result).toEqual(expectedResult)
   })

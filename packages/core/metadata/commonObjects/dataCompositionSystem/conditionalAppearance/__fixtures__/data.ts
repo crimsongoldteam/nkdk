@@ -1,7 +1,7 @@
 import { fixtureAppearanceFields, fixtureAppearanceFieldsYAML } from "../../appearanceFields/__fixtures__/data"
 import { Filter } from "../../filter/types"
 import { FilterItemComparison, FilterItemGroup } from "../../filterItem/types"
-import { ConditionalAppearanceItem, ConditionalAppearanceItemYAML } from "../types"
+import { ConditionalAppearanceItem, ConditionalAppearanceYAML } from "../types"
 
 const filterItemComparison1 = {
   itemType: "FilterItemComparison",
@@ -29,46 +29,53 @@ const fullFixtureFilter = {
   items: [filterItemComparison1, filterItemGroup],
 } as const satisfies Filter
 
-export const fullConditionalAppearanceItem: ConditionalAppearanceItem = {
-  itemType: "ConditionalAppearanceItem",
-  fields: ["Реквизит2", "Реквизит2РасширеннаяПодсказка"],
-  filter: fullFixtureFilter,
-  appearance: fixtureAppearanceFields,
-}
+export const fullConditionalAppearanceItems: ConditionalAppearanceItem[] = [
+  {
+    itemType: "ConditionalAppearanceItem",
+    fields: ["Реквизит2", "Реквизит2РасширеннаяПодсказка"],
+    filter: fullFixtureFilter,
+    appearance: fixtureAppearanceFields,
+  },
+]
 
 /** Минимальный элемент — только выбор полей (`minimal.xml`). */
-export const minimalConditionalAppearanceItem: ConditionalAppearanceItem = {
-  itemType: "ConditionalAppearanceItem",
-  fields: ["ОдноПоле"],
-}
+export const minimalConditionalAppearanceItems: ConditionalAppearanceItem[] = [
+  {
+    itemType: "ConditionalAppearanceItem",
+    fields: ["ОдноПоле"],
+  },
+]
 
-const fullFilterYAML = {
-  Элементы: [
-    {
-      ЛевоеЗначение: ".Реквизит1",
-      ПравоеЗначение: "Истина",
-    },
-    {
-      ТипГруппы: "ГруппаИ",
+/** Эталон YAML одного элемента (полный кейс). */
+export const fullConditionalAppearanceItemsYAML = [
+  {
+    Поля: ["Реквизит2", "Реквизит2РасширеннаяПодсказка"],
+    Отбор: {
       Элементы: [
         {
-          ЛевоеЗначение: ".Реквизит2",
-          ВидСравнения: "Содержит",
-          ПравоеЗначение: ".Реквизит1",
-          Представление: "Представление",
+          ЛевоеЗначение: ".Реквизит1",
+          ВидСравнения: "Равно",
+          ПравоеЗначение: "Истина",
+        },
+        {
+          ТипГруппы: "ГруппаИ",
+          Элементы: [
+            {
+              ЛевоеЗначение: ".Реквизит2",
+              ВидСравнения: "Содержит",
+              ПравоеЗначение: ".Реквизит1",
+              Представление: "Представление",
+            },
+          ],
         },
       ],
     },
-  ],
-}
+    Оформление: fixtureAppearanceFieldsYAML,
+  },
+] as const satisfies ConditionalAppearanceYAML
 
-/** Эталон YAML одного элемента (полный кейс). */
-export const fullConditionalAppearanceItemYAML = {
-  Поля: ["Реквизит2", "Реквизит2РасширеннаяПодсказка"],
-  ...(fullFilterYAML !== undefined ? { Отбор: fullFilterYAML } : {}),
-  Оформление: fixtureAppearanceFieldsYAML,
-} as const satisfies ConditionalAppearanceItemYAML
-
-export const minimalConditionalAppearanceItemYAML = {
-  Поля: ["ОдноПоле"],
-} as const satisfies ConditionalAppearanceItemYAML
+export const minimalConditionalAppearanceItemsYAML = [
+  {
+    Поля: ["ОдноПоле"],
+  },
+] as const satisfies ConditionalAppearanceYAML

@@ -1,6 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { importFromXMLFunction } from "~/metadata/orchestration/property/fn"
+import { ImportFromXMLFunction } from "~/metadata/orchestration/property/fn"
 import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importI8nTextFromXML } from "../i8nText/fromXML"
@@ -80,11 +80,7 @@ const importSimpleValueFromXML = (
   type: MetadataValueType
 ): string | boolean | number | undefined => {
   if (type === "string")
-    return importMetadataStringValueFromXML(
-      context,
-      undefined,
-      textValue === undefined ? undefined : String(textValue)
-    )
+    return importMetadataStringValueFromXML(context, undefined, textValue === undefined ? undefined : String(textValue))
   if (type === "decimal") return importMetadataDecimalValueFromXML(context, undefined, textValue as string | undefined)
   if (type === "dateTime")
     return importMetadataDateTimeValueFromXML(context, undefined, textValue as string | undefined)
@@ -209,7 +205,7 @@ export const importAssociatedTableFromXML = (
   return result?.value as string | undefined
 }
 
-const importMetadataValueFromXMLForRule: importFromXMLFunction = (context, rule, value) =>
+const importMetadataValueFromXMLForRule: ImportFromXMLFunction = (context, rule, value) =>
   importMetadataValueFromXML({ context, rule, value })
 
 registerTypeRule("MetadataValue", "importFromXML", importMetadataValueFromXMLForRule)

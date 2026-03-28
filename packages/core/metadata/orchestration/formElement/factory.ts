@@ -8,9 +8,9 @@ import {
   ExportToYAMLFunction,
   ExportToYAMLFunctionNew,
   importExportFunction,
-  importFromXMLFunction as ImportFromXMLFunction,
+  ImportFromXMLFunction,
   importFromYAMLFunction as ImportFromYAMLFunction,
-  importFromYAMLFunctionNew as ImportFromYAMLFunctionNew,
+  ImportFromYAMLFunctionNew,
   TypeRulesOperations,
 } from "../property/fn"
 

@@ -1,14 +1,14 @@
-import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataValueXML, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
-import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
-import { TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
-import { ChoiceParameterLinksXML, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
+import { TypeDescriptionXML } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeLinkXML } from "~/metadata/commonObjects/typeLink/types"
+import { ChoiceParameterLinksXML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ChoiceParametersXML, ChoiceParametersYAML } from "../сhoiceParameters/types"
+import { ChoiceParametersXML } from "../сhoiceParameters/types"
 import { StandardAttributeDescriptionRules } from "./rules"
 
 export const StandartAttributeNameToYAML = {
@@ -70,34 +70,7 @@ export interface StandardAttributeDescriptionXML {
   "xr:TypeReductionMode"?: SE.TypeReductionMode
 }
 
-export interface StandardAttributeDescriptionYAML {
-  БыстрыйВыбор?: SE.UseQuickChoiceYAML
-  ВыделятьОтрицательные?: StringboolYAML
-  ЗаполнятьИзДанныхЗаполнения?: StringboolYAML
-  ЗначениеЗаполнения?: MetadataValueYAML
-  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputYAML
-  ИсторияДанных?: SE.DataHistoryUseYAML
-  Комментарий?: string
-  МаксимальноеЗначение?: number
-  Маска?: string
-  МинимальноеЗначение?: number
-  МногострочныйРежим?: StringboolYAML
-  ПараметрыВыбора?: ChoiceParametersYAML
-  Подсказка?: I8nTextYAML
-  ПолнотекстовыйПоиск?: SE.UseFullTextSearchYAML
-  ПроверкаЗаполнения?: SE.FillCheckingYAML
-  РасширенноеРедактирование?: StringboolYAML
-  РежимПароля?: StringboolYAML
-  РежимСокращенияТипа?: SE.TypeReductionModeYAML
-  СвязиПараметровВыбора?: ChoiceParameterLinksYAML
-  СвязьПоТипу?: TypeLinkYAML
-  Синоним?: I8nTextYAML
-  СозданиеПриВводе?: SE.CreateOnInputYAML
-  Тип?: TypeDescriptionYAML
-  ФормаВыбора?: string
-  Формат?: I8nTextYAML
-  ФорматРедактирования?: I8nTextYAML
-}
+export type StandardAttributeDescriptionYAML = YAMLTypeByRule<typeof StandardAttributeDescriptionRules>
 
 export type StandardAttributeDescriptions = StandardAttributeDescription[]
 
@@ -109,11 +82,10 @@ registerMetadataItemCollectionRule({
   propertyType: "StandardAttributeDescriptions",
   itemRule: StandardAttributeDescriptionRules,
   xmlElement: "xr:StandardAttribute",
-  nameFromYAMLKey: (yamlKey) => StandartAttributeNameFromYAML(yamlKey),
-  yamlKeyFromName: (name) => StandartAttributeNameToYAML[name as StandartAttributeName] ?? name,
-  returnUndefinedWhenEmptyYAML: true,
-  extendDataForExportToXML: ({ data, rule }) => getExtendedStandardAttributeDescriptions(data as any, rule) as any,
-  omitIdAttributeInXML: true,
+  // nameFromYAMLKey: (yamlKey) => StandartAttributeNameFromYAML(yamlKey),
+  // yamlKeyFromName: (name) => StandartAttributeNameToYAML[name as StandartAttributeName] ?? name,
+  // extendDataForExportToXML: ({ data, rule }) => getExtendedStandardAttributeDescriptions(data as any, rule) as any,
+  // omitIdAttributeInXML: true,
 })
 
 const getExtendedStandardAttributeDescriptions = (

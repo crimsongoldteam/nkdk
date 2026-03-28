@@ -2,6 +2,7 @@ import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportPropertiesToXML } from "../property/toXML"
 import { ItemXML, MetadataItemRule } from "../property/types"
 import { ToMetadata } from "./registry"
+import { getUUID } from "~/metadata/helpers/uuid"
 
 export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
   context: ConfigurationContextWithExportToXML
@@ -12,13 +13,17 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
 }): ItemXML => {
   const { context, data, rule, referenceData, tag } = params
 
-  return exportPropertiesToXML({
+  const result = exportPropertiesToXML({
     context,
-    metadata: data ? ({ ...data, itemType: rule.itemType } as ToMetadata<Rule["itemType"]>) : undefined,
-    referenceMetadata: referenceData
-      ? ({ ...referenceData, itemType: rule.itemType } as ToMetadata<Rule["itemType"]>)
-      : undefined,
+    metadata: data,
+    referenceMetadata: referenceData,
     rule,
     tag,
   })
+
+  if (rule.useUUID) {
+    result._uuid = referenceData?.uuid ?? getUUID(context)
+  }
+
+  return result
 }

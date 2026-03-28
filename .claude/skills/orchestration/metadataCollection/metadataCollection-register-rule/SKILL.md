@@ -38,7 +38,7 @@ registerMetadataItemCollectionRule({
 
 - `nameFromYAMLKey(yamlKey)` — преобразование YAML-ключа в `name` metadata-item при `importFromYAML`.
 - `yamlKeyFromName(name)` — преобразование `name` в YAML-ключ при `exportToYAML`.
-- `returnUndefinedWhenEmptyYAML` — возвращать `undefined`, а не `[]`, если YAML пустой/не задан.
+- `yamlAsArray` — коллекция в YAML как массив элементов (без объектного ключа по имени).
 - `extendDataForExportToXML({ data, rule })` — дополнить/нормализовать коллекцию перед `exportToXML` (например, добавить обязательные элементы из `rule.standartAttributeNames`).
 - `omitIdAttributeInXML` — не добавлять `_id` в XML-элементы коллекции.
 

@@ -169,6 +169,10 @@ describe("exportFooToYAML", () => {
 })
 ```
 
+Общее правило для всех `*.test.ts`: не делать постобработку результата/ожидания в тесте (никаких спредов, ручных дописываний полей, `map`/`omit`/`pick` перед `expect`). Всё, что сравнивается, должно приходить напрямую из `__fixtures__/data.ts` и/или `__fixtures__/*.xml`.
+
+Фикстуры для импорта и экспорта должны быть согласованы между собой: один и тот же объект модели и соответствующее ему XML/YAML-представление используются в тестах обоих направлений без ручной подгонки внутри теста.
+
 ### Cyrillic file/folder names
 Some directories use Cyrillic characters (e.g. `сhoiceParameters/`, `сhoiceParameterLinks/`). This is intentional — note the Cyrillic `с` vs Latin `c`.
 

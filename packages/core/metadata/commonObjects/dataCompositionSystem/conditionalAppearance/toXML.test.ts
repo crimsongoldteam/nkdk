@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { fullConditionalAppearanceItem, minimalConditionalAppearanceItem } from "./__fixtures__/data"
+import { fullConditionalAppearanceItems, minimalConditionalAppearanceItems } from "./__fixtures__/data"
 import "./types"
 
 const rule: PropertyRule = {
@@ -12,7 +12,7 @@ describe("export ConditionalAppearance to XML", () => {
   it("exports full.xml", () => {
     const { expectedResult, result } = testExportPropertyToXML({
       rule,
-      value: [fullConditionalAppearanceItem],
+      value: fullConditionalAppearanceItems,
       xmlRootTag: "ConditionalAppearance",
       path: "full.xml",
       importMetaUrl: import.meta.url,
@@ -25,7 +25,7 @@ describe("export ConditionalAppearance to XML", () => {
   it("exports minimal.xml", () => {
     const { expectedResult, result } = testExportPropertyToXML({
       rule,
-      value: [minimalConditionalAppearanceItem],
+      value: minimalConditionalAppearanceItems,
       xmlRootTag: "ConditionalAppearance",
       path: "minimal.xml",
       importMetaUrl: import.meta.url,

@@ -1,6 +1,4 @@
 import { capitalize } from "~/helpers/capitalize"
-import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
-import { MetadataPrimitiveValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
@@ -87,32 +85,6 @@ export const exportPropertyToXML = (params: {
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
 
   if (!typeExportFn) {
-    // if (
-    //   metadataItem?.itemType === "InputField" &&
-    //   rule.type === "DataPath" &&
-    //   ["MultipleValueDataPath", "MultipleValuePictureDataPath", "MultipleValuePresentDataPath"].includes(rule.xml ?? "") &&
-    //   typeof referenceMetadata === "string"
-    // ) {
-    //   return referenceMetadata
-    // }
-
-    if (
-      metadataItem?.itemType === "InputField" &&
-      rule.type === "number" &&
-      (rule.xml === "MinValue" || rule.xml === "MaxValue")
-    ) {
-      if (referenceMetadata?.["#text"] !== undefined && String(referenceMetadata["#text"]) === String(value)) {
-        return referenceMetadata
-      }
-
-      if (value === undefined) return undefined
-      return exportMetadataValueToXML({
-        context,
-        rule: { type: "MetadataValue", valueType: "decimal" },
-        value,
-      }) as MetadataPrimitiveValueXML
-    }
-
     if (value === rule.defaultValue) {
       return defaultValueXML
     }

@@ -9,7 +9,8 @@ import { NamedMetadataItem } from "./types"
 export const registerExportToYAML = <Rule extends MetadataItemRule, CollectionType extends PropertyRuleType>(
   propertyType: CollectionType,
   itemRule: Rule,
-  yamlKeyFromName?: (name: string) => string
+  yamlKeyFromName?: (name: string) => string,
+  yamlAsArray?: true
 ): void => {
   registerTypeRule(
     propertyType,
@@ -18,8 +19,14 @@ export const registerExportToYAML = <Rule extends MetadataItemRule, CollectionTy
       context: ConfigurationContext,
       _rule: PropertyRule | undefined,
       data: (ToMetadata<Rule["itemType"]> & NamedMetadataItem)[] | undefined
-    ): Record<string, ToYAML<Rule["itemType"]>> | undefined => {
+    ): Record<string, ToYAML<Rule["itemType"]>> | ToYAML<Rule["itemType"]>[] | undefined => {
       if (!data || data.length === 0) return undefined
+
+      if (yamlAsArray) {
+        return data.map(
+          (item) => (exportPropertiesToYAML({ context, data: item, rule: itemRule }) ?? {}) as ToYAML<Rule["itemType"]>
+        )
+      }
 
       return Object.fromEntries(
         data.map((item) => [

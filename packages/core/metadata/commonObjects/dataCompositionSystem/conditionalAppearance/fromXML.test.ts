@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { fullConditionalAppearanceItem, minimalConditionalAppearanceItem } from "./__fixtures__/data"
+import { fullConditionalAppearanceItems, minimalConditionalAppearanceItems } from "./__fixtures__/data"
 import "./types"
 
 const rule: PropertyRule = {
@@ -17,7 +17,7 @@ describe("import ConditionalAppearance from XML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual([fullConditionalAppearanceItem])
+    expect(result).toEqual(fullConditionalAppearanceItems)
   })
 
   it("imports minimal.xml", () => {
@@ -28,6 +28,6 @@ describe("import ConditionalAppearance from XML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual([minimalConditionalAppearanceItem])
+    expect(result).toEqual(minimalConditionalAppearanceItems)
   })
 })

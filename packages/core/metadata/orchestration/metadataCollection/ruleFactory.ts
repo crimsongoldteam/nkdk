@@ -1,35 +1,32 @@
 import {
-  ExportToXMLFunction,
+  ExportToXMLFunctionNew,
   ExportToYAMLFunction,
-  importFromXMLFunction,
+  ImportFromXMLFunction,
   importFromYAMLFunction,
 } from "~/metadata/orchestration/property/fn"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "../formElement/factory"
 import { ToMetadata } from "../metadataItem/registry"
-import { registerExportToXML } from "./registerExportToXML"
-import { registerExportToYAML } from "./registerExportToYAML"
-import { registerImportFromXML } from "./registerImportFromXML"
-import { registerImportFromYAML } from "./registerImportFromYAML"
+import { importMetadataItemCollectionFromYAMLAsArray, importMetadataItemCollectionFromYAMLAsRecord } from "./fromYAML"
 import { NamedMetadataItem } from "./types"
 
 type CollectionRule<Rule extends MetadataItemRule, CollectionType extends PropertyRuleType, XMLKey extends string> = {
   propertyType: CollectionType
   itemRule: Rule
   xmlElement: XMLKey
+  yamlAsArray?: true
   nameFromYAMLKey?: (yamlKey: string) => string
   yamlKeyFromName?: (name: string) => string
-  returnUndefinedWhenEmptyYAML?: boolean
+  fromXML?: ImportFromXMLFunction
+  toXML?: ExportToXMLFunctionNew
+  fromYAML?: importFromYAMLFunction
+  toYAML?: ExportToYAMLFunction
   extendDataForExportToXML?: (params: {
     data: (ToMetadata<Rule["itemType"]> & NamedMetadataItem)[]
     rule: PropertyRule | undefined
   }) => (ToMetadata<Rule["itemType"]> & NamedMetadataItem)[]
   omitIdAttributeInXML?: boolean
-  fromXML?: importFromXMLFunction
-  toXML?: ExportToXMLFunction
-  fromYAML?: importFromYAMLFunction
-  toYAML?: ExportToYAMLFunction
 }
 
 export const registerMetadataItemCollectionRule = <
@@ -41,33 +38,20 @@ export const registerMetadataItemCollectionRule = <
 ): void => {
   const { propertyType, itemRule, xmlElement } = params
 
-  if (params.fromXML) {
-    registerTypeRule(propertyType, "importFromXML", params.fromXML)
-  } else {
-    registerImportFromXML(propertyType, itemRule, xmlElement)
-  }
+  const fromXML = params.fromXML ? params.fromXML : importMetadataItemCollectionFromXML
+  registerTypeRule(propertyType, "importFromXML", fromXML)
 
-  if (params.fromYAML) {
-    registerTypeRule(propertyType, "importFromYAML", params.fromYAML)
-  } else {
-    registerImportFromYAML(propertyType, itemRule, params.nameFromYAMLKey, params.returnUndefinedWhenEmptyYAML)
-  }
+  const fromYAML = params.fromYAML
+    ? params.fromYAML
+    : params.yamlAsArray
+      ? importMetadataItemCollectionFromYAMLAsArray
+      : importMetadataItemCollectionFromYAMLAsRecord
 
-  if (params.toYAML) {
-    registerTypeRule(propertyType, "exportToYAML", params.toYAML)
-  } else {
-    registerExportToYAML(propertyType, itemRule, params.yamlKeyFromName)
-  }
+  registerTypeRule(propertyType, "importFromYAML", fromYAML)
 
-  if (params.toXML) {
-    registerTypeRule(propertyType, "exportToXML", params.toXML)
-  } else {
-    registerExportToXML(
-      propertyType,
-      itemRule,
-      xmlElement,
-      params.extendDataForExportToXML,
-      params.omitIdAttributeInXML
-    )
-  }
+  const toYAML = params.toYAML ? params.toYAML : exportMetadataItemCollectionToYAML
+  registerTypeRule(propertyType, "exportToYAML", toYAML)
+
+  const toXML = params.toXML ? params.toXML : exportMetadataItemCollectionToXML
+  registerTypeRule(propertyType, "exportToXML", toXML)
 }

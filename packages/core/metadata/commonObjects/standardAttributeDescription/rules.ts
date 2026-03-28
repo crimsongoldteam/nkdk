@@ -1,4 +1,3 @@
-import { StandartAttributeNameFromYAML } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 export const StandardAttributeDescriptionRules = {
@@ -7,7 +6,7 @@ export const StandardAttributeDescriptionRules = {
     name: {
       xml: "_name",
       type: "string",
-      defaultValue: ({ name }: { name?: string }) => (name ? StandartAttributeNameFromYAML(name) : undefined),
+      // defaultValue: ({ name }: { name?: string }) => (name ? StandartAttributeNameFromYAML(name) : undefined),
     },
     choiceForm: {
       yaml: "ФормаВыбора",
