@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fullDynamicList, minimalDynamicList } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
+import { fullDynamicListFromXML, minimalDynamicList } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
@@ -25,7 +25,7 @@ describe("import DynamicList from XML", () => {
       xmlRootTag: "Settings",
       importMetaUrl: import.meta.url,
     })
-    expect(result).toEqual(fullDynamicList)
+    expect(result).toEqual(fullDynamicListFromXML)
   })
 
   it("should import minimal", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fullDynamicList } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
+import { fullDynamicList, fullDynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { exportPropertyToYAML, PropertyRule } from "~/metadata/orchestration"
 import { mockContextToTypedYAML } from "~/tests/mockContext"
 
@@ -24,6 +24,6 @@ describe("export DynamicList to YAML", () => {
       rule,
       value: fullDynamicList,
     })
-    expect(result).toEqual({ ДинамическийСписок: fullDynamicList })
+    expect(result).toEqual({ ДинамическийСписок: fullDynamicListYAML })
   })
 })

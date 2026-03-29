@@ -1,42 +1,7 @@
 <Settings xsi:type="DynamicList">
 	<AutoFillAvailableFields>false</AutoFillAvailableFields>
-	<ManualQuery>true</ManualQuery>
-	<DynamicDataRead>true</DynamicDataRead>
-	<QueryText>ВЫБРАТЬ
-Справочник1.Реквизит1 КАК Реквизит1
-ИЗ
-Справочник.Справочник1 КАК Справочник1</QueryText>
-	<Field xsi:type="dcssch:DataSetFieldField">
-		<dcssch:dataPath>Реквизит1</dcssch:dataPath>
-		<dcssch:field>Реквизит1</dcssch:field>
-		<dcssch:useRestriction>
-			<dcssch:condition>true</dcssch:condition>
-		</dcssch:useRestriction>
-	</Field>
-	<Field xsi:type="dcssch:DataSetFieldField">
-		<dcssch:dataPath>Наименование</dcssch:dataPath>
-		<dcssch:field>Наименование</dcssch:field>
-	</Field>
-	<Field xsi:type="dcssch:DataSetFieldField">
-		<dcssch:dataPath>ПометкаУдаления</dcssch:dataPath>
-		<dcssch:field>ПометкаУдаления</dcssch:field>
-	</Field>
-	<Field xsi:type="dcssch:DataSetFieldField">
-		<dcssch:dataPath>Ссылка</dcssch:dataPath>
-		<dcssch:field>Ссылка</dcssch:field>
-	</Field>
-	<Field xsi:type="dcssch:DataSetFieldField">
-		<dcssch:dataPath>Код</dcssch:dataPath>
-		<dcssch:field>Код</dcssch:field>
-	</Field>
-	<Field xsi:type="dcssch:DataSetFieldField">
-		<dcssch:dataPath>Предопределенный</dcssch:dataPath>
-		<dcssch:field>Предопределенный</dcssch:field>
-	</Field>
-	<Field xsi:type="dcssch:DataSetFieldField">
-		<dcssch:dataPath>ИмяПредопределенныхДанных</dcssch:dataPath>
-		<dcssch:field>ИмяПредопределенныхДанных</dcssch:field>
-	</Field>
+	<ManualQuery>false</ManualQuery>
+	<DynamicDataRead>false</DynamicDataRead>
 	<CalculatedField>
 		<dcssch:dataPath>Поле1</dcssch:dataPath>
 		<dcssch:expression>Истина</dcssch:expression>
@@ -125,6 +90,8 @@
 		<dcssch:use>Always</dcssch:use>
 	</Parameter>
 	<MainTable>Catalog.Справочник1</MainTable>
+	<AutoSaveUserSettings>false</AutoSaveUserSettings>
+	<GetInvisibleFieldPresentations>false</GetInvisibleFieldPresentations>
 	<ListSettings>
 		<dcsset:filter>
 			<dcsset:item xsi:type="dcsset:FilterItemComparison">

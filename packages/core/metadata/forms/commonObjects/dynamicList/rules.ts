@@ -11,44 +11,52 @@ export const DynamicListRules = {
       type: "boolean",
       xml: "ManualQuery",
       yaml: "ПроизвольныйЗапрос",
+      defaultValueYAML: false,
     },
     dynamicDataRead: {
       type: "boolean",
       yaml: "ДинамическоеСчитываниеДанных",
+      defaultValueYAML: true,
+    },
+    getInvisibleFieldPresentations: {
+      type: "boolean",
+      yaml: "ПолучениеПредставленийДляНевидимыхПолей",
+      defaultValueYAML: true,
     },
     queryText: {
       type: "string",
+      yaml: "ТекстЗапроса",
     },
     mainTable: {
       type: "string",
       yaml: "ОсновнаяТаблица",
     },
-    listSettingsFilter: {
+    filter: {
       type: "Filter",
       xml: "dcsset:filter",
       yaml: "Отбор",
       xmlParents: ["ListSettings"],
     },
-    listSettingsConditionalAppearance: {
+    conditionalAppearance: {
       type: "ConditionalAppearance",
       xml: "dcsset:conditionalAppearance",
       yaml: "УсловноеОформление",
       xmlParents: ["ListSettings"],
     },
-    listSettingsItemsViewMode: {
+    itemsViewMode: {
       type: "SystemEnumeration",
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:itemsViewMode",
       yaml: "РежимОтображенияСтруктуры",
       xmlParents: ["ListSettings"],
     },
-    listSettingsItemsUserSettingID: {
+    itemsUserSettingID: {
       type: "string",
       xml: "dcsset:itemsUserSettingID",
       yaml: "ИдентификаторПользовательскойНастройкиСтруктуры",
       xmlParents: ["ListSettings"],
     },
-    listSettingsItemsUserSettingPresentation: {
+    itemsUserSettingPresentation: {
       type: "I8nText",
       xml: "dcsset:itemsUserSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройкиСтруктуры",

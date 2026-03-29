@@ -20,7 +20,11 @@ export const importParameterValueFromYAML = (
   context: ConfigurationContext,
   rule: SettingsParameterValuePropertyRule,
   yaml: ParameterValueYAML | SettingsParameterValueYAML
-): ParameterValue | SettingsParameterValue => {
+): ParameterValue | SettingsParameterValue | undefined => {
+  if (yaml === undefined || yaml === null) {
+    return undefined
+  }
+
   const dcsRule = toDcsMetadataValueRule(rule)
 
   const y = isYamlObject(yaml) ? (yaml as Record<string, unknown>) : undefined
@@ -41,7 +45,12 @@ export const importParameterValueFromYAML = (
   const item =
     elementList.length === 0
       ? undefined
-      : elementList.map((el) => importParameterValueFromYAML(context, rule, el as ParameterValueYAML))
+      : (elementList
+          .map((el) => importParameterValueFromYAML(context, rule, el as ParameterValueYAML))
+          .filter((el): el is ParameterValue | SettingsParameterValue => el !== undefined) as (
+          | ParameterValue
+          | SettingsParameterValue
+        )[])
 
   const base: ParameterValue = {
     parameter,

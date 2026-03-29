@@ -1,9 +1,12 @@
-import type { ConditionalAppearance } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
-import type { Filter } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
+import type { ConditionalAppearance, ConditionalAppearanceYAML } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import type { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 
-const listSettingsFilter = {
+const queryText =
+  "ВЫБРАТЬ\nСправочник1.Реквизит1 КАК Реквизит1\nИЗ\nСправочник.Справочник1 КАК Справочник1"
+
+const filter = {
   itemType: "Filter",
   items: [
     {
@@ -14,22 +17,20 @@ const listSettingsFilter = {
   ],
 } satisfies Filter
 
-const listSettingsConditionalAppearance = [
+const conditionalAppearance = [
   {
     itemType: "ConditionalAppearanceItem",
-    fields: {
-      itemType: "AppearanceFields",
-
-      _fieldNames: ["Наименование", "ПометкаУдаления"],
-    },
+    fields: ["Наименование", "ПометкаУдаления"],
     filter: {
       itemType: "Filter",
-      items: {
-        itemType: "FilterItemComparison",
-        leftValue: "Наименование",
-        comparisonType: "Contains",
-        rightValue: { type: "string", value: "Текст" },
-      },
+      items: [
+        {
+          itemType: "FilterItemComparison",
+          leftValue: { type: "Field", value: "Наименование" },
+          comparisonType: "Contains",
+          rightValue: { type: "string", value: "Текст" },
+        },
+      ],
     },
     appearance: {
       itemType: "AppearanceFields",
@@ -41,28 +42,70 @@ const listSettingsConditionalAppearance = [
   },
 ] satisfies ConditionalAppearance
 
-const listSettingsItemsUserSettingPresentation: I8nText = {
+const itemsUserSettingPresentation: I8nText = {
   items: { ru: "Представление группировки" },
 }
 
-/** Эталон внутренней модели после `importFromXML` (ключи по `DynamicListRules`, вложенные DCS-типы). */
-export const fullDynamicList = {
+const filterYAML = {
+  Элементы: [
+    {
+      ЛевоеЗначение: ".Поле1",
+      ВидСравнения: "Содержит",
+    },
+  ],
+} as const satisfies FilterYAML
+
+const conditionalAppearanceYAML = [
+  {
+    Поля: ["Наименование", "ПометкаУдаления"],
+    Отбор: {
+      Элементы: [
+        {
+          ЛевоеЗначение: ".Наименование",
+          ВидСравнения: "Содержит",
+          ПравоеЗначение: "'Текст'",
+        },
+      ],
+    },
+    Оформление: {
+      Текст: "6678",
+    },
+  },
+] as const satisfies ConditionalAppearanceYAML
+
+/** Эталон после `importFromXML` (поля только из XML). */
+export const fullDynamicListFromXML = {
+  itemType: "DynamicList",
   autoFillAvailableFields: false,
   customQuery: true,
   dynamicDataRead: true,
-  queryText: "ВЫБРАТЬ\nСправочник1.Реквизит1 КАК Реквизит1\nИЗ\nСправочник.Справочник1 КАК Справочник1",
+  queryText,
   mainTable: "Catalog.Справочник1",
-  listSettingsFilter,
-  listSettingsConditionalAppearance,
-  listSettingsItemsUserSettingID: "911b6018-f537-43e8-a417-da56b22f9aec",
-  listSettingsItemsUserSettingPresentation,
-  itemType: "DynamicList",
-  listSettingsItemsViewMode: "Auto",
-  uuid: "",
-} satisfies Required<DynamicList>
+  filter,
+  conditionalAppearance,
+  itemsUserSettingID: "911b6018-f537-43e8-a417-da56b22f9aec",
+  itemsUserSettingPresentation,
+} satisfies DynamicList
 
-export const fullDynamicListYAML: DynamicListYAML = {}
+/** Полная модель для YAML (включая поля без XML). */
+export const fullDynamicList = {
+  ...fullDynamicListFromXML,
+  getInvisibleFieldPresentations: false,
+} satisfies DynamicList
+
+export const fullDynamicListYAML = {
+  АвтоЗаполнениеДоступныхПолей: "Ложь",
+  ПроизвольныйЗапрос: "Истина",
+  ДинамическоеСчитываниеДанных: "Истина",
+  ПолучениеПредставленийДляНевидимыхПолей: "Ложь",
+  ТекстЗапроса: queryText,
+  ОсновнаяТаблица: "Catalog.Справочник1",
+  Отбор: filterYAML,
+  УсловноеОформление: conditionalAppearanceYAML,
+  ИдентификаторПользовательскойНастройкиСтруктуры: "911b6018-f537-43e8-a417-da56b22f9aec",
+  ПредставлениеПользовательскойНастройкиСтруктуры: "Представление группировки",
+} as const satisfies DynamicListYAML
 
 export const minimalDynamicList: DynamicList = {
   itemType: "DynamicList",
-} as DynamicList
+}

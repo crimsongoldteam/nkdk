@@ -15,6 +15,10 @@ import "./availableFields/toYAML"
 
 import "./conditionalAppearance/types"
 
+import "./calculatedFieldUseRestriction/types"
+import "./calculatedFieldOrderExpression/types"
+import "./calculatedField/types"
+
 import "./parameterValue/types"
 
 import "./dscMetadataTypedValue/fromXML"
