@@ -6,4 +6,7 @@ import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 export type CalculatedFieldUseRestriction = MetadataTypeByRule<typeof CalculatedFieldUseRestrictionRules>
 export type CalculatedFieldUseRestrictionYAML = YAMLTypeByRule<typeof CalculatedFieldUseRestrictionRules>
 
-registerMetadataItemRule({ propertyType: "CalculatedFieldUseRestriction", itemRule: CalculatedFieldUseRestrictionRules })
+registerMetadataItemRule({
+  propertyType: "CalculatedFieldUseRestriction",
+  itemRule: CalculatedFieldUseRestrictionRules,
+})
