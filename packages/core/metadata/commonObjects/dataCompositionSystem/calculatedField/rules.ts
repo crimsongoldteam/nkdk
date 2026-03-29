@@ -19,6 +19,7 @@ export const CalculatedFieldRules = {
       type: "I8nText",
       xml: "dcssch:title",
       yaml: "Заголовок",
+      typedXML: true,
       order: 3,
     },
     useRestriction: {

@@ -17,6 +17,8 @@ export interface I8nTextLanguageXML {
 }
 
 export interface I8nTextXML {
+  /** При типизированной выгрузке (`typedXML` в rule) — `xsi:type="v8:LocalStringType"` */
+  "_xsi:type"?: "v8:LocalStringType"
   "v8:item"?: I8nTextLanguageXML[] | I8nTextLanguageXML
 }
 
@@ -36,4 +38,6 @@ export interface I8nTextPropertyRule extends Omit<BasePropertyRule, "defaultValu
    */
   excludeIfEqualNameYAML?: true
   defaultValue?: I8nText | I8nTextDefaultValueFunction
+  /** Выгружать I8nText с указанием типа: `xsi:type="v8:LocalStringType"` */
+  typedXML?: true
 }

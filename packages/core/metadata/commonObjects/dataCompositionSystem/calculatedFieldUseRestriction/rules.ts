@@ -1,6 +1,6 @@
-import { MetadataItemRule } from "~/metadata/orchestration"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
-export const CalculatedFieldUseRestrictionRules = {
+export const CalculatedFieldUseRestrictionRules: MetadataItemRule = {
   itemType: "CalculatedFieldUseRestriction",
   properties: {
     field: {
@@ -32,4 +32,4 @@ export const CalculatedFieldUseRestrictionRules = {
       defaultValueYAML: false,
     },
   },
-} as const satisfies MetadataItemRule
+}

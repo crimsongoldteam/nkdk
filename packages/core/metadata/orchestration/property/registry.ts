@@ -24,7 +24,7 @@ import {
   CalculatedFieldOrderExpression,
   CalculatedFieldOrderExpressionYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/types"
-import {
+import type {
   CalculatedFieldUseRestriction,
   CalculatedFieldUseRestrictionYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types"
