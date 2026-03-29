@@ -59,6 +59,11 @@ export interface BasePropertyRule {
   xmlParents?: string[]
 
   /**
+   * XML namespace для элемента при экспорте: `xmlns="..."`
+   */
+  xmlNamespace?: string
+
+  /**
    * Передавать значение в форму в 1С
    */
   toEnterprise?: false

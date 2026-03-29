@@ -100,7 +100,7 @@ export const exportPropertyToXML = (params: {
     if (value === rule.defaultValue) {
       return defaultValueXML
     }
-    return value
+    return wrapWithNamespace(rule, value)
   }
 
   if (typeExportFn.length === 1) {
@@ -114,12 +114,20 @@ export const exportPropertyToXML = (params: {
     if (exportedValue === rule.defaultValue) {
       return defaultValueXML
     }
-    return exportedValue
+    return wrapWithNamespace(rule, exportedValue)
   }
 
   const exportedValue = (typeExportFn as ExportToXMLFunction)(context, rule, value, referenceMetadata)
   if (exportedValue === rule.defaultValue) {
     return defaultValueXML
   }
-  return exportedValue
+  return wrapWithNamespace(rule, exportedValue)
+}
+
+const wrapWithNamespace = (rule: PropertyRule, value: any): any => {
+  if (value === undefined || value === null) return value
+  const ns = (rule as any).xmlNamespace
+  if (!ns) return value
+  if (typeof value === "object") return value
+  return { "#text": value, _xmlns: ns }
 }

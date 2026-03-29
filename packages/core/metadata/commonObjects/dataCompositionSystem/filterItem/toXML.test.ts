@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { importContentFromXML } from "~/xml/import/importer"
 import { fullFilterItemComparison, fullFilterItemGroup } from "./__fixtures__/data"
 import "./types"
 
@@ -19,7 +18,7 @@ describe("export FilterItem to XML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(importContentFromXML(result)).toEqual(importContentFromXML(expectedResult!))
+    expect(result).toEqual(expectedResult)
   })
 
   it("exports FilterItemGroup to XML", () => {
@@ -31,6 +30,6 @@ describe("export FilterItem to XML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(importContentFromXML(result)).toEqual(importContentFromXML(expectedResult!))
+    expect(result).toEqual(expectedResult)
   })
 })

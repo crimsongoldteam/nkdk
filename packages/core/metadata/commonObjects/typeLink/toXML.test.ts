@@ -5,7 +5,6 @@ import { PropertyRule } from "~/metadata/orchestration"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import importContentFromXML from "~/xml/import/importer"
 import { xmlExport } from "~/xml/export/exporter"
 
 const rule: PropertyRule = {
@@ -29,8 +28,6 @@ describe("export TypeLink to XML", () => {
     const exported = exportTypeLinkWithXSITypeToXML(mockContext, mockRule, catalogTabularAttributeTypeLink)
     const xml = xmlExport({ TypeLink: exported }, false)
 
-    expect(importContentFromXML(xml)).toEqual(
-      importContentFromXML(readXMLFixtureAsString(import.meta.url, "withXSIType.xml"))
-    )
+    expect(xml).toEqual(readXMLFixtureAsString(import.meta.url, "withXSIType.xml"))
   })
 })
