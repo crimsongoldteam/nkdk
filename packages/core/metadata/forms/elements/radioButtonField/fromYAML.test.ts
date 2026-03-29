@@ -5,7 +5,7 @@ import {
   fullRadioButtonFieldPartialYAML,
   minimalRadioButtonField,
   minimalRadioButtonFieldPartialYAML,
-} from "~/tests/fixtures/forms/radioButtonField/data"
+} from "~/metadata/forms/elements/radioButtonField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importRadioButtonFieldFromYAML", () => {

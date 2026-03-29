@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
-import { fullPopup, minimalPopup } from "~/tests/fixtures/forms/popup/data"
+import { fullPopup, minimalPopup } from "~/metadata/forms/elements/popup/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importPopupFromXML", () => {
   it("should return undefined when data is undefined", () => {
@@ -16,7 +15,7 @@ describe("importPopupFromXML", () => {
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ Popup: ElementXML }>("forms/popup/full.xml")
+    const xmlData = readAndParseXMLFixture<{ Popup: ElementXML }>(import.meta.url, "full.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),
@@ -28,7 +27,7 @@ describe("importPopupFromXML", () => {
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ Popup: ElementXML }>("forms/popup/minimal.xml")
+    const xmlData = readAndParseXMLFixture<{ Popup: ElementXML }>(import.meta.url, "minimal.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),

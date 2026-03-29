@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
-import { fullColumnGroup, minimalColumnGroup } from "~/tests/fixtures/forms/columnGroup/data"
+import { fullColumnGroup, minimalColumnGroup } from "~/metadata/forms/elements/columnGroup/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importColumnGroupFromXML", () => {
   it("should return undefined when data is undefined", () => {
@@ -16,7 +15,7 @@ describe("importColumnGroupFromXML", () => {
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ ColumnGroup: ElementXML }>("forms/columnGroup/full.xml")
+    const xmlData = readAndParseXMLFixture<{ ColumnGroup: ElementXML }>(import.meta.url, "full.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),
@@ -28,7 +27,7 @@ describe("importColumnGroupFromXML", () => {
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ ColumnGroup: ElementXML }>("forms/columnGroup/minimal.xml")
+    const xmlData = readAndParseXMLFixture<{ ColumnGroup: ElementXML }>(import.meta.url, "minimal.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),

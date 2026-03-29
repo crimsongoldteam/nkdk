@@ -6,7 +6,7 @@ import {
   fullCheckBoxFieldEnterprise,
   fullTableCheckBoxField,
   fullTableCheckBoxFieldEnterprise,
-} from "~/tests/fixtures/forms/checkBoxField/data"
+} from "~/metadata/forms/elements/checkBoxField/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 const createContextToEnterprise = () => ({

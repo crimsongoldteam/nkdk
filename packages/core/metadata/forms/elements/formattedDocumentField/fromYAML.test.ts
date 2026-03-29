@@ -5,7 +5,7 @@ import {
   fullFormattedDocumentFieldPartialYAML,
   minimalFormattedDocumentField,
   minimalFormattedDocumentFieldPartialYAML,
-} from "~/tests/fixtures/forms/formattedDocumentField/data"
+} from "~/metadata/forms/elements/formattedDocumentField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importFormattedDocumentFieldFromYAML", () => {

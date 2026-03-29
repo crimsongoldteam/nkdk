@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
-import { fullLabelDecoration, minimalLabelDecoration } from "~/tests/fixtures/forms/labelDecoration/data"
+import { fullLabelDecoration, minimalLabelDecoration } from "~/metadata/forms/elements/labelDecoration/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importLabelDecorationFromXML", () => {
   it("should return undefined when data is undefined", () => {
@@ -16,7 +15,7 @@ describe("importLabelDecorationFromXML", () => {
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ LabelDecoration: ElementXML }>("forms/labelDecoration/full.xml")
+    const xmlData = readAndParseXMLFixture<{ LabelDecoration: ElementXML }>(import.meta.url, "full.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),
@@ -28,7 +27,7 @@ describe("importLabelDecorationFromXML", () => {
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ LabelDecoration: ElementXML }>("forms/labelDecoration/minimal.xml")
+    const xmlData = readAndParseXMLFixture<{ LabelDecoration: ElementXML }>(import.meta.url, "minimal.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),

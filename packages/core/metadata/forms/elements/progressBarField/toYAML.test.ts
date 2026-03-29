@@ -4,7 +4,7 @@ import {
   fullProgressBarField,
   fullProgressBarFieldPartialYAML,
   minimalProgressBarField,
-} from "~/tests/fixtures/forms/progressBarField/data"
+} from "~/metadata/forms/elements/progressBarField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportProgressBarFieldToYAML", () => {

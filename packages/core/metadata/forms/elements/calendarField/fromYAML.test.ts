@@ -5,7 +5,7 @@ import {
   fullCalendarFieldPartialYAML,
   minimalCalendarField,
   minimalCalendarFieldPartialYAML,
-} from "~/tests/fixtures/forms/calendarField/data"
+} from "~/metadata/forms/elements/calendarField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importCalendarFieldFromYAML", () => {

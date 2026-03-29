@@ -4,9 +4,8 @@ import {
   fullSearchControlAddition,
   fullSingleSearchControlAddition,
   minimalSearchControlAddition,
-} from "~/tests/fixtures/forms/searchControlAddition/data"
+} from "~/metadata/forms/elements/searchControlAddition/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 const rule: PropertyRule = {
   type: "SingleSearchControlAddition",
@@ -15,7 +14,7 @@ const rule: PropertyRule = {
 describe("SearchControlAddition from XML", () => {
   describe("Element", () => {
     it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ SearchControlAddition: any }>("forms/searchControlAddition/full.xml")
+      const xmlData = readAndParseXMLFixture<{ SearchControlAddition: any }>(import.meta.url, "full.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -27,7 +26,7 @@ describe("SearchControlAddition from XML", () => {
     })
 
     it("should import minimal", () => {
-      const xmlData = readAndParseXMLFile<{ SearchControlAddition: any }>("forms/searchControlAddition/minimal.xml")
+      const xmlData = readAndParseXMLFixture<{ SearchControlAddition: any }>(import.meta.url, "minimal.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -41,7 +40,7 @@ describe("SearchControlAddition from XML", () => {
 
   describe("Single", () => {
     it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ SearchControlAddition: any }>("forms/searchControlAddition/fullSingle.xml")
+      const xmlData = readAndParseXMLFixture<{ SearchControlAddition: any }>(import.meta.url, "fullSingle.xml")
 
       const result = importPropertyFromXML({
         context: mockContextFromXML(),

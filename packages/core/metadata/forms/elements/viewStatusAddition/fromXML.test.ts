@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
-import { fullViewStatusAddition } from "~/tests/fixtures/forms/viewStatusAddition/data"
+import { fullViewStatusAddition } from "~/metadata/forms/elements/viewStatusAddition/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 const rule: PropertyRule = {
   type: "ViewStatusAddition",
@@ -10,7 +9,7 @@ const rule: PropertyRule = {
 
 describe("importViewStatusAdditionFromXML", () => {
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ ViewStatusAddition: any }>("forms/viewStatusAddition/full.xml")
+    const xmlData = readAndParseXMLFixture<{ ViewStatusAddition: any }>(import.meta.url, "full.xml")
 
     const result = importPropertyFromXML({
       context: mockContextFromXML(),
@@ -22,7 +21,7 @@ describe("importViewStatusAdditionFromXML", () => {
   })
 
   it("should return undefined for defaults", () => {
-    const xmlData = readAndParseXMLFile<{ ViewStatusAddition: any }>("forms/viewStatusAddition/minimal.xml")
+    const xmlData = readAndParseXMLFixture<{ ViewStatusAddition: any }>(import.meta.url, "minimal.xml")
 
     const result = importPropertyFromXML({
       context: mockContextFromXML(),

@@ -3,9 +3,8 @@ import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import {
   fullFormattedDocumentField,
   minimalFormattedDocumentField,
-} from "~/tests/fixtures/forms/formattedDocumentField/data"
+} from "~/metadata/forms/elements/formattedDocumentField/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importFormattedDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
@@ -19,7 +18,7 @@ describe("importFormattedDocumentFieldFromXML", () => {
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ FormattedDocumentField: ElementXML }>("forms/formattedDocumentField/full.xml")
+    const xmlData = readAndParseXMLFixture<{ FormattedDocumentField: ElementXML }>(import.meta.url, "full.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),

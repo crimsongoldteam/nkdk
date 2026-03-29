@@ -3,9 +3,8 @@ import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import {
   fullSpreadSheetDocumentField,
   minimalSpreadSheetDocumentField,
-} from "~/tests/fixtures/forms/spreadSheetDocumentField/data"
+} from "~/metadata/forms/elements/spreadSheetDocumentField/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importSpreadSheetDocumentFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {

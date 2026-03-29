@@ -5,7 +5,7 @@ import {
   fullExtendedTooltipYAML,
   minimalExtendedTooltip,
   minimalExtendedTooltipYAML,
-} from "~/tests/fixtures/forms/extendedTooltip/data"
+} from "~/metadata/forms/elements/extendedTooltip/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 const rule: PropertyRule = { type: "ExtendedTooltip" }

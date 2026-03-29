@@ -5,7 +5,7 @@ import {
   fullChartFieldPartialYAML,
   minimalChartField,
   minimalChartFieldPartialYAML,
-} from "~/tests/fixtures/forms/chartField/data"
+} from "~/metadata/forms/elements/chartField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importChartFieldFromYAML", () => {

@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
-import { fullAutoCommandBar } from "~/tests/fixtures/forms/autoCommandBar/data"
+import { fullAutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 const rule: PropertyRule = {
   type: "AutoCommandBar",
@@ -10,7 +9,7 @@ const rule: PropertyRule = {
 
 describe("importAutoCommandBarFromXML", () => {
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ AutoCommandBar: any }>("forms/autoCommandBar/fullForm.xml")
+    const xmlData = readAndParseXMLFixture<{ AutoCommandBar: any }>(import.meta.url, "fullForm.xml")
 
     const result = importPropertyFromXML({
       context: mockContextFromXML(),
@@ -22,7 +21,7 @@ describe("importAutoCommandBarFromXML", () => {
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ AutoCommandBar: any }>("forms/autoCommandBar/minimalForm.xml")
+    const xmlData = readAndParseXMLFixture<{ AutoCommandBar: any }>(import.meta.url, "minimalForm.xml")
 
     const result = importPropertyFromXML({
       context: mockContextFromXML(),

@@ -7,7 +7,7 @@ import {
   minimalPopup,
   minimalPopupTypedYAML,
   sourcePopup,
-} from "~/tests/fixtures/forms/popup/data"
+} from "~/metadata/forms/elements/popup/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 import { Popup } from "./types"
 

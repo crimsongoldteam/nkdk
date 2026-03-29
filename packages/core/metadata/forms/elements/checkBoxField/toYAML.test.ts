@@ -8,7 +8,7 @@ import {
   minimalCheckBoxField,
   minimalTableCheckBoxField,
   minimalTableCheckBoxFieldTypedYAML,
-} from "~/tests/fixtures/forms/checkBoxField/data"
+} from "~/metadata/forms/elements/checkBoxField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportCheckBoxFieldToYAML", () => {

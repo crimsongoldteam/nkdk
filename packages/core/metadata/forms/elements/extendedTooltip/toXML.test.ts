@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { fullExtendedTooltip } from "~/tests/fixtures/forms/extendedTooltip/data"
+import { fullExtendedTooltip } from "~/metadata/forms/elements/extendedTooltip/__fixtures__/data"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 
 const rule: PropertyRule = { type: "ExtendedTooltip" }
@@ -11,7 +11,8 @@ describe("exportExtendedTooltipToXML", () => {
       rule,
       value: undefined,
       xmlRootTag: "ExtendedTooltip",
-      path: "forms/extendedTooltip/defaults.xml",
+      path: "defaults.xml",
+      importMetaUrl: import.meta.url,
       itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
     })
 
@@ -23,7 +24,8 @@ describe("exportExtendedTooltipToXML", () => {
       rule,
       value: fullExtendedTooltip,
       xmlRootTag: "ExtendedTooltip",
-      path: "forms/extendedTooltip/full.xml",
+      path: "full.xml",
+      importMetaUrl: import.meta.url,
       itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
     })
 

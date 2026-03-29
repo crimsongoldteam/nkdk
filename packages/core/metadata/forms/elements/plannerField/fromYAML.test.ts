@@ -5,7 +5,7 @@ import {
   fullPlannerFieldPartialYAML,
   minimalPlannerField,
   minimalPlannerFieldPartialYAML,
-} from "~/tests/fixtures/forms/plannerField/data"
+} from "~/metadata/forms/elements/plannerField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importPlannerFieldFromYAML", () => {

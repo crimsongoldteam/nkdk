@@ -4,7 +4,7 @@ import {
   fullTextDocumentField,
   fullTextDocumentFieldPartialYAML,
   minimalTextDocumentField,
-} from "~/tests/fixtures/forms/textDocumentField/data"
+} from "~/metadata/forms/elements/textDocumentField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportTextDocumentFieldToYAML", () => {

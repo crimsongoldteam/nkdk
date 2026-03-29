@@ -7,14 +7,15 @@ import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile
 export const testExportElementToXML = <TElement extends CollectableElement>(params: {
   element: TElement
   path: string
+  baseDir?: string
 }): { expectedResult: string; result: string } => {
-  const { element, path } = params
+  const { element, path, baseDir } = params
 
   const metadataType = element.itemType
 
-  const expectedResult = readXMLFileAsString(path)
+  const expectedResult = readXMLFileAsString(path, baseDir)
 
-  const referenceXMLData = readAndParseXMLFile<{ [key: string]: ElementXML }>(path)
+  const referenceXMLData = readAndParseXMLFile<{ [key: string]: ElementXML }>(path, baseDir)
   const referenceXML = referenceXMLData[element.itemType]
 
   const importContext = mockContextFromXML({ forReference: true })

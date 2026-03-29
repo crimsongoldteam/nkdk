@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
-import { fullTextDocumentField, fullTextDocumentFieldEnterprise } from "~/tests/fixtures/forms/textDocumentField/data"
+import { fullTextDocumentField, fullTextDocumentFieldEnterprise } from "~/metadata/forms/elements/textDocumentField/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("export TextDocumentField to Enterprise", () => {

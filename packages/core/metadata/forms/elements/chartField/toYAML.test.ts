@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML } from "~/metadata/orchestration"
-import { fullChartField, fullChartFieldPartialYAML, minimalChartField } from "~/tests/fixtures/forms/chartField/data"
+import { fullChartField, fullChartFieldPartialYAML, minimalChartField } from "~/metadata/forms/elements/chartField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportChartFieldToYAML", () => {

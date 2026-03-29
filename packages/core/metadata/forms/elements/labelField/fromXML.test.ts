@@ -5,9 +5,8 @@ import {
   fullTableLabelField,
   minimalLabelField,
   minimalTableLabelField,
-} from "~/tests/fixtures/forms/labelField/data"
+} from "~/metadata/forms/elements/labelField/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importLabelFieldFromXML", () => {
   describe("LabelField", () => {
@@ -22,7 +21,7 @@ describe("importLabelFieldFromXML", () => {
     })
 
     it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ LabelField: ElementXML }>("forms/labelField/full.xml")
+      const xmlData = readAndParseXMLFixture<{ LabelField: ElementXML }>(import.meta.url, "full.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -34,7 +33,7 @@ describe("importLabelFieldFromXML", () => {
     })
 
     it("should import minimal", () => {
-      const xmlData = readAndParseXMLFile<{ LabelField: ElementXML }>("forms/labelField/minimal.xml")
+      const xmlData = readAndParseXMLFixture<{ LabelField: ElementXML }>(import.meta.url, "minimal.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -58,7 +57,7 @@ describe("importLabelFieldFromXML", () => {
     })
 
     it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ TableLabelField: ElementXML }>("forms/labelField/fullTable.xml")
+      const xmlData = readAndParseXMLFixture<{ TableLabelField: ElementXML }>(import.meta.url, "fullTable.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -70,7 +69,7 @@ describe("importLabelFieldFromXML", () => {
     })
 
     it("should import minimal", () => {
-      const xmlData = readAndParseXMLFile<{ TableLabelField: ElementXML }>("forms/labelField/minimalTable.xml")
+      const xmlData = readAndParseXMLFixture<{ TableLabelField: ElementXML }>(import.meta.url, "minimalTable.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),

@@ -4,7 +4,7 @@ import {
   fullSpreadSheetDocumentField,
   fullSpreadSheetDocumentFieldPartialYAML,
   minimalSpreadSheetDocumentField,
-} from "~/tests/fixtures/forms/spreadSheetDocumentField/data"
+} from "~/metadata/forms/elements/spreadSheetDocumentField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportSpreadSheetDocumentFieldToYAML", () => {

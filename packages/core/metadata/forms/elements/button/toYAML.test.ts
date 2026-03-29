@@ -5,7 +5,7 @@ import {
   fullButtonPartialYAML,
   fullButtonTypedYAML,
   minimalButton,
-} from "~/tests/fixtures/forms/button/data"
+} from "~/metadata/forms/elements/button/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportButtonToYAML", () => {

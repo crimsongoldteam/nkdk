@@ -1,44 +1,48 @@
 import { describe, expect, it } from "vitest"
-import { fullAutoCommandBar, minimalAutoCommandBar } from "~/tests/fixtures/forms/autoCommandBar/data"
+import { fullAutoCommandBar, minimalAutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/__fixtures__/data"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+
+import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
 
 describe("exportAutoCommandBarToXML", () => {
   describe("exportFormAutoCommandBarToXML", () => {
     it("should return default when data is undefined", () => {
-      const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimalForm.xml")
+      const expectedResult = readXMLFixtureAsString(import.meta.url, "minimalForm.xml")
 
       const { result } = testExportPropertyToXML({
         rule: { type: "AutoCommandBar" },
         value: undefined,
         xmlRootTag: "AutoCommandBar",
-        path: "forms/autoCommandBar/minimalForm.xml",
+        path: "minimalForm.xml",
+      importMetaUrl: import.meta.url,
       })
 
       expect(result).toEqual(expectedResult)
     })
 
     it("should return all fields to XML", () => {
-      const expectedResult = readXMLFileAsString("forms/autoCommandBar/fullForm.xml")
+      const expectedResult = readXMLFixtureAsString(import.meta.url, "fullForm.xml")
 
       const { result } = testExportPropertyToXML({
         rule: { type: "AutoCommandBar" },
         value: fullAutoCommandBar,
         xmlRootTag: "AutoCommandBar",
-        path: "forms/autoCommandBar/fullForm.xml",
+        path: "fullForm.xml",
+      importMetaUrl: import.meta.url,
       })
 
       expect(result).toEqual(expectedResult)
     })
 
     it("should export minimal", () => {
-      const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimalForm.xml")
+      const expectedResult = readXMLFixtureAsString(import.meta.url, "minimalForm.xml")
 
       const { result } = testExportPropertyToXML({
         rule: { type: "AutoCommandBar" },
         value: minimalAutoCommandBar,
         xmlRootTag: "AutoCommandBar",
-        path: "forms/autoCommandBar/minimalForm.xml",
+        path: "minimalForm.xml",
+      importMetaUrl: import.meta.url,
       })
 
       expect(result).toEqual(expectedResult)
@@ -47,13 +51,14 @@ describe("exportAutoCommandBarToXML", () => {
 
   describe("exportTableAutoCommandBarToXML", () => {
     it("should return default when data is undefined", () => {
-      const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimalTable.xml")
+      const expectedResult = readXMLFixtureAsString(import.meta.url, "minimalTable.xml")
 
       const { result } = testExportPropertyToXML({
         rule: { type: "TableAutoCommandBar" },
         value: undefined,
         xmlRootTag: "AutoCommandBar",
-        path: "forms/autoCommandBar/minimalTable.xml",
+        path: "minimalTable.xml",
+      importMetaUrl: import.meta.url,
         itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
       })
 
@@ -61,13 +66,14 @@ describe("exportAutoCommandBarToXML", () => {
     })
 
     it("should return all fields to XML", () => {
-      const expectedResult = readXMLFileAsString("forms/autoCommandBar/fullTable.xml")
+      const expectedResult = readXMLFixtureAsString(import.meta.url, "fullTable.xml")
 
       const { result } = testExportPropertyToXML({
         rule: { type: "TableAutoCommandBar" },
         value: fullAutoCommandBar,
         xmlRootTag: "AutoCommandBar",
-        path: "forms/autoCommandBar/fullTable.xml",
+        path: "fullTable.xml",
+      importMetaUrl: import.meta.url,
         itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
       })
 
@@ -75,13 +81,14 @@ describe("exportAutoCommandBarToXML", () => {
     })
 
     it("should export minimal", () => {
-      const expectedResult = readXMLFileAsString("forms/autoCommandBar/minimalTable.xml")
+      const expectedResult = readXMLFixtureAsString(import.meta.url, "minimalTable.xml")
 
       const { result } = testExportPropertyToXML({
         rule: { type: "TableAutoCommandBar" },
         value: minimalAutoCommandBar,
         xmlRootTag: "AutoCommandBar",
-        path: "forms/autoCommandBar/minimalTable.xml",
+        path: "minimalTable.xml",
+      importMetaUrl: import.meta.url,
         itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
       })
 

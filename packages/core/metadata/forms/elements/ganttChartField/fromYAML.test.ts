@@ -5,7 +5,7 @@ import {
   fullGanttChartFieldPartialYAML,
   minimalGanttChartField,
   minimalGanttChartFieldPartialYAML,
-} from "~/tests/fixtures/forms/ganttChartField/data"
+} from "~/metadata/forms/elements/ganttChartField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importGanttChartFieldFromYAML", () => {

@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
-import { fullTable, minimalTable } from "~/tests/fixtures/forms/table/data"
+import { fullTable, minimalTable } from "~/metadata/forms/elements/table/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importTableFromXML", () => {
   it("should return undefined when data is undefined", () => {
@@ -16,7 +15,7 @@ describe("importTableFromXML", () => {
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ Table: ElementXML }>("forms/table/full.xml")
+    const xmlData = readAndParseXMLFixture<{ Table: ElementXML }>(import.meta.url, "full.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),
@@ -28,7 +27,7 @@ describe("importTableFromXML", () => {
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ Table: ElementXML }>("forms/table/minimal.xml")
+    const xmlData = readAndParseXMLFixture<{ Table: ElementXML }>(import.meta.url, "minimal.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),

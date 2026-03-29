@@ -7,7 +7,7 @@ import {
   fullSingleSearchStringAddition,
   fullSingleSearchStringAdditionYAML,
   minimalSearchStringAddition,
-} from "~/tests/fixtures/forms/searchStringAddition/data"
+} from "~/metadata/forms/elements/searchStringAddition/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 const rule: PropertyRule = {

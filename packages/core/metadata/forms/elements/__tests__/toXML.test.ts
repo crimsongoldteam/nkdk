@@ -1,11 +1,17 @@
+import { dirname, resolve } from "path"
+import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
 import type { CollectableElement } from "~/metadata/orchestration"
 import { testExportElementToXML } from "~/tests/element/exportElementToXML"
-import { groupedFixtures } from "./fixtures"
+import { groupedFixtures, type ElementFixture } from "./fixtures"
 
-function fixtureXmlPath(group: string, xmlFile: string): string {
-  const folder = group.charAt(0).toLowerCase() + group.slice(1)
-  return `forms/${folder}/${xmlFile}`
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
+function fixtureXmlBaseDir(fixture: ElementFixture): string {
+  const folder =
+    fixture.xmlFolder ??
+    fixture.group.charAt(0).toLowerCase() + fixture.group.slice(1)
+  return resolve(__dirname, `../${folder}/__fixtures__`)
 }
 
 describe("exportElementToXML", () => {
@@ -13,7 +19,8 @@ describe("exportElementToXML", () => {
     it.each(fixtures)("$name", (fixture) => {
       const resultData = testExportElementToXML({
         element: fixture.model as CollectableElement,
-        path: fixtureXmlPath(fixture.group, fixture.xml),
+        path: fixture.xml,
+        baseDir: fixtureXmlBaseDir(fixture),
       })
 
       expect(resultData.result).toEqual(resultData.expectedResult)

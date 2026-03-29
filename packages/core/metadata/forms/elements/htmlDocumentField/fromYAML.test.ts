@@ -5,7 +5,7 @@ import {
   fullHtmlDocumentFieldPartialYAML,
   minimalHtmlDocumentField,
   minimalHtmlDocumentFieldPartialYAML,
-} from "~/tests/fixtures/forms/htmlDocumentField/data"
+} from "~/metadata/forms/elements/htmlDocumentField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importHTMLDocumentFieldFromYAML", () => {

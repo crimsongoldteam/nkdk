@@ -8,7 +8,7 @@ import {
   minimalButtonGroup,
   minimalButtonGroupPartialYAML,
   minimalButtonGroupTypedYAML,
-} from "~/tests/fixtures/forms/buttonGroup/data"
+} from "~/metadata/forms/elements/buttonGroup/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 import { ButtonGroup } from "./types"
 

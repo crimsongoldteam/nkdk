@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
-import { fullButtonGroup, fullButtonGroupEnterprise } from "~/tests/fixtures/forms/buttonGroup/data"
+import { fullButtonGroup, fullButtonGroupEnterprise } from "~/metadata/forms/elements/buttonGroup/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("export ButtonGroup to Enterprise", () => {

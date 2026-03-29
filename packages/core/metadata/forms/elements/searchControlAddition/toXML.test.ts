@@ -6,8 +6,9 @@ import {
   fullSingleSearchControlAddition,
   minimalSearchControlAddition,
   minimalSingleSearchControlAddition,
-} from "~/tests/fixtures/forms/searchControlAddition/data"
+} from "~/metadata/forms/elements/searchControlAddition/__fixtures__/data"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { testFixturesDir } from "~/tests/testFixturesDir"
 
 const rule: PropertyRule = {
   type: "SingleSearchControlAddition",
@@ -18,7 +19,7 @@ describe("SearchControlAddition to XML", () => {
     it("should return all fields to XML", () => {
       const { expectedResult, result } = testExportElementToXML({
         element: fullSearchControlAddition,
-        path: "forms/searchControlAddition/full.xml",
+        path: "full.xml", baseDir: testFixturesDir(import.meta.url),
       })
 
       expect(result).toEqual(expectedResult.trimEnd())
@@ -27,7 +28,7 @@ describe("SearchControlAddition to XML", () => {
     it("should export minimal", () => {
       const { expectedResult, result } = testExportElementToXML({
         element: minimalSearchControlAddition,
-        path: "forms/searchControlAddition/minimal.xml",
+        path: "minimal.xml", baseDir: testFixturesDir(import.meta.url),
       })
 
       expect(result).toEqual(expectedResult)
@@ -40,7 +41,8 @@ describe("SearchControlAddition to XML", () => {
         rule,
         value: undefined,
         xmlRootTag: "SearchControlAddition",
-        path: "forms/searchControlAddition/minimalSingle.xml",
+        path: "minimalSingle.xml",
+      importMetaUrl: import.meta.url,
         itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
       })
 
@@ -52,7 +54,8 @@ describe("SearchControlAddition to XML", () => {
         rule,
         value: fullSingleSearchControlAddition,
         xmlRootTag: "SearchControlAddition",
-        path: "forms/searchControlAddition/fullSingle.xml",
+        path: "fullSingle.xml",
+      importMetaUrl: import.meta.url,
         itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
       })
 
@@ -64,7 +67,8 @@ describe("SearchControlAddition to XML", () => {
         rule,
         value: minimalSingleSearchControlAddition,
         xmlRootTag: "SearchControlAddition",
-        path: "forms/searchControlAddition/minimalSingle.xml",
+        path: "minimalSingle.xml",
+      importMetaUrl: import.meta.url,
         itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
       })
 

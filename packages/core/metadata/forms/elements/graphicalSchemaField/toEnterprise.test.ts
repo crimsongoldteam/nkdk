@@ -4,7 +4,7 @@ import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/
 import {
   fullGraphicalSchemaField,
   fullGraphicalSchemaFieldEnterprise,
-} from "~/tests/fixtures/forms/graphicalSchemaField/data"
+} from "~/metadata/forms/elements/graphicalSchemaField/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("export GraphicalSchemaField to Enterprise", () => {

@@ -5,9 +5,8 @@ import {
   fullTablePictureField,
   minimalPictureField,
   minimalTablePictureField,
-} from "~/tests/fixtures/forms/pictureField/data"
+} from "~/metadata/forms/elements/pictureField/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importPictureFieldFromXML", () => {
   describe("PictureField", () => {
@@ -22,7 +21,7 @@ describe("importPictureFieldFromXML", () => {
     })
 
     it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ PictureField: ElementXML }>("forms/pictureField/full.xml")
+      const xmlData = readAndParseXMLFixture<{ PictureField: ElementXML }>(import.meta.url, "full.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -34,7 +33,7 @@ describe("importPictureFieldFromXML", () => {
     })
 
     it("should import minimal", () => {
-      const xmlData = readAndParseXMLFile<{ PictureField: ElementXML }>("forms/pictureField/minimal.xml")
+      const xmlData = readAndParseXMLFixture<{ PictureField: ElementXML }>(import.meta.url, "minimal.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -58,7 +57,7 @@ describe("importPictureFieldFromXML", () => {
     })
 
     it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ TablePictureField: ElementXML }>("forms/pictureField/fullTable.xml")
+      const xmlData = readAndParseXMLFixture<{ TablePictureField: ElementXML }>(import.meta.url, "fullTable.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -70,7 +69,7 @@ describe("importPictureFieldFromXML", () => {
     })
 
     it("should import minimal", () => {
-      const xmlData = readAndParseXMLFile<{ TablePictureField: ElementXML }>("forms/pictureField/minimalTable.xml")
+      const xmlData = readAndParseXMLFixture<{ TablePictureField: ElementXML }>(import.meta.url, "minimalTable.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),

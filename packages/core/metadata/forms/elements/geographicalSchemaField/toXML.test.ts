@@ -1,15 +1,16 @@
 import { describe, expect, it } from "vitest"
 import { testExportElementToXML } from "~/tests/element/exportElementToXML"
 import {
+import { testFixturesDir } from "~/tests/testFixturesDir"
   fullGeographicalSchemaField,
   minimalGeographicalSchemaField,
-} from "~/tests/fixtures/forms/geographicalSchemaField/data"
+} from "~/metadata/forms/elements/geographicalSchemaField/__fixtures__/data"
 
 describe("exportGeographicalSchemaFieldToXML", () => {
   it("should export all fields to XML", () => {
     const resultData = testExportElementToXML({
       element: fullGeographicalSchemaField,
-      path: "forms/geographicalSchemaField/full.xml",
+      path: "full.xml", baseDir: testFixturesDir(import.meta.url),
     })
 
     expect(resultData.result).toEqual(resultData.expectedResult)
@@ -18,7 +19,7 @@ describe("exportGeographicalSchemaFieldToXML", () => {
   it("should export minimal", () => {
     const resultData = testExportElementToXML({
       element: minimalGeographicalSchemaField,
-      path: "forms/geographicalSchemaField/minimal.xml",
+      path: "minimal.xml", baseDir: testFixturesDir(import.meta.url),
     })
 
     expect(resultData.result).toEqual(resultData.expectedResult)

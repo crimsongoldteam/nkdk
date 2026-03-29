@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { exportElementToPartialYAML } from "~/metadata/orchestration"
-import { fullCommandBar, fullCommandBarPartialYAML, minimalCommandBar } from "~/tests/fixtures/forms/commandBar/data"
+import { fullCommandBar, fullCommandBarPartialYAML, minimalCommandBar } from "~/metadata/forms/elements/commandBar/__fixtures__/data"
 import { mockContextToYAML } from "~/tests/mockContext"
 
 describe("exportCommandBarToYAML", () => {

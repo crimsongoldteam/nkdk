@@ -4,9 +4,8 @@ import {
   fullSearchStringAddition,
   fullSingleSearchStringAddition,
   minimalSearchStringAddition,
-} from "~/tests/fixtures/forms/searchStringAddition/data"
+} from "~/metadata/forms/elements/searchStringAddition/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 const rule: PropertyRule = {
   type: "SingleSearchStringAddition",
@@ -15,7 +14,7 @@ const rule: PropertyRule = {
 describe("SearchStringAddition from XML", () => {
   describe("Element", () => {
     it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ SearchStringAddition: any }>("forms/searchStringAddition/full.xml")
+      const xmlData = readAndParseXMLFixture<{ SearchStringAddition: any }>(import.meta.url, "full.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -27,7 +26,7 @@ describe("SearchStringAddition from XML", () => {
     })
 
     it("should import minimal", () => {
-      const xmlData = readAndParseXMLFile<{ SearchStringAddition: any }>("forms/searchStringAddition/minimal.xml")
+      const xmlData = readAndParseXMLFixture<{ SearchStringAddition: any }>(import.meta.url, "minimal.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -41,7 +40,7 @@ describe("SearchStringAddition from XML", () => {
 
   describe("Single", () => {
     it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ SearchStringAddition: any }>("forms/searchStringAddition/fullSingle.xml")
+      const xmlData = readAndParseXMLFixture<{ SearchStringAddition: any }>(import.meta.url, "fullSingle.xml")
 
       const result = importPropertyFromXML({
         context: mockContextFromXML(),
@@ -53,7 +52,7 @@ describe("SearchStringAddition from XML", () => {
     })
 
     it("should return undefined for defaults", () => {
-      const xmlData = readAndParseXMLFile<{ SearchStringAddition: any }>("forms/searchStringAddition/minimalSingle.xml")
+      const xmlData = readAndParseXMLFixture<{ SearchStringAddition: any }>(import.meta.url, "minimalSingle.xml")
 
       const result = importPropertyFromXML({
         context: mockContextFromXML(),

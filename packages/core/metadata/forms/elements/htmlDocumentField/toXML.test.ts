@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { testExportElementToXML } from "~/tests/element/exportElementToXML"
-import { fullHtmlDocumentField, minimalHtmlDocumentField } from "~/tests/fixtures/forms/htmlDocumentField/data"
+import { fullHtmlDocumentField, minimalHtmlDocumentField } from "~/metadata/forms/elements/htmlDocumentField/__fixtures__/data"
+import { testFixturesDir } from "~/tests/testFixturesDir"
 
 describe("exportHTMLDocumentFieldToXML", () => {
   it("should export all fields to XML", () => {
     const resultData = testExportElementToXML({
       element: fullHtmlDocumentField,
-      path: "forms/htmlDocumentField/full.xml",
+      path: "full.xml", baseDir: testFixturesDir(import.meta.url),
     })
 
     expect(resultData.result).toEqual(resultData.expectedResult)
@@ -15,7 +16,7 @@ describe("exportHTMLDocumentFieldToXML", () => {
   it("should export minimal", () => {
     const resultData = testExportElementToXML({
       element: minimalHtmlDocumentField,
-      path: "forms/htmlDocumentField/minimal.xml",
+      path: "minimal.xml", baseDir: testFixturesDir(import.meta.url),
     })
 
     expect(resultData.result).toEqual(resultData.expectedResult)

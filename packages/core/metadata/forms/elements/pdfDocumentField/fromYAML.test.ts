@@ -5,7 +5,7 @@ import {
   fullPDFDocumentFieldPartialYAML,
   minimalPDFDocumentField,
   minimalPDFDocumentFieldPartialYAML,
-} from "~/tests/fixtures/forms/pdfDocumentField/data"
+} from "~/metadata/forms/elements/pdfDocumentField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importPDFDocumentFieldFromYAML", () => {

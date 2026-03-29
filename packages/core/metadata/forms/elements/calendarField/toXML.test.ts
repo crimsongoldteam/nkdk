@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { testExportElementToXML } from "~/tests/element/exportElementToXML"
-import { fullCalendarField, minimalCalendarField } from "~/tests/fixtures/forms/calendarField/data"
+import { fullCalendarField, minimalCalendarField } from "~/metadata/forms/elements/calendarField/__fixtures__/data"
+import { testFixturesDir } from "~/tests/testFixturesDir"
 
 describe("exportCalendarFieldToXML", () => {
   it("should export all fields to XML", () => {
     const resultData = testExportElementToXML({
       element: fullCalendarField,
-      path: "forms/calendarField/full.xml",
+      path: "full.xml", baseDir: testFixturesDir(import.meta.url),
     })
 
     expect(resultData.result).toEqual(resultData.expectedResult)
@@ -15,7 +16,7 @@ describe("exportCalendarFieldToXML", () => {
   it("should export minimal", () => {
     const resultData = testExportElementToXML({
       element: minimalCalendarField,
-      path: "forms/calendarField/minimal.xml",
+      path: "minimal.xml", baseDir: testFixturesDir(import.meta.url),
     })
 
     expect(resultData.result).toEqual(resultData.expectedResult)

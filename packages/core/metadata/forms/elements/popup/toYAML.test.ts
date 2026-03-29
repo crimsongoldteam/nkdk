@@ -6,7 +6,7 @@ import {
   fullPopupTypedYAML,
   minimalPopup,
   minimalPopupTypedYAML,
-} from "~/tests/fixtures/forms/popup/data"
+} from "~/metadata/forms/elements/popup/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportPopupToYAML", () => {

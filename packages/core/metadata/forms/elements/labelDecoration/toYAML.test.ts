@@ -4,7 +4,7 @@ import {
   fullLabelDecoration,
   fullLabelDecorationPartialYAML,
   minimalLabelDecoration,
-} from "~/tests/fixtures/forms/labelDecoration/data"
+} from "~/metadata/forms/elements/labelDecoration/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("LabelDecoration to YAML", () => {

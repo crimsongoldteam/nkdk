@@ -3,9 +3,8 @@ import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import {
   fullGeographicalSchemaField,
   minimalGeographicalSchemaField,
-} from "~/tests/fixtures/forms/geographicalSchemaField/data"
+} from "~/metadata/forms/elements/geographicalSchemaField/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importGeographicalSchemaFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {

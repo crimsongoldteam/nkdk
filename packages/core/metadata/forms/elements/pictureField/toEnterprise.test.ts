@@ -6,7 +6,7 @@ import {
   fullPictureFieldEnterprise,
   fullTablePictureField,
   fullTablePictureFieldEnterprise,
-} from "~/tests/fixtures/forms/pictureField/data"
+} from "~/metadata/forms/elements/pictureField/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 const createContextToEnterprise = () => ({

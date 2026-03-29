@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
-import { fullExtendedTooltip } from "~/tests/fixtures/forms/extendedTooltip/data"
+import { fullExtendedTooltip } from "~/metadata/forms/elements/extendedTooltip/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 const rule: PropertyRule = {
   type: "ExtendedTooltip",
@@ -10,7 +9,7 @@ const rule: PropertyRule = {
 
 describe("importExtendedTooltipFromXML", () => {
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ ExtendedTooltip: any }>("forms/extendedTooltip/full.xml")
+    const xmlData = readAndParseXMLFixture<{ ExtendedTooltip: any }>(import.meta.url, "full.xml")
 
     const result = importPropertyFromXML({
       context: mockContextFromXML(),
@@ -22,7 +21,7 @@ describe("importExtendedTooltipFromXML", () => {
   })
 
   it("should return undefined for defaults", () => {
-    const xmlData = readAndParseXMLFile<{ ExtendedTooltip: any }>("forms/extendedTooltip/defaults.xml")
+    const xmlData = readAndParseXMLFixture<{ ExtendedTooltip: any }>(import.meta.url, "defaults.xml")
 
     const result = importPropertyFromXML({
       context: mockContextFromXML(),

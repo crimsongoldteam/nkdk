@@ -9,7 +9,7 @@ import {
   minimalPictureFieldPartialYAML,
   minimalTablePictureField,
   minimalTablePictureFieldTypedYAML,
-} from "~/tests/fixtures/forms/pictureField/data"
+} from "~/metadata/forms/elements/pictureField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 import { TablePictureField } from "./types"
 

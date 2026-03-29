@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { testExportElementToXML } from "~/tests/element/exportElementToXML"
-import { fullLabelDecoration, minimalLabelDecoration } from "~/tests/fixtures/forms/labelDecoration/data"
+import { fullLabelDecoration, minimalLabelDecoration } from "~/metadata/forms/elements/labelDecoration/__fixtures__/data"
+import { testFixturesDir } from "~/tests/testFixturesDir"
 
 describe("exportLabelDecorationToXML", () => {
   it("should export all fields to XML", () => {
     const resultData = testExportElementToXML({
       element: fullLabelDecoration,
-      path: "forms/labelDecoration/full.xml",
+      path: "full.xml", baseDir: testFixturesDir(import.meta.url),
     })
 
     expect(resultData.result).toEqual(resultData.expectedResult)
@@ -15,7 +16,7 @@ describe("exportLabelDecorationToXML", () => {
   it("should export minimal", () => {
     const resultData = testExportElementToXML({
       element: minimalLabelDecoration,
-      path: "forms/labelDecoration/minimal.xml",
+      path: "minimal.xml", baseDir: testFixturesDir(import.meta.url),
     })
 
     expect(resultData.result).toEqual(resultData.expectedResult)

@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
-import { fullGraphicalSchemaField, minimalGraphicalSchemaField } from "~/tests/fixtures/forms/graphicalSchemaField/data"
+import { fullGraphicalSchemaField, minimalGraphicalSchemaField } from "~/metadata/forms/elements/graphicalSchemaField/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importGraphicalSchemaFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
@@ -16,7 +15,7 @@ describe("importGraphicalSchemaFieldFromXML", () => {
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ GraphicalSchemaField: ElementXML }>("forms/graphicalSchemaField/full.xml")
+    const xmlData = readAndParseXMLFixture<{ GraphicalSchemaField: ElementXML }>(import.meta.url, "full.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),
@@ -28,7 +27,7 @@ describe("importGraphicalSchemaFieldFromXML", () => {
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ GraphicalSchemaField: ElementXML }>("forms/graphicalSchemaField/minimal.xml")
+    const xmlData = readAndParseXMLFixture<{ GraphicalSchemaField: ElementXML }>(import.meta.url, "minimal.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),

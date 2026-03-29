@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { exportPropertyToYAML } from "~/metadata/orchestration"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { fullExtendedTooltip, fullExtendedTooltipYAML } from "~/tests/fixtures/forms/extendedTooltip/data"
+import { fullExtendedTooltip, fullExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 const rule: PropertyRule = {

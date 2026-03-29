@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
-import { fullChartField, fullChartFieldEnterprise } from "~/tests/fixtures/forms/chartField/data"
+import { fullChartField, fullChartFieldEnterprise } from "~/metadata/forms/elements/chartField/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("export ChartField to Enterprise", () => {

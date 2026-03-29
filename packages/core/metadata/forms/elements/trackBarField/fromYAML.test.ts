@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { importElementFromPartialYAML } from "~/metadata/orchestration"
-import { fullTrackBarField, fullTrackBarFieldPartialYAML } from "~/tests/fixtures/forms/trackBarField/data"
+import { fullTrackBarField, fullTrackBarFieldPartialYAML } from "~/metadata/forms/elements/trackBarField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importTrackBarFieldFromYAML", () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
-import { fullLabelDecoration, fullLabelDecorationEnterprise } from "~/tests/fixtures/forms/labelDecoration/data"
+import { fullLabelDecoration, fullLabelDecorationEnterprise } from "~/metadata/forms/elements/labelDecoration/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("export LabelDecoration to Enterprise", () => {

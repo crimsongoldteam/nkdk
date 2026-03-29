@@ -6,8 +6,9 @@ import {
   fullSingleSearchStringAddition,
   minimalSearchStringAddition,
   minimalSingleSearchStringAddition,
-} from "~/tests/fixtures/forms/searchStringAddition/data"
+} from "~/metadata/forms/elements/searchStringAddition/__fixtures__/data"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { testFixturesDir } from "~/tests/testFixturesDir"
 
 const normalizeXML = (value: string): string => value.replace(/\s+/g, " ").trim()
 
@@ -21,7 +22,7 @@ describe("SearchStringAddition to XML", () => {
     it("should return all fields to XML", () => {
       const { expectedResult, result } = testExportElementToXML({
         element: fullSearchStringAddition,
-        path: "forms/searchStringAddition/full.xml",
+        path: "full.xml", baseDir: testFixturesDir(import.meta.url),
       })
 
       expect(result).toEqual(expectedResult)
@@ -30,7 +31,7 @@ describe("SearchStringAddition to XML", () => {
     it("should export minimal", () => {
       const { expectedResult, result } = testExportElementToXML({
         element: minimalSearchStringAddition,
-        path: "forms/searchStringAddition/minimal.xml",
+        path: "minimal.xml", baseDir: testFixturesDir(import.meta.url),
       })
 
       expect(result).toEqual(expectedResult)
@@ -43,7 +44,8 @@ describe("SearchStringAddition to XML", () => {
         rule,
         value: undefined,
         xmlRootTag: "SearchStringAddition",
-        path: "forms/searchStringAddition/minimalSingle.xml",
+        path: "minimalSingle.xml",
+      importMetaUrl: import.meta.url,
         itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
       })
 
@@ -55,7 +57,8 @@ describe("SearchStringAddition to XML", () => {
         rule,
         value: fullSingleSearchStringAddition,
         xmlRootTag: "SearchStringAddition",
-        path: "forms/searchStringAddition/fullSingle.xml",
+        path: "fullSingle.xml",
+      importMetaUrl: import.meta.url,
         itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
       })
 
@@ -67,7 +70,8 @@ describe("SearchStringAddition to XML", () => {
         rule,
         value: minimalSingleSearchStringAddition,
         xmlRootTag: "SearchStringAddition",
-        path: "forms/searchStringAddition/minimalSingle.xml",
+        path: "minimalSingle.xml",
+      importMetaUrl: import.meta.url,
         itemsTree: [{ name: "КакойТоЭлемент", itemType: "Table", path: "Table" }],
       })
 

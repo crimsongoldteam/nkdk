@@ -4,7 +4,7 @@ import {
   fullTrackBarField,
   fullTrackBarFieldPartialYAML,
   minimalTrackBarField,
-} from "~/tests/fixtures/forms/trackBarField/data"
+} from "~/metadata/forms/elements/trackBarField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportTrackBarFieldToYAML", () => {

@@ -5,7 +5,7 @@ import {
   fullAutoCommandBar,
   fullAutoExportCommandBarYAML,
   minimalAutoCommandBar,
-} from "~/tests/fixtures/forms/autoCommandBar/data"
+} from "~/metadata/forms/elements/autoCommandBar/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 const rule: PropertyRule = { type: "AutoCommandBar", yaml: "КоманднаяПанель", toEnterprise: false }

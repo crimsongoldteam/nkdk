@@ -4,7 +4,7 @@ import {
   fullPictureDecoration,
   fullPictureDecorationPartialYAML,
   sourcePictureDecoration,
-} from "~/tests/fixtures/forms/pictureDecoration/data"
+} from "~/metadata/forms/elements/pictureDecoration/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importPictureDecorationFromYAML", () => {

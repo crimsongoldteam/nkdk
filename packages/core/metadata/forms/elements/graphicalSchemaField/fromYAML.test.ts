@@ -5,7 +5,7 @@ import {
   fullGraphicalSchemaFieldPartialYAML,
   minimalGraphicalSchemaField,
   minimalGraphicalSchemaFieldPartialYAML,
-} from "~/tests/fixtures/forms/graphicalSchemaField/data"
+} from "~/metadata/forms/elements/graphicalSchemaField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importGraphicalSchemaFieldFromYAML", () => {

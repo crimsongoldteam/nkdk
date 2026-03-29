@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
-import { fullCommandBar, fullCommandBarEnterprise } from "~/tests/fixtures/forms/commandBar/data"
+import { fullCommandBar, fullCommandBarEnterprise } from "~/metadata/forms/elements/commandBar/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("export CommandBar to Enterprise", () => {

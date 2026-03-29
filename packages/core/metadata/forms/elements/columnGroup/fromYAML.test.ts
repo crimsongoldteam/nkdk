@@ -6,7 +6,7 @@ import {
   fullColumnGroupTypedYAML,
   minimalColumnGroup,
   minimalColumnGroupTypedYAML,
-} from "~/tests/fixtures/forms/columnGroup/data"
+} from "~/metadata/forms/elements/columnGroup/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 import { ColumnGroup } from "./types"
 

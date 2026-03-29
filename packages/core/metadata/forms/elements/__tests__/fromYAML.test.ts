@@ -8,12 +8,14 @@ describe("importElementFromPartialYAML", () => {
   describe.each(Object.entries(groupedFixtures))("%s", (_group, fixtures) => {
     it.each(fixtures)("$name", (fixture) => {
       const model = fixture.model as CollectableElement
+      const source = (fixture.source ?? fixture.model) as CollectableElement
+      const context = fixture.context ?? mockContext
 
       const result = importElementFromPartialYAML({
-        context: mockContext,
+        context,
         itemType: model.itemType,
         yaml: fixture.yaml ?? {},
-        source: model,
+        source,
       })
 
       expect(result).toEqual(model)

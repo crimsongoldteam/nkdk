@@ -15,8 +15,14 @@ const createContextToEnterprise = (): ConfigurationContext => ({
   },
 })
 
+const enterpriseGroupedFixtures = Object.fromEntries(
+  Object.entries(groupedFixtures)
+    .map(([g, fixtures]) => [g, fixtures.filter((f) => f.enterprise !== undefined)] as const)
+    .filter(([, fixtures]) => fixtures.length > 0),
+)
+
 describe("exportElementToEnterprise", () => {
-  describe.each(Object.entries(groupedFixtures))("%s", (_group, fixtures) => {
+  describe.each(Object.entries(enterpriseGroupedFixtures))("%s", (_group, fixtures) => {
     it.each(fixtures)("$name", (fixture) => {
       const result = exportElementToEnterprise({
         context: createContextToEnterprise(),

@@ -4,7 +4,7 @@ import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/
 import {
   fullSpreadSheetDocumentField,
   fullSpreadSheetDocumentFieldEnterprise,
-} from "~/tests/fixtures/forms/spreadSheetDocumentField/data"
+} from "~/metadata/forms/elements/spreadSheetDocumentField/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("export SpreadSheetDocumentField to Enterprise", () => {

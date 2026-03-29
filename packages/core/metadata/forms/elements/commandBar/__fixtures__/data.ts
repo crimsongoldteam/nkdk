@@ -7,7 +7,7 @@ import {
   fullCommandBarChildItemsAllYAML,
   fullCommandBarChildItemsStructure,
   fullCommandBarChildItemsTyped,
-} from "../../commandBarChildItems/data"
+} from "~/tests/fixtures/commandBarChildItems/data"
 
 export const parentElement: NamedElement = {
   name: "КоманднаяПанель",

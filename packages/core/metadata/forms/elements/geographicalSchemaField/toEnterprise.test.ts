@@ -4,7 +4,7 @@ import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/
 import {
   fullGeographicalSchemaField,
   fullGeographicalSchemaFieldEnterprise,
-} from "~/tests/fixtures/forms/geographicalSchemaField/data"
+} from "~/metadata/forms/elements/geographicalSchemaField/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("export GeographicalSchemaField to Enterprise", () => {

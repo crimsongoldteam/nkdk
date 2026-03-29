@@ -8,7 +8,7 @@ import {
   fullCommandBarSource,
   minimalCommandBar,
   minimalCommandBarPartialYAML,
-} from "~/tests/fixtures/forms/commandBar/data"
+} from "~/metadata/forms/elements/commandBar/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 const context: ConfigurationContext = {

@@ -5,9 +5,8 @@ import {
   fullTableCheckBoxField,
   minimalCheckBoxField,
   minimalTableCheckBoxField,
-} from "~/tests/fixtures/forms/checkBoxField/data"
+} from "~/metadata/forms/elements/checkBoxField/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importCheckBoxFieldFromXML", () => {
   describe("importCheckBoxField", () => {
@@ -22,7 +21,7 @@ describe("importCheckBoxFieldFromXML", () => {
     })
 
     it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ CheckBoxField: ElementXML }>("forms/checkBoxField/full.xml")
+      const xmlData = readAndParseXMLFixture<{ CheckBoxField: ElementXML }>(import.meta.url, "full.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -34,7 +33,7 @@ describe("importCheckBoxFieldFromXML", () => {
     })
 
     it("should import minimal", () => {
-      const xmlData = readAndParseXMLFile<{ CheckBoxField: ElementXML }>("forms/checkBoxField/minimal.xml")
+      const xmlData = readAndParseXMLFixture<{ CheckBoxField: ElementXML }>(import.meta.url, "minimal.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -58,7 +57,7 @@ describe("importCheckBoxFieldFromXML", () => {
     })
 
     it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ TableCheckBoxField: ElementXML }>("forms/checkBoxField/fullTable.xml")
+      const xmlData = readAndParseXMLFixture<{ TableCheckBoxField: ElementXML }>(import.meta.url, "fullTable.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -70,7 +69,7 @@ describe("importCheckBoxFieldFromXML", () => {
     })
 
     it("should import minimal", () => {
-      const xmlData = readAndParseXMLFile<{ TableCheckBoxField: ElementXML }>("forms/checkBoxField/minimalTable.xml")
+      const xmlData = readAndParseXMLFixture<{ TableCheckBoxField: ElementXML }>(import.meta.url, "minimalTable.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),

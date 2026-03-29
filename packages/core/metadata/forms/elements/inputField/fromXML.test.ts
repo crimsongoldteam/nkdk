@@ -7,7 +7,6 @@ import {
 } from "~/metadata/forms/elements/inputField/__fixtures__/data"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importInputFieldFromXML", () => {
   describe("InputField", () => {
@@ -22,7 +21,7 @@ describe("importInputFieldFromXML", () => {
     })
 
     it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ InputField: ElementXML }>("forms/inputField/full.xml")
+      const xmlData = readAndParseXMLFixture<{ InputField: ElementXML }>(import.meta.url, "full.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -34,7 +33,7 @@ describe("importInputFieldFromXML", () => {
     })
 
     it("should import minimal", () => {
-      const xmlData = readAndParseXMLFile<{ InputField: ElementXML }>("forms/inputField/minimal.xml")
+      const xmlData = readAndParseXMLFixture<{ InputField: ElementXML }>(import.meta.url, "minimal.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -58,7 +57,7 @@ describe("importInputFieldFromXML", () => {
     })
 
     it("should import all fields from XML", () => {
-      const xmlData = readAndParseXMLFile<{ TableInputField: ElementXML }>("forms/inputField/fullTable.xml")
+      const xmlData = readAndParseXMLFixture<{ TableInputField: ElementXML }>(import.meta.url, "fullTable.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),
@@ -70,7 +69,7 @@ describe("importInputFieldFromXML", () => {
     })
 
     it("should import minimal", () => {
-      const xmlData = readAndParseXMLFile<{ TableInputField: ElementXML }>("forms/inputField/minimalTable.xml")
+      const xmlData = readAndParseXMLFixture<{ TableInputField: ElementXML }>(import.meta.url, "minimalTable.xml")
 
       const result = importElementFromXML({
         context: mockContextFromXML(),

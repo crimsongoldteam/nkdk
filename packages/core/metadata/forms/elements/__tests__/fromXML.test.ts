@@ -1,13 +1,19 @@
+import { dirname, resolve } from "path"
+import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
 import type { CollectableElement, ElementXML } from "~/metadata/orchestration"
 import { importElementFromXML } from "~/metadata/orchestration"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { groupedFixtures } from "./fixtures"
+import { groupedFixtures, type ElementFixture } from "./fixtures"
 
-function fixtureXmlPath(group: string, xmlFile: string): string {
-  const folder = group.charAt(0).toLowerCase() + group.slice(1)
-  return `forms/${folder}/${xmlFile}`
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
+function fixtureXmlBaseDir(fixture: ElementFixture): string {
+  const folder =
+    fixture.xmlFolder ??
+    fixture.group.charAt(0).toLowerCase() + fixture.group.slice(1)
+  return resolve(__dirname, `../${folder}/__fixtures__`)
 }
 
 describe("importElementFromXML", () => {
@@ -15,7 +21,8 @@ describe("importElementFromXML", () => {
     it.each(fixtures)("$name", (fixture) => {
       const model = fixture.model as CollectableElement
       const xmlData = readAndParseXMLFile<Record<string, ElementXML>>(
-        fixtureXmlPath(fixture.group, fixture.xml)
+        fixture.xml,
+        fixtureXmlBaseDir(fixture),
       )
 
       const result = importElementFromXML({

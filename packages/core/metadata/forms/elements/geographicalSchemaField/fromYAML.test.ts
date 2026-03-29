@@ -5,7 +5,7 @@ import {
   fullGeographicalSchemaFieldPartialYAML,
   minimalGeographicalSchemaField,
   minimalGeographicalSchemaFieldPartialYAML,
-} from "~/tests/fixtures/forms/geographicalSchemaField/data"
+} from "~/metadata/forms/elements/geographicalSchemaField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importGeographicalSchemaFieldFromYAML", () => {

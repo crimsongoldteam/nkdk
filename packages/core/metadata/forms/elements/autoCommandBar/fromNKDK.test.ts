@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { autoCommandBarStructureFixturesTable } from "~/tests/fixtures/forms/autoCommandBar/data"
+import { autoCommandBarStructureFixturesTable } from "~/metadata/forms/elements/autoCommandBar/__fixtures__/data"
 import { testimportFormAutoCommandBarFromNKDK } from "~/tests/fromNKDK"
 import { mockContext } from "~/tests/mockContext"
 

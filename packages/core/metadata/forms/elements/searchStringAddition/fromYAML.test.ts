@@ -7,7 +7,7 @@ import {
   fullSingleSearchStringAddition,
   minimalSearchStringAddition,
   sourceSearchStringAddition,
-} from "~/tests/fixtures/forms/searchStringAddition/data"
+} from "~/metadata/forms/elements/searchStringAddition/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 import { PropertyRule } from "./rules"
 

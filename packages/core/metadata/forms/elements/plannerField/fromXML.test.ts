@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
-import { fullPlannerField, minimalPlannerField } from "~/tests/fixtures/forms/plannerField/data"
+import { fullPlannerField, minimalPlannerField } from "~/metadata/forms/elements/plannerField/__fixtures__/data"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 
 describe("importPlannerFieldFromXML", () => {
   it("should return undefined when data is undefined", () => {
@@ -16,7 +15,7 @@ describe("importPlannerFieldFromXML", () => {
   })
 
   it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ PlannerField: ElementXML }>("forms/plannerField/full.xml")
+    const xmlData = readAndParseXMLFixture<{ PlannerField: ElementXML }>(import.meta.url, "full.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),
@@ -28,7 +27,7 @@ describe("importPlannerFieldFromXML", () => {
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ PlannerField: ElementXML }>("forms/plannerField/minimal.xml")
+    const xmlData = readAndParseXMLFixture<{ PlannerField: ElementXML }>(import.meta.url, "minimal.xml")
 
     const result = importElementFromXML({
       context: mockContextFromXML(),

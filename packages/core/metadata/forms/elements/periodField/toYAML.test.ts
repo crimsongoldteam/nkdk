@@ -4,7 +4,7 @@ import {
   fullPeriodField,
   fullPeriodFieldPartialYAML,
   minimalPeriodField,
-} from "~/tests/fixtures/forms/periodField/data"
+} from "~/metadata/forms/elements/periodField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportPeriodFieldToYAML", () => {

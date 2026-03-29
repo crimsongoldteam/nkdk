@@ -4,7 +4,7 @@ import {
   fullDendrogramField,
   fullDendrogramFieldPartialYAML,
   minimalDendrogramField,
-} from "~/tests/fixtures/forms/dendrogramField/data"
+} from "~/metadata/forms/elements/dendrogramField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportDendrogramFieldToYAML", () => {

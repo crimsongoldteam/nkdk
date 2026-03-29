@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { importElementFromPartialYAML } from "~/metadata/orchestration"
-import { fullLabelDecoration, fullLabelDecorationPartialYAML } from "~/tests/fixtures/forms/labelDecoration/data"
+import { fullLabelDecoration, fullLabelDecorationPartialYAML } from "~/metadata/forms/elements/labelDecoration/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importLabelDecorationFromYAML", () => {

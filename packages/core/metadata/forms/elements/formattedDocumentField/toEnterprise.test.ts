@@ -4,7 +4,7 @@ import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/
 import {
   fullFormattedDocumentField,
   fullFormattedDocumentFieldEnterprise,
-} from "~/tests/fixtures/forms/formattedDocumentField/data"
+} from "~/metadata/forms/elements/formattedDocumentField/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("export FormattedDocumentField to Enterprise", () => {

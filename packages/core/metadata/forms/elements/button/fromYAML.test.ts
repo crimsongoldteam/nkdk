@@ -6,7 +6,7 @@ import {
   fullButtonTypedYAML,
   minimalButton,
   minimalButtonTypedYAML,
-} from "~/tests/fixtures/forms/button/data"
+} from "~/metadata/forms/elements/button/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 import { Button } from "./types"
 

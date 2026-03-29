@@ -6,7 +6,7 @@ import {
   fullSingleSearchControlAddition,
   minimalSearchControlAddition,
   sourceSearchControlAddition,
-} from "~/tests/fixtures/forms/searchControlAddition/data"
+} from "~/metadata/forms/elements/searchControlAddition/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 const rule: PropertyRule = { type: "SingleSearchControlAddition" }

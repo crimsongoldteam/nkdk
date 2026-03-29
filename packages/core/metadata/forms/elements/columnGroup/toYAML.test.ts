@@ -5,7 +5,7 @@ import {
   fullColumnGroupPartialYAML,
   fullColumnGroupTypedYAML,
   minimalColumnGroup,
-} from "~/tests/fixtures/forms/columnGroup/data"
+} from "~/metadata/forms/elements/columnGroup/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportColumnGroupToYAML", () => {

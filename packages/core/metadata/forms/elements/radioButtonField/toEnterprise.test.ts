@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
-import { fullRadioButtonField, fullRadioButtonFieldEnterprise } from "~/tests/fixtures/forms/radioButtonField/data"
+import { fullRadioButtonField, fullRadioButtonFieldEnterprise } from "~/metadata/forms/elements/radioButtonField/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 describe("export RadioButtonField to Enterprise", () => {

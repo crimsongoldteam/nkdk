@@ -16,12 +16,14 @@ export const readAndParseXMLFile = <T>(filePath: string, baseDir?: string): T =>
 }
 
 /**
- * Reads XML file from lib/tests/fixtures directory as a string
- * @param filePath - path to file relative to lib/tests/fixtures (e.g., "typeDescription/stringType.xml")
+ * Reads XML file from lib/tests/fixtures (default) or from `baseDir` as a string
+ * @param filePath - path to file relative to base directory (e.g., "typeDescription/stringType.xml")
+ * @param baseDir - optional directory containing the file
  * @returns XML file content as a string
  */
-export const readXMLFileAsString = (filePath: string): string => {
-  const fullPath = join(process.cwd(), "/tests/fixtures", filePath)
+export const readXMLFileAsString = (filePath: string, baseDir?: string): string => {
+  const dir = baseDir ?? join(process.cwd(), "/tests/fixtures")
+  const fullPath = join(dir, filePath)
   return readFileSync(fullPath, "utf-8")
 }
 

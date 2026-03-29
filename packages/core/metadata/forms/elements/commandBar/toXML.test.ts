@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { testExportElementToXML } from "~/tests/element/exportElementToXML"
-import { fullCommandBar, minimalCommandBar } from "~/tests/fixtures/forms/commandBar/data"
+import { fullCommandBar, minimalCommandBar } from "~/metadata/forms/elements/commandBar/__fixtures__/data"
+import { testFixturesDir } from "~/tests/testFixturesDir"
 
 describe("exportCommandBarToXML", () => {
   it("should export all fields to XML", () => {
     const resultData = testExportElementToXML({
       element: fullCommandBar,
-      path: "forms/commandBar/full.xml",
+      path: "full.xml", baseDir: testFixturesDir(import.meta.url),
     })
 
     expect(resultData.result).toEqual(resultData.expectedResult)
@@ -15,7 +16,7 @@ describe("exportCommandBarToXML", () => {
   it("should export minimal", () => {
     const resultData = testExportElementToXML({
       element: minimalCommandBar,
-      path: "forms/commandBar/minimal.xml",
+      path: "minimal.xml", baseDir: testFixturesDir(import.meta.url),
     })
 
     expect(resultData.result).toEqual(resultData.expectedResult)

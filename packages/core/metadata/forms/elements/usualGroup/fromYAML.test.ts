@@ -5,7 +5,7 @@ import {
   fullUsualGroupPartialYAML,
   minimalUsualGroup,
   minimalUsualGroupPartialYAML,
-} from "~/tests/fixtures/forms/usualGroup/data"
+} from "~/metadata/forms/elements/usualGroup/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importUsualGroupFromYAML", () => {

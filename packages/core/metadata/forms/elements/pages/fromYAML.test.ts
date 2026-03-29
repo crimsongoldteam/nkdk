@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { importElementFromPartialYAML } from "~/metadata/orchestration"
-import { fullPages, fullPagesPartialYAML } from "~/tests/fixtures/forms/pages/data"
+import { fullPages, fullPagesPartialYAML } from "~/metadata/forms/elements/pages/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importPagesFromYAML", () => {

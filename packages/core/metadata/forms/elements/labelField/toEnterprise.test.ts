@@ -5,7 +5,7 @@ import {
   fullLabelFieldEnterprise,
   fullTableLabelField,
   fullTableLabelFieldEnterprise,
-} from "~/tests/fixtures/forms/labelField/data"
+} from "~/metadata/forms/elements/labelField/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 const createContextToEnterprise = () => ({

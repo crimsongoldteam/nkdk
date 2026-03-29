@@ -9,7 +9,7 @@ import {
   minimalLabelFieldPartialYAML,
   minimalTableLabelField,
   minimalTableLabelFieldTypedYAML,
-} from "~/tests/fixtures/forms/labelField/data"
+} from "~/metadata/forms/elements/labelField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 import { TableLabelField } from "./types"
 

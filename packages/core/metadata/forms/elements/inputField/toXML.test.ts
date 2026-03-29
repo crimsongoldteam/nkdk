@@ -6,13 +6,14 @@ import {
   minimalTableInputField,
 } from "~/metadata/forms/elements/inputField/__fixtures__/data"
 import { testExportElementToXML } from "~/tests/element/exportElementToXML"
+import { testFixturesDir } from "~/tests/testFixturesDir"
 
 describe("exportInputFieldToXML", () => {
   describe("InputField", () => {
     it("should export all fields to XML", () => {
       const resultData = testExportElementToXML({
         element: fullInputField,
-        path: "forms/inputField/full.xml",
+        path: "full.xml", baseDir: testFixturesDir(import.meta.url),
       })
 
       expect(resultData.result).toEqual(resultData.expectedResult)
@@ -21,7 +22,7 @@ describe("exportInputFieldToXML", () => {
     it("should export minimal", () => {
       const resultData = testExportElementToXML({
         element: minimalInputField,
-        path: "forms/inputField/minimal.xml",
+        path: "minimal.xml", baseDir: testFixturesDir(import.meta.url),
       })
 
       expect(resultData.result).toEqual(resultData.expectedResult)
@@ -32,7 +33,7 @@ describe("exportInputFieldToXML", () => {
     it("should export all fields to XML", () => {
       const resultData = testExportElementToXML({
         element: fullTableInputField,
-        path: "forms/inputField/fullTable.xml",
+        path: "fullTable.xml", baseDir: testFixturesDir(import.meta.url),
       })
 
       expect(resultData.result).toEqual(resultData.expectedResult)
@@ -41,7 +42,7 @@ describe("exportInputFieldToXML", () => {
     it("should export minimal", () => {
       const resultData = testExportElementToXML({
         element: minimalTableInputField,
-        path: "forms/inputField/minimalTable.xml",
+        path: "minimalTable.xml", baseDir: testFixturesDir(import.meta.url),
       })
 
       expect(resultData.result).toEqual(resultData.expectedResult)
