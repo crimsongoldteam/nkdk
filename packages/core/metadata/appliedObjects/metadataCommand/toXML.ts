@@ -22,6 +22,8 @@ const exportMetadataCommandToXML = (
     rule: MetadataCommandRules,
   })
 
+  if (propertiesFlat == undefined) return undefined
+
   const Properties = sortObject(propertiesFlat) as MetadataCommandXML["Properties"]
 
   // const parentPath = getParentFromContext(context, ["MetadataCatalog"]).path

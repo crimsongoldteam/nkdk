@@ -4,26 +4,45 @@ import {
   fullFormCommandsYAML,
   minimalFormCommandYAML,
   minimalFormCommands,
-} from "~/tests/fixtures/forms/commands/data"
-import { mockContextToYAML, mockRule } from "~/tests/mockContext"
-import { exportCommandsToYAML } from "./toYAML"
+} from "~/metadata/forms/commonObjects/formCommand/__fixtures__/data"
+import { exportPropertyToYAML, PropertyRule } from "~/metadata/orchestration"
+import { mockContext } from "~/tests/mockContext"
+import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 
-describe("exportCommandToYAML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportCommandsToYAML(mockContextToYAML, mockRule, undefined)
+import "./types"
+
+const rule: PropertyRule = {
+  type: "FormCommands",
+  yaml: "Команды",
+  defaultValue: [],
+}
+
+describe("export FormCommands to YAML", () => {
+  it("should return undefined for undefined input", () => {
+    const result = exportPropertyToYAML({
+      context: mockContext,
+      rule,
+      value: undefined,
+    })
 
     expect(result).toBeUndefined()
   })
 
-  it("should export all fields to YAML", () => {
-    const result = exportCommandsToYAML(mockContextToYAML, mockRule, fullFormCommands)
+  it("should export full to YAML", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: fullFormCommands,
+    })
 
-    expect(result).toEqual(fullFormCommandsYAML)
+    expect(result).toEqual({ Команды: fullFormCommandsYAML })
   })
 
   it("should export minimal", () => {
-    const result = exportCommandsToYAML(mockContextToYAML, mockRule, minimalFormCommands)
+    const result = testExportPropertyToYAML({
+      rule,
+      value: minimalFormCommands,
+    })
 
-    expect(result).toEqual(minimalFormCommandYAML)
+    expect(result).toEqual({ Команды: minimalFormCommandYAML })
   })
 })

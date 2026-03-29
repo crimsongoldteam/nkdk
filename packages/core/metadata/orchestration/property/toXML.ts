@@ -17,33 +17,45 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
 
   const result: ItemXML = {}
 
+  const xmlContext = context.exportToXML?.context
+  if (xmlContext) {
+    if (xmlContext.propertiesItemXmlStack === undefined) {
+      xmlContext.propertiesItemXmlStack = []
+    }
+    xmlContext.propertiesItemXmlStack.push(result)
+  }
+
   const orderedKeys = getOrderedKeysToXML({ rule, tag, referenceMetadata })
 
-  for (const key of orderedKeys) {
-    if (key === "itemType") continue
-    const ruleProp = rule.properties[key]
-    if (!shouldProcessProperty({ rule: ruleProp, operation: "exportToXML" })) continue
+  try {
+    for (const key of orderedKeys) {
+      if (key === "itemType") continue
+      const ruleProp = rule.properties[key]
+      if (!shouldProcessProperty({ rule: ruleProp, operation: "exportToXML" })) continue
 
-    const currentContext: ConfigurationContextWithExportToXML = {
-      ...context,
-      exportToXML: { ...context.exportToXML },
+      const currentContext: ConfigurationContextWithExportToXML = {
+        ...context,
+        exportToXML: { ...context.exportToXML },
+      }
+
+      const value = metadata === undefined ? undefined : (metadata as any)[key]
+
+      const referenceValue = referenceMetadata === undefined ? undefined : (referenceMetadata as any)[key]
+
+      const valueToExport = value !== undefined ? value : referenceValue
+
+      const exportedValue = exportPropertyToXML({
+        context: currentContext,
+        rule: ruleProp,
+        value: valueToExport,
+        referenceMetadata: referenceValue,
+        metadataItem: metadata,
+      })
+
+      setXMLValue(key, result, ruleProp, exportedValue)
     }
-
-    const value = metadata === undefined ? undefined : (metadata as any)[key]
-
-    const referenceValue = referenceMetadata === undefined ? undefined : (referenceMetadata as any)[key]
-
-    const valueToExport = value !== undefined ? value : referenceValue
-
-    const exportedValue = exportPropertyToXML({
-      context: currentContext,
-      rule: ruleProp,
-      value: valueToExport,
-      referenceMetadata: referenceValue,
-      metadataItem: metadata,
-    })
-
-    setXMLValue(key, result, ruleProp, exportedValue)
+  } finally {
+    xmlContext?.propertiesItemXmlStack?.pop()
   }
 
   return result

@@ -47,6 +47,22 @@ export const minimalFormCommands: FormCommand[] = [
   },
 ]
 
+export const minimalFormCommandsFromXML: FormCommand[] = [
+  {
+    itemType: "FormCommand",
+    name: "СоставКомплектаПодобратьФайлы",
+    title: { items: { ru: "" } },
+  },
+]
+
+export const minimalFormCommandsImportedFromYAML: FormCommand[] = [
+  {
+    itemType: "FormCommand",
+    name: "СоставКомплектаПодобратьФайлы",
+    title: { items: { ru: "Состав комплекта подобрать файлы" } },
+  },
+]
+
 export const minimalFormCommandYAML: FormCommandsYAML = {
   СоставКомплектаПодобратьФайлы: {},
 }

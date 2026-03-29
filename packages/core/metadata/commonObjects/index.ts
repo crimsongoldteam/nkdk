@@ -155,6 +155,7 @@ import "./predifined/toJSONSchema"
 import "./predifined/toXML"
 import "./predifined/toYAML"
 
+import "./standardAttributeDescription/rules"
 import "./standardAttributeDescription/toJSONSchema"
 import "./standardAttributeDescription/types"
 

@@ -47,6 +47,8 @@ export type ToXMLConfigurationContext = {
     templates: string[]
     parentName: string
     metadataForNumbering: ToXMLContextElement<ElementType | "FormAttributeColumn" | "FormAttribute" | "FormCommand">[]
+    /** Стек объекта ItemXML, собираемого exportPropertiesToXML (для ElementId и нумерации _id) */
+    propertiesItemXmlStack?: Record<string, unknown>[]
   }
 }
 
