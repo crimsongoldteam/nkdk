@@ -20,13 +20,22 @@ import {
   TableLabelField,
   TablePictureField,
 } from "nkdk-language"
-import { fullButton, fullButtonEnterprise, fullButtonPartialYAML, minimalButton } from "../button/__fixtures__/data"
+import {
+  fullButton,
+  fullButtonEnterprise,
+  fullButtonPartialYAML,
+  fullButtonTypedYAML,
+  minimalButton,
+  minimalButtonTypedYAML,
+} from "../button/__fixtures__/data"
 import {
   fullButtonGroup,
   fullButtonGroupEnterprise,
   fullButtonGroupPartialYAML,
   fullButtonGroupSource,
+  fullButtonGroupTypedYAML,
   minimalButtonGroup,
+  minimalButtonGroupTypedYAML,
 } from "../buttonGroup/__fixtures__/data"
 import {
   fullCalendarField,
@@ -47,14 +56,18 @@ import {
   fullTableCheckBoxField,
   fullTableCheckBoxFieldEnterprise,
   fullTableCheckBoxFieldPartialYAML,
+  fullTableCheckBoxFieldTypedYAML,
   minimalCheckBoxField,
   minimalTableCheckBoxField,
+  minimalTableCheckBoxFieldTypedYAML,
 } from "../checkBoxField/__fixtures__/data"
 import {
   fullColumnGroup,
   fullColumnGroupEnterprise,
   fullColumnGroupPartialYAML,
+  fullColumnGroupTypedYAML,
   minimalColumnGroup,
+  minimalColumnGroupTypedYAML,
 } from "../columnGroup/__fixtures__/data"
 import {
   fullCommandBar,
@@ -106,9 +119,11 @@ import {
   fullTableInputField,
   fullTableInputFieldEnterprise,
   fullTableInputFieldPartialYAML,
+  fullTableInputFieldTypedYAML,
   minimalInputField,
   minimalInputFieldEnterprise,
   minimalTableInputField,
+  minimalTableInputFieldTypedYAML,
 } from "../inputField/__fixtures__/data"
 import {
   fullLabelDecoration,
@@ -123,11 +138,20 @@ import {
   fullTableLabelField,
   fullTableLabelFieldEnterprise,
   fullTableLabelFieldPartialYAML,
+  fullTableLabelFieldTypedYAML,
   minimalLabelField,
   minimalTableLabelField,
+  minimalTableLabelFieldTypedYAML,
 } from "../labelField/__fixtures__/data"
 import { fullPage, fullPageEnterprise, fullPagePartialYAML, minimalPage } from "../page/__fixtures__/data"
-import { fullPages, fullPagesEnterprise, fullPagesPartialYAML, minimalPages } from "../pages/__fixtures__/data"
+import {
+  fullPages,
+  fullPagesEnterprise,
+  fullPagesPartialYAML,
+  fullPagesTypedYAML,
+  minimalPages,
+  minimalPagesTypedYAML,
+} from "../pages/__fixtures__/data"
 import {
   fullPDFDocumentField,
   fullPDFDocumentFieldEnterprise,
@@ -154,8 +178,10 @@ import {
   fullTablePictureField,
   fullTablePictureFieldEnterprise,
   fullTablePictureFieldPartialYAML,
+  fullTablePictureFieldTypedYAML,
   minimalPictureField,
   minimalTablePictureField,
+  minimalTablePictureFieldTypedYAML,
 } from "../pictureField/__fixtures__/data"
 import {
   fullPlannerField,
@@ -167,7 +193,9 @@ import {
   fullPopup,
   fullPopupEnterprise,
   fullPopupPartialYAML,
+  fullPopupTypedYAML,
   minimalPopup,
+  minimalPopupTypedYAML,
   sourcePopup,
 } from "../popup/__fixtures__/data"
 import {
@@ -234,6 +262,7 @@ export type ElementFixture = {
   model: object
   source?: object
   yaml: object | undefined
+  typedYAML?: object
   enterprise?: object
   context?: ConfigurationContext
 }
@@ -270,6 +299,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: "inputField",
     model: fullTableInputField,
     yaml: fullTableInputFieldPartialYAML,
+    typedYAML: fullTableInputFieldTypedYAML,
     enterprise: fullTableInputFieldEnterprise,
   },
   {
@@ -280,6 +310,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: "inputField",
     model: minimalTableInputField,
     yaml: undefined,
+    typedYAML: minimalTableInputFieldTypedYAML,
     enterprise: undefined,
   },
   //#endregion
@@ -292,6 +323,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: fullButton,
     yaml: fullButtonPartialYAML,
+    typedYAML: fullButtonTypedYAML,
     enterprise: fullButtonEnterprise,
   },
   {
@@ -302,6 +334,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: minimalButton,
     yaml: undefined,
+    typedYAML: minimalButtonTypedYAML,
     enterprise: undefined,
   },
   //#endregion
@@ -315,6 +348,7 @@ export const ElementFixtures: ElementFixture[] = [
     model: fullButtonGroup,
     source: fullButtonGroupSource,
     yaml: fullButtonGroupPartialYAML,
+    typedYAML: fullButtonGroupTypedYAML,
     enterprise: fullButtonGroupEnterprise,
   },
   {
@@ -325,6 +359,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: minimalButtonGroup,
     yaml: undefined,
+    typedYAML: minimalButtonGroupTypedYAML,
     enterprise: undefined,
   },
   //#endregion
@@ -403,6 +438,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: "checkBoxField",
     model: fullTableCheckBoxField,
     yaml: fullTableCheckBoxFieldPartialYAML,
+    typedYAML: fullTableCheckBoxFieldTypedYAML,
     enterprise: fullTableCheckBoxFieldEnterprise,
   },
   {
@@ -413,6 +449,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: "checkBoxField",
     model: minimalTableCheckBoxField,
     yaml: undefined,
+    typedYAML: minimalTableCheckBoxFieldTypedYAML,
     enterprise: undefined,
   },
   //#endregion
@@ -425,6 +462,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: fullColumnGroup,
     yaml: fullColumnGroupPartialYAML,
+    typedYAML: fullColumnGroupTypedYAML,
     enterprise: fullColumnGroupEnterprise,
   },
   {
@@ -435,6 +473,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: minimalColumnGroup,
     yaml: undefined,
+    typedYAML: minimalColumnGroupTypedYAML,
     enterprise: undefined,
   },
   //#endregion
@@ -648,6 +687,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: "labelField",
     model: fullTableLabelField,
     yaml: fullTableLabelFieldPartialYAML,
+    typedYAML: fullTableLabelFieldTypedYAML,
     enterprise: fullTableLabelFieldEnterprise,
   },
   {
@@ -658,6 +698,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: "labelField",
     model: minimalTableLabelField,
     yaml: undefined,
+    typedYAML: minimalTableLabelFieldTypedYAML,
     enterprise: undefined,
   },
   //#endregion
@@ -692,6 +733,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: fullPages,
     yaml: fullPagesPartialYAML,
+    typedYAML: fullPagesTypedYAML,
     enterprise: fullPagesEnterprise,
   },
   {
@@ -702,6 +744,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: minimalPages,
     yaml: undefined,
+    typedYAML: minimalPagesTypedYAML,
     enterprise: undefined,
   },
   //#endregion
@@ -803,6 +846,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: "pictureField",
     model: fullTablePictureField,
     yaml: fullTablePictureFieldPartialYAML,
+    typedYAML: fullTablePictureFieldTypedYAML,
     enterprise: fullTablePictureFieldEnterprise,
   },
   {
@@ -813,6 +857,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: "pictureField",
     model: minimalTablePictureField,
     yaml: undefined,
+    typedYAML: minimalTablePictureFieldTypedYAML,
     enterprise: undefined,
   },
   //#endregion
@@ -848,6 +893,7 @@ export const ElementFixtures: ElementFixture[] = [
     model: fullPopup,
     source: sourcePopup,
     yaml: fullPopupPartialYAML,
+    typedYAML: fullPopupTypedYAML,
     enterprise: fullPopupEnterprise,
   },
   {
@@ -858,6 +904,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: minimalPopup,
     yaml: undefined,
+    typedYAML: minimalPopupTypedYAML,
     enterprise: undefined,
   },
   //#endregion
@@ -1066,6 +1113,16 @@ export const ElementFixtures: ElementFixture[] = [
 ]
 
 export const groupedFixtures = ElementFixtures.reduce(
+  (acc, fixture) => {
+    acc[fixture.group] = [...(acc[fixture.group] || []), fixture]
+    return acc
+  },
+  {} as Record<string, ElementFixture[]>
+)
+
+export const typedElementFixtures = ElementFixtures.filter((f) => f.typedYAML !== undefined)
+
+export const groupedTypedFixtures = typedElementFixtures.reduce(
   (acc, fixture) => {
     acc[fixture.group] = [...(acc[fixture.group] || []), fixture]
     return acc

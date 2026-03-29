@@ -4,11 +4,15 @@ import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
 
-export const testExportElementToXML = <TElement extends CollectableElement>(params: {
+export type TestExportElementToXMLParams<TElement extends CollectableElement = CollectableElement> = {
   element: TElement
   path: string
   baseDir?: string
-}): { expectedResult: string; result: string } => {
+}
+
+export function testExportElementToXML<TElement extends CollectableElement>(
+  params: TestExportElementToXMLParams<TElement>,
+): { expectedResult: string; result: string } {
   const { element, path, baseDir } = params
 
   const metadataType = element.itemType
