@@ -31,6 +31,8 @@ describe("export <PropertyType> to XML", () => {
 })
 ```
 
+**Сравнение в assert:** всегда **`expect(result).toEqual(expectedResult)`**. Неверно оборачивать оба значения в парсер XML, например `expect(importContentFromXML(result)).toEqual(importContentFromXML(expectedResult!))` — так делать не нужно.
+
 Если `path` и `importMetaUrl` не указывать, эталонный XML из файла не читается: `expectedResult` будет `undefined`, сравнение делай сам (например сравни `result` со строкой XML из `__fixtures__/data.ts` напрямую).
 
 Правила:

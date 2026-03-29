@@ -48,10 +48,10 @@ description: Базовый скилл для тестов конвертеро�
    - для **свойств** через реестр — `testImportPropertyFromYAML` и `value` из `data.ts` (см. раздел «Обёртки тестов»);
    - для **прямого** `importFooFromYAML` в своём модуле — вызов функции с `mockContext` и эталоном из `data.ts`;
    - сравнивай результат с полной fixture-моделью из `data.ts`.
-5. Для `toXML` / `toDcsXML`:
+5. Для `toXML` / `toDcsXML` через **`testExportPropertyToXML`**:
    - бери полную fixture-модель из `data.ts`,
    - экспортируй в XML,
-   - сравнивай с XML-эталоном через парсинг XML-структуры (не строкой).
+   - сравнивай эталон и результат **напрямую:** **`expect(result).toEqual(expectedResult)`** (оба значения — строки XML от `xmlExport` и из фикстуры). **Не** используй `importContentFromXML(result)` и `importContentFromXML(expectedResult)` в `expect` для этого сценария.
 6. Для `toYAML`:
    - для **свойств** через реестр — `testExportPropertyToYAML` (`~/tests/property/exportPropertyToYAML`); в `PropertyRule` нужен `yaml` (ключ выхода);
    - для **прямого** `exportFooToYAML` — вызов с `mockContext` и сверка с `*YAML` из `data.ts`.
@@ -64,7 +64,7 @@ description: Базовый скилл для тестов конвертеро�
 1. Не делай round-trip тесты (например, `XML -> model -> XML -> model` или `YAML -> model -> YAML -> model`).
 2. Не тестируй отдельные свойства/поля объекта точечными `expect`-проверками.
 3. Не проверяй частичные фрагменты модели, если есть полная fixture-модель для сравнения.
-4. Не сравнивай XML как строку, если можно сравнить распарсенные структуры.
+4. В тестах **`testExportPropertyToXML`** не подменяй сравнение на «распарсить оба и сравнить объекты» через `importContentFromXML` — эталон уже согласован со строкой вывода; используй **`expect(result).toEqual(expectedResult)`**. (В других тестах, где нет этого хелпера, правило о сравнении см. по месту.)
 5. Не дублируй low-level проверки, если поведение уже покрывается сверкой полной модели с фикстурой.
 6. Не исправляй fixture-несоответствия в тесте через «локальные костыли»; исправляй/дополняй только `__fixtures__/data.ts` (и при необходимости `__fixtures__/*.xml`).
 

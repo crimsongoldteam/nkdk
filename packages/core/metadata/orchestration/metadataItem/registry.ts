@@ -10,6 +10,18 @@ import {
   ConditionalAppearanceItem,
   ConditionalAppearanceItemYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import {
+  CalculatedField,
+  CalculatedFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
+import {
+  CalculatedFieldOrderExpressionItem,
+  CalculatedFieldOrderExpressionItemYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/types"
+import {
+  CalculatedFieldUseRestriction,
+  CalculatedFieldUseRestrictionYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types"
 import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import {
   FilterItemComparison,
@@ -507,6 +519,18 @@ export type MetadataItemTypeRegistry = {
   AppearanceFields: {
     metadata: AppearanceFields
     yaml: AppearanceFieldsYAML
+  }
+  CalculatedField: {
+    metadata: CalculatedField
+    yaml: CalculatedFieldYAML
+  }
+  CalculatedFieldUseRestriction: {
+    metadata: CalculatedFieldUseRestriction
+    yaml: CalculatedFieldUseRestrictionYAML
+  }
+  CalculatedFieldOrderExpression: {
+    metadata: CalculatedFieldOrderExpressionItem
+    yaml: CalculatedFieldOrderExpressionItemYAML
   }
   ConditionalAppearanceItem: {
     metadata: ConditionalAppearanceItem

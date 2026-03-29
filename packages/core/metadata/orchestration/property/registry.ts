@@ -17,6 +17,18 @@ import {
   AvailableFieldsYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
 import {
+  CalculatedField,
+  CalculatedFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
+import {
+  CalculatedFieldOrderExpression,
+  CalculatedFieldOrderExpressionYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/types"
+import {
+  CalculatedFieldUseRestriction,
+  CalculatedFieldUseRestrictionYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types"
+import {
   ConditionalAppearanceItem,
   ConditionalAppearanceYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
@@ -523,6 +535,18 @@ export type PropertyTypeRegistry = {
     item: AppearanceFields
     yaml: AppearanceFieldsYAML
   }
+  CalculatedField: {
+    item: CalculatedField
+    yaml: CalculatedFieldYAML
+  }
+  CalculatedFieldUseRestriction: {
+    item: CalculatedFieldUseRestriction
+    yaml: CalculatedFieldUseRestrictionYAML
+  }
+  CalculatedFieldOrderExpression: {
+    item: CalculatedFieldOrderExpression
+    yaml: CalculatedFieldOrderExpressionYAML
+  }
   Filter: {
     item: Filter
     yaml: FilterYAML
@@ -625,6 +649,9 @@ export const PropertyRuleTypeKeys = Object.keys({
   FilterItemPresentationValue: "FilterItemPresentationValue",
   FilterItemPrimitiveValue: "FilterItemPrimitiveValue",
   AppearanceFields: "AppearanceFields",
+  CalculatedField: "CalculatedField",
+  CalculatedFieldUseRestriction: "CalculatedFieldUseRestriction",
+  CalculatedFieldOrderExpression: "CalculatedFieldOrderExpression",
   Filter: "Filter",
   AvailableFields: "AvailableFields",
   FilterItem: "FilterItem",
