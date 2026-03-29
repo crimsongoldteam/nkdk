@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
 import { OtherElement } from "../../commonObjects/childItems/types"
-import { exportOtherElementToNKDK } from "./exportToStructure"
+import { exportOtherElementToNKDK } from "./toNKDK"
 import { NamedElement } from "./types"
 
 describe("formatOtherElement", () => {

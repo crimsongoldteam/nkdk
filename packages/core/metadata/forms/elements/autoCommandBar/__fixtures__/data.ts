@@ -1,12 +1,11 @@
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
-
 import {
   fullCommandBarChildItemsAllYAML,
   fullCommandBarChildItemsStructure,
   fullCommandBarChildItemsTyped,
-} from "../../commandBarChildItems/data"
+} from "~/tests/fixtures/commandBarChildItems/data"
 
 export const parentElement: NamedElement = {
   name: "КакойТоЭлемент",

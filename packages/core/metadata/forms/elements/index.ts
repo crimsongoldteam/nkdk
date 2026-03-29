@@ -124,4 +124,4 @@ import "./viewStatusAddition/rules"
 import "./viewStatusAddition/types"
 
 import "../clientApplicationForm/toNKDK"
-import "./baseElement/exportToStructure"
+import "./baseElement/toNKDK"

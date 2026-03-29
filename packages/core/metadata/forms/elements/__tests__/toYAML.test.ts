@@ -18,8 +18,8 @@ describe("exportElementToPartialYAML", () => {
 })
 
 describe("exportElementToTypedYAML", () => {
-  describe.each(Object.entries(groupedTypedFixtures))("%s", (_group, fixtures) => {
-    it.each(fixtures)("$name", (fixture) => {
+  describe.each(Object.entries(groupedTypedFixtures))("%s", (group, fixtures) => {
+    it.each(fixtures)(`${group} -  $name`, (fixture) => {
       const result = exportElementToTypedYAML({
         context: mockContext,
         element: fixture.model as TypedFormElement,

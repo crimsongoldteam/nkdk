@@ -166,4 +166,5 @@ export const minimalColumnGroupPartialYAML: ColumnGroupPartialYAML = {}
 
 export const minimalColumnGroupTypedYAML: ColumnGroupTypedYAML = {
   Тип: "ГруппаКолонок",
+  Группировка: "Вертикальная",
 }
