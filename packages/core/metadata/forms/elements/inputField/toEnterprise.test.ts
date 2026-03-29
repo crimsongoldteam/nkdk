@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
 import {
   fullInputField,
   fullInputFieldEnterprise,
   fullTableInputField,
   fullTableInputFieldEnterprise,
-} from "~/tests/fixtures/forms/inputField/data"
+} from "~/metadata/forms/elements/inputField/__fixtures__/data"
+import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 
 const createContextToEnterprise = (): ConfigurationContext => ({

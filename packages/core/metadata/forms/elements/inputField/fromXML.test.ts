@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import {
   fullInputField,
   fullTableInputField,
   minimalInputField,
   minimalTableInputField,
-} from "~/tests/fixtures/forms/inputField/data"
+} from "~/metadata/forms/elements/inputField/__fixtures__/data"
+import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 

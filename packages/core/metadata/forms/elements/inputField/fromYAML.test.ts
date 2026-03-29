@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/orchestration"
 import {
   fullInputField,
   fullInputFieldPartialYAML,
@@ -9,7 +8,8 @@ import {
   minimalInputFieldPartialYAML,
   minimalTableInputField,
   minimalTableInputFieldTypedYAML,
-} from "~/tests/fixtures/forms/inputField/data"
+} from "~/metadata/forms/elements/inputField/__fixtures__/data"
+import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/orchestration"
 import { mockContext } from "~/tests/mockContext"
 import { TableInputField } from "./types"
 

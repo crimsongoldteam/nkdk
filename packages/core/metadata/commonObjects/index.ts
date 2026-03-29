@@ -7,6 +7,10 @@ import "./additionalIndex/toYAML"
 import "./boolean/fromXML"
 import "./boolean/toJSONSchema"
 
+import "./number/fromXML"
+import "./number/toJSONSchema"
+import "./number/toXML"
+
 import "./userSettingsID/fromXML"
 import "./userSettingsID/fromYAML"
 import "./userSettingsID/toXML"

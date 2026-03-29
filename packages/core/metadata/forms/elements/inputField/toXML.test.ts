@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { testExportElementToXML } from "~/tests/element/exportElementToXML"
 import {
   fullInputField,
   fullTableInputField,
   minimalInputField,
   minimalTableInputField,
-} from "~/tests/fixtures/forms/inputField/data"
+} from "~/metadata/forms/elements/inputField/__fixtures__/data"
+import { testExportElementToXML } from "~/tests/element/exportElementToXML"
 
 describe("exportInputFieldToXML", () => {
   describe("InputField", () => {

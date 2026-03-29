@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/orchestration"
 import {
   fullInputField,
   fullInputFieldPartialYAML,
@@ -8,7 +7,8 @@ import {
   minimalInputField,
   minimalTableInputField,
   minimalTableInputFieldTypedYAML,
-} from "~/tests/fixtures/forms/inputField/data"
+} from "~/metadata/forms/elements/inputField/__fixtures__/data"
+import { exportElementToPartialYAML, exportElementToTypedYAML } from "~/metadata/orchestration"
 import { mockContext } from "~/tests/mockContext"
 
 describe("exportInputFieldToYAML", () => {

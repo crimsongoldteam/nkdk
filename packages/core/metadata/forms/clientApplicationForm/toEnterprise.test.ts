@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fullInputField } from "~/tests/fixtures/forms/inputField/data"
+import { fullInputField } from "~/metadata/forms/elements/inputField/__fixtures__/data"
 import { mockContextToEnterprise } from "~/tests/mockContext"
 import { exportClientApplicationFormToEnterprise } from "./toEnterprise"
 import { ClientApplicationForm } from "./types"
