@@ -1,0 +1,5 @@
+<dcssch:orderExpression>
+    <expression xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Наименование</expression>
+    <orderType xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Asc</orderType>
+    <autoOrder xmlns="http://v8.1c.ru/8.1/data-composition-system/common">true</autoOrder>
+</dcssch:orderExpression>

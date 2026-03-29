@@ -1,0 +1,6 @@
+<dcssch:useRestriction>
+    <dcssch:field>true</dcssch:field>
+    <dcssch:condition>true</dcssch:condition>
+    <dcssch:group>true</dcssch:group>
+    <dcssch:order>true</dcssch:order>
+</dcssch:useRestriction>
