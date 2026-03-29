@@ -20,6 +20,9 @@ export const registerImportFromYAML = <Rule extends MetadataItemRule>(
       value: unknown
       name?: string
     }): ToMetadata<Rule["itemType"]> | undefined => {
+      if (params.value == null && params.source == null) {
+        return undefined
+      }
       return importMetadataItemFromYAML({
         context: params.context,
         yaml: params.value as ToYAML<Rule["itemType"]> | undefined,
