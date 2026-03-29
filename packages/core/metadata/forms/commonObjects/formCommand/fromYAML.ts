@@ -30,6 +30,8 @@ const importCommandFromYAML = (
     name,
   })
 
+  if (properties == undefined) return undefined
+
   return {
     ...properties,
     name,

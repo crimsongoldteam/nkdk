@@ -9,7 +9,7 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
   rule: Rule
   referenceData?: ToMetadata<Rule["itemType"]> | undefined
   tag?: string[]
-}): ItemXML => {
+}): ItemXML | undefined => {
   const { context, data, rule, referenceData, tag } = params
 
   const result = exportPropertiesToXML({
@@ -19,6 +19,8 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
     rule,
     tag,
   })
+
+  if (Object.keys(result).length === 0) return undefined
 
   return result
 }

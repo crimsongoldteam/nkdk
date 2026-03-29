@@ -19,9 +19,14 @@ export const importMetadataItemCollectionFromYAMLAsArray = <Rule extends Metadat
 
   if (yaml == undefined || yaml.length === 0) return undefined
 
-  const result = yaml.map((item) => {
-    return importMetadataItemFromYAML({ context, rule: itemRule, yaml: item })
-  })
+  const result: ToMetadata<Rule["itemType"]>[] = []
+  for (const item of yaml) {
+    const itemMetadata = importMetadataItemFromYAML({ context, rule: itemRule, yaml: item }) as ToMetadata<
+      Rule["itemType"]
+    >
+    if (itemMetadata == undefined) continue
+    result.push(itemMetadata)
+  }
 
   return result.length > 0 ? result : undefined
 }
@@ -36,7 +41,8 @@ export const importMetadataItemCollectionFromYAMLAsRecord = <Rule extends Metada
 
   if (yaml == undefined) return undefined
 
-  const result = Object.entries(yaml).map(([key, value]) => {
+  const result: ToMetadata<Rule["itemType"]>[] = []
+  for (const [key, value] of Object.entries(yaml)) {
     const name = nameFromYAMLKey !== undefined ? nameFromYAMLKey(key) : key
     const item = importMetadataItemFromYAML({
       context,
@@ -44,9 +50,9 @@ export const importMetadataItemCollectionFromYAMLAsRecord = <Rule extends Metada
       yaml: value,
       name,
     })
-    // Ключ записи в YAML — имя элемента коллекции (реквизит, команда и т.д.)
-    return { ...item, name } as ToMetadata<Rule["itemType"]>
-  })
+    if (item == undefined) continue
+    result.push({ ...item, name } as ToMetadata<Rule["itemType"]>)
+  }
 
   return result.length > 0 ? result : undefined
 }

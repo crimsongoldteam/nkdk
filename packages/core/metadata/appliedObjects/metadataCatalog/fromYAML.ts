@@ -17,6 +17,8 @@ export const importMetadataCatalogFromYAML = (
     name,
   })
 
+  if (result == undefined) return undefined
+
   return {
     ...result,
     name,

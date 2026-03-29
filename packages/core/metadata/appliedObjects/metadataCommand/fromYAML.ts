@@ -24,6 +24,8 @@ export const importMetadataCommandFromYAML = (
     name,
     source: { name } as MetadataCommand,
   })
+  if (raw == undefined) return undefined
+
   const result: MetadataCommand = {
     ...raw,
     name,

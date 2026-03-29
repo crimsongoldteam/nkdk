@@ -53,13 +53,16 @@ const importFormAttributeFromYAML = (
   const attribute = {
     ...properties,
     name,
-  } as const
+  }
 
   const columns = importFormAttributeColumnsFromYAML(context, yaml, attribute as FormAttribute)
+
+  if (columns == undefined) throw new Error("Columns are required")
 
   return {
     ...attribute,
     columns,
+    itemType: "FormAttribute",
   }
 }
 
@@ -112,6 +115,8 @@ const importColumnFromYAML = (
     rule: FormAttributeColumnRules,
     name,
   })
+
+  if (properties == undefined) throw new Error("Properties are required")
 
   const result: FormAttributeColumn = {
     ...properties,

@@ -52,6 +52,8 @@ const importMetadataAttributeFromYAML = (
     name,
   })
 
+  if (properties == undefined) throw new Error("Properties are required")
+
   const result: MetadataAttribute = {
     ...properties,
     name,

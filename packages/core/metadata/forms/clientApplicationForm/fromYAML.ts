@@ -27,6 +27,8 @@ export const importClientApplicationFormFromYAML = (
     source: source,
   })
 
+  if (properties == undefined) throw new Error("Properties are required")
+
   const result: ClientApplicationForm = {
     ...(autoCommandBar ? { autoCommandBar } : {}),
     ...properties,

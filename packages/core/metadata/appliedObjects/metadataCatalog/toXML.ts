@@ -49,6 +49,8 @@ export const exportMetadataCatalogToXML = (params: {
     referenceData,
   })
 
+  if (flat == undefined) return undefined
+
   const catalogFromRules = flat.Catalog as MetadataCatalogXML["Catalog"]
   const childObjects = { ...catalogFromRules.ChildObjects }
   const forms = getFormsFromContext(currentContext)

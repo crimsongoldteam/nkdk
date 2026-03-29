@@ -9,7 +9,7 @@ export const importMetadataItemFromYAML = <Rule extends MetadataItemRule>(params
   rule: Rule
   source?: ToMetadata<Rule["itemType"]>
   name?: string
-}): ToMetadata<Rule["itemType"]> => {
+}): ToMetadata<Rule["itemType"]> | undefined => {
   const { context, yaml, rule, source, name } = params
 
   const properties = importPropertiesFromYAML({
@@ -19,6 +19,10 @@ export const importMetadataItemFromYAML = <Rule extends MetadataItemRule>(params
     source,
     name,
   })
+
+  if (properties == undefined) {
+    return undefined
+  }
 
   return {
     ...properties,
