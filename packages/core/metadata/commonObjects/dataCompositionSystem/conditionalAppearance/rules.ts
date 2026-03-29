@@ -8,21 +8,25 @@ export const ConditionalAppearanceItemRules = {
       xml: "dcsset:use",
       yaml: "Использование",
       defaultValueYAML: true,
+      order: 0,
     },
     fields: {
       type: "AvailableFields",
       xml: "dcsset:selection",
       yaml: "Поля",
+      order: 1,
     },
     filter: {
       type: "Filter",
       xml: "dcsset:filter",
       yaml: "Отбор",
+      order: 2,
     },
     appearance: {
       type: "AppearanceFields",
       xml: "dcsset:appearance",
       yaml: "Оформление",
+      order: 3,
     },
     presentation: {
       type: "I8nText",
