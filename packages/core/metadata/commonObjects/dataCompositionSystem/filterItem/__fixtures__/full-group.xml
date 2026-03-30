@@ -1,8 +1,17 @@
 <dcsset:item xsi:type="dcsset:FilterItemGroup">
-	<dcsset:application>Items</dcsset:application>
 	<dcsset:groupType>OrGroup</dcsset:groupType>
-	<dcsset:presentation>ГруппаОтбора</dcsset:presentation>
-	<dcsset:use>false</dcsset:use>
-	<dcsset:userSettingPresentation>НастройкиГруппы</dcsset:userSettingPresentation>
-	<dcsset:viewMode>QuickAccess</dcsset:viewMode>
+	<dcsset:presentation xsi:type="v8:LocalStringType">
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Представление</v8:content>
+		</v8:item>
+	</dcsset:presentation>
+	<dcsset:viewMode>Normal</dcsset:viewMode>
+	<dcsset:userSettingID>020f583f-ed48-47c1-b824-30b02c09aff9</dcsset:userSettingID>
+	<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Пользовательское представление</v8:content>
+		</v8:item>
+	</dcsset:userSettingPresentation>
 </dcsset:item>
