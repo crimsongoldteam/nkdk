@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { dcsTypeLink } from "./__fixtures__/data"
 import type { DcsMetadataValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
 import type { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { dcsTypeLink } from "./__fixtures__/data"
 
 const rule = {
   type: "MetadataDcsMetadataValue",
@@ -11,12 +11,12 @@ const rule = {
 } satisfies DcsMetadataValuePropertyRule
 
 describe("export TypeLink to DCS XML", () => {
-  it("exports dcs/typeLink-wrapped.xml", () => {
+  it("exports dcs/typeLink.xml", () => {
     const { expectedResult, result } = testExportPropertyToXML({
       rule: rule as PropertyRule,
       value: dcsTypeLink,
-      xmlRootTag: "root",
-      path: "dcs/typeLink-wrapped.xml",
+      xmlRootTag: "dcscor:value",
+      path: "dcs/typeLink.xml",
       importMetaUrl: import.meta.url,
     })
 
