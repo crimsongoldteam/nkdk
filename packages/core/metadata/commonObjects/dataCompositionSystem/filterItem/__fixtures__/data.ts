@@ -3,47 +3,45 @@ import type { FilterItemComparison, FilterItemComparisonYAML, FilterItemGroup, F
 export const fullFilterItemComparison = {
   itemType: "FilterItemComparison",
   use: false,
-  leftValue: { type: "Field", value: "Реквизит1" },
+  leftValue: { type: "Field", value: "Ссылка" },
   comparisonType: "Equal",
-  rightValue: { type: "boolean", value: true },
+  rightValue: { type: "DesignTimeValue", value: "Справочник.Справочник1.ПустаяСсылка" },
   presentation: { items: { ru: "Представление" } },
-  application: "Items",
-  viewMode: "QuickAccess",
-  userSettingPresentation: "ТекстПредставленияНастройки",
+  viewMode: "Normal",
+  userSettingID: true,
+  userSettingPresentation: { items: { ru: "Пользовательское представление" } },
 } as const satisfies FilterItemComparison
 
 export const fullFilterItemComparisonYAML = {
   Использование: "Ложь",
-  ЛевоеЗначение: ".Реквизит1",
+  ЛевоеЗначение: ".Ссылка",
   ВидСравнения: "Равно",
-  ПравоеЗначение: "Истина",
+  ПравоеЗначение: "Справочник.Справочник1.ПустаяСсылка",
   Представление: "Представление",
-  Применение: "Элементы",
-  РежимОтображения: "БыстрыйДоступ",
-  ПредставлениеПользовательскойНастройки: "ТекстПредставленияНастройки",
+  ПредставлениеПользовательскойНастройки: "Пользовательское представление",
+  РежимОтображения: "Обычный",
+  ИспользоватьПользовательскуюНастройку: "Истина",
 } as const satisfies Required<
-  Omit<FilterItemComparisonYAML, "ВидСравнения" | "ИспользоватьПользовательскуюНастройку">
+  Omit<FilterItemComparisonYAML, "ВидСравнения" | "Применение">
 > & {
   ВидСравнения: "Равно"
 }
 
 export const fullFilterItemGroup = {
   itemType: "FilterItemGroup",
-  use: false,
   groupType: "OrGroup",
-  presentation: "ГруппаОтбора",
-  application: "Items",
-  viewMode: "QuickAccess",
-  userSettingPresentation: "НастройкиГруппы",
-} as const satisfies Required<Omit<FilterItemGroup, "id" | "items" | "userSettingID">>
+  presentation: { items: { ru: "Представление" } },
+  viewMode: "Normal",
+  userSettingID: true,
+  userSettingPresentation: { items: { ru: "Пользовательское представление" } },
+} as const satisfies Omit<FilterItemGroup, "id" | "items">
 
 export const fullFilterItemGroupYAML = {
-  Использование: "Ложь",
   ТипГруппы: "ГруппаИли",
-  Представление: "ГруппаОтбора",
-  Применение: "Элементы",
-  РежимОтображения: "БыстрыйДоступ",
-  ПредставлениеПользовательскойНастройки: "НастройкиГруппы",
+  Представление: "Представление",
+  ПредставлениеПользовательскойНастройки: "Пользовательское представление",
+  РежимОтображения: "Обычный",
+  ИспользоватьПользовательскуюНастройку: "Истина",
 } as const satisfies Required<
-  Omit<FilterItemGroupYAML, "Элементы" | "ИспользоватьПользовательскуюНастройку" | "РежимОтображения">
-> & { РежимОтображения: "БыстрыйДоступ" }
+  Omit<FilterItemGroupYAML, "Элементы" | "Использование" | "Применение">
+>

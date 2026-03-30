@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import { fullFilterForExport, fullFilterYAML } from "./__fixtures__/data"
+import { filterFixture, fullFilterFixtureYAML } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
   type: "Filter",
@@ -12,9 +12,9 @@ describe("export Filter to YAML", () => {
   it("exports full to YAML", () => {
     const result = testExportPropertyToYAML({
       rule,
-      value: fullFilterForExport,
+      value: filterFixture,
     })
 
-    expect(result).toEqual({ Отбор: fullFilterYAML })
+    expect(result).toEqual({ Отбор: fullFilterFixtureYAML })
   })
 })

@@ -11,8 +11,9 @@ const exportFilterItemElementToXML = (params: {
   context: ConfigurationContextWithExportToXML
   rule: PropertyRule
   value: FilterItem[number] | undefined
+  referenceData?: FilterItem[number]
 }) => {
-  const { context, value } = params
+  const { context, value, referenceData } = params
   if (!value) return undefined
 
   if (value.itemType === "FilterItemComparison") {
@@ -22,6 +23,7 @@ const exportFilterItemElementToXML = (params: {
         context,
         data: value,
         rule: FilterItemComparisonRules,
+        referenceData: referenceData?.itemType === "FilterItemComparison" ? referenceData : undefined,
       }),
     }
   }
@@ -33,6 +35,7 @@ const exportFilterItemElementToXML = (params: {
         context,
         data: value,
         rule: FilterItemGroupRules,
+        referenceData: referenceData?.itemType === "FilterItemGroup" ? referenceData : undefined,
       }),
     }
   }
@@ -44,15 +47,17 @@ export const exportFilterItemToXML: ExportToXMLFunctionNew = (params: {
   context: ConfigurationContextWithExportToXML
   rule: PropertyRule
   value: FilterItem | undefined
-  // referenceMetadata?: FilterItem | undefined
+  referenceMetadata?: FilterItem
 }) => {
-  const { context, rule, value } = params
+  const { context, rule, value, referenceMetadata } = params
   if (!value || value.length === 0) return undefined
-  const exported = value.flatMap((item) => {
+  const exported = value.flatMap((item, index) => {
+    const refItem = Array.isArray(referenceMetadata) ? referenceMetadata[index] : undefined
     const xml = exportFilterItemElementToXML({
       context,
       rule,
       value: item,
+      referenceData: refItem,
     })
     return xml ? [xml] : []
   })

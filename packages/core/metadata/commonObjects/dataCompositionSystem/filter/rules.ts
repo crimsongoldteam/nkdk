@@ -26,7 +26,7 @@ export const FilterRules = {
       yaml: "ИспользоватьПользовательскуюНастройку",
     },
     userSettingPresentation: {
-      type: "string",
+      type: "I8nText",
       xml: "dcsset:userSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройки",
     },

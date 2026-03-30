@@ -1,17 +1,6 @@
 import type { Filter, FilterYAML } from "../types"
 
-export const fullFilterFromXML = {
-  itemType: "Filter",
-  items: [
-    {
-      itemType: "FilterItemComparison",
-      leftValue: { type: "Field", value: "Поле1" },
-      comparisonType: "Contains",
-    },
-  ],
-} as const satisfies Filter
-
-export const fullFilterForExport = {
+export const filterFixture = {
   itemType: "Filter",
   items: [
     {
@@ -21,23 +10,10 @@ export const fullFilterForExport = {
       rightValue: { type: "string", value: "" },
     },
   ],
-  userSettingPresentation: "Представление отбора",
+  userSettingPresentation: { items: { ru: "Представление отбора" } },
 } as const satisfies Filter
 
-export const fullFilterFromYAML = {
-  itemType: "Filter",
-  items: [
-    {
-      itemType: "FilterItemComparison",
-      leftValue: { type: "Field", value: "Поле1" },
-      comparisonType: "Contains",
-      rightValue: { type: "string", value: "" },
-    },
-  ],
-  userSettingPresentation: "Представление отбора",
-} as const satisfies Filter
-
-export const fullFilterYAML = {
+export const fullFilterFixtureYAML = {
   Элементы: [
     {
       ЛевоеЗначение: ".Поле1",
