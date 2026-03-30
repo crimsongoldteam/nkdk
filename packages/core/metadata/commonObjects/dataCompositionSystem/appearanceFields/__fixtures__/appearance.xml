@@ -1,7 +1,7 @@
 <dcsset:appearance>
 	<dcscor:item xsi:type="dcsset:SettingsParameterValue">
-		<dcscor:parameter>ЦветФона</dcscor:parameter>
 		<dcscor:use>false</dcscor:use>
+		<dcscor:parameter>ЦветФона</dcscor:parameter>
 		<dcscor:value xsi:type="v8ui:Color">web:Red</dcscor:value>
 	</dcscor:item>
 	<dcscor:item xsi:type="dcsset:SettingsParameterValue">

@@ -1,4 +1,4 @@
-import type { Filter, FilterYAML } from "../types"
+import type { Filter } from "../types"
 
 export const filterFixture = {
   itemType: "Filter",
@@ -7,7 +7,6 @@ export const filterFixture = {
       itemType: "FilterItemComparison",
       leftValue: { type: "Field", value: "Поле1" },
       comparisonType: "Contains",
-      rightValue: { type: "string", value: "" },
     },
   ],
   userSettingPresentation: { items: { ru: "Представление отбора" } },
@@ -18,8 +17,7 @@ export const fullFilterFixtureYAML = {
     {
       ЛевоеЗначение: ".Поле1",
       ВидСравнения: "Содержит",
-      ПравоеЗначение: "''",
     },
   ],
-  ПредставлениеПользовательскойНастройки: "Представление отбора",
-} as const satisfies FilterYAML
+  ПредставлениеПользовательскойНастройки: { items: { ru: "Представление отбора" } },
+} as const

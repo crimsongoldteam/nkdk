@@ -62,8 +62,8 @@ const xmlFull = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 </dcscor:item>`
 
 const xmlUseFalse = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
-	<dcscor:parameter>ЦветФона</dcscor:parameter>
 	<dcscor:use>false</dcscor:use>
+	<dcscor:parameter>ЦветФона</dcscor:parameter>
 	<dcscor:value xsi:type="v8ui:Color">web:Red</dcscor:value>
 </dcscor:item>`
 
@@ -102,8 +102,8 @@ const xmlSystemEnumeration = `<dcscor:item xsi:type="dcsset:SettingsParameterVal
 </dcscor:item>`
 
 const xmlFewValues = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
-	<dcscor:parameter>ИмяПараметра</dcscor:parameter>
 	<dcscor:use>false</dcscor:use>
+	<dcscor:parameter>ИмяПараметра</dcscor:parameter>
 	<dcscor:value xsi:type="v8:LocalStringType">
 		<v8:item>
 			<v8:lang>ru</v8:lang>

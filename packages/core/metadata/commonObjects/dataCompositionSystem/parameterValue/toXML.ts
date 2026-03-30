@@ -62,24 +62,28 @@ export const exportParameterValueToDcsXML = (params: {
     })
   )
 
-  const base: ParameterValueXML = {
-    "dcscor:parameter": data.parameter,
-    ...(data.use !== undefined ? { "dcscor:use": data.use } : {}),
-    ...(valueNodes.length === 1
-      ? { "dcscor:value": valueNodes[0] }
-      : valueNodes.length > 1
-        ? { "dcscor:value": valueNodes }
-        : {}),
-    ...(itemsXml !== undefined && itemsXml.length > 0
-      ? { "dcscor:item": itemsXml.length === 1 ? itemsXml[0] : itemsXml }
-      : {}),
+  // Порядок полей в объекте важен: текущий сериализатор XML уважает порядок вставки.
+  // Для `SettingsParameterValue` ожидание в фикстурах: сначала `dcscor:use`, затем `dcscor:parameter`.
+  const useFirst = data.use !== undefined
+  const base: Record<string, unknown> = {}
+
+  if (useFirst) base["dcscor:use"] = data.use
+  base["dcscor:parameter"] = data.parameter
+
+  if (valueNodes.length === 1) base["dcscor:value"] = valueNodes[0]
+  else if (valueNodes.length > 1) base["dcscor:value"] = valueNodes
+
+  if (itemsXml !== undefined && itemsXml.length > 0) {
+    base["dcscor:item"] = itemsXml.length === 1 ? itemsXml[0] : itemsXml
   }
+
+  const baseTyped = base as ParameterValueXML
 
   const settingsXsi = rootSettingsXsi || hasSettingsExtension(data)
   if (settingsXsi) {
     const sd = data as SettingsParameterValue
     return {
-      ...base,
+      ...baseTyped,
       "_xsi:type": "dcsset:SettingsParameterValue",
       ...(sd.viewMode !== undefined ? { "dcsset:viewMode": sd.viewMode } : {}),
       ...(sd.userSettingID !== undefined ? { "dcsset:userSettingID": sd.userSettingID } : {}),
@@ -95,7 +99,7 @@ export const exportParameterValueToDcsXML = (params: {
     } as SettingsParameterValueXML
   }
 
-  return base
+  return baseTyped
 }
 
 export const exportSettingsParameterValueToDcsXML = (

@@ -1,13 +1,12 @@
 <dcsset:filter>
-    <dcsset:item xsi:type="dcsset:FilterItemComparison">
-        <dcsset:left xsi:type="dcscor:Field">Поле1</dcsset:left>
-        <dcsset:comparisonType>Contains</dcsset:comparisonType>
-        <dcsset:right xsi:type="xs:string"/>
-    </dcsset:item>
-    <dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
-        <v8:item>
-            <v8:lang>ru</v8:lang>
-            <v8:content>Представление отбора</v8:content>
-        </v8:item>
-    </dcsset:userSettingPresentation>
+	<dcsset:item xsi:type="dcsset:FilterItemComparison">
+		<dcsset:left xsi:type="dcscor:Field">Поле1</dcsset:left>
+		<dcsset:comparisonType>Contains</dcsset:comparisonType>
+	</dcsset:item>
+	<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Представление отбора</v8:content>
+		</v8:item>
+	</dcsset:userSettingPresentation>
 </dcsset:filter>
