@@ -63,8 +63,8 @@ export const exportParameterValueToDcsXML = (params: {
   )
 
   const base: ParameterValueXML = {
-    ...(data.use !== undefined ? { "dcscor:use": data.use } : {}),
     "dcscor:parameter": data.parameter,
+    ...(data.use !== undefined ? { "dcscor:use": data.use } : {}),
     ...(valueNodes.length === 1
       ? { "dcscor:value": valueNodes[0] }
       : valueNodes.length > 1

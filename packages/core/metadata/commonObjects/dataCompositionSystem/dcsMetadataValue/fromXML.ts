@@ -131,15 +131,18 @@ export const importDcsMetadataValueFromDcsXML = (
   throw new Error(`DCS MetadataValue: unsupported xsi:type ${String(xsi)}`)
 }
 
+const isDcsMetadataValueRootXml = (value: unknown): value is MetadataDcsMetadataValueDcsRootXML =>
+  typeof value === "object" && value !== null && !Array.isArray(value) && "dcscor:value" in value
+
 const importDcsMetadataValueFromXMLForRule: (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
   value: unknown
-) => MetadataDcsMetadataValue = (context, rule, value) =>
-  importDcsMetadataValueFromDcsXML(
-    context,
-    rule as unknown as DcsMetadataValuePropertyRule,
-    value as MetadataDcsMetadataValueDcsRootXML
-  )
+) => MetadataDcsMetadataValue = (context, rule, value) => {
+  const xml: MetadataDcsMetadataValueDcsRootXML = isDcsMetadataValueRootXml(value)
+    ? value
+    : { "dcscor:value": value as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }
+  return importDcsMetadataValueFromDcsXML(context, rule as unknown as DcsMetadataValuePropertyRule, xml)
+}
 
 registerTypeRule("MetadataDcsMetadataValue", "importFromXML", importDcsMetadataValueFromXMLForRule)

@@ -100,12 +100,13 @@ export const exportDcsMetadataValueToXML = (
   context: ConfigurationContext,
   rule: PropertyRule,
   data: MetadataDcsMetadataValue
-): MetadataDcsMetadataValueDcsRootXML => {
-  return exportDcsMetadataValueToDcsXML({
+): MetadataDcsMetadataValueDcsRootXML["dcscor:value"] => {
+  const root = exportDcsMetadataValueToDcsXML({
     context,
     rule: rule as unknown as DcsMetadataValuePropertyRule,
     data,
   })
+  return root["dcscor:value"]
 }
 
 registerTypeRule("MetadataDcsMetadataValue", "exportToXML", exportDcsMetadataValueToXML)

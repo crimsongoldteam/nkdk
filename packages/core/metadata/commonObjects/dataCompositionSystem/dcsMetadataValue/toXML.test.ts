@@ -7,9 +7,9 @@ describe("export MetadataDcsMetadataValue to XML", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule: fixture.rule,
       value: fixture.value,
-      xmlRootTag: "root",
-      path: `expected/${fixture.id}.xml`,
+      xmlRootTag: "dcscor:value",
       importMetaUrl: import.meta.url,
+      path: fixture.xml,
     })
 
     expect(result).toEqual(expectedResult)

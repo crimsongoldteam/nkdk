@@ -70,35 +70,6 @@ export const yamlChoiceParameterDecimal: ChoiceParametersYAML = {
   Параметр: 123,
 }
 
-const xmlColor = `<dcscor:value xsi:type="v8ui:Color">web:Red</dcscor:value>`
-const xmlField = `<dcscor:value xsi:type="dcscor:Field">Реквизит1</dcscor:value>`
-const xmlBoolean = `<dcscor:value xsi:type="xs:boolean">true</dcscor:value>`
-const xmlLocalStringType = `<dcscor:value xsi:type="v8:LocalStringType">
-    <v8:item>
-        <v8:lang>ru</v8:lang>
-        <v8:content>ЧЦ=3; ЧДЦ=2</v8:content>
-    </v8:item>
-</dcscor:value>`
-const xmlHorizontalAlign = `<dcscor:value xsi:type="v8ui:HorizontalAlign">Center</dcscor:value>`
-const xmlFont = `<dcscor:value xsi:type="v8ui:Font" ref="style:ExtraLargeTextFont" kind="StyleItem"/>`
-const xmlTypeLink = `<dcscor:value xsi:type="dcscor:TypeLink">
-    <dcscor:field>Поле1</dcscor:field>
-    <dcscor:linkItem>2</dcscor:linkItem>
-</dcscor:value>`
-const xmlChoiceParameterLinks = `<dcscor:value xsi:type="dcscor:ChoiceParameterLinks">
-    <dcscor:item>
-        <dcscor:choiceParameter>ПараметрВыбора</dcscor:choiceParameter>
-        <dcscor:value>Поле1</dcscor:value>
-        <dcscor:mode xsi:type="ent:LinkedValueChangeMode">DontChange</dcscor:mode>
-    </dcscor:item>
-</dcscor:value>`
-const xmlChoiceParameter = `<dcscor:value xsi:type="dcscor:ChoiceParameters">
-	<dcscor:item>
-		<dcscor:choiceParameter>Параметр</dcscor:choiceParameter>
-		<dcscor:value xsi:type="xs:decimal">123</dcscor:value>
-	</dcscor:item>
-</dcscor:value>`
-
 export type DcsMetadataValueFixture = {
   id: string
   title: string
@@ -115,7 +86,7 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     rule: { type: "MetadataDcsMetadataValue", valueType: "Color", yaml: "value" },
     value: fixtureColorWebRed,
     yaml: yamlColorWebRed,
-    xml: xmlColor,
+    xml: "color.xml",
   },
   {
     id: "field",
@@ -123,7 +94,7 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     rule: { type: "MetadataDcsMetadataValue", valueType: "Field", yaml: "value" },
     value: fixtureFieldPath,
     yaml: yamlFieldPath,
-    xml: xmlField,
+    xml: "field.xml",
   },
   {
     id: "primitiveBoolean",
@@ -131,7 +102,7 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     rule: { type: "MetadataDcsMetadataValue", valueType: "Primitive", yaml: "value" },
     value: fixtureBooleanPrimitive,
     yaml: yamlBooleanPrimitive,
-    xml: xmlBoolean,
+    xml: "primitive-boolean.xml",
   },
   {
     id: "designTimeValue",
@@ -139,7 +110,7 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
     value: fixtureLocalStringI8n,
     yaml: yamlLocalStringI8n,
-    xml: xmlLocalStringType,
+    xml: "design-time-value.xml",
   },
   {
     id: "systemEnumerationHorizontalAlign",
@@ -152,7 +123,7 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     },
     value: fixtureHorizontalAlign,
     yaml: yamlHorizontalAlign,
-    xml: xmlHorizontalAlign,
+    xml: "system-enumeration-horizontal-align.xml",
   },
   {
     id: "font",
@@ -160,7 +131,7 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     rule: { type: "MetadataDcsMetadataValue", valueType: "Font", yaml: "value" },
     value: fixtureFontStyleExtraLarge,
     yaml: yamlFontStyleExtraLarge,
-    xml: xmlFont,
+    xml: "font.xml",
   },
   {
     id: "typeLink",
@@ -168,7 +139,7 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     rule: { type: "MetadataDcsMetadataValue", valueType: "TypeLink", yaml: "value" },
     value: fixtureTypeLink,
     yaml: yamlTypeLink,
-    xml: xmlTypeLink,
+    xml: "type-link.xml",
   },
   {
     id: "choiceParameterLinks",
@@ -176,7 +147,7 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     rule: { type: "MetadataDcsMetadataValue", valueType: "ChoiceParameterLinks", yaml: "value" },
     value: fixtureChoiceParameterLinks,
     yaml: yamlChoiceParameterLinks,
-    xml: xmlChoiceParameterLinks,
+    xml: "choice-parameter-links.xml",
   },
   {
     id: "parameter",
@@ -184,6 +155,6 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     rule: { type: "MetadataDcsMetadataValue", valueType: "Parameter", yaml: "value" },
     value: fixtureChoiceParameterDecimal,
     yaml: yamlChoiceParameterDecimal,
-    xml: xmlChoiceParameter,
+    xml: "parameter.xml",
   },
 ]

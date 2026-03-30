@@ -7,8 +7,9 @@ describe("import MetadataDcsMetadataValue from XML", () => {
     expect(
       testImportPropertyFromXML({
         rule: fixture.rule,
-        xmlRootTag: "root",
-        xmlString: `<root>${fixture.xml}</root>`,
+        xmlRootTag: "dcscor:value",
+        importMetaUrl: import.meta.url,
+        path: fixture.xml,
       })
     ).toEqual(fixture.value)
   })

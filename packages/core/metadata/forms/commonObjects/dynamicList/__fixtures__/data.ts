@@ -1,10 +1,12 @@
-import type { ConditionalAppearance, ConditionalAppearanceYAML } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import type {
+  ConditionalAppearance,
+  ConditionalAppearanceYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
 import type { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 
-const queryText =
-  "ВЫБРАТЬ\nСправочник1.Реквизит1 КАК Реквизит1\nИЗ\nСправочник.Справочник1 КАК Справочник1"
+const queryText = "ВЫБРАТЬ\nСправочник1.Реквизит1 КАК Реквизит1\nИЗ\nСправочник.Справочник1 КАК Справочник1"
 
 const filter = {
   itemType: "Filter",
@@ -96,7 +98,7 @@ export const fullDynamicList = {
 export const fullDynamicListYAML = {
   АвтоЗаполнениеДоступныхПолей: "Ложь",
   ПроизвольныйЗапрос: "Истина",
-  ДинамическоеСчитываниеДанных: "Истина",
+  ДинамическоеСчитываниеДанных: "Ложь",
   ПолучениеПредставленийДляНевидимыхПолей: "Ложь",
   ТекстЗапроса: queryText,
   ОсновнаяТаблица: "Catalog.Справочник1",
