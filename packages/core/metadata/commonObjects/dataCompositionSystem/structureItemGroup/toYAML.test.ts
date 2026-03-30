@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import { fullStructureItemGroup, fullStructureItemGroupYAMLExport } from "./__fixtures__/data"
+import { fixtureDynamicListStructureItemGroup, fullStructureItemGroupYAMLExport } from "./__fixtures__/data"
 import "./types"
 
 const rule: PropertyRule = {
@@ -13,7 +13,7 @@ describe("export StructureItemGroup to YAML", () => {
   it("exports full object", () => {
     const result = testExportPropertyToYAML({
       rule,
-      value: fullStructureItemGroup,
+      value: fixtureDynamicListStructureItemGroup,
     })
 
     expect(result).toEqual({

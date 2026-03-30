@@ -1,13 +1,11 @@
 import type { StructureItemGroup } from "../types"
 
-export const fullStructureItemGroup = {
+export const fixtureDynamicListStructureItemGroup = {
   itemType: "StructureItemGroup",
   groupItems: [
     {
       itemType: "GroupItemField",
       field: "Наименование",
-      groupType: "Items",
-      periodAdditionType: "None",
     },
   ],
   item: [
@@ -26,8 +24,7 @@ export const fullStructureItemGroup = {
             {
               itemType: "GroupItemField",
               field: "ПометкаУдаления",
-              groupType: "Items",
-              periodAdditionType: "None",
+              use: false,
             },
           ],
         },
@@ -36,5 +33,4 @@ export const fullStructureItemGroup = {
   ],
 } as const satisfies StructureItemGroup
 
-// export const fullStructureItemGroupYAML = ["Наименование", "([Авто])", "ПометкаУдаления"]
-//  as const satisfies StructureItemGroupDynamicListYAML
+export const fixtureDynamicListStructureItemGroupYAML = ["Наименование", "([Авто])", "(ПометкаУдаления)"]

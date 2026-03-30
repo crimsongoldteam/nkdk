@@ -7,6 +7,7 @@ export const GroupItemFieldRules = {
       type: "boolean",
       xml: "dcsset:use",
       yaml: "Использование",
+      defaultValueYAML: true,
     },
     field: {
       type: "string",
@@ -19,6 +20,7 @@ export const GroupItemFieldRules = {
       xml: "dcsset:groupType",
       yaml: "ТипГруппировки",
       defaultValueXML: "Items",
+      defaultValueYAML: "Items",
     },
     periodAdditionType: {
       type: "SystemEnumeration",
@@ -26,6 +28,7 @@ export const GroupItemFieldRules = {
       xml: "dcsset:periodAdditionType",
       yaml: "ТипДополнения",
       defaultValueXML: "None",
+      defaultValueYAML: "None",
     },
     periodAdditionBegin: {
       type: "MetadataValue",
@@ -42,17 +45,6 @@ export const GroupItemFieldRules = {
       xml: "dcsset:periodAdditionEnd",
       yaml: "КонецПериода",
       defaultValueXML: "0001-01-01T00:00:00",
-    },
-  },
-} as const satisfies MetadataItemRule
-
-export const GroupItemAutoRules = {
-  itemType: "GroupItemAuto",
-  properties: {
-    use: {
-      type: "boolean",
-      xml: "dcsset:use",
-      yaml: "Использование",
     },
   },
 } as const satisfies MetadataItemRule
