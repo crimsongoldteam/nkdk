@@ -1,13 +1,13 @@
+import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { registerMetadataItemRule } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import "./groupItem/types"
-import "./structureItem/types"
+import "../groupItemField/types"
 import { StructureItemGroupRules } from "./rules"
+import "./structureItem/types"
 
 export type StructureItemGroup = MetadataTypeByRule<typeof StructureItemGroupRules>
 export type StructureItemGroupYAML = YAMLTypeByRule<typeof StructureItemGroupRules>

@@ -10,7 +10,6 @@ import { exportGroupItemToYAML } from "./toYAML"
 export type GroupItemField = FormTypeByRule<typeof GroupItemFieldRules>
 export type GroupItemAuto = FormTypeByRule<typeof GroupItemAutoRules>
 
-/** Для диспетчеризации YAML: поле группировки всегда содержит ключ «Поле». */
 export type GroupItemFieldYAML = YAMLTypeByRule<typeof GroupItemFieldRules>
 export type GroupItemAutoYAML = YAMLTypeByRule<typeof GroupItemAutoRules>
 

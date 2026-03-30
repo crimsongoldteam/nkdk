@@ -1,7 +1,7 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importMetadataItemFromXML } from "~/metadata/orchestration/metadataItem/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { GroupItem } from "./types"
+import { GroupItem } from "../structureItemGroup/types"
 import { GroupItemAutoRules, GroupItemFieldRules } from "./rules"
 
 const unwrapGroupItemsNode = (xml: unknown): unknown => {

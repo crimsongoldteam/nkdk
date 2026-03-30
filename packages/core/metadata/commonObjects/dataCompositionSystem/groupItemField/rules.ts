@@ -18,12 +18,14 @@ export const GroupItemFieldRules = {
       typeSE: "DataCompositionGroupType",
       xml: "dcsset:groupType",
       yaml: "ТипГруппировки",
+      defaultValueXML: "Items",
     },
     periodAdditionType: {
       type: "SystemEnumeration",
       typeSE: "DataCompositionPeriodAdditionType",
       xml: "dcsset:periodAdditionType",
       yaml: "ТипДополнения",
+      defaultValueXML: "None",
     },
     periodAdditionBegin: {
       type: "MetadataValue",
@@ -31,6 +33,7 @@ export const GroupItemFieldRules = {
       withType: true,
       xml: "dcsset:periodAdditionBegin",
       yaml: "НачалоПериода",
+      defaultValueXML: "0001-01-01T00:00:00",
     },
     periodAdditionEnd: {
       type: "MetadataValue",
@@ -38,6 +41,7 @@ export const GroupItemFieldRules = {
       withType: true,
       xml: "dcsset:periodAdditionEnd",
       yaml: "КонецПериода",
+      defaultValueXML: "0001-01-01T00:00:00",
     },
   },
 } as const satisfies MetadataItemRule

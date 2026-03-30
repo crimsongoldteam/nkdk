@@ -42,7 +42,11 @@ import {
 } from "~/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/types"
 import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import { FilterItem, FilterItemYAML } from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
-import { GroupItem, GroupItemYAML } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/groupItem/types"
+import { GroupItem, GroupItemYAML } from "~/metadata/commonObjects/dataCompositionSystem/groupItemField/types"
+import {
+  SettingsParameterValue,
+  SettingsParameterValueYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
 import {
   StructureItem,
   StructureItemYAML,
@@ -51,10 +55,6 @@ import {
   StructureItemGroup,
   StructureItemGroupYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
-import {
-  SettingsParameterValue,
-  SettingsParameterValueYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
 import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
 import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
 import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"

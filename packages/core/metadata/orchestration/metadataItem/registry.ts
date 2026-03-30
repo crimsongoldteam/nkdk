@@ -7,10 +7,6 @@ import {
   AvailableFieldsYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
 import {
-  ConditionalAppearanceItem,
-  ConditionalAppearanceItemYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
-import {
   CalculatedField,
   CalculatedFieldYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
@@ -22,6 +18,10 @@ import type {
   CalculatedFieldUseRestriction,
   CalculatedFieldUseRestrictionYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types"
+import {
+  ConditionalAppearanceItem,
+  ConditionalAppearanceItemYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
 import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import {
   FilterItemComparison,
@@ -34,7 +34,7 @@ import {
   GroupItemAutoYAML,
   GroupItemField,
   GroupItemFieldYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/groupItem/types"
+} from "~/metadata/commonObjects/dataCompositionSystem/groupItemField/types"
 import {
   StructureItemGroup,
   StructureItemGroupYAML,
