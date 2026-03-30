@@ -90,7 +90,7 @@ export const fullDynamicListFromXML = {
   conditionalAppearance,
   itemsUserSettingID: "911b6018-f537-43e8-a417-da56b22f9aec",
   itemsUserSettingPresentation,
-} satisfies DynamicList
+} as unknown as DynamicList
 
 /** Полная модель для YAML-тестов (соответствует импорту из fullDynamicListYAML). */
 export const fullDynamicList = {
@@ -105,7 +105,7 @@ export const fullDynamicList = {
   conditionalAppearance,
   itemsUserSettingID: "911b6018-f537-43e8-a417-da56b22f9aec",
   itemsUserSettingPresentation,
-} satisfies DynamicList
+} as unknown as DynamicList
 
 export const fullDynamicListYAML = {
   АвтоЗаполнениеДоступныхПолей: "Ложь",
@@ -118,7 +118,7 @@ export const fullDynamicListYAML = {
   УсловноеОформление: conditionalAppearanceYAML,
   ИдентификаторПользовательскойНастройкиСтруктуры: "911b6018-f537-43e8-a417-da56b22f9aec",
   ПредставлениеПользовательскойНастройкиСтруктуры: "Представление группировки",
-} as const satisfies DynamicListYAML
+} as unknown as DynamicListYAML
 
 export const minimalDynamicList = {
   itemType: "DynamicList",
@@ -131,4 +131,4 @@ export const minimalDynamicList = {
   } satisfies Filter,
   itemsViewMode: "Normal",
   itemsUserSettingID: "911b6018-f537-43e8-a417-da56b22f9aec",
-} satisfies DynamicList
+} as unknown as DynamicList

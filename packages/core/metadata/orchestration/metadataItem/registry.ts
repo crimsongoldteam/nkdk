@@ -29,6 +29,16 @@ import {
   FilterItemGroup,
   FilterItemGroupYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
+import {
+  GroupItemAuto,
+  GroupItemAutoYAML,
+  GroupItemField,
+  GroupItemFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/groupItem/types"
+import {
+  StructureItemGroup,
+  StructureItemGroupYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
 import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
 import {
   MetadataTabularSection,
@@ -551,6 +561,18 @@ export type MetadataItemTypeRegistry = {
   FilterItemGroup: {
     metadata: FilterItemGroup
     yaml: FilterItemGroupYAML
+  }
+  GroupItemField: {
+    metadata: GroupItemField
+    yaml: GroupItemFieldYAML
+  }
+  GroupItemAuto: {
+    metadata: GroupItemAuto
+    yaml: GroupItemAutoYAML
+  }
+  StructureItemGroup: {
+    metadata: StructureItemGroup
+    yaml: StructureItemGroupYAML
   }
 
   //#endregion

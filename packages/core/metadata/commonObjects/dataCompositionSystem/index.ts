@@ -14,6 +14,7 @@ import "./availableFields/fromYAML"
 import "./availableFields/toYAML"
 
 import "./conditionalAppearance/types"
+import "./structureItemGroup/types"
 
 import "./calculatedFieldUseRestriction/types"
 import "./calculatedFieldOrderExpression/types"

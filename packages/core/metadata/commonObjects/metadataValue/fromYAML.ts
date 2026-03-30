@@ -41,6 +41,9 @@ export const importMetadataValueFromYAML = (
       const unquoted = data.startsWith('"') && data.endsWith('"') ? data.slice(1, -1) : data
       return withType ? { type: "string", value: unquoted } : unquoted
     }
+    if (ruleAny?.valueType === "dateTime" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(data)) {
+      return withType ? { type: "dateTime", value: data } : data
+    }
     // В режиме "без типа" для обычной строки не пытаемся угадывать тип — возвращаем примитив
     // Важно: только для верхнего уровня (когда правило передано явно).
     // Внутри composite-типов (fixedArray, formChoiceList...) правило часто undefined,

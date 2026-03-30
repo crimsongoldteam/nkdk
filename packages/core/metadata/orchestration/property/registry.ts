@@ -42,6 +42,15 @@ import {
 } from "~/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/types"
 import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import { FilterItem, FilterItemYAML } from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
+import { GroupItem, GroupItemYAML } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/groupItem/types"
+import {
+  StructureItem,
+  StructureItemYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/structureItem/types"
+import {
+  StructureItemGroup,
+  StructureItemGroupYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
 import {
   SettingsParameterValue,
   SettingsParameterValueYAML,
@@ -559,6 +568,18 @@ export type PropertyTypeRegistry = {
     item: FilterItem
     yaml: FilterItemYAML
   }
+  GroupItem: {
+    item: GroupItem
+    yaml: GroupItemYAML
+  }
+  StructureItem: {
+    item: StructureItem
+    yaml: StructureItemYAML
+  }
+  StructureItemGroup: {
+    item: StructureItemGroup
+    yaml: StructureItemGroupYAML
+  }
   ConditionalAppearance: {
     item: ConditionalAppearanceItem[]
     yaml: ConditionalAppearanceYAML
@@ -659,6 +680,9 @@ export const PropertyRuleTypeKeys = Object.keys({
   Filter: "Filter",
   AvailableFields: "AvailableFields",
   FilterItem: "FilterItem",
+  GroupItem: "GroupItem",
+  StructureItem: "StructureItem",
+  StructureItemGroup: "StructureItemGroup",
   ConditionalAppearance: "ConditionalAppearance",
   ElementId: "ElementId",
   UserSettingPresentation: "UserSettingPresentation",
