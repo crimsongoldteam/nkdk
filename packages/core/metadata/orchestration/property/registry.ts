@@ -567,6 +567,10 @@ export type PropertyTypeRegistry = {
     item: string
     yaml: string
   }
+  UserSettingPresentation: {
+    item: I8nText
+    yaml: I8nTextYAML
+  }
 }
 
 export type PropertyRuleType = keyof PropertyTypeRegistry
@@ -657,6 +661,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   FilterItem: "FilterItem",
   ConditionalAppearance: "ConditionalAppearance",
   ElementId: "ElementId",
+  UserSettingPresentation: "UserSettingPresentation",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends PropertyRuleType

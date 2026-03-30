@@ -25,3 +25,6 @@ import "./dscMetadataTypedValue/fromXML"
 import "./dscMetadataTypedValue/toXML"
 import "./dscMetadataTypedValue/fromYAML"
 import "./dscMetadataTypedValue/toYAML"
+
+import './userSettingPresentation/fromXML'
+import './userSettingPresentation/toXML'
