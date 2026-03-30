@@ -5,7 +5,41 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import "./inlineTypes"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 import "./typedValues"
-import { FilterItem } from "./types"
+import { FilterItem, FilterItemComparison, FilterItemGroup } from "./types"
+
+const filterItemComparisonMatchKey = (item: FilterItemComparison): string =>
+  JSON.stringify({ leftValue: item.leftValue, comparisonType: item.comparisonType })
+
+const filterItemGroupMatchKey = (item: FilterItemGroup): string => String(item.groupType ?? "")
+
+const findReferenceFilterItem = (
+  item: FilterItem[number],
+  referenceItems: FilterItem,
+  usedIndices: Set<number>
+): FilterItem[number] | undefined => {
+  for (let i = 0; i < referenceItems.length; i++) {
+    if (usedIndices.has(i)) continue
+    const refItem = referenceItems[i]
+    if (item.itemType !== refItem.itemType) continue
+    if (
+      item.itemType === "FilterItemComparison" &&
+      refItem.itemType === "FilterItemComparison" &&
+      filterItemComparisonMatchKey(item) === filterItemComparisonMatchKey(refItem)
+    ) {
+      usedIndices.add(i)
+      return refItem
+    }
+    if (
+      item.itemType === "FilterItemGroup" &&
+      refItem.itemType === "FilterItemGroup" &&
+      filterItemGroupMatchKey(item) === filterItemGroupMatchKey(refItem)
+    ) {
+      usedIndices.add(i)
+      return refItem
+    }
+  }
+  return undefined
+}
 
 const exportFilterItemElementToXML = (params: {
   context: ConfigurationContextWithExportToXML
@@ -51,8 +85,11 @@ export const exportFilterItemToXML: ExportToXMLFunctionNew = (params: {
 }) => {
   const { context, rule, value, referenceMetadata } = params
   if (!value || value.length === 0) return undefined
-  const exported = value.flatMap((item, index) => {
-    const refItem = Array.isArray(referenceMetadata) ? referenceMetadata[index] : undefined
+  const usedIndices = new Set<number>()
+  const exported = value.flatMap((item) => {
+    const refItem = Array.isArray(referenceMetadata)
+      ? findReferenceFilterItem(item, referenceMetadata, usedIndices)
+      : undefined
     const xml = exportFilterItemElementToXML({
       context,
       rule,
