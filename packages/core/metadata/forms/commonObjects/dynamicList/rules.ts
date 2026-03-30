@@ -51,13 +51,13 @@ export const DynamicListRules = {
       xmlParents: ["ListSettings"],
     },
     itemsUserSettingID: {
-      type: "string",
+      type: "UserSettingsID",
       xml: "dcsset:itemsUserSettingID",
       yaml: "ИдентификаторПользовательскойНастройкиСтруктуры",
       xmlParents: ["ListSettings"],
     },
     itemsUserSettingPresentation: {
-      type: "I8nText",
+      type: "UserSettingPresentation",
       xml: "dcsset:itemsUserSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройкиСтруктуры",
       xmlParents: ["ListSettings"],

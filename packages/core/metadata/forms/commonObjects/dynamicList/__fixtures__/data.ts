@@ -79,20 +79,32 @@ const conditionalAppearanceYAML = [
 export const fullDynamicListFromXML = {
   itemType: "DynamicList",
   autoFillAvailableFields: false,
+  customQuery: false,
+  dynamicDataRead: false,
+  getInvisibleFieldPresentations: false,
+  mainTable: "Catalog.Справочник1",
+  filter: {
+    ...filter,
+    userSettingPresentation: { items: { ru: "Представление отбора" } },
+  },
+  conditionalAppearance,
+  itemsUserSettingID: "911b6018-f537-43e8-a417-da56b22f9aec",
+  itemsUserSettingPresentation,
+} satisfies DynamicList
+
+/** Полная модель для YAML-тестов (соответствует импорту из fullDynamicListYAML). */
+export const fullDynamicList = {
+  itemType: "DynamicList",
+  autoFillAvailableFields: false,
   customQuery: true,
-  dynamicDataRead: true,
+  dynamicDataRead: false,
+  getInvisibleFieldPresentations: false,
   queryText,
   mainTable: "Catalog.Справочник1",
   filter,
   conditionalAppearance,
   itemsUserSettingID: "911b6018-f537-43e8-a417-da56b22f9aec",
   itemsUserSettingPresentation,
-} satisfies DynamicList
-
-/** Полная модель для YAML (включая поля без XML). */
-export const fullDynamicList = {
-  ...fullDynamicListFromXML,
-  getInvisibleFieldPresentations: false,
 } satisfies DynamicList
 
 export const fullDynamicListYAML = {
@@ -108,6 +120,15 @@ export const fullDynamicListYAML = {
   ПредставлениеПользовательскойНастройкиСтруктуры: "Представление группировки",
 } as const satisfies DynamicListYAML
 
-export const minimalDynamicList: DynamicList = {
+export const minimalDynamicList = {
   itemType: "DynamicList",
-}
+  customQuery: false,
+  dynamicDataRead: true,
+  filter: {
+    itemType: "Filter",
+    viewMode: "Normal",
+    userSettingID: true,
+  } satisfies Filter,
+  itemsViewMode: "Normal",
+  itemsUserSettingID: "911b6018-f537-43e8-a417-da56b22f9aec",
+} satisfies DynamicList
