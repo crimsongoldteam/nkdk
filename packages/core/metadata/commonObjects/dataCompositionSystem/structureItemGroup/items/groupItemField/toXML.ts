@@ -1,4 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { GroupItemFieldRules } from "./rules"
@@ -19,3 +20,5 @@ export const exportGroupItemFieldToXML = (
   })
   return { "_xsi:type": "dcsset:GroupItemField", ...(inner ?? {}) }
 }
+
+registerTypeRule("GroupItemField", "exportToXML", exportGroupItemFieldToXML as any)

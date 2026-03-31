@@ -3,7 +3,7 @@ import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 import { fixtureGroupItemAuto, fixtureGroupItemAutoYAML } from "../items/groupItemAuto/__fixtures__/data"
 import {
   dynamicListGroupItemFieldUseFalse,
-  dynamicListGroupItemsUseFalseYAML,
+  dynamicListGroupItemFieldUseFalseYAML,
 } from "../items/groupItemField/__fixtures__/data"
 import "./index"
 
@@ -28,7 +28,7 @@ describe("export GroupItem collection to YAML", () => {
     })
 
     expect(result).toEqual({
-      ПоляГруппировки: dynamicListGroupItemsUseFalseYAML,
+      ПоляГруппировки: dynamicListGroupItemFieldUseFalseYAML,
     })
   })
 })

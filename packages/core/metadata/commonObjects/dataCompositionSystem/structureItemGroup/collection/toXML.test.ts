@@ -3,7 +3,6 @@ import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { importContentFromXML } from "~/xml/import/importer"
 import { fixtureGroupItemAuto } from "../items/groupItemAuto/__fixtures__/data"
 import { dynamicListGroupItemFieldUseFalse } from "../items/groupItemField/__fixtures__/data"
 import "./index"
@@ -24,7 +23,7 @@ describe("export GroupItem collection to XML", () => {
       referenceMetadata: undefined,
     })
 
-    expect(importContentFromXML(result)).toEqual(importContentFromXML(expectedResult))
+    expect(result).toEqual(expectedResult)
   })
 
   it("exports GroupItemField", () => {
@@ -37,6 +36,6 @@ describe("export GroupItem collection to XML", () => {
       referenceMetadata: undefined,
     })
 
-    expect(importContentFromXML(result)).toEqual(importContentFromXML(expectedResult))
+    expect(result).toEqual(expectedResult)
   })
 })

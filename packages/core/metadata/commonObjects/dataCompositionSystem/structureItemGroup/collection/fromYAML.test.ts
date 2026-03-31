@@ -3,7 +3,7 @@ import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromY
 import { fixtureGroupItemAuto, fixtureGroupItemAutoYAML } from "../items/groupItemAuto/__fixtures__/data"
 import {
   dynamicListGroupItemFieldDefault,
-  dynamicListGroupItemsDefaultYAML,
+  dynamicListGroupItemFieldDefaultYAML,
 } from "../items/groupItemField/__fixtures__/data"
 import "./index"
 
@@ -22,7 +22,7 @@ describe("import GroupItem collection from YAML", () => {
   it("imports GroupItemField by detectYAML", () => {
     const result = testImportPropertyFromYAML({
       rule,
-      value: dynamicListGroupItemsDefaultYAML,
+      value: dynamicListGroupItemFieldDefaultYAML,
     })
 
     expect(result).toEqual([dynamicListGroupItemFieldDefault])
