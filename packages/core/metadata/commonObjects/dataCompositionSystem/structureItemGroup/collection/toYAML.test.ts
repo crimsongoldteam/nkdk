@@ -28,7 +28,7 @@ describe("export GroupItem collection to YAML", () => {
     })
 
     expect(result).toEqual({
-      ПоляГруппировки: dynamicListGroupItemFieldUseFalseYAML,
+      ПоляГруппировки: [dynamicListGroupItemFieldUseFalseYAML],
     })
   })
 })

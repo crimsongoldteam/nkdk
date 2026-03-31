@@ -12,11 +12,15 @@ export const exportStructureItemGroupCollectionToYAML = (
   const result: StructureItemGroupCollectionYAML = []
 
   for (const item of value as StructureItemGroupCollection) {
-    const converted = exportPropertyToYAML({
+    const convertedWithTempKey = exportPropertyToYAML({
       context,
-      rule: { type: item.itemType } as PropertyRule,
+      // exportPropertyToYAML requires yaml-keyed property rule.
+      // Collection needs raw item YAML, so we unwrap temporary key below.
+      rule: { type: item.itemType, yaml: "__item__" } as PropertyRule,
       value: item,
     })
+    const converted = convertedWithTempKey?.__item__
+
     if (typeof converted === "string") result.push(converted)
   }
 

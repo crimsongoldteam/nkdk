@@ -22,7 +22,7 @@ describe("import GroupItem collection from YAML", () => {
   it("imports GroupItemField by detectYAML", () => {
     const result = testImportPropertyFromYAML({
       rule,
-      value: dynamicListGroupItemFieldDefaultYAML,
+      value: [dynamicListGroupItemFieldDefaultYAML],
     })
 
     expect(result).toEqual([dynamicListGroupItemFieldDefault])
