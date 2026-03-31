@@ -17,72 +17,64 @@ export interface MetadataItem {
 type DefaultValueFunction = (params: { context: ConfigurationContext; name?: string }) => any
 
 export interface BasePropertyRule {
+  /** Тип свойства */
   type: PropertyRuleType
 
+  /** Обязательное свойство */
   required?: true
 
   /** Отключает свойство при любом экспорте/импорте */
   runtimeOnly?: true
 
-  /**
-   * Порядок свойств при экспорте/импорте.
-   * Меньшее значение — раньше, отсутствие значения — после всех с order.
-   */
+  /** Порядок свойства при выгрузке в XML (используй только при необходимости) */
   order?: number
 
-  /**
-   * Название ключа в yaml
-   */
+  /** Название ключа в YAML */
   yaml?: string
 
-  /**
-   * Не экспортировать в yaml
-   */
+  /** Не экспортировать в YAML */
   toYAML?: false
-  /**
-   * Не импортировать из yaml
-   */
+
+  /** Не импортировать из YAML */
   fromYAML?: false
+
+  /** Не экспортировать в корневой YAML */
   toPartialYAML?: false
+
+  /** Значение по умолчанию в YAML (будет исключено из выбора)*/
   defaultValueYAML?: any | DefaultValueFunction
 
-  /**
-   * Название в xml, если не заполнено - будет использован ключ
-   */
+  /** Название в XML, если не заполнено - будет использован ключ*/
   xml?: string
+
+  /** Значение по умолчанию в XML (будет выгружено как при пустом значении)*/
   defaultValueXML?: any
+
+  /** Не импортировать из XML */
   fromXML?: false
+
+  /** Не экспортировать в XML */
   toXML?: false
-  /**
-   * Родительские элементы в xml
-   */
+
+  /** Родительские элементы в XML */
   xmlParents?: string[]
 
-  /**
-   * XML namespace для элемента при экспорте: `xmlns="..."`
-   */
+  /** XML namespace для элемента при экспорте: `xmlns="..."` */
   xmlNamespace?: string
 
-  /**
-   * Передавать значение в форму в 1С
-   */
+  /** Передавать значение в форму в 1С */
   toEnterprise?: false
-  fromEnterprise?: false
+
+  /** Значение по умолчанию */
   defaultValue?: any | DefaultValueFunction
 
-  /**
-   * Теги, по которым будет выгружаться свойство
-   */
+  /** Теги, по которым будет выгружаться свойство */
   tag?: string
 
-  /**
-   * Если все поля пустые - это поле будет выгружено как значение
-   */
+  /** Если все поля пустые - это поле будет выгружено как значение */
   useAsShortValueYAML?: true
 
-  /**
-   * Если true, то свойство будет пропущено при импорте из XML
-   */
+  /** Свойство используется только для построения референса */
   forReferenceOnly?: true
 }
 
@@ -94,7 +86,9 @@ export interface ChildItemsPropertyRule extends BasePropertyRule {
 
 export interface UserVisiblePropertyRule extends BasePropertyRule {
   type: "UserVisible"
+  /** Ключ в YAML в случае разрешения использования */
   yaml: string
+  /** Ключ в YAML в случае запрета использования */
   yamlDeny: string
 }
 
@@ -183,7 +177,6 @@ export type PropertyRule =
   | FormattedI8nTextPropertyRule
   | EventsPropertyRule
   | CleanPropertyRule
-  // | CustomExportPropertyRule
   | TableAdditionalSourcePropertyRule
   | StandardAttributeDescriptionPropertyRule
   | StandardAttributeDescriptionsPropertyRule
@@ -203,9 +196,16 @@ export interface ItemXML {
 }
 
 export interface MetadataItemRule extends MetadataItem {
+  /**
+   * Тип объекта метаданных
+   */
   itemType: MetadataItemType
+
+  /**
+   * Свойства объекта метаданных
+   */
   properties: PropertiesType
 
-  // events?: EventsRules
+  /** @deprecated */
   eventsTag?: string
 }
