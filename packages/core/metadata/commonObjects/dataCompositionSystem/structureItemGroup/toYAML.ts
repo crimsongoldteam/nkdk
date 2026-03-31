@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { exportPropertyToYAML, PropertyRule } from "~/metadata/orchestration"
+import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { StructureItemGroupRules } from "./rules"
 import type { StructureItemGroup, StructureItemGroupYAML } from "./types"
 
@@ -50,3 +50,5 @@ const normalizeStructureItems = (value: unknown): StructureItemGroup[] => {
   if (typeof value === "object") return [value as StructureItemGroup]
   return []
 }
+
+registerTypeRule("StructureItemGroup", "exportToYAML", exportStructureItemGroupToYAML as any)
