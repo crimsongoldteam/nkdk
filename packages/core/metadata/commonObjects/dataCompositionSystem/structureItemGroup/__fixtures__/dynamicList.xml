@@ -1,28 +1,28 @@
 <dcsset:item xsi:type="dcsset:StructureItemGroup">
-    <dcsset:groupItems>
-        <dcsset:item xsi:type="dcsset:GroupItemField">
-            <dcsset:field>Наименование</dcsset:field>
-            <dcsset:groupType>Items</dcsset:groupType>
-            <dcsset:periodAdditionType>None</dcsset:periodAdditionType>
-            <dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
-            <dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
-        </dcsset:item>
-    </dcsset:groupItems>
-    <dcsset:item xsi:type="dcsset:StructureItemGroup">
-        <dcsset:groupItems>
-            <dcsset:item xsi:type="dcsset:GroupItemAuto"/>
-        </dcsset:groupItems>
-        <dcsset:item xsi:type="dcsset:StructureItemGroup">
-            <dcsset:groupItems>
-                <dcsset:item xsi:type="dcsset:GroupItemField">
-                    <dcsset:use>false</dcsset:use>
-                    <dcsset:field>ПометкаУдаления</dcsset:field>
-                    <dcsset:groupType>Items</dcsset:groupType>
-                    <dcsset:periodAdditionType>None</dcsset:periodAdditionType>
-                    <dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
-                    <dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
-                </dcsset:item>
-            </dcsset:groupItems>
-        </dcsset:item>
-    </dcsset:item>
+	<dcsset:groupItems>
+		<dcsset:item xsi:type="dcsset:GroupItemField">
+			<dcsset:field>Наименование</dcsset:field>
+			<dcsset:groupType>Items</dcsset:groupType>
+			<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
+			<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
+			<dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
+		</dcsset:item>
+	</dcsset:groupItems>
+	<dcsset:item xsi:type="dcsset:StructureItemGroup">
+		<dcsset:groupItems>
+			<dcsset:item xsi:type="dcsset:GroupItemAuto"/>
+		</dcsset:groupItems>
+		<dcsset:item xsi:type="dcsset:StructureItemGroup">
+			<dcsset:groupItems>
+				<dcsset:item xsi:type="dcsset:GroupItemField">
+					<dcsset:use>false</dcsset:use>
+					<dcsset:field>ПометкаУдаления</dcsset:field>
+					<dcsset:groupType>Items</dcsset:groupType>
+					<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
+					<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
+					<dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
+				</dcsset:item>
+			</dcsset:groupItems>
+		</dcsset:item>
+	</dcsset:item>
 </dcsset:item>

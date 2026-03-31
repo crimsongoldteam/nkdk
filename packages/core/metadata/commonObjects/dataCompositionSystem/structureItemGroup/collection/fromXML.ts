@@ -1,7 +1,7 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importPropertyFromXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { StructureItemGroupRegistry } from "./registry"
-import type { StructureItemGroupCollection } from "./types"
+import { StructureItemGroupCollection } from "./types"
 
 export const importStructureItemGroupCollectionFromXML = (
   context: ConfigurationContextFromXML,
@@ -38,4 +38,4 @@ export const importStructureItemGroupCollectionFromXML = (
 const findStructureItemGroupRegistryItemByXMLKey = (xmlKey: string | undefined) =>
   StructureItemGroupRegistry.find((item) => item.xmlKey === xmlKey)
 
-registerTypeRule("StructureItemGroupCollectionItem", "importFromXML", importStructureItemGroupCollectionFromXML)
+registerTypeRule("StructureItemGroupCollection", "importFromXML", importStructureItemGroupCollectionFromXML)

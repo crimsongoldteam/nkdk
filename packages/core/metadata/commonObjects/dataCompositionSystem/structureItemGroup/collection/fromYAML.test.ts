@@ -7,7 +7,7 @@ import {
 } from "../items/groupItemField/__fixtures__/data"
 import "./index"
 
-const rule = { type: "StructureItemGroupCollectionItem" } as const
+const rule = { type: "StructureItemGroupCollection" } as const
 
 describe("import GroupItem collection from YAML", () => {
   it("imports GroupItemAuto by detectYAML", () => {

@@ -1,5 +1,5 @@
-import { dirname, join } from "node:path"
-import { fileURLToPath } from "node:url"
+import { dirname, join } from "path"
+import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
@@ -7,7 +7,7 @@ import { fixtureGroupItemAuto } from "../items/groupItemAuto/__fixtures__/data"
 import { dynamicListGroupItemFieldUseFalse } from "../items/groupItemField/__fixtures__/data"
 import "./index"
 
-const rule = { type: "StructureItemGroupCollectionItem" } as const
+const rule = { type: "StructureItemGroupCollection" } as const
 const fixturesDir = dirname(fileURLToPath(import.meta.url))
 const autoFixturesDir = join(fixturesDir, "../items/groupItemAuto/__fixtures__")
 const fieldFixturesDir = join(fixturesDir, "../items/groupItemField/__fixtures__")

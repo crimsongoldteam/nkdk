@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importPropertyFromYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { PropertyRule, importPropertyFromYAML, registerTypeRule } from "~/metadata/orchestration"
 import { StructureItemGroupRegistry } from "./registry"
-import type {
+import {
   StructureItemGroupCollection,
   StructureItemGroupCollectionItemYAML,
   StructureItemGroupCollectionYAML,
@@ -34,4 +34,4 @@ export const importStructureItemGroupCollectionFromYAML = (
 const findStructureItemGroupRegistryItemByYAML = (yaml: StructureItemGroupCollectionItemYAML) =>
   StructureItemGroupRegistry.find((item) => item.detectYAML(yaml))
 
-registerTypeRule("StructureItemGroupCollectionItem", "importFromYAML", importStructureItemGroupCollectionFromYAML)
+registerTypeRule("StructureItemGroupCollection", "importFromYAML", importStructureItemGroupCollectionFromYAML)

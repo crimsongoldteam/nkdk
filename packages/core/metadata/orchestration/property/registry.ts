@@ -2,7 +2,6 @@ import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObject
 import { AdditionalIndex, AdditionalIndexYAML } from "~/metadata/commonObjects/additionalIndex/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
-import { DateTimeYAML } from "~/metadata/commonObjects/dateTime/types"
 import {
   CharacteristicsDescriptions,
   CharacteristicsDescriptionsYAML,
@@ -48,8 +47,8 @@ import {
   SettingsParameterValueYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
 import {
-  StructureItemGroupCollectionItem,
-  StructureItemGroupCollectionItemYAML,
+  StructureItemGroupCollection,
+  StructureItemGroupCollectionYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/types"
 import {
   GroupItemAuto,
@@ -63,6 +62,7 @@ import {
   StructureItemGroup,
   StructureItemGroupYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
+import { DateTimeYAML } from "~/metadata/commonObjects/dateTime/types"
 import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
 import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
 import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"
@@ -589,9 +589,9 @@ export type PropertyTypeRegistry = {
     item: GroupItemField
     yaml: GroupItemFieldYAML
   }
-  StructureItemGroupCollectionItem: {
-    item: StructureItemGroupCollectionItem
-    yaml: StructureItemGroupCollectionItemYAML
+  StructureItemGroupCollection: {
+    item: StructureItemGroupCollection
+    yaml: StructureItemGroupCollectionYAML
   }
 
   StructureItemGroup: {
@@ -705,7 +705,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   ConditionalAppearance: "ConditionalAppearance",
   ElementId: "ElementId",
   UserSettingPresentation: "UserSettingPresentation",
-  StructureItemGroupCollectionItem: "StructureItemGroupCollectionItem",
+  StructureItemGroupCollection: "StructureItemGroupCollection",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends PropertyRuleType

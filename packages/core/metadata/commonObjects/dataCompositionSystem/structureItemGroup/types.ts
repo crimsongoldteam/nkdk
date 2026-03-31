@@ -1,8 +1,8 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import {
   PropertyRule,
-  exportPropertyToYAML,
   exportMetadataItemToXML,
+  exportPropertyToYAML,
   registerMetadataItemRule,
   registerTypeRule,
 } from "~/metadata/orchestration"
@@ -48,7 +48,7 @@ registerTypeRule(
   "StructureItemGroup",
   "exportToYAML",
   (params: {
-    context: ConfigurationContext
+    context: ConfigurationContextWithExportToXML
     rule: PropertyRule
     value: unknown
     name?: string

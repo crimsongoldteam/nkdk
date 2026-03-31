@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest"
+import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { dynamicListGroupItemFieldDefault, dynamicListGroupItemFieldUseFalse } from "./__fixtures__/data"
 import "./index"
 
-const rule = { type: "StructureItemGroupCollectionItem" } as const
+const rule: PropertyRule = { type: "StructureItemGroupCollection" } as const
 
 describe("export GroupItemField to XML", () => {
   it("exports dynamicList.xml (use=false)", () => {

@@ -3,8 +3,7 @@ import { GroupItemField, GroupItemFieldYAML } from "../items/groupItemField/type
 
 export type StructureItemGroupCollectionItem = GroupItemField | GroupItemAuto
 
-export type StructureItemGroupCollection = StructureItemGroupCollectionItem[]
-
 export type StructureItemGroupCollectionItemYAML = GroupItemFieldYAML | GroupItemAutoYAML
 
+export type StructureItemGroupCollection = StructureItemGroupCollectionItem[]
 export type StructureItemGroupCollectionYAML = StructureItemGroupCollectionItemYAML[]
