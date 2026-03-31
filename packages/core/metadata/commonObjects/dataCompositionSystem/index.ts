@@ -7,25 +7,27 @@ import "./appearanceFields/toXML"
 import "./appearanceFields/toYAML"
 import "./appearanceFields/types"
 
-import "./availableFields/types"
 import "./availableFields/fromXML"
-import "./availableFields/toXML"
 import "./availableFields/fromYAML"
+import "./availableFields/toXML"
 import "./availableFields/toYAML"
+import "./availableFields/types"
 
 import "./conditionalAppearance/types"
 import "./structureItemGroup/types"
 
-import "./calculatedFieldUseRestriction/types"
-import "./calculatedFieldOrderExpression/types"
 import "./calculatedField/types"
+import "./calculatedFieldOrderExpression/types"
+import "./calculatedFieldUseRestriction/types"
 
 import "./parameterValue/types"
 
 import "./dscMetadataTypedValue/fromXML"
-import "./dscMetadataTypedValue/toXML"
 import "./dscMetadataTypedValue/fromYAML"
+import "./dscMetadataTypedValue/toXML"
 import "./dscMetadataTypedValue/toYAML"
 
-import './userSettingPresentation/fromXML'
-import './userSettingPresentation/toXML'
+import "./userSettingPresentation/fromXML"
+import "./userSettingPresentation/toXML"
+
+import "./groupItemAuto"

@@ -7,7 +7,6 @@ import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import "../groupItemField/types"
 import { StructureItemGroupRules } from "./rules"
-import "./structureItem/types"
 
 export type StructureItemGroup = MetadataTypeByRule<typeof StructureItemGroupRules>
 export type StructureItemGroupYAML = YAMLTypeByRule<typeof StructureItemGroupRules>
