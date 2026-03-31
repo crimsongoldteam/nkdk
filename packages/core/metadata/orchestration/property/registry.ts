@@ -47,17 +47,17 @@ import {
   SettingsParameterValueYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
 import {
+  StructureItemGroupCollectionItem,
+  StructureItemGroupCollectionItemYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/types"
+import {
   GroupItemAuto,
   GroupItemAutoYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/types"
 import {
-  GroupItem,
-  GroupItemYAML,
+  GroupItemField,
+  GroupItemFieldYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/types"
-import {
-  StructureItem,
-  StructureItemYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/structureItem/types"
 import {
   StructureItemGroup,
   StructureItemGroupYAML,
@@ -579,14 +579,15 @@ export type PropertyTypeRegistry = {
     item: GroupItemAuto
     yaml: GroupItemAutoYAML
   }
-  GroupItem: {
-    item: GroupItem
-    yaml: GroupItemYAML
+  GroupItemField: {
+    item: GroupItemField
+    yaml: GroupItemFieldYAML
   }
-  StructureItem: {
-    item: StructureItem
-    yaml: StructureItemYAML
+  StructureItemGroupCollectionItem: {
+    item: StructureItemGroupCollectionItem
+    yaml: StructureItemGroupCollectionItemYAML
   }
+
   StructureItemGroup: {
     item: StructureItemGroup
     yaml: StructureItemGroupYAML
@@ -692,12 +693,12 @@ export const PropertyRuleTypeKeys = Object.keys({
   AvailableFields: "AvailableFields",
   FilterItem: "FilterItem",
   GroupItemAuto: "GroupItemAuto",
-  GroupItem: "GroupItem",
-  StructureItem: "StructureItem",
+  GroupItemField: "GroupItemField",
   StructureItemGroup: "StructureItemGroup",
   ConditionalAppearance: "ConditionalAppearance",
   ElementId: "ElementId",
   UserSettingPresentation: "UserSettingPresentation",
+  StructureItemGroupCollectionItem: "StructureItemGroupCollectionItem",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends PropertyRuleType

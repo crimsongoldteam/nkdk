@@ -8,7 +8,7 @@ import {
 } from "./__fixtures__/data"
 import "./types"
 
-const rule = { type: "GroupItem", yaml: "ПоляГруппировки" } as const
+const rule = { type: "StructureItemGroupCollectionItem", yaml: "ПоляГруппировки" } as const
 
 describe("export GroupItemField to YAML", () => {
   it("exports use=false as '(Наименование)'", () => {

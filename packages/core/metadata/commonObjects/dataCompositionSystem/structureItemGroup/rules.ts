@@ -4,7 +4,7 @@ export const StructureItemGroupRules = {
   itemType: "StructureItemGroup",
   properties: {
     groupItems: {
-      type: "GroupItem",
+      type: "StructureItemGroupCollectionItem",
       xml: "dcsset:groupItems",
       yaml: "ПоляГруппировки",
     },

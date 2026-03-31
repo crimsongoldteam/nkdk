@@ -1,9 +1,10 @@
 import { detectGroupItemAutoYAML } from "../items/groupItemAuto/detectYAML"
+import type { StructureItemGroupCollectionItem, StructureItemGroupCollectionItemYAML } from "./types"
 
 export type StructureItemGroupRegistryItem = {
-  itemType: string
+  itemType: StructureItemGroupCollectionItem["itemType"]
   xmlKey: string
-  detectYAML: (yaml: string) => boolean
+  detectYAML: (yaml: StructureItemGroupCollectionItemYAML) => boolean
 }
 
 export const StructureItemGroupRegistry: StructureItemGroupRegistryItem[] = [

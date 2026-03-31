@@ -8,7 +8,7 @@ import {
 } from "./__fixtures__/data"
 import "./types"
 
-const rule = { type: "GroupItem" } as const
+const rule = { type: "StructureItemGroupCollectionItem" } as const
 
 describe("import GroupItemField from YAML", () => {
   it("imports '(Наименование)' as use=false", () => {

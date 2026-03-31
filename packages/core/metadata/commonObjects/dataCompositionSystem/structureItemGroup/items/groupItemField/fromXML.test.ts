@@ -1,12 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import {
-  dynamicListGroupItemFieldDefault,
-  dynamicListGroupItemFieldUseFalse,
-} from "./__fixtures__/data"
+import { dynamicListGroupItemFieldDefault, dynamicListGroupItemFieldUseFalse } from "./__fixtures__/data"
 import "./types"
 
-const rule = { type: "GroupItem" } as const
+const rule = { type: "StructureItemGroupCollectionItem" } as const
 
 describe("import GroupItemField from XML", () => {
   it("imports dynamicList.xml (use=false)", () => {
