@@ -29,8 +29,14 @@ import {
   FilterItemGroup,
   FilterItemGroupYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
-import { GroupItemAuto, GroupItemAutoYAML } from "~/metadata/commonObjects/dataCompositionSystem/groupItemAuto/types"
-import { GroupItemField, GroupItemFieldYAML } from "~/metadata/commonObjects/dataCompositionSystem/groupItemField/types"
+import {
+  GroupItemAuto,
+  GroupItemAutoYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/types"
+import {
+  GroupItemField,
+  GroupItemFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/types"
 import {
   StructureItemGroup,
   StructureItemGroupYAML,

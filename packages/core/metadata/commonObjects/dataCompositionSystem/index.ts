@@ -30,6 +30,6 @@ import "./dscMetadataTypedValue/toYAML"
 import "./userSettingPresentation/fromXML"
 import "./userSettingPresentation/toXML"
 
-import "./groupItemAuto"
+import "./structureItemGroup/items/groupItemAuto"
 
 import "./structureItemGroup"

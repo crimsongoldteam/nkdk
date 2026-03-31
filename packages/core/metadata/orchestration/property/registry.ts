@@ -43,14 +43,17 @@ import {
 import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import { FilterItem, FilterItemYAML } from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
 import {
-  GroupItemAuto,
-  GroupItemAutoYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/groupItemAuto/types"
-import { GroupItem, GroupItemYAML } from "~/metadata/commonObjects/dataCompositionSystem/groupItemField/types"
-import {
   SettingsParameterValue,
   SettingsParameterValueYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
+import {
+  GroupItemAuto,
+  GroupItemAutoYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/types"
+import {
+  GroupItem,
+  GroupItemYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/types"
 import {
   StructureItem,
   StructureItemYAML,
