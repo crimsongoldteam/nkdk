@@ -4,7 +4,6 @@ import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import "./collection/index"
 import { StructureItemGroupRules } from "./rules"
 import "./toXML"
-import "./toYAML"
 
 export type StructureItemGroup = MetadataTypeByRule<typeof StructureItemGroupRules>
 export type StructureItemGroupYAML = YAMLTypeByRule<typeof StructureItemGroupRules>
