@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { dynamicListGroupItemFieldDefault, dynamicListGroupItemFieldUseFalse } from "./__fixtures__/data"
-import "./types"
+import "./index"
 
 const rule = { type: "StructureItemGroupCollectionItem" } as const
 
