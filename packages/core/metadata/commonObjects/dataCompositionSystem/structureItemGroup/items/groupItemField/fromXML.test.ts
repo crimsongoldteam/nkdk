@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { dynamicListGroupItemFieldDefault, dynamicListGroupItemFieldUseFalse } from "./__fixtures__/data"
-import "./types"
+import "./index"
 
-const rule = { type: "StructureItemGroupCollectionItem" } as const
+const rule = { type: "GroupItemField" } as const
 
 describe("import GroupItemField from XML", () => {
   it("imports dynamicList.xml (use=false)", () => {
@@ -14,7 +14,7 @@ describe("import GroupItemField from XML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual([dynamicListGroupItemFieldUseFalse])
+    expect(result).toEqual(dynamicListGroupItemFieldUseFalse)
   })
 
   it("imports dynamicListDefault.xml (use=true)", () => {
@@ -25,6 +25,6 @@ describe("import GroupItemField from XML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual([dynamicListGroupItemFieldDefault])
+    expect(result).toEqual(dynamicListGroupItemFieldDefault)
   })
 })

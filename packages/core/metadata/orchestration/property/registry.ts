@@ -2,6 +2,7 @@ import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObject
 import { AdditionalIndex, AdditionalIndexYAML } from "~/metadata/commonObjects/additionalIndex/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
+import { DateTimeYAML } from "~/metadata/commonObjects/dateTime/types"
 import {
   CharacteristicsDescriptions,
   CharacteristicsDescriptionsYAML,
@@ -169,6 +170,11 @@ export type PropertyTypeRegistry = {
     item: number
     enterprise: number
     yaml: number
+  }
+  dateTime: {
+    item: string
+    enterprise: string
+    yaml: DateTimeYAML
   }
   string: {
     item: string
@@ -610,6 +616,7 @@ export type PropertyRuleType = keyof PropertyTypeRegistry
 
 export const PropertyRuleTypeKeys = Object.keys({
   number: "number",
+  dateTime: "dateTime",
   string: "string",
   boolean: "boolean",
   UserSettingsID: "UserSettingsID",

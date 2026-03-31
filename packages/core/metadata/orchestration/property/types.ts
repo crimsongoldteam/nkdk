@@ -1,4 +1,5 @@
 import { SettingsParameterValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
+import { DateTimePropertyRule } from "~/metadata/commonObjects/dateTime/types"
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
@@ -162,6 +163,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "MetadataValue"
     | "SettingsParameterValue"
     | "number"
+    | "dateTime"
   >
 }
 
@@ -188,6 +190,7 @@ export type PropertyRule =
   | MetadataValuePropertyRule
   | SettingsParameterValuePropertyRule
   | NumberPropertyRule
+  | DateTimePropertyRule
 
 type PropertiesType = Record<string, PropertyRule>
 

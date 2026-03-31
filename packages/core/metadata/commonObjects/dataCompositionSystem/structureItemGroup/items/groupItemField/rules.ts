@@ -31,7 +31,7 @@ export const GroupItemFieldRules = {
       defaultValueYAML: "None",
     },
     periodAdditionBegin: {
-      type: "MetadataValue",
+      type: "dateTime",
       valueType: "dateTime",
       withType: true,
       xml: "dcsset:periodAdditionBegin",
@@ -39,7 +39,7 @@ export const GroupItemFieldRules = {
       defaultValueXML: "0001-01-01T00:00:00",
     },
     periodAdditionEnd: {
-      type: "MetadataValue",
+      type: "dateTime",
       valueType: "dateTime",
       withType: true,
       xml: "dcsset:periodAdditionEnd",
