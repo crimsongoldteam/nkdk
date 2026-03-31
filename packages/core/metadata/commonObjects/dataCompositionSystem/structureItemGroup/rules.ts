@@ -9,7 +9,7 @@ export const StructureItemGroupRules = {
       yaml: "ПоляГруппировки",
     },
     item: {
-      type: "StructureItem",
+      type: "StructureItemGroup",
       xml: "dcsset:item",
       yaml: "Структура",
     },

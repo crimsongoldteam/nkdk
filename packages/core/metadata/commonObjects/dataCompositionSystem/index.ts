@@ -31,3 +31,5 @@ import "./userSettingPresentation/fromXML"
 import "./userSettingPresentation/toXML"
 
 import "./groupItemAuto"
+
+import "./structureItemGroup"
