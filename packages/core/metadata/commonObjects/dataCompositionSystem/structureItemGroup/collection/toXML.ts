@@ -13,25 +13,25 @@ type ToXMLParams = {
 export const exportStructureItemGroupCollectionToXML = ({
   context,
   value,
-  referenceMetadata,
+  // referenceMetadata,
 }: ToXMLParams): unknown => {
   if (!value || !Array.isArray(value) || value.length === 0) return undefined
 
   const items = value as StructureItemGroupCollection
-  const referenceItems = Array.isArray(referenceMetadata) ? (referenceMetadata as StructureItemGroupCollection) : []
+  // const referenceItems = Array.isArray(referenceMetadata) ? (referenceMetadata as StructureItemGroupCollection) : []
   const result: Record<string, unknown>[] = []
 
   for (let index = 0; index < items.length; index++) {
     const item = items[index]!
     const registryItem = findStructureItemGroupRegistryItemByItemType(item.itemType)
     if (!registryItem) continue
-    const referenceItem = referenceItems[index]
+    // const referenceItem = referenceItems[index]
 
     const converted = exportPropertyToXML({
       context,
       rule: { type: registryItem.itemType } as PropertyRule,
       value: item,
-      referenceMetadata: referenceItem,
+      // referenceMetadata: referenceItem,
       metadataItem: item,
     })
     if (converted) result.push(converted as Record<string, unknown>)

@@ -112,14 +112,20 @@ export const exportPropertyToXML = (params: {
       referenceMetadata,
     })
     if (exportedValue === rule.defaultValue) {
-      return defaultValueXML
+      return (typeExportFn as ExportToXMLFunctionNew)({
+        context,
+        rule,
+        value: defaultValueXML as any,
+        metadataItem,
+        referenceMetadata,
+      })
     }
     return wrapWithNamespace(rule, exportedValue)
   }
 
   const exportedValue = (typeExportFn as ExportToXMLFunction)(context, rule, value, referenceMetadata)
   if (exportedValue === rule.defaultValue) {
-    return defaultValueXML
+    return (typeExportFn as ExportToXMLFunction)(context, rule, defaultValueXML, referenceMetadata)
   }
   return wrapWithNamespace(rule, exportedValue)
 }

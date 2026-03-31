@@ -7,12 +7,12 @@ import "./additionalIndex/toYAML"
 import "./boolean/fromXML"
 import "./boolean/toJSONSchema"
 
-import "./number/fromXML"
 import "./dateTime/fromXML"
 import "./dateTime/fromYAML"
 import "./dateTime/toJSONSchema"
 import "./dateTime/toXML"
 import "./dateTime/toYAML"
+import "./number/fromXML"
 import "./number/toJSONSchema"
 import "./number/toXML"
 
@@ -225,3 +225,5 @@ import "./internalInfo/fromXML"
 import "./internalInfo/toXML"
 
 import "./dataCompositionSystem"
+
+import "./dateTime"

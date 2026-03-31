@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { fixtureDynamicListStructureItemGroup } from "./__fixtures__/data"
+import { fixtureDynamicListStructureItemGroupFromXML } from "./__fixtures__/data"
 import "./types"
 
 const rule: PropertyRule = {
@@ -17,6 +17,6 @@ describe("import StructureItemGroup from XML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual(fixtureDynamicListStructureItemGroup)
+    expect(result).toEqual(fixtureDynamicListStructureItemGroupFromXML)
   })
 })
