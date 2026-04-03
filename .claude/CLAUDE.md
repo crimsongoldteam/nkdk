@@ -16,6 +16,8 @@ cd packages/core && pnpm vitest run path/to/file.test.ts
 cd packages/core && pnpm test:ui
 ```
 
+**Do not use round-trip tests** (e.g. parse XML → model → serialize XML and assert equality with the input, or the same for YAML). They hide one-sided bugs, depend on canonical serialization, and make failures hard to localize. Prefer separate, explicit checks for `fromXML` / `toXML` and `fromYAML` / `toYAML` with clear expected outputs (snapshots, inline expectations, or dedicated fixtures).
+
 ### Type checking
 ```bash
 cd packages/core && pnpm type-check
