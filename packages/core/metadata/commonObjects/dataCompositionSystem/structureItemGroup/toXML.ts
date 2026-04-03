@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { exportMetadataItemToXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { exportMetadataItemToXML, PropertyRule } from "~/metadata/orchestration"
 import { StructureItemGroupRules } from "./rules"
 import type { StructureItemGroup } from "./types"
 
@@ -26,5 +26,3 @@ export const exportStructureItemGroupToXML = (params: ToXMLParams): Record<strin
     ...inner,
   }
 }
-
-registerTypeRule("StructureItemGroup", "exportToXML", exportStructureItemGroupToXML)

@@ -48,6 +48,10 @@ import {
   SettingsParameterValueYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
 import {
+  SettingsParameterValueCollection,
+  SettingsParameterValueCollectionYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/types"
+import {
   StructureItemGroupCollection,
   StructureItemGroupCollectionYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/types"
@@ -518,6 +522,10 @@ export type PropertyTypeRegistry = {
     item: SettingsParameterValue
     yaml: SettingsParameterValueYAML
   }
+  SettingsParameterValueCollection: {
+    item: SettingsParameterValueCollection
+    yaml: SettingsParameterValueCollectionYAML
+  }
   MetadataDcsMetadataValue: {
     item: MetadataDcsMetadataValue
     yaml: MetadataDcsMetadataValueYAML
@@ -688,6 +696,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   InternalInfo: "InternalInfo",
   ScrollBarUseBoolean: "ScrollBarUseBoolean",
   SettingsParameterValue: "SettingsParameterValue",
+  SettingsParameterValueCollection: "SettingsParameterValueCollection",
   MetadataDcsMetadataValue: "MetadataDcsMetadataValue",
   DcsMetadataTypedValue: "DcsMetadataTypedValue",
   DcsField: "DcsField",

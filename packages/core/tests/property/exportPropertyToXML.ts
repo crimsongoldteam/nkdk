@@ -10,6 +10,11 @@ type TestExportPropertyToXMLParamsBase = {
   rule: PropertyRule
   value: unknown
   xmlRootTag: string
+  /**
+   * Если true — результат `exportPropertyToXML` уже является корнем документа (например `{ Parameter: [...] }`),
+   * без дополнительной обёртки `{ [xmlRootTag]: xmlData }`.
+   */
+  exportXmlDataAsRoot?: boolean
   itemsTree?: ContextElementToXML[]
   // applyNumberingIds?: boolean
   /**
@@ -85,7 +90,10 @@ export function testExportPropertyToXML(
 
   setIdsToElements(exportContext)
 
-  const result = xmlExport({ [xmlRootTag]: xmlData }, false)
+  const result =
+    params.exportXmlDataAsRoot === true
+      ? xmlExport(xmlData as Record<string, unknown>, false)
+      : xmlExport({ [xmlRootTag]: xmlData }, false)
 
   return { expectedResult, result }
 }

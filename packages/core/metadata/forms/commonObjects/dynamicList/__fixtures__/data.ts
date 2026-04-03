@@ -110,7 +110,7 @@ const filterForExport = {
   ],
   userSettingID: "72519cf3-0e66-4ad8-9758-aba06d2bb00c",
   userSettingPresentation: { items: { ru: "Представление отбора" } },
-} satisfies Filter
+} as unknown as Filter
 
 const conditionalAppearanceForExport = [
   {
@@ -175,7 +175,7 @@ const filterYAML = {
   ],
   ИспользоватьПользовательскуюНастройку: "72519cf3-0e66-4ad8-9758-aba06d2bb00c",
   ПредставлениеПользовательскойНастройки: "Представление отбора",
-} as const satisfies FilterYAML
+} as unknown as FilterYAML
 
 const conditionalAppearanceYAML = [
   {
@@ -211,6 +211,9 @@ export const fullDynamicList = {
   group: fullDynamicListFromXML.group,
 } as unknown as DynamicList
 
+/** Плейсхолдер для toXML customQuery: при необходимости заменить объектом, согласованным с `customQuery.xml`. */
+export const customQueryDynamicList = fullDynamicList
+
 export const fullDynamicListYAML = {
   АвтоЗаполнениеДоступныхПолей: "Ложь",
   АвтоматическоеСохранениеПользовательскихНастроек: "Ложь",
@@ -233,7 +236,7 @@ export const minimalDynamicList = {
     itemType: "Filter",
     viewMode: "Normal",
     userSettingID: "dfcece9d-5077-440b-b6b3-45a5cb4538eb",
-  } satisfies Filter,
+  } as unknown as Filter,
 } as unknown as DynamicList
 
 // export const customQueryDynamicList = {

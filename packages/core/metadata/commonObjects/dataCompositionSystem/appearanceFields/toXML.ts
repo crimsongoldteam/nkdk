@@ -1,10 +1,15 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { exportPropertyToXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import type { ParameterValueXML } from "../parameterValue/types"
+import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import type { SettingsParameterValue, SettingsParameterValuePropertyRule } from "../parameterValue/types"
+import { exportSettingsParameterValueDcscorItemsToXML } from "../settingsParameterValueCollection/dcscorItemsXML"
 import { AppearanceFieldsRules } from "./rules"
 import type { AppearanceFields, AppearanceFieldsXML } from "./types"
 
-type AppearanceFieldParameterKey = keyof typeof AppearanceFieldsRules.properties
+const appearanceParameterRules = AppearanceFieldsRules.properties as unknown as Partial<
+  Record<string, SettingsParameterValuePropertyRule>
+>
+
+const orderedAppearanceParameterNames = Object.keys(AppearanceFieldsRules.properties) as string[]
 
 const exportAppearanceToXML = (
   context: ConfigurationContextWithExportToXML,
@@ -14,40 +19,20 @@ const exportAppearanceToXML = (
 ): AppearanceFieldsXML | undefined => {
   if (!value) return undefined
 
-  const items: ParameterValueXML[] = []
+  const { itemType: _i, ...fields } = value
+  const parameters = fields as Record<string, SettingsParameterValue>
 
-  for (const parameter of Object.keys(AppearanceFieldsRules.properties) as AppearanceFieldParameterKey[]) {
-    const itemXml = exportAppearanceFieldParameterItem(context, parameter, value, referenceMetadata)
-    if (itemXml !== undefined) {
-      items.push(itemXml)
-    }
-  }
+  const ref = referenceMetadata
+  const { itemType: _r, ...refFields } = ref ?? {}
+  const referenceParameters = ref ? (refFields as Record<string, SettingsParameterValue>) : undefined
 
-  if (items.length === 0) return undefined
-
-  return {
-    "dcscor:item": items.length === 1 ? items[0] : items,
-  }
-}
-
-function exportAppearanceFieldParameterItem(
-  context: ConfigurationContextWithExportToXML,
-  parameter: AppearanceFieldParameterKey,
-  value: AppearanceFields,
-  referenceMetadata?: AppearanceFields
-): ParameterValueXML | undefined {
-  const fieldValue = value[parameter]
-  if (fieldValue === undefined) return undefined
-
-  const propRule = AppearanceFieldsRules.properties[parameter]
-  const referenceField = referenceMetadata?.[parameter]
-  const itemXml = exportPropertyToXML({
+  return exportSettingsParameterValueDcscorItemsToXML({
     context,
-    rule: propRule,
-    value: fieldValue,
-    referenceMetadata: referenceField,
+    ruleSet: { parameterRules: appearanceParameterRules },
+    parameters,
+    referenceParameters,
+    orderedParameterNames: orderedAppearanceParameterNames,
   })
-  return itemXml !== undefined ? (itemXml as ParameterValueXML) : undefined
 }
 
 registerTypeRule("AppearanceFields", "exportToXML", exportAppearanceToXML)

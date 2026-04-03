@@ -1,6 +1,8 @@
 import "./filter/types"
 import "./filterItem/types"
 
+import "./settingsParameterValueCollection"
+
 import "./appearanceFields/fromXML"
 import "./appearanceFields/fromYAML"
 import "./appearanceFields/toXML"

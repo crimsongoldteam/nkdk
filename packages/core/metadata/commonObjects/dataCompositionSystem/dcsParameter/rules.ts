@@ -35,6 +35,8 @@ export const DCSParameterRules = {
       xml: "dcssch:useRestriction",
       yaml: "ОграничениеИспользования",
       order: 5,
+      defaultValueYAML: false,
+      defaultValueXML: false,
     },
     expression: {
       type: "string",
@@ -47,12 +49,14 @@ export const DCSParameterRules = {
       xml: "dcssch:valueListAllowed",
       yaml: "ДоступенСписокЗначений",
       order: 7,
+      defaultValueYAML: false,
     },
     includeInAvailableFields: {
       type: "boolean",
       xml: "dcssch:availableAsField",
       yaml: "ВключатьВДоступныеПоля",
       order: 8,
+      defaultValueYAML: true,
     },
     functionalOptionsParameter: {
       type: "string",
@@ -61,8 +65,30 @@ export const DCSParameterRules = {
       order: 9,
     },
     editParameters: {
-      type: "SettingsParameterValue",
-      valueType: "Primitive",
+      type: "SettingsParameterValueCollection",
+      defaultItemRule: {
+        type: "SettingsParameterValue",
+        valueType: "Primitive",
+      },
+      parameterRules: {
+        ВыборГруппИЭлементов: {
+          type: "SettingsParameterValue",
+          valueType: "SystemEnumeration",
+          typeSE: "FoldersAndItemsUse",
+        },
+        СвязиПараметровВыбора: {
+          type: "SettingsParameterValue",
+          valueType: "ChoiceParameterLinks",
+        },
+        ПараметрыВыбора: {
+          type: "SettingsParameterValue",
+          valueType: "Parameter",
+        },
+        СвязьПоТипу: {
+          type: "SettingsParameterValue",
+          valueType: "TypeLink",
+        },
+      },
       xml: "dcscor:item",
       xmlParents: ["dcssch:inputParameters"],
       yaml: "ПараметрыРедактирования",

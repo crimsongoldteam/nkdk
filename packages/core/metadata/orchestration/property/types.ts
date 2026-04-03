@@ -164,9 +164,18 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "MetadataValue"
     | "MetadataDcsMetadataValue"
     | "SettingsParameterValue"
+    | "SettingsParameterValueCollection"
     | "number"
     | "dateTime"
   >
+}
+
+export interface SettingsParameterValueCollectionPropertyRule extends BasePropertyRule {
+  type: "SettingsParameterValueCollection"
+  /** Правило для параметра, если нет в `parameterRules` */
+  defaultItemRule?: SettingsParameterValuePropertyRule
+  /** Переопределения по имени параметра (`dcscor:parameter` / ключ YAML) */
+  parameterRules?: Partial<Record<string, SettingsParameterValuePropertyRule>>
 }
 
 // export interface CustomExportPropertyRule extends BasePropertyRule {
@@ -192,6 +201,7 @@ export type PropertyRule =
   | MetadataValuePropertyRule
   | DcsMetadataValuePropertyRule
   | SettingsParameterValuePropertyRule
+  | SettingsParameterValueCollectionPropertyRule
   | NumberPropertyRule
   | DateTimePropertyRule
 
