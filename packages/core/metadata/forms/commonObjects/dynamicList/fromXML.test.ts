@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { fullDynamicListFromXML, minimalDynamicList } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
+import {
+  customQueryDynamicListFromXML,
+  fullDynamicListFromXML,
+  minimalDynamicList,
+} from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
@@ -36,5 +40,15 @@ describe("import DynamicList from XML", () => {
       importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(minimalDynamicList)
+  })
+
+  it("should import customQuery", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "customQuery.xml",
+      xmlRootTag: "Settings",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(customQueryDynamicListFromXML)
   })
 })

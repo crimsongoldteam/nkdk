@@ -7,64 +7,15 @@ export const DynamicListRules = {
       type: "boolean",
       yaml: "АвтоЗаполнениеДоступныхПолей",
     },
-    customQuery: {
+    autoSaveUserSettings: {
       type: "boolean",
-      xml: "ManualQuery",
-      yaml: "ПроизвольныйЗапрос",
-      defaultValueYAML: false,
-    },
-    dynamicDataRead: {
-      type: "boolean",
-      yaml: "ДинамическоеСчитываниеДанных",
-      defaultValueYAML: true,
-    },
-    getInvisibleFieldPresentations: {
-      type: "boolean",
-      yaml: "ПолучениеПредставленийДляНевидимыхПолей",
-      defaultValueYAML: true,
-    },
-    keyType: {
-      type: "string",
-      yaml: "ВидКлюча",
-    },
-    mainTable: {
-      type: "string",
-      yaml: "ОсновнаяТаблица",
-    },
-    mainTableCategory: {
-      type: "number",
-      yaml: "КатегорияОсновнойТаблицы",
-    },
-    staticQuery: {
-      type: "boolean",
-      yaml: "СтатическийЗапрос",
-    },
-    hierAvailable: {
-      type: "boolean",
-      yaml: "ДоступнаИерархия",
-    },
-    autoSaveUsrSettings: {
-      type: "boolean",
-      xml: "AutoSaveUserSettings",
       yaml: "АвтоматическоеСохранениеПользовательскихНастроек",
+      defaultValueYAML: true,
     },
-    queryText: {
-      type: "string",
-      yaml: "ТекстЗапроса",
-    },
-    additionalData: {
-      type: "string",
-      yaml: "ДополнительныеДанные",
-    },
-    changesVersion: {
-      type: "number",
-      yaml: "ВерсияИзменений",
-    },
-    filter: {
-      type: "Filter",
-      xml: "dcsset:filter",
-      yaml: "Отбор",
-      xmlParents: ["ListSettings"],
+    calculatedFields: {
+      type: "CalculatedField",
+      xml: "CalculatedField",
+      yaml: "ВычисляемыеПоля",
     },
     conditionalAppearance: {
       type: "ConditionalAppearance",
@@ -72,12 +23,98 @@ export const DynamicListRules = {
       yaml: "УсловноеОформление",
       xmlParents: ["ListSettings"],
     },
+    currentUserSettingsKey: {
+      type: "string",
+      yaml: "КлючТекущихПользовательскихНастроек",
+      fromXML: false,
+      toXML: false,
+    },
+    customQuery: {
+      type: "boolean",
+      xml: "ManualQuery",
+      yaml: "ПроизвольныйЗапрос",
+      defaultValueYAML: false,
+    },
+    dataParameters: {
+      type: "string",
+      xml: "dcsset:dataParameters",
+      yaml: "ПараметрыДанных",
+      xmlParents: ["ListSettings"],
+      fromXML: false,
+      toXML: false,
+    },
+    dynamicDataRead: {
+      type: "boolean",
+      yaml: "ДинамическоеСчитываниеДанных",
+      defaultValueYAML: true,
+    },
+    fields: {
+      type: "string",
+      xml: "Field",
+      yaml: "Поля",
+      fromXML: false,
+      toXML: false,
+    },
+    filter: {
+      type: "Filter",
+      xml: "dcsset:filter",
+      yaml: "Отбор",
+      xmlParents: ["ListSettings"],
+    },
+    getInvisibleFieldPresentations: {
+      type: "boolean",
+      yaml: "ПолучениеПредставленийДляНевидимыхПолей",
+      defaultValueYAML: true,
+    },
+    group: {
+      type: "StructureItemGroup",
+      xml: "dcsset:item",
+      yaml: "Группировка",
+      xmlParents: ["ListSettings"],
+    },
+    keyFields: {
+      type: "string",
+      xml: "KeyField",
+      yaml: "ПоляКлюча",
+      fromXML: false,
+      toXML: false,
+    },
+    // keyType: {
+    //   type: "SystemEnumeration",
+    //   typeSE: "DynamicListKeyType",
+    //   yaml: "ВидКлюча",
+    //   defaultValueYAML: "Авто",
+    // },
+    mainTable: {
+      type: "string",
+      yaml: "ОсновнаяТаблица",
+    },
+    order: {
+      type: "string",
+      xml: "dcsset:order",
+      yaml: "Порядок",
+      xmlParents: ["ListSettings"],
+      fromXML: false,
+      toXML: false,
+    },
+    parameters: {
+      type: "string",
+      xml: "Parameter",
+      yaml: "Параметры",
+      fromXML: false,
+      toXML: false,
+    },
     itemsViewMode: {
       type: "SystemEnumeration",
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:itemsViewMode",
       yaml: "РежимОтображенияСтруктуры",
       xmlParents: ["ListSettings"],
+    },
+    settingsComposer: {
+      type: "string",
+      yaml: "КомпоновщикНастроек",
+      runtimeOnly: true,
     },
     itemsUserSettingID: {
       type: "UserSettingsID",

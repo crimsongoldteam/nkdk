@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { fullDynamicList, minimalDynamicList } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
+import {
+  customQueryDynamicList,
+  fullDynamicList,
+  minimalDynamicList,
+} from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { exportPropertyToXML, PropertyRule } from "~/metadata/orchestration"
 import { mockContextToXML } from "~/tests/mockContext"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
@@ -29,13 +33,22 @@ describe("export DynamicList to XML", () => {
     expect(result).toEqual(expectedResult)
   })
 
+  it("should export customQuery to XML", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: customQueryDynamicList,
+      xmlRootTag: "Settings",
+      path: "customQuery.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
+  })
+
   it("should export minimal to XML", () => {
     const { expectedResult, result } = testExportPropertyToXML({
       rule,
       value: minimalDynamicList,
       xmlRootTag: "Settings",
-      path: "minimal.xml",
-      importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(expectedResult)
   })
