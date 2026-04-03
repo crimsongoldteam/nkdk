@@ -1,0 +1,33 @@
+/**
+ * Временный тест: скопировать в каталог объекта, подставить пути и `rule`, запустить из `packages/core`.
+ * Для коллекций оборачивает содержимое XML-фикстуры в один корневой тег.
+ */
+import { readFileSync } from "node:fs"
+import { join } from "node:path"
+import { describe, it } from "vitest"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+// TODO: import "../types"
+
+const rule: PropertyRule = {
+  type: "MyObject",
+}
+
+// Имя корня-обёртки (должно совпадать с xmlRootTag)
+const WRAPPER_TAG = "MyFixturesRoot"
+// Файл в __fixtures__ рядом с этим тестом
+const FIXTURE_XML = "full.xml"
+
+describe("print import XML (temporary)", () => {
+  it("prints", () => {
+    const inner = readFileSync(join(__dirname, "__fixtures__", FIXTURE_XML), "utf-8")
+    const xmlString = `<${WRAPPER_TAG}>${inner}</${WRAPPER_TAG}>`
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlString,
+      xmlRootTag: WRAPPER_TAG,
+    })
+    // eslint-disable-next-line no-console
+    console.log(JSON.stringify(result, null, 2))
+  })
+})

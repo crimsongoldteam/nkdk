@@ -19,7 +19,8 @@ import "./structureItemGroup/types"
 import "./calculatedField/types"
 import "./calculatedFieldOrderExpression/types"
 import "./calculatedFieldUseRestriction/types"
-import "./dcsParameter/types"
+
+import "./dcsParameter"
 
 import "./parameterValue/types"
 

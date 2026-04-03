@@ -8,6 +8,7 @@ export const DCSParameterRules = {
       xml: "dcssch:name",
       yaml: "Имя",
       order: 1,
+      toYAML: false,
     },
     title: {
       type: "I8nText",
