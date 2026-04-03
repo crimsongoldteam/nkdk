@@ -16,6 +16,32 @@ import type {
 const isYamlObject = (x: unknown): x is Record<string, unknown> =>
   typeof x === "object" && x !== null && !Array.isArray(x)
 
+/** Поля развёрнутого объекта настроек — не имя параметра снаружи */
+const PARAMETER_VALUE_YAML_INTERNAL_KEYS = new Set([
+  "Использовать",
+  "Значение",
+  "Элементы",
+  "РежимОтображения",
+  "ИдентификаторПользовательскойНастройки",
+  "ПредставлениеПользовательскойНастройки",
+])
+
+/**
+ * Обёртка вида { ИмяПараметра: внутреннийYAML } (как в exportPropertyToYAML).
+ * Ключ «Параметр» не разворачиваем: это ChoiceParameters, а не имя SPV.
+ */
+const tryUnwrapParameterValueWrapper = (
+  yaml: unknown
+): { parameter: string; inner: unknown } | undefined => {
+  if (!isYamlObject(yaml)) return undefined
+  const keys = Object.keys(yaml)
+  if (keys.length !== 1) return undefined
+  const k = keys[0]!
+  if (PARAMETER_VALUE_YAML_INTERNAL_KEYS.has(k)) return undefined
+  if (k === "Параметр") return undefined
+  return { parameter: k, inner: yaml[k] }
+}
+
 export const importParameterValueFromYAML = (
   context: ConfigurationContext,
   rule: SettingsParameterValuePropertyRule,
@@ -27,10 +53,26 @@ export const importParameterValueFromYAML = (
 
   const dcsRule = toDcsMetadataValueRule(rule)
 
-  const y = isYamlObject(yaml) ? (yaml as Record<string, unknown>) : undefined
+  const unwrapped = tryUnwrapParameterValueWrapper(yaml)
+  const yamlToParse = unwrapped !== undefined ? unwrapped.inner : yaml
+  const parameterFromWrapper = unwrapped?.parameter
+
+  const y = isYamlObject(yamlToParse) ? (yamlToParse as Record<string, unknown>) : undefined
   const parameterFromRule = typeof rule.yaml === "string" ? rule.yaml : undefined
-  const parameter = String(y?.["Параметр"] ?? parameterFromRule ?? "")
-  const rawValue = y?.["Значение"] ?? yaml
+  const isExpandedSpvShape =
+    y !== undefined &&
+    ("Значение" in y ||
+      "Использовать" in y ||
+      "Элементы" in y ||
+      y["РежимОтображения"] !== undefined ||
+      y["ИдентификаторПользовательскойНастройки"] !== undefined ||
+      y["ПредставлениеПользовательскойНастройки"] !== undefined)
+  const parameterFromExpandedField =
+    isExpandedSpvShape && typeof y?.["Параметр"] === "string" ? String(y["Параметр"]) : undefined
+  const parameter = String(
+    parameterFromWrapper ?? parameterFromExpandedField ?? parameterFromRule ?? ""
+  )
+  const rawValue = y?.["Значение"] ?? yamlToParse
   const rawList = rawValue === undefined ? [] : Array.isArray(rawValue) ? rawValue : [rawValue]
   const valueParts = rawList
     .map((v) => importDcsMetadataValueFromYAML(context, dcsRule, v as never))

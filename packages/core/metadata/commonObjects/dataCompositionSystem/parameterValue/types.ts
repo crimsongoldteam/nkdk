@@ -29,7 +29,6 @@ export type SettingsParameterValue = ParameterValue & {
 }
 
 export type ParameterValueYAMLObject = {
-  Параметр?: string
   Использовать?: "Ложь"
   Значение?: MetadataDcsMetadataValueYAML | MetadataDcsMetadataValueYAML[]
   Элементы?: ParameterValueYAML[]

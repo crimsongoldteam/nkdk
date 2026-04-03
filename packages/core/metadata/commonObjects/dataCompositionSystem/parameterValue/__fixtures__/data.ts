@@ -131,28 +131,24 @@ export const parameterValueFixtures: ParameterValueFixture[] = [
   {
     id: "full",
     title: "full (DesignTimeValue / LocalStringType)",
-    rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue" },
+    rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Формат" },
     value: {
       parameter: "Формат",
       value: fixtureFormatLocalString,
     },
-    yaml: {
-      Параметр: "Формат",
-      Значение: fixtureFormatLocalStringYAML,
-    },
+    yaml: fixtureFormatLocalStringYAML,
     xml: xmlFull,
   },
   {
     id: "useFalse",
     title: "useFalse (Color)",
-    rule: { type: "SettingsParameterValue", valueType: "Color" },
+    rule: { type: "SettingsParameterValue", valueType: "Color", yaml: "ЦветФона" },
     value: {
       use: false,
       parameter: "ЦветФона",
       value: fixtureColorWebRed,
     },
     yaml: {
-      Параметр: "ЦветФона",
       Использовать: "Ложь",
       Значение: fixtureColorWebRedYAML,
     },
@@ -172,15 +168,12 @@ export const parameterValueFixtures: ParameterValueFixture[] = [
   {
     id: "choiceParameters",
     title: "choiceParameters (Parameter)",
-    rule: { type: "SettingsParameterValue", valueType: "Parameter" },
+    rule: { type: "SettingsParameterValue", valueType: "Parameter", yaml: "ПараметрыВыбора" },
     value: {
       parameter: "ПараметрыВыбора",
       value: fixtureChoiceParameterDecimal,
     },
-    yaml: {
-      Параметр: "ПараметрыВыбора",
-      Значение: fixtureChoiceParameterDecimalYAML,
-    },
+    yaml: fixtureChoiceParameterDecimalYAML,
     xml: xmlChoiceParameters,
   },
   {
