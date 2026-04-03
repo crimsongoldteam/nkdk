@@ -13,6 +13,8 @@ export interface SettingsParameterValuePropertyRule extends BasePropertyRule {
   type: "SettingsParameterValue"
   valueType: DcsMetadataValueValueType
   typeSE?: keyof SystemEnumerationTypeMap
+  /** Экспортировать `xsi:type="dcsset:SettingsParameterValue"` для узла `dcscor:item`. По умолчанию: `true`. */
+  exportSettingsXsiType?: boolean
 }
 
 export type ParameterValue = {

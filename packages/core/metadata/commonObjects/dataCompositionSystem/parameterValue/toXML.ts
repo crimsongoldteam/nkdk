@@ -111,7 +111,7 @@ export const exportSettingsParameterValueToDcsXML = (
     context,
     rule: rule as unknown as SettingsParameterValuePropertyRule,
     data,
-    rootSettingsXsi: true,
+    rootSettingsXsi: (rule as SettingsParameterValuePropertyRule).exportSettingsXsiType ?? true,
   })
 
 registerTypeRule("SettingsParameterValue", "exportToXML", exportSettingsParameterValueToDcsXML)

@@ -10,7 +10,7 @@ describe("export DCSParameter to XML", () => {
     const { expectedResult, result } = testExportPropertyToXML({
       rule,
       value: minimalDCSParameters,
-      xmlRootTag: "Parameter",
+      xmlRootTag: "Settings",
       path: "minimal.xml",
       importMetaUrl: import.meta.url,
       referenceMetadata: minimalDCSParameters,
@@ -22,7 +22,7 @@ describe("export DCSParameter to XML", () => {
     const { expectedResult, result } = testExportPropertyToXML({
       rule,
       value: fullDCSParameters,
-      xmlRootTag: "Parameter",
+      xmlRootTag: "Settings",
       path: "full.xml",
       importMetaUrl: import.meta.url,
       referenceMetadata: fullDCSParameters,

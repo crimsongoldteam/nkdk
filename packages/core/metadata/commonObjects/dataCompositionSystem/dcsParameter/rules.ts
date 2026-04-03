@@ -69,24 +69,29 @@ export const DCSParameterRules = {
       defaultItemRule: {
         type: "SettingsParameterValue",
         valueType: "Primitive",
+        exportSettingsXsiType: false,
       },
       parameterRules: {
         ВыборГруппИЭлементов: {
           type: "SettingsParameterValue",
           valueType: "SystemEnumeration",
           typeSE: "FoldersAndItemsUse",
+          exportSettingsXsiType: false,
         },
         СвязиПараметровВыбора: {
           type: "SettingsParameterValue",
           valueType: "ChoiceParameterLinks",
+          exportSettingsXsiType: false,
         },
         ПараметрыВыбора: {
           type: "SettingsParameterValue",
           valueType: "Parameter",
+          exportSettingsXsiType: false,
         },
         СвязьПоТипу: {
           type: "SettingsParameterValue",
           valueType: "TypeLink",
+          exportSettingsXsiType: false,
         },
       },
       xml: "dcscor:item",

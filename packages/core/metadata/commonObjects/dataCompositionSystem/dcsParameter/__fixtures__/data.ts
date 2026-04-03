@@ -65,14 +65,12 @@ export const fullDCSParameters = [
     name: "Параметр2",
     title: { items: { ru: "Параметр2" } },
     valueType: param2ValueType,
-    useRestriction: true,
     valueListAllowed: true,
   },
   {
     itemType: "DCSParameter" as const,
     name: "Параметр3",
     title: { items: { ru: "Параметр3" } },
-    useRestriction: true,
     valueListAllowed: true,
   },
 ] as const satisfies DCSParameters
@@ -106,12 +104,10 @@ export const fullDCSParametersYAML = {
   Параметр2: {
     Заголовок: "Параметр2",
     ТипЗначения: ["Булево", "Строка", "ДатаВремя", "Число"],
-    ОграничениеИспользования: "Истина",
     ДоступенСписокЗначений: "Истина",
   },
   Параметр3: {
     Заголовок: "Параметр3",
-    ОграничениеИспользования: "Истина",
     ДоступенСписокЗначений: "Истина",
   },
 } as const satisfies DCSParametersYAML
