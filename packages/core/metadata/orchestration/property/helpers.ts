@@ -116,24 +116,18 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
   referenceMetadata: ToMetadata<Rule["itemType"]> | undefined
   tag?: string[]
 }): string[] => {
-  const { rule, referenceMetadata, tag } = params
+  const { rule, referenceMetadata: _referenceMetadata, tag } = params
   const { pathOrder, pathToInfo } = buildPathStructure(rule, tag)
 
   const result: string[] = []
-  const referenceKeys = referenceMetadata ? Object.keys(referenceMetadata as object) : []
 
   for (const path of pathOrder) {
     const info = pathToInfo.get(pathKey(path))
     if (!info) continue
     const keysAtPath = info.orderByRule.map(({ key }) => key)
-    if (referenceMetadata === undefined) {
-      result.push(...keysAtPath)
-      continue
-    }
-    const keysFromReference = referenceKeys.filter((k) => keysAtPath.includes(k))
-    const refSet = new Set(keysFromReference)
-    const remaining = keysAtPath.filter((k) => !refSet.has(k))
-    result.push(...keysFromReference, ...remaining)
+    // Порядок полей в XML — по `order` в правиле. Порядок ключей в объекте `referenceMetadata`
+    // не должен переопределять схему (иначе отсутствующие в референсе поля оказываются в конце).
+    result.push(...keysAtPath)
   }
 
   return result

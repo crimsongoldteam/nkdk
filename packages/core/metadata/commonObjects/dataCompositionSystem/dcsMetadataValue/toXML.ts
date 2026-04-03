@@ -57,7 +57,7 @@ export const exportDcsMetadataValueToDcsXML = (params: {
     case "Primitive": {
       const inner = exportMetadataValueToXML({
         context,
-        rule: { type: "MetadataValue" } as any,
+        rule: { type: "MetadataValue", exportNilValue: true } as any,
         value: data as MetadataValue,
       }) as Record<string, unknown>
       return {

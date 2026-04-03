@@ -9,6 +9,7 @@
 		</dcssch:title>
 		<dcssch:value xsi:nil="true"/>
 		<dcssch:useRestriction>true</dcssch:useRestriction>
+		<dcssch:use>Always</dcssch:use>
 		<dcssch:inputParameters>
 			<dcscor:item>
 				<dcscor:parameter>Маска</dcscor:parameter>
@@ -57,7 +58,6 @@
 				<dcscor:value xsi:type="ent:FoldersAndItemsUse">Items</dcscor:value>
 			</dcscor:item>
 		</dcssch:inputParameters>
-		<dcssch:use>Always</dcssch:use>
 	</Parameter>
 	<Parameter>
 		<dcssch:name>Параметр2</dcssch:name>
@@ -85,6 +85,7 @@
 				<v8:DateFractions>DateTime</v8:DateFractions>
 			</v8:DateQualifiers>
 		</dcssch:valueType>
+		<dcssch:value xsi:nil="true"/>
 		<dcssch:useRestriction>false</dcssch:useRestriction>
 		<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
 	</Parameter>
@@ -96,6 +97,7 @@
 				<v8:content>Параметр3</v8:content>
 			</v8:item>
 		</dcssch:title>
+		<dcssch:value xsi:nil="true"/>
 		<dcssch:useRestriction>false</dcssch:useRestriction>
 		<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
 	</Parameter>
