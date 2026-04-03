@@ -22,6 +22,7 @@ import {
   ConditionalAppearanceItem,
   ConditionalAppearanceItemYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import type { DCSParameter, DCSParameterYAML } from "~/metadata/commonObjects/dataCompositionSystem/dcsParameter/types"
 import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import {
   FilterItemComparison,
@@ -547,6 +548,10 @@ export type MetadataItemTypeRegistry = {
   ConditionalAppearanceItem: {
     metadata: ConditionalAppearanceItem
     yaml: ConditionalAppearanceItemYAML
+  }
+  DCSParameter: {
+    metadata: DCSParameter
+    yaml: DCSParameterYAML
   }
   Filter: {
     metadata: Filter

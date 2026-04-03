@@ -36,6 +36,7 @@ import {
   MetadataDcsMetadataValue,
   MetadataDcsMetadataValueYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
+import { DCSParameter, DCSParameterYAML } from "~/metadata/commonObjects/dataCompositionSystem/dcsParameter/types"
 import {
   DcsMetadataTypedValue,
   DcsMetadataTypedValueYAML,
@@ -602,6 +603,10 @@ export type PropertyTypeRegistry = {
     item: ConditionalAppearanceItem[]
     yaml: ConditionalAppearanceYAML
   }
+  DCSParameter: {
+    item: DCSParameter
+    yaml: DCSParameterYAML
+  }
   ElementId: {
     item: string
     yaml: string
@@ -703,6 +708,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   GroupItemField: "GroupItemField",
   StructureItemGroup: "StructureItemGroup",
   ConditionalAppearance: "ConditionalAppearance",
+  DCSParameter: "DCSParameter",
   ElementId: "ElementId",
   UserSettingPresentation: "UserSettingPresentation",
   StructureItemGroupCollection: "StructureItemGroupCollection",

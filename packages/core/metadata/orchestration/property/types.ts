@@ -1,3 +1,4 @@
+import type { DcsMetadataValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
 import { SettingsParameterValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
 import { DateTimePropertyRule } from "~/metadata/commonObjects/dateTime/types"
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
@@ -161,6 +162,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "TableChildItems"
     | "PagesChildItems"
     | "MetadataValue"
+    | "MetadataDcsMetadataValue"
     | "SettingsParameterValue"
     | "number"
     | "dateTime"
@@ -188,6 +190,7 @@ export type PropertyRule =
   | DataPathPropertyRule
   | MetadataTypePropertyRule
   | MetadataValuePropertyRule
+  | DcsMetadataValuePropertyRule
   | SettingsParameterValuePropertyRule
   | NumberPropertyRule
   | DateTimePropertyRule

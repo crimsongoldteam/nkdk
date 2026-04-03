@@ -597,18 +597,18 @@ export const DataCompositionGroupUseVariantFromYAML = {
 export type DataCompositionGroupUseVariant = keyof typeof DataCompositionGroupUseVariantToYAML
 export type DataCompositionGroupUseVariantYAML = keyof typeof DataCompositionGroupUseVariantFromYAML
 
-export const DataCompositionParameterUseToYAML = {
+export const DCSParameterUseToYAML = {
   Auto: "Авто",
   Always: "Всегда",
 } as const
 
-export const DataCompositionParameterUseFromYAML = {
+export const DCSParameterUseFromYAML = {
   Авто: "Auto",
   Всегда: "Always",
 } as const
 
-export type DataCompositionParameterUse = keyof typeof DataCompositionParameterUseToYAML
-export type DataCompositionParameterUseYAML = keyof typeof DataCompositionParameterUseFromYAML
+export type DCSParameterUse = keyof typeof DCSParameterUseToYAML
+export type DCSParameterUseYAML = keyof typeof DCSParameterUseFromYAML
 
 export const DataCompositionPeriodAdditionTypeToYAML = {
   None: "БезДополнения",
@@ -13043,7 +13043,7 @@ export type SystemEnumerationTypeMap = {
   DataCompositionGroupTemplateType: DataCompositionGroupTemplateType
   DataCompositionGroupType: DataCompositionGroupType
   DataCompositionGroupUseVariant: DataCompositionGroupUseVariant
-  DataCompositionParameterUse: DataCompositionParameterUse
+  DCSParameterUse: DCSParameterUse
   DataCompositionPeriodAdditionType: DataCompositionPeriodAdditionType
   DataCompositionPeriodType: DataCompositionPeriodType
   DataCompositionPictureOutputType: DataCompositionPictureOutputType
