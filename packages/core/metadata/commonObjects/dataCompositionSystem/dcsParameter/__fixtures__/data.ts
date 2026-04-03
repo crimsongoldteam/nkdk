@@ -65,14 +65,14 @@ export const fullDCSParameters = [
     name: "Параметр2",
     title: { items: { ru: "Параметр2" } },
     valueType: param2ValueType,
-    useRestriction: false,
+    useRestriction: true,
     valueListAllowed: true,
   },
   {
     itemType: "DCSParameter" as const,
     name: "Параметр3",
     title: { items: { ru: "Параметр3" } },
-    useRestriction: false,
+    useRestriction: true,
     valueListAllowed: true,
   },
 ] as const satisfies DCSParameters
@@ -82,7 +82,6 @@ export const minimalDCSParameters = [
     itemType: "DCSParameter" as const,
     name: "Параметр4",
     title: { items: { ru: "Параметр4" } },
-    useRestriction: false,
   },
 ] as const satisfies DCSParameters
 
