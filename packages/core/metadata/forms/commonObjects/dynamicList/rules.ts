@@ -23,13 +23,42 @@ export const DynamicListRules = {
       yaml: "ПолучениеПредставленийДляНевидимыхПолей",
       defaultValueYAML: true,
     },
-    queryText: {
+    keyType: {
       type: "string",
-      yaml: "ТекстЗапроса",
+      yaml: "ВидКлюча",
     },
     mainTable: {
       type: "string",
       yaml: "ОсновнаяТаблица",
+    },
+    mainTableCategory: {
+      type: "number",
+      yaml: "КатегорияОсновнойТаблицы",
+    },
+    staticQuery: {
+      type: "boolean",
+      yaml: "СтатическийЗапрос",
+    },
+    hierAvailable: {
+      type: "boolean",
+      yaml: "ДоступнаИерархия",
+    },
+    autoSaveUsrSettings: {
+      type: "boolean",
+      xml: "AutoSaveUserSettings",
+      yaml: "АвтоматическоеСохранениеПользовательскихНастроек",
+    },
+    queryText: {
+      type: "string",
+      yaml: "ТекстЗапроса",
+    },
+    additionalData: {
+      type: "string",
+      yaml: "ДополнительныеДанные",
+    },
+    changesVersion: {
+      type: "number",
+      yaml: "ВерсияИзменений",
     },
     filter: {
       type: "Filter",

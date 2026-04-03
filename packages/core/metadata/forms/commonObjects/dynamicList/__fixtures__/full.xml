@@ -21,6 +21,11 @@
 			<orderType xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Asc</orderType>
 			<autoOrder xmlns="http://v8.1c.ru/8.1/data-composition-system/common">true</autoOrder>
 		</dcssch:orderExpression>
+		<dcssch:orderExpression>
+			<expression xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Ссылка</expression>
+			<orderType xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Desc</orderType>
+			<autoOrder xmlns="http://v8.1c.ru/8.1/data-composition-system/common">false</autoOrder>
+		</dcssch:orderExpression>
 		<dcssch:valueType>
 			<v8:Type>xs:string</v8:Type>
 			<v8:StringQualifiers>
@@ -97,14 +102,14 @@
 			<dcsset:item xsi:type="dcsset:FilterItemComparison">
 				<dcsset:left xsi:type="dcscor:Field">Поле1</dcsset:left>
 				<dcsset:comparisonType>Contains</dcsset:comparisonType>
-				<dcsset:right xsi:type="xs:string"/>
+				<dcsset:right xsi:type="xs:string">Правое значение</dcsset:right>
+				<dcsset:presentation xsi:type="xs:string">Русское</dcsset:presentation>
+				<dcsset:viewMode>Normal</dcsset:viewMode>
+				<dcsset:userSettingID>5ddf70ce-9583-4b18-9219-d9b0366bb7a7</dcsset:userSettingID>
+				<dcsset:userSettingPresentation xsi:type="xs:string">Пользовательское представление</dcsset:userSettingPresentation>
 			</dcsset:item>
-			<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
-				<v8:item>
-					<v8:lang>ru</v8:lang>
-					<v8:content>Представление отбора</v8:content>
-				</v8:item>
-			</dcsset:userSettingPresentation>
+			<dcsset:userSettingID>72519cf3-0e66-4ad8-9758-aba06d2bb00c</dcsset:userSettingID>
+			<dcsset:userSettingPresentation xsi:type="xs:string">Представление отбора</dcsset:userSettingPresentation>
 		</dcsset:filter>
 		<dcsset:dataParameters>
 			<dcscor:item xsi:type="dcsset:SettingsParameterValue">
@@ -117,12 +122,7 @@
 				<dcsset:field>Наименование</dcsset:field>
 				<dcsset:orderType>Asc</dcsset:orderType>
 			</dcsset:item>
-			<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
-				<v8:item>
-					<v8:lang>ru</v8:lang>
-					<v8:content>Представление порядка</v8:content>
-				</v8:item>
-			</dcsset:userSettingPresentation>
+			<dcsset:userSettingPresentation xsi:type="xs:string">Представление порядка</dcsset:userSettingPresentation>
 		</dcsset:order>
 		<dcsset:conditionalAppearance>
 			<dcsset:item>
@@ -144,22 +144,12 @@
 				<dcsset:appearance>
 					<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 						<dcscor:parameter>Текст</dcscor:parameter>
-						<dcscor:value xsi:type="v8:LocalStringType">
-							<v8:item>
-								<v8:lang>ru</v8:lang>
-								<v8:content>6678</v8:content>
-							</v8:item>
-						</dcscor:value>
+						<dcscor:value xsi:type="xs:string">6678</dcscor:value>
 					</dcscor:item>
 				</dcsset:appearance>
 			</dcsset:item>
 			<dcsset:userSettingID>b75fecce-942b-4aed-abc9-e6a02e460fb3</dcsset:userSettingID>
-			<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
-				<v8:item>
-					<v8:lang>ru</v8:lang>
-					<v8:content>Представление условного оформления</v8:content>
-				</v8:item>
-			</dcsset:userSettingPresentation>
+			<dcsset:userSettingPresentation xsi:type="xs:string">Представление условного оформления</dcsset:userSettingPresentation>
 		</dcsset:conditionalAppearance>
 		<dcsset:item xsi:type="dcsset:StructureItemGroup">
 			<dcsset:groupItems>
@@ -171,22 +161,6 @@
 					<dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
 				</dcsset:item>
 			</dcsset:groupItems>
-			<dcsset:item xsi:type="dcsset:StructureItemGroup">
-				<dcsset:groupItems>
-					<dcsset:item xsi:type="dcsset:GroupItemAuto"/>
-				</dcsset:groupItems>
-				<dcsset:item xsi:type="dcsset:StructureItemGroup">
-					<dcsset:groupItems>
-						<dcsset:item xsi:type="dcsset:GroupItemField">
-							<dcsset:field>ПометкаУдаления</dcsset:field>
-							<dcsset:groupType>Items</dcsset:groupType>
-							<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
-							<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
-							<dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
-						</dcsset:item>
-					</dcsset:groupItems>
-				</dcsset:item>
-			</dcsset:item>
 		</dcsset:item>
 		<dcsset:itemsUserSettingID>911b6018-f537-43e8-a417-da56b22f9aec</dcsset:itemsUserSettingID>
 		<dcsset:itemsUserSettingPresentation xsi:type="v8:LocalStringType">
