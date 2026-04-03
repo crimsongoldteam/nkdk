@@ -98,7 +98,7 @@ export const DynamicListRules = {
       toXML: false,
     },
     parameters: {
-      type: "string",
+      type: "DCSParameter",
       xml: "Parameter",
       yaml: "Параметры",
       fromXML: false,
