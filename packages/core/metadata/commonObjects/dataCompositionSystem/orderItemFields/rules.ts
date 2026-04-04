@@ -15,6 +15,7 @@ export const OrderItemFieldRules = {
       xml: "dcsset:orderType",
       yaml: "ТипУпорядочивания",
       defaultValueYAML: "Asc",
+      defaultValueXML: "Asc",
     },
     use: {
       type: "boolean",
