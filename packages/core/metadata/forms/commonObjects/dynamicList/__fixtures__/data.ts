@@ -46,7 +46,7 @@ export const fullDynamicList = {
           parameter: "Текст",
           value: {
             type: "string",
-            value: "6678",
+            value: "Текстовый параметр",
           },
         },
       },

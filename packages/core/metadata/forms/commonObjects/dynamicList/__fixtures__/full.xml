@@ -144,7 +144,7 @@
 				<dcsset:appearance>
 					<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 						<dcscor:parameter>Текст</dcscor:parameter>
-						<dcscor:value xsi:type="xs:string">6678</dcscor:value>
+						<dcscor:value xsi:type="xs:string">Текстовый параметр</dcscor:value>
 					</dcscor:item>
 				</dcsset:appearance>
 			</dcsset:item>
