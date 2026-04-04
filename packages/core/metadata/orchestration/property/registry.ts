@@ -43,6 +43,7 @@ import {
 } from "~/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/types"
 import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import { FilterItem, FilterItemYAML } from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
+import { Order, OrderYAML } from "~/metadata/commonObjects/dataCompositionSystem/order/types"
 import {
   OrderItemFields,
   OrderItemFieldsYAML,
@@ -594,6 +595,10 @@ export type PropertyTypeRegistry = {
     item: FilterItem
     yaml: FilterItemYAML
   }
+  Order: {
+    item: Order
+    yaml: OrderYAML
+  }
   OrderItemFields: {
     item: OrderItemFields
     yaml: OrderItemFieldsYAML
@@ -721,6 +726,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   Filter: "Filter",
   AvailableFields: "AvailableFields",
   FilterItem: "FilterItem",
+  Order: "Order",
   OrderItemFields: "OrderItemFields",
   GroupItemAuto: "GroupItemAuto",
   GroupItemField: "GroupItemField",

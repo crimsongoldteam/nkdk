@@ -30,6 +30,7 @@ import {
   FilterItemGroup,
   FilterItemGroupYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
+import { Order, OrderYAML } from "~/metadata/commonObjects/dataCompositionSystem/order/types"
 import {
   GroupItemAuto,
   GroupItemAutoYAML,
@@ -560,6 +561,10 @@ export type MetadataItemTypeRegistry = {
   Filter: {
     metadata: Filter
     yaml: FilterYAML
+  }
+  Order: {
+    metadata: Order
+    yaml: OrderYAML
   }
   AvailableFields: {
     metadata: AvailableFields

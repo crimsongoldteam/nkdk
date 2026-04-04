@@ -39,3 +39,5 @@ import "./structureItemGroup/items/groupItemAuto"
 import "./structureItemGroup"
 
 import "./orderItemFields"
+
+import "./order"

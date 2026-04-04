@@ -1,17 +1,17 @@
 <dcsset:order>
-    <dcsset:item xsi:type="dcsset:OrderItemField">
-        <dcsset:field>Наименование</dcsset:field>
-        <dcsset:orderType>Asc</dcsset:orderType>
-    </dcsset:item>
-    <dcsset:item xsi:type="dcsset:OrderItemField">
-        <dcsset:field>Ссылка.Код</dcsset:field>
-        <dcsset:orderType>Desc</dcsset:orderType>
-    </dcsset:item>
-    <dcsset:userSettingID>86a851e8-fef1-4353-9e75-59d215155503</dcsset:userSettingID>
-    <dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
-        <v8:item>
-            <v8:lang>ru</v8:lang>
-            <v8:content>Представление порядка</v8:content>
-        </v8:item>
-    </dcsset:userSettingPresentation>
+	<dcsset:item xsi:type="dcsset:OrderItemField">
+		<dcsset:field>Наименование</dcsset:field>
+		<dcsset:orderType>Asc</dcsset:orderType>
+	</dcsset:item>
+	<dcsset:item xsi:type="dcsset:OrderItemField">
+		<dcsset:field>Ссылка.Код</dcsset:field>
+		<dcsset:orderType>Desc</dcsset:orderType>
+	</dcsset:item>
+	<dcsset:userSettingID>86a851e8-fef1-4353-9e75-59d215155503</dcsset:userSettingID>
+	<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Представление порядка</v8:content>
+		</v8:item>
+	</dcsset:userSettingPresentation>
 </dcsset:order>
