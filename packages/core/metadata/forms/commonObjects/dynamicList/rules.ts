@@ -101,8 +101,6 @@ export const DynamicListRules = {
       type: "DCSParameter",
       xml: "Parameter",
       yaml: "Параметры",
-      fromXML: false,
-      toXML: false,
     },
     itemsViewMode: {
       type: "SystemEnumeration",

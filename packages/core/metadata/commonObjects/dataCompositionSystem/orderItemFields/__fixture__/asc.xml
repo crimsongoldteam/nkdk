@@ -1,0 +1,4 @@
+<dcsset:item xsi:type="dcsset:OrderItemField">
+    <dcsset:field>ПоВозрастанию</dcsset:field>
+    <dcsset:orderType>Asc</dcsset:orderType>
+</dcsset:item>
