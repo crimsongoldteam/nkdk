@@ -39,6 +39,10 @@ import {
   GroupItemFieldYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/types"
 import {
+  OrderItemField,
+  OrderItemFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/orderItemFields/types"
+import {
   StructureItemGroup,
   StructureItemGroupYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
@@ -572,6 +576,10 @@ export type MetadataItemTypeRegistry = {
   GroupItemField: {
     metadata: GroupItemField
     yaml: GroupItemFieldYAML
+  }
+  OrderItemField: {
+    metadata: OrderItemField
+    yaml: OrderItemFieldYAML
   }
   GroupItemAuto: {
     metadata: GroupItemAuto

@@ -1,4 +1,0 @@
-<dcsset:item xsi:type="dcsset:OrderItemField">
-    <dcsset:field>ПоУбыванию</dcsset:field>
-    <dcsset:orderType>Desc</dcsset:orderType>
-</dcsset:item>

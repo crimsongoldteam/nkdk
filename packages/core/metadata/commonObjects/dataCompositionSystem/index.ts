@@ -37,3 +37,5 @@ import "./userSettingPresentation/toXML"
 import "./structureItemGroup/items/groupItemAuto"
 
 import "./structureItemGroup"
+
+import "./orderItemFields"

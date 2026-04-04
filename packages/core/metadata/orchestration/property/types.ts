@@ -224,4 +224,9 @@ export interface MetadataItemRule extends MetadataItem {
 
   /** @deprecated */
   eventsTag?: string
+
+  /**
+   * значение xsi:type для элемента
+   */
+  xsiType?: string
 }
