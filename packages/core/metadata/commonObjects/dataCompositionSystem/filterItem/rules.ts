@@ -31,9 +31,10 @@ export const FilterItemComparisonRules = {
       order: 4,
     },
     presentation: {
-      type: "FilterItemPresentationValue",
+      type: "I8nText",
       xml: "dcsset:presentation",
       yaml: "Представление",
+      typedXML: true,
       order: 5,
     },
     application: {
@@ -60,7 +61,7 @@ export const FilterItemComparisonRules = {
       order: 7,
     },
     userSettingPresentation: {
-      type: "FilterItemPresentationValue",
+      type: "UserSettingPresentation",
       xml: "dcsset:userSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройки",
       order: 8,

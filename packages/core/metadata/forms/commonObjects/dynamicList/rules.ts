@@ -2,6 +2,7 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 export const DynamicListRules = {
   itemType: "DynamicList",
+  xsiType: "DynamicList",
   properties: {
     autoFillAvailableFields: {
       type: "boolean",
@@ -36,12 +37,10 @@ export const DynamicListRules = {
       defaultValueYAML: false,
     },
     dataParameters: {
-      type: "string",
+      type: "DataParameters",
       xml: "dcsset:dataParameters",
       yaml: "ПараметрыДанных",
       xmlParents: ["ListSettings"],
-      fromXML: false,
-      toXML: false,
     },
     dynamicDataRead: {
       type: "boolean",
@@ -99,6 +98,11 @@ export const DynamicListRules = {
       type: "DCSParameter",
       xml: "Parameter",
       yaml: "Параметры",
+    },
+    queryText: {
+      type: "string",
+      xml: "QueryText",
+      // yaml: "ТекстЗапроса",
     },
     itemsViewMode: {
       type: "SystemEnumeration",

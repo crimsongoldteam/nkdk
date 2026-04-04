@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
-  customQueryDynamicListFromXML,
-  fullDynamicListFromXML,
+  customQueryDynamicList,
+  fullDynamicList,
   minimalDynamicList,
 } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
@@ -29,7 +29,7 @@ describe("import DynamicList from XML", () => {
       xmlRootTag: "Settings",
       importMetaUrl: import.meta.url,
     })
-    expect(result).toEqual(fullDynamicListFromXML)
+    expect(result).toEqual(fullDynamicList)
   })
 
   it("should import minimal", () => {
@@ -49,6 +49,6 @@ describe("import DynamicList from XML", () => {
       xmlRootTag: "Settings",
       importMetaUrl: import.meta.url,
     })
-    expect(result).toEqual(customQueryDynamicListFromXML)
+    expect(result).toEqual(customQueryDynamicList)
   })
 })

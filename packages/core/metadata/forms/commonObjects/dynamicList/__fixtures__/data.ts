@@ -1,184 +1,190 @@
-import type {
-  ConditionalAppearance,
-  ConditionalAppearanceYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
-import type { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 
-const queryText = "ВЫБРАТЬ\nСправочник1.Реквизит1 КАК Реквизит1\nИЗ\nСправочник.Справочник1 КАК Справочник1"
+export const queryText = "ВЫБРАТЬ\nСправочник1.Реквизит1 КАК Реквизит1\nИЗ\nСправочник.Справочник1 КАК Справочник1"
 
-export const customQueryDynamicListFromXML = {} as unknown as DynamicList
-
-export const fullDynamicListFromXML = {
-  itemType: "DynamicList",
+export const fullDynamicList = {
   autoFillAvailableFields: false,
   autoSaveUserSettings: false,
   calculatedFields: {
-    itemType: "CalculatedField",
     dataPath: "Поле1",
     expression: "Истина",
-    title: { items: { ru: "Поле1" } },
-    useRestriction: {
-      itemType: "CalculatedFieldUseRestriction",
-      field: true,
-      group: true,
-    },
-    presentationExpression: "Наименование",
+    itemType: "CalculatedField",
     orderExpressions: [
       {
-        itemType: "CalculatedFieldOrderExpression",
-        expression: "Наименование",
-        orderType: "Asc",
         autoOrder: true,
+        expression: "Наименование",
+        itemType: "CalculatedFieldOrderExpression",
+        orderType: "Asc",
       },
       {
-        itemType: "CalculatedFieldOrderExpression",
-        expression: "Ссылка",
-        orderType: "Desc",
         autoOrder: false,
+        expression: "Ссылка",
+        itemType: "CalculatedFieldOrderExpression",
+        orderType: "Desc",
       },
     ],
-    valueType: { type: ["string"] },
+    presentationExpression: "Наименование",
+    title: {
+      items: {
+        ru: "Поле1",
+      },
+    },
+    useRestriction: {
+      field: true,
+      group: true,
+      itemType: "CalculatedFieldUseRestriction",
+    },
+    valueType: {
+      type: ["string"],
+    },
   },
   conditionalAppearance: [
     {
-      itemType: "ConditionalAppearanceItem",
+      appearance: {
+        itemType: "AppearanceFields",
+        Текст: {
+          parameter: "Текст",
+          value: {
+            type: "string",
+            value: "6678",
+          },
+        },
+      },
       fields: ["Наименование", "ПометкаУдаления"],
       filter: {
         itemType: "Filter",
         items: [
           {
-            itemType: "FilterItemComparison",
-            leftValue: { type: "Field", value: "Наименование" },
             comparisonType: "Contains",
-            rightValue: { type: "string", value: "Текст" },
+            itemType: "FilterItemComparison",
+            leftValue: {
+              type: "Field",
+              value: "Наименование",
+            },
+            rightValue: {
+              type: "string",
+              value: "Текст",
+            },
           },
         ],
       },
-      appearance: {
-        itemType: "AppearanceFields",
-        Текст: {
-          parameter: "Текст",
-          value: { type: "string", value: "6678" },
-        },
-      },
+      itemType: "ConditionalAppearanceItem",
     },
   ],
+  customQuery: false,
+  dataParameters: {
+    itemType: "DataParameters",
+  },
+  dynamicDataRead: false,
   filter: {
     itemType: "Filter",
     items: [
       {
-        itemType: "FilterItemComparison",
-        leftValue: { type: "Field", value: "Поле1" },
         comparisonType: "Contains",
-        presentation: { type: "string", value: "Русское" },
-        rightValue: { type: "string", value: "Правое значение" },
+        itemType: "FilterItemComparison",
+        leftValue: {
+          type: "Field",
+          value: "Поле1",
+        },
+        presentation: {
+          items: {
+            ru: "Русское",
+          },
+        },
+        rightValue: {
+          type: "string",
+          value: "Правое значение",
+        },
         userSettingID: true,
-        userSettingPresentation: { type: "string", value: "Пользовательское представление" },
+        userSettingPresentation: {
+          items: {
+            ru: "Пользовательское представление",
+          },
+        },
         viewMode: "Normal",
       },
     ],
     userSettingID: true,
-    userSettingPresentation: { items: { ru: "Представление отбора" } },
+    userSettingPresentation: {
+      items: {
+        ru: "Представление отбора",
+      },
+    },
   },
   getInvisibleFieldPresentations: false,
   group: {
-    itemType: "StructureItemGroup",
     groupItems: [
       {
-        itemType: "GroupItemField",
         field: "Наименование",
+        itemType: "GroupItemField",
       },
     ],
+    itemType: "StructureItemGroup",
+  },
+  itemType: "DynamicList",
+  itemsUserSettingID: true,
+  itemsUserSettingPresentation: {
+    items: {
+      ru: "Представление группировки",
+    },
   },
   mainTable: "Catalog.Справочник1",
-} as unknown as DynamicList
-
-const filterForExport = {
-  itemType: "Filter",
-  items: [
-    {
-      itemType: "FilterItemComparison",
-      leftValue: { type: "Field", value: "Поле1" },
-      comparisonType: "Contains",
-      presentation: { items: { ru: "Русское" } },
-      rightValue: { type: "string", value: "Правое значение" },
-      userSettingID: "5ddf70ce-9583-4b18-9219-d9b0366bb7a7",
-      userSettingPresentation: { items: { ru: "Пользовательское представление" } },
-      viewMode: "Normal",
-    },
-  ],
-  userSettingID: "72519cf3-0e66-4ad8-9758-aba06d2bb00c",
-  userSettingPresentation: { items: { ru: "Представление отбора" } },
-} as unknown as Filter
-
-const conditionalAppearanceForExport = [
-  {
-    itemType: "ConditionalAppearanceItem",
-    fields: ["Наименование", "ПометкаУдаления"],
-    filter: {
-      itemType: "Filter",
-      items: [
-        {
-          itemType: "FilterItemComparison",
-          leftValue: { type: "Field", value: "Наименование" },
-          comparisonType: "Contains",
-          rightValue: { type: "string", value: "Текст" },
-        },
-      ],
-    },
-    appearance: {
-      itemType: "AppearanceFields",
-      Текст: {
-        parameter: "Текст",
-        value: { items: { ru: "6678" } },
+  order: {
+    itemType: "Order",
+    userSettingPresentation: {
+      items: {
+        ru: "Представление порядка",
       },
     },
   },
-] satisfies ConditionalAppearance
+} as const as DynamicList
 
-const calculatedFieldYAML = {
-  ПутьКДанным: "Поле1",
-  Выражение: "Истина",
-  Заголовок: "Поле1",
-  ОграничениеИспользования: {
-    Поле: "Истина",
-    Группировка: "Истина",
+export const fullDynamicListYAML = {
+  АвтоЗаполнениеДоступныхПолей: "Ложь",
+  АвтоматическоеСохранениеПользовательскихНастроек: "Ложь",
+  ВычисляемыеПоля: {
+    ПутьКДанным: "Поле1",
+    Выражение: "Истина",
+    Заголовок: "Поле1",
+    ОграничениеИспользования: {
+      Поле: "Истина",
+      Группировка: "Истина",
+    },
+    ВыражениеПредставления: "Наименование",
+    ВыраженияУпорядочивания: [
+      {
+        Выражение: "Наименование",
+        ТипУпорядочивания: "Возр",
+        Автоупорядочивание: "Истина",
+      },
+      {
+        Выражение: "Ссылка",
+        ТипУпорядочивания: "Убыв",
+        Автоупорядочивание: "Ложь",
+      },
+    ],
+    ТипЗначения: "Строка",
   },
-  ВыражениеПредставления: "Наименование",
-  ВыраженияУпорядочивания: [
-    {
-      Выражение: "Наименование",
-      ТипУпорядочивания: "Возр",
-      Автоупорядочивание: "Истина",
-    },
-    {
-      Выражение: "Ссылка",
-      ТипУпорядочивания: "Убыв",
-      Автоупорядочивание: "Ложь",
-    },
-  ],
-  ТипЗначения: "Строка",
-} as const
-
-const filterYAML = {
-  Элементы: [
-    {
-      ЛевоеЗначение: ".Поле1",
-      ВидСравнения: "Содержит",
-      ПравоеЗначение: "'Правое значение'",
-      Представление: "Русское",
-      ПредставлениеПользовательскойНастройки: "Пользовательское представление",
-      РежимОтображения: "Обычный",
-      ИспользоватьПользовательскуюНастройку: "5ddf70ce-9583-4b18-9219-d9b0366bb7a7",
-    },
-  ],
-  ИспользоватьПользовательскуюНастройку: "72519cf3-0e66-4ad8-9758-aba06d2bb00c",
-  ПредставлениеПользовательскойНастройки: "Представление отбора",
-} as unknown as FilterYAML
-
-const conditionalAppearanceYAML = [
-  {
+  ДинамическоеСчитываниеДанных: "Ложь",
+  ОсновнаяТаблица: "Catalog.Справочник1",
+  Отбор: {
+    Элементы: [
+      {
+        ЛевоеЗначение: ".Поле1",
+        ВидСравнения: "Содержит",
+        ПравоеЗначение: "'Правое значение'",
+        Представление: "Русское",
+        ПредставлениеПользовательскойНастройки: "Пользовательское представление",
+        РежимОтображения: "Обычный",
+        ИспользоватьПользовательскуюНастройку: "Истина",
+      },
+    ],
+    ИспользоватьПользовательскуюНастройку: "Истина",
+    ПредставлениеПользовательскойНастройки: "Представление отбора",
+  },
+  ПолучениеПредставленийДляНевидимыхПолей: "Ложь",
+  ПроизвольныйЗапрос: "Истина",
+  УсловноеОформление: {
     Поля: ["Наименование", "ПометкаУдаления"],
     Отбор: {
       Элементы: [
@@ -193,40 +199,8 @@ const conditionalAppearanceYAML = [
       Текст: "6678",
     },
   },
-] as const satisfies ConditionalAppearanceYAML
-
-/** Полная модель для YAML/XML экспорта (согласована с full.xml и round-trip YAML). */
-export const fullDynamicList = {
-  itemType: "DynamicList",
-  autoFillAvailableFields: false,
-  autoSaveUserSettings: false,
-  calculatedFields: fullDynamicListFromXML.calculatedFields,
-  customQuery: true,
-  dynamicDataRead: false,
-  getInvisibleFieldPresentations: false,
-  queryText,
-  mainTable: "Catalog.Справочник1",
-  filter: filterForExport,
-  conditionalAppearance: conditionalAppearanceForExport,
-  group: fullDynamicListFromXML.group,
-} as unknown as DynamicList
-
-/** Плейсхолдер для toXML customQuery: при необходимости заменить объектом, согласованным с `customQuery.xml`. */
-export const customQueryDynamicList = fullDynamicList
-
-export const fullDynamicListYAML = {
-  АвтоЗаполнениеДоступныхПолей: "Ложь",
-  АвтоматическоеСохранениеПользовательскихНастроек: "Ложь",
-  ВычисляемыеПоля: calculatedFieldYAML,
-  ДинамическоеСчитываниеДанных: "Ложь",
-  ОсновнаяТаблица: "Catalog.Справочник1",
-  Отбор: filterYAML,
-  ПолучениеПредставленийДляНевидимыхПолей: "Ложь",
-  ПроизвольныйЗапрос: "Истина",
-  ТекстЗапроса: queryText,
-  УсловноеОформление: conditionalAppearanceYAML,
   Группировка: ["Наименование"],
-} as unknown as DynamicListYAML
+} as const satisfies DynamicListYAML
 
 export const minimalDynamicList = {
   itemType: "DynamicList",
@@ -235,9 +209,9 @@ export const minimalDynamicList = {
   filter: {
     itemType: "Filter",
     viewMode: "Normal",
-    userSettingID: "dfcece9d-5077-440b-b6b3-45a5cb4538eb",
-  } as unknown as Filter,
-} as unknown as DynamicList
+    userSettingID: true,
+  },
+} as const satisfies DynamicList
 
 // export const customQueryDynamicList = {
 //   АвтоЗаполнениеДоступныхПолей: "Истина",
