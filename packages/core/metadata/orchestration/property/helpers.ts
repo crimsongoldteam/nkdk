@@ -54,7 +54,9 @@ export const shouldProcessProperty = (params: {
 
 const buildPathStructure = <Rule extends MetadataItemRule>(
   rule: Rule,
-  tagFilter: string[] | undefined
+  tagFilter: string[] | undefined,
+  /** При экспорте в XML задаёт порядок свойств без `order` (порядок ключей как в референсе после импорта). */
+  referenceMetadata?: ToMetadata<Rule["itemType"]> | null,
 ): PathStructure => {
   const pathOrder: Path[] = []
   const pathOrderSet = new Set<string>()
@@ -88,11 +90,27 @@ const buildPathStructure = <Rule extends MetadataItemRule>(
     }
   }
 
+  const refKeyOrder = new Map<string, number>()
+  if (referenceMetadata !== undefined && referenceMetadata !== null && typeof referenceMetadata === "object") {
+    let i = 0
+    for (const k of Object.keys(referenceMetadata)) {
+      if (k === "itemType") continue
+      if (!refKeyOrder.has(k)) refKeyOrder.set(k, i++)
+    }
+  }
+
   for (const info of Array.from(pathToInfo.values())) {
     info.orderByRule.sort((a, b) => {
       if (a.order !== undefined && b.order !== undefined) return a.order - b.order
       if (a.order !== undefined) return -1
       if (b.order !== undefined) return 1
+      if (refKeyOrder.size > 0) {
+        const ia = refKeyOrder.get(a.key)
+        const ib = refKeyOrder.get(b.key)
+        if (ia !== undefined && ib !== undefined) return ia - ib
+        if (ia !== undefined) return -1
+        if (ib !== undefined) return 1
+      }
       return a.xmlKey.localeCompare(b.xmlKey)
     })
   }
@@ -116,8 +134,8 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
   referenceMetadata: ToMetadata<Rule["itemType"]> | undefined
   tag?: string[]
 }): string[] => {
-  const { rule, referenceMetadata: _referenceMetadata, tag } = params
-  const { pathOrder, pathToInfo } = buildPathStructure(rule, tag)
+  const { rule, referenceMetadata, tag } = params
+  const { pathOrder, pathToInfo } = buildPathStructure(rule, tag, referenceMetadata)
 
   const result: string[] = []
 
@@ -125,8 +143,8 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
     const info = pathToInfo.get(pathKey(path))
     if (!info) continue
     const keysAtPath = info.orderByRule.map(({ key }) => key)
-    // Порядок полей в XML — по `order` в правиле. Порядок ключей в объекте `referenceMetadata`
-    // не должен переопределять схему (иначе отсутствующие в референсе поля оказываются в конце).
+    // Явный `order` в правиле имеет приоритет. Для остальных: при наличии референса — порядок
+    // ключей как после импорта XML; иначе — по имени XML-тега (стабильная сортировка).
     result.push(...keysAtPath)
   }
 
