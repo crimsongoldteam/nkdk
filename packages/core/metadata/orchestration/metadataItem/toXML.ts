@@ -26,5 +26,9 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
 
   if (Object.keys(result).length === 0) return undefined
 
+  if (rule.xsiType) {
+    return { "_xsi:type": rule.xsiType, ...result }
+  }
+
   return result
 }

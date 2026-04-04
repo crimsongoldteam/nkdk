@@ -7,7 +7,7 @@ import "./index"
 const rule: PropertyRule = { type: "OrderItemFields" } as const
 
 describe("export OrderItemFields to XML", () => {
-  it("exports asc.xml", () => {
+  it("exports full.xml", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule,
       value: dcsOrderItemFieldsFixture,
