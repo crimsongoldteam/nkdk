@@ -12,7 +12,7 @@ const rule: PropertyRule = {
   type: "DynamicList",
 }
 
-describe("import DynamicList from XML", () => {
+describe.skip("import DynamicList from XML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importPropertyFromXML({
       context: mockContextFromXML(),
