@@ -24,6 +24,8 @@ import "./calculatedFieldUseRestriction/types"
 
 import "./dcsParameter"
 
+import "./dataParameters/types"
+
 import "./parameterValue/types"
 
 import "./dscMetadataTypedValue/fromXML"

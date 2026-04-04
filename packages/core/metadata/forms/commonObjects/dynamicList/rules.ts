@@ -90,12 +90,10 @@ export const DynamicListRules = {
       yaml: "ОсновнаяТаблица",
     },
     order: {
-      type: "string",
+      type: "Order",
       xml: "dcsset:order",
       yaml: "Порядок",
       xmlParents: ["ListSettings"],
-      fromXML: false,
-      toXML: false,
     },
     parameters: {
       type: "DCSParameter",
