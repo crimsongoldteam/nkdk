@@ -23,7 +23,7 @@ import {
 type CollectionRule<Rule extends MetadataItemRule, CollectionType extends PropertyRuleType, XMLKey extends string> = {
   propertyType: CollectionType
   itemRule: Rule
-  xmlElement: XMLKey
+  xmlElement?: XMLKey
   yamlAsArray?: true
   keyField?: keyof Rule["properties"]
   /** Для YAML-объекта коллекции: ключ записи → внутреннее имя элемента (например стандартный реквизит) */
@@ -45,7 +45,16 @@ export const registerMetadataItemCollectionRule = <
 ): void => {
   const { propertyType, itemRule, xmlElement } = params
 
-  const fromXML = params.fromXML ?? importMetadataItemCollectionFromXML(itemRule, xmlElement)
+  const fromXMLDefault: ImportFromXMLFunction = (context, rule, xml) => {
+    const effectiveElement = xmlElement ?? (rule as any).xml
+    if (Array.isArray(xml)) {
+      return importMetadataItemCollectionFromXML(itemRule, effectiveElement)(context, rule, {
+        [effectiveElement]: xml,
+      })
+    }
+    return importMetadataItemCollectionFromXML(itemRule, effectiveElement)(context, rule, xml)
+  }
+  const fromXML = params.fromXML ?? fromXMLDefault
   registerTypeRule(propertyType, "importFromXML", fromXML)
 
   const fromYAMLDefault: importFromYAMLFunction = (context, _rule, value) =>
@@ -82,7 +91,6 @@ export const registerMetadataItemCollectionRule = <
       data: p.value,
       referenceData: p.referenceMetadata,
       itemRule,
-      xmlElement,
       keyField: params.keyField,
     })
 

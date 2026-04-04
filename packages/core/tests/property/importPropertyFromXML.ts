@@ -7,7 +7,11 @@ import { testFixturesDir } from "~/tests/testFixturesDir"
 export const testImportPropertyFromXML = (
   params: {
     rule: PropertyRule
-    xmlRootTag: string
+    /**
+     * Корневой тег, под которым находятся данные в XML.
+     * Если не указан — весь распарсенный XML передаётся напрямую в `importPropertyFromXML`.
+     */
+    xmlRootTag?: string
     /** Передаётся в `mockContextFromXML({ forReference })` (по умолчанию false). */
     forReference?: boolean
   } & (
@@ -29,7 +33,7 @@ export const testImportPropertyFromXML = (
           params.path,
           params.importMetaUrl !== undefined ? testFixturesDir(params.importMetaUrl) : undefined
         )
-  const referenceXML = referenceXMLData[xmlRootTag]
+  const referenceXML = xmlRootTag !== undefined ? referenceXMLData[xmlRootTag] : referenceXMLData
 
   return importPropertyFromXML({
     context: mockContextFromXML({ forReference: forReference ?? false }),

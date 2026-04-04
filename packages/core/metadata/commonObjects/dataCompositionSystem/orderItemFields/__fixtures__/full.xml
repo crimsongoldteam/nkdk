@@ -1,10 +1,8 @@
-<dcsset:order>
-	<dcsset:item xsi:type="dcsset:OrderItemField">
-		<dcsset:field>ПоВозрастанию</dcsset:field>
-		<dcsset:orderType>Asc</dcsset:orderType>
-	</dcsset:item>
-	<dcsset:item xsi:type="dcsset:OrderItemField">
-		<dcsset:field>ПоУбыванию</dcsset:field>
-		<dcsset:orderType>Desc</dcsset:orderType>
-	</dcsset:item>
-</dcsset:order>
+<dcsset:item xsi:type="dcsset:OrderItemField">
+	<dcsset:field>ПоВозрастанию</dcsset:field>
+	<dcsset:orderType>Asc</dcsset:orderType>
+</dcsset:item>
+<dcsset:item xsi:type="dcsset:OrderItemField">
+	<dcsset:field>ПоУбыванию</dcsset:field>
+	<dcsset:orderType>Desc</dcsset:orderType>
+</dcsset:item>

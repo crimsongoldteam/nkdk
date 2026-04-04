@@ -9,7 +9,11 @@ import { readAndParseXMLFixture, readXMLFixtureAsString } from "../readFixtureXM
 type TestExportPropertyToXMLParamsBase = {
   rule: PropertyRule
   value: unknown
-  xmlRootTag: string
+  /**
+   * Корневой тег для сериализации результата в XML.
+   * Если не указан — результат оборачивается в `{ [rule.xml]: xmlData }`.
+   */
+  xmlRootTag?: string
   /**
    * Если true — результат `exportPropertyToXML` уже является корнем документа (например `{ Parameter: [...] }`),
    * без дополнительной обёртки `{ [xmlRootTag]: xmlData }`.
@@ -48,9 +52,9 @@ export function testExportPropertyToXML(
 
   let expectedResult: string | undefined
   if (path !== undefined) {
-    expectedResult = importMetaUrl ? readXMLFixtureAsString(importMetaUrl, path) : readXMLFileAsString(path)
+    expectedResult = (importMetaUrl ? readXMLFixtureAsString(importMetaUrl, path) : readXMLFileAsString(path)).trimEnd()
 
-    if (!("referenceMetadata" in params)) {
+    if (!("referenceMetadata" in params) && xmlRootTag !== undefined) {
       const referenceXMLData = importMetaUrl
         ? readAndParseXMLFixture<{ [key: string]: ElementXML }>(importMetaUrl, path)
         : readAndParseXMLFile<{ [key: string]: ElementXML }>(path)
@@ -90,10 +94,11 @@ export function testExportPropertyToXML(
 
   setIdsToElements(exportContext)
 
+  const effectiveRootTag = xmlRootTag ?? (rule as any).xml
   const result =
     params.exportXmlDataAsRoot === true
       ? xmlExport(xmlData as Record<string, unknown>, false)
-      : xmlExport({ [xmlRootTag]: xmlData }, false)
+      : xmlExport({ [effectiveRootTag]: xmlData }, false)
 
   return { expectedResult, result }
 }

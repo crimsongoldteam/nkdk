@@ -10,9 +10,9 @@ export const exportMetadataCollectionToXML = <Rule extends MetadataItemRule, XML
   data: ToMetadata<Rule["itemType"]>[] | undefined
   referenceData?: ToMetadata<Rule["itemType"]>[]
   itemRule: Rule
-  xmlElement: XMLKey
+  xmlElement?: XMLKey
   keyField?: keyof Rule["properties"]
-}): Record<XMLKey, NamedElementXML[]> | undefined => {
+}): Record<XMLKey, NamedElementXML[]> | NamedElementXML[] | undefined => {
   const { context, data, referenceData, xmlElement, keyField, itemRule } = params
   type Item = ToMetadata<Rule["itemType"]>
 
@@ -37,6 +37,7 @@ export const exportMetadataCollectionToXML = <Rule extends MetadataItemRule, XML
     return result
   })
 
+  if (xmlElement === undefined) return result as NamedElementXML[]
   return { [xmlElement]: result } as Record<XMLKey, NamedElementXML[]>
 }
 

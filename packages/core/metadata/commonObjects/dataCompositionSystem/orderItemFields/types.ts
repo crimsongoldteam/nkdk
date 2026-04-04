@@ -11,6 +11,6 @@ export type OrderItemFieldsYAML = OrderItemFieldYAML[]
 registerMetadataItemCollectionRule({
   propertyType: "OrderItemFields",
   itemRule: OrderItemFieldRules,
-  xmlElement: "dcsset:item",
+  // xmlElement: "dcsset:item",
   yamlAsArray: true,
 })

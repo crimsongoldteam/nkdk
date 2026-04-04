@@ -4,14 +4,13 @@ import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { dcsOrderItemFieldsFixture } from "./__fixtures__/data"
 import "./index"
 
-const rule: PropertyRule = { type: "OrderItemFields" } as const
+const rule: PropertyRule = { type: "OrderItemFields", xml: "dcsset:item" } as const
 
 describe("export OrderItemFields to XML", () => {
   it("exports full.xml", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule,
       value: dcsOrderItemFieldsFixture,
-      xmlRootTag: "dcsset:order",
       path: "full.xml",
       importMetaUrl: import.meta.url,
     })
