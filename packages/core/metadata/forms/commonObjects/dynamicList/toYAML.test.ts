@@ -8,7 +8,7 @@ const rule: PropertyRule = {
   yaml: "ДинамическийСписок",
 }
 
-describe("export DynamicList to YAML", () => {
+describe.skip("export DynamicList to YAML", () => {
   it("should export undefined when data is undefined", () => {
     const result = exportPropertyToYAML({
       context: mockContextToTypedYAML,

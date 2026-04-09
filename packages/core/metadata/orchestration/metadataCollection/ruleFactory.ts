@@ -91,6 +91,7 @@ export const registerMetadataItemCollectionRule = <
       data: p.value,
       referenceData: p.referenceMetadata,
       itemRule,
+      xmlElement,
       keyField: params.keyField,
     })
 

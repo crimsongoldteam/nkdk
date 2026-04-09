@@ -19,6 +19,12 @@ export default defineConfig({
     globals: true,
     watch: false,
     setupFiles: [resolve(__dirname, "./tests/setupTests")],
+    server: {
+      deps: {
+        // langium is ESM-only; inline it to avoid CJS require path in Vitest.
+        inline: ["langium"],
+      },
+    },
     alias: {
       "~": resolve(__dirname, "./"),
       "nkdk-language": resolve(__dirname, "../language/src/index"),
