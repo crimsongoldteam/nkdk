@@ -1,7 +1,7 @@
 import { MultiDirectedGraph } from "graphology"
 import type { MetadataItem } from "../orchestration/property/types"
 
-export const graph = new MultiDirectedGraph<{ name: string }, { yaml: string }>()
+export const graph = new MultiDirectedGraph<{ name: string; offset?: number; filePath?: string }, { yaml: string }>()
 
 const objectToNodeId = new Map<MetadataItem, string>()
 
@@ -16,6 +16,14 @@ export function getOrCreateTopLevelNodeId(item: MetadataItem & { name: string })
   const id = `${prefix}.${item.name}`
   objectToNodeId.set(item, id)
   if (!graph.hasNode(id)) graph.addNode(id, { name: item.name })
+  return id
+}
+
+export function getOrCreateRawNodeId(
+  id: string,
+  attrs: { name: string; offset?: number; filePath?: string },
+): string {
+  if (!graph.hasNode(id)) graph.addNode(id, attrs)
   return id
 }
 
