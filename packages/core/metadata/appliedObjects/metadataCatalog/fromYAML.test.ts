@@ -1,6 +1,6 @@
 import fs from "fs"
 import path from "path"
-import { beforeEach, describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, expect, it } from "vitest"
 import { parseDocument } from "yaml"
 import { edgeMatch, nodeMatch } from "~/metadata/relations/dependencyQuery"
 import { clearDependenciesGraph, getDependencies } from "~/metadata/relations/getDependencies"
@@ -56,11 +56,20 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
         .edgeOr(
           edgeMatch(({ attrs }) => attrs.name === "Реквизит"),
           edgeMatch(({ attrs }) => attrs.name === "ТабличнаяЧасть")
+          edgeMatch(({ attrs }) => attrs.name === "СтандартныеРеквизиты")
         )
     )
+
     expect(Object.keys(dependencies)).toEqual([
       "Справочник.TestCatalog.Реквизит.КакойТоРеквизит",
       "Справочник.TestCatalog.ТабличнаяЧасть.КакаяТоТабличнаяЧасть",
+      "Справочник.TestCatalog.СтандартныеРеквизиты.ИмяПредопределенныхДанных",
+      "Справочник.TestCatalog.СтандартныеРеквизиты.Предопределенный",
+      "Справочник.TestCatalog.СтандартныеРеквизиты.Ссылка",
+      "Справочник.TestCatalog.СтандартныеРеквизиты.ПометкаУдаления",
+      "Справочник.TestCatalog.СтандартныеРеквизиты.ЭтоГруппа",
+      "Справочник.TestCatalog.СтандартныеРеквизиты.Наименование",
+      "Справочник.TestCatalog.СтандартныеРеквизиты.Код",
     ])
   })
 })
