@@ -48,6 +48,7 @@ export const MetadataCatalogRules = {
       yaml: "ДополнительнаяФормаДляВыбора",
       type: "string",
       xmlParents: catalogProperties,
+      // dependencies: ["this", "Form"],
     },
     auxiliaryFolderChoiceForm: {
       yaml: "ДополнительнаяФормаДляВыбораГруппы",
