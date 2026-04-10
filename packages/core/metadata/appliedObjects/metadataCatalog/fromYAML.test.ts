@@ -1,8 +1,9 @@
-import fs from "node:fs"
-import path from "node:path"
-import { describe, expect, it } from "vitest"
+import fs from "fs"
+import path from "path"
+import { beforeEach, describe, expect, it } from "vitest"
 import { parseDocument } from "yaml"
-import { getDependencies } from "~/metadata/relations/getDependencies"
+import { edgeMatch, nodeMatch } from "~/metadata/relations/dependencyQuery"
+import { clearDependenciesGraph, getDependencies } from "~/metadata/relations/getDependencies"
 import { full, fullYAML, minimal, minimalYAML } from "~/tests/fixtures/metadataCatalog/data"
 import { mockContext } from "~/tests/mockContext"
 import { importMetadataCatalogFromYAML } from "./fromYAML"
@@ -32,6 +33,12 @@ describe("importMetadataCatalogFromYAML", () => {
 
     expect(result).toBeUndefined()
   })
+})
+
+describe("importMetadataCatalogDependenciesFromYAML", () => {
+  beforeEach(() => {
+    clearDependenciesGraph()
+  })
 
   it("should import dependencies", () => {
     const text = fs.readFileSync(path.join(__dirname, "__fixtures__/dependencies.yaml"), "utf8")
@@ -43,7 +50,17 @@ describe("importMetadataCatalogFromYAML", () => {
       name: "TestCatalog",
     })
 
-    const dependencies = getDependencies(["Справочник", "TestCatalog"])
-    expect(Object.keys(dependencies)).toEqual(["Справочник.TestCatalog.КакойТоРеквизит"])
+    const dependencies = getDependencies(
+      nodeMatch(({ attrs }) => attrs.name === "Справочник")
+        .nodeMatch(() => true)
+        .edgeOr(
+          edgeMatch(({ attrs }) => attrs.name === "Реквизит"),
+          edgeMatch(({ attrs }) => attrs.name === "ТабличнаяЧасть")
+        )
+    )
+    expect(Object.keys(dependencies)).toEqual([
+      "Справочник.TestCatalog.Реквизит.КакойТоРеквизит",
+      "Справочник.TestCatalog.ТабличнаяЧасть.КакаяТоТабличнаяЧасть",
+    ])
   })
 })

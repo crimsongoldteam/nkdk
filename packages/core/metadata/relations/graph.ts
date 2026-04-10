@@ -1,7 +1,7 @@
 import { MultiDirectedGraph } from "graphology"
 import type { MetadataItem } from "../orchestration/property/types"
 
-export const graph = new MultiDirectedGraph<{ name: string; offset?: number; filePath?: string }, { yaml: string }>()
+export const graph = new MultiDirectedGraph<{ name: string; offset?: number; filePath?: string }, { yaml: string; name: string }>()
 
 const objectToNodeId = new Map<MetadataItem, string>()
 
