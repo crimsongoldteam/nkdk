@@ -20,9 +20,7 @@ export function importMetadataItemPropertiesDependenciesFromYAML(params: {
       (item) => isPair(item) && isScalar(item.key) && item.key.value === propRule.yaml,
     )
     const propYamlMap = pair && isPair(pair) && isMap(pair.value) ? pair.value : undefined
-    const standartAttributeNames =
-      "standartAttributeNames" in propRule ? (propRule.standartAttributeNames as Record<string, string>) : undefined
-    handler({ yamlMap: propYamlMap, parentNodeId, filePath, standartAttributeNames })
+    handler({ yamlMap: propYamlMap, parentNodeId, filePath, propRule })
   }
 }
 

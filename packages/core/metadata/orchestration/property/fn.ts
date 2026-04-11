@@ -74,7 +74,7 @@ export type ImportDependenciesFromYAMLFunction = (params: {
   yamlMap?: YAMLMap
   parentNodeId: string
   filePath: string
-  standartAttributeNames?: Record<string, string>
+  propRule?: PropertyRule
 }) => void
 
 export interface TypeRule {

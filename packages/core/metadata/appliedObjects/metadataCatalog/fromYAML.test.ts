@@ -74,5 +74,19 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
       "Справочник.TestCatalog.СтандартныйРеквизит.Наименование",
       "Справочник.TestCatalog.СтандартныйРеквизит.Код",
     ])
+
+    // expect(dependencies["Справочник.TestCatalog.Реквизит.КакойТоРеквизит"]).toEqual({
+    //   name: "КакойТоРеквизит",
+    //   positionFrom: {
+    //     line: 2,
+    //     column: 3,
+    //     offset: 13,
+    //   },
+    //   positionTo: {
+    //     line: 2,
+    //     column: 18,
+    //     offset: 28,
+    //   },
+    // })
   })
 })

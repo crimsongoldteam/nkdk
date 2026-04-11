@@ -32,9 +32,9 @@ export const MetadataCatalogStandardAttributeNames: Record<string, string> = {
   Predefined: "Предопределенный",
   Ref: "Ссылка",
   DeletionMark: "ПометкаУдаления",
-  IsFolder: "ЭтоГруппа",
-  Owner: "Владелец",
   Parent: "Родитель",
+  Owner: "Владелец",
+  IsFolder: "ЭтоГруппа",
   Description: "Наименование",
   Code: "Код",
 }

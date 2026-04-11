@@ -165,6 +165,7 @@ import "./predifined/toYAML"
 import "./standardAttributeDescription/rules"
 import "./standardAttributeDescription/types"
 import "./standardAttributeDescription/registerCollectionRule"
+import "./standardAttributeDescription/fromYAMLDependencies"
 import "./standardAttributeDescription/toJSONSchema"
 
 import "./string/fromXML"
