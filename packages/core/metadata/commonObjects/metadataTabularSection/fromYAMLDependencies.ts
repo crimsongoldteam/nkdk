@@ -1,16 +1,17 @@
 import { YAMLMap, isMap, isPair, isScalar } from "yaml"
-import { getOrCreateRawNodeId, graph } from "~/metadata/relations/graph"
 import { getTypeRule, registerTypeRule } from "~/metadata/orchestration"
+import { getOrCreateRawNodeId, graph } from "~/metadata/relations/graph"
 import { MetadataTabularSectionRules } from "./rules"
 
 const attributesYamlKey = MetadataTabularSectionRules.properties.attributes.yaml
 
 function importMetadataTabularSectionsDependenciesFromYAML(params: {
-  yamlMap: YAMLMap
+  yamlMap?: YAMLMap
   parentNodeId: string
   filePath: string
 }): void {
   const { yamlMap, parentNodeId, filePath } = params
+  if (!yamlMap) return
 
   for (const item of yamlMap.items) {
     if (!isPair(item) || !isScalar(item.key)) continue
@@ -29,9 +30,7 @@ function importMetadataTabularSectionsDependenciesFromYAML(params: {
     }
 
     if (isMap(item.value)) {
-      const attrsPair = item.value.items.find(
-        (i) => isPair(i) && isScalar(i.key) && i.key.value === attributesYamlKey,
-      )
+      const attrsPair = item.value.items.find((i) => isPair(i) && isScalar(i.key) && i.key.value === attributesYamlKey)
       if (attrsPair && isPair(attrsPair) && isMap(attrsPair.value)) {
         const attributesHandler = getTypeRule("MetadataAttributes", "importDependenciesFromYAML")
         attributesHandler?.({ yamlMap: attrsPair.value, parentNodeId: sectionNodeId, filePath })
@@ -43,5 +42,5 @@ function importMetadataTabularSectionsDependenciesFromYAML(params: {
 registerTypeRule(
   "MetadataTabularSections",
   "importDependenciesFromYAML",
-  importMetadataTabularSectionsDependenciesFromYAML,
+  importMetadataTabularSectionsDependenciesFromYAML
 )
