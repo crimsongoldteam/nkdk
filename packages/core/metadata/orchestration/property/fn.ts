@@ -71,9 +71,10 @@ export type ExportToJSONSchemaFn = (params: {
 }) => TSchema | undefined
 
 export type ImportDependenciesFromYAMLFunction = (params: {
-  yamlMap: YAMLMap
+  yamlMap?: YAMLMap
   parentNodeId: string
   filePath: string
+  standartAttributeNames?: Record<string, string>
 }) => void
 
 export interface TypeRule {

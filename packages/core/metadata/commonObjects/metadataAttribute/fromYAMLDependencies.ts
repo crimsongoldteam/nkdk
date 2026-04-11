@@ -3,11 +3,12 @@ import { getOrCreateRawNodeId, graph } from "~/metadata/relations/graph"
 import { registerTypeRule } from "~/metadata/orchestration"
 
 function importMetadataAttributesDependenciesFromYAML(params: {
-  yamlMap: YAMLMap
+  yamlMap?: YAMLMap
   parentNodeId: string
   filePath: string
 }): void {
   const { yamlMap, parentNodeId, filePath } = params
+  if (!yamlMap) return
 
   for (const item of yamlMap.items) {
     if (!isPair(item) || !isScalar(item.key)) continue

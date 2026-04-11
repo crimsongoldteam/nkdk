@@ -1,7 +1,30 @@
-import { Document, isMap, isPair, isScalar } from "yaml"
+import { Document, YAMLMap, isMap, isPair, isScalar } from "yaml"
 import { getOrCreateRawNodeId, graph, itemTypePrefix } from "~/metadata/relations/graph"
 import { getTypeRule } from "../formElement/factory"
 import { MetadataItemRule } from "../property/types"
+
+export function importMetadataItemPropertiesDependenciesFromYAML(params: {
+  rule: MetadataItemRule
+  yamlMap: YAMLMap
+  parentNodeId: string
+  filePath: string
+}): void {
+  const { rule, yamlMap, parentNodeId, filePath } = params
+
+  for (const [, propRule] of Object.entries(rule.properties)) {
+    if (!propRule.yaml) continue
+    const handler = getTypeRule(propRule.type, "importDependenciesFromYAML")
+    if (!handler) continue
+
+    const pair = yamlMap.items.find(
+      (item) => isPair(item) && isScalar(item.key) && item.key.value === propRule.yaml,
+    )
+    const propYamlMap = pair && isPair(pair) && isMap(pair.value) ? pair.value : undefined
+    const standartAttributeNames =
+      "standartAttributeNames" in propRule ? (propRule.standartAttributeNames as Record<string, string>) : undefined
+    handler({ yamlMap: propYamlMap, parentNodeId, filePath, standartAttributeNames })
+  }
+}
 
 export function importMetadataItemDependenciesFromYAML(params: {
   rule: MetadataItemRule
@@ -24,16 +47,5 @@ export function importMetadataItemDependenciesFromYAML(params: {
   const root = yamlDocument.contents
   if (!isMap(root)) return
 
-  for (const [, propRule] of Object.entries(rule.properties)) {
-    if (!propRule.yaml) continue
-    const handler = getTypeRule(propRule.type, "importDependenciesFromYAML")
-    if (!handler) continue
-
-    const pair = root.items.find(
-      (item) => isPair(item) && isScalar(item.key) && item.key.value === propRule.yaml,
-    )
-    if (pair && isPair(pair) && isMap(pair.value)) {
-      handler({ yamlMap: pair.value, parentNodeId: itemNodeId, filePath })
-    }
-  }
+  importMetadataItemPropertiesDependenciesFromYAML({ rule, yamlMap: root, parentNodeId: itemNodeId, filePath })
 }
