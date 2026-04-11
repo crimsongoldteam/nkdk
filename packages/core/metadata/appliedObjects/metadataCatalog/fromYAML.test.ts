@@ -1,3 +1,4 @@
+import { Object } from "@sinclair/typebox"
 import fs from "fs"
 import path from "path"
 import { beforeEach, describe, expect, it } from "vitest"
@@ -39,9 +40,6 @@ describe("importMetadataCatalogFromYAML", () => {
 describe("importMetadataCatalogDependenciesFromYAML", () => {
   beforeEach(() => {
     clearDependenciesGraph()
-  })
-
-  it("should import dependencies", () => {
     const text = fs.readFileSync(path.join(__dirname, "__fixtures__/dependencies.yaml"), "utf8")
     const yamlDocument = parseDocument(text)
     const catalog = importMetadataCatalogFromYAML(mockContext, parse(text), "TestCatalog")
@@ -53,7 +51,9 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
       filePath: "test.yaml",
       parsedItem: catalog,
     })
+  })
 
+  it("should import dependencies", () => {
     const dependencies = getDependencies(
       nodeMatch(({ attrs }) => attrs.name === "Справочник")
         .nodeMatch(() => true)
@@ -93,5 +93,17 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
         offset: 13,
       },
     })
+  })
+
+  it("should import dependencies with other catalog", () => {
+    const dependencies = getDependencies(
+      nodeMatch(({ attrs }) => attrs.name === "Справочник")
+        .nodeMatch(() => true)
+        .edgeMatch(({ attrs }) => attrs.name === "Реквизит")
+        .nodeMatch(() => true)
+        .edgeMatch(({ attrs }) => attrs.name === "Тип")
+    )
+
+    expect(Object.keys(dependencies)).toEqual(["Справочник.ДругойСправочник"])
   })
 })
