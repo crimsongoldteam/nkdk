@@ -8,6 +8,7 @@ import {
   ExportToYAMLFunction,
   ExportToYAMLFunctionNew,
   importExportFunction,
+  ImportDependenciesFromYAMLFunction,
   ImportFromXMLFunction,
   importFromYAMLFunction as ImportFromYAMLFunction,
   ImportFromYAMLFunctionNew,
@@ -24,6 +25,7 @@ const typeRulesRegistry = new Map<
   | ExportToXMLFunctionNew
   | ImportFromYAMLFunctionNew
   | ExportToYAMLFunctionNew
+  | ImportDependenciesFromYAMLFunction
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -50,7 +52,9 @@ export const getTypeRule = <O extends TypeRulesOperations>(
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"
             ? ExportToJSONSchemaFn | undefined
-            : never => {
+            : O extends "importDependenciesFromYAML"
+              ? ImportDependenciesFromYAMLFunction | undefined
+              : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

@@ -8,7 +8,7 @@ export const graph = new MultiDirectedGraph<
 
 const objectToNodeId = new Map<MetadataItem, string>()
 
-const itemTypePrefix: Record<string, string> = {
+export const itemTypePrefix: Record<string, string> = {
   MetadataCatalog: "Справочник",
   MetadataDocument: "Документ",
 }

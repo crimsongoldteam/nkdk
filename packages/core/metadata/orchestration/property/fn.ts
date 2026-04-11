@@ -1,4 +1,5 @@
 import { TSchema } from "@sinclair/typebox"
+import { YAMLMap } from "yaml"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,
@@ -69,6 +70,12 @@ export type ExportToJSONSchemaFn = (params: {
   value: any | undefined
 }) => TSchema | undefined
 
+export type ImportDependenciesFromYAMLFunction = (params: {
+  yamlMap: YAMLMap
+  parentNodeId: string
+  filePath: string
+}) => void
+
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
@@ -76,6 +83,7 @@ export interface TypeRule {
   exportToYAML?: ExportToYAMLFunction | ExportToYAMLFunctionNew
   exportToEnterprise?: ExportToEnterpriseFunction
   exportToJSONSchema?: ExportToJSONSchemaFn
+  importDependenciesFromYAML?: ImportDependenciesFromYAMLFunction
 }
 
 export type TypeRulesOperations =
@@ -85,6 +93,7 @@ export type TypeRulesOperations =
   | "exportToYAML"
   | "exportToEnterprise"
   | "exportToJSONSchema"
+  | "importDependenciesFromYAML"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -103,4 +112,6 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"
             ? ExportToJSONSchemaFn | undefined
-            : never
+            : O extends "importDependenciesFromYAML"
+              ? ImportDependenciesFromYAMLFunction | undefined
+              : never

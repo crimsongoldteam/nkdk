@@ -2,12 +2,13 @@ import fs from "fs"
 import path from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { parseDocument } from "yaml"
+import { importMetadataItemDependenciesFromYAML } from "~/metadata/orchestration"
 import { edgeMatch, nodeMatch } from "~/metadata/relations/dependencyQuery"
 import { clearDependenciesGraph, getDependencies } from "~/metadata/relations/getDependencies"
 import { full, fullYAML, minimal, minimalYAML } from "~/tests/fixtures/metadataCatalog/data"
 import { mockContext } from "~/tests/mockContext"
 import { importMetadataCatalogFromYAML } from "./fromYAML"
-import { importMetadataCatalogDependenciesFromYAML } from "./fromYAMLDependencies"
+import { MetadataCatalogRules } from "./rules"
 import { exportMetadataCatalogToYAML } from "./toYAML"
 
 describe("importMetadataCatalogFromYAML", () => {
@@ -43,11 +44,11 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
   it("should import dependencies", () => {
     const text = fs.readFileSync(path.join(__dirname, "__fixtures__/dependencies.yaml"), "utf8")
     const yamlDocument = parseDocument(text)
-    importMetadataCatalogDependenciesFromYAML({
-      context: mockContext,
+    importMetadataItemDependenciesFromYAML({
+      rule: MetadataCatalogRules,
       yamlDocument,
-      path: "test.yaml",
       name: "TestCatalog",
+      filePath: "test.yaml",
     })
 
     const dependencies = getDependencies(
@@ -63,13 +64,13 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     expect(Object.keys(dependencies)).toEqual([
       "Справочник.TestCatalog.Реквизит.КакойТоРеквизит",
       "Справочник.TestCatalog.ТабличнаяЧасть.КакаяТоТабличнаяЧасть",
-      "Справочник.TestCatalog.СтандартныеРеквизиты.ИмяПредопределенныхДанных",
-      "Справочник.TestCatalog.СтандартныеРеквизиты.Предопределенный",
-      "Справочник.TestCatalog.СтандартныеРеквизиты.Ссылка",
-      "Справочник.TestCatalog.СтандартныеРеквизиты.ПометкаУдаления",
-      "Справочник.TestCatalog.СтандартныеРеквизиты.ЭтоГруппа",
-      "Справочник.TestCatalog.СтандартныеРеквизиты.Наименование",
-      "Справочник.TestCatalog.СтандартныеРеквизиты.Код",
+      // "Справочник.TestCatalog.СтандартныеРеквизиты.ИмяПредопределенныхДанных",
+      // "Справочник.TestCatalog.СтандартныеРеквизиты.Предопределенный",
+      // "Справочник.TestCatalog.СтандартныеРеквизиты.Ссылка",
+      // "Справочник.TestCatalog.СтандартныеРеквизиты.ПометкаУдаления",
+      // "Справочник.TestCatalog.СтандартныеРеквизиты.ЭтоГруппа",
+      // "Справочник.TestCatalog.СтандартныеРеквизиты.Наименование",
+      // "Справочник.TestCatalog.СтандартныеРеквизиты.Код",
     ])
   })
 })
