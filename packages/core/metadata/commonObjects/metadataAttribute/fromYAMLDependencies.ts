@@ -1,5 +1,6 @@
 import { YAMLMap, isNode, isPair, isScalar } from "yaml"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { MetadataAttribute } from "~/metadata/commonObjects/metadataAttribute/types"
 import { getOrCreateRawNodeId, graph } from "~/metadata/relations/graph"
 import { registerTypeRule } from "~/metadata/orchestration"
 import { importMetadataAttributeFromYAML } from "./fromYAML"
@@ -9,9 +10,12 @@ function importMetadataAttributesDependenciesFromYAML(params: {
   yamlMap?: YAMLMap
   parentNodeId: string
   filePath: string
+  parsedItem?: unknown
 }): void {
-  const { context, yamlMap, parentNodeId, filePath } = params
+  const { context, yamlMap, parentNodeId, filePath, parsedItem } = params
   if (!yamlMap) return
+
+  const parsedAttributes = Array.isArray(parsedItem) ? (parsedItem as MetadataAttribute[]) : undefined
 
   for (const item of yamlMap.items) {
     if (!isPair(item) || !isScalar(item.key)) continue
@@ -19,8 +23,9 @@ function importMetadataAttributesDependenciesFromYAML(params: {
     const offset = item.key.range?.[0]
     const attrNodeId = `${parentNodeId}.Реквизит.${attrName}`
 
-    const yamlValue = isNode(item.value) ? item.value.toJSON() : item.value
-    const attrItem = importMetadataAttributeFromYAML(context, yamlValue, attrName)
+    const attrItem =
+      parsedAttributes?.find((a) => a.name === attrName) ??
+      importMetadataAttributeFromYAML(context, isNode(item.value) ? item.value.toJSON() : item.value, attrName)
 
     getOrCreateRawNodeId(attrNodeId, {
       name: attrName,

@@ -76,6 +76,7 @@ export type ImportDependenciesFromYAMLFunction = (params: {
   parentNodeId: string
   filePath: string
   propRule?: PropertyRule
+  parsedItem?: unknown
 }) => void
 
 export interface TypeRule {

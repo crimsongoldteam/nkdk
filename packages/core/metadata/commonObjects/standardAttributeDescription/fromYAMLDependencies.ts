@@ -10,6 +10,7 @@ function importStandardAttributesDependenciesFromYAML(params: {
   parentNodeId: string
   filePath: string
   propRule?: PropertyRule
+  parsedItem?: unknown
 }): void {
   const { yamlMap, parentNodeId, filePath, propRule } = params
   if (!propRule || propRule.type !== "StandardAttributeDescriptions") return

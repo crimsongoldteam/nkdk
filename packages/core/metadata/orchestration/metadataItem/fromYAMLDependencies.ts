@@ -10,10 +10,11 @@ export function importMetadataItemPropertiesDependenciesFromYAML(params: {
   yamlMap: YAMLMap
   parentNodeId: string
   filePath: string
+  parsedItem?: unknown
 }): void {
-  const { context, rule, yamlMap, parentNodeId, filePath } = params
+  const { context, rule, yamlMap, parentNodeId, filePath, parsedItem } = params
 
-  for (const [, propRule] of Object.entries(rule.properties)) {
+  for (const [key, propRule] of Object.entries(rule.properties)) {
     if (!propRule.yaml) continue
     const handler = getTypeRule(propRule.type, "importDependenciesFromYAML")
     if (!handler) continue
@@ -22,7 +23,8 @@ export function importMetadataItemPropertiesDependenciesFromYAML(params: {
       (item) => isPair(item) && isScalar(item.key) && item.key.value === propRule.yaml,
     )
     const propYamlMap = pair && isPair(pair) && isMap(pair.value) ? pair.value : undefined
-    handler({ context, yamlMap: propYamlMap, parentNodeId, filePath, propRule })
+    const parsedPropValue = (parsedItem as Record<string, unknown> | undefined)?.[key]
+    handler({ context, yamlMap: propYamlMap, parentNodeId, filePath, propRule, parsedItem: parsedPropValue })
   }
 }
 
@@ -32,8 +34,9 @@ export function importMetadataItemDependenciesFromYAML(params: {
   yamlDocument: Document
   name: string
   filePath: string
+  parsedItem?: unknown
 }): void {
-  const { context, rule, yamlDocument, name, filePath } = params
+  const { context, rule, yamlDocument, name, filePath, parsedItem } = params
 
   const prefix = itemTypePrefix[rule.itemType] ?? rule.itemType
   getOrCreateRawNodeId(prefix, { name: prefix })
@@ -48,5 +51,5 @@ export function importMetadataItemDependenciesFromYAML(params: {
   const root = yamlDocument.contents
   if (!isMap(root)) return
 
-  importMetadataItemPropertiesDependenciesFromYAML({ context, rule, yamlMap: root, parentNodeId: itemNodeId, filePath })
+  importMetadataItemPropertiesDependenciesFromYAML({ context, rule, yamlMap: root, parentNodeId: itemNodeId, filePath, parsedItem })
 }
