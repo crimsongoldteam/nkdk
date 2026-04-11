@@ -71,6 +71,7 @@ export type ExportToJSONSchemaFn = (params: {
 }) => TSchema | undefined
 
 export type ImportDependenciesFromYAMLFunction = (params: {
+  context: ConfigurationContext
   yamlMap?: YAMLMap
   parentNodeId: string
   filePath: string

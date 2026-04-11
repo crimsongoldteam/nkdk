@@ -28,7 +28,7 @@ export const importMetadataAttributesFromYAML = (
   return results.length > 0 ? results : undefined
 }
 
-const importMetadataAttributeFromYAML = (
+export const importMetadataAttributeFromYAML = (
   context: ConfigurationContext,
   yaml: MetadataAttributeYAML | TypeDescriptionYAML,
   name: string

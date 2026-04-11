@@ -1,15 +1,17 @@
 import { Document, YAMLMap, isMap, isPair, isScalar } from "yaml"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { getOrCreateRawNodeId, graph, itemTypePrefix } from "~/metadata/relations/graph"
 import { getTypeRule } from "../formElement/factory"
 import { MetadataItemRule } from "../property/types"
 
 export function importMetadataItemPropertiesDependenciesFromYAML(params: {
+  context: ConfigurationContext
   rule: MetadataItemRule
   yamlMap: YAMLMap
   parentNodeId: string
   filePath: string
 }): void {
-  const { rule, yamlMap, parentNodeId, filePath } = params
+  const { context, rule, yamlMap, parentNodeId, filePath } = params
 
   for (const [, propRule] of Object.entries(rule.properties)) {
     if (!propRule.yaml) continue
@@ -20,17 +22,18 @@ export function importMetadataItemPropertiesDependenciesFromYAML(params: {
       (item) => isPair(item) && isScalar(item.key) && item.key.value === propRule.yaml,
     )
     const propYamlMap = pair && isPair(pair) && isMap(pair.value) ? pair.value : undefined
-    handler({ yamlMap: propYamlMap, parentNodeId, filePath, propRule })
+    handler({ context, yamlMap: propYamlMap, parentNodeId, filePath, propRule })
   }
 }
 
 export function importMetadataItemDependenciesFromYAML(params: {
+  context: ConfigurationContext
   rule: MetadataItemRule
   yamlDocument: Document
   name: string
   filePath: string
 }): void {
-  const { rule, yamlDocument, name, filePath } = params
+  const { context, rule, yamlDocument, name, filePath } = params
 
   const prefix = itemTypePrefix[rule.itemType] ?? rule.itemType
   getOrCreateRawNodeId(prefix, { name: prefix })
@@ -45,5 +48,5 @@ export function importMetadataItemDependenciesFromYAML(params: {
   const root = yamlDocument.contents
   if (!isMap(root)) return
 
-  importMetadataItemPropertiesDependenciesFromYAML({ rule, yamlMap: root, parentNodeId: itemNodeId, filePath })
+  importMetadataItemPropertiesDependenciesFromYAML({ context, rule, yamlMap: root, parentNodeId: itemNodeId, filePath })
 }

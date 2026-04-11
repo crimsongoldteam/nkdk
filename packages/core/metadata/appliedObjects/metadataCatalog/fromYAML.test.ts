@@ -45,6 +45,7 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     const text = fs.readFileSync(path.join(__dirname, "__fixtures__/dependencies.yaml"), "utf8")
     const yamlDocument = parseDocument(text)
     importMetadataItemDependenciesFromYAML({
+      context: mockContext,
       rule: MetadataCatalogRules,
       yamlDocument,
       name: "TestCatalog",
@@ -75,18 +76,20 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
       "Справочник.TestCatalog.СтандартныйРеквизит.Код",
     ])
 
-    // expect(dependencies["Справочник.TestCatalog.Реквизит.КакойТоРеквизит"]).toEqual({
-    //   name: "КакойТоРеквизит",
-    //   positionFrom: {
-    //     line: 2,
-    //     column: 3,
-    //     offset: 13,
-    //   },
-    //   positionTo: {
-    //     line: 2,
-    //     column: 18,
-    //     offset: 28,
-    //   },
-    // })
+    expect(dependencies["Справочник.TestCatalog.Реквизит.КакойТоРеквизит"]).toMatchObject({
+      item: {
+        itemType: "MetadataAttribute",
+        name: "КакойТоРеквизит",
+        synonym: {
+          items: {
+            ru: "Наименование реквизита",
+            en: "Property name",
+          },
+        },
+      },
+      positionFrom: {
+        offset: 13,
+      },
+    })
   })
 })

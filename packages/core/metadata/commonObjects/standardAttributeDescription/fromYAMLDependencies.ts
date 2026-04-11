@@ -1,9 +1,11 @@
 import { isPair, isScalar, YAMLMap } from "yaml"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { getOrCreateRawNodeId, graph } from "~/metadata/relations/graph"
 
 function importStandardAttributesDependenciesFromYAML(params: {
+  context: ConfigurationContext
   yamlMap?: YAMLMap
   parentNodeId: string
   filePath: string
@@ -22,7 +24,12 @@ function importStandardAttributesDependenciesFromYAML(params: {
 
     const nodeId = `${parentNodeId}.СтандартныйРеквизит.${russianName}`
 
-    getOrCreateRawNodeId(nodeId, { name: russianName, offset, filePath })
+    getOrCreateRawNodeId(nodeId, {
+      name: russianName,
+      item: propRule,
+      positionFrom: offset !== undefined ? { offset } : undefined,
+      filePath,
+    })
 
     const edgeKey = `${parentNodeId}:СтандартныйРеквизит:${russianName}`
     if (!graph.hasEdge(edgeKey)) {
