@@ -5,7 +5,7 @@ import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formatted
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
 import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
-import { StandartAttributeName } from "~/metadata/commonObjects/standardAttributeDescription/types"
+
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
@@ -96,12 +96,12 @@ export interface UserVisiblePropertyRule extends BasePropertyRule {
 
 export interface StandardAttributeDescriptionPropertyRule extends BasePropertyRule {
   type: "StandardAttributeDescription"
-  standartAttributeNames: StandartAttributeName[]
+  standartAttributeNames: Record<string, string>
 }
 
 export interface StandardAttributeDescriptionsPropertyRule extends BasePropertyRule {
   type: "StandardAttributeDescriptions"
-  standartAttributeNames: StandartAttributeName[]
+  standartAttributeNames: Record<string, string>
 }
 
 export interface EventsPropertyRule extends BasePropertyRule {

@@ -7,7 +7,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
   it("exports all.xml fixture", () => {
     const rule: PropertyRule = {
       type: "StandardAttributeDescriptions",
-      standartAttributeNames: ["PredefinedDataName"],
+      standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных" },
     }
     const { expectedResult, result } = testExportPropertyToXML({
       rule,
@@ -22,7 +22,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
   it("exports multiple.xml fixture", () => {
     const rule: PropertyRule = {
       type: "StandardAttributeDescriptions",
-      standartAttributeNames: ["PredefinedDataName", "Predefined"],
+      standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных", Predefined: "Предопределенный" },
     }
     const { expectedResult, result } = testExportPropertyToXML({
       rule,
@@ -37,7 +37,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
   it("exports minimal.xml fixture", () => {
     const rule: PropertyRule = {
       type: "StandardAttributeDescriptions",
-      standartAttributeNames: ["PredefinedDataName"],
+      standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных" },
     }
     const { expectedResult, result } = testExportPropertyToXML({
       rule,
@@ -52,7 +52,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
   it("exports undefined", () => {
     const rule: PropertyRule = {
       type: "StandardAttributeDescriptions",
-      standartAttributeNames: ["PredefinedDataName"],
+      standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных" },
     }
     const { expectedResult, result } = testExportPropertyToXML({
       rule,

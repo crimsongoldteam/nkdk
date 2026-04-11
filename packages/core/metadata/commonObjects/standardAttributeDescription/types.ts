@@ -3,37 +3,15 @@ import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { TypeDescriptionXML } from "~/metadata/commonObjects/typeDescription/types"
 import { TypeLinkXML } from "~/metadata/commonObjects/typeLink/types"
 import { ChoiceParameterLinksXML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import { registerMetadataItemCollectionRule } from "~/metadata/orchestration"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChoiceParametersXML } from "../сhoiceParameters/types"
 import { StandardAttributeDescriptionRules } from "./rules"
+import type { StandartAttributeName, StandartAttributeYAML } from "./standartAttributeNames"
 
-export const StandartAttributeNameToYAML = {
-  Owner: "Владелец",
-  PredefinedDataName: "ИмяПредопределенныхДанных",
-  Code: "Код",
-  Description: "Наименование",
-  DeletionMark: "ПометкаУдаления",
-  Predefined: "Предопределенный",
-  Parent: "Родитель",
-  Ref: "Ссылка",
-  IsFolder: "ЭтоГруппа",
-  LineNumber: "НомерСтроки",
-  Active: "Активность",
-  Recorder: "Регистратор",
-  Period: "Период",
-} as const
-
-export const StandartAttributeNameFromYAML = (name: string): StandartAttributeName => {
-  return Object.keys(StandartAttributeNameToYAML).find(
-    (key) => StandartAttributeNameToYAML[key as StandartAttributeName] === name
-  ) as StandartAttributeName
-}
-
-export type StandartAttributeName = keyof typeof StandartAttributeNameToYAML
-export type StandartAttributeYAML = (typeof StandartAttributeNameToYAML)[keyof typeof StandartAttributeNameToYAML]
+export { StandartAttributeNameFromYAML, StandartAttributeNameToYAML } from "./standartAttributeNames"
+export type { StandartAttributeName, StandartAttributeYAML } from "./standartAttributeNames"
 
 // export const PredefinedNameToYAML
 
@@ -76,12 +54,3 @@ export type StandardAttributeDescriptions = StandardAttributeDescription[]
 export type StandardAttributeDescriptionsXML = { "xr:StandardAttribute": StandardAttributeDescriptionXML[] }
 
 export type StandardAttributeDescriptionsYAML = Partial<Record<StandartAttributeYAML, StandardAttributeDescriptionYAML>>
-
-registerMetadataItemCollectionRule({
-  propertyType: "StandardAttributeDescriptions",
-  itemRule: StandardAttributeDescriptionRules,
-  xmlElement: "xr:StandardAttribute",
-  keyField: "name",
-  nameFromYAMLKey: StandartAttributeNameFromYAML,
-  recordYamlKeyFromItem: (item) => StandartAttributeNameToYAML[item.name as StandartAttributeName],
-})

@@ -16,7 +16,6 @@ import { PredefinedItemsXML, PredefinedItemsYAML } from "~/metadata/commonObject
 import {
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
-  StandartAttributeName,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -28,17 +27,17 @@ import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/elemen
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 import { MetadataCatalogRules } from "./rules"
 
-export const MetadataCatalogStandardAttributeNames: StandartAttributeName[] = [
-  "PredefinedDataName",
-  "Predefined",
-  "Ref",
-  "DeletionMark",
-  "IsFolder",
-  "Owner",
-  "Parent",
-  "Description",
-  "Code",
-]
+export const MetadataCatalogStandardAttributeNames: Record<string, string> = {
+  PredefinedDataName: "ИмяПредопределенныхДанных",
+  Predefined: "Предопределенный",
+  Ref: "Ссылка",
+  DeletionMark: "ПометкаУдаления",
+  IsFolder: "ЭтоГруппа",
+  Owner: "Владелец",
+  Parent: "Родитель",
+  Description: "Наименование",
+  Code: "Код",
+}
 
 export type MetadataCatalog = MetadataTypeByRule<typeof MetadataCatalogRules>
 

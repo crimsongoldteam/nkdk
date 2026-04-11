@@ -1,5 +1,5 @@
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { StandartAttributeNameFromYAML } from "./types"
+import { StandartAttributeNameFromYAML } from "./standartAttributeNames"
 
 export const StandardAttributeDescriptionRules = {
   itemType: "StandardAttributeDescription",

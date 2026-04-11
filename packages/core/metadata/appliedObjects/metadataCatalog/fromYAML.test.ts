@@ -1,6 +1,6 @@
 import fs from "fs"
 import path from "path"
-import { beforeEach, describe, expect, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import { parseDocument } from "yaml"
 import { edgeMatch, nodeMatch } from "~/metadata/relations/dependencyQuery"
 import { clearDependenciesGraph, getDependencies } from "~/metadata/relations/getDependencies"
@@ -55,7 +55,7 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
         .nodeMatch(() => true)
         .edgeOr(
           edgeMatch(({ attrs }) => attrs.name === "Реквизит"),
-          edgeMatch(({ attrs }) => attrs.name === "ТабличнаяЧасть")
+          edgeMatch(({ attrs }) => attrs.name === "ТабличнаяЧасть"),
           edgeMatch(({ attrs }) => attrs.name === "СтандартныеРеквизиты")
         )
     )

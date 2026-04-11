@@ -2,13 +2,11 @@ import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { all, multiple } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { StandartAttributeName, StandartAttributeNameToYAML } from "./types"
-
-const standardAttributeNames = Object.keys(StandartAttributeNameToYAML) as StandartAttributeName[]
+import { StandartAttributeNameToYAML } from "./types"
 
 const rule: PropertyRule = {
   type: "StandardAttributeDescriptions",
-  standartAttributeNames: standardAttributeNames,
+  standartAttributeNames: StandartAttributeNameToYAML,
 }
 
 describe("import StandardAttributeDescriptions from XML", () => {

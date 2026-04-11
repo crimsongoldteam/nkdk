@@ -28,6 +28,6 @@ export const addRelation = (params: {
   const yaml = relConfig.yaml
   const edgeKey = `${fromId}:${yaml}:${toId}`
   if (!graph.hasEdge(edgeKey)) {
-    graph.addEdgeWithKey(edgeKey, fromId, toId, { yaml })
+    graph.addEdgeWithKey(edgeKey, fromId, toId, { yaml, name: yaml })
   }
 }

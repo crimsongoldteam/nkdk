@@ -9,14 +9,13 @@ import { exportMetadataAttributesToYAML } from "~/metadata/commonObjects/metadat
 import { exportMetadataFieldsToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
 import { exportMetadataItemLinksToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
 import { exportMetadataTabularSectionsToYAML } from "~/metadata/commonObjects/metadataTabularSection/toYAML"
-import { StandartAttributeName, StandartAttributeNameToYAML } from "~/metadata/commonObjects/standardAttributeDescription/types"
+
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportPropertyToYAML } from "~/metadata/orchestration"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const standardAttributeNames = Object.keys(StandartAttributeNameToYAML) as StandartAttributeName[]
 
 export const exportMetadataDocumentToYAML = (
   context: ConfigurationContext,
@@ -153,7 +152,10 @@ export const exportMetadataDocumentToYAML = (
       rule: {
         type: "StandardAttributeDescriptions",
         yaml: "СтандартныеРеквизиты",
-        standartAttributeNames: standardAttributeNames,
+        standartAttributeNames: {
+          Ref: "Ссылка",
+          DeletionMark: "ПометкаУдаления",
+        },
       },
       value: data.standardAttributes,
     })?.СтандартныеРеквизиты,

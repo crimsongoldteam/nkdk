@@ -5,12 +5,11 @@ import {
   minimal,
   minimalYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
-import { StandartAttributeName, StandartAttributeNameToYAML } from "./types"
+import { StandartAttributeNameToYAML } from "./types"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 
-const standardAttributeNames = Object.keys(StandartAttributeNameToYAML) as StandartAttributeName[]
-const rule: PropertyRule = { type: "StandardAttributeDescriptions", standartAttributeNames: standardAttributeNames }
+const rule: PropertyRule = { type: "StandardAttributeDescriptions", standartAttributeNames: StandartAttributeNameToYAML }
 
 describe("importStandardAttributeDescriptionsFromYAML", () => {
   it("imports undefined", () => {

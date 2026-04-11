@@ -161,8 +161,9 @@ import "./predifined/toXML"
 import "./predifined/toYAML"
 
 import "./standardAttributeDescription/rules"
-import "./standardAttributeDescription/toJSONSchema"
 import "./standardAttributeDescription/types"
+import "./standardAttributeDescription/registerCollectionRule"
+import "./standardAttributeDescription/toJSONSchema"
 
 import "./string/fromXML"
 import "./string/toJSONSchema"
