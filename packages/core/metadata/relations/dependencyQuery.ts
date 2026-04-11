@@ -6,6 +6,7 @@ type EdgeMatchParams = { id: string; attrs: EdgeAttrs }
 type Step =
   | { kind: "node"; fn: (params: NodeMatchParams) => boolean }
   | { kind: "edgeOr"; matchers: Array<(params: EdgeMatchParams) => boolean> }
+  | { kind: "edge"; fn: (params: EdgeMatchParams) => boolean }
 
 export class QueryBuilder {
   constructor(private readonly steps: Step[]) {}
@@ -16,6 +17,10 @@ export class QueryBuilder {
 
   edgeOr(...matchers: Array<(params: EdgeMatchParams) => boolean>): QueryBuilder {
     return new QueryBuilder([...this.steps, { kind: "edgeOr", matchers }])
+  }
+
+  edgeMatch(fn: (params: EdgeMatchParams) => boolean): QueryBuilder {
+    return new QueryBuilder([...this.steps, { kind: "edge", fn }])
   }
 
   getSteps(): Step[] {

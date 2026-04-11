@@ -1,15 +1,12 @@
-import { Object } from "@sinclair/typebox"
 import fs from "fs"
 import path from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { parse, parseDocument } from "yaml"
-import { importMetadataItemDependenciesFromYAML } from "~/metadata/orchestration"
+import { isMap, parse, parseDocument } from "yaml"
 import { edgeMatch, nodeMatch } from "~/metadata/relations/dependencyQuery"
 import { clearDependenciesGraph, getDependencies } from "~/metadata/relations/getDependencies"
 import { full, fullYAML, minimal, minimalYAML } from "~/tests/fixtures/metadataCatalog/data"
 import { mockContext } from "~/tests/mockContext"
 import { importMetadataCatalogFromYAML } from "./fromYAML"
-import { MetadataCatalogRules } from "./rules"
 import { exportMetadataCatalogToYAML } from "./toYAML"
 
 describe("importMetadataCatalogFromYAML", () => {
@@ -42,15 +39,12 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     clearDependenciesGraph()
     const text = fs.readFileSync(path.join(__dirname, "__fixtures__/dependencies.yaml"), "utf8")
     const yamlDocument = parseDocument(text)
-    const catalog = importMetadataCatalogFromYAML(mockContext, parse(text), "TestCatalog")
-    importMetadataItemDependenciesFromYAML({
-      context: mockContext,
-      rule: MetadataCatalogRules,
-      yamlDocument,
-      name: "TestCatalog",
-      filePath: "test.yaml",
-      parsedItem: catalog,
-    })
+    const root = yamlDocument.contents
+    importMetadataCatalogFromYAML(
+      { ...mockContext, graphContext: { filePath: "test.yaml", currentYamlMap: isMap(root) ? root : undefined } },
+      parse(text),
+      "TestCatalog",
+    )
   })
 
   it("should import dependencies", () => {

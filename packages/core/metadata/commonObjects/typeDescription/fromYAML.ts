@@ -2,7 +2,8 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
-import { getTypeFromYAML } from "./helper"
+import { getOrCreateRawNodeId, graph } from "../../relations/graph"
+import { getTypeDescriptionRule, getTypeFromYAML } from "./helper"
 import {
   PrimitiveTypeFromYAML,
   TypeDescription,
@@ -12,8 +13,10 @@ import {
   TypeDescriptionYAML,
 } from "./types"
 
+const TYPE_EDGE_NAME = "Тип"
+
 export const importTypeDescriptionFromYAML = (
-  _context: ConfigurationContext,
+  context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   value: TypeDescriptionYAML | undefined
 ): TypeDescription | undefined => {
@@ -92,7 +95,30 @@ export const importTypeDescriptionFromYAML = (
     return undefined
   }
 
+  if (context.graphContext?.parentNodeId) {
+    addTypeEdges(context, types)
+  }
+
   return result
+}
+
+function addTypeEdges(context: ConfigurationContext, types: string[]): void {
+  const { parentNodeId, filePath } = context.graphContext!
+  for (const type of types) {
+    const dotIndex = type.indexOf(".")
+    if (dotIndex === -1) continue
+    const baseType = type.substring(0, dotIndex)
+    const detailType = type.substring(dotIndex + 1)
+    const rule = getTypeDescriptionRule(baseType)
+    if (!rule?.modifier || rule.modifier === "alwaysType") continue
+
+    const targetNodeId = `${rule.enterprise}.${detailType}`
+    getOrCreateRawNodeId(targetNodeId, { name: detailType, filePath })
+    const edgeKey = `${parentNodeId}:${TYPE_EDGE_NAME}:${targetNodeId}`
+    if (!graph.hasEdge(edgeKey)) {
+      graph.addEdgeWithKey(edgeKey, parentNodeId, targetNodeId, { yaml: TYPE_EDGE_NAME, name: TYPE_EDGE_NAME })
+    }
+  }
 }
 
 const getStringQualifiers = (parameters: string[], type: string): TypeDescriptionStringQualifiers | undefined => {
