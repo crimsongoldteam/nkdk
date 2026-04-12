@@ -10,6 +10,7 @@ import {
   StandartAttributeNameToYAML,
   type StandartAttributeName,
 } from "./standartAttributeNames"
+import type { StandardAttributeDescription } from "./types"
 
 const EDGE_NAME = "СтандартныйРеквизит"
 
@@ -58,6 +59,16 @@ function importStandardAttributeDescriptionsFromYAML(
 
       const edgeKey = `${parentNodeId}:${EDGE_NAME}:${russianName}`
       g.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, name: EDGE_NAME, kind: "composition" })
+    }
+
+    if (result) {
+      for (const item of result) {
+        const russianName = StandartAttributeNameToYAML[(item as StandardAttributeDescription).name as StandartAttributeName]
+        if (russianName) {
+          const nodeId = `${parentNodeId}.${russianName}`
+          g.setNodeAttribute(nodeId, "item", item)
+        }
+      }
     }
   }
 

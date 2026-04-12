@@ -138,6 +138,17 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     expect(attrs.filePath).toBe("other.yaml")
   })
 
+  it("стандартный реквизит из YAML имеет item", () => {
+    const attrs = graph.getNodeAttributes("Справочник.TestCatalog.Владелец")
+    expect(attrs.item).toBeDefined()
+    expect((attrs.item as { name: string }).name).toBe("Owner")
+  })
+
+  it("стандартный реквизит без описания в YAML не имеет item", () => {
+    const attrs = graph.getNodeAttributes("Справочник.TestCatalog.Ссылка")
+    expect(attrs.item).toBeUndefined()
+  })
+
   it("getBrokenReferences is empty after all stubs are enriched", () => {
     importMetadataCatalogFromYAML(
       { ...mockContext, graph, graphContext: { filePath: "other.yaml" } },
