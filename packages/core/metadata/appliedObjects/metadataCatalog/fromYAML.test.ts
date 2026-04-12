@@ -3,7 +3,8 @@ import path from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { isMap, parse, parseDocument } from "yaml"
 import { edgeMatch, nodeMatch } from "~/metadata/relations/dependencyQuery"
-import { clearDependenciesGraph, getDependencies } from "~/metadata/relations/getDependencies"
+import { getDependencies } from "~/metadata/relations/getDependencies"
+import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 import { full, fullYAML, minimal, minimalYAML } from "~/tests/fixtures/metadataCatalog/data"
 import { mockContext } from "~/tests/mockContext"
 import { importMetadataCatalogFromYAML } from "./fromYAML"
@@ -35,13 +36,19 @@ describe("importMetadataCatalogFromYAML", () => {
 })
 
 describe("importMetadataCatalogDependenciesFromYAML", () => {
+  let graph: MetadataGraph
+
   beforeEach(() => {
-    clearDependenciesGraph()
+    graph = new MetadataGraph()
     const text = fs.readFileSync(path.join(__dirname, "__fixtures__/dependencies.yaml"), "utf8")
     const yamlDocument = parseDocument(text)
     const root = yamlDocument.contents
     importMetadataCatalogFromYAML(
-      { ...mockContext, graphContext: { filePath: "test.yaml", currentYamlMap: isMap(root) ? root : undefined } },
+      {
+        ...mockContext,
+        graph,
+        graphContext: { filePath: "test.yaml", currentYamlMap: isMap(root) ? root : undefined },
+      },
       parse(text),
       "TestCatalog",
     )
@@ -55,24 +62,25 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
           edgeMatch(({ attrs }) => attrs.name === "Реквизит"),
           edgeMatch(({ attrs }) => attrs.name === "ТабличнаяЧасть"),
           edgeMatch(({ attrs }) => attrs.name === "СтандартныйРеквизит")
-        )
+        ),
+      graph,
     )
 
     expect(Object.keys(dependencies)).toEqual([
-      "Справочник.TestCatalog.Реквизит.КакойТоРеквизит",
-      "Справочник.TestCatalog.ТабличнаяЧасть.КакаяТоТабличнаяЧасть",
-      "Справочник.TestCatalog.СтандартныйРеквизит.ИмяПредопределенныхДанных",
-      "Справочник.TestCatalog.СтандартныйРеквизит.Предопределенный",
-      "Справочник.TestCatalog.СтандартныйРеквизит.Ссылка",
-      "Справочник.TestCatalog.СтандартныйРеквизит.ПометкаУдаления",
-      "Справочник.TestCatalog.СтандартныйРеквизит.Родитель",
-      "Справочник.TestCatalog.СтандартныйРеквизит.Владелец",
-      "Справочник.TestCatalog.СтандартныйРеквизит.ЭтоГруппа",
-      "Справочник.TestCatalog.СтандартныйРеквизит.Наименование",
-      "Справочник.TestCatalog.СтандартныйРеквизит.Код",
+      "Справочник.TestCatalog.КакойТоРеквизит",
+      "Справочник.TestCatalog.КакаяТоТабличнаяЧасть",
+      "Справочник.TestCatalog.ИмяПредопределенныхДанных",
+      "Справочник.TestCatalog.Предопределенный",
+      "Справочник.TestCatalog.Ссылка",
+      "Справочник.TestCatalog.ПометкаУдаления",
+      "Справочник.TestCatalog.Родитель",
+      "Справочник.TestCatalog.Владелец",
+      "Справочник.TestCatalog.ЭтоГруппа",
+      "Справочник.TestCatalog.Наименование",
+      "Справочник.TestCatalog.Код",
     ])
 
-    expect(dependencies["Справочник.TestCatalog.Реквизит.КакойТоРеквизит"]).toMatchObject({
+    expect(dependencies["Справочник.TestCatalog.КакойТоРеквизит"]).toMatchObject({
       item: {
         itemType: "MetadataAttribute",
         name: "КакойТоРеквизит",
@@ -95,7 +103,8 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
         .nodeMatch(() => true)
         .edgeMatch(({ attrs }) => attrs.name === "Реквизит")
         .nodeMatch(() => true)
-        .edgeMatch(({ attrs }) => attrs.name === "Тип")
+        .edgeMatch(({ attrs }) => attrs.name === "Тип"),
+      graph,
     )
 
     expect(Object.keys(dependencies)).toEqual(["Справочник.ДругойСправочник"])

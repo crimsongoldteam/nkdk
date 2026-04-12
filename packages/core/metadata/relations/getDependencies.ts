@@ -1,14 +1,16 @@
-import { graph } from "./graph"
 import type { QueryBuilder } from "./dependencyQuery"
+import { defaultGraph } from "./graph"
+import type { MetadataGraph } from "./MetadataGraph"
 
-export function getDependencies(query: QueryBuilder): Record<string, unknown> {
+export function getDependencies(query: QueryBuilder, g?: MetadataGraph): Record<string, unknown> {
+  const gr = g ?? defaultGraph
   const steps = query.getSteps()
   if (steps.length === 0) return {}
 
-  let currentNodes: string[] = graph.nodes().filter((id: string) => {
+  let currentNodes: string[] = gr.nodes().filter((id: string) => {
     const step = steps[0]
     if (step.kind !== "node") return false
-    return step.fn({ id, attrs: graph.getNodeAttributes(id) })
+    return step.fn({ id, attrs: gr.getNodeAttributes(id) })
   })
 
   let prevKind: string = "node"
@@ -20,24 +22,24 @@ export function getDependencies(query: QueryBuilder): Record<string, unknown> {
     for (const nodeId of currentNodes) {
       if (step.kind === "node") {
         if (prevKind === "edge") {
-          if (step.fn({ id: nodeId, attrs: graph.getNodeAttributes(nodeId) })) {
+          if (step.fn({ id: nodeId, attrs: gr.getNodeAttributes(nodeId) })) {
             nextNodes.push(nodeId)
           }
         } else {
-          for (const neighbor of graph.outNeighbors(nodeId)) {
-            if (step.fn({ id: neighbor, attrs: graph.getNodeAttributes(neighbor) })) {
+          for (const neighbor of gr.outNeighbors(nodeId)) {
+            if (step.fn({ id: neighbor, attrs: gr.getNodeAttributes(neighbor) })) {
               nextNodes.push(neighbor)
             }
           }
         }
       } else if (step.kind === "edgeOr") {
-        for (const { edge, target, attributes } of graph.outEdgeEntries(nodeId)) {
+        for (const { edge, target, attributes } of gr.outEdgeEntries(nodeId)) {
           if (step.matchers.some((fn) => fn({ id: edge, attrs: attributes }))) {
             nextNodes.push(target)
           }
         }
       } else if (step.kind === "edge") {
-        for (const { edge, target, attributes } of graph.outEdgeEntries(nodeId)) {
+        for (const { edge, target, attributes } of gr.outEdgeEntries(nodeId)) {
           if (step.fn({ id: edge, attrs: attributes })) {
             nextNodes.push(target)
           }
@@ -51,11 +53,12 @@ export function getDependencies(query: QueryBuilder): Record<string, unknown> {
 
   const result: Record<string, unknown> = {}
   for (const id of currentNodes) {
-    result[id] = graph.getNodeAttributes(id)
+    result[id] = gr.getNodeAttributes(id)
   }
   return result
 }
 
-export function clearDependenciesGraph(): void {
-  graph.clear()
+export function clearDependenciesGraph(g?: MetadataGraph): void {
+  const gr = g ?? defaultGraph
+  gr.clear()
 }

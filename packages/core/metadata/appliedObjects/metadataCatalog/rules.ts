@@ -8,6 +8,7 @@ const catalogChildObjects = ["Catalog", "ChildObjects"]
 
 export const MetadataCatalogRules = {
   itemType: "MetadataCatalog",
+  itemTypePrefix: "Справочник",
   properties: {
     internalInfo: {
       type: "InternalInfo",

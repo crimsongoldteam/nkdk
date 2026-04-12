@@ -3,7 +3,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importMetadataItemCollectionFromYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/fromYAML"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { getOrCreateRawNodeId, graph } from "~/metadata/relations/graph"
+import { defaultGraph } from "~/metadata/relations/graph"
 import { StandardAttributeDescriptionRules } from "./rules"
 import {
   StandartAttributeNameFromYAML,
@@ -41,23 +41,23 @@ function importStandardAttributeDescriptionsFromYAML(
 
   const { graphContext } = context
   if (graphContext?.parentNodeId && rule?.type === "StandardAttributeDescriptions") {
+    const g = context.graph ?? defaultGraph
     const { parentNodeId, filePath, currentYamlMap } = graphContext
     const stdAttrsYamlMap = findStdAttrsSubmap(currentYamlMap, rule.yaml)
 
     for (const [, russianName] of Object.entries(rule.standartAttributeNames)) {
-      const nodeId = `${parentNodeId}.${EDGE_NAME}.${russianName}`
+      // NodeId без промежуточных сегментов: Справочник.TestCatalog.Ссылка
+      const nodeId = `${parentNodeId}.${russianName}`
       const offset = stdAttrsYamlMap ? findKeyOffset(stdAttrsYamlMap, russianName) : undefined
 
-      getOrCreateRawNodeId(nodeId, {
+      g.ensureNode(nodeId, {
         name: russianName,
         positionFrom: offset !== undefined ? { offset } : undefined,
         filePath,
       })
 
       const edgeKey = `${parentNodeId}:${EDGE_NAME}:${russianName}`
-      if (!graph.hasEdge(edgeKey)) {
-        graph.addEdgeWithKey(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, name: EDGE_NAME })
-      }
+      g.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, name: EDGE_NAME, kind: "composition" })
     }
   }
 

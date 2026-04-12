@@ -2,7 +2,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
-import { getOrCreateRawNodeId, graph } from "../../relations/graph"
+import { defaultGraph } from "../../relations/graph"
 import { getTypeDescriptionRule, getTypeFromYAML } from "./helper"
 import {
   PrimitiveTypeFromYAML,
@@ -104,6 +104,7 @@ export const importTypeDescriptionFromYAML = (
 
 function addTypeEdges(context: ConfigurationContext, types: string[]): void {
   const { parentNodeId, filePath } = context.graphContext!
+  const g = context.graph ?? defaultGraph
   for (const type of types) {
     const dotIndex = type.indexOf(".")
     if (dotIndex === -1) continue
@@ -113,11 +114,9 @@ function addTypeEdges(context: ConfigurationContext, types: string[]): void {
     if (!rule?.modifier || rule.modifier === "alwaysType") continue
 
     const targetNodeId = `${rule.enterprise}.${detailType}`
-    getOrCreateRawNodeId(targetNodeId, { name: detailType, filePath })
+    g.ensureNode(targetNodeId, { name: detailType, filePath })
     const edgeKey = `${parentNodeId}:${TYPE_EDGE_NAME}:${targetNodeId}`
-    if (!graph.hasEdge(edgeKey)) {
-      graph.addEdgeWithKey(edgeKey, parentNodeId, targetNodeId, { yaml: TYPE_EDGE_NAME, name: TYPE_EDGE_NAME })
-    }
+    g.ensureEdge(edgeKey, parentNodeId, targetNodeId, { yaml: TYPE_EDGE_NAME, name: TYPE_EDGE_NAME, kind: "reference" })
   }
 }
 

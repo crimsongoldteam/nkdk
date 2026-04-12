@@ -12,7 +12,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importMetadataItemFromYAML, registerTypeRule } from "~/metadata/orchestration"
-import { getOrCreateRawNodeId, graph } from "~/metadata/relations/graph"
+import { defaultGraph } from "~/metadata/relations/graph"
 import { getDefaultsAttribute } from "./defaults"
 import { MetadataAttributeRules } from "./rules"
 
@@ -39,28 +39,29 @@ export const importMetadataAttributesFromYAML = (
   if (!data) return undefined
 
   const { graphContext } = context
+  const g = context.graph ?? defaultGraph
   const attrsYamlMap = graphContext
     ? findSubmap(graphContext.currentYamlMap, _rule?.yaml)
     : undefined
 
   const results = Object.entries(data).map(([name, value]) => {
     if (graphContext?.parentNodeId) {
-      const attrNodeId = `${graphContext.parentNodeId}.${EDGE_NAME}.${name}`
+      // NodeId без промежуточных сегментов: Справочник.Товары.Цена
+      const attrNodeId = `${graphContext.parentNodeId}.${name}`
       const offset = attrsYamlMap ? findKeyOffset(attrsYamlMap, name) : undefined
       const attrValueYamlMap = findSubmap(attrsYamlMap, name)
 
-      getOrCreateRawNodeId(attrNodeId, {
+      g.ensureNode(attrNodeId, {
         name,
         positionFrom: offset !== undefined ? { offset } : undefined,
         filePath: graphContext.filePath,
       })
       const edgeKey = `${graphContext.parentNodeId}:${EDGE_NAME}:${attrNodeId}`
-      if (!graph.hasEdge(edgeKey)) {
-        graph.addEdgeWithKey(edgeKey, graphContext.parentNodeId, attrNodeId, {
-          yaml: EDGE_NAME,
-          name: EDGE_NAME,
-        })
-      }
+      g.ensureEdge(edgeKey, graphContext.parentNodeId, attrNodeId, {
+        yaml: EDGE_NAME,
+        name: EDGE_NAME,
+        kind: "composition",
+      })
 
       const childContext: ConfigurationContext = {
         ...context,
@@ -69,7 +70,7 @@ export const importMetadataAttributesFromYAML = (
 
       const attr = importMetadataAttributeFromYAML(childContext, value as MetadataAttributeYAML, name)
 
-      graph.setNodeAttribute(attrNodeId, "item", attr)
+      g.setNodeAttribute(attrNodeId, "item", attr)
 
       return attr
     }

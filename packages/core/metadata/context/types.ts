@@ -3,6 +3,7 @@ import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
 import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "../orchestration"
+import { MetadataGraph } from "../relations/MetadataGraph"
 
 export type ContextElementToXML = {
   name: string
@@ -34,6 +35,8 @@ export interface ConfigurationContext {
   exportToYAML?: FormExportToYAMLContext
   exportToXML?: ToXMLConfigurationContext
   graphContext?: GraphContext
+  /** Экземпляр графа, передаётся снаружи (из extension/CLI). Не синглтон. */
+  graph?: MetadataGraph
 }
 
 export interface ConfigurationContextFromXML extends ConfigurationContext {

@@ -4,7 +4,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/orchestration"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { getOrCreateRawNodeId, graph } from "~/metadata/relations/graph"
+import { defaultGraph } from "~/metadata/relations/graph"
 import { getDefaults } from "./defaults"
 import { MetadataTabularSectionRules } from "./rules"
 import {
@@ -61,6 +61,7 @@ export const importMetadataTabularSectionsFromYAML = (
   if (!data) return undefined
 
   const { graphContext } = context
+  const g = context.graph ?? defaultGraph
   const sectionsYamlMap = graphContext
     ? findSubmap(graphContext.currentYamlMap, _rule?.yaml)
     : undefined
@@ -68,22 +69,22 @@ export const importMetadataTabularSectionsFromYAML = (
   return Object.entries(data)
     .map(([name, value]) => {
       if (graphContext?.parentNodeId) {
-        const sectionNodeId = `${graphContext.parentNodeId}.${EDGE_NAME}.${name}`
+        // NodeId без промежуточных сегментов: Справочник.Товары.Состав
+        const sectionNodeId = `${graphContext.parentNodeId}.${name}`
         const offset = sectionsYamlMap ? findKeyOffset(sectionsYamlMap, name) : undefined
         const sectionValueYamlMap = findSubmap(sectionsYamlMap, name)
 
-        getOrCreateRawNodeId(sectionNodeId, {
+        g.ensureNode(sectionNodeId, {
           name,
           positionFrom: offset !== undefined ? { offset } : undefined,
           filePath: graphContext.filePath,
         })
         const edgeKey = `${graphContext.parentNodeId}:${EDGE_NAME}:${sectionNodeId}`
-        if (!graph.hasEdge(edgeKey)) {
-          graph.addEdgeWithKey(edgeKey, graphContext.parentNodeId, sectionNodeId, {
-            yaml: EDGE_NAME,
-            name: EDGE_NAME,
-          })
-        }
+        g.ensureEdge(edgeKey, graphContext.parentNodeId, sectionNodeId, {
+          yaml: EDGE_NAME,
+          name: EDGE_NAME,
+          kind: "composition",
+        })
 
         const childContext: ConfigurationContext = {
           ...context,
@@ -91,7 +92,7 @@ export const importMetadataTabularSectionsFromYAML = (
         }
 
         const section = importMetadataTabularSectionFromYAML(childContext, undefined, value, name)
-        graph.setNodeAttribute(sectionNodeId, "item", section)
+        g.setNodeAttribute(sectionNodeId, "item", section)
 
         return section
       }
