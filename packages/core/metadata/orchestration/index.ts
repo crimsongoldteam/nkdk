@@ -1,6 +1,12 @@
 export * from "./formElement/types"
 
 export * from "./metadataItem/registry"
+export * from "./metadataItem/ruleFactory"
+export * from "./metadataItem/fromXML"
+export * from "./metadataItem/fromYAML"
+export * from "./metadataItem/toXML"
+export * from "./metadataItem/toYAML"
+export * from "./metadataCollection"
 
 export * from "./property/fn"
 export * from "./property/fromXML"

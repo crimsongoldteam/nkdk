@@ -18,6 +18,8 @@ export function importSingleElementFromXML<Rule extends ElementRule>(params: {
   const itemType = elementRule.itemType
   const forReference = context.fromXML.forReference
 
+  if (xml === undefined) return undefined
+
   const props = importFromXML(context, xml, elementRule)
 
   if (props === undefined && !forReference) return undefined

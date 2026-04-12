@@ -4,7 +4,8 @@ import {
   MetadataAttributesXML,
   MetadataAttributeXML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
-import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
+import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
+import { MetadataPrimitiveValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { getUUID } from "~/metadata/helpers/uuid"
@@ -61,10 +62,24 @@ const exportMetadataAttributeToXML = (
 
   const Properties = { ...propertiesFlat } as MetadataAttributeXML["Properties"]
 
-  const minValue = exportMetadataSimpleValueToXML(context, undefined, data.minValue, "string")
+  const minValue =
+    data.minValue === undefined
+      ? undefined
+      : (exportMetadataValueToXML({
+          context,
+          rule: { type: "MetadataValue", valueType: "string" },
+          value: data.minValue,
+        }) as MetadataPrimitiveValueXML)
   if (minValue !== undefined) Properties.MinValue = minValue
 
-  const maxValue = exportMetadataSimpleValueToXML(context, undefined, data.maxValue, "string")
+  const maxValue =
+    data.maxValue === undefined
+      ? undefined
+      : (exportMetadataValueToXML({
+          context,
+          rule: { type: "MetadataValue", valueType: "string" },
+          value: data.maxValue,
+        }) as MetadataPrimitiveValueXML)
   if (maxValue !== undefined) Properties.MaxValue = maxValue
 
   const result: MetadataAttributeXML = {

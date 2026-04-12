@@ -2,7 +2,7 @@ import { MetadataCatalog, MetadataCatalogXML } from "~/metadata/appliedObjects/m
 import { getChildContextToXML } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { getUUID } from "~/metadata/helpers/uuid"
-import { exportPropertiesToXML } from "~/metadata/orchestration"
+import { exportMetadataItemToXML } from "~/metadata/orchestration"
 import { MetadataCatalogRules } from "./rules"
 
 const ROOT_XML_ATTRS: Omit<MetadataCatalogXML, "Catalog"> = {
@@ -37,17 +37,19 @@ export const exportMetadataCatalogToXML = (params: {
   const parentPath = "Catalog.${data.name}"
   const currentContext = getChildContextToXML({
     context,
-    itemType: "MetadataCatalog",
+    itemType: MetadataCatalogRules.itemType,
     path: parentPath,
     name: data.name,
   })
 
-  const flat = exportPropertiesToXML({
+  const flat = exportMetadataItemToXML({
     context: currentContext,
-    metadata: data,
+    data,
     rule: MetadataCatalogRules,
-    referenceMetadata: referenceData,
+    referenceData,
   })
+
+  if (flat == undefined) return undefined
 
   const catalogFromRules = flat.Catalog as MetadataCatalogXML["Catalog"]
   const childObjects = { ...catalogFromRules.ChildObjects }

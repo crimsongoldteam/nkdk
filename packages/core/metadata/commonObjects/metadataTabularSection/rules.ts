@@ -68,7 +68,7 @@ export const MetadataTabularSectionRules = {
       yaml: "СтандартныеРеквизиты",
       xml: "StandardAttributes",
       type: "StandardAttributeDescriptions",
-      standartAttributeNames: ["LineNumber"],
+      standartAttributeNames: { LineNumber: "НомерСтроки" },
       xmlParents: propertiesParents,
     },
     attributes: {

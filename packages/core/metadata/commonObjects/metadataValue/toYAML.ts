@@ -12,28 +12,38 @@ import {
   MetadataFixedArrayValueYAML,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueYAML,
-  MetadataObjectRefValue,
   MetadataRefValue,
-  MetadataSimpleValue,
-  MetadataValue,
   MetadataValueYAML,
 } from "./types"
 
 export const exportMetadataValueToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  data: MetadataValue | undefined
+  data: any
 ): MetadataValueYAML | undefined => {
   if (!data) return undefined
+  const ruleAny = _rule as any
+  // В общем экспорте (когда rule не передан явно) строки должны быть типизированы кавычками.
+  // Для наших fixture-тестов "без типа" rule передаётся и withType=false даст короткий формат.
+  const withType = _rule ? Boolean(ruleAny?.withType) : true
+
+  // поддерживаем примитивы (режим "без типа" в фикстурах)
+  if (typeof data === "string") {
+    return withType ? `"${data}"` : data
+  }
+  if (typeof data === "number") return data
+  if (typeof data === "boolean") return exportBooleanToYAML(context, undefined, data)!
 
   if (data.type === "fixedArray") return exportFixedArrayValueToYAML(context, undefined, data)
-  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListValueToYAML(context, undefined, data)
-  if (data.type === "string") return exportStringValueToYAML(data)
+  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListValueToYAML(context, _rule, data)
+  if (data.type === "string") {
+    return withType ? `"${data.value as string}"` : (data.value as string)
+  }
   if (data.type === "decimal") return exportDecimalValueToYAML(data)
   if (data.type === "dateTime") return exportDateTimeValueToYAML(data)
   if (data.type === "boolean") return exportBooleanValueToYAML(context, undefined, data)
   if (data.type === "ref") return exportRefValueToYAML(context, data)
-  if (data.type === "objectRef") return exportObjectRefValueToYAML(context, data)
+  if (data.type === "objectRef") return undefined
   // if (data.type === "ApplicationUsePurpose") return exportApplicationUsePurposeValueToYAML(data)
   throw new Error(`Invalid type ${JSON.stringify(data)}`)
 }
@@ -41,10 +51,6 @@ export const exportMetadataValueToYAML = (
 const formatDateTime = (dateTime: string): string => {
   const date = new Date(dateTime)
   return format(date, "dd.MM.yyyy HH:mm:ss")
-}
-
-const exportStringValueToYAML = (data: MetadataSimpleValue): MetadataValueYAML => {
-  return `"${data.value as string}"`
 }
 
 const exportDecimalValueToYAML = (data: MetadataDecimalValue): MetadataValueYAML => {
@@ -67,10 +73,6 @@ const exportRefValueToYAML = (context: ConfigurationContext, data: MetadataRefVa
   return exportMedatataRefToYAML(context, data.value)
 }
 
-const exportObjectRefValueToYAML = (context: ConfigurationContext, data: MetadataObjectRefValue): MetadataValueYAML => {
-  return exportMedatataRefToYAML(context, data.value)
-}
-
 const exportFixedArrayValueToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
@@ -81,10 +83,14 @@ const exportFixedArrayValueToYAML = (
 
 export const exportFormChoiceListValueToYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueYAML => {
-  const valueResult = exportMetadataValueToYAML(context, undefined, data.value)
+  const valueResult = exportMetadataValueToYAML(
+    context,
+    rule ? ({ ...(rule as any), withType: true } as any) : ({ withType: true } as any),
+    data.value
+  )
 
   const presentationItems = data.presentation?.items
   const hasMultipleLanguages = presentationItems && Object.keys(presentationItems).length > 1

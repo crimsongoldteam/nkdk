@@ -9,6 +9,7 @@ import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration"
+import { MetadataValueByRule } from "../metadataValue/types"
 
 const exportFieldValue = (field: MetadataField | undefined): string => {
   if (!field) return "-1"
@@ -41,7 +42,11 @@ export const exportCharacteristicsDescriptionToXML = (
   }
 
   if (data.typesFilterValue) {
-    characteristicTypesData["xr:TypesFilterValue"] = exportMetadataValueToXML(context, undefined, data.typesFilterValue)
+    characteristicTypesData["xr:TypesFilterValue"] = exportMetadataValueToXML({
+      context,
+      rule: { type: "MetadataValue" },
+      value: data.typesFilterValue as MetadataValueByRule<{ type: "MetadataValue" }>,
+    })
   }
 
   const characteristicValuesData: CharacteristicsDescriptionXML["xr:CharacteristicValues"] = {}

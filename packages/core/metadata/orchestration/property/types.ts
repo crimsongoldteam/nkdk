@@ -1,6 +1,11 @@
+import type { DcsMetadataValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
+import { SettingsParameterValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
+import { DateTimePropertyRule } from "~/metadata/commonObjects/dateTime/types"
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
-import { StandartAttributeName } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
+import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
+
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
@@ -14,67 +19,64 @@ export interface MetadataItem {
 type DefaultValueFunction = (params: { context: ConfigurationContext; name?: string }) => any
 
 export interface BasePropertyRule {
+  /** Тип свойства */
   type: PropertyRuleType
 
+  /** Обязательное свойство */
   required?: true
 
   /** Отключает свойство при любом экспорте/импорте */
   runtimeOnly?: true
 
-  /**
-   * Порядок свойств при экспорте/импорте.
-   * Меньшее значение — раньше, отсутствие значения — после всех с order.
-   */
+  /** Порядок свойства при выгрузке в XML (используй только при необходимости) */
   order?: number
 
-  /**
-   * Название ключа в yaml
-   */
+  /** Название ключа в YAML */
   yaml?: string
 
-  /**
-   * Не экспортировать в yaml
-   */
+  /** Не экспортировать в YAML */
   toYAML?: false
-  /**
-   * Не импортировать из yaml
-   */
+
+  /** Не импортировать из YAML */
   fromYAML?: false
+
+  /** Не экспортировать в корневой YAML */
   toPartialYAML?: false
+
+  /** Значение по умолчанию в YAML (будет исключено из выбора)*/
   defaultValueYAML?: any | DefaultValueFunction
 
-  /**
-   * Название в xml, если не заполнено - будет использован ключ
-   */
+  /** Название в XML, если не заполнено - будет использован ключ*/
   xml?: string
+
+  /** Значение по умолчанию в XML (будет выгружено как при пустом значении)*/
   defaultValueXML?: any
+
+  /** Не импортировать из XML */
   fromXML?: false
+
+  /** Не экспортировать в XML */
   toXML?: false
-  /**
-   * Родительские элементы в xml
-   */
+
+  /** Родительские элементы в XML */
   xmlParents?: string[]
 
-  /**
-   * Передавать значение в форму в 1С
-   */
+  /** XML namespace для элемента при экспорте: `xmlns="..."` */
+  xmlNamespace?: string
+
+  /** Передавать значение в форму в 1С */
   toEnterprise?: false
-  fromEnterprise?: false
+
+  /** Значение по умолчанию */
   defaultValue?: any | DefaultValueFunction
 
-  /**
-   * Теги, по которым будет выгружаться свойство
-   */
+  /** Теги, по которым будет выгружаться свойство */
   tag?: string
 
-  /**
-   * Если все поля пустые - это поле будет выгружено как значение
-   */
+  /** Если все поля пустые - это поле будет выгружено как значение */
   useAsShortValueYAML?: true
 
-  /**
-   * Если true, то свойство будет пропущено при импорте из XML
-   */
+  /** Свойство используется только для построения референса */
   forReferenceOnly?: true
 }
 
@@ -86,18 +88,20 @@ export interface ChildItemsPropertyRule extends BasePropertyRule {
 
 export interface UserVisiblePropertyRule extends BasePropertyRule {
   type: "UserVisible"
+  /** Ключ в YAML в случае разрешения использования */
   yaml: string
+  /** Ключ в YAML в случае запрета использования */
   yamlDeny: string
 }
 
 export interface StandardAttributeDescriptionPropertyRule extends BasePropertyRule {
   type: "StandardAttributeDescription"
-  standartAttributeNames: StandartAttributeName[]
+  standartAttributeNames: Record<string, string>
 }
 
 export interface StandardAttributeDescriptionsPropertyRule extends BasePropertyRule {
   type: "StandardAttributeDescriptions"
-  standartAttributeNames: StandartAttributeName[]
+  standartAttributeNames: Record<string, string>
 }
 
 export interface EventsPropertyRule extends BasePropertyRule {
@@ -157,7 +161,21 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "CommandBarChildItems"
     | "TableChildItems"
     | "PagesChildItems"
+    | "MetadataValue"
+    | "MetadataDcsMetadataValue"
+    | "SettingsParameterValue"
+    | "SettingsParameterValueCollection"
+    | "number"
+    | "dateTime"
   >
+}
+
+export interface SettingsParameterValueCollectionPropertyRule extends BasePropertyRule {
+  type: "SettingsParameterValueCollection"
+  /** Правило для параметра, если нет в `parameterRules` */
+  defaultItemRule?: SettingsParameterValuePropertyRule
+  /** Переопределения по имени параметра (`dcscor:parameter` / ключ YAML) */
+  parameterRules?: Partial<Record<string, SettingsParameterValuePropertyRule>>
 }
 
 // export interface CustomExportPropertyRule extends BasePropertyRule {
@@ -172,7 +190,6 @@ export type PropertyRule =
   | FormattedI8nTextPropertyRule
   | EventsPropertyRule
   | CleanPropertyRule
-  // | CustomExportPropertyRule
   | TableAdditionalSourcePropertyRule
   | StandardAttributeDescriptionPropertyRule
   | StandardAttributeDescriptionsPropertyRule
@@ -181,6 +198,12 @@ export type PropertyRule =
   | TypeDescriptionPropertyRule
   | DataPathPropertyRule
   | MetadataTypePropertyRule
+  | MetadataValuePropertyRule
+  | DcsMetadataValuePropertyRule
+  | SettingsParameterValuePropertyRule
+  | SettingsParameterValueCollectionPropertyRule
+  | NumberPropertyRule
+  | DateTimePropertyRule
 
 type PropertiesType = Record<string, PropertyRule>
 
@@ -189,9 +212,21 @@ export interface ItemXML {
 }
 
 export interface MetadataItemRule extends MetadataItem {
+  /**
+   * Тип объекта метаданных
+   */
   itemType: MetadataItemType
+
+  /**
+   * Свойства объекта метаданных
+   */
   properties: PropertiesType
 
-  // events?: EventsRules
+  /** @deprecated */
   eventsTag?: string
+
+  /**
+   * значение xsi:type для элемента
+   */
+  xsiType?: string
 }

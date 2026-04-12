@@ -1,5 +1,4 @@
 import { capitalize } from "~/helpers/capitalize"
-import { exportMetadataSimpleValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
@@ -18,33 +17,45 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
 
   const result: ItemXML = {}
 
+  const xmlContext = context.exportToXML?.context
+  if (xmlContext) {
+    if (xmlContext.propertiesItemXmlStack === undefined) {
+      xmlContext.propertiesItemXmlStack = []
+    }
+    xmlContext.propertiesItemXmlStack.push(result)
+  }
+
   const orderedKeys = getOrderedKeysToXML({ rule, tag, referenceMetadata })
 
-  for (const key of orderedKeys) {
-    if (key === "itemType") continue
-    const ruleProp = rule.properties[key]
-    if (!shouldProcessProperty({ rule: ruleProp, operation: "exportToXML" })) continue
+  try {
+    for (const key of orderedKeys) {
+      if (key === "itemType") continue
+      const ruleProp = rule.properties[key]
+      if (!shouldProcessProperty({ rule: ruleProp, operation: "exportToXML" })) continue
 
-    const currentContext: ConfigurationContextWithExportToXML = {
-      ...context,
-      exportToXML: { ...context.exportToXML },
+      const currentContext: ConfigurationContextWithExportToXML = {
+        ...context,
+        exportToXML: { ...context.exportToXML },
+      }
+
+      const value = metadata === undefined ? undefined : (metadata as any)[key]
+
+      const referenceValue = referenceMetadata === undefined ? undefined : (referenceMetadata as any)[key]
+
+      const valueToExport = value !== undefined ? value : referenceValue
+
+      const exportedValue = exportPropertyToXML({
+        context: currentContext,
+        rule: ruleProp,
+        value: valueToExport,
+        referenceMetadata: referenceValue,
+        metadataItem: metadata,
+      })
+
+      setXMLValue(key, result, ruleProp, exportedValue)
     }
-
-    const value = metadata === undefined ? undefined : (metadata as any)[key]
-
-    const referenceValue = referenceMetadata === undefined ? undefined : (referenceMetadata as any)[key]
-
-    const valueToExport = value !== undefined ? value : referenceValue
-
-    const exportedValue = exportPropertyToXML({
-      context: currentContext,
-      rule: ruleProp,
-      value: valueToExport,
-      referenceMetadata: referenceValue,
-      metadataItem: metadata,
-    })
-
-    setXMLValue(key, result, ruleProp, exportedValue)
+  } finally {
+    xmlContext?.propertiesItemXmlStack?.pop()
   }
 
   return result
@@ -86,31 +97,10 @@ export const exportPropertyToXML = (params: {
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
 
   if (!typeExportFn) {
-    // if (
-    //   metadataItem?.itemType === "InputField" &&
-    //   rule.type === "DataPath" &&
-    //   ["MultipleValueDataPath", "MultipleValuePictureDataPath", "MultipleValuePresentDataPath"].includes(rule.xml ?? "") &&
-    //   typeof referenceMetadata === "string"
-    // ) {
-    //   return referenceMetadata
-    // }
-
-    if (
-      metadataItem?.itemType === "InputField" &&
-      rule.type === "number" &&
-      (rule.xml === "MinValue" || rule.xml === "MaxValue")
-    ) {
-      if (referenceMetadata?.["#text"] !== undefined && String(referenceMetadata["#text"]) === String(value)) {
-        return referenceMetadata
-      }
-
-      return exportMetadataSimpleValueToXML(context, undefined, value, "decimal")
-    }
-
     if (value === rule.defaultValue) {
       return defaultValueXML
     }
-    return value
+    return wrapWithNamespace(rule, value)
   }
 
   if (typeExportFn.length === 1) {
@@ -122,14 +112,28 @@ export const exportPropertyToXML = (params: {
       referenceMetadata,
     })
     if (exportedValue === rule.defaultValue) {
-      return defaultValueXML
+      return (typeExportFn as ExportToXMLFunctionNew)({
+        context,
+        rule,
+        value: defaultValueXML as any,
+        metadataItem,
+        referenceMetadata,
+      })
     }
-    return exportedValue
+    return wrapWithNamespace(rule, exportedValue)
   }
 
   const exportedValue = (typeExportFn as ExportToXMLFunction)(context, rule, value, referenceMetadata)
   if (exportedValue === rule.defaultValue) {
-    return defaultValueXML
+    return (typeExportFn as ExportToXMLFunction)(context, rule, defaultValueXML, referenceMetadata)
   }
-  return exportedValue
+  return wrapWithNamespace(rule, exportedValue)
+}
+
+const wrapWithNamespace = (rule: PropertyRule, value: any): any => {
+  if (value === undefined || value === null) return value
+  const ns = (rule as any).xmlNamespace
+  if (!ns) return value
+  if (typeof value === "object") return value
+  return { "#text": value, _xmlns: ns }
 }

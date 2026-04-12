@@ -1,0 +1,9 @@
+<ConditionalAppearance>
+	<dcsset:item>
+		<dcsset:selection>
+			<dcsset:item>
+				<dcsset:field>ОдноПоле</dcsset:field>
+			</dcsset:item>
+		</dcsset:selection>
+	</dcsset:item>
+</ConditionalAppearance>

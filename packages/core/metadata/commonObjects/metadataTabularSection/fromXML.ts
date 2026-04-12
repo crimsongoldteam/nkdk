@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
+import { importMetadataItemFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { MetadataTabularSectionRules } from "./rules"
 import {
   MetadataTabularSection,
@@ -28,14 +28,14 @@ const importMetadataTabularSectionFromXML = (
   _rule: PropertyRule | undefined,
   xml: MetadataTabularSectionXML
 ): MetadataTabularSection => {
-  const properties = importPropertiesFromXML({
+  const properties = importMetadataItemFromXML({
     context,
     xml,
     rule: MetadataTabularSectionRules,
   })
 
   const result: MetadataTabularSection = {
-    itemType: "MetadataTabularSection",
+    itemType: MetadataTabularSectionRules.itemType,
     ...properties,
   } as MetadataTabularSection
 

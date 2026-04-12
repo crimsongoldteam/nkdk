@@ -1,4 +1,5 @@
 import { TSchema } from "@sinclair/typebox"
+import { YAMLMap } from "yaml"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,
@@ -22,13 +23,13 @@ export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
   value: any
 }) => any | undefined
 
-export type importFromXMLFunction = (
+export type ImportFromXMLFunction = (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
   xml: any
 ) => any | undefined
 
-export type importFromYAMLFunctionNew = (params: {
+export type ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   yaml?: any
@@ -69,13 +70,23 @@ export type ExportToJSONSchemaFn = (params: {
   value: any | undefined
 }) => TSchema | undefined
 
+export type ImportDependenciesFromYAMLFunction = (params: {
+  context: ConfigurationContext
+  yamlMap?: YAMLMap
+  parentNodeId: string
+  filePath: string
+  propRule?: PropertyRule
+  parsedItem?: unknown
+}) => void
+
 export interface TypeRule {
-  importFromXML?: importFromXMLFunction
+  importFromXML?: ImportFromXMLFunction
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
-  importFromYAML?: importFromYAMLFunction | importFromYAMLFunctionNew
+  importFromYAML?: importFromYAMLFunction | ImportFromYAMLFunctionNew
   exportToYAML?: ExportToYAMLFunction | ExportToYAMLFunctionNew
   exportToEnterprise?: ExportToEnterpriseFunction
   exportToJSONSchema?: ExportToJSONSchemaFn
+  importDependenciesFromYAML?: ImportDependenciesFromYAMLFunction
 }
 
 export type TypeRulesOperations =
@@ -85,6 +96,7 @@ export type TypeRulesOperations =
   | "exportToYAML"
   | "exportToEnterprise"
   | "exportToJSONSchema"
+  | "importDependenciesFromYAML"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -92,15 +104,17 @@ export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOp
 }
 
 export type importExportFunction<O extends TypeRulesOperations> = O extends "importFromYAML"
-  ? importFromYAMLFunctionNew | importFromYAMLFunction | undefined
+  ? ImportFromYAMLFunctionNew | importFromYAMLFunction | undefined
   : O extends "exportToYAML"
     ? ExportToYAMLFunction | ExportToYAMLFunctionNew | undefined
     : O extends "exportToXML"
       ? ExportToXMLFunction | ExportToXMLFunctionNew | undefined
       : O extends "importFromXML"
-        ? importFromXMLFunction | undefined
+        ? ImportFromXMLFunction | undefined
         : O extends "exportToEnterprise"
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"
             ? ExportToJSONSchemaFn | undefined
-            : never
+            : O extends "importDependenciesFromYAML"
+              ? ImportDependenciesFromYAMLFunction | undefined
+              : never

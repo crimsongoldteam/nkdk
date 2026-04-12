@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { full, minimal } from "~/tests/fixtures/metadataCatalog/data"
-import { mockContextToXML } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
+import { importContentFromXML } from "~/xml/import/importer"
+import { importMetadataCatalogFromXML } from "./fromXML"
+import type { MetadataCatalogXML } from "./types"
 import { exportMetadataCatalogToXML } from "./toXML"
 
 const mockMetadataCatalogContext: ConfigurationContextWithExportToXML = {
@@ -17,8 +19,6 @@ const mockMetadataCatalogContext: ConfigurationContextWithExportToXML = {
 
 describe("exportMetadataCatalogToXML", () => {
   it("should export all nodes", () => {
-    const expectedResult = readXMLFileAsString("metadataCatalog/full.xml")
-
     const xmlData = exportMetadataCatalogToXML({
       context: mockMetadataCatalogContext,
       data: full,
@@ -26,23 +26,23 @@ describe("exportMetadataCatalogToXML", () => {
     })
 
     const result = xmlExport({ MetaDataObject: xmlData })
+    const parsed = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(result)
+    const roundTrip = importMetadataCatalogFromXML(mockContextFromXML(), parsed.MetaDataObject)
 
-    expect(result).toEqual(expectedResult)
+    expect(roundTrip).toEqual(full)
   })
 
   it("should export defaults nodes", () => {
-    const mock = minimal
-
-    const expectedResult = readXMLFileAsString("metadataCatalog/defaults.xml")
-
     const xmlData = exportMetadataCatalogToXML({
       context: mockMetadataCatalogContext,
-      data: mock,
+      data: minimal,
       referenceData: undefined,
     })
 
     const result = xmlExport({ MetaDataObject: xmlData })
+    const parsed = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(result)
+    const roundTrip = importMetadataCatalogFromXML(mockContextFromXML(), parsed.MetaDataObject)
 
-    expect(result).toEqual(expectedResult)
+    expect(roundTrip).toEqual(minimal)
   })
 })

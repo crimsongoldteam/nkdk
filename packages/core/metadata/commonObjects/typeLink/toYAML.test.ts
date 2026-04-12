@@ -1,26 +1,43 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportTypeLinkToYAML } from "./toYAML"
-import { TypeLink } from "./types"
+import {
+  catalogTabularAttributeTypeLink,
+  catalogTabularAttributeTypeLinkLinkItem0,
+  typeLinkYamlCatalogWithLinkItem,
+  typeLinkYamlCatalogWithoutLinkItem,
+} from "./__fixtures__/data"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 
-describe("exportTypeLinkToYAML", () => {
-  it("should export type link without link item", () => {
-    const typeLink: TypeLink = {
-      dataPath: "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
-      linkItem: 0,
-    }
-    const result = exportTypeLinkToYAML(mockContext, mockRule, typeLink)
+const rule: PropertyRule = {
+  type: "TypeLink",
+  yaml: "value",
+}
 
-    expect(result).toEqual("Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит")
+describe("export TypeLink to YAML", () => {
+  it("exports without link item", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: catalogTabularAttributeTypeLinkLinkItem0,
+    })
+
+    expect(result).toEqual({ value: typeLinkYamlCatalogWithoutLinkItem })
   })
 
-  it("should export type link with link item", () => {
-    const typeLink: TypeLink = {
-      dataPath: "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
-      linkItem: 1,
-    }
-    const result = exportTypeLinkToYAML(mockContext, mockRule, typeLink)
+  it("exports with link item", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: catalogTabularAttributeTypeLink,
+    })
 
-    expect(result).toEqual("Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит(1)")
+    expect(result).toEqual({ value: typeLinkYamlCatalogWithLinkItem })
+  })
+
+  it("returns undefined for undefined value", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: undefined,
+    })
+
+    expect(result).toBeUndefined()
   })
 })

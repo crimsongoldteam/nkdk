@@ -9,11 +9,13 @@ import { exportMetadataAttributesToYAML } from "~/metadata/commonObjects/metadat
 import { exportMetadataFieldsToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
 import { exportMetadataItemLinksToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
 import { exportMetadataTabularSectionsToYAML } from "~/metadata/commonObjects/metadataTabularSection/toYAML"
-import { exportStandardAttributeDescriptionsToYAML } from "~/metadata/commonObjects/standardAttributeDescription/toYAML"
+
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { exportPropertyToYAML } from "~/metadata/orchestration"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
+
 
 export const exportMetadataDocumentToYAML = (
   context: ConfigurationContext,
@@ -145,7 +147,18 @@ export const exportMetadataDocumentToYAML = (
       { type: "SystemEnumeration", typeSE: "SearchStringModeOnInputByString" },
       data.searchStringModeOnInputByString
     ),
-    СтандартныеРеквизиты: exportStandardAttributeDescriptionsToYAML(context, undefined, data.standardAttributes),
+    СтандартныеРеквизиты: exportPropertyToYAML({
+      context,
+      rule: {
+        type: "StandardAttributeDescriptions",
+        yaml: "СтандартныеРеквизиты",
+        standartAttributeNames: {
+          Ref: "Ссылка",
+          DeletionMark: "ПометкаУдаления",
+        },
+      },
+      value: data.standardAttributes,
+    })?.СтандартныеРеквизиты,
     ТабличныеЧасти: exportMetadataTabularSectionsToYAML(context, undefined, data.tabularSections),
     ТипНомера: exportSystemEnumerationToYAMLDeprecated<SE.DocumentNumberTypeYAML>(
       context,

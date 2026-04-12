@@ -2,15 +2,18 @@ import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { MetadataItemRule, PropertyRule, ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
+import { importContentFromXML } from "~/xml/import/importer"
 import { getOrderedKeysFromXML, getValueOrDefault, shouldProcessProperty } from "./helpers"
 
-export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
-  context: ConfigurationContextFromXML
-  xml: any
-  rule: Rule
-  tags?: string[]
-}): Omit<ToMetadata<Rule["itemType"]>, "itemType"> | undefined {
-  const { context, xml, rule, tags } = params
+export function importPropertiesFromXML<Rule extends MetadataItemRule>(
+  params: {
+    context: ConfigurationContextFromXML
+    rule: Rule
+    tags?: string[]
+  } & ({ xml: any } | { xmlString: string })
+): Omit<ToMetadata<Rule["itemType"]>, "itemType"> | undefined {
+  const { context, rule, tags } = params
+  const xml = "xmlString" in params ? importContentFromXML(params.xmlString) : params.xml
 
   const forReference = context.fromXML.forReference
 

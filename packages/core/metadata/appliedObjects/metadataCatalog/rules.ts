@@ -1,4 +1,4 @@
-import { MetadataItemRule } from "~/metadata/orchestration"
+import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { MetadataCatalogStandardAttributeNames } from "./types"
 
 const catalogBaseProperties = ["Catalog"]
@@ -48,6 +48,7 @@ export const MetadataCatalogRules = {
       yaml: "ДополнительнаяФормаДляВыбора",
       type: "string",
       xmlParents: catalogProperties,
+      // dependencies: ["this", "Form"],
     },
     auxiliaryFolderChoiceForm: {
       yaml: "ДополнительнаяФормаДляВыбораГруппы",
@@ -337,12 +338,6 @@ export const MetadataCatalogRules = {
       defaultValueXML: "Begin",
       xmlParents: catalogProperties,
     },
-    standardAttributes: {
-      yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
-      standartAttributeNames: MetadataCatalogStandardAttributeNames,
-      xmlParents: catalogProperties,
-    },
     subordinationUse: {
       yaml: "ИспользованиеПодчинения",
       type: "SystemEnumeration",
@@ -360,6 +355,12 @@ export const MetadataCatalogRules = {
       type: "MetadataTabularSections",
       xmlParents: catalogChildObjects,
       xml: "TabularSection",
+    },
+    standardAttributes: {
+      yaml: "СтандартныеРеквизиты",
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: MetadataCatalogStandardAttributeNames,
+      xmlParents: catalogProperties,
     },
     commands: {
       yaml: "Команды",

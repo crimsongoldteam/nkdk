@@ -1,0 +1,16 @@
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { importGroupItemAutoFromXML } from "./fromXML"
+import { importGroupItemAutoFromYAML } from "./fromYAML"
+import { GroupItemAutoRules } from "./rules"
+import { exportGroupItemAutoToXML } from "./toXML"
+import { exportGroupItemAutoToYAML } from "./toYAML"
+
+export type GroupItemAuto = MetadataTypeByRule<typeof GroupItemAutoRules>
+
+export type GroupItemAutoYAML = "[Авто]" | "([Авто])"
+
+registerTypeRule("GroupItemAuto", "importFromYAML", importGroupItemAutoFromYAML)
+registerTypeRule("GroupItemAuto", "exportToYAML", exportGroupItemAutoToYAML)
+registerTypeRule("GroupItemAuto", "importFromXML", importGroupItemAutoFromXML as any)
+registerTypeRule("GroupItemAuto", "exportToXML", exportGroupItemAutoToXML as any)

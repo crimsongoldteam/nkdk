@@ -1,9 +1,9 @@
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
-import { MetadataSimpleValueXML } from "../metadataValue/types"
+import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 import { MetadataValueCollection, MetadataValueCollectionXML } from "./types"
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const importMetadataValueCollectionFromXML = (
   context: ConfigurationContextFromXML,
@@ -16,8 +16,8 @@ export const importMetadataValueCollectionFromXML = (
 
   const items = Array.isArray(xrItems) ? xrItems : [xrItems]
 
-  const result: MetadataValueCollection = items.map((item: MetadataSimpleValueXML) => {
-    const metadataValue = importMetadataValueFromXML(context, undefined, item)!
+  const result: MetadataValueCollection = items.map((item: MetadataPrimitiveValueXML) => {
+    const metadataValue = importMetadataValueFromXML({ context, rule: undefined, value: item })!
     return String(metadataValue.value)
   })
 

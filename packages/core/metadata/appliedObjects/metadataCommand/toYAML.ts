@@ -5,7 +5,7 @@ import {
   MetadataCommandYAML,
 } from "~/metadata/appliedObjects/metadataCommand/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertiesToYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { exportMetadataItemToYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { MetadataCommandRules } from "./rules"
 
 export const exportMetadataCommandsToYAML = (
@@ -24,7 +24,7 @@ export const exportMetadataCommandToYAML = (
 ): MetadataCommandYAML | undefined => {
   if (!data) return undefined
 
-  return exportPropertiesToYAML({
+  return exportMetadataItemToYAML({
     context,
     data,
     rule: MetadataCommandRules,

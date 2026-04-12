@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { importFromYAMLFunctionNew, PropertyRule } from "~/metadata/orchestration"
+import { ImportFromYAMLFunctionNew, PropertyRule } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { I8nText, I8nTextPropertyRule, I8nTextYAML } from "./types"
 
-export const importI8nTextFromYAML: importFromYAMLFunctionNew = (params: {
+export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: I8nTextYAML | undefined
@@ -12,8 +12,8 @@ export const importI8nTextFromYAML: importFromYAMLFunctionNew = (params: {
   name?: string
 }): I8nText | undefined => {
   const { context, rule, value, source, name } = params
-  if (source === undefined && value === undefined) return undefined
   const i8nRule = rule as I8nTextPropertyRule
+  if (source === undefined && value === undefined) return undefined
 
   const result: I8nText = {
     items: {},

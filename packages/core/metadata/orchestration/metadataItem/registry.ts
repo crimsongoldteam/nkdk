@@ -1,4 +1,62 @@
 import {
+  AppearanceFields,
+  AppearanceFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
+import {
+  AvailableFields,
+  AvailableFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
+import {
+  CalculatedField,
+  CalculatedFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
+import {
+  CalculatedFieldOrderExpressionItem,
+  CalculatedFieldOrderExpressionItemYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/types"
+import type {
+  CalculatedFieldUseRestriction,
+  CalculatedFieldUseRestrictionYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types"
+import {
+  ConditionalAppearanceItem,
+  ConditionalAppearanceItemYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import type { DCSParameter, DCSParameterYAML } from "~/metadata/commonObjects/dataCompositionSystem/dcsParameter/types"
+import {
+  DataParameters,
+  DataParametersYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/dataParameters/types"
+import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
+import {
+  FilterItemComparison,
+  FilterItemComparisonYAML,
+  FilterItemGroup,
+  FilterItemGroupYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
+import { Order, OrderYAML } from "~/metadata/commonObjects/dataCompositionSystem/order/types"
+import {
+  GroupItemAuto,
+  GroupItemAutoYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/types"
+import {
+  GroupItemField,
+  GroupItemFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/types"
+import {
+  OrderItemField,
+  OrderItemFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/orderItemFields/types"
+import {
+  StructureItemGroup,
+  StructureItemGroupYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
+import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
+import {
+  MetadataTabularSection,
+  MetadataTabularSectionYAML,
+} from "~/metadata/commonObjects/metadataTabularSection/types"
+import {
   AutoCommandBar,
   AutoCommandBarEnterprise,
   AutoCommandBarYAML,
@@ -9,15 +67,11 @@ import {
   ViewStatusAdditionYAML,
 } from "~/metadata/forms/elements/viewStatusAddition/types"
 // import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
-import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
-import {
-  MetadataTabularSection,
-  MetadataTabularSectionYAML,
-} from "~/metadata/commonObjects/metadataTabularSection/types"
 import {
   StandardAttributeDescription,
   StandardAttributeDescriptionYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
@@ -450,6 +504,10 @@ export type MetadataItemTypeRegistry = {
     metadata: FormCommand
     yaml: FormCommandYAML
   }
+  DynamicList: {
+    metadata: DynamicList
+    yaml: DynamicListYAML
+  }
 
   //#endregion
 
@@ -478,6 +536,71 @@ export type MetadataItemTypeRegistry = {
   StandardAttributeDescription: {
     metadata: StandardAttributeDescription
     yaml: StandardAttributeDescriptionYAML
+  }
+
+  AppearanceFields: {
+    metadata: AppearanceFields
+    yaml: AppearanceFieldsYAML
+  }
+  CalculatedField: {
+    metadata: CalculatedField
+    yaml: CalculatedFieldYAML
+  }
+  CalculatedFieldUseRestriction: {
+    metadata: CalculatedFieldUseRestriction
+    yaml: CalculatedFieldUseRestrictionYAML
+  }
+  CalculatedFieldOrderExpression: {
+    metadata: CalculatedFieldOrderExpressionItem
+    yaml: CalculatedFieldOrderExpressionItemYAML
+  }
+  ConditionalAppearanceItem: {
+    metadata: ConditionalAppearanceItem
+    yaml: ConditionalAppearanceItemYAML
+  }
+  DCSParameter: {
+    metadata: DCSParameter
+    yaml: DCSParameterYAML
+  }
+  DataParameters: {
+    metadata: DataParameters
+    yaml: DataParametersYAML
+  }
+  Filter: {
+    metadata: Filter
+    yaml: FilterYAML
+  }
+  Order: {
+    metadata: Order
+    yaml: OrderYAML
+  }
+  AvailableFields: {
+    metadata: AvailableFields
+    yaml: AvailableFieldsYAML
+  }
+  FilterItemComparison: {
+    metadata: FilterItemComparison
+    yaml: FilterItemComparisonYAML
+  }
+  FilterItemGroup: {
+    metadata: FilterItemGroup
+    yaml: FilterItemGroupYAML
+  }
+  GroupItemField: {
+    metadata: GroupItemField
+    yaml: GroupItemFieldYAML
+  }
+  OrderItemField: {
+    metadata: OrderItemField
+    yaml: OrderItemFieldYAML
+  }
+  GroupItemAuto: {
+    metadata: GroupItemAuto
+    yaml: GroupItemAutoYAML
+  }
+  StructureItemGroup: {
+    metadata: StructureItemGroup
+    yaml: StructureItemGroupYAML
   }
 
   //#endregion

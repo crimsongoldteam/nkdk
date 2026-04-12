@@ -1,6 +1,6 @@
 import { Static, Type } from "@sinclair/typebox"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { MetadataSimpleValueXML } from "../metadataValue/types"
+import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 
 //#region ChoiceParameterLink
 
@@ -17,12 +17,36 @@ export type ChoiceParameterLinks = ChoiceParameterLink[]
 
 export interface ChoiceParameterLinkXML {
   "xr:Name": string
-  "xr:DataPath": MetadataSimpleValueXML
+  "xr:DataPath": MetadataPrimitiveValueXML
   "xr:ValueChange"?: SE.LinkedValueChangeMode
 }
 
 export interface ChoiceParameterLinksXML {
   "xr:Link": ChoiceParameterLinkXML[]
+}
+
+//#endregion
+
+//#region ChoiceParameterLink DCS (dcscor)
+
+/** Один элемент внутри `dcscor:value xsi:type="dcscor:ChoiceParameterLinks"`. */
+export interface ChoiceParameterLinkDcsItemXML {
+  "dcscor:choiceParameter": string | { "#text"?: string }
+  "dcscor:value": string | { "#text"?: string }
+  "dcscor:mode"?: SE.LinkedValueChangeMode | ChoiceParameterLinkDcsModeXML
+}
+
+export interface ChoiceParameterLinkDcsModeXML {
+  "_xsi:type": "ent:LinkedValueChangeMode"
+  "#text"?: SE.LinkedValueChangeMode
+}
+
+/** Корень фрагмента для `xmlExport`: узел `dcscor:value` с типом ChoiceParameterLinks. */
+export interface ChoiceParameterLinkDcsValueRootXML {
+  "dcscor:value": {
+    "_xsi:type": "dcscor:ChoiceParameterLinks"
+    "dcscor:item": ChoiceParameterLinkDcsItemXML | ChoiceParameterLinkDcsItemXML[]
+  }
 }
 
 //#endregion

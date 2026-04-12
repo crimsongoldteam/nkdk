@@ -4,13 +4,13 @@ import {
   MetadataAttributesXML,
   MetadataAttributeXML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
-import { importMetadataValueFromXMLAsPrimitive } from "~/metadata/commonObjects/metadataValue/fromXML"
+import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/fromXML"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
+import { importMetadataItemFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { getDefaultsAttribute } from "./defaults"
 import { MetadataAttributeRules } from "./rules"
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const importMetadataAttributesFromXML = (
   context: ConfigurationContextFromXML,
@@ -32,14 +32,14 @@ const importMetadataAttributeFromXML = (
   const props = xml.Properties
   if (!props) {
     return {
-      itemType: "MetadataAttribute",
+      itemType: MetadataAttributeRules.itemType,
       name: "",
       type: { type: ["string"] },
       synonym: { items: { [context.defaultLanguage]: "" } },
     }
   }
 
-  const properties = importPropertiesFromXML({
+  const properties = importMetadataItemFromXML({
     context,
     xml: props,
     rule: MetadataAttributeRules,
@@ -52,7 +52,14 @@ const importMetadataAttributeFromXML = (
     typeof minValueRaw === "object" &&
     ("_xsi:type" in minValueRaw || "#text" in minValueRaw)
   ) {
-    minValue = importMetadataValueFromXMLAsPrimitive(context, undefined, minValueRaw, "decimal") as number | undefined
+    minValue = (
+      importMetadataValueFromXML({
+        context,
+        rule: undefined,
+        value: minValueRaw,
+        type: "decimal",
+      }) as any
+    )?.value as number | undefined
   }
 
   let maxValue: number | undefined
@@ -62,11 +69,18 @@ const importMetadataAttributeFromXML = (
     typeof maxValueRaw === "object" &&
     ("_xsi:type" in maxValueRaw || "#text" in maxValueRaw)
   ) {
-    maxValue = importMetadataValueFromXMLAsPrimitive(context, undefined, maxValueRaw, "decimal") as number | undefined
+    maxValue = (
+      importMetadataValueFromXML({
+        context,
+        rule: undefined,
+        value: maxValueRaw,
+        type: "decimal",
+      }) as any
+    )?.value as number | undefined
   }
 
   const result: MetadataAttribute = {
-    itemType: "MetadataAttribute",
+    itemType: MetadataAttributeRules.itemType,
     ...properties,
     name: properties!.name!,
     type: properties!.type!,

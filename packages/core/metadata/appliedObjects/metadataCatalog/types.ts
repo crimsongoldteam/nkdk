@@ -16,7 +16,6 @@ import { PredefinedItemsXML, PredefinedItemsYAML } from "~/metadata/commonObject
 import {
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
-  StandartAttributeName,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -28,83 +27,19 @@ import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/elemen
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 import { MetadataCatalogRules } from "./rules"
 
-export const MetadataCatalogStandardAttributeNames: StandartAttributeName[] = [
-  "PredefinedDataName",
-  "Predefined",
-  "Ref",
-  "DeletionMark",
-  "IsFolder",
-  "Owner",
-  "Parent",
-  "Description",
-  "Code",
-]
+export const MetadataCatalogStandardAttributeNames: Record<string, string> = {
+  PredefinedDataName: "ИмяПредопределенныхДанных",
+  Predefined: "Предопределенный",
+  Ref: "Ссылка",
+  DeletionMark: "ПометкаУдаления",
+  Parent: "Родитель",
+  Owner: "Владелец",
+  IsFolder: "ЭтоГруппа",
+  Description: "Наименование",
+  Code: "Код",
+}
 
 export type MetadataCatalog = MetadataTypeByRule<typeof MetadataCatalogRules>
-
-// export interface MetadataCatalog extends MetadataItem {
-//   itemType: "MetadataCatalog"
-//   additionalIndexes?: AdditionalIndexes
-//   attributes?: MetadataAttributes
-//   autonumbering?: boolean
-//   auxiliaryChoiceForm?: string
-//   auxiliaryFolderChoiceForm?: string
-//   auxiliaryFolderForm?: string
-//   auxiliaryListForm?: string
-//   auxiliaryObjectForm?: string
-//   basedOn?: MetadataValueCollection
-//   characteristics?: CharacteristicsDescriptions
-//   checkUnique?: boolean
-//   choiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString
-//   choiceHistoryOnInput?: SE.ChoiceHistoryOnInput
-//   choiceMode?: SE.ChoiceMode
-//   codeAllowedLength?: SE.AllowedLength
-//   codeLength?: number
-//   codeSeries?: SE.CatalogCodesSeries
-//   codeType?: SE.CatalogCodeType
-//   commands?: MetadataCommands
-//   comment?: string
-//   createOnInput?: SE.CreateOnInput
-//   dataHistory?: SE.DataHistoryUse
-//   dataLockControlMode?: SE.DefaultDataLockControlMode
-//   dataLockFields?: MetadataFields
-//   defaultChoiceForm?: string
-//   defaultFolderChoiceForm?: string
-//   defaultFolderForm?: string
-//   defaultListForm?: string
-//   defaultObjectForm?: string
-//   defaultPresentation?: SE.CatalogMainPresentation
-//   descriptionLength?: number
-//   editType?: SE.EditType
-//   executeAfterWriteDataHistoryVersionProcessing?: boolean
-//   explanation?: I8nText
-//   extendedListPresentation?: I8nText
-//   extendedObjectPresentation?: I8nText
-//   foldersOnTop?: boolean
-//   fullTextSearch?: SE.UseFullTextSearch
-//   fullTextSearchOnInputByString?: SE.FullTextSearchOnInputByString
-//   hierarchical?: boolean
-//   hierarchyType?: SE.HierarchyType
-//   includeHelpInContents?: boolean
-//   inputByString?: MetadataFields
-//   levelCount?: number
-//   limitLevelCount?: boolean
-//   listPresentation?: I8nText
-//   name: string
-//   objectBelonging?: SE.ObjectBelonging
-//   objectPresentation?: I8nText
-//   owners?: MetadataValueCollection
-//   predefined?: PredefinedItems
-//   predefinedDataUpdate?: SE.PredefinedDataUpdate
-//   quickChoice?: boolean
-//   searchStringModeOnInputByString?: SE.SearchStringModeOnInputByString
-//   standardAttributes?: StandardAttributeDescriptions
-//   subordinationUse?: SE.SubordinationUse
-//   synonym?: I8nText
-//   tabularSections?: MetadataTabularSections
-//   updateDataHistoryImmediatelyAfterWrite?: boolean
-//   useStandardCommands?: boolean
-// }
 
 export const GeneratedTypeCategory = ["Object", "Ref", "Selection", "List", "Manager"] as const
 export type GeneratedTypeCategory = (typeof GeneratedTypeCategory)[number]

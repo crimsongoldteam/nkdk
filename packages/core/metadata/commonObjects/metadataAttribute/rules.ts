@@ -100,6 +100,7 @@ export const MetadataAttributeRules = {
       yaml: "ЗначениеЗаполнения",
       xml: "FillValue",
       type: "MetadataValue",
+      withType: true,
     },
     fillFromFillingValue: {
       yaml: "ЗаполнятьИзДанныхЗаполнения",

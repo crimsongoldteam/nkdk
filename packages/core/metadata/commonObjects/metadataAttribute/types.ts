@@ -2,7 +2,7 @@ import { Type } from "@sinclair/typebox"
 import { StringboolXML, StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import {
-  MetadataSimpleValueXML,
+  MetadataPrimitiveValueXML,
   MetadataValueXML,
   MetadataValueYAML,
 } from "~/metadata/commonObjects/metadataValue/types"
@@ -41,8 +41,8 @@ export interface MetadataAttributeXML {
     LinkByType?: TypeLinkXML
     MarkNegatives?: StringboolXML
     Mask?: string
-    MaxValue?: MetadataSimpleValueXML
-    MinValue?: MetadataSimpleValueXML
+    MaxValue?: MetadataPrimitiveValueXML
+    MinValue?: MetadataPrimitiveValueXML
     MultiLine?: StringboolXML
     Name: string
     ObjectBelonging?: SE.ObjectBelonging

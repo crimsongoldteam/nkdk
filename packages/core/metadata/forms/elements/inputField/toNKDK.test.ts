@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { inputFieldStructureFixturesTable } from "~/tests/fixtures/forms/inputField/data"
+import { inputFieldStructureFixturesTable } from "~/metadata/forms/elements/inputField/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 import { exportInputFieldToNKDK } from "./toNKDK"
 

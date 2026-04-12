@@ -6,7 +6,7 @@ export const FormCommandRules = {
   properties: {
     id: {
       xml: "_id",
-      type: "string",
+      type: "ElementId",
       forReferenceOnly: true,
     },
     name: {

@@ -9,7 +9,6 @@ import {
   MetadataFixedArrayValueYAML,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueYAML,
-  MetadataValue,
   MetadataValueYAML,
 } from "./types"
 
@@ -17,8 +16,10 @@ export const importMetadataValueFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: MetadataValueYAML | undefined
-): MetadataValue | undefined => {
+): any => {
   if (data === undefined) return undefined
+  const ruleAny = _rule as any
+  const withType = Boolean(ruleAny?.withType)
 
   if (typeof data === "object" && data !== null && !Array.isArray(data) && "Представление" in data) {
     return importFormChoiceListValueFromYAML(context, undefined, data as MetadataFormChoiceListValueYAML)
@@ -29,13 +30,27 @@ export const importMetadataValueFromYAML = (
   }
 
   if (typeof data === "number") {
-    return {
-      type: "decimal",
-      value: data,
+    if (ruleAny?.valueType === "string") {
+      return withType ? { type: "string", value: String(data) } : data
     }
+    return { type: "decimal", value: data }
   }
 
   if (typeof data === "string") {
+    if (ruleAny?.valueType === "string") {
+      const unquoted = data.startsWith('"') && data.endsWith('"') ? data.slice(1, -1) : data
+      return withType ? { type: "string", value: unquoted } : unquoted
+    }
+    if (ruleAny?.valueType === "dateTime" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(data)) {
+      return withType ? { type: "dateTime", value: data } : data
+    }
+    // В режиме "без типа" для обычной строки не пытаемся угадывать тип — возвращаем примитив
+    // Важно: только для верхнего уровня (когда правило передано явно).
+    // Внутри composite-типов (fixedArray, formChoiceList...) правило часто undefined,
+    // и там нам нужны эвристики (ref/dateTime/boolean/decimal/...).
+    if (_rule && !withType && ruleAny?.valueType === undefined) {
+      return data
+    }
     return importStringValueFromYAML(context, undefined, data)
   }
 
@@ -62,7 +77,7 @@ const importStringValueFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: string
-): MetadataValue => {
+): any => {
   // Проверяем на FormChoiceListDesTimeValue: формат "значение"(представление)
   const formChoiceListMatch = data.match(/^"([^"]+)"\(([^)]+)\)$/)
   if (formChoiceListMatch) {
@@ -130,17 +145,22 @@ const importStringValueFromYAML = (
     }
   }
 
-  return importMetadataRefFromYAML(context, undefined, data)
+  // fallback: если не конвертится в ref — считаем строкой
+  try {
+    return importMetadataRefFromYAML(context, undefined, data)
+  } catch {
+    return { type: "string", value: data }
+  }
 }
 
 const importFixedArrayValueFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: MetadataFixedArrayValueYAML
-): MetadataValue => {
+): any => {
   return {
     type: "fixedArray",
-    value: data.map((v) => importMetadataValueFromYAML(context, undefined, v)!) as MetadataValue[],
+    value: data.map((v) => importMetadataValueFromYAML(context, undefined, v)!) as any[],
   }
 }
 
@@ -173,9 +193,11 @@ export const importMetadataRefFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   value: string
-): MetadataValue => {
+): any => {
   const convertedValue = importMetadataValueStringFromYAML(context, undefined, value)
   if (!convertedValue) throw new Error(`Invalid type for ref: ${value}`)
+  // эвристика: ref почти всегда содержит точки (Enum., Catalog., ChartOf..., ...)
+  if (!convertedValue.includes(".")) throw new Error(`Invalid type for ref: ${value}`)
 
   return {
     type: "ref",

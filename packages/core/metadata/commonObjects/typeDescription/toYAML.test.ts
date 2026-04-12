@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { typeFixturesTable } from "../../../tests/fixtures/typeDescription/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
+import { typeFixturesTable } from "./__fixtures__/data"
 import { exportTypeDescriptionToYAML } from "./toYAML"
 
 describe("exportTypeDescriptionToYAML", () => {
@@ -9,8 +9,8 @@ describe("exportTypeDescriptionToYAML", () => {
     expect(result).toBeUndefined()
   })
 
-  it.each(typeFixturesTable)("should export composite type to YAML: $enterprise", ({ internal, YAML: enterprise }) => {
+  it.each(typeFixturesTable)("should export composite type to YAML: $YAML", ({ internal, YAML: YAML }) => {
     const result = exportTypeDescriptionToYAML(mockContext, mockRule, internal)
-    expect(result).toEqual(enterprise)
+    expect(result).toEqual(YAML)
   })
 })

@@ -1,0 +1,20 @@
+<dcsset:item xsi:type="dcsset:FilterItemComparison">
+	<dcsset:use>false</dcsset:use>
+	<dcsset:left xsi:type="dcscor:Field">Ссылка</dcsset:left>
+	<dcsset:comparisonType>Equal</dcsset:comparisonType>
+	<dcsset:right xsi:type="dcscor:DesignTimeValue">Справочник.Справочник1.ПустаяСсылка</dcsset:right>
+	<dcsset:presentation xsi:type="v8:LocalStringType">
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Представление</v8:content>
+		</v8:item>
+	</dcsset:presentation>
+	<dcsset:viewMode>Normal</dcsset:viewMode>
+	<dcsset:userSettingID>7b8eb4d9-8661-46f5-9da8-dbe4d77a2292</dcsset:userSettingID>
+	<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Пользовательское представление</v8:content>
+		</v8:item>
+	</dcsset:userSettingPresentation>
+</dcsset:item>

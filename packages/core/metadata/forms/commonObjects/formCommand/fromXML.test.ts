@@ -1,31 +1,50 @@
 import { describe, expect, it } from "vitest"
-import { fullFormCommands } from "~/tests/fixtures/forms/commands/data"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importCommandsFromXML } from "./fromXML"
-import { FormCommandXML } from "./types"
+import {
+  fullFormCommands,
+  minimalFormCommandsFromXML,
+} from "~/metadata/forms/commonObjects/formCommand/__fixtures__/data"
+import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
+import { mockContextFromXML } from "~/tests/mockContext"
+import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 
-describe("importCommandFromXML", () => {
-  it("should return undefined for undefined input", () => {
-    const result = importCommandsFromXML(mockContextFromXML(), mockRule, undefined)
+import "./types"
+
+const rule: PropertyRule = {
+  type: "FormCommands",
+  yaml: "Команды",
+  defaultValue: [],
+}
+
+describe("import FormCommands from XML", () => {
+  it("should return empty array for undefined input", () => {
+    const result = importPropertyFromXML({
+      context: mockContextFromXML(),
+      rule,
+      value: undefined,
+    })
 
     expect(result).toEqual([])
   })
 
-  it("should import all fields from XML", () => {
-    const xmlData = readAndParseXMLFile<{ Command: FormCommandXML }>("forms/commands/full.xml")
+  it("should import full.xml", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "full.xml",
+      xmlRootTag: "Commands",
+      importMetaUrl: import.meta.url,
+    })
 
-    const result = importCommandsFromXML(mockContextFromXML(), mockRule, xmlData)
     expect(result).toEqual(fullFormCommands)
   })
 
-  it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ Command: FormCommandXML }>("forms/commands/minimal.xml")
+  it("should import minimal.xml", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "minimal.xml",
+      xmlRootTag: "Commands",
+      importMetaUrl: import.meta.url,
+    })
 
-    const result = importCommandsFromXML(mockContextFromXML(), mockRule, xmlData)
-
-    expect(result).toEqual([
-      { itemType: "FormCommand", name: "СоставКомплектаПодобратьФайлы", title: { items: { ru: "" } } },
-    ])
+    expect(result).toEqual(minimalFormCommandsFromXML)
   })
 })

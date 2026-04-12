@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToXML } from "~/tests/exportElementToXML"
 import { fullTabularSections, minimalTabularSections } from "~/tests/fixtures/metadataTabularSection/data"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 
 describe("exportMetadataTabularSectionsToXML", () => {
   it("should export all possible properties", () => {

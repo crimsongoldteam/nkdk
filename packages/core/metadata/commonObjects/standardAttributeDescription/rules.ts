@@ -1,5 +1,5 @@
-import { StandartAttributeNameFromYAML } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { StandartAttributeNameFromYAML } from "./standartAttributeNames"
 
 export const StandardAttributeDescriptionRules = {
   itemType: "StandardAttributeDescription",
@@ -78,6 +78,7 @@ export const StandardAttributeDescriptionRules = {
       yaml: "ЗначениеЗаполнения",
       xml: "xr:FillValue",
       type: "MetadataValue",
+      withType: true,
     },
     format: {
       yaml: "Формат",
