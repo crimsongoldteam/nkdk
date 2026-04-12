@@ -13,10 +13,12 @@ export const importMetadataItemFromYAML = <Rule extends MetadataItemRule>(params
 }): ToMetadata<Rule["itemType"]> | undefined => {
   const { yaml, rule, source, name } = params
   let { context } = params
+  let topLevelNodeId: string | undefined
 
   if (context.graphContext?.filePath && !context.graphContext.parentNodeId && name) {
     const prefix = rule.itemTypePrefix ?? itemTypePrefix[rule.itemType] ?? rule.itemType
     const itemNodeId = `${prefix}.${name}`
+    topLevelNodeId = itemNodeId
     const g = context.graph ?? defaultGraph
     g.ensureNode(prefix, { name: prefix })
     g.ensureNode(itemNodeId, { name, filePath: context.graphContext.filePath })
@@ -37,8 +39,16 @@ export const importMetadataItemFromYAML = <Rule extends MetadataItemRule>(params
     return undefined
   }
 
-  return {
+  const result = {
     ...properties,
     itemType: rule.itemType,
   } as ToMetadata<Rule["itemType"]>
+
+  if (topLevelNodeId) {
+    const g = params.context.graph ?? defaultGraph
+    g.setNodeAttribute(topLevelNodeId, "item", name ? { ...result, name } : result)
+    g.updateNodeFilePath(topLevelNodeId, params.context.graphContext!.filePath)
+  }
+
+  return result
 }

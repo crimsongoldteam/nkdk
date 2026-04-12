@@ -113,4 +113,102 @@ describe("MetadataGraph", () => {
       expect(g.getNodeAttribute("Справочник.Товары.Цена", "item")).toBe(item)
     })
   })
+
+  describe("updateNodeFilePath", () => {
+    it("обновляет filePath и обратный индекс", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары", { name: "Товары" })
+      g.updateNodeFilePath("Справочник.Товары", "new.yaml")
+
+      expect(g.getNodeAttribute("Справочник.Товары", "filePath")).toBe("new.yaml")
+      expect(g.getNodesByFile("new.yaml").has("Справочник.Товары")).toBe(true)
+    })
+
+    it("удаляет из старого индекса при обновлении", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "old.yaml" })
+      g.updateNodeFilePath("Справочник.Товары", "new.yaml")
+
+      expect(g.getNodesByFile("old.yaml").has("Справочник.Товары")).toBe(false)
+      expect(g.getNodesByFile("new.yaml").has("Справочник.Товары")).toBe(true)
+    })
+
+    it("не меняет индекс при одинаковом filePath", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "same.yaml" })
+      g.updateNodeFilePath("Справочник.Товары", "same.yaml")
+
+      expect(g.getNodesByFile("same.yaml").has("Справочник.Товары")).toBe(true)
+    })
+  })
+
+  describe("getBrokenReferences", () => {
+    it("возвращает пустую Map при отсутствии reference-рёбер", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары", { name: "Товары" })
+
+      expect(g.getBrokenReferences().size).toBe(0)
+    })
+
+    it("возвращает пустую Map если все цели reference-рёбер имеют item", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары.Цена", { name: "Цена" })
+      g.ensureNode("Справочник.Валюты", { name: "Валюты" })
+      g.setNodeAttribute("Справочник.Валюты", "item", { itemType: "MetadataCatalog", name: "Валюты" })
+      g.ensureEdge("ref-1", "Справочник.Товары.Цена", "Справочник.Валюты", {
+        yaml: "Тип",
+        name: "Тип",
+        kind: "reference",
+      })
+
+      expect(g.getBrokenReferences().size).toBe(0)
+    })
+
+    it("возвращает узлы-заглушки — цели reference-рёбер без item", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары.Цена", { name: "Цена" })
+      g.ensureNode("Справочник.Валюты", { name: "Валюты" })
+      g.ensureEdge("ref-1", "Справочник.Товары.Цена", "Справочник.Валюты", {
+        yaml: "Тип",
+        name: "Тип",
+        kind: "reference",
+      })
+
+      const broken = g.getBrokenReferences()
+      expect(broken.size).toBe(1)
+      expect(broken.has("Справочник.Валюты")).toBe(true)
+    })
+
+    it("не включает composition-рёбра без item", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары", { name: "Товары" })
+      g.ensureNode("Справочник.Товары.Цена", { name: "Цена" })
+      g.ensureEdge("comp-1", "Справочник.Товары", "Справочник.Товары.Цена", {
+        yaml: "Реквизит",
+        name: "Реквизит",
+        kind: "composition",
+      })
+
+      expect(g.getBrokenReferences().size).toBe(0)
+    })
+
+    it("не дублирует узел при нескольких reference-рёбрах к одной заглушке", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.А.Реквизит1", { name: "Реквизит1" })
+      g.ensureNode("Справочник.А.Реквизит2", { name: "Реквизит2" })
+      g.ensureNode("Справочник.Б", { name: "Б" })
+      g.ensureEdge("ref-1", "Справочник.А.Реквизит1", "Справочник.Б", {
+        yaml: "Тип",
+        name: "Тип",
+        kind: "reference",
+      })
+      g.ensureEdge("ref-2", "Справочник.А.Реквизит2", "Справочник.Б", {
+        yaml: "Тип",
+        name: "Тип",
+        kind: "reference",
+      })
+
+      expect(g.getBrokenReferences().size).toBe(1)
+    })
+  })
 })

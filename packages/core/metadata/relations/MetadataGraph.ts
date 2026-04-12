@@ -90,6 +90,33 @@ export class MetadataGraph {
     return this._fileIndex.get(filePath) ?? new Set()
   }
 
+  /** Обновляет filePath узла и синхронно обновляет обратный индекс. */
+  updateNodeFilePath(id: string, filePath: string): void {
+    const currentFilePath = this._graph.getNodeAttribute(id, "filePath")
+    if (currentFilePath === filePath) return
+    if (currentFilePath) {
+      this._fileIndex.get(currentFilePath)?.delete(id)
+    }
+    this._graph.setNodeAttribute(id, "filePath", filePath)
+    let set = this._fileIndex.get(filePath)
+    if (!set) {
+      set = new Set()
+      this._fileIndex.set(filePath, set)
+    }
+    set.add(id)
+  }
+
+  /** Возвращает узлы-заглушки: цели reference-рёбер без атрибута item. */
+  getBrokenReferences(): Map<string, MetadataNodeAttrs> {
+    const result = new Map<string, MetadataNodeAttrs>()
+    for (const { attributes, target, targetAttributes } of this._graph.edgeEntries()) {
+      if (attributes.kind === "reference" && (targetAttributes as MetadataNodeAttrs).item === undefined) {
+        result.set(target, targetAttributes as MetadataNodeAttrs)
+      }
+    }
+    return result
+  }
+
   clear(): void {
     this._graph.clear()
     this._fileIndex.clear()

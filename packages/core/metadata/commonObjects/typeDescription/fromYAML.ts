@@ -114,7 +114,7 @@ function addTypeEdges(context: ConfigurationContext, types: string[]): void {
     if (!rule?.modifier || rule.modifier === "alwaysType") continue
 
     const targetNodeId = `${rule.enterprise}.${detailType}`
-    g.ensureNode(targetNodeId, { name: detailType, filePath })
+    g.ensureNode(targetNodeId, { name: detailType })
     const edgeKey = `${parentNodeId}:${TYPE_EDGE_NAME}:${targetNodeId}`
     g.ensureEdge(edgeKey, parentNodeId, targetNodeId, { yaml: TYPE_EDGE_NAME, name: TYPE_EDGE_NAME, kind: "reference" })
   }

@@ -109,4 +109,42 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
 
     expect(Object.keys(dependencies)).toEqual(["Справочник.ДругойСправочник"])
   })
+
+  it("stub node has no item before target is imported", () => {
+    const stubAttrs = graph.getNodeAttributes("Справочник.ДругойСправочник")
+    expect(stubAttrs.item).toBeUndefined()
+  })
+
+  it("stub node has no filePath (belongs to no file)", () => {
+    const stubAttrs = graph.getNodeAttributes("Справочник.ДругойСправочник")
+    expect(stubAttrs.filePath).toBeUndefined()
+  })
+
+  it("getBrokenReferences reports stub as broken", () => {
+    const broken = graph.getBrokenReferences()
+    expect(broken.has("Справочник.ДругойСправочник")).toBe(true)
+  })
+
+  it("stub is enriched after importing target catalog", () => {
+    importMetadataCatalogFromYAML(
+      { ...mockContext, graph, graphContext: { filePath: "other.yaml" } },
+      {},
+      "ДругойСправочник",
+    )
+
+    const attrs = graph.getNodeAttributes("Справочник.ДругойСправочник")
+    expect(attrs.item).toBeDefined()
+    expect((attrs.item as { name: string }).name).toBe("ДругойСправочник")
+    expect(attrs.filePath).toBe("other.yaml")
+  })
+
+  it("getBrokenReferences is empty after all stubs are enriched", () => {
+    importMetadataCatalogFromYAML(
+      { ...mockContext, graph, graphContext: { filePath: "other.yaml" } },
+      {},
+      "ДругойСправочник",
+    )
+
+    expect(graph.getBrokenReferences().size).toBe(0)
+  })
 })
