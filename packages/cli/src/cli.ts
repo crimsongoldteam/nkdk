@@ -3,6 +3,7 @@ import { Command } from "commander"
 import { cleanFormFixturesXmlFiles, cleanXmlFiles } from "./commands/cleanXmlFiles"
 import { exportConfigToXML } from "./commands/exportConfigToXml"
 import { importConfigFromXml } from "./commands/importConfigFromXml"
+import { validateLinks } from "./commands/validateLinks"
 
 const program = new Command()
 
@@ -42,6 +43,14 @@ program
   .argument("<output>", "исходящий каталог")
   .action(async (inputPath: string, outputPath: string) => {
     await exportConfigToXML(inputPath, outputPath)
+  })
+
+program
+  .command("validate")
+  .description("Валидация ссылок в проекте — поиск битых ссылок (для CI/CD)")
+  .argument("<project>", "путь к директории проекта")
+  .action((projectPath: string) => {
+    validateLinks(projectPath)
   })
 
 program.parse()
