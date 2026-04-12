@@ -106,6 +106,32 @@ export class MetadataGraph {
     set.add(id)
   }
 
+  /**
+   * Инвалидирует все узлы, принадлежащие файлу.
+   * - Узлы без входящих reference-рёбер удаляются полностью.
+   * - Узлы с входящими reference-рёбрами становятся заглушками:
+   *   удаляются item, filePath и все исходящие рёбра.
+   */
+  invalidateFile(filePath: string): void {
+    const nodeIds = new Set(this.getNodesByFile(filePath))
+    for (const nodeId of nodeIds) {
+      const hasIncomingRefs = this._graph
+        .inEdges(nodeId)
+        .some((edgeId) => this._graph.getEdgeAttribute(edgeId, "kind") === "reference")
+
+      if (hasIncomingRefs) {
+        for (const edgeId of [...this._graph.outEdges(nodeId)]) {
+          this._graph.dropEdge(edgeId)
+        }
+        this._graph.removeNodeAttribute(nodeId, "item")
+        this._graph.removeNodeAttribute(nodeId, "filePath")
+      } else {
+        this._graph.dropNode(nodeId)
+      }
+    }
+    this._fileIndex.delete(filePath)
+  }
+
   /** Возвращает узлы-заглушки: цели reference-рёбер без атрибута item. */
   getBrokenReferences(): Map<string, MetadataNodeAttrs> {
     const result = new Map<string, MetadataNodeAttrs>()

@@ -142,6 +142,97 @@ describe("MetadataGraph", () => {
     })
   })
 
+  describe("invalidateFile", () => {
+    it("удаляет узлы без входящих reference-рёбер", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml" })
+      g.ensureNode("Справочник.Товары.Цена", { name: "Цена", filePath: "goods.yaml" })
+      g.ensureEdge("comp-1", "Справочник.Товары", "Справочник.Товары.Цена", {
+        yaml: "Реквизит",
+        name: "Реквизит",
+        kind: "composition",
+      })
+
+      g.invalidateFile("goods.yaml")
+
+      expect(g.hasNode("Справочник.Товары")).toBe(false)
+      expect(g.hasNode("Справочник.Товары.Цена")).toBe(false)
+      expect(g.getNodesByFile("goods.yaml").size).toBe(0)
+    })
+
+    it("превращает узел с входящим reference-ребром в заглушку", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары.Цена", { name: "Цена", filePath: "goods.yaml" })
+      g.ensureNode("Справочник.Валюты", { name: "Валюты", filePath: "currencies.yaml" })
+      g.setNodeAttribute("Справочник.Валюты", "item", { itemType: "MetadataCatalog", name: "Валюты" })
+      g.ensureEdge("ref-1", "Справочник.Товары.Цена", "Справочник.Валюты", {
+        yaml: "Тип",
+        name: "Тип",
+        kind: "reference",
+      })
+
+      g.invalidateFile("currencies.yaml")
+
+      expect(g.hasNode("Справочник.Валюты")).toBe(true)
+      expect(g.getNodeAttribute("Справочник.Валюты", "item")).toBeUndefined()
+      expect(g.getNodeAttribute("Справочник.Валюты", "filePath")).toBeUndefined()
+      expect(g.getNodesByFile("currencies.yaml").size).toBe(0)
+    })
+
+    it("удаляет исходящие рёбра заглушки", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары.Цена", { name: "Цена", filePath: "goods.yaml" })
+      g.ensureNode("Справочник.Валюты", { name: "Валюты", filePath: "currencies.yaml" })
+      g.ensureNode("Справочник.Валюты.Код", { name: "Код", filePath: "currencies.yaml" })
+      g.setNodeAttribute("Справочник.Валюты", "item", { itemType: "MetadataCatalog", name: "Валюты" })
+      g.ensureEdge("ref-1", "Справочник.Товары.Цена", "Справочник.Валюты", {
+        yaml: "Тип",
+        name: "Тип",
+        kind: "reference",
+      })
+      g.ensureEdge("comp-1", "Справочник.Валюты", "Справочник.Валюты.Код", {
+        yaml: "Реквизит",
+        name: "Реквизит",
+        kind: "composition",
+      })
+
+      g.invalidateFile("currencies.yaml")
+
+      expect(g.outEdges("Справочник.Валюты")).toHaveLength(0)
+    })
+
+    it("не затрагивает узлы других файлов", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml" })
+      g.ensureNode("Справочник.Валюты", { name: "Валюты", filePath: "currencies.yaml" })
+
+      g.invalidateFile("goods.yaml")
+
+      expect(g.hasNode("Справочник.Валюты")).toBe(true)
+      expect(g.getNodesByFile("currencies.yaml").has("Справочник.Валюты")).toBe(true)
+    })
+
+    it("мульти-файловый объект: инвалидация одного файла не затрагивает узлы другого", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Форма.ФормаСписка", { name: "ФормаСписка", filePath: "form.yaml" })
+      g.ensureNode("Форма.ФормаСписка.Список", { name: "Список", filePath: "form.nkdk" })
+
+      g.invalidateFile("form.yaml")
+
+      expect(g.hasNode("Форма.ФормаСписка")).toBe(false)
+      expect(g.hasNode("Форма.ФормаСписка.Список")).toBe(true)
+      expect(g.getNodesByFile("form.nkdk").has("Форма.ФормаСписка.Список")).toBe(true)
+    })
+
+    it("нет эффекта при инвалидации несуществующего файла", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml" })
+
+      expect(() => g.invalidateFile("unknown.yaml")).not.toThrow()
+      expect(g.hasNode("Справочник.Товары")).toBe(true)
+    })
+  })
+
   describe("getBrokenReferences", () => {
     it("возвращает пустую Map при отсутствии reference-рёбер", () => {
       const g = new MetadataGraph()
