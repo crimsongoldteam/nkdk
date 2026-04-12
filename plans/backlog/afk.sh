@@ -22,7 +22,11 @@ for ((i=1; i<=$1; i++)); do
   issues=$(gh issue list --state open --json number,title,body,comments)
   ralph_commits=$(git log --grep="RALPH" -n 10 --format="%H%n%ad%n%B---" --date=short 2>/dev/null || echo "No RALPH commits found")
 
-  docker sandbox run claude . -- \
+  docker sandbox exec \
+    --env-file "$REPO_ROOT/.env" \
+    -w "$REPO_ROOT" \
+    "$SANDBOX_NAME" \
+    claude --dangerously-skip-permissions \
     --verbose \
     --print \
     --output-format stream-json \

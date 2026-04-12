@@ -10,13 +10,15 @@ USER root
 # Load tokens from .env for non-interactive shells (how the agent runs commands)
 ENV BASH_ENV=/home/agent/.env_loader
 RUN cat > /home/agent/.env_loader <<'EOF'
-if [ -f .env ]; then
+_envfile="${WORKSPACE_DIR:-.}/.env"
+if [ -f "$_envfile" ]; then
   for _var in GH_TOKEN; do
-    _val=$(grep "^${_var}=" .env | cut -d= -f2-)
+    _val=$(grep "^${_var}=" "$_envfile" | cut -d= -f2-)
     if [ -n "$_val" ]; then export "${_var}=${_val}"; fi
   done
   unset _var _val
 fi
+unset _envfile
 EOF
 
 # Wrapper that injects CLAUDE_CODE_OAUTH_TOKEN before claude starts.
@@ -24,8 +26,9 @@ EOF
 # The real binary lives at ~/.local/bin/claude.
 RUN cat > /usr/local/bin/claude <<'WRAPPER'
 #!/bin/bash
-if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ] && [ -f .env ]; then
-  CLAUDE_CODE_OAUTH_TOKEN=$(grep "^CLAUDE_CODE_OAUTH_TOKEN=" .env | cut -d= -f2-)
+envfile="${WORKSPACE_DIR:-.}/.env"
+if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ] && [ -f "$envfile" ]; then
+  CLAUDE_CODE_OAUTH_TOKEN=$(grep "^CLAUDE_CODE_OAUTH_TOKEN=" "$envfile" | cut -d= -f2-)
   export CLAUDE_CODE_OAUTH_TOKEN
 fi
 exec /home/agent/.local/bin/claude "$@"
