@@ -28,21 +28,12 @@ Explore the repo and fill your context window with relevant information that wil
 
 Complete the task.
 
-# VERIFICATION
-
-Run type checking and tests to verify your changes:
-
-```
-pnpm run type-check
-pnpm run test
-```
-
 # COMMIT
 
 Make a git commit. The commit message must:
 
 1. Start with `RALPH:` prefix
-2. Include task completed + issue reference
+2. Include task completed + PRD reference
 3. Key decisions made
 4. Files changed
 5. Blockers or notes for next iteration
