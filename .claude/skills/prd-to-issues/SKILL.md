@@ -7,6 +7,8 @@ description: Break a PRD into independently-grabbable GitHub issues using tracer
 
 Break a PRD into independently-grabbable GitHub issues using vertical slices (tracer bullets).
 
+**Output language:** Write every user-facing artifact in **Russian**: slice titles and descriptions, GitHub issue titles and bodies, acceptance criteria, and the quiz questions you ask the user. Keep this skill file’s procedural English as-is.
+
 ## Process
 
 ### 1. Locate the PRD
@@ -33,52 +35,52 @@ Slices may be 'HITL' or 'AFK'. HITL slices require human interaction, such as an
 
 ### 4. Quiz the user
 
-Present the proposed breakdown as a numbered list. For each slice, show:
+Present the proposed breakdown as a numbered list **in Russian**. For each slice, show:
 
-- **Title**: short descriptive name
-- **Type**: HITL / AFK
-- **Blocked by**: which other slices (if any) must complete first
-- **User stories covered**: which user stories from the PRD this addresses
+- **Заголовок**: короткое описательное имя
+- **Тип**: HITL / AFK
+- **Заблокировано**: какие другие срезы (если есть) должны завершиться раньше
+- **Покрытые user story**: какие user story из PRD закрывает этот срез
 
-Ask the user:
+Ask the user **in Russian**:
 
-- Does the granularity feel right? (too coarse / too fine)
-- Are the dependency relationships correct?
-- Should any slices be merged or split further?
-- Are the correct slices marked as HITL and AFK?
+- Устраивает ли детализация? (слишком крупно / слишком мелко)
+- Верны ли зависимости между срезами?
+- Нужно ли объединить или разбить какие-то срезы?
+- Правильно ли отмечены HITL и AFK?
 
 Iterate until the user approves the breakdown.
 
 ### 5. Create the GitHub issues
 
-For each approved slice, create a GitHub issue using `gh issue create`. Use the issue body template below.
+For each approved slice, create a GitHub issue using `gh issue create`. Use the issue body template below (section headings and content **in Russian**).
 
-Create issues in dependency order (blockers first) so you can reference real issue numbers in the "Blocked by" field.
+Create issues in dependency order (blockers first) so you can reference real issue numbers in the "Заблокировано" field.
 
 <issue-template>
-## Parent PRD
+## Родительский PRD
 
-#<prd-issue-number>
+#<номер-issue-prd>
 
-## What to build
+## Что сделать
 
-A concise description of this vertical slice. Describe the end-to-end behavior, not layer-by-layer implementation. Reference specific sections of the parent PRD rather than duplicating content.
+Краткое описание этого вертикального среза. Опишите сквозное поведение end-to-end, а не реализацию по слоям. Ссылайтесь на конкретные разделы родительского PRD вместо дублирования текста.
 
-## Acceptance criteria
+## Критерии приёмки
 
-- [ ] Criterion 1
-- [ ] Criterion 2
-- [ ] Criterion 3
+- [ ] Критерий 1
+- [ ] Критерий 2
+- [ ] Критерий 3
 
-## Blocked by
+## Заблокировано
 
-- Blocked by #<issue-number> (if any)
+- Заблокировано #<номер-issue> (если есть)
 
-Or "None - can start immediately" if no blockers.
+Или «Нет — можно начинать сразу», если блокеров нет.
 
-## User stories addressed
+## Покрытые user story
 
-Reference by number from the parent PRD:
+Ссылки по номерам из родительского PRD:
 
 - User story 3
 - User story 7
