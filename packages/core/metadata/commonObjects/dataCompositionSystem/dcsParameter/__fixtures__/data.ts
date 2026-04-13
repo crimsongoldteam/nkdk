@@ -12,6 +12,7 @@ export const fullDCSParameters = [
     name: "Параметр1",
     title: { items: { ru: "Параметр1" } },
     useRestriction: true,
+    use: "Always" as const,
     editParameters: {
       itemType: "SettingsParameterValueCollection" as const,
       parameters: {
@@ -58,7 +59,6 @@ export const fullDCSParameters = [
         },
       },
     },
-    use: "Always" as const,
   },
   {
     itemType: "DCSParameter" as const,

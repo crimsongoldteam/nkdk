@@ -137,18 +137,73 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
   const { rule, referenceMetadata, tag } = params
   const { pathOrder, pathToInfo } = buildPathStructure(rule, tag, referenceMetadata)
 
-  const result: string[] = []
-
-  for (const path of pathOrder) {
-    const info = pathToInfo.get(pathKey(path))
-    if (!info) continue
-    const keysAtPath = info.orderByRule.map(({ key }) => key)
-    // Явный `order` в правиле имеет приоритет. Для остальных: при наличии референса — порядок
-    // ключей как после импорта XML; иначе — по имени XML-тега (стабильная сортировка).
-    result.push(...keysAtPath)
+  // Если есть референс (например, метаданные, полученные из импорта XML), порядок ключей
+  // в нём имеет приоритет над `order` из правил — это нужно, чтобы round-trip сохранял
+  // порядок тегов, даже когда часть полей уходит во вложенный контейнер (xmlParents),
+  // или когда разные XML-источники раскладывают свойства в разном порядке.
+  const refKeyOrder = new Map<string, number>()
+  if (referenceMetadata !== undefined && referenceMetadata !== null && typeof referenceMetadata === "object") {
+    let i = 0
+    for (const k of Object.keys(referenceMetadata)) {
+      if (k === "itemType") continue
+      if (!refKeyOrder.has(k)) refKeyOrder.set(k, i++)
+    }
   }
 
-  return result
+  type FlatEntry = { key: string; order: number | undefined; pathIdx: number; withinPathIdx: number }
+  const entries: FlatEntry[] = []
+
+  for (let pathIdx = 0; pathIdx < pathOrder.length; pathIdx++) {
+    const info = pathToInfo.get(pathKey(pathOrder[pathIdx]!))
+    if (!info) continue
+    info.orderByRule.forEach((e, withinPathIdx) => {
+      entries.push({ key: e.key, order: e.order, pathIdx, withinPathIdx })
+    })
+  }
+
+  const byRuleOrder = (a: FlatEntry, b: FlatEntry): number => {
+    if (a.order !== undefined && b.order !== undefined) return a.order - b.order
+    if (a.order !== undefined) return -1
+    if (b.order !== undefined) return 1
+    if (a.pathIdx !== b.pathIdx) return a.pathIdx - b.pathIdx
+    return a.withinPathIdx - b.withinPathIdx
+  }
+
+  if (refKeyOrder.size === 0) {
+    entries.sort(byRuleOrder)
+    return entries.map((e) => e.key)
+  }
+
+  // Референс задаёт относительный порядок для своих ключей; ключи, которых в референсе
+  // нет (авто-эмитятся экспортом — например, `<dcssch:value xsi:nil/>`), вставляются
+  // между ними по правилу: перед первым anchored-ключом с бо́льшим `order`.
+  const anchored: FlatEntry[] = []
+  const free: FlatEntry[] = []
+  for (const e of entries) {
+    if (refKeyOrder.has(e.key)) anchored.push(e)
+    else free.push(e)
+  }
+  anchored.sort((a, b) => refKeyOrder.get(a.key)! - refKeyOrder.get(b.key)!)
+  free.sort(byRuleOrder)
+
+  const result: FlatEntry[] = [...anchored]
+  for (const f of free) {
+    if (f.order === undefined) {
+      result.push(f)
+      continue
+    }
+    let insertIdx = result.length
+    for (let i = 0; i < result.length; i++) {
+      const r = result[i]!
+      if (r.order !== undefined && r.order > f.order) {
+        insertIdx = i
+        break
+      }
+    }
+    result.splice(insertIdx, 0, f)
+  }
+
+  return result.map((e) => e.key)
 }
 
 export const getOrderedKeysFromXML = <Rule extends MetadataItemRule>(params: {
