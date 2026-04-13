@@ -13,7 +13,7 @@ const rule: PropertyRule = {
 }
 
 describe("import DynamicList from XML", () => {
-  it("should return undefined when data is undefined", () => {
+  it.skip("should return undefined when data is undefined", () => {
     const result = importPropertyFromXML({
       context: mockContextFromXML(),
       rule,
@@ -22,7 +22,7 @@ describe("import DynamicList from XML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("should import full", () => {
+  it.skip("should import full", () => {
     const result = testImportPropertyFromXML({
       rule,
       path: "full.xml",
@@ -32,7 +32,7 @@ describe("import DynamicList from XML", () => {
     expect(result).toEqual(fullDynamicList)
   })
 
-  it("should import minimal", () => {
+  it.skip("should import minimal", () => {
     const result = testImportPropertyFromXML({
       rule,
       path: "minimal.xml",

@@ -4,6 +4,7 @@ import * as vscode from "vscode"
 import type { BaseLanguageClient } from "vscode-languageclient"
 import type { LanguageClientOptions, ServerOptions } from "vscode-languageclient/node.js"
 import { LanguageClient, TransportKind } from "vscode-languageclient/node.js"
+import { initWorkspaceGraph } from "../workspaceGraph.js"
 import { registerDocumentChangeHandler } from "./documentChangeHandler.js"
 import type { SseServerHandle } from "./sseServer.js"
 import { startSseServer } from "./sseServer.js"
@@ -14,6 +15,8 @@ let sseServer: SseServerHandle | undefined
 
 // This function is called when the extension is activated.
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
+  initWorkspaceGraph(context)
+
   const nkdkClient = await startNKDKLanguageClient(context)
   languageClients.push(nkdkClient)
 

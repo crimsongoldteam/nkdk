@@ -3,6 +3,7 @@
   "compilerOptions": {
     "noEmit": true,
     "allowImportingTsExtensions": true,
+    "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "baseUrl": ".",
