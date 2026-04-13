@@ -8,7 +8,7 @@ const rule: PropertyRule = {
   type: "DynamicList",
 }
 
-describe.skip("export DynamicList to XML", () => {
+describe("export DynamicList to XML", () => {
   it("should export undefined when data is undefined", () => {
     const result = exportPropertyToXML({
       context: mockContextToXML(),
@@ -29,22 +29,13 @@ describe.skip("export DynamicList to XML", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  // it("should export customQuery to XML", () => {
-  //   const { expectedResult, result } = testExportPropertyToXML({
-  //     rule,
-  //     value: customQueryDynamicList,
-  //     xmlRootTag: "Settings",
-  //     path: "customQuery.xml",
-  //     importMetaUrl: import.meta.url,
-  //   })
-  //   expect(result).toEqual(expectedResult)
-  // })
-
   it("should export minimal to XML", () => {
     const { expectedResult, result } = testExportPropertyToXML({
       rule,
       value: minimalDynamicList,
       xmlRootTag: "Settings",
+      path: "minimal.xml",
+      importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(expectedResult)
   })
