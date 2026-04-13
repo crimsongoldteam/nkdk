@@ -14,7 +14,7 @@ export const fullDynamicList = {
         autoOrder: true,
         expression: "Наименование",
         itemType: "CalculatedFieldOrderExpression",
-        // orderType: "Asc",
+        orderType: "Asc",
       },
       {
         autoOrder: false,
@@ -46,6 +46,7 @@ export const fullDynamicList = {
         ru: "Представление условного оформления",
       },
     },
+    viewMode: "QuickAccess",
     conditionalAppearanceItems: [
       {
         appearance: {
@@ -147,7 +148,6 @@ export const fullDynamicList = {
       {
         itemType: "OrderItemField",
         field: "Наименование",
-        orderType: "Asc",
       },
     ],
     userSettingPresentation: {
@@ -156,6 +156,69 @@ export const fullDynamicList = {
       },
     },
   },
+  parameters: [
+    {
+      editParameters: {
+        itemType: "SettingsParameterValueCollection",
+        parameters: {
+          Маска: {
+            parameter: "Маска",
+            value: { type: "string", value: "123" },
+          },
+          СвязиПараметровВыбора: {
+            parameter: "СвязиПараметровВыбора",
+            value: [
+              {
+                dataPath: "Поле1",
+                name: "ПараметрВыбора",
+                valueChange: "DontChange",
+              },
+            ],
+          },
+          ПараметрыВыбора: {
+            parameter: "ПараметрыВыбора",
+            value: {
+              name: "Параметр",
+              value: { type: "decimal", value: 123 },
+            },
+          },
+          СвязьПоТипу: {
+            parameter: "СвязьПоТипу",
+            value: {
+              dataPath: "Поле1",
+              linkItem: 2,
+            },
+          },
+          ФормаВыбора: {
+            parameter: "ФормаВыбора",
+            value: { type: "string", value: "ФормаВыбора" },
+          },
+          ФорматРедактирования: {
+            parameter: "ФорматРедактирования",
+            value: { type: "string", value: "ЧЦ=15; ЧДЦ=2" },
+          },
+          БыстрыйВыбор: {
+            parameter: "БыстрыйВыбор",
+            value: { type: "boolean", value: true },
+          },
+          ВыборГруппИЭлементов: {
+            parameter: "ВыборГруппИЭлементов",
+            value: "Items",
+          },
+        },
+      },
+      itemType: "DCSParameter",
+      name: "Параметр1",
+      title: {
+        items: {
+          ru: "Параметр1",
+        },
+      },
+      use: "Always",
+      useRestriction: true,
+      value: null,
+    },
+  ],
 } as const as DynamicList
 
 export const fullDynamicListYAML = {
