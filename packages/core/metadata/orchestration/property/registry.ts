@@ -31,16 +31,13 @@ import type {
 import {
   ConditionalAppearanceItem,
   ConditionalAppearanceYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types"
+import { DataParameters, DataParametersYAML } from "~/metadata/commonObjects/dataCompositionSystem/dataParameters/types"
 import {
   MetadataDcsMetadataValue,
   MetadataDcsMetadataValueYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
 import { DCSParameter, DCSParameterYAML } from "~/metadata/commonObjects/dataCompositionSystem/dcsParameter/types"
-import {
-  DataParameters,
-  DataParametersYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/dataParameters/types"
 import {
   DcsMetadataTypedValue,
   DcsMetadataTypedValueYAML,

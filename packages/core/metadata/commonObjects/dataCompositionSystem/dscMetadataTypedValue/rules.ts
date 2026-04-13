@@ -75,7 +75,11 @@ export const DcsMetadataTypedValueRegistry: Record<DcsMetadataTypedValue["type"]
   string: {
     detect: ({ yaml }) => isStringYAML(yaml) && !yaml.startsWith("."),
     fromYAML: ({ context, yaml }) => importPrimitiveFromYAML(context, yaml),
-    fromXML: ({ context, xml }) => importPrimitiveFromXML(context, xml, "string"),
+    fromXML: ({ context, xml }) => {
+      const text = xmlText(xml)
+      if (text === "") return { type: "string", value: "" }
+      return importPrimitiveFromXML(context, xml, "string")
+    },
     toYAML: ({ context, item }) => exportPrimitiveToYAML(context, item),
     toXML: ({ context, item }) => exportPrimitiveToXML(context, item, "string"),
   },

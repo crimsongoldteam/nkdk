@@ -21,12 +21,9 @@ import type {
 import {
   ConditionalAppearanceItem,
   ConditionalAppearanceItemYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types"
+import { DataParameters, DataParametersYAML } from "~/metadata/commonObjects/dataCompositionSystem/dataParameters/types"
 import type { DCSParameter, DCSParameterYAML } from "~/metadata/commonObjects/dataCompositionSystem/dcsParameter/types"
-import {
-  DataParameters,
-  DataParametersYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/dataParameters/types"
 import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
 import {
   FilterItemComparison,
@@ -36,6 +33,10 @@ import {
 } from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
 import { Order, OrderYAML } from "~/metadata/commonObjects/dataCompositionSystem/order/types"
 import {
+  OrderItemField,
+  OrderItemFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/orderItemFields/types"
+import {
   GroupItemAuto,
   GroupItemAutoYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/types"
@@ -43,10 +44,6 @@ import {
   GroupItemField,
   GroupItemFieldYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/types"
-import {
-  OrderItemField,
-  OrderItemFieldYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/orderItemFields/types"
 import {
   StructureItemGroup,
   StructureItemGroupYAML,

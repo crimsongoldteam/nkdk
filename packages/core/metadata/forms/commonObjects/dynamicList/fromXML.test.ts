@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  fullDynamicList,
-  minimalDynamicList,
-} from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
+import { fullDynamicList, minimalDynamicList } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
@@ -22,7 +19,7 @@ describe("import DynamicList from XML", () => {
     expect(result).toBeUndefined()
   })
 
-  it.skip("should import full", () => {
+  it("should import full", () => {
     const result = testImportPropertyFromXML({
       rule,
       path: "full.xml",
