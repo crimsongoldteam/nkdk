@@ -8,6 +8,7 @@ import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
+import type { ReferenceScope } from "~/metadata/relations/referenceScope"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemType } from "../metadataItem/registry"
 import { PropertyRuleType } from "./registry"
@@ -78,6 +79,9 @@ export interface BasePropertyRule {
 
   /** Свойство используется только для построения референса */
   forReferenceOnly?: true
+
+  /** Описание допустимых целей ссылки (используется для валидации и автодополнения). */
+  referenceScope?: ReferenceScope
 }
 
 export interface ChildItemsPropertyRule extends BasePropertyRule {

@@ -49,32 +49,37 @@ export const MetadataCatalogRules = {
       yaml: "ДополнительнаяФормаДляВыбора",
       type: "string",
       xmlParents: catalogProperties,
-      // dependencies: ["this", "Form"],
+      referenceScope: { target: "this", kind: "Form" },
     },
     auxiliaryFolderChoiceForm: {
       yaml: "ДополнительнаяФормаДляВыбораГруппы",
       type: "string",
       xmlParents: catalogProperties,
+      referenceScope: { target: "this", kind: "Form" },
     },
     auxiliaryFolderForm: {
       yaml: "ДополнительнаяФормаГруппы",
       type: "string",
       xmlParents: catalogProperties,
+      referenceScope: { target: "this", kind: "Form" },
     },
     auxiliaryListForm: {
       yaml: "ДополнительнаяФормаСписка",
       type: "string",
       xmlParents: catalogProperties,
+      referenceScope: { target: "this", kind: "Form" },
     },
     auxiliaryObjectForm: {
       yaml: "ДополнительнаяФормаОбъекта",
       type: "string",
       xmlParents: catalogProperties,
+      referenceScope: { target: "this", kind: "Form" },
     },
     basedOn: {
       yaml: "ВводитсяНаОсновании",
       type: "MetadataValueCollection",
       xmlParents: catalogProperties,
+      referenceScope: { target: "topLevel", allowedTypes: ["Справочник", "Документ"] },
     },
     characteristics: {
       yaml: "Характеристики",
@@ -170,26 +175,31 @@ export const MetadataCatalogRules = {
       yaml: "ОсновнаяФормаДляВыбора",
       type: "string",
       xmlParents: catalogProperties,
+      referenceScope: { target: "this", kind: "Form" },
     },
     defaultFolderChoiceForm: {
       yaml: "ОсновнаяФормаДляВыбораГруппы",
       type: "string",
       xmlParents: catalogProperties,
+      referenceScope: { target: "this", kind: "Form" },
     },
     defaultFolderForm: {
       yaml: "ОсновнаяФормаГруппы",
       type: "string",
       xmlParents: catalogProperties,
+      referenceScope: { target: "this", kind: "Form" },
     },
     defaultListForm: {
       yaml: "ОсновнаяФормаСписка",
       type: "string",
       xmlParents: catalogProperties,
+      referenceScope: { target: "this", kind: "Form" },
     },
     defaultObjectForm: {
       yaml: "ОсновнаяФормаОбъекта",
       type: "string",
       xmlParents: catalogProperties,
+      referenceScope: { target: "this", kind: "Form" },
     },
     defaultPresentation: {
       yaml: "ОсновноеПредставление",
@@ -275,6 +285,7 @@ export const MetadataCatalogRules = {
       yaml: "ВводПоСтроке",
       type: "MetadataFields",
       xmlParents: catalogProperties,
+      referenceScope: { target: "this", kind: "Attribute", filter: "stringIndexedAttribute" },
     },
     levelCount: {
       yaml: "КоличествоУровней",
@@ -313,6 +324,7 @@ export const MetadataCatalogRules = {
       yaml: "Владельцы",
       type: "MetadataValueCollection",
       xmlParents: catalogProperties,
+      referenceScope: { target: "topLevel", allowedTypes: ["Справочник", "Документ"] },
     },
     predefined: {
       yaml: "Предопределенные",
