@@ -3,14 +3,17 @@ import { ConditionalAppearance, ConditionalAppearanceYAML } from "../types"
 export const fullConditionalAppearance = {
   itemType: "ConditionalAppearance",
   viewMode: "QuickAccess",
-  userSettingID: "48553968-cd08-47dc-896c-8bb766f9e28f",
+  conditionalAppearanceItems: [{ itemType: "ConditionalAppearanceItem" }, { itemType: "ConditionalAppearanceItem" }],
+  userSettingID: true,
   userSettingPresentation: {
     items: { ru: "Представление пользовательского оформления" },
   },
 } as const satisfies ConditionalAppearance
 
 export const fullConditionalAppearanceYAML = {
-  ИдентификаторПользовательскойНастройки: "48553968-cd08-47dc-896c-8bb766f9e28f",
+  Элементы: [{}, {}],
+  РежимОтображения: "БыстрыйДоступ",
+  ИспользоватьПользовательскуюНастройку: "Истина",
   ПредставлениеПользовательскойНастройки: {
     items: { ru: "Представление пользовательского оформления" },
   },
@@ -28,10 +31,10 @@ export const minimalConditionalAppearanceYAML = {
 export const minimalUserSettingsConditionalAppearance = {
   itemType: "ConditionalAppearance",
   viewMode: "Normal",
-  userSettingID: "b75fecce-942b-4aed-abc9-e6a02e460fb3",
+  userSettingID: true,
 } as const satisfies ConditionalAppearance
 
 export const minimalUserSettingsConditionalAppearanceYAML = {
   РежимОтображения: "Обычный",
-  ИдентификаторПользовательскойНастройки: "b75fecce-942b-4aed-abc9-e6a02e460fb3",
+  ИспользоватьПользовательскуюНастройку: "Истина",
 } as const satisfies ConditionalAppearanceYAML

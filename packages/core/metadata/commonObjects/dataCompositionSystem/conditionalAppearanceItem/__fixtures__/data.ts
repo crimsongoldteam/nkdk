@@ -42,7 +42,6 @@ export const fullConditionalAppearanceItems: ConditionalAppearanceItem[] = [
 export const minimalConditionalAppearanceItems: ConditionalAppearanceItem[] = [
   {
     itemType: "ConditionalAppearanceItem",
-    fields: ["ОдноПоле"],
   },
 ]
 
@@ -74,8 +73,4 @@ export const fullConditionalAppearanceItemsYAML = [
   },
 ] as const satisfies ConditionalAppearanceItemsYAML
 
-export const minimalConditionalAppearanceItemsYAML = [
-  {
-    Поля: ["ОдноПоле"],
-  },
-] as const satisfies ConditionalAppearanceItemsYAML
+export const minimalConditionalAppearanceItemsYAML = [{}] as const satisfies ConditionalAppearanceItemsYAML

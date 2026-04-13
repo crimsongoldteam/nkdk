@@ -31,11 +31,6 @@ export const importMetadataItemCollectionFromXML = <
           rule: itemRule,
         })
         if (!properties) return undefined
-        // If imported item has no explicit properties (only technical itemType),
-        // do not include it into collection result.
-        const propertyKeys = Object.keys(properties)
-        const hasNoMeaningfulProperties = propertyKeys.every((key) => key === "itemType" || key === "name")
-        if (hasNoMeaningfulProperties) return undefined
         return {
           ...properties,
           ...(item._name !== undefined ? { name: item._name } : {}),

@@ -27,14 +27,15 @@ export const exportMetadataCollectionToXML = <Rule extends MetadataItemRule, XML
   const result = inputData.map((item) => {
     const referenceItem = keyField ? findReferenceByKey<Item>(item, referenceData, keyField as keyof Item) : undefined
 
-    const result = exportMetadataItemToXML({
+    const exported = exportMetadataItemToXML({
       context,
       data: item,
       rule: itemRule,
       referenceData: referenceItem,
     })
 
-    return result
+    // Элемент коллекции без собственных свойств всё равно должен сохранить тег-обёртку.
+    return exported ?? ({} as NamedElementXML)
   })
 
   if (xmlElement === undefined) return result as NamedElementXML[]

@@ -17,9 +17,10 @@ export const ConditionalAppearanceRules = {
       defaultValue: "QuickAccess",
     },
     userSettingID: {
-      type: "string",
+      type: "UserSettingsID",
       xml: "dcsset:userSettingID",
-      yaml: "ИдентификаторПользовательскойНастройки",
+      yaml: "ИспользоватьПользовательскуюНастройку",
+      defaultValueYAML: false,
     },
     userSettingPresentation: {
       type: "UserSettingPresentation",

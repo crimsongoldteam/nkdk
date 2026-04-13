@@ -84,16 +84,20 @@ export const registerMetadataItemCollectionRule = <
   const toYAML = params.toYAML ?? toYAMLDefault
   registerTypeRule(propertyType, "exportToYAML", toYAML)
 
-  const toXMLDefault: ExportToXMLFunctionNew = (p) =>
-    exportMetadataCollectionToXML({
+  const toXMLDefault: ExportToXMLFunctionNew = (p) => {
+    // Когда родительское правило использует ровно тот же XML-элемент, что и обёртка коллекции,
+    // возвращаем массив напрямую — иначе получилось бы двойное вложение `<tag><tag>...</tag></tag>`.
+    const effectiveXmlElement = xmlElement !== undefined && (p.rule as any)?.xml === xmlElement ? undefined : xmlElement
+    return exportMetadataCollectionToXML({
       context: p.context,
       rule: p.rule,
       data: p.value,
       referenceData: p.referenceMetadata,
       itemRule,
-      xmlElement,
+      xmlElement: effectiveXmlElement,
       keyField: params.keyField,
     })
+  }
 
   const toXML = params.toXML ?? toXMLDefault
   registerTypeRule(propertyType, "exportToXML", toXML)

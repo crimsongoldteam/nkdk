@@ -1,9 +1,7 @@
 <ConditionalAppearance>
 	<dcsset:item>
-		<dcsset:selection>
-			<dcsset:item>
-				<dcsset:field>ОдноПоле</dcsset:field>
-			</dcsset:item>
-		</dcsset:selection>
+		<dcsset:selection/>
+		<dcsset:filter/>
+		<dcsset:appearance/>
 	</dcsset:item>
 </ConditionalAppearance>
