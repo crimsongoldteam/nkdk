@@ -37,6 +37,14 @@ export const exportDcsMetadataValueToDcsXML = (params: {
     case "Parameter":
       return exportChoiceParameterToDcsXML(context, undefined, data as ChoiceParameter)
     case "Field":
+      if (typeof data === "object" && data !== null && "type" in (data as object) && "value" in (data as object)) {
+        const inner = exportMetadataValueToXML({
+          context,
+          rule: { type: "MetadataValue", exportNilValue: true } as any,
+          value: data as MetadataValue,
+        }) as Record<string, unknown>
+        return { "dcscor:value": inner }
+      }
       return {
         "dcscor:value": {
           "_xsi:type": "dcscor:Field",
