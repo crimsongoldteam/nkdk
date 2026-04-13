@@ -68,8 +68,8 @@ const importDcsMetadataValueFromYAMLForRule = (
 ): MetadataDcsMetadataValue | undefined =>
   importDcsMetadataValueFromYAML(
     context,
-    rule as unknown as DcsMetadataValuePropertyRule,
+    rule as DcsMetadataValuePropertyRule,
     value as MetadataDcsMetadataValueYAML
-  )
+  ) as MetadataDcsMetadataValue | undefined
 
 registerTypeRule("MetadataDcsMetadataValue", "importFromYAML", importDcsMetadataValueFromYAMLForRule)

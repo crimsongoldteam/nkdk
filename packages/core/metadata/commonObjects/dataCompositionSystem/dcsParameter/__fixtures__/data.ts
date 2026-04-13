@@ -11,7 +11,6 @@ export const fullDCSParameters = [
     itemType: "DCSParameter" as const,
     name: "Параметр1",
     title: { items: { ru: "Параметр1" } },
-    value: null,
     useRestriction: true,
     use: "Always" as const,
     editParameters: {
@@ -66,14 +65,12 @@ export const fullDCSParameters = [
     name: "Параметр2",
     title: { items: { ru: "Параметр2" } },
     valueType: param2ValueType,
-    value: null,
     valueListAllowed: true,
   },
   {
     itemType: "DCSParameter" as const,
     name: "Параметр3",
     title: { items: { ru: "Параметр3" } },
-    value: null,
     valueListAllowed: true,
   },
 ] as const satisfies DCSParameters
@@ -83,14 +80,12 @@ export const minimalDCSParameters = [
     itemType: "DCSParameter" as const,
     name: "Параметр4",
     title: { items: { ru: "Параметр4" } },
-    value: null,
   },
 ] as const satisfies DCSParameters
 
 export const fullDCSParametersYAML = {
   Параметр1: {
     Заголовок: "Параметр1",
-    Значение: null,
     ОграничениеИспользования: "Истина",
     Использование: "Всегда",
     ПараметрыРедактирования: {
@@ -109,12 +104,10 @@ export const fullDCSParametersYAML = {
   Параметр2: {
     Заголовок: "Параметр2",
     ТипЗначения: ["Булево", "Строка", "ДатаВремя", "Число"],
-    Значение: null,
     ДоступенСписокЗначений: "Истина",
   },
   Параметр3: {
     Заголовок: "Параметр3",
-    Значение: null,
     ДоступенСписокЗначений: "Истина",
   },
 } as const satisfies DCSParametersYAML
@@ -122,6 +115,5 @@ export const fullDCSParametersYAML = {
 export const minimalDCSParametersYAML = {
   Параметр4: {
     Заголовок: "Параметр4",
-    Значение: null,
   },
 } as const satisfies DCSParametersYAML
