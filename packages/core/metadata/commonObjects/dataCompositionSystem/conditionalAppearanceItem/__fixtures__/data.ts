@@ -1,7 +1,7 @@
 import { fixtureAppearanceFields, fixtureAppearanceFieldsYAML } from "../../appearanceFields/__fixtures__/data"
 import { Filter } from "../../filter/types"
 import { FilterItemComparison, FilterItemGroup } from "../../filterItem/types"
-import { ConditionalAppearanceItem, ConditionalAppearanceYAML } from "../types"
+import { ConditionalAppearanceItem, ConditionalAppearanceItemsYAML } from "../types"
 
 const filterItemComparison1 = {
   itemType: "FilterItemComparison",
@@ -72,10 +72,10 @@ export const fullConditionalAppearanceItemsYAML = [
     },
     Оформление: fixtureAppearanceFieldsYAML,
   },
-] as const satisfies ConditionalAppearanceYAML
+] as const satisfies ConditionalAppearanceItemsYAML
 
 export const minimalConditionalAppearanceItemsYAML = [
   {
     Поля: ["ОдноПоле"],
   },
-] as const satisfies ConditionalAppearanceYAML
+] as const satisfies ConditionalAppearanceItemsYAML

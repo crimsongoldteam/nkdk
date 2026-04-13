@@ -10,11 +10,11 @@ import {
 import "./types"
 
 const rule: PropertyRule = {
-  type: "ConditionalAppearance",
+  type: "ConditionalAppearanceItems",
   yaml: "УсловноеОформлениеКомпоновкиДанных",
 }
 
-describe("export ConditionalAppearance to YAML", () => {
+describe("export ConditionalAppearanceItems to YAML", () => {
   it("exports full collection", () => {
     const result = testExportPropertyToYAML({
       rule,

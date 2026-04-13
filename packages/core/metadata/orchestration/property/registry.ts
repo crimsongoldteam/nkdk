@@ -29,8 +29,12 @@ import type {
   CalculatedFieldUseRestrictionYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types"
 import {
-  ConditionalAppearanceItem,
+  ConditionalAppearance,
   ConditionalAppearanceYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import {
+  ConditionalAppearanceItem,
+  ConditionalAppearanceItemsYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types"
 import { DataParameters, DataParametersYAML } from "~/metadata/commonObjects/dataCompositionSystem/dataParameters/types"
 import {
@@ -622,8 +626,12 @@ export type PropertyTypeRegistry = {
     yaml: StructureItemGroupYAML
   }
   ConditionalAppearance: {
-    item: ConditionalAppearanceItem[]
+    item: ConditionalAppearance
     yaml: ConditionalAppearanceYAML
+  }
+  ConditionalAppearanceItems: {
+    item: ConditionalAppearanceItem[]
+    yaml: ConditionalAppearanceItemsYAML
   }
   DCSParameter: {
     item: DCSParameter
@@ -737,6 +745,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   GroupItemField: "GroupItemField",
   StructureItemGroup: "StructureItemGroup",
   ConditionalAppearance: "ConditionalAppearance",
+  ConditionalAppearanceItems: "ConditionalAppearanceItems",
   DCSParameter: "DCSParameter",
   DataParameters: "DataParameters",
   ElementId: "ElementId",

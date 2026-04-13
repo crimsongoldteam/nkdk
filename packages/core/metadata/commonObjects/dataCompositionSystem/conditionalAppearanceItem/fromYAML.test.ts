@@ -10,10 +10,10 @@ import {
 import "./types"
 
 const rule: PropertyRule = {
-  type: "ConditionalAppearance",
+  type: "ConditionalAppearanceItems",
 }
 
-describe("import ConditionalAppearance from YAML", () => {
+describe("import ConditionalAppearanceItems from YAML", () => {
   it("imports full collection", () => {
     const result = testImportPropertyFromYAML({
       rule,

@@ -7,13 +7,13 @@ export type ConditionalAppearanceItem = MetadataTypeByRule<typeof ConditionalApp
 
 export type ConditionalAppearanceItemYAML = YAMLTypeByRule<typeof ConditionalAppearanceItemRules>
 
-/** Коллекция условного оформления в YAML: объект по имени элемента. */
-export type ConditionalAppearanceYAML = ConditionalAppearanceItemYAML[]
+/** Коллекция элементов условного оформления в YAML. */
+export type ConditionalAppearanceItemsYAML = ConditionalAppearanceItemYAML[]
 
-export type ConditionalAppearance = ConditionalAppearanceItem[]
+export type ConditionalAppearanceItems = ConditionalAppearanceItem[]
 
 registerMetadataItemCollectionRule({
-  propertyType: "ConditionalAppearance",
+  propertyType: "ConditionalAppearanceItems",
   itemRule: ConditionalAppearanceItemRules,
   xmlElement: "dcsset:item",
   yamlAsArray: true,

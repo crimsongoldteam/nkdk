@@ -38,39 +38,42 @@ export const fullDynamicList = {
       type: ["string"],
     },
   },
-  conditionalAppearance: [
-    {
-      appearance: {
-        itemType: "AppearanceFields",
-        Текст: {
-          parameter: "Текст",
-          value: {
-            type: "string",
-            value: "Текстовый параметр",
+  conditionalAppearance: {
+    itemType: "ConditionalAppearance",
+    conditionalAppearanceItems: [
+      {
+        appearance: {
+          itemType: "AppearanceFields",
+          Текст: {
+            parameter: "Текст",
+            value: {
+              type: "string",
+              value: "Текстовый параметр",
+            },
           },
         },
-      },
-      fields: ["Наименование", "ПометкаУдаления"],
-      filter: {
-        itemType: "Filter",
-        items: [
-          {
-            comparisonType: "Contains",
-            itemType: "FilterItemComparison",
-            leftValue: {
-              type: "Field",
-              value: "Наименование",
+        fields: ["Наименование", "ПометкаУдаления"],
+        filter: {
+          itemType: "Filter",
+          items: [
+            {
+              comparisonType: "Contains",
+              itemType: "FilterItemComparison",
+              leftValue: {
+                type: "Field",
+                value: "Наименование",
+              },
+              rightValue: {
+                type: "string",
+                value: "Текст",
+              },
             },
-            rightValue: {
-              type: "string",
-              value: "Текст",
-            },
-          },
-        ],
+          ],
+        },
+        itemType: "ConditionalAppearanceItem",
       },
-      itemType: "ConditionalAppearanceItem",
-    },
-  ],
+    ],
+  },
   customQuery: false,
   dataParameters: {
     itemType: "DataParameters",
@@ -183,23 +186,25 @@ export const fullDynamicListYAML = {
     ПредставлениеПользовательскойНастройки: "Представление отбора",
   },
   ПолучениеПредставленийДляНевидимыхПолей: "Ложь",
-  УсловноеОформление: [
-    {
-      Поля: ["Наименование", "ПометкаУдаления"],
-      Отбор: {
-        Элементы: [
-          {
-            ЛевоеЗначение: ".Наименование",
-            ВидСравнения: "Содержит",
-            ПравоеЗначение: "'Текст'",
-          },
-        ],
+  УсловноеОформление: {
+    Элементы: [
+      {
+        Поля: ["Наименование", "ПометкаУдаления"],
+        Отбор: {
+          Элементы: [
+            {
+              ЛевоеЗначение: ".Наименование",
+              ВидСравнения: "Содержит",
+              ПравоеЗначение: "'Текст'",
+            },
+          ],
+        },
+        Оформление: {
+          Текст: "6678",
+        },
       },
-      Оформление: {
-        Текст: "6678",
-      },
-    },
-  ],
+    ],
+  },
   Группировка: ["Наименование"],
 } as const satisfies DynamicListYAML
 

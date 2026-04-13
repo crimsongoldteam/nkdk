@@ -5,10 +5,10 @@ import { fullConditionalAppearanceItems, minimalConditionalAppearanceItems } fro
 import "./types"
 
 const rule: PropertyRule = {
-  type: "ConditionalAppearance",
+  type: "ConditionalAppearanceItems",
 }
 
-describe("import ConditionalAppearance from XML", () => {
+describe("import ConditionalAppearanceItems from XML", () => {
   it("imports full.xml", () => {
     const result = testImportPropertyFromXML({
       rule,
