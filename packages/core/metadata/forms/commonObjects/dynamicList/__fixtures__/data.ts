@@ -79,13 +79,13 @@ export const fullDynamicList = {
   },
   customQuery: false,
   dataParameters: {
-    itemType: "DataParameters",
-    parameters: [
-      {
+    itemType: "SettingsParameterValueCollection",
+    parameters: {
+      Параметр1: {
         parameter: "Параметр1",
         value: "ПараметрыДанных.Параметр1",
       },
-    ],
+    },
   },
   dynamicDataRead: false,
   filter: {

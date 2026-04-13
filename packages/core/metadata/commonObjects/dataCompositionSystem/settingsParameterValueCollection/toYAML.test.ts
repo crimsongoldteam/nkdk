@@ -1,14 +1,21 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import { dataParametersFixture, dataParametersFixtureYAML } from "./__fixtures__/data"
+import {
+  settingsParameterValueCollectionFixture,
+  settingsParameterValueCollectionFixtureYAML,
+} from "./__fixtures__/data"
 
 const rule: PropertyRule = {
-  type: "DataParameters",
+  type: "SettingsParameterValueCollection",
   yaml: "ПараметрыДанных",
+  defaultItemRule: {
+    type: "SettingsParameterValue",
+    valueType: "Field",
+  },
 }
 
-describe("export DataParameters to YAML", () => {
+describe("export SettingsParameterValueCollection to YAML", () => {
   it("exports undefined", () => {
     const result = testExportPropertyToYAML({ rule, value: undefined })
     expect(result).toBeUndefined()
@@ -17,9 +24,9 @@ describe("export DataParameters to YAML", () => {
   it("exports fixture", () => {
     const result = testExportPropertyToYAML({
       rule,
-      value: dataParametersFixture,
+      value: settingsParameterValueCollectionFixture,
     })
 
-    expect(result).toEqual({ ПараметрыДанных: dataParametersFixtureYAML })
+    expect(result).toEqual({ ПараметрыДанных: settingsParameterValueCollectionFixtureYAML })
   })
 })

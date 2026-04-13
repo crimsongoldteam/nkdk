@@ -37,10 +37,14 @@ export const DynamicListRules = {
       defaultValueYAML: false,
     },
     dataParameters: {
-      type: "DataParameters",
-      xml: "dcsset:dataParameters",
+      type: "SettingsParameterValueCollection",
+      xml: "dcscor:item",
+      xmlParents: ["ListSettings", "dcsset:dataParameters"],
       yaml: "ПараметрыДанных",
-      xmlParents: ["ListSettings"],
+      defaultItemRule: {
+        type: "SettingsParameterValue",
+        valueType: "Field",
+      },
     },
     dynamicDataRead: {
       type: "boolean",

@@ -11,11 +11,15 @@ export const asDcscorItemArray = <T>(x: T | T[] | undefined): T[] => {
 }
 
 const normalizeDcscorItemsInput = (
-  xml: SettingsParameterValueCollectionXML | ParameterValueXML[] | undefined
+  xml: SettingsParameterValueCollectionXML | ParameterValueXML[] | ParameterValueXML | undefined
 ): ParameterValueXML[] => {
   if (xml === undefined) return []
   if (Array.isArray(xml)) return xml
-  return asDcscorItemArray((xml as SettingsParameterValueCollectionXML)["dcscor:item"])
+  if ("dcscor:item" in (xml as object)) {
+    return asDcscorItemArray((xml as SettingsParameterValueCollectionXML)["dcscor:item"])
+  }
+  // Единичный `dcscor:item`, уже раскрытый родителем через `xmlParents`.
+  return [xml as ParameterValueXML]
 }
 
 export const importSettingsParameterValueDcscorItemsFromXML = (params: {
