@@ -39,6 +39,12 @@ export const dcsMetadataTypedValueFixtures: DcsMetadataTypedValueFixture[] = [
     XML: '<value xsi:type="xs:string">Какой-то текст</value>',
   },
   {
+    name: "empty string",
+    model: { type: "string", value: "" },
+    YAML: "''",
+    XML: '<value xsi:type="xs:string"/>',
+  },
+  {
     name: "standardBeginningDate",
     model: { type: "StandardBeginningDate", value: { variant: "Custom", date: "0001-01-01T00:00:00" } },
     YAML: { Вариант: "ПроизвольнаяДата", Дата: "01.01.0001 00:00:00" },
