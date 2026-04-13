@@ -61,7 +61,7 @@ describe("importUserSettingPresentationFromXML", () => {
       expect(result).toEqual(fixtureUSPStringRef)
     })
 
-    it("localString.xml → false (был LocalStringType)", () => {
+    it("localString.xml → I8nText (был LocalStringType)", () => {
       const result = testImportPropertyFromXML({
         rule,
         path: "localString.xml",
@@ -73,7 +73,7 @@ describe("importUserSettingPresentationFromXML", () => {
       expect(result).toEqual(fixtureUSPLocalStringRef)
     })
 
-    it("localStringTwoLangs.xml → false (был LocalStringType)", () => {
+    it("localStringTwoLangs.xml → I8nText (был LocalStringType)", () => {
       const result = testImportPropertyFromXML({
         rule,
         path: "localStringTwoLangs.xml",
@@ -82,7 +82,7 @@ describe("importUserSettingPresentationFromXML", () => {
         forReference: true,
       })
 
-      expect(result).toEqual(fixtureUSPLocalStringRef)
+      expect(result).toEqual(fixtureUSPLocalStringTwoLangs)
     })
   })
 })

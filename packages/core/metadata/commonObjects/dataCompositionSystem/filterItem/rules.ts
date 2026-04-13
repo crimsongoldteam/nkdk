@@ -31,10 +31,9 @@ export const FilterItemComparisonRules = {
       order: 4,
     },
     presentation: {
-      type: "I8nText",
+      type: "UserSettingPresentation",
       xml: "dcsset:presentation",
       yaml: "Представление",
-      typedXML: true,
       order: 5,
     },
     application: {

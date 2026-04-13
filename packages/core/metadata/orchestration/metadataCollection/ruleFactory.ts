@@ -52,6 +52,18 @@ export const registerMetadataItemCollectionRule = <
         [effectiveElement]: xml,
       })
     }
+    // Если parent уже вытащил содержимое по rule.xml и вернул одиночный элемент (а не контейнер),
+    // оборачиваем его, чтобы коллекционная процедура могла прочитать `xml[effectiveElement]`.
+    if (
+      xml !== undefined &&
+      xml !== null &&
+      typeof xml === "object" &&
+      !(effectiveElement in (xml as object))
+    ) {
+      return importMetadataItemCollectionFromXML(itemRule, effectiveElement)(context, rule, {
+        [effectiveElement]: [xml],
+      })
+    }
     return importMetadataItemCollectionFromXML(itemRule, effectiveElement)(context, rule, xml)
   }
   const fromXML = params.fromXML ?? fromXMLDefault

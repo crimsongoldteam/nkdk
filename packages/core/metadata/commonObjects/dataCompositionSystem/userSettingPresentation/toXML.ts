@@ -10,7 +10,21 @@ export const exportUserSettingPresentationToXML = (
   referenceMetadata?: boolean
 ) => {
   if (!data) return undefined
-  const items = Object.entries(data.items)
+  // data может прийти булевой из reference-импорта (forReference=true), когда исходный объект
+  // не содержит этого поля. В этом случае рассматриваем его как признак "использовать reference".
+  if (typeof data === "boolean") {
+    if (data !== true) return undefined
+    if (referenceMetadata !== undefined && typeof referenceMetadata === "object") {
+      data = referenceMetadata as I8nText
+    } else {
+      return undefined
+    }
+  }
+  if (typeof data === "string") {
+    return { "_xsi:type": "xs:string", "#text": data }
+  }
+  if (!("items" in (data as object))) return undefined
+  const items = Object.entries((data as I8nText).items)
   if (items.length === 0) return undefined
 
   if (items.length > 1) {
@@ -19,7 +33,8 @@ export const exportUserSettingPresentationToXML = (
     return { "_xsi:type": "v8:LocalStringType", ...base }
   }
 
-  if (referenceMetadata === true) {
+  const referenceIsString = typeof referenceMetadata === "string" || referenceMetadata === true
+  if (referenceIsString) {
     return { "_xsi:type": "xs:string", "#text": items[0][1] }
   }
 

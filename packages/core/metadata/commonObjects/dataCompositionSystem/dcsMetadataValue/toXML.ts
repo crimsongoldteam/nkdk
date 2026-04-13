@@ -37,6 +37,26 @@ export const exportDcsMetadataValueToDcsXML = (params: {
         },
       }
     case "DesignTimeValue": {
+      // DesignTimeValue может быть I8nText (v8:LocalStringType) либо типизированным примитивом
+      // (например xs:string/xs:decimal/xs:boolean). Различаем по форме объекта.
+      if (data !== null && typeof data === "object" && "type" in (data as object) && "value" in (data as object)) {
+        const inner = exportMetadataValueToXML({
+          context,
+          rule: { type: "MetadataValue", exportNilValue: true } as any,
+          value: data as MetadataValue,
+        }) as Record<string, unknown>
+        return {
+          "dcscor:value": inner,
+        }
+      }
+      if (typeof data === "string") {
+        return {
+          "dcscor:value": {
+            "_xsi:type": "xs:string",
+            "#text": data,
+          },
+        }
+      }
       const i8nXml = exportI8nTextToXML(context, { type: "I8nText" }, data as I8nText)
       return {
         "dcscor:value": {

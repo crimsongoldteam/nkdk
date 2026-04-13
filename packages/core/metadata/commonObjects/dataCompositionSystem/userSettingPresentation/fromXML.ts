@@ -13,9 +13,14 @@ export const importUserSettingPresentationFromXML = (
   if (xml === undefined) return undefined
 
   if (context.fromXML.forReference) {
-    if (typeof xml === "string") return true
-    if (typeof xml === "object" && xml["_xsi:type"] === "xs:string") return true
-    return false
+    // В reference-режиме сохраняем строковое значение (если есть),
+    // чтобы экспорт мог его подхватить как fallback, когда в data поле отсутствует.
+    if (typeof xml === "string") return xml as unknown as I8nText
+    if (typeof xml === "object" && xml["_xsi:type"] === "xs:string") {
+      const text = (xml as { "#text"?: unknown })["#text"]
+      return (text !== undefined ? String(text) : "") as unknown as I8nText
+    }
+    return importI8nTextFromXML(context, { type: "I8nText" } as any, xml as I8nTextXML)
   }
 
   if (typeof xml === "string") {

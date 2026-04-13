@@ -40,16 +40,19 @@ export const fullDynamicList = {
   },
   conditionalAppearance: {
     itemType: "ConditionalAppearance",
+    userSettingID: true,
+    userSettingPresentation: {
+      items: {
+        ru: "Представление условного оформления",
+      },
+    },
     conditionalAppearanceItems: [
       {
         appearance: {
           itemType: "AppearanceFields",
           Текст: {
             parameter: "Текст",
-            value: {
-              type: "string",
-              value: "Текстовый параметр",
-            },
+            value: { type: "string", value: "Текстовый параметр" },
           },
         },
         fields: ["Наименование", "ПометкаУдаления"],
@@ -77,6 +80,12 @@ export const fullDynamicList = {
   customQuery: false,
   dataParameters: {
     itemType: "DataParameters",
+    parameters: [
+      {
+        parameter: "Параметр1",
+        value: "ПараметрыДанных.Параметр1",
+      },
+    ],
   },
   dynamicDataRead: false,
   filter: {
@@ -134,6 +143,13 @@ export const fullDynamicList = {
   mainTable: "Catalog.Справочник1",
   order: {
     itemType: "Order",
+    items: [
+      {
+        itemType: "OrderItemField",
+        field: "Наименование",
+        orderType: "Asc",
+      },
+    ],
     userSettingPresentation: {
       items: {
         ru: "Представление порядка",
@@ -217,6 +233,18 @@ export const minimalDynamicList = {
     viewMode: "Normal",
     userSettingID: true,
   },
+  order: {
+    itemType: "Order",
+    viewMode: "Normal",
+    userSettingID: true,
+  },
+  conditionalAppearance: {
+    itemType: "ConditionalAppearance",
+    viewMode: "Normal",
+    userSettingID: true,
+  },
+  itemsViewMode: "Normal",
+  itemsUserSettingID: true,
 } as const satisfies DynamicList
 
 export const customQueryDynamicList = {
