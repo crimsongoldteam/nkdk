@@ -62,16 +62,8 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
 }
 
 const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: any): any => {
-  const isEmpty = value === undefined || (Array.isArray(value) && value.length === 0)
-  if (isEmpty) {
-    // `defaultValueXML: []` означает «пустой тег в XML ≡ undefined в модели» —
-    // симметрично на экспорт эмитим пустой элемент `<tag/>`.
-    if (Array.isArray(rule.defaultValueXML) && rule.defaultValueXML.length === 0) {
-      value = {}
-    } else {
-      return
-    }
-  }
+  if (value === undefined) return
+  if (Array.isArray(value) && value.length === 0) return
 
   const xmlKey = rule.xml ?? capitalize(key)
 
