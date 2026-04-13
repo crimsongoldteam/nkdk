@@ -219,7 +219,7 @@ export const fullDynamicList = {
       value: null,
     },
   ],
-} as const as DynamicList
+} as const  DynamicList
 
 export const fullDynamicListYAML = {
   АвтоЗаполнениеДоступныхПолей: "Ложь",
