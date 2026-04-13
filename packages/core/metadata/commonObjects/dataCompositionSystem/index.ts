@@ -22,6 +22,7 @@ import "./structureItemGroup/types"
 import "./calculatedField/types"
 import "./calculatedFieldOrderExpression/types"
 import "./calculatedFieldUseRestriction/types"
+import "./dataCompositionSchemaDataSetField/types"
 
 import "./dcsParameter"
 

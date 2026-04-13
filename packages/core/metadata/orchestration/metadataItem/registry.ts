@@ -18,6 +18,10 @@ import type {
   CalculatedFieldUseRestriction,
   CalculatedFieldUseRestrictionYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types"
+import type {
+  DataCompositionSchemaDataSetField,
+  DataCompositionSchemaDataSetFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/types"
 import {
   ConditionalAppearance,
   ConditionalAppearanceYAML,
@@ -553,6 +557,10 @@ export type MetadataItemTypeRegistry = {
   CalculatedFieldOrderExpression: {
     metadata: CalculatedFieldOrderExpressionItem
     yaml: CalculatedFieldOrderExpressionItemYAML
+  }
+  DataCompositionSchemaDataSetField: {
+    metadata: DataCompositionSchemaDataSetField
+    yaml: DataCompositionSchemaDataSetFieldYAML
   }
   ConditionalAppearance: {
     metadata: ConditionalAppearance

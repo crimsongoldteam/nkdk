@@ -28,6 +28,12 @@ import type {
   CalculatedFieldUseRestriction,
   CalculatedFieldUseRestrictionYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types"
+import type {
+  DataCompositionSchemaDataSetField,
+  DataCompositionSchemaDataSetFieldYAML,
+  DataSetFieldFields,
+  DataSetFieldFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/types"
 import {
   ConditionalAppearance,
   ConditionalAppearanceYAML,
@@ -587,6 +593,14 @@ export type PropertyTypeRegistry = {
     item: CalculatedFieldOrderExpression
     yaml: CalculatedFieldOrderExpressionYAML
   }
+  DataCompositionSchemaDataSetField: {
+    item: DataCompositionSchemaDataSetField
+    yaml: DataCompositionSchemaDataSetFieldYAML
+  }
+  DataSetFieldFields: {
+    item: DataSetFieldFields
+    yaml: DataSetFieldFieldsYAML
+  }
   Filter: {
     item: Filter
     yaml: FilterYAML
@@ -731,6 +745,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   CalculatedField: "CalculatedField",
   CalculatedFieldUseRestriction: "CalculatedFieldUseRestriction",
   CalculatedFieldOrderExpression: "CalculatedFieldOrderExpression",
+  DataCompositionSchemaDataSetField: "DataCompositionSchemaDataSetField",
+  DataSetFieldFields: "DataSetFieldFields",
   Filter: "Filter",
   AvailableFields: "AvailableFields",
   FilterItem: "FilterItem",
