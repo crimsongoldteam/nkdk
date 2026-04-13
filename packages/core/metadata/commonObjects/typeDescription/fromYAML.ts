@@ -103,7 +103,7 @@ export const importTypeDescriptionFromYAML = (
 }
 
 function addTypeEdges(context: ConfigurationContext, types: string[]): void {
-  const { parentNodeId, filePath } = context.graphContext!
+  const { parentNodeId } = context.graphContext!
   const g = context.graph ?? defaultGraph
   for (const type of types) {
     const dotIndex = type.indexOf(".")
@@ -116,7 +116,11 @@ function addTypeEdges(context: ConfigurationContext, types: string[]): void {
     const targetNodeId = `${rule.enterprise}.${detailType}`
     g.ensureNode(targetNodeId, { name: detailType })
     const edgeKey = `${parentNodeId}:${TYPE_EDGE_NAME}:${targetNodeId}`
-    g.ensureEdge(edgeKey, parentNodeId, targetNodeId, { yaml: TYPE_EDGE_NAME, name: TYPE_EDGE_NAME, kind: "reference" })
+    g.ensureEdge(edgeKey, parentNodeId!, targetNodeId, {
+      yaml: TYPE_EDGE_NAME,
+      name: TYPE_EDGE_NAME,
+      kind: "reference",
+    })
   }
 }
 

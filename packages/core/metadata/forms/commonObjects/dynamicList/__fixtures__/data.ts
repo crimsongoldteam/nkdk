@@ -14,7 +14,7 @@ export const fullDynamicList = {
         autoOrder: true,
         expression: "Наименование",
         itemType: "CalculatedFieldOrderExpression",
-        orderType: "Asc",
+        // orderType: "Asc",
       },
       {
         autoOrder: false,
