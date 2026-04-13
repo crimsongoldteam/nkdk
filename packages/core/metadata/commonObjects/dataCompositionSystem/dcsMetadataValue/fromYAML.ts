@@ -33,6 +33,12 @@ export const importDcsMetadataValueFromYAML = (
       return list?.[0]
     }
     case "DesignTimeValue":
+      if (typeof data === "string" && /^".*"$/.test(data)) {
+        return importMetadataValueFromYAML(context, undefined, data as any) as MetadataDcsMetadataValue
+      }
+      if (typeof data === "object" && data !== null && "type" in data && "value" in data) {
+        return importMetadataValueFromYAML(context, undefined, data as any) as MetadataDcsMetadataValue
+      }
       return importI8nTextFromYAML({
         context,
         rule: { type: "I8nText" },

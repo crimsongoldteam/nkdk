@@ -31,6 +31,10 @@ export const exportDcsMetadataValueToYAML = (
     case "Parameter":
       return exportChoiceParametersToYAML(context, undefined, [data as ChoiceParameter])
     case "DesignTimeValue":
+      if (data !== null && typeof data === "object" && "type" in (data as object) && "value" in (data as object)) {
+        return exportMetadataValueToYAML(context, undefined, data as any)
+      }
+      if (typeof data === "string") return data as unknown as MetadataDcsMetadataValueYAML
       return exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data as I8nText })
     case "Primitive":
       return exportMetadataValueToYAML(context, undefined, data as any)

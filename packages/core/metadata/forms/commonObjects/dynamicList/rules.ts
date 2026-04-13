@@ -52,11 +52,9 @@ export const DynamicListRules = {
       defaultValueYAML: true,
     },
     fields: {
-      type: "string",
+      type: "DataSetFieldFields",
       xml: "Field",
       yaml: "Поля",
-      fromXML: false,
-      toXML: false,
     },
     filter: {
       type: "Filter",
