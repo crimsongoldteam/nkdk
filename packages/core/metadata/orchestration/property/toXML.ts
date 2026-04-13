@@ -112,22 +112,30 @@ export const exportPropertyToXML = (params: {
       referenceMetadata,
     })
     if (exportedValue === rule.defaultValue) {
-      return (typeExportFn as ExportToXMLFunctionNew)({
+      const fallback = (typeExportFn as ExportToXMLFunctionNew)({
         context,
         rule,
         value: defaultValueXML as any,
         metadataItem,
         referenceMetadata,
       })
+      return wrapWithNamespace(rule, emitEmptyTagIfDefaultArray(rule, fallback))
     }
-    return wrapWithNamespace(rule, exportedValue)
+    return wrapWithNamespace(rule, emitEmptyTagIfDefaultArray(rule, exportedValue))
   }
 
   const exportedValue = (typeExportFn as ExportToXMLFunction)(context, rule, value, referenceMetadata)
   if (exportedValue === rule.defaultValue) {
-    return (typeExportFn as ExportToXMLFunction)(context, rule, defaultValueXML, referenceMetadata)
+    const fallback = (typeExportFn as ExportToXMLFunction)(context, rule, defaultValueXML, referenceMetadata)
+    return wrapWithNamespace(rule, emitEmptyTagIfDefaultArray(rule, fallback))
   }
-  return wrapWithNamespace(rule, exportedValue)
+  return wrapWithNamespace(rule, emitEmptyTagIfDefaultArray(rule, exportedValue))
+}
+
+const emitEmptyTagIfDefaultArray = (rule: PropertyRule, value: any): any => {
+  if (!Array.isArray(rule.defaultValueXML) || rule.defaultValueXML.length !== 0) return value
+  if (value === undefined || (Array.isArray(value) && value.length === 0)) return {}
+  return value
 }
 
 const wrapWithNamespace = (rule: PropertyRule, value: any): any => {
