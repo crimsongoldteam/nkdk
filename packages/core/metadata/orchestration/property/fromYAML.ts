@@ -94,7 +94,7 @@ export const importPropertyFromYAML = (params: {
     return getValueOrDefault({
       context,
       rule,
-      value: importedValue ?? sourceValue,
+      value: rule.type === "MetadataDcsMetadataValue" && importedValue === null ? null : (importedValue ?? sourceValue),
       name,
       operation: "importFromYAML",
     })
@@ -105,7 +105,7 @@ export const importPropertyFromYAML = (params: {
   return getValueOrDefault({
     context,
     rule,
-    value: result ?? sourceValue,
+    value: rule.type === "MetadataDcsMetadataValue" && result === null ? null : (result ?? sourceValue),
     name,
     operation: "importFromYAML",
   })

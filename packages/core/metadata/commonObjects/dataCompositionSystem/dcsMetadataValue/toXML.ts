@@ -26,6 +26,13 @@ export const exportDcsMetadataValueToDcsXML = (params: {
 }): MetadataDcsMetadataValueDcsRootXML => {
   const { context, rule, data } = params
 
+  if (data === null) {
+    return { "dcscor:value": { "_xsi:nil": true } as unknown as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }
+  }
+  if (data === undefined) {
+    return { "dcscor:value": undefined as unknown as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }
+  }
+
   switch (rule.valueType) {
     case "Parameter":
       return exportChoiceParameterToDcsXML(context, undefined, data as ChoiceParameter)

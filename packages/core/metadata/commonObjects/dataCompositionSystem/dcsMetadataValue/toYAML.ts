@@ -21,6 +21,7 @@ export const exportDcsMetadataValueToYAML = (
   data: MetadataDcsMetadataValue | undefined
 ): MetadataDcsMetadataValueYAML | undefined => {
   if (data === undefined) return undefined
+  if (data === null) return null as unknown as MetadataDcsMetadataValueYAML
 
   switch (rule.valueType) {
     case "Color":

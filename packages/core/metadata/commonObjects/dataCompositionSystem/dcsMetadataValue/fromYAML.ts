@@ -19,8 +19,9 @@ export const importDcsMetadataValueFromYAML = (
   context: ConfigurationContext,
   rule: DcsMetadataValuePropertyRule,
   data: MetadataDcsMetadataValueYAML | undefined
-): MetadataDcsMetadataValue | undefined => {
+): MetadataDcsMetadataValue | null | undefined => {
   if (data === undefined) return undefined
+  if (data === null) return null
 
   switch (rule.valueType) {
     case "Color":
