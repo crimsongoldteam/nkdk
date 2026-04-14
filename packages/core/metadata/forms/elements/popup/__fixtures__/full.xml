@@ -4,9 +4,18 @@
 	<CommandSource>FormCommandPanelGlobalCommands</CommandSource>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>false</Enabled>
-	<ExtendedTooltip name="ПодменюРасширеннаяПодсказка" id="2"/>
-	<Height>19</Height>
-	<HorizontalStretch>false</HorizontalStretch>
+	<ExtendedTooltip name="ПодменюРасширеннаяПодсказка" id="2">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<Height>200</Height>
+	<HorizontalStretch>true</HorizontalStretch>
 	<Picture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
@@ -15,26 +24,27 @@
 	<Representation>PictureAndText</Representation>
 	<Shape>Oval</Shape>
 	<ShapeRepresentation>WhenActive</ShapeRepresentation>
+	<Shortcut>S</Shortcut>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Заголовок подменю</v8:content>
 		</v8:item>
 	</Title>
-	<TitleFont ref="style:TextFont" kind="StyleItem"/>
-	<TitleTextColor>web:Fuchsia</TitleTextColor>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleTextColor>web:Black</TitleTextColor>
 	<ToolTip>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Подсказка подменю</v8:content>
+			<v8:content>Подсказка</v8:content>
 		</v8:item>
 	</ToolTip>
-	<ToolTipRepresentation>Button</ToolTipRepresentation>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Администратор">false</xr:Value>
 	</UserVisible>
-	<VerticalStretch>false</VerticalStretch>
+	<VerticalStretch>true</VerticalStretch>
 	<Visible>false</Visible>
-	<Width>18</Width>
+	<Width>300</Width>
 </Popup>

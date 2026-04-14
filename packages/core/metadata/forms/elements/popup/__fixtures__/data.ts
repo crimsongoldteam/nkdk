@@ -1,7 +1,20 @@
 import { Popup, PopupEnterprise, PopupPartialYAML, PopupTypedYAML } from "~/metadata/forms/elements/popup/types"
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormGroupCommonFixture,
+  fullFormGroupEnterpriseCommonFixture,
+  fullFormGroupPartialYAMLCommonFixture,
+} from "~/metadata/forms/elements/formGroup/__fixtures__/data"
 
 export const fullPopup: RequiredFieldsElement<Omit<Popup, "extendedTooltip">> = {
+  itemType: "Popup",
+  name: "Подменю",
+  ...fullFormGroupCommonFixture,
+  title: {
+    items: {
+      ru: "Заголовок подменю",
+    },
+  },
   backColor: {
     type: "WebColor",
     value: "CornFlowerBlue",
@@ -13,53 +26,15 @@ export const fullPopup: RequiredFieldsElement<Omit<Popup, "extendedTooltip">> = 
   childItems: [],
   displayImportance: "VeryHigh",
   commandSource: "FormCommandPanelGlobalCommands",
-  itemType: "Popup",
-  enableContentChange: true,
-  enabled: false,
-  height: 19,
-  horizontalStretch: false,
-  name: "Подменю",
   picture: {
     loadTransparent: true,
     ref: "Print",
     transparentPixel: undefined,
     type: "StandardPicture",
   },
-  readOnly: true,
   representation: "PictureAndText",
   shape: "Oval",
   shapeRepresentation: "WhenActive",
-  title: {
-    items: {
-      ru: "Заголовок подменю",
-    },
-  },
-  titleFont: {
-    kind: "StyleItem",
-    ref: "TextFont",
-  },
-  titleTextColor: {
-    type: "WebColor",
-    value: "Fuchsia",
-  },
-  toolTip: {
-    items: {
-      ru: "Подсказка подменю",
-    },
-  },
-  toolTipRepresentation: "Button",
-  userVisible: {
-    common: true,
-    values: [
-      {
-        name: "Администратор",
-        value: true,
-      },
-    ],
-  },
-  verticalStretch: false,
-  visible: false,
-  width: 18,
 }
 
 export const fullPopupEnterprise = {
@@ -74,11 +49,6 @@ export const fullPopupEnterprise = {
     Type: "SystemEnumeration",
     Value: "DisplayImportance.VeryHigh",
   },
-  EnableContentChange: true,
-  Enabled: false,
-  Height: 19,
-  HorizontalStretch: false,
-  ReadOnly: true,
   Representation: {
     Type: "SystemEnumeration",
     Value: "ButtonRepresentation.PictureAndText",
@@ -89,17 +59,8 @@ export const fullPopupEnterprise = {
     Value: "ButtonShapeRepresentation.WhenActive",
   },
   Title: "Заголовок подменю",
-  TitleFont: { Type: "Font", Value: "StyleFonts.TextFont" },
-  TitleTextColor: { Type: "Color", Value: "WebColors.Fuchsia" },
-  ToolTip: "Подсказка подменю",
-  ToolTipRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "ToolTipRepresentation.Button",
-  },
-  VerticalStretch: false,
-  Visible: false,
-  Width: 18,
   Picture: { Type: "Picture", Value: "PictureLib.Print" },
+  ...fullFormGroupEnterpriseCommonFixture,
 } satisfies Required<PopupEnterprise>
 
 export const sourcePopup: Popup = {
@@ -114,29 +75,15 @@ export const sourcePopup: Popup = {
 }
 
 export const fullPopupPartialYAML: PopupPartialYAML = {
+  ...fullFormGroupPartialYAMLCommonFixture,
   ВажностьПриОтображении: "ОченьВысокая",
-  Видимость: "Ложь",
-  Высота: 19,
-  Доступность: "Ложь",
   ИсточникКоманд: "FormCommandPanelGlobalCommands",
   Картинка: "Печать",
   Отображение: "КартинкаИТекст",
-  ОтображениеПодсказки: "Кнопка",
   ОтображениеФигуры: "ПриАктивности",
-  Подсказка: "Подсказка подменю",
-  РазрешитьИзменениеСостава: "Истина",
-  РазрешитьИспользование: {
-    Администратор: "Истина",
-  },
-  РастягиватьПоВертикали: "Ложь",
-  РастягиватьПоГоризонтали: "Ложь",
-  ТолькоПросмотр: "Истина",
   Фигура: "Овал",
   ЦветРамки: "Аквамарин",
-  ЦветТекстаЗаголовка: "Фуксия",
   ЦветФона: "Васильковый",
-  Ширина: 18,
-  ШрифтЗаголовка: "ШрифтТекста",
 }
 
 export const fullPopupTypedYAML: PopupTypedYAML = {
