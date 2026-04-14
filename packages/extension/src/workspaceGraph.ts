@@ -170,6 +170,19 @@ export function initWorkspaceGraph(context: vscode.ExtensionContext): void {
   )
 
   context.subscriptions.push(
+    vscode.workspace.onDidDeleteFiles((event) => {
+      let changed = false
+      for (const file of event.files) {
+        if (file.fsPath.endsWith("Свойства.yml")) {
+          _graph.invalidateFile(file.fsPath)
+          changed = true
+        }
+      }
+      if (changed) _notifyGraphUpdated()
+    }),
+  )
+
+  context.subscriptions.push(
     vscode.workspace.onDidChangeWorkspaceFolders(() => {
       const newFolder = vscode.workspace.workspaceFolders?.[0]
       if (newFolder) {
