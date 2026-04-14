@@ -1,13 +1,13 @@
 import fs from "fs"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { convertFormFromXML } from "./convertFromXML"
 import { mockContextFromXML } from "~/tests/mockContext"
+import { getXMLFixtureDir, readXMLFixtureAsString } from "~/tests/readFixtureXML"
+import { convertFormFromXML } from "./convertFromXML"
 
 describe("import from XML string", () => {
-  const inputDir = join(process.cwd(), "tests/fixtures/sync/syncForm/xml/Forms")
-  const outputDir = join(process.cwd(), "tests/fixtures/sync/syncForm/out")
+  const inputDir = getXMLFixtureDir(import.meta.url, "sync/xml/Forms")
+  const outputDir = getXMLFixtureDir(import.meta.url, "sync/out")
   const formName = "ФормаЭлемента"
 
   beforeEach(() => {
@@ -24,8 +24,8 @@ describe("import from XML string", () => {
       outputDir,
     })
 
-    const expectedNkdk = readXMLFileAsString(join("sync/syncForm/nkdk/Формы", formName, "Форма.nkdk"))
-    const expectedYaml = readXMLFileAsString(join("sync/syncForm/nkdk/Формы", formName, "Форма.yaml"))
+    const expectedNkdk = readXMLFixtureAsString(import.meta.url, join("sync/nkdk/Формы", formName, "Форма.nkdk"))
+    const expectedYaml = readXMLFixtureAsString(import.meta.url, join("sync/nkdk/Формы", formName, "Форма.yaml"))
 
     const resultNkdk = fs.readFileSync(join(outputDir, "Формы", formName, "Форма.nkdk"), "utf-8")
     const resultYaml = fs.readFileSync(join(outputDir, "Формы", formName, "Форма.yaml"), "utf-8")

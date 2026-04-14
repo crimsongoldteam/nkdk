@@ -21,3 +21,13 @@ export const readAndParseXMLFixture = <T>(importMetaUrl: string, pathRelativeToF
   const xml = readXMLFixtureAsString(importMetaUrl, pathRelativeToFixtures)
   return importContentFromXML<T>(xml)
 }
+
+/**
+ * Возвращает абсолютный путь внутри `__fixtures__` рядом с тестовым файлом.
+ * @param importMetaUrl — `import.meta.url` файла теста
+ * @param relPath — путь относительно `__fixtures__` (по умолчанию — сама папка)
+ */
+export const getXMLFixtureDir = (importMetaUrl: string, relPath = ""): string => {
+  const dir = dirname(fileURLToPath(importMetaUrl))
+  return join(dir, "__fixtures__", relPath)
+}

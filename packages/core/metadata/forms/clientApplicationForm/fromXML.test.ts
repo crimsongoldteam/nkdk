@@ -1,18 +1,16 @@
 import { describe, expect, it } from "vitest"
-import {
-  fullClientApplicationForm,
-  minimalClientApplicationForm,
-} from "~/tests/fixtures/forms/clientApplicationForm/data"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
+import { fullClientApplicationForm, minimalClientApplicationForm } from "./__fixtures__/data"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { mockContextFromXML } from "~/tests/mockContext"
 
 describe("importClientApplicationFormFromXML", () => {
   it("should import all fields from XML", () => {
-    const xmlForm = readAndParseXMLFile<{ Form: ClientApplicationFormXML }>("forms/clientApplicationForm/full.xml")
-    const xmlMetadata = readAndParseXMLFile<{ MetaDataObject: FormMetadataXML }>(
-      "forms/clientApplicationForm/fullMetadata.xml"
+    const xmlForm = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
+    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+      import.meta.url,
+      "fullMetadata.xml"
     )
     const result = importClientApplicationFormFromXML({
       context: mockContextFromXML(),
@@ -24,9 +22,10 @@ describe("importClientApplicationFormFromXML", () => {
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ Form: ClientApplicationFormXML }>("forms/clientApplicationForm/minimal.xml")
-    const xmlMetadata = readAndParseXMLFile<{ MetaDataObject: FormMetadataXML }>(
-      "forms/clientApplicationForm/minimalMetadata.xml"
+    const xmlData = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
+    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+      import.meta.url,
+      "minimalMetadata.xml"
     )
     const result = importClientApplicationFormFromXML({
       context: mockContextFromXML(),

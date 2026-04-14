@@ -4,7 +4,7 @@ import {
   fullClientApplicationFormYAML,
   minimalClientApplicationForm,
   minimalClientApplicationFormYAML,
-} from "~/tests/fixtures/forms/clientApplicationForm/data"
+} from "./__fixtures__/data"
 import { mockContextToYAML } from "~/tests/mockContext"
 import { exportClientApplicationFormToYAML } from "./toYAML"
 
