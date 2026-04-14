@@ -2,17 +2,24 @@
 	<CurrentPagesState>Titles</CurrentPagesState>
 	<CurrentRowUse>DontUse</CurrentRowUse>
 	<EnableContentChange>true</EnableContentChange>
-	<Enabled>true</Enabled>
+	<Enabled>false</Enabled>
 	<Events>
 		<Event name="OnCurrentPageChange">ПроцедураПриСменеСтраницы</Event>
 	</Events>
-	<ExtendedTooltip name="СтраницыРасширеннаяПодсказка" id="2"/>
+	<ExtendedTooltip name="СтраницыРасширеннаяПодсказка" id="2">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Height>200</Height>
 	<HorizontalStretch>true</HorizontalStretch>
 	<PagesRepresentation>Auto</PagesRepresentation>
-	<ReadOnly>false</ReadOnly>
+	<ReadOnly>true</ReadOnly>
 	<Shortcut>S</Shortcut>
 	<Title>
 		<v8:item>
@@ -29,12 +36,11 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>UsualGroup</Type>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Администратор">false</xr:Value>
 	</UserVisible>
 	<VerticalStretch>true</VerticalStretch>
-	<Visible>true</Visible>
+	<Visible>false</Visible>
 	<Width>300</Width>
 </Pages>
