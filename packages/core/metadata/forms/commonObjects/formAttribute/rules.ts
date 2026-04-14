@@ -92,6 +92,11 @@ export const FormAttributeRules = {
       yaml: "Сохранение",
       type: "FieldsList",
     },
+    dynamicList: {
+      type: "DynamicList",
+      xml: "Settings",
+      yaml: "ДинамическийСписок",
+    },
   },
 } as const satisfies MetadataItemRule
 

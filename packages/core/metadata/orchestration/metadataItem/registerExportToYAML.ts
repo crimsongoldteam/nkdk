@@ -18,8 +18,21 @@ export const registerExportToYAML = <Rule extends MetadataItemRule>(
       value: unknown
       name?: string
     }): ToYAML<Rule["itemType"]> | undefined => {
+      // Прокидываем имя родителя (например, имя реквизита формы) в контекст,
+      // чтобы при экспорте вложенных свойств с externalFile был доступен parentName.
+      const context =
+        params.name && params.context.exportToYAML
+          ? {
+              ...params.context,
+              exportToYAML: {
+                ...params.context.exportToYAML,
+                parent: { name: params.name },
+              },
+            }
+          : params.context
+
       return exportMetadataItemToYAML({
-        context: params.context,
+        context,
         data: params.value as ToMetadata<Rule["itemType"]> | undefined,
         rule: itemRule,
       })

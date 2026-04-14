@@ -16,14 +16,14 @@ describe("exportClientApplicationFormToYAML", () => {
   // })
 
   it("should export all fields to YAML", () => {
-    const result = exportClientApplicationFormToYAML(mockContextToYAML, fullClientApplicationForm)
+    const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, fullClientApplicationForm)
 
-    expect(result).toEqual(fullClientApplicationFormYAML)
+    expect(yaml).toEqual(fullClientApplicationFormYAML)
   })
 
   it("should export minimal", () => {
-    const result = exportClientApplicationFormToYAML(mockContextToYAML, minimalClientApplicationForm)
+    const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, minimalClientApplicationForm)
 
-    expect(result).toEqual(minimalClientApplicationFormYAML)
+    expect(yaml).toEqual(minimalClientApplicationFormYAML)
   })
 })

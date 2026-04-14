@@ -72,8 +72,17 @@ export type ConfigurationContextWithExportToXML = ConfigurationContext & {
   exportToXML: ToXMLConfigurationContext
 }
 
+export interface ExternalFileEntry {
+  relativePath: string
+  content: string
+}
+
 export interface FormExportToYAMLContext {
   toTyped: boolean
+  /** Имя родительского объекта (например, имя реквизита формы) для externalFile. */
+  parent?: { name: string }
+  /** Сборник внешних файлов, формируемых при экспорте. */
+  externalFilesCollector?: ExternalFileEntry[]
 }
 
 export interface FormimportFromYAMLContext {

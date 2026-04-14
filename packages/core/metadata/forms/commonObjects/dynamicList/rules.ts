@@ -33,8 +33,10 @@ export const DynamicListRules = {
     customQuery: {
       type: "boolean",
       xml: "ManualQuery",
-      yaml: "ПроизвольныйЗапрос",
-      defaultValueYAML: false,
+      // Значение выводится из наличия внешнего файла queryText — не хранится в YAML
+      derivedFrom: { externalFile: "queryText" },
+      defaultValue: false,
+      defaultValueXML: false,
     },
     dataParameters: {
       type: "SettingsParameterValueCollection",
@@ -104,7 +106,8 @@ export const DynamicListRules = {
     queryText: {
       type: "string",
       xml: "QueryText",
-      // yaml: "ТекстЗапроса",
+      // Значение хранится во внешнем файле — не в YAML
+      externalFile: { dir: "ДинамическийСписок", extension: "bsl", nameFrom: "parent" },
     },
     itemsViewMode: {
       type: "SystemEnumeration",

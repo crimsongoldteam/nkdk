@@ -33,4 +33,28 @@ describe("import from XML string", () => {
     expect(resultNkdk).toBe(expectedNkdk)
     expect(resultYaml).toBe(expectedYaml)
   })
+
+  it("должен экспортировать текст запроса DynamicList во внешний .bsl файл", async () => {
+    const dynamicListFormName = "withDynamicList"
+    const attributeName = "ПроизвольныйЗапросМинимум"
+    const expectedQueryText =
+      "ВЫБРАТЬ\n\tСправочник1.Ссылка КАК Ссылка,\n\tСправочник1.Наименование КАК Наименование,\n\tСправочник1.Код КАК Код\nИЗ\n\tСправочник.Справочник1 КАК Справочник1"
+
+    await convertFormFromXML({
+      context: mockContextFromXML(),
+      inputDir,
+      formName: dynamicListFormName,
+      outputDir,
+    })
+
+    const formOutputPath = join(outputDir, "Формы", dynamicListFormName)
+    const yaml = fs.readFileSync(join(formOutputPath, "Форма.yaml"), "utf-8")
+
+    expect(yaml).not.toContain("ТекстЗапроса:")
+    expect(yaml).not.toContain("ПроизвольныйЗапрос:")
+
+    const bslPath = join(formOutputPath, "ДинамическийСписок", `${attributeName}.bsl`)
+    expect(fs.existsSync(bslPath)).toBe(true)
+    expect(fs.readFileSync(bslPath, "utf-8")).toBe(expectedQueryText)
+  })
 })

@@ -82,6 +82,18 @@ export interface BasePropertyRule {
 
   /** Описание допустимых целей ссылки (используется для валидации и автодополнения). */
   referenceScope?: ReferenceScope
+
+  /**
+   * Значение свойства хранится во внешнем файле, а не в YAML.
+   * Путь к файлу: `<dir>/<parent.name>.<extension>`.
+   */
+  externalFile?: { dir: string; extension: string; nameFrom: "parent" }
+
+  /**
+   * Значение свойства вычисляется из наличия внешнего файла другого свойства.
+   * Не хранится в YAML.
+   */
+  derivedFrom?: { externalFile: string }
 }
 
 export interface ChildItemsPropertyRule extends BasePropertyRule {

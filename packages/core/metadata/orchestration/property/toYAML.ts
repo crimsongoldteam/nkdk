@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { buildExternalFileEntry } from "~/metadata/forms/commonObjects/dynamicList/externalFile"
 import { ToMetadata, ToYAML } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToYAMLFunction, ExportToYAMLFunctionNew } from "./fn"
@@ -19,6 +20,18 @@ export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
   let canUseShortFormat: boolean = true
 
   for (const [key, propertyRule] of Object.entries(rule.properties)) {
+    // Свойство с externalFile: значение идёт во внешний файл, не в YAML
+    if ("externalFile" in propertyRule && propertyRule.externalFile && propertyRule.toYAML !== false) {
+      const value = data[key as keyof ToMetadata<Rule["itemType"]>]
+      const collector = context.exportToYAML?.externalFilesCollector
+      const parentName = context.exportToYAML?.parent?.name
+      if (collector !== undefined && parentName !== undefined && value !== undefined) {
+        const entry = buildExternalFileEntry(propertyRule.externalFile, parentName, value as string)
+        if (entry !== null) collector.push(entry)
+      }
+      continue
+    }
+
     if (!shouldProcessProperty({ rule: propertyRule, operation: "exportToYAML" })) continue
     const value = data[key as keyof ToMetadata<Rule["itemType"]>]
 
