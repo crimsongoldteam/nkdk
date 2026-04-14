@@ -12,35 +12,20 @@ import {
   minimalInputField,
   minimalInputFieldEnterprise,
 } from "~/metadata/forms/elements/inputField/__fixtures__/data"
+import {
+  fullFormGroupCommonFixture,
+  fullFormGroupEnterpriseCommonFixture,
+  fullFormGroupPartialYAMLCommonFixture,
+} from "~/metadata/forms/elements/formGroup/__fixtures__/data"
 
 export const fullUsualGroup: RequiredFieldsElement<UsualGroup> = {
   itemType: "UsualGroup",
   name: "ОбычнаяГруппа",
-  enableContentChange: true,
-  enabled: false,
-  height: 200,
-  horizontalAlignInGroup: "Left",
-  horizontalStretch: true,
-  readOnly: true,
-  shortcut: "Shift+F",
+  ...fullFormGroupCommonFixture,
   showTitle: false,
   title: {
     items: { ru: "Обычная группа" },
   },
-  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  titleTextColor: { type: "WebColor", value: "Black" },
-  toolTip: {
-    items: { ru: "Подсказка" },
-  },
-  toolTipRepresentation: "None",
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
-  verticalAlignInGroup: "Top",
-  verticalStretch: true,
-  visible: false,
-  width: 300,
   backColor: { type: "WebColor", value: "White" },
   behavior: "Collapsible",
   childItemsHorizontalAlign: "Center",
@@ -66,10 +51,6 @@ export const fullUsualGroup: RequiredFieldsElement<UsualGroup> = {
   united: false,
   verticalSpacing: "Single",
   table: "ИспользуемаяТаблица",
-  extendedTooltip: {
-    itemType: "ExtendedTooltip",
-    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
-  },
   childItems: [minimalInputField],
 }
 
@@ -83,36 +64,28 @@ export const fullUsualGroupSource: UsualGroup = {
 }
 
 export const fullUsualGroupPartialYAML: Required<
-  Omit<UsualGroupPartialYAML, "Заголовок" | "ЗапретитьИспользование" | "Группировка" | "ОтображатьЗаголовок">
+  Omit<
+    UsualGroupPartialYAML,
+    | "Заголовок"
+    | "ЗапретитьИспользование"
+    | "Группировка"
+    | "ОтображатьЗаголовок"
+    | "РазрешитьИзменениеСостава"
+    | "РастягиватьПоВертикали"
+  >
 > = {
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Видимость: "Ложь",
-  Высота: 200,
-  ГоризонтальноеПоложениеВГруппе: "Лево",
-  Доступность: "Ложь",
-  ОтображениеПодсказки: "Нет",
-  Подсказка: "Подсказка",
-  РазрешитьИспользование: { Администратор: "Истина" },
-  РазрешитьИзменениеСостава: "Истина",
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
-  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
-  СочетаниеКлавиш: "Shift+F",
-  ТолькоПросмотр: "Истина",
-  ЦветТекстаЗаголовка: "Черный",
-  Ширина: 300,
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
+  ...fullFormGroupPartialYAMLCommonFixture,
   ВажностьПриОтображении: "Высокая",
   ВертикальноеПоложениеПодчиненных: "Низ",
   ВертикальныйИнтервал: "Одинарный",
   ВыравниваниеЭлементовИЗаголовков: "ЭлементыЛевоЗаголовкиЛево",
   ГоризонтальноеПоложениеПодчиненных: "Центр",
   ГоризонтальныйИнтервал: "Одинарный",
-  // Группировка: "Вертикальная",
+  // Группировка: "Вертикальная", // toPartialYAML: false
   ЗаголовокСвернутогоОтображения: "Заголовок свернутого отображения",
   ИспользованиеТекущейСтроки: "НеИспользует",
   Объединенная: "Ложь",
-  // ОтображатьЗаголовок: "Ложь",
+  // ОтображатьЗаголовок: "Ложь", // toPartialYAML: false
   ОтображатьОтступСлева: "Ложь",
   Отображение: "ОбычноеВыделение",
   ОтображениеУправления: "Картинка",
@@ -143,36 +116,23 @@ export const fullUsualGroupEnterprise = {
   CurrentRowUse: { Type: "SystemEnumeration", Value: "CurrentRowUse.DontUse" },
   DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.High" },
   ElementType: "FormGroup",
-  EnableContentChange: true,
-  Enabled: false,
   Format: "БЛ=Выключено",
   Group: { Type: "SystemEnumeration", Value: "ChildFormItemsGroup.Vertical" },
-  Height: 200,
   HiddenRepresentationTitleBackColor: { Type: "Color", Value: "WebColors.Gold" },
-  HorizontalAlignInGroup: { Type: "SystemEnumeration", Value: "ItemHorizontalLocation.Left" },
   HorizontalSpacing: { Type: "SystemEnumeration", Value: "FormItemSpacing.Single" },
-  HorizontalStretch: true,
   ItemsAndTitlesAlign: { Type: "SystemEnumeration", Value: "ItemsAndTitlesAlignVariant.ItemsLeftTitlesLeft" },
   Name: "prefix_ОбычнаяГруппа",
-  ReadOnly: true,
   Representation: { Type: "SystemEnumeration", Value: "UsualGroupRepresentation.NormalSeparation" },
   ShowLeftMargin: false,
   ShowTitle: false,
   ThroughAlign: { Type: "SystemEnumeration", Value: "ThroughAlign.DontUse" },
   Title: "Обычная группа",
   TitleDataPath: "prefix_ТекстовыйРеквизит",
-  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
-  ToolTip: "Подсказка",
-  ToolTipRepresentation: { Type: "SystemEnumeration", Value: "ToolTipRepresentation.None" },
   Type: { Type: "SystemEnumeration", Value: "FormGroupType.UsualGroup" },
   United: false,
-  VerticalAlignInGroup: { Type: "SystemEnumeration", Value: "ItemVerticalAlign.Top" },
   VerticalSpacing: { Type: "SystemEnumeration", Value: "FormItemSpacing.Single" },
-  VerticalStretch: true,
-  Visible: false,
-  Width: 300,
   ChildItems: [minimalInputFieldEnterprise],
-  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  ...fullFormGroupEnterpriseCommonFixture,
 } satisfies Required<UsualGroupEnterprise>
 
 export const minimalUsualGroup: UsualGroup = {
@@ -307,7 +267,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       strings: [
         `=Группа
   +ВертикальнаяГруппа1
-    Элемент1: 
+    Элемент1:
   Элемент2: `,
       ],
       toOneLineGroup: false,
@@ -345,7 +305,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       strings: [
         `-Группа
   +ВертикальнаяГруппа1
-    Элемент1: 
+    Элемент1:
   Элемент2: `,
       ],
       toOneLineGroup: false,
@@ -452,7 +412,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     structured: {
       strings: [
         `+"Заголовок группы" Группа
-  Элемент1: 
+  Элемент1:
   Элемент2: `,
       ],
       toOneLineGroup: false,

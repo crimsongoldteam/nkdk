@@ -44,7 +44,7 @@
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>true</ReadOnly>
 	<Representation>NormalSeparation</Representation>
-	<Shortcut>Shift+F</Shortcut>
+	<Shortcut>S</Shortcut>
 	<ShowLeftMargin>false</ShowLeftMargin>
 	<ShowTitle>false</ShowTitle>
 	<ThroughAlign>DontUse</ThroughAlign>
@@ -67,7 +67,7 @@
 	<United>false</United>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Администратор">false</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Bottom</VerticalAlign>
 	<VerticalSpacing>Single</VerticalSpacing>
