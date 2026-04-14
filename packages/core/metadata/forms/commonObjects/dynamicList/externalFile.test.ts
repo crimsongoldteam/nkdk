@@ -4,7 +4,7 @@ import { join } from "path"
 import { describe, expect, it } from "vitest"
 import { buildExternalFileEntry, readExternalFile } from "./externalFile"
 
-const rule = { dir: "ДинамическийСписок", extension: "bsl", nameFrom: "parent" as const }
+const rule = { dir: "ДинамическийСписок", extension: "query", nameFrom: "parent" as const }
 
 describe("buildExternalFileEntry", () => {
   it("returns null when value is undefined", () => {
@@ -15,7 +15,7 @@ describe("buildExternalFileEntry", () => {
   it("returns entry with correct relativePath and content when value is a string", () => {
     const result = buildExternalFileEntry(rule, "МойРеквизит", "ВЫБРАТЬ * ИЗ Справочник1")
     expect(result).toEqual({
-      relativePath: "ДинамическийСписок/МойРеквизит.bsl",
+      relativePath: "ДинамическийСписок/МойРеквизит.query",
       content: "ВЫБРАТЬ * ИЗ Справочник1",
     })
   })
@@ -23,14 +23,14 @@ describe("buildExternalFileEntry", () => {
   it("returns entry with empty content when value is empty string", () => {
     const result = buildExternalFileEntry(rule, "МойРеквизит", "")
     expect(result).toEqual({
-      relativePath: "ДинамическийСписок/МойРеквизит.bsl",
+      relativePath: "ДинамическийСписок/МойРеквизит.query",
       content: "",
     })
   })
 
   it("uses parentName in the file path (nameFrom: parent)", () => {
     const result = buildExternalFileEntry(rule, "ПроизвольныйЗапросМинимум", "текст запроса")
-    expect(result?.relativePath).toBe("ДинамическийСписок/ПроизвольныйЗапросМинимум.bsl")
+    expect(result?.relativePath).toBe("ДинамическийСписок/ПроизвольныйЗапросМинимум.query")
   })
 
   it("uses dir and extension from rule", () => {
@@ -45,7 +45,7 @@ describe("readExternalFile", () => {
     const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "nakidka-test-"))
     try {
       fs.mkdirSync(join(tmpDir, "ДинамическийСписок"))
-      fs.writeFileSync(join(tmpDir, "ДинамическийСписок", "МойРеквизит.bsl"), "ВЫБРАТЬ * ИЗ Справочник1", "utf-8")
+      fs.writeFileSync(join(tmpDir, "ДинамическийСписок", "МойРеквизит.query"), "ВЫБРАТЬ * ИЗ Справочник1", "utf-8")
       const result = readExternalFile(rule, "МойРеквизит", tmpDir)
       expect(result).toBe("ВЫБРАТЬ * ИЗ Справочник1")
     } finally {
@@ -57,7 +57,7 @@ describe("readExternalFile", () => {
     const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "nakidka-test-"))
     try {
       fs.mkdirSync(join(tmpDir, "ДинамическийСписок"))
-      fs.writeFileSync(join(tmpDir, "ДинамическийСписок", "МойРеквизит.bsl"), "", "utf-8")
+      fs.writeFileSync(join(tmpDir, "ДинамическийСписок", "МойРеквизит.query"), "", "utf-8")
       const result = readExternalFile(rule, "МойРеквизит", tmpDir)
       expect(result).toBe("")
     } finally {

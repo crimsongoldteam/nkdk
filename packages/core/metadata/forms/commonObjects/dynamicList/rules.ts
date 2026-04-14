@@ -107,7 +107,7 @@ export const DynamicListRules = {
       type: "string",
       xml: "QueryText",
       // Значение хранится во внешнем файле — не в YAML
-      externalFile: { dir: "ДинамическийСписок", extension: "bsl", nameFrom: "parent" },
+      externalFile: { dir: "ДинамическийСписок", extension: "query", nameFrom: "parent" },
     },
     itemsViewMode: {
       type: "SystemEnumeration",

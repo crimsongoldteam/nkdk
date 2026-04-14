@@ -34,7 +34,7 @@ describe("import from XML string", () => {
     expect(resultYaml).toBe(expectedYaml)
   })
 
-  it("должен экспортировать текст запроса DynamicList во внешний .bsl файл", async () => {
+  it("должен экспортировать текст запроса DynamicList во внешний .query файл", async () => {
     const dynamicListFormName = "withDynamicList"
     const attributeName = "ПроизвольныйЗапросМинимум"
     const expectedQueryText =
@@ -53,8 +53,8 @@ describe("import from XML string", () => {
     expect(yaml).not.toContain("ТекстЗапроса:")
     expect(yaml).not.toContain("ПроизвольныйЗапрос:")
 
-    const bslPath = join(formOutputPath, "ДинамическийСписок", `${attributeName}.bsl`)
-    expect(fs.existsSync(bslPath)).toBe(true)
-    expect(fs.readFileSync(bslPath, "utf-8")).toBe(expectedQueryText)
+    const queryPath = join(formOutputPath, "ДинамическийСписок", `${attributeName}.query`)
+    expect(fs.existsSync(queryPath)).toBe(true)
+    expect(fs.readFileSync(queryPath, "utf-8")).toBe(expectedQueryText)
   })
 })
