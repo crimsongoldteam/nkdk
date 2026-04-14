@@ -8,6 +8,7 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "~/metadata/context/types"
+import { createEmptyClientApplicationForm } from "~/metadata/forms/clientApplicationForm/createEmpty"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
 import type {
@@ -31,15 +32,24 @@ export const syncFormToXML = async (params: {
   const { context, inputDir, formName, outputDir } = params
   const referenceDir = params.referenceDir ?? outputDir
 
-  const { yamlContent, nkdkContent } = readFormFiles({ inputDir, formName })
+  const { yamlContent, nkdkContent, formDir } = readFormFiles({ inputDir, formName })
 
   const yamlObj = importFromYAML<ClientApplicationFormYAML>(yamlContent)
-  const formFromNkdk = await parseFormFromNkdKString(context, nkdkContent)
+
+  const formFromNkdk = nkdkContent !== null
+    ? await parseFormFromNkdKString(context, nkdkContent)
+    : createEmptyClientApplicationForm()
+
   if (!formFromNkdk) {
     throw new Error(`Failed to parse NKDK for form "${formName}"`)
   }
 
-  const form = importClientApplicationFormFromYAML(context, yamlObj, formFromNkdk)
+  const contextWithFormDir: ConfigurationContextWithExportToXML = {
+    ...context,
+    importFromYAML: { formDir },
+  }
+
+  const form = importClientApplicationFormFromYAML(contextWithFormDir, yamlObj, formFromNkdk)
 
   const contextFromXML: ConfigurationContextFromXML = {
     fromXML: {
@@ -67,7 +77,8 @@ export const syncFormToXML = async (params: {
 
 function readFormFiles(params: { inputDir: string; formName: string }): {
   yamlContent: string
-  nkdkContent: string
+  nkdkContent: string | null
+  formDir: string
 } {
   const { inputDir, formName } = params
   const formsDir = join(inputDir, "Формы")
@@ -76,9 +87,9 @@ function readFormFiles(params: { inputDir: string; formName: string }): {
   const nkdkPath = join(formDir, "Форма.nkdk")
 
   const yamlContent = fs.readFileSync(yamlPath, "utf-8")
-  const nkdkContent = fs.readFileSync(nkdkPath, "utf-8")
+  const nkdkContent = fs.existsSync(nkdkPath) ? fs.readFileSync(nkdkPath, "utf-8") : null
 
-  return { yamlContent, nkdkContent }
+  return { yamlContent, nkdkContent, formDir }
 }
 
 const writeFormToXML = async (params: {

@@ -33,6 +33,7 @@ export interface ConfigurationContext {
   enterprise?: EnterpriseContext
 
   exportToYAML?: FormExportToYAMLContext
+  importFromYAML?: FormimportFromYAMLContext
   exportToXML?: ToXMLConfigurationContext
   graphContext?: GraphContext
   /** Экземпляр графа, передаётся снаружи (из extension/CLI). Не синглтон. */
@@ -87,6 +88,10 @@ export interface FormExportToYAMLContext {
 
 export interface FormimportFromYAMLContext {
   allElements?: FormChildItemsPartialYAML
+  /** Путь к каталогу формы для чтения внешних файлов (externalFile). */
+  formDir?: string
+  /** Имя родительского объекта для externalFile (например, имя реквизита формы). */
+  parent?: { name: string }
 }
 
 export interface EnterpriseContext {
