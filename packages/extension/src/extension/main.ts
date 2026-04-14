@@ -7,6 +7,7 @@ import { LanguageClient, TransportKind } from "vscode-languageclient/node.js"
 import { initWorkspaceGraph } from "../workspaceGraph.js"
 import { initCompletionProvider } from "./completionProvider.js"
 import { initDefinitionProvider } from "./definitionProvider.js"
+import { initDiagnosticProvider } from "./diagnosticProvider.js"
 import { registerDocumentChangeHandler } from "./documentChangeHandler.js"
 import type { SseServerHandle } from "./sseServer.js"
 import { startSseServer } from "./sseServer.js"
@@ -30,6 +31,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   initCompletionProvider(context)
   initDefinitionProvider(context)
+  initDiagnosticProvider(context)
 
   context.subscriptions.push(registerDocumentChangeHandler(sseServer))
   context.subscriptions.push(
