@@ -1,10 +1,13 @@
 import * as vscode from "vscode"
-import { getCatalogPropertyReferenceScope, validateReferenceScope } from "@nakidka/core"
+import { getCatalogPropertyReferenceScope, validateReferenceScope, walk } from "@nakidka/core"
 import { getWorkspaceGraph, onGraphUpdated } from "../workspaceGraph.js"
 
-// Captures the type prefix before a dot, supporting Cyrillic
-// e.g., "Справочник." or "Справочник.К" → captures "Справочник"
-const TYPE_PREFIX_PATTERN = /([а-яёА-ЯЁa-zA-Z_][\wа-яёА-ЯЁ]*)\.[а-яёА-ЯЁ\w]*$/
+// Captures the COMPLETE dotted path before the trigger dot (and optional partial text after it)
+// "Справочник."              → "Справочник"
+// "Справочник.Контрагенты." → "Справочник.Контрагенты"
+// "МойРеквизит.Поле.Ча"    → "МойРеквизит.Поле"
+const PATH_BEFORE_DOT =
+  /(([а-яёА-ЯЁa-zA-Z_][\wа-яёА-ЯЁ]*)(\.[а-яёА-ЯЁa-zA-Z_][\wа-яёА-ЯЁ]*)*)\.[а-яёА-ЯЁ\w]*$/
 
 // Captures the YAML key at the start of a value line, e.g., "  ОсновнаяФормаДляВыбора: ..."
 const YAML_KEY_PATTERN = /^\s*([а-яёА-ЯЁa-zA-Z_][\wа-яёА-ЯЁ]*):\s+/
@@ -43,53 +46,81 @@ class MetadataCompletionProvider implements vscode.CompletionItemProvider {
     const lineText = document.lineAt(position.line).text
     const textBeforeCursor = lineText.substring(0, position.character)
 
-    const match = TYPE_PREFIX_PATTERN.exec(textBeforeCursor)
+    const match = PATH_BEFORE_DOT.exec(textBeforeCursor)
     if (!match) return null
 
-    const prefix = match[1]
-    const nodePrefix = prefix + "."
+    const fullPath = match[1] // Complete path before the trigger dot
+    const nodePrefix = fullPath + "."
+    const isCompound = fullPath.includes(".")
 
-    // Determine if this property has a referenceScope filter
+    // referenceScope only applies to single-segment type-prefix completion
     const keyMatch = YAML_KEY_PATTERN.exec(lineText)
     const yamlKey = keyMatch?.[1]
-    const scope = yamlKey ? getCatalogPropertyReferenceScope(yamlKey) : undefined
-    const ownerNodeId = scope != null ? getOwnerNodeIdFromFilePath(document.uri.fsPath) : undefined
+    const scope = !isCompound && yamlKey ? getCatalogPropertyReferenceScope(yamlKey) : undefined
+    const ownerNodeId = getOwnerNodeIdFromFilePath(document.uri.fsPath)
 
-    // Use cache only when no scope filter applies
-    if (scope == null && this._cache.has(prefix)) {
-      return this._cache.get(prefix)!
+    // Use cache when no scope filter applies
+    if (scope == null && this._cache.has(fullPath)) {
+      return this._cache.get(fullPath)!
     }
 
     const graph = getWorkspaceGraph()
-    const items: vscode.CompletionItem[] = []
 
+    // Primary: collect direct children found in the graph as nodeId prefix matches
+    const items: vscode.CompletionItem[] = []
     for (const nodeId of graph.nodes()) {
       if (!nodeId.startsWith(nodePrefix)) continue
-
-      // Only top-level nodes (exactly one segment after prefix)
       const rest = nodeId.slice(nodePrefix.length)
-      if (rest.includes(".")) continue
+      if (rest.includes(".")) continue // Only direct children
 
-      // Apply referenceScope filter when applicable
       if (scope != null && ownerNodeId != null) {
         if (!validateReferenceScope(nodeId, scope, graph, ownerNodeId)) continue
       }
 
       const attrs = graph.getNodeAttributes(nodeId)
-      const item = new vscode.CompletionItem(rest, vscode.CompletionItemKind.Reference)
+      const kind = isCompound ? vscode.CompletionItemKind.Field : vscode.CompletionItemKind.Reference
+      const item = new vscode.CompletionItem(rest, kind)
       item.detail = nodeId
       if (!attrs.item) {
         item.tags = [vscode.CompletionItemTag.Deprecated]
         item.detail = `${nodeId} (заглушка)`
       }
-
       items.push(item)
     }
 
-    if (scope == null) {
-      this._cache.set(prefix, items)
+    if (items.length > 0) {
+      if (scope == null) this._cache.set(fullPath, items)
+      return items
     }
 
-    return items
+    // Fallback: dataPath completion via GraphWalker (relative paths like "МойРеквизит.")
+    if (!ownerNodeId) return null
+
+    const walkResult = walk(graph, [ownerNodeId], fullPath)
+    if (walkResult.nodes.length === 0) return null
+
+    // Union-семантика: собираем composition-детей всех разрешённых узлов
+    const seen = new Set<string>()
+    const dataPathItems: vscode.CompletionItem[] = []
+    for (const nodeId of walkResult.nodes) {
+      if (!graph.hasNode(nodeId)) continue
+      for (const edgeId of graph.outEdges(nodeId)) {
+        if (graph.getEdgeAttribute(edgeId, "kind") !== "composition") continue
+        const target = graph.target(edgeId)
+        const childName = graph.getNodeAttribute(target, "name")
+        if (!childName || seen.has(childName)) continue
+        seen.add(childName)
+
+        const item = new vscode.CompletionItem(childName, vscode.CompletionItemKind.Field)
+        item.detail = target
+        if (!graph.getNodeAttribute(target, "item")) {
+          item.tags = [vscode.CompletionItemTag.Deprecated]
+          item.detail = `${target} (заглушка)`
+        }
+        dataPathItems.push(item)
+      }
+    }
+
+    return dataPathItems.length > 0 ? dataPathItems : null
   }
 }
