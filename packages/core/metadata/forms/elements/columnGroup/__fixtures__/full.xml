@@ -1,6 +1,6 @@
 <ColumnGroup name="ГруппаКолонок" id="1">
 	<EnableContentChange>true</EnableContentChange>
-	<Enabled>true</Enabled>
+	<Enabled>false</Enabled>
 	<ExtendedTooltip name="ГруппаКолонокРасширеннаяПодсказка" id="2"/>
 	<FixingInTable>None</FixingInTable>
 	<Group>Horizontal</Group>
@@ -15,7 +15,7 @@
 	</HeaderPicture>
 	<Height>200</Height>
 	<HorizontalStretch>true</HorizontalStretch>
-	<ReadOnly>false</ReadOnly>
+	<ReadOnly>true</ReadOnly>
 	<Shortcut>S</Shortcut>
 	<ShowInHeader>true</ShowInHeader>
 	<ShowTitle>true</ShowTitle>
@@ -35,12 +35,11 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>UsualGroup</Type>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Администратор">false</xr:Value>
 	</UserVisible>
 	<VerticalStretch>true</VerticalStretch>
-	<Visible>true</Visible>
+	<Visible>false</Visible>
 	<Width>300</Width>
 </ColumnGroup>
