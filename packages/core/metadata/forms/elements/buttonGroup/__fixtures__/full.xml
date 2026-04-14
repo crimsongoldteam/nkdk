@@ -5,20 +5,20 @@
 		</Button>
 	</ChildItems>
 	<CommandSource>FormCommandPanelGlobalCommands</CommandSource>
-	<EnableContentChange>false</EnableContentChange>
+	<EnableContentChange>true</EnableContentChange>
 	<Enabled>false</Enabled>
 	<ExtendedTooltip name="ГруппаКнопокРасширеннаяПодсказка" id="4">
 		<Title formatted="false">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
-				<v8:content>ГруппаКнопокРасширеннаяПодсказка</v8:content>
+				<v8:content>Расширенная подсказка</v8:content>
 			</v8:item>
 		</Title>
 	</ExtendedTooltip>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Height>200</Height>
-	<HorizontalStretch>false</HorizontalStretch>
+	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>true</ReadOnly>
 	<Representation>Compact</Representation>
 	<Shortcut>S</Shortcut>
@@ -37,12 +37,11 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>UsualGroup</Type>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Администратор">false</xr:Value>
 	</UserVisible>
-	<VerticalStretch>false</VerticalStretch>
-	<Visible>true</Visible>
+	<VerticalStretch>true</VerticalStretch>
+	<Visible>false</Visible>
 	<Width>300</Width>
 </ButtonGroup>

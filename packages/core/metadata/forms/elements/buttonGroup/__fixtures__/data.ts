@@ -5,48 +5,29 @@ import {
   ButtonGroupTypedYAML,
 } from "~/metadata/forms/elements/buttonGroup/types"
 
+import {
+  fullFormGroupCommonFixture,
+  fullFormGroupEnterpriseCommonFixture,
+  fullFormGroupPartialYAMLCommonFixture,
+} from "~/metadata/forms/elements/formGroup/__fixtures__/data"
+
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 
 export const fullButtonGroup: ButtonGroup = {
   itemType: "ButtonGroup",
-  height: 200,
-  horizontalAlignInGroup: "Left",
-  shortcut: "S",
-  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  titleTextColor: { type: "WebColor", value: "Black" },
-  toolTip: {
-    items: { ru: "Подсказка" },
-  },
-  toolTipRepresentation: "None",
-  type: "UsualGroup",
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
-  verticalAlignInGroup: "Top",
-  visible: true,
-  width: 300,
   name: "ГруппаКнопок",
+  ...fullFormGroupCommonFixture,
+  title: {
+    items: { ru: "Группа кнопок" },
+  },
   childItems: [
     {
       itemType: "Button",
       name: "Кнопка",
     },
   ],
-  title: {
-    items: { ru: "Группа кнопок" },
-  },
   representation: "Compact",
   commandSource: "FormCommandPanelGlobalCommands",
-  enableContentChange: false,
-  enabled: false,
-  horizontalStretch: false,
-  readOnly: true,
-  verticalStretch: false,
-  extendedTooltip: {
-    itemType: "ExtendedTooltip",
-    title: { items: { ru: "ГруппаКнопокРасширеннаяПодсказка" }, formatted: false },
-  },
 }
 
 export const fullButtonGroupEnterprise = {
@@ -65,30 +46,8 @@ export const fullButtonGroupEnterprise = {
     Type: "SystemEnumeration",
     Value: "ButtonGroupRepresentation.Compact",
   },
-  EnableContentChange: false,
-  Enabled: false,
-  Height: 200,
-  HorizontalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  HorizontalStretch: false,
-  ReadOnly: true,
+  ...fullFormGroupEnterpriseCommonFixture,
   Title: "Группа кнопок",
-  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
-  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
-  ToolTip: "Подсказка",
-  ToolTipRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "ToolTipRepresentation.None",
-  },
-  VerticalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Top",
-  },
-  VerticalStretch: false,
-  Visible: true,
-  Width: 300,
   CommandSource: "FormCommandPanelGlobalCommands",
 } satisfies Required<ButtonGroupEnterprise>
 
@@ -100,28 +59,9 @@ export const fullButtonGroupSource: ButtonGroup = {
 }
 
 export const fullButtonGroupPartialYAML: ButtonGroupPartialYAML = {
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ОбычнаяГруппа",
-  Видимость: "Истина",
-  Высота: 200,
-  ГоризонтальноеПоложениеВГруппе: "Лево",
-  Доступность: "Ложь",
-  ОтображениеПодсказки: "Нет",
-  Подсказка: "Подсказка",
-  РазрешитьИспользование: { Администратор: "Истина" },
-  РазрешитьИзменениеСостава: "Ложь",
-  РастягиватьПоВертикали: "Ложь",
-  РастягиватьПоГоризонтали: "Ложь",
-  СочетаниеКлавиш: "S",
-  ТолькоПросмотр: "Истина",
-  ЦветТекстаЗаголовка: "Черный",
-  Ширина: 300,
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
+  ...fullFormGroupPartialYAMLCommonFixture,
   ИсточникКоманд: "FormCommandPanelGlobalCommands",
   Отображение: "Компактное",
-  РасширеннаяПодсказка: {
-    Заголовок: "ГруппаКнопокРасширеннаяПодсказка",
-  },
   Элементы: {
     Кнопка: {
       Тип: "Кнопка",
@@ -132,28 +72,9 @@ export const fullButtonGroupPartialYAML: ButtonGroupPartialYAML = {
 export const fullButtonGroupTypedYAML: ButtonGroupTypedYAML = {
   Тип: "ГруппаКнопок",
   Заголовок: "Группа кнопок",
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ОбычнаяГруппа",
-  Видимость: "Истина",
-  Высота: 200,
-  ГоризонтальноеПоложениеВГруппе: "Лево",
-  Доступность: "Ложь",
-  ОтображениеПодсказки: "Нет",
-  Подсказка: "Подсказка",
-  РазрешитьИспользование: { Администратор: "Истина" },
-  РазрешитьИзменениеСостава: "Ложь",
-  РастягиватьПоВертикали: "Ложь",
-  РастягиватьПоГоризонтали: "Ложь",
-  СочетаниеКлавиш: "S",
-  ТолькоПросмотр: "Истина",
-  ЦветТекстаЗаголовка: "Черный",
-  Ширина: 300,
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
+  ...fullFormGroupPartialYAMLCommonFixture,
   ИсточникКоманд: "FormCommandPanelGlobalCommands",
   Отображение: "Компактное",
-  РасширеннаяПодсказка: {
-    Заголовок: "ГруппаКнопокРасширеннаяПодсказка",
-  },
   Элементы: {
     Кнопка: {
       Тип: "Кнопка",
