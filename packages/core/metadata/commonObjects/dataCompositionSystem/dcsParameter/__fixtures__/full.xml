@@ -1,6 +1,6 @@
 <Settings>
-	<Parameter>
-		<dcssch:name>Параметр1</dcssch:name>
+<Parameter>
+		<dcssch:name>ВходящиеПараметры</dcssch:name>
 		<dcssch:title xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
@@ -9,7 +9,6 @@
 		</dcssch:title>
 		<dcssch:value xsi:nil="true"/>
 		<dcssch:useRestriction>true</dcssch:useRestriction>
-		<dcssch:use>Always</dcssch:use>
 		<dcssch:inputParameters>
 			<dcscor:item>
 				<dcscor:parameter>Маска</dcscor:parameter>
@@ -60,11 +59,40 @@
 		</dcssch:inputParameters>
 	</Parameter>
 	<Parameter>
-		<dcssch:name>Параметр2</dcssch:name>
+		<dcssch:name>СоставнойДоступенСписок</dcssch:name>
 		<dcssch:title xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
-				<v8:content>Параметр2</v8:content>
+				<v8:content>Составной доступен список</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:valueType>
+			<v8:Type>xs:boolean</v8:Type>
+			<v8:Type>xs:string</v8:Type>
+			<v8:Type>xs:dateTime</v8:Type>
+			<v8:Type>xs:decimal</v8:Type>
+			<v8:NumberQualifiers>
+				<v8:Digits>0</v8:Digits>
+				<v8:FractionDigits>0</v8:FractionDigits>
+				<v8:AllowedSign>Any</v8:AllowedSign>
+			</v8:NumberQualifiers>
+			<v8:StringQualifiers>
+				<v8:Length>0</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+			<v8:DateQualifiers>
+				<v8:DateFractions>DateTime</v8:DateFractions>
+			</v8:DateQualifiers>
+		</dcssch:valueType>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+		<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+	</Parameter>
+	<Parameter>
+		<dcssch:name>Составной</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Составной</v8:content>
 			</v8:item>
 		</dcssch:title>
 		<dcssch:valueType>
@@ -87,18 +115,56 @@
 		</dcssch:valueType>
 		<dcssch:value xsi:nil="true"/>
 		<dcssch:useRestriction>false</dcssch:useRestriction>
-		<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
 	</Parameter>
 	<Parameter>
-		<dcssch:name>Параметр3</dcssch:name>
+		<dcssch:name>БезТипаДоступенСписок</dcssch:name>
 		<dcssch:title xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>ru</v8:lang>
-				<v8:content>Параметр3</v8:content>
+				<v8:content>Без типа доступен список</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+		<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+	</Parameter>
+	<Parameter>
+		<dcssch:name>БезТипа</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Без типа</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:value xsi:type="xs:string"/>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+	</Parameter>
+	<Parameter>
+		<dcssch:name>СТипомДоступенСписок</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>С типом доступен список</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:valueType>
+			<v8:Type>xs:string</v8:Type>
+			<v8:StringQualifiers>
+				<v8:Length>0</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+		</dcssch:valueType>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+		<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+	</Parameter>
+	<Parameter>
+		<dcssch:name>СТипом</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>С типом</v8:content>
 			</v8:item>
 		</dcssch:title>
 		<dcssch:value xsi:nil="true"/>
 		<dcssch:useRestriction>false</dcssch:useRestriction>
-		<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
 	</Parameter>
 </Settings>
