@@ -144,9 +144,11 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     expect((attrs.item as { name: string }).name).toBe("Owner")
   })
 
-  it("стандартный реквизит без описания в YAML не имеет item", () => {
+  it("стандартный реквизит без описания в YAML имеет default item", () => {
     const attrs = graph.getNodeAttributes("Справочник.TestCatalog.Ссылка")
-    expect(attrs.item).toBeUndefined()
+    expect(attrs.item).toBeDefined()
+    expect((attrs.item as { itemType: string; name: string }).itemType).toBe("StandardAttributeDescription")
+    expect((attrs.item as { name: string }).name).toBe("Ref")
   })
 
   it("getBrokenReferences is empty after all stubs are enriched", () => {

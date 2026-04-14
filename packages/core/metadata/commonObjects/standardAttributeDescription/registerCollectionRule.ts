@@ -58,7 +58,16 @@ function updateGraph(
   const { parentNodeId, filePath, currentYamlMap } = graphContext
   const stdAttrsYamlMap = findStdAttrsSubmap(currentYamlMap, rule.yaml)
 
-  for (const [, russianName] of Object.entries(rule.standartAttributeNames)) {
+  // Build map of explicitly defined items (russianName → item)
+  const explicitItems = new Map<string, StandardAttributeDescription>()
+  if (result) {
+    for (const item of result) {
+      const russianName = StandartAttributeNameToYAML[item.name as StandartAttributeName]
+      if (russianName) explicitItems.set(russianName, item)
+    }
+  }
+
+  for (const [internalName, russianName] of Object.entries(rule.standartAttributeNames)) {
     const nodeId = `${parentNodeId}.${russianName}`
     const offset = stdAttrsYamlMap ? findKeyOffset(stdAttrsYamlMap, russianName) : undefined
 
@@ -70,16 +79,13 @@ function updateGraph(
 
     const edgeKey = `${parentNodeId}:${EDGE_NAME}:${russianName}`
     g.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, name: EDGE_NAME, kind: "composition" })
-  }
 
-  if (result) {
-    for (const item of result) {
-      const russianName = StandartAttributeNameToYAML[item.name as StandartAttributeName]
-      if (russianName) {
-        const nodeId = `${parentNodeId}.${russianName}`
-        g.setNodeAttribute(nodeId, "item", item)
-      }
+    // US 13: standard attributes always have item so they are never treated as stubs
+    const item = explicitItems.get(russianName) ?? {
+      itemType: "StandardAttributeDescription" as const,
+      name: internalName,
     }
+    g.setNodeAttribute(nodeId, "item", item)
   }
 }
 
