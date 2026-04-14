@@ -1,4 +1,5 @@
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { ReferenceScope } from "../../relations/referenceScope"
 
 const documentProperties = ["Document", "Properties"]
 const documentChildObjects = ["Document", "ChildObjects"]
@@ -326,3 +327,17 @@ export const MetadataDocumentRules = {
     },
   },
 } as const satisfies MetadataItemRule
+
+/**
+ * Возвращает referenceScope для свойства документа по его YAML-ключу.
+ * Используется VSCode-провайдерами для фильтрации автодополнения.
+ */
+export function getDocumentPropertyReferenceScope(yamlKey: string): ReferenceScope | undefined {
+  for (const rule of Object.values(MetadataDocumentRules.properties)) {
+    const r = rule as { yaml?: string; referenceScope?: ReferenceScope }
+    if (r.yaml === yamlKey && r.referenceScope != null) {
+      return r.referenceScope
+    }
+  }
+  return undefined
+}

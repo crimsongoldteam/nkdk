@@ -1,5 +1,10 @@
 import * as vscode from "vscode"
-import { getCatalogPropertyReferenceScope, validateReferenceScope, walk } from "@nakidka/core"
+import {
+  getCatalogPropertyReferenceScope,
+  getDocumentPropertyReferenceScope,
+  validateReferenceScope,
+  walk,
+} from "@nakidka/core"
 import { getWorkspaceGraph, onGraphUpdated } from "../workspaceGraph.js"
 
 // Captures the COMPLETE dotted path before the trigger dot (and optional partial text after it)
@@ -56,8 +61,17 @@ class MetadataCompletionProvider implements vscode.CompletionItemProvider {
     // referenceScope only applies to single-segment type-prefix completion
     const keyMatch = YAML_KEY_PATTERN.exec(lineText)
     const yamlKey = keyMatch?.[1]
-    const scope = !isCompound && yamlKey ? getCatalogPropertyReferenceScope(yamlKey) : undefined
     const ownerNodeId = getOwnerNodeIdFromFilePath(document.uri.fsPath)
+    const itemTypePrefix = ownerNodeId?.split(".")[0]
+
+    const scope =
+      !isCompound && yamlKey
+        ? itemTypePrefix === "Справочник"
+          ? getCatalogPropertyReferenceScope(yamlKey)
+          : itemTypePrefix === "Документ"
+            ? getDocumentPropertyReferenceScope(yamlKey)
+            : undefined
+        : undefined
 
     // Use cache when no scope filter applies
     if (scope == null && this._cache.has(fullPath)) {

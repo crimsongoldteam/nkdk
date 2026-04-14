@@ -36,5 +36,6 @@ export { importMetadataEnumerationFromYAML } from "./metadata/appliedObjects/met
 export { MetadataGraph } from "./metadata/relations/MetadataGraph"
 export { walk } from "./metadata/relations/GraphWalker"
 export { getCatalogPropertyReferenceScope } from "./metadata/appliedObjects/metadataCatalog/rules"
+export { getDocumentPropertyReferenceScope } from "./metadata/appliedObjects/metadataDocument/rules"
 export { validateReferenceScope } from "./metadata/relations/referenceScope"
 export type { ReferenceScope } from "./metadata/relations/referenceScope"
