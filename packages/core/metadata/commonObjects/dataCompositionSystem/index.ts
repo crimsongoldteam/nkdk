@@ -35,7 +35,9 @@ import "./dscMetadataTypedValue/toXML"
 import "./dscMetadataTypedValue/toYAML"
 
 import "./userSettingPresentation/fromXML"
+import "./userSettingPresentation/fromYAML"
 import "./userSettingPresentation/toXML"
+import "./userSettingPresentation/toYAML"
 
 import "./structureItemGroup/items/groupItemAuto"
 
