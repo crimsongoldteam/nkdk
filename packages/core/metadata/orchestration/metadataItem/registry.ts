@@ -79,6 +79,7 @@ import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dyn
 import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
+import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -627,6 +628,11 @@ export type MetadataItemTypeRegistry = {
   MetadataCommand: {
     metadata: MetadataCommand
     yaml: MetadataCommandYAML
+  }
+
+  MetadataDocument: {
+    metadata: MetadataDocument
+    yaml: MetadataDocumentYAML
   }
 
   //#endregion

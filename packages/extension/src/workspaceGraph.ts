@@ -2,7 +2,7 @@ import * as fs from "fs"
 import * as path from "path"
 import * as vscode from "vscode"
 import { isMap, parse, parseDocument } from "yaml"
-import { importMetadataCatalogFromYAML, MetadataGraph } from "@nakidka/core"
+import { importMetadataCatalogFromYAML, importMetadataDocumentFromYAML, MetadataGraph } from "@nakidka/core"
 
 let _graph = new MetadataGraph()
 const _graphUpdatedCallbacks: Array<() => void> = []
@@ -41,6 +41,23 @@ function importCatalogFile(graph: MetadataGraph, yamlPath: string, text: string,
   )
 }
 
+function importDocumentFile(graph: MetadataGraph, yamlPath: string, text: string, documentName: string): void {
+  const root = parseDocument(text).contents
+  importMetadataDocumentFromYAML(
+    {
+      version: "2.20",
+      defaultLanguage: "ru",
+      graph,
+      graphContext: {
+        filePath: yamlPath,
+        currentYamlMap: isMap(root) ? root : undefined,
+      },
+    },
+    parse(text),
+    documentName,
+  )
+}
+
 async function loadWorkspace(workspaceFolder: vscode.WorkspaceFolder): Promise<void> {
   const newGraph = new MetadataGraph()
 
@@ -54,6 +71,22 @@ async function loadWorkspace(workspaceFolder: vscode.WorkspaceFolder): Promise<v
       try {
         const text = fs.readFileSync(yamlPath, "utf-8")
         importCatalogFile(newGraph, yamlPath, text, dir.name)
+      } catch {
+        // Пропускаем нечитаемые файлы
+      }
+    }
+  }
+
+  const documentsPath = path.join(workspaceFolder.uri.fsPath, "Документ")
+  if (fs.existsSync(documentsPath)) {
+    const entries = fs.readdirSync(documentsPath, { withFileTypes: true })
+    for (const dir of entries.filter((e) => e.isDirectory())) {
+      const yamlPath = path.join(documentsPath, dir.name, "Свойства.yml")
+      if (!fs.existsSync(yamlPath)) continue
+
+      try {
+        const text = fs.readFileSync(yamlPath, "utf-8")
+        importDocumentFile(newGraph, yamlPath, text, dir.name)
       } catch {
         // Пропускаем нечитаемые файлы
       }
@@ -80,8 +113,14 @@ export function initWorkspaceGraph(context: vscode.ExtensionContext): void {
       try {
         const text = doc.getText()
         const parts = filePath.split(path.sep)
-        const catalogName = parts[parts.length - 2]
-        importCatalogFile(_graph, filePath, text, catalogName)
+        const objectName = parts[parts.length - 2]
+        const objectType = parts[parts.length - 3]
+
+        if (objectType === "Документ") {
+          importDocumentFile(_graph, filePath, text, objectName)
+        } else {
+          importCatalogFile(_graph, filePath, text, objectName)
+        }
       } catch {
         // Пропускаем при ошибке парсинга
       }
