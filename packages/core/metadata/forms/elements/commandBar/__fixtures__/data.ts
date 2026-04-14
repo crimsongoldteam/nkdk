@@ -1,5 +1,10 @@
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarEnterprise, CommandBarPartialYAML } from "~/metadata/forms/elements/commandBar/types"
+import {
+  fullFormGroupCommonFixture,
+  fullFormGroupEnterpriseCommonFixture,
+  fullFormGroupPartialYAMLCommonFixture,
+} from "~/metadata/forms/elements/formGroup/__fixtures__/data"
 
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -26,35 +31,10 @@ export const sourceCommandBar: CommandBar = {
 export const fullCommandBar: RequiredFieldsElement<CommandBar> = {
   itemType: "CommandBar",
   name: "КоманднаяПанель",
-  enableContentChange: true,
-  extendedTooltip: {
-    itemType: "ExtendedTooltip",
-    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
-  },
-  enabled: true,
-  height: 200,
-  horizontalAlignInGroup: "Center",
-  horizontalStretch: true,
-  readOnly: false,
-  shortcut: "S",
+  ...fullFormGroupCommonFixture,
   title: {
     items: { ru: "Командная панель" },
   },
-  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  titleTextColor: { type: "WebColor", value: "Black" },
-  toolTip: {
-    items: { ru: "Подсказка" },
-  },
-  toolTipRepresentation: "None",
-  type: "UsualGroup",
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
-  verticalAlignInGroup: "Top",
-  verticalStretch: true,
-  visible: true,
-  width: 300,
   autofill: true,
   displayImportance: "High",
   horizontalAlign: "Left",
@@ -105,30 +85,8 @@ export const fullCommandBarEnterprise = {
   ],
   DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.High" },
   HorizontalAlign: { Type: "SystemEnumeration", Value: "ItemHorizontalLocation.Left" },
-  EnableContentChange: true,
-  Enabled: true,
-  Height: 200,
-  HorizontalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Center",
-  },
-  HorizontalStretch: true,
-  ReadOnly: false,
+  ...fullFormGroupEnterpriseCommonFixture,
   Title: "Командная панель",
-  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
-  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
-  ToolTip: "Подсказка",
-  ToolTipRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "ToolTipRepresentation.None",
-  },
-  VerticalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Top",
-  },
-  VerticalStretch: true,
-  Visible: true,
-  Width: 300,
   CommandSource: "Form",
 } satisfies Required<CommandBarEnterprise>
 
@@ -148,27 +106,8 @@ export const fullCommandBarSource: CommandBar = {
 export const minimalCommandBarPartialYAML: CommandBarPartialYAML = {}
 
 export const fullCommandBarPartialYAML: CommandBarPartialYAML = {
+  ...fullFormGroupPartialYAMLCommonFixture,
   Заголовок: "Командная панель",
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ОбычнаяГруппа",
-  Видимость: "Истина",
-  Высота: 200,
-  ГоризонтальноеПоложениеВГруппе: "Центр",
-  Доступность: "Истина",
-  ОтображениеПодсказки: "Нет",
-  Подсказка: "Подсказка",
-  РазрешитьИспользование: { Администратор: "Истина" },
-  РазрешитьИзменениеСостава: "Истина",
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
-  РасширеннаяПодсказка: {
-    Заголовок: "Расширенная подсказка",
-  },
-  СочетаниеКлавиш: "S",
-  ТолькоПросмотр: "Ложь",
-  ЦветТекстаЗаголовка: "Черный",
-  Ширина: 300,
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
   Автозаполнение: "Истина",
   ВажностьПриОтображении: "Высокая",
   ГоризонтальноеПоложение: "Лево",

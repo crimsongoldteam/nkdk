@@ -38,7 +38,7 @@
 	</ChildItems>
 	<CommandSource>Form</CommandSource>
 	<EnableContentChange>true</EnableContentChange>
-	<Enabled>true</Enabled>
+	<Enabled>false</Enabled>
 	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="12">
 		<Title formatted="false">
 			<v8:item>
@@ -47,12 +47,12 @@
 			</v8:item>
 		</Title>
 	</ExtendedTooltip>
-	<GroupHorizontalAlign>Center</GroupHorizontalAlign>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Height>200</Height>
 	<HorizontalLocation>Left</HorizontalLocation>
 	<HorizontalStretch>true</HorizontalStretch>
-	<ReadOnly>false</ReadOnly>
+	<ReadOnly>true</ReadOnly>
 	<Shortcut>S</Shortcut>
 	<Title>
 		<v8:item>
@@ -69,12 +69,11 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>UsualGroup</Type>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Администратор">false</xr:Value>
 	</UserVisible>
 	<VerticalStretch>true</VerticalStretch>
-	<Visible>true</Visible>
+	<Visible>false</Visible>
 	<Width>300</Width>
 </CommandBar>
