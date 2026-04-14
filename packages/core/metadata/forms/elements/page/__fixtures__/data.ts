@@ -1,39 +1,19 @@
 import { Page, PageEnterprise, PagePartialYAML } from "~/metadata/forms/elements/page/types"
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormGroupCommonFixture,
+  fullFormGroupEnterpriseCommonFixture,
+  fullFormGroupPartialYAMLCommonFixture,
+} from "~/metadata/forms/elements/formGroup/__fixtures__/data"
 
-export const fullPage: RequiredFieldsElement<Page> = {
+export const fullPage: RequiredFieldsElement<Omit<Page, "extendedTooltip">> = {
   itemType: "Page",
   name: "Страница",
-  enableContentChange: true,
-  enabled: true,
-  height: 200,
-  horizontalAlignInGroup: "Left",
-  horizontalStretch: true,
-  readOnly: false,
-  shortcut: "S",
+  ...fullFormGroupCommonFixture,
   title: {
     items: { ru: "Страница" },
   },
-  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  titleTextColor: { type: "WebColor", value: "Black" },
-  toolTip: {
-    items: { ru: "Подсказка" },
-  },
-  toolTipRepresentation: "None",
-  type: "UsualGroup",
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
-  verticalAlignInGroup: "Top",
-  verticalStretch: true,
-  visible: true,
-  width: 300,
   backColor: { type: "WebColor", value: "White" },
-  extendedTooltip: {
-    itemType: "ExtendedTooltip",
-    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
-  },
   picture: { ref: "Print", type: "StandardPicture", loadTransparent: true },
   childItemsHorizontalAlign: "Left",
   childItemsVerticalAlign: "Top",
@@ -60,23 +40,7 @@ export const fullPage: RequiredFieldsElement<Page> = {
 }
 
 export const fullPagePartialYAML: PagePartialYAML = {
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ОбычнаяГруппа",
-  Видимость: "Истина",
-  Высота: 200,
-  ГоризонтальноеПоложениеВГруппе: "Лево",
-  Доступность: "Истина",
-  ОтображениеПодсказки: "Нет",
-  Подсказка: "Подсказка",
-  РазрешитьИспользование: { Администратор: "Истина" },
-  РазрешитьИзменениеСостава: "Истина",
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
-  СочетаниеКлавиш: "S",
-  ТолькоПросмотр: "Ложь",
-  ЦветТекстаЗаголовка: "Черный",
-  Ширина: 300,
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
+  ...fullFormGroupPartialYAMLCommonFixture,
   ВажностьПриОтображении: "Высокая",
   ВертикальнаяПрокруткаПриСжатии: "Истина",
   ВертикальноеПоложение: "Верх",
@@ -89,9 +53,6 @@ export const fullPagePartialYAML: PagePartialYAML = {
   Картинка: "Печать",
   ОтображатьЗаголовок: "Истина",
   ПутьКДаннымЗаголовка: "Объект.Заголовок",
-  РасширеннаяПодсказка: {
-    Заголовок: "Расширенная подсказка",
-  },
   СкроллПриСжатии: "Истина",
   Формат: "Формат",
   ЦветФона: "Белый",
@@ -135,12 +96,14 @@ export const fullPageEnterprise = {
     Type: "SystemEnumeration",
     Value: "ItemsAndTitlesAlignVariant.Auto",
   },
+  Picture: { Type: "Picture", Value: "PictureLib.Print" },
   ScrollOnCompress: true,
   ShowTitle: true,
   SlaveItemsWidth: {
     Type: "SystemEnumeration",
     Value: "ChildFormItemsWidth.Auto",
   },
+  Title: "Страница",
   TitleDataPath: "Объект.Заголовок",
   VerticalAlign: {
     Type: "SystemEnumeration",
@@ -151,31 +114,7 @@ export const fullPageEnterprise = {
     Type: "SystemEnumeration",
     Value: "FormItemSpacing.Single",
   },
-  EnableContentChange: true,
-  Enabled: true,
-  Height: 200,
-  HorizontalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  HorizontalStretch: true,
-  ReadOnly: false,
-  Title: "Страница",
-  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
-  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
-  ToolTip: "Подсказка",
-  ToolTipRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "ToolTipRepresentation.None",
-  },
-  VerticalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Top",
-  },
-  VerticalStretch: true,
-  Visible: true,
-  Width: 300,
-  Picture: { Type: "Picture", Value: "PictureLib.Print" },
+  ...fullFormGroupEnterpriseCommonFixture,
 } satisfies Required<PageEnterprise>
 
 export const minimalPage: Page = {

@@ -9,7 +9,7 @@
 	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
 	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
 	<EnableContentChange>true</EnableContentChange>
-	<Enabled>true</Enabled>
+	<Enabled>false</Enabled>
 	<ExtendedTooltip name="СтраницаРасширеннаяПодсказка" id="2">
 		<Title formatted="false">
 			<v8:item>
@@ -35,7 +35,7 @@
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</Picture>
-	<ReadOnly>false</ReadOnly>
+	<ReadOnly>true</ReadOnly>
 	<ScrollOnCompress>true</ScrollOnCompress>
 	<Shortcut>S</Shortcut>
 	<ShowTitle>true</ShowTitle>
@@ -56,15 +56,14 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>UsualGroup</Type>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Администратор">false</xr:Value>
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
 	<VerticalScrollOnReduceSize>true</VerticalScrollOnReduceSize>
 	<VerticalSpacing>Single</VerticalSpacing>
 	<VerticalStretch>true</VerticalStretch>
-	<Visible>true</Visible>
+	<Visible>false</Visible>
 	<Width>300</Width>
 </Page>
