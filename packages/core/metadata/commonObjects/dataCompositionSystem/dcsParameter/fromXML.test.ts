@@ -4,7 +4,7 @@ import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXM
 import { fullDCSParameters, minimalDCSParameters } from "./__fixtures__/data"
 import "./types"
 
-const rule: PropertyRule = { type: "DCSParameter" }
+const rule: PropertyRule = { type: "DCSParameters" }
 
 describe("import DCSParameter from XML", () => {
   it("imports full.xml", () => {

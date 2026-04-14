@@ -3,7 +3,7 @@ import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { fullDCSParameters, minimalDCSParameters } from "./__fixtures__/data"
 
-const rule: PropertyRule = { type: "DCSParameter" }
+const rule: PropertyRule = { type: "DCSParameters" }
 
 describe("export DCSParameter to XML", () => {
   it("exports minimal.xml", () => {

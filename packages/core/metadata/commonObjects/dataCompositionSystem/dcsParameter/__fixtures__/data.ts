@@ -1,18 +1,21 @@
 import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
 import type { DCSParameters, DCSParametersYAML } from "../types"
 
-const param2ValueType = {
+const compositeValueType = {
   type: ["boolean", "string", "dateTime", "decimal"],
   dateQualifiers: { dateFractions: "DateTime" },
+} as const satisfies TypeDescription
+
+const stringValueType = {
+  type: ["string"],
 } as const satisfies TypeDescription
 
 export const fullDCSParameters = [
   {
     itemType: "DCSParameter" as const,
-    name: "Параметр1",
+    name: "ВходящиеПараметры",
     title: { items: { ru: "Параметр1" } },
     useRestriction: true,
-    use: "Always" as const,
     editParameters: {
       itemType: "SettingsParameterValueCollection" as const,
       parameters: {
@@ -62,16 +65,39 @@ export const fullDCSParameters = [
   },
   {
     itemType: "DCSParameter" as const,
-    name: "Параметр2",
-    title: { items: { ru: "Параметр2" } },
-    valueType: param2ValueType,
+    name: "СоставнойДоступенСписок",
+    title: { items: { ru: "Составной доступен список" } },
+    valueType: compositeValueType,
     valueListAllowed: true,
   },
   {
     itemType: "DCSParameter" as const,
-    name: "Параметр3",
-    title: { items: { ru: "Параметр3" } },
+    name: "Составной",
+    title: { items: { ru: "Составной" } },
+    valueType: compositeValueType,
+  },
+  {
+    itemType: "DCSParameter" as const,
+    name: "БезТипаДоступенСписок",
+    title: { items: { ru: "Без типа доступен список" } },
     valueListAllowed: true,
+  },
+  {
+    itemType: "DCSParameter" as const,
+    name: "БезТипа",
+    title: { items: { ru: "Без типа" } },
+  },
+  {
+    itemType: "DCSParameter" as const,
+    name: "СТипомДоступенСписок",
+    title: { items: { ru: "С типом доступен список" } },
+    valueType: stringValueType,
+    valueListAllowed: true,
+  },
+  {
+    itemType: "DCSParameter" as const,
+    name: "СТипом",
+    title: { items: { ru: "С типом" } },
   },
 ] as const satisfies DCSParameters
 
@@ -84,10 +110,9 @@ export const minimalDCSParameters = [
 ] as const satisfies DCSParameters
 
 export const fullDCSParametersYAML = {
-  Параметр1: {
+  ВходящиеПараметры: {
     Заголовок: "Параметр1",
     ОграничениеИспользования: "Истина",
-    Использование: "Всегда",
     ПараметрыРедактирования: {
       БыстрыйВыбор: "Истина",
       ВыборГруппИЭлементов: "Элементы",
@@ -101,14 +126,29 @@ export const fullDCSParametersYAML = {
       ФорматРедактирования: '"ЧЦ=15; ЧДЦ=2"',
     },
   },
-  Параметр2: {
-    Заголовок: "Параметр2",
+  СоставнойДоступенСписок: {
+    Заголовок: "Составной доступен список",
     ТипЗначения: ["Булево", "Строка", "ДатаВремя", "Число"],
     ДоступенСписокЗначений: "Истина",
   },
-  Параметр3: {
-    Заголовок: "Параметр3",
+  Составной: {
+    Заголовок: "Составной",
+    ТипЗначения: ["Булево", "Строка", "ДатаВремя", "Число"],
+  },
+  БезТипаДоступенСписок: {
+    Заголовок: "Без типа доступен список",
     ДоступенСписокЗначений: "Истина",
+  },
+  БезТипа: {
+    Заголовок: "Без типа",
+  },
+  СТипомДоступенСписок: {
+    Заголовок: "С типом доступен список",
+    ТипЗначения: "Строка",
+    ДоступенСписокЗначений: "Истина",
+  },
+  СТипом: {
+    Заголовок: "С типом",
   },
 } as const satisfies DCSParametersYAML
 

@@ -10,7 +10,7 @@ import {
 import "./types"
 
 const rule: PropertyRule = {
-  type: "DCSParameter",
+  type: "DCSParameters",
   yaml: "Параметры",
 }
 

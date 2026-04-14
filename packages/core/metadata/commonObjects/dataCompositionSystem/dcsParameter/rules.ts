@@ -29,6 +29,9 @@ export const DCSParameterRules = {
       xml: "dcssch:value",
       yaml: "Значение",
       order: 4,
+      exportNilValue: true,
+      toXML: (item: { value?: unknown; valueListAllowed?: boolean }) =>
+        !(item?.value === undefined && item?.valueListAllowed === true),
     },
     useRestriction: {
       type: "boolean",

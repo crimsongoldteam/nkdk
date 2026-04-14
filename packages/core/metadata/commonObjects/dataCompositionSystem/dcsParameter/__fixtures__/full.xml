@@ -1,5 +1,5 @@
 <Settings>
-<Parameter>
+	<Parameter>
 		<dcssch:name>ВходящиеПараметры</dcssch:name>
 		<dcssch:title xsi:type="v8:LocalStringType">
 			<v8:item>

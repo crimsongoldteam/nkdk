@@ -9,7 +9,7 @@ import {
 } from "./__fixtures__/data"
 import "./types"
 
-const rule: PropertyRule = { type: "DCSParameter" }
+const rule: PropertyRule = { type: "DCSParameters" }
 
 describe("import DCSParameter from YAML", () => {
   it("imports undefined", () => {

@@ -26,12 +26,14 @@ export type DcsMetadataValueValueType =
 interface DcsMetadataValueBasePropertyRule extends BasePropertyRule {
   type: "MetadataDcsMetadataValue"
   valueType: Exclude<DcsMetadataValueValueType, "SystemEnumeration">
+  exportNilValue?: boolean
 }
 
 interface SystemEnumerationPropertyRule extends BasePropertyRule {
   type: "MetadataDcsMetadataValue"
   valueType: "SystemEnumeration"
   typeSE: keyof SystemEnumerationTypeMap
+  exportNilValue?: boolean
 }
 
 export type DcsMetadataValuePropertyRule = DcsMetadataValueBasePropertyRule | SystemEnumerationPropertyRule

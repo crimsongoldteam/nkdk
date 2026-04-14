@@ -30,6 +30,9 @@ export const exportDcsMetadataValueToDcsXML = (params: {
     return { "dcscor:value": { "_xsi:nil": true } as unknown as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }
   }
   if (data === undefined) {
+    if (rule.exportNilValue) {
+      return { "dcscor:value": { "_xsi:nil": true } as unknown as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }
+    }
     return { "dcscor:value": undefined as unknown as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }
   }
 

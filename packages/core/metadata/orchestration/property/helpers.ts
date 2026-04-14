@@ -30,14 +30,17 @@ type PropertyExportImportOperation =
 export const shouldProcessProperty = (params: {
   rule: PropertyRule
   operation: PropertyExportImportOperation
+  metadataItem?: any
 }): boolean => {
-  const { rule, operation } = params
+  const { rule, operation, metadataItem } = params
 
   if (rule.runtimeOnly) return false
 
   switch (operation) {
     case "exportToXML":
-      return rule.toXML !== false
+      if (rule.toXML === false) return false
+      if (typeof rule.toXML === "function") return rule.toXML(metadataItem)
+      return true
     case "importFromXML":
       return rule.fromXML !== false
     case "exportToYAML":

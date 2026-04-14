@@ -11,7 +11,7 @@ export type DCSParameters = DCSParameter[]
 export type DCSParametersYAML = Record<string, DCSParameterYAML>
 
 registerMetadataItemCollectionRule({
-  propertyType: "DCSParameter",
+  propertyType: "DCSParameters",
   itemRule: DCSParameterRules,
   xmlElement: "Parameter",
   keyField: "name",
