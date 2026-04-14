@@ -1,4 +1,7 @@
+import fs from "fs"
+import path from "path"
 import { beforeEach, describe, expect, it } from "vitest"
+import { isMap, parse, parseDocument } from "yaml"
 import { nodeMatch } from "~/metadata/relations/dependencyQuery"
 import { getDependencies } from "~/metadata/relations/getDependencies"
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
@@ -72,5 +75,41 @@ describe("importMetadataEnumerationFromYAML — граф значений", () =
       "Перечисление.СтатусЗаказа.Открыт",
       "Перечисление.СтатусЗаказа.Отменён",
     ])
+  })
+})
+
+describe("importMetadataEnumerationFromYAML — positionFrom значений", () => {
+  let graph: MetadataGraph
+  let text: string
+
+  beforeEach(() => {
+    graph = new MetadataGraph()
+    text = fs.readFileSync(path.join(__dirname, "__fixtures__/values.yaml"), "utf8")
+    const yamlDocument = parseDocument(text)
+    const root = yamlDocument.contents
+    importMetadataEnumerationFromYAML(
+      {
+        ...mockContext,
+        graph,
+        graphContext: { filePath: "Перечисление/СтатусЗаказа/Свойства.yml", currentYamlMap: isMap(root) ? root : undefined },
+      },
+      parse(text),
+      "СтатусЗаказа",
+    )
+  })
+
+  it("узел значения содержит positionFrom с корректным offset", () => {
+    const attrs = graph.getNodeAttributes("Перечисление.СтатусЗаказа.Открыт")
+    expect(attrs.positionFrom).toMatchObject({ offset: text.indexOf("Открыт") })
+  })
+
+  it("positionFrom указывает на корректную позицию второго значения", () => {
+    const attrs = graph.getNodeAttributes("Перечисление.СтатусЗаказа.Закрыт")
+    expect(attrs.positionFrom).toMatchObject({ offset: text.indexOf("Закрыт") })
+  })
+
+  it("positionFrom указывает на корректную позицию третьего значения", () => {
+    const attrs = graph.getNodeAttributes("Перечисление.СтатусЗаказа.Отменён")
+    expect(attrs.positionFrom).toMatchObject({ offset: text.indexOf("Отменён") })
   })
 })
