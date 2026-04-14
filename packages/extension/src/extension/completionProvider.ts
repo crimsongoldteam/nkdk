@@ -2,6 +2,7 @@ import * as vscode from "vscode"
 import {
   getCatalogPropertyReferenceScope,
   getDocumentPropertyReferenceScope,
+  getEnumerationPropertyReferenceScope,
   validateReferenceScope,
   walk,
 } from "@nakidka/core"
@@ -70,7 +71,9 @@ class MetadataCompletionProvider implements vscode.CompletionItemProvider {
           ? getCatalogPropertyReferenceScope(yamlKey)
           : itemTypePrefix === "Документ"
             ? getDocumentPropertyReferenceScope(yamlKey)
-            : undefined
+            : itemTypePrefix === "Перечисление"
+              ? getEnumerationPropertyReferenceScope(yamlKey)
+              : undefined
         : undefined
 
     // Use cache when no scope filter applies
