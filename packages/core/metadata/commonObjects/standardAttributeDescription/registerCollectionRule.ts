@@ -1,7 +1,9 @@
 import { isPair, isScalar, YAMLMap } from "yaml"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
+import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
 import { importMetadataItemCollectionFromYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/fromYAML"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
+import { isEmptyMetadataItem } from "~/metadata/orchestration/formElement/helper"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { defaultGraph } from "~/metadata/relations/graph"
 import { StandardAttributeDescriptionRules } from "./rules"
@@ -28,6 +30,59 @@ function findStdAttrsSubmap(currentYamlMap: YAMLMap | undefined, propYaml: strin
   return undefined
 }
 
+function filterNonEmpty(
+  context: ConfigurationContext,
+  items: readonly StandardAttributeDescription[] | undefined
+): StandardAttributeDescription[] | undefined {
+  if (!items) return undefined
+  const filtered = items.filter(
+    (item) =>
+      !isEmptyMetadataItem({
+        context,
+        rule: StandardAttributeDescriptionRules as any,
+        element: item as any,
+        ignoreKeys: ["name"],
+      })
+  )
+  return filtered.length > 0 ? filtered : undefined
+}
+
+function updateGraph(
+  context: ConfigurationContext,
+  rule: PropertyRule | undefined,
+  result: readonly StandardAttributeDescription[] | undefined
+) {
+  const { graphContext } = context
+  if (!graphContext?.parentNodeId || rule?.type !== "StandardAttributeDescriptions") return
+  const g = context.graph ?? defaultGraph
+  const { parentNodeId, filePath, currentYamlMap } = graphContext
+  const stdAttrsYamlMap = findStdAttrsSubmap(currentYamlMap, rule.yaml)
+
+  for (const [, russianName] of Object.entries(rule.standartAttributeNames)) {
+    const nodeId = `${parentNodeId}.${russianName}`
+    const offset = stdAttrsYamlMap ? findKeyOffset(stdAttrsYamlMap, russianName) : undefined
+
+    g.ensureNode(nodeId, {
+      name: russianName,
+      positionFrom: offset !== undefined ? { offset } : undefined,
+      filePath,
+    })
+
+    const edgeKey = `${parentNodeId}:${EDGE_NAME}:${russianName}`
+    g.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, name: EDGE_NAME, kind: "composition" })
+  }
+
+  if (result) {
+    for (const item of result) {
+      const russianName = StandartAttributeNameToYAML[item.name as StandartAttributeName]
+      if (russianName) {
+        const nodeId = `${parentNodeId}.${russianName}`
+        g.setNodeAttribute(nodeId, "item", item)
+      }
+    }
+  }
+}
+
 function importStandardAttributeDescriptionsFromYAML(
   context: ConfigurationContext,
   rule: PropertyRule | undefined,
@@ -38,40 +93,24 @@ function importStandardAttributeDescriptionsFromYAML(
     itemRule: StandardAttributeDescriptionRules,
     yaml: value,
     nameFromYAMLKey: StandartAttributeNameFromYAML,
-  })
+  }) as StandardAttributeDescription[] | undefined
 
-  const { graphContext } = context
-  if (graphContext?.parentNodeId && rule?.type === "StandardAttributeDescriptions") {
-    const g = context.graph ?? defaultGraph
-    const { parentNodeId, filePath, currentYamlMap } = graphContext
-    const stdAttrsYamlMap = findStdAttrsSubmap(currentYamlMap, rule.yaml)
+  updateGraph(context, rule, result)
+  return result
+}
 
-    for (const [, russianName] of Object.entries(rule.standartAttributeNames)) {
-      // NodeId без промежуточных сегментов: Справочник.TestCatalog.Ссылка
-      const nodeId = `${parentNodeId}.${russianName}`
-      const offset = stdAttrsYamlMap ? findKeyOffset(stdAttrsYamlMap, russianName) : undefined
+function importStandardAttributeDescriptionsFromXML(
+  context: ConfigurationContextFromXML,
+  rule: PropertyRule,
+  xml: any
+) {
+  const importer = importMetadataItemCollectionFromXML(StandardAttributeDescriptionRules, "xr:StandardAttribute")
+  const xmlForImporter =
+    xml && typeof xml === "object" && "xr:StandardAttribute" in xml ? xml : { "xr:StandardAttribute": xml }
+  const raw = importer(context, rule, xmlForImporter) as StandardAttributeDescription[] | undefined
 
-      g.ensureNode(nodeId, {
-        name: russianName,
-        positionFrom: offset !== undefined ? { offset } : undefined,
-        filePath,
-      })
-
-      const edgeKey = `${parentNodeId}:${EDGE_NAME}:${russianName}`
-      g.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, name: EDGE_NAME, kind: "composition" })
-    }
-
-    if (result) {
-      for (const item of result) {
-        const russianName = StandartAttributeNameToYAML[(item as StandardAttributeDescription).name as StandartAttributeName]
-        if (russianName) {
-          const nodeId = `${parentNodeId}.${russianName}`
-          g.setNodeAttribute(nodeId, "item", item)
-        }
-      }
-    }
-  }
-
+  const result = filterNonEmpty(context, raw)
+  updateGraph(context, rule, result)
   return result
 }
 
@@ -83,4 +122,5 @@ registerMetadataItemCollectionRule({
   nameFromYAMLKey: StandartAttributeNameFromYAML,
   recordYamlKeyFromItem: (item) => StandartAttributeNameToYAML[item.name as StandartAttributeName],
   fromYAML: importStandardAttributeDescriptionsFromYAML,
+  fromXML: importStandardAttributeDescriptionsFromXML,
 })
