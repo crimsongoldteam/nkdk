@@ -138,9 +138,8 @@ const importDcsMetadataValueFromXMLForRule: (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
   value: unknown
-) => MetadataDcsMetadataValue | null | undefined = (context, rule, value) => {
-  if (value === undefined) return undefined
-  if (value === null) return null
+) => MetadataDcsMetadataValue | undefined = (context, rule, value) => {
+  if (value === undefined || value === null) return undefined
   const xml: MetadataDcsMetadataValueDcsRootXML = isDcsMetadataValueRootXml(value)
     ? value
     : { "dcscor:value": value as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }

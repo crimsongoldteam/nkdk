@@ -97,7 +97,7 @@ export const DynamicListRules = {
       xmlParents: ["ListSettings"],
     },
     parameters: {
-      type: "DCSParameter",
+      type: "DCSParameters",
       xml: "Parameter",
       yaml: "Параметры",
     },

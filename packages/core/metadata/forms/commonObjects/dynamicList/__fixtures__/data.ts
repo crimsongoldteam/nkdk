@@ -216,7 +216,6 @@ export const fullDynamicList = {
       },
       use: "Always",
       useRestriction: true,
-      value: null,
     },
   ],
 } as const satisfies DynamicList
