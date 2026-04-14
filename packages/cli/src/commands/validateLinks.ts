@@ -4,6 +4,7 @@ import { join, relative } from "path"
 import { isMap, parse, parseDocument } from "yaml"
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
 import { importMetadataDocumentFromYAML } from "~/metadata/appliedObjects/metadataDocument/fromYAML"
+import { importMetadataEnumerationFromYAML } from "~/metadata/appliedObjects/metadataEnumeration/fromYAML"
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 
 function offsetToLineCol(
@@ -79,6 +80,35 @@ export const validateLinks = (projectPath: string): void => {
         const text = readFileSync(yamlPath, "utf-8")
         const root = parseDocument(text).contents
         importMetadataDocumentFromYAML(
+          {
+            ...baseContext,
+            graphContext: {
+              filePath: yamlPath,
+              currentYamlMap: isMap(root) ? root : undefined,
+            },
+          },
+          parse(text),
+          dir.name,
+        )
+        importedCount++
+      } catch (err) {
+        console.warn(chalk.yellow(`Предупреждение: не удалось импортировать ${yamlPath}: ${err}`))
+      }
+    }
+  }
+
+  // Импорт перечислений (Перечисление/ИмяПеречисления/Свойства.yml)
+  const enumerationsPath = join(projectPath, "Перечисление")
+  if (existsSync(enumerationsPath)) {
+    const entries = readdirSync(enumerationsPath, { withFileTypes: true })
+    for (const dir of entries.filter((e) => e.isDirectory())) {
+      const yamlPath = join(enumerationsPath, dir.name, "Свойства.yml")
+      if (!existsSync(yamlPath)) continue
+
+      try {
+        const text = readFileSync(yamlPath, "utf-8")
+        const root = parseDocument(text).contents
+        importMetadataEnumerationFromYAML(
           {
             ...baseContext,
             graphContext: {

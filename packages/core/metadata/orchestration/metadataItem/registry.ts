@@ -81,6 +81,10 @@ import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metad
 import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
 import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
 import {
+  MetadataEnumeration,
+  MetadataEnumerationYAML,
+} from "../../appliedObjects/metadataEnumeration/types"
+import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
   ClientApplicationFormYAML,
@@ -633,6 +637,11 @@ export type MetadataItemTypeRegistry = {
   MetadataDocument: {
     metadata: MetadataDocument
     yaml: MetadataDocumentYAML
+  }
+
+  MetadataEnumeration: {
+    metadata: MetadataEnumeration
+    yaml: MetadataEnumerationYAML
   }
 
   //#endregion

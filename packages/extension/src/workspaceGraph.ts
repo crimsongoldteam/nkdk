@@ -2,7 +2,12 @@ import * as fs from "fs"
 import * as path from "path"
 import * as vscode from "vscode"
 import { isMap, parse, parseDocument } from "yaml"
-import { importMetadataCatalogFromYAML, importMetadataDocumentFromYAML, MetadataGraph } from "@nakidka/core"
+import {
+  importMetadataCatalogFromYAML,
+  importMetadataDocumentFromYAML,
+  importMetadataEnumerationFromYAML,
+  MetadataGraph,
+} from "@nakidka/core"
 
 let _graph = new MetadataGraph()
 const _graphUpdatedCallbacks: Array<() => void> = []
@@ -38,6 +43,23 @@ function importCatalogFile(graph: MetadataGraph, yamlPath: string, text: string,
     },
     parse(text),
     catalogName,
+  )
+}
+
+function importEnumerationFile(graph: MetadataGraph, yamlPath: string, text: string, enumName: string): void {
+  const root = parseDocument(text).contents
+  importMetadataEnumerationFromYAML(
+    {
+      version: "2.20",
+      defaultLanguage: "ru",
+      graph,
+      graphContext: {
+        filePath: yamlPath,
+        currentYamlMap: isMap(root) ? root : undefined,
+      },
+    },
+    parse(text),
+    enumName,
   )
 }
 
@@ -93,6 +115,22 @@ async function loadWorkspace(workspaceFolder: vscode.WorkspaceFolder): Promise<v
     }
   }
 
+  const enumerationsPath = path.join(workspaceFolder.uri.fsPath, "Перечисление")
+  if (fs.existsSync(enumerationsPath)) {
+    const entries = fs.readdirSync(enumerationsPath, { withFileTypes: true })
+    for (const dir of entries.filter((e) => e.isDirectory())) {
+      const yamlPath = path.join(enumerationsPath, dir.name, "Свойства.yml")
+      if (!fs.existsSync(yamlPath)) continue
+
+      try {
+        const text = fs.readFileSync(yamlPath, "utf-8")
+        importEnumerationFile(newGraph, yamlPath, text, dir.name)
+      } catch {
+        // Пропускаем нечитаемые файлы
+      }
+    }
+  }
+
   _graph = newGraph
   _notifyGraphUpdated()
 }
@@ -118,6 +156,8 @@ export function initWorkspaceGraph(context: vscode.ExtensionContext): void {
 
         if (objectType === "Документ") {
           importDocumentFile(_graph, filePath, text, objectName)
+        } else if (objectType === "Перечисление") {
+          importEnumerationFile(_graph, filePath, text, objectName)
         } else {
           importCatalogFile(_graph, filePath, text, objectName)
         }
