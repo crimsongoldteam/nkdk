@@ -135,7 +135,7 @@
 				<v8:content>Без типа</v8:content>
 			</v8:item>
 		</dcssch:title>
-		<dcssch:value xsi:type="xs:string"/>
+		<dcssch:value xsi:nil="true"/>
 		<dcssch:useRestriction>false</dcssch:useRestriction>
 	</Parameter>
 	<Parameter>
