@@ -1,4 +1,5 @@
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { ReferenceScope } from "../../relations/referenceScope"
 import { MetadataCatalogStandardAttributeNames } from "./types"
 
 const catalogBaseProperties = ["Catalog"]
@@ -395,3 +396,17 @@ export const MetadataCatalogRules = {
     },
   },
 } as const satisfies MetadataItemRule
+
+/**
+ * Возвращает referenceScope для свойства справочника по его YAML-ключу.
+ * Используется VSCode-провайдерами для фильтрации автодополнения.
+ */
+export function getCatalogPropertyReferenceScope(yamlKey: string): ReferenceScope | undefined {
+  for (const rule of Object.values(MetadataCatalogRules.properties)) {
+    const r = rule as { yaml?: string; referenceScope?: ReferenceScope }
+    if (r.yaml === yamlKey && r.referenceScope != null) {
+      return r.referenceScope
+    }
+  }
+  return undefined
+}
