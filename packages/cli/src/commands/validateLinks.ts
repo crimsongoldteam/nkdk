@@ -5,6 +5,23 @@ import { isMap, parse, parseDocument } from "yaml"
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 
+function offsetToLineCol(
+  filePath: string,
+  offset: number,
+  cache: Map<string, string>,
+): { line: number; col: number } | undefined {
+  if (!filePath || !existsSync(filePath)) return undefined
+  let content = cache.get(filePath)
+  if (content === undefined) {
+    content = readFileSync(filePath, "utf-8")
+    cache.set(filePath, content)
+  }
+  if (offset >= content.length) return undefined
+  const before = content.slice(0, offset)
+  const lines = before.split("\n")
+  return { line: lines.length, col: lines[lines.length - 1].length + 1 }
+}
+
 export const validateLinks = (projectPath: string): void => {
   if (!existsSync(projectPath)) {
     console.error(chalk.red(`Директория не найдена: ${projectPath}`))
@@ -86,9 +103,14 @@ export const validateLinks = (projectPath: string): void => {
 
   console.error(chalk.red(`\nОбнаружено битых ссылок: ${issues.length}\n`))
 
+  const fileContentCache = new Map<string, string>()
   for (const issue of issues) {
     const displayPath = issue.filePath ? relative(projectPath, issue.filePath) : "(неизвестный файл)"
-    const pos = issue.offset !== undefined ? `:${issue.offset}` : ""
+    let pos = ""
+    if (issue.offset !== undefined && issue.filePath) {
+      const lc = offsetToLineCol(issue.filePath, issue.offset, fileContentCache)
+      pos = lc ? `:${lc.line}:${lc.col}` : `:${issue.offset}`
+    }
     console.error(`  ${chalk.cyan(displayPath)}${chalk.gray(pos)} — ${chalk.red(issue.targetId)}`)
   }
 
