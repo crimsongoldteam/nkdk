@@ -64,7 +64,12 @@ function updateDiagnostics(): void {
     const uri = vscode.Uri.file(filePath)
     const diagnostics: vscode.Diagnostic[] = []
 
-    for (const { offset, length, targetId } of issues) {
+    for (const { offset: attrKeyOffset, targetId } of issues) {
+      // Ищем точную позицию значения типа (Справочник.Категории) начиная от ключа реквизита
+      const typePos = content.indexOf(targetId, attrKeyOffset)
+      const offset = typePos !== -1 ? typePos : attrKeyOffset
+      const length = typePos !== -1 ? targetId.length : undefined
+
       const start = offsetToPosition(content, offset)
       const end =
         length !== undefined
