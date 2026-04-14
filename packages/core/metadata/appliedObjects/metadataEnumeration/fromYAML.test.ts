@@ -1,0 +1,76 @@
+import { beforeEach, describe, expect, it } from "vitest"
+import { nodeMatch } from "~/metadata/relations/dependencyQuery"
+import { getDependencies } from "~/metadata/relations/getDependencies"
+import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { mockContext } from "~/tests/mockContext"
+import { importMetadataEnumerationFromYAML } from "./fromYAML"
+
+describe("importMetadataEnumerationFromYAML", () => {
+  it("возвращает undefined при отсутствии данных", () => {
+    const result = importMetadataEnumerationFromYAML(mockContext, undefined, "СтатусЗаказа")
+    expect(result).toBeUndefined()
+  })
+
+  it("импортирует без значений", () => {
+    const result = importMetadataEnumerationFromYAML(mockContext, {}, "СтатусЗаказа")
+    expect(result).toMatchObject({ name: "СтатусЗаказа" })
+  })
+})
+
+describe("importMetadataEnumerationFromYAML — граф значений", () => {
+  let graph: MetadataGraph
+
+  beforeEach(() => {
+    graph = new MetadataGraph()
+    importMetadataEnumerationFromYAML(
+      {
+        ...mockContext,
+        graph,
+        graphContext: { filePath: "Перечисление/СтатусЗаказа/Свойства.yml" },
+      },
+      {
+        Значения: {
+          Открыт: {},
+          Закрыт: {},
+          Отменён: {},
+        },
+      },
+      "СтатусЗаказа",
+    )
+  })
+
+  it("создаёт узел перечисления", () => {
+    expect(graph.hasNode("Перечисление.СтатусЗаказа")).toBe(true)
+  })
+
+  it("создаёт узел для каждого значения", () => {
+    expect(graph.hasNode("Перечисление.СтатусЗаказа.Открыт")).toBe(true)
+    expect(graph.hasNode("Перечисление.СтатусЗаказа.Закрыт")).toBe(true)
+    expect(graph.hasNode("Перечисление.СтатусЗаказа.Отменён")).toBe(true)
+  })
+
+  it("узел значения содержит item с itemType и name", () => {
+    const attrs = graph.getNodeAttributes("Перечисление.СтатусЗаказа.Открыт")
+    expect(attrs.item).toMatchObject({ itemType: "MetadataEnumerationValue", name: "Открыт" })
+  })
+
+  it("узел значения принадлежит правильному файлу", () => {
+    const attrs = graph.getNodeAttributes("Перечисление.СтатусЗаказа.Закрыт")
+    expect(attrs.filePath).toBe("Перечисление/СтатусЗаказа/Свойства.yml")
+  })
+
+  it("значения связаны с перечислением composition-рёбрами", () => {
+    const dependencies = getDependencies(
+      nodeMatch(({ attrs }) => attrs.name === "Перечисление")
+        .nodeMatch(() => true)
+        .edgeMatch(({ attrs }) => attrs.name === "ЗначениеПеречисления"),
+      graph,
+    )
+
+    expect(Object.keys(dependencies).sort()).toEqual([
+      "Перечисление.СтатусЗаказа.Закрыт",
+      "Перечисление.СтатусЗаказа.Открыт",
+      "Перечисление.СтатусЗаказа.Отменён",
+    ])
+  })
+})

@@ -6,6 +6,14 @@ import {
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
+export interface MetadataEnumerationValue {
+  itemType: "MetadataEnumerationValue"
+  name: string
+}
+
+export type MetadataEnumerationValues = MetadataEnumerationValue[]
+export type MetadataEnumerationValuesYAML = Record<string, unknown>
+
 export interface MetadataEnumeration {
   name: string
   auxiliaryChoiceForm?: string
@@ -13,6 +21,7 @@ export interface MetadataEnumeration {
   comment?: string
   defaultChoiceForm?: string
   defaultListForm?: string
+  enumValues?: MetadataEnumerationValues
   explanation?: I8nText
   extendedListPresentation?: I8nText
   extendedObjectPresentation?: I8nText
@@ -30,6 +39,7 @@ export interface MetadataEnumerationYAML {
   Комментарий?: string
   ОсновнаяФормаДляВыбора?: string
   ОсновнаяФормаСписка?: string
+  Значения?: MetadataEnumerationValuesYAML
   Пояснение?: I8nTextYAML
   ПолнотекстовыйПоиск?: SE.UseFullTextSearchYAML
   ПредставлениеОбъекта?: I8nTextYAML

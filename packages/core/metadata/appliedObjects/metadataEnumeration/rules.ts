@@ -101,5 +101,11 @@ export const MetadataEnumerationRules = {
       defaultValueXML: true,
       xmlParents: enumProperties,
     },
+    enumValues: {
+      yaml: "Значения",
+      type: "MetadataEnumerationValues",
+      xmlParents: ["Enum", "EnumValues"],
+      xml: "EnumValue",
+    },
   },
 } as const satisfies MetadataItemRule

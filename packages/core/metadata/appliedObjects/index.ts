@@ -12,3 +12,5 @@ import "./metadataDocument/toXML"
 import "./metadataDocument/toYAML"
 // import "./metadataDocument/fromYAML"
 import "./metadataDocument/fromXML"
+
+import "./metadataEnumeration/fromYAML"

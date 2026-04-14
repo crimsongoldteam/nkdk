@@ -2,6 +2,7 @@ import { MetadataEnumeration, MetadataEnumerationYAML } from "~/metadata/applied
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration"
 import { MetadataEnumerationRules } from "./rules"
+import "./valuesFromYAML"
 
 export const importMetadataEnumerationFromYAML = (
   context: ConfigurationContext,

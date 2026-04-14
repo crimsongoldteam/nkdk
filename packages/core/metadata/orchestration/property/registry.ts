@@ -1,4 +1,8 @@
 import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
+import {
+  MetadataEnumerationValues,
+  MetadataEnumerationValuesYAML,
+} from "~/metadata/appliedObjects/metadataEnumeration/types"
 import { AdditionalIndex, AdditionalIndexYAML } from "~/metadata/commonObjects/additionalIndex/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
@@ -415,6 +419,10 @@ export type PropertyTypeRegistry = {
     item: MetadataCommands
     yaml: MetadataCommandsYAML
   }
+  MetadataEnumerationValues: {
+    item: MetadataEnumerationValues
+    yaml: MetadataEnumerationValuesYAML
+  }
   CommandInterface: {
     item: CommandInterface
     yaml: CommandInterfaceYAML
@@ -721,6 +729,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataAttributes: "MetadataAttributes",
   MetadataItemLinks: "MetadataItemLinks",
   MetadataCommands: "MetadataCommands",
+  MetadataEnumerationValues: "MetadataEnumerationValues",
   CommandInterface: "CommandInterface",
   ContextMenu: "ContextMenu",
   ExtendedTooltip: "ExtendedTooltip",
