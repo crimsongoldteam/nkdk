@@ -6,116 +6,112 @@ import {
   fullFormGroupPartialYAMLCommonFixture,
 } from "~/metadata/forms/elements/formGroup/__fixtures__/data"
 
-export const fullPage: RequiredFieldsElement<Omit<Page, "extendedTooltip">> = {
+export const fullPage: RequiredFieldsElement<
+  Omit<Page, "showTitle" | "childItemsVerticalAlign" | "slaveItemsWidth" | "verticalScrollOnReduceSize">
+> = {
   itemType: "Page",
   name: "Страница",
   ...fullFormGroupCommonFixture,
-  title: {
-    items: { ru: "Страница" },
+  shortcut: "S",
+  extendedTooltip: {
+    itemType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
-  backColor: { type: "WebColor", value: "White" },
+  backColor: { type: "WebColor", value: "MediumOrchid" },
   picture: { ref: "Print", type: "StandardPicture", loadTransparent: true },
-  childItemsHorizontalAlign: "Left",
-  childItemsVerticalAlign: "Top",
-  displayImportance: "High",
+  displayImportance: "VeryHigh",
   format: {
-    items: { ru: "Формат" },
+    items: { ru: "ЧЦ=15" },
   },
-  group: "Vertical",
-  horizontalSpacing: "Single",
-  itemsAndTitlesAlign: "Auto",
+  group: "AlwaysHorizontal",
+  childItemsHorizontalAlign: "Right",
+  itemsAndTitlesAlign: "ItemsLeftTitlesLeft",
+  horizontalSpacing: "OneAndHalf",
   scrollOnCompress: true,
-  showTitle: true,
-  slaveItemsWidth: "Auto",
-  titleDataPath: "Объект.Заголовок",
-  verticalAlign: "Top",
-  verticalScrollOnReduceSize: true,
-  verticalSpacing: "Single",
+  titleDataPath: "Реквизит1",
+  verticalAlign: "Bottom",
+  verticalSpacing: "Double",
   childItems: [
     {
-      name: "ПолеВвода",
-      itemType: "InputField",
+      itemType: "UsualGroup",
+      name: "Группа1",
+      group: "HorizontalIfPossible",
+      showTitle: true,
+      childItems: [],
     },
   ],
 }
 
 export const fullPagePartialYAML: PagePartialYAML = {
   ...fullFormGroupPartialYAMLCommonFixture,
-  ВажностьПриОтображении: "Высокая",
-  ВертикальнаяПрокруткаПриСжатии: "Истина",
-  ВертикальноеПоложение: "Верх",
-  ВертикальноеПоложениеПодчиненных: "Верх",
-  ВертикальныйИнтервал: "Одинарный",
-  ВыравниваниеЭлементовИЗаголовков: "Авто",
-  ГоризонтальноеПоложениеПодчиненных: "Лево",
-  ГоризонтальныйИнтервал: "Одинарный",
-  Группировка: "Вертикальная",
+  СочетаниеКлавиш: "S",
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
+  ВажностьПриОтображении: "ОченьВысокая",
+  ВертикальноеПоложение: "Низ",
+  ВертикальныйИнтервал: "Двойной",
+  ГоризонтальноеПоложениеПодчиненных: "Право",
+  ВыравниваниеЭлементовИЗаголовков: "ЭлементыЛевоЗаголовкиЛево",
+  ГоризонтальныйИнтервал: "Полуторный",
+  Группировка: "ГоризонтальнаяВсегда",
   Картинка: "Печать",
-  ОтображатьЗаголовок: "Истина",
-  ПутьКДаннымЗаголовка: "Объект.Заголовок",
+  ПутьКДаннымЗаголовка: "Реквизит1",
   СкроллПриСжатии: "Истина",
-  Формат: "Формат",
-  ЦветФона: "Белый",
-  ШиринаПодчиненныхЭлементов: "Авто",
+  Формат: "ЧЦ=15",
+  ЦветФона: "ОрхидеяНейтральный",
 }
 
 export const fullPageEnterprise = {
   ElementType: "FormGroup",
   Name: "prefix_Страница",
   Type: { Type: "SystemEnumeration", Value: "FormGroupType.Page" },
-  BackColor: { Type: "Color", Value: "WebColors.White" },
+  BackColor: { Type: "Color", Value: "WebColors.MediumOrchid" },
   ChildItems: [
     {
-      ElementType: "FormField",
-      Name: "prefix_ПолеВвода",
-      Type: { Type: "SystemEnumeration", Value: "FormFieldType.InputField" },
+      ChildItems: [],
+      ElementType: "FormGroup",
+      Group: { Type: "SystemEnumeration", Value: "ChildFormItemsGroup.HorizontalIfPossible" },
+      Name: "prefix_Группа1",
+      ShowTitle: true,
+      Type: { Type: "SystemEnumeration", Value: "FormGroupType.UsualGroup" },
     },
   ],
-  ChildItemsHorizontalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  ChildItemsVerticalAlign: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Top",
-  },
   DisplayImportance: {
     Type: "SystemEnumeration",
-    Value: "DisplayImportance.High",
+    Value: "DisplayImportance.VeryHigh",
   },
-  Format: "Формат",
+  Format: "ЧЦ=15",
+  ChildItemsHorizontalAlign: {
+    Type: "SystemEnumeration",
+    Value: "ItemHorizontalLocation.Right",
+  },
   Group: {
     Type: "SystemEnumeration",
-    Value: "ChildFormItemsGroup.Vertical",
-  },
-  HorizontalSpacing: {
-    Type: "SystemEnumeration",
-    Value: "FormItemSpacing.Single",
+    Value: "ChildFormItemsGroup.AlwaysHorizontal",
   },
   ItemsAndTitlesAlign: {
     Type: "SystemEnumeration",
-    Value: "ItemsAndTitlesAlignVariant.Auto",
+    Value: "ItemsAndTitlesAlignVariant.ItemsLeftTitlesLeft",
+  },
+  HorizontalSpacing: {
+    Type: "SystemEnumeration",
+    Value: "FormItemSpacing.OneAndHalf",
   },
   Picture: { Type: "Picture", Value: "PictureLib.Print" },
   ScrollOnCompress: true,
-  ShowTitle: true,
-  SlaveItemsWidth: {
-    Type: "SystemEnumeration",
-    Value: "ChildFormItemsWidth.Auto",
-  },
-  Title: "Страница",
-  TitleDataPath: "Объект.Заголовок",
+  Title: "Заголовок элемента",
+  TitleDataPath: "prefix_Реквизит1",
   VerticalAlign: {
     Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Top",
+    Value: "ItemVerticalAlign.Bottom",
   },
-  VerticalScrollOnReduceSize: true,
   VerticalSpacing: {
     Type: "SystemEnumeration",
-    Value: "FormItemSpacing.Single",
+    Value: "FormItemSpacing.Double",
   },
   ...fullFormGroupEnterpriseCommonFixture,
-} satisfies Required<PageEnterprise>
+} satisfies Required<
+  Omit<PageEnterprise, "ChildItemsVerticalAlign" | "ShowTitle" | "SlaveItemsWidth" | "VerticalScrollOnReduceSize">
+>
 
 export const minimalPage: Page = {
   itemType: "Page",

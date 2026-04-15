@@ -28,17 +28,17 @@ export const sourceCommandBar: CommandBar = {
   },
 }
 
-export const fullCommandBar: RequiredFieldsElement<CommandBar> = {
+const { extendedTooltip: _eTCB, ...fullFormGroupCommonFixtureForCommandBar } = fullFormGroupCommonFixture
+
+export const fullCommandBar: RequiredFieldsElement<
+  Omit<CommandBar, "extendedTooltip" | "shortcut" | "autofill">
+> = {
   itemType: "CommandBar",
   name: "КоманднаяПанель",
-  ...fullFormGroupCommonFixture,
-  title: {
-    items: { ru: "Командная панель" },
-  },
-  autofill: true,
-  displayImportance: "High",
-  horizontalAlign: "Left",
-  commandSource: "Form",
+  ...fullFormGroupCommonFixtureForCommandBar,
+  displayImportance: "VeryHigh",
+  horizontalAlign: "Center",
+  commandSource: "FormCommandPanelGlobalCommands",
   childItems: fullCommandBarChildItemsTyped,
 }
 
@@ -46,7 +46,6 @@ export const fullCommandBarEnterprise = {
   ElementType: "FormGroup",
   Name: "prefix_КоманднаяПанель",
   Type: { Type: "SystemEnumeration", Value: "FormGroupType.CommandBar" },
-  Autofill: true,
   ChildItems: [
     {
       CommandName: "КомандаЗаглушка",
@@ -83,12 +82,12 @@ export const fullCommandBarEnterprise = {
       Name: "prefix_Подменю",
     },
   ],
-  DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.High" },
-  HorizontalAlign: { Type: "SystemEnumeration", Value: "ItemHorizontalLocation.Left" },
+  DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.VeryHigh" },
+  HorizontalAlign: { Type: "SystemEnumeration", Value: "ItemHorizontalLocation.Center" },
   ...fullFormGroupEnterpriseCommonFixture,
-  Title: "Командная панель",
-  CommandSource: "Form",
-} satisfies Required<CommandBarEnterprise>
+  Title: "Заголовок элемента",
+  CommandSource: "FormCommandPanelGlobalCommands",
+} satisfies Required<Omit<CommandBarEnterprise, "Autofill">>
 
 export const fullCommandBarAllItems = fullCommandBarChildItemsAllYAML
 
@@ -107,11 +106,9 @@ export const minimalCommandBarPartialYAML: CommandBarPartialYAML = {}
 
 export const fullCommandBarPartialYAML: CommandBarPartialYAML = {
   ...fullFormGroupPartialYAMLCommonFixture,
-  Заголовок: "Командная панель",
-  Автозаполнение: "Истина",
-  ВажностьПриОтображении: "Высокая",
-  ГоризонтальноеПоложение: "Лево",
-  ИсточникКоманд: "Form",
+  ВажностьПриОтображении: "ОченьВысокая",
+  ГоризонтальноеПоложение: "Центр",
+  ИсточникКоманд: "FormCommandPanelGlobalCommands",
 }
 
 export interface CommandBarStructureFixture {

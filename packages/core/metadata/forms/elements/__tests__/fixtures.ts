@@ -148,7 +148,6 @@ import {
   fullPages,
   fullPagesEnterprise,
   fullPagesPartialYAML,
-  fullPagesTypedYAML,
   minimalPages,
   minimalPagesTypedYAML,
 } from "../pages/__fixtures__/data"
@@ -733,7 +732,6 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: fullPages,
     yaml: fullPagesPartialYAML,
-    typedYAML: fullPagesTypedYAML,
     enterprise: fullPagesEnterprise,
   },
   {

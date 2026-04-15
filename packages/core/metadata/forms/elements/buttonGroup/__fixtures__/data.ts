@@ -17,6 +17,17 @@ export const fullButtonGroup: ButtonGroup = {
   itemType: "ButtonGroup",
   name: "ГруппаКнопок",
   ...fullFormGroupCommonFixture,
+  shortcut: "S",
+  extendedTooltip: {
+    itemType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
+  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
+  titleTextColor: { type: "WebColor", value: "Black" },
+  toolTipRepresentation: "None",
+  verticalStretch: true,
+  width: 300,
+  height: 200,
   title: {
     items: { ru: "Группа кнопок" },
   },
@@ -47,6 +58,12 @@ export const fullButtonGroupEnterprise = {
     Value: "ButtonGroupRepresentation.Compact",
   },
   ...fullFormGroupEnterpriseCommonFixture,
+  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
+  ToolTipRepresentation: { Type: "SystemEnumeration", Value: "ToolTipRepresentation.None" },
+  VerticalStretch: true,
+  Width: 300,
+  Height: 200,
   Title: "Группа кнопок",
   CommandSource: "FormCommandPanelGlobalCommands",
 } satisfies Required<ButtonGroupEnterprise>
@@ -60,6 +77,14 @@ export const fullButtonGroupSource: ButtonGroup = {
 
 export const fullButtonGroupPartialYAML: ButtonGroupPartialYAML = {
   ...fullFormGroupPartialYAMLCommonFixture,
+  СочетаниеКлавиш: "S",
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
+  ШрифтЗаголовка: "ОбычныйШрифтТекста",
+  ЦветТекстаЗаголовка: "Черный",
+  ОтображениеПодсказки: "Нет",
+  РастягиватьПоВертикали: "Истина" as any,
+  Ширина: 300,
+  Высота: 200,
   ИсточникКоманд: "FormCommandPanelGlobalCommands",
   Отображение: "Компактное",
   Элементы: {
@@ -72,14 +97,7 @@ export const fullButtonGroupPartialYAML: ButtonGroupPartialYAML = {
 export const fullButtonGroupTypedYAML: ButtonGroupTypedYAML = {
   Тип: "ГруппаКнопок",
   Заголовок: "Группа кнопок",
-  ...fullFormGroupPartialYAMLCommonFixture,
-  ИсточникКоманд: "FormCommandPanelGlobalCommands",
-  Отображение: "Компактное",
-  Элементы: {
-    Кнопка: {
-      Тип: "Кнопка",
-    },
-  },
+  ...fullButtonGroupPartialYAML,
 }
 
 export const minimalButtonGroup: ButtonGroup = {

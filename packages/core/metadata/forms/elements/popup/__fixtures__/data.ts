@@ -6,22 +6,32 @@ import {
   fullFormGroupPartialYAMLCommonFixture,
 } from "~/metadata/forms/elements/formGroup/__fixtures__/data"
 
-export const fullPopup: RequiredFieldsElement<Omit<Popup, "extendedTooltip">> = {
+const {
+  horizontalAlignInGroup: _hAign,
+  verticalAlignInGroup: _vAign,
+  extendedTooltip: _eT,
+  ...fullFormGroupCommonFixtureForPopup
+} = fullFormGroupCommonFixture
+
+const {
+  HorizontalAlignInGroup: _HA,
+  VerticalAlignInGroup: _VA,
+  ...fullFormGroupEnterpriseCommonFixtureForPopup
+} = fullFormGroupEnterpriseCommonFixture
+
+export const fullPopup: RequiredFieldsElement<
+  Omit<Popup, "extendedTooltip" | "shortcut" | "horizontalAlignInGroup" | "verticalAlignInGroup">
+> = {
   itemType: "Popup",
   name: "Подменю",
-  ...fullFormGroupCommonFixture,
-  title: {
-    items: {
-      ru: "Заголовок подменю",
-    },
-  },
+  ...fullFormGroupCommonFixtureForPopup,
   backColor: {
     type: "WebColor",
-    value: "CornFlowerBlue",
+    value: "MediumOrchid",
   },
   borderColor: {
     type: "WebColor",
-    value: "Aquamarine",
+    value: "Orange",
   },
   childItems: [],
   displayImportance: "VeryHigh",
@@ -29,11 +39,10 @@ export const fullPopup: RequiredFieldsElement<Omit<Popup, "extendedTooltip">> = 
   picture: {
     loadTransparent: true,
     ref: "Print",
-    transparentPixel: undefined,
     type: "StandardPicture",
   },
   representation: "PictureAndText",
-  shape: "Oval",
+  shape: "Usual",
   shapeRepresentation: "WhenActive",
 }
 
@@ -41,8 +50,8 @@ export const fullPopupEnterprise = {
   ElementType: "FormGroup",
   Name: "prefix_Подменю",
   Type: { Type: "SystemEnumeration", Value: "FormGroupType.Popup" },
-  BackColor: { Type: "Color", Value: "WebColors.CornFlowerBlue" },
-  BorderColor: { Type: "Color", Value: "WebColors.Aquamarine" },
+  BackColor: { Type: "Color", Value: "WebColors.MediumOrchid" },
+  BorderColor: { Type: "Color", Value: "WebColors.Orange" },
   CommandSource: "FormCommandPanelGlobalCommands",
   ChildItems: [],
   DisplayImportance: {
@@ -53,15 +62,15 @@ export const fullPopupEnterprise = {
     Type: "SystemEnumeration",
     Value: "ButtonRepresentation.PictureAndText",
   },
-  Shape: { Type: "SystemEnumeration", Value: "ButtonShape.Oval" },
+  Shape: { Type: "SystemEnumeration", Value: "ButtonShape.Usual" },
   ShapeRepresentation: {
     Type: "SystemEnumeration",
     Value: "ButtonShapeRepresentation.WhenActive",
   },
-  Title: "Заголовок подменю",
+  Title: "Заголовок элемента",
   Picture: { Type: "Picture", Value: "PictureLib.Print" },
-  ...fullFormGroupEnterpriseCommonFixture,
-} satisfies Required<PopupEnterprise>
+  ...fullFormGroupEnterpriseCommonFixtureForPopup,
+} satisfies Required<Omit<PopupEnterprise, "HorizontalAlignInGroup" | "VerticalAlignInGroup">>
 
 export const sourcePopup: Popup = {
   itemType: "Popup",
@@ -69,27 +78,33 @@ export const sourcePopup: Popup = {
   childItems: [],
   title: {
     items: {
-      ru: "Заголовок подменю",
+      ru: "Заголовок элемента",
     },
   },
 }
 
+const {
+  ГоризонтальноеПоложениеВГруппе: _H,
+  ВертикальноеПоложениеВГруппе: _V,
+  ...fullFormGroupPartialYAMLCommonFixtureForPopup
+} = fullFormGroupPartialYAMLCommonFixture
+
 export const fullPopupPartialYAML: PopupPartialYAML = {
-  ...fullFormGroupPartialYAMLCommonFixture,
+  ...fullFormGroupPartialYAMLCommonFixtureForPopup,
   ВажностьПриОтображении: "ОченьВысокая",
   ИсточникКоманд: "FormCommandPanelGlobalCommands",
   Картинка: "Печать",
   Отображение: "КартинкаИТекст",
   ОтображениеФигуры: "ПриАктивности",
-  Фигура: "Овал",
-  ЦветРамки: "Аквамарин",
-  ЦветФона: "Васильковый",
+  Фигура: "Обычная",
+  ЦветРамки: "Оранжевый",
+  ЦветФона: "ОрхидеяНейтральный",
 }
 
 export const fullPopupTypedYAML: PopupTypedYAML = {
   ...fullPopupPartialYAML,
   Тип: "Подменю",
-  Заголовок: "Заголовок подменю",
+  Заголовок: "Заголовок элемента",
 }
 
 export const minimalPopup: Popup = {

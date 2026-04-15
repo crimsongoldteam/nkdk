@@ -36,6 +36,11 @@ export const CommandBarRules = {
     },
     commandSource: { yaml: "ИсточникКоманд", type: "string" },
     ...formGroupCommonProperties,
+    shortcut: {
+      ...formGroupCommonProperties.shortcut,
+      toYAML: false,
+      fromYAML: false,
+    },
     type: {
       yaml: "Вид",
       type: "SystemEnumeration",

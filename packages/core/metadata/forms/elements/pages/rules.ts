@@ -21,6 +21,12 @@ export const PagesRules = {
       fromPartialYAML: true,
       required: true,
     },
+    displayImportance: {
+      yaml: "ВажностьПриОтображении",
+      xml: "_DisplayImportance",
+      type: "SystemEnumeration",
+      typeSE: "DisplayImportance",
+    },
     currentPagesState: {
       yaml: "ТекущееСостояниеСтраниц",
       type: "SystemEnumeration",
@@ -43,6 +49,12 @@ export const PagesRules = {
       items: {
         onCurrentPageChange: "ПриСменеСтраницы",
       },
+    },
+    table: {
+      yaml: "Таблица",
+      xml: "AssociatedTableElementId",
+      type: "AssociatedTable",
+      toEnterprise: false,
     },
     ...formGroupCommonProperties,
     type: {

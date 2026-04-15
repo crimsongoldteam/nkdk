@@ -46,6 +46,16 @@ export const PopupRules = {
       typeSE: "ButtonShapeRepresentation",
     },
     ...formGroupCommonProperties,
+    shortcut: {
+      ...formGroupCommonProperties.shortcut,
+      toYAML: false,
+      fromYAML: false,
+    },
+    extendedTooltip: {
+      ...formGroupCommonProperties.extendedTooltip,
+      toYAML: false,
+      fromYAML: false,
+    },
     type: {
       yaml: "Вид",
       type: "SystemEnumeration",

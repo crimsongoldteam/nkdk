@@ -10,17 +10,35 @@ import {
   fullFormGroupPartialYAMLCommonFixture,
 } from "~/metadata/forms/elements/formGroup/__fixtures__/data"
 
+const {
+  horizontalAlignInGroup: _hAignCG,
+  verticalAlignInGroup: _vAignCG,
+  ...fullFormGroupCommonFixtureForColumnGroup
+} = fullFormGroupCommonFixture
+
+const {
+  HorizontalAlignInGroup: _HACG,
+  VerticalAlignInGroup: _VACG,
+  ...fullFormGroupEnterpriseCommonFixtureForColumnGroup
+} = fullFormGroupEnterpriseCommonFixture
+
+const {
+  ГоризонтальноеПоложениеВГруппе: _HCG,
+  ВертикальноеПоложениеВГруппе: _VCG,
+  ...fullFormGroupPartialYAMLCommonFixtureForColumnGroup
+} = fullFormGroupPartialYAMLCommonFixture
+
 export const fullColumnGroup: ColumnGroup = {
   itemType: "ColumnGroup",
   name: "ГруппаКолонок",
-  ...fullFormGroupCommonFixture,
-  title: {
-    items: { ru: "Группа колонок" },
+  ...fullFormGroupCommonFixtureForColumnGroup,
+  extendedTooltip: {
+    itemType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
   },
-  fixingInTable: "None",
-  group: "Horizontal",
-  headerDataPath: "Объект.Реквизит",
-  headerFormat: "Формат",
+  displayImportance: "VeryHigh",
+  fixingInTable: "Left",
+  group: "InCell",
   headerHorizontalAlign: "Left",
   headerPicture: {
     type: "StandardPicture",
@@ -28,8 +46,8 @@ export const fullColumnGroup: ColumnGroup = {
     loadTransparent: true,
   },
   showInHeader: true,
-  showTitle: true,
-  titleBackColor: { type: "WebColor", value: "Blue" },
+  showTitle: false,
+  titleBackColor: { type: "WebColor", value: "MediumOrchid" },
   childItems: [],
 }
 
@@ -38,51 +56,43 @@ export const fullColumnGroupEnterprise = {
   Name: "prefix_ГруппаКолонок",
   Type: { Type: "SystemEnumeration", Value: "FormGroupType.ColumnGroup" },
   ChildItems: [],
-  FixingInTable: { Type: "SystemEnumeration", Value: "FixingInTable.None" },
+  DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.VeryHigh" },
+  FixingInTable: { Type: "SystemEnumeration", Value: "FixingInTable.Left" },
   Group: {
     Type: "SystemEnumeration",
-    Value: "ColumnsGroup.Horizontal",
+    Value: "ColumnsGroup.InCell",
   },
-  HeaderDataPath: "prefix_ОбъектРеквизит",
-  HeaderFormat: "Формат",
   HeaderHorizontalAlign: {
     Type: "SystemEnumeration",
     Value: "ItemHorizontalLocation.Left",
   },
   ShowInHeader: true,
-  ShowTitle: true,
-  TitleBackColor: { Type: "Color", Value: "WebColors.Blue" },
-  Title: "Группа колонок",
+  ShowTitle: false,
+  TitleBackColor: { Type: "Color", Value: "WebColors.MediumOrchid" },
+  Title: "Заголовок элемента",
   HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
-  ...fullFormGroupEnterpriseCommonFixture,
-} satisfies Required<ColumnGroupEnterprise>
+  ...fullFormGroupEnterpriseCommonFixtureForColumnGroup,
+} satisfies Required<
+  Omit<ColumnGroupEnterprise, "HeaderDataPath" | "HeaderFormat" | "HorizontalAlignInGroup" | "VerticalAlignInGroup">
+>
 
 export const fullColumnGroupPartialYAML: ColumnGroupPartialYAML = {
-  ...fullFormGroupPartialYAMLCommonFixture,
+  ...fullFormGroupPartialYAMLCommonFixtureForColumnGroup,
+  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
+  ВажностьПриОтображении: "ОченьВысокая",
   ГоризонтальноеПоложениеВШапке: "Лево",
-  // Группировка: "Горизонтальная",
   КартинкаШапки: "Печать",
   ОтображатьВШапке: "Истина",
-  ОтображатьЗаголовок: "Истина",
-  ПутьКДаннымШапки: "Объект.Реквизит",
-  ФиксацияВТаблице: "Нет",
-  ФорматШапки: "Формат",
-  ЦветФонаЗаголовка: "Синий",
+  ОтображатьЗаголовок: "Ложь",
+  ФиксацияВТаблице: "Лево",
+  ЦветФонаЗаголовка: "ОрхидеяНейтральный",
 }
 
 export const fullColumnGroupTypedYAML: ColumnGroupTypedYAML = {
   Тип: "ГруппаКолонок",
-  Заголовок: "Группа колонок",
-  ...fullFormGroupPartialYAMLCommonFixture,
-  ГоризонтальноеПоложениеВШапке: "Лево",
-  КартинкаШапки: "Печать",
-  ОтображатьВШапке: "Истина",
-  ОтображатьЗаголовок: "Истина",
-  ПутьКДаннымШапки: "Объект.Реквизит",
-  ФиксацияВТаблице: "Нет",
-  ФорматШапки: "Формат",
-  ЦветФонаЗаголовка: "Синий",
-  Группировка: "Горизонтальная",
+  Заголовок: "Заголовок элемента",
+  ...fullColumnGroupPartialYAML,
+  Группировка: "ВЯчейке",
 }
 
 export const minimalColumnGroup: ColumnGroup = {

@@ -15,6 +15,12 @@ export const ColumnGroupRules = {
       required: true,
     },
     childItems: { type: "TableChildItems", defaultValue: [] },
+    displayImportance: {
+      yaml: "ВажностьПриОтображении",
+      xml: "_DisplayImportance",
+      type: "SystemEnumeration",
+      typeSE: "DisplayImportance",
+    },
     fixingInTable: {
       yaml: "ФиксацияВТаблице",
       type: "SystemEnumeration",
@@ -40,6 +46,11 @@ export const ColumnGroupRules = {
     showTitle: { yaml: "ОтображатьЗаголовок", type: "boolean" },
     titleBackColor: { yaml: "ЦветФонаЗаголовка", type: "Color" },
     ...formGroupCommonProperties,
+    shortcut: {
+      ...formGroupCommonProperties.shortcut,
+      toYAML: false,
+      fromYAML: false,
+    },
     type: {
       yaml: "Вид",
       type: "SystemEnumeration",

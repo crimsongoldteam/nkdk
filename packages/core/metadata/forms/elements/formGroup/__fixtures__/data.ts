@@ -1,73 +1,70 @@
 const baseExtendedTooltip = {
   itemType: "ExtendedTooltip",
-  title: { items: { ru: "Расширенная подсказка" }, formatted: false },
 } as const
 
 export const fullFormGroupCommonFixture = {
   enableContentChange: true,
   enabled: false,
   extendedTooltip: baseExtendedTooltip,
-  height: 200,
+  height: 15,
   horizontalAlignInGroup: "Left" as const,
   horizontalStretch: true,
   readOnly: true as const,
-  shortcut: "S",
-  titleFont: { kind: "StyleItem" as const, ref: "NormalTextFont" as const },
-  titleTextColor: { type: "WebColor" as const, value: "Black" },
+  title: { items: { ru: "Заголовок элемента" } },
+  titleFont: { kind: "StyleItem" as const, ref: "LargeTextFont" as const },
+  titleTextColor: { type: "WebColor" as const, value: "Crimson" },
   toolTip: { items: { ru: "Подсказка" } },
-  toolTipRepresentation: "None" as const,
+  toolTipRepresentation: "Balloon" as const,
   userVisible: {
     common: true,
     values: [{ name: "Администратор", value: false }],
   },
   verticalAlignInGroup: "Top" as const,
-  verticalStretch: true,
+  verticalStretch: false,
   visible: false as const,
-  width: 300,
+  width: 10,
 }
 
 export const fullFormGroupEnterpriseCommonFixture = {
   EnableContentChange: true,
   Enabled: false,
-  Height: 200,
+  Height: 15,
   HorizontalAlignInGroup: {
     Type: "SystemEnumeration",
     Value: "ItemHorizontalLocation.Left",
   },
   HorizontalStretch: true,
   ReadOnly: true,
-  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
-  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
+  TitleFont: { Type: "Font", Value: "StyleFonts.LargeTextFont" },
+  TitleTextColor: { Type: "Color", Value: "WebColors.Crimson" },
   ToolTip: "Подсказка",
   ToolTipRepresentation: {
     Type: "SystemEnumeration",
-    Value: "ToolTipRepresentation.None",
+    Value: "ToolTipRepresentation.Balloon",
   },
   VerticalAlignInGroup: {
     Type: "SystemEnumeration",
     Value: "ItemVerticalAlign.Top",
   },
-  VerticalStretch: true,
+  VerticalStretch: false,
   Visible: false,
-  Width: 300,
+  Width: 10,
 } as const
 
 export const fullFormGroupPartialYAMLCommonFixture = {
-  // enableContentChange (defaultValueYAML: true) omitted — default value не сериализуется
+  РазрешитьИзменениеСостава: "Истина" as any,
   Доступность: "Ложь",
-  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
-  Высота: 200,
+  Высота: 15,
   ГоризонтальноеПоложениеВГруппе: "Лево",
   РастягиватьПоГоризонтали: "Истина",
   ТолькоПросмотр: "Истина",
-  СочетаниеКлавиш: "S",
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
-  ЦветТекстаЗаголовка: "Черный",
+  ШрифтЗаголовка: "КрупныйШрифтТекста",
+  ЦветТекстаЗаголовка: "Малиновый",
   Подсказка: "Подсказка",
-  ОтображениеПодсказки: "Нет",
+  ОтображениеПодсказки: "Всплывающая",
   РазрешитьИспользование: { Администратор: "Ложь" },
   ВертикальноеПоложениеВГруппе: "Верх",
-  // verticalStretch (defaultValueYAML: true) omitted — default value не сериализуется
+  РастягиватьПоВертикали: "Ложь",
   Видимость: "Ложь",
-  Ширина: 300,
+  Ширина: 10,
 } as const

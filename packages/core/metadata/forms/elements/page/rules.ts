@@ -24,6 +24,7 @@ export const PageRules = {
     },
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",
+      xml: "HorizontalAlign",
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
     },
@@ -51,6 +52,7 @@ export const PageRules = {
     },
     itemsAndTitlesAlign: {
       yaml: "ВыравниваниеЭлементовИЗаголовков",
+      xml: "ChildrenAlign",
       type: "SystemEnumeration",
       typeSE: "ItemsAndTitlesAlignVariant",
     },
@@ -62,7 +64,7 @@ export const PageRules = {
       type: "SystemEnumeration",
       typeSE: "ChildFormItemsWidth",
     },
-    titleDataPath: { yaml: "ПутьКДаннымЗаголовка", type: "string" },
+    titleDataPath: { yaml: "ПутьКДаннымЗаголовка", type: "DataPath", defaultType: "string" },
     verticalAlign: {
       yaml: "ВертикальноеПоложение",
       type: "SystemEnumeration",
