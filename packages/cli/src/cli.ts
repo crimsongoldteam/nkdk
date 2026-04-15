@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander"
 import { importConfiguration } from "./commands/import"
+import { shortRoundTrip } from "./commands/shortRoundTrip"
 import { syncConfiguration } from "./commands/sync"
 import { validateLinks } from "./commands/validateLinks"
 
@@ -33,6 +34,14 @@ program
   .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
   .action((yamlDir: string, xmlDir: string) => {
     run(() => syncConfiguration(yamlDir, xmlDir))
+  })
+
+program
+  .command("short-round-trip-test")
+  .description("Проверка round-trip XML → модель → XML (без YAML-слоя)")
+  .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
+  .action((xmlDir: string) => {
+    run(() => shortRoundTrip(xmlDir))
   })
 
 program
