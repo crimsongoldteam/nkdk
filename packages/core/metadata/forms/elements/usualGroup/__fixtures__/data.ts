@@ -284,7 +284,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       strings: [
         `=Группа
   +ВертикальнаяГруппа1
-    Элемент1:
+    Элемент1: 
   Элемент2: `,
       ],
       toOneLineGroup: false,
@@ -322,7 +322,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
       strings: [
         `-Группа
   +ВертикальнаяГруппа1
-    Элемент1:
+    Элемент1: 
   Элемент2: `,
       ],
       toOneLineGroup: false,
@@ -429,7 +429,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     structured: {
       strings: [
         `+"Заголовок группы" Группа
-  Элемент1:
+  Элемент1: 
   Элемент2: `,
       ],
       toOneLineGroup: false,
