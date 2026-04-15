@@ -1,45 +1,47 @@
-<ColumnGroup name="ГруппаКолонок" id="1">
-	<EnableContentChange>true</EnableContentChange>
+<ColumnGroup name="ГруппаКолонок" id="14" DisplayImportance="VeryHigh">
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">false</xr:Value>
+	</UserVisible>
 	<Enabled>false</Enabled>
-	<ExtendedTooltip name="ГруппаКолонокРасширеннаяПодсказка" id="2"/>
-	<FixingInTable>None</FixingInTable>
-	<Group>Horizontal</Group>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
-	<HeaderDataPath>Объект.Реквизит</HeaderDataPath>
-	<HeaderFormat>Формат</HeaderFormat>
-	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
-	<HeaderPicture>
-		<xr:Ref>StdPicture.Print</xr:Ref>
-		<xr:LoadTransparent>true</xr:LoadTransparent>
-	</HeaderPicture>
-	<Height>200</Height>
-	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>true</ReadOnly>
-	<Shortcut>S</Shortcut>
-	<ShowInHeader>true</ShowInHeader>
-	<ShowTitle>true</ShowTitle>
+	<EnableContentChange>true</EnableContentChange>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Группа колонок</v8:content>
+			<v8:content>Заголовок элемента</v8:content>
 		</v8:item>
 	</Title>
-	<TitleBackColor>web:Blue</TitleBackColor>
-	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
-	<TitleTextColor>web:Black</TitleTextColor>
+	<TitleTextColor>web:Crimson</TitleTextColor>
+	<TitleFont ref="style:LargeTextFont" kind="StyleItem"/>
 	<ToolTip>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Подсказка</v8:content>
 		</v8:item>
 	</ToolTip>
-	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<UserVisible>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">false</xr:Value>
-	</UserVisible>
-	<VerticalStretch>true</VerticalStretch>
-	<Visible>false</Visible>
-	<Width>300</Width>
+	<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+	<Width>10</Width>
+	<Height>15</Height>
+	<HorizontalStretch>true</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
+	<Group>InCell</Group>
+	<ShowTitle>false</ShowTitle>
+	<TitleBackColor>web:MediumOrchid</TitleBackColor>
+	<ShowInHeader>true</ShowInHeader>
+	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
+	<FixingInTable>Left</FixingInTable>
+	<ExtendedTooltip name="ГруппаКолонокРасширеннаяПодсказка" id="15">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 </ColumnGroup>

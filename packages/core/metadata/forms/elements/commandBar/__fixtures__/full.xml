@@ -1,5 +1,36 @@
 <CommandBar name="КоманднаяПанель" id="1" DisplayImportance="High">
-	<Autofill>true</Autofill>
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">false</xr:Value>
+	</UserVisible>
+	<Enabled>false</Enabled>
+	<ReadOnly>true</ReadOnly>
+	<EnableContentChange>true</EnableContentChange>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок элемента</v8:content>
+		</v8:item>
+	</Title>
+	<TitleTextColor>web:Crimson</TitleTextColor>
+	<TitleFont ref="style:LargeTextFont" kind="StyleItem"/>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+	<Width>10</Width>
+	<Height>15</Height>
+	<HorizontalStretch>true</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<HorizontalLocation>Center</HorizontalLocation>
+	<CommandSource>FormCommandPanelGlobalCommands</CommandSource>
+	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="2"/>
 	<ChildItems>
 		<Button name="Кнопка1" id="2">
 			<CommandName>ВыполнитьКоманда1</CommandName>
@@ -36,44 +67,4 @@
 			</ToolTip>
 		</Popup>
 	</ChildItems>
-	<CommandSource>Form</CommandSource>
-	<EnableContentChange>true</EnableContentChange>
-	<Enabled>false</Enabled>
-	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="12">
-		<Title formatted="false">
-			<v8:item>
-				<v8:lang>ru</v8:lang>
-				<v8:content>Расширенная подсказка</v8:content>
-			</v8:item>
-		</Title>
-	</ExtendedTooltip>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
-	<Height>200</Height>
-	<HorizontalLocation>Left</HorizontalLocation>
-	<HorizontalStretch>true</HorizontalStretch>
-	<ReadOnly>true</ReadOnly>
-	<Shortcut>S</Shortcut>
-	<Title>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Командная панель</v8:content>
-		</v8:item>
-	</Title>
-	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
-	<TitleTextColor>web:Black</TitleTextColor>
-	<ToolTip>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Подсказка</v8:content>
-		</v8:item>
-	</ToolTip>
-	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<UserVisible>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">false</xr:Value>
-	</UserVisible>
-	<VerticalStretch>true</VerticalStretch>
-	<Visible>false</Visible>
-	<Width>300</Width>
 </CommandBar>
