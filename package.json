@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Веб-приложение для расширения VS Code Nakidka",
   "type": "module",
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@10.33.0",
   "engines": {
     "pnpm": ">=9.0.0"
   },
