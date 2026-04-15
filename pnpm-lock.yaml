@@ -155,28 +155,13 @@ importers:
       chalk:
         specifier: ^5.4.0
         version: 5.6.2
-      cli-progress:
-        specifier: ^3.12.0
-        version: 3.12.0
       commander:
         specifier: ^14.0.2
         version: 14.0.3
-      fast-xml-parser:
-        specifier: ^5.4.2
-        version: 5.4.2
-      langium:
-        specifier: ~4.2.0
-        version: 4.2.1
-      nkdk-language:
-        specifier: workspace:*
-        version: link:../language
       yaml:
         specifier: ^2.8.3
         version: 2.8.3
     devDependencies:
-      '@types/cli-progress':
-        specifier: ^3.11.6
-        version: 3.11.6
       '@types/node':
         specifier: ^24.10.1
         version: 24.12.2
@@ -1508,9 +1493,6 @@ packages:
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
-  '@types/cli-progress@3.11.6':
-    resolution: {integrity: sha512-cE3+jb9WRlu+uOSAugewNpITJDt1VF8dHOopPO4IABFc3SXYL5WE/+PTz/FCdZRRfIujiWW3n3aMbv1eIGVRWA==}
-
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
@@ -2047,10 +2029,6 @@ packages:
   ci-info@3.9.0:
     resolution: {integrity: sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==}
     engines: {node: '>=8'}
-
-  cli-progress@3.12.0:
-    resolution: {integrity: sha512-tRkV3HJ1ASwm19THiiLIXLO7Im7wlTuKnvkYaTkyoAPefqjNg7W7DHKUlGRxy9vxDvbyCYQkQozvptuMkGCg8A==}
-    engines: {node: '>=4'}
 
   cliui@8.0.1:
     resolution: {integrity: sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ==}
@@ -5289,10 +5267,6 @@ snapshots:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
 
-  '@types/cli-progress@3.11.6':
-    dependencies:
-      '@types/node': 24.12.2
-
   '@types/deep-eql@4.0.2': {}
 
   '@types/eslint-scope@3.7.7':
@@ -5991,10 +5965,6 @@ snapshots:
   chrome-trace-event@1.0.4: {}
 
   ci-info@3.9.0: {}
-
-  cli-progress@3.12.0:
-    dependencies:
-      string-width: 4.2.3
 
   cliui@8.0.1:
     dependencies:
