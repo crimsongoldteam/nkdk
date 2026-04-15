@@ -24,6 +24,10 @@ export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params
 
   if (source !== undefined) {
     result.items = { ...result.items, ...source.items }
+    const formattedSource = source as FormattedI8nText
+    if (formattedSource.formatted !== undefined) {
+      result.formatted = formattedSource.formatted
+    }
   }
 
   if (text !== undefined || formattedText !== undefined) {

@@ -6,177 +6,79 @@ import {
 
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { RequiredFieldsElement } from "~/tests/types"
+import {
+  fullFormDecorationCommonFixture,
+  fullFormDecorationEnterpriseCommonFixture,
+  fullFormDecorationPartialYAMLCommonFixture,
+} from "~/metadata/forms/elements/formDecoration/__fixtures__/data"
 
-export const fullPictureDecoration: RequiredFieldsElement<PictureDecoration> = {
+export const fullPictureDecoration: Omit<
+  RequiredFieldsElement<PictureDecoration>,
+  "border" | "borderColor" | "picture" | "pictureSize"
+> = {
   itemType: "PictureDecoration",
-  name: "ДекорацияКартинки",
+  name: "ДекорацияКартинка",
   title: {
-    formatted: false,
-    items: { ru: "Заголовок декорации картинки" },
+    formatted: true,
+    items: { ru: "<b>Заголовок</>" },
   },
-  border: {
-    controlBorderType: "Single",
-    width: 1,
-  },
-  borderColor: { type: "WebColor", value: "Black" },
+  ...fullFormDecorationCommonFixture,
   enableDrag: true,
   enableStartDrag: true,
-  hyperlink: false,
-  nonselectedPictureText: "Нет картинки",
-  picture: {
-    ref: "Print",
-    type: "StandardPicture",
-    loadTransparent: true,
-  },
-  scale: 100,
-  zoomable: true,
-  autoMaxHeight: true,
-  autoMaxWidth: true,
-  displayImportance: "High",
-  enabled: true,
-  font: { kind: "StyleItem", ref: "NormalTextFont" },
-  height: 200,
-  horizontalAlignInGroup: "Left",
-  horizontalStretch: true,
-  maxHeight: 500,
-  maxWidth: 400,
-  shortcut: "S",
-  skipOnInput: false,
-  textColor: { type: "WebColor", value: "Blue" },
-  toolTip: {
-    items: { ru: "Подсказка" },
-  },
-  toolTipRepresentation: "None",
-  type: "Label",
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
-  verticalAlignInGroup: "Top",
-  verticalStretch: true,
-  visible: true,
-  width: 300,
-  contextMenu: {
-    itemType: "ContextMenu",
-    autofill: false,
-    childItems: [],
-  },
-  extendedTooltip: {
-    itemType: "ExtendedTooltip",
-    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
-  },
   fileDragMode: "AsFile",
-  pictureSize: "AutoSize",
+  hyperlink: true,
+  nonselectedPictureText: { items: { ru: "Текст невыбранной картинки" } },
+  scale: 90,
+  zoomable: true,
   events: {
-    click: "ПроцедураПриНажатии",
-    dragStart: "ПроцедураПриНачалеПеретаскивания",
-    dragEnd: "ПроцедураПриОкончанииПеретаскивания",
-    drag: "ПроцедураПриПеретаскивании",
-    dragCheck: "ПроцедураПриПроверкеПеретаскивания",
+    click: "ДекорацияКартинкаНажатие",
+    dragStart: "ДекорацияКартинкаНачалоПеретаскивания",
+    dragEnd: "ДекорацияКартинкаОкончаниеПеретаскивания",
+    drag: "ДекорацияКартинкаПеретаскивание",
+    dragCheck: "ДекорацияКартинкаПроверкаПеретаскивания",
   },
 }
 
 export const fullPictureDecorationEnterprise = {
   ElementType: "FormDecoration",
-  Name: "prefix_ДекорацияКартинки",
+  Name: "prefix_ДекорацияКартинка",
   Type: { Type: "SystemEnumeration", Value: "FormDecorationType.Picture" },
-  AutoMaxHeight: true,
-  AutoMaxWidth: true,
-  DisplayImportance: {
-    Type: "SystemEnumeration",
-    Value: "DisplayImportance.High",
-  },
-  Enabled: true,
-  Font: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
-  Height: 200,
-  HorizontalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemHorizontalLocation.Left",
-  },
-  HorizontalStretch: true,
-  MaxHeight: 500,
-  MaxWidth: 400,
-  SkipOnInput: false,
-  TextColor: { Type: "Color", Value: "WebColors.Blue" },
-  ToolTip: "Подсказка",
-  ToolTipRepresentation: {
-    Type: "SystemEnumeration",
-    Value: "ToolTipRepresentation.None",
-  },
-  VerticalAlignInGroup: {
-    Type: "SystemEnumeration",
-    Value: "ItemVerticalAlign.Top",
-  },
-  VerticalStretch: true,
-  Visible: true,
-  Width: 300,
-  BorderColor: { Type: "Color", Value: "WebColors.Black" },
+  ...fullFormDecorationEnterpriseCommonFixture,
   EnableDrag: true,
   EnableStartDrag: true,
   FileDragMode: {
     Type: "SystemEnumeration",
     Value: "FileDragMode.AsFile",
   },
-  Hyperlink: false,
-  NonselectedPictureText: "Нет картинки",
-  PictureSize: { Type: "SystemEnumeration", Value: "PictureSize.AutoSize" },
-  Scale: 100,
+  Hyperlink: true,
+  NonselectedPictureText: "Текст невыбранной картинки",
+  Scale: 90,
   Zoomable: true,
-  Title: "Заголовок декорации картинки",
-  Border: {
-    Type: "Border",
-    Value: "ControlBorderType.Single",
-    Width: 1,
-  },
-  Picture: { Type: "Picture", Value: "PictureLib.Print" },
-} satisfies Required<PictureDecorationEnterprise>
+  Title: "<b>Заголовок</>",
+} satisfies Omit<Required<PictureDecorationEnterprise>, "Border" | "BorderColor" | "Picture" | "PictureSize">
 
 export const fullPictureDecorationPartialYAML: Required<
-  Omit<PictureDecorationPartialYAML, "Заголовок" | "ФорматированныйЗаголовок" | "ЗапретитьИспользование">
+  Omit<
+    PictureDecorationPartialYAML,
+    "Заголовок" | "ФорматированныйЗаголовок" | "ЗапретитьИспользование" | "Картинка" | "Рамка" | "ЦветРамки" | "РазмерКартинки"
+  >
 > = {
-  АвтоМаксимальнаяВысота: "Истина",
-  АвтоМаксимальнаяШирина: "Истина",
-  ВажностьПриОтображении: "Высокая",
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "Надпись",
-  Видимость: "Истина",
-  Высота: 200,
-  ГоризонтальноеПоложениеВГруппе: "Лево",
-  Доступность: "Истина",
-  МаксимальнаяВысота: 500,
-  МаксимальнаяШирина: 400,
-  ОтображениеПодсказки: "Нет",
-  Подсказка: "Подсказка",
-  РазрешитьИспользование: { Администратор: "Истина" },
-  ПропускатьПриВводе: "Ложь",
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
-  СочетаниеКлавиш: "S",
-  ЦветТекста: "Синий",
-  Ширина: 300,
-  Шрифт: "ОбычныйШрифтТекста",
-  Гиперссылка: "Ложь",
-  Картинка: "Печать",
-  Масштаб: 100,
+  ...fullFormDecorationPartialYAMLCommonFixture,
+  Гиперссылка: "Истина",
+  Масштаб: 90,
   Масштабировать: "Истина",
   РазрешитьНачалоПеретаскивания: "Истина",
   РазрешитьПеретаскивание: "Истина",
-  Рамка: {
-    ТипРамки: "Одинарная",
-    Ширина: 1,
-  },
-  ТекстНевыбраннойКартинки: "Нет картинки",
-  ЦветРамки: "Черный",
-  РазмерКартинки: "АвтоРазмер",
+  ТекстНевыбраннойКартинки: "Текст невыбранной картинки",
   СпособПеретаскиванияФайлов: "КакФайл",
   КонтекстноеМеню: { Автозаполнение: "Ложь" },
-  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
+  РасширеннаяПодсказка: { Заголовок: "РасширеннаяПодсказка" },
   События: {
-    Нажатие: "ПроцедураПриНажатии",
-    НачалоПеретаскивания: "ПроцедураПриНачалеПеретаскивания",
-    ОкончаниеПеретаскивания: "ПроцедураПриОкончанииПеретаскивания",
-    Перетаскивание: "ПроцедураПриПеретаскивании",
-    ПроверкаПеретаскивания: "ПроцедураПриПроверкеПеретаскивания",
+    Нажатие: "ДекорацияКартинкаНажатие",
+    НачалоПеретаскивания: "ДекорацияКартинкаНачалоПеретаскивания",
+    ОкончаниеПеретаскивания: "ДекорацияКартинкаОкончаниеПеретаскивания",
+    Перетаскивание: "ДекорацияКартинкаПеретаскивание",
+    ПроверкаПеретаскивания: "ДекорацияКартинкаПроверкаПеретаскивания",
   },
 }
 
@@ -187,17 +89,17 @@ export const minimalPictureDecoration: PictureDecoration = {
 
 export const minimalPictureDecorationPartialYAML: PictureDecorationPartialYAML = {}
 
+export const sourcePictureDecoration: PictureDecoration = {
+  name: "ДекорацияКартинка",
+  itemType: "PictureDecoration",
+  title: { items: { ru: "<b>Заголовок</>" }, formatted: true },
+}
+
 export interface PictureDecorationStructureFixture {
   name: string
   element: PictureDecoration
   structured: ToNKDKResult
   skipImport?: boolean
-}
-
-export const sourcePictureDecoration: PictureDecoration = {
-  name: "ДекорацияКартинки",
-  itemType: "PictureDecoration",
-  title: { items: { ru: "Заголовок декорации картинки" }, formatted: false },
 }
 
 export const pictureDecorationStructureFixturesTable: PictureDecorationStructureFixture[] = [
