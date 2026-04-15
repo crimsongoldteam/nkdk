@@ -23,7 +23,7 @@
     "fast-xml-parser": "^5.4.2",
     "graphology": "^0.26.0",
     "uuid": "^13.0.0",
-    "yaml": "^2.8.2"
+    "yaml": "^2.8.3"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

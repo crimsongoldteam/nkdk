@@ -62,7 +62,7 @@
     "split.js": "^1.6.5",
     "uuid": "^13.0.0",
     "whatwg-fetch": "^3.6.20",
-    "yaml": "^2.8.2"
+    "yaml": "^2.8.3"
   },
   "pnpm": {
     "patchedDependencies": {
