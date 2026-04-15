@@ -32,8 +32,8 @@ if [ -z "${NKDK_YAML_DIR:-}" ]; then
   echo "Ошибка: переменная NKDK_YAML_DIR не задана" >&2
   exit 1
 fi
-if [ ! -d "${NKDK_XML_REPO}/.git" ]; then
-  echo "Ошибка: NKDK_XML_REPO ('${NKDK_XML_REPO}') не является git-репозиторием" >&2
+if ! git -C "${NKDK_XML_REPO}" rev-parse --git-dir &>/dev/null; then
+  echo "Ошибка: NKDK_XML_REPO ('${NKDK_XML_REPO}') не находится внутри git-репозитория" >&2
   exit 1
 fi
 
@@ -45,11 +45,10 @@ REPO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 if command -v nkdk &>/dev/null; then
   NKDK="nkdk"
-elif [ -f "${REPO_DIR}/packages/cli/dist/process-xml.js" ]; then
-  NKDK="node ${REPO_DIR}/packages/cli/dist/process-xml.js"
+elif [ -f "${REPO_DIR}/packages/cli/src/cli.ts" ]; then
+  NKDK="pnpm -s --dir ${REPO_DIR}/packages/cli exec tsx src/cli.ts"
 else
   echo "Ошибка: команда nkdk не найдена." >&2
-  echo "Соберите CLI: cd ${REPO_DIR} && pnpm --filter @nakidka/cli build" >&2
   exit 1
 fi
 
@@ -88,7 +87,7 @@ for ((i=1; i<=MAX_ITERATIONS; i++)); do
   ${NKDK} sync "${NKDK_YAML_DIR}" "${NKDK_XML_REPO}"
 
   # 4. Проверить наличие диффов
-  FIRST_DIFF_FILE="$(git -C "${NKDK_XML_REPO}" diff --name-only | sort | head -1)"
+  FIRST_DIFF_FILE="$(set +o pipefail; git -C "${NKDK_XML_REPO}" -c core.quotepath=false diff --name-only --relative -- . | sort | head -1)"
 
   if [ -z "${FIRST_DIFF_FILE}" ]; then
     echo ""
@@ -100,7 +99,7 @@ for ((i=1; i<=MAX_ITERATIONS; i++)); do
   echo "[diff]   Первый файл: ${FIRST_DIFF_FILE}"
 
   # 5. Взять первый hunk диффа (первые 100 строк)
-  DIFF_TEXT="$(git -C "${NKDK_XML_REPO}" diff "${FIRST_DIFF_FILE}" | head -100)"
+  DIFF_TEXT="$(set +o pipefail; git -C "${NKDK_XML_REPO}" -c core.quotepath=false diff --relative -- "${FIRST_DIFF_FILE}" | head -100)"
 
   # 6. Сформировать промпт агенту
   cat > "${PROMPT_FILE}" << PROMPT_EOF
@@ -129,8 +128,15 @@ PROMPT_EOF
   # 7. Запустить агента
   HEAD_BEFORE="$(git -C "${REPO_DIR}" rev-parse HEAD)"
 
-  echo "[agent]  Запускаю Claude для: ${FIRST_DIFF_FILE}..."
-  (cd "${REPO_DIR}" && claude --dangerously-skip-permissions -p "@${PROMPT_FILE}") || true
+  ITER_LOG="/tmp/round-trip-fix-iter-${i}.log"
+  echo "[agent]  Запускаю Claude для: ${FIRST_DIFF_FILE}"
+  echo "[agent]  Живой лог: tail -f ${ITER_LOG}"
+  (cd "${REPO_DIR}" && claude --dangerously-skip-permissions --verbose --output-format stream-json -p "$(cat "${PROMPT_FILE}")") 2>&1 \
+    | tee "${ITER_LOG}" \
+    | while IFS= read -r line; do
+        text="$(printf '%s' "$line" | sed -n 's/.*"type":"text".*"text":"\([^"]*\)".*/\1/p' | head -c 200)"
+        [ -n "$text" ] && echo "[agent]  ${text}"
+      done || true
 
   # 8. Проверить результат: HEAD сдвинулся И рабочее дерево чистое
   HEAD_AFTER="$(git -C "${REPO_DIR}" rev-parse HEAD)"
