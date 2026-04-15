@@ -14,9 +14,13 @@
 #
 # Переменные окружения:
 #   NKDK_XML_REPO (обязательная) — путь к git-репо с XML-выгрузкой
+#   NKDK_XML_DIR  (опциональная) — путь к подкаталогу с XML-выгрузкой
+#                                  (по умолчанию совпадает с NKDK_XML_REPO)
 #
 # Использование:
-#   NKDK_XML_REPO=/path/to/config ./scripts/round-trip-issues.sh
+#   NKDK_XML_REPO=/path/to/repo \
+#   NKDK_XML_DIR=/path/to/repo/subdir \
+#     ./scripts/round-trip-issues.sh
 # ==============================================================================
 set -euo pipefail
 
@@ -28,6 +32,12 @@ if [ -z "${NKDK_XML_REPO:-}" ]; then
 fi
 if ! git -C "${NKDK_XML_REPO}" rev-parse --git-dir &>/dev/null; then
   echo "Ошибка: NKDK_XML_REPO ('${NKDK_XML_REPO}') не является git-репозиторием" >&2
+  exit 1
+fi
+
+NKDK_XML_DIR="${NKDK_XML_DIR:-${NKDK_XML_REPO}}"
+if [ ! -d "${NKDK_XML_DIR}" ]; then
+  echo "Ошибка: NKDK_XML_DIR ('${NKDK_XML_DIR}') не существует или не каталог" >&2
   exit 1
 fi
 
@@ -56,6 +66,7 @@ trap 'rm -f "${PROMPT_FILE}"' EXIT
 
 echo "=== Round-trip issues ==="
 echo "XML репо:  ${NKDK_XML_REPO}"
+echo "XML каталог: ${NKDK_XML_DIR}"
 echo "nkdk:      ${NKDK}"
 echo "Лог:       ${LOG_FILE}"
 echo ""
@@ -63,16 +74,16 @@ echo ""
 # ── 1. Чистый старт ──────────────────────────────────────────────────────────
 
 echo "[restore] Откат XML-репо к HEAD..."
-git -C "${NKDK_XML_REPO}" restore .
+git -C "${NKDK_XML_DIR}" restore .
 
 # ── 2. Short round-trip ───────────────────────────────────────────────────────
 
 echo "[round-trip] Запуск short-round-trip-test..."
-${NKDK} short-round-trip-test "${NKDK_XML_REPO}"
+${NKDK} short-round-trip-test "${NKDK_XML_DIR}"
 
 # ── 3. Найти первый файл с диффом ─────────────────────────────────────────────
 
-FIRST_DIFF_FILE="$(set +o pipefail; git -C "${NKDK_XML_REPO}" -c core.quotepath=false diff --name-only --relative -- . | sort | head -1)"
+FIRST_DIFF_FILE="$(set +o pipefail; git -C "${NKDK_XML_DIR}" -c core.quotepath=false diff --name-only --relative -- . | sort | head -1)"
 
 if [ -z "${FIRST_DIFF_FILE}" ]; then
   echo ""
@@ -84,7 +95,7 @@ echo "[diff] Первый файл с расхождением: ${FIRST_DIFF_FIL
 
 # ── 4. Полный дифф файла ──────────────────────────────────────────────────────
 
-DIFF_TEXT="$(git -C "${NKDK_XML_REPO}" -c core.quotepath=false diff --relative -- "${FIRST_DIFF_FILE}")"
+DIFF_TEXT="$(git -C "${NKDK_XML_DIR}" -c core.quotepath=false diff --relative -- "${FIRST_DIFF_FILE}")"
 
 # ── 5. Промпт для ИИ ─────────────────────────────────────────────────────────
 
