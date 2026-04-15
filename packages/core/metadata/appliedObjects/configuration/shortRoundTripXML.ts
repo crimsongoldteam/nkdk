@@ -10,7 +10,7 @@ import { xmlExport } from "~/xml/export/exporter"
 const makeContextFromXML = (): ConfigurationContextFromXML => ({
   defaultLanguage: "ru",
   version: "2.20",
-  fromXML: { forReference: false },
+  fromXML: { forReference: true },
 })
 
 const makeContextToXML = (parentName: string): ConfigurationContextWithExportToXML => ({
@@ -29,10 +29,7 @@ const makeContextToXML = (parentName: string): ConfigurationContextWithExportToX
   },
 })
 
-export const shortRoundTripXML = async (params: {
-  inputDir: string
-  outputDir: string
-}): Promise<void> => {
+export const shortRoundTripXML = async (params: { inputDir: string; outputDir: string }): Promise<void> => {
   const { inputDir, outputDir } = params
 
   if (!fs.existsSync(inputDir)) {
@@ -63,11 +60,7 @@ export const shortRoundTripXML = async (params: {
 
       if (xmlObj) {
         fs.mkdirSync(catalogsOutputDir, { recursive: true })
-        fs.writeFileSync(
-          join(catalogsOutputDir, `${catalogName}.xml`),
-          xmlExport({ MetaDataObject: xmlObj }),
-          "utf-8"
-        )
+        fs.writeFileSync(join(catalogsOutputDir, `${catalogName}.xml`), xmlExport({ MetaDataObject: xmlObj }), "utf-8")
       }
     } catch (err) {
       console.error(`Ошибка round-trip каталога "${catalogName}":`, err)
@@ -113,16 +106,8 @@ export const shortRoundTripXML = async (params: {
         const formExtOutputDir = join(formsOutputDir, formName, "Ext")
         fs.mkdirSync(formExtOutputDir, { recursive: true })
 
-        fs.writeFileSync(
-          join(formsOutputDir, `${formName}.xml`),
-          xmlExport({ MetaDataObject: metadataXML }),
-          "utf-8"
-        )
-        fs.writeFileSync(
-          join(formExtOutputDir, "Form.xml"),
-          xmlExport({ Form: formXML }),
-          "utf-8"
-        )
+        fs.writeFileSync(join(formsOutputDir, `${formName}.xml`), xmlExport({ MetaDataObject: metadataXML }), "utf-8")
+        fs.writeFileSync(join(formExtOutputDir, "Form.xml"), xmlExport({ Form: formXML }), "utf-8")
       } catch (err) {
         console.error(`Ошибка round-trip формы "${catalogName}/${formName}":`, err)
       }

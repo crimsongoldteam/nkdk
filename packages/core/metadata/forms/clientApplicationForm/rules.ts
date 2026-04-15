@@ -264,6 +264,13 @@ export const ClientApplicationFormRules = {
     },
     // #endregion
     // #region Metadata
+    uuid: {
+      type: "string",
+      xml: "_uuid",
+      forReferenceOnly: true,
+      tag: FormRulesTags.Metadata,
+      xmlParents: ["Form"],
+    },
     name: {
       type: "string",
       tag: FormRulesTags.Metadata,
