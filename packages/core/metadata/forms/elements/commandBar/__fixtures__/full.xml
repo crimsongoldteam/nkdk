@@ -1,4 +1,4 @@
-<CommandBar name="КоманднаяПанель" id="1" DisplayImportance="High">
+<CommandBar name="КоманднаяПанель" id="1" DisplayImportance="VeryHigh">
 	<Visible>false</Visible>
 	<UserVisible>
 		<xr:Common>true</xr:Common>

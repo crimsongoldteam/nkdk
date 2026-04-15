@@ -1,4 +1,4 @@
-<UsualGroup name="ОбычнаяГруппа" id="1" DisplayImportance="High">
+<UsualGroup name="ОбычнаяГруппа" id="1" DisplayImportance="VeryHigh">
 	<Visible>false</Visible>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
@@ -35,8 +35,17 @@
 	<VerticalSpacing>Double</VerticalSpacing>
 	<HorizontalAlign>Right</HorizontalAlign>
 	<VerticalAlign>Bottom</VerticalAlign>
-	<Behavior>Usual</Behavior>
+	<Behavior>Collapsible</Behavior>
+	<CollapsedRepresentationTitle>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок свернутого отображения</v8:content>
+		</v8:item>
+	</CollapsedRepresentationTitle>
+	<Collapsed>true</Collapsed>
+	<ControlRepresentation>Picture</ControlRepresentation>
 	<Representation>StrongSeparation</Representation>
+	<ShowLeftMargin>false</ShowLeftMargin>
 	<United>false</United>
 	<Format>
 		<v8:item>
@@ -47,6 +56,7 @@
 	<ShowTitle>false</ShowTitle>
 	<TitleDataPath>Реквизит1</TitleDataPath>
 	<BackColor>web:MediumOrchid</BackColor>
+	<HiddenStateTitleBackColor>web:Green</HiddenStateTitleBackColor>
 	<ThroughAlign>Use</ThroughAlign>
 	<CurrentRowUse>Use</CurrentRowUse>
 	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
@@ -58,4 +68,9 @@
 			</v8:item>
 		</Title>
 	</ExtendedTooltip>
+	<ChildItems>
+		<UsualGroup name="Группа1" id="16">
+			<ExtendedTooltip name="Группа1РасширеннаяПодсказка" id="17"/>
+		</UsualGroup>
+	</ChildItems>
 </UsualGroup>
