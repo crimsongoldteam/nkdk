@@ -127,6 +127,32 @@
 - Свойство **`onMainServerUnavalableBehavior`** — входит в **общие свойства** с одинаковым **каноническим значением** `"MakeDisable"` в обеих XML-фикстурах декораций.
 - Свойства `name`, `parent`, `type` — по паттерну `formGroup` не входят в **общие свойства**; `type` в каждом наследнике объявляется как **`Вид` как `runtimeOnly`-наследника**.
 
+## Разделение правил по дискриминатору (из диалога о `button`)
+
+| Термин | Определение | Избегать |
+| ------ | ----------- | -------- |
+| **Разделение по дискриминатору** | Паттерн, при котором одна внешняя сущность (один XML-тег, одна YAML-секция) превращается в **несколько `itemType`** на стороне NKDK — выбор `itemType` делается по значению **дискриминирующего свойства** на входе | Подтипы, полиморфизм |
+| **Дискриминирующее свойство** | Свойство элемента, по значению которого **fromXML** / **fromYAML** выбирает конкретный `itemType` (у кнопки — `type` / `Вид`, значения `FormButtonType`) | type-tag |
+| **`FormButtonType`** | Системное перечисление 1С с 4 значениями `UsualButton`, `Hyperlink`, `CommandBarButton`, `CommandBarHyperlink`; служит **дискриминирующим свойством** кнопки | — |
+| **`Button` (itemType)** | `itemType` формы для кнопок вне командной панели; допустимые значения `type` — `UsualButton` \| `Hyperlink` | Обычная кнопка (неоднозначно — ср. `UsualButton`) |
+| **`CommandBarButton` (itemType)** | `itemType` формы для кнопок внутри командной панели; допустимые значения `type` — `CommandBarButton` \| `CommandBarHyperlink` | — |
+| **`UsualButton`** | Значение **`FormButtonType`** для обычной кнопки с рамкой/заливкой; в **NKDK** — `<"Заголовок" Имя>` | Кнопка (слишком общее) |
+| **`Hyperlink`** | Значение **`FormButtonType`** для гиперссылки — текста-команды без рамки; в **NKDK** — `<~"Заголовок" Имя>` | Ссылка |
+| **Контекст размещения** | Позиция элемента в дереве формы, от которой зависит допустимый `itemType` наследника: `GroupChildItems` → только `Button`, `CommandBarChildItems` → только `CommandBarButton` | Родитель, parent |
+| **`resolveItemTypeFromXMLTag`** | Функция в `childItems/fromXML.ts`, выбирающая `itemType` по **XML-тегу** + **контексту размещения** + значению **дискриминирующего свойства** в XML | XML-роутер |
+| **`xmlFolder`** | Поле записи в `__tests__/fixtures.ts`, явно задающее папку **XML-фикстур** для группы, когда они физически лежат не в папке, совпадающей с `group` | — |
+| **Маркер `~` в NKDK** | Префикс перед `Titled Name` внутри правила `Button` и `CommandBarButton` в грамматике Langium, означающий, что `type` = `Hyperlink` / `CommandBarHyperlink` | Underline marker |
+| **AST-поле `hyperlink`** | Булев атрибут в сгенерированном AST (`packages/language/src/generated/ast.ts`), отражающий наличие **маркера `~`** в исходнике NKDK | isLink, hyperlinked |
+| **`exportCommandBarButtonToNKDK`** | Функция toNKDK для `itemType: "CommandBarButton"`; не оборачивает в `<>` (в отличие от `exportButtonToNKDK`), так как грамматика `CommandBarButton` — `Titled Name` без внешних скобок | — |
+
+### Relationships разделения по дискриминатору
+
+- Одна **XML-фикстура** `<Button>` → один из двух `itemType` (`Button` \| `CommandBarButton`) по значению `<Type>`.
+- Одна **YAML-секция** с `Тип: Кнопка` → тот же выбор по полю `Вид`.
+- Оба `itemType` сериализуются **обратно** в один и тот же XML-тег `<Button>` и один и тот же YAML `Тип: Кнопка` — различие хранится только в свойстве `type` / `Вид`.
+- **Общие свойства** кнопки вынесены в `commonButtonProperties` (паттерн **семейства элементов**), но папка остаётся одна (`button/`), а не две.
+- В **NKDK** разделение устроено иначе: Langium уже разводит `Button` и `CommandBarButton` на уровне AST по позиции в грамматике; `Hyperlink` / `CommandBarHyperlink` различаются внутри каждого правила через **AST-поле `hyperlink`**.
+
 ## Relationships
 
 - **Прикладной объект** связан с **реквизитами** и **табличными частями** через **composition-рёбра**
@@ -164,4 +190,6 @@
 - **"Spread"** — обозначает **только подмешивание** `...commonProperties` / `...commonFixture`. Переопределение общего поля после spread — отдельное понятие **override после spread**, и оно запрещено в текущей модели наследования.
 - **"runtimeOnly"** — трактуется буквально: свойство не попадает ни в одну **форму представления**, включая TS-фикстуру (несмотря на интуитивное ожидание «только в TS-объекте»).
 - **`runtimeOnly` vs `toYAML/fromYAML: false`** — не синонимы. `runtimeOnly` исключает свойство из **всех** форм представления; `toYAML: false, fromYAML: false` отключает только направление YAML, оставляя свойство в типах и в Enterprise XML. Первое — глобальное свойство правила, второе — точечный флаг наследника для **«не общего» поля**.
+- **`UsualButton` vs `Button`** — на уровне NKDK `Button` это **`itemType`** (семейство «кнопки вне командной панели»), а `UsualButton` — одно из значений **`FormButtonType`** внутри этого `itemType`. В русскоязычном обсуждении говорить «обычная кнопка» → имеется в виду **`UsualButton`**, а не `Button` в целом.
+- **`CommandBarButton` как `itemType` vs как значение `FormButtonType`** — одноимённые сущности на разных уровнях. `itemType: "CommandBarButton"` применим и к `type: "CommandBarHyperlink"`; строго различать «`itemType` командной кнопки» и «значение перечисления `CommandBarButton`».
 - **`type` / `Вид` / `itemType`** — три разные сущности. `itemType` — дискриминатор рантайм-модели (`"LabelDecoration"`); `type` внутри **правила свойства** — тип значения (`"string"`, `"SystemEnumeration"`); свойство элемента `type`/**`Вид`** — перечисление вида декорации/группы (`FormDecorationType`/`FormGroupType`), в **правилах** наследников объявляется индивидуально как `runtimeOnly`. В обсуждениях использовать полные формы: **itemType**, **тип свойства**, **`Вид` элемента**.
