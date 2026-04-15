@@ -6,8 +6,8 @@ import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { syncConfigurationFromXML } from "./convertFromXML"
 
 describe("sync configuration from xml", () => {
-  const inputDir = join(process.cwd(), "tests/fixtures/sync/syncConfiguration/xml")
-  const outputDir = join(process.cwd(), "tests/fixtures/sync/syncConfiguration/out")
+  const inputDir = join(__dirname, "../../../tests/fixtures/sync/syncConfiguration/xml")
+  const outputDir = join(__dirname, "../../../tests/fixtures/sync/syncConfiguration/out")
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {

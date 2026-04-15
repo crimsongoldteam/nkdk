@@ -2,6 +2,8 @@ import { readFileSync } from "fs"
 import { join } from "path"
 import { importContentFromXML } from "../xml/import/importer"
 
+const fixturesRoot = join(__dirname, "fixtures")
+
 /**
  * Reads XML file from lib/tests/fixtures (default) or from `baseDir` and parses it
  * @param filePath - path to file relative to base directory (e.g., "characteristic/simple.xml")
@@ -9,7 +11,7 @@ import { importContentFromXML } from "../xml/import/importer"
  * @returns parsed XML data
  */
 export const readAndParseXMLFile = <T>(filePath: string, baseDir?: string): T => {
-  const dir = baseDir ?? join(process.cwd(), "/tests/fixtures")
+  const dir = baseDir ?? fixturesRoot
   const fullPath = join(dir, filePath)
   const xml = readFileSync(fullPath, "utf-8")
   return importContentFromXML<T>(xml)
@@ -22,11 +24,11 @@ export const readAndParseXMLFile = <T>(filePath: string, baseDir?: string): T =>
  * @returns XML file content as a string
  */
 export const readXMLFileAsString = (filePath: string, baseDir?: string): string => {
-  const dir = baseDir ?? join(process.cwd(), "/tests/fixtures")
+  const dir = baseDir ?? fixturesRoot
   const fullPath = join(dir, filePath)
   return readFileSync(fullPath, "utf-8")
 }
 
 export const getXMLFixturePath = (filePath: string): string => {
-  return join(process.cwd(), "/tests/fixtures", filePath)
+  return join(fixturesRoot, filePath)
 }

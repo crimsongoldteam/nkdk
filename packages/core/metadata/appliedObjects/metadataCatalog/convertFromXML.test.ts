@@ -6,8 +6,8 @@ import { mockContextFromXML } from "~/tests/mockContext"
 import { convertCatalogFromXML } from "./convertFromXML"
 
 describe("convertCatalogFromXML", () => {
-  const inputDir = join(process.cwd(), "tests/fixtures/sync/syncCatalog/xml")
-  const outputDir = join(process.cwd(), "tests/fixtures/sync/syncCatalog/out")
+  const inputDir = join(__dirname, "../../../tests/fixtures/sync/syncCatalog/xml")
+  const outputDir = join(__dirname, "../../../tests/fixtures/sync/syncCatalog/out")
   const catalogName = "Контрагенты"
 
   beforeEach(() => {
