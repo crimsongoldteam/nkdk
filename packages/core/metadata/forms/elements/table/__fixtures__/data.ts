@@ -672,7 +672,7 @@ export const tableWithAutoCommandBar: Table = {
     childItems: [
       {
         name: "КнопкаТаблицы",
-        itemType: "Button",
+        itemType: "CommandBarButton",
         title: { items: { ru: "Кнопка 1" } },
       },
     ],

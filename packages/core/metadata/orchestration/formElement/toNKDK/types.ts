@@ -2,7 +2,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { CommandBarChildItem, GenerateChildItem, TableChildItem } from "~/metadata/forms/commonObjects/childItems/types"
 import { exportOtherElementToNKDK } from "~/metadata/forms/elements/baseElement/toNKDK"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { exportButtonContentToNKDK, exportButtonToNKDK } from "~/metadata/forms/elements/button/toNKDK"
+import {
+  exportButtonContentToNKDK,
+  exportButtonToNKDK,
+  exportCommandBarButtonContentToNKDK,
+} from "~/metadata/forms/elements/button/toNKDK"
 import { exportButtonGroupContentToNKDK } from "~/metadata/forms/elements/buttonGroup/toNKDK"
 import {
   exportCheckBoxFieldToNKDK,
@@ -85,6 +89,7 @@ export const ExportToNKDKTableChildItemsGeneratorFn = {
 
 export const ExportToNKDKCommandBarChildItemsGeneratorFn = {
   Button: exportButtonContentToNKDK,
+  CommandBarButton: exportCommandBarButtonContentToNKDK,
   Popup: exportPopupContentToNKDK,
   ButtonGroup: exportButtonGroupContentToNKDK,
   SearchStringAddition: exportOtherElementToNKDK,

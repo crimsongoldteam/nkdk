@@ -6,6 +6,7 @@ import { MetadataItemType, MetadataItemTypeRegistry, ToMetadata, ToTypedYAML } f
 
 export const CollectableElementTypeToYAML = {
   Button: "Кнопка",
+  CommandBarButton: "КнопкаКоманднойПанели",
   ButtonGroup: "ГруппаКнопок",
   CalendarField: "ПолеКалендаря",
   ChartField: "ПолеДиаграммы",

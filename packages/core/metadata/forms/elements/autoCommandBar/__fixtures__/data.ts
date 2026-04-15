@@ -55,12 +55,12 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       autofill: true,
       childItems: [
         {
-          itemType: "Button",
+          itemType: "CommandBarButton",
           name: "Кнопка1",
           title: { items: { ru: "Номер 1" } },
         },
         {
-          itemType: "Button",
+          itemType: "CommandBarButton",
           name: "Кнопка2",
           title: { items: { ru: "Номер 2" } },
         },
@@ -78,12 +78,12 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       autofill: false,
       childItems: [
         {
-          itemType: "Button",
+          itemType: "CommandBarButton",
           name: "Кнопка1",
           title: { items: { ru: "Номер 1" } },
         },
         {
-          itemType: "Button",
+          itemType: "CommandBarButton",
           name: "Кнопка2",
           title: { items: { ru: "Номер 2" } },
         },
@@ -126,17 +126,17 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       autofill: false,
       childItems: [
         {
-          itemType: "Button",
+          itemType: "CommandBarButton",
           name: "Кнопка1",
           title: { items: { ru: "Кнопка Номер 1" } },
         },
         {
-          itemType: "Button",
+          itemType: "CommandBarButton",
           name: "Кнопка2",
           title: { items: { ru: "Кнопка Номер 2" } },
         },
         {
-          itemType: "Button",
+          itemType: "CommandBarButton",
           name: "Кнопка3",
           title: { items: { ru: "Кнопка Номер 3" } },
         },

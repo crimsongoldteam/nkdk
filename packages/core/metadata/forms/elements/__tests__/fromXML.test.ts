@@ -3,6 +3,7 @@ import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
 import type { CollectableElement, ElementXML } from "~/metadata/orchestration"
 import { importElementFromXML } from "~/metadata/orchestration"
+import { getElementXMLTagName } from "~/metadata/orchestration/formElement/ruleFactory"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { groupedFixtures, type ElementFixture } from "./fixtures"
@@ -25,10 +26,11 @@ describe("importElementFromXML", () => {
         fixtureXmlBaseDir(fixture),
       )
 
+      const xmlTag = getElementXMLTagName(model.itemType)
       const result = importElementFromXML({
         context: mockContextFromXML(),
         itemType: model.itemType,
-        xml: xmlData[model.itemType],
+        xml: xmlData[model.itemType] ?? xmlData[xmlTag],
       })
 
       expect(result).toEqual(model)

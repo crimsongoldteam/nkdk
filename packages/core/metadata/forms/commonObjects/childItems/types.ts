@@ -1,7 +1,7 @@
 // import { ToEnterpriseType } from "~/metadata/metadataFactory/types"
 import { CollectableElement, ToEnterprise, ToTypedYAML, ToYAML } from "~/metadata/orchestration"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
-import { Button, ButtonTypedYAML } from "../../elements/button/types"
+import { Button, ButtonTypedYAML, CommandBarButton, CommandBarButtonTypedYAML } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedYAML } from "../../elements/buttonGroup/types"
 import { CalendarField } from "../../elements/calendarField/types"
 import { ChartField } from "../../elements/chartField/types"
@@ -79,14 +79,14 @@ export type GroupChildItemsEnterprise = ToEnterprise<GroupChildItem["itemType"]>
 
 // #region CommandBarChildItem
 
-export type CommandBarChildItem = Button | ButtonGroup | Popup | SearchStringAddition | SearchControlAddition
+export type CommandBarChildItem = Button | CommandBarButton | ButtonGroup | Popup | SearchStringAddition | SearchControlAddition
 export type CommandBarChildItems = ReadonlyArray<CommandBarChildItem>
 
 export type CommandBarChildItemsPartialYAML = Record<string, ToYAML<CommandBarChildItem["itemType"]>>
 
 export type CommandBarChildItemsTypedYAML = Record<
   string,
-  ToTypedYAML<Button["itemType"] | ButtonGroup["itemType"] | Popup["itemType"]>
+  ToTypedYAML<Button["itemType"] | CommandBarButton["itemType"] | ButtonGroup["itemType"] | Popup["itemType"]>
 >
 
 export type CommandBarChildItemsEnterprise = ToEnterprise<CommandBarChildItem["itemType"]>[]
@@ -95,7 +95,7 @@ export type CommandBarChildItemsEnterprise = ToEnterprise<CommandBarChildItem["i
 
 // #region CommandBarGroupChildItem
 
-export type CommandBarGroupChildItem = Button | ButtonGroup | Popup
+export type CommandBarGroupChildItem = Button | CommandBarButton | ButtonGroup | Popup
 export type CommandBarGroupChildItems = CommandBarGroupChildItem[]
 
 export type CommandBarGroupChildItemsPartialYAML = Record<string, ToYAML<CommandBarGroupChildItem["itemType"]>>
@@ -157,6 +157,7 @@ export type FormChildItemsPartialYAML =
 
 export type TypedElement =
   | Button
+  | CommandBarButton
   | ButtonGroup
   | Popup
   | TableCheckBoxField
@@ -167,6 +168,7 @@ export type TypedElement =
 
 export type TypedElementPartialYAML =
   | ButtonTypedYAML
+  | CommandBarButtonTypedYAML
   | ButtonGroupTypedYAML
   | PopupTypedYAML
   | TableCheckBoxFieldTypedYAML

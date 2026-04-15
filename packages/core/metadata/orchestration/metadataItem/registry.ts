@@ -101,7 +101,16 @@ import {
   FormAttributeColumnYAML,
   FormAttributeYAML,
 } from "../../forms/commonObjects/formAttribute/types"
-import { Button, ButtonEnterprise, ButtonPartialYAML, ButtonTypedYAML } from "../../forms/elements/button/types"
+import {
+  Button,
+  ButtonEnterprise,
+  ButtonPartialYAML,
+  ButtonTypedYAML,
+  CommandBarButton,
+  CommandBarButtonEnterprise,
+  CommandBarButtonPartialYAML,
+  CommandBarButtonTypedYAML,
+} from "../../forms/elements/button/types"
 import {
   ButtonGroup,
   ButtonGroupEnterprise,
@@ -266,6 +275,12 @@ export type MetadataItemTypeRegistry = {
     yaml: ButtonPartialYAML
     yamlTyped: ButtonTypedYAML
     enterprise: ButtonEnterprise
+  }
+  CommandBarButton: {
+    metadata: CommandBarButton
+    yaml: CommandBarButtonPartialYAML
+    yamlTyped: CommandBarButtonTypedYAML
+    enterprise: CommandBarButtonEnterprise
   }
   ButtonGroup: {
     metadata: ButtonGroup

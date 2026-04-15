@@ -1,197 +1,246 @@
-import { Button, ButtonEnterprise, ButtonPartialYAML, ButtonTypedYAML } from "~/metadata/forms/elements/button/types"
-
+import {
+  Button,
+  ButtonEnterprise,
+  ButtonPartialYAML,
+  ButtonTypedYAML,
+  CommandBarButton,
+  CommandBarButtonEnterprise,
+  CommandBarButtonPartialYAML,
+  CommandBarButtonTypedYAML,
+} from "~/metadata/forms/elements/button/types"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 
-export const fullButton = {
-  itemType: "Button",
-  autoMaxHeight: false,
-  autoMaxWidth: false,
-  backColor: {
-    type: "WebColor",
-    value: "Red",
-  },
-  borderColor: {
-    type: "WebColor",
-    value: "Green",
-  },
-  check: true,
-  commandName: "Form.Command.КакаяТоКоманда",
-  commandUniqueness: false,
-  defaultButton: true,
-  defaultItem: true,
-  displayImportance: "VeryHigh",
-  enabled: false,
-  extendedTooltip: {
-    itemType: "ExtendedTooltip",
-    title: {
-      formatted: false,
-      items: {
-        ru: "Расширенная подсказка",
-      },
-    },
-  },
-  font: {
-    kind: "StyleItem",
-    ref: "LargeTextFont",
-  },
-  height: 5,
-  horizontalAlignInGroup: "Left",
-  horizontalStretch: true,
-  locationInCommandBar: "InAdditionalSubmenu",
-  maxHeight: 2,
-  maxWidth: 1,
-  name: "ОбычнаяКнопка",
-  onlyInAllActions: true, //deprecated in 8.3.15
-  onMainServerUnavalableBehavior: "DontChangeBehavior",
-  picture: {
-    loadTransparent: true,
-    ref: "Print",
-    transparentPixel: undefined,
-    type: "StandardPicture",
-  },
-  pictureLocation: "Left",
-  representation: "PictureAndText",
-  representationInContextMenu: "AdditionalInContextMenu",
-  shape: "Oval",
-  shapeRepresentation: "Always",
-  skipOnInput: true,
-  textColor: {
-    type: "WebColor",
-    value: "Blue",
-  },
-  title: {
-    items: {
-      ru: "Заголовок кнопки",
-    },
-  },
-  titleHeight: 3,
-  toolTipRepresentation: "Balloon",
-  type: "UsualButton",
-  userVisible: {
-    common: true,
-    values: [
-      {
-        name: "Администратор",
-        value: true,
-      },
-    ],
-  },
-  verticalAlignInGroup: "Top",
-  verticalStretch: true,
+const commonButtonModel = {
   visible: false,
+  userVisible: { common: true, values: [{ name: "Администратор", value: false }] },
+  titleHeight: 30,
+  representation: "PictureAndText" as const,
+  defaultButton: true,
+  skipOnInput: true,
+  enabled: false,
+  defaultItem: true,
   width: 10,
-} satisfies Button
-
-export const fullButtonSource: Button = {
-  itemType: "Button",
-  name: "Кнопка",
-  title: { items: { ru: "Кнопка формы" } },
+  autoMaxWidth: false,
+  maxWidth: 20,
+  height: 15,
+  autoMaxHeight: false,
+  maxHeight: 25,
+  horizontalStretch: true,
+  verticalStretch: true,
+  horizontalAlignInGroup: "Left" as const,
+  verticalAlignInGroup: "Top" as const,
+  check: true,
+  commandName: "Form.StandardCommand.Help",
+  textColor: { type: "WebColor" as const, value: "Red" },
+  backColor: { type: "WebColor" as const, value: "Crimson" },
+  borderColor: { type: "WebColor" as const, value: "FireBrick" },
+  font: { kind: "StyleItem" as const, ref: "LargeTextFont" as const },
+  picture: { ref: "Print", loadTransparent: true, type: "StandardPicture" as const, transparentPixel: undefined },
+  title: { items: { ru: "Заголовок элемента" } },
+  toolTipRepresentation: "Balloon" as const,
+  representationInContextMenu: "None" as const,
+  shape: "Usual" as const,
+  shapeRepresentation: "WhenActive" as const,
+  pictureLocation: "Left" as const,
+  locationInCommandBar: "InAdditionalSubmenu" as const,
+  commandUniqueness: false,
+  onMainServerUnavalableBehavior: "MakeDisable" as const,
+  displayImportance: "VeryHigh" as const,
 }
 
-export const fullButtonPartialYAML = {
-  АвтоМаксимальнаяВысота: "Ложь",
-  АвтоМаксимальнаяШирина: "Ложь",
-  АктивизироватьПоУмолчанию: "Истина",
-  ВажностьПриОтображении: "ОченьВысокая",
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ОбычнаяКнопка",
-  Видимость: "Ложь",
-  Высота: 5,
-  ВысотаЗаголовка: 3,
-  ГоризонтальноеПоложениеВГруппе: "Лево",
-  Доступность: "Ложь",
-  ИмяКоманды: "Form.Command.КакаяТоКоманда",
-  Картинка: "Печать",
-  КнопкаПоУмолчанию: "Истина",
-  МаксимальнаяВысота: 2,
-  МаксимальнаяШирина: 1,
-  Отображение: "КартинкаИТекст",
-  ОтображениеВКонтекстномМеню: "ДополнительноВКонтекстномМеню",
-  ОтображениеПодсказки: "Всплывающая",
-  ОтображениеФигуры: "Всегда",
-  ПоведениеПриНедоступностиОсновногоСервера: "НеИзменятьПоведение",
-  ПоложениеВКоманднойПанели: "ВДополнительномПодменю",
-  ПоложениеКартинки: "Лево",
-  Пометка: "Истина",
-  ПропускатьПриВводе: "Истина",
-  РазрешитьИспользование: {
-    Администратор: "Истина",
-  },
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
-  РасширеннаяПодсказка: {
-    Заголовок: "Расширенная подсказка",
-  },
-  ТолькоВоВсехДействиях: "Истина",
-  УникальностьКоманды: "Ложь",
-  Фигура: "Овал",
-  ЦветРамки: "Зеленый",
-  ЦветТекста: "Синий",
-  ЦветФона: "Красный",
+const commonButtonPartialYAML = {
+  Вид: "ОбычнаяКнопка" as const,
+  Видимость: "Ложь" as const,
+  РазрешитьИспользование: { Администратор: "Ложь" as const },
+  ВысотаЗаголовка: 30,
+  Отображение: "КартинкаИТекст" as const,
+  КнопкаПоУмолчанию: "Истина" as const,
+  ПропускатьПриВводе: "Истина" as const,
+  Доступность: "Ложь" as const,
+  АктивизироватьПоУмолчанию: "Истина" as const,
   Ширина: 10,
-  Шрифт: "КрупныйШрифтТекста",
-} satisfies Required<Omit<ButtonPartialYAML, "Заголовок" | "ЗапретитьИспользование">>
-
-export const fullButtonTypedYAML: ButtonTypedYAML = {
-  ...fullButtonPartialYAML,
-  Тип: "Кнопка",
-  Заголовок: "Заголовок кнопки",
+  АвтоМаксимальнаяШирина: "Ложь" as const,
+  МаксимальнаяШирина: 20,
+  Высота: 15,
+  АвтоМаксимальнаяВысота: "Ложь" as const,
+  МаксимальнаяВысота: 25,
+  РастягиватьПоГоризонтали: "Истина" as const,
+  РастягиватьПоВертикали: "Истина" as const,
+  ГоризонтальноеПоложениеВГруппе: "Лево" as const,
+  ВертикальноеПоложениеВГруппе: "Верх" as const,
+  Пометка: "Истина" as const,
+  ИмяКоманды: "Form.StandardCommand.Help",
+  ЦветТекста: "Красный" as const,
+  ЦветФона: "Малиновый" as const,
+  ЦветРамки: "Кирпичный" as const,
+  Шрифт: "КрупныйШрифтТекста" as const,
+  Картинка: "Печать" as const,
+  // Заголовок absent: yamlPartialOthers: true, only ru language present
+  ОтображениеПодсказки: "Всплывающая" as const,
+  ОтображениеВКонтекстномМеню: "Нет" as const,
+  Фигура: "Обычная" as const,
+  ОтображениеФигуры: "ПриАктивности" as const,
+  ПоложениеКартинки: "Лево" as const,
+  ПоложениеВКоманднойПанели: "ВДополнительномПодменю" as const,
+  УникальностьКоманды: "Ложь" as const,
+  ПоведениеПриНедоступностиОсновногоСервера: "ОтключитьДоступность" as const,
+  ВажностьПриОтображении: "ОченьВысокая" as const,
 }
 
-export const minimalButton: Button = {
-  itemType: "Button",
-  name: "ОбычнаяКнопка",
-}
-
-export const minimalButtonPartialYAML: ButtonPartialYAML = {}
-
-export const minimalButtonTypedYAML: ButtonTypedYAML = {
-  ...minimalButtonPartialYAML,
-  Тип: "Кнопка",
-}
-
-export const fullButtonEnterprise: Required<ButtonEnterprise> = {
-  ElementType: "FormButton",
-  Name: "prefix_ОбычнаяКнопка",
+const commonButtonEnterpriseFields = {
+  ElementType: "FormButton" as const,
   AutoMaxHeight: false,
   AutoMaxWidth: false,
-  BackColor: { Type: "Color", Value: "WebColors.Red" },
-  BorderColor: { Type: "Color", Value: "WebColors.Green" },
+  BackColor: { Type: "Color" as const, Value: "WebColors.Crimson" },
+  BorderColor: { Type: "Color" as const, Value: "WebColors.FireBrick" },
   Check: true,
   CommandName: "КомандаЗаглушка",
   CommandUniqueness: false,
   DefaultButton: true,
   DefaultItem: true,
-  DisplayImportance: { Type: "SystemEnumeration", Value: "DisplayImportance.VeryHigh" },
+  DisplayImportance: { Type: "SystemEnumeration" as const, Value: "DisplayImportance.VeryHigh" },
   Enabled: false,
-  Font: { Type: "Font", Value: "StyleFonts.LargeTextFont" },
-  Height: 5,
-  HorizontalAlignInGroup: { Type: "SystemEnumeration", Value: "ItemHorizontalLocation.Left" },
+  Font: { Type: "Font" as const, Value: "StyleFonts.LargeTextFont" },
+  Height: 15,
+  HorizontalAlignInGroup: { Type: "SystemEnumeration" as const, Value: "ItemHorizontalLocation.Left" },
   HorizontalStretch: true,
-  LocationInCommandBar: { Type: "SystemEnumeration", Value: "ButtonLocationInCommandBar.InAdditionalSubmenu" },
-  MaxHeight: 2,
-  MaxWidth: 1,
-  OnMainServerUnavalableBehavior: {
-    Type: "SystemEnumeration",
-    Value: "OnMainServerUnavalableBehavior.DontChangeBehavior",
+  LocationInCommandBar: {
+    Type: "SystemEnumeration" as const,
+    Value: "ButtonLocationInCommandBar.InAdditionalSubmenu",
   },
-  OnlyInAllActions: true,
-  Picture: { Type: "Picture", Value: "PictureLib.Print" },
-  PictureLocation: { Type: "SystemEnumeration", Value: "FormButtonPictureLocation.Left" },
-  Representation: { Type: "SystemEnumeration", Value: "ButtonRepresentation.PictureAndText" },
-  Shape: { Type: "SystemEnumeration", Value: "ButtonShape.Oval" },
-  ShapeRepresentation: { Type: "SystemEnumeration", Value: "ButtonShapeRepresentation.Always" },
+  MaxHeight: 25,
+  MaxWidth: 20,
+  OnMainServerUnavalableBehavior: {
+    Type: "SystemEnumeration" as const,
+    Value: "OnMainServerUnavalableBehavior.MakeDisable",
+  },
+  Picture: { Type: "Picture" as const, Value: "PictureLib.Print" },
+  PictureLocation: { Type: "SystemEnumeration" as const, Value: "FormButtonPictureLocation.Left" },
+  Representation: { Type: "SystemEnumeration" as const, Value: "ButtonRepresentation.PictureAndText" },
+  Shape: { Type: "SystemEnumeration" as const, Value: "ButtonShape.Usual" },
+  ShapeRepresentation: { Type: "SystemEnumeration" as const, Value: "ButtonShapeRepresentation.WhenActive" },
   SkipOnInput: true,
-  TextColor: { Type: "Color", Value: "WebColors.Blue" },
-  Title: "Заголовок кнопки",
-  TitleHeight: 3,
-  ToolTipRepresentation: { Type: "SystemEnumeration", Value: "ToolTipRepresentation.Balloon" },
-  Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
-  VerticalAlignInGroup: { Type: "SystemEnumeration", Value: "ItemVerticalAlign.Top" },
+  TextColor: { Type: "Color" as const, Value: "WebColors.Red" },
+  Title: "Заголовок элемента",
+  TitleHeight: 30,
+  ToolTipRepresentation: { Type: "SystemEnumeration" as const, Value: "ToolTipRepresentation.Balloon" },
+  VerticalAlignInGroup: { Type: "SystemEnumeration" as const, Value: "ItemVerticalAlign.Top" },
   VerticalStretch: true,
   Visible: false,
   Width: 10,
 }
+
+//#region Button / UsualButton
+
+export const fullUsualButton = {
+  itemType: "Button",
+  name: "Button",
+  type: "UsualButton",
+  ...commonButtonModel,
+} satisfies Button
+
+export const fullUsualButtonPartialYAML = {
+  ...commonButtonPartialYAML,
+  Вид: "ОбычнаяКнопка",
+} satisfies ButtonPartialYAML
+
+export const fullUsualButtonTypedYAML: ButtonTypedYAML = {
+  ...fullUsualButtonPartialYAML,
+  Тип: "Кнопка",
+  Заголовок: "Заголовок элемента",
+}
+
+export const fullUsualButtonEnterprise = {
+  ...commonButtonEnterpriseFields,
+  Name: "prefix_Button",
+  Type: { Type: "SystemEnumeration" as const, Value: "FormButtonType.UsualButton" },
+} satisfies ButtonEnterprise
+
+//#endregion
+
+//#region Button / Hyperlink
+
+export const fullHyperlink = {
+  itemType: "Button",
+  name: "Hyperlink",
+  type: "Hyperlink",
+  ...commonButtonModel,
+} satisfies Button
+
+export const fullHyperlinkPartialYAML = {
+  ...commonButtonPartialYAML,
+  Вид: "Гиперссылка",
+} satisfies ButtonPartialYAML
+
+export const fullHyperlinkTypedYAML: ButtonTypedYAML = {
+  ...fullHyperlinkPartialYAML,
+  Тип: "Кнопка",
+  Заголовок: "Заголовок элемента",
+}
+
+export const fullHyperlinkEnterprise = {
+  ...commonButtonEnterpriseFields,
+  Name: "prefix_Hyperlink",
+  Type: { Type: "SystemEnumeration" as const, Value: "FormButtonType.UsualButton" },
+} satisfies ButtonEnterprise
+
+//#endregion
+
+//#region CommandBarButton / CommandBarButton
+
+export const fullCommandBarButton = {
+  itemType: "CommandBarButton",
+  name: "CommanBarButton",
+  type: "CommandBarButton",
+  ...commonButtonModel,
+} satisfies CommandBarButton
+
+export const fullCommandBarButtonPartialYAML = {
+  ...commonButtonPartialYAML,
+  Вид: "КнопкаКоманднойПанели",
+} satisfies CommandBarButtonPartialYAML
+
+export const fullCommandBarButtonTypedYAML: CommandBarButtonTypedYAML = {
+  ...fullCommandBarButtonPartialYAML,
+  Тип: "КнопкаКоманднойПанели",
+  Заголовок: "Заголовок элемента",
+}
+
+export const fullCommandBarButtonEnterprise = {
+  ...commonButtonEnterpriseFields,
+  Name: "prefix_CommanBarButton",
+  Type: { Type: "SystemEnumeration" as const, Value: "FormButtonType.CommandBarButton" },
+} satisfies CommandBarButtonEnterprise
+
+//#endregion
+
+//#region CommandBarButton / CommandBarHyperlink
+
+export const fullCommandBarHyperlink = {
+  itemType: "CommandBarButton",
+  name: "CommandBarHyperlink",
+  type: "CommandBarHyperlink",
+  ...commonButtonModel,
+} satisfies CommandBarButton
+
+export const fullCommandBarHyperlinkPartialYAML = {
+  ...commonButtonPartialYAML,
+  Вид: "ГиперссылкаКоманднойПанели",
+} satisfies CommandBarButtonPartialYAML
+
+export const fullCommandBarHyperlinkTypedYAML: CommandBarButtonTypedYAML = {
+  ...fullCommandBarHyperlinkPartialYAML,
+  Тип: "КнопкаКоманднойПанели",
+  Заголовок: "Заголовок элемента",
+}
+
+export const fullCommandBarHyperlinkEnterprise = {
+  ...commonButtonEnterpriseFields,
+  Name: "prefix_CommandBarHyperlink",
+  Type: { Type: "SystemEnumeration" as const, Value: "FormButtonType.CommandBarButton" },
+} satisfies CommandBarButtonEnterprise
+
+//#endregion
 
 export interface ButtonStructureFixture {
   name: string

@@ -1,5 +1,6 @@
 import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
 import { CollectableElement, ElementXML, exportElementToXML, importElementFromXML } from "~/metadata/orchestration"
+import { getElementXMLTagName } from "~/metadata/orchestration/formElement/ruleFactory"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
@@ -15,12 +16,14 @@ export function testExportElementToXML<TElement extends CollectableElement>(
 ): { expectedResult: string; result: string } {
   const { element, path, baseDir } = params
 
-  const metadataType = element.itemType
+  const xmlTagName = getElementXMLTagName(element.itemType)
 
   const expectedResult = readXMLFileAsString(path, baseDir)
 
   const referenceXMLData = readAndParseXMLFile<{ [key: string]: ElementXML }>(path, baseDir)
-  const referenceXML = referenceXMLData[element.itemType]
+  // Fixtures may use itemType as root tag (e.g. TableInputField) or xmlTag (e.g. CommandBarButton → Button)
+  const metadataType = referenceXMLData[element.itemType] !== undefined ? element.itemType : xmlTagName
+  const referenceXML = referenceXMLData[metadataType]
 
   const importContext = mockContextFromXML({ forReference: true })
   const referenceElement = importElementFromXML({

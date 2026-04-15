@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpers"
-import { Button } from "./types"
+import { Button, CommandBarButton } from "./types"
 
 export const exportButtonToNKDK = (params: { context: ConfigurationContext; element: Button }): ToNKDKResult => {
   const { context, element } = params
@@ -15,6 +15,30 @@ export const exportButtonToNKDK = (params: { context: ConfigurationContext; elem
 export const exportButtonContentToNKDK = (params: { context: ConfigurationContext; element: Button }): ToNKDKResult => {
   const { context, element } = params
   const resultString = formatContent(context, element)
+  return {
+    strings: [resultString],
+    toOneLineGroup: true,
+  }
+}
+
+export const exportCommandBarButtonToNKDK = (params: {
+  context: ConfigurationContext
+  element: CommandBarButton
+}): ToNKDKResult => {
+  const { context, element } = params
+  const resultString = wrapButtonContent(formatElementTitleAndName(context, element))
+  return {
+    strings: [resultString],
+    toOneLineGroup: true,
+  }
+}
+
+export const exportCommandBarButtonContentToNKDK = (params: {
+  context: ConfigurationContext
+  element: CommandBarButton
+}): ToNKDKResult => {
+  const { context, element } = params
+  const resultString = formatElementTitleAndName(context, element)
   return {
     strings: [resultString],
     toOneLineGroup: true,

@@ -21,9 +21,9 @@ export const importChildItemsFromXML = <
 
   return items.map((item) => {
     const xmlTag = Object.keys(item)[0]
-    const itemType = resolveItemTypeFromXMLTag(rule, xmlTag) as From["itemType"]
-    const xmlValue = (item as Record<string, any>)[itemType]
-      ?? (item as Record<string, any>)[xmlTag]
+    const xmlRawValue = (item as Record<string, any>)[xmlTag]
+    const itemType = resolveItemTypeFromXMLTag(rule, xmlTag, xmlRawValue) as From["itemType"]
+    const xmlValue = (item as Record<string, any>)[itemType] ?? xmlRawValue
     return importElementFromXML({
       context: context,
       itemType: itemType,
@@ -33,7 +33,15 @@ export const importChildItemsFromXML = <
   }) as From[]
 }
 
-const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string): string => {
+const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: any): string => {
+  if (rule.type === "CommandBarChildItems" && xmlTag === "Button") {
+    const type = xmlValue?.Type
+    if (type === "CommandBarButton" || type === "CommandBarHyperlink") {
+      return "CommandBarButton"
+    }
+    return "Button"
+  }
+
   if (rule.type !== "TableChildItems") return xmlTag
 
   const tableXMLTagToItemType: Record<string, TableChildItem["itemType"]> = {
