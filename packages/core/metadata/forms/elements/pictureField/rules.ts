@@ -30,6 +30,7 @@ export const PictureFieldRules = {
       yaml: "РазмерКартинки",
       type: "SystemEnumeration",
       typeSE: "PictureSize",
+      defaultValueYAML: "RealSize",
     },
     scale: { yaml: "Масштаб", type: "number", xml: "ImageScale" },
     textColor: { yaml: "ЦветТекста", type: "Color" },

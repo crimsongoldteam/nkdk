@@ -66,6 +66,7 @@ export const formGroupCommonProperties = {
     yaml: "ОтображениеПодсказки",
     type: "SystemEnumeration",
     typeSE: "ToolTipRepresentation",
+    defaultValueYAML: "Auto",
   },
   userVisible: {
     yaml: "РазрешитьИспользование",
@@ -78,6 +79,7 @@ export const formGroupCommonProperties = {
     xml: "GroupVerticalAlign",
     type: "SystemEnumeration",
     typeSE: "ItemVerticalAlign",
+    defaultValueYAML: "Auto",
   },
   verticalStretch: {
     yaml: "РастягиватьПоВертикали",

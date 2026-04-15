@@ -34,6 +34,7 @@ export const MetadataAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "AttributeUse",
       defaultValueXML: "ForItem",
+      defaultValueYAML: "ForItem",
     },
     fillChecking: {
       yaml: "ПроверкаЗаполнения",
@@ -41,6 +42,7 @@ export const MetadataAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "FillChecking",
       defaultValueXML: "DontCheck",
+      defaultValueYAML: "DontCheck",
     },
     format: {
       yaml: "Формат",
@@ -114,6 +116,7 @@ export const MetadataAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "Indexing",
       defaultValueXML: "DontIndex",
+      defaultValueYAML: "DontIndex",
     },
     fullTextSearch: {
       yaml: "ПолнотекстовыйПоиск",
@@ -121,6 +124,7 @@ export const MetadataAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "UseFullTextSearch",
       defaultValueXML: "Use",
+      defaultValueYAML: "Use",
     },
     dataHistory: {
       yaml: "ИсторияДанных",
@@ -128,12 +132,16 @@ export const MetadataAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "DataHistoryUse",
       defaultValueXML: "Use",
+      defaultValueYAML: "Use",
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
+      defaultValueYAML: "Native",
+      toYAML: false,
+      fromYAML: false,
     },
     choiceForm: {
       yaml: "ФормаВыбора",
@@ -146,6 +154,7 @@ export const MetadataAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "FoldersAndItemsUse",
       defaultValueXML: "Items",
+      defaultValueYAML: "Items",
     },
     choiceHistoryOnInput: {
       yaml: "ИсторияВыбораПриВводе",
@@ -153,6 +162,7 @@ export const MetadataAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "ChoiceHistoryOnInput",
       defaultValueXML: "Auto",
+      defaultValueYAML: "Auto",
     },
     quickChoice: {
       yaml: "БыстрыйВыбор",
@@ -160,6 +170,7 @@ export const MetadataAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "UseQuickChoice",
       defaultValueXML: "Auto",
+      defaultValueYAML: "Auto",
     },
     createOnInput: {
       yaml: "СозданиеПриВводе",
@@ -167,6 +178,7 @@ export const MetadataAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "CreateOnInput",
       defaultValueXML: "Auto",
+      defaultValueYAML: "Auto",
     },
     choiceParameters: {
       yaml: "ПараметрыВыбора",

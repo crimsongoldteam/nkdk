@@ -212,6 +212,7 @@ export const MetadataDocumentRules = {
       typeSE: "AllowedLength",
       defaultValueXML: "Variable",
       xmlParents: documentProperties,
+      defaultValueYAML: "Variable",
     },
     numberLength: {
       yaml: "ДлинаНомера",

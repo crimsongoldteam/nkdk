@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import { formGroupCommonProperties } from "../formGroup/rules"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
+import { formGroupCommonProperties } from "../formGroup/rules"
 export type { ElementRule, PropertyRule }
 
 export const ColumnGroupRules = {
@@ -20,11 +20,13 @@ export const ColumnGroupRules = {
       xml: "_DisplayImportance",
       type: "SystemEnumeration",
       typeSE: "DisplayImportance",
+      defaultValueYAML: "Auto",
     },
     fixingInTable: {
       yaml: "ФиксацияВТаблице",
       type: "SystemEnumeration",
       typeSE: "FixingInTable",
+      defaultValueYAML: "None",
     },
     group: {
       yaml: "Группировка",
@@ -33,6 +35,7 @@ export const ColumnGroupRules = {
       defaultValue: "Vertical",
       toPartialYAML: false,
       required: true,
+      defaultValueYAML: "Horizontal",
     },
     headerDataPath: { yaml: "ПутьКДаннымШапки", type: "DataPath", defaultType: "string" },
     headerFormat: { yaml: "ФорматШапки", type: "string" },
@@ -40,6 +43,7 @@ export const ColumnGroupRules = {
       yaml: "ГоризонтальноеПоложениеВШапке",
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
+      defaultValueYAML: "Auto",
     },
     headerPicture: { yaml: "КартинкаШапки", type: "Picture" },
     showInHeader: { yaml: "ОтображатьВШапке", type: "boolean" },
@@ -56,6 +60,7 @@ export const ColumnGroupRules = {
       type: "SystemEnumeration",
       typeSE: "FormGroupType",
       runtimeOnly: true,
+      defaultValueYAML: "ColumnGroup",
     },
   },
 } as const satisfies ElementRule

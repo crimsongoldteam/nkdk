@@ -70,6 +70,7 @@ export const FormAttributeRules = {
       yaml: "ПроверкаЗаполнения",
       type: "SystemEnumeration",
       typeSE: "FillChecking",
+      defaultValueYAML: "DontCheck",
     },
     columns: {
       yaml: "Колонки",
@@ -142,6 +143,7 @@ export const FormAttributeColumnRules = {
       type: "SystemEnumeration",
       typeSE: "FillChecking",
       order: 1,
+      defaultValueYAML: "DontCheck",
     },
     functionalOptions: {
       yaml: "ФункциональныеОпции",

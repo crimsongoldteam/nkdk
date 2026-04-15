@@ -1,7 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import { formGroupCommonProperties } from "../formGroup/rules"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
+import { formGroupCommonProperties } from "../formGroup/rules"
 export type { ElementRule, PropertyRule }
 
 export const PagesRules = {
@@ -26,21 +26,26 @@ export const PagesRules = {
       xml: "_DisplayImportance",
       type: "SystemEnumeration",
       typeSE: "DisplayImportance",
+      defaultValueYAML: "Auto",
     },
     currentPagesState: {
       yaml: "ТекущееСостояниеСтраниц",
       type: "SystemEnumeration",
       typeSE: "FormPagesState",
+      defaultValueYAML: "CurrentPage",
+      runtimeOnly: true,
     },
     currentRowUse: {
       yaml: "ИспользованиеТекущейСтроки",
       type: "SystemEnumeration",
       typeSE: "CurrentRowUse",
+      defaultValueYAML: "Auto",
     },
     pagesRepresentation: {
       yaml: "ОтображениеСтраниц",
       type: "SystemEnumeration",
       typeSE: "FormPagesRepresentation",
+      defaultValueYAML: "Auto",
     },
     events: {
       type: "Events",
@@ -62,6 +67,7 @@ export const PagesRules = {
       type: "SystemEnumeration",
       typeSE: "FormGroupType",
       runtimeOnly: true,
+      defaultValueYAML: "Pages",
     },
   },
 } as const satisfies ElementRule

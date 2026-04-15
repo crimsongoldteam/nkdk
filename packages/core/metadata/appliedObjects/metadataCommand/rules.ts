@@ -39,6 +39,9 @@ export const MetadataCommandRules = {
       xml: "ObjectBelonging",
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
+      defaultValueYAML: "Native",
+      toYAML: false,
+      fromYAML: false,
     },
     parameterUseMode: {
       yaml: "РежимИспользованияПараметра",
@@ -56,6 +59,7 @@ export const MetadataCommandRules = {
       xml: "Representation",
       type: "SystemEnumeration",
       typeSE: "ButtonRepresentation",
+      defaultValueYAML: "Auto",
     },
     shortcut: {
       yaml: "СочетаниеКлавиш",
@@ -79,6 +83,7 @@ export const MetadataCommandRules = {
       xml: "OnMainServerUnavalableBehavior",
       type: "SystemEnumeration",
       typeSE: "OnMainServerUnavalableBehavior",
+      defaultValueYAML: "Auto",
     },
   },
 } as const satisfies MetadataItemRule

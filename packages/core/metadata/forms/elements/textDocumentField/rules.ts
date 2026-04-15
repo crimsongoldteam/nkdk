@@ -22,6 +22,7 @@ export const TextDocumentFieldRules = {
       yaml: "Вывод",
       type: "SystemEnumeration",
       typeSE: "UseOutput",
+      defaultValueYAML: "Auto",
     },
     selectedText: {
       yaml: "ВыделенныйТекст",

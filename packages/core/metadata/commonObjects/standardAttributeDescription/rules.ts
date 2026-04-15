@@ -20,6 +20,7 @@ export const StandardAttributeDescriptionRules = {
       type: "SystemEnumeration",
       typeSE: "ChoiceHistoryOnInput",
       defaultValueXML: "Auto",
+      defaultValueYAML: "Auto",
     },
     choiceParameterLinks: {
       yaml: "СвязиПараметровВыбора",
@@ -42,6 +43,7 @@ export const StandardAttributeDescriptionRules = {
       type: "SystemEnumeration",
       typeSE: "CreateOnInput",
       defaultValueXML: "Auto",
+      defaultValueYAML: "Auto",
     },
     dataHistory: {
       yaml: "ИсторияДанных",
@@ -49,6 +51,7 @@ export const StandardAttributeDescriptionRules = {
       type: "SystemEnumeration",
       typeSE: "DataHistoryUse",
       defaultValueXML: "Use",
+      defaultValueYAML: "Use",
     },
     editFormat: {
       yaml: "ФорматРедактирования",
@@ -67,6 +70,7 @@ export const StandardAttributeDescriptionRules = {
       type: "SystemEnumeration",
       typeSE: "FillChecking",
       defaultValueXML: "DontCheck",
+      defaultValueYAML: "DontCheck",
     },
     fillFromFillingValue: {
       yaml: "ЗаполнятьИзДанныхЗаполнения",
@@ -91,6 +95,7 @@ export const StandardAttributeDescriptionRules = {
       type: "SystemEnumeration",
       typeSE: "UseFullTextSearch",
       defaultValueXML: "Use",
+      defaultValueYAML: "Use",
     },
     linkByType: {
       yaml: "СвязьПоТипу",
@@ -136,6 +141,7 @@ export const StandardAttributeDescriptionRules = {
       type: "SystemEnumeration",
       typeSE: "UseQuickChoice",
       defaultValueXML: "Auto",
+      defaultValueYAML: "Auto",
     },
     synonym: {
       yaml: "Синоним",
@@ -158,6 +164,7 @@ export const StandardAttributeDescriptionRules = {
       type: "SystemEnumeration",
       typeSE: "TypeReductionMode",
       defaultValueXML: "TransformValues",
+      defaultValueYAML: "TransformValues",
     },
   },
 } as const satisfies MetadataItemRule

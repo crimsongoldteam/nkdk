@@ -99,6 +99,7 @@ export const MetadataCatalogRules = {
       typeSE: "ChoiceDataGetModeOnInputByString",
       defaultValueXML: "Directly",
       xmlParents: catalogProperties,
+      defaultValueYAML: "Directly",
     },
     choiceHistoryOnInput: {
       yaml: "ИсторияВыбораПриВводе",
@@ -106,6 +107,7 @@ export const MetadataCatalogRules = {
       typeSE: "ChoiceHistoryOnInput",
       defaultValueXML: "Auto",
       xmlParents: catalogProperties,
+      defaultValueYAML: "Auto",
     },
     choiceMode: {
       yaml: "СпособВыбора",
@@ -113,6 +115,7 @@ export const MetadataCatalogRules = {
       typeSE: "ChoiceMode",
       defaultValueXML: "BothWays",
       xmlParents: catalogProperties,
+      defaultValueYAML: "BothWays",
     },
     codeAllowedLength: {
       yaml: "ДопустимаяДлинаКода",
@@ -120,6 +123,7 @@ export const MetadataCatalogRules = {
       typeSE: "AllowedLength",
       defaultValueXML: "Variable",
       xmlParents: catalogProperties,
+      defaultValueYAML: "Variable",
     },
     codeLength: {
       yaml: "ДлинаКода",
@@ -133,6 +137,7 @@ export const MetadataCatalogRules = {
       typeSE: "CatalogCodesSeries",
       defaultValueXML: "WholeCatalog",
       xmlParents: catalogProperties,
+      defaultValueYAML: "WholeCatalog",
     },
     codeType: {
       yaml: "ТипКода",
@@ -140,6 +145,7 @@ export const MetadataCatalogRules = {
       typeSE: "CatalogCodeType",
       defaultValueXML: "String",
       xmlParents: catalogProperties,
+      defaultValueYAML: "String",
     },
     comment: {
       yaml: "Комментарий",
@@ -152,6 +158,7 @@ export const MetadataCatalogRules = {
       typeSE: "CreateOnInput",
       defaultValueXML: "Use",
       xmlParents: catalogProperties,
+      defaultValueYAML: "Use",
     },
     dataHistory: {
       yaml: "ИсторияДанных",
@@ -159,6 +166,7 @@ export const MetadataCatalogRules = {
       typeSE: "DataHistoryUse",
       defaultValueXML: "DontUse",
       xmlParents: catalogProperties,
+      defaultValueYAML: "DontUse",
     },
     dataLockControlMode: {
       yaml: "РежимУправленияБлокировкойДанных",
@@ -166,6 +174,7 @@ export const MetadataCatalogRules = {
       typeSE: "DefaultDataLockControlMode",
       defaultValueXML: "Managed",
       xmlParents: catalogProperties,
+      defaultValueYAML: "Managed",
     },
     dataLockFields: {
       yaml: "ПоляБлокировкиДанных",
@@ -208,6 +217,7 @@ export const MetadataCatalogRules = {
       typeSE: "CatalogMainPresentation",
       defaultValueXML: "AsDescription",
       xmlParents: catalogProperties,
+      defaultValueYAML: "AsDescription",
     },
     descriptionLength: {
       yaml: "ДлинаНаименования",
@@ -221,6 +231,7 @@ export const MetadataCatalogRules = {
       typeSE: "EditType",
       defaultValueXML: "InDialog",
       xmlParents: catalogProperties,
+      defaultValueYAML: "InDialog",
     },
     executeAfterWriteDataHistoryVersionProcessing: {
       yaml: "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных",
@@ -255,6 +266,7 @@ export const MetadataCatalogRules = {
       typeSE: "UseFullTextSearch",
       defaultValueXML: "Use",
       xmlParents: catalogProperties,
+      defaultValueYAML: "Use",
     },
     fullTextSearchOnInputByString: {
       yaml: "ПолнотекстовыйПоискПриВводеПоСтроке",
@@ -262,6 +274,7 @@ export const MetadataCatalogRules = {
       typeSE: "FullTextSearchOnInputByString",
       defaultValueXML: "DontUse",
       xmlParents: catalogProperties,
+      defaultValueYAML: "DontUse",
     },
     hierarchical: {
       yaml: "Иерархический",
@@ -275,6 +288,7 @@ export const MetadataCatalogRules = {
       typeSE: "HierarchyType",
       defaultValueXML: "HierarchyFoldersAndItems",
       xmlParents: catalogProperties,
+      defaultValueYAML: "HierarchyFoldersAndItems",
     },
     includeHelpInContents: {
       yaml: "ВключатьСправкуВСодержание",
@@ -315,6 +329,9 @@ export const MetadataCatalogRules = {
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: catalogProperties,
+      toYAML: false,
+      fromYAML: false,
+      defaultValueYAML: "Native",
     },
     objectPresentation: {
       yaml: "ПредставлениеОбъекта",
@@ -338,6 +355,7 @@ export const MetadataCatalogRules = {
       typeSE: "PredefinedDataUpdate",
       defaultValueXML: "Auto",
       xmlParents: catalogProperties,
+      defaultValueYAML: "Auto",
     },
     quickChoice: {
       yaml: "БыстрыйВыбор",
@@ -351,6 +369,7 @@ export const MetadataCatalogRules = {
       typeSE: "SearchStringModeOnInputByString",
       defaultValueXML: "Begin",
       xmlParents: catalogProperties,
+      defaultValueYAML: "Begin",
     },
     subordinationUse: {
       yaml: "ИспользованиеПодчинения",
@@ -358,6 +377,7 @@ export const MetadataCatalogRules = {
       typeSE: "SubordinationUse",
       defaultValueXML: "ToItems",
       xmlParents: catalogProperties,
+      defaultValueYAML: "ToItems",
     },
     synonym: {
       yaml: "Синоним",

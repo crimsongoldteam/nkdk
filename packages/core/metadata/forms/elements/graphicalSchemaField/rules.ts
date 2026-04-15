@@ -21,6 +21,7 @@ export const GraphicalSchemaFieldRules = {
       yaml: "Вывод",
       type: "SystemEnumeration",
       typeSE: "UseOutput",
+      defaultValueYAML: "Auto",
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
