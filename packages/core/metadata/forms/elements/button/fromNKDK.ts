@@ -10,6 +10,7 @@ export const importButtonFromNKDK = (params: { context: ConfigurationContext; so
     itemType: "Button",
     name: importNameFromNKDK(source),
     title: importI8nTextFromNKDK(context, source.title),
+    ...(source.hyperlink ? { type: "Hyperlink" as const } : {}),
   }
 
   return result
@@ -24,5 +25,6 @@ export const importCommandBarButtonFromNKDK = (params: {
     itemType: "CommandBarButton",
     name: importNameFromNKDK(source),
     title: importI8nTextFromNKDK(context, source.title),
+    ...(source.hyperlink ? { type: "CommandBarHyperlink" as const } : {}),
   }
 }

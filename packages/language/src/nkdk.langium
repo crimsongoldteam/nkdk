@@ -114,7 +114,7 @@ CheckBoxFieldTumblerRightTitled:
     '<''|''>' Titled NameAndDataPath;
 
 Button:
-    '<' Titled Name '>';
+    '<' (hyperlink?='~')? Titled Name '>';
 
 
 // command bar
@@ -129,7 +129,7 @@ Popup:
     VGROUP Titled Name;
 
 CommandBarButton:
-    Titled Name;
+    (hyperlink?='~')? Titled Name;
 
 CommandBarChildItem:
     CommandGroup | Popup | CommandBarButton | CommandAdditionField;

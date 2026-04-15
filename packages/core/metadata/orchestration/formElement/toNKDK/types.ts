@@ -5,7 +5,7 @@ import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import {
   exportButtonContentToNKDK,
   exportButtonToNKDK,
-  exportCommandBarButtonContentToNKDK,
+  exportCommandBarButtonToNKDK,
 } from "~/metadata/forms/elements/button/toNKDK"
 import { exportButtonGroupContentToNKDK } from "~/metadata/forms/elements/buttonGroup/toNKDK"
 import {
@@ -89,7 +89,7 @@ export const ExportToNKDKTableChildItemsGeneratorFn = {
 
 export const ExportToNKDKCommandBarChildItemsGeneratorFn = {
   Button: exportButtonContentToNKDK,
-  CommandBarButton: exportCommandBarButtonContentToNKDK,
+  CommandBarButton: exportCommandBarButtonToNKDK,
   Popup: exportPopupContentToNKDK,
   ButtonGroup: exportButtonGroupContentToNKDK,
   SearchStringAddition: exportOtherElementToNKDK,

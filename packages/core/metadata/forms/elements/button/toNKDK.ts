@@ -5,7 +5,8 @@ import { Button, CommandBarButton } from "./types"
 
 export const exportButtonToNKDK = (params: { context: ConfigurationContext; element: Button }): ToNKDKResult => {
   const { context, element } = params
-  const resultString = wrapButtonContent(formatContent(context, element))
+  const content = formatButtonContent(context, element)
+  const resultString = wrapButtonContent(content)
   return {
     strings: [resultString],
     toOneLineGroup: true,
@@ -14,7 +15,7 @@ export const exportButtonToNKDK = (params: { context: ConfigurationContext; elem
 
 export const exportButtonContentToNKDK = (params: { context: ConfigurationContext; element: Button }): ToNKDKResult => {
   const { context, element } = params
-  const resultString = formatContent(context, element)
+  const resultString = formatButtonContent(context, element)
   return {
     strings: [resultString],
     toOneLineGroup: true,
@@ -26,25 +27,15 @@ export const exportCommandBarButtonToNKDK = (params: {
   element: CommandBarButton
 }): ToNKDKResult => {
   const { context, element } = params
-  const resultString = wrapButtonContent(formatElementTitleAndName(context, element))
+  const content = formatElementTitleAndName(context, element)
+  const resultString = element.type === "CommandBarHyperlink" ? `~${content}` : content
   return {
     strings: [resultString],
     toOneLineGroup: true,
   }
 }
 
-export const exportCommandBarButtonContentToNKDK = (params: {
-  context: ConfigurationContext
-  element: CommandBarButton
-}): ToNKDKResult => {
-  const { context, element } = params
-  const resultString = formatElementTitleAndName(context, element)
-  return {
-    strings: [resultString],
-    toOneLineGroup: true,
-  }
-}
-
-const formatContent = (context: ConfigurationContext, element: Button): string => {
-  return formatElementTitleAndName(context, element)
+const formatButtonContent = (context: ConfigurationContext, element: Button): string => {
+  const content = formatElementTitleAndName(context, element)
+  return element.type === "Hyperlink" ? `~${content}` : content
 }

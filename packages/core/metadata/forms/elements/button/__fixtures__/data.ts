@@ -10,6 +10,12 @@ import {
 } from "~/metadata/forms/elements/button/types"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 
+export interface CommandBarButtonStructureFixture {
+  name: string
+  element: CommandBarButton
+  structured: ToNKDKResult
+}
+
 const commonButtonModel = {
   visible: false,
   userVisible: { common: true, values: [{ name: "Администратор", value: false }] },
@@ -270,6 +276,82 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
     },
     structured: {
       strings: ["<Кнопка>"],
+      toOneLineGroup: true,
+    },
+  },
+  {
+    name: "hyperlink with title",
+    element: {
+      name: "Гиперссылка",
+      itemType: "Button",
+      type: "Hyperlink",
+      title: { items: { ru: "Ссылка" } },
+    },
+    structured: {
+      strings: ['<~"Ссылка" Гиперссылка>'],
+      toOneLineGroup: true,
+    },
+  },
+  {
+    name: "hyperlink without title",
+    element: {
+      name: "Гиперссылка",
+      itemType: "Button",
+      type: "Hyperlink",
+    },
+    structured: {
+      strings: ["<~Гиперссылка>"],
+      toOneLineGroup: true,
+    },
+  },
+]
+
+export const commandBarButtonStructureFixturesTable: CommandBarButtonStructureFixture[] = [
+  {
+    name: "command bar button with title",
+    element: {
+      name: "Команда",
+      itemType: "CommandBarButton",
+      title: { items: { ru: "Кнопка" } },
+    },
+    structured: {
+      strings: ['"Кнопка" Команда'],
+      toOneLineGroup: true,
+    },
+  },
+  {
+    name: "command bar button without title",
+    element: {
+      name: "Команда",
+      itemType: "CommandBarButton",
+    },
+    structured: {
+      strings: ["Команда"],
+      toOneLineGroup: true,
+    },
+  },
+  {
+    name: "command bar hyperlink with title",
+    element: {
+      name: "СсылкаКоманды",
+      itemType: "CommandBarButton",
+      type: "CommandBarHyperlink",
+      title: { items: { ru: "Ссылка" } },
+    },
+    structured: {
+      strings: ['~"Ссылка" СсылкаКоманды'],
+      toOneLineGroup: true,
+    },
+  },
+  {
+    name: "command bar hyperlink without title",
+    element: {
+      name: "СсылкаКоманды",
+      itemType: "CommandBarButton",
+      type: "CommandBarHyperlink",
+    },
+    structured: {
+      strings: ["~СсылкаКоманды"],
       toOneLineGroup: true,
     },
   },
