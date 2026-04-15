@@ -10,9 +10,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "type-check": "tsc --noEmit",
-    "test": "vitest run",
-    "test:ui": "vitest --ui",
-    "test:run": "vitest run",
+    "test": "pnpm -r run test",
     "prepare": "ts-patch install",
     "postinstall": "patch-package"
   },
