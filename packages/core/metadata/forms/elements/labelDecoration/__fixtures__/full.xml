@@ -1,60 +1,60 @@
-<LabelDecoration name="Заголовок" id="1" DisplayImportance="High">
-	<AutoMaxHeight>true</AutoMaxHeight>
-	<AutoMaxWidth>true</AutoMaxWidth>
-	<BackColor>web:Blue</BackColor>
-	<Border ref="style:ControlBorder" width="1">
-		<v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
-	</Border>
-	<BorderColor>web:Green</BorderColor>
-	<ContextMenu name="ЗаголовокКонтекстноеМеню" id="2">
-		<Autofill>false</Autofill>
-	</ContextMenu>
-	<Enabled>true</Enabled>
-	<Events>
-		<Event name="Click">ПроцедураНажатия</Event>
-		<Event name="URLProcessing">ПроцедураОбработкиНавигационнойСсылки</Event>
-	</Events>
-	<ExtendedTooltip name="ЗаголовокРасширеннаяПодсказка" id="3">
-		<Title formatted="false">
-			<v8:item>
-				<v8:lang>ru</v8:lang>
-				<v8:content>Расширенная подсказка</v8:content>
-			</v8:item>
-		</Title>
-	</ExtendedTooltip>
-	<Font ref="style:NormalTextFont" kind="StyleItem"/>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
-	<Height>200</Height>
-	<HorizontalAlign>Left</HorizontalAlign>
+<LabelDecoration name="ДекорацияНадпись" id="1" DisplayImportance="VeryHigh">
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">false</xr:Value>
+	</UserVisible>
+	<Enabled>false</Enabled>
+	<Width>10</Width>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<MaxWidth>20</MaxWidth>
+	<Height>15</Height>
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<MaxHeight>25</MaxHeight>
 	<HorizontalStretch>true</HorizontalStretch>
-	<Hyperlink>true</Hyperlink>
-	<MaxHeight>500</MaxHeight>
-	<MaxWidth>400</MaxWidth>
-	<Shortcut>S</Shortcut>
-	<SkipOnInput>false</SkipOnInput>
-	<TextColor>web:Blue</TextColor>
-	<Title formatted="false">
+	<VerticalStretch>false</VerticalStretch>
+	<SkipOnInput>true</SkipOnInput>
+	<TextColor>web:Crimson</TextColor>
+	<Font ref="style:LargeTextFont" kind="StyleItem"/>
+	<Shortcut>Cmd+S</Shortcut>
+	<Title formatted="true">
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Заголовок формы</v8:content>
+			<v8:content>&lt;b&gt;Заголовок&lt;/&gt;</v8:content>
 		</v8:item>
 	</Title>
-	<TitleHeight>20</TitleHeight>
 	<ToolTip>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Подсказка</v8:content>
 		</v8:item>
 	</ToolTip>
-	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>Label</Type>
-	<UserVisible>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
-	</UserVisible>
-	<VerticalAlign>Top</VerticalAlign>
-	<VerticalStretch>true</VerticalStretch>
-	<Visible>true</Visible>
-	<Width>300</Width>
+	<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<OnMainServerUnavalableBehavior>MakeDisable</OnMainServerUnavalableBehavior>
+	<Hyperlink>true</Hyperlink>
+	<HorizontalAlign>Center</HorizontalAlign>
+	<VerticalAlign>Bottom</VerticalAlign>
+	<TitleHeight>30</TitleHeight>
+	<BackColor>web:MediumOrchid</BackColor>
+	<BorderColor>web:Azure</BorderColor>
+	<Border width="2">
+		<v8ui:style xsi:type="v8ui:ControlBorderType">Double</v8ui:style>
+	</Border>
+	<ContextMenu name="ДекорацияНадписьКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
+	<ExtendedTooltip name="ДекорацияНадписьРасширеннаяПодсказка" id="3">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>РасширеннаяПодсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<Events>
+		<Event name="Click">ДекорацияНадписьНажатие</Event>
+		<Event name="URLProcessing">ДекорацияНадписьОбработкаНавигационнойСсылки</Event>
+	</Events>
 </LabelDecoration>
