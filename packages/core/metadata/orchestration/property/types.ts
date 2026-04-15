@@ -53,6 +53,14 @@ export interface BasePropertyRule {
   /** Значение по умолчанию в XML (будет выгружено как при пустом значении)*/
   defaultValueXML?: any
 
+  /**
+   * Сырая XML-форма пустого значения — подставляется напрямую, без прогона через typeExportFn и wrapWithNamespace.
+   * Триггер срабатывания идентичен defaultValueXML.
+   * Взаимоисключимо с defaultValueXML.
+   * Примеры: "" — пустой тег, { "_xsi:nil": true } — nil-тег.
+   */
+  defaultValueXMLRaw?: any
+
   /** Не импортировать из XML */
   fromXML?: false
 

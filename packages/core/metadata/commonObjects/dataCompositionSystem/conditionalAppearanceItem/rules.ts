@@ -15,20 +15,20 @@ export const ConditionalAppearanceItemRules = {
       xml: "dcsset:selection",
       yaml: "Поля",
       order: 1,
-      defaultValueXML: [],
+      defaultValueXMLRaw: {},
     },
     filter: {
       type: "Filter",
       xml: "dcsset:filter",
       yaml: "Отбор",
       order: 2,
-      defaultValueXML: [],
+      defaultValueXMLRaw: {},
     },
     appearance: {
       type: "AppearanceFields",
       xml: "dcsset:appearance",
       yaml: "Оформление",
-      defaultValueXML: [],
+      defaultValueXMLRaw: {},
       order: 3,
     },
     presentation: {

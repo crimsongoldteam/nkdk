@@ -1,7 +1,8 @@
 import { isPair, isScalar, YAMLMap } from "yaml"
-import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
+import { ConfigurationContext, ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
 import { importMetadataItemCollectionFromYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/fromYAML"
+import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { isEmptyMetadataItem } from "~/metadata/orchestration/formElement/helper"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
@@ -120,6 +121,53 @@ function importStandardAttributeDescriptionsFromXML(
   return result
 }
 
+function exportStandardAttributeDescriptionsToXML(p: {
+  context: ConfigurationContextWithExportToXML
+  rule: PropertyRule
+  value: any
+  referenceMetadata?: any
+  metadataItem?: any
+}) {
+  const items: StandardAttributeDescription[] = p.value ?? []
+
+  // All-or-nothing: если ни один реквизит не изменён — секция не печатается
+  const isGroupChanged = items.some(
+    (item) =>
+      !isEmptyMetadataItem({
+        context: p.context,
+        rule: StandardAttributeDescriptionRules as any,
+        element: item as any,
+        ignoreKeys: ["name"],
+      })
+  )
+
+  if (!isGroupChanged) return undefined
+
+  // Expand to full canonical list from standartAttributeNames
+  const standartAttributeNames: Record<string, string> = (p.rule as any).standartAttributeNames ?? {}
+  const explicitByName = new Map<string, StandardAttributeDescription>()
+  for (const item of items) {
+    if (item.name) explicitByName.set(item.name as string, item)
+  }
+
+  const allItems: StandardAttributeDescription[] = Object.keys(standartAttributeNames).map(
+    (internalName) =>
+      explicitByName.get(internalName) ?? {
+        itemType: "StandardAttributeDescription" as const,
+        name: internalName as StandartAttributeName,
+      }
+  )
+
+  return exportMetadataCollectionToXML({
+    context: p.context,
+    rule: p.rule,
+    data: allItems,
+    itemRule: StandardAttributeDescriptionRules,
+    xmlElement: "xr:StandardAttribute",
+    keyField: "name",
+  })
+}
+
 registerMetadataItemCollectionRule({
   propertyType: "StandardAttributeDescriptions",
   itemRule: StandardAttributeDescriptionRules,
@@ -129,4 +177,5 @@ registerMetadataItemCollectionRule({
   recordYamlKeyFromItem: (item) => StandartAttributeNameToYAML[item.name as StandartAttributeName],
   fromYAML: importStandardAttributeDescriptionsFromYAML,
   fromXML: importStandardAttributeDescriptionsFromXML,
+  toXML: exportStandardAttributeDescriptionsToXML,
 })

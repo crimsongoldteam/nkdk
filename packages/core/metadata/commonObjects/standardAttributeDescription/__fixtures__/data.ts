@@ -3,92 +3,76 @@ import {
   StandardAttributeDescriptionsYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 
+// all reflects the content of __fixtures__/all.xml after filterNonEmpty:
+// only Owner (non-default), Parent (fillFromFillingValue=true), Description (fillChecking=ShowError)
 export const all: StandardAttributeDescriptions = [
   {
     itemType: "StandardAttributeDescription",
-    name: "PredefinedDataName",
-    choiceForm: "ФормаВыбора",
+    name: "Owner",
+    choiceForm: "Catalog.СправочникВладелец.Form.ФормаВыбора",
     choiceHistoryOnInput: "DontUse",
     choiceParameterLinks: [
       {
-        name: "Отбор.Владелец2",
-        dataPath: "Catalog.Справочник2.Attribute.Реквизит2",
-        valueChange: "Clear",
+        name: "Отбор.Наименование",
+        dataPath: "Catalog.Справочник1.StandardAttribute.Description",
+        valueChange: "DontChange",
       },
     ],
     choiceParameters: [
       {
-        name: "Отбор.Владелец",
+        name: "Отбор.Ссылка",
         value: {
-          type: "string",
-          value: "Значение",
+          type: "ref",
+          value: "Catalog.Справочник1.EmptyRef",
         },
       },
     ],
-    comment: "Какой-то комментарий",
-    createOnInput: "Use",
+    comment: "Комментарий",
+    createOnInput: "DontUse",
     dataHistory: "DontUse",
-    editFormat: { items: { ru: "Формат редактирования" } },
-    extendedEdit: true,
-    fillChecking: "ShowError",
-    fillFromFillingValue: true,
     fillValue: {
-      type: "string",
-      value: "Текстовое значение",
+      type: "ref",
+      value: "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231",
     },
-    format: { items: { ru: "Формат" } },
     fullTextSearch: "DontUse",
-    linkByType: {
-      dataPath: "Catalog.КакойТоСправочник.Attribute.КакойТоРеквизит",
-      linkItem: 0,
-    },
-    markNegatives: true,
-    mask: "999",
-    maxValue: 100,
-    minValue: 0,
-    multiLine: true,
-    passwordMode: true,
-    quickChoice: "DontUse",
-    synonym: { items: { ru: "Какой-то синоним" } },
-    toolTip: { items: { ru: "Подсказка для поля" } },
-    type: {
-      type: ["string"],
-      stringQualifiers: { length: 10, allowedLength: "Variable" },
-    },
-    typeReductionMode: "Deny",
+    quickChoice: "Use",
+    synonym: { items: { ru: "Синоним" } },
+    toolTip: { items: { ru: "Подсказка" } },
+  },
+  {
+    itemType: "StandardAttributeDescription",
+    name: "Parent",
+    fillFromFillingValue: true,
+  },
+  {
+    itemType: "StandardAttributeDescription",
+    name: "Description",
+    fillChecking: "ShowError",
   },
 ]
 
 export const allYAML: StandardAttributeDescriptionsYAML = {
-  ИмяПредопределенныхДанных: {
-    Синоним: "Какой-то синоним",
-    ПроверкаЗаполнения: "ВыдаватьОшибку",
-    БыстрыйВыбор: "НеИспользовать",
-    ВыделятьОтрицательные: "Истина",
-    ЗаполнятьИзДанныхЗаполнения: "Истина",
-    ЗначениеЗаполнения: '"Текстовое значение"',
+  Владелец: {
+    БыстрыйВыбор: "Использовать",
+    ЗначениеЗаполнения: "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231",
     ИсторияВыбораПриВводе: "НеИспользовать",
     ИсторияДанных: "НеИспользовать",
-    Комментарий: "Какой-то комментарий",
-    МаксимальноеЗначение: 100,
-    Маска: "999",
-    МинимальноеЗначение: 0,
-    МногострочныйРежим: "Истина",
+    Комментарий: "Комментарий",
     ПараметрыВыбора: {
-      "Отбор.Владелец": '"Значение"',
+      "Отбор.Ссылка": "Справочник.Справочник1.ПустаяСсылка",
     },
-    Подсказка: "Подсказка для поля",
+    Подсказка: "Подсказка",
     ПолнотекстовыйПоиск: "НеИспользовать",
-    РасширенноеРедактирование: "Истина",
-    РежимПароля: "Истина",
-    РежимСокращенияТипа: "Запрещать",
-    СвязиПараметровВыбора: "Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)",
-    СвязьПоТипу: "Справочник.КакойТоСправочник.Реквизит.КакойТоРеквизит",
-    СозданиеПриВводе: "Использовать",
-    Тип: "Строка(10)",
-    ФормаВыбора: "ФормаВыбора",
-    Формат: "Формат",
-    ФорматРедактирования: "Формат редактирования",
+    СвязиПараметровВыбора: "Отбор.Наименование(Справочник.Справочник1.СтандартныйРеквизит.Наименование, НеИзменять)",
+    СозданиеПриВводе: "НеИспользовать",
+    Синоним: "Синоним",
+    ФормаВыбора: "Catalog.СправочникВладелец.Form.ФормаВыбора",
+  },
+  Родитель: {
+    ЗаполнятьИзДанныхЗаполнения: "Истина",
+  },
+  Наименование: {
+    ПроверкаЗаполнения: "ВыдаватьОшибку",
   },
 }
 

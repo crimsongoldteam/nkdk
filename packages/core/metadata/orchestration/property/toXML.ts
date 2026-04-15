@@ -100,12 +100,13 @@ export const exportPropertyToXML = (params: {
   const { context, rule, value, metadataItem, referenceMetadata } = params
 
   const defaultValueXML = rule.defaultValueXML
+  const hasRaw = "defaultValueXMLRaw" in rule
 
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
 
   if (!typeExportFn) {
     if (value === rule.defaultValue) {
-      return defaultValueXML
+      return hasRaw ? (rule as any).defaultValueXMLRaw : defaultValueXML
     }
     return wrapWithNamespace(rule, value)
   }
@@ -119,6 +120,7 @@ export const exportPropertyToXML = (params: {
       referenceMetadata,
     })
     if (exportedValue === rule.defaultValue) {
+      if (hasRaw) return (rule as any).defaultValueXMLRaw
       const fallback = (typeExportFn as ExportToXMLFunctionNew)({
         context,
         rule,
@@ -126,23 +128,18 @@ export const exportPropertyToXML = (params: {
         metadataItem,
         referenceMetadata,
       })
-      return wrapWithNamespace(rule, emitEmptyTagIfDefaultArray(rule, fallback))
+      return wrapWithNamespace(rule, fallback)
     }
-    return wrapWithNamespace(rule, emitEmptyTagIfDefaultArray(rule, exportedValue))
+    return wrapWithNamespace(rule, exportedValue)
   }
 
   const exportedValue = (typeExportFn as ExportToXMLFunction)(context, rule, value, referenceMetadata)
   if (exportedValue === rule.defaultValue) {
+    if (hasRaw) return (rule as any).defaultValueXMLRaw
     const fallback = (typeExportFn as ExportToXMLFunction)(context, rule, defaultValueXML, referenceMetadata)
-    return wrapWithNamespace(rule, emitEmptyTagIfDefaultArray(rule, fallback))
+    return wrapWithNamespace(rule, fallback)
   }
-  return wrapWithNamespace(rule, emitEmptyTagIfDefaultArray(rule, exportedValue))
-}
-
-const emitEmptyTagIfDefaultArray = (rule: PropertyRule, value: any): any => {
-  if (!Array.isArray(rule.defaultValueXML) || rule.defaultValueXML.length !== 0) return value
-  if (value === undefined || (Array.isArray(value) && value.length === 0)) return {}
-  return value
+  return wrapWithNamespace(rule, exportedValue)
 }
 
 const wrapWithNamespace = (rule: PropertyRule, value: any): any => {

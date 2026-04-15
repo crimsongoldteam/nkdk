@@ -7,7 +7,17 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
   it("exports all.xml fixture", () => {
     const rule: PropertyRule = {
       type: "StandardAttributeDescriptions",
-      standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных" },
+      standartAttributeNames: {
+        PredefinedDataName: "ИмяПредопределенныхДанных",
+        Predefined: "Предопределенный",
+        Ref: "Ссылка",
+        DeletionMark: "ПометкаУдаления",
+        IsFolder: "ЭтоГруппа",
+        Owner: "Владелец",
+        Parent: "Родитель",
+        Description: "Наименование",
+        Code: "Код",
+      },
     }
     const { expectedResult, result } = testExportPropertyToXML({
       rule,
