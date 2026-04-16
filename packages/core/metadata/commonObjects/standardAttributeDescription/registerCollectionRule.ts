@@ -117,6 +117,18 @@ function importStandardAttributeDescriptionsFromXML(
   const raw = importer(context, rule, xmlForImporter) as StandardAttributeDescription[] | undefined
 
   const result = filterNonEmpty(context, raw)
+
+  if (result) {
+    const canonicalKeys = Object.keys((rule as any).standartAttributeNames ?? {})
+    if (canonicalKeys.length > 0) {
+      result.sort((a, b) => {
+        const idxA = canonicalKeys.indexOf(a.name as string)
+        const idxB = canonicalKeys.indexOf(b.name as string)
+        return (idxA === -1 ? Infinity : idxA) - (idxB === -1 ? Infinity : idxB)
+      })
+    }
+  }
+
   updateGraph(context, rule, result)
   return result
 }

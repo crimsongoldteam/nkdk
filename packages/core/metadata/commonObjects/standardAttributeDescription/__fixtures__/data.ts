@@ -41,13 +41,13 @@ export const all: StandardAttributeDescriptions = [
   },
   {
     itemType: "StandardAttributeDescription",
-    name: "Parent",
-    fillFromFillingValue: true,
+    name: "Description",
+    fillChecking: "ShowError",
   },
   {
     itemType: "StandardAttributeDescription",
-    name: "Description",
-    fillChecking: "ShowError",
+    name: "Parent",
+    fillFromFillingValue: true,
   },
 ]
 
@@ -68,11 +68,11 @@ export const allYAML: StandardAttributeDescriptionsYAML = {
     Синоним: "Синоним",
     ФормаВыбора: "Catalog.СправочникВладелец.Form.ФормаВыбора",
   },
-  Родитель: {
-    ЗаполнятьИзДанныхЗаполнения: "Истина",
-  },
   Наименование: {
     ПроверкаЗаполнения: "ВыдаватьОшибку",
+  },
+  Родитель: {
+    ЗаполнятьИзДанныхЗаполнения: "Истина",
   },
 }
 

@@ -13,7 +13,7 @@ const mockMetadataCatalogContext: ConfigurationContextWithExportToXML = {
   context: {
     forms: [],
     templates: [],
-    parentName: "Контрагенты",
+    parentName: "СправочникПолный",
   },
 }
 

@@ -17,13 +17,13 @@ describe("importMetadataCatalogFromYAML", () => {
   })
 
   it("should import full", () => {
-    const result = importMetadataCatalogFromYAML(mockContext, fullYAML, "Контрагенты")
+    const result = importMetadataCatalogFromYAML(mockContext, fullYAML, "СправочникПолный")
 
     expect(result).toEqual(full)
   })
 
   it("should import minimal", () => {
-    const result = importMetadataCatalogFromYAML(mockContext, minimalYAML, "Контрагенты")
+    const result = importMetadataCatalogFromYAML(mockContext, minimalYAML, "ПоУмолчанию")
 
     expect(result).toEqual(minimal)
   })
@@ -31,7 +31,7 @@ describe("importMetadataCatalogFromYAML", () => {
   it("should import with short format", () => {
     const result = exportMetadataCatalogToYAML(mockContext, minimal)
 
-    expect(result).toBeUndefined()
+    expect(result).toEqual(minimalYAML)
   })
 })
 

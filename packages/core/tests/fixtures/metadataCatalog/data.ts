@@ -3,95 +3,174 @@ import { MetadataCatalog, MetadataCatalogYAML } from "~/metadata/appliedObjects/
 //#region MetadataCatalog
 
 export const full = {
+  attributes: [
+    {
+      indexing: "Index",
+      itemType: "MetadataAttribute",
+      name: "РеквизитСправочника",
+      synonym: {
+        items: {
+          ru: "Реквизит справочника",
+        },
+      },
+      type: {
+        dateQualifiers: {
+          dateFractions: "Date",
+        },
+        type: ["dateTime"],
+      },
+    },
+    {
+      indexing: "Index",
+      itemType: "MetadataAttribute",
+      name: "СтроковыйРеквизитСИндексом",
+      synonym: {
+        items: {
+          ru: "Строковый реквизит с индексом",
+        },
+      },
+      type: {
+        stringQualifiers: {
+          allowedLength: "Variable",
+          length: 10,
+        },
+        type: ["string"],
+      },
+    },
+  ],
   autonumbering: false,
-  auxiliaryChoiceForm: "Catalog.Контрагенты.Form.ФормаВыбора",
-  auxiliaryFolderChoiceForm: "Catalog.Контрагенты.Form.ФормаВыбораГруппы",
-  auxiliaryFolderForm: "Catalog.Контрагенты.Form.ФормаГруппы",
-  auxiliaryListForm: "Catalog.Контрагенты.Form.ФормаСписка",
-  auxiliaryObjectForm: "Catalog.Контрагенты.Form.ФормаЭлемента",
-  basedOn: ["Catalog.ДругойСправочник"],
+  basedOn: ["ChartOfAccounts.ПланСчетов1"],
   characteristics: [
     {
-      characteristicTypes: "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты",
-      characteristicValues: "Catalog.Контрагенты.TabularSection.ДополнительныеРеквизиты",
-      keyField:
-        "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство",
-      typesFilterField:
-        "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.ИмяПредопределенногоНабора",
-      typesFilterValue: {
-        type: "string",
-        value: "Справочник_Контрагенты",
-      },
-      objectField: "Catalog.Контрагенты.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ref",
-      typeField: "Catalog.Контрагенты.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство",
-      valueField: "Catalog.Контрагенты.TabularSection.ДополнительныеРеквизиты.Attribute.Значение",
+      characteristicTypes: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть",
+      characteristicValues: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть",
+      keyField: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+      objectField: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+      typeField: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
     },
   ],
   checkUnique: false,
   choiceDataGetModeOnInputByString: "Background",
   choiceHistoryOnInput: "DontUse",
-  choiceMode: "QuickChoice",
-  codeAllowedLength: "Fixed",
-  codeLength: 10,
-  codeSeries: "WithinOwnerSubordination",
+  codeLength: 11,
+  codeSeries: "WithinSubordination",
   codeType: "Number",
   commands: [
     {
+      group: "NavigationPanelOrdinary",
       itemType: "MetadataCommand",
-      group: "ActionsPanelCreate",
-      name: "НовыйЭлемент",
+      name: "Команда1",
       synonym: {
         items: {
-          ru: "Контрагенты",
+          ru: "synonym",
         },
       },
     },
   ],
-  comment: "Комментарий к справочнику",
+  comment: "Комментарий",
   createOnInput: "DontUse",
   dataHistory: "Use",
-  dataLockControlMode: "Automatic",
-  dataLockFields: ["Catalog.Контрагенты.Attribute.РеквизитОбъекта"],
-  defaultChoiceForm: "Catalog.Контрагенты.Form.ФормаВыбора",
-  defaultFolderChoiceForm: "Catalog.Контрагенты.Form.ФормаВыбораГруппы",
-  defaultFolderForm: "Catalog.Контрагенты.Form.ФормаГруппы",
-  defaultListForm: "Catalog.Контрагенты.Form.ФормаСписка",
-  defaultObjectForm: "Catalog.Контрагенты.Form.ФормаЭлемента",
+  dataLockFields: [
+    "Catalog.СправочникПолный.StandardAttribute.Description",
+    "Catalog.СправочникПолный.StandardAttribute.Code",
+  ],
+  defaultChoiceForm: "Catalog.СправочникПолный.Form.ФормаВыбора",
+  defaultFolderChoiceForm: "Catalog.СправочникПолный.Form.ФормаВыбораГруппы",
+  defaultFolderForm: "Catalog.СправочникПолный.Form.ФормаГруппы",
+  defaultListForm: "Catalog.СправочникПолный.Form.ФормаСписка",
+  defaultObjectForm: "Catalog.СправочникПолный.Form.ФормаЭлемента",
   defaultPresentation: "AsCode",
   descriptionLength: 30,
-  editType: "InList",
   executeAfterWriteDataHistoryVersionProcessing: true,
-  explanation: { items: { ru: "Пояснение к справочнику" } },
+  explanation: { items: { ru: "Пояснение" } },
   extendedListPresentation: { items: { ru: "Расширенное представление списка" } },
-  extendedObjectPresentation: { items: { ru: "Расширенное представление объекта" } },
+  extendedObjectPresentation: { items: { ru: "Расширенное представление" } },
   foldersOnTop: false,
   fullTextSearch: "DontUse",
   fullTextSearchOnInputByString: "Use",
   hierarchical: true,
-  hierarchyType: "HierarchyOfItems",
   includeHelpInContents: true,
-  inputByString: ["Catalog.Контрагенты.StandardAttribute.Description", "Catalog.Контрагенты.StandardAttribute.Code"],
-  levelCount: 3,
+  inputByString: [
+    "Catalog.СправочникПолный.StandardAttribute.Description",
+    "Catalog.СправочникПолный.StandardAttribute.Code",
+    "Catalog.СправочникПолный.Attribute.СтроковыйРеквизитСИндексом",
+  ],
+  itemType: "MetadataCatalog",
   limitLevelCount: true,
   listPresentation: { items: { ru: "Представление списка" } },
-  name: "Контрагенты",
+  name: "СправочникПолный",
   objectPresentation: { items: { ru: "Представление объекта" } },
-  owners: ["Catalog.Владелец"],
-  predefinedDataUpdate: "DontAutoUpdate",
+  owners: ["Catalog.СправочникВладелец"],
+  predefinedDataUpdate: "AutoUpdate",
   quickChoice: true,
   searchStringModeOnInputByString: "AnyPart",
   standardAttributes: [
     {
+      choiceParameterLinks: [
+        {
+          dataPath: "Catalog.СправочникПолный.StandardAttribute.Owner",
+          name: "Отбор.Владелец",
+          valueChange: "Clear",
+        },
+      ],
+      fillFromFillingValue: true,
+      fillValue: {
+        type: "ref",
+        value: "Catalog.СправочникПолный.EmptyRef",
+      },
       itemType: "StandardAttributeDescription",
-      name: "Code",
-      synonym: { items: { ru: "Поле код" } },
+      name: "Parent",
+    },
+    {
+      choiceForm: "Catalog.СправочникВладелец.Form.ФормаВыбора",
+      choiceHistoryOnInput: "DontUse",
+      choiceParameterLinks: [
+        {
+          dataPath: "Catalog.СправочникПолный.StandardAttribute.Description",
+          name: "Отбор.Наименование",
+          valueChange: "DontChange",
+        },
+      ],
+      choiceParameters: [
+        {
+          name: "Отбор.Ссылка",
+          value: {
+            type: "ref",
+            value: "Catalog.СправочникПолный.EmptyRef",
+          },
+        },
+      ],
+      comment: "Комментарий",
+      createOnInput: "DontUse",
+      dataHistory: "DontUse",
+      fillValue: {
+        type: "ref",
+        value: "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231",
+      },
+      fullTextSearch: "DontUse",
+      itemType: "StandardAttributeDescription",
+      name: "Owner",
+      quickChoice: "Use",
+      synonym: {
+        items: {
+          ru: "Синоним",
+        },
+      },
+      toolTip: {
+        items: {
+          ru: "Подсказка",
+        },
+      },
+    },
+    {
+      fillChecking: "ShowError",
+      itemType: "StandardAttributeDescription",
+      name: "Description",
     },
   ],
-  subordinationUse: "ToFolders",
-  synonym: { items: { ru: "Контрагенты" } },
+  synonym: { items: { ru: "Синоним" } },
   tabularSections: [
     {
-      itemType: "MetadataTabularSection",
       attributes: [
         {
           itemType: "MetadataAttribute",
@@ -102,36 +181,39 @@ export const full = {
             },
           },
           type: {
+            stringQualifiers: {
+              allowedLength: "Variable",
+              length: 10,
+            },
             type: ["string"],
           },
         },
       ],
-      name: "ДополнительныеРеквизиты",
+      itemType: "MetadataTabularSection",
+      lineNumberLength: 9,
+      name: "ТабличнаяЧасть",
       synonym: {
         items: {
-          ru: "Дополнительные реквизиты",
+          ru: "Табличная часть",
         },
       },
     },
   ],
   updateDataHistoryImmediatelyAfterWrite: true,
-  useStandardCommands: false,
-  attributes: [
-    {
-      itemType: "MetadataAttribute",
-      name: "РеквизитОбъекта",
-      synonym: { items: { ru: "Реквизит объекта" } },
-      type: {
-        type: ["string"],
-      },
-    },
-  ],
-  itemType: "MetadataCatalog",
 } satisfies MetadataCatalog
 
 export const minimal: MetadataCatalog = {
-  name: "Контрагенты",
+  inputByString: [
+    "Catalog.ПоУмолчанию.StandardAttribute.Description",
+    "Catalog.ПоУмолчанию.StandardAttribute.Code",
+  ],
   itemType: "MetadataCatalog",
+  name: "ПоУмолчанию",
+  synonym: {
+    items: {
+      ru: "По умолчанию",
+    },
+  },
 }
 
 export const withAttributesCatalog: MetadataCatalog = {
@@ -179,98 +261,121 @@ export const withCommands: MetadataCatalog = {
 
 //#region MetadataCatalogYAML
 
-export const minimalYAML: MetadataCatalogYAML = {}
+export const minimalYAML: MetadataCatalogYAML = {
+  ВводПоСтроке: [
+    "Справочник.ПоУмолчанию.СтандартныйРеквизит.Наименование",
+    "Справочник.ПоУмолчанию.СтандартныйРеквизит.Код",
+  ],
+  Синоним: "По умолчанию",
+}
 
 export const fullYAML: MetadataCatalogYAML = {
   Автонумерация: "Ложь",
   БыстрыйВыбор: "Истина",
-  ВводитсяНаОсновании: ["Справочник.ДругойСправочник"],
-  ВидИерархии: "ИерархияЭлементов",
+  ВводПоСтроке: [
+    "Справочник.СправочникПолный.СтандартныйРеквизит.Наименование",
+    "Справочник.СправочникПолный.СтандартныйРеквизит.Код",
+    "Справочник.СправочникПолный.Реквизит.СтроковыйРеквизитСИндексом",
+  ],
+  ВводитсяНаОсновании: ["ПланСчетов.ПланСчетов1"],
   ВключатьСправкуВСодержание: "Истина",
-  Владельцы: ["Справочник.Владелец"],
+  Владельцы: ["Справочник.СправочникВладелец"],
   ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных: "Истина",
   ГруппыСверху: "Ложь",
-  ДлинаКода: 10,
+  ДлинаКода: 11,
   ДлинаНаименования: 30,
-  ДополнительнаяФормаГруппы: "Catalog.Контрагенты.Form.ФормаГруппы",
-  ДополнительнаяФормаДляВыбора: "Catalog.Контрагенты.Form.ФормаВыбора",
-  ДополнительнаяФормаДляВыбораГруппы: "Catalog.Контрагенты.Form.ФормаВыбораГруппы",
-  ДополнительнаяФормаОбъекта: "Catalog.Контрагенты.Form.ФормаЭлемента",
-  ДополнительнаяФормаСписка: "Catalog.Контрагенты.Form.ФормаСписка",
-  ДопустимаяДлинаКода: "Фиксированная",
   Иерархический: "Истина",
-  ИспользованиеПодчинения: "Группам",
-  ИспользоватьСтандартныеКоманды: "Ложь",
   ИсторияВыбораПриВводе: "НеИспользовать",
   ИсторияДанных: "Использовать",
-  КоличествоУровней: 3,
-  Комментарий: "Комментарий к справочнику",
+  Команды: {
+    Команда1: {
+      Группа: "ПанельНавигацииОбычное",
+      Синоним: "synonym",
+    },
+  },
+  Комментарий: "Комментарий",
   КонтрольУникальности: "Ложь",
-  ОбновлениеПредопределенныхДанных: "НеОбновлятьАвтоматически",
+  ОбновлениеПредопределенныхДанных: "ОбновлятьАвтоматически",
   ОбновлятьИсториюДанныхСразуПослеЗаписи: "Истина",
   ОграничиватьКоличествоУровней: "Истина",
-  ОсновнаяФормаГруппы: "Catalog.Контрагенты.Form.ФормаГруппы",
-  ОсновнаяФормаДляВыбора: "Catalog.Контрагенты.Form.ФормаВыбора",
-  ОсновнаяФормаДляВыбораГруппы: "Catalog.Контрагенты.Form.ФормаВыбораГруппы",
-  ОсновнаяФормаОбъекта: "Catalog.Контрагенты.Form.ФормаЭлемента",
-  ОсновнаяФормаСписка: "Catalog.Контрагенты.Form.ФормаСписка",
+  ОсновнаяФормаГруппы: "Catalog.СправочникПолный.Form.ФормаГруппы",
+  ОсновнаяФормаДляВыбора: "Catalog.СправочникПолный.Form.ФормаВыбора",
+  ОсновнаяФормаДляВыбораГруппы: "Catalog.СправочникПолный.Form.ФормаВыбораГруппы",
+  ОсновнаяФормаОбъекта: "Catalog.СправочникПолный.Form.ФормаЭлемента",
+  ОсновнаяФормаСписка: "Catalog.СправочникПолный.Form.ФормаСписка",
   ОсновноеПредставление: "ВВидеКода",
   ПолнотекстовыйПоиск: "НеИспользовать",
   ПолнотекстовыйПоискПриВводеПоСтроке: "Использовать",
-  ПоляБлокировкиДанных: ["Справочник.Контрагенты.Реквизит.РеквизитОбъекта"],
-  Пояснение: "Пояснение к справочнику",
+  ПоляБлокировкиДанных: [
+    "Справочник.СправочникПолный.СтандартныйРеквизит.Наименование",
+    "Справочник.СправочникПолный.СтандартныйРеквизит.Код",
+  ],
+  Пояснение: "Пояснение",
   ПредставлениеОбъекта: "Представление объекта",
   ПредставлениеСписка: "Представление списка",
-  РасширенноеПредставлениеОбъекта: "Расширенное представление объекта",
+  РасширенноеПредставлениеОбъекта: "Расширенное представление",
   РасширенноеПредставлениеСписка: "Расширенное представление списка",
-  ВводПоСтроке: [
-    "Справочник.Контрагенты.СтандартныйРеквизит.Наименование",
-    "Справочник.Контрагенты.СтандартныйРеквизит.Код",
-  ],
   РежимПолученияДанныхВыбораПриВводеПоСтроке: "Фоновый",
-  РежимУправленияБлокировкойДанных: "Автоматический",
-  СерииКодов: "ВПределахПодчиненияВладельцу",
-  Синоним: "Контрагенты",
+  Реквизиты: {
+    РеквизитСправочника: {
+      Индексирование: "Индексировать",
+      Тип: "Дата",
+    },
+    СтроковыйРеквизитСИндексом: {
+      Индексирование: "Индексировать",
+      Синоним: "Строковый реквизит с индексом",
+      Тип: "Строка(10)",
+    },
+  },
+  СерииКодов: "ВПределахПодчинения",
+  Синоним: "Синоним",
   СозданиеПриВводе: "НеИспользовать",
-  СпособВыбора: "БыстрыйВыбор",
   СпособПоискаСтрокиПриВводеПоСтроке: "ЛюбаяЧасть",
-  СпособРедактирования: "ВСписке",
   СтандартныеРеквизиты: {
-    Код: {
-      Синоним: "Поле код",
+    Родитель: {
+      ЗаполнятьИзДанныхЗаполнения: "Истина",
+      ЗначениеЗаполнения: "Справочник.СправочникПолный.ПустаяСсылка",
+      СвязиПараметровВыбора: "Отбор.Владелец(Справочник.СправочникПолный.СтандартныйРеквизит.Владелец)",
+    },
+    Владелец: {
+      БыстрыйВыбор: "Использовать",
+      ЗначениеЗаполнения: "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231",
+      ИсторияВыбораПриВводе: "НеИспользовать",
+      ИсторияДанных: "НеИспользовать",
+      Комментарий: "Комментарий",
+      ПараметрыВыбора: {
+        "Отбор.Ссылка": "Справочник.СправочникПолный.ПустаяСсылка",
+      },
+      Подсказка: "Подсказка",
+      ПолнотекстовыйПоиск: "НеИспользовать",
+      СвязиПараметровВыбора:
+        "Отбор.Наименование(Справочник.СправочникПолный.СтандартныйРеквизит.Наименование, НеИзменять)",
+      Синоним: "Синоним",
+      СозданиеПриВводе: "НеИспользовать",
+      ФормаВыбора: "Catalog.СправочникВладелец.Form.ФормаВыбора",
+    },
+    Наименование: {
+      ПроверкаЗаполнения: "ВыдаватьОшибку",
+    },
+  },
+  ТабличныеЧасти: {
+    ТабличнаяЧасть: {
+      ДлинаНомераСтроки: 9,
+      Реквизиты: {
+        РеквизитТабличнойЧасти: "Строка(10)",
+      },
     },
   },
   ТипКода: "Число",
   Характеристики: [
     {
-      ВидыХарактеристик: "Справочник.НаборыДополнительныхРеквизитовИСведений.ТабличнаяЧасть.ДополнительныеРеквизиты",
-      ЗначенияХарактеристик: "Справочник.Контрагенты.ТабличнаяЧасть.ДополнительныеРеквизиты",
-      ПолеКлюча:
-        "Справочник.НаборыДополнительныхРеквизитовИСведений.ТабличнаяЧасть.ДополнительныеРеквизиты.Реквизит.Свойство",
-      ПолеОтбораВидов:
-        "Справочник.НаборыДополнительныхРеквизитовИСведений.ТабличнаяЧасть.ДополнительныеРеквизиты.Реквизит.ИмяПредопределенногоНабора",
-      ЗначениеОтбораВидов: '"Справочник_Контрагенты"',
-      ПолеОбъекта: "Справочник.Контрагенты.ТабличнаяЧасть.ДополнительныеРеквизиты.СтандартныйРеквизит.Ссылка",
-      ПолеВида: "Справочник.Контрагенты.ТабличнаяЧасть.ДополнительныеРеквизиты.Реквизит.Свойство",
-      ПолеЗначения: "Справочник.Контрагенты.ТабличнаяЧасть.ДополнительныеРеквизиты.Реквизит.Значение",
+      ВидыХарактеристик: "Справочник.СправочникПолный.ТабличнаяЧасть.ТабличнаяЧасть",
+      ЗначенияХарактеристик: "Справочник.СправочникПолный.ТабличнаяЧасть.ТабличнаяЧасть",
+      ПолеВида: "Справочник.СправочникПолный.ТабличнаяЧасть.ТабличнаяЧасть.СтандартныйРеквизит.Ссылка",
+      ПолеКлюча: "Справочник.СправочникПолный.ТабличнаяЧасть.ТабличнаяЧасть.СтандартныйРеквизит.Ссылка",
+      ПолеОбъекта: "Справочник.СправочникПолный.ТабличнаяЧасть.ТабличнаяЧасть.СтандартныйРеквизит.Ссылка",
     },
   ],
-  Реквизиты: {
-    РеквизитОбъекта: "Строка",
-  },
-  ТабличныеЧасти: {
-    ДополнительныеРеквизиты: {
-      Реквизиты: {
-        РеквизитТабличнойЧасти: "Строка",
-      },
-    },
-  },
-  Команды: {
-    НовыйЭлемент: {
-      Группа: "ПанельДействийСоздать",
-      Синоним: "Контрагенты",
-    },
-  },
 }
 
 //#endregion

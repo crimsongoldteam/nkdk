@@ -1,3 +1,5 @@
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 
@@ -17,9 +19,10 @@ export const MetadataAttributeRules = {
       xml: "Synonym",
       type: "I8nText",
       excludeIfEqualNameYAML: true,
-      defaultValue: ({ context }) => ({
-        items: { [context.defaultLanguage]: "" },
-      }),
+      defaultValue: ({ context, name, operation }: { context: ConfigurationContext; name?: string; operation?: string }) =>
+        operation === "importFromYAML" && name
+          ? addDefaultLanguageNameToSynonym(context, undefined, name)
+          : { items: { [context.defaultLanguage]: "" } },
       xmlParents: ["Properties"],
       order: 2,
       defaultValueXMLRaw: "",
