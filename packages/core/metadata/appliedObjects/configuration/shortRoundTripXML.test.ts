@@ -15,7 +15,7 @@ describe("shortRoundTripXML", () => {
   })
 
   // TODO: снять it.skip после починки round-trip багов через scripts/round-trip-issues.sh
-  it.skip("round-trip XML → модель → XML должен быть идемпотентным", async () => {
+  it("round-trip XML → модель → XML должен быть идемпотентным", async () => {
     await shortRoundTripXML({ inputDir, outputDir })
 
     const expectedCatalogXML = readXMLFileAsString("sync/syncConfiguration/xml/Catalogs/Контрагенты.xml")
