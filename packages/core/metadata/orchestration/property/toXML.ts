@@ -68,9 +68,25 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   return result
 }
 
-const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: any): any => {
+export const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: any): void => {
   if (value === undefined) return
-  if (Array.isArray(value) && value.length === 0) return
+
+  if (Array.isArray(value) && value.length === 0) {
+    // Пустой массив + xmlParents + defaultValueXMLRaw → создаём пустой контейнер (например <ChildObjects/>)
+    const hasRaw = "defaultValueXMLRaw" in rule
+    if (rule.xmlParents !== undefined && hasRaw) {
+      let currentXml = xml
+      for (let i = 0; i < rule.xmlParents.length - 1; i++) {
+        const xmlParent = rule.xmlParents[i]
+        if (currentXml[xmlParent] === undefined) {
+          currentXml[xmlParent] = {}
+        }
+        currentXml = currentXml[xmlParent]
+      }
+      currentXml[rule.xmlParents[rule.xmlParents.length - 1]] = (rule as any).defaultValueXMLRaw
+    }
+    return
+  }
 
   const xmlKey = rule.xml ?? capitalize(key)
 

@@ -1,4 +1,6 @@
+import { Type } from "@sinclair/typebox"
 import {
+  ExportToJSONSchemaFn,
   ExportToXMLFunctionNew,
   ExportToYAMLFunction,
   ImportFromXMLFunction,
@@ -7,6 +9,7 @@ import {
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { ToMetadata } from "../metadataItem/registry"
+import { exportMetadataItemToJSONSchema } from "../metadataItem/toJSONSchema"
 import { registerTypeRule } from "../formElement/factory"
 import { NamedMetadataItem } from "./types"
 import { importMetadataItemCollectionFromXML } from "./fromXML"
@@ -34,6 +37,7 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   toXML?: ExportToXMLFunctionNew
   fromYAML?: importFromYAMLFunction
   toYAML?: ExportToYAMLFunction
+  toJSONSchema?: ExportToJSONSchemaFn
 }
 
 export const registerMetadataItemCollectionRule = <
@@ -113,4 +117,12 @@ export const registerMetadataItemCollectionRule = <
 
   const toXML = params.toXML ?? toXMLDefault
   registerTypeRule(propertyType, "exportToXML", toXML)
+
+  const toJSONSchemaDefault: ExportToJSONSchemaFn = ({ context }) => {
+    const itemSchema = exportMetadataItemToJSONSchema({ context, rule: itemRule })
+    return Type.Record(Type.String(), itemSchema)
+  }
+
+  const toJSONSchema = params.toJSONSchema ?? toJSONSchemaDefault
+  registerTypeRule(propertyType, "exportToJSONSchema", toJSONSchema)
 }
