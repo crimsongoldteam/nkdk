@@ -22,7 +22,7 @@ builder.options.attributesGroupName = "@attributes"
 
 export const xmlExport = (data: Record<string, any>, addDeclaration: boolean = true): string => {
   const xml = builder.build(data)
-  const declaration = addDeclaration ? '<?xml version="1.0" encoding="UTF-8"?>\n' : ""
+  const declaration = addDeclaration ? '\uFEFF<?xml version="1.0" encoding="UTF-8"?>\n' : ""
   const result = declaration + xml
   return result.trimEnd()
 }
