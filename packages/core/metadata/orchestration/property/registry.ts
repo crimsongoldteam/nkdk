@@ -194,6 +194,9 @@ import { ScrollBarUseYAML, SystemEnumerationEnterprise } from "~/metadata/system
 export type PropertyTypeRegistry = {
   //#region Primitive types
 
+  uuid: {
+    item: string
+  }
   number: {
     item: number
     enterprise: number
@@ -679,6 +682,7 @@ export type PropertyTypeRegistry = {
 export type PropertyRuleType = keyof PropertyTypeRegistry
 
 export const PropertyRuleTypeKeys = Object.keys({
+  uuid: "uuid",
   number: "number",
   dateTime: "dateTime",
   string: "string",

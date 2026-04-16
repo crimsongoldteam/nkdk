@@ -1,3 +1,6 @@
+import "./uuid/fromXML"
+import "./uuid/toXML"
+
 import "./additionalIndex/fromXML"
 import "./additionalIndex/fromYAML"
 import "./additionalIndex/toJSONSchema"
