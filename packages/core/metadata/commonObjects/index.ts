@@ -105,11 +105,7 @@ import "./indexField/toYAML"
 
 import "./internalInfo/toXML"
 
-import "./metadataAttribute/fromXML"
-import "./metadataAttribute/fromYAML"
-import "./metadataAttribute/toJSONSchema"
-import "./metadataAttribute/toXML"
-import "./metadataAttribute/toYAML"
+import "./metadataAttribute/register"
 
 import "./metadataCommandGroup/fromXML"
 import "./metadataCommandGroup/fromYAML"

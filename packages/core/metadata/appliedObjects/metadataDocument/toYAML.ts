@@ -5,7 +5,7 @@ import { exportAdditionalIndexesToYAML } from "~/metadata/commonObjects/addition
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { exportCharacteristicsDescriptionsToYAML } from "~/metadata/commonObjects/characteristicsDescription/toYAML"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
-import { exportMetadataAttributesToYAML } from "~/metadata/commonObjects/metadataAttribute/toYAML"
+import { exportMetadataAttributesToYAML } from "~/metadata/commonObjects/metadataAttribute/register"
 import { exportMetadataFieldsToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
 import { exportMetadataItemLinksToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
 import { exportMetadataTabularSectionsToYAML } from "~/metadata/commonObjects/metadataTabularSection/toYAML"

@@ -4,7 +4,7 @@ import { importMetadataDocumentNumeratorFromXML } from "~/metadata/appliedObject
 import { importAdditionalIndexesFromXML } from "~/metadata/commonObjects/additionalIndex/fromXML"
 import { importCharacteristicsDescriptionsFromXML } from "~/metadata/commonObjects/characteristicsDescription/fromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
-import { importMetadataAttributesFromXML } from "~/metadata/commonObjects/metadataAttribute/fromXML"
+import { importMetadataAttributesFromXML } from "~/metadata/commonObjects/metadataAttribute/register"
 import { importMetadataFieldsFromXML } from "~/metadata/commonObjects/metadataField/fromXML"
 import { importMetadataItemLinksFromXML } from "~/metadata/commonObjects/metadataRef/fromXML"
 import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/metadataTabularSection/fromXML"
