@@ -240,3 +240,26 @@
 - **Раздутие группы** срабатывает iff группа — **изменённая**; при этом каждое отсутствующее свойство stub-а заполняется через **`defaultValueXML`** или **`defaultValueXMLRaw`** своего **правила свойства**.
 - **Пустой тег** производится из `defaultValueXMLRaw: ""` / `{}`; **`xsi:nil`** — из `defaultValueXMLRaw: {"_xsi:nil": true}`. Оба варианта решают issue #56 без хака `defaultValueXML: []` + `emitEmptyTagIfDefaultArray`.
 - **Место хука** — кастомный `toXML` в `registerCollectionRule.ts` для `StandardAttributeDescriptions` (specific-handler, не общий механизм `registerMetadataItemCollectionRule`).
+
+## Регистрация коллекций объектов метаданных (из диалога о рефакторинге `metadataAttribute`)
+
+| Термин | Определение | Избегать |
+| ------ | ----------- | -------- |
+| **`registerMetadataItemCollectionRule`** | Функция-фабрика в `metadata/orchestration/metadataCollection/ruleFactory.ts`, регистрирующая все четыре **направления** для коллекции через один вызов; принимает кастомные `fromXML`/`toXML`/`fromYAML`/`toYAML` как необязательные параметры | Ручная регистрация всех направлений |
+| **`register.ts`** | Единый файл точки входа для объекта метаданных, вызывающий `registerMetadataItemCollectionRule` и регистрирующий кастомный `fromYAML`; заменяет отдельные `fromXML.ts`, `toXML.ts`, `fromYAML.ts`, `toYAML.ts`, `toJSONSchema.ts` | index.ts, init.ts |
+| **`xmlParents`** | Поле **правила свойства** — массив XML-ключей, описывающий путь к узлу в вложенной XML-структуре (`["Properties"]` → свойство находится внутри `<Properties>`); используется как в импорте (`getXMLValue`), так и в экспорте (`setXMLValue`) | xmlPath, xmlNesting |
+| **`forReferenceOnly`** | Флаг **правила свойства**: при `forReference: false` свойство пропускается при импорте из XML (не попадает в модель); при `forReference: true` — читается для построения **референсных метаданных** | importOnlyForRef |
+| **Тип `"uuid"`** | Новый тип в `PropertyTypeRegistry`, реализованный в `commonObjects/uuid/`; `exportToXML` возвращает `referenceValue ?? getUUID(context)` — UUID из референса или сгенерированный | GeneratedUUID, string+generator |
+| **`uuidPropertyRule`** | Переиспользуемый объект `PropertyRule` в `commonObjects/uuid/rule.ts`: `{ type: "uuid", xml: "_uuid", forReferenceOnly: true, toYAML: false, fromYAML: false }` — подключается в `rules.ts` объектов с UUID-обёрткой | uuid helper |
+| **`getUUID(context)`** | Хелпер в `metadata/helpers/uuid.ts`: в `testMode` возвращает константный `UUID_TEST`, иначе `v4()` | v4() напрямую |
+| **Кастомный `fromYAML` с трекингом графа** | Параметр `fromYAML` в `registerMetadataItemCollectionRule`, сохраняющий специфичную логику создания узлов и рёбер в **графе** при импорте коллекции из YAML; подключается когда стандартный `importMetadataItemCollectionFromYAMLAsRecord` недостаточен | — |
+| **`removeDefaults`** | **(Устаревший паттерн)** Явный вызов функции очистки модели от дефолтных значений после импорта; заменён стандартной механикой: `cleanValue = value === rule.defaultValueXML ? undefined : value` в `importPropertiesFromXML` | — |
+| **Обёртка `<Properties>`** | XML-элемент `<Properties>` внутри `<Attribute uuid="...">`, хранящий все свойства реквизита; адресуется через `xmlParents: ["Properties"]` во всех правилах свойства | — |
+
+### Relationships регистрации коллекций
+
+- **`register.ts`** ⊃ один вызов `registerMetadataItemCollectionRule` + опциональный кастомный `fromYAML` для трекинга **графа**.
+- **`xmlParents: ["Properties"]`** на всех полях `rules.ts` заменяет кастомный `fromXML`/`toXML` для извлечения/упаковки **обёртки `<Properties>`**.
+- **`uuidPropertyRule`** с `forReferenceOnly: true` позволяет UUID попадать в **референсные метаданные** при полном XML-импорте, и использоваться при экспорте через тип `"uuid"` (`referenceValue ?? getUUID(context)`).
+- **`defaultValueXMLRaw`** + **`xmlParents`** в `rules.ts` полностью покрывают empty/nil-поля — отдельный `defaults.ts` становится избыточным и удаляется.
+- Короткий YAML-формат реквизита (`{ Имя: "Строка" }`) обрабатывается стандартным `handleShortFormatYAML` через флаг `useAsShortValueYAML: true` на правиле свойства — кастомный `fromYAML` для этого не нужен.
