@@ -32,15 +32,24 @@ Complete the task.
 
 # COMMIT
 
-Make a git commit. The commit message must:
+Сформируй git-коммит в соответствии со скиллом `.claude/skills/commit/SKILL.md` (Conventional Commits + gitmoji, русский инфинитив), но с префиксом `RALPH:` в самом начале заголовка.
 
-1. Start with `RALPH:` prefix
-2. Include task completed + PRD reference
-3. Key decisions made
-4. Files changed
-5. Blockers or notes for next iteration
+Итоговый формат заголовка:
 
-Keep it concise.
+```
+RALPH: <type>: <:gitmoji:> <описание в инфинитиве>
+```
+
+- `<type>` и `<:gitmoji:>` — строго из таблицы скилла (`feat/:sparkles:`, `fix/:bug:`, `refactor/:recycle:`, `test/:white_check_mark:`, `docs/:memo:`, `chore/:wrench:`, `perf/:zap:`, `revert/:rewind:`)
+- описание — на русском, без точки в конце, вся строка ≤ 72 символов (считая `RALPH:` и gitmoji-shortcode)
+- без scope, без `(#N)` в заголовке — ссылку на issue клади в футер (`Closes #N` / `Refs #N`)
+
+В body (после пустой строки) укажи:
+1. ключевые решения
+2. затронутые файлы/области (если не очевидно из diff)
+3. блокеры или заметки для следующей итерации
+
+Body пиши «почему», не пересказ diff. Держи коротко.
 
 # THE ISSUE
 
