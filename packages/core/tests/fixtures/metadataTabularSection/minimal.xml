@@ -1,21 +1,27 @@
-<TabularSection uuid="11111111-1111-4111-8111-111111111111">
+<TabularSection uuid="c8b626c9-b75b-44d1-8075-a599d789b350">
 	<InternalInfo>
-		<xr:GeneratedType name="CatalogTabularSection.Контрагенты.ДополнительныеРеквизиты" category="TabularSection">
-			<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
-			<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+		<xr:GeneratedType name="CatalogTabularSection.СправочникВладелец.ТабличнаяЧастьМинимальный" category="TabularSection">
+			<xr:TypeId>a0f7676e-d758-44bb-a37d-2f033efae30f</xr:TypeId>
+			<xr:ValueId>2407ddf8-6d7f-46ce-9ac8-7b1e407d3ea6</xr:ValueId>
 		</xr:GeneratedType>
-		<xr:GeneratedType name="CatalogTabularSectionRow.Контрагенты.ДополнительныеРеквизиты" category="TabularSectionRow">
-			<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
-			<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+		<xr:GeneratedType name="CatalogTabularSectionRow.СправочникВладелец.ТабличнаяЧастьМинимальный" category="TabularSectionRow">
+			<xr:TypeId>92c1caa3-cbbe-40de-90ef-b5eb20d1c46d</xr:TypeId>
+			<xr:ValueId>81832dac-5602-4f86-923e-c2f87fae1012</xr:ValueId>
 		</xr:GeneratedType>
 	</InternalInfo>
 	<Properties>
-		<Name>ДополнительныеРеквизиты</Name>
+		<Name>ТабличнаяЧастьМинимальный</Name>
 		<Synonym>
 			<v8:item>
 				<v8:lang>ru</v8:lang>
-				<v8:content>Дополнительные реквизиты</v8:content>
+				<v8:content>Табличная часть минимальный</v8:content>
 			</v8:item>
 		</Synonym>
+		<Comment/>
+		<ToolTip/>
+		<FillChecking>DontCheck</FillChecking>
+		<Use>ForItem</Use>
+		<LineNumberLength>9</LineNumberLength>
 	</Properties>
+	<ChildObjects/>
 </TabularSection>

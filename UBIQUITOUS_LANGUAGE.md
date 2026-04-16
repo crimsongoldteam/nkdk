@@ -184,17 +184,21 @@
 
 ## Example dialogue
 
+> **Dev:** "Добавляю **табличную часть** `Состав` в справочник. В YAML нет `Синоним`. Откуда он берётся в XML?"
+
+> **Domain expert:** "`synonym` в **правиле** объявлен с **`defaultValue` как функцией** — `addDefaultLanguageNameToSynonym`. При импорте из YAML `getValueOrDefault` видит `value === undefined` и вызывает функцию с `name = \"Состав\"`. В XML-экспорте `synonym` уже заполнен."
+
+> **Dev:** "А если `Состав` пустой — нет реквизитов. `<ChildObjects>` нужен в XML?"
+
+> **Domain expert:** "Да, **XML-фикстура** — источник истины: пустой контейнер `<ChildObjects/>` обязателен. Это достигается через `defaultValueXMLRaw: {}` на правиле свойства `attributes` с `xmlParents: [\"ChildObjects\"]`. `setXMLValue` при пустом массиве создаёт контейнер-родитель, дочерний ключ `Attribute` не ставит."
+
 > **Dev:** "Пользователь удалил файл `Справочник.Категории.yaml`. Что происходит с графом?"
 
 > **Domain expert:** "Через **обратный индекс** находим все **узлы**, порождённые этим файлом. Удаляем те, на которые нет входящих **reference-рёбер**. Узел `Справочник.Категории` превращается в **узел-заглушку** — у него убирается `item`, но сам узел остаётся, потому что на него ссылаются реквизиты других объектов. Теперь это **битая ссылка**."
 
-> **Dev:** "А если пользователь пишет `Тип: Справочник.` в YAML — что предлагает автодополнение?"
-
-> **Domain expert:** "Находим все top-level **узлы** с префиксом `Справочник.*` — это простой поиск по **графу**. Но если у свойства есть **referenceScope**, предлагаем только допустимые цели. Например, для `Владельцы` — только справочники и документы."
-
 > **Dev:** "Как резолвится `Объект.Договор.Владелец.ГрафикПлатежей[1].Сумма`?"
 
-> **Domain expert:** "**Walker** идёт по шагам. `Договор` — **реквизит** объекта, тип — **составной**: `Справочник.ДоговорПоставки | Справочник.ДоговорУслуг`. Walker ветвится по обоим типам, собирает union. `Владелец` — **стандартный реквизит**, есть в обоих. `ГрафикПлатежей` — **табличная часть**. `[1]` — **индексация**, walker проверяет что это таблица, значение не валидирует. `Сумма` — **реквизит** табличной части."
+> **Domain expert:** "**Walker** идёт по шагам. `Договор` — **реквизит** объекта, тип — **составной**: `Справочник.ДоговорПоставки | Справочник.ДоговорУслуг`. Walker ветвится по обоим типам. `Владелец` — **стандартный реквизит**. `ГрафикПлатежей` — **табличная часть**. `[1]` — **индексация**. `Сумма` — **реквизит** табличной части."
 
 ## Flagged ambiguities
 
@@ -227,7 +231,7 @@
 | **Раздутие группы** (Group expansion) | Процесс дополнения модели `Stub item`-ами для всех имён **канонического списка** при срабатывании **All-or-nothing** на экспорте | Заполнение по канону |
 | **Stub item** (стандартного реквизита) | Минимальный `StandardAttributeDescription` `{itemType, name}` без пользовательских значений, используемый при **раздутии группы** | Заглушка-реквизит |
 | **`defaultValueXML`** | Поле **правила свойства**: модельное значение, подставляемое на экспорт если value ≡ defaultValue; прогоняется через `typeExportFn` и `wrapWithNamespace` | — |
-| **`defaultValueXMLRaw`** | Новое поле **правила свойства**: сырая XML-форма (`""` → пустой тег, `{"_xsi:nil": true}` → `xsi:nil="true"`), подставляемая **без** `typeExportFn` и `wrapWithNamespace`. Триггер — идентичен `defaultValueXML`. Взаимоисключим с `defaultValueXML` | defaultValueXMLAfter |
+| **`defaultValueXMLRaw`** | Поле **правила свойства**: сырая XML-форма (`""` → пустой тег, `{"_xsi:nil": true}` → `xsi:nil="true"`, `{}` → пустой контейнер-родитель для коллекции), подставляемая **без** `typeExportFn` и `wrapWithNamespace`. Два триггера: (1) `exportedValue === rule.defaultValue`; (2) `value = []` + `xmlParents` → `setXMLValue` создаёт контейнер с `defaultValueXMLRaw`, не ставя дочерний ключ. Взаимоисключим с `defaultValueXML` | defaultValueXMLAfter |
 | **Пустой тег** (empty tag) | Сериализационная форма «пусто» для строковых / `I8nText` / `TypeLink` / коллекционных полей: `<xr:Format/>` | Null-тег |
 | **`xsi:nil`** | Сериализационная форма «значение отсутствует» для числовых / `MetadataValue`-полей: `<xr:MaxValue xsi:nil="true"/>` | Nil-тег, null |
 | **`isEmptyMetadataItem`** | Хелпер в `metadata/orchestration/formElement/helper.ts`: возвращает `true`, если все свойства item равны своим дефолтам (учитывает `defaultValue`, `defaultValueXML`, `defaultValueYAML`). Основа предиката **изменённости** | — |
@@ -245,7 +249,7 @@
 
 | Термин | Определение | Избегать |
 | ------ | ----------- | -------- |
-| **`registerMetadataItemCollectionRule`** | Функция-фабрика в `metadata/orchestration/metadataCollection/ruleFactory.ts`, регистрирующая все четыре **направления** для коллекции через один вызов; принимает кастомные `fromXML`/`toXML`/`fromYAML`/`toYAML` как необязательные параметры | Ручная регистрация всех направлений |
+| **`registerMetadataItemCollectionRule`** | Функция-фабрика в `metadata/orchestration/metadataCollection/ruleFactory.ts`, регистрирующая все четыре **направления** + `exportToJSONSchema` для коллекции через один вызов; принимает кастомные `fromXML`/`toXML`/`fromYAML`/`toYAML` как необязательные параметры | Ручная регистрация всех направлений |
 | **`register.ts`** | Единый файл точки входа для объекта метаданных, вызывающий `registerMetadataItemCollectionRule` и регистрирующий кастомный `fromYAML`; заменяет отдельные `fromXML.ts`, `toXML.ts`, `fromYAML.ts`, `toYAML.ts`, `toJSONSchema.ts` | index.ts, init.ts |
 | **`xmlParents`** | Поле **правила свойства** — массив XML-ключей, описывающий путь к узлу в вложенной XML-структуре (`["Properties"]` → свойство находится внутри `<Properties>`); используется как в импорте (`getXMLValue`), так и в экспорте (`setXMLValue`) | xmlPath, xmlNesting |
 | **`forReferenceOnly`** | Флаг **правила свойства**: при `forReference: false` свойство пропускается при импорте из XML (не попадает в модель); при `forReference: true` — читается для построения **референсных метаданных** | importOnlyForRef |
@@ -255,6 +259,9 @@
 | **Кастомный `fromYAML` с трекингом графа** | Параметр `fromYAML` в `registerMetadataItemCollectionRule`, сохраняющий специфичную логику создания узлов и рёбер в **графе** при импорте коллекции из YAML; подключается когда стандартный `importMetadataItemCollectionFromYAMLAsRecord` недостаточен | — |
 | **`removeDefaults`** | **(Устаревший паттерн)** Явный вызов функции очистки модели от дефолтных значений после импорта; заменён стандартной механикой: `cleanValue = value === rule.defaultValueXML ? undefined : value` в `importPropertiesFromXML` | — |
 | **Обёртка `<Properties>`** | XML-элемент `<Properties>` внутри `<Attribute uuid="...">`, хранящий все свойства реквизита; адресуется через `xmlParents: ["Properties"]` во всех правилах свойства | — |
+| **`defaultValue` как функция** | `defaultValue: ({ context, name, operation }) => ...` в **правиле свойства**; `getValueOrDefault` вызывает её когда value === undefined — позволяет вычислять дефолт из контекста; применяется для `addDefaultLanguageNameToSynonym` в свойстве `synonym` | Computed default, factory default |
+| **`addDefaultLanguageNameToSynonym`** | Хелпер в `metadata/helpers/synonymHelpers.ts`: создаёт I8nText-синоним из имени объекта на языке по умолчанию; подключается в `rules.ts` через **`defaultValue` как функцию** для `synonym` — вместо кастомного `fromYAML` | Auto-synonym |
+| **Пустой контейнер `<ChildObjects/>`** | XML-элемент, генерируемый даже при пустой коллекции реквизитов табличной части; достигается сочетанием `defaultValueXMLRaw: {}` + `xmlParents: ["ChildObjects"]`; `setXMLValue` при пустом массиве создаёт контейнер-родитель без дочернего ключа | Empty wrapper |
 
 ### Relationships регистрации коллекций
 
@@ -263,3 +270,5 @@
 - **`uuidPropertyRule`** с `forReferenceOnly: true` позволяет UUID попадать в **референсные метаданные** при полном XML-импорте, и использоваться при экспорте через тип `"uuid"` (`referenceValue ?? getUUID(context)`).
 - **`defaultValueXMLRaw`** + **`xmlParents`** в `rules.ts` полностью покрывают empty/nil-поля — отдельный `defaults.ts` становится избыточным и удаляется.
 - Короткий YAML-формат реквизита (`{ Имя: "Строка" }`) обрабатывается стандартным `handleShortFormatYAML` через флаг `useAsShortValueYAML: true` на правиле свойства — кастомный `fromYAML` для этого не нужен.
+- **Пустой контейнер `<ChildObjects/>`** требует `defaultValueXMLRaw: {}` на свойстве коллекции + изменения `setXMLValue`: при `value = []` + `xmlParents` + `defaultValueXMLRaw` → создаётся контейнер-родитель (последний из `xmlParents`) со значением `defaultValueXMLRaw`, дочерний ключ (`xml`) не ставится. Семантика: «контейнер присутствует, но пуст».
+- **`defaultValue` как функция** заменяет кастомный `fromYAML` для синонима-по-умолчанию: `synonym.defaultValue = ({ context, name }) => addDefaultLanguageNameToSynonym(context, undefined, name ?? "")` — стандартная машинерия вызывает её при `value === undefined` без custom-кода в `fromYAML`.
