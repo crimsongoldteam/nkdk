@@ -8,7 +8,7 @@ import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportMetadataAttributesToYAML } from "~/metadata/commonObjects/metadataAttribute/register"
 import { exportMetadataFieldsToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
 import { exportMetadataItemLinksToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
-import { exportMetadataTabularSectionsToYAML } from "~/metadata/commonObjects/metadataTabularSection/toYAML"
+import { exportMetadataTabularSectionsToYAML } from "~/metadata/commonObjects/metadataTabularSection/register"
 
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"

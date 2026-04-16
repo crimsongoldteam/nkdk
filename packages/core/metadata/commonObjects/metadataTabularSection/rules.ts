@@ -1,4 +1,7 @@
+import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
@@ -8,6 +11,7 @@ const childObjectsParents = ["ChildObjects"]
 export const MetadataTabularSectionRules = {
   itemType: "MetadataTabularSection",
   properties: {
+    uuid: uuidPropertyRule,
     internalInfo: {
       type: "InternalInfo",
       forReferenceOnly: true,
@@ -21,13 +25,13 @@ export const MetadataTabularSectionRules = {
         { name: `CatalogTabularSection`, category: "TabularSection" },
         { name: `CatalogTabularSectionRow`, category: "TabularSectionRow" },
       ],
-      // xmlParents: propertiesParents,
     },
     name: {
       xml: "Name",
       type: "string",
       required: true,
       xmlParents: propertiesParents,
+      order: 1,
     },
     synonym: {
       yaml: "Синоним",
@@ -35,12 +39,26 @@ export const MetadataTabularSectionRules = {
       type: "I8nText",
       excludeIfEqualNameYAML: true,
       xmlParents: propertiesParents,
+      defaultValueXMLRaw: "",
+      defaultValue: ({ context, name }: { context: ConfigurationContext; name?: string }) =>
+        addDefaultLanguageNameToSynonym(context, undefined, name ?? ""),
+      order: 2,
     },
     comment: {
       yaml: "Комментарий",
       xml: "Comment",
       type: "string",
       xmlParents: propertiesParents,
+      defaultValueXMLRaw: "",
+      order: 3,
+    },
+    toolTip: {
+      yaml: "Подсказка",
+      xml: "ToolTip",
+      type: "I8nText",
+      xmlParents: propertiesParents,
+      defaultValueXMLRaw: "",
+      order: 4,
     },
     fillChecking: {
       yaml: "ПроверкаЗаполнения",
@@ -49,20 +67,7 @@ export const MetadataTabularSectionRules = {
       typeSE: "FillChecking",
       xmlParents: propertiesParents,
       defaultValueXML: "DontCheck",
-    },
-    lineNumberLength: {
-      yaml: "ДлинаНомераСтроки",
-      xml: "LineNumberLength",
-      type: "number",
-      xmlParents: propertiesParents,
-      defaultValueXML: 5,
-    },
-    objectBelonging: {
-      yaml: "ПринадлежностьОбъекта",
-      xml: "ObjectBelonging",
-      type: "SystemEnumeration",
-      typeSE: "ObjectBelonging",
-      xmlParents: propertiesParents,
+      order: 5,
     },
     standardAttributes: {
       yaml: "СтандартныеРеквизиты",
@@ -70,20 +75,7 @@ export const MetadataTabularSectionRules = {
       type: "StandardAttributeDescriptions",
       standartAttributeNames: { LineNumber: "НомерСтроки" },
       xmlParents: propertiesParents,
-    },
-    attributes: {
-      yaml: "Реквизиты",
-      type: "MetadataAttributes",
-      defaultValue: [],
-      required: true,
-      xmlParents: childObjectsParents,
-      xml: "Attribute",
-    },
-    toolTip: {
-      yaml: "Подсказка",
-      xml: "ToolTip",
-      type: "I8nText",
-      xmlParents: propertiesParents,
+      order: 6,
     },
     use: {
       yaml: "Использование",
@@ -92,6 +84,32 @@ export const MetadataTabularSectionRules = {
       typeSE: "AttributeUse",
       xmlParents: propertiesParents,
       defaultValueXML: "ForItem",
+      order: 7,
+    },
+    lineNumberLength: {
+      yaml: "ДлинаНомераСтроки",
+      xml: "LineNumberLength",
+      type: "number",
+      xmlParents: propertiesParents,
+      defaultValueXML: 5,
+      order: 8,
+    },
+    objectBelonging: {
+      yaml: "ПринадлежностьОбъекта",
+      xml: "ObjectBelonging",
+      type: "SystemEnumeration",
+      typeSE: "ObjectBelonging",
+      xmlParents: propertiesParents,
+      order: 9,
+    },
+    attributes: {
+      yaml: "Реквизиты",
+      type: "MetadataAttributes",
+      defaultValue: [],
+      defaultValueXMLRaw: {},
+      required: true,
+      xmlParents: childObjectsParents,
+      xml: "Attribute",
     },
   },
 } as const satisfies MetadataItemRule

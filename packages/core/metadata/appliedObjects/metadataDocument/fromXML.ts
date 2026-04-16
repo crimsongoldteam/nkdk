@@ -7,7 +7,7 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
 import { importMetadataAttributesFromXML } from "~/metadata/commonObjects/metadataAttribute/register"
 import { importMetadataFieldsFromXML } from "~/metadata/commonObjects/metadataField/fromXML"
 import { importMetadataItemLinksFromXML } from "~/metadata/commonObjects/metadataRef/fromXML"
-import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/metadataTabularSection/fromXML"
+import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/metadataTabularSection/register"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 

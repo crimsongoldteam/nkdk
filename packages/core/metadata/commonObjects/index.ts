@@ -128,11 +128,7 @@ import "./metadataRef/toJSONSchema"
 import "./metadataRef/toXML"
 import "./metadataRef/toYAML"
 
-import "./metadataTabularSection/fromXML"
-import "./metadataTabularSection/fromYAML"
-import "./metadataTabularSection/toJSONSchema"
-import "./metadataTabularSection/toXML"
-import "./metadataTabularSection/toYAML"
+import "./metadataTabularSection/register"
 
 import "./metadataValue/fromXML"
 import "./metadataValue/fromYAML"
