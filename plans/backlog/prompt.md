@@ -2,6 +2,8 @@
 
 Issues JSON is provided at start of context. Parse it to get open issues with their bodies and comments.
 
+**Ишуи с меткой `round-trip` обрабатывать нельзя.** Это сырые тикеты, заведённые автоматически short-round-trip-скриптом; они требуют предварительного анализа пользователем, и фикстур/контекста для них, как правило, недостаточно. Если такая ишуя всё-таки попала в список (метка снята, фильтр пропустил), пропусти её и переходи к следующей по приоритету. Если в списке остались только round-trip-ишуи — выведи `<promise>COMPLETE</promise>`.
+
 You've also been passed a file containing the last 10 RALPH commits (SHA, date, full message). Review these to understand what work has been done.
 
 # TASK SELECTION
