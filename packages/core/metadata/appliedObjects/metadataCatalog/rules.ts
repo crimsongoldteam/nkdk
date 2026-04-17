@@ -45,7 +45,6 @@ export const MetadataCatalogRules = {
       type: "boolean",
       defaultValueXML: true,
       xmlParents: catalogProperties,
-      order: 18,
     },
     auxiliaryChoiceForm: {
       yaml: "ДополнительнаяФормаДляВыбора",
@@ -53,7 +52,6 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
       referenceScope: { target: "this", kind: "Form" },
       defaultValueXMLRaw: "",
-      order: 38,
     },
     auxiliaryFolderChoiceForm: {
       yaml: "ДополнительнаяФормаДляВыбораГруппы",
@@ -61,7 +59,6 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
       referenceScope: { target: "this", kind: "Form" },
       defaultValueXMLRaw: "",
-      order: 39,
     },
     auxiliaryFolderForm: {
       yaml: "ДополнительнаяФормаГруппы",
@@ -69,7 +66,6 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
       referenceScope: { target: "this", kind: "Form" },
       defaultValueXMLRaw: "",
-      order: 36,
     },
     auxiliaryListForm: {
       yaml: "ДополнительнаяФормаСписка",
@@ -77,7 +73,6 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
       referenceScope: { target: "this", kind: "Form" },
       defaultValueXMLRaw: "",
-      order: 37,
     },
     auxiliaryObjectForm: {
       yaml: "ДополнительнаяФормаОбъекта",
@@ -85,7 +80,6 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
       referenceScope: { target: "this", kind: "Form" },
       defaultValueXMLRaw: "",
-      order: 35,
     },
     basedOn: {
       yaml: "ВводитсяНаОсновании",
@@ -93,21 +87,18 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
       referenceScope: { target: "topLevel", allowedTypes: ["Справочник", "Документ"] },
       defaultValueXMLRaw: {},
-      order: 41,
     },
     characteristics: {
       yaml: "Характеристики",
       type: "CharacteristicsDescriptions",
       xmlParents: catalogProperties,
       defaultValueXMLRaw: {},
-      order: 21,
     },
     checkUnique: {
       yaml: "КонтрольУникальности",
       type: "boolean",
       defaultValueXML: true,
       xmlParents: catalogProperties,
-      order: 17,
     },
     choiceDataGetModeOnInputByString: {
       yaml: "РежимПолученияДанныхВыбораПриВводеПоСтроке",
@@ -116,7 +107,6 @@ export const MetadataCatalogRules = {
       defaultValueXML: "Directly",
       xmlParents: catalogProperties,
       defaultValueYAML: "Directly",
-      order: 29,
     },
     choiceHistoryOnInput: {
       yaml: "ИсторияВыбораПриВводе",
@@ -125,7 +115,6 @@ export const MetadataCatalogRules = {
       defaultValueXML: "Auto",
       xmlParents: catalogProperties,
       defaultValueYAML: "Auto",
-      order: 51,
     },
     choiceMode: {
       yaml: "СпособВыбора",
@@ -134,7 +123,6 @@ export const MetadataCatalogRules = {
       defaultValueXML: "BothWays",
       xmlParents: catalogProperties,
       defaultValueYAML: "BothWays",
-      order: 25,
     },
     codeAllowedLength: {
       yaml: "ДопустимаяДлинаКода",
@@ -143,14 +131,12 @@ export const MetadataCatalogRules = {
       defaultValueXML: "Variable",
       xmlParents: catalogProperties,
       defaultValueYAML: "Variable",
-      order: 15,
     },
     codeLength: {
       yaml: "ДлинаКода",
       type: "number",
       defaultValueXML: 9,
       xmlParents: catalogProperties,
-      order: 12,
     },
     codeSeries: {
       yaml: "СерииКодов",
@@ -159,7 +145,6 @@ export const MetadataCatalogRules = {
       defaultValueXML: "WholeCatalog",
       xmlParents: catalogProperties,
       defaultValueYAML: "WholeCatalog",
-      order: 16,
     },
     codeType: {
       yaml: "ТипКода",
@@ -168,14 +153,12 @@ export const MetadataCatalogRules = {
       defaultValueXML: "String",
       xmlParents: catalogProperties,
       defaultValueYAML: "String",
-      order: 14,
     },
     comment: {
       yaml: "Комментарий",
       type: "string",
       xmlParents: catalogProperties,
       defaultValueXMLRaw: "",
-      order: 3,
     },
     createOnInput: {
       yaml: "СозданиеПриВводе",
@@ -184,7 +167,6 @@ export const MetadataCatalogRules = {
       defaultValueXML: "Use",
       xmlParents: catalogProperties,
       defaultValueYAML: "Use",
-      order: 50,
     },
     dataHistory: {
       yaml: "ИсторияДанных",
@@ -193,7 +175,6 @@ export const MetadataCatalogRules = {
       defaultValueXML: "DontUse",
       xmlParents: catalogProperties,
       defaultValueYAML: "DontUse",
-      order: 52,
     },
     dataLockControlMode: {
       yaml: "РежимУправленияБлокировкойДанных",
@@ -202,14 +183,12 @@ export const MetadataCatalogRules = {
       defaultValueXML: "Managed",
       xmlParents: catalogProperties,
       defaultValueYAML: "Managed",
-      order: 43,
     },
     dataLockFields: {
       yaml: "ПоляБлокировкиДанных",
       type: "MetadataFields",
       xmlParents: catalogProperties,
       defaultValueXMLRaw: {},
-      order: 42,
     },
     defaultChoiceForm: {
       yaml: "ОсновнаяФормаДляВыбора",
@@ -217,7 +196,6 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
       referenceScope: { target: "this", kind: "Form" },
       defaultValueXMLRaw: "",
-      order: 33,
     },
     defaultFolderChoiceForm: {
       yaml: "ОсновнаяФормаДляВыбораГруппы",
@@ -225,7 +203,6 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
       referenceScope: { target: "this", kind: "Form" },
       defaultValueXMLRaw: "",
-      order: 34,
     },
     defaultFolderForm: {
       yaml: "ОсновнаяФормаГруппы",
@@ -233,7 +210,6 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
       referenceScope: { target: "this", kind: "Form" },
       defaultValueXMLRaw: "",
-      order: 31,
     },
     defaultListForm: {
       yaml: "ОсновнаяФормаСписка",
@@ -241,7 +217,6 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
       referenceScope: { target: "this", kind: "Form" },
       defaultValueXMLRaw: "",
-      order: 32,
     },
     defaultObjectForm: {
       yaml: "ОсновнаяФормаОбъекта",
@@ -249,7 +224,6 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
       referenceScope: { target: "this", kind: "Form" },
       defaultValueXMLRaw: "",
-      order: 30,
     },
     defaultPresentation: {
       yaml: "ОсновноеПредставление",
@@ -258,14 +232,12 @@ export const MetadataCatalogRules = {
       defaultValueXML: "AsDescription",
       xmlParents: catalogProperties,
       defaultValueYAML: "AsDescription",
-      order: 19,
     },
     descriptionLength: {
       yaml: "ДлинаНаименования",
       type: "number",
       defaultValueXML: 25,
       xmlParents: catalogProperties,
-      order: 13,
     },
     editType: {
       yaml: "СпособРедактирования",
@@ -274,42 +246,36 @@ export const MetadataCatalogRules = {
       defaultValueXML: "InDialog",
       xmlParents: catalogProperties,
       defaultValueYAML: "InDialog",
-      order: 23,
     },
     executeAfterWriteDataHistoryVersionProcessing: {
       yaml: "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных",
       type: "boolean",
       defaultValueXML: false,
       xmlParents: catalogProperties,
-      order: 54,
     },
     explanation: {
       yaml: "Пояснение",
       type: "I8nText",
       xmlParents: catalogProperties,
       defaultValueXMLRaw: {},
-      order: 49,
     },
     extendedListPresentation: {
       yaml: "РасширенноеПредставлениеСписка",
       type: "I8nText",
       xmlParents: catalogProperties,
       defaultValueXMLRaw: {},
-      order: 48,
     },
     extendedObjectPresentation: {
       yaml: "РасширенноеПредставлениеОбъекта",
       type: "I8nText",
       xmlParents: catalogProperties,
       defaultValueXMLRaw: {},
-      order: 46,
     },
     foldersOnTop: {
       yaml: "ГруппыСверху",
       type: "boolean",
       defaultValueXML: true,
       xmlParents: catalogProperties,
-      order: 8,
     },
     fullTextSearch: {
       yaml: "ПолнотекстовыйПоиск",
@@ -318,7 +284,6 @@ export const MetadataCatalogRules = {
       defaultValueXML: "Use",
       xmlParents: catalogProperties,
       defaultValueYAML: "Use",
-      order: 44,
     },
     fullTextSearchOnInputByString: {
       yaml: "ПолнотекстовыйПоискПриВводеПоСтроке",
@@ -327,14 +292,12 @@ export const MetadataCatalogRules = {
       defaultValueXML: "DontUse",
       xmlParents: catalogProperties,
       defaultValueYAML: "DontUse",
-      order: 28,
     },
     hierarchical: {
       yaml: "Иерархический",
       type: "boolean",
       defaultValueXML: false,
       xmlParents: catalogProperties,
-      order: 4,
     },
     hierarchyType: {
       yaml: "ВидИерархии",
@@ -343,48 +306,41 @@ export const MetadataCatalogRules = {
       defaultValueXML: "HierarchyFoldersAndItems",
       xmlParents: catalogProperties,
       defaultValueYAML: "HierarchyFoldersAndItems",
-      order: 5,
     },
     includeHelpInContents: {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
       defaultValueXML: false,
       xmlParents: catalogProperties,
-      order: 40,
     },
     inputByString: {
       yaml: "ВводПоСтроке",
       type: "MetadataFields",
       xmlParents: catalogProperties,
       referenceScope: { target: "this", kind: "Attribute", filter: "stringIndexedAttribute" },
-      order: 26,
     },
     levelCount: {
       yaml: "КоличествоУровней",
       type: "number",
       defaultValueXML: 2,
       xmlParents: catalogProperties,
-      order: 7,
     },
     limitLevelCount: {
       yaml: "ОграничиватьКоличествоУровней",
       type: "boolean",
       defaultValueXML: false,
       xmlParents: catalogProperties,
-      order: 6,
     },
     listPresentation: {
       yaml: "ПредставлениеСписка",
       type: "I8nText",
       xmlParents: catalogProperties,
       defaultValueXMLRaw: {},
-      order: 47,
     },
     name: {
       type: "string",
       xmlParents: catalogProperties,
       required: true,
-      order: 1,
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
@@ -400,7 +356,6 @@ export const MetadataCatalogRules = {
       type: "I8nText",
       xmlParents: catalogProperties,
       defaultValueXMLRaw: {},
-      order: 45,
     },
     owners: {
       yaml: "Владельцы",
@@ -408,7 +363,6 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
       referenceScope: { target: "topLevel", allowedTypes: ["Справочник", "Документ"] },
       defaultValueXMLRaw: {},
-      order: 10,
     },
     predefined: {
       yaml: "Предопределенные",
@@ -422,14 +376,12 @@ export const MetadataCatalogRules = {
       defaultValueXML: "Auto",
       xmlParents: catalogProperties,
       defaultValueYAML: "Auto",
-      order: 22,
     },
     quickChoice: {
       yaml: "БыстрыйВыбор",
       type: "boolean",
       defaultValueXML: false,
       xmlParents: catalogProperties,
-      order: 24,
     },
     searchStringModeOnInputByString: {
       yaml: "СпособПоискаСтрокиПриВводеПоСтроке",
@@ -438,7 +390,6 @@ export const MetadataCatalogRules = {
       defaultValueXML: "Begin",
       xmlParents: catalogProperties,
       defaultValueYAML: "Begin",
-      order: 27,
     },
     subordinationUse: {
       yaml: "ИспользованиеПодчинения",
@@ -447,13 +398,11 @@ export const MetadataCatalogRules = {
       defaultValueXML: "ToItems",
       xmlParents: catalogProperties,
       defaultValueYAML: "ToItems",
-      order: 11,
     },
     synonym: {
       yaml: "Синоним",
       type: "I8nText",
       xmlParents: catalogProperties,
-      order: 2,
     },
     tabularSections: {
       yaml: "ТабличныеЧасти",
@@ -466,7 +415,6 @@ export const MetadataCatalogRules = {
       type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataCatalogStandardAttributeNames,
       xmlParents: catalogProperties,
-      order: 20,
     },
     commands: {
       yaml: "Команды",
@@ -479,14 +427,12 @@ export const MetadataCatalogRules = {
       type: "boolean",
       defaultValueXML: false,
       xmlParents: catalogProperties,
-      order: 53,
     },
     useStandardCommands: {
       yaml: "ИспользоватьСтандартныеКоманды",
       type: "boolean",
       defaultValueXML: true,
       xmlParents: catalogProperties,
-      order: 9,
     },
   },
 } as const satisfies MetadataItemRule
