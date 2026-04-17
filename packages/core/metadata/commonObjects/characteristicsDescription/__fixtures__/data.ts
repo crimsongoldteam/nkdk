@@ -1,4 +1,4 @@
-import { CharacteristicsDescriptions } from "../types"
+import { CharacteristicsDescriptions, CharacteristicsDescriptionsYAML } from "../types"
 
 export const singleCharacteristic: CharacteristicsDescriptions = [
   {
@@ -34,5 +34,39 @@ export const multipleCharacteristics: CharacteristicsDescriptions = [
     valueField: "InformationRegister.ЗначенияХарактеристикОбъектов.Resource.Значение",
     multipleValuesKeyField: "InformationRegister.ЗначенияХарактеристикОбъектов.Dimension.КлючУникальности",
     multipleValuesOrderField: "InformationRegister.ЗначенияХарактеристикОбъектов.Dimension.Характеристика",
+  },
+]
+
+export const singleCharacteristicYAML: CharacteristicsDescriptionsYAML = [
+  {
+    ВидыХарактеристик: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть",
+    ПолеКлюча: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+    ЗначенияХарактеристик: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть",
+    ПолеОбъекта: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+    ПолеВида: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+  },
+]
+
+export const multipleCharacteristicsYAML: CharacteristicsDescriptionsYAML = [
+  {
+    ВидыХарактеристик: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть",
+    ПолеКлюча: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+    ЗначенияХарактеристик: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть",
+    ПолеОбъекта: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+    ПолеВида: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+  },
+  {
+    ВидыХарактеристик: "ChartOfCharacteristicTypes.ХарактеристикиОбъектов",
+    ПолеКлюча: "ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Ref",
+    ПолеОтбораВидов: "ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Description",
+    ЗначениеОтбораВидов: '"Текст"',
+    ПолеПутиКДанным: "ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Ref",
+    ПолеИспользованияМножественныхЗначений: "ChartOfCharacteristicTypes.ХарактеристикиОбъектов.Attribute.МножественнаяХарактеристика",
+    ЗначенияХарактеристик: "InformationRegister.ЗначенияХарактеристикОбъектов",
+    ПолеОбъекта: "InformationRegister.ЗначенияХарактеристикОбъектов.Dimension.Справочник",
+    ПолеВида: "InformationRegister.ЗначенияХарактеристикОбъектов.Dimension.Характеристика",
+    ПолеЗначения: "InformationRegister.ЗначенияХарактеристикОбъектов.Resource.Значение",
+    ПолеКлючаМножественныхЗначений: "InformationRegister.ЗначенияХарактеристикОбъектов.Dimension.КлючУникальности",
+    ПолеПорядкаМножественныхЗначений: "InformationRegister.ЗначенияХарактеристикОбъектов.Dimension.Характеристика",
   },
 ]

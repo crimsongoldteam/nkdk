@@ -32,9 +32,7 @@ import "./border/toXML"
 import "./border/toYAML"
 
 import "./characteristicsDescription/registerCollectionRule"
-import "./characteristicsDescription/fromYAML"
 import "./characteristicsDescription/toJSONSchema"
-import "./characteristicsDescription/toYAML"
 
 import "./choiceList/fromXML"
 import "./choiceList/fromYAML"

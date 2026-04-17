@@ -3,7 +3,8 @@ import { MetadataDocument, MetadataDocumentYAML } from "~/metadata/appliedObject
 import { exportMetadataDocumentNumeratorToYAML } from "~/metadata/appliedObjects/metadataDocumentNumerator/toYAML"
 import { exportAdditionalIndexesToYAML } from "~/metadata/commonObjects/additionalIndex/toYAML"
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { exportCharacteristicsDescriptionsToYAML } from "~/metadata/commonObjects/characteristicsDescription/toYAML"
+import { CharacteristicsDescriptionRules } from "~/metadata/commonObjects/characteristicsDescription/rules"
+import { exportMetadataCollectionToYAMLAsArray } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportMetadataAttributesToYAML } from "~/metadata/commonObjects/metadataAttribute/register"
 import { exportMetadataFieldsToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
@@ -170,6 +171,6 @@ export const exportMetadataDocumentToYAML = (
       { type: "SystemEnumeration", typeSE: "RegisterRecordsDeletion" },
       data.registerRecordsDeletion
     ),
-    Характеристики: exportCharacteristicsDescriptionsToYAML(context, undefined, data.characteristics),
+    Характеристики: exportMetadataCollectionToYAMLAsArray({ context, data: data.characteristics, itemRule: CharacteristicsDescriptionRules }),
   }
 }
