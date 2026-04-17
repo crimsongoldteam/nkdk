@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# round-trip-issues.sh — short round-trip XML→модель→XML + GitHub issues
+# round-trip-plan.sh — short round-trip XML→модель→XML + план-файлы
 #
 # Алгоритм:
 #   1. Проверка NKDK_XML_REPO
@@ -8,8 +8,9 @@
 #   3. nkdk short-round-trip-test <xml-repo> — round-trip без YAML-слоя
 #   4. Найти первый файл с диффом (по алфавиту)
 #   5. Если диффов нет — вывести «round-trip чистый» и выйти
-#   6. Иначе — передать дифф ИИ для группировки по узлам и заведения issues
-#   7. Показать список свежих issues с меткой round-trip
+#   6. Иначе — передать дифф ИИ для группировки по узлам и создания
+#      план-файлов в plans/round-trip/
+#   7. Показать список свежих файлов в plans/round-trip/
 #   (Дифф в XML-репо НЕ откатывается — можно изучить вручную)
 #
 # Переменные окружения:
@@ -20,7 +21,7 @@
 # Использование:
 #   NKDK_XML_REPO=/path/to/repo \
 #   NKDK_XML_DIR=/path/to/repo/subdir \
-#     ./scripts/round-trip-issues.sh
+#     ./scripts/round-trip-plan.sh
 # ==============================================================================
 set -euo pipefail
 
@@ -57,14 +58,14 @@ fi
 
 # ── Временный файл для промпта ────────────────────────────────────────────────
 
-PROMPT_FILE="$(mktemp /tmp/round-trip-issues-prompt.XXXXXX)"
+PROMPT_FILE="$(mktemp /tmp/round-trip-plan-prompt.XXXXXX)"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
-LOG_FILE="/tmp/round-trip-issues-${TIMESTAMP}.log"
+LOG_FILE="/tmp/round-trip-plan-${TIMESTAMP}.log"
 trap 'rm -f "${PROMPT_FILE}"' EXIT
 
 # ── Сводка ────────────────────────────────────────────────────────────────────
 
-echo "=== Round-trip issues ==="
+echo "=== Round-trip plan ==="
 echo "XML репо:  ${NKDK_XML_REPO}"
 echo "XML каталог: ${NKDK_XML_DIR}"
 echo "nkdk:      ${NKDK}"
@@ -108,14 +109,16 @@ cat > "${PROMPT_FILE}" << PROMPT_EOF
 Полный дифф файла:
 ${DIFF_TEXT}
 
-ЗАДАЧА: Сгруппировать расхождения по конкретным узлам XML (один узел = одна группа) и завести GitHub issues.
+ЗАДАЧА: Сгруппировать расхождения по конкретным узлам XML (один узел = одна группа) и создать план-файлы в каталоге plans/round-trip/ текущего репозитория (${REPO_DIR}).
 
 ПРАВИЛА:
-- Заводить issues в репозитории crimsongoldteam/nkdk через: gh issue create --repo crimsongoldteam/nkdk
-- Метка: round-trip (--label round-trip)
-- Не больше 4 issues за прогон; если групп больше — выбрать 4 самых важных
+- Каждая группа = один Markdown-файл в plans/round-trip/
+- Имя файла: plans/round-trip/$(date +%Y-%m-%d)-<kebab-slug-описания-узла>.md
+  (например: plans/round-trip/$(date +%Y-%m-%d)-standard-attributes-is-folder-parent-swap.md)
+- Не больше 4 файлов за прогон; если групп больше — выбрать 4 самых важных
 - Группировать по конкретному узлу (тег + ключевые атрибуты), а НЕ по типу узла или по hunk-ам
-- Ничего не исправлять в коде, не коммитить
+- Ничего не исправлять в коде, не коммитить, GitHub-ишуи НЕ создавать
+- Если файл с таким же именем уже существует — выбрать уникальный slug (добавить уточнение), не перезаписывать
 
 Для каждой группы определить:
 - Конкретный узел: тег + ключевые атрибуты (name, uuid или аналогичные) + читаемая локализация
@@ -126,7 +129,9 @@ ${DIFF_TEXT}
 - Описание отклонения
 - Предположение о причине в packages/core (rules.ts соответствующего типа)
 
-Шаблон тела каждого issue (на русском):
+Шаблон тела каждого план-файла (на русском):
+
+# round-trip: <краткое описание расхождения> (<имя xml-файла>)
 
 ## Контекст
 Файл: <путь к файлу>
@@ -160,11 +165,9 @@ echo "[agent] Живой лог: tail -f ${LOG_FILE}"
       [ -n "$text" ] && echo "[agent]  ${text}"
     done || true
 
-# ── 7. Показать свежие issues ─────────────────────────────────────────────────
+# ── 7. Показать свежие план-файлы ────────────────────────────────────────────
 
 echo ""
-echo "=== Свежие issues с меткой round-trip ==="
-gh issue list --repo crimsongoldteam/nkdk --label round-trip --state open --limit 10 \
-  --json number,title,createdAt \
-  --jq '.[] | "#\(.number) \(.title) (\(.createdAt[:10]))"' \
-  || echo "(gh не настроен или нет issues)"
+echo "=== Свежие план-файлы в plans/round-trip/ ==="
+ls -1t "${REPO_DIR}/plans/round-trip/" 2>/dev/null | head -10 \
+  || echo "(plans/round-trip/ пуст или отсутствует)"

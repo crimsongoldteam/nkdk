@@ -14,7 +14,7 @@ describe("shortRoundTripXML", () => {
     }
   })
 
-  // TODO: снять it.skip после починки round-trip багов через scripts/round-trip-issues.sh
+  // TODO: снять it.skip после починки round-trip багов через scripts/round-trip-plan.sh
   it("round-trip XML → модель → XML должен быть идемпотентным", async () => {
     await shortRoundTripXML({ inputDir, outputDir })
 
