@@ -118,15 +118,27 @@ const buildPathStructure = <Rule extends MetadataItemRule>(
     })
   }
 
-  const childContainersByPath = new Map<string, Set<string>>()
+  // Compute child containers for all traversal paths, including ancestor paths not in
+  // pathOrder (e.g. the root [] path when the shallowest xmlParents is ["SomeTag"]).
+  const allTraversalPaths = new Set<string>([pathKey([])])
   for (const path of pathOrder) {
+    for (let i = 1; i <= path.length; i++) {
+      allTraversalPaths.add(pathKey(path.slice(0, i)))
+    }
+  }
+  const childContainersByPath = new Map<string, Set<string>>()
+  for (const pk of allTraversalPaths) {
+    const parsedPath = JSON.parse(pk) as Path
     const set = new Set<string>()
     for (const other of pathOrder) {
-      if (other.length === path.length + 1 && other.slice(0, path.length).every((s, i) => s === path[i])) {
-        set.add(other[path.length]!)
+      if (
+        other.length === parsedPath.length + 1 &&
+        other.slice(0, parsedPath.length).every((s, i) => s === parsedPath[i])
+      ) {
+        set.add(other[parsedPath.length]!)
       }
     }
-    childContainersByPath.set(pathKey(path), set)
+    childContainersByPath.set(pk, set)
   }
 
   return { pathOrder, pathToInfo, childContainersByPath }
