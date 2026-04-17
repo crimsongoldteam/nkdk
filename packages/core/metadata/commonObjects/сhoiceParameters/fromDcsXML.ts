@@ -45,7 +45,7 @@ export const importChoiceParameterFromDcsXML = (
     valueXml !== undefined
       ? importMetadataValueFromXML({
           context,
-          rule: { type: "MetadataValue", withType: true },
+          rule: { type: "MetadataValue", valueType: ["string", "decimal", "boolean", "ref", "objectRef", "fixedArray", "formChoiceListDesTimeValue"] },
           value: valueXml,
         })
       : undefined

@@ -1,11 +1,10 @@
-import { formulaFormatParser } from "~/metadata/helpers/formulaFormatParser/formulaFormatParser"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { importI8nTextFromYAML } from "../i8nText/fromYAML"
+import { importFixedArrayFromYAML } from "./fixedArray/fromYAML"
+import { importFormChoiceListFromYAML } from "./formChoiceList/fromYAML"
 import { primitiveValueHandlers } from "./handlers"
 import {
-  MetadataFixedArrayValue,
   MetadataFixedArrayValueYAML,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueYAML,
@@ -44,11 +43,11 @@ export const importMetadataValueFromYAML = (
 
   // Агрегатные типы определяются по форме данных, не по rule
   if (typeof data === "object" && !Array.isArray(data) && "Представление" in data) {
-    return importFormChoiceListValueFromYAML(context, undefined, data as MetadataFormChoiceListValueYAML)
+    return importFormChoiceListFromYAML(context, data as MetadataFormChoiceListValueYAML)
   }
 
   if (Array.isArray(data)) {
-    return importFixedArrayValueFromYAML(context, data)
+    return importFixedArrayFromYAML(context, data as MetadataFixedArrayValueYAML)
   }
 
   const ruleTyped = rule as MetadataValuePropertyRule | undefined
@@ -62,8 +61,6 @@ export const importMetadataValueFromYAML = (
   // Compat/эвристический режим: нет массива valueType → определяем тип из значения
   return heuristicFromYAML(context, data as MetadataSingleYAML)
 }
-
-type MetadataSingleYAML = string | number
 
 /**
  * Диспетчеризация для нового режима (valueType как массив).
@@ -155,32 +152,12 @@ const heuristicFromYAML = (
   return { type: "string", value: data } satisfies MetadataStringValue
 }
 
-const importFixedArrayValueFromYAML = (
-  context: ConfigurationContext,
-  data: MetadataFixedArrayValueYAML
-): MetadataFixedArrayValue => ({
-  type: "fixedArray",
-  value: data.map((v) => importMetadataValueFromYAML(context, undefined, v)!),
-})
-
+/** @deprecated Используй importFormChoiceListFromYAML из submodule formChoiceList/fromYAML */
 export const importFormChoiceListValueFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValueYAML
-): MetadataFormChoiceListValue => {
-  if (typeof data === "string") {
-    const parsed = formulaFormatParser(data)
-    const value = parsed.formula ? importMetadataValueFromYAML(context, undefined, parsed.formula) : undefined
-    const presentation = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: parsed.parameters[0] })
-    return { type: "formChoiceListDesTimeValue", presentation, value }
-  }
-  const value = importMetadataValueFromYAML(context, undefined, data.Значение)!
-  return {
-    type: "formChoiceListDesTimeValue",
-    presentation: importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Представление }),
-    value,
-  }
-}
+): MetadataFormChoiceListValue => importFormChoiceListFromYAML(context, data)
 
 /**
  * Импортирует AssociatedTable (строка YAML) → MetadataStringValue.

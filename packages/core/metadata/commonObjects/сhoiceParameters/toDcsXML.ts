@@ -1,7 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToXML } from "../metadataValue/toXML"
-import { MetadataValueByRule } from "../metadataValue/types"
 import {
   ChoiceParameter,
   ChoiceParameterDcsItemXML,
@@ -21,7 +20,7 @@ export const exportChoiceParameterToDcsXML = (
     const valueXml = exportMetadataValueToXML({
       context,
       rule: { type: "MetadataValue" },
-      value: param.value as MetadataValueByRule<{ type: "MetadataValue" }>,
+      value: param.value,
     })
     if (valueXml !== undefined) {
       item["dcscor:value"] = valueXml

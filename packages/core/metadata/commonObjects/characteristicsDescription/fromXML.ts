@@ -67,7 +67,7 @@ export const importCharacteristicsDescriptionFromXML = (
 
   const typesFilterValue = importMetadataValueFromXML({
     context,
-    rule: undefined,
+    rule: { type: "MetadataValue", valueType: ["string"] },
     value: characteristicTypes?.["xr:TypesFilterValue"],
   })
   if (typesFilterValue !== undefined) result.typesFilterValue = typesFilterValue

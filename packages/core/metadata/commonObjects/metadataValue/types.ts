@@ -167,6 +167,16 @@ export interface MetadataValuePropertyRule extends BasePropertyRule {
   withType?: boolean
 }
 
+/**
+ * XML-форма MetadataValue. Объединяет все возможные XML-представления значения.
+ * Дженерик-параметры оставлены для обратной совместимости — они игнорируются.
+ */
+export type MetadataValueXML<_Rule = unknown, _Value = unknown> =
+  | MetadataPrimitiveValueXML
+  | MetadataFixedArrayValueXML
+  | MetadataFormChoiceListValueXML
+  | { "_xsi:nil": true }
+
 /** Нормализует valueType: строка → массив, undefined → undefined */
 export const normalizeValueType = (
   valueType: MetadataValueType | MetadataValueType[] | undefined

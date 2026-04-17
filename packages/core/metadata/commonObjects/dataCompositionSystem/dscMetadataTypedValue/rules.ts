@@ -179,11 +179,6 @@ const getStandardBeginningDateValue = (item: DcsMetadataTypedValue): StandartBeg
   return item.value
 }
 
-const getPrimitiveValue = (item: DcsMetadataTypedValue, type: PrimitiveDcsType): string | number | boolean => {
-  if (item.type !== type) throw new Error(`Invalid DcsMetadataTypedValue type: expected ${type}, got ${item.type}`)
-  return item.value
-}
-
 const importPrimitiveFromYAML = (
   context: ConfigurationContext,
   yaml: DcsMetadataTypedValueYAML

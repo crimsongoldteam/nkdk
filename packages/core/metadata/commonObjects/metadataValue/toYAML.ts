@@ -1,10 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { exportFixedArrayToYAML } from "./fixedArray/toYAML"
+import { exportFormChoiceListToYAML } from "./formChoiceList/toYAML"
 import { primitiveValueHandlers } from "./handlers"
 import {
   MetadataFixedArrayValue,
-  MetadataFixedArrayValueYAML,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueYAML,
   MetadataPrimitiveValueType,
@@ -38,8 +39,8 @@ export const exportMetadataValueToYAML = (
   if (!data) return undefined
   const ruleTyped = rule as MetadataValuePropertyRule | undefined
 
-  if (data.type === "fixedArray") return exportFixedArrayValueToYAML(context, rule, data as MetadataFixedArrayValue)
-  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListValueToYAML(context, rule, data as MetadataFormChoiceListValue)
+  if (data.type === "fixedArray") return exportFixedArrayToYAML(context, data as MetadataFixedArrayValue)
+  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListToYAML(context, data as MetadataFormChoiceListValue)
 
   if (!PRIMITIVE_TYPES.includes(data.type as MetadataPrimitiveValueType)) {
     throw new Error(`MetadataValue: неподдерживаемый тип для YAML: ${data.type}`)
@@ -55,38 +56,12 @@ export const exportMetadataValueToYAML = (
   return handler.toYAML(context, data)
 }
 
-const exportFixedArrayValueToYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataFixedArrayValue
-): MetadataFixedArrayValueYAML =>
-  data.value.map((v) => exportMetadataValueToYAML(context, undefined, v as MetadataTypedValue)!) as MetadataFixedArrayValueYAML
-
+/** @deprecated Используй exportFormChoiceListToYAML из submodule formChoiceList/toYAML */
 export const exportFormChoiceListValueToYAML = (
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValue
-): MetadataFormChoiceListValueYAML => {
-  // При экспорте значения внутри formChoiceList всегда используем новый режим (кавычки для строк)
-  const valueResult = exportMetadataValueToYAML(context, undefined, data.value as MetadataTypedValue | undefined)
-  const presentationItems = data.presentation?.items
-  const hasMultipleLanguages = presentationItems && Object.keys(presentationItems).length > 1
-
-  if (valueResult === undefined) {
-    const presentation = presentationItems?.[context.defaultLanguage] || presentationItems?.ru || ""
-    return `(${presentation})`
-  }
-
-  if (hasMultipleLanguages && presentationItems) {
-    return {
-      Представление: presentationItems,
-      Значение: valueResult,
-    }
-  }
-
-  const presentation = presentationItems?.[context.defaultLanguage] || presentationItems?.ru || ""
-  return `${valueResult}(${presentation})`
-}
+): MetadataFormChoiceListValueYAML => exportFormChoiceListToYAML(context, data)
 
 /**
  * Экспортирует AssociatedTable (MetadataStringValue) в YAML.

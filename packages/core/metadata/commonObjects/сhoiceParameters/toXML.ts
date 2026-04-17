@@ -3,7 +3,6 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToXML } from "../metadataValue/toXML"
 import { ChoiceParameters, ChoiceParametersXML } from "./types"
-import { MetadataValueByRule } from "../metadataValue/types"
 
 export const exportChoiceParametersToXML = (
   context: ConfigurationContext,
@@ -17,7 +16,7 @@ export const exportChoiceParametersToXML = (
     "app:value": exportMetadataValueToXML({
       context,
       rule: { type: "MetadataValue" },
-      value: param.value as MetadataValueByRule<{ type: "MetadataValue" }>,
+      value: param.value,
     })!,
   }))
 

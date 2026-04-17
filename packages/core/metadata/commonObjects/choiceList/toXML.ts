@@ -2,7 +2,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToXML } from "../metadataValue/toXML"
-import { MetadataFormChoiceListValueXML, MetadataValueByRule } from "../metadataValue/types"
+import { MetadataFormChoiceListValueXML } from "../metadataValue/types"
 import { ChoiceList, ChoiceListItemXML, ChoiceListXML } from "./types"
 
 export const exportChoiceListToXML = (
@@ -18,7 +18,7 @@ export const exportChoiceListToXML = (
     "xr:Value": exportMetadataValueToXML({
       context,
       rule: { type: "MetadataValue" },
-      value: item as MetadataValueByRule<{ type: "MetadataValue" }>,
+      value: item,
     })! as unknown as MetadataFormChoiceListValueXML,
   }))
 

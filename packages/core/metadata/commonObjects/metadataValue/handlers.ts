@@ -123,7 +123,7 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
       "_xsi:type": MetadataValueTypeToXML.boolean,
       "#text": String((v as MetadataBooleanValue).value),
     }),
-    fromYAML: (ctx, data) => {
+    fromYAML: (_ctx, data) => {
       if (data === "Истина" || data === "Ложь") {
         return { type: "boolean", value: data === "Истина" } satisfies MetadataBooleanValue
       }

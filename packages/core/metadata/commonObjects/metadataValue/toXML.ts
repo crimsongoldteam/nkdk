@@ -1,11 +1,11 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { exportI8nTextToXML } from "../i8nText/toXML"
+import { exportFixedArrayToXML } from "./fixedArray/toXML"
+import { exportFormChoiceListToXML } from "./formChoiceList/toXML"
 import { primitiveValueHandlers } from "./handlers"
 import {
   MetadataFixedArrayValue,
-  MetadataFixedArrayValueXML,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueXML,
   MetadataPrimitiveValueType,
@@ -49,11 +49,11 @@ export const exportMetadataValueToXML = (params: {
   }
 
   if (value.type === "fixedArray") {
-    return exportFixedArrayValueToXML(params.context, value as MetadataFixedArrayValue)
+    return exportFixedArrayToXML(params.context, value as MetadataFixedArrayValue)
   }
 
   if (value.type === "formChoiceListDesTimeValue") {
-    return exportFormChoiceListValueToXML(params.context, value as MetadataFormChoiceListValue)
+    return exportFormChoiceListToXML(params.context, value as MetadataFormChoiceListValue)
   }
 
   if (!PRIMITIVE_TYPES.includes(value.type as MetadataPrimitiveValueType)) {
@@ -64,31 +64,11 @@ export const exportMetadataValueToXML = (params: {
   return handler.toXML(value)
 }
 
-const exportFixedArrayValueToXML = (
-  context: ConfigurationContext,
-  data: MetadataFixedArrayValue
-): MetadataFixedArrayValueXML => {
-  const rule: MetadataValuePropertyRule = { type: "MetadataValue" }
-  const values = data.value.map((v) => exportMetadataValueToXML({ context, rule, value: v as MetadataTypedValue }))
-  return {
-    "_xsi:type": "v8:FixedArray",
-    "v8:Value": values.length === 1 ? values[0] : values,
-  } as MetadataFixedArrayValueXML
-}
-
+/** @deprecated Используй exportFormChoiceListToXML из submodule formChoiceList/toXML */
 export const exportFormChoiceListValueToXML = (
   context: ConfigurationContext,
   data: MetadataFormChoiceListValue
-): MetadataFormChoiceListValueXML => {
-  const rule: MetadataValuePropertyRule = { type: "MetadataValue", exportNilValue: true }
-  const value = exportMetadataValueToXML({ context, rule, value: data.value as MetadataTypedValue | undefined })
-  const valueXML: any = value ?? { "_xsi:nil": true }
-  return {
-    "_xsi:type": "FormChoiceListDesTimeValue",
-    Presentation: exportI8nTextToXML(context, { type: "I8nText" }, data.presentation),
-    Value: valueXML,
-  } as MetadataFormChoiceListValueXML
-}
+): MetadataFormChoiceListValueXML => exportFormChoiceListToXML(context, data)
 
 /**
  * Экспортирует AssociatedTable (MetadataStringValue) в XML.

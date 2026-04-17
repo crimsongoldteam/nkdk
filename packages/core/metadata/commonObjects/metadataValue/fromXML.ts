@@ -1,12 +1,11 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ImportFromXMLFunction } from "~/metadata/orchestration/property/fn"
-import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
-import { importI8nTextFromXML } from "../i8nText/fromXML"
+import { ConfigurationContextFromXML } from "../../context/types"
+import { importFixedArrayFromXML } from "./fixedArray/fromXML"
+import { importFormChoiceListFromXML } from "./formChoiceList/fromXML"
 import { primitiveValueHandlers } from "./handlers"
 import {
-  MetadataFixedArrayValue,
-  MetadataFixedArrayValueXML,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueXML,
   MetadataPrimitiveValueType,
@@ -44,11 +43,11 @@ export const importMetadataValueFromXML = (params: {
   if (!resultedType) throw new Error(`MetadataValue: не распознан тип: ${data["_xsi:type"]}`)
 
   if (resultedType === "fixedArray") {
-    return importFixedArrayFromXML(context, data as MetadataFixedArrayValueXML)
+    return importFixedArrayFromXML(context, data)
   }
 
   if (resultedType === "formChoiceListDesTimeValue") {
-    return importFormChoiceListValueFromXML(context, undefined, data as MetadataFormChoiceListValueXML)
+    return importFormChoiceListFromXML(context, data as MetadataFormChoiceListValueXML)
   }
 
   if (!PRIMITIVE_TYPES.includes(resultedType as MetadataPrimitiveValueType)) {
@@ -80,28 +79,12 @@ export const importMetadataSimpleValueFromXML = (
   return (result as any).value as string | boolean | number
 }
 
-const importFixedArrayFromXML = (
-  context: ConfigurationContextFromXML,
-  data: MetadataFixedArrayValueXML | { "v8:Value": any | any[] }
-): MetadataFixedArrayValue => {
-  const raw = data["v8:Value"]
-  const values = Array.isArray(raw) ? raw : [raw]
-  return {
-    type: "fixedArray",
-    value: values.map((v) => importMetadataValueFromXML({ context, rule: undefined, value: v })!),
-  }
-}
-
+/** @deprecated Используй importFormChoiceListFromXML из submodule formChoiceList/fromXML */
 export const importFormChoiceListValueFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValueXML
-): MetadataFormChoiceListValue | undefined => {
-  if (!data) return undefined
-  const value = importMetadataValueFromXML({ context, rule: undefined, value: data.Value })
-  const presentation = importI8nTextFromXML(context, { type: "I8nText" }, data.Presentation)
-  return { type: "formChoiceListDesTimeValue", value, presentation }
-}
+): MetadataFormChoiceListValue | undefined => importFormChoiceListFromXML(context, data)
 
 /**
  * Импортирует AssociatedTable (xs:string) из XML.
