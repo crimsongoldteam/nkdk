@@ -8,31 +8,20 @@ import {
   MetadataFixedArrayValueYAML,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueYAML,
-  MetadataPrimitiveValueType,
   MetadataStringValue,
   MetadataTypedValue,
   MetadataValuePropertyRule,
-  MetadataValueType,
   MetadataValueYAML,
-  normalizeValueType,
+  assertValueType,
 } from "./types"
 
 type MetadataSingleYAML = string | number
 
-const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
-  "string",
-  "decimal",
-  "dateTime",
-  "boolean",
-  "ref",
-  "objectRef",
-]
-
 /**
  * Импортирует MetadataValue из YAML. Всегда возвращает тегированную форму {type, value}.
  *
- * Если `rule.valueType` — массив (новый режим): делегирует в хендлер по типу значения из YAML.
- * Иначе (compat: одиночная строка valueType или undefined): использует эвристику.
+ * Тип определяется из синтаксиса значения YAML (детерминистски).
+ * Если rule.valueType задан, проверяется соответствие — несовпадение → throw.
  */
 export const importMetadataValueFromYAML = (
   context: ConfigurationContext,
@@ -50,41 +39,20 @@ export const importMetadataValueFromYAML = (
     return importFixedArrayFromYAML(context, data as MetadataFixedArrayValueYAML)
   }
 
+  const result = heuristicFromYAML(context, data as MetadataSingleYAML)
+
+  // Строгая валидация: если valueType задан, фактический тип должен совпадать
   const ruleTyped = rule as MetadataValuePropertyRule | undefined
-  const valueTypeArr = normalizeValueType(ruleTyped?.valueType)
-
-  if (Array.isArray(ruleTyped?.valueType)) {
-    // Новый режим: valueType — массив
-    return dispatchFromYAMLByTypes(context, valueTypeArr!, data as MetadataSingleYAML)
+  if (result !== undefined) {
+    assertValueType(ruleTyped?.valueType, result.type, "fromYAML")
   }
 
-  // Compat/эвристический режим: нет массива valueType → определяем тип из значения
-  return heuristicFromYAML(context, data as MetadataSingleYAML)
+  return result
 }
 
 /**
- * Диспетчеризация для нового режима (valueType как массив).
- * Для каждого разрешённого типа пробует соответствующий хендлер.
- */
-const dispatchFromYAMLByTypes = (
-  context: ConfigurationContext,
-  types: MetadataValueType[],
-  data: MetadataSingleYAML
-): MetadataTypedValue | undefined => {
-  // Перебираем разрешённые типы и пробуем хендлер
-  for (const type of types) {
-    if (!PRIMITIVE_TYPES.includes(type as MetadataPrimitiveValueType)) continue
-    const result = primitiveValueHandlers[type as MetadataPrimitiveValueType]?.fromYAML(context, data)
-    if (result !== undefined) return result
-  }
-
-  // Если не распознали по разрешённым типам — используем эвристику
-  return heuristicFromYAML(context, data)
-}
-
-/**
- * Эвристика: определяет тип из формы значения YAML (для режима без явного valueType).
- * Порядок проверок: число → boolean → dateTime → number → formChoiceList → строка в кавычках → ref → string.
+ * Детерминистская диспетчеризация по синтаксису YAML-значения.
+ * Порядок: число → boolean → dateTime → formChoiceList → строка в кавычках → ref → string.
  */
 const heuristicFromYAML = (
   context: ConfigurationContext,

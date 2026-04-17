@@ -11,17 +11,6 @@ describe("importMetadataValueFromXML", () => {
     return parsed.root.Value
   }
 
-  it.each(metadataValueFixtures)("should import $name value with type from XML", (fixture) => {
-    const xmlValue = parseValue(fixture.XML)
-    const result = importMetadataValueFromXML({
-      context: mockContextFromXML(),
-      rule: fixture.ruleWithType as any,
-      value: xmlValue,
-    })
-
-    expect(result).toEqual(fixture.internalWithType)
-  })
-
   it.each(metadataValueFixtures)("should import $name value from XML", (fixture) => {
     const xmlValue = parseValue(fixture.XML)
     const result = importMetadataValueFromXML({
@@ -31,5 +20,31 @@ describe("importMetadataValueFromXML", () => {
     })
 
     expect(result).toEqual(fixture.internal)
+  })
+
+  describe("строгая валидация valueType", () => {
+    it("должен бросить при valueType: [string] и фактическом boolean", () => {
+      const xml = '<Value xsi:type="xs:boolean">true</Value>'
+      const xmlValue = parseValue(xml)
+      expect(() =>
+        importMetadataValueFromXML({
+          context: mockContextFromXML(),
+          rule: { type: "MetadataValue", valueType: ["string"] } as any,
+          value: xmlValue,
+        })
+      ).toThrowError("MetadataValue: ожидались [string], получен boolean в fromXML")
+    })
+
+    it("должен бросить при valueType: [string] и фактическом decimal", () => {
+      const xml = '<Value xsi:type="xs:decimal">10</Value>'
+      const xmlValue = parseValue(xml)
+      expect(() =>
+        importMetadataValueFromXML({
+          context: mockContextFromXML(),
+          rule: { type: "MetadataValue", valueType: ["string"] } as any,
+          value: xmlValue,
+        })
+      ).toThrowError("MetadataValue: ожидались [string], получен decimal в fromXML")
+    })
   })
 })

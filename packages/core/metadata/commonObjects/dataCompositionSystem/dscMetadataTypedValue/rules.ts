@@ -154,7 +154,7 @@ const xmlText = (xml: DcsMetadataTypedValueXML): string => {
 }
 
 type PrimitiveDcsType = Extract<DcsMetadataTypedValue["type"], "decimal" | "boolean" | "string">
-type MetadataValueRule = { type: "MetadataValue"; valueType: PrimitiveDcsType; withType?: true }
+type MetadataValueRule = { type: "MetadataValue"; valueType: [PrimitiveDcsType] }
 
 const isStringYAML = (yaml: DcsMetadataTypedValueYAML): yaml is string => typeof yaml === "string"
 const isStandardBeginningDateYAML = (
@@ -194,7 +194,7 @@ const importPrimitiveFromXML = (
   xml: DcsMetadataTypedValueXML,
   type: PrimitiveDcsType
 ): Extract<DcsMetadataTypedValue, { type: PrimitiveDcsType }> => {
-  const rule: MetadataValueRule = { type: "MetadataValue", valueType: type, withType: true }
+  const rule: MetadataValueRule = { type: "MetadataValue", valueType: [type] }
   return importMetadataValueFromXML({
     context,
     rule: rule as any,
@@ -207,7 +207,10 @@ const exportPrimitiveToYAML = (
   context: ConfigurationContext,
   item: DcsMetadataTypedValue
 ): DcsMetadataTypedValueYAML => {
-  return exportMetadataValueToYAML(context, { withType: false } as any, item as any) as DcsMetadataTypedValueYAML
+  // Строки экспортируем как raw-значение: кавычки добавляет exportDcsMetadataTypedValueToYAML
+  const typed = item as Extract<DcsMetadataTypedValue, { type: PrimitiveDcsType }>
+  if (typed.type === "string") return typed.value
+  return exportMetadataValueToYAML(context, undefined, item as any) as DcsMetadataTypedValueYAML
 }
 
 const exportPrimitiveToXML = (
@@ -215,7 +218,7 @@ const exportPrimitiveToXML = (
   item: DcsMetadataTypedValue,
   type: PrimitiveDcsType
 ): DcsMetadataTypedValueXML => {
-  const rule: MetadataValueRule = { type: "MetadataValue", valueType: type }
+  const rule: MetadataValueRule = { type: "MetadataValue", valueType: [type] }
   return exportMetadataValueToXML({
     context,
     rule: rule as any,

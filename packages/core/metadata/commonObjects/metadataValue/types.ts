@@ -159,12 +159,10 @@ export type MetadataValueYAML = Static<typeof MetadataValueJSONSchema>
 export interface MetadataValuePropertyRule extends BasePropertyRule {
   type: "MetadataValue"
 
-  /** Тип значения. После #74: всегда массив в новом коде. Одиночная строка — compat до #76. */
-  valueType?: MetadataValueType | MetadataValueType[]
+  /** Разрешённые типы значения. undefined = любой тип. */
+  valueType?: MetadataValueType[]
 
   exportNilValue?: true
-  /** @deprecated Compat до #76. В новом коде не использовать. */
-  withType?: boolean
 }
 
 /**
@@ -177,19 +175,13 @@ export type MetadataValueXML<_Rule = unknown, _Value = unknown> =
   | MetadataFormChoiceListValueXML
   | { "_xsi:nil": true }
 
-/** Нормализует valueType: строка → массив, undefined → undefined */
-export const normalizeValueType = (
-  valueType: MetadataValueType | MetadataValueType[] | undefined
-): MetadataValueType[] | undefined => {
-  if (valueType === undefined) return undefined
-  if (Array.isArray(valueType)) return valueType
-  return [valueType]
-}
-
-/** Проверяет, является ли правило новым (valueType — массив), а не compat (одиночная строка или withType) */
-export const isNewModeRule = (rule: MetadataValuePropertyRule | undefined): boolean => {
-  if (!rule) return false
-  if (Array.isArray(rule.valueType)) return true
-  if (rule.valueType === undefined && rule.withType === undefined) return true
-  return false
+/** Validates that the actual type matches the rule's allowed types. Throws if not. */
+export const assertValueType = (
+  allowed: MetadataValueType[] | undefined,
+  actual: MetadataValueType,
+  direction: string
+): void => {
+  if (allowed !== undefined && !allowed.includes(actual)) {
+    throw new Error(`MetadataValue: ожидались [${allowed.join(",")}], получен ${actual} в ${direction}`)
+  }
 }

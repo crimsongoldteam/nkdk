@@ -5,16 +5,6 @@ import { importMetadataValueFromYAML } from "./fromYAML"
 import { MetadataFormChoiceListValueYAML, MetadataValueYAML } from "./types"
 
 describe("importMetadataValueFromYAML", () => {
-  it.each(metadataValueFixtures)("should import $name value with type from YAML", (fixture) => {
-    const result = importMetadataValueFromYAML(
-      mockContext,
-      fixture.ruleWithType as any,
-      fixture.YAMLWithType as MetadataValueYAML | MetadataFormChoiceListValueYAML
-    )
-
-    expect(result).toEqual(fixture.YAMLWithType === undefined ? undefined : (fixture.internalWithType as any))
-  })
-
   it.each(metadataValueFixtures)("should import $name value from YAML", (fixture) => {
     const result = importMetadataValueFromYAML(
       mockContext,
@@ -22,6 +12,20 @@ describe("importMetadataValueFromYAML", () => {
       fixture.YAML as MetadataValueYAML | MetadataFormChoiceListValueYAML
     )
 
-    expect(result).toEqual(fixture.YAML === undefined ? undefined : (fixture.internal as any))
+    expect(result).toEqual(fixture.YAML === undefined ? undefined : fixture.internal)
+  })
+
+  describe("строгая валидация valueType", () => {
+    it("должен бросить при valueType: [string] и фактическом boolean (Истина)", () => {
+      expect(() =>
+        importMetadataValueFromYAML(mockContext, { type: "MetadataValue", valueType: ["string"] } as any, "Истина")
+      ).toThrowError("MetadataValue: ожидались [string], получен boolean в fromYAML")
+    })
+
+    it("должен бросить при valueType: [string] и фактическом decimal", () => {
+      expect(() =>
+        importMetadataValueFromYAML(mockContext, { type: "MetadataValue", valueType: ["string"] } as any, 10)
+      ).toThrowError("MetadataValue: ожидались [string], получен decimal в fromYAML")
+    })
   })
 })

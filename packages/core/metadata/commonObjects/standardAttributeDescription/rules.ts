@@ -98,7 +98,6 @@ export const StandardAttributeDescriptionRules = {
       yaml: "ЗначениеЗаполнения",
       xml: "xr:FillValue",
       type: "MetadataValue",
-      withType: true,
       order: 23,
       defaultValueXMLRaw: { "_xsi:nil": true },
     },

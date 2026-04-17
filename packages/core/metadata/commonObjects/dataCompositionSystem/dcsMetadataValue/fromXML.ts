@@ -115,7 +115,7 @@ export const importDcsMetadataValueFromDcsXML = (
   if (metadataPrimitive !== undefined) {
     return importMetadataValueFromXML({
       context,
-      rule: { type: "MetadataValue", withType: true },
+      rule: { type: "MetadataValue" },
       value: root,
     }) as MetadataDcsMetadataValue
   }

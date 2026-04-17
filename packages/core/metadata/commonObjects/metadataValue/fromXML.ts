@@ -11,9 +11,11 @@ import {
   MetadataPrimitiveValueType,
   MetadataStringValue,
   MetadataTypedValue,
+  MetadataValuePropertyRule,
   MetadataValueType,
   MetadataValueTypeFromXML,
   MetadataValueTypeXML,
+  assertValueType,
 } from "./types"
 
 const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
@@ -41,6 +43,9 @@ export const importMetadataValueFromXML = (params: {
 
   const resultedType: MetadataValueType | undefined = type ?? MetadataValueTypeFromXML(data["_xsi:type"] as MetadataValueTypeXML)
   if (!resultedType) throw new Error(`MetadataValue: не распознан тип: ${data["_xsi:type"]}`)
+
+  const ruleTyped = params.rule as MetadataValuePropertyRule | undefined
+  assertValueType(ruleTyped?.valueType, resultedType, "fromXML")
 
   if (resultedType === "fixedArray") {
     return importFixedArrayFromXML(context, data)

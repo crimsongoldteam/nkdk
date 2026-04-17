@@ -4,13 +4,30 @@ import { mockContext } from "~/tests/mockContext"
 import { exportMetadataValueToYAML } from "./toYAML"
 
 describe("exportMetadataValueToYAML", () => {
-  it.each(metadataValueFixtures)("should export $name value with type to YAML", (fixture) => {
-    const result = exportMetadataValueToYAML(mockContext, fixture.ruleWithType as any, fixture.internalWithType as any)
-    expect(result).toEqual(fixture.YAMLWithType)
-  })
-
   it.each(metadataValueFixtures)("should export $name value to YAML", (fixture) => {
     const result = exportMetadataValueToYAML(mockContext, fixture.rule as any, fixture.internal as any)
     expect(result).toEqual(fixture.YAML)
+  })
+
+  describe("строгая валидация valueType", () => {
+    it("должен бросить при valueType: [string] и фактическом boolean", () => {
+      expect(() =>
+        exportMetadataValueToYAML(
+          mockContext,
+          { type: "MetadataValue", valueType: ["string"] } as any,
+          { type: "boolean", value: true } as any
+        )
+      ).toThrowError("MetadataValue: ожидались [string], получен boolean в toYAML")
+    })
+
+    it("должен бросить при valueType: [string] и фактическом decimal", () => {
+      expect(() =>
+        exportMetadataValueToYAML(
+          mockContext,
+          { type: "MetadataValue", valueType: ["string"] } as any,
+          { type: "decimal", value: 10 } as any
+        )
+      ).toThrowError("MetadataValue: ожидались [string], получен decimal в toYAML")
+    })
   })
 })

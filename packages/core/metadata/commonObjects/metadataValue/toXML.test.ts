@@ -5,22 +5,31 @@ import { xmlExport } from "~/xml/export/exporter"
 import { exportMetadataValueToXML } from "./toXML"
 
 describe("exportMetadataValueToXML", () => {
-  it.each([
-    ...metadataValueFixtures.map((fixture) => ({
-      name: `${fixture.name} (withType)`,
-      fixture,
-      rule: fixture.ruleWithType,
-      value: fixture.internalWithType,
-    })),
-    ...metadataValueFixtures.map((fixture) => ({
-      name: `${fixture.name}`,
-      fixture,
-      rule: fixture.rule,
-      value: fixture.internal,
-    })),
-  ])("should export $name to XML", ({ fixture, rule, value }) => {
-    const xmlData = exportMetadataValueToXML({ context: mockContext, rule, value: value as any })
+  it.each(metadataValueFixtures)("should export $name to XML", ({ rule, internal, XML }) => {
+    const xmlData = exportMetadataValueToXML({ context: mockContext, rule, value: internal as any })
     const result = xmlExport({ Value: xmlData }, false)
-    expect(result).toEqual(fixture.XML)
+    expect(result).toEqual(XML)
+  })
+
+  describe("строгая валидация valueType", () => {
+    it("должен бросить при valueType: [string] и фактическом boolean", () => {
+      expect(() =>
+        exportMetadataValueToXML({
+          context: mockContext,
+          rule: { type: "MetadataValue", valueType: ["string"] },
+          value: { type: "boolean", value: true },
+        })
+      ).toThrowError("MetadataValue: ожидались [string], получен boolean в toXML")
+    })
+
+    it("должен бросить при valueType: [string] и фактическом decimal", () => {
+      expect(() =>
+        exportMetadataValueToXML({
+          context: mockContext,
+          rule: { type: "MetadataValue", valueType: ["string"] },
+          value: { type: "decimal", value: 10 },
+        })
+      ).toThrowError("MetadataValue: ожидались [string], получен decimal в toXML")
+    })
   })
 })

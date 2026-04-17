@@ -13,6 +13,7 @@ import {
   MetadataTypedValue,
   MetadataValuePropertyRule,
   MetadataValueYAML,
+  assertValueType,
 } from "./types"
 
 const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
@@ -27,9 +28,6 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
 
 /**
  * Экспортирует MetadataValue в YAML. Принимает тегированную форму {type, value}.
- *
- * Compat: поддерживает `withType: false` в rule (dscMetadataTypedValue использует это
- * для экспорта строк без кавычек). Будет удалено в #76.
  */
 export const exportMetadataValueToYAML = (
   context: ConfigurationContext,
@@ -39,6 +37,8 @@ export const exportMetadataValueToYAML = (
   if (!data) return undefined
   const ruleTyped = rule as MetadataValuePropertyRule | undefined
 
+  assertValueType(ruleTyped?.valueType, data.type, "toYAML")
+
   if (data.type === "fixedArray") return exportFixedArrayToYAML(context, data as MetadataFixedArrayValue)
   if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListToYAML(context, data as MetadataFormChoiceListValue)
 
@@ -47,12 +47,6 @@ export const exportMetadataValueToYAML = (
   }
 
   const handler = primitiveValueHandlers[data.type as MetadataPrimitiveValueType]
-
-  // Compat: withType: false → для строк без кавычек (используется в dscMetadataTypedValue)
-  if (ruleTyped?.withType === false && data.type === "string") {
-    return (data as MetadataStringValue).value as MetadataValueYAML
-  }
-
   return handler.toYAML(context, data)
 }
 

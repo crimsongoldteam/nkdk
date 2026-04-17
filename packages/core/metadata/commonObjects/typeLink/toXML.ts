@@ -27,7 +27,7 @@ export const exportTypeLinkWithXSITypeToXML = (
 
   const dataPath = exportMetadataValueToXML({
     context,
-    rule: { type: "MetadataValue", valueType: "string" },
+    rule: { type: "MetadataValue", valueType: ["string"] },
     value: { type: "string", value: typeLink.dataPath },
   })! as MetadataPrimitiveValueXML
 

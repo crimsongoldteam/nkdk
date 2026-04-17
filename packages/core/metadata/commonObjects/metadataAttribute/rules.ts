@@ -135,7 +135,6 @@ export const MetadataAttributeRules = {
       yaml: "ЗначениеЗаполнения",
       xml: "FillValue",
       type: "MetadataValue",
-      withType: true,
       xmlParents: ["Properties"],
       order: 16,
       defaultValueXMLRaw: { "_xsi:type": "xs:string" },

@@ -14,6 +14,7 @@ import {
   MetadataTypedValue,
   MetadataValuePropertyRule,
   MetadataValueTypeToXML,
+  assertValueType,
 } from "./types"
 
 const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
@@ -38,15 +39,15 @@ export const exportMetadataValueToXML = (params: {
 
   if (value === undefined) {
     if (rule.exportNilValue) return { "_xsi:nil": true }
-    if (rule.valueType !== undefined) {
-      const firstType = Array.isArray(rule.valueType) ? rule.valueType[0] : rule.valueType
-      if (firstType) {
-        const xmlType = MetadataValueTypeToXML[firstType as keyof typeof MetadataValueTypeToXML]
-        return { "_xsi:type": xmlType }
-      }
+    if (rule.valueType !== undefined && rule.valueType.length > 0) {
+      const firstType = rule.valueType[0]
+      const xmlType = MetadataValueTypeToXML[firstType]
+      return { "_xsi:type": xmlType }
     }
     return undefined
   }
+
+  assertValueType(rule.valueType, value.type, "toXML")
 
   if (value.type === "fixedArray") {
     return exportFixedArrayToXML(params.context, value as MetadataFixedArrayValue)
