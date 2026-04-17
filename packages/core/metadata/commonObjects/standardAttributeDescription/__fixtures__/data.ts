@@ -32,7 +32,7 @@ export const all: StandardAttributeDescriptions = [
     dataHistory: "DontUse",
     fillValue: {
       type: "ref",
-      value: "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231",
+      value: "Catalog.СправочникВладелец.ПредопределенноеЗначение",
     },
     fullTextSearch: "DontUse",
     quickChoice: "Use",
@@ -54,7 +54,7 @@ export const all: StandardAttributeDescriptions = [
 export const allYAML: StandardAttributeDescriptionsYAML = {
   Владелец: {
     БыстрыйВыбор: "Использовать",
-    ЗначениеЗаполнения: "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231",
+    ЗначениеЗаполнения: "Справочник.СправочникВладелец.ПредопределенноеЗначение",
     ИсторияВыбораПриВводе: "НеИспользовать",
     ИсторияДанных: "НеИспользовать",
     Комментарий: "Комментарий",

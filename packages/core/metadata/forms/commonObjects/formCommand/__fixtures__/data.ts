@@ -21,7 +21,7 @@ export const fullFormCommands: Omit<Required<FormCommand>, "id">[] = [
     representation: "PictureAndText",
     currentRowUse: "DontUse",
     modifiesSavedData: true,
-    table: "Таблица",
+    table: { type: "string" as const, value: "Таблица" },
   },
 ]
 

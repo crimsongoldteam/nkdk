@@ -48,7 +48,7 @@ export const fullUsualGroup: RequiredFieldsElement<UsualGroup> = {
   titleDataPath: "Реквизит1",
   united: false,
   verticalSpacing: "Double",
-  table: "Таблица",
+  table: { type: "string" as const, value: "Таблица" },
   childItems: [
     {
       itemType: "UsualGroup",

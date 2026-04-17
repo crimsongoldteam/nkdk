@@ -70,7 +70,7 @@ export const fullFormFieldTableRelatedFixture = {
   autoCellHeight: false,
   headerHorizontalAlign: "Left" as const,
   typeRestriction: { type: ["string"] },
-  table: "Таблица" as const,
+  table: { type: "string" as const, value: "Таблица" },
   fixingInTable: "None" as const,
 }
 

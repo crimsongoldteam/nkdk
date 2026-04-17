@@ -93,22 +93,7 @@ export type MetadataTypedValue<T extends MetadataValueType = MetadataValueType> 
 
 export type MetadataValue = MetadataTypedValue
 
-export type MetadataValueByRule<Rule extends MetadataValuePropertyRule> = Rule["valueType"] extends undefined
-  ? MetadataTypedValue
-  : MetadataSimpleValue
-
 //#region MetadataValueXML
-
-export type MetadataValueXML<
-  Rule extends MetadataValuePropertyRule = MetadataValuePropertyRule,
-  Value extends MetadataTypedValue | MetadataSimpleValue | undefined = undefined,
-> = Value extends undefined
-  ? Rule extends { exportNilValue: true }
-    ? { "_xsi:nil": true }
-    : undefined
-  : Rule extends { valueType: infer Type extends MetadataValueType }
-    ? MetadataTypedValueXML<Type>
-    : MetadataTypedValueXML
 
 export type MetadataPrimitiveValueXML<T extends MetadataPrimitiveValueType = MetadataPrimitiveValueType> = {
   "_xsi:type": MetadataValueTypeMap[T]
@@ -117,32 +102,14 @@ export type MetadataPrimitiveValueXML<T extends MetadataPrimitiveValueType = Met
 
 export type MetadataFixedArrayValueXML = {
   "_xsi:type": "v8:FixedArray"
-  "v8:Value":
-    | MetadataValueXML<
-        { type: "MetadataValue"; valueType: "fixedArray"; exportNilValue: true },
-        MetadataPrimitiveValueType
-      >
-    | MetadataValueXML<
-        { type: "MetadataValue"; valueType: "fixedArray"; exportNilValue: true },
-        MetadataPrimitiveValueType
-      >[]
+  "v8:Value": MetadataPrimitiveValueXML | MetadataPrimitiveValueXML[]
 }
 
 export interface MetadataFormChoiceListValueXML {
   "_xsi:type": "FormChoiceListDesTimeValue"
   Presentation?: I8nTextXML
-  Value: MetadataValueXML<
-    { type: "MetadataValue"; valueType: "formChoiceListDesTimeValue" },
-    MetadataPrimitiveValueType
-  >
+  Value: MetadataPrimitiveValueXML | { "_xsi:nil": true }
 }
-
-type MetadataTypedValueXML<Type extends MetadataValueType = MetadataPrimitiveValueType> =
-  Type extends MetadataPrimitiveValueType
-    ? MetadataPrimitiveValueXML<Type>
-    : Type extends "fixedArray"
-      ? MetadataFixedArrayValueXML
-      : MetadataFormChoiceListValueXML
 
 export type MetadataSimpleValueXML = {
   "_xsi:type": MetadataValueTypeXML
@@ -192,8 +159,27 @@ export type MetadataValueYAML = Static<typeof MetadataValueJSONSchema>
 export interface MetadataValuePropertyRule extends BasePropertyRule {
   type: "MetadataValue"
 
-  valueType?: MetadataValueType
+  /** Тип значения. После #74: всегда массив в новом коде. Одиночная строка — compat до #76. */
+  valueType?: MetadataValueType | MetadataValueType[]
 
   exportNilValue?: true
-  withType?: true
+  /** @deprecated Compat до #76. В новом коде не использовать. */
+  withType?: boolean
+}
+
+/** Нормализует valueType: строка → массив, undefined → undefined */
+export const normalizeValueType = (
+  valueType: MetadataValueType | MetadataValueType[] | undefined
+): MetadataValueType[] | undefined => {
+  if (valueType === undefined) return undefined
+  if (Array.isArray(valueType)) return valueType
+  return [valueType]
+}
+
+/** Проверяет, является ли правило новым (valueType — массив), а не compat (одиночная строка или withType) */
+export const isNewModeRule = (rule: MetadataValuePropertyRule | undefined): boolean => {
+  if (!rule) return false
+  if (Array.isArray(rule.valueType)) return true
+  if (rule.valueType === undefined && rule.withType === undefined) return true
+  return false
 }

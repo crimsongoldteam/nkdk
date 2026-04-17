@@ -224,6 +224,6 @@ const exportPrimitiveToXML = (
   return exportMetadataValueToXML({
     context,
     rule: rule as any,
-    value: getPrimitiveValue(item, type),
+    value: item as any,
   }) as DcsMetadataTypedValueXML
 }

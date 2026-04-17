@@ -18,7 +18,7 @@ export const fullPages: Pages = {
   displayImportance: "VeryHigh",
   currentRowUse: "Use",
   pagesRepresentation: "TabsOnTop",
-  table: "Таблица",
+  table: { type: "string" as const, value: "Таблица" },
   events: {
     onCurrentPageChange: "ПриСменеСтраницы",
   },

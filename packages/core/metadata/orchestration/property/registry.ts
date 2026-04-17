@@ -123,6 +123,7 @@ import {
   MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import {
+  MetadataStringValue,
   MetadataTypedPrimitiveValue,
   MetadataValue,
   MetadataValueYAML,
@@ -434,7 +435,7 @@ export type PropertyTypeRegistry = {
     item: InternalInfo
   }
   AssociatedTable: {
-    item: string
+    item: MetadataStringValue
     yaml: string
   }
 

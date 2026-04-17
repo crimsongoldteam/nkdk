@@ -13,7 +13,7 @@ export const exportChoiceParameterLinkToXML = (
   const dataPath = exportMetadataValueToXML({
     context,
     rule: { type: "MetadataValue", valueType: "string" } as any,
-    value: link.dataPath,
+    value: { type: "string", value: link.dataPath },
   })! as MetadataPrimitiveValueXML
 
   return {
