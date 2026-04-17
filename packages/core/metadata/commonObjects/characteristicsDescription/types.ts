@@ -10,6 +10,7 @@ import {
 } from "~/metadata/commonObjects/metadataValue/types"
 
 export interface CharacteristicsDescription {
+  itemType?: "CharacteristicsDescription"
   characteristicTypes?: MetadataItemLink
   characteristicValues?: MetadataItemLink
   dataPathField?: MetadataField

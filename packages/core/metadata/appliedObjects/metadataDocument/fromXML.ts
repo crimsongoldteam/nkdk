@@ -2,7 +2,7 @@ import { importMetadataCommandsFromXML } from "~/metadata/appliedObjects/metadat
 import { MetadataDocument, MetadataDocumentXML } from "~/metadata/appliedObjects/metadataDocument/types"
 import { importMetadataDocumentNumeratorFromXML } from "~/metadata/appliedObjects/metadataDocumentNumerator/fromXML"
 import { importAdditionalIndexesFromXML } from "~/metadata/commonObjects/additionalIndex/fromXML"
-import { importCharacteristicsDescriptionsFromXML } from "~/metadata/commonObjects/characteristicsDescription/fromXML"
+import { importCharacteristicsDescriptionsFromXML } from "~/metadata/commonObjects/characteristicsDescription/registerCollectionRule"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
 import { importMetadataAttributesFromXML } from "~/metadata/commonObjects/metadataAttribute/register"
 import { importMetadataFieldsFromXML } from "~/metadata/commonObjects/metadataField/fromXML"

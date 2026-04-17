@@ -42,6 +42,7 @@ export const full = {
   basedOn: ["ChartOfAccounts.ПланСчетов1"],
   characteristics: [
     {
+      itemType: "CharacteristicsDescription",
       characteristicTypes: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть",
       characteristicValues: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть",
       keyField: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",

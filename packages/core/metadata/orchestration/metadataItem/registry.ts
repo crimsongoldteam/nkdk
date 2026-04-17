@@ -72,6 +72,10 @@ import {
 } from "~/metadata/forms/elements/viewStatusAddition/types"
 // import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
 import {
+  CharacteristicsDescription,
+  CharacteristicsDescriptionYAML,
+} from "~/metadata/commonObjects/characteristicsDescription/types"
+import {
   StandardAttributeDescription,
   StandardAttributeDescriptionYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
@@ -555,6 +559,11 @@ export type MetadataItemTypeRegistry = {
   MetadataTabularSection: {
     metadata: MetadataTabularSection
     yaml: MetadataTabularSectionYAML
+  }
+
+  CharacteristicsDescription: {
+    metadata: CharacteristicsDescription
+    yaml: CharacteristicsDescriptionYAML
   }
 
   StandardAttributeDescription: {

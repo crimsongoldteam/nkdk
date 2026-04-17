@@ -31,10 +31,9 @@ import "./border/toJSONSchema"
 import "./border/toXML"
 import "./border/toYAML"
 
-import "./characteristicsDescription/fromXML"
+import "./characteristicsDescription/registerCollectionRule"
 import "./characteristicsDescription/fromYAML"
 import "./characteristicsDescription/toJSONSchema"
-import "./characteristicsDescription/toXML"
 import "./characteristicsDescription/toYAML"
 
 import "./choiceList/fromXML"
@@ -204,16 +203,7 @@ import "./metadataRef/fromYAML"
 import "./metadataRef/toXML"
 import "./metadataRef/toYAML"
 
-import "./characteristicsDescription/fromXML"
-import "./characteristicsDescription/fromYAML"
-import "./characteristicsDescription/toXML"
-import "./characteristicsDescription/toYAML"
 import "./number/fromXML"
-
-import "./characteristicsDescription/fromXML"
-import "./characteristicsDescription/fromYAML"
-import "./characteristicsDescription/toXML"
-import "./characteristicsDescription/toYAML"
 
 import "./number/toJSONSchema"
 

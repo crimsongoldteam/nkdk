@@ -1,31 +1,47 @@
 import { describe, expect, it } from "vitest"
-import { multipleCharacteristics } from "~/tests/fixtures/characteristicsDescription/multiple"
-import { singleCharacteristic } from "~/tests/fixtures/characteristicsDescription/single"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importCharacteristicsDescriptionsFromXML } from "./fromXML"
-import { CharacteristicsDescriptionsXML } from "./types"
+import { multipleCharacteristics, singleCharacteristic } from "./__fixtures__/data"
+import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 
-describe("importCharacteristicsDescriptionFromXML", () => {
-  // TODO: снять .skip после миграции на rules.ts и перевода фикстур в __fixtures__ (issue #72)
-  it.skip("should import single characteristic", () => {
-    const xmlData = readAndParseXMLFile<{ Characteristics: CharacteristicsDescriptionsXML }>(
-      "characteristicsDescription/simple.xml"
-    )
+const rule = { type: "CharacteristicsDescriptions" } as const
 
-    const expectedResult = singleCharacteristic
-    const result = importCharacteristicsDescriptionsFromXML(mockContextFromXML(), mockRule, xmlData.Characteristics)
-    expect(result).toEqual(expectedResult)
+describe("import CharacteristicsDescriptions from XML", () => {
+  it("round-trip: single (import → re-import equals original)", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "single.xml",
+      xmlRootTag: "Characteristics",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(singleCharacteristic)
   })
 
-  // TODO: снять .skip после миграции на rules.ts и перевода фикстур в __fixtures__ (issue #72)
-  it.skip("should import multiple characteristics", () => {
-    const xmlData = readAndParseXMLFile<{ Characteristics: CharacteristicsDescriptionsXML }>(
-      "characteristicsDescription/multiple.xml"
-    )
+  it("round-trip: multiple (import → re-import equals original)", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "multiple.xml",
+      xmlRootTag: "Characteristics",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(multipleCharacteristics)
+  })
 
-    const expectedResult = multipleCharacteristics
-    const result = importCharacteristicsDescriptionsFromXML(mockContextFromXML(), mockRule, xmlData.Characteristics)
-    expect(result).toEqual(expectedResult)
+  it("should import single characteristic", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "single.xml",
+      xmlRootTag: "Characteristics",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(singleCharacteristic)
+  })
+
+  it("should import multiple characteristics", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "multiple.xml",
+      xmlRootTag: "Characteristics",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(multipleCharacteristics)
   })
 })

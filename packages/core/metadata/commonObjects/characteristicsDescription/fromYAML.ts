@@ -19,6 +19,7 @@ export const importCharacteristicsDescriptionFromYAML = (
   if (!data) return undefined
 
   const result: CharacteristicsDescription = {} as CharacteristicsDescription
+  result.itemType = "CharacteristicsDescription"
 
   const characteristicTypes = importMetadataItemLinkFromYAML(context, undefined, data.ВидыХарактеристик)
   if (characteristicTypes !== undefined) result.characteristicTypes = characteristicTypes
