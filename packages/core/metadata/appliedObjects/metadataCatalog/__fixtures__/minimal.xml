@@ -53,10 +53,7 @@
 			<EditType>InDialog</EditType>
 			<QuickChoice>false</QuickChoice>
 			<ChoiceMode>BothWays</ChoiceMode>
-			<InputByString>
-				<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Description</xr:Field>
-				<xr:Field>Catalog.ПоУмолчанию.StandardAttribute.Code</xr:Field>
-			</InputByString>
+			<InputByString/>
 			<SearchStringModeOnInputByString>Begin</SearchStringModeOnInputByString>
 			<FullTextSearchOnInputByString>DontUse</FullTextSearchOnInputByString>
 			<ChoiceDataGetModeOnInputByString>Directly</ChoiceDataGetModeOnInputByString>

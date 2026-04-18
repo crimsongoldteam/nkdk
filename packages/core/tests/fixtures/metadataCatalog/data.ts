@@ -203,10 +203,7 @@ export const full = {
 } satisfies MetadataCatalog
 
 export const minimal: MetadataCatalog = {
-  inputByString: [
-    "Catalog.ПоУмолчанию.StandardAttribute.Description",
-    "Catalog.ПоУмолчанию.StandardAttribute.Code",
-  ],
+  inputByString: [],
   itemType: "MetadataCatalog",
   name: "ПоУмолчанию",
   synonym: {
@@ -262,10 +259,6 @@ export const withCommands: MetadataCatalog = {
 //#region MetadataCatalogYAML
 
 export const minimalYAML: MetadataCatalogYAML = {
-  ВводПоСтроке: [
-    "Справочник.ПоУмолчанию.СтандартныйРеквизит.Наименование",
-    "Справочник.ПоУмолчанию.СтандартныйРеквизит.Код",
-  ],
   Синоним: "По умолчанию",
 }
 

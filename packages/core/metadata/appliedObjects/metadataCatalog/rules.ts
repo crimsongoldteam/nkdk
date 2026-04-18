@@ -316,6 +316,8 @@ export const MetadataCatalogRules = {
     inputByString: {
       yaml: "ВводПоСтроке",
       type: "MetadataFields",
+      defaultValue: [],
+      defaultValueXMLRaw: {},
       xmlParents: catalogProperties,
       referenceScope: { target: "this", kind: "Attribute", filter: "stringIndexedAttribute" },
     },
