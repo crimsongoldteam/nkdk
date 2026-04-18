@@ -435,6 +435,7 @@ export const MetadataCatalogRules = {
       xmlParents: catalogProperties,
     },
   },
+  requiredXMLParents: [catalogChildObjects],
 } as const satisfies MetadataItemRule
 
 /**

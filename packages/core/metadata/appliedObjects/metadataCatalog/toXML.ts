@@ -52,6 +52,7 @@ export const exportMetadataCatalogToXML = (params: {
   if (flat == undefined) return undefined
 
   const catalogFromRules = flat.Catalog as MetadataCatalogXML["Catalog"]
+  const alwaysEmitChildObjects = catalogFromRules.ChildObjects !== undefined
   const fromRulesChildObjects = catalogFromRules.ChildObjects ?? {}
   const forms = getFormsFromContext(currentContext)
   const templates = getTemplatesFromContext(currentContext)
@@ -68,7 +69,7 @@ export const exportMetadataCatalogToXML = (params: {
 
       InternalInfo: catalogFromRules.InternalInfo,
       Properties: catalogFromRules.Properties,
-      ...(Object.keys(childObjects).length > 0 ? { ChildObjects: childObjects } : {}),
+      ...(alwaysEmitChildObjects || Object.keys(childObjects).length > 0 ? { ChildObjects: childObjects } : {}),
     },
   }
 

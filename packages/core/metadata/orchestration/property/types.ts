@@ -259,4 +259,11 @@ export interface MetadataItemRule extends MetadataItem {
    * Используется вместо хардкода в graph.ts.
    */
   itemTypePrefix?: string
+
+  /**
+   * Пути к XML-тегам-контейнерам, которые должны присутствовать в результате exportPropertiesToXML
+   * всегда, даже пустыми. Каждый путь — массив ключей от корня результата, симметричный xmlParents
+   * на уровне PropertyRule. Пример: [["Catalog", "ChildObjects"]].
+   */
+  requiredXMLParents?: string[][]
 }

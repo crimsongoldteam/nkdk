@@ -65,6 +65,18 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
     xmlContext?.propertiesItemXmlStack?.pop()
   }
 
+  if (rule.requiredXMLParents) {
+    for (const path of rule.requiredXMLParents) {
+      let node = result
+      for (const key of path) {
+        if (node[key] === undefined) {
+          node[key] = {}
+        }
+        node = node[key]
+      }
+    }
+  }
+
   return result
 }
 
