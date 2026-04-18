@@ -1,4 +1,4 @@
-import { importMetadataCommandsFromXML } from "~/metadata/appliedObjects/metadataCommand/fromXML"
+import { importMetadataCommandsFromXML } from "~/metadata/appliedObjects/metadataCommand/register"
 import { MetadataDocument, MetadataDocumentXML } from "~/metadata/appliedObjects/metadataDocument/types"
 import { importMetadataDocumentNumeratorFromXML } from "~/metadata/appliedObjects/metadataDocumentNumerator/fromXML"
 import { importAdditionalIndexesFromXML } from "~/metadata/commonObjects/additionalIndex/fromXML"

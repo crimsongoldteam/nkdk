@@ -1,4 +1,4 @@
-import { exportMetadataCommandsToYAML } from "~/metadata/appliedObjects/metadataCommand/toYAML"
+import { exportMetadataCommandsToYAML } from "~/metadata/appliedObjects/metadataCommand/register"
 import { MetadataDocument, MetadataDocumentYAML } from "~/metadata/appliedObjects/metadataDocument/types"
 import { exportMetadataDocumentNumeratorToYAML } from "~/metadata/appliedObjects/metadataDocumentNumerator/toYAML"
 import { exportAdditionalIndexesToYAML } from "~/metadata/commonObjects/additionalIndex/toYAML"

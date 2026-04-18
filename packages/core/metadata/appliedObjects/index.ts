@@ -1,7 +1,4 @@
-import "./metadataCommand/fromXML"
-import "./metadataCommand/fromYAML"
-import "./metadataCommand/toXML"
-import "./metadataCommand/toYAML"
+import "./metadataCommand/register"
 
 import "./metadataCatalog/fromXML"
 import "./metadataCatalog/fromYAML"
