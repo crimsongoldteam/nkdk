@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { all, minimal, multiple } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
+import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 
@@ -69,6 +70,21 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
       value: undefined,
       xmlRootTag: "StandardAttributes",
       path: "default.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export fillValueEmptyRefTypeLoss", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { Ref: "Ссылка" },
+    }
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: fillValueEmptyRefTypeLoss,
+      xmlRootTag: "StandardAttributes",
+      path: "fillValueEmptyRefTypeLoss.xml",
       importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(expectedResult)

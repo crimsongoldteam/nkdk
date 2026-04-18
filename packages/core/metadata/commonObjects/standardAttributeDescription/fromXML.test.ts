@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { all, multiple } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
+import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { StandartAttributeNameToYAML } from "./types"
 
@@ -48,5 +49,15 @@ describe("import StandardAttributeDescriptions from XML", () => {
       importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(multiple)
+  })
+
+  it("import fillValueEmptyRefTypeLoss", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "fillValueEmptyRefTypeLoss.xml",
+      xmlRootTag: "StandardAttributes",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(fillValueEmptyRefTypeLoss)
   })
 })

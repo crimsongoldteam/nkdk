@@ -1,0 +1,5 @@
+<StandardAttributes>
+	<xr:StandardAttribute name="Ref">
+		<xr:FillValue xsi:type="xr:DesignTimeRef"/>
+	</xr:StandardAttribute>
+</StandardAttributes>
