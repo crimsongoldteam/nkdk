@@ -72,8 +72,8 @@ export const metadataValueFixtures: MetadataValueFixture[] = [
   {
     name: "emptyRef",
     rule: { type: "MetadataValue", valueType: ["ref"] },
-    internal: undefined,
-    YAML: undefined,
+    internal: { type: "ref", value: "" },
+    YAML: ".",
     XML: '<Value xsi:type="xr:DesignTimeRef"/>',
   },
   {

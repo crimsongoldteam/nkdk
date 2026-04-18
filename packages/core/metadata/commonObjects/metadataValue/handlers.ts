@@ -133,8 +133,7 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
 
   ref: {
     fromXML: (_ctx, text) => {
-      if (text === undefined) return undefined
-      return { type: "ref", value: String(text) } satisfies MetadataRefValue
+      return { type: "ref", value: text === undefined ? "" : String(text) } satisfies MetadataRefValue
     },
     toXML: (v) => ({
       "_xsi:type": MetadataValueTypeToXML.ref,
@@ -142,11 +141,13 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
     }),
     fromYAML: (ctx, data) => {
       if (typeof data !== "string") return undefined
+      if (data === ".") return { type: "ref", value: "" } satisfies MetadataRefValue
       const converted = importMetadataValueStringFromYAML(ctx, undefined, data)
       if (!converted || !converted.includes(".")) return undefined
       return { type: "ref", value: converted } satisfies MetadataRefValue
     },
     toYAML: (ctx, v) => {
+      if ((v as MetadataRefValue).value === "") return "."
       const result = exportMetadataValueStringToYAML(ctx, undefined, (v as MetadataRefValue).value)
       if (!result) throw new Error(`MetadataValue: не удалось экспортировать ref: ${(v as MetadataRefValue).value}`)
       return result
