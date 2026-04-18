@@ -39,7 +39,11 @@ export const importMetadataDocumentFromXML = (
   const basedOn = importMetadataItemLinksFromXML(context, undefined, xml.BasedOn)
   if (basedOn !== undefined) result.basedOn = basedOn
 
-  const characteristics = importCharacteristicsDescriptionsFromXML(context, undefined, xml.Characteristics)
+  const characteristics = importCharacteristicsDescriptionsFromXML(
+    context,
+    { type: "CharacteristicsDescriptions" } as PropertyRule,
+    xml.Characteristics
+  )
   if (characteristics !== undefined) result.characteristics = characteristics
 
   if (xml.CheckUnique !== undefined) result.checkUnique = xml.CheckUnique
