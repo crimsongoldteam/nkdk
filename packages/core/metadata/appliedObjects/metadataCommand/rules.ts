@@ -8,6 +8,7 @@ export const MetadataCommandRules = {
     name: {
       xml: "Name",
       type: "string",
+      required: true,
       xmlParents: ["Properties"],
       order: 1,
     },
