@@ -1,9 +1,12 @@
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/orchestration"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
 import { importMetadataItemCollectionFromYAMLAsArray } from "~/metadata/orchestration/metadataCollection/fromYAML"
 import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"
 import { exportMetadataCollectionToYAMLAsArray } from "~/metadata/orchestration/metadataCollection/toYAML"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { CharacteristicsDescriptionRules } from "./rules"
+import { CharacteristicsDescriptions } from "./types"
 
 export const importCharacteristicsDescriptionsFromXML = importMetadataItemCollectionFromXML(
   CharacteristicsDescriptionRules,
@@ -12,14 +15,17 @@ export const importCharacteristicsDescriptionsFromXML = importMetadataItemCollec
 
 registerTypeRule("CharacteristicsDescriptions", "importFromXML", importCharacteristicsDescriptionsFromXML)
 
-registerTypeRule("CharacteristicsDescriptions", "exportToXML", (p) =>
-  exportMetadataCollectionToXML({
-    context: p.context,
-    rule: p.rule,
-    data: p.value,
-    itemRule: CharacteristicsDescriptionRules,
-    xmlElement: "xr:Characteristic",
-  })
+registerTypeRule(
+  "CharacteristicsDescriptions",
+  "exportToXML",
+  (p: { context: ConfigurationContextWithExportToXML; rule: PropertyRule; value: CharacteristicsDescriptions }) =>
+    exportMetadataCollectionToXML({
+      context: p.context,
+      rule: p.rule,
+      data: p.value,
+      itemRule: CharacteristicsDescriptionRules,
+      xmlElement: "xr:Characteristic",
+    })
 )
 
 registerTypeRule("CharacteristicsDescriptions", "importFromYAML", (context, _rule, value) =>

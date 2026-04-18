@@ -4,19 +4,18 @@ import { exportMetadataDocumentNumeratorToYAML } from "~/metadata/appliedObjects
 import { exportAdditionalIndexesToYAML } from "~/metadata/commonObjects/additionalIndex/toYAML"
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { CharacteristicsDescriptionRules } from "~/metadata/commonObjects/characteristicsDescription/rules"
-import { exportMetadataCollectionToYAMLAsArray } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { exportMetadataAttributesToYAML } from "~/metadata/commonObjects/metadataAttribute/register"
 import { exportMetadataFieldsToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
 import { exportMetadataItemLinksToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
 import { exportMetadataTabularSectionsToYAML } from "~/metadata/commonObjects/metadataTabularSection/register"
+import { exportMetadataCollectionToYAMLAsArray } from "~/metadata/orchestration/metadataCollection/toYAML"
 
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportPropertyToYAML } from "~/metadata/orchestration"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
-
 
 export const exportMetadataDocumentToYAML = (
   context: ConfigurationContext,
@@ -171,6 +170,10 @@ export const exportMetadataDocumentToYAML = (
       { type: "SystemEnumeration", typeSE: "RegisterRecordsDeletion" },
       data.registerRecordsDeletion
     ),
-    Характеристики: exportMetadataCollectionToYAMLAsArray({ context, data: data.characteristics, itemRule: CharacteristicsDescriptionRules }),
+    Характеристики: exportMetadataCollectionToYAMLAsArray({
+      context,
+      data: data.characteristics,
+      itemRule: CharacteristicsDescriptionRules,
+    }),
   }
 }
