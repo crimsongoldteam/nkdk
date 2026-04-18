@@ -6,7 +6,7 @@ import { NamedMetadataItem } from "./types"
 
 export const exportMetadataCollectionToYAMLAsArray = <Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext
-  data: (ToMetadata<Rule["itemType"]> & NamedMetadataItem)[] | undefined
+  data: ToMetadata<Rule["itemType"]>[] | undefined
   itemRule: Rule
 }): ToYAML<Rule["itemType"]>[] | undefined => {
   const { context, data, itemRule } = params
