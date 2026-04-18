@@ -19,6 +19,8 @@ Check with the user that these modules match their expectations. Check with the 
 
 5. Once you have a complete understanding of the problem and solution, use the template below to write the PRD. The PRD MUST always be submitted as a GitHub issue via `gh issue create` — do not offer a local file draft as an alternative.
 
+**Do NOT attach labels to the issue** unless the user explicitly asks for them. Call `gh issue create` without the `--label` flag by default.
+
 <prd-template>
 
 ## Problem Statement
