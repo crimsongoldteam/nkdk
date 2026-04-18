@@ -19,7 +19,9 @@ export const importMetadataCommandsFromXML = (
   _rule: PropertyRule | undefined,
   xml: MetadataCommandsXML | undefined
 ): MetadataCommands | undefined => {
-  return importPropertyFromXML({ context, rule: { type: "MetadataCommands" }, value: xml }) as MetadataCommands | undefined
+  return importPropertyFromXML({ context, rule: { type: "MetadataCommands" }, value: xml }) as
+    | MetadataCommands
+    | undefined
 }
 
 export const exportMetadataCommandsToYAML = (

@@ -1,4 +1,3 @@
-import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
