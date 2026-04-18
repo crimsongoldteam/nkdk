@@ -19,7 +19,10 @@ const mockMetadataCatalogContext: ConfigurationContextWithExportToXML = {
 
 const loadReference = (fixture: string) => {
   const parsed = readAndParseXMLFixture<{ MetaDataObject: MetadataCatalogXML }>(import.meta.url, fixture)
-  return importMetadataCatalogFromXML({ ...mockContextFromXML(), fromXML: { forReference: true } }, parsed.MetaDataObject)
+  return importMetadataCatalogFromXML(
+    { ...mockContextFromXML(), fromXML: { forReference: true } },
+    parsed.MetaDataObject
+  )
 }
 
 // TODO: снять it.skip после закрытия оставшихся round-trip-проблем Catalog:

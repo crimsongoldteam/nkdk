@@ -147,8 +147,8 @@ export const metadataValueFixtures: MetadataValueFixture[] = [
   {
     name: "emptyString",
     rule: { type: "MetadataValue", valueType: ["string"] },
-    internal: undefined,
-    YAML: undefined,
+    internal: { type: "string", value: "" },
+    YAML: '""',
     XML: '<Value xsi:type="xs:string"/>',
   },
 ]

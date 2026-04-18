@@ -21,6 +21,10 @@ export const full = {
       },
     },
     {
+      fillValue: {
+        type: "string",
+        value: "",
+      },
       indexing: "Index",
       itemType: "MetadataAttribute",
       name: "СтроковыйРеквизитСИндексом",
@@ -323,6 +327,7 @@ export const fullYAML: MetadataCatalogYAML = {
       Тип: "Дата",
     },
     СтроковыйРеквизитСИндексом: {
+      ЗначениеЗаполнения: '""',
       Индексирование: "Индексировать",
       Синоним: "Строковый реквизит с индексом",
       Тип: "Строка(10)",

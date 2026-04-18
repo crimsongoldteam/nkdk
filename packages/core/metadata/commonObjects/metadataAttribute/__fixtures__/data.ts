@@ -9,6 +9,7 @@ export const minimalFromXML: MetadataAttributes = [
     name: "РеквизитМинимальный",
     synonym: { items: { ru: "Реквизит минимальный" } },
     type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
+    fillValue: { type: "string", value: "" },
   },
 ]
 
@@ -19,12 +20,14 @@ export const multipleFromXML: MetadataAttributes = [
     name: "Реквизит1",
     synonym: { items: { ru: "Реквизит 1" } },
     type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
+    fillValue: { type: "string", value: "" },
   },
   {
     itemType: "MetadataAttribute",
     name: "Реквизит2",
     synonym: { items: { ru: "Реквизит 2" } },
     type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
+    fillValue: { type: "string", value: "" },
   },
 ]
 

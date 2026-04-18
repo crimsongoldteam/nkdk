@@ -57,8 +57,7 @@ const formatDateTime = (dateTime: string): string => {
 export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, MetadataPrimitiveValueHandler> = {
   string: {
     fromXML: (_ctx, text) => {
-      if (text === undefined || text === "") return undefined
-      return { type: "string", value: String(text) } satisfies MetadataStringValue
+      return { type: "string", value: text === undefined ? "" : String(text) } satisfies MetadataStringValue
     },
     toXML: (v) => ({
       "_xsi:type": MetadataValueTypeToXML.string,

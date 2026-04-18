@@ -137,7 +137,7 @@ export const MetadataAttributeRules = {
       type: "MetadataValue",
       xmlParents: ["Properties"],
       order: 16,
-      defaultValueXMLRaw: { "_xsi:type": "xs:string" },
+      defaultValueXMLRaw: { "_xsi:nil": true },
     },
     fillChecking: {
       yaml: "ПроверкаЗаполнения",
