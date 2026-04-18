@@ -1,17 +1,28 @@
-# Работа с `__fixtures__/data.ts`
+# TS-фикстуры: одна на одну XML-фикстуру
 
-Файл `__fixtures__/data.ts` содержит ожидаемое внутреннее представление объекта для XML-фикстур и используется в тестах импорта/экспорта.
+Каждая XML-фикстура `__fixtures__/<name>.xml` имеет соседний TS-файл `__fixtures__/<name>.ts` с ожидаемым внутренним представлением объекта. Именно этот файл используется в `fromXML.test.ts` и `toXML.test.ts`.
+
+## Конвенция именования
+
+| Артефакт | Правило |
+|----------|---------|
+| XML-файл | `<name>.xml` |
+| TS-файл | `<name>.ts` |
+| TS-экспорт внутренней формы | `<name>` (camelCase, совпадает с именем файла) |
+| TS-экспорт YAML-формы | `<name>YAML` |
+
+`<name>` описывает фикстуру (`full`, `minimal`, `isFolderParentSwap`) — одно имя пронизывает файл, экспорт и соответствующее поле в тестах.
 
 ## Инструкция
 
-0. Перед заполнением `data.ts` убедись, что `rules.ts` и `types.ts` уже созданы.
-1. Построение объекта в `data.ts` выполняй от типов: опирайся на `<ObjectName>` из `types.ts` (`rules.ts` если он используется), а не на произвольную структуру.
-2. Заполни поля в `data.ts` значениями, которые соответствуют данным из XML-фикстур.
-3. Имена фикстур должны быть в формате `fixture<ObjectName>` (`<ObjectName>YAML` для YAML).
+0. Перед заполнением `<name>.ts` убедись, что `rules.ts` и `types.ts` уже созданы.
+1. Построение объекта выполняй от типов: опирайся на `<ObjectName>` из `types.ts`, а не на произвольную структуру.
+2. Заполни поля значениями, которые соответствуют данным из `<name>.xml`.
+3. YAML-экспорт (`<name>YAML`) добавляется на YAML-цикле (шаг 11 `SKILL.md`), а не сразу.
 
 ## Пример
 
-Исходная XML-фикстура:
+`__fixtures__/full.xml`:
 
 ```xml
 <Filter>
@@ -20,16 +31,28 @@
 </Filter>
 ```
 
-Построенный файл `data.ts`:
+`__fixtures__/full.ts`:
 
 ```typescript
-export const fixtureFilter = {
+import type { Filter, FilterYAML } from "../types"
+
+export const full = {
   use: true,
   userSettingPresentation: "MainSettings",
 } as const satisfies Filter
 
-export const fixtureFilterYAML = {
+export const fullYAML = {
   Использование: "true",
   ПредставлениеПользовательскойНастройки: "ОсновныеНастройки",
 } as const satisfies FilterYAML
 ```
+
+Импорт в тесте:
+
+```typescript
+import { full } from "./__fixtures__/full"
+```
+
+## Миграция старых `data.ts`
+
+Объекты метаданных, ещё использующие единый `__fixtures__/data.ts` с экспортами `fixture<ObjectName>` / `fixture<ObjectName>YAML`, **не переписываются насильно**. Новая конвенция применяется только к новым фикстурам; старые мигрируют естественно при очередной правке файла.

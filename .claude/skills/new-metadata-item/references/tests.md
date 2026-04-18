@@ -54,7 +54,7 @@ import { describe, expect, it } from "vitest"
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
 import { PropertyRule } from "~/metadata/orchestration"
-import { fixtureMyObject } from "~/metadata/commonObjects/<objectDir>/__fixtures__/data"
+import { full } from "~/metadata/commonObjects/<objectDir>/__fixtures__/full"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 
@@ -70,7 +70,7 @@ describe("import <PropertyType> from XML", () => {
       xmlRootTag: "<XmlRootTag>",
       importMetaUrl: import.meta.url,
     })
-    expect(result).toEqual(fixtureMyObject)
+    expect(result).toEqual(full)
   })
 
   it("round-trip: import → export совпадает с исходным XML", () => {
@@ -97,7 +97,7 @@ describe("import <PropertyType> from XML", () => {
 
 ```typescript
 import { describe, expect, it } from "vitest"
-import { fixtureMyObject } from "~/metadata/commonObjects/<objectDir>/__fixtures__/data"
+import { full } from "~/metadata/commonObjects/<objectDir>/__fixtures__/full"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 
@@ -108,7 +108,7 @@ describe("export<PropertyType>ToXML", () => {
     }
     const { expectedResult, result } = testExportPropertyToXML({
       rule,
-      value: fixtureMyObject,
+      value: full,
       xmlRootTag: "<XmlRootTag>",
       path: "full.xml",
       importMetaUrl: import.meta.url,
@@ -123,7 +123,7 @@ describe("export<PropertyType>ToXML", () => {
 ```typescript
 import { parse } from "yaml"
 import { describe, expect, it } from "vitest"
-import { fixtureMyObject, fixtureMyObjectYAML } from "~/metadata/commonObjects/<objectDir>/__fixtures__/data"
+import { full, fullYAML } from "~/metadata/commonObjects/<objectDir>/__fixtures__/full"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
@@ -137,15 +137,15 @@ describe("import<PropertyType>FromYAML", () => {
   })
 
   it("imports fixture", () => {
-    const result = testImportPropertyFromYAML({ rule, value: fixtureMyObjectYAML })
-    expect(result).toEqual(fixtureMyObject)
+    const result = testImportPropertyFromYAML({ rule, value: fullYAML })
+    expect(result).toEqual(full)
   })
 
   it("round-trip: import → export даёт тот же YAML (parsed)", () => {
-    const imported = testImportPropertyFromYAML({ rule, value: fixtureMyObjectYAML })
+    const imported = testImportPropertyFromYAML({ rule, value: fullYAML })
     const exported = testExportPropertyToYAML({ rule, value: imported })
     // Сравнение на уровне распарсенного объекта — форматирование YAML не семантика.
-    expect(exported).toEqual({ "<YAMLSynonym>": fixtureMyObjectYAML })
+    expect(exported).toEqual({ "<YAMLSynonym>": fullYAML })
   })
 })
 ```
@@ -154,7 +154,7 @@ describe("import<PropertyType>FromYAML", () => {
 
 ```typescript
 import { describe, expect, it } from "vitest"
-import { fixtureMyObject, fixtureMyObjectYAML } from "~/metadata/commonObjects/<objectDir>/__fixtures__/data"
+import { full, fullYAML } from "~/metadata/commonObjects/<objectDir>/__fixtures__/full"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 
@@ -170,8 +170,8 @@ describe("export<PropertyType>ToYAML", () => {
   })
 
   it("exports fixture", () => {
-    const result = testExportPropertyToYAML({ rule, value: fixtureMyObject })
-    expect(result).toEqual({ "<YAMLSynonym>": fixtureMyObjectYAML })
+    const result = testExportPropertyToYAML({ rule, value: full })
+    expect(result).toEqual({ "<YAMLSynonym>": fullYAML })
   })
 })
 ```
@@ -179,7 +179,7 @@ describe("export<PropertyType>ToYAML", () => {
 ## Чеклист перед запуском тестов
 
 1. В `__fixtures__/` есть XML-файлы, используемые в `path`
-2. В `__fixtures__/data.ts` есть внутренние и YAML-фикстуры
+2. Для каждой XML-фикстуры `<name>.xml` есть соседний `__fixtures__/<name>.ts` с экспортами `<name>` и (после YAML-цикла) `<name>YAML`
 3. `rule.type` совпадает с зарегистрированным `propertyType` (реестры обновлены — шаг 5 SKILL.md)
 4. `xmlRootTag` совпадает с корневым XML-тегом фикстуры
 5. Пути импорта используют алиас `~/...`
