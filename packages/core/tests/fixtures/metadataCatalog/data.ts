@@ -65,11 +65,6 @@ export const full = {
       group: "NavigationPanelOrdinary",
       itemType: "MetadataCommand",
       name: "Команда1",
-      synonym: {
-        items: {
-          ru: "synonym",
-        },
-      },
     },
   ],
   comment: "Комментарий",
@@ -111,22 +106,6 @@ export const full = {
   searchStringModeOnInputByString: "AnyPart",
   standardAttributes: [
     {
-      choiceParameterLinks: [
-        {
-          dataPath: "Catalog.СправочникПолный.StandardAttribute.Owner",
-          name: "Отбор.Владелец",
-          valueChange: "Clear",
-        },
-      ],
-      fillFromFillingValue: true,
-      fillValue: {
-        type: "ref",
-        value: "Catalog.СправочникПолный.EmptyRef",
-      },
-      itemType: "StandardAttributeDescription",
-      name: "Parent",
-    },
-    {
       choiceForm: "Catalog.СправочникВладелец.Form.ФормаВыбора",
       choiceHistoryOnInput: "DontUse",
       choiceParameterLinks: [
@@ -166,6 +145,22 @@ export const full = {
           ru: "Подсказка",
         },
       },
+    },
+    {
+      choiceParameterLinks: [
+        {
+          dataPath: "Catalog.СправочникПолный.StandardAttribute.Owner",
+          name: "Отбор.Владелец",
+          valueChange: "Clear",
+        },
+      ],
+      fillFromFillingValue: true,
+      fillValue: {
+        type: "ref",
+        value: "Catalog.СправочникПолный.EmptyRef",
+      },
+      itemType: "StandardAttributeDescription",
+      name: "Parent",
     },
     {
       fillChecking: "ShowError",
@@ -293,10 +288,7 @@ export const fullYAML: MetadataCatalogYAML = {
   ИсторияВыбораПриВводе: "НеИспользовать",
   ИсторияДанных: "Использовать",
   Команды: {
-    Команда1: {
-      Группа: "ПанельНавигацииОбычное",
-      Синоним: "synonym",
-    },
+    Команда1: "ПанельНавигацииОбычное",
   },
   Комментарий: "Комментарий",
   КонтрольУникальности: "Ложь",
@@ -338,11 +330,6 @@ export const fullYAML: MetadataCatalogYAML = {
   СозданиеПриВводе: "НеИспользовать",
   СпособПоискаСтрокиПриВводеПоСтроке: "ЛюбаяЧасть",
   СтандартныеРеквизиты: {
-    Родитель: {
-      ЗаполнятьИзДанныхЗаполнения: "Истина",
-      ЗначениеЗаполнения: "Справочник.СправочникПолный.ПустаяСсылка",
-      СвязиПараметровВыбора: "Отбор.Владелец(Справочник.СправочникПолный.СтандартныйРеквизит.Владелец)",
-    },
     Владелец: {
       БыстрыйВыбор: "Использовать",
       ЗначениеЗаполнения: "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231",
@@ -359,6 +346,11 @@ export const fullYAML: MetadataCatalogYAML = {
       Синоним: "Синоним",
       СозданиеПриВводе: "НеИспользовать",
       ФормаВыбора: "Catalog.СправочникВладелец.Form.ФормаВыбора",
+    },
+    Родитель: {
+      ЗаполнятьИзДанныхЗаполнения: "Истина",
+      ЗначениеЗаполнения: "Справочник.СправочникПолный.ПустаяСсылка",
+      СвязиПараметровВыбора: "Отбор.Владелец(Справочник.СправочникПолный.СтандартныйРеквизит.Владелец)",
     },
     Наименование: {
       ПроверкаЗаполнения: "ВыдаватьОшибку",

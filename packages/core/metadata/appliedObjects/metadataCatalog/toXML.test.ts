@@ -8,12 +8,17 @@ import { importMetadataCatalogFromXML } from "./fromXML"
 import { exportMetadataCatalogToXML } from "./toXML"
 import type { MetadataCatalogXML } from "./types"
 
+const baseToXMLContext = mockContextToXML()
 const mockMetadataCatalogContext: ConfigurationContextWithExportToXML = {
-  ...mockContextToXML(),
-  context: {
-    forms: [],
-    templates: [],
-    parentName: "СправочникПолный",
+  ...baseToXMLContext,
+  exportToXML: {
+    ...baseToXMLContext.exportToXML,
+    context: {
+      metadataForNumbering: [],
+      forms: ["ФормаЭлемента", "ФормаВыбора", "ФормаГруппы", "ФормаСписка", "ФормаВыбораГруппы"],
+      templates: ["Макет"],
+      parentName: "СправочникПолный",
+    },
   },
 }
 
@@ -36,7 +41,7 @@ const loadReference = (fixture: string) => {
 //   6. minimal.xml: лишний <ChildObjects/> когда детей нет
 //   (issue #68 про StandardAttribute IsFolder↔Parent — закрыт)
 describe("exportMetadataCatalogToXML", () => {
-  it.skip("should export full.xml fixture", () => {
+  it("should export full.xml fixture", () => {
     const xmlData = exportMetadataCatalogToXML({
       context: mockMetadataCatalogContext,
       data: full,

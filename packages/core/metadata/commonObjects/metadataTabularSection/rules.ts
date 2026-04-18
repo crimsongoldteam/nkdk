@@ -104,7 +104,7 @@ export const MetadataTabularSectionRules = {
     },
     attributes: {
       yaml: "Реквизиты",
-      type: "MetadataAttributes",
+      type: "MetadataTabularSectionAttributes",
       defaultValue: [],
       defaultValueXMLRaw: {},
       required: true,

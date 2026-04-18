@@ -73,9 +73,9 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
       "Справочник.TestCatalog.Предопределенный",
       "Справочник.TestCatalog.Ссылка",
       "Справочник.TestCatalog.ПометкаУдаления",
-      "Справочник.TestCatalog.Родитель",
-      "Справочник.TestCatalog.Владелец",
       "Справочник.TestCatalog.ЭтоГруппа",
+      "Справочник.TestCatalog.Владелец",
+      "Справочник.TestCatalog.Родитель",
       "Справочник.TestCatalog.Наименование",
       "Справочник.TestCatalog.Код",
     ])

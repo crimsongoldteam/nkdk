@@ -103,6 +103,8 @@ import {
   MetadataAttributes,
   MetadataAttributesYAML,
   MetadataAttributeYAML,
+  MetadataTabularSectionAttributes,
+  MetadataTabularSectionAttributesYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import { MetadataCommandGroup, MetadataCommandGroupYAML } from "~/metadata/commonObjects/metadataCommandGroup/types"
 import {
@@ -414,6 +416,10 @@ export type PropertyTypeRegistry = {
   MetadataAttributes: {
     item: MetadataAttributes
     yaml: MetadataAttributesYAML
+  }
+  MetadataTabularSectionAttributes: {
+    item: MetadataTabularSectionAttributes
+    yaml: MetadataTabularSectionAttributesYAML
   }
   MetadataItemLinks: {
     item: MetadataItemLinks
@@ -732,6 +738,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   PagesChildItems: "PagesChildItems",
   FunctionalOptionsProperty: "FunctionalOptionsProperty",
   MetadataAttributes: "MetadataAttributes",
+  MetadataTabularSectionAttributes: "MetadataTabularSectionAttributes",
   MetadataItemLinks: "MetadataItemLinks",
   MetadataCommands: "MetadataCommands",
   MetadataEnumerationValues: "MetadataEnumerationValues",

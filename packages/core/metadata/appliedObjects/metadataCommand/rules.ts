@@ -17,9 +17,9 @@ export const MetadataCommandRules = {
       xml: "Synonym",
       type: "I8nText",
       excludeIfEqualNameYAML: true,
-      defaultValue: ({ context, name }) => addDefaultLanguageNameToSynonym(context, undefined, name ?? ""),
       xmlParents: ["Properties"],
       order: 2,
+      defaultValueXMLRaw: "",
     },
     comment: {
       yaml: "Комментарий",

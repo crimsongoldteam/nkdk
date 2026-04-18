@@ -1,6 +1,11 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { isMap, isPair, isScalar, YAMLMap } from "yaml"
-import { MetadataAttributeYAML, MetadataAttributes, MetadataAttributesXML, MetadataAttributesYAML } from "./types"
+import {
+  MetadataAttributeYAML,
+  MetadataAttributes,
+  MetadataAttributesXML,
+  MetadataAttributesYAML,
+} from "./types"
 import { importTypeDescriptionFromYAML } from "~/metadata/commonObjects/typeDescription/fromYAML"
 import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
@@ -12,7 +17,7 @@ import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { defaultGraph } from "~/metadata/relations/graph"
-import { MetadataAttributeRules } from "./rules"
+import { MetadataAttributeRules, MetadataTabularSectionAttributeRules } from "./rules"
 
 const EDGE_NAME = "Реквизит"
 
@@ -111,6 +116,14 @@ const importMetadataAttributesFromYAML = (
 registerMetadataItemCollectionRule({
   propertyType: "MetadataAttributes",
   itemRule: MetadataAttributeRules,
+  xmlElement: "Attribute",
+  keyField: "name",
+  fromYAML: importMetadataAttributesFromYAML,
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataTabularSectionAttributes",
+  itemRule: MetadataTabularSectionAttributeRules,
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: importMetadataAttributesFromYAML,

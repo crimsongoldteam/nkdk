@@ -52,11 +52,14 @@ export const exportMetadataCatalogToXML = (params: {
   if (flat == undefined) return undefined
 
   const catalogFromRules = flat.Catalog as MetadataCatalogXML["Catalog"]
-  const childObjects = { ...catalogFromRules.ChildObjects }
+  const fromRulesChildObjects = catalogFromRules.ChildObjects ?? {}
   const forms = getFormsFromContext(currentContext)
   const templates = getTemplatesFromContext(currentContext)
+  const { Command: commandFromRules, ...childObjectsBeforeCommand } = fromRulesChildObjects as Record<string, unknown>
+  const childObjects: Record<string, unknown> = { ...childObjectsBeforeCommand }
   if (forms) childObjects.Form = forms
   if (templates) childObjects.Template = templates
+  if (commandFromRules !== undefined) childObjects.Command = commandFromRules
 
   const result: MetadataCatalogXML = {
     ...ROOT_XML_ATTRS,
