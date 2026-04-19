@@ -61,6 +61,13 @@ export interface BasePropertyRule {
    */
   defaultValueXMLRaw?: any
 
+  /**
+   * Значение, возвращаемое при импорте из XML, когда тег ПРИСУТСТВУЕТ в XML, но пустой (значение undefined).
+   * В отличие от defaultValue, применяется только при импорте из XML и только когда тег явно задан.
+   * Примеры: [] для пустого Attributes, { items: {} } для пустого Synonym, "" для пустого Comment.
+   */
+  defaultValueXMLEmpty?: any
+
   /** Не импортировать из XML */
   fromXML?: false
 
@@ -264,6 +271,7 @@ export interface MetadataItemRule extends MetadataItem {
    * Пути к XML-тегам-контейнерам, которые должны присутствовать в результате exportPropertiesToXML
    * всегда, даже пустыми. Каждый путь — массив ключей от корня результата, симметричный xmlParents
    * на уровне PropertyRule. Пример: [["Catalog", "ChildObjects"]].
+   * Может содержать объект { path, tag } для создания контейнера только при экспорте с указанным тегом.
    */
-  requiredXMLParents?: string[][]
+  requiredXMLParents?: ReadonlyArray<ReadonlyArray<string> | { path: ReadonlyArray<string>; tag?: string }>
 }

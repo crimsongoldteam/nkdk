@@ -283,6 +283,11 @@ export const minimalClientApplicationForm: ClientApplicationForm = {
   childItems: [],
   commands: [],
   itemType: "ClientApplicationForm",
+  attributes: [],
+  synonym: { items: {} },
+  comment: "",
+  includeHelpInContents: false,
+  usePurposes: ["PlatformApplication", "MobilePlatformApplication"],
 }
 
 export const minimalClientApplicationFormReference: ClientApplicationForm = {
@@ -294,4 +299,6 @@ export const minimalClientApplicationFormMetadataReference: ClientApplicationFor
   ...minimalClientApplicationForm,
   uuid: "11111111-1111-4111-8111-111111111111",
 }
-export const minimalClientApplicationFormYAML: ClientApplicationFormYAML = {}
+export const minimalClientApplicationFormYAML: ClientApplicationFormYAML = {
+  НазначенияИспользования: "ПлатформаИМобильноеПриложение",
+}

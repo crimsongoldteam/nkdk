@@ -35,7 +35,7 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
 
     if (!shouldProcessProperty({ rule: currentRule, operation: "importFromXML" }) && !shouldImportForReference) continue
 
-    const value =
+    let value =
       shouldImportForReference || currentRule.fromXML !== false
         ? importPropertyFromXML({
             context,
@@ -44,6 +44,14 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
             name: key,
           })
         : undefined
+
+    if (
+      value === undefined &&
+      "defaultValueXMLEmpty" in currentRule &&
+      isXMLKeyPresent(key, xml, currentRule)
+    ) {
+      value = (currentRule as any).defaultValueXMLEmpty
+    }
 
     if (forReference) {
       ;(result as any)[key] = value
