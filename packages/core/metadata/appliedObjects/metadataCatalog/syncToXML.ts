@@ -41,13 +41,16 @@ export const syncCatalogToXML = async (params: {
     catalogName,
   })
 
+  const formNames = listSubdirNames(join(inputDir, catalogName, "Формы"))
+  const templateNames = listSubdirNames(join(inputDir, catalogName, "Макеты"))
+
   const metadataCatalogContext: ConfigurationContextWithExportToXML = {
     ...context,
     exportToXML: {
       ...context.exportToXML,
       context: {
-        forms: [],
-        templates: [],
+        forms: formNames,
+        templates: templateNames,
         parentName: catalogName,
         metadataForNumbering: [],
       },
@@ -74,6 +77,14 @@ function readCatalogFiles(params: { inputDir: string; catalogName: string }): {
   const yamlPath = join(inputDir, catalogName, "Свойства.yaml")
   const yamlContent = fs.readFileSync(yamlPath, "utf-8")
   return { yamlContent }
+}
+
+const listSubdirNames = (dir: string): string[] => {
+  if (!fs.existsSync(dir)) return []
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name)
 }
 
 const writeCatalogToXML = async (params: {

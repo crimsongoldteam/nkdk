@@ -13,7 +13,11 @@ const makeContextFromXML = (): ConfigurationContextFromXML => ({
   fromXML: { forReference: true },
 })
 
-const makeContextToXML = (parentName: string): ConfigurationContextWithExportToXML => ({
+const makeContextToXML = (
+  parentName: string,
+  forms: string[] = [],
+  templates: string[] = []
+): ConfigurationContextWithExportToXML => ({
   defaultLanguage: "ru",
   version: "2.20",
   exportToXML: {
@@ -21,13 +25,21 @@ const makeContextToXML = (parentName: string): ConfigurationContextWithExportToX
     configDumpInfo: new Map(),
     version: "2.20",
     context: {
-      forms: [],
-      templates: [],
+      forms,
+      templates,
       parentName,
       metadataForNumbering: [],
     },
   },
 })
+
+const listXmlBaseNames = (dir: string): string[] => {
+  if (!fs.existsSync(dir)) return []
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
+    .map((e) => basename(e.name, ".xml"))
+}
 
 export const shortRoundTripXML = async (params: { inputDir: string; outputDir: string }): Promise<void> => {
   const { inputDir, outputDir } = params
@@ -52,8 +64,11 @@ export const shortRoundTripXML = async (params: { inputDir: string; outputDir: s
         catalogName,
       })
 
+      const formNames = listXmlBaseNames(join(catalogsInputDir, catalogName, "Forms"))
+      const templateNames = listXmlBaseNames(join(catalogsInputDir, catalogName, "Templates"))
+
       const xmlObj = exportMetadataCatalogToXML({
-        context: makeContextToXML(catalogName),
+        context: makeContextToXML(catalogName, formNames, templateNames),
         data: catalog,
         referenceData: catalog,
       })
