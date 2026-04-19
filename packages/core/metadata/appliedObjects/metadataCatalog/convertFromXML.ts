@@ -40,6 +40,19 @@ export function readCatalogFromXML(params: {
   return catalog
 }
 
+export function readCatalogChildNamesFromXML(catalogXmlPath: string): {
+  forms: string[]
+  templates: string[]
+} {
+  if (!fs.existsSync(catalogXmlPath)) return { forms: [], templates: [] }
+  const xmlContent = fs.readFileSync(catalogXmlPath, "utf-8")
+  const parsed = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(xmlContent)
+  const child = parsed.MetaDataObject?.Catalog?.ChildObjects
+  const toArr = (v: string[] | string | undefined): string[] =>
+    Array.isArray(v) ? v : v != null ? [v] : []
+  return { forms: toArr(child?.Form), templates: toArr(child?.Template) }
+}
+
 const readCatalogFromXMLToYAML = (params: {
   context: ConfigurationContextFromXML
   catalog: MetadataCatalog

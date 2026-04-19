@@ -1,6 +1,9 @@
 import fs from "fs"
 import { basename, join } from "path"
-import { readCatalogFromXML } from "~/metadata/appliedObjects/metadataCatalog/convertFromXML"
+import {
+  readCatalogChildNamesFromXML,
+  readCatalogFromXML,
+} from "~/metadata/appliedObjects/metadataCatalog/convertFromXML"
 import { exportMetadataCatalogToXML } from "~/metadata/appliedObjects/metadataCatalog/toXML"
 import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { readFormFromXML } from "~/metadata/forms/clientApplicationForm/convertFromXML"
@@ -33,14 +36,6 @@ const makeContextToXML = (
   },
 })
 
-const listXmlBaseNames = (dir: string): string[] => {
-  if (!fs.existsSync(dir)) return []
-  return fs
-    .readdirSync(dir, { withFileTypes: true })
-    .filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
-    .map((e) => basename(e.name, ".xml"))
-}
-
 export const shortRoundTripXML = async (params: { inputDir: string; outputDir: string }): Promise<void> => {
   const { inputDir, outputDir } = params
 
@@ -64,8 +59,9 @@ export const shortRoundTripXML = async (params: { inputDir: string; outputDir: s
         catalogName,
       })
 
-      const formNames = listXmlBaseNames(join(catalogsInputDir, catalogName, "Forms"))
-      const templateNames = listXmlBaseNames(join(catalogsInputDir, catalogName, "Templates"))
+      const { forms: formNames, templates: templateNames } = readCatalogChildNamesFromXML(
+        join(catalogsInputDir, `${catalogName}.xml`)
+      )
 
       const xmlObj = exportMetadataCatalogToXML({
         context: makeContextToXML(catalogName, formNames, templateNames),

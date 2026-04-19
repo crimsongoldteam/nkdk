@@ -6,7 +6,7 @@ import type { MetadataCatalogXML, MetadataCatalogYAML } from "~/metadata/applied
 import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { xmlExport } from "~/xml/export/exporter"
 import { importFromYAML } from "~/yaml/import"
-import { readCatalogFromXML } from "./convertFromXML"
+import { readCatalogChildNamesFromXML, readCatalogFromXML } from "./convertFromXML"
 
 export const syncCatalogToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -41,8 +41,16 @@ export const syncCatalogToXML = async (params: {
     catalogName,
   })
 
-  const formNames = listSubdirNames(join(inputDir, catalogName, "Формы"))
-  const templateNames = listSubdirNames(join(inputDir, catalogName, "Макеты"))
+  const referenceXmlPath = join(referenceDir, `${catalogName}.xml`)
+  const referenceChildren = readCatalogChildNamesFromXML(referenceXmlPath)
+  const formNames =
+    referenceChildren.forms.length > 0
+      ? referenceChildren.forms
+      : listSubdirNames(join(inputDir, catalogName, "Формы"))
+  const templateNames =
+    referenceChildren.templates.length > 0
+      ? referenceChildren.templates
+      : listSubdirNames(join(inputDir, catalogName, "Макеты"))
 
   const metadataCatalogContext: ConfigurationContextWithExportToXML = {
     ...context,
