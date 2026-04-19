@@ -51,7 +51,7 @@ export const sourceTable: Table = {
   ],
 }
 
-export const fullTable: RequiredFieldsElement<Table> = {
+export const fullTable = {
   itemType: "Table",
   name: "Таблица",
   allowGettingCurrentRowURL: true,
@@ -273,7 +273,7 @@ export const fullTable: RequiredFieldsElement<Table> = {
   viewStatusLocation: "Top",
   visible: false,
   width: 1,
-}
+} satisfies Omit<RequiredFieldsElement<Table>, "period" | "topLevelParent">
 
 export const fullTableYAML: TablePartialYAML = {
   АвтоВводНезаполненного: "Истина",
@@ -592,7 +592,7 @@ export const fullTableEnterprise = {
   AllowGettingCurrentRowURL: true,
   UserSettingsGroup: "ГруппаПользовательскихНастроек",
   RowsPicture: { Type: "Picture", Value: "PictureLib.Print" },
-} satisfies Required<TableEnterprise>
+} satisfies Omit<Required<TableEnterprise>, "Period" | "TopLevelParent">
 
 export const fullTableChildItems = {
   ТаблицаГруппа1: {

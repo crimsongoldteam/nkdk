@@ -41,7 +41,7 @@ export function testExportElementToXML<TElement extends CollectableElement>(
     for (const attr of contextAttributes) {
       context.exportToXML.context!.metadataForNumbering.push({
         element: attr,
-        xmlElement: {},
+        xmlElement: { _name: attr.name ?? "" },
       })
     }
   }
