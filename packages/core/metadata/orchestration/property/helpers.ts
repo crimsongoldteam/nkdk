@@ -59,7 +59,7 @@ const buildPathStructure = <Rule extends MetadataItemRule>(
   rule: Rule,
   tagFilter: string[] | undefined,
   /** При экспорте в XML задаёт порядок свойств без `order` (порядок ключей как в референсе после импорта). */
-  referenceMetadata?: ToMetadata<Rule["itemType"]> | null,
+  referenceMetadata?: ToMetadata<Rule["itemType"]> | null
 ): PathStructure => {
   const pathOrder: Path[] = []
   const pathOrderSet = new Set<string>()
@@ -320,8 +320,8 @@ export const applyRequiredXMLParents = (
   tag?: string[]
 ): void => {
   for (const entry of entries) {
-    const path = Array.isArray(entry) ? entry : entry.path
-    const entryTag = Array.isArray(entry) ? undefined : entry.tag
+    const path = "path" in entry ? entry.path : entry
+    const entryTag = "path" in entry ? entry.tag : undefined
     if (entryTag !== undefined && (tag === undefined || !tag.includes(entryTag))) continue
     let node = result
     for (const key of path) {
