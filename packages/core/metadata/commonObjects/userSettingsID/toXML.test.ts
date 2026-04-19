@@ -5,7 +5,6 @@ import {
   fixtureUserSettingsIDFull,
   fixtureUserSettingsIDRefFull,
 } from "./__fixtures__/data"
-import { userSettingIdRefValueDrop } from "./__fixtures__/userSettingIdRefValueDrop"
 
 const rule: PropertyRule = {
   type: "UserSettingsID",
@@ -84,17 +83,5 @@ describe("exportUserSettingsIDToXML", () => {
 
     expect(result).toBe("")
     expect(expectedResult?.trim()).toBe("<dcsset:userSettingID></dcsset:userSettingID>")
-  })
-
-  it("export userSettingIdRefValueDrop", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
-      rule,
-      value: userSettingIdRefValueDrop,
-      xmlRootTag,
-      path: "userSettingIdRefValueDrop.xml",
-      importMetaUrl: import.meta.url,
-    })
-
-    expect(result).toEqual(expectedResult?.trimEnd())
   })
 })

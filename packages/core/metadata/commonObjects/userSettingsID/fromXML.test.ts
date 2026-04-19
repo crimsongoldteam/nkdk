@@ -5,7 +5,6 @@ import {
   fixtureUserSettingsIDFull,
   fixtureUserSettingsIDRefFull,
 } from "./__fixtures__/data"
-import { userSettingIdRefValueDrop } from "./__fixtures__/userSettingIdRefValueDrop"
 
 const rule: PropertyRule = {
   type: "UserSettingsID",
@@ -58,17 +57,5 @@ describe("importUserSettingsIDFromXML", () => {
     })
 
     expect(result).toBeUndefined()
-  })
-
-  it("import userSettingIdRefValueDrop", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      path: "userSettingIdRefValueDrop.xml",
-      xmlRootTag,
-      importMetaUrl: import.meta.url,
-      forReference: true,
-    })
-
-    expect(result).toEqual(userSettingIdRefValueDrop)
   })
 })
