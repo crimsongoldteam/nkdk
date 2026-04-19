@@ -1,5 +1,10 @@
 import { XMLBuilder } from "fast-xml-parser"
 
+const escapeText = (value: unknown): string =>
+  String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+
+const escapeAttribute = (value: unknown): string => escapeText(value).replace(/"/g, "&quot;")
+
 const options = {
   attributeNamePrefix: "_",
   ignoreAttributes: false,
@@ -8,7 +13,9 @@ const options = {
   suppressBooleanAttributes: false,
   indentBy: "\t",
   oneListGroup: false,
-  processEntities: true,
+  processEntities: false,
+  tagValueProcessor: (_name: string, value: unknown) => escapeText(value),
+  attributeValueProcessor: (_name: string, value: unknown) => escapeAttribute(value),
 }
 
 const builder = new XMLBuilder(options)

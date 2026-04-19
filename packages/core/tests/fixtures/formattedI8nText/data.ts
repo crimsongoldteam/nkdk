@@ -173,17 +173,17 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   },
   {
     name: "with escaped content and formatted true",
-    text: { formatted: true, items: { ru: '<">' } },
-    textFromStructure: { items: { ru: '<">' } },
+    text: { formatted: true, items: { ru: 'Тест экранирования: & < > " \' ]]>' } },
+    textFromStructure: { items: { ru: 'Тест экранирования: & < > " \' ]]>' } },
     textYAML: undefined,
-    formattedTextYAML: '<">',
-    defaultLanguageYAML: '<">',
+    formattedTextYAML: 'Тест экранирования: & < > " \' ]]>',
+    defaultLanguageYAML: 'Тест экранирования: & < > " \' ]]>',
     otherLanguagesTextYAML: undefined,
     otherLanguagesFormattedTextYAML: undefined,
     xml: `<Title formatted="true">
 	<v8:item>
 		<v8:lang>ru</v8:lang>
-		<v8:content>&lt;&quot;&gt;</v8:content>
+		<v8:content>Тест экранирования: &amp; &lt; &gt; " ' ]]&gt;</v8:content>
 	</v8:item>
 </Title>`,
   },

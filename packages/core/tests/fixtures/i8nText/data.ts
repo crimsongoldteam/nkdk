@@ -117,15 +117,15 @@ export const i8nTextFixtures: I8nTextFixture[] = [
   },
   {
     name: "with escaped content",
-    text: { items: { ru: '<">' } },
-    textFromStructure: { items: { ru: '<">' } },
-    fullYAML: '<">',
-    defaultLanguageYAML: '<">',
+    text: { items: { ru: 'Тест экранирования: & < > " \' ]]>' } },
+    textFromStructure: { items: { ru: 'Тест экранирования: & < > " \' ]]>' } },
+    fullYAML: 'Тест экранирования: & < > " \' ]]>',
+    defaultLanguageYAML: 'Тест экранирования: & < > " \' ]]>',
     otherLanguagesYAML: undefined,
     xml: `<Title>
 	<v8:item>
 		<v8:lang>ru</v8:lang>
-		<v8:content>&lt;&quot;&gt;</v8:content>
+		<v8:content>Тест экранирования: &amp; &lt; &gt; " ' ]]&gt;</v8:content>
 	</v8:item>
 </Title>`,
   },
