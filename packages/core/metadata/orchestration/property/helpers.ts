@@ -31,15 +31,16 @@ export const shouldProcessProperty = (params: {
   rule: PropertyRule
   operation: PropertyExportImportOperation
   metadataItem?: any
+  context?: import("~/metadata/context/types").ConfigurationContextWithExportToXML
 }): boolean => {
-  const { rule, operation, metadataItem } = params
+  const { rule, operation, metadataItem, context } = params
 
   if (rule.runtimeOnly) return false
 
   switch (operation) {
     case "exportToXML":
       if (rule.toXML === false) return false
-      if (typeof rule.toXML === "function") return rule.toXML(metadataItem)
+      if (typeof rule.toXML === "function") return rule.toXML(metadataItem, context)
       return true
     case "importFromXML":
       return rule.fromXML !== false

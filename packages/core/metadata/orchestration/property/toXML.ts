@@ -31,7 +31,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
     for (const key of orderedKeys) {
       if (key === "itemType") continue
       const ruleProp = rule.properties[key]
-      if (!shouldProcessProperty({ rule: ruleProp, operation: "exportToXML", metadataItem: metadata })) continue
+      if (!shouldProcessProperty({ rule: ruleProp, operation: "exportToXML", metadataItem: metadata, context })) continue
 
       const currentContext: ConfigurationContextWithExportToXML = {
         ...context,

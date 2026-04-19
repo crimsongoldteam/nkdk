@@ -437,3 +437,54 @@
 - **«default»** в обсуждениях перегружен: в правилах существует минимум четыре разных поля — `defaultValue`, `defaultValueXML`, `defaultValueXMLRaw`, `defaultValueYAML`. Каждое — про свой путь. В обсуждениях всегда уточняй конкретное имя; фраза «там же стоит дефолт» — источник багов round-trip.
 - **«reference»** означает сразу три вещи: **reference-форма** (снимок модели), **`forReference`** (режим `fromXML`), **`forReferenceOnly`** (флаг правила свойства). Различай по контексту: снимок — существительное, режим — флаг контекста, `forReferenceOnly` — атрибут правила.
 - **«tag»** в этом домене — не XML-тег, а **Rule-тег** (`FormRulesTags.Form` / `FormRulesTags.Metadata`), маркирующий срез правила для конкретного XML-файла. Когда в обсуждении звучит «тег», уточняй — «XML-тег» или «Rule-тег».
+
+## Round-trip reproducer и dynamic-list Table (из диалога о потере `Period` / `TopLevelParent`)
+
+| Термин | Определение | Избегать |
+| ------ | ----------- | -------- |
+| **Short round-trip** | Цикл `XML → модель → XML` (без захода в YAML), прогон через `nkdk short-round-trip-test`; источник round-trip diff'ов | Двойная сериализация, простой round-trip |
+| **Round-trip diff** | Расхождение между исходным XML и XML, полученным после **short round-trip**; пункт работы reproducer'а | Потеря полей (слишком общее) |
+| **Reproducer** | Минимальный изолированный TDD-тест, фиксирующий один **round-trip diff**: XML-фикстура + TS-фикстура + по одному `it(...)` в обоих направлениях. Живёт в собственной ветке `round-trip/<kebab-slug>` | Regression test, test case |
+| **Cluster** | Несколько **round-trip diff'ов** в одном файле, объединяемых в один **reproducer** по признаку общей причины; разные причины → разные reproducer'ы | Batch, группа фикстур |
+| **Slug** | camelCase-идентификатор reproducer'а, описывающий **баг**, а не XML-файл (`dynamicList`, `xsiNilFillValueLoss`). Один **slug** = имя XML-файла, TS-файла, TS-экспорта, ветки и текста `it(...)` | Имя теста, fixture name |
+| **Калибровка фикстуры** | Выравнивание черновой XML-фикстуры под выход `toXML`: запуск `vitest -t "<slug>"`, копирование `Received` целиком, правка bug-триггерных узлов под источник 1С | Подгонка, matching |
+| **Dynamic-list Table** | **Элемент формы** `Table`, чей `dataPath` указывает на **FormAttribute** с типом `DynamicList` (единственный тип в **TypeDescription**); только у такой таблицы XML содержит **`Period`** и **`TopLevelParent`** | Список, табличный динсписок |
+| **`<Period>` узел** | Системный XML-узел у **dynamic-list Table** с литералами `StandardPeriodVariant=Custom` / `0001-01-01`; в модели отражается булевым **флагом присутствия**, а не структурой | Период (неоднозначно — есть тип `StandardPeriod` в **TypeDescription**) |
+| **`<TopLevelParent>` узел** | Системный XML-узел `<TopLevelParent xsi:nil="true"/>` у **dynamic-list Table**; в модели — булев **флаг присутствия** | TopLevelParent-объект, ссылка на родителя |
+| **Флаг присутствия** | Пара (тип `boolean` + `defaultValueXMLRaw`) в **правиле свойства**, используемая когда XML всегда содержит фиксированный литерал — модель хранит только факт «эмитить или нет», а не структуру | Presence bit, marker |
+| **toXML-предикат** | Функциональный `toXML: (metadataItem, context) => boolean` в **правиле свойства** — условный ключ к эмиту конкретного поля; существует параллельно с `toXML: false` и `toXML: true` | Export guard |
+| **`metadataForNumbering`** | Стек `ToXMLContextElement<…>` в `context.exportToXML.context`, заполняемый экспортёрами **form element**-ов и **FormAttribute**-ов; используется для перенумерации `id` **и** для лукапа формы-родителя в **toXML-предикатах** | Numbering stack (частичное имя) |
+| **`contextAttributes`** (поле `ElementFixture`) | Декларативный мок-список **FormAttribute**-ов, который reproducer прикладывает к изолированному form-element-тесту: `testExportElementToXML` пушит их в **`metadataForNumbering`**, чтобы **toXML-предикат** видел «окружающую форму» | Mock attributes, fake form |
+| **Form element reproducer** | Вариант reproducer'а для модулей `forms/elements/*`, которые не имеют собственных `fromXML.test.ts` / `toXML.test.ts`: подключается через запись в `ElementFixtures` в `forms/elements/__tests__/fixtures.ts` | — |
+| **`ElementFixture`** | Запись в `forms/elements/__tests__/fixtures.ts`, описывающая связь XML-файла, TS-модели, YAML и Enterprise-снимка для одного form-element-теста через `it.each` | — |
+
+### Relationships reproducer'а и dynamic-list Table
+
+- **Short round-trip** запускается против **XML-репо** (`NKDK_XML_DIR`); на каждый отклонившийся файл → один **round-trip diff**.
+- Один **round-trip diff** (или один **cluster**) → один **reproducer** на ветке `round-trip/<kebab-slug>`.
+- В **reproducer**-ветке red остаётся **ровно одна** сторона — та, где сидит баг (`fromXML` или `toXML`).
+- **Dynamic-list Table** распознаётся только через **FormAttribute**-родителя: сам `dataPath` — строка, семантика `"DynamicList"` живёт на **TypeDescription** атрибута.
+- Лукап «`dataPath` → **DynamicList**» внутри **toXML-предиката** использует **`metadataForNumbering`** как уже существующий канал к атрибутам формы, без нового поля в `ConfigurationContext`.
+- Для form-element **reproducer**-а окружающей формы нет, поэтому **`contextAttributes`** поставляет минимальный мок **FormAttribute**-ов для **toXML-предиката**.
+- **`Period`** и **`TopLevelParent`** в **правилах** Table описываются как **флаги присутствия** с `fromXML: false`, `defaultValueXMLRaw` и **toXML-предикатом**; в модели их нет (не ставятся ни `fromXML`, ни `fromYAML`), в YAML они тоже не идут (`toYAML: false` / `fromYAML: false`), но YAML-имена `Период` / `РодительВерхнегоУровня` зафиксированы в правиле.
+
+### Пример диалога
+
+> **Dev:** «Нашёл новый **round-trip diff** на `ФормаВыбора` — в `<Table>` теряются `<Period>` и `<TopLevelParent>`. Это один **cluster** или два **reproducer**-а?»
+
+> **Domain expert:** «Один **cluster** — причина общая: оба узла есть только у **dynamic-list Table**, а в правиле Table их нет. Заводи **slug** `dynamicList`, ветка `round-trip/period-and-top-level-parent-loss` ок, но имя фикстуры лучше выравнять на **slug** — `dynamicList.xml` / `dynamicList.ts`.»
+
+> **Dev:** «Модель Table не должна содержать эти поля — они всегда дефолтные. Как тогда `toXML` поймёт, что эмитить?»
+
+> **Domain expert:** «**Флаг присутствия** + **toXML-предикат**: `type: "boolean"`, `fromXML: false`, `defaultValueXMLRaw` с сырым литералом, `toXML: (el, ctx) => isDynamicListAttribute(el.dataPath, ctx)`. Предикат лезет в **`metadataForNumbering`**, находит там **FormAttribute** с совпадающим именем и проверяет `type.type === ["DynamicList"]`.»
+
+> **Dev:** «Но в form-element-тесте формы вокруг нет — `metadataForNumbering` пустой.»
+
+> **Domain expert:** «Поэтому в **`ElementFixture`** появляется поле **`contextAttributes`**. Для записи `dynamicList` кладёшь туда один мок **FormAttribute** с `name: "Список"` и `type.type: ["DynamicList"]` — `testExportElementToXML` запушит его в стек перед вызовом экспортёра. Ну и один комментарий рядом с `period` / `topLevelParent` в `rules.ts` — почему `boolean`, а не структура.»
+
+### Flagged ambiguities
+
+- **«Period»** — в нашем домене это **системный узел `<Period>`** у **dynamic-list Table** (**флаг присутствия**). Тип **`StandardPeriod`** из `TypeDescription` — отдельная сущность из системы типов реквизитов, к узлу под **dynamic-list Table** прямого отношения не имеет. Когда слышишь «период» — уточняй.
+- **«element»** в коде означает два разных объекта: (1) **form element** (Table, Button, InputField…) — то, что регистрируется через `registerElementRule`; (2) произвольная запись в **`metadataForNumbering`**, в которой `element` может быть **FormAttribute** или любым нумеруемым объектом. В обсуждениях уточняй — **form element** или «запись стека».
+- **«DynamicList»** как понятие появляется в двух местах: как значение `type.type` в **TypeDescription** (признак атрибута-динсписка) и как свойство `FormAttribute.dynamicList` (сами настройки динсписка). Первое — маркер типа, второе — содержание; между ними связь «если тип один и это `DynamicList`, то свойство `dynamicList` на атрибуте, как правило, заполнено».
+- **«контекст мока»** — это **`contextAttributes`** в **`ElementFixture`**, не правка `mockContextToXML`. Когда в обсуждении звучит «замокай контекст», уточняй уровень: глобальный helper или поле фикстуры.
