@@ -10,10 +10,10 @@ import { readFormFromXML } from "~/metadata/forms/clientApplicationForm/convertF
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
 import { xmlExport } from "~/xml/export/exporter"
 
-const makeContextFromXML = (): ConfigurationContextFromXML => ({
+const makeContextFromXML = (forReference: boolean): ConfigurationContextFromXML => ({
   defaultLanguage: "ru",
   version: "2.20",
-  fromXML: { forReference: true },
+  fromXML: { forReference },
 })
 
 const makeContextToXML = (
@@ -54,7 +54,13 @@ export const shortRoundTripXML = async (params: { inputDir: string; outputDir: s
 
     try {
       const catalog = readCatalogFromXML({
-        context: makeContextFromXML(),
+        context: makeContextFromXML(false),
+        inputDir: catalogsInputDir,
+        catalogName,
+      })
+
+      const referenceCatalog = readCatalogFromXML({
+        context: makeContextFromXML(true),
         inputDir: catalogsInputDir,
         catalogName,
       })
@@ -66,7 +72,7 @@ export const shortRoundTripXML = async (params: { inputDir: string; outputDir: s
       const xmlObj = exportMetadataCatalogToXML({
         context: makeContextToXML(catalogName, formNames, templateNames),
         data: catalog,
-        referenceData: catalog,
+        referenceData: referenceCatalog,
       })
 
       if (xmlObj) {
@@ -93,7 +99,13 @@ export const shortRoundTripXML = async (params: { inputDir: string; outputDir: s
 
       try {
         const form = readFormFromXML({
-          context: makeContextFromXML(),
+          context: makeContextFromXML(false),
+          inputDir: formsInputDir,
+          formName,
+        })
+
+        const referenceForm = readFormFromXML({
+          context: makeContextFromXML(true),
           inputDir: formsInputDir,
           formName,
         })
@@ -103,13 +115,13 @@ export const shortRoundTripXML = async (params: { inputDir: string; outputDir: s
         const formXML = exportClientApplicationFormToXML({
           context: formContextToXML,
           form,
-          referenceForm: form,
+          referenceForm,
         })
 
         const metadataXML = exportFormMetadataToXML({
           context: formContextToXML,
           form,
-          referenceForm: form,
+          referenceForm,
           name: formName,
         })
 
