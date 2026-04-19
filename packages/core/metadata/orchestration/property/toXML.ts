@@ -3,7 +3,7 @@ import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
-import { getOrderedKeysToXML, shouldProcessProperty } from "./helpers"
+import { applyRequiredXMLParents, getOrderedKeysToXML, shouldProcessProperty } from "./helpers"
 import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
@@ -66,15 +66,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   }
 
   if (rule.requiredXMLParents) {
-    for (const path of rule.requiredXMLParents) {
-      let node = result
-      for (const key of path) {
-        if (node[key] === undefined) {
-          node[key] = {}
-        }
-        node = node[key]
-      }
-    }
+    applyRequiredXMLParents(result, rule.requiredXMLParents, tag)
   }
 
   return result

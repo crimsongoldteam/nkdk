@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { getOrderedKeysFromXML } from "./helpers"
+import { applyRequiredXMLParents, getOrderedKeysFromXML } from "./helpers"
 import { setXMLValue } from "./toXML"
 
 const createRule = (properties: Record<string, { xml?: string; tag?: string; runtimeOnly?: true }>): any => {
@@ -100,6 +100,33 @@ describe("getOrderedKeysFromXML", () => {
     })
 
     expect(result).toEqual(["visible"])
+  })
+})
+
+describe("applyRequiredXMLParents", () => {
+  it("plain-array entries создаются независимо от тега", () => {
+    const result: any = {}
+    applyRequiredXMLParents(result, [["ChildObjects"]], ["Form"])
+    expect(result).toEqual({ ChildObjects: {} })
+  })
+
+  it("tagged entries создаются только при совпадении тега", () => {
+    const result: any = {}
+    applyRequiredXMLParents(result, [{ path: ["Attributes"], tag: "Form" }], ["Form"])
+    expect(result).toEqual({ Attributes: {} })
+  })
+
+  it("tagged entries пропускаются при несовпадении тега", () => {
+    const result: any = {}
+    applyRequiredXMLParents(result, [{ path: ["Attributes"], tag: "Form" }], ["Metadata"])
+    expect(result).toEqual({})
+  })
+
+  it("не перезаписывает уже существующий узел", () => {
+    const existing = { Attribute: [{ _name: "foo" }] }
+    const result: any = { Attributes: existing }
+    applyRequiredXMLParents(result, [{ path: ["Attributes"], tag: "Form" }], ["Form"])
+    expect(result.Attributes).toBe(existing)
   })
 })
 

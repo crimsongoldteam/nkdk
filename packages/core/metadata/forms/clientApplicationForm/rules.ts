@@ -12,6 +12,7 @@ export const ClientApplicationFormRules = {
       yaml: "Реквизиты",
       type: "FormAttributes",
       tag: FormRulesTags.Form,
+      defaultValueXMLEmpty: [],
     },
     autoCommandBar: {
       yaml: "КоманднаяПанель",
@@ -291,18 +292,23 @@ export const ClientApplicationFormRules = {
       type: "I8nText",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
+      defaultValueXMLEmpty: { items: {} },
     },
     comment: {
       yaml: "Комментарий",
       type: "string",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
+      defaultValueXMLEmpty: "",
+      defaultValueYAML: "",
     },
     includeHelpInContents: {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
+      defaultValueXMLEmpty: false,
+      defaultValueYAML: "Ложь",
     },
     usePurposes: {
       yaml: "НазначенияИспользования",

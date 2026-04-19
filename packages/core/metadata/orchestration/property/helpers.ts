@@ -2,7 +2,7 @@ import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToMetadata } from ".."
 import { TypeRulesOperations } from "./fn"
-import { MetadataItemRule, PropertyRule } from "./types"
+import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
 type Path = string[]
 
@@ -312,4 +312,23 @@ export const getValueOrDefault = (params: {
   }
 
   return rule.defaultValue
+}
+
+export const applyRequiredXMLParents = (
+  result: ItemXML,
+  entries: ReadonlyArray<ReadonlyArray<string> | { path: ReadonlyArray<string>; tag?: string }>,
+  tag?: string[]
+): void => {
+  for (const entry of entries) {
+    const path = Array.isArray(entry) ? entry : entry.path
+    const entryTag = Array.isArray(entry) ? undefined : entry.tag
+    if (entryTag !== undefined && (tag === undefined || !tag.includes(entryTag))) continue
+    let node = result
+    for (const key of path) {
+      if (node[key] === undefined) {
+        node[key] = {}
+      }
+      node = node[key]
+    }
+  }
 }

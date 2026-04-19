@@ -42,10 +42,20 @@ describe("exportToXML", () => {
 
     it("should export minimal", () => {
       const expectedResult = readXMLFixtureAsString(import.meta.url, "minimal.xml")
+      const referenceFormXML = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
+      const referenceMetadataXML = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+        import.meta.url,
+        "minimalMetadata.xml"
+      )
+      const referenceForm = importClientApplicationFormFromXML({
+        context: mockContextFromXML({ forReference: true }),
+        xml: referenceFormXML.Form,
+        xmlMetadata: referenceMetadataXML.MetaDataObject,
+      })
       const xmlData = exportClientApplicationFormToXML({
         context: mockContextToXML(),
         form: minimalClientApplicationForm,
-        referenceForm: minimalClientApplicationFormReference,
+        referenceForm,
       })
 
       const result = xmlExport({ Form: xmlData })
@@ -71,11 +81,21 @@ describe("exportToXML", () => {
 
     it("should export minimal", () => {
       const expectedResult = readXMLFixtureAsString(import.meta.url, "minimalMetadata.xml")
+      const minimalFormXML = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
+      const minimalMetadataXML = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+        import.meta.url,
+        "minimalMetadata.xml"
+      )
+      const referenceForm = importClientApplicationFormFromXML({
+        context: mockContextFromXML({ forReference: true }),
+        xml: minimalFormXML.Form,
+        xmlMetadata: minimalMetadataXML.MetaDataObject,
+      })
       const xmlData = exportFormMetadataToXML({
         context: mockContextToXML(),
         form: minimalClientApplicationForm,
-        referenceForm: undefined,
-        name: "ФормаКакаяТо",
+        referenceForm,
+        name: "Минимальная",
       })
 
       const result = xmlExport({ MetaDataObject: xmlData })
