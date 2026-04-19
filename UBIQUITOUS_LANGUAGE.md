@@ -391,3 +391,49 @@
 - Кастомная **post-обработка `ChildObjects`** использует **сигнал «тег требуется»**: `alwaysEmit = catalogFromRules.ChildObjects !== undefined` → эмит контейнера независимо от наличия forms/templates/commands.
 - `requiredXMLParents` и `defaultValueXMLRaw: {}` ортогональны: первое декларирует факт на уровне объекта метаданных, второе — поведение одной коллекции при пустом массиве.
 - `forms` и `templates` в `exportToXML.context` относятся к **контексту конвертации** — список «соседних» форм/шаблонов каталога в конфигурации. Для `minimal.xml` эти массивы пустые, для `full.xml` — заполнены именами форм.
+
+## Round-trip пустых XML-значений (из диалога о `minimal.xml` формы)
+
+| Термин | Определение | Избегать |
+| ------ | ----------- | -------- |
+| **Round-trip пустого значения** | Сохранение семантики «тег присутствует, но пустой» (`<Comment/>`, `<Synonym/>`, `<Attributes/>`) на прогоне `XML → модель → XML`; теряется, если **оркестрация** на импорте сбрасывает пустое значение в `undefined` | Lossless round-trip |
+| **Потеря пустого `<Comment/>`** | Класс багов, когда пустой тег в фикстуре на `fromXML` превращается в отсутствие свойства, а обратный `toXML` не восстанавливает тег. Ветка `round-trip/comment-empty-loss` — reproducer этого класса | Comment loss |
+| **Reference-форма** | Результат `importClientApplicationFormFromXML` с `forReference: true` — в ней все XML-значения кладутся «как есть», без применения **defaultValueXML**-свёртки; передаётся в `exportClientApplicationFormToXML` и `exportFormMetadataToXML` как `referenceForm`/`referenceMetadata` | Эталонная форма |
+| **Reference-fallback** | Механизм `exportPropertiesToXML`: если в модели поле `=== undefined`, значение берётся из `referenceMetadata[key]` и эмитится в XML. Позволяет не хранить reference-only поля в модели | Ref lookup |
+| **`forReference`** | Флаг `ConfigurationContextFromXML`: в этом режиме `importPropertiesFromXML` пропускает `cleanValue`/`defaultValueXML`-свёртку и кладёт каждое значение напрямую в результат | Reference mode |
+| **`forReferenceOnly`** | Флаг **правила свойства**: свойство участвует только в **reference-режиме**; в обычном `fromXML` игнорируется. Пример — `uuid` у `ClientApplicationForm` | — |
+| **Reproducer-коммит** | Коммит, умышленно приводящий существующие тесты к красному: фикстура подправляется под референс 1С, а код ещё не догонял. Название ветки содержит суть бага (`round-trip/comment-empty-loss`) | Failing-test commit |
+| **XML-путь / YAML-путь** | Две независимые ветки **оркестрации** со своими наборами полей правила (`defaultValueXML` / `defaultValueXMLRaw` vs `defaultValueYAML`); **defaultValueYAML не участвует в XML round-trip** | Направления |
+| **`defaultValue`** | Значение **правила свойства**, подставляемое `getValueOrDefault` при `value === undefined` после импорта. Работает на всех путях | Общий дефолт |
+| **`defaultValueXML`** | Значение-маркер: при `value === defaultValueXML` на `fromXML` свойство сбрасывается в `undefined` (свёртка), а на `toXML` — возвращается из `exportPropertyToXML`, если значение совпало с `defaultValue`. Подходит для простых типов: `boolean`, enum | — |
+| **`defaultValueXMLRaw`** | Сырое XML-представление пустого значения (`""`, `{}`). Подставляется в XML-результат напрямую, без прохода через `typeExportFn` и `wrapWithNamespace`. Работает в связке с `defaultValue`: триггер — равенство `value === defaultValue` | — |
+| **`defaultValueYAML`** | Значение **правила свойства**, влияющее только на YAML-путь; `orchestration/property/toXML.ts` и `fromXML.ts` его игнорируют. Ключевая ловушка: наличие только этого поля не даёт XML round-trip | — |
+| **Tag-aware `requiredXMLParents`** | Расширение `requiredXMLParents` на записи вида `{ path, tag? }`: запись с `tag` применяется только при экспорте с совпадающим **Rule-тегом**. Нужен для `ClientApplicationForm`, где правило описывает сразу `Form`-экспорт и `Metadata`-экспорт | — |
+
+### Relationships round-trip пустых значений
+
+- Для **XML round-trip** поля `includeHelpInContents` (типа `boolean`) достаточно связки `defaultValueXML: false` + **Reference-fallback**: в модели `minimal` поле отсутствует, но тег `<IncludeHelpInContents>false</IncludeHelpInContents>` восстанавливается из **reference-формы**.
+- Для **XML round-trip** поля `comment` (типа `string`) достаточно `defaultValue: ""` + `defaultValueXMLRaw: ""` без reference-fallback: `fromXML` кладёт `""` в модель, `toXML` на том же `""` возвращает сырой `""`, сериализатор эмитит `<Comment/>`.
+- Для **XML round-trip** поля `synonym` (типа `I8nText`) достаточно `defaultValue: { items: {} }`: `fromXML` подставляет пустой `I8nText`, `toXML` эмитит `<Synonym/>` благодаря `suppressEmptyNode: true` в `XMLBuilder`.
+- Для **XML round-trip** поля `attributes` (типа `FormAttributes`) одной конфигурации правила недостаточно, потому что `exportFormAttributesToXML` возвращает `undefined` на пустом массиве; включается **Tag-aware `requiredXMLParents`** — запись `{ tag: FormRulesTags.Form, path: ["Attributes"] }` гарантирует эмит пустого `<Attributes/>` только в `Form`-экспорте, не в `Metadata`.
+- **`defaultValueYAML` на XML-пути не срабатывает** — это повторяющийся источник ошибок. Если поле должно участвовать в XML round-trip, нужен `defaultValueXML`/`defaultValueXMLRaw`, а не `defaultValueYAML`.
+
+### Пример диалога
+
+> **Dev:** «На minimal-форме `round-trip пустого значения` падает: `fromXML` в модель добавляет `includeHelpInContents: false`, которого нет в ожидаемой `minimal`-фикстуре модели. Где чиним?»
+
+> **Domain expert:** «У правила стоит только `defaultValueYAML: false` — это `YAML-путь`, на XML он не работает. Добавь `defaultValueXML: false`: тогда на `fromXML` значение `false` свернётся в `undefined` и не попадёт в модель.»
+
+> **Dev:** «А как `<IncludeHelpInContents>false</IncludeHelpInContents>` вернётся в XML, если в модели его нет?»
+
+> **Domain expert:** «Через **reference-fallback**. `referenceForm` передаётся в `exportFormMetadataToXML` как `referenceMetadata`; в ней `includeHelpInContents: false` лежит напрямую (режим `forReference` отключает свёртку). `exportPropertiesToXML` берёт значение из reference, когда модель пуста.»
+
+> **Dev:** «Почему для `comment` и `synonym` тот же подход не нужен, а просто `defaultValue`?»
+
+> **Domain expert:** «`comment: ""` и `synonym: { items: {} }` — это *явные* значения модели, `defaultValue` для них заполняет модель при импорте. Разница в поведении XML-сериализатора: для строки нужен `defaultValueXMLRaw: ""`, чтобы `<Comment/>` получился; для `I8nText` достаточно `defaultValue` и `suppressEmptyNode`. Для `<Attributes/>` одного правила не хватает — там `exportFormAttributesToXML` теряет пустой массив, поэтому используем `requiredXMLParents` с привязкой к тегу `Form`.»
+
+### Flagged ambiguities
+
+- **«default»** в обсуждениях перегружен: в правилах существует минимум четыре разных поля — `defaultValue`, `defaultValueXML`, `defaultValueXMLRaw`, `defaultValueYAML`. Каждое — про свой путь. В обсуждениях всегда уточняй конкретное имя; фраза «там же стоит дефолт» — источник багов round-trip.
+- **«reference»** означает сразу три вещи: **reference-форма** (снимок модели), **`forReference`** (режим `fromXML`), **`forReferenceOnly`** (флаг правила свойства). Различай по контексту: снимок — существительное, режим — флаг контекста, `forReferenceOnly` — атрибут правила.
+- **«tag»** в этом домене — не XML-тег, а **Rule-тег** (`FormRulesTags.Form` / `FormRulesTags.Metadata`), маркирующий срез правила для конкретного XML-файла. Когда в обсуждении звучит «тег», уточняй — «XML-тег» или «Rule-тег».
