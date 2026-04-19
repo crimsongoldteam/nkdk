@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "type-check": "tsc --noEmit",
+    "type-check": "pnpm -r exec tsc --noEmit",
     "test": "pnpm -r run test",
     "prepare": "ts-patch install",
     "postinstall": "patch-package"
