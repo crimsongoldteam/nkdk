@@ -71,8 +71,8 @@ export interface BasePropertyRule {
   /** Не импортировать из XML */
   fromXML?: false
 
-  /** Не экспортировать в XML. Функция получает родительский metadataItem и возвращает `true` если экспортировать, `false` если пропустить */
-  toXML?: false | ((metadataItem: any) => boolean)
+  /** Не экспортировать в XML. Функция получает родительский metadataItem и опциональный context, возвращает `true` если экспортировать, `false` если пропустить */
+  toXML?: false | ((metadataItem: any, context?: ConfigurationContextWithExportToXML) => boolean)
 
   /** Родительские элементы в XML */
   xmlParents?: string[]

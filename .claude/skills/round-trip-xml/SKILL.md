@@ -152,6 +152,10 @@ Vitest покажет разницу между `Expected` (наш чернов�
 
 Round-trip блок **не пиши** — пара импорт+экспорт эквивалентна для нашей задачи.
 
+### Исключение — form-элементы (`forms/elements/<element>/`)
+
+У form-элементов (`table`, `inputField`, `labelField`, …) **нет** собственных `fromXML.test.ts` / `toXML.test.ts`. XML-тесты централизованы в `packages/core/metadata/forms/elements/__tests__/` как `it.each` поверх `ElementFixtures` из `fixtures.ts`. Для таких модулей схема отличается: reproducer подключается через **новую запись** в `ElementFixtures`, калибровка запускается по `-t "<slug>"`. Полные правила — [references/form-elements.md](references/form-elements.md).
+
 ## Шаг 8. Стоп и передача пользователю
 
 После калибровки фикстуры и создания файлов — **стоп**. Полный `pnpm test` не запускай, не коммить, не создавай PR.

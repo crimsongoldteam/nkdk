@@ -31,7 +31,10 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
     if (xmlValue === undefined && currentRule.type === "MetadataDcsMetadataValue" && isXMLKeyPresent(key, xml, currentRule)) {
       xmlValue = null
     }
-    const shouldImportForReference = forReference && currentRule.fromXML === false && xmlValue !== undefined
+    const shouldImportForReference =
+      forReference &&
+      currentRule.fromXML === false &&
+      (xmlValue !== undefined || isXMLKeyPresent(key, xml, currentRule))
 
     if (!shouldProcessProperty({ rule: currentRule, operation: "importFromXML" }) && !shouldImportForReference) continue
 

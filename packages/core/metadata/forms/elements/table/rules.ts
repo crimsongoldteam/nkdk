@@ -1,3 +1,5 @@
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { isDynamicListAttribute } from "~/metadata/forms/commonObjects/dataPath/isDynamicListAttribute"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
@@ -231,7 +233,7 @@ export const TableRules = {
     },
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-    autoRefresh: { yaml: "АвтоОбновление", type: "boolean" },
+    autoRefresh: { yaml: "АвтоОбновление", type: "boolean", defaultValueYAML: false },
     restoreCurrentRow: { yaml: "ВосстанавливатьТекущуюСтроку", type: "boolean" },
     choiceFoldersAndItems: {
       yaml: "ВыборГруппИЭлементов",
@@ -249,6 +251,30 @@ export const TableRules = {
     allowRootChoice: { yaml: "РазрешитьВыборКорня", type: "boolean" },
     allowGettingCurrentRowURL: { yaml: "РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки", type: "boolean" },
     userSettingsGroup: { yaml: "ГруппаПользовательскихНастроек", type: "string" },
+    // Тип boolean: в XML значения всегда фиксированные (1С-дефолты); структуру в модели хранить не нужно.
+    // Эмитируются только когда DataPath указывает на FormAttribute с единственным типом "DynamicList".
+    period: {
+      yaml: "Период",
+      type: "boolean",
+      fromXML: false,
+      toYAML: false,
+      fromYAML: false,
+      defaultValueXMLRaw: {
+        "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+        "v8:startDate": "0001-01-01T00:00:00",
+        "v8:endDate": "0001-01-01T00:00:00",
+      },
+      toXML: (el: any, ctx?: ConfigurationContextWithExportToXML) => isDynamicListAttribute(el?.dataPath, ctx),
+    },
+    topLevelParent: {
+      yaml: "РодительВерхнегоУровня",
+      type: "boolean",
+      fromXML: false,
+      toYAML: false,
+      fromYAML: false,
+      defaultValueXMLRaw: { "_xsi:nil": "true" },
+      toXML: (el: any, ctx?: ConfigurationContextWithExportToXML) => isDynamicListAttribute(el?.dataPath, ctx),
+    },
     events: {
       type: "Events",
       yaml: "События",
