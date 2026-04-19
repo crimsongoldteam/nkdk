@@ -238,6 +238,7 @@ import {
   fullSpreadSheetDocumentFieldPartialYAML,
   minimalSpreadSheetDocumentField,
 } from "../spreadSheetDocumentField/__fixtures__/data"
+import { dynamicList } from "../table/__fixtures__/dynamicList"
 import { fullTable, fullTableEnterprise, fullTableYAML, minimalTable } from "../table/__fixtures__/data"
 import {
   fullTextDocumentField,
@@ -1073,6 +1074,16 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "minimal.xml",
     xmlFolder: undefined,
     model: minimalTable,
+    yaml: undefined,
+    enterprise: undefined,
+  },
+  {
+    group: "Table",
+    name: "dynamicList",
+    element: Table,
+    xml: "dynamicList.xml",
+    xmlFolder: undefined,
+    model: dynamicList,
     yaml: undefined,
     enterprise: undefined,
   },
