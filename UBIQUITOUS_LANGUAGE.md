@@ -488,3 +488,91 @@
 - **«element»** в коде означает два разных объекта: (1) **form element** (Table, Button, InputField…) — то, что регистрируется через `registerElementRule`; (2) произвольная запись в **`metadataForNumbering`**, в которой `element` может быть **FormAttribute** или любым нумеруемым объектом. В обсуждениях уточняй — **form element** или «запись стека».
 - **«DynamicList»** как понятие появляется в двух местах: как значение `type.type` в **TypeDescription** (признак атрибута-динсписка) и как свойство `FormAttribute.dynamicList` (сами настройки динсписка). Первое — маркер типа, второе — содержание; между ними связь «если тип один и это `DynamicList`, то свойство `dynamicList` на атрибуте, как правило, заполнено».
 - **«контекст мока»** — это **`contextAttributes`** в **`ElementFixture`**, не правка `mockContextToXML`. Когда в обсуждении звучит «замокай контекст», уточняй уровень: глобальный helper или поле фикстуры.
+
+## Парсинг YAML с координатами (из диалога о `parseDocument` vs `parse` и двойном парсинге)
+
+| Термин | Определение | Избегать |
+| ------ | ----------- | -------- |
+| **YAML Document** | Результат `parseDocument(text)` — обёртка над AST библиотеки `yaml`, хранящая узлы со смещениями в исходном тексте. Не путать с **прикладным объектом** «Документ» | Document (без префикса), doc tree |
+| **AST-узел** (YAML) | Объект из библиотеки `yaml`: `YAMLMap`, `YAMLSeq`, `YAMLScalar` — знает своё `range` | Node (без префикса) |
+| **Plain data** | Результат `parse(text)` или `doc.toJS()` — обычный JS-объект без координат; семантически эквивалентен `parseDocument(text).toJS()` в текущем проекте (дефолтные опции, нет custom tags) | data (перегружено), raw |
+| **`range`** | Пара/тройка offset'ов `[start, valueEnd, nodeEnd]` на **AST-узле** (YAML), задающая положение узла в исходном тексте | positions, span |
+| **`offset`** | Смещение в символах от начала текста; берётся как `range[0]` **AST-узла** | position, char index |
+| **`LineCounter`** | Утилита библиотеки `yaml` (передаётся в `parseDocument(text, {lineCounter})`), переводит **`offset`** → `{line, col}` за O(log N) | Line resolver |
+| **`ParsedYaml`** | Доменная обёртка `{text, doc, data, lineCounter}` из `parseMetadataYaml` — гарантирует один парсинг на файл и доступ ко всем артефактам через единый объект | Parse result, ParsedDocument |
+| **`parseMetadataYaml`** | Хелпер в `packages/core/yaml/`, возвращающий **`ParsedYaml`**; единая точка устранения двойного парсинга в call sites `updateGraph.ts` / `validateLinks.ts` / `workspaceGraph.ts` | — |
+| **JSON Pointer** | Формат пути в ошибках TypeBox (`Value.Errors`): `"/Реквизиты/0/Тип"`. Превращается в массив ключей декодированием `~1`→`/`, `~0`→`~` и конверсией цифровых сегментов в числа | Error path |
+| **`doc.getIn(keys, true)`** | Встроенный метод `yaml.Document`: навигация по AST по массиву ключей, возврат **AST-узла** (не примитива); применяется для привязки **JSON Pointer** к координатам | — |
+| **`currentYamlMap`** | `YAMLMap` текущего объекта, прокинутый в importer через `graphContext`; единственный способ для importer'а добраться до **`range`** своих подполей | Ast map |
+
+### Relationships парсинга
+
+- **`ParsedYaml`** содержит ровно один **YAML Document** и один **`LineCounter`** — инвариант «один парс на файл».
+- **Plain data** получается из `doc.toJS()` **`YAML Document`**'а; для importer'ов это тот же plain, что `parse(text)` раньше — контракт не меняется.
+- Поле **`positionFrom`** на **Node** графа = `{offset, length?}`, где `offset` = `range[0]` **AST-узла** YAML. `length` не заполняется нигде, зарезервирован.
+- **JSON Pointer** из TypeBox + **`doc.getIn(keys, true)`** + **`range[0]`** + **`LineCounter.linePos`** → `{filePath, line, col}` — **единственный** путь от «логической» ошибки к «физическим» координатам.
+
+## Валидация метаданных и диагностика (из диалога об устранении `offsetToLineCol` и расширении команды `validate`)
+
+| Термин | Определение | Избегать |
+| ------ | ----------- | -------- |
+| **`Diagnostic`** | Единица результата валидации: `{filePath, line, col, message, severity, source, path?}`. Неизменяемый объект, **не** содержит ссылок на модель или AST | Error, issue (перегружено) |
+| **`DiagnosticSource`** | Категория диагностики: `"syntax" \| "structure" \| "external-file" \| "cross-file" \| "reference"`. Одна диагностика имеет ровно один **source** | Error kind, error category |
+| **`Severity`** | `"error" \| "warning"`; процесс CLI `validate` падает при наличии хотя бы одного `"error"` | Level |
+| **Syntax diagnostic** | Ошибка парсинга YAML из `doc.errors`; short-circuit'ит остальные проверки по этому файлу | Parse error diagnostic |
+| **Structure diagnostic** | Несоответствие **TSchema** (TypeBox), координаты получаются через **JSON Pointer** → **AST-узел** → **`range[0]`** → **`LineCounter`**. Если поле отсутствует (Required property) — координаты **родительского AST-узла** через `getIn(keys.slice(0,-1), true)` | Schema error, type error |
+| **External-file diagnostic** | Отсутствие или пустота файла, на который ссылается **правило свойства** с **опцией `externalFile`** | Sidecar diagnostic |
+| **Cross-file diagnostic** | Несогласованность внутри **Form** (пара **Form structure file** + **Form properties file**) — категория **зарезервирована**, кросс-файловые проверки в первой итерации не пишутся | Form consistency |
+| **Reference diagnostic** | **Битая ссылка** в **графе** (роль бывшего `validateLinks`); координаты берутся из **`positionFrom`** узла-источника | Broken link diagnostic |
+| **`SchemaCache`** | Ленивый кеш **TypeCheck** по **MetadataKind**: одна компиляция `TypeCompiler.Compile(exportMetadataCatalogToJSONSchema({context}))` на прогон, переиспользуется для всех файлов того же типа | Validator cache |
+| **`TypeCheck`** | Результат `TypeCompiler.Compile(TSchema)` — быстрый валидатор с методом `.Errors(data)`; единственный способ получить `Iterable<ValueError>` с **JSON Pointer** | Compiled validator |
+| **`MetadataKind`** | Дискриминатор верхнего типа: `"catalog" \| "document" \| "enumeration"`; определяется по имени директории проекта (`Справочник/`, `Документ/`, `Перечисление/`), **не** по содержимому файла | ItemType (перегружено с `itemType` в модели) |
+| **`validateFile`** | Проверка одного YAML: `parseMetadataYaml` → **Syntax diagnostic**'и (short-circuit) → **`TypeCheck.Errors`** → **Structure diagnostic**'и | — |
+| **`validateForm`** | Проверка пары файлов одной **Form**: `validateFile` × 2 + место под будущие **cross-file diagnostic**'и | — |
+| **`validateItem`** | Проверка одного **MetadataItem** целиком: основной `Свойства.yml` через `validateFile` + **External-file diagnostic**'и по опциям **`externalFile`** + `validateForm` для каждой формы | — |
+| **`validateProject`** | Проверка всего проекта: обход директорий по **MetadataKind** + `validateItem` по каждой + **Reference diagnostic**'и графа. Замещает и расширяет существующую команду `validateLinks` | — |
+| **Short-circuit на синтаксисе** | Правило: если `parseDocument(text).errors.length > 0`, возвращаем только **Syntax diagnostic**'и по этому файлу, не запускаем TypeBox и не включаем этот файл в сборку графа | — |
+| **Параллельный режим валидации** | Принятый порядок: импорт графа (толерантный — `getValueOrDefault`), TypeBox-валидация и проверка ссылок работают независимо по одному файлу; все три вида **Diagnostic**'ов собираются в один отчёт. Gate на импорте не используется | Каскадный, cascade |
+
+### Relationships валидации
+
+- **`validateProject`** ⊃ `createSchemaCache(context)` + цикл по директориям + `validateItem` + **Reference diagnostic** по графу; выходной массив **Diagnostic**'ов сортируется по `filePath`/`line`/`col` для стабильного вывода.
+- **`validateItem`** ⊃ ≥1 **`validateFile`** (основной `Свойства.yml`), N **External-file diagnostic**'ов, ≥0 **`validateForm`** (по числу форм объекта).
+- **`SchemaCache`** живёт ровно на один прогон **`validateProject`**; компилируется лениво по первому обращению к данному **MetadataKind**.
+- **Syntax diagnostic** исключает другие типы диагностик того же файла (short-circuit), но не других файлов; **Reference diagnostic** такого файла также не возникает, потому что impotrer не строит для него узлов.
+- **Structure diagnostic** формируется строго из `TypeCheck.Errors(data)` + `doc.getIn` + `LineCounter` — никакой ручной код валидации не дублирует TypeBox.
+- Команда CLI **`validate`** — тонкая обёртка над **`validateProject`**; форматирует `Diagnostic` как `file:line:col [source] message`, `process.exit(1)` при наличии errors.
+
+### Пример диалога
+
+> **Dev:** «В `updateGraph.ts` и `validateLinks.ts` один и тот же YAML парсится и через `parseDocument`, и через `parse`. Это двойная работа?»
+
+> **Domain expert:** «Да. Надо вынести в `parseMetadataYaml(text)` → **`ParsedYaml`** с полями `doc`, `data` (`doc.toJS()`), `lineCounter`. Contract importer'ов не трогаем — `data` остаётся **Plain data**, **`currentYamlMap`** — тем же `YAMLMap` в `graphContext`. Просто убираем повторный `parse(text)`.»
+
+> **Dev:** «А как из TypeBox-ошибки получить номер строки в YAML?»
+
+> **Domain expert:** «TypeBox даёт **JSON Pointer** `/Реквизиты/0/Тип`. Декодируем в `["Реквизиты", 0, "Тип"]`, делаем `doc.getIn(keys, true)` — возвращается **AST-узел** с **`range`**. `range[0]` — **`offset`**. **`LineCounter.linePos(offset)`** → `{line, col}`. Собираем **Structure diagnostic**.»
+
+> **Dev:** «А если поле просто отсутствует?»
+
+> **Domain expert:** «TypeBox кидает ошибку на родительском пути — `Required property` с `path` родителя. `getIn` вернёт узел родителя, `range[0]` — его начало. Это осознанный выбор: согласованность с остальными кейсами важнее «точечности» вставки.»
+
+> **Dev:** «TypeBox на битом YAML даст ворох ложных ошибок?»
+
+> **Domain expert:** «Поэтому **short-circuit**. Проверяем `doc.errors.length > 0` — и выдаём только **Syntax diagnostic**'и. TypeBox для этого файла не запускается, importer не кладёт узлов — значит и **Reference diagnostic** по нему не появится автоматически. Пользователь видит корневую причину, а не её производные.»
+
+> **Dev:** «Одна команда CLI `validate` вместо двух — `validate-links` и `validate-structure`?»
+
+> **Domain expert:** «Да, одна. Внутри — **`validateProject`**, который собирает все **Diagnostic**'и параллельно: импорт строит граф (толерантно), **`SchemaCache`** компилирует **TSchema** один раз на **MetadataKind**, **`validateItem`** проверяет каждый объект, поверх — **Reference diagnostic** по графу. Gate на импорте нет — importer у нас `getValueOrDefault`-толерантный, ломать это без выгоды не стоит.»
+
+### Flagged ambiguities валидации и парсинга
+
+- **«Document»** — двусмыслен на двух уровнях домена: (1) **YAML Document** — контейнер парсинга библиотеки `yaml`; (2) **«Документ»** — вид **прикладного объекта** метаданных (регистры документов 1С). В коде и обсуждениях использовать полные формы: «YAML Document» / «прикладной объект Документ» либо `doc` / `MetadataDocument`. Слово `Document` в одиночку избегать.
+- **«parse»** — использовалось и как имя функции `parse` из `yaml`, и как общий процесс парсинга. В доменной речи «парсить» — только процесс; функцию называть полностью (`parse`, `parseDocument`, `parseMetadataYaml`).
+- **«data»** — слишком общее слово. В паре с YAML означает **Plain data** (из `parse`/`toJS`); не путать с **`ParsedYaml`** (полная обёртка) и не использовать как имя **AST-узла**.
+- **«schema»** — раньше использовалось для TypeBox-схемы (**TSchema**) и для структуры **правил** (`rules.ts`). Это разные сущности; источник **TSchema** — **правило объекта** через `exportMetadataItemToJSONSchema`, а не наоборот. Когда говорят «схема каталога», канонично — **TSchema**, полученная для `MetadataCatalog`.
+- **«validate»** — используется и как название CLI-команды, и как семейство функций `validate*`. В доменной речи команда — `validate` (одна), а функции уровня — **`validateFile`** / **`validateForm`** / **`validateItem`** / **`validateProject`**; не использовать «validate» без суффикса внутри кода.
+- **«group of files»** — в обсуждении уточнено: «группа» = пара файлов одной **Form** (**Form structure file** + **Form properties file**). Не путать с «все файлы одного **MetadataItem**» (это уровень **`validateItem`**) и не с «произвольное подмножество файлов» (такой кейс не поддерживается).
+- **«position» / «range» / «offset» / «coordinates»** — используются вперемешку. Канон: **`offset`** — число, **`range`** — массив offset'ов на **AST-узле**, **`positionFrom`** — атрибут **Node** графа (`{offset, length?}`), `{line, col}` — результат работы **`LineCounter`**. Слово «coordinates» в коде не использовать.
+- **«свойство»** перегружено на трёх уровнях: (1) `property` в **правиле** (декларативное описание поля в `rules.ts`); (2) значение поля объекта (runtime-данные модели); (3) файл `Свойства.yml`. Предпочитать уточнения: **правило свойства**, «поле объекта», **Form properties file**.
+- **«error»** vs **`Diagnostic`** — в обсуждениях использовались как синонимы. Канонично: **`Diagnostic`** — структурированный объект с `source`/`severity`/`line`/`col`, результат **`validate*`**. «error» — только `DiagnosticSeverity.error` внутри **`Diagnostic`**, либо `err` из `TypeCheck.Errors` (до преобразования).
