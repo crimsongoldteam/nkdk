@@ -576,3 +576,64 @@
 - **«position» / «range» / «offset» / «coordinates»** — используются вперемешку. Канон: **`offset`** — число, **`range`** — массив offset'ов на **AST-узле**, **`positionFrom`** — атрибут **Node** графа (`{offset, length?}`), `{line, col}` — результат работы **`LineCounter`**. Слово «coordinates» в коде не использовать.
 - **«свойство»** перегружено на трёх уровнях: (1) `property` в **правиле** (декларативное описание поля в `rules.ts`); (2) значение поля объекта (runtime-данные модели); (3) файл `Свойства.yml`. Предпочитать уточнения: **правило свойства**, «поле объекта», **Form properties file**.
 - **«error»** vs **`Diagnostic`** — в обсуждениях использовались как синонимы. Канонично: **`Diagnostic`** — структурированный объект с `source`/`severity`/`line`/`col`, результат **`validate*`**. «error» — только `DiagnosticSeverity.error` внутри **`Diagnostic`**, либо `err` из `TypeCheck.Errors` (до преобразования).
+
+## Массовые операции и асинхронность (из диалога о переводе import/export на async)
+
+| Термин | Определение | Избегать |
+| ------ | ----------- | -------- |
+| **Массовая операция** | Обработка множества файлов конфигурации (каталоги + формы) одним вызовом — `syncConfigurationFromXML`, `syncConfigurationToXML` | Bulk operation, batch job |
+| **Пакет (Batch)** | Набор независимых задач одного типа, выполняемых конкурентно с общим лимитом concurrency | Job pool, очередь задач |
+| **`runBatch`** | Internal-хелпер в `packages/core/helpers/runBatch.ts`, выполняющий список **задач (BatchTask)** с лимитом **concurrency** и семантикой `Promise.allSettled` | Executor, scheduler |
+| **Задача (BatchTask)** | Единица работы в **пакете**: `{kind, name, parent?, sourcePath?, run: () => Promise<T>}` | Work item |
+| **Результат пакета (BatchResult)** | `{succeeded, failed: BatchFailure[], results: T[]}` — агрегат **runBatch** | — |
+| **Сбой (BatchFailure)** | Запись об упавшей **задаче**: `{kind, name, parent?, sourcePath?, error}` | Error entry |
+| **Вид задачи (`kind`)** | Строковый ярлык **задачи** для различения в агрегате: `"catalog"`, `"form"` | Type, tag |
+| **Предок (`parent`)** | Имя владеющего объекта **задачи**: для формы — имя каталога. Используется в выводе ошибок | Parent ref |
+| **ConfigurationSyncResult** | Публичный тип возврата `syncConfigurationFromXML`/`syncConfigurationToXML`: `{succeeded, failed: Array<{kind: "catalog" \| "form", name, parent?, error}>}` | ImportSummary, ExportSummary |
+| **Discovery-фаза** | Параллельное чтение структуры директорий (`readdir`) до построения списка **задач** — находит все имена каталогов и форм | Сканирование, индексация |
+| **Flat-параллелизм** | Стратегия, при которой каталоги и формы равноправно конкурируют за слоты concurrency в одном **пакете** (не иерархически) | Плоский батч |
+| **Concurrency limit** | Максимальное число одновременно выполняющихся **задач** в **пакете**. Захардкожен = 64 (TODO: вынести в настройки расширения) | Параллелизм, parallelism |
+| **`p-limit`** | Зависимость, реализующая семафор concurrency. Используется внутри **runBatch** | Семафор, limiter |
+| **Оркестратор с I/O** | Функция, читающая/пишущая файлы: `syncConfigurationFromXML`, `syncConfigurationToXML`, `convertCatalogFromXML`, `convertFormFromXML`, `syncCatalogToXML`, `syncFormToXML`. Все — `async`, мигрируют на `fs.promises` | Runner, processor |
+| **Чистый трансформер** | Функция преобразования данных без I/O: `xmlExport`, `importContentFromXML`, `importFromYAML`, `exportToYAML`, `importMetadataCatalogFromXML` и т. п. CPU-bound; на async **не** переводятся (YAGNI до worker pool) | Converter, mapper |
+| **`fs.promises` API** | Асинхронные аналоги `fs.readFile`, `fs.writeFile`, `fs.mkdir`, `fs.readdir`. Работают через libuv thread pool | Promisified fs |
+| **`fs.*Sync` API** | Синхронные аналоги, блокирующие event loop. Подлежат замене в **оркестраторах с I/O** | Blocking fs |
+| **libuv thread pool** | Пул потоков Node.js (дефолт 4, `UV_THREADPOOL_SIZE`), обслуживающий `fs.promises`. Единственный источник реального параллелизма I/O без worker threads | Event loop pool |
+| **Worker pool** | Набор `worker_threads` для распараллеливания **чистых трансформеров** (CPU-bound парсинг). **Вне скоупа** текущей задачи | Thread pool (CPU) |
+| **Shortroundtrip** | Служебная функция `shortRoundTripXML` — XML→модель→XML для тестирования round-trip. **Исключена из скоупа** async-миграции | Round-trip CLI |
+
+### Relationships массовых операций
+
+- **Оркестратор с I/O** `syncConfigurationFromXML`/`syncConfigurationToXML` = **Discovery-фаза** + `runBatch` + маппинг в **ConfigurationSyncResult**.
+- **runBatch** работает **только** если все вызываемые из `run` функции реально асинхронны (на `fs.promises`); при `fs.*Sync` внутри параллелизм деградирует до последовательного.
+- **Чистые трансформеры** вызываются внутри **оркестраторов с I/O**, но сами sync; переход на async для них требует перехода в **worker pool** (отдельная задача, вне скоупа).
+- `async`-пометка функции **не** эквивалентна асинхронной работе: без реального `await` над Promise она лишь оборачивает возврат в `Promise.resolve`.
+- **Concurrency limit** 64 выше дефолта libuv thread pool (4) не ускоряет I/O пропорционально: сверх ~threadPool×2–3 лишние задачи просто стоят в очереди libuv.
+
+### Пример диалога
+
+> **Dev:** «Чтобы ускорить `syncConfigurationFromXML`, достаточно пометить внутренние функции `async`?»
+
+> **Domain expert:** «Нет. `async` — это обёртка над возвратом; если внутри `fs.readFileSync`, event loop всё равно блокируется. Нужны `fs.promises.readFile`/`writeFile`/`mkdir` в **оркестраторах с I/O**, иначе **runBatch** будет выполнять **задачи** последовательно, несмотря на `Promise.all`.»
+
+> **Dev:** «А **чистые трансформеры** — тоже переводим на async?»
+
+> **Domain expert:** «Нет. Они CPU-bound. `async` над `importContentFromXML` не даёт параллелизма — Node.js однопоточен для JS. Выигрыш возможен только через **worker pool**, но это вне скоупа. Сейчас трансформеры остаются sync.»
+
+> **Dev:** «Почему **flat-параллелизм** вместо «каталоги параллельно, формы внутри последовательно»?»
+
+> **Domain expert:** «Каталоги и формы — независимые файлы, конкурируют только за слоты concurrency. Иерархический батч даёт неровную нагрузку: каталог с 50 формами держит слот намного дольше каталога без форм. Flat — один `runBatch` на всё — ровнее загружает **libuv thread pool**.»
+
+> **Dev:** «Что с ошибкой в одной **задаче**?»
+
+> **Domain expert:** «`Promise.allSettled` семантика: одна упавшая задача не валит батч, попадает в `BatchResult.failed` как **BatchFailure**. Верхний уровень маппит в **ConfigurationSyncResult**; CLI печатает ошибки и ставит `process.exitCode = 1`.»
+
+### Flagged ambiguities массовых операций
+
+- **«sync»** перегружен: (1) префикс `sync*` в именах функций (`syncConfigurationToXML`) означает «синхронизация форматов» — бизнес-операция приведения YAML-дерева к XML-дереву; (2) «sync-функция» в JS — синхронная функция (противоположна `async`). В обсуждениях использовать полные формы: «функция-синхронизация», «синхронная функция». Сокращённое «sync-функция» не использовать.
+- **«async»** двусмыслен: (1) ключевое слово `async function` — чисто синтаксический маркер, оборачивающий return в Promise; (2) реально асинхронная операция — ожидание Promise, возвращаемого нижним слоем (I/O, воркер). Функция, помеченная `async`, но без `await` над настоящим Promise, **асинхронной не становится**. В речи уточнять: «async-пометка» vs «асинхронная работа».
+- **«параллелизм» vs «конкурентность»** — в Node.js: **concurrency** (через event loop / libuv) ≠ **parallelism** (через worker threads). `Promise.all` с `fs.promises` даёт конкурентность I/O (физически параллельно на уровне ядра ОС), но не параллелизм JS-кода. CPU-bound код параллелится только **worker pool**.
+- **«оркестратор»** пересекается с термином **Оркестрация** (модуль `metadata/orchestration/`, раздел «Реализация объекта метаданных»): **Оркестрация** — код, выполняющий импорт/экспорт по правилам; **Оркестратор с I/O** — верхнеуровневая функция с файловыми операциями. Разные уровни. Канон: для первой — «Оркестрация» / «оркестрационный слой», для второй — «оркестратор с I/O» или прямое имя функции.
+- **«import/export»** перегружен: (1) направление данных на уровне конфигурации (XML→YAML = импорт, YAML→XML = экспорт, соответствует `syncConfigurationFromXML`/`syncConfigurationToXML`); (2) **Направление** сериализации одного объекта (`fromXML`, `toXML`, `fromYAML`, `toYAML`). Первое — бизнес-операция, второе — техническая функция. В речи не смешивать: «импорт конфигурации» vs «направление `fromXML`».
+- **«Batch»** в проекте до этого не использовался; не путать с `FileBatch`/`TableBatch` в терминологии самого 1С (отсутствует в глоссарии сейчас). В контексте async-миграции **Batch** = «**пакет задач runBatch**».
+- **«catalog»** в контексте массовых операций — **прикладной объект** «Справочник»; не путать с «catalog» как синонимом «directory» в английском. В русском тексте использовать «каталог» только если из контекста ясно, что речь о прикладном объекте; иначе — «директория».
