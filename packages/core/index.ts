@@ -1,4 +1,5 @@
 export { syncConfigurationFromXML } from "./metadata/appliedObjects/configuration/convertFromXML"
+export type { ConfigurationSyncResult } from "./metadata/appliedObjects/configuration/convertFromXML"
 export { syncConfigurationToXML } from "./metadata/appliedObjects/configuration/syncToXML"
 export { shortRoundTripXML } from "./metadata/appliedObjects/configuration/shortRoundTripXML"
 export {

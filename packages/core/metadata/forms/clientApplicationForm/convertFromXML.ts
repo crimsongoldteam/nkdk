@@ -22,7 +22,13 @@ export const convertFormFromXML = async (params: {
 }): Promise<void> => {
   const { context, inputDir, formName, outputDir } = params
 
-  const form = readFormFromXML({ context, inputDir, formName })
+  const metadataPath = join(inputDir, `${formName}.xml`)
+  const metadataXML = await fs.promises.readFile(metadataPath, "utf-8")
+
+  const formPath = join(inputDir, formName, "Ext", "Form.xml")
+  const formXML = await fs.promises.readFile(formPath, "utf-8")
+
+  const form = parseFormFromXML({ context, formXML, metadataXML })
 
   const { yaml, nkdk, externalFiles } = await convertFormToYAMLAndNKDK({ context, form })
 
@@ -58,22 +64,22 @@ const writeFormToYAMLAndNKDK = async (params: {
   const { formYAML, formNKDK, externalFiles, formName, outputDir } = params
 
   const formOutputPath = join(outputDir, "Формы", formName)
-  fs.mkdirSync(formOutputPath, { recursive: true })
+  await fs.promises.mkdir(formOutputPath, { recursive: true })
 
   if (formYAML) {
     const yamlFilePath = join(formOutputPath, "Форма.yaml")
-    fs.writeFileSync(yamlFilePath, formYAML, "utf-8")
+    await fs.promises.writeFile(yamlFilePath, formYAML, "utf-8")
   }
 
   if (formNKDK) {
     const nkdkPath = join(formOutputPath, "Форма.nkdk")
-    fs.writeFileSync(nkdkPath, formNKDK, "utf-8")
+    await fs.promises.writeFile(nkdkPath, formNKDK, "utf-8")
   }
 
   for (const { relativePath, content } of externalFiles) {
     const filePath = join(formOutputPath, relativePath)
-    fs.mkdirSync(join(filePath, ".."), { recursive: true })
-    fs.writeFileSync(filePath, content, "utf-8")
+    await fs.promises.mkdir(join(filePath, ".."), { recursive: true })
+    await fs.promises.writeFile(filePath, content, "utf-8")
   }
 }
 
