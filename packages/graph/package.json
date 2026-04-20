@@ -1,0 +1,24 @@
+{
+  "name": "@nakidka/graph",
+  "version": "1.0.0",
+  "description": "Пакет для работы с графом метаданных в FalkorDB",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "falkordb": "^6.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.15"
+  }
+}
