@@ -3,7 +3,7 @@ import { Command } from "commander"
 import { importConfiguration } from "./commands/import"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
 import { syncConfiguration } from "./commands/sync"
-import { validateLinks } from "./commands/validateLinks"
+import { validate } from "./commands/validate"
 
 function run(fn: () => Promise<void>): void {
   fn().catch((err: unknown) => {
@@ -46,10 +46,10 @@ program
 
 program
   .command("validate")
-  .description("Валидация ссылок в проекте — поиск битых ссылок (для CI/CD)")
+  .description("Валидация проекта: структура YAML, битые ссылки, внешние файлы (для CI/CD)")
   .argument("<project>", "путь к директории проекта")
   .action((projectPath: string) => {
-    validateLinks(projectPath)
+    validate(projectPath)
   })
 
 program.parse()

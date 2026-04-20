@@ -44,3 +44,7 @@ export { getDocumentPropertyReferenceScope } from "./metadata/appliedObjects/met
 export { getEnumerationPropertyReferenceScope } from "./metadata/appliedObjects/metadataEnumeration/rules"
 export { validateReferenceScope } from "./metadata/relations/referenceScope"
 export type { ReferenceScope } from "./metadata/relations/referenceScope"
+export { validateProject } from "./metadata/validation/validateProject"
+export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
+export { exportMetadataDocumentToJSONSchema } from "./metadata/appliedObjects/metadataDocument/toJSONSchema"
+export { exportMetadataEnumerationToJSONSchema } from "./metadata/appliedObjects/metadataEnumeration/toJSONSchema"
