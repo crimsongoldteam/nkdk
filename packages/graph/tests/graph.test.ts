@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const queryMock = vi.fn()
 const deleteMock = vi.fn()
+const memoryUsageMock = vi.fn()
 const closeMock = vi.fn()
 const selectGraphMock = vi.fn()
 const connectMock = vi.fn()
@@ -12,15 +13,17 @@ vi.mock("falkordb", () => ({
   },
 }))
 
-import { addCatalogs, close, connect, resetGraph } from "../src/index"
+import { close, connect, ensureIndex, query } from "../src/index"
 
 beforeEach(() => {
   queryMock.mockReset().mockResolvedValue({})
   deleteMock.mockReset().mockResolvedValue(undefined)
+  memoryUsageMock.mockReset().mockResolvedValue(1024)
   closeMock.mockReset().mockResolvedValue(undefined)
   selectGraphMock.mockReset().mockImplementation(() => ({
     query: queryMock,
     delete: deleteMock,
+    memoryUsage: memoryUsageMock,
   }))
   connectMock.mockReset().mockResolvedValue({
     selectGraph: selectGraphMock,
@@ -68,41 +71,52 @@ describe("close", () => {
   })
 })
 
-describe("resetGraph", () => {
-  it("вызывает Graph.delete", async () => {
+describe("query", () => {
+  it("пробрасывает cypher и params в graph.query", async () => {
+    queryMock.mockResolvedValue({ data: [{ n: 42 }] })
     const conn = await connect()
-    await resetGraph(conn)
-    expect(deleteMock).toHaveBeenCalledTimes(1)
+    const result = await query(conn, "MATCH (n) RETURN count(n) AS n", { limit: 10 })
+    expect(queryMock).toHaveBeenCalledWith("MATCH (n) RETURN count(n) AS n", { params: { limit: 10 } })
+    expect(result).toEqual({ data: [{ n: 42 }] })
   })
 
-  it("глотает ошибку отсутствия графа", async () => {
-    deleteMock.mockRejectedValue(new Error("no such graph"))
+  it("вызывает graph.query без opts при отсутствии params", async () => {
     const conn = await connect()
-    await expect(resetGraph(conn)).resolves.toBeUndefined()
+    await query(conn, "MATCH (n) DETACH DELETE n")
+    expect(queryMock).toHaveBeenCalledWith("MATCH (n) DETACH DELETE n", undefined)
   })
 
-  it("пробрасывает прочие ошибки", async () => {
-    deleteMock.mockRejectedValue(new Error("connection refused"))
+  it("возвращает результат как есть", async () => {
+    const expected = { data: [{ x: 1 }], metadata: ["Nodes created: 1"] }
+    queryMock.mockResolvedValue(expected)
     const conn = await connect()
-    await expect(resetGraph(conn)).rejects.toThrow(/connection refused/)
+    const result = await query(conn, "CREATE (n) RETURN n")
+    expect(result).toBe(expected)
   })
 })
 
-describe("addCatalogs", () => {
-  it("отправляет один UNWIND-запрос с batch-параметром", async () => {
+describe("ensureIndex", () => {
+  it("отправляет корректный CREATE INDEX Cypher", async () => {
     const conn = await connect()
-    await addCatalogs(conn, ["Номенклатура", "Контрагенты", "Организации"])
-    expect(queryMock).toHaveBeenCalledTimes(1)
-    const [cypher, options] = queryMock.mock.calls[0]
-    expect(cypher).toBe("UNWIND $batch AS n CREATE (:Catalog {name: n})")
-    expect(options).toEqual({
-      params: { batch: ["Номенклатура", "Контрагенты", "Организации"] },
-    })
+    await ensureIndex(conn, "MetadataNode", "id")
+    expect(queryMock).toHaveBeenCalledWith("CREATE INDEX FOR (n:MetadataNode) ON (n.id)")
   })
 
-  it("не делает сетевых запросов при пустом массиве", async () => {
+  it("глотает ошибку 'already indexed'", async () => {
+    queryMock.mockRejectedValue(new Error("already indexed for label"))
     const conn = await connect()
-    await addCatalogs(conn, [])
-    expect(queryMock).not.toHaveBeenCalled()
+    await expect(ensureIndex(conn, "MetadataNode", "id")).resolves.toBeUndefined()
+  })
+
+  it("глотает ошибку 'equivalent index'", async () => {
+    queryMock.mockRejectedValue(new Error("Equivalent index already exists"))
+    const conn = await connect()
+    await expect(ensureIndex(conn, "MetadataNode", "path")).resolves.toBeUndefined()
+  })
+
+  it("пробрасывает прочие ошибки", async () => {
+    queryMock.mockRejectedValue(new Error("connection refused"))
+    const conn = await connect()
+    await expect(ensureIndex(conn, "MetadataNode", "id")).rejects.toThrow(/connection refused/)
   })
 })

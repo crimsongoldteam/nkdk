@@ -1,8 +1,30 @@
-import { addCatalogs, close, connect, resetGraph } from "@nakidka/graph"
+import { close, connect, ensureIndex, graphMemoryBytes, query } from "@nakidka/graph"
+import type { GraphConnection } from "@nakidka/graph"
 import chalk from "chalk"
-import { existsSync, readdirSync } from "fs"
+import { existsSync, readdirSync, readFileSync } from "fs"
 import { join } from "path"
 import { performance } from "perf_hooks"
+import { isMap, parse, parseDocument } from "yaml"
+import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
+import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+
+const BATCH_SIZE = 5000
+
+const queryCount = async (conn: GraphConnection, cypher: string): Promise<number> => {
+  const r = (await query(conn, cypher)) as { data?: Array<Record<string, unknown>> }
+  const val = r.data?.[0]?.["cnt"]
+  return typeof val === "number" ? val : 0
+}
+
+const sendBatches = async (
+  conn: GraphConnection,
+  items: Record<string, unknown>[],
+  cypher: string,
+): Promise<void> => {
+  for (let i = 0; i < items.length; i += BATCH_SIZE) {
+    await query(conn, cypher, { batch: items.slice(i, i + BATCH_SIZE) })
+  }
+}
 
 export const updateGraph = async (projectPath: string): Promise<void> => {
   if (!existsSync(projectPath)) {
@@ -12,35 +34,182 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
 
   const tStart = performance.now()
 
+  // === 1. Чтение YAML ===
   const tReadStart = performance.now()
+  const yamlFiles: Array<{ path: string; text: string; name: string }> = []
   const catalogsPath = join(projectPath, "Справочник")
-  const names = existsSync(catalogsPath)
-    ? readdirSync(catalogsPath, { withFileTypes: true })
-        .filter((e) => e.isDirectory())
-        .map((e) => e.name)
-    : []
+  if (existsSync(catalogsPath)) {
+    for (const dir of readdirSync(catalogsPath, { withFileTypes: true }).filter((e) =>
+      e.isDirectory(),
+    )) {
+      const yamlPath = join(catalogsPath, dir.name, "Свойства.yml")
+      if (!existsSync(yamlPath)) continue
+      try {
+        const text = readFileSync(yamlPath, "utf-8")
+        yamlFiles.push({ path: yamlPath, text, name: dir.name })
+      } catch (err) {
+        console.warn(chalk.yellow(`Предупреждение: не удалось прочитать ${yamlPath}: ${err}`))
+      }
+    }
+  }
   const tRead = performance.now() - tReadStart
 
+  // === 2. fromYAML → MetadataGraph ===
+  const tFromYamlStart = performance.now()
+  const graph = new MetadataGraph()
+  const baseContext = { version: "2.20", defaultLanguage: "ru", graph }
+  for (const { path: yamlPath, text, name } of yamlFiles) {
+    try {
+      const root = parseDocument(text).contents
+      importMetadataCatalogFromYAML(
+        {
+          ...baseContext,
+          graphContext: {
+            filePath: yamlPath,
+            currentYamlMap: isMap(root) ? root : undefined,
+          },
+        },
+        parse(text),
+        name,
+      )
+    } catch (err) {
+      console.warn(chalk.yellow(`Предупреждение: не удалось импортировать ${yamlPath}: ${err}`))
+    }
+  }
+  const heapMB = process.memoryUsage().heapUsed / 1024 / 1024
+  const tFromYaml = performance.now() - tFromYamlStart
+
+  // === 3. Connect + indexes ===
   const tConnectStart = performance.now()
   const conn = await connect()
+  await ensureIndex(conn, "MetadataNode", "id")
+  await ensureIndex(conn, "MetadataNode", "path")
   const tConnect = performance.now() - tConnectStart
 
   try {
-    const tResetStart = performance.now()
-    await resetGraph(conn)
-    const tReset = performance.now() - tResetStart
+    // === 4. Mark candidates ===
+    const tMarkStart = performance.now()
+    await query(
+      conn,
+      "MATCH (n:MetadataNode) REMOVE n.path, n.offset, n.length, n.resolved",
+    )
+    await query(conn, "MATCH (n:MetadataNode)-[r]->() DELETE r")
+    const tMark = performance.now() - tMarkStart
 
-    const tInsertStart = performance.now()
-    await addCatalogs(conn, names)
-    const tInsert = performance.now() - tInsertStart
+    // === 5. Re-import: собираем батчи узлов и рёбер ===
+    type NodeRecord = Record<string, unknown>
+    const fullNodes: NodeRecord[] = []
+    const stubNodes: NodeRecord[] = []
+    const compositionEdges: NodeRecord[] = []
+    const referenceEdges: NodeRecord[] = []
+
+    for (const nodeId of graph.nodes()) {
+      const attrs = graph.getNodeAttributes(nodeId)
+      if (attrs.item !== undefined) {
+        fullNodes.push({
+          id: nodeId,
+          name: attrs.name,
+          path: attrs.filePath ?? null,
+          offset: attrs.positionFrom?.offset ?? null,
+          length: attrs.positionFrom?.length ?? null,
+        })
+      } else {
+        stubNodes.push({ id: nodeId, name: attrs.name })
+      }
+      for (const { target, attributes } of graph.outEdgeEntries(nodeId)) {
+        const edge: NodeRecord = {
+          src: nodeId,
+          tgt: target,
+          yaml: attributes.yaml,
+          name: attributes.name,
+        }
+        if (attributes.kind === "composition") {
+          compositionEdges.push(edge)
+        } else {
+          referenceEdges.push(edge)
+        }
+      }
+    }
+
+    const tInsertNodesStart = performance.now()
+    await sendBatches(
+      conn,
+      fullNodes,
+      "UNWIND $batch AS n MERGE (m:MetadataNode {id: n.id}) SET m.name = n.name, m.path = n.path, m.offset = n.offset, m.length = n.length, m.resolved = true",
+    )
+    await sendBatches(
+      conn,
+      stubNodes,
+      "UNWIND $batch AS n MERGE (m:MetadataNode {id: n.id}) SET m.name = n.name",
+    )
+    const tInsertNodes = performance.now() - tInsertNodesStart
+    const totalNodes = fullNodes.length + stubNodes.length
+
+    const tInsertEdgesStart = performance.now()
+    await sendBatches(
+      conn,
+      compositionEdges,
+      "UNWIND $batch AS e MATCH (s:MetadataNode {id: e.src}), (t:MetadataNode {id: e.tgt}) CREATE (s)-[:COMPOSITION {yaml: e.yaml, name: e.name}]->(t)",
+    )
+    await sendBatches(
+      conn,
+      referenceEdges,
+      "UNWIND $batch AS e MATCH (s:MetadataNode {id: e.src}), (t:MetadataNode {id: e.tgt}) CREATE (s)-[:REFERENCE {yaml: e.yaml, name: e.name}]->(t)",
+    )
+    const tInsertEdges = performance.now() - tInsertEdgesStart
+    const totalEdges = compositionEdges.length + referenceEdges.length
+
+    // === 6. Cleanup ===
+    const tCleanupStart = performance.now()
+    const stubsPreCleanup = await queryCount(
+      conn,
+      "MATCH (n:MetadataNode) WHERE n.path IS NULL RETURN count(n) AS cnt",
+    )
+    await query(
+      conn,
+      "MATCH (n:MetadataNode) WHERE n.path IS NULL AND NOT (n)<-[:REFERENCE]-() DETACH DELETE n",
+    )
+    await query(
+      conn,
+      "MATCH (n:MetadataNode) WHERE n.path IS NULL SET n.resolved = false",
+    )
+    const remainingStubs = await queryCount(
+      conn,
+      "MATCH (n:MetadataNode) WHERE n.resolved = false RETURN count(n) AS cnt",
+    )
+    const deletedCount = stubsPreCleanup - remainingStubs
+    const tCleanup = performance.now() - tCleanupStart
 
     const tTotal = performance.now() - tStart
 
-    console.log(`чтение директории — ${tRead.toFixed(1)} мс — ${names.length} шт.`)
-    console.log(`connect         — ${tConnect.toFixed(1)} мс`)
-    console.log(`reset           — ${tReset.toFixed(1)} мс`)
-    console.log(`insert          — ${tInsert.toFixed(1)} мс — ${names.length} узлов`)
-    console.log(`итого           — ${tTotal.toFixed(1)} мс`)
+    // === Итоговые цифры ===
+    const totalDbNodes = await queryCount(
+      conn,
+      "MATCH (n:MetadataNode) RETURN count(n) AS cnt",
+    )
+    const totalDbEdges = await queryCount(
+      conn,
+      "MATCH ()-[r]->() RETURN count(r) AS cnt",
+    )
+    const memBytes = await graphMemoryBytes(conn)
+
+    console.log(`чтение YAML      — ${tRead.toFixed(1)} мс`)
+    console.log(`fromYAML         — ${tFromYaml.toFixed(1)} мс — heap ${heapMB.toFixed(1)} МБ`)
+    console.log(`connect+indexes  — ${tConnect.toFixed(1)} мс`)
+    console.log(`mark candidates  — ${tMark.toFixed(1)} мс`)
+    console.log(`insert nodes     — ${tInsertNodes.toFixed(1)} мс — ${totalNodes} шт.`)
+    console.log(
+      `insert edges     — ${tInsertEdges.toFixed(1)} мс — ${totalEdges} шт. (composition: ${compositionEdges.length}, reference: ${referenceEdges.length})`,
+    )
+    console.log(`cleanup          — ${tCleanup.toFixed(1)} мс — удалено ${deletedCount}, заглушек ${remainingStubs}`)
+    console.log(`итого            — ${tTotal.toFixed(1)} мс`)
+    console.log("")
+    console.log(`узлов в БД: ${totalDbNodes} (резолвнутых ${totalDbNodes - remainingStubs}, заглушек ${remainingStubs})`)
+    console.log(`рёбер в БД: ${totalDbEdges}`)
+    console.log(
+      `граф в FalkorDB: ${memBytes !== null ? (memBytes / 1024 / 1024).toFixed(2) + " МБ" : "недоступно"}`,
+    )
+    console.log(`heap JS: ${heapMB.toFixed(1)} МБ`)
   } finally {
     await close(conn)
   }

@@ -34,21 +34,37 @@ export const close = async (conn: GraphConnection): Promise<void> => {
   await asInternal(conn).client.close()
 }
 
-export const resetGraph = async (conn: GraphConnection): Promise<void> => {
+export const query = async (
+  conn: GraphConnection,
+  cypher: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  params?: Record<string, unknown>,
+): Promise<unknown> => {
+  // Cast params to any to bridge Record<string, unknown> → QueryParams (not exported by falkordb)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const opts = params !== undefined ? { params: params as any } : undefined
+  return await asInternal(conn).graph.query(cypher, opts)
+}
+
+export const ensureIndex = async (
+  conn: GraphConnection,
+  label: string,
+  prop: string,
+): Promise<void> => {
   try {
-    await asInternal(conn).graph.delete()
+    await asInternal(conn).graph.query(`CREATE INDEX FOR (n:${label}) ON (n.${prop})`)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    if (!/no such|does not exist|empty key/i.test(msg)) throw err
+    if (!/already indexed|equivalent index|index already exists/i.test(msg)) throw err
   }
 }
 
-export const addCatalogs = async (
-  conn: GraphConnection,
-  names: readonly string[],
-): Promise<void> => {
-  if (names.length === 0) return
-  await asInternal(conn).graph.query("UNWIND $batch AS n CREATE (:Catalog {name: n})", {
-    params: { batch: [...names] },
-  })
+export const graphMemoryBytes = async (conn: GraphConnection): Promise<number | null> => {
+  try {
+    const result = await asInternal(conn).graph.memoryUsage()
+    const bytes = Array.isArray(result) ? result[0] : result
+    return typeof bytes === "number" ? bytes : null
+  } catch {
+    return null
+  }
 }
