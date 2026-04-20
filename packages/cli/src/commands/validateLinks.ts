@@ -1,28 +1,12 @@
 import chalk from "chalk"
 import { existsSync, readdirSync, readFileSync } from "fs"
 import { join, relative } from "path"
-import { isMap, parse, parseDocument } from "yaml"
+import { isMap, LineCounter } from "yaml"
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
 import { importMetadataDocumentFromYAML } from "~/metadata/appliedObjects/metadataDocument/fromYAML"
 import { importMetadataEnumerationFromYAML } from "~/metadata/appliedObjects/metadataEnumeration/fromYAML"
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
-
-function offsetToLineCol(
-  filePath: string,
-  offset: number,
-  cache: Map<string, string>,
-): { line: number; col: number } | undefined {
-  if (!filePath || !existsSync(filePath)) return undefined
-  let content = cache.get(filePath)
-  if (content === undefined) {
-    content = readFileSync(filePath, "utf-8")
-    cache.set(filePath, content)
-  }
-  if (offset >= content.length) return undefined
-  const before = content.slice(0, offset)
-  const lines = before.split("\n")
-  return { line: lines.length, col: lines[lines.length - 1].length + 1 }
-}
+import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 
 export const validateLinks = (projectPath: string): void => {
   if (!existsSync(projectPath)) {
@@ -38,6 +22,7 @@ export const validateLinks = (projectPath: string): void => {
   }
 
   let importedCount = 0
+  const lineCounters = new Map<string, LineCounter>()
 
   // Импорт справочников (Справочник/ИмяСправочника/Свойства.yml)
   const catalogsPath = join(projectPath, "Справочник")
@@ -49,16 +34,17 @@ export const validateLinks = (projectPath: string): void => {
 
       try {
         const text = readFileSync(yamlPath, "utf-8")
-        const root = parseDocument(text).contents
+        const parsed = parseMetadataYaml(text)
+        lineCounters.set(yamlPath, parsed.lineCounter)
         importMetadataCatalogFromYAML(
           {
             ...baseContext,
             graphContext: {
               filePath: yamlPath,
-              currentYamlMap: isMap(root) ? root : undefined,
+              currentYamlMap: isMap(parsed.doc.contents) ? parsed.doc.contents : undefined,
             },
           },
-          parse(text),
+          parsed.data,
           dir.name,
         )
         importedCount++
@@ -78,16 +64,17 @@ export const validateLinks = (projectPath: string): void => {
 
       try {
         const text = readFileSync(yamlPath, "utf-8")
-        const root = parseDocument(text).contents
+        const parsed = parseMetadataYaml(text)
+        lineCounters.set(yamlPath, parsed.lineCounter)
         importMetadataDocumentFromYAML(
           {
             ...baseContext,
             graphContext: {
               filePath: yamlPath,
-              currentYamlMap: isMap(root) ? root : undefined,
+              currentYamlMap: isMap(parsed.doc.contents) ? parsed.doc.contents : undefined,
             },
           },
-          parse(text),
+          parsed.data,
           dir.name,
         )
         importedCount++
@@ -107,16 +94,17 @@ export const validateLinks = (projectPath: string): void => {
 
       try {
         const text = readFileSync(yamlPath, "utf-8")
-        const root = parseDocument(text).contents
+        const parsed = parseMetadataYaml(text)
+        lineCounters.set(yamlPath, parsed.lineCounter)
         importMetadataEnumerationFromYAML(
           {
             ...baseContext,
             graphContext: {
               filePath: yamlPath,
-              currentYamlMap: isMap(root) ? root : undefined,
+              currentYamlMap: isMap(parsed.doc.contents) ? parsed.doc.contents : undefined,
             },
           },
-          parse(text),
+          parsed.data,
           dir.name,
         )
         importedCount++
@@ -163,12 +151,11 @@ export const validateLinks = (projectPath: string): void => {
 
   console.error(chalk.red(`\nОбнаружено битых ссылок: ${issues.length}\n`))
 
-  const fileContentCache = new Map<string, string>()
   for (const issue of issues) {
     const displayPath = issue.filePath ? relative(projectPath, issue.filePath) : "(неизвестный файл)"
     let pos = ""
     if (issue.offset !== undefined && issue.filePath) {
-      const lc = offsetToLineCol(issue.filePath, issue.offset, fileContentCache)
+      const lc = lineCounters.get(issue.filePath)?.linePos(issue.offset)
       pos = lc ? `:${lc.line}:${lc.col}` : `:${issue.offset}`
     }
     console.error(`  ${chalk.cyan(displayPath)}${chalk.gray(pos)} — ${chalk.red(issue.targetId)}`)
