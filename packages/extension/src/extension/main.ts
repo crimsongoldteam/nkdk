@@ -177,14 +177,30 @@ async function runSyncConfigurationToXml(): Promise<void> {
     },
   }
   try {
+    let result: ConfigurationSyncResult | undefined
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
         title: "Синхронизация конфигурации в XML...",
       },
-      () => syncConfigurationToXML({ context, inputDir, outputDir })
+      async () => {
+        result = await syncConfigurationToXML({ context, inputDir, outputDir })
+      },
     )
-    await vscode.window.showInformationMessage("Конфигурация синхронизирована с XML.")
+    if (result && result.failed.length > 0) {
+      const outputChannel = getNkdkOutputChannel()
+      outputChannel.clear()
+      for (const f of result.failed) {
+        const label = f.parent ? `${f.parent}/${f.name}` : f.name
+        outputChannel.appendLine(`✖ ${f.kind} "${label}": ${f.error.message}`)
+      }
+      outputChannel.show()
+      await vscode.window.showWarningMessage(
+        `Синхронизация завершена: ${result.succeeded} успешно, ${result.failed.length} с ошибкой. Подробности в Output.`,
+      )
+    } else {
+      await vscode.window.showInformationMessage("Конфигурация синхронизирована с XML.")
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     await vscode.window.showErrorMessage(`Ошибка синхронизации конфигурации с XML: ${message}`)

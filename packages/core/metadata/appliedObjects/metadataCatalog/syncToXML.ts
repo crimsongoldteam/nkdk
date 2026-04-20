@@ -18,7 +18,7 @@ export const syncCatalogToXML = async (params: {
   const { context, inputDir, catalogName, outputDir } = params
   const referenceDir = params.referenceDir ?? outputDir
 
-  const { yamlContent } = readCatalogFiles({ inputDir, catalogName })
+  const { yamlContent } = await readCatalogFiles({ inputDir, catalogName })
 
   const yamlObj = importFromYAML<MetadataCatalogYAML>(yamlContent)
   const catalog = importMetadataCatalogFromYAML(context, yamlObj, catalogName)
@@ -46,11 +46,11 @@ export const syncCatalogToXML = async (params: {
   const formNames =
     referenceChildren.forms.length > 0
       ? referenceChildren.forms
-      : listSubdirNames(join(inputDir, catalogName, "Формы"))
+      : await listSubdirNames(join(inputDir, catalogName, "Формы"))
   const templateNames =
     referenceChildren.templates.length > 0
       ? referenceChildren.templates
-      : listSubdirNames(join(inputDir, catalogName, "Макеты"))
+      : await listSubdirNames(join(inputDir, catalogName, "Макеты"))
 
   const metadataCatalogContext: ConfigurationContextWithExportToXML = {
     ...context,
@@ -78,21 +78,19 @@ export const syncCatalogToXML = async (params: {
   await writeCatalogToXML({ metadataXML: xmlObj, catalogName, outputDir })
 }
 
-function readCatalogFiles(params: { inputDir: string; catalogName: string }): {
+async function readCatalogFiles(params: { inputDir: string; catalogName: string }): Promise<{
   yamlContent: string
-} {
+}> {
   const { inputDir, catalogName } = params
   const yamlPath = join(inputDir, catalogName, "Свойства.yaml")
-  const yamlContent = fs.readFileSync(yamlPath, "utf-8")
+  const yamlContent = await fs.promises.readFile(yamlPath, "utf-8")
   return { yamlContent }
 }
 
-const listSubdirNames = (dir: string): string[] => {
+const listSubdirNames = async (dir: string): Promise<string[]> => {
   if (!fs.existsSync(dir)) return []
-  return fs
-    .readdirSync(dir, { withFileTypes: true })
-    .filter((e) => e.isDirectory())
-    .map((e) => e.name)
+  const entries = await fs.promises.readdir(dir, { withFileTypes: true })
+  return entries.filter((e) => e.isDirectory()).map((e) => e.name)
 }
 
 const writeCatalogToXML = async (params: {
@@ -104,6 +102,6 @@ const writeCatalogToXML = async (params: {
 
   const catalogMetadataPath = join(outputDir, `${catalogName}.xml`)
 
-  fs.mkdirSync(outputDir, { recursive: true })
-  fs.writeFileSync(catalogMetadataPath, xmlExport({ MetaDataObject: metadataXML }), "utf-8")
+  await fs.promises.mkdir(outputDir, { recursive: true })
+  await fs.promises.writeFile(catalogMetadataPath, xmlExport({ MetaDataObject: metadataXML }), "utf-8")
 }

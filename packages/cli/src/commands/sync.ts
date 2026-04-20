@@ -17,5 +17,16 @@ export const syncConfiguration = async (yamlDir: string, xmlDir: string): Promis
       },
     },
   }
-  await syncConfigurationToXML({ context, inputDir: yamlDir, outputDir: xmlDir })
+  const result = await syncConfigurationToXML({ context, inputDir: yamlDir, outputDir: xmlDir })
+
+  for (const f of result.failed) {
+    const label = f.parent ? `${f.parent}/${f.name}` : f.name
+    process.stderr.write(`✖ ${f.kind} "${label}": ${f.error.message}\n`)
+  }
+
+  process.stdout.write(`Готово: ${result.succeeded} успешно, ${result.failed.length} с ошибкой\n`)
+
+  if (result.failed.length > 0) {
+    process.exitCode = 1
+  }
 }

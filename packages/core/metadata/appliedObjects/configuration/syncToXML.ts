@@ -1,105 +1,107 @@
 import fs from "fs"
 import { join } from "path"
+import { BatchTask, runBatch } from "~/helpers/runBatch"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { syncFormToXML } from "~/metadata/forms/clientApplicationForm/syncToXML"
 import { syncCatalogToXML } from "../metadataCatalog/syncToXML"
+import { ConfigurationSyncResult } from "./convertFromXML"
+
+// TODO: вынести в настройки расширения
+const IO_CONCURRENCY = 64
 
 export const syncConfigurationToXML = async (params: {
   context: ConfigurationContextWithExportToXML
   inputDir: string
   outputDir: string
   referenceDir?: string
-}): Promise<void> => {
+}): Promise<ConfigurationSyncResult> => {
   const { context, inputDir, outputDir } = params
   const referenceDir = params.referenceDir ?? outputDir
 
   if (!fs.existsSync(inputDir)) {
-    return
+    return { succeeded: 0, failed: [] }
   }
 
   const catalogsDir = join(inputDir, "Справочник")
 
-  const entries = fs.readdirSync(catalogsDir, { withFileTypes: true })
-  const catalogDirs = entries.filter((e) => e.isDirectory())
+  // Discovery phase: параллельно читаем список каталогов и их форм
+  const entries = await fs.promises.readdir(catalogsDir, { withFileTypes: true })
+  const catalogDirEntries = entries.filter((e) => e.isDirectory())
 
-  for (const entry of catalogDirs) {
-    const contextWithConfigDumpInfo: ConfigurationContextWithExportToXML = {
-      ...context,
-      exportToXML: {
-        ...context.exportToXML,
-      },
-    }
+  const discoveries = await Promise.all(
+    catalogDirEntries.map(async (entry) => {
+      const name = entry.name
+      const propertiesPath = join(catalogsDir, name, "Свойства.yaml")
+      if (!fs.existsSync(propertiesPath)) return null
 
-    const name = entry.name
-    const catalogPath = join(catalogsDir, name)
-    const propertiesPath = join(catalogPath, "Свойства.yaml")
+      const formsDir = join(catalogsDir, name, "Формы")
+      if (!fs.existsSync(formsDir)) return { name, formNames: [] }
+
+      const formEntries = await fs.promises.readdir(formsDir, { withFileTypes: true })
+      const formNames = formEntries
+        .filter((e) => e.isDirectory())
+        .filter((e) => {
+          const formYamlPath = join(formsDir, e.name, "Форма.yaml")
+          const formNkdkPath = join(formsDir, e.name, "Форма.nkdk")
+          return fs.existsSync(formYamlPath) && fs.existsSync(formNkdkPath)
+        })
+        .map((e) => e.name)
+      return { name, formNames }
+    }),
+  )
+
+  // Собираем flat-список задач (каталоги и формы равноправно)
+  const tasks: BatchTask<void>[] = []
+  for (const discovery of discoveries) {
+    if (discovery === null) continue
+    const { name, formNames } = discovery
 
     const catalogOutputDir = join(outputDir, "Catalogs")
     const catalogReferenceDir = join(referenceDir, "Catalogs")
 
-    if (!fs.existsSync(propertiesPath)) {
-      continue
-    }
-
-    // try {
-    await syncCatalogToXML({
-      context: contextWithConfigDumpInfo,
-      inputDir: catalogsDir,
-      catalogName: name,
-      outputDir: catalogOutputDir,
-      referenceDir: catalogReferenceDir,
+    tasks.push({
+      kind: "catalog",
+      name,
+      run: () =>
+        syncCatalogToXML({
+          context: { ...context, exportToXML: { ...context.exportToXML } },
+          inputDir: catalogsDir,
+          catalogName: name,
+          outputDir: catalogOutputDir,
+          referenceDir: catalogReferenceDir,
+        }),
     })
-    // } catch (err) {
-    //   console.error(`Ошибка экспорта каталога "${name}":`, err)
-    // }
 
-    const formsDir = join(catalogPath, "Формы")
-    if (!fs.existsSync(formsDir)) {
-      continue
-    }
+    const catalogPath = join(catalogsDir, name)
+    const formOutputDir = join(outputDir, "Catalogs", name)
+    const formReferenceDir = join(referenceDir, "Catalogs", name, "Forms")
 
-    const formEntries = fs.readdirSync(formsDir, { withFileTypes: true })
-    const formDirs = formEntries.filter((e) => e.isDirectory())
-
-    for (const formEntry of formDirs) {
-      const formName = formEntry.name
-      const formYamlPath = join(formsDir, formName, "Форма.yaml")
-      const formNkdkPath = join(formsDir, formName, "Форма.nkdk")
-      if (!fs.existsSync(formYamlPath) || !fs.existsSync(formNkdkPath)) {
-        continue
-      }
-
-      const formOutputDir = join(outputDir, "Catalogs", name)
-      const formReferenceDir = join(referenceDir, "Catalogs", name, "Forms")
-
-      try {
-        await syncFormToXML({
-          context,
-          inputDir: catalogPath,
-          formName,
-          outputDir: formOutputDir,
-          referenceDir: formReferenceDir,
-        })
-      } catch (err) {
-        console.error(`Ошибка экспорта формы "${name}/${formName}":`, err)
-      }
+    for (const formName of formNames) {
+      tasks.push({
+        kind: "form",
+        name: formName,
+        parent: name,
+        run: () =>
+          syncFormToXML({
+            context,
+            inputDir: catalogPath,
+            formName,
+            outputDir: formOutputDir,
+            referenceDir: formReferenceDir,
+          }),
+      })
     }
   }
+
+  const batchResult = await runBatch(tasks, { concurrency: IO_CONCURRENCY })
+
+  return {
+    succeeded: batchResult.succeeded,
+    failed: batchResult.failed.map((f) => ({
+      kind: f.kind as "catalog" | "form",
+      name: f.name,
+      parent: f.parent,
+      error: f.error,
+    })),
+  }
 }
-
-// const syncConfigDumpInfoInfoFromXML = (params: {
-//   context: ConfigurationContext
-//   inputDir: string
-// }): Promise<ConfigDumpInfo> => {
-//   const { context, inputDir } = params
-
-//   const dumpInfoPath = join(inputDir, "ConfigDumpInfo.xml")
-//   if (!fs.existsSync(dumpInfoPath)) {
-//     return Promise.resolve(new Map<string, { children: Map<string, string>; id: string; configVersion: string }>())
-//   }
-//   const xmlContent = fs.readFileSync(dumpInfoPath, "utf-8")
-//   const xml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(xmlContent)
-
-//   const result = importConfigDumpInfoFromXML({ context, xml: xml.ConfigDumpInfo })
-//   return Promise.resolve(result)
-// }
