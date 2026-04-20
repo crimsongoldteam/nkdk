@@ -42,7 +42,7 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
     for (const dir of readdirSync(catalogsPath, { withFileTypes: true }).filter((e) =>
       e.isDirectory(),
     )) {
-      const yamlPath = join(catalogsPath, dir.name, "Свойства.yml")
+      const yamlPath = join(catalogsPath, dir.name, "Свойства.yaml")
       if (!existsSync(yamlPath)) continue
       try {
         const text = readFileSync(yamlPath, "utf-8")
