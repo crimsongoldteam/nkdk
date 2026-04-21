@@ -17,3 +17,8 @@ out-round-trip/
 delete/
 .env
 .pnpm-store/
+.ralph/logs/*
+.ralph/.*
+.ralph/*.log
+.ralph/status.json
+.ralph/progress.json

@@ -15,7 +15,7 @@ export type TestExportElementToXMLParams<TElement extends CollectableElement = C
 }
 
 export function testExportElementToXML<TElement extends CollectableElement>(
-  params: TestExportElementToXMLParams<TElement>,
+  params: TestExportElementToXMLParams<TElement>
 ): { expectedResult: string; result: string } {
   const { element, path, baseDir, contextAttributes } = params
 

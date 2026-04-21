@@ -15,14 +15,18 @@ export const convertCatalogFromXML = async (params: {
 }): Promise<void> => {
   const { context, inputDir, name: name, outputDir } = params
 
-  const catalog = readCatalogFromXML({ context, inputDir, catalogName: name })
+  const inputPath = join(inputDir, `${name}.xml`)
+  const xmlContent = await fs.promises.readFile(inputPath, "utf-8")
+  const parsed = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(xmlContent)
+  const catalog = importMetadataCatalogFromXML(context, parsed.MetaDataObject)
+
   const result = readCatalogFromXMLToYAML({ context, catalog }) ?? ""
 
   const outputPath = join(outputDir, name)
-  fs.mkdirSync(outputPath, { recursive: true })
+  await fs.promises.mkdir(outputPath, { recursive: true })
 
   const outputFilePath = join(outputPath, "Свойства.yaml")
-  fs.writeFileSync(outputFilePath, result, "utf-8")
+  await fs.promises.writeFile(outputFilePath, result, "utf-8")
 }
 
 export function readCatalogFromXML(params: {

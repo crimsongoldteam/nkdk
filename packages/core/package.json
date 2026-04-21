@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@sinclair/typebox": "^0.34.48",
+    "p-limit": "^6.2.0",
     "change-case": "^5.4.4",
     "chevrotain": "^11.0.3",
     "date-fns": "^4.1.0",

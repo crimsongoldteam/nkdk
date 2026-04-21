@@ -1,12 +1,13 @@
 import * as fs from "fs"
 import * as path from "path"
 import * as vscode from "vscode"
-import { isMap, parse, parseDocument } from "yaml"
+import { isMap } from "yaml"
 import {
   importMetadataCatalogFromYAML,
   importMetadataDocumentFromYAML,
   importMetadataEnumerationFromYAML,
   MetadataGraph,
+  parseMetadataYaml,
 } from "@nakidka/core"
 
 let _graph = new MetadataGraph()
@@ -30,7 +31,7 @@ function _notifyGraphUpdated(): void {
 }
 
 function importCatalogFile(graph: MetadataGraph, yamlPath: string, text: string, catalogName: string): void {
-  const root = parseDocument(text).contents
+  const parsed = parseMetadataYaml(text)
   importMetadataCatalogFromYAML(
     {
       version: "2.20",
@@ -38,16 +39,16 @@ function importCatalogFile(graph: MetadataGraph, yamlPath: string, text: string,
       graph,
       graphContext: {
         filePath: yamlPath,
-        currentYamlMap: isMap(root) ? root : undefined,
+        currentYamlMap: isMap(parsed.doc.contents) ? parsed.doc.contents : undefined,
       },
     },
-    parse(text),
+    parsed.data,
     catalogName,
   )
 }
 
 function importEnumerationFile(graph: MetadataGraph, yamlPath: string, text: string, enumName: string): void {
-  const root = parseDocument(text).contents
+  const parsed = parseMetadataYaml(text)
   importMetadataEnumerationFromYAML(
     {
       version: "2.20",
@@ -55,16 +56,16 @@ function importEnumerationFile(graph: MetadataGraph, yamlPath: string, text: str
       graph,
       graphContext: {
         filePath: yamlPath,
-        currentYamlMap: isMap(root) ? root : undefined,
+        currentYamlMap: isMap(parsed.doc.contents) ? parsed.doc.contents : undefined,
       },
     },
-    parse(text),
+    parsed.data,
     enumName,
   )
 }
 
 function importDocumentFile(graph: MetadataGraph, yamlPath: string, text: string, documentName: string): void {
-  const root = parseDocument(text).contents
+  const parsed = parseMetadataYaml(text)
   importMetadataDocumentFromYAML(
     {
       version: "2.20",
@@ -72,10 +73,10 @@ function importDocumentFile(graph: MetadataGraph, yamlPath: string, text: string
       graph,
       graphContext: {
         filePath: yamlPath,
-        currentYamlMap: isMap(root) ? root : undefined,
+        currentYamlMap: isMap(parsed.doc.contents) ? parsed.doc.contents : undefined,
       },
     },
-    parse(text),
+    parsed.data,
     documentName,
   )
 }

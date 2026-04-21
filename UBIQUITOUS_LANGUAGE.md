@@ -488,3 +488,152 @@
 - **«element»** в коде означает два разных объекта: (1) **form element** (Table, Button, InputField…) — то, что регистрируется через `registerElementRule`; (2) произвольная запись в **`metadataForNumbering`**, в которой `element` может быть **FormAttribute** или любым нумеруемым объектом. В обсуждениях уточняй — **form element** или «запись стека».
 - **«DynamicList»** как понятие появляется в двух местах: как значение `type.type` в **TypeDescription** (признак атрибута-динсписка) и как свойство `FormAttribute.dynamicList` (сами настройки динсписка). Первое — маркер типа, второе — содержание; между ними связь «если тип один и это `DynamicList`, то свойство `dynamicList` на атрибуте, как правило, заполнено».
 - **«контекст мока»** — это **`contextAttributes`** в **`ElementFixture`**, не правка `mockContextToXML`. Когда в обсуждении звучит «замокай контекст», уточняй уровень: глобальный helper или поле фикстуры.
+
+## Парсинг YAML с координатами (из диалога о `parseDocument` vs `parse` и двойном парсинге)
+
+| Термин | Определение | Избегать |
+| ------ | ----------- | -------- |
+| **YAML Document** | Результат `parseDocument(text)` — обёртка над AST библиотеки `yaml`, хранящая узлы со смещениями в исходном тексте. Не путать с **прикладным объектом** «Документ» | Document (без префикса), doc tree |
+| **AST-узел** (YAML) | Объект из библиотеки `yaml`: `YAMLMap`, `YAMLSeq`, `YAMLScalar` — знает своё `range` | Node (без префикса) |
+| **Plain data** | Результат `parse(text)` или `doc.toJS()` — обычный JS-объект без координат; семантически эквивалентен `parseDocument(text).toJS()` в текущем проекте (дефолтные опции, нет custom tags) | data (перегружено), raw |
+| **`range`** | Пара/тройка offset'ов `[start, valueEnd, nodeEnd]` на **AST-узле** (YAML), задающая положение узла в исходном тексте | positions, span |
+| **`offset`** | Смещение в символах от начала текста; берётся как `range[0]` **AST-узла** | position, char index |
+| **`LineCounter`** | Утилита библиотеки `yaml` (передаётся в `parseDocument(text, {lineCounter})`), переводит **`offset`** → `{line, col}` за O(log N) | Line resolver |
+| **`ParsedYaml`** | Доменная обёртка `{text, doc, data, lineCounter}` из `parseMetadataYaml` — гарантирует один парсинг на файл и доступ ко всем артефактам через единый объект | Parse result, ParsedDocument |
+| **`parseMetadataYaml`** | Хелпер в `packages/core/yaml/`, возвращающий **`ParsedYaml`**; единая точка устранения двойного парсинга в call sites `updateGraph.ts` / `validateLinks.ts` / `workspaceGraph.ts` | — |
+| **JSON Pointer** | Формат пути в ошибках TypeBox (`Value.Errors`): `"/Реквизиты/0/Тип"`. Превращается в массив ключей декодированием `~1`→`/`, `~0`→`~` и конверсией цифровых сегментов в числа | Error path |
+| **`doc.getIn(keys, true)`** | Встроенный метод `yaml.Document`: навигация по AST по массиву ключей, возврат **AST-узла** (не примитива); применяется для привязки **JSON Pointer** к координатам | — |
+| **`currentYamlMap`** | `YAMLMap` текущего объекта, прокинутый в importer через `graphContext`; единственный способ для importer'а добраться до **`range`** своих подполей | Ast map |
+
+### Relationships парсинга
+
+- **`ParsedYaml`** содержит ровно один **YAML Document** и один **`LineCounter`** — инвариант «один парс на файл».
+- **Plain data** получается из `doc.toJS()` **`YAML Document`**'а; для importer'ов это тот же plain, что `parse(text)` раньше — контракт не меняется.
+- Поле **`positionFrom`** на **Node** графа = `{offset, length?}`, где `offset` = `range[0]` **AST-узла** YAML. `length` не заполняется нигде, зарезервирован.
+- **JSON Pointer** из TypeBox + **`doc.getIn(keys, true)`** + **`range[0]`** + **`LineCounter.linePos`** → `{filePath, line, col}` — **единственный** путь от «логической» ошибки к «физическим» координатам.
+
+## Валидация метаданных и диагностика (из диалога об устранении `offsetToLineCol` и расширении команды `validate`)
+
+| Термин | Определение | Избегать |
+| ------ | ----------- | -------- |
+| **`Diagnostic`** | Единица результата валидации: `{filePath, line, col, message, severity, source, path?}`. Неизменяемый объект, **не** содержит ссылок на модель или AST | Error, issue (перегружено) |
+| **`DiagnosticSource`** | Категория диагностики: `"syntax" \| "structure" \| "external-file" \| "cross-file" \| "reference"`. Одна диагностика имеет ровно один **source** | Error kind, error category |
+| **`Severity`** | `"error" \| "warning"`; процесс CLI `validate` падает при наличии хотя бы одного `"error"` | Level |
+| **Syntax diagnostic** | Ошибка парсинга YAML из `doc.errors`; short-circuit'ит остальные проверки по этому файлу | Parse error diagnostic |
+| **Structure diagnostic** | Несоответствие **TSchema** (TypeBox), координаты получаются через **JSON Pointer** → **AST-узел** → **`range[0]`** → **`LineCounter`**. Если поле отсутствует (Required property) — координаты **родительского AST-узла** через `getIn(keys.slice(0,-1), true)` | Schema error, type error |
+| **External-file diagnostic** | Отсутствие или пустота файла, на который ссылается **правило свойства** с **опцией `externalFile`** | Sidecar diagnostic |
+| **Cross-file diagnostic** | Несогласованность внутри **Form** (пара **Form structure file** + **Form properties file**) — категория **зарезервирована**, кросс-файловые проверки в первой итерации не пишутся | Form consistency |
+| **Reference diagnostic** | **Битая ссылка** в **графе** (роль бывшего `validateLinks`); координаты берутся из **`positionFrom`** узла-источника | Broken link diagnostic |
+| **`SchemaCache`** | Ленивый кеш **TypeCheck** по **MetadataKind**: одна компиляция `TypeCompiler.Compile(exportMetadataCatalogToJSONSchema({context}))` на прогон, переиспользуется для всех файлов того же типа | Validator cache |
+| **`TypeCheck`** | Результат `TypeCompiler.Compile(TSchema)` — быстрый валидатор с методом `.Errors(data)`; единственный способ получить `Iterable<ValueError>` с **JSON Pointer** | Compiled validator |
+| **`MetadataKind`** | Дискриминатор верхнего типа: `"catalog" \| "document" \| "enumeration"`; определяется по имени директории проекта (`Справочник/`, `Документ/`, `Перечисление/`), **не** по содержимому файла | ItemType (перегружено с `itemType` в модели) |
+| **`validateFile`** | Проверка одного YAML: `parseMetadataYaml` → **Syntax diagnostic**'и (short-circuit) → **`TypeCheck.Errors`** → **Structure diagnostic**'и | — |
+| **`validateForm`** | Проверка пары файлов одной **Form**: `validateFile` × 2 + место под будущие **cross-file diagnostic**'и | — |
+| **`validateItem`** | Проверка одного **MetadataItem** целиком: основной `Свойства.yml` через `validateFile` + **External-file diagnostic**'и по опциям **`externalFile`** + `validateForm` для каждой формы | — |
+| **`validateProject`** | Проверка всего проекта: обход директорий по **MetadataKind** + `validateItem` по каждой + **Reference diagnostic**'и графа. Замещает и расширяет существующую команду `validateLinks` | — |
+| **Short-circuit на синтаксисе** | Правило: если `parseDocument(text).errors.length > 0`, возвращаем только **Syntax diagnostic**'и по этому файлу, не запускаем TypeBox и не включаем этот файл в сборку графа | — |
+| **Параллельный режим валидации** | Принятый порядок: импорт графа (толерантный — `getValueOrDefault`), TypeBox-валидация и проверка ссылок работают независимо по одному файлу; все три вида **Diagnostic**'ов собираются в один отчёт. Gate на импорте не используется | Каскадный, cascade |
+
+### Relationships валидации
+
+- **`validateProject`** ⊃ `createSchemaCache(context)` + цикл по директориям + `validateItem` + **Reference diagnostic** по графу; выходной массив **Diagnostic**'ов сортируется по `filePath`/`line`/`col` для стабильного вывода.
+- **`validateItem`** ⊃ ≥1 **`validateFile`** (основной `Свойства.yml`), N **External-file diagnostic**'ов, ≥0 **`validateForm`** (по числу форм объекта).
+- **`SchemaCache`** живёт ровно на один прогон **`validateProject`**; компилируется лениво по первому обращению к данному **MetadataKind**.
+- **Syntax diagnostic** исключает другие типы диагностик того же файла (short-circuit), но не других файлов; **Reference diagnostic** такого файла также не возникает, потому что impotrer не строит для него узлов.
+- **Structure diagnostic** формируется строго из `TypeCheck.Errors(data)` + `doc.getIn` + `LineCounter` — никакой ручной код валидации не дублирует TypeBox.
+- Команда CLI **`validate`** — тонкая обёртка над **`validateProject`**; форматирует `Diagnostic` как `file:line:col [source] message`, `process.exit(1)` при наличии errors.
+
+### Пример диалога
+
+> **Dev:** «В `updateGraph.ts` и `validateLinks.ts` один и тот же YAML парсится и через `parseDocument`, и через `parse`. Это двойная работа?»
+
+> **Domain expert:** «Да. Надо вынести в `parseMetadataYaml(text)` → **`ParsedYaml`** с полями `doc`, `data` (`doc.toJS()`), `lineCounter`. Contract importer'ов не трогаем — `data` остаётся **Plain data**, **`currentYamlMap`** — тем же `YAMLMap` в `graphContext`. Просто убираем повторный `parse(text)`.»
+
+> **Dev:** «А как из TypeBox-ошибки получить номер строки в YAML?»
+
+> **Domain expert:** «TypeBox даёт **JSON Pointer** `/Реквизиты/0/Тип`. Декодируем в `["Реквизиты", 0, "Тип"]`, делаем `doc.getIn(keys, true)` — возвращается **AST-узел** с **`range`**. `range[0]` — **`offset`**. **`LineCounter.linePos(offset)`** → `{line, col}`. Собираем **Structure diagnostic**.»
+
+> **Dev:** «А если поле просто отсутствует?»
+
+> **Domain expert:** «TypeBox кидает ошибку на родительском пути — `Required property` с `path` родителя. `getIn` вернёт узел родителя, `range[0]` — его начало. Это осознанный выбор: согласованность с остальными кейсами важнее «точечности» вставки.»
+
+> **Dev:** «TypeBox на битом YAML даст ворох ложных ошибок?»
+
+> **Domain expert:** «Поэтому **short-circuit**. Проверяем `doc.errors.length > 0` — и выдаём только **Syntax diagnostic**'и. TypeBox для этого файла не запускается, importer не кладёт узлов — значит и **Reference diagnostic** по нему не появится автоматически. Пользователь видит корневую причину, а не её производные.»
+
+> **Dev:** «Одна команда CLI `validate` вместо двух — `validate-links` и `validate-structure`?»
+
+> **Domain expert:** «Да, одна. Внутри — **`validateProject`**, который собирает все **Diagnostic**'и параллельно: импорт строит граф (толерантно), **`SchemaCache`** компилирует **TSchema** один раз на **MetadataKind**, **`validateItem`** проверяет каждый объект, поверх — **Reference diagnostic** по графу. Gate на импорте нет — importer у нас `getValueOrDefault`-толерантный, ломать это без выгоды не стоит.»
+
+### Flagged ambiguities валидации и парсинга
+
+- **«Document»** — двусмыслен на двух уровнях домена: (1) **YAML Document** — контейнер парсинга библиотеки `yaml`; (2) **«Документ»** — вид **прикладного объекта** метаданных (регистры документов 1С). В коде и обсуждениях использовать полные формы: «YAML Document» / «прикладной объект Документ» либо `doc` / `MetadataDocument`. Слово `Document` в одиночку избегать.
+- **«parse»** — использовалось и как имя функции `parse` из `yaml`, и как общий процесс парсинга. В доменной речи «парсить» — только процесс; функцию называть полностью (`parse`, `parseDocument`, `parseMetadataYaml`).
+- **«data»** — слишком общее слово. В паре с YAML означает **Plain data** (из `parse`/`toJS`); не путать с **`ParsedYaml`** (полная обёртка) и не использовать как имя **AST-узла**.
+- **«schema»** — раньше использовалось для TypeBox-схемы (**TSchema**) и для структуры **правил** (`rules.ts`). Это разные сущности; источник **TSchema** — **правило объекта** через `exportMetadataItemToJSONSchema`, а не наоборот. Когда говорят «схема каталога», канонично — **TSchema**, полученная для `MetadataCatalog`.
+- **«validate»** — используется и как название CLI-команды, и как семейство функций `validate*`. В доменной речи команда — `validate` (одна), а функции уровня — **`validateFile`** / **`validateForm`** / **`validateItem`** / **`validateProject`**; не использовать «validate» без суффикса внутри кода.
+- **«group of files»** — в обсуждении уточнено: «группа» = пара файлов одной **Form** (**Form structure file** + **Form properties file**). Не путать с «все файлы одного **MetadataItem**» (это уровень **`validateItem`**) и не с «произвольное подмножество файлов» (такой кейс не поддерживается).
+- **«position» / «range» / «offset» / «coordinates»** — используются вперемешку. Канон: **`offset`** — число, **`range`** — массив offset'ов на **AST-узле**, **`positionFrom`** — атрибут **Node** графа (`{offset, length?}`), `{line, col}` — результат работы **`LineCounter`**. Слово «coordinates» в коде не использовать.
+- **«свойство»** перегружено на трёх уровнях: (1) `property` в **правиле** (декларативное описание поля в `rules.ts`); (2) значение поля объекта (runtime-данные модели); (3) файл `Свойства.yml`. Предпочитать уточнения: **правило свойства**, «поле объекта», **Form properties file**.
+- **«error»** vs **`Diagnostic`** — в обсуждениях использовались как синонимы. Канонично: **`Diagnostic`** — структурированный объект с `source`/`severity`/`line`/`col`, результат **`validate*`**. «error» — только `DiagnosticSeverity.error` внутри **`Diagnostic`**, либо `err` из `TypeCheck.Errors` (до преобразования).
+
+## Массовые операции и асинхронность (из диалога о переводе import/export на async)
+
+| Термин | Определение | Избегать |
+| ------ | ----------- | -------- |
+| **Массовая операция** | Обработка множества файлов конфигурации (каталоги + формы) одним вызовом — `syncConfigurationFromXML`, `syncConfigurationToXML` | Bulk operation, batch job |
+| **Пакет (Batch)** | Набор независимых задач одного типа, выполняемых конкурентно с общим лимитом concurrency | Job pool, очередь задач |
+| **`runBatch`** | Internal-хелпер в `packages/core/helpers/runBatch.ts`, выполняющий список **задач (BatchTask)** с лимитом **concurrency** и семантикой `Promise.allSettled` | Executor, scheduler |
+| **Задача (BatchTask)** | Единица работы в **пакете**: `{kind, name, parent?, sourcePath?, run: () => Promise<T>}` | Work item |
+| **Результат пакета (BatchResult)** | `{succeeded, failed: BatchFailure[], results: T[]}` — агрегат **runBatch** | — |
+| **Сбой (BatchFailure)** | Запись об упавшей **задаче**: `{kind, name, parent?, sourcePath?, error}` | Error entry |
+| **Вид задачи (`kind`)** | Строковый ярлык **задачи** для различения в агрегате: `"catalog"`, `"form"` | Type, tag |
+| **Предок (`parent`)** | Имя владеющего объекта **задачи**: для формы — имя каталога. Используется в выводе ошибок | Parent ref |
+| **ConfigurationSyncResult** | Публичный тип возврата `syncConfigurationFromXML`/`syncConfigurationToXML`: `{succeeded, failed: Array<{kind: "catalog" \| "form", name, parent?, error}>}` | ImportSummary, ExportSummary |
+| **Discovery-фаза** | Параллельное чтение структуры директорий (`readdir`) до построения списка **задач** — находит все имена каталогов и форм | Сканирование, индексация |
+| **Flat-параллелизм** | Стратегия, при которой каталоги и формы равноправно конкурируют за слоты concurrency в одном **пакете** (не иерархически) | Плоский батч |
+| **Concurrency limit** | Максимальное число одновременно выполняющихся **задач** в **пакете**. Захардкожен = 64 (TODO: вынести в настройки расширения) | Параллелизм, parallelism |
+| **`p-limit`** | Зависимость, реализующая семафор concurrency. Используется внутри **runBatch** | Семафор, limiter |
+| **Оркестратор с I/O** | Функция, читающая/пишущая файлы: `syncConfigurationFromXML`, `syncConfigurationToXML`, `convertCatalogFromXML`, `convertFormFromXML`, `syncCatalogToXML`, `syncFormToXML`. Все — `async`, мигрируют на `fs.promises` | Runner, processor |
+| **Чистый трансформер** | Функция преобразования данных без I/O: `xmlExport`, `importContentFromXML`, `importFromYAML`, `exportToYAML`, `importMetadataCatalogFromXML` и т. п. CPU-bound; на async **не** переводятся (YAGNI до worker pool) | Converter, mapper |
+| **`fs.promises` API** | Асинхронные аналоги `fs.readFile`, `fs.writeFile`, `fs.mkdir`, `fs.readdir`. Работают через libuv thread pool | Promisified fs |
+| **`fs.*Sync` API** | Синхронные аналоги, блокирующие event loop. Подлежат замене в **оркестраторах с I/O** | Blocking fs |
+| **libuv thread pool** | Пул потоков Node.js (дефолт 4, `UV_THREADPOOL_SIZE`), обслуживающий `fs.promises`. Единственный источник реального параллелизма I/O без worker threads | Event loop pool |
+| **Worker pool** | Набор `worker_threads` для распараллеливания **чистых трансформеров** (CPU-bound парсинг). **Вне скоупа** текущей задачи | Thread pool (CPU) |
+| **Shortroundtrip** | Служебная функция `shortRoundTripXML` — XML→модель→XML для тестирования round-trip. **Исключена из скоупа** async-миграции | Round-trip CLI |
+
+### Relationships массовых операций
+
+- **Оркестратор с I/O** `syncConfigurationFromXML`/`syncConfigurationToXML` = **Discovery-фаза** + `runBatch` + маппинг в **ConfigurationSyncResult**.
+- **runBatch** работает **только** если все вызываемые из `run` функции реально асинхронны (на `fs.promises`); при `fs.*Sync` внутри параллелизм деградирует до последовательного.
+- **Чистые трансформеры** вызываются внутри **оркестраторов с I/O**, но сами sync; переход на async для них требует перехода в **worker pool** (отдельная задача, вне скоупа).
+- `async`-пометка функции **не** эквивалентна асинхронной работе: без реального `await` над Promise она лишь оборачивает возврат в `Promise.resolve`.
+- **Concurrency limit** 64 выше дефолта libuv thread pool (4) не ускоряет I/O пропорционально: сверх ~threadPool×2–3 лишние задачи просто стоят в очереди libuv.
+
+### Пример диалога
+
+> **Dev:** «Чтобы ускорить `syncConfigurationFromXML`, достаточно пометить внутренние функции `async`?»
+
+> **Domain expert:** «Нет. `async` — это обёртка над возвратом; если внутри `fs.readFileSync`, event loop всё равно блокируется. Нужны `fs.promises.readFile`/`writeFile`/`mkdir` в **оркестраторах с I/O**, иначе **runBatch** будет выполнять **задачи** последовательно, несмотря на `Promise.all`.»
+
+> **Dev:** «А **чистые трансформеры** — тоже переводим на async?»
+
+> **Domain expert:** «Нет. Они CPU-bound. `async` над `importContentFromXML` не даёт параллелизма — Node.js однопоточен для JS. Выигрыш возможен только через **worker pool**, но это вне скоупа. Сейчас трансформеры остаются sync.»
+
+> **Dev:** «Почему **flat-параллелизм** вместо «каталоги параллельно, формы внутри последовательно»?»
+
+> **Domain expert:** «Каталоги и формы — независимые файлы, конкурируют только за слоты concurrency. Иерархический батч даёт неровную нагрузку: каталог с 50 формами держит слот намного дольше каталога без форм. Flat — один `runBatch` на всё — ровнее загружает **libuv thread pool**.»
+
+> **Dev:** «Что с ошибкой в одной **задаче**?»
+
+> **Domain expert:** «`Promise.allSettled` семантика: одна упавшая задача не валит батч, попадает в `BatchResult.failed` как **BatchFailure**. Верхний уровень маппит в **ConfigurationSyncResult**; CLI печатает ошибки и ставит `process.exitCode = 1`.»
+
+### Flagged ambiguities массовых операций
+
+- **«sync»** перегружен: (1) префикс `sync*` в именах функций (`syncConfigurationToXML`) означает «синхронизация форматов» — бизнес-операция приведения YAML-дерева к XML-дереву; (2) «sync-функция» в JS — синхронная функция (противоположна `async`). В обсуждениях использовать полные формы: «функция-синхронизация», «синхронная функция». Сокращённое «sync-функция» не использовать.
+- **«async»** двусмыслен: (1) ключевое слово `async function` — чисто синтаксический маркер, оборачивающий return в Promise; (2) реально асинхронная операция — ожидание Promise, возвращаемого нижним слоем (I/O, воркер). Функция, помеченная `async`, но без `await` над настоящим Promise, **асинхронной не становится**. В речи уточнять: «async-пометка» vs «асинхронная работа».
+- **«параллелизм» vs «конкурентность»** — в Node.js: **concurrency** (через event loop / libuv) ≠ **parallelism** (через worker threads). `Promise.all` с `fs.promises` даёт конкурентность I/O (физически параллельно на уровне ядра ОС), но не параллелизм JS-кода. CPU-bound код параллелится только **worker pool**.
+- **«оркестратор»** пересекается с термином **Оркестрация** (модуль `metadata/orchestration/`, раздел «Реализация объекта метаданных»): **Оркестрация** — код, выполняющий импорт/экспорт по правилам; **Оркестратор с I/O** — верхнеуровневая функция с файловыми операциями. Разные уровни. Канон: для первой — «Оркестрация» / «оркестрационный слой», для второй — «оркестратор с I/O» или прямое имя функции.
+- **«import/export»** перегружен: (1) направление данных на уровне конфигурации (XML→YAML = импорт, YAML→XML = экспорт, соответствует `syncConfigurationFromXML`/`syncConfigurationToXML`); (2) **Направление** сериализации одного объекта (`fromXML`, `toXML`, `fromYAML`, `toYAML`). Первое — бизнес-операция, второе — техническая функция. В речи не смешивать: «импорт конфигурации» vs «направление `fromXML`».
+- **«Batch»** в проекте до этого не использовался; не путать с `FileBatch`/`TableBatch` в терминологии самого 1С (отсутствует в глоссарии сейчас). В контексте async-миграции **Batch** = «**пакет задач runBatch**».
+- **«catalog»** в контексте массовых операций — **прикладной объект** «Справочник»; не путать с «catalog» как синонимом «directory» в английском. В русском тексте использовать «каталог» только если из контекста ясно, что речь о прикладном объекте; иначе — «директория».
