@@ -10,7 +10,7 @@ export const exportIndexFieldToYAML = (
 ): IndexFieldYAML | undefined => {
   if (!data) return undefined
 
-  return "TODO"
+  return data
 }
 
 export const exportIndexFieldsToYAML = (
