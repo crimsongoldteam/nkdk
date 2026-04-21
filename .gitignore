@@ -17,3 +17,4 @@ out-round-trip/
 delete/
 .env
 .pnpm-store/
+.ralph/logs/ralph.log
