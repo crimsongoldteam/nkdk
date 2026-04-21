@@ -1,17 +1,9 @@
 import { existsSync, readdirSync, readFileSync } from "fs"
 import { join } from "path"
 import { LineCounter } from "yaml"
-import { isMap } from "yaml"
-import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { importMetadataDocumentFromYAML } from "~/metadata/appliedObjects/metadataDocument/fromYAML"
-import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
-import { importMetadataEnumerationFromYAML } from "~/metadata/appliedObjects/metadataEnumeration/fromYAML"
-import { MetadataEnumerationRules } from "~/metadata/appliedObjects/metadataEnumeration/rules"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
+import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { createSchemaCache } from "./schemaCache"
 import { Diagnostic, MetadataKind } from "./types"
 import { validateItem } from "./validateItem"
@@ -58,11 +50,6 @@ export function validateProject(params: { projectPath: string; context: Configur
   const graph = new MetadataGraph()
   const lineCounters = new Map<string, LineCounter>()
 
-  const baseGraphContext = {
-    ...context,
-    graph,
-  }
-
   const items = collectItems(projectPath)
 
   for (const { kind, itemDir, name, yamlPath } of items) {
@@ -74,55 +61,9 @@ export function validateProject(params: { projectPath: string; context: Configur
     // Импорт в граф для проверки ссылок
     try {
       const text = readFileSync(yamlPath, "utf-8")
-      const parsed = parseMetadataYaml(text)
-      lineCounters.set(yamlPath, parsed.lineCounter)
-
-      const yamlMap = isMap(parsed.doc.contents) ? parsed.doc.contents : undefined
-
-      const importContext = {
-        ...baseGraphContext,
-        graphContext: {
-          filePath: yamlPath,
-          currentYamlMap: yamlMap,
-        },
-      }
-
-      if (kind === "catalog") {
-        const model = importMetadataCatalogFromYAML(importContext, parsed.data, name)
-        if (model) {
-          buildGraphFromModel({
-            model: model as unknown as Record<string, unknown>,
-            yamlMap,
-            rule: MetadataCatalogRules,
-            graph,
-            parentNodeId: `${MetadataCatalogRules.itemTypePrefix}.${name}`,
-            filePath: yamlPath,
-          })
-        }
-      } else if (kind === "document") {
-        const model = importMetadataDocumentFromYAML(importContext, parsed.data, name)
-        if (model) {
-          buildGraphFromModel({
-            model: model as unknown as Record<string, unknown>,
-            yamlMap,
-            rule: MetadataDocumentRules,
-            graph,
-            parentNodeId: `${MetadataDocumentRules.itemTypePrefix}.${name}`,
-            filePath: yamlPath,
-          })
-        }
-      } else {
-        const model = importMetadataEnumerationFromYAML(importContext, parsed.data, name)
-        if (model) {
-          buildGraphFromModel({
-            model: model as unknown as Record<string, unknown>,
-            yamlMap,
-            rule: MetadataEnumerationRules,
-            graph,
-            parentNodeId: `${MetadataEnumerationRules.itemTypePrefix}.${name}`,
-            filePath: yamlPath,
-          })
-        }
+      const result = importMetadataFileWithGraph({ filePath: yamlPath, text, kind, name, graph, context })
+      if (result) {
+        lineCounters.set(yamlPath, result.parsed.lineCounter)
       }
     } catch {
       // Ошибки импорта (например, из-за синтаксических ошибок YAML) не блокируют остальные проверки
