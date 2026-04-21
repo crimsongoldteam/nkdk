@@ -7,6 +7,7 @@ import {
   MetadataAttributesYAML,
 } from "./types"
 import { importTypeDescriptionFromYAML } from "~/metadata/commonObjects/typeDescription/fromYAML"
+import "~/metadata/commonObjects/typeDescription/graphFromModel"
 import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
@@ -14,6 +15,7 @@ import { ExportToJSONSchemaFn, importMetadataItemFromYAML, registerTypeRule } fr
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
+import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { defaultGraph } from "~/metadata/relations/graph"
@@ -103,6 +105,17 @@ const importMetadataAttributesFromYAML = (
       const attr = importMetadataAttributeFromYAML(childContext, value as MetadataAttributeYAML, name)
 
       g.setNodeAttribute(attrNodeId, "item", attr)
+
+      if (attr && attrValueYamlMap) {
+        buildGraphFromModel({
+          model: attr as unknown as Record<string, unknown>,
+          yamlMap: attrValueYamlMap,
+          rule: MetadataAttributeRules,
+          graph: g,
+          parentNodeId: attrNodeId,
+          filePath: graphContext.filePath,
+        })
+      }
 
       return attr
     }

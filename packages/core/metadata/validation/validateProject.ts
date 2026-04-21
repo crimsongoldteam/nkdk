@@ -3,9 +3,13 @@ import { join } from "path"
 import { LineCounter } from "yaml"
 import { isMap } from "yaml"
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
+import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { importMetadataDocumentFromYAML } from "~/metadata/appliedObjects/metadataDocument/fromYAML"
+import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
 import { importMetadataEnumerationFromYAML } from "~/metadata/appliedObjects/metadataEnumeration/fromYAML"
+import { MetadataEnumerationRules } from "~/metadata/appliedObjects/metadataEnumeration/rules"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { createSchemaCache } from "./schemaCache"
@@ -73,20 +77,52 @@ export function validateProject(params: { projectPath: string; context: Configur
       const parsed = parseMetadataYaml(text)
       lineCounters.set(yamlPath, parsed.lineCounter)
 
+      const yamlMap = isMap(parsed.doc.contents) ? parsed.doc.contents : undefined
+
       const importContext = {
         ...baseGraphContext,
         graphContext: {
           filePath: yamlPath,
-          currentYamlMap: isMap(parsed.doc.contents) ? parsed.doc.contents : undefined,
+          currentYamlMap: yamlMap,
         },
       }
 
       if (kind === "catalog") {
-        importMetadataCatalogFromYAML(importContext, parsed.data, name)
+        const model = importMetadataCatalogFromYAML(importContext, parsed.data, name)
+        if (model) {
+          buildGraphFromModel({
+            model: model as unknown as Record<string, unknown>,
+            yamlMap,
+            rule: MetadataCatalogRules,
+            graph,
+            parentNodeId: `${MetadataCatalogRules.itemTypePrefix}.${name}`,
+            filePath: yamlPath,
+          })
+        }
       } else if (kind === "document") {
-        importMetadataDocumentFromYAML(importContext, parsed.data, name)
+        const model = importMetadataDocumentFromYAML(importContext, parsed.data, name)
+        if (model) {
+          buildGraphFromModel({
+            model: model as unknown as Record<string, unknown>,
+            yamlMap,
+            rule: MetadataDocumentRules,
+            graph,
+            parentNodeId: `${MetadataDocumentRules.itemTypePrefix}.${name}`,
+            filePath: yamlPath,
+          })
+        }
       } else {
-        importMetadataEnumerationFromYAML(importContext, parsed.data, name)
+        const model = importMetadataEnumerationFromYAML(importContext, parsed.data, name)
+        if (model) {
+          buildGraphFromModel({
+            model: model as unknown as Record<string, unknown>,
+            yamlMap,
+            rule: MetadataEnumerationRules,
+            graph,
+            parentNodeId: `${MetadataEnumerationRules.itemTypePrefix}.${name}`,
+            filePath: yamlPath,
+          })
+        }
       }
     } catch {
       // Ошибки импорта (например, из-за синтаксических ошибок YAML) не блокируют остальные проверки
@@ -108,10 +144,13 @@ export function validateProject(params: { projectPath: string; context: Configur
             let line = 1
             let col = 1
 
-            if (attrs.positionFrom?.offset !== undefined && filePath) {
+            const edgePositionFrom = graph.getEdgeAttribute(edgeId, "positionFrom")
+            const positionFrom = edgePositionFrom ?? attrs.positionFrom
+
+            if (positionFrom?.offset !== undefined && filePath) {
               const lc = lineCounters.get(filePath)
               if (lc) {
-                const pos = lc.linePos(attrs.positionFrom.offset)
+                const pos = lc.linePos(positionFrom.offset)
                 line = pos.line
                 col = pos.col
               }
