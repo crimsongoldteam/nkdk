@@ -224,6 +224,68 @@ describe("MetadataGraph", () => {
       expect(g.getNodesByFile("form.nkdk").has("Форма.ФормаСписка.Список")).toBe(true)
     })
 
+    it("orphan stub: удаляется если 1.yaml отсутствует и ссылающийся файл перезаписан", () => {
+      // 1.yaml нет → Контрагенты — заглушка (item undefined)
+      // 2.yaml ссылается → при инвалидации 2.yaml единственное входящее ребро пропадает
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Контрагенты", { name: "Контрагенты" }) // stub: нет item, нет filePath
+      g.ensureNode("Справочник.Товары.Контрагент", { name: "Контрагент", filePath: "2.yaml" })
+      g.ensureEdge("ref-1", "Справочник.Товары.Контрагент", "Справочник.Контрагенты", {
+        yaml: "Тип",
+        name: "Тип",
+        kind: "reference",
+      })
+
+      g.invalidateFile("2.yaml")
+
+      expect(g.hasNode("Справочник.Контрагенты")).toBe(false)
+    })
+
+    it("orphan stub: остаётся если два файла ссылаются и только один перезаписан", () => {
+      // 1.yaml нет → Контрагенты — заглушка
+      // 2.yaml и 3.yaml оба ссылаются → после инвалидации 2.yaml остаётся ребро из 3.yaml
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Контрагенты", { name: "Контрагенты" }) // stub
+      g.ensureNode("Справочник.Товары.Контрагент", { name: "Контрагент", filePath: "2.yaml" })
+      g.ensureNode("Справочник.Документ.Контрагент", { name: "Контрагент", filePath: "3.yaml" })
+      g.ensureEdge("ref-1", "Справочник.Товары.Контрагент", "Справочник.Контрагенты", {
+        yaml: "Тип",
+        name: "Тип",
+        kind: "reference",
+      })
+      g.ensureEdge("ref-2", "Справочник.Документ.Контрагент", "Справочник.Контрагенты", {
+        yaml: "Тип",
+        name: "Тип",
+        kind: "reference",
+      })
+
+      g.invalidateFile("2.yaml")
+
+      expect(g.hasNode("Справочник.Контрагенты")).toBe(true)
+    })
+
+    it("orphan stub: узел с item не удаляется даже если входящих рёбер не осталось", () => {
+      // 1.yaml существует → Контрагенты — полноценный узел (item задан)
+      // 2.yaml ссылается → после инвалидации 2.yaml Контрагенты должны остаться
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Контрагенты", {
+        name: "Контрагенты",
+        filePath: "1.yaml",
+        item: { itemType: "MetadataCatalog", name: "Контрагенты" },
+      })
+      g.ensureNode("Справочник.Товары.Контрагент", { name: "Контрагент", filePath: "2.yaml" })
+      g.ensureEdge("ref-1", "Справочник.Товары.Контрагент", "Справочник.Контрагенты", {
+        yaml: "Тип",
+        name: "Тип",
+        kind: "reference",
+      })
+
+      g.invalidateFile("2.yaml")
+
+      expect(g.hasNode("Справочник.Контрагенты")).toBe(true)
+      expect(g.getNodeAttribute("Справочник.Контрагенты", "item")).toBeDefined()
+    })
+
     it("нет эффекта при инвалидации несуществующего файла", () => {
       const g = new MetadataGraph()
       g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml" })

@@ -112,9 +112,13 @@ export class MetadataGraph {
    * - Узлы без входящих reference-рёбер удаляются полностью.
    * - Узлы с входящими reference-рёбрами становятся заглушками:
    *   удаляются item, filePath и все исходящие рёбра.
+   * - Orphan stubs (item === undefined, нет входящих рёбер) среди бывших
+   *   таргетов удалённых рёбер также удаляются.
    */
   invalidateFile(filePath: string): void {
     const nodeIds = new Set(this.getNodesByFile(filePath))
+    const droppedTargets = new Set<string>()
+
     for (const nodeId of nodeIds) {
       const hasIncomingRefs = this._graph
         .inEdges(nodeId)
@@ -122,15 +126,29 @@ export class MetadataGraph {
 
       if (hasIncomingRefs) {
         for (const edgeId of [...this._graph.outEdges(nodeId)]) {
+          droppedTargets.add(this._graph.target(edgeId))
           this._graph.dropEdge(edgeId)
         }
         this._graph.removeNodeAttribute(nodeId, "item")
         this._graph.removeNodeAttribute(nodeId, "filePath")
       } else {
+        for (const edgeId of this._graph.outEdges(nodeId)) {
+          droppedTargets.add(this._graph.target(edgeId))
+        }
         this._graph.dropNode(nodeId)
       }
     }
     this._fileIndex.delete(filePath)
+
+    for (const targetId of droppedTargets) {
+      if (!this._graph.hasNode(targetId)) continue
+      if (
+        this._graph.getNodeAttribute(targetId, "item") === undefined &&
+        this._graph.inEdges(targetId).length === 0
+      ) {
+        this._graph.dropNode(targetId)
+      }
+    }
   }
 
   /** Возвращает узлы-заглушки: цели reference-рёбер без атрибута item. */
