@@ -51,7 +51,7 @@ export const sourceTable: Table = {
   ],
 }
 
-export const fullTable: RequiredFieldsElement<Table> = {
+export const fullTable: Omit<RequiredFieldsElement<Table>, "period" | "topLevelParent"> = {
   itemType: "Table",
   name: "Таблица",
   allowGettingCurrentRowURL: true,
@@ -592,7 +592,7 @@ export const fullTableEnterprise = {
   AllowGettingCurrentRowURL: true,
   UserSettingsGroup: "ГруппаПользовательскихНастроек",
   RowsPicture: { Type: "Picture", Value: "PictureLib.Print" },
-} satisfies Required<TableEnterprise>
+} satisfies Omit<Required<TableEnterprise>, "Period" | "TopLevelParent">
 
 export const fullTableChildItems = {
   ТаблицаГруппа1: {
