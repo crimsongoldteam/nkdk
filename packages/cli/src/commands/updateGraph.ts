@@ -1,12 +1,10 @@
 import { close, connect, ensureIndex, graphMemoryBytes, query } from "@nakidka/graph"
 import type { GraphConnection } from "@nakidka/graph"
+import { importMetadataFileWithGraph, MetadataGraph } from "@nakidka/core"
 import chalk from "chalk"
 import { existsSync, readdirSync, readFileSync } from "fs"
 import { join } from "path"
 import { performance } from "perf_hooks"
-import { isMap, parse, parseDocument } from "yaml"
-import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 
 const BATCH_SIZE = 5000
 
@@ -57,21 +55,10 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
   // === 2. fromYAML → MetadataGraph ===
   const tFromYamlStart = performance.now()
   const graph = new MetadataGraph()
-  const baseContext = { version: "2.20", defaultLanguage: "ru", graph }
+  const importContext = { version: "2.20", defaultLanguage: "ru" }
   for (const { path: yamlPath, text, name } of yamlFiles) {
     try {
-      const root = parseDocument(text).contents
-      importMetadataCatalogFromYAML(
-        {
-          ...baseContext,
-          graphContext: {
-            filePath: yamlPath,
-            currentYamlMap: isMap(root) ? root : undefined,
-          },
-        },
-        parse(text),
-        name,
-      )
+      importMetadataFileWithGraph({ filePath: yamlPath, text, kind: "catalog", name, graph, context: importContext })
     } catch (err) {
       console.warn(chalk.yellow(`Предупреждение: не удалось импортировать ${yamlPath}: ${err}`))
     }
