@@ -6,7 +6,7 @@ import {
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
 import { PropertyRuleType } from "./registry"
-import { MetadataItem, PropertyRule } from "./types"
+import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContextWithExportToXML,
@@ -106,6 +106,13 @@ export type GraphEdgeFromParent = {
   kind: "composition" | "reference"
 }
 
+export interface GraphChildRule {
+  idFrom: string
+  edgeName: string
+  edgeKind: "composition" | "reference"
+  itemRule: MetadataItemRule
+}
+
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
@@ -116,6 +123,7 @@ export interface TypeRule {
   importDependenciesFromYAML?: ImportDependenciesFromYAMLFunction
   extractGraph?: ExtractGraphFromModelFunction
   graphEdgeFromParent?: GraphEdgeFromParent
+  graphChild?: GraphChildRule
 }
 
 export type TypeRulesOperations =
@@ -128,6 +136,7 @@ export type TypeRulesOperations =
   | "importDependenciesFromYAML"
   | "extractGraph"
   | "graphEdgeFromParent"
+  | "graphChild"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -152,4 +161,6 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                 ? ExtractGraphFromModelFunction | undefined
                 : O extends "graphEdgeFromParent"
                   ? GraphEdgeFromParent | undefined
-                  : never
+                  : O extends "graphChild"
+                    ? GraphChildRule | undefined
+                    : never

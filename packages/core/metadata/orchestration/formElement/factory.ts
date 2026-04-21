@@ -9,6 +9,7 @@ import {
   ExportToYAMLFunctionNew,
   ExtractGraphFromModelFunction,
   GraphEdgeFromParent,
+  GraphChildRule,
   importExportFunction,
   ImportDependenciesFromYAMLFunction,
   ImportFromXMLFunction,
@@ -30,6 +31,7 @@ const typeRulesRegistry = new Map<
   | ImportDependenciesFromYAMLFunction
   | ExtractGraphFromModelFunction
   | GraphEdgeFromParent
+  | GraphChildRule
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -62,7 +64,9 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                 ? ExtractGraphFromModelFunction | undefined
                 : O extends "graphEdgeFromParent"
                   ? GraphEdgeFromParent | undefined
-                  : never => {
+                  : O extends "graphChild"
+                    ? GraphChildRule | undefined
+                    : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

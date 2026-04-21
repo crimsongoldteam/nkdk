@@ -3,6 +3,7 @@ import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/co
 import { importMetadataItemFromYAML } from "~/metadata/orchestration"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
+import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { defaultGraph } from "~/metadata/relations/graph"
@@ -91,6 +92,17 @@ const importMetadataTabularSectionsFromYAML = (
 
         const section = importMetadataTabularSectionFromYAML(childContext, value, name)
         g.setNodeAttribute(sectionNodeId, "item", section)
+
+        if (section && sectionValueYamlMap) {
+          buildGraphFromModel({
+            model: section as unknown as Record<string, unknown>,
+            yamlMap: sectionValueYamlMap,
+            rule: MetadataTabularSectionRules,
+            graph: g,
+            parentNodeId: sectionNodeId,
+            filePath: graphContext.filePath,
+          })
+        }
 
         return section
       }

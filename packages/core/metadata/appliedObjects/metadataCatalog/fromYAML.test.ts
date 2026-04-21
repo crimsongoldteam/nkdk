@@ -5,9 +5,11 @@ import { isMap, parse, parseDocument } from "yaml"
 import { edgeMatch, nodeMatch } from "~/metadata/relations/dependencyQuery"
 import { getDependencies } from "~/metadata/relations/getDependencies"
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
 import { full, fullYAML, minimal, minimalYAML } from "~/tests/fixtures/metadataCatalog/data"
 import { mockContext } from "~/tests/mockContext"
 import { importMetadataCatalogFromYAML } from "./fromYAML"
+import { MetadataCatalogRules } from "./rules"
 import { exportMetadataCatalogToYAML } from "./toYAML"
 
 describe("importMetadataCatalogFromYAML", () => {
@@ -43,15 +45,26 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     const text = fs.readFileSync(path.join(__dirname, "__fixtures__/dependencies.yaml"), "utf8")
     const yamlDocument = parseDocument(text)
     const root = yamlDocument.contents
-    importMetadataCatalogFromYAML(
+    const yamlMap = isMap(root) ? root : undefined
+    const model = importMetadataCatalogFromYAML(
       {
         ...mockContext,
         graph,
-        graphContext: { filePath: "test.yaml", currentYamlMap: isMap(root) ? root : undefined },
+        graphContext: { filePath: "test.yaml", currentYamlMap: yamlMap },
       },
       parse(text),
       "TestCatalog",
     )
+    if (model && yamlMap) {
+      buildGraphFromModel({
+        model: model as unknown as Record<string, unknown>,
+        yamlMap,
+        rule: MetadataCatalogRules,
+        graph,
+        parentNodeId: `${MetadataCatalogRules.itemTypePrefix}.TestCatalog`,
+        filePath: "test.yaml",
+      })
+    }
   })
 
   it("should import dependencies", () => {
@@ -66,19 +79,22 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
       graph,
     )
 
-    expect(Object.keys(dependencies)).toEqual([
-      "Справочник.TestCatalog.КакойТоРеквизит",
-      "Справочник.TestCatalog.КакаяТоТабличнаяЧасть",
-      "Справочник.TestCatalog.ИмяПредопределенныхДанных",
-      "Справочник.TestCatalog.Предопределенный",
-      "Справочник.TestCatalog.Ссылка",
-      "Справочник.TestCatalog.ПометкаУдаления",
-      "Справочник.TestCatalog.ЭтоГруппа",
-      "Справочник.TestCatalog.Владелец",
-      "Справочник.TestCatalog.Родитель",
-      "Справочник.TestCatalog.Наименование",
-      "Справочник.TestCatalog.Код",
-    ])
+    expect(Object.keys(dependencies)).toHaveLength(11)
+    expect(Object.keys(dependencies)).toEqual(
+      expect.arrayContaining([
+        "Справочник.TestCatalog.КакойТоРеквизит",
+        "Справочник.TestCatalog.КакаяТоТабличнаяЧасть",
+        "Справочник.TestCatalog.ИмяПредопределенныхДанных",
+        "Справочник.TestCatalog.Предопределенный",
+        "Справочник.TestCatalog.Ссылка",
+        "Справочник.TestCatalog.ПометкаУдаления",
+        "Справочник.TestCatalog.ЭтоГруппа",
+        "Справочник.TestCatalog.Владелец",
+        "Справочник.TestCatalog.Родитель",
+        "Справочник.TestCatalog.Наименование",
+        "Справочник.TestCatalog.Код",
+      ]),
+    )
 
     expect(dependencies["Справочник.TestCatalog.КакойТоРеквизит"]).toMatchObject({
       item: {
