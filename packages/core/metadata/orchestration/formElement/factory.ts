@@ -1,5 +1,6 @@
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import {
+  BuildGraphFromModelFunction,
   createRegistryKey,
   ExportToEnterpriseFunction,
   ExportToJSONSchemaFn,
@@ -11,7 +12,6 @@ import {
   GraphEdgeFromParent,
   GraphChildRule,
   importExportFunction,
-  ImportDependenciesFromYAMLFunction,
   ImportFromXMLFunction,
   importFromYAMLFunction as ImportFromYAMLFunction,
   ImportFromYAMLFunctionNew,
@@ -28,7 +28,7 @@ const typeRulesRegistry = new Map<
   | ExportToXMLFunctionNew
   | ImportFromYAMLFunctionNew
   | ExportToYAMLFunctionNew
-  | ImportDependenciesFromYAMLFunction
+  | BuildGraphFromModelFunction
   | ExtractGraphFromModelFunction
   | GraphEdgeFromParent
   | GraphChildRule
@@ -58,8 +58,8 @@ export const getTypeRule = <O extends TypeRulesOperations>(
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"
             ? ExportToJSONSchemaFn | undefined
-            : O extends "importDependenciesFromYAML"
-              ? ImportDependenciesFromYAMLFunction | undefined
+            : O extends "buildGraphFromModel"
+              ? BuildGraphFromModelFunction | undefined
               : O extends "extractGraph"
                 ? ExtractGraphFromModelFunction | undefined
                 : O extends "graphEdgeFromParent"

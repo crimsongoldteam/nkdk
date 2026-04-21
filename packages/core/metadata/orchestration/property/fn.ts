@@ -5,6 +5,7 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
+import { MetadataGraph } from "../../relations/MetadataGraph"
 import { PropertyRuleType } from "./registry"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
@@ -70,13 +71,13 @@ export type ExportToJSONSchemaFn = (params: {
   value: any | undefined
 }) => TSchema | undefined
 
-export type ImportDependenciesFromYAMLFunction = (params: {
-  context: ConfigurationContext
-  yamlMap?: YAMLMap
+export type BuildGraphFromModelFunction = (params: {
+  model: unknown
   parentNodeId: string
   filePath: string
-  propRule?: PropertyRule
-  parsedItem?: unknown
+  yamlMap: YAMLMap | undefined
+  propRule: PropertyRule
+  graph: MetadataGraph
 }) => void
 
 export interface GraphOpsChild {
@@ -120,7 +121,7 @@ export interface TypeRule {
   exportToYAML?: ExportToYAMLFunction | ExportToYAMLFunctionNew
   exportToEnterprise?: ExportToEnterpriseFunction
   exportToJSONSchema?: ExportToJSONSchemaFn
-  importDependenciesFromYAML?: ImportDependenciesFromYAMLFunction
+  buildGraphFromModel?: BuildGraphFromModelFunction
   extractGraph?: ExtractGraphFromModelFunction
   graphEdgeFromParent?: GraphEdgeFromParent
   graphChild?: GraphChildRule
@@ -133,7 +134,7 @@ export type TypeRulesOperations =
   | "exportToYAML"
   | "exportToEnterprise"
   | "exportToJSONSchema"
-  | "importDependenciesFromYAML"
+  | "buildGraphFromModel"
   | "extractGraph"
   | "graphEdgeFromParent"
   | "graphChild"
@@ -155,8 +156,8 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"
             ? ExportToJSONSchemaFn | undefined
-            : O extends "importDependenciesFromYAML"
-              ? ImportDependenciesFromYAMLFunction | undefined
+            : O extends "buildGraphFromModel"
+              ? BuildGraphFromModelFunction | undefined
               : O extends "extractGraph"
                 ? ExtractGraphFromModelFunction | undefined
                 : O extends "graphEdgeFromParent"

@@ -1,12 +1,9 @@
-import { isMap, isPair, isScalar, YAMLMap } from "yaml"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
-import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { defaultGraph } from "~/metadata/relations/graph"
 import { MetadataTabularSectionRules } from "./rules"
 import {
   MetadataTabularSection,
@@ -15,21 +12,6 @@ import {
   MetadataTabularSectionsXML,
   MetadataTabularSectionsYAML,
 } from "./types"
-
-const EDGE_NAME = "ТабличнаяЧасть"
-
-function findSubmap(yamlMap: YAMLMap | undefined, key: string | undefined): YAMLMap | undefined {
-  if (!yamlMap || !key) return undefined
-  const pair = yamlMap.items.find((i) => isPair(i) && isScalar(i.key) && i.key.value === key)
-  if (!pair || !isPair(pair) || !isMap(pair.value)) return undefined
-  return pair.value
-}
-
-function findKeyOffset(yamlMap: YAMLMap, key: string): number | undefined {
-  const pair = yamlMap.items.find((i) => isPair(i) && isScalar(i.key) && i.key.value === key)
-  if (!pair || !isPair(pair) || !isScalar(pair.key)) return undefined
-  return pair.key.range?.[0]
-}
 
 const importMetadataTabularSectionFromYAML = (
   context: ConfigurationContext,
@@ -60,55 +42,8 @@ const importMetadataTabularSectionsFromYAML = (
 ): MetadataTabularSections | undefined => {
   if (!data) return undefined
 
-  const { graphContext } = context
-  const g = context.graph ?? defaultGraph
-  const sectionsYamlMap = graphContext
-    ? findSubmap(graphContext.currentYamlMap, _rule?.yaml)
-    : undefined
-
   return Object.entries(data)
-    .map(([name, value]) => {
-      if (graphContext?.parentNodeId) {
-        const sectionNodeId = `${graphContext.parentNodeId}.${name}`
-        const offset = sectionsYamlMap ? findKeyOffset(sectionsYamlMap, name) : undefined
-        const sectionValueYamlMap = findSubmap(sectionsYamlMap, name)
-
-        g.ensureNode(sectionNodeId, {
-          name,
-          positionFrom: offset !== undefined ? { offset } : undefined,
-          filePath: graphContext.filePath,
-        })
-        const edgeKey = `${graphContext.parentNodeId}:${EDGE_NAME}:${sectionNodeId}`
-        g.ensureEdge(edgeKey, graphContext.parentNodeId, sectionNodeId, {
-          yaml: EDGE_NAME,
-          name: EDGE_NAME,
-          kind: "composition",
-        })
-
-        const childContext: ConfigurationContext = {
-          ...context,
-          graphContext: { ...graphContext, parentNodeId: sectionNodeId, currentYamlMap: sectionValueYamlMap },
-        }
-
-        const section = importMetadataTabularSectionFromYAML(childContext, value, name)
-        g.setNodeAttribute(sectionNodeId, "item", section)
-
-        if (section && sectionValueYamlMap) {
-          buildGraphFromModel({
-            model: section as unknown as Record<string, unknown>,
-            yamlMap: sectionValueYamlMap,
-            rule: MetadataTabularSectionRules,
-            graph: g,
-            parentNodeId: sectionNodeId,
-            filePath: graphContext.filePath,
-          })
-        }
-
-        return section
-      }
-
-      return importMetadataTabularSectionFromYAML(context, value, name)
-    })
+    .map(([name, value]) => importMetadataTabularSectionFromYAML(context, value, name))
     .filter((item): item is MetadataTabularSection => item !== undefined)
 }
 
@@ -118,6 +53,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "TabularSection",
   keyField: "name",
   fromYAML: importMetadataTabularSectionsFromYAML,
+  graphChild: { idFrom: "name", edgeName: "ТабличнаяЧасть", edgeKind: "composition" },
 })
 
 // Compat exports for consumers that call these functions directly
@@ -154,4 +90,3 @@ export const exportMetadataTabularSectionToYAML = (
   if (!result) return undefined
   return result[data.name] as MetadataTabularSectionYAML | undefined
 }
-

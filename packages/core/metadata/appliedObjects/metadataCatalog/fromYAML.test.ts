@@ -1,15 +1,13 @@
 import fs from "fs"
 import path from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { isMap, parse, parseDocument } from "yaml"
 import { edgeMatch, nodeMatch } from "~/metadata/relations/dependencyQuery"
 import { getDependencies } from "~/metadata/relations/getDependencies"
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
-import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
+import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
 import { full, fullYAML, minimal, minimalYAML } from "~/tests/fixtures/metadataCatalog/data"
 import { mockContext } from "~/tests/mockContext"
 import { importMetadataCatalogFromYAML } from "./fromYAML"
-import { MetadataCatalogRules } from "./rules"
 import { exportMetadataCatalogToYAML } from "./toYAML"
 
 describe("importMetadataCatalogFromYAML", () => {
@@ -43,28 +41,14 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
   beforeEach(() => {
     graph = new MetadataGraph()
     const text = fs.readFileSync(path.join(__dirname, "__fixtures__/dependencies.yaml"), "utf8")
-    const yamlDocument = parseDocument(text)
-    const root = yamlDocument.contents
-    const yamlMap = isMap(root) ? root : undefined
-    const model = importMetadataCatalogFromYAML(
-      {
-        ...mockContext,
-        graph,
-        graphContext: { filePath: "test.yaml", currentYamlMap: yamlMap },
-      },
-      parse(text),
-      "TestCatalog",
-    )
-    if (model && yamlMap) {
-      buildGraphFromModel({
-        model: model as unknown as Record<string, unknown>,
-        yamlMap,
-        rule: MetadataCatalogRules,
-        graph,
-        parentNodeId: `${MetadataCatalogRules.itemTypePrefix}.TestCatalog`,
-        filePath: "test.yaml",
-      })
-    }
+    importMetadataFileWithGraph({
+      filePath: "test.yaml",
+      text,
+      kind: "catalog",
+      name: "TestCatalog",
+      graph,
+      context: mockContext,
+    })
   })
 
   it("should import dependencies", () => {
@@ -142,11 +126,14 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
   })
 
   it("stub is enriched after importing target catalog", () => {
-    importMetadataCatalogFromYAML(
-      { ...mockContext, graph, graphContext: { filePath: "other.yaml" } },
-      {},
-      "ДругойСправочник",
-    )
+    importMetadataFileWithGraph({
+      filePath: "other.yaml",
+      text: "{}",
+      kind: "catalog",
+      name: "ДругойСправочник",
+      graph,
+      context: mockContext,
+    })
 
     const attrs = graph.getNodeAttributes("Справочник.ДругойСправочник")
     expect(attrs.item).toBeDefined()
@@ -168,11 +155,14 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
   })
 
   it("getBrokenReferences is empty after all stubs are enriched", () => {
-    importMetadataCatalogFromYAML(
-      { ...mockContext, graph, graphContext: { filePath: "other.yaml" } },
-      {},
-      "ДругойСправочник",
-    )
+    importMetadataFileWithGraph({
+      filePath: "other.yaml",
+      text: "{}",
+      kind: "catalog",
+      name: "ДругойСправочник",
+      graph,
+      context: mockContext,
+    })
 
     expect(graph.getBrokenReferences().size).toBe(0)
   })

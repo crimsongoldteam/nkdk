@@ -20,6 +20,21 @@ export interface ImportMetadataFileResult {
   parsed: ParsedYaml
 }
 
+function ensureRootNode(
+  graph: MetadataGraph,
+  prefix: string,
+  itemType: string,
+  name: string,
+  filePath: string
+): string {
+  const itemNodeId = `${prefix}.${name}`
+  graph.ensureNode(prefix, { name: prefix })
+  graph.ensureNode(itemNodeId, { name, filePath })
+  const edgeKey = `${prefix}:${itemType}:${itemNodeId}`
+  graph.ensureEdge(edgeKey, prefix, itemNodeId, { yaml: itemType, name: itemType, kind: "composition" })
+  return itemNodeId
+}
+
 /**
  * Общий хелпер «прочитанный файл → модель + граф».
  * Инкапсулирует kind-диспетчер: parseMetadataYaml → importXxxFromYAML → buildGraphFromModel.
@@ -38,49 +53,72 @@ export function importMetadataFileWithGraph(params: {
   const parsed = parseMetadataYaml(text)
   const yamlMap = isMap(parsed.doc.contents) ? parsed.doc.contents : undefined
 
-  const importContext: ConfigurationContext = {
-    ...context,
-    graph,
-    graphContext: { filePath, currentYamlMap: yamlMap },
-  }
+  const importContext: ConfigurationContext = { ...context, graph }
 
   if (kind === "catalog") {
+    const itemNodeId = ensureRootNode(
+      graph,
+      MetadataCatalogRules.itemTypePrefix,
+      MetadataCatalogRules.itemType,
+      name,
+      filePath
+    )
     const model = importMetadataCatalogFromYAML(importContext, parsed.data, name)
     if (!model) return undefined
+    graph.setNodeAttribute(itemNodeId, "item", model)
+    graph.updateNodeFilePath(itemNodeId, filePath)
     buildGraphFromModel({
       model: model as unknown as Record<string, unknown>,
       yamlMap,
       rule: MetadataCatalogRules,
       graph,
-      parentNodeId: `${MetadataCatalogRules.itemTypePrefix}.${name}`,
+      parentNodeId: itemNodeId,
       filePath,
     })
     return { model, parsed }
   }
 
   if (kind === "document") {
+    const itemNodeId = ensureRootNode(
+      graph,
+      MetadataDocumentRules.itemTypePrefix,
+      MetadataDocumentRules.itemType,
+      name,
+      filePath
+    )
     const model = importMetadataDocumentFromYAML(importContext, parsed.data, name)
     if (!model) return undefined
+    graph.setNodeAttribute(itemNodeId, "item", model)
+    graph.updateNodeFilePath(itemNodeId, filePath)
     buildGraphFromModel({
       model: model as unknown as Record<string, unknown>,
       yamlMap,
       rule: MetadataDocumentRules,
       graph,
-      parentNodeId: `${MetadataDocumentRules.itemTypePrefix}.${name}`,
+      parentNodeId: itemNodeId,
       filePath,
     })
     return { model, parsed }
   }
 
   if (kind === "enumeration") {
+    const itemNodeId = ensureRootNode(
+      graph,
+      MetadataEnumerationRules.itemTypePrefix,
+      MetadataEnumerationRules.itemType,
+      name,
+      filePath
+    )
     const model = importMetadataEnumerationFromYAML(importContext, parsed.data, name)
     if (!model) return undefined
+    graph.setNodeAttribute(itemNodeId, "item", model)
+    graph.updateNodeFilePath(itemNodeId, filePath)
     buildGraphFromModel({
       model: model as unknown as Record<string, unknown>,
       yamlMap,
       rule: MetadataEnumerationRules,
       graph,
-      parentNodeId: `${MetadataEnumerationRules.itemTypePrefix}.${name}`,
+      parentNodeId: itemNodeId,
       filePath,
     })
     return { model, parsed }

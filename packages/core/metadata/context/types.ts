@@ -1,4 +1,3 @@
-import { YAMLMap } from "yaml"
 import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
@@ -18,12 +17,6 @@ export type ContextElementToEnterprise =
     }
   | { itemType: ElementType; dataPath: undefined; dataPathEnterprise: undefined }
 
-export interface GraphContext {
-  filePath: string
-  parentNodeId?: string
-  currentYamlMap?: YAMLMap
-}
-
 export interface ConfigurationContext {
   testMode?: boolean
   defaultLanguage: string
@@ -35,7 +28,6 @@ export interface ConfigurationContext {
   exportToYAML?: FormExportToYAMLContext
   importFromYAML?: FormimportFromYAMLContext
   exportToXML?: ToXMLConfigurationContext
-  graphContext?: GraphContext
   /** Экземпляр графа, передаётся снаружи (из extension/CLI). Не синглтон. */
   graph?: MetadataGraph
 }
