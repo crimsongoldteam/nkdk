@@ -79,6 +79,33 @@ export type ImportDependenciesFromYAMLFunction = (params: {
   parsedItem?: unknown
 }) => void
 
+export interface GraphOpsChild {
+  idSuffix: string
+  name: string
+  positionFrom?: { offset: number; length?: number }
+}
+
+export interface GraphOpsReference {
+  id: string
+  name: string
+  positionFrom?: { offset: number; length?: number }
+}
+
+export interface GraphOps {
+  children?: GraphOpsChild[]
+  references?: GraphOpsReference[]
+}
+
+export type ExtractGraphFromModelFunction<TModel = unknown> = (
+  model: TModel,
+  position?: { offset: number; length?: number }
+) => GraphOps | undefined
+
+export type GraphEdgeFromParent = {
+  name: string
+  kind: "composition" | "reference"
+}
+
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
@@ -87,6 +114,8 @@ export interface TypeRule {
   exportToEnterprise?: ExportToEnterpriseFunction
   exportToJSONSchema?: ExportToJSONSchemaFn
   importDependenciesFromYAML?: ImportDependenciesFromYAMLFunction
+  extractGraph?: ExtractGraphFromModelFunction
+  graphEdgeFromParent?: GraphEdgeFromParent
 }
 
 export type TypeRulesOperations =
@@ -97,6 +126,8 @@ export type TypeRulesOperations =
   | "exportToEnterprise"
   | "exportToJSONSchema"
   | "importDependenciesFromYAML"
+  | "extractGraph"
+  | "graphEdgeFromParent"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -117,4 +148,8 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
             ? ExportToJSONSchemaFn | undefined
             : O extends "importDependenciesFromYAML"
               ? ImportDependenciesFromYAMLFunction | undefined
-              : never
+              : O extends "extractGraph"
+                ? ExtractGraphFromModelFunction | undefined
+                : O extends "graphEdgeFromParent"
+                  ? GraphEdgeFromParent | undefined
+                  : never

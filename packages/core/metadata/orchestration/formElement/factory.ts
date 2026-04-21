@@ -7,6 +7,8 @@ import {
   ExportToXMLFunctionNew,
   ExportToYAMLFunction,
   ExportToYAMLFunctionNew,
+  ExtractGraphFromModelFunction,
+  GraphEdgeFromParent,
   importExportFunction,
   ImportDependenciesFromYAMLFunction,
   ImportFromXMLFunction,
@@ -26,6 +28,8 @@ const typeRulesRegistry = new Map<
   | ImportFromYAMLFunctionNew
   | ExportToYAMLFunctionNew
   | ImportDependenciesFromYAMLFunction
+  | ExtractGraphFromModelFunction
+  | GraphEdgeFromParent
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -54,7 +58,11 @@ export const getTypeRule = <O extends TypeRulesOperations>(
             ? ExportToJSONSchemaFn | undefined
             : O extends "importDependenciesFromYAML"
               ? ImportDependenciesFromYAMLFunction | undefined
-              : never => {
+              : O extends "extractGraph"
+                ? ExtractGraphFromModelFunction | undefined
+                : O extends "graphEdgeFromParent"
+                  ? GraphEdgeFromParent | undefined
+                  : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

@@ -11,6 +11,7 @@ export interface MetadataEdgeAttrs {
   yaml: string
   name: string
   kind: "composition" | "reference"
+  positionFrom?: { offset: number; length?: number }
 }
 
 export class MetadataGraph {
