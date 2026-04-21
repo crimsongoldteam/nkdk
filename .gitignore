@@ -21,3 +21,4 @@ delete/
 .ralph/.*
 .ralph/*.log
 .ralph/status.json
+.ralph/progress.json
