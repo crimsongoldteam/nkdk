@@ -110,6 +110,10 @@ import {
   FormAttributeYAML,
 } from "../../forms/commonObjects/formAttribute/types"
 import {
+  FormParameter,
+  FormParameterYAML,
+} from "../../forms/commonObjects/formParameter/types"
+import {
   Button,
   ButtonEnterprise,
   ButtonPartialYAML,
@@ -535,6 +539,10 @@ export type MetadataItemTypeRegistry = {
   FormCommand: {
     metadata: FormCommand
     yaml: FormCommandYAML
+  }
+  FormParameter: {
+    metadata: FormParameter
+    yaml: FormParameterYAML
   }
   DynamicList: {
     metadata: DynamicList

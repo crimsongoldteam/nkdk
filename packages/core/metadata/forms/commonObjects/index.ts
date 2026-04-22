@@ -24,6 +24,7 @@ import "./formCommand/types"
 
 import "./formParameter/fromXML"
 import "./formParameter/fromYAML"
+import "./formParameter/graphFromModel"
 import "./formParameter/toJSONSchema"
 import "./formParameter/toXML"
 import "./formParameter/toYAML"

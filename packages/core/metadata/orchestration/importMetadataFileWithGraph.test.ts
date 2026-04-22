@@ -951,6 +951,66 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
   })
 })
 
+describe("importMetadataFileWithGraph — form, FormParameters (PRD #120)", () => {
+  const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
+  const OWNER_NODE_ID = "Справочник.Товары"
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.ФормаСписка`
+
+  it("создаёт узел параметра формы с owning-ребром ПараметрФормы", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Параметры:
+  Период:
+    Тип: Дата
+`,
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const paramNodeId = `${FORM_NODE_ID}.Период`
+    expect(graph.hasNode(paramNodeId)).toBe(true)
+
+    const owningEdges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(
+      (e) => e.attributes.kind === "ПараметрФормы",
+    )
+    expect(owningEdges).toHaveLength(1)
+    expect(owningEdges[0].target).toBe(paramNodeId)
+  })
+
+  it("параметр формы с type → reference-ребро Тип к целевому узлу", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Параметры:
+  Контрагент:
+    Тип: Справочник.Контрагенты
+`,
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const paramNodeId = `${FORM_NODE_ID}.Контрагент`
+    const typeEdges = [...graph.outEdgeEntries(paramNodeId)].filter(
+      (e) => e.attributes.kind === "Тип",
+    )
+    expect(typeEdges).toHaveLength(1)
+    expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
+  })
+})
+
 describe("importMetadataFileWithGraph — form, DataPath-рёбра (PRD #118)", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаЭлемента/Свойства.yaml"
   const OWNER_NODE_ID = "Справочник.Товары"
