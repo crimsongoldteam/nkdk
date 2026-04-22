@@ -32,6 +32,8 @@ const _known = new Set<string>([
   // Reference-виды
   "Тип",
   "Объект",
+  "Поле",
+  "Значение",
 ])
 
 /**

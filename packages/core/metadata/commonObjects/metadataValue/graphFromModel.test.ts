@@ -1,0 +1,291 @@
+import { describe, expect, it } from "vitest"
+import { parseDocument } from "yaml"
+import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { extractSingleValueRef, buildMetadataValueGraph } from "./graphFromModel"
+import {
+  MetadataFixedArrayValue,
+  MetadataFormChoiceListValue,
+  MetadataRefValue,
+  MetadataObjectRefValue,
+  MetadataTypedValue,
+} from "./types"
+
+// Активирует регистрации side-effect (registerTypeRule)
+import "./graphFromModel"
+
+const PARENT_NODE = "Справочник.Товары"
+const FILE_PATH = "test/Свойства.yaml"
+
+function makeGraph() {
+  const graph = new MetadataGraph()
+  graph.ensureNode(PARENT_NODE, { name: "Товары", filePath: FILE_PATH })
+  return graph
+}
+
+// ---------------------------------------------------------------------------
+// extractSingleValueRef — табличные тесты
+// ---------------------------------------------------------------------------
+
+describe("extractSingleValueRef", () => {
+  it("string → undefined", () => {
+    const v: MetadataTypedValue = { type: "string", value: "текст" }
+    expect(extractSingleValueRef(v)).toBeUndefined()
+  })
+
+  it("decimal → undefined", () => {
+    const v: MetadataTypedValue = { type: "decimal", value: 42 }
+    expect(extractSingleValueRef(v)).toBeUndefined()
+  })
+
+  it("boolean → undefined", () => {
+    const v: MetadataTypedValue = { type: "boolean", value: true }
+    expect(extractSingleValueRef(v)).toBeUndefined()
+  })
+
+  it("dateTime → undefined", () => {
+    const v: MetadataTypedValue = { type: "dateTime", value: "2025-01-01T00:00:00" }
+    expect(extractSingleValueRef(v)).toBeUndefined()
+  })
+
+  it("пустой ref (value='') → undefined", () => {
+    const v: MetadataRefValue = { type: "ref", value: "" }
+    expect(extractSingleValueRef(v)).toBeUndefined()
+  })
+
+  it("ref с ПустаяСсылка справочника → ребро kind Значение", () => {
+    const v: MetadataRefValue = { type: "ref", value: "Catalog.Пользователи.EmptyRef" }
+    const result = extractSingleValueRef(v, { offset: 10 })
+    expect(result).toBeDefined()
+    expect(result!.kind).toBe("Значение")
+    expect(result!.ref.id).toBe("Справочник.Пользователи.ПустаяСсылка")
+    expect(result!.ref.name).toBe("ПустаяСсылка")
+    expect(result!.ref.positionFrom).toEqual({ offset: 10 })
+  })
+
+  it("ref со значением перечисления (EnumValue) → ребро kind Значение без EnumValue в nodeId", () => {
+    const v: MetadataRefValue = { type: "ref", value: "Enum.ВидыДоговоров.EnumValue.СПоставщиком" }
+    const result = extractSingleValueRef(v)
+    expect(result).toBeDefined()
+    expect(result!.kind).toBe("Значение")
+    expect(result!.ref.id).toBe("Перечисление.ВидыДоговоров.СПоставщиком")
+    expect(result!.ref.name).toBe("СПоставщиком")
+  })
+
+  it("ref с ПустаяСсылка перечисления → ребро kind Значение", () => {
+    const v: MetadataRefValue = { type: "ref", value: "Enum.Статус.EmptyRef" }
+    const result = extractSingleValueRef(v)
+    expect(result).toBeDefined()
+    expect(result!.ref.id).toBe("Перечисление.Статус.ПустаяСсылка")
+  })
+
+  it("objectRef → ребро kind Объект", () => {
+    const v: MetadataObjectRefValue = {
+      type: "objectRef",
+      value: "ChartOfCharacteristicTypes.ДополнительныеРеквизиты",
+    }
+    const result = extractSingleValueRef(v, { offset: 5 })
+    expect(result).toBeDefined()
+    expect(result!.kind).toBe("Объект")
+    expect(result!.ref.id).toBe("ПланВидовХарактеристик.ДополнительныеРеквизиты")
+    expect(result!.ref.positionFrom).toEqual({ offset: 5 })
+  })
+
+  it("objectRef с Catalog → ребро kind Объект", () => {
+    const v: MetadataObjectRefValue = { type: "objectRef", value: "Catalog.Контрагенты" }
+    const result = extractSingleValueRef(v)
+    expect(result).toBeDefined()
+    expect(result!.kind).toBe("Объект")
+    expect(result!.ref.id).toBe("Справочник.Контрагенты")
+  })
+})
+
+// ---------------------------------------------------------------------------
+// buildMetadataValueGraph — тесты через граф
+// ---------------------------------------------------------------------------
+
+describe("buildMetadataValueGraph", () => {
+  it("примитив → не создаёт рёбер", () => {
+    const graph = makeGraph()
+    const value: MetadataTypedValue = { type: "string", value: "привет" }
+    buildMetadataValueGraph({
+      model: value,
+      parentNodeId: PARENT_NODE,
+      filePath: FILE_PATH,
+      yamlMap: undefined,
+      propRule: { type: "MetadataValue", yaml: "ЗначениеЗаполнения" },
+      graph,
+    })
+    expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+  })
+
+  it("ref → создаёт ребро kind Значение", () => {
+    const graph = makeGraph()
+    const value: MetadataRefValue = { type: "ref", value: "Catalog.Пользователи.EmptyRef" }
+    buildMetadataValueGraph({
+      model: value,
+      parentNodeId: PARENT_NODE,
+      filePath: FILE_PATH,
+      yamlMap: undefined,
+      propRule: { type: "MetadataValue", yaml: "ЗначениеЗаполнения" },
+      graph,
+    })
+
+    const edges = [...graph.outEdgeEntries(PARENT_NODE)]
+    expect(edges).toHaveLength(1)
+    expect(edges[0].attributes.kind).toBe("Значение")
+    expect(edges[0].target).toBe("Справочник.Пользователи.ПустаяСсылка")
+    expect(graph.hasNode("Справочник.Пользователи.ПустаяСсылка")).toBe(true)
+  })
+
+  it("objectRef → создаёт ребро kind Объект", () => {
+    const graph = makeGraph()
+    const value: MetadataObjectRefValue = { type: "objectRef", value: "Catalog.Контрагенты" }
+    buildMetadataValueGraph({
+      model: value,
+      parentNodeId: PARENT_NODE,
+      filePath: FILE_PATH,
+      yamlMap: undefined,
+      propRule: { type: "MetadataValue", yaml: "Ссылка" },
+      graph,
+    })
+
+    const edges = [...graph.outEdgeEntries(PARENT_NODE)]
+    expect(edges).toHaveLength(1)
+    expect(edges[0].attributes.kind).toBe("Объект")
+    expect(edges[0].target).toBe("Справочник.Контрагенты")
+  })
+
+  it("undefined model → не создаёт рёбер", () => {
+    const graph = makeGraph()
+    buildMetadataValueGraph({
+      model: undefined,
+      parentNodeId: PARENT_NODE,
+      filePath: FILE_PATH,
+      yamlMap: undefined,
+      propRule: { type: "MetadataValue", yaml: "ЗначениеЗаполнения" },
+      graph,
+    })
+    expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+  })
+
+  describe("fixedArray", () => {
+    it("пустой fixedArray → не создаёт рёбер", () => {
+      const graph = makeGraph()
+      const value: MetadataFixedArrayValue = { type: "fixedArray", value: [] }
+      buildMetadataValueGraph({
+        model: value,
+        parentNodeId: PARENT_NODE,
+        filePath: FILE_PATH,
+        yamlMap: undefined,
+        propRule: { type: "MetadataValue", yaml: "ЗначениеЗаполнения" },
+        graph,
+      })
+      expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+    })
+
+    it("fixedArray из 3 ref → 3 ребра kind Значение", () => {
+      const graph = makeGraph()
+      const yaml = `
+Свойство:
+  - Перечисление.ТипыСчетов.КосвенныеЗатраты
+  - Перечисление.ТипыСчетов.Расходы
+  - Перечисление.ТипыСчетов.ПрямыеЗатраты
+`
+      const doc = parseDocument(yaml)
+      const yamlMap = doc.contents as any
+
+      const items: MetadataTypedValue[] = [
+        { type: "ref", value: "Enum.ТипыСчетов.EnumValue.КосвенныеЗатраты" },
+        { type: "ref", value: "Enum.ТипыСчетов.EnumValue.Расходы" },
+        { type: "ref", value: "Enum.ТипыСчетов.EnumValue.ПрямыеЗатраты" },
+      ]
+      const value: MetadataFixedArrayValue = { type: "fixedArray", value: items }
+
+      buildMetadataValueGraph({
+        model: value,
+        parentNodeId: PARENT_NODE,
+        filePath: FILE_PATH,
+        yamlMap,
+        propRule: { type: "MetadataValue", yaml: "Свойство" },
+        graph,
+      })
+
+      const edges = [...graph.outEdgeEntries(PARENT_NODE)]
+      expect(edges).toHaveLength(3)
+      expect(edges.every((e) => e.attributes.kind === "Значение")).toBe(true)
+
+      // Позиции у разных элементов должны различаться
+      const positions = edges.map((e) => e.attributes.positionFrom?.offset)
+      expect(positions[0]).toBeDefined()
+      expect(positions[1]).toBeDefined()
+      expect(positions[2]).toBeDefined()
+      expect(new Set(positions).size).toBe(3)
+
+      // Целевые узлы
+      const targets = edges.map((e) => e.target)
+      expect(targets).toContain("Перечисление.ТипыСчетов.КосвенныеЗатраты")
+      expect(targets).toContain("Перечисление.ТипыСчетов.Расходы")
+      expect(targets).toContain("Перечисление.ТипыСчетов.ПрямыеЗатраты")
+    })
+  })
+
+  describe("formChoiceListDesTimeValue", () => {
+    it("formChoiceList без value → не создаёт рёбер", () => {
+      const graph = makeGraph()
+      const value: MetadataFormChoiceListValue = {
+        type: "formChoiceListDesTimeValue",
+        presentation: { items: { ru: "Текст" } },
+        value: undefined,
+      }
+      buildMetadataValueGraph({
+        model: value,
+        parentNodeId: PARENT_NODE,
+        filePath: FILE_PATH,
+        yamlMap: undefined,
+        propRule: { type: "MetadataValue", yaml: "Поле" },
+        graph,
+      })
+      expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+    })
+
+    it("formChoiceList с вложенным ref → 1 ребро kind Значение", () => {
+      const graph = makeGraph()
+      const value: MetadataFormChoiceListValue = {
+        type: "formChoiceListDesTimeValue",
+        presentation: { items: { ru: "Физическое лицо" } },
+        value: { type: "ref", value: "Enum.ВидыДоговоров.EnumValue.СПоставщиком" },
+      }
+      buildMetadataValueGraph({
+        model: value,
+        parentNodeId: PARENT_NODE,
+        filePath: FILE_PATH,
+        yamlMap: undefined,
+        propRule: { type: "MetadataValue", yaml: "Поле" },
+        graph,
+      })
+
+      const edges = [...graph.outEdgeEntries(PARENT_NODE)]
+      expect(edges).toHaveLength(1)
+      expect(edges[0].attributes.kind).toBe("Значение")
+      expect(edges[0].target).toBe("Перечисление.ВидыДоговоров.СПоставщиком")
+    })
+
+    it("formChoiceList с вложенной строкой → не создаёт рёбер", () => {
+      const graph = makeGraph()
+      const value: MetadataFormChoiceListValue = {
+        type: "formChoiceListDesTimeValue",
+        presentation: { items: { ru: "Метка" } },
+        value: { type: "string", value: "строка" },
+      }
+      buildMetadataValueGraph({
+        model: value,
+        parentNodeId: PARENT_NODE,
+        filePath: FILE_PATH,
+        yamlMap: undefined,
+        propRule: { type: "MetadataValue", yaml: "Поле" },
+        graph,
+      })
+      expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+    })
+  })
+})

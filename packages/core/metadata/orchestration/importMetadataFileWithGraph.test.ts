@@ -212,6 +212,89 @@ describe("importMetadataFileWithGraph — MetadataItemLinks (document)", () => {
   })
 })
 
+describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗаполнения)", () => {
+  it("ref в ЗначениеЗаполнения реквизита → ребро kind Значение к ПустаяСсылка", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      text: `
+Реквизиты:
+  Ответственный:
+    Тип: Справочник.Пользователи
+    ЗначениеЗаполнения: Справочник.Пользователи.ПустаяСсылка
+`,
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+
+    const attrNodeId = "Справочник.Товары.Ответственный"
+    expect(graph.hasNode(attrNodeId)).toBe(true)
+
+    const outEdges = [...graph.outEdgeEntries(attrNodeId)]
+    const valEdges = outEdges.filter((e) => e.attributes.kind === "Значение")
+    expect(valEdges).toHaveLength(1)
+    expect(valEdges[0].target).toBe("Справочник.Пользователи.ПустаяСсылка")
+    expect(graph.hasNode("Справочник.Пользователи.ПустаяСсылка")).toBe(true)
+  })
+
+  it("ref на значение перечисления → ребро kind Значение к узлу перечисления", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      text: `
+Реквизиты:
+  ВидДоговора:
+    Тип: Перечисление.ВидыДоговоров
+    ЗначениеЗаполнения: Перечисление.ВидыДоговоров.СПоставщиком
+`,
+      kind: "catalog",
+      name: "Контрагенты",
+      graph,
+      context: baseContext,
+    })
+
+    const attrNodeId = "Справочник.Контрагенты.ВидДоговора"
+    const outEdges = [...graph.outEdgeEntries(attrNodeId)]
+    const valEdges = outEdges.filter((e) => e.attributes.kind === "Значение")
+    expect(valEdges).toHaveLength(1)
+    expect(valEdges[0].target).toBe("Перечисление.ВидыДоговоров.СПоставщиком")
+  })
+
+  it("fixedArray из N ref → N рёбер kind Значение с разными позициями", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      text: `
+Реквизиты:
+  ТипыСчетов:
+    ЗначениеЗаполнения:
+      - Перечисление.ТипыСчетов.КосвенныеЗатраты
+      - Перечисление.ТипыСчетов.Расходы
+`,
+      kind: "catalog",
+      name: "Статьи",
+      graph,
+      context: baseContext,
+    })
+
+    const attrNodeId = "Справочник.Статьи.ТипыСчетов"
+    const outEdges = [...graph.outEdgeEntries(attrNodeId)]
+    const valEdges = outEdges.filter((e) => e.attributes.kind === "Значение")
+    expect(valEdges).toHaveLength(2)
+
+    const positions = valEdges.map((e) => e.attributes.positionFrom?.offset)
+    expect(positions[0]).toBeDefined()
+    expect(positions[1]).toBeDefined()
+    expect(positions[0]).not.toBe(positions[1])
+
+    const targets = valEdges.map((e) => e.target)
+    expect(targets).toContain("Перечисление.ТипыСчетов.КосвенныеЗатраты")
+    expect(targets).toContain("Перечисление.ТипыСчетов.Расходы")
+  })
+})
+
 describe("importMetadataFileWithGraph — возвращает undefined при пустом импорте", () => {
   it("возвращает undefined если importXxxFromYAML вернул undefined (несовместимые данные)", () => {
     const graph = new MetadataGraph()

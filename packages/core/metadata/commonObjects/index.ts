@@ -140,6 +140,7 @@ import "./metadataTabularSection/register"
 
 import "./metadataValue/fromXML"
 import "./metadataValue/fromYAML"
+import "./metadataValue/graphFromModel"
 import "./metadataValue/toJSONSchema"
 import "./metadataValue/toXML"
 import "./metadataValue/toYAML"
