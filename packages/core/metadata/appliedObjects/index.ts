@@ -1,8 +1,6 @@
 import "./metadataCommand/register"
 
-import "./metadataCatalog/fromXML"
 import "./metadataCatalog/fromYAML"
-import "./metadataCatalog/toXML"
 import "./metadataCatalog/toYAML"
 
 import "./metadataDocument/toXML"

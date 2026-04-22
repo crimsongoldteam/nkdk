@@ -1,6 +1,4 @@
-import { MetadataCatalog, MetadataCatalogYAML } from "~/metadata/appliedObjects/metadataCatalog/types"
-
-//#region MetadataCatalog
+import { MetadataCatalog, MetadataCatalogYAML } from "../types"
 
 export const full = {
   attributes: [
@@ -202,66 +200,6 @@ export const full = {
   updateDataHistoryImmediatelyAfterWrite: true,
 } satisfies MetadataCatalog
 
-export const minimal: MetadataCatalog = {
-  inputByString: [],
-  itemType: "MetadataCatalog",
-  name: "ПоУмолчанию",
-  synonym: {
-    items: {
-      ru: "По умолчанию",
-    },
-  },
-}
-
-export const withAttributesCatalog: MetadataCatalog = {
-  name: "Контрагенты",
-  synonym: { items: { ru: "Контрагенты" } },
-  attributes: [
-    {
-      itemType: "MetadataAttribute",
-      name: "РеквизитОбъекта",
-      synonym: { items: { ru: "Реквизит объекта" } },
-      type: {
-        type: ["string"],
-      },
-    },
-  ],
-  itemType: "MetadataCatalog",
-}
-
-export const withCommands: MetadataCatalog = {
-  name: "Контрагенты",
-  synonym: { items: { ru: "Контрагенты" } },
-  commands: [
-    {
-      group: "ActionsPanelCreate",
-      name: "Команда1",
-      synonym: {
-        items: {
-          ru: "Команда 1",
-        },
-      },
-    },
-    {
-      name: "Команда2",
-      synonym: {
-        items: {
-          ru: "Команда 2",
-        },
-      },
-    } as any,
-  ],
-  itemType: "MetadataCatalog",
-}
-
-//#endregion
-
-//#region MetadataCatalogYAML
-
-export const minimalYAML: MetadataCatalogYAML = {
-  Синоним: "По умолчанию",
-}
-
 export const fullYAML: MetadataCatalogYAML = {
   Автонумерация: "Ложь",
   БыстрыйВыбор: "Истина",
@@ -368,5 +306,3 @@ export const fullYAML: MetadataCatalogYAML = {
     },
   ],
 }
-
-//#endregion

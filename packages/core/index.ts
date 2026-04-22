@@ -4,9 +4,7 @@ export { syncConfigurationToXML } from "./metadata/appliedObjects/configuration/
 export { shortRoundTripXML } from "./metadata/appliedObjects/configuration/shortRoundTripXML"
 export {
   exportMetadataCatalogToJSONSchema,
-  exportMetadataCatalogToXML,
   exportMetadataCatalogToYAML,
-  importMetadataCatalogFromXML,
   importMetadataCatalogFromYAML,
   type MetadataCatalog,
   type MetadataCatalogXML,

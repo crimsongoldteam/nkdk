@@ -1,13 +1,11 @@
 import fs from "fs"
 import { basename, join } from "path"
-import {
-  readCatalogChildNamesFromXML,
-  readCatalogFromXML,
-} from "~/metadata/appliedObjects/metadataCatalog/convertFromXML"
-import { exportMetadataCatalogToXML } from "~/metadata/appliedObjects/metadataCatalog/toXML"
+import { readCatalogFromXML } from "~/metadata/appliedObjects/metadataCatalog/convertFromXML"
+import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { readFormFromXML } from "~/metadata/forms/clientApplicationForm/convertFromXML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
+import { exportMetadataItemToXML } from "~/metadata/orchestration"
 import { xmlExport } from "~/xml/export/exporter"
 
 const makeContextFromXML = (forReference: boolean): ConfigurationContextFromXML => ({
@@ -16,11 +14,7 @@ const makeContextFromXML = (forReference: boolean): ConfigurationContextFromXML 
   fromXML: { forReference },
 })
 
-const makeContextToXML = (
-  parentName: string,
-  forms: string[] = [],
-  templates: string[] = []
-): ConfigurationContextWithExportToXML => ({
+const makeContextToXML = (parentName: string): ConfigurationContextWithExportToXML => ({
   defaultLanguage: "ru",
   version: "2.20",
   exportToXML: {
@@ -28,8 +22,8 @@ const makeContextToXML = (
     configDumpInfo: new Map(),
     version: "2.20",
     context: {
-      forms,
-      templates,
+      forms: [],
+      templates: [],
       parentName,
       metadataForNumbering: [],
     },
@@ -65,19 +59,16 @@ export const shortRoundTripXML = async (params: { inputDir: string; outputDir: s
         catalogName,
       })
 
-      const { forms: formNames, templates: templateNames } = readCatalogChildNamesFromXML(
-        join(catalogsInputDir, `${catalogName}.xml`)
-      )
-
-      const xmlObj = exportMetadataCatalogToXML({
-        context: makeContextToXML(catalogName, formNames, templateNames),
+      const xmlObj = exportMetadataItemToXML({
+        context: makeContextToXML(catalogName),
         data: catalog,
         referenceData: referenceCatalog,
+        rule: MetadataCatalogRules,
       })
 
       if (xmlObj) {
         fs.mkdirSync(catalogsOutputDir, { recursive: true })
-        fs.writeFileSync(join(catalogsOutputDir, `${catalogName}.xml`), xmlExport({ MetaDataObject: xmlObj }), "utf-8")
+        fs.writeFileSync(join(catalogsOutputDir, `${catalogName}.xml`), xmlExport(xmlObj), "utf-8")
       }
     } catch (err) {
       console.error(`Ошибка round-trip каталога "${catalogName}":`, err)

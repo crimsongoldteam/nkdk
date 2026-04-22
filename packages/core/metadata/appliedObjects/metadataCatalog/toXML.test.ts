@@ -1,72 +1,40 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { full, minimal } from "~/tests/fixtures/metadataCatalog/data"
+import { exportMetadataItemToXML, importMetadataItemFromXML } from "~/metadata/orchestration"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { xmlExport } from "~/xml/export/exporter"
-import { importMetadataCatalogFromXML } from "./fromXML"
-import { exportMetadataCatalogToXML } from "./toXML"
-import type { MetadataCatalogXML } from "./types"
+import { full } from "./__fixtures__/full"
+import { minimal } from "./__fixtures__/minimal"
+import { MetadataCatalogRules } from "./rules"
+import { MetadataCatalog } from "./types"
 
-const baseToXMLContext = mockContextToXML()
-const mockMetadataCatalogContext: ConfigurationContextWithExportToXML = {
-  ...baseToXMLContext,
-  exportToXML: {
-    ...baseToXMLContext.exportToXML,
-    context: {
-      metadataForNumbering: [],
-      forms: ["ФормаЭлемента", "ФормаВыбора", "ФормаГруппы", "ФормаСписка", "ФормаВыбораГруппы"],
-      templates: ["Макет"],
-      parentName: "СправочникПолный",
-    },
-  },
+const loadReference = (fixture: string): MetadataCatalog | undefined => {
+  const parsed = readAndParseXMLFixture<{ MetaDataObject: unknown }>(import.meta.url, fixture)
+  return importMetadataItemFromXML({
+    context: mockContextFromXML({ forReference: true }),
+    rule: MetadataCatalogRules,
+    xml: parsed.MetaDataObject,
+  })
 }
 
-const mockMinimalCatalogContext: ConfigurationContextWithExportToXML = {
-  ...baseToXMLContext,
-  exportToXML: {
-    ...baseToXMLContext.exportToXML,
-    context: {
-      metadataForNumbering: [],
-      forms: [],
-      templates: [],
-      parentName: "ПоУмолчанию",
-    },
-  },
+const exportFixture = (data: MetadataCatalog, fixture: string): string => {
+  const xmlData = exportMetadataItemToXML({
+    context: mockContextToXML(),
+    data,
+    referenceData: loadReference(fixture),
+    rule: MetadataCatalogRules,
+  })
+  return xmlExport(xmlData!)
 }
 
-const loadReference = (fixture: string) => {
-  const parsed = readAndParseXMLFixture<{ MetaDataObject: MetadataCatalogXML }>(import.meta.url, fixture)
-  return importMetadataCatalogFromXML(
-    { ...mockContextFromXML(), fromXML: { forReference: true } },
-    parsed.MetaDataObject
-  )
-}
-
-describe("exportMetadataCatalogToXML", () => {
+describe("export MetadataCatalog to XML", () => {
   it("should export full.xml fixture", () => {
-    const xmlData = exportMetadataCatalogToXML({
-      context: mockMetadataCatalogContext,
-      data: full,
-      referenceData: loadReference("full.xml"),
-    })
-
-    const result = xmlExport({ MetaDataObject: xmlData })
     const expected = readXMLFixtureAsString(import.meta.url, "full.xml")
-
-    expect(result).toEqual(expected)
+    expect(exportFixture(full, "full.xml")).toEqual(expected)
   })
 
   it("should export minimal.xml fixture", () => {
-    const xmlData = exportMetadataCatalogToXML({
-      context: mockMinimalCatalogContext,
-      data: minimal,
-      referenceData: loadReference("minimal.xml"),
-    })
-
-    const result = xmlExport({ MetaDataObject: xmlData })
     const expected = readXMLFixtureAsString(import.meta.url, "minimal.xml")
-
-    expect(result).toEqual(expected)
+    expect(exportFixture(minimal, "minimal.xml")).toEqual(expected)
   })
 })

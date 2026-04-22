@@ -1,12 +1,13 @@
 import fs from "fs"
 import { join } from "path"
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
-import { exportMetadataCatalogToXML } from "~/metadata/appliedObjects/metadataCatalog/toXML"
-import type { MetadataCatalogXML, MetadataCatalogYAML } from "~/metadata/appliedObjects/metadataCatalog/types"
+import type { MetadataCatalog, MetadataCatalogYAML } from "~/metadata/appliedObjects/metadataCatalog/types"
 import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { exportMetadataItemToXML, importMetadataItemFromXML } from "~/metadata/orchestration"
+import { importContentFromXML } from "~/xml/import/importer"
 import { xmlExport } from "~/xml/export/exporter"
 import { importFromYAML } from "~/yaml/import"
-import { readCatalogChildNamesFromXML, readCatalogFromXML } from "./convertFromXML"
+import { MetadataCatalogRules } from "./rules"
 
 export const syncCatalogToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -35,22 +36,11 @@ export const syncCatalogToXML = async (params: {
     version: "2.20",
   }
 
-  const referenceCatalog = readCatalogFromXML({
-    context: contextFromXML,
-    inputDir: referenceDir,
-    catalogName,
-  })
-
   const referenceXmlPath = join(referenceDir, `${catalogName}.xml`)
-  const referenceChildren = readCatalogChildNamesFromXML(referenceXmlPath)
-  const formNames =
-    referenceChildren.forms.length > 0
-      ? referenceChildren.forms
-      : await listSubdirNames(join(inputDir, catalogName, "Формы"))
-  const templateNames =
-    referenceChildren.templates.length > 0
-      ? referenceChildren.templates
-      : await listSubdirNames(join(inputDir, catalogName, "Макеты"))
+  const referenceCatalog = readReferenceCatalog({ context: contextFromXML, xmlPath: referenceXmlPath })
+
+  const formNames = await listSubdirNames(join(inputDir, catalogName, "Формы"))
+  const templateNames = await listSubdirNames(join(inputDir, catalogName, "Макеты"))
 
   const metadataCatalogContext: ConfigurationContextWithExportToXML = {
     ...context,
@@ -65,10 +55,11 @@ export const syncCatalogToXML = async (params: {
     },
   }
 
-  const xmlObj = exportMetadataCatalogToXML({
+  const xmlObj = exportMetadataItemToXML({
     context: metadataCatalogContext,
     data: catalog,
     referenceData: referenceCatalog,
+    rule: MetadataCatalogRules,
   })
 
   if (!xmlObj) {
@@ -87,6 +78,17 @@ async function readCatalogFiles(params: { inputDir: string; catalogName: string 
   return { yamlContent }
 }
 
+function readReferenceCatalog(params: {
+  context: ConfigurationContextFromXML
+  xmlPath: string
+}): MetadataCatalog | undefined {
+  const { context, xmlPath } = params
+  if (!fs.existsSync(xmlPath)) return undefined
+  const xmlContent = fs.readFileSync(xmlPath, "utf-8")
+  const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
+  return importMetadataItemFromXML({ context, xml: parsed.MetaDataObject, rule: MetadataCatalogRules }) ?? undefined
+}
+
 const listSubdirNames = async (dir: string): Promise<string[]> => {
   if (!fs.existsSync(dir)) return []
   const entries = await fs.promises.readdir(dir, { withFileTypes: true })
@@ -94,7 +96,7 @@ const listSubdirNames = async (dir: string): Promise<string[]> => {
 }
 
 const writeCatalogToXML = async (params: {
-  metadataXML: MetadataCatalogXML
+  metadataXML: Record<string, unknown>
   catalogName: string
   outputDir: string
 }): Promise<void> => {
@@ -103,5 +105,5 @@ const writeCatalogToXML = async (params: {
   const catalogMetadataPath = join(outputDir, `${catalogName}.xml`)
 
   await fs.promises.mkdir(outputDir, { recursive: true })
-  await fs.promises.writeFile(catalogMetadataPath, xmlExport({ MetaDataObject: metadataXML }), "utf-8")
+  await fs.promises.writeFile(catalogMetadataPath, xmlExport(metadataXML), "utf-8")
 }

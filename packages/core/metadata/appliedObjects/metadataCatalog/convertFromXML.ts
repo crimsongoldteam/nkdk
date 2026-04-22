@@ -1,11 +1,12 @@
 import fs from "fs"
 import { join } from "path"
-import { importMetadataCatalogFromXML } from "~/metadata/appliedObjects/metadataCatalog/fromXML"
 import { exportMetadataCatalogToYAML } from "~/metadata/appliedObjects/metadataCatalog/toYAML"
 import type { MetadataCatalog, MetadataCatalogXML } from "~/metadata/appliedObjects/metadataCatalog/types"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { importMetadataItemFromXML } from "~/metadata/orchestration"
 import { importContentFromXML } from "~/xml/import/importer"
 import { exportToYAML } from "~/yaml/export"
+import { MetadataCatalogRules } from "./rules"
 
 export const convertCatalogFromXML = async (params: {
   context: ConfigurationContextFromXML
@@ -18,7 +19,7 @@ export const convertCatalogFromXML = async (params: {
   const inputPath = join(inputDir, `${name}.xml`)
   const xmlContent = await fs.promises.readFile(inputPath, "utf-8")
   const parsed = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(xmlContent)
-  const catalog = importMetadataCatalogFromXML(context, parsed.MetaDataObject)
+  const catalog = importCatalogFromXML(context, parsed.MetaDataObject)
 
   const result = readCatalogFromXMLToYAML({ context, catalog }) ?? ""
 
@@ -40,21 +41,17 @@ export function readCatalogFromXML(params: {
   const xmlContent = fs.readFileSync(inputPath, "utf-8")
 
   const parsed = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(xmlContent)
-  const catalog = importMetadataCatalogFromXML(context, parsed.MetaDataObject)
-  return catalog
+  return importCatalogFromXML(context, parsed.MetaDataObject)
 }
 
-export function readCatalogChildNamesFromXML(catalogXmlPath: string): {
-  forms: string[]
-  templates: string[]
-} {
-  if (!fs.existsSync(catalogXmlPath)) return { forms: [], templates: [] }
-  const xmlContent = fs.readFileSync(catalogXmlPath, "utf-8")
-  const parsed = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(xmlContent)
-  const child = parsed.MetaDataObject?.Catalog?.ChildObjects
-  const toArr = (v: string[] | string | undefined): string[] =>
-    Array.isArray(v) ? v : v != null ? [v] : []
-  return { forms: toArr(child?.Form), templates: toArr(child?.Template) }
+function importCatalogFromXML(context: ConfigurationContextFromXML, xml: MetadataCatalogXML): MetadataCatalog {
+  const result = importMetadataItemFromXML({
+    context,
+    xml,
+    rule: MetadataCatalogRules,
+  })
+  if (!result) throw new Error("Failed to import MetadataCatalog from XML")
+  return result
 }
 
 const readCatalogFromXMLToYAML = (params: {

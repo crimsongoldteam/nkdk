@@ -1,3 +1,4 @@
+import { getChildContextToXML } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportPropertiesToXML } from "../property/toXML"
 import { ItemXML, MetadataItemRule } from "../property/types"
@@ -16,8 +17,13 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
     return undefined
   }
 
+  const itemName = typeof (data as any).name === "string" ? ((data as any).name as string) : undefined
+  const effectiveContext: ConfigurationContextWithExportToXML = itemName
+    ? getChildContextToXML({ context, itemType: rule.itemType, path: `${rule.itemType}.${itemName}`, name: itemName })
+    : context
+
   const result = exportPropertiesToXML({
-    context,
+    context: effectiveContext,
     metadata: data,
     referenceMetadata: referenceData,
     rule,

@@ -105,6 +105,12 @@ import "./internalInfo/toXML"
 import "./metaDataObject/fromXML"
 import "./metaDataObject/toXML"
 
+import "./childFormNames/fromXML"
+import "./childFormNames/toXML"
+
+import "./childTemplateNames/fromXML"
+import "./childTemplateNames/toXML"
+
 import "./metadataAttribute/register"
 
 import "./metadataCommandGroup/fromXML"

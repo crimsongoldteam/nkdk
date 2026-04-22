@@ -3,6 +3,8 @@ import { SettingsParameterValuePropertyRule } from "~/metadata/commonObjects/dat
 import { DateTimePropertyRule } from "~/metadata/commonObjects/dateTime/types"
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
+import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
+import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
 import type { MetaDataObjectPropertyRule } from "~/metadata/commonObjects/metaDataObject/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
 import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
@@ -190,6 +192,8 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "MetadataTypeCollection"
     | "InternalInfo"
     | "MetaDataObject"
+    | "ChildFormNames"
+    | "ChildTemplateNames"
     | "GroupChildItems"
     | "CommandBarChildItems"
     | "TableChildItems"
@@ -238,6 +242,8 @@ export type PropertyRule =
   | NumberPropertyRule
   | DateTimePropertyRule
   | MetaDataObjectPropertyRule
+  | ChildFormNamesPropertyRule
+  | ChildTemplateNamesPropertyRule
 
 type PropertiesType = Record<string, PropertyRule>
 
