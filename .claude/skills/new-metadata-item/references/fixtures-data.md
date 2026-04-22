@@ -17,8 +17,9 @@
 
 0. Перед заполнением `<name>.ts` убедись, что `rules.ts` и `types.ts` уже созданы.
 1. Построение объекта выполняй от типов: опирайся на `<ObjectName>` из `types.ts`, а не на произвольную структуру.
-2. Заполни поля значениями, которые соответствуют данным из `<name>.xml`.
-3. YAML-экспорт (`<name>YAML`) добавляется на YAML-цикле (шаг 11 `SKILL.md`), а не сразу.
+2. Заполни TS-фикстуру **только не-дефолтными полями** — теми, что **останутся в модели после импорта** (движок на импорте стрипит значения, совпавшие с `defaultValueXML`). Если в XML-фикстуре тег присутствует со значением-дефолтом (например, `<NumberType>String</NumberType>` при `defaultValueXML: "String"`), в TS его **не пиши** — иначе `expect(result).toEqual(<fixtureName>)` упадёт. Round-trip при этом остаётся корректным: на экспорте `defaultValueXML` пишется обратно, когда модель `undefined`. Комментарий по образцу `metadataCommand/__fixtures__/data.ts`: `// Corresponds to __fixtures__/<name>.xml (non-default values only, after import stripping)`.
+3. Поля с `forReferenceOnly: true` (обычно `uuid`) в TS-фикстуру **не пиши** — они не попадают в модель в обычном режиме импорта. Для round-trip движок отдельно импортирует reference (`forReference: true`) и передаёт его в экспорт.
+4. YAML-экспорт (`<name>YAML`) добавляется на YAML-цикле (шаг 11 `SKILL.md`), а не сразу.
 
 ## Пример
 
