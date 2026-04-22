@@ -69,7 +69,7 @@ export function buildGraphFromModel(params: {
       graph.promoteNode(childNodeId, {
         name: idSuffix,
         positionFrom: itemOffset !== undefined ? { offset: itemOffset } : undefined,
-        filePath,
+        filePaths: [filePath],
         item,
       })
 

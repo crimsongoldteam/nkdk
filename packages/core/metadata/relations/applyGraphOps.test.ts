@@ -11,7 +11,7 @@ function makeCtx(overrides?: Partial<ApplyGraphOpsContext>): ApplyGraphOpsContex
   const parentNodeId = overrides?.parentNodeId ?? PARENT_NODE_ID
   const filePath = overrides?.filePath ?? FILE_PATH
   // Parent node must exist in the graph before applyGraphOps can add edges from it
-  graph.ensureNode(parentNodeId, { name: "Цена", filePath })
+  graph.ensureNode(parentNodeId, { name: "Цена", filePaths: [filePath] })
   return { graph, parentNodeId, filePath, edgeName: "Тип" }
 }
 
@@ -48,7 +48,7 @@ describe("applyGraphOps", () => {
       expect(ctx.graph.hasNode(childId)).toBe(true)
       const attrs = ctx.graph.getNodeAttributes(childId)
       expect(attrs.name).toBe("Валюта")
-      expect(attrs.filePath).toBe("catalogs/goods.yaml")
+      expect(attrs.filePaths?.[0]).toBe("catalogs/goods.yaml")
 
       const edges = [...ctx.graph.outEdgeEntries("Справочник.Товары.Цена")]
       expect(edges).toHaveLength(1)
@@ -104,7 +104,7 @@ describe("applyGraphOps", () => {
       expect(ctx.graph.hasNode("Справочник.Валюты")).toBe(true)
       const attrs = ctx.graph.getNodeAttributes("Справочник.Валюты")
       expect(attrs.name).toBe("Валюты")
-      expect(attrs.filePath).toBeUndefined()
+      expect(attrs.filePaths).toBeUndefined()
 
       const edges = [...ctx.graph.outEdgeEntries("Справочник.Товары.Цена")]
       expect(edges).toHaveLength(1)
@@ -152,7 +152,7 @@ describe("applyGraphOps", () => {
     it("не перезаписывает owned-узел при повторном reference", () => {
       const graph = new MetadataGraph()
       const ownedItem = { itemType: "MetadataCatalog", name: "Валюты" }
-      graph.ensureNode("Справочник.Валюты", { name: "Валюты", filePath: "currencies.yaml" })
+      graph.ensureNode("Справочник.Валюты", { name: "Валюты", filePaths: ["currencies.yaml"] })
       graph.setNodeAttribute("Справочник.Валюты", "item", ownedItem)
 
       applyGraphOps(
@@ -161,14 +161,14 @@ describe("applyGraphOps", () => {
       )
 
       expect(graph.getNodeAttribute("Справочник.Валюты", "item")).toBe(ownedItem)
-      expect(graph.getNodeAttribute("Справочник.Валюты", "filePath")).toBe("currencies.yaml")
+      expect(graph.getNodeAttribute("Справочник.Валюты", "filePaths")?.[0]).toBe("currencies.yaml")
     })
 
     it("stub-узел не получает filePath", () => {
       const ctx = makeCtx()
       applyGraphOps({ references: [{ id: "Справочник.Неизвестный", name: "Неизвестный" }] }, ctx)
 
-      expect(ctx.graph.getNodeAttribute("Справочник.Неизвестный", "filePath")).toBeUndefined()
+      expect(ctx.graph.getNodeAttribute("Справочник.Неизвестный", "filePaths")).toBeUndefined()
       expect(ctx.graph.getNodeAttribute("Справочник.Неизвестный", "item")).toBeUndefined()
     })
   })

@@ -45,7 +45,7 @@ function buildEnumerationValuesGraph(params: {
     const offset = valuesYamlMap ? findKeyOffset(valuesYamlMap, value.name) : undefined
     graph.promoteNode(nodeId, {
       name: value.name,
-      filePath,
+      filePaths: [filePath],
       positionFrom: offset !== undefined ? { offset } : undefined,
       item: value,
     })

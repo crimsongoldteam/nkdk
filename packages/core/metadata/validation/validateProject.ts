@@ -62,7 +62,7 @@ export function validateProject(params: { projectPath: string; context: Configur
     // Импорт в граф для проверки ссылок
     try {
       const text = readFileSync(yamlPath, "utf-8")
-      const result = importMetadataFileWithGraph({ filePath: yamlPath, text, kind, name, graph, context })
+      const result = importMetadataFileWithGraph({ filePath: yamlPath, sources: { yaml: text }, kind, name, graph, context })
       if (result) {
         lineCounters.set(yamlPath, result.parsed.lineCounter)
       }
@@ -82,7 +82,7 @@ export function validateProject(params: { projectPath: string; context: Configur
         if (!isOwning(graph.getEdgeAttribute(edgeId, "kind"))) {
           const targetId = graph.target(edgeId)
           if (brokenStubIds.has(targetId)) {
-            const filePath = attrs.filePath ?? ""
+            const filePath = attrs.filePaths?.[0] ?? ""
             let line = 1
             let col = 1
 

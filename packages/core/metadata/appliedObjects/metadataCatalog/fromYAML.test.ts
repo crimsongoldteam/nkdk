@@ -44,7 +44,7 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     const text = fs.readFileSync(path.join(__dirname, "__fixtures__/dependencies.yaml"), "utf8")
     importMetadataFileWithGraph({
       filePath: "test.yaml",
-      text,
+      sources: { yaml: text },
       kind: "catalog",
       name: "TestCatalog",
       graph,
@@ -116,9 +116,9 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     expect(stubAttrs.item).toBeUndefined()
   })
 
-  it("stub node has no filePath (belongs to no file)", () => {
+  it("stub node has no filePaths (belongs to no file)", () => {
     const stubAttrs = graph.getNodeAttributes("Справочник.ДругойСправочник")
-    expect(stubAttrs.filePath).toBeUndefined()
+    expect(stubAttrs.filePaths).toBeUndefined()
   })
 
   it("getBrokenReferences reports stub as broken", () => {
@@ -129,7 +129,7 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
   it("stub is enriched after importing target catalog", () => {
     importMetadataFileWithGraph({
       filePath: "other.yaml",
-      text: "{}",
+      sources: { yaml: "{}" },
       kind: "catalog",
       name: "ДругойСправочник",
       graph,
@@ -139,7 +139,7 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     const attrs = graph.getNodeAttributes("Справочник.ДругойСправочник")
     expect(attrs.item).toBeDefined()
     expect((attrs.item as { name: string }).name).toBe("ДругойСправочник")
-    expect(attrs.filePath).toBe("other.yaml")
+    expect(attrs.filePaths?.[0]).toBe("other.yaml")
   })
 
   it("стандартный реквизит из YAML имеет item", () => {
@@ -158,7 +158,7 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
   it("getBrokenReferences is empty after all stubs are enriched", () => {
     importMetadataFileWithGraph({
       filePath: "other.yaml",
-      text: "{}",
+      sources: { yaml: "{}" },
       kind: "catalog",
       name: "ДругойСправочник",
       graph,

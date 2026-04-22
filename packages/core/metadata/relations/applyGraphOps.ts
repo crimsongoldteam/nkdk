@@ -25,7 +25,7 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
     const childNodeId = `${parentNodeId}.${child.idSuffix}`
     graph.promoteNode(childNodeId, {
       name: child.name,
-      filePath,
+      filePaths: [filePath],
       positionFrom: child.positionFrom,
     })
     const edgeKey = `${parentNodeId}:${edgeName}:${childNodeId}`

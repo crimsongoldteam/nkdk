@@ -18,7 +18,7 @@ const FILE_PATH = "test/Свойства.yaml"
 
 function makeGraph() {
   const graph = new MetadataGraph()
-  graph.ensureNode(PARENT_NODE, { name: "Товары", filePath: FILE_PATH })
+  graph.ensureNode(PARENT_NODE, { name: "Товары", filePaths: [FILE_PATH] })
   return graph
 }
 

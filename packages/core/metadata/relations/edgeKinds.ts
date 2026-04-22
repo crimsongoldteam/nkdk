@@ -23,6 +23,8 @@ const _owning = new Set<string>([
   "MetadataCatalog",
   "MetadataDocument",
   "MetadataEnumeration",
+  // Форма (PRD #112): owning-ребро от владельца к форме
+  "Форма",
   // Устаревший вид из addRelation (backward compat)
   "Родитель",
 ])
@@ -34,6 +36,7 @@ const _known = new Set<string>([
   "Объект",
   "Поле",
   "Значение",
+  // PRD #112 — добавляются по мере реализации через registerEdgeKind
 ])
 
 /**

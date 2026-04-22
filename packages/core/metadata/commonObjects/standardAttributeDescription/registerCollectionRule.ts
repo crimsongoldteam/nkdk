@@ -72,7 +72,7 @@ function buildStandardAttributesGraph(params: {
     graph.promoteNode(nodeId, {
       name: russianName,
       positionFrom: offset !== undefined ? { offset } : undefined,
-      filePath,
+      filePaths: [filePath],
       item,
     })
 

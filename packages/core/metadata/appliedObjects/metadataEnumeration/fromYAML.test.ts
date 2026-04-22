@@ -28,7 +28,7 @@ describe("importMetadataEnumerationFromYAML — граф значений", () =
     const text = fs.readFileSync(path.join(__dirname, "__fixtures__/values.yaml"), "utf8")
     importMetadataFileWithGraph({
       filePath: "Перечисление/СтатусЗаказа/Свойства.yml",
-      text,
+      sources: { yaml: text },
       kind: "enumeration",
       name: "СтатусЗаказа",
       graph,
@@ -53,7 +53,7 @@ describe("importMetadataEnumerationFromYAML — граф значений", () =
 
   it("узел значения принадлежит правильному файлу", () => {
     const attrs = graph.getNodeAttributes("Перечисление.СтатусЗаказа.Закрыт")
-    expect(attrs.filePath).toBe("Перечисление/СтатусЗаказа/Свойства.yml")
+    expect(attrs.filePaths?.[0]).toBe("Перечисление/СтатусЗаказа/Свойства.yml")
   })
 
   it("значения связаны с перечислением composition-рёбрами", () => {
@@ -81,7 +81,7 @@ describe("importMetadataEnumerationFromYAML — positionFrom значений", 
     text = fs.readFileSync(path.join(__dirname, "__fixtures__/values.yaml"), "utf8")
     importMetadataFileWithGraph({
       filePath: "Перечисление/СтатусЗаказа/Свойства.yml",
-      text,
+      sources: { yaml: text },
       kind: "enumeration",
       name: "СтатусЗаказа",
       graph,

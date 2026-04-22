@@ -31,17 +31,18 @@ function updateDiagnostics(): void {
 
   for (const nodeId of graph.nodes()) {
     const attrs = graph.getNodeAttributes(nodeId)
-    if (!attrs.filePath || !attrs.positionFrom) continue
+    const filePath = attrs.filePaths?.[0]
+    if (!filePath || !attrs.positionFrom) continue
 
     for (const edgeId of graph.outEdges(nodeId)) {
       if (graph.getEdgeAttribute(edgeId, "kind") !== "reference") continue
       const targetId = graph.target(edgeId)
       if (!brokenStubIds.has(targetId)) continue
 
-      let list = fileIssues.get(attrs.filePath)
+      let list = fileIssues.get(filePath)
       if (!list) {
         list = []
-        fileIssues.set(attrs.filePath, list)
+        fileIssues.set(filePath, list)
       }
       list.push({
         offset: attrs.positionFrom.offset,

@@ -37,7 +37,7 @@ async function loadWorkspace(workspaceFolder: vscode.WorkspaceFolder): Promise<v
 
       try {
         const text = fs.readFileSync(yamlPath, "utf-8")
-        importMetadataFileWithGraph({ filePath: yamlPath, text, kind: "catalog", name: dir.name, graph: newGraph, context: _importContext })
+        importMetadataFileWithGraph({ filePath: yamlPath, sources: { yaml: text }, kind: "catalog", name: dir.name, graph: newGraph, context: _importContext })
       } catch {
         // Пропускаем нечитаемые файлы
       }
@@ -53,7 +53,7 @@ async function loadWorkspace(workspaceFolder: vscode.WorkspaceFolder): Promise<v
 
       try {
         const text = fs.readFileSync(yamlPath, "utf-8")
-        importMetadataFileWithGraph({ filePath: yamlPath, text, kind: "document", name: dir.name, graph: newGraph, context: _importContext })
+        importMetadataFileWithGraph({ filePath: yamlPath, sources: { yaml: text }, kind: "document", name: dir.name, graph: newGraph, context: _importContext })
       } catch {
         // Пропускаем нечитаемые файлы
       }
@@ -69,7 +69,7 @@ async function loadWorkspace(workspaceFolder: vscode.WorkspaceFolder): Promise<v
 
       try {
         const text = fs.readFileSync(yamlPath, "utf-8")
-        importMetadataFileWithGraph({ filePath: yamlPath, text, kind: "enumeration", name: dir.name, graph: newGraph, context: _importContext })
+        importMetadataFileWithGraph({ filePath: yamlPath, sources: { yaml: text }, kind: "enumeration", name: dir.name, graph: newGraph, context: _importContext })
       } catch {
         // Пропускаем нечитаемые файлы
       }
@@ -100,7 +100,7 @@ export function initWorkspaceGraph(context: vscode.ExtensionContext): void {
         const objectType = parts[parts.length - 3]
 
         const kind = objectType === "Документ" ? "document" : objectType === "Перечисление" ? "enumeration" : "catalog"
-        importMetadataFileWithGraph({ filePath, text, kind, name: objectName, graph: _graph, context: _importContext })
+        importMetadataFileWithGraph({ filePath, sources: { yaml: text }, kind, name: objectName, graph: _graph, context: _importContext })
       } catch {
         // Пропускаем при ошибке парсинга
       }

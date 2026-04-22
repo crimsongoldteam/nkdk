@@ -17,10 +17,10 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
     const graph = new MetadataGraph()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
-      text: `
+      sources: { yaml: `
 ВводПоСтроке:
   - Справочник.X.Реквизит.Y
-`,
+` },
       kind: "catalog",
       name: "Товары",
       graph,
@@ -36,10 +36,10 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
     const graph = new MetadataGraph()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
-      text: `
+      sources: { yaml: `
 ВводПоСтроке:
   - Справочник.Контрагенты.ТабличнаяЧасть.Контакты.Реквизит.Email
-`,
+` },
       kind: "catalog",
       name: "Товары",
       graph,
@@ -55,10 +55,10 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
     const graph = new MetadataGraph()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
-      text: `
+      sources: { yaml: `
 ВводПоСтроке:
   - Справочник.X.СтандартныйРеквизит.Наименование
-`,
+` },
       kind: "catalog",
       name: "Товары",
       graph,
@@ -74,12 +74,12 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
     const graph = new MetadataGraph()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
-      text: `
+      sources: { yaml: `
 ВводПоСтроке:
   - Справочник.A.Реквизит.П1
   - Справочник.B.Реквизит.П2
   - Справочник.C.Реквизит.П3
-`,
+` },
       kind: "catalog",
       name: "Товары",
       graph,
@@ -96,11 +96,11 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
     const graph = new MetadataGraph()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
-      text: `
+      sources: { yaml: `
 ВводПоСтроке:
   - Справочник.A.Реквизит.П1
   - Справочник.B.Реквизит.П2
-`,
+` },
       kind: "catalog",
       name: "Товары",
       graph,
@@ -120,7 +120,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
     const graph = new MetadataGraph()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
-      text: "{}",
+      sources: { yaml: "{}" },
       kind: "catalog",
       name: "Товары",
       graph,

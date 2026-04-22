@@ -58,7 +58,7 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
   const importContext = { version: "2.20", defaultLanguage: "ru" }
   for (const { path: yamlPath, text, name } of yamlFiles) {
     try {
-      importMetadataFileWithGraph({ filePath: yamlPath, text, kind: "catalog", name, graph, context: importContext })
+      importMetadataFileWithGraph({ filePath: yamlPath, sources: { yaml: text }, kind: "catalog", name, graph, context: importContext })
     } catch (err) {
       console.warn(chalk.yellow(`Предупреждение: не удалось импортировать ${yamlPath}: ${err}`))
     }
@@ -96,7 +96,7 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
         fullNodes.push({
           id: nodeId,
           name: attrs.name,
-          path: attrs.filePath ?? null,
+          path: attrs.filePaths?.[0] ?? null,
           offset: attrs.positionFrom?.offset ?? null,
           length: attrs.positionFrom?.length ?? null,
         })

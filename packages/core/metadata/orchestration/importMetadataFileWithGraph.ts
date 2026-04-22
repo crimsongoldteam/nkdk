@@ -33,7 +33,7 @@ function materializeGraphTerminals(
     const terminalId = `${itemNodeId}.${terminalName}`
     graph.promoteNode(terminalId, {
       name: terminalName,
-      filePath,
+      filePaths: [filePath],
       item: { itemType: "EmptyRef", ownerType, ownerName },
     })
     const edgeKey = `${itemNodeId}:${terminalName}:${terminalId}`
@@ -55,103 +55,134 @@ function ensureRootNode(
 ): string {
   const itemNodeId = `${prefix}.${name}`
   graph.ensureNode(prefix, { name: prefix })
-  graph.ensureNode(itemNodeId, { name, filePath })
+  graph.ensureNode(itemNodeId, { name, filePaths: [filePath] })
   const edgeKey = `${prefix}:${itemType}:${itemNodeId}`
   graph.ensureEdge(edgeKey, prefix, itemNodeId, { yaml: itemType, kind: itemType })
   return itemNodeId
 }
 
+// ---- Реестр kind'ов для catalog/document/enumeration ----
+
+interface MetadataKindEntry {
+  rule: RuleWithTerminals & { itemTypePrefix: string; itemType: string }
+  importFromYAML: (context: ConfigurationContext, yaml: unknown, name: string) => unknown
+}
+
+const _kindRegistry = new Map<MetadataKind, MetadataKindEntry>([
+  [
+    "catalog",
+    {
+      rule: MetadataCatalogRules,
+      importFromYAML: (ctx, yaml, name) =>
+        importMetadataCatalogFromYAML(ctx, yaml as never, name),
+    },
+  ],
+  [
+    "document",
+    {
+      rule: MetadataDocumentRules,
+      importFromYAML: (ctx, yaml, name) =>
+        importMetadataDocumentFromYAML(ctx, yaml as never, name),
+    },
+  ],
+  [
+    "enumeration",
+    {
+      rule: MetadataEnumerationRules,
+      importFromYAML: (ctx, yaml, name) =>
+        importMetadataEnumerationFromYAML(ctx, yaml as never, name),
+    },
+  ],
+])
+
+// ---- Публичный API ----
+
 /**
  * Общий хелпер «прочитанный файл → модель + граф».
- * Инкапсулирует kind-диспетчер: parseMetadataYaml → importXxxFromYAML → buildGraphFromModel.
+ * Инкапсулирует kind-диспетчер через реестр.
+ * Для form — создаёт узел с двумя filePaths (yaml + nkdk) и owning-ребром «Форма».
  * Бросает, если kind неизвестен.
  */
 export function importMetadataFileWithGraph(params: {
+  /** Путь к yaml-файлу (основной файл). */
   filePath: string
-  text: string
-  kind: MetadataKind
+  /** Путь к nkdk-файлу (только для form). */
+  nkdkFilePath?: string
+  /** Содержимое файлов. */
+  sources: { yaml: string; nkdk?: string }
+  kind: MetadataKind | "form"
   name: string
   graph: MetadataGraph
   context: ConfigurationContext
+  /** NodeId владельца формы (требуется для kind === "form"). */
+  ownerNodeId?: string
 }): ImportMetadataFileResult | undefined {
-  const { filePath, text, kind, name, graph, context } = params
+  const { filePath, nkdkFilePath, sources, kind, name, graph, context } = params
 
-  const parsed = parseMetadataYaml(text)
+  // ---- form: особый путь ----
+  if (kind === "form") {
+    const { ownerNodeId } = params
+    if (!ownerNodeId) {
+      throw new Error("importMetadataFileWithGraph: form kind требует ownerNodeId")
+    }
+
+    const formNodeId = `${ownerNodeId}.${name}`
+
+    // Создаём владельца как stub, если он ещё не импортирован
+    graph.ensureNode(ownerNodeId, { name: ownerNodeId.split(".").pop()! })
+
+    // Форм-узел с обоими filePaths (yaml + nkdk, если есть)
+    const formFilePaths: string[] = [filePath]
+    if (nkdkFilePath) formFilePaths.push(nkdkFilePath)
+
+    graph.promoteNode(formNodeId, {
+      name,
+      filePaths: formFilePaths,
+      item: { itemType: "ClientApplicationForm", name },
+    })
+
+    // Owning-ребро «Форма» от владельца к форме
+    const edgeKey = `${ownerNodeId}:Форма:${formNodeId}`
+    graph.ensureEdge(edgeKey, ownerNodeId, formNodeId, { yaml: "Форма", kind: "Форма" })
+
+    return undefined
+  }
+
+  // ---- catalog / document / enumeration: через реестр ----
+  const entry = _kindRegistry.get(kind as MetadataKind)
+  if (!entry) {
+    throw new Error(`importMetadataFileWithGraph: неизвестный kind "${kind}"`)
+  }
+
+  const parsed = parseMetadataYaml(sources.yaml)
   const yamlMap = isMap(parsed.doc.contents) ? parsed.doc.contents : undefined
 
   const importContext: ConfigurationContext = { ...context, graph }
 
-  if (kind === "catalog") {
-    const itemNodeId = ensureRootNode(
-      graph,
-      MetadataCatalogRules.itemTypePrefix,
-      MetadataCatalogRules.itemType,
-      name,
-      filePath
-    )
-    const model = importMetadataCatalogFromYAML(importContext, parsed.data, name)
-    if (!model) return undefined
-    graph.setNodeAttribute(itemNodeId, "item", model)
-    graph.updateNodeFilePath(itemNodeId, filePath)
-    materializeGraphTerminals(graph, MetadataCatalogRules, itemNodeId, name, filePath)
-    buildGraphFromModel({
-      model: model as unknown as Record<string, unknown>,
-      yamlMap,
-      rule: MetadataCatalogRules,
-      graph,
-      parentNodeId: itemNodeId,
-      filePath,
-    })
-    return { model, parsed }
-  }
+  const itemNodeId = ensureRootNode(
+    graph,
+    entry.rule.itemTypePrefix,
+    entry.rule.itemType,
+    name,
+    filePath
+  )
+  const model = entry.importFromYAML(importContext, parsed.data, name) as
+    | MetadataCatalog
+    | MetadataDocument
+    | MetadataEnumeration
+    | undefined
+  if (!model) return undefined
 
-  if (kind === "document") {
-    const itemNodeId = ensureRootNode(
-      graph,
-      MetadataDocumentRules.itemTypePrefix,
-      MetadataDocumentRules.itemType,
-      name,
-      filePath
-    )
-    const model = importMetadataDocumentFromYAML(importContext, parsed.data, name)
-    if (!model) return undefined
-    graph.setNodeAttribute(itemNodeId, "item", model)
-    graph.updateNodeFilePath(itemNodeId, filePath)
-    materializeGraphTerminals(graph, MetadataDocumentRules, itemNodeId, name, filePath)
-    buildGraphFromModel({
-      model: model as unknown as Record<string, unknown>,
-      yamlMap,
-      rule: MetadataDocumentRules,
-      graph,
-      parentNodeId: itemNodeId,
-      filePath,
-    })
-    return { model, parsed }
-  }
-
-  if (kind === "enumeration") {
-    const itemNodeId = ensureRootNode(
-      graph,
-      MetadataEnumerationRules.itemTypePrefix,
-      MetadataEnumerationRules.itemType,
-      name,
-      filePath
-    )
-    const model = importMetadataEnumerationFromYAML(importContext, parsed.data, name)
-    if (!model) return undefined
-    graph.setNodeAttribute(itemNodeId, "item", model)
-    graph.updateNodeFilePath(itemNodeId, filePath)
-    materializeGraphTerminals(graph, MetadataEnumerationRules, itemNodeId, name, filePath)
-    buildGraphFromModel({
-      model: model as unknown as Record<string, unknown>,
-      yamlMap,
-      rule: MetadataEnumerationRules,
-      graph,
-      parentNodeId: itemNodeId,
-      filePath,
-    })
-    return { model, parsed }
-  }
-
-  throw new Error(`importMetadataFileWithGraph: неизвестный kind "${kind}"`)
+  graph.setNodeAttribute(itemNodeId, "item", model)
+  graph.updateNodeFilePath(itemNodeId, filePath)
+  materializeGraphTerminals(graph, entry.rule, itemNodeId, name, filePath)
+  buildGraphFromModel({
+    model: model as unknown as Record<string, unknown>,
+    yamlMap,
+    rule: entry.rule as never,
+    graph,
+    parentNodeId: itemNodeId,
+    filePath,
+  })
+  return { model, parsed }
 }

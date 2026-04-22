@@ -5,7 +5,8 @@ export interface MetadataNodeAttrs {
   name: string
   item?: unknown
   positionFrom?: { offset: number; length?: number }
-  filePath?: string
+  /** Пути к файлам, из которых был создан этот узел. Пустой — заглушка (stub). */
+  filePaths?: string[]
 }
 
 export interface MetadataEdgeAttrs {
@@ -30,16 +31,43 @@ export class MetadataGraph {
 
   ensureNode(id: string, attrs: MetadataNodeAttrs): void {
     if (!this._graph.hasNode(id)) {
-      this._graph.addNode(id, attrs)
+      this._graph.addNode(id, { name: attrs.name, item: attrs.item, positionFrom: attrs.positionFrom })
     }
-    if (attrs.filePath) {
-      let set = this._fileIndex.get(attrs.filePath)
-      if (!set) {
-        set = new Set()
-        this._fileIndex.set(attrs.filePath, set)
-      }
-      set.add(id)
+    for (const fp of attrs.filePaths ?? []) {
+      this._registerFilePath(id, fp)
     }
+  }
+
+  /** Добавляет путь к файлу на узел и обновляет обратный индекс. Идемпотентен. */
+  addFilePath(nodeId: string, filePath: string): void {
+    this._registerFilePath(nodeId, filePath)
+  }
+
+  /** Удаляет путь к файлу с узла и обновляет обратный индекс. Идемпотентен. */
+  removeFilePath(nodeId: string, filePath: string): void {
+    const current = this._graph.getNodeAttribute(nodeId, "filePaths") ?? []
+    const updated = current.filter((p) => p !== filePath)
+    if (updated.length !== current.length) {
+      this._graph.setNodeAttribute(nodeId, "filePaths", updated.length > 0 ? updated : undefined)
+    }
+    const set = this._fileIndex.get(filePath)
+    if (set) {
+      set.delete(nodeId)
+      if (set.size === 0) this._fileIndex.delete(filePath)
+    }
+  }
+
+  private _registerFilePath(nodeId: string, filePath: string): void {
+    const current = this._graph.getNodeAttribute(nodeId, "filePaths") ?? []
+    if (!current.includes(filePath)) {
+      this._graph.setNodeAttribute(nodeId, "filePaths", [...current, filePath])
+    }
+    let set = this._fileIndex.get(filePath)
+    if (!set) {
+      set = new Set()
+      this._fileIndex.set(filePath, set)
+    }
+    set.add(nodeId)
   }
 
   setNodeAttribute<K extends keyof MetadataNodeAttrs>(id: string, key: K, value: MetadataNodeAttrs[K]): void {
@@ -94,19 +122,14 @@ export class MetadataGraph {
 
   /**
    * Создаёт узел, если он не существует, или «повышает» существующую заглушку:
-   * заполняет только пустые поля (filePath, positionFrom, item).
+   * заполняет только пустые поля (filePaths, positionFrom, item).
    * Бросает ошибку при конфликте itemType у item.
    */
   promoteNode(id: string, attrs: MetadataNodeAttrs): void {
     if (!this._graph.hasNode(id)) {
-      this._graph.addNode(id, attrs)
-      if (attrs.filePath) {
-        let set = this._fileIndex.get(attrs.filePath)
-        if (!set) {
-          set = new Set()
-          this._fileIndex.set(attrs.filePath, set)
-        }
-        set.add(id)
+      this._graph.addNode(id, { name: attrs.name, item: attrs.item, positionFrom: attrs.positionFrom })
+      for (const fp of attrs.filePaths ?? []) {
+        this._registerFilePath(id, fp)
       }
       return
     }
@@ -114,8 +137,11 @@ export class MetadataGraph {
     // Существующий узел: заполняем только пустые поля
     const existing = this._graph.getNodeAttributes(id)
 
-    if (attrs.filePath !== undefined && existing.filePath === undefined) {
-      this.updateNodeFilePath(id, attrs.filePath)
+    // Добавляем filePaths только если у узла ещё нет путей (stub promotion)
+    if ((attrs.filePaths?.length ?? 0) > 0 && !(existing.filePaths?.length)) {
+      for (const fp of attrs.filePaths!) {
+        this._registerFilePath(id, fp)
+      }
     }
 
     if (attrs.positionFrom !== undefined && existing.positionFrom === undefined) {
@@ -141,27 +167,22 @@ export class MetadataGraph {
     }
   }
 
-  /** Обновляет filePath узла и синхронно обновляет обратный индекс. */
+  /**
+   * Добавляет путь к файлу на узел.
+   * @deprecated Используйте addFilePath. updateNodeFilePath оставлен для обратной совместимости.
+   */
   updateNodeFilePath(id: string, filePath: string): void {
-    const currentFilePath = this._graph.getNodeAttribute(id, "filePath")
-    if (currentFilePath === filePath) return
-    if (currentFilePath) {
-      this._fileIndex.get(currentFilePath)?.delete(id)
-    }
-    this._graph.setNodeAttribute(id, "filePath", filePath)
-    let set = this._fileIndex.get(filePath)
-    if (!set) {
-      set = new Set()
-      this._fileIndex.set(filePath, set)
-    }
-    set.add(id)
+    this._registerFilePath(id, filePath)
   }
 
   /**
    * Инвалидирует все узлы, принадлежащие файлу.
+   * Co-invalidation: если узел принадлежит нескольким файлам, он инвалидируется целиком
+   * (удаляется из всех путей индекса) при инвалидации любого из них.
+   *
    * - Узлы без входящих reference-рёбер удаляются полностью.
    * - Узлы с входящими reference-рёбрами становятся заглушками:
-   *   удаляются item, filePath и все исходящие рёбра.
+   *   удаляются item, filePaths и все исходящие рёбра.
    * - Orphan stubs (item === undefined, нет входящих рёбер) среди бывших
    *   таргетов удалённых рёбер также удаляются.
    */
@@ -170,6 +191,14 @@ export class MetadataGraph {
     const droppedTargets = new Set<string>()
 
     for (const nodeId of nodeIds) {
+      // Co-invalidation: удаляем из всех остальных путей индекса
+      const allPaths = this._graph.getNodeAttribute(nodeId, "filePaths") ?? []
+      for (const path of allPaths) {
+        if (path !== filePath) {
+          this._fileIndex.get(path)?.delete(nodeId)
+        }
+      }
+
       const hasIncomingRefs = this._graph
         .inEdges(nodeId)
         .some((edgeId) => !isOwning(this._graph.getEdgeAttribute(edgeId, "kind")))
@@ -180,7 +209,7 @@ export class MetadataGraph {
           this._graph.dropEdge(edgeId)
         }
         this._graph.removeNodeAttribute(nodeId, "item")
-        this._graph.removeNodeAttribute(nodeId, "filePath")
+        this._graph.removeNodeAttribute(nodeId, "filePaths")
       } else {
         for (const edgeId of this._graph.outEdges(nodeId)) {
           droppedTargets.add(this._graph.target(edgeId))

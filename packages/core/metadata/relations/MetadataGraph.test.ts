@@ -5,7 +5,7 @@ describe("MetadataGraph", () => {
   describe("ensureNode", () => {
     it("добавляет узел с атрибутами", () => {
       const g = new MetadataGraph()
-      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "catalogs/goods.yaml" })
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePaths: ["catalogs/goods.yaml"] })
 
       expect(g.hasNode("Справочник.Товары")).toBe(true)
       expect(g.getNodeAttributes("Справочник.Товары")).toMatchObject({ name: "Товары" })
@@ -63,9 +63,9 @@ describe("MetadataGraph", () => {
   describe("обратный индекс (fileIndex)", () => {
     it("возвращает nodeId по filePath", () => {
       const g = new MetadataGraph()
-      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "catalogs/goods.yaml" })
-      g.ensureNode("Справочник.Товары.Цена", { name: "Цена", filePath: "catalogs/goods.yaml" })
-      g.ensureNode("Справочник.Валюты", { name: "Валюты", filePath: "catalogs/currencies.yaml" })
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePaths: ["catalogs/goods.yaml"] })
+      g.ensureNode("Справочник.Товары.Цена", { name: "Цена", filePaths: ["catalogs/goods.yaml"] })
+      g.ensureNode("Справочник.Валюты", { name: "Валюты", filePaths: ["catalogs/currencies.yaml"] })
 
       const nodes = g.getNodesByFile("catalogs/goods.yaml")
       expect(nodes.has("Справочник.Товары")).toBe(true)
@@ -78,7 +78,7 @@ describe("MetadataGraph", () => {
       expect(g.getNodesByFile("unknown.yaml").size).toBe(0)
     })
 
-    it("не индексирует узлы без filePath", () => {
+    it("не индексирует узлы без filePaths", () => {
       const g = new MetadataGraph()
       g.ensureNode("Справочник", { name: "Справочник" })
 
@@ -90,8 +90,8 @@ describe("MetadataGraph", () => {
   describe("clear", () => {
     it("удаляет все узлы, рёбра и обратный индекс", () => {
       const g = new MetadataGraph()
-      g.ensureNode("A", { name: "A", filePath: "a.yaml" })
-      g.ensureNode("B", { name: "B", filePath: "a.yaml" })
+      g.ensureNode("A", { name: "A", filePaths: ["a.yaml"] })
+      g.ensureNode("B", { name: "B", filePaths: ["a.yaml"] })
       g.ensureEdge("e1", "A", "B", { yaml: "Реквизит", kind: "Реквизит" })
 
       g.clear()
@@ -112,26 +112,75 @@ describe("MetadataGraph", () => {
     })
   })
 
+  describe("addFilePath / removeFilePath", () => {
+    it("addFilePath добавляет путь в атрибуты узла и в индекс", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Форма.ФормаСписка", { name: "ФормаСписка", filePaths: ["form.yaml"] })
+      g.addFilePath("Форма.ФормаСписка", "form.nkdk")
+
+      const paths = g.getNodeAttribute("Форма.ФормаСписка", "filePaths")
+      expect(paths).toContain("form.yaml")
+      expect(paths).toContain("form.nkdk")
+      expect(g.getNodesByFile("form.nkdk").has("Форма.ФормаСписка")).toBe(true)
+    })
+
+    it("addFilePath идемпотентен", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("X", { name: "X", filePaths: ["a.yaml"] })
+      g.addFilePath("X", "a.yaml")
+      g.addFilePath("X", "a.yaml")
+
+      expect(g.getNodeAttribute("X", "filePaths")).toEqual(["a.yaml"])
+      expect(g.getNodesByFile("a.yaml").size).toBe(1)
+    })
+
+    it("removeFilePath удаляет путь из атрибутов и индекса", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("X", { name: "X", filePaths: ["a.yaml", "b.yaml"] })
+      g.removeFilePath("X", "a.yaml")
+
+      expect(g.getNodeAttribute("X", "filePaths")).toEqual(["b.yaml"])
+      expect(g.getNodesByFile("a.yaml").has("X")).toBe(false)
+      expect(g.getNodesByFile("b.yaml").has("X")).toBe(true)
+    })
+
+    it("removeFilePath идемпотентен при отсутствии пути", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("X", { name: "X" })
+
+      expect(() => g.removeFilePath("X", "nonexistent.yaml")).not.toThrow()
+    })
+
+    it("removeFilePath очищает filePaths если удалён последний путь", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("X", { name: "X", filePaths: ["a.yaml"] })
+      g.removeFilePath("X", "a.yaml")
+
+      expect(g.getNodeAttribute("X", "filePaths")).toBeUndefined()
+      expect(g.getNodesByFile("a.yaml").size).toBe(0)
+    })
+  })
+
   describe("promoteNode", () => {
     it("создаёт узел если не существует", () => {
       const g = new MetadataGraph()
       const item = { itemType: "MetadataCatalog", name: "Товары" }
-      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml", item })
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePaths: ["goods.yaml"], item })
 
       expect(g.hasNode("Справочник.Товары")).toBe(true)
       expect(g.getNodeAttribute("Справочник.Товары", "item")).toBe(item)
-      expect(g.getNodeAttribute("Справочник.Товары", "filePath")).toBe("goods.yaml")
+      expect(g.getNodeAttribute("Справочник.Товары", "filePaths")).toEqual(["goods.yaml"])
       expect(g.getNodesByFile("goods.yaml").has("Справочник.Товары")).toBe(true)
     })
 
-    it("повышает заглушку: устанавливает filePath и item", () => {
+    it("повышает заглушку: устанавливает filePaths и item", () => {
       const g = new MetadataGraph()
       g.ensureNode("Справочник.Товары", { name: "Товары" }) // stub
       const item = { itemType: "MetadataCatalog", name: "Товары" }
 
-      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml", item })
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePaths: ["goods.yaml"], item })
 
-      expect(g.getNodeAttribute("Справочник.Товары", "filePath")).toBe("goods.yaml")
+      expect(g.getNodeAttribute("Справочник.Товары", "filePaths")).toEqual(["goods.yaml"])
       expect(g.getNodeAttribute("Справочник.Товары", "item")).toBe(item)
       expect(g.getNodesByFile("goods.yaml").has("Справочник.Товары")).toBe(true)
     })
@@ -139,41 +188,42 @@ describe("MetadataGraph", () => {
     it("не перетирает уже установленный item", () => {
       const g = new MetadataGraph()
       const existingItem = { itemType: "MetadataCatalog", name: "Товары" }
-      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml" })
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePaths: ["goods.yaml"] })
       g.setNodeAttribute("Справочник.Товары", "item", existingItem)
 
       const newItem = { itemType: "MetadataCatalog", name: "ДругойТовар" }
-      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml", item: newItem })
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePaths: ["goods.yaml"], item: newItem })
 
       expect(g.getNodeAttribute("Справочник.Товары", "item")).toBe(existingItem)
     })
 
-    it("не перетирает уже установленный filePath", () => {
+    it("не перетирает уже установленные filePaths", () => {
       const g = new MetadataGraph()
-      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "old.yaml" })
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePaths: ["old.yaml"] })
 
-      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "new.yaml" })
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePaths: ["new.yaml"] })
 
-      expect(g.getNodeAttribute("Справочник.Товары", "filePath")).toBe("old.yaml")
+      // filePaths уже установлены — promoteNode не добавляет новые
+      expect(g.getNodeAttribute("Справочник.Товары", "filePaths")).toEqual(["old.yaml"])
     })
 
-    it("обновляет fileIndex при установке filePath на заглушку", () => {
+    it("обновляет fileIndex при установке filePaths на заглушку", () => {
       const g = new MetadataGraph()
-      g.ensureNode("Справочник.Товары", { name: "Товары" }) // stub без filePath
+      g.ensureNode("Справочник.Товары", { name: "Товары" }) // stub без filePaths
 
-      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml" })
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePaths: ["goods.yaml"] })
 
       expect(g.getNodesByFile("goods.yaml").has("Справочник.Товары")).toBe(true)
-      expect(g.getNodeAttribute("Справочник.Товары", "filePath")).toBe("goods.yaml")
+      expect(g.getNodeAttribute("Справочник.Товары", "filePaths")).toEqual(["goods.yaml"])
     })
 
     it("идемпотентен при повторном вызове", () => {
       const g = new MetadataGraph()
       const item = { itemType: "MetadataCatalog", name: "Товары" }
-      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml", item })
-      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml", item })
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePaths: ["goods.yaml"], item })
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePaths: ["goods.yaml"], item })
 
-      expect(g.getNodeAttribute("Справочник.Товары", "filePath")).toBe("goods.yaml")
+      expect(g.getNodeAttribute("Справочник.Товары", "filePaths")).toEqual(["goods.yaml"])
       expect(g.getNodeAttribute("Справочник.Товары", "item")).toBe(item)
     })
 
@@ -191,7 +241,7 @@ describe("MetadataGraph", () => {
       const g = new MetadataGraph()
       // Референс создаёт стаб до импорта владельца
       g.ensureNode("Справочник.Контрагенты.Наименование", { name: "Наименование" })
-      g.ensureNode("Справочник.Товары.Клиент", { name: "Клиент", filePath: "goods.yaml" })
+      g.ensureNode("Справочник.Товары.Клиент", { name: "Клиент", filePaths: ["goods.yaml"] })
       g.ensureEdge("ref-1", "Справочник.Товары.Клиент", "Справочник.Контрагенты.Наименование", {
         yaml: "Тип",
         kind: "Тип",
@@ -201,11 +251,11 @@ describe("MetadataGraph", () => {
       const item = { itemType: "MetadataAttribute", name: "Наименование" }
       g.promoteNode("Справочник.Контрагенты.Наименование", {
         name: "Наименование",
-        filePath: "counterparties.yaml",
+        filePaths: ["counterparties.yaml"],
         item,
       })
 
-      expect(g.getNodeAttribute("Справочник.Контрагенты.Наименование", "filePath")).toBe("counterparties.yaml")
+      expect(g.getNodeAttribute("Справочник.Контрагенты.Наименование", "filePaths")).toEqual(["counterparties.yaml"])
       expect(g.getNodeAttribute("Справочник.Контрагенты.Наименование", "item")).toBe(item)
 
       // invalidateFile корректно обрабатывает узел (есть входящее reference-ребро → стаб)
@@ -218,38 +268,30 @@ describe("MetadataGraph", () => {
   })
 
   describe("updateNodeFilePath", () => {
-    it("обновляет filePath и обратный индекс", () => {
+    it("добавляет filePath в индекс (add-семантика)", () => {
       const g = new MetadataGraph()
       g.ensureNode("Справочник.Товары", { name: "Товары" })
       g.updateNodeFilePath("Справочник.Товары", "new.yaml")
 
-      expect(g.getNodeAttribute("Справочник.Товары", "filePath")).toBe("new.yaml")
+      expect(g.getNodeAttribute("Справочник.Товары", "filePaths")).toEqual(["new.yaml"])
       expect(g.getNodesByFile("new.yaml").has("Справочник.Товары")).toBe(true)
     })
 
-    it("удаляет из старого индекса при обновлении", () => {
+    it("идемпотентен при одинаковом filePath", () => {
       const g = new MetadataGraph()
-      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "old.yaml" })
-      g.updateNodeFilePath("Справочник.Товары", "new.yaml")
-
-      expect(g.getNodesByFile("old.yaml").has("Справочник.Товары")).toBe(false)
-      expect(g.getNodesByFile("new.yaml").has("Справочник.Товары")).toBe(true)
-    })
-
-    it("не меняет индекс при одинаковом filePath", () => {
-      const g = new MetadataGraph()
-      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "same.yaml" })
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePaths: ["same.yaml"] })
       g.updateNodeFilePath("Справочник.Товары", "same.yaml")
 
       expect(g.getNodesByFile("same.yaml").has("Справочник.Товары")).toBe(true)
+      expect(g.getNodeAttribute("Справочник.Товары", "filePaths")).toEqual(["same.yaml"])
     })
   })
 
   describe("invalidateFile", () => {
     it("удаляет узлы без входящих reference-рёбер", () => {
       const g = new MetadataGraph()
-      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml" })
-      g.ensureNode("Справочник.Товары.Цена", { name: "Цена", filePath: "goods.yaml" })
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePaths: ["goods.yaml"] })
+      g.ensureNode("Справочник.Товары.Цена", { name: "Цена", filePaths: ["goods.yaml"] })
       g.ensureEdge("comp-1", "Справочник.Товары", "Справочник.Товары.Цена", {
         yaml: "Реквизит",
         kind: "Реквизит",
@@ -264,8 +306,8 @@ describe("MetadataGraph", () => {
 
     it("превращает узел с входящим reference-ребром в заглушку", () => {
       const g = new MetadataGraph()
-      g.ensureNode("Справочник.Товары.Цена", { name: "Цена", filePath: "goods.yaml" })
-      g.ensureNode("Справочник.Валюты", { name: "Валюты", filePath: "currencies.yaml" })
+      g.ensureNode("Справочник.Товары.Цена", { name: "Цена", filePaths: ["goods.yaml"] })
+      g.ensureNode("Справочник.Валюты", { name: "Валюты", filePaths: ["currencies.yaml"] })
       g.setNodeAttribute("Справочник.Валюты", "item", { itemType: "MetadataCatalog", name: "Валюты" })
       g.ensureEdge("ref-1", "Справочник.Товары.Цена", "Справочник.Валюты", {
         yaml: "Тип",
@@ -276,15 +318,15 @@ describe("MetadataGraph", () => {
 
       expect(g.hasNode("Справочник.Валюты")).toBe(true)
       expect(g.getNodeAttribute("Справочник.Валюты", "item")).toBeUndefined()
-      expect(g.getNodeAttribute("Справочник.Валюты", "filePath")).toBeUndefined()
+      expect(g.getNodeAttribute("Справочник.Валюты", "filePaths")).toBeUndefined()
       expect(g.getNodesByFile("currencies.yaml").size).toBe(0)
     })
 
     it("удаляет исходящие рёбра заглушки", () => {
       const g = new MetadataGraph()
-      g.ensureNode("Справочник.Товары.Цена", { name: "Цена", filePath: "goods.yaml" })
-      g.ensureNode("Справочник.Валюты", { name: "Валюты", filePath: "currencies.yaml" })
-      g.ensureNode("Справочник.Валюты.Код", { name: "Код", filePath: "currencies.yaml" })
+      g.ensureNode("Справочник.Товары.Цена", { name: "Цена", filePaths: ["goods.yaml"] })
+      g.ensureNode("Справочник.Валюты", { name: "Валюты", filePaths: ["currencies.yaml"] })
+      g.ensureNode("Справочник.Валюты.Код", { name: "Код", filePaths: ["currencies.yaml"] })
       g.setNodeAttribute("Справочник.Валюты", "item", { itemType: "MetadataCatalog", name: "Валюты" })
       g.ensureEdge("ref-1", "Справочник.Товары.Цена", "Справочник.Валюты", {
         yaml: "Тип",
@@ -302,8 +344,8 @@ describe("MetadataGraph", () => {
 
     it("не затрагивает узлы других файлов", () => {
       const g = new MetadataGraph()
-      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml" })
-      g.ensureNode("Справочник.Валюты", { name: "Валюты", filePath: "currencies.yaml" })
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePaths: ["goods.yaml"] })
+      g.ensureNode("Справочник.Валюты", { name: "Валюты", filePaths: ["currencies.yaml"] })
 
       g.invalidateFile("goods.yaml")
 
@@ -311,10 +353,42 @@ describe("MetadataGraph", () => {
       expect(g.getNodesByFile("currencies.yaml").has("Справочник.Валюты")).toBe(true)
     })
 
-    it("мульти-файловый объект: инвалидация одного файла не затрагивает узлы другого", () => {
+    it("co-invalidation: узел с двумя filePaths инвалидируется при инвалидации любого из них", () => {
       const g = new MetadataGraph()
-      g.ensureNode("Форма.ФормаСписка", { name: "ФормаСписка", filePath: "form.yaml" })
-      g.ensureNode("Форма.ФормаСписка.Список", { name: "Список", filePath: "form.nkdk" })
+      // Форм-узел с двумя путями
+      g.ensureNode("Справочник.Товары.ФормаЭлемента", {
+        name: "ФормаЭлемента",
+        filePaths: ["form.yaml", "form.nkdk"],
+      })
+
+      expect(g.getNodesByFile("form.yaml").has("Справочник.Товары.ФормаЭлемента")).toBe(true)
+      expect(g.getNodesByFile("form.nkdk").has("Справочник.Товары.ФормаЭлемента")).toBe(true)
+
+      // Инвалидируем через nkdk — узел удаляется и из yaml-индекса
+      g.invalidateFile("form.nkdk")
+
+      expect(g.hasNode("Справочник.Товары.ФормаЭлемента")).toBe(false)
+      expect(g.getNodesByFile("form.yaml").size).toBe(0)
+      expect(g.getNodesByFile("form.nkdk").size).toBe(0)
+    })
+
+    it("co-invalidation через yaml: узел удаляется из обоих индексов", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары.Форма", {
+        name: "Форма",
+        filePaths: ["form.yaml", "form.nkdk"],
+      })
+
+      g.invalidateFile("form.yaml")
+
+      expect(g.hasNode("Справочник.Товары.Форма")).toBe(false)
+      expect(g.getNodesByFile("form.nkdk").size).toBe(0)
+    })
+
+    it("мульти-файловый объект: разные узлы с разными filePaths независимы", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Форма.ФормаСписка", { name: "ФормаСписка", filePaths: ["form.yaml"] })
+      g.ensureNode("Форма.ФормаСписка.Список", { name: "Список", filePaths: ["form.nkdk"] })
 
       g.invalidateFile("form.yaml")
 
@@ -327,8 +401,8 @@ describe("MetadataGraph", () => {
       // 1.yaml нет → Контрагенты — заглушка (item undefined)
       // 2.yaml ссылается → при инвалидации 2.yaml единственное входящее ребро пропадает
       const g = new MetadataGraph()
-      g.ensureNode("Справочник.Контрагенты", { name: "Контрагенты" }) // stub: нет item, нет filePath
-      g.ensureNode("Справочник.Товары.Контрагент", { name: "Контрагент", filePath: "2.yaml" })
+      g.ensureNode("Справочник.Контрагенты", { name: "Контрагенты" }) // stub: нет item, нет filePaths
+      g.ensureNode("Справочник.Товары.Контрагент", { name: "Контрагент", filePaths: ["2.yaml"] })
       g.ensureEdge("ref-1", "Справочник.Товары.Контрагент", "Справочник.Контрагенты", {
         yaml: "Тип",
         kind: "Тип",
@@ -344,8 +418,8 @@ describe("MetadataGraph", () => {
       // 2.yaml и 3.yaml оба ссылаются → после инвалидации 2.yaml остаётся ребро из 3.yaml
       const g = new MetadataGraph()
       g.ensureNode("Справочник.Контрагенты", { name: "Контрагенты" }) // stub
-      g.ensureNode("Справочник.Товары.Контрагент", { name: "Контрагент", filePath: "2.yaml" })
-      g.ensureNode("Справочник.Документ.Контрагент", { name: "Контрагент", filePath: "3.yaml" })
+      g.ensureNode("Справочник.Товары.Контрагент", { name: "Контрагент", filePaths: ["2.yaml"] })
+      g.ensureNode("Справочник.Документ.Контрагент", { name: "Контрагент", filePaths: ["3.yaml"] })
       g.ensureEdge("ref-1", "Справочник.Товары.Контрагент", "Справочник.Контрагенты", {
         yaml: "Тип",
         kind: "Тип",
@@ -366,10 +440,10 @@ describe("MetadataGraph", () => {
       const g = new MetadataGraph()
       g.ensureNode("Справочник.Контрагенты", {
         name: "Контрагенты",
-        filePath: "1.yaml",
+        filePaths: ["1.yaml"],
         item: { itemType: "MetadataCatalog", name: "Контрагенты" },
       })
-      g.ensureNode("Справочник.Товары.Контрагент", { name: "Контрагент", filePath: "2.yaml" })
+      g.ensureNode("Справочник.Товары.Контрагент", { name: "Контрагент", filePaths: ["2.yaml"] })
       g.ensureEdge("ref-1", "Справочник.Товары.Контрагент", "Справочник.Контрагенты", {
         yaml: "Тип",
         kind: "Тип",
@@ -383,7 +457,7 @@ describe("MetadataGraph", () => {
 
     it("нет эффекта при инвалидации несуществующего файла", () => {
       const g = new MetadataGraph()
-      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml" })
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePaths: ["goods.yaml"] })
 
       expect(() => g.invalidateFile("unknown.yaml")).not.toThrow()
       expect(g.hasNode("Справочник.Товары")).toBe(true)

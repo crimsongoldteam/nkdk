@@ -53,9 +53,10 @@ class MetadataDefinitionProvider implements vscode.DefinitionProvider {
 
 async function locationForNode(graph: MetadataGraph, nodeId: string): Promise<vscode.Location | null> {
   const attrs = graph.getNodeAttributes(nodeId)
-  if (!attrs.filePath) return null
+  const filePath = attrs.filePaths?.[0]
+  if (!filePath) return null
 
-  const targetUri = vscode.Uri.file(attrs.filePath)
+  const targetUri = vscode.Uri.file(filePath)
 
   if (attrs.positionFrom?.offset != null) {
     const targetDoc = await vscode.workspace.openTextDocument(targetUri)
