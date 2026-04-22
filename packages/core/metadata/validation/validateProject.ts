@@ -1,13 +1,9 @@
 import { existsSync, readdirSync, readFileSync } from "fs"
 import { join } from "path"
 import { LineCounter } from "yaml"
-import { isMap } from "yaml"
-import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
-import { importMetadataDocumentFromYAML } from "~/metadata/appliedObjects/metadataDocument/fromYAML"
-import { importMetadataEnumerationFromYAML } from "~/metadata/appliedObjects/metadataEnumeration/fromYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { createSchemaCache } from "./schemaCache"
 import { Diagnostic, MetadataKind } from "./types"
 import { validateItem } from "./validateItem"
@@ -54,11 +50,6 @@ export function validateProject(params: { projectPath: string; context: Configur
   const graph = new MetadataGraph()
   const lineCounters = new Map<string, LineCounter>()
 
-  const baseGraphContext = {
-    ...context,
-    graph,
-  }
-
   const items = collectItems(projectPath)
 
   for (const { kind, itemDir, name, yamlPath } of items) {
@@ -70,23 +61,9 @@ export function validateProject(params: { projectPath: string; context: Configur
     // Импорт в граф для проверки ссылок
     try {
       const text = readFileSync(yamlPath, "utf-8")
-      const parsed = parseMetadataYaml(text)
-      lineCounters.set(yamlPath, parsed.lineCounter)
-
-      const importContext = {
-        ...baseGraphContext,
-        graphContext: {
-          filePath: yamlPath,
-          currentYamlMap: isMap(parsed.doc.contents) ? parsed.doc.contents : undefined,
-        },
-      }
-
-      if (kind === "catalog") {
-        importMetadataCatalogFromYAML(importContext, parsed.data, name)
-      } else if (kind === "document") {
-        importMetadataDocumentFromYAML(importContext, parsed.data, name)
-      } else {
-        importMetadataEnumerationFromYAML(importContext, parsed.data, name)
+      const result = importMetadataFileWithGraph({ filePath: yamlPath, text, kind, name, graph, context })
+      if (result) {
+        lineCounters.set(yamlPath, result.parsed.lineCounter)
       }
     } catch {
       // Ошибки импорта (например, из-за синтаксических ошибок YAML) не блокируют остальные проверки
@@ -108,10 +85,13 @@ export function validateProject(params: { projectPath: string; context: Configur
             let line = 1
             let col = 1
 
-            if (attrs.positionFrom?.offset !== undefined && filePath) {
+            const edgePositionFrom = graph.getEdgeAttribute(edgeId, "positionFrom")
+            const positionFrom = edgePositionFrom ?? attrs.positionFrom
+
+            if (positionFrom?.offset !== undefined && filePath) {
               const lc = lineCounters.get(filePath)
               if (lc) {
-                const pos = lc.linePos(attrs.positionFrom.offset)
+                const pos = lc.linePos(positionFrom.offset)
                 line = pos.line
                 col = pos.col
               }

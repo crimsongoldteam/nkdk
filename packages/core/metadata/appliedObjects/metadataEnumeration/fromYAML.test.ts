@@ -1,10 +1,10 @@
 import fs from "fs"
 import path from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { isMap, parse, parseDocument } from "yaml"
 import { nodeMatch } from "~/metadata/relations/dependencyQuery"
 import { getDependencies } from "~/metadata/relations/getDependencies"
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
 import { mockContext } from "~/tests/mockContext"
 import { importMetadataEnumerationFromYAML } from "./fromYAML"
 
@@ -25,21 +25,15 @@ describe("importMetadataEnumerationFromYAML — граф значений", () =
 
   beforeEach(() => {
     graph = new MetadataGraph()
-    importMetadataEnumerationFromYAML(
-      {
-        ...mockContext,
-        graph,
-        graphContext: { filePath: "Перечисление/СтатусЗаказа/Свойства.yml" },
-      },
-      {
-        Значения: {
-          Открыт: {},
-          Закрыт: {},
-          Отменён: {},
-        },
-      },
-      "СтатусЗаказа",
-    )
+    const text = fs.readFileSync(path.join(__dirname, "__fixtures__/values.yaml"), "utf8")
+    importMetadataFileWithGraph({
+      filePath: "Перечисление/СтатусЗаказа/Свойства.yml",
+      text,
+      kind: "enumeration",
+      name: "СтатусЗаказа",
+      graph,
+      context: mockContext,
+    })
   })
 
   it("создаёт узел перечисления", () => {
@@ -85,17 +79,14 @@ describe("importMetadataEnumerationFromYAML — positionFrom значений", 
   beforeEach(() => {
     graph = new MetadataGraph()
     text = fs.readFileSync(path.join(__dirname, "__fixtures__/values.yaml"), "utf8")
-    const yamlDocument = parseDocument(text)
-    const root = yamlDocument.contents
-    importMetadataEnumerationFromYAML(
-      {
-        ...mockContext,
-        graph,
-        graphContext: { filePath: "Перечисление/СтатусЗаказа/Свойства.yml", currentYamlMap: isMap(root) ? root : undefined },
-      },
-      parse(text),
-      "СтатусЗаказа",
-    )
+    importMetadataFileWithGraph({
+      filePath: "Перечисление/СтатусЗаказа/Свойства.yml",
+      text,
+      kind: "enumeration",
+      name: "СтатусЗаказа",
+      graph,
+      context: mockContext,
+    })
   })
 
   it("узел значения содержит positionFrom с корректным offset", () => {

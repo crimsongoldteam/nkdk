@@ -45,6 +45,10 @@ export { getEnumerationPropertyReferenceScope } from "./metadata/appliedObjects/
 export { validateReferenceScope } from "./metadata/relations/referenceScope"
 export type { ReferenceScope } from "./metadata/relations/referenceScope"
 export { validateProject } from "./metadata/validation/validateProject"
+export {
+  importMetadataFileWithGraph,
+  type ImportMetadataFileResult,
+} from "./metadata/orchestration/importMetadataFileWithGraph"
 export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
 export { exportMetadataDocumentToJSONSchema } from "./metadata/appliedObjects/metadataDocument/toJSONSchema"
 export { exportMetadataEnumerationToJSONSchema } from "./metadata/appliedObjects/metadataEnumeration/toJSONSchema"

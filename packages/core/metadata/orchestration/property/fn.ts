@@ -5,8 +5,9 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
+import { MetadataGraph } from "../../relations/MetadataGraph"
 import { PropertyRuleType } from "./registry"
-import { MetadataItem, PropertyRule } from "./types"
+import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContextWithExportToXML,
@@ -70,14 +71,48 @@ export type ExportToJSONSchemaFn = (params: {
   value: any | undefined
 }) => TSchema | undefined
 
-export type ImportDependenciesFromYAMLFunction = (params: {
-  context: ConfigurationContext
-  yamlMap?: YAMLMap
+export type BuildGraphFromModelFunction = (params: {
+  model: unknown
   parentNodeId: string
   filePath: string
-  propRule?: PropertyRule
-  parsedItem?: unknown
+  yamlMap: YAMLMap | undefined
+  propRule: PropertyRule
+  graph: MetadataGraph
 }) => void
+
+export interface GraphOpsChild {
+  idSuffix: string
+  name: string
+  positionFrom?: { offset: number; length?: number }
+}
+
+export interface GraphOpsReference {
+  id: string
+  name: string
+  positionFrom?: { offset: number; length?: number }
+}
+
+export interface GraphOps {
+  children?: GraphOpsChild[]
+  references?: GraphOpsReference[]
+}
+
+export type ExtractGraphFromModelFunction<TModel = unknown> = (
+  model: TModel,
+  position?: { offset: number; length?: number }
+) => GraphOps | undefined
+
+export type GraphEdgeFromParent = {
+  name: string
+  kind: "composition" | "reference"
+}
+
+export interface GraphChildRule {
+  idFrom: string
+  edgeName: string
+  edgeKind: "composition" | "reference"
+  itemRule: MetadataItemRule
+}
 
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
@@ -86,7 +121,10 @@ export interface TypeRule {
   exportToYAML?: ExportToYAMLFunction | ExportToYAMLFunctionNew
   exportToEnterprise?: ExportToEnterpriseFunction
   exportToJSONSchema?: ExportToJSONSchemaFn
-  importDependenciesFromYAML?: ImportDependenciesFromYAMLFunction
+  buildGraphFromModel?: BuildGraphFromModelFunction
+  extractGraph?: ExtractGraphFromModelFunction
+  graphEdgeFromParent?: GraphEdgeFromParent
+  graphChild?: GraphChildRule
 }
 
 export type TypeRulesOperations =
@@ -96,7 +134,10 @@ export type TypeRulesOperations =
   | "exportToYAML"
   | "exportToEnterprise"
   | "exportToJSONSchema"
-  | "importDependenciesFromYAML"
+  | "buildGraphFromModel"
+  | "extractGraph"
+  | "graphEdgeFromParent"
+  | "graphChild"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -115,6 +156,12 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"
             ? ExportToJSONSchemaFn | undefined
-            : O extends "importDependenciesFromYAML"
-              ? ImportDependenciesFromYAMLFunction | undefined
-              : never
+            : O extends "buildGraphFromModel"
+              ? BuildGraphFromModelFunction | undefined
+              : O extends "extractGraph"
+                ? ExtractGraphFromModelFunction | undefined
+                : O extends "graphEdgeFromParent"
+                  ? GraphEdgeFromParent | undefined
+                  : O extends "graphChild"
+                    ? GraphChildRule | undefined
+                    : never

@@ -1,5 +1,6 @@
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import {
+  BuildGraphFromModelFunction,
   createRegistryKey,
   ExportToEnterpriseFunction,
   ExportToJSONSchemaFn,
@@ -7,8 +8,10 @@ import {
   ExportToXMLFunctionNew,
   ExportToYAMLFunction,
   ExportToYAMLFunctionNew,
+  ExtractGraphFromModelFunction,
+  GraphEdgeFromParent,
+  GraphChildRule,
   importExportFunction,
-  ImportDependenciesFromYAMLFunction,
   ImportFromXMLFunction,
   importFromYAMLFunction as ImportFromYAMLFunction,
   ImportFromYAMLFunctionNew,
@@ -25,7 +28,10 @@ const typeRulesRegistry = new Map<
   | ExportToXMLFunctionNew
   | ImportFromYAMLFunctionNew
   | ExportToYAMLFunctionNew
-  | ImportDependenciesFromYAMLFunction
+  | BuildGraphFromModelFunction
+  | ExtractGraphFromModelFunction
+  | GraphEdgeFromParent
+  | GraphChildRule
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -52,9 +58,15 @@ export const getTypeRule = <O extends TypeRulesOperations>(
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"
             ? ExportToJSONSchemaFn | undefined
-            : O extends "importDependenciesFromYAML"
-              ? ImportDependenciesFromYAMLFunction | undefined
-              : never => {
+            : O extends "buildGraphFromModel"
+              ? BuildGraphFromModelFunction | undefined
+              : O extends "extractGraph"
+                ? ExtractGraphFromModelFunction | undefined
+                : O extends "graphEdgeFromParent"
+                  ? GraphEdgeFromParent | undefined
+                  : O extends "graphChild"
+                    ? GraphChildRule | undefined
+                    : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

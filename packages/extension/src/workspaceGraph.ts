@@ -1,14 +1,7 @@
 import * as fs from "fs"
 import * as path from "path"
 import * as vscode from "vscode"
-import { isMap } from "yaml"
-import {
-  importMetadataCatalogFromYAML,
-  importMetadataDocumentFromYAML,
-  importMetadataEnumerationFromYAML,
-  MetadataGraph,
-  parseMetadataYaml,
-} from "@nakidka/core"
+import { importMetadataFileWithGraph, MetadataGraph } from "@nakidka/core"
 
 let _graph = new MetadataGraph()
 const _graphUpdatedCallbacks: Array<() => void> = []
@@ -30,56 +23,7 @@ function _notifyGraphUpdated(): void {
   for (const cb of _graphUpdatedCallbacks) cb()
 }
 
-function importCatalogFile(graph: MetadataGraph, yamlPath: string, text: string, catalogName: string): void {
-  const parsed = parseMetadataYaml(text)
-  importMetadataCatalogFromYAML(
-    {
-      version: "2.20",
-      defaultLanguage: "ru",
-      graph,
-      graphContext: {
-        filePath: yamlPath,
-        currentYamlMap: isMap(parsed.doc.contents) ? parsed.doc.contents : undefined,
-      },
-    },
-    parsed.data,
-    catalogName,
-  )
-}
-
-function importEnumerationFile(graph: MetadataGraph, yamlPath: string, text: string, enumName: string): void {
-  const parsed = parseMetadataYaml(text)
-  importMetadataEnumerationFromYAML(
-    {
-      version: "2.20",
-      defaultLanguage: "ru",
-      graph,
-      graphContext: {
-        filePath: yamlPath,
-        currentYamlMap: isMap(parsed.doc.contents) ? parsed.doc.contents : undefined,
-      },
-    },
-    parsed.data,
-    enumName,
-  )
-}
-
-function importDocumentFile(graph: MetadataGraph, yamlPath: string, text: string, documentName: string): void {
-  const parsed = parseMetadataYaml(text)
-  importMetadataDocumentFromYAML(
-    {
-      version: "2.20",
-      defaultLanguage: "ru",
-      graph,
-      graphContext: {
-        filePath: yamlPath,
-        currentYamlMap: isMap(parsed.doc.contents) ? parsed.doc.contents : undefined,
-      },
-    },
-    parsed.data,
-    documentName,
-  )
-}
+const _importContext = { version: "2.20", defaultLanguage: "ru" }
 
 async function loadWorkspace(workspaceFolder: vscode.WorkspaceFolder): Promise<void> {
   const newGraph = new MetadataGraph()
@@ -93,7 +37,7 @@ async function loadWorkspace(workspaceFolder: vscode.WorkspaceFolder): Promise<v
 
       try {
         const text = fs.readFileSync(yamlPath, "utf-8")
-        importCatalogFile(newGraph, yamlPath, text, dir.name)
+        importMetadataFileWithGraph({ filePath: yamlPath, text, kind: "catalog", name: dir.name, graph: newGraph, context: _importContext })
       } catch {
         // Пропускаем нечитаемые файлы
       }
@@ -109,7 +53,7 @@ async function loadWorkspace(workspaceFolder: vscode.WorkspaceFolder): Promise<v
 
       try {
         const text = fs.readFileSync(yamlPath, "utf-8")
-        importDocumentFile(newGraph, yamlPath, text, dir.name)
+        importMetadataFileWithGraph({ filePath: yamlPath, text, kind: "document", name: dir.name, graph: newGraph, context: _importContext })
       } catch {
         // Пропускаем нечитаемые файлы
       }
@@ -125,7 +69,7 @@ async function loadWorkspace(workspaceFolder: vscode.WorkspaceFolder): Promise<v
 
       try {
         const text = fs.readFileSync(yamlPath, "utf-8")
-        importEnumerationFile(newGraph, yamlPath, text, dir.name)
+        importMetadataFileWithGraph({ filePath: yamlPath, text, kind: "enumeration", name: dir.name, graph: newGraph, context: _importContext })
       } catch {
         // Пропускаем нечитаемые файлы
       }
@@ -155,13 +99,8 @@ export function initWorkspaceGraph(context: vscode.ExtensionContext): void {
         const objectName = parts[parts.length - 2]
         const objectType = parts[parts.length - 3]
 
-        if (objectType === "Документ") {
-          importDocumentFile(_graph, filePath, text, objectName)
-        } else if (objectType === "Перечисление") {
-          importEnumerationFile(_graph, filePath, text, objectName)
-        } else {
-          importCatalogFile(_graph, filePath, text, objectName)
-        }
+        const kind = objectType === "Документ" ? "document" : objectType === "Перечисление" ? "enumeration" : "catalog"
+        importMetadataFileWithGraph({ filePath, text, kind, name: objectName, graph: _graph, context: _importContext })
       } catch {
         // Пропускаем при ошибке парсинга
       }

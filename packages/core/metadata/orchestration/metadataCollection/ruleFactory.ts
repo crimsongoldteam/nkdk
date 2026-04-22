@@ -38,6 +38,12 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   fromYAML?: importFromYAMLFunction
   toYAML?: ExportToYAMLFunction
   toJSONSchema?: ExportToJSONSchemaFn
+  /** Декларативное создание composition-дочерних узлов в buildGraphFromModel */
+  graphChild?: {
+    idFrom: keyof Rule["properties"] & string
+    edgeName: string
+    edgeKind: "composition" | "reference"
+  }
 }
 
 export const registerMetadataItemCollectionRule = <
@@ -125,4 +131,13 @@ export const registerMetadataItemCollectionRule = <
 
   const toJSONSchema = params.toJSONSchema ?? toJSONSchemaDefault
   registerTypeRule(propertyType, "exportToJSONSchema", toJSONSchema)
+
+  if (params.graphChild) {
+    registerTypeRule(propertyType, "graphChild", {
+      idFrom: params.graphChild.idFrom as string,
+      edgeName: params.graphChild.edgeName,
+      edgeKind: params.graphChild.edgeKind,
+      itemRule: itemRule as unknown as MetadataItemRule,
+    })
+  }
 }

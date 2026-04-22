@@ -51,7 +51,7 @@ export const sourceTable: Table = {
   ],
 }
 
-export const fullTable: Omit<RequiredFieldsElement<Table>, "period" | "topLevelParent"> = {
+export const fullTable = {
   itemType: "Table",
   name: "Таблица",
   allowGettingCurrentRowURL: true,
@@ -273,7 +273,7 @@ export const fullTable: Omit<RequiredFieldsElement<Table>, "period" | "topLevelP
   viewStatusLocation: "Top",
   visible: false,
   width: 1,
-}
+} satisfies Omit<RequiredFieldsElement<Table>, "period" | "topLevelParent">
 
 export const fullTableYAML: TablePartialYAML = {
   АвтоВводНезаполненного: "Истина",

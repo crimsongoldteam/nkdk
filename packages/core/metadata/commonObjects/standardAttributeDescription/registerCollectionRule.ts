@@ -1,12 +1,14 @@
-import { isPair, isScalar, YAMLMap } from "yaml"
+import { YAMLMap } from "yaml"
 import { ConfigurationContext, ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
 import { importMetadataItemCollectionFromYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/fromYAML"
 import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { isEmptyMetadataItem } from "~/metadata/orchestration/formElement/helper"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { defaultGraph } from "~/metadata/relations/graph"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
+import { findKeyOffset, findSubmap } from "~/metadata/orchestration/property/position"
 import { StandardAttributeDescriptionRules } from "./rules"
 import {
   StandartAttributeNameFromYAML,
@@ -16,20 +18,6 @@ import {
 import type { StandardAttributeDescription } from "./types"
 
 const EDGE_NAME = "СтандартныйРеквизит"
-
-function findKeyOffset(yamlMap: YAMLMap, key: string): number | undefined {
-  const pair = yamlMap.items.find((i) => isPair(i) && isScalar(i.key) && i.key.value === key)
-  if (!pair || !isPair(pair) || !isScalar(pair.key)) return undefined
-  return pair.key.range?.[0]
-}
-
-function findStdAttrsSubmap(currentYamlMap: YAMLMap | undefined, propYaml: string | undefined): YAMLMap | undefined {
-  if (!currentYamlMap || !propYaml) return undefined
-  const pair = currentYamlMap.items.find((i) => isPair(i) && isScalar(i.key) && i.key.value === propYaml)
-  if (!pair || !isPair(pair)) return undefined
-  if (pair.value instanceof YAMLMap) return pair.value as YAMLMap
-  return undefined
-}
 
 function filterNonEmpty(
   context: ConfigurationContext,
@@ -48,16 +36,20 @@ function filterNonEmpty(
   return filtered.length > 0 ? filtered : undefined
 }
 
-function updateGraph(
-  context: ConfigurationContext,
-  rule: PropertyRule | undefined,
-  result: readonly StandardAttributeDescription[] | undefined
-) {
-  const { graphContext } = context
-  if (!graphContext?.parentNodeId || rule?.type !== "StandardAttributeDescriptions") return
-  const g = context.graph ?? defaultGraph
-  const { parentNodeId, filePath, currentYamlMap } = graphContext
-  const stdAttrsYamlMap = findStdAttrsSubmap(currentYamlMap, rule.yaml)
+function buildStandardAttributesGraph(params: {
+  model: unknown
+  parentNodeId: string
+  filePath: string
+  yamlMap: YAMLMap | undefined
+  propRule: PropertyRule
+  graph: MetadataGraph
+}): void {
+  const { model, parentNodeId, filePath, yamlMap, propRule, graph } = params
+  const stdAttrRule = propRule as StandardAttributeDescriptionsPropertyRule
+  if (!stdAttrRule.standartAttributeNames) return
+
+  const stdAttrsYamlMap = propRule.yaml ? findSubmap(yamlMap, propRule.yaml) : undefined
+  const result = model as readonly StandardAttributeDescription[] | undefined
 
   // Build map of explicitly defined items (russianName → item)
   const explicitItems = new Map<string, StandardAttributeDescription>()
@@ -68,42 +60,39 @@ function updateGraph(
     }
   }
 
-  for (const [internalName, russianName] of Object.entries(rule.standartAttributeNames)) {
+  for (const [internalName, russianName] of Object.entries(stdAttrRule.standartAttributeNames)) {
     const nodeId = `${parentNodeId}.${russianName}`
     const offset = stdAttrsYamlMap ? findKeyOffset(stdAttrsYamlMap, russianName) : undefined
 
-    g.ensureNode(nodeId, {
+    graph.ensureNode(nodeId, {
       name: russianName,
       positionFrom: offset !== undefined ? { offset } : undefined,
       filePath,
     })
 
     const edgeKey = `${parentNodeId}:${EDGE_NAME}:${russianName}`
-    g.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, name: EDGE_NAME, kind: "composition" })
+    graph.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, name: EDGE_NAME, kind: "composition" })
 
     // US 13: standard attributes always have item so they are never treated as stubs
     const item = explicitItems.get(russianName) ?? {
       itemType: "StandardAttributeDescription" as const,
       name: internalName,
     }
-    g.setNodeAttribute(nodeId, "item", item)
+    graph.setNodeAttribute(nodeId, "item", item)
   }
 }
 
 function importStandardAttributeDescriptionsFromYAML(
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  _rule: PropertyRule | undefined,
   value: any
 ) {
-  const result = importMetadataItemCollectionFromYAMLAsRecord({
+  return importMetadataItemCollectionFromYAMLAsRecord({
     context,
     itemRule: StandardAttributeDescriptionRules,
     yaml: value,
     nameFromYAMLKey: StandartAttributeNameFromYAML,
   }) as StandardAttributeDescription[] | undefined
-
-  updateGraph(context, rule, result)
-  return result
 }
 
 function importStandardAttributeDescriptionsFromXML(
@@ -129,7 +118,6 @@ function importStandardAttributeDescriptionsFromXML(
     }
   }
 
-  updateGraph(context, rule, result)
   return result
 }
 
@@ -191,3 +179,5 @@ registerMetadataItemCollectionRule({
   fromXML: importStandardAttributeDescriptionsFromXML,
   toXML: exportStandardAttributeDescriptionsToXML,
 })
+
+registerTypeRule("StandardAttributeDescriptions", "buildGraphFromModel", buildStandardAttributesGraph)

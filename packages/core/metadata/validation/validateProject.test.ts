@@ -53,3 +53,20 @@ describe("validateProject — отсутствующий внешний файл
     })
   })
 })
+
+describe("validateProject — точность позиции битой ссылки в многотипном реквизите", () => {
+  const projectPath = join(fixturesDir, "project-with-multitype-ref")
+
+  it("координата диагностики указывает на строку Тип:, а не на строку реквизита", () => {
+    const diagnostics = validateProject({ projectPath, context: baseContext })
+    const referenceErrors = diagnostics.filter((d) => d.source === "reference")
+    expect(referenceErrors.length).toBeGreaterThan(0)
+
+    const broken = referenceErrors.find((d) => d.message.includes("БитыйСправочник"))
+    expect(broken).toBeDefined()
+
+    // МногоТипныйРеквизит — на строке 2, Тип: — на строке 3.
+    // Позиция должна указывать на строку значения Тип (3), а не на реквизит (2).
+    expect(broken!.line).toBeGreaterThanOrEqual(3)
+  })
+})

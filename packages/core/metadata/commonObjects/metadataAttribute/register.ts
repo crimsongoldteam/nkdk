@@ -1,5 +1,4 @@
 import { TSchema, Type } from "@sinclair/typebox"
-import { isMap, isPair, isScalar, YAMLMap } from "yaml"
 import {
   MetadataAttributeYAML,
   MetadataAttributes,
@@ -7,6 +6,7 @@ import {
   MetadataAttributesYAML,
 } from "./types"
 import { importTypeDescriptionFromYAML } from "~/metadata/commonObjects/typeDescription/fromYAML"
+import "~/metadata/commonObjects/typeDescription/graphFromModel"
 import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
@@ -16,23 +16,7 @@ import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/met
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { defaultGraph } from "~/metadata/relations/graph"
 import { MetadataAttributeRules, MetadataTabularSectionAttributeRules } from "./rules"
-
-const EDGE_NAME = "Реквизит"
-
-function findSubmap(yamlMap: YAMLMap | undefined, key: string | undefined): YAMLMap | undefined {
-  if (!yamlMap || !key) return undefined
-  const pair = yamlMap.items.find((i) => isPair(i) && isScalar(i.key) && i.key.value === key)
-  if (!pair || !isPair(pair) || !isMap(pair.value)) return undefined
-  return pair.value
-}
-
-function findKeyOffset(yamlMap: YAMLMap, key: string): number | undefined {
-  const pair = yamlMap.items.find((i) => isPair(i) && isScalar(i.key) && i.key.value === key)
-  if (!pair || !isPair(pair) || !isScalar(pair.key)) return undefined
-  return pair.key.range?.[0]
-}
 
 const importMetadataAttributeFromYAML = (
   context: ConfigurationContext,
@@ -73,40 +57,7 @@ const importMetadataAttributesFromYAML = (
 ): MetadataAttributes | undefined => {
   if (!data) return undefined
 
-  const { graphContext } = context
-  const g = context.graph ?? defaultGraph
-  const attrsYamlMap = graphContext ? findSubmap(graphContext.currentYamlMap, _rule?.yaml) : undefined
-
   const results = Object.entries(data).map(([name, value]) => {
-    if (graphContext?.parentNodeId) {
-      const attrNodeId = `${graphContext.parentNodeId}.${name}`
-      const offset = attrsYamlMap ? findKeyOffset(attrsYamlMap, name) : undefined
-      const attrValueYamlMap = findSubmap(attrsYamlMap, name)
-
-      g.ensureNode(attrNodeId, {
-        name,
-        positionFrom: offset !== undefined ? { offset } : undefined,
-        filePath: graphContext.filePath,
-      })
-      const edgeKey = `${graphContext.parentNodeId}:${EDGE_NAME}:${attrNodeId}`
-      g.ensureEdge(edgeKey, graphContext.parentNodeId, attrNodeId, {
-        yaml: EDGE_NAME,
-        name: EDGE_NAME,
-        kind: "composition",
-      })
-
-      const childContext: ConfigurationContext = {
-        ...context,
-        graphContext: { ...graphContext, parentNodeId: attrNodeId, currentYamlMap: attrValueYamlMap },
-      }
-
-      const attr = importMetadataAttributeFromYAML(childContext, value as MetadataAttributeYAML, name)
-
-      g.setNodeAttribute(attrNodeId, "item", attr)
-
-      return attr
-    }
-
     return importMetadataAttributeFromYAML(context, value as MetadataAttributeYAML, name)
   })
 
@@ -119,6 +70,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: importMetadataAttributesFromYAML,
+  graphChild: { idFrom: "name", edgeName: "Реквизит", edgeKind: "composition" },
 })
 
 registerMetadataItemCollectionRule({
@@ -127,6 +79,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: importMetadataAttributesFromYAML,
+  graphChild: { idFrom: "name", edgeName: "Реквизит", edgeKind: "composition" },
 })
 
 const exportMetadataAttributesToJSONSchema: ExportToJSONSchemaFn = (params: {

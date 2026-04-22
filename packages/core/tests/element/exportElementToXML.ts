@@ -15,7 +15,7 @@ export type TestExportElementToXMLParams<TElement extends CollectableElement = C
 }
 
 export function testExportElementToXML<TElement extends CollectableElement>(
-  params: TestExportElementToXMLParams<TElement>,
+  params: TestExportElementToXMLParams<TElement>
 ): { expectedResult: string; result: string } {
   const { element, path, baseDir, contextAttributes } = params
 
@@ -41,7 +41,7 @@ export function testExportElementToXML<TElement extends CollectableElement>(
     for (const attr of contextAttributes) {
       context.exportToXML.context!.metadataForNumbering.push({
         element: attr,
-        xmlElement: { _name: attr.name },
+        xmlElement: { _name: attr.name ?? "" },
       })
     }
   }

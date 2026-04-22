@@ -3,6 +3,7 @@ import { Command } from "commander"
 import { importConfiguration } from "./commands/import"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
 import { syncConfiguration } from "./commands/sync"
+import { updateGraph } from "./commands/updateGraph"
 import { validate } from "./commands/validate"
 
 function run(fn: () => Promise<void>): void {
@@ -50,6 +51,14 @@ program
   .argument("<project>", "путь к директории проекта")
   .action((projectPath: string) => {
     validate(projectPath)
+  })
+
+program
+  .command("update-graph")
+  .description("Обновить граф метаданных в FalkorDB по YAML-проекту")
+  .argument("<path>", "путь к корню YAML-проекта")
+  .action((projectPath: string) => {
+    run(() => updateGraph(projectPath))
   })
 
 program.parse()

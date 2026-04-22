@@ -15,6 +15,7 @@ export type MetadataEnumerationValues = MetadataEnumerationValue[]
 export type MetadataEnumerationValuesYAML = Record<string, unknown>
 
 export interface MetadataEnumeration {
+  itemType?: "MetadataEnumeration"
   name: string
   auxiliaryChoiceForm?: string
   auxiliaryListForm?: string
