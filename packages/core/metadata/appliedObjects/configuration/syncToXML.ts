@@ -3,7 +3,8 @@ import { join } from "path"
 import { BatchTask, runBatch } from "~/helpers/runBatch"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { syncFormToXML } from "~/metadata/forms/clientApplicationForm/syncToXML"
-import { syncCatalogToXML } from "../metadataCatalog/syncToXML"
+import { MetadataCatalogRules } from "../metadataCatalog/rules"
+import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
 import { ConfigurationSyncResult } from "./convertFromXML"
 
 // TODO: вынести в настройки расширения
@@ -63,10 +64,11 @@ export const syncConfigurationToXML = async (params: {
       kind: "catalog",
       name,
       run: () =>
-        syncCatalogToXML({
+        syncAppliedObjectToXML({
+          rule: MetadataCatalogRules,
           context: { ...context, exportToXML: { ...context.exportToXML } },
           inputDir: catalogsDir,
-          catalogName: name,
+          name,
           outputDir: catalogOutputDir,
           referenceDir: catalogReferenceDir,
         }),

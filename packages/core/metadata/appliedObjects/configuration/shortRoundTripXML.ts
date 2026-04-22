@@ -1,7 +1,8 @@
 import fs from "fs"
 import { basename, join } from "path"
-import { readCatalogFromXML } from "~/metadata/appliedObjects/metadataCatalog/convertFromXML"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
+import { importMetadataItemFromXML } from "~/metadata/orchestration"
+import { importContentFromXML } from "~/xml/import/importer"
 import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { readFormFromXML } from "~/metadata/forms/clientApplicationForm/convertFromXML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
@@ -47,17 +48,18 @@ export const shortRoundTripXML = async (params: { inputDir: string; outputDir: s
     const catalogName = basename(entry.name, ".xml")
 
     try {
-      const catalog = readCatalogFromXML({
-        context: makeContextFromXML(false),
-        inputDir: catalogsInputDir,
-        catalogName,
-      })
+      const readCatalogXML = (forReference: boolean) => {
+        const xmlContent = fs.readFileSync(join(catalogsInputDir, `${catalogName}.xml`), "utf-8")
+        const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
+        return importMetadataItemFromXML({
+          context: makeContextFromXML(forReference),
+          xml: parsed.MetaDataObject,
+          rule: MetadataCatalogRules,
+        })
+      }
 
-      const referenceCatalog = readCatalogFromXML({
-        context: makeContextFromXML(true),
-        inputDir: catalogsInputDir,
-        catalogName,
-      })
+      const catalog = readCatalogXML(false)
+      const referenceCatalog = readCatalogXML(true)
 
       const xmlObj = exportMetadataItemToXML({
         context: makeContextToXML(catalogName),

@@ -3,13 +3,13 @@ import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
 import { mockContextFromXML } from "~/tests/mockContext"
-import { readCatalogYAML } from "./__fixtures__/sync/data"
-import { MetadataCatalogRules } from "./rules"
+import { readNumeratorYAML } from "./__fixtures__/sync/data"
+import { MetadataDocumentNumeratorRules } from "./rules"
 
-describe("convertAppliedObjectFromXML — MetadataCatalog", () => {
+describe("convertAppliedObjectFromXML — MetadataDocumentNumerator", () => {
   const inputDir = join(import.meta.dirname, "__fixtures__/sync/xml")
   const outputDir = join(import.meta.dirname, "__fixtures__/sync/out")
-  const catalogName = "Контрагенты"
+  const name = "НумераторПоУмолчанию"
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {
@@ -17,15 +17,15 @@ describe("convertAppliedObjectFromXML — MetadataCatalog", () => {
     }
   })
 
-  it("читает Catalog из XML и записывает Свойства.yaml в outputDir", async () => {
+  it("читает DocumentNumerator из XML и записывает Свойства.yaml в outputDir", async () => {
     await convertAppliedObjectFromXML({
-      rule: MetadataCatalogRules,
+      rule: MetadataDocumentNumeratorRules,
       context: mockContextFromXML(),
       inputDir,
-      name: catalogName,
+      name,
       outputDir,
     })
 
-    expect(fs.readFileSync(join(outputDir, catalogName, "Свойства.yaml"), "utf-8")).toBe(readCatalogYAML)
+    expect(fs.readFileSync(join(outputDir, name, "Свойства.yaml"), "utf-8")).toBe(readNumeratorYAML)
   })
 })

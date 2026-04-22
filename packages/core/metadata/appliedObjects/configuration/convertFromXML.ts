@@ -3,7 +3,8 @@ import { basename, join } from "path"
 import { BatchTask, runBatch } from "~/helpers/runBatch"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { convertFormFromXML } from "~/metadata/forms/clientApplicationForm/convertFromXML"
-import { convertCatalogFromXML } from "../metadataCatalog/convertFromXML"
+import { MetadataCatalogRules } from "../metadataCatalog/rules"
+import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
 
 // TODO: вынести в настройки расширения
 const IO_CONCURRENCY = 64
@@ -63,7 +64,8 @@ export const syncConfigurationFromXML = async (params: {
       kind: "catalog",
       name,
       run: () =>
-        convertCatalogFromXML({
+        convertAppliedObjectFromXML({
+          rule: MetadataCatalogRules,
           context,
           inputDir: catalogsXMLDir,
           name,
