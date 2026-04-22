@@ -84,7 +84,7 @@ function buildStandardAttributesGraph(params: {
 
 function importStandardAttributeDescriptionsFromYAML(
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
+  _rule: PropertyRule | undefined,
   value: any
 ) {
   return importMetadataItemCollectionFromYAMLAsRecord({

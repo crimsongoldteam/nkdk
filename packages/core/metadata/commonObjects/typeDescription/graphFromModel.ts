@@ -4,12 +4,13 @@ import { getTypeDescriptionRule } from "./helper"
 import { TypeDescription } from "./types"
 
 export function extractTypeDescriptionGraph(
-  model: TypeDescription,
+  model: unknown,
   position?: { offset: number; length?: number }
 ): GraphOps | undefined {
+  const typeDescription = model as TypeDescription
   const references: GraphOpsReference[] = []
 
-  for (const type of model.type) {
+  for (const type of typeDescription.type) {
     const dotIndex = type.indexOf(".")
     if (dotIndex === -1) continue
     const baseType = type.substring(0, dotIndex)

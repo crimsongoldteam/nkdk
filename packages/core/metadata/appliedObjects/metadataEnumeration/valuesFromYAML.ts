@@ -12,7 +12,7 @@ import {
 const EDGE_NAME = "ЗначениеПеречисления"
 
 export const importMetadataEnumerationValuesFromYAML = (
-  context: ConfigurationContext,
+  _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: MetadataEnumerationValuesYAML | undefined
 ): MetadataEnumerationValues | undefined => {
