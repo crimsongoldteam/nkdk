@@ -674,3 +674,103 @@ describe("importMetadataFileWithGraph — form", () => {
     expect(refEdges[0].target).toBe("Справочник.Контрагенты")
   })
 })
+
+describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)", () => {
+  const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
+  const OWNER_NODE_ID = "Справочник.Товары"
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.ФормаСписка`
+
+  it("колонки реквизита-таблицы → узлы с owning-ребром КолонкаФормы", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Таблица:
+    Тип: ТаблицаЗначений
+    Колонки:
+      Колонка1:
+        Тип: Булево
+      Колонка2:
+        Тип: Булево
+`,
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const attrNodeId = `${FORM_NODE_ID}.Таблица`
+    const col1NodeId = `${attrNodeId}.Колонка1`
+    const col2NodeId = `${attrNodeId}.Колонка2`
+
+    expect(graph.hasNode(col1NodeId)).toBe(true)
+    expect(graph.hasNode(col2NodeId)).toBe(true)
+
+    const colEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
+      (e) => e.attributes.kind === "КолонкаФормы",
+    )
+    expect(colEdges).toHaveLength(2)
+    expect(colEdges.map((e) => e.target)).toContain(col1NodeId)
+    expect(colEdges.map((e) => e.target)).toContain(col2NodeId)
+  })
+
+  it("колонка с reference-типом → ребро Тип к целевому узлу", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Таблица:
+    Тип: ТаблицаЗначений
+    Колонки:
+      Контрагент:
+        Тип: Справочник.Контрагенты
+`,
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const colNodeId = `${FORM_NODE_ID}.Таблица.Контрагент`
+    expect(graph.hasNode(colNodeId)).toBe(true)
+
+    const typeEdges = [...graph.outEdgeEntries(colNodeId)].filter(
+      (e) => e.attributes.kind === "Тип",
+    )
+    expect(typeEdges).toHaveLength(1)
+    expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
+  })
+
+  it("пустые колонки реквизита → узлов КолонкаФормы не создаётся", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Обычный:
+    Тип: Строка(100)
+`,
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const attrNodeId = `${FORM_NODE_ID}.Обычный`
+    const colEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
+      (e) => e.attributes.kind === "КолонкаФормы",
+    )
+    expect(colEdges).toHaveLength(0)
+  })
+})
