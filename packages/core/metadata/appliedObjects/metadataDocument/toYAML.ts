@@ -1,6 +1,6 @@
 import { exportMetadataCommandsToYAML } from "~/metadata/appliedObjects/metadataCommand/register"
 import { MetadataDocument, MetadataDocumentYAML } from "~/metadata/appliedObjects/metadataDocument/types"
-import { exportMetadataDocumentNumeratorToYAML } from "~/metadata/appliedObjects/metadataDocumentNumerator/toYAML"
+// import { exportMetadataDocumentNumeratorToYAML } from "~/metadata/appliedObjects/metadataDocumentNumerator/toYAML"
 import { exportAdditionalIndexesToYAML } from "~/metadata/commonObjects/additionalIndex/toYAML"
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { CharacteristicsDescriptionRules } from "~/metadata/commonObjects/characteristicsDescription/rules"
@@ -69,7 +69,7 @@ export const exportMetadataDocumentToYAML = (
     Команды: exportMetadataCommandsToYAML(context, { type: "MetadataCommands" }, data.commands),
     Комментарий: data.comment,
     КонтрольУникальности: exportBooleanToYAML(context, undefined, data.checkUnique),
-    Нумератор: exportMetadataDocumentNumeratorToYAML(context, data.numerator),
+    // Нумератор: exportMetadataDocumentNumeratorToYAML(context, data.numerator),
     ОбновлятьИсториюДанныхСразуПослеЗаписи: exportBooleanToYAML(
       context,
       undefined,

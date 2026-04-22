@@ -10,4 +10,6 @@ import "./metadataDocument/toYAML"
 // import "./metadataDocument/fromYAML"
 import "./metadataDocument/fromXML"
 
+import "./metadataDocumentNumerator"
+
 import "./metadataEnumeration/fromYAML"

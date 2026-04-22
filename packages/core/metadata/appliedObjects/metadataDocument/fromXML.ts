@@ -1,6 +1,6 @@
 import { importMetadataCommandsFromXML } from "~/metadata/appliedObjects/metadataCommand/register"
 import { MetadataDocument, MetadataDocumentXML } from "~/metadata/appliedObjects/metadataDocument/types"
-import { importMetadataDocumentNumeratorFromXML } from "~/metadata/appliedObjects/metadataDocumentNumerator/fromXML"
+// import { importMetadataDocumentNumeratorFromXML } from "~/metadata/appliedObjects/metadataDocumentNumerator/fromXML"
 import { importAdditionalIndexesFromXML } from "~/metadata/commonObjects/additionalIndex/fromXML"
 import { importCharacteristicsDescriptionsFromXML } from "~/metadata/commonObjects/characteristicsDescription/registerCollectionRule"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
@@ -108,8 +108,8 @@ export const importMetadataDocumentFromXML = (
 
   if (xml.NumberType !== undefined) result.numberType = xml.NumberType
 
-  const numerator = importMetadataDocumentNumeratorFromXML(context, xml.Numerator)
-  if (numerator !== undefined) result.numerator = numerator
+  // const numerator = importMetadataDocumentNumeratorFromXML(context, xml.Numerator)
+  // if (numerator !== undefined) result.numerator = numerator
 
   if (xml.ObjectBelonging !== undefined) result.objectBelonging = xml.ObjectBelonging
 

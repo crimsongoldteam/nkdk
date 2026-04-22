@@ -85,6 +85,10 @@ import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metad
 import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
 import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
 import {
+  MetadataDocumentNumerator,
+  MetadataDocumentNumeratorYAML,
+} from "../../appliedObjects/metadataDocumentNumerator/types"
+import {
   MetadataEnumeration,
   MetadataEnumerationYAML,
 } from "../../appliedObjects/metadataEnumeration/types"
@@ -661,6 +665,11 @@ export type MetadataItemTypeRegistry = {
   MetadataDocument: {
     metadata: MetadataDocument
     yaml: MetadataDocumentYAML
+  }
+
+  MetadataDocumentNumerator: {
+    metadata: MetadataDocumentNumerator
+    yaml: MetadataDocumentNumeratorYAML
   }
 
   MetadataEnumeration: {

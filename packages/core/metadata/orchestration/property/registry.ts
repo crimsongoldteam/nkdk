@@ -1,5 +1,9 @@
 import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
 import {
+  MetadataDocumentNumerator,
+  MetadataDocumentNumeratorYAML,
+} from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
+import {
   MetadataEnumerationValues,
   MetadataEnumerationValuesYAML,
 } from "~/metadata/appliedObjects/metadataEnumeration/types"
@@ -429,6 +433,10 @@ export type PropertyTypeRegistry = {
     item: MetadataCommands
     yaml: MetadataCommandsYAML
   }
+  MetadataDocumentNumerator: {
+    item: MetadataDocumentNumerator
+    yaml: MetadataDocumentNumeratorYAML
+  }
   MetadataEnumerationValues: {
     item: MetadataEnumerationValues
     yaml: MetadataEnumerationValuesYAML
@@ -741,6 +749,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataTabularSectionAttributes: "MetadataTabularSectionAttributes",
   MetadataItemLinks: "MetadataItemLinks",
   MetadataCommands: "MetadataCommands",
+  MetadataDocumentNumerator: "MetadataDocumentNumerator",
   MetadataEnumerationValues: "MetadataEnumerationValues",
   CommandInterface: "CommandInterface",
   ContextMenu: "ContextMenu",
