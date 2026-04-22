@@ -92,6 +92,55 @@ export class MetadataGraph {
     return this._fileIndex.get(filePath) ?? new Set()
   }
 
+  /**
+   * Создаёт узел, если он не существует, или «повышает» существующую заглушку:
+   * заполняет только пустые поля (filePath, positionFrom, item).
+   * Бросает ошибку при конфликте itemType у item.
+   */
+  promoteNode(id: string, attrs: MetadataNodeAttrs): void {
+    if (!this._graph.hasNode(id)) {
+      this._graph.addNode(id, attrs)
+      if (attrs.filePath) {
+        let set = this._fileIndex.get(attrs.filePath)
+        if (!set) {
+          set = new Set()
+          this._fileIndex.set(attrs.filePath, set)
+        }
+        set.add(id)
+      }
+      return
+    }
+
+    // Существующий узел: заполняем только пустые поля
+    const existing = this._graph.getNodeAttributes(id)
+
+    if (attrs.filePath !== undefined && existing.filePath === undefined) {
+      this.updateNodeFilePath(id, attrs.filePath)
+    }
+
+    if (attrs.positionFrom !== undefined && existing.positionFrom === undefined) {
+      this._graph.setNodeAttribute(id, "positionFrom", attrs.positionFrom)
+    }
+
+    if (attrs.item !== undefined) {
+      if (existing.item === undefined) {
+        this._graph.setNodeAttribute(id, "item", attrs.item)
+      } else {
+        const existingItemType = (existing.item as Record<string, unknown>).itemType
+        const newItemType = (attrs.item as Record<string, unknown>).itemType
+        if (
+          existingItemType !== undefined &&
+          newItemType !== undefined &&
+          existingItemType !== newItemType
+        ) {
+          throw new Error(
+            `promoteNode: конфликт itemType на узле "${id}": существующий="${String(existingItemType)}", новый="${String(newItemType)}"`
+          )
+        }
+      }
+    }
+  }
+
   /** Обновляет filePath узла и синхронно обновляет обратный индекс. */
   updateNodeFilePath(id: string, filePath: string): void {
     const currentFilePath = this._graph.getNodeAttribute(id, "filePath")

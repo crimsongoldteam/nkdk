@@ -43,17 +43,17 @@ function buildEnumerationValuesGraph(params: {
   for (const value of values) {
     const nodeId = `${parentNodeId}.${value.name}`
     const offset = valuesYamlMap ? findKeyOffset(valuesYamlMap, value.name) : undefined
-    graph.ensureNode(nodeId, {
+    graph.promoteNode(nodeId, {
       name: value.name,
       filePath,
       positionFrom: offset !== undefined ? { offset } : undefined,
+      item: value,
     })
     const edgeKey = `${parentNodeId}:${EDGE_NAME}:${nodeId}`
     graph.ensureEdge(edgeKey, parentNodeId, nodeId, {
       yaml: EDGE_NAME,
       kind: EDGE_NAME,
     })
-    graph.setNodeAttribute(nodeId, "item", value)
   }
 }
 

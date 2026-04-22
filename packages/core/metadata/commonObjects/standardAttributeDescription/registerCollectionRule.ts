@@ -64,21 +64,20 @@ function buildStandardAttributesGraph(params: {
     const nodeId = `${parentNodeId}.${russianName}`
     const offset = stdAttrsYamlMap ? findKeyOffset(stdAttrsYamlMap, russianName) : undefined
 
-    graph.ensureNode(nodeId, {
-      name: russianName,
-      positionFrom: offset !== undefined ? { offset } : undefined,
-      filePath,
-    })
-
-    const edgeKey = `${parentNodeId}:${EDGE_NAME}:${russianName}`
-    graph.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, kind: EDGE_NAME })
-
     // US 13: standard attributes always have item so they are never treated as stubs
     const item = explicitItems.get(russianName) ?? {
       itemType: "StandardAttributeDescription" as const,
       name: internalName,
     }
-    graph.setNodeAttribute(nodeId, "item", item)
+    graph.promoteNode(nodeId, {
+      name: russianName,
+      positionFrom: offset !== undefined ? { offset } : undefined,
+      filePath,
+      item,
+    })
+
+    const edgeKey = `${parentNodeId}:${EDGE_NAME}:${russianName}`
+    graph.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, kind: EDGE_NAME })
   }
 }
 

@@ -23,7 +23,7 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
 
   for (const child of ops.children ?? []) {
     const childNodeId = `${parentNodeId}.${child.idSuffix}`
-    graph.ensureNode(childNodeId, {
+    graph.promoteNode(childNodeId, {
       name: child.name,
       filePath,
       positionFrom: child.positionFrom,

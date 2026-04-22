@@ -66,10 +66,11 @@ export function buildGraphFromModel(params: {
       const itemOffset = collectionYamlMap ? findKeyOffset(collectionYamlMap, idSuffix) : undefined
       const itemYamlMap = collectionYamlMap ? findSubmap(collectionYamlMap, idSuffix) : undefined
 
-      graph.ensureNode(childNodeId, {
+      graph.promoteNode(childNodeId, {
         name: idSuffix,
         positionFrom: itemOffset !== undefined ? { offset: itemOffset } : undefined,
         filePath,
+        item,
       })
 
       const edgeKey = `${parentNodeId}:${graphChildDef.edgeName}:${childNodeId}`
@@ -77,8 +78,6 @@ export function buildGraphFromModel(params: {
         yaml: graphChildDef.edgeName,
         kind: graphChildDef.edgeName,
       })
-
-      graph.setNodeAttribute(childNodeId, "item", item)
 
       buildGraphFromModel({
         model: item,

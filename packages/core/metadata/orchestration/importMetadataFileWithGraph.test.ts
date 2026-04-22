@@ -32,7 +32,7 @@ describe("importMetadataFileWithGraph — catalog", () => {
       filePath: FILE_PATH,
       text: `
 Реквизиты:
-  Наименование:
+  ДатаСоздания:
     Тип: Строка(100)
 `,
       kind: "catalog",
@@ -41,7 +41,7 @@ describe("importMetadataFileWithGraph — catalog", () => {
       context: baseContext,
     })
 
-    expect(graph.hasNode("Справочник.Товары.Наименование")).toBe(true)
+    expect(graph.hasNode("Справочник.Товары.ДатаСоздания")).toBe(true)
   })
 
   it("добавляет ребро ссылки на TypeDescription в граф", () => {

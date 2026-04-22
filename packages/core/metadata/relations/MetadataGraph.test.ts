@@ -112,6 +112,111 @@ describe("MetadataGraph", () => {
     })
   })
 
+  describe("promoteNode", () => {
+    it("создаёт узел если не существует", () => {
+      const g = new MetadataGraph()
+      const item = { itemType: "MetadataCatalog", name: "Товары" }
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml", item })
+
+      expect(g.hasNode("Справочник.Товары")).toBe(true)
+      expect(g.getNodeAttribute("Справочник.Товары", "item")).toBe(item)
+      expect(g.getNodeAttribute("Справочник.Товары", "filePath")).toBe("goods.yaml")
+      expect(g.getNodesByFile("goods.yaml").has("Справочник.Товары")).toBe(true)
+    })
+
+    it("повышает заглушку: устанавливает filePath и item", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары", { name: "Товары" }) // stub
+      const item = { itemType: "MetadataCatalog", name: "Товары" }
+
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml", item })
+
+      expect(g.getNodeAttribute("Справочник.Товары", "filePath")).toBe("goods.yaml")
+      expect(g.getNodeAttribute("Справочник.Товары", "item")).toBe(item)
+      expect(g.getNodesByFile("goods.yaml").has("Справочник.Товары")).toBe(true)
+    })
+
+    it("не перетирает уже установленный item", () => {
+      const g = new MetadataGraph()
+      const existingItem = { itemType: "MetadataCatalog", name: "Товары" }
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml" })
+      g.setNodeAttribute("Справочник.Товары", "item", existingItem)
+
+      const newItem = { itemType: "MetadataCatalog", name: "ДругойТовар" }
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml", item: newItem })
+
+      expect(g.getNodeAttribute("Справочник.Товары", "item")).toBe(existingItem)
+    })
+
+    it("не перетирает уже установленный filePath", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары", { name: "Товары", filePath: "old.yaml" })
+
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "new.yaml" })
+
+      expect(g.getNodeAttribute("Справочник.Товары", "filePath")).toBe("old.yaml")
+    })
+
+    it("обновляет fileIndex при установке filePath на заглушку", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары", { name: "Товары" }) // stub без filePath
+
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml" })
+
+      expect(g.getNodesByFile("goods.yaml").has("Справочник.Товары")).toBe(true)
+      expect(g.getNodeAttribute("Справочник.Товары", "filePath")).toBe("goods.yaml")
+    })
+
+    it("идемпотентен при повторном вызове", () => {
+      const g = new MetadataGraph()
+      const item = { itemType: "MetadataCatalog", name: "Товары" }
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml", item })
+      g.promoteNode("Справочник.Товары", { name: "Товары", filePath: "goods.yaml", item })
+
+      expect(g.getNodeAttribute("Справочник.Товары", "filePath")).toBe("goods.yaml")
+      expect(g.getNodeAttribute("Справочник.Товары", "item")).toBe(item)
+    })
+
+    it("бросает при конфликте itemType", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары", { name: "Товары" })
+      g.setNodeAttribute("Справочник.Товары", "item", { itemType: "MetadataCatalog" })
+
+      expect(() =>
+        g.promoteNode("Справочник.Товары", { name: "Товары", item: { itemType: "MetadataDocument" } })
+      ).toThrow(/конфликт itemType/)
+    })
+
+    it("регрессия: стаб повышается через promoteNode, invalidateFile корректно удаляет", () => {
+      const g = new MetadataGraph()
+      // Референс создаёт стаб до импорта владельца
+      g.ensureNode("Справочник.Контрагенты.Наименование", { name: "Наименование" })
+      g.ensureNode("Справочник.Товары.Клиент", { name: "Клиент", filePath: "goods.yaml" })
+      g.ensureEdge("ref-1", "Справочник.Товары.Клиент", "Справочник.Контрагенты.Наименование", {
+        yaml: "Тип",
+        kind: "Тип",
+      })
+
+      // Импорт владельца: повышаем стаб через promoteNode
+      const item = { itemType: "MetadataAttribute", name: "Наименование" }
+      g.promoteNode("Справочник.Контрагенты.Наименование", {
+        name: "Наименование",
+        filePath: "counterparties.yaml",
+        item,
+      })
+
+      expect(g.getNodeAttribute("Справочник.Контрагенты.Наименование", "filePath")).toBe("counterparties.yaml")
+      expect(g.getNodeAttribute("Справочник.Контрагенты.Наименование", "item")).toBe(item)
+
+      // invalidateFile корректно обрабатывает узел (есть входящее reference-ребро → стаб)
+      g.invalidateFile("counterparties.yaml")
+
+      expect(g.hasNode("Справочник.Контрагенты.Наименование")).toBe(true)
+      expect(g.getNodeAttribute("Справочник.Контрагенты.Наименование", "item")).toBeUndefined()
+      expect(g.getNodesByFile("counterparties.yaml").size).toBe(0)
+    })
+  })
+
   describe("updateNodeFilePath", () => {
     it("обновляет filePath и обратный индекс", () => {
       const g = new MetadataGraph()
