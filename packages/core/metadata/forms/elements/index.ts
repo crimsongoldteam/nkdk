@@ -125,3 +125,4 @@ import "./viewStatusAddition/types"
 
 import "../clientApplicationForm/toNKDK"
 import "./baseElement/toNKDK"
+import "./graphFromModel"

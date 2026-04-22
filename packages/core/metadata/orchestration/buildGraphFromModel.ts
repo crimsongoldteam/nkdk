@@ -17,8 +17,10 @@ export function buildGraphFromModel(params: {
   graph: MetadataGraph
   parentNodeId: string
   filePath: string
+  /** Дополнительный контекст, пробрасываемый в кастомные buildGraphFromModel-обработчики. */
+  extra?: Record<string, unknown>
 }): void {
-  const { model, yamlMap, rule, graph, parentNodeId, filePath } = params
+  const { model, yamlMap, rule, graph, parentNodeId, filePath, extra } = params
 
   for (const [key, propRule] of Object.entries(rule.properties) as [string, PropertyRule][]) {
     const propType = propRule.type
@@ -52,7 +54,7 @@ export function buildGraphFromModel(params: {
     // --- buildGraphFromModel: типы с кастомной логикой построения графа ---
     const buildGraphFn = getTypeRule(propType, "buildGraphFromModel")
     if (buildGraphFn) {
-      buildGraphFn({ model: model[key], parentNodeId, filePath, yamlMap, propRule, graph })
+      buildGraphFn({ model: model[key], parentNodeId, filePath, yamlMap, propRule, graph, extra })
       continue
     }
 

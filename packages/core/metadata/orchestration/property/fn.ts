@@ -78,6 +78,8 @@ export type BuildGraphFromModelFunction = (params: {
   yamlMap: YAMLMap | undefined
   propRule: PropertyRule
   graph: MetadataGraph
+  /** Дополнительный контекст, пробрасываемый в кастомные обработчики (например, formNodeId). */
+  extra?: Record<string, unknown>
 }) => void
 
 export interface GraphOpsChild {
