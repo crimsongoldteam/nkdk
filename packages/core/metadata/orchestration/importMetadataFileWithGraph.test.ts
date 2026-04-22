@@ -774,3 +774,179 @@ describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)"
     expect(colEdges).toHaveLength(0)
   })
 })
+
+describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (PRD #116)", () => {
+  const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
+  const OWNER_NODE_ID = "Справочник.Товары"
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.ФормаСписка`
+
+  it("дополнительные колонки → прокси-узел + ДополнениеТаблицы + Таблица + ДополнительнаяКолонка", () => {
+    const graph = new MetadataGraph()
+    // Импортируем справочник Товары с ТЧ «Состав»
+    importMetadataFileWithGraph({
+      filePath: "Справочник/Товары/Свойства.yaml",
+      sources: {
+        yaml: `
+ТабличныеЧасти:
+  Состав:
+    Реквизиты:
+      Количество:
+        Тип: Число(10)
+`,
+      },
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+
+    // Импортируем форму: реквизит «Объект» (тип Справочник.Товары) + дополнительные колонки
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Объект:
+    Тип: Справочник.Товары
+  ДопКолонки:
+    Колонки:
+      "Объект.Состав":
+        ДопКолонка:
+          Тип: Строка(50)
+`,
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const attrNodeId = `${FORM_NODE_ID}.ДопКолонки`
+    const proxyNodeId = `${attrNodeId}.Состав`
+    const colNodeId = `${proxyNodeId}.ДопКолонка`
+
+    // Прокси-узел создан с item.itemType = "AdditionalColumnsProxy"
+    expect(graph.hasNode(proxyNodeId)).toBe(true)
+    const item = graph.getNodeAttribute(proxyNodeId, "item") as Record<string, unknown>
+    expect(item.itemType).toBe("AdditionalColumnsProxy")
+    expect(item.table).toBe("Объект.Состав")
+
+    // Owning-ребро ДополнениеТаблицы: реквизит → прокси
+    const additionEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
+      (e) => e.attributes.kind === "ДополнениеТаблицы",
+    )
+    expect(additionEdges).toHaveLength(1)
+    expect(additionEdges[0].target).toBe(proxyNodeId)
+
+    // Reference-ребро Таблица: прокси → реальная ТЧ
+    const tableEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
+      (e) => e.attributes.kind === "Таблица",
+    )
+    expect(tableEdges).toHaveLength(1)
+    expect(tableEdges[0].target).toBe("Справочник.Товары.Состав")
+
+    // Узел колонки создан с owning-ребром ДополнительнаяКолонка
+    expect(graph.hasNode(colNodeId)).toBe(true)
+    const colEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
+      (e) => e.attributes.kind === "ДополнительнаяКолонка",
+    )
+    expect(colEdges).toHaveLength(1)
+    expect(colEdges[0].target).toBe(colNodeId)
+  })
+
+  it("дополнительная колонка с reference-типом → ребро Тип от колонки", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Объект:
+    Тип: Справочник.Товары
+  ДопКолонки:
+    Колонки:
+      "Объект.Состав":
+        Контрагент:
+          Тип: Справочник.Контрагенты
+`,
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const attrNodeId = `${FORM_NODE_ID}.ДопКолонки`
+    const proxyNodeId = `${attrNodeId}.Состав`
+    const colNodeId = `${proxyNodeId}.Контрагент`
+
+    expect(graph.hasNode(colNodeId)).toBe(true)
+
+    const typeEdges = [...graph.outEdgeEntries(colNodeId)].filter(
+      (e) => e.attributes.kind === "Тип",
+    )
+    expect(typeEdges).toHaveLength(1)
+    expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
+  })
+
+  it("форма импортируется до владельца → Таблица-ребро ведёт на заглушку ТЧ", () => {
+    const graph = new MetadataGraph()
+
+    // Форма импортируется ПЕРВОЙ — владелец ещё не импортирован
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Объект:
+    Тип: Справочник.Товары
+  ДопКолонки:
+    Колонки:
+      "Объект.Состав":
+        ДопКолонка: {}
+`,
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const proxyNodeId = `${FORM_NODE_ID}.ДопКолонки.Состав`
+
+    // Таблица-ребро ведёт на заглушку
+    const tableEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
+      (e) => e.attributes.kind === "Таблица",
+    )
+    expect(tableEdges).toHaveLength(1)
+    const stubId = tableEdges[0].target
+    expect(stubId).toBe("Справочник.Товары.Состав")
+    // Заглушка не имеет item
+    expect(graph.getNodeAttribute(stubId, "item")).toBeUndefined()
+
+    // После импорта владельца — заглушка «повышается» через promoteNode
+    importMetadataFileWithGraph({
+      filePath: "Справочник/Товары/Свойства.yaml",
+      sources: {
+        yaml: `
+ТабличныеЧасти:
+  Состав:
+    Реквизиты:
+      Количество:
+        Тип: Число(10)
+`,
+      },
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+
+    // После промоции — item появился, filePaths заполнены
+    expect(graph.getNodeAttribute(stubId, "item")).toBeDefined()
+    expect(graph.getNodeAttribute(stubId, "filePaths")).toBeDefined()
+  })
+})

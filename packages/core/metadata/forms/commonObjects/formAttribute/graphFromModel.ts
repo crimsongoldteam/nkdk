@@ -1,10 +1,14 @@
 import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { findSubmap } from "~/metadata/orchestration/property/position"
+import { resolveFormLocalPath } from "~/metadata/relations/resolveFormLocalPath"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
-import type { FormAttributeColumn } from "./types"
+import type { FormAttributeAdditionalColumns, FormAttributeColumn } from "./types"
 
 const COLUMN_EDGE = "КолонкаФормы"
+const ADDITION_EDGE = "ДополнениеТаблицы"
+const TABLE_EDGE = "Таблица"
+const ADDITIONAL_COLUMN_EDGE = "ДополнительнаяКолонка"
 
 /**
  * Регистрирует graphChild для коллекции FormAttributes:
@@ -43,7 +47,69 @@ registerTypeRule("FormAttributeColumns", "buildGraphFromModel", ({
   // Discriminate: если первый элемент имеет строковое поле table — это additional-ветка
   const first = model[0] as Record<string, unknown>
   if (typeof first.table === "string") {
-    // Additional columns — обрабатываются в срезе #116
+    // Additional columns (PRD #116)
+    // parentNodeId = <formNodeId>.<attrName>; формируем formNodeId обратным путём
+    const formNodeId = parentNodeId.split(".").slice(0, -1).join(".")
+
+    for (const raw of model) {
+      const group = raw as FormAttributeAdditionalColumns
+      const tablePath = group.table // e.g. "Объект.Состав"
+      const lastSegment = tablePath.split(".").pop()
+      if (!lastSegment) continue
+
+      // Прокси-узел: <реквизит>.<lastSegment>
+      const proxyNodeId = `${parentNodeId}.${lastSegment}`
+      graph.promoteNode(proxyNodeId, {
+        name: lastSegment,
+        filePaths: [filePath],
+        item: { itemType: "AdditionalColumnsProxy", table: tablePath },
+      })
+
+      // Owning-ребро «ДополнениеТаблицы» от реквизита к прокси
+      const proxyEdgeKey = `${parentNodeId}:${ADDITION_EDGE}:${proxyNodeId}`
+      graph.ensureEdge(proxyEdgeKey, parentNodeId, proxyNodeId, {
+        yaml: ADDITION_EDGE,
+        kind: ADDITION_EDGE,
+      })
+
+      // Резолвим tablePath → NodeId реальной ТЧ; reference-ребро «Таблица»
+      const resolved = resolveFormLocalPath({ formNodeId, path: tablePath, graph })
+      if (resolved) {
+        const tableEdgeKey = `${proxyNodeId}:${TABLE_EDGE}:${resolved.targetId}`
+        graph.ensureEdge(tableEdgeKey, proxyNodeId, resolved.targetId, {
+          yaml: TABLE_EDGE,
+          kind: TABLE_EDGE,
+        })
+      }
+
+      // Узлы-колонки под прокси
+      for (const column of group.columns) {
+        const columnName = column.name
+        if (!columnName) continue
+
+        const columnNodeId = `${proxyNodeId}.${columnName}`
+        graph.promoteNode(columnNodeId, {
+          name: columnName,
+          filePaths: [filePath],
+          item: column,
+        })
+
+        const colEdgeKey = `${proxyNodeId}:${ADDITIONAL_COLUMN_EDGE}:${columnNodeId}`
+        graph.ensureEdge(colEdgeKey, proxyNodeId, columnNodeId, {
+          yaml: ADDITIONAL_COLUMN_EDGE,
+          kind: ADDITIONAL_COLUMN_EDGE,
+        })
+
+        buildGraphFromModel({
+          model: column as Record<string, unknown>,
+          yamlMap: undefined,
+          rule: FormAttributeColumnRules,
+          graph,
+          parentNodeId: columnNodeId,
+          filePath,
+        })
+      }
+    }
     return
   }
 
