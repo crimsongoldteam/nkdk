@@ -24,6 +24,36 @@ const sendBatches = async (
   }
 }
 
+/** Загружает формы из директории `<ownerDir>/Формы/` в граф. */
+function importFormsForOwner(ownerDir: string, ownerNodeId: string, graph: MetadataGraph, context: { version: string; defaultLanguage: string }): void {
+  const formsPath = join(ownerDir, "Формы")
+  if (!existsSync(formsPath)) return
+
+  for (const formDir of readdirSync(formsPath, { withFileTypes: true }).filter((e) => e.isDirectory())) {
+    const yamlPath = join(formsPath, formDir.name, "Форма.yaml")
+    const nkdkPath = join(formsPath, formDir.name, "Форма.nkdk")
+    if (!existsSync(yamlPath)) continue
+
+    try {
+      const yaml = readFileSync(yamlPath, "utf-8")
+      const nkdkExists = existsSync(nkdkPath)
+      const nkdk = nkdkExists ? readFileSync(nkdkPath, "utf-8") : undefined
+      importMetadataFileWithGraph({
+        filePath: yamlPath,
+        nkdkFilePath: nkdkExists ? nkdkPath : undefined,
+        sources: { yaml, nkdk },
+        kind: "form",
+        name: formDir.name,
+        graph,
+        context,
+        ownerNodeId,
+      })
+    } catch (err) {
+      console.warn(chalk.yellow(`Предупреждение: не удалось импортировать форму ${yamlPath}: ${err}`))
+    }
+  }
+}
+
 export const updateGraph = async (projectPath: string): Promise<void> => {
   if (!existsSync(projectPath)) {
     console.error(chalk.red(`Директория не найдена: ${projectPath}`))
@@ -34,35 +64,63 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
 
   // === 1. Чтение YAML ===
   const tReadStart = performance.now()
-  const yamlFiles: Array<{ path: string; text: string; name: string }> = []
   const catalogsPath = join(projectPath, "Справочник")
-  if (existsSync(catalogsPath)) {
-    for (const dir of readdirSync(catalogsPath, { withFileTypes: true }).filter((e) =>
-      e.isDirectory(),
-    )) {
-      const yamlPath = join(catalogsPath, dir.name, "Свойства.yaml")
+  const documentsPath = join(projectPath, "Документ")
+  const enumerationsPath = join(projectPath, "Перечисление")
+
+  type YamlFile = { path: string; text: string; name: string }
+  const readKindFiles = (kindPath: string): YamlFile[] => {
+    if (!existsSync(kindPath)) return []
+    const files: YamlFile[] = []
+    for (const dir of readdirSync(kindPath, { withFileTypes: true }).filter((e) => e.isDirectory())) {
+      const yamlPath = join(kindPath, dir.name, "Свойства.yaml")
       if (!existsSync(yamlPath)) continue
       try {
         const text = readFileSync(yamlPath, "utf-8")
-        yamlFiles.push({ path: yamlPath, text, name: dir.name })
+        files.push({ path: yamlPath, text, name: dir.name })
       } catch (err) {
         console.warn(chalk.yellow(`Предупреждение: не удалось прочитать ${yamlPath}: ${err}`))
       }
     }
+    return files
   }
+
+  const catalogFiles = readKindFiles(catalogsPath)
+  const documentFiles = readKindFiles(documentsPath)
+  const enumerationFiles = readKindFiles(enumerationsPath)
   const tRead = performance.now() - tReadStart
 
   // === 2. fromYAML → MetadataGraph ===
   const tFromYamlStart = performance.now()
   const graph = new MetadataGraph()
   const importContext = { version: "2.20", defaultLanguage: "ru" }
-  for (const { path: yamlPath, text, name } of yamlFiles) {
+
+  for (const { path: yamlPath, text, name } of catalogFiles) {
     try {
       importMetadataFileWithGraph({ filePath: yamlPath, sources: { yaml: text }, kind: "catalog", name, graph, context: importContext })
     } catch (err) {
       console.warn(chalk.yellow(`Предупреждение: не удалось импортировать ${yamlPath}: ${err}`))
     }
+    importFormsForOwner(join(catalogsPath, name), `Справочник.${name}`, graph, importContext)
   }
+
+  for (const { path: yamlPath, text, name } of documentFiles) {
+    try {
+      importMetadataFileWithGraph({ filePath: yamlPath, sources: { yaml: text }, kind: "document", name, graph, context: importContext })
+    } catch (err) {
+      console.warn(chalk.yellow(`Предупреждение: не удалось импортировать ${yamlPath}: ${err}`))
+    }
+    importFormsForOwner(join(documentsPath, name), `Документ.${name}`, graph, importContext)
+  }
+
+  for (const { path: yamlPath, text, name } of enumerationFiles) {
+    try {
+      importMetadataFileWithGraph({ filePath: yamlPath, sources: { yaml: text }, kind: "enumeration", name, graph, context: importContext })
+    } catch (err) {
+      console.warn(chalk.yellow(`Предупреждение: не удалось импортировать ${yamlPath}: ${err}`))
+    }
+  }
+
   const heapMB = process.memoryUsage().heapUsed / 1024 / 1024
   const tFromYaml = performance.now() - tFromYamlStart
 
