@@ -448,6 +448,9 @@ export type PropertyTypeRegistry = {
   InternalInfo: {
     item: InternalInfo
   }
+  MetaDataObject: {
+    item: undefined
+  }
   AssociatedTable: {
     item: MetadataStringValue
     yaml: string
@@ -767,6 +770,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   FormAttributeColumns: "FormAttributeColumns",
   FormParameters: "FormParameters",
   InternalInfo: "InternalInfo",
+  MetaDataObject: "MetaDataObject",
   ScrollBarUseBoolean: "ScrollBarUseBoolean",
   SettingsParameterValue: "SettingsParameterValue",
   SettingsParameterValueCollection: "SettingsParameterValueCollection",

@@ -26,9 +26,20 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
 
   if (Object.keys(result).length === 0) return undefined
 
+  let finalResult: ItemXML = result
+
   if (rule.xsiType) {
-    return { "_xsi:type": rule.xsiType, ...result }
+    finalResult = { "_xsi:type": rule.xsiType, ...result }
   }
 
-  return result
+  // Если правило содержит MetaDataObject-property, оборачиваем результат в
+  // { MetaDataObject: { ...rootAttributes, [container]: result } }.
+  const metaDataObjectProp = Object.values(rule.properties).find((p) => p.type === "MetaDataObject")
+  if (metaDataObjectProp) {
+    const container = (metaDataObjectProp as any).container as string
+    const rootAttributes = (metaDataObjectProp as any).rootAttributes as Record<string, string>
+    return { MetaDataObject: { ...rootAttributes, [container]: finalResult } }
+  }
+
+  return finalResult
 }

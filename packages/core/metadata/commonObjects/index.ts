@@ -102,6 +102,9 @@ import "./indexField/toYAML"
 
 import "./internalInfo/toXML"
 
+import "./metaDataObject/fromXML"
+import "./metaDataObject/toXML"
+
 import "./metadataAttribute/register"
 
 import "./metadataCommandGroup/fromXML"

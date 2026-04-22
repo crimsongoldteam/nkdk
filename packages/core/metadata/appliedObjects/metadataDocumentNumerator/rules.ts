@@ -1,32 +1,39 @@
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
-const numeratorProperties = ["DocumentNumerator", "Properties"]
+import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 
 export const MetadataDocumentNumeratorRules = {
   itemType: "MetadataDocumentNumerator",
   itemTypePrefix: "Нумератор",
   properties: {
+    metaDataObject: {
+      type: "MetaDataObject",
+      container: "DocumentNumerator",
+      rootAttributes: V8_MDCLASSES_ROOT,
+      forReferenceOnly: true,
+      toYAML: false,
+      fromYAML: false,
+    },
     uuid: {
       type: "string",
       xml: "_uuid",
       forReferenceOnly: true,
-      xmlParents: ["DocumentNumerator"],
+      xmlParents: [],
     },
     name: {
       type: "string",
-      xmlParents: numeratorProperties,
+      xmlParents: ["Properties"],
       required: true,
     },
     synonym: {
       yaml: "Синоним",
       type: "I8nText",
-      xmlParents: numeratorProperties,
+      xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
     },
     comment: {
       yaml: "Комментарий",
       type: "string",
-      xmlParents: numeratorProperties,
+      xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
     },
     numberType: {
@@ -34,14 +41,14 @@ export const MetadataDocumentNumeratorRules = {
       type: "SystemEnumeration",
       typeSE: "DocumentNumberType",
       defaultValueXML: "String",
-      xmlParents: numeratorProperties,
+      xmlParents: ["Properties"],
       defaultValueYAML: "String",
     },
     numberLength: {
       yaml: "ДлинаНомера",
       type: "number",
       defaultValueXML: 9,
-      xmlParents: numeratorProperties,
+      xmlParents: ["Properties"],
       defaultValueYAML: 9,
     },
     numberAllowedLength: {
@@ -49,7 +56,7 @@ export const MetadataDocumentNumeratorRules = {
       type: "SystemEnumeration",
       typeSE: "AllowedLength",
       defaultValueXML: "Variable",
-      xmlParents: numeratorProperties,
+      xmlParents: ["Properties"],
       defaultValueYAML: "Variable",
     },
     numberPeriodicity: {
@@ -57,14 +64,14 @@ export const MetadataDocumentNumeratorRules = {
       type: "SystemEnumeration",
       typeSE: "DocumentNumberPeriodicity",
       defaultValueXML: "Nonperiodical",
-      xmlParents: numeratorProperties,
+      xmlParents: ["Properties"],
       defaultValueYAML: "Nonperiodical",
     },
     checkUnique: {
       yaml: "КонтрольУникальности",
       type: "boolean",
       defaultValueXML: true,
-      xmlParents: numeratorProperties,
+      xmlParents: ["Properties"],
       defaultValueYAML: true,
     },
     objectBelonging: {
@@ -74,7 +81,7 @@ export const MetadataDocumentNumeratorRules = {
       defaultValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
-      xmlParents: numeratorProperties,
+      xmlParents: ["Properties"],
     },
     extendedConfigurationObject: {
       yaml: "ОбъектРасширяемойКонфигурации",
