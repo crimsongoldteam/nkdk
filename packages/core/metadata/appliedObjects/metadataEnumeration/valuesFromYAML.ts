@@ -51,8 +51,7 @@ function buildEnumerationValuesGraph(params: {
     const edgeKey = `${parentNodeId}:${EDGE_NAME}:${nodeId}`
     graph.ensureEdge(edgeKey, parentNodeId, nodeId, {
       yaml: EDGE_NAME,
-      name: EDGE_NAME,
-      kind: "composition",
+      kind: EDGE_NAME,
     })
     graph.setNodeAttribute(nodeId, "item", value)
   }

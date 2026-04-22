@@ -27,5 +27,5 @@ export const addRelation = (params: {
   const toId = relConfig.defaultRelation ? getOrCreateChildNodeId(from, to) : getOrCreateTopLevelNodeId(to)
   const yaml = relConfig.yaml
   const edgeKey = `${fromId}:${yaml}:${toId}`
-  graph.ensureEdge(edgeKey, fromId, toId, { yaml, name: yaml, kind: "composition" })
+  graph.ensureEdge(edgeKey, fromId, toId, { yaml, kind: yaml })
 }

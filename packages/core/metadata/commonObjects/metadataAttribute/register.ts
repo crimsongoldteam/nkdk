@@ -70,7 +70,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: importMetadataAttributesFromYAML,
-  graphChild: { idFrom: "name", edgeName: "Реквизит", edgeKind: "composition" },
+  graphChild: { idFrom: "name", edgeName: "Реквизит" },
 })
 
 registerMetadataItemCollectionRule({
@@ -79,7 +79,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: importMetadataAttributesFromYAML,
-  graphChild: { idFrom: "name", edgeName: "Реквизит", edgeKind: "composition" },
+  graphChild: { idFrom: "name", edgeName: "Реквизит" },
 })
 
 const exportMetadataAttributesToJSONSchema: ExportToJSONSchemaFn = (params: {

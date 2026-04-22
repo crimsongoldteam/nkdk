@@ -31,4 +31,4 @@ export function extractTypeDescriptionGraph(
 }
 
 registerTypeRule("TypeDescription", "extractGraph", extractTypeDescriptionGraph)
-registerTypeRule("TypeDescription", "graphEdgeFromParent", { name: "Тип", kind: "reference" })
+registerTypeRule("TypeDescription", "graphEdgeFromParent", { name: "Тип" })

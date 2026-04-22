@@ -60,7 +60,7 @@ describe("importMetadataEnumerationFromYAML — граф значений", () =
     const dependencies = getDependencies(
       nodeMatch(({ attrs }) => attrs.name === "Перечисление")
         .nodeMatch(() => true)
-        .edgeMatch(({ attrs }) => attrs.name === "ЗначениеПеречисления"),
+        .edgeMatch(({ attrs }) => attrs.kind === "ЗначениеПеречисления"),
       graph,
     )
 

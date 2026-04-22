@@ -36,7 +36,7 @@ describe("applyGraphOps", () => {
   })
 
   describe("только children", () => {
-    it("создаёт child-узел с composition-ребром", () => {
+    it("создаёт child-узел с ребром kind=edgeName", () => {
       const ctx = makeCtx()
       const ops: GraphOps = {
         children: [{ idSuffix: "Валюта", name: "Валюта" }],
@@ -52,8 +52,7 @@ describe("applyGraphOps", () => {
 
       const edges = [...ctx.graph.outEdgeEntries("Справочник.Товары.Цена")]
       expect(edges).toHaveLength(1)
-      expect(edges[0].attributes.kind).toBe("composition")
-      expect(edges[0].attributes.name).toBe("Тип")
+      expect(edges[0].attributes.kind).toBe("Тип")
     })
 
     it("пробрасывает positionFrom на узел", () => {
@@ -94,7 +93,7 @@ describe("applyGraphOps", () => {
   })
 
   describe("только references", () => {
-    it("создаёт stub-узел с reference-ребром", () => {
+    it("создаёт stub-узел с ребром kind=edgeName", () => {
       const ctx = makeCtx()
       const ops: GraphOps = {
         references: [{ id: "Справочник.Валюты", name: "Валюты" }],
@@ -109,8 +108,7 @@ describe("applyGraphOps", () => {
 
       const edges = [...ctx.graph.outEdgeEntries("Справочник.Товары.Цена")]
       expect(edges).toHaveLength(1)
-      expect(edges[0].attributes.kind).toBe("reference")
-      expect(edges[0].attributes.name).toBe("Тип")
+      expect(edges[0].attributes.kind).toBe("Тип")
     })
 
     it("пробрасывает positionFrom на reference-ребро", () => {
@@ -176,7 +174,7 @@ describe("applyGraphOps", () => {
   })
 
   describe("оба: children и references", () => {
-    it("создаёт и composition- и reference-рёбра", () => {
+    it("создаёт два ребра с kind=edgeName", () => {
       const ctx = makeCtx()
       const ops: GraphOps = {
         children: [{ idSuffix: "Дочерний", name: "Дочерний" }],
@@ -186,8 +184,8 @@ describe("applyGraphOps", () => {
       applyGraphOps(ops, ctx)
 
       const edges = [...ctx.graph.outEdgeEntries("Справочник.Товары.Цена")]
-      const kinds = edges.map((e) => e.attributes.kind).sort()
-      expect(kinds).toEqual(["composition", "reference"])
+      expect(edges).toHaveLength(2)
+      expect(edges.every((e) => e.attributes.kind === "Тип")).toBe(true)
     })
   })
 })

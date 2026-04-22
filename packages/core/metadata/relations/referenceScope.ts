@@ -1,3 +1,4 @@
+import { isOwning } from "./edgeKinds"
 import type { MetadataGraph } from "./MetadataGraph"
 
 // ---------------------------------------------------------------------------
@@ -72,7 +73,7 @@ export function validateReferenceScope(
     // Цель должна быть прямым composition-потомком объекта-владельца
     let isDirectChild = false
     for (const { target, attributes } of graph.outEdgeEntries(ownerNodeId)) {
-      if (target === targetNodeId && attributes.kind === "composition") {
+      if (target === targetNodeId && isOwning(attributes.kind)) {
         isDirectChild = true
         break
       }

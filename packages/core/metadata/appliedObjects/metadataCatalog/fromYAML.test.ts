@@ -57,9 +57,9 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
       nodeMatch(({ attrs }) => attrs.name === "Справочник")
         .nodeMatch(() => true)
         .edgeOr(
-          edgeMatch(({ attrs }) => attrs.name === "Реквизит"),
-          edgeMatch(({ attrs }) => attrs.name === "ТабличнаяЧасть"),
-          edgeMatch(({ attrs }) => attrs.name === "СтандартныйРеквизит")
+          edgeMatch(({ attrs }) => attrs.kind === "Реквизит"),
+          edgeMatch(({ attrs }) => attrs.kind === "ТабличнаяЧасть"),
+          edgeMatch(({ attrs }) => attrs.kind === "СтандартныйРеквизит")
         ),
       graph,
     )
@@ -102,9 +102,9 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     const dependencies = getDependencies(
       nodeMatch(({ attrs }) => attrs.name === "Справочник")
         .nodeMatch(() => true)
-        .edgeMatch(({ attrs }) => attrs.name === "Реквизит")
+        .edgeMatch(({ attrs }) => attrs.kind === "Реквизит")
         .nodeMatch(() => true)
-        .edgeMatch(({ attrs }) => attrs.name === "Тип"),
+        .edgeMatch(({ attrs }) => attrs.kind === "Тип"),
       graph,
     )
 

@@ -104,13 +104,11 @@ export type ExtractGraphFromModelFunction<TModel = unknown> = (
 
 export type GraphEdgeFromParent = {
   name: string
-  kind: "composition" | "reference"
 }
 
 export interface GraphChildRule {
   idFrom: string
   edgeName: string
-  edgeKind: "composition" | "reference"
   itemRule: MetadataItemRule
 }
 

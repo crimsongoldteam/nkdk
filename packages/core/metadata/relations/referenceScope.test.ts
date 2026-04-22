@@ -122,14 +122,13 @@ describe("validateReferenceScope — this/Form", () => {
     g.setNodeAttribute(formNode, "item", { itemType: "ClientApplicationForm", name: "ФормаСписка" })
     g.ensureEdge(`${owner}:form:${formNode}`, owner, formNode, {
       yaml: "ClientApplicationForm",
-      name: "ФормаСписка",
-      kind: "composition",
+      kind: "Реквизит",
     })
 
     return { g, owner, formNode }
   }
 
-  it("принимает прямого composition-потомка с itemType ClientApplicationForm", () => {
+  it("принимает прямого owning-потомка с itemType ClientApplicationForm", () => {
     const { g, owner, formNode } = buildGraphWithForm()
     const result = validateReferenceScope(formNode, { target: "this", kind: "Form" }, g, owner)
     expect(result).toBe(true)
@@ -156,8 +155,7 @@ describe("validateReferenceScope — this/Form", () => {
     // нет setNodeAttribute item — заглушка
     g.ensureEdge(`${owner}:form:${stubForm}`, owner, stubForm, {
       yaml: "ClientApplicationForm",
-      name: "ФормаСписка",
-      kind: "composition",
+      kind: "Реквизит",
     })
 
     const result = validateReferenceScope(stubForm, { target: "this", kind: "Form" }, g, owner)
@@ -174,8 +172,7 @@ describe("validateReferenceScope — this/Form", () => {
     g.setNodeAttribute(attrNode, "item", { itemType: "MetadataAttribute", name: "КодовыйРеквизит" })
     g.ensureEdge(`${owner}:attr:${attrNode}`, owner, attrNode, {
       yaml: "Реквизит",
-      name: "КодовыйРеквизит",
-      kind: "composition",
+      kind: "Реквизит",
     })
 
     const result = validateReferenceScope(attrNode, { target: "this", kind: "Form" }, g, owner)
@@ -202,8 +199,7 @@ describe("validateReferenceScope — this/Attribute", () => {
     })
     g.ensureEdge(`${owner}:attr:${attrNode}`, owner, attrNode, {
       yaml: "Реквизит",
-      name: "КодовыйРеквизит",
-      kind: "composition",
+      kind: "Реквизит",
     })
 
     return { g, owner, attrNode }
@@ -236,8 +232,7 @@ describe("validateReferenceScope — this/Attribute", () => {
     g.setNodeAttribute(childNode, "item", { itemType: "MetadataTabularSection", name: "ТабличнаяЧасть1" })
     g.ensureEdge(`${owner}:ts:${childNode}`, owner, childNode, {
       yaml: "ТабличнаяЧасть",
-      name: "ТабличнаяЧасть1",
-      kind: "composition",
+      kind: "ТабличнаяЧасть",
     })
 
     const result = validateReferenceScope(childNode, { target: "this", kind: "Attribute" }, g, owner)

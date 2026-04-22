@@ -3,6 +3,7 @@ import { join } from "path"
 import { LineCounter } from "yaml"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
+import { isOwning } from "~/metadata/relations/edgeKinds"
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 import { createSchemaCache } from "./schemaCache"
 import { Diagnostic, MetadataKind } from "./types"
@@ -78,7 +79,7 @@ export function validateProject(params: { projectPath: string; context: Configur
     for (const nodeId of graph.nodes()) {
       const attrs = graph.getNodeAttributes(nodeId)
       for (const edgeId of graph.outEdges(nodeId)) {
-        if (graph.getEdgeAttribute(edgeId, "kind") === "reference") {
+        if (!isOwning(graph.getEdgeAttribute(edgeId, "kind"))) {
           const targetId = graph.target(edgeId)
           if (brokenStubIds.has(targetId)) {
             const filePath = attrs.filePath ?? ""

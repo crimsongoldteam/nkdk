@@ -1,4 +1,5 @@
 import { MultiDirectedGraph } from "graphology"
+import { isOwning } from "./edgeKinds"
 
 export interface MetadataNodeAttrs {
   name: string
@@ -9,8 +10,8 @@ export interface MetadataNodeAttrs {
 
 export interface MetadataEdgeAttrs {
   yaml: string
-  name: string
-  kind: "composition" | "reference"
+  /** Семантическое имя вида ребра, зарегистрированного в edgeKinds. */
+  kind: string
   positionFrom?: { offset: number; length?: number }
 }
 
@@ -122,7 +123,7 @@ export class MetadataGraph {
     for (const nodeId of nodeIds) {
       const hasIncomingRefs = this._graph
         .inEdges(nodeId)
-        .some((edgeId) => this._graph.getEdgeAttribute(edgeId, "kind") === "reference")
+        .some((edgeId) => !isOwning(this._graph.getEdgeAttribute(edgeId, "kind")))
 
       if (hasIncomingRefs) {
         for (const edgeId of [...this._graph.outEdges(nodeId)]) {
@@ -155,7 +156,7 @@ export class MetadataGraph {
   getBrokenReferences(): Map<string, MetadataNodeAttrs> {
     const result = new Map<string, MetadataNodeAttrs>()
     for (const { attributes, target, targetAttributes } of this._graph.edgeEntries()) {
-      if (attributes.kind === "reference" && (targetAttributes as MetadataNodeAttrs).item === undefined) {
+      if (!isOwning(attributes.kind) && (targetAttributes as MetadataNodeAttrs).item === undefined) {
         result.set(target, targetAttributes as MetadataNodeAttrs)
       }
     }

@@ -75,8 +75,7 @@ export function buildGraphFromModel(params: {
       const edgeKey = `${parentNodeId}:${graphChildDef.edgeName}:${childNodeId}`
       graph.ensureEdge(edgeKey, parentNodeId, childNodeId, {
         yaml: graphChildDef.edgeName,
-        name: graphChildDef.edgeName,
-        kind: graphChildDef.edgeKind,
+        kind: graphChildDef.edgeName,
       })
 
       graph.setNodeAttribute(childNodeId, "item", item)

@@ -1,5 +1,5 @@
 type NodeAttrs = { name: string; offset?: number; filePath?: string }
-type EdgeAttrs = { yaml: string; name: string }
+type EdgeAttrs = { yaml: string; kind: string }
 type NodeMatchParams = { id: string; attrs: NodeAttrs }
 type EdgeMatchParams = { id: string; attrs: EdgeAttrs }
 

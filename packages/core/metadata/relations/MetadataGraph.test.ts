@@ -22,41 +22,39 @@ describe("MetadataGraph", () => {
   })
 
   describe("ensureEdge", () => {
-    it("добавляет ребро с kind: composition", () => {
+    it("добавляет owning-ребро", () => {
       const g = new MetadataGraph()
       g.ensureNode("Справочник", { name: "Справочник" })
       g.ensureNode("Справочник.Товары", { name: "Товары" })
       g.ensureEdge("edge-1", "Справочник", "Справочник.Товары", {
         yaml: "MetadataCatalog",
-        name: "MetadataCatalog",
-        kind: "composition",
+        kind: "MetadataCatalog",
       })
 
       const entries = [...g.outEdgeEntries("Справочник")]
       expect(entries).toHaveLength(1)
-      expect(entries[0].attributes.kind).toBe("composition")
+      expect(entries[0].attributes.kind).toBe("MetadataCatalog")
     })
 
-    it("добавляет ребро с kind: reference", () => {
+    it("добавляет reference-ребро", () => {
       const g = new MetadataGraph()
       g.ensureNode("Справочник.Товары.Цена", { name: "Цена" })
       g.ensureNode("Справочник.Валюты", { name: "Валюты" })
       g.ensureEdge("ref-1", "Справочник.Товары.Цена", "Справочник.Валюты", {
         yaml: "Тип",
-        name: "Тип",
-        kind: "reference",
+        kind: "Тип",
       })
 
       const entries = [...g.outEdgeEntries("Справочник.Товары.Цена")]
-      expect(entries[0].attributes.kind).toBe("reference")
+      expect(entries[0].attributes.kind).toBe("Тип")
     })
 
     it("не дублирует ребро при повторном вызове", () => {
       const g = new MetadataGraph()
       g.ensureNode("A", { name: "A" })
       g.ensureNode("B", { name: "B" })
-      g.ensureEdge("key-1", "A", "B", { yaml: "Реквизит", name: "Реквизит", kind: "composition" })
-      g.ensureEdge("key-1", "A", "B", { yaml: "Реквизит", name: "Реквизит", kind: "composition" })
+      g.ensureEdge("key-1", "A", "B", { yaml: "Реквизит", kind: "Реквизит" })
+      g.ensureEdge("key-1", "A", "B", { yaml: "Реквизит", kind: "Реквизит" })
 
       expect(g.outEdges("A")).toHaveLength(1)
     })
@@ -94,7 +92,7 @@ describe("MetadataGraph", () => {
       const g = new MetadataGraph()
       g.ensureNode("A", { name: "A", filePath: "a.yaml" })
       g.ensureNode("B", { name: "B", filePath: "a.yaml" })
-      g.ensureEdge("e1", "A", "B", { yaml: "x", name: "x", kind: "composition" })
+      g.ensureEdge("e1", "A", "B", { yaml: "Реквизит", kind: "Реквизит" })
 
       g.clear()
 
@@ -149,8 +147,7 @@ describe("MetadataGraph", () => {
       g.ensureNode("Справочник.Товары.Цена", { name: "Цена", filePath: "goods.yaml" })
       g.ensureEdge("comp-1", "Справочник.Товары", "Справочник.Товары.Цена", {
         yaml: "Реквизит",
-        name: "Реквизит",
-        kind: "composition",
+        kind: "Реквизит",
       })
 
       g.invalidateFile("goods.yaml")
@@ -167,8 +164,7 @@ describe("MetadataGraph", () => {
       g.setNodeAttribute("Справочник.Валюты", "item", { itemType: "MetadataCatalog", name: "Валюты" })
       g.ensureEdge("ref-1", "Справочник.Товары.Цена", "Справочник.Валюты", {
         yaml: "Тип",
-        name: "Тип",
-        kind: "reference",
+        kind: "Тип",
       })
 
       g.invalidateFile("currencies.yaml")
@@ -187,13 +183,11 @@ describe("MetadataGraph", () => {
       g.setNodeAttribute("Справочник.Валюты", "item", { itemType: "MetadataCatalog", name: "Валюты" })
       g.ensureEdge("ref-1", "Справочник.Товары.Цена", "Справочник.Валюты", {
         yaml: "Тип",
-        name: "Тип",
-        kind: "reference",
+        kind: "Тип",
       })
       g.ensureEdge("comp-1", "Справочник.Валюты", "Справочник.Валюты.Код", {
         yaml: "Реквизит",
-        name: "Реквизит",
-        kind: "composition",
+        kind: "Реквизит",
       })
 
       g.invalidateFile("currencies.yaml")
@@ -232,8 +226,7 @@ describe("MetadataGraph", () => {
       g.ensureNode("Справочник.Товары.Контрагент", { name: "Контрагент", filePath: "2.yaml" })
       g.ensureEdge("ref-1", "Справочник.Товары.Контрагент", "Справочник.Контрагенты", {
         yaml: "Тип",
-        name: "Тип",
-        kind: "reference",
+        kind: "Тип",
       })
 
       g.invalidateFile("2.yaml")
@@ -250,13 +243,11 @@ describe("MetadataGraph", () => {
       g.ensureNode("Справочник.Документ.Контрагент", { name: "Контрагент", filePath: "3.yaml" })
       g.ensureEdge("ref-1", "Справочник.Товары.Контрагент", "Справочник.Контрагенты", {
         yaml: "Тип",
-        name: "Тип",
-        kind: "reference",
+        kind: "Тип",
       })
       g.ensureEdge("ref-2", "Справочник.Документ.Контрагент", "Справочник.Контрагенты", {
         yaml: "Тип",
-        name: "Тип",
-        kind: "reference",
+        kind: "Тип",
       })
 
       g.invalidateFile("2.yaml")
@@ -276,8 +267,7 @@ describe("MetadataGraph", () => {
       g.ensureNode("Справочник.Товары.Контрагент", { name: "Контрагент", filePath: "2.yaml" })
       g.ensureEdge("ref-1", "Справочник.Товары.Контрагент", "Справочник.Контрагенты", {
         yaml: "Тип",
-        name: "Тип",
-        kind: "reference",
+        kind: "Тип",
       })
 
       g.invalidateFile("2.yaml")
@@ -310,8 +300,7 @@ describe("MetadataGraph", () => {
       g.setNodeAttribute("Справочник.Валюты", "item", { itemType: "MetadataCatalog", name: "Валюты" })
       g.ensureEdge("ref-1", "Справочник.Товары.Цена", "Справочник.Валюты", {
         yaml: "Тип",
-        name: "Тип",
-        kind: "reference",
+        kind: "Тип",
       })
 
       expect(g.getBrokenReferences().size).toBe(0)
@@ -323,8 +312,7 @@ describe("MetadataGraph", () => {
       g.ensureNode("Справочник.Валюты", { name: "Валюты" })
       g.ensureEdge("ref-1", "Справочник.Товары.Цена", "Справочник.Валюты", {
         yaml: "Тип",
-        name: "Тип",
-        kind: "reference",
+        kind: "Тип",
       })
 
       const broken = g.getBrokenReferences()
@@ -332,14 +320,13 @@ describe("MetadataGraph", () => {
       expect(broken.has("Справочник.Валюты")).toBe(true)
     })
 
-    it("не включает composition-рёбра без item", () => {
+    it("не включает owning-рёбра без item", () => {
       const g = new MetadataGraph()
       g.ensureNode("Справочник.Товары", { name: "Товары" })
       g.ensureNode("Справочник.Товары.Цена", { name: "Цена" })
       g.ensureEdge("comp-1", "Справочник.Товары", "Справочник.Товары.Цена", {
         yaml: "Реквизит",
-        name: "Реквизит",
-        kind: "composition",
+        kind: "Реквизит",
       })
 
       expect(g.getBrokenReferences().size).toBe(0)
@@ -352,13 +339,11 @@ describe("MetadataGraph", () => {
       g.ensureNode("Справочник.Б", { name: "Б" })
       g.ensureEdge("ref-1", "Справочник.А.Реквизит1", "Справочник.Б", {
         yaml: "Тип",
-        name: "Тип",
-        kind: "reference",
+        kind: "Тип",
       })
       g.ensureEdge("ref-2", "Справочник.А.Реквизит2", "Справочник.Б", {
         yaml: "Тип",
-        name: "Тип",
-        kind: "reference",
+        kind: "Тип",
       })
 
       expect(g.getBrokenReferences().size).toBe(1)

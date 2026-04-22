@@ -11,8 +11,12 @@ export interface ApplyGraphOpsContext {
 /**
  * Применяет декларативный GraphOps к графу.
  *
- * - children → owned-узлы с filePath, composition-рёбра от parentNodeId
- * - references → stub-узлы (если ещё нет), reference-рёбра с positionFrom
+ * - children → owned-узлы с filePath, owning-рёбра kind=edgeName от parentNodeId
+ * - references → stub-узлы (если ещё нет), reference-рёбра kind=edgeName с positionFrom
+ *
+ * edgeName должен быть зарегистрирован в edgeKinds:
+ * - для children — owning kind
+ * - для references — reference kind
  */
 export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
   const { graph, parentNodeId, filePath, edgeName } = ctx
@@ -27,8 +31,7 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
     const edgeKey = `${parentNodeId}:${edgeName}:${childNodeId}`
     graph.ensureEdge(edgeKey, parentNodeId, childNodeId, {
       yaml: edgeName,
-      name: edgeName,
-      kind: "composition",
+      kind: edgeName,
     })
   }
 
@@ -37,8 +40,7 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
     const edgeKey = `${parentNodeId}:${edgeName}:${ref.id}`
     graph.ensureEdge(edgeKey, parentNodeId, ref.id, {
       yaml: edgeName,
-      name: edgeName,
-      kind: "reference",
+      kind: edgeName,
       positionFrom: ref.positionFrom,
     })
   }

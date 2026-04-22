@@ -31,7 +31,7 @@ function ensureRootNode(
   graph.ensureNode(prefix, { name: prefix })
   graph.ensureNode(itemNodeId, { name, filePath })
   const edgeKey = `${prefix}:${itemType}:${itemNodeId}`
-  graph.ensureEdge(edgeKey, prefix, itemNodeId, { yaml: itemType, name: itemType, kind: "composition" })
+  graph.ensureEdge(edgeKey, prefix, itemNodeId, { yaml: itemType, kind: itemType })
   return itemNodeId
 }
 

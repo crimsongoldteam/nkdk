@@ -1,3 +1,4 @@
+import { isOwning } from "./edgeKinds"
 import type { MetadataGraph } from "./MetadataGraph"
 
 /** Один сегмент пути вида `Реквизит` или `ТабличнаяЧасть[0]`. */
@@ -80,7 +81,7 @@ export function walkPath(
       const matching: Array<{ nodeId: string; edgeYaml: string }> = []
       for (const { target, attributes } of graph.outEdgeEntries(currentNode)) {
         if (
-          attributes.kind === "composition" &&
+          isOwning(attributes.kind) &&
           graph.getNodeAttribute(target, "name") === segment.name
         ) {
           matching.push({ nodeId: target, edgeYaml: attributes.yaml })
@@ -121,7 +122,7 @@ export function walkPath(
     for (const nodeId of nextNodes) {
       const refTargets: string[] = []
       for (const { target, attributes } of graph.outEdgeEntries(nodeId)) {
-        if (attributes.kind === "reference") {
+        if (!isOwning(attributes.kind)) {
           refTargets.push(target)
         }
       }

@@ -87,8 +87,8 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
     type NodeRecord = Record<string, unknown>
     const fullNodes: NodeRecord[] = []
     const stubNodes: NodeRecord[] = []
-    const compositionEdges: NodeRecord[] = []
-    const referenceEdges: NodeRecord[] = []
+    // Группировка рёбер по семантическому kind — для статических Cypher-label'ов
+    const edgesByKind = new Map<string, NodeRecord[]>()
 
     for (const nodeId of graph.nodes()) {
       const attrs = graph.getNodeAttributes(nodeId)
@@ -108,13 +108,10 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
           src: nodeId,
           tgt: target,
           yaml: attributes.yaml,
-          name: attributes.name,
         }
-        if (attributes.kind === "composition") {
-          compositionEdges.push(edge)
-        } else {
-          referenceEdges.push(edge)
-        }
+        const group = edgesByKind.get(attributes.kind) ?? []
+        group.push(edge)
+        edgesByKind.set(attributes.kind, group)
       }
     }
 
@@ -133,18 +130,16 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
     const totalNodes = fullNodes.length + stubNodes.length
 
     const tInsertEdgesStart = performance.now()
-    await sendBatches(
-      conn,
-      compositionEdges,
-      "UNWIND $batch AS e MATCH (s:MetadataNode {id: e.src}), (t:MetadataNode {id: e.tgt}) CREATE (s)-[:COMPOSITION {yaml: e.yaml, name: e.name}]->(t)",
-    )
-    await sendBatches(
-      conn,
-      referenceEdges,
-      "UNWIND $batch AS e MATCH (s:MetadataNode {id: e.src}), (t:MetadataNode {id: e.tgt}) CREATE (s)-[:REFERENCE {yaml: e.yaml, name: e.name}]->(t)",
-    )
+    let totalEdges = 0
+    for (const [kind, edges] of edgesByKind) {
+      await sendBatches(
+        conn,
+        edges,
+        `UNWIND $batch AS e MATCH (s:MetadataNode {id: e.src}), (t:MetadataNode {id: e.tgt}) CREATE (s)-[:${kind} {yaml: e.yaml}]->(t)`,
+      )
+      totalEdges += edges.length
+    }
     const tInsertEdges = performance.now() - tInsertEdgesStart
-    const totalEdges = compositionEdges.length + referenceEdges.length
 
     // === 6. Cleanup ===
     const tCleanupStart = performance.now()
@@ -154,7 +149,7 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
     )
     await query(
       conn,
-      "MATCH (n:MetadataNode) WHERE n.path IS NULL AND NOT (n)<-[:REFERENCE]-() DETACH DELETE n",
+      "MATCH (n:MetadataNode) WHERE n.path IS NULL AND NOT ()-[]->(n) DETACH DELETE n",
     )
     await query(
       conn,
@@ -185,8 +180,9 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
     console.log(`connect+indexes  — ${tConnect.toFixed(1)} мс`)
     console.log(`mark candidates  — ${tMark.toFixed(1)} мс`)
     console.log(`insert nodes     — ${tInsertNodes.toFixed(1)} мс — ${totalNodes} шт.`)
+    const kindCounts = [...edgesByKind.entries()].map(([k, v]) => `${k}: ${v.length}`).join(", ")
     console.log(
-      `insert edges     — ${tInsertEdges.toFixed(1)} мс — ${totalEdges} шт. (composition: ${compositionEdges.length}, reference: ${referenceEdges.length})`,
+      `insert edges     — ${tInsertEdges.toFixed(1)} мс — ${totalEdges} шт. (${kindCounts})`,
     )
     console.log(`cleanup          — ${tCleanup.toFixed(1)} мс — удалено ${deletedCount}, заглушек ${remainingStubs}`)
     console.log(`итого            — ${tTotal.toFixed(1)} мс`)

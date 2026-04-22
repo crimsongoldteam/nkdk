@@ -71,7 +71,7 @@ function buildStandardAttributesGraph(params: {
     })
 
     const edgeKey = `${parentNodeId}:${EDGE_NAME}:${russianName}`
-    graph.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, name: EDGE_NAME, kind: "composition" })
+    graph.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, kind: EDGE_NAME })
 
     // US 13: standard attributes always have item so they are never treated as stubs
     const item = explicitItems.get(russianName) ?? {
