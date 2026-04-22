@@ -57,11 +57,11 @@ description: Создание нового объекта метаданных (
 
 ## Шаг 3. `types.ts`
 
-Создай файл типов. Подробнее — [types.md](references/types.md).
+Создай файл типов. Подробнее — [types.md](../_shared/metadata/types.md).
 
 ## Шаг 4. `rules.ts` — первое приближение ⟲
 
-Создай файл правил. Подробнее — [rules.md](references/rules.md).
+Создай файл правил. Подробнее — [rules.md](../_shared/metadata/rules.md).
 
 Правило: **предпочитай `rules.ts`** вместо ручных `fromXML`/`toXML`/`fromYAML`/`toYAML`.
 
@@ -77,9 +77,9 @@ description: Создание нового объекта метаданных (
 - `PropertyTypeRegistry` — добавь ключ `<ObjectName>: { item: <ObjectName>; yaml: <ObjectName>YAML }`.
 - Массив `PropertyRuleTypeKeys` ниже в файле — добавь строку `<ObjectName>: "<ObjectName>"`. Без этого type-check пройдёт, но движок на runtime не увидит тип в итерациях.
 
-**5.3. Привязка правила к типу** — в `types.ts` самого объекта вызови `registerMetadataItemRule({ propertyType, itemRule })` (см. [types.md](references/types.md)). Это связывает XML/YAML import/export функции с типом через реестр runtime-функций.
+**5.3. Привязка правила к типу** — в `types.ts` самого объекта вызови `registerMetadataItemRule({ propertyType, itemRule })` (см. [types.md](../_shared/metadata/types.md)). Это связывает XML/YAML import/export функции с типом через реестр runtime-функций.
 
-**Развилка: одиночный объект vs коллекция.** Если объект в модели представлен как `T[]` (массив), используй `registerMetadataItemCollectionRule` вместо `registerMetadataItemRule` — см. [types.md](references/types.md), раздел «Одиночный объект vs коллекция».
+**Развилка: одиночный объект vs коллекция.** Если объект в модели представлен как `T[]` (массив), используй `registerMetadataItemCollectionRule` вместо `registerMetadataItemRule` — см. [types.md](../_shared/metadata/types.md), раздел «Одиночный объект vs коллекция».
 
 ## Шаг 6. `index.ts`
 
@@ -93,11 +93,11 @@ description: Создание нового объекта метаданных (
 
 ## Шаг 7. XML round-trip ⟲ (жёсткий барьер)
 
-Напиши `fromXML.test.ts` с **round-trip блоком**: импорт XML → экспорт полученной структуры → сравнение с исходным XML (строковое, без канонизации). Шаблоны и правила сравнения — [tests.md](references/tests.md).
+Напиши `fromXML.test.ts` с **round-trip блоком**: импорт XML → экспорт полученной структуры → сравнение с исходным XML (строковое, без канонизации). Шаблоны и правила сравнения — [tests.md](../_shared/metadata/tests.md).
 
 Запусти тест. Если расхождения — не переходи к шагу 8, устрани расхождения:
 
-1. Применяй **протокол эскалации** ([tests.md](references/tests.md) → раздел «Протокол эскалации»):
+1. Применяй **протокол эскалации** ([tests.md](../_shared/metadata/tests.md) → раздел «Протокол эскалации»):
    - простые случаи (отсутствие правила для известного свойства, булева нормализация, лишний default) — чини сам
    - композиты/ссылки, неизвестные атрибуты, расхождения смысла значений — спрашивай пользователя
 2. Правь `rules.ts`, перезапускай цикл с шага 7
@@ -108,7 +108,7 @@ description: Создание нового объекта метаданных (
 
 ## Шаг 8. TS-фикстуры
 
-На каждую XML-фикстуру `<name>.xml` — отдельный TS-файл `__fixtures__/<name>.ts` с ожидаемой формой объекта (результат импорта из прошедшего round-trip). Имя TS-файла и имя экспорта совпадают со slug'ом XML-файла. Подробнее — [fixtures-data.md](references/fixtures-data.md).
+На каждую XML-фикстуру `<name>.xml` — отдельный TS-файл `__fixtures__/<name>.ts` с ожидаемой формой объекта (результат импорта из прошедшего round-trip). Имя TS-файла и имя экспорта совпадают со slug'ом XML-файла. Подробнее — [fixtures-data.md](../_shared/metadata/fixtures-data.md).
 
 YAML-поля на этом шаге **не заполняй** — `<fixtureName>YAML` добавляется на шаге 11 после обсуждения черновика YAML в барьере.
 
@@ -175,8 +175,8 @@ YAML-поля на этом шаге **не заполняй** — `<fixtureName
 
 ## Ссылки
 
-- [rules.md](references/rules.md) — правила
-- [types.md](references/types.md) — типы
-- [fixtures-data.md](references/fixtures-data.md) — TS-фикстуры
-- [tests.md](references/tests.md) — round-trip, протокол эскалации, раздельные тесты
-- [scripts/README.md](scripts/README.md) — вспомогательные раннеры для печати YAML/XML
+- [rules.md](../_shared/metadata/rules.md) — правила
+- [types.md](../_shared/metadata/types.md) — типы
+- [fixtures-data.md](../_shared/metadata/fixtures-data.md) — TS-фикстуры
+- [tests.md](../_shared/metadata/tests.md) — round-trip, протокол эскалации, раздельные тесты
+- [scripts.md](../_shared/metadata/scripts.md) — вспомогательные раннеры для печати YAML/XML
