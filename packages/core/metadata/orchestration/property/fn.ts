@@ -103,7 +103,12 @@ export type ExtractGraphFromModelFunction<TModel = unknown> = (
 ) => GraphOps | undefined
 
 export type GraphEdgeFromParent = {
-  name: string
+  /**
+   * Явное имя kind'а для reference-ребра — используется как fallback,
+   * если у PropertyRule не задан ни graphEdgeKind, ни yaml.
+   * По новому правилу (PRD #114) kind берётся из propRule.graphEdgeKind ?? propRule.yaml.
+   */
+  name?: string
 }
 
 export interface GraphChildRule {

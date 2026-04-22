@@ -25,6 +25,8 @@ const _owning = new Set<string>([
   "MetadataEnumeration",
   // Форма (PRD #112): owning-ребро от владельца к форме
   "Форма",
+  // Реквизиты формы (PRD #114)
+  "РеквизитФормы",
   // Устаревший вид из addRelation (backward compat)
   "Родитель",
 ])
@@ -36,6 +38,9 @@ const _known = new Set<string>([
   "Объект",
   "Поле",
   "Значение",
+  // Reference-виды форм (PRD #114)
+  "ТипЗначения",
+  "ОграничениеТипа",
   // PRD #112 — добавляются по мере реализации через registerEdgeKind
 ])
 

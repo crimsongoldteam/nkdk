@@ -112,6 +112,13 @@ export interface BasePropertyRule {
    * Не хранится в YAML.
    */
   derivedFrom?: { externalFile: string }
+
+  /**
+   * Явное имя kind'а для reference-ребра, порождаемого этим свойством.
+   * Перекрывает правило по умолчанию (yaml-имя свойства).
+   * Используется, когда yaml-имя коллидирует или неточно отражает семантику ребра.
+   */
+  graphEdgeKind?: string
 }
 
 export interface ChildItemsPropertyRule extends BasePropertyRule {

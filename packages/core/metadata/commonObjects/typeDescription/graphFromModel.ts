@@ -31,4 +31,6 @@ export function extractTypeDescriptionGraph(
 }
 
 registerTypeRule("TypeDescription", "extractGraph", extractTypeDescriptionGraph)
-registerTypeRule("TypeDescription", "graphEdgeFromParent", { name: "Тип" })
+// Регистрируем graphEdgeFromParent как маркер (означает «этот тип поддерживает extractGraph»).
+// Kind ребра берётся из propRule.graphEdgeKind ?? propRule.yaml (правило #114).
+registerTypeRule("TypeDescription", "graphEdgeFromParent", {})

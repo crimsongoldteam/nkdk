@@ -560,4 +560,117 @@ describe("importMetadataFileWithGraph — form", () => {
       })
     ).toThrow("importMetadataFileWithGraph: form kind требует ownerNodeId")
   })
+
+  it("создаёт узел реквизита формы с owning-ребром РеквизитФормы", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Контрагент:
+    Тип: Строка(100)
+`,
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const formNodeId = `${OWNER_NODE_ID}.ФормаСписка`
+    const attrNodeId = `${formNodeId}.Контрагент`
+
+    expect(graph.hasNode(attrNodeId)).toBe(true)
+
+    const owningEdges = [...graph.outEdgeEntries(formNodeId)].filter(
+      (e) => e.attributes.kind === "РеквизитФормы",
+    )
+    expect(owningEdges).toHaveLength(1)
+    expect(owningEdges[0].target).toBe(attrNodeId)
+  })
+
+  it("реквизит формы с type → reference-ребро Тип к целевому узлу", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Контрагент:
+    Тип: Справочник.Контрагенты
+`,
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const formNodeId = `${OWNER_NODE_ID}.ФормаСписка`
+    const attrNodeId = `${formNodeId}.Контрагент`
+
+    const refEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
+      (e) => e.attributes.kind === "Тип",
+    )
+    expect(refEdges).toHaveLength(1)
+    expect(refEdges[0].target).toBe("Справочник.Контрагенты")
+  })
+
+  it("реквизит формы с valueType → reference-ребро ТипЗначения к целевому узлу", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  СписокТоваров:
+    ТипЗначения: Справочник.Товары
+`,
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const formNodeId = `${OWNER_NODE_ID}.ФормаСписка`
+    const attrNodeId = `${formNodeId}.СписокТоваров`
+
+    const refEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
+      (e) => e.attributes.kind === "ТипЗначения",
+    )
+    expect(refEdges).toHaveLength(1)
+    expect(refEdges[0].target).toBe("Справочник.Товары")
+  })
+
+  it("реквизиты catalog сохраняют ребро kind Тип после изменения правила yaml-name", () => {
+    // Регрессионный тест: убеждаемся, что после перехода на yaml-name rule
+    // реквизиты прикладных объектов по-прежнему создают ребро Тип
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Контрагент:
+    Тип: Справочник.Контрагенты
+`,
+      },
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+
+    const attrNodeId = "Справочник.Товары.Контрагент"
+    const refEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
+      (e) => e.attributes.kind === "Тип",
+    )
+    expect(refEdges).toHaveLength(1)
+    expect(refEdges[0].target).toBe("Справочник.Контрагенты")
+  })
 })

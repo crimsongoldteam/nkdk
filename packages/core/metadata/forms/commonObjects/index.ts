@@ -30,6 +30,7 @@ import "./formParameter/toYAML"
 
 import "./formAttribute/fromXML"
 import "./formAttribute/fromYAML"
+import "./formAttribute/graphFromModel"
 import "./formAttribute/toJSONSchema"
 import "./formAttribute/toXML"
 import "./formAttribute/toYAML"

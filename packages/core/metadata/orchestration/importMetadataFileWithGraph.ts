@@ -9,11 +9,13 @@ import { importMetadataEnumerationFromYAML } from "~/metadata/appliedObjects/met
 import { MetadataEnumerationRules } from "~/metadata/appliedObjects/metadataEnumeration/rules"
 import type { MetadataEnumeration } from "~/metadata/appliedObjects/metadataEnumeration/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
+import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
 import type { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 import type { MetadataKind } from "~/metadata/validation/types"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { buildGraphFromModel } from "./buildGraphFromModel"
+import { importMetadataItemFromYAML } from "./metadataItem/fromYAML"
 
 interface RuleWithTerminals {
   graphTerminals?: ReadonlyArray<string>
@@ -144,6 +146,28 @@ export function importMetadataFileWithGraph(params: {
     // Owning-ребро «Форма» от владельца к форме
     const edgeKey = `${ownerNodeId}:Форма:${formNodeId}`
     graph.ensureEdge(edgeKey, ownerNodeId, formNodeId, { yaml: "Форма", kind: "Форма" })
+
+    // Парсим YAML формы и строим граф реквизитов/параметров/команд
+    const parsed = parseMetadataYaml(sources.yaml)
+    const yamlMap = isMap(parsed.doc.contents) ? parsed.doc.contents : undefined
+    const importContext: ConfigurationContext = { ...context, graph }
+
+    const model = importMetadataItemFromYAML({
+      context: importContext,
+      yaml: parsed.data as never,
+      rule: ClientApplicationFormRules as never,
+    })
+
+    if (model) {
+      buildGraphFromModel({
+        model: model as Record<string, unknown>,
+        yamlMap,
+        rule: ClientApplicationFormRules as never,
+        graph,
+        parentNodeId: formNodeId,
+        filePath,
+      })
+    }
 
     return undefined
   }

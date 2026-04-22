@@ -35,7 +35,15 @@ export function buildGraphFromModel(params: {
         const position = yamlKey && yamlMap ? computeValuePosition(yamlMap, yamlKey) : undefined
         const ops = extractGraphFn(modelValue, position)
         if (ops) {
-          applyGraphOps(ops, { graph, parentNodeId, filePath, edgeName: edgeDef.name })
+          // Правило: kind = graphEdgeKind ?? yaml ?? edgeDef.name (fallback из регистрации типа)
+          const edgeName = propRule.graphEdgeKind ?? propRule.yaml ?? edgeDef.name
+          if (!edgeName) {
+            throw new Error(
+              `buildGraphFromModel: не удалось определить kind ребра для свойства "${key}" (тип: ${propType}). ` +
+                `Укажите yaml или graphEdgeKind на свойстве, либо name в регистрации graphEdgeFromParent.`,
+            )
+          }
+          applyGraphOps(ops, { graph, parentNodeId, filePath, edgeName })
         }
       }
       continue
