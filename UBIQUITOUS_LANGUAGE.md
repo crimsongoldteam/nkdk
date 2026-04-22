@@ -637,3 +637,59 @@
 - **«import/export»** перегружен: (1) направление данных на уровне конфигурации (XML→YAML = импорт, YAML→XML = экспорт, соответствует `syncConfigurationFromXML`/`syncConfigurationToXML`); (2) **Направление** сериализации одного объекта (`fromXML`, `toXML`, `fromYAML`, `toYAML`). Первое — бизнес-операция, второе — техническая функция. В речи не смешивать: «импорт конфигурации» vs «направление `fromXML`».
 - **«Batch»** в проекте до этого не использовался; не путать с `FileBatch`/`TableBatch` в терминологии самого 1С (отсутствует в глоссарии сейчас). В контексте async-миграции **Batch** = «**пакет задач runBatch**».
 - **«catalog»** в контексте массовых операций — **прикладной объект** «Справочник»; не путать с «catalog» как синонимом «directory» в английском. В русском тексте использовать «каталог» только если из контекста ясно, что речь о прикладном объекте; иначе — «директория».
+
+## Чистая экстракция графа из модели (из диалога о Pipeline F)
+
+| Термин | Определение | Избегать |
+|---|---|---|
+| **Pipeline F** | Выбранная архитектура построения графа: `importFromYAML(yaml) → model`, затем чистая `extractGraph(model, position) → GraphOps`, оркестратор применяет `applyGraphOps`. Единственная точка сайд-эффекта — `applyGraphOps` | «Вариант F» без уточнения |
+| **`extractGraph`** | Чистая функция в реестре `TypeRule`: `(model, position) → GraphOps | undefined`. Декларирует, какие узлы/рёбра должно породить это свойство; граф не трогает | Graph builder, emitter |
+| **`ExtractGraphFromModelFunction`** | TypeScript-тип сигнатуры `extractGraph` с дженериком `TModel` — гарантирует типизированный вход для каждого property-type | — |
+| **`GraphOps`** | Декларативная структура возврата `extractGraph` с двумя опциональными корзинами: `children?` и `references?` | ops, graph operations |
+| **Корзина `children`** | Массив композиционных child-узлов, **порождаемых** текущим свойством: `{idSuffix, attrs, positionFrom?}`. Оркестратор создаёт **Owned nodes** с `filePath` и **рекурсирует внутрь** | Sub-nodes, composition list |
+| **Корзина `references`** | Массив ссылок на существующие или будущие узлы: `{id, attrs, positionFrom?}`. Оркестратор создаёт **stub** по `id` (если узла нет), вешает reference-ребро от parent, **не рекурсирует** | Out-refs, links |
+| **`idSuffix`** | **Относительный** фрагмент id для child-узла — полный id клеит оркестратор как `${parentNodeId}.${idSuffix}`. Применяется только в корзине `children` | Relative id, short id |
+| **«Импортируемые объекты»** (в контексте `GraphOps`) | Узлы, создаваемые этим свойством — попадают в корзину `children`. Синоним корзины при обсуждении на русском | Создаваемые узлы |
+| **«Нижестоящие объекты»** (в контексте `GraphOps`) | Узлы, на которые это свойство только ссылается — попадают в корзину `references`. Синоним корзины при обсуждении на русском | Внешние ссылки |
+| **`applyGraphOps`** | Хелпер в `metadata/relations/applyGraphOps.ts` — **единственная функция**, выполняющая сайд-эффект на `MetadataGraph` из декларации `GraphOps`. Вызывает `ensureNode` + `ensureEdge` для каждого элемента корзин | apply, commit |
+| **`graphChild`** (декларация) | Поле в `CollectionRule`: `{idFrom, edgeName, edgeKind}`. Оркестратор по нему строит **Owned nodes** для каждой записи коллекции без написания `extractGraph` | Collection spec, graphChildSpec |
+| **`graphEdgeFromParent`** (декларация) | Поле в `TypeRule`: `{name, kind}`. Имя и вид ребра, которым оркестратор связывает parent с целями из корзины `references`. Убирает необходимость возвращать имя ребра из `extractGraph` | Edge spec |
+| **Orphan stub** | **Stub** с `inEdges = 0` — мусор, подлежащий удалению. Чистится точечным алгоритмом в `invalidateFile`: среди таргетов дропнутых outEdges проверяем `item === undefined` и `inEdges === 0`, удаляем | Dead stub, висячий узел |
+| **Точечный алгоритм чистки (A)** | Вариант чистки **orphan stubs** в `invalidateFile`: во время прохода запоминаем таргеты дропнутых outEdges в `Set`, в конце проходим по ним, удаляем те, что подпадают под критерий. O(d), где d — число дропнутых рёбер | Targeted cleanup |
+
+### Relationships Pipeline F
+
+- Правило `TypeRule` имеет опциональные `extractGraph` **и** `graphEdgeFromParent`; правило `CollectionRule` — опциональный `graphChild`. Регистрация через один вызов.
+- **Оркестратор** вызывает `importFromYAML` → `extractGraph` → `applyGraphOps` в строгой последовательности. Если `extractGraph` не зарегистрирован — вызов пропускается, никаких изменений графа не происходит.
+- **`extractGraph`** **не** возвращает имя ребра — оно берётся из **`graphEdgeFromParent`** того же `TypeRule`. Это изоляция данных от схемы.
+- **Корзина `children`** ⇒ **Owned node** + рекурсия (owned узлы получают `filePath` текущего файла).
+- **Корзина `references`** ⇒ **Stub** (если узла нет) + reference-ребро; рекурсии нет; `filePath` на stub не ставится — stub не владеется никаким файлом.
+- **`invalidateFile`** после стандартной логики ([MetadataGraph.ts:115-133](packages/core/metadata/relations/MetadataGraph.ts)) применяет **точечный алгоритм чистки (A)** для удаления **orphan stubs**, возникших как побочный эффект сбрасываемых outEdges.
+- Под F в графе покрыт только `TypeDescription`. Расширение на `DataPath`/`MetadataValue`/`ChoiceParameters` — отдельные проекты, не блокируют F.
+
+### Пример диалога Pipeline F
+
+> **Dev:** «Когда `extractGraph` возвращает `references`, почему id абсолютный, а у `children` — только suffix?»
+
+> **Domain expert:** «Потому что **корзина `children`** — это **Owned nodes** текущего родителя. Полный id собирает **оркестратор**: `${parentNodeId}.${idSuffix}`. А **корзина `references`** указывает наружу — на **прикладной объект** или его часть, живущие своей жизнью. Их id фиксирован: `Справочник.Контрагенты`, кто бы на них ни ссылался.»
+
+> **Dev:** «А имя ребра — откуда берётся?»
+
+> **Domain expert:** «Из **`graphEdgeFromParent`** правила. Для `TypeDescription` там лежит `{name: "Тип", kind: "reference"}`. **`extractGraph`** возвращает только данные — кто куда указывает. Имя ребра — это схема, не данные.»
+
+> **Dev:** «А если 2.yaml ссылается на `Справочник.Контрагенты`, потом файл перезаписали и ссылку убрали?»
+
+> **Domain expert:** «`invalidateFile(2.yaml)` снесёт **Owned nodes** файла. Ссылка на `Справочник.Контрагенты` дропнется вместе с source-узлом. Если stub `Справочник.Контрагенты` после этого остался без incoming рёбер — **точечный алгоритм чистки (A)** его удалит как **orphan stub**. Если 3.yaml на него ещё ссылается — stub остаётся как **битая ссылка**.»
+
+> **Dev:** «А `Pipeline F` реализуется целиком разом?»
+
+> **Domain expert:** «Нет. Этап 1 — инфраструктура (`applyGraphOps`, параметры оркестратора, расширение `MetadataEdgeAttrs.positionFrom`). Этап 3 — регистрация `extractTypeDescriptionGraph` и удаление `addTypeEdges` одним коммитом. Этапы коллекций — отдельно. Новые типы (`DataPath`, `MetadataValue`) — после F, отдельный проект.»
+
+### Flagged ambiguities Pipeline F
+
+- **«children»** перегружен: (1) **корзина `children`** в `GraphOps` — composition-узлы этого свойства; (2) `GroupChildItems`/`TableChildItems`/`PagesChildItems` — **элементы форм**, в графе **не участвуют** и к `GraphOps` отношения не имеют. В речи — «корзина `children`» или «composition-дети»; про форменные items — полное имя типа.
+- **«references»** в рамках обсуждения — одно из трёх: (1) **корзина `references`** в `GraphOps`; (2) `kind: "reference"` на ребре; (3) **битая ссылка**. Перекрывающиеся, но различимые: корзина — декларация, kind — атрибут ребра, битая ссылка — диагностика.
+- **«stub»** ≠ **«orphan stub»** ≠ **«битая ссылка»**. **Stub** — любой узел без `item`. **Orphan stub** — stub без incoming рёбер (удаляется). **Битая ссылка** — stub, на который кто-то ещё ссылается (остаётся, становится диагностикой).
+- **«position» vs «positionFrom»** — одна сущность, два имени. **`position`** — параметр `extractGraph` (входящее число). **`positionFrom`** — атрибут на **Node** или ребре графа (хранимое). При обсуждении сохранять разделение.
+- **«F» / «Pipeline F»** — рабочее имя варианта из дискуссии. В документации использовать полную форму «Pipeline F» или «model→graph extraction». Буква F значения не несёт, кроме как порядковый номер в переборе вариантов A–F.
+- **«extractGraph» vs «extractDependencies»** — в коде раньше был неиспользуемый тип `ImportDependenciesFromYAMLFunction` (`fn.ts:73`) с аналогичным намерением. При миграции он удаляется; единственный канонический термин — **`extractGraph`**.
