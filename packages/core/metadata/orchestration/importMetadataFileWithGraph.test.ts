@@ -950,3 +950,38 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     expect(graph.getNodeAttribute(stubId, "filePaths")).toBeDefined()
   })
 })
+
+describe("importMetadataFileWithGraph — form, DataPath-рёбра (PRD #118)", () => {
+  const YAML_PATH = "Справочник/Товары/Формы/ФормаЭлемента/Свойства.yaml"
+  const OWNER_NODE_ID = "Справочник.Товары"
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.ФормаЭлемента`
+
+  it("реквизит формы с Тип: Справочник.Товары создаёт ребро Тип (база для resolveFormLocalPath)", () => {
+    const graph = new MetadataGraph()
+
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Объект:
+    Тип: Справочник.Товары
+`,
+      },
+      kind: "form",
+      name: "ФормаЭлемента",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const attrNodeId = `${FORM_NODE_ID}.Объект`
+    expect(graph.hasNode(attrNodeId)).toBe(true)
+
+    const typeEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
+      (e) => e.attributes.kind === "Тип",
+    )
+    expect(typeEdges).toHaveLength(1)
+    expect(typeEdges[0].target).toBe("Справочник.Товары")
+  })
+})

@@ -6,8 +6,8 @@
  * «<formNodeId>.<имяЭлемента>». Owning-рёбра ЭлементФормы идут от ближайшего
  * контейнера к ребёнку. Синглеты висят плоско под формой, ребро от формы.
  *
- * В этом срезе — только узлы и owning-иерархия. Рёбра dataPath/Тип/table
- * появятся в срезах #118, #119.
+ * Срез #118: buildElementChildrenGraph дополнен обработкой extractGraph-хендлеров
+ * (TypeDescription и подобных reference-свойств на элементах) + DataPath-рёбра.
  */
 
 import { getTypeRule, registerTypeRule } from "~/metadata/orchestration/formElement/factory"
@@ -15,6 +15,7 @@ import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { applyGraphOps } from "~/metadata/relations/applyGraphOps"
 import { AutoCommandBarRules } from "./autoCommandBar/rules"
 import { getAutoCommandBarName } from "./autoCommandBar/helper"
 import { ContextMenuRules } from "./contextMenu/rules"
@@ -52,13 +53,31 @@ function buildElementChildrenGraph(params: {
 
   for (const [key, propRule] of Object.entries(elementRule.properties) as [
     string,
-    { type?: string },
+    { type?: string; yaml?: string; graphEdgeKind?: string },
   ][]) {
     const propType = propRule.type as PropertyRuleType | undefined
     if (!propType) continue
 
+    // --- extractGraph: TypeDescription и другие одиночные reference-свойства ---
+    const extractGraphFn = getTypeRule(propType, "extractGraph")
+    const edgeDef = getTypeRule(propType, "graphEdgeFromParent")
+    if (extractGraphFn && edgeDef) {
+      const value = element[key]
+      if (value !== undefined && value !== null) {
+        const ops = extractGraphFn(value)
+        if (ops) {
+          const edgeName = propRule.graphEdgeKind ?? propRule.yaml ?? edgeDef.name
+          if (edgeName) {
+            applyGraphOps(ops, { graph, parentNodeId, filePath, edgeName })
+          }
+        }
+      }
+      continue
+    }
+
+    // --- buildGraphFromModel: типы с кастомной логикой построения графа ---
     const buildGraphFn = getTypeRule(propType, "buildGraphFromModel")
-    if (!buildGraphFn) continue // только buildGraphFromModel-ветка; extractGraph — позже
+    if (!buildGraphFn) continue
 
     const value = element[key]
     if (value === undefined || value === null) continue
