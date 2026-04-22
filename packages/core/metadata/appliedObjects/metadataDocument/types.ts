@@ -44,6 +44,7 @@ import {
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface MetadataDocument {
+  itemType?: "MetadataDocument"
   actionsWritingOnPost?: SE.RegisterRecordsWritingOnPost
   additionalIndexes?: AdditionalIndexes
   attributes?: MetadataAttributes
