@@ -1,4 +1,4 @@
-import { isMap, isPair, isScalar, YAMLMap } from "yaml"
+import { isMap, isPair, isScalar, YAMLMap, YAMLSeq } from "yaml"
 
 /**
  * Находит вложенный YAMLMap для заданного ключа.
@@ -17,6 +17,18 @@ export function findKeyOffset(yamlMap: YAMLMap, key: string): number | undefined
   const pair = yamlMap.items.find((i) => isPair(i) && isScalar(i.key) && i.key.value === key)
   if (!pair || !isPair(pair) || !isScalar(pair.key)) return undefined
   return pair.key.range?.[0]
+}
+
+/**
+ * Находит позицию элемента в YAMLSeq по индексу (0-based).
+ * Используется для per-element позиций в YAML-массивах.
+ */
+export function findSeqItemOffset(yamlSeq: YAMLSeq, index: number): number | undefined {
+  const item = yamlSeq.items[index]
+  if (item === undefined || item === null) return undefined
+  const range = (item as { range?: number[] }).range
+  if (!Array.isArray(range) || range.length === 0) return undefined
+  return range[0]
 }
 
 /**

@@ -130,6 +130,7 @@ import "./metadataPath/toYAML"
 
 import "./metadataRef/fromXML"
 import "./metadataRef/fromYAML"
+import "./metadataRef/graphFromModel"
 import "./metadataRef/toJSONSchema"
 import "./metadataRef/toXML"
 import "./metadataRef/toYAML"

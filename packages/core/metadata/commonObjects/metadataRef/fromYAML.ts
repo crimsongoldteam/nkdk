@@ -26,4 +26,5 @@ export const importMetadataItemLinksFromYAML = (
     .filter((item): item is MetadataItemLink => item !== undefined)
 }
 
+registerTypeRule("MetadataItemLink", "importFromYAML", importMetadataItemLinkFromYAML)
 registerTypeRule("MetadataItemLinks", "importFromYAML", importMetadataItemLinksFromYAML)

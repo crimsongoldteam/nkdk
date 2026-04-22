@@ -29,6 +29,7 @@ const _known = new Set<string>([
   ..._owning,
   // Reference-виды
   "Тип",
+  "Объект",
 ])
 
 /**
