@@ -24,7 +24,8 @@ for ((i=1; i<=$1; i++)); do
 
   echo ">>> iteration $i/$1: claude started, waiting for first event..." >&2
 
-  docker sandbox exec \
+  printf '%s Previous RALPH commits: %s @plans/backlog/prompt.md' "$issues" "$ralph_commits" \
+  | docker sandbox exec -i \
     --env-file "$REPO_ROOT/.env" \
     -w "$REPO_ROOT" \
     "$SANDBOX_NAME" \
@@ -32,7 +33,6 @@ for ((i=1; i<=$1; i++)); do
     --verbose \
     --print \
     --output-format stream-json \
-    "$issues Previous RALPH commits: $ralph_commits @plans/backlog/prompt.md" \
   | grep --line-buffered '^{' \
   | tee "$tmpfile" \
   | jq --unbuffered -rj "$stream_text"
