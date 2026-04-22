@@ -1045,3 +1045,37 @@ describe("importMetadataFileWithGraph — form, DataPath-рёбра (PRD #118)",
     expect(typeEdges[0].target).toBe("Справочник.Товары")
   })
 })
+
+describe("importMetadataFileWithGraph — form, FormCommands (PRD #121)", () => {
+  const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
+  const OWNER_NODE_ID = "Справочник.Товары"
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.ФормаСписка`
+
+  it("создаёт узел команды формы с owning-ребром КомандаФормы", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      sources: {
+        yaml: `
+Команды:
+  ОткрытьВнешний:
+    Заголовок: Открыть внешний
+`,
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    const cmdNodeId = `${FORM_NODE_ID}.ОткрытьВнешний`
+    expect(graph.hasNode(cmdNodeId)).toBe(true)
+
+    const owningEdges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(
+      (e) => e.attributes.kind === "КомандаФормы",
+    )
+    expect(owningEdges).toHaveLength(1)
+    expect(owningEdges[0].target).toBe(cmdNodeId)
+  })
+})

@@ -19,6 +19,7 @@ import "./commandInterface/toJSONSchema"
 import "./commandInterface/toXML"
 import "./commandInterface/toYAML"
 
+import "./formCommand/graphFromModel"
 import "./formCommand/toJSONSchema"
 import "./formCommand/types"
 
@@ -45,6 +46,7 @@ import "./childItems/toYAML"
 
 import "./dataPath/toEnterprise"
 
+import "./commandName/graphFromModel"
 import "./commandName/toEnterprise"
 
 import "./event/fromXML"
