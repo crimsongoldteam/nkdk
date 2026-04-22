@@ -283,4 +283,10 @@ export interface MetadataItemRule extends MetadataItem {
    * Может содержать объект { path, tag } для создания контейнера только при экспорте с указанным тегом.
    */
   requiredXMLParents?: ReadonlyArray<ReadonlyArray<string> | { path: ReadonlyArray<string>; tag?: string }>
+
+  /**
+   * Имена терминальных узлов, которые материализуются как composition-дочки при импорте объекта.
+   * Пример: ["ПустаяСсылка"] — создаёт узел `<prefix>.<name>.ПустаяСсылка` с owning-ребром.
+   */
+  graphTerminals?: ReadonlyArray<string>
 }

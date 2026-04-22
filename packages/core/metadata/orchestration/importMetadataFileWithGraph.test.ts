@@ -227,3 +227,129 @@ describe("importMetadataFileWithGraph — возвращает undefined при 
     expect(result).toBeUndefined()
   })
 })
+
+describe("importMetadataFileWithGraph — graphTerminals (ПустаяСсылка)", () => {
+  it("создаёт узел ПустаяСсылка для справочника", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      text: "{}",
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+
+    expect(graph.hasNode("Справочник.Товары.ПустаяСсылка")).toBe(true)
+  })
+
+  it("узел ПустаяСсылка имеет item с itemType=EmptyRef и filePath", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      text: "{}",
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+
+    const nodeId = "Справочник.Товары.ПустаяСсылка"
+    const item = graph.getNodeAttribute(nodeId, "item") as Record<string, string>
+    expect(item.itemType).toBe("EmptyRef")
+    expect(item.ownerType).toBe("Справочник")
+    expect(item.ownerName).toBe("Товары")
+    expect(graph.getNodeAttribute(nodeId, "filePath")).toBe(FILE_PATH)
+  })
+
+  it("getBrokenReferences не включает узел ПустаяСсылка (item установлен)", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      text: "{}",
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+
+    const broken = graph.getBrokenReferences()
+    expect(broken.has("Справочник.Товары.ПустаяСсылка")).toBe(false)
+  })
+
+  it("invalidateFile удаляет узел ПустаяСсылка; повторный импорт восстанавливает", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      text: "{}",
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+
+    expect(graph.hasNode("Справочник.Товары.ПустаяСсылка")).toBe(true)
+
+    graph.invalidateFile(FILE_PATH)
+    expect(graph.hasNode("Справочник.Товары.ПустаяСсылка")).toBe(false)
+
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      text: "{}",
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+    expect(graph.hasNode("Справочник.Товары.ПустаяСсылка")).toBe(true)
+  })
+
+  it("создаёт узел ПустаяСсылка для документа и перечисления", () => {
+    const graph = new MetadataGraph()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      text: "{}",
+      kind: "document",
+      name: "Накладная",
+      graph,
+      context: baseContext,
+    })
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      text: `
+Значения:
+  Активен: {}
+`,
+      kind: "enumeration",
+      name: "Статус",
+      graph,
+      context: baseContext,
+    })
+
+    expect(graph.hasNode("Документ.Накладная.ПустаяСсылка")).toBe(true)
+    expect(graph.hasNode("Перечисление.Статус.ПустаяСсылка")).toBe(true)
+  })
+
+  it("stub-узел ПустаяСсылка, созданный до импорта владельца, повышается до полного через promoteNode", () => {
+    const graph = new MetadataGraph()
+
+    // Эмулируем стаб: другой объект ссылается на ПустаяСсылка до импорта Товары
+    const stubId = "Справочник.Товары.ПустаяСсылка"
+    graph.ensureNode(stubId, { name: "ПустаяСсылка" })
+    expect(graph.getNodeAttribute(stubId, "item")).toBeUndefined()
+
+    // Теперь импортируем владельца — promoteNode должен заполнить пустые поля
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      text: "{}",
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+
+    const item = graph.getNodeAttribute(stubId, "item") as Record<string, string>
+    expect(item.itemType).toBe("EmptyRef")
+    expect(graph.getNodeAttribute(stubId, "filePath")).toBe(FILE_PATH)
+  })
+})

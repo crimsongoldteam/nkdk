@@ -327,6 +327,7 @@ export const MetadataDocumentRules = {
       xmlParents: documentProperties,
     },
   },
+  graphTerminals: ["ПустаяСсылка"],
 } as const satisfies MetadataItemRule
 
 /**

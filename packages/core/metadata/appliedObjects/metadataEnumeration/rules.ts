@@ -109,6 +109,7 @@ export const MetadataEnumerationRules = {
       xml: "EnumValue",
     },
   },
+  graphTerminals: ["ПустаяСсылка"],
 } as const satisfies MetadataItemRule
 
 /**

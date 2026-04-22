@@ -15,6 +15,32 @@ import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { buildGraphFromModel } from "./buildGraphFromModel"
 
+interface RuleWithTerminals {
+  graphTerminals?: ReadonlyArray<string>
+  itemTypePrefix?: string
+}
+
+function materializeGraphTerminals(
+  graph: MetadataGraph,
+  rule: RuleWithTerminals,
+  itemNodeId: string,
+  ownerName: string,
+  filePath: string,
+): void {
+  if (!rule.graphTerminals?.length) return
+  const ownerType = rule.itemTypePrefix ?? ""
+  for (const terminalName of rule.graphTerminals) {
+    const terminalId = `${itemNodeId}.${terminalName}`
+    graph.promoteNode(terminalId, {
+      name: terminalName,
+      filePath,
+      item: { itemType: "EmptyRef", ownerType, ownerName },
+    })
+    const edgeKey = `${itemNodeId}:${terminalName}:${terminalId}`
+    graph.ensureEdge(edgeKey, itemNodeId, terminalId, { yaml: terminalName, kind: terminalName })
+  }
+}
+
 export interface ImportMetadataFileResult {
   model: MetadataCatalog | MetadataDocument | MetadataEnumeration
   parsed: ParsedYaml
@@ -67,6 +93,7 @@ export function importMetadataFileWithGraph(params: {
     if (!model) return undefined
     graph.setNodeAttribute(itemNodeId, "item", model)
     graph.updateNodeFilePath(itemNodeId, filePath)
+    materializeGraphTerminals(graph, MetadataCatalogRules, itemNodeId, name, filePath)
     buildGraphFromModel({
       model: model as unknown as Record<string, unknown>,
       yamlMap,
@@ -90,6 +117,7 @@ export function importMetadataFileWithGraph(params: {
     if (!model) return undefined
     graph.setNodeAttribute(itemNodeId, "item", model)
     graph.updateNodeFilePath(itemNodeId, filePath)
+    materializeGraphTerminals(graph, MetadataDocumentRules, itemNodeId, name, filePath)
     buildGraphFromModel({
       model: model as unknown as Record<string, unknown>,
       yamlMap,
@@ -113,6 +141,7 @@ export function importMetadataFileWithGraph(params: {
     if (!model) return undefined
     graph.setNodeAttribute(itemNodeId, "item", model)
     graph.updateNodeFilePath(itemNodeId, filePath)
+    materializeGraphTerminals(graph, MetadataEnumerationRules, itemNodeId, name, filePath)
     buildGraphFromModel({
       model: model as unknown as Record<string, unknown>,
       yamlMap,

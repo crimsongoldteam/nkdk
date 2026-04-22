@@ -460,6 +460,7 @@ export const MetadataCatalogRules = {
     },
   },
   requiredXMLParents: [["ChildObjects"]],
+  graphTerminals: ["ПустаяСсылка"],
 } as const satisfies MetadataItemRule
 
 /**
