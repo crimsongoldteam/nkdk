@@ -120,6 +120,7 @@ import "./metadataCommandGroup/toYAML"
 
 import "./metadataField/fromXML"
 import "./metadataField/fromYAML"
+import "./metadataField/graphFromModel"
 import "./metadataField/toJSONSchema"
 import "./metadataField/toXML"
 import "./metadataField/toYAML"

@@ -1,3 +1,4 @@
+import { compressMetadataFieldPath } from "~/metadata/commonObjects/metadataPath/compressPath"
 import { convertPath } from "~/metadata/commonObjects/metadataPath/helper"
 import { MetadataFieldsRulesToYAML } from "~/metadata/commonObjects/metadataPath/types"
 import { GraphOpsReference } from "./fn"
@@ -7,14 +8,16 @@ import { GraphOpsReference } from "./fn"
  * в GraphOpsReference с node ID в формате YAML ("Справочник.Контрагенты").
  *
  * Используется экстракторами MetadataItemLink, MetadataItemLinks и MetadataValue.
- * Компрессия пути (вырезание служебных сегментов) для MetadataField — задача #110;
- * здесь путь считается уже «сжатым» (без Реквизит/ТабличнаяЧасть-сегментов).
+ * Для MetadataField передать { compress: true } — тогда служебные сегменты
+ * (Реквизит, ТабличнаяЧасть и др.) вырезаются из node ID через
+ * compressMetadataFieldPath.
  *
  * Возвращает undefined для пустых, коротких или неизвестных путей.
  */
 export function extractReferenceFromPath(
   path: string,
-  position?: { offset: number; length?: number }
+  position?: { offset: number; length?: number },
+  options?: { compress?: boolean }
 ): GraphOpsReference | undefined {
   if (!path) return undefined
 
@@ -24,7 +27,11 @@ export function extractReferenceFromPath(
   const prefix = path.substring(0, dotIndex)
   if (!(prefix in MetadataFieldsRulesToYAML)) return undefined
 
-  const nodeId = convertPath(MetadataFieldsRulesToYAML, path)
+  let nodeId = convertPath(MetadataFieldsRulesToYAML, path)
+  if (options?.compress) {
+    nodeId = compressMetadataFieldPath(nodeId)
+  }
+
   const parts = nodeId.split(".")
   const name = parts[parts.length - 1]
 
