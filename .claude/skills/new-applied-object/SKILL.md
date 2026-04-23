@@ -16,13 +16,13 @@ description: Исследование прикладного объекта ме
 
 ## Обязательные ресурсы
 
-Перед началом **обязательно** прочитай `.claude/CLAUDE.local.md`. Там приватные пути, без которых Deep Scan неполный:
+Перед началом **обязательно** прочитай `local-resources.md` рядом с этим SKILL.md (`.claude/skills/new-applied-object/local-resources.md`). Там приватные пути, без которых Deep Scan неполный:
 
 1. **XSD-каталог** (`.xsd*_root.res` файлы платформы 1С).
 2. **MCP `bsl-platform`** подключён в `~/.claude.json`. После запуска Claude Code должны быть доступны инструменты `mcp__bsl-platform__search`, `mcp__bsl-platform__getMembers`, `mcp__bsl-platform__getMember`, `mcp__bsl-platform__info`, `mcp__bsl-platform__getConstructors`.
 3. **Карта ru↔en** (`~/.cache/mcp-bsl/ru-en-map.json`) — ~10 000 пар русское имя → английский синоним. Файл генерируется один раз из DEBUG-логов `TocParser` MCP-сервера (через публичный API MCP английские не отдаются).
 
-**Если нет любого из трёх** — остановись, выведи сообщение «настрой локальные ресурсы» со ссылкой на `.claude/CLAUDE.local.md`. Скилл без них работать не будет.
+**Если нет файла `local-resources.md` или любого из трёх ресурсов** — остановись, выведи сообщение «настрой локальные ресурсы» со ссылкой на `.claude/skills/new-applied-object/local-resources.md`. Скилл без них работать не будет.
 
 ## Принцип: четыре ортогональных источника
 
