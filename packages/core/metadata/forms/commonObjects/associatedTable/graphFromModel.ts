@@ -23,7 +23,7 @@ registerTypeRule("AssociatedTable", "buildGraphFromModel", ({ model, parentNodeI
   const formNodeId = extra?.formNodeId as string | undefined
   if (!formNodeId) return
 
-  const targetId = `${formNodeId}.${model}`
+  const targetId = `${formNodeId}.Элемент.${model}`
 
   // Создаём заглушку, если элемент-таблица ещё не зарегистрирован
   graph.ensureNode(targetId, { name: model })

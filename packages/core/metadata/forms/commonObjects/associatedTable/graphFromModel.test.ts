@@ -14,7 +14,7 @@ import "../../elements"
 import "../formAttribute/graphFromModel"
 import "~/metadata/commonObjects/typeDescription/graphFromModel"
 
-const FORM_NODE_ID = "Справочник.Товары.ФормаСписка"
+const FORM_NODE_ID = "Справочник.Товары.Форма.ФормаСписка"
 const FILE_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
 
 /**
@@ -25,7 +25,7 @@ function makeGraphWithTableElement() {
   graph.ensureNode(FORM_NODE_ID, { name: "ФормаСписка" })
 
   // Элемент-таблица уже существует в форме
-  const tableNodeId = `${FORM_NODE_ID}.ТаблицаТоваров`
+  const tableNodeId = `${FORM_NODE_ID}.Элемент.ТаблицаТоваров`
   graph.promoteNode(tableNodeId, {
     name: "ТаблицаТоваров",
     filePaths: [FILE_PATH],
@@ -59,14 +59,14 @@ describe("AssociatedTable buildGraphFromModel — СвязаннаяТаблиц
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.Группа1`
+    const elementNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
     expect(graph.hasNode(elementNodeId)).toBe(true)
 
     const tableEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "СвязаннаяТаблица",
     )
     expect(tableEdges).toHaveLength(1)
-    expect(tableEdges[0].target).toBe(`${FORM_NODE_ID}.ТаблицаТоваров`)
+    expect(tableEdges[0].target).toBe(`${FORM_NODE_ID}.Элемент.ТаблицаТоваров`)
   })
 
   it("создаёт заглушку и reference-ребро, если элемент-таблица ещё не создан", () => {
@@ -90,14 +90,14 @@ describe("AssociatedTable buildGraphFromModel — СвязаннаяТаблиц
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.Группа1`
+    const elementNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
     const tableEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "СвязаннаяТаблица",
     )
     // Ребро создано (к заглушке)
     expect(tableEdges).toHaveLength(1)
     const stubId = tableEdges[0].target
-    expect(stubId).toBe(`${FORM_NODE_ID}.НесуществующаяТаблица`)
+    expect(stubId).toBe(`${FORM_NODE_ID}.Элемент.НесуществующаяТаблица`)
     // Заглушка не имеет filePaths
     expect(graph.getNodeAttribute(stubId, "filePaths")).toBeUndefined()
   })
@@ -122,7 +122,7 @@ describe("AssociatedTable buildGraphFromModel — СвязаннаяТаблиц
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.Группа1`
+    const elementNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
     const tableEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "СвязаннаяТаблица",
     )
@@ -149,11 +149,11 @@ describe("AssociatedTable buildGraphFromModel — СвязаннаяТаблиц
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const tableEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "СвязаннаяТаблица",
     )
     expect(tableEdges).toHaveLength(1)
-    expect(tableEdges[0].target).toBe(`${FORM_NODE_ID}.ТаблицаТоваров`)
+    expect(tableEdges[0].target).toBe(`${FORM_NODE_ID}.Элемент.ТаблицаТоваров`)
   })
 })

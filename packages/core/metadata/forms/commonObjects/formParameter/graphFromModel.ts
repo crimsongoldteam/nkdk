@@ -12,5 +12,6 @@ import { FormParameterRules } from "./rules"
 registerTypeRule("FormParameters", "graphChild", {
   idFrom: "name",
   edgeName: "ПараметрФормы",
+  nodeSegment: "Параметр",
   itemRule: FormParameterRules,
 })

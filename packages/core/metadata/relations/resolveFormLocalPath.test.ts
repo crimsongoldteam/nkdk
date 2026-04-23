@@ -2,13 +2,20 @@ import { describe, expect, it } from "vitest"
 import { MetadataGraph } from "./MetadataGraph"
 import { resolveFormLocalPath } from "./resolveFormLocalPath"
 
-const FORM_NODE_ID = "Справочник.Товары.ФормаЭлемента"
-const ATTR_NODE_ID = `${FORM_NODE_ID}.Объект`
+const FORM_NODE_ID = "Справочник.Товары.Форма.ФормаЭлемента"
+const ATTR_NODE_ID = `${FORM_NODE_ID}.Реквизит.Объект`
 
 function makeGraph(): MetadataGraph {
   const graph = new MetadataGraph()
   graph.ensureNode(FORM_NODE_ID, { name: "ФормаЭлемента" })
   graph.ensureNode(ATTR_NODE_ID, { name: "Объект" })
+  // Owning-ребро от формы к реквизиту (необходимо для edge-traversal в resolveFormLocalPath)
+  graph.ensureEdge(
+    `${FORM_NODE_ID}:РеквизитФормы:${ATTR_NODE_ID}`,
+    FORM_NODE_ID,
+    ATTR_NODE_ID,
+    { yaml: "РеквизитФормы", kind: "РеквизитФормы" },
+  )
   return graph
 }
 
@@ -31,7 +38,7 @@ describe("resolveFormLocalPath", () => {
 
   it("нет Тип-ребра от реквизита → undefined", () => {
     const graph = makeGraph()
-    // Реквизит «Объект» есть, но у него нет Тип-ребра
+    // Реквизит «Объект» есть и ребро от формы есть, но у него нет Тип-ребра
     const result = resolveFormLocalPath({
       formNodeId: FORM_NODE_ID,
       path: "Объект.Состав",
@@ -149,5 +156,36 @@ describe("resolveFormLocalPath", () => {
     })
 
     expect(result).toBeUndefined()
+  })
+
+  it("edge-traversal: находит ТЧ по name через ребро ТабличнаяЧасть", () => {
+    const graph = makeGraph()
+    graph.ensureNode("Справочник.Товары", { name: "Товары" })
+    // ТЧ «Состав» создана по сегментированному пути
+    graph.ensureNode("Справочник.Товары.ТабличнаяЧасть.Состав", { name: "Состав" })
+    graph.ensureEdge(
+      "Товары:ТабличнаяЧасть:Состав",
+      "Справочник.Товары",
+      "Справочник.Товары.ТабличнаяЧасть.Состав",
+      { yaml: "ТабличнаяЧасть", kind: "ТабличнаяЧасть" },
+    )
+    graph.ensureEdge(
+      "Объект:Тип:Товары",
+      ATTR_NODE_ID,
+      "Справочник.Товары",
+      { yaml: "Тип", kind: "Тип" },
+    )
+
+    const result = resolveFormLocalPath({
+      formNodeId: FORM_NODE_ID,
+      path: "Объект.Состав",
+      graph,
+    })
+
+    // edge-traversal находит ТЧ.Состав по name, минуя строковую конкатенацию
+    expect(result).toEqual({
+      targetId: "Справочник.Товары.ТабличнаяЧасть.Состав",
+      stubCreated: false,
+    })
   })
 })

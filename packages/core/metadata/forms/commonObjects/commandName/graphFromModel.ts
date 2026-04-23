@@ -22,7 +22,7 @@ registerTypeRule("CommandName", "buildGraphFromModel", ({ model, parentNodeId, g
   const formNodeId = extra?.formNodeId as string | undefined
   if (!formNodeId) return
 
-  const targetId = `${formNodeId}.${model}`
+  const targetId = `${formNodeId}.Команда.${model}`
 
   // Создаём заглушку, если команда ещё не зарегистрирована в форме
   graph.ensureNode(targetId, { name: model })

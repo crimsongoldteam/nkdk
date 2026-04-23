@@ -39,7 +39,7 @@ describe("graphFromModel — элементы формы", () => {
       filePath: FILE_PATH,
     })
 
-    const nodeId = `${FORM_NODE_ID}.Кнопка1`
+    const nodeId = `${FORM_NODE_ID}.Элемент.Кнопка1`
     expect(graph.hasNode(nodeId)).toBe(true)
     expect(graph.getNodeAttribute(nodeId, "name")).toBe("Кнопка1")
 
@@ -74,8 +74,8 @@ describe("graphFromModel — элементы формы", () => {
       filePath: FILE_PATH,
     })
 
-    const groupNodeId = `${FORM_NODE_ID}.Группа1`
-    const fieldNodeId = `${FORM_NODE_ID}.ПолеВвода1`
+    const groupNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
+    const fieldNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
 
     // Оба узла существуют
     expect(graph.hasNode(groupNodeId)).toBe(true)
@@ -125,8 +125,8 @@ describe("graphFromModel — элементы формы", () => {
       filePath: FILE_PATH,
     })
 
-    const tableNodeId = `${FORM_NODE_ID}.Таблица1`
-    const menuNodeId = `${FORM_NODE_ID}.Таблица1КонтекстноеМеню`
+    const tableNodeId = `${FORM_NODE_ID}.Элемент.Таблица1`
+    const menuNodeId = `${FORM_NODE_ID}.Элемент.Таблица1КонтекстноеМеню`
 
     expect(graph.hasNode(tableNodeId)).toBe(true)
     expect(graph.hasNode(menuNodeId)).toBe(true)
@@ -163,7 +163,7 @@ describe("graphFromModel — элементы формы", () => {
       filePath: FILE_PATH,
     })
 
-    const nodeId = `${FORM_NODE_ID}.Декорация1`
+    const nodeId = `${FORM_NODE_ID}.Элемент.Декорация1`
     const filePaths = graph.getNodeAttribute(nodeId, "filePaths")
     expect(filePaths).toContain(FILE_PATH)
   })

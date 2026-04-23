@@ -115,7 +115,7 @@ function buildChildItemsGraph(params: {
     const elementName = elem.name as string | undefined
     if (!elementName) continue
 
-    const elementNodeId = `${formNodeId}.${elementName}`
+    const elementNodeId = `${formNodeId}.Элемент.${elementName}`
 
     graph.promoteNode(elementNodeId, {
       name: elementName,
@@ -173,7 +173,7 @@ function buildSingletonGraph(params: {
   const _parts = parentNodeId.split(".")
   const parentName = _parts[_parts.length - 1] ?? ""
   const singletonName = getName(parentName)
-  const singletonNodeId = `${formNodeId}.${singletonName}`
+  const singletonNodeId = `${formNodeId}.Элемент.${singletonName}`
 
   graph.promoteNode(singletonNodeId, {
     name: singletonName,

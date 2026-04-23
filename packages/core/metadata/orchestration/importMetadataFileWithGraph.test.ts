@@ -455,7 +455,7 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.ФормаСписка`
+    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
     expect(graph.hasNode(formNodeId)).toBe(true)
 
     const outEdges = [...graph.outEdgeEntries(OWNER_NODE_ID)]
@@ -477,7 +477,7 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.ФормаСписка`
+    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
     const filePaths = graph.getNodeAttribute(formNodeId, "filePaths")
     expect(filePaths).toContain(YAML_PATH)
     expect(filePaths).toContain(NKDK_PATH)
@@ -496,7 +496,7 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.ФормаСписка`
+    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
     expect(graph.hasNode(formNodeId)).toBe(true)
 
     graph.invalidateFile(YAML_PATH)
@@ -516,7 +516,7 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.ФормаСписка`
+    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
     expect(graph.hasNode(formNodeId)).toBe(true)
 
     graph.invalidateFile(NKDK_PATH)
@@ -537,7 +537,7 @@ describe("importMetadataFileWithGraph — form", () => {
     }
 
     importMetadataFileWithGraph(params)
-    const formNodeId = `${OWNER_NODE_ID}.ФормаСписка`
+    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
     expect(graph.hasNode(formNodeId)).toBe(true)
 
     graph.invalidateFile(YAML_PATH)
@@ -579,8 +579,8 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.ФормаСписка`
-    const attrNodeId = `${formNodeId}.Контрагент`
+    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
+    const attrNodeId = `${formNodeId}.Реквизит.Контрагент`
 
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
@@ -609,8 +609,8 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.ФормаСписка`
-    const attrNodeId = `${formNodeId}.Контрагент`
+    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
+    const attrNodeId = `${formNodeId}.Реквизит.Контрагент`
 
     const refEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
       (e) => e.attributes.kind === "Тип",
@@ -637,8 +637,8 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.ФормаСписка`
-    const attrNodeId = `${formNodeId}.СписокТоваров`
+    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
+    const attrNodeId = `${formNodeId}.Реквизит.СписокТоваров`
 
     const refEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
       (e) => e.attributes.kind === "ТипЗначения",
@@ -678,7 +678,7 @@ describe("importMetadataFileWithGraph — form", () => {
 describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
   const OWNER_NODE_ID = "Справочник.Товары"
-  const FORM_NODE_ID = `${OWNER_NODE_ID}.ФормаСписка`
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.Форма.ФормаСписка`
 
   it("колонки реквизита-таблицы → узлы с owning-ребром КолонкаФормы", () => {
     const graph = new MetadataGraph()
@@ -703,7 +703,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)"
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const attrNodeId = `${FORM_NODE_ID}.Таблица`
+    const attrNodeId = `${FORM_NODE_ID}.Реквизит.Таблица`
     const col1NodeId = `${attrNodeId}.Колонка1`
     const col2NodeId = `${attrNodeId}.Колонка2`
 
@@ -739,7 +739,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)"
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const colNodeId = `${FORM_NODE_ID}.Таблица.Контрагент`
+    const colNodeId = `${FORM_NODE_ID}.Реквизит.Таблица.Контрагент`
     expect(graph.hasNode(colNodeId)).toBe(true)
 
     const typeEdges = [...graph.outEdgeEntries(colNodeId)].filter(
@@ -767,7 +767,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)"
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const attrNodeId = `${FORM_NODE_ID}.Обычный`
+    const attrNodeId = `${FORM_NODE_ID}.Реквизит.Обычный`
     const colEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
       (e) => e.attributes.kind === "КолонкаФормы",
     )
@@ -778,7 +778,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)"
 describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (PRD #116)", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
   const OWNER_NODE_ID = "Справочник.Товары"
-  const FORM_NODE_ID = `${OWNER_NODE_ID}.ФормаСписка`
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.Форма.ФормаСписка`
 
   it("дополнительные колонки → прокси-узел + ДополнениеТаблицы + Таблица + ДополнительнаяКолонка", () => {
     const graph = new MetadataGraph()
@@ -822,7 +822,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const attrNodeId = `${FORM_NODE_ID}.ДопКолонки`
+    const attrNodeId = `${FORM_NODE_ID}.Реквизит.ДопКолонки`
     const proxyNodeId = `${attrNodeId}.Состав`
     const colNodeId = `${proxyNodeId}.ДопКолонка`
 
@@ -839,12 +839,12 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     expect(additionEdges).toHaveLength(1)
     expect(additionEdges[0].target).toBe(proxyNodeId)
 
-    // Reference-ребро Таблица: прокси → реальная ТЧ
+    // Reference-ребро Таблица: прокси → реальная ТЧ (resolveFormLocalPath находит через edge-traversal)
     const tableEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
       (e) => e.attributes.kind === "Таблица",
     )
     expect(tableEdges).toHaveLength(1)
-    expect(tableEdges[0].target).toBe("Справочник.Товары.Состав")
+    expect(tableEdges[0].target).toBe("Справочник.Товары.ТабличнаяЧасть.Состав")
 
     // Узел колонки создан с owning-ребром ДополнительнаяКолонка
     expect(graph.hasNode(colNodeId)).toBe(true)
@@ -878,7 +878,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const attrNodeId = `${FORM_NODE_ID}.ДопКолонки`
+    const attrNodeId = `${FORM_NODE_ID}.Реквизит.ДопКолонки`
     const proxyNodeId = `${attrNodeId}.Состав`
     const colNodeId = `${proxyNodeId}.Контрагент`
 
@@ -915,7 +915,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const proxyNodeId = `${FORM_NODE_ID}.ДопКолонки.Состав`
+    const proxyNodeId = `${FORM_NODE_ID}.Реквизит.ДопКолонки.Состав`
 
     // Таблица-ребро ведёт на заглушку
     const tableEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
@@ -957,7 +957,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
 describe("importMetadataFileWithGraph — form, FormParameters (PRD #120)", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
   const OWNER_NODE_ID = "Справочник.Товары"
-  const FORM_NODE_ID = `${OWNER_NODE_ID}.ФормаСписка`
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.Форма.ФормаСписка`
 
   it("создаёт узел параметра формы с owning-ребром ПараметрФормы", () => {
     const graph = new MetadataGraph()
@@ -977,7 +977,7 @@ describe("importMetadataFileWithGraph — form, FormParameters (PRD #120)", () =
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const paramNodeId = `${FORM_NODE_ID}.Период`
+    const paramNodeId = `${FORM_NODE_ID}.Параметр.Период`
     expect(graph.hasNode(paramNodeId)).toBe(true)
 
     const owningEdges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(
@@ -1005,7 +1005,7 @@ describe("importMetadataFileWithGraph — form, FormParameters (PRD #120)", () =
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const paramNodeId = `${FORM_NODE_ID}.Контрагент`
+    const paramNodeId = `${FORM_NODE_ID}.Параметр.Контрагент`
     const typeEdges = [...graph.outEdgeEntries(paramNodeId)].filter(
       (e) => e.attributes.kind === "Тип",
     )
@@ -1017,7 +1017,7 @@ describe("importMetadataFileWithGraph — form, FormParameters (PRD #120)", () =
 describe("importMetadataFileWithGraph — form, DataPath-рёбра (PRD #118)", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаЭлемента/Свойства.yaml"
   const OWNER_NODE_ID = "Справочник.Товары"
-  const FORM_NODE_ID = `${OWNER_NODE_ID}.ФормаЭлемента`
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.Форма.ФормаЭлемента`
 
   it("реквизит формы с Тип: Справочник.Товары создаёт ребро Тип (база для resolveFormLocalPath)", () => {
     const graph = new MetadataGraph()
@@ -1038,7 +1038,7 @@ describe("importMetadataFileWithGraph — form, DataPath-рёбра (PRD #118)",
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const attrNodeId = `${FORM_NODE_ID}.Объект`
+    const attrNodeId = `${FORM_NODE_ID}.Реквизит.Объект`
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
     const typeEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
@@ -1052,7 +1052,7 @@ describe("importMetadataFileWithGraph — form, DataPath-рёбра (PRD #118)",
 describe("importMetadataFileWithGraph — form, FormCommands (PRD #121)", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
   const OWNER_NODE_ID = "Справочник.Товары"
-  const FORM_NODE_ID = `${OWNER_NODE_ID}.ФормаСписка`
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.Форма.ФормаСписка`
 
   it("создаёт узел команды формы с owning-ребром КомандаФормы", () => {
     const graph = new MetadataGraph()
@@ -1072,7 +1072,7 @@ describe("importMetadataFileWithGraph — form, FormCommands (PRD #121)", () => 
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const cmdNodeId = `${FORM_NODE_ID}.ОткрытьВнешний`
+    const cmdNodeId = `${FORM_NODE_ID}.Команда.ОткрытьВнешний`
     expect(graph.hasNode(cmdNodeId)).toBe(true)
 
     const owningEdges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(

@@ -128,7 +128,7 @@ export function importMetadataFileWithGraph(params: {
       throw new Error("importMetadataFileWithGraph: form kind требует ownerNodeId")
     }
 
-    const formNodeId = `${ownerNodeId}.${name}`
+    const formNodeId = `${ownerNodeId}.Форма.${name}`
 
     // Создаём владельца как stub, если он ещё не импортирован
     graph.ensureNode(ownerNodeId, { name: ownerNodeId.split(".").pop()! })

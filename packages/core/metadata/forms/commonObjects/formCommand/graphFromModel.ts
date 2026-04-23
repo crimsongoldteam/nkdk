@@ -15,5 +15,6 @@ registerEdgeKind("КомандаФормы", { owning: true })
 registerTypeRule("FormCommands", "graphChild", {
   idFrom: "name",
   edgeName: "КомандаФормы",
+  nodeSegment: "Команда",
   itemRule: FormCommandRules,
 })

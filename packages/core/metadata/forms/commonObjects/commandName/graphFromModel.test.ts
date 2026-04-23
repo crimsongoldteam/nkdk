@@ -13,7 +13,7 @@ import "../../elements"
 // Регистрирует graphChild для FormCommands
 import "../formCommand/graphFromModel"
 
-const FORM_NODE_ID = "Справочник.Товары.ФормаСписка"
+const FORM_NODE_ID = "Справочник.Товары.Форма.ФормаСписка"
 const FILE_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
 
 /**
@@ -23,7 +23,7 @@ function makeGraphWithCommand() {
   const graph = new MetadataGraph()
   graph.ensureNode(FORM_NODE_ID, { name: "ФормаСписка" })
 
-  const cmdNodeId = `${FORM_NODE_ID}.ОткрытьВнешний`
+  const cmdNodeId = `${FORM_NODE_ID}.Команда.ОткрытьВнешний`
   graph.promoteNode(cmdNodeId, {
     name: "ОткрытьВнешний",
     filePaths: [FILE_PATH],
@@ -59,14 +59,14 @@ describe("CommandName buildGraphFromModel — ИмяКоманды", () => {
       filePath: FILE_PATH,
     })
 
-    const buttonNodeId = `${FORM_NODE_ID}.КнопкаОткрыть`
+    const buttonNodeId = `${FORM_NODE_ID}.Элемент.КнопкаОткрыть`
     expect(graph.hasNode(buttonNodeId)).toBe(true)
 
     const commandEdges = [...graph.outEdgeEntries(buttonNodeId)].filter(
       (e) => e.attributes.kind === "ИмяКоманды",
     )
     expect(commandEdges).toHaveLength(1)
-    expect(commandEdges[0].target).toBe(`${FORM_NODE_ID}.ОткрытьВнешний`)
+    expect(commandEdges[0].target).toBe(`${FORM_NODE_ID}.Команда.ОткрытьВнешний`)
   })
 
   it("создаёт заглушку и reference-ребро, если команда отсутствует в форме", () => {
@@ -90,14 +90,14 @@ describe("CommandName buildGraphFromModel — ИмяКоманды", () => {
       filePath: FILE_PATH,
     })
 
-    const buttonNodeId = `${FORM_NODE_ID}.КнопкаОткрыть`
+    const buttonNodeId = `${FORM_NODE_ID}.Элемент.КнопкаОткрыть`
     const commandEdges = [...graph.outEdgeEntries(buttonNodeId)].filter(
       (e) => e.attributes.kind === "ИмяКоманды",
     )
     // Ребро создано (к заглушке)
     expect(commandEdges).toHaveLength(1)
     const stubId = commandEdges[0].target
-    expect(stubId).toBe(`${FORM_NODE_ID}.НесуществующаяКоманда`)
+    expect(stubId).toBe(`${FORM_NODE_ID}.Команда.НесуществующаяКоманда`)
     // Заглушка не имеет filePaths (признак stub-узла)
     expect(graph.getNodeAttribute(stubId, "filePaths")).toBeUndefined()
   })
@@ -122,7 +122,7 @@ describe("CommandName buildGraphFromModel — ИмяКоманды", () => {
       filePath: FILE_PATH,
     })
 
-    const buttonNodeId = `${FORM_NODE_ID}.КнопкаОткрыть`
+    const buttonNodeId = `${FORM_NODE_ID}.Элемент.КнопкаОткрыть`
     const commandEdges = [...graph.outEdgeEntries(buttonNodeId)].filter(
       (e) => e.attributes.kind === "ИмяКоманды",
     )

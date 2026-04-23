@@ -21,6 +21,7 @@ const ADDITIONAL_COLUMN_EDGE = "ДополнительнаяКолонка"
 registerTypeRule("FormAttributes", "graphChild", {
   idFrom: "name",
   edgeName: "РеквизитФормы",
+  nodeSegment: "Реквизит",
   itemRule: FormAttributeRules,
 })
 
@@ -48,8 +49,8 @@ registerTypeRule("FormAttributeColumns", "buildGraphFromModel", ({
   const first = model[0] as Record<string, unknown>
   if (typeof first.table === "string") {
     // Additional columns (PRD #116)
-    // parentNodeId = <formNodeId>.<attrName>; формируем formNodeId обратным путём
-    const formNodeId = parentNodeId.split(".").slice(0, -1).join(".")
+    // parentNodeId = <formNodeId>.Реквизит.<attrName>; формируем formNodeId обратным путём
+    const formNodeId = parentNodeId.split(".").slice(0, -2).join(".")
 
     for (const raw of model) {
       const group = raw as FormAttributeAdditionalColumns

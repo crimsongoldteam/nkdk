@@ -14,7 +14,7 @@ import "../../elements"
 import "../formAttribute/graphFromModel"
 import "~/metadata/commonObjects/typeDescription/graphFromModel"
 
-const FORM_NODE_ID = "Справочник.Товары.ФормаЭлемента"
+const FORM_NODE_ID = "Справочник.Товары.Форма.ФормаЭлемента"
 const FILE_PATH = "Справочник/Товары/Формы/ФормаЭлемента/Свойства.yaml"
 
 /**
@@ -27,7 +27,7 @@ function makeGraphWithFormAttribute() {
   graph.ensureNode(FORM_NODE_ID, { name: "ФормаЭлемента" })
 
   // Реквизит формы «Объект» типа Справочник.Товары
-  const attrNodeId = `${FORM_NODE_ID}.Объект`
+  const attrNodeId = `${FORM_NODE_ID}.Реквизит.Объект`
   graph.ensureNode(attrNodeId, { name: "Объект" })
   graph.ensureEdge(`${FORM_NODE_ID}:РеквизитФормы:${attrNodeId}`, FORM_NODE_ID, attrNodeId, {
     yaml: "РеквизитФормы",
@@ -74,7 +74,7 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     expect(graph.hasNode(elementNodeId)).toBe(true)
 
     const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
@@ -104,7 +104,7 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const edges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "ПутьКДаннымПодвала",
     )
@@ -132,7 +132,7 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.Группа1`
+    const elementNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
     const edges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "ПутьКДаннымЗаголовка",
     )
@@ -167,7 +167,7 @@ describe("DataPath buildGraphFromModel — edge-cases", () => {
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "ПутьКДанным",
     )
@@ -196,7 +196,7 @@ describe("DataPath buildGraphFromModel — edge-cases", () => {
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "ПутьКДанным",
     )
@@ -228,7 +228,7 @@ describe("DataPath buildGraphFromModel — edge-cases", () => {
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "ПутьКДанным",
     )
@@ -263,7 +263,7 @@ describe("buildElementChildrenGraph — extractGraph для TypeDescription", ()
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const typeEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "ДоступныеТипы",
     )
