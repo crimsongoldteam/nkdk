@@ -67,21 +67,21 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     expect(Object.keys(dependencies)).toHaveLength(11)
     expect(Object.keys(dependencies)).toEqual(
       expect.arrayContaining([
-        "Справочник.TestCatalog.КакойТоРеквизит",
-        "Справочник.TestCatalog.КакаяТоТабличнаяЧасть",
-        "Справочник.TestCatalog.ИмяПредопределенныхДанных",
-        "Справочник.TestCatalog.Предопределенный",
-        "Справочник.TestCatalog.Ссылка",
-        "Справочник.TestCatalog.ПометкаУдаления",
-        "Справочник.TestCatalog.ЭтоГруппа",
-        "Справочник.TestCatalog.Владелец",
-        "Справочник.TestCatalog.Родитель",
-        "Справочник.TestCatalog.Наименование",
-        "Справочник.TestCatalog.Код",
+        "Справочник.TestCatalog.Реквизит.КакойТоРеквизит",
+        "Справочник.TestCatalog.ТабличнаяЧасть.КакаяТоТабличнаяЧасть",
+        "Справочник.TestCatalog.СтандартныйРеквизит.ИмяПредопределенныхДанных",
+        "Справочник.TestCatalog.СтандартныйРеквизит.Предопределенный",
+        "Справочник.TestCatalog.СтандартныйРеквизит.Ссылка",
+        "Справочник.TestCatalog.СтандартныйРеквизит.ПометкаУдаления",
+        "Справочник.TestCatalog.СтандартныйРеквизит.ЭтоГруппа",
+        "Справочник.TestCatalog.СтандартныйРеквизит.Владелец",
+        "Справочник.TestCatalog.СтандартныйРеквизит.Родитель",
+        "Справочник.TestCatalog.СтандартныйРеквизит.Наименование",
+        "Справочник.TestCatalog.СтандартныйРеквизит.Код",
       ]),
     )
 
-    expect(dependencies["Справочник.TestCatalog.КакойТоРеквизит"]).toMatchObject({
+    expect(dependencies["Справочник.TestCatalog.Реквизит.КакойТоРеквизит"]).toMatchObject({
       item: {
         itemType: "MetadataAttribute",
         name: "КакойТоРеквизит",
@@ -143,13 +143,13 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
   })
 
   it("стандартный реквизит из YAML имеет item", () => {
-    const attrs = graph.getNodeAttributes("Справочник.TestCatalog.Владелец")
+    const attrs = graph.getNodeAttributes("Справочник.TestCatalog.СтандартныйРеквизит.Владелец")
     expect(attrs.item).toBeDefined()
     expect((attrs.item as { name: string }).name).toBe("Owner")
   })
 
   it("стандартный реквизит без описания в YAML имеет default item", () => {
-    const attrs = graph.getNodeAttributes("Справочник.TestCatalog.Ссылка")
+    const attrs = graph.getNodeAttributes("Справочник.TestCatalog.СтандартныйРеквизит.Ссылка")
     expect(attrs.item).toBeDefined()
     expect((attrs.item as { itemType: string; name: string }).itemType).toBe("StandardAttributeDescription")
     expect((attrs.item as { name: string }).name).toBe("Ref")

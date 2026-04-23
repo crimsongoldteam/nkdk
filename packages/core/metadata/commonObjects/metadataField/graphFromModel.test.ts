@@ -13,7 +13,7 @@ function fieldEdges(graph: MetadataGraph, nodeId: string) {
 }
 
 describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
-  it("верхнеуровневый реквизит → ребро Поле к сжатому node ID", () => {
+  it("верхнеуровневый реквизит → ребро Поле к полному node ID", () => {
     const graph = new MetadataGraph()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
@@ -29,10 +29,10 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
 
     const edges = fieldEdges(graph, "Справочник.Товары")
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Справочник.X.Y")
+    expect(edges[0].target).toBe("Справочник.X.Реквизит.Y")
   })
 
-  it("реквизит табличной части → сжатый node ID без ТабличнаяЧасть и Реквизит", () => {
+  it("реквизит табличной части → полный node ID с ТабличнаяЧасть и Реквизит", () => {
     const graph = new MetadataGraph()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
@@ -48,10 +48,10 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
 
     const edges = fieldEdges(graph, "Справочник.Товары")
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Справочник.Контрагенты.Контакты.Email")
+    expect(edges[0].target).toBe("Справочник.Контрагенты.ТабличнаяЧасть.Контакты.Реквизит.Email")
   })
 
-  it("стандартный реквизит → сжатый node ID без СтандартныйРеквизит", () => {
+  it("стандартный реквизит → полный node ID с СтандартныйРеквизит", () => {
     const graph = new MetadataGraph()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
@@ -67,7 +67,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
 
     const edges = fieldEdges(graph, "Справочник.Товары")
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Справочник.X.Наименование")
+    expect(edges[0].target).toBe("Справочник.X.СтандартныйРеквизит.Наименование")
   })
 
   it("несколько ссылок → несколько рёбер Поле", () => {
@@ -89,7 +89,11 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
     const edges = fieldEdges(graph, "Справочник.Товары")
     expect(edges).toHaveLength(3)
     const targets = edges.map((e) => e.target).sort()
-    expect(targets).toEqual(["Справочник.A.П1", "Справочник.B.П2", "Справочник.C.П3"])
+    expect(targets).toEqual([
+      "Справочник.A.Реквизит.П1",
+      "Справочник.B.Реквизит.П2",
+      "Справочник.C.Реквизит.П3",
+    ])
   })
 
   it("несколько ссылок → разные position-offset'ы", () => {

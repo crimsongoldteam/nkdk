@@ -18,7 +18,7 @@ const extractMetadataFieldGraph: ExtractGraphFromModelFunction = (
 ): GraphOps | undefined => {
   const field = model as MetadataField
   if (!field) return undefined
-  const ref = extractReferenceFromPath(field, position, { compress: true })
+  const ref = extractReferenceFromPath(field, position)
   if (!ref) return undefined
   return { references: [ref] }
 }
@@ -48,7 +48,7 @@ const buildMetadataFieldsGraph: BuildGraphFromModelFunction = ({
     .map((field, index) => {
       const offset = yamlSeq ? findSeqItemOffset(yamlSeq, index) : undefined
       const position = offset !== undefined ? { offset } : undefined
-      return extractReferenceFromPath(field, position, { compress: true })
+      return extractReferenceFromPath(field, position)
     })
     .filter((ref): ref is NonNullable<typeof ref> => ref !== undefined)
 

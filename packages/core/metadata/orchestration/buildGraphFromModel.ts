@@ -72,7 +72,9 @@ export function buildGraphFromModel(params: {
       const idSuffix = item[graphChildDef.idFrom] as string | undefined
       if (!idSuffix) continue
 
-      const childNodeId = `${parentNodeId}.${idSuffix}`
+      const childNodeId = graphChildDef.nodeSegment
+        ? `${parentNodeId}.${graphChildDef.nodeSegment}.${idSuffix}`
+        : `${parentNodeId}.${idSuffix}`
       const itemOffset = collectionYamlMap ? findKeyOffset(collectionYamlMap, idSuffix) : undefined
       const itemYamlMap = collectionYamlMap ? findSubmap(collectionYamlMap, idSuffix) : undefined
 

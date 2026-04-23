@@ -45,4 +45,20 @@ describe("compressMetadataFieldPath", () => {
   it("пустая строка", () => {
     expect(compressMetadataFieldPath("")).toBe("")
   })
+
+  it("сегмент Форма вырезается", () => {
+    expect(compressMetadataFieldPath("Справочник.X.Форма.Ф.Реквизит.Y")).toBe("Справочник.X.Ф.Y")
+  })
+
+  it("сегмент Команда вырезается", () => {
+    expect(compressMetadataFieldPath("Справочник.X.Форма.Ф.Команда.К")).toBe("Справочник.X.Ф.К")
+  })
+
+  it("сегмент Параметр вырезается", () => {
+    expect(compressMetadataFieldPath("Справочник.X.Форма.Ф.Параметр.П")).toBe("Справочник.X.Ф.П")
+  })
+
+  it("сегмент Элемент вырезается", () => {
+    expect(compressMetadataFieldPath("Справочник.X.Форма.Ф.Элемент.Э")).toBe("Справочник.X.Ф.Э")
+  })
 })

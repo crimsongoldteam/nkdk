@@ -464,6 +464,71 @@ describe("MetadataGraph", () => {
     })
   })
 
+  describe("shortPath и findByShortPath", () => {
+    it("ensureNode вычисляет shortPath из id", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары.Реквизит.Наименование", { name: "Наименование" })
+      expect(g.getNodeAttribute("Справочник.Товары.Реквизит.Наименование", "shortPath")).toBe(
+        "Справочник.Товары.Наименование"
+      )
+    })
+
+    it("promoteNode вычисляет shortPath из id", () => {
+      const g = new MetadataGraph()
+      g.promoteNode("Справочник.Товары.ТабличнаяЧасть.Состав.Реквизит.Количество", { name: "Количество" })
+      expect(
+        g.getNodeAttribute("Справочник.Товары.ТабличнаяЧасть.Состав.Реквизит.Количество", "shortPath")
+      ).toBe("Справочник.Товары.Состав.Количество")
+    })
+
+    it("findByShortPath возвращает узел с совпадающим shortPath", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары.Реквизит.Наименование", { name: "Наименование" })
+      const result = g.findByShortPath("Справочник.Товары.Наименование")
+      expect(result.size).toBe(1)
+      expect(result.has("Справочник.Товары.Реквизит.Наименование")).toBe(true)
+    })
+
+    it("findByShortPath возвращает несколько узлов при совпадении shortPath (неоднозначность)", () => {
+      const g = new MetadataGraph()
+      // Реквизит и форма с одним именем дают одинаковый shortPath
+      g.ensureNode("Справочник.Товары.Реквизит.ФормаСписка", { name: "ФормаСписка" })
+      g.ensureNode("Справочник.Товары.Форма.ФормаСписка", { name: "ФормаСписка" })
+      const result = g.findByShortPath("Справочник.Товары.ФормаСписка")
+      expect(result.size).toBe(2)
+      expect(result.has("Справочник.Товары.Реквизит.ФормаСписка")).toBe(true)
+      expect(result.has("Справочник.Товары.Форма.ФормаСписка")).toBe(true)
+    })
+
+    it("findByShortPath возвращает пустой Set для несуществующего shortPath", () => {
+      const g = new MetadataGraph()
+      expect(g.findByShortPath("Справочник.Несуществующий.Путь").size).toBe(0)
+    })
+
+    it("invalidateFile удаляет узел из shortPathIndex", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары.Реквизит.Цена", { name: "Цена", filePaths: ["goods.yaml"] })
+      expect(g.findByShortPath("Справочник.Товары.Цена").size).toBe(1)
+      g.invalidateFile("goods.yaml")
+      expect(g.findByShortPath("Справочник.Товары.Цена").size).toBe(0)
+    })
+
+    it("promoteNode не меняет shortPath у уже существующего узла", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары.Реквизит.Цена", { name: "Цена" })
+      g.promoteNode("Справочник.Товары.Реквизит.Цена", { name: "Цена", filePaths: ["goods.yaml"] })
+      // shortPath не изменился — узел один в индексе
+      expect(g.findByShortPath("Справочник.Товары.Цена").size).toBe(1)
+    })
+
+    it("clear очищает shortPathIndex", () => {
+      const g = new MetadataGraph()
+      g.ensureNode("Справочник.Товары.Реквизит.Цена", { name: "Цена" })
+      g.clear()
+      expect(g.findByShortPath("Справочник.Товары.Цена").size).toBe(0)
+    })
+  })
+
   describe("getBrokenReferences", () => {
     it("возвращает пустую Map при отсутствии reference-рёбер", () => {
       const g = new MetadataGraph()

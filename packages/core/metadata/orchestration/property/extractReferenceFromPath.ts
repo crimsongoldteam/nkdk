@@ -1,23 +1,19 @@
-import { compressMetadataFieldPath } from "~/metadata/commonObjects/metadataPath/compressPath"
 import { convertPath } from "~/metadata/commonObjects/metadataPath/helper"
 import { MetadataFieldsRulesToYAML } from "~/metadata/commonObjects/metadataPath/types"
 import { GraphOpsReference } from "./fn"
 
 /**
  * Преобразует внутренний путь к объекту метаданных (например, "Catalog.Контрагенты")
- * в GraphOpsReference с node ID в формате YAML ("Справочник.Контрагенты").
+ * в GraphOpsReference с node ID в формате полного YAML-пути ("Справочник.Контрагенты").
  *
- * Используется экстракторами MetadataItemLink, MetadataItemLinks и MetadataValue.
- * Для MetadataField передать { compress: true } — тогда служебные сегменты
- * (Реквизит, ТабличнаяЧасть и др.) вырезаются из node ID через
- * compressMetadataFieldPath.
+ * Используется экстракторами MetadataItemLink, MetadataItemLinks, MetadataValue и MetadataField.
+ * Всегда возвращает полный путь без компрессии сегментов.
  *
  * Возвращает undefined для пустых, коротких или неизвестных путей.
  */
 export function extractReferenceFromPath(
   path: string,
-  position?: { offset: number; length?: number },
-  options?: { compress?: boolean }
+  position?: { offset: number; length?: number }
 ): GraphOpsReference | undefined {
   if (!path) return undefined
 
@@ -27,10 +23,7 @@ export function extractReferenceFromPath(
   const prefix = path.substring(0, dotIndex)
   if (!(prefix in MetadataFieldsRulesToYAML)) return undefined
 
-  let nodeId = convertPath(MetadataFieldsRulesToYAML, path)
-  if (options?.compress) {
-    nodeId = compressMetadataFieldPath(nodeId)
-  }
+  const nodeId = convertPath(MetadataFieldsRulesToYAML, path)
 
   const parts = nodeId.split(".")
   const name = parts[parts.length - 1]

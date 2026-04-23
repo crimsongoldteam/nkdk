@@ -53,7 +53,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "TabularSection",
   keyField: "name",
   fromYAML: importMetadataTabularSectionsFromYAML,
-  graphChild: { idFrom: "name", edgeName: "ТабличнаяЧасть" },
+  graphChild: { idFrom: "name", edgeName: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
 })
 
 // Compat exports for consumers that call these functions directly

@@ -42,6 +42,8 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   graphChild?: {
     idFrom: keyof Rule["properties"] & string
     edgeName: string
+    /** Необязательный сегмент-дискриминатор типа коллекции, вставляемый в childNodeId. */
+    nodeSegment?: string
   }
 }
 
@@ -135,6 +137,7 @@ export const registerMetadataItemCollectionRule = <
     registerTypeRule(propertyType, "graphChild", {
       idFrom: params.graphChild.idFrom as string,
       edgeName: params.graphChild.edgeName,
+      nodeSegment: params.graphChild.nodeSegment,
       itemRule: itemRule as unknown as MetadataItemRule,
     })
   }

@@ -116,6 +116,8 @@ export type GraphEdgeFromParent = {
 export interface GraphChildRule {
   idFrom: string
   edgeName: string
+  /** Необязательный сегмент-дискриминатор типа коллекции, вставляемый в childNodeId. */
+  nodeSegment?: string
   itemRule: MetadataItemRule
 }
 

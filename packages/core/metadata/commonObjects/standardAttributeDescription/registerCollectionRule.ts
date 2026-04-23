@@ -61,7 +61,7 @@ function buildStandardAttributesGraph(params: {
   }
 
   for (const [internalName, russianName] of Object.entries(stdAttrRule.standartAttributeNames)) {
-    const nodeId = `${parentNodeId}.${russianName}`
+    const nodeId = `${parentNodeId}.${EDGE_NAME}.${russianName}`
     const offset = stdAttrsYamlMap ? findKeyOffset(stdAttrsYamlMap, russianName) : undefined
 
     // US 13: standard attributes always have item so they are never treated as stubs
@@ -76,7 +76,7 @@ function buildStandardAttributesGraph(params: {
       item,
     })
 
-    const edgeKey = `${parentNodeId}:${EDGE_NAME}:${russianName}`
+    const edgeKey = `${parentNodeId}:${EDGE_NAME}:${nodeId}`
     graph.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, kind: EDGE_NAME })
   }
 }

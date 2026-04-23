@@ -124,7 +124,7 @@ describe("extractTypeDescriptionGraph — интеграция с importMetadata
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Товары.Контрагент"
+    const attrNodeId = "Справочник.Товары.Реквизит.Контрагент"
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
     const typeEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
@@ -153,7 +153,7 @@ describe("extractTypeDescriptionGraph — интеграция с importMetadata
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Товары.Объект"
+    const attrNodeId = "Справочник.Товары.Реквизит.Объект"
     const typeEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
       (e) => e.attributes.kind === "Тип"
     )

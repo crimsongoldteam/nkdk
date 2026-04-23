@@ -41,7 +41,7 @@ describe("importMetadataFileWithGraph — catalog", () => {
       context: baseContext,
     })
 
-    expect(graph.hasNode("Справочник.Товары.ДатаСоздания")).toBe(true)
+    expect(graph.hasNode("Справочник.Товары.Реквизит.ДатаСоздания")).toBe(true)
   })
 
   it("добавляет ребро ссылки на TypeDescription в граф", () => {
@@ -96,7 +96,7 @@ describe("importMetadataFileWithGraph — document", () => {
       context: baseContext,
     })
 
-    expect(graph.hasNode("Документ.РасходнаяНакладная.Склад")).toBe(true)
+    expect(graph.hasNode("Документ.РасходнаяНакладная.Реквизит.Склад")).toBe(true)
   })
 })
 
@@ -229,7 +229,7 @@ describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗап�
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Товары.Ответственный"
+    const attrNodeId = "Справочник.Товары.Реквизит.Ответственный"
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
     const outEdges = [...graph.outEdgeEntries(attrNodeId)]
@@ -255,7 +255,7 @@ describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗап�
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Контрагенты.ВидДоговора"
+    const attrNodeId = "Справочник.Контрагенты.Реквизит.ВидДоговора"
     const outEdges = [...graph.outEdgeEntries(attrNodeId)]
     const valEdges = outEdges.filter((e) => e.attributes.kind === "Значение")
     expect(valEdges).toHaveLength(1)
@@ -279,7 +279,7 @@ describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗап�
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Статьи.ТипыСчетов"
+    const attrNodeId = "Справочник.Статьи.Реквизит.ТипыСчетов"
     const outEdges = [...graph.outEdgeEntries(attrNodeId)]
     const valEdges = outEdges.filter((e) => e.attributes.kind === "Значение")
     expect(valEdges).toHaveLength(2)
@@ -666,7 +666,7 @@ describe("importMetadataFileWithGraph — form", () => {
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Товары.Контрагент"
+    const attrNodeId = "Справочник.Товары.Реквизит.Контрагент"
     const refEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
       (e) => e.attributes.kind === "Тип",
     )
@@ -927,7 +927,8 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     // Заглушка не имеет item
     expect(graph.getNodeAttribute(stubId, "item")).toBeUndefined()
 
-    // После импорта владельца — заглушка «повышается» через promoteNode
+    // После импорта владельца — ТЧ создаётся по новому полному пути с сегментом ТабличнаяЧасть
+    // Заглушка на старом пути НЕ повышается (будет исправлено в Slice 2 при переписи resolveFormLocalPath)
     importMetadataFileWithGraph({
       filePath: "Справочник/Товары/Свойства.yaml",
       sources: {
@@ -945,9 +946,11 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
       context: baseContext,
     })
 
-    // После промоции — item появился, filePaths заполнены
-    expect(graph.getNodeAttribute(stubId, "item")).toBeDefined()
-    expect(graph.getNodeAttribute(stubId, "filePaths")).toBeDefined()
+    // Реальная ТЧ создана по новому пути
+    expect(graph.hasNode("Справочник.Товары.ТабличнаяЧасть.Состав")).toBe(true)
+    expect(graph.getNodeAttribute("Справочник.Товары.ТабличнаяЧасть.Состав", "item")).toBeDefined()
+    // Заглушка на старом пути остаётся без item
+    expect(graph.getNodeAttribute(stubId, "item")).toBeUndefined()
   })
 })
 

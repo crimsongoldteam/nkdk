@@ -1,13 +1,19 @@
 import { MultiDirectedGraph } from "graphology"
+import { compressMetadataFieldPath } from "~/metadata/commonObjects/metadataPath/compressPath"
 import { isOwning } from "./edgeKinds"
 
 export interface MetadataNodeAttrs {
   name: string
+  /** Сжатый путь узла: id без transparent-сегментов. Неуникален — служит для нечёткого резолвинга. */
+  shortPath: string
   item?: unknown
   positionFrom?: { offset: number; length?: number }
   /** Пути к файлам, из которых был создан этот узел. Пустой — заглушка (stub). */
   filePaths?: string[]
 }
+
+/** Входные атрибуты для ensureNode/promoteNode. shortPath вычисляется автоматически. */
+export type MetadataNodeInput = Omit<MetadataNodeAttrs, "shortPath">
 
 export interface MetadataEdgeAttrs {
   yaml: string
@@ -19,19 +25,23 @@ export interface MetadataEdgeAttrs {
 export class MetadataGraph {
   private _graph: MultiDirectedGraph<MetadataNodeAttrs, MetadataEdgeAttrs>
   private _fileIndex: Map<string, Set<string>>
+  private _shortPathIndex: Map<string, Set<string>>
 
   constructor() {
     this._graph = new MultiDirectedGraph<MetadataNodeAttrs, MetadataEdgeAttrs>()
     this._fileIndex = new Map()
+    this._shortPathIndex = new Map()
   }
 
   hasNode(id: string): boolean {
     return this._graph.hasNode(id)
   }
 
-  ensureNode(id: string, attrs: MetadataNodeAttrs): void {
+  ensureNode(id: string, attrs: MetadataNodeInput): void {
     if (!this._graph.hasNode(id)) {
-      this._graph.addNode(id, { name: attrs.name, item: attrs.item, positionFrom: attrs.positionFrom })
+      const shortPath = compressMetadataFieldPath(id)
+      this._graph.addNode(id, { name: attrs.name, shortPath, item: attrs.item, positionFrom: attrs.positionFrom })
+      this._registerShortPath(id, shortPath)
     }
     for (const fp of attrs.filePaths ?? []) {
       this._registerFilePath(id, fp)
@@ -54,6 +64,25 @@ export class MetadataGraph {
     if (set) {
       set.delete(nodeId)
       if (set.size === 0) this._fileIndex.delete(filePath)
+    }
+  }
+
+  private _registerShortPath(nodeId: string, shortPath: string): void {
+    let set = this._shortPathIndex.get(shortPath)
+    if (!set) {
+      set = new Set()
+      this._shortPathIndex.set(shortPath, set)
+    }
+    set.add(nodeId)
+  }
+
+  private _unregisterShortPath(nodeId: string): void {
+    const shortPath = this._graph.getNodeAttribute(nodeId, "shortPath")
+    if (!shortPath) return
+    const set = this._shortPathIndex.get(shortPath)
+    if (set) {
+      set.delete(nodeId)
+      if (set.size === 0) this._shortPathIndex.delete(shortPath)
     }
   }
 
@@ -120,14 +149,21 @@ export class MetadataGraph {
     return this._fileIndex.get(filePath) ?? new Set()
   }
 
+  /** Возвращает все узлы с указанным shortPath (может быть несколько при коллизиях имён). */
+  findByShortPath(shortPath: string): Set<string> {
+    return this._shortPathIndex.get(shortPath) ?? new Set()
+  }
+
   /**
    * Создаёт узел, если он не существует, или «повышает» существующую заглушку:
    * заполняет только пустые поля (filePaths, positionFrom, item).
    * Бросает ошибку при конфликте itemType у item.
    */
-  promoteNode(id: string, attrs: MetadataNodeAttrs): void {
+  promoteNode(id: string, attrs: MetadataNodeInput): void {
     if (!this._graph.hasNode(id)) {
-      this._graph.addNode(id, { name: attrs.name, item: attrs.item, positionFrom: attrs.positionFrom })
+      const shortPath = compressMetadataFieldPath(id)
+      this._graph.addNode(id, { name: attrs.name, shortPath, item: attrs.item, positionFrom: attrs.positionFrom })
+      this._registerShortPath(id, shortPath)
       for (const fp of attrs.filePaths ?? []) {
         this._registerFilePath(id, fp)
       }
@@ -214,6 +250,7 @@ export class MetadataGraph {
         for (const edgeId of this._graph.outEdges(nodeId)) {
           droppedTargets.add(this._graph.target(edgeId))
         }
+        this._unregisterShortPath(nodeId)
         this._graph.dropNode(nodeId)
       }
     }
@@ -225,6 +262,7 @@ export class MetadataGraph {
         this._graph.getNodeAttribute(targetId, "item") === undefined &&
         this._graph.inEdges(targetId).length === 0
       ) {
+        this._unregisterShortPath(targetId)
         this._graph.dropNode(targetId)
       }
     }
@@ -244,5 +282,6 @@ export class MetadataGraph {
   clear(): void {
     this._graph.clear()
     this._fileIndex.clear()
+    this._shortPathIndex.clear()
   }
 }
