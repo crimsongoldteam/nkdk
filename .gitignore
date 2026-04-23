@@ -22,3 +22,7 @@ delete/
 .ralph/*.log
 .ralph/status.json
 .ralph/progress.json
+
+# Локальные Claude-инструкции с приватными путями
+CLAUDE.local.md
+.claude/CLAUDE.local.md
