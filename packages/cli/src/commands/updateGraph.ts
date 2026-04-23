@@ -193,7 +193,7 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
       await sendBatches(
         conn,
         edges,
-        `UNWIND $batch AS e MATCH (s:MetadataNode {id: e.src}), (t:MetadataNode {id: e.tgt}) CREATE (s)-[:${kind} {yaml: e.yaml}]->(t)`,
+        `UNWIND $batch AS e MATCH (s:MetadataNode {id: e.src}), (t:MetadataNode {id: e.tgt}) CREATE (s)-[:\`${kind}\` {yaml: e.yaml}]->(t)`,
       )
       totalEdges += edges.length
     }

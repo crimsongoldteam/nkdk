@@ -31,7 +31,7 @@ export const CharacteristicsDescriptionRules = {
       xml: "xr:TypesFilterValue",
       xmlParents: ["xr:CharacteristicTypes"],
       type: "MetadataValue",
-      valueType: ["string"],
+      valueType: ["string", "ref"],
       exportNilValue: true,
       order: 4,
     },

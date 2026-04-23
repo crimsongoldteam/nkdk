@@ -28,7 +28,7 @@ export const importMetadataValueFromYAML = (
   rule: PropertyRule | undefined,
   data: MetadataValueYAML | undefined
 ): MetadataTypedValue | undefined => {
-  if (data === undefined) return undefined
+  if (data === undefined || data === null) return undefined
 
   // Агрегатные типы определяются по форме данных, не по rule
   if (typeof data === "object" && !Array.isArray(data) && "Представление" in data) {
