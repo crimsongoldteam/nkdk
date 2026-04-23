@@ -57,6 +57,10 @@ import {
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
 import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
 import {
+  MetadataSequenceDimension,
+  MetadataSequenceDimensionYAML,
+} from "~/metadata/commonObjects/metadataSequenceDimension/types"
+import {
   MetadataTabularSection,
   MetadataTabularSectionYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
@@ -92,6 +96,10 @@ import {
   MetadataEnumeration,
   MetadataEnumerationYAML,
 } from "../../appliedObjects/metadataEnumeration/types"
+import {
+  MetadataSequence,
+  MetadataSequenceYAML,
+} from "../../appliedObjects/metadataSequence/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -568,6 +576,11 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataAttributeYAML
   }
 
+  MetadataSequenceDimension: {
+    metadata: MetadataSequenceDimension
+    yaml: MetadataSequenceDimensionYAML
+  }
+
   MetadataTabularSection: {
     metadata: MetadataTabularSection
     yaml: MetadataTabularSectionYAML
@@ -683,6 +696,11 @@ export type MetadataItemTypeRegistry = {
   MetadataEnumeration: {
     metadata: MetadataEnumeration
     yaml: MetadataEnumerationYAML
+  }
+
+  MetadataSequence: {
+    metadata: MetadataSequence
+    yaml: MetadataSequenceYAML
   }
 
   //#endregion

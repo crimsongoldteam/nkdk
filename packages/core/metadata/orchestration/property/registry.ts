@@ -7,6 +7,16 @@ import {
   MetadataEnumerationValues,
   MetadataEnumerationValuesYAML,
 } from "~/metadata/appliedObjects/metadataEnumeration/types"
+import {
+  MetadataSequence,
+  MetadataSequenceYAML,
+} from "~/metadata/appliedObjects/metadataSequence/types"
+import {
+  MetadataSequenceDimension,
+  MetadataSequenceDimensions,
+  MetadataSequenceDimensionsYAML,
+  MetadataSequenceDimensionYAML,
+} from "~/metadata/commonObjects/metadataSequenceDimension/types"
 import { AdditionalIndex, AdditionalIndexYAML } from "~/metadata/commonObjects/additionalIndex/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
@@ -441,6 +451,18 @@ export type PropertyTypeRegistry = {
     item: MetadataEnumerationValues
     yaml: MetadataEnumerationValuesYAML
   }
+  MetadataSequence: {
+    item: MetadataSequence
+    yaml: MetadataSequenceYAML
+  }
+  MetadataSequenceDimension: {
+    item: MetadataSequenceDimension
+    yaml: MetadataSequenceDimensionYAML
+  }
+  MetadataSequenceDimensions: {
+    item: MetadataSequenceDimensions
+    yaml: MetadataSequenceDimensionsYAML
+  }
   CommandInterface: {
     item: CommandInterface
     yaml: CommandInterfaceYAML
@@ -760,6 +782,9 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataCommands: "MetadataCommands",
   MetadataDocumentNumerator: "MetadataDocumentNumerator",
   MetadataEnumerationValues: "MetadataEnumerationValues",
+  MetadataSequence: "MetadataSequence",
+  MetadataSequenceDimension: "MetadataSequenceDimension",
+  MetadataSequenceDimensions: "MetadataSequenceDimensions",
   CommandInterface: "CommandInterface",
   ContextMenu: "ContextMenu",
   ExtendedTooltip: "ExtendedTooltip",

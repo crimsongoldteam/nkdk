@@ -113,6 +113,8 @@ import "./childTemplateNames/toXML"
 
 import "./metadataAttribute/register"
 
+import "./metadataSequenceDimension/register"
+
 import "./metadataCommandGroup/fromXML"
 import "./metadataCommandGroup/fromYAML"
 import "./metadataCommandGroup/toXML"

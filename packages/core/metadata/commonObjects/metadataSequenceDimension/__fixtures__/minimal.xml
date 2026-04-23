@@ -1,0 +1,21 @@
+<Dimension uuid="04632834-d10d-419a-8f53-b49ca33b785a">
+	<Properties>
+		<Name>ИзмерениеПоУмолчанию</Name>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Измерение по умолчанию</v8:content>
+			</v8:item>
+		</Synonym>
+		<Comment/>
+		<Type>
+			<v8:Type>xs:string</v8:Type>
+			<v8:StringQualifiers>
+				<v8:Length>10</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+		</Type>
+		<DocumentMap/>
+		<RegisterRecordsMap/>
+	</Properties>
+</Dimension>

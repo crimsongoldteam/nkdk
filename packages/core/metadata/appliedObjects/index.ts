@@ -11,3 +11,5 @@ import "./metadataDocument/fromXML"
 import "./metadataDocumentNumerator"
 
 import "./metadataEnumeration/fromYAML"
+
+import "./metadataSequence"
