@@ -1,4 +1,4 @@
-import { close, connect, ensureIndex, graphMemoryBytes, query } from "@nakidka/graph"
+import { close, connect, ensureIndex, query } from "@nakidka/graph"
 import type { GraphConnection } from "@nakidka/graph"
 import { importMetadataFileWithGraph, MetadataGraph } from "@nakidka/core"
 import chalk from "chalk"
@@ -231,8 +231,6 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
       conn,
       "MATCH ()-[r]->() RETURN count(r) AS cnt",
     )
-    const memBytes = await graphMemoryBytes(conn)
-
     console.log(`чтение YAML      — ${tRead.toFixed(1)} мс`)
     console.log(`fromYAML         — ${tFromYaml.toFixed(1)} мс — heap ${heapMB.toFixed(1)} МБ`)
     console.log(`connect+indexes  — ${tConnect.toFixed(1)} мс`)
@@ -247,9 +245,6 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
     console.log("")
     console.log(`узлов в БД: ${totalDbNodes} (резолвнутых ${totalDbNodes - remainingStubs}, заглушек ${remainingStubs})`)
     console.log(`рёбер в БД: ${totalDbEdges}`)
-    console.log(
-      `граф в FalkorDB: ${memBytes !== null ? (memBytes / 1024 / 1024).toFixed(2) + " МБ" : "недоступно"}`,
-    )
     console.log(`heap JS: ${heapMB.toFixed(1)} МБ`)
   } finally {
     await close(conn)

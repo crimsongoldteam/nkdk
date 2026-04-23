@@ -58,13 +58,3 @@ export const ensureIndex = async (
     if (!/already indexed|equivalent index|index already exists/i.test(msg)) throw err
   }
 }
-
-export const graphMemoryBytes = async (conn: GraphConnection): Promise<number | null> => {
-  try {
-    const result = await asInternal(conn).graph.memoryUsage()
-    const bytes = Array.isArray(result) ? result[0] : result
-    return typeof bytes === "number" ? bytes : null
-  } catch {
-    return null
-  }
-}
