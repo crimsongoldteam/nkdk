@@ -26,3 +26,6 @@ delete/
 # Локальные Claude-инструкции с приватными путями
 CLAUDE.local.md
 .claude/CLAUDE.local.md
+
+# Логи внешних MCP-серверов (если всё-таки окажутся в проекте)
+mcp-server*.log
