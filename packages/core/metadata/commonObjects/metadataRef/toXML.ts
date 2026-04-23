@@ -12,7 +12,7 @@ export function exportMetadataItemLinkToXML(
 
   return {
     "#text": data,
-    "xsi:type": "xr:MDObjectRef",
+    "_xsi:type": "xr:MDObjectRef",
   }
 }
 
@@ -20,10 +20,14 @@ export function exportMetadataItemLinksToXML(
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: MetadataItemLinks | undefined
-): MetadataItemLinksXML | undefined {
+): MetadataItemLinksXML | "" | undefined {
   if (!data) return undefined
 
-  return data.map((value) => exportMetadataItemLinkToXML(context, undefined, value)!)
+  if (data.length === 0) return ""
+
+  return {
+    "xr:Item": data.map((value) => exportMetadataItemLinkToXML(context, undefined, value)!),
+  }
 }
 
 registerTypeRule("MetadataItemLinks", "exportToXML", exportMetadataItemLinksToXML)
