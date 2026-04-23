@@ -1,251 +1,192 @@
 ---
 name: new-applied-object
-description: Добавление нового прикладного объекта (Документ, Перечисление, Последовательность и т.п.) по фикстурам и схемам. Используй этот скилл при добавлении объектов из packages/core/metadata/appliedObjects/.
+description: Исследование прикладного объекта метаданных 1С перед реализацией — глубокий анализ фикстур, XSD, MCP 1С-платформы и соседей в codebase. Рекурсивно выявляет подчинённые объекты и извлекает для них XML-фикстуры. Выдаёт консолидированный отчёт для `/write-a-prd`. Используй при добавлении нового прикладного объекта (Документ, Последовательность, Перечисление, Нумератор и т.п.).
 ---
 
-# Добавление нового прикладного объекта
+# Исследование прикладного объекта
 
-## Принцип работы
+Скилл **исследует** и **готовит данные для PRD**. Ничего не реализует: не пишет `rules.ts`, `types.ts`, `register.ts`, тесты и не трогает реестры. Единственные файловые артефакты — папки и XML-фикстуры подчинённых объектов (извлекаются из фикстур родителя).
 
-Процесс **итеративный**, не линейный. Два отдельных цикла: XML-цикл и YAML-цикл. Каждый цикл начинается с round-trip — это жёсткий барьер: пока round-trip не зелёный, следующие шаги цикла не запускаются. Ошибка на любом шаге цикла → фикс `rules.ts` → перезапуск цикла с round-trip.
+Результат — структурированный отчёт в чате, который пользователь передаёт в `/write-a-prd`.
 
-После YAML-цикла — IO-тесты (`convertFromXML.test.ts` и `syncToXML.test.ts`), которые проверяют работу общего оркестратора с фикстурами на диске.
+## Триггер
 
-> **Жёсткий барьер: XML-цикл сначала, YAML-цикл потом.**
-> Пока XML-цикл не завершён полностью, запрещено касаться YAML-аннотаций в `rules.ts` и файлов `fromYAML.test.ts` / `toYAML.test.ts`.
+- Аргумент — путь к каталогу нового прикладного объекта (обычно `packages/core/metadata/appliedObjects/metadata<Name>/`). В каталоге уже должны лежать XML-фикстуры (`__fixtures__/full.xml`, `minimal.xml`; желательно `__fixtures__/sync/xml/<Имя>.xml`).
+- Если фикстур нет — останови скилл, попроси пользователя добавить минимум один `full.xml`.
 
-## Точка входа
+## Обязательные ресурсы
 
-**Новый объект** — начинай с шага 1 (Бриф).
+Перед началом **обязательно** прочитай `.claude/CLAUDE.local.md`. Там приватные пути, без которых Deep Scan неполный:
 
-**Существующий объект** (диагностика, починка свойства) — пропускай шаги 1–6 и начинай с XML-цикла (шаг 7). Если XML-цикл уже зелёный и проблема только в YAML — начинай с YAML-цикла (шаг 11). Если нужны только IO-тесты — начинай с шага 14.
+1. **XSD-каталог** (`.xsd*_root.res` файлы платформы 1С).
+2. **MCP `bsl-platform`** подключён в `~/.claude.json`. После запуска Claude Code должны быть доступны инструменты `mcp__bsl-platform__search`, `mcp__bsl-platform__getMembers`, `mcp__bsl-platform__getMember`, `mcp__bsl-platform__info`, `mcp__bsl-platform__getConstructors`.
+3. **Карта ru↔en** (`~/.cache/mcp-bsl/ru-en-map.json`) — ~10 000 пар русское имя → английский синоним. Файл генерируется один раз из DEBUG-логов `TocParser` MCP-сервера (через публичный API MCP английские не отдаются).
 
----
+**Если нет любого из трёх** — остановись, выведи сообщение «настрой локальные ресурсы» со ссылкой на `.claude/CLAUDE.local.md`. Скилл без них работать не будет.
 
-## Специфика прикладного объекта
+## Принцип: четыре ортогональных источника
 
-Три особенности, которые отличают прикладной объект от обычного metadataItem:
+| Источник | Что даёт | Когда использовать |
+|---|---|---|
+| MCP `getMembers` по `ОбъектМетаданных: <РусскоеИмя>` | **Русские** имена свойств + типы платформы + описания | Получить канонический русский список (= будущие YAML-ключи). |
+| Карта `ru-en-map.json` | **Английский** синоним для каждого русского имени | Маппинг в TS-ключи и ориентировка на XML-теги. |
+| XSD (`.xsd*_root.res`) | **Английские XML-теги** (могут отличаться от синонимов из карты!) + типы полей + наследование от `MDBaseObj` и т.п. | Источник истины для `xml: "..."` в rules.ts и для `MetadataXxxXML` в types.ts. |
+| Соседние applied objects в codebase | Паттерны реализации проекта (как мапятся `MetadataItemLinks`, `SystemEnumeration`, дефолты, `defaultValueXMLEmpty`/`defaultValueXMLRaw` и т.п.) | Фундамент для правил — не изобретать заново. |
 
-### 1. Обязательное свойство `metaDataObject`
-
-Первым свойством в `rules.ts` прикладного объекта **всегда** идёт `metaDataObject`:
-
-```typescript
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-
-export const <MetadataName>Rules = {
-  itemType: "<InternalType>",
-  itemTypePrefix: "<РусскийПрефикс>",
-  properties: {
-    metaDataObject: {
-      type: "MetaDataObject",
-      container: "<ИмяКонтейнера>",   // например: "Catalog", "DocumentNumerator", "Document"
-      rootAttributes: V8_MDCLASSES_ROOT,
-      forReferenceOnly: true,
-      toYAML: false,
-      fromYAML: false,
-    },
-    // ... остальные свойства
-  },
-} as const satisfies MetadataItemRule
-```
-
-- `container` — имя внутреннего тега XML (`<Catalog>`, `<DocumentNumerator>` и т.п.). Берётся из XML-фикстуры.
-- `rootAttributes: V8_MDCLASSES_ROOT` — общий пресет xmlns-атрибутов корневого `<MetaDataObject>`. Не дублировать, импортировать из `orchestration/appliedObject/presets`.
-- `forReferenceOnly: true` — свойство не является данными объекта; обрабатывается только оркестратором.
-
-### 2. Опциональные свойства `forms` и `templates`
-
-Если прикладной объект может иметь формы и/или макеты — добавь соответствующие свойства:
-
-```typescript
-forms: {
-  type: "ChildFormNames",
-  xml: "Form",
-  folderName: "Формы",           // имя подпапки в файловой системе
-  forReferenceOnly: true,
-  toYAML: false,
-  fromYAML: false,
-  xmlParents: ["ChildObjects"],
-},
-templates: {
-  type: "ChildTemplateNames",
-  xml: "Template",
-  folderName: "Макеты",          // имя подпапки в файловой системе
-  forReferenceOnly: true,
-  toYAML: false,
-  fromYAML: false,
-  xmlParents: ["ChildObjects"],
-},
-```
-
-`folderName` сообщает IO-оркестратору (`syncAppliedObjectToXML`), какую подпапку сканировать при сборке списка форм/макетов из файловой системы.
-
-### 3. IO-тесты и структура `__fixtures__/sync/`
-
-Помимо стандартного квартета round-trip тестов, прикладной объект имеет IO-тесты через общий оркестратор. Структура фикстур и шаблоны тестов — [io-tests.md](../_shared/metadata/io-tests.md).
+**Ни один не заменяет другой.** Если английское имя из карты не совпадает с XSD-тегом — XSD побеждает (это XML-разметка), карта остаётся как указание на «правильный» английский синоним для TS-ключа.
 
 ---
 
-## Шаг 1. Бриф (последовательный)
-
-Не задавай сразу всё списком. Перед каждым вопросом — **быстро исследуй кодовую базу** (XML-фикстуры, `types.ts` рядом, похожие соседние appliedObjects) и спрашивай только то, что из кода не выводится.
-
-Пункты брифа — в этом порядке, по одному:
-
-**XML-сторона:**
-
-1. Путь к каталогу нового объекта — обычно дан в аргументе команды. Фиксированное место: `packages/core/metadata/appliedObjects/<имя>/`.
-2. XML-фикстуры — проверь, что в `__fixtures__/` лежит 1–3 файла с разным заполнением. Если меньше — попроси добавить **до** продолжения.
-3. Имя контейнера (`container`) — из XML-фикстуры: тег внутри `<MetaDataObject>`. Подтверди.
-4. Схема объекта (XSD) — получи от пользователя, если нет в репозитории.
-5. Свойства, не встречающиеся в XML-фикстурах (например, `runtimeOnly`-поля) — запроси отдельным пунктом.
-6. Наличие форм и макетов — есть ли `<Form>`-теги в `<ChildObjects>`? Нужны ли свойства `forms` / `templates`?
-7. Дочерние коллекции — извлеки из XML-фикстуры, подтверди наличие/отсутствие.
-8. Известные ограничения (read-only, «только на запись») — явный вопрос.
-
-**YAML-сторона (обязательно спрашиваем заранее, применяем только на шаге 11):**
-
-9. YAML-имена ключей для каждого свойства (проверь `types.ts` / соседний appliedObject).
-10. `itemTypePrefix` — YAML-префикс объекта верхнего уровня (например, `"Документ"`, `"Перечисление"`).
-11. Для каких свойств нужен `defaultValueYAML`.
-12. Свойства, исключённые из YAML (`toYAML: false`, `fromYAML: false`).
-13. Особые YAML-флаги (`excludeIfEqualNameYAML`, `useAsShortValueYAML`) — по аналогии с соседом, предложи явно.
-
-Без брифа не начинай работу.
-
-## Шаг 2. Анализ
-
-Прочитай XML-фикстуры, схему, список свойств. Сверься с 1–2 **похожими существующими appliedObjects** в `packages/core/metadata/appliedObjects/` — как они решают аналогичные задачи. Обрати внимание на `metadataCatalog` (полный кейс с формами и макетами) и `metadataDocumentNumerator` (минимальный кейс без ChildObjects).
-
-## Шаг 3. `types.ts`
-
-Создай файл типов. Подробнее — [types.md](../_shared/metadata/types.md).
-
-## Шаг 4. `rules.ts` — первое приближение ⟲
-
-Создай файл правил. Подробнее — [rules.md](../_shared/metadata/rules.md).
-
-Обязательно:
-- Первым свойством добавь `metaDataObject` (см. раздел «Специфика», п. 1).
-- Если объект имеет формы или макеты — добавь `forms` / `templates` (см. п. 2).
-- Импортируй `V8_MDCLASSES_ROOT` из `~/metadata/orchestration/appliedObject/presets`.
-
-Правило: **предпочитай `rules.ts`** вместо ручных `fromXML`/`toXML`.
-
-## Шаг 5. Регистрация типов
-
-Без регистрации round-trip не запустится. Нужно **три** точки правки:
-
-**5.1. `MetadataItemTypeRegistry`** — `packages/core/metadata/orchestration/metadataItem/registry.ts`.
-Добавь ключ типа: `<ObjectName>: { metadata: <ObjectName>; yaml: <ObjectName>YAML }`.
-
-**5.2. `PropertyTypeRegistry` + `PropertyRuleTypeKeys`** — `packages/core/metadata/orchestration/property/registry.ts`.
-- `PropertyTypeRegistry` — добавь ключ `<ObjectName>: { item: <ObjectName>; yaml: <ObjectName>YAML }`.
-- Массив `PropertyRuleTypeKeys` — добавь строку `<ObjectName>: "<ObjectName>"`.
-
-**5.3. Привязка правила к типу** — в `types.ts` самого объекта вызови `registerMetadataItemRule({ propertyType, itemRule })` (см. [types.md](../_shared/metadata/types.md)).
-
-## Шаг 6. `index.ts`
-
-Создай `index.ts` в каталоге объекта (`packages/core/metadata/appliedObjects/<имя>/index.ts`). Пропиши его в `index.ts` вышестоящего каталога `appliedObjects/`.
-
----
-
-## XML-цикл
-
-Шаги 7–10 образуют цикл. Ошибка на любом шаге → фикс → перезапуск с шага 7.
-
-## Шаг 7. XML round-trip ⟲ (жёсткий барьер)
-
-Напиши `fromXML.test.ts` с **round-trip блоком**: импорт XML → экспорт полученной структуры → сравнение с исходным XML (строковое, без канонизации). Шаблоны и правила сравнения — [tests.md](../_shared/metadata/tests.md).
-
-Если расхождения — не переходи к шагу 8. Применяй протокол эскалации ([tests.md](../_shared/metadata/tests.md)), правь `rules.ts`, перезапускай цикл.
-
-**Если расхождение во фрагменте подчинённого объекта** — стоп. Одним сообщением пользователю: имя подчинённого, путь к его каталогу, XML-фрагмент из фикстуры. Жди решения, не правь чужой `rules.ts` сам.
-
-## Шаг 8. TS-фикстуры
-
-На каждую XML-фикстуру `<name>.xml` — отдельный TS-файл `__fixtures__/<name>.ts`. Подробнее — [fixtures-data.md](../_shared/metadata/fixtures-data.md).
-
-YAML-поля на этом шаге **не заполняй** — добавляются на шаге 11.
-
-## Шаг 9. fromXML тест
-
-Допиши в `fromXML.test.ts` блок `it("import <name>")` с `expect(result).toEqual(<fixtureName>)`. Round-trip блок остаётся как регресс.
-
-Если тест падает → фикс → перезапуск цикла с шага 7.
-
-## Шаг 10. toXML тест
-
-Создай `toXML.test.ts`.
-
-Если тест падает → фикс → перезапуск цикла с шага 7.
-
----
-
-## Барьер: обсуждение YAML-структуры
-
-Не переходи к YAML-циклу, пока XML-цикл не завершён полностью (шаги 7–10 зелёные).
-
-Сгенерируй **черновик YAML** из TS-фикстур по аналогии с 1–2 похожими соседними appliedObjects. Покажи пользователю черновик + список явных вопросов. Без подтверждения пользователя YAML-правила не пиши.
-
----
-
-## YAML-цикл
-
-Шаги 11–13 образуют цикл. Ошибка на любом шаге → фикс → перезапуск с шага 11.
-
-## Шаг 11. YAML round-trip ⟲ (жёсткий барьер)
-
-Допиши YAML-часть в `rules.ts`. Напиши `fromYAML.test.ts` с **round-trip блоком**: импорт YAML → экспорт → сравнение на уровне parsed object. Добавь экспорт `<fixtureName>YAML` в `__fixtures__/<name>.ts`.
-
-Если round-trip падает — не переходи к шагу 12, устраняй расхождения и перезапускай цикл.
-
-## Шаг 12. fromYAML тест
-
-Допиши в `fromYAML.test.ts` блок `expect(result).toEqual(<fixtureName>)`. Round-trip остаётся как регресс.
-
-Если тест падает → фикс → перезапуск цикла с шага 11.
-
-## Шаг 13. toYAML тест
-
-Создай `toYAML.test.ts`.
-
-Если тест падает → фикс → перезапуск цикла с шага 11.
-
----
-
-## IO-тесты
-
-Шаги 14–15 проверяют работу общего IO-оркестратора (`convertAppliedObjectFromXML` / `syncAppliedObjectToXML`) с фикстурами на диске. Структура фикстур и шаблоны — [io-tests.md](../_shared/metadata/io-tests.md).
-
-## Шаг 14. `convertFromXML.test.ts`
-
-Создай фикстуры `__fixtures__/sync/`: XML-файл, ожидаемый `data.ts`. Напиши тест по шаблону из [io-tests.md](../_shared/metadata/io-tests.md).
-
-## Шаг 15. `syncToXML.test.ts`
-
-Создай `__fixtures__/sync/nkdk/<Имя>/Свойства.yaml` (и при наличии форм/макетов — подпапки `Формы/`, `Макеты/`). Напиши тест по шаблону из [io-tests.md](../_shared/metadata/io-tests.md).
-
----
-
-## Шаг 16. Отчёт о покрытии
-
-В финальном сообщении пользователю приведи **явный список свойств**, **не покрытых ни одной XML-фикстурой**.
-
-Формат:
+## Фаза 1. Deep Scan (молча)
+
+Агент работает автономно, без вопросов пользователю. Короткие инлайн-комментарии «читаю X, нашёл Y» допустимы, но **вопросы не задавать**.
+
+### Чек-лист
+
+1. **Прочитать все XML-фикстуры целиком.** Для каждого файла:
+   - `wc -l <file>` → получить число строк.
+   - `Read <file> limit=<wc+10>`.
+   - **Без `wc -l` Read может вернуть усечённый файл** (частая ошибка — упустить `<Dimension>` в конце `full.xml`).
+   - Повторить для `__fixtures__/sync/xml/<Имя>.xml` и всех файлов в `__fixtures__/sync/xml/<Имя>/Ext/*`.
+2. **Идентифицировать контейнер.** Корневой тег внутри `<MetaDataObject>` — это `container` для правила (`Sequence`, `Document`, `Catalog`, …).
+3. **Собрать все вложенные теги** родителя. Не только в `<ChildObjects>`: сложные объекты могут жить прямо в `<Properties>` (AdditionalIndexes, Characteristics, Predefined, StandardAttributes, составные presentation-типы). И в `Ext/*.xml` — отдельные подфайлы.
+4. **Классифицировать каждый тег:**
+   - Примитив (`string`, `boolean`, `number`) — inline.
+   - `I8nText` (есть `<v8:item><v8:lang>…`) — inline.
+   - SystemEnumeration — известное значение из `~/metadata/systemEnumerations/types.ts` (проверь grep-ом).
+   - `MetadataItemLinks` — контейнер с `<xr:Item xsi:type="xr:MDObjectRef">…</xr:Item>`.
+   - `AdditionalIndex` — известный common.
+   - **Подчинённый объект** — сложный тег без существующей реализации в `commonObjects/` и `appliedObjects/`. Для него — рекурсия.
+5. **Рекурсия подчинённых** (бесконечная по глубине):
+   - Извлечь XML-фрагмент из фикстуры родителя. Если фрагментов несколько экземпляров — выбрать полный + минимальный.
+   - Определить имя: `metadata<ContainerName>` — CamelCase. Путь по умолчанию: `packages/core/metadata/commonObjects/metadata<ContainerName>/`. Если сомнения — положить в commonObjects, пользователь скорректирует в грил-вопросе.
+   - Создать папку + `__fixtures__/full.xml` и (если есть вариативность) `__fixtures__/minimal.xml`. Фрагменты сохранять **как есть** из родителя, без нормализации.
+   - Рекурсивно пройти по тегам подчинённого (Deep Scan внутри него).
+6. **Прочитать XSD** родителя и каждого подчинённого:
+   - `grep -l '<xs:complexType name="<Container>"' /Users/nikita/git/1c_res/*.xsd*_root.res` — найти файл.
+   - Read найденного файла (`wc -l` → `Read limit`).
+   - Извлечь `<xs:sequence>` свойств + `<xs:extension base="..."/>` базовых типов.
+7. **Запросить MCP:**
+   - `mcp__bsl-platform__search` с query = русское имя типа, type = "type" — найти точное имя (например `ОбъектМетаданных: Последовательность`).
+   - `mcp__bsl-platform__getMembers` с `typeName` = найденное имя — получить список свойств на русском с типами.
+8. **Для каждого русского имени свойства** прочитать `~/.cache/mcp-bsl/ru-en-map.json` и взять английский синоним. Сохранить тройку `(русский, английский, тип-платформы)`.
+9. **Сверка английских имён из карты и XSD:** для каждого свойства проверить, совпадает ли английский синоним с `<xs:element name="...">` в XSD. При расхождении — **XSD побеждает** (это фактический XML-тег), но синоним сохранить для пометки в отчёте.
+10. **Прочитать 1–2 соседних applied object.** Приоритет: (а) объекты с тем же ключом `itemType` базы (если MDBaseObj — почти все); (б) объекты с похожими свойствами (если родитель имеет `MetadataItemLinks` — смотреть `metadataDocument`; если `AdditionalIndex` — `metadataCatalog`; и т.п.). Файлы: `rules.ts`, `types.ts`, `index.ts`, `__fixtures__/full.ts`.
+11. **Проверить реестры:**
+    - `packages/core/metadata/orchestration/metadataItem/registry.ts` (`MetadataItemTypeRegistry`)
+    - `packages/core/metadata/orchestration/property/registry.ts` (`PropertyTypeRegistry` + `PropertyRuleTypeKeys`)
+    - Для каждого потенциального типа (родителя + подчинённых + их коллекций) — есть ли запись.
+
+### Внутренний отчёт (не в чат)
+
+По итогу Deep Scan у агента должна быть таблица:
 
 ```
-Покрытие свойств фикстурами: 12/15
-Непокрытые: Parent, Comment, UseStandardCommand
+Родитель: Metadata<Name>
+├── container: <XMLTag>
+├── свойства: [ {русский, английский, XSDtag, тип, источник: фикстура/XSD/MCP}, ... ]
+├── подчинённые: [
+│     { путь, container, свойства: [...], подчинённые: [...] }
+│   ]
+├── внешние файлы: [ Ext/AdditionalIndexes.xml → tag "AdditionalIndexes", тип уже есть ]
+├── свойства вне фикстур: [ objectBelonging, extendedConfigurationObject, ... ]
+├── реестры-дельта: [ новые ключи которые надо добавить ]
+└── риски инфраструктуры: [ ... ]
 ```
+
+---
+
+## Фаза 2. Grill-style вопросы
+
+Формат — строго по `.claude/skills/grill-me/SKILL.md`: **по одному вопросу**, с **предлагаемым ответом** и **обоснованием**. Агент не переходит к следующему, пока не получил ответ.
+
+Обязательные блоки (порядок):
+
+1. **Свойства родителя** — таблица (русский / английский TS-ключ / XSD-тег / тип / YAML-ключ / источник). «Верно? Добавить/убрать? Переименовать?»
+2. **Свойства вне фикстур** — найденные в XSD базового класса или в MCP, но отсутствующие в фикстурах (кандидаты `objectBelonging`, `extendedConfigurationObject` и т.п.). Для каждого рекомендуемый режим (`runtimeOnly`, `toYAML: false, fromYAML: false`, или не включать).
+3. **Подчинённые объекты** — список рекурсивно найденных, с указанием путей созданных папок и XML-фикстур. Порядок создания (сначала листья). «Пути в `commonObjects/` — OK? Создавать всех сейчас или некоторых отложить?»
+4. **Внешние файлы** (`Ext/*.xml` или отдельные .bsl-модули) — для каждого: известный механизм (как у соседа) / runtimeOnly / не включать в rules.
+5. **Особые свойства** — модули (`RecordSetModule`, `ObjectModule`), `Predefined`, кастомные теги — как обрабатывать.
+6. **Риски инфраструктуры** — если Deep Scan обнаружил статически (неизвестный тип в реестрах, необычные `xmlParents`, возможные баги общих `from/to XML` правил для нужного типа) — для каждого предлагаемое действие.
+
+Если в ходе ответов выясняется, что решение пользователя требует нового под-вопроса — задавай его **тут же**, не копи на конец.
+
+---
+
+## Фаза 3. Консолидированный отчёт в чате
+
+Один сообщение-markdown по шаблону:
+
+```markdown
+# Research: Metadata<Name>
+
+## Контекст
+- Путь: `packages/core/metadata/appliedObjects/metadata<Name>/`
+- Контейнер XML: `<Container>`
+- XSD-источник: `<файл>`
+- Референс-соседи: `<1-2 пути>`
+
+## Свойства
+| TS-ключ | XML-тег | YAML-ключ | Тип | Default | Источник |
+|---|---|---|---|---|---|
+| ... | ... | ... | ... | ... | ... |
+
+## Подчинённые (порядок создания — сначала листья)
+1. `Metadata<Sub1>` → `packages/core/metadata/commonObjects/metadata<Sub1>/`
+   - Фикстуры извлечены: full.xml [+ minimal.xml]
+   - Свойства: …
+   - Подчинённых нет [или список]
+2. `Metadata<Sub2>` → ...
+
+## Внешние файлы
+- `Ext/<File>.xml` — обрабатывать как свойство `<key>: { type: "<T>" }` (по аналогии с <сосед>)
+
+## Свойства вне фикстур (по решению пользователя)
+- `objectBelonging` — `SystemEnumeration: ObjectBelonging`, `toYAML: false, fromYAML: false`
+- `extendedConfigurationObject` — `string`, `runtimeOnly: true`
+
+## Дельта реестров
+- `MetadataItemTypeRegistry`: добавить `Metadata<Name>`, `Metadata<Sub1>`, `Metadata<Sub2>`
+- `PropertyTypeRegistry`: добавить `Metadata<Name>`, `Metadata<Sub1>`, `Metadata<Sub1>s` (коллекция), `Metadata<Sub2>`, `Metadata<Sub2>s`
+- `PropertyRuleTypeKeys`: те же записи
+
+## Ответы пользователя на грил
+1. **Q:** <вопрос> — **A:** <ответ>
+2. ...
+
+## Риски / заметки к выполнению
+- <перечень статически выявленных>
+
+## Непокрытые свойства (нет в фикстурах, но объявлены в rules)
+- ...
+
+## Следующий шаг
+Сформируй PRD через `/write-a-prd` на основе этого отчёта. Реализация — отдельная фаза после PRD/plan.
+```
+
+---
+
+## Что НЕ делает скилл
+
+- Не создаёт `rules.ts`, `types.ts`, `register.ts`, `index.ts`.
+- Не регистрирует ничего в `MetadataItemTypeRegistry`/`PropertyTypeRegistry`/`PropertyRuleTypeKeys`.
+- Не пишет тесты (`fromXML.test.ts`, `toXML.test.ts`, `fromYAML.test.ts`, `toYAML.test.ts`, `convertFromXML.test.ts`, `syncToXML.test.ts`).
+- Не запускает `pnpm test` и `type-check`.
+- Не правит общую инфраструктуру (`metadataRef`, `metadataField` и т.п.), даже если Deep Scan обнаружил подозрение на баг — это идёт в раздел «Риски».
+
+## Что делает (единственные файловые артефакты)
+
+- Папки подчинённых: `packages/core/metadata/commonObjects/metadata<Sub>/`.
+- XML-фикстуры подчинённых: `packages/core/metadata/commonObjects/metadata<Sub>/__fixtures__/full.xml` (+ `minimal.xml`).
+
+Все остальные файлы создаются на этапе выполнения плана (после `/write-a-prd` → `/prd-to-plan` → ручная реализация по плану).
 
 ## Ссылки
 
-- [rules.md](../_shared/metadata/rules.md) — правила
-- [types.md](../_shared/metadata/types.md) — типы
-- [fixtures-data.md](../_shared/metadata/fixtures-data.md) — TS-фикстуры
-- [tests.md](../_shared/metadata/tests.md) — round-trip, протокол эскалации, раздельные тесты
-- [io-tests.md](../_shared/metadata/io-tests.md) — IO-тесты и структура __fixtures__/sync/
-- [scripts.md](../_shared/metadata/scripts.md) — вспомогательные раннеры для печати YAML/XML
+- [grill-me](../grill-me/SKILL.md) — методика вопросов «по одному с рекомендацией»
+- [write-a-prd](../write-a-prd/SKILL.md) — следующий шаг после этого скилла
+- [_shared/metadata/rules.md](../_shared/metadata/rules.md) — справка по правилам для фазы реализации
+- [_shared/metadata/types.md](../_shared/metadata/types.md)
+- [_shared/metadata/fixtures-data.md](../_shared/metadata/fixtures-data.md)
+- [_shared/metadata/tests.md](../_shared/metadata/tests.md)
+- [_shared/metadata/io-tests.md](../_shared/metadata/io-tests.md)
