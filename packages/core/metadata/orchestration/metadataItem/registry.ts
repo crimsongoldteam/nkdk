@@ -56,6 +56,7 @@ import {
   StructureItemGroupYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
 import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
+import { PredefinedItem, PredefinedItemYAML } from "~/metadata/commonObjects/predefinedItem/types"
 import {
   MetadataSequenceDimension,
   MetadataSequenceDimensionYAML,
@@ -574,6 +575,11 @@ export type MetadataItemTypeRegistry = {
   MetadataAttribute: {
     metadata: MetadataAttribute
     yaml: MetadataAttributeYAML
+  }
+
+  PredefinedItem: {
+    metadata: PredefinedItem
+    yaml: PredefinedItemYAML
   }
 
   MetadataSequenceDimension: {

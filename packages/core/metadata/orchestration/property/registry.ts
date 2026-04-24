@@ -7,16 +7,7 @@ import {
   MetadataEnumerationValues,
   MetadataEnumerationValuesYAML,
 } from "~/metadata/appliedObjects/metadataEnumeration/types"
-import {
-  MetadataSequence,
-  MetadataSequenceYAML,
-} from "~/metadata/appliedObjects/metadataSequence/types"
-import {
-  MetadataSequenceDimension,
-  MetadataSequenceDimensions,
-  MetadataSequenceDimensionsYAML,
-  MetadataSequenceDimensionYAML,
-} from "~/metadata/commonObjects/metadataSequenceDimension/types"
+import { MetadataSequence, MetadataSequenceYAML } from "~/metadata/appliedObjects/metadataSequence/types"
 import { AdditionalIndex, AdditionalIndexYAML } from "~/metadata/commonObjects/additionalIndex/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
@@ -46,12 +37,6 @@ import type {
   CalculatedFieldUseRestriction,
   CalculatedFieldUseRestrictionYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types"
-import type {
-  DataCompositionSchemaDataSetField,
-  DataCompositionSchemaDataSetFieldYAML,
-  DataSetFieldFields,
-  DataSetFieldFieldsYAML,
-} from "~/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/types"
 import {
   ConditionalAppearance,
   ConditionalAppearanceYAML,
@@ -60,14 +45,20 @@ import {
   ConditionalAppearanceItem,
   ConditionalAppearanceItemsYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types"
+import type {
+  DataCompositionSchemaDataSetField,
+  DataCompositionSchemaDataSetFieldYAML,
+  DataSetFieldFields,
+  DataSetFieldFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/types"
 import {
   MetadataDcsMetadataValue,
   MetadataDcsMetadataValueYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
 import {
   DCSParameter,
-  DCSParameterYAML,
   DCSParametersYAML,
+  DCSParameterYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/dcsParameter/types"
 import {
   DcsMetadataTypedValue,
@@ -135,6 +126,12 @@ import {
   MetadataItemLinkYAML,
 } from "~/metadata/commonObjects/metadataRef/types"
 import {
+  MetadataSequenceDimension,
+  MetadataSequenceDimensions,
+  MetadataSequenceDimensionsYAML,
+  MetadataSequenceDimensionYAML,
+} from "~/metadata/commonObjects/metadataSequenceDimension/types"
+import {
   MetadataTabularSections,
   MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
@@ -149,7 +146,13 @@ import {
   MetadataValueCollectionYAML,
 } from "~/metadata/commonObjects/metadataValueCollection/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import { PredefinedItems, PredefinedItemsYAML } from "~/metadata/commonObjects/predifined/types"
+import { PredefinedItems, PredefinedItemsYAML } from "~/metadata/commonObjects/predefined/types"
+import {
+  PredefinedItem,
+  PredefinedItemCollection,
+  PredefinedItemCollectionYAML,
+  PredefinedItemYAML,
+} from "~/metadata/commonObjects/predefinedItem/types"
 import {
   StandardAttributeDescription,
   StandardAttributeDescriptions,
@@ -410,6 +413,14 @@ export type PropertyTypeRegistry = {
   Predefined: {
     item: PredefinedItems
     yaml: PredefinedItemsYAML
+  }
+  PredefinedItem: {
+    item: PredefinedItem
+    yaml: PredefinedItemYAML
+  }
+  PredefinedItemCollection: {
+    item: PredefinedItemCollection
+    yaml: PredefinedItemCollectionYAML
   }
   Module: {
     item: string | undefined
@@ -778,6 +789,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataValue: "MetadataValue",
   MetadataValueCollection: "MetadataValueCollection",
   Predefined: "Predefined",
+  PredefinedItem: "PredefinedItem",
+  PredefinedItemCollection: "PredefinedItemCollection",
   Module: "Module",
   Template: "Template",
   Help: "Help",

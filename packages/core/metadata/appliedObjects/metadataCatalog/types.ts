@@ -12,7 +12,7 @@ import {
   MetadataTabularSectionsXML,
   MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
-import { PredefinedItemsXML, PredefinedItemsYAML } from "~/metadata/commonObjects/predifined/types"
+import { PredefinedItemsXML, PredefinedItemsYAML } from "~/metadata/commonObjects/predefined/types"
 import {
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,

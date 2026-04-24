@@ -1,12 +1,22 @@
 import fs from "fs"
-import { join, dirname } from "path"
+import { dirname, join } from "path"
+import { externalFileEnvelopes } from "~/metadata/commonObjects/predefined/rules"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { exportMetadataItemToXML, importMetadataItemFromXML, importMetadataItemFromYAML } from "~/metadata/orchestration"
+import {
+  exportMetadataItemToXML,
+  importMetadataItemFromXML,
+  importMetadataItemFromYAML,
+} from "~/metadata/orchestration"
 import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
-import type { HelpPropertyRule, MetadataItemRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "~/metadata/orchestration/property/types"
-import { externalFileEnvelopes } from "~/metadata/commonObjects/predifined/rules"
-import { importContentFromXML } from "~/xml/import/importer"
+import type {
+  HelpPropertyRule,
+  MetadataItemRule,
+  ModulePropertyRule,
+  PropertyRule,
+  TemplatePropertyRule,
+} from "~/metadata/orchestration/property/types"
 import { xmlExport } from "~/xml/export/exporter"
+import { importContentFromXML } from "~/xml/import/importer"
 import { importFromYAML } from "~/yaml/import"
 
 const PROPERTIES_YAML = "Свойства.yaml"
@@ -87,20 +97,16 @@ export const syncAppliedObjectToXML = async (params: {
     if (!collectionModel || typeof collectionModel !== "object") continue
     // После XML-импорта коллекция — массив [{name, ...}, ...], после YAML — Record<name, ...>
     const itemNames: string[] = Array.isArray(collectionModel)
-      ? (collectionModel as Array<Record<string, unknown>>)
-          .map((item) => String(item["name"] ?? ""))
-          .filter(Boolean)
+      ? (collectionModel as Array<Record<string, unknown>>).map((item) => String(item["name"] ?? "")).filter(Boolean)
       : Object.keys(collectionModel)
     for (const itemName of itemNames) {
       for (const [_k, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
         if (itemPropRule.type !== "Module" && itemPropRule.type !== "Template") continue
         const moduleRule = itemPropRule as ModulePropertyRule | TemplatePropertyRule
-        const nkdkPath = typeof moduleRule.nkdkPath === "function"
-          ? moduleRule.nkdkPath({ name: itemName })
-          : moduleRule.nkdkPath
-        const xmlPath = typeof moduleRule.xmlPath === "function"
-          ? moduleRule.xmlPath({ name: itemName })
-          : moduleRule.xmlPath
+        const nkdkPath =
+          typeof moduleRule.nkdkPath === "function" ? moduleRule.nkdkPath({ name: itemName }) : moduleRule.nkdkPath
+        const xmlPath =
+          typeof moduleRule.xmlPath === "function" ? moduleRule.xmlPath({ name: itemName }) : moduleRule.xmlPath
         const srcPath = join(inputDir, name, nkdkPath)
         if (!fs.existsSync(srcPath)) continue
         const dstPath = join(outputDir, xmlPath)
@@ -154,7 +160,9 @@ export const syncAppliedObjectToXML = async (params: {
     const typeExportFn = getTypeRule(propRule.type as Parameters<typeof getTypeRule>[0], "exportToXML")
     if (!typeExportFn) continue
 
-    const containerContent = typeExportFn(contextWithForms, propRule as PropertyRule, modelValue) as Record<string, unknown> | undefined
+    const containerContent = typeExportFn(contextWithForms, propRule as PropertyRule, modelValue) as
+      | Record<string, unknown>
+      | undefined
     if (!containerContent) continue
 
     // Подмешиваем _id из референсного файла по полю Name

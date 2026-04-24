@@ -59,8 +59,25 @@ export const registerMetadataItemCollectionRule = <
   const fromXMLDefault: ImportFromXMLFunction = (context, rule, xml) => {
     const effectiveElement = xmlElement ?? (rule as any).xml
     if (Array.isArray(xml)) {
+      // Если каждый элемент массива — обёртка вида `{[effectiveElement]: body | [bodies]}`,
+      // расплющиваем в массив тел. Такую форму даёт XML-парсер для тегов, помеченных
+      // `options.isArray` (например `<ChildItems>` в импортёре), — содержимое тега
+      // всегда оборачивается в массив, даже если он встречается один раз.
+      const isWrapped = xml.every(
+        (entry) =>
+          entry !== null &&
+          typeof entry === "object" &&
+          !Array.isArray(entry) &&
+          effectiveElement in (entry as object)
+      )
+      const bodies = isWrapped
+        ? xml.flatMap((entry: any) => {
+            const inner = entry[effectiveElement]
+            return Array.isArray(inner) ? inner : [inner]
+          })
+        : xml
       return importMetadataItemCollectionFromXML(itemRule, effectiveElement)(context, rule, {
-        [effectiveElement]: xml,
+        [effectiveElement]: bodies,
       })
     }
     // Если parent уже вытащил содержимое по rule.xml и вернул одиночный элемент (а не контейнер),

@@ -1,10 +1,16 @@
 import fs from "fs"
-import { join, dirname } from "path"
+import { dirname, join } from "path"
+import { externalFileEnvelopes } from "~/metadata/commonObjects/predefined/rules"
 import type { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { exportMetadataItemToYAML, importMetadataItemFromXML } from "~/metadata/orchestration"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import type { HelpPropertyRule, MetadataItemRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "~/metadata/orchestration/property/types"
-import { externalFileEnvelopes } from "~/metadata/commonObjects/predifined/rules"
+import type {
+  HelpPropertyRule,
+  MetadataItemRule,
+  ModulePropertyRule,
+  PropertyRule,
+  TemplatePropertyRule,
+} from "~/metadata/orchestration/property/types"
 import { importContentFromXML } from "~/xml/import/importer"
 import { exportToYAML } from "~/yaml/export"
 
@@ -78,20 +84,16 @@ export const convertAppliedObjectFromXML = async (params: {
     if (!collectionModel || typeof collectionModel !== "object") continue
     // После XML-импорта коллекция — массив [{name, ...}, ...], после YAML — Record<name, ...>
     const itemNames: string[] = Array.isArray(collectionModel)
-      ? (collectionModel as Array<Record<string, unknown>>)
-          .map((item) => String(item["name"] ?? ""))
-          .filter(Boolean)
+      ? (collectionModel as Array<Record<string, unknown>>).map((item) => String(item["name"] ?? "")).filter(Boolean)
       : Object.keys(collectionModel)
     for (const itemName of itemNames) {
       for (const [_k, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
         if (itemPropRule.type !== "Module" && itemPropRule.type !== "Template") continue
         const moduleRule = itemPropRule as ModulePropertyRule | TemplatePropertyRule
-        const xmlPath = typeof moduleRule.xmlPath === "function"
-          ? moduleRule.xmlPath({ name: itemName })
-          : moduleRule.xmlPath
-        const nkdkPath = typeof moduleRule.nkdkPath === "function"
-          ? moduleRule.nkdkPath({ name: itemName })
-          : moduleRule.nkdkPath
+        const xmlPath =
+          typeof moduleRule.xmlPath === "function" ? moduleRule.xmlPath({ name: itemName }) : moduleRule.xmlPath
+        const nkdkPath =
+          typeof moduleRule.nkdkPath === "function" ? moduleRule.nkdkPath({ name: itemName }) : moduleRule.nkdkPath
         const srcPath = join(inputDir, xmlPath)
         if (!fs.existsSync(srcPath)) continue
         const dstPath = join(outputDir, name, nkdkPath)

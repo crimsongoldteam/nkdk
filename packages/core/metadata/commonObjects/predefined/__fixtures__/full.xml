@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<PredefinedData xmlns="http://v8.1c.ru/8.3/xcf/predef" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CatalogPredefinedItems" version="2.20">
+	<Item id="79d5668f-62a2-4d95-954b-8d3b03b76b99">
+		<Name>Группа</Name>
+		<Code>000000003</Code>
+		<Description>Наименование</Description>
+		<IsFolder>true</IsFolder>
+		<ChildItems>
+			<Item id="3234ebff-0d7f-4ad7-b6c4-1f86a23725dd">
+				<Name>Предопределенный1</Name>
+				<Code>000000001</Code>
+				<Description>Предопределенный1</Description>
+				<IsFolder>false</IsFolder>
+			</Item>
+		</ChildItems>
+	</Item>
+	<Item id="c2c265ed-461c-49ea-8c9e-7715947f87a9">
+		<Name>Предопределенный2</Name>
+		<Code>000000002</Code>
+		<Description>Наименование</Description>
+		<IsFolder>false</IsFolder>
+	</Item>
+</PredefinedData>А
