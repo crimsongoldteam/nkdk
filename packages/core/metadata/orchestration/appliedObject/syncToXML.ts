@@ -86,7 +86,7 @@ export const syncAppliedObjectToXML = async (params: {
 
     // Подмешиваем _id из референсного файла по полю Name
     const referenceExtPath = join(referenceDir, propRule.filePath)
-    const mergedContent = mergeItemIds(containerContent, referenceExtPath, envelope.container)
+    const mergedContent = mergeItemIds(containerContent, referenceExtPath, envelope.container, envelope.childTag)
 
     const xmlFileObj = { [envelope.container]: { ...envelope.rootAttributes, ...mergedContent } }
     const extOutputPath = join(outputDir, propRule.filePath)
@@ -128,18 +128,20 @@ async function collectFolderNames(
 /**
  * Подмешивает атрибут _id (id в XML) из референсного внешнего файла в элементы контейнера.
  * Сопоставление элементов происходит по полю Name.
+ * @param childTag — имя тега дочерних элементов (по умолчанию "Item" для Predefined).
  */
 function mergeItemIds(
   containerContent: Record<string, unknown>,
   referenceXmlPath: string,
-  containerTag: string
+  containerTag: string,
+  childTag: string = "Item"
 ): Record<string, unknown> {
   if (!fs.existsSync(referenceXmlPath)) return containerContent
 
   const refXml = fs.readFileSync(referenceXmlPath, "utf-8")
   const refParsed = importContentFromXML<Record<string, any>>(refXml)
   const refContainer = refParsed[containerTag] as Record<string, any>
-  const rawRefItems = refContainer?.Item
+  const rawRefItems = refContainer?.[childTag]
   if (!rawRefItems) return containerContent
 
   const refItems: Array<Record<string, any>> = Array.isArray(rawRefItems) ? rawRefItems : [rawRefItems]
@@ -148,7 +150,7 @@ function mergeItemIds(
     if (refItem._id && refItem.Name) idByName.set(String(refItem.Name), String(refItem._id))
   }
 
-  const rawItems = containerContent.Item
+  const rawItems = containerContent[childTag]
   if (!rawItems) return containerContent
 
   const items: Array<Record<string, any>> = Array.isArray(rawItems)
@@ -162,5 +164,5 @@ function mergeItemIds(
     return { _id: id, ...item }
   })
 
-  return { ...containerContent, Item: mergedItems.length === 1 ? mergedItems[0] : mergedItems }
+  return { ...containerContent, [childTag]: mergedItems.length === 1 ? mergedItems[0] : mergedItems }
 }

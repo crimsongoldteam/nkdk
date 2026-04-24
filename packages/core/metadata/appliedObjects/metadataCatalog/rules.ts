@@ -36,7 +36,7 @@ export const MetadataCatalogRules = {
     additionalIndexes: {
       yaml: "ДополнительныеИндексы",
       type: "AdditionalIndex",
-      xmlParents: ["Properties"],
+      filePath: "Ext/AdditionalIndexes.xml",
     },
     attributes: {
       yaml: "Реквизиты",

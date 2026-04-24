@@ -35,5 +35,9 @@ describe("syncAppliedObjectToXML — MetadataCatalog", () => {
     const expectedPredefined = fs.readFileSync(join(referenceDir, "Ext", "Predefined.xml"), "utf-8")
     const resultPredefined = fs.readFileSync(join(outputDir, "Ext", "Predefined.xml"), "utf-8")
     expect(resultPredefined).toBe(expectedPredefined)
+
+    const expectedAdditionalIndexes = fs.readFileSync(join(referenceDir, "Ext", "AdditionalIndexes.xml"), "utf-8")
+    const resultAdditionalIndexes = fs.readFileSync(join(outputDir, "Ext", "AdditionalIndexes.xml"), "utf-8")
+    expect(resultAdditionalIndexes).toBe(expectedAdditionalIndexes)
   })
 })

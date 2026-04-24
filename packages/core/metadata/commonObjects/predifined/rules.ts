@@ -1,9 +1,12 @@
+import { AdditionalIndexesEnvelope } from "~/metadata/commonObjects/additionalIndex/rules"
+
 /**
  * Конверт (envelope) для внешнего XML-файла Ext/Predefined.xml,
  * содержащего предопределённые элементы Справочника.
  *
  * container — имя корневого тега XML.
  * rootAttributes — атрибуты корневого тега, подставляемые при экспорте.
+ * childTag — имя тега дочерних элементов (используется в mergeItemIds; по умолчанию "Item").
  */
 export const PredefinedDataEnvelope = {
   container: "PredefinedData",
@@ -18,9 +21,16 @@ export const PredefinedDataEnvelope = {
   },
 } as const
 
+export interface ExternalFileEnvelope {
+  readonly container: string
+  readonly rootAttributes: Record<string, string>
+  readonly childTag?: string
+}
+
 /**
  * Карта: type → envelope для внешних XML-файлов, используемая оркестраторами.
  */
-export const externalFileEnvelopes: Record<string, typeof PredefinedDataEnvelope> = {
+export const externalFileEnvelopes: Record<string, ExternalFileEnvelope> = {
   Predefined: PredefinedDataEnvelope,
+  AdditionalIndex: AdditionalIndexesEnvelope,
 }

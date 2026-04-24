@@ -1,7 +1,6 @@
 import {
   AdditionalIndex,
   AdditionalIndexes,
-  AdditionalIndexesXML,
   AdditionalIndexXML,
 } from "~/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToXML } from "~/metadata/commonObjects/indexField/toXML"
@@ -17,21 +16,25 @@ export const exportAdditionalIndexToXML = (
   if (!data) return undefined
 
   return {
-    AdditionalFields: exportIndexFieldsToXML(context, undefined, data.additionalFields),
-    IndexedFields: exportIndexFieldsToXML(context, undefined, data.indexedFields),
     Name: data.name,
     Table: data.table,
+    IndexedFields: exportIndexFieldsToXML(context, undefined, data.indexedFields),
+    AdditionalFields: exportIndexFieldsToXML(context, undefined, data.additionalFields),
   }
 }
 
-export const exportAdditionalIndexesToXML = (
+/**
+ * Обработчик exportToXML для типа "AdditionalIndex".
+ * Возвращает содержимое контейнера: { AdditionalIndex: AdditionalIndexXML | AdditionalIndexXML[] }
+ * Корневые атрибуты (xmlns и т.п.) добавляет оркестратор.
+ */
+export const exportAdditionalIndexesToContainerXML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: AdditionalIndexes | undefined
-): AdditionalIndexesXML | undefined => {
-  if (!data) return undefined
-
-  return data.map((value: AdditionalIndex) => exportAdditionalIndexToXML(context, undefined, value)!)
+): { AdditionalIndex: AdditionalIndexXML[] } | undefined => {
+  if (!data || data.length === 0) return undefined
+  return { AdditionalIndex: data.map((item) => exportAdditionalIndexToXML(context, undefined, item)!) }
 }
 
-registerTypeRule("AdditionalIndex", "exportToXML", exportAdditionalIndexesToXML)
+registerTypeRule("AdditionalIndex", "exportToXML", exportAdditionalIndexesToContainerXML)

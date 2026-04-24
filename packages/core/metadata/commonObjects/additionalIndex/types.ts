@@ -9,6 +9,7 @@ export interface AdditionalIndex {
 }
 
 export interface AdditionalIndexXML {
+  _id?: string
   AdditionalFields?: IndexFieldsXML
   IndexedFields?: IndexFieldsXML
   Name?: string
@@ -25,7 +26,5 @@ export const AdditionalIndexJSONSchema = Type.Object({
 export type AdditionalIndexYAML = Static<typeof AdditionalIndexJSONSchema>
 
 export type AdditionalIndexes = AdditionalIndex[]
-
 export type AdditionalIndexesXML = AdditionalIndexXML[]
-
 export type AdditionalIndexesYAML = AdditionalIndexYAML[]
