@@ -9,7 +9,7 @@ import { MetadataCatalogRules } from "./rules"
 describe("convertAppliedObjectFromXML — MetadataCatalog", () => {
   const inputDir = join(import.meta.dirname, "__fixtures__/sync/xml")
   const outputDir = join(import.meta.dirname, "__fixtures__/sync/out")
-  const catalogName = "Контрагенты"
+  const catalogName = "СправочникCоВсемиОбъектами"
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {

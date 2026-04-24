@@ -409,6 +409,7 @@ export const MetadataCatalogRules = {
       yaml: "Синоним",
       type: "I8nText",
       xmlParents: ["Properties"],
+      defaultValueXMLRaw: {},
     },
     tabularSections: {
       yaml: "ТабличныеЧасти",
@@ -440,7 +441,7 @@ export const MetadataCatalogRules = {
     templates: {
       type: "ChildTemplateNames",
       xml: "Template",
-      folderName: "Макеты",
+      folderName: "Шаблоны",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,

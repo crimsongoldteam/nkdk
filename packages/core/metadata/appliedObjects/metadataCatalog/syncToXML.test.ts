@@ -10,7 +10,7 @@ describe("syncAppliedObjectToXML — MetadataCatalog", () => {
   const inputDir = join(fixturesDir, "nkdk")
   const referenceDir = join(fixturesDir, "xml")
   const outputDir = join(fixturesDir, "out")
-  const catalogName = "Контрагенты"
+  const catalogName = "СправочникCоВсемиОбъектами"
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {
