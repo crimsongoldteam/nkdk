@@ -389,6 +389,11 @@ export const MetadataCatalogRules = {
       type: "Predefined",
       filePath: "Ext/Predefined.xml",
     },
+    help: {
+      type: "Help",
+      filePath: "Ext/Help.xml",
+      nkdkDir: "Справка",
+    },
     predefinedDataUpdate: {
       yaml: "ОбновлениеПредопределенныхДанных",
       type: "SystemEnumeration",

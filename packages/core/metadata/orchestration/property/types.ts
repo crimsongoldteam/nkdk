@@ -206,6 +206,14 @@ export interface TemplatePropertyRule extends BasePropertyRule {
   xmlPath: string | ((params: { name: string }) => string)
 }
 
+export interface HelpPropertyRule extends BasePropertyRule {
+  type: "Help"
+  /** Путь к Ext/Help.xml относительно директории объекта */
+  filePath: string
+  /** Папка с HTML-файлами на nkdk-стороне (например "Справка") */
+  nkdkDir: string
+}
+
 export interface CleanPropertyRule extends BasePropertyRule {
   type: Exclude<
     PropertyRuleType,
@@ -237,6 +245,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "dateTime"
     | "Module"
     | "Template"
+    | "Help"
   >
 }
 
@@ -279,6 +288,7 @@ export type PropertyRule =
   | ChildTemplateNamesPropertyRule
   | ModulePropertyRule
   | TemplatePropertyRule
+  | HelpPropertyRule
 
 type PropertiesType = Record<string, PropertyRule>
 

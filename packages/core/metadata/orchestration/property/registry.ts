@@ -417,6 +417,9 @@ export type PropertyTypeRegistry = {
   Template: {
     item: string | undefined
   }
+  Help: {
+    item: undefined
+  }
   TypeLink: {
     item: TypeLink
     yaml: TypeLinkYAML
@@ -777,6 +780,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   Predefined: "Predefined",
   Module: "Module",
   Template: "Template",
+  Help: "Help",
   TypeLink: "TypeLink",
   UsePurposes: "UsePurposes",
   GroupChildItems: "GroupChildItems",

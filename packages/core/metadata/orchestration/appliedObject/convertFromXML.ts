@@ -3,7 +3,7 @@ import { join, dirname } from "path"
 import type { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { exportMetadataItemToYAML, importMetadataItemFromXML } from "~/metadata/orchestration"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import type { MetadataItemRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "~/metadata/orchestration/property/types"
+import type { HelpPropertyRule, MetadataItemRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "~/metadata/orchestration/property/types"
 import { externalFileEnvelopes } from "~/metadata/commonObjects/predifined/rules"
 import { importContentFromXML } from "~/xml/import/importer"
 import { exportToYAML } from "~/yaml/export"
@@ -38,6 +38,26 @@ export const convertAppliedObjectFromXML = async (params: {
     const containerContent = extParsed[envelope.container]
     const value = importPropertyFromXML({ context, rule: propRule as PropertyRule, value: containerContent, name: key })
     if (value !== undefined) (model as Record<string, unknown>)[key] = value
+  }
+
+  // Копируем HTML-файлы справки для свойств типа Help
+  for (const [_key, propRule] of Object.entries(rule.properties)) {
+    if (propRule.type !== "Help") continue
+    const helpRule = propRule as HelpPropertyRule
+    const helpXmlPath = join(inputDir, helpRule.filePath)
+    if (!fs.existsSync(helpXmlPath)) continue
+    const helpXmlContent = await fs.promises.readFile(helpXmlPath, "utf-8")
+    const helpParsed = importContentFromXML<{ Help: { Page?: string | string[] } }>(helpXmlContent)
+    const pages = helpParsed.Help?.Page
+    const langs: string[] = pages === undefined ? [] : Array.isArray(pages) ? pages : [pages]
+    const helpHtmlDir = helpRule.filePath.replace(/\.xml$/, "")
+    for (const lang of langs) {
+      const srcHtmlPath = join(inputDir, helpHtmlDir, `${lang}.html`)
+      if (!fs.existsSync(srcHtmlPath)) continue
+      const dstHtmlPath = join(outputDir, name, helpRule.nkdkDir, `${lang}.html`)
+      await fs.promises.mkdir(dirname(dstHtmlPath), { recursive: true })
+      await fs.promises.copyFile(srcHtmlPath, dstHtmlPath)
+    }
   }
 
   // Копируем BSL-файлы для свойств типа Module/Template

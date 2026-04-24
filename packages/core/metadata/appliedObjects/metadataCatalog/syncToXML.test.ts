@@ -47,5 +47,13 @@ describe("syncAppliedObjectToXML — MetadataCatalog", () => {
     const expectedManagerModule = fs.readFileSync(join(referenceDir, "Ext", "ManagerModule.bsl"), "utf-8")
     const resultManagerModule = fs.readFileSync(join(outputDir, "Ext", "ManagerModule.bsl"), "utf-8")
     expect(resultManagerModule).toBe(expectedManagerModule)
+
+    const expectedHelpXml = fs.readFileSync(join(referenceDir, "Ext", "Help.xml"), "utf-8")
+    const resultHelpXml = fs.readFileSync(join(outputDir, "Ext", "Help.xml"), "utf-8")
+    expect(resultHelpXml).toBe(expectedHelpXml)
+
+    const expectedHelpRu = fs.readFileSync(join(referenceDir, "Ext", "Help", "ru.html"), "utf-8")
+    const resultHelpRu = fs.readFileSync(join(outputDir, "Ext", "Help", "ru.html"), "utf-8")
+    expect(resultHelpRu).toBe(expectedHelpRu)
   })
 })

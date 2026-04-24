@@ -3,7 +3,7 @@ import { join, dirname } from "path"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportMetadataItemToXML, importMetadataItemFromXML, importMetadataItemFromYAML } from "~/metadata/orchestration"
 import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
-import type { MetadataItemRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "~/metadata/orchestration/property/types"
+import type { HelpPropertyRule, MetadataItemRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "~/metadata/orchestration/property/types"
 import { externalFileEnvelopes } from "~/metadata/commonObjects/predifined/rules"
 import { importContentFromXML } from "~/xml/import/importer"
 import { xmlExport } from "~/xml/export/exporter"
@@ -81,6 +81,38 @@ export const syncAppliedObjectToXML = async (params: {
     const dstPath = join(outputDir, xmlPath)
     await fs.promises.mkdir(dirname(dstPath), { recursive: true })
     await fs.promises.copyFile(srcPath, dstPath)
+  }
+
+  // Генерируем Help.xml и копируем HTML-файлы для свойств типа Help
+  for (const [_key, propRule] of Object.entries(rule.properties)) {
+    if (propRule.type !== "Help") continue
+    const helpRule = propRule as HelpPropertyRule
+    const nkdkHelpDir = join(inputDir, name, helpRule.nkdkDir)
+    if (!fs.existsSync(nkdkHelpDir)) continue
+    const htmlFiles = await fs.promises.readdir(nkdkHelpDir)
+    const langs = htmlFiles.filter((f) => f.endsWith(".html")).map((f) => f.replace(/\.html$/, ""))
+    if (langs.length === 0) continue
+
+    const helpXmlObj = {
+      Help: {
+        _xmlns: "http://v8.1c.ru/8.3/xcf/extrnprops",
+        "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
+        "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        _version: "2.20",
+        Page: langs.length === 1 ? langs[0] : langs,
+      },
+    }
+    const helpXmlPath = join(outputDir, helpRule.filePath)
+    await fs.promises.mkdir(dirname(helpXmlPath), { recursive: true })
+    await fs.promises.writeFile(helpXmlPath, xmlExport(helpXmlObj), "utf-8")
+
+    const helpHtmlDir = helpRule.filePath.replace(/\.xml$/, "")
+    for (const lang of langs) {
+      const srcHtmlPath = join(inputDir, name, helpRule.nkdkDir, `${lang}.html`)
+      const dstHtmlPath = join(outputDir, helpHtmlDir, `${lang}.html`)
+      await fs.promises.mkdir(dirname(dstHtmlPath), { recursive: true })
+      await fs.promises.copyFile(srcHtmlPath, dstHtmlPath)
+    }
   }
 
   // Записываем внешние файлы для свойств с filePath
