@@ -39,5 +39,13 @@ describe("syncAppliedObjectToXML — MetadataCatalog", () => {
     const expectedAdditionalIndexes = fs.readFileSync(join(referenceDir, "Ext", "AdditionalIndexes.xml"), "utf-8")
     const resultAdditionalIndexes = fs.readFileSync(join(outputDir, "Ext", "AdditionalIndexes.xml"), "utf-8")
     expect(resultAdditionalIndexes).toBe(expectedAdditionalIndexes)
+
+    const expectedObjectModule = fs.readFileSync(join(referenceDir, "Ext", "ObjectModule.bsl"), "utf-8")
+    const resultObjectModule = fs.readFileSync(join(outputDir, "Ext", "ObjectModule.bsl"), "utf-8")
+    expect(resultObjectModule).toBe(expectedObjectModule)
+
+    const expectedManagerModule = fs.readFileSync(join(referenceDir, "Ext", "ManagerModule.bsl"), "utf-8")
+    const resultManagerModule = fs.readFileSync(join(outputDir, "Ext", "ManagerModule.bsl"), "utf-8")
+    expect(resultManagerModule).toBe(expectedManagerModule)
   })
 })

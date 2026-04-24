@@ -370,6 +370,20 @@ export const MetadataCatalogRules = {
       referenceScope: { target: "topLevel", allowedTypes: ["Справочник", "Документ"] },
       defaultValueXMLRaw: {},
     },
+    objectModule: {
+      type: "Module",
+      nkdkPath: "МодульОбъекта.bsl",
+      xmlPath: "Ext/ObjectModule.bsl",
+      toXML: false,
+      fromXML: false,
+    },
+    managerModule: {
+      type: "Module",
+      nkdkPath: "МодульМенеджера.bsl",
+      xmlPath: "Ext/ManagerModule.bsl",
+      toXML: false,
+      fromXML: false,
+    },
     predefined: {
       yaml: "Предопределенные",
       type: "Predefined",

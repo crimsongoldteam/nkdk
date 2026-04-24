@@ -27,5 +27,11 @@ describe("convertAppliedObjectFromXML — MetadataCatalog", () => {
     })
 
     expect(fs.readFileSync(join(outputDir, catalogName, "Свойства.yaml"), "utf-8")).toBe(readCatalogYAML)
+
+    const expectedObjectModule = fs.readFileSync(join(inputDir, "Ext", "ObjectModule.bsl"), "utf-8")
+    expect(fs.readFileSync(join(outputDir, catalogName, "МодульОбъекта.bsl"), "utf-8")).toBe(expectedObjectModule)
+
+    const expectedManagerModule = fs.readFileSync(join(inputDir, "Ext", "ManagerModule.bsl"), "utf-8")
+    expect(fs.readFileSync(join(outputDir, catalogName, "МодульМенеджера.bsl"), "utf-8")).toBe(expectedManagerModule)
   })
 })

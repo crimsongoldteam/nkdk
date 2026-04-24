@@ -190,6 +190,22 @@ export interface InternalInfoPropertyRule extends BasePropertyRule {
   getName?: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => string
 }
 
+export interface ModulePropertyRule extends BasePropertyRule {
+  type: "Module"
+  /** Путь к файлу на nkdk-стороне (относительно корня объекта), строка или функция от { name } */
+  nkdkPath: string | ((params: { name: string }) => string)
+  /** Путь к файлу на xml-стороне (относительно директории объекта), строка или функция от { name } */
+  xmlPath: string | ((params: { name: string }) => string)
+}
+
+export interface TemplatePropertyRule extends BasePropertyRule {
+  type: "Template"
+  /** Путь к файлу на nkdk-стороне (относительно корня объекта), строка или функция от { name } */
+  nkdkPath: string | ((params: { name: string }) => string)
+  /** Путь к файлу на xml-стороне (относительно директории объекта), строка или функция от { name } */
+  xmlPath: string | ((params: { name: string }) => string)
+}
+
 export interface CleanPropertyRule extends BasePropertyRule {
   type: Exclude<
     PropertyRuleType,
@@ -219,6 +235,8 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "SettingsParameterValueCollection"
     | "number"
     | "dateTime"
+    | "Module"
+    | "Template"
   >
 }
 
@@ -259,6 +277,8 @@ export type PropertyRule =
   | MetaDataObjectPropertyRule
   | ChildFormNamesPropertyRule
   | ChildTemplateNamesPropertyRule
+  | ModulePropertyRule
+  | TemplatePropertyRule
 
 type PropertiesType = Record<string, PropertyRule>
 

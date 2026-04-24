@@ -3,7 +3,7 @@ import { join, dirname } from "path"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportMetadataItemToXML, importMetadataItemFromXML, importMetadataItemFromYAML } from "~/metadata/orchestration"
 import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
-import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "~/metadata/orchestration/property/types"
 import { externalFileEnvelopes } from "~/metadata/commonObjects/predifined/rules"
 import { importContentFromXML } from "~/xml/import/importer"
 import { xmlExport } from "~/xml/export/exporter"
@@ -68,6 +68,20 @@ export const syncAppliedObjectToXML = async (params: {
 
   await fs.promises.mkdir(outputDir, { recursive: true })
   await fs.promises.writeFile(join(outputDir, `${name}.xml`), xmlExport(xmlObj), "utf-8")
+
+  // Копируем BSL-файлы для свойств типа Module/Template
+  for (const [_key, propRule] of Object.entries(rule.properties)) {
+    if (propRule.type !== "Module" && propRule.type !== "Template") continue
+    const moduleRule = propRule as ModulePropertyRule | TemplatePropertyRule
+    const nkdkPath = typeof moduleRule.nkdkPath === "string" ? moduleRule.nkdkPath : undefined
+    const xmlPath = typeof moduleRule.xmlPath === "string" ? moduleRule.xmlPath : undefined
+    if (!nkdkPath || !xmlPath) continue
+    const srcPath = join(inputDir, name, nkdkPath)
+    if (!fs.existsSync(srcPath)) continue
+    const dstPath = join(outputDir, xmlPath)
+    await fs.promises.mkdir(dirname(dstPath), { recursive: true })
+    await fs.promises.copyFile(srcPath, dstPath)
+  }
 
   // Записываем внешние файлы для свойств с filePath
   for (const [key, propRule] of Object.entries(rule.properties)) {
