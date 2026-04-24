@@ -55,5 +55,15 @@ describe("syncAppliedObjectToXML — MetadataCatalog", () => {
     const expectedHelpRu = fs.readFileSync(join(referenceDir, "Ext", "Help", "ru.html"), "utf-8")
     const resultHelpRu = fs.readFileSync(join(outputDir, "Ext", "Help", "ru.html"), "utf-8")
     expect(resultHelpRu).toBe(expectedHelpRu)
+
+    const expectedCommandModule = fs.readFileSync(
+      join(referenceDir, "Commands", "КомандаОбъекта", "Ext", "CommandModule.bsl"),
+      "utf-8"
+    )
+    const resultCommandModule = fs.readFileSync(
+      join(outputDir, "Commands", "КомандаОбъекта", "Ext", "CommandModule.bsl"),
+      "utf-8"
+    )
+    expect(resultCommandModule).toBe(expectedCommandModule)
   })
 })

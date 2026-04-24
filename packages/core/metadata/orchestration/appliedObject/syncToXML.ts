@@ -69,18 +69,45 @@ export const syncAppliedObjectToXML = async (params: {
   await fs.promises.mkdir(outputDir, { recursive: true })
   await fs.promises.writeFile(join(outputDir, `${name}.xml`), xmlExport(xmlObj), "utf-8")
 
-  // Копируем BSL-файлы для свойств типа Module/Template
+  // Копируем BSL-файлы для свойств типа Module/Template (статические пути на уровне объекта)
   for (const [_key, propRule] of Object.entries(rule.properties)) {
     if (propRule.type !== "Module" && propRule.type !== "Template") continue
     const moduleRule = propRule as ModulePropertyRule | TemplatePropertyRule
-    const nkdkPath = typeof moduleRule.nkdkPath === "string" ? moduleRule.nkdkPath : undefined
-    const xmlPath = typeof moduleRule.xmlPath === "string" ? moduleRule.xmlPath : undefined
-    if (!nkdkPath || !xmlPath) continue
-    const srcPath = join(inputDir, name, nkdkPath)
+    if (typeof moduleRule.nkdkPath === "function" || typeof moduleRule.xmlPath === "function") continue
+    const srcPath = join(inputDir, name, moduleRule.nkdkPath)
     if (!fs.existsSync(srcPath)) continue
-    const dstPath = join(outputDir, xmlPath)
+    const dstPath = join(outputDir, moduleRule.xmlPath)
     await fs.promises.mkdir(dirname(dstPath), { recursive: true })
     await fs.promises.copyFile(srcPath, dstPath)
+  }
+
+  // Копируем BSL-файлы для дочерних коллекций (команды и т. п.) с функциональными путями
+  for (const childCollection of rule.childCollections ?? []) {
+    const collectionModel = (model as Record<string, unknown>)[childCollection.propertyKey]
+    if (!collectionModel || typeof collectionModel !== "object") continue
+    // После XML-импорта коллекция — массив [{name, ...}, ...], после YAML — Record<name, ...>
+    const itemNames: string[] = Array.isArray(collectionModel)
+      ? (collectionModel as Array<Record<string, unknown>>)
+          .map((item) => String(item["name"] ?? ""))
+          .filter(Boolean)
+      : Object.keys(collectionModel)
+    for (const itemName of itemNames) {
+      for (const [_k, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
+        if (itemPropRule.type !== "Module" && itemPropRule.type !== "Template") continue
+        const moduleRule = itemPropRule as ModulePropertyRule | TemplatePropertyRule
+        const nkdkPath = typeof moduleRule.nkdkPath === "function"
+          ? moduleRule.nkdkPath({ name: itemName })
+          : moduleRule.nkdkPath
+        const xmlPath = typeof moduleRule.xmlPath === "function"
+          ? moduleRule.xmlPath({ name: itemName })
+          : moduleRule.xmlPath
+        const srcPath = join(inputDir, name, nkdkPath)
+        if (!fs.existsSync(srcPath)) continue
+        const dstPath = join(outputDir, xmlPath)
+        await fs.promises.mkdir(dirname(dstPath), { recursive: true })
+        await fs.promises.copyFile(srcPath, dstPath)
+      }
+    }
   }
 
   // Генерируем Help.xml и копируем HTML-файлы для свойств типа Help

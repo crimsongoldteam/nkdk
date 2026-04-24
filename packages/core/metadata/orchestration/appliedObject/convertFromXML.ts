@@ -60,18 +60,45 @@ export const convertAppliedObjectFromXML = async (params: {
     }
   }
 
-  // Копируем BSL-файлы для свойств типа Module/Template
+  // Копируем BSL-файлы для свойств типа Module/Template (статические пути на уровне объекта)
   for (const [_key, propRule] of Object.entries(rule.properties)) {
     if (propRule.type !== "Module" && propRule.type !== "Template") continue
     const moduleRule = propRule as ModulePropertyRule | TemplatePropertyRule
-    const xmlPath = typeof moduleRule.xmlPath === "string" ? moduleRule.xmlPath : undefined
-    const nkdkPath = typeof moduleRule.nkdkPath === "string" ? moduleRule.nkdkPath : undefined
-    if (!xmlPath || !nkdkPath) continue
-    const srcPath = join(inputDir, xmlPath)
+    if (typeof moduleRule.xmlPath === "function" || typeof moduleRule.nkdkPath === "function") continue
+    const srcPath = join(inputDir, moduleRule.xmlPath)
     if (!fs.existsSync(srcPath)) continue
-    const dstPath = join(outputDir, name, nkdkPath)
+    const dstPath = join(outputDir, name, moduleRule.nkdkPath)
     await fs.promises.mkdir(dirname(dstPath), { recursive: true })
     await fs.promises.copyFile(srcPath, dstPath)
+  }
+
+  // Копируем BSL-файлы для дочерних коллекций (команды и т. п.) с функциональными путями
+  for (const childCollection of rule.childCollections ?? []) {
+    const collectionModel = (model as Record<string, unknown>)[childCollection.propertyKey]
+    if (!collectionModel || typeof collectionModel !== "object") continue
+    // После XML-импорта коллекция — массив [{name, ...}, ...], после YAML — Record<name, ...>
+    const itemNames: string[] = Array.isArray(collectionModel)
+      ? (collectionModel as Array<Record<string, unknown>>)
+          .map((item) => String(item["name"] ?? ""))
+          .filter(Boolean)
+      : Object.keys(collectionModel)
+    for (const itemName of itemNames) {
+      for (const [_k, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
+        if (itemPropRule.type !== "Module" && itemPropRule.type !== "Template") continue
+        const moduleRule = itemPropRule as ModulePropertyRule | TemplatePropertyRule
+        const xmlPath = typeof moduleRule.xmlPath === "function"
+          ? moduleRule.xmlPath({ name: itemName })
+          : moduleRule.xmlPath
+        const nkdkPath = typeof moduleRule.nkdkPath === "function"
+          ? moduleRule.nkdkPath({ name: itemName })
+          : moduleRule.nkdkPath
+        const srcPath = join(inputDir, xmlPath)
+        if (!fs.existsSync(srcPath)) continue
+        const dstPath = join(outputDir, name, nkdkPath)
+        await fs.promises.mkdir(dirname(dstPath), { recursive: true })
+        await fs.promises.copyFile(srcPath, dstPath)
+      }
+    }
   }
 
   const yamlObj = exportMetadataItemToYAML({ context, data: model, rule })

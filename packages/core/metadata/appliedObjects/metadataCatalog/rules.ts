@@ -1,6 +1,7 @@
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import type { ReferenceScope } from "../../relations/referenceScope"
+import { MetadataCommandRules } from "../metadataCommand/rules"
 import { MetadataCatalogStandardAttributeNames } from "./types"
 
 export const MetadataCatalogRules = {
@@ -481,6 +482,7 @@ export const MetadataCatalogRules = {
   },
   requiredXMLParents: [["ChildObjects"]],
   graphTerminals: ["ПустаяСсылка"],
+  childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
 } as const satisfies MetadataItemRule
 
 /**

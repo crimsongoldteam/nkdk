@@ -116,5 +116,12 @@ export const MetadataCommandRules = {
       fromYAML: false,
       xmlParents: ["Properties"],
     },
+    commandModule: {
+      type: "Module",
+      nkdkPath: ({ name }: { name: string }) => "Команды/" + name + ".bsl",
+      xmlPath: ({ name }: { name: string }) => "Commands/" + name + "/Ext/CommandModule.bsl",
+      toXML: false,
+      fromXML: false,
+    },
   },
 } as const satisfies MetadataItemRule

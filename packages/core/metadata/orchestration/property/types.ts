@@ -334,4 +334,15 @@ export interface MetadataItemRule extends MetadataItem {
    * Пример: ["ПустаяСсылка"] — создаёт узел `<prefix>.<name>.ПустаяСсылка` с owning-ребром.
    */
   graphTerminals?: ReadonlyArray<string>
+
+  /**
+   * Дочерние коллекции, которые оркестратор должен обойти для обработки Module/Template-свойств.
+   * Ключ в модели (`propertyKey`) указывает на Record<itemName, itemData>;
+   * `itemRule` содержит правила, в которых могут быть Module-свойства с функциональными путями.
+   * Пути вычисляются относительно корня владельца (того же outputDir/name/).
+   */
+  childCollections?: ReadonlyArray<{
+    propertyKey: string
+    itemRule: MetadataItemRule
+  }>
 }
