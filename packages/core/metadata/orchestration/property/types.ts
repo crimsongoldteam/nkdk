@@ -119,6 +119,14 @@ export interface BasePropertyRule {
    * Используется, когда yaml-имя коллидирует или неточно отражает семантику ребра.
    */
   graphEdgeKind?: string
+
+  /**
+   * Путь к внешнему XML-файлу относительно директории объекта метаданных.
+   * Свойство с этим полем не участвует в основном XML-файле объекта —
+   * читается/пишется отдельно оркестратором.
+   * Пример: "Ext/Predefined.xml"
+   */
+  filePath?: string
 }
 
 export interface ChildItemsPropertyRule extends BasePropertyRule {

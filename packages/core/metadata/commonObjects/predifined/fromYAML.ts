@@ -1,4 +1,5 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { registerTypeRule } from "~/metadata/orchestration"
 import { ConfigurationContext } from "../../context/types"
 import { Predefined, PredefinedItems, PredefinedItemsYAML, PredefinedYAML } from "./types"
 
@@ -29,3 +30,5 @@ export const importPredefinedItemsFromYAML = (
     .map(([name, value]) => importPredefinedFromYAML(context, undefined, value, name))
     .filter((item): item is Predefined => item !== undefined)
 }
+
+registerTypeRule("Predefined", "importFromYAML", importPredefinedItemsFromYAML)

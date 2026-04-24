@@ -1,8 +1,10 @@
 import fs from "fs"
-import { join } from "path"
+import { join, dirname } from "path"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportMetadataItemToXML, importMetadataItemFromXML, importMetadataItemFromYAML } from "~/metadata/orchestration"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
+import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { externalFileEnvelopes } from "~/metadata/commonObjects/predifined/rules"
 import { importContentFromXML } from "~/xml/import/importer"
 import { xmlExport } from "~/xml/export/exporter"
 import { importFromYAML } from "~/yaml/import"
@@ -66,6 +68,31 @@ export const syncAppliedObjectToXML = async (params: {
 
   await fs.promises.mkdir(outputDir, { recursive: true })
   await fs.promises.writeFile(join(outputDir, `${name}.xml`), xmlExport(xmlObj), "utf-8")
+
+  // Записываем внешние файлы для свойств с filePath
+  for (const [key, propRule] of Object.entries(rule.properties)) {
+    if (propRule.filePath === undefined) continue
+    const envelope = externalFileEnvelopes[propRule.type]
+    if (!envelope) continue
+
+    const modelValue = (model as Record<string, unknown>)[key]
+    if (modelValue === undefined) continue
+
+    const typeExportFn = getTypeRule(propRule.type as Parameters<typeof getTypeRule>[0], "exportToXML")
+    if (!typeExportFn) continue
+
+    const containerContent = typeExportFn(contextWithForms, propRule as PropertyRule, modelValue) as Record<string, unknown> | undefined
+    if (!containerContent) continue
+
+    // Подмешиваем _id из референсного файла по полю Name
+    const referenceExtPath = join(referenceDir, propRule.filePath)
+    const mergedContent = mergeItemIds(containerContent, referenceExtPath, envelope.container)
+
+    const xmlFileObj = { [envelope.container]: { ...envelope.rootAttributes, ...mergedContent } }
+    const extOutputPath = join(outputDir, propRule.filePath)
+    await fs.promises.mkdir(dirname(extOutputPath), { recursive: true })
+    await fs.promises.writeFile(extOutputPath, xmlExport(xmlFileObj), "utf-8")
+  }
 }
 
 function readReferenceModel<Rule extends MetadataItemRule>(params: {
@@ -96,4 +123,44 @@ async function collectFolderNames(
   if (!prop) return []
   const folderName = (prop as { folderName: string }).folderName
   return listSubdirNames(join(inputDir, name, folderName))
+}
+
+/**
+ * Подмешивает атрибут _id (id в XML) из референсного внешнего файла в элементы контейнера.
+ * Сопоставление элементов происходит по полю Name.
+ */
+function mergeItemIds(
+  containerContent: Record<string, unknown>,
+  referenceXmlPath: string,
+  containerTag: string
+): Record<string, unknown> {
+  if (!fs.existsSync(referenceXmlPath)) return containerContent
+
+  const refXml = fs.readFileSync(referenceXmlPath, "utf-8")
+  const refParsed = importContentFromXML<Record<string, any>>(refXml)
+  const refContainer = refParsed[containerTag] as Record<string, any>
+  const rawRefItems = refContainer?.Item
+  if (!rawRefItems) return containerContent
+
+  const refItems: Array<Record<string, any>> = Array.isArray(rawRefItems) ? rawRefItems : [rawRefItems]
+  const idByName = new Map<string, string>()
+  for (const refItem of refItems) {
+    if (refItem._id && refItem.Name) idByName.set(String(refItem.Name), String(refItem._id))
+  }
+
+  const rawItems = containerContent.Item
+  if (!rawItems) return containerContent
+
+  const items: Array<Record<string, any>> = Array.isArray(rawItems)
+    ? (rawItems as Array<Record<string, any>>)
+    : [rawItems as Record<string, any>]
+
+  const mergedItems = items.map((item) => {
+    const id = idByName.get(String(item.Name))
+    if (id === undefined) return item
+    // _id должен быть первым ключом (атрибут id="..." стоит перед дочерними тегами)
+    return { _id: id, ...item }
+  })
+
+  return { ...containerContent, Item: mergedItems.length === 1 ? mergedItems[0] : mergedItems }
 }

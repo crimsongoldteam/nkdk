@@ -1,6 +1,7 @@
 import { Static, Type } from "@sinclair/typebox"
 
 export interface Predefined {
+  id?: string
   name: string
   code: string | number
   description: string
@@ -8,6 +9,7 @@ export interface Predefined {
 }
 
 export interface PredefinedXML {
+  _id?: string
   Name: string
   Code: string | number
   Description: string

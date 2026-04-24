@@ -149,7 +149,7 @@ import {
   MetadataValueCollectionYAML,
 } from "~/metadata/commonObjects/metadataValueCollection/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predifined/types"
+import { PredefinedItems, PredefinedItemsYAML } from "~/metadata/commonObjects/predifined/types"
 import {
   StandardAttributeDescription,
   StandardAttributeDescriptions,
@@ -408,8 +408,8 @@ export type PropertyTypeRegistry = {
     yaml: MetadataValueCollectionYAML
   }
   Predefined: {
-    item: Predefined
-    yaml: PredefinedYAML
+    item: PredefinedItems
+    yaml: PredefinedItemsYAML
   }
   TypeLink: {
     item: TypeLink

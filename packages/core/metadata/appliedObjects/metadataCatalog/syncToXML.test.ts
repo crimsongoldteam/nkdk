@@ -30,7 +30,10 @@ describe("syncAppliedObjectToXML — MetadataCatalog", () => {
 
     const expectedXML = fs.readFileSync(join(referenceDir, `${catalogName}.xml`), "utf-8")
     const resultXML = fs.readFileSync(join(outputDir, `${catalogName}.xml`), "utf-8")
-
     expect(resultXML).toBe(expectedXML)
+
+    const expectedPredefined = fs.readFileSync(join(referenceDir, "Ext", "Predefined.xml"), "utf-8")
+    const resultPredefined = fs.readFileSync(join(outputDir, "Ext", "Predefined.xml"), "utf-8")
+    expect(resultPredefined).toBe(expectedPredefined)
   })
 })

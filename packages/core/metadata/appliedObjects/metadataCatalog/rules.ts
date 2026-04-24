@@ -373,7 +373,7 @@ export const MetadataCatalogRules = {
     predefined: {
       yaml: "Предопределенные",
       type: "Predefined",
-      xmlParents: ["Properties"],
+      filePath: "Ext/Predefined.xml",
     },
     predefinedDataUpdate: {
       yaml: "ОбновлениеПредопределенныхДанных",
