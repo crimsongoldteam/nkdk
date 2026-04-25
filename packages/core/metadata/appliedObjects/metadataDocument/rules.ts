@@ -1,8 +1,9 @@
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import type { ReferenceScope } from "../../relations/referenceScope"
 
-const documentProperties = ["Document", "Properties"]
-const documentChildObjects = ["Document", "ChildObjects"]
+const documentProperties = ["Properties"]
+const documentChildObjects = ["ChildObjects"]
 
 export const MetadataDocumentStandardAttributeNames: Record<string, string> = {
   Date: "Дата",
@@ -17,6 +18,26 @@ export const MetadataDocumentRules = {
   itemTypePrefix: "Документ",
   xmlDir: "Documents",
   properties: {
+    xmlRoot: {
+      type: "XMLRoot",
+      container: "Document",
+      rootAttributes: V8_MDCLASSES_ROOT,
+      forReferenceOnly: true,
+      toYAML: false,
+      fromYAML: false,
+    },
+    internalInfo: {
+      type: "InternalInfo",
+      xmlParents: [],
+      forReferenceOnly: true,
+      items: [
+        { name: "DocumentObject", category: "Object" },
+        { name: "DocumentRef", category: "Ref" },
+        { name: "DocumentSelection", category: "Selection" },
+        { name: "DocumentList", category: "List" },
+        { name: "DocumentManager", category: "Manager" },
+      ],
+    },
     uuid: {
       type: "string",
       xml: "_uuid",
@@ -328,6 +349,7 @@ export const MetadataDocumentRules = {
       xmlParents: documentProperties,
     },
   },
+  requiredXMLParents: [["ChildObjects"]],
   graphTerminals: ["ПустаяСсылка"],
 } as const satisfies MetadataItemRule
 
