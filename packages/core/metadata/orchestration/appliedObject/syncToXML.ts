@@ -79,7 +79,7 @@ export const syncAppliedObjectToXML = async (params: {
   for (const [, propRule] of Object.entries(rule.properties)) {
     const syncFn = getTypeRule(propRule.type, "syncExternalToXML")
     if (!syncFn) continue
-    await syncFn({ context: contextWithForms, rule: propRule, nkdkDir, xmlDir: outputDir })
+    await syncFn({ context: contextWithForms, rule: propRule, nkdkDir, xmlDir: outputDir, name, referenceDir })
   }
 
   // Обработчики внешних файлов для дочерних коллекций (команды с функциональными путями)
@@ -94,7 +94,7 @@ export const syncAppliedObjectToXML = async (params: {
       for (const [, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
         const syncFn = getTypeRule(itemPropRule.type, "syncExternalToXML")
         if (!syncFn) continue
-        await syncFn({ context: contextWithForms, rule: itemPropRule, nkdkDir, xmlDir: outputDir, itemName })
+        await syncFn({ context: contextWithForms, rule: itemPropRule, nkdkDir, xmlDir: outputDir, name, referenceDir, itemName })
       }
     }
   }

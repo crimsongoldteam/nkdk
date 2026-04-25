@@ -114,9 +114,10 @@ export type GraphEdgeFromParent = {
 }
 
 /**
- * Хендлер для свойств, хранящих значение во внешних файлах (Help.xml, .bsl).
+ * Хендлер для свойств, хранящих значение во внешних файлах (Help.xml, .bsl, формы).
  * Вызывается оркестратором в сторону nkdk — читает XML-сторону и пишет nkdk-сторону.
- * xmlDir и nkdkDir — директории конкретного объекта метаданных.
+ * xmlDir и nkdkDir — директории конкретного объекта метаданных (родитель объекта).
+ * name — имя самого объекта метаданных, нужно для построения путей к подресурсам объекта (Forms/, Templates/).
  * itemName задаётся при обходе дочерних коллекций (например, команд с функциональными путями).
  */
 export type SyncExternalFromXMLFunction = (params: {
@@ -124,18 +125,23 @@ export type SyncExternalFromXMLFunction = (params: {
   rule: PropertyRule
   xmlDir: string
   nkdkDir: string
+  name: string
   itemName?: string
 }) => Promise<void>
 
 /**
- * Хендлер для свойств, хранящих значение во внешних файлах (Help.xml, .bsl).
+ * Хендлер для свойств, хранящих значение во внешних файлах (Help.xml, .bsl, формы).
  * Вызывается оркестратором в сторону XML — читает nkdk-сторону и пишет XML-сторону.
+ * referenceDir — родитель эталонной директории объекта; используется для round-trip в свойствах,
+ * которые читают эталонный XML (например, формы). Опциональное поле.
  */
 export type SyncExternalToXMLFunction = (params: {
   context: ConfigurationContextWithExportToXML
   rule: PropertyRule
   nkdkDir: string
   xmlDir: string
+  name: string
+  referenceDir?: string
   itemName?: string
 }) => Promise<void>
 
