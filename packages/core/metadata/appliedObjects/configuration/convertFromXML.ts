@@ -2,7 +2,6 @@ import fs from "fs"
 import { basename, join } from "path"
 import { BatchTask, runBatch } from "~/helpers/runBatch"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { convertFormFromXML } from "~/metadata/forms/clientApplicationForm/convertFromXML"
 import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
@@ -49,42 +48,8 @@ export const syncConfigurationFromXML = async (params: {
     const entries = await fs.promises.readdir(xmlDirAbs, { withFileTypes: true })
     const xmlFiles = entries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
 
-    // Формы обрабатываем только если у правила есть свойство типа "ChildFormNames"
-    const hasForms = Object.values(rule.properties).some((p) => p.type === "ChildFormNames")
-
-    if (!hasForms) {
-      for (const entry of xmlFiles) {
-        const name = basename(entry.name, ".xml")
-        tasks.push({
-          kind: rule.itemType,
-          name,
-          run: () =>
-            convertAppliedObjectFromXML({
-              rule,
-              context,
-              inputDir: xmlDirAbs,
-              name,
-              outputDir: yamlDirAbs,
-            }),
-        })
-      }
-      continue
-    }
-
-    const formDiscoveries = await Promise.all(
-      xmlFiles.map(async (entry) => {
-        const name = basename(entry.name, ".xml")
-        const formsDir = join(xmlDirAbs, name, "Forms")
-        if (!fs.existsSync(formsDir)) return { name, formsDir, formNames: [] as string[] }
-        const formEntries = await fs.promises.readdir(formsDir, { withFileTypes: true })
-        const formNames = formEntries
-          .filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
-          .map((e) => basename(e.name, ".xml"))
-        return { name, formsDir, formNames }
-      }),
-    )
-
-    for (const { name, formsDir, formNames } of formDiscoveries) {
+    for (const entry of xmlFiles) {
+      const name = basename(entry.name, ".xml")
       tasks.push({
         kind: rule.itemType,
         name,
@@ -97,20 +62,6 @@ export const syncConfigurationFromXML = async (params: {
             outputDir: yamlDirAbs,
           }),
       })
-      for (const formName of formNames) {
-        tasks.push({
-          kind: "form",
-          name: formName,
-          parent: name,
-          run: () =>
-            convertFormFromXML({
-              context,
-              inputDir: formsDir,
-              formName,
-              outputDir: join(yamlDirAbs, name),
-            }),
-        })
-      }
     }
   }
 
