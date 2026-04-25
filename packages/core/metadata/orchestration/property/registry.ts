@@ -146,7 +146,7 @@ import {
   MetadataValueCollectionYAML,
 } from "~/metadata/commonObjects/metadataValueCollection/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import { PredefinedItems, PredefinedItemsYAML } from "~/metadata/commonObjects/predefined/types"
+import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
 import {
   PredefinedItem,
   PredefinedItemCollection,
@@ -411,8 +411,8 @@ export type PropertyTypeRegistry = {
     yaml: MetadataValueCollectionYAML
   }
   Predefined: {
-    item: PredefinedItems
-    yaml: PredefinedItemsYAML
+    item: Predefined
+    yaml: PredefinedYAML
   }
   PredefinedItem: {
     item: PredefinedItem

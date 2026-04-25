@@ -12,7 +12,13 @@ import {
   MetadataTabularSectionsXML,
   MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
-import { PredefinedItemsXML, PredefinedItemsYAML } from "~/metadata/commonObjects/predefined/types"
+// TODO Phase 5: после удаления envelope-инфраструктуры тип `metadataCatalog.Predefined`
+// в XML/YAML будет переопределён через новые `Predefined`/`PredefinedYAML` (либо
+// `PredefinedItemCollection`). Сейчас сохраняем структурно совместимые алиасы, чтобы
+// сборка прошла без изменений поведения оркестратора.
+import { PredefinedItem, PredefinedItemYAML } from "~/metadata/commonObjects/predefinedItem/types"
+type PredefinedItemsXML = PredefinedItem[]
+type PredefinedItemsYAML = Record<string, PredefinedItemYAML>
 import {
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,

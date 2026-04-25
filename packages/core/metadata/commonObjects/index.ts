@@ -160,11 +160,7 @@ import "./picture/toJSONSchema"
 import "./picture/toXML"
 import "./picture/toYAML"
 
-import "./predefined/fromXML"
-import "./predefined/fromYAML"
-import "./predefined/toJSONSchema"
-import "./predefined/toXML"
-import "./predefined/toYAML"
+import "./predefined"
 
 import "./predefinedItem"
 
