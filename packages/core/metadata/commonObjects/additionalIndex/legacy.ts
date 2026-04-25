@@ -2,9 +2,15 @@
  * Legacy-функции для обратной совместимости со старым XML/YAML-кодом
  * (metadataDocument/metadataSequence). После миграции этих объектов
  * на rules.ts файл будет удалён.
+ *
+ * Касты к `IndexFields` (`string[]`) обходят расхождение между статическим типом
+ * `PropertyTypeRegistry["IndexField"].item = string` и фактической runtime-семантикой
+ * этого property-типа (массив строк через plural-обработчики). Расхождение исчезнет
+ * вместе с этим файлом.
  */
 import { importIndexFieldsFromXML } from "~/metadata/commonObjects/indexField/fromXML"
 import { exportIndexFieldsToXML } from "~/metadata/commonObjects/indexField/toXML"
+import { IndexFields } from "~/metadata/commonObjects/indexField/types"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { AdditionalIndexes, AdditionalIndexesXML, AdditionalIndexesYAML, AdditionalIndexItem, AdditionalIndexXML } from "./types"
@@ -18,10 +24,10 @@ const importAdditionalIndexFromXML = (
   const result = { itemType: "AdditionalIndexItem" } as AdditionalIndexItem
 
   const additionalFields = importIndexFieldsFromXML(context, undefined, xml.AdditionalFields)
-  if (additionalFields !== undefined) result.additionalFields = additionalFields
+  if (additionalFields !== undefined) result.additionalFields = additionalFields as unknown as AdditionalIndexItem["additionalFields"]
 
   const indexedFields = importIndexFieldsFromXML(context, undefined, xml.IndexedFields)
-  if (indexedFields !== undefined) result.indexedFields = indexedFields
+  if (indexedFields !== undefined) result.indexedFields = indexedFields as unknown as AdditionalIndexItem["indexedFields"]
 
   if (xml.Name !== undefined) result.name = xml.Name
   if (xml.Table !== undefined) result.table = xml.Table
@@ -67,8 +73,8 @@ const exportAdditionalIndexToXML = (
   return {
     Name: data.name,
     Table: data.table,
-    IndexedFields: exportIndexFieldsToXML(context, undefined, data.indexedFields),
-    AdditionalFields: exportIndexFieldsToXML(context, undefined, data.additionalFields),
+    IndexedFields: exportIndexFieldsToXML(context, undefined, data.indexedFields as unknown as IndexFields | undefined),
+    AdditionalFields: exportIndexFieldsToXML(context, undefined, data.additionalFields as unknown as IndexFields | undefined),
   }
 }
 

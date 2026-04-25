@@ -26,6 +26,6 @@ describe("import Predefined from XML", () => {
       isFolder: true,
       childItems: expect.any(Array),
     })
-    expect(group!.childItems[0]).toMatchObject({ name: "Предопределенный1", isFolder: false })
+    expect(group!.childItems![0]).toMatchObject({ name: "Предопределенный1", isFolder: false })
   })
 })
