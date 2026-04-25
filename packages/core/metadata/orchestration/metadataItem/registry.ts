@@ -55,7 +55,14 @@ import {
   StructureItemGroup,
   StructureItemGroupYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
+import {
+  AdditionalIndex,
+  AdditionalIndexItem,
+  AdditionalIndexItemYAML,
+  AdditionalIndexYAML,
+} from "~/metadata/commonObjects/additionalIndex/types"
 import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
+import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
 import { PredefinedItem, PredefinedItemYAML } from "~/metadata/commonObjects/predefinedItem/types"
 import {
   MetadataSequenceDimension,
@@ -580,6 +587,21 @@ export type MetadataItemTypeRegistry = {
   PredefinedItem: {
     metadata: PredefinedItem
     yaml: PredefinedItemYAML
+  }
+
+  Predefined: {
+    metadata: Predefined
+    yaml: PredefinedYAML
+  }
+
+  AdditionalIndex: {
+    metadata: AdditionalIndex
+    yaml: AdditionalIndexYAML
+  }
+
+  AdditionalIndexItem: {
+    metadata: AdditionalIndexItem
+    yaml: AdditionalIndexItemYAML
   }
 
   MetadataSequenceDimension: {

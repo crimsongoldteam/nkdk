@@ -2,7 +2,7 @@ import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 
 /** Маркерный обработчик: реальная работа выполняется оркестратором в importMetadataItemFromXML. */
-export const importMetaDataObjectFromXML = (
+export const importXMLRootFromXML = (
   _context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   _xml: unknown
@@ -10,4 +10,4 @@ export const importMetaDataObjectFromXML = (
   return undefined
 }
 
-registerTypeRule("MetaDataObject", "importFromXML", importMetaDataObjectFromXML)
+registerTypeRule("XMLRoot", "importFromXML", importXMLRootFromXML)

@@ -1,11 +1,7 @@
 import "./uuid/fromXML"
 import "./uuid/toXML"
 
-import "./additionalIndex/fromXML"
-import "./additionalIndex/fromYAML"
-import "./additionalIndex/toJSONSchema"
-import "./additionalIndex/toXML"
-import "./additionalIndex/toYAML"
+import "./additionalIndex"
 
 import "./boolean/fromXML"
 import "./boolean/toJSONSchema"
@@ -102,8 +98,8 @@ import "./indexField/toYAML"
 
 import "./internalInfo/toXML"
 
-import "./metaDataObject/fromXML"
-import "./metaDataObject/toXML"
+import "./xmlRoot/fromXML"
+import "./xmlRoot/toXML"
 
 import "./childFormNames/fromXML"
 import "./childFormNames/toXML"
@@ -160,11 +156,7 @@ import "./picture/toJSONSchema"
 import "./picture/toXML"
 import "./picture/toYAML"
 
-import "./predefined/fromXML"
-import "./predefined/fromYAML"
-import "./predefined/toJSONSchema"
-import "./predefined/toXML"
-import "./predefined/toYAML"
+import "./predefined"
 
 import "./predefinedItem"
 

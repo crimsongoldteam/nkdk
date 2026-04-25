@@ -1,5 +1,5 @@
 /** Корневые XML-атрибуты элемента <MetaDataObject> (xmlns-декларации + версия платформы 8.3).
- * Используется как rootAttributes в property-правиле metaDataObject прикладных объектов. */
+ * Используется как rootAttributes в property-правиле xmlRoot прикладных объектов. */
 export const V8_MDCLASSES_ROOT = {
   _xmlns: "http://v8.1c.ru/8.3/MDClasses",
   "_xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",

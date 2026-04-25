@@ -5,7 +5,7 @@ import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formatted
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
 import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
-import type { MetaDataObjectPropertyRule } from "~/metadata/commonObjects/metaDataObject/types"
+import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
 import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
 
@@ -127,6 +127,14 @@ export interface BasePropertyRule {
    * Пример: "Ext/Predefined.xml"
    */
   filePath?: string
+
+  /**
+   * Если true, при сериализации в YAML и JSON-схему значение этого свойства подставляется
+   * напрямую как значение всего item-объекта (без обёртки ключом). Допустимо ровно одно
+   * содержательное (не forReferenceOnly) свойство с этим флагом на правило.
+   * Скоп — только YAML/JSON-схема. Модель данных и XML-сериализация не затрагиваются.
+   */
+  yamlInline?: true
 }
 
 export interface ChildItemsPropertyRule extends BasePropertyRule {
@@ -230,7 +238,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "MetadataType"
     | "MetadataTypeCollection"
     | "InternalInfo"
-    | "MetaDataObject"
+    | "XMLRoot"
     | "ChildFormNames"
     | "ChildTemplateNames"
     | "GroupChildItems"
@@ -283,7 +291,7 @@ export type PropertyRule =
   | SettingsParameterValueCollectionPropertyRule
   | NumberPropertyRule
   | DateTimePropertyRule
-  | MetaDataObjectPropertyRule
+  | XMLRootPropertyRule
   | ChildFormNamesPropertyRule
   | ChildTemplateNamesPropertyRule
   | ModulePropertyRule

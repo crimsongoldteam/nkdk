@@ -8,7 +8,14 @@ import {
   MetadataEnumerationValuesYAML,
 } from "~/metadata/appliedObjects/metadataEnumeration/types"
 import { MetadataSequence, MetadataSequenceYAML } from "~/metadata/appliedObjects/metadataSequence/types"
-import { AdditionalIndex, AdditionalIndexYAML } from "~/metadata/commonObjects/additionalIndex/types"
+import {
+  AdditionalIndex,
+  AdditionalIndexCollection,
+  AdditionalIndexCollectionYAML,
+  AdditionalIndexItem,
+  AdditionalIndexItemYAML,
+  AdditionalIndexYAML,
+} from "~/metadata/commonObjects/additionalIndex/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
 import {
@@ -146,7 +153,7 @@ import {
   MetadataValueCollectionYAML,
 } from "~/metadata/commonObjects/metadataValueCollection/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import { PredefinedItems, PredefinedItemsYAML } from "~/metadata/commonObjects/predefined/types"
+import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
 import {
   PredefinedItem,
   PredefinedItemCollection,
@@ -333,8 +340,15 @@ export type PropertyTypeRegistry = {
   }
   AdditionalIndex: {
     item: AdditionalIndex
-
     yaml: AdditionalIndexYAML
+  }
+  AdditionalIndexItem: {
+    item: AdditionalIndexItem
+    yaml: AdditionalIndexItemYAML
+  }
+  AdditionalIndexCollection: {
+    item: AdditionalIndexCollection
+    yaml: AdditionalIndexCollectionYAML
   }
   CharacteristicsDescriptions: {
     item: CharacteristicsDescriptions
@@ -411,8 +425,8 @@ export type PropertyTypeRegistry = {
     yaml: MetadataValueCollectionYAML
   }
   Predefined: {
-    item: PredefinedItems
-    yaml: PredefinedItemsYAML
+    item: Predefined
+    yaml: PredefinedYAML
   }
   PredefinedItem: {
     item: PredefinedItem
@@ -490,7 +504,7 @@ export type PropertyTypeRegistry = {
   InternalInfo: {
     item: InternalInfo
   }
-  MetaDataObject: {
+  XMLRoot: {
     item: undefined
   }
   ChildFormNames: {
@@ -773,6 +787,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataType: "MetadataType",
   MetadataTypeCollection: "MetadataTypeCollection",
   AdditionalIndex: "AdditionalIndex",
+  AdditionalIndexItem: "AdditionalIndexItem",
+  AdditionalIndexCollection: "AdditionalIndexCollection",
   CharacteristicsDescriptions: "CharacteristicsDescriptions",
   ChoiceList: "ChoiceList",
   ChoiceParameterLinks: "ChoiceParameterLinks",
@@ -826,7 +842,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   FormAttributeColumns: "FormAttributeColumns",
   FormParameters: "FormParameters",
   InternalInfo: "InternalInfo",
-  MetaDataObject: "MetaDataObject",
+  XMLRoot: "XMLRoot",
   ChildFormNames: "ChildFormNames",
   ChildTemplateNames: "ChildTemplateNames",
   ScrollBarUseBoolean: "ScrollBarUseBoolean",

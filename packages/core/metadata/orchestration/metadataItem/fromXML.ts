@@ -13,13 +13,21 @@ export const importMetadataItemFromXML = <Rule extends MetadataItemRule>(params:
 
   let xml = "xmlString" in params ? importContentFromXML(params.xmlString) : params.xml
 
-  // Если правило содержит MetaDataObject-property, используем xml[container] как корень,
+  // Если правило содержит XMLRoot-property, используем xml[container] как корень,
   // чтобы остальные свойства с xmlParents: [] и xmlParents: ["Properties"] работали
-  // относительно внутреннего контейнера, а не обёртки <MetaDataObject>.
-  const metaDataObjectProp = Object.values(rule.properties).find((p) => p.type === "MetaDataObject")
-  if (metaDataObjectProp) {
-    const container = (metaDataObjectProp as any).container as string
-    xml = xml?.[container]
+  // относительно внутреннего контейнера, а не внешней обёртки.
+  const xmlRootProp = Object.values(rule.properties).find((p) => p.type === "XMLRoot")
+  if (xmlRootProp) {
+    const container = (xmlRootProp as any).container as string
+    const isFileRoot = (xmlRootProp as any).isFileRoot === true
+    if (isFileRoot) {
+      // Корень XML уже = container; убираем атрибуты и оставляем дочерние теги.
+      if (xml && typeof xml === "object" && container in (xml as object)) {
+        xml = (xml as any)[container]
+      }
+    } else {
+      xml = xml?.[container]
+    }
   }
 
   const properties = importPropertiesFromXML({

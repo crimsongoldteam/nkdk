@@ -2,6 +2,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportPropertiesToYAML } from "../property/toYAML"
 import { MetadataItemRule } from "../property/types"
 import { ToMetadata, ToYAML } from "./registry"
+import { findInlineProperty } from "./yamlInline"
 
 export const exportMetadataItemToYAML = <Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext
@@ -11,9 +12,16 @@ export const exportMetadataItemToYAML = <Rule extends MetadataItemRule>(params: 
   const { context, data, rule } = params
   if (!data) return undefined
 
-  return exportPropertiesToYAML({
+  const yamlObj = exportPropertiesToYAML({
     context,
     data: { ...data, itemType: rule.itemType } as ToMetadata<Rule["itemType"]>,
     rule,
   })
+
+  const inline = findInlineProperty(rule)
+  if (inline) {
+    return (yamlObj as any)?.[inline.yamlKey]
+  }
+
+  return yamlObj
 }

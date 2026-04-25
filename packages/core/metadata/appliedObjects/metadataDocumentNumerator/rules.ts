@@ -5,8 +5,8 @@ export const MetadataDocumentNumeratorRules = {
   itemType: "MetadataDocumentNumerator",
   itemTypePrefix: "Нумератор",
   properties: {
-    metaDataObject: {
-      type: "MetaDataObject",
+    xmlRoot: {
+      type: "XMLRoot",
       container: "DocumentNumerator",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,

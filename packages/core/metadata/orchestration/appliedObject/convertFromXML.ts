@@ -1,6 +1,5 @@
 import fs from "fs"
 import { join } from "path"
-import { externalFileEnvelopes } from "~/metadata/commonObjects/predefined/rules"
 import type { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { exportMetadataItemToYAML, importMetadataItemFromXML } from "~/metadata/orchestration"
 import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
@@ -27,17 +26,19 @@ export const convertAppliedObjectFromXML = async (params: {
 
   if (!model) return
 
-  // Читаем внешние файлы для свойств с filePath (envelope-типы: Predefined, AdditionalIndex)
+  // Читаем внешние файлы для свойств с filePath. Под капотом importPropertyFromXML
+  // диспатчит по rule.type — для типов, зарегистрированных через registerMetadataItemRule
+  // с маркером XMLRoot+isFileRoot, оркестратор сам снимает обёртку контейнера.
+  // Свойства типа Help/Module/Template с filePath обрабатываются отдельно ниже,
+  // через syncExternalFromXML (у них нет importFromXML-обработчика).
   for (const [key, propRule] of Object.entries(rule.properties)) {
     if (propRule.filePath === undefined) continue
-    const envelope = externalFileEnvelopes[propRule.type]
-    if (!envelope) continue
+    if (!getTypeRule(propRule.type, "importFromXML")) continue
     const extFilePath = join(inputDir, propRule.filePath)
     if (!fs.existsSync(extFilePath)) continue
     const extContent = await fs.promises.readFile(extFilePath, "utf-8")
     const extParsed = importContentFromXML<Record<string, unknown>>(extContent)
-    const containerContent = extParsed[envelope.container]
-    const value = importPropertyFromXML({ context, rule: propRule as PropertyRule, value: containerContent, name: key })
+    const value = importPropertyFromXML({ context, rule: propRule as PropertyRule, value: extParsed, name: key })
     if (value !== undefined) (model as Record<string, unknown>)[key] = value
   }
 

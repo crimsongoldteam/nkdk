@@ -5,8 +5,8 @@ export const MetadataSequenceRules = {
   itemType: "MetadataSequence",
   itemTypePrefix: "Последовательность",
   properties: {
-    metaDataObject: {
-      type: "MetaDataObject",
+    xmlRoot: {
+      type: "XMLRoot",
       container: "Sequence",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,

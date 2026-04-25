@@ -12,7 +12,7 @@ import {
   MetadataTabularSectionsXML,
   MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
-import { PredefinedItemsXML, PredefinedItemsYAML } from "~/metadata/commonObjects/predefined/types"
+import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
 import {
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
@@ -123,7 +123,7 @@ export interface MetadataCatalogXML {
       ObjectBelonging?: SE.ObjectBelonging
       ObjectPresentation?: I8nTextXML
       Owners?: MetadataValueCollectionXML
-      Predefined?: PredefinedItemsXML
+      Predefined?: Predefined
       PredefinedDataUpdate?: SE.PredefinedDataUpdate
       QuickChoice?: boolean
       SearchStringModeOnInputByString?: SE.SearchStringModeOnInputByString
@@ -190,7 +190,7 @@ export interface MetadataCatalogYAML {
   ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringYAML
   ПоляБлокировкиДанных?: MetadataFieldsYAML
   Пояснение?: I8nTextYAML
-  Предопределенные?: PredefinedItemsYAML
+  Предопределенные?: PredefinedYAML
   ПредставлениеОбъекта?: I8nTextYAML
   ПредставлениеСписка?: I8nTextYAML
   ПринадлежностьОбъекта?: SE.ObjectBelongingYAML
