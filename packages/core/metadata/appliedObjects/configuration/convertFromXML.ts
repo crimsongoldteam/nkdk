@@ -52,10 +52,28 @@ export const syncConfigurationFromXML = async (params: {
     // Формы обрабатываем только если у правила есть свойство типа "ChildFormNames"
     const hasForms = Object.values(rule.properties).some((p) => p.type === "ChildFormNames")
 
+    if (!hasForms) {
+      for (const entry of xmlFiles) {
+        const name = basename(entry.name, ".xml")
+        tasks.push({
+          kind: rule.itemType,
+          name,
+          run: () =>
+            convertAppliedObjectFromXML({
+              rule,
+              context,
+              inputDir: xmlDirAbs,
+              name,
+              outputDir: yamlDirAbs,
+            }),
+        })
+      }
+      continue
+    }
+
     const formDiscoveries = await Promise.all(
       xmlFiles.map(async (entry) => {
         const name = basename(entry.name, ".xml")
-        if (!hasForms) return { name, formsDir: "", formNames: [] as string[] }
         const formsDir = join(xmlDirAbs, name, "Forms")
         if (!fs.existsSync(formsDir)) return { name, formsDir, formNames: [] as string[] }
         const formEntries = await fs.promises.readdir(formsDir, { withFileTypes: true })
