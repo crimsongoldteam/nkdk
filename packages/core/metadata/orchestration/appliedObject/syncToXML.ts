@@ -1,6 +1,5 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { externalFileEnvelopes } from "~/metadata/commonObjects/predefined/rules"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import {
   exportMetadataItemToXML,
@@ -8,10 +7,13 @@ import {
   importMetadataItemFromYAML,
 } from "~/metadata/orchestration"
 import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
+import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
 import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { xmlExport } from "~/xml/export/exporter"
 import { importContentFromXML } from "~/xml/import/importer"
 import { importFromYAML } from "~/yaml/import"
+
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
@@ -98,28 +100,41 @@ export const syncAppliedObjectToXML = async (params: {
     }
   }
 
-  // Записываем внешние файлы для envelope-типов (Predefined, AdditionalIndex)
+  // Записываем внешние файлы для свойств с filePath. Под капотом exportPropertyToXML
+  // диспатчит по rule.type → registerMetadataItemRule, и для типов с маркером
+  // XMLRoot+isFileRoot правило само оборачивает результат в { [container]: {...} }.
+  // Reference читается из эталонного XML и передаётся в exportPropertyToXML, чтобы
+  // (а) сохранить точный порядок полей по эталону, (б) подмешать атрибуты id, помеченные
+  // forReferenceOnly. Свойства Help/Module/Template обрабатываются отдельно выше через
+  // syncExternalToXML (у них нет exportToXML-обработчика).
   for (const [key, propRule] of Object.entries(rule.properties)) {
     if (propRule.filePath === undefined) continue
-    const envelope = externalFileEnvelopes[propRule.type]
-    if (!envelope) continue
+    if (!getTypeRule(propRule.type, "exportToXML")) continue
 
     const modelValue = (model as Record<string, unknown>)[key]
     if (modelValue === undefined) continue
 
-    const typeExportFn = getTypeRule(propRule.type as Parameters<typeof getTypeRule>[0], "exportToXML")
-    if (!typeExportFn) continue
-
-    const containerContent = typeExportFn(contextWithForms, propRule as PropertyRule, modelValue) as
-      | Record<string, unknown>
-      | undefined
-    if (!containerContent) continue
-
-    // Подмешиваем _id из референсного файла по полю Name
+    let referenceValue: unknown = undefined
     const referenceExtPath = join(referenceDir, propRule.filePath)
-    const mergedContent = mergeItemIds(containerContent, referenceExtPath, envelope.container, envelope.childTag)
+    if (fs.existsSync(referenceExtPath)) {
+      const refContent = fs.readFileSync(referenceExtPath, "utf-8")
+      const refParsed = importContentFromXML<Record<string, unknown>>(refContent)
+      referenceValue = importPropertyFromXML({
+        context: contextFromXML,
+        rule: propRule as PropertyRule,
+        value: refParsed,
+        name: key,
+      })
+    }
 
-    const xmlFileObj = { [envelope.container]: { ...envelope.rootAttributes, ...mergedContent } }
+    const xmlFileObj = exportPropertyToXML({
+      context: contextWithForms,
+      rule: propRule as PropertyRule,
+      value: modelValue,
+      referenceMetadata: referenceValue,
+    }) as Record<string, unknown> | undefined
+    if (!xmlFileObj) continue
+
     const extOutputPath = join(outputDir, propRule.filePath)
     await fs.promises.mkdir(dirname(extOutputPath), { recursive: true })
     await fs.promises.writeFile(extOutputPath, xmlExport(xmlFileObj), "utf-8")
@@ -156,44 +171,3 @@ async function collectFolderNames(
   return listSubdirNames(join(inputDir, name, folderName))
 }
 
-/**
- * Подмешивает атрибут _id (id в XML) из референсного внешнего файла в элементы контейнера.
- * Сопоставление элементов происходит по полю Name.
- * @param childTag — имя тега дочерних элементов (по умолчанию "Item" для Predefined).
- */
-function mergeItemIds(
-  containerContent: Record<string, unknown>,
-  referenceXmlPath: string,
-  containerTag: string,
-  childTag: string = "Item"
-): Record<string, unknown> {
-  if (!fs.existsSync(referenceXmlPath)) return containerContent
-
-  const refXml = fs.readFileSync(referenceXmlPath, "utf-8")
-  const refParsed = importContentFromXML<Record<string, any>>(refXml)
-  const refContainer = refParsed[containerTag] as Record<string, any>
-  const rawRefItems = refContainer?.[childTag]
-  if (!rawRefItems) return containerContent
-
-  const refItems: Array<Record<string, any>> = Array.isArray(rawRefItems) ? rawRefItems : [rawRefItems]
-  const idByName = new Map<string, string>()
-  for (const refItem of refItems) {
-    if (refItem._id && refItem.Name) idByName.set(String(refItem.Name), String(refItem._id))
-  }
-
-  const rawItems = containerContent[childTag]
-  if (!rawItems) return containerContent
-
-  const items: Array<Record<string, any>> = Array.isArray(rawItems)
-    ? (rawItems as Array<Record<string, any>>)
-    : [rawItems as Record<string, any>]
-
-  const mergedItems = items.map((item) => {
-    const id = idByName.get(String(item.Name))
-    if (id === undefined) return item
-    // _id должен быть первым ключом (атрибут id="..." стоит перед дочерними тегами)
-    return { _id: id, ...item }
-  })
-
-  return { ...containerContent, [childTag]: mergedItems.length === 1 ? mergedItems[0] : mergedItems }
-}

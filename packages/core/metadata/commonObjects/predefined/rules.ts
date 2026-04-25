@@ -1,4 +1,3 @@
-import { AdditionalIndexesEnvelope } from "~/metadata/commonObjects/additionalIndex/rules"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 export const PredefinedRules = {
@@ -29,29 +28,3 @@ export const PredefinedRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
-/**
- * Конверт (envelope) для внешнего XML-файла Ext/Predefined.xml.
- *
- * Сохраняется до завершения Phase 5: оркестратор `appliedObject/{convertFromXML,syncToXML}.ts`
- * читает `externalFileEnvelopes`, чтобы понять, как обрабатывать внешние файлы. После Phase 5
- * эти константы удаляются.
- */
-export const PredefinedDataEnvelope = {
-  container: "PredefinedData",
-  rootAttributes: PredefinedRules.properties.xmlRoot.rootAttributes,
-} as const
-
-export interface ExternalFileEnvelope {
-  readonly container: string
-  readonly rootAttributes: Record<string, string>
-  readonly childTag?: string
-}
-
-/**
- * Карта: type → envelope для внешних XML-файлов, используемая оркестраторами.
- */
-export const externalFileEnvelopes: Record<string, ExternalFileEnvelope> = {
-  Predefined: PredefinedDataEnvelope,
-  AdditionalIndex: AdditionalIndexesEnvelope,
-}

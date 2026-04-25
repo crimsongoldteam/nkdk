@@ -8,26 +8,26 @@ export const AdditionalIndexItemRules = {
       ...uuidPropertyRule,
       xml: "_id",
     },
+    additionalFields: {
+      type: "IndexField",
+      xml: "AdditionalFields",
+      yaml: "ДополнительныеПоля",
+    },
     name: {
       type: "string",
       xml: "Name",
       yaml: "Имя",
       required: true,
     },
-    table: {
-      type: "string",
-      xml: "Table",
-      yaml: "Таблица",
-    },
     indexedFields: {
       type: "IndexField",
       xml: "IndexedFields",
       yaml: "ИндексируемыеПоля",
     },
-    additionalFields: {
-      type: "IndexField",
-      xml: "AdditionalFields",
-      yaml: "ДополнительныеПоля",
+    table: {
+      type: "string",
+      xml: "Table",
+      yaml: "Таблица",
     },
   },
 } as const satisfies MetadataItemRule
@@ -59,16 +59,3 @@ export const AdditionalIndexRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
-/**
- * Конверт (envelope) для внешнего XML-файла Ext/AdditionalIndexes.xml.
- *
- * Сохраняется до завершения Phase 5: оркестратор `appliedObject/{convertFromXML,syncToXML}.ts`
- * читает `externalFileEnvelopes`, чтобы понять, как обрабатывать внешние файлы. После Phase 5
- * эти константы удаляются.
- */
-export const AdditionalIndexesEnvelope = {
-  container: "AdditionalIndexes",
-  rootAttributes: AdditionalIndexRules.properties.xmlRoot.rootAttributes,
-  childTag: "AdditionalIndex",
-} as const

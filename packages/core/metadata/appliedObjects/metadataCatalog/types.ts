@@ -12,13 +12,7 @@ import {
   MetadataTabularSectionsXML,
   MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
-// TODO Phase 5: после удаления envelope-инфраструктуры тип `metadataCatalog.Predefined`
-// в XML/YAML будет переопределён через новые `Predefined`/`PredefinedYAML` (либо
-// `PredefinedItemCollection`). Сейчас сохраняем структурно совместимые алиасы, чтобы
-// сборка прошла без изменений поведения оркестратора.
-import { PredefinedItem, PredefinedItemYAML } from "~/metadata/commonObjects/predefinedItem/types"
-type PredefinedItemsXML = PredefinedItem[]
-type PredefinedItemsYAML = Record<string, PredefinedItemYAML>
+import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
 import {
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
@@ -129,7 +123,7 @@ export interface MetadataCatalogXML {
       ObjectBelonging?: SE.ObjectBelonging
       ObjectPresentation?: I8nTextXML
       Owners?: MetadataValueCollectionXML
-      Predefined?: PredefinedItemsXML
+      Predefined?: Predefined
       PredefinedDataUpdate?: SE.PredefinedDataUpdate
       QuickChoice?: boolean
       SearchStringModeOnInputByString?: SE.SearchStringModeOnInputByString
@@ -196,7 +190,7 @@ export interface MetadataCatalogYAML {
   ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringYAML
   ПоляБлокировкиДанных?: MetadataFieldsYAML
   Пояснение?: I8nTextYAML
-  Предопределенные?: PredefinedItemsYAML
+  Предопределенные?: PredefinedYAML
   ПредставлениеОбъекта?: I8nTextYAML
   ПредставлениеСписка?: I8nTextYAML
   ПринадлежностьОбъекта?: SE.ObjectBelongingYAML
