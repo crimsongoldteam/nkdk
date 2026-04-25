@@ -38,12 +38,17 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
     finalResult = { "_xsi:type": rule.xsiType, ...result }
   }
 
-  // Если правило содержит MetaDataObject-property, оборачиваем результат в
-  // { MetaDataObject: { ...rootAttributes, [container]: result } }.
-  const metaDataObjectProp = Object.values(rule.properties).find((p) => p.type === "MetaDataObject")
-  if (metaDataObjectProp) {
-    const container = (metaDataObjectProp as any).container as string
-    const rootAttributes = (metaDataObjectProp as any).rootAttributes as Record<string, string>
+  // Если правило содержит XMLRoot-property, оборачиваем результат:
+  // - по умолчанию: { MetaDataObject: { ...rootAttributes, [container]: result } };
+  // - при isFileRoot: { [container]: { ...rootAttributes, ...result } } (внешний файл).
+  const xmlRootProp = Object.values(rule.properties).find((p) => p.type === "XMLRoot")
+  if (xmlRootProp) {
+    const container = (xmlRootProp as any).container as string
+    const rootAttributes = (xmlRootProp as any).rootAttributes as Record<string, string>
+    const isFileRoot = (xmlRootProp as any).isFileRoot === true
+    if (isFileRoot) {
+      return { [container]: { ...rootAttributes, ...(finalResult as Record<string, unknown>) } }
+    }
     return { MetaDataObject: { ...rootAttributes, [container]: finalResult } }
   }
 

@@ -1,18 +1,21 @@
 import type { BasePropertyRule } from "~/metadata/orchestration/property/types"
 
-/** Правило property-типа MetaDataObject — маркер обёртки прикладного объекта в XML.
+/** Правило property-типа XMLRoot — маркер обёртки прикладного объекта/внешнего файла в XML.
  *
  * Сообщает оркестратору:
  * - при импорте: использовать `xml[container]` как корень для обхода остальных свойств;
- * - при экспорте: обернуть собранный результат в `{ MetaDataObject: { ...rootAttributes, [container]: result } }`.
+ * - при экспорте: вернуть результат, обёрнутый в `{ [container]: { ...rootAttributes, ...result } }`.
  *
  * Не создаёт значения в модели данных (все обработчики возвращают undefined).
  */
-export interface MetaDataObjectPropertyRule extends BasePropertyRule {
-  type: "MetaDataObject"
-  /** Имя тега внутреннего контейнера, например "DocumentNumerator" или "Catalog" */
+export interface XMLRootPropertyRule extends BasePropertyRule {
+  type: "XMLRoot"
+  /** Имя корневого XML-тега, например "Catalog", "PredefinedData", "AdditionalIndexes" */
   container: string
-  /** Корневые XML-атрибуты элемента <MetaDataObject>: xmlns-декларации и version */
+  /** Атрибуты корневого тега: xmlns-декларации и version */
   rootAttributes: Record<string, string>
   forReferenceOnly: true
+  /** Если true, корневой тег XML — это сам container (без внешней обёртки <MetaDataObject>).
+   *  Используется для внешних файлов вроде Ext/Predefined.xml. По умолчанию (false) корень = <MetaDataObject>. */
+  isFileRoot?: true
 }

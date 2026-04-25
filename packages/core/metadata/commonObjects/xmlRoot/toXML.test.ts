@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { exportMetaDataObjectToXML } from "./toXML"
+import { exportXMLRootToXML } from "./toXML"
 
-describe("exportMetaDataObjectToXML", () => {
+describe("exportXMLRootToXML", () => {
   it("возвращает undefined при любом входе — обёртка обрабатывается оркестратором", () => {
-    const result = exportMetaDataObjectToXML()
+    const result = exportXMLRootToXML()
     expect(result).toBeUndefined()
   })
 })

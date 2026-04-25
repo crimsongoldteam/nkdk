@@ -8,8 +8,8 @@ export const MetadataCatalogRules = {
   itemType: "MetadataCatalog",
   itemTypePrefix: "Справочник",
   properties: {
-    metaDataObject: {
-      type: "MetaDataObject",
+    xmlRoot: {
+      type: "XMLRoot",
       container: "Catalog",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,

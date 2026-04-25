@@ -490,7 +490,7 @@ export type PropertyTypeRegistry = {
   InternalInfo: {
     item: InternalInfo
   }
-  MetaDataObject: {
+  XMLRoot: {
     item: undefined
   }
   ChildFormNames: {
@@ -826,7 +826,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   FormAttributeColumns: "FormAttributeColumns",
   FormParameters: "FormParameters",
   InternalInfo: "InternalInfo",
-  MetaDataObject: "MetaDataObject",
+  XMLRoot: "XMLRoot",
   ChildFormNames: "ChildFormNames",
   ChildTemplateNames: "ChildTemplateNames",
   ScrollBarUseBoolean: "ScrollBarUseBoolean",

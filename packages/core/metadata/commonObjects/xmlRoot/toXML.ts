@@ -1,8 +1,7 @@
 import { registerTypeRule } from "~/metadata/orchestration"
 
-/** Маркерный обработчик: реальная работа выполняется оркестратором в exportMetadataItemToXML. */
-export const exportMetaDataObjectToXML = (): undefined => {
+export const exportXMLRootToXML = (): undefined => {
   return undefined
 }
 
-registerTypeRule("MetaDataObject", "exportToXML", exportMetaDataObjectToXML)
+registerTypeRule("XMLRoot", "exportToXML", exportXMLRootToXML)
