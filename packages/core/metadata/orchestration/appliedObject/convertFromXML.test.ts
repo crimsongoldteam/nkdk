@@ -3,7 +3,9 @@ import os from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
+import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
 import { MetadataDocumentNumeratorRules } from "~/metadata/appliedObjects/metadataDocumentNumerator/rules"
+import { MetadataSequenceRules } from "~/metadata/appliedObjects/metadataSequence/rules"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { convertAppliedObjectFromXML } from "./convertFromXML"
 
@@ -52,6 +54,50 @@ describe("convertAppliedObjectFromXML — объект без форм/шабл�
     })
 
     const outputPath = join(outputDir, "НумераторПоУмолчанию", "Свойства.yaml")
+    expect(fs.existsSync(outputPath)).toBe(true)
+  })
+
+  it("convertAppliedObjectFromXML работает для Document (xmlParents-обёртка вместо XMLRoot)", async () => {
+    const fixtureXml = join(
+      import.meta.dirname,
+      "../../appliedObjects/metadataDocument/__fixtures__/minimal.xml"
+    )
+    const inputDir = join(tmpDir, "input")
+    const outputDir = join(tmpDir, "output")
+    fs.mkdirSync(inputDir, { recursive: true })
+    fs.copyFileSync(fixtureXml, join(inputDir, "ДокументПоУмолчанию.xml"))
+
+    await convertAppliedObjectFromXML({
+      rule: MetadataDocumentRules,
+      context: mockContextFromXML(),
+      inputDir,
+      name: "ДокументПоУмолчанию",
+      outputDir,
+    })
+
+    const outputPath = join(outputDir, "ДокументПоУмолчанию", "Свойства.yaml")
+    expect(fs.existsSync(outputPath)).toBe(true)
+  })
+
+  it("convertAppliedObjectFromXML работает для Sequence", async () => {
+    const fixtureXml = join(
+      import.meta.dirname,
+      "../../appliedObjects/metadataSequence/__fixtures__/minimal.xml"
+    )
+    const inputDir = join(tmpDir, "input")
+    const outputDir = join(tmpDir, "output")
+    fs.mkdirSync(inputDir, { recursive: true })
+    fs.copyFileSync(fixtureXml, join(inputDir, "ПоследовательностьПоУмолчанию.xml"))
+
+    await convertAppliedObjectFromXML({
+      rule: MetadataSequenceRules,
+      context: mockContextFromXML(),
+      inputDir,
+      name: "ПоследовательностьПоУмолчанию",
+      outputDir,
+    })
+
+    const outputPath = join(outputDir, "ПоследовательностьПоУмолчанию", "Свойства.yaml")
     expect(fs.existsSync(outputPath)).toBe(true)
   })
 
