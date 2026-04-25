@@ -23,4 +23,4 @@ export const exportIndexFieldsToYAML = (
   return data.map((item) => exportIndexFieldToYAML(context, undefined, item)!)
 }
 
-registerTypeRule("IndexField", "exportToYAML", exportIndexFieldToYAML)
+registerTypeRule("IndexField", "exportToYAML", exportIndexFieldsToYAML)

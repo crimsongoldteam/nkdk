@@ -8,7 +8,14 @@ import {
   MetadataEnumerationValuesYAML,
 } from "~/metadata/appliedObjects/metadataEnumeration/types"
 import { MetadataSequence, MetadataSequenceYAML } from "~/metadata/appliedObjects/metadataSequence/types"
-import { AdditionalIndex, AdditionalIndexYAML } from "~/metadata/commonObjects/additionalIndex/types"
+import {
+  AdditionalIndex,
+  AdditionalIndexCollection,
+  AdditionalIndexCollectionYAML,
+  AdditionalIndexItem,
+  AdditionalIndexItemYAML,
+  AdditionalIndexYAML,
+} from "~/metadata/commonObjects/additionalIndex/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
 import {
@@ -333,8 +340,15 @@ export type PropertyTypeRegistry = {
   }
   AdditionalIndex: {
     item: AdditionalIndex
-
     yaml: AdditionalIndexYAML
+  }
+  AdditionalIndexItem: {
+    item: AdditionalIndexItem
+    yaml: AdditionalIndexItemYAML
+  }
+  AdditionalIndexCollection: {
+    item: AdditionalIndexCollection
+    yaml: AdditionalIndexCollectionYAML
   }
   CharacteristicsDescriptions: {
     item: CharacteristicsDescriptions
@@ -773,6 +787,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataType: "MetadataType",
   MetadataTypeCollection: "MetadataTypeCollection",
   AdditionalIndex: "AdditionalIndex",
+  AdditionalIndexItem: "AdditionalIndexItem",
+  AdditionalIndexCollection: "AdditionalIndexCollection",
   CharacteristicsDescriptions: "CharacteristicsDescriptions",
   ChoiceList: "ChoiceList",
   ChoiceParameterLinks: "ChoiceParameterLinks",

@@ -1,7 +1,7 @@
 import { exportMetadataCommandsToYAML } from "~/metadata/appliedObjects/metadataCommand/register"
 import { MetadataDocument, MetadataDocumentYAML } from "~/metadata/appliedObjects/metadataDocument/types"
 // import { exportMetadataDocumentNumeratorToYAML } from "~/metadata/appliedObjects/metadataDocumentNumerator/toYAML"
-import { exportAdditionalIndexesToYAML } from "~/metadata/commonObjects/additionalIndex/toYAML"
+import { exportAdditionalIndexesToYAML } from "~/metadata/commonObjects/additionalIndex/legacy"
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { CharacteristicsDescriptionRules } from "~/metadata/commonObjects/characteristicsDescription/rules"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
