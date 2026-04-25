@@ -49,4 +49,20 @@ describe("sync configuration from xml", () => {
     expect(resultFormNkdk).toBe(expectedFormNkdk)
     expect(resultFormYaml).toBe(expectedFormYaml)
   })
+
+  it("импортирует Document, DocumentNumerator и Sequence в соответствующие YAML-папки", async () => {
+    fs.mkdirSync(outputDir, { recursive: true })
+
+    await syncConfigurationFromXML({
+      context: mockContextFromXML(),
+      inputDir,
+      outputDir,
+    })
+
+    expect(fs.existsSync(join(outputDir, "Документ", "ДокументПоУмолчанию", "Свойства.yaml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Нумератор", "НумераторПоУмолчанию", "Свойства.yaml"))).toBe(true)
+    expect(
+      fs.existsSync(join(outputDir, "Последовательность", "ПоследовательностьПоУмолчанию", "Свойства.yaml")),
+    ).toBe(true)
+  })
 })
