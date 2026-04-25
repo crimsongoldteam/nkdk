@@ -65,4 +65,21 @@ describe("sync configuration from xml", () => {
       fs.existsSync(join(outputDir, "Последовательность", "ПоследовательностьПоУмолчанию", "Свойства.yaml")),
     ).toBe(true)
   })
+
+  it("не падает на дампе без некоторых корневых разделов", async () => {
+    const partialInput = join(__dirname, "../../../tests/fixtures/sync/_partial_xml_tmp")
+    if (fs.existsSync(partialInput)) fs.rmSync(partialInput, { recursive: true })
+    fs.mkdirSync(join(partialInput, "Catalogs"), { recursive: true })
+    fs.mkdirSync(outputDir, { recursive: true })
+
+    const result = await syncConfigurationFromXML({
+      context: mockContextFromXML(),
+      inputDir: partialInput,
+      outputDir,
+    })
+
+    expect(result.failed).toEqual([])
+
+    fs.rmSync(partialInput, { recursive: true })
+  })
 })
