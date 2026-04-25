@@ -134,7 +134,7 @@ export interface BasePropertyRule {
    * содержательное (не forReferenceOnly) свойство с этим флагом на правило.
    * Скоп — только YAML/JSON-схема. Модель данных и XML-сериализация не затрагиваются.
    */
-  yamlInline?: boolean
+  yamlInline?: true
 }
 
 export interface ChildItemsPropertyRule extends BasePropertyRule {
