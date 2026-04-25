@@ -48,6 +48,7 @@ export const MetadataDocumentRules = {
       yaml: "ЗаписьДвиженийПриПроведении",
       type: "SystemEnumeration",
       typeSE: "RegisterRecordsWritingOnPost",
+      xml: "RegisterRecordsWritingOnPost",
       defaultValueXML: "RealTime",
       xmlParents: documentProperties,
     },
@@ -277,6 +278,7 @@ export const MetadataDocumentRules = {
     privilegedPostingMode: {
       yaml: "ПривилегированныйРежимПриПроведении",
       type: "boolean",
+      xml: "PostInPrivilegedMode",
       defaultValueXML: false,
       xmlParents: documentProperties,
     },
