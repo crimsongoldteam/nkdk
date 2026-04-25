@@ -127,6 +127,14 @@ export interface BasePropertyRule {
    * Пример: "Ext/Predefined.xml"
    */
   filePath?: string
+
+  /**
+   * Если true, при сериализации в YAML и JSON-схему значение этого свойства подставляется
+   * напрямую как значение всего item-объекта (без обёртки ключом). Допустимо ровно одно
+   * содержательное (не forReferenceOnly) свойство с этим флагом на правило.
+   * Скоп — только YAML/JSON-схема. Модель данных и XML-сериализация не затрагиваются.
+   */
+  yamlInline?: boolean
 }
 
 export interface ChildItemsPropertyRule extends BasePropertyRule {

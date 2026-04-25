@@ -11,9 +11,25 @@ export const exportMetadataItemToYAML = <Rule extends MetadataItemRule>(params: 
   const { context, data, rule } = params
   if (!data) return undefined
 
-  return exportPropertiesToYAML({
+  const yamlObj = exportPropertiesToYAML({
     context,
     data: { ...data, itemType: rule.itemType } as ToMetadata<Rule["itemType"]>,
     rule,
   })
+
+  const inlineEntries = Object.entries(rule.properties).filter(
+    ([, p]) => (p as any).yamlInline === true && (p as any).forReferenceOnly !== true
+  )
+  if (inlineEntries.length > 1) {
+    throw new Error(
+      `Rule "${rule.itemType}": yamlInline=true должно быть установлено максимум для одного свойства, найдено ${inlineEntries.length}`
+    )
+  }
+  if (inlineEntries.length === 1) {
+    const [key, prop] = inlineEntries[0]
+    const yamlKey = (prop as any).yaml ?? key
+    return (yamlObj as any)?.[yamlKey]
+  }
+
+  return yamlObj
 }
