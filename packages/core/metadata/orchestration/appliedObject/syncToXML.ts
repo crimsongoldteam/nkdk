@@ -14,7 +14,6 @@ import { xmlExport } from "~/xml/export/exporter"
 import { importContentFromXML } from "~/xml/import/importer"
 import { importFromYAML } from "~/yaml/import"
 
-
 const PROPERTIES_YAML = "Свойства.yaml"
 
 export const syncAppliedObjectToXML = async (params: {
@@ -170,4 +169,3 @@ async function collectFolderNames(
   const folderName = (prop as { folderName: string }).folderName
   return listSubdirNames(join(inputDir, name, folderName))
 }
-
