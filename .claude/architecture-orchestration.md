@@ -47,6 +47,16 @@ xmlRoot: {
 - сохраняет точный порядок полей по эталону,
 - подмешивает атрибуты, помеченные `forReferenceOnly` (например, id-атрибут).
 
+## Свойства с типом `ChildFormNames`
+
+Свойство правила с типом `ChildFormNames` совмещает две роли:
+
+1. **Сериализация в основной XML.** Даёт тег `<ChildObjects><Form>…</Form></ChildObjects>` в XML объекта. Реализация — обработчик `exportToXML`, зарегистрированный на типе.
+
+2. **Синхронизация файлов форм.** Обработчики `syncExternalToXML`/`syncExternalFromXML`, зарегистрированные на типе, сканируют папку `nkdkDir/<folderName>` (на nkdk-стороне) или `xmlDir/<name>/Forms/` (на XML-стороне) и для каждой формы делегируют работу `syncFormToXML` / `convertFormFromXML`. Формы внутри одного объекта обрабатываются **последовательно**.
+
+Сигнатура `SyncExternalToXMLFunction` / `SyncExternalFromXMLFunction` включает поля `name: string` (имя объекта) и `referenceDir?: string` (родитель эталонной директории объекта, для round-trip). Эти поля заполняет `appliedObject/syncToXML.ts` / `appliedObject/convertFromXML.ts`. Хуки `Module`/`Help`/`Template` их игнорируют.
+
 ## Флаг `yamlInline`
 
 Опциональный флаг свойства `yamlInline?: true` на `BasePropertyRule`. Применяется только в YAML и JSON-схеме (модель и XML — без изменений).
