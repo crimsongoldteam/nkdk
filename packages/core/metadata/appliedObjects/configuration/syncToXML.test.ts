@@ -1,8 +1,9 @@
 import fs from "fs"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { mockContextToXML } from "~/tests/mockContext"
+import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { syncConfigurationFromXML } from "./convertFromXML"
 import { syncConfigurationToXML } from "./syncToXML"
 
 describe("sync configuration to XML", () => {
@@ -44,5 +45,42 @@ describe("sync configuration to XML", () => {
       join("sync/syncConfiguration/out", "Catalogs", catalogName, "Forms", "ФормаЭлемента.xml")
     )
     expect(resultFormMetadataXML).toBe(expectedFormMetadataXML)
+  })
+
+  it("round-trip Document/DocumentNumerator/Sequence: XML → YAML → XML возвращает исходный XML", async () => {
+    const tmpYamlDir = getXMLFixturePath("sync/syncConfiguration/_tmp_yaml")
+    const tmpXmlDir = getXMLFixturePath("sync/syncConfiguration/_tmp_xml")
+    if (fs.existsSync(tmpYamlDir)) fs.rmSync(tmpYamlDir, { recursive: true })
+    if (fs.existsSync(tmpXmlDir)) fs.rmSync(tmpXmlDir, { recursive: true })
+    fs.mkdirSync(tmpYamlDir, { recursive: true })
+    fs.mkdirSync(tmpXmlDir, { recursive: true })
+
+    // 1. XML → YAML
+    await syncConfigurationFromXML({
+      context: mockContextFromXML(),
+      inputDir: referenceDir,
+      outputDir: tmpYamlDir,
+    })
+
+    // 2. YAML → XML
+    await syncConfigurationToXML({
+      context: mockContextToXML(),
+      inputDir: tmpYamlDir,
+      outputDir: tmpXmlDir,
+      referenceDir,
+    })
+
+    for (const [xmlSubdir, fileName] of [
+      ["Documents", "ДокументПоУмолчанию.xml"],
+      ["DocumentNumerators", "НумераторПоУмолчанию.xml"],
+      ["Sequences", "ПоследовательностьПоУмолчанию.xml"],
+    ] as const) {
+      const expected = readXMLFileAsString(join("sync/syncConfiguration/xml", xmlSubdir, fileName))
+      const actual = readXMLFileAsString(join("sync/syncConfiguration/_tmp_xml", xmlSubdir, fileName))
+      expect(actual, `mismatch in ${xmlSubdir}/${fileName}`).toBe(expected)
+    }
+
+    fs.rmSync(tmpYamlDir, { recursive: true })
+    fs.rmSync(tmpXmlDir, { recursive: true })
   })
 })
