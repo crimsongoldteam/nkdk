@@ -8,13 +8,7 @@ import {
   importMetadataItemFromYAML,
 } from "~/metadata/orchestration"
 import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
-import type {
-  HelpPropertyRule,
-  MetadataItemRule,
-  ModulePropertyRule,
-  PropertyRule,
-  TemplatePropertyRule,
-} from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { xmlExport } from "~/xml/export/exporter"
 import { importContentFromXML } from "~/xml/import/importer"
 import { importFromYAML } from "~/yaml/import"
@@ -79,19 +73,15 @@ export const syncAppliedObjectToXML = async (params: {
   await fs.promises.mkdir(outputDir, { recursive: true })
   await fs.promises.writeFile(join(outputDir, `${name}.xml`), xmlExport(xmlObj), "utf-8")
 
-  // Копируем BSL-файлы для свойств типа Module/Template (статические пути на уровне объекта)
-  for (const [_key, propRule] of Object.entries(rule.properties)) {
-    if (propRule.type !== "Module" && propRule.type !== "Template") continue
-    const moduleRule = propRule as ModulePropertyRule | TemplatePropertyRule
-    if (typeof moduleRule.nkdkPath === "function" || typeof moduleRule.xmlPath === "function") continue
-    const srcPath = join(inputDir, name, moduleRule.nkdkPath)
-    if (!fs.existsSync(srcPath)) continue
-    const dstPath = join(outputDir, moduleRule.xmlPath)
-    await fs.promises.mkdir(dirname(dstPath), { recursive: true })
-    await fs.promises.copyFile(srcPath, dstPath)
+  // Обработчики внешних файлов на уровне объекта (Help, Module, Template со статическими путями)
+  const nkdkDir = join(inputDir, name)
+  for (const [, propRule] of Object.entries(rule.properties)) {
+    const syncFn = getTypeRule(propRule.type, "syncExternalToXML")
+    if (!syncFn) continue
+    await syncFn({ context: contextWithForms, rule: propRule, nkdkDir, xmlDir: outputDir })
   }
 
-  // Копируем BSL-файлы для дочерних коллекций (команды и т. п.) с функциональными путями
+  // Обработчики внешних файлов для дочерних коллекций (команды с функциональными путями)
   for (const childCollection of rule.childCollections ?? []) {
     const collectionModel = (model as Record<string, unknown>)[childCollection.propertyKey]
     if (!collectionModel || typeof collectionModel !== "object") continue
@@ -100,55 +90,15 @@ export const syncAppliedObjectToXML = async (params: {
       ? (collectionModel as Array<Record<string, unknown>>).map((item) => String(item["name"] ?? "")).filter(Boolean)
       : Object.keys(collectionModel)
     for (const itemName of itemNames) {
-      for (const [_k, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
-        if (itemPropRule.type !== "Module" && itemPropRule.type !== "Template") continue
-        const moduleRule = itemPropRule as ModulePropertyRule | TemplatePropertyRule
-        const nkdkPath =
-          typeof moduleRule.nkdkPath === "function" ? moduleRule.nkdkPath({ name: itemName }) : moduleRule.nkdkPath
-        const xmlPath =
-          typeof moduleRule.xmlPath === "function" ? moduleRule.xmlPath({ name: itemName }) : moduleRule.xmlPath
-        const srcPath = join(inputDir, name, nkdkPath)
-        if (!fs.existsSync(srcPath)) continue
-        const dstPath = join(outputDir, xmlPath)
-        await fs.promises.mkdir(dirname(dstPath), { recursive: true })
-        await fs.promises.copyFile(srcPath, dstPath)
+      for (const [, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
+        const syncFn = getTypeRule(itemPropRule.type, "syncExternalToXML")
+        if (!syncFn) continue
+        await syncFn({ context: contextWithForms, rule: itemPropRule, nkdkDir, xmlDir: outputDir, itemName })
       }
     }
   }
 
-  // Генерируем Help.xml и копируем HTML-файлы для свойств типа Help
-  for (const [_key, propRule] of Object.entries(rule.properties)) {
-    if (propRule.type !== "Help") continue
-    const helpRule = propRule as HelpPropertyRule
-    const nkdkHelpDir = join(inputDir, name, helpRule.nkdkDir)
-    if (!fs.existsSync(nkdkHelpDir)) continue
-    const htmlFiles = await fs.promises.readdir(nkdkHelpDir)
-    const langs = htmlFiles.filter((f) => f.endsWith(".html")).map((f) => f.replace(/\.html$/, ""))
-    if (langs.length === 0) continue
-
-    const helpXmlObj = {
-      Help: {
-        _xmlns: "http://v8.1c.ru/8.3/xcf/extrnprops",
-        "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
-        "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-        _version: "2.20",
-        Page: langs.length === 1 ? langs[0] : langs,
-      },
-    }
-    const helpXmlPath = join(outputDir, helpRule.filePath)
-    await fs.promises.mkdir(dirname(helpXmlPath), { recursive: true })
-    await fs.promises.writeFile(helpXmlPath, xmlExport(helpXmlObj), "utf-8")
-
-    const helpHtmlDir = helpRule.filePath.replace(/\.xml$/, "")
-    for (const lang of langs) {
-      const srcHtmlPath = join(inputDir, name, helpRule.nkdkDir, `${lang}.html`)
-      const dstHtmlPath = join(outputDir, helpHtmlDir, `${lang}.html`)
-      await fs.promises.mkdir(dirname(dstHtmlPath), { recursive: true })
-      await fs.promises.copyFile(srcHtmlPath, dstHtmlPath)
-    }
-  }
-
-  // Записываем внешние файлы для свойств с filePath
+  // Записываем внешние файлы для envelope-типов (Predefined, AdditionalIndex)
   for (const [key, propRule] of Object.entries(rule.properties)) {
     if (propRule.filePath === undefined) continue
     const envelope = externalFileEnvelopes[propRule.type]

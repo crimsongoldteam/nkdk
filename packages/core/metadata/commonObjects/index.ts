@@ -227,3 +227,9 @@ import "./internalInfo/toXML"
 import "./dataCompositionSystem"
 
 import "./dateTime"
+
+import "./help/fromXML"
+import "./help/toXML"
+
+import "./module/fromXML"
+import "./module/toXML"

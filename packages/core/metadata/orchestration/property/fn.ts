@@ -113,6 +113,32 @@ export type GraphEdgeFromParent = {
   name?: string
 }
 
+/**
+ * Хендлер для свойств, хранящих значение во внешних файлах (Help.xml, .bsl).
+ * Вызывается оркестратором в сторону nkdk — читает XML-сторону и пишет nkdk-сторону.
+ * xmlDir и nkdkDir — директории конкретного объекта метаданных.
+ * itemName задаётся при обходе дочерних коллекций (например, команд с функциональными путями).
+ */
+export type SyncExternalFromXMLFunction = (params: {
+  context: ConfigurationContextFromXML
+  rule: PropertyRule
+  xmlDir: string
+  nkdkDir: string
+  itemName?: string
+}) => Promise<void>
+
+/**
+ * Хендлер для свойств, хранящих значение во внешних файлах (Help.xml, .bsl).
+ * Вызывается оркестратором в сторону XML — читает nkdk-сторону и пишет XML-сторону.
+ */
+export type SyncExternalToXMLFunction = (params: {
+  context: ConfigurationContextWithExportToXML
+  rule: PropertyRule
+  nkdkDir: string
+  xmlDir: string
+  itemName?: string
+}) => Promise<void>
+
 export interface GraphChildRule {
   idFrom: string
   edgeName: string
@@ -132,6 +158,8 @@ export interface TypeRule {
   extractGraph?: ExtractGraphFromModelFunction
   graphEdgeFromParent?: GraphEdgeFromParent
   graphChild?: GraphChildRule
+  syncExternalFromXML?: SyncExternalFromXMLFunction
+  syncExternalToXML?: SyncExternalToXMLFunction
 }
 
 export type TypeRulesOperations =
@@ -145,6 +173,8 @@ export type TypeRulesOperations =
   | "extractGraph"
   | "graphEdgeFromParent"
   | "graphChild"
+  | "syncExternalFromXML"
+  | "syncExternalToXML"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -171,4 +201,8 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                   ? GraphEdgeFromParent | undefined
                   : O extends "graphChild"
                     ? GraphChildRule | undefined
-                    : never
+                    : O extends "syncExternalFromXML"
+                      ? SyncExternalFromXMLFunction | undefined
+                      : O extends "syncExternalToXML"
+                        ? SyncExternalToXMLFunction | undefined
+                        : never

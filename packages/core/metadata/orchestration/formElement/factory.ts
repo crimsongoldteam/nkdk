@@ -15,6 +15,8 @@ import {
   ImportFromXMLFunction,
   importFromYAMLFunction as ImportFromYAMLFunction,
   ImportFromYAMLFunctionNew,
+  SyncExternalFromXMLFunction,
+  SyncExternalToXMLFunction,
   TypeRulesOperations,
 } from "../property/fn"
 
@@ -32,6 +34,8 @@ const typeRulesRegistry = new Map<
   | ExtractGraphFromModelFunction
   | GraphEdgeFromParent
   | GraphChildRule
+  | SyncExternalFromXMLFunction
+  | SyncExternalToXMLFunction
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -66,7 +70,11 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                   ? GraphEdgeFromParent | undefined
                   : O extends "graphChild"
                     ? GraphChildRule | undefined
-                    : never => {
+                    : O extends "syncExternalFromXML"
+                      ? SyncExternalFromXMLFunction | undefined
+                      : O extends "syncExternalToXML"
+                        ? SyncExternalToXMLFunction | undefined
+                        : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any
