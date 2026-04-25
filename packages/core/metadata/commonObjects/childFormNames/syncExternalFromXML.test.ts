@@ -29,5 +29,7 @@ describe("syncChildFormNamesFromXML (через convertAppliedObjectFromXML)", (
 
     expect(fs.existsSync(yamlPath), `expected ${yamlPath}`).toBe(true)
     expect(fs.existsSync(nkdkPath), `expected ${nkdkPath}`).toBe(true)
+
+    fs.rmSync(outputDir, { recursive: true })
   })
 })
