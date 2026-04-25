@@ -4,6 +4,7 @@ import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/preset
 export const MetadataDocumentNumeratorRules = {
   itemType: "MetadataDocumentNumerator",
   itemTypePrefix: "Нумератор",
+  xmlDir: "DocumentNumerators",
   properties: {
     xmlRoot: {
       type: "XMLRoot",

@@ -7,6 +7,7 @@ import { MetadataCatalogStandardAttributeNames } from "./types"
 export const MetadataCatalogRules = {
   itemType: "MetadataCatalog",
   itemTypePrefix: "Справочник",
+  xmlDir: "Catalogs",
   properties: {
     xmlRoot: {
       type: "XMLRoot",

@@ -15,6 +15,7 @@ export const MetadataDocumentStandardAttributeNames: Record<string, string> = {
 export const MetadataDocumentRules = {
   itemType: "MetadataDocument",
   itemTypePrefix: "Документ",
+  xmlDir: "Documents",
   properties: {
     uuid: {
       type: "string",

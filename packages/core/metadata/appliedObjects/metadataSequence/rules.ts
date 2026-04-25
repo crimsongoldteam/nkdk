@@ -4,6 +4,7 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 export const MetadataSequenceRules = {
   itemType: "MetadataSequence",
   itemTypePrefix: "Последовательность",
+  xmlDir: "Sequences",
   properties: {
     xmlRoot: {
       type: "XMLRoot",
