@@ -103,6 +103,7 @@ import "./xmlRoot/toXML"
 
 import "./childFormNames/fromXML"
 import "./childFormNames/toXML"
+import "./childFormNames/syncExternalToXML"
 
 import "./childTemplateNames/fromXML"
 import "./childTemplateNames/toXML"
