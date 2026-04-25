@@ -55,7 +55,7 @@ export const MetadataDocumentRules = {
     additionalIndexes: {
       yaml: "ДополнительныеИндексы",
       type: "AdditionalIndex",
-      xmlParents: documentProperties,
+      filePath: "Ext/AdditionalIndexes.xml",
     },
     attributes: {
       yaml: "Реквизиты",
@@ -283,6 +283,9 @@ export const MetadataDocumentRules = {
       yaml: "ПринадлежностьОбъекта",
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
+      defaultValueYAML: "Native",
+      toYAML: false,
+      fromYAML: false,
       xmlParents: documentProperties,
     },
     objectPresentation: {
