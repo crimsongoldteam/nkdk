@@ -330,6 +330,13 @@ export interface MetadataItemRule extends MetadataItem {
   itemTypePrefix?: string
 
   /**
+   * Имя XML-папки в дампе конфигурации (например "Catalogs", "Documents", "DocumentNumerators", "Sequences").
+   * Если задано — правило считается корневым и участвует в обходе configuration walker'а.
+   * Если не задано — правило внутреннее (Command, Predefined и т.п.).
+   */
+  xmlDir?: string
+
+  /**
    * Пути к XML-тегам-контейнерам, которые должны присутствовать в результате exportPropertiesToXML
    * всегда, даже пустыми. Каждый путь — массив ключей от корня результата, симметричный xmlParents
    * на уровне PropertyRule. Пример: [["Catalog", "ChildObjects"]].
