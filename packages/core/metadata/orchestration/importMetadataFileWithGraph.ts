@@ -2,7 +2,6 @@ import { isMap } from "yaml"
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import type { MetadataCatalog } from "~/metadata/appliedObjects/metadataCatalog/types"
-import { importMetadataDocumentFromYAML } from "~/metadata/appliedObjects/metadataDocument/fromYAML"
 import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
 import type { MetadataDocument } from "~/metadata/appliedObjects/metadataDocument/types"
 import { importMetadataEnumerationFromYAML } from "~/metadata/appliedObjects/metadataEnumeration/fromYAML"
@@ -84,7 +83,7 @@ const _kindRegistry = new Map<MetadataKind, MetadataKindEntry>([
     {
       rule: MetadataDocumentRules,
       importFromYAML: (ctx, yaml, name) =>
-        importMetadataDocumentFromYAML(ctx, yaml as never, name),
+        importMetadataItemFromYAML({ context: ctx, yaml: yaml as never, rule: MetadataDocumentRules, name }),
     },
   ],
   [
