@@ -257,6 +257,13 @@ export const MetadataDocumentRules = {
       defaultValueXML: "String",
       xmlParents: documentProperties,
     },
+    numerator: {
+      yaml: "Нумератор",
+      type: "string",
+      xmlParents: documentProperties,
+      referenceScope: { target: "topLevel", allowedTypes: ["Нумератор"] },
+      defaultValueXMLRaw: "",
+    },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
       type: "SystemEnumeration",
@@ -285,6 +292,7 @@ export const MetadataDocumentRules = {
     privilegedUnpostingMode: {
       yaml: "ПривилегированныйРежимПриОтменеПроведения",
       type: "boolean",
+      xml: "UnpostInPrivilegedMode",
       defaultValueXML: false,
       xmlParents: documentProperties,
     },
