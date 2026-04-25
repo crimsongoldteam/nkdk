@@ -21,6 +21,8 @@ export const PredefinedRules = {
     },
     items: {
       type: "PredefinedItemCollection",
+      // Дочерние <Item>-теги лежат прямо в корне <PredefinedData>, без обёртки <Items>:
+      // указание xml="Item" подменяет имя обёртки коллекции на имя её элемента.
       xml: "Item",
       yamlInline: true,
       yaml: "items",
