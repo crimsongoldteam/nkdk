@@ -74,28 +74,33 @@ export const MetadataDocumentRules = {
       type: "string",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
     },
     auxiliaryListForm: {
       yaml: "ДополнительнаяФормаСписка",
       type: "string",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
     },
     auxiliaryObjectForm: {
       yaml: "ДополнительнаяФормаОбъекта",
       type: "string",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
     },
     basedOn: {
       yaml: "ВводитсяНаОсновании",
       type: "MetadataItemLinks",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: {},
     },
     characteristics: {
       yaml: "Характеристики",
       type: "CharacteristicsDescriptions",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: {},
     },
     checkUnique: {
       yaml: "КонтрольУникальности",
@@ -127,6 +132,7 @@ export const MetadataDocumentRules = {
       yaml: "Комментарий",
       type: "string",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     createOnInput: {
       yaml: "СозданиеПриВводе",
@@ -153,24 +159,28 @@ export const MetadataDocumentRules = {
       yaml: "ПоляБлокировкиДанных",
       type: "MetadataFields",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: {},
     },
     defaultChoiceForm: {
       yaml: "ОсновнаяФормаДляВыбора",
       type: "string",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
     },
     defaultListForm: {
       yaml: "ОсновнаяФормаСписка",
       type: "string",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
     },
     defaultObjectForm: {
       yaml: "ОсновнаяФормаОбъекта",
       type: "string",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
     },
     executeAfterWriteDataHistoryVersionProcessing: {
       yaml: "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных",
@@ -182,16 +192,19 @@ export const MetadataDocumentRules = {
       yaml: "Пояснение",
       type: "I8nText",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     extendedListPresentation: {
       yaml: "РасширенноеПредставлениеСписка",
       type: "I8nText",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     extendedObjectPresentation: {
       yaml: "РасширенноеПредставлениеОбъекта",
       type: "I8nText",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     fullTextSearch: {
       yaml: "ПолнотекстовыйПоиск",
@@ -218,11 +231,13 @@ export const MetadataDocumentRules = {
       type: "MetadataFields",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Attribute", filter: "stringIndexedAttribute" },
+      defaultValueXMLRaw: {},
     },
     listPresentation: {
       yaml: "ПредставлениеСписка",
       type: "I8nText",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     name: {
       type: "string",
@@ -274,6 +289,7 @@ export const MetadataDocumentRules = {
       yaml: "ПредставлениеОбъекта",
       type: "I8nText",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     posting: {
       yaml: "Проведение",
@@ -307,6 +323,7 @@ export const MetadataDocumentRules = {
       yaml: "Движения",
       type: "MetadataItemLinks",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: {},
     },
     registerRecordsDeletion: {
       yaml: "УдалениеДвижений",
@@ -339,6 +356,7 @@ export const MetadataDocumentRules = {
       yaml: "Синоним",
       type: "I8nText",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     tabularSections: {
       yaml: "ТабличныеЧасти",
