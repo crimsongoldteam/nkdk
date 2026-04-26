@@ -151,10 +151,14 @@ Deep Scan свойств родителя (см. чат-сессию 2026-04-26)
 | 2 | Порядок `StandardAttributes` | **закрыт** |
 | 3а | InternalInfo: категория `Catalog`→`Document` | **закрыт** (5б) |
 | 3б | InternalInfo: пустой parent name | **закрыт** (5б) |
-| 4 | `<Form>` / `<Template>` сериализация (PRD-2) | открыт |
+| 4 | `<Form>` / `<Template>` сериализация (PRD-2) | **закрыт** |
 | 5а | `<Use>ForItem</Use>` у атрибутов | **закрыт** |
 | 5б | `<Use>ForItem</Use>` у `TabularSection.Properties` | **закрыт** |
 | 6 | Trailing newline в `<v8:content>` | открыт |
+
+### Решение блокера #4
+
+В `metadataDocument/rules.ts` отсутствовали свойства `forms` (`type: "ChildFormNames"`, `xml: "Form"`) и `templates` (`type: "ChildTemplateNames"`, `xml: "Template"`). У Catalog они уже были — скопированы дословно (с `documentChildObjects` вместо `["ChildObjects"]`). Механизмы `ChildFormNames`/`ChildTemplateNames` уже зарегистрированы в `PropertyRuleTypeKeys`, дополнительных правок реестра не понадобилось.
 
 ### Решение блокера #2
 
