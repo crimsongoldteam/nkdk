@@ -1,33 +1,24 @@
-import fs from "fs"
-import { join } from "path"
-import { beforeEach, describe, expect, it } from "vitest"
-import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
-import { mockContextFromXML } from "~/tests/mockContext"
+import { describe, expect, it } from "vitest"
+import { testConvertAppliedObjectFromXML } from "~/tests/appliedObject"
+import { readDocumentYAML } from "./__fixtures__/sync/data"
 import { MetadataDocumentRules } from "./rules"
 
 describe("convertAppliedObjectFromXML — MetadataDocument", () => {
-  const inputDir = join(import.meta.dirname, "__fixtures__/sync")
-  const outputDir = join(import.meta.dirname, "__fixtures__/sync/out")
   const name = "ДокументВсеСвойства"
 
-  beforeEach(() => {
-    if (fs.existsSync(outputDir)) {
-      fs.rmSync(outputDir, { recursive: true })
-    }
-  })
-
-  it("читает Document из XML и записывает Свойства.yaml в outputDir", async () => {
-    await convertAppliedObjectFromXML({
+  it("читает Document из XML и пишет Свойства.yaml в outputDir", async () => {
+    const { yaml } = await testConvertAppliedObjectFromXML({
       rule: MetadataDocumentRules,
-      context: mockContextFromXML(),
-      inputDir,
       name,
-      outputDir,
+      importMetaUrl: import.meta.url,
+      expectedYAML: readDocumentYAML,
     })
 
-    const yamlPath = join(outputDir, name, "Свойства.yaml")
-    expect(fs.existsSync(yamlPath)).toBe(true)
-    const yamlContent = fs.readFileSync(yamlPath, "utf-8")
-    expect(yamlContent).toContain("Проведение: Разрешить")
+    expect(yaml.result).toBe(yaml.expected)
   })
+
+  // TODO: convertFromXML для Document пока не выгружает модули и команды
+  // в YAML-структуру (МодульОбъекта.bsl, МодульМенеджера.bsl,
+  // Команды/<name>.bsl). После расширения convertAppliedObjectFromXML
+  // добавить эти проверки по образцу Catalog'а.
 })
