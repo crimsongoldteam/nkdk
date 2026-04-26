@@ -1,6 +1,5 @@
 import { format, parse } from "date-fns"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { importMetadataValueStringFromYAML } from "../metadataPath/fromYAML"
@@ -113,8 +112,7 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
   boolean: {
     fromXML: (ctx, text) => {
       if (text === undefined) return undefined
-      const value =
-        typeof text === "boolean" ? text : importBooleanFromXML(ctx, undefined, text as "true" | "false")
+      const value = typeof text === "boolean" ? text : importBooleanFromXML(ctx, undefined, text as "true" | "false")
       if (value === undefined) return undefined
       return { type: "boolean", value } satisfies MetadataBooleanValue
     },
@@ -179,4 +177,32 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
     fromYAML: (_ctx, _data) => undefined,
     toYAML: (_ctx, _v) => undefined,
   },
+
+  typeRef: {
+    fromXML: (_ctx: ConfigurationContextFromXML, text: string | boolean | number | undefined) => {
+      return { type: "typeRef", value: text === undefined ? "" : String(text) } as unknown as MetadataTypedValue
+    },
+    toXML: (v: MetadataTypedValue) =>
+      ({
+        "_xsi:type": "v8:Type",
+        "#text": String((v as unknown as { type: "typeRef"; value: string }).value),
+      }) as unknown as MetadataPrimitiveValueXML,
+    fromYAML: (_ctx: ConfigurationContext, _data: MetadataValueYAML) => undefined,
+    toYAML: (_ctx: ConfigurationContext, v: MetadataTypedValue) =>
+      String((v as unknown as { type: "typeRef"; value: string }).value),
+  } satisfies MetadataPrimitiveValueHandler,
+
+  uuid: {
+    fromXML: (_ctx: ConfigurationContextFromXML, text: string | boolean | number | undefined) => {
+      return { type: "uuid", value: text === undefined ? "" : String(text) } as unknown as MetadataTypedValue
+    },
+    toXML: (v: MetadataTypedValue) =>
+      ({
+        "_xsi:type": "v8:UUID",
+        "#text": String((v as unknown as { type: "uuid"; value: string }).value),
+      }) as unknown as MetadataPrimitiveValueXML,
+    fromYAML: (_ctx: ConfigurationContext, _data: MetadataValueYAML) => undefined,
+    toYAML: (_ctx: ConfigurationContext, v: MetadataTypedValue) =>
+      String((v as unknown as { type: "uuid"; value: string }).value),
+  } satisfies MetadataPrimitiveValueHandler,
 }

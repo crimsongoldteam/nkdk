@@ -12,6 +12,8 @@ export const MetadataValueTypeToXML = {
   ref: "xr:DesignTimeRef",
   objectRef: "xr:MDObjectRef",
   ApplicationUsePurpose: "app:ApplicationUsePurpose",
+  typeRef: "v8:Type",
+  uuid: "v8:UUID",
   fixedArray: "v8:FixedArray",
   formChoiceListDesTimeValue: "FormChoiceListDesTimeValue",
 } as const
@@ -24,6 +26,8 @@ export type MetadataValueTypeToXMLTypes = [
   ["objectRef", string],
   ["ref", string],
   ["ApplicationUsePurpose", string],
+  ["typeRef", string],
+  ["uuid", string],
   // ["fixedArray", string[] | number[] | boolean[]],
   // ["formChoiceListDesTimeValue", { presentation: I8nText; value: MetadataValue }],
 ]
@@ -47,6 +51,8 @@ export type MetadataPrimitiveValueType =
   | "ref"
   | "objectRef"
   | "ApplicationUsePurpose"
+  | "typeRef"
+  | "uuid"
 
 type MetadataValueTypeToXMLTypesTuple = MetadataValueTypeToXMLTypes[number]
 type MetadataValueTypeToXMLTypesMap = {
