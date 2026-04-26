@@ -110,6 +110,52 @@ Deep Scan свойств родителя (см. чат-сессию 2026-04-26)
 - **`defaults.ts` устарел.** Пометить в комментарии в `rules.ts` или в карточке follow-up. Расхождение с фикстурой не блокирует round-trip (правило `defaultValueXML` побеждает при сериализации).
 - **Memory `project_forms_as_property_rule.md` устарела** — текущая целевая архитектура для форм Catalog/Document — это `ChildFormNames`/`ChildTemplateNames` (используется в `metadataCatalog/rules.ts`), а не отдельный PropertyRule по образцу `predefined`. Memory обновить отдельным шагом (вне границ этого PRD).
 
+## Дополнения после детального дебага toXML (2026-04-26)
+
+После запуска `metadataDocument/toXML.test.ts` на трёх фикстурах (`full.xml`, `minimal.xml`, `withNumerator.xml`) детальная классификация diff показала, что часть исходных «5 блокеров» из комментария-TODO в `toXML.test.ts` нужно уточнить, и обнаружен один новый.
+
+### Уточнения существующих блокеров
+
+**Блокер #1 (uuid mock) распадается на два независимых аспекта:**
+
+- (1а) Корневой `<Document uuid="…">`. Прямой перенос приёма из `metadataCatalog/rules.ts` (`type: "string"` → `"uuid"` для `forReferenceOnly`-uuid поля) **не работает** для Document: атрибут на корне по-прежнему пустой, а внутри `<Document>` появляется лишний `<Document uuid="11111111-1111-4111-8111-111111111111"/>`. Источник корневого uuid отличается от Catalog'а — требует отдельного исследования (предположительно `presets/V8_MDCLASSES_ROOT` или общий `appliedObject` каркас).
+- (1б) `<xr:TypeId>` внутри `TabularSection.InternalInfo` сериализуется как mock-UUID `11111111-…`, а должен быть реальным (либо мок=identity для round-trip, либо проброс reference UUID).
+
+**Блокер #3 (InternalInfo на TabularSection) включает два дефекта:**
+
+- (3а) Неверная категория: `CatalogTabularSection` вместо `DocumentTabularSection` в `<xr:GeneratedType name>`.
+- (3б) Пустой parent name: `CatalogTabularSection..ТабличнаяЧасть` (две точки подряд) — отсутствует имя документа-родителя (`ДокументВсеСвойства`). Генератор `InternalInfo` не получает имя владельца при экспорте дочернего TabularSection.
+
+**Блокер #5 (`<Use>ForItem</Use>`) распадается на два:**
+
+- (5а) **Атрибуты документа.** Закрыто разделением правил по образцу `MetadataTabularSectionAttributeRules` ↔ `MetadataAttributeRules`: добавлен `MetadataDocumentAttributeRules` (без `use`/`binaryDataStorageLocationUse`, с сохранением `binaryDataStorageLocationUseField`). Зарегистрирована коллекция `MetadataDocumentAttributes`. `metadataDocument/rules.ts:attributes` переключён на новый тип. Проверочная фикстура — `metadataAttribute/__fixtures__/document.xml`.
+- (5б) **`TabularSection.Properties`** документа — сохраняется. Решается тем же приёмом: разделение `MetadataTabularSectionRules` → `MetadataDocumentTabularSectionRules` без `use`.
+
+### Новый блокер #6 — потеря trailing newline в `<v8:content>`
+
+В `full.xml` поле `Explanation`:
+
+```
+- <v8:content>Пояснение\n</v8:content>
++ <v8:content>Пояснение</v8:content>
+```
+
+Экспортёр (`xmlExport`) обрезает завершающий перевод строки внутри текстового узла. На `minimal.xml`/`withNumerator.xml` поля нет, эффект только на `full.xml`. Природа — общий механизм `xmlExport`, не `rules.ts`.
+
+### Текущий статус блокеров (после фикса 5а)
+
+| # | Блокер | Статус |
+|---|---|---|
+| 1а | Корневой `<Document uuid>` | открыт, требует отдельного исследования |
+| 1б | UUID в `TabularSection.InternalInfo` | открыт |
+| 2 | Порядок `StandardAttributes` | открыт |
+| 3а | InternalInfo: категория `Catalog`→`Document` | открыт |
+| 3б | InternalInfo: пустой parent name | открыт |
+| 4 | `<Form>` / `<Template>` сериализация (PRD-2) | открыт |
+| 5а | `<Use>ForItem</Use>` у атрибутов | **закрыт** |
+| 5б | `<Use>ForItem</Use>` у `TabularSection.Properties` | открыт (следующий) |
+| 6 | Trailing newline в `<v8:content>` | открыт |
+
 ## Критерии готовности
 
 1. Все шесть тестов (`fromXML`, `toXML`, `fromYAML`, `toYAML`, `convertFromXML`, `syncToXML`) для Document зелёные.

@@ -102,3 +102,8 @@ export type MetadataAttributesYAML = Record<MetadataNameYAML, MetadataAttributeY
 export type MetadataTabularSectionAttributes = MetadataAttributes
 export type MetadataTabularSectionAttributesXML = MetadataAttributesXML
 export type MetadataTabularSectionAttributesYAML = MetadataAttributesYAML
+
+export type MetadataDocumentAttribute = MetadataAttribute
+export type MetadataDocumentAttributes = MetadataAttributes
+export type MetadataDocumentAttributesXML = MetadataAttributesXML
+export type MetadataDocumentAttributesYAML = MetadataAttributesYAML

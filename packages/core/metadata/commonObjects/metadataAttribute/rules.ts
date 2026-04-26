@@ -245,26 +245,40 @@ const commonAttributeProperties = {
   },
 } as const satisfies Record<string, PropertyRule>
 
+const fillProperties = {
+  fillFromFillingValue: {
+    yaml: "ЗаполнятьИзДанныхЗаполнения",
+    xml: "FillFromFillingValue",
+    type: "boolean",
+    defaultValueXML: false,
+    xmlParents: ["Properties"],
+    order: 15,
+  },
+  fillValue: {
+    yaml: "ЗначениеЗаполнения",
+    xml: "FillValue",
+    type: "MetadataValue",
+    xmlParents: ["Properties"],
+    order: 16,
+    defaultValueXMLRaw: { "_xsi:nil": true },
+  },
+} as const satisfies Record<string, PropertyRule>
+
+const binaryDataStorageLocationUseFieldProperty = {
+  binaryDataStorageLocationUseField: {
+    yaml: "ПолеИспользованияХраненияВХранилищеДвоичныхДанных",
+    xml: "BinaryDataStorageLocationUseField",
+    type: "boolean",
+    xmlParents: ["Properties"],
+    order: 31,
+  },
+} as const satisfies Record<string, PropertyRule>
+
 export const MetadataAttributeRules = {
   itemType: "MetadataAttribute",
   properties: {
     ...commonAttributeProperties,
-    fillFromFillingValue: {
-      yaml: "ЗаполнятьИзДанныхЗаполнения",
-      xml: "FillFromFillingValue",
-      type: "boolean",
-      defaultValueXML: false,
-      xmlParents: ["Properties"],
-      order: 15,
-    },
-    fillValue: {
-      yaml: "ЗначениеЗаполнения",
-      xml: "FillValue",
-      type: "MetadataValue",
-      xmlParents: ["Properties"],
-      order: 16,
-      defaultValueXMLRaw: { "_xsi:nil": true },
-    },
+    ...fillProperties,
     use: {
       yaml: "Использование",
       xml: "Use",
@@ -283,13 +297,16 @@ export const MetadataAttributeRules = {
       xmlParents: ["Properties"],
       order: 30,
     },
-    binaryDataStorageLocationUseField: {
-      yaml: "ПолеИспользованияХраненияВХранилищеДвоичныхДанных",
-      xml: "BinaryDataStorageLocationUseField",
-      type: "boolean",
-      xmlParents: ["Properties"],
-      order: 31,
-    },
+    ...binaryDataStorageLocationUseFieldProperty,
+  },
+} as const satisfies MetadataItemRule
+
+export const MetadataDocumentAttributeRules = {
+  itemType: "MetadataAttribute",
+  properties: {
+    ...commonAttributeProperties,
+    ...fillProperties,
+    ...binaryDataStorageLocationUseFieldProperty,
   },
 } as const satisfies MetadataItemRule
 

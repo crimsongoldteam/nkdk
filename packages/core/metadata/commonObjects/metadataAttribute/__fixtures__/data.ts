@@ -31,6 +31,37 @@ export const multipleFromXML: MetadataAttributes = [
   },
 ]
 
+// Corresponds to __fixtures__/document.xml (non-default values only, after import stripping)
+export const documentFromXML: MetadataAttributes = [
+  {
+    itemType: "MetadataAttribute",
+    name: "ПолныйРеквизит",
+    synonym: { items: { ru: "Синоним" } },
+    comment: "Комментарий",
+    type: { type: ["ValueStorage"] },
+    passwordMode: true,
+    format: { items: { ru: "ДФ=dd.MM.yyyy" } },
+    editFormat: { items: { ru: "ДФ=d.M.yy" } },
+    toolTip: { items: { ru: "Подсказка" } },
+    markNegatives: true,
+    mask: "Маска",
+    multiLine: true,
+    extendedEdit: true,
+    minValue: 1,
+    maxValue: 100,
+    fillFromFillingValue: true,
+    fillChecking: "ShowError",
+    createOnInput: "DontUse",
+    linkByType: {
+      dataPath: "Document.ДокументВсеСвойства.StandardAttribute.Date",
+      linkItem: 0,
+    },
+    choiceHistoryOnInput: "DontUse",
+    fullTextSearch: "DontUse",
+    dataHistory: "DontUse",
+  },
+]
+
 // Corresponds to __fixtures__/full.xml (non-default values only, after import stripping)
 export const fullFromXML: MetadataAttributes = [
   {

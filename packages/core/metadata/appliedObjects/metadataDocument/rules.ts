@@ -1,5 +1,5 @@
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
+import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { ReferenceScope } from "../../relations/referenceScope"
 
 const documentProperties = ["Properties"]
@@ -39,7 +39,7 @@ export const MetadataDocumentRules = {
       ],
     },
     uuid: {
-      type: "string",
+      type: "uuid",
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: ["Document"],
@@ -59,7 +59,7 @@ export const MetadataDocumentRules = {
     },
     attributes: {
       yaml: "Реквизиты",
-      type: "MetadataAttributes",
+      type: "MetadataDocumentAttributes",
       xmlParents: documentChildObjects,
       xml: "Attribute",
     },

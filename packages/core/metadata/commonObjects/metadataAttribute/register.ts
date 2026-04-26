@@ -16,7 +16,7 @@ import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/met
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { MetadataAttributeRules, MetadataTabularSectionAttributeRules } from "./rules"
+import { MetadataAttributeRules, MetadataDocumentAttributeRules, MetadataTabularSectionAttributeRules } from "./rules"
 
 const importMetadataAttributeFromYAML = (
   context: ConfigurationContext,
@@ -76,6 +76,15 @@ registerMetadataItemCollectionRule({
 registerMetadataItemCollectionRule({
   propertyType: "MetadataTabularSectionAttributes",
   itemRule: MetadataTabularSectionAttributeRules,
+  xmlElement: "Attribute",
+  keyField: "name",
+  fromYAML: importMetadataAttributesFromYAML,
+  graphChild: { idFrom: "name", edgeName: "Реквизит", nodeSegment: "Реквизит" },
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataDocumentAttributes",
+  itemRule: MetadataDocumentAttributeRules,
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: importMetadataAttributesFromYAML,

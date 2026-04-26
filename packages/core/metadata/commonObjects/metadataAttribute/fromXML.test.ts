@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fullFromXML, minimalFromXML, multipleFromXML } from "./__fixtures__/data"
+import { documentFromXML, fullFromXML, minimalFromXML, multipleFromXML } from "./__fixtures__/data"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 
 const rule = { type: "MetadataAttributes", xml: "Attribute" } as const
@@ -42,5 +42,19 @@ describe("import MetadataAttributes from XML", () => {
       xmlRootTag: "Root",
     })
     expect(result).toBeUndefined()
+  })
+})
+
+describe("import MetadataDocumentAttributes from XML", () => {
+  const documentRule = { type: "MetadataDocumentAttributes", xml: "Attribute" } as const
+
+  it("should import document", () => {
+    const result = testImportPropertyFromXML({
+      rule: documentRule,
+      path: "document.xml",
+      xmlRootTag: "Attribute",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(documentFromXML)
   })
 })
