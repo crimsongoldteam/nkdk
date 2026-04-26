@@ -1,4 +1,5 @@
 export const HorizontalIfPossibleGroupPrefix = "-"
+export const HorizontalGroupPrefix = "--"
 export const AlwaysHorizontalGroupPrefix = "="
 export const VerticalGroupPrefix = "+"
 export const OneLineGroupSeparator = "; "

@@ -7,6 +7,7 @@ import { importChildItemsFromNKDK } from "../../commonObjects/childItems/fromNKD
 import { UsualGroup } from "./types"
 
 const groupFromGroupText = (groupText: string | undefined): SE.ChildFormItemsGroup => {
+  if (groupText === "--") return "Horizontal"
   const first = groupText?.[0]
   if (first === "=") return "AlwaysHorizontal"
   if (first === "+") return "Vertical"
