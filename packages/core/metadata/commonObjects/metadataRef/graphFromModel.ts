@@ -6,7 +6,8 @@ import { findSeqItemOffset } from "~/metadata/orchestration/property/position"
 import { extractReferenceFromPath } from "~/metadata/orchestration/property/extractReferenceFromPath"
 import { MetadataItemLink, MetadataItemLinks } from "./types"
 
-const EDGE_KIND = "Объект"
+const EDGE_KIND = "OBJECT"
+const EDGE_YAML = "Объект"
 
 const extractMetadataItemLinkGraph: ExtractGraphFromModelFunction = (
   model,
@@ -47,10 +48,10 @@ const buildMetadataItemLinksGraph: BuildGraphFromModelFunction = ({
     .filter((ref): ref is NonNullable<typeof ref> => ref !== undefined)
 
   if (references.length > 0) {
-    applyGraphOps({ references }, { graph, parentNodeId, filePath, edgeName: EDGE_KIND })
+    applyGraphOps({ references }, { graph, parentNodeId, filePath, edgeKind: EDGE_KIND, edgeYaml: EDGE_YAML })
   }
 }
 
 registerTypeRule("MetadataItemLink", "extractGraph", extractMetadataItemLinkGraph)
-registerTypeRule("MetadataItemLink", "graphEdgeFromParent", { name: EDGE_KIND })
+registerTypeRule("MetadataItemLink", "graphEdgeFromParent", { kind: EDGE_KIND, yaml: EDGE_YAML })
 registerTypeRule("MetadataItemLinks", "buildGraphFromModel", buildMetadataItemLinksGraph)

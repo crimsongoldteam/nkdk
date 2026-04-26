@@ -122,7 +122,7 @@ describe("validateReferenceScope — this/Form", () => {
     g.setNodeAttribute(formNode, "item", { itemType: "ClientApplicationForm", name: "ФормаСписка" })
     g.ensureEdge(`${owner}:form:${formNode}`, owner, formNode, {
       yaml: "ClientApplicationForm",
-      kind: "Реквизит",
+      kind: "ATTRIBUTE",
     })
 
     return { g, owner, formNode }
@@ -155,7 +155,7 @@ describe("validateReferenceScope — this/Form", () => {
     // нет setNodeAttribute item — заглушка
     g.ensureEdge(`${owner}:form:${stubForm}`, owner, stubForm, {
       yaml: "ClientApplicationForm",
-      kind: "Реквизит",
+      kind: "ATTRIBUTE",
     })
 
     const result = validateReferenceScope(stubForm, { target: "this", kind: "Form" }, g, owner)
@@ -172,7 +172,7 @@ describe("validateReferenceScope — this/Form", () => {
     g.setNodeAttribute(attrNode, "item", { itemType: "MetadataAttribute", name: "КодовыйРеквизит" })
     g.ensureEdge(`${owner}:attr:${attrNode}`, owner, attrNode, {
       yaml: "Реквизит",
-      kind: "Реквизит",
+      kind: "ATTRIBUTE",
     })
 
     const result = validateReferenceScope(attrNode, { target: "this", kind: "Form" }, g, owner)
@@ -199,7 +199,7 @@ describe("validateReferenceScope — this/Attribute", () => {
     })
     g.ensureEdge(`${owner}:attr:${attrNode}`, owner, attrNode, {
       yaml: "Реквизит",
-      kind: "Реквизит",
+      kind: "ATTRIBUTE",
     })
 
     return { g, owner, attrNode }
@@ -232,7 +232,7 @@ describe("validateReferenceScope — this/Attribute", () => {
     g.setNodeAttribute(childNode, "item", { itemType: "MetadataTabularSection", name: "ТабличнаяЧасть1" })
     g.ensureEdge(`${owner}:ts:${childNode}`, owner, childNode, {
       yaml: "ТабличнаяЧасть",
-      kind: "ТабличнаяЧасть",
+      kind: "TABULAR_SECTION",
     })
 
     const result = validateReferenceScope(childNode, { target: "this", kind: "Attribute" }, g, owner)

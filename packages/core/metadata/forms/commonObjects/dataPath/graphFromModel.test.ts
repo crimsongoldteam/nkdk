@@ -31,7 +31,7 @@ function makeGraphWithFormAttribute() {
   graph.ensureNode(attrNodeId, { name: "Объект" })
   graph.ensureEdge(`${FORM_NODE_ID}:РеквизитФормы:${attrNodeId}`, FORM_NODE_ID, attrNodeId, {
     yaml: "РеквизитФормы",
-    kind: "РеквизитФормы",
+    kind: "FORM_ATTRIBUTE",
   })
 
   // «Тип»-ребро: Объект → Справочник.Товары
@@ -39,7 +39,7 @@ function makeGraphWithFormAttribute() {
   graph.ensureNode(typeTargetId, { name: "Товары" })
   graph.ensureEdge(`${attrNodeId}:Тип:${typeTargetId}`, attrNodeId, typeTargetId, {
     yaml: "Тип",
-    kind: "Тип",
+    kind: "TYPE",
   })
 
   // Реквизиты прикладного объекта
@@ -78,7 +78,7 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
     expect(graph.hasNode(elementNodeId)).toBe(true)
 
     const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "ПутьКДанным",
+      (e) => e.attributes.kind === "DATA_PATH",
     )
     expect(dataPathEdges).toHaveLength(1)
     expect(dataPathEdges[0].target).toBe("Справочник.Товары.Наименование")
@@ -106,7 +106,7 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
 
     const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const edges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "ПутьКДаннымПодвала",
+      (e) => e.attributes.kind === "FOOTER_DATA_PATH",
     )
     expect(edges).toHaveLength(1)
     expect(edges[0].target).toBe("Справочник.Товары.Количество")
@@ -134,7 +134,7 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
 
     const elementNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
     const edges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "ПутьКДаннымЗаголовка",
+      (e) => e.attributes.kind === "TITLE_DATA_PATH",
     )
     expect(edges).toHaveLength(1)
     expect(edges[0].target).toBe("Справочник.Товары.Наименование")
@@ -169,7 +169,7 @@ describe("DataPath buildGraphFromModel — edge-cases", () => {
 
     const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "ПутьКДанным",
+      (e) => e.attributes.kind === "DATA_PATH",
     )
     expect(dataPathEdges).toHaveLength(0)
     // Новых узлов не появилось (кроме самого элемента)
@@ -198,7 +198,7 @@ describe("DataPath buildGraphFromModel — edge-cases", () => {
 
     const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "ПутьКДанным",
+      (e) => e.attributes.kind === "DATA_PATH",
     )
     // Ребро создано (к заглушке)
     expect(dataPathEdges).toHaveLength(1)
@@ -230,7 +230,7 @@ describe("DataPath buildGraphFromModel — edge-cases", () => {
 
     const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "ПутьКДанным",
+      (e) => e.attributes.kind === "DATA_PATH",
     )
     expect(dataPathEdges).toHaveLength(0)
   })
@@ -265,7 +265,7 @@ describe("buildElementChildrenGraph — extractGraph для TypeDescription", ()
 
     const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const typeEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "ДоступныеТипы",
+      (e) => e.attributes.kind === "AVAILABLE_TYPES",
     )
     expect(typeEdges).toHaveLength(1)
     expect(typeEdges[0].target).toBe("Справочник.Товары")

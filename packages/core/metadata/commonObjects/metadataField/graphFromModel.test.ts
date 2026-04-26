@@ -9,7 +9,7 @@ const baseContext = { version: "2.20", defaultLanguage: "ru" }
 const FILE_PATH = "test/Свойства.yaml"
 
 function fieldEdges(graph: MetadataGraph, nodeId: string) {
-  return [...graph.outEdgeEntries(nodeId)].filter((e) => e.attributes.kind === "Поле")
+  return [...graph.outEdgeEntries(nodeId)].filter((e) => e.attributes.kind === "FIELD")
 }
 
 describe("MetadataFields graph extraction (ВводПоСтроке)", () => {

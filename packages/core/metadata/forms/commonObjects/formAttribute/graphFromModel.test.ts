@@ -43,7 +43,7 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
 
     // Нет дочерних узлов с КолонкаФормы-рёбрами
     const edges = [...graph.outEdgeEntries(ATTR_NODE_ID)].filter(
-      (e) => e.attributes.kind === "КолонкаФормы",
+      (e) => e.attributes.kind === "FORM_COLUMN",
     )
     expect(edges).toHaveLength(0)
   })
@@ -75,7 +75,7 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
     expect(graph.hasNode(col2NodeId)).toBe(true)
 
     const edges = [...graph.outEdgeEntries(ATTR_NODE_ID)].filter(
-      (e) => e.attributes.kind === "КолонкаФормы",
+      (e) => e.attributes.kind === "FORM_COLUMN",
     )
     expect(edges).toHaveLength(2)
     expect(edges.map((e) => e.target)).toContain(col1NodeId)
@@ -109,7 +109,7 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
     expect(graph.hasNode(colNodeId)).toBe(true)
 
     const typeEdges = [...graph.outEdgeEntries(colNodeId)].filter(
-      (e) => e.attributes.kind === "Тип",
+      (e) => e.attributes.kind === "TYPE",
     )
     expect(typeEdges).toHaveLength(1)
     expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
@@ -139,7 +139,7 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
 
     // Additional-ветка не обрабатывается в этом срезе
     const edges = [...graph.outEdgeEntries(ATTR_NODE_ID)].filter(
-      (e) => e.attributes.kind === "КолонкаФормы",
+      (e) => e.attributes.kind === "FORM_COLUMN",
     )
     expect(edges).toHaveLength(0)
   })

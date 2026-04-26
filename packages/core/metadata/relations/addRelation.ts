@@ -4,15 +4,18 @@ import { getOrCreateChildNodeId, getOrCreateTopLevelNodeId, graph } from "./grap
 type RelationType = {
   defaultRelation?: true
   yaml: string
+  kind: string
 }
 
 const RelationTypes: Record<string, RelationType> = {
   parent: {
     yaml: "Родитель",
+    kind: "PARENT",
   },
   attribute: {
     defaultRelation: true,
     yaml: "Реквизит",
+    kind: "ATTRIBUTE",
   },
 } as const
 
@@ -25,7 +28,6 @@ export const addRelation = (params: {
   const relConfig = RelationTypes[relationType]
   const fromId = getOrCreateTopLevelNodeId(from)
   const toId = relConfig.defaultRelation ? getOrCreateChildNodeId(from, to) : getOrCreateTopLevelNodeId(to)
-  const yaml = relConfig.yaml
-  const edgeKey = `${fromId}:${yaml}:${toId}`
-  graph.ensureEdge(edgeKey, fromId, toId, { yaml, kind: yaml })
+  const edgeKey = `${fromId}:${relConfig.kind}:${toId}`
+  graph.ensureEdge(edgeKey, fromId, toId, { yaml: relConfig.yaml, kind: relConfig.kind })
 }

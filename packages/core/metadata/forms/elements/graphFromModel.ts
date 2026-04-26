@@ -16,6 +16,7 @@ import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { applyGraphOps } from "~/metadata/relations/applyGraphOps"
+import { getKindByYaml } from "~/metadata/relations/edgeKinds"
 import { AutoCommandBarRules } from "./autoCommandBar/rules"
 import { getAutoCommandBarName } from "./autoCommandBar/helper"
 import { ContextMenuRules } from "./contextMenu/rules"
@@ -27,7 +28,8 @@ import { SingleSearchStringAdditionRules } from "./searchStringAddition/rules"
 import { getSearchStringAdditionName } from "./searchStringAddition/helper"
 import { getViewStatusAdditionName } from "./viewStatusAddition/helper"
 
-const FORM_ELEMENT_EDGE = "ЭлементФормы"
+const FORM_ELEMENT_EDGE_KIND = "FORM_ELEMENT"
+const FORM_ELEMENT_EDGE_YAML = "ЭлементФормы"
 
 // ---------------------------------------------------------------------------
 // Вспомогательные функции
@@ -66,9 +68,11 @@ function buildElementChildrenGraph(params: {
       if (value !== undefined && value !== null) {
         const ops = extractGraphFn(value)
         if (ops) {
-          const edgeName = propRule.graphEdgeKind ?? propRule.yaml ?? edgeDef.name
-          if (edgeName) {
-            applyGraphOps(ops, { graph, parentNodeId, filePath, edgeName })
+          const edgeYaml = propRule.yaml ?? edgeDef.yaml
+          const edgeKind =
+            propRule.graphEdgeKind ?? edgeDef.kind ?? (edgeYaml ? getKindByYaml(edgeYaml) : undefined)
+          if (edgeKind && edgeYaml) {
+            applyGraphOps(ops, { graph, parentNodeId, filePath, edgeKind, edgeYaml })
           }
         }
       }
@@ -123,10 +127,10 @@ function buildChildItemsGraph(params: {
       item: elem,
     })
 
-    const edgeKey = `${parentNodeId}:${FORM_ELEMENT_EDGE}:${elementNodeId}`
+    const edgeKey = `${parentNodeId}:${FORM_ELEMENT_EDGE_KIND}:${elementNodeId}`
     graph.ensureEdge(edgeKey, parentNodeId, elementNodeId, {
-      yaml: FORM_ELEMENT_EDGE,
-      kind: FORM_ELEMENT_EDGE,
+      yaml: FORM_ELEMENT_EDGE_YAML,
+      kind: FORM_ELEMENT_EDGE_KIND,
     })
 
     // Рекурсия в свойства элемента (childItems и синглеты)
@@ -182,10 +186,10 @@ function buildSingletonGraph(params: {
   })
 
   // Ребро от ФОРМЫ, а не от визуального родителя
-  const edgeKey = `${formNodeId}:${FORM_ELEMENT_EDGE}:${singletonNodeId}`
+  const edgeKey = `${formNodeId}:${FORM_ELEMENT_EDGE_KIND}:${singletonNodeId}`
   graph.ensureEdge(edgeKey, formNodeId, singletonNodeId, {
-    yaml: FORM_ELEMENT_EDGE,
-    kind: FORM_ELEMENT_EDGE,
+    yaml: FORM_ELEMENT_EDGE_YAML,
+    kind: FORM_ELEMENT_EDGE_KIND,
   })
 
   // Рекурсия в собственные дочерние элементы синглета (childItems и вложенные синглеты)

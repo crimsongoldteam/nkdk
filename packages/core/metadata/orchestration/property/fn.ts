@@ -106,11 +106,15 @@ export type ExtractGraphFromModelFunction<TModel = unknown> = (
 
 export type GraphEdgeFromParent = {
   /**
-   * Явное имя kind'а для reference-ребра — используется как fallback,
-   * если у PropertyRule не задан ни graphEdgeKind, ни yaml.
-   * По новому правилу (PRD #114) kind берётся из propRule.graphEdgeKind ?? propRule.yaml.
+   * ASCII-метка kind'а для reference-ребра — используется как fallback,
+   * если у PropertyRule не задан graphEdgeKind. SCREAMING_SNAKE_CASE.
    */
-  name?: string
+  kind?: string
+  /**
+   * Русский YAML-ключ для ребра — используется как fallback для поля yaml,
+   * если у PropertyRule не задан yaml.
+   */
+  yaml?: string
 }
 
 /**
@@ -147,7 +151,10 @@ export type SyncExternalToXMLFunction = (params: {
 
 export interface GraphChildRule {
   idFrom: string
-  edgeName: string
+  /** ASCII-метка kind'а ребра (тип отношения в Cypher). SCREAMING_SNAKE_CASE. */
+  edgeKind: string
+  /** Русский YAML-ключ ребра (для round-trip). */
+  edgeYaml: string
   /** Необязательный сегмент-дискриминатор типа коллекции, вставляемый в childNodeId. */
   nodeSegment?: string
   itemRule: MetadataItemRule

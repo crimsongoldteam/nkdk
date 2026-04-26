@@ -44,7 +44,7 @@ describe("graphFromModel — элементы формы", () => {
     expect(graph.getNodeAttribute(nodeId, "name")).toBe("Кнопка1")
 
     const edges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(
-      (e) => e.attributes.kind === "ЭлементФормы",
+      (e) => e.attributes.kind === "FORM_ELEMENT",
     )
     expect(edges).toHaveLength(1)
     expect(edges[0].target).toBe(nodeId)
@@ -83,13 +83,13 @@ describe("graphFromModel — элементы формы", () => {
 
     // Ребро формы → группа
     const formEdges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(
-      (e) => e.attributes.kind === "ЭлементФормы",
+      (e) => e.attributes.kind === "FORM_ELEMENT",
     )
     expect(formEdges.map((e) => e.target)).toContain(groupNodeId)
 
     // Ребро группы → поле (не форма → поле)
     const groupEdges = [...graph.outEdgeEntries(groupNodeId)].filter(
-      (e) => e.attributes.kind === "ЭлементФормы",
+      (e) => e.attributes.kind === "FORM_ELEMENT",
     )
     expect(groupEdges).toHaveLength(1)
     expect(groupEdges[0].target).toBe(fieldNodeId)
@@ -134,7 +134,7 @@ describe("graphFromModel — элементы формы", () => {
 
     // Ребро от ФОРМЫ к синглету, не от таблицы
     const formEdges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(
-      (e) => e.attributes.kind === "ЭлементФормы",
+      (e) => e.attributes.kind === "FORM_ELEMENT",
     )
     expect(formEdges.map((e) => e.target)).toContain(menuNodeId)
 

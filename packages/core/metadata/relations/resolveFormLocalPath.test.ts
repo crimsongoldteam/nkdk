@@ -14,7 +14,7 @@ function makeGraph(): MetadataGraph {
     `${FORM_NODE_ID}:РеквизитФормы:${ATTR_NODE_ID}`,
     FORM_NODE_ID,
     ATTR_NODE_ID,
-    { yaml: "РеквизитФормы", kind: "РеквизитФормы" },
+    { yaml: "РеквизитФормы", kind: "FORM_ATTRIBUTE" },
   )
   return graph
 }
@@ -55,7 +55,7 @@ describe("resolveFormLocalPath", () => {
       "Объект:Тип:Товары",
       ATTR_NODE_ID,
       "Справочник.Товары",
-      { yaml: "Тип", kind: "Тип" },
+      { yaml: "Тип", kind: "TYPE" },
     )
 
     const result = resolveFormLocalPath({
@@ -74,7 +74,7 @@ describe("resolveFormLocalPath", () => {
       "Объект:Тип:Товары",
       ATTR_NODE_ID,
       "Справочник.Товары",
-      { yaml: "Тип", kind: "Тип" },
+      { yaml: "Тип", kind: "TYPE" },
     )
 
     const result = resolveFormLocalPath({
@@ -97,7 +97,7 @@ describe("resolveFormLocalPath", () => {
       "Объект:Тип:Товары",
       ATTR_NODE_ID,
       "Справочник.Товары",
-      { yaml: "Тип", kind: "Тип" },
+      { yaml: "Тип", kind: "TYPE" },
     )
     // «Справочник.Товары.Состав» не существует
 
@@ -119,13 +119,13 @@ describe("resolveFormLocalPath", () => {
       "Объект:Тип:Товары",
       ATTR_NODE_ID,
       "Справочник.Товары",
-      { yaml: "Тип", kind: "Тип" },
+      { yaml: "Тип", kind: "TYPE" },
     )
     graph.ensureEdge(
       "Состав:Тип:ТипСостава",
       "Справочник.Товары.Состав",
       "ТипСостава",
-      { yaml: "Тип", kind: "Тип" },
+      { yaml: "Тип", kind: "TYPE" },
     )
     // ТипСостава.Количество не существует
 
@@ -145,7 +145,7 @@ describe("resolveFormLocalPath", () => {
       "Объект:Тип:Товары",
       ATTR_NODE_ID,
       "Справочник.Товары",
-      { yaml: "Тип", kind: "Тип" },
+      { yaml: "Тип", kind: "TYPE" },
     )
     // «Справочник.Товары.Состав» не существует — промежуточный сегмент → undefined
 
@@ -167,13 +167,13 @@ describe("resolveFormLocalPath", () => {
       "Товары:ТабличнаяЧасть:Состав",
       "Справочник.Товары",
       "Справочник.Товары.ТабличнаяЧасть.Состав",
-      { yaml: "ТабличнаяЧасть", kind: "ТабличнаяЧасть" },
+      { yaml: "ТабличнаяЧасть", kind: "TABULAR_SECTION" },
     )
     graph.ensureEdge(
       "Объект:Тип:Товары",
       ATTR_NODE_ID,
       "Справочник.Товары",
-      { yaml: "Тип", kind: "Тип" },
+      { yaml: "Тип", kind: "TYPE" },
     )
 
     const result = resolveFormLocalPath({

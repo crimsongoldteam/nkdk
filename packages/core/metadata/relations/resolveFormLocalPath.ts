@@ -22,10 +22,10 @@ import type { MetadataGraph } from "./MetadataGraph"
  */
 
 const FORM_CHILD_KINDS = new Set([
-  "РеквизитФормы",
-  "КомандаФормы",
-  "ПараметрФормы",
-  "ЭлементФормы",
+  "FORM_ATTRIBUTE",
+  "FORM_COMMAND",
+  "FORM_PARAMETER",
+  "FORM_ELEMENT",
 ])
 
 function findChildByName(graph: MetadataGraph, parentNodeId: string, name: string): string | undefined {
@@ -68,7 +68,7 @@ export function resolveFormLocalPath(params: {
     // Найти «Тип»-ребро
     let typeTargetId: string | undefined
     for (const { attributes, target } of graph.outEdgeEntries(currentNodeId)) {
-      if (attributes.kind === "Тип") { typeTargetId = target; break }
+      if (attributes.kind === "TYPE") { typeTargetId = target; break }
     }
     if (typeTargetId === undefined) return undefined
 

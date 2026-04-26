@@ -12,7 +12,7 @@ function makeCtx(overrides?: Partial<ApplyGraphOpsContext>): ApplyGraphOpsContex
   const filePath = overrides?.filePath ?? FILE_PATH
   // Parent node must exist in the graph before applyGraphOps can add edges from it
   graph.ensureNode(parentNodeId, { name: "Цена", filePaths: [filePath] })
-  return { graph, parentNodeId, filePath, edgeName: "Тип" }
+  return { graph, parentNodeId, filePath, edgeKind: "TYPE", edgeYaml: "Тип" }
 }
 
 describe("applyGraphOps", () => {
@@ -52,7 +52,7 @@ describe("applyGraphOps", () => {
 
       const edges = [...ctx.graph.outEdgeEntries("Справочник.Товары.Цена")]
       expect(edges).toHaveLength(1)
-      expect(edges[0].attributes.kind).toBe("Тип")
+      expect(edges[0].attributes.kind).toBe("TYPE")
     })
 
     it("пробрасывает positionFrom на узел", () => {
@@ -108,7 +108,7 @@ describe("applyGraphOps", () => {
 
       const edges = [...ctx.graph.outEdgeEntries("Справочник.Товары.Цена")]
       expect(edges).toHaveLength(1)
-      expect(edges[0].attributes.kind).toBe("Тип")
+      expect(edges[0].attributes.kind).toBe("TYPE")
     })
 
     it("пробрасывает positionFrom на reference-ребро", () => {
@@ -185,7 +185,7 @@ describe("applyGraphOps", () => {
 
       const edges = [...ctx.graph.outEdgeEntries("Справочник.Товары.Цена")]
       expect(edges).toHaveLength(2)
-      expect(edges.every((e) => e.attributes.kind === "Тип")).toBe(true)
+      expect(edges.every((e) => e.attributes.kind === "TYPE")).toBe(true)
     })
   })
 })

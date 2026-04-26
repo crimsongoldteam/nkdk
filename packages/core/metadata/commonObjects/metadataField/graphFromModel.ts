@@ -10,7 +10,8 @@ import { findSeqItemOffset } from "~/metadata/orchestration/property/position"
 import { extractReferenceFromPath } from "~/metadata/orchestration/property/extractReferenceFromPath"
 import { MetadataField, MetadataFields } from "./types"
 
-const EDGE_KIND = "Поле"
+const EDGE_KIND = "FIELD"
+const EDGE_YAML = "Поле"
 
 const extractMetadataFieldGraph: ExtractGraphFromModelFunction = (
   model,
@@ -53,10 +54,10 @@ const buildMetadataFieldsGraph: BuildGraphFromModelFunction = ({
     .filter((ref): ref is NonNullable<typeof ref> => ref !== undefined)
 
   if (references.length > 0) {
-    applyGraphOps({ references }, { graph, parentNodeId, filePath, edgeName: EDGE_KIND })
+    applyGraphOps({ references }, { graph, parentNodeId, filePath, edgeKind: EDGE_KIND, edgeYaml: EDGE_YAML })
   }
 }
 
 registerTypeRule("MetadataField", "extractGraph", extractMetadataFieldGraph)
-registerTypeRule("MetadataField", "graphEdgeFromParent", { name: EDGE_KIND })
+registerTypeRule("MetadataField", "graphEdgeFromParent", { kind: EDGE_KIND, yaml: EDGE_YAML })
 registerTypeRule("MetadataFields", "buildGraphFromModel", buildMetadataFieldsGraph)

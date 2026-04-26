@@ -174,7 +174,7 @@ describe("importMetadataFileWithGraph — MetadataItemLinks (document)", () => {
 
     const docNodeId = "Документ.ПриёмНаРаботу"
     const outEdges = [...graph.outEdgeEntries(docNodeId)]
-    const objEdges = outEdges.filter((e) => e.attributes.kind === "Объект")
+    const objEdges = outEdges.filter((e) => e.attributes.kind === "OBJECT")
     expect(objEdges).toHaveLength(1)
     expect(graph.hasNode("Справочник.Контрагенты")).toBe(true)
     // stub-узел не должен иметь filePaths
@@ -198,7 +198,7 @@ describe("importMetadataFileWithGraph — MetadataItemLinks (document)", () => {
 
     const docNodeId = "Документ.Накладная"
     const outEdges = [...graph.outEdgeEntries(docNodeId)]
-    const objEdges = outEdges.filter((e) => e.attributes.kind === "Объект")
+    const objEdges = outEdges.filter((e) => e.attributes.kind === "OBJECT")
     expect(objEdges).toHaveLength(2)
 
     expect(graph.hasNode("РегистрСведений.Продажи")).toBe(true)
@@ -233,7 +233,7 @@ describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗап�
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
     const outEdges = [...graph.outEdgeEntries(attrNodeId)]
-    const valEdges = outEdges.filter((e) => e.attributes.kind === "Значение")
+    const valEdges = outEdges.filter((e) => e.attributes.kind === "VALUE")
     expect(valEdges).toHaveLength(1)
     expect(valEdges[0].target).toBe("Справочник.Пользователи.ПустаяСсылка")
     expect(graph.hasNode("Справочник.Пользователи.ПустаяСсылка")).toBe(true)
@@ -257,7 +257,7 @@ describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗап�
 
     const attrNodeId = "Справочник.Контрагенты.Реквизит.ВидДоговора"
     const outEdges = [...graph.outEdgeEntries(attrNodeId)]
-    const valEdges = outEdges.filter((e) => e.attributes.kind === "Значение")
+    const valEdges = outEdges.filter((e) => e.attributes.kind === "VALUE")
     expect(valEdges).toHaveLength(1)
     expect(valEdges[0].target).toBe("Перечисление.ВидыДоговоров.СПоставщиком")
   })
@@ -281,7 +281,7 @@ describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗап�
 
     const attrNodeId = "Справочник.Статьи.Реквизит.ТипыСчетов"
     const outEdges = [...graph.outEdgeEntries(attrNodeId)]
-    const valEdges = outEdges.filter((e) => e.attributes.kind === "Значение")
+    const valEdges = outEdges.filter((e) => e.attributes.kind === "VALUE")
     expect(valEdges).toHaveLength(2)
 
     const positions = valEdges.map((e) => e.attributes.positionFrom?.offset)
@@ -459,7 +459,7 @@ describe("importMetadataFileWithGraph — form", () => {
     expect(graph.hasNode(formNodeId)).toBe(true)
 
     const outEdges = [...graph.outEdgeEntries(OWNER_NODE_ID)]
-    const formEdges = outEdges.filter((e) => e.attributes.kind === "Форма")
+    const formEdges = outEdges.filter((e) => e.attributes.kind === "FORM")
     expect(formEdges).toHaveLength(1)
     expect(formEdges[0].target).toBe(formNodeId)
   })
@@ -585,7 +585,7 @@ describe("importMetadataFileWithGraph — form", () => {
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
     const owningEdges = [...graph.outEdgeEntries(formNodeId)].filter(
-      (e) => e.attributes.kind === "РеквизитФормы",
+      (e) => e.attributes.kind === "FORM_ATTRIBUTE",
     )
     expect(owningEdges).toHaveLength(1)
     expect(owningEdges[0].target).toBe(attrNodeId)
@@ -613,7 +613,7 @@ describe("importMetadataFileWithGraph — form", () => {
     const attrNodeId = `${formNodeId}.Реквизит.Контрагент`
 
     const refEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
-      (e) => e.attributes.kind === "Тип",
+      (e) => e.attributes.kind === "TYPE",
     )
     expect(refEdges).toHaveLength(1)
     expect(refEdges[0].target).toBe("Справочник.Контрагенты")
@@ -641,7 +641,7 @@ describe("importMetadataFileWithGraph — form", () => {
     const attrNodeId = `${formNodeId}.Реквизит.СписокТоваров`
 
     const refEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
-      (e) => e.attributes.kind === "ТипЗначения",
+      (e) => e.attributes.kind === "VALUE_TYPE",
     )
     expect(refEdges).toHaveLength(1)
     expect(refEdges[0].target).toBe("Справочник.Товары")
@@ -668,7 +668,7 @@ describe("importMetadataFileWithGraph — form", () => {
 
     const attrNodeId = "Справочник.Товары.Реквизит.Контрагент"
     const refEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
-      (e) => e.attributes.kind === "Тип",
+      (e) => e.attributes.kind === "TYPE",
     )
     expect(refEdges).toHaveLength(1)
     expect(refEdges[0].target).toBe("Справочник.Контрагенты")
@@ -711,7 +711,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)"
     expect(graph.hasNode(col2NodeId)).toBe(true)
 
     const colEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
-      (e) => e.attributes.kind === "КолонкаФормы",
+      (e) => e.attributes.kind === "FORM_COLUMN",
     )
     expect(colEdges).toHaveLength(2)
     expect(colEdges.map((e) => e.target)).toContain(col1NodeId)
@@ -743,7 +743,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)"
     expect(graph.hasNode(colNodeId)).toBe(true)
 
     const typeEdges = [...graph.outEdgeEntries(colNodeId)].filter(
-      (e) => e.attributes.kind === "Тип",
+      (e) => e.attributes.kind === "TYPE",
     )
     expect(typeEdges).toHaveLength(1)
     expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
@@ -769,7 +769,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)"
 
     const attrNodeId = `${FORM_NODE_ID}.Реквизит.Обычный`
     const colEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
-      (e) => e.attributes.kind === "КолонкаФормы",
+      (e) => e.attributes.kind === "FORM_COLUMN",
     )
     expect(colEdges).toHaveLength(0)
   })
@@ -834,14 +834,14 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
 
     // Owning-ребро ДополнениеТаблицы: реквизит → прокси
     const additionEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
-      (e) => e.attributes.kind === "ДополнениеТаблицы",
+      (e) => e.attributes.kind === "TABLE_EXTENSION",
     )
     expect(additionEdges).toHaveLength(1)
     expect(additionEdges[0].target).toBe(proxyNodeId)
 
     // Reference-ребро Таблица: прокси → реальная ТЧ (resolveFormLocalPath находит через edge-traversal)
     const tableEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
-      (e) => e.attributes.kind === "Таблица",
+      (e) => e.attributes.kind === "TABLE",
     )
     expect(tableEdges).toHaveLength(1)
     expect(tableEdges[0].target).toBe("Справочник.Товары.ТабличнаяЧасть.Состав")
@@ -849,7 +849,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     // Узел колонки создан с owning-ребром ДополнительнаяКолонка
     expect(graph.hasNode(colNodeId)).toBe(true)
     const colEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
-      (e) => e.attributes.kind === "ДополнительнаяКолонка",
+      (e) => e.attributes.kind === "ADDITIONAL_COLUMN",
     )
     expect(colEdges).toHaveLength(1)
     expect(colEdges[0].target).toBe(colNodeId)
@@ -885,7 +885,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     expect(graph.hasNode(colNodeId)).toBe(true)
 
     const typeEdges = [...graph.outEdgeEntries(colNodeId)].filter(
-      (e) => e.attributes.kind === "Тип",
+      (e) => e.attributes.kind === "TYPE",
     )
     expect(typeEdges).toHaveLength(1)
     expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
@@ -919,7 +919,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
 
     // Таблица-ребро ведёт на заглушку
     const tableEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
-      (e) => e.attributes.kind === "Таблица",
+      (e) => e.attributes.kind === "TABLE",
     )
     expect(tableEdges).toHaveLength(1)
     const stubId = tableEdges[0].target
@@ -981,7 +981,7 @@ describe("importMetadataFileWithGraph — form, FormParameters (PRD #120)", () =
     expect(graph.hasNode(paramNodeId)).toBe(true)
 
     const owningEdges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(
-      (e) => e.attributes.kind === "ПараметрФормы",
+      (e) => e.attributes.kind === "FORM_PARAMETER",
     )
     expect(owningEdges).toHaveLength(1)
     expect(owningEdges[0].target).toBe(paramNodeId)
@@ -1007,7 +1007,7 @@ describe("importMetadataFileWithGraph — form, FormParameters (PRD #120)", () =
 
     const paramNodeId = `${FORM_NODE_ID}.Параметр.Контрагент`
     const typeEdges = [...graph.outEdgeEntries(paramNodeId)].filter(
-      (e) => e.attributes.kind === "Тип",
+      (e) => e.attributes.kind === "TYPE",
     )
     expect(typeEdges).toHaveLength(1)
     expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
@@ -1042,7 +1042,7 @@ describe("importMetadataFileWithGraph — form, DataPath-рёбра (PRD #118)",
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
     const typeEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
-      (e) => e.attributes.kind === "Тип",
+      (e) => e.attributes.kind === "TYPE",
     )
     expect(typeEdges).toHaveLength(1)
     expect(typeEdges[0].target).toBe("Справочник.Товары")
@@ -1076,7 +1076,7 @@ describe("importMetadataFileWithGraph — form, FormCommands (PRD #121)", () => 
     expect(graph.hasNode(cmdNodeId)).toBe(true)
 
     const owningEdges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(
-      (e) => e.attributes.kind === "КомандаФормы",
+      (e) => e.attributes.kind === "FORM_COMMAND",
     )
     expect(owningEdges).toHaveLength(1)
     expect(owningEdges[0].target).toBe(cmdNodeId)

@@ -18,14 +18,16 @@
  */
 
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { registerEdgeKind } from "~/metadata/relations/edgeKinds"
+import { getKindByYaml, registerEdgeKind } from "~/metadata/relations/edgeKinds"
 import { resolveFormLocalPath } from "~/metadata/relations/resolveFormLocalPath"
 
-// Reference-виды рёбер dataPath-свойств (PRD #118)
-registerEdgeKind("ПутьКДанным", { owning: false })
-registerEdgeKind("ПутьКДаннымПодвала", { owning: false })
-registerEdgeKind("ПутьКДаннымЗаголовка", { owning: false })
-registerEdgeKind("ПутьКДаннымКартинкиСтроки", { owning: false })
+// Reference-виды рёбер dataPath-свойств (PRD #118).
+// Зарегистрированы централизованно в edgeKinds.ts; повторные registerEdgeKind
+// здесь — идемпотентная страховка на случай, если порядок импортов отличается.
+registerEdgeKind("DATA_PATH", { yaml: "ПутьКДанным", owning: false })
+registerEdgeKind("FOOTER_DATA_PATH", { yaml: "ПутьКДаннымПодвала", owning: false })
+registerEdgeKind("TITLE_DATA_PATH", { yaml: "ПутьКДаннымЗаголовка", owning: false })
+registerEdgeKind("ROW_PICTURE_DATA_PATH", { yaml: "ПутьКДаннымКартинкиСтроки", owning: false })
 
 registerTypeRule("DataPath", "buildGraphFromModel", ({ model, parentNodeId, propRule, graph, extra }) => {
   if (typeof model !== "string" || !model) return
@@ -34,17 +36,20 @@ registerTypeRule("DataPath", "buildGraphFromModel", ({ model, parentNodeId, prop
   const formNodeId = extra?.formNodeId as string | undefined
   if (!formNodeId) return
 
-  // Kind ребра = graphEdgeKind override ?? yaml-имя свойства
-  const edgeName =
-    (propRule as Record<string, unknown>).graphEdgeKind as string | undefined ?? propRule.yaml
-  if (!edgeName) return
+  // edgeYaml — русский YAML-ключ свойства; edgeKind вычисляется через перевод
+  const edgeYaml = propRule.yaml
+  if (!edgeYaml) return
+  const edgeKind =
+    ((propRule as Record<string, unknown>).graphEdgeKind as string | undefined) ??
+    getKindByYaml(edgeYaml)
+  if (!edgeKind) return
 
   const resolved = resolveFormLocalPath({ formNodeId, path: model, graph })
   if (!resolved) return
 
-  const edgeKey = `${parentNodeId}:${edgeName}:${resolved.targetId}`
+  const edgeKey = `${parentNodeId}:${edgeKind}:${resolved.targetId}`
   graph.ensureEdge(edgeKey, parentNodeId, resolved.targetId, {
-    yaml: edgeName,
-    kind: edgeName,
+    yaml: edgeYaml,
+    kind: edgeKind,
   })
 })

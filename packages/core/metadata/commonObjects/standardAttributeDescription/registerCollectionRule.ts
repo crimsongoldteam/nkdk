@@ -17,7 +17,9 @@ import {
 } from "./standartAttributeNames"
 import type { StandardAttributeDescription } from "./types"
 
-const EDGE_NAME = "СтандартныйРеквизит"
+const NODE_SEGMENT = "СтандартныйРеквизит"
+const EDGE_KIND = "STANDARD_ATTRIBUTE"
+const EDGE_YAML = "СтандартныйРеквизит"
 
 function filterNonEmpty(
   context: ConfigurationContext,
@@ -61,7 +63,7 @@ function buildStandardAttributesGraph(params: {
   }
 
   for (const [internalName, russianName] of Object.entries(stdAttrRule.standartAttributeNames)) {
-    const nodeId = `${parentNodeId}.${EDGE_NAME}.${russianName}`
+    const nodeId = `${parentNodeId}.${NODE_SEGMENT}.${russianName}`
     const offset = stdAttrsYamlMap ? findKeyOffset(stdAttrsYamlMap, russianName) : undefined
 
     // US 13: standard attributes always have item so they are never treated as stubs
@@ -76,8 +78,8 @@ function buildStandardAttributesGraph(params: {
       item,
     })
 
-    const edgeKey = `${parentNodeId}:${EDGE_NAME}:${nodeId}`
-    graph.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_NAME, kind: EDGE_NAME })
+    const edgeKey = `${parentNodeId}:${EDGE_KIND}:${nodeId}`
+    graph.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_YAML, kind: EDGE_KIND })
   }
 }
 

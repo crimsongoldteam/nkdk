@@ -12,9 +12,10 @@
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { registerEdgeKind } from "~/metadata/relations/edgeKinds"
 
-const EDGE_KIND = "СвязаннаяТаблица"
+const EDGE_KIND = "ASSOCIATED_TABLE"
+const EDGE_YAML = "СвязаннаяТаблица"
 
-registerEdgeKind(EDGE_KIND, { owning: false })
+registerEdgeKind(EDGE_KIND, { yaml: EDGE_YAML, owning: false })
 
 registerTypeRule("AssociatedTable", "buildGraphFromModel", ({ model, parentNodeId, graph, extra }) => {
   if (typeof model !== "string" || !model) return
@@ -30,7 +31,7 @@ registerTypeRule("AssociatedTable", "buildGraphFromModel", ({ model, parentNodeI
 
   const edgeKey = `${parentNodeId}:${EDGE_KIND}:${targetId}`
   graph.ensureEdge(edgeKey, parentNodeId, targetId, {
-    yaml: EDGE_KIND,
+    yaml: EDGE_YAML,
     kind: EDGE_KIND,
   })
 })

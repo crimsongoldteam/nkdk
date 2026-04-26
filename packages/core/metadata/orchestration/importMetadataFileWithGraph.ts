@@ -1,4 +1,5 @@
 import { isMap } from "yaml"
+import { getKindByYaml } from "~/metadata/relations/edgeKinds"
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import type { MetadataCatalog } from "~/metadata/appliedObjects/metadataCatalog/types"
@@ -37,8 +38,9 @@ function materializeGraphTerminals(
       filePaths: [filePath],
       item: { itemType: "EmptyRef", ownerType, ownerName },
     })
-    const edgeKey = `${itemNodeId}:${terminalName}:${terminalId}`
-    graph.ensureEdge(edgeKey, itemNodeId, terminalId, { yaml: terminalName, kind: terminalName })
+    const edgeKind = getKindByYaml(terminalName) ?? terminalName
+    const edgeKey = `${itemNodeId}:${edgeKind}:${terminalId}`
+    graph.ensureEdge(edgeKey, itemNodeId, terminalId, { yaml: terminalName, kind: edgeKind })
   }
 }
 
@@ -57,8 +59,9 @@ function ensureRootNode(
   const itemNodeId = `${prefix}.${name}`
   graph.ensureNode(prefix, { name: prefix })
   graph.ensureNode(itemNodeId, { name, filePaths: [filePath] })
-  const edgeKey = `${prefix}:${itemType}:${itemNodeId}`
-  graph.ensureEdge(edgeKey, prefix, itemNodeId, { yaml: itemType, kind: itemType })
+  const edgeKind = getKindByYaml(itemType) ?? itemType
+  const edgeKey = `${prefix}:${edgeKind}:${itemNodeId}`
+  graph.ensureEdge(edgeKey, prefix, itemNodeId, { yaml: itemType, kind: edgeKind })
   return itemNodeId
 }
 
@@ -143,8 +146,8 @@ export function importMetadataFileWithGraph(params: {
     })
 
     // Owning-ребро «Форма» от владельца к форме
-    const edgeKey = `${ownerNodeId}:Форма:${formNodeId}`
-    graph.ensureEdge(edgeKey, ownerNodeId, formNodeId, { yaml: "Форма", kind: "Форма" })
+    const edgeKey = `${ownerNodeId}:FORM:${formNodeId}`
+    graph.ensureEdge(edgeKey, ownerNodeId, formNodeId, { yaml: "Форма", kind: "FORM" })
 
     // Парсим YAML формы и строим граф реквизитов/параметров/команд
     const parsed = parseMetadataYaml(sources.yaml)

@@ -32,7 +32,7 @@ function makeGraphWithCommand() {
     `${FORM_NODE_ID}:КомандаФормы:${cmdNodeId}`,
     FORM_NODE_ID,
     cmdNodeId,
-    { yaml: "КомандаФормы", kind: "КомандаФормы" },
+    { yaml: "КомандаФормы", kind: "FORM_COMMAND" },
   )
 
   return graph
@@ -63,7 +63,7 @@ describe("CommandName buildGraphFromModel — ИмяКоманды", () => {
     expect(graph.hasNode(buttonNodeId)).toBe(true)
 
     const commandEdges = [...graph.outEdgeEntries(buttonNodeId)].filter(
-      (e) => e.attributes.kind === "ИмяКоманды",
+      (e) => e.attributes.kind === "COMMAND_NAME",
     )
     expect(commandEdges).toHaveLength(1)
     expect(commandEdges[0].target).toBe(`${FORM_NODE_ID}.Команда.ОткрытьВнешний`)
@@ -92,7 +92,7 @@ describe("CommandName buildGraphFromModel — ИмяКоманды", () => {
 
     const buttonNodeId = `${FORM_NODE_ID}.Элемент.КнопкаОткрыть`
     const commandEdges = [...graph.outEdgeEntries(buttonNodeId)].filter(
-      (e) => e.attributes.kind === "ИмяКоманды",
+      (e) => e.attributes.kind === "COMMAND_NAME",
     )
     // Ребро создано (к заглушке)
     expect(commandEdges).toHaveLength(1)
@@ -124,7 +124,7 @@ describe("CommandName buildGraphFromModel — ИмяКоманды", () => {
 
     const buttonNodeId = `${FORM_NODE_ID}.Элемент.КнопкаОткрыть`
     const commandEdges = [...graph.outEdgeEntries(buttonNodeId)].filter(
-      (e) => e.attributes.kind === "ИмяКоманды",
+      (e) => e.attributes.kind === "COMMAND_NAME",
     )
     expect(commandEdges).toHaveLength(0)
   })

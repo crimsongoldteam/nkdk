@@ -15,8 +15,10 @@ import {
   MetadataValue,
 } from "./types"
 
-const REF_EDGE_KIND = "Значение"
-const OBJECT_REF_EDGE_KIND = "Объект"
+const REF_EDGE_KIND = "VALUE"
+const REF_EDGE_YAML = "Значение"
+const OBJECT_REF_EDGE_KIND = "OBJECT"
+const OBJECT_REF_EDGE_YAML = "Объект"
 
 /**
  * Конвертирует внутренний путь ref-значения (XML-формат) в node ID графа (YAML-формат).
@@ -53,19 +55,23 @@ function convertRefValueToNodeId(refValue: string): string | undefined {
 export function extractSingleValueRef(
   value: MetadataTypedValue,
   position?: { offset: number },
-): { ref: GraphOpsReference; kind: string } | undefined {
+): { ref: GraphOpsReference; kind: string; yaml: string } | undefined {
   if (value.type === "ref") {
     const nodeId = convertRefValueToNodeId((value as MetadataRefValue).value)
     if (!nodeId) return undefined
     const parts = nodeId.split(".")
     const name = parts[parts.length - 1]
-    return { ref: { id: nodeId, name, positionFrom: position }, kind: REF_EDGE_KIND }
+    return {
+      ref: { id: nodeId, name, positionFrom: position },
+      kind: REF_EDGE_KIND,
+      yaml: REF_EDGE_YAML,
+    }
   }
 
   if (value.type === "objectRef") {
     const ref = extractReferenceFromPath((value as MetadataObjectRefValue).value, position)
     if (!ref) return undefined
-    return { ref, kind: OBJECT_REF_EDGE_KIND }
+    return { ref, kind: OBJECT_REF_EDGE_KIND, yaml: OBJECT_REF_EDGE_YAML }
   }
 
   return undefined
@@ -107,19 +113,29 @@ export const buildMetadataValueGraph: BuildGraphFromModelFunction = ({
     }
 
     // Собираем ссылки, группируя по kind
-    const refsByKind = new Map<string, GraphOpsReference[]>()
+    const refsByKind = new Map<string, { yaml: string; refs: GraphOpsReference[] }>()
     items.forEach((item, index) => {
       const offset = yamlSeq ? findSeqItemOffset(yamlSeq, index) : undefined
       const position = offset !== undefined ? { offset } : undefined
       const extracted = extractSingleValueRef(item, position)
       if (!extracted) return
-      const { ref, kind } = extracted
-      if (!refsByKind.has(kind)) refsByKind.set(kind, [])
-      refsByKind.get(kind)!.push(ref)
+      const { ref, kind, yaml } = extracted
+      let bucket = refsByKind.get(kind)
+      if (!bucket) {
+        bucket = { yaml, refs: [] }
+        refsByKind.set(kind, bucket)
+      }
+      bucket.refs.push(ref)
     })
 
-    for (const [kind, refs] of refsByKind) {
-      applyGraphOps({ references: refs }, { graph, parentNodeId, filePath, edgeName: kind })
+    for (const [kind, { yaml, refs }] of refsByKind) {
+      applyGraphOps({ references: refs }, {
+        graph,
+        parentNodeId,
+        filePath,
+        edgeKind: kind,
+        edgeYaml: yaml,
+      })
     }
     return
   }
@@ -141,7 +157,13 @@ export const buildMetadataValueGraph: BuildGraphFromModelFunction = ({
 
     const extracted = extractSingleValueRef(inner, innerPosition)
     if (!extracted) return
-    applyGraphOps({ references: [extracted.ref] }, { graph, parentNodeId, filePath, edgeName: extracted.kind })
+    applyGraphOps({ references: [extracted.ref] }, {
+      graph,
+      parentNodeId,
+      filePath,
+      edgeKind: extracted.kind,
+      edgeYaml: extracted.yaml,
+    })
     return
   }
 
@@ -150,7 +172,13 @@ export const buildMetadataValueGraph: BuildGraphFromModelFunction = ({
     yamlMap && propRule.yaml ? computeValuePosition(yamlMap, propRule.yaml) : undefined
   const extracted = extractSingleValueRef(value, position ?? undefined)
   if (!extracted) return
-  applyGraphOps({ references: [extracted.ref] }, { graph, parentNodeId, filePath, edgeName: extracted.kind })
+  applyGraphOps({ references: [extracted.ref] }, {
+    graph,
+    parentNodeId,
+    filePath,
+    edgeKind: extracted.kind,
+    edgeYaml: extracted.yaml,
+  })
 }
 
 registerTypeRule("MetadataValue", "buildGraphFromModel", buildMetadataValueGraph)

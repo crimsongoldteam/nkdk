@@ -41,7 +41,10 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   /** Декларативное создание owning-дочерних узлов в buildGraphFromModel */
   graphChild?: {
     idFrom: keyof Rule["properties"] & string
-    edgeName: string
+    /** ASCII-метка kind'а ребра. SCREAMING_SNAKE_CASE. */
+    edgeKind: string
+    /** Русский YAML-ключ ребра. */
+    edgeYaml: string
     /** Необязательный сегмент-дискриминатор типа коллекции, вставляемый в childNodeId. */
     nodeSegment?: string
   }
@@ -153,7 +156,8 @@ export const registerMetadataItemCollectionRule = <
   if (params.graphChild) {
     registerTypeRule(propertyType, "graphChild", {
       idFrom: params.graphChild.idFrom as string,
-      edgeName: params.graphChild.edgeName,
+      edgeKind: params.graphChild.edgeKind,
+      edgeYaml: params.graphChild.edgeYaml,
       nodeSegment: params.graphChild.nodeSegment,
       itemRule: itemRule as unknown as MetadataItemRule,
     })

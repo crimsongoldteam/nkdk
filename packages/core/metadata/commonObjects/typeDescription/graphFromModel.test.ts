@@ -128,7 +128,7 @@ describe("extractTypeDescriptionGraph — интеграция с importMetadata
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
     const typeEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
-      (e) => e.attributes.kind === "Тип"
+      (e) => e.attributes.kind === "TYPE"
     )
     expect(typeEdges).toHaveLength(1)
     expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
@@ -155,7 +155,7 @@ describe("extractTypeDescriptionGraph — интеграция с importMetadata
 
     const attrNodeId = "Справочник.Товары.Реквизит.Объект"
     const typeEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
-      (e) => e.attributes.kind === "Тип"
+      (e) => e.attributes.kind === "TYPE"
     )
     expect(typeEdges).toHaveLength(2)
     const targets = typeEdges.map((e) => e.target).sort()

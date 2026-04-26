@@ -5,10 +5,14 @@ import { resolveFormLocalPath } from "~/metadata/relations/resolveFormLocalPath"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import type { FormAttributeAdditionalColumns, FormAttributeColumn } from "./types"
 
-const COLUMN_EDGE = "КолонкаФормы"
-const ADDITION_EDGE = "ДополнениеТаблицы"
-const TABLE_EDGE = "Таблица"
-const ADDITIONAL_COLUMN_EDGE = "ДополнительнаяКолонка"
+const COLUMN_EDGE_KIND = "FORM_COLUMN"
+const COLUMN_EDGE_YAML = "КолонкаФормы"
+const ADDITION_EDGE_KIND = "TABLE_EXTENSION"
+const ADDITION_EDGE_YAML = "ДополнениеТаблицы"
+const TABLE_EDGE_KIND = "TABLE"
+const TABLE_EDGE_YAML = "Таблица"
+const ADDITIONAL_COLUMN_EDGE_KIND = "ADDITIONAL_COLUMN"
+const ADDITIONAL_COLUMN_EDGE_YAML = "ДополнительнаяКолонка"
 
 /**
  * Регистрирует graphChild для коллекции FormAttributes:
@@ -20,7 +24,8 @@ const ADDITIONAL_COLUMN_EDGE = "ДополнительнаяКолонка"
  */
 registerTypeRule("FormAttributes", "graphChild", {
   idFrom: "name",
-  edgeName: "РеквизитФормы",
+  edgeKind: "FORM_ATTRIBUTE",
+  edgeYaml: "РеквизитФормы",
   nodeSegment: "Реквизит",
   itemRule: FormAttributeRules,
 })
@@ -67,19 +72,19 @@ registerTypeRule("FormAttributeColumns", "buildGraphFromModel", ({
       })
 
       // Owning-ребро «ДополнениеТаблицы» от реквизита к прокси
-      const proxyEdgeKey = `${parentNodeId}:${ADDITION_EDGE}:${proxyNodeId}`
+      const proxyEdgeKey = `${parentNodeId}:${ADDITION_EDGE_KIND}:${proxyNodeId}`
       graph.ensureEdge(proxyEdgeKey, parentNodeId, proxyNodeId, {
-        yaml: ADDITION_EDGE,
-        kind: ADDITION_EDGE,
+        yaml: ADDITION_EDGE_YAML,
+        kind: ADDITION_EDGE_KIND,
       })
 
       // Резолвим tablePath → NodeId реальной ТЧ; reference-ребро «Таблица»
       const resolved = resolveFormLocalPath({ formNodeId, path: tablePath, graph })
       if (resolved) {
-        const tableEdgeKey = `${proxyNodeId}:${TABLE_EDGE}:${resolved.targetId}`
+        const tableEdgeKey = `${proxyNodeId}:${TABLE_EDGE_KIND}:${resolved.targetId}`
         graph.ensureEdge(tableEdgeKey, proxyNodeId, resolved.targetId, {
-          yaml: TABLE_EDGE,
-          kind: TABLE_EDGE,
+          yaml: TABLE_EDGE_YAML,
+          kind: TABLE_EDGE_KIND,
         })
       }
 
@@ -95,10 +100,10 @@ registerTypeRule("FormAttributeColumns", "buildGraphFromModel", ({
           item: column,
         })
 
-        const colEdgeKey = `${proxyNodeId}:${ADDITIONAL_COLUMN_EDGE}:${columnNodeId}`
+        const colEdgeKey = `${proxyNodeId}:${ADDITIONAL_COLUMN_EDGE_KIND}:${columnNodeId}`
         graph.ensureEdge(colEdgeKey, proxyNodeId, columnNodeId, {
-          yaml: ADDITIONAL_COLUMN_EDGE,
-          kind: ADDITIONAL_COLUMN_EDGE,
+          yaml: ADDITIONAL_COLUMN_EDGE_YAML,
+          kind: ADDITIONAL_COLUMN_EDGE_KIND,
         })
 
         buildGraphFromModel({
@@ -132,10 +137,10 @@ registerTypeRule("FormAttributeColumns", "buildGraphFromModel", ({
       item: column,
     })
 
-    const edgeKey = `${parentNodeId}:${COLUMN_EDGE}:${columnNodeId}`
+    const edgeKey = `${parentNodeId}:${COLUMN_EDGE_KIND}:${columnNodeId}`
     graph.ensureEdge(edgeKey, parentNodeId, columnNodeId, {
-      yaml: COLUMN_EDGE,
-      kind: COLUMN_EDGE,
+      yaml: COLUMN_EDGE_YAML,
+      kind: COLUMN_EDGE_KIND,
     })
 
     buildGraphFromModel({

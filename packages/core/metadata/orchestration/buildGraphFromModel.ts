@@ -1,4 +1,5 @@
 import { applyGraphOps } from "../relations/applyGraphOps"
+import { getKindByYaml } from "../relations/edgeKinds"
 import { MetadataGraph } from "../relations/MetadataGraph"
 import { getTypeRule } from "./formElement/factory"
 import { findKeyOffset, findSubmap, computeValuePosition } from "./property/position"
@@ -37,15 +38,18 @@ export function buildGraphFromModel(params: {
         const position = yamlKey && yamlMap ? computeValuePosition(yamlMap, yamlKey) : undefined
         const ops = extractGraphFn(modelValue, position)
         if (ops) {
-          // Правило: kind = graphEdgeKind ?? yaml ?? edgeDef.name (fallback из регистрации типа)
-          const edgeName = propRule.graphEdgeKind ?? propRule.yaml ?? edgeDef.name
-          if (!edgeName) {
+          // yaml = propRule.yaml ?? edgeDef.yaml (русский YAML-ключ)
+          // kind = propRule.graphEdgeKind ?? edgeDef.kind ?? getKindByYaml(yaml)
+          const edgeYaml = propRule.yaml ?? edgeDef.yaml
+          const edgeKind =
+            propRule.graphEdgeKind ?? edgeDef.kind ?? (edgeYaml ? getKindByYaml(edgeYaml) : undefined)
+          if (!edgeKind || !edgeYaml) {
             throw new Error(
-              `buildGraphFromModel: не удалось определить kind ребра для свойства "${key}" (тип: ${propType}). ` +
-                `Укажите yaml или graphEdgeKind на свойстве, либо name в регистрации graphEdgeFromParent.`,
+              `buildGraphFromModel: не удалось определить kind/yaml ребра для свойства "${key}" (тип: ${propType}). ` +
+                `Укажите yaml или graphEdgeKind на свойстве, либо kind/yaml в регистрации graphEdgeFromParent.`,
             )
           }
-          applyGraphOps(ops, { graph, parentNodeId, filePath, edgeName })
+          applyGraphOps(ops, { graph, parentNodeId, filePath, edgeKind, edgeYaml })
         }
       }
       continue
@@ -85,10 +89,10 @@ export function buildGraphFromModel(params: {
         item,
       })
 
-      const edgeKey = `${parentNodeId}:${graphChildDef.edgeName}:${childNodeId}`
+      const edgeKey = `${parentNodeId}:${graphChildDef.edgeKind}:${childNodeId}`
       graph.ensureEdge(edgeKey, parentNodeId, childNodeId, {
-        yaml: graphChildDef.edgeName,
-        kind: graphChildDef.edgeName,
+        yaml: graphChildDef.edgeYaml,
+        kind: graphChildDef.edgeKind,
       })
 
       buildGraphFromModel({

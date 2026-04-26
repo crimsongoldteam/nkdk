@@ -56,7 +56,7 @@ describe("extractSingleValueRef", () => {
     const v: MetadataRefValue = { type: "ref", value: "Catalog.Пользователи.EmptyRef" }
     const result = extractSingleValueRef(v, { offset: 10 })
     expect(result).toBeDefined()
-    expect(result!.kind).toBe("Значение")
+    expect(result!.kind).toBe("VALUE")
     expect(result!.ref.id).toBe("Справочник.Пользователи.ПустаяСсылка")
     expect(result!.ref.name).toBe("ПустаяСсылка")
     expect(result!.ref.positionFrom).toEqual({ offset: 10 })
@@ -66,7 +66,7 @@ describe("extractSingleValueRef", () => {
     const v: MetadataRefValue = { type: "ref", value: "Enum.ВидыДоговоров.EnumValue.СПоставщиком" }
     const result = extractSingleValueRef(v)
     expect(result).toBeDefined()
-    expect(result!.kind).toBe("Значение")
+    expect(result!.kind).toBe("VALUE")
     expect(result!.ref.id).toBe("Перечисление.ВидыДоговоров.СПоставщиком")
     expect(result!.ref.name).toBe("СПоставщиком")
   })
@@ -85,7 +85,7 @@ describe("extractSingleValueRef", () => {
     }
     const result = extractSingleValueRef(v, { offset: 5 })
     expect(result).toBeDefined()
-    expect(result!.kind).toBe("Объект")
+    expect(result!.kind).toBe("OBJECT")
     expect(result!.ref.id).toBe("ПланВидовХарактеристик.ДополнительныеРеквизиты")
     expect(result!.ref.positionFrom).toEqual({ offset: 5 })
   })
@@ -94,7 +94,7 @@ describe("extractSingleValueRef", () => {
     const v: MetadataObjectRefValue = { type: "objectRef", value: "Catalog.Контрагенты" }
     const result = extractSingleValueRef(v)
     expect(result).toBeDefined()
-    expect(result!.kind).toBe("Объект")
+    expect(result!.kind).toBe("OBJECT")
     expect(result!.ref.id).toBe("Справочник.Контрагенты")
   })
 })
@@ -132,7 +132,7 @@ describe("buildMetadataValueGraph", () => {
 
     const edges = [...graph.outEdgeEntries(PARENT_NODE)]
     expect(edges).toHaveLength(1)
-    expect(edges[0].attributes.kind).toBe("Значение")
+    expect(edges[0].attributes.kind).toBe("VALUE")
     expect(edges[0].target).toBe("Справочник.Пользователи.ПустаяСсылка")
     expect(graph.hasNode("Справочник.Пользователи.ПустаяСсылка")).toBe(true)
   })
@@ -151,7 +151,7 @@ describe("buildMetadataValueGraph", () => {
 
     const edges = [...graph.outEdgeEntries(PARENT_NODE)]
     expect(edges).toHaveLength(1)
-    expect(edges[0].attributes.kind).toBe("Объект")
+    expect(edges[0].attributes.kind).toBe("OBJECT")
     expect(edges[0].target).toBe("Справочник.Контрагенты")
   })
 
@@ -212,7 +212,7 @@ describe("buildMetadataValueGraph", () => {
 
       const edges = [...graph.outEdgeEntries(PARENT_NODE)]
       expect(edges).toHaveLength(3)
-      expect(edges.every((e) => e.attributes.kind === "Значение")).toBe(true)
+      expect(edges.every((e) => e.attributes.kind === "VALUE")).toBe(true)
 
       // Позиции у разных элементов должны различаться
       const positions = edges.map((e) => e.attributes.positionFrom?.offset)
@@ -266,7 +266,7 @@ describe("buildMetadataValueGraph", () => {
 
       const edges = [...graph.outEdgeEntries(PARENT_NODE)]
       expect(edges).toHaveLength(1)
-      expect(edges[0].attributes.kind).toBe("Значение")
+      expect(edges[0].attributes.kind).toBe("VALUE")
       expect(edges[0].target).toBe("Перечисление.ВидыДоговоров.СПоставщиком")
     })
 

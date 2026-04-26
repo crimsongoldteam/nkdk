@@ -63,7 +63,7 @@ describe("AssociatedTable buildGraphFromModel — СвязаннаяТаблиц
     expect(graph.hasNode(elementNodeId)).toBe(true)
 
     const tableEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "СвязаннаяТаблица",
+      (e) => e.attributes.kind === "ASSOCIATED_TABLE",
     )
     expect(tableEdges).toHaveLength(1)
     expect(tableEdges[0].target).toBe(`${FORM_NODE_ID}.Элемент.ТаблицаТоваров`)
@@ -92,7 +92,7 @@ describe("AssociatedTable buildGraphFromModel — СвязаннаяТаблиц
 
     const elementNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
     const tableEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "СвязаннаяТаблица",
+      (e) => e.attributes.kind === "ASSOCIATED_TABLE",
     )
     // Ребро создано (к заглушке)
     expect(tableEdges).toHaveLength(1)
@@ -124,7 +124,7 @@ describe("AssociatedTable buildGraphFromModel — СвязаннаяТаблиц
 
     const elementNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
     const tableEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "СвязаннаяТаблица",
+      (e) => e.attributes.kind === "ASSOCIATED_TABLE",
     )
     expect(tableEdges).toHaveLength(0)
   })
@@ -151,7 +151,7 @@ describe("AssociatedTable buildGraphFromModel — СвязаннаяТаблиц
 
     const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const tableEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "СвязаннаяТаблица",
+      (e) => e.attributes.kind === "ASSOCIATED_TABLE",
     )
     expect(tableEdges).toHaveLength(1)
     expect(tableEdges[0].target).toBe(`${FORM_NODE_ID}.Элемент.ТаблицаТоваров`)

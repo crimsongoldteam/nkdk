@@ -11,9 +11,10 @@
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { registerEdgeKind } from "~/metadata/relations/edgeKinds"
 
-const EDGE_KIND = "ИмяКоманды"
+const EDGE_KIND = "COMMAND_NAME"
+const EDGE_YAML = "ИмяКоманды"
 
-registerEdgeKind(EDGE_KIND, { owning: false })
+registerEdgeKind(EDGE_KIND, { yaml: EDGE_YAML, owning: false })
 
 registerTypeRule("CommandName", "buildGraphFromModel", ({ model, parentNodeId, graph, extra }) => {
   if (typeof model !== "string" || !model) return
@@ -29,7 +30,7 @@ registerTypeRule("CommandName", "buildGraphFromModel", ({ model, parentNodeId, g
 
   const edgeKey = `${parentNodeId}:${EDGE_KIND}:${targetId}`
   graph.ensureEdge(edgeKey, parentNodeId, targetId, {
-    yaml: EDGE_KIND,
+    yaml: EDGE_YAML,
     kind: EDGE_KIND,
   })
 })

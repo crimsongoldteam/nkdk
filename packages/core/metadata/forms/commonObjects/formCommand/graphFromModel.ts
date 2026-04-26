@@ -10,11 +10,12 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { registerEdgeKind } from "~/metadata/relations/edgeKinds"
 import { FormCommandRules } from "./rules"
 
-registerEdgeKind("КомандаФормы", { owning: true })
+registerEdgeKind("FORM_COMMAND", { yaml: "КомандаФормы", owning: true })
 
 registerTypeRule("FormCommands", "graphChild", {
   idFrom: "name",
-  edgeName: "КомандаФормы",
+  edgeKind: "FORM_COMMAND",
+  edgeYaml: "КомандаФормы",
   nodeSegment: "Команда",
   itemRule: FormCommandRules,
 })
