@@ -32,7 +32,7 @@
 
 - Дотягивание coverage у Command (нет YAML/sync) и Enumeration (нет XML/sync) — отдельная задача с генерацией новых фикстур.
 - Унификация YAML-API прикладных объектов (`importMetadataCatalogFromYAML` vs `importMetadataDocumentFromYAML` и т.п.).
-- Вынос граф-тестов Catalog'а из `fromYAML.test.ts` в отдельный файл — техдолг до момента унификации YAML-API.
+- (Граф-тесты Catalog'а выносятся в отдельный файл `fromYAML.dependencies.test.ts` — этот вынос **входит в работу**, см. план миграции.)
 - Изменение XML-фикстур (правило проекта — XML-фикстуры источник истины, не править).
 
 ## Архитектура
@@ -52,7 +52,7 @@ packages/core/tests/appliedObject/
   index.ts
 ```
 
-YAML-helper'ы оборачивают общий путь `importMetadataItemFromYAML` / `exportMetadataItemToYAML` из `~/metadata/orchestration` — через него уже работают тесты Document, Sequence, DocumentNumerator. Catalog имеет свою пару функций (`importMetadataCatalogFromYAML(ctx, value, name)` / `exportMetadataCatalogToYAML(ctx, data)`) с другой сигнатурой; YAML-тесты Catalog'а остаются на прямых вызовах этих функций и **не используют** YAML-helper'ы. Перевод Catalog'а на общий orchestration-путь — отдельная задача (см. риски).
+YAML-helper'ы оборачивают общий путь `importMetadataItemFromYAML` / `exportMetadataItemToYAML` из `~/metadata/orchestration` — через него работают все четыре объекта (Catalog/Document/Sequence/DocumentNumerator). Специфичные функции Catalog'а (`importMetadataCatalogFromYAML(ctx, value, name)` / `exportMetadataCatalogToYAML(ctx, data)`) нужны только графовому тесту через `importMetadataFileWithGraph`; они выносятся в отдельный файл и не мешают унификации round-trip-тестов.
 
 ### Стиль API
 
@@ -243,7 +243,10 @@ it("читает Catalog из YAML и записывает XML в outputDir", as
 Порядок выбран так, чтобы каждый объект мигрировался отдельным коммитом и проект оставался зелёным.
 
 1. **Создать helper'ы и `index.ts`** — `packages/core/tests/appliedObject/`.
-2. **Catalog** — мигрировать `fromXML.test.ts`, `toXML.test.ts`, `syncToXML.test.ts`, `convertFromXML.test.ts` через XML-helper'ы. `fromYAML.test.ts` и `toYAML.test.ts` остаются на прямых вызовах специфичных функций `importMetadataCatalogFromYAML` / `exportMetadataCatalogToYAML` (общий orchestration-путь Catalog не использует) — YAML-helper'ы здесь не применяются. Граф-блок в `fromYAML.test.ts` не трогается. В `fromYAML.test.ts` добавляется `// TODO: вынести граф-тесты в отдельный файл при унификации YAML-API`.
+2. **Catalog** — мигрировать все шесть тестов:
+   - `fromXML.test.ts` / `toXML.test.ts` / `syncToXML.test.ts` / `convertFromXML.test.ts` — через XML-helper'ы.
+   - `fromYAML.test.ts` / `toYAML.test.ts` — round-trip переводится на общий orchestration-путь через YAML-helper'ы (`importAppliedObjectFromYAML` / `exportAppliedObjectToYAML`).
+   - Граф-блок (текущий `describe("importMetadataCatalogDependenciesFromYAML", ...)`) выносится в отдельный файл `fromYAML.dependencies.test.ts` рядом. Он остаётся на прямом вызове `importMetadataFileWithGraph` (orchestration), который под капотом дёргает специфичную `importMetadataCatalogFromYAML`. Помечается `// TODO: упростить после унификации YAML-API Catalog'а`.
 3. **Document** — мигрировать `fromXML.test.ts`, `toXML.test.ts`, `fromYAML.test.ts`, `toYAML.test.ts`. Удалить текущий `syncToXML.test.ts` (round-trip XML→YAML→XML). Перестроить `__fixtures__/sync/`:
    - текущий вид: `__fixtures__/sync/<имя>/Ext/...`
    - целевой: `__fixtures__/sync/{xml/<имя>.xml, xml/<имя>/Ext/..., nkdk/<имя>/Свойства.yaml, data.ts}`
@@ -263,7 +266,7 @@ it("читает Catalog из YAML и записывает XML в outputDir", as
 
 ## Риски
 
-1. **YAML-helper'ы покрывают только общий orchestration-путь** — Document, Sequence, DocumentNumerator. Catalog с его специфичными функциями (`importMetadataCatalogFromYAML` / `exportMetadataCatalogToYAML`) остаётся на прямых вызовах. Перевод Catalog'а на общий путь — отдельная задача архитектуры YAML.
+1. **Граф-тесты Catalog YAML** — выносятся в отдельный файл `fromYAML.dependencies.test.ts` (специфичные функции `importMetadataCatalogFromYAML` / `exportMetadataCatalogToYAML` нужны только им). После выноса можно ли их совсем перевести на общий путь — отдельная задача.
 2. **Document `__fixtures__/sync/` перетряска** — самый рискованный пункт миграции. Митигация: один коммит на оба теста Document'а.
 3. **Граф-тесты Catalog YAML** — остаются как есть, технический долг.
 4. **Command/Enumeration не покрываются** — выпали из границ работы. Дотянуть отдельной задачей с генерацией новых фикстур.
@@ -274,4 +277,5 @@ it("читает Catalog из YAML и записывает XML в outputDir", as
 - Список ожидаемых файлов для sync/convert — параметром, helper итерирует.
 - Граф-тесты YAML и round-trip XML→YAML→XML Document'а — соответственно остаются и удаляются.
 - Catalog первым в миграции как референсный объект.
-- YAML-helper'ы создаются для общего orchestration-пути (Document/Sequence/DocumentNumerator); Catalog YAML-тесты — на прямых вызовах своих функций.
+- YAML-helper'ы создаются для общего orchestration-пути и применяются ко всем четырём объектам (Catalog/Document/Sequence/DocumentNumerator).
+- Граф-тесты Catalog'а выносятся в `fromYAML.dependencies.test.ts` и остаются на прямом вызове `importMetadataFileWithGraph`.
