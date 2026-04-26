@@ -7,7 +7,7 @@ type Params = {
   name?: string
 }
 
-export const importAppliedObjectFromYAML = <T>(params: Params): T | undefined => {
+export const testImportAppliedObjectFromYAML = <T>(params: Params): T | undefined => {
   return importMetadataItemFromYAML({
     context: mockContext,
     yaml: params.yaml as never,

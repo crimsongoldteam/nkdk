@@ -14,7 +14,7 @@ type Params = {
   expectedFiles: string[]
 }
 
-export const runSyncToXML = async (
+export const testSyncAppliedObjectToXML = async (
   params: Params
 ): Promise<{
   outputDir: string

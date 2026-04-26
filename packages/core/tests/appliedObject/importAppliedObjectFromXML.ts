@@ -9,7 +9,7 @@ type Params = {
   forReference?: boolean
 }
 
-export const importAppliedObjectFromXML = <T>(params: Params): T | undefined => {
+export const testImportAppliedObjectFromXML = <T>(params: Params): T | undefined => {
   const { rule, importMetaUrl, fixture, forReference = false } = params
   const parsed = readAndParseXMLFixture<{ MetaDataObject: unknown }>(importMetaUrl, fixture)
   return importMetadataItemFromXML({

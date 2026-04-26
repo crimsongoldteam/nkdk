@@ -6,7 +6,7 @@ type Params<T> = {
   data: T | undefined
 }
 
-export const exportAppliedObjectToYAML = <T>(params: Params<T>): unknown => {
+export const testExportAppliedObjectToYAML = <T>(params: Params<T>): unknown => {
   return exportMetadataItemToYAML({
     context: mockContextToYAML,
     data: params.data as never,

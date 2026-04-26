@@ -15,7 +15,7 @@ type Params<T> = {
   referenceData?: T
 }
 
-export const exportAppliedObjectToXML = <T>(
+export const testExportAppliedObjectToXML = <T>(
   params: Params<T>
 ): { result: string; expected: string } => {
   const { rule, importMetaUrl, fixture, data } = params

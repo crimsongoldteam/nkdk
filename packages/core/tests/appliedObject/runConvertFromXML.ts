@@ -14,7 +14,7 @@ type Params = {
   expectedYAML: string
 }
 
-export const runConvertFromXML = async (
+export const testConvertAppliedObjectFromXML = async (
   params: Params
 ): Promise<{
   outputDir: string
