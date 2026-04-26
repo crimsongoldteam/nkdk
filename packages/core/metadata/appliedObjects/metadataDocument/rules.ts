@@ -6,11 +6,11 @@ const documentProperties = ["Properties"]
 const documentChildObjects = ["ChildObjects"]
 
 export const MetadataDocumentStandardAttributeNames: Record<string, string> = {
-  Date: "Дата",
-  DeletionMark: "ПометкаУдаления",
-  Number: "Номер",
   Posted: "Проведен",
   Ref: "Ссылка",
+  DeletionMark: "ПометкаУдаления",
+  Date: "Дата",
+  Number: "Номер",
 }
 
 export const MetadataDocumentRules = {

@@ -142,19 +142,23 @@ Deep Scan свойств родителя (см. чат-сессию 2026-04-26)
 
 Экспортёр (`xmlExport`) обрезает завершающий перевод строки внутри текстового узла. На `minimal.xml`/`withNumerator.xml` поля нет, эффект только на `full.xml`. Природа — общий механизм `xmlExport`, не `rules.ts`.
 
-### Текущий статус блокеров (после фиксов 1а, 5а и 5б)
+### Текущий статус блокеров (после фиксов 1а, 2, 5а и 5б)
 
 | # | Блокер | Статус |
 |---|---|---|
 | 1а | Корневой `<Document uuid>` | **закрыт** |
 | 1б | UUID в `TabularSection.InternalInfo` | **закрыт** (как побочный эффект 5б — `getParentFromContext` теперь находит `MetadataDocument` и резолвит реальный UUID) |
-| 2 | Порядок `StandardAttributes` | открыт |
+| 2 | Порядок `StandardAttributes` | **закрыт** |
 | 3а | InternalInfo: категория `Catalog`→`Document` | **закрыт** (5б) |
 | 3б | InternalInfo: пустой parent name | **закрыт** (5б) |
 | 4 | `<Form>` / `<Template>` сериализация (PRD-2) | открыт |
 | 5а | `<Use>ForItem</Use>` у атрибутов | **закрыт** |
 | 5б | `<Use>ForItem</Use>` у `TabularSection.Properties` | **закрыт** |
 | 6 | Trailing newline в `<v8:content>` | открыт |
+
+### Решение блокера #2
+
+Порядок ключей в `Record<string, string>` `MetadataDocumentStandardAttributeNames` (определён в `metadataDocument/rules.ts`) задаёт порядок сериализации `<xr:StandardAttribute>` в XML. Был алфавитный (`Date, DeletionMark, Number, Posted, Ref`), стал по эталону фикстур (`Posted, Ref, DeletionMark, Date, Number`). После фикса `withNumerator.xml` round-trip полностью зелёный.
 
 ### Решение блокера #1а
 
