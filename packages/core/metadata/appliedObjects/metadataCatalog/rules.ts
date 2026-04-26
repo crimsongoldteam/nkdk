@@ -1,5 +1,5 @@
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
+import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { ReferenceScope } from "../../relations/referenceScope"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 import { MetadataCatalogStandardAttributeNames } from "./types"
@@ -30,7 +30,7 @@ export const MetadataCatalogRules = {
       ],
     },
     uuid: {
-      type: "string",
+      type: "uuid",
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],

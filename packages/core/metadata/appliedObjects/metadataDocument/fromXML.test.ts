@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testImportAppliedObjectFromXML, testExportAppliedObjectToXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
 import { full } from "./__fixtures__/full"
 import { minimal } from "./__fixtures__/minimal"
 import { withNumerator } from "./__fixtures__/withNumerator"
@@ -11,7 +11,7 @@ describe("import MetadataDocument from XML", () => {
   // (`__fixtures__/{full,minimal,withNumerator}.ts`) и фактическим импортом.
   // Требует подгонки фикстур после устранения инфраструктурных пробелов
   // (см. TODO в toXML.test.ts).
-  it.skip("should import full", () => {
+  it("should import full", () => {
     expect(
       testImportAppliedObjectFromXML<MetadataDocument>({
         rule: MetadataDocumentRules,
@@ -21,7 +21,7 @@ describe("import MetadataDocument from XML", () => {
     ).toEqual(full)
   })
 
-  it.skip("should import minimal", () => {
+  it("should import minimal", () => {
     expect(
       testImportAppliedObjectFromXML<MetadataDocument>({
         rule: MetadataDocumentRules,
@@ -31,7 +31,7 @@ describe("import MetadataDocument from XML", () => {
     ).toEqual(minimal)
   })
 
-  it.skip("should import withNumerator", () => {
+  it("should import withNumerator", () => {
     expect(
       testImportAppliedObjectFromXML<MetadataDocument>({
         rule: MetadataDocumentRules,

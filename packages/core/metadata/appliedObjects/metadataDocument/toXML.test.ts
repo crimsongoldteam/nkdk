@@ -10,7 +10,7 @@ import { MetadataDocumentRules } from "./rules"
 // на CatalogTabularSection, формы/шаблоны для PRD-2, лишний
 // <Use>ForItem</Use> у атрибутов). После устранения каждого пункта снять
 // .skip и тесты заработают.
-describe.skip("export MetadataDocument to XML", () => {
+describe("export MetadataDocument to XML", () => {
   it.each([
     { fixture: "full.xml", data: full },
     { fixture: "minimal.xml", data: minimal },
