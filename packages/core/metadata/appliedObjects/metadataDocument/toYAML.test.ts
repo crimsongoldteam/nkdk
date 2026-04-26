@@ -1,26 +1,29 @@
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToYAML } from "~/metadata/orchestration"
-import { mockContextToYAML } from "~/tests/mockContext"
+import { testExportAppliedObjectToYAML } from "~/tests/appliedObject"
+import { full, fullYAML } from "./__fixtures__/full"
+import { minimal, minimalYAML } from "./__fixtures__/minimal"
+import { withNumerator, withNumeratorYAML } from "./__fixtures__/withNumerator"
 import { MetadataDocumentRules } from "./rules"
+import { MetadataDocument } from "./types"
 
-describe("MetadataDocument toYAML", () => {
-  it("сериализует numberType", () => {
-    const yaml = exportMetadataItemToYAML({
-      context: mockContextToYAML,
-      data: { itemType: "MetadataDocument", name: "ТестДокумент", numberType: "String" } as any,
+describe("export MetadataDocument to YAML", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = testExportAppliedObjectToYAML<MetadataDocument>({
       rule: MetadataDocumentRules,
+      data: undefined,
     })
-    expect(yaml).toMatchObject({
-      ТипНомера: "Строка",
-    })
+    expect(result).toBeUndefined()
   })
 
-  it("возвращает undefined при отсутствии данных", () => {
-    const yaml = exportMetadataItemToYAML({
-      context: mockContextToYAML,
-      data: undefined,
+  it.each([
+    { name: "full", data: full, expected: fullYAML },
+    { name: "minimal", data: minimal, expected: minimalYAML },
+    { name: "withNumerator", data: withNumerator, expected: withNumeratorYAML },
+  ])("should export $name", ({ data, expected }) => {
+    const result = testExportAppliedObjectToYAML<MetadataDocument>({
       rule: MetadataDocumentRules,
+      data,
     })
-    expect(yaml).toBeUndefined()
+    expect(result).toEqual(expected)
   })
 })
