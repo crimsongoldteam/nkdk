@@ -25,7 +25,7 @@ export const MetadataSequenceRules = {
       ],
     },
     uuid: {
-      type: "string",
+      type: "uuid",
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
