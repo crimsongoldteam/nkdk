@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { documentFromXML, fullFromXML, minimalFromXML, multipleFromXML } from "./__fixtures__/data"
+import {
+  documentFromXML,
+  documentTabularFromXML,
+  fullFromXML,
+  minimalFromXML,
+  multipleFromXML,
+} from "./__fixtures__/data"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 
 const rule = { type: "MetadataAttributes", xml: "Attribute" } as const
@@ -56,5 +62,19 @@ describe("import MetadataDocumentAttributes from XML", () => {
       importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(documentFromXML)
+  })
+})
+
+describe("import MetadataTabularSectionAttributes from XML", () => {
+  const tabularRule = { type: "MetadataTabularSectionAttributes", xml: "Attribute" } as const
+
+  it("should import documentTabular", () => {
+    const result = testImportPropertyFromXML({
+      rule: tabularRule,
+      path: "documentTabular.xml",
+      xmlRootTag: "Attribute",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(documentTabularFromXML)
   })
 })

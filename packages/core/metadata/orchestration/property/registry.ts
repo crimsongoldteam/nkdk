@@ -141,6 +141,8 @@ import {
   MetadataSequenceDimensionYAML,
 } from "~/metadata/commonObjects/metadataSequenceDimension/types"
 import {
+  MetadataDocumentTabularSections,
+  MetadataDocumentTabularSectionsYAML,
   MetadataTabularSections,
   MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
@@ -415,6 +417,10 @@ export type PropertyTypeRegistry = {
     item: MetadataTabularSections
 
     yaml: MetadataTabularSectionsYAML
+  }
+  MetadataDocumentTabularSections: {
+    item: MetadataDocumentTabularSections
+    yaml: MetadataDocumentTabularSectionsYAML
   }
   MetadataValue: {
     item: MetadataValue
@@ -808,6 +814,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataFields: "MetadataFields",
   MetadataItemLink: "MetadataItemLink",
   MetadataTabularSections: "MetadataTabularSections",
+  MetadataDocumentTabularSections: "MetadataDocumentTabularSections",
   MetadataValue: "MetadataValue",
   MetadataValueCollection: "MetadataValueCollection",
   Predefined: "Predefined",

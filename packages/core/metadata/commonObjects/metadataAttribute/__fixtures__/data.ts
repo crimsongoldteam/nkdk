@@ -31,6 +31,35 @@ export const multipleFromXML: MetadataAttributes = [
   },
 ]
 
+// Corresponds to __fixtures__/documentTabular.xml (non-default values only, after import stripping)
+export const documentTabularFromXML: MetadataAttributes = [
+  {
+    itemType: "MetadataAttribute",
+    name: "РеквизитТабличнойЧасти",
+    synonym: { items: { ru: "Синоним" } },
+    comment: "Комментарий",
+    type: { type: ["decimal"], numberQualifiers: { digits: 10, fractionDigits: 0, allowedSign: "Any" } },
+    passwordMode: true,
+    format: { items: { ru: "ДФ=dd.MM.yyyy" } },
+    editFormat: { items: { ru: "ДФ=dd.MM.yy" } },
+    toolTip: { items: { ru: "Подсказка" } },
+    markNegatives: true,
+    mask: "Маска",
+    multiLine: true,
+    extendedEdit: true,
+    minValue: 1,
+    maxValue: 99,
+    createOnInput: "DontUse",
+    linkByType: {
+      dataPath: "Document.ДокументВсеСвойства.StandardAttribute.Date",
+      linkItem: 0,
+    },
+    choiceHistoryOnInput: "DontUse",
+    fullTextSearch: "DontUse",
+    dataHistory: "DontUse",
+  },
+]
+
 // Corresponds to __fixtures__/document.xml (non-default values only, after import stripping)
 export const documentFromXML: MetadataAttributes = [
   {

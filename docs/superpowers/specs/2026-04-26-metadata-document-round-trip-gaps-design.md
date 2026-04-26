@@ -142,19 +142,28 @@ Deep Scan свойств родителя (см. чат-сессию 2026-04-26)
 
 Экспортёр (`xmlExport`) обрезает завершающий перевод строки внутри текстового узла. На `minimal.xml`/`withNumerator.xml` поля нет, эффект только на `full.xml`. Природа — общий механизм `xmlExport`, не `rules.ts`.
 
-### Текущий статус блокеров (после фикса 5а)
+### Текущий статус блокеров (после фиксов 5а и 5б)
 
 | # | Блокер | Статус |
 |---|---|---|
 | 1а | Корневой `<Document uuid>` | открыт, требует отдельного исследования |
-| 1б | UUID в `TabularSection.InternalInfo` | открыт |
+| 1б | UUID в `TabularSection.InternalInfo` | **закрыт** (как побочный эффект 5б — `getParentFromContext` теперь находит `MetadataDocument` и резолвит реальный UUID) |
 | 2 | Порядок `StandardAttributes` | открыт |
-| 3а | InternalInfo: категория `Catalog`→`Document` | открыт |
-| 3б | InternalInfo: пустой parent name | открыт |
+| 3а | InternalInfo: категория `Catalog`→`Document` | **закрыт** (5б) |
+| 3б | InternalInfo: пустой parent name | **закрыт** (5б) |
 | 4 | `<Form>` / `<Template>` сериализация (PRD-2) | открыт |
 | 5а | `<Use>ForItem</Use>` у атрибутов | **закрыт** |
-| 5б | `<Use>ForItem</Use>` у `TabularSection.Properties` | открыт (следующий) |
+| 5б | `<Use>ForItem</Use>` у `TabularSection.Properties` | **закрыт** |
 | 6 | Trailing newline в `<v8:content>` | открыт |
+
+### Решение блокеров #3а/#3б/#1б/#5б одним приёмом
+
+Создан `MetadataDocumentTabularSectionRules` (по образцу `MetadataAttributeRules` ↔ `MetadataDocumentAttributeRules`): тот же набор общих свойств, но `internalInfo` параметризован на `MetadataDocument` parent + префикс `Document`, и поле `use` опущено. Зарегистрирована коллекция `MetadataDocumentTabularSections`. `metadataDocument.tabularSections` переключён на новый тип.
+
+Эффект на diff `metadataDocument/toXML.test.ts`:
+- `<Use>ForItem</Use>` у TabularSection — исчез
+- `CatalogTabularSection..ТабличнаяЧасть` → `DocumentTabularSection.ДокументВсеСвойства.ТабличнаяЧасть` (правильная категория + parent name)
+- `<xr:TypeId>11111111-…</xr:TypeId>` в InternalInfo TabularSection → реальные UUID из reference
 
 ## Критерии готовности
 

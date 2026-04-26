@@ -4,7 +4,7 @@ import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/met
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { MetadataTabularSectionRules } from "./rules"
+import { MetadataDocumentTabularSectionRules, MetadataTabularSectionRules } from "./rules"
 import {
   MetadataTabularSection,
   MetadataTabularSectionYAML,
@@ -53,6 +53,49 @@ registerMetadataItemCollectionRule({
   xmlElement: "TabularSection",
   keyField: "name",
   fromYAML: importMetadataTabularSectionsFromYAML,
+  graphChild: { idFrom: "name", edgeName: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+})
+
+const importMetadataDocumentTabularSectionFromYAML = (
+  context: ConfigurationContext,
+  yaml: MetadataTabularSectionYAML | undefined,
+  name: string
+): MetadataTabularSection | undefined => {
+  if (!yaml) return undefined
+
+  const properties = importMetadataItemFromYAML({
+    context,
+    yaml: yaml as MetadataTabularSectionYAML,
+    rule: MetadataDocumentTabularSectionRules,
+    name,
+  })
+
+  if (properties == undefined) throw new Error("Properties are required")
+
+  return {
+    ...properties,
+    name,
+  }
+}
+
+const importMetadataDocumentTabularSectionsFromYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: MetadataTabularSectionsYAML | undefined
+): MetadataTabularSections | undefined => {
+  if (!data) return undefined
+
+  return Object.entries(data)
+    .map(([name, value]) => importMetadataDocumentTabularSectionFromYAML(context, value, name))
+    .filter((item): item is MetadataTabularSection => item !== undefined)
+}
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataDocumentTabularSections",
+  itemRule: MetadataDocumentTabularSectionRules,
+  xmlElement: "TabularSection",
+  keyField: "name",
+  fromYAML: importMetadataDocumentTabularSectionsFromYAML,
   graphChild: { idFrom: "name", edgeName: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
 })
 

@@ -363,7 +363,7 @@ export const MetadataDocumentRules = {
     },
     tabularSections: {
       yaml: "ТабличныеЧасти",
-      type: "MetadataTabularSections",
+      type: "MetadataDocumentTabularSections",
       xmlParents: documentChildObjects,
       xml: "TabularSection",
     },
