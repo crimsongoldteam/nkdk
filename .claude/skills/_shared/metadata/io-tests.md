@@ -13,12 +13,17 @@
     sync/
       data.ts                    # экспорт readNameYAML — ожидаемая YAML-строка
       xml/<Имя>.xml              # исходный XML (reference для syncToXML)
+      xml/<Имя>/Ext/...          # связанные модули и подпапки XML-источника
       nkdk/<Имя>/
         Свойства.yaml            # входные данные для syncToXML
-      out/                       # пустая, чистится в beforeEach
+        МодульОбъекта.bsl        # модули и команды (если объект их использует)
+        МодульМенеджера.bsl
+        Команды/<имя>.bsl
 ```
 
-`out/` создаётся тестом динамически — в репозитории её не коммитить (добавь `.gitkeep` в `nkdk/` и `xml/`, но не в `out/`).
+`out/` папки больше не создаются: helper'ы `testSyncAppliedObjectToXML` /
+`testConvertAppliedObjectFromXML` пишут результат в уникальный `tmpdir`-каталог
+через `fs.mkdtempSync`. В репозитории её нет, в `.gitignore` — `out/`.
 
 ## Шаблон `data.ts`
 
@@ -31,35 +36,20 @@ export const read<Name>YAML = "<ожидаемая yaml-строка>"
 ## Шаблон `convertFromXML.test.ts`
 
 ```typescript
-import fs from "fs"
-import { join } from "path"
-import { beforeEach, describe, expect, it } from "vitest"
-import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
-import { mockContextFromXML } from "~/tests/mockContext"
+import { describe, expect, it } from "vitest"
+import { testConvertAppliedObjectFromXML } from "~/tests/appliedObject"
 import { read<Name>YAML } from "./__fixtures__/sync/data"
 import { <MetadataName>Rules } from "./rules"
 
 describe("convertAppliedObjectFromXML — <MetadataName>", () => {
-  const inputDir = join(import.meta.dirname, "__fixtures__/sync/xml")
-  const outputDir = join(import.meta.dirname, "__fixtures__/sync/out")
-  const name = "<ИмяЭкземпляра>"
-
-  beforeEach(() => {
-    if (fs.existsSync(outputDir)) {
-      fs.rmSync(outputDir, { recursive: true })
-    }
-  })
-
   it("читает <ТипОбъекта> из XML и записывает Свойства.yaml в outputDir", async () => {
-    await convertAppliedObjectFromXML({
+    const { yaml } = await testConvertAppliedObjectFromXML({
       rule: <MetadataName>Rules,
-      context: mockContextFromXML(),
-      inputDir,
-      name,
-      outputDir,
+      name: "<ИмяЭкземпляра>",
+      importMetaUrl: import.meta.url,
+      expectedYAML: read<Name>YAML,
     })
-
-    expect(fs.readFileSync(join(outputDir, name, "Свойства.yaml"), "utf-8")).toBe(read<Name>YAML)
+    expect(yaml.result).toBe(yaml.expected)
   })
 })
 ```
@@ -67,57 +57,50 @@ describe("convertAppliedObjectFromXML — <MetadataName>", () => {
 ## Шаблон `syncToXML.test.ts`
 
 ```typescript
-import fs from "fs"
-import { join } from "path"
-import { beforeEach, describe, expect, it } from "vitest"
-import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { mockContextToXML } from "~/tests/mockContext"
+import { describe, expect, it } from "vitest"
+import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
 import { <MetadataName>Rules } from "./rules"
 
 describe("syncAppliedObjectToXML — <MetadataName>", () => {
-  const fixturesDir = join(import.meta.dirname, "__fixtures__/sync")
-  const inputDir = join(fixturesDir, "nkdk")
-  const referenceDir = join(fixturesDir, "xml")
-  const outputDir = join(fixturesDir, "out")
-  const name = "<ИмяЭкземпляра>"
-
-  beforeEach(() => {
-    if (fs.existsSync(outputDir)) {
-      fs.rmSync(outputDir, { recursive: true })
-    }
-  })
-
   it("читает <ТипОбъекта> из YAML и записывает XML в outputDir", async () => {
-    await syncAppliedObjectToXML({
+    const { comparisons } = await testSyncAppliedObjectToXML({
       rule: <MetadataName>Rules,
-      context: mockContextToXML(),
-      inputDir,
-      name,
-      outputDir,
-      referenceDir,
+      name: "<ИмяЭкземпляра>",
+      importMetaUrl: import.meta.url,
+      expectedFiles: ["<ИмяЭкземпляра>.xml"],
     })
-
-    const expectedXML = fs.readFileSync(join(referenceDir, `${name}.xml`), "utf-8")
-    const resultXML = fs.readFileSync(join(outputDir, `${name}.xml`), "utf-8")
-
-    expect(resultXML).toBe(expectedXML)
+    for (const { path, result, expected } of comparisons) {
+      expect(result, path).toBe(expected)
+    }
   })
 })
 ```
 
+`expectedFiles` — относительные пути от `xml/` (reference) и `outputDir`. Если
+объект записывает дополнительные файлы (модули, подпапки `Ext/`, формы),
+перечисли их по образцу `metadataCatalog/syncToXML.test.ts`.
+
 ## Заполнение данных фикстур
 
-**`xml/<Имя>.xml`** — XML-фикстура прикладного объекта. Бери готовый XML из реального конфигурационного репозитория или ту же фикстуру, что используется в round-trip тесте (`fromXML.test.ts`).
+**`xml/<Имя>.xml`** — XML-фикстура прикладного объекта. Бери готовый XML из
+реального конфигурационного репозитория или ту же фикстуру, что используется в
+round-trip тесте (`fromXML.test.ts`).
 
-**`nkdk/<Имя>/Свойства.yaml`** — YAML-фикстура. Должна точно совпадать с тем, что генерирует `convertAppliedObjectFromXML` для данного XML. Заполни так: запусти `convertFromXML.test.ts`, скопируй вывод из `out/<Имя>/Свойства.yaml`.
+**`nkdk/<Имя>/Свойства.yaml`** — YAML-фикстура. Должна точно совпадать с тем,
+что генерирует `convertAppliedObjectFromXML` для данного XML. Заполни так:
+запусти новый `convertFromXML.test.ts` с пустым `read<Name>YAML`, скопируй
+фактический YAML из vitest-diff (или из `outputDir` через временный
+`fs.cpSync` после теста) в `data.ts` и в `nkdk/<Имя>/Свойства.yaml`.
 
-**`data.ts`** — экспортирует ту же строку что в `Свойства.yaml`, для сравнения в тесте `convertFromXML.test.ts`. Пример:
+**`data.ts`** — экспортирует ту же строку что в `Свойства.yaml`, для сравнения
+в тесте `convertFromXML.test.ts`. Пример:
 
 ```typescript
 export const readCatalogYAML = "Синоним: Контрагенты справочник\n"
 ```
 
-Если прикладной объект не имеет YAML-свойств (все свойства дефолтные), `data.ts` содержит пустую строку:
+Если прикладной объект не имеет YAML-свойств (все свойства дефолтные),
+`data.ts` содержит пустую строку:
 
 ```typescript
 export const readNumeratorYAML = ""
