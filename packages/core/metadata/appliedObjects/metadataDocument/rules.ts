@@ -42,7 +42,7 @@ export const MetadataDocumentRules = {
       type: "uuid",
       xml: "_uuid",
       forReferenceOnly: true,
-      xmlParents: ["Document"],
+      xmlParents: [],
     },
     actionsWritingOnPost: {
       yaml: "ЗаписьДвиженийПриПроведении",
