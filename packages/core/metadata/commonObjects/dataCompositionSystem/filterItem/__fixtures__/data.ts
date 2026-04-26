@@ -27,6 +27,29 @@ export const fullFilterItemComparisonYAML = {
   ВидСравнения: "Равно"
 }
 
+export const inListFilterItemComparison = {
+  itemType: "FilterItemComparison",
+  leftValue: { type: "Field", value: "Статус" },
+  comparisonType: "InList",
+  rightValue: [
+    { type: "DesignTimeValue", value: "Перечисление.СтатусыОбменСБанками.Доставлен" },
+    { type: "DesignTimeValue", value: "Перечисление.СтатусыОбменСБанками.Исполнен" },
+    { type: "DesignTimeValue", value: "Перечисление.СтатусыОбменСБанками.Обработан" },
+  ],
+} as const satisfies FilterItemComparison
+
+export const inListFilterItemComparisonYAML = {
+  ЛевоеЗначение: ".Статус",
+  ВидСравнения: "ВСписке",
+  ПравоеЗначение: [
+    "Перечисление.СтатусыОбменСБанками.Доставлен",
+    "Перечисление.СтатусыОбменСБанками.Исполнен",
+    "Перечисление.СтатусыОбменСБанками.Обработан",
+  ],
+} as const satisfies Pick<FilterItemComparisonYAML, "ЛевоеЗначение" | "ВидСравнения" | "ПравоеЗначение"> & {
+  ВидСравнения: "ВСписке"
+}
+
 export const fullFilterItemGroup = {
   itemType: "FilterItemGroup",
   groupType: "OrGroup",

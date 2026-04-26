@@ -17,13 +17,11 @@ const detectTypeFromYAML = (context: ConfigurationContext, value: DcsMetadataTyp
   throw new Error(`DcsMetadataTypedValue YAML: unsupported value ${JSON.stringify(value)}`)
 }
 
-export const importDcsMetadataTypedValueFromYAML = (
+const importSingle = (
   context: ConfigurationContext,
   rule: DcsMetadataTypedValuePropertyRule,
-  value: DcsMetadataTypedValueYAML | undefined
-): DcsMetadataTypedValue | undefined => {
-  if (value === undefined) return undefined
-
+  value: DcsMetadataTypedValueYAML
+): DcsMetadataTypedValue => {
   const type = detectTypeFromYAML(context, value)
   const imported = DcsMetadataTypedValueRegistry[type].fromYAML({ context, rule, yaml: value })
 
@@ -42,15 +40,25 @@ export const importDcsMetadataTypedValueFromYAML = (
   return imported
 }
 
+export const importDcsMetadataTypedValueFromYAML = (
+  context: ConfigurationContext,
+  rule: DcsMetadataTypedValuePropertyRule,
+  value: DcsMetadataTypedValueYAML | DcsMetadataTypedValueYAML[] | undefined
+): DcsMetadataTypedValue | DcsMetadataTypedValue[] | undefined => {
+  if (value === undefined) return undefined
+  if (Array.isArray(value)) return value.map((item) => importSingle(context, rule, item))
+  return importSingle(context, rule, value)
+}
+
 const importDcsMetadataTypedValueFromYAMLForRule = (
   context: ConfigurationContext,
   rule: PropertyRule,
   value: unknown
-): DcsMetadataTypedValue | undefined =>
+): DcsMetadataTypedValue | DcsMetadataTypedValue[] | undefined =>
   importDcsMetadataTypedValueFromYAML(
     context,
     rule as DcsMetadataTypedValuePropertyRule,
-    value as DcsMetadataTypedValueYAML
+    value as DcsMetadataTypedValueYAML | DcsMetadataTypedValueYAML[]
   )
 
 registerTypeRule("DcsMetadataTypedValue", "importFromYAML", importDcsMetadataTypedValueFromYAMLForRule)

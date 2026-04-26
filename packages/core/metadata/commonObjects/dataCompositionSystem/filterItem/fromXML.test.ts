@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { fullFilterItemComparison, fullFilterItemGroup } from "./__fixtures__/data"
+import { fullFilterItemComparison, fullFilterItemGroup, inListFilterItemComparison } from "./__fixtures__/data"
 import "./types"
 
 const rule: PropertyRule = {
@@ -18,6 +18,17 @@ describe("import FilterItem from XML", () => {
     })
 
     expect(result).toEqual([fullFilterItemComparison])
+  })
+
+  it("imports FilterItemComparison InList (массив rightValue) from XML", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "inList.xml",
+      xmlRootTag: "dcsset:item",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual([inListFilterItemComparison])
   })
 
   it("imports FilterItemGroup from XML", () => {

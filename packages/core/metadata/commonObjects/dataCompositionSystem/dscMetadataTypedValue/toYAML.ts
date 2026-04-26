@@ -4,12 +4,11 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { DcsMetadataTypedValueRegistry } from "./rules"
 import { DcsMetadataTypedValue, DcsMetadataTypedValuePropertyRule, DcsMetadataTypedValueYAML } from "./types"
 
-export const exportDcsMetadataTypedValueToYAML = (
+const exportSingle = (
   context: ConfigurationContext,
   rule: DcsMetadataTypedValuePropertyRule,
-  value: DcsMetadataTypedValue | undefined
-): DcsMetadataTypedValueYAML | undefined => {
-  if (value === undefined) return undefined
+  value: DcsMetadataTypedValue
+): DcsMetadataTypedValueYAML => {
   const exported = DcsMetadataTypedValueRegistry[value.type].toYAML({ context, rule, item: value })
 
   if (value.type === "Field" && typeof exported === "string") {
@@ -23,15 +22,25 @@ export const exportDcsMetadataTypedValueToYAML = (
   return exported
 }
 
+export const exportDcsMetadataTypedValueToYAML = (
+  context: ConfigurationContext,
+  rule: DcsMetadataTypedValuePropertyRule,
+  value: DcsMetadataTypedValue | DcsMetadataTypedValue[] | undefined
+): DcsMetadataTypedValueYAML | DcsMetadataTypedValueYAML[] | undefined => {
+  if (value === undefined) return undefined
+  if (Array.isArray(value)) return value.map((item) => exportSingle(context, rule, item))
+  return exportSingle(context, rule, value)
+}
+
 const exportDcsMetadataTypedValueToYAMLForRule = (
   context: ConfigurationContext,
   rule: PropertyRule,
   value: unknown
-): DcsMetadataTypedValueYAML | undefined =>
+): DcsMetadataTypedValueYAML | DcsMetadataTypedValueYAML[] | undefined =>
   exportDcsMetadataTypedValueToYAML(
     context,
     rule as DcsMetadataTypedValuePropertyRule,
-    value as DcsMetadataTypedValue
+    value as DcsMetadataTypedValue | DcsMetadataTypedValue[]
   )
 
 registerTypeRule("DcsMetadataTypedValue", "exportToYAML", exportDcsMetadataTypedValueToYAMLForRule)
