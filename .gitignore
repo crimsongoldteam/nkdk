@@ -34,3 +34,4 @@ mcp-server.log*
 
 # Изолированные git worktrees для параллельной разработки
 .worktrees/
+.claude/scheduled_tasks.lock
