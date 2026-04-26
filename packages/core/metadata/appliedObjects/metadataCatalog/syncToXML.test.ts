@@ -1,69 +1,26 @@
-import fs from "fs"
-import { join } from "path"
-import { beforeEach, describe, expect, it } from "vitest"
-import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { mockContextToXML } from "~/tests/mockContext"
+import { describe, expect, it } from "vitest"
+import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
 import { MetadataCatalogRules } from "./rules"
 
 describe("syncAppliedObjectToXML — MetadataCatalog", () => {
-  const fixturesDir = join(import.meta.dirname, "__fixtures__/sync")
-  const inputDir = join(fixturesDir, "nkdk")
-  const referenceDir = join(fixturesDir, "xml")
-  const outputDir = join(fixturesDir, "out")
-  const catalogName = "СправочникCоВсемиОбъектами"
-
-  beforeEach(() => {
-    if (fs.existsSync(outputDir)) {
-      fs.rmSync(outputDir, { recursive: true })
-    }
-  })
-
   it("читает Catalog из YAML и записывает XML в outputDir", async () => {
-    await syncAppliedObjectToXML({
+    const { comparisons } = await testSyncAppliedObjectToXML({
       rule: MetadataCatalogRules,
-      context: mockContextToXML(),
-      inputDir,
-      name: catalogName,
-      outputDir,
-      referenceDir,
+      name: "СправочникCоВсемиОбъектами",
+      importMetaUrl: import.meta.url,
+      expectedFiles: [
+        "СправочникCоВсемиОбъектами.xml",
+        "Ext/Predefined.xml",
+        "Ext/AdditionalIndexes.xml",
+        "Ext/ObjectModule.bsl",
+        "Ext/ManagerModule.bsl",
+        "Ext/Help.xml",
+        "Ext/Help/ru.html",
+        "Commands/КомандаОбъекта/Ext/CommandModule.bsl",
+      ],
     })
-
-    const expectedXML = fs.readFileSync(join(referenceDir, `${catalogName}.xml`), "utf-8")
-    const resultXML = fs.readFileSync(join(outputDir, `${catalogName}.xml`), "utf-8")
-    expect(resultXML).toBe(expectedXML)
-
-    const expectedPredefined = fs.readFileSync(join(referenceDir, "Ext", "Predefined.xml"), "utf-8")
-    const resultPredefined = fs.readFileSync(join(outputDir, "Ext", "Predefined.xml"), "utf-8")
-    expect(resultPredefined).toBe(expectedPredefined)
-
-    const expectedAdditionalIndexes = fs.readFileSync(join(referenceDir, "Ext", "AdditionalIndexes.xml"), "utf-8")
-    const resultAdditionalIndexes = fs.readFileSync(join(outputDir, "Ext", "AdditionalIndexes.xml"), "utf-8")
-    expect(resultAdditionalIndexes).toBe(expectedAdditionalIndexes)
-
-    const expectedObjectModule = fs.readFileSync(join(referenceDir, "Ext", "ObjectModule.bsl"), "utf-8")
-    const resultObjectModule = fs.readFileSync(join(outputDir, "Ext", "ObjectModule.bsl"), "utf-8")
-    expect(resultObjectModule).toBe(expectedObjectModule)
-
-    const expectedManagerModule = fs.readFileSync(join(referenceDir, "Ext", "ManagerModule.bsl"), "utf-8")
-    const resultManagerModule = fs.readFileSync(join(outputDir, "Ext", "ManagerModule.bsl"), "utf-8")
-    expect(resultManagerModule).toBe(expectedManagerModule)
-
-    const expectedHelpXml = fs.readFileSync(join(referenceDir, "Ext", "Help.xml"), "utf-8")
-    const resultHelpXml = fs.readFileSync(join(outputDir, "Ext", "Help.xml"), "utf-8")
-    expect(resultHelpXml).toBe(expectedHelpXml)
-
-    const expectedHelpRu = fs.readFileSync(join(referenceDir, "Ext", "Help", "ru.html"), "utf-8")
-    const resultHelpRu = fs.readFileSync(join(outputDir, "Ext", "Help", "ru.html"), "utf-8")
-    expect(resultHelpRu).toBe(expectedHelpRu)
-
-    const expectedCommandModule = fs.readFileSync(
-      join(referenceDir, "Commands", "КомандаОбъекта", "Ext", "CommandModule.bsl"),
-      "utf-8"
-    )
-    const resultCommandModule = fs.readFileSync(
-      join(outputDir, "Commands", "КомандаОбъекта", "Ext", "CommandModule.bsl"),
-      "utf-8"
-    )
-    expect(resultCommandModule).toBe(expectedCommandModule)
+    for (const { path, result, expected } of comparisons) {
+      expect(result, path).toBe(expected)
+    }
   })
 })
