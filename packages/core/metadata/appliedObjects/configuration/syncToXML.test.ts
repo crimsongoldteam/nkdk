@@ -81,8 +81,21 @@ describe("sync configuration to XML", () => {
     }
 
     // Document — только проверка, что walker дошёл до Documents/ и создал XML.
-    // Полный round-trip пока невозможен из-за пробелов в MetadataDocumentRules (нет XMLRoot,
-    // нет InternalInfo, не все поля покрыты) — это отдельный долг, не задача walker'а.
+    // Полный round-trip XML→YAML→XML для Document остаётся ослабленным и в этой
+    // версии — не из-за `MetadataDocumentRules` (пробелы закрыты в PRD-1
+    // `2026-04-26-metadata-document-round-trip-gaps`), а из-за общих
+    // инфраструктурных ограничений, не входящих в границы того PRD:
+    //   1. mockContextToXML не подкладывает фиксированный `uuid` в <Document>.
+    //   2. StandardAttributeDescriptions сериализует атрибуты алфавитно,
+    //      а реальная фикстура имеет порядок Posted/Ref/DeletionMark/Date/Number.
+    //   3. InternalInfo-механизм для TabularSection зашит на CatalogTabularSection,
+    //      а Document требует DocumentTabularSection.
+    //   4. <Form>/<Template>: PRD-2 (Document — Forms/Templates/Modules/Help).
+    //   5. У атрибутов сериализуется лишний <Use>ForItem</Use>
+    //      (поведение общей сериализации атрибутов).
+    // Поднять assertions до уровня Sequence/DocumentNumerator можно после
+    // устранения каждого из пунктов выше — это отдельные тикеты вне границ
+    // PRD-1.
     expect(
       fs.existsSync(join(tmpXmlDir, "Documents", "ДокументПоУмолчанию.xml")),
       "walker should produce Documents/ДокументПоУмолчанию.xml",

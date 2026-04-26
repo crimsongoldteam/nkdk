@@ -1,8 +1,9 @@
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import type { ReferenceScope } from "../../relations/referenceScope"
 
-const documentProperties = ["Document", "Properties"]
-const documentChildObjects = ["Document", "ChildObjects"]
+const documentProperties = ["Properties"]
+const documentChildObjects = ["ChildObjects"]
 
 export const MetadataDocumentStandardAttributeNames: Record<string, string> = {
   Date: "Дата",
@@ -17,6 +18,26 @@ export const MetadataDocumentRules = {
   itemTypePrefix: "Документ",
   xmlDir: "Documents",
   properties: {
+    xmlRoot: {
+      type: "XMLRoot",
+      container: "Document",
+      rootAttributes: V8_MDCLASSES_ROOT,
+      forReferenceOnly: true,
+      toYAML: false,
+      fromYAML: false,
+    },
+    internalInfo: {
+      type: "InternalInfo",
+      xmlParents: [],
+      forReferenceOnly: true,
+      items: [
+        { name: "DocumentObject", category: "Object" },
+        { name: "DocumentRef", category: "Ref" },
+        { name: "DocumentSelection", category: "Selection" },
+        { name: "DocumentList", category: "List" },
+        { name: "DocumentManager", category: "Manager" },
+      ],
+    },
     uuid: {
       type: "string",
       xml: "_uuid",
@@ -27,13 +48,14 @@ export const MetadataDocumentRules = {
       yaml: "ЗаписьДвиженийПриПроведении",
       type: "SystemEnumeration",
       typeSE: "RegisterRecordsWritingOnPost",
+      xml: "RegisterRecordsWritingOnPost",
       defaultValueXML: "RealTime",
       xmlParents: documentProperties,
     },
     additionalIndexes: {
       yaml: "ДополнительныеИндексы",
       type: "AdditionalIndex",
-      xmlParents: documentProperties,
+      filePath: "Ext/AdditionalIndexes.xml",
     },
     attributes: {
       yaml: "Реквизиты",
@@ -52,28 +74,33 @@ export const MetadataDocumentRules = {
       type: "string",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
     },
     auxiliaryListForm: {
       yaml: "ДополнительнаяФормаСписка",
       type: "string",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
     },
     auxiliaryObjectForm: {
       yaml: "ДополнительнаяФормаОбъекта",
       type: "string",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
     },
     basedOn: {
       yaml: "ВводитсяНаОсновании",
       type: "MetadataItemLinks",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: {},
     },
     characteristics: {
       yaml: "Характеристики",
       type: "CharacteristicsDescriptions",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: {},
     },
     checkUnique: {
       yaml: "КонтрольУникальности",
@@ -105,6 +132,7 @@ export const MetadataDocumentRules = {
       yaml: "Комментарий",
       type: "string",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     createOnInput: {
       yaml: "СозданиеПриВводе",
@@ -131,24 +159,28 @@ export const MetadataDocumentRules = {
       yaml: "ПоляБлокировкиДанных",
       type: "MetadataFields",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: {},
     },
     defaultChoiceForm: {
       yaml: "ОсновнаяФормаДляВыбора",
       type: "string",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
     },
     defaultListForm: {
       yaml: "ОсновнаяФормаСписка",
       type: "string",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
     },
     defaultObjectForm: {
       yaml: "ОсновнаяФормаОбъекта",
       type: "string",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
     },
     executeAfterWriteDataHistoryVersionProcessing: {
       yaml: "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных",
@@ -160,16 +192,19 @@ export const MetadataDocumentRules = {
       yaml: "Пояснение",
       type: "I8nText",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     extendedListPresentation: {
       yaml: "РасширенноеПредставлениеСписка",
       type: "I8nText",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     extendedObjectPresentation: {
       yaml: "РасширенноеПредставлениеОбъекта",
       type: "I8nText",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     fullTextSearch: {
       yaml: "ПолнотекстовыйПоиск",
@@ -196,11 +231,13 @@ export const MetadataDocumentRules = {
       type: "MetadataFields",
       xmlParents: documentProperties,
       referenceScope: { target: "this", kind: "Attribute", filter: "stringIndexedAttribute" },
+      defaultValueXMLRaw: {},
     },
     listPresentation: {
       yaml: "ПредставлениеСписка",
       type: "I8nText",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     name: {
       type: "string",
@@ -235,16 +272,27 @@ export const MetadataDocumentRules = {
       defaultValueXML: "String",
       xmlParents: documentProperties,
     },
+    numerator: {
+      yaml: "Нумератор",
+      type: "string",
+      xmlParents: documentProperties,
+      referenceScope: { target: "topLevel", allowedTypes: ["Нумератор"] },
+      defaultValueXMLRaw: "",
+    },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
+      defaultValueYAML: "Native",
+      toYAML: false,
+      fromYAML: false,
       xmlParents: documentProperties,
     },
     objectPresentation: {
       yaml: "ПредставлениеОбъекта",
       type: "I8nText",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     posting: {
       yaml: "Проведение",
@@ -256,12 +304,14 @@ export const MetadataDocumentRules = {
     privilegedPostingMode: {
       yaml: "ПривилегированныйРежимПриПроведении",
       type: "boolean",
+      xml: "PostInPrivilegedMode",
       defaultValueXML: false,
       xmlParents: documentProperties,
     },
     privilegedUnpostingMode: {
       yaml: "ПривилегированныйРежимПриОтменеПроведения",
       type: "boolean",
+      xml: "UnpostInPrivilegedMode",
       defaultValueXML: false,
       xmlParents: documentProperties,
     },
@@ -276,6 +326,7 @@ export const MetadataDocumentRules = {
       yaml: "Движения",
       type: "MetadataItemLinks",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: {},
     },
     registerRecordsDeletion: {
       yaml: "УдалениеДвижений",
@@ -308,6 +359,7 @@ export const MetadataDocumentRules = {
       yaml: "Синоним",
       type: "I8nText",
       xmlParents: documentProperties,
+      defaultValueXMLRaw: "",
     },
     tabularSections: {
       yaml: "ТабличныеЧасти",
@@ -328,6 +380,7 @@ export const MetadataDocumentRules = {
       xmlParents: documentProperties,
     },
   },
+  requiredXMLParents: [["ChildObjects"]],
   graphTerminals: ["ПустаяСсылка"],
 } as const satisfies MetadataItemRule
 
