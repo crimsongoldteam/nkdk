@@ -80,7 +80,7 @@ export const full: MetadataDocument = {
   executeAfterWriteDataHistoryVersionProcessing: true,
   explanation: {
     items: {
-      ru: "Пояснение",
+      ru: "Пояснение\n",
     },
   },
   extendedListPresentation: {
@@ -215,7 +215,7 @@ export const fullYAML: MetadataDocumentYAML = {
     "Документ.ДокументВсеСвойства.СтандартныйРеквизит.Number",
     "Документ.ДокументВсеСвойства.СтандартныйРеквизит.Date",
   ],
-  Пояснение: "Пояснение",
+  Пояснение: "Пояснение\n",
   ПредставлениеОбъекта: "Представление объекта",
   ПредставлениеСписка: "Представление списка",
   ПривилегированныйРежимПриОтменеПроведения: "Истина",

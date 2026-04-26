@@ -154,24 +154,26 @@ Deep Scan свойств родителя (см. чат-сессию 2026-04-26)
 | 4 | `<Form>` / `<Template>` сериализация (PRD-2) | **закрыт** |
 | 5а | `<Use>ForItem</Use>` у атрибутов | **закрыт** |
 | 5б | `<Use>ForItem</Use>` у `TabularSection.Properties` | **закрыт** |
-| 6 | Trailing newline в `<v8:content>` | открыт |
+| 6 | Trailing newline в `<v8:content>` | **закрыт** |
 
 ### Решение блокера #4
 
 В `metadataDocument/rules.ts` отсутствовали свойства `forms` (`type: "ChildFormNames"`, `xml: "Form"`) и `templates` (`type: "ChildTemplateNames"`, `xml: "Template"`). У Catalog они уже были — скопированы дословно (с `documentChildObjects` вместо `["ChildObjects"]`). Механизмы `ChildFormNames`/`ChildTemplateNames` уже зарегистрированы в `PropertyRuleTypeKeys`, дополнительных правок реестра не понадобилось.
 
-### Блокер #6 — детали
+### Решение блокера #6
 
-**Симптом.** В фикстуре `full.xml` поле `Explanation` имеет XML вида `<v8:content>Пояснение\n</v8:content>` (после "Пояснение" — литеральный `\n` перед закрывающим тегом). Экспорт даёт `<v8:content>Пояснение</v8:content>` — завершающий перевод строки теряется.
+**Корень проблемы.** В `XMLParser` (`xml/import/importer.ts`) опция `numberParseOptions: { ... }` неявно активирует `parseTagValue`-логику, которая триммит текстовые значения **даже в режиме `preserveOrder: true`**, если не указано явное `trimValues: false`. Из-за этого `<v8:content>Пояснение\n</v8:content>` импортировалось как `"Пояснение"` (без `\n`).
 
-**Проверка.** Установка `trimValues: false` в конфиге `XMLParser` (`xml/import/importer.ts`) не закрыла проблему. Это означает, что либо `XMLParser` в режиме `preserveOrder: true` игнорирует флаг, либо `\n` теряется на стороне `XMLBuilder` (`xmlExport`) при `format: true`: pretty-printer fast-xml-parser перебивает индентацию текстового узла своей.
+**Диагностика.** Поэтапный сравнительный тест с разными конфигурациями `XMLParser`:
+- только `preserveOrder: true` → `\n` сохраняется;
+- `preserveOrder: true` + `numberParseOptions` → `\n` теряется;
+- `preserveOrder: true` + `numberParseOptions` + `trimValues: false` → `\n` сохраняется.
 
-**Рамки.** Нормализация whitespace в текстовых узлах при `format: true` — известная особенность fast-xml-parser. Для починки нужно либо:
-- расширить существующий patch `patches/fast-xml-parser@5.3.3.patch`, чтобы builder сохранял литеральные `\n` внутри текстового узла,
-- либо переключить для I8N-полей экспорт в режим без форматирования с ручной индентацией,
-- либо завернуть содержимое в CDATA (`<![CDATA[...]]>`) — но это меняет байты вокруг.
+Экспорт (`xmlExport` через `XMLBuilder` с `format: true`) был не виноват — на ручной модели `{ "v8:content": "Пояснение\n" }` он корректно эмитит `<v8:content>Пояснение\n</v8:content>`.
 
-**Решение отложено.** Расхождение узкое (одно поле `Explanation` в одной фикстуре `full.xml`); 8 из 9 блокеров закрыты, `minimal.xml` и `withNumerator.xml` — полностью зелёные. Для байт-точности `full.xml` нужно отдельное исследование fast-xml-parser в подзадаче.
+**Фикс.** В конфиге `XMLParser` добавлено `trimValues: false`. Также синхронизированы snapshot-фикстуры `__fixtures__/full.ts` (поле `explanation`/YAML-аналог) и `__fixtures__/sync/data.ts` + `__fixtures__/sync/nkdk/.../Свойства.yaml` — теперь содержат `"Пояснение\n"` / YAML block-style `|`.
+
+**Результат.** `pnpm test` полностью зелёный: 2576/2576 passed.
 
 ### Решение блокера #2
 
