@@ -214,7 +214,7 @@ it("читает Catalog из YAML и записывает XML в outputDir", as
 Порядок выбран так, чтобы каждый объект мигрировался отдельным коммитом и проект оставался зелёным.
 
 1. **Создать helper'ы и `index.ts`** — `packages/core/tests/appliedObject/`.
-2. **Catalog** — мигрировать все 6 тестов. Граф-блок в `fromYAML.test.ts` остаётся нетронутым; общий round-trip переписывается через прямой вызов YAML-функций (без helper'а). Помечается `// TODO: вынести граф-тесты в отдельный файл при унификации YAML-API`.
+2. **Catalog** — мигрировать `fromXML.test.ts`, `toXML.test.ts`, `syncToXML.test.ts`, `convertFromXML.test.ts` через helper'ы. `fromYAML.test.ts` и `toYAML.test.ts` остаются на прямых вызовах YAML-функций (helper'ов для YAML нет); граф-блок в `fromYAML.test.ts` не трогается. В `fromYAML.test.ts` добавляется `// TODO: вынести граф-тесты в отдельный файл при унификации YAML-API`.
 3. **Document** — мигрировать `fromXML.test.ts`, `toXML.test.ts`, `fromYAML.test.ts`, `toYAML.test.ts`. Удалить текущий `syncToXML.test.ts` (round-trip XML→YAML→XML). Перестроить `__fixtures__/sync/`:
    - текущий вид: `__fixtures__/sync/<имя>/Ext/...`
    - целевой: `__fixtures__/sync/{xml/<имя>.xml, xml/<имя>/Ext/..., nkdk/<имя>/Свойства.yaml, data.ts}`
@@ -223,7 +223,7 @@ it("читает Catalog из YAML и записывает XML в outputDir", as
    - Миграцию `convertFromXML.test.ts` и нового `syncToXML.test.ts` делать одним коммитом, чтобы не получить промежуточно красное состояние.
 4. **Sequence** — мигрировать существующее (`toYAML.test.ts` отсутствует, не дотягиваем).
 5. **DocumentNumerator** — все 6 тестов есть, прямая миграция.
-6. **Удалить мёртвый `__fixtures__/sync/out/`** — в каждом объекте, после перехода helper'а на `mkdtempSync`.
+6. **Удалить локальные `__fixtures__/sync/out/`** — эти папки не закоммичены в git, но локально остаются от прошлых запусков. После перехода на `mkdtempSync` они больше не создаются. Дополнительно — добавить запись в `.gitignore`, если ещё не игнорируются.
 7. **Обновить шаблоны скиллов:**
    - `.claude/skills/_shared/metadata/io-tests.md` — шаблоны `convertFromXML.test.ts` / `syncToXML.test.ts` на helper'ах.
    - `.claude/skills/_shared/metadata/tests.md` — шаблоны `fromXML.test.ts` / `toXML.test.ts` / `fromYAML.test.ts` / `toYAML.test.ts` на helper'ах.
