@@ -7,6 +7,21 @@
 - `fromYAML.test.ts` — включает **постоянный round-trip блок**
 - `toYAML.test.ts`
 
+## Два шаблона: applied object vs property
+
+- **Applied object** (`appliedObjects/<имя>/`) — самостоятельный объект метаданных
+  верхнего уровня (Catalog, Document, Sequence, DocumentNumerator). Тесты пишутся
+  через helper'ы из `~/tests/appliedObject/` и используют `MetadataItemRule`
+  (например `MetadataCatalogRules`). Шаблон ниже в разделе «Applied object».
+- **Common object / property** (`commonObjects/<имя>/`) — переиспользуемый
+  property-тип (StandardAttribute, AdditionalIndex, MetadataAttribute и т.п.).
+  Тесты пишутся через helper'ы из `~/tests/property/` и используют `PropertyRule`.
+  Шаблон ниже в разделе «Property».
+
+Если объект используется и как applied object, и как property (Sequence,
+DocumentNumerator), то `fromXML`/`toXML` пишутся по applied-шаблону, а
+`fromYAML`/`toYAML` — по property-шаблону.
+
 ## Round-trip: зачем и как
 
 Round-trip — это тест `import → export → сравнение с исходником`. Его роль двойная:
@@ -62,7 +77,159 @@ source  --import-->  data (результат import)  --export-->  exported
 - **После 3 итераций без прогресса** — стоп, показать текущий diff пользователю, не продолжать молча.
 - **Формат вопросов** — один блок, пронумерованный, для каждого пункта есть **предлагаемое решение**, пользователь либо подтверждает, либо правит.
 
-## Шаблоны
+## Шаблоны — Applied object
+
+Helper'ы: `~/tests/appliedObject/`. Импорт и экспорт — `MetadataItemRule`
+(`<MetadataName>Rules`).
+
+### `fromXML.test.ts` (applied)
+
+```typescript
+import { describe, expect, it } from "vitest"
+import { testImportAppliedObjectFromXML, testExportAppliedObjectToXML } from "~/tests/appliedObject"
+import { full } from "./__fixtures__/full"
+import { minimal } from "./__fixtures__/minimal"
+import { <MetadataName>Rules } from "./rules"
+import { <MetadataName> } from "./types"
+
+describe("import <MetadataName> from XML", () => {
+  it("should import full", () => {
+    expect(
+      testImportAppliedObjectFromXML<<MetadataName>>({
+        rule: <MetadataName>Rules,
+        importMetaUrl: import.meta.url,
+        fixture: "full.xml",
+      })
+    ).toEqual(full)
+  })
+
+  it("should import minimal", () => {
+    expect(
+      testImportAppliedObjectFromXML<<MetadataName>>({
+        rule: <MetadataName>Rules,
+        importMetaUrl: import.meta.url,
+        fixture: "minimal.xml",
+      })
+    ).toEqual(minimal)
+  })
+
+  it.each(["full.xml", "minimal.xml"])(
+    "round-trip: %s — import затем export совпадает с исходным XML",
+    (fixture) => {
+      const data = testImportAppliedObjectFromXML<<MetadataName>>({
+        rule: <MetadataName>Rules,
+        importMetaUrl: import.meta.url,
+        fixture,
+      })
+      const { result, expected } = testExportAppliedObjectToXML({
+        rule: <MetadataName>Rules,
+        importMetaUrl: import.meta.url,
+        fixture,
+        data: data!,
+      })
+      expect(result).toEqual(expected)
+    }
+  )
+})
+```
+
+### `toXML.test.ts` (applied)
+
+```typescript
+import { describe, expect, it } from "vitest"
+import { testExportAppliedObjectToXML } from "~/tests/appliedObject"
+import { full } from "./__fixtures__/full"
+import { minimal } from "./__fixtures__/minimal"
+import { <MetadataName>Rules } from "./rules"
+
+describe("export <MetadataName> to XML", () => {
+  it.each([
+    { fixture: "full.xml", data: full },
+    { fixture: "minimal.xml", data: minimal },
+  ])("should export $fixture", ({ fixture, data }) => {
+    const { result, expected } = testExportAppliedObjectToXML({
+      rule: <MetadataName>Rules,
+      importMetaUrl: import.meta.url,
+      fixture,
+      data,
+    })
+    expect(result).toEqual(expected)
+  })
+})
+```
+
+### `fromYAML.test.ts` (applied)
+
+Подходит, если объект работает через общий orchestration-путь
+`importMetadataItemFromYAML`. Если у объекта своя пара функций
+(`importMetadata<Name>FromYAML`/`exportMetadata<Name>ToYAML`) — пиши тесты на
+прямых вызовах этих функций (см. `metadataCatalog/fromYAML.test.ts`).
+
+```typescript
+import { describe, expect, it } from "vitest"
+import { testImportAppliedObjectFromYAML } from "~/tests/appliedObject"
+import { full, fullYAML } from "./__fixtures__/full"
+import { minimal, minimalYAML } from "./__fixtures__/minimal"
+import { <MetadataName>Rules } from "./rules"
+import { <MetadataName> } from "./types"
+
+describe("import <MetadataName> from YAML", () => {
+  it("should import full", () => {
+    const result = testImportAppliedObjectFromYAML<<MetadataName>>({
+      rule: <MetadataName>Rules,
+      yaml: fullYAML,
+      name: "<ИмяЭкземпляра>",
+    })
+    expect(result).toEqual(full)
+  })
+
+  it("should import minimal", () => {
+    const result = testImportAppliedObjectFromYAML<<MetadataName>>({
+      rule: <MetadataName>Rules,
+      yaml: minimalYAML,
+      name: "<ИмяМинимального>",
+    })
+    expect(result).toEqual(minimal)
+  })
+})
+```
+
+### `toYAML.test.ts` (applied)
+
+```typescript
+import { describe, expect, it } from "vitest"
+import { testExportAppliedObjectToYAML } from "~/tests/appliedObject"
+import { full, fullYAML } from "./__fixtures__/full"
+import { minimal, minimalYAML } from "./__fixtures__/minimal"
+import { <MetadataName>Rules } from "./rules"
+import { <MetadataName> } from "./types"
+
+describe("export <MetadataName> to YAML", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = testExportAppliedObjectToYAML<<MetadataName>>({
+      rule: <MetadataName>Rules,
+      data: undefined,
+    })
+    expect(result).toBeUndefined()
+  })
+
+  it.each([
+    { name: "full", data: full, expected: fullYAML },
+    { name: "minimal", data: minimal, expected: minimalYAML },
+  ])("should export $name", ({ data, expected }) => {
+    const result = testExportAppliedObjectToYAML<<MetadataName>>({
+      rule: <MetadataName>Rules,
+      data,
+    })
+    expect(result).toEqual(expected)
+  })
+})
+```
+
+## Шаблоны — Property (commonObjects)
+
+Helper'ы: `~/tests/property/`. Используется `PropertyRule` с явным `type` и
+`yaml`.
 
 ### `fromXML.test.ts` (с round-trip)
 
