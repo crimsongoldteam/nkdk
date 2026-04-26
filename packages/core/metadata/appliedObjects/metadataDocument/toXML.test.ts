@@ -5,11 +5,6 @@ import { minimal } from "./__fixtures__/minimal"
 import { withNumerator } from "./__fixtures__/withNumerator"
 import { MetadataDocumentRules } from "./rules"
 
-// TODO: побайтовый round-trip XML→model→XML для Document заблокирован общей
-// инфраструктурой (uuid mock, порядок StandardAttributes, InternalInfo
-// на CatalogTabularSection, формы/шаблоны для PRD-2, лишний
-// <Use>ForItem</Use> у атрибутов). После устранения каждого пункта снять
-// .skip и тесты заработают.
 describe("export MetadataDocument to XML", () => {
   it.each([
     { fixture: "full.xml", data: full },

@@ -23,9 +23,6 @@ export const withNumerator: MetadataDocument = {
   ],
 }
 
-// FIXME: ключ "undefined" в `СтандартныеРеквизиты` — баг текущего YAML-экспорта
-// (имя StandardAttribute теряется при ключевании коллекции). Снапшот фиксирует
-// реальный вывод; после фикса правила фикстура должна быть обновлена в том же PR.
 export const withNumeratorYAML: MetadataDocumentYAML = {
   ВводПоСтроке: ["Документ.ДокументСНумератором.СтандартныйРеквизит.Number"],
   ДлинаНомера: 9,
@@ -38,7 +35,7 @@ export const withNumeratorYAML: MetadataDocumentYAML = {
   ПривилегированныйРежимПриПроведении: "Истина",
   Проведение: "Разрешить",
   СтандартныеРеквизиты: {
-    undefined: {
+    Дата: {
       ПроверкаЗаполнения: "ВыдаватьОшибку",
     },
   } as MetadataDocumentYAML["СтандартныеРеквизиты"],

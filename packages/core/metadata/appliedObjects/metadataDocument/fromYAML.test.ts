@@ -9,7 +9,7 @@ import { MetadataDocument } from "./types"
 // TODO: import YAML фикстур (`fullYAML`/`minimalYAML`/`withNumeratorYAML`)
 // падает на `toEqual` — расхождение между YAML-фикстурами и фактическим
 // импортом (~2 ключа разницы). Подогнать фикстуры после стабилизации YAML-API.
-describe.skip("import MetadataDocument from YAML", () => {
+describe("import MetadataDocument from YAML", () => {
   it("should import full", () => {
     const result = testImportAppliedObjectFromYAML<MetadataDocument>({
       rule: MetadataDocumentRules,

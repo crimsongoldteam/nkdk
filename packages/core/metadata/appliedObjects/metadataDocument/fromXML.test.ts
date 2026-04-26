@@ -41,11 +41,7 @@ describe("import MetadataDocument from XML", () => {
     ).toEqual(withNumerator)
   })
 
-  // TODO: round-trip XML→model→XML для Document заблокирован общей
-  // инфраструктурой (uuid mock, порядок StandardAttributes, InternalInfo
-  // на CatalogTabularSection, формы/шаблоны для PRD-2, лишний
-  // <Use>ForItem</Use> у атрибутов). Включить после устранения каждого пункта.
-  it.skip.each(["full.xml", "minimal.xml", "withNumerator.xml"])(
+  it.each(["full.xml", "minimal.xml", "withNumerator.xml"])(
     "round-trip: %s — import затем export совпадает с исходным XML",
     (fixture) => {
       const data = testImportAppliedObjectFromXML<MetadataDocument>({

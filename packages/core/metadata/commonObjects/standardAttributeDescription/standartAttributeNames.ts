@@ -12,6 +12,9 @@ export const StandartAttributeNameToYAML = {
   Active: "Активность",
   Recorder: "Регистратор",
   Period: "Период",
+  Date: "Дата",
+  Number: "Номер",
+  Posted: "Проведен",
 } as const
 
 export type StandartAttributeName = keyof typeof StandartAttributeNameToYAML

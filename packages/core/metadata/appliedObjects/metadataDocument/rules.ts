@@ -261,6 +261,7 @@ export const MetadataDocumentRules = {
       type: "string",
       xmlParents: documentProperties,
       required: true,
+      defaultValue: ({ name }: { name?: string }) => name,
     },
     numberAllowedLength: {
       yaml: "ДопустимаяДлинаНомера",
