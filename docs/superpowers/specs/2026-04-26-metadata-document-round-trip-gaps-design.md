@@ -160,6 +160,19 @@ Deep Scan свойств родителя (см. чат-сессию 2026-04-26)
 
 В `metadataDocument/rules.ts` отсутствовали свойства `forms` (`type: "ChildFormNames"`, `xml: "Form"`) и `templates` (`type: "ChildTemplateNames"`, `xml: "Template"`). У Catalog они уже были — скопированы дословно (с `documentChildObjects` вместо `["ChildObjects"]`). Механизмы `ChildFormNames`/`ChildTemplateNames` уже зарегистрированы в `PropertyRuleTypeKeys`, дополнительных правок реестра не понадобилось.
 
+### Блокер #6 — детали
+
+**Симптом.** В фикстуре `full.xml` поле `Explanation` имеет XML вида `<v8:content>Пояснение\n</v8:content>` (после "Пояснение" — литеральный `\n` перед закрывающим тегом). Экспорт даёт `<v8:content>Пояснение</v8:content>` — завершающий перевод строки теряется.
+
+**Проверка.** Установка `trimValues: false` в конфиге `XMLParser` (`xml/import/importer.ts`) не закрыла проблему. Это означает, что либо `XMLParser` в режиме `preserveOrder: true` игнорирует флаг, либо `\n` теряется на стороне `XMLBuilder` (`xmlExport`) при `format: true`: pretty-printer fast-xml-parser перебивает индентацию текстового узла своей.
+
+**Рамки.** Нормализация whitespace в текстовых узлах при `format: true` — известная особенность fast-xml-parser. Для починки нужно либо:
+- расширить существующий patch `patches/fast-xml-parser@5.3.3.patch`, чтобы builder сохранял литеральные `\n` внутри текстового узла,
+- либо переключить для I8N-полей экспорт в режим без форматирования с ручной индентацией,
+- либо завернуть содержимое в CDATA (`<![CDATA[...]]>`) — но это меняет байты вокруг.
+
+**Решение отложено.** Расхождение узкое (одно поле `Explanation` в одной фикстуре `full.xml`); 8 из 9 блокеров закрыты, `minimal.xml` и `withNumerator.xml` — полностью зелёные. Для байт-точности `full.xml` нужно отдельное исследование fast-xml-parser в подзадаче.
+
 ### Решение блокера #2
 
 Порядок ключей в `Record<string, string>` `MetadataDocumentStandardAttributeNames` (определён в `metadataDocument/rules.ts`) задаёт порядок сериализации `<xr:StandardAttribute>` в XML. Был алфавитный (`Date, DeletionMark, Number, Posted, Ref`), стал по эталону фикстур (`Posted, Ref, DeletionMark, Date, Number`). После фикса `withNumerator.xml` round-trip полностью зелёный.
