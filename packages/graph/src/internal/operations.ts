@@ -1,6 +1,6 @@
 import { query } from "./connection"
 import type { GraphConnection } from "./connection"
-import type { NodeData } from "../types"
+import type { EdgeData, NodeData } from "../types"
 
 export const BATCH_SIZE = 5000
 
@@ -41,6 +41,22 @@ export const mergeNodes = async (
       conn,
       payload,
       `UNWIND $batch AS n MERGE (m:${label} {id: n.id}) SET m += n.props`,
+    )
+  }
+}
+
+export const mergeEdges = async (
+  conn: GraphConnection,
+  edges: readonly EdgeData[],
+): Promise<void> => {
+  if (edges.length === 0) return
+  const byKind = groupBy(edges, (e) => e.kind)
+  for (const [kind, group] of byKind) {
+    const payload = group.map((e) => ({ src: e.src, tgt: e.tgt, props: e.props ?? {} }))
+    await sendBatches(
+      conn,
+      payload,
+      `UNWIND $batch AS e MATCH (s {id: e.src}), (t {id: e.tgt}) MERGE (s)-[r:${kind}]->(t) SET r = e.props`,
     )
   }
 }

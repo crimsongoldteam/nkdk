@@ -10,8 +10,8 @@ vi.mock("falkordb", () => ({
 }))
 
 import { connect } from "../src/internal/connection"
-import { mergeNodes } from "../src/internal/operations"
-import type { NodeData } from "../src/types"
+import { mergeNodes, mergeEdges } from "../src/internal/operations"
+import type { NodeData, EdgeData } from "../src/types"
 
 beforeEach(() => {
   queryMock.mockReset().mockResolvedValue({})
@@ -70,5 +70,46 @@ describe("mergeNodes", () => {
     expect(
       (queryMock.mock.calls[2][1] as { params: { batch: unknown[] } }).params.batch,
     ).toHaveLength(2000)
+  })
+})
+
+describe("mergeEdges", () => {
+  it("ничего не делает на пустом массиве", async () => {
+    const conn = await connect()
+    await mergeEdges(conn, [])
+    expect(queryMock).not.toHaveBeenCalled()
+  })
+
+  it("группирует рёбра по kind и шлёт по одному UNWIND-MERGE на kind", async () => {
+    const conn = await connect()
+    const edges: EdgeData[] = [
+      { src: "A", tgt: "B", kind: "VALUE", props: { yaml: "Значение" } },
+      { src: "A", tgt: "C", kind: "VALUE", props: { yaml: "Значение" } },
+      { src: "A", tgt: "D", kind: "REF_TYPE", props: { index: 0 } },
+    ]
+    await mergeEdges(conn, edges)
+
+    expect(queryMock).toHaveBeenCalledTimes(2)
+    const calls = queryMock.mock.calls
+    const valueCall = calls.find((c) => (c[0] as string).includes(":VALUE"))!
+    const refCall = calls.find((c) => (c[0] as string).includes(":REF_TYPE"))!
+    expect(valueCall[0]).toBe(
+      "UNWIND $batch AS e MATCH (s {id: e.src}), (t {id: e.tgt}) MERGE (s)-[r:VALUE]->(t) SET r = e.props",
+    )
+    expect((valueCall[1] as { params: { batch: unknown[] } }).params.batch).toHaveLength(2)
+    expect(refCall[0]).toBe(
+      "UNWIND $batch AS e MATCH (s {id: e.src}), (t {id: e.tgt}) MERGE (s)-[r:REF_TYPE]->(t) SET r = e.props",
+    )
+  })
+
+  it("отправляет props={} если у ребра не указаны свойства", async () => {
+    const conn = await connect()
+    const edges: EdgeData[] = [{ src: "A", tgt: "B", kind: "FORM" }]
+    await mergeEdges(conn, edges)
+
+    expect(queryMock).toHaveBeenCalledTimes(1)
+    const batch = (queryMock.mock.calls[0][1] as { params: { batch: Array<{ props: object }> } })
+      .params.batch
+    expect(batch[0]?.props).toEqual({})
   })
 })
