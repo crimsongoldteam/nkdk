@@ -10,7 +10,7 @@ vi.mock("falkordb", () => ({
 }))
 
 import { connect } from "../src/internal/connection"
-import { mergeNodes, mergeEdges, deleteByFilePaths } from "../src/internal/operations"
+import { mergeNodes, mergeEdges, deleteByFilePaths, cleanupOrphanStubs } from "../src/internal/operations"
 import type { NodeData, EdgeData } from "../src/types"
 
 beforeEach(() => {
@@ -138,5 +138,17 @@ describe("deleteByFilePaths", () => {
     expect(deleteCall[0]).toBe(
       "MATCH (n) WHERE n.filePath IN $filePaths AND NOT ()-->(n) DETACH DELETE n",
     )
+  })
+})
+
+describe("cleanupOrphanStubs", () => {
+  it("удаляет узлы без filePath и без входящих рёбер", async () => {
+    const conn = await connect()
+    await cleanupOrphanStubs(conn)
+    expect(queryMock).toHaveBeenCalledTimes(1)
+    expect(queryMock.mock.calls[0][0]).toBe(
+      "MATCH (n) WHERE n.filePath IS NULL AND NOT ()-->(n) DETACH DELETE n",
+    )
+    expect(queryMock.mock.calls[0][1]).toBeUndefined()
   })
 })

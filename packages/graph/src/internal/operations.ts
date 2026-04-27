@@ -83,3 +83,10 @@ export const deleteByFilePaths = async (
     params,
   )
 }
+
+export const cleanupOrphanStubs = async (conn: GraphConnection): Promise<void> => {
+  await query(
+    conn,
+    "MATCH (n) WHERE n.filePath IS NULL AND NOT ()-->(n) DETACH DELETE n",
+  )
+}
