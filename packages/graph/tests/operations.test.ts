@@ -10,7 +10,7 @@ vi.mock("falkordb", () => ({
 }))
 
 import { connect } from "../src/internal/connection"
-import { mergeNodes, mergeEdges } from "../src/internal/operations"
+import { mergeNodes, mergeEdges, deleteByFilePaths } from "../src/internal/operations"
 import type { NodeData, EdgeData } from "../src/types"
 
 beforeEach(() => {
@@ -111,5 +111,32 @@ describe("mergeEdges", () => {
     const batch = (queryMock.mock.calls[0][1] as { params: { batch: Array<{ props: object }> } })
       .params.batch
     expect(batch[0]?.props).toEqual({})
+  })
+})
+
+describe("deleteByFilePaths", () => {
+  it("ничего не делает на пустом массиве", async () => {
+    const conn = await connect()
+    await deleteByFilePaths(conn, [])
+    expect(queryMock).not.toHaveBeenCalled()
+  })
+
+  it("удаляет outgoing-рёбра, превращает узлы со входящими в stub, остальные DETACH DELETE", async () => {
+    const conn = await connect()
+    await deleteByFilePaths(conn, ["a.yaml", "b.yaml"])
+
+    expect(queryMock).toHaveBeenCalledTimes(3)
+    const [edgesCall, stubCall, deleteCall] = queryMock.mock.calls
+    expect(edgesCall[0]).toBe(
+      "MATCH (n) WHERE n.filePath IN $filePaths MATCH (n)-[r]->() DELETE r",
+    )
+    expect(edgesCall[1]).toEqual({ params: { filePaths: ["a.yaml", "b.yaml"] } })
+    expect(stubCall[0]).toBe(
+      "MATCH (n) WHERE n.filePath IN $filePaths AND ()-->(n) SET n = {id: n.id}",
+    )
+    expect(stubCall[1]).toEqual({ params: { filePaths: ["a.yaml", "b.yaml"] } })
+    expect(deleteCall[0]).toBe(
+      "MATCH (n) WHERE n.filePath IN $filePaths AND NOT ()-->(n) DETACH DELETE n",
+    )
   })
 })

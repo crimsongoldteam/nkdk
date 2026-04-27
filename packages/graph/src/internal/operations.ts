@@ -60,3 +60,26 @@ export const mergeEdges = async (
     )
   }
 }
+
+export const deleteByFilePaths = async (
+  conn: GraphConnection,
+  filePaths: readonly string[],
+): Promise<void> => {
+  if (filePaths.length === 0) return
+  const params = { filePaths: [...filePaths] }
+  await query(
+    conn,
+    "MATCH (n) WHERE n.filePath IN $filePaths MATCH (n)-[r]->() DELETE r",
+    params,
+  )
+  await query(
+    conn,
+    "MATCH (n) WHERE n.filePath IN $filePaths AND ()-->(n) SET n = {id: n.id}",
+    params,
+  )
+  await query(
+    conn,
+    "MATCH (n) WHERE n.filePath IN $filePaths AND NOT ()-->(n) DETACH DELETE n",
+    params,
+  )
+}
