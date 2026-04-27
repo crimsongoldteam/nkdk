@@ -1,0 +1,46 @@
+import { query } from "./connection"
+import type { GraphConnection } from "./connection"
+import type { NodeData } from "../types"
+
+export const BATCH_SIZE = 5000
+
+const groupBy = <T, K extends string>(
+  items: readonly T[],
+  key: (item: T) => K,
+): Map<K, T[]> => {
+  const result = new Map<K, T[]>()
+  for (const item of items) {
+    const k = key(item)
+    const bucket = result.get(k)
+    if (bucket === undefined) result.set(k, [item])
+    else bucket.push(item)
+  }
+  return result
+}
+
+const sendBatches = async <T>(
+  conn: GraphConnection,
+  items: readonly T[],
+  cypher: string,
+  paramName = "batch",
+): Promise<void> => {
+  for (let i = 0; i < items.length; i += BATCH_SIZE) {
+    await query(conn, cypher, { [paramName]: items.slice(i, i + BATCH_SIZE) })
+  }
+}
+
+export const mergeNodes = async (
+  conn: GraphConnection,
+  nodes: readonly NodeData[],
+): Promise<void> => {
+  if (nodes.length === 0) return
+  const byLabel = groupBy(nodes, (n) => n.label)
+  for (const [label, group] of byLabel) {
+    const payload = group.map((n) => ({ id: n.id, props: n.props }))
+    await sendBatches(
+      conn,
+      payload,
+      `UNWIND $batch AS n MERGE (m:${label} {id: n.id}) SET m += n.props`,
+    )
+  }
+}
