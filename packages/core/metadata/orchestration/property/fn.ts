@@ -80,7 +80,7 @@ export type BuildGraphFromModelFunction = (params: {
   graph: MetadataGraph
   /** Дополнительный контекст, пробрасываемый в кастомные обработчики (например, formNodeId). */
   extra?: Record<string, unknown>
-}) => void
+}) => GraphOps | undefined | void
 
 export interface GraphOpsChild {
   idSuffix: string
@@ -97,6 +97,10 @@ export interface GraphOpsReference {
 export interface GraphOps {
   children?: GraphOpsChild[]
   references?: GraphOpsReference[]
+  /** ASCII-метка ребра. Передаётся в applyGraphOps оркестратором, когда BuildGraphFromModelFunction возвращает GraphOps вместо мутации graph. */
+  edgeKind?: string
+  /** Русский YAML-ключ ребра. Передаётся в applyGraphOps. */
+  edgeYaml?: string
 }
 
 export type ExtractGraphFromModelFunction<TModel = unknown> = (
