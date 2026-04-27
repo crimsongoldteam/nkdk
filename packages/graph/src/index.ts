@@ -14,3 +14,5 @@ export type {
   GraphPrimitive,
   NodeData,
 } from "./types"
+
+export { updateGraph } from "./updateGraph"
