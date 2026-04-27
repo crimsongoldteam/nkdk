@@ -20,8 +20,10 @@ export const withGraph = async <T>(
   const conn = await connect(opts)
   try {
     const session: GraphSession = {
-      query: async <R>(cypher: string, params?: Record<string, unknown>) =>
-        (await query(conn, cypher, params)) as R[],
+      query: async <R>(cypher: string, params?: Record<string, unknown>) => {
+        const reply = (await query(conn, cypher, params)) as { data?: R[] }
+        return reply.data ?? []
+      },
     }
     return await fn(session)
   } finally {

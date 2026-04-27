@@ -31,7 +31,7 @@ describe("withGraph", () => {
     expect(connectMock).toHaveBeenCalledTimes(1)
     expect(queryMock).toHaveBeenCalledWith("MATCH (n) RETURN n.value AS n", undefined)
     expect(closeMock).toHaveBeenCalledTimes(1)
-    expect(result).toEqual({ data: [{ n: 42 }] })
+    expect(result).toEqual([{ n: 42 }])
   })
 
   it("прокидывает params в query", async () => {
