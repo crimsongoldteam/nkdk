@@ -8,5 +8,6 @@ export default defineConfig({
     environment: "node",
     globals: true,
     watch: false,
+    exclude: ["**/node_modules/**", "tests/integration/**"],
   },
 })
