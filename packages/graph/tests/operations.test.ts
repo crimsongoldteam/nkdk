@@ -10,7 +10,7 @@ vi.mock("falkordb", () => ({
 }))
 
 import { connect } from "../src/internal/connection"
-import { mergeNodes, mergeEdges, deleteByFilePaths, cleanupOrphanStubs } from "../src/internal/operations"
+import { mergeNodes, mergeEdges, deleteByFilePaths, cleanupOrphanStubs, ensureLabelIndexes } from "../src/internal/operations"
 import type { NodeData, EdgeData } from "../src/types"
 
 beforeEach(() => {
@@ -150,5 +150,31 @@ describe("cleanupOrphanStubs", () => {
       "MATCH (n) WHERE n.filePath IS NULL AND NOT ()-->(n) DETACH DELETE n",
     )
     expect(queryMock.mock.calls[0][1]).toBeUndefined()
+  })
+})
+
+describe("ensureLabelIndexes", () => {
+  it("создаёт индекс по id для каждой уникальной label", async () => {
+    const conn = await connect()
+    await ensureLabelIndexes(conn, ["MetadataCatalog", "MetadataDocument", "MetadataCatalog"])
+
+    expect(queryMock).toHaveBeenCalledTimes(2)
+    const queries = queryMock.mock.calls.map((c) => c[0])
+    expect(queries).toContain("CREATE INDEX FOR (n:MetadataCatalog) ON (n.id)")
+    expect(queries).toContain("CREATE INDEX FOR (n:MetadataDocument) ON (n.id)")
+  })
+
+  it("глотает 'already indexed' / 'equivalent index'", async () => {
+    queryMock.mockRejectedValueOnce(new Error("already indexed for label"))
+    const conn = await connect()
+    await expect(
+      ensureLabelIndexes(conn, ["MetadataCatalog"]),
+    ).resolves.toBeUndefined()
+  })
+
+  it("ничего не делает на пустом массиве", async () => {
+    const conn = await connect()
+    await ensureLabelIndexes(conn, [])
+    expect(queryMock).not.toHaveBeenCalled()
   })
 })

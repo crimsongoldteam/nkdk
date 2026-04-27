@@ -1,4 +1,4 @@
-import { query } from "./connection"
+import { ensureIndex, query } from "./connection"
 import type { GraphConnection } from "./connection"
 import type { EdgeData, NodeData } from "../types"
 
@@ -89,4 +89,14 @@ export const cleanupOrphanStubs = async (conn: GraphConnection): Promise<void> =
     conn,
     "MATCH (n) WHERE n.filePath IS NULL AND NOT ()-->(n) DETACH DELETE n",
   )
+}
+
+export const ensureLabelIndexes = async (
+  conn: GraphConnection,
+  labels: readonly string[],
+): Promise<void> => {
+  const unique = new Set(labels)
+  for (const label of unique) {
+    await ensureIndex(conn, label, "id")
+  }
 }
