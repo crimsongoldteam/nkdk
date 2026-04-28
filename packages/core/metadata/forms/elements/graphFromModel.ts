@@ -18,6 +18,11 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { applyBuildGraphResult } from "~/metadata/orchestration/buildGraphFromModel"
 import { applyGraphOps } from "~/metadata/relations/applyGraphOps"
 import { getKindByYaml } from "~/metadata/relations/edgeKinds"
+import {
+  GraphOps,
+  GraphOpsChild,
+  GraphOpsRecurse,
+} from "~/metadata/orchestration/property/fn"
 import { AutoCommandBarRules } from "./autoCommandBar/rules"
 import { getAutoCommandBarName } from "./autoCommandBar/helper"
 import { ContextMenuRules } from "./contextMenu/rules"
@@ -108,18 +113,19 @@ function buildElementChildrenGraph(params: {
 
 /**
  * Создаёт плоские узлы для массива дочерних элементов формы.
- * NodeId = `formNodeId.elementName`, ребро ЭлементФормы от `parentNodeId`.
+ * NodeId = `formNodeId.Элемент.elementName`, ребро ЭлементФормы от parentNodeId.
+ * Возвращает GraphOps[] с children и recurse — оркестратор сам всё применит.
  */
-function buildChildItemsGraph(params: {
+function buildChildItemsResult(params: {
   items: unknown
-  parentNodeId: string
   formNodeId: string
-  filePath: string
-  graph: MetadataGraph
-}): void {
-  const { items, parentNodeId, formNodeId, filePath, graph } = params
+}): GraphOps[] | undefined {
+  const { items, formNodeId } = params
 
-  if (!Array.isArray(items)) return
+  if (!Array.isArray(items)) return undefined
+
+  const children: GraphOpsChild[] = []
+  const recurses: GraphOpsRecurse[] = []
 
   for (const element of items) {
     if (!element || typeof element !== "object") continue
@@ -129,19 +135,13 @@ function buildChildItemsGraph(params: {
 
     const elementNodeId = `${formNodeId}.Элемент.${elementName}`
 
-    graph.promoteNode(elementNodeId, {
+    children.push({
+      idSuffix: elementName,
       name: elementName,
-      filePaths: [filePath],
       item: elem,
+      absoluteId: elementNodeId,
     })
 
-    const edgeKey = `${parentNodeId}:${FORM_ELEMENT_EDGE_KIND}:${elementNodeId}`
-    graph.ensureEdge(edgeKey, parentNodeId, elementNodeId, {
-      yaml: FORM_ELEMENT_EDGE_YAML,
-      kind: FORM_ELEMENT_EDGE_KIND,
-    })
-
-    // Рекурсия в свойства элемента (childItems и синглеты)
     const itemType = elem.itemType as string | undefined
     if (itemType) {
       let elementRule: MetadataItemRule | undefined
@@ -151,17 +151,24 @@ function buildChildItemsGraph(params: {
         // Неизвестный тип элемента — пропускаем
       }
       if (elementRule) {
-        buildElementChildrenGraph({
-          element: elem,
-          elementRule,
+        recurses.push({
+          model: elem,
+          rule: elementRule,
           parentNodeId: elementNodeId,
-          formNodeId,
-          filePath,
-          graph,
+          extra: { formNodeId },
         })
       }
     }
   }
+
+  if (children.length === 0) return undefined
+
+  return [{
+    children,
+    recurse: recurses,
+    edgeKind: FORM_ELEMENT_EDGE_KIND,
+    edgeYaml: FORM_ELEMENT_EDGE_YAML,
+  }]
 }
 
 /**
@@ -219,9 +226,9 @@ function buildSingletonGraph(params: {
 
 function registerChildItemsHandler(propertyType: PropertyRuleType): void {
   registerTypeRule(propertyType, "buildGraphFromModel", (params) => {
-    const { model, parentNodeId, filePath, graph, extra } = params
+    const { model, parentNodeId, extra } = params
     const formNodeId = (extra?.formNodeId as string | undefined) ?? parentNodeId
-    buildChildItemsGraph({ items: model, parentNodeId, formNodeId, filePath, graph })
+    return buildChildItemsResult({ items: model, formNodeId })
   })
 }
 
