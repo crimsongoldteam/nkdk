@@ -1,26 +1,15 @@
 import { GraphOps } from "../orchestration/property/fn"
+import { resolveFormLocalPath } from "./resolveFormLocalPath"
 import { MetadataGraph } from "./MetadataGraph"
 
 export interface ApplyGraphOpsContext {
   graph: MetadataGraph
   parentNodeId: string
   filePath: string
-  /** ASCII-метка ребра (тип отношения в Cypher и идентификатор в логике). */
   edgeKind: string
-  /** Русский YAML-ключ ребра (для round-trip и человекочитаемости). */
   edgeYaml: string
 }
 
-/**
- * Применяет декларативный GraphOps к графу.
- *
- * - children → owned-узлы с filePath, owning-рёбра kind=edgeKind от parentNodeId
- * - references → stub-узлы (если ещё нет), reference-рёбра kind=edgeKind с positionFrom
- *
- * edgeKind должен быть зарегистрирован в edgeKinds:
- * - для children — owning kind
- * - для references — reference kind
- */
 export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
   const { graph, parentNodeId, filePath, edgeKind, edgeYaml } = ctx
 
@@ -45,6 +34,21 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
       yaml: edgeYaml,
       kind: edgeKind,
       positionFrom: ref.positionFrom,
+    })
+  }
+
+  for (const local of ops.formLocalReferences ?? []) {
+    const resolved = resolveFormLocalPath({
+      formNodeId: local.formNodeId,
+      path: local.formLocalPath,
+      graph,
+    })
+    if (!resolved) continue
+    const edgeKey = `${parentNodeId}:${edgeKind}:${resolved.targetId}`
+    graph.ensureEdge(edgeKey, parentNodeId, resolved.targetId, {
+      yaml: edgeYaml,
+      kind: edgeKind,
+      positionFrom: local.positionFrom,
     })
   }
 }

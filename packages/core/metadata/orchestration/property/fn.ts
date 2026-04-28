@@ -94,9 +94,19 @@ export interface GraphOpsReference {
   positionFrom?: { offset: number; length?: number }
 }
 
+export interface GraphOpsFormLocalReference {
+  /** Form-local путь, например "Объект.Договор.Владелец". */
+  formLocalPath: string
+  /** Корневой узел формы — стартовая точка резолвинга. */
+  formNodeId: string
+  positionFrom?: { offset: number; length?: number }
+}
+
 export interface GraphOps {
   children?: GraphOpsChild[]
   references?: GraphOpsReference[]
+  /** Reference-рёбра, цель которых нужно резолвить через resolveFormLocalPath. */
+  formLocalReferences?: GraphOpsFormLocalReference[]
   /** ASCII-метка ребра. Передаётся в applyGraphOps оркестратором, когда BuildGraphFromModelFunction возвращает GraphOps вместо мутации graph. */
   edgeKind?: string
   /** Русский YAML-ключ ребра. Передаётся в applyGraphOps. */

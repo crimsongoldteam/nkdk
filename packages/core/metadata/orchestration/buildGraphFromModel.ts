@@ -69,7 +69,7 @@ export function buildGraphFromModel(params: {
       })
       const sections = Array.isArray(result) ? result : result ? [result] : []
       for (const section of sections) {
-        if (!section.children?.length && !section.references?.length) continue
+        if (!section.children?.length && !section.references?.length && !section.formLocalReferences?.length) continue
         if (!section.edgeKind || !section.edgeYaml) {
           throw new Error(
             `buildGraphFromModel: обработчик типа "${propType}" вернул GraphOps без edgeKind/edgeYaml. ` +
