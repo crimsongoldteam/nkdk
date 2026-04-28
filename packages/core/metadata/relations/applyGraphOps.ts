@@ -27,16 +27,17 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
   const { graph, parentNodeId, filePath, edgeKind, edgeYaml } = ctx
 
   for (const child of ops.children ?? []) {
-    const effectiveParent = child.parentOverride ?? parentNodeId
-    const childNodeId = `${effectiveParent}.${child.idSuffix}`
+    const idParent = child.parentOverride ?? parentNodeId
+    const childNodeId = child.absoluteId ?? `${idParent}.${child.idSuffix}`
+    const edgeSource = child.edgeFrom ?? child.parentOverride ?? parentNodeId
     graph.promoteNode(childNodeId, {
       name: child.name,
       filePaths: [filePath],
       positionFrom: child.positionFrom,
       item: child.item,
     })
-    const edgeKey = `${effectiveParent}:${edgeKind}:${childNodeId}`
-    graph.ensureEdge(edgeKey, effectiveParent, childNodeId, {
+    const edgeKey = `${edgeSource}:${edgeKind}:${childNodeId}`
+    graph.ensureEdge(edgeKey, edgeSource, childNodeId, {
       yaml: edgeYaml,
       kind: edgeKind,
     })

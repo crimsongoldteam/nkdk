@@ -83,13 +83,38 @@ export type BuildGraphFromModelFunction = (params: {
 }) => GraphOps | GraphOps[] | undefined | void
 
 export interface GraphOpsChild {
+  /**
+   * Суффикс относительного id ребёнка. Используется, если не задан absoluteId.
+   * При наличии parentOverride: childNodeId = `${parentOverride}.${idSuffix}`.
+   * Иначе: childNodeId = `${ctx.parentNodeId}.${idSuffix}`.
+   */
   idSuffix: string
   name: string
   positionFrom?: { offset: number; length?: number }
   /** Запись в node.item при promoteNode. */
   item?: Record<string, unknown>
-  /** Если задано — ребро идёт от этого узла, childNodeId = `${parentOverride}.${idSuffix}` вместо `${ctx.parentNodeId}.${idSuffix}`. */
+  /**
+   * Если задано — childNodeId = `${parentOverride}.${idSuffix}` вместо
+   * `${ctx.parentNodeId}.${idSuffix}`. Источник ребра тоже становится
+   * parentOverride, если не задан edgeFrom.
+   */
   parentOverride?: string
+  /**
+   * Если задано — childNodeId = absoluteId полностью (idSuffix/parentOverride
+   * для построения id игнорируются; idSuffix остаётся как обязательное поле,
+   * и ничто не запрещает absoluteId === `${ctx.parentNodeId}.${idSuffix}` —
+   * это просто другая форма записи того же).
+   * Используется для плоских узлов в forms/elements:
+   * `${formNodeId}.Элемент.<name>`.
+   */
+  absoluteId?: string
+  /**
+   * Если задано — источник ребра = edgeFrom. Имеет приоритет над
+   * parentOverride и ctx.parentNodeId. Используется для синглетов
+   * формы (ContextMenu, AutoCommandBar, ...), где ребро ЭлементФормы
+   * идёт от корня формы, а не от визуального родителя.
+   */
+  edgeFrom?: string
 }
 
 export interface GraphOpsReference {
