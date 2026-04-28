@@ -237,13 +237,13 @@ describe("DataPath buildGraphFromModel — edge-cases", () => {
 })
 
 // ---------------------------------------------------------------------------
-// TypeDescription на элементах (extractGraph через buildElementChildrenGraph)
+// TypeDescription на элементах (extractGraph через оркестратор)
 // ---------------------------------------------------------------------------
 
-describe("buildElementChildrenGraph — extractGraph для TypeDescription", () => {
+describe("extractGraph для TypeDescription на элементах формы", () => {
   it("availableTypes на InputField создаёт reference-ребро ДоступныеТипы", () => {
-    // Проверяем, что buildElementChildrenGraph вызывает extractGraph-хендлеры
-    // для TypeDescription-свойств элементов (а не только buildGraphFromModel).
+    // Проверяем, что оркестратор buildGraphFromModel вызывает extractGraph-хендлеры
+    // для TypeDescription-свойств элементов формы (а не только buildGraphFromModel-хендлеры).
     const graph = makeGraphWithFormAttribute()
 
     buildGraphFromModel({

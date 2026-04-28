@@ -21,9 +21,6 @@ export interface ApplyBuildGraphResultContext {
  * Нормализует результат BuildGraphFromModelFunction (GraphOps | GraphOps[] | undefined | void)
  * к массиву секций, применяет каждую через applyGraphOps и разворачивает recurse-задачи
  * через рекурсивный вызов buildGraphFromModel.
- *
- * Используется и основным оркестратором, и параллельным обходчиком свойств элементов формы
- * (forms/elements/graphFromModel.ts::buildElementChildrenGraph).
  */
 export function applyBuildGraphResult(
   result: GraphOps | GraphOps[] | undefined | void,
