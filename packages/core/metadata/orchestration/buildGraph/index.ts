@@ -7,3 +7,4 @@ export type {
 } from "./types"
 export { flattenItem } from "./flattenItem"
 export { walkGraphToFileData } from "./walkGraphToFileData"
+export { buildGraph } from "./buildGraph"
