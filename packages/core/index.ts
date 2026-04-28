@@ -41,7 +41,6 @@ export { getDocumentPropertyReferenceScope } from "./metadata/appliedObjects/met
 export { getEnumerationPropertyReferenceScope } from "./metadata/appliedObjects/metadataEnumeration/rules"
 export { validateReferenceScope } from "./metadata/relations/referenceScope"
 export type { ReferenceScope } from "./metadata/relations/referenceScope"
-export { validateProject } from "./metadata/validation/validateProject"
 export {
   importMetadataFileWithGraph,
   type ImportMetadataFileResult,

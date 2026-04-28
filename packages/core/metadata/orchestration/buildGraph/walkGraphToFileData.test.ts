@@ -1,25 +1,23 @@
 import { describe, expect, it } from "vitest"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { GraphBuilder } from "./internal/GraphBuilder"
 import { walkGraphToFileData } from "./walkGraphToFileData"
+
+function promote(g: GraphBuilder, id: string, name: string, filePaths: string[], item?: unknown): void {
+  g.ensureNode(id, { name })
+  for (const fp of filePaths) g.addFilePath(id, fp)
+  if (item !== undefined) g.setItem(id, item)
+}
 
 describe("walkGraphToFileData", () => {
   it("возвращает [] для пустого графа", () => {
-    const g = new MetadataGraph()
+    const g = new GraphBuilder()
     expect(walkGraphToFileData(g)).toEqual([])
   })
 
   it("группирует узлы по filePath, лейбл из item.itemType", () => {
-    const g = new MetadataGraph()
-    g.promoteNode("Справочник.К", {
-      name: "К",
-      filePaths: ["a.yaml"],
-      item: { itemType: "MetadataCatalog", codeLength: 9 },
-    })
-    g.promoteNode("Документ.Д", {
-      name: "Д",
-      filePaths: ["b.yaml"],
-      item: { itemType: "MetadataDocument", numberLength: 5 },
-    })
+    const g = new GraphBuilder()
+    promote(g, "Справочник.К", "К", ["a.yaml"], { itemType: "MetadataCatalog", codeLength: 9 })
+    promote(g, "Документ.Д", "Д", ["b.yaml"], { itemType: "MetadataDocument", numberLength: 5 })
 
     const result = walkGraphToFileData(g)
     expect(result).toHaveLength(2)
@@ -42,18 +40,10 @@ describe("walkGraphToFileData", () => {
   })
 
   it("ребро попадает в FileGraphData файла-источника", () => {
-    const g = new MetadataGraph()
-    g.promoteNode("A", {
-      name: "A",
-      filePaths: ["a.yaml"],
-      item: { itemType: "X" },
-    })
-    g.promoteNode("B", {
-      name: "B",
-      filePaths: ["b.yaml"],
-      item: { itemType: "X" },
-    })
-    g.ensureEdge("A:VALUE:B", "A", "B", { yaml: "Значение", kind: "VALUE" })
+    const g = new GraphBuilder()
+    promote(g, "A", "A", ["a.yaml"], { itemType: "X" })
+    promote(g, "B", "B", ["b.yaml"], { itemType: "X" })
+    g.ensureEdge("A", "B", "VALUE", { yaml: "Значение" })
 
     const result = walkGraphToFileData(g)
     const fileA = result.find((f) => f.filePath === "a.yaml")!
@@ -64,16 +54,11 @@ describe("walkGraphToFileData", () => {
     expect(fileB.edges).toEqual([])
   })
 
-  it("стабы (filePaths === undefined) попадают в сегмент с filePath ''", () => {
-    const g = new MetadataGraph()
-    g.promoteNode("A", {
-      name: "A",
-      filePaths: ["a.yaml"],
-      item: { itemType: "MetadataCatalog" },
-    })
-    // Stub-узел: ссылка на B без определения
+  it("стабы (filePaths пусты) попадают в сегмент с filePath ''", () => {
+    const g = new GraphBuilder()
+    promote(g, "A", "A", ["a.yaml"], { itemType: "MetadataCatalog" })
     g.ensureNode("B", { name: "B" })
-    g.ensureEdge("A:VALUE:B", "A", "B", { yaml: "Значение", kind: "VALUE" })
+    g.ensureEdge("A", "B", "VALUE", { yaml: "Значение" })
 
     const result = walkGraphToFileData(g)
     const stubFile = result.find((f) => f.filePath === "")!
@@ -83,11 +68,10 @@ describe("walkGraphToFileData", () => {
   })
 
   it("узлы с двумя filePaths попадают в оба сегмента (для form yaml + nkdk)", () => {
-    const g = new MetadataGraph()
-    g.promoteNode("Справочник.К.Форма.Ф", {
+    const g = new GraphBuilder()
+    promote(g, "Справочник.К.Форма.Ф", "Ф", ["yaml.yaml", "nkdk.nkdk"], {
+      itemType: "ClientApplicationForm",
       name: "Ф",
-      filePaths: ["yaml.yaml", "nkdk.nkdk"],
-      item: { itemType: "ClientApplicationForm", name: "Ф" },
     })
 
     const result = walkGraphToFileData(g)
@@ -99,8 +83,8 @@ describe("walkGraphToFileData", () => {
   })
 
   it("если item не задан и узел не stub — лейбл Unknown", () => {
-    const g = new MetadataGraph()
-    g.promoteNode("X", { name: "X", filePaths: ["x.yaml"] })
+    const g = new GraphBuilder()
+    promote(g, "X", "X", ["x.yaml"])
 
     const result = walkGraphToFileData(g)
     const file = result.find((f) => f.filePath === "x.yaml")!

@@ -1,4 +1,4 @@
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { GraphBuilder } from "./internal/GraphBuilder"
 import { flattenItem } from "./flattenItem"
 import { EdgeData, FileGraphData, NodeData } from "./types"
 
@@ -21,7 +21,7 @@ const STUB_SEGMENT = ""
  *    (для стаба-источника — в сегмент '').
  *  - props: yaml + (опционально) другие атрибуты ребра в виде примитивов.
  */
-export function walkGraphToFileData(graph: MetadataGraph): FileGraphData[] {
+export function walkGraphToFileData(graph: GraphBuilder): FileGraphData[] {
   const segmentByFilePath = new Map<string, { nodes: NodeData[]; edges: EdgeData[] }>()
   const ensureSegment = (filePath: string) => {
     let seg = segmentByFilePath.get(filePath)
@@ -34,11 +34,11 @@ export function walkGraphToFileData(graph: MetadataGraph): FileGraphData[] {
 
   for (const nodeId of graph.nodes()) {
     const attrs = graph.getNodeAttributes(nodeId)
-    const filePaths =
-      attrs.filePaths !== undefined && attrs.filePaths.length > 0 ? attrs.filePaths : [STUB_SEGMENT]
+    const filePaths = attrs.filePaths.length > 0 ? attrs.filePaths : [STUB_SEGMENT]
 
     for (const filePath of filePaths) {
-      const props: NodeData["props"] = { name: attrs.name }
+      const props: NodeData["props"] = {}
+      if (attrs.name !== undefined) props.name = attrs.name
       if (filePath !== STUB_SEGMENT) props.filePath = filePath
       Object.assign(props, flattenItem(attrs.item))
 
@@ -53,12 +53,12 @@ export function walkGraphToFileData(graph: MetadataGraph): FileGraphData[] {
   // Рёбра: каждое попадает в сегмент первого filePath узла-источника.
   for (const nodeId of graph.nodes()) {
     const attrs = graph.getNodeAttributes(nodeId)
-    const sourceSegment =
-      attrs.filePaths && attrs.filePaths.length > 0 ? attrs.filePaths[0]! : STUB_SEGMENT
+    const sourceSegment = attrs.filePaths.length > 0 ? attrs.filePaths[0]! : STUB_SEGMENT
 
     for (const { target, attributes } of graph.outEdgeEntries(nodeId)) {
+      const yamlValue = attributes.yaml
       const edgeProps: Record<string, string | number | boolean | null> = {
-        yaml: attributes.yaml,
+        yaml: typeof yamlValue === "string" ? yamlValue : "",
       }
       ensureSegment(sourceSegment).edges.push({
         src: nodeId,

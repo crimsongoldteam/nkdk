@@ -1,4 +1,4 @@
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { GraphBuilder } from "./internal/GraphBuilder"
 import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
 import type { MetadataKind } from "~/metadata/validation/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
@@ -21,7 +21,7 @@ export function buildGraph(
   yamlFiles: Map<string, string>,
   context: ImportContext,
 ): FileGraphData[] {
-  const graph = new MetadataGraph()
+  const graph = new GraphBuilder()
   const importContext: ConfigurationContext = context as ConfigurationContext
 
   // 1. Сначала прикладные объекты — они создают корневые узлы для форм.

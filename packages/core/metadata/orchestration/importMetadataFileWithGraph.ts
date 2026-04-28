@@ -10,7 +10,7 @@ import { MetadataEnumerationRules } from "~/metadata/appliedObjects/metadataEnum
 import type { MetadataEnumeration } from "~/metadata/appliedObjects/metadataEnumeration/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
-import type { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import type { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import type { MetadataKind } from "~/metadata/validation/types"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
@@ -23,7 +23,7 @@ interface RuleWithTerminals {
 }
 
 function materializeGraphTerminals(
-  graph: MetadataGraph,
+  graph: GraphBuilder,
   rule: RuleWithTerminals,
   itemNodeId: string,
   ownerName: string,
@@ -33,14 +33,11 @@ function materializeGraphTerminals(
   const ownerType = rule.itemTypePrefix ?? ""
   for (const terminalName of rule.graphTerminals) {
     const terminalId = `${itemNodeId}.${terminalName}`
-    graph.promoteNode(terminalId, {
-      name: terminalName,
-      filePaths: [filePath],
-      item: { itemType: "EmptyRef", ownerType, ownerName },
-    })
+    graph.ensureNode(terminalId, { name: terminalName })
+    graph.addFilePath(terminalId, filePath)
+    graph.setItem(terminalId, { itemType: "EmptyRef", ownerType, ownerName })
     const edgeKind = getKindByYaml(terminalName) ?? terminalName
-    const edgeKey = `${itemNodeId}:${edgeKind}:${terminalId}`
-    graph.ensureEdge(edgeKey, itemNodeId, terminalId, { yaml: terminalName, kind: edgeKind })
+    graph.ensureEdge(itemNodeId, terminalId, edgeKind, { yaml: terminalName })
   }
 }
 
@@ -50,7 +47,7 @@ export interface ImportMetadataFileResult {
 }
 
 function ensureRootNode(
-  graph: MetadataGraph,
+  graph: GraphBuilder,
   prefix: string,
   itemType: string,
   name: string,
@@ -58,10 +55,10 @@ function ensureRootNode(
 ): string {
   const itemNodeId = `${prefix}.${name}`
   graph.ensureNode(prefix, { name: prefix })
-  graph.ensureNode(itemNodeId, { name, filePaths: [filePath] })
+  graph.ensureNode(itemNodeId, { name })
+  graph.addFilePath(itemNodeId, filePath)
   const edgeKind = getKindByYaml(itemType) ?? itemType
-  const edgeKey = `${prefix}:${edgeKind}:${itemNodeId}`
-  graph.ensureEdge(edgeKey, prefix, itemNodeId, { yaml: itemType, kind: edgeKind })
+  graph.ensureEdge(prefix, itemNodeId, edgeKind, { yaml: itemType })
   return itemNodeId
 }
 
@@ -116,7 +113,7 @@ export function importMetadataFileWithGraph(params: {
   sources: { yaml: string; nkdk?: string }
   kind: MetadataKind | "form"
   name: string
-  graph: MetadataGraph
+  graph: GraphBuilder
   context: ConfigurationContext
   /** NodeId владельца формы (требуется для kind === "form"). */
   ownerNodeId?: string
@@ -136,18 +133,13 @@ export function importMetadataFileWithGraph(params: {
     graph.ensureNode(ownerNodeId, { name: ownerNodeId.split(".").pop()! })
 
     // Форм-узел с обоими filePaths (yaml + nkdk, если есть)
-    const formFilePaths: string[] = [filePath]
-    if (nkdkFilePath) formFilePaths.push(nkdkFilePath)
-
-    graph.promoteNode(formNodeId, {
-      name,
-      filePaths: formFilePaths,
-      item: { itemType: "ClientApplicationForm", name },
-    })
+    graph.ensureNode(formNodeId, { name })
+    graph.addFilePath(formNodeId, filePath)
+    if (nkdkFilePath) graph.addFilePath(formNodeId, nkdkFilePath)
+    graph.setItem(formNodeId, { itemType: "ClientApplicationForm", name })
 
     // Owning-ребро «Форма» от владельца к форме
-    const edgeKey = `${ownerNodeId}:FORM:${formNodeId}`
-    graph.ensureEdge(edgeKey, ownerNodeId, formNodeId, { yaml: "Форма", kind: "FORM" })
+    graph.ensureEdge(ownerNodeId, formNodeId, "FORM", { yaml: "Форма" })
 
     // Парсим YAML формы и строим граф реквизитов/параметров/команд
     const parsed = parseMetadataYaml(sources.yaml)
@@ -199,8 +191,8 @@ export function importMetadataFileWithGraph(params: {
     | undefined
   if (!model) return undefined
 
-  graph.setNodeAttribute(itemNodeId, "item", model)
-  graph.updateNodeFilePath(itemNodeId, filePath)
+  graph.setItem(itemNodeId, model)
+  graph.addFilePath(itemNodeId, filePath)
   materializeGraphTerminals(graph, entry.rule, itemNodeId, name, filePath)
   buildGraphFromModel({
     model: model as unknown as Record<string, unknown>,

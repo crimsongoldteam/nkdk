@@ -1,14 +1,14 @@
-import { applyGraphOps } from "../relations/applyGraphOps"
+import { applyGraphOps } from "./buildGraph/internal/applyGraphOps"
 import { getKindByYaml } from "./buildGraph/internal/edgeKinds"
-import { MetadataGraph } from "../relations/MetadataGraph"
+import { GraphBuilder } from "./buildGraph/internal/GraphBuilder"
 import { getTypeRule } from "./formElement/factory"
-import { findKeyOffset, findSubmap, computeValuePosition } from "./property/position"
+import { findSubmap, computeValuePosition } from "./property/position"
 import { PropertyRule } from "./property/types"
 import { MetadataItemRule } from "./property/types"
 import { GraphOps } from "./property/fn"
 
 export interface ApplyBuildGraphResultContext {
-  graph: MetadataGraph
+  graph: GraphBuilder
   parentNodeId: string
   filePath: string
   /** Тип свойства — для понятного сообщения об ошибке. */
@@ -70,7 +70,7 @@ export function buildGraphFromModel(params: {
   model: Record<string, unknown>
   yamlMap: ReturnType<typeof findSubmap>
   rule: MetadataItemRule
-  graph: MetadataGraph
+  graph: GraphBuilder
   parentNodeId: string
   filePath: string
   /** Дополнительный контекст, пробрасываемый в кастомные buildGraphFromModel-обработчики. */
@@ -142,20 +142,13 @@ export function buildGraphFromModel(params: {
       const childNodeId = graphChildDef.nodeSegment
         ? `${parentNodeId}.${graphChildDef.nodeSegment}.${idSuffix}`
         : `${parentNodeId}.${idSuffix}`
-      const itemOffset = collectionYamlMap ? findKeyOffset(collectionYamlMap, idSuffix) : undefined
       const itemYamlMap = collectionYamlMap ? findSubmap(collectionYamlMap, idSuffix) : undefined
 
-      graph.promoteNode(childNodeId, {
-        name: idSuffix,
-        positionFrom: itemOffset !== undefined ? { offset: itemOffset } : undefined,
-        filePaths: [filePath],
-        item,
-      })
-
-      const edgeKey = `${parentNodeId}:${graphChildDef.edgeKind}:${childNodeId}`
-      graph.ensureEdge(edgeKey, parentNodeId, childNodeId, {
+      graph.ensureNode(childNodeId, { name: idSuffix })
+      graph.addFilePath(childNodeId, filePath)
+      graph.setItem(childNodeId, item)
+      graph.ensureEdge(parentNodeId, childNodeId, graphChildDef.edgeKind, {
         yaml: graphChildDef.edgeYaml,
-        kind: graphChildDef.edgeKind,
       })
 
       buildGraphFromModel({

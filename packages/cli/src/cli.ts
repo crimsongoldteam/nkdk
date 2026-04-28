@@ -4,7 +4,6 @@ import { importConfiguration } from "./commands/import"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
 import { syncConfiguration } from "./commands/sync"
 import { updateGraph } from "./commands/updateGraph"
-import { validate } from "./commands/validate"
 
 function run(fn: () => Promise<void>): void {
   fn().catch((err: unknown) => {
@@ -43,14 +42,6 @@ program
   .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
   .action((xmlDir: string) => {
     run(() => shortRoundTrip(xmlDir))
-  })
-
-program
-  .command("validate")
-  .description("Валидация проекта: структура YAML, битые ссылки, внешние файлы (для CI/CD)")
-  .argument("<project>", "путь к директории проекта")
-  .action((projectPath: string) => {
-    validate(projectPath)
   })
 
 program
