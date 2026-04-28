@@ -287,4 +287,97 @@ describe("applyGraphOps", () => {
       expect(graph.outEdges(elementId)).toHaveLength(0)
     })
   })
+
+  describe("parentOverride и item", () => {
+    it("child.parentOverride меняет childNodeId и источник ребра", () => {
+      const ctx = makeCtx()
+      // Создаём прокси-узел, от которого будет идти ребро
+      const proxyNodeId = `${PARENT_NODE_ID}.Прокси`
+      ctx.graph.ensureNode(proxyNodeId, { name: "Прокси", filePaths: [FILE_PATH] })
+
+      const ops: GraphOps = {
+        children: [{
+          idSuffix: "ДочерняяКолонка",
+          name: "ДочерняяКолонка",
+          parentOverride: proxyNodeId,
+        }],
+        edgeKind: "FORM_COLUMN",
+        edgeYaml: "КолонкаФормы",
+      }
+      applyGraphOps(ops, { ...ctx, edgeKind: "FORM_COLUMN", edgeYaml: "КолонкаФормы" })
+
+      // Узел сформирован относительно proxy, а не PARENT_NODE_ID
+      const childNodeId = `${proxyNodeId}.ДочерняяКолонка`
+      expect(ctx.graph.hasNode(childNodeId)).toBe(true)
+
+      // Ребро идёт от proxy, а не от PARENT_NODE_ID
+      const edgesFromProxy = [...ctx.graph.outEdgeEntries(proxyNodeId)]
+      expect(edgesFromProxy).toHaveLength(1)
+      expect(edgesFromProxy[0].target).toBe(childNodeId)
+      expect(edgesFromProxy[0].attributes.kind).toBe("FORM_COLUMN")
+
+      // Никаких рёбер от PARENT_NODE_ID
+      expect(ctx.graph.outEdges(PARENT_NODE_ID)).toHaveLength(0)
+    })
+
+    it("child.item записывается в node.item при promoteNode", () => {
+      const ctx = makeCtx()
+      const item = { itemType: "FormAttributeColumn", customField: 42 }
+
+      const ops: GraphOps = {
+        children: [{
+          idSuffix: "Колонка",
+          name: "Колонка",
+          item,
+        }],
+        edgeKind: "FORM_COLUMN",
+        edgeYaml: "КолонкаФормы",
+      }
+      applyGraphOps(ops, { ...ctx, edgeKind: "FORM_COLUMN", edgeYaml: "КолонкаФормы" })
+
+      const childNodeId = `${PARENT_NODE_ID}.Колонка`
+      expect(ctx.graph.hasNode(childNodeId)).toBe(true)
+      expect(ctx.graph.getNodeAttribute(childNodeId, "item")).toEqual(item)
+    })
+
+    it("formLocalReferences.parentOverride меняет источник ребра", () => {
+      const ctx = makeCtx()
+      // Граф формы: формNode + один реквизит "Объект", к которому будет резолвиться путь
+      const formNodeId = "Форма.ТестоваяФорма"
+      const attrId = `${formNodeId}.Реквизит.Объект`
+      ctx.graph.ensureNode(formNodeId, { name: "ТестоваяФорма", filePaths: [FILE_PATH] })
+      ctx.graph.ensureNode(attrId, { name: "Объект", filePaths: [FILE_PATH] })
+      ctx.graph.ensureEdge(`${formNodeId}:FORM_ATTRIBUTE:${attrId}`, formNodeId, attrId, {
+        yaml: "РеквизитФормы",
+        kind: "FORM_ATTRIBUTE",
+      })
+
+      // Прокси-узел, от которого по факту должно идти ребро TABLE
+      const proxyNodeId = `${PARENT_NODE_ID}.Прокси`
+      ctx.graph.ensureNode(proxyNodeId, { name: "Прокси", filePaths: [FILE_PATH] })
+
+      const ops: GraphOps = {
+        formLocalReferences: [{
+          formLocalPath: "Объект",
+          formNodeId,
+          parentOverride: proxyNodeId,
+        }],
+        edgeKind: "TABLE",
+        edgeYaml: "Таблица",
+      }
+      applyGraphOps(ops, { ...ctx, edgeKind: "TABLE", edgeYaml: "Таблица" })
+
+      // Ребро идёт от proxy, а не от PARENT_NODE_ID
+      const edgesFromProxy = [...ctx.graph.outEdgeEntries(proxyNodeId)]
+      expect(edgesFromProxy).toHaveLength(1)
+      expect(edgesFromProxy[0].target).toBe(attrId)
+      expect(edgesFromProxy[0].attributes.kind).toBe("TABLE")
+
+      // Никаких рёбер с TABLE от PARENT_NODE_ID
+      const tableEdges = [...ctx.graph.outEdgeEntries(PARENT_NODE_ID)].filter(
+        (e) => e.attributes.kind === "TABLE",
+      )
+      expect(tableEdges).toHaveLength(0)
+    })
+  })
 })

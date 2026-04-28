@@ -115,7 +115,7 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
     expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
   })
 
-  it("additional-колонки (с полем table) → no-op (срез #116)", () => {
+  it("additional-колонки (с полем table) → прокси-узел + ребро ДополнениеТаблицы", () => {
     const graph = makeGraph()
     graph.ensureNode(ATTR_NODE_ID, { name: "Объект" })
 
@@ -137,11 +137,25 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
       filePath: FILE_PATH,
     })
 
-    // Additional-ветка не обрабатывается в этом срезе
-    const edges = [...graph.outEdgeEntries(ATTR_NODE_ID)].filter(
-      (e) => e.attributes.kind === "FORM_COLUMN",
+    // Прокси-узел существует
+    const proxyNodeId = `${ATTR_NODE_ID}.КакаяТоТаблица`
+    expect(graph.hasNode(proxyNodeId)).toBe(true)
+
+    // Owning-ребро «ДополнениеТаблицы» от реквизита к прокси
+    const additionEdges = [...graph.outEdgeEntries(ATTR_NODE_ID)].filter(
+      (e) => e.attributes.kind === "TABLE_EXTENSION",
     )
-    expect(edges).toHaveLength(0)
+    expect(additionEdges).toHaveLength(1)
+    expect(additionEdges[0].target).toBe(proxyNodeId)
+
+    // Дочерняя колонка под прокси
+    const columnNodeId = `${proxyNodeId}.КолонкаТаблицы`
+    expect(graph.hasNode(columnNodeId)).toBe(true)
+    const additionalColumnEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
+      (e) => e.attributes.kind === "ADDITIONAL_COLUMN",
+    )
+    expect(additionalColumnEdges).toHaveLength(1)
+    expect(additionalColumnEdges[0].target).toBe(columnNodeId)
   })
 
   it("узел колонки несёт item и filePaths", () => {
