@@ -86,7 +86,7 @@ function buildElementChildrenGraph(params: {
     const value = element[key]
     if (value === undefined || value === null) continue
 
-    buildGraphFn({
+    const result = buildGraphFn({
       model: value,
       parentNodeId,
       filePath,
@@ -95,6 +95,23 @@ function buildElementChildrenGraph(params: {
       graph,
       extra: { formNodeId },
     })
+    const sections = Array.isArray(result) ? result : result ? [result] : []
+    for (const section of sections) {
+      if (!section.children?.length && !section.references?.length) continue
+      if (!section.edgeKind || !section.edgeYaml) {
+        throw new Error(
+          `buildElementChildrenGraph: обработчик типа "${propType}" вернул GraphOps без edgeKind/edgeYaml. ` +
+            `Чистые функции должны указывать оба поля в результате.`,
+        )
+      }
+      applyGraphOps(section, {
+        graph,
+        parentNodeId,
+        filePath,
+        edgeKind: section.edgeKind,
+        edgeYaml: section.edgeYaml,
+      })
+    }
   }
 }
 
