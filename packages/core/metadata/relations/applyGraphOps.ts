@@ -13,8 +13,10 @@ export interface ApplyGraphOpsContext {
 /**
  * Применяет декларативный GraphOps к графу.
  *
- * - children → owned-узлы с filePath, owning-рёбра kind=edgeKind от parentNodeId
- *   (или от child.parentOverride, если задано — childNodeId формируется относительно него)
+ * - children → owned-узлы с filePath, owning-рёбра kind=edgeKind.
+ *   childNodeId = child.absoluteId, если задано;
+ *   иначе `${child.parentOverride ?? ctx.parentNodeId}.${child.idSuffix}`.
+ *   Источник ребра = child.edgeFrom ?? child.parentOverride ?? ctx.parentNodeId.
  * - references → stub-узлы (если ещё нет), reference-рёбра kind=edgeKind с positionFrom
  * - formLocalReferences → reference-рёбра, цель которых резолвится через resolveFormLocalPath
  *   (form-local путь типа "Объект.Договор.Владелец" → NodeId через обход рёбер формы);
