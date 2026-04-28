@@ -1,0 +1,157 @@
+import { describe, expect, it } from "vitest"
+import { GraphBuilder } from "./GraphBuilder"
+
+// ──────────────────────────────────────────────────────────────
+// A: ensureNode + getNodeAttributes + hasNode
+// ──────────────────────────────────────────────────────────────
+describe("GraphBuilder: ensureNode / getNodeAttributes / hasNode", () => {
+  it("ensureNode создаёт узел с пустыми атрибутами", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("Справочник.Клиенты")
+    expect(g.hasNode("Справочник.Клиенты")).toBe(true)
+    expect(g.getNodeAttributes("Справочник.Клиенты")).toEqual({
+      name: undefined,
+      item: undefined,
+      filePaths: [],
+    })
+  })
+
+  it("ensureNode идемпотентен и принимает опциональные attrs", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("X", { name: "X" })
+    g.ensureNode("X") // повторный вызов не сбрасывает
+    expect(g.getNodeAttributes("X").name).toBe("X")
+  })
+
+  it("hasNode возвращает false для несуществующего узла", () => {
+    const g = new GraphBuilder()
+    expect(g.hasNode("Справочник.Несуществующий")).toBe(false)
+  })
+
+  it("getNodeAttributes на неизвестном узле бросает", () => {
+    const g = new GraphBuilder()
+    expect(() => g.getNodeAttributes("Y")).toThrow(/Unknown node/)
+  })
+})
+
+// ──────────────────────────────────────────────────────────────
+// B: addFilePath / removeFilePath
+// ──────────────────────────────────────────────────────────────
+describe("GraphBuilder: addFilePath / removeFilePath", () => {
+  it("addFilePath дописывает уникально", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("X")
+    g.addFilePath("X", "a.yaml")
+    g.addFilePath("X", "a.yaml")
+    g.addFilePath("X", "b.yaml")
+    expect(g.getNodeAttributes("X").filePaths).toEqual(["a.yaml", "b.yaml"])
+  })
+
+  it("removeFilePath удаляет указанный путь", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("X")
+    g.addFilePath("X", "a.yaml")
+    g.addFilePath("X", "b.yaml")
+    g.removeFilePath("X", "a.yaml")
+    expect(g.getNodeAttributes("X").filePaths).toEqual(["b.yaml"])
+  })
+
+  it("removeFilePath на отсутствующем пути — no-op", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("X")
+    g.removeFilePath("X", "a.yaml")
+    expect(g.getNodeAttributes("X").filePaths).toEqual([])
+  })
+})
+
+// ──────────────────────────────────────────────────────────────
+// C: setItem
+// ──────────────────────────────────────────────────────────────
+describe("GraphBuilder: setItem", () => {
+  it("setItem заменяет item", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("X")
+    g.setItem("X", { itemType: "MetadataCatalog", name: "Клиенты" })
+    expect(g.getNodeAttributes("X").item).toEqual({ itemType: "MetadataCatalog", name: "Клиенты" })
+  })
+
+  it("setItem синхронизирует attrs.name из item.name (если строка)", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("X")
+    g.setItem("X", { itemType: "Form", name: "ФормаСписка" })
+    expect(g.getNodeAttributes("X").name).toBe("ФормаСписка")
+  })
+
+  it("setItem с item без строки name не трогает attrs.name", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("X", { name: "preset" })
+    g.setItem("X", { itemType: "Form" })
+    expect(g.getNodeAttributes("X").name).toBe("preset")
+  })
+})
+
+// ──────────────────────────────────────────────────────────────
+// D: ensureEdge + outEdgeEntries
+// ──────────────────────────────────────────────────────────────
+describe("GraphBuilder: ensureEdge / outEdgeEntries", () => {
+  it("ensureEdge добавляет ребро (мульти-граф по kind)", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("A")
+    g.ensureNode("B")
+    g.ensureEdge("A", "B", "VALUE", { yaml: "Значение" })
+    g.ensureEdge("A", "B", "OBJECT", { yaml: "Объект" })
+    const out = [...g.outEdgeEntries("A")]
+    expect(out).toEqual([
+      { target: "B", attributes: { kind: "VALUE", yaml: "Значение" } },
+      { target: "B", attributes: { kind: "OBJECT", yaml: "Объект" } },
+    ])
+  })
+
+  it("ensureEdge идемпотентен по (src, tgt, kind), обновляя attrs", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("A")
+    g.ensureNode("B")
+    g.ensureEdge("A", "B", "VALUE", { yaml: "v1" })
+    g.ensureEdge("A", "B", "VALUE", { yaml: "v2" })
+    expect([...g.outEdgeEntries("A")]).toEqual([
+      { target: "B", attributes: { kind: "VALUE", yaml: "v2" } },
+    ])
+  })
+
+  it("outEdgeEntries не выдаёт исходящие из других узлов", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("A")
+    g.ensureNode("B")
+    g.ensureNode("C")
+    g.ensureEdge("A", "B", "VALUE")
+    g.ensureEdge("C", "B", "VALUE")
+    expect([...g.outEdgeEntries("A")]).toHaveLength(1)
+  })
+
+  it("ensureEdge без attrs использует пустые дополнительные атрибуты", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("A")
+    g.ensureNode("B")
+    g.ensureEdge("A", "B", "LINK")
+    const out = [...g.outEdgeEntries("A")]
+    expect(out).toEqual([{ target: "B", attributes: { kind: "LINK" } }])
+  })
+})
+
+// ──────────────────────────────────────────────────────────────
+// E: nodes()
+// ──────────────────────────────────────────────────────────────
+describe("GraphBuilder: nodes()", () => {
+  it("nodes() обходит все добавленные узлы", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("A")
+    g.ensureNode("B")
+    g.ensureNode("C")
+    expect([...g.nodes()].sort()).toEqual(["A", "B", "C"])
+  })
+
+  it("nodes() возвращает пустой итератор для пустого графа", () => {
+    const g = new GraphBuilder()
+    expect([...g.nodes()]).toEqual([])
+  })
+})
