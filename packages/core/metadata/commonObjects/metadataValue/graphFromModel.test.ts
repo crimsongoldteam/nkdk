@@ -23,13 +23,14 @@ function makeGraph() {
   return graph
 }
 
-function runBuild(params: Parameters<typeof buildMetadataValueGraph>[0]) {
-  const result = buildMetadataValueGraph(params)
+function runBuild(params: Parameters<typeof buildMetadataValueGraph>[0] & { graph: MetadataGraph }) {
+  const { graph, ...buildParams } = params
+  const result = buildMetadataValueGraph(buildParams)
   const sections = Array.isArray(result) ? result : result ? [result] : []
   for (const section of sections) {
     if (!section.edgeKind || !section.edgeYaml) continue
     applyGraphOps(section, {
-      graph: params.graph,
+      graph,
       parentNodeId: params.parentNodeId,
       filePath: params.filePath,
       edgeKind: section.edgeKind,

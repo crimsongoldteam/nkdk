@@ -380,4 +380,85 @@ describe("applyGraphOps", () => {
       expect(tableEdges).toHaveLength(0)
     })
   })
+
+  describe("absoluteId и edgeFrom", () => {
+    it("absoluteId перекрывает построение childNodeId из idSuffix", () => {
+      const ctx = makeCtx()
+      const ops: GraphOps = {
+        children: [{
+          idSuffix: "НеИспользуется",
+          name: "Кнопка",
+          absoluteId: "X.Y.Z",
+        }],
+      }
+
+      applyGraphOps(ops, ctx)
+
+      // Узел создан с absoluteId, а не через idSuffix
+      expect(ctx.graph.hasNode("X.Y.Z")).toBe(true)
+      expect(ctx.graph.hasNode(`${PARENT_NODE_ID}.НеИспользуется`)).toBe(false)
+
+      // Ребро идёт от parentNodeId (edgeFrom не задан, parentOverride не задан)
+      const edges = [...ctx.graph.outEdgeEntries(PARENT_NODE_ID)]
+      expect(edges).toHaveLength(1)
+      expect(edges[0].target).toBe("X.Y.Z")
+    })
+
+    it("edgeFrom перекрывает источник ребра", () => {
+      const ctx = makeCtx()
+      const edgeFromId = "FORM_NODE"
+      ctx.graph.ensureNode(edgeFromId, { name: "FORM_NODE", filePaths: [FILE_PATH] })
+
+      const ops: GraphOps = {
+        children: [{
+          idSuffix: "Элемент",
+          name: "Элемент",
+          edgeFrom: edgeFromId,
+        }],
+      }
+
+      applyGraphOps(ops, ctx)
+
+      // Узел создан как parentNodeId.idSuffix (absoluteId не задан)
+      const childNodeId = `${PARENT_NODE_ID}.Элемент`
+      expect(ctx.graph.hasNode(childNodeId)).toBe(true)
+
+      // Ребро идёт от edgeFrom, а не от parentNodeId
+      const edgesFromForm = [...ctx.graph.outEdgeEntries(edgeFromId)]
+      expect(edgesFromForm).toHaveLength(1)
+      expect(edgesFromForm[0].target).toBe(childNodeId)
+
+      // Никаких рёбер от PARENT_NODE_ID
+      expect(ctx.graph.outEdges(PARENT_NODE_ID)).toHaveLength(0)
+    })
+
+    it("комбинация absoluteId + edgeFrom", () => {
+      const ctx = makeCtx()
+      const edgeFromId = "FORM_NODE"
+      ctx.graph.ensureNode(edgeFromId, { name: "FORM_NODE", filePaths: [FILE_PATH] })
+
+      const ops: GraphOps = {
+        children: [{
+          idSuffix: "НеИспользуется",
+          name: "Кнопка",
+          absoluteId: "FORM_NODE.Элемент.Кнопка",
+          edgeFrom: edgeFromId,
+        }],
+      }
+
+      applyGraphOps(ops, ctx)
+
+      // Узел создан с absoluteId
+      expect(ctx.graph.hasNode("FORM_NODE.Элемент.Кнопка")).toBe(true)
+      expect(ctx.graph.hasNode(`${PARENT_NODE_ID}.НеИспользуется`)).toBe(false)
+
+      // Ребро идёт от edgeFrom
+      const edgesFromForm = [...ctx.graph.outEdgeEntries(edgeFromId)]
+      expect(edgesFromForm).toHaveLength(1)
+      expect(edgesFromForm[0].target).toBe("FORM_NODE.Элемент.Кнопка")
+
+      // Никаких рёбер от PARENT_NODE_ID
+      expect(ctx.graph.outEdges(PARENT_NODE_ID)).toHaveLength(0)
+    })
+  })
 })

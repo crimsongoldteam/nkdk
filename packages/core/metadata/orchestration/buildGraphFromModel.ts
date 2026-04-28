@@ -5,6 +5,61 @@ import { getTypeRule } from "./formElement/factory"
 import { findKeyOffset, findSubmap, computeValuePosition } from "./property/position"
 import { PropertyRule } from "./property/types"
 import { MetadataItemRule } from "./property/types"
+import { GraphOps } from "./property/fn"
+
+export interface ApplyBuildGraphResultContext {
+  graph: MetadataGraph
+  parentNodeId: string
+  filePath: string
+  /** Тип свойства — для понятного сообщения об ошибке. */
+  propType: string
+  /** Контекст, пробрасываемый в recurse-задачи по умолчанию. */
+  extra?: Record<string, unknown>
+}
+
+/**
+ * Нормализует результат BuildGraphFromModelFunction (GraphOps | GraphOps[] | undefined | void)
+ * к массиву секций, применяет каждую через applyGraphOps и разворачивает recurse-задачи
+ * через рекурсивный вызов buildGraphFromModel.
+ */
+export function applyBuildGraphResult(
+  result: GraphOps | GraphOps[] | undefined | void,
+  ctx: ApplyBuildGraphResultContext,
+): void {
+  const sections = Array.isArray(result) ? result : result ? [result] : []
+  for (const section of sections) {
+    const hasOps =
+      section.children?.length ||
+      section.references?.length ||
+      section.formLocalReferences?.length
+    if (hasOps) {
+      if (!section.edgeKind || !section.edgeYaml) {
+        throw new Error(
+          `applyBuildGraphResult: обработчик типа "${ctx.propType}" вернул GraphOps без edgeKind/edgeYaml. ` +
+            `Чистые функции должны указывать оба поля в результате.`,
+        )
+      }
+      applyGraphOps(section, {
+        graph: ctx.graph,
+        parentNodeId: ctx.parentNodeId,
+        filePath: ctx.filePath,
+        edgeKind: section.edgeKind,
+        edgeYaml: section.edgeYaml,
+      })
+    }
+    for (const recurse of section.recurse ?? []) {
+      buildGraphFromModel({
+        model: recurse.model,
+        yamlMap: recurse.yamlMap,
+        rule: recurse.rule,
+        graph: ctx.graph,
+        parentNodeId: recurse.parentNodeId,
+        filePath: ctx.filePath,
+        extra: recurse.extra ?? ctx.extra,
+      })
+    }
+  }
+}
 
 /**
  * Обходит модель параллельно с YAML AST, вызывает зарегистрированную extractGraph
@@ -64,42 +119,9 @@ export function buildGraphFromModel(params: {
         filePath,
         yamlMap,
         propRule,
-        graph,
         extra,
       })
-      const sections = Array.isArray(result) ? result : result ? [result] : []
-      for (const section of sections) {
-        const hasOps =
-          section.children?.length ||
-          section.references?.length ||
-          section.formLocalReferences?.length
-        if (hasOps) {
-          if (!section.edgeKind || !section.edgeYaml) {
-            throw new Error(
-              `buildGraphFromModel: обработчик типа "${propType}" вернул GraphOps без edgeKind/edgeYaml. ` +
-                `Чистые функции должны указывать оба поля в результате.`,
-            )
-          }
-          applyGraphOps(section, {
-            graph,
-            parentNodeId,
-            filePath,
-            edgeKind: section.edgeKind,
-            edgeYaml: section.edgeYaml,
-          })
-        }
-        for (const recurse of section.recurse ?? []) {
-          buildGraphFromModel({
-            model: recurse.model,
-            yamlMap: recurse.yamlMap,
-            rule: recurse.rule,
-            graph,
-            parentNodeId: recurse.parentNodeId,
-            filePath,
-            extra: recurse.extra ?? extra,
-          })
-        }
-      }
+      applyBuildGraphResult(result, { graph, parentNodeId, filePath, propType, extra })
       continue
     }
 

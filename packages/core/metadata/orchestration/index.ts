@@ -26,3 +26,5 @@ export * from "./formElement/types"
 
 export * from "./formElement/fromNKDK/fromNKDK"
 export * from "./formElement/toNKDK/types"
+
+export * from "./buildGraph"

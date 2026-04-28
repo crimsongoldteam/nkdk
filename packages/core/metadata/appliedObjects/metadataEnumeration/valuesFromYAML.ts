@@ -1,8 +1,8 @@
 import { YAMLMap } from "yaml"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { findKeyOffset, findSubmap } from "~/metadata/orchestration/property/position"
+import { GraphOps, GraphOpsChild } from "~/metadata/orchestration/property/fn"
 import {
   MetadataEnumerationValue,
   MetadataEnumerationValues,
@@ -32,29 +32,24 @@ function buildEnumerationValuesGraph(params: {
   filePath: string
   yamlMap: YAMLMap | undefined
   propRule: PropertyRule
-  graph: MetadataGraph
-}): void {
-  const { model, parentNodeId, filePath, yamlMap, propRule, graph } = params
+}): GraphOps | undefined {
+  const { model, yamlMap, propRule } = params
   const values = model as MetadataEnumerationValues | undefined
-  if (!values || values.length === 0) return
+  if (!values || values.length === 0) return undefined
 
   const valuesYamlMap = propRule.yaml ? findSubmap(yamlMap, propRule.yaml) : undefined
 
-  for (const value of values) {
-    const nodeId = `${parentNodeId}.${value.name}`
+  const children: GraphOpsChild[] = values.map((value) => {
     const offset = valuesYamlMap ? findKeyOffset(valuesYamlMap, value.name) : undefined
-    graph.promoteNode(nodeId, {
+    return {
+      idSuffix: value.name,
       name: value.name,
-      filePaths: [filePath],
       positionFrom: offset !== undefined ? { offset } : undefined,
-      item: value,
-    })
-    const edgeKey = `${parentNodeId}:${EDGE_NAME}:${nodeId}`
-    graph.ensureEdge(edgeKey, parentNodeId, nodeId, {
-      yaml: EDGE_NAME,
-      kind: EDGE_NAME,
-    })
-  }
+      item: value as unknown as Record<string, unknown>,
+    }
+  })
+
+  return { children, edgeKind: EDGE_NAME, edgeYaml: EDGE_NAME }
 }
 
 registerTypeRule("MetadataEnumerationValues", "importFromYAML", importMetadataEnumerationValuesFromYAML)

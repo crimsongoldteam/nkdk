@@ -1,6 +1,6 @@
 import { YAMLMap } from "yaml"
 import { ConfigurationContext, ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { GraphOps, GraphOpsChild } from "~/metadata/orchestration/property/fn"
 import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
 import { importMetadataItemCollectionFromYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/fromYAML"
 import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"
@@ -44,11 +44,10 @@ function buildStandardAttributesGraph(params: {
   filePath: string
   yamlMap: YAMLMap | undefined
   propRule: PropertyRule
-  graph: MetadataGraph
-}): void {
-  const { model, parentNodeId, filePath, yamlMap, propRule, graph } = params
+}): GraphOps | undefined {
+  const { model, parentNodeId, yamlMap, propRule } = params
   const stdAttrRule = propRule as StandardAttributeDescriptionsPropertyRule
-  if (!stdAttrRule.standartAttributeNames) return
+  if (!stdAttrRule.standartAttributeNames) return undefined
 
   const stdAttrsYamlMap = propRule.yaml ? findSubmap(yamlMap, propRule.yaml) : undefined
   const result = model as readonly StandardAttributeDescription[] | undefined
@@ -62,8 +61,9 @@ function buildStandardAttributesGraph(params: {
     }
   }
 
+  const children: GraphOpsChild[] = []
   for (const [internalName, russianName] of Object.entries(stdAttrRule.standartAttributeNames)) {
-    const nodeId = `${parentNodeId}.${NODE_SEGMENT}.${russianName}`
+    const absoluteId = `${parentNodeId}.${NODE_SEGMENT}.${russianName}`
     const offset = stdAttrsYamlMap ? findKeyOffset(stdAttrsYamlMap, russianName) : undefined
 
     // US 13: standard attributes always have item so they are never treated as stubs
@@ -71,16 +71,17 @@ function buildStandardAttributesGraph(params: {
       itemType: "StandardAttributeDescription" as const,
       name: internalName,
     }
-    graph.promoteNode(nodeId, {
+    children.push({
+      idSuffix: russianName,
+      absoluteId,
       name: russianName,
       positionFrom: offset !== undefined ? { offset } : undefined,
-      filePaths: [filePath],
-      item,
+      item: item as unknown as Record<string, unknown>,
     })
-
-    const edgeKey = `${parentNodeId}:${EDGE_KIND}:${nodeId}`
-    graph.ensureEdge(edgeKey, parentNodeId, nodeId, { yaml: EDGE_YAML, kind: EDGE_KIND })
   }
+
+  if (children.length === 0) return undefined
+  return { children, edgeKind: EDGE_KIND, edgeYaml: EDGE_YAML }
 }
 
 function importStandardAttributeDescriptionsFromYAML(

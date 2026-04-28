@@ -13,8 +13,10 @@ export interface ApplyGraphOpsContext {
 /**
  * Применяет декларативный GraphOps к графу.
  *
- * - children → owned-узлы с filePath, owning-рёбра kind=edgeKind от parentNodeId
- *   (или от child.parentOverride, если задано — childNodeId формируется относительно него)
+ * - children → owned-узлы с filePath, owning-рёбра kind=edgeKind.
+ *   childNodeId = child.absoluteId, если задано;
+ *   иначе `${child.parentOverride ?? ctx.parentNodeId}.${child.idSuffix}`.
+ *   Источник ребра = child.edgeFrom ?? child.parentOverride ?? ctx.parentNodeId.
  * - references → stub-узлы (если ещё нет), reference-рёбра kind=edgeKind с positionFrom
  * - formLocalReferences → reference-рёбра, цель которых резолвится через resolveFormLocalPath
  *   (form-local путь типа "Объект.Договор.Владелец" → NodeId через обход рёбер формы);
@@ -27,16 +29,17 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
   const { graph, parentNodeId, filePath, edgeKind, edgeYaml } = ctx
 
   for (const child of ops.children ?? []) {
-    const effectiveParent = child.parentOverride ?? parentNodeId
-    const childNodeId = `${effectiveParent}.${child.idSuffix}`
+    const idParent = child.parentOverride ?? parentNodeId
+    const childNodeId = child.absoluteId ?? `${idParent}.${child.idSuffix}`
+    const edgeSource = child.edgeFrom ?? child.parentOverride ?? parentNodeId
     graph.promoteNode(childNodeId, {
       name: child.name,
       filePaths: [filePath],
       positionFrom: child.positionFrom,
       item: child.item,
     })
-    const edgeKey = `${effectiveParent}:${edgeKind}:${childNodeId}`
-    graph.ensureEdge(edgeKey, effectiveParent, childNodeId, {
+    const edgeKey = `${edgeSource}:${edgeKind}:${childNodeId}`
+    graph.ensureEdge(edgeKey, edgeSource, childNodeId, {
       yaml: edgeYaml,
       kind: edgeKind,
     })
