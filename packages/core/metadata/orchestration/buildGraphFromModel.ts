@@ -67,19 +67,21 @@ export function buildGraphFromModel(params: {
         graph,
         extra,
       })
-      if (result && (result.children?.length || result.references?.length)) {
-        if (!result.edgeKind || !result.edgeYaml) {
+      const sections = Array.isArray(result) ? result : result ? [result] : []
+      for (const section of sections) {
+        if (!section.children?.length && !section.references?.length) continue
+        if (!section.edgeKind || !section.edgeYaml) {
           throw new Error(
             `buildGraphFromModel: обработчик типа "${propType}" вернул GraphOps без edgeKind/edgeYaml. ` +
               `Чистые функции должны указывать оба поля в результате.`,
           )
         }
-        applyGraphOps(result, {
+        applyGraphOps(section, {
           graph,
           parentNodeId,
           filePath,
-          edgeKind: result.edgeKind,
-          edgeYaml: result.edgeYaml,
+          edgeKind: section.edgeKind,
+          edgeYaml: section.edgeYaml,
         })
       }
       continue

@@ -80,7 +80,7 @@ export type BuildGraphFromModelFunction = (params: {
   graph: MetadataGraph
   /** Дополнительный контекст, пробрасываемый в кастомные обработчики (например, formNodeId). */
   extra?: Record<string, unknown>
-}) => GraphOps | undefined | void
+}) => GraphOps | GraphOps[] | undefined | void
 
 export interface GraphOpsChild {
   idSuffix: string
