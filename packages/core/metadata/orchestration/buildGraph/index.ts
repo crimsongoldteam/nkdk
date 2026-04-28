@@ -6,3 +6,4 @@ export type {
   NodeData,
 } from "./types"
 export { flattenItem } from "./flattenItem"
+export { walkGraphToFileData } from "./walkGraphToFileData"
