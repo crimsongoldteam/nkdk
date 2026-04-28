@@ -5,3 +5,4 @@ export type {
   ImportContext,
   NodeData,
 } from "./types"
+export { flattenItem } from "./flattenItem"
