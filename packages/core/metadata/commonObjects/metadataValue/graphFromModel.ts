@@ -1,7 +1,10 @@
 import { isPair, isScalar, isSeq, YAMLSeq } from "yaml"
-import { applyGraphOps } from "~/metadata/relations/applyGraphOps"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { BuildGraphFromModelFunction, GraphOpsReference } from "~/metadata/orchestration/property/fn"
+import {
+  BuildGraphFromModelFunction,
+  GraphOps,
+  GraphOpsReference,
+} from "~/metadata/orchestration/property/fn"
 import { computeValuePosition, findSeqItemOffset, findSubmap } from "~/metadata/orchestration/property/position"
 import { extractReferenceFromPath } from "~/metadata/orchestration/property/extractReferenceFromPath"
 import { convertPath } from "~/metadata/commonObjects/metadataPath/helper"
@@ -20,38 +23,20 @@ const REF_EDGE_YAML = "Значение"
 const OBJECT_REF_EDGE_KIND = "OBJECT"
 const OBJECT_REF_EDGE_YAML = "Объект"
 
-/**
- * Конвертирует внутренний путь ref-значения (XML-формат) в node ID графа (YAML-формат).
- *
- * Примеры:
- *   "Catalog.X.EmptyRef"               → "Справочник.X.ПустаяСсылка"
- *   "Enum.ВидыДоговоров.EnumValue.Z"  → "Перечисление.ВидыДоговоров.Z"
- *   "" или неизвестный префикс        → undefined
- */
 function convertRefValueToNodeId(refValue: string): string | undefined {
   if (!refValue) return undefined
-
-  // Для Enum: убираем служебный сегмент "EnumValue"
   let processedPath = refValue
   if (refValue.startsWith("Enum.")) {
     processedPath = refValue.split(".").filter((p) => p !== "EnumValue").join(".")
   }
-
   const nodeId = convertPath(MetadataValuesRulesToYAML, processedPath)
-
-  // Если первый сегмент не был конвертирован — префикс неизвестен, возвращаем undefined
   const dotInInput = processedPath.indexOf(".")
   const dotInOutput = nodeId.indexOf(".")
   if (dotInInput === -1 || dotInOutput === -1) return undefined
   if (processedPath.substring(0, dotInInput) === nodeId.substring(0, dotInOutput)) return undefined
-
   return nodeId
 }
 
-/**
- * Извлекает GraphOpsReference из одного примитивного MetadataTypedValue.
- * Поддерживает только ref и objectRef; примитивы → undefined.
- */
 export function extractSingleValueRef(
   value: MetadataTypedValue,
   position?: { offset: number },
@@ -67,41 +52,26 @@ export function extractSingleValueRef(
       yaml: REF_EDGE_YAML,
     }
   }
-
   if (value.type === "objectRef") {
     const ref = extractReferenceFromPath((value as MetadataObjectRefValue).value, position)
     if (!ref) return undefined
     return { ref, kind: OBJECT_REF_EDGE_KIND, yaml: OBJECT_REF_EDGE_YAML }
   }
-
   return undefined
 }
 
-/**
- * Строит рёбра графа из MetadataValue-свойства.
- *
- * - Примитивы (string, decimal, dateTime, boolean, ApplicationUsePurpose) → no-op
- * - ref → ребро kind «Значение» к целевому узлу (YAML-формат)
- * - objectRef → ребро kind «Объект» к целевому узлу
- * - fixedArray → рекурсивно по элементам с per-element YAML-позициями
- * - formChoiceListDesTimeValue → рекурсивно в .value
- */
 export const buildMetadataValueGraph: BuildGraphFromModelFunction = ({
   model,
-  parentNodeId,
-  filePath,
   yamlMap,
   propRule,
-  graph,
-}) => {
+}): GraphOps[] | undefined => {
   const value = model as MetadataValue | undefined
-  if (!value) return
+  if (!value) return undefined
 
   if (value.type === "fixedArray") {
     const items = (value as MetadataFixedArrayValue).value
-    if (items.length === 0) return
+    if (items.length === 0) return undefined
 
-    // Находим YAML-последовательность для per-element позиций
     let yamlSeq: YAMLSeq | undefined
     if (yamlMap && propRule.yaml) {
       const pair = yamlMap.items.find(
@@ -112,7 +82,6 @@ export const buildMetadataValueGraph: BuildGraphFromModelFunction = ({
       }
     }
 
-    // Собираем ссылки, группируя по kind
     const refsByKind = new Map<string, { yaml: string; refs: GraphOpsReference[] }>()
     items.forEach((item, index) => {
       const offset = yamlSeq ? findSeqItemOffset(yamlSeq, index) : undefined
@@ -128,23 +97,17 @@ export const buildMetadataValueGraph: BuildGraphFromModelFunction = ({
       bucket.refs.push(ref)
     })
 
+    if (refsByKind.size === 0) return undefined
+    const sections: GraphOps[] = []
     for (const [kind, { yaml, refs }] of refsByKind) {
-      applyGraphOps({ references: refs }, {
-        graph,
-        parentNodeId,
-        filePath,
-        edgeKind: kind,
-        edgeYaml: yaml,
-      })
+      sections.push({ references: refs, edgeKind: kind, edgeYaml: yaml })
     }
-    return
+    return sections
   }
 
   if (value.type === "formChoiceListDesTimeValue") {
     const inner = (value as MetadataFormChoiceListValue).value
-    if (!inner) return
-
-    // Пытаемся найти позицию вложенного «Значение»
+    if (!inner) return undefined
     let innerPosition: { offset: number } | undefined
     if (yamlMap && propRule.yaml) {
       const innerMap = findSubmap(yamlMap, propRule.yaml)
@@ -154,31 +117,16 @@ export const buildMetadataValueGraph: BuildGraphFromModelFunction = ({
         innerPosition = computeValuePosition(yamlMap, propRule.yaml)
       }
     }
-
     const extracted = extractSingleValueRef(inner, innerPosition)
-    if (!extracted) return
-    applyGraphOps({ references: [extracted.ref] }, {
-      graph,
-      parentNodeId,
-      filePath,
-      edgeKind: extracted.kind,
-      edgeYaml: extracted.yaml,
-    })
-    return
+    if (!extracted) return undefined
+    return [{ references: [extracted.ref], edgeKind: extracted.kind, edgeYaml: extracted.yaml }]
   }
 
-  // Простой ref или objectRef
   const position =
     yamlMap && propRule.yaml ? computeValuePosition(yamlMap, propRule.yaml) : undefined
   const extracted = extractSingleValueRef(value, position ?? undefined)
-  if (!extracted) return
-  applyGraphOps({ references: [extracted.ref] }, {
-    graph,
-    parentNodeId,
-    filePath,
-    edgeKind: extracted.kind,
-    edgeYaml: extracted.yaml,
-  })
+  if (!extracted) return undefined
+  return [{ references: [extracted.ref], edgeKind: extracted.kind, edgeYaml: extracted.yaml }]
 }
 
 registerTypeRule("MetadataValue", "buildGraphFromModel", buildMetadataValueGraph)

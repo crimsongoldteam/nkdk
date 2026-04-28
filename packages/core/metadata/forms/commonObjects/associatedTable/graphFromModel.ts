@@ -5,33 +5,36 @@
  * элемент-таблицу внутри той же формы (по имени элемента). Материализуется как
  * reference-ребро «СвязаннаяТаблица» от узла элемента к узлу таблицы.
  *
- * Если узел таблицы не существует в графе — создаётся заглушка (без filePaths).
- * formNodeId пробрасывается через extra от buildElementChildrenGraph.
+ * Если узел таблицы не существует — applyGraphOps создаст заглушку.
+ * formNodeId пробрасывается через extra от forms/elements.
  */
 
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { registerEdgeKind } from "~/metadata/relations/edgeKinds"
+import {
+  BuildGraphFromModelFunction,
+  GraphOps,
+} from "~/metadata/orchestration/property/fn"
 
 const EDGE_KIND = "ASSOCIATED_TABLE"
 const EDGE_YAML = "СвязаннаяТаблица"
 
 registerEdgeKind(EDGE_KIND, { yaml: EDGE_YAML, owning: false })
 
-registerTypeRule("AssociatedTable", "buildGraphFromModel", ({ model, parentNodeId, graph, extra }) => {
-  if (typeof model !== "string" || !model) return
-
-  // formNodeId пробрасывается через extra от buildElementChildrenGraph
+const buildAssociatedTableGraph: BuildGraphFromModelFunction = ({
+  model,
+  extra,
+}): GraphOps | undefined => {
+  if (typeof model !== "string" || !model) return undefined
   const formNodeId = extra?.formNodeId as string | undefined
-  if (!formNodeId) return
+  if (!formNodeId) return undefined
 
   const targetId = `${formNodeId}.Элемент.${model}`
+  return {
+    references: [{ id: targetId, name: model }],
+    edgeKind: EDGE_KIND,
+    edgeYaml: EDGE_YAML,
+  }
+}
 
-  // Создаём заглушку, если элемент-таблица ещё не зарегистрирован
-  graph.ensureNode(targetId, { name: model })
-
-  const edgeKey = `${parentNodeId}:${EDGE_KIND}:${targetId}`
-  graph.ensureEdge(edgeKey, parentNodeId, targetId, {
-    yaml: EDGE_YAML,
-    kind: EDGE_KIND,
-  })
-})
+registerTypeRule("AssociatedTable", "buildGraphFromModel", buildAssociatedTableGraph)

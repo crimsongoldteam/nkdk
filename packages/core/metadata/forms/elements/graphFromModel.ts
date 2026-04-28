@@ -15,6 +15,7 @@ import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
 import { applyGraphOps } from "~/metadata/relations/applyGraphOps"
 import { getKindByYaml } from "~/metadata/relations/edgeKinds"
 import { AutoCommandBarRules } from "./autoCommandBar/rules"
@@ -86,7 +87,9 @@ function buildElementChildrenGraph(params: {
     const value = element[key]
     if (value === undefined || value === null) continue
 
-    buildGraphFn({
+    // TODO 1c: вынести в общий хелпер applyBuildGraphResult(result, propType, ctx) —
+    // дубликат с orchestration/buildGraphFromModel.ts (тот же five-step normalize-блок).
+    const result = buildGraphFn({
       model: value,
       parentNodeId,
       filePath,
@@ -95,6 +98,39 @@ function buildElementChildrenGraph(params: {
       graph,
       extra: { formNodeId },
     })
+    const sections = Array.isArray(result) ? result : result ? [result] : []
+    for (const section of sections) {
+      const hasOps =
+        section.children?.length ||
+        section.references?.length ||
+        section.formLocalReferences?.length
+      if (hasOps) {
+        if (!section.edgeKind || !section.edgeYaml) {
+          throw new Error(
+            `buildElementChildrenGraph: обработчик типа "${propType}" вернул GraphOps без edgeKind/edgeYaml. ` +
+              `Чистые функции должны указывать оба поля в результате.`,
+          )
+        }
+        applyGraphOps(section, {
+          graph,
+          parentNodeId,
+          filePath,
+          edgeKind: section.edgeKind,
+          edgeYaml: section.edgeYaml,
+        })
+      }
+      for (const recurse of section.recurse ?? []) {
+        buildGraphFromModel({
+          model: recurse.model,
+          yamlMap: recurse.yamlMap,
+          rule: recurse.rule,
+          graph,
+          parentNodeId: recurse.parentNodeId,
+          filePath,
+          extra: recurse.extra ?? { formNodeId },
+        })
+      }
+    }
   }
 }
 

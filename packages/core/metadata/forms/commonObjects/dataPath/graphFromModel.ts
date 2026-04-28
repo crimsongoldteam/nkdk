@@ -5,51 +5,45 @@
  * от узла элемента к узлу целевого реквизита/колонки.
  *
  * Kind ребра определяется по правилу yaml-name (PRD #114):
- * propRule.graphEdgeKind ?? propRule.yaml:
- * - dataPath     → ПутьКДанным
- * - footerDataPath → ПутьКДаннымПодвала
- * - titleDataPath  → ПутьКДаннымЗаголовка
- * - rowPictureDataPath → ПутьКДаннымКартинкиСтроки
+ * propRule.graphEdgeKind ?? getKindByYaml(propRule.yaml).
  *
- * При отсутствии первого сегмента (невалидное имя реквизита формы) →
- * resolveFormLocalPath вернёт undefined → ребро не создаётся, стаб не создаётся.
- * При валидном первом сегменте, но отсутствующем конечном узле →
- * resolveFormLocalPath создаёт заглушку, ребро ведёт на заглушку.
+ * Резолвинг цели делегирован applyGraphOps через formLocalReferences —
+ * оркестратор вызовет resolveFormLocalPath при записи в граф.
  */
 
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { getKindByYaml, registerEdgeKind } from "~/metadata/relations/edgeKinds"
-import { resolveFormLocalPath } from "~/metadata/relations/resolveFormLocalPath"
+import {
+  BuildGraphFromModelFunction,
+  GraphOps,
+} from "~/metadata/orchestration/property/fn"
 
-// Reference-виды рёбер dataPath-свойств (PRD #118).
-// Зарегистрированы централизованно в edgeKinds.ts; повторные registerEdgeKind
-// здесь — идемпотентная страховка на случай, если порядок импортов отличается.
 registerEdgeKind("DATA_PATH", { yaml: "ПутьКДанным", owning: false })
 registerEdgeKind("FOOTER_DATA_PATH", { yaml: "ПутьКДаннымПодвала", owning: false })
 registerEdgeKind("TITLE_DATA_PATH", { yaml: "ПутьКДаннымЗаголовка", owning: false })
 registerEdgeKind("ROW_PICTURE_DATA_PATH", { yaml: "ПутьКДаннымКартинкиСтроки", owning: false })
 
-registerTypeRule("DataPath", "buildGraphFromModel", ({ model, parentNodeId, propRule, graph, extra }) => {
-  if (typeof model !== "string" || !model) return
-
-  // formNodeId пробрасывается через extra от buildElementChildrenGraph
+const buildDataPathGraph: BuildGraphFromModelFunction = ({
+  model,
+  propRule,
+  extra,
+}): GraphOps | undefined => {
+  if (typeof model !== "string" || !model) return undefined
   const formNodeId = extra?.formNodeId as string | undefined
-  if (!formNodeId) return
+  if (!formNodeId) return undefined
 
-  // edgeYaml — русский YAML-ключ свойства; edgeKind вычисляется через перевод
   const edgeYaml = propRule.yaml
-  if (!edgeYaml) return
+  if (!edgeYaml) return undefined
   const edgeKind =
     ((propRule as Record<string, unknown>).graphEdgeKind as string | undefined) ??
     getKindByYaml(edgeYaml)
-  if (!edgeKind) return
+  if (!edgeKind) return undefined
 
-  const resolved = resolveFormLocalPath({ formNodeId, path: model, graph })
-  if (!resolved) return
+  return {
+    formLocalReferences: [{ formLocalPath: model, formNodeId }],
+    edgeKind,
+    edgeYaml,
+  }
+}
 
-  const edgeKey = `${parentNodeId}:${edgeKind}:${resolved.targetId}`
-  graph.ensureEdge(edgeKey, parentNodeId, resolved.targetId, {
-    yaml: edgeYaml,
-    kind: edgeKind,
-  })
-})
+registerTypeRule("DataPath", "buildGraphFromModel", buildDataPathGraph)

@@ -1,7 +1,10 @@
 import { isPair, isScalar, isSeq, YAMLSeq } from "yaml"
-import { applyGraphOps } from "~/metadata/relations/applyGraphOps"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { BuildGraphFromModelFunction, ExtractGraphFromModelFunction, GraphOps } from "~/metadata/orchestration/property/fn"
+import {
+  BuildGraphFromModelFunction,
+  ExtractGraphFromModelFunction,
+  GraphOps,
+} from "~/metadata/orchestration/property/fn"
 import { findSeqItemOffset } from "~/metadata/orchestration/property/position"
 import { extractReferenceFromPath } from "~/metadata/orchestration/property/extractReferenceFromPath"
 import { MetadataItemLink, MetadataItemLinks } from "./types"
@@ -11,7 +14,7 @@ const EDGE_YAML = "Объект"
 
 const extractMetadataItemLinkGraph: ExtractGraphFromModelFunction = (
   model,
-  position
+  position,
 ): GraphOps | undefined => {
   const link = model as MetadataItemLink
   if (!link) return undefined
@@ -22,18 +25,17 @@ const extractMetadataItemLinkGraph: ExtractGraphFromModelFunction = (
 
 const buildMetadataItemLinksGraph: BuildGraphFromModelFunction = ({
   model,
-  parentNodeId,
-  filePath,
   yamlMap,
   propRule,
-  graph,
-}) => {
+}): GraphOps | undefined => {
   const links = model as MetadataItemLinks | undefined
-  if (!Array.isArray(links) || links.length === 0) return
+  if (!Array.isArray(links) || links.length === 0) return undefined
 
   let yamlSeq: YAMLSeq | undefined
   if (yamlMap && propRule.yaml) {
-    const pair = yamlMap.items.find((i) => isPair(i) && isScalar(i.key) && i.key.value === propRule.yaml)
+    const pair = yamlMap.items.find(
+      (i) => isPair(i) && isScalar(i.key) && i.key.value === propRule.yaml,
+    )
     if (pair && isPair(pair) && isSeq(pair.value)) {
       yamlSeq = pair.value as YAMLSeq
     }
@@ -47,9 +49,9 @@ const buildMetadataItemLinksGraph: BuildGraphFromModelFunction = ({
     })
     .filter((ref): ref is NonNullable<typeof ref> => ref !== undefined)
 
-  if (references.length > 0) {
-    applyGraphOps({ references }, { graph, parentNodeId, filePath, edgeKind: EDGE_KIND, edgeYaml: EDGE_YAML })
-  }
+  if (references.length === 0) return undefined
+
+  return { references, edgeKind: EDGE_KIND, edgeYaml: EDGE_YAML }
 }
 
 registerTypeRule("MetadataItemLink", "extractGraph", extractMetadataItemLinkGraph)

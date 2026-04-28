@@ -80,3 +80,17 @@ xmlRoot: {
 2. Через `exportMetadataItemToXML` с правилом объекта собирает основной XML; `referenceData` подгружается из эталонного XML.
 3. Для свойств с `filePath`: импортирует эталон внешнего файла как `referenceValue`, экспортирует модель через `exportPropertyToXML` с `referenceMetadata: referenceValue`. Записывает результат во внешний файл.
 4. Вызывает `syncExternalToXML` для `Module`/`Help`/`Template`.
+
+## Граф связей метаданных
+
+`buildGraphFromModel` (`orchestration/buildGraphFromModel.ts`) обходит модель параллельно с YAML AST и для каждого свойства смотрит зарегистрированные на его типе обработчики:
+
+- `extractGraph` — одиночные reference-свойства (`MetadataField`, `MetadataItemLink`, `TypeDescription`); возвращает `GraphOps` с `references`.
+- `buildGraphFromModel` — типы с кастомной логикой (`MetadataValue`, `FormAttributeColumns`, `DataPath`, `CommandName`, …); это **чистая функция** `BuildGraphFromModelFunction → GraphOps | GraphOps[] | undefined | void`. Обработчик не имеет доступа к графу, не делает побочных эффектов.
+- `graphChild` — декларативное создание дочерних узлов из коллекций (`FormAttributes`, `FormCommands`, `FormParameters`).
+
+`GraphOps`-секции имеют поля: `children` (owned-узлы с filePath), `references` (stub-узлы), `formLocalReferences` (рёбра, цель которых резолвится через `resolveFormLocalPath`), `recurse` (рекурсивные обходы подмодели по правилу), плюс `edgeKind`/`edgeYaml`. Для children и formLocalReferences опционально `parentOverride` — источник ребра ≠ ctx.parentNodeId. У references override намеренно не поддерживается (см. JSDoc типа).
+
+Оркестратор нормализует возврат к массиву секций, для каждой непустой секции вызывает `applyGraphOps(section, ctx)` (единственный шлюз мутации `MetadataGraph`), затем разворачивает `recurse`-задачи через рекурсивный вызов `buildGraphFromModel`. Обработка `recurse` живёт **вне** проверки «непустой секции», чтобы секция с одним лишь `recurse` не отбрасывалась.
+
+Параллельный обход `forms/elements/graphFromModel.ts::buildElementChildrenGraph` (свойства элементов формы) реализует тот же контракт, продолжая мутировать граф напрямую через `graph.promoteNode/ensureEdge` для коллекций и singletons — единственный legacy-обходчик после фазы 1b. В фазе 1c планируется его перевод на чистую форму и вынос общего хелпера `applyBuildGraphResult` для устранения дубликата normalize-блока с основным оркестратором.

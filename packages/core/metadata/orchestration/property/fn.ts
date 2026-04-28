@@ -80,23 +80,57 @@ export type BuildGraphFromModelFunction = (params: {
   graph: MetadataGraph
   /** Дополнительный контекст, пробрасываемый в кастомные обработчики (например, formNodeId). */
   extra?: Record<string, unknown>
-}) => GraphOps | undefined | void
+}) => GraphOps | GraphOps[] | undefined | void
 
 export interface GraphOpsChild {
   idSuffix: string
   name: string
   positionFrom?: { offset: number; length?: number }
+  /** Запись в node.item при promoteNode. */
+  item?: Record<string, unknown>
+  /** Если задано — ребро идёт от этого узла, childNodeId = `${parentOverride}.${idSuffix}` вместо `${ctx.parentNodeId}.${idSuffix}`. */
+  parentOverride?: string
 }
 
 export interface GraphOpsReference {
   id: string
   name: string
   positionFrom?: { offset: number; length?: number }
+  // parentOverride намеренно не поддерживается: reference создаёт глобальный stub-узел
+  // и ребро всегда от ctx.parentNodeId. Если нужен override-источник ребра — используй
+  // formLocalReferences (с собственной семантикой резолвинга цели).
+}
+
+export interface GraphOpsFormLocalReference {
+  /** Form-local путь, например "Объект.Договор.Владелец". */
+  formLocalPath: string
+  /** Корневой узел формы — стартовая точка резолвинга. */
+  formNodeId: string
+  positionFrom?: { offset: number; length?: number }
+  /** Если задано — ребро идёт от этого узла к резолвимой цели вместо ctx.parentNodeId. */
+  parentOverride?: string
+}
+
+export interface GraphOpsRecurse {
+  /** Подмодель, для которой нужно повторно вызвать обход правила. */
+  model: Record<string, unknown>
+  /** YAML-фрагмент подмодели для координат. Опционально. */
+  yamlMap?: YAMLMap
+  /** Правило обхода подмодели. */
+  rule: MetadataItemRule
+  /** Узел, относительно которого пойдёт обход — становится parentNodeId внутри. */
+  parentNodeId: string
+  /** Дополнительный контекст, пробрасываемый в обработчики. По умолчанию наследуется от вызывающего. */
+  extra?: Record<string, unknown>
 }
 
 export interface GraphOps {
   children?: GraphOpsChild[]
   references?: GraphOpsReference[]
+  /** Reference-рёбра, цель которых нужно резолвить через resolveFormLocalPath. */
+  formLocalReferences?: GraphOpsFormLocalReference[]
+  /** Рекурсивные задачи: оркестратор пройдёт по правилу для каждой подмодели после применения локальных ops. */
+  recurse?: GraphOpsRecurse[]
   /** ASCII-метка ребра. Передаётся в applyGraphOps оркестратором, когда BuildGraphFromModelFunction возвращает GraphOps вместо мутации graph. */
   edgeKind?: string
   /** Русский YAML-ключ ребра. Передаётся в applyGraphOps. */

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { parseDocument } from "yaml"
 import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 import { extractSingleValueRef, buildMetadataValueGraph } from "./graphFromModel"
+import { applyGraphOps } from "~/metadata/relations/applyGraphOps"
 import {
   MetadataFixedArrayValue,
   MetadataFormChoiceListValue,
@@ -20,6 +21,21 @@ function makeGraph() {
   const graph = new MetadataGraph()
   graph.ensureNode(PARENT_NODE, { name: "Товары", filePaths: [FILE_PATH] })
   return graph
+}
+
+function runBuild(params: Parameters<typeof buildMetadataValueGraph>[0]) {
+  const result = buildMetadataValueGraph(params)
+  const sections = Array.isArray(result) ? result : result ? [result] : []
+  for (const section of sections) {
+    if (!section.edgeKind || !section.edgeYaml) continue
+    applyGraphOps(section, {
+      graph: params.graph,
+      parentNodeId: params.parentNodeId,
+      filePath: params.filePath,
+      edgeKind: section.edgeKind,
+      edgeYaml: section.edgeYaml,
+    })
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -107,7 +123,7 @@ describe("buildMetadataValueGraph", () => {
   it("примитив → не создаёт рёбер", () => {
     const graph = makeGraph()
     const value: MetadataTypedValue = { type: "string", value: "привет" }
-    buildMetadataValueGraph({
+    runBuild({
       model: value,
       parentNodeId: PARENT_NODE,
       filePath: FILE_PATH,
@@ -121,7 +137,7 @@ describe("buildMetadataValueGraph", () => {
   it("ref → создаёт ребро kind Значение", () => {
     const graph = makeGraph()
     const value: MetadataRefValue = { type: "ref", value: "Catalog.Пользователи.EmptyRef" }
-    buildMetadataValueGraph({
+    runBuild({
       model: value,
       parentNodeId: PARENT_NODE,
       filePath: FILE_PATH,
@@ -140,7 +156,7 @@ describe("buildMetadataValueGraph", () => {
   it("objectRef → создаёт ребро kind Объект", () => {
     const graph = makeGraph()
     const value: MetadataObjectRefValue = { type: "objectRef", value: "Catalog.Контрагенты" }
-    buildMetadataValueGraph({
+    runBuild({
       model: value,
       parentNodeId: PARENT_NODE,
       filePath: FILE_PATH,
@@ -157,7 +173,7 @@ describe("buildMetadataValueGraph", () => {
 
   it("undefined model → не создаёт рёбер", () => {
     const graph = makeGraph()
-    buildMetadataValueGraph({
+    runBuild({
       model: undefined,
       parentNodeId: PARENT_NODE,
       filePath: FILE_PATH,
@@ -172,7 +188,7 @@ describe("buildMetadataValueGraph", () => {
     it("пустой fixedArray → не создаёт рёбер", () => {
       const graph = makeGraph()
       const value: MetadataFixedArrayValue = { type: "fixedArray", value: [] }
-      buildMetadataValueGraph({
+      runBuild({
         model: value,
         parentNodeId: PARENT_NODE,
         filePath: FILE_PATH,
@@ -201,7 +217,7 @@ describe("buildMetadataValueGraph", () => {
       ]
       const value: MetadataFixedArrayValue = { type: "fixedArray", value: items }
 
-      buildMetadataValueGraph({
+      runBuild({
         model: value,
         parentNodeId: PARENT_NODE,
         filePath: FILE_PATH,
@@ -237,7 +253,7 @@ describe("buildMetadataValueGraph", () => {
         presentation: { items: { ru: "Текст" } },
         value: undefined,
       }
-      buildMetadataValueGraph({
+      runBuild({
         model: value,
         parentNodeId: PARENT_NODE,
         filePath: FILE_PATH,
@@ -255,7 +271,7 @@ describe("buildMetadataValueGraph", () => {
         presentation: { items: { ru: "Физическое лицо" } },
         value: { type: "ref", value: "Enum.ВидыДоговоров.EnumValue.СПоставщиком" },
       }
-      buildMetadataValueGraph({
+      runBuild({
         model: value,
         parentNodeId: PARENT_NODE,
         filePath: FILE_PATH,
@@ -277,7 +293,7 @@ describe("buildMetadataValueGraph", () => {
         presentation: { items: { ru: "Метка" } },
         value: { type: "string", value: "строка" },
       }
-      buildMetadataValueGraph({
+      runBuild({
         model: value,
         parentNodeId: PARENT_NODE,
         filePath: FILE_PATH,

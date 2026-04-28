@@ -67,20 +67,38 @@ export function buildGraphFromModel(params: {
         graph,
         extra,
       })
-      if (result && (result.children?.length || result.references?.length)) {
-        if (!result.edgeKind || !result.edgeYaml) {
-          throw new Error(
-            `buildGraphFromModel: обработчик типа "${propType}" вернул GraphOps без edgeKind/edgeYaml. ` +
-              `Чистые функции должны указывать оба поля в результате.`,
-          )
+      const sections = Array.isArray(result) ? result : result ? [result] : []
+      for (const section of sections) {
+        const hasOps =
+          section.children?.length ||
+          section.references?.length ||
+          section.formLocalReferences?.length
+        if (hasOps) {
+          if (!section.edgeKind || !section.edgeYaml) {
+            throw new Error(
+              `buildGraphFromModel: обработчик типа "${propType}" вернул GraphOps без edgeKind/edgeYaml. ` +
+                `Чистые функции должны указывать оба поля в результате.`,
+            )
+          }
+          applyGraphOps(section, {
+            graph,
+            parentNodeId,
+            filePath,
+            edgeKind: section.edgeKind,
+            edgeYaml: section.edgeYaml,
+          })
         }
-        applyGraphOps(result, {
-          graph,
-          parentNodeId,
-          filePath,
-          edgeKind: result.edgeKind,
-          edgeYaml: result.edgeYaml,
-        })
+        for (const recurse of section.recurse ?? []) {
+          buildGraphFromModel({
+            model: recurse.model,
+            yamlMap: recurse.yamlMap,
+            rule: recurse.rule,
+            graph,
+            parentNodeId: recurse.parentNodeId,
+            filePath,
+            extra: recurse.extra ?? extra,
+          })
+        }
       }
       continue
     }
