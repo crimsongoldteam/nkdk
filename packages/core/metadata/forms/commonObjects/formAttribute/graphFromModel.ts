@@ -1,7 +1,11 @@
-import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { findSubmap } from "~/metadata/orchestration/property/position"
-import { resolveFormLocalPath } from "~/metadata/relations/resolveFormLocalPath"
+import {
+  BuildGraphFromModelFunction,
+  GraphOps,
+  GraphOpsChild,
+  GraphOpsRecurse,
+} from "~/metadata/orchestration/property/fn"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import type { FormAttributeAdditionalColumns, FormAttributeColumn } from "./types"
 
@@ -15,12 +19,7 @@ const ADDITIONAL_COLUMN_EDGE_KIND = "ADDITIONAL_COLUMN"
 const ADDITIONAL_COLUMN_EDGE_YAML = "ДополнительнаяКолонка"
 
 /**
- * Регистрирует graphChild для коллекции FormAttributes:
- * при построении графа формы каждый реквизит становится дочерним узлом
- * с owning-ребром «РеквизитФормы».
- *
- * Kind ребер TypeDescription (Тип, ТипЗначения) определяется автоматически
- * из yaml-имени свойства по правилу PRD #114.
+ * graphChild для коллекции FormAttributes — оркестратор сам создаёт дочерние узлы.
  */
 registerTypeRule("FormAttributes", "graphChild", {
   idFrom: "name",
@@ -31,125 +30,126 @@ registerTypeRule("FormAttributes", "graphChild", {
 })
 
 /**
- * Обрабатывает коллекцию колонок реквизита формы (FormAttributeColumns).
+ * Обрабатывает коллекцию колонок реквизита формы.
  *
- * PRD #115: различает два вида колонок по форме первого элемента:
- * - inner (тип реквизита = ТаблицаЗначений / ДеревоЗначений / СписокВыбора):
- *   каждая колонка → узел <реквизит>.<имяКолонки> + owning-ребро «КолонкаФормы»
- *   + рекурсивный buildGraphFromModel для TypeDescription (ребро «Тип»).
- * - additional (дополнительные колонки к реквизитам прикладного объекта):
- *   обработка отложена до среза #116 (no-op здесь).
+ * - inner: тип реквизита = ТаблицаЗначений / ДеревоЗначений / СписокВыбора.
+ *   Колонка → дочерний узел `<реквизит>.<колонка>` + ребро «КолонкаФормы»
+ *   + recurse по FormAttributeColumnRules для типов колонки.
+ * - additional: дополнительные колонки к реквизитам прикладного объекта.
+ *   Прокси-узел `<реквизит>.<lastSeg(table)>` + ребро «ДополнениеТаблицы»,
+ *   ребро «Таблица» от прокси к ТЧ через formLocalReferences,
+ *   per-column узлы под прокси + рёбра «ДополнительнаяКолонка»
+ *   + recurse по FormAttributeColumnRules.
  */
-registerTypeRule("FormAttributeColumns", "buildGraphFromModel", ({
+const buildFormAttributeColumnsGraph: BuildGraphFromModelFunction = ({
   model,
   parentNodeId,
-  filePath,
   yamlMap,
   propRule,
-  graph,
-}) => {
-  if (!Array.isArray(model) || model.length === 0) return
+}): GraphOps[] | undefined => {
+  if (!Array.isArray(model) || model.length === 0) return undefined
 
-  // Discriminate: если первый элемент имеет строковое поле table — это additional-ветка
   const first = model[0] as Record<string, unknown>
+
+  // ---- Additional columns (PRD #116) ----
   if (typeof first.table === "string") {
-    // Additional columns (PRD #116)
     // parentNodeId = <formNodeId>.Реквизит.<attrName>; формируем formNodeId обратным путём
     const formNodeId = parentNodeId.split(".").slice(0, -2).join(".")
+    const sections: GraphOps[] = []
 
     for (const raw of model) {
       const group = raw as FormAttributeAdditionalColumns
-      const tablePath = group.table // e.g. "Объект.Состав"
+      const tablePath = group.table
       const lastSegment = tablePath.split(".").pop()
       if (!lastSegment) continue
 
-      // Прокси-узел: <реквизит>.<lastSegment>
       const proxyNodeId = `${parentNodeId}.${lastSegment}`
-      graph.promoteNode(proxyNodeId, {
-        name: lastSegment,
-        filePaths: [filePath],
-        item: { itemType: "AdditionalColumnsProxy", table: tablePath },
+
+      // (1) Прокси-узел: owning-ребро «ДополнениеТаблицы» от реквизита к прокси
+      sections.push({
+        children: [{
+          idSuffix: lastSegment,
+          name: lastSegment,
+          item: { itemType: "AdditionalColumnsProxy", table: tablePath },
+        }],
+        edgeKind: ADDITION_EDGE_KIND,
+        edgeYaml: ADDITION_EDGE_YAML,
       })
 
-      // Owning-ребро «ДополнениеТаблицы» от реквизита к прокси
-      const proxyEdgeKey = `${parentNodeId}:${ADDITION_EDGE_KIND}:${proxyNodeId}`
-      graph.ensureEdge(proxyEdgeKey, parentNodeId, proxyNodeId, {
-        yaml: ADDITION_EDGE_YAML,
-        kind: ADDITION_EDGE_KIND,
+      // (2) Reference-ребро «Таблица» от прокси к ТЧ через resolveFormLocalPath
+      sections.push({
+        formLocalReferences: [{
+          formLocalPath: tablePath,
+          formNodeId,
+          parentOverride: proxyNodeId,
+        }],
+        edgeKind: TABLE_EDGE_KIND,
+        edgeYaml: TABLE_EDGE_YAML,
       })
 
-      // Резолвим tablePath → NodeId реальной ТЧ; reference-ребро «Таблица»
-      const resolved = resolveFormLocalPath({ formNodeId, path: tablePath, graph })
-      if (resolved) {
-        const tableEdgeKey = `${proxyNodeId}:${TABLE_EDGE_KIND}:${resolved.targetId}`
-        graph.ensureEdge(tableEdgeKey, proxyNodeId, resolved.targetId, {
-          yaml: TABLE_EDGE_YAML,
-          kind: TABLE_EDGE_KIND,
-        })
-      }
-
-      // Узлы-колонки под прокси
+      // (3) Дочерние колонки прокси + рекурсия по FormAttributeColumnRules
+      const columnChildren: GraphOpsChild[] = []
+      const columnRecurses: GraphOpsRecurse[] = []
       for (const column of group.columns) {
         const columnName = column.name
         if (!columnName) continue
-
-        const columnNodeId = `${proxyNodeId}.${columnName}`
-        graph.promoteNode(columnNodeId, {
+        columnChildren.push({
+          idSuffix: columnName,
           name: columnName,
-          filePaths: [filePath],
-          item: column,
+          item: column as unknown as Record<string, unknown>,
+          parentOverride: proxyNodeId,
         })
-
-        const colEdgeKey = `${proxyNodeId}:${ADDITIONAL_COLUMN_EDGE_KIND}:${columnNodeId}`
-        graph.ensureEdge(colEdgeKey, proxyNodeId, columnNodeId, {
-          yaml: ADDITIONAL_COLUMN_EDGE_YAML,
-          kind: ADDITIONAL_COLUMN_EDGE_KIND,
-        })
-
-        buildGraphFromModel({
-          model: column as Record<string, unknown>,
-          yamlMap: undefined,
+        columnRecurses.push({
+          model: column as unknown as Record<string, unknown>,
           rule: FormAttributeColumnRules,
-          graph,
-          parentNodeId: columnNodeId,
-          filePath,
+          parentNodeId: `${proxyNodeId}.${columnName}`,
+        })
+      }
+      if (columnChildren.length > 0) {
+        sections.push({
+          children: columnChildren,
+          recurse: columnRecurses,
+          edgeKind: ADDITIONAL_COLUMN_EDGE_KIND,
+          edgeYaml: ADDITIONAL_COLUMN_EDGE_YAML,
         })
       }
     }
-    return
+
+    return sections.length > 0 ? sections : undefined
   }
 
-  // Inner columns
+  // ---- Inner columns ----
   const columnsKey = propRule.yaml // "Колонки"
   const columnsYamlMap = columnsKey && yamlMap ? findSubmap(yamlMap, columnsKey) : undefined
 
+  const children: GraphOpsChild[] = []
+  const recurses: GraphOpsRecurse[] = []
   for (const raw of model) {
     const column = raw as FormAttributeColumn
     const columnName = column.name
     if (!columnName) continue
 
-    const columnNodeId = `${parentNodeId}.${columnName}`
-    const columnYamlMap = columnsYamlMap ? findSubmap(columnsYamlMap, columnName) : undefined
-
-    graph.promoteNode(columnNodeId, {
+    children.push({
+      idSuffix: columnName,
       name: columnName,
-      filePaths: [filePath],
-      item: column,
+      item: column as unknown as Record<string, unknown>,
     })
-
-    const edgeKey = `${parentNodeId}:${COLUMN_EDGE_KIND}:${columnNodeId}`
-    graph.ensureEdge(edgeKey, parentNodeId, columnNodeId, {
-      yaml: COLUMN_EDGE_YAML,
-      kind: COLUMN_EDGE_KIND,
-    })
-
-    buildGraphFromModel({
-      model: column as Record<string, unknown>,
-      yamlMap: columnYamlMap,
+    recurses.push({
+      model: column as unknown as Record<string, unknown>,
+      yamlMap: columnsYamlMap ? findSubmap(columnsYamlMap, columnName) : undefined,
       rule: FormAttributeColumnRules,
-      graph,
-      parentNodeId: columnNodeId,
-      filePath,
+      parentNodeId: `${parentNodeId}.${columnName}`,
     })
   }
-})
+
+  if (children.length === 0) return undefined
+
+  return [{
+    children,
+    recurse: recurses,
+    edgeKind: COLUMN_EDGE_KIND,
+    edgeYaml: COLUMN_EDGE_YAML,
+  }]
+}
+
+registerTypeRule("FormAttributeColumns", "buildGraphFromModel", buildFormAttributeColumnsGraph)

@@ -14,10 +14,12 @@ export interface ApplyGraphOpsContext {
  * Применяет декларативный GraphOps к графу.
  *
  * - children → owned-узлы с filePath, owning-рёбра kind=edgeKind от parentNodeId
+ *   (или от child.parentOverride, если задано — childNodeId формируется относительно него)
  * - references → stub-узлы (если ещё нет), reference-рёбра kind=edgeKind с positionFrom
  * - formLocalReferences → reference-рёбра, цель которых резолвится через resolveFormLocalPath
  *   (form-local путь типа "Объект.Договор.Владелец" → NodeId через обход рёбер формы);
  *   при `resolveFormLocalPath → undefined` ребро не создаётся
+ *   (или от local.parentOverride, если задано — ребро идёт оттуда)
  *
  * edgeKind должен быть зарегистрирован в edgeKinds: для children — owning, для references/formLocalReferences — reference.
  */
@@ -25,14 +27,16 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
   const { graph, parentNodeId, filePath, edgeKind, edgeYaml } = ctx
 
   for (const child of ops.children ?? []) {
-    const childNodeId = `${parentNodeId}.${child.idSuffix}`
+    const effectiveParent = child.parentOverride ?? parentNodeId
+    const childNodeId = `${effectiveParent}.${child.idSuffix}`
     graph.promoteNode(childNodeId, {
       name: child.name,
       filePaths: [filePath],
       positionFrom: child.positionFrom,
+      item: child.item,
     })
-    const edgeKey = `${parentNodeId}:${edgeKind}:${childNodeId}`
-    graph.ensureEdge(edgeKey, parentNodeId, childNodeId, {
+    const edgeKey = `${effectiveParent}:${edgeKind}:${childNodeId}`
+    graph.ensureEdge(edgeKey, effectiveParent, childNodeId, {
       yaml: edgeYaml,
       kind: edgeKind,
     })
@@ -49,14 +53,15 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
   }
 
   for (const local of ops.formLocalReferences ?? []) {
+    const effectiveParent = local.parentOverride ?? parentNodeId
     const resolved = resolveFormLocalPath({
       formNodeId: local.formNodeId,
       path: local.formLocalPath,
       graph,
     })
     if (!resolved) continue
-    const edgeKey = `${parentNodeId}:${edgeKind}:${resolved.targetId}`
-    graph.ensureEdge(edgeKey, parentNodeId, resolved.targetId, {
+    const edgeKey = `${effectiveParent}:${edgeKind}:${resolved.targetId}`
+    graph.ensureEdge(edgeKey, effectiveParent, resolved.targetId, {
       yaml: edgeYaml,
       kind: edgeKind,
       positionFrom: local.positionFrom,

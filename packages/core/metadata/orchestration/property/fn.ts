@@ -86,6 +86,10 @@ export interface GraphOpsChild {
   idSuffix: string
   name: string
   positionFrom?: { offset: number; length?: number }
+  /** Запись в node.item при promoteNode. */
+  item?: Record<string, unknown>
+  /** Если задано — ребро идёт от этого узла, childNodeId = `${parentOverride}.${idSuffix}` вместо `${ctx.parentNodeId}.${idSuffix}`. */
+  parentOverride?: string
 }
 
 export interface GraphOpsReference {
@@ -100,6 +104,21 @@ export interface GraphOpsFormLocalReference {
   /** Корневой узел формы — стартовая точка резолвинга. */
   formNodeId: string
   positionFrom?: { offset: number; length?: number }
+  /** Если задано — ребро идёт от этого узла к резолвимой цели вместо ctx.parentNodeId. */
+  parentOverride?: string
+}
+
+export interface GraphOpsRecurse {
+  /** Подмодель, для которой нужно повторно вызвать обход правила. */
+  model: Record<string, unknown>
+  /** YAML-фрагмент подмодели для координат. Опционально. */
+  yamlMap?: YAMLMap
+  /** Правило обхода подмодели. */
+  rule: MetadataItemRule
+  /** Узел, относительно которого пойдёт обход — становится parentNodeId внутри. */
+  parentNodeId: string
+  /** Дополнительный контекст, пробрасываемый в обработчики. По умолчанию наследуется от вызывающего. */
+  extra?: Record<string, unknown>
 }
 
 export interface GraphOps {
@@ -107,6 +126,8 @@ export interface GraphOps {
   references?: GraphOpsReference[]
   /** Reference-рёбра, цель которых нужно резолвить через resolveFormLocalPath. */
   formLocalReferences?: GraphOpsFormLocalReference[]
+  /** Рекурсивные задачи: оркестратор пройдёт по правилу для каждой подмодели после применения локальных ops. */
+  recurse?: GraphOpsRecurse[]
   /** ASCII-метка ребра. Передаётся в applyGraphOps оркестратором, когда BuildGraphFromModelFunction возвращает GraphOps вместо мутации graph. */
   edgeKind?: string
   /** Русский YAML-ключ ребра. Передаётся в applyGraphOps. */
