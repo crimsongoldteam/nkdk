@@ -10,6 +10,17 @@ export interface ApplyGraphOpsContext {
   edgeYaml: string
 }
 
+/**
+ * Применяет декларативный GraphOps к графу.
+ *
+ * - children → owned-узлы с filePath, owning-рёбра kind=edgeKind от parentNodeId
+ * - references → stub-узлы (если ещё нет), reference-рёбра kind=edgeKind с positionFrom
+ * - formLocalReferences → reference-рёбра, цель которых резолвится через resolveFormLocalPath
+ *   (form-local путь типа "Объект.Договор.Владелец" → NodeId через обход рёбер формы);
+ *   при `resolveFormLocalPath → undefined` ребро не создаётся
+ *
+ * edgeKind должен быть зарегистрирован в edgeKinds: для children — owning, для references/formLocalReferences — reference.
+ */
 export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
   const { graph, parentNodeId, filePath, edgeKind, edgeYaml } = ctx
 

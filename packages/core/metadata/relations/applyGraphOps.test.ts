@@ -188,4 +188,103 @@ describe("applyGraphOps", () => {
       expect(edges.every((e) => e.attributes.kind === "TYPE")).toBe(true)
     })
   })
+
+  describe("formLocalReferences", () => {
+    // Готовит граф формы с минимальным набором узлов/рёбер,
+    // достаточным для resolveFormLocalPath: форма + один реквизит формы
+    // ("Объект"), от которого можно резолвить простые form-local пути.
+    function makeFormGraph() {
+      const graph = new MetadataGraph()
+      const formNodeId = "Форма.ТестоваяФорма"
+      const attrId = `${formNodeId}.Реквизит.Объект`
+      graph.ensureNode(formNodeId, { name: "ТестоваяФорма", filePaths: ["test/Форма.yaml"] })
+      graph.ensureNode(attrId, { name: "Объект", filePaths: ["test/Форма.yaml"] })
+      const edgeKey = `${formNodeId}:FORM_ATTRIBUTE:${attrId}`
+      graph.ensureEdge(edgeKey, formNodeId, attrId, { yaml: "РеквизитФормы", kind: "FORM_ATTRIBUTE" })
+      return { graph, formNodeId, attrId }
+    }
+
+    it("создаёт ребро на резолвимую цель (happy path)", () => {
+      const { graph, formNodeId, attrId } = makeFormGraph()
+      const elementId = `${formNodeId}.Элемент.Кнопка`
+      graph.ensureNode(elementId, { name: "Кнопка", filePaths: ["test/Форма.yaml"] })
+
+      const ctx: ApplyGraphOpsContext = {
+        graph,
+        parentNodeId: elementId,
+        filePath: "test/Форма.yaml",
+        edgeKind: "DATA_PATH",
+        edgeYaml: "ПутьКДанным",
+      }
+      const ops: GraphOps = {
+        formLocalReferences: [{ formLocalPath: "Объект", formNodeId }],
+      }
+      applyGraphOps(ops, ctx)
+
+      const edges = [...graph.outEdgeEntries(elementId)]
+      expect(edges).toHaveLength(1)
+      expect(edges[0].target).toBe(attrId)
+      expect(edges[0].attributes.kind).toBe("DATA_PATH")
+      expect(edges[0].attributes.yaml).toBe("ПутьКДанным")
+    })
+
+    it("не создаёт ребро, если resolveFormLocalPath вернул undefined (нет первого сегмента)", () => {
+      const { graph, formNodeId } = makeFormGraph()
+      const elementId = `${formNodeId}.Элемент.Кнопка`
+      graph.ensureNode(elementId, { name: "Кнопка", filePaths: ["test/Форма.yaml"] })
+
+      const ctx: ApplyGraphOpsContext = {
+        graph,
+        parentNodeId: elementId,
+        filePath: "test/Форма.yaml",
+        edgeKind: "DATA_PATH",
+        edgeYaml: "ПутьКДанным",
+      }
+      const ops: GraphOps = {
+        formLocalReferences: [{ formLocalPath: "НесуществующийРеквизит", formNodeId }],
+      }
+      applyGraphOps(ops, ctx)
+
+      expect(graph.outEdges(elementId)).toHaveLength(0)
+    })
+
+    it("пробрасывает positionFrom на ребро", () => {
+      const { graph, formNodeId, attrId } = makeFormGraph()
+      const elementId = `${formNodeId}.Элемент.Кнопка`
+      graph.ensureNode(elementId, { name: "Кнопка", filePaths: ["test/Форма.yaml"] })
+
+      const ctx: ApplyGraphOpsContext = {
+        graph,
+        parentNodeId: elementId,
+        filePath: "test/Форма.yaml",
+        edgeKind: "DATA_PATH",
+        edgeYaml: "ПутьКДанным",
+      }
+      const ops: GraphOps = {
+        formLocalReferences: [{ formLocalPath: "Объект", formNodeId, positionFrom: { offset: 42 } }],
+      }
+      applyGraphOps(ops, ctx)
+
+      const edges = [...graph.outEdgeEntries(elementId)]
+      expect(edges).toHaveLength(1)
+      expect(edges[0].attributes.positionFrom).toEqual({ offset: 42 })
+    })
+
+    it("пустой formLocalReferences не создаёт рёбер", () => {
+      const { graph, formNodeId } = makeFormGraph()
+      const elementId = `${formNodeId}.Элемент.Кнопка`
+      graph.ensureNode(elementId, { name: "Кнопка", filePaths: ["test/Форма.yaml"] })
+
+      const ctx: ApplyGraphOpsContext = {
+        graph,
+        parentNodeId: elementId,
+        filePath: "test/Форма.yaml",
+        edgeKind: "DATA_PATH",
+        edgeYaml: "ПутьКДанным",
+      }
+      applyGraphOps({ formLocalReferences: [] }, ctx)
+
+      expect(graph.outEdges(elementId)).toHaveLength(0)
+    })
+  })
 })
