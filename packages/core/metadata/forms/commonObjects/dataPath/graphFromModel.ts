@@ -12,7 +12,7 @@
  */
 
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { getKindByYaml, registerEdgeKind } from "~/metadata/relations/edgeKinds"
+import { getKindByYaml, registerEdgeKind } from "~/metadata/orchestration/buildGraph/internal/edgeKinds"
 import {
   BuildGraphFromModelFunction,
   GraphOps,

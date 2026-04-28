@@ -1,5 +1,5 @@
 import { isMap } from "yaml"
-import { getKindByYaml } from "~/metadata/relations/edgeKinds"
+import { getKindByYaml } from "~/metadata/orchestration/buildGraph/internal/edgeKinds"
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import type { MetadataCatalog } from "~/metadata/appliedObjects/metadataCatalog/types"

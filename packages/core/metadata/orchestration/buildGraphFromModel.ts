@@ -1,5 +1,5 @@
 import { applyGraphOps } from "../relations/applyGraphOps"
-import { getKindByYaml } from "../relations/edgeKinds"
+import { getKindByYaml } from "./buildGraph/internal/edgeKinds"
 import { MetadataGraph } from "../relations/MetadataGraph"
 import { getTypeRule } from "./formElement/factory"
 import { findKeyOffset, findSubmap, computeValuePosition } from "./property/position"
