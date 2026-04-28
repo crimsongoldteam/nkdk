@@ -23,6 +23,13 @@ describe("GraphBuilder: ensureNode / getNodeAttributes / hasNode", () => {
     expect(g.getNodeAttributes("X").name).toBe("X")
   })
 
+  it("ensureNode не перезаписывает уже установленные attrs при повторном вызове с другими", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("X", { name: "first" })
+    g.ensureNode("X", { name: "second" })
+    expect(g.getNodeAttributes("X").name).toBe("first")
+  })
+
   it("hasNode возвращает false для несуществующего узла", () => {
     const g = new GraphBuilder()
     expect(g.hasNode("Справочник.Несуществующий")).toBe(false)
@@ -142,12 +149,12 @@ describe("GraphBuilder: ensureEdge / outEdgeEntries", () => {
 // E: nodes()
 // ──────────────────────────────────────────────────────────────
 describe("GraphBuilder: nodes()", () => {
-  it("nodes() обходит все добавленные узлы", () => {
+  it("nodes() обходит все добавленные узлы в порядке вставки", () => {
     const g = new GraphBuilder()
+    g.ensureNode("C")
     g.ensureNode("A")
     g.ensureNode("B")
-    g.ensureNode("C")
-    expect([...g.nodes()].sort()).toEqual(["A", "B", "C"])
+    expect([...g.nodes()]).toEqual(["C", "A", "B"])
   })
 
   it("nodes() возвращает пустой итератор для пустого графа", () => {
