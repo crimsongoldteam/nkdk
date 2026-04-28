@@ -5,19 +5,12 @@
  * PRD #117: элементы формы становятся плоскими узлами графа с NodeId
  * «<formNodeId>.<имяЭлемента>». Owning-рёбра ЭлементФормы идут от ближайшего
  * контейнера к ребёнку. Синглеты висят плоско под формой, ребро от формы.
- *
- * Срез #118: buildElementChildrenGraph дополнен обработкой extractGraph-хендлеров
- * (TypeDescription и подобных reference-свойств на элементах) + DataPath-рёбра.
  */
 
-import { getTypeRule, registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { applyBuildGraphResult } from "~/metadata/orchestration/buildGraphFromModel"
-import { applyGraphOps } from "~/metadata/relations/applyGraphOps"
-import { getKindByYaml } from "~/metadata/relations/edgeKinds"
 import {
   GraphOps,
   GraphOpsChild,
@@ -40,76 +33,6 @@ const FORM_ELEMENT_EDGE_YAML = "ЭлементФормы"
 // ---------------------------------------------------------------------------
 // Вспомогательные функции
 // ---------------------------------------------------------------------------
-
-/**
- * Обходит свойства элемента и вызывает только buildGraphFromModel-обработчики
- * (пропускает extractGraph для TypeDescription, DataPath и т.д. — они добавятся
- * в срезах #118, #119).
- *
- * Параметр `parentNodeId` — непосредственный контейнер (источник owning-рёбер).
- * Параметр `formNodeId` — корень формы (для построения плоских NodeId).
- */
-function buildElementChildrenGraph(params: {
-  element: Record<string, unknown>
-  elementRule: MetadataItemRule
-  parentNodeId: string
-  formNodeId: string
-  filePath: string
-  graph: MetadataGraph
-}): void {
-  const { element, elementRule, parentNodeId, formNodeId, filePath, graph } = params
-
-  for (const [key, propRule] of Object.entries(elementRule.properties) as [
-    string,
-    { type?: string; yaml?: string; graphEdgeKind?: string },
-  ][]) {
-    const propType = propRule.type as PropertyRuleType | undefined
-    if (!propType) continue
-
-    // --- extractGraph: TypeDescription и другие одиночные reference-свойства ---
-    const extractGraphFn = getTypeRule(propType, "extractGraph")
-    const edgeDef = getTypeRule(propType, "graphEdgeFromParent")
-    if (extractGraphFn && edgeDef) {
-      const value = element[key]
-      if (value !== undefined && value !== null) {
-        const ops = extractGraphFn(value)
-        if (ops) {
-          const edgeYaml = propRule.yaml ?? edgeDef.yaml
-          const edgeKind =
-            propRule.graphEdgeKind ?? edgeDef.kind ?? (edgeYaml ? getKindByYaml(edgeYaml) : undefined)
-          if (edgeKind && edgeYaml) {
-            applyGraphOps(ops, { graph, parentNodeId, filePath, edgeKind, edgeYaml })
-          }
-        }
-      }
-      continue
-    }
-
-    // --- buildGraphFromModel: типы с кастомной логикой построения графа ---
-    const buildGraphFn = getTypeRule(propType, "buildGraphFromModel")
-    if (!buildGraphFn) continue
-
-    const value = element[key]
-    if (value === undefined || value === null) continue
-
-    const result = buildGraphFn({
-      model: value,
-      parentNodeId,
-      filePath,
-      yamlMap: undefined,
-      propRule: propRule as never,
-      graph,
-      extra: { formNodeId },
-    })
-    applyBuildGraphResult(result, {
-      graph,
-      parentNodeId,
-      filePath,
-      propType,
-      extra: { formNodeId },
-    })
-  }
-}
 
 /**
  * Создаёт плоские узлы для массива дочерних элементов формы.
@@ -173,51 +96,50 @@ function buildChildItemsResult(params: {
 
 /**
  * Создаёт узел-синглет плоско под формой с именем через хелпер.
- * NodeId = `formNodeId.helperName(parentElementName)`.
- * Owning-ребро ЭлементФормы идёт от formNodeId (не от родительского элемента).
+ * NodeId = `formNodeId.Элемент.helperName(parentName)`.
+ * Owning-ребро ЭлементФормы идёт от корня формы (edgeFrom: formNodeId),
+ * а не от визуального родителя. Возвращает GraphOps[] с children и recurse.
  */
-function buildSingletonGraph(params: {
+function buildSingletonResult(params: {
   model: unknown
   parentNodeId: string
   formNodeId: string
-  filePath: string
-  graph: MetadataGraph
   getName: (parentName: string) => string
   singletonRule?: MetadataItemRule
-}): void {
-  const { model, parentNodeId, formNodeId, filePath, graph, getName, singletonRule } = params
+}): GraphOps[] | undefined {
+  const { model, parentNodeId, formNodeId, getName, singletonRule } = params
 
-  if (!model || typeof model !== "object") return
+  if (!model || typeof model !== "object") return undefined
 
   const _parts = parentNodeId.split(".")
   const parentName = _parts[_parts.length - 1] ?? ""
   const singletonName = getName(parentName)
   const singletonNodeId = `${formNodeId}.Элемент.${singletonName}`
 
-  graph.promoteNode(singletonNodeId, {
+  const children: GraphOpsChild[] = [{
+    idSuffix: singletonName,
     name: singletonName,
-    filePaths: [filePath],
-    item: model,
-  })
+    item: model as Record<string, unknown>,
+    absoluteId: singletonNodeId,
+    edgeFrom: formNodeId,
+  }]
 
-  // Ребро от ФОРМЫ, а не от визуального родителя
-  const edgeKey = `${formNodeId}:${FORM_ELEMENT_EDGE_KIND}:${singletonNodeId}`
-  graph.ensureEdge(edgeKey, formNodeId, singletonNodeId, {
-    yaml: FORM_ELEMENT_EDGE_YAML,
-    kind: FORM_ELEMENT_EDGE_KIND,
-  })
-
-  // Рекурсия в собственные дочерние элементы синглета (childItems и вложенные синглеты)
+  const recurses: GraphOpsRecurse[] = []
   if (singletonRule) {
-    buildElementChildrenGraph({
-      element: model as Record<string, unknown>,
-      elementRule: singletonRule,
+    recurses.push({
+      model: model as Record<string, unknown>,
+      rule: singletonRule,
       parentNodeId: singletonNodeId,
-      formNodeId,
-      filePath,
-      graph,
+      extra: { formNodeId },
     })
   }
+
+  return [{
+    children,
+    recurse: recurses,
+    edgeKind: FORM_ELEMENT_EDGE_KIND,
+    edgeYaml: FORM_ELEMENT_EDGE_YAML,
+  }]
 }
 
 // ---------------------------------------------------------------------------
@@ -248,9 +170,9 @@ function registerSingletonHandler(params: {
 }): void {
   const { propertyType, getName, singletonRule } = params
   registerTypeRule(propertyType, "buildGraphFromModel", (handlerParams) => {
-    const { model, parentNodeId, filePath, graph, extra } = handlerParams
+    const { model, parentNodeId, extra } = handlerParams
     const formNodeId = (extra?.formNodeId as string | undefined) ?? parentNodeId
-    buildSingletonGraph({ model, parentNodeId, formNodeId, filePath, graph, getName, singletonRule })
+    return buildSingletonResult({ model, parentNodeId, formNodeId, getName, singletonRule })
   })
 }
 
