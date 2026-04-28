@@ -249,7 +249,7 @@ describe("applyGraphOps", () => {
     })
 
     it("пробрасывает positionFrom на ребро", () => {
-      const { graph, formNodeId, attrId } = makeFormGraph()
+      const { graph, formNodeId } = makeFormGraph()
       const elementId = `${formNodeId}.Элемент.Кнопка`
       graph.ensureNode(elementId, { name: "Кнопка", filePaths: ["test/Форма.yaml"] })
 

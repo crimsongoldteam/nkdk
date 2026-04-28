@@ -96,6 +96,9 @@ export interface GraphOpsReference {
   id: string
   name: string
   positionFrom?: { offset: number; length?: number }
+  // parentOverride намеренно не поддерживается: reference создаёт глобальный stub-узел
+  // и ребро всегда от ctx.parentNodeId. Если нужен override-источник ребра — используй
+  // formLocalReferences (с собственной семантикой резолвинга цели).
 }
 
 export interface GraphOpsFormLocalReference {

@@ -87,6 +87,8 @@ function buildElementChildrenGraph(params: {
     const value = element[key]
     if (value === undefined || value === null) continue
 
+    // TODO 1c: вынести в общий хелпер applyBuildGraphResult(result, propType, ctx) —
+    // дубликат с orchestration/buildGraphFromModel.ts (тот же five-step normalize-блок).
     const result = buildGraphFn({
       model: value,
       parentNodeId,
