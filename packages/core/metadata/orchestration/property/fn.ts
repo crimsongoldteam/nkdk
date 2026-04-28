@@ -5,7 +5,6 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
-import { MetadataGraph } from "../../relations/MetadataGraph"
 import { PropertyRuleType } from "./registry"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
@@ -77,7 +76,6 @@ export type BuildGraphFromModelFunction = (params: {
   filePath: string
   yamlMap: YAMLMap | undefined
   propRule: PropertyRule
-  graph: MetadataGraph
   /** Дополнительный контекст, пробрасываемый в кастомные обработчики (например, formNodeId). */
   extra?: Record<string, unknown>
 }) => GraphOps | GraphOps[] | undefined | void

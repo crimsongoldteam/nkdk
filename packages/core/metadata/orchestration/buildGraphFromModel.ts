@@ -119,7 +119,6 @@ export function buildGraphFromModel(params: {
         filePath,
         yamlMap,
         propRule,
-        graph,
         extra,
       })
       applyBuildGraphResult(result, { graph, parentNodeId, filePath, propType, extra })
