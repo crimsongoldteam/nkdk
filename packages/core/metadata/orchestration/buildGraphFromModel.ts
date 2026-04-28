@@ -58,7 +58,30 @@ export function buildGraphFromModel(params: {
     // --- buildGraphFromModel: типы с кастомной логикой построения графа ---
     const buildGraphFn = getTypeRule(propType, "buildGraphFromModel")
     if (buildGraphFn) {
-      buildGraphFn({ model: model[key], parentNodeId, filePath, yamlMap, propRule, graph, extra })
+      const result = buildGraphFn({
+        model: model[key],
+        parentNodeId,
+        filePath,
+        yamlMap,
+        propRule,
+        graph,
+        extra,
+      })
+      if (result && (result.children?.length || result.references?.length)) {
+        if (!result.edgeKind || !result.edgeYaml) {
+          throw new Error(
+            `buildGraphFromModel: обработчик типа "${propType}" вернул GraphOps без edgeKind/edgeYaml. ` +
+              `Чистые функции должны указывать оба поля в результате.`,
+          )
+        }
+        applyGraphOps(result, {
+          graph,
+          parentNodeId,
+          filePath,
+          edgeKind: result.edgeKind,
+          edgeYaml: result.edgeYaml,
+        })
+      }
       continue
     }
 

@@ -1,5 +1,4 @@
 import { isPair, isScalar, isSeq, YAMLSeq } from "yaml"
-import { applyGraphOps } from "~/metadata/relations/applyGraphOps"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import {
   BuildGraphFromModelFunction,
@@ -15,7 +14,7 @@ const EDGE_YAML = "Поле"
 
 const extractMetadataFieldGraph: ExtractGraphFromModelFunction = (
   model,
-  position
+  position,
 ): GraphOps | undefined => {
   const field = model as MetadataField
   if (!field) return undefined
@@ -26,19 +25,16 @@ const extractMetadataFieldGraph: ExtractGraphFromModelFunction = (
 
 const buildMetadataFieldsGraph: BuildGraphFromModelFunction = ({
   model,
-  parentNodeId,
-  filePath,
   yamlMap,
   propRule,
-  graph,
-}) => {
+}): GraphOps | undefined => {
   const fields = model as MetadataFields | undefined
-  if (!Array.isArray(fields) || fields.length === 0) return
+  if (!Array.isArray(fields) || fields.length === 0) return undefined
 
   let yamlSeq: YAMLSeq | undefined
   if (yamlMap && propRule.yaml) {
     const pair = yamlMap.items.find(
-      (i) => isPair(i) && isScalar(i.key) && i.key.value === propRule.yaml
+      (i) => isPair(i) && isScalar(i.key) && i.key.value === propRule.yaml,
     )
     if (pair && isPair(pair) && isSeq(pair.value)) {
       yamlSeq = pair.value as YAMLSeq
@@ -53,9 +49,9 @@ const buildMetadataFieldsGraph: BuildGraphFromModelFunction = ({
     })
     .filter((ref): ref is NonNullable<typeof ref> => ref !== undefined)
 
-  if (references.length > 0) {
-    applyGraphOps({ references }, { graph, parentNodeId, filePath, edgeKind: EDGE_KIND, edgeYaml: EDGE_YAML })
-  }
+  if (references.length === 0) return undefined
+
+  return { references, edgeKind: EDGE_KIND, edgeYaml: EDGE_YAML }
 }
 
 registerTypeRule("MetadataField", "extractGraph", extractMetadataFieldGraph)
