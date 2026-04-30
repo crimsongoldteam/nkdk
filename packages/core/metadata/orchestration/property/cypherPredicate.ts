@@ -21,10 +21,8 @@ export interface CypherPredicate {
   test: (metadataItem: unknown, rows: Record<string, unknown>[]) => boolean
 }
 
-type BrandedCypherPredicate = CypherPredicate & { readonly [cypherPredicateBrand]: true }
-
 export const cypherPredicate = (p: CypherPredicate): CypherPredicate => {
-  ;(p as BrandedCypherPredicate)[cypherPredicateBrand as unknown as keyof BrandedCypherPredicate] = true
+  ;(p as unknown as Record<PropertyKey, unknown>)[cypherPredicateBrand] = true
   return p
 }
 
