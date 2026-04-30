@@ -9,7 +9,7 @@ import { syncConfigurationToXML } from "./syncToXML"
 describe("sync configuration to XML", () => {
   const inputDir = getXMLFixturePath("sync/syncConfiguration/nkdk")
   const referenceDir = getXMLFixturePath("sync/syncConfiguration/xml")
-  const outputDir = getXMLFixturePath("sync/syncConfiguration/out")
+  const outputDir = getXMLFixturePath("sync/syncConfiguration/out-to-xml")
   const catalogName = "Контрагенты"
 
   beforeEach(() => {
@@ -27,14 +27,14 @@ describe("sync configuration to XML", () => {
     })
 
     const expectedMetadataXML = readXMLFileAsString(join("sync/syncConfiguration/xml/Catalogs", `${catalogName}.xml`))
-    const resultMetadataXML = readXMLFileAsString(join("sync/syncConfiguration/out/Catalogs", `${catalogName}.xml`))
+    const resultMetadataXML = readXMLFileAsString(join("sync/syncConfiguration/out-to-xml/Catalogs", `${catalogName}.xml`))
     expect(resultMetadataXML).toBe(expectedMetadataXML)
 
     const expectedFormXML = readXMLFileAsString(
       join("sync/syncConfiguration/xml/Catalogs", "Контрагенты", "Forms", "ФормаЭлемента", "Ext", "Form.xml")
     )
     const resultFormXML = readXMLFileAsString(
-      join("sync/syncConfiguration/out", "Catalogs", catalogName, "Forms", "ФормаЭлемента", "Ext", "Form.xml")
+      join("sync/syncConfiguration/out-to-xml", "Catalogs", catalogName, "Forms", "ФормаЭлемента", "Ext", "Form.xml")
     )
     expect(resultFormXML).toBe(expectedFormXML)
 
@@ -42,7 +42,7 @@ describe("sync configuration to XML", () => {
       join("sync/syncConfiguration/xml/Catalogs", catalogName, "Forms", "ФормаЭлемента.xml")
     )
     const resultFormMetadataXML = readXMLFileAsString(
-      join("sync/syncConfiguration/out", "Catalogs", catalogName, "Forms", "ФормаЭлемента.xml")
+      join("sync/syncConfiguration/out-to-xml", "Catalogs", catalogName, "Forms", "ФормаЭлемента.xml")
     )
     expect(resultFormMetadataXML).toBe(expectedFormMetadataXML)
   })

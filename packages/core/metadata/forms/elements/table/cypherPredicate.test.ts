@@ -21,7 +21,6 @@ describe("Table CypherPredicate — period и topLevelParent", () => {
       name: "Таблица",
       dataPath: "ДинамическийСписок1.Колонка1",
       id: undefined,
-      type: undefined,
     }
 
     const result = exportPropertiesToXML({
@@ -49,7 +48,6 @@ describe("Table CypherPredicate — period и topLevelParent", () => {
       name: "Таблица",
       dataPath: "ДинамическийСписок1.Колонка1",
       id: undefined,
-      type: undefined,
     }
 
     const result = exportPropertiesToXML({
@@ -77,7 +75,6 @@ describe("Table CypherPredicate — period и topLevelParent", () => {
       name: "Таблица",
       dataPath: "ДинамическийСписок1.Колонка1",
       id: undefined,
-      type: undefined,
     }
 
     const result = exportPropertiesToXML({
@@ -98,7 +95,6 @@ describe("Table CypherPredicate — period и topLevelParent", () => {
       name: "Таблица",
       dataPath: "ДинамическийСписок1.Колонка1",
       id: undefined,
-      type: undefined,
     }
 
     const result = exportPropertiesToXML({
