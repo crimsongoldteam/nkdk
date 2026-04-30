@@ -180,6 +180,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@nakidka/graph':
+        specifier: workspace:*
+        version: link:../graph
       '@sinclair/typebox':
         specifier: ^0.34.48
         version: 0.34.48
