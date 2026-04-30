@@ -8,6 +8,7 @@ export interface NodeAttributes {
 /** Атрибуты ребра графа (kind всегда присутствует; дополнительные поля опциональны). */
 export interface EdgeAttributes {
   kind: string
+  positionFrom?: { offset?: number; length?: number }
   [key: string]: unknown
 }
 
@@ -18,7 +19,7 @@ interface EdgeRecord {
 }
 
 /**
- * Лёгкая замена MetadataGraph (graphology) без внешних зависимостей.
+ * Лёгкий внутренний граф без внешних зависимостей.
  * Мульти-граф: несколько рёбер между одной парой узлов различаются по kind.
  */
 export class GraphBuilder {

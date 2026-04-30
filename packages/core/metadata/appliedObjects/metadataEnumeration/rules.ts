@@ -1,5 +1,4 @@
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import type { ReferenceScope } from "../../relations/referenceScope"
+import { MetadataItemRule, type ReferenceScope } from "~/metadata/orchestration/property/types"
 
 const enumProperties = ["Enum", "Properties"]
 

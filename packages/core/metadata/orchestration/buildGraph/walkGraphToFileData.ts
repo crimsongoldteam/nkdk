@@ -8,7 +8,7 @@ const UNKNOWN_LABEL = "Unknown"
 const STUB_SEGMENT = ""
 
 /**
- * Обходит MetadataGraph и группирует узлы и рёбра по filePath.
+ * Обходит GraphBuilder и группирует узлы и рёбра по filePath.
  *
  * Узлы:
  *  - label = item.itemType (если задан), иначе "Unknown".

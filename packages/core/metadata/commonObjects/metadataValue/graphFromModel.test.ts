@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { parseDocument } from "yaml"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
+import { applyGraphOps } from "~/metadata/orchestration/buildGraph/internal/applyGraphOps"
 import { extractSingleValueRef, buildMetadataValueGraph } from "./graphFromModel"
-import { applyGraphOps } from "~/metadata/relations/applyGraphOps"
 import {
   MetadataFixedArrayValue,
   MetadataFormChoiceListValue,
@@ -18,12 +18,13 @@ const PARENT_NODE = "Справочник.Товары"
 const FILE_PATH = "test/Свойства.yaml"
 
 function makeGraph() {
-  const graph = new MetadataGraph()
-  graph.ensureNode(PARENT_NODE, { name: "Товары", filePaths: [FILE_PATH] })
+  const graph = new GraphBuilder()
+  graph.ensureNode(PARENT_NODE, { name: "Товары" })
+  graph.addFilePath(PARENT_NODE, FILE_PATH)
   return graph
 }
 
-function runBuild(params: Parameters<typeof buildMetadataValueGraph>[0] & { graph: MetadataGraph }) {
+function runBuild(params: Parameters<typeof buildMetadataValueGraph>[0] & { graph: GraphBuilder }) {
   const { graph, ...buildParams } = params
   const result = buildMetadataValueGraph(buildParams)
   const sections = Array.isArray(result) ? result : result ? [result] : []
@@ -132,7 +133,7 @@ describe("buildMetadataValueGraph", () => {
       propRule: { type: "MetadataValue", yaml: "ЗначениеЗаполнения" },
       graph,
     })
-    expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+    expect([...graph.outEdgeEntries(PARENT_NODE)]).toHaveLength(0)
   })
 
   it("ref → создаёт ребро kind Значение", () => {
@@ -182,7 +183,7 @@ describe("buildMetadataValueGraph", () => {
       propRule: { type: "MetadataValue", yaml: "ЗначениеЗаполнения" },
       graph,
     })
-    expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+    expect([...graph.outEdgeEntries(PARENT_NODE)]).toHaveLength(0)
   })
 
   describe("fixedArray", () => {
@@ -197,7 +198,7 @@ describe("buildMetadataValueGraph", () => {
         propRule: { type: "MetadataValue", yaml: "ЗначениеЗаполнения" },
         graph,
       })
-      expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+      expect([...graph.outEdgeEntries(PARENT_NODE)]).toHaveLength(0)
     })
 
     it("fixedArray из 3 ref → 3 ребра kind Значение", () => {
@@ -262,7 +263,7 @@ describe("buildMetadataValueGraph", () => {
         propRule: { type: "MetadataValue", yaml: "Поле" },
         graph,
       })
-      expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+      expect([...graph.outEdgeEntries(PARENT_NODE)]).toHaveLength(0)
     })
 
     it("formChoiceList с вложенным ref → 1 ребро kind Значение", () => {
@@ -302,7 +303,7 @@ describe("buildMetadataValueGraph", () => {
         propRule: { type: "MetadataValue", yaml: "Поле" },
         graph,
       })
-      expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+      expect([...graph.outEdgeEntries(PARENT_NODE)]).toHaveLength(0)
     })
   })
 })

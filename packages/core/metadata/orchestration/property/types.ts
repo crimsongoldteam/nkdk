@@ -11,10 +11,25 @@ import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
-import type { ReferenceScope } from "~/metadata/relations/referenceScope"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemType } from "../metadataItem/registry"
 import { PropertyRuleType } from "./registry"
+
+export type ReferenceScopeFilterName = "stringIndexedAttribute"
+
+/** Ссылка на объект текущего объекта-владельца (target: "this"). */
+export type ReferenceScopeThis =
+  | { target: "this"; kind: "Form" }
+  | { target: "this"; kind: "Attribute"; filter?: ReferenceScopeFilterName }
+
+/** Ссылка на top-level объект одного из допустимых типов. */
+export type ReferenceScopeTopLevel = {
+  target: "topLevel"
+  /** Допустимые префиксы типов, например ["Справочник", "Документ"]. */
+  allowedTypes: string[]
+}
+
+export type ReferenceScope = ReferenceScopeThis | ReferenceScopeTopLevel
 
 export interface MetadataItem {
   itemType: MetadataItemType
