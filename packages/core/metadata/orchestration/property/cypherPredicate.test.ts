@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { cypherPredicate, isCypherPredicate } from "./cypherPredicate"
+import { cypherPredicate, cypherSet, isCypherPredicate, isCypherSet } from "./cypherPredicate"
 
 describe("cypherPredicate", () => {
   it("возвращает переданный объект, помеченный брендом", () => {
@@ -28,5 +28,40 @@ describe("cypherPredicate", () => {
     expect(isCypherPredicate(undefined)).toBe(false)
     expect(isCypherPredicate(() => true)).toBe(false)
     expect(isCypherPredicate("hello")).toBe(false)
+  })
+})
+
+describe("cypherSet", () => {
+  it("возвращает переданный объект, помеченный брендом", () => {
+    const s = cypherSet({
+      query: "MATCH (n {id: $scope}) RETURN n.name AS name",
+    })
+    expect(s.query).toBe("MATCH (n {id: $scope}) RETURN n.name AS name")
+  })
+
+  it("isCypherSet возвращает true для результата cypherSet", () => {
+    const s = cypherSet({ query: "RETURN 1" })
+    expect(isCypherSet(s)).toBe(true)
+  })
+
+  it("isCypherSet возвращает false для обычного объекта", () => {
+    expect(isCypherSet({ query: "RETURN 1" })).toBe(false)
+  })
+
+  it("isCypherSet возвращает false для null/undefined/функции/строки", () => {
+    expect(isCypherSet(null)).toBe(false)
+    expect(isCypherSet(undefined)).toBe(false)
+    expect(isCypherSet(() => true)).toBe(false)
+    expect(isCypherSet("hello")).toBe(false)
+  })
+
+  it("cypherSet не возвращает true для isCypherPredicate", () => {
+    const s = cypherSet({ query: "RETURN 1" })
+    expect(isCypherPredicate(s)).toBe(false)
+  })
+
+  it("cypherPredicate не возвращает true для isCypherSet", () => {
+    const p = cypherPredicate({ query: "RETURN 1", test: () => true })
+    expect(isCypherSet(p)).toBe(false)
   })
 })
