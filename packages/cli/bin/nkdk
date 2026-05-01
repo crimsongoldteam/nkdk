@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+exec "$ROOT/node_modules/.pnpm/tsx@4.21.0/node_modules/tsx/dist/cli.mjs" \
+  --tsconfig "$ROOT/packages/cli/tsconfig.json" \
+  "$ROOT/packages/cli/src/cli.ts" "$@"
