@@ -5,7 +5,7 @@ import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formatted
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
 import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
-import type { CypherPredicate } from "./cypherPredicate"
+import type { CypherPredicate, CypherSet } from "./cypherPredicate"
 import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
 import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
@@ -116,6 +116,9 @@ export interface BasePropertyRule {
 
   /** Описание допустимых целей ссылки (используется для валидации и автодополнения). */
   referenceScope?: ReferenceScope
+
+  /** Множество допустимых значений из Cypher-запроса к FalkorDB. Используется для валидации и автодополнения. */
+  allowedValues?: CypherSet
 
   /**
    * Значение свойства хранится во внешнем файле, а не в YAML.
