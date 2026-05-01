@@ -273,7 +273,7 @@ const binaryDataStorageLocationUseFieldProperty = {
     xmlParents: ["Properties"],
     order: 31,
     allowedValues: cypherSet({
-      query: "MATCH (scope {id: $scope})-[:ATTRIBUTE]->(a:Attribute)-[:VALUE_TYPE]->(:Type {name: 'Boolean'}) RETURN a.name AS name",
+      query: "MATCH (s {id: $scope})-[:ATTRIBUTE]->(a:MetadataAttribute)-[:TYPE]->(:Type {name: 'Boolean'}) RETURN a.name AS name",
     }),
   },
 } as const satisfies Record<string, PropertyRule>
