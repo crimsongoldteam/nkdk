@@ -1,5 +1,5 @@
 import { updateGraph as writeGraph } from "@nakidka/graph"
-import { buildGraph } from "@nakidka/core"
+import { buildGraph } from "~/metadata/orchestration/buildGraph"
 import chalk from "chalk"
 import { existsSync, readdirSync, readFileSync } from "fs"
 import { join } from "path"
