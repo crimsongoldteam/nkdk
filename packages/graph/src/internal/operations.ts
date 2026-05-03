@@ -2,7 +2,7 @@ import { ensureIndex, query } from "./connection"
 import type { GraphConnection } from "./connection"
 import type { EdgeData, NodeData } from "../types"
 
-export const BATCH_SIZE = 5000
+export const BATCH_SIZE = 10
 
 const groupBy = <T, K extends string>(
   items: readonly T[],

@@ -13,19 +13,26 @@ const isPrimitiveArray = (v: unknown): v is GraphPrimitive[] =>
   Array.isArray(v) && v.every(isPrimitive)
 
 /**
+ * Объект является дочерней коллекцией (не должен сплющиваться в props родителя),
+ * если **все** его значения первого уровня — plain-объекты, и таких значений
+ * больше одного. Это отличает attributes/standardAttributes
+ * (ключи — имена сущностей, значения — объекты, >1 ключа)
+ * от I8nText ({ items: { ru, en } }, ровно 1 ключ).
+ */
+const isChildCollection = (v: Record<string, unknown>): boolean => {
+  const vals = Object.values(v)
+  return vals.length > 1 && vals.every(isPlainObject)
+}
+
+/**
  * Раскладывает поля JS-модели в плоский Record<string, GraphPrimitive | GraphPrimitive[]>:
  * - скаляры → p_<имя>
  * - plain-объекты сплющиваются по '_' (numberQualifiers.digits → p_numberQualifiers_digits)
+ *   но дочерние коллекции (attributes, tabularSections, standardAttributes и т.д.)
+ *   **не сплющиваются** — они уже вынесены в отдельные узлы.
  * - массивы примитивов сохраняются под p_<имя>
  * - массивы объектов и пустые массивы выкидываются
- *   (массивы объектов уезжают в отдельные узлы через type-specific buildGraphFromModel)
  * - itemType и _uuid выкидываются на любом уровне.
- *
- * Type-specific перекраивание (TypeDescription с примесью ссылочных типов как рёбра,
- * MetadataValue → ref-рёбра и т.д.) уже выполнено существующими handler'ами на стадии
- * buildGraphFromModel — flattenItem не пытается это «исправлять». Если в node.item остался
- * массив объектов — он либо уже вынесен в отдельные узлы, либо был лишней копией; в
- * любом случае мы его игнорируем и не дублируем как props.
  */
 export function flattenItem(
   item: unknown,
@@ -57,15 +64,13 @@ function flattenInto(
       if (isPrimitiveArray(value)) {
         out[fullKey] = value
       }
-      // Массивы объектов — пропускаем: уехали в отдельные узлы.
       continue
     }
 
     if (isPlainObject(value)) {
+      if (isChildCollection(value)) continue
       flattenInto(out, `${fullKey}_`, value)
       continue
     }
-
-    // Прочее (классы, функции и т.д.) — игнорируем.
   }
 }

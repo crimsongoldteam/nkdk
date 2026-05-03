@@ -82,4 +82,27 @@ describe("flattenItem", () => {
       p_tags: ["a", null, "b"],
     })
   })
+
+  it("НЕ сплющивает дочерние коллекции (attributes, standardAttributes)", () => {
+    expect(
+      flattenItem({
+        name: "Тестовый",
+        codeLength: 9,
+        synonym: { items: { ru: "Тест", en: "Test" } },
+        attributes: {
+          "Автор": { name: "Автор", type: "Ссылка", synonym: { items: { ru: "А" } } },
+          "Владелец": { name: "Владелец", type: "Документ" },
+        },
+        standardAttributes: {
+          "Владелец": { name: "Владелец", ПроверкаЗаполнения: "Да" },
+          "Родитель": { name: "Родитель", Синоним: "Родитель" },
+        },
+      }),
+    ).toEqual({
+      p_name: "Тестовый",
+      p_codeLength: 9,
+      p_synonym_items_ru: "Тест",
+      p_synonym_items_en: "Test",
+    })
+  })
 })
