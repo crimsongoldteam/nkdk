@@ -13,15 +13,23 @@ const isPrimitiveArray = (v: unknown): v is GraphPrimitive[] =>
   Array.isArray(v) && v.every(isPrimitive)
 
 /**
- * Объект является дочерней коллекцией (не должен сплющиваться в props родителя),
- * если **все** его значения первого уровня — plain-объекты, и таких значений
- * больше одного. Это отличает attributes/standardAttributes
- * (ключи — имена сущностей, значения — объекты, >1 ключа)
- * от I8nText ({ items: { ru, en } }, ровно 1 ключ).
+ * Объект является дочерней коллекцией (не должен сплющиваться в props родителя):
+ * - все значения — строки (короткая форма атрибутов) и ключи не I8nText ("ru"/"en")
+ * - все значения — plain-объекты (длинная форма атрибутов)
+ * - любой ключ содержит кириллицу (имена сущностей, не бывает в скалярных конфигах)
  */
 const isChildCollection = (v: Record<string, unknown>): boolean => {
+  const keys = Object.keys(v)
+  if (keys.length === 0) return false
+
+  // Кириллические ключи — всегда имена сущностей, не скалярный конфиг
+  if (keys.some((k) => /[А-Яа-яЁё]/.test(k))) return true
+
+  if (keys.length <= 1) return false
   const vals = Object.values(v)
-  return vals.length > 1 && vals.every(isPlainObject)
+  if (vals.every((x) => typeof x === "string") && keys.some((k) => !/^[a-z]{2}$/.test(k))) return true
+  if (vals.every(isPlainObject)) return true
+  return false
 }
 
 /**

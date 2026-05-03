@@ -83,7 +83,7 @@ describe("flattenItem", () => {
     })
   })
 
-  it("НЕ сплющивает дочерние коллекции (attributes, standardAttributes)", () => {
+  it("НЕ сплющивает дочерние коллекции — объектные значения", () => {
     expect(
       flattenItem({
         name: "Тестовый",
@@ -103,6 +103,20 @@ describe("flattenItem", () => {
       p_codeLength: 9,
       p_synonym_items_ru: "Тест",
       p_synonym_items_en: "Test",
+    })
+  })
+
+  it("НЕ сплющивает дочерние коллекции — строковые значения (короткая форма)", () => {
+    expect(
+      flattenItem({
+        name: "Короткий",
+        attributes: {
+          "Поле1": "Булево",
+          "Поле2": "Строка",
+        },
+      }),
+    ).toEqual({
+      p_name: "Короткий",
     })
   })
 })
