@@ -1,3 +1,5 @@
+import type { SourcePosition } from "~/metadata/orchestration/property/position"
+
 /** Атрибуты узла графа. */
 export interface NodeAttributes {
   name: string | undefined
@@ -9,7 +11,7 @@ export interface NodeAttributes {
 /** Атрибуты ребра графа (kind всегда присутствует; дополнительные поля опциональны). */
 export interface EdgeAttributes {
   kind: string
-  positionFrom?: { offset?: number; length?: number }
+  positionFrom?: SourcePosition
   [key: string]: unknown
 }
 
