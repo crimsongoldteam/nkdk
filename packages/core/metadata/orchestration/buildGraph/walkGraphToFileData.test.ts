@@ -27,14 +27,15 @@ describe("walkGraphToFileData", () => {
       {
         id: "Справочник.К",
         label: "MetadataCatalog",
-        props: { name: "К", filePath: "a.yaml", p_codeLength: 9 },
+        props: { name: "К", p_codeLength: 9 },
       },
     ])
+    expect(fileA.declaredNodeIds).toEqual(["Справочник.К"])
     expect(fileB.nodes).toEqual([
       {
         id: "Документ.Д",
         label: "MetadataDocument",
-        props: { name: "Д", filePath: "b.yaml", p_numberLength: 5 },
+        props: { name: "Д", p_numberLength: 5 },
       },
     ])
   })
@@ -138,21 +139,24 @@ describe("walkGraphToFileData", () => {
     expect(stubFile.nodes).toEqual([
       { id: "B", label: "Unknown", props: { name: "B" } },
     ])
+    expect(stubFile.declaredNodeIds).toEqual([])
   })
 
-  it("узлы с двумя filePaths попадают в оба сегмента (для form yaml + nkdk)", () => {
+  it("contributed filePath попадает в contributedNodeIds без дублирования узла", () => {
     const g = new GraphBuilder()
-    promote(g, "Справочник.К.Форма.Ф", "Ф", ["yaml.yaml", "nkdk.nkdk"], {
+    promote(g, "Справочник.К.Форма.Ф", "Ф", ["yaml.yaml"], {
       itemType: "ClientApplicationForm",
       name: "Ф",
     })
+    g.addContributedFilePath("Справочник.К.Форма.Ф", "nkdk.nkdk")
 
     const result = walkGraphToFileData(g)
-    expect(result.map((f) => f.filePath).sort()).toEqual(["nkdk.nkdk", "yaml.yaml"])
-    for (const f of result) {
-      expect(f.nodes).toHaveLength(1)
-      expect(f.nodes[0]?.id).toBe("Справочник.К.Форма.Ф")
-    }
+    const yaml = result.find((f) => f.filePath === "yaml.yaml")!
+    const nkdk = result.find((f) => f.filePath === "nkdk.nkdk")!
+
+    expect(yaml.declaredNodeIds).toEqual(["Справочник.К.Форма.Ф"])
+    expect(nkdk.nodes).toEqual([])
+    expect(nkdk.contributedNodeIds).toEqual(["Справочник.К.Форма.Ф"])
   })
 
   it("если item не задан и узел не stub — лейбл Unknown", () => {
@@ -179,7 +183,6 @@ describe("walkGraphToFileData", () => {
 
     expect(file.nodes[0]?.props).toEqual({
       name: "К",
-      filePath: "catalog.yaml",
       p_name: "К",
       p_synonym_items_ru: "К",
     })

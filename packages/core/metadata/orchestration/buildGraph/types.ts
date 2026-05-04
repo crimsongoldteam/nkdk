@@ -23,10 +23,19 @@ export interface EdgeData {
   props?: Record<string, GraphPrimitive>
 }
 
+export interface FileStats {
+  mtimeMs: number
+  size: number
+  updatedAt: number
+}
+
 export interface FileGraphData {
   filePath: string
+  fileStats?: FileStats
   nodes: NodeData[]
   edges: EdgeData[]
+  declaredNodeIds?: string[]
+  contributedNodeIds?: string[]
 }
 
 export interface ImportContext {

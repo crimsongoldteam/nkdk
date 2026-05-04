@@ -5,6 +5,7 @@ export interface NodeAttributes {
   name: string | undefined
   item: unknown
   filePaths: string[]
+  contributedFilePaths: string[]
   flattenSkipKeys: Set<string>
 }
 
@@ -48,6 +49,7 @@ export class GraphBuilder {
       name: attrs?.name,
       item: attrs?.item,
       filePaths: [],
+      contributedFilePaths: [],
       flattenSkipKeys: new Set(),
     })
   }
@@ -65,6 +67,14 @@ export class GraphBuilder {
     const node = this.getNodeAttributes(id)
     if (!node.filePaths.includes(filePath)) {
       node.filePaths.push(filePath)
+    }
+  }
+
+  /** Добавляет contributed filePath на узел; идемпотентен. */
+  addContributedFilePath(id: string, filePath: string): void {
+    const node = this.getNodeAttributes(id)
+    if (!node.contributedFilePaths.includes(filePath)) {
+      node.contributedFilePaths.push(filePath)
     }
   }
 

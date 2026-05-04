@@ -13,6 +13,7 @@ describe("GraphBuilder: ensureNode / getNodeAttributes / hasNode", () => {
       name: undefined,
       item: undefined,
       filePaths: [],
+      contributedFilePaths: [],
       flattenSkipKeys: new Set(),
     })
   })
@@ -69,6 +70,15 @@ describe("GraphBuilder: addFilePath / removeFilePath", () => {
     g.ensureNode("X")
     g.removeFilePath("X", "a.yaml")
     expect(g.getNodeAttributes("X").filePaths).toEqual([])
+  })
+
+  it("addContributedFilePath дописывает уникально", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("X")
+    g.addContributedFilePath("X", "a.nkdk")
+    g.addContributedFilePath("X", "a.nkdk")
+    g.addContributedFilePath("X", "b.nkdk")
+    expect(g.getNodeAttributes("X").contributedFilePaths).toEqual(["a.nkdk", "b.nkdk"])
   })
 })
 

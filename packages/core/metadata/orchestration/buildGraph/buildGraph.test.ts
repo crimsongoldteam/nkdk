@@ -27,7 +27,8 @@ describe("buildGraph (smoke)", () => {
     expect(root).toBeDefined()
     expect(root!.label).toBe("MetadataCatalog")
     expect(root!.props.name).toBe("Контрагенты")
-    expect(root!.props.filePath).toBe("Справочник/Контрагенты/Свойства.yaml")
+    expect(root!.props.filePath).toBeUndefined()
+    expect(fileSegment!.declaredNodeIds).toContain("Справочник.Контрагенты")
   })
 
   it("не дублирует реквизиты справочника в props при прямом импорте buildGraph", () => {

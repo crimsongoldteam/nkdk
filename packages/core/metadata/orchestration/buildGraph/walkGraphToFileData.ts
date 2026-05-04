@@ -11,6 +11,13 @@ const STUB_SEGMENT = ""
 const isEdgePrimitive = (value: unknown): value is string | number | boolean | null =>
   value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean"
 
+type Segment = {
+  nodes: NodeData[]
+  edges: EdgeData[]
+  declaredNodeIds: string[]
+  contributedNodeIds: string[]
+}
+
 function addPositionFromProps(
   props: Record<string, string | number | boolean | null>,
   positionFrom: SourcePosition | undefined,
@@ -26,9 +33,10 @@ function addPositionFromProps(
  *
  * Узлы:
  *  - label = item.itemType (если задан), иначе "Unknown".
- *  - props: name + filePath (координаты графа без префикса) + flattenItem(item) (под p_).
+ *  - props: name + flattenItem(item) (под p_).
  *  - узлы без filePaths (стабы) уезжают в сегмент с filePath ''.
- *  - узлы с несколькими filePaths (форма yaml + nkdk) появляются в каждом сегменте.
+ *  - узлы с filePaths объявляются в declaredNodeIds соответствующего сегмента.
+ *  - contributedFilePaths добавляют узел в contributedNodeIds без дублирования nodes.
  *
  * Рёбра:
  *  - попадают в сегмент filePath первого filePath узла-источника
@@ -36,11 +44,11 @@ function addPositionFromProps(
  *  - props: yaml + (опционально) другие атрибуты ребра в виде примитивов.
  */
 export function walkGraphToFileData(graph: GraphBuilder): FileGraphData[] {
-  const segmentByFilePath = new Map<string, { nodes: NodeData[]; edges: EdgeData[] }>()
+  const segmentByFilePath = new Map<string, Segment>()
   const ensureSegment = (filePath: string) => {
     let seg = segmentByFilePath.get(filePath)
     if (!seg) {
-      seg = { nodes: [], edges: [] }
+      seg = { nodes: [], edges: [], declaredNodeIds: [], contributedNodeIds: [] }
       segmentByFilePath.set(filePath, seg)
     }
     return seg
@@ -53,14 +61,19 @@ export function walkGraphToFileData(graph: GraphBuilder): FileGraphData[] {
     for (const filePath of filePaths) {
       const props: NodeData["props"] = {}
       if (attrs.name !== undefined) props.name = attrs.name
-      if (filePath !== STUB_SEGMENT) props.filePath = filePath
       Object.assign(props, flattenItem(attrs.item, { skipKeys: attrs.flattenSkipKeys }))
 
       const item = attrs.item as Record<string, unknown> | undefined
       const itemType = item && typeof item.itemType === "string" ? (item.itemType as string) : undefined
       const label = itemType ?? UNKNOWN_LABEL
 
-      ensureSegment(filePath).nodes.push({ id: nodeId, label, props })
+      const segment = ensureSegment(filePath)
+      segment.nodes.push({ id: nodeId, label, props })
+      if (filePath !== STUB_SEGMENT) segment.declaredNodeIds.push(nodeId)
+    }
+
+    for (const filePath of attrs.contributedFilePaths) {
+      ensureSegment(filePath).contributedNodeIds.push(nodeId)
     }
   }
 
@@ -99,5 +112,7 @@ export function walkGraphToFileData(graph: GraphBuilder): FileGraphData[] {
     filePath,
     nodes: seg.nodes,
     edges: seg.edges,
+    declaredNodeIds: seg.declaredNodeIds,
+    contributedNodeIds: seg.contributedNodeIds,
   }))
 }
