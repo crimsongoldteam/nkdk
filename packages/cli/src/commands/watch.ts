@@ -22,7 +22,8 @@ const WATCH_PATTERNS = [
 const PROJECT_FILE_ORDER = ["Свойства.yaml", "Форма.yaml", "Форма.nkdk"] as const
 
 const projectFileOrder = (filePath: string): number => {
-  const fileName = filePath.split("/").at(-1)
+  const parts = filePath.split("/")
+  const fileName = parts[parts.length - 1]
   const index = PROJECT_FILE_ORDER.findIndex((name) => name === fileName)
   return index === -1 ? PROJECT_FILE_ORDER.length : index
 }

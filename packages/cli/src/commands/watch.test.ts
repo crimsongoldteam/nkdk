@@ -2,11 +2,12 @@ import { mkdirSync, mkdtempSync, statSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest"
+import type { GraphFileRecord } from "@nakidka/graph"
 import { projectGraphName } from "../graph/projectGraphName"
 import { watch } from "./watch"
 
 const mocks = vi.hoisted(() => ({
-  getGraphFiles: vi.fn(async () => []),
+  getGraphFiles: vi.fn<() => Promise<GraphFileRecord[]>>(async () => []),
   updateGraphFiles: vi.fn(async () => undefined),
   chokidarWatch: vi.fn(),
   statSync: vi.fn(),
