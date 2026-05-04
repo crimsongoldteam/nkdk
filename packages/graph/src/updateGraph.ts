@@ -9,7 +9,17 @@ import {
   mergeFiles,
   mergeNodes,
 } from "./internal/operations"
-import type { ConnectionOptions, FileGraphData } from "./types"
+import type { FileGraphData, GraphProgress, GraphUpdateOptions, GraphUpdatePhase } from "./types"
+
+const reportPhase = async (
+  phase: GraphUpdatePhase,
+  onProgress: ((progress: GraphProgress) => void) | undefined,
+  fn: () => Promise<void>,
+): Promise<void> => {
+  onProgress?.({ phase, done: 0, total: 1 })
+  await fn()
+  onProgress?.({ phase, done: 1, total: 1 })
+}
 
 /**
  * Обновляет содержимое графа по списку файлов:
@@ -20,8 +30,9 @@ import type { ConnectionOptions, FileGraphData } from "./types"
  */
 export const updateGraph = async (
   files: readonly FileGraphData[],
-  opts?: ConnectionOptions,
+  opts?: GraphUpdateOptions,
 ): Promise<void> => {
+  const onProgress = opts?.onProgress
   const allNodes = files.flatMap((f) => f.nodes)
   const filePaths = files.map((f) => f.filePath)
   const labels = allNodes.map((n) => n.label)
@@ -29,14 +40,14 @@ export const updateGraph = async (
 
   const conn = await connect(opts)
   try {
-    await ensureFileIndexes(conn)
-    await ensureLabelIndexes(conn, labels)
-    await deleteByFiles(conn, filePaths)
-    await mergeFiles(conn, files)
-    await mergeNodes(conn, allNodes)
-    await mergeEdges(conn, files, labelByNodeId)
-    await mergeFileLinks(conn, files)
-    await cleanupOrphanStubs(conn, true)
+    await reportPhase("ensureFileIndexes", onProgress, () => ensureFileIndexes(conn))
+    await reportPhase("ensureLabelIndexes", onProgress, () => ensureLabelIndexes(conn, labels))
+    await reportPhase("deleteByFiles", onProgress, () => deleteByFiles(conn, filePaths))
+    await mergeFiles(conn, files, onProgress)
+    await mergeNodes(conn, allNodes, onProgress)
+    await mergeEdges(conn, files, labelByNodeId, onProgress)
+    await mergeFileLinks(conn, files, onProgress)
+    await reportPhase("cleanupOrphanStubs", onProgress, () => cleanupOrphanStubs(conn, true))
   } finally {
     await close(conn)
   }

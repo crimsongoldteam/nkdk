@@ -77,6 +77,44 @@ describe("updateGraph", () => {
     expect(cypher).not.toContainEqual(expect.stringContaining("MATCH (s:MetadataCatalog {id: e.src}), (t {id: e.tgt})"))
   })
 
+  it("сообщает progress по фазам записи", async () => {
+    const onProgress = vi.fn()
+    await updateGraph([
+      {
+        filePath: "a.yaml",
+        nodes: [
+          { id: "A", label: "MetadataCatalog", props: { name: "A" } },
+          { id: "B", label: "ClientApplicationForm", props: { name: "B" } },
+        ],
+        edges: [{ src: "A", tgt: "A", kind: "SELF" }],
+        declaredNodeIds: ["A"],
+        contributedNodeIds: ["B"],
+      },
+    ], { onProgress })
+
+    expect(onProgress).toHaveBeenCalledWith(expect.objectContaining({ phase: "mergeNodes" }))
+    expect(onProgress).toHaveBeenCalledWith(expect.objectContaining({ phase: "mergeEdges" }))
+    expect(onProgress).toHaveBeenCalledWith(expect.objectContaining({ phase: "cleanupOrphanStubs" }))
+
+    const progressEvents = onProgress.mock.calls.map(([progress]) => progress)
+    expect(progressEvents).not.toContainEqual(expect.objectContaining({ phase: "mergeFiles", done: 0, total: 1 }))
+    expect(progressEvents).not.toContainEqual(expect.objectContaining({ phase: "mergeNodes", done: 0, total: 1 }))
+    expect(progressEvents).not.toContainEqual(expect.objectContaining({ phase: "mergeEdges", done: 0, total: 1 }))
+    expect(progressEvents).not.toContainEqual(expect.objectContaining({ phase: "mergeFileLinks", done: 0, total: 1 }))
+
+    const mergeNodesEvents = progressEvents.filter((event) => event.phase === "mergeNodes")
+    expect(mergeNodesEvents).toEqual([
+      expect.objectContaining({ done: 1, total: 2 }),
+      expect.objectContaining({ done: 2, total: 2 }),
+    ])
+
+    const mergeFileLinksEvents = progressEvents.filter((event) => event.phase === "mergeFileLinks")
+    expect(mergeFileLinksEvents).toEqual([
+      expect.objectContaining({ done: 1, total: 2 }),
+      expect.objectContaining({ done: 2, total: 2 }),
+    ])
+  })
+
   it("удаляет старые DECLARES/CONTRIBUTES перед новой записью файла", async () => {
     await updateGraph([{ filePath: "a.yaml", nodes: [], edges: [] }])
 
