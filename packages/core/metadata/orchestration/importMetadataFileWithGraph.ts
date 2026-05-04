@@ -1,5 +1,5 @@
 import { isMap } from "yaml"
-import { getKindByYaml } from "~/metadata/relations/edgeKinds"
+import { getKindByYaml } from "~/metadata/orchestration/buildGraph/internal/edgeKinds"
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import type { MetadataCatalog } from "~/metadata/appliedObjects/metadataCatalog/types"
@@ -9,8 +9,11 @@ import { importMetadataEnumerationFromYAML } from "~/metadata/appliedObjects/met
 import { MetadataEnumerationRules } from "~/metadata/appliedObjects/metadataEnumeration/rules"
 import type { MetadataEnumeration } from "~/metadata/appliedObjects/metadataEnumeration/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
+import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
+import { parseClientApplicationFormFromNKDK } from "~/metadata/forms/clientApplicationForm/parseNKDK"
 import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
-import type { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import type { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
+import type { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import type { MetadataKind } from "~/metadata/validation/types"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
@@ -23,7 +26,7 @@ interface RuleWithTerminals {
 }
 
 function materializeGraphTerminals(
-  graph: MetadataGraph,
+  graph: GraphBuilder,
   rule: RuleWithTerminals,
   itemNodeId: string,
   ownerName: string,
@@ -33,24 +36,21 @@ function materializeGraphTerminals(
   const ownerType = rule.itemTypePrefix ?? ""
   for (const terminalName of rule.graphTerminals) {
     const terminalId = `${itemNodeId}.${terminalName}`
-    graph.promoteNode(terminalId, {
-      name: terminalName,
-      filePaths: [filePath],
-      item: { itemType: "EmptyRef", ownerType, ownerName },
-    })
+    graph.ensureNode(terminalId, { name: terminalName })
+    graph.addFilePath(terminalId, filePath)
+    graph.setItem(terminalId, { itemType: "EmptyRef", ownerType, ownerName })
     const edgeKind = getKindByYaml(terminalName) ?? terminalName
-    const edgeKey = `${itemNodeId}:${edgeKind}:${terminalId}`
-    graph.ensureEdge(edgeKey, itemNodeId, terminalId, { yaml: terminalName, kind: edgeKind })
+    graph.ensureEdge(itemNodeId, terminalId, edgeKind, { yaml: terminalName })
   }
 }
 
 export interface ImportMetadataFileResult {
-  model: MetadataCatalog | MetadataDocument | MetadataEnumeration
+  model: MetadataCatalog | MetadataDocument | MetadataEnumeration | ClientApplicationForm
   parsed: ParsedYaml
 }
 
 function ensureRootNode(
-  graph: MetadataGraph,
+  graph: GraphBuilder,
   prefix: string,
   itemType: string,
   name: string,
@@ -58,10 +58,10 @@ function ensureRootNode(
 ): string {
   const itemNodeId = `${prefix}.${name}`
   graph.ensureNode(prefix, { name: prefix })
-  graph.ensureNode(itemNodeId, { name, filePaths: [filePath] })
+  graph.ensureNode(itemNodeId, { name })
+  graph.addFilePath(itemNodeId, filePath)
   const edgeKind = getKindByYaml(itemType) ?? itemType
-  const edgeKey = `${prefix}:${edgeKind}:${itemNodeId}`
-  graph.ensureEdge(edgeKey, prefix, itemNodeId, { yaml: itemType, kind: edgeKind })
+  graph.ensureEdge(prefix, itemNodeId, edgeKind, { yaml: itemType })
   return itemNodeId
 }
 
@@ -104,10 +104,10 @@ const _kindRegistry = new Map<MetadataKind, MetadataKindEntry>([
 /**
  * Общий хелпер «прочитанный файл → модель + граф».
  * Инкапсулирует kind-диспетчер через реестр.
- * Для form — создаёт узел с двумя filePaths (yaml + nkdk) и owning-ребром «Форма».
+ * Для form — YAML объявляет корень формы, nkdk дополняет корень и объявляет visual elements.
  * Бросает, если kind неизвестен.
  */
-export function importMetadataFileWithGraph(params: {
+export async function importMetadataFileWithGraph(params: {
   /** Путь к yaml-файлу (основной файл). */
   filePath: string
   /** Путь к nkdk-файлу (только для form). */
@@ -116,11 +116,11 @@ export function importMetadataFileWithGraph(params: {
   sources: { yaml: string; nkdk?: string }
   kind: MetadataKind | "form"
   name: string
-  graph: MetadataGraph
+  graph: GraphBuilder
   context: ConfigurationContext
   /** NodeId владельца формы (требуется для kind === "form"). */
   ownerNodeId?: string
-}): ImportMetadataFileResult | undefined {
+}): Promise<ImportMetadataFileResult | undefined> {
   const { filePath, nkdkFilePath, sources, kind, name, graph, context } = params
 
   // ---- form: особый путь ----
@@ -135,43 +135,63 @@ export function importMetadataFileWithGraph(params: {
     // Создаём владельца как stub, если он ещё не импортирован
     graph.ensureNode(ownerNodeId, { name: ownerNodeId.split(".").pop()! })
 
-    // Форм-узел с обоими filePaths (yaml + nkdk, если есть)
-    const formFilePaths: string[] = [filePath]
-    if (nkdkFilePath) formFilePaths.push(nkdkFilePath)
-
-    graph.promoteNode(formNodeId, {
-      name,
-      filePaths: formFilePaths,
-      item: { itemType: "ClientApplicationForm", name },
-    })
+    // Форм-узел объявляет YAML; nkdk только дополняет часть свойств формы.
+    graph.ensureNode(formNodeId, { name })
 
     // Owning-ребро «Форма» от владельца к форме
-    const edgeKey = `${ownerNodeId}:FORM:${formNodeId}`
-    graph.ensureEdge(edgeKey, ownerNodeId, formNodeId, { yaml: "Форма", kind: "FORM" })
+    graph.ensureEdge(ownerNodeId, formNodeId, "FORM", { yaml: "Форма" })
 
-    // Парсим YAML формы и строим граф реквизитов/параметров/команд
     const parsed = parseMetadataYaml(sources.yaml)
     const yamlMap = isMap(parsed.doc.contents) ? parsed.doc.contents : undefined
     const importContext: ConfigurationContext = { ...context, graph }
 
-    const model = importMetadataItemFromYAML({
-      context: importContext,
-      yaml: parsed.data as never,
+    const nkdkModel = (sources.nkdk
+      ? await parseClientApplicationFormFromNKDK(importContext, sources.nkdk)
+      : undefined) ?? { itemType: "ClientApplicationForm", childItems: [], commands: [] }
+
+    const model = importClientApplicationFormFromYAML(
+      importContext,
+      parsed.data as never,
+      nkdkModel as never,
+    )
+
+    graph.setItem(formNodeId, {
+      ...model,
+      childItems: [],
+      autoCommandBar: undefined,
+    })
+    graph.addFilePath(formNodeId, filePath)
+    if (nkdkFilePath) graph.addContributedFilePath(formNodeId, nkdkFilePath)
+
+    buildGraphFromModel({
+      model: model as Record<string, unknown>,
+      yamlMap,
+      lineCounter: parsed.lineCounter,
       rule: ClientApplicationFormRules as never,
+      graph,
+      parentNodeId: formNodeId,
+      filePath,
     })
 
-    if (model) {
-      buildGraphFromModel({
-        model: model as Record<string, unknown>,
-        yamlMap,
-        rule: ClientApplicationFormRules as never,
-        graph,
-        parentNodeId: formNodeId,
-        filePath,
-      })
+    if (nkdkFilePath) {
+      const visualPrefix = `${formNodeId}.Элемент.`
+      for (const nodeId of graph.nodes()) {
+        if (nodeId.startsWith(visualPrefix)) {
+          graph.removeFilePath(nodeId, filePath)
+          graph.addFilePath(nodeId, nkdkFilePath)
+        }
+      }
+
+      for (const nodeId of graph.nodes()) {
+        for (const { target, attributes } of graph.outEdgeEntries(nodeId)) {
+          if (nodeId.startsWith(visualPrefix) || target.startsWith(visualPrefix)) {
+            graph.ensureEdge(nodeId, target, attributes.kind, { filePath: nkdkFilePath })
+          }
+        }
+      }
     }
 
-    return undefined
+    return { model, parsed }
   }
 
   // ---- catalog / document / enumeration: через реестр ----
@@ -199,12 +219,13 @@ export function importMetadataFileWithGraph(params: {
     | undefined
   if (!model) return undefined
 
-  graph.setNodeAttribute(itemNodeId, "item", model)
-  graph.updateNodeFilePath(itemNodeId, filePath)
+  graph.setItem(itemNodeId, model)
+  graph.addFilePath(itemNodeId, filePath)
   materializeGraphTerminals(graph, entry.rule, itemNodeId, name, filePath)
   buildGraphFromModel({
     model: model as unknown as Record<string, unknown>,
     yamlMap,
+    lineCounter: parsed.lineCounter,
     rule: entry.rule as never,
     graph,
     parentNodeId: itemNodeId,

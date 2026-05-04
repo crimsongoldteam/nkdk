@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { parseDocument } from "yaml"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { LineCounter, parseDocument } from "yaml"
+import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
+import { applyGraphOps } from "~/metadata/orchestration/buildGraph/internal/applyGraphOps"
 import { extractSingleValueRef, buildMetadataValueGraph } from "./graphFromModel"
-import { applyGraphOps } from "~/metadata/relations/applyGraphOps"
 import {
   MetadataFixedArrayValue,
   MetadataFormChoiceListValue,
@@ -18,14 +18,24 @@ const PARENT_NODE = "Справочник.Товары"
 const FILE_PATH = "test/Свойства.yaml"
 
 function makeGraph() {
-  const graph = new MetadataGraph()
-  graph.ensureNode(PARENT_NODE, { name: "Товары", filePaths: [FILE_PATH] })
+  const graph = new GraphBuilder()
+  graph.ensureNode(PARENT_NODE, { name: "Товары" })
+  graph.addFilePath(PARENT_NODE, FILE_PATH)
   return graph
 }
 
-function runBuild(params: Parameters<typeof buildMetadataValueGraph>[0] & { graph: MetadataGraph }) {
+function runBuild(
+  params: Omit<Parameters<typeof buildMetadataValueGraph>[0], "lineCounter" | "propertyName"> & {
+    lineCounter?: LineCounter
+    graph: GraphBuilder
+  },
+) {
   const { graph, ...buildParams } = params
-  const result = buildMetadataValueGraph(buildParams)
+  const result = buildMetadataValueGraph({
+    lineCounter: undefined,
+    propertyName: "value",
+    ...buildParams,
+  })
   const sections = Array.isArray(result) ? result : result ? [result] : []
   for (const section of sections) {
     if (!section.edgeKind || !section.edgeYaml) continue
@@ -71,12 +81,12 @@ describe("extractSingleValueRef", () => {
 
   it("ref с ПустаяСсылка справочника → ребро kind Значение", () => {
     const v: MetadataRefValue = { type: "ref", value: "Catalog.Пользователи.EmptyRef" }
-    const result = extractSingleValueRef(v, { offset: 10 })
+    const result = extractSingleValueRef(v, { offset: 10, line: 2, column: 5 })
     expect(result).toBeDefined()
     expect(result!.kind).toBe("VALUE")
     expect(result!.ref.id).toBe("Справочник.Пользователи.ПустаяСсылка")
     expect(result!.ref.name).toBe("ПустаяСсылка")
-    expect(result!.ref.positionFrom).toEqual({ offset: 10 })
+    expect(result!.ref.positionFrom).toEqual({ offset: 10, line: 2, column: 5 })
   })
 
   it("ref со значением перечисления (EnumValue) → ребро kind Значение без EnumValue в nodeId", () => {
@@ -100,11 +110,11 @@ describe("extractSingleValueRef", () => {
       type: "objectRef",
       value: "ChartOfCharacteristicTypes.ДополнительныеРеквизиты",
     }
-    const result = extractSingleValueRef(v, { offset: 5 })
+    const result = extractSingleValueRef(v, { offset: 5, line: 1, column: 6 })
     expect(result).toBeDefined()
     expect(result!.kind).toBe("OBJECT")
     expect(result!.ref.id).toBe("ПланВидовХарактеристик.ДополнительныеРеквизиты")
-    expect(result!.ref.positionFrom).toEqual({ offset: 5 })
+    expect(result!.ref.positionFrom).toEqual({ offset: 5, line: 1, column: 6 })
   })
 
   it("objectRef с Catalog → ребро kind Объект", () => {
@@ -132,7 +142,7 @@ describe("buildMetadataValueGraph", () => {
       propRule: { type: "MetadataValue", yaml: "ЗначениеЗаполнения" },
       graph,
     })
-    expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+    expect([...graph.outEdgeEntries(PARENT_NODE)]).toHaveLength(0)
   })
 
   it("ref → создаёт ребро kind Значение", () => {
@@ -182,7 +192,7 @@ describe("buildMetadataValueGraph", () => {
       propRule: { type: "MetadataValue", yaml: "ЗначениеЗаполнения" },
       graph,
     })
-    expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+    expect([...graph.outEdgeEntries(PARENT_NODE)]).toHaveLength(0)
   })
 
   describe("fixedArray", () => {
@@ -197,7 +207,7 @@ describe("buildMetadataValueGraph", () => {
         propRule: { type: "MetadataValue", yaml: "ЗначениеЗаполнения" },
         graph,
       })
-      expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+      expect([...graph.outEdgeEntries(PARENT_NODE)]).toHaveLength(0)
     })
 
     it("fixedArray из 3 ref → 3 ребра kind Значение", () => {
@@ -208,7 +218,8 @@ describe("buildMetadataValueGraph", () => {
   - Перечисление.ТипыСчетов.Расходы
   - Перечисление.ТипыСчетов.ПрямыеЗатраты
 `
-      const doc = parseDocument(yaml)
+      const lineCounter = new LineCounter()
+      const doc = parseDocument(yaml, { lineCounter })
       const yamlMap = doc.contents as any
 
       const items: MetadataTypedValue[] = [
@@ -223,6 +234,7 @@ describe("buildMetadataValueGraph", () => {
         parentNodeId: PARENT_NODE,
         filePath: FILE_PATH,
         yamlMap,
+        lineCounter,
         propRule: { type: "MetadataValue", yaml: "Свойство" },
         graph,
       })
@@ -262,7 +274,7 @@ describe("buildMetadataValueGraph", () => {
         propRule: { type: "MetadataValue", yaml: "Поле" },
         graph,
       })
-      expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+      expect([...graph.outEdgeEntries(PARENT_NODE)]).toHaveLength(0)
     })
 
     it("formChoiceList с вложенным ref → 1 ребро kind Значение", () => {
@@ -302,7 +314,7 @@ describe("buildMetadataValueGraph", () => {
         propRule: { type: "MetadataValue", yaml: "Поле" },
         graph,
       })
-      expect(graph.outEdges(PARENT_NODE)).toHaveLength(0)
+      expect([...graph.outEdgeEntries(PARENT_NODE)]).toHaveLength(0)
     })
   })
 })

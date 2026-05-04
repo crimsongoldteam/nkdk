@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from "vitest"
 import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import { ClientApplicationFormRules } from "../../clientApplicationForm/rules"
 
 // Регистрирует все обработчики элементов формы (включая CommandName через graphFromModel)
@@ -20,20 +20,13 @@ const FILE_PATH = "Справочник/Товары/Формы/ФормаСпи
  * Создаёт граф с узлом формы и узлом команды «ОткрытьВнешний».
  */
 function makeGraphWithCommand() {
-  const graph = new MetadataGraph()
+  const graph = new GraphBuilder()
   graph.ensureNode(FORM_NODE_ID, { name: "ФормаСписка" })
 
   const cmdNodeId = `${FORM_NODE_ID}.Команда.ОткрытьВнешний`
-  graph.promoteNode(cmdNodeId, {
-    name: "ОткрытьВнешний",
-    filePaths: [FILE_PATH],
-  })
-  graph.ensureEdge(
-    `${FORM_NODE_ID}:КомандаФормы:${cmdNodeId}`,
-    FORM_NODE_ID,
-    cmdNodeId,
-    { yaml: "КомандаФормы", kind: "FORM_COMMAND" },
-  )
+  graph.ensureNode(cmdNodeId, { name: "ОткрытьВнешний" })
+  graph.addFilePath(cmdNodeId, FILE_PATH)
+  graph.ensureEdge(FORM_NODE_ID, cmdNodeId, "FORM_COMMAND", { yaml: "КомандаФормы" })
 
   return graph
 }
@@ -70,7 +63,7 @@ describe("CommandName buildGraphFromModel — ИмяКоманды", () => {
   })
 
   it("создаёт заглушку и reference-ребро, если команда отсутствует в форме", () => {
-    const graph = new MetadataGraph()
+    const graph = new GraphBuilder()
     graph.ensureNode(FORM_NODE_ID, { name: "ФормаСписка" })
 
     buildGraphFromModel({
@@ -98,8 +91,8 @@ describe("CommandName buildGraphFromModel — ИмяКоманды", () => {
     expect(commandEdges).toHaveLength(1)
     const stubId = commandEdges[0].target
     expect(stubId).toBe(`${FORM_NODE_ID}.Команда.НесуществующаяКоманда`)
-    // Заглушка не имеет filePaths (признак stub-узла)
-    expect(graph.getNodeAttribute(stubId, "filePaths")).toBeUndefined()
+    // В GraphBuilder stub-узел имеет пустой массив filePaths (не undefined)
+    expect(graph.getNodeAttributes(stubId).filePaths).toEqual([])
   })
 
   it("пустое commandName → ребро не создаётся", () => {

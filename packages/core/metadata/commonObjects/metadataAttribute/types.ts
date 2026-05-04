@@ -21,7 +21,7 @@ export interface MetadataAttributeXML {
   _uuid: string
   Properties: {
     BinaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse
-    BinaryDataStorageLocationUseField?: StringboolXML
+    BinaryDataStorageLocationUseField?: string
     ChoiceFoldersAndItems?: SE.FoldersAndItemsUse
     ChoiceForm?: string
     ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
@@ -75,7 +75,7 @@ export interface MetadataAttributeFullYAML {
   МногострочныйРежим?: StringboolYAML
   ПараметрыВыбора?: ChoiceParametersYAML
   Подсказка?: I8nTextYAML
-  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: StringboolYAML
+  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: string
   ПолнотекстовыйПоиск?: SE.UseFullTextSearchYAML
   ПринадлежностьОбъекта?: SE.ObjectBelongingYAML
   ПроверкаЗаполнения?: SE.FillCheckingYAML

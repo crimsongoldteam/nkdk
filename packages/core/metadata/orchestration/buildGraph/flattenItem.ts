@@ -12,27 +12,26 @@ const isPrimitive = (v: unknown): v is GraphPrimitive =>
 const isPrimitiveArray = (v: unknown): v is GraphPrimitive[] =>
   Array.isArray(v) && v.every(isPrimitive)
 
+export interface FlattenItemOptions {
+  skipKeys?: ReadonlySet<string>
+}
+
 /**
  * Раскладывает поля JS-модели в плоский Record<string, GraphPrimitive | GraphPrimitive[]>:
  * - скаляры → p_<имя>
  * - plain-объекты сплющиваются по '_' (numberQualifiers.digits → p_numberQualifiers_digits)
+ * - ключи из options.skipKeys не сплющиваются на текущем уровне
  * - массивы примитивов сохраняются под p_<имя>
  * - массивы объектов и пустые массивы выкидываются
- *   (массивы объектов уезжают в отдельные узлы через type-specific buildGraphFromModel)
  * - itemType и _uuid выкидываются на любом уровне.
- *
- * Type-specific перекраивание (TypeDescription с примесью ссылочных типов как рёбра,
- * MetadataValue → ref-рёбра и т.д.) уже выполнено существующими handler'ами на стадии
- * buildGraphFromModel — flattenItem не пытается это «исправлять». Если в node.item остался
- * массив объектов — он либо уже вынесен в отдельные узлы, либо был лишней копией; в
- * любом случае мы его игнорируем и не дублируем как props.
  */
 export function flattenItem(
   item: unknown,
+  options: FlattenItemOptions = {},
 ): Record<string, GraphPrimitive | GraphPrimitive[]> {
   const result: Record<string, GraphPrimitive | GraphPrimitive[]> = {}
   if (!isPlainObject(item)) return result
-  flattenInto(result, "p_", item)
+  flattenInto(result, "p_", item, options.skipKeys)
   return result
 }
 
@@ -40,9 +39,11 @@ function flattenInto(
   out: Record<string, GraphPrimitive | GraphPrimitive[]>,
   prefix: string,
   obj: Record<string, unknown>,
+  skipKeys: ReadonlySet<string> | undefined,
 ): void {
   for (const [key, value] of Object.entries(obj)) {
     if (SKIP_KEYS.has(key)) continue
+    if (skipKeys?.has(key)) continue
     if (value === undefined) continue
 
     const fullKey = `${prefix}${key}`
@@ -57,15 +58,12 @@ function flattenInto(
       if (isPrimitiveArray(value)) {
         out[fullKey] = value
       }
-      // Массивы объектов — пропускаем: уехали в отдельные узлы.
       continue
     }
 
     if (isPlainObject(value)) {
-      flattenInto(out, `${fullKey}_`, value)
+      flattenInto(out, `${fullKey}_`, value, undefined)
       continue
     }
-
-    // Прочее (классы, функции и т.д.) — игнорируем.
   }
 }

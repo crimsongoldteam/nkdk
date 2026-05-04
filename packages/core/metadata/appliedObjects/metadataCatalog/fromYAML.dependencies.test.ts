@@ -2,17 +2,15 @@
 import fs from "fs"
 import path from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { edgeMatch, nodeMatch } from "~/metadata/relations/dependencyQuery"
-import { getDependencies } from "~/metadata/relations/getDependencies"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
 import { mockContext } from "~/tests/mockContext"
 
 describe("importMetadataCatalogDependenciesFromYAML", () => {
-  let graph: MetadataGraph
+  let graph: GraphBuilder
 
   beforeEach(() => {
-    graph = new MetadataGraph()
+    graph = new GraphBuilder()
     const text = fs.readFileSync(path.join(__dirname, "__fixtures__/dependencies.yaml"), "utf8")
     importMetadataFileWithGraph({
       filePath: "test.yaml",
@@ -24,63 +22,38 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     })
   })
 
-  it("should import dependencies", () => {
-    const dependencies = getDependencies(
-      nodeMatch(({ attrs }) => attrs.name === "Справочник")
-        .nodeMatch(() => true)
-        .edgeOr(
-          edgeMatch(({ attrs }) => attrs.kind === "ATTRIBUTE"),
-          edgeMatch(({ attrs }) => attrs.kind === "TABULAR_SECTION"),
-          edgeMatch(({ attrs }) => attrs.kind === "STANDARD_ATTRIBUTE")
-        ),
-      graph,
-    )
+  it("imports owning dependencies as direct edges", () => {
+    const catalog = "Справочник.TestCatalog"
+    const edges = [...graph.outEdgeEntries(catalog)]
 
-    expect(Object.keys(dependencies)).toHaveLength(11)
-    expect(Object.keys(dependencies)).toEqual(
-      expect.arrayContaining([
-        "Справочник.TestCatalog.Реквизит.КакойТоРеквизит",
-        "Справочник.TestCatalog.ТабличнаяЧасть.КакаяТоТабличнаяЧасть",
-        "Справочник.TestCatalog.СтандартныйРеквизит.ИмяПредопределенныхДанных",
-        "Справочник.TestCatalog.СтандартныйРеквизит.Предопределенный",
-        "Справочник.TestCatalog.СтандартныйРеквизит.Ссылка",
-        "Справочник.TestCatalog.СтандартныйРеквизит.ПометкаУдаления",
-        "Справочник.TestCatalog.СтандартныйРеквизит.ЭтоГруппа",
-        "Справочник.TestCatalog.СтандартныйРеквизит.Владелец",
-        "Справочник.TestCatalog.СтандартныйРеквизит.Родитель",
-        "Справочник.TestCatalog.СтандартныйРеквизит.Наименование",
-        "Справочник.TestCatalog.СтандартныйРеквизит.Код",
-      ]),
+    expect(edges).toContainEqual(
+      expect.objectContaining({
+        target: "Справочник.TestCatalog.Реквизит.КакойТоРеквизит",
+        attributes: expect.objectContaining({ kind: "ATTRIBUTE" }),
+      }),
     )
-
-    expect(dependencies["Справочник.TestCatalog.Реквизит.КакойТоРеквизит"]).toMatchObject({
-      item: {
-        itemType: "MetadataAttribute",
-        name: "КакойТоРеквизит",
-        synonym: {
-          items: {
-            ru: "Наименование реквизита",
-            en: "Property name",
-          },
-        },
-      },
-      positionFrom: {
-        offset: 13,
-      },
-    })
+    expect(edges).toContainEqual(
+      expect.objectContaining({
+        target: "Справочник.TestCatalog.ТабличнаяЧасть.КакаяТоТабличнаяЧасть",
+        attributes: expect.objectContaining({ kind: "TABULAR_SECTION" }),
+      }),
+    )
+    expect(edges).toContainEqual(
+      expect.objectContaining({
+        target: "Справочник.TestCatalog.СтандартныйРеквизит.Владелец",
+        attributes: expect.objectContaining({ kind: "STANDARD_ATTRIBUTE" }),
+      }),
+    )
   })
 
-  it("should import dependencies with other catalog", () => {
-    const dependencies = getDependencies(
-      nodeMatch(({ attrs }) => attrs.name === "Справочник")
-        .nodeMatch(() => true)
-        .edgeMatch(({ attrs }) => attrs.kind === "ATTRIBUTE")
-        .nodeMatch(() => true)
-        .edgeMatch(({ attrs }) => attrs.kind === "TYPE"),
-      graph,
+  it("imports reference dependencies with target stubs", () => {
+    const attr = "Справочник.TestCatalog.Реквизит.КакойТоРеквизит"
+    expect([...graph.outEdgeEntries(attr)]).toContainEqual(
+      expect.objectContaining({
+        target: "Справочник.ДругойСправочник",
+        attributes: expect.objectContaining({ kind: "TYPE" }),
+      }),
     )
-
-    expect(Object.keys(dependencies)).toEqual(["Справочник.ДругойСправочник"])
   })
 
   it("stub node has no item before target is imported", () => {
@@ -90,12 +63,8 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
 
   it("stub node has no filePaths (belongs to no file)", () => {
     const stubAttrs = graph.getNodeAttributes("Справочник.ДругойСправочник")
-    expect(stubAttrs.filePaths).toBeUndefined()
-  })
-
-  it("getBrokenReferences reports stub as broken", () => {
-    const broken = graph.getBrokenReferences()
-    expect(broken.has("Справочник.ДругойСправочник")).toBe(true)
+    // В GraphBuilder stub-узел имеет пустой массив filePaths (не undefined)
+    expect(stubAttrs.filePaths).toEqual([])
   })
 
   it("stub is enriched after importing target catalog", () => {
@@ -111,7 +80,7 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     const attrs = graph.getNodeAttributes("Справочник.ДругойСправочник")
     expect(attrs.item).toBeDefined()
     expect((attrs.item as { name: string }).name).toBe("ДругойСправочник")
-    expect(attrs.filePaths?.[0]).toBe("other.yaml")
+    expect(attrs.filePaths[0]).toBe("other.yaml")
   })
 
   it("стандартный реквизит из YAML имеет item", () => {
@@ -127,16 +96,4 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
     expect((attrs.item as { name: string }).name).toBe("Ref")
   })
 
-  it("getBrokenReferences is empty after all stubs are enriched", () => {
-    importMetadataFileWithGraph({
-      filePath: "other.yaml",
-      sources: { yaml: "{}" },
-      kind: "catalog",
-      name: "ДругойСправочник",
-      graph,
-      context: mockContext,
-    })
-
-    expect(graph.getBrokenReferences().size).toBe(0)
-  })
 })

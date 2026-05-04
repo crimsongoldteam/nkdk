@@ -34,18 +34,24 @@ export { importFromYAML } from "./yaml/import"
 export { parseMetadataYaml } from "./yaml/parseMetadataYaml"
 export type { ParsedYaml } from "./yaml/parseMetadataYaml"
 export { importMetadataEnumerationFromYAML } from "./metadata/appliedObjects/metadataEnumeration/fromYAML"
-export { MetadataGraph } from "./metadata/relations/MetadataGraph"
-export { walk } from "./metadata/relations/GraphWalker"
 export { getCatalogPropertyReferenceScope } from "./metadata/appliedObjects/metadataCatalog/rules"
 export { getDocumentPropertyReferenceScope } from "./metadata/appliedObjects/metadataDocument/rules"
 export { getEnumerationPropertyReferenceScope } from "./metadata/appliedObjects/metadataEnumeration/rules"
-export { validateReferenceScope } from "./metadata/relations/referenceScope"
-export type { ReferenceScope } from "./metadata/relations/referenceScope"
-export { validateProject } from "./metadata/validation/validateProject"
+export type { ReferenceScope } from "./metadata/orchestration/property/types"
 export {
   importMetadataFileWithGraph,
   type ImportMetadataFileResult,
 } from "./metadata/orchestration/importMetadataFileWithGraph"
+export { buildGraph, buildGraphForChangedFile } from "./metadata/orchestration/buildGraph"
+export type {
+  BuildGraphForChangedFileParams,
+  FileGraphData,
+  FileStats,
+  ImportContext,
+  PairedGraphSourceText,
+  ProjectGraphInput,
+  ProjectGraphSource,
+} from "./metadata/orchestration/buildGraph"
 export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
 export { exportMetadataDocumentToJSONSchema } from "./metadata/appliedObjects/metadataDocument/toJSONSchema"
 export { exportMetadataEnumerationToJSONSchema } from "./metadata/appliedObjects/metadataEnumeration/toJSONSchema"

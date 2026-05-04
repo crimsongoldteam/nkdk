@@ -5,16 +5,32 @@ import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formatted
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
 import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import type { CypherPredicate, CypherSet } from "./cypherPredicate"
 import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
 import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
-import type { ReferenceScope } from "~/metadata/relations/referenceScope"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemType } from "../metadataItem/registry"
 import { PropertyRuleType } from "./registry"
+
+export type ReferenceScopeFilterName = "stringIndexedAttribute"
+
+/** Ссылка на объект текущего объекта-владельца (target: "this"). */
+export type ReferenceScopeThis =
+  | { target: "this"; kind: "Form" }
+  | { target: "this"; kind: "Attribute"; filter?: ReferenceScopeFilterName }
+
+/** Ссылка на top-level объект одного из допустимых типов. */
+export type ReferenceScopeTopLevel = {
+  target: "topLevel"
+  /** Допустимые префиксы типов, например ["Справочник", "Документ"]. */
+  allowedTypes: string[]
+}
+
+export type ReferenceScope = ReferenceScopeThis | ReferenceScopeTopLevel
 
 export interface MetadataItem {
   itemType: MetadataItemType
@@ -75,7 +91,7 @@ export interface BasePropertyRule {
   fromXML?: false
 
   /** Не экспортировать в XML. Функция получает родительский metadataItem и опциональный context, возвращает `true` если экспортировать, `false` если пропустить */
-  toXML?: false | ((metadataItem: any, context?: ConfigurationContextWithExportToXML) => boolean)
+  toXML?: false | ((metadataItem: any, context?: ConfigurationContextWithExportToXML) => boolean) | CypherPredicate
 
   /** Родительские элементы в XML */
   xmlParents?: string[]
@@ -100,6 +116,9 @@ export interface BasePropertyRule {
 
   /** Описание допустимых целей ссылки (используется для валидации и автодополнения). */
   referenceScope?: ReferenceScope
+
+  /** Множество допустимых значений из Cypher-запроса к FalkorDB. Используется для валидации и автодополнения. */
+  allowedValues?: CypherSet
 
   /**
    * Значение свойства хранится во внешнем файле, а не в YAML.

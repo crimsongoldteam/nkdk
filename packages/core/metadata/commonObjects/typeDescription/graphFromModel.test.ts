@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
 import { extractTypeDescriptionGraph } from "./graphFromModel"
 import { TypeDescription } from "./types"
@@ -90,7 +90,7 @@ describe("extractTypeDescriptionGraph", () => {
     const model: TypeDescription = {
       type: ["CatalogRef.А", "DocumentRef.Б"],
     }
-    const pos = { offset: 42, length: 10 }
+    const pos = { offset: 42, line: 4, column: 9, length: 10 }
     const refs = extractTypeDescriptionGraph(model, pos)?.references ?? []
     expect(refs).toHaveLength(2)
     for (const ref of refs) {
@@ -108,7 +108,7 @@ const FILE_PATH = "test/ТипОписание.yaml"
 
 describe("extractTypeDescriptionGraph — интеграция с importMetadataFileWithGraph", () => {
   it("реквизит с Тип: Справочник.X → ребро kind «Тип» от узла реквизита", () => {
-    const graph = new MetadataGraph()
+    const graph = new GraphBuilder()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
       sources: {
@@ -135,7 +135,7 @@ describe("extractTypeDescriptionGraph — интеграция с importMetadata
   })
 
   it("реквизит с несколькими типами → несколько рёбер kind «Тип»", () => {
-    const graph = new MetadataGraph()
+    const graph = new GraphBuilder()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
       sources: {

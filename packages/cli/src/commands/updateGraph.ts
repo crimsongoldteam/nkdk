@@ -1,57 +1,91 @@
-import { close, connect, ensureIndex, query } from "@nakidka/graph"
-import type { GraphConnection } from "@nakidka/graph"
-import { importMetadataFileWithGraph, MetadataGraph } from "@nakidka/core"
+import { buildGraph, buildGraphForChangedFile } from "@nakidka/core"
+import type { FileGraphData } from "@nakidka/core"
+import { updateGraph as writeGraph } from "@nakidka/graph"
 import chalk from "chalk"
-import { existsSync, readdirSync, readFileSync } from "fs"
-import { join } from "path"
+import { existsSync } from "fs"
+import { resolve } from "path"
 import { performance } from "perf_hooks"
+import { readProjectFileList } from "../graph/projectFiles"
+import { readChangedProjectSource, readProjectGraphSources } from "../graph/projectSources"
 
-const BATCH_SIZE = 5000
+const CONTEXT = { version: "2.20", defaultLanguage: "ru" }
 
-const queryCount = async (conn: GraphConnection, cypher: string): Promise<number> => {
-  const r = (await query(conn, cypher)) as { data?: Array<Record<string, unknown>> }
-  const val = r.data?.[0]?.["cnt"]
-  return typeof val === "number" ? val : 0
-}
+const createProgressReporter = () => {
+  const startedAtByPhase = new Map<string, number>()
+  let lastLine = ""
 
-const sendBatches = async (
-  conn: GraphConnection,
-  items: Record<string, unknown>[],
-  cypher: string,
-): Promise<void> => {
-  for (let i = 0; i < items.length; i += BATCH_SIZE) {
-    await query(conn, cypher, { batch: items.slice(i, i + BATCH_SIZE) })
-  }
-}
+  return (progress: { phase: string; done?: number; total?: number }): void => {
+    if (progress.done === 0) {
+      startedAtByPhase.set(progress.phase, performance.now())
+      return
+    }
 
-/** Загружает формы из директории `<ownerDir>/Формы/` в граф. */
-function importFormsForOwner(ownerDir: string, ownerNodeId: string, graph: MetadataGraph, context: { version: string; defaultLanguage: string }): void {
-  const formsPath = join(ownerDir, "Формы")
-  if (!existsSync(formsPath)) return
+    const total = progress.total ?? 1
+    const done = progress.done ?? total
+    const line = `${progress.phase.padEnd(18)} ${done}/${total}`
+    if (line !== lastLine) {
+      console.log(line)
+      lastLine = line
+    }
 
-  for (const formDir of readdirSync(formsPath, { withFileTypes: true }).filter((e) => e.isDirectory())) {
-    const yamlPath = join(formsPath, formDir.name, "Форма.yaml")
-    const nkdkPath = join(formsPath, formDir.name, "Форма.nkdk")
-    if (!existsSync(yamlPath)) continue
-
-    try {
-      const yaml = readFileSync(yamlPath, "utf-8")
-      const nkdkExists = existsSync(nkdkPath)
-      const nkdk = nkdkExists ? readFileSync(nkdkPath, "utf-8") : undefined
-      importMetadataFileWithGraph({
-        filePath: yamlPath,
-        nkdkFilePath: nkdkExists ? nkdkPath : undefined,
-        sources: { yaml, nkdk },
-        kind: "form",
-        name: formDir.name,
-        graph,
-        context,
-        ownerNodeId,
-      })
-    } catch (err) {
-      console.warn(chalk.yellow(`Предупреждение: не удалось импортировать форму ${yamlPath}: ${err}`))
+    if (done === total) {
+      const startedAt = startedAtByPhase.get(progress.phase)
+      if (startedAt !== undefined) {
+        console.log(`${progress.phase.padEnd(18)} done — ${(performance.now() - startedAt).toFixed(1)} мс`)
+      }
     }
   }
+}
+
+const applyChangedSourceStats = (
+  graphFiles: FileGraphData[],
+  changed: NonNullable<ReturnType<typeof readChangedProjectSource>["source"]>,
+): FileGraphData[] => {
+  const statsByPath = new Map([
+    [changed.filePath, changed.fileStats],
+    ...(changed.pairedText ? [[changed.pairedText.filePath, changed.pairedText.fileStats] as const] : []),
+  ])
+
+  return graphFiles.map((file) => {
+    const fileStats = statsByPath.get(file.filePath)
+    return fileStats ? { ...file, fileStats } : file
+  })
+}
+
+export const updateGraphFile = async (projectPath: string, filePath: string): Promise<void> => {
+  const absoluteProjectPath = resolve(projectPath)
+  const changed = readChangedProjectSource(absoluteProjectPath, filePath)
+  let payload: FileGraphData[]
+
+  if (changed.deleted) {
+    payload = changed.deletedFilePaths.map((deletedFilePath) => ({
+      filePath: deletedFilePath,
+      nodes: [],
+      edges: [],
+    }))
+  } else {
+    if (!changed.source) return
+
+    const graphFiles = await buildGraphForChangedFile({
+      projectPath: absoluteProjectPath,
+      filePath: changed.source.filePath,
+      text: changed.source.text,
+      pairedText: changed.source.pairedText,
+      context: CONTEXT,
+    })
+    const filesWithStats = applyChangedSourceStats(graphFiles, changed.source)
+    const deletedFiles = changed.deletedFilePaths.map((deletedFilePath) => ({
+      filePath: deletedFilePath,
+      nodes: [],
+      edges: [],
+    }))
+    payload = [...filesWithStats, ...deletedFiles]
+  }
+  await writeGraph(payload, { onProgress: createProgressReporter() })
+}
+
+const buildProjectGraph = async (projectPath: string) => {
+  return buildGraph(readProjectGraphSources(projectPath, { includePairedText: false }), CONTEXT)
 }
 
 export const updateGraph = async (projectPath: string): Promise<void> => {
@@ -61,192 +95,25 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
   }
 
   const tStart = performance.now()
-
-  // === 1. Чтение YAML ===
   const tReadStart = performance.now()
-  const catalogsPath = join(projectPath, "Справочник")
-  const documentsPath = join(projectPath, "Документ")
-  const enumerationsPath = join(projectPath, "Перечисление")
-
-  type YamlFile = { path: string; text: string; name: string }
-  const readKindFiles = (kindPath: string): YamlFile[] => {
-    if (!existsSync(kindPath)) return []
-    const files: YamlFile[] = []
-    for (const dir of readdirSync(kindPath, { withFileTypes: true }).filter((e) => e.isDirectory())) {
-      const yamlPath = join(kindPath, dir.name, "Свойства.yaml")
-      if (!existsSync(yamlPath)) continue
-      try {
-        const text = readFileSync(yamlPath, "utf-8")
-        files.push({ path: yamlPath, text, name: dir.name })
-      } catch (err) {
-        console.warn(chalk.yellow(`Предупреждение: не удалось прочитать ${yamlPath}: ${err}`))
-      }
-    }
-    return files
-  }
-
-  const catalogFiles = readKindFiles(catalogsPath)
-  const documentFiles = readKindFiles(documentsPath)
-  const enumerationFiles = readKindFiles(enumerationsPath)
+  const projectFiles = readProjectFileList(projectPath)
   const tRead = performance.now() - tReadStart
 
-  // === 2. fromYAML → MetadataGraph ===
-  const tFromYamlStart = performance.now()
-  const graph = new MetadataGraph()
-  const importContext = { version: "2.20", defaultLanguage: "ru" }
+  const tBuildStart = performance.now()
+  const graphFiles = await buildProjectGraph(projectPath)
+  const tBuild = performance.now() - tBuildStart
 
-  for (const { path: yamlPath, text, name } of catalogFiles) {
-    try {
-      importMetadataFileWithGraph({ filePath: yamlPath, sources: { yaml: text }, kind: "catalog", name, graph, context: importContext })
-    } catch (err) {
-      console.warn(chalk.yellow(`Предупреждение: не удалось импортировать ${yamlPath}: ${err}`))
-    }
-    importFormsForOwner(join(catalogsPath, name), `Справочник.${name}`, graph, importContext)
-  }
+  const tWriteStart = performance.now()
+  await writeGraph([])
+  await writeGraph(graphFiles, { onProgress: createProgressReporter() })
+  const tWrite = performance.now() - tWriteStart
 
-  for (const { path: yamlPath, text, name } of documentFiles) {
-    try {
-      importMetadataFileWithGraph({ filePath: yamlPath, sources: { yaml: text }, kind: "document", name, graph, context: importContext })
-    } catch (err) {
-      console.warn(chalk.yellow(`Предупреждение: не удалось импортировать ${yamlPath}: ${err}`))
-    }
-    importFormsForOwner(join(documentsPath, name), `Документ.${name}`, graph, importContext)
-  }
+  const totalNodes = graphFiles.reduce((sum, file) => sum + file.nodes.length, 0)
+  const totalEdges = graphFiles.reduce((sum, file) => sum + file.edges.length, 0)
+  const tTotal = performance.now() - tStart
 
-  for (const { path: yamlPath, text, name } of enumerationFiles) {
-    try {
-      importMetadataFileWithGraph({ filePath: yamlPath, sources: { yaml: text }, kind: "enumeration", name, graph, context: importContext })
-    } catch (err) {
-      console.warn(chalk.yellow(`Предупреждение: не удалось импортировать ${yamlPath}: ${err}`))
-    }
-  }
-
-  const heapMB = process.memoryUsage().heapUsed / 1024 / 1024
-  const tFromYaml = performance.now() - tFromYamlStart
-
-  // === 3. Connect + indexes ===
-  const tConnectStart = performance.now()
-  const conn = await connect()
-  await ensureIndex(conn, "MetadataNode", "id")
-  await ensureIndex(conn, "MetadataNode", "path")
-  const tConnect = performance.now() - tConnectStart
-
-  try {
-    // === 4. Mark candidates ===
-    const tMarkStart = performance.now()
-    await query(
-      conn,
-      "MATCH (n:MetadataNode) REMOVE n.path, n.offset, n.length, n.resolved",
-    )
-    await query(conn, "MATCH (n:MetadataNode)-[r]->() DELETE r")
-    const tMark = performance.now() - tMarkStart
-
-    // === 5. Re-import: собираем батчи узлов и рёбер ===
-    type NodeRecord = Record<string, unknown>
-    const fullNodes: NodeRecord[] = []
-    const stubNodes: NodeRecord[] = []
-    // Группировка рёбер по семантическому kind — для статических Cypher-label'ов
-    const edgesByKind = new Map<string, NodeRecord[]>()
-
-    for (const nodeId of graph.nodes()) {
-      const attrs = graph.getNodeAttributes(nodeId)
-      if (attrs.item !== undefined) {
-        fullNodes.push({
-          id: nodeId,
-          name: attrs.name,
-          path: attrs.filePaths?.[0] ?? null,
-          offset: attrs.positionFrom?.offset ?? null,
-          length: attrs.positionFrom?.length ?? null,
-        })
-      } else {
-        stubNodes.push({ id: nodeId, name: attrs.name })
-      }
-      for (const { target, attributes } of graph.outEdgeEntries(nodeId)) {
-        const edge: NodeRecord = {
-          src: nodeId,
-          tgt: target,
-          yaml: attributes.yaml,
-        }
-        const group = edgesByKind.get(attributes.kind) ?? []
-        group.push(edge)
-        edgesByKind.set(attributes.kind, group)
-      }
-    }
-
-    const tInsertNodesStart = performance.now()
-    await sendBatches(
-      conn,
-      fullNodes,
-      "UNWIND $batch AS n MERGE (m:MetadataNode {id: n.id}) SET m.name = n.name, m.path = n.path, m.offset = n.offset, m.length = n.length, m.resolved = true",
-    )
-    await sendBatches(
-      conn,
-      stubNodes,
-      "UNWIND $batch AS n MERGE (m:MetadataNode {id: n.id}) SET m.name = n.name",
-    )
-    const tInsertNodes = performance.now() - tInsertNodesStart
-    const totalNodes = fullNodes.length + stubNodes.length
-
-    const tInsertEdgesStart = performance.now()
-    let totalEdges = 0
-    for (const [kind, edges] of edgesByKind) {
-      await sendBatches(
-        conn,
-        edges,
-        `UNWIND $batch AS e MATCH (s:MetadataNode {id: e.src}), (t:MetadataNode {id: e.tgt}) CREATE (s)-[:\`${kind}\` {yaml: e.yaml}]->(t)`,
-      )
-      totalEdges += edges.length
-    }
-    const tInsertEdges = performance.now() - tInsertEdgesStart
-
-    // === 6. Cleanup ===
-    const tCleanupStart = performance.now()
-    const stubsPreCleanup = await queryCount(
-      conn,
-      "MATCH (n:MetadataNode) WHERE n.path IS NULL RETURN count(n) AS cnt",
-    )
-    await query(
-      conn,
-      "MATCH (n:MetadataNode) WHERE n.path IS NULL AND NOT ()-[]->(n) DETACH DELETE n",
-    )
-    await query(
-      conn,
-      "MATCH (n:MetadataNode) WHERE n.path IS NULL SET n.resolved = false",
-    )
-    const remainingStubs = await queryCount(
-      conn,
-      "MATCH (n:MetadataNode) WHERE n.resolved = false RETURN count(n) AS cnt",
-    )
-    const deletedCount = stubsPreCleanup - remainingStubs
-    const tCleanup = performance.now() - tCleanupStart
-
-    const tTotal = performance.now() - tStart
-
-    // === Итоговые цифры ===
-    const totalDbNodes = await queryCount(
-      conn,
-      "MATCH (n:MetadataNode) RETURN count(n) AS cnt",
-    )
-    const totalDbEdges = await queryCount(
-      conn,
-      "MATCH ()-[r]->() RETURN count(r) AS cnt",
-    )
-    console.log(`чтение YAML      — ${tRead.toFixed(1)} мс`)
-    console.log(`fromYAML         — ${tFromYaml.toFixed(1)} мс — heap ${heapMB.toFixed(1)} МБ`)
-    console.log(`connect+indexes  — ${tConnect.toFixed(1)} мс`)
-    console.log(`mark candidates  — ${tMark.toFixed(1)} мс`)
-    console.log(`insert nodes     — ${tInsertNodes.toFixed(1)} мс — ${totalNodes} шт.`)
-    const kindCounts = [...edgesByKind.entries()].map(([k, v]) => `${k}: ${v.length}`).join(", ")
-    console.log(
-      `insert edges     — ${tInsertEdges.toFixed(1)} мс — ${totalEdges} шт. (${kindCounts})`,
-    )
-    console.log(`cleanup          — ${tCleanup.toFixed(1)} мс — удалено ${deletedCount}, заглушек ${remainingStubs}`)
-    console.log(`итого            — ${tTotal.toFixed(1)} мс`)
-    console.log("")
-    console.log(`узлов в БД: ${totalDbNodes} (резолвнутых ${totalDbNodes - remainingStubs}, заглушек ${remainingStubs})`)
-    console.log(`рёбер в БД: ${totalDbEdges}`)
-    console.log(`heap JS: ${heapMB.toFixed(1)} МБ`)
-  } finally {
-    await close(conn)
-  }
+  console.log(`чтение файлов    — ${tRead.toFixed(1)} мс — ${projectFiles.length} шт.`)
+  console.log(`buildGraph       — ${tBuild.toFixed(1)} мс — узлов ${totalNodes}, рёбер ${totalEdges}`)
+  console.log(`updateGraph      — ${tWrite.toFixed(1)} мс`)
+  console.log(`итого            — ${tTotal.toFixed(1)} мс`)
 }

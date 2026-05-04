@@ -1,6 +1,7 @@
 import { convertPath } from "~/metadata/commonObjects/metadataPath/helper"
 import { MetadataFieldsRulesToYAML } from "~/metadata/commonObjects/metadataPath/types"
 import { GraphOpsReference } from "./fn"
+import { SourcePosition } from "./position"
 
 /**
  * Преобразует внутренний путь к объекту метаданных (например, "Catalog.Контрагенты")
@@ -13,7 +14,7 @@ import { GraphOpsReference } from "./fn"
  */
 export function extractReferenceFromPath(
   path: string,
-  position?: { offset: number; length?: number }
+  position?: SourcePosition
 ): GraphOpsReference | undefined {
   if (!path) return undefined
 

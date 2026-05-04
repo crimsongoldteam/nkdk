@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from "vitest"
 import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import { ClientApplicationFormRules } from "../clientApplicationForm/rules"
 
 // Импорт регистрирует все обработчики buildGraphFromModel для элементов формы
@@ -15,7 +15,7 @@ const FILE_PATH = "Справочник/Товары/Формы/ФормаСпи
 const FORM_NODE_ID = "Справочник.Товары.ФормаСписка"
 
 function makeGraph() {
-  const graph = new MetadataGraph()
+  const graph = new GraphBuilder()
   graph.ensureNode(FORM_NODE_ID, { name: "ФормаСписка" })
   return graph
 }
@@ -41,7 +41,7 @@ describe("graphFromModel — элементы формы", () => {
 
     const nodeId = `${FORM_NODE_ID}.Элемент.Кнопка1`
     expect(graph.hasNode(nodeId)).toBe(true)
-    expect(graph.getNodeAttribute(nodeId, "name")).toBe("Кнопка1")
+    expect(graph.getNodeAttributes(nodeId).name).toBe("Кнопка1")
 
     const edges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(
       (e) => e.attributes.kind === "FORM_ELEMENT",
@@ -130,7 +130,7 @@ describe("graphFromModel — элементы формы", () => {
 
     expect(graph.hasNode(tableNodeId)).toBe(true)
     expect(graph.hasNode(menuNodeId)).toBe(true)
-    expect(graph.getNodeAttribute(menuNodeId, "name")).toBe("Таблица1КонтекстноеМеню")
+    expect(graph.getNodeAttributes(menuNodeId).name).toBe("Таблица1КонтекстноеМеню")
 
     // Ребро от ФОРМЫ к синглету, не от таблицы
     const formEdges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(
@@ -164,7 +164,7 @@ describe("graphFromModel — элементы формы", () => {
     })
 
     const nodeId = `${FORM_NODE_ID}.Элемент.Декорация1`
-    const filePaths = graph.getNodeAttribute(nodeId, "filePaths")
+    const filePaths = graph.getNodeAttributes(nodeId).filePaths
     expect(filePaths).toContain(FILE_PATH)
   })
 })

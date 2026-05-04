@@ -38,23 +38,73 @@ describe("mergeNodes", () => {
 
     expect(queryMock).toHaveBeenCalledTimes(2)
     const [catalogCall, documentCall] = queryMock.mock.calls
-    expect(catalogCall[0]).toBe(
-      "UNWIND $batch AS n MERGE (m:MetadataCatalog {id: n.id}) SET m += n.props",
-    )
-    expect(catalogCall[1]).toEqual({
-      params: {
-        batch: [
-          { id: "Справочник.A", props: { name: "A", filePath: "a.yaml" } },
-          { id: "Справочник.B", props: { name: "B", filePath: "b.yaml" } },
-        ],
-      },
-    })
-    expect(documentCall[0]).toBe(
-      "UNWIND $batch AS n MERGE (m:MetadataDocument {id: n.id}) SET m += n.props",
-    )
+    expect(catalogCall[0]).toContain("UNWIND [{id:\"Справочник.A\"")
+    expect(catalogCall[0]).toContain("props:{`name`:\"A\",`filePath`:\"a.yaml\"}")
+    expect(catalogCall[0]).toContain("MERGE (m:MetadataCatalog:GraphNode {id: n.id}) SET m += n.props")
+    expect(catalogCall[1]).toBeUndefined()
+    expect(documentCall[0]).toContain("MERGE (m:MetadataDocument:GraphNode {id: n.id}) SET m += n.props")
   })
 
-  it("режет на батчи по 5000", async () => {
+  it("не дублирует GraphNode label при merge узла GraphNode", async () => {
+    const conn = await connect()
+    await mergeNodes(conn, [
+      { id: "A", label: "GraphNode", props: { name: "A" } },
+    ])
+
+    const cypher = queryMock.mock.calls[0][0] as string
+    expect(cypher).toContain("MERGE (m:GraphNode {id: n.id}) SET m += n.props")
+    expect(cypher).not.toContain(":GraphNode:GraphNode")
+  })
+
+  it("использует безопасный GraphNode fallback для пустого label узла", async () => {
+    const conn = await connect()
+    await mergeNodes(conn, [
+      { id: "A", label: "", props: { name: "A" } },
+    ])
+
+    const cypher = queryMock.mock.calls[0][0] as string
+    expect(cypher).toContain("MERGE (m:GraphNode {id: n.id}) SET m += n.props")
+    expect(cypher).not.toContain("m::")
+  })
+
+  it("экранирует ключи props, которые нельзя передать в Cypher-map без кавычек", async () => {
+    const conn = await connect()
+    await mergeNodes(conn, [
+      {
+        id: "Документ.А.Реквизит.Б",
+        label: "MetadataAttribute",
+        props: { "p_choiceParameters_Отбор.ОтветственноеЛицо": "x" },
+      },
+    ])
+
+    expect(queryMock.mock.calls[0][0]).toContain("`p_choiceParameters_Отбор.ОтветственноеЛицо`")
+    expect(queryMock.mock.calls[0][1]).toBeUndefined()
+  })
+
+  it("не отправляет null-свойства и null внутри массивов", async () => {
+    const conn = await connect()
+    await mergeNodes(conn, [
+      {
+        id: "Документ.А",
+        label: "MetadataDocument",
+        props: {
+          name: "А",
+          p_empty: null,
+          p_values: ["one", null, "two"],
+          p_onlyNulls: [null],
+        },
+      },
+    ])
+
+    const cypher = queryMock.mock.calls[0][0] as string
+    expect(cypher).toContain("`name`:\"А\"")
+    expect(cypher).toContain("`p_values`:[\"one\",\"two\"]")
+    expect(cypher).not.toContain("p_empty")
+    expect(cypher).not.toContain("p_onlyNulls")
+    expect(cypher).not.toContain("null")
+  })
+
+  it("режет на батчи по 500", async () => {
     const conn = await connect()
     const nodes: NodeData[] = Array.from({ length: 12_000 }, (_, i) => ({
       id: `id${i}`,
@@ -63,13 +113,9 @@ describe("mergeNodes", () => {
     }))
     await mergeNodes(conn, nodes)
 
-    expect(queryMock).toHaveBeenCalledTimes(3)
-    expect(
-      (queryMock.mock.calls[0][1] as { params: { batch: unknown[] } }).params.batch,
-    ).toHaveLength(5000)
-    expect(
-      (queryMock.mock.calls[2][1] as { params: { batch: unknown[] } }).params.batch,
-    ).toHaveLength(2000)
+    expect(queryMock).toHaveBeenCalledTimes(24)
+    expect(queryMock.mock.calls[0][0].match(/\{id:"/g)).toHaveLength(500)
+    expect(queryMock.mock.calls[23][0].match(/\{id:"/g)).toHaveLength(500)
   })
 })
 
@@ -93,13 +139,11 @@ describe("mergeEdges", () => {
     const calls = queryMock.mock.calls
     const valueCall = calls.find((c) => (c[0] as string).includes(":VALUE"))!
     const refCall = calls.find((c) => (c[0] as string).includes(":REF_TYPE"))!
-    expect(valueCall[0]).toBe(
-      "UNWIND $batch AS e MATCH (s {id: e.src}), (t {id: e.tgt}) MERGE (s)-[r:VALUE]->(t) SET r = e.props",
-    )
-    expect((valueCall[1] as { params: { batch: unknown[] } }).params.batch).toHaveLength(2)
-    expect(refCall[0]).toBe(
-      "UNWIND $batch AS e MATCH (s {id: e.src}), (t {id: e.tgt}) MERGE (s)-[r:REF_TYPE]->(t) SET r = e.props",
-    )
+    expect(valueCall[0]).toContain("UNWIND [{src:\"A\",tgt:\"B\"")
+    expect(valueCall[0]).toContain("props:{`yaml`:\"Значение\"}")
+    expect(valueCall[0]).toContain("MERGE (s)-[r:VALUE]->(t) SET r = e.props")
+    expect(valueCall[1]).toBeUndefined()
+    expect(refCall[0]).toContain("MERGE (s)-[r:REF_TYPE]->(t) SET r = e.props")
   })
 
   it("отправляет props={} если у ребра не указаны свойства", async () => {
@@ -108,9 +152,47 @@ describe("mergeEdges", () => {
     await mergeEdges(conn, edges)
 
     expect(queryMock).toHaveBeenCalledTimes(1)
-    const batch = (queryMock.mock.calls[0][1] as { params: { batch: Array<{ props: object }> } })
-      .params.batch
-    expect(batch[0]?.props).toEqual({})
+    expect(queryMock.mock.calls[0][0]).toContain("props:{}")
+  })
+
+  it("использует label концов ребра, если они переданы", async () => {
+    const conn = await connect()
+    await mergeEdges(
+      conn,
+      [{ src: "A", tgt: "B", kind: "VALUE", props: { yaml: "Значение" } }],
+      new Map([
+        ["A", "MetadataAttribute"],
+        ["B", "MetadataValue"],
+      ]),
+    )
+
+    expect(queryMock.mock.calls[0][0]).toContain(
+      "MATCH (s:MetadataAttribute {id: e.src}), (t:MetadataValue {id: e.tgt})",
+    )
+  })
+
+  it("использует GraphNode fallback для неизвестных label концов ребра", async () => {
+    const conn = await connect()
+    await mergeEdges(
+      conn,
+      [{ src: "A", tgt: "B", kind: "VALUE", props: { yaml: "Значение" } }],
+      new Map([["A", "MetadataAttribute"]]),
+    )
+
+    expect(queryMock.mock.calls[0][0]).toContain(
+      "MATCH (s:MetadataAttribute {id: e.src}), (t:GraphNode {id: e.tgt})",
+    )
+    expect(queryMock.mock.calls[0][0]).not.toContain("(t {id: e.tgt})")
+  })
+
+  it("legacy-вызов без label ищет концы ребра через GraphNode fallback", async () => {
+    const conn = await connect()
+    await mergeEdges(conn, [{ src: "A", tgt: "B", kind: "VALUE" }])
+
+    const cypher = queryMock.mock.calls[0][0] as string
+    expect(cypher).toContain("MATCH (s:GraphNode {id: e.src}), (t:GraphNode {id: e.tgt})")
+    expect(cypher).not.toContain("(s {id: e.src})")
+    expect(cypher).not.toContain("(t {id: e.tgt})")
   })
 })
 
@@ -142,12 +224,12 @@ describe("deleteByFilePaths", () => {
 })
 
 describe("cleanupOrphanStubs", () => {
-  it("удаляет узлы без filePath и без входящих рёбер", async () => {
+  it("удаляет узлы без filePath и без входящих рёбер, но не File-узлы", async () => {
     const conn = await connect()
     await cleanupOrphanStubs(conn)
     expect(queryMock).toHaveBeenCalledTimes(1)
     expect(queryMock.mock.calls[0][0]).toBe(
-      "MATCH (n) WHERE n.filePath IS NULL AND NOT ()-->(n) DETACH DELETE n",
+      "MATCH (n) WHERE n.filePath IS NULL AND NOT n:File AND NOT ()-->(n) DETACH DELETE n",
     )
     expect(queryMock.mock.calls[0][1]).toBeUndefined()
   })
@@ -158,10 +240,20 @@ describe("ensureLabelIndexes", () => {
     const conn = await connect()
     await ensureLabelIndexes(conn, ["MetadataCatalog", "MetadataDocument", "MetadataCatalog"])
 
-    expect(queryMock).toHaveBeenCalledTimes(2)
+    expect(queryMock).toHaveBeenCalledTimes(3)
     const queries = queryMock.mock.calls.map((c) => c[0])
+    expect(queries).toContain("CREATE INDEX FOR (n:GraphNode) ON (n.id)")
     expect(queries).toContain("CREATE INDEX FOR (n:MetadataCatalog) ON (n.id)")
     expect(queries).toContain("CREATE INDEX FOR (n:MetadataDocument) ON (n.id)")
+  })
+
+  it("не создаёт предметный индекс GraphNode повторно", async () => {
+    const conn = await connect()
+    await ensureLabelIndexes(conn, ["GraphNode", "MetadataCatalog", "GraphNode"])
+
+    const queries = queryMock.mock.calls.map((c) => c[0])
+    expect(queries.filter((q) => q === "CREATE INDEX FOR (n:GraphNode) ON (n.id)")).toHaveLength(1)
+    expect(queries).toContain("CREATE INDEX FOR (n:MetadataCatalog) ON (n.id)")
   })
 
   it("глотает 'already indexed' / 'equivalent index'", async () => {
@@ -175,6 +267,7 @@ describe("ensureLabelIndexes", () => {
   it("ничего не делает на пустом массиве", async () => {
     const conn = await connect()
     await ensureLabelIndexes(conn, [])
-    expect(queryMock).not.toHaveBeenCalled()
+    expect(queryMock).toHaveBeenCalledTimes(1)
+    expect(queryMock.mock.calls[0][0]).toBe("CREATE INDEX FOR (n:GraphNode) ON (n.id)")
   })
 })

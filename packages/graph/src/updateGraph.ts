@@ -1,12 +1,33 @@
 import { close, connect } from "./internal/connection"
 import {
   cleanupOrphanStubs,
-  deleteByFilePaths,
+  deleteByFiles,
+  ensureFileIndexes,
   ensureLabelIndexes,
   mergeEdges,
+  mergeFileLinks,
+  mergeFiles,
   mergeNodes,
+  resetGraph,
 } from "./internal/operations"
-import type { ConnectionOptions, FileGraphData } from "./types"
+import type { FileGraphData, GraphProgress, GraphUpdateOptions, GraphUpdatePhase } from "./types"
+
+const isDeletionTombstone = (file: FileGraphData): boolean =>
+  file.fileStats === undefined &&
+  file.nodes.length === 0 &&
+  file.edges.length === 0 &&
+  (file.declaredNodeIds?.length ?? 0) === 0 &&
+  (file.contributedNodeIds?.length ?? 0) === 0
+
+const reportPhase = async (
+  phase: GraphUpdatePhase,
+  onProgress: ((progress: GraphProgress) => void) | undefined,
+  fn: () => Promise<void>,
+): Promise<void> => {
+  onProgress?.({ phase, done: 0, total: 1 })
+  await fn()
+  onProgress?.({ phase, done: 1, total: 1 })
+}
 
 /**
  * Обновляет содержимое графа по списку файлов:
@@ -17,20 +38,30 @@ import type { ConnectionOptions, FileGraphData } from "./types"
  */
 export const updateGraph = async (
   files: readonly FileGraphData[],
-  opts?: ConnectionOptions,
+  opts?: GraphUpdateOptions,
 ): Promise<void> => {
-  const allNodes = files.flatMap((f) => f.nodes)
-  const allEdges = files.flatMap((f) => f.edges)
+  const onProgress = opts?.onProgress
+  const filesToMerge = files.filter((file) => !isDeletionTombstone(file))
+  const allNodes = filesToMerge.flatMap((f) => f.nodes)
   const filePaths = files.map((f) => f.filePath)
   const labels = allNodes.map((n) => n.label)
+  const labelByNodeId = new Map(allNodes.map((node) => [node.id, node.label]))
 
   const conn = await connect(opts)
   try {
-    await ensureLabelIndexes(conn, labels)
-    await deleteByFilePaths(conn, filePaths)
-    await mergeNodes(conn, allNodes)
-    await mergeEdges(conn, allEdges)
-    await cleanupOrphanStubs(conn)
+    if (files.length === 0) {
+      await reportPhase("resetGraph", onProgress, () => resetGraph(conn))
+      return
+    }
+
+    await reportPhase("ensureFileIndexes", onProgress, () => ensureFileIndexes(conn))
+    await reportPhase("ensureLabelIndexes", onProgress, () => ensureLabelIndexes(conn, labels))
+    await reportPhase("deleteByFiles", onProgress, () => deleteByFiles(conn, filePaths))
+    await mergeFiles(conn, filesToMerge, onProgress)
+    await mergeNodes(conn, allNodes, onProgress)
+    await mergeEdges(conn, filesToMerge, labelByNodeId, onProgress)
+    await mergeFileLinks(conn, filesToMerge, onProgress)
+    await reportPhase("cleanupOrphanStubs", onProgress, () => cleanupOrphanStubs(conn, true))
   } finally {
     await close(conn)
   }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
 
 // setupTests.ts глобально импортирует ~/metadata/commonObjects, что обеспечивает
@@ -8,13 +8,13 @@ import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMeta
 const baseContext = { version: "2.20", defaultLanguage: "ru" }
 const FILE_PATH = "test/Свойства.yaml"
 
-function fieldEdges(graph: MetadataGraph, nodeId: string) {
+function fieldEdges(graph: GraphBuilder, nodeId: string) {
   return [...graph.outEdgeEntries(nodeId)].filter((e) => e.attributes.kind === "FIELD")
 }
 
 describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
   it("верхнеуровневый реквизит → ребро Поле к полному node ID", () => {
-    const graph = new MetadataGraph()
+    const graph = new GraphBuilder()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
       sources: { yaml: `
@@ -33,7 +33,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
   })
 
   it("реквизит табличной части → полный node ID с ТабличнаяЧасть и Реквизит", () => {
-    const graph = new MetadataGraph()
+    const graph = new GraphBuilder()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
       sources: { yaml: `
@@ -52,7 +52,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
   })
 
   it("стандартный реквизит → полный node ID с СтандартныйРеквизит", () => {
-    const graph = new MetadataGraph()
+    const graph = new GraphBuilder()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
       sources: { yaml: `
@@ -71,7 +71,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
   })
 
   it("несколько ссылок → несколько рёбер Поле", () => {
-    const graph = new MetadataGraph()
+    const graph = new GraphBuilder()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
       sources: { yaml: `
@@ -97,7 +97,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
   })
 
   it("несколько ссылок → разные position-offset'ы", () => {
-    const graph = new MetadataGraph()
+    const graph = new GraphBuilder()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
       sources: { yaml: `
@@ -121,7 +121,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
   })
 
   it("пустой ВводПоСтроке → рёбра Поле не создаются", () => {
-    const graph = new MetadataGraph()
+    const graph = new GraphBuilder()
     importMetadataFileWithGraph({
       filePath: FILE_PATH,
       sources: { yaml: "{}" },

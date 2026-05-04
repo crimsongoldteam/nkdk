@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from "vitest"
 import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import { FormAttributeRules } from "./rules"
 
 // Регистрирует graphChild для FormAttributes + buildGraphFromModel для FormAttributeColumns
@@ -18,7 +18,7 @@ const FORM_NODE_ID = "Справочник.Товары.ФормаСписка"
 const ATTR_NODE_ID = `${FORM_NODE_ID}.Таблица`
 
 function makeGraph() {
-  const graph = new MetadataGraph()
+  const graph = new GraphBuilder()
   graph.ensureNode(FORM_NODE_ID, { name: "ФормаСписка" })
   return graph
 }
@@ -176,8 +176,8 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
     })
 
     const colNodeId = `${ATTR_NODE_ID}.Колонка1`
-    expect(graph.getNodeAttribute(colNodeId, "filePaths")).toContain(FILE_PATH)
-    const item = graph.getNodeAttribute(colNodeId, "item") as Record<string, unknown>
+    expect(graph.getNodeAttributes(colNodeId).filePaths).toContain(FILE_PATH)
+    const item = graph.getNodeAttributes(colNodeId).item as Record<string, unknown>
     expect(item?.itemType).toBe("FormAttributeColumn")
   })
 })

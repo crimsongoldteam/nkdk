@@ -1,18 +1,20 @@
-import { applyGraphOps } from "../relations/applyGraphOps"
-import { getKindByYaml } from "../relations/edgeKinds"
-import { MetadataGraph } from "../relations/MetadataGraph"
+import { LineCounter } from "yaml"
+import { applyGraphOps } from "./buildGraph/internal/applyGraphOps"
+import { getKindByYaml } from "./buildGraph/internal/edgeKinds"
+import { GraphBuilder } from "./buildGraph/internal/GraphBuilder"
 import { getTypeRule } from "./formElement/factory"
-import { findKeyOffset, findSubmap, computeValuePosition } from "./property/position"
+import { findSubmap, computeValuePosition } from "./property/position"
 import { PropertyRule } from "./property/types"
 import { MetadataItemRule } from "./property/types"
 import { GraphOps } from "./property/fn"
 
 export interface ApplyBuildGraphResultContext {
-  graph: MetadataGraph
+  graph: GraphBuilder
   parentNodeId: string
   filePath: string
   /** Тип свойства — для понятного сообщения об ошибке. */
   propType: string
+  lineCounter?: LineCounter
   /** Контекст, пробрасываемый в recurse-задачи по умолчанию. */
   extra?: Record<string, unknown>
 }
@@ -51,6 +53,7 @@ export function applyBuildGraphResult(
       buildGraphFromModel({
         model: recurse.model,
         yamlMap: recurse.yamlMap,
+        lineCounter: recurse.lineCounter ?? ctx.lineCounter,
         rule: recurse.rule,
         graph: ctx.graph,
         parentNodeId: recurse.parentNodeId,
@@ -61,6 +64,17 @@ export function applyBuildGraphResult(
   }
 }
 
+function hasBuildGraphResult(result: GraphOps | GraphOps[] | undefined | void): boolean {
+  const sections = Array.isArray(result) ? result : result ? [result] : []
+  return sections.some(
+    (section) =>
+      Boolean(section.children?.length) ||
+      Boolean(section.references?.length) ||
+      Boolean(section.formLocalReferences?.length) ||
+      Boolean(section.recurse?.length),
+  )
+}
+
 /**
  * Обходит модель параллельно с YAML AST, вызывает зарегистрированную extractGraph
  * для свойств с зарегистрированным экстрактором и применяет результат через applyGraphOps.
@@ -69,18 +83,25 @@ export function applyBuildGraphResult(
 export function buildGraphFromModel(params: {
   model: Record<string, unknown>
   yamlMap: ReturnType<typeof findSubmap>
+  lineCounter?: LineCounter
   rule: MetadataItemRule
-  graph: MetadataGraph
+  graph: GraphBuilder
   parentNodeId: string
   filePath: string
   /** Дополнительный контекст, пробрасываемый в кастомные buildGraphFromModel-обработчики. */
   extra?: Record<string, unknown>
 }): void {
-  const { model, yamlMap, rule, graph, parentNodeId, filePath, extra } = params
+  const { model, yamlMap, lineCounter, rule, graph, parentNodeId, filePath, extra } = params
 
   for (const [key, propRule] of Object.entries(rule.properties) as [string, PropertyRule][]) {
     const propType = propRule.type
     if (!propType) continue
+
+    const buildGraphFn = getTypeRule(propType, "buildGraphFromModel")
+    const graphChildDef = getTypeRule(propType, "graphChild")
+    if (graphChildDef) {
+      graph.addFlattenSkipKeys(parentNodeId, [key])
+    }
 
     // --- extractGraph: TypeDescription и другие одиночные reference-свойства ---
     const extractGraphFn = getTypeRule(propType, "extractGraph")
@@ -90,7 +111,10 @@ export function buildGraphFromModel(params: {
       const modelValue = model[key]
       if (modelValue !== undefined) {
         const yamlKey = propRule.yaml
-        const position = yamlKey && yamlMap ? computeValuePosition(yamlMap, yamlKey) : undefined
+        const position =
+          yamlKey && yamlMap && lineCounter
+            ? computeValuePosition(yamlMap, yamlKey, lineCounter)
+            : undefined
         const ops = extractGraphFn(modelValue, position)
         if (ops) {
           // yaml = propRule.yaml ?? edgeDef.yaml (русский YAML-ключ)
@@ -111,22 +135,25 @@ export function buildGraphFromModel(params: {
     }
 
     // --- buildGraphFromModel: типы с кастомной логикой построения графа ---
-    const buildGraphFn = getTypeRule(propType, "buildGraphFromModel")
     if (buildGraphFn) {
       const result = buildGraphFn({
         model: model[key],
         parentNodeId,
         filePath,
         yamlMap,
+        lineCounter,
         propRule,
+        propertyName: key,
         extra,
       })
-      applyBuildGraphResult(result, { graph, parentNodeId, filePath, propType, extra })
+      if (hasBuildGraphResult(result)) {
+        graph.addFlattenSkipKeys(parentNodeId, [key])
+      }
+      applyBuildGraphResult(result, { graph, parentNodeId, filePath, propType, lineCounter, extra })
       continue
     }
 
     // --- graphChild: коллекции с декларативным созданием дочерних узлов ---
-    const graphChildDef = getTypeRule(propType, "graphChild")
     if (!graphChildDef) continue
 
     const modelValue = model[key]
@@ -135,32 +162,27 @@ export function buildGraphFromModel(params: {
     const yamlKey = propRule.yaml
     const collectionYamlMap = yamlKey && yamlMap ? findSubmap(yamlMap, yamlKey) : undefined
 
-    for (const item of modelValue as Array<Record<string, unknown>>) {
+    for (const [index, item] of (modelValue as Array<Record<string, unknown>>).entries()) {
       const idSuffix = item[graphChildDef.idFrom] as string | undefined
       if (!idSuffix) continue
 
       const childNodeId = graphChildDef.nodeSegment
         ? `${parentNodeId}.${graphChildDef.nodeSegment}.${idSuffix}`
         : `${parentNodeId}.${idSuffix}`
-      const itemOffset = collectionYamlMap ? findKeyOffset(collectionYamlMap, idSuffix) : undefined
       const itemYamlMap = collectionYamlMap ? findSubmap(collectionYamlMap, idSuffix) : undefined
 
-      graph.promoteNode(childNodeId, {
-        name: idSuffix,
-        positionFrom: itemOffset !== undefined ? { offset: itemOffset } : undefined,
-        filePaths: [filePath],
-        item,
-      })
-
-      const edgeKey = `${parentNodeId}:${graphChildDef.edgeKind}:${childNodeId}`
-      graph.ensureEdge(edgeKey, parentNodeId, childNodeId, {
+      graph.ensureNode(childNodeId, { name: idSuffix })
+      graph.addFilePath(childNodeId, filePath)
+      graph.setItem(childNodeId, item)
+      graph.ensureEdge(parentNodeId, childNodeId, graphChildDef.edgeKind, {
         yaml: graphChildDef.edgeYaml,
-        kind: graphChildDef.edgeKind,
+        index,
       })
 
       buildGraphFromModel({
         model: item,
         yamlMap: itemYamlMap,
+        lineCounter,
         rule: graphChildDef.itemRule,
         graph,
         parentNodeId: childNodeId,

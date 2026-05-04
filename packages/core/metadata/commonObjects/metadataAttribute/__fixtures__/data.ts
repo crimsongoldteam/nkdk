@@ -65,6 +65,7 @@ export const documentFromXML: MetadataAttributes = [
   {
     itemType: "MetadataAttribute",
     name: "ПолныйРеквизит",
+    binaryDataStorageLocationUseField: "Document.ДокументВсеСвойства.Attribute.РеквизитБулево",
     synonym: { items: { ru: "Синоним" } },
     comment: "Комментарий",
     type: { type: ["ValueStorage"] },
@@ -96,6 +97,7 @@ export const fullFromXML: MetadataAttributes = [
   {
     itemType: "MetadataAttribute",
     name: "РеквизитПолный",
+    binaryDataStorageLocationUseField: "Catalog.СправочникВладелец.Attribute.РеквизитБулево",
     synonym: { items: { ru: "Синоним" } },
     comment: "Комментарий",
     type: { type: ["CatalogRef.СправочникПолный"] },
@@ -145,7 +147,7 @@ export const fullMetadataAttributes: MetadataAttributes = [
   {
     itemType: "MetadataAttribute",
     binaryDataStorageLocationUse: "Use",
-    binaryDataStorageLocationUseField: true,
+    binaryDataStorageLocationUseField: "АтрибутХраненияДвоичныхДанных",
     choiceFoldersAndItems: "Folders",
     choiceForm: "Catalog.Справочник.Form.ФормаВыбора",
     choiceHistoryOnInput: "DontUse",
@@ -219,7 +221,7 @@ export const fullMetadataAttributesYAML: MetadataAttributesYAML = {
     МногострочныйРежим: "Истина",
     ПараметрыВыбора: { "Отбор.Параметр": '"Значение"' },
     Подсказка: "Подсказка для реквизита",
-    ПолеИспользованияХраненияВХранилищеДвоичныхДанных: "Истина",
+    ПолеИспользованияХраненияВХранилищеДвоичныхДанных: "АтрибутХраненияДвоичныхДанных",
     ПолнотекстовыйПоиск: "НеИспользовать",
     ПроверкаЗаполнения: "ВыдаватьОшибку",
     РасширенноеРедактирование: "Истина",

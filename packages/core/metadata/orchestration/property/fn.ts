@@ -1,11 +1,13 @@
 import { TSchema } from "@sinclair/typebox"
-import { YAMLMap } from "yaml"
+import { LineCounter, YAMLMap } from "yaml"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
+import type { GraphPrimitive } from "~/metadata/orchestration/buildGraph/types"
 import { PropertyRuleType } from "./registry"
+import { SourcePosition } from "./position"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export type ExportToXMLFunction = (
@@ -75,10 +77,15 @@ export type BuildGraphFromModelFunction = (params: {
   parentNodeId: string
   filePath: string
   yamlMap: YAMLMap | undefined
+  lineCounter: LineCounter | undefined
   propRule: PropertyRule
+  /** JS-ключ свойства из MetadataItemRule.properties. */
+  propertyName: string
   /** Дополнительный контекст, пробрасываемый в кастомные обработчики (например, formNodeId). */
   extra?: Record<string, unknown>
 }) => GraphOps | GraphOps[] | undefined | void
+
+export type GraphOpsEdgeProps = Record<string, GraphPrimitive>
 
 export interface GraphOpsChild {
   /**
@@ -88,7 +95,9 @@ export interface GraphOpsChild {
    */
   idSuffix: string
   name: string
-  positionFrom?: { offset: number; length?: number }
+  positionFrom?: SourcePosition
+  /** Порядок owning-ребра внутри коллекции. Если не задан, applyGraphOps ставит индекс по порядку children. */
+  index?: number
   /** Запись в node.item при promoteNode. */
   item?: Record<string, unknown>
   /**
@@ -118,7 +127,9 @@ export interface GraphOpsChild {
 export interface GraphOpsReference {
   id: string
   name: string
-  positionFrom?: { offset: number; length?: number }
+  positionFrom?: SourcePosition
+  /** Дополнительные primitive props конкретного reference-ребра. */
+  edgeProps?: GraphOpsEdgeProps
   // parentOverride намеренно не поддерживается: reference создаёт глобальный stub-узел
   // и ребро всегда от ctx.parentNodeId. Если нужен override-источник ребра — используй
   // formLocalReferences (с собственной семантикой резолвинга цели).
@@ -129,9 +140,13 @@ export interface GraphOpsFormLocalReference {
   formLocalPath: string
   /** Корневой узел формы — стартовая точка резолвинга. */
   formNodeId: string
-  positionFrom?: { offset: number; length?: number }
+  positionFrom?: SourcePosition
   /** Если задано — ребро идёт от этого узла к резолвимой цели вместо ctx.parentNodeId. */
   parentOverride?: string
+  /** Дополнительные primitive props конкретного reference-ребра. */
+  edgeProps?: GraphOpsEdgeProps
+  /** Если задано — applyGraphOps создаёт dependency-рёбра от источника к узлам, участвовавшим в разрешении form-local пути. */
+  dependsOnEdgeKind?: string
 }
 
 export interface GraphOpsRecurse {
@@ -139,6 +154,8 @@ export interface GraphOpsRecurse {
   model: Record<string, unknown>
   /** YAML-фрагмент подмодели для координат. Опционально. */
   yamlMap?: YAMLMap
+  /** Счётчик строк исходного YAML для координат. Опционально. */
+  lineCounter?: LineCounter
   /** Правило обхода подмодели. */
   rule: MetadataItemRule
   /** Узел, относительно которого пойдёт обход — становится parentNodeId внутри. */
@@ -162,7 +179,7 @@ export interface GraphOps {
 
 export type ExtractGraphFromModelFunction<TModel = unknown> = (
   model: TModel,
-  position?: { offset: number; length?: number }
+  position?: SourcePosition
 ) => GraphOps | undefined
 
 export type GraphEdgeFromParent = {

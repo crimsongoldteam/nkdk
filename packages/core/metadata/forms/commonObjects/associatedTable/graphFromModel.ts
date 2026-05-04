@@ -10,7 +10,7 @@
  */
 
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { registerEdgeKind } from "~/metadata/relations/edgeKinds"
+import { registerEdgeKind } from "~/metadata/orchestration/buildGraph/internal/edgeKinds"
 import {
   BuildGraphFromModelFunction,
   GraphOps,

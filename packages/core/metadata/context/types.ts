@@ -2,7 +2,8 @@ import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
 import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "../orchestration"
-import { MetadataGraph } from "../relations/MetadataGraph"
+import { GraphBuilder } from "../orchestration/buildGraph/internal/GraphBuilder"
+import type { CypherCache } from "../orchestration/property/cypherCache"
 
 export type ContextElementToXML = {
   name: string
@@ -29,7 +30,7 @@ export interface ConfigurationContext {
   importFromYAML?: FormimportFromYAMLContext
   exportToXML?: ToXMLConfigurationContext
   /** Экземпляр графа, передаётся снаружи (из extension/CLI). Не синглтон. */
-  graph?: MetadataGraph
+  graph?: GraphBuilder
 }
 
 export interface ConfigurationContextFromXML extends ConfigurationContext {
@@ -46,6 +47,8 @@ export type ToXMLConfigurationContext = {
   readonly configDumpInfo: ConfigDumpInfo
   readonly version: string
   readonly itemsTree: ContextElementToXML[]
+  /** Кеш результатов Cypher-запросов, заполняется до начала обхода свойств. */
+  cypherCache?: CypherCache
   context?: {
     forms: string[]
     templates: string[]

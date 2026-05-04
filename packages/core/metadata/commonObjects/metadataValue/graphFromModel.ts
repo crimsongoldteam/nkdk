@@ -5,7 +5,12 @@ import {
   GraphOps,
   GraphOpsReference,
 } from "~/metadata/orchestration/property/fn"
-import { computeValuePosition, findSeqItemOffset, findSubmap } from "~/metadata/orchestration/property/position"
+import {
+  computeSeqItemPosition,
+  computeValuePosition,
+  findSubmap,
+  SourcePosition,
+} from "~/metadata/orchestration/property/position"
 import { extractReferenceFromPath } from "~/metadata/orchestration/property/extractReferenceFromPath"
 import { convertPath } from "~/metadata/commonObjects/metadataPath/helper"
 import { MetadataValuesRulesToYAML } from "~/metadata/commonObjects/metadataPath/types"
@@ -39,7 +44,7 @@ function convertRefValueToNodeId(refValue: string): string | undefined {
 
 export function extractSingleValueRef(
   value: MetadataTypedValue,
-  position?: { offset: number },
+  position?: SourcePosition,
 ): { ref: GraphOpsReference; kind: string; yaml: string } | undefined {
   if (value.type === "ref") {
     const nodeId = convertRefValueToNodeId((value as MetadataRefValue).value)
@@ -63,6 +68,7 @@ export function extractSingleValueRef(
 export const buildMetadataValueGraph: BuildGraphFromModelFunction = ({
   model,
   yamlMap,
+  lineCounter,
   propRule,
 }): GraphOps[] | undefined => {
   const value = model as MetadataValue | undefined
@@ -84,8 +90,8 @@ export const buildMetadataValueGraph: BuildGraphFromModelFunction = ({
 
     const refsByKind = new Map<string, { yaml: string; refs: GraphOpsReference[] }>()
     items.forEach((item, index) => {
-      const offset = yamlSeq ? findSeqItemOffset(yamlSeq, index) : undefined
-      const position = offset !== undefined ? { offset } : undefined
+      const position =
+        yamlSeq && lineCounter ? computeSeqItemPosition(yamlSeq, index, lineCounter) : undefined
       const extracted = extractSingleValueRef(item, position)
       if (!extracted) return
       const { ref, kind, yaml } = extracted
@@ -108,13 +114,13 @@ export const buildMetadataValueGraph: BuildGraphFromModelFunction = ({
   if (value.type === "formChoiceListDesTimeValue") {
     const inner = (value as MetadataFormChoiceListValue).value
     if (!inner) return undefined
-    let innerPosition: { offset: number } | undefined
-    if (yamlMap && propRule.yaml) {
+    let innerPosition: SourcePosition | undefined
+    if (yamlMap && propRule.yaml && lineCounter) {
       const innerMap = findSubmap(yamlMap, propRule.yaml)
       if (innerMap) {
-        innerPosition = computeValuePosition(innerMap, "Значение")
+        innerPosition = computeValuePosition(innerMap, "Значение", lineCounter)
       } else {
-        innerPosition = computeValuePosition(yamlMap, propRule.yaml)
+        innerPosition = computeValuePosition(yamlMap, propRule.yaml, lineCounter)
       }
     }
     const extracted = extractSingleValueRef(inner, innerPosition)
@@ -123,7 +129,9 @@ export const buildMetadataValueGraph: BuildGraphFromModelFunction = ({
   }
 
   const position =
-    yamlMap && propRule.yaml ? computeValuePosition(yamlMap, propRule.yaml) : undefined
+    yamlMap && propRule.yaml && lineCounter
+      ? computeValuePosition(yamlMap, propRule.yaml, lineCounter)
+      : undefined
   const extracted = extractSingleValueRef(value, position ?? undefined)
   if (!extracted) return undefined
   return [{ references: [extracted.ref], edgeKind: extracted.kind, edgeYaml: extracted.yaml }]

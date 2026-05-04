@@ -4,10 +4,6 @@ import * as vscode from "vscode"
 import type { BaseLanguageClient } from "vscode-languageclient"
 import type { LanguageClientOptions, ServerOptions } from "vscode-languageclient/node.js"
 import { LanguageClient, TransportKind } from "vscode-languageclient/node.js"
-import { initWorkspaceGraph } from "../workspaceGraph.js"
-import { initCompletionProvider } from "./completionProvider.js"
-import { initDefinitionProvider } from "./definitionProvider.js"
-import { initDiagnosticProvider } from "./diagnosticProvider.js"
 import { registerDocumentChangeHandler } from "./documentChangeHandler.js"
 import type { SseServerHandle } from "./sseServer.js"
 import { startSseServer } from "./sseServer.js"
@@ -26,8 +22,6 @@ function getNkdkOutputChannel(): vscode.OutputChannel {
 
 // This function is called when the extension is activated.
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-  initWorkspaceGraph(context)
-
   const nkdkClient = await startNKDKLanguageClient(context)
   languageClients.push(nkdkClient)
 
@@ -36,10 +30,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   const formPreviewDir = context.asAbsolutePath("formPreview")
   sseServer = startSseServer(formPreviewDir)
-
-  initCompletionProvider(context)
-  initDefinitionProvider(context)
-  initDiagnosticProvider(context)
 
   context.subscriptions.push(registerDocumentChangeHandler(sseServer))
   context.subscriptions.push(

@@ -24,11 +24,27 @@ export interface EdgeData {
   props?: Record<string, GraphPrimitive>
 }
 
+export interface FileStats {
+  mtimeMs: number
+  size: number
+  updatedAt: number
+}
+
+export interface GraphFileRecord extends FileStats {
+  path: string
+}
+
 export interface FileGraphData {
-  /** Абсолютный или относительный путь YAML-файла. */
+  /** Относительный путь файла-источника в YAML-проекте. */
   filePath: string
+  /** Состояние файла на диске для watcher-сравнения. */
+  fileStats?: FileStats
   nodes: NodeData[]
   edges: EdgeData[]
+  /** Узлы, жизненным циклом которых владеет filePath. */
+  declaredNodeIds?: string[]
+  /** Узлы, на которые filePath влияет, но которыми не владеет. */
+  contributedNodeIds?: string[]
 }
 
 export interface ConnectionOptions {
@@ -36,4 +52,25 @@ export interface ConnectionOptions {
   url?: string
   /** Имя графа. По умолчанию — env `NKDK_GRAPH_NAME` или `nakidka`. */
   graphName?: string
+}
+
+export type GraphUpdatePhase =
+  | "resetGraph"
+  | "ensureFileIndexes"
+  | "ensureLabelIndexes"
+  | "deleteByFiles"
+  | "mergeFiles"
+  | "mergeNodes"
+  | "mergeEdges"
+  | "mergeFileLinks"
+  | "cleanupOrphanStubs"
+
+export interface GraphProgress {
+  phase: GraphUpdatePhase
+  done?: number
+  total?: number
+}
+
+export interface GraphUpdateOptions extends ConnectionOptions {
+  onProgress?: (progress: GraphProgress) => void
 }

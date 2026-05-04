@@ -1,6 +1,5 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import type { ReferenceScope } from "../../relations/referenceScope"
+import { MetadataItemRule, type ReferenceScope } from "~/metadata/orchestration/property/types"
 
 const documentProperties = ["Properties"]
 const documentChildObjects = ["ChildObjects"]

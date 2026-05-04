@@ -7,7 +7,7 @@
  */
 
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { registerEdgeKind } from "~/metadata/relations/edgeKinds"
+import { registerEdgeKind } from "~/metadata/orchestration/buildGraph/internal/edgeKinds"
 import { FormCommandRules } from "./rules"
 
 registerEdgeKind("FORM_COMMAND", { yaml: "КомандаФормы", owning: true })

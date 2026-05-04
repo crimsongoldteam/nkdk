@@ -1,5 +1,4 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { isDynamicListAttribute } from "~/metadata/forms/commonObjects/dataPath/isDynamicListAttribute"
+import { cypherPredicate } from "~/metadata/orchestration/property/cypherPredicate"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
@@ -264,7 +263,11 @@ export const TableRules = {
         "v8:startDate": "0001-01-01T00:00:00",
         "v8:endDate": "0001-01-01T00:00:00",
       },
-      toXML: (el: any, ctx?: ConfigurationContextWithExportToXML) => isDynamicListAttribute(el?.dataPath, ctx),
+      toXML: cypherPredicate({
+        query: "MATCH (s {id: $scope})-[:ATTRIBUTE]->(a:FormAttribute)-[:VALUE_TYPE]->(:Type {name: 'DynamicList'}) RETURN a.name AS name",
+        test: (el: any, rows: Record<string, unknown>[]) =>
+          rows.some((r) => r.name === el?.dataPath?.split(".")[0]),
+      }),
     },
     topLevelParent: {
       yaml: "РодительВерхнегоУровня",
@@ -273,7 +276,11 @@ export const TableRules = {
       toYAML: false,
       fromYAML: false,
       defaultValueXMLRaw: { "_xsi:nil": "true" },
-      toXML: (el: any, ctx?: ConfigurationContextWithExportToXML) => isDynamicListAttribute(el?.dataPath, ctx),
+      toXML: cypherPredicate({
+        query: "MATCH (s {id: $scope})-[:ATTRIBUTE]->(a:FormAttribute)-[:VALUE_TYPE]->(:Type {name: 'DynamicList'}) RETURN a.name AS name",
+        test: (el: any, rows: Record<string, unknown>[]) =>
+          rows.some((r) => r.name === el?.dataPath?.split(".")[0]),
+      }),
     },
     events: {
       type: "Events",

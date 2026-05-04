@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from "vitest"
 import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
-import { MetadataGraph } from "~/metadata/relations/MetadataGraph"
+import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import { ClientApplicationFormRules } from "../../clientApplicationForm/rules"
 
 // Регистрирует все обработчики элементов формы (включая AssociatedTable через graphFromModel)
@@ -21,15 +21,13 @@ const FILE_PATH = "Справочник/Товары/Формы/ФормаСпи
  * Создаёт граф с узлом формы и узлом элемента-таблицы «ТаблицаТоваров».
  */
 function makeGraphWithTableElement() {
-  const graph = new MetadataGraph()
+  const graph = new GraphBuilder()
   graph.ensureNode(FORM_NODE_ID, { name: "ФормаСписка" })
 
   // Элемент-таблица уже существует в форме
   const tableNodeId = `${FORM_NODE_ID}.Элемент.ТаблицаТоваров`
-  graph.promoteNode(tableNodeId, {
-    name: "ТаблицаТоваров",
-    filePaths: [FILE_PATH],
-  })
+  graph.ensureNode(tableNodeId, { name: "ТаблицаТоваров" })
+  graph.addFilePath(tableNodeId, FILE_PATH)
 
   return graph
 }
@@ -70,7 +68,7 @@ describe("AssociatedTable buildGraphFromModel — СвязаннаяТаблиц
   })
 
   it("создаёт заглушку и reference-ребро, если элемент-таблица ещё не создан", () => {
-    const graph = new MetadataGraph()
+    const graph = new GraphBuilder()
     graph.ensureNode(FORM_NODE_ID, { name: "ФормаСписка" })
 
     buildGraphFromModel({
@@ -98,8 +96,8 @@ describe("AssociatedTable buildGraphFromModel — СвязаннаяТаблиц
     expect(tableEdges).toHaveLength(1)
     const stubId = tableEdges[0].target
     expect(stubId).toBe(`${FORM_NODE_ID}.Элемент.НесуществующаяТаблица`)
-    // Заглушка не имеет filePaths
-    expect(graph.getNodeAttribute(stubId, "filePaths")).toBeUndefined()
+    // В GraphBuilder stub-узел имеет пустой массив filePaths (не undefined)
+    expect(graph.getNodeAttributes(stubId).filePaths).toEqual([])
   })
 
   it("пустое значение table → ребро не создаётся", () => {
