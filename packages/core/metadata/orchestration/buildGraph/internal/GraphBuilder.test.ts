@@ -13,6 +13,7 @@ describe("GraphBuilder: ensureNode / getNodeAttributes / hasNode", () => {
       name: undefined,
       item: undefined,
       filePaths: [],
+      flattenSkipKeys: new Set(),
     })
   })
 
@@ -98,7 +99,20 @@ describe("GraphBuilder: setItem", () => {
 })
 
 // ──────────────────────────────────────────────────────────────
-// D: ensureEdge + outEdgeEntries
+// D: addFlattenSkipKeys
+// ──────────────────────────────────────────────────────────────
+describe("GraphBuilder: addFlattenSkipKeys", () => {
+  it("addFlattenSkipKeys добавляет ключи идемпотентно", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("X")
+    g.addFlattenSkipKeys("X", ["name", "owner"])
+    g.addFlattenSkipKeys("X", ["name"])
+    expect(g.getNodeAttributes("X").flattenSkipKeys).toEqual(new Set(["name", "owner"]))
+  })
+})
+
+// ──────────────────────────────────────────────────────────────
+// E: ensureEdge + outEdgeEntries
 // ──────────────────────────────────────────────────────────────
 describe("GraphBuilder: ensureEdge / outEdgeEntries", () => {
   it("ensureEdge добавляет ребро (мульти-граф по kind)", () => {
@@ -146,7 +160,7 @@ describe("GraphBuilder: ensureEdge / outEdgeEntries", () => {
 })
 
 // ──────────────────────────────────────────────────────────────
-// E: nodes()
+// F: nodes()
 // ──────────────────────────────────────────────────────────────
 describe("GraphBuilder: nodes()", () => {
   it("nodes() обходит все добавленные узлы в порядке вставки", () => {
