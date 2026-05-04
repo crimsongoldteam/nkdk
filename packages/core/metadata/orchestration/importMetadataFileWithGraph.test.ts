@@ -109,9 +109,20 @@ describe("importMetadataFileWithGraph — catalog", () => {
     const outEdges = [...graph.outEdgeEntries("Справочник.Товары")]
     const fieldEdges = outEdges.filter((e) => e.attributes.kind === "FIELD")
 
-    expect(fieldEdges.map((e) => e.attributes.positionFrom)).toEqual([
-      { offset: 19, line: 3, column: 5 },
-      { offset: 48, line: 4, column: 5 },
+    expect(
+      fieldEdges.map(({ target, attributes }) => ({
+        target,
+        positionFrom: attributes.positionFrom,
+      })),
+    ).toEqual([
+      {
+        target: "Справочник.A.Реквизит.П1",
+        positionFrom: { offset: 19, line: 3, column: 5 },
+      },
+      {
+        target: "Справочник.B.Реквизит.П2",
+        positionFrom: { offset: 48, line: 4, column: 5 },
+      },
     ])
   })
 })
@@ -349,10 +360,20 @@ describe("importMetadataFileWithGraph — MetadataItemLinks (document)", () => {
     expect(graph.hasNode("РегистрСведений.Продажи")).toBe(true)
     expect(graph.hasNode("РегистрСведений.Закупки")).toBe(true)
 
-    const positions = objEdges.map((e) => e.attributes.positionFrom)
-    expect(positions).toEqual([
-      { offset: 15, line: 3, column: 5 },
-      { offset: 43, line: 4, column: 5 },
+    expect(
+      objEdges.map(({ target, attributes }) => ({
+        target,
+        positionFrom: attributes.positionFrom,
+      })),
+    ).toEqual([
+      {
+        target: "РегистрСведений.Продажи",
+        positionFrom: { offset: 15, line: 3, column: 5 },
+      },
+      {
+        target: "РегистрСведений.Закупки",
+        positionFrom: { offset: 43, line: 4, column: 5 },
+      },
     ])
   })
 })
@@ -452,15 +473,21 @@ describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗап�
     const valEdges = outEdges.filter((e) => e.attributes.kind === "VALUE")
     expect(valEdges).toHaveLength(2)
 
-    const positions = valEdges.map((e) => e.attributes.positionFrom)
-    expect(positions).toEqual([
-      { offset: 58, line: 5, column: 9 },
-      { offset: 107, line: 6, column: 9 },
+    expect(
+      valEdges.map(({ target, attributes }) => ({
+        target,
+        positionFrom: attributes.positionFrom,
+      })),
+    ).toEqual([
+      {
+        target: "Перечисление.ТипыСчетов.КосвенныеЗатраты",
+        positionFrom: { offset: 58, line: 5, column: 9 },
+      },
+      {
+        target: "Перечисление.ТипыСчетов.Расходы",
+        positionFrom: { offset: 107, line: 6, column: 9 },
+      },
     ])
-
-    const targets = valEdges.map((e) => e.target)
-    expect(targets).toContain("Перечисление.ТипыСчетов.КосвенныеЗатраты")
-    expect(targets).toContain("Перечисление.ТипыСчетов.Расходы")
   })
 })
 
