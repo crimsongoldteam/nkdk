@@ -1,41 +1,41 @@
-import { buildGraph, buildGraphForChangedFile } from "@nakidka/core"
+import { buildGraphForChangedFile } from "@nakidka/core"
 import { updateGraph as writeGraph } from "@nakidka/graph"
 import chalk from "chalk"
 import { existsSync, readFileSync } from "fs"
 import { performance } from "perf_hooks"
 import { readFileStats } from "../graph/fileStats"
-import { absoluteProjectFile, pairedFormPath, readProjectFileList } from "../graph/projectFiles"
+import {
+  absoluteProjectFile,
+  normalizeProjectFile,
+  pairedFormPath,
+  readProjectFileList,
+} from "../graph/projectFiles"
 
 const CONTEXT = { version: "2.20", defaultLanguage: "ru" }
 
-function readYamlProjectFiles(projectPath: string): Map<string, string> {
-  const files = new Map<string, string>()
-
-  const readFile = (relativePath: string): void => {
-    const fullPath = absoluteProjectFile(projectPath, relativePath)
-    if (!existsSync(fullPath)) return
-    try {
-      files.set(relativePath, readFileSync(fullPath, "utf-8"))
-    } catch (err) {
-      console.warn(chalk.yellow(`Предупреждение: не удалось прочитать ${fullPath}: ${err}`))
-    }
-  }
-
-  for (const filePath of readProjectFileList(projectPath)) {
-    if (filePath.endsWith(".yaml")) readFile(filePath)
-  }
-
-  return files
-}
-
 export const updateGraphFile = async (projectPath: string, filePath: string): Promise<void> => {
-  const fullPath = absoluteProjectFile(projectPath, filePath)
-  if (!existsSync(fullPath)) {
-    await writeGraph([{ filePath, nodes: [], edges: [] }])
+  const normalizedFilePath = filePath.startsWith(projectPath)
+    ? normalizeProjectFile(projectPath, filePath)
+    : filePath
+  const primaryFilePath = normalizedFilePath.endsWith("/Форма.nkdk")
+    ? pairedFormPath(normalizedFilePath)
+    : normalizedFilePath
+
+  if (!primaryFilePath) {
+    await writeGraph([{ filePath: normalizedFilePath, nodes: [], edges: [] }])
     return
   }
 
-  const paired = pairedFormPath(filePath)
+  const fullPath = absoluteProjectFile(projectPath, primaryFilePath)
+  if (!existsSync(fullPath)) {
+    await writeGraph([{ filePath: primaryFilePath, nodes: [], edges: [] }])
+    if (primaryFilePath !== normalizedFilePath) {
+      await writeGraph([{ filePath: normalizedFilePath, nodes: [], edges: [] }])
+    }
+    return
+  }
+
+  const paired = pairedFormPath(primaryFilePath)
   const pairedFullPath = paired ? absoluteProjectFile(projectPath, paired) : undefined
   const pairedText =
     paired && pairedFullPath && existsSync(pairedFullPath)
@@ -44,13 +44,49 @@ export const updateGraphFile = async (projectPath: string, filePath: string): Pr
 
   const graphFiles = await buildGraphForChangedFile({
     projectPath,
-    filePath,
+    filePath: primaryFilePath,
     text: readFileSync(fullPath, "utf-8"),
     pairedText,
     context: CONTEXT,
   })
-  const stats = readFileStats(fullPath)
-  await writeGraph(graphFiles.map((file) => ({ ...file, fileStats: stats })))
+  await writeGraph(graphFiles.map((file) => ({
+    ...file,
+    fileStats: readFileStats(absoluteProjectFile(projectPath, file.filePath)),
+  })))
+}
+
+const buildProjectGraph = async (projectPath: string) => {
+  const graphFiles = []
+
+  for (const filePath of readProjectFileList(projectPath)) {
+    if (!filePath.endsWith(".yaml")) continue
+
+    const fullPath = absoluteProjectFile(projectPath, filePath)
+    try {
+      const paired = pairedFormPath(filePath)
+      const pairedFullPath = paired ? absoluteProjectFile(projectPath, paired) : undefined
+      const pairedText =
+        paired && pairedFullPath && existsSync(pairedFullPath)
+          ? { filePath: paired, text: readFileSync(pairedFullPath, "utf-8") }
+          : undefined
+
+      const files = await buildGraphForChangedFile({
+        projectPath,
+        filePath,
+        text: readFileSync(fullPath, "utf-8"),
+        pairedText,
+        context: CONTEXT,
+      })
+      graphFiles.push(...files.map((file) => ({
+        ...file,
+        fileStats: readFileStats(absoluteProjectFile(projectPath, file.filePath)),
+      })))
+    } catch (err) {
+      console.warn(chalk.yellow(`Предупреждение: не удалось построить граф для ${fullPath}: ${err}`))
+    }
+  }
+
+  return graphFiles
 }
 
 export const updateGraph = async (projectPath: string): Promise<void> => {
@@ -61,11 +97,11 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
 
   const tStart = performance.now()
   const tReadStart = performance.now()
-  const yamlFiles = readYamlProjectFiles(projectPath)
+  const projectFiles = readProjectFileList(projectPath)
   const tRead = performance.now() - tReadStart
 
   const tBuildStart = performance.now()
-  const graphFiles = await buildGraph(yamlFiles, CONTEXT)
+  const graphFiles = await buildProjectGraph(projectPath)
   const tBuild = performance.now() - tBuildStart
 
   const tWriteStart = performance.now()
@@ -76,7 +112,7 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
   const totalEdges = graphFiles.reduce((sum, file) => sum + file.edges.length, 0)
   const tTotal = performance.now() - tStart
 
-  console.log(`чтение YAML      — ${tRead.toFixed(1)} мс — ${yamlFiles.size} шт.`)
+  console.log(`чтение файлов    — ${tRead.toFixed(1)} мс — ${projectFiles.length} шт.`)
   console.log(`buildGraph       — ${tBuild.toFixed(1)} мс — узлов ${totalNodes}, рёбер ${totalEdges}`)
   console.log(`updateGraph      — ${tWrite.toFixed(1)} мс`)
   console.log(`итого            — ${tTotal.toFixed(1)} мс`)
