@@ -30,6 +30,97 @@ describe("buildGraph (smoke)", () => {
     expect(root!.props.filePath).toBe("Справочник/Контрагенты/Свойства.yaml")
   })
 
+  it("не дублирует реквизиты справочника в props при прямом импорте buildGraph", () => {
+    const yaml = `\
+Реквизиты:
+  Автор:
+    Тип: Справочник.Пользователи
+`
+    const filePath = "Справочник/Файлы/Свойства.yaml"
+    const result = buildGraph(new Map([[filePath, yaml]]), ctx)
+    const fileSegment = result.find((f) => f.filePath === filePath)!
+
+    const root = fileSegment.nodes.find((n) => n.id === "Справочник.Файлы")!
+    expect(Object.keys(root.props).some((key) => key.startsWith("p_attributes_"))).toBe(false)
+    expect(fileSegment.nodes.some((n) => n.id === "Справочник.Файлы.Реквизит.Автор")).toBe(true)
+    expect(
+      fileSegment.edges.some(
+        (e) =>
+          e.kind === "ATTRIBUTE" &&
+          e.src === "Справочник.Файлы" &&
+          e.tgt === "Справочник.Файлы.Реквизит.Автор",
+      ),
+    ).toBe(true)
+  })
+
+  it("не дублирует choiceParameters в props при прямом импорте buildGraph", () => {
+    const yaml = `\
+Реквизиты:
+  Характеристика:
+    Тип: Справочник.Характеристики
+    ПараметрыВыбора:
+      Отбор.Владелец: '"A"'
+`
+    const filePath = "Справочник/Товары/Свойства.yaml"
+    const result = buildGraph(new Map([[filePath, yaml]]), ctx)
+    const fileSegment = result.find((f) => f.filePath === filePath)!
+
+    const attr = fileSegment.nodes.find(
+      (n) => n.id === "Справочник.Товары.Реквизит.Характеристика",
+    )!
+    const choice = fileSegment.nodes.find(
+      (n) => n.id === "Справочник.Товары.Реквизит.Характеристика.ПараметрВыбора[0]",
+    )!
+
+    expect(Object.keys(attr.props).some((key) => key.startsWith("p_choiceParameters_"))).toBe(false)
+    expect(choice.label).toBe("ChoiceParameter")
+    expect(choice.props.name).toBe("Отбор.Владелец")
+    expect(fileSegment.edges).toContainEqual(
+      expect.objectContaining({
+        src: "Справочник.Товары.Реквизит.Характеристика",
+        tgt: "Справочник.Товары.Реквизит.Характеристика.ПараметрВыбора[0]",
+        kind: "CHOICE_PARAMETER",
+        props: expect.objectContaining({ index: 0 }),
+      }),
+    )
+  })
+
+  it("не дублирует choiceParameterLinks в props при прямом импорте buildGraph", () => {
+    const yaml = `\
+Реквизиты:
+  Характеристика:
+    Тип: Справочник.Характеристики
+    СвязиПараметровВыбора: "Отбор.Владелец(Справочник.Товары.Реквизит.Владелец, НеИзменять)"
+`
+    const filePath = "Справочник/Товары/Свойства.yaml"
+    const result = buildGraph(new Map([[filePath, yaml]]), ctx)
+    const fileSegment = result.find((f) => f.filePath === filePath)!
+
+    const attr = fileSegment.nodes.find(
+      (n) => n.id === "Справочник.Товары.Реквизит.Характеристика",
+    )!
+    const link = fileSegment.nodes.find(
+      (n) =>
+        n.id ===
+        "Справочник.Товары.Реквизит.Характеристика.СвязьПараметровВыбора[0]",
+    )!
+
+    expect(Object.keys(attr.props).some((key) => key.startsWith("p_choiceParameterLinks_"))).toBe(
+      false,
+    )
+    expect(link.label).toBe("ChoiceParameterLink")
+    expect(link.props.name).toBe("Отбор.Владелец")
+    expect(link.props.p_valueChange).toBe("DontChange")
+    expect(fileSegment.edges).toContainEqual(
+      expect.objectContaining({
+        src: "Справочник.Товары.Реквизит.Характеристика",
+        tgt: "Справочник.Товары.Реквизит.Характеристика.СвязьПараметровВыбора[0]",
+        kind: "CHOICE_PARAMETER_LINK",
+        props: expect.objectContaining({ index: 0 }),
+      }),
+    )
+  })
+
   it("игнорирует файл с неизвестным kind (без падения)", () => {
     const files = new Map([["Случайный/Файл.yaml", "Имя: x"]])
     expect(buildGraph(files, ctx)).toEqual([])
