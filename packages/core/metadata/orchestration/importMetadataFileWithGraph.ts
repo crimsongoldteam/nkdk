@@ -132,10 +132,10 @@ export function importMetadataFileWithGraph(params: {
     // Создаём владельца как stub, если он ещё не импортирован
     graph.ensureNode(ownerNodeId, { name: ownerNodeId.split(".").pop()! })
 
-    // Форм-узел с обоими filePaths (yaml + nkdk, если есть)
+    // Форм-узел объявляет YAML; nkdk только дополняет часть свойств формы.
     graph.ensureNode(formNodeId, { name })
     graph.addFilePath(formNodeId, filePath)
-    if (nkdkFilePath) graph.addFilePath(formNodeId, nkdkFilePath)
+    if (nkdkFilePath) graph.addContributedFilePath(formNodeId, nkdkFilePath)
     graph.setItem(formNodeId, { itemType: "ClientApplicationForm", name })
 
     // Owning-ребро «Форма» от владельца к форме

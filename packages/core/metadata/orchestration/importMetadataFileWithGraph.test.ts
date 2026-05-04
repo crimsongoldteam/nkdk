@@ -618,7 +618,7 @@ describe("importMetadataFileWithGraph — form", () => {
     expect(formEdges[0].target).toBe(formNodeId)
   })
 
-  it("form-узел хранит оба filePaths (yaml + nkdk)", () => {
+  it("form-узел объявляется YAML и дополняется nkdk", () => {
     const graph = new GraphBuilder()
     importMetadataFileWithGraph({
       filePath: YAML_PATH,
@@ -632,9 +632,10 @@ describe("importMetadataFileWithGraph — form", () => {
     })
 
     const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
-    const filePaths = graph.getNodeAttributes(formNodeId).filePaths
-    expect(filePaths).toContain(YAML_PATH)
-    expect(filePaths).toContain(NKDK_PATH)
+    const attrs = graph.getNodeAttributes(formNodeId)
+    expect(attrs.filePaths).toContain(YAML_PATH)
+    expect(attrs.filePaths).not.toContain(NKDK_PATH)
+    expect(attrs.contributedFilePaths).toContain(NKDK_PATH)
   })
 
   it("бросает ошибку если ownerNodeId не передан для form", () => {
