@@ -62,7 +62,9 @@ function buildStandardAttributesGraph(params: {
   }
 
   const children: GraphOpsChild[] = []
-  for (const [internalName, russianName] of Object.entries(stdAttrRule.standartAttributeNames)) {
+  for (const [index, [internalName, russianName]] of Object.entries(
+    stdAttrRule.standartAttributeNames,
+  ).entries()) {
     const absoluteId = `${parentNodeId}.${NODE_SEGMENT}.${russianName}`
     const offset = stdAttrsYamlMap ? findKeyOffset(stdAttrsYamlMap, russianName) : undefined
 
@@ -76,6 +78,7 @@ function buildStandardAttributesGraph(params: {
       absoluteId,
       name: russianName,
       positionFrom: offset !== undefined ? { offset } : undefined,
+      index,
       item: item as unknown as Record<string, unknown>,
     })
   }

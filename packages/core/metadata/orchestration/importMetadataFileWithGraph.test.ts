@@ -159,6 +159,39 @@ describe("importMetadataFileWithGraph — document", () => {
       { target: "Документ.Продажа.Реквизит.Third", index: 2 },
     ])
   })
+
+  it("сохраняет порядок StandardAttributeDescriptions через index и не дублирует props родителя", () => {
+    const graph = new GraphBuilder()
+
+    importMetadataFileWithGraph({
+      filePath: "Справочник/Контрагенты/Свойства.yaml",
+      sources: {
+        yaml: [
+          "СтандартныеРеквизиты:",
+          "  Владелец:",
+          "    ПроверкаЗаполнения: ВыдаватьОшибку",
+          "  Родитель:",
+          "    ПроверкаЗаполнения: НеПроверять",
+        ].join("\n"),
+      },
+      kind: "catalog",
+      name: "Контрагенты",
+      graph,
+      context: { version: "2.20", defaultLanguage: "ru" },
+    })
+
+    const file = walkGraphToFileData(graph).find(
+      (f) => f.filePath === "Справочник/Контрагенты/Свойства.yaml",
+    )!
+    const parent = file.nodes.find((n) => n.id === "Справочник.Контрагенты")!
+    const edges = [...graph.outEdgeEntries("Справочник.Контрагенты")]
+      .filter((edge) => edge.attributes.kind === "STANDARD_ATTRIBUTE")
+      .map((edge) => edge.attributes.index)
+
+    expect(Object.keys(parent.props).some((key) => key.startsWith("p_standardAttributes_"))).toBe(false)
+    expect(edges.every((index) => typeof index === "number")).toBe(true)
+    expect(edges).toEqual(edges.map((_, index) => index))
+  })
 })
 
 describe("importMetadataFileWithGraph — enumeration", () => {
