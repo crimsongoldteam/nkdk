@@ -1,99 +1,63 @@
-import { buildGraphForChangedFile } from "@nakidka/core"
+import { buildGraph, buildGraphForChangedFile } from "@nakidka/core"
+import type { FileGraphData } from "@nakidka/core"
 import { updateGraph as writeGraph } from "@nakidka/graph"
 import chalk from "chalk"
-import { existsSync, readFileSync } from "fs"
+import { existsSync } from "fs"
 import { resolve } from "path"
 import { performance } from "perf_hooks"
-import { readFileStats } from "../graph/fileStats"
-import {
-  absoluteProjectFile,
-  normalizeProjectFile,
-  pairedFormPath,
-  readProjectFileList,
-} from "../graph/projectFiles"
+import { readProjectFileList } from "../graph/projectFiles"
+import { readChangedProjectSource, readProjectGraphSources } from "../graph/projectSources"
 
 const CONTEXT = { version: "2.20", defaultLanguage: "ru" }
 
+const applyChangedSourceStats = (
+  graphFiles: FileGraphData[],
+  changed: NonNullable<ReturnType<typeof readChangedProjectSource>["source"]>,
+): FileGraphData[] => {
+  const statsByPath = new Map([
+    [changed.filePath, changed.fileStats],
+    ...(changed.pairedText ? [[changed.pairedText.filePath, changed.pairedText.fileStats] as const] : []),
+  ])
+
+  return graphFiles.map((file) => {
+    const fileStats = statsByPath.get(file.filePath)
+    return fileStats ? { ...file, fileStats } : file
+  })
+}
+
 export const updateGraphFile = async (projectPath: string, filePath: string): Promise<void> => {
   const absoluteProjectPath = resolve(projectPath)
-  const normalizedFilePath = resolve(filePath).startsWith(absoluteProjectPath)
-    ? normalizeProjectFile(absoluteProjectPath, resolve(filePath))
-    : filePath
-  const primaryFilePath = normalizedFilePath.endsWith("/Форма.nkdk")
-    ? pairedFormPath(normalizedFilePath)
-    : normalizedFilePath
+  const changed = readChangedProjectSource(absoluteProjectPath, filePath)
 
-  if (!primaryFilePath) {
-    await writeGraph([{ filePath: normalizedFilePath, nodes: [], edges: [] }])
+  if (changed.deleted) {
+    await writeGraph(changed.deletedFilePaths.map((deletedFilePath) => ({
+      filePath: deletedFilePath,
+      nodes: [],
+      edges: [],
+    })))
     return
   }
 
-  const fullPath = absoluteProjectFile(projectPath, primaryFilePath)
-  const paired = pairedFormPath(primaryFilePath)
-  if (!existsSync(fullPath)) {
-    await writeGraph([
-      { filePath: primaryFilePath, nodes: [], edges: [] },
-      ...(paired ? [{ filePath: paired, nodes: [], edges: [] }] : []),
-    ])
-    return
-  }
-
-  const pairedFullPath = paired ? absoluteProjectFile(projectPath, paired) : undefined
-  const pairedText =
-    paired && pairedFullPath && existsSync(pairedFullPath)
-      ? { filePath: paired, text: readFileSync(pairedFullPath, "utf-8") }
-      : undefined
+  if (!changed.source) return
 
   const graphFiles = await buildGraphForChangedFile({
-    projectPath,
-    filePath: primaryFilePath,
-    text: readFileSync(fullPath, "utf-8"),
-    pairedText,
+    projectPath: absoluteProjectPath,
+    filePath: changed.source.filePath,
+    text: changed.source.text,
+    pairedText: changed.source.pairedText,
     context: CONTEXT,
   })
-  const filesWithStats = graphFiles.map((file) => ({
-    ...file,
-    fileStats: readFileStats(absoluteProjectFile(projectPath, file.filePath)),
+  const filesWithStats = applyChangedSourceStats(graphFiles, changed.source)
+  const deletedFiles = changed.deletedFilePaths.map((deletedFilePath) => ({
+    filePath: deletedFilePath,
+    nodes: [],
+    edges: [],
   }))
-  if (paired && !existsSync(absoluteProjectFile(projectPath, paired))) {
-    await writeGraph([...filesWithStats, { filePath: paired, nodes: [], edges: [] }])
-    return
-  }
-  await writeGraph(filesWithStats)
+  await writeGraph([...filesWithStats, ...deletedFiles])
 }
 
 const buildProjectGraph = async (projectPath: string) => {
-  const graphFiles = []
-
-  for (const filePath of readProjectFileList(projectPath)) {
-    if (!filePath.endsWith(".yaml")) continue
-
-    const fullPath = absoluteProjectFile(projectPath, filePath)
-    try {
-      const paired = pairedFormPath(filePath)
-      const pairedFullPath = paired ? absoluteProjectFile(projectPath, paired) : undefined
-      const pairedText =
-        paired && pairedFullPath && existsSync(pairedFullPath)
-          ? { filePath: paired, text: readFileSync(pairedFullPath, "utf-8") }
-          : undefined
-
-      const files = await buildGraphForChangedFile({
-        projectPath,
-        filePath,
-        text: readFileSync(fullPath, "utf-8"),
-        pairedText,
-        context: CONTEXT,
-      })
-      graphFiles.push(...files.map((file) => ({
-        ...file,
-        fileStats: readFileStats(absoluteProjectFile(projectPath, file.filePath)),
-      })))
-    } catch (err) {
-      console.warn(chalk.yellow(`Предупреждение: не удалось построить граф для ${fullPath}: ${err}`))
-    }
-  }
-
-  return graphFiles
+  return buildGraph(readProjectGraphSources(projectPath), CONTEXT)
 }
 
 export const updateGraph = async (projectPath: string): Promise<void> => {

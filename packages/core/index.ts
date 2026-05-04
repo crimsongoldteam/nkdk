@@ -46,7 +46,11 @@ export { buildGraph, buildGraphForChangedFile } from "./metadata/orchestration/b
 export type {
   BuildGraphForChangedFileParams,
   FileGraphData,
+  FileStats,
   ImportContext,
+  PairedGraphSourceText,
+  ProjectGraphInput,
+  ProjectGraphSource,
 } from "./metadata/orchestration/buildGraph"
 export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
 export { exportMetadataDocumentToJSONSchema } from "./metadata/appliedObjects/metadataDocument/toJSONSchema"
