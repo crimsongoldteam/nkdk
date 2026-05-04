@@ -3,6 +3,7 @@ import type { GraphConnection } from "./connection"
 import type { EdgeData, FileGraphData, FileStats, NodeData } from "../types"
 
 export const BATCH_SIZE = 500
+const GRAPH_NODE_LABEL = "GraphNode"
 
 type CypherPrimitive = string | number | boolean | null
 type CypherValue = CypherPrimitive | CypherPrimitive[]
@@ -36,6 +37,16 @@ const cypherPropertyKey = (key: string): string => `\`${key.replace(/`/g, "``")}
 
 const cypherLabel = (label: string | undefined): string =>
   label === undefined ? "" : `:${label}`
+
+const cypherLookupLabel = (label: string | undefined): string =>
+  cypherLabel(label && label.length > 0 ? label : GRAPH_NODE_LABEL)
+
+const cypherMergeLabels = (label: string): string => {
+  const labels = [label, GRAPH_NODE_LABEL].filter((value, index, all) =>
+    value.length > 0 && all.indexOf(value) === index
+  )
+  return labels.map(cypherLabel).join("")
+}
 
 const cypherValue = (value: CypherValue): string => {
   if (Array.isArray(value)) return `[${value.map(cypherValue).join(",")}]`
@@ -134,7 +145,7 @@ export const mergeNodes = async (
       conn,
       payload,
       (batch) =>
-        `UNWIND ${cypherNodeBatch(batch)} AS n MERGE (m:${label} {id: n.id}) SET m += n.props`,
+        `UNWIND ${cypherNodeBatch(batch)} AS n MERGE (m${cypherMergeLabels(label)} {id: n.id}) SET m += n.props`,
     )
   }
 }
@@ -170,7 +181,7 @@ export const mergeEdges = async (
       conn,
       payload,
       (batch) =>
-        `UNWIND ${cypherEdgeBatch(batch)} AS e MATCH (s${cypherLabel(srcLabel || undefined)} {id: e.src}), (t${cypherLabel(tgtLabel || undefined)} {id: e.tgt}) MERGE (s)-[r:${kind}]->(t) SET r = e.props SET r.filePath = e.filePath`,
+        `UNWIND ${cypherEdgeBatch(batch)} AS e MATCH (s${cypherLookupLabel(srcLabel)} {id: e.src}), (t${cypherLookupLabel(tgtLabel)} {id: e.tgt}) MERGE (s)-[r:${kind}]->(t) SET r = e.props SET r.filePath = e.filePath`,
     )
   }
 }
@@ -193,7 +204,7 @@ export const mergeLegacyEdges = async (
       conn,
       payload,
       (batch) =>
-        `UNWIND ${cypherLegacyEdgeBatch(batch)} AS e MATCH (s${cypherLabel(srcLabel || undefined)} {id: e.src}), (t${cypherLabel(tgtLabel || undefined)} {id: e.tgt}) MERGE (s)-[r:${kind}]->(t) SET r = e.props`,
+        `UNWIND ${cypherLegacyEdgeBatch(batch)} AS e MATCH (s${cypherLookupLabel(srcLabel)} {id: e.src}), (t${cypherLookupLabel(tgtLabel)} {id: e.tgt}) MERGE (s)-[r:${kind}]->(t) SET r = e.props`,
     )
   }
 }
@@ -345,8 +356,10 @@ export const ensureLabelIndexes = async (
   conn: GraphConnection,
   labels: readonly string[],
 ): Promise<void> => {
+  await ensureIndex(conn, GRAPH_NODE_LABEL, "id")
   const unique = new Set(labels)
   for (const label of unique) {
+    if (label === GRAPH_NODE_LABEL) continue
     await ensureIndex(conn, label, "id")
   }
 }

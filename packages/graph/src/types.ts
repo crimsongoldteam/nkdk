@@ -53,3 +53,23 @@ export interface ConnectionOptions {
   /** Имя графа. По умолчанию — env `NKDK_GRAPH_NAME` или `nakidka`. */
   graphName?: string
 }
+
+export type GraphUpdatePhase =
+  | "ensureFileIndexes"
+  | "ensureLabelIndexes"
+  | "deleteByFiles"
+  | "mergeFiles"
+  | "mergeNodes"
+  | "mergeEdges"
+  | "mergeFileLinks"
+  | "cleanupOrphanStubs"
+
+export interface GraphProgress {
+  phase: GraphUpdatePhase
+  done?: number
+  total?: number
+}
+
+export interface GraphUpdateOptions extends ConnectionOptions {
+  onProgress?: (progress: GraphProgress) => void
+}

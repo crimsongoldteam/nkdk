@@ -40,9 +40,31 @@ describe("mergeNodes", () => {
     const [catalogCall, documentCall] = queryMock.mock.calls
     expect(catalogCall[0]).toContain("UNWIND [{id:\"Справочник.A\"")
     expect(catalogCall[0]).toContain("props:{`name`:\"A\",`filePath`:\"a.yaml\"}")
-    expect(catalogCall[0]).toContain("MERGE (m:MetadataCatalog {id: n.id}) SET m += n.props")
+    expect(catalogCall[0]).toContain("MERGE (m:MetadataCatalog:GraphNode {id: n.id}) SET m += n.props")
     expect(catalogCall[1]).toBeUndefined()
-    expect(documentCall[0]).toContain("MERGE (m:MetadataDocument {id: n.id}) SET m += n.props")
+    expect(documentCall[0]).toContain("MERGE (m:MetadataDocument:GraphNode {id: n.id}) SET m += n.props")
+  })
+
+  it("не дублирует GraphNode label при merge узла GraphNode", async () => {
+    const conn = await connect()
+    await mergeNodes(conn, [
+      { id: "A", label: "GraphNode", props: { name: "A" } },
+    ])
+
+    const cypher = queryMock.mock.calls[0][0] as string
+    expect(cypher).toContain("MERGE (m:GraphNode {id: n.id}) SET m += n.props")
+    expect(cypher).not.toContain(":GraphNode:GraphNode")
+  })
+
+  it("использует безопасный GraphNode fallback для пустого label узла", async () => {
+    const conn = await connect()
+    await mergeNodes(conn, [
+      { id: "A", label: "", props: { name: "A" } },
+    ])
+
+    const cypher = queryMock.mock.calls[0][0] as string
+    expect(cypher).toContain("MERGE (m:GraphNode {id: n.id}) SET m += n.props")
+    expect(cypher).not.toContain("m::")
   })
 
   it("экранирует ключи props, которые нельзя передать в Cypher-map без кавычек", async () => {
@@ -148,6 +170,30 @@ describe("mergeEdges", () => {
       "MATCH (s:MetadataAttribute {id: e.src}), (t:MetadataValue {id: e.tgt})",
     )
   })
+
+  it("использует GraphNode fallback для неизвестных label концов ребра", async () => {
+    const conn = await connect()
+    await mergeEdges(
+      conn,
+      [{ src: "A", tgt: "B", kind: "VALUE", props: { yaml: "Значение" } }],
+      new Map([["A", "MetadataAttribute"]]),
+    )
+
+    expect(queryMock.mock.calls[0][0]).toContain(
+      "MATCH (s:MetadataAttribute {id: e.src}), (t:GraphNode {id: e.tgt})",
+    )
+    expect(queryMock.mock.calls[0][0]).not.toContain("(t {id: e.tgt})")
+  })
+
+  it("legacy-вызов без label ищет концы ребра через GraphNode fallback", async () => {
+    const conn = await connect()
+    await mergeEdges(conn, [{ src: "A", tgt: "B", kind: "VALUE" }])
+
+    const cypher = queryMock.mock.calls[0][0] as string
+    expect(cypher).toContain("MATCH (s:GraphNode {id: e.src}), (t:GraphNode {id: e.tgt})")
+    expect(cypher).not.toContain("(s {id: e.src})")
+    expect(cypher).not.toContain("(t {id: e.tgt})")
+  })
 })
 
 describe("deleteByFilePaths", () => {
@@ -194,10 +240,20 @@ describe("ensureLabelIndexes", () => {
     const conn = await connect()
     await ensureLabelIndexes(conn, ["MetadataCatalog", "MetadataDocument", "MetadataCatalog"])
 
-    expect(queryMock).toHaveBeenCalledTimes(2)
+    expect(queryMock).toHaveBeenCalledTimes(3)
     const queries = queryMock.mock.calls.map((c) => c[0])
+    expect(queries).toContain("CREATE INDEX FOR (n:GraphNode) ON (n.id)")
     expect(queries).toContain("CREATE INDEX FOR (n:MetadataCatalog) ON (n.id)")
     expect(queries).toContain("CREATE INDEX FOR (n:MetadataDocument) ON (n.id)")
+  })
+
+  it("не создаёт предметный индекс GraphNode повторно", async () => {
+    const conn = await connect()
+    await ensureLabelIndexes(conn, ["GraphNode", "MetadataCatalog", "GraphNode"])
+
+    const queries = queryMock.mock.calls.map((c) => c[0])
+    expect(queries.filter((q) => q === "CREATE INDEX FOR (n:GraphNode) ON (n.id)")).toHaveLength(1)
+    expect(queries).toContain("CREATE INDEX FOR (n:MetadataCatalog) ON (n.id)")
   })
 
   it("глотает 'already indexed' / 'equivalent index'", async () => {
@@ -211,6 +267,7 @@ describe("ensureLabelIndexes", () => {
   it("ничего не делает на пустом массиве", async () => {
     const conn = await connect()
     await ensureLabelIndexes(conn, [])
-    expect(queryMock).not.toHaveBeenCalled()
+    expect(queryMock).toHaveBeenCalledTimes(1)
+    expect(queryMock.mock.calls[0][0]).toBe("CREATE INDEX FOR (n:GraphNode) ON (n.id)")
   })
 })

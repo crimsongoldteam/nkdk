@@ -49,6 +49,34 @@ describe("updateGraph", () => {
     expect(cypher).toContainEqual(expect.stringContaining("SET r.filePath = e.filePath"))
   })
 
+  it("создаёт GraphNode index и пишет предметные узлы с общей меткой", async () => {
+    await updateGraph([
+      {
+        filePath: "a.yaml",
+        nodes: [{ id: "A", label: "MetadataCatalog", props: { name: "A" } }],
+        edges: [],
+      },
+    ])
+
+    const cypher = queryMock.mock.calls.map((call) => call[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE INDEX FOR (n:GraphNode) ON (n.id)"))
+    expect(cypher).toContainEqual(expect.stringContaining("MERGE (m:MetadataCatalog:GraphNode {id: n.id})"))
+  })
+
+  it("для неизвестной метки target использует GraphNode fallback", async () => {
+    await updateGraph([
+      {
+        filePath: "a.yaml",
+        nodes: [{ id: "A", label: "MetadataCatalog", props: { name: "A" } }],
+        edges: [{ src: "A", tgt: "External.Unknown", kind: "TYPE" }],
+      },
+    ])
+
+    const cypher = queryMock.mock.calls.map((call) => call[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("MATCH (s:MetadataCatalog {id: e.src}), (t:GraphNode {id: e.tgt})"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("MATCH (s:MetadataCatalog {id: e.src}), (t {id: e.tgt})"))
+  })
+
   it("удаляет старые DECLARES/CONTRIBUTES перед новой записью файла", async () => {
     await updateGraph([{ filePath: "a.yaml", nodes: [], edges: [] }])
 
@@ -124,6 +152,7 @@ describe("updateGraph", () => {
     const cypher = queryMock.mock.calls.map((c) => c[0] as string)
     expect(cypher).toEqual([
       "CREATE INDEX FOR (n:File) ON (n.path)",
+      "CREATE INDEX FOR (n:GraphNode) ON (n.id)",
       "MATCH (n) WHERE NOT n:File WITH n WHERE NOT (:File)-[:DECLARES]->(n) OPTIONAL MATCH ()-[r]->(n) WHERE type(r) <> 'DECLARES' AND type(r) <> 'CONTRIBUTES' WITH n, count(r) AS subjectIncoming WHERE subjectIncoming = 0 DETACH DELETE n",
     ])
     expect(closeMock).toHaveBeenCalledTimes(1)

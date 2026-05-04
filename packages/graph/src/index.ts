@@ -13,7 +13,10 @@ export type {
   FileGraphData,
   FileStats,
   GraphFileRecord,
+  GraphProgress,
   GraphPrimitive,
+  GraphUpdateOptions,
+  GraphUpdatePhase,
   NodeData,
 } from "./types"
 
