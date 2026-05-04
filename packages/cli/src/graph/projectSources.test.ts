@@ -32,6 +32,7 @@ describe("projectSources", () => {
         text: "ПолеВвода1(Реквизит):\n",
       },
     })
+    expect(sources.every((source) => source.fileStats !== undefined)).toBe(true)
     expect(sources[0].fileStats).toMatchObject({ size: byteSize("Элементы: {}\n") })
     expect(sources[0].pairedText?.fileStats).toMatchObject({
       size: byteSize("ПолеВвода1(Реквизит):\n"),

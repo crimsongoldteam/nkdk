@@ -10,6 +10,33 @@ import { readChangedProjectSource, readProjectGraphSources } from "../graph/proj
 
 const CONTEXT = { version: "2.20", defaultLanguage: "ru" }
 
+const createProgressReporter = () => {
+  const startedAtByPhase = new Map<string, number>()
+  let lastLine = ""
+
+  return (progress: { phase: string; done?: number; total?: number }): void => {
+    if (progress.done === 0) {
+      startedAtByPhase.set(progress.phase, performance.now())
+      return
+    }
+
+    const total = progress.total ?? 1
+    const done = progress.done ?? total
+    const line = `${progress.phase.padEnd(18)} ${done}/${total}`
+    if (line !== lastLine) {
+      console.log(line)
+      lastLine = line
+    }
+
+    if (done === total) {
+      const startedAt = startedAtByPhase.get(progress.phase)
+      if (startedAt !== undefined) {
+        console.log(`${progress.phase.padEnd(18)} done — ${(performance.now() - startedAt).toFixed(1)} мс`)
+      }
+    }
+  }
+}
+
 const applyChangedSourceStats = (
   graphFiles: FileGraphData[],
   changed: NonNullable<ReturnType<typeof readChangedProjectSource>["source"]>,
@@ -28,32 +55,33 @@ const applyChangedSourceStats = (
 export const updateGraphFile = async (projectPath: string, filePath: string): Promise<void> => {
   const absoluteProjectPath = resolve(projectPath)
   const changed = readChangedProjectSource(absoluteProjectPath, filePath)
+  let payload: FileGraphData[]
 
   if (changed.deleted) {
-    await writeGraph(changed.deletedFilePaths.map((deletedFilePath) => ({
+    payload = changed.deletedFilePaths.map((deletedFilePath) => ({
       filePath: deletedFilePath,
       nodes: [],
       edges: [],
-    })))
-    return
+    }))
+  } else {
+    if (!changed.source) return
+
+    const graphFiles = await buildGraphForChangedFile({
+      projectPath: absoluteProjectPath,
+      filePath: changed.source.filePath,
+      text: changed.source.text,
+      pairedText: changed.source.pairedText,
+      context: CONTEXT,
+    })
+    const filesWithStats = applyChangedSourceStats(graphFiles, changed.source)
+    const deletedFiles = changed.deletedFilePaths.map((deletedFilePath) => ({
+      filePath: deletedFilePath,
+      nodes: [],
+      edges: [],
+    }))
+    payload = [...filesWithStats, ...deletedFiles]
   }
-
-  if (!changed.source) return
-
-  const graphFiles = await buildGraphForChangedFile({
-    projectPath: absoluteProjectPath,
-    filePath: changed.source.filePath,
-    text: changed.source.text,
-    pairedText: changed.source.pairedText,
-    context: CONTEXT,
-  })
-  const filesWithStats = applyChangedSourceStats(graphFiles, changed.source)
-  const deletedFiles = changed.deletedFilePaths.map((deletedFilePath) => ({
-    filePath: deletedFilePath,
-    nodes: [],
-    edges: [],
-  }))
-  await writeGraph([...filesWithStats, ...deletedFiles])
+  await writeGraph(payload, { onProgress: createProgressReporter() })
 }
 
 const buildProjectGraph = async (projectPath: string) => {
@@ -76,7 +104,7 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
   const tBuild = performance.now() - tBuildStart
 
   const tWriteStart = performance.now()
-  await writeGraph(graphFiles)
+  await writeGraph(graphFiles, { onProgress: createProgressReporter() })
   const tWrite = performance.now() - tWriteStart
 
   const totalNodes = graphFiles.reduce((sum, file) => sum + file.nodes.length, 0)

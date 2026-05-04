@@ -11,6 +11,13 @@ import {
 } from "./internal/operations"
 import type { FileGraphData, GraphProgress, GraphUpdateOptions, GraphUpdatePhase } from "./types"
 
+const isDeletionTombstone = (file: FileGraphData): boolean =>
+  file.fileStats === undefined &&
+  file.nodes.length === 0 &&
+  file.edges.length === 0 &&
+  (file.declaredNodeIds?.length ?? 0) === 0 &&
+  (file.contributedNodeIds?.length ?? 0) === 0
+
 const reportPhase = async (
   phase: GraphUpdatePhase,
   onProgress: ((progress: GraphProgress) => void) | undefined,
@@ -33,7 +40,8 @@ export const updateGraph = async (
   opts?: GraphUpdateOptions,
 ): Promise<void> => {
   const onProgress = opts?.onProgress
-  const allNodes = files.flatMap((f) => f.nodes)
+  const filesToMerge = files.filter((file) => !isDeletionTombstone(file))
+  const allNodes = filesToMerge.flatMap((f) => f.nodes)
   const filePaths = files.map((f) => f.filePath)
   const labels = allNodes.map((n) => n.label)
   const labelByNodeId = new Map(allNodes.map((node) => [node.id, node.label]))
@@ -43,10 +51,10 @@ export const updateGraph = async (
     await reportPhase("ensureFileIndexes", onProgress, () => ensureFileIndexes(conn))
     await reportPhase("ensureLabelIndexes", onProgress, () => ensureLabelIndexes(conn, labels))
     await reportPhase("deleteByFiles", onProgress, () => deleteByFiles(conn, filePaths))
-    await mergeFiles(conn, files, onProgress)
+    await mergeFiles(conn, filesToMerge, onProgress)
     await mergeNodes(conn, allNodes, onProgress)
-    await mergeEdges(conn, files, labelByNodeId, onProgress)
-    await mergeFileLinks(conn, files, onProgress)
+    await mergeEdges(conn, filesToMerge, labelByNodeId, onProgress)
+    await mergeFileLinks(conn, filesToMerge, onProgress)
     await reportPhase("cleanupOrphanStubs", onProgress, () => cleanupOrphanStubs(conn, true))
   } finally {
     await close(conn)

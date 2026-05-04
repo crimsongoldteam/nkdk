@@ -125,6 +125,28 @@ describe("updateGraph", () => {
     expect(cypher).toContainEqual(expect.stringContaining("DETACH DELETE f"))
   })
 
+  it("не пересоздаёт File-узел для tombstone удаления", async () => {
+    await updateGraph([{ filePath: "a.yaml", nodes: [], edges: [] }])
+
+    const cypher = queryMock.mock.calls.map((c) => c[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("MATCH (f:File) WHERE f.path IN $filePaths"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("MERGE (f:File {path: file.path})"))
+  })
+
+  it("сохраняет File-узел для пустого файла с fileStats", async () => {
+    await updateGraph([
+      {
+        filePath: "empty.yaml",
+        fileStats: { mtimeMs: 10, size: 0, updatedAt: 20 },
+        nodes: [],
+        edges: [],
+      },
+    ])
+
+    const cypher = queryMock.mock.calls.map((c) => c[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("MERGE (f:File {path: file.path})"))
+  })
+
   it("не считает DECLARES и CONTRIBUTES предметными входящими рёбрами", async () => {
     await updateGraph([{ filePath: "a.yaml", nodes: [], edges: [] }])
 
