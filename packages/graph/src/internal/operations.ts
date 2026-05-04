@@ -320,7 +320,7 @@ export const cleanupOrphanStubs = async (
   if (!ignoreFileLinks) {
     await query(
       conn,
-      "MATCH (n) WHERE n.filePath IS NULL AND NOT ()-->(n) DETACH DELETE n",
+      "MATCH (n) WHERE n.filePath IS NULL AND NOT n:File AND NOT ()-->(n) DETACH DELETE n",
     )
     return
   }

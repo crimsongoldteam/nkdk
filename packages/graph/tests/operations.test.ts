@@ -178,12 +178,12 @@ describe("deleteByFilePaths", () => {
 })
 
 describe("cleanupOrphanStubs", () => {
-  it("удаляет узлы без filePath и без входящих рёбер", async () => {
+  it("удаляет узлы без filePath и без входящих рёбер, но не File-узлы", async () => {
     const conn = await connect()
     await cleanupOrphanStubs(conn)
     expect(queryMock).toHaveBeenCalledTimes(1)
     expect(queryMock.mock.calls[0][0]).toBe(
-      "MATCH (n) WHERE n.filePath IS NULL AND NOT ()-->(n) DETACH DELETE n",
+      "MATCH (n) WHERE n.filePath IS NULL AND NOT n:File AND NOT ()-->(n) DETACH DELETE n",
     )
     expect(queryMock.mock.calls[0][1]).toBeUndefined()
   })
