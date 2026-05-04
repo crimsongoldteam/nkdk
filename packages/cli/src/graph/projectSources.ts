@@ -15,6 +15,11 @@ export interface ChangedProjectSource {
   deletedFilePaths: string[]
 }
 
+export interface ChangedProjectSources {
+  sources: ProjectGraphSource[]
+  deletedFilePaths: string[]
+}
+
 export interface ReadProjectGraphSourcesOptions {
   includePairedText?: boolean
 }
@@ -66,28 +71,73 @@ export const readProjectGraphSources = (
     .map((filePath) => readSource(projectPath, filePath, options))
 }
 
+export const readChangedProjectSources = (
+  projectPath: string,
+  filePaths: readonly string[],
+): ChangedProjectSources => {
+  const primaryPaths = new Set<string>()
+  const explicitlyChanged = new Set<string>()
+
+  for (const filePath of filePaths) {
+    const normalizedFilePath = normalizeChangedFile(projectPath, filePath)
+    explicitlyChanged.add(normalizedFilePath)
+
+    const primaryFilePath = normalizedFilePath.endsWith("/Форма.nkdk")
+      ? pairedFormPath(normalizedFilePath)
+      : normalizedFilePath
+
+    if (primaryFilePath) primaryPaths.add(primaryFilePath)
+    else explicitlyChanged.add(normalizedFilePath)
+  }
+
+  const sources: ProjectGraphSource[] = []
+  const deletedFilePaths = new Set<string>()
+
+  for (const primaryFilePath of [...primaryPaths].sort()) {
+    const fullPath = absoluteProjectFile(projectPath, primaryFilePath)
+    const pairedPath = pairedFormPath(primaryFilePath)
+
+    if (!existsSync(fullPath)) {
+      const deletedPaths =
+        pairedPath && !explicitlyChanged.has(primaryFilePath)
+          ? [pairedPath]
+          : deletedPathsFor(primaryFilePath)
+
+      for (const deletedFilePath of deletedPaths) {
+        deletedFilePaths.add(deletedFilePath)
+      }
+      continue
+    }
+
+    const source = readSource(projectPath, primaryFilePath)
+    sources.push(source)
+
+    if (
+      pairedPath &&
+      explicitlyChanged.has(pairedPath) &&
+      !existsSync(absoluteProjectFile(projectPath, pairedPath))
+    ) {
+      deletedFilePaths.add(pairedPath)
+    }
+  }
+
+  return {
+    sources,
+    deletedFilePaths: [...deletedFilePaths],
+  }
+}
+
 export const readChangedProjectSource = (
   projectPath: string,
   filePath: string,
 ): ChangedProjectSource => {
-  const normalizedFilePath = normalizeChangedFile(projectPath, filePath)
-  const primaryFilePath = normalizedFilePath.endsWith("/Форма.nkdk")
-    ? pairedFormPath(normalizedFilePath)
-    : normalizedFilePath
-
-  if (!primaryFilePath) {
-    return { deleted: true, deletedFilePaths: [normalizedFilePath] }
+  const changed = readChangedProjectSources(projectPath, [filePath])
+  const source = changed.sources[0]
+  const result: ChangedProjectSource = {
+    deleted: changed.sources.length === 0,
+    deletedFilePaths: changed.deletedFilePaths,
   }
 
-  const fullPath = absoluteProjectFile(projectPath, primaryFilePath)
-  if (!existsSync(fullPath)) {
-    return { deleted: true, deletedFilePaths: deletedPathsFor(primaryFilePath) }
-  }
-
-  const source = readSource(projectPath, primaryFilePath)
-  const pairedPath = pairedFormPath(primaryFilePath)
-  const deletedFilePaths =
-    pairedPath && !existsSync(absoluteProjectFile(projectPath, pairedPath)) ? [pairedPath] : []
-
-  return { deleted: false, source, deletedFilePaths }
+  if (source) result.source = source
+  return result
 }
