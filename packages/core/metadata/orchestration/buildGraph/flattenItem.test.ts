@@ -48,6 +48,38 @@ describe("flattenItem", () => {
     })
   })
 
+  it("пропускает ключи, явно переданные в skipKeys", () => {
+    expect(
+      flattenItem(
+        {
+          name: "Документ",
+          attributes: {
+            Total: "Строка",
+          },
+          synonym: { items: { ru: "Документ" } },
+        },
+        { skipKeys: new Set(["attributes"]) },
+      ),
+    ).toEqual({
+      p_name: "Документ",
+      p_synonym_items_ru: "Документ",
+    })
+  })
+
+  it("не пропускает одиночный латинский объект без skipKeys", () => {
+    expect(
+      flattenItem({
+        name: "Документ",
+        dimensions: {
+          Total: "Строка",
+        },
+      }),
+    ).toEqual({
+      p_name: "Документ",
+      p_dimensions_Total: "Строка",
+    })
+  })
+
   it("оставляет массивы примитивов как есть (под префиксом p_)", () => {
     expect(flattenItem({ types: ["Number", "String"] })).toEqual({
       p_types: ["Number", "String"],
@@ -83,40 +115,28 @@ describe("flattenItem", () => {
     })
   })
 
-  it("НЕ сплющивает дочерние коллекции — объектные значения", () => {
+  it("не сплющивает дочерние коллекции, когда ключ передан явно", () => {
     expect(
-      flattenItem({
-        name: "Тестовый",
-        codeLength: 9,
-        synonym: { items: { ru: "Тест", en: "Test" } },
-        attributes: {
-          "Автор": { name: "Автор", type: "Ссылка", synonym: { items: { ru: "А" } } },
-          "Владелец": { name: "Владелец", type: "Документ" },
+      flattenItem(
+        {
+          name: "Тестовый",
+          codeLength: 9,
+          synonym: { items: { ru: "Тест", en: "Test" } },
+          attributes: {
+            "Автор": { name: "Автор", type: "Ссылка", synonym: { items: { ru: "А" } } },
+            Total: "Строка",
+          },
+          standardAttributes: {
+            "Владелец": { name: "Владелец", ПроверкаЗаполнения: "Да" },
+          },
         },
-        standardAttributes: {
-          "Владелец": { name: "Владелец", ПроверкаЗаполнения: "Да" },
-          "Родитель": { name: "Родитель", Синоним: "Родитель" },
-        },
-      }),
+        { skipKeys: new Set(["attributes", "standardAttributes"]) },
+      ),
     ).toEqual({
       p_name: "Тестовый",
       p_codeLength: 9,
       p_synonym_items_ru: "Тест",
       p_synonym_items_en: "Test",
-    })
-  })
-
-  it("НЕ сплющивает дочерние коллекции — строковые значения (короткая форма)", () => {
-    expect(
-      flattenItem({
-        name: "Короткий",
-        attributes: {
-          "Поле1": "Булево",
-          "Поле2": "Строка",
-        },
-      }),
-    ).toEqual({
-      p_name: "Короткий",
     })
   })
 })

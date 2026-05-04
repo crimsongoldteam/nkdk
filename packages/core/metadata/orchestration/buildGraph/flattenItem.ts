@@ -12,42 +12,26 @@ const isPrimitive = (v: unknown): v is GraphPrimitive =>
 const isPrimitiveArray = (v: unknown): v is GraphPrimitive[] =>
   Array.isArray(v) && v.every(isPrimitive)
 
-/**
- * Объект является дочерней коллекцией (не должен сплющиваться в props родителя):
- * - все значения — строки (короткая форма атрибутов) и ключи не I8nText ("ru"/"en")
- * - все значения — plain-объекты (длинная форма атрибутов)
- * - любой ключ содержит кириллицу (имена сущностей, не бывает в скалярных конфигах)
- */
-const isChildCollection = (v: Record<string, unknown>): boolean => {
-  const keys = Object.keys(v)
-  if (keys.length === 0) return false
-
-  // Кириллические ключи — всегда имена сущностей, не скалярный конфиг
-  if (keys.some((k) => /[А-Яа-яЁё]/.test(k))) return true
-
-  if (keys.length <= 1) return false
-  const vals = Object.values(v)
-  if (vals.every((x) => typeof x === "string") && keys.some((k) => !/^[a-z]{2}$/.test(k))) return true
-  if (vals.every(isPlainObject)) return true
-  return false
+export interface FlattenItemOptions {
+  skipKeys?: ReadonlySet<string>
 }
 
 /**
  * Раскладывает поля JS-модели в плоский Record<string, GraphPrimitive | GraphPrimitive[]>:
  * - скаляры → p_<имя>
  * - plain-объекты сплющиваются по '_' (numberQualifiers.digits → p_numberQualifiers_digits)
- *   но дочерние коллекции (attributes, tabularSections, standardAttributes и т.д.)
- *   **не сплющиваются** — они уже вынесены в отдельные узлы.
+ * - ключи из options.skipKeys не сплющиваются на текущем уровне
  * - массивы примитивов сохраняются под p_<имя>
  * - массивы объектов и пустые массивы выкидываются
  * - itemType и _uuid выкидываются на любом уровне.
  */
 export function flattenItem(
   item: unknown,
+  options: FlattenItemOptions = {},
 ): Record<string, GraphPrimitive | GraphPrimitive[]> {
   const result: Record<string, GraphPrimitive | GraphPrimitive[]> = {}
   if (!isPlainObject(item)) return result
-  flattenInto(result, "p_", item)
+  flattenInto(result, "p_", item, options.skipKeys)
   return result
 }
 
@@ -55,9 +39,11 @@ function flattenInto(
   out: Record<string, GraphPrimitive | GraphPrimitive[]>,
   prefix: string,
   obj: Record<string, unknown>,
+  skipKeys: ReadonlySet<string> | undefined,
 ): void {
   for (const [key, value] of Object.entries(obj)) {
     if (SKIP_KEYS.has(key)) continue
+    if (skipKeys?.has(key)) continue
     if (value === undefined) continue
 
     const fullKey = `${prefix}${key}`
@@ -76,8 +62,7 @@ function flattenInto(
     }
 
     if (isPlainObject(value)) {
-      if (isChildCollection(value)) continue
-      flattenInto(out, `${fullKey}_`, value)
+      flattenInto(out, `${fullKey}_`, value, undefined)
       continue
     }
   }
