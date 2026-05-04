@@ -83,7 +83,7 @@
 Для проектных CLI-команд graph name всегда вычисляется из абсолютного пути проекта:
 
 ```text
-nakidka_<hash(resolve(projectPath))>
+nkdk_<hash(resolve(projectPath))>
 ```
 
 Требования к hash:
