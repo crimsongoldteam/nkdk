@@ -13,6 +13,8 @@ describe("edgeKinds — isOwning", () => {
       "ATTRIBUTE",
       "TABULAR_SECTION",
       "STANDARD_ATTRIBUTE",
+      "CHOICE_PARAMETER",
+      "CHOICE_PARAMETER_LINK",
       "ENUM_VALUE",
       "METADATA_CATALOG",
       "METADATA_DOCUMENT",
@@ -60,6 +62,15 @@ describe("yaml ↔ kind перевод", () => {
 
   it("getKindByYaml для неизвестного yaml → undefined", () => {
     expect(getKindByYaml("Несуществующее")).toBeUndefined()
+  })
+
+  it("переводит owning-виды параметров выбора", () => {
+    expect(getKnownKinds()).toContain("CHOICE_PARAMETER")
+    expect(getKnownKinds()).toContain("CHOICE_PARAMETER_LINK")
+    expect(isOwning("CHOICE_PARAMETER")).toBe(true)
+    expect(isOwning("CHOICE_PARAMETER_LINK")).toBe(true)
+    expect(getYamlByKind("CHOICE_PARAMETER")).toBe("ПараметрВыбора")
+    expect(getYamlByKind("CHOICE_PARAMETER_LINK")).toBe("СвязьПараметровВыбора")
   })
 })
 

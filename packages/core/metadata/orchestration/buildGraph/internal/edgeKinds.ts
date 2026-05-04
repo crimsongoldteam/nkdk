@@ -26,6 +26,8 @@ const _byKind = new Map<string, EdgeKindEntry>([
   ["ATTRIBUTE", { yaml: "Реквизит", owning: true }],
   ["TABULAR_SECTION", { yaml: "ТабличнаяЧасть", owning: true }],
   ["STANDARD_ATTRIBUTE", { yaml: "СтандартныйРеквизит", owning: true }],
+  ["CHOICE_PARAMETER", { yaml: "ПараметрВыбора", owning: true }],
+  ["CHOICE_PARAMETER_LINK", { yaml: "СвязьПараметровВыбора", owning: true }],
   ["ENUM_VALUE", { yaml: "ЗначениеПеречисления", owning: true }],
   ["DIMENSION", { yaml: "Измерение", owning: true }],
   // Owning: терминальные узлы (ПустаяСсылка и подобные)
