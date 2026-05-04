@@ -1,3 +1,4 @@
+import type { SourcePosition } from "~/metadata/orchestration/property/position"
 import { GraphBuilder } from "./internal/GraphBuilder"
 import { flattenItem } from "./flattenItem"
 import { EdgeData, FileGraphData, NodeData } from "./types"
@@ -12,13 +13,12 @@ const isEdgePrimitive = (value: unknown): value is string | number | boolean | n
 
 function addPositionFromProps(
   props: Record<string, string | number | boolean | null>,
-  positionFrom: unknown,
+  positionFrom: SourcePosition | undefined,
 ): void {
-  if (positionFrom === null || typeof positionFrom !== "object") return
-  const position = positionFrom as Record<string, unknown>
-  if (typeof position.offset === "number") props.positionFromOffset = position.offset
-  if (typeof position.line === "number") props.positionFromLine = position.line
-  if (typeof position.column === "number") props.positionFromColumn = position.column
+  if (positionFrom === undefined) return
+  props.positionFromOffset = positionFrom.offset
+  props.positionFromLine = positionFrom.line
+  props.positionFromColumn = positionFrom.column
 }
 
 /**
@@ -76,7 +76,14 @@ export function walkGraphToFileData(graph: GraphBuilder): FileGraphData[] {
       }
       addPositionFromProps(edgeProps, attributes.positionFrom)
       for (const [key, value] of Object.entries(attributes)) {
-        if (key === "kind" || key === "yaml" || key === "positionFrom") continue
+        if (
+          key === "kind" ||
+          key === "yaml" ||
+          key === "positionFrom" ||
+          key === "positionFromOffset" ||
+          key === "positionFromLine" ||
+          key === "positionFromColumn"
+        ) continue
         if (isEdgePrimitive(value)) edgeProps[key] = value
       }
       ensureSegment(sourceSegment).edges.push({
