@@ -3,21 +3,37 @@ import chokidar from "chokidar"
 import chalk from "chalk"
 import { existsSync } from "fs"
 import { hasFileChanged, readFileStats } from "../graph/fileStats"
+import { projectGraphName } from "../graph/projectGraphName"
 import {
   absoluteProjectFile,
   isSupportedProjectFile,
   normalizeProjectFile,
-  pairedFormPath,
   readProjectFileList,
 } from "../graph/projectFiles"
 import { createWatchQueue } from "../graph/watchQueue"
-import { updateGraphFile } from "./updateGraph"
+import { updateGraphFiles } from "./updateGraph"
 
 const WATCH_PATTERNS = [
   "**/Свойства.yaml",
   "**/Форма.yaml",
   "**/Форма.nkdk",
 ] as const
+
+const PROJECT_FILE_ORDER = ["Свойства.yaml", "Форма.yaml", "Форма.nkdk"] as const
+
+const projectFileOrder = (filePath: string): number => {
+  const fileName = filePath.split("/").at(-1)
+  const index = PROJECT_FILE_ORDER.findIndex((name) => name === fileName)
+  return index === -1 ? PROJECT_FILE_ORDER.length : index
+}
+
+const compareProjectFiles = (left: string, right: string): number => {
+  const leftDir = left.split("/").slice(0, -1).join("/")
+  const rightDir = right.split("/").slice(0, -1).join("/")
+  if (leftDir !== rightDir) return leftDir.localeCompare(rightDir)
+
+  return projectFileOrder(left) - projectFileOrder(right)
+}
 
 const enqueueIfSupported = (
   projectPath: string,
@@ -28,46 +44,40 @@ const enqueueIfSupported = (
   if (isSupportedProjectFile(filePath)) queue.enqueue(filePath)
 }
 
+const collectChangedFiles = async (projectPath: string): Promise<string[]> => {
+  const graphFiles = await getGraphFiles({ graphName: projectGraphName(projectPath) })
+  const graphFileByPath = new Map(graphFiles.map((file) => [file.path, file]))
+  const diskFiles = readProjectFileList(projectPath)
+  const diskFileSet = new Set(diskFiles)
+  const changed = new Set<string>()
+
+  for (const filePath of diskFiles) {
+    const fullPath = absoluteProjectFile(projectPath, filePath)
+    if (hasFileChanged(graphFileByPath.get(filePath), readFileStats(fullPath))) {
+      changed.add(filePath)
+    }
+  }
+
+  for (const file of graphFiles) {
+    if (!diskFileSet.has(file.path)) changed.add(file.path)
+  }
+
+  return [...changed].sort(compareProjectFiles)
+}
+
 export async function watch(projectPath: string): Promise<void> {
   if (!existsSync(projectPath)) {
     throw new Error(`Директория не найдена: ${projectPath}`)
   }
 
-  const graphFiles = await getGraphFiles()
-  const graphFileByPath = new Map(graphFiles.map((file) => [file.path, file]))
-  const diskFiles = readProjectFileList(projectPath)
-  const diskFileSet = new Set(diskFiles)
-
-  for (const filePath of diskFiles) {
-    const fullPath = absoluteProjectFile(projectPath, filePath)
-    const stats = readFileStats(fullPath)
-    if (hasFileChanged(graphFileByPath.get(filePath), stats)) {
-      await updateGraphFile(projectPath, filePath)
-    }
-  }
-
-  for (const file of graphFiles) {
-    if (diskFileSet.has(file.path)) continue
-
-    await updateGraphFile(projectPath, file.path)
-    const paired = pairedFormPath(file.path)
-    if (file.path.endsWith("/Форма.yaml") && paired) {
-      await updateGraphFile(projectPath, paired)
-    }
-  }
-
   const queue = createWatchQueue({
     debounceMs: 150,
-    runTask: async (filePath) => {
-      await updateGraphFile(projectPath, filePath)
-      const paired = pairedFormPath(filePath)
-      if (filePath.endsWith("/Форма.yaml") && paired) {
-        await updateGraphFile(projectPath, paired)
-      }
+    runTask: async (filePaths) => {
+      await updateGraphFiles(projectPath, filePaths)
     },
-    onError: (filePath, error) => {
+    onError: (filePaths, error) => {
       const message = error instanceof Error ? error.message : String(error)
-      console.warn(chalk.yellow(`Предупреждение: не удалось обновить граф для ${filePath}: ${message}`))
+      console.warn(chalk.yellow(`Предупреждение: не удалось обновить граф для ${filePaths.join(", ")}: ${message}`))
     },
   })
 
@@ -83,13 +93,12 @@ export async function watch(projectPath: string): Promise<void> {
     enqueueIfSupported(projectPath, queue, path)
   })
   watcher.on("unlink", (path) => {
-    const filePath = normalizeProjectFile(projectPath, path)
-    if (!isSupportedProjectFile(filePath)) return
-
-    queue.enqueue(filePath)
-    const paired = pairedFormPath(filePath)
-    if (filePath.endsWith("/Форма.yaml") && paired) queue.enqueue(paired)
+    enqueueIfSupported(projectPath, queue, path)
   })
+
+  const changedFiles = await collectChangedFiles(projectPath)
+  if (changedFiles.length > 0) await updateGraphFiles(projectPath, changedFiles)
+  await queue.drain()
 
   process.once("SIGINT", () => {
     void queue.drain().finally(() => {
