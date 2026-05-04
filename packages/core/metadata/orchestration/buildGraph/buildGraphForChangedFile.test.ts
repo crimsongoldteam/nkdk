@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { buildGraphForChangedFile as publicBuildGraphForChangedFile } from "../../../index"
 import { buildGraphForChangedFile } from "./buildGraphForChangedFile"
 import type { ImportContext } from "./types"
 
@@ -47,6 +48,13 @@ describe("buildGraphForChangedFile", () => {
         label: "ClientApplicationForm",
       }),
     )
+    expect(result[0]!.edges).toContainEqual(
+      expect.objectContaining({
+        src: "Справочник.Контрагенты",
+        tgt: "Справочник.Контрагенты.Форма.ФормаСписка",
+        kind: "FORM",
+      }),
+    )
   })
 
   it("возвращает [] для неподдержанного пути", () => {
@@ -58,5 +66,9 @@ describe("buildGraphForChangedFile", () => {
     })
 
     expect(result).toEqual([])
+  })
+
+  it("экспортируется из корневого API @nakidka/core", () => {
+    expect(publicBuildGraphForChangedFile).toBe(buildGraphForChangedFile)
   })
 })

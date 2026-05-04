@@ -39,6 +39,14 @@ export function buildGraphForChangedFile(
       ownerNodeId: parsed.ownerNodeId,
       nkdkFilePath: pairedText?.filePath,
     })
+
+    const files = walkGraphToFileData(graph)
+    const stub = files.find((file) => file.filePath === "")
+    const changedFile = files.find((file) => file.filePath === filePath)
+    if (stub && changedFile) {
+      changedFile.edges.push(...stub.edges)
+    }
+    return files.filter((file) => file.filePath !== "")
   } else {
     importMetadataFileWithGraph({
       filePath,

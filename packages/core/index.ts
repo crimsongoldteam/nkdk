@@ -42,8 +42,12 @@ export {
   importMetadataFileWithGraph,
   type ImportMetadataFileResult,
 } from "./metadata/orchestration/importMetadataFileWithGraph"
-export { buildGraph } from "./metadata/orchestration/buildGraph"
-export type { FileGraphData, ImportContext } from "./metadata/orchestration/buildGraph"
+export { buildGraph, buildGraphForChangedFile } from "./metadata/orchestration/buildGraph"
+export type {
+  BuildGraphForChangedFileParams,
+  FileGraphData,
+  ImportContext,
+} from "./metadata/orchestration/buildGraph"
 export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
 export { exportMetadataDocumentToJSONSchema } from "./metadata/appliedObjects/metadataDocument/toJSONSchema"
 export { exportMetadataEnumerationToJSONSchema } from "./metadata/appliedObjects/metadataEnumeration/toJSONSchema"
