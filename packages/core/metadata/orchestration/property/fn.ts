@@ -5,6 +5,7 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
+import type { GraphPrimitive } from "~/metadata/orchestration/buildGraph/types"
 import { PropertyRuleType } from "./registry"
 import { SourcePosition } from "./position"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
@@ -78,9 +79,13 @@ export type BuildGraphFromModelFunction = (params: {
   yamlMap: YAMLMap | undefined
   lineCounter: LineCounter | undefined
   propRule: PropertyRule
+  /** JS-ключ свойства из MetadataItemRule.properties. */
+  propertyName: string
   /** Дополнительный контекст, пробрасываемый в кастомные обработчики (например, formNodeId). */
   extra?: Record<string, unknown>
 }) => GraphOps | GraphOps[] | undefined | void
+
+export type GraphOpsEdgeProps = Record<string, GraphPrimitive>
 
 export interface GraphOpsChild {
   /**
@@ -123,6 +128,8 @@ export interface GraphOpsReference {
   id: string
   name: string
   positionFrom?: SourcePosition
+  /** Дополнительные primitive props конкретного reference-ребра. */
+  edgeProps?: GraphOpsEdgeProps
   // parentOverride намеренно не поддерживается: reference создаёт глобальный stub-узел
   // и ребро всегда от ctx.parentNodeId. Если нужен override-источник ребра — используй
   // formLocalReferences (с собственной семантикой резолвинга цели).
@@ -136,6 +143,8 @@ export interface GraphOpsFormLocalReference {
   positionFrom?: SourcePosition
   /** Если задано — ребро идёт от этого узла к резолвимой цели вместо ctx.parentNodeId. */
   parentOverride?: string
+  /** Дополнительные primitive props конкретного reference-ребра. */
+  edgeProps?: GraphOpsEdgeProps
 }
 
 export interface GraphOpsRecurse {

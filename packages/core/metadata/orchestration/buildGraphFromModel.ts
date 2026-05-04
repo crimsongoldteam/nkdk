@@ -143,6 +143,7 @@ export function buildGraphFromModel(params: {
         yamlMap,
         lineCounter,
         propRule,
+        propertyName: key,
         extra,
       })
       if (hasBuildGraphResult(result)) {

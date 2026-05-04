@@ -137,6 +137,35 @@ describe("applyGraphOps", () => {
       expect(edges[0].attributes.positionFrom).toEqual({ offset: 100, line: 7, column: 9, length: 20 })
     })
 
+    it("пробрасывает edgeProps на reference-ребро", () => {
+      const ctx = makeCtx()
+      const ops: GraphOps = {
+        references: [
+          {
+            id: "Справочник.Валюты",
+            name: "Валюты",
+            edgeProps: {
+              property: "dataPath",
+              sourcePath: "Catalog.Валюты",
+              pathMode: "global",
+            },
+          },
+        ],
+      }
+
+      applyGraphOps(ops, ctx)
+
+      const edges = [...ctx.graph.outEdgeEntries(PARENT_NODE_ID)]
+      expect(edges).toHaveLength(1)
+      expect(edges[0].attributes).toMatchObject({
+        kind: "TYPE",
+        yaml: "Тип",
+        property: "dataPath",
+        sourcePath: "Catalog.Валюты",
+        pathMode: "global",
+      })
+    })
+
     it("ссылка без positionFrom не ставит атрибут на ребро", () => {
       const ctx = makeCtx()
       applyGraphOps({ references: [{ id: "Справочник.Валюты", name: "Валюты" }] }, ctx)
@@ -240,6 +269,46 @@ describe("applyGraphOps", () => {
       expect(edges[0].target).toBe(attrId)
       expect(edges[0].attributes.kind).toBe("DATA_PATH")
       expect(edges[0].attributes.yaml).toBe("ПутьКДанным")
+    })
+
+    it("пробрасывает edgeProps на formLocalReferences-ребро", () => {
+      const { graph, formNodeId, attrId } = makeFormGraph()
+      const elementId = `${formNodeId}.Элемент.Кнопка`
+      ensureNodeWithFile(graph, elementId, "Кнопка", "test/Форма.yaml")
+
+      const ctx: ApplyGraphOpsContext = {
+        graph,
+        parentNodeId: elementId,
+        filePath: "test/Форма.yaml",
+        edgeKind: "DATA_PATH",
+        edgeYaml: "ПутьКДанным",
+      }
+      const ops: GraphOps = {
+        formLocalReferences: [
+          {
+            formLocalPath: "Объект",
+            formNodeId,
+            edgeProps: {
+              property: "dataPath",
+              sourcePath: "Объект",
+              pathMode: "formLocal",
+            },
+          },
+        ],
+      }
+
+      applyGraphOps(ops, ctx)
+
+      const edges = [...graph.outEdgeEntries(elementId)]
+      expect(edges).toHaveLength(1)
+      expect(edges[0].target).toBe(attrId)
+      expect(edges[0].attributes).toMatchObject({
+        kind: "DATA_PATH",
+        yaml: "ПутьКДанным",
+        property: "dataPath",
+        sourcePath: "Объект",
+        pathMode: "formLocal",
+      })
     })
 
     it("не создаёт ребро, если resolveFormLocalPath вернул undefined (нет первого сегмента)", () => {

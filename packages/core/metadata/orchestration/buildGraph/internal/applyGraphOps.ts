@@ -65,7 +65,7 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
 
   for (const ref of ops.references ?? []) {
     graph.ensureNode(ref.id, { name: ref.name })
-    const edgeAttrs: Record<string, unknown> = { yaml: edgeYaml }
+    const edgeAttrs: Record<string, unknown> = { ...(ref.edgeProps ?? {}), yaml: edgeYaml }
     if (ref.positionFrom !== undefined) edgeAttrs.positionFrom = ref.positionFrom
     graph.ensureEdge(parentNodeId, ref.id, edgeKind, edgeAttrs)
   }
@@ -74,7 +74,7 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
     const effectiveParent = local.parentOverride ?? parentNodeId
     const targetId = resolveFormLocalPath(graph, local.formNodeId, local.formLocalPath)
     if (targetId === undefined) continue
-    const edgeAttrs: Record<string, unknown> = { yaml: edgeYaml }
+    const edgeAttrs: Record<string, unknown> = { ...(local.edgeProps ?? {}), yaml: edgeYaml }
     if (local.positionFrom !== undefined) edgeAttrs.positionFrom = local.positionFrom
     graph.ensureEdge(effectiveParent, targetId, edgeKind, edgeAttrs)
   }
