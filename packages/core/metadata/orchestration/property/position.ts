@@ -1,4 +1,28 @@
-import { isMap, isPair, isScalar, YAMLMap, YAMLSeq } from "yaml"
+import { isMap, isPair, isScalar, LineCounter, YAMLMap, YAMLSeq } from "yaml"
+
+export interface SourcePosition {
+  offset: number
+  line: number
+  column: number
+  length?: number
+}
+
+type OffsetPosition = Pick<SourcePosition, "offset" | "length">
+
+function positionFromOffset(
+  offset: number | undefined,
+  lineCounter: LineCounter,
+  length?: number,
+): SourcePosition | undefined {
+  if (offset === undefined) return undefined
+  const pos = lineCounter.linePos(offset)
+  return {
+    offset,
+    line: pos.line,
+    column: pos.col,
+    ...(length !== undefined ? { length } : {}),
+  }
+}
 
 /**
  * Находит вложенный YAMLMap для заданного ключа.
@@ -31,15 +55,28 @@ export function findSeqItemOffset(yamlSeq: YAMLSeq, index: number): number | und
   return range[0]
 }
 
+export function computeSeqItemPosition(
+  yamlSeq: YAMLSeq,
+  index: number,
+  lineCounter: LineCounter,
+): SourcePosition | undefined {
+  return positionFromOffset(findSeqItemOffset(yamlSeq, index), lineCounter)
+}
+
 /**
  * Находит позицию значения (не ключа) для заданного ключа в YAMLMap.
  */
-export function computeValuePosition(yamlMap: YAMLMap, key: string): { offset: number } | undefined {
+export function computeValuePosition(
+  yamlMap: YAMLMap,
+  key: string,
+  lineCounter?: LineCounter,
+): SourcePosition | OffsetPosition | undefined {
   const pair = yamlMap.items.find((i) => isPair(i) && isScalar(i.key) && i.key.value === key)
   if (!pair || !isPair(pair)) return undefined
   const value = pair.value
   if (!value || typeof value !== "object") return undefined
   const range = (value as { range?: number[] }).range
   if (!Array.isArray(range) || range.length === 0) return undefined
-  return { offset: range[0] }
+  if (!lineCounter) return { offset: range[0] }
+  return positionFromOffset(range[0], lineCounter)
 }
