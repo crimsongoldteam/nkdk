@@ -1,0 +1,61 @@
+import { afterEach, describe, expect, it, vi } from "vitest"
+import { createWatchQueue } from "./watchQueue"
+
+describe("createWatchQueue", () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it("схлопывает повторы и выполняет задачи последовательно", async () => {
+    vi.useFakeTimers()
+    const calls: string[] = []
+    const queue = createWatchQueue({
+      debounceMs: 50,
+      runTask: async (filePath) => {
+        calls.push(filePath)
+      },
+    })
+
+    queue.enqueue("a.yaml")
+    queue.enqueue("a.yaml")
+    queue.enqueue("b.yaml")
+
+    await vi.advanceTimersByTimeAsync(60)
+    await vi.runAllTimersAsync()
+
+    expect(calls).toEqual(["a.yaml", "b.yaml"])
+  })
+
+  it("не запускает следующую задачу, пока текущая не завершилась", async () => {
+    vi.useFakeTimers()
+    const started: string[] = []
+    const finished: string[] = []
+    let finishA: (() => void) | undefined
+    const queue = createWatchQueue({
+      debounceMs: 50,
+      runTask: async (filePath) => {
+        started.push(filePath)
+        if (filePath === "a.yaml") {
+          await new Promise<void>((resolve) => {
+            finishA = resolve
+          })
+        }
+        finished.push(filePath)
+      },
+    })
+
+    queue.enqueue("a.yaml")
+    queue.enqueue("b.yaml")
+
+    await vi.advanceTimersByTimeAsync(60)
+
+    expect(started).toEqual(["a.yaml"])
+    expect(finished).toEqual([])
+
+    finishA?.()
+    await queue.drain()
+
+    expect(started).toEqual(["a.yaml", "b.yaml"])
+    expect(finished).toEqual(["a.yaml", "b.yaml"])
+  })
+})

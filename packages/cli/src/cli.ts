@@ -4,6 +4,7 @@ import { importConfiguration } from "./commands/import"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
 import { syncConfiguration } from "./commands/sync"
 import { updateGraph, updateGraphFile } from "./commands/updateGraph"
+import { watch } from "./commands/watch"
 
 function run(fn: () => Promise<void>): void {
   fn().catch((err: unknown) => {
@@ -51,6 +52,14 @@ program
   .option("--file <filePath>", "обновить только один файл проекта")
   .action((projectPath: string, opts: { file?: string }) => {
     run(() => opts.file ? updateGraphFile(projectPath, opts.file) : updateGraph(projectPath))
+  })
+
+program
+  .command("watch")
+  .description("Следить за YAML/NKDK-проектом и инкрементально обновлять граф")
+  .argument("<path>", "путь к корню YAML-проекта")
+  .action((projectPath: string) => {
+    run(() => watch(projectPath))
   })
 
 program.parse()
