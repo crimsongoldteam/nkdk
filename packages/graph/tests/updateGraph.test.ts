@@ -49,6 +49,24 @@ describe("updateGraph", () => {
     expect(cypher).toContainEqual(expect.stringContaining("SET r.filePath = e.filePath"))
   })
 
+  it("удаляет старые DECLARES/CONTRIBUTES перед новой записью файла", async () => {
+    await updateGraph([{ filePath: "a.yaml", nodes: [], edges: [] }])
+
+    const cypher = queryMock.mock.calls.map((c) => c[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("MATCH (f:File) WHERE f.path IN $filePaths"))
+    expect(cypher).toContainEqual(expect.stringContaining("[oldRel:DECLARES|CONTRIBUTES]"))
+    expect(cypher).toContainEqual(expect.stringContaining("DELETE oldRel"))
+    expect(cypher).toContainEqual(expect.stringContaining("DETACH DELETE f"))
+  })
+
+  it("не считает DECLARES и CONTRIBUTES предметными входящими рёбрами", async () => {
+    await updateGraph([{ filePath: "a.yaml", nodes: [], edges: [] }])
+
+    const cypher = queryMock.mock.calls.map((c) => c[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("type(r) <> 'DECLARES'"))
+    expect(cypher).toContainEqual(expect.stringContaining("type(r) <> 'CONTRIBUTES'"))
+  })
+
   it("проходит полный цикл: index → delete → merge nodes → merge edges → cleanup → close", async () => {
     const files: FileGraphData[] = [
       {
@@ -62,13 +80,16 @@ describe("updateGraph", () => {
     await updateGraph(files)
 
     const cypher = queryMock.mock.calls.map((c) => c[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE INDEX FOR (n:File)"))
     expect(cypher).toContainEqual(expect.stringContaining("CREATE INDEX FOR (n:MetadataCatalog)"))
-    expect(cypher).toContainEqual(expect.stringContaining("MATCH (n) WHERE n.filePath IN $filePaths MATCH (n)-[r]->() DELETE r"))
-    expect(cypher).toContainEqual(expect.stringContaining("MATCH (n) WHERE n.filePath IN $filePaths AND ()-->(n) SET n = {id: n.id}"))
-    expect(cypher).toContainEqual(expect.stringContaining("MATCH (n) WHERE n.filePath IN $filePaths AND NOT ()-->(n) DETACH DELETE n"))
+    expect(cypher).toContainEqual(expect.stringContaining("MATCH (f:File) WHERE f.path IN $filePaths"))
+    expect(cypher).toContainEqual(expect.stringContaining("MATCH ()-[r]->() WHERE r.filePath IN $filePaths DELETE r"))
+    expect(cypher).toContainEqual(expect.stringContaining("MERGE (f:File {path: file.path})"))
     expect(cypher).toContainEqual(expect.stringContaining("MERGE (m:MetadataCatalog"))
     expect(cypher).toContainEqual(expect.stringContaining(":VALUE]"))
-    expect(cypher).toContainEqual(expect.stringContaining("MATCH (n) WHERE n.filePath IS NULL AND NOT ()-->(n) DETACH DELETE n"))
+    expect(cypher).toContainEqual(expect.stringContaining("SET r.filePath = e.filePath"))
+    expect(cypher).toContainEqual(expect.stringContaining("MERGE (f)-[:DECLARES]->(n)"))
+    expect(cypher).toContainEqual(expect.stringContaining("WHERE NOT (:File)-[:DECLARES]->(n)"))
     expect(closeMock).toHaveBeenCalledTimes(1)
   })
 
@@ -88,7 +109,8 @@ describe("updateGraph", () => {
     await updateGraph([])
     const cypher = queryMock.mock.calls.map((c) => c[0] as string)
     expect(cypher).toEqual([
-      "MATCH (n) WHERE n.filePath IS NULL AND NOT ()-->(n) DETACH DELETE n",
+      "CREATE INDEX FOR (n:File) ON (n.path)",
+      "MATCH (n) WHERE NOT (:File)-[:DECLARES]->(n) OPTIONAL MATCH ()-[r]->(n) WHERE type(r) <> 'DECLARES' AND type(r) <> 'CONTRIBUTES' WITH n, count(r) AS subjectIncoming WHERE subjectIncoming = 0 DETACH DELETE n",
     ])
     expect(closeMock).toHaveBeenCalledTimes(1)
   })

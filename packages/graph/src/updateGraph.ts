@@ -1,9 +1,12 @@
 import { close, connect } from "./internal/connection"
 import {
   cleanupOrphanStubs,
-  deleteByFilePaths,
+  deleteByFiles,
+  ensureFileIndexes,
   ensureLabelIndexes,
   mergeEdges,
+  mergeFileLinks,
+  mergeFiles,
   mergeNodes,
 } from "./internal/operations"
 import type { ConnectionOptions, FileGraphData } from "./types"
@@ -20,18 +23,20 @@ export const updateGraph = async (
   opts?: ConnectionOptions,
 ): Promise<void> => {
   const allNodes = files.flatMap((f) => f.nodes)
-  const allEdges = files.flatMap((f) => f.edges)
   const filePaths = files.map((f) => f.filePath)
   const labels = allNodes.map((n) => n.label)
   const labelByNodeId = new Map(allNodes.map((node) => [node.id, node.label]))
 
   const conn = await connect(opts)
   try {
+    await ensureFileIndexes(conn)
     await ensureLabelIndexes(conn, labels)
-    await deleteByFilePaths(conn, filePaths)
+    await deleteByFiles(conn, filePaths)
+    await mergeFiles(conn, files)
     await mergeNodes(conn, allNodes)
-    await mergeEdges(conn, allEdges, labelByNodeId)
-    await cleanupOrphanStubs(conn)
+    await mergeEdges(conn, files, labelByNodeId)
+    await mergeFileLinks(conn, files)
+    await cleanupOrphanStubs(conn, true)
   } finally {
     await close(conn)
   }

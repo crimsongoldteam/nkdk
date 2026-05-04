@@ -1,6 +1,6 @@
 import { ensureIndex, query } from "./connection"
 import type { GraphConnection } from "./connection"
-import type { EdgeData, NodeData } from "../types"
+import type { EdgeData, FileGraphData, FileStats, NodeData } from "../types"
 
 export const BATCH_SIZE = 500
 
@@ -69,6 +69,16 @@ const cypherNodeBatch = (nodes: readonly { id: string; props: NodeData["props"] 
     .join(",")}]`
 
 const cypherEdgeBatch = (
+  edges: readonly { src: string; tgt: string; filePath: string; props: NonNullable<EdgeData["props"]> }[],
+): string =>
+  `[${edges
+    .map(
+      (edge) =>
+        `{src:${cypherString(edge.src)},tgt:${cypherString(edge.tgt)},filePath:${cypherString(edge.filePath)},props:${cypherProps(sanitizeProps(edge.props))}}`,
+    )
+    .join(",")}]`
+
+const cypherLegacyEdgeBatch = (
   edges: readonly { src: string; tgt: string; props: NonNullable<EdgeData["props"]> }[],
 ): string =>
   `[${edges
@@ -76,6 +86,30 @@ const cypherEdgeBatch = (
       (edge) =>
         `{src:${cypherString(edge.src)},tgt:${cypherString(edge.tgt)},props:${cypherProps(sanitizeProps(edge.props))}}`,
     )
+    .join(",")}]`
+
+const nowStats = (): FileStats => ({
+  mtimeMs: 0,
+  size: 0,
+  updatedAt: Date.now(),
+})
+
+const filePayload = (file: FileGraphData): { path: string; stats: FileStats } => ({
+  path: file.filePath,
+  stats: file.fileStats ?? nowStats(),
+})
+
+const cypherFileBatch = (files: readonly { path: string; stats: FileStats }[]): string =>
+  `[${files
+    .map(
+      (file) =>
+        `{path:${cypherString(file.path)},mtimeMs:${file.stats.mtimeMs},size:${file.stats.size},updatedAt:${file.stats.updatedAt}}`,
+    )
+    .join(",")}]`
+
+const cypherLinkBatch = (links: readonly { filePath: string; nodeId: string }[]): string =>
+  `[${links
+    .map((link) => `{filePath:${cypherString(link.filePath)},nodeId:${cypherString(link.nodeId)}}`)
     .join(",")}]`
 
 const sendBatches = async <T>(
@@ -107,6 +141,42 @@ export const mergeNodes = async (
 
 export const mergeEdges = async (
   conn: GraphConnection,
+  files: readonly FileGraphData[] | readonly EdgeData[],
+  labelByNodeId?: ReadonlyMap<string, string>,
+): Promise<void> => {
+  if (files.length > 0 && !("filePath" in files[0])) {
+    await mergeLegacyEdges(conn, files as readonly EdgeData[], labelByNodeId)
+    return
+  }
+  const graphFiles = files as readonly FileGraphData[]
+  const edges = graphFiles.flatMap((file) =>
+    file.edges.map((edge) => ({ ...edge, filePath: file.filePath })),
+  )
+  if (edges.length === 0) return
+  const byKindAndLabels = groupBy(
+    edges,
+    (e) =>
+      `${e.kind}\u0000${labelByNodeId?.get(e.src) ?? ""}\u0000${labelByNodeId?.get(e.tgt) ?? ""}`,
+  )
+  for (const [groupKey, group] of byKindAndLabels) {
+    const [kind, srcLabel, tgtLabel] = groupKey.split("\u0000") as [string, string, string]
+    const payload = group.map((e) => ({
+      src: e.src,
+      tgt: e.tgt,
+      filePath: e.filePath,
+      props: e.props ?? {},
+    }))
+    await sendBatches(
+      conn,
+      payload,
+      (batch) =>
+        `UNWIND ${cypherEdgeBatch(batch)} AS e MATCH (s${cypherLabel(srcLabel || undefined)} {id: e.src}), (t${cypherLabel(tgtLabel || undefined)} {id: e.tgt}) MERGE (s)-[r:${kind}]->(t) SET r = e.props SET r.filePath = e.filePath`,
+    )
+  }
+}
+
+export const mergeLegacyEdges = async (
+  conn: GraphConnection,
   edges: readonly EdgeData[],
   labelByNodeId?: ReadonlyMap<string, string>,
 ): Promise<void> => {
@@ -123,9 +193,101 @@ export const mergeEdges = async (
       conn,
       payload,
       (batch) =>
-        `UNWIND ${cypherEdgeBatch(batch)} AS e MATCH (s${cypherLabel(srcLabel || undefined)} {id: e.src}), (t${cypherLabel(tgtLabel || undefined)} {id: e.tgt}) MERGE (s)-[r:${kind}]->(t) SET r = e.props`,
+        `UNWIND ${cypherLegacyEdgeBatch(batch)} AS e MATCH (s${cypherLabel(srcLabel || undefined)} {id: e.src}), (t${cypherLabel(tgtLabel || undefined)} {id: e.tgt}) MERGE (s)-[r:${kind}]->(t) SET r = e.props`,
     )
   }
+}
+
+export const ensureFileIndexes = async (conn: GraphConnection): Promise<void> => {
+  await ensureIndex(conn, "File", "path")
+}
+
+export const deleteByFiles = async (
+  conn: GraphConnection,
+  filePaths: readonly string[],
+): Promise<void> => {
+  if (filePaths.length === 0) return
+  const params = { filePaths: [...filePaths] }
+
+  await query(
+    conn,
+    [
+      "MATCH (f:File) WHERE f.path IN $filePaths",
+      "OPTIONAL MATCH (f)-[:DECLARES]->(n)",
+      "WITH f, collect(n) AS oldNodes",
+      "OPTIONAL MATCH (f)-[oldRel:DECLARES|CONTRIBUTES]->()",
+      "DELETE oldRel",
+      "WITH f, oldNodes",
+      "UNWIND oldNodes AS n",
+      "OPTIONAL MATCH (:File)-[:DECLARES]->(n)",
+      "WITH f, n, count(*) AS owners",
+      "OPTIONAL MATCH ()-[r]->(n)",
+      "WHERE type(r) <> 'DECLARES' AND type(r) <> 'CONTRIBUTES'",
+      "WITH f, n, owners, count(r) AS subjectIncoming",
+      "OPTIONAL MATCH (n)-[out]->()",
+      "WHERE type(out) <> 'DECLARES' AND type(out) <> 'CONTRIBUTES'",
+      "DELETE out",
+      "WITH f, n, owners, subjectIncoming",
+      "FOREACH (_ IN CASE WHEN owners = 0 AND subjectIncoming > 0 THEN [1] ELSE [] END | SET n = {id: n.id})",
+      "FOREACH (_ IN CASE WHEN owners = 0 AND subjectIncoming = 0 THEN [1] ELSE [] END | DETACH DELETE n)",
+      "WITH DISTINCT f",
+      "DETACH DELETE f",
+    ].join(" "),
+    params,
+  )
+
+  await query(
+    conn,
+    "MATCH ()-[r]->() WHERE r.filePath IN $filePaths DELETE r",
+    params,
+  )
+  await query(
+    conn,
+    "MATCH (f:File) WHERE f.path IN $filePaths DETACH DELETE f",
+    params,
+  )
+}
+
+export const mergeFiles = async (
+  conn: GraphConnection,
+  files: readonly FileGraphData[],
+): Promise<void> => {
+  const payload = files.map(filePayload)
+  if (payload.length === 0) return
+  await sendBatches(
+    conn,
+    payload,
+    (batch) =>
+      `UNWIND ${cypherFileBatch(batch)} AS file MERGE (f:File {path: file.path}) SET f.mtimeMs = file.mtimeMs, f.size = file.size, f.updatedAt = file.updatedAt`,
+  )
+}
+
+export const mergeFileLinks = async (
+  conn: GraphConnection,
+  files: readonly FileGraphData[],
+): Promise<void> => {
+  const declared = files.flatMap((file) =>
+    (file.declaredNodeIds ?? file.nodes.map((node) => node.id)).map((nodeId) => ({
+      filePath: file.filePath,
+      nodeId,
+    })),
+  )
+  const contributed = files.flatMap((file) =>
+    (file.contributedNodeIds ?? []).map((nodeId) => ({ filePath: file.filePath, nodeId })),
+  )
+
+  await sendBatches(
+    conn,
+    declared,
+    (batch) =>
+      `UNWIND ${cypherLinkBatch(batch)} AS link MATCH (f:File {path: link.filePath}), (n {id: link.nodeId}) MERGE (f)-[:DECLARES]->(n)`,
+  )
+  await sendBatches(
+    conn,
+    contributed,
+    (batch) =>
+      `UNWIND ${cypherLinkBatch(batch)} AS link MATCH (f:File {path: link.filePath}), (n {id: link.nodeId}) MERGE (f)-[:CONTRIBUTES]->(n)`,
+  )
 }
 
 export const deleteByFilePaths = async (
@@ -151,10 +313,29 @@ export const deleteByFilePaths = async (
   )
 }
 
-export const cleanupOrphanStubs = async (conn: GraphConnection): Promise<void> => {
+export const cleanupOrphanStubs = async (
+  conn: GraphConnection,
+  ignoreFileLinks = false,
+): Promise<void> => {
+  if (!ignoreFileLinks) {
+    await query(
+      conn,
+      "MATCH (n) WHERE n.filePath IS NULL AND NOT ()-->(n) DETACH DELETE n",
+    )
+    return
+  }
+
   await query(
     conn,
-    "MATCH (n) WHERE n.filePath IS NULL AND NOT ()-->(n) DETACH DELETE n",
+    [
+      "MATCH (n)",
+      "WHERE NOT (:File)-[:DECLARES]->(n)",
+      "OPTIONAL MATCH ()-[r]->(n)",
+      "WHERE type(r) <> 'DECLARES' AND type(r) <> 'CONTRIBUTES'",
+      "WITH n, count(r) AS subjectIncoming",
+      "WHERE subjectIncoming = 0",
+      "DETACH DELETE n",
+    ].join(" "),
   )
 }
 
