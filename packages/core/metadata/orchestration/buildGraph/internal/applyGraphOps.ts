@@ -84,6 +84,7 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
         yaml: "ЗависимостьПутиКДанным",
       }
       for (const dependencyId of resolution.dependencyIds) {
+        if (dependencyId === resolution.targetId) continue
         graph.ensureEdge(effectiveParent, dependencyId, local.dependsOnEdgeKind, dependencyEdgeAttrs)
       }
     }

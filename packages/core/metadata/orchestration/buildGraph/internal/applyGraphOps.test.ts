@@ -371,6 +371,101 @@ describe("applyGraphOps", () => {
       ).toBe(true)
     })
 
+    it("не создаёт DATA_PATH_DEPENDS_ON к итоговой цели одно-сегментного form-local пути", () => {
+      const { graph, formNodeId } = makeFormGraph()
+      const elementId = `${formNodeId}.Элемент.Поле`
+      const footerAttrId = `${formNodeId}.Реквизит.РеквизитПодвала`
+
+      ensureNodeWithFile(graph, elementId, "Поле", "test/Форма.yaml")
+      ensureNodeWithFile(graph, footerAttrId, "РеквизитПодвала", "test/Форма.yaml")
+      graph.ensureEdge(formNodeId, footerAttrId, "FORM_ATTRIBUTE", { yaml: "РеквизитФормы" })
+
+      const ctx: ApplyGraphOpsContext = {
+        graph,
+        parentNodeId: elementId,
+        filePath: "test/Форма.yaml",
+        edgeKind: "DATA_PATH",
+        edgeYaml: "ПутьКДанным",
+      }
+
+      applyGraphOps(
+        {
+          formLocalReferences: [
+            {
+              formLocalPath: "РеквизитПодвала",
+              formNodeId,
+              edgeProps: {
+                property: "dataPath",
+                sourcePath: "РеквизитПодвала",
+                pathMode: "formLocal",
+              },
+              dependsOnEdgeKind: "DATA_PATH_DEPENDS_ON",
+            },
+          ],
+        },
+        ctx,
+      )
+
+      const dataPathEdges = [...graph.outEdgeEntries(elementId)].filter(
+        (edge) => edge.attributes.kind === "DATA_PATH",
+      )
+      expect(dataPathEdges.map((edge) => edge.target)).toEqual([footerAttrId])
+
+      const dependencyEdges = [...graph.outEdgeEntries(elementId)].filter(
+        (edge) => edge.attributes.kind === "DATA_PATH_DEPENDS_ON",
+      )
+      expect(dependencyEdges.map((edge) => edge.target)).toEqual([])
+    })
+
+    it("не создаёт DATA_PATH_DEPENDS_ON к итоговой цели, найденной через childByEdge", () => {
+      const { graph, formNodeId, attrId } = makeFormGraph()
+      const elementId = `${formNodeId}.Элемент.Поле`
+      const typeId = "Справочник.Товары"
+      const targetId = `${typeId}.Реквизит.Артикул`
+
+      ensureNodeWithFile(graph, elementId, "Поле", "test/Форма.yaml")
+      graph.ensureNode(typeId, { name: "Товары" })
+      graph.ensureNode(targetId, { name: "Артикул" })
+      graph.ensureEdge(attrId, typeId, "TYPE", { yaml: "Тип" })
+      graph.ensureEdge(typeId, targetId, "ATTRIBUTE", { yaml: "Реквизит" })
+
+      const ctx: ApplyGraphOpsContext = {
+        graph,
+        parentNodeId: elementId,
+        filePath: "test/Форма.yaml",
+        edgeKind: "DATA_PATH",
+        edgeYaml: "ПутьКДанным",
+      }
+
+      applyGraphOps(
+        {
+          formLocalReferences: [
+            {
+              formLocalPath: "Объект.Артикул",
+              formNodeId,
+              edgeProps: {
+                property: "dataPath",
+                sourcePath: "Объект.Артикул",
+                pathMode: "formLocal",
+              },
+              dependsOnEdgeKind: "DATA_PATH_DEPENDS_ON",
+            },
+          ],
+        },
+        ctx,
+      )
+
+      const dataPathEdges = [...graph.outEdgeEntries(elementId)].filter(
+        (edge) => edge.attributes.kind === "DATA_PATH",
+      )
+      expect(dataPathEdges.map((edge) => edge.target)).toEqual([targetId])
+
+      const dependencyEdges = [...graph.outEdgeEntries(elementId)].filter(
+        (edge) => edge.attributes.kind === "DATA_PATH_DEPENDS_ON",
+      )
+      expect(dependencyEdges.map((edge) => edge.target)).toEqual([attrId, typeId])
+    })
+
     it("не создаёт ребро, если resolveFormLocalPath вернул undefined (нет первого сегмента)", () => {
       const { graph, formNodeId } = makeFormGraph()
       const elementId = `${formNodeId}.Элемент.Кнопка`
