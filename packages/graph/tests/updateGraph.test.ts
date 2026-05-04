@@ -22,6 +22,33 @@ beforeEach(() => {
 })
 
 describe("updateGraph", () => {
+  it("создаёт File-узел и служебные связи для declared/contributed узлов", async () => {
+    const files: FileGraphData[] = [
+      {
+        filePath: "Справочник/Товары/Свойства.yaml",
+        fileStats: { mtimeMs: 10, size: 20, updatedAt: 30 },
+        nodes: [
+          { id: "Справочник.Товары", label: "MetadataCatalog", props: { name: "Товары" } },
+          { id: "Справочник.Товары.Форма.ФормаСписка", label: "ClientApplicationForm", props: { name: "ФормаСписка" } },
+        ],
+        edges: [
+          { src: "Справочник.Товары", tgt: "Справочник.Товары.Форма.ФормаСписка", kind: "FORM", props: { yaml: "Форма" } },
+        ],
+        declaredNodeIds: ["Справочник.Товары"],
+        contributedNodeIds: ["Справочник.Товары.Форма.ФормаСписка"],
+      },
+    ]
+
+    await updateGraph(files)
+
+    const cypher = queryMock.mock.calls.map((c) => c[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE INDEX FOR (n:File) ON (n.path)"))
+    expect(cypher).toContainEqual(expect.stringContaining("MERGE (f:File {path: file.path})"))
+    expect(cypher).toContainEqual(expect.stringContaining("MERGE (f)-[:DECLARES]->(n)"))
+    expect(cypher).toContainEqual(expect.stringContaining("MERGE (f)-[:CONTRIBUTES]->(n)"))
+    expect(cypher).toContainEqual(expect.stringContaining("SET r.filePath = e.filePath"))
+  })
+
   it("проходит полный цикл: index → delete → merge nodes → merge edges → cleanup → close", async () => {
     const files: FileGraphData[] = [
       {

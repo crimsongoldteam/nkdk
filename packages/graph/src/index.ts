@@ -11,6 +11,8 @@ export type {
   ConnectionOptions,
   EdgeData,
   FileGraphData,
+  FileStats,
+  GraphFileRecord,
   GraphPrimitive,
   NodeData,
 } from "./types"
