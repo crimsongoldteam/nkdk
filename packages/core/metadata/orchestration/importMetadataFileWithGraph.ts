@@ -175,19 +175,15 @@ export async function importMetadataFileWithGraph(params: {
 
     if (nkdkFilePath) {
       const visualPrefix = `${formNodeId}.Элемент.`
-      for (const nodeId of graph.nodes()) {
-        if (nodeId.startsWith(visualPrefix)) {
-          graph.removeFilePath(nodeId, filePath)
-          graph.addFilePath(nodeId, nkdkFilePath)
-        }
+      const visualNodeIds = [...graph.nodesWithPrefix(visualPrefix)]
+
+      for (const nodeId of visualNodeIds) {
+        graph.removeFilePath(nodeId, filePath)
+        graph.addFilePath(nodeId, nkdkFilePath)
       }
 
-      for (const nodeId of graph.nodes()) {
-        for (const { target, attributes } of graph.outEdgeEntries(nodeId)) {
-          if (nodeId.startsWith(visualPrefix) || target.startsWith(visualPrefix)) {
-            graph.ensureEdge(nodeId, target, attributes.kind, { filePath: nkdkFilePath })
-          }
-        }
+      for (const { source, target, attributes } of graph.edgeEntriesTouching(visualNodeIds)) {
+        graph.ensureEdge(source, target, attributes.kind, { filePath: nkdkFilePath })
       }
     }
 

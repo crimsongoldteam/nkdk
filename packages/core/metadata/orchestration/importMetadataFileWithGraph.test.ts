@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import { walkGraphToFileData } from "./buildGraph/walkGraphToFileData"
 import { importMetadataFileWithGraph } from "./importMetadataFileWithGraph"
@@ -671,6 +671,34 @@ describe("importMetadataFileWithGraph — form", () => {
     const root = formFile.nodes.find((node) => node.id === formNodeId)!
     expect(Object.keys(root.props).some((key) => key.startsWith("p_childItems_"))).toBe(false)
     expect(Object.keys(root.props).some((key) => key.startsWith("p_autoCommandBar_"))).toBe(false)
+  })
+
+  it("не обходит все узлы графа при перепривязке визуальных элементов к nkdk", async () => {
+    const graph = new GraphBuilder()
+    graph.ensureNode("Справочник.Другой.Форма.ФормаСписка.Элемент.Чужой")
+
+    const nodesSpy = vi.spyOn(graph, "nodes")
+
+    await importMetadataFileWithGraph({
+      filePath: YAML_PATH,
+      nkdkFilePath: NKDK_PATH,
+      sources: {
+        yaml: [
+          "Элементы:",
+          "  ПолеВвода1:",
+          "    Ширина: 10",
+          "",
+        ].join("\n"),
+        nkdk: "ПолеВвода1(Реквизит): \n",
+      },
+      kind: "form",
+      name: "ФормаСписка",
+      graph,
+      context: baseContext,
+      ownerNodeId: OWNER_NODE_ID,
+    })
+
+    expect(nodesSpy).not.toHaveBeenCalled()
   })
 
   it("бросает ошибку если ownerNodeId не передан для form", async () => {
