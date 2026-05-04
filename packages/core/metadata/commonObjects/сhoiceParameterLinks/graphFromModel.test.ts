@@ -70,7 +70,7 @@ describe("ChoiceParameterLinks graphFromModel", () => {
     )
     expect(first.label).toBe("ChoiceParameterLink")
     expect(first.props.name).toBe("Отбор.Владелец")
-    expect(first.props.p_dataPath).toBe("Catalog.Товары.Attribute.Владелец")
+    expect(first.props.p_dataPath).toBeUndefined()
     expect(first.props.p_valueChange).toBe("DontChange")
   })
 
@@ -102,6 +102,12 @@ describe("ChoiceParameterLinks graphFromModel", () => {
       (edge) => edge.attributes.kind === "DATA_PATH",
     )
     expect(dataPathEdge?.target).toBe("Справочник.Товары.Реквизит.Владелец")
+    expect(dataPathEdge?.attributes).toMatchObject({
+      yaml: "ПутьКДанным",
+      property: "dataPath",
+      sourcePath: "Catalog.Товары.Attribute.Владелец",
+      pathMode: "global",
+    })
   })
 
   it("создаёт DATA_PATH-ребро от ChoiceParameterLink для form-local пути", () => {
@@ -147,5 +153,41 @@ describe("ChoiceParameterLinks graphFromModel", () => {
       (edge) => edge.attributes.kind === "DATA_PATH",
     )
     expect(dataPathEdge?.target).toBe(footerAttrId)
+    expect(dataPathEdge?.attributes).toMatchObject({
+      yaml: "ПутьКДанным",
+      property: "dataPath",
+      sourcePath: "РеквизитПодвала",
+      pathMode: "formLocal",
+    })
+  })
+
+  it("не добавляет синтетическое поле dataPathReference в props ChoiceParameterLink", () => {
+    const graph = new GraphBuilder()
+    graph.ensureNode(parentNodeId, {
+      name: "Характеристика",
+      item: {
+        itemType: "MetadataAttribute",
+        name: "Характеристика",
+        choiceParameterLinks: [
+          { name: "Отбор.Владелец", dataPath: "Catalog.Товары.Attribute.Владелец" },
+        ],
+      },
+    })
+    graph.addFilePath(parentNodeId, filePath)
+
+    buildGraphFromModel({
+      model: graph.getNodeAttributes(parentNodeId).item as Record<string, unknown>,
+      yamlMap: undefined,
+      rule: ownerRule,
+      graph,
+      parentNodeId,
+      filePath,
+    })
+
+    const linkNodeId = `${parentNodeId}.СвязьПараметровВыбора[0]`
+    const file = walkGraphToFileData(graph).find((segment) => segment.filePath === filePath)!
+    const link = file.nodes.find((node) => node.id === linkNodeId)!
+
+    expect(Object.keys(link.props).some((key) => key.includes("dataPathReference"))).toBe(false)
   })
 })

@@ -1,53 +1,22 @@
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { extractReferenceFromPath } from "~/metadata/orchestration/property/extractReferenceFromPath"
+import "~/metadata/forms/commonObjects/dataPath/graphFromModel"
 import type {
   BuildGraphFromModelFunction,
   GraphOps,
   GraphOpsChild,
 } from "~/metadata/orchestration/property/fn"
-import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { ChoiceParameterLinks } from "./types"
 
 const EDGE_KIND = "CHOICE_PARAMETER_LINK"
 const EDGE_YAML = "СвязьПараметровВыбора"
-const DATA_PATH_EDGE_KIND = "DATA_PATH"
-const DATA_PATH_EDGE_YAML = "ПутьКДанным"
 const NODE_SEGMENT = "СвязьПараметровВыбора"
-const CHOICE_PARAMETER_LINK_DATA_PATH_TYPE =
-  "ChoiceParameterLinkDataPath" as unknown as PropertyRuleType
-
-const buildChoiceParameterLinkDataPathGraph: BuildGraphFromModelFunction = ({
-  model,
-  extra,
-}) => {
-  if (typeof model !== "string" || !model) return undefined
-
-  const globalRef = extractReferenceFromPath(model)
-  if (globalRef) {
-    return {
-      references: [globalRef],
-      edgeKind: DATA_PATH_EDGE_KIND,
-      edgeYaml: DATA_PATH_EDGE_YAML,
-    }
-  }
-
-  const formNodeId = extra?.formNodeId as string | undefined
-  if (!formNodeId) return undefined
-
-  return {
-    formLocalReferences: [{ formLocalPath: model, formNodeId }],
-    edgeKind: DATA_PATH_EDGE_KIND,
-    edgeYaml: DATA_PATH_EDGE_YAML,
-  }
-}
 
 const ChoiceParameterLinkGraphRule = {
   itemType: "ChoiceParameterLink",
   properties: {
     name: { type: "string", yaml: "Имя" },
-    dataPath: { type: "string", yaml: "ПутьКДанным" },
-    dataPathReference: { type: "ChoiceParameterLinkDataPath", yaml: DATA_PATH_EDGE_YAML },
+    dataPath: { type: "DataPath", yaml: "ПутьКДанным" },
     valueChange: { type: "string", yaml: "ИзменениеЗначения" },
   },
 } as unknown as MetadataItemRule
@@ -65,7 +34,6 @@ const buildChoiceParameterLinksGraph: BuildGraphFromModelFunction = ({ model, pa
       itemType: "ChoiceParameterLink",
       name: link.name,
       dataPath: link.dataPath,
-      dataPathReference: link.dataPath,
       valueChange: link.valueChange,
     }
 
@@ -87,9 +55,4 @@ const buildChoiceParameterLinksGraph: BuildGraphFromModelFunction = ({ model, pa
   return { children, recurse, edgeKind: EDGE_KIND, edgeYaml: EDGE_YAML }
 }
 
-registerTypeRule(
-  CHOICE_PARAMETER_LINK_DATA_PATH_TYPE,
-  "buildGraphFromModel",
-  buildChoiceParameterLinkDataPathGraph,
-)
 registerTypeRule("ChoiceParameterLinks", "buildGraphFromModel", buildChoiceParameterLinksGraph)
