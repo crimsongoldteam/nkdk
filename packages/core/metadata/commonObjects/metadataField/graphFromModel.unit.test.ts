@@ -14,6 +14,7 @@ const noopParams = {
   yamlMap: undefined,
   lineCounter: undefined,
   propRule: { type: "MetadataFields", yaml: "ВводПоСтроке" } as never,
+  propertyName: "inputByString",
   graph: undefined as never,
 }
 

@@ -25,13 +25,17 @@ function makeGraph() {
 }
 
 function runBuild(
-  params: Omit<Parameters<typeof buildMetadataValueGraph>[0], "lineCounter"> & {
+  params: Omit<Parameters<typeof buildMetadataValueGraph>[0], "lineCounter" | "propertyName"> & {
     lineCounter?: LineCounter
     graph: GraphBuilder
   },
 ) {
   const { graph, ...buildParams } = params
-  const result = buildMetadataValueGraph({ lineCounter: undefined, ...buildParams })
+  const result = buildMetadataValueGraph({
+    lineCounter: undefined,
+    propertyName: "value",
+    ...buildParams,
+  })
   const sections = Array.isArray(result) ? result : result ? [result] : []
   for (const section of sections) {
     if (!section.edgeKind || !section.edgeYaml) continue
