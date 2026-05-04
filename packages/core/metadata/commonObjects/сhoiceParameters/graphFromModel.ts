@@ -18,7 +18,7 @@ const ChoiceParameterGraphRule = {
     name: { type: "string", yaml: "Имя" },
     value: { type: "MetadataValue", yaml: "Значение" },
   },
-} as const satisfies MetadataItemRule
+} as unknown as MetadataItemRule
 
 const buildChoiceParametersGraph: BuildGraphFromModelFunction = ({ model, parentNodeId }) => {
   const parameters = model as ChoiceParameters | undefined

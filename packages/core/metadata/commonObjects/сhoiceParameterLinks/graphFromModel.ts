@@ -5,6 +5,7 @@ import type {
   GraphOps,
   GraphOpsChild,
 } from "~/metadata/orchestration/property/fn"
+import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { ChoiceParameterLinks } from "./types"
 
@@ -13,6 +14,8 @@ const EDGE_YAML = "СвязьПараметровВыбора"
 const DATA_PATH_EDGE_KIND = "DATA_PATH"
 const DATA_PATH_EDGE_YAML = "ПутьКДанным"
 const NODE_SEGMENT = "СвязьПараметровВыбора"
+const CHOICE_PARAMETER_LINK_DATA_PATH_TYPE =
+  "ChoiceParameterLinkDataPath" as unknown as PropertyRuleType
 
 const buildChoiceParameterLinkDataPathGraph: BuildGraphFromModelFunction = ({
   model,
@@ -45,9 +48,9 @@ const ChoiceParameterLinkGraphRule = {
     name: { type: "string", yaml: "Имя" },
     dataPath: { type: "string", yaml: "ПутьКДанным" },
     dataPathReference: { type: "ChoiceParameterLinkDataPath", yaml: DATA_PATH_EDGE_YAML },
-    valueChange: { type: "SystemEnumeration", yaml: "ИзменениеЗначения" },
+    valueChange: { type: "string", yaml: "ИзменениеЗначения" },
   },
-} as const satisfies MetadataItemRule
+} as unknown as MetadataItemRule
 
 const buildChoiceParameterLinksGraph: BuildGraphFromModelFunction = ({ model, parentNodeId }) => {
   const links = model as ChoiceParameterLinks | undefined
@@ -85,7 +88,7 @@ const buildChoiceParameterLinksGraph: BuildGraphFromModelFunction = ({ model, pa
 }
 
 registerTypeRule(
-  "ChoiceParameterLinkDataPath",
+  CHOICE_PARAMETER_LINK_DATA_PATH_TYPE,
   "buildGraphFromModel",
   buildChoiceParameterLinkDataPathGraph,
 )
