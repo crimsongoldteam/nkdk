@@ -10,6 +10,17 @@ const STUB_SEGMENT = ""
 const isEdgePrimitive = (value: unknown): value is string | number | boolean | null =>
   value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean"
 
+function addPositionFromProps(
+  props: Record<string, string | number | boolean | null>,
+  positionFrom: unknown,
+): void {
+  if (positionFrom === null || typeof positionFrom !== "object") return
+  const position = positionFrom as Record<string, unknown>
+  if (typeof position.offset === "number") props.positionFromOffset = position.offset
+  if (typeof position.line === "number") props.positionFromLine = position.line
+  if (typeof position.column === "number") props.positionFromColumn = position.column
+}
+
 /**
  * Обходит GraphBuilder и группирует узлы и рёбра по filePath.
  *
@@ -63,8 +74,9 @@ export function walkGraphToFileData(graph: GraphBuilder): FileGraphData[] {
       const edgeProps: Record<string, string | number | boolean | null> = {
         yaml: typeof yamlValue === "string" ? yamlValue : "",
       }
+      addPositionFromProps(edgeProps, attributes.positionFrom)
       for (const [key, value] of Object.entries(attributes)) {
-        if (key === "kind" || key === "yaml") continue
+        if (key === "kind" || key === "yaml" || key === "positionFrom") continue
         if (isEdgePrimitive(value)) edgeProps[key] = value
       }
       ensureSegment(sourceSegment).edges.push({

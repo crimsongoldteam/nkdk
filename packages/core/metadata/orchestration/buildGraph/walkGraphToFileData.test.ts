@@ -68,6 +68,33 @@ describe("walkGraphToFileData", () => {
     ])
   })
 
+  it("разворачивает positionFrom в примитивные props ребра", () => {
+    const g = new GraphBuilder()
+    promote(g, "A", "A", ["a.yaml"], { itemType: "X" })
+    promote(g, "B", "B", ["a.yaml"], { itemType: "Y" })
+    g.ensureEdge("A", "B", "VALUE", {
+      yaml: "Значение",
+      positionFrom: { offset: 42, line: 7, column: 11 },
+    })
+
+    const result = walkGraphToFileData(g)
+    const file = result.find((f) => f.filePath === "a.yaml")!
+
+    expect(file.edges).toEqual([
+      {
+        src: "A",
+        tgt: "B",
+        kind: "VALUE",
+        props: {
+          yaml: "Значение",
+          positionFromOffset: 42,
+          positionFromLine: 7,
+          positionFromColumn: 11,
+        },
+      },
+    ])
+  })
+
   it("стабы (filePaths пусты) попадают в сегмент с filePath ''", () => {
     const g = new GraphBuilder()
     promote(g, "A", "A", ["a.yaml"], { itemType: "MetadataCatalog" })
