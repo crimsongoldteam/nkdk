@@ -174,10 +174,19 @@ export async function importMetadataFileWithGraph(params: {
     })
 
     if (nkdkFilePath) {
+      const visualPrefix = `${formNodeId}.Элемент.`
       for (const nodeId of graph.nodes()) {
-        if (nodeId.startsWith(`${formNodeId}.Элемент.`)) {
+        if (nodeId.startsWith(visualPrefix)) {
           graph.removeFilePath(nodeId, filePath)
           graph.addFilePath(nodeId, nkdkFilePath)
+        }
+      }
+
+      for (const nodeId of graph.nodes()) {
+        for (const { target, attributes } of graph.outEdgeEntries(nodeId)) {
+          if (nodeId.startsWith(visualPrefix) || target.startsWith(visualPrefix)) {
+            graph.ensureEdge(nodeId, target, attributes.kind, { filePath: nkdkFilePath })
+          }
         }
       }
     }

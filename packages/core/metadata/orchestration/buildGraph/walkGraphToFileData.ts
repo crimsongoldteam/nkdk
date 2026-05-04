@@ -95,11 +95,15 @@ export function walkGraphToFileData(graph: GraphBuilder): FileGraphData[] {
           key === "positionFrom" ||
           key === "positionFromOffset" ||
           key === "positionFromLine" ||
-          key === "positionFromColumn"
+          key === "positionFromColumn" ||
+          key === "filePath"
         ) continue
         if (isEdgePrimitive(value)) edgeProps[key] = value
       }
-      ensureSegment(sourceSegment).edges.push({
+      const edgeSegment =
+        typeof attributes.filePath === "string" ? attributes.filePath : sourceSegment
+
+      ensureSegment(edgeSegment).edges.push({
         src: nodeId,
         tgt: target,
         kind: attributes.kind,

@@ -51,7 +51,7 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
   const tRead = performance.now() - tReadStart
 
   const tBuildStart = performance.now()
-  const graphFiles = buildGraph(yamlFiles, CONTEXT)
+  const graphFiles = await buildGraph(yamlFiles, CONTEXT)
   const tBuild = performance.now() - tBuildStart
 
   const tWriteStart = performance.now()

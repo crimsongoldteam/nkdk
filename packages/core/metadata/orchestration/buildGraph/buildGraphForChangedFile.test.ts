@@ -24,8 +24,11 @@ describe("buildGraphForChangedFile", () => {
     })
 
     const nkdk = result.find((file) => file.filePath.endsWith("Форма.nkdk"))
+    const yaml = result.find((file) => file.filePath.endsWith("Форма.yaml"))
     expect(nkdk?.contributedNodeIds).toContain("Справочник.Товары.Форма.ФормаСписка")
     expect(nkdk?.declaredNodeIds?.some((id) => id.includes(".Элемент."))).toBe(true)
+    expect(nkdk?.edges.some((edge) => edge.tgt.includes(".Элемент."))).toBe(true)
+    expect(yaml?.edges.some((edge) => edge.tgt.includes(".Элемент."))).toBe(false)
   })
 
   it("строит сегмент одного Свойства.yaml и declaredNodeIds содержит корень", async () => {
