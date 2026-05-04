@@ -27,6 +27,8 @@ export class GraphBuilder {
   private readonly nodesMap = new Map<string, NodeAttributes>()
   // Рёбра — плоский массив; порядок вставки сохраняется
   private readonly edgeList: EdgeRecord[] = []
+  private readonly edgeByKey = new Map<string, EdgeRecord>()
+  private readonly outEdgesBySource = new Map<string, EdgeRecord[]>()
 
   // ── узлы ────────────────────────────────────────────────────
 
@@ -106,23 +108,29 @@ export class GraphBuilder {
     kind: string,
     attrs?: Omit<EdgeAttributes, "kind">,
   ): void {
-    const existing = this.edgeList.find(
-      (e) => e.src === src && e.tgt === tgt && e.attrs.kind === kind,
-    )
+    const key = JSON.stringify([src, tgt, kind])
+    const existing = this.edgeByKey.get(key)
     if (existing) {
       // Обновляем атрибуты — kind не перезаписывается
       if (attrs) Object.assign(existing.attrs, attrs)
       return
     }
-    this.edgeList.push({ src, tgt, attrs: { kind, ...(attrs ?? {}) } })
+    const edge = { src, tgt, attrs: { kind, ...(attrs ?? {}) } }
+    this.edgeList.push(edge)
+    this.edgeByKey.set(key, edge)
+
+    const outEdges = this.outEdgesBySource.get(src)
+    if (outEdges) {
+      outEdges.push(edge)
+    } else {
+      this.outEdgesBySource.set(src, [edge])
+    }
   }
 
   /** Возвращает итератор исходящих рёбер узла src. */
   *outEdgeEntries(src: string): Iterable<{ target: string; attributes: EdgeAttributes }> {
-    for (const edge of this.edgeList) {
-      if (edge.src === src) {
-        yield { target: edge.tgt, attributes: edge.attrs }
-      }
+    for (const edge of this.outEdgesBySource.get(src) ?? []) {
+      yield { target: edge.tgt, attributes: edge.attrs }
     }
   }
 

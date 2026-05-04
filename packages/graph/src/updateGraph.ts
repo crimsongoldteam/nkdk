@@ -23,13 +23,14 @@ export const updateGraph = async (
   const allEdges = files.flatMap((f) => f.edges)
   const filePaths = files.map((f) => f.filePath)
   const labels = allNodes.map((n) => n.label)
+  const labelByNodeId = new Map(allNodes.map((node) => [node.id, node.label]))
 
   const conn = await connect(opts)
   try {
     await ensureLabelIndexes(conn, labels)
     await deleteByFilePaths(conn, filePaths)
     await mergeNodes(conn, allNodes)
-    await mergeEdges(conn, allEdges)
+    await mergeEdges(conn, allEdges, labelByNodeId)
     await cleanupOrphanStubs(conn)
   } finally {
     await close(conn)

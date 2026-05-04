@@ -59,6 +59,29 @@ describe("mergeNodes", () => {
     expect(queryMock.mock.calls[0][1]).toBeUndefined()
   })
 
+  it("не отправляет null-свойства и null внутри массивов", async () => {
+    const conn = await connect()
+    await mergeNodes(conn, [
+      {
+        id: "Документ.А",
+        label: "MetadataDocument",
+        props: {
+          name: "А",
+          p_empty: null,
+          p_values: ["one", null, "two"],
+          p_onlyNulls: [null],
+        },
+      },
+    ])
+
+    const cypher = queryMock.mock.calls[0][0] as string
+    expect(cypher).toContain("`name`:\"А\"")
+    expect(cypher).toContain("`p_values`:[\"one\",\"two\"]")
+    expect(cypher).not.toContain("p_empty")
+    expect(cypher).not.toContain("p_onlyNulls")
+    expect(cypher).not.toContain("null")
+  })
+
   it("режет на батчи по 500", async () => {
     const conn = await connect()
     const nodes: NodeData[] = Array.from({ length: 12_000 }, (_, i) => ({
@@ -108,6 +131,22 @@ describe("mergeEdges", () => {
 
     expect(queryMock).toHaveBeenCalledTimes(1)
     expect(queryMock.mock.calls[0][0]).toContain("props:{}")
+  })
+
+  it("использует label концов ребра, если они переданы", async () => {
+    const conn = await connect()
+    await mergeEdges(
+      conn,
+      [{ src: "A", tgt: "B", kind: "VALUE", props: { yaml: "Значение" } }],
+      new Map([
+        ["A", "MetadataAttribute"],
+        ["B", "MetadataValue"],
+      ]),
+    )
+
+    expect(queryMock.mock.calls[0][0]).toContain(
+      "MATCH (s:MetadataAttribute {id: e.src}), (t:MetadataValue {id: e.tgt})",
+    )
   })
 })
 

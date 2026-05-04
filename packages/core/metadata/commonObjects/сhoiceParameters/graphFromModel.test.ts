@@ -99,4 +99,43 @@ describe("ChoiceParameters graphFromModel", () => {
     )
     expect(valueEdge?.target).toBe("Справочник.Товары.ПустаяСсылка")
   })
+
+  it("поддерживает YAML-словарь параметров выбора и не выгружает его в props владельца", () => {
+    const graph = new GraphBuilder()
+    graph.ensureNode(parentNodeId, {
+      name: "Владелец",
+      item: {
+        itemType: "MetadataAttribute",
+        name: "Владелец",
+        choiceParameters: {
+          "Отбор.Владелец": { type: "string", value: "A" },
+          "Отбор.Пустой": null,
+        },
+      },
+    })
+    graph.addFilePath(parentNodeId, filePath)
+
+    buildGraphFromModel({
+      model: graph.getNodeAttributes(parentNodeId).item as Record<string, unknown>,
+      yamlMap: undefined,
+      rule: ownerRule,
+      graph,
+      parentNodeId,
+      filePath,
+    })
+
+    const file = walkGraphToFileData(graph).find((segment) => segment.filePath === filePath)!
+    const parent = file.nodes.find((node) => node.id === parentNodeId)!
+    const first = file.nodes.find((node) => node.id === `${parentNodeId}.ПараметрВыбора[0]`)!
+    const second = file.nodes.find((node) => node.id === `${parentNodeId}.ПараметрВыбора[1]`)!
+
+    expect(Object.keys(parent.props).some((key) => key.startsWith("p_choiceParameters_"))).toBe(
+      false,
+    )
+    expect(first.props.name).toBe("Отбор.Владелец")
+    expect(first.props.p_value_type).toBe("string")
+    expect(first.props.p_value_value).toBe("A")
+    expect(second.props.name).toBe("Отбор.Пустой")
+    expect(Object.keys(second.props).some((key) => key.startsWith("p_value"))).toBe(false)
+  })
 })

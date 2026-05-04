@@ -6,11 +6,26 @@ import type {
   GraphOpsChild,
 } from "~/metadata/orchestration/property/fn"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import type { ChoiceParameters } from "./types"
+import type { ChoiceParameter, ChoiceParameters } from "./types"
 
 const EDGE_KIND = "CHOICE_PARAMETER"
 const EDGE_YAML = "ПараметрВыбора"
 const NODE_SEGMENT = "ПараметрВыбора"
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value)
+
+const normalizeChoiceParameters = (model: unknown): ChoiceParameters => {
+  if (Array.isArray(model)) return model as ChoiceParameters
+  if (!isRecord(model)) return []
+  return Object.entries(model).map(([name, value]) => {
+    const parameter: ChoiceParameter = { name }
+    if (value !== null && value !== undefined) {
+      parameter.value = value as ChoiceParameter["value"]
+    }
+    return parameter
+  })
+}
 
 const ChoiceParameterGraphRule = {
   itemType: "ChoiceParameter",
@@ -21,7 +36,7 @@ const ChoiceParameterGraphRule = {
 } as unknown as MetadataItemRule
 
 const buildChoiceParametersGraph: BuildGraphFromModelFunction = ({ model, parentNodeId }) => {
-  const parameters = model as ChoiceParameters | undefined
+  const parameters = normalizeChoiceParameters(model)
   if (!Array.isArray(parameters) || parameters.length === 0) return undefined
 
   const children: GraphOpsChild[] = []

@@ -157,6 +157,25 @@ describe("GraphBuilder: ensureEdge / outEdgeEntries", () => {
     const out = [...g.outEdgeEntries("A")]
     expect(out).toEqual([{ target: "B", attributes: { kind: "LINK" } }])
   })
+
+  it("массовый обход исходящих рёбер остаётся линейным", () => {
+    const g = new GraphBuilder()
+    const size = 20_000
+    for (let i = 0; i < size; i += 1) {
+      g.ensureNode(`src-${i}`)
+      g.ensureNode(`tgt-${i}`)
+      g.ensureEdge(`src-${i}`, `tgt-${i}`, "LINK")
+    }
+
+    const startedAt = performance.now()
+    let edgeCount = 0
+    for (let i = 0; i < size; i += 1) {
+      edgeCount += [...g.outEdgeEntries(`src-${i}`)].length
+    }
+
+    expect(edgeCount).toBe(size)
+    expect(performance.now() - startedAt).toBeLessThan(500)
+  })
 })
 
 // ──────────────────────────────────────────────────────────────

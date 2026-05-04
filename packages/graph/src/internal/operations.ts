@@ -6,6 +6,7 @@ export const BATCH_SIZE = 500
 
 type CypherPrimitive = string | number | boolean | null
 type CypherValue = CypherPrimitive | CypherPrimitive[]
+type FalkorPropertyValue = Exclude<CypherPrimitive, null> | Exclude<CypherPrimitive, null>[]
 
 const groupBy = <T, K extends string>(
   items: readonly T[],
@@ -33,6 +34,9 @@ const cypherString = (value: string): string => `"${escapeCypherString(value)}"`
 
 const cypherPropertyKey = (key: string): string => `\`${key.replace(/`/g, "``")}\``
 
+const cypherLabel = (label: string | undefined): string =>
+  label === undefined ? "" : `:${label}`
+
 const cypherValue = (value: CypherValue): string => {
   if (Array.isArray(value)) return `[${value.map(cypherValue).join(",")}]`
   if (value === null) return "null"
@@ -45,9 +49,23 @@ const cypherProps = (props: Record<string, CypherValue>): string =>
     .map(([key, value]) => `${cypherPropertyKey(key)}:${cypherValue(value)}`)
     .join(",")}}`
 
+const sanitizeProps = (props: Record<string, CypherValue>): Record<string, FalkorPropertyValue> => {
+  const result: Record<string, FalkorPropertyValue> = {}
+  for (const [key, value] of Object.entries(props)) {
+    if (value === null) continue
+    if (Array.isArray(value)) {
+      const values = value.filter((item): item is Exclude<CypherPrimitive, null> => item !== null)
+      if (values.length > 0) result[key] = values
+      continue
+    }
+    result[key] = value
+  }
+  return result
+}
+
 const cypherNodeBatch = (nodes: readonly { id: string; props: NodeData["props"] }[]): string =>
   `[${nodes
-    .map((node) => `{id:${cypherString(node.id)},props:${cypherProps(node.props)}}`)
+    .map((node) => `{id:${cypherString(node.id)},props:${cypherProps(sanitizeProps(node.props))}}`)
     .join(",")}]`
 
 const cypherEdgeBatch = (
@@ -56,7 +74,7 @@ const cypherEdgeBatch = (
   `[${edges
     .map(
       (edge) =>
-        `{src:${cypherString(edge.src)},tgt:${cypherString(edge.tgt)},props:${cypherProps(edge.props)}}`,
+        `{src:${cypherString(edge.src)},tgt:${cypherString(edge.tgt)},props:${cypherProps(sanitizeProps(edge.props))}}`,
     )
     .join(",")}]`
 
@@ -90,16 +108,22 @@ export const mergeNodes = async (
 export const mergeEdges = async (
   conn: GraphConnection,
   edges: readonly EdgeData[],
+  labelByNodeId?: ReadonlyMap<string, string>,
 ): Promise<void> => {
   if (edges.length === 0) return
-  const byKind = groupBy(edges, (e) => e.kind)
-  for (const [kind, group] of byKind) {
+  const byKindAndLabels = groupBy(
+    edges,
+    (e) =>
+      `${e.kind}\u0000${labelByNodeId?.get(e.src) ?? ""}\u0000${labelByNodeId?.get(e.tgt) ?? ""}`,
+  )
+  for (const [groupKey, group] of byKindAndLabels) {
+    const [kind, srcLabel, tgtLabel] = groupKey.split("\u0000") as [string, string, string]
     const payload = group.map((e) => ({ src: e.src, tgt: e.tgt, props: e.props ?? {} }))
     await sendBatches(
       conn,
       payload,
       (batch) =>
-        `UNWIND ${cypherEdgeBatch(batch)} AS e MATCH (s {id: e.src}), (t {id: e.tgt}) MERGE (s)-[r:${kind}]->(t) SET r = e.props`,
+        `UNWIND ${cypherEdgeBatch(batch)} AS e MATCH (s${cypherLabel(srcLabel || undefined)} {id: e.src}), (t${cypherLabel(tgtLabel || undefined)} {id: e.tgt}) MERGE (s)-[r:${kind}]->(t) SET r = e.props`,
     )
   }
 }
