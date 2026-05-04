@@ -66,6 +66,17 @@ describe("flattenItem", () => {
     })
   })
 
+  it("не протаскивает skipKeys в рекурсию", () => {
+    expect(
+      flattenItem(
+        { nested: { attributes: { Total: "Строка" } } },
+        { skipKeys: new Set(["attributes"]) },
+      ),
+    ).toEqual({
+      p_nested_attributes_Total: "Строка",
+    })
+  })
+
   it("не пропускает одиночный латинский объект без skipKeys", () => {
     expect(
       flattenItem({
