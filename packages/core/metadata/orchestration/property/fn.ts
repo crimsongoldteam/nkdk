@@ -145,6 +145,8 @@ export interface GraphOpsFormLocalReference {
   parentOverride?: string
   /** Дополнительные primitive props конкретного reference-ребра. */
   edgeProps?: GraphOpsEdgeProps
+  /** Если задано — applyGraphOps создаёт dependency-рёбра от источника к узлам, участвовавшим в разрешении form-local пути. */
+  dependsOnEdgeKind?: string
 }
 
 export interface GraphOpsRecurse {

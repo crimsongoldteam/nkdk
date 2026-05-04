@@ -72,11 +72,21 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
 
   for (const local of ops.formLocalReferences ?? []) {
     const effectiveParent = local.parentOverride ?? parentNodeId
-    const targetId = resolveFormLocalPath(graph, local.formNodeId, local.formLocalPath)
-    if (targetId === undefined) continue
+    const resolution = resolveFormLocalPath(graph, local.formNodeId, local.formLocalPath)
+    if (resolution === undefined) continue
     const edgeAttrs: Record<string, unknown> = { ...sanitizeEdgeProps(local.edgeProps), yaml: edgeYaml }
     if (local.positionFrom !== undefined) edgeAttrs.positionFrom = local.positionFrom
-    graph.ensureEdge(effectiveParent, targetId, edgeKind, edgeAttrs)
+    graph.ensureEdge(effectiveParent, resolution.targetId, edgeKind, edgeAttrs)
+
+    if (local.dependsOnEdgeKind !== undefined) {
+      const dependencyEdgeAttrs: Record<string, unknown> = {
+        ...sanitizeEdgeProps(local.edgeProps),
+        yaml: "ЗависимостьПутиКДанным",
+      }
+      for (const dependencyId of resolution.dependencyIds) {
+        graph.ensureEdge(effectiveParent, dependencyId, local.dependsOnEdgeKind, dependencyEdgeAttrs)
+      }
+    }
   }
 }
 
@@ -98,6 +108,16 @@ function sanitizeEdgeProps(edgeProps?: Record<string, unknown>): Record<string, 
 // конечный отсутствующий узел создаётся как stub.
 const FORM_CHILD_KINDS = new Set(["FORM_ATTRIBUTE", "FORM_COMMAND", "FORM_PARAMETER", "FORM_ELEMENT"])
 
+interface FormLocalPathResolution {
+  targetId: string
+  dependencyIds: string[]
+}
+
+function uniquePush(target: string[], value: string | undefined): void {
+  if (value === undefined) return
+  if (!target.includes(value)) target.push(value)
+}
+
 function findChildByName(
   graph: GraphBuilder,
   parentNodeId: string,
@@ -113,11 +133,12 @@ function resolveFormLocalPath(
   graph: GraphBuilder,
   formNodeId: string,
   path: string,
-): string | undefined {
+): FormLocalPathResolution | undefined {
   if (!path) return undefined
   if (!graph.hasNode(formNodeId)) return undefined
 
   const segments = path.split(".")
+  const dependencyIds: string[] = []
 
   let currentNodeId: string | undefined
   for (const { attributes, target } of graph.outEdgeEntries(formNodeId)) {
@@ -127,6 +148,7 @@ function resolveFormLocalPath(
       graph.getNodeAttributes(target).name === segments[0]
     ) {
       currentNodeId = target
+      uniquePush(dependencyIds, target)
       break
     }
   }
@@ -139,6 +161,7 @@ function resolveFormLocalPath(
     for (const { attributes, target } of graph.outEdgeEntries(currentNodeId)) {
       if (attributes.kind === "TYPE") {
         typeTargetId = target
+        uniquePush(dependencyIds, target)
         break
       }
     }
@@ -146,6 +169,8 @@ function resolveFormLocalPath(
 
     const childByEdge = findChildByName(graph, typeTargetId, segment)
     const nextNodeId = childByEdge ?? `${typeTargetId}.${segment}`
+
+    if (childByEdge !== undefined) uniquePush(dependencyIds, childByEdge)
 
     if (i < segments.length - 1 && !graph.hasNode(nextNodeId)) return undefined
 
@@ -156,5 +181,6 @@ function resolveFormLocalPath(
     const name = currentNodeId.split(".").pop() ?? currentNodeId
     graph.ensureNode(currentNodeId, { name })
   }
-  return currentNodeId
+
+  return { targetId: currentNodeId, dependencyIds }
 }

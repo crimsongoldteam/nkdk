@@ -52,6 +52,7 @@ export function buildDataPathGraphOps(
         formLocalPath: sourcePath,
         formNodeId,
         edgeProps: edgeProps({ propertyName, sourcePath, pathMode: "formLocal" }),
+        dependsOnEdgeKind: "DATA_PATH_DEPENDS_ON",
       },
     ],
     edgeKind: DATA_PATH_EDGE_KIND,

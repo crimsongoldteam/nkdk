@@ -319,6 +319,58 @@ describe("applyGraphOps", () => {
       expect(edges[0].attributes.filePath).toBeUndefined()
     })
 
+    it("создаёт DATA_PATH_DEPENDS_ON для form-local пути", () => {
+      const { graph, formNodeId, attrId } = makeFormGraph()
+      const elementId = `${formNodeId}.Элемент.Поле`
+      const typeId = "Справочник.Товары"
+      const targetId = `${typeId}.Наименование`
+
+      ensureNodeWithFile(graph, elementId, "Поле", "test/Форма.yaml")
+      graph.ensureNode(typeId, { name: "Товары" })
+      graph.ensureNode(targetId, { name: "Наименование" })
+      graph.ensureEdge(attrId, typeId, "TYPE", { yaml: "Тип" })
+
+      const ctx: ApplyGraphOpsContext = {
+        graph,
+        parentNodeId: elementId,
+        filePath: "test/Форма.yaml",
+        edgeKind: "DATA_PATH",
+        edgeYaml: "ПутьКДанным",
+      }
+
+      applyGraphOps(
+        {
+          formLocalReferences: [
+            {
+              formLocalPath: "Объект.Наименование",
+              formNodeId,
+              edgeProps: {
+                property: "dataPath",
+                sourcePath: "Объект.Наименование",
+                pathMode: "formLocal",
+              },
+              dependsOnEdgeKind: "DATA_PATH_DEPENDS_ON",
+            },
+          ],
+        },
+        ctx,
+      )
+
+      const dataPathEdges = [...graph.outEdgeEntries(elementId)].filter(
+        (edge) => edge.attributes.kind === "DATA_PATH",
+      )
+      expect(dataPathEdges.map((edge) => edge.target)).toEqual([targetId])
+
+      const dependencyEdges = [...graph.outEdgeEntries(elementId)].filter(
+        (edge) => edge.attributes.kind === "DATA_PATH_DEPENDS_ON",
+      )
+      expect(dependencyEdges.map((edge) => edge.target)).toEqual([attrId, typeId])
+      expect(dependencyEdges.every((edge) => edge.attributes.property === "dataPath")).toBe(true)
+      expect(
+        dependencyEdges.every((edge) => edge.attributes.sourcePath === "Объект.Наименование"),
+      ).toBe(true)
+    })
+
     it("не создаёт ребро, если resolveFormLocalPath вернул undefined (нет первого сегмента)", () => {
       const { graph, formNodeId } = makeFormGraph()
       const elementId = `${formNodeId}.Элемент.Кнопка`

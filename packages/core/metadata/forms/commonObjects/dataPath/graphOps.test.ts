@@ -44,6 +44,7 @@ describe("buildDataPathGraphOps", () => {
             sourcePath: "Объект.Наименование",
             pathMode: "formLocal",
           },
+          dependsOnEdgeKind: "DATA_PATH_DEPENDS_ON",
         },
       ],
       edgeKind: "DATA_PATH",
