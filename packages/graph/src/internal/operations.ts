@@ -2,7 +2,7 @@ import { ensureIndex, query } from "./connection"
 import type { GraphConnection } from "./connection"
 import type { EdgeData, NodeData } from "../types"
 
-export const BATCH_SIZE = 5000
+export const BATCH_SIZE = 500
 
 type CypherPrimitive = string | number | boolean | null
 type CypherValue = CypherPrimitive | CypherPrimitive[]

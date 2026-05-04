@@ -59,7 +59,7 @@ describe("mergeNodes", () => {
     expect(queryMock.mock.calls[0][1]).toBeUndefined()
   })
 
-  it("режет на батчи по 5000", async () => {
+  it("режет на батчи по 500", async () => {
     const conn = await connect()
     const nodes: NodeData[] = Array.from({ length: 12_000 }, (_, i) => ({
       id: `id${i}`,
@@ -68,9 +68,9 @@ describe("mergeNodes", () => {
     }))
     await mergeNodes(conn, nodes)
 
-    expect(queryMock).toHaveBeenCalledTimes(3)
-    expect(queryMock.mock.calls[0][0].match(/\{id:"/g)).toHaveLength(5000)
-    expect(queryMock.mock.calls[2][0].match(/\{id:"/g)).toHaveLength(2000)
+    expect(queryMock).toHaveBeenCalledTimes(24)
+    expect(queryMock.mock.calls[0][0].match(/\{id:"/g)).toHaveLength(500)
+    expect(queryMock.mock.calls[23][0].match(/\{id:"/g)).toHaveLength(500)
   })
 })
 
