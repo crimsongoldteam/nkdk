@@ -126,6 +126,39 @@ describe("importMetadataFileWithGraph — document", () => {
 
     expect(Object.keys(parent.props).some((key) => key.startsWith("p_attributes_"))).toBe(false)
   })
+
+  it("сохраняет порядок graphChild record-коллекции через index на рёбрах", () => {
+    const graph = new GraphBuilder()
+
+    importMetadataFileWithGraph({
+      filePath: "Документ/Продажа/Свойства.yaml",
+      sources: {
+        yaml: [
+          "Реквизиты:",
+          "  First: Строка",
+          "  Second: Булево",
+          "  Third: Число(10)",
+        ].join("\n"),
+      },
+      kind: "document",
+      name: "Продажа",
+      graph,
+      context: { version: "2.20", defaultLanguage: "ru" },
+    })
+
+    const edges = [...graph.outEdgeEntries("Документ.Продажа")]
+      .filter((edge) => edge.attributes.kind === "ATTRIBUTE")
+      .map((edge) => ({
+        target: edge.target,
+        index: edge.attributes.index,
+      }))
+
+    expect(edges).toEqual([
+      { target: "Документ.Продажа.Реквизит.First", index: 0 },
+      { target: "Документ.Продажа.Реквизит.Second", index: 1 },
+      { target: "Документ.Продажа.Реквизит.Third", index: 2 },
+    ])
+  })
 })
 
 describe("importMetadataFileWithGraph — enumeration", () => {

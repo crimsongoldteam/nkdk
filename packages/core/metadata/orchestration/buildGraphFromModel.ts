@@ -139,7 +139,7 @@ export function buildGraphFromModel(params: {
     const yamlKey = propRule.yaml
     const collectionYamlMap = yamlKey && yamlMap ? findSubmap(yamlMap, yamlKey) : undefined
 
-    for (const item of modelValue as Array<Record<string, unknown>>) {
+    for (const [index, item] of (modelValue as Array<Record<string, unknown>>).entries()) {
       const idSuffix = item[graphChildDef.idFrom] as string | undefined
       if (!idSuffix) continue
 
@@ -153,6 +153,7 @@ export function buildGraphFromModel(params: {
       graph.setItem(childNodeId, item)
       graph.ensureEdge(parentNodeId, childNodeId, graphChildDef.edgeKind, {
         yaml: graphChildDef.edgeYaml,
+        index,
       })
 
       buildGraphFromModel({
