@@ -29,7 +29,7 @@
   property,
   yaml,
   sourcePath,
-  kind
+  pathMode
 }]->(target)
 ```
 
@@ -44,10 +44,10 @@
   `ПутьКДаннымПодвала`, `ПутьКДаннымЗаголовка`;
 - `sourcePath` — исходная строка пути, например
   `Объект.Владелец.Наименование`;
-- `kind` — режим разбора: `global` или `formLocal`.
+- `pathMode` — режим разбора: `global` или `formLocal`.
 
 Если путь неоднозначен из-за нескольких возможных типов, создаётся несколько
-`DATA_PATH`-рёбер с одинаковыми `property`, `yaml`, `sourcePath` и `kind`.
+`DATA_PATH`-рёбер с одинаковыми `property`, `yaml`, `sourcePath` и `pathMode`.
 
 Для инкрементального пересчёта дополнительно создаются технические связи:
 
@@ -77,7 +77,7 @@ MATCH (target)-[:TYPE]->(:Type {name: "Boolean"})
 RETURN target
 ```
 
-Для другого свойства того же владельца используется тот же kind ребра, но
+Для другого свойства того же владельца используется тот же вид ребра, но
 другой `property`:
 
 ```cypher
@@ -89,6 +89,43 @@ RETURN target
 ```
 
 Так `rules.ts` хранит контракт, а граф хранит факт разрешения пути.
+
+## Удаление legacy-модели
+
+Переход на единое `DATA_PATH` должен удалить старые способы представления
+dataPath-свойств. Первый этап считается завершённым только если новая и старая
+модели не сосуществуют.
+
+Нужно убрать отдельные виды рёбер, которые кодировали имя свойства в kind:
+
+```text
+FOOTER_DATA_PATH
+TITLE_DATA_PATH
+ROW_PICTURE_DATA_PATH
+```
+
+Их заменяет одно `DATA_PATH`-ребро с `property`:
+
+```text
+(owner)-[:DATA_PATH { property: "footerDataPath", yaml, sourcePath, pathMode }]->(target)
+(owner)-[:DATA_PATH { property: "titleDataPath", yaml, sourcePath, pathMode }]->(target)
+(owner)-[:DATA_PATH { property: "rowPictureDataPath", yaml, sourcePath, pathMode }]->(target)
+```
+
+Для `ChoiceParameterLink` нужно убрать синтетическое поле
+`dataPathReference`. `dataPath` больше не должен дублироваться как `p_dataPath`
+на узле `ChoiceParameterLink`: исходная строка хранится в `sourcePath` на
+`DATA_PATH`-ребре.
+
+После миграции должны выполняться инварианты:
+
+- для любого dataPath-подобного свойства создаётся только `DATA_PATH`;
+- `property` всегда указывает JS-имя исходного свойства;
+- `yaml` всегда указывает YAML-имя исходного свойства;
+- `sourcePath` всегда хранит исходную строку пути;
+- владелец не содержит `p_<property>` для свойства, которое представлено
+  `DATA_PATH`;
+- старые `*_DATA_PATH` kind не создаются и не нужны для восстановления модели.
 
 ## Алгоритм разбора form-local пути
 
@@ -159,7 +196,7 @@ Catalog.Товары.Attribute.Владелец
 owner -[:DATA_PATH {
   property: "dataPath",
   sourcePath: "Catalog.Товары.Attribute.Владелец",
-  kind: "global"
+  pathMode: "global"
 }]-> Справочник.Товары.Реквизит.Владелец
 ```
 
@@ -180,7 +217,7 @@ RETURN DISTINCT owner, dep.property AS property, dep.sourcePath AS sourcePath
 
 Для каждой найденной пары `owner/property/sourcePath`:
 
-1. прочитать `yaml` и `kind` со старого `DATA_PATH`-ребра, если оно есть;
+1. прочитать `yaml` и `pathMode` со старого `DATA_PATH`-ребра, если оно есть;
 2. удалить старые `DATA_PATH` и `DATA_PATH_DEPENDS_ON` с теми же
    `property/sourcePath`;
 3. заново разобрать путь относительно владельца;
@@ -244,7 +281,12 @@ RETURN owner, r.property AS property, r.sourcePath AS sourcePath, target
 - `DATA_PATH_DEPENDS_ON` для инкрементального пересчёта;
 - диагностика неподтверждённых конечных целей через stub-узлы;
 - поддержка Cypher-контрактов из `rules.ts` через прямой путь от владельца к
-  цели.
+  цели;
+- удаление legacy-рёбер `FOOTER_DATA_PATH`, `TITLE_DATA_PATH`,
+  `ROW_PICTURE_DATA_PATH`;
+- удаление `ChoiceParameterLink.dataPathReference`;
+- тесты, подтверждающие отсутствие `p_dataPath` и других `p_<property>` для
+  dataPath-свойств, представленных `DATA_PATH`.
 
 В первый этап не входит:
 
