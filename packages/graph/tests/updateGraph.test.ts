@@ -67,6 +67,20 @@ describe("updateGraph", () => {
     expect(cypher).toContainEqual(expect.stringContaining("type(r) <> 'CONTRIBUTES'"))
   })
 
+  it("не удаляет File-узлы при очистке orphan-стабов", async () => {
+    await updateGraph([{ filePath: "a.yaml", nodes: [], edges: [] }])
+
+    const cypher = queryMock.mock.calls.map((c) => c[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("WHERE NOT n:File"))
+  })
+
+  it("удаляет только исходящие рёбра обновляемых файлов", async () => {
+    await updateGraph([{ filePath: "a.yaml", nodes: [], edges: [] }])
+
+    const cypher = queryMock.mock.calls.map((c) => c[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("out.filePath IN $filePaths"))
+  })
+
   it("проходит полный цикл: index → delete → merge nodes → merge edges → cleanup → close", async () => {
     const files: FileGraphData[] = [
       {
@@ -110,7 +124,7 @@ describe("updateGraph", () => {
     const cypher = queryMock.mock.calls.map((c) => c[0] as string)
     expect(cypher).toEqual([
       "CREATE INDEX FOR (n:File) ON (n.path)",
-      "MATCH (n) WHERE NOT (:File)-[:DECLARES]->(n) OPTIONAL MATCH ()-[r]->(n) WHERE type(r) <> 'DECLARES' AND type(r) <> 'CONTRIBUTES' WITH n, count(r) AS subjectIncoming WHERE subjectIncoming = 0 DETACH DELETE n",
+      "MATCH (n) WHERE NOT n:File WITH n WHERE NOT (:File)-[:DECLARES]->(n) OPTIONAL MATCH ()-[r]->(n) WHERE type(r) <> 'DECLARES' AND type(r) <> 'CONTRIBUTES' WITH n, count(r) AS subjectIncoming WHERE subjectIncoming = 0 DETACH DELETE n",
     ])
     expect(closeMock).toHaveBeenCalledTimes(1)
   })

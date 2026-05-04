@@ -225,7 +225,7 @@ export const deleteByFiles = async (
       "WHERE type(r) <> 'DECLARES' AND type(r) <> 'CONTRIBUTES'",
       "WITH f, n, owners, count(r) AS subjectIncoming",
       "OPTIONAL MATCH (n)-[out]->()",
-      "WHERE type(out) <> 'DECLARES' AND type(out) <> 'CONTRIBUTES'",
+      "WHERE type(out) <> 'DECLARES' AND type(out) <> 'CONTRIBUTES' AND out.filePath IN $filePaths",
       "DELETE out",
       "WITH f, n, owners, subjectIncoming",
       "FOREACH (_ IN CASE WHEN owners = 0 AND subjectIncoming > 0 THEN [1] ELSE [] END | SET n = {id: n.id})",
@@ -329,6 +329,8 @@ export const cleanupOrphanStubs = async (
     conn,
     [
       "MATCH (n)",
+      "WHERE NOT n:File",
+      "WITH n",
       "WHERE NOT (:File)-[:DECLARES]->(n)",
       "OPTIONAL MATCH ()-[r]->(n)",
       "WHERE type(r) <> 'DECLARES' AND type(r) <> 'CONTRIBUTES'",
