@@ -58,6 +58,22 @@ const buildPayload = async (
   return [...graphFiles, ...createDeletionTombstones(deletedFilePaths)]
 }
 
+const attachStubEdgesToOwners = (graphFiles: readonly FileGraphData[]): FileGraphData[] => {
+  const stub = graphFiles.find((file) => file.filePath === "")
+  if (!stub) return [...graphFiles]
+
+  const files = graphFiles
+    .filter((file) => file.filePath !== "")
+    .map((file) => ({ ...file, edges: [...file.edges] }))
+
+  for (const edge of stub.edges) {
+    const owner = files.find((file) => file.nodes.some((node) => node.id === edge.tgt))
+    owner?.edges.push(edge)
+  }
+
+  return files
+}
+
 export const updateGraphFiles = async (
   projectPath: string,
   filePaths: readonly string[],
@@ -65,7 +81,7 @@ export const updateGraphFiles = async (
   const absoluteProjectPath = resolve(projectPath)
   const graphOptions = createGraphOptions(absoluteProjectPath)
   const changed = readChangedProjectSources(absoluteProjectPath, filePaths)
-  const payload = await buildPayload(changed.sources, changed.deletedFilePaths)
+  const payload = attachStubEdgesToOwners(await buildPayload(changed.sources, changed.deletedFilePaths))
   if (payload.length === 0) return
 
   await writeGraph(payload, { ...graphOptions, onProgress: createProgressReporter() })

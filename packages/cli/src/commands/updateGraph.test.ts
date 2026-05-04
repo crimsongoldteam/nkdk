@@ -120,4 +120,46 @@ describe("updateGraph command", () => {
     expect(mocks.buildGraph).toHaveBeenCalledOnce()
     expect(mocks.writeGraph).not.toHaveBeenCalled()
   })
+
+  it("updateGraphFiles не пишет stub-сегмент для одиночной формы", async () => {
+    const projectPath = createProject()
+    const yamlPath = "Справочник/Контрагенты/Формы/ФормаСписка/Форма.yaml"
+    const formEdge = {
+      src: "Справочник.Контрагенты",
+      tgt: "Справочник.Контрагенты.Форма.ФормаСписка",
+      kind: "FORM",
+    }
+    mocks.buildGraph.mockResolvedValue([
+      {
+        filePath: "",
+        nodes: [
+          {
+            id: "Справочник.Контрагенты",
+            label: "MetadataCatalog",
+            props: {},
+          },
+        ],
+        edges: [formEdge],
+      },
+      {
+        filePath: yamlPath,
+        nodes: [
+          {
+            id: "Справочник.Контрагенты.Форма.ФормаСписка",
+            label: "ClientApplicationForm",
+            props: {},
+          },
+        ],
+        edges: [],
+      },
+    ])
+    writeProjectFile(projectPath, yamlPath, "Реквизиты: {}\n")
+
+    await updateGraphFiles(projectPath, [yamlPath])
+
+    const payload = mocks.writeGraph.mock.calls[0]?.[0] as FileGraphData[]
+    const formFile = payload.find((file) => file.filePath === yamlPath)
+    expect(payload.some((file) => file.filePath === "")).toBe(false)
+    expect(formFile?.edges).toContainEqual(formEdge)
+  })
 })
