@@ -18,4 +18,5 @@ export type {
 } from "./types"
 
 export { updateGraph } from "./updateGraph"
+export { getGraphFiles } from "./getGraphFiles"
 export { withGraph, type GraphSession } from "./withGraph"
