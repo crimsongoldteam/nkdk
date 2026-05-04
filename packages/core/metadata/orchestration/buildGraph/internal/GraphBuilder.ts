@@ -3,6 +3,7 @@ export interface NodeAttributes {
   name: string | undefined
   item: unknown
   filePaths: string[]
+  flattenSkipKeys: Set<string>
 }
 
 /** Атрибуты ребра графа (kind всегда присутствует; дополнительные поля опциональны). */
@@ -43,6 +44,7 @@ export class GraphBuilder {
       name: attrs?.name,
       item: attrs?.item,
       filePaths: [],
+      flattenSkipKeys: new Set(),
     })
   }
 
@@ -80,6 +82,14 @@ export class GraphBuilder {
     node.item = item
     if (item !== null && typeof item === "object" && "name" in item && typeof (item as Record<string, unknown>).name === "string") {
       node.name = (item as Record<string, unknown>).name as string
+    }
+  }
+
+  /** Помечает поля item, которые не должны попадать в flattenItem props. */
+  addFlattenSkipKeys(id: string, keys: Iterable<string>): void {
+    const node = this.getNodeAttributes(id)
+    for (const key of keys) {
+      node.flattenSkipKeys.add(key)
     }
   }
 

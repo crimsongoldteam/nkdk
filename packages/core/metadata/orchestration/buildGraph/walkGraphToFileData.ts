@@ -40,7 +40,7 @@ export function walkGraphToFileData(graph: GraphBuilder): FileGraphData[] {
       const props: NodeData["props"] = {}
       if (attrs.name !== undefined) props.name = attrs.name
       if (filePath !== STUB_SEGMENT) props.filePath = filePath
-      Object.assign(props, flattenItem(attrs.item))
+      Object.assign(props, flattenItem(attrs.item, { skipKeys: attrs.flattenSkipKeys }))
 
       const item = attrs.item as Record<string, unknown> | undefined
       const itemType = item && typeof item.itemType === "string" ? (item.itemType as string) : undefined

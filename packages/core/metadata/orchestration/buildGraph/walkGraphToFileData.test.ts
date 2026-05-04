@@ -90,4 +90,25 @@ describe("walkGraphToFileData", () => {
     const file = result.find((f) => f.filePath === "x.yaml")!
     expect(file.nodes[0]?.label).toBe("Unknown")
   })
+
+  it("не выгружает в props ключи из flattenSkipKeys узла", () => {
+    const g = new GraphBuilder()
+    promote(g, "Справочник.К", "К", ["catalog.yaml"], {
+      itemType: "MetadataCatalog",
+      name: "К",
+      attributes: { Total: "Строка" },
+      synonym: { items: { ru: "К" } },
+    })
+    g.addFlattenSkipKeys("Справочник.К", ["attributes"])
+
+    const result = walkGraphToFileData(g)
+    const file = result.find((f) => f.filePath === "catalog.yaml")!
+
+    expect(file.nodes[0]?.props).toEqual({
+      name: "К",
+      filePath: "catalog.yaml",
+      p_name: "К",
+      p_synonym_items_ru: "К",
+    })
+  })
 })
