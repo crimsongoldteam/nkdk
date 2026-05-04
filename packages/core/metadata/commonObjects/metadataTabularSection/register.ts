@@ -1,5 +1,5 @@
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration"
+import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
