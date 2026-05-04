@@ -28,10 +28,12 @@ interface EdgeRecord {
  */
 export class GraphBuilder {
   private readonly nodesMap = new Map<string, NodeAttributes>()
+  private readonly nodesByPrefix = new Map<string, string[]>()
   // Рёбра — плоский массив; порядок вставки сохраняется
   private readonly edgeList: EdgeRecord[] = []
   private readonly edgeByKey = new Map<string, EdgeRecord>()
   private readonly outEdgesBySource = new Map<string, EdgeRecord[]>()
+  private readonly inEdgesByTarget = new Map<string, EdgeRecord[]>()
 
   // ── узлы ────────────────────────────────────────────────────
 
@@ -52,6 +54,24 @@ export class GraphBuilder {
       contributedFilePaths: [],
       flattenSkipKeys: new Set(),
     })
+    this.indexNodePrefixes(id)
+  }
+
+  private indexNodePrefixes(id: string): void {
+    for (let i = 0; i < id.length; i += 1) {
+      if (id[i] !== ".") continue
+      this.addNodePrefix(id.slice(0, i + 1), id)
+    }
+    this.addNodePrefix(id, id)
+  }
+
+  private addNodePrefix(prefix: string, id: string): void {
+    const nodes = this.nodesByPrefix.get(prefix)
+    if (nodes) {
+      nodes.push(id)
+    } else {
+      this.nodesByPrefix.set(prefix, [id])
+    }
   }
 
   getNodeAttributes(id: string): NodeAttributes {
@@ -127,7 +147,7 @@ export class GraphBuilder {
       if (attrs) Object.assign(existing.attrs, attrs)
       return
     }
-    const edge = { src, tgt, attrs: { kind, ...(attrs ?? {}) } }
+    const edge: EdgeRecord = { src, tgt, attrs: { kind, ...(attrs ?? {}) } }
     this.edgeList.push(edge)
     this.edgeByKey.set(key, edge)
 
@@ -136,6 +156,13 @@ export class GraphBuilder {
       outEdges.push(edge)
     } else {
       this.outEdgesBySource.set(src, [edge])
+    }
+
+    const inEdges = this.inEdgesByTarget.get(tgt)
+    if (inEdges) {
+      inEdges.push(edge)
+    } else {
+      this.inEdgesByTarget.set(tgt, [edge])
     }
   }
 
@@ -146,10 +173,32 @@ export class GraphBuilder {
     }
   }
 
+  /** Возвращает входящие и исходящие рёбра для переданных узлов без дублей. */
+  *edgeEntriesTouching(nodeIds: Iterable<string>): Iterable<{ source: string; target: string; attributes: EdgeAttributes }> {
+    const yielded = new Set<EdgeRecord>()
+    for (const nodeId of nodeIds) {
+      for (const edge of this.outEdgesBySource.get(nodeId) ?? []) {
+        if (yielded.has(edge)) continue
+        yielded.add(edge)
+        yield { source: edge.src, target: edge.tgt, attributes: edge.attrs }
+      }
+      for (const edge of this.inEdgesByTarget.get(nodeId) ?? []) {
+        if (yielded.has(edge)) continue
+        yielded.add(edge)
+        yield { source: edge.src, target: edge.tgt, attributes: edge.attrs }
+      }
+    }
+  }
+
   // ── обход ────────────────────────────────────────────────────
 
   /** Возвращает итератор всех id узлов. */
   *nodes(): Iterable<string> {
     yield* this.nodesMap.keys()
+  }
+
+  /** Возвращает итератор id узлов с заданным префиксом. */
+  *nodesWithPrefix(prefix: string): Iterable<string> {
+    yield* this.nodesByPrefix.get(prefix) ?? []
   }
 }

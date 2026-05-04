@@ -168,6 +168,25 @@ describe("GraphBuilder: ensureEdge / outEdgeEntries", () => {
     expect(out).toEqual([{ target: "B", attributes: { kind: "LINK" } }])
   })
 
+  it("edgeEntriesTouching возвращает входящие и исходящие рёбра без дублей", () => {
+    const g = new GraphBuilder()
+    for (const nodeId of ["A", "B", "C", "D"]) {
+      g.ensureNode(nodeId)
+    }
+    g.ensureEdge("A", "B", "AB", { yaml: "ab" })
+    g.ensureEdge("C", "A", "CA", { yaml: "ca" })
+    g.ensureEdge("B", "D", "BD", { yaml: "bd" })
+    g.ensureEdge("C", "D", "CD", { yaml: "cd" })
+
+    const edges = [...g.edgeEntriesTouching(["A", "B"])]
+    expect(edges).toHaveLength(3)
+    expect(edges.map((edge) => [edge.source, edge.target, edge.attributes.kind])).toEqual([
+      ["A", "B", "AB"],
+      ["C", "A", "CA"],
+      ["B", "D", "BD"],
+    ])
+  })
+
   it("массовый обход исходящих рёбер остаётся линейным", () => {
     const g = new GraphBuilder()
     const size = 20_000
@@ -203,5 +222,28 @@ describe("GraphBuilder: nodes()", () => {
   it("nodes() возвращает пустой итератор для пустого графа", () => {
     const g = new GraphBuilder()
     expect([...g.nodes()]).toEqual([])
+  })
+
+  it("nodesWithPrefix возвращает узлы с заданным префиксом в порядке вставки", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("Справочник.Товары.Форма.ФормаСписка.Элемент.Группа")
+    g.ensureNode("Справочник.Товары.Форма.ФормаСписка.Элемент.Поле")
+    g.ensureNode("Справочник.Товары.Форма.ФормаСписка.Реквизит.Поле")
+    g.ensureNode("Справочник.Товары.Форма.ДругаяФорма.Элемент.Поле")
+
+    expect([
+      ...g.nodesWithPrefix("Справочник.Товары.Форма.ФормаСписка.Элемент."),
+    ]).toEqual([
+      "Справочник.Товары.Форма.ФормаСписка.Элемент.Группа",
+      "Справочник.Товары.Форма.ФормаСписка.Элемент.Поле",
+    ])
+  })
+
+  it("nodesWithPrefix не считает похожий сегмент подходящим префиксом", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("Root.Элемент.A")
+    g.ensureNode("Root.Элемент2.B")
+
+    expect([...g.nodesWithPrefix("Root.Элемент.")]).toEqual(["Root.Элемент.A"])
   })
 })
