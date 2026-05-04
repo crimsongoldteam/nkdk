@@ -81,12 +81,12 @@ export function buildGraph(
   return walkGraphToFileData(graph)
 }
 
-interface ParsedItemPath {
+export interface ParsedItemPath {
   kind: MetadataKind
   name: string
 }
 
-interface ParsedFormPath {
+export interface ParsedFormPath {
   kind: "form"
   ownerNodeId: string
   formName: string
@@ -103,7 +103,7 @@ const KIND_BY_DIR: Record<string, MetadataKind> = {
   Перечисление: "enumeration",
 }
 
-function parseFilePath(filePath: string): ParsedItemPath | ParsedFormPath | undefined {
+export function parseFilePath(filePath: string): ParsedItemPath | ParsedFormPath | undefined {
   const segments = filePath.split("/")
   // <dir>/<name>/Свойства.yaml
   if (segments.length === 3 && segments[2] === "Свойства.yaml") {
