@@ -8,11 +8,11 @@ describe("createWatchQueue", () => {
 
   it("схлопывает повторы и выполняет задачи последовательно", async () => {
     vi.useFakeTimers()
-    const calls: string[] = []
+    const calls: string[][] = []
     const queue = createWatchQueue({
       debounceMs: 50,
-      runTask: async (filePath) => {
-        calls.push(filePath)
+      runTask: async (filePaths) => {
+        calls.push(filePaths)
       },
     })
 
@@ -23,7 +23,7 @@ describe("createWatchQueue", () => {
     await vi.advanceTimersByTimeAsync(60)
     await vi.runAllTimersAsync()
 
-    expect(calls).toEqual(["a.yaml", "b.yaml"])
+    expect(calls).toEqual([["a.yaml", "b.yaml"]])
   })
 
   it("не запускает следующую задачу, пока текущая не завершилась", async () => {
@@ -33,14 +33,14 @@ describe("createWatchQueue", () => {
     let finishA: (() => void) | undefined
     const queue = createWatchQueue({
       debounceMs: 50,
-      runTask: async (filePath) => {
-        started.push(filePath)
-        if (filePath === "a.yaml") {
+      runTask: async (filePaths) => {
+        started.push(filePaths.join(","))
+        if (filePaths.includes("a.yaml")) {
           await new Promise<void>((resolve) => {
             finishA = resolve
           })
         }
-        finished.push(filePath)
+        finished.push(filePaths.join(","))
       },
     })
 
@@ -49,14 +49,14 @@ describe("createWatchQueue", () => {
 
     await vi.advanceTimersByTimeAsync(60)
 
-    expect(started).toEqual(["a.yaml"])
+    expect(started).toEqual(["a.yaml,b.yaml"])
     expect(finished).toEqual([])
 
     finishA?.()
     await queue.drain()
 
-    expect(started).toEqual(["a.yaml", "b.yaml"])
-    expect(finished).toEqual(["a.yaml", "b.yaml"])
+    expect(started).toEqual(["a.yaml,b.yaml"])
+    expect(finished).toEqual(["a.yaml,b.yaml"])
   })
 
   it("продолжает работу после ошибки задачи", async () => {
@@ -65,12 +65,12 @@ describe("createWatchQueue", () => {
     const errors: string[] = []
     const queue = createWatchQueue({
       debounceMs: 50,
-      runTask: async (filePath) => {
-        calls.push(filePath)
-        if (filePath === "a.yaml") throw new Error("boom")
+      runTask: async (filePaths) => {
+        calls.push(filePaths.join(","))
+        if (filePaths.includes("a.yaml")) throw new Error("boom")
       },
-      onError: (filePath) => {
-        errors.push(filePath)
+      onError: (filePaths) => {
+        errors.push(filePaths.join(","))
       },
     })
 
@@ -83,7 +83,7 @@ describe("createWatchQueue", () => {
     await vi.advanceTimersByTimeAsync(60)
     await queue.drain()
 
-    expect(calls).toEqual(["a.yaml", "b.yaml", "c.yaml"])
-    expect(errors).toEqual(["a.yaml"])
+    expect(calls).toEqual(["a.yaml,b.yaml", "c.yaml"])
+    expect(errors).toEqual(["a.yaml,b.yaml"])
   })
 })

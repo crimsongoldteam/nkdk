@@ -1,11 +1,12 @@
 export interface WatchQueueOptions {
   debounceMs: number
-  runTask: (filePath: string) => Promise<void>
-  onError?: (filePath: string, error: unknown) => void
+  runTask: (filePaths: string[]) => Promise<void>
+  onError?: (filePaths: string[], error: unknown) => void
 }
 
 export interface WatchQueue {
   enqueue: (filePath: string) => void
+  enqueueMany: (filePaths: readonly string[]) => void
   drain: () => Promise<void>
 }
 
@@ -15,13 +16,13 @@ export function createWatchQueue(options: WatchQueueOptions): WatchQueue {
   let running = Promise.resolve()
 
   const runBatch = (batch: string[]): void => {
+    if (batch.length === 0) return
+
     running = running.catch(() => undefined).then(async () => {
-      for (const filePath of batch) {
-        try {
-          await options.runTask(filePath)
-        } catch (error) {
-          options.onError?.(filePath, error)
-        }
+      try {
+        await options.runTask(batch)
+      } catch (error) {
+        options.onError?.(batch, error)
       }
     })
   }
@@ -39,6 +40,10 @@ export function createWatchQueue(options: WatchQueueOptions): WatchQueue {
   return {
     enqueue(filePath: string): void {
       pending.add(filePath)
+      schedule()
+    },
+    enqueueMany(filePaths: readonly string[]): void {
+      for (const filePath of filePaths) pending.add(filePath)
       schedule()
     },
     async drain(): Promise<void> {
