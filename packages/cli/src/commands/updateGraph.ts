@@ -104,6 +104,7 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
   const tBuild = performance.now() - tBuildStart
 
   const tWriteStart = performance.now()
+  await writeGraph([])
   await writeGraph(graphFiles, { onProgress: createProgressReporter() })
   const tWrite = performance.now() - tWriteStart
 

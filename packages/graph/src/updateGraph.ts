@@ -8,6 +8,7 @@ import {
   mergeFileLinks,
   mergeFiles,
   mergeNodes,
+  resetGraph,
 } from "./internal/operations"
 import type { FileGraphData, GraphProgress, GraphUpdateOptions, GraphUpdatePhase } from "./types"
 
@@ -48,6 +49,11 @@ export const updateGraph = async (
 
   const conn = await connect(opts)
   try {
+    if (files.length === 0) {
+      await reportPhase("resetGraph", onProgress, () => resetGraph(conn))
+      return
+    }
+
     await reportPhase("ensureFileIndexes", onProgress, () => ensureFileIndexes(conn))
     await reportPhase("ensureLabelIndexes", onProgress, () => ensureLabelIndexes(conn, labels))
     await reportPhase("deleteByFiles", onProgress, () => deleteByFiles(conn, filePaths))

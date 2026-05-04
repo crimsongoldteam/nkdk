@@ -209,13 +209,11 @@ describe("updateGraph", () => {
     expect(closeMock).toHaveBeenCalledTimes(1)
   })
 
-  it("ничего не отправляет в FalkorDB при пустом входе, но всё равно закрывает соединение", async () => {
+  it("при пустом входе полностью очищает граф и закрывает соединение", async () => {
     await updateGraph([])
     const cypher = queryMock.mock.calls.map((c) => c[0] as string)
     expect(cypher).toEqual([
-      "CREATE INDEX FOR (n:File) ON (n.path)",
-      "CREATE INDEX FOR (n:GraphNode) ON (n.id)",
-      "MATCH (n) WHERE NOT n:File WITH n WHERE NOT (:File)-[:DECLARES]->(n) OPTIONAL MATCH ()-[r]->(n) WHERE type(r) <> 'DECLARES' AND type(r) <> 'CONTRIBUTES' WITH n, count(r) AS subjectIncoming WHERE subjectIncoming = 0 DETACH DELETE n",
+      "MATCH (n) DETACH DELETE n",
     ])
     expect(closeMock).toHaveBeenCalledTimes(1)
   })

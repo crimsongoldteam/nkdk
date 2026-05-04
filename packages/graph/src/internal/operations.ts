@@ -268,6 +268,10 @@ export const ensureFileIndexes = async (conn: GraphConnection): Promise<void> =>
   await ensureIndex(conn, "File", "path")
 }
 
+export const resetGraph = async (conn: GraphConnection): Promise<void> => {
+  await query(conn, "MATCH (n) DETACH DELETE n")
+}
+
 export const deleteByFiles = async (
   conn: GraphConnection,
   filePaths: readonly string[],

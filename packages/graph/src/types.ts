@@ -55,6 +55,7 @@ export interface ConnectionOptions {
 }
 
 export type GraphUpdatePhase =
+  | "resetGraph"
   | "ensureFileIndexes"
   | "ensureLabelIndexes"
   | "deleteByFiles"
