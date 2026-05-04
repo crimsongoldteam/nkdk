@@ -4,6 +4,9 @@ import type { EdgeData, NodeData } from "../types"
 
 export const BATCH_SIZE = 5000
 
+type CypherPrimitive = string | number | boolean | null
+type CypherValue = CypherPrimitive | CypherPrimitive[]
+
 const groupBy = <T, K extends string>(
   items: readonly T[],
   key: (item: T) => K,
@@ -18,14 +21,52 @@ const groupBy = <T, K extends string>(
   return result
 }
 
+const escapeCypherString = (value: string): string =>
+  value
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r")
+    .replace(/\t/g, "\\t")
+
+const cypherString = (value: string): string => `"${escapeCypherString(value)}"`
+
+const cypherPropertyKey = (key: string): string => `\`${key.replace(/`/g, "``")}\``
+
+const cypherValue = (value: CypherValue): string => {
+  if (Array.isArray(value)) return `[${value.map(cypherValue).join(",")}]`
+  if (value === null) return "null"
+  if (typeof value === "string") return cypherString(value)
+  return String(value)
+}
+
+const cypherProps = (props: Record<string, CypherValue>): string =>
+  `{${Object.entries(props)
+    .map(([key, value]) => `${cypherPropertyKey(key)}:${cypherValue(value)}`)
+    .join(",")}}`
+
+const cypherNodeBatch = (nodes: readonly { id: string; props: NodeData["props"] }[]): string =>
+  `[${nodes
+    .map((node) => `{id:${cypherString(node.id)},props:${cypherProps(node.props)}}`)
+    .join(",")}]`
+
+const cypherEdgeBatch = (
+  edges: readonly { src: string; tgt: string; props: NonNullable<EdgeData["props"]> }[],
+): string =>
+  `[${edges
+    .map(
+      (edge) =>
+        `{src:${cypherString(edge.src)},tgt:${cypherString(edge.tgt)},props:${cypherProps(edge.props)}}`,
+    )
+    .join(",")}]`
+
 const sendBatches = async <T>(
   conn: GraphConnection,
   items: readonly T[],
-  cypher: string,
-  paramName = "batch",
+  buildCypher: (batch: readonly T[]) => string,
 ): Promise<void> => {
   for (let i = 0; i < items.length; i += BATCH_SIZE) {
-    await query(conn, cypher, { [paramName]: items.slice(i, i + BATCH_SIZE) })
+    await query(conn, buildCypher(items.slice(i, i + BATCH_SIZE)))
   }
 }
 
@@ -40,7 +81,8 @@ export const mergeNodes = async (
     await sendBatches(
       conn,
       payload,
-      `UNWIND $batch AS n MERGE (m:${label} {id: n.id}) SET m += n.props`,
+      (batch) =>
+        `UNWIND ${cypherNodeBatch(batch)} AS n MERGE (m:${label} {id: n.id}) SET m += n.props`,
     )
   }
 }
@@ -56,7 +98,8 @@ export const mergeEdges = async (
     await sendBatches(
       conn,
       payload,
-      `UNWIND $batch AS e MATCH (s {id: e.src}), (t {id: e.tgt}) MERGE (s)-[r:${kind}]->(t) SET r = e.props`,
+      (batch) =>
+        `UNWIND ${cypherEdgeBatch(batch)} AS e MATCH (s {id: e.src}), (t {id: e.tgt}) MERGE (s)-[r:${kind}]->(t) SET r = e.props`,
     )
   }
 }
