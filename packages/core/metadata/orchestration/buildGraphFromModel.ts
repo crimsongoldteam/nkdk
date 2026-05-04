@@ -84,7 +84,7 @@ export function buildGraphFromModel(params: {
 
     const buildGraphFn = getTypeRule(propType, "buildGraphFromModel")
     const graphChildDef = getTypeRule(propType, "graphChild")
-    if (buildGraphFn || graphChildDef) {
+    if (graphChildDef) {
       graph.addFlattenSkipKeys(parentNodeId, [key])
     }
 

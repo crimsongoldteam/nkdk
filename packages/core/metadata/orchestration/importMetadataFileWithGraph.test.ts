@@ -241,6 +241,29 @@ describe("importMetadataFileWithGraph — MetadataItemLinks (document)", () => {
 })
 
 describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗаполнения)", () => {
+  it("сохраняет примитивное MetadataValue в props, если graph-обработчик не создал рёбер", () => {
+    const graph = new GraphBuilder()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      sources: { yaml: `
+Реквизиты:
+  Комментарий:
+    Тип: Строка
+    ЗначениеЗаполнения: '"Черновик"'
+` },
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+
+    const file = walkGraphToFileData(graph).find((f) => f.filePath === FILE_PATH)!
+    const attrNode = file.nodes.find((n) => n.id === "Справочник.Товары.Реквизит.Комментарий")!
+
+    expect(attrNode.props.p_fillValue_type).toBe("string")
+    expect(attrNode.props.p_fillValue_value).toBe("Черновик")
+  })
+
   it("ref в ЗначениеЗаполнения реквизита → ребро kind Значение к ПустаяСсылка", () => {
     const graph = new GraphBuilder()
     importMetadataFileWithGraph({
