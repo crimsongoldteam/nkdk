@@ -1,6 +1,7 @@
 export interface WatchQueueOptions {
   debounceMs: number
   runTask: (filePath: string) => Promise<void>
+  onError?: (filePath: string, error: unknown) => void
 }
 
 export interface WatchQueue {
@@ -14,9 +15,13 @@ export function createWatchQueue(options: WatchQueueOptions): WatchQueue {
   let running = Promise.resolve()
 
   const runBatch = (batch: string[]): void => {
-    running = running.then(async () => {
+    running = running.catch(() => undefined).then(async () => {
       for (const filePath of batch) {
-        await options.runTask(filePath)
+        try {
+          await options.runTask(filePath)
+        } catch (error) {
+          options.onError?.(filePath, error)
+        }
       }
     })
   }

@@ -1,5 +1,7 @@
 import { getGraphFiles } from "@nakidka/graph"
 import chokidar from "chokidar"
+import chalk from "chalk"
+import { existsSync } from "fs"
 import { hasFileChanged, readFileStats } from "../graph/fileStats"
 import {
   absoluteProjectFile,
@@ -27,6 +29,10 @@ const enqueueIfSupported = (
 }
 
 export async function watch(projectPath: string): Promise<void> {
+  if (!existsSync(projectPath)) {
+    throw new Error(`Директория не найдена: ${projectPath}`)
+  }
+
   const graphFiles = await getGraphFiles()
   const graphFileByPath = new Map(graphFiles.map((file) => [file.path, file]))
   const diskFiles = readProjectFileList(projectPath)
@@ -58,6 +64,10 @@ export async function watch(projectPath: string): Promise<void> {
       if (filePath.endsWith("/Форма.yaml") && paired) {
         await updateGraphFile(projectPath, paired)
       }
+    },
+    onError: (filePath, error) => {
+      const message = error instanceof Error ? error.message : String(error)
+      console.warn(chalk.yellow(`Предупреждение: не удалось обновить граф для ${filePath}: ${message}`))
     },
   })
 

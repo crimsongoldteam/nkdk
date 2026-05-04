@@ -58,4 +58,32 @@ describe("createWatchQueue", () => {
     expect(started).toEqual(["a.yaml", "b.yaml"])
     expect(finished).toEqual(["a.yaml", "b.yaml"])
   })
+
+  it("продолжает работу после ошибки задачи", async () => {
+    vi.useFakeTimers()
+    const calls: string[] = []
+    const errors: string[] = []
+    const queue = createWatchQueue({
+      debounceMs: 50,
+      runTask: async (filePath) => {
+        calls.push(filePath)
+        if (filePath === "a.yaml") throw new Error("boom")
+      },
+      onError: (filePath) => {
+        errors.push(filePath)
+      },
+    })
+
+    queue.enqueue("a.yaml")
+    queue.enqueue("b.yaml")
+    await vi.advanceTimersByTimeAsync(60)
+    await queue.drain()
+
+    queue.enqueue("c.yaml")
+    await vi.advanceTimersByTimeAsync(60)
+    await queue.drain()
+
+    expect(calls).toEqual(["a.yaml", "b.yaml", "c.yaml"])
+    expect(errors).toEqual(["a.yaml"])
+  })
 })
