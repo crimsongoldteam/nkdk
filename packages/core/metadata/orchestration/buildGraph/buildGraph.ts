@@ -9,7 +9,36 @@ import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMeta
 import type { MetadataKind } from "~/metadata/validation/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { walkGraphToFileData } from "./walkGraphToFileData"
-import type { FileGraphData, ImportContext } from "./types"
+import type {
+  FileGraphData,
+  ImportContext,
+  ProjectGraphInput,
+  ProjectGraphSource,
+} from "./types"
+
+const normalizeGraphSources = (input: ProjectGraphInput): ProjectGraphSource[] => {
+  if (input instanceof Map) {
+    return Array.from(input.entries()).map(([filePath, text]) => ({ filePath, text }))
+  }
+  return [...input]
+}
+
+const applySourceStats = (
+  files: FileGraphData[],
+  sources: readonly ProjectGraphSource[],
+): FileGraphData[] => {
+  const statsByPath = new Map<string, ProjectGraphSource["fileStats"]>()
+  for (const source of sources) {
+    statsByPath.set(source.filePath, source.fileStats)
+    if (source.pairedText) {
+      statsByPath.set(source.pairedText.filePath, source.pairedText.fileStats)
+    }
+  }
+  return files.map((file) => {
+    const fileStats = statsByPath.get(file.filePath)
+    return fileStats ? { ...file, fileStats } : file
+  })
+}
 
 /**
  * Чистый агрегатор: YAML-файлы → FileGraphData[] для @nakidka/graph.updateGraph.
@@ -24,33 +53,41 @@ import type { FileGraphData, ImportContext } from "./types"
  * что точно понятно. Решения о неизвестных файлах принимает вызывающая сторона.
  */
 export async function buildGraph(
-  yamlFiles: Map<string, string>,
+  projectFiles: ProjectGraphInput,
   context: ImportContext,
 ): Promise<FileGraphData[]> {
+  const sources = normalizeGraphSources(projectFiles)
   const graph = new GraphBuilder()
   const importContext: ConfigurationContext = context as ConfigurationContext
 
   // 1. Сначала прикладные объекты — они создают корневые узлы для форм.
-  const formEntries: Array<{ filePath: string; yaml: string; ownerNodeId: string; name: string }> = []
+  const formEntries: Array<{
+    filePath: string
+    yaml: string
+    ownerNodeId: string
+    name: string
+    pairedText?: ProjectGraphSource["pairedText"]
+  }> = []
 
-  for (const [filePath, yamlText] of yamlFiles) {
-    const parsed = parseFilePath(filePath)
+  for (const source of sources) {
+    const parsed = parseFilePath(source.filePath)
     if (!parsed) continue
 
     if (parsed.kind === "form") {
       formEntries.push({
-        filePath,
-        yaml: yamlText,
+        filePath: source.filePath,
+        yaml: source.text,
         ownerNodeId: parsed.ownerNodeId,
         name: parsed.formName,
+        pairedText: source.pairedText,
       })
       continue
     }
 
     try {
       await importMetadataFileWithGraph({
-        filePath,
-        sources: { yaml: yamlText },
+        filePath: source.filePath,
+        sources: { yaml: source.text },
         kind: parsed.kind,
         name: parsed.name,
         graph,
@@ -62,23 +99,24 @@ export async function buildGraph(
   }
 
   // 2. Затем формы — их корневой узел требует наличия владельца.
-  for (const { filePath, yaml, ownerNodeId, name } of formEntries) {
+  for (const { filePath, yaml, ownerNodeId, name, pairedText } of formEntries) {
     try {
       await importMetadataFileWithGraph({
         filePath,
-        sources: { yaml },
+        sources: { yaml, nkdk: pairedText?.text },
         kind: "form",
         name,
         graph,
         context: importContext,
         ownerNodeId,
+        nkdkFilePath: pairedText?.filePath,
       })
     } catch {
       // Молчаливо пропускаем.
     }
   }
 
-  return walkGraphToFileData(graph)
+  return applySourceStats(walkGraphToFileData(graph), sources)
 }
 
 export interface ParsedItemPath {

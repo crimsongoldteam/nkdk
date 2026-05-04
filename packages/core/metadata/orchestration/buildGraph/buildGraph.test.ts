@@ -129,6 +129,45 @@ describe("buildGraph (smoke)", () => {
 })
 
 describe("buildGraph (формы)", () => {
+  it("полная сборка учитывает paired Форма.nkdk и сохраняет stub labels", async () => {
+    const catalogYaml = "ДлинаКода: 9\n"
+    const formYaml = [
+      "Элементы:",
+      "  ПолеВвода1:",
+      "    Ширина: 10",
+      "",
+    ].join("\n")
+
+    const result = await buildGraph(
+      [
+        {
+          filePath: "Справочник/Товары/Свойства.yaml",
+          text: catalogYaml,
+        },
+        {
+          filePath: "Справочник/Товары/Формы/ФормаСписка/Форма.yaml",
+          text: formYaml,
+          pairedText: {
+            filePath: "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk",
+            text: "ПолеВвода1(Реквизит): \n",
+          },
+        },
+      ],
+      ctx,
+    )
+
+    const yaml = result.find((file) => file.filePath.endsWith("Форма.yaml"))!
+    const nkdk = result.find((file) => file.filePath.endsWith("Форма.nkdk"))!
+    const stub = result.find((file) => file.filePath === "")
+
+    expect(yaml.declaredNodeIds).toContain("Справочник.Товары.Форма.ФормаСписка")
+    expect(nkdk.contributedNodeIds).toContain("Справочник.Товары.Форма.ФормаСписка")
+    expect(nkdk.declaredNodeIds?.some((id) => id.includes(".Элемент."))).toBe(true)
+    expect(
+      stub?.nodes.every((node) => typeof node.label === "string" && node.label.length > 0),
+    ).toBe(true)
+  })
+
   it("импортирует форму: формовой узел в filePath формы, ребро Форма от владельца", async () => {
     const catalogYaml = `\
 ДлинаКода: 9

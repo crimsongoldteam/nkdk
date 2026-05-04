@@ -29,6 +29,21 @@ export interface FileStats {
   updatedAt: number
 }
 
+export interface PairedGraphSourceText {
+  filePath: string
+  text: string
+  fileStats?: FileStats
+}
+
+export interface ProjectGraphSource {
+  filePath: string
+  text: string
+  fileStats?: FileStats
+  pairedText?: PairedGraphSourceText
+}
+
+export type ProjectGraphInput = Map<string, string> | readonly ProjectGraphSource[]
+
 export interface FileGraphData {
   filePath: string
   fileStats?: FileStats

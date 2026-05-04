@@ -1,9 +1,13 @@
 export type {
   EdgeData,
   FileGraphData,
+  FileStats,
   GraphPrimitive,
   ImportContext,
   NodeData,
+  PairedGraphSourceText,
+  ProjectGraphInput,
+  ProjectGraphSource,
 } from "./types"
 export { flattenItem } from "./flattenItem"
 export { walkGraphToFileData } from "./walkGraphToFileData"
