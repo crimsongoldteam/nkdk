@@ -50,6 +50,10 @@ const waitForWatcherReady = (watcher: ReturnType<typeof chokidar.watch>): Promis
   })
 }
 
+const isFileMissingError = (error: unknown): boolean => {
+  return typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT"
+}
+
 const collectChangedFiles = async (projectPath: string): Promise<string[]> => {
   const graphFiles = await getGraphFiles({ graphName: projectGraphName(projectPath) })
   const graphFileByPath = new Map(graphFiles.map((file) => [file.path, file]))
@@ -59,7 +63,15 @@ const collectChangedFiles = async (projectPath: string): Promise<string[]> => {
 
   for (const filePath of diskFiles) {
     const fullPath = absoluteProjectFile(projectPath, filePath)
-    if (hasFileChanged(graphFileByPath.get(filePath), readFileStats(fullPath))) {
+    let hasChanged: boolean
+    try {
+      hasChanged = hasFileChanged(graphFileByPath.get(filePath), readFileStats(fullPath))
+    } catch (error) {
+      if (!isFileMissingError(error)) throw error
+      hasChanged = true
+    }
+
+    if (hasChanged) {
       changed.add(filePath)
     }
   }

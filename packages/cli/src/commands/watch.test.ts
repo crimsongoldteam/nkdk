@@ -9,7 +9,18 @@ const mocks = vi.hoisted(() => ({
   getGraphFiles: vi.fn(async () => []),
   updateGraphFiles: vi.fn(async () => undefined),
   chokidarWatch: vi.fn(),
+  statSync: vi.fn(),
+  actualStatSync: undefined as undefined | typeof import("fs").statSync,
 }))
+
+vi.mock("fs", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("fs")>()
+  mocks.actualStatSync = actual.statSync
+  return {
+    ...actual,
+    statSync: mocks.statSync,
+  }
+})
 
 vi.mock("@nakidka/graph", () => ({
   getGraphFiles: mocks.getGraphFiles,
@@ -85,6 +96,7 @@ describe("watch command", () => {
     vi.clearAllMocks()
     mocks.getGraphFiles.mockResolvedValue([])
     mocks.updateGraphFiles.mockResolvedValue(undefined)
+    mocks.statSync.mockImplementation((path) => mocks.actualStatSync?.(path))
     watcher = createWatcher()
     mocks.chokidarWatch.mockReturnValue(watcher)
   })
@@ -175,6 +187,26 @@ describe("watch command", () => {
     mocks.getGraphFiles.mockImplementation(async () => {
       watcher.emit("unlink", fullYamlPath)
       return []
+    })
+
+    const promise = watch(projectPath)
+    watcher.emit("ready")
+    await promise
+
+    expect(mocks.updateGraphFiles).toHaveBeenCalledOnce()
+    expect(mocks.updateGraphFiles).toHaveBeenCalledWith(projectPath, [yamlPath])
+  })
+
+  it("не падает и обновляет граф, если файл исчез перед чтением stats", async () => {
+    const projectPath = createProject()
+    const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
+    const fullYamlPath = writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
+    const error = Object.assign(new Error(`ENOENT: no such file or directory, stat '${fullYamlPath}'`), {
+      code: "ENOENT",
+    })
+    mocks.statSync.mockImplementation((path) => {
+      if (path === fullYamlPath) throw error
+      return mocks.actualStatSync?.(path)
     })
 
     const promise = watch(projectPath)
