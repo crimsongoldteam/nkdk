@@ -2,6 +2,7 @@ import { buildGraphForChangedFile } from "@nakidka/core"
 import { updateGraph as writeGraph } from "@nakidka/graph"
 import chalk from "chalk"
 import { existsSync, readFileSync } from "fs"
+import { resolve } from "path"
 import { performance } from "perf_hooks"
 import { readFileStats } from "../graph/fileStats"
 import {
@@ -14,8 +15,9 @@ import {
 const CONTEXT = { version: "2.20", defaultLanguage: "ru" }
 
 export const updateGraphFile = async (projectPath: string, filePath: string): Promise<void> => {
-  const normalizedFilePath = filePath.startsWith(projectPath)
-    ? normalizeProjectFile(projectPath, filePath)
+  const absoluteProjectPath = resolve(projectPath)
+  const normalizedFilePath = resolve(filePath).startsWith(absoluteProjectPath)
+    ? normalizeProjectFile(absoluteProjectPath, resolve(filePath))
     : filePath
   const primaryFilePath = normalizedFilePath.endsWith("/Форма.nkdk")
     ? pairedFormPath(normalizedFilePath)
@@ -27,15 +29,15 @@ export const updateGraphFile = async (projectPath: string, filePath: string): Pr
   }
 
   const fullPath = absoluteProjectFile(projectPath, primaryFilePath)
+  const paired = pairedFormPath(primaryFilePath)
   if (!existsSync(fullPath)) {
-    await writeGraph([{ filePath: primaryFilePath, nodes: [], edges: [] }])
-    if (primaryFilePath !== normalizedFilePath) {
-      await writeGraph([{ filePath: normalizedFilePath, nodes: [], edges: [] }])
-    }
+    await writeGraph([
+      { filePath: primaryFilePath, nodes: [], edges: [] },
+      ...(paired ? [{ filePath: paired, nodes: [], edges: [] }] : []),
+    ])
     return
   }
 
-  const paired = pairedFormPath(primaryFilePath)
   const pairedFullPath = paired ? absoluteProjectFile(projectPath, paired) : undefined
   const pairedText =
     paired && pairedFullPath && existsSync(pairedFullPath)
@@ -49,10 +51,15 @@ export const updateGraphFile = async (projectPath: string, filePath: string): Pr
     pairedText,
     context: CONTEXT,
   })
-  await writeGraph(graphFiles.map((file) => ({
+  const filesWithStats = graphFiles.map((file) => ({
     ...file,
     fileStats: readFileStats(absoluteProjectFile(projectPath, file.filePath)),
-  })))
+  }))
+  if (paired && !existsSync(absoluteProjectFile(projectPath, paired))) {
+    await writeGraph([...filesWithStats, { filePath: paired, nodes: [], edges: [] }])
+    return
+  }
+  await writeGraph(filesWithStats)
 }
 
 const buildProjectGraph = async (projectPath: string) => {
