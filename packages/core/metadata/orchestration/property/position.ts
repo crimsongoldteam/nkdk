@@ -7,8 +7,6 @@ export interface SourcePosition {
   length?: number
 }
 
-type OffsetPosition = Pick<SourcePosition, "offset" | "length">
-
 function positionFromOffset(
   offset: number | undefined,
   lineCounter: LineCounter,
@@ -69,14 +67,13 @@ export function computeSeqItemPosition(
 export function computeValuePosition(
   yamlMap: YAMLMap,
   key: string,
-  lineCounter?: LineCounter,
-): SourcePosition | OffsetPosition | undefined {
+  lineCounter: LineCounter,
+): SourcePosition | undefined {
   const pair = yamlMap.items.find((i) => isPair(i) && isScalar(i.key) && i.key.value === key)
   if (!pair || !isPair(pair)) return undefined
   const value = pair.value
   if (!value || typeof value !== "object") return undefined
   const range = (value as { range?: number[] }).range
   if (!Array.isArray(range) || range.length === 0) return undefined
-  if (!lineCounter) return { offset: range[0] }
   return positionFromOffset(range[0], lineCounter)
 }
