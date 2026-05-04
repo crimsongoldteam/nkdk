@@ -2,7 +2,11 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { readChangedProjectSource, readProjectGraphSources } from "./projectSources"
+import {
+  readChangedProjectSource,
+  readChangedProjectSources,
+  readProjectGraphSources,
+} from "./projectSources"
 
 const createProject = (): string => mkdtempSync(join(tmpdir(), "nakidka-project-sources-"))
 const byteSize = (text: string): number => Buffer.byteLength(text)
@@ -85,5 +89,61 @@ describe("projectSources", () => {
       deleted: true,
       deletedFilePaths: [yamlPath, nkdkPath],
     })
+  })
+
+  it("batch-нормализация пересобирает форму при изменении paired Форма.nkdk", () => {
+    const projectPath = createProject()
+    const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
+    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
+    writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
+    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
+
+    const changed = readChangedProjectSources(projectPath, [nkdkPath])
+
+    expect(changed.deletedFilePaths).toEqual([])
+    expect(changed.sources).toHaveLength(1)
+    expect(changed.sources[0]).toMatchObject({
+      filePath: yamlPath,
+      pairedText: {
+        filePath: nkdkPath,
+        text: "ПолеВвода1(Реквизит):\n",
+      },
+    })
+  })
+
+  it("batch-нормализация удаляет вклад Форма.nkdk при сохранённом Форма.yaml", () => {
+    const projectPath = createProject()
+    const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
+    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
+    writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
+
+    const changed = readChangedProjectSources(projectPath, [nkdkPath])
+
+    expect(changed.sources.map((source) => source.filePath)).toEqual([yamlPath])
+    expect(changed.sources[0]?.pairedText).toBeUndefined()
+    expect(changed.deletedFilePaths).toEqual([nkdkPath])
+  })
+
+  it("batch-нормализация не делает одинокий Форма.nkdk graph source", () => {
+    const projectPath = createProject()
+    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
+    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
+
+    const changed = readChangedProjectSources(projectPath, [nkdkPath])
+
+    expect(changed.sources).toEqual([])
+    expect(changed.deletedFilePaths).toEqual([nkdkPath])
+  })
+
+  it("batch-нормализация удаляет YAML и paired NKDK при удалённой Форма.yaml", () => {
+    const projectPath = createProject()
+    const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
+    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
+    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
+
+    const changed = readChangedProjectSources(projectPath, [yamlPath])
+
+    expect(changed.sources).toEqual([])
+    expect(changed.deletedFilePaths).toEqual([yamlPath, nkdkPath])
   })
 })
