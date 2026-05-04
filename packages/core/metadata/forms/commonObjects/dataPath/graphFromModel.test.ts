@@ -76,6 +76,12 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
     )
     expect(dataPathEdges).toHaveLength(1)
     expect(dataPathEdges[0].target).toBe("Справочник.Товары.Наименование")
+    expect(dataPathEdges[0].attributes).toMatchObject({
+      yaml: "ПутьКДанным",
+      property: "dataPath",
+      sourcePath: "Объект.Наименование",
+      pathMode: "formLocal",
+    })
   })
 
   it("создаёт reference-ребро ПутьКДаннымПодвала для footerDataPath", () => {
@@ -100,10 +106,16 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
 
     const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
     const edges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "FOOTER_DATA_PATH",
+      (e) => e.attributes.kind === "DATA_PATH",
     )
     expect(edges).toHaveLength(1)
     expect(edges[0].target).toBe("Справочник.Товары.Количество")
+    expect(edges[0].attributes).toMatchObject({
+      yaml: "ПутьКДаннымПодвала",
+      property: "footerDataPath",
+      sourcePath: "Объект.Количество",
+      pathMode: "formLocal",
+    })
   })
 
   it("создаёт reference-ребро ПутьКДаннымЗаголовка для titleDataPath", () => {
@@ -128,10 +140,59 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
 
     const elementNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
     const edges = [...graph.outEdgeEntries(elementNodeId)].filter(
-      (e) => e.attributes.kind === "TITLE_DATA_PATH",
+      (e) => e.attributes.kind === "DATA_PATH",
     )
     expect(edges).toHaveLength(1)
     expect(edges[0].target).toBe("Справочник.Товары.Наименование")
+    expect(edges[0].attributes).toMatchObject({
+      yaml: "ПутьКДаннымЗаголовка",
+      property: "titleDataPath",
+      sourcePath: "Объект.Наименование",
+      pathMode: "formLocal",
+    })
+  })
+
+  it("не создаёт legacy-рёбра для footerDataPath и titleDataPath", () => {
+    const graph = makeGraphWithFormAttribute()
+
+    buildGraphFromModel({
+      model: {
+        childItems: [
+          {
+            name: "ПолеВвода1",
+            itemType: "InputField",
+            footerDataPath: "Объект.Количество",
+          },
+          {
+            name: "Группа1",
+            itemType: "UsualGroup",
+            titleDataPath: "Объект.Наименование",
+          },
+        ],
+      },
+      yamlMap: undefined,
+      rule: ClientApplicationFormRules as never,
+      graph,
+      parentNodeId: FORM_NODE_ID,
+      filePath: FILE_PATH,
+    })
+
+    const inputFieldNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
+    const groupNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
+    const legacyKinds = new Set([
+      "FOOTER_DATA_PATH",
+      "TITLE_DATA_PATH",
+      "ROW_PICTURE_DATA_PATH",
+    ])
+
+    expect(
+      [...graph.outEdgeEntries(inputFieldNodeId)].some((e) =>
+        legacyKinds.has(e.attributes.kind),
+      ),
+    ).toBe(false)
+    expect(
+      [...graph.outEdgeEntries(groupNodeId)].some((e) => legacyKinds.has(e.attributes.kind)),
+    ).toBe(false)
   })
 })
 
