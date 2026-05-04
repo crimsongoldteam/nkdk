@@ -66,6 +66,7 @@ export const updateGraphFiles = async (
   const graphOptions = createGraphOptions(absoluteProjectPath)
   const changed = readChangedProjectSources(absoluteProjectPath, filePaths)
   const payload = await buildPayload(changed.sources, changed.deletedFilePaths)
+  if (payload.length === 0) return
 
   await writeGraph(payload, { ...graphOptions, onProgress: createProgressReporter() })
 }

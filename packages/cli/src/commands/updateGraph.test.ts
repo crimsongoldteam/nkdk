@@ -111,4 +111,13 @@ describe("updateGraph command", () => {
       expect.objectContaining({ graphName }),
     )
   })
+
+  it("updateGraphFiles не пишет в граф при пустом batch payload", async () => {
+    const projectPath = createProject()
+
+    await updateGraphFiles(projectPath, [])
+
+    expect(mocks.buildGraph).toHaveBeenCalledOnce()
+    expect(mocks.writeGraph).not.toHaveBeenCalled()
+  })
 })
