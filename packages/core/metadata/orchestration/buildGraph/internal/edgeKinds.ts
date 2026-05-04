@@ -71,9 +71,6 @@ const _byKind = new Map<string, EdgeKindEntry>([
   ["COMMAND_NAME", { yaml: "ИмяКоманды", owning: false }],
   // Reference: dataPath-рёбра (PRD #118)
   ["DATA_PATH", { yaml: "ПутьКДанным", owning: false }],
-  ["FOOTER_DATA_PATH", { yaml: "ПутьКДаннымПодвала", owning: false }],
-  ["TITLE_DATA_PATH", { yaml: "ПутьКДаннымЗаголовка", owning: false }],
-  ["ROW_PICTURE_DATA_PATH", { yaml: "ПутьКДаннымКартинкиСтроки", owning: false }],
 ])
 
 const _byYaml = new Map<string, string>()

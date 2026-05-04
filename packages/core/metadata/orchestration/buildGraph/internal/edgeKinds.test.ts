@@ -64,6 +64,15 @@ describe("yaml ↔ kind перевод", () => {
     expect(getKindByYaml("Несуществующее")).toBeUndefined()
   })
 
+  it("не регистрирует legacy dataPath kind по имени свойства", () => {
+    expect(getKnownKinds()).not.toContain("FOOTER_DATA_PATH")
+    expect(getKnownKinds()).not.toContain("TITLE_DATA_PATH")
+    expect(getKnownKinds()).not.toContain("ROW_PICTURE_DATA_PATH")
+    expect(getKindByYaml("ПутьКДаннымПодвала")).toBeUndefined()
+    expect(getKindByYaml("ПутьКДаннымЗаголовка")).toBeUndefined()
+    expect(getKindByYaml("ПутьКДаннымКартинкиСтроки")).toBeUndefined()
+  })
+
   it("переводит owning-виды параметров выбора", () => {
     expect(getKnownKinds()).toContain("CHOICE_PARAMETER")
     expect(getKnownKinds()).toContain("CHOICE_PARAMETER_LINK")
