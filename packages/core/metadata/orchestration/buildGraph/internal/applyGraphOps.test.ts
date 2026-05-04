@@ -123,14 +123,18 @@ describe("applyGraphOps", () => {
       const ctx = makeCtx()
       const ops: GraphOps = {
         references: [
-          { id: "Справочник.Валюты", name: "Валюты", positionFrom: { offset: 100, length: 20 } },
+          {
+            id: "Справочник.Валюты",
+            name: "Валюты",
+            positionFrom: { offset: 100, line: 7, column: 9, length: 20 },
+          },
         ],
       }
 
       applyGraphOps(ops, ctx)
 
       const edges = [...ctx.graph.outEdgeEntries(PARENT_NODE_ID)]
-      expect(edges[0].attributes.positionFrom).toEqual({ offset: 100, length: 20 })
+      expect(edges[0].attributes.positionFrom).toEqual({ offset: 100, line: 7, column: 9, length: 20 })
     })
 
     it("ссылка без positionFrom не ставит атрибут на ребро", () => {
@@ -271,13 +275,15 @@ describe("applyGraphOps", () => {
         edgeYaml: "ПутьКДанным",
       }
       const ops: GraphOps = {
-        formLocalReferences: [{ formLocalPath: "Объект", formNodeId, positionFrom: { offset: 42 } }],
+        formLocalReferences: [
+          { formLocalPath: "Объект", formNodeId, positionFrom: { offset: 42, line: 3, column: 4 } },
+        ],
       }
       applyGraphOps(ops, ctx)
 
       const edges = [...graph.outEdgeEntries(elementId)]
       expect(edges).toHaveLength(1)
-      expect(edges[0].attributes.positionFrom).toEqual({ offset: 42 })
+      expect(edges[0].attributes.positionFrom).toEqual({ offset: 42, line: 3, column: 4 })
     })
 
     it("пустой formLocalReferences не создаёт рёбер", () => {

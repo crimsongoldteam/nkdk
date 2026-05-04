@@ -5,7 +5,7 @@ import {
   ExtractGraphFromModelFunction,
   GraphOps,
 } from "~/metadata/orchestration/property/fn"
-import { findSeqItemOffset } from "~/metadata/orchestration/property/position"
+import { computeSeqItemPosition } from "~/metadata/orchestration/property/position"
 import { extractReferenceFromPath } from "~/metadata/orchestration/property/extractReferenceFromPath"
 import { MetadataItemLink, MetadataItemLinks } from "./types"
 
@@ -26,6 +26,7 @@ const extractMetadataItemLinkGraph: ExtractGraphFromModelFunction = (
 const buildMetadataItemLinksGraph: BuildGraphFromModelFunction = ({
   model,
   yamlMap,
+  lineCounter,
   propRule,
 }): GraphOps | undefined => {
   const links = model as MetadataItemLinks | undefined
@@ -43,8 +44,8 @@ const buildMetadataItemLinksGraph: BuildGraphFromModelFunction = ({
 
   const references = links
     .map((link, index) => {
-      const offset = yamlSeq ? findSeqItemOffset(yamlSeq, index) : undefined
-      const position = offset !== undefined ? { offset } : undefined
+      const position =
+        yamlSeq && lineCounter ? computeSeqItemPosition(yamlSeq, index, lineCounter) : undefined
       return extractReferenceFromPath(link, position)
     })
     .filter((ref): ref is NonNullable<typeof ref> => ref !== undefined)

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { parseDocument } from "yaml"
+import { LineCounter, parseDocument } from "yaml"
 import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import { applyGraphOps } from "~/metadata/orchestration/buildGraph/internal/applyGraphOps"
 import { extractSingleValueRef, buildMetadataValueGraph } from "./graphFromModel"
@@ -24,9 +24,14 @@ function makeGraph() {
   return graph
 }
 
-function runBuild(params: Parameters<typeof buildMetadataValueGraph>[0] & { graph: GraphBuilder }) {
+function runBuild(
+  params: Omit<Parameters<typeof buildMetadataValueGraph>[0], "lineCounter"> & {
+    lineCounter?: LineCounter
+    graph: GraphBuilder
+  },
+) {
   const { graph, ...buildParams } = params
-  const result = buildMetadataValueGraph(buildParams)
+  const result = buildMetadataValueGraph({ lineCounter: undefined, ...buildParams })
   const sections = Array.isArray(result) ? result : result ? [result] : []
   for (const section of sections) {
     if (!section.edgeKind || !section.edgeYaml) continue
@@ -72,12 +77,12 @@ describe("extractSingleValueRef", () => {
 
   it("ref с ПустаяСсылка справочника → ребро kind Значение", () => {
     const v: MetadataRefValue = { type: "ref", value: "Catalog.Пользователи.EmptyRef" }
-    const result = extractSingleValueRef(v, { offset: 10 })
+    const result = extractSingleValueRef(v, { offset: 10, line: 2, column: 5 })
     expect(result).toBeDefined()
     expect(result!.kind).toBe("VALUE")
     expect(result!.ref.id).toBe("Справочник.Пользователи.ПустаяСсылка")
     expect(result!.ref.name).toBe("ПустаяСсылка")
-    expect(result!.ref.positionFrom).toEqual({ offset: 10 })
+    expect(result!.ref.positionFrom).toEqual({ offset: 10, line: 2, column: 5 })
   })
 
   it("ref со значением перечисления (EnumValue) → ребро kind Значение без EnumValue в nodeId", () => {
@@ -101,11 +106,11 @@ describe("extractSingleValueRef", () => {
       type: "objectRef",
       value: "ChartOfCharacteristicTypes.ДополнительныеРеквизиты",
     }
-    const result = extractSingleValueRef(v, { offset: 5 })
+    const result = extractSingleValueRef(v, { offset: 5, line: 1, column: 6 })
     expect(result).toBeDefined()
     expect(result!.kind).toBe("OBJECT")
     expect(result!.ref.id).toBe("ПланВидовХарактеристик.ДополнительныеРеквизиты")
-    expect(result!.ref.positionFrom).toEqual({ offset: 5 })
+    expect(result!.ref.positionFrom).toEqual({ offset: 5, line: 1, column: 6 })
   })
 
   it("objectRef с Catalog → ребро kind Объект", () => {
@@ -209,7 +214,8 @@ describe("buildMetadataValueGraph", () => {
   - Перечисление.ТипыСчетов.Расходы
   - Перечисление.ТипыСчетов.ПрямыеЗатраты
 `
-      const doc = parseDocument(yaml)
+      const lineCounter = new LineCounter()
+      const doc = parseDocument(yaml, { lineCounter })
       const yamlMap = doc.contents as any
 
       const items: MetadataTypedValue[] = [
@@ -224,6 +230,7 @@ describe("buildMetadataValueGraph", () => {
         parentNodeId: PARENT_NODE,
         filePath: FILE_PATH,
         yamlMap,
+        lineCounter,
         propRule: { type: "MetadataValue", yaml: "Свойство" },
         graph,
       })

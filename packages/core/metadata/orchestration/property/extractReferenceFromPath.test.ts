@@ -26,13 +26,18 @@ describe("extractReferenceFromPath", () => {
   })
 
   it("пробрасывает position", () => {
-    const ref = extractReferenceFromPath("Catalog.Товары", { offset: 42, length: 15 })
-    expect(ref?.positionFrom).toEqual({ offset: 42, length: 15 })
+    const ref = extractReferenceFromPath("Catalog.Товары", {
+      offset: 42,
+      line: 3,
+      column: 7,
+      length: 15,
+    })
+    expect(ref?.positionFrom).toEqual({ offset: 42, line: 3, column: 7, length: 15 })
   })
 
   it("пробрасывает position без length", () => {
-    const ref = extractReferenceFromPath("Catalog.Товары", { offset: 7 })
-    expect(ref?.positionFrom).toEqual({ offset: 7 })
+    const ref = extractReferenceFromPath("Catalog.Товары", { offset: 7, line: 1, column: 8 })
+    expect(ref?.positionFrom).toEqual({ offset: 7, line: 1, column: 8 })
   })
 
   it("пустая строка → undefined", () => {

@@ -1,3 +1,4 @@
+import { LineCounter } from "yaml"
 import { applyGraphOps } from "./buildGraph/internal/applyGraphOps"
 import { getKindByYaml } from "./buildGraph/internal/edgeKinds"
 import { GraphBuilder } from "./buildGraph/internal/GraphBuilder"
@@ -13,6 +14,7 @@ export interface ApplyBuildGraphResultContext {
   filePath: string
   /** Тип свойства — для понятного сообщения об ошибке. */
   propType: string
+  lineCounter?: LineCounter
   /** Контекст, пробрасываемый в recurse-задачи по умолчанию. */
   extra?: Record<string, unknown>
 }
@@ -51,6 +53,7 @@ export function applyBuildGraphResult(
       buildGraphFromModel({
         model: recurse.model,
         yamlMap: recurse.yamlMap,
+        lineCounter: recurse.lineCounter ?? ctx.lineCounter,
         rule: recurse.rule,
         graph: ctx.graph,
         parentNodeId: recurse.parentNodeId,
@@ -80,6 +83,7 @@ function hasBuildGraphResult(result: GraphOps | GraphOps[] | undefined | void): 
 export function buildGraphFromModel(params: {
   model: Record<string, unknown>
   yamlMap: ReturnType<typeof findSubmap>
+  lineCounter?: LineCounter
   rule: MetadataItemRule
   graph: GraphBuilder
   parentNodeId: string
@@ -87,7 +91,7 @@ export function buildGraphFromModel(params: {
   /** Дополнительный контекст, пробрасываемый в кастомные buildGraphFromModel-обработчики. */
   extra?: Record<string, unknown>
 }): void {
-  const { model, yamlMap, rule, graph, parentNodeId, filePath, extra } = params
+  const { model, yamlMap, lineCounter, rule, graph, parentNodeId, filePath, extra } = params
 
   for (const [key, propRule] of Object.entries(rule.properties) as [string, PropertyRule][]) {
     const propType = propRule.type
@@ -107,7 +111,10 @@ export function buildGraphFromModel(params: {
       const modelValue = model[key]
       if (modelValue !== undefined) {
         const yamlKey = propRule.yaml
-        const position = yamlKey && yamlMap ? computeValuePosition(yamlMap, yamlKey) : undefined
+        const position =
+          yamlKey && yamlMap && lineCounter
+            ? computeValuePosition(yamlMap, yamlKey, lineCounter)
+            : undefined
         const ops = extractGraphFn(modelValue, position)
         if (ops) {
           // yaml = propRule.yaml ?? edgeDef.yaml (русский YAML-ключ)
@@ -134,13 +141,14 @@ export function buildGraphFromModel(params: {
         parentNodeId,
         filePath,
         yamlMap,
+        lineCounter,
         propRule,
         extra,
       })
       if (hasBuildGraphResult(result)) {
         graph.addFlattenSkipKeys(parentNodeId, [key])
       }
-      applyBuildGraphResult(result, { graph, parentNodeId, filePath, propType, extra })
+      applyBuildGraphResult(result, { graph, parentNodeId, filePath, propType, lineCounter, extra })
       continue
     }
 
@@ -173,6 +181,7 @@ export function buildGraphFromModel(params: {
       buildGraphFromModel({
         model: item,
         yamlMap: itemYamlMap,
+        lineCounter,
         rule: graphChildDef.itemRule,
         graph,
         parentNodeId: childNodeId,

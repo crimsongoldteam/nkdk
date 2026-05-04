@@ -1,11 +1,12 @@
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { GraphOps, GraphOpsReference } from "~/metadata/orchestration/property/fn"
+import { SourcePosition } from "~/metadata/orchestration/property/position"
 import { getTypeDescriptionRule } from "./helper"
 import { TypeDescription } from "./types"
 
 export function extractTypeDescriptionGraph(
   model: unknown,
-  position?: { offset: number; length?: number }
+  position?: SourcePosition
 ): GraphOps | undefined {
   const typeDescription = model as TypeDescription
   const references: GraphOpsReference[] = []

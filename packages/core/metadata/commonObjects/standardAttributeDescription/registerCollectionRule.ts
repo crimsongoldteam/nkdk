@@ -1,4 +1,4 @@
-import { YAMLMap } from "yaml"
+import { LineCounter, YAMLMap } from "yaml"
 import { ConfigurationContext, ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { GraphOps, GraphOpsChild } from "~/metadata/orchestration/property/fn"
 import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
@@ -8,7 +8,7 @@ import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/met
 import { isEmptyMetadataItem } from "~/metadata/orchestration/formElement/helper"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
-import { findKeyOffset, findSubmap } from "~/metadata/orchestration/property/position"
+import { computeKeyPosition, findSubmap } from "~/metadata/orchestration/property/position"
 import { StandardAttributeDescriptionRules } from "./rules"
 import {
   StandartAttributeNameFromYAML,
@@ -43,9 +43,10 @@ function buildStandardAttributesGraph(params: {
   parentNodeId: string
   filePath: string
   yamlMap: YAMLMap | undefined
+  lineCounter: LineCounter | undefined
   propRule: PropertyRule
 }): GraphOps | undefined {
-  const { model, parentNodeId, yamlMap, propRule } = params
+  const { model, parentNodeId, yamlMap, lineCounter, propRule } = params
   const stdAttrRule = propRule as StandardAttributeDescriptionsPropertyRule
   if (!stdAttrRule.standartAttributeNames) return undefined
 
@@ -66,7 +67,6 @@ function buildStandardAttributesGraph(params: {
     stdAttrRule.standartAttributeNames,
   ).entries()) {
     const absoluteId = `${parentNodeId}.${NODE_SEGMENT}.${russianName}`
-    const offset = stdAttrsYamlMap ? findKeyOffset(stdAttrsYamlMap, russianName) : undefined
 
     // US 13: standard attributes always have item so they are never treated as stubs
     const item = explicitItems.get(russianName) ?? {
@@ -77,7 +77,10 @@ function buildStandardAttributesGraph(params: {
       idSuffix: russianName,
       absoluteId,
       name: russianName,
-      positionFrom: offset !== undefined ? { offset } : undefined,
+      positionFrom:
+        stdAttrsYamlMap && lineCounter
+          ? computeKeyPosition(stdAttrsYamlMap, russianName, lineCounter)
+          : undefined,
       index,
       item: item as unknown as Record<string, unknown>,
     })

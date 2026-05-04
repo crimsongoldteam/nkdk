@@ -90,7 +90,7 @@ describe("extractTypeDescriptionGraph", () => {
     const model: TypeDescription = {
       type: ["CatalogRef.А", "DocumentRef.Б"],
     }
-    const pos = { offset: 42, length: 10 }
+    const pos = { offset: 42, line: 4, column: 9, length: 10 }
     const refs = extractTypeDescriptionGraph(model, pos)?.references ?? []
     expect(refs).toHaveLength(2)
     for (const ref of refs) {

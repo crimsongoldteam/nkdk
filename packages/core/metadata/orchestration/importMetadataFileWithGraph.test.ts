@@ -63,6 +63,33 @@ describe("importMetadataFileWithGraph — catalog", () => {
     const refNodes = [...graph.nodes()].filter((id) => id.includes("Контрагенты"))
     expect(refNodes.length).toBeGreaterThan(0)
   })
+
+  it("сохраняет line и column для одиночной YAML-ссылки", () => {
+    const graph = new GraphBuilder()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      sources: { yaml: `
+Реквизиты:
+  Контрагент:
+    Тип: Справочник.Контрагенты
+` },
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+
+    const attrNodeId = "Справочник.Товары.Реквизит.Контрагент"
+    const outEdges = [...graph.outEdgeEntries(attrNodeId)]
+    const typeEdges = outEdges.filter((e) => e.attributes.kind === "TYPE")
+
+    expect(typeEdges).toHaveLength(1)
+    expect(typeEdges[0].attributes.positionFrom).toEqual({
+      offset: 35,
+      line: 4,
+      column: 10,
+    })
+  })
 })
 
 describe("importMetadataFileWithGraph — document", () => {

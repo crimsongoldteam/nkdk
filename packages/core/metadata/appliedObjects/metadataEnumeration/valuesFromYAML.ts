@@ -1,7 +1,7 @@
-import { YAMLMap } from "yaml"
+import { LineCounter, YAMLMap } from "yaml"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import { findKeyOffset, findSubmap } from "~/metadata/orchestration/property/position"
+import { computeKeyPosition, findSubmap } from "~/metadata/orchestration/property/position"
 import { GraphOps, GraphOpsChild } from "~/metadata/orchestration/property/fn"
 import {
   MetadataEnumerationValue,
@@ -31,20 +31,23 @@ function buildEnumerationValuesGraph(params: {
   parentNodeId: string
   filePath: string
   yamlMap: YAMLMap | undefined
+  lineCounter: LineCounter | undefined
   propRule: PropertyRule
 }): GraphOps | undefined {
-  const { model, yamlMap, propRule } = params
+  const { model, yamlMap, lineCounter, propRule } = params
   const values = model as MetadataEnumerationValues | undefined
   if (!values || values.length === 0) return undefined
 
   const valuesYamlMap = propRule.yaml ? findSubmap(yamlMap, propRule.yaml) : undefined
 
   const children: GraphOpsChild[] = values.map((value) => {
-    const offset = valuesYamlMap ? findKeyOffset(valuesYamlMap, value.name) : undefined
     return {
       idSuffix: value.name,
       name: value.name,
-      positionFrom: offset !== undefined ? { offset } : undefined,
+      positionFrom:
+        valuesYamlMap && lineCounter
+          ? computeKeyPosition(valuesYamlMap, value.name, lineCounter)
+          : undefined,
       item: value as unknown as Record<string, unknown>,
     }
   })

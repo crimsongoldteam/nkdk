@@ -12,6 +12,7 @@ const noopParams = {
   parentNodeId: "Справочник.Товары",
   filePath: "test/Свойства.yaml",
   yamlMap: undefined,
+  lineCounter: undefined,
   propRule: { type: "MetadataFields", yaml: "ВводПоСтроке" } as never,
   graph: undefined as never,
 }

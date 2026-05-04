@@ -13,11 +13,12 @@ describe("buildGraphFromModel", () => {
     const parentNodeId = "Форма.Элемент.Поле"
     const filePath = "form.yaml"
     const item = {
-      itemType: "FormElement",
+      itemType: "FormAttribute",
       name: "Поле",
       dataPath: "Объект.Имя",
     }
     const rule = {
+      itemType: "FormAttribute",
       properties: {
         dataPath: { type: "DataPath", yaml: "ПутьКДанным", defaultType: "string" },
       },

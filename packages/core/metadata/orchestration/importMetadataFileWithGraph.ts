@@ -156,6 +156,7 @@ export function importMetadataFileWithGraph(params: {
       buildGraphFromModel({
         model: model as Record<string, unknown>,
         yamlMap,
+        lineCounter: parsed.lineCounter,
         rule: ClientApplicationFormRules as never,
         graph,
         parentNodeId: formNodeId,
@@ -197,6 +198,7 @@ export function importMetadataFileWithGraph(params: {
   buildGraphFromModel({
     model: model as unknown as Record<string, unknown>,
     yamlMap,
+    lineCounter: parsed.lineCounter,
     rule: entry.rule as never,
     graph,
     parentNodeId: itemNodeId,
