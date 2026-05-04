@@ -145,6 +145,9 @@ describe("applyGraphOps", () => {
             id: "Справочник.Валюты",
             name: "Валюты",
             edgeProps: {
+              kind: "BROKEN",
+              filePath: "wrong.yaml",
+              yaml: "Wrong",
               property: "dataPath",
               sourcePath: "Catalog.Валюты",
               pathMode: "global",
@@ -164,6 +167,7 @@ describe("applyGraphOps", () => {
         sourcePath: "Catalog.Валюты",
         pathMode: "global",
       })
+      expect(edges[0].attributes.filePath).toBeUndefined()
     })
 
     it("ссылка без positionFrom не ставит атрибут на ребро", () => {
@@ -289,6 +293,9 @@ describe("applyGraphOps", () => {
             formLocalPath: "Объект",
             formNodeId,
             edgeProps: {
+              kind: "BROKEN",
+              filePath: "wrong.yaml",
+              yaml: "Wrong",
               property: "dataPath",
               sourcePath: "Объект",
               pathMode: "formLocal",
@@ -309,6 +316,7 @@ describe("applyGraphOps", () => {
         sourcePath: "Объект",
         pathMode: "formLocal",
       })
+      expect(edges[0].attributes.filePath).toBeUndefined()
     })
 
     it("не создаёт ребро, если resolveFormLocalPath вернул undefined (нет первого сегмента)", () => {
