@@ -82,6 +82,12 @@ export function buildGraphFromModel(params: {
     const propType = propRule.type
     if (!propType) continue
 
+    const buildGraphFn = getTypeRule(propType, "buildGraphFromModel")
+    const graphChildDef = getTypeRule(propType, "graphChild")
+    if (buildGraphFn || graphChildDef) {
+      graph.addFlattenSkipKeys(parentNodeId, [key])
+    }
+
     // --- extractGraph: TypeDescription и другие одиночные reference-свойства ---
     const extractGraphFn = getTypeRule(propType, "extractGraph")
     const edgeDef = getTypeRule(propType, "graphEdgeFromParent")
@@ -111,7 +117,6 @@ export function buildGraphFromModel(params: {
     }
 
     // --- buildGraphFromModel: типы с кастомной логикой построения графа ---
-    const buildGraphFn = getTypeRule(propType, "buildGraphFromModel")
     if (buildGraphFn) {
       const result = buildGraphFn({
         model: model[key],
@@ -126,7 +131,6 @@ export function buildGraphFromModel(params: {
     }
 
     // --- graphChild: коллекции с декларативным созданием дочерних узлов ---
-    const graphChildDef = getTypeRule(propType, "graphChild")
     if (!graphChildDef) continue
 
     const modelValue = model[key]

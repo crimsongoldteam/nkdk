@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
+import { walkGraphToFileData } from "./buildGraph/walkGraphToFileData"
 import { importMetadataFileWithGraph } from "./importMetadataFileWithGraph"
 
 const baseContext = {
@@ -97,6 +98,33 @@ describe("importMetadataFileWithGraph — document", () => {
     })
 
     expect(graph.hasNode("Документ.РасходнаяНакладная.Реквизит.Склад")).toBe(true)
+  })
+
+  it("не дублирует graphChild record-коллекцию в props родительского узла", () => {
+    const graph = new GraphBuilder()
+
+    importMetadataFileWithGraph({
+      filePath: "Документ/Продажа/Свойства.yaml",
+      sources: {
+        yaml: [
+          "Реквизиты:",
+          "  Total: Строка",
+          "  VAT:",
+          "    Тип: Булево",
+        ].join("\n"),
+      },
+      kind: "document",
+      name: "Продажа",
+      graph,
+      context: { version: "2.20", defaultLanguage: "ru" },
+    })
+
+    const file = walkGraphToFileData(graph).find(
+      (f) => f.filePath === "Документ/Продажа/Свойства.yaml",
+    )!
+    const parent = file.nodes.find((n) => n.id === "Документ.Продажа")!
+
+    expect(Object.keys(parent.props).some((key) => key.startsWith("p_attributes_"))).toBe(false)
   })
 })
 
