@@ -39,6 +39,21 @@ describe("projectSources", () => {
     })
   })
 
+  it("может не читать paired Форма.nkdk для быстрого полного warmup", () => {
+    const projectPath = createProject()
+    const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
+    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
+    writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
+    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
+
+    const sources = readProjectGraphSources(projectPath, { includePairedText: false })
+
+    expect(sources).toHaveLength(1)
+    expect(sources[0].filePath).toBe(yamlPath)
+    expect(sources[0].fileStats).toMatchObject({ size: byteSize("Элементы: {}\n") })
+    expect(sources[0].pairedText).toBeUndefined()
+  })
+
   it("нормализует absolute --file для Форма.nkdk в primary Форма.yaml с paired nkdk", () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"

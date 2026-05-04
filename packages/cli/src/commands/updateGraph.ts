@@ -85,7 +85,7 @@ export const updateGraphFile = async (projectPath: string, filePath: string): Pr
 }
 
 const buildProjectGraph = async (projectPath: string) => {
-  return buildGraph(readProjectGraphSources(projectPath), CONTEXT)
+  return buildGraph(readProjectGraphSources(projectPath, { includePairedText: false }), CONTEXT)
 }
 
 export const updateGraph = async (projectPath: string): Promise<void> => {

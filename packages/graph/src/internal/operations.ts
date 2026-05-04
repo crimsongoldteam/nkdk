@@ -355,14 +355,14 @@ export const mergeFileLinks = async (
     conn,
     declared,
     (batch) =>
-      `UNWIND ${cypherLinkBatch(batch)} AS link MATCH (f:File {path: link.filePath}), (n {id: link.nodeId}) MERGE (f)-[:DECLARES]->(n)`,
+      `UNWIND ${cypherLinkBatch(batch)} AS link MATCH (f:File {path: link.filePath}), (n:GraphNode {id: link.nodeId}) MERGE (f)-[:DECLARES]->(n)`,
     progress,
   )
   await sendBatches(
     conn,
     contributed,
     (batch) =>
-      `UNWIND ${cypherLinkBatch(batch)} AS link MATCH (f:File {path: link.filePath}), (n {id: link.nodeId}) MERGE (f)-[:CONTRIBUTES]->(n)`,
+      `UNWIND ${cypherLinkBatch(batch)} AS link MATCH (f:File {path: link.filePath}), (n:GraphNode {id: link.nodeId}) MERGE (f)-[:CONTRIBUTES]->(n)`,
     progress,
   )
 }

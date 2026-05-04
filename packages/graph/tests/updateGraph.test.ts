@@ -46,6 +46,8 @@ describe("updateGraph", () => {
     expect(cypher).toContainEqual(expect.stringContaining("MERGE (f:File {path: file.path})"))
     expect(cypher).toContainEqual(expect.stringContaining("MERGE (f)-[:DECLARES]->(n)"))
     expect(cypher).toContainEqual(expect.stringContaining("MERGE (f)-[:CONTRIBUTES]->(n)"))
+    expect(cypher).toContainEqual(expect.stringContaining("(n:GraphNode {id: link.nodeId})"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("(n {id: link.nodeId})"))
     expect(cypher).toContainEqual(expect.stringContaining("SET r.filePath = e.filePath"))
   })
 

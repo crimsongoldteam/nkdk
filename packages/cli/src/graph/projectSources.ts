@@ -15,6 +15,10 @@ export interface ChangedProjectSource {
   deletedFilePaths: string[]
 }
 
+export interface ReadProjectGraphSourcesOptions {
+  includePairedText?: boolean
+}
+
 const normalizeChangedFile = (projectPath: string, filePath: string): string => {
   if (!isAbsolute(filePath)) return filePath
 
@@ -23,12 +27,16 @@ const normalizeChangedFile = (projectPath: string, filePath: string): string => 
   return normalizeProjectFile(projectPath, filePath)
 }
 
-const readSource = (projectPath: string, filePath: string): ProjectGraphSource => {
+const readSource = (
+  projectPath: string,
+  filePath: string,
+  options: ReadProjectGraphSourcesOptions = {},
+): ProjectGraphSource => {
   const fullPath = absoluteProjectFile(projectPath, filePath)
   const pairedPath = pairedFormPath(filePath)
   const pairedFullPath = pairedPath ? absoluteProjectFile(projectPath, pairedPath) : undefined
   const pairedText =
-    pairedPath && pairedFullPath && existsSync(pairedFullPath)
+    options.includePairedText !== false && pairedPath && pairedFullPath && existsSync(pairedFullPath)
       ? {
           filePath: pairedPath,
           text: readFileSync(pairedFullPath, "utf-8"),
@@ -49,10 +57,13 @@ const deletedPathsFor = (filePath: string): string[] => {
   return pairedPath ? [filePath, pairedPath] : [filePath]
 }
 
-export const readProjectGraphSources = (projectPath: string): ProjectGraphSource[] => {
+export const readProjectGraphSources = (
+  projectPath: string,
+  options: ReadProjectGraphSourcesOptions = {},
+): ProjectGraphSource[] => {
   return readProjectFileList(projectPath)
     .filter((filePath) => filePath.endsWith(".yaml"))
-    .map((filePath) => readSource(projectPath, filePath))
+    .map((filePath) => readSource(projectPath, filePath, options))
 }
 
 export const readChangedProjectSource = (
