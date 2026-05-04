@@ -61,6 +61,17 @@ export function applyBuildGraphResult(
   }
 }
 
+function hasBuildGraphResult(result: GraphOps | GraphOps[] | undefined | void): boolean {
+  const sections = Array.isArray(result) ? result : result ? [result] : []
+  return sections.some(
+    (section) =>
+      Boolean(section.children?.length) ||
+      Boolean(section.references?.length) ||
+      Boolean(section.formLocalReferences?.length) ||
+      Boolean(section.recurse?.length),
+  )
+}
+
 /**
  * Обходит модель параллельно с YAML AST, вызывает зарегистрированную extractGraph
  * для свойств с зарегистрированным экстрактором и применяет результат через applyGraphOps.
@@ -126,6 +137,9 @@ export function buildGraphFromModel(params: {
         propRule,
         extra,
       })
+      if (hasBuildGraphResult(result)) {
+        graph.addFlattenSkipKeys(parentNodeId, [key])
+      }
       applyBuildGraphResult(result, { graph, parentNodeId, filePath, propType, extra })
       continue
     }
