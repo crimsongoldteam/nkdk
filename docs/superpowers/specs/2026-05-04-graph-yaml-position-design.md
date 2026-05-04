@@ -21,6 +21,8 @@
 - `positionFromColumn`
 
 Координаты относятся к началу YAML-значения, из которого извлечена ссылка.
+Если ссылка извлечена из элемента YAML-массива, координаты относятся к конкретному элементу массива,
+а не к началу массива или ключа свойства.
 
 ## Не входит в задачу
 
@@ -46,6 +48,11 @@
 `parseMetadataYaml` уже возвращает `LineCounter`. `importMetadataFileWithGraph` должен передавать
 его вместе с корневым `yamlMap` в `buildGraphFromModel`. `computeValuePosition` будет принимать
 `LineCounter` и вычислять строку/столбец через `lineCounter.linePos(offset)`.
+
+Для массивов используется тот же принцип: per-element расчёт позиции должен брать `range[0]`
+конкретного элемента YAML-последовательности и дополнять его строкой/столбцом через тот же
+`LineCounter`. Уже существующий `findSeqItemOffset` остаётся основой для поиска `offset`, но
+результат должен стать полной позицией.
 
 На границе `walkGraphToFileData` вложенный объект разворачивается в свойства `EdgeData.props`.
 Так графовый пакет продолжит получать только примитивы, совместимые с FalkorDB.
@@ -75,6 +82,8 @@
 Нужны точечные тесты:
 
 - `computeValuePosition` возвращает `offset`, `line`, `column` для простого YAML.
+- Позиция ссылки внутри YAML-массива указывает на конкретный элемент массива и содержит
+  `offset`, `line`, `column`.
 - `buildGraph` или `importMetadataFileWithGraph` сохраняет расширенный `positionFrom` на внутреннем
   reference-ребре.
 - `walkGraphToFileData` разворачивает `positionFrom` в три примитивных свойства рёбер.
