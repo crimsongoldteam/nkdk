@@ -3,7 +3,7 @@ import { Command } from "commander"
 import { importConfiguration } from "./commands/import"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
 import { syncConfiguration } from "./commands/sync"
-import { updateGraph } from "./commands/updateGraph"
+import { updateGraph, updateGraphFile } from "./commands/updateGraph"
 
 function run(fn: () => Promise<void>): void {
   fn().catch((err: unknown) => {
@@ -48,8 +48,9 @@ program
   .command("update-graph")
   .description("Обновить граф метаданных в FalkorDB по YAML-проекту")
   .argument("<path>", "путь к корню YAML-проекта")
-  .action((projectPath: string) => {
-    run(() => updateGraph(projectPath))
+  .option("--file <filePath>", "обновить только один файл проекта")
+  .action((projectPath: string, opts: { file?: string }) => {
+    run(() => opts.file ? updateGraphFile(projectPath, opts.file) : updateGraph(projectPath))
   })
 
 program.parse()

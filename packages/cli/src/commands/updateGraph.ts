@@ -1,18 +1,18 @@
+import { buildGraph, buildGraphForChangedFile } from "@nakidka/core"
 import { updateGraph as writeGraph } from "@nakidka/graph"
-import { buildGraph } from "~/metadata/orchestration/buildGraph"
 import chalk from "chalk"
-import { existsSync, readdirSync, readFileSync } from "fs"
-import { join } from "path"
+import { existsSync, readFileSync } from "fs"
 import { performance } from "perf_hooks"
+import { readFileStats } from "../graph/fileStats"
+import { absoluteProjectFile, pairedFormPath, readProjectFileList } from "../graph/projectFiles"
 
 const CONTEXT = { version: "2.20", defaultLanguage: "ru" }
-const OWNER_DIRS = ["Справочник", "Документ", "Перечисление"] as const
 
 function readYamlProjectFiles(projectPath: string): Map<string, string> {
   const files = new Map<string, string>()
 
   const readFile = (relativePath: string): void => {
-    const fullPath = join(projectPath, ...relativePath.split("/"))
+    const fullPath = absoluteProjectFile(projectPath, relativePath)
     if (!existsSync(fullPath)) return
     try {
       files.set(relativePath, readFileSync(fullPath, "utf-8"))
@@ -21,22 +21,36 @@ function readYamlProjectFiles(projectPath: string): Map<string, string> {
     }
   }
 
-  for (const ownerDir of OWNER_DIRS) {
-    const ownerRoot = join(projectPath, ownerDir)
-    if (!existsSync(ownerRoot)) continue
-
-    for (const entry of readdirSync(ownerRoot, { withFileTypes: true }).filter((e) => e.isDirectory())) {
-      readFile(`${ownerDir}/${entry.name}/Свойства.yaml`)
-
-      const formsRoot = join(ownerRoot, entry.name, "Формы")
-      if (!existsSync(formsRoot)) continue
-      for (const formEntry of readdirSync(formsRoot, { withFileTypes: true }).filter((e) => e.isDirectory())) {
-        readFile(`${ownerDir}/${entry.name}/Формы/${formEntry.name}/Форма.yaml`)
-      }
-    }
+  for (const filePath of readProjectFileList(projectPath)) {
+    if (filePath.endsWith(".yaml")) readFile(filePath)
   }
 
   return files
+}
+
+export const updateGraphFile = async (projectPath: string, filePath: string): Promise<void> => {
+  const fullPath = absoluteProjectFile(projectPath, filePath)
+  if (!existsSync(fullPath)) {
+    await writeGraph([{ filePath, nodes: [], edges: [] }])
+    return
+  }
+
+  const paired = pairedFormPath(filePath)
+  const pairedFullPath = paired ? absoluteProjectFile(projectPath, paired) : undefined
+  const pairedText =
+    paired && pairedFullPath && existsSync(pairedFullPath)
+      ? { filePath: paired, text: readFileSync(pairedFullPath, "utf-8") }
+      : undefined
+
+  const graphFiles = await buildGraphForChangedFile({
+    projectPath,
+    filePath,
+    text: readFileSync(fullPath, "utf-8"),
+    pairedText,
+    context: CONTEXT,
+  })
+  const stats = readFileStats(fullPath)
+  await writeGraph(graphFiles.map((file) => ({ ...file, fileStats: stats })))
 }
 
 export const updateGraph = async (projectPath: string): Promise<void> => {
