@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, statSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, type Mock, vi } from "vitest"
 import { projectGraphName } from "../graph/projectGraphName"
 import { watch } from "./watch"
 
@@ -44,25 +44,63 @@ const graphRecord = (projectPath: string, filePath: string) => {
   }
 }
 
-const createWatcher = () => ({
-  on: vi.fn().mockReturnThis(),
-  close: vi.fn(async () => undefined),
-})
+type WatchEvent = "add" | "change" | "unlink" | "ready"
+type WatchHandler = (path?: string) => void
+
+const createDeferred = <T = void>() => {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  let reject!: (error: unknown) => void
+  const promise = new Promise<T>((promiseResolve, promiseReject) => {
+    resolve = promiseResolve
+    reject = promiseReject
+  })
+  return { promise, resolve, reject }
+}
+
+const waitForMicrotasks = async (): Promise<void> => {
+  await Promise.resolve()
+}
+
+const createWatcher = () => {
+  const handlers = new Map<WatchEvent, WatchHandler[]>()
+  const watcher = {
+    on: vi.fn((event: WatchEvent, handler: WatchHandler) => {
+      handlers.set(event, [...(handlers.get(event) ?? []), handler])
+      return watcher
+    }),
+    close: vi.fn(async () => undefined),
+    emit(event: WatchEvent, path?: string): void {
+      for (const handler of handlers.get(event) ?? []) handler(path)
+    },
+  }
+  return watcher
+}
+
+type TestWatcher = ReturnType<typeof createWatcher>
 
 describe("watch command", () => {
+  let watcher: TestWatcher
+
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.getGraphFiles.mockResolvedValue([])
     mocks.updateGraphFiles.mockResolvedValue(undefined)
-    mocks.chokidarWatch.mockReturnValue(createWatcher())
+    watcher = createWatcher()
+    mocks.chokidarWatch.mockReturnValue(watcher)
   })
 
-  it("запускает watcher до чтения graph files и читает граф проекта", async () => {
+  it("запускает watcher до чтения graph files, но ждёт ready перед чтением графа проекта", async () => {
     const projectPath = createProject()
 
-    await watch(projectPath)
+    const promise = watch(projectPath)
+    await waitForMicrotasks()
 
     expect(mocks.chokidarWatch).toHaveBeenCalledOnce()
+    expect(mocks.getGraphFiles).not.toHaveBeenCalled()
+
+    watcher.emit("ready")
+    await promise
+
     expect(mocks.getGraphFiles).toHaveBeenCalledWith({ graphName: projectGraphName(projectPath) })
     expect(mocks.chokidarWatch.mock.invocationCallOrder[0]).toBeLessThan(
       mocks.getGraphFiles.mock.invocationCallOrder[0] ?? 0,
@@ -80,7 +118,9 @@ describe("watch command", () => {
       graphRecord(projectPath, nkdkPath),
     ])
 
-    await watch(projectPath)
+    const promise = watch(projectPath)
+    watcher.emit("ready")
+    await promise
 
     expect(mocks.updateGraphFiles).not.toHaveBeenCalled()
   })
@@ -92,9 +132,56 @@ describe("watch command", () => {
     writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
     writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
 
-    await watch(projectPath)
+    const promise = watch(projectPath)
+    watcher.emit("ready")
+    await promise
 
     expect(mocks.updateGraphFiles).toHaveBeenCalledOnce()
     expect(mocks.updateGraphFiles).toHaveBeenCalledWith(projectPath, [yamlPath, nkdkPath])
+  })
+
+  it("после initial updateGraphFiles дожимает watcher event вторым batch-вызовом", async () => {
+    const projectPath = createProject()
+    const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
+    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
+    const fullYamlPath = writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
+    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
+    const initialUpdate = createDeferred()
+    ;(mocks.updateGraphFiles as Mock)
+      .mockImplementationOnce(async () => {
+        await initialUpdate.promise
+      })
+      .mockResolvedValue(undefined)
+
+    const promise = watch(projectPath)
+    watcher.emit("ready")
+    await vi.waitFor(() => {
+      expect(mocks.updateGraphFiles).toHaveBeenCalledOnce()
+    })
+
+    watcher.emit("change", fullYamlPath)
+    initialUpdate.resolve()
+    await promise
+
+    expect(mocks.updateGraphFiles).toHaveBeenCalledTimes(2)
+    expect(mocks.updateGraphFiles).toHaveBeenNthCalledWith(1, projectPath, [yamlPath, nkdkPath])
+    expect(mocks.updateGraphFiles).toHaveBeenNthCalledWith(2, projectPath, [yamlPath])
+  })
+
+  it("передаёт unlink поддерживаемого файла в updateGraphFiles через batch queue", async () => {
+    const projectPath = createProject()
+    const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
+    const fullYamlPath = join(projectPath, ...yamlPath.split("/"))
+    mocks.getGraphFiles.mockImplementation(async () => {
+      watcher.emit("unlink", fullYamlPath)
+      return []
+    })
+
+    const promise = watch(projectPath)
+    watcher.emit("ready")
+    await promise
+
+    expect(mocks.updateGraphFiles).toHaveBeenCalledOnce()
+    expect(mocks.updateGraphFiles).toHaveBeenCalledWith(projectPath, [yamlPath])
   })
 })

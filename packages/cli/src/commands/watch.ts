@@ -44,6 +44,12 @@ const enqueueIfSupported = (
   if (isSupportedProjectFile(filePath)) queue.enqueue(filePath)
 }
 
+const waitForWatcherReady = (watcher: ReturnType<typeof chokidar.watch>): Promise<void> => {
+  return new Promise((resolve) => {
+    watcher.on("ready", resolve)
+  })
+}
+
 const collectChangedFiles = async (projectPath: string): Promise<string[]> => {
   const graphFiles = await getGraphFiles({ graphName: projectGraphName(projectPath) })
   const graphFileByPath = new Map(graphFiles.map((file) => [file.path, file]))
@@ -96,6 +102,7 @@ export async function watch(projectPath: string): Promise<void> {
     enqueueIfSupported(projectPath, queue, path)
   })
 
+  await waitForWatcherReady(watcher)
   const changedFiles = await collectChangedFiles(projectPath)
   if (changedFiles.length > 0) await updateGraphFiles(projectPath, changedFiles)
   await queue.drain()
