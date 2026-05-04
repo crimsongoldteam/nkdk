@@ -73,6 +73,31 @@ describe("applyGraphOps", () => {
       expect(ctx.graph.hasNode("Справочник.Товары.Цена.Б")).toBe(true)
       expect([...ctx.graph.outEdgeEntries(PARENT_NODE_ID)]).toHaveLength(2)
     })
+
+    it("ставит index на owning-рёбра children по порядку children", () => {
+      const graph = new GraphBuilder()
+      graph.ensureNode("P", { name: "P" })
+
+      applyGraphOps(
+        {
+          children: [
+            { idSuffix: "A", name: "A", item: { itemType: "Child", name: "A" } },
+            { idSuffix: "B", name: "B", item: { itemType: "Child", name: "B" } },
+          ],
+        },
+        { graph, parentNodeId: "P", filePath: "p.yaml", edgeKind: "VALUE", edgeYaml: "Значение" },
+      )
+
+      const edges = [...graph.outEdgeEntries("P")].map((edge) => ({
+        target: edge.target,
+        index: edge.attributes.index,
+      }))
+
+      expect(edges).toEqual([
+        { target: "P.A", index: 0 },
+        { target: "P.B", index: 1 },
+      ])
+    })
   })
 
   describe("только references", () => {

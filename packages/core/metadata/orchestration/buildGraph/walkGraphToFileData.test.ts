@@ -54,6 +54,20 @@ describe("walkGraphToFileData", () => {
     expect(fileB.edges).toEqual([])
   })
 
+  it("выгружает числовой index из атрибутов ребра в props", () => {
+    const g = new GraphBuilder()
+    promote(g, "A", "A", ["a.yaml"], { itemType: "X" })
+    promote(g, "B", "B", ["a.yaml"], { itemType: "Y" })
+    g.ensureEdge("A", "B", "ATTRIBUTE", { yaml: "Реквизит", index: 3 })
+
+    const result = walkGraphToFileData(g)
+    const file = result.find((f) => f.filePath === "a.yaml")!
+
+    expect(file.edges).toEqual([
+      { src: "A", tgt: "B", kind: "ATTRIBUTE", props: { yaml: "Реквизит", index: 3 } },
+    ])
+  })
+
   it("стабы (filePaths пусты) попадают в сегмент с filePath ''", () => {
     const g = new GraphBuilder()
     promote(g, "A", "A", ["a.yaml"], { itemType: "MetadataCatalog" })

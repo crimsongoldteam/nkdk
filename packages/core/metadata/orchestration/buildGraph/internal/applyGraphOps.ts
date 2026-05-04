@@ -28,7 +28,7 @@ export interface ApplyGraphOpsContext {
 export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
   const { graph, parentNodeId, filePath, edgeKind, edgeYaml } = ctx
 
-  for (const child of ops.children ?? []) {
+  for (const [index, child] of (ops.children ?? []).entries()) {
     const idParent = child.parentOverride ?? parentNodeId
     const childNodeId = child.absoluteId ?? `${idParent}.${child.idSuffix}`
     const edgeSource = child.edgeFrom ?? child.parentOverride ?? parentNodeId
@@ -60,7 +60,7 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
       }
     }
 
-    graph.ensureEdge(edgeSource, childNodeId, edgeKind, { yaml: edgeYaml })
+    graph.ensureEdge(edgeSource, childNodeId, edgeKind, { yaml: edgeYaml, index: child.index ?? index })
   }
 
   for (const ref of ops.references ?? []) {

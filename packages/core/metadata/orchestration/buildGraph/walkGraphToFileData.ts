@@ -7,6 +7,9 @@ const UNKNOWN_LABEL = "Unknown"
 /** Сегмент для stub-узлов (без filePath). */
 const STUB_SEGMENT = ""
 
+const isEdgePrimitive = (value: unknown): value is string | number | boolean | null =>
+  value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean"
+
 /**
  * Обходит GraphBuilder и группирует узлы и рёбра по filePath.
  *
@@ -59,6 +62,10 @@ export function walkGraphToFileData(graph: GraphBuilder): FileGraphData[] {
       const yamlValue = attributes.yaml
       const edgeProps: Record<string, string | number | boolean | null> = {
         yaml: typeof yamlValue === "string" ? yamlValue : "",
+      }
+      for (const [key, value] of Object.entries(attributes)) {
+        if (key === "kind" || key === "yaml") continue
+        if (isEdgePrimitive(value)) edgeProps[key] = value
       }
       ensureSegment(sourceSegment).edges.push({
         src: nodeId,

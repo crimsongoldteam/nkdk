@@ -89,6 +89,8 @@ export interface GraphOpsChild {
   idSuffix: string
   name: string
   positionFrom?: { offset: number; length?: number }
+  /** Порядок owning-ребра внутри коллекции. Если не задан, applyGraphOps ставит индекс по порядку children. */
+  index?: number
   /** Запись в node.item при promoteNode. */
   item?: Record<string, unknown>
   /**
