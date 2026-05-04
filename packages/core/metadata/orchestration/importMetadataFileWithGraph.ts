@@ -9,7 +9,10 @@ import { importMetadataEnumerationFromYAML } from "~/metadata/appliedObjects/met
 import { MetadataEnumerationRules } from "~/metadata/appliedObjects/metadataEnumeration/rules"
 import type { MetadataEnumeration } from "~/metadata/appliedObjects/metadataEnumeration/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
+import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
+import { parseClientApplicationFormFromNKDK } from "~/metadata/forms/clientApplicationForm/parseNKDK"
 import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
+import type { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
 import type { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import type { MetadataKind } from "~/metadata/validation/types"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
@@ -42,7 +45,7 @@ function materializeGraphTerminals(
 }
 
 export interface ImportMetadataFileResult {
-  model: MetadataCatalog | MetadataDocument | MetadataEnumeration
+  model: MetadataCatalog | MetadataDocument | MetadataEnumeration | ClientApplicationForm
   parsed: ParsedYaml
 }
 
@@ -101,10 +104,10 @@ const _kindRegistry = new Map<MetadataKind, MetadataKindEntry>([
 /**
  * Общий хелпер «прочитанный файл → модель + граф».
  * Инкапсулирует kind-диспетчер через реестр.
- * Для form — создаёт узел с двумя filePaths (yaml + nkdk) и owning-ребром «Форма».
+ * Для form — YAML объявляет корень формы, nkdk дополняет корень и объявляет visual elements.
  * Бросает, если kind неизвестен.
  */
-export function importMetadataFileWithGraph(params: {
+export async function importMetadataFileWithGraph(params: {
   /** Путь к yaml-файлу (основной файл). */
   filePath: string
   /** Путь к nkdk-файлу (только для form). */
@@ -117,7 +120,7 @@ export function importMetadataFileWithGraph(params: {
   context: ConfigurationContext
   /** NodeId владельца формы (требуется для kind === "form"). */
   ownerNodeId?: string
-}): ImportMetadataFileResult | undefined {
+}): Promise<ImportMetadataFileResult | undefined> {
   const { filePath, nkdkFilePath, sources, kind, name, graph, context } = params
 
   // ---- form: особый путь ----
@@ -134,37 +137,52 @@ export function importMetadataFileWithGraph(params: {
 
     // Форм-узел объявляет YAML; nkdk только дополняет часть свойств формы.
     graph.ensureNode(formNodeId, { name })
-    graph.addFilePath(formNodeId, filePath)
-    if (nkdkFilePath) graph.addContributedFilePath(formNodeId, nkdkFilePath)
-    graph.setItem(formNodeId, { itemType: "ClientApplicationForm", name })
 
     // Owning-ребро «Форма» от владельца к форме
     graph.ensureEdge(ownerNodeId, formNodeId, "FORM", { yaml: "Форма" })
 
-    // Парсим YAML формы и строим граф реквизитов/параметров/команд
     const parsed = parseMetadataYaml(sources.yaml)
     const yamlMap = isMap(parsed.doc.contents) ? parsed.doc.contents : undefined
     const importContext: ConfigurationContext = { ...context, graph }
 
-    const model = importMetadataItemFromYAML({
-      context: importContext,
-      yaml: parsed.data as never,
+    const nkdkModel = (sources.nkdk
+      ? await parseClientApplicationFormFromNKDK(importContext, sources.nkdk)
+      : undefined) ?? { itemType: "ClientApplicationForm", childItems: [], commands: [] }
+
+    const model = importClientApplicationFormFromYAML(
+      importContext,
+      parsed.data as never,
+      nkdkModel as never,
+    )
+
+    graph.setItem(formNodeId, {
+      ...model,
+      childItems: [],
+      autoCommandBar: undefined,
+    })
+    graph.addFilePath(formNodeId, filePath)
+    if (nkdkFilePath) graph.addContributedFilePath(formNodeId, nkdkFilePath)
+
+    buildGraphFromModel({
+      model: model as Record<string, unknown>,
+      yamlMap,
+      lineCounter: parsed.lineCounter,
       rule: ClientApplicationFormRules as never,
+      graph,
+      parentNodeId: formNodeId,
+      filePath,
     })
 
-    if (model) {
-      buildGraphFromModel({
-        model: model as Record<string, unknown>,
-        yamlMap,
-        lineCounter: parsed.lineCounter,
-        rule: ClientApplicationFormRules as never,
-        graph,
-        parentNodeId: formNodeId,
-        filePath,
-      })
+    if (nkdkFilePath) {
+      for (const nodeId of graph.nodes()) {
+        if (nodeId.startsWith(`${formNodeId}.Элемент.`)) {
+          graph.removeFilePath(nodeId, filePath)
+          graph.addFilePath(nodeId, nkdkFilePath)
+        }
+      }
     }
 
-    return undefined
+    return { model, parsed }
   }
 
   // ---- catalog / document / enumeration: через реестр ----

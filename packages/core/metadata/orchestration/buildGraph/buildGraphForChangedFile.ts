@@ -16,9 +16,9 @@ export interface BuildGraphForChangedFileParams {
   }
 }
 
-export function buildGraphForChangedFile(
+export async function buildGraphForChangedFile(
   params: BuildGraphForChangedFileParams,
-): FileGraphData[] {
+): Promise<FileGraphData[]> {
   const { filePath, text, context, pairedText } = params
   void params.projectPath
 
@@ -29,7 +29,7 @@ export function buildGraphForChangedFile(
   const importContext: ConfigurationContext = context as ConfigurationContext
 
   if (parsed.kind === "form") {
-    importMetadataFileWithGraph({
+    await importMetadataFileWithGraph({
       filePath,
       sources: { yaml: text, nkdk: pairedText?.text },
       kind: "form",
@@ -48,7 +48,7 @@ export function buildGraphForChangedFile(
     }
     return files.filter((file) => file.filePath !== "")
   } else {
-    importMetadataFileWithGraph({
+    await importMetadataFileWithGraph({
       filePath,
       sources: { yaml: text },
       kind: parsed.kind,

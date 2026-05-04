@@ -5,11 +5,11 @@ import type { ImportContext } from "./types"
 const ctx: ImportContext = { version: "2.20", defaultLanguage: "ru" }
 
 describe("buildGraph (smoke)", () => {
-  it("возвращает [] для пустого входа", () => {
-    expect(buildGraph(new Map(), ctx)).toEqual([])
+  it("возвращает [] для пустого входа", async () => {
+    expect(await buildGraph(new Map(), ctx)).toEqual([])
   })
 
-  it("импортирует справочник: один узел MetadataCatalog с правильным id и label", () => {
+  it("импортирует справочник: один узел MetadataCatalog с правильным id и label", async () => {
     const yaml = `\
 ИмяОбъекта: Контрагенты
 Иерархический: true
@@ -19,7 +19,7 @@ describe("buildGraph (smoke)", () => {
       ["Справочник/Контрагенты/Свойства.yaml", yaml],
     ])
 
-    const result = buildGraph(files, ctx)
+    const result = await buildGraph(files, ctx)
     const fileSegment = result.find((f) => f.filePath === "Справочник/Контрагенты/Свойства.yaml")
     expect(fileSegment).toBeDefined()
 
@@ -31,14 +31,14 @@ describe("buildGraph (smoke)", () => {
     expect(fileSegment!.declaredNodeIds).toContain("Справочник.Контрагенты")
   })
 
-  it("не дублирует реквизиты справочника в props при прямом импорте buildGraph", () => {
+  it("не дублирует реквизиты справочника в props при прямом импорте buildGraph", async () => {
     const yaml = `\
 Реквизиты:
   Автор:
     Тип: Справочник.Пользователи
 `
     const filePath = "Справочник/Файлы/Свойства.yaml"
-    const result = buildGraph(new Map([[filePath, yaml]]), ctx)
+    const result = await buildGraph(new Map([[filePath, yaml]]), ctx)
     const fileSegment = result.find((f) => f.filePath === filePath)!
 
     const root = fileSegment.nodes.find((n) => n.id === "Справочник.Файлы")!
@@ -54,7 +54,7 @@ describe("buildGraph (smoke)", () => {
     ).toBe(true)
   })
 
-  it("не дублирует choiceParameters в props при прямом импорте buildGraph", () => {
+  it("не дублирует choiceParameters в props при прямом импорте buildGraph", async () => {
     const yaml = `\
 Реквизиты:
   Характеристика:
@@ -63,7 +63,7 @@ describe("buildGraph (smoke)", () => {
       Отбор.Владелец: '"A"'
 `
     const filePath = "Справочник/Товары/Свойства.yaml"
-    const result = buildGraph(new Map([[filePath, yaml]]), ctx)
+    const result = await buildGraph(new Map([[filePath, yaml]]), ctx)
     const fileSegment = result.find((f) => f.filePath === filePath)!
 
     const attr = fileSegment.nodes.find(
@@ -86,7 +86,7 @@ describe("buildGraph (smoke)", () => {
     )
   })
 
-  it("не дублирует choiceParameterLinks в props при прямом импорте buildGraph", () => {
+  it("не дублирует choiceParameterLinks в props при прямом импорте buildGraph", async () => {
     const yaml = `\
 Реквизиты:
   Характеристика:
@@ -94,7 +94,7 @@ describe("buildGraph (smoke)", () => {
     СвязиПараметровВыбора: "Отбор.Владелец(Справочник.Товары.Реквизит.Владелец, НеИзменять)"
 `
     const filePath = "Справочник/Товары/Свойства.yaml"
-    const result = buildGraph(new Map([[filePath, yaml]]), ctx)
+    const result = await buildGraph(new Map([[filePath, yaml]]), ctx)
     const fileSegment = result.find((f) => f.filePath === filePath)!
 
     const attr = fileSegment.nodes.find(
@@ -122,14 +122,14 @@ describe("buildGraph (smoke)", () => {
     )
   })
 
-  it("игнорирует файл с неизвестным kind (без падения)", () => {
+  it("игнорирует файл с неизвестным kind (без падения)", async () => {
     const files = new Map([["Случайный/Файл.yaml", "Имя: x"]])
-    expect(buildGraph(files, ctx)).toEqual([])
+    expect(await buildGraph(files, ctx)).toEqual([])
   })
 })
 
 describe("buildGraph (формы)", () => {
-  it("импортирует форму: формовой узел в filePath формы, ребро Форма от владельца", () => {
+  it("импортирует форму: формовой узел в filePath формы, ребро Форма от владельца", async () => {
     const catalogYaml = `\
 ДлинаКода: 9
 `
@@ -141,7 +141,7 @@ describe("buildGraph (формы)", () => {
       ["Справочник/Контрагенты/Формы/ФормаСписка/Форма.yaml", formYaml],
     ])
 
-    const result = buildGraph(files, ctx)
+    const result = await buildGraph(files, ctx)
     const formFile = result.find(
       (f) => f.filePath === "Справочник/Контрагенты/Формы/ФормаСписка/Форма.yaml",
     )!
@@ -164,7 +164,7 @@ describe("buildGraph (формы)", () => {
 })
 
 describe("buildGraph (рёбра и стабы)", () => {
-  it("создаёт стаб для ссылки на несуществующий объект", () => {
+  it("создаёт стаб для ссылки на несуществующий объект", async () => {
     // Перечисление с несуществующим типом значения — простой пример «ссылка вникуда»
     // через стандартный механизм MetadataValue. Реальный сценарий стаба зависит от
     // правил, но для контракта buildGraph достаточно проверить, что стаб попадает в
@@ -177,7 +177,7 @@ describe("buildGraph (рёбра и стабы)", () => {
     const files = new Map([
       ["Перечисление/ВидыКонтрагентов/Свойства.yaml", enumYaml],
     ])
-    const result = buildGraph(files, ctx)
+    const result = await buildGraph(files, ctx)
     // Базовая ассерция: главный узел перечисления есть.
     const enumFile = result.find(
       (f) => f.filePath === "Перечисление/ВидыКонтрагентов/Свойства.yaml",

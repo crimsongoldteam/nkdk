@@ -23,10 +23,10 @@ import type { FileGraphData, ImportContext } from "./types"
  * Файлы с неизвестным kind молча игнорируются: контракт buildGraph — собрать то,
  * что точно понятно. Решения о неизвестных файлах принимает вызывающая сторона.
  */
-export function buildGraph(
+export async function buildGraph(
   yamlFiles: Map<string, string>,
   context: ImportContext,
-): FileGraphData[] {
+): Promise<FileGraphData[]> {
   const graph = new GraphBuilder()
   const importContext: ConfigurationContext = context as ConfigurationContext
 
@@ -48,7 +48,7 @@ export function buildGraph(
     }
 
     try {
-      importMetadataFileWithGraph({
+      await importMetadataFileWithGraph({
         filePath,
         sources: { yaml: yamlText },
         kind: parsed.kind,
@@ -64,7 +64,7 @@ export function buildGraph(
   // 2. Затем формы — их корневой узел требует наличия владельца.
   for (const { filePath, yaml, ownerNodeId, name } of formEntries) {
     try {
-      importMetadataFileWithGraph({
+      await importMetadataFileWithGraph({
         filePath,
         sources: { yaml },
         kind: "form",
