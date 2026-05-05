@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { buildGraphForChangedFile as publicBuildGraphForChangedFile } from "../../../index"
+import { buildGraphForChangedFile as defaultBuildGraphForChangedFile } from "~/metadata/graphImport/buildGraph"
+import { ensureDefaultGraphImportsRegistered } from "~/metadata/graphImport/registerDefaultGraphImports"
 import { buildGraphForChangedFile } from "./buildGraphForChangedFile"
 import type { ImportContext } from "./types"
+
+ensureDefaultGraphImportsRegistered()
 
 const ctx: ImportContext = { version: "2.20", defaultLanguage: "ru" }
 
@@ -94,6 +98,6 @@ describe("buildGraphForChangedFile", () => {
   })
 
   it("экспортируется из корневого API @nakidka/core", () => {
-    expect(publicBuildGraphForChangedFile).toBe(buildGraphForChangedFile)
+    expect(publicBuildGraphForChangedFile).toBe(defaultBuildGraphForChangedFile)
   })
 })

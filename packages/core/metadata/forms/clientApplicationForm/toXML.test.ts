@@ -87,9 +87,11 @@ describe("exportToXML", () => {
         referenceForm: undefined,
       })
 
-      const childItems = xmlData.ChildItems as unknown as Array<{
-        Table?: { Period?: unknown; TopLevelParent?: unknown }
-      }>
+      const childItems: Array<{ Table?: { Period?: unknown; TopLevelParent?: unknown } }> = Array.isArray(
+        xmlData.ChildItems,
+      )
+        ? xmlData.ChildItems
+        : []
       const table = childItems[0]?.Table
 
       expect(table?.Period).toBeDefined()

@@ -17,7 +17,7 @@ const exportTooltip = (name: string, value: unknown): string => {
     ...mockContextToXML(),
     exportToXML: {
       ...mockContextToXML().exportToXML,
-      itemsTree: [{ itemType: "Button", name, path: "" }],
+      itemsTree: [{ itemType: "Button" as const, name, path: "" }],
       context: {
         forms: [],
         templates: [],

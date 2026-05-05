@@ -39,9 +39,7 @@ export interface ClientApplicationFormXML {
   Events?: {
     Event: any
   }
-  ChildItems?: {
-    ChildItem: any
-  }
+  ChildItems?: { ChildItem: any } | Array<{ [key: string]: any }>
   AutoCommandBar?: {
     CommandBar: any
   }

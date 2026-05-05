@@ -12,6 +12,6 @@ export type {
 export { flattenItem } from "./flattenItem"
 export { walkGraphToFileData } from "./walkGraphToFileData"
 export { buildGraph, parseFilePath } from "./buildGraph"
-export type { ParsedFormPath, ParsedItemPath } from "./buildGraph"
+export type { ParsedGraphSourcePath } from "./buildGraph"
 export { buildGraphForChangedFile } from "./buildGraphForChangedFile"
 export type { BuildGraphForChangedFileParams } from "./buildGraphForChangedFile"
