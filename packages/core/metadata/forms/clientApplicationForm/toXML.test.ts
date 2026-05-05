@@ -92,6 +92,61 @@ describe("exportToXML", () => {
       expect(table?.Period).toBeDefined()
       expect(table?.TopLevelParent).toBeDefined()
     })
+
+    it("preserves command ids from reference form by name", () => {
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: {
+          ...minimalClientApplicationForm,
+          commands: [
+            {
+              itemType: "FormCommand",
+              name: "Команда1",
+              title: { items: { ru: "Команда один" } },
+            },
+            {
+              itemType: "FormCommand",
+              name: "Команда2",
+              title: { items: { ru: "Команда два" } },
+            },
+          ],
+        },
+        referenceForm: {
+          ...minimalClientApplicationForm,
+          commands: [
+            {
+              itemType: "FormCommand",
+              name: "Команда1",
+              id: "7",
+              title: { items: { ru: "Старое имя один" } },
+            },
+            {
+              itemType: "FormCommand",
+              name: "Команда2",
+              id: "9",
+              title: { items: { ru: "Старое имя два" } },
+            },
+          ],
+        },
+      })
+
+      expect(xmlData.Commands?.Command).toEqual([
+        {
+          _name: "Команда1",
+          _id: "7",
+          Title: {
+            "v8:item": [{ "v8:lang": "ru", "v8:content": "Команда один" }],
+          },
+        },
+        {
+          _name: "Команда2",
+          _id: "9",
+          Title: {
+            "v8:item": [{ "v8:lang": "ru", "v8:content": "Команда два" }],
+          },
+        },
+      ])
+    })
   })
 
   describe("exportFormMetadataToXML", () => {

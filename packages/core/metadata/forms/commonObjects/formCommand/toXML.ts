@@ -9,7 +9,7 @@ export const exportFormCommandsToXML: ExportToXMLFunctionNew = (params): { Comma
   const referenceData = params.referenceMetadata as FormCommands | undefined
 
   if (data === undefined || data === null) return undefined
-  if (data.length === 0) return { Command: [] }
+  if (data.length === 0) return undefined
 
   const result = data.map((command) => exportFormCommandToXML(context, command, findReferenceCommand(command, referenceData)))
 
