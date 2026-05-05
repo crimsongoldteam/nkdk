@@ -5,7 +5,11 @@ export { shortRoundTripXML } from "./metadata/appliedObjects/configuration/short
 export {
   ADD_ACTION,
   DELETE_ACTION,
+  applyPendingMigrationFiles,
   buildRenameTargetPath,
+  collectStructuralStateFromXML,
+  collectStructuralStateFromYAML,
+  detectMigrationConflicts,
   listMigrationFileNames,
   nextMigrationFileName,
   readAppliedMigrationsState,

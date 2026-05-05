@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander"
 import { importConfiguration } from "./commands/import"
-import { deleteMigration, renameMigration } from "./commands/migration"
+import { deleteMigration, generateMigration, renameMigration } from "./commands/migration"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
 import { syncConfiguration } from "./commands/sync"
 import { updateGraph, updateGraphFile } from "./commands/updateGraph"
@@ -80,6 +80,26 @@ program
   .argument("<path>", "полный путь элемента")
   .action((yamlDir: string, path: string) => {
     run(() => Promise.resolve(deleteMigration(yamlDir, path)))
+  })
+
+program
+  .command("generate-migration")
+  .description("Создать миграцию для неоднозначных структурных изменений")
+  .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
+  .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
+  .option("--dry-run", "показать конфликты без записи файла")
+  .action((yamlDir: string, xmlDir: string, opts: { dryRun?: boolean }) => {
+    run(async () => {
+      const result = await generateMigration({ yamlDir, xmlDir, dryRun: opts.dryRun === true })
+      if (result.conflicts.length > 0) {
+        for (const conflict of result.conflicts) {
+          process.stdout.write(
+            `${conflict.levelPath}: удалено [${conflict.deleted.join(", ")}], добавлено [${conflict.added.join(", ")}]\n`,
+          )
+        }
+      }
+      if (result.exitCode !== 0) process.exitCode = result.exitCode
+    })
   })
 
 program.parse()
