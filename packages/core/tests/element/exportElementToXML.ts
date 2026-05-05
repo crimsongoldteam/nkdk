@@ -38,7 +38,7 @@ export function testExportElementToXML<TElement extends CollectableElement>(
 
   if (contextAttributes) {
     const dynamicListQuery =
-      "MATCH (s {id: $scope})-[:ATTRIBUTE]->(a:FormAttribute)-[:VALUE_TYPE]->(:Type {name: 'DynamicList'}) RETURN a.name AS name"
+      'MATCH (s {id: $scope})-[:FORM_ATTRIBUTE]->(a:FormAttribute) WHERE "DynamicList" IN a.p_type_type RETURN a.name AS name'
     const rows = contextAttributes
       .filter(
         (attr) =>
