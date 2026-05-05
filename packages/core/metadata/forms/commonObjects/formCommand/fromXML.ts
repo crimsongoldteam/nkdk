@@ -15,10 +15,13 @@ export const importFormCommandsFromXML = (
 
   return result?.map((command: FormCommand) => {
     const representation = command.representation as string | undefined
+    if (representation === undefined) {
+      return command
+    }
 
     return {
       ...command,
-      representation: representation === "TextPicture" ? "PictureAndText" : command.representation,
+      representation: representation === "TextPicture" ? "PictureAndText" : representation,
     }
   })
 }
