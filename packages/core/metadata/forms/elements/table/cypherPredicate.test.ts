@@ -5,105 +5,98 @@ import { exportPropertiesToXML } from "~/metadata/orchestration/property/toXML"
 import { TableRules } from "./rules"
 import type { Table } from "./types"
 
-describe("Table CypherPredicate — period и topLevelParent", () => {
-  it("экспортирует period и topLevelParent, когда dataPath указывает на DynamicList атрибут", () => {
-    const context = mockContextToXML()
+const dynamicListQuery =
+  'MATCH (s {id: $scope})-[:FORM_ATTRIBUTE]->(a:FormAttribute) WHERE "DynamicList" IN a.p_type_type RETURN a.name AS name'
 
+function exportTableWithRows(table: Table, rows: Record<string, unknown>[] | undefined): Record<string, unknown> {
+  const context = mockContextToXML()
+
+  if (rows !== undefined) {
     const cache = new CypherCache()
-    cache.set(
-      "MATCH (s {id: $scope})-[:ATTRIBUTE]->(a:FormAttribute)-[:VALUE_TYPE]->(:Type {name: 'DynamicList'}) RETURN a.name AS name",
-      [{ name: "ДинамическийСписок1" }],
-    )
+    cache.set(dynamicListQuery, rows)
     context.exportToXML!.cypherCache = cache
+  }
 
-    const el: Table = {
-      itemType: "Table",
-      name: "Таблица",
-      dataPath: "ДинамическийСписок1.Колонка1",
-      id: undefined,
-    }
+  return exportPropertiesToXML({
+    context,
+    metadata: table,
+    rule: TableRules,
+  }) as Record<string, unknown>
+}
 
-    const result = exportPropertiesToXML({
-      context,
-      metadata: el,
-      rule: TableRules,
-    })
+describe("Table CypherPredicate — period и topLevelParent", () => {
+  it("экспортирует period и topLevelParent, когда dataPath равен имени DynamicList-реквизита", () => {
+    const result = exportTableWithRows(
+      {
+        itemType: "Table",
+        name: "Таблица",
+        dataPath: "Список",
+        id: undefined,
+      },
+      [{ name: "Список" }],
+    )
 
-    expect((result as Record<string, unknown>).Period).toBeDefined()
-    expect((result as Record<string, unknown>).TopLevelParent).toBeDefined()
+    expect(result.Period).toBeDefined()
+    expect(result.TopLevelParent).toBeDefined()
   })
 
-  it("НЕ экспортирует period и topLevelParent, когда dataPath НЕ указывает на DynamicList", () => {
-    const context = mockContextToXML()
-
-    const cache = new CypherCache()
-    cache.set(
-      "MATCH (s {id: $scope})-[:ATTRIBUTE]->(a:FormAttribute)-[:VALUE_TYPE]->(:Type {name: 'DynamicList'}) RETURN a.name AS name",
-      [{ name: "ОбычныйРеквизит" }],
+  it("экспортирует period и topLevelParent, когда dataPath начинается с имени DynamicList-реквизита", () => {
+    const result = exportTableWithRows(
+      {
+        itemType: "Table",
+        name: "Таблица",
+        dataPath: "Список.Колонка",
+        id: undefined,
+      },
+      [{ name: "Список" }],
     )
-    context.exportToXML!.cypherCache = cache
 
-    const el: Table = {
-      itemType: "Table",
-      name: "Таблица",
-      dataPath: "ДинамическийСписок1.Колонка1",
-      id: undefined,
-    }
+    expect(result.Period).toBeDefined()
+    expect(result.TopLevelParent).toBeDefined()
+  })
 
-    const result = exportPropertiesToXML({
-      context,
-      metadata: el,
-      rule: TableRules,
-    })
+  it("НЕ экспортирует period и topLevelParent, когда dataPath НЕ указывает на DynamicList-реквизит", () => {
+    const result = exportTableWithRows(
+      {
+        itemType: "Table",
+        name: "Таблица",
+        dataPath: "Список.Колонка",
+        id: undefined,
+      },
+      [{ name: "ДругойРеквизит" }],
+    )
 
-    expect((result as Record<string, unknown>).Period).toBeUndefined()
-    expect((result as Record<string, unknown>).TopLevelParent).toBeUndefined()
+    expect(result.Period).toBeUndefined()
+    expect(result.TopLevelParent).toBeUndefined()
   })
 
   it("НЕ экспортирует period и topLevelParent, когда кеш пуст", () => {
-    const context = mockContextToXML()
-
-    const cache = new CypherCache()
-    cache.set(
-      "MATCH (s {id: $scope})-[:ATTRIBUTE]->(a:FormAttribute)-[:VALUE_TYPE]->(:Type {name: 'DynamicList'}) RETURN a.name AS name",
+    const result = exportTableWithRows(
+      {
+        itemType: "Table",
+        name: "Таблица",
+        dataPath: "Список.Колонка",
+        id: undefined,
+      },
       [],
     )
-    context.exportToXML!.cypherCache = cache
 
-    const el: Table = {
-      itemType: "Table",
-      name: "Таблица",
-      dataPath: "ДинамическийСписок1.Колонка1",
-      id: undefined,
-    }
-
-    const result = exportPropertiesToXML({
-      context,
-      metadata: el,
-      rule: TableRules,
-    })
-
-    expect((result as Record<string, unknown>).Period).toBeUndefined()
-    expect((result as Record<string, unknown>).TopLevelParent).toBeUndefined()
+    expect(result.Period).toBeUndefined()
+    expect(result.TopLevelParent).toBeUndefined()
   })
 
   it("НЕ экспортирует period и topLevelParent, когда кеш отсутствует в контексте", () => {
-    const context = mockContextToXML()
+    const result = exportTableWithRows(
+      {
+        itemType: "Table",
+        name: "Таблица",
+        dataPath: "Список.Колонка",
+        id: undefined,
+      },
+      undefined,
+    )
 
-    const el: Table = {
-      itemType: "Table",
-      name: "Таблица",
-      dataPath: "ДинамическийСписок1.Колонка1",
-      id: undefined,
-    }
-
-    const result = exportPropertiesToXML({
-      context,
-      metadata: el,
-      rule: TableRules,
-    })
-
-    expect((result as Record<string, unknown>).Period).toBeUndefined()
-    expect((result as Record<string, unknown>).TopLevelParent).toBeUndefined()
+    expect(result.Period).toBeUndefined()
+    expect(result.TopLevelParent).toBeUndefined()
   })
 })
