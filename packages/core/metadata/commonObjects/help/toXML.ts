@@ -12,6 +12,7 @@ export const syncHelpToXML = async (params: {
   rule: PropertyRule
   nkdkDir: string
   xmlDir: string
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
   const { nkdkDir, xmlDir } = params
   const rule = params.rule as HelpPropertyRule
@@ -35,6 +36,7 @@ export const syncHelpToXML = async (params: {
   const helpXmlPath = join(xmlDir, rule.filePath)
   await fs.promises.mkdir(dirname(helpXmlPath), { recursive: true })
   await fs.promises.writeFile(helpXmlPath, xmlExport(helpXmlObj), "utf-8")
+  params.xmlManifest?.addFile(helpXmlPath)
 
   const helpHtmlDir = rule.filePath.replace(/\.xml$/, "")
   for (const lang of langs) {
@@ -42,6 +44,7 @@ export const syncHelpToXML = async (params: {
     const dstHtmlPath = join(xmlDir, helpHtmlDir, `${lang}.html`)
     await fs.promises.mkdir(dirname(dstHtmlPath), { recursive: true })
     await fs.promises.copyFile(srcHtmlPath, dstHtmlPath)
+    params.xmlManifest?.addFile(dstHtmlPath)
   }
 }
 

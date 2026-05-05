@@ -176,6 +176,7 @@ export const syncAppliedObjectToXML = async (params: {
     const extOutputPath = join(outputDir, propRule.filePath)
     await fs.promises.mkdir(dirname(extOutputPath), { recursive: true })
     await fs.promises.writeFile(extOutputPath, xmlExport(xmlFileObj), "utf-8")
+    params.xmlManifest?.addFile(extOutputPath)
   }
 }
 

@@ -217,4 +217,60 @@ describe("sync configuration to XML", () => {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }
   })
+
+  it("останавливает sync при конфликте без миграции", async () => {
+    const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_migration_conflict")
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+    if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
+    fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
+
+    fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), "")
+    fs.writeFileSync(join(xmlDir, "Catalogs", "Товары.xml"), `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
+	<Catalog uuid="00000000-0000-0000-0000-000000000001">
+		<Properties><Name>Товары</Name><Synonym/><Comment/></Properties>
+	</Catalog>
+</MetaDataObject>`, "utf-8")
+
+    try {
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      expect(result.failed[0]?.error.message).toContain("Найдены возможные переименования")
+      expect(result.failed[0]?.error.message).toContain("nkdk generate-migration")
+    } finally {
+      if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    }
+  })
+
+  it("пишет .nakidka-migrations.yaml после успешного sync", async () => {
+    const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_migration_state")
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+    if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+    fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "")
+
+    try {
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      expect(result.failed).toEqual([])
+      expect(fs.readFileSync(join(outDir, ".nakidka-migrations.yaml"), "utf-8")).toBe("applied: []\n")
+    } finally {
+      if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    }
+  })
 })
