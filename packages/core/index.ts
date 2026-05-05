@@ -3,6 +3,23 @@ export type { ConfigurationSyncResult } from "./metadata/appliedObjects/configur
 export { syncConfigurationToXML } from "./metadata/appliedObjects/configuration/syncToXML"
 export { shortRoundTripXML } from "./metadata/appliedObjects/configuration/shortRoundTripXML"
 export {
+  ADD_ACTION,
+  DELETE_ACTION,
+  applyPendingMigrationFiles,
+  buildRenameTargetPath,
+  collectStructuralStateFromXML,
+  collectStructuralStateFromYAML,
+  detectMigrationConflicts,
+  listMigrationFileNames,
+  nextMigrationFileName,
+  readAppliedMigrationsState,
+  readPendingMigrationEntries,
+  validateAppliedMigrationTarget,
+  writeAppliedMigrationsState,
+  writeMigrationFile,
+} from "./metadata/appliedObjects/configuration/migrations"
+export type { MigrationConflict, MigrationEntry, StructuralState } from "./metadata/appliedObjects/configuration/migrations"
+export {
   exportMetadataCatalogToJSONSchema,
   exportMetadataCatalogToYAML,
   importMetadataCatalogFromYAML,
