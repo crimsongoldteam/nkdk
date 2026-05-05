@@ -14,10 +14,11 @@ export {
   nextMigrationFileName,
   readAppliedMigrationsState,
   readPendingMigrationEntries,
+  validateAppliedMigrationTarget,
   writeAppliedMigrationsState,
   writeMigrationFile,
 } from "./metadata/appliedObjects/configuration/migrations"
-export type { MigrationConflict, MigrationEntry } from "./metadata/appliedObjects/configuration/migrations"
+export type { MigrationConflict, MigrationEntry, StructuralState } from "./metadata/appliedObjects/configuration/migrations"
 export {
   exportMetadataCatalogToJSONSchema,
   exportMetadataCatalogToYAML,

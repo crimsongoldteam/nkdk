@@ -22,15 +22,17 @@ export function readAppliedMigrationsState(xmlDir: string): AppliedMigrationsSta
 
 function validateAppliedMigrationNames(applied: unknown[]): string[] {
   const seen = new Set<string>()
+  const names: string[] = []
   for (const name of applied) {
     if (typeof name !== "string" || !isMigrationFileName(name)) {
       throw new Error(`Некорректное имя применённой миграции "${String(name)}"`)
     }
     if (seen.has(name)) throw new Error(`Дубликат применённой миграции "${name}"`)
     seen.add(name)
+    names.push(name)
   }
 
-  return [...applied]
+  return names
 }
 
 export function writeAppliedMigrationsState(xmlDir: string, state: AppliedMigrationsState): void {

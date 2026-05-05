@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { applyMigrationEntries, applyPendingMigrationFiles } from "./applyMigrations"
+import { applyMigrationEntries, applyPendingMigrationFiles, validateAppliedMigrationTarget } from "./applyMigrations"
 import type { MigrationEntry, StructuralKind, StructuralState } from "./types"
 
 function state(paths: string[]): StructuralState {
@@ -10,12 +10,17 @@ function state(paths: string[]): StructuralState {
         {
           path,
           kind: kindByPath(path),
-          name: path.split(".").at(-1)!,
+          name: lastSegment(path),
           referencePath: path,
         },
       ]),
     ),
   }
+}
+
+function lastSegment(path: string): string {
+  const segments = path.split(".")
+  return segments[segments.length - 1]!
 }
 
 function kindByPath(path: string): StructuralKind {
@@ -145,6 +150,7 @@ describe("applyPendingMigrationFiles", () => {
     ])
     expect(result.referencePathByCurrentPath.get("Справочник.Номенклатура")).toBe("Справочник.Товары")
     expect(result.appliedFileNames).toEqual(["2026-05-05-143000.yaml", "2026-05-05-143001.yaml"])
+    validateAppliedMigrationTarget(result, state(["Справочник.Номенклатура", "Справочник.Номенклатура.Реквизит.Артикул"]))
   })
 
   it("preserves descendant reference paths across sequential file renames", () => {
@@ -167,5 +173,58 @@ describe("applyPendingMigrationFiles", () => {
       "Справочник.Товары.Реквизит.Артикул",
     )
     expect(result.appliedFileNames).toEqual(["2026-05-05-143000.yaml", "2026-05-05-143001.yaml"])
+  })
+
+  it("rejects rename when target YAML path is missing", () => {
+    const result = applyPendingMigrationFiles(state(["Справочник.Товары"]), [
+      {
+        fileName: "2026-05-05-143000.yaml",
+        entries: [{ path: "Справочник.Товары", value: "Номенклатура" }],
+      },
+    ])
+
+    expect(() => validateAppliedMigrationTarget(result, state([]))).toThrow(
+      'Миграция ожидает путь в YAML "Справочник.Номенклатура"',
+    )
+  })
+
+  it("rejects delete when target YAML still has the same path", () => {
+    const result = applyPendingMigrationFiles(state(["Справочник.Товары"]), [
+      {
+        fileName: "2026-05-05-143000.yaml",
+        entries: [{ path: "Справочник.Товары", value: "Удалить" }],
+      },
+    ])
+
+    expect(() => validateAppliedMigrationTarget(result, state(["Справочник.Товары"]))).toThrow(
+      'Миграция ожидает отсутствие пути в YAML "Справочник.Товары"',
+    )
+  })
+
+  it("allows delete then add of the same final YAML path", () => {
+    const result = applyPendingMigrationFiles(state(["Справочник.Товары"]), [
+      {
+        fileName: "2026-05-05-143000.yaml",
+        entries: [
+          { path: "Справочник.Товары", value: "Удалить" },
+          { path: "Справочник.Товары", value: "Добавить" },
+        ],
+      },
+    ])
+
+    expect(() => validateAppliedMigrationTarget(result, state(["Справочник.Товары"]))).not.toThrow()
+  })
+
+  it("rejects add when target YAML path is missing", () => {
+    const result = applyPendingMigrationFiles(state([]), [
+      {
+        fileName: "2026-05-05-143000.yaml",
+        entries: [{ path: "Справочник.Товары", value: "Добавить" }],
+      },
+    ])
+
+    expect(() => validateAppliedMigrationTarget(result, state([]))).toThrow(
+      'Миграция ожидает путь в YAML "Справочник.Товары"',
+    )
   })
 })

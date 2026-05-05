@@ -10,9 +10,11 @@ import {
   detectMigrationConflicts,
   readAppliedMigrationsState,
   readPendingMigrationEntries,
+  validateAppliedMigrationTarget,
   writeMigrationFile,
   type MigrationConflict,
   type MigrationEntry,
+  type StructuralState,
 } from "@nakidka/core"
 
 export function renameMigration(yamlDir: string, path: string, newName: string, now = new Date()): void {
@@ -49,13 +51,28 @@ export async function generateMigration(params: {
   const referenceState = await collectStructuralStateFromXML({ xmlDir: params.xmlDir, context: makeFromXMLContext() })
   const yamlState = await collectStructuralStateFromYAML({ yamlDir: params.yamlDir, context: makeToXMLContext() })
   const migrated = applyPendingMigrationFiles(referenceState, pending)
+  validateAppliedMigrationTarget(migrated, yamlState)
   const conflicts = detectMigrationConflicts(migrated.state, yamlState)
 
   if (conflicts.length === 0) return { exitCode: 0, conflicts: [] }
   if (params.dryRun) return { exitCode: 1, conflicts }
 
+  const entries = await resolveConflictsInteractively(migrated.state, yamlState)
+
+  const filePath = writeMigrationFile({ yamlDir: params.yamlDir, entries, now: params.now })
+  process.stdout.write(filePath + "\n")
+  return { exitCode: 0, conflicts, filePath }
+}
+
+async function resolveConflictsInteractively(initial: StructuralState, target: StructuralState): Promise<MigrationEntry[]> {
+  let current = initial
   const entries: MigrationEntry[] = []
-  for (const conflict of conflicts) {
+
+  while (true) {
+    const conflict = detectMigrationConflicts(current, target)[0]
+    if (!conflict) return entries
+
+    const chunk: MigrationEntry[] = []
     const availableAdded = [...conflict.added]
     for (const deleted of conflict.deleted) {
       const choice = await select<string>({
@@ -66,17 +83,14 @@ export async function generateMigration(params: {
         ],
       })
       const fullPath = `${conflict.levelPath}.${deleted}`
-      entries.push({ path: fullPath, value: choice })
+      chunk.push({ path: fullPath, value: choice })
       if (choice !== DELETE_ACTION) availableAdded.splice(availableAdded.indexOf(choice), 1)
     }
-    for (const added of availableAdded) {
-      entries.push({ path: `${conflict.levelPath}.${added}`, value: ADD_ACTION })
-    }
-  }
+    for (const added of availableAdded) chunk.push({ path: `${conflict.levelPath}.${added}`, value: ADD_ACTION })
 
-  const filePath = writeMigrationFile({ yamlDir: params.yamlDir, entries, now: params.now })
-  process.stdout.write(filePath + "\n")
-  return { exitCode: 0, conflicts, filePath }
+    entries.push(...chunk)
+    current = applyPendingMigrationFiles(current, [{ fileName: "generated.yaml", entries: chunk }]).state
+  }
 }
 
 function makeFromXMLContext() {

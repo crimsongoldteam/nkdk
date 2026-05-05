@@ -195,7 +195,7 @@ describe("extractTypeDescriptionGraph — интеграция с importMetadata
     expect(valueTypeEdges).toHaveLength(0)
 
     const fileGraphData = walkGraphToFileData(graph)
-    const segment = fileGraphData.find((item) => item.declaredNodeIds.includes(attrNodeId))
+    const segment = fileGraphData.find((item) => item.declaredNodeIds?.includes(attrNodeId))
     const attrNode = segment?.nodes.find((node) => node.id === attrNodeId)
 
     expect(attrNode?.label).toBe("FormAttribute")

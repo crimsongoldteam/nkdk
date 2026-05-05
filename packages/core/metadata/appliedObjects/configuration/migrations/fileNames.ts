@@ -41,7 +41,8 @@ export function formatMigrationFileName(date: Date): string {
 }
 
 export function nextMigrationFileName(yamlDir: string, now = new Date()): string {
-  const latest = listMigrationFileNames(yamlDir).at(-1)
+  const fileNames = listMigrationFileNames(yamlDir)
+  const latest = fileNames[fileNames.length - 1]
   if (!latest) return formatMigrationFileName(now)
 
   const latestPlusOne = new Date(migrationFileNameToDate(latest).getTime() + 1000)

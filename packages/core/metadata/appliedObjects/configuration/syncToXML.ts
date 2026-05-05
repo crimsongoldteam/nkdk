@@ -11,6 +11,7 @@ import {
   detectMigrationConflicts,
   readAppliedMigrationsState,
   readPendingMigrationEntries,
+  validateAppliedMigrationTarget,
   writeAppliedMigrationsState,
 } from "./migrations"
 import { pruneXmlByManifest, XmlSyncManifest } from "./migrations/xmlManifest"
@@ -46,6 +47,7 @@ export const syncConfigurationToXML = async (params: {
   const referenceState = await collectStructuralStateFromXML({ xmlDir: referenceDir, context: contextFromXML })
   const yamlState = await collectStructuralStateFromYAML({ yamlDir: inputDir, context })
   const migrationResult = applyPendingMigrationFiles(referenceState, pendingMigrations)
+  validateAppliedMigrationTarget(migrationResult, yamlState)
   const conflicts = detectMigrationConflicts(migrationResult.state, yamlState)
   if (conflicts.length > 0) {
     const details = conflicts
@@ -81,7 +83,8 @@ export const syncConfigurationToXML = async (params: {
       if (!fs.existsSync(propertiesPath)) continue
       const currentObjectPath = `${rule.itemTypePrefix}.${name}`
       const referencePath = migrationResult.referencePathByCurrentPath.get(currentObjectPath) ?? currentObjectPath
-      const referenceName = referencePath.split(".").at(-1)!
+      const referencePathSegments = referencePath.split(".")
+      const referenceName = referencePathSegments[referencePathSegments.length - 1]!
       const currentNode = migrationResult.state.nodes.get(currentObjectPath)
       const referenceModel = currentNode && currentNode.referencePath === undefined ? null : undefined
       const xmlExternalOutputDir = join(xmlOutputDir, name)

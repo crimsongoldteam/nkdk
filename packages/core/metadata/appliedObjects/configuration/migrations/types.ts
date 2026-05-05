@@ -37,4 +37,10 @@ export interface AppliedMigrationResult {
   state: StructuralState
   referencePathByCurrentPath: Map<string, string>
   appliedFileNames: string[]
+  targetChecks: MigrationTargetCheck[]
+}
+
+export interface MigrationTargetCheck {
+  path: string
+  expected: "exists" | "absent"
 }

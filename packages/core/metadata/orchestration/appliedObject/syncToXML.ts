@@ -57,7 +57,7 @@ export const syncAppliedObjectToXML = async (params: {
   const loadedReferenceModel = params.referenceModel === undefined
     ? readReferenceModel({ context: contextFromXML, xmlPath: referenceXmlPath, rule })
     : (params.referenceModel ?? undefined)
-  const referenceModel = params.referencePathByCurrentPath && params.currentObjectPath
+  const referenceModel = params.referencePathByCurrentPath?.size && params.currentObjectPath
     ? remapReferenceModel({
         rule,
         currentObjectPath: params.currentObjectPath,

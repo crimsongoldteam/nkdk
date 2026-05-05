@@ -7,10 +7,15 @@ function state(paths: string[]): StructuralState {
     nodes: new Map(paths.map((path) => [path, {
       path,
       kind: path.includes("Реквизит") ? "attribute" : "object",
-      name: path.split(".").at(-1)!,
+      name: lastSegment(path),
       referencePath: path,
     }])),
   }
+}
+
+function lastSegment(path: string): string {
+  const segments = path.split(".")
+  return segments[segments.length - 1]!
 }
 
 describe("detectMigrationConflicts", () => {
