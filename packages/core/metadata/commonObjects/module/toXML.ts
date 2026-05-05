@@ -17,6 +17,7 @@ export const syncModuleToXML = async (params: {
   nkdkDir: string
   xmlDir: string
   itemName?: string
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
   const { nkdkDir, xmlDir, itemName } = params
   const rule = params.rule as ModulePropertyRule | TemplatePropertyRule
@@ -33,6 +34,7 @@ export const syncModuleToXML = async (params: {
   const dstPath = join(xmlDir, xmlPath)
   await fs.promises.mkdir(dirname(dstPath), { recursive: true })
   await fs.promises.copyFile(srcPath, dstPath)
+  params.xmlManifest?.addFile(dstPath)
 }
 
 registerTypeRule("Module", "syncExternalToXML", syncModuleToXML)

@@ -1,5 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
+import { remapReferenceModel } from "~/metadata/appliedObjects/configuration/migrations/referenceRemap"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import {
   exportMetadataItemToXML,
@@ -22,10 +23,19 @@ export const syncAppliedObjectToXML = async (params: {
   inputDir: string
   name: string
   outputDir: string
+  externalOutputDir?: string
   referenceDir?: string
+  externalReferenceDir?: string
+  referenceName?: string
+  referenceModel?: Record<string, unknown> | null
+  referencePathByCurrentPath?: Map<string, string>
+  currentObjectPath?: string
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
   const { rule, context, inputDir, name, outputDir } = params
   const referenceDir = params.referenceDir ?? outputDir
+  const externalOutputDir = params.externalOutputDir ?? outputDir
+  const externalReferenceDir = params.externalReferenceDir ?? referenceDir
 
   const yamlPath = join(inputDir, name, PROPERTIES_YAML)
   const yamlContent = await fs.promises.readFile(yamlPath, "utf-8")
@@ -42,8 +52,20 @@ export const syncAppliedObjectToXML = async (params: {
     version: "2.20",
   }
 
-  const referenceXmlPath = join(referenceDir, `${name}.xml`)
-  const referenceModel = readReferenceModel({ context: contextFromXML, xmlPath: referenceXmlPath, rule })
+  const referenceName = params.referenceName ?? name
+  const referenceXmlPath = join(referenceDir, `${referenceName}.xml`)
+  const loadedReferenceModel = params.referenceModel === undefined
+    ? readReferenceModel({ context: contextFromXML, xmlPath: referenceXmlPath, rule })
+    : (params.referenceModel ?? undefined)
+  const referenceModel = params.referencePathByCurrentPath?.size && params.currentObjectPath
+    ? remapReferenceModel({
+        rule,
+        currentObjectPath: params.currentObjectPath,
+        currentModel: model as Record<string, unknown>,
+        referenceModel: loadedReferenceModel as Record<string, unknown> | undefined,
+        referencePathByCurrentPath: params.referencePathByCurrentPath,
+      })
+    : loadedReferenceModel
 
   const forms = await collectFolderNames(rule, "ChildFormNames", inputDir, name)
   const templates = await collectFolderNames(rule, "ChildTemplateNames", inputDir, name)
@@ -72,14 +94,27 @@ export const syncAppliedObjectToXML = async (params: {
   if (!xmlObj) return
 
   await fs.promises.mkdir(outputDir, { recursive: true })
-  await fs.promises.writeFile(join(outputDir, `${name}.xml`), xmlExport(xmlObj), "utf-8")
+  const outputPath = join(outputDir, `${name}.xml`)
+  await fs.promises.writeFile(outputPath, xmlExport(xmlObj), "utf-8")
+  params.xmlManifest?.addFile(outputPath)
 
   // Обработчики внешних файлов на уровне объекта (Help, Module, Template со статическими путями)
   const nkdkDir = join(inputDir, name)
   for (const [, propRule] of Object.entries(rule.properties)) {
     const syncFn = getTypeRule(propRule.type, "syncExternalToXML")
     if (!syncFn) continue
-    await syncFn({ context: contextWithForms, rule: propRule, nkdkDir, xmlDir: outputDir, name, referenceDir })
+    const syncXmlDir = propRule.type === "ChildFormNames" ? outputDir : externalOutputDir
+    const syncReferenceDir = propRule.type === "ChildFormNames" ? referenceDir : externalReferenceDir
+    await syncFn({
+      context: contextWithForms,
+      rule: propRule,
+      nkdkDir,
+      xmlDir: syncXmlDir,
+      name,
+      referenceDir: syncReferenceDir,
+      referenceName,
+      xmlManifest: params.xmlManifest,
+    })
   }
 
   // Обработчики внешних файлов для дочерних коллекций (команды с функциональными путями)
@@ -94,7 +129,17 @@ export const syncAppliedObjectToXML = async (params: {
       for (const [, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
         const syncFn = getTypeRule(itemPropRule.type, "syncExternalToXML")
         if (!syncFn) continue
-        await syncFn({ context: contextWithForms, rule: itemPropRule, nkdkDir, xmlDir: outputDir, name, referenceDir, itemName })
+        await syncFn({
+          context: contextWithForms,
+          rule: itemPropRule,
+          nkdkDir,
+          xmlDir: externalOutputDir,
+          name,
+          referenceDir: externalReferenceDir,
+          referenceName,
+          xmlManifest: params.xmlManifest,
+          itemName,
+        })
       }
     }
   }
@@ -114,7 +159,7 @@ export const syncAppliedObjectToXML = async (params: {
     if (modelValue === undefined) continue
 
     let referenceValue: unknown = undefined
-    const referenceExtPath = join(referenceDir, propRule.filePath)
+    const referenceExtPath = join(externalReferenceDir, propRule.filePath)
     if (fs.existsSync(referenceExtPath)) {
       const refContent = fs.readFileSync(referenceExtPath, "utf-8")
       const refParsed = importContentFromXML<Record<string, unknown>>(refContent)
@@ -134,9 +179,10 @@ export const syncAppliedObjectToXML = async (params: {
     }) as Record<string, unknown> | undefined
     if (!xmlFileObj) continue
 
-    const extOutputPath = join(outputDir, propRule.filePath)
+    const extOutputPath = join(externalOutputDir, propRule.filePath)
     await fs.promises.mkdir(dirname(extOutputPath), { recursive: true })
     await fs.promises.writeFile(extOutputPath, xmlExport(xmlFileObj), "utf-8")
+    params.xmlManifest?.addFile(extOutputPath)
   }
 }
 

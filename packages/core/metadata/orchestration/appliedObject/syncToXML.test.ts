@@ -144,3 +144,29 @@ describe("syncAppliedObjectToXML — (г) fallback referenceDir на outputDir",
     expect(result).toContain("ФормаАвторства")
   })
 })
+
+describe("syncAppliedObjectToXML — (д) explicit null reference", () => {
+  it("не читает reference XML, когда referenceModel передан как null", async () => {
+    const inputDir = join(tmpDir, "input")
+    const referenceDir = join(tmpDir, "reference")
+    const outputDir = join(tmpDir, "output")
+
+    fs.mkdirSync(join(inputDir, "ТестСправочник"), { recursive: true })
+    fs.writeFileSync(join(inputDir, "ТестСправочник", "Свойства.yaml"), "", "utf-8")
+    fs.mkdirSync(referenceDir, { recursive: true })
+    fs.writeFileSync(join(referenceDir, "ТестСправочник.xml"), catalogXml(["ФормаИзReference"]), "utf-8")
+
+    await syncAppliedObjectToXML({
+      rule: MetadataCatalogRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ТестСправочник",
+      outputDir,
+      referenceDir,
+      referenceModel: null,
+    })
+
+    const result = fs.readFileSync(join(outputDir, "ТестСправочник.xml"), "utf-8")
+    expect(result).not.toContain("ФормаИзReference")
+  })
+})

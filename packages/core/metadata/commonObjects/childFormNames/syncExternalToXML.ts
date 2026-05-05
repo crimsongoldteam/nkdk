@@ -11,7 +11,7 @@ import type { ChildFormNamesPropertyRule } from "./types"
  * последовательно внутри объекта.
  */
 export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params) => {
-  const { context, rule: rawRule, nkdkDir, xmlDir, name, referenceDir } = params
+  const { context, rule: rawRule, nkdkDir, xmlDir, name, referenceDir, referenceName, xmlManifest } = params
   const rule = rawRule as ChildFormNamesPropertyRule
 
   const formsDir = join(nkdkDir, rule.folderName)
@@ -28,7 +28,7 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
     .map((e) => e.name)
 
   const formOutputDir = join(xmlDir, name)
-  const formReferenceDir = referenceDir ? join(referenceDir, name, "Forms") : undefined
+  const formReferenceDir = referenceDir ? join(referenceDir, referenceName ?? name, "Forms") : undefined
 
   for (const formName of formNames) {
     await syncFormToXML({
@@ -37,6 +37,7 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
       formName,
       outputDir: formOutputDir,
       referenceDir: formReferenceDir,
+      xmlManifest,
     })
   }
 }
