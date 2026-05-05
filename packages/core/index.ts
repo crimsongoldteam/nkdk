@@ -42,7 +42,7 @@ export {
   importMetadataFileWithGraph,
   type ImportMetadataFileResult,
 } from "./metadata/orchestration/importMetadataFileWithGraph"
-export { buildGraph, buildGraphForChangedFile } from "./metadata/orchestration/buildGraph"
+export { buildGraph, buildGraphForChangedFile } from "./metadata/graphImport/buildGraph"
 export type {
   BuildGraphForChangedFileParams,
   FileGraphData,

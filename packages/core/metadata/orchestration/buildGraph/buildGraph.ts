@@ -1,20 +1,17 @@
-import { GraphBuilder } from "./internal/GraphBuilder"
-import "~/metadata/appliedObjects/metadataCommand/register"
-import "~/metadata/commonObjects/сhoiceParameterLinks/graphFromModel"
-import "~/metadata/commonObjects/сhoiceParameters/graphFromModel"
-import "~/metadata/commonObjects/metadataAttribute/register"
-import "~/metadata/commonObjects/metadataTabularSection/register"
-import "~/metadata/commonObjects/standardAttributeDescription/registerCollectionRule"
-import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
-import type { MetadataKind } from "~/metadata/validation/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
-import { walkGraphToFileData } from "./walkGraphToFileData"
+import { importRegisteredMetadataSourceWithGraph } from "~/metadata/orchestration/graphImport/importRegisteredMetadataSourceWithGraph"
+import {
+  resolveGraphImportSource,
+  type GraphImportSourceMatch,
+} from "~/metadata/orchestration/graphImport/registry"
+import { GraphBuilder } from "./internal/GraphBuilder"
 import type {
   FileGraphData,
   ImportContext,
   ProjectGraphInput,
   ProjectGraphSource,
 } from "./types"
+import { walkGraphToFileData } from "./walkGraphToFileData"
 
 const normalizeGraphSources = (input: ProjectGraphInput): ProjectGraphSource[] => {
   if (input instanceof Map) {
@@ -40,18 +37,6 @@ const applySourceStats = (
   })
 }
 
-/**
- * Чистый агрегатор: YAML-файлы → FileGraphData[] для @nakidka/graph.updateGraph.
- *
- * Входной формат: Map<filePath, yamlText>. Определение kind — по сегментам пути:
- *   Справочник/<name>/Свойства.yaml          → catalog
- *   Документ/<name>/Свойства.yaml            → document
- *   Перечисление/<name>/Свойства.yaml        → enumeration
- *   <ownerKind>/<owner>/Формы/<form>/Форма.yaml → form (требует ownerNodeId)
- *
- * Файлы с неизвестным kind молча игнорируются: контракт buildGraph — собрать то,
- * что точно понятно. Решения о неизвестных файлах принимает вызывающая сторона.
- */
 export async function buildGraph(
   projectFiles: ProjectGraphInput,
   context: ImportContext,
@@ -60,108 +45,42 @@ export async function buildGraph(
   const graph = new GraphBuilder()
   const importContext: ConfigurationContext = context as ConfigurationContext
 
-  // 1. Сначала прикладные объекты — они создают корневые узлы для форм.
-  const formEntries: Array<{
-    filePath: string
-    yaml: string
-    ownerNodeId: string
-    name: string
-    pairedText?: ProjectGraphSource["pairedText"]
-  }> = []
+  const entries = sources
+    .map((source) => ({ source, parsed: parseFilePath(source.filePath) }))
+    .filter((entry): entry is { source: ProjectGraphSource; parsed: ParsedGraphSourcePath } => entry.parsed !== undefined)
+    .sort((a, b) => a.parsed.phase - b.parsed.phase)
 
-  for (const source of sources) {
-    const parsed = parseFilePath(source.filePath)
-    if (!parsed) continue
-
-    if (parsed.kind === "form") {
-      formEntries.push({
-        filePath: source.filePath,
-        yaml: source.text,
-        ownerNodeId: parsed.ownerNodeId,
-        name: parsed.formName,
-        pairedText: source.pairedText,
-      })
-      continue
-    }
-
+  for (const { source, parsed } of entries) {
     try {
-      await importMetadataFileWithGraph({
+      await importRegisteredMetadataSourceWithGraph({
         filePath: source.filePath,
-        sources: { yaml: source.text },
+        sources: {
+          yaml: source.text,
+          paired: source.pairedText,
+        },
         kind: parsed.kind,
         name: parsed.name,
+        pathParams: parsed.pathParams,
         graph,
         context: importContext,
       })
     } catch {
-      // Молчаливо пропускаем — контракт buildGraph: собрать что понятно.
-    }
-  }
-
-  // 2. Затем формы — их корневой узел требует наличия владельца.
-  for (const { filePath, yaml, ownerNodeId, name, pairedText } of formEntries) {
-    try {
-      await importMetadataFileWithGraph({
-        filePath,
-        sources: { yaml, nkdk: pairedText?.text },
-        kind: "form",
-        name,
-        graph,
-        context: importContext,
-        ownerNodeId,
-        nkdkFilePath: pairedText?.filePath,
-      })
-    } catch {
-      // Молчаливо пропускаем.
+      // Контракт buildGraph прежний: собрать то, что точно понятно.
     }
   }
 
   return applySourceStats(walkGraphToFileData(graph), sources)
 }
 
-export interface ParsedItemPath {
-  kind: MetadataKind
-  name: string
+export interface ParsedGraphSourcePath extends GraphImportSourceMatch {
+  phase: number
 }
 
-export interface ParsedFormPath {
-  kind: "form"
-  ownerNodeId: string
-  formName: string
-}
-
-/**
- * Ключи должны совпадать с `itemTypePrefix` из соответствующих rules.ts —
- * иначе ownerNodeId, собираемый из ownerDir, разойдётся с itemNodeId,
- * который ensureRootNode строит из itemTypePrefix.
- */
-const KIND_BY_DIR: Record<string, MetadataKind> = {
-  Справочник: "catalog",
-  Документ: "document",
-  Перечисление: "enumeration",
-}
-
-export function parseFilePath(filePath: string): ParsedItemPath | ParsedFormPath | undefined {
-  const segments = filePath.split("/")
-  // <dir>/<name>/Свойства.yaml
-  if (segments.length === 3 && segments[2] === "Свойства.yaml") {
-    const dir = segments[0]!
-    const name = segments[1]!
-    const kind = KIND_BY_DIR[dir]
-    if (!kind) return undefined
-    return { kind, name }
+export function parseFilePath(filePath: string): ParsedGraphSourcePath | undefined {
+  const match = resolveGraphImportSource(filePath)
+  if (!match) return undefined
+  return {
+    ...match,
+    phase: match.phase ?? 0,
   }
-  // <ownerKind>/<owner>/Формы/<formName>/Форма.yaml
-  if (segments.length === 5 && segments[2] === "Формы" && segments[4] === "Форма.yaml") {
-    const ownerDir = segments[0]!
-    const ownerName = segments[1]!
-    const formName = segments[3]!
-    if (!KIND_BY_DIR[ownerDir]) return undefined
-    return {
-      kind: "form",
-      ownerNodeId: `${ownerDir}.${ownerName}`,
-      formName,
-    }
-  }
-  return undefined
 }

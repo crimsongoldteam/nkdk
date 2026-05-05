@@ -1,6 +1,11 @@
+import { readFileSync } from "fs"
+import { join } from "path"
+import { ensureDefaultGraphImportsRegistered } from "~/metadata/graphImport/registerDefaultGraphImports"
 import { describe, expect, it } from "vitest"
 import { buildGraph } from "./buildGraph"
 import type { ImportContext } from "./types"
+
+ensureDefaultGraphImportsRegistered()
 
 const ctx: ImportContext = { version: "2.20", defaultLanguage: "ru" }
 
@@ -125,6 +130,19 @@ describe("buildGraph (smoke)", () => {
   it("игнорирует файл с неизвестным kind (без падения)", async () => {
     const files = new Map([["Случайный/Файл.yaml", "Имя: x"]])
     expect(await buildGraph(files, ctx)).toEqual([])
+  })
+
+  it("универсальный buildGraph не содержит зашитые пути прикладных объектов", () => {
+    const source = readFileSync(
+      join(process.cwd(), "metadata/orchestration/buildGraph/buildGraph.ts"),
+      "utf-8",
+    )
+
+    expect(source).not.toContain("Справочник")
+    expect(source).not.toContain("Документ")
+    expect(source).not.toContain("Перечисление")
+    expect(source).not.toContain("Формы")
+    expect(source).not.toContain("formEntries")
   })
 })
 

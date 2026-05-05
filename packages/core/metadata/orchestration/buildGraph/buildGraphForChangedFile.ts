@@ -1,9 +1,10 @@
 import type { ConfigurationContext } from "~/metadata/context/types"
-import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
-import { GraphBuilder } from "./internal/GraphBuilder"
+import { importRegisteredMetadataSourceWithGraph } from "~/metadata/orchestration/graphImport/importRegisteredMetadataSourceWithGraph"
+import { getGraphImportRegistration } from "~/metadata/orchestration/graphImport/registry"
 import { parseFilePath } from "./buildGraph"
-import { walkGraphToFileData } from "./walkGraphToFileData"
+import { GraphBuilder } from "./internal/GraphBuilder"
 import type { FileGraphData, ImportContext, ProjectGraphSource } from "./types"
+import { walkGraphToFileData } from "./walkGraphToFileData"
 
 export interface BuildGraphForChangedFileParams {
   projectPath: string
@@ -18,43 +19,31 @@ export async function buildGraphForChangedFile(
 ): Promise<FileGraphData[]> {
   const { filePath, text, context, pairedText } = params
   void params.projectPath
-  const source: ProjectGraphSource = { filePath, text, pairedText }
 
-  const parsed = parseFilePath(source.filePath)
+  const parsed = parseFilePath(filePath)
   if (!parsed) return []
 
   const graph = new GraphBuilder()
   const importContext: ConfigurationContext = context as ConfigurationContext
 
-  if (parsed.kind === "form") {
-    await importMetadataFileWithGraph({
-      filePath: source.filePath,
-      sources: { yaml: source.text, nkdk: source.pairedText?.text },
-      kind: "form",
-      name: parsed.formName,
-      graph,
-      context: importContext,
-      ownerNodeId: parsed.ownerNodeId,
-      nkdkFilePath: source.pairedText?.filePath,
-    })
+  await importRegisteredMetadataSourceWithGraph({
+    filePath,
+    sources: { yaml: text, paired: pairedText },
+    kind: parsed.kind,
+    name: parsed.name,
+    pathParams: parsed.pathParams,
+    graph,
+    context: importContext,
+  })
 
-    const files = walkGraphToFileData(graph)
+  const files = walkGraphToFileData(graph)
+  const registration = getGraphImportRegistration(parsed.kind)
+  if (registration?.includeStubEdgesInChangedFile) {
     const stub = files.find((file) => file.filePath === "")
-    const changedFile = files.find((file) => file.filePath === source.filePath)
+    const changedFile = files.find((file) => file.filePath === filePath)
     if (stub && changedFile) {
       changedFile.edges.push(...stub.edges)
     }
-    return files.filter((file) => file.filePath !== "")
-  } else {
-    await importMetadataFileWithGraph({
-      filePath: source.filePath,
-      sources: { yaml: source.text },
-      kind: parsed.kind,
-      name: parsed.name,
-      graph,
-      context: importContext,
-    })
   }
-
-  return walkGraphToFileData(graph).filter((file) => file.filePath !== "")
+  return files.filter((file) => file.filePath !== "")
 }
