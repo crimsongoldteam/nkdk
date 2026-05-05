@@ -146,4 +146,26 @@ describe("applyPendingMigrationFiles", () => {
     expect(result.referencePathByCurrentPath.get("Справочник.Номенклатура")).toBe("Справочник.Товары")
     expect(result.appliedFileNames).toEqual(["2026-05-05-143000.yaml", "2026-05-05-143001.yaml"])
   })
+
+  it("preserves descendant reference paths across sequential file renames", () => {
+    const result = applyPendingMigrationFiles(state(["Справочник.Товары", "Справочник.Товары.Реквизит.Артикул"]), [
+      {
+        fileName: "2026-05-05-143000.yaml",
+        entries: [{ path: "Справочник.Товары", value: "Номенклатура" }],
+      },
+      {
+        fileName: "2026-05-05-143001.yaml",
+        entries: [{ path: "Справочник.Номенклатура.Реквизит.Артикул", value: "НовыйАртикул" }],
+      },
+    ])
+
+    expect([...result.state.nodes.keys()].sort()).toEqual([
+      "Справочник.Номенклатура",
+      "Справочник.Номенклатура.Реквизит.НовыйАртикул",
+    ])
+    expect(result.referencePathByCurrentPath.get("Справочник.Номенклатура.Реквизит.НовыйАртикул")).toBe(
+      "Справочник.Товары.Реквизит.Артикул",
+    )
+    expect(result.appliedFileNames).toEqual(["2026-05-05-143000.yaml", "2026-05-05-143001.yaml"])
+  })
 })
