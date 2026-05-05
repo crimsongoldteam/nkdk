@@ -1,8 +1,12 @@
 import type { ConfigurationContext } from "~/metadata/context/types"
 import type { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import type { PairedGraphSourceText } from "~/metadata/orchestration/buildGraph/types"
-import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+
+export interface GraphImportedMetadataModel {
+  itemType?: string
+}
 
 export interface GraphImportSources {
   yaml: string
@@ -27,7 +31,7 @@ export interface GraphModelImportParams {
 }
 
 export interface GraphModelImportResult {
-  model: MetadataItem
+  model: GraphImportedMetadataModel
   graphModel: Record<string, unknown>
   rule: MetadataItemRule
   extra?: Record<string, unknown>
@@ -36,7 +40,7 @@ export interface GraphModelImportResult {
 export interface DeclareGraphRootParams {
   graph: GraphBuilder
   rule: MetadataItemRule
-  model: MetadataItem
+  model: GraphImportedMetadataModel
   graphModel: Record<string, unknown>
   name: string
   filePath: string
@@ -89,6 +93,6 @@ export function resolveGraphImportSource(filePath: string): GraphImportSourceMat
   return undefined
 }
 
-export function toGraphModel(model: MetadataItem): Record<string, unknown> {
+export function toGraphModel(model: object): Record<string, unknown> {
   return Object.fromEntries(Object.entries(model))
 }

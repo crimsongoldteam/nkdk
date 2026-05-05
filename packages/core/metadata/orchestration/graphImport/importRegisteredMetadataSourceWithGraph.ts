@@ -2,17 +2,17 @@ import { isMap } from "yaml"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import type { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import { buildGraphFromModel } from "~/metadata/orchestration/buildGraphFromModel"
-import type { MetadataItem } from "~/metadata/orchestration/property/types"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import {
   getGraphImportRegistration,
+  type GraphImportedMetadataModel,
   type GraphImportSources,
   type GraphModelImportResult,
 } from "./registry"
 
 export interface ImportRegisteredMetadataSourceResult {
-  model: MetadataItem
+  model: GraphImportedMetadataModel
   parsed: ParsedYaml
 }
 

@@ -1,4 +1,3 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
 import { importRegisteredMetadataSourceWithGraph } from "~/metadata/orchestration/graphImport/importRegisteredMetadataSourceWithGraph"
 import {
   resolveGraphImportSource,
@@ -43,7 +42,6 @@ export async function buildGraph(
 ): Promise<FileGraphData[]> {
   const sources = normalizeGraphSources(projectFiles)
   const graph = new GraphBuilder()
-  const importContext: ConfigurationContext = context as ConfigurationContext
 
   const entries = sources
     .map((source) => ({ source, parsed: parseFilePath(source.filePath) }))
@@ -62,7 +60,7 @@ export async function buildGraph(
         name: parsed.name,
         pathParams: parsed.pathParams,
         graph,
-        context: importContext,
+        context,
       })
     } catch {
       // Контракт buildGraph прежний: собрать то, что точно понятно.

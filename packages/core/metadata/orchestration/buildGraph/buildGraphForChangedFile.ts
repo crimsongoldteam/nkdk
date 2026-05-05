@@ -1,4 +1,3 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
 import { importRegisteredMetadataSourceWithGraph } from "~/metadata/orchestration/graphImport/importRegisteredMetadataSourceWithGraph"
 import { getGraphImportRegistration } from "~/metadata/orchestration/graphImport/registry"
 import { parseFilePath } from "./buildGraph"
@@ -24,7 +23,6 @@ export async function buildGraphForChangedFile(
   if (!parsed) return []
 
   const graph = new GraphBuilder()
-  const importContext: ConfigurationContext = context as ConfigurationContext
 
   await importRegisteredMetadataSourceWithGraph({
     filePath,
@@ -33,7 +31,7 @@ export async function buildGraphForChangedFile(
     name: parsed.name,
     pathParams: parsed.pathParams,
     graph,
-    context: importContext,
+    context,
   })
 
   const files = walkGraphToFileData(graph)

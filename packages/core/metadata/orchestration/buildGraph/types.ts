@@ -4,6 +4,8 @@
  * в updateGraph(@nakidka/graph) без преобразований.
  */
 
+import type { ConfigurationContext } from "~/metadata/context/types"
+
 export type GraphPrimitive = string | number | boolean | null
 
 export interface NodeData {
@@ -53,7 +55,4 @@ export interface FileGraphData {
   contributedNodeIds?: string[]
 }
 
-export interface ImportContext {
-  version: string
-  defaultLanguage: string
-}
+export interface ImportContext extends Pick<ConfigurationContext, "version" | "defaultLanguage"> {}
