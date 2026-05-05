@@ -60,6 +60,8 @@ function remapCollection(params: {
   const { ownerPath, segment, referencePathByCurrentPath, nested } = params
   if (!Array.isArray(params.currentItems) || !Array.isArray(params.referenceItems)) return
 
+  const remappedReferenceItems: Record<string, unknown>[] = []
+
   for (const current of params.currentItems) {
     if (!current || typeof current !== "object") continue
     const currentRecord = current as Record<string, unknown>
@@ -67,7 +69,8 @@ function remapCollection(params: {
     if (!currentName) continue
 
     const currentPath = `${ownerPath}.${segment}.${currentName}`
-    const referencePath = referencePathByCurrentPath.get(currentPath) ?? currentPath
+    const referencePath = referencePathByCurrentPath.get(currentPath)
+    if (!referencePath) continue
     const referencePathParts = referencePath.split(".")
     const referenceName = referencePathParts[referencePathParts.length - 1]
     const referenceRecord = params.referenceItems.find((item): item is Record<string, unknown> => {
@@ -80,5 +83,8 @@ function remapCollection(params: {
 
     referenceRecord["name"] = currentName
     if (nested) nested(currentPath, currentRecord, referenceRecord)
+    remappedReferenceItems.push(referenceRecord)
   }
+
+  params.referenceItems.splice(0, params.referenceItems.length, ...remappedReferenceItems)
 }

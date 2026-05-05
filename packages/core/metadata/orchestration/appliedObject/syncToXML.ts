@@ -25,7 +25,7 @@ export const syncAppliedObjectToXML = async (params: {
   outputDir: string
   referenceDir?: string
   referenceName?: string
-  referenceModel?: Record<string, unknown>
+  referenceModel?: Record<string, unknown> | null
   referencePathByCurrentPath?: Map<string, string>
   currentObjectPath?: string
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
@@ -50,7 +50,9 @@ export const syncAppliedObjectToXML = async (params: {
 
   const referenceName = params.referenceName ?? name
   const referenceXmlPath = join(referenceDir, `${referenceName}.xml`)
-  const loadedReferenceModel = params.referenceModel ?? readReferenceModel({ context: contextFromXML, xmlPath: referenceXmlPath, rule })
+  const loadedReferenceModel = params.referenceModel === undefined
+    ? readReferenceModel({ context: contextFromXML, xmlPath: referenceXmlPath, rule })
+    : (params.referenceModel ?? undefined)
   const referenceModel = params.referencePathByCurrentPath && params.currentObjectPath
     ? remapReferenceModel({
         rule,
