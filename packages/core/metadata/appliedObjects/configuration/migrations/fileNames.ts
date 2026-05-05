@@ -5,7 +5,9 @@ import { MIGRATIONS_DIR } from "./types"
 const FILE_RE = /^\d{4}-\d{2}-\d{2}-\d{6}\.yaml$/
 
 export function isMigrationFileName(name: string): boolean {
-  return FILE_RE.test(name)
+  if (!FILE_RE.test(name)) return false
+  const date = parseMigrationFileNameDate(name)
+  return !Number.isNaN(date.getTime()) && formatMigrationFileName(date) === name
 }
 
 export function listMigrationFileNames(yamlDir: string): string[] {
@@ -20,6 +22,10 @@ export function listMigrationFileNames(yamlDir: string): string[] {
 
 export function migrationFileNameToDate(name: string): Date {
   if (!isMigrationFileName(name)) throw new Error(`Некорректное имя миграции: ${name}`)
+  return parseMigrationFileNameDate(name)
+}
+
+function parseMigrationFileNameDate(name: string): Date {
   const yyyy = name.slice(0, 4)
   const mm = name.slice(5, 7)
   const dd = name.slice(8, 10)

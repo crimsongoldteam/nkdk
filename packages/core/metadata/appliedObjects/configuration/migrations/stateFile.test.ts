@@ -32,6 +32,15 @@ describe("applied migrations state", () => {
     expect(() => readAppliedMigrationsState(dir)).toThrow('Некорректное имя применённой миграции "bad-name.yaml"')
   })
 
+  it("rejects malformed state before write", () => {
+    const dir = mkdtempSync(join(tmpdir(), "nkdk-xml-"))
+
+    expect(() => writeAppliedMigrationsState(dir, { applied: ["bad-name.yaml"] })).toThrow(
+      'Некорректное имя применённой миграции "bad-name.yaml"',
+    )
+    expect(fs.existsSync(join(dir, ".nakidka-migrations.yaml"))).toBe(false)
+  })
+
   it("rejects duplicate applied names", () => {
     const dir = mkdtempSync(join(tmpdir(), "nkdk-xml-"))
     fs.writeFileSync(
@@ -40,5 +49,16 @@ describe("applied migrations state", () => {
     )
 
     expect(() => readAppliedMigrationsState(dir)).toThrow('Дубликат применённой миграции "2026-05-05-143000.yaml"')
+  })
+
+  it("rejects duplicate applied names before write", () => {
+    const dir = mkdtempSync(join(tmpdir(), "nkdk-xml-"))
+
+    expect(() =>
+      writeAppliedMigrationsState(dir, {
+        applied: ["2026-05-05-143000.yaml", "2026-05-05-143000.yaml"],
+      }),
+    ).toThrow('Дубликат применённой миграции "2026-05-05-143000.yaml"')
+    expect(fs.existsSync(join(dir, ".nakidka-migrations.yaml"))).toBe(false)
   })
 })

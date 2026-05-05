@@ -17,6 +17,10 @@ export function readAppliedMigrationsState(xmlDir: string): AppliedMigrationsSta
     throw new Error(`${APPLIED_MIGRATIONS_FILE}: поле applied должно быть списком`)
   }
 
+  return { applied: validateAppliedMigrationNames(applied) }
+}
+
+function validateAppliedMigrationNames(applied: unknown[]): string[] {
   const seen = new Set<string>()
   for (const name of applied) {
     if (typeof name !== "string" || !isMigrationFileName(name)) {
@@ -26,10 +30,11 @@ export function readAppliedMigrationsState(xmlDir: string): AppliedMigrationsSta
     seen.add(name)
   }
 
-  return { applied: [...applied] }
+  return [...applied]
 }
 
 export function writeAppliedMigrationsState(xmlDir: string, state: AppliedMigrationsState): void {
+  const applied = validateAppliedMigrationNames(state.applied)
   fs.mkdirSync(xmlDir, { recursive: true })
-  fs.writeFileSync(join(xmlDir, APPLIED_MIGRATIONS_FILE), stringify({ applied: state.applied }), "utf-8")
+  fs.writeFileSync(join(xmlDir, APPLIED_MIGRATIONS_FILE), stringify({ applied }), "utf-8")
 }
