@@ -1,3 +1,10 @@
 <Commands>
-	<Command name="СоставКомплектаПодобратьФайлы" id="1"/>
+		<Command name="ПоУмолчанию" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>По умолчанию</v8:content>
+				</v8:item>
+			</Title>
+		</Command>
 </Commands>
