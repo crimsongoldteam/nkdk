@@ -1,17 +1,26 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { ConfigurationContextFromXML } from "../../context/types"
-import { IndexFields, IndexFieldsXML } from "./types"
+import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import { IndexField, IndexFields, IndexFieldsXML, IndexFieldXML } from "./types"
+
+export const importIndexFieldFromXML = (
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  xml: IndexFieldXML | undefined
+): IndexField | undefined => {
+  if (!xml) return undefined
+
+  return xml.Name
+}
 
 export const importIndexFieldsFromXML = (
-  _context: ConfigurationContextFromXML,
+  context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: IndexFieldsXML | undefined
 ): IndexFields | undefined => {
   if (!xml) return undefined
-  const fields = xml.Field
-  if (fields === undefined) return []
-  return Array.isArray(fields) ? fields : [fields]
+
+  return xml.map((value) => importIndexFieldFromXML(context, undefined, value)!)
 }
 
-registerTypeRule("IndexField", "importFromXML", importIndexFieldsFromXML)
+registerTypeRule("IndexField", "importFromXML", importIndexFieldFromXML)

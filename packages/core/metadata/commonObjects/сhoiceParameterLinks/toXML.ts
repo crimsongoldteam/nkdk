@@ -1,8 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { exportMetadataValueToXML } from "../metadataValue/toXML"
-import { MetadataPrimitiveValueXML } from "../metadataValue/types"
+import { exportMetadataSimpleValueToXML } from "../metadataValue/toXML"
 import { ChoiceParameterLink, ChoiceParameterLinks, ChoiceParameterLinksXML, ChoiceParameterLinkXML } from "./types"
 
 export const exportChoiceParameterLinkToXML = (
@@ -10,11 +9,7 @@ export const exportChoiceParameterLinkToXML = (
   _rule: PropertyRule | undefined,
   link: ChoiceParameterLink
 ): ChoiceParameterLinkXML => {
-  const dataPath = exportMetadataValueToXML({
-    context,
-    rule: { type: "MetadataValue", valueType: "string" } as any,
-    value: { type: "string", value: link.dataPath },
-  })! as MetadataPrimitiveValueXML
+  const dataPath = exportMetadataSimpleValueToXML(context, undefined, link.dataPath, "string")!
 
   return {
     "xr:Name": link.name,

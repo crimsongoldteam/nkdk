@@ -5,7 +5,7 @@ export const fullMetadataAttributes: MetadataAttributes = [
   {
     itemType: "MetadataAttribute",
     binaryDataStorageLocationUse: "Use",
-    binaryDataStorageLocationUseField: "АтрибутХраненияДвоичныхДанных",
+    binaryDataStorageLocationUseField: true,
     choiceFoldersAndItems: "Folders",
     choiceForm: "Catalog.Справочник.Form.ФормаВыбора",
     choiceHistoryOnInput: "DontUse",
@@ -79,7 +79,7 @@ export const fullMetadataAttributesYAML: MetadataAttributesYAML = {
     МногострочныйРежим: "Истина",
     ПараметрыВыбора: { "Отбор.Параметр": '"Значение"' },
     Подсказка: "Подсказка для реквизита",
-    ПолеИспользованияХраненияВХранилищеДвоичныхДанных: "АтрибутХраненияДвоичныхДанных",
+    ПолеИспользованияХраненияВХранилищеДвоичныхДанных: "Истина",
     ПолнотекстовыйПоиск: "НеИспользовать",
     ПроверкаЗаполнения: "ВыдаватьОшибку",
     РасширенноеРедактирование: "Истина",

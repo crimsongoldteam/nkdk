@@ -6,12 +6,10 @@ import { MetadataItemType, MetadataItemTypeRegistry, ToMetadata, ToTypedYAML } f
 
 export const CollectableElementTypeToYAML = {
   Button: "Кнопка",
-  CommandBarButton: "КнопкаКоманднойПанели",
   ButtonGroup: "ГруппаКнопок",
   CalendarField: "ПолеКалендаря",
   ChartField: "ПолеДиаграммы",
   CheckBoxField: "ПолеФлажок",
-  TableCheckBoxField: "ПолеФлажок",
   ColumnGroup: "ГруппаКолонок",
   CommandBar: "КоманднаяПанель",
   DendrogramField: "ПолеДендрограммы",
@@ -22,17 +20,14 @@ export const CollectableElementTypeToYAML = {
   GraphicalSchemaField: "ПолеГрафическойСхемы",
   HTMLDocumentField: "ПолеHTMLДокумента",
   InputField: "ПолеВвода",
-  TableInputField: "ПолеВвода",
   LabelDecoration: "Надпись",
   LabelField: "ПолеНадписи",
-  TableLabelField: "ПолеНадписи",
   Page: "Страница",
   Pages: "Страницы",
   PDFDocumentField: "ПолеPDFДокумента",
   PeriodField: "ПолеПериода",
   PictureDecoration: "Рисунок",
   PictureField: "ПолеРисунка",
-  TablePictureField: "ПолеРисунка",
   PlannerField: "ПолеПланировщика",
   Popup: "Подменю",
   ProgressBarField: "ПолеИндикатора",
@@ -81,7 +76,6 @@ export type CollectableElement = ToMetadata<CollectableElementType>
 
 export interface ElementRule extends Omit<MetadataItemRule, "itemType"> {
   itemType: ElementType
-  xmlTag?: string
   enterpriseField: "FormField" | "FormDecoration" | "FormTable" | "FormGroup" | "FormButton"
   enterpriseFieldType:
     | `FormFieldType.${FormFieldType}`

@@ -4,7 +4,7 @@ import {
   fullClientApplicationFormYAML,
   minimalClientApplicationForm,
   minimalClientApplicationFormYAML,
-} from "./__fixtures__/data"
+} from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockContextToYAML } from "~/tests/mockContext"
 import { exportClientApplicationFormToYAML } from "./toYAML"
 
@@ -16,14 +16,14 @@ describe("exportClientApplicationFormToYAML", () => {
   // })
 
   it("should export all fields to YAML", () => {
-    const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, fullClientApplicationForm)
+    const result = exportClientApplicationFormToYAML(mockContextToYAML, fullClientApplicationForm)
 
-    expect(yaml).toEqual(fullClientApplicationFormYAML)
+    expect(result).toEqual(fullClientApplicationFormYAML)
   })
 
   it("should export minimal", () => {
-    const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, minimalClientApplicationForm)
+    const result = exportClientApplicationFormToYAML(mockContextToYAML, minimalClientApplicationForm)
 
-    expect(yaml).toEqual(minimalClientApplicationFormYAML)
+    expect(result).toEqual(minimalClientApplicationFormYAML)
   })
 })

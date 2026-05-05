@@ -1,9 +1,7 @@
 import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
-import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
+import { AllChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
 import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "../orchestration"
-import { GraphBuilder } from "../orchestration/buildGraph/internal/GraphBuilder"
-import type { CypherCache } from "../orchestration/property/cypherCache"
 
 export type ContextElementToXML = {
   name: string
@@ -27,10 +25,7 @@ export interface ConfigurationContext {
   enterprise?: EnterpriseContext
 
   exportToYAML?: FormExportToYAMLContext
-  importFromYAML?: FormimportFromYAMLContext
   exportToXML?: ToXMLConfigurationContext
-  /** Экземпляр графа, передаётся снаружи (из extension/CLI). Не синглтон. */
-  graph?: GraphBuilder
 }
 
 export interface ConfigurationContextFromXML extends ConfigurationContext {
@@ -47,15 +42,11 @@ export type ToXMLConfigurationContext = {
   readonly configDumpInfo: ConfigDumpInfo
   readonly version: string
   readonly itemsTree: ContextElementToXML[]
-  /** Кеш результатов Cypher-запросов, заполняется до начала обхода свойств. */
-  cypherCache?: CypherCache
   context?: {
     forms: string[]
     templates: string[]
     parentName: string
     metadataForNumbering: ToXMLContextElement<ElementType | "FormAttributeColumn" | "FormAttribute" | "FormCommand">[]
-    /** Стек объекта ItemXML, собираемого exportPropertiesToXML (для ElementId и нумерации _id) */
-    propertiesItemXmlStack?: Record<string, unknown>[]
   }
 }
 
@@ -68,25 +59,12 @@ export type ConfigurationContextWithExportToXML = ConfigurationContext & {
   exportToXML: ToXMLConfigurationContext
 }
 
-export interface ExternalFileEntry {
-  relativePath: string
-  content: string
-}
-
 export interface FormExportToYAMLContext {
   toTyped: boolean
-  /** Имя родительского объекта (например, имя реквизита формы) для externalFile. */
-  parent?: { name: string }
-  /** Сборник внешних файлов, формируемых при экспорте. */
-  externalFilesCollector?: ExternalFileEntry[]
 }
 
 export interface FormimportFromYAMLContext {
-  allElements?: FormChildItemsPartialYAML
-  /** Путь к каталогу формы для чтения внешних файлов (externalFile). */
-  formDir?: string
-  /** Имя родительского объекта для externalFile (например, имя реквизита формы). */
-  parent?: { name: string }
+  allElements?: AllChildItemsPartialYAML
 }
 
 export interface EnterpriseContext {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
-import { typeFixturesTable } from "./__fixtures__/data"
+import { typeFixturesTable } from "../../../tests/fixtures/typeDescription/data"
 import { exportTypeDescriptionToXML } from "./toXML"
 
 describe("exportTypeDescriptionToXML", () => {

@@ -4,7 +4,6 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { addIndentation, joinLines } from "~/nkdk/helper"
 import {
   AlwaysHorizontalGroupPrefix,
-  HorizontalGroupPrefix,
   HorizontalIfPossibleGroupPrefix,
   OneLineGroupSeparator,
   VerticalGroupPrefix,
@@ -67,8 +66,6 @@ function getGroupPrefix(group: SE.ChildFormItemsGroup): string {
   switch (group) {
     case "HorizontalIfPossible":
       return HorizontalIfPossibleGroupPrefix
-    case "Horizontal":
-      return HorizontalGroupPrefix
     case "AlwaysHorizontal":
       return AlwaysHorizontalGroupPrefix
     case "Vertical":

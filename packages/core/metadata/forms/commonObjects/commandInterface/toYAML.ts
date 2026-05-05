@@ -39,10 +39,6 @@ const exportCommandInterfaceItemToYAML = (
     Автовидимость: exportBooleanToYAML(context, undefined, item.defaultVisible)!,
   }
 
-  if (item.index !== undefined) {
-    result.Индекс = item.index
-  }
-
   if (item.commandGroup) {
     result.ГруппаКоманд = StandardCommandsGroupToYAML[item.commandGroup]
   }

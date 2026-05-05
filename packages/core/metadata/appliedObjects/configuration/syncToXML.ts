@@ -1,70 +1,105 @@
 import fs from "fs"
 import { join } from "path"
-import { BatchTask, runBatch } from "~/helpers/runBatch"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { ConfigurationSyncResult } from "./convertFromXML"
-import { TopLevelMetadataItemRules } from "./topLevelRules"
-
-// TODO: вынести в настройки расширения
-const IO_CONCURRENCY = 64
+import { syncFormToXML } from "~/metadata/forms/clientApplicationForm/syncToXML"
+import { syncCatalogToXML } from "../metadataCatalog/syncToXML"
 
 export const syncConfigurationToXML = async (params: {
   context: ConfigurationContextWithExportToXML
   inputDir: string
   outputDir: string
   referenceDir?: string
-}): Promise<ConfigurationSyncResult> => {
+}): Promise<void> => {
   const { context, inputDir, outputDir } = params
   const referenceDir = params.referenceDir ?? outputDir
 
   if (!fs.existsSync(inputDir)) {
-    return { succeeded: 0, failed: [] }
+    return
   }
 
-  const tasks: BatchTask<void>[] = []
+  const catalogsDir = join(inputDir, "Справочник")
 
-  for (const rule of TopLevelMetadataItemRules) {
-    if (rule.xmlDir === undefined) continue
-    if (rule.itemTypePrefix === undefined) continue
+  const entries = fs.readdirSync(catalogsDir, { withFileTypes: true })
+  const catalogDirs = entries.filter((e) => e.isDirectory())
 
-    const yamlDirAbs = join(inputDir, rule.itemTypePrefix)
-    const xmlOutputDir = join(outputDir, rule.xmlDir)
-    const xmlReferenceDir = join(referenceDir, rule.xmlDir)
-    if (!fs.existsSync(yamlDirAbs)) continue
+  for (const entry of catalogDirs) {
+    const contextWithConfigDumpInfo: ConfigurationContextWithExportToXML = {
+      ...context,
+      exportToXML: {
+        ...context.exportToXML,
+      },
+    }
 
-    const entries = await fs.promises.readdir(yamlDirAbs, { withFileTypes: true })
-    const itemDirs = entries.filter((e) => e.isDirectory())
+    const name = entry.name
+    const catalogPath = join(catalogsDir, name)
+    const propertiesPath = join(catalogPath, "Свойства.yaml")
 
-    for (const entry of itemDirs) {
-      const name = entry.name
-      const propertiesPath = join(yamlDirAbs, name, "Свойства.yaml")
-      if (!fs.existsSync(propertiesPath)) continue
-      tasks.push({
-        kind: rule.itemType,
-        name,
-        run: () =>
-          syncAppliedObjectToXML({
-            rule,
-            context: { ...context, exportToXML: { ...context.exportToXML } },
-            inputDir: yamlDirAbs,
-            name,
-            outputDir: xmlOutputDir,
-            referenceDir: xmlReferenceDir,
-          }),
-      })
+    const catalogOutputDir = join(outputDir, "Catalogs")
+    const catalogReferenceDir = join(referenceDir, "Catalogs")
+
+    if (!fs.existsSync(propertiesPath)) {
+      continue
+    }
+
+    // try {
+    await syncCatalogToXML({
+      context: contextWithConfigDumpInfo,
+      inputDir: catalogsDir,
+      catalogName: name,
+      outputDir: catalogOutputDir,
+      referenceDir: catalogReferenceDir,
+    })
+    // } catch (err) {
+    //   console.error(`Ошибка экспорта каталога "${name}":`, err)
+    // }
+
+    const formsDir = join(catalogPath, "Формы")
+    if (!fs.existsSync(formsDir)) {
+      continue
+    }
+
+    const formEntries = fs.readdirSync(formsDir, { withFileTypes: true })
+    const formDirs = formEntries.filter((e) => e.isDirectory())
+
+    for (const formEntry of formDirs) {
+      const formName = formEntry.name
+      const formYamlPath = join(formsDir, formName, "Форма.yaml")
+      const formNkdkPath = join(formsDir, formName, "Форма.nkdk")
+      if (!fs.existsSync(formYamlPath) || !fs.existsSync(formNkdkPath)) {
+        continue
+      }
+
+      const formOutputDir = join(outputDir, "Catalogs", name)
+      const formReferenceDir = join(referenceDir, "Catalogs", name, "Forms")
+
+      try {
+        await syncFormToXML({
+          context,
+          inputDir: catalogPath,
+          formName,
+          outputDir: formOutputDir,
+          referenceDir: formReferenceDir,
+        })
+      } catch (err) {
+        console.error(`Ошибка экспорта формы "${name}/${formName}":`, err)
+      }
     }
   }
-
-  const batchResult = await runBatch(tasks, { concurrency: IO_CONCURRENCY })
-
-  return {
-    succeeded: batchResult.succeeded,
-    failed: batchResult.failed.map((f) => ({
-      kind: f.kind,
-      name: f.name,
-      parent: f.parent,
-      error: f.error,
-    })),
-  }
 }
+
+// const syncConfigDumpInfoInfoFromXML = (params: {
+//   context: ConfigurationContext
+//   inputDir: string
+// }): Promise<ConfigDumpInfo> => {
+//   const { context, inputDir } = params
+
+//   const dumpInfoPath = join(inputDir, "ConfigDumpInfo.xml")
+//   if (!fs.existsSync(dumpInfoPath)) {
+//     return Promise.resolve(new Map<string, { children: Map<string, string>; id: string; configVersion: string }>())
+//   }
+//   const xmlContent = fs.readFileSync(dumpInfoPath, "utf-8")
+//   const xml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(xmlContent)
+
+//   const result = importConfigDumpInfoFromXML({ context, xml: xml.ConfigDumpInfo })
+//   return Promise.resolve(result)
+// }

@@ -1,92 +1,72 @@
 import { describe, expect, it } from "vitest"
-import { all, minimal, multiple } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
-import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { StandardAttributeDescriptionPropertyRule } from "~/metadata/orchestration"
+import { all, minimal, multiple } from "~/tests/fixtures/standartAttributeDescription/data"
+import { mockContextToXML } from "~/tests/mockContext"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { xmlExport } from "~/xml/export/exporter"
+import { exportStandardAttributeDescriptionsToXML } from "./toXML"
 
 describe("exportStandardAttributeDescriptionsToXML", () => {
-  it("exports all.xml fixture", () => {
-    const rule: PropertyRule = {
-      type: "StandardAttributeDescriptions",
-      standartAttributeNames: {
-        PredefinedDataName: "ИмяПредопределенныхДанных",
-        Predefined: "Предопределенный",
-        Ref: "Ссылка",
-        DeletionMark: "ПометкаУдаления",
-        IsFolder: "ЭтоГруппа",
-        Owner: "Владелец",
-        Parent: "Родитель",
-        Description: "Наименование",
-        Code: "Код",
-      },
+  it("should export with default values when data is undefined", () => {
+    const rule: StandardAttributeDescriptionPropertyRule = {
+      type: "StandardAttributeDescription",
+      standartAttributeNames: ["PredefinedDataName"],
     }
-    const { expectedResult, result } = testExportPropertyToXML({
-      rule,
-      value: all,
-      xmlRootTag: "StandardAttributes",
-      path: "all.xml",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(expectedResult)
+    const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
+
+    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, undefined)
+    const xmlString = xmlExport({ StandardAttributes: result }, false)
+    expect(xmlString).toEqual(expectedXml)
   })
 
-  it("exports multiple.xml fixture", () => {
-    const rule: PropertyRule = {
-      type: "StandardAttributeDescriptions",
-      standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных", Predefined: "Предопределенный" },
+  it("should export all parameters", () => {
+    const rule: StandardAttributeDescriptionPropertyRule = {
+      type: "StandardAttributeDescription",
+      standartAttributeNames: ["PredefinedDataName"],
     }
-    const { expectedResult, result } = testExportPropertyToXML({
-      rule,
-      value: multiple,
-      xmlRootTag: "StandardAttributes",
-      path: "multiple.xml",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(expectedResult)
+    const expectedXml = readXMLFileAsString("standartAttributeDescription/all.xml")
+
+    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, all)
+    const xmlString = xmlExport({ StandardAttributes: result }, false)
+
+    expect(xmlString).toEqual(expectedXml)
   })
 
-  it("exports minimal.xml fixture", () => {
-    const rule: PropertyRule = {
-      type: "StandardAttributeDescriptions",
-      standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных" },
+  it("should export XML with default values if only name is present", () => {
+    const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
+    const rule: StandardAttributeDescriptionPropertyRule = {
+      type: "StandardAttributeDescription",
+      standartAttributeNames: ["PredefinedDataName"],
     }
-    const { expectedResult, result } = testExportPropertyToXML({
-      rule,
-      value: minimal,
-      xmlRootTag: "StandardAttributes",
-      path: "default.xml",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(expectedResult)
+    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, minimal)
+
+    const xmlString = xmlExport({ StandardAttributes: result }, false)
+    expect(xmlString).toEqual(expectedXml)
   })
 
-  it("exports undefined", () => {
-    const rule: PropertyRule = {
-      type: "StandardAttributeDescriptions",
-      standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных" },
+  it("should export with multiple values", () => {
+    const expectedXml = readXMLFileAsString("standartAttributeDescription/multiple.xml")
+
+    const rule: StandardAttributeDescriptionPropertyRule = {
+      type: "StandardAttributeDescription",
+      standartAttributeNames: ["PredefinedDataName", "Predefined"],
     }
-    const { expectedResult, result } = testExportPropertyToXML({
-      rule,
-      value: undefined,
-      xmlRootTag: "StandardAttributes",
-      path: "default.xml",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(expectedResult)
+    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, multiple)
+    const xmlString = xmlExport({ StandardAttributes: result }, false)
+
+    expect(xmlString).toEqual(expectedXml)
   })
 
-  it("export fillValueEmptyRefTypeLoss", () => {
-    const rule: PropertyRule = {
-      type: "StandardAttributeDescriptions",
-      standartAttributeNames: { Ref: "Ссылка" },
+  it("should export with default values", () => {
+    const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
+
+    const rule: StandardAttributeDescriptionPropertyRule = {
+      type: "StandardAttributeDescription",
+      standartAttributeNames: ["PredefinedDataName"],
     }
-    const { expectedResult, result } = testExportPropertyToXML({
-      rule,
-      value: fillValueEmptyRefTypeLoss,
-      xmlRootTag: "StandardAttributes",
-      path: "fillValueEmptyRefTypeLoss.xml",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(expectedResult)
+    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, undefined)
+    const xmlString = xmlExport({ StandardAttributes: result }, false)
+
+    expect(xmlString).toEqual(expectedXml)
   })
 })

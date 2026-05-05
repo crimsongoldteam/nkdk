@@ -8,34 +8,37 @@ import {
   shortMetadataAttributeYAML,
   shortMultilanguageMetadataAttribute,
   shortMultilanguageMetadataAttributeYAML,
-} from "./__fixtures__/data"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+} from "~/tests/fixtures/metadataAttribute/data"
+import { mockContext, mockRule } from "~/tests/mockContext"
+import { importMetadataAttributesFromYAML } from "./fromYAML"
 
-const rule = { type: "MetadataAttributes" } as const
-
-describe("import MetadataAttributes from YAML", () => {
+describe("importMetadataAttributeFromYAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = testImportPropertyFromYAML({ rule, value: undefined })
+    const result = importMetadataAttributesFromYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
-    const result = testImportPropertyFromYAML({ rule, value: fullMetadataAttributesYAML })
+    const result = importMetadataAttributesFromYAML(mockContext, mockRule, fullMetadataAttributesYAML)
+
     expect(result).toEqual(fullMetadataAttributes)
   })
 
   it("should import minimal", () => {
-    const result = testImportPropertyFromYAML({ rule, value: minimalMetadataAttributesYAML })
+    const result = importMetadataAttributesFromYAML(mockContext, mockRule, minimalMetadataAttributesYAML)
+
     expect(result).toEqual(minimalMetadataAttributes)
   })
 
   it("should import with short format", () => {
-    const result = testImportPropertyFromYAML({ rule, value: shortMetadataAttributeYAML })
+    const result = importMetadataAttributesFromYAML(mockContext, mockRule, shortMetadataAttributeYAML)
+
     expect(result).toEqual(shortMetadataAttribute)
   })
 
   it("should import short multilanguage format", () => {
-    const result = testImportPropertyFromYAML({ rule, value: shortMultilanguageMetadataAttributeYAML })
+    const result = importMetadataAttributesFromYAML(mockContext, mockRule, shortMultilanguageMetadataAttributeYAML)
+
     expect(result).toEqual(shortMultilanguageMetadataAttribute)
   })
 })

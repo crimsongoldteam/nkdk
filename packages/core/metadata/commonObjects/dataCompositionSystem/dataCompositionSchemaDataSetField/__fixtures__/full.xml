@@ -1,7 +1,0 @@
-<Field xsi:type="dcssch:DataSetFieldField">
-	<dcssch:dataPath>Реквизит1</dcssch:dataPath>
-	<dcssch:field>Реквизит1</dcssch:field>
-	<dcssch:useRestriction>
-		<dcssch:condition>true</dcssch:condition>
-	</dcssch:useRestriction>
-</Field>

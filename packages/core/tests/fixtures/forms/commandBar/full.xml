@@ -1,0 +1,80 @@
+<CommandBar name="КоманднаяПанель" id="1" DisplayImportance="High">
+	<Autofill>true</Autofill>
+	<ChildItems>
+		<Button name="Кнопка1" id="2">
+			<CommandName>ВыполнитьКоманда1</CommandName>
+			<ExtendedTooltip name="Кнопка1РасширеннаяПодсказка" id="3"/>
+		</Button>
+		<ButtonGroup name="ГруппаКнопок" id="4">
+			<ChildItems>
+				<Button name="Кнопка2" id="5">
+					<CommandName>ВыполнитьКоманда2</CommandName>
+					<ExtendedTooltip name="Кнопка2РасширеннаяПодсказка" id="6"/>
+				</Button>
+			</ChildItems>
+			<ExtendedTooltip name="ГруппаКнопокРасширеннаяПодсказка" id="7"/>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Подсказка для группы кнопок</v8:content>
+				</v8:item>
+			</ToolTip>
+		</ButtonGroup>
+		<Popup name="Подменю" id="8">
+			<ChildItems>
+				<Button name="Кнопка3" id="9">
+					<CommandName>ВыполнитьКоманда3</CommandName>
+					<ExtendedTooltip name="Кнопка3РасширеннаяПодсказка" id="10"/>
+				</Button>
+			</ChildItems>
+			<ExtendedTooltip name="ПодменюРасширеннаяПодсказка" id="11"/>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Подсказка для подменю</v8:content>
+				</v8:item>
+			</ToolTip>
+		</Popup>
+	</ChildItems>
+	<CommandSource>Form</CommandSource>
+	<EnableContentChange>true</EnableContentChange>
+	<Enabled>true</Enabled>
+	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="12">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<GroupHorizontalAlign>Center</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<Height>200</Height>
+	<HorizontalLocation>Left</HorizontalLocation>
+	<HorizontalStretch>true</HorizontalStretch>
+	<ReadOnly>false</ReadOnly>
+	<Shortcut>Ctrl+S</Shortcut>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Командная панель</v8:content>
+		</v8:item>
+	</Title>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleTextColor>web:Black</TitleTextColor>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<Type>UsualGroup</Type>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<VerticalStretch>true</VerticalStretch>
+	<Visible>true</Visible>
+	<Width>300</Width>
+</CommandBar>

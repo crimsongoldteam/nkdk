@@ -1,28 +1,33 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import type { ButtonRepresentation } from "~/metadata/systemEnumerations/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormCommandRules } from "./rules"
-import { FormCommand, FormCommands, FormCommandsXML } from "./types"
+import { FormCommand, FormCommands, FormCommandsXML, FormCommandXML } from "./types"
 
-const importFormCommandsDefaultFromXML = importMetadataItemCollectionFromXML(FormCommandRules, "Command")
-
-export const importFormCommandsFromXML = (
-  context: ConfigurationContextFromXML,
-  rule: PropertyRule,
-  xml: { Command: FormCommandsXML } | undefined
-): FormCommands | undefined => {
-  const result = importFormCommandsDefaultFromXML(context, rule, xml) as FormCommands | undefined
-
-  return result?.map((command: FormCommand) => {
-    const representation = command.representation as ButtonRepresentation | "TextPicture" | undefined
-    if (representation === undefined) {
-      return command
-    }
-
-    return {
-      ...command,
-      representation: representation === "TextPicture" ? "PictureAndText" : representation,
-    }
+const importCommandFromXML = (context: ConfigurationContextFromXML, xml: FormCommandXML): FormCommand => {
+  const properties = importPropertiesFromXML({
+    context,
+    xml,
+    rule: FormCommandRules,
   })
+
+  return {
+    itemType: "FormCommand",
+    name: xml._name,
+    ...properties,
+  }
 }
+
+export const importCommandsFromXML = (
+  context: ConfigurationContextFromXML,
+  _rule: PropertyRule | undefined,
+  xml: { Command: FormCommandsXML } | undefined
+): FormCommands => {
+  if (!xml || !xml.Command) return []
+
+  const xmlArray = Array.isArray(xml.Command) ? xml.Command : [xml.Command]
+
+  return xmlArray.map((commandXml) => importCommandFromXML(context, commandXml as FormCommandXML))
+}
+
+registerTypeRule("FormCommands", "importFromXML", importCommandsFromXML)

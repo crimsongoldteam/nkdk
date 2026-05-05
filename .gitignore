@@ -7,31 +7,8 @@
 node_modules/
 dist/
 out/
-out-round-trip/
 **/src/generated
 # syntaxes/
 *.tsbuildinfo
 *.vsix
 .vsix-pack/
-
-delete/
-.env
-.pnpm-store/
-.ralph/logs/*
-.ralph/.*
-.ralph/*.log
-.ralph/status.json
-.ralph/progress.json
-
-# Локальные Claude-инструкции с приватными путями
-CLAUDE.local.md
-.claude/CLAUDE.local.md
-.claude/skills/*/local-resources.md
-
-# Логи внешних MCP-серверов (если всё-таки окажутся в проекте —
-# logback rotating policy может писать .tmp/.gz в cwd независимо от LOG_FILE)
-mcp-server.log*
-
-# Изолированные git worktrees для параллельной разработки
-.worktrees/
-.claude/scheduled_tasks.lock

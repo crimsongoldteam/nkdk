@@ -20,8 +20,7 @@ export const exportFormAttributesToXML = (
   data: FormAttributes | undefined,
   referenceData?: FormAttributes | undefined
 ): { Attribute: ElementXML[] } | undefined => {
-  if (data === undefined || data === null) return undefined
-  if (data.length === 0) return { Attribute: [] }
+  if (!data || data.length === 0) return undefined
 
   const result = data.map((value: FormAttribute) => {
     const referenceAttribute = findReferenceAttribute(value, referenceData)

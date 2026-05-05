@@ -1,6 +1,6 @@
 grammar Nkdk
 
-terminal NEWLINE: /[\r\n]+/;
+hidden terminal NEWLINE: /[\r\n]+/;
 
 terminal GROUP: /(\=|\+|\-)\1{1,4}/;
 
@@ -8,22 +8,22 @@ terminal VGROUP: /\+/;
 terminal HGROUP: /\-/;
 terminal ABSGROUP: /\=/;
 
-terminal PICTURE: /\[[\t ]*[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_.]*[\t ]*\]/;
+terminal PICTURE: /\[[\t ]*[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*[\t ]*\]/;
 
-terminal NAME: /[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*(?:\[[0-9]+\])?/;
+terminal NAME: /[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*/;
 
 terminal TEXT: /"(?:[^"]|"")*"|'(?:[^']|'')*'/;
 
 terminal SEARCHFIELD: /\?(УправлениеПоиском|ОтображениеСтрокиПоиска)/;
 
-terminal OTHERFIELD: /\?(ПолеКалендаря|ПолеФорматированногоДокумента|ПолеДиаграммыГанта|ПолеГеографическойСхемы|ПолеГрафическойСхемы|ПолеHTMLДокумента|ПолеPDFДокумента|ПолеПериода|ПолеПланировщика|ПолеИндикатора|ПолеПереключателя|ПолеРисунка|ПолеТабличногоДокумента|ПолеТекстовогоДокумента|ПолеПолосыПрокрутки)/;
+terminal OTHERFIELD: /\?(ПолеФорматированногоДокумента|ПолеДиаграммыГанта|ПолеГеографическойСхемы|ПолеГрафическойСхемы|ПолеHTMLДокумента|ПолеPDFДокумента|ПолеПериода|ПолеПланировщика|ПолеИндикатора|ПолеПереключателя|ПолеТабличногоДокумента|ПолеТекстовогоДокумента|ПолеПолосыПрокрутки)/;
 
 terminal INDENT: '\*Ё';
 terminal DEDENT: '\*ё';
 hidden terminal WS: /[\t ]+/;
 
 entry Form:
-    (autoCommandBar=AutoCommandBar (NEWLINE | EOF))?
+    (autoCommandBar=AutoCommandBar)?
     (childItems+=ChildItem)*;
 
 
@@ -32,12 +32,12 @@ fragment DataPath:
 
 fragment Name:
     (isMainAttribute?='.')? elementName=NAME;
- 
+
 fragment NameAndDataPath:
-    (isMainAttribute?='.')? ((elementName=NAME '(' DataPath? ')') | DataPath);
+    (isMainAttribute?='.')? ((elementName=NAME '(' DataPath ')') | DataPath);
 
 fragment Titled:
-    (title=TEXT)?; 
+    (title=TEXT)?;
 
 fragment Field:
     ((NameAndDataPath ':') | (Titled ':' NameAndDataPath));
@@ -45,7 +45,7 @@ fragment Field:
 ChildItem:
      Group 
     | Pages
-    | ((PictureField
+    | PictureField
     | InputField  
     | LabelField
     | OtherField  
@@ -59,7 +59,7 @@ ChildItem:
     | CheckBoxFieldTumblerRightTitled
     | CommandBar  
     | Button  
-    | Table)(NEWLINE | EOF)?);
+    | Table;
  
 OneLineGroupField:
     PictureField
@@ -69,11 +69,8 @@ OneLineGroupField:
     | LabelDecoration 
     | PictureDecoration 
     | CheckBoxField 
-    | CheckBoxFieldRightTitled
     | CheckBoxFieldSwitch
-    | CheckBoxFieldSwitchRightTitled
     | CheckBoxFieldTumbler 
-    | CheckBoxFieldTumblerRightTitled
     | Button  
     | CommandBar;
 
@@ -114,7 +111,7 @@ CheckBoxFieldTumblerRightTitled:
     '<''|''>' Titled NameAndDataPath;
 
 Button:
-    '<' (hyperlink?='~')? Titled Name '>';
+    '<' Titled Name '>';
 
 
 // command bar
@@ -129,7 +126,7 @@ Popup:
     VGROUP Titled Name;
 
 CommandBarButton:
-    (hyperlink?='~')? Titled Name;
+    Titled Name;
 
 CommandBarChildItem:
     CommandGroup | Popup | CommandBarButton | CommandAdditionField;
@@ -151,20 +148,20 @@ CommandBar:
 Group:
     group=(GROUP | HGROUP | VGROUP | ABSGROUP) Titled Name 
         (
-            (NEWLINE | EOF) (INDENT childItems+=ChildItem* DEDENT)?
+            (INDENT childItems+=ChildItem* DEDENT)?
             | OneLineGroupFragment
-        )?;
+        );
 
 // one-line group
 
 fragment OneLineGroupFragment:
-    childItems+=OneLineGroupField (';' childItems+=OneLineGroupField )* (NEWLINE | EOF)?;
+    childItems+=OneLineGroupField (';' childItems+=OneLineGroupField )*;
 
 // table
 
 Table:
-    (autoCommandBar = AutoCommandBar (NEWLINE | EOF))?
-    '|' ( (childItems+=TableField ('|' childItems+=TableField )* '|') | '|'? ) NameAndDataPath;
+    (autoCommandBar = AutoCommandBar)?
+    '|' ( childItems+=TableField ('|' childItems+=TableField )*)? '|' NameAndDataPath;
 
 TableHorizontalGroup:
     HGROUP Titled Name;
@@ -199,11 +196,12 @@ TableField:
 // pages
 
 Pages:
-    '//' Titled Name (NEWLINE | EOF | DEDENT)
+    '//' Titled Name
     (INDENT (childItems+=Page)* DEDENT)?; 
 
 Page:
-    '/' Titled Name ((NEWLINE | EOF) (INDENT childItems+=ChildItem* DEDENT)?)?;
+    '/' Titled Name
+    (INDENT (childItems+=ChildItem)* DEDENT)?;
 
 // other
 

@@ -1,50 +1,40 @@
 import { describe, expect, it } from "vitest"
-import { fullFormCommands, minimalFormCommands } from "~/metadata/forms/commonObjects/formCommand/__fixtures__/data"
-import { exportPropertyToXML, PropertyRule } from "~/metadata/orchestration"
-import { mockContextToXML } from "~/tests/mockContext"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { fullFormCommands, minimalFormCommands } from "~/tests/fixtures/forms/commands/data"
+import { mockContextToXML, mockRule } from "~/tests/mockContext"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { xmlExport } from "~/xml/export/exporter"
+import { setIdsToElements } from "../../clientApplicationForm/toXML"
+import { exportCommandsToXML } from "./toXML"
 
-import "./types"
-
-const rule: PropertyRule = {
-  type: "FormCommands",
-  yaml: "Команды",
-  defaultValue: [],
-}
-
-describe("export FormCommands to XML", () => {
+describe("exportCommandToXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportPropertyToXML({
-      context: mockContextToXML(),
-      rule,
-      value: undefined,
-    })
+    const result = exportCommandsToXML(mockContextToXML(), mockRule, undefined)
 
     expect(result).toBeUndefined()
   })
 
-  it("should export full to XML", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
-      rule,
-      value: fullFormCommands,
-      xmlRootTag: "Commands",
-      path: "full.xml",
-      importMetaUrl: import.meta.url,
-      referenceMetadata: undefined,
-    })
+  it("should export all fields to XML", () => {
+    const context = mockContextToXML()
+    const expectedResult = readXMLFileAsString("forms/commands/full.xml")
+    const xmlData = exportCommandsToXML(context, mockRule, fullFormCommands)
+
+    setIdsToElements(context)
+
+    const result = xmlExport(xmlData!, false)
 
     expect(result).toEqual(expectedResult)
   })
 
   it("should export minimal", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
-      rule,
-      value: minimalFormCommands,
-      xmlRootTag: "Commands",
-      path: "minimal.xml",
-      importMetaUrl: import.meta.url,
-      referenceMetadata: undefined,
-    })
+    const expectedResult = readXMLFileAsString("forms/commands/minimal.xml")
+
+    const context = mockContextToXML()
+
+    const xmlData = exportCommandsToXML(context, mockRule, minimalFormCommands)
+
+    setIdsToElements(context)
+
+    const result = xmlExport(xmlData!, false)
 
     expect(result).toEqual(expectedResult)
   })

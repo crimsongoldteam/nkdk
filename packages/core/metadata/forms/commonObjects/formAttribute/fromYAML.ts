@@ -1,7 +1,7 @@
 import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importMetadataItemFromYAML, registerTypeRule } from "~/metadata/orchestration"
+import { importPropertiesFromYAML, registerTypeRule } from "~/metadata/orchestration"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
@@ -43,26 +43,24 @@ const importFormAttributeFromYAML = (
   yaml: FormAttributeYAML | TypeDescriptionYAML,
   name: string
 ): FormAttribute => {
-  const properties = importMetadataItemFromYAML({
+  const properties = importPropertiesFromYAML({
     context: context,
     yaml: yaml as FormAttributeYAML,
-    rule: FormAttributeRules,
+    metadataRule: FormAttributeRules,
     name,
   })
 
   const attribute = {
     ...properties,
     name,
-  }
+    itemType: "FormAttribute",
+  } as const
 
   const columns = importFormAttributeColumnsFromYAML(context, yaml, attribute as FormAttribute)
-
-  if (columns == undefined) throw new Error("Columns are required")
 
   return {
     ...attribute,
     columns,
-    itemType: "FormAttribute",
   }
 }
 
@@ -109,17 +107,16 @@ const importColumnFromYAML = (
   data: FormAttributeColumnYAML,
   name: string
 ): FormAttributeColumn => {
-  const properties = importMetadataItemFromYAML({
+  const properties = importPropertiesFromYAML({
     context: context,
     yaml: data,
-    rule: FormAttributeColumnRules,
+    metadataRule: FormAttributeColumnRules,
     name,
   })
 
-  if (properties == undefined) throw new Error("Properties are required")
-
   const result: FormAttributeColumn = {
     ...properties,
+    itemType: "FormAttributeColumn",
     name,
   }
 

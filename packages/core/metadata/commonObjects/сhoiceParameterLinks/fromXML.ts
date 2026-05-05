@@ -2,7 +2,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContextFromXML } from "../../context/types"
 import { importMetadataSimpleValueFromXML } from "../metadataValue/fromXML"
-import { MetadataPrimitiveValueXML } from "../metadataValue/types"
+import { MetadataSimpleValueXML } from "../metadataValue/types"
 import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
 
 export const importChoiceParameterLinksFromXML = (
@@ -31,7 +31,7 @@ export const importChoiceParameterLinksFromXML = (
 
 const extractDataPath = (
   context: ConfigurationContextFromXML,
-  dataPath: MetadataPrimitiveValueXML | string | undefined
+  dataPath: MetadataSimpleValueXML | string | undefined
 ): string | undefined => {
   if (!dataPath) return undefined
   if (typeof dataPath === "string") return dataPath

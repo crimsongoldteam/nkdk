@@ -1,49 +1,51 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { ExportToXMLFunctionNew, exportPropertiesToXML } from "~/metadata/orchestration"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { ElementXML, exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormCommandRules } from "./rules"
-import type { FormCommand, FormCommands, FormCommandXML } from "./types"
+import { FormCommand, FormCommandXML, FormCommands } from "./types"
 
-export const exportFormCommandsToXML: ExportToXMLFunctionNew = (params): { Command: FormCommandXML[] } | undefined => {
-  const context = params.context as ConfigurationContextWithExportToXML
-  const data = params.value as FormCommands | undefined
-  const referenceData = params.referenceMetadata as FormCommands | undefined
+export const exportCommandsToXML = (
+  context: ConfigurationContextWithExportToXML,
+  _rule: PropertyRule | undefined,
+  data: FormCommands | undefined,
+  referenceData?: FormCommands | undefined
+): { Command: ElementXML[] } | undefined => {
+  if (!data || data.length === 0) return undefined
 
-  if (data === undefined || data === null) return undefined
-  if (data.length === 0) return undefined
-
-  const result = data.map((command) => exportFormCommandToXML(context, command, findReferenceCommand(command, referenceData)))
+  const result = data.map((command) => {
+    const referenceCommand = findReferenceCommand(command, referenceData)
+    return exportCommandToXML(context, command, referenceCommand)
+  })
 
   return { Command: result }
 }
 
-const exportFormCommandToXML = (
+const exportCommandToXML = (
   context: ConfigurationContextWithExportToXML,
   data: FormCommand,
   referenceData?: FormCommand
 ): FormCommandXML => {
+  // const id = getElementId(context)
+
+  const properties = exportPropertiesToXML({
+    context,
+    metadata: data,
+    referenceMetadata: referenceData,
+    rule: FormCommandRules,
+  })
+
+  const { Name: _skipName, ...rest } = properties as Record<string, unknown>
   const result: FormCommandXML = {
     _name: data.name,
-    _id: data.id ?? "",
-  }
+    _id: "",
+    ...rest,
+  } as FormCommandXML
 
   context.exportToXML?.context?.metadataForNumbering.push({
     element: data,
     referenceElement: referenceData,
     xmlElement: result,
   })
-
-  const properties = exportPropertiesToXML({
-    context,
-    metadata: data,
-    referenceMetadata: referenceData ?? data,
-    rule: FormCommandRules,
-  })
-
-  Object.assign(result, properties)
-
-  if (result.Representation === "PictureAndText") {
-    result.Representation = "TextPicture"
-  }
 
   return result
 }
@@ -52,3 +54,5 @@ const findReferenceCommand = (data: FormCommand, referenceData: FormCommands | u
   if (!referenceData) return undefined
   return referenceData.find((referenceItem) => referenceItem.name === data.name)
 }
+
+registerTypeRule("FormCommands", "exportToXML", exportCommandsToXML)

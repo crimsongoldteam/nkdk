@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importMetadataItemFromXML, registerTypeRule } from "~/metadata/orchestration"
+import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
@@ -40,14 +40,14 @@ export const importFormAttributeColumnFromXML = (
 }
 
 const importFormAttributeFromXML = (context: ConfigurationContextFromXML, xml: FormAttributeXML): FormAttribute => {
-  const properties = importMetadataItemFromXML({
+  const properties = importPropertiesFromXML({
     context: context,
     xml,
     rule: FormAttributeRules,
   })
 
   const result: FormAttribute = {
-    itemType: FormAttributeRules.itemType,
+    itemType: "FormAttribute",
     name: xml._name,
     title: properties!.title!,
     columns: [],
@@ -80,14 +80,14 @@ const importColumnsFromXML = (
   const items = Array.isArray(xml) ? xml : [xml]
 
   return items.map((item) => {
-    const properties = importMetadataItemFromXML({
+    const properties = importPropertiesFromXML({
       context: context,
       xml: item,
       rule: FormAttributeColumnRules,
     })
 
     const column: FormAttributeColumn = {
-      itemType: FormAttributeColumnRules.itemType,
+      itemType: "FormAttributeColumn",
       name: item._name,
       ...properties,
     }

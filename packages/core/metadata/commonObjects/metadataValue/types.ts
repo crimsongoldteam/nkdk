@@ -1,5 +1,4 @@
 import { Static, Type } from "@sinclair/typebox"
-import { BasePropertyRule } from "~/metadata/orchestration"
 import { I8nText, I8nTextJSONSchema, I8nTextXML } from "../i8nText/types"
 
 //#region MetadataValue
@@ -12,115 +11,98 @@ export const MetadataValueTypeToXML = {
   ref: "xr:DesignTimeRef",
   objectRef: "xr:MDObjectRef",
   ApplicationUsePurpose: "app:ApplicationUsePurpose",
-  typeRef: "v8:Type",
-  uuid: "v8:UUID",
   fixedArray: "v8:FixedArray",
   formChoiceListDesTimeValue: "FormChoiceListDesTimeValue",
 } as const
 
-export type MetadataValueTypeToXMLTypes = [
-  ["string", string],
-  ["decimal", number],
-  ["dateTime", string],
-  ["boolean", boolean],
-  ["objectRef", string],
-  ["ref", string],
-  ["ApplicationUsePurpose", string],
-  ["typeRef", string],
-  ["uuid", string],
-  // ["fixedArray", string[] | number[] | boolean[]],
-  // ["formChoiceListDesTimeValue", { presentation: I8nText; value: MetadataValue }],
-]
-
-type MetadataValueTypeMap = typeof MetadataValueTypeToXML
-export type MetadataValueType = keyof MetadataValueTypeMap
-
-export type MetadataValueTypeXML = MetadataValueTypeMap[keyof MetadataValueTypeMap]
-
-export const MetadataValueTypeFromXML = (xmlType: MetadataValueTypeXML | undefined): MetadataValueType | undefined => {
-  if (!xmlType) return undefined
-  const entries = Object.entries(MetadataValueTypeToXML) as Array<[MetadataValueType, MetadataValueTypeXML]>
-  return entries.find(([, v]) => v === xmlType)?.[0]
+export const MetadataValueTypeFromXML = (xmlType: MetadataValueTypeXML): MetadataValueType | undefined => {
+  return Object.keys(MetadataValueTypeToXML).find(
+    (key) => MetadataValueTypeToXML[key as keyof typeof MetadataValueTypeToXML] === xmlType
+  ) as MetadataValueType | undefined
 }
 
-export type MetadataPrimitiveValueType =
-  | "string"
-  | "decimal"
-  | "dateTime"
-  | "boolean"
-  | "ref"
-  | "objectRef"
-  | "ApplicationUsePurpose"
-  | "typeRef"
-  | "uuid"
+export type MetadataValueType = keyof typeof MetadataValueTypeToXML
+export type MetadataPrimitiveValueType = Extract<
+  MetadataValueType,
+  "string" | "decimal" | "dateTime" | "boolean" | "objectRef"
+>
 
-type MetadataValueTypeToXMLTypesTuple = MetadataValueTypeToXMLTypes[number]
-type MetadataValueTypeToXMLTypesMap = {
-  [T in MetadataValueTypeToXMLTypesTuple[0]]: Extract<MetadataValueTypeToXMLTypesTuple, [T, unknown]>[1]
+export type MetadataValueTypeXML = (typeof MetadataValueTypeToXML)[keyof typeof MetadataValueTypeToXML]
+
+export interface MetadataAbstractValue {
+  type: MetadataValueType
 }
 
-export type MetadataTypedPrimitiveValue = {
-  [Type in MetadataPrimitiveValueType]: {
-    type: Type
-    value: MetadataValueTypeToXMLTypesMap[Type]
-  }
-}[MetadataPrimitiveValueType]
-
-export type MetadataStringValue = Extract<MetadataTypedPrimitiveValue, { type: "string" }>
-export type MetadataDecimalValue = Extract<MetadataTypedPrimitiveValue, { type: "decimal" }>
-export type MetadataDateTimeValue = Extract<MetadataTypedPrimitiveValue, { type: "dateTime" }>
-export type MetadataBooleanValue = Extract<MetadataTypedPrimitiveValue, { type: "boolean" }>
-export type MetadataRefValue = Extract<MetadataTypedPrimitiveValue, { type: "ref" }>
-export type MetadataObjectRefValue = Extract<MetadataTypedPrimitiveValue, { type: "objectRef" }>
-
-export interface MetadataFixedArrayValue {
-  type: "fixedArray"
-  value: MetadataTypedValue[]
+export interface MetadataStringValue extends MetadataAbstractValue {
+  type: "string"
+  value: string
 }
 
-export interface MetadataFormChoiceListValue {
-  type: "formChoiceListDesTimeValue"
-  presentation?: I8nText
-  value?: MetadataTypedValue
+export interface MetadataDecimalValue extends MetadataAbstractValue {
+  type: "decimal"
+  value: number
+}
+
+export interface MetadataDateTimeValue extends MetadataAbstractValue {
+  type: "dateTime"
+  value: string
+}
+
+export interface MetadataBooleanValue extends MetadataAbstractValue {
+  type: "boolean"
+  value: boolean
+}
+
+export interface MetadataRefValue extends MetadataAbstractValue {
+  type: "ref"
+  value: string
+}
+
+export interface MetadataObjectRefValue extends MetadataAbstractValue {
+  type: "objectRef"
+  value: string
 }
 
 export type MetadataSimpleValue =
-  | MetadataTypedPrimitiveValue["value"]
-  | MetadataTypedPrimitiveValue["value"][]
-  | {
-      presentation: I8nText
-      value: MetadataTypedPrimitiveValue
-    }
+  | MetadataStringValue
+  | MetadataDecimalValue
+  | MetadataDateTimeValue
+  | MetadataBooleanValue
+  | MetadataRefValue
+  | MetadataObjectRefValue
 
-export type MetadataTypedValue<T extends MetadataValueType = MetadataValueType> = Extract<
-  MetadataTypedPrimitiveValue | MetadataFixedArrayValue | MetadataFormChoiceListValue,
-  { type: T }
->
+export interface MetadataFixedArrayValue extends MetadataAbstractValue {
+  type: "fixedArray"
+  value: MetadataValue[]
+}
 
-export type MetadataValue = MetadataTypedValue
+export interface MetadataFormChoiceListValue extends MetadataAbstractValue {
+  type: "formChoiceListDesTimeValue"
+  presentation?: I8nText
+  value?: MetadataValue
+}
+
+export type MetadataValue = MetadataSimpleValue | MetadataFixedArrayValue | MetadataFormChoiceListValue
 
 //#region MetadataValueXML
 
-export type MetadataPrimitiveValueXML<T extends MetadataPrimitiveValueType = MetadataPrimitiveValueType> = {
-  "_xsi:type": MetadataValueTypeMap[T]
-  "#text"?: string
+export interface MetadataSimpleValueXML {
+  "_xsi:type": MetadataValueTypeXML
+  "#text": string | boolean | number
 }
 
-export type MetadataFixedArrayValueXML = {
+export interface MetadataFixedArrayValueXML {
   "_xsi:type": "v8:FixedArray"
-  "v8:Value": MetadataPrimitiveValueXML | MetadataPrimitiveValueXML[]
+  "v8:Value": MetadataValueXML | MetadataValueXML[]
 }
 
 export interface MetadataFormChoiceListValueXML {
   "_xsi:type": "FormChoiceListDesTimeValue"
   Presentation?: I8nTextXML
-  Value: MetadataPrimitiveValueXML | { "_xsi:nil": true }
+  Value: MetadataValueXML
 }
 
-export type MetadataSimpleValueXML = {
-  "_xsi:type": MetadataValueTypeXML
-  "#text"?: string
-}
+export type MetadataValueXML = MetadataSimpleValueXML | MetadataFixedArrayValueXML | MetadataFormChoiceListValueXML
 
 //#endregion
 
@@ -161,33 +143,3 @@ export type MetadataFormChoiceListValueYAML = MetadataFormChoiceListComplexValue
 export type MetadataValueYAML = Static<typeof MetadataValueJSONSchema>
 
 //#endregion
-
-export interface MetadataValuePropertyRule extends BasePropertyRule {
-  type: "MetadataValue"
-
-  /** Разрешённые типы значения. undefined = любой тип. */
-  valueType?: MetadataValueType[]
-
-  exportNilValue?: true
-}
-
-/**
- * XML-форма MetadataValue. Объединяет все возможные XML-представления значения.
- * Дженерик-параметры оставлены для обратной совместимости — они игнорируются.
- */
-export type MetadataValueXML<_Rule = unknown, _Value = unknown> =
-  | MetadataPrimitiveValueXML
-  | MetadataFixedArrayValueXML
-  | MetadataFormChoiceListValueXML
-  | { "_xsi:nil": true }
-
-/** Validates that the actual type matches the rule's allowed types. Throws if not. */
-export const assertValueType = (
-  allowed: MetadataValueType[] | undefined,
-  actual: MetadataValueType,
-  direction: string
-): void => {
-  if (allowed !== undefined && !allowed.includes(actual)) {
-    throw new Error(`MetadataValue: ожидались [${allowed.join(",")}], получен ${actual} в ${direction}`)
-  }
-}

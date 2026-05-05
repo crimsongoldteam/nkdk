@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
+import { fullCommandInterface, fullCommandInterfaceYAML } from "~/tests/fixtures/commandInterface/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { fullCommandInterface, fullCommandInterfaceYAML } from "./__fixtures__/full"
 import { importCommandInterfaceFromYAML } from "./fromYAML"
 
 describe("importCommandInterfaceFromYAML", () => {

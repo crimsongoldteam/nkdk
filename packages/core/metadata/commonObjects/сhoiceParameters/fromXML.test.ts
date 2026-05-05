@@ -9,9 +9,9 @@ import {
   singleChoiceParameter,
   stringChoiceParameter,
   withoutOneValueChoiceParameter,
-} from "~/metadata/commonObjects/сhoiceParameters/__fixtures__/data"
+} from "~/tests/fixtures/choiceParameters/data"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importChoiceParametersFromXML } from "./fromXML"
 import { ChoiceParametersXML } from "./types"
 
@@ -23,10 +23,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with single parameter correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "single.xml"
-    )
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameters/single.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -34,10 +31,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with multiple parameters correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "multiple.xml"
-    )
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameters/multiple.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -45,7 +39,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with enum value correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(import.meta.url, "enum.xml")
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameters/enum.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -53,10 +47,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with fixedArray value correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "fixedArray.xml"
-    )
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameters/fixedArray.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -64,10 +55,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with string value correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "string.xml"
-    )
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameters/string.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -75,10 +63,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with form boolean value correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "form/boolean.xml"
-    )
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameters/form/boolean.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -86,10 +71,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with form enum value correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "form/enum.xml"
-    )
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameters/form/enum.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -97,7 +79,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with nil value correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(import.meta.url, "nil.xml")
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameters/nil.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -105,10 +87,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with without value correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "withoutValue.xml"
-    )
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameters/withoutValue.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -116,9 +95,8 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters without one value correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "withoutOneValue.xml"
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>(
+      "choiceParameters/withoutOneValue.xml"
     )
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)

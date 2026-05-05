@@ -26,7 +26,7 @@ export const exportChildItemsToNKDK = <From extends GenerateChildItem>(
 
 export const exportCommandBarChildItemsToNKDK = (
   context: ConfigurationContext,
-  items: ReadonlyArray<CommandBarChildItem>
+  items: CommandBarChildItem[]
 ): ToNKDKResult => {
   let toOneLineGroup = true
   let strings: string[] = []

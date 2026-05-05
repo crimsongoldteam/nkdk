@@ -53,8 +53,3 @@ export type MetadataTabularSections = MetadataTabularSection[]
 export type MetadataTabularSectionsXML = MetadataTabularSectionXML[]
 
 export type MetadataTabularSectionsYAML = Record<MetadataNameYAML, MetadataTabularSectionYAML>
-
-export type MetadataDocumentTabularSection = MetadataTabularSection
-export type MetadataDocumentTabularSections = MetadataTabularSections
-export type MetadataDocumentTabularSectionsXML = MetadataTabularSectionsXML
-export type MetadataDocumentTabularSectionsYAML = MetadataTabularSectionsYAML

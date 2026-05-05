@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { usualGroupStructureFixtures } from "~/metadata/forms/elements/usualGroup/__fixtures__/data"
+import { usualGroupStructureFixtures } from "~/tests/fixtures/forms/usualGroup/data"
 import { testimportElementFromNKDK } from "~/tests/fromNKDK"
 import { mockContext } from "~/tests/mockContext"
 

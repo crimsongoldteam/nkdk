@@ -1,36 +1,11 @@
-import type { DcsMetadataValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
-import { SettingsParameterValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
-import { DateTimePropertyRule } from "~/metadata/commonObjects/dateTime/types"
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
-import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
-import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
-import type { CypherPredicate, CypherSet } from "./cypherPredicate"
-import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
-import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
-import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
-
+import { StandartAttributeName } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemType } from "../metadataItem/registry"
 import { PropertyRuleType } from "./registry"
-
-export type ReferenceScopeFilterName = "stringIndexedAttribute"
-
-/** Ссылка на объект текущего объекта-владельца (target: "this"). */
-export type ReferenceScopeThis =
-  | { target: "this"; kind: "Form" }
-  | { target: "this"; kind: "Attribute"; filter?: ReferenceScopeFilterName }
-
-/** Ссылка на top-level объект одного из допустимых типов. */
-export type ReferenceScopeTopLevel = {
-  target: "topLevel"
-  /** Допустимые префиксы типов, например ["Справочник", "Документ"]. */
-  allowedTypes: string[]
-}
-
-export type ReferenceScope = ReferenceScopeThis | ReferenceScopeTopLevel
 
 export interface MetadataItem {
   itemType: MetadataItemType
@@ -39,122 +14,54 @@ export interface MetadataItem {
 type DefaultValueFunction = (params: { context: ConfigurationContext; name?: string }) => any
 
 export interface BasePropertyRule {
-  /** Тип свойства */
   type: PropertyRuleType
 
-  /** Обязательное свойство */
   required?: true
 
-  /** Отключает свойство при любом экспорте/импорте */
-  runtimeOnly?: true
-
-  /** Порядок свойства при выгрузке в XML (используй только при необходимости) */
+  /**
+   * Порядок свойств при экспорте/импорте.
+   * Меньшее значение — раньше, отсутствие значения — после всех с order.
+   */
   order?: number
 
-  /** Название ключа в YAML */
+  /**
+   * Название ключа в yaml
+   */
   yaml?: string
-
-  /** Не экспортировать в YAML */
-  toYAML?: false
-
-  /** Не импортировать из YAML */
-  fromYAML?: false
-
-  /** Не экспортировать в корневой YAML */
-  toPartialYAML?: false
-
-  /** Значение по умолчанию в YAML (будет исключено из выбора)*/
-  defaultValueYAML?: any | DefaultValueFunction
-
-  /** Название в XML, если не заполнено - будет использован ключ*/
+  /**
+   * Название в xml, если не заполнено - будет использован ключ
+   */
   xml?: string
 
-  /** Значение по умолчанию в XML (будет выгружено как при пустом значении)*/
+  /**
+   * Передавать значение в форму в 1С
+   */
+  toEnterprise?: false
+  fromEnterprise?: false
+  toPartialYAML?: false
+  fromXML?: false
+  fromYAML?: false
+  defaultValue?: any | DefaultValueFunction
   defaultValueXML?: any
 
   /**
-   * Сырая XML-форма пустого значения — подставляется напрямую, без прогона через typeExportFn и wrapWithNamespace.
-   * Триггер срабатывания идентичен defaultValueXML.
-   * Взаимоисключимо с defaultValueXML.
-   * Примеры: "" — пустой тег, { "_xsi:nil": true } — nil-тег.
+   * Родительские элементы в xml
    */
-  defaultValueXMLRaw?: any
-
-  /**
-   * Значение, возвращаемое при импорте из XML, когда тег ПРИСУТСТВУЕТ в XML, но пустой (значение undefined).
-   * В отличие от defaultValue, применяется только при импорте из XML и только когда тег явно задан.
-   * Примеры: [] для пустого Attributes, { items: {} } для пустого Synonym, "" для пустого Comment.
-   */
-  defaultValueXMLEmpty?: any
-
-  /** Не импортировать из XML */
-  fromXML?: false
-
-  /** Не экспортировать в XML. Функция получает родительский metadataItem и опциональный context, возвращает `true` если экспортировать, `false` если пропустить */
-  toXML?: false | ((metadataItem: any, context?: ConfigurationContextWithExportToXML) => boolean) | CypherPredicate
-
-  /** Родительские элементы в XML */
   xmlParents?: string[]
-
-  /** XML namespace для элемента при экспорте: `xmlns="..."` */
-  xmlNamespace?: string
-
-  /** Передавать значение в форму в 1С */
-  toEnterprise?: false
-
-  /** Значение по умолчанию */
-  defaultValue?: any | DefaultValueFunction
-
-  /** Теги, по которым будет выгружаться свойство */
+  /**
+   * Теги, по которым будет выгружаться свойство
+   */
   tag?: string
 
-  /** Если все поля пустые - это поле будет выгружено как значение */
+  /**
+   * Если все поля пустые - это поле будет выгружено как значение
+   */
   useAsShortValueYAML?: true
 
-  /** Свойство используется только для построения референса */
+  /**
+   * Если true, то свойство будет пропущено при импорте из XML
+   */
   forReferenceOnly?: true
-
-  /** Описание допустимых целей ссылки (используется для валидации и автодополнения). */
-  referenceScope?: ReferenceScope
-
-  /** Множество допустимых значений из Cypher-запроса к FalkorDB. Используется для валидации и автодополнения. */
-  allowedValues?: CypherSet
-
-  /**
-   * Значение свойства хранится во внешнем файле, а не в YAML.
-   * Путь к файлу: `<dir>/<parent.name>.<extension>`.
-   */
-  externalFile?: { dir: string; extension: string; nameFrom: "parent" }
-
-  /**
-   * Значение свойства вычисляется из наличия внешнего файла другого свойства.
-   * Не хранится в YAML.
-   */
-  derivedFrom?: { externalFile: string }
-
-  /**
-   * Явная ASCII-метка kind'а для reference-ребра, порождаемого этим свойством
-   * (SCREAMING_SNAKE_CASE). Перекрывает правило по умолчанию (перевод yaml-имени
-   * через edgeKinds). Используется, когда yaml-имя коллидирует или неточно
-   * отражает семантику ребра.
-   */
-  graphEdgeKind?: string
-
-  /**
-   * Путь к внешнему XML-файлу относительно директории объекта метаданных.
-   * Свойство с этим полем не участвует в основном XML-файле объекта —
-   * читается/пишется отдельно оркестратором.
-   * Пример: "Ext/Predefined.xml"
-   */
-  filePath?: string
-
-  /**
-   * Если true, при сериализации в YAML и JSON-схему значение этого свойства подставляется
-   * напрямую как значение всего item-объекта (без обёртки ключом). Допустимо ровно одно
-   * содержательное (не forReferenceOnly) свойство с этим флагом на правило.
-   * Скоп — только YAML/JSON-схема. Модель данных и XML-сериализация не затрагиваются.
-   */
-  yamlInline?: true
 }
 
 export interface ChildItemsPropertyRule extends BasePropertyRule {
@@ -165,20 +72,18 @@ export interface ChildItemsPropertyRule extends BasePropertyRule {
 
 export interface UserVisiblePropertyRule extends BasePropertyRule {
   type: "UserVisible"
-  /** Ключ в YAML в случае разрешения использования */
   yaml: string
-  /** Ключ в YAML в случае запрета использования */
   yamlDeny: string
 }
 
 export interface StandardAttributeDescriptionPropertyRule extends BasePropertyRule {
   type: "StandardAttributeDescription"
-  standartAttributeNames: Record<string, string>
+  standartAttributeNames: StandartAttributeName[]
 }
 
 export interface StandardAttributeDescriptionsPropertyRule extends BasePropertyRule {
   type: "StandardAttributeDescriptions"
-  standartAttributeNames: Record<string, string>
+  standartAttributeNames: StandartAttributeName[]
 }
 
 export interface EventsPropertyRule extends BasePropertyRule {
@@ -218,30 +123,6 @@ export interface InternalInfoPropertyRule extends BasePropertyRule {
   getName?: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => string
 }
 
-export interface ModulePropertyRule extends BasePropertyRule {
-  type: "Module"
-  /** Путь к файлу на nkdk-стороне (относительно корня объекта), строка или функция от { name } */
-  nkdkPath: string | ((params: { name: string }) => string)
-  /** Путь к файлу на xml-стороне (относительно директории объекта), строка или функция от { name } */
-  xmlPath: string | ((params: { name: string }) => string)
-}
-
-export interface TemplatePropertyRule extends BasePropertyRule {
-  type: "Template"
-  /** Путь к файлу на nkdk-стороне (относительно корня объекта), строка или функция от { name } */
-  nkdkPath: string | ((params: { name: string }) => string)
-  /** Путь к файлу на xml-стороне (относительно директории объекта), строка или функция от { name } */
-  xmlPath: string | ((params: { name: string }) => string)
-}
-
-export interface HelpPropertyRule extends BasePropertyRule {
-  type: "Help"
-  /** Путь к Ext/Help.xml относительно директории объекта */
-  filePath: string
-  /** Папка с HTML-файлами на nkdk-стороне (например "Справка") */
-  nkdkDir: string
-}
-
 export interface CleanPropertyRule extends BasePropertyRule {
   type: Exclude<
     PropertyRuleType,
@@ -258,31 +139,11 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "MetadataType"
     | "MetadataTypeCollection"
     | "InternalInfo"
-    | "XMLRoot"
-    | "ChildFormNames"
-    | "ChildTemplateNames"
     | "GroupChildItems"
     | "CommandBarChildItems"
     | "TableChildItems"
     | "PagesChildItems"
-    | "MetadataValue"
-    | "MetadataDcsMetadataValue"
-    | "SettingsParameterValue"
-    | "SettingsParameterValueCollection"
-    | "number"
-    | "dateTime"
-    | "Module"
-    | "Template"
-    | "Help"
   >
-}
-
-export interface SettingsParameterValueCollectionPropertyRule extends BasePropertyRule {
-  type: "SettingsParameterValueCollection"
-  /** Правило для параметра, если нет в `parameterRules` */
-  defaultItemRule?: SettingsParameterValuePropertyRule
-  /** Переопределения по имени параметра (`dcscor:parameter` / ключ YAML) */
-  parameterRules?: Partial<Record<string, SettingsParameterValuePropertyRule>>
 }
 
 // export interface CustomExportPropertyRule extends BasePropertyRule {
@@ -297,6 +158,7 @@ export type PropertyRule =
   | FormattedI8nTextPropertyRule
   | EventsPropertyRule
   | CleanPropertyRule
+  // | CustomExportPropertyRule
   | TableAdditionalSourcePropertyRule
   | StandardAttributeDescriptionPropertyRule
   | StandardAttributeDescriptionsPropertyRule
@@ -305,18 +167,6 @@ export type PropertyRule =
   | TypeDescriptionPropertyRule
   | DataPathPropertyRule
   | MetadataTypePropertyRule
-  | MetadataValuePropertyRule
-  | DcsMetadataValuePropertyRule
-  | SettingsParameterValuePropertyRule
-  | SettingsParameterValueCollectionPropertyRule
-  | NumberPropertyRule
-  | DateTimePropertyRule
-  | XMLRootPropertyRule
-  | ChildFormNamesPropertyRule
-  | ChildTemplateNamesPropertyRule
-  | ModulePropertyRule
-  | TemplatePropertyRule
-  | HelpPropertyRule
 
 type PropertiesType = Record<string, PropertyRule>
 
@@ -325,59 +175,9 @@ export interface ItemXML {
 }
 
 export interface MetadataItemRule extends MetadataItem {
-  /**
-   * Тип объекта метаданных
-   */
   itemType: MetadataItemType
-
-  /**
-   * Свойства объекта метаданных
-   */
   properties: PropertiesType
 
-  /** @deprecated */
+  // events?: EventsRules
   eventsTag?: string
-
-  /**
-   * значение xsi:type для элемента
-   */
-  xsiType?: string
-
-  /**
-   * Префикс типа объекта в NodeId графа (например "Справочник" для MetadataCatalog).
-   * Используется вместо хардкода в graph.ts.
-   */
-  itemTypePrefix?: string
-
-  /**
-   * Имя XML-папки в дампе конфигурации (например "Catalogs", "Documents", "DocumentNumerators", "Sequences").
-   * Если задано — правило считается корневым и участвует в обходе configuration walker'а.
-   * Если не задано — правило внутреннее (Command, Predefined и т.п.).
-   */
-  xmlDir?: string
-
-  /**
-   * Пути к XML-тегам-контейнерам, которые должны присутствовать в результате exportPropertiesToXML
-   * всегда, даже пустыми. Каждый путь — массив ключей от корня результата, симметричный xmlParents
-   * на уровне PropertyRule. Пример: [["Catalog", "ChildObjects"]].
-   * Может содержать объект { path, tag } для создания контейнера только при экспорте с указанным тегом.
-   */
-  requiredXMLParents?: ReadonlyArray<ReadonlyArray<string> | { path: ReadonlyArray<string>; tag?: string }>
-
-  /**
-   * Имена терминальных узлов, которые материализуются как composition-дочки при импорте объекта.
-   * Пример: ["ПустаяСсылка"] — создаёт узел `<prefix>.<name>.ПустаяСсылка` с owning-ребром.
-   */
-  graphTerminals?: ReadonlyArray<string>
-
-  /**
-   * Дочерние коллекции, которые оркестратор должен обойти для обработки Module/Template-свойств.
-   * Ключ в модели (`propertyKey`) указывает на Record<itemName, itemData>;
-   * `itemRule` содержит правила, в которых могут быть Module-свойства с функциональными путями.
-   * Пути вычисляются относительно корня владельца (того же outputDir/name/).
-   */
-  childCollections?: ReadonlyArray<{
-    propertyKey: string
-    itemRule: MetadataItemRule
-  }>
 }

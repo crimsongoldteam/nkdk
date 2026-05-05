@@ -1,4 +1,3 @@
-import { describe, it } from "vitest";
 // import { afterEach, beforeAll, describe, expect, test } from "vitest";
 // import { EmptyFileSystem, type LangiumDocument } from "langium";
 // import { expandToString as s } from "langium/generate";
@@ -52,7 +51,3 @@ import { describe, it } from "vitest";
 //         || !isModel(document.parseResult.value) && `Root AST object is a ${document.parseResult.value.$type}, expected a 'Model'.`
 //         || undefined;
 // }
-
-describe("Linking tests", () => {
-  it("placeholder", () => {});
-});

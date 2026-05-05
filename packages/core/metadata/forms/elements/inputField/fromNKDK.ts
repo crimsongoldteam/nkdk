@@ -5,7 +5,7 @@ import {
   importI8nTextFromNKDK,
   importNameFromNKDK,
 } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
-import { InputField, TableInputField } from "./types"
+import { InputField } from "./types"
 
 export const importInputFieldFromNKDK = (params: {
   context: ConfigurationContext
@@ -28,14 +28,12 @@ export const importInputFieldFromNKDK = (params: {
 export const importTableInputFieldFromNKDK = (params: {
   context: ConfigurationContext
   source: NKDK.TableInputField
-}): TableInputField => ({
-  ...importInputFieldFromNKDK({
+}): InputField =>
+  importInputFieldFromNKDK({
     context: params.context,
     source: {
       elementName: params.source.elementName,
       dataPath: params.source.dataPath,
       title: params.source.title,
     } as NKDK.InputField,
-  }),
-  itemType: "TableInputField",
-})
+  })

@@ -3,7 +3,7 @@ import { importI8nTextFromString } from "~/metadata/commonObjects/i8nText/helper
 import { ConfigurationContext } from "~/metadata/context/types"
 
 import { importDataPathFromNKDK, importNameFromNKDK } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
-import { PictureField, TablePictureField } from "./types"
+import { PictureField } from "./types"
 
 export const importPictureFieldFromNKDK = (params: {
   context: ConfigurationContext
@@ -27,14 +27,12 @@ export const importPictureFieldFromNKDK = (params: {
 export const importTablePictureFieldFromNKDK = (params: {
   context: ConfigurationContext
   source: NKDK.TablePictureField
-}): TablePictureField => ({
-  ...importPictureFieldFromNKDK({
+}): PictureField =>
+  importPictureFieldFromNKDK({
     context: params.context,
     source: {
       elementName: params.source.elementName,
       dataPath: params.source.dataPath,
       title: params.source.title,
     } as NKDK.PictureField,
-  }),
-  itemType: "TablePictureField",
-})
+  })

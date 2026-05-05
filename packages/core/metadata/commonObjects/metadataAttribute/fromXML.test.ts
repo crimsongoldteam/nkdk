@@ -1,80 +1,58 @@
 import { describe, expect, it } from "vitest"
 import {
-  documentFromXML,
-  documentTabularFromXML,
-  fullFromXML,
-  minimalFromXML,
-  multipleFromXML,
-} from "./__fixtures__/data"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+  fullMetadataAttributes,
+  minimalMetadataAttributes,
+  multipleMetadataAttributes,
+  withMinValueMetadataAttribute,
+} from "~/tests/fixtures/metadataAttribute/data"
+import { mockContextFromXML, mockRule } from "~/tests/mockContext"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { importMetadataAttributesFromXML } from "./fromXML"
+import { MetadataAttributeXML } from "./types"
 
-const rule = { type: "MetadataAttributes", xml: "Attribute" } as const
-
-describe("import MetadataAttributes from XML", () => {
-  it("should import minimal", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      path: "minimal.xml",
-      xmlRootTag: "Attribute",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(minimalFromXML)
-  })
-
-  it("should import multiple attributes", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      path: "multiple.xml",
-      xmlRootTag: "Attribute",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(multipleFromXML)
+describe("importMetadataAttributeFromXML", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = importMetadataAttributesFromXML(mockContextFromXML(), mockRule, undefined)
+    expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      path: "full.xml",
-      xmlRootTag: "Attribute",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(fullFromXML)
+    const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/full.xml")
+
+    const result = importMetadataAttributesFromXML(mockContextFromXML(), mockRule, xmlData.Attribute)
+
+    expect(result).toEqual(fullMetadataAttributes)
   })
 
-  it("should return undefined when data is undefined", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      xmlString: "<Root/>",
-      xmlRootTag: "Root",
-    })
-    expect(result).toBeUndefined()
+  it("should import minimal", () => {
+    const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/minimal.xml")
+
+    const result = importMetadataAttributesFromXML(mockContextFromXML(), mockRule, xmlData.Attribute)
+
+    expect(result).toEqual(minimalMetadataAttributes)
   })
-})
 
-describe("import MetadataDocumentAttributes from XML", () => {
-  const documentRule = { type: "MetadataDocumentAttributes", xml: "Attribute" } as const
+  it("should import defaults", () => {
+    const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/defaults.xml")
 
-  it("should import document", () => {
-    const result = testImportPropertyFromXML({
-      rule: documentRule,
-      path: "document.xml",
-      xmlRootTag: "Attribute",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(documentFromXML)
+    const result = importMetadataAttributesFromXML(mockContextFromXML(), mockRule, xmlData.Attribute)
+
+    expect(result).toEqual(minimalMetadataAttributes)
   })
-})
 
-describe("import MetadataTabularSectionAttributes from XML", () => {
-  const tabularRule = { type: "MetadataTabularSectionAttributes", xml: "Attribute" } as const
+  it("should import multiple attributes", () => {
+    const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML[] }>("metadataAttribute/multiple.xml")
 
-  it("should import documentTabular", () => {
-    const result = testImportPropertyFromXML({
-      rule: tabularRule,
-      path: "documentTabular.xml",
-      xmlRootTag: "Attribute",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(documentTabularFromXML)
+    const result = importMetadataAttributesFromXML(mockContextFromXML(), mockRule, xmlData.Attribute)
+
+    expect(result).toEqual(multipleMetadataAttributes)
+  })
+
+  it("should import with min value", () => {
+    const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/withMinValue.xml")
+
+    const result = importMetadataAttributesFromXML(mockContextFromXML(), mockRule, xmlData.Attribute)
+
+    expect(result).toEqual(withMinValueMetadataAttribute)
   })
 })

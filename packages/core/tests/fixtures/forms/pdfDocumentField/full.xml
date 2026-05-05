@@ -1,0 +1,115 @@
+<PDFDocumentField name="ПолеPDFДокумента" id="1" DisplayImportance="High">
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<BorderColor>web:Red</BorderColor>
+	<CommandSet>
+		<ExcludedCommand>ScaleUp</ExcludedCommand>
+	</CommandSet>
+	<ContextMenu name="ПолеPDFДокументаКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
+	<DataPath>Документ</DataPath>
+	<DefaultItem>true</DefaultItem>
+	<Enabled>false</Enabled>
+	<Events>
+		<Event name="OnChange">ДокументПриИзменении</Event>
+		<Event name="URLClick">ДокументНажатиеНаНавигационнойСсылке</Event>
+	</Events>
+	<ExtendedTooltip name="ПолеPDFДокументаРасширеннаяПодсказка" id="3">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Center</GroupVerticalAlign>
+	<Height>11</Height>
+	<HorizontalStretch>false</HorizontalStretch>
+	<MaxHeight>2</MaxHeight>
+	<MaxWidth>1</MaxWidth>
+	<OnMainServerUnavalableBehavior>MakeDisable</OnMainServerUnavalableBehavior>
+	<Output>Enable</Output>
+	<ReadOnly>true</ReadOnly>
+	<Shortcut>Cmd+S</Shortcut>
+	<SkipOnInput>true</SkipOnInput>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок документа</v8:content>
+		</v8:item>
+	</Title>
+	<TitleFont ref="style:LargeTextFont" kind="StyleItem"/>
+	<TitleHeight>3</TitleHeight>
+	<TitleLocation>Top</TitleLocation>
+	<TitleTextColor>web:Blue</TitleTextColor>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">false</xr:Value>
+	</UserVisible>
+	<VerticalStretch>false</VerticalStretch>
+	<ViewStatusAddition name="ПолеPDFДокументаСостояниеПросмотра" id="4" DisplayImportance="VeryHigh">
+		<AdditionSource>
+			<Item>ПолеPDFДокумента</Item>
+			<Type>ViewStatusRepresentation</Type>
+		</AdditionSource>
+		<AutoMaxWidth>false</AutoMaxWidth>
+		<BackColor>web:Yellow</BackColor>
+		<Border width="4">
+			<v8ui:style xsi:type="v8ui:ControlBorderType">Double</v8ui:style>
+		</Border>
+		<BorderColor>web:IndianRed</BorderColor>
+		<ButtonColor>web:Green</ButtonColor>
+		<ContextMenu name="ПолеPDFДокументаСостояниеПросмотраКонтекстноеМеню" id="5">
+			<Autofill>false</Autofill>
+		</ContextMenu>
+		<Enabled>false</Enabled>
+		<ExtendedTooltip name="ПолеPDFДокументаСостояниеПросмотраРасширеннаяПодсказка" id="6">
+			<Title formatted="false">
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Расширенная подсказка состояния просмотра</v8:content>
+				</v8:item>
+			</Title>
+		</ExtendedTooltip>
+		<Font ref="style:LargeTextFont" kind="StyleItem"/>
+		<HorizontalLocation>Center</HorizontalLocation>
+		<HorizontalStretch>true</HorizontalStretch>
+		<MaxWidth>3</MaxWidth>
+		<TextColor>web:Orange</TextColor>
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Состояние просмотра</v8:content>
+			</v8:item>
+		</Title>
+		<TitleFont ref="style:ExtraLargeTextFont" kind="StyleItem"/>
+		<TitleTextColor>web:Orchid</TitleTextColor>
+		<ToolTip>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка</v8:content>
+			</v8:item>
+		</ToolTip>
+		<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+		<Width>1</Width>
+	</ViewStatusAddition>
+	<ViewStatusLocation>Top</ViewStatusLocation>
+	<Visible>false</Visible>
+	<WarningOnEdit>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Предупреждение при редактировании</v8:content>
+		</v8:item>
+	</WarningOnEdit>
+	<WarningOnEditRepresentation>Show</WarningOnEditRepresentation>
+	<Width>51</Width>
+</PDFDocumentField>

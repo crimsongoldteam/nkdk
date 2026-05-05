@@ -44,7 +44,6 @@ export const FormAttributeRules = {
       type: "TypeDescription",
       xml: "Type",
       useAsShortValueYAML: true,
-      defaultValueXMLRaw: {},
     },
 
     mainAttribute: {
@@ -71,7 +70,6 @@ export const FormAttributeRules = {
       yaml: "ПроверкаЗаполнения",
       type: "SystemEnumeration",
       typeSE: "FillChecking",
-      defaultValueYAML: "DontCheck",
     },
     columns: {
       yaml: "Колонки",
@@ -93,11 +91,6 @@ export const FormAttributeRules = {
     save: {
       yaml: "Сохранение",
       type: "FieldsList",
-    },
-    dynamicList: {
-      type: "DynamicList",
-      xml: "Settings",
-      yaml: "ДинамическийСписок",
     },
   },
 } as const satisfies MetadataItemRule
@@ -144,7 +137,6 @@ export const FormAttributeColumnRules = {
       type: "SystemEnumeration",
       typeSE: "FillChecking",
       order: 1,
-      defaultValueYAML: "DontCheck",
     },
     functionalOptions: {
       yaml: "ФункциональныеОпции",

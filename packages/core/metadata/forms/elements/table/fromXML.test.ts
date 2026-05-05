@@ -1,0 +1,41 @@
+import { describe, expect, it } from "vitest"
+import { ElementXML, importElementFromXML } from "~/metadata/orchestration"
+import { fullTable, minimalTable } from "~/tests/fixtures/forms/table/data"
+import { mockContextFromXML } from "~/tests/mockContext"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+
+describe("importTableFromXML", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = importElementFromXML({
+      context: mockContextFromXML(),
+      itemType: "Table",
+      xml: undefined,
+    })
+
+    expect(result).toBeUndefined()
+  })
+
+  it("should import all fields from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Table: ElementXML }>("forms/table/full.xml")
+
+    const result = importElementFromXML({
+      context: mockContextFromXML(),
+      itemType: "Table",
+      xml: xmlData.Table,
+    })
+
+    expect(result).toEqual(fullTable)
+  })
+
+  it("should import minimal", () => {
+    const xmlData = readAndParseXMLFile<{ Table: ElementXML }>("forms/table/minimal.xml")
+
+    const result = importElementFromXML({
+      context: mockContextFromXML(),
+      itemType: "Table",
+      xml: xmlData.Table,
+    })
+
+    expect(result).toEqual(minimalTable)
+  })
+})

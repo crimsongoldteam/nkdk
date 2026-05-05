@@ -3,7 +3,7 @@ import {
   ChildItemsPropertyRule,
   importElementFromPartialYAML,
   importElementFromTypedYAML,
-  ImportFromYAMLFunctionNew,
+  importFromYAMLFunctionNew,
   ToMetadata,
   ToTypedYAML,
   ToYAML,
@@ -14,7 +14,7 @@ import { PropertyRule } from "../../elements/calendarField/rules"
 import { ChildItem, FormElementsYAML, TypedElement } from "./types"
 
 // Typed
-export const importChildItemsFromYAML: ImportFromYAMLFunctionNew = <To extends ChildItem>(params: {
+export const importChildItemsFromYAML: importFromYAMLFunctionNew = <To extends ChildItem>(params: {
   context: ConfigurationContext
   rule: PropertyRule
   yaml?: ToYAML<To["itemType"]>[]

@@ -4,6 +4,11 @@ import {
   MetadataCommandsYAML,
 } from "~/metadata/appliedObjects/metadataCommand/types"
 import {
+  MetadataDocumentNumerator,
+  MetadataDocumentNumeratorXML,
+  MetadataDocumentNumeratorYAML,
+} from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
+import {
   AdditionalIndexes,
   AdditionalIndexesXML,
   AdditionalIndexesYAML,
@@ -39,7 +44,6 @@ import {
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface MetadataDocument {
-  itemType?: "MetadataDocument"
   actionsWritingOnPost?: SE.RegisterRecordsWritingOnPost
   additionalIndexes?: AdditionalIndexes
   attributes?: MetadataAttributes
@@ -75,7 +79,7 @@ export interface MetadataDocument {
   numberLength?: number
   numberPeriodicity?: SE.BusinessProcessNumberPeriodicity
   numberType?: SE.DocumentNumberType
-  numerator?: string
+  numerator?: MetadataDocumentNumerator
   objectBelonging?: SE.ObjectBelonging
   objectPresentation?: I8nText
   posting?: SE.Posting
@@ -129,7 +133,7 @@ export interface MetadataDocumentXML {
   NumberLength?: number
   NumberPeriodicity?: SE.BusinessProcessNumberPeriodicity
   NumberType?: SE.DocumentNumberType
-  Numerator?: string
+  Numerator?: MetadataDocumentNumeratorXML
   ObjectBelonging?: SE.ObjectBelonging
   ObjectPresentation?: I8nTextXML
   Posting?: SE.Posting
@@ -169,7 +173,7 @@ export interface MetadataDocumentYAML {
   Команды?: MetadataCommandsYAML
   Комментарий?: string
   КонтрольУникальности?: StringboolYAML
-  Нумератор?: string
+  Нумератор?: MetadataDocumentNumeratorYAML
   ОбновлятьИсториюДанныхСразуПослеЗаписи?: StringboolYAML
   ОперативноеПроведение?: SE.RealTimePostingYAML
   ОсновнаяФормаДляВыбора?: string

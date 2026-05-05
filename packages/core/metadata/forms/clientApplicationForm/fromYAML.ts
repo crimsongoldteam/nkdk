@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importMetadataItemFromYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
+import { importPropertiesFromYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 
@@ -20,18 +20,17 @@ export const importClientApplicationFormFromYAML = (
     sourceValue: source.autoCommandBar,
   })
 
-  const properties = importMetadataItemFromYAML({
+  const properties = importPropertiesFromYAML({
     context: itemsContext,
     yaml: data,
-    rule: ClientApplicationFormRules,
+    metadataRule: ClientApplicationFormRules,
     source: source,
   })
-
-  if (properties == undefined) throw new Error("Properties are required")
 
   const result: ClientApplicationForm = {
     ...(autoCommandBar ? { autoCommandBar } : {}),
     ...properties,
+    itemType: "ClientApplicationForm",
   }
 
   return result

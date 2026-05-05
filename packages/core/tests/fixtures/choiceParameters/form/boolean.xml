@@ -1,0 +1,7 @@
+<ChoiceParameters>
+	<app:item name="БезПроизводныхЗначений">
+		<app:value xsi:type="FormChoiceListDesTimeValue">
+			<Value xsi:type="xs:boolean">true</Value>
+		</app:value>
+	</app:item>
+</ChoiceParameters>

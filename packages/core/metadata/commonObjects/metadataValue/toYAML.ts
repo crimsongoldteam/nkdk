@@ -1,81 +1,117 @@
+import { format } from "date-fns"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { exportFixedArrayToYAML } from "./fixedArray/toYAML"
-import { exportFormChoiceListToYAML } from "./formChoiceList/toYAML"
-import { primitiveValueHandlers } from "./handlers"
+import { exportBooleanToYAML } from "../boolean/toYAML"
+import { exportMetadataValueStringToYAML as exportMetadataPathValueToYAML } from "../metadataPath/toYAML"
 import {
+  MetadataBooleanValue,
+  MetadataDateTimeValue,
+  MetadataDecimalValue,
   MetadataFixedArrayValue,
+  MetadataFixedArrayValueYAML,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueYAML,
-  MetadataPrimitiveValueType,
-  MetadataStringValue,
-  MetadataTypedValue,
-  MetadataValuePropertyRule,
+  MetadataObjectRefValue,
+  MetadataRefValue,
+  MetadataSimpleValue,
+  MetadataValue,
   MetadataValueYAML,
-  assertValueType,
 } from "./types"
 
-const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
-  "string",
-  "decimal",
-  "dateTime",
-  "boolean",
-  "ref",
-  "objectRef",
-  "ApplicationUsePurpose",
-  "typeRef",
-  "uuid",
-]
-
-/**
- * Экспортирует MetadataValue в YAML. Принимает тегированную форму {type, value}.
- */
 export const exportMetadataValueToYAML = (
   context: ConfigurationContext,
-  rule: PropertyRule | undefined,
-  data: MetadataTypedValue | undefined
+  _rule: PropertyRule | undefined,
+  data: MetadataValue | undefined
 ): MetadataValueYAML | undefined => {
   if (!data) return undefined
-  const ruleTyped = rule as MetadataValuePropertyRule | undefined
 
-  assertValueType(ruleTyped?.valueType, data.type, "toYAML")
-
-  if (data.type === "fixedArray") return exportFixedArrayToYAML(context, data as MetadataFixedArrayValue)
-  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListToYAML(context, data as MetadataFormChoiceListValue)
-
-  if (!PRIMITIVE_TYPES.includes(data.type as MetadataPrimitiveValueType)) {
-    throw new Error(`MetadataValue: неподдерживаемый тип для YAML: ${data.type}`)
-  }
-
-  const handler = primitiveValueHandlers[data.type as MetadataPrimitiveValueType]
-  return handler.toYAML(context, data)
+  if (data.type === "fixedArray") return exportFixedArrayValueToYAML(context, undefined, data)
+  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListValueToYAML(context, undefined, data)
+  if (data.type === "string") return exportStringValueToYAML(data)
+  if (data.type === "decimal") return exportDecimalValueToYAML(data)
+  if (data.type === "dateTime") return exportDateTimeValueToYAML(data)
+  if (data.type === "boolean") return exportBooleanValueToYAML(context, undefined, data)
+  if (data.type === "ref") return exportRefValueToYAML(context, data)
+  if (data.type === "objectRef") return exportObjectRefValueToYAML(context, data)
+  // if (data.type === "ApplicationUsePurpose") return exportApplicationUsePurposeValueToYAML(data)
+  throw new Error(`Invalid type ${JSON.stringify(data)}`)
 }
 
-/** @deprecated Используй exportFormChoiceListToYAML из submodule formChoiceList/toYAML */
+const formatDateTime = (dateTime: string): string => {
+  const date = new Date(dateTime)
+  return format(date, "dd.MM.yyyy HH:mm:ss")
+}
+
+const exportStringValueToYAML = (data: MetadataSimpleValue): MetadataValueYAML => {
+  return `"${data.value as string}"`
+}
+
+const exportDecimalValueToYAML = (data: MetadataDecimalValue): MetadataValueYAML => {
+  return data.value
+}
+
+const exportDateTimeValueToYAML = (data: MetadataDateTimeValue): MetadataValueYAML => {
+  return formatDateTime(data.value)
+}
+
+const exportBooleanValueToYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: MetadataBooleanValue
+): MetadataValueYAML => {
+  return exportBooleanToYAML(context, undefined, data.value)!
+}
+
+const exportRefValueToYAML = (context: ConfigurationContext, data: MetadataRefValue): MetadataValueYAML => {
+  return exportMedatataRefToYAML(context, data.value)
+}
+
+const exportObjectRefValueToYAML = (context: ConfigurationContext, data: MetadataObjectRefValue): MetadataValueYAML => {
+  return exportMedatataRefToYAML(context, data.value)
+}
+
+const exportFixedArrayValueToYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: MetadataFixedArrayValue
+): MetadataValueYAML => {
+  return data.value.map((v) => exportMetadataValueToYAML(context, undefined, v)!) as MetadataFixedArrayValueYAML
+}
+
 export const exportFormChoiceListValueToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValue
-): MetadataFormChoiceListValueYAML => exportFormChoiceListToYAML(context, data)
+): MetadataFormChoiceListValueYAML => {
+  const valueResult = exportMetadataValueToYAML(context, undefined, data.value)
 
-/**
- * Экспортирует AssociatedTable (MetadataStringValue) в YAML.
- */
-export const exportAssociatedTableToYAML = (
-  _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  value: MetadataStringValue | undefined
-): string | undefined => {
-  if (value === undefined) return undefined
-  return value.value
+  const presentationItems = data.presentation?.items
+  const hasMultipleLanguages = presentationItems && Object.keys(presentationItems).length > 1
+
+  // Если значение undefined, всегда возвращаем строку в формате (представление)
+  if (valueResult === undefined) {
+    const presentation = presentationItems?.[context.defaultLanguage] || presentationItems?.ru || ""
+    return `(${presentation})`
+  }
+
+  // Если есть несколько языков, возвращаем объект
+  if (hasMultipleLanguages && presentationItems) {
+    return {
+      Представление: presentationItems,
+      Значение: valueResult,
+    }
+  }
+
+  // Иначе возвращаем строку в формате "значение"(представление)
+  const presentation = presentationItems?.[context.defaultLanguage] || presentationItems?.ru || ""
+  return `${valueResult}(${presentation})`
 }
 
 export const exportMedatataRefToYAML = (context: ConfigurationContext, value: string): string => {
-  const result = primitiveValueHandlers.ref.toYAML(context, { type: "ref", value })
-  if (!result) throw new Error(`MetadataValue: не удалось экспортировать ref: ${value}`)
-  return result as string
+  const result = exportMetadataPathValueToYAML(context, undefined, value)
+  if (!result) throw new Error(`Invalid type for ref: ${value}`)
+  return result
 }
 
 registerTypeRule("MetadataValue", "exportToYAML", exportMetadataValueToYAML)
-registerTypeRule("AssociatedTable", "exportToYAML", exportAssociatedTableToYAML as any)

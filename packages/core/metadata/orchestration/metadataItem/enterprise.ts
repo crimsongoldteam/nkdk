@@ -5,9 +5,7 @@ export type EnterpriseType<
   T extends { properties: Record<string, PropertyRule>; enterpriseField: string; enterpriseFieldType: string },
 > = T["properties"] extends infer Properties
   ? {
-      [K in keyof Properties as Properties[K] extends { runtimeOnly: true }
-        ? never
-        : Properties[K] extends { toEnterprise?: false }
+      [K in keyof Properties as Properties[K] extends { toEnterprise?: false }
         ? never
         : Capitalize<K extends string ? K : never>]?: Properties[K] extends {
         type: infer PropertyType

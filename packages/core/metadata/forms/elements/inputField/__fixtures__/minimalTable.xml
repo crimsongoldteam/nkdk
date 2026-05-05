@@ -1,4 +1,0 @@
-<TableInputField name="ПолеВвода" id="1">
-	<ContextMenu name="ПолеВводаКонтекстноеМеню" id="2"/>
-	<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="3"/>
-</TableInputField>

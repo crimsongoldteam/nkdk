@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { labelDecorationStructureFixturesTable } from "~/metadata/forms/elements/labelDecoration/__fixtures__/data"
+import { labelDecorationStructureFixturesTable } from "~/tests/fixtures/forms/labelDecoration/data"
 import { testimportElementFromNKDK } from "~/tests/fromNKDK"
 import { mockContext } from "~/tests/mockContext"
 

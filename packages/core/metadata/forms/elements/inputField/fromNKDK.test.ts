@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   inputFieldStructureFixturesTable,
   type InputFieldStructureFixture,
-} from "~/metadata/forms/elements/inputField/__fixtures__/data"
+} from "~/tests/fixtures/forms/inputField/data"
 import { testimportElementFromNKDK } from "~/tests/fromNKDK"
 import { mockContext } from "~/tests/mockContext"
 

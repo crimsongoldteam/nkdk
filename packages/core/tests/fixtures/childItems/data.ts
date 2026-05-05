@@ -1,12 +1,12 @@
-import { ChildItem, FormChildItemsPartialYAML } from "~/metadata/forms/commonObjects/childItems/types"
+import { AllChildItemsPartialYAML, ChildItem } from "~/metadata/forms/commonObjects/childItems/types"
 
 export interface ChildItemsFixture {
   name: string
   element?: ChildItem[]
   structure?: string[]
   xmlPath?: string
-  typedYAML?: FormChildItemsPartialYAML
-  partialYAML?: FormChildItemsPartialYAML
+  typedYAML?: AllChildItemsPartialYAML
+  partialYAML?: AllChildItemsPartialYAML
 }
 
 export const childItemsFixturesTable: ChildItemsFixture[] = [
@@ -40,11 +40,11 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
   },
 ]
 
-export const singleChildItemsYAML: FormChildItemsPartialYAML = {
+export const singleChildItemsYAML: AllChildItemsPartialYAML = {
   Input1: {},
 }
 
-export const differentTypesChildItemsYAML: FormChildItemsPartialYAML = {
+export const differentTypesChildItemsYAML: AllChildItemsPartialYAML = {
   Input1: {},
   Label2: {},
   Input3: {},

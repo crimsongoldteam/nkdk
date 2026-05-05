@@ -6,7 +6,7 @@ import {
 } from "~/metadata/forms/format/helpers"
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { InputFieldSeparator } from "~/nkdk/terminal"
-import { InputField, TableInputField } from "./types"
+import { InputField } from "./types"
 
 export const exportInputFieldToNKDK = (params: {
   context: ConfigurationContext
@@ -40,16 +40,6 @@ export const exportInputFieldContentToNKDK = (params: {
   }
 
   return result
-}
-
-export const exportTableInputFieldContentToNKDK = (params: {
-  context: ConfigurationContext
-  element: TableInputField
-}): ToNKDKResult => {
-  return exportInputFieldContentToNKDK({
-    context: params.context,
-    element: params.element as unknown as Parameters<typeof exportInputFieldContentToNKDK>[0]["element"],
-  })
 }
 
 const formatTitle = (context: ConfigurationContext, element: InputField, title: string | undefined): string => {
