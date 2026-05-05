@@ -1,4 +1,6 @@
 export * from "./applyMigrations"
+export * from "./collectState"
+export * from "./detectConflicts"
 export * from "./fileNames"
 export * from "./paths"
 export * from "./stateFile"
