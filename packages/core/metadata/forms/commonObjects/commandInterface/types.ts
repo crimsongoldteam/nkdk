@@ -16,6 +16,7 @@ export interface CommandInterfaceItem extends MetadataItem {
   itemType: "CommandInterfaceItem"
   command: string
   type?: string
+  index?: number
   commandGroup?: SE.StandardCommandsGroup
   defaultVisible: boolean
   visible?: UserVisible
@@ -55,6 +56,7 @@ const standardCommandsGroups = standardCommandsGroupsYAML.map((key) => Type.Lite
 export const CommandInterfaceItemJSONSchema = Type.Object({
   Команда: Type.String(),
   Тип: Type.Optional(Type.String()),
+  Индекс: Type.Optional(Type.Number()),
   ГруппаКоманд: Type.Optional(Type.Union(standardCommandsGroups)),
   Автовидимость: BooleanJSONSchema,
   РазрешитьИспользование: Type.Optional(UserVisibleJSONSchema),
