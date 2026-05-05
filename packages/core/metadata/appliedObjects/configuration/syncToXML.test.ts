@@ -104,4 +104,117 @@ describe("sync configuration to XML", () => {
     fs.rmSync(tmpYamlDir, { recursive: true })
     fs.rmSync(tmpXmlDir, { recursive: true })
   })
+
+  it("сохраняет uuid при переименовании справочника и реквизита через remap reference", async () => {
+    const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_migration_rename")
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+    if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Миграции"), { recursive: true })
+    fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
+
+    fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), [
+      "Реквизиты:",
+      "  НовыйАртикул:",
+      "    Тип: string",
+      "",
+    ].join("\n"))
+    fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), [
+      '"Справочник.Товары": "Номенклатура"',
+      '"Справочник.Номенклатура.Реквизит.Артикул": "НовыйАртикул"',
+      "",
+    ].join("\n"))
+    fs.writeFileSync(join(xmlDir, "Catalogs", "Товары.xml"), `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
+	<Catalog uuid="00000000-0000-0000-0000-000000000001">
+		<Properties>
+			<Name>Товары</Name>
+			<Synonym/>
+			<Comment/>
+			<UseStandardCommands>true</UseStandardCommands>
+			<CodeLength>9</CodeLength>
+			<DescriptionLength>25</DescriptionLength>
+			<Hierarchical>false</Hierarchical>
+			<FoldersOnTop>true</FoldersOnTop>
+			<Owners/>
+			<SubordinationUse>ToItems</SubordinationUse>
+			<PredefinedDataUpdate>Auto</PredefinedDataUpdate>
+			<FullTextSearch>Use</FullTextSearch>
+			<ChoiceMode>BothWays</ChoiceMode>
+			<DefaultPresentation>AsDescription</DefaultPresentation>
+			<EditType>InDialog</EditType>
+			<QuickChoice>true</QuickChoice>
+			<IncludeHelpInContents>true</IncludeHelpInContents>
+			<InputByString/>
+			<SearchStringModeOnInputByString>Begin</SearchStringModeOnInputByString>
+			<CreateOnInput>Use</CreateOnInput>
+			<DataLockControlMode>Managed</DataLockControlMode>
+			<ModalChoiceMode>Both</ModalChoiceMode>
+			<DefaultObjectForm/>
+			<DefaultFolderForm/>
+			<DefaultListForm/>
+			<DefaultChoiceForm/>
+			<DefaultFolderChoiceForm/>
+			<AuxiliaryObjectForm/>
+			<AuxiliaryFolderForm/>
+			<AuxiliaryListForm/>
+			<AuxiliaryChoiceForm/>
+			<AuxiliaryFolderChoiceForm/>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="00000000-0000-0000-0000-000000000101">
+				<Properties>
+					<Name>Артикул</Name>
+					<Synonym/>
+					<Comment/>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+					<PasswordMode>false</PasswordMode>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
+					<MarkNegatives>false</MarkNegatives>
+					<Mask/>
+					<MultiLine>false</MultiLine>
+					<ExtendedEdit>false</ExtendedEdit>
+					<MinValue xsi:nil="true"/>
+					<MaxValue xsi:nil="true"/>
+					<FillChecking>DontCheck</FillChecking>
+					<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+					<ChoiceParameterLinks/>
+					<ChoiceParameters/>
+					<QuickChoice>Auto</QuickChoice>
+					<CreateOnInput>Use</CreateOnInput>
+					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+					<FullTextSearch>Use</FullTextSearch>
+					<Use>ForItem</Use>
+				</Properties>
+			</Attribute>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>`, "utf-8")
+
+    try {
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      const result = fs.readFileSync(join(outDir, "Catalogs", "Номенклатура.xml"), "utf-8")
+      expect(result).toContain('<Catalog uuid="00000000-0000-0000-0000-000000000001">')
+      expect(result).toContain('<Attribute uuid="00000000-0000-0000-0000-000000000101">')
+      expect(result).toContain("<Name>НовыйАртикул</Name>")
+    } finally {
+      if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    }
+  })
 })

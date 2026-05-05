@@ -31,6 +31,7 @@ export const syncFormToXML = async (params: {
   formName: string
   outputDir: string
   referenceDir?: string
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
   const { context, inputDir, formName, outputDir } = params
   const referenceDir = params.referenceDir ?? outputDir
@@ -81,7 +82,7 @@ export const syncFormToXML = async (params: {
     name: formName,
   })
 
-  await writeFormToXML({ context, formXML, metadataXML, formName, outputDir })
+  await writeFormToXML({ context, formXML, metadataXML, formName, outputDir, xmlManifest: params.xmlManifest })
 }
 
 async function readFormFiles(params: { inputDir: string; formName: string }): Promise<{
@@ -107,6 +108,7 @@ const writeFormToXML = async (params: {
   metadataXML: FormMetadataXML
   formName: string
   outputDir: string
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
   const { formXML, metadataXML, formName, outputDir } = params
 
@@ -119,6 +121,8 @@ const writeFormToXML = async (params: {
 
   await fs.promises.writeFile(formMetadataPath, xmlExport({ MetaDataObject: metadataXML }), "utf-8")
   await fs.promises.writeFile(formXmlPath, xmlExport({ Form: formXML }), "utf-8")
+  params.xmlManifest?.addFile(formMetadataPath)
+  params.xmlManifest?.addFile(formXmlPath)
 }
 
 let parseHelperCached: ReturnType<typeof parseHelper<NkdkForm>> | null = null
