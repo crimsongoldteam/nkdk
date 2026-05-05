@@ -115,6 +115,7 @@ const writeFormToXML = async (params: {
   const formExtDir = join(formsOutDir, formName, "Ext")
   const formXmlPath = join(formExtDir, "Form.xml")
 
+  await fs.promises.mkdir(formsOutDir, { recursive: true })
   await fs.promises.mkdir(formExtDir, { recursive: true })
 
   await fs.promises.writeFile(formMetadataPath, xmlExport({ MetaDataObject: metadataXML }), "utf-8")

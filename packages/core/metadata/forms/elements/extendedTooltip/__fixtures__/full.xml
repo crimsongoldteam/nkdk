@@ -1,36 +1,33 @@
-<ExtendedTooltip name="КакойТоЭлементРасширеннаяПодсказка" id="1" DisplayImportance="High">
-	<AutoMaxHeight>true</AutoMaxHeight>
-	<AutoMaxWidth>true</AutoMaxWidth>
-	<Enabled>true</Enabled>
-	<Font ref="style:NormalTextFont" kind="StyleItem"/>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
-	<Height>200</Height>
-	<HorizontalStretch>true</HorizontalStretch>
-	<MaxHeight>500</MaxHeight>
-	<MaxWidth>400</MaxWidth>
-	<Shortcut>S</Shortcut>
-	<SkipOnInput>false</SkipOnInput>
-	<TextColor>web:Blue</TextColor>
+<ExtendedTooltip name="КнопкаРасширеннаяПодсказка" id="1" DisplayImportance="VeryHigh">
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<BackColor>web:BlueViolet</BackColor>
+	<Border width="2">
+		<v8ui:style xsi:type="v8ui:ControlBorderType">Overline</v8ui:style>
+	</Border>
+	<BorderColor>web:SkyBlue</BorderColor>
+	<Events>
+		<Event name="Click">КнопкаРасширеннаяПодсказкаНажатие</Event>
+		<Event name="URLProcessing">КнопкаРасширеннаяПодсказкаОбработкаНавигационнойСсылки</Event>
+	</Events>
+	<Font ref="style:SmallTextFont" kind="StyleItem"/>
+	<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+	<GroupVerticalAlign>Center</GroupVerticalAlign>
+	<Height>10</Height>
+	<HorizontalStretch>false</HorizontalStretch>
+	<Hyperlink>true</Hyperlink>
+	<MaxHeight>20</MaxHeight>
+	<MaxWidth>15</MaxWidth>
+	<OnMainServerUnavalableBehavior>MakeDisable</OnMainServerUnavalableBehavior>
+	<TextColor>web:Violet</TextColor>
 	<Title formatted="false">
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Оформление формы</v8:content>
+			<v8:content>Расширенная подсказка</v8:content>
 		</v8:item>
 	</Title>
-	<ToolTip>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Подсказка</v8:content>
-		</v8:item>
-	</ToolTip>
-	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>Label</Type>
-	<UserVisible>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
-	</UserVisible>
-	<VerticalStretch>true</VerticalStretch>
-	<Visible>true</Visible>
-	<Width>300</Width>
+	<TitleHeight>3</TitleHeight>
+	<VerticalAlign>Bottom</VerticalAlign>
+	<VerticalStretch>false</VerticalStretch>
+	<Width>5</Width>
 </ExtendedTooltip>
