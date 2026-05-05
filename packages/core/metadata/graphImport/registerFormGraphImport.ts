@@ -14,21 +14,27 @@ export function registerFormGraphImport(): void {
     phase: 1,
     includeStubEdgesInChangedFile: true,
     matchPath: matchFormPath,
-    importModel: async ({ context, parsed, sources }) => {
-      const nkdkModel = sources.paired?.text
-        ? await parseClientApplicationFormFromNKDK(context, sources.paired.text)
-        : createEmptyClientApplicationForm()
-
-      const model = importClientApplicationFormFromYAML(
-        context,
-        parsed.data,
-        nkdkModel ?? createEmptyClientApplicationForm(),
-      )
-      return {
-        model,
-        graphModel: toGraphModel(model),
-        rule: ClientApplicationFormRules,
+    importModel: ({ context, parsed, sources }) => {
+      const buildModel = (nkdkModel = createEmptyClientApplicationForm()) => {
+        const model = importClientApplicationFormFromYAML(
+          context,
+          parsed.data,
+          nkdkModel,
+        )
+        return {
+          model,
+          graphModel: toGraphModel(model),
+          rule: ClientApplicationFormRules,
+        }
       }
+
+      if (!sources.paired?.text) {
+        return buildModel()
+      }
+
+      return parseClientApplicationFormFromNKDK(context, sources.paired.text).then(
+        (nkdkModel) => buildModel(nkdkModel ?? createEmptyClientApplicationForm()),
+      )
     },
     declareRoot: ({ graph, name, pathParams }) => {
       const ownerNodeId = pathParams.ownerNodeId

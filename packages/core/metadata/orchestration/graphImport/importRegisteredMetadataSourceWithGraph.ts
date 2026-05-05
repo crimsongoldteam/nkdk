@@ -36,7 +36,7 @@ export async function importRegisteredMetadataSourceWithGraph(params: {
   const pathParams = params.pathParams ?? {}
   const importContext: ConfigurationContext = { ...context, graph }
 
-  const imported = await registration.importModel({
+  const importResult = registration.importModel({
     filePath,
     sources,
     parsed,
@@ -45,6 +45,7 @@ export async function importRegisteredMetadataSourceWithGraph(params: {
     context: importContext,
     graph,
   })
+  const imported = isPromiseLike(importResult) ? await importResult : importResult
   if (!imported) return undefined
 
   const parentNodeId = declareRoot(registration, {
@@ -71,7 +72,7 @@ export async function importRegisteredMetadataSourceWithGraph(params: {
     extra: imported.extra,
   })
 
-  await registration.afterBuildGraph?.({
+  const afterBuildResult = registration.afterBuildGraph?.({
     graph,
     rule: imported.rule,
     model: imported.model,
@@ -85,8 +86,15 @@ export async function importRegisteredMetadataSourceWithGraph(params: {
     parentNodeId,
     extra: imported.extra,
   })
+  if (isPromiseLike(afterBuildResult)) {
+    await afterBuildResult
+  }
 
   return { model: imported.model, parsed }
+}
+
+function isPromiseLike<T>(value: T | Promise<T> | undefined): value is Promise<T> {
+  return value !== undefined && typeof (value as { then?: unknown }).then === "function"
 }
 
 function declareRoot(
