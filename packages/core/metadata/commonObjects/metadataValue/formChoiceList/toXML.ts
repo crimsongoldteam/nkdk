@@ -17,7 +17,7 @@ export const exportFormChoiceListToXML = (
   const valueXML: any = value ?? { "_xsi:nil": true }
   return {
     "_xsi:type": "FormChoiceListDesTimeValue",
-    Presentation: exportI8nTextToXML(context, { type: "I8nText" }, data.presentation),
+    Presentation: exportI8nTextToXML(context, { type: "I8nText" }, data.presentation) ?? {},
     Value: valueXML,
   } as MetadataFormChoiceListValueXML
 }

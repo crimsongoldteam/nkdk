@@ -18,6 +18,16 @@ export const withStringValueXML = `<Value xsi:type="FormChoiceListDesTimeValue">
 
 export const withStringValueYAML: MetadataFormChoiceListValueYAML = '"ФЛ"(Физическое лицо)'
 
+export const withoutPresentation: MetadataFormChoiceListValue = {
+  type: "formChoiceListDesTimeValue",
+  value: { type: "boolean", value: true },
+}
+
+export const withoutPresentationXML = `<Value xsi:type="FormChoiceListDesTimeValue">
+	<Presentation/>
+	<Value xsi:type="xs:boolean">true</Value>
+</Value>`
+
 export const withMultiLangPresentation: MetadataFormChoiceListValue = {
   type: "formChoiceListDesTimeValue",
   presentation: { items: { ru: "Физическое лицо", en: "Physical person" } },
