@@ -41,7 +41,7 @@ RETURN a.name AS name
 
 ## Тестирование
 
-Нужны три проверки.
+Нужны четыре проверки.
 
 1. Element XML-test через существующую `dynamicList`-фикстуру:
    - `contextAttributes` содержит реквизит формы `Список` с типом `DynamicList`;
@@ -55,6 +55,12 @@ RETURN a.name AS name
 3. Графовые тесты для `TypeDescription` не должны требовать ребро `VALUE_TYPE` для простого типа `DynamicList`.
    - простые типы остаются в props узла;
    - ссылочные типы продолжают давать reference-рёбра.
+
+4. Проверка short round-trip через `round-trip-xml`.
+   - после фикса запустить `.agents/skills/round-trip-xml/round-trip.sh` из корня проекта;
+   - первый исходный diff `Catalogs/АктыОтбораПробЗЕРНО/Forms/ФормаВыбора/Ext/Form.xml` не должен больше показывать потерю `Period` и `TopLevelParent`;
+   - если скрипт показывает следующий diff, это считается успешной проверкой именно этого исправления;
+   - если скрипт пишет `=== Round-trip чистый ===`, это тоже успешный результат.
 
 ## Не входит
 
