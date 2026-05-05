@@ -273,4 +273,32 @@ describe("sync configuration to XML", () => {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }
   })
+
+  it("пишет внешние файлы объекта в директорию объекта при configuration sync", async () => {
+    const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_external_files")
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+    if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+    fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "")
+    fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "МодульОбъекта.bsl"), "Процедура Проверка()\nКонецПроцедуры\n")
+
+    try {
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      expect(result.failed).toEqual([])
+      expect(fs.readFileSync(join(outDir, "Catalogs", "Товары", "Ext", "ObjectModule.bsl"), "utf-8")).toBe(
+        "Процедура Проверка()\nКонецПроцедуры\n",
+      )
+      expect(fs.existsSync(join(outDir, "Catalogs", "Ext", "ObjectModule.bsl"))).toBe(false)
+    } finally {
+      if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    }
+  })
 })

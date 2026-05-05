@@ -23,7 +23,9 @@ export const syncAppliedObjectToXML = async (params: {
   inputDir: string
   name: string
   outputDir: string
+  externalOutputDir?: string
   referenceDir?: string
+  externalReferenceDir?: string
   referenceName?: string
   referenceModel?: Record<string, unknown> | null
   referencePathByCurrentPath?: Map<string, string>
@@ -32,6 +34,8 @@ export const syncAppliedObjectToXML = async (params: {
 }): Promise<void> => {
   const { rule, context, inputDir, name, outputDir } = params
   const referenceDir = params.referenceDir ?? outputDir
+  const externalOutputDir = params.externalOutputDir ?? outputDir
+  const externalReferenceDir = params.externalReferenceDir ?? referenceDir
 
   const yamlPath = join(inputDir, name, PROPERTIES_YAML)
   const yamlContent = await fs.promises.readFile(yamlPath, "utf-8")
@@ -99,13 +103,15 @@ export const syncAppliedObjectToXML = async (params: {
   for (const [, propRule] of Object.entries(rule.properties)) {
     const syncFn = getTypeRule(propRule.type, "syncExternalToXML")
     if (!syncFn) continue
+    const syncXmlDir = propRule.type === "ChildFormNames" ? outputDir : externalOutputDir
+    const syncReferenceDir = propRule.type === "ChildFormNames" ? referenceDir : externalReferenceDir
     await syncFn({
       context: contextWithForms,
       rule: propRule,
       nkdkDir,
-      xmlDir: outputDir,
+      xmlDir: syncXmlDir,
       name,
-      referenceDir,
+      referenceDir: syncReferenceDir,
       referenceName,
       xmlManifest: params.xmlManifest,
     })
@@ -127,9 +133,9 @@ export const syncAppliedObjectToXML = async (params: {
           context: contextWithForms,
           rule: itemPropRule,
           nkdkDir,
-          xmlDir: outputDir,
+          xmlDir: externalOutputDir,
           name,
-          referenceDir,
+          referenceDir: externalReferenceDir,
           referenceName,
           xmlManifest: params.xmlManifest,
           itemName,
@@ -153,7 +159,7 @@ export const syncAppliedObjectToXML = async (params: {
     if (modelValue === undefined) continue
 
     let referenceValue: unknown = undefined
-    const referenceExtPath = join(referenceDir, propRule.filePath)
+    const referenceExtPath = join(externalReferenceDir, propRule.filePath)
     if (fs.existsSync(referenceExtPath)) {
       const refContent = fs.readFileSync(referenceExtPath, "utf-8")
       const refParsed = importContentFromXML<Record<string, unknown>>(refContent)
@@ -173,7 +179,7 @@ export const syncAppliedObjectToXML = async (params: {
     }) as Record<string, unknown> | undefined
     if (!xmlFileObj) continue
 
-    const extOutputPath = join(outputDir, propRule.filePath)
+    const extOutputPath = join(externalOutputDir, propRule.filePath)
     await fs.promises.mkdir(dirname(extOutputPath), { recursive: true })
     await fs.promises.writeFile(extOutputPath, xmlExport(xmlFileObj), "utf-8")
     params.xmlManifest?.addFile(extOutputPath)

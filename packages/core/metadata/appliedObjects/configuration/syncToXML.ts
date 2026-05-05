@@ -84,6 +84,8 @@ export const syncConfigurationToXML = async (params: {
       const referenceName = referencePath.split(".").at(-1)!
       const currentNode = migrationResult.state.nodes.get(currentObjectPath)
       const referenceModel = currentNode && currentNode.referencePath === undefined ? null : undefined
+      const xmlExternalOutputDir = join(xmlOutputDir, name)
+      const xmlExternalReferenceDir = join(xmlReferenceDir, referenceName)
       tasks.push({
         kind: rule.itemType,
         name,
@@ -94,7 +96,9 @@ export const syncConfigurationToXML = async (params: {
             inputDir: yamlDirAbs,
             name,
             outputDir: xmlOutputDir,
+            externalOutputDir: xmlExternalOutputDir,
             referenceDir: xmlReferenceDir,
+            externalReferenceDir: xmlExternalReferenceDir,
             referenceName,
             currentObjectPath,
             referencePathByCurrentPath: migrationResult.referencePathByCurrentPath,
