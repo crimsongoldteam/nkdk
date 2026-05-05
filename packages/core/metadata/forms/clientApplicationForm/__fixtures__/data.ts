@@ -7,6 +7,7 @@ const fullCommandInterface: CommandInterface = {
     {
       command: "Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn",
       type: "Auto",
+      index: 0,
       defaultVisible: false,
       itemType: "CommandInterfaceItem",
     },
@@ -181,6 +182,7 @@ export const fullClientApplicationFormYAML: Required<ClientApplicationFormYAML> 
       {
         Команда: "Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn",
         Тип: "Auto",
+        Индекс: 0,
         Автовидимость: "Ложь",
       },
     ],
