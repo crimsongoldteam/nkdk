@@ -1,3 +1,5 @@
+export * from "./applyMigrations"
 export * from "./fileNames"
+export * from "./paths"
 export * from "./stateFile"
 export * from "./types"
