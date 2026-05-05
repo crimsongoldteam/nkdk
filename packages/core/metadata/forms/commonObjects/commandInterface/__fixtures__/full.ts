@@ -1,4 +1,4 @@
-import { CommandInterface, CommandInterfaceYAML } from "~/metadata/forms/commonObjects/commandInterface/types"
+import type { CommandInterface, CommandInterfaceYAML } from "../types"
 
 export const fullCommandInterface: CommandInterface = {
   itemType: "CommandInterface",
