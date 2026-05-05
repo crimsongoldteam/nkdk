@@ -33,10 +33,33 @@ describe("getGraphFiles", () => {
 
     expect(selectGraphMock).toHaveBeenCalledWith("g")
     expect(queryMock).toHaveBeenCalledWith(
-      "MATCH (f:File) RETURN f.path AS path, f.mtimeMs AS mtimeMs, f.size AS size, f.updatedAt AS updatedAt",
-      undefined,
+      "MATCH (f:File) RETURN f.path AS path, f.mtimeMs AS mtimeMs, f.size AS size, f.updatedAt AS updatedAt ORDER BY path SKIP $skip LIMIT $limit",
+      { params: { skip: 0, limit: 5000 } },
     )
     expect(result).toEqual(files)
+    expect(closeMock).toHaveBeenCalledTimes(1)
+  })
+
+  it("читает File-узлы постранично, чтобы не упереться в лимит FalkorDB", async () => {
+    const firstPage = Array.from({ length: 5000 }, (_, index): GraphFileRecord => ({
+      path: `file-${index}.yaml`,
+      mtimeMs: index,
+      size: index,
+      updatedAt: index,
+    }))
+    const secondPage: GraphFileRecord[] = [
+      { path: "file-5000.yaml", mtimeMs: 5000, size: 5000, updatedAt: 5000 },
+    ]
+    queryMock
+      .mockResolvedValueOnce({ data: firstPage })
+      .mockResolvedValueOnce({ data: secondPage })
+
+    const result = await getGraphFiles({ graphName: "g" })
+
+    expect(result).toHaveLength(5001)
+    expect(queryMock).toHaveBeenCalledTimes(2)
+    expect(queryMock.mock.calls[0]?.[1]).toEqual({ params: { skip: 0, limit: 5000 } })
+    expect(queryMock.mock.calls[1]?.[1]).toEqual({ params: { skip: 5000, limit: 5000 } })
     expect(closeMock).toHaveBeenCalledTimes(1)
   })
 })

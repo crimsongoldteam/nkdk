@@ -50,12 +50,46 @@ const createDeletionTombstones = (filePaths: readonly string[]): FileGraphData[]
   }))
 }
 
+const createSkippedSourceFiles = (
+  graphFiles: readonly FileGraphData[],
+  sources: readonly ProjectGraphSource[],
+): FileGraphData[] => {
+  const graphFilePaths = new Set(graphFiles.map((file) => file.filePath))
+  const result: FileGraphData[] = []
+
+  for (const source of sources) {
+    if (!graphFilePaths.has(source.filePath)) {
+      result.push({
+        filePath: source.filePath,
+        fileStats: source.fileStats,
+        nodes: [],
+        edges: [],
+      })
+    }
+
+    if (source.pairedText && !graphFilePaths.has(source.pairedText.filePath)) {
+      result.push({
+        filePath: source.pairedText.filePath,
+        fileStats: source.pairedText.fileStats,
+        nodes: [],
+        edges: [],
+      })
+    }
+  }
+
+  return result
+}
+
 const buildPayload = async (
   sources: readonly ProjectGraphSource[],
   deletedFilePaths: readonly string[],
 ): Promise<FileGraphData[]> => {
   const graphFiles = await buildGraph(sources, CONTEXT)
-  return [...graphFiles, ...createDeletionTombstones(deletedFilePaths)]
+  return [
+    ...graphFiles,
+    ...createSkippedSourceFiles(graphFiles, sources),
+    ...createDeletionTombstones(deletedFilePaths),
+  ]
 }
 
 const attachStubEdgesToOwners = (graphFiles: readonly FileGraphData[]): FileGraphData[] => {
@@ -105,7 +139,7 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
   const tRead = performance.now() - tReadStart
 
   const tBuildStart = performance.now()
-  const graphFiles = await buildPayload(sources, [])
+  const graphFiles = attachStubEdgesToOwners(await buildPayload(sources, []))
   const tBuild = performance.now() - tBuildStart
 
   const tWriteStart = performance.now()
