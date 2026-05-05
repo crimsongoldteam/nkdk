@@ -42,6 +42,10 @@ const importCommandInterfaceItemFromYAML = (
     itemType: "CommandInterfaceItem",
   }
 
+  if (item.Индекс !== undefined) {
+    result.index = item.Индекс
+  }
+
   if (item.ГруппаКоманд) {
     result.commandGroup = StandardCommandsGroupFromYAML[item.ГруппаКоманд]
   }
