@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander"
 import { importConfiguration } from "./commands/import"
+import { deleteMigration, renameMigration } from "./commands/migration"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
 import { syncConfiguration } from "./commands/sync"
 import { updateGraph, updateGraphFile } from "./commands/updateGraph"
@@ -60,6 +61,25 @@ program
   .argument("<path>", "путь к корню YAML-проекта")
   .action((projectPath: string) => {
     run(() => watch(projectPath))
+  })
+
+program
+  .command("rename")
+  .description("Создать миграцию переименования")
+  .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
+  .argument("<path>", "полный путь элемента")
+  .argument("<new-name>", "новое локальное имя")
+  .action((yamlDir: string, path: string, newName: string) => {
+    run(() => Promise.resolve(renameMigration(yamlDir, path, newName)))
+  })
+
+program
+  .command("delete")
+  .description("Создать миграцию удаления")
+  .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
+  .argument("<path>", "полный путь элемента")
+  .action((yamlDir: string, path: string) => {
+    run(() => Promise.resolve(deleteMigration(yamlDir, path)))
   })
 
 program.parse()

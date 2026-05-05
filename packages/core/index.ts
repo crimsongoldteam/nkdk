@@ -3,11 +3,15 @@ export type { ConfigurationSyncResult } from "./metadata/appliedObjects/configur
 export { syncConfigurationToXML } from "./metadata/appliedObjects/configuration/syncToXML"
 export { shortRoundTripXML } from "./metadata/appliedObjects/configuration/shortRoundTripXML"
 export {
+  ADD_ACTION,
+  DELETE_ACTION,
+  buildRenameTargetPath,
   listMigrationFileNames,
   nextMigrationFileName,
   readAppliedMigrationsState,
   readPendingMigrationEntries,
   writeAppliedMigrationsState,
+  writeMigrationFile,
 } from "./metadata/appliedObjects/configuration/migrations"
 export type { MigrationConflict, MigrationEntry } from "./metadata/appliedObjects/configuration/migrations"
 export {
