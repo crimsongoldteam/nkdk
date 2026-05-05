@@ -6,7 +6,7 @@ import {
   importI8nTextFromNKDK,
   importNameFromNKDK,
 } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
-import { LabelField } from "./types"
+import { LabelField, TableLabelField } from "./types"
 
 export const importLabelFieldFromNKDK = (params: {
   context: ConfigurationContext
@@ -30,12 +30,14 @@ export const importLabelFieldFromNKDK = (params: {
 export const importTableLabelFieldFromNKDK = (params: {
   context: ConfigurationContext
   source: NKDK.TableLabelField
-}): LabelField =>
-  importLabelFieldFromNKDK({
+}): TableLabelField => ({
+  ...importLabelFieldFromNKDK({
     context: params.context,
     source: {
       elementName: params.source.elementName,
       dataPath: params.source.dataPath,
       title: params.source.title,
     } as NKDK.LabelField,
-  })
+  }),
+  itemType: "TableLabelField",
+})

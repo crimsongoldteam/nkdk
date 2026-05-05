@@ -1,18 +1,12 @@
-import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import { registerMetadataItemRule } from "~/metadata/orchestration"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { MetadataDocumentNumeratorRules } from "./rules"
 
-export interface MetadataDocumentNumerator {
-  checkUnique?: boolean
-  comment?: string
-  name?: string
-  numberAllowedLength?: SE.AllowedLength
-  numberLength?: number
-  numberPeriodicity?: SE.BusinessProcessNumberPeriodicity
-  numberType?: SE.DocumentNumberType
-  objectBelonging?: SE.ObjectBelonging
-  synonym?: I8nText
-}
+export type MetadataDocumentNumerator = MetadataTypeByRule<typeof MetadataDocumentNumeratorRules>
+export type MetadataDocumentNumeratorYAML = YAMLTypeByRule<typeof MetadataDocumentNumeratorRules>
 
 export interface MetadataDocumentNumeratorXML {
   CheckUnique?: boolean
@@ -20,20 +14,13 @@ export interface MetadataDocumentNumeratorXML {
   Name?: string
   NumberAllowedLength?: SE.AllowedLength
   NumberLength?: number
-  NumberPeriodicity?: SE.BusinessProcessNumberPeriodicity
+  NumberPeriodicity?: SE.DocumentNumberPeriodicity
   NumberType?: SE.DocumentNumberType
   ObjectBelonging?: SE.ObjectBelonging
   Synonym?: I8nTextXML
 }
 
-export interface MetadataDocumentNumeratorYAML {
-  ДлинаНомера?: number
-  ДопустимаяДлинаНомера?: SE.AllowedLengthYAML
-  Имя?: string
-  Комментарий?: string
-  КонтрольУникальности?: StringboolYAML
-  ПериодичностьНомера?: SE.BusinessProcessNumberPeriodicityYAML
-  ПринадлежностьОбъекта?: SE.ObjectBelongingYAML
-  Синоним?: I8nTextYAML
-  ТипНомера?: SE.DocumentNumberTypeYAML
-}
+registerMetadataItemRule({
+  propertyType: "MetadataDocumentNumerator",
+  itemRule: MetadataDocumentNumeratorRules,
+})

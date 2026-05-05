@@ -13,7 +13,11 @@ export const exportChoiceParametersToXML = (
 
   const items = parameters.map((param) => ({
     _name: param.name,
-    "app:value": exportMetadataValueToXML(context, undefined, param.value)!,
+    "app:value": exportMetadataValueToXML({
+      context,
+      rule: { type: "MetadataValue" },
+      value: param.value,
+    })!,
   }))
 
   return {

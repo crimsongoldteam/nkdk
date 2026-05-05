@@ -1,62 +1,65 @@
 #!/usr/bin/env node
 import { Command } from "commander"
-import { cleanFormFixturesXmlFiles, cleanXmlFiles } from "./commands/cleanXmlFiles"
-import { exportConfigToXML } from "./commands/exportConfigToXml"
-import { importConfigFromXml } from "./commands/importConfigFromXml"
+import { importConfiguration } from "./commands/import"
+import { shortRoundTrip } from "./commands/shortRoundTrip"
+import { syncConfiguration } from "./commands/sync"
+import { updateGraph, updateGraphFile } from "./commands/updateGraph"
+import { watch } from "./commands/watch"
+
+function run(fn: () => Promise<void>): void {
+  fn().catch((err: unknown) => {
+    const msg = err instanceof Error ? err.message : String(err)
+    process.stderr.write(msg + "\n")
+    if (process.env["DEBUG"] === "1" && err instanceof Error && err.stack) {
+      process.stderr.write(err.stack + "\n")
+    }
+    process.exit(1)
+  })
+}
 
 const program = new Command()
 
 program
-  .command("clean-xml")
-  .description("Очищает XML файлы пустых нод, сортирует и заменяет UUID на константу")
-  .version("1.0.0")
-  .argument("<input>", "входной файл или каталог")
-  .argument("<output>", "выходной файл или каталог")
-  .action((inputPath: string, outputPath: string) => {
-    cleanXmlFiles(inputPath, outputPath)
-  })
-
-program
-  .command("clean-form-fixture-xml")
-  .description("Очищает XML файлы пустых нод, сортирует и заменяет UUID на константу")
-  .version("1.0.0")
-  .argument("<input>", "входной файл или каталог")
-  .argument("<output>", "выходной файл или каталог")
-  .action((inputPath: string, outputPath: string) => {
-    cleanFormFixturesXmlFiles(inputPath, outputPath)
-  })
-
-program
   .command("import")
-  .description("Импорт конфигурации из XML файлов")
-  .argument("<input>", "входящий каталог")
-  .argument("<output>", "исходящий каталог")
-  .action((inputPath: string, outputPath: string) => {
-    importConfigFromXml(inputPath, outputPath)
+  .description("Импорт конфигурации из XML в YAML (XML → YAML)")
+  .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
+  .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
+  .action((xmlDir: string, yamlDir: string) => {
+    run(() => importConfiguration(xmlDir, yamlDir))
   })
 
 program
-  .command("export")
-  .description("Экспорт конфигурации в XML файлы")
-  .argument("<input>", "входящий каталог")
-  .argument("<output>", "исходящий каталог")
-  .action(async (inputPath: string, outputPath: string) => {
-    await exportConfigToXML(inputPath, outputPath)
+  .command("sync")
+  .description("Синхронизация конфигурации из YAML в XML (YAML → XML)")
+  .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
+  .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
+  .action((yamlDir: string, xmlDir: string) => {
+    run(() => syncConfiguration(yamlDir, xmlDir))
+  })
+
+program
+  .command("short-round-trip-test")
+  .description("Проверка round-trip XML → модель → XML (без YAML-слоя)")
+  .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
+  .action((xmlDir: string) => {
+    run(() => shortRoundTrip(xmlDir))
+  })
+
+program
+  .command("update-graph")
+  .description("Обновить граф метаданных в FalkorDB по YAML-проекту")
+  .argument("<path>", "путь к корню YAML-проекта")
+  .option("--file <filePath>", "обновить только один файл проекта")
+  .action((projectPath: string, opts: { file?: string }) => {
+    run(() => opts.file ? updateGraphFile(projectPath, opts.file) : updateGraph(projectPath))
+  })
+
+program
+  .command("watch")
+  .description("Следить за YAML/NKDK-проектом и инкрементально обновлять граф")
+  .argument("<path>", "путь к корню YAML-проекта")
+  .action((projectPath: string) => {
+    run(() => watch(projectPath))
   })
 
 program.parse()
-
-// cd /Users/nikita/git/nakidka-core/cli && npm run dev /Users/nikita/git/small_full/xml/Catalogs /Users/nikita/git/erp_clean/xml/Catalogs
-// cd /Users/nikita/git/nakidka-core/packages/cli && npm run dev export /Users/nikita/git/erp_nkdk /Users/nikita/git/erp_clean/xml
-// cd /Users/nikita/git/nakidka-core/packages/cli && npm run dev import /Users/nikita/git/small_full/xml /Users/nikita/git/erp_nkdk
-
-//npm run dev import /Users/nikita/git/ТестРаботы/xml /Users/nikita/git/ТестРаботы/nkdk
-//npm run dev export /Users/nikita/git/ТестРаботы/nkdk /Users/nikita/git/ТестРаботы/xml
-
-// npm run dev  /Users/nikita/git/nakidka-core/packages/core/tempTest/Before/Form.xml /Users/nikita/git/nakidka-core/packages/core/tempTest/Before/Form.xml
-
-// cd /Users/nikita/git/nakidka-core/cli && npm run dev clean-form-fixture-xml /Users/nikita/git/nakidka-core/packages/core/tests/fixtures/forms /Users/nikita/git/nakidka-core/packages/core/tests/fixtures/forms
-
-// cd /Users/nikita/git/nakidka-core/cli && npm run dev clean-xml /Users/nikita/git/ТестРаботы/xml/CommonForms/ОбычнаяГруппа/Ext/Form.xml /Users/nikita/git/ТестРаботы/xml/CommonForms/ОбычнаяГруппа/Ext/Form.xml
-
-//

@@ -60,6 +60,28 @@ export const parsingFixtures: ParsingFixture[] = [
       $container: undefined,
     },
   },
+  {
+    name: "form attribute with empty data path",
+    input: `Родитель():`,
+    expected: {
+      $type: "InputField",
+      isMainAttribute: false,
+      dataPath: [],
+      elementName: "Родитель",
+      $container: undefined,
+    },
+  },
+  {
+    name: "form attribute with array element path",
+    input: `Фамилия(Массив[0].Поле):`,
+    expected: {
+      $type: "InputField",
+      isMainAttribute: false,
+      dataPath: ["Массив[0]", "Поле"],
+      elementName: "Фамилия",
+      $container: undefined,
+    },
+  },
   // #endregion
   // #region LabelDecoration
   {
@@ -199,6 +221,17 @@ export const parsingFixtures: ParsingFixture[] = [
       $container: undefined,
     },
   },
+  {
+    name: "picture decoration with image file link",
+    input: `![Picture.svg] ДекорацияЯндекс`,
+    expected: {
+      $type: "PictureDecoration",
+      picture: "[Picture.svg]",
+      isMainAttribute: false,
+      elementName: "ДекорацияЯндекс",
+      $container: undefined,
+    },
+  },
   // #endregion
 
   // #region CheckBoxField
@@ -323,6 +356,7 @@ export const parsingFixtures: ParsingFixture[] = [
       $type: "Button",
       isMainAttribute: false,
       elementName: "Действие",
+      hyperlink: false,
       $container: undefined,
     },
   },
@@ -334,6 +368,30 @@ export const parsingFixtures: ParsingFixture[] = [
       title: '"Сохранить"',
       isMainAttribute: false,
       elementName: "Команда",
+      hyperlink: false,
+      $container: undefined,
+    },
+  },
+  {
+    name: "hyperlink button with title",
+    input: `<~"Сохранить" Команда>`,
+    expected: {
+      $type: "Button",
+      title: '"Сохранить"',
+      isMainAttribute: false,
+      elementName: "Команда",
+      hyperlink: true,
+      $container: undefined,
+    },
+  },
+  {
+    name: "hyperlink button without title",
+    input: `<~Действие>`,
+    expected: {
+      $type: "Button",
+      isMainAttribute: false,
+      elementName: "Действие",
+      hyperlink: true,
       $container: undefined,
     },
   },
@@ -365,6 +423,27 @@ export const parsingFixtures: ParsingFixture[] = [
           title: '"Кнопка"',
           isMainAttribute: false,
           elementName: "Команда",
+          hyperlink: false,
+          $container: undefined,
+        },
+      ],
+    },
+  },
+  {
+    name: "command bar with hyperlink button",
+    input: `<~"Ссылка" Команда> Панель`,
+    expected: {
+      $type: "CommandBar",
+      isMainAttribute: false,
+      elementName: "Панель",
+      $container: undefined,
+      childItems: [
+        {
+          $type: "CommandBarButton",
+          title: '"Ссылка"',
+          isMainAttribute: false,
+          elementName: "Команда",
+          hyperlink: true,
           $container: undefined,
         },
       ],
@@ -490,15 +569,27 @@ export const parsingFixtures: ParsingFixture[] = [
           $type: "Button",
           isMainAttribute: false,
           elementName: "Действие",
+          hyperlink: false,
           $container: undefined,
         },
       ],
     },
   },
   {
+    name: "group vertical without children",
+    input: `+ГруппаДополнительныеРеквизиты`,
+    expected: {
+      $type: "Group",
+      group: "+",
+      isMainAttribute: false,
+      elementName: "ГруппаДополнительныеРеквизиты",
+      $container: undefined,
+      childItems: [],
+    },
+  },
+  {
     name: "group with indented block",
-    input: `
-+Вертикальная
+    input: `+Вертикальная
   Поле:
   Декорация`,
     expected: {
@@ -524,9 +615,52 @@ export const parsingFixtures: ParsingFixture[] = [
     },
   },
   {
+    name: "collapsible group with nested group",
+    input: `+"Дополнительные реквизиты" СворачиваемаяГруппаДополнительныеРеквизиты
+  +ГруппаДополнительныеРеквизиты`,
+    expected: {
+      $type: "Group",
+      group: "+",
+      title: '"Дополнительные реквизиты"',
+      isMainAttribute: false,
+      elementName: "СворачиваемаяГруппаДополнительныеРеквизиты",
+      $container: undefined,
+      childItems: [
+        {
+          $type: "Group",
+          group: "+",
+          isMainAttribute: false,
+          elementName: "ГруппаДополнительныеРеквизиты",
+          childItems: [],
+          $container: undefined,
+        },
+      ],
+    },
+  },
+  {
+    name: "group with picture field in block",
+    input: `-Группа
+  ?ПолеРисунка ИмяПоля`,
+    expected: {
+      $type: "Group",
+      group: "-",
+      isMainAttribute: false,
+      elementName: "Группа",
+      $container: undefined,
+      childItems: [
+        {
+          $type: "OtherField",
+          type: "?ПолеРисунка",
+          isMainAttribute: false,
+          elementName: "ИмяПоля",
+          $container: undefined,
+        },
+      ],
+    },
+  },
+  {
     name: "group horizontal with indented block",
-    input: `
-- Блок
+    input: `- Блок
   Реквизит:`,
     expected: {
       $type: "Group",
@@ -563,6 +697,32 @@ export const parsingFixtures: ParsingFixture[] = [
       ],
     },
   },
+  {
+    name: "group one-line absolute with input and checkbox",
+    input: `=ГруппаСлужебныеДанные Идентификатор(Объект.Идентификатор): ; [ ] ТребуетсяЗагрузка`,
+    expected: {
+      $type: "Group",
+      group: "=",
+      isMainAttribute: false,
+      elementName: "ГруппаСлужебныеДанные",
+      $container: undefined,
+      childItems: [
+        {
+          $type: "InputField",
+          isMainAttribute: false,
+          dataPath: ["Объект", "Идентификатор"],
+          elementName: "Идентификатор",
+          $container: undefined,
+        },
+        {
+          $type: "CheckBoxFieldRightTitled",
+          isMainAttribute: false,
+          dataPath: ["ТребуетсяЗагрузка"],
+          $container: undefined,
+        },
+      ],
+    },
+  },
   // #endregion
 
   // #region Table
@@ -573,6 +733,17 @@ export const parsingFixtures: ParsingFixture[] = [
       $type: "Table",
       isMainAttribute: false,
       dataPath: ["ТабличныйДокумент"],
+      childItems: [],
+      $container: undefined,
+    },
+  },
+  {
+    name: "table without columns",
+    input: `| РезультирующаяТаблица`,
+    expected: {
+      $type: "Table",
+      isMainAttribute: false,
+      dataPath: ["РезультирующаяТаблица"],
       childItems: [],
       $container: undefined,
     },
@@ -619,10 +790,20 @@ export const parsingFixtures: ParsingFixture[] = [
 
   // #region Pages
   {
+    name: "pages empty",
+    input: `// Страницы`,
+    expected: {
+      $type: "Pages",
+      isMainAttribute: false,
+      elementName: "Страницы",
+      childItems: [],
+      $container: undefined,
+    },
+  },
+  {
     name: "pages",
     // отступы (пробелы) при использовании парсера заменяются на INDENT/DEDENT (*Ё / *ё)
-    input: `
-// Страницы
+    input: `// Страницы
   / Страница
     Декорация`,
     expected: {
@@ -648,9 +829,41 @@ export const parsingFixtures: ParsingFixture[] = [
       ],
     },
   },
+  {
+    name: "page with title",
+    input: `// Страницы
+  /"Дополнительно" ГруппаДополнительныеРеквизиты`,
+    expected: {
+      $type: "Pages",
+      isMainAttribute: false,
+      elementName: "Страницы",
+      $container: undefined,
+      childItems: [
+        {
+          $type: "Page",
+          title: '"Дополнительно"',
+          isMainAttribute: false,
+          elementName: "ГруппаДополнительныеРеквизиты",
+          childItems: [],
+          $container: undefined,
+        },
+      ],
+    },
+  },
   // #endregion
 
   // #region OtherField
+  {
+    name: "other field calendar",
+    input: `?ПолеКалендаря ГрафикРаботы`,
+    expected: {
+      $type: "OtherField",
+      type: "?ПолеКалендаря",
+      isMainAttribute: false,
+      elementName: "ГрафикРаботы",
+      $container: undefined,
+    },
+  },
   {
     name: "other field",
     input: `?ПолеПериода Реквизит`,

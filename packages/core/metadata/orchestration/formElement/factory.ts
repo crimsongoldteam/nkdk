@@ -1,5 +1,6 @@
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import {
+  BuildGraphFromModelFunction,
   createRegistryKey,
   ExportToEnterpriseFunction,
   ExportToJSONSchemaFn,
@@ -7,10 +8,15 @@ import {
   ExportToXMLFunctionNew,
   ExportToYAMLFunction,
   ExportToYAMLFunctionNew,
+  ExtractGraphFromModelFunction,
+  GraphEdgeFromParent,
+  GraphChildRule,
   importExportFunction,
-  importFromXMLFunction as ImportFromXMLFunction,
+  ImportFromXMLFunction,
   importFromYAMLFunction as ImportFromYAMLFunction,
-  importFromYAMLFunctionNew as ImportFromYAMLFunctionNew,
+  ImportFromYAMLFunctionNew,
+  SyncExternalFromXMLFunction,
+  SyncExternalToXMLFunction,
   TypeRulesOperations,
 } from "../property/fn"
 
@@ -24,6 +30,12 @@ const typeRulesRegistry = new Map<
   | ExportToXMLFunctionNew
   | ImportFromYAMLFunctionNew
   | ExportToYAMLFunctionNew
+  | BuildGraphFromModelFunction
+  | ExtractGraphFromModelFunction
+  | GraphEdgeFromParent
+  | GraphChildRule
+  | SyncExternalFromXMLFunction
+  | SyncExternalToXMLFunction
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -50,7 +62,19 @@ export const getTypeRule = <O extends TypeRulesOperations>(
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"
             ? ExportToJSONSchemaFn | undefined
-            : never => {
+            : O extends "buildGraphFromModel"
+              ? BuildGraphFromModelFunction | undefined
+              : O extends "extractGraph"
+                ? ExtractGraphFromModelFunction | undefined
+                : O extends "graphEdgeFromParent"
+                  ? GraphEdgeFromParent | undefined
+                  : O extends "graphChild"
+                    ? GraphChildRule | undefined
+                    : O extends "syncExternalFromXML"
+                      ? SyncExternalFromXMLFunction | undefined
+                      : O extends "syncExternalToXML"
+                        ? SyncExternalToXMLFunction | undefined
+                        : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

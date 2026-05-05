@@ -1,7 +1,11 @@
+import { cypherPredicate } from "~/metadata/orchestration/property/cypherPredicate"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
+
+export const dynamicListFormAttributeQuery =
+  'MATCH (s {id: $scope})-[:FORM_ATTRIBUTE]->(a:FormAttribute) WHERE "DynamicList" IN a.p_type_type RETURN a.name AS name'
 
 export const TableRules = {
   itemType: "Table",
@@ -47,7 +51,7 @@ export const TableRules = {
       type: "SystemEnumeration",
       typeSE: "TableCurrentRowUse",
     },
-    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "ValueTable" },
+    dataPath: { yaml: "ПутьКДанным", type: "DataPath", toYAML: false, fromYAML: false, defaultType: "ValueTable" },
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
@@ -57,10 +61,7 @@ export const TableRules = {
     },
     enabled: { yaml: "Доступность", type: "boolean" },
     enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
-    enableStartDrag: {
-      yaml: "РазрешитьНачалоПеретаскивания",
-      type: "boolean",
-    },
+    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
     extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     fileDragMode: {
       yaml: "СпособПеретаскиванияФайлов",
@@ -90,6 +91,7 @@ export const TableRules = {
       yaml: "ГоризонтальнаяПолосаПрокрутки",
       type: "SystemEnumeration",
       typeSE: "ScrollBarUse",
+      defaultValueYAML: "AutoUse",
     },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     initialListView: {
@@ -210,12 +212,14 @@ export const TableRules = {
       xml: "GroupVerticalAlign",
       type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
+      defaultValueYAML: "Auto",
     },
     verticalLines: { yaml: "ВертикальныеЛинии", type: "boolean" },
     verticalScrollBar: {
       yaml: "ВертикальнаяПолосаПрокрутки",
       type: "SystemEnumeration",
       typeSE: "ScrollBarUse",
+      defaultValueYAML: "AutoUse",
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     viewStatusLocation: {
@@ -231,7 +235,7 @@ export const TableRules = {
     },
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-    autoRefresh: { yaml: "АвтоОбновление", type: "boolean" },
+    autoRefresh: { yaml: "АвтоОбновление", type: "boolean", defaultValueYAML: false },
     restoreCurrentRow: { yaml: "ВосстанавливатьТекущуюСтроку", type: "boolean" },
     choiceFoldersAndItems: {
       yaml: "ВыборГруппИЭлементов",
@@ -249,6 +253,38 @@ export const TableRules = {
     allowRootChoice: { yaml: "РазрешитьВыборКорня", type: "boolean" },
     allowGettingCurrentRowURL: { yaml: "РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки", type: "boolean" },
     userSettingsGroup: { yaml: "ГруппаПользовательскихНастроек", type: "string" },
+    // Тип boolean: в XML значения всегда фиксированные (1С-дефолты); структуру в модели хранить не нужно.
+    // Эмитируются только когда DataPath указывает на FormAttribute с единственным типом "DynamicList".
+    period: {
+      yaml: "Период",
+      type: "boolean",
+      fromXML: false,
+      toYAML: false,
+      fromYAML: false,
+      defaultValueXMLRaw: {
+        "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+        "v8:startDate": "0001-01-01T00:00:00",
+        "v8:endDate": "0001-01-01T00:00:00",
+      },
+      toXML: cypherPredicate({
+        query: dynamicListFormAttributeQuery,
+        test: (el: any, rows: Record<string, unknown>[]) =>
+          rows.some((r) => r.name === el?.dataPath?.split(".")[0]),
+      }),
+    },
+    topLevelParent: {
+      yaml: "РодительВерхнегоУровня",
+      type: "boolean",
+      fromXML: false,
+      toYAML: false,
+      fromYAML: false,
+      defaultValueXMLRaw: { "_xsi:nil": "true" },
+      toXML: cypherPredicate({
+        query: dynamicListFormAttributeQuery,
+        test: (el: any, rows: Record<string, unknown>[]) =>
+          rows.some((r) => r.name === el?.dataPath?.split(".")[0]),
+      }),
+    },
     events: {
       type: "Events",
       yaml: "События",

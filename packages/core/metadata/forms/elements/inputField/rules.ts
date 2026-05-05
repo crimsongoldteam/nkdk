@@ -1,6 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
+import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
 
 export const InputFieldRules = {
@@ -8,11 +9,6 @@ export const InputFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.InputField",
   properties: {
-    name: {
-      type: "string",
-      xml: "_name",
-      required: true,
-    },
     allowInputEmptyMultipleValues: {
       yaml: "РазрешитьВводПустыхМножественныхЗначений",
       type: "boolean",
@@ -22,19 +18,26 @@ export const InputFieldRules = {
       yaml: "АвтоИзменениеРегистраПриВводеТекста",
       type: "SystemEnumeration",
       typeSE: "AutoCapitalizationOnTextInput",
+      defaultValueYAML: "Auto",
     },
     autoChoiceIncomplete: { yaml: "АвтоВыборНезаполненного", type: "boolean" },
     autoCorrectionOnTextInput: {
       yaml: "АвтоИсправлениеПриВводеТекста",
       type: "SystemEnumeration",
       typeSE: "AutoCorrectionOnTextInput",
+      defaultValueYAML: "Auto",
     },
     autoFillHint: {
       yaml: "ПодсказкаАвтозаполнения",
       type: "SystemEnumeration",
       typeSE: "InputFieldAutofillHint",
+      xml: "SpecialTextInputMode",
+      defaultValueYAML: "DontUse",
     },
-    autoMarkIncomplete: { yaml: "АвтоОтметкаНезаполненного", type: "boolean" },
+    autoMarkIncomplete: {
+      yaml: "АвтоОтметкаНезаполненного",
+      type: "boolean",
+    },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     autoShowClearButton: {
@@ -42,11 +45,14 @@ export const InputFieldRules = {
       type: "SystemEnumeration",
       typeSE: "AutoShowClearButtonMode",
       xml: "AutoShowClearButtonMode",
+      defaultValueYAML: "Auto",
     },
     autoShowOpenButton: {
       yaml: "АвтоОтображениеКнопкиОткрытия",
       type: "SystemEnumeration",
       typeSE: "AutoShowOpenButtonMode",
+      xml: "AutoShowOpenButtonMode",
+      defaultValueYAML: "Auto",
     },
     availableTypes: {
       yaml: "ДоступныеТипы",
@@ -61,11 +67,13 @@ export const InputFieldRules = {
       yaml: "ОтображениеКнопкиВыбора",
       type: "SystemEnumeration",
       typeSE: "ChoiceButtonRepresentation",
+      defaultValueYAML: "Auto",
     },
     choiceFoldersAndItems: {
       yaml: "ВыборГруппИЭлементов",
       type: "SystemEnumeration",
       typeSE: "FoldersAndItems",
+      defaultValueYAML: "Auto",
     },
     choiceForm: {
       yaml: "ФормаВыбора",
@@ -76,6 +84,7 @@ export const InputFieldRules = {
       yaml: "ИсторияВыбораПриВводе",
       type: "SystemEnumeration",
       typeSE: "ChoiceHistoryOnInput",
+      defaultValueYAML: "Auto",
     },
     choiceList: { yaml: "СписокВыбора", type: "ChoiceList", toEnterprise: false },
     choiceListButton: { yaml: "КнопкаСпискаВыбора", type: "boolean" },
@@ -88,11 +97,12 @@ export const InputFieldRules = {
     dropListButton: { yaml: "КнопкаВыпадающегоСписка", type: "boolean" },
     dropListWidth: { yaml: "ШиринаВыпадающегоСписка", type: "number" },
     editFormat: { yaml: "ФорматРедактирования", type: "I8nText" },
-    editText: { yaml: "ТекстРедактирования", type: "string" },
+    // editText: { yaml: "ТекстРедактирования", type: "string" },
     editTextUpdate: {
       yaml: "ОбновлениеТекстаРедактирования",
       type: "SystemEnumeration",
       typeSE: "EditTextUpdate",
+      defaultValueYAML: "Auto",
     },
     extendedEdit: {
       yaml: "РасширенноеРедактирование",
@@ -105,42 +115,48 @@ export const InputFieldRules = {
       yaml: "ВариантУправленияВысотой",
       type: "SystemEnumeration",
       typeSE: "ItemHeightControlVariant",
+      defaultValueYAML: "Auto",
     },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     incompleteChoiceMode: {
       yaml: "РежимВыбораНезаполненного",
       type: "SystemEnumeration",
       typeSE: "IncompleteChoiceMode",
+      defaultValueYAML: "OnEnterPressed",
     },
     inputHint: { yaml: "ПодсказкаВвода", type: "I8nText" },
     listChoiceMode: { yaml: "РежимВыбораИзСписка", type: "boolean" },
-    markIncomplete: { yaml: "ОтметкаНезаполненного", type: "boolean" },
+    // markIncomplete: { yaml: "ОтметкаНезаполненного", type: "boolean" },
     markNegatives: { yaml: "ВыделятьОтрицательные", type: "boolean" },
     mask: { yaml: "Маска", type: "string" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxValue: { yaml: "МаксимальноеЗначение", type: "number" },
+    maxValue: { yaml: "МаксимальноеЗначение", type: "number", xml: "MaxValue", typedXML: true },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    minValue: { yaml: "МинимальноеЗначение", type: "number" },
+    minValue: { yaml: "МинимальноеЗначение", type: "number", xml: "MinValue", typedXML: true },
     multiLine: { yaml: "МногострочныйРежим", type: "boolean" },
     multipleValuePictureDataPath: {
       yaml: "ПутьКДаннымКартинкиМножественногоЗначения",
       type: "DataPath",
       defaultType: "string",
+      xml: "MultipleValuePictureDataPath",
     },
     multipleValuePictureShape: {
       yaml: "ФигураКартинкиМножественногоЗначения",
       type: "SystemEnumeration",
       typeSE: "InputFieldMultipleValuePictureShape",
+      defaultValueYAML: "Auto",
     },
     multipleValuePictureSize: {
       yaml: "РазмерКартинкиМножественногоЗначения",
       type: "SystemEnumeration",
       typeSE: "InputFieldMultipleValuePictureSize",
+      defaultValueYAML: "Auto",
     },
     multipleValuePresentationDataPath: {
       yaml: "ПутьКДаннымПредставленияМножественногоЗначения",
       type: "DataPath",
       defaultType: "string",
+      xml: "MultipleValuePresentDataPath",
     },
     multipleValuesBackColor: { yaml: "ЦветФонаМножественныхЗначений", type: "Color" },
     multipleValuesExtendedEdit: {
@@ -150,17 +166,22 @@ export const InputFieldRules = {
     },
     multipleValuesFont: { yaml: "ШрифтМножественныхЗначений", type: "Font" },
     multipleValuesHyperlink: { yaml: "ГиперссылкаМножественныхЗначений", type: "boolean" },
-    multipleValuesPicture: { yaml: "КартинкаМножественныхЗначений", type: "Picture" },
+    multipleValuesPicture: {
+      yaml: "КартинкаМножественныхЗначений",
+      type: "Picture",
+    },
     multipleValuesTextColor: { yaml: "ЦветТекстаМножественныхЗначений", type: "Color" },
     multipleValueValueDataPath: {
       yaml: "ПутьКДаннымЗначенияМножественногоЗначения",
       type: "DataPath",
       defaultType: "string",
+      xml: "MultipleValueDataPath",
     },
     onScreenKeyboardReturnKeyText: {
       yaml: "ТекстКнопкиВводаЭкраннойКлавиатуры",
       type: "SystemEnumeration",
       typeSE: "OnScreenKeyboardReturnKeyText",
+      defaultValueYAML: "Auto",
     },
     openButton: { yaml: "КнопкаОткрытия", type: "boolean" },
     passwordMode: { yaml: "РежимПароля", type: "boolean" },
@@ -168,138 +189,32 @@ export const InputFieldRules = {
     showCheckBoxesInDropListWhenInputMultipleValues: {
       yaml: "ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений",
       type: "boolean",
+      xml: "ShowCheckBoxesInDropList",
     },
     specialTextInputMode: {
       yaml: "СпециальныйРежимВводаТекста",
       type: "SystemEnumeration",
       typeSE: "SpecialTextInputMode",
+      defaultValueYAML: "Auto",
     },
     spellCheckingOnTextInput: {
       yaml: "ПроверкаПравописанияПриВводеТекста",
       type: "SystemEnumeration",
       typeSE: "SpellCheckingOnTextInput",
+      defaultValueYAML: "Auto",
     },
     spinButton: { yaml: "КнопкаРегулирования", type: "boolean" },
     textColor: { yaml: "ЦветТекста", type: "Color" },
     textEdit: { yaml: "РедактированиеТекста", type: "boolean" },
-    typeDomainEnabled: { yaml: "РазрешитьСоставнойТип", type: "boolean" },
+    // typeDomainEnabled: {
+    //   yaml: "РазрешитьСоставнойТип",
+    //   type: "boolean",
+    //   fromXML: false,
+    // },
     typeLink: { yaml: "СвязьПоТипу", type: "TypeLink", toEnterprise: false },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     wrap: { yaml: "АвтоПереносСтрок", type: "boolean" },
-    autoCellHeight: { yaml: "АвтоВысотаЯчейки", type: "boolean" },
-    cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean" },
-    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
-    dataPath: {
-      yaml: "ПутьКДанным",
-      type: "DataPath",
-      defaultType: "string",
-      toPartialYAML: false,
-    },
-
-    defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
-    displayImportance: {
-      yaml: "ВажностьПриОтображении",
-      xml: "_DisplayImportance",
-      type: "SystemEnumeration",
-      typeSE: "DisplayImportance",
-    },
-    editMode: {
-      yaml: "РежимРедактирования",
-      type: "SystemEnumeration",
-      typeSE: "ColumnEditMode",
-    },
-    enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
-    fixingInTable: {
-      yaml: "ФиксацияВТаблице",
-      type: "SystemEnumeration",
-      typeSE: "FixingInTable",
-    },
-    footerBackColor: { yaml: "ЦветФонаПодвала", type: "Color" },
-    footerDataPath: { yaml: "ПутьКДаннымПодвала", type: "DataPath", defaultType: "string" },
-    footerFont: { yaml: "ШрифтПодвала", type: "Font" },
-    footerHorizontalAlign: {
-      yaml: "ГоризонтальноеПоложениеВПодвале",
-      type: "SystemEnumeration",
-      typeSE: "ItemHorizontalLocation",
-    },
-    footerPicture: { yaml: "КартинкаПодвала", type: "Picture" },
-    footerText: { yaml: "ТекстПодвала", type: "I8nText" },
-    footerTextColor: { yaml: "ЦветТекстаПодвала", type: "Color" },
-    headerHorizontalAlign: {
-      yaml: "ГоризонтальноеПоложениеВШапке",
-      type: "SystemEnumeration",
-      typeSE: "ItemHorizontalLocation",
-    },
-    headerPicture: { yaml: "КартинкаШапки", type: "Picture" },
-    horizontalAlign: {
-      yaml: "ГоризонтальноеПоложение",
-      type: "SystemEnumeration",
-      typeSE: "ItemHorizontalLocation",
-    },
-    horizontalAlignInGroup: {
-      yaml: "ГоризонтальноеПоложениеВГруппе",
-      xml: "GroupHorizontalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemHorizontalLocation",
-    },
-    readOnly: { yaml: "ТолькоПросмотр", type: "boolean" },
-    shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
-    showInFooter: { yaml: "ОтображатьВПодвале", type: "boolean" },
-    showInHeader: { yaml: "ОтображатьВШапке", type: "boolean" },
-    skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },
-    table: { yaml: "Таблица", xml: "AssociatedTableElementId", type: "AssociatedTable", toEnterprise: false },
-    title: {
-      yaml: "Заголовок",
-      type: "I8nText",
-      yamlPartialOthers: true,
-    },
-    titleBackColor: { yaml: "ЦветФонаЗаголовка", type: "Color" },
-    titleFont: { yaml: "ШрифтЗаголовка", type: "Font" },
-    titleHeight: { yaml: "ВысотаЗаголовка", type: "number" },
-    titleLocation: {
-      yaml: "ПоложениеЗаголовка",
-      type: "SystemEnumeration",
-      typeSE: "FormItemTitleLocation",
-    },
-    titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color" },
-    toolTip: { yaml: "Подсказка", type: "I8nText" },
-    toolTipRepresentation: {
-      yaml: "ОтображениеПодсказки",
-      type: "SystemEnumeration",
-      typeSE: "ToolTipRepresentation",
-    },
-    type: {
-      yaml: "Вид",
-      type: "SystemEnumeration",
-      typeSE: "FormFieldType",
-    },
-    typeRestriction: { yaml: "ОграничениеТипа", type: "TypeDescription", toEnterprise: false },
-    verticalAlign: {
-      yaml: "ВертикальноеПоложение",
-      type: "SystemEnumeration",
-      typeSE: "ItemVerticalAlign",
-    },
-    verticalAlignInGroup: {
-      yaml: "ВертикальноеПоложениеВГруппе",
-      xml: "GroupVerticalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemVerticalAlign",
-    },
-    visible: { yaml: "Видимость", type: "boolean" },
-    warningOnEdit: { yaml: "ПредупреждениеПриРедактировании", type: "I8nText" },
-    warningOnEditRepresentation: {
-      yaml: "ОтображениеПредупрежденияПриРедактировании",
-      type: "SystemEnumeration",
-      typeSE: "WarningOnEditRepresentation",
-    },
     events: {
       type: "Events",
       yaml: "События",
@@ -323,7 +238,29 @@ export const InputFieldRules = {
         multipleValuesDelete: "УдалениеМножественныхЗначений",
       },
     },
+    dataPath: {
+      yaml: "ПутьКДанным",
+      type: "DataPath",
+      toPartialYAML: false,
+      // fromYAML: false,
+      defaultType: "string",
+    },
+    ...formFieldCommonProperties,
+  },
+} as const satisfies ElementRule
+
+export const TableInputFieldRules = {
+  itemType: "TableInputField",
+  xmlTag: "InputField",
+  enterpriseField: "FormField",
+  enterpriseFieldType: "FormFieldType.InputField",
+  properties: {
+    ...InputFieldRules.properties,
+    ...formFieldTableRelatedProperties,
+    minValue: { yaml: "МинимальноеЗначение", type: "number", xml: "MinValue" },
+    maxValue: { yaml: "МаксимальноеЗначение", type: "number", xml: "MaxValue" },
   },
 } as const satisfies ElementRule
 
 registerElementRule("InputField", InputFieldRules)
+registerElementRule("TableInputField", TableInputFieldRules)

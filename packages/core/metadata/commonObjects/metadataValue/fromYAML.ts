@@ -1,186 +1,143 @@
-import { format, parse } from "date-fns"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { formulaFormatParser } from "~/metadata/helpers/formulaFormatParser/formulaFormatParser"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { importI8nTextFromYAML } from "../i8nText/fromYAML"
-import { importMetadataValueStringFromYAML } from "../metadataPath/fromYAML"
+import { importFixedArrayFromYAML } from "./fixedArray/fromYAML"
+import { importFormChoiceListFromYAML } from "./formChoiceList/fromYAML"
+import { primitiveValueHandlers } from "./handlers"
 import {
   MetadataFixedArrayValueYAML,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueYAML,
-  MetadataValue,
+  MetadataStringValue,
+  MetadataTypedValue,
+  MetadataValuePropertyRule,
   MetadataValueYAML,
+  assertValueType,
 } from "./types"
 
+type MetadataSingleYAML = string | number
+
+/**
+ * Импортирует MetadataValue из YAML. Всегда возвращает тегированную форму {type, value}.
+ *
+ * Тип определяется из синтаксиса значения YAML (детерминистски).
+ * Если rule.valueType задан, проверяется соответствие — несовпадение → throw.
+ */
 export const importMetadataValueFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: MetadataValueYAML | undefined
-): MetadataValue | undefined => {
-  if (data === undefined) return undefined
+): MetadataTypedValue | undefined => {
+  if (data === undefined || data === null) return undefined
 
-  if (typeof data === "object" && data !== null && !Array.isArray(data) && "Представление" in data) {
-    return importFormChoiceListValueFromYAML(context, undefined, data as MetadataFormChoiceListValueYAML)
+  // Агрегатные типы определяются по форме данных, не по rule
+  if (typeof data === "object" && !Array.isArray(data) && "Представление" in data) {
+    return importFormChoiceListFromYAML(context, data as MetadataFormChoiceListValueYAML)
   }
 
   if (Array.isArray(data)) {
-    return importFixedArrayValueFromYAML(context, undefined, data)
+    return importFixedArrayFromYAML(context, data as MetadataFixedArrayValueYAML)
   }
 
-  if (typeof data === "number") {
-    return {
-      type: "decimal",
-      value: data,
-    }
+  const result = heuristicFromYAML(context, data as MetadataSingleYAML)
+
+  // Строгая валидация: если valueType задан, фактический тип должен совпадать
+  const ruleTyped = rule as MetadataValuePropertyRule | undefined
+  if (result !== undefined) {
+    assertValueType(ruleTyped?.valueType, result.type, "fromYAML")
   }
 
-  if (typeof data === "string") {
-    return importStringValueFromYAML(context, undefined, data)
-  }
-
-  throw new Error(`Invalid value ${JSON.stringify(data)}`)
+  return result
 }
 
-const parseDateTime = (dateTime: string): string => {
-  try {
-    const date = parse(dateTime, "dd.MM.yyyy HH:mm:ss", new Date())
-    if (isNaN(date.getTime())) {
-      const dateOnly = parse(dateTime, "dd.MM.yyyy", new Date())
-      if (!isNaN(dateOnly.getTime())) {
-        return format(dateOnly, "yyyy-MM-dd'T'00:00:00")
-      }
-      return dateTime
-    }
-    return format(date, "yyyy-MM-dd'T'HH:mm:ss")
-  } catch {
-    return dateTime
-  }
-}
-
-const importStringValueFromYAML = (
+/**
+ * Детерминистская диспетчеризация по синтаксису YAML-значения.
+ * Порядок: число → boolean → dateTime → formChoiceList → строка в кавычках → ref → string.
+ */
+const heuristicFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: string
-): MetadataValue => {
-  // Проверяем на FormChoiceListDesTimeValue: формат "значение"(представление)
+  data: MetadataSingleYAML
+): MetadataTypedValue | undefined => {
+  if (typeof data === "number") {
+    return { type: "decimal", value: data }
+  }
+
+  if (typeof data !== "string") return undefined
+
+  // FormChoiceList: "значение"(представление)
   const formChoiceListMatch = data.match(/^"([^"]+)"\(([^)]+)\)$/)
   if (formChoiceListMatch) {
     const [, value, presentation] = formChoiceListMatch
     return {
       type: "formChoiceListDesTimeValue",
-      presentation: {
-        items: {
-          ru: presentation,
-        },
-      },
-      value: {
-        type: "string",
-        value: value,
-      },
+      presentation: { items: { ru: presentation } },
+      value: { type: "string", value } satisfies MetadataStringValue,
     }
   }
 
-  // Проверяем на FormChoiceListDesTimeValue с пустым значением: формат (представление)
+  // FormChoiceList с пустым значением: (представление)
   const emptyFormChoiceListMatch = data.match(/^\(([^)]+)\)$/)
   if (emptyFormChoiceListMatch) {
     const [, presentation] = emptyFormChoiceListMatch
     return {
       type: "formChoiceListDesTimeValue",
-      presentation: {
-        items: {
-          ru: presentation,
-        },
-      },
+      presentation: { items: { ru: presentation } },
       value: undefined,
     }
   }
 
-  // Проверяем на строку в кавычках
+  // Строка в кавычках
   if (data.startsWith('"') && data.endsWith('"')) {
-    const value = data.slice(1, -1)
-    return {
-      type: "string",
-      value: value,
-    }
+    return { type: "string", value: data.slice(1, -1) } satisfies MetadataStringValue
   }
 
-  // Проверяем на булево значение
+  // Boolean
   if (data === "Истина" || data === "Ложь") {
-    return {
-      type: "boolean",
-      value: data === "Истина",
-    }
+    return { type: "boolean", value: data === "Истина" }
   }
 
-  // Проверяем на дату в формате dd.MM.yyyy HH:mm:ss или dd.MM.yyyy
+  // DateTime: dd.MM.yyyy или dd.MM.yyyy HH:mm:ss
   const dateTimeMatch = data.match(/^\d{2}\.\d{2}\.\d{4}(\s+\d{2}:\d{2}:\d{2})?$/)
   if (dateTimeMatch) {
-    return {
-      type: "dateTime",
-      value: parseDateTime(data),
-    }
+    const result = primitiveValueHandlers.dateTime.fromYAML(context, data)
+    if (result) return result
   }
 
-  // Проверяем на числовое значение (после проверки даты, чтобы не конфликтовать)
+  // Число как строка
   if (!isNaN(Number(data)) && data.trim() !== "" && !isNaN(parseFloat(data))) {
-    return {
-      type: "decimal",
-      value: Number(data),
-    }
+    return { type: "decimal", value: Number(data) }
   }
 
-  return importMetadataRefFromYAML(context, undefined, data)
-}
-
-const importFixedArrayValueFromYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataFixedArrayValueYAML
-): MetadataValue => {
-  return {
-    type: "fixedArray",
-    value: data.map((v) => importMetadataValueFromYAML(context, undefined, v)!) as MetadataValue[],
+  // Ref: строка с точками
+  try {
+    const refResult = primitiveValueHandlers.ref.fromYAML(context, data)
+    if (refResult) return refResult
+  } catch {
+    // Не ref
   }
+
+  // Fallback: строка
+  return { type: "string", value: data } satisfies MetadataStringValue
 }
 
+/** @deprecated Используй importFormChoiceListFromYAML из submodule formChoiceList/fromYAML */
 export const importFormChoiceListValueFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValueYAML
-): MetadataFormChoiceListValue => {
-  if (typeof data === "string") {
-    const parsed = formulaFormatParser(data)
-    // Если formula пустая, значит это формат (presentation) без значения
-    const value = parsed.formula ? importMetadataValueFromYAML(context, undefined, parsed.formula) : undefined
-    const presentation = importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: parsed.parameters[0] })
+): MetadataFormChoiceListValue => importFormChoiceListFromYAML(context, data)
 
-    return {
-      type: "formChoiceListDesTimeValue",
-      presentation: presentation,
-      value: value,
-    }
-  }
-  const value = importMetadataValueFromYAML(context, undefined, data.Значение)!
-  return {
-    type: "formChoiceListDesTimeValue",
-    presentation: importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value: data.Представление }),
-    value: value,
-  }
-}
-
-export const importMetadataRefFromYAML = (
-  context: ConfigurationContext,
+/**
+ * Импортирует AssociatedTable (строка YAML) → MetadataStringValue.
+ */
+export const importAssociatedTableFromYAML = (
+  _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  value: string
-): MetadataValue => {
-  const convertedValue = importMetadataValueStringFromYAML(context, undefined, value)
-  if (!convertedValue) throw new Error(`Invalid type for ref: ${value}`)
-
-  return {
-    type: "ref",
-    value: convertedValue,
-  }
+  data: string | undefined
+): MetadataStringValue | undefined => {
+  if (data === undefined) return undefined
+  return { type: "string", value: data } satisfies MetadataStringValue
 }
 
 registerTypeRule("MetadataValue", "importFromYAML", importMetadataValueFromYAML)
+registerTypeRule("AssociatedTable", "importFromYAML", importAssociatedTableFromYAML as any)

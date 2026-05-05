@@ -1,5 +1,10 @@
 import { XMLBuilder } from "fast-xml-parser"
 
+const escapeText = (value: unknown): string =>
+  String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+
+const escapeAttribute = (value: unknown): string => escapeText(value).replace(/"/g, "&quot;")
+
 const options = {
   attributeNamePrefix: "_",
   ignoreAttributes: false,
@@ -8,7 +13,9 @@ const options = {
   suppressBooleanAttributes: false,
   indentBy: "\t",
   oneListGroup: false,
-  processEntities: true,
+  processEntities: false,
+  tagValueProcessor: (_name: string, value: unknown) => escapeText(value),
+  attributeValueProcessor: (_name: string, value: unknown) => escapeAttribute(value),
 }
 
 const builder = new XMLBuilder(options)
@@ -22,7 +29,7 @@ builder.options.attributesGroupName = "@attributes"
 
 export const xmlExport = (data: Record<string, any>, addDeclaration: boolean = true): string => {
   const xml = builder.build(data)
-  const declaration = addDeclaration ? '<?xml version="1.0" encoding="UTF-8"?>\n' : ""
+  const declaration = addDeclaration ? '\uFEFF<?xml version="1.0" encoding="UTF-8"?>\n' : ""
   const result = declaration + xml
   return result.trimEnd()
 }

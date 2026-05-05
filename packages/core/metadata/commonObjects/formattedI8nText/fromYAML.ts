@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFromYAMLFunctionNew, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ImportFromYAMLFunctionNew, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { importI8nTextFromYAML } from "../i8nText/fromYAML"
 import { I8nText } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextPropertyRule, FormattedI8nTextYAML } from "./types"
 
-export const importFormattedI8nTextFromYAML: importFromYAMLFunctionNew = (params: {
+export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: FormattedI8nTextYAML | undefined
@@ -24,6 +24,10 @@ export const importFormattedI8nTextFromYAML: importFromYAMLFunctionNew = (params
 
   if (source !== undefined) {
     result.items = { ...result.items, ...source.items }
+    const formattedSource = source as FormattedI8nText
+    if (formattedSource.formatted !== undefined) {
+      result.formatted = formattedSource.formatted
+    }
   }
 
   if (text !== undefined || formattedText !== undefined) {

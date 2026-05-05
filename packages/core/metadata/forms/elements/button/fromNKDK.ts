@@ -2,7 +2,7 @@ import * as NKDK from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
 
 import { importI8nTextFromNKDK, importNameFromNKDK } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
-import { Button } from "./types"
+import { Button, CommandBarButton } from "./types"
 
 export const importButtonFromNKDK = (params: { context: ConfigurationContext; source: NKDK.Button }): Button => {
   const { context, source } = params
@@ -10,6 +10,7 @@ export const importButtonFromNKDK = (params: { context: ConfigurationContext; so
     itemType: "Button",
     name: importNameFromNKDK(source),
     title: importI8nTextFromNKDK(context, source.title),
+    ...(source.hyperlink ? { type: "Hyperlink" as const } : {}),
   }
 
   return result
@@ -18,11 +19,12 @@ export const importButtonFromNKDK = (params: { context: ConfigurationContext; so
 export const importCommandBarButtonFromNKDK = (params: {
   context: ConfigurationContext
   source: NKDK.CommandBarButton
-}): Button =>
-  importButtonFromNKDK({
-    context: params.context,
-    source: {
-      elementName: params.source.elementName,
-      title: params.source.title,
-    } as NKDK.Button,
-  })
+}): CommandBarButton => {
+  const { context, source } = params
+  return {
+    itemType: "CommandBarButton",
+    name: importNameFromNKDK(source),
+    title: importI8nTextFromNKDK(context, source.title),
+    ...(source.hyperlink ? { type: "CommandBarHyperlink" as const } : {}),
+  }
+}

@@ -1,0 +1,66 @@
+<PictureDecoration name="ДекорацияКартинка" id="4" DisplayImportance="VeryHigh">
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">false</xr:Value>
+	</UserVisible>
+	<Enabled>false</Enabled>
+	<Width>10</Width>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<MaxWidth>20</MaxWidth>
+	<Height>15</Height>
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<MaxHeight>25</MaxHeight>
+	<HorizontalStretch>true</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
+	<SkipOnInput>true</SkipOnInput>
+	<TextColor>web:Crimson</TextColor>
+	<Font ref="style:LargeTextFont" kind="StyleItem"/>
+	<Shortcut>Cmd+S</Shortcut>
+	<Title formatted="true">
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>&lt;b&gt;Заголовок&lt;/&gt;</v8:content>
+		</v8:item>
+	</Title>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<OnMainServerUnavalableBehavior>MakeDisable</OnMainServerUnavalableBehavior>
+	<Hyperlink>true</Hyperlink>
+	<Zoomable>true</Zoomable>
+	<ImageScale>90</ImageScale>
+	<NonselectedPictureText>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Текст невыбранной картинки</v8:content>
+		</v8:item>
+	</NonselectedPictureText>
+	<EnableStartDrag>true</EnableStartDrag>
+	<EnableDrag>true</EnableDrag>
+	<FileDragMode>AsFile</FileDragMode>
+	<ContextMenu name="ДекорацияКартинкаКонтекстноеМеню" id="5">
+		<Autofill>false</Autofill>
+	</ContextMenu>
+	<ExtendedTooltip name="ДекорацияКартинкаРасширеннаяПодсказка" id="6">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>РасширеннаяПодсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<Events>
+		<Event name="DragCheck">ДекорацияКартинкаПроверкаПеретаскивания</Event>
+		<Event name="DragStart">ДекорацияКартинкаНачалоПеретаскивания</Event>
+		<Event name="Drag">ДекорацияКартинкаПеретаскивание</Event>
+		<Event name="Click">ДекорацияКартинкаНажатие</Event>
+		<Event name="DragEnd">ДекорацияКартинкаОкончаниеПеретаскивания</Event>
+	</Events>
+</PictureDecoration>

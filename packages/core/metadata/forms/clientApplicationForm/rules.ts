@@ -1,5 +1,4 @@
-import { ClientApplicationFormRule } from "~/metadata/metadataFactory/form/types"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration"
 import { ElementRule } from "../../orchestration/formElement/types"
 import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
@@ -13,6 +12,7 @@ export const ClientApplicationFormRules = {
       yaml: "Реквизиты",
       type: "FormAttributes",
       tag: FormRulesTags.Form,
+      defaultValueXMLEmpty: [],
     },
     autoCommandBar: {
       yaml: "КоманднаяПанель",
@@ -43,7 +43,7 @@ export const ClientApplicationFormRules = {
     },
     childItems: {
       type: "GroupChildItems",
-      yaml: "Элементы",
+      // yaml: "Элементы",
       tag: FormRulesTags.Form,
       defaultValue: [],
       fromPartialYAML: true,
@@ -55,12 +55,14 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
     },
     childItemsVerticalAlign: {
       yaml: "ВертикальноеПоложениеПодчиненных",
       type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
     },
     closeOnChoice: {
       yaml: "ЗакрыватьПриВыборе",
@@ -77,12 +79,14 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "CollapseFormItemsByImportance",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
     },
     commandBarLocation: {
       yaml: "ПоложениеКоманднойПанели",
       type: "SystemEnumeration",
       typeSE: "FormCommandBarLabelLocation",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
     },
     commandInterface: {
       yaml: "ИнтерфейсКоманды",
@@ -106,6 +110,7 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "FormConversationsRepresentation",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
     },
     customizable: {
       yaml: "РазрешитьИзменятьФорму",
@@ -122,6 +127,7 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "EnterKeyBehaviorType",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "DefaultButton",
     },
     formWindowOpeningMode: {
       yaml: "РежимОткрытияОкнаФормы",
@@ -129,12 +135,14 @@ export const ClientApplicationFormRules = {
       typeSE: "FormWindowOpeningMode",
       xml: "WindowOpeningMode",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "DontBlock",
     },
     group: {
       yaml: "Группировка",
       type: "SystemEnumeration",
       typeSE: "ChildFormItemsGroup",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "Horizontal",
     },
     height: {
       yaml: "Высота",
@@ -146,12 +154,14 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "FormItemSpacing",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
     },
     itemsAndTitlesAlign: {
       yaml: "ВыравниваниеЭлементовИЗаголовков",
       type: "SystemEnumeration",
       typeSE: "ItemsAndTitlesAlignVariant",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
     },
     modalMode: {
       yaml: "МодальныйРежим",
@@ -183,6 +193,7 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "SaveFormDataInSettings",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "DontUse",
     },
     savedInSettingsDataModified: {
       yaml: "СохраняемыеВНастройкахДанныеМодифицированы",
@@ -214,6 +225,7 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "ChildFormItemsWidth",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
     },
     title: {
       yaml: "Заголовок",
@@ -225,18 +237,21 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "UsedServer",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "Main",
     },
     verticalScroll: {
       yaml: "ВертикальнаяПрокрутка",
       type: "SystemEnumeration",
       typeSE: "VerticalFormScroll",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "auto",
     },
     verticalSpacing: {
       yaml: "ВертикальныйИнтервал",
       type: "SystemEnumeration",
       typeSE: "FormItemSpacing",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
     },
     width: {
       yaml: "Ширина",
@@ -250,6 +265,13 @@ export const ClientApplicationFormRules = {
     },
     // #endregion
     // #region Metadata
+    uuid: {
+      type: "string",
+      xml: "_uuid",
+      forReferenceOnly: true,
+      tag: FormRulesTags.Metadata,
+      xmlParents: ["Form"],
+    },
     name: {
       type: "string",
       tag: FormRulesTags.Metadata,
@@ -263,24 +285,30 @@ export const ClientApplicationFormRules = {
       defaultValueXML: "Managed",
       xml: "FormType",
       xmlParents: ["Form", "Properties"],
+      defaultValueYAML: "Managed",
     },
     synonym: {
       yaml: "Синоним",
       type: "I8nText",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
+      defaultValueXMLEmpty: { items: {} },
     },
     comment: {
       yaml: "Комментарий",
       type: "string",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
+      defaultValueXMLEmpty: "",
+      defaultValueYAML: "",
     },
     includeHelpInContents: {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
+      defaultValueXMLEmpty: false,
+      defaultValueYAML: "Ложь",
     },
     usePurposes: {
       yaml: "НазначенияИспользования",
@@ -302,6 +330,7 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "FoldersAndItemsUse",
       tag: FormRulesTags.Form,
+      defaultValueYAML: "Items",
     },
     choiceParameters: {
       yaml: "ПараметрыВыбора",
@@ -362,4 +391,4 @@ export const ClientApplicationFormRules = {
     },
   },
   eventsTag: FormRulesTags.Form,
-} as const satisfies ClientApplicationFormRule
+} as const satisfies MetadataItemRule

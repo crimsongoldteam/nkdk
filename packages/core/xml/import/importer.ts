@@ -25,6 +25,8 @@ export const importContentFromXML = <T>(data: string): T => {
     attributeNamePrefix: "_",
     attributesGroupName: "@attributes",
     ignoreAttributes: ["xsi:nil"],
+    numberParseOptions: { leadingZeros: false, hex: true, eNotation: true },
+    trimValues: false,
   })
   const parsedData = parser.parse(data)
 

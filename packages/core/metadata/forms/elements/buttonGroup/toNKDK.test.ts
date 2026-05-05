@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { buttonGroupStructureFixturesTable } from "~/tests/fixtures/forms/buttonGroup/data"
+import { buttonGroupStructureFixturesTable } from "~/metadata/forms/elements/buttonGroup/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 import { exportButtonGroupContentToNKDK } from "./toNKDK"
 

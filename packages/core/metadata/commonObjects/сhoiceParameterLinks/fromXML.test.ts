@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { multipleChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/multiple"
-import { singleChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/single"
-import { withStringDataPathChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/withStringDataPath"
+import { multipleChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/__fixtures__/multiple"
+import { singleChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/__fixtures__/single"
+import { withStringDataPathChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/__fixtures__/withStringDataPath"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
 import { importChoiceParameterLinksFromXML } from "./fromXML"
 import { ChoiceParameterLinksXML } from "./types"
 
@@ -15,8 +15,9 @@ describe("importChoiceParameterLinksFromXML", () => {
   })
 
   it("should import ChoiceParameterLinks with single Link", () => {
-    const xmlData = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      "сhoiceParameterLinks/single.xml"
+    const xmlData = readAndParseXMLFixture<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
+      import.meta.url,
+      "single.xml"
     )
     const expectedResult = singleChoiceParameterLinks
 
@@ -26,8 +27,9 @@ describe("importChoiceParameterLinksFromXML", () => {
   })
 
   it("should import ChoiceParameterLinks with multiple Links", () => {
-    const xmlData = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      "сhoiceParameterLinks/multiple.xml"
+    const xmlData = readAndParseXMLFixture<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
+      import.meta.url,
+      "multiple.xml"
     )
     const expectedResult = multipleChoiceParameterLinks
 
@@ -37,8 +39,9 @@ describe("importChoiceParameterLinksFromXML", () => {
   })
 
   it("should import ChoiceParameterLinks with DataPath as string", () => {
-    const xmlData = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      "сhoiceParameterLinks/withStringDataPath.xml"
+    const xmlData = readAndParseXMLFixture<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
+      import.meta.url,
+      "withStringDataPath.xml"
     )
     const expectedResult = withStringDataPathChoiceParameterLinks
 

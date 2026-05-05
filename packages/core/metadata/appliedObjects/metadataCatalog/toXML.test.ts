@@ -1,48 +1,27 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { full, minimal } from "~/tests/fixtures/metadataCatalog/data"
-import { mockContextToXML } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
-import { exportMetadataCatalogToXML } from "./toXML"
+import { testExportAppliedObjectToXML } from "~/tests/appliedObject"
+import { full } from "./__fixtures__/full"
+import { minimal } from "./__fixtures__/minimal"
+import { MetadataCatalogRules } from "./rules"
 
-const mockMetadataCatalogContext: ConfigurationContextWithExportToXML = {
-  ...mockContextToXML(),
-  context: {
-    forms: [],
-    templates: [],
-    parentName: "Контрагенты",
-  },
-}
-
-describe("exportMetadataCatalogToXML", () => {
-  it("should export all nodes", () => {
-    const expectedResult = readXMLFileAsString("metadataCatalog/full.xml")
-
-    const xmlData = exportMetadataCatalogToXML({
-      context: mockMetadataCatalogContext,
+describe("export MetadataCatalog to XML", () => {
+  it("should export full.xml fixture", () => {
+    const { result, expected } = testExportAppliedObjectToXML({
+      rule: MetadataCatalogRules,
+      importMetaUrl: import.meta.url,
+      fixture: "full.xml",
       data: full,
-      referenceData: undefined,
     })
-
-    const result = xmlExport({ MetaDataObject: xmlData })
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(expected)
   })
 
-  it("should export defaults nodes", () => {
-    const mock = minimal
-
-    const expectedResult = readXMLFileAsString("metadataCatalog/defaults.xml")
-
-    const xmlData = exportMetadataCatalogToXML({
-      context: mockMetadataCatalogContext,
-      data: mock,
-      referenceData: undefined,
+  it("should export minimal.xml fixture", () => {
+    const { result, expected } = testExportAppliedObjectToXML({
+      rule: MetadataCatalogRules,
+      importMetaUrl: import.meta.url,
+      fixture: "minimal.xml",
+      data: minimal,
     })
-
-    const result = xmlExport({ MetaDataObject: xmlData })
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(expected)
   })
 })

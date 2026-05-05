@@ -7,7 +7,7 @@ import {
   importNameFromNKDK,
 } from "~/metadata/orchestration/formElement/fromNKDK/helpers"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { CheckBoxField } from "./types"
+import { CheckBoxField, TableCheckBoxField } from "./types"
 
 export const importCheckBoxFieldFromNKDK = (params: {
   context: ConfigurationContext
@@ -78,11 +78,13 @@ export const importCheckBoxFieldTumblerRightTitledFromNKDK = (params: {
 export const importTableCheckboxFromNKDK = (params: {
   context: ConfigurationContext
   source: NKDK.TableCheckbox
-}): CheckBoxField =>
-  importFromNKDK({
+}): TableCheckBoxField => ({
+  ...importFromNKDK({
     context: params.context,
     source: params.source,
-  })
+  }),
+  itemType: "TableCheckBoxField",
+})
 
 const importFromNKDK = (params: {
   context: ConfigurationContext

@@ -1,35 +1,36 @@
 import { describe, expect, it } from "vitest"
-import { fullTabularSections, minimalTabularSections } from "~/tests/fixtures/metadataTabularSection/data"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importMetadataTabularSectionsFromXML } from "./fromXML"
-import { MetadataTabularSectionXML } from "./types"
+import { fullFromXML, minimalFromXML } from "./__fixtures__/data"
+import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 
-describe("importMetadataTabularSectionFromXML", () => {
-  it("should import all possible properties", () => {
-    const xmlData = readAndParseXMLFile<{ TabularSection: MetadataTabularSectionXML }>(
-      "metadataTabularSection/full.xml"
-    )
+const rule = { type: "MetadataTabularSections", xml: "TabularSection" } as const
 
-    const result = importMetadataTabularSectionsFromXML(mockContextFromXML(), mockRule, xmlData.TabularSection)
-    expect(result).toEqual(fullTabularSections)
+describe("import MetadataTabularSections from XML", () => {
+  it("should import full", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "full.xml",
+      xmlRootTag: "TabularSection",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(fullFromXML)
   })
 
-  it("should import minimal properties", () => {
-    const xmlData = readAndParseXMLFile<{ TabularSection: MetadataTabularSectionXML }>(
-      "metadataTabularSection/minimal.xml"
-    )
-
-    const result = importMetadataTabularSectionsFromXML(mockContextFromXML(), mockRule, xmlData.TabularSection)
-    expect(result).toEqual(minimalTabularSections)
+  it("should import minimal", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "minimal.xml",
+      xmlRootTag: "TabularSection",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(minimalFromXML)
   })
 
-  it("should import defaults", () => {
-    const xmlData = readAndParseXMLFile<{ TabularSection: MetadataTabularSectionXML }>(
-      "metadataTabularSection/defaults.xml"
-    )
-
-    const result = importMetadataTabularSectionsFromXML(mockContextFromXML(), mockRule, xmlData.TabularSection)
-    expect(result).toEqual(minimalTabularSections)
+  it("should return undefined when data is undefined", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlString: "<Root/>",
+      xmlRootTag: "Root",
+    })
+    expect(result).toBeUndefined()
   })
 })

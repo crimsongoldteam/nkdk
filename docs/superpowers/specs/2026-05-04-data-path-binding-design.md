@@ -1,0 +1,296 @@
+# DataPath-рёбра для dataPath-свойств
+
+## Контекст
+
+Сейчас `dataPath`-подобные поля представлены неоднородно. Для элементов формы
+`DataPath` создаёт reference-рёбра вроде `DATA_PATH`, `FOOTER_DATA_PATH`,
+`TITLE_DATA_PATH`, `ROW_PICTURE_DATA_PATH`. Для `ChoiceParameterLinks` поле
+`dataPath` хранится как свойство узла `ChoiceParameterLink` и дополнительно
+может создавать `DATA_PATH`-ребро.
+
+Нужно привести это к общей модели, которая:
+
+- работает для всех `dataPath`-подобных свойств;
+- не хранит исходный путь как property владельца;
+- поддерживает глобальные и form-local пути;
+- позволяет восстановить модель из графа;
+- позволяет `nkdk watch` понять, какие пути надо перечитать при изменении
+  промежуточных объектов;
+- показывает неподтверждённые пути через существующий механизм stub-узлов;
+- позволяет `rules.ts` описывать Cypher-контракты допустимой цели пути.
+
+## Целевая модель графа
+
+Для каждого `dataPath`-подобного свойства создаётся прямое reference-ребро от
+владельца свойства к конечной цели пути:
+
+```text
+(owner)-[:DATA_PATH {
+  property,
+  yaml,
+  sourcePath,
+  pathMode
+}]->(target)
+```
+
+`owner` — исходный узел, которому принадлежит свойство. Это может быть
+`InputField`, `Table`, `ChoiceParameterLink` или другой узел с dataPath-полем.
+
+Свойства ребра:
+
+- `property` — имя свойства в JS-модели, например `dataPath`,
+  `footerDataPath`, `titleDataPath`, `rowPictureDataPath`;
+- `yaml` — YAML-имя свойства, например `ПутьКДанным`,
+  `ПутьКДаннымПодвала`, `ПутьКДаннымЗаголовка`;
+- `sourcePath` — исходная строка пути, например
+  `Объект.Владелец.Наименование`;
+- `pathMode` — режим разбора: `global` или `formLocal`.
+
+Если путь неоднозначен из-за нескольких возможных типов, создаётся несколько
+`DATA_PATH`-рёбер с одинаковыми `property`, `yaml`, `sourcePath` и `pathMode`.
+
+Для инкрементального пересчёта дополнительно создаются технические связи:
+
+```text
+(owner)-[:DATA_PATH_DEPENDS_ON { property, sourcePath }]->(dependency)
+```
+
+`DATA_PATH_DEPENDS_ON` показывает узлы, которые повлияли на разбор пути. Если
+один из этих узлов изменился, путь надо перечитать.
+
+Отдельный узел `DataPathBinding` не вводится. Привязка является свойством
+ребра: граф остаётся ближе к предметной модели, а Cypher-контракты из
+`rules.ts` могут идти напрямую от владельца к цели.
+
+## Cypher-контракты в rules.ts
+
+Ограничения допустимой цели описываются в `rules.ts`, а не в графовой модели.
+Граф только даёт устойчивую форму запроса.
+
+Пример: `CheckBoxField.dataPath` должен указывать на булевый реквизит.
+
+```cypher
+MATCH (field:CheckBoxField {id: $scope})
+  -[:DATA_PATH {property: "dataPath"}]->
+  (target)
+MATCH (target)-[:TYPE]->(:Type {name: "Boolean"})
+RETURN target
+```
+
+Для другого свойства того же владельца используется тот же вид ребра, но
+другой `property`:
+
+```cypher
+MATCH (field:InputField {id: $scope})
+  -[:DATA_PATH {property: "multipleValuePictureDataPath"}]->
+  (target)
+MATCH (target)-[:TYPE]->(:Type {name: "Picture"})
+RETURN target
+```
+
+Так `rules.ts` хранит контракт, а граф хранит факт разрешения пути.
+
+## Удаление legacy-модели
+
+Переход на единое `DATA_PATH` должен удалить старые способы представления
+dataPath-свойств. Первый этап считается завершённым только если новая и старая
+модели не сосуществуют.
+
+Нужно убрать отдельные виды рёбер, которые кодировали имя свойства в kind:
+
+```text
+FOOTER_DATA_PATH
+TITLE_DATA_PATH
+ROW_PICTURE_DATA_PATH
+```
+
+Их заменяет одно `DATA_PATH`-ребро с `property`:
+
+```text
+(owner)-[:DATA_PATH { property: "footerDataPath", yaml, sourcePath, pathMode }]->(target)
+(owner)-[:DATA_PATH { property: "titleDataPath", yaml, sourcePath, pathMode }]->(target)
+(owner)-[:DATA_PATH { property: "rowPictureDataPath", yaml, sourcePath, pathMode }]->(target)
+```
+
+Для `ChoiceParameterLink` нужно убрать синтетическое поле
+`dataPathReference`. `dataPath` больше не должен дублироваться как `p_dataPath`
+на узле `ChoiceParameterLink`: исходная строка хранится в `sourcePath` на
+`DATA_PATH`-ребре.
+
+После миграции должны выполняться инварианты:
+
+- для любого dataPath-подобного свойства создаётся только `DATA_PATH`;
+- `property` всегда указывает JS-имя исходного свойства;
+- `yaml` всегда указывает YAML-имя исходного свойства;
+- `sourcePath` всегда хранит исходную строку пути;
+- владелец не содержит `p_<property>` для свойства, которое представлено
+  `DATA_PATH`;
+- старые `*_DATA_PATH` kind не создаются и не нужны для восстановления модели.
+
+## Алгоритм разбора form-local пути
+
+Разбор идёт слева направо. На каждом шаге поддерживается множество текущих
+возможных типов.
+
+1. Найти корневой сегмент среди реквизитов формы.
+2. Добавить `DATA_PATH_DEPENDS_ON` на найденный корневой реквизит формы.
+3. Получить тип или типы корневого реквизита.
+4. Для следующего сегмента найти реквизит с таким именем во всех текущих
+   типах.
+5. Добавить `DATA_PATH_DEPENDS_ON` на найденные реквизиты и типы, которые
+   участвовали в поиске.
+6. Если сегмент не последний, заменить множество текущих типов на типы
+   найденных реквизитов.
+7. Если сегмент последний, создать `DATA_PATH` ко всем найденным конечным
+   реквизитам.
+
+Пример для пути:
+
+```text
+Объект.Владелец.Наименование
+```
+
+Если `Владелец` имеет типы `Справочник.Договоры` и
+`Справочник.Контрагенты`, граф содержит:
+
+```text
+owner -[:DATA_PATH { property: "dataPath", sourcePath }]-> Договоры.Наименование
+owner -[:DATA_PATH { property: "dataPath", sourcePath }]-> Контрагенты.Наименование
+
+owner -[:DATA_PATH_DEPENDS_ON { property: "dataPath", sourcePath }]-> FormAttribute Объект
+owner -[:DATA_PATH_DEPENDS_ON { property: "dataPath", sourcePath }]-> Документ.ЗаказКлиента
+owner -[:DATA_PATH_DEPENDS_ON { property: "dataPath", sourcePath }]-> Attribute Владелец
+owner -[:DATA_PATH_DEPENDS_ON { property: "dataPath", sourcePath }]-> Справочник.Договоры
+owner -[:DATA_PATH_DEPENDS_ON { property: "dataPath", sourcePath }]-> Справочник.Контрагенты
+```
+
+Если сегмент не найден в одном или нескольких текущих типах, создаётся
+stub-цель внутри каждого такого типа:
+
+```text
+owner -[:DATA_PATH { property: "dataPath", sourcePath }]-> Справочник.Договоры.НеизвестноеПоле
+owner -[:DATA_PATH { property: "dataPath", sourcePath }]-> Справочник.Контрагенты.НеизвестноеПоле
+```
+
+При этом владелец зависит от контейнеров, где этот сегмент мог бы появиться:
+
+```text
+owner -[:DATA_PATH_DEPENDS_ON { property: "dataPath", sourcePath }]-> Справочник.Договоры
+owner -[:DATA_PATH_DEPENDS_ON { property: "dataPath", sourcePath }]-> Справочник.Контрагенты
+```
+
+Если позже в одном из этих справочников появится нужный реквизит, изменение
+контейнера приведёт к перечтению пути.
+
+## Алгоритм разбора глобального пути
+
+Глобальный путь разбирается как путь к объекту метаданных, например:
+
+```text
+Catalog.Товары.Attribute.Владелец
+```
+
+Если путь разрешён, создаётся:
+
+```text
+owner -[:DATA_PATH {
+  property: "dataPath",
+  sourcePath: "Catalog.Товары.Attribute.Владелец",
+  pathMode: "global"
+}]-> Справочник.Товары.Реквизит.Владелец
+```
+
+`DATA_PATH_DEPENDS_ON` ставится на узлы, которые участвовали в разрешении пути:
+объект метаданных и конечный реквизит. Если конечный узел отсутствует,
+используется обычный stub-узел.
+
+## Пересчёт в nkdk watch
+
+После обновления графового сегмента изменённого файла watcher получает
+изменённые узлы и ищет владельцев зависимых путей:
+
+```cypher
+MATCH (changed:GraphNode)<-[dep:DATA_PATH_DEPENDS_ON]-(owner)
+WHERE changed.id IN $changedNodeIds
+RETURN DISTINCT owner, dep.property AS property, dep.sourcePath AS sourcePath
+```
+
+Для каждой найденной пары `owner/property/sourcePath`:
+
+1. прочитать `yaml` и `pathMode` со старого `DATA_PATH`-ребра, если оно есть;
+2. удалить старые `DATA_PATH` и `DATA_PATH_DEPENDS_ON` с теми же
+   `property/sourcePath`;
+3. заново разобрать путь относительно владельца;
+4. создать новые `DATA_PATH` и `DATA_PATH_DEPENDS_ON`.
+
+Если старого `DATA_PATH`-ребра нет, `yaml` и режим разбора восстанавливаются из
+правила свойства владельца.
+
+Для live-редактирования используется схлопывание событий с правилом
+«последняя версия побеждает»: если файл меняется много раз подряд, watcher
+ждёт короткую паузу и пересчитывает только последнюю версию.
+
+## Восстановление модели из графа
+
+При восстановлении модели `DATA_PATH` читается как свойство владельца.
+
+```text
+(:InputField)
+  -[:DATA_PATH {
+    property: "dataPath",
+    sourcePath: "Объект.Владелец.Наименование"
+  }]->
+(target)
+```
+
+Даёт:
+
+```ts
+inputField.dataPath = "Объект.Владелец.Наименование"
+```
+
+Если для одного `property/sourcePath` есть несколько `DATA_PATH`-рёбер, модель
+всё равно восстанавливается один раз. `DATA_PATH_DEPENDS_ON` при восстановлении
+модели не участвует.
+
+## Диагностика неподтверждённых путей
+
+Отдельных полей ошибки нет. Неподтверждённый путь определяется через
+`DATA_PATH` в stub-узел:
+
+```cypher
+MATCH (owner)-[r:DATA_PATH]->(target)
+WHERE target.filePath IS NULL
+RETURN owner, r.property AS property, r.sourcePath AS sourcePath, target
+```
+
+Это совместимо с текущей моделью графа: stub-узел означает, что ссылка уже
+есть, но полного определения узла пока нет.
+
+Если путь не удалось разобрать даже до stub-цели, это отдельный диагностический
+случай. В первом этапе такие пути не создают `DATA_PATH`; для них можно
+добавить диагностику на уровне валидатора, используя исходное свойство модели и
+правило `DataPath`.
+
+## Границы первого этапа
+
+В первый этап входит:
+
+- единое `DATA_PATH` для всех dataPath-подобных свойств;
+- перенос имени свойства, YAML-имени и исходной строки на ребро `DATA_PATH`;
+- `DATA_PATH_DEPENDS_ON` для инкрементального пересчёта;
+- диагностика неподтверждённых конечных целей через stub-узлы;
+- поддержка Cypher-контрактов из `rules.ts` через прямой путь от владельца к
+  цели;
+- удаление legacy-рёбер `FOOTER_DATA_PATH`, `TITLE_DATA_PATH`,
+  `ROW_PICTURE_DATA_PATH`;
+- удаление `ChoiceParameterLink.dataPathReference`;
+- тесты, подтверждающие отсутствие `p_dataPath` и других `p_<property>` для
+  dataPath-свойств, представленных `DATA_PATH`.
+
+В первый этап не входит:
+
+- отдельный узел `DataPathBinding`;
+- отдельный trace-узел на каждый сегмент пути;
+- хранение `resolved` или `error*` на узлах или рёбрах;
+- отдельный пользовательский интерфейс для объяснения разбора пути.

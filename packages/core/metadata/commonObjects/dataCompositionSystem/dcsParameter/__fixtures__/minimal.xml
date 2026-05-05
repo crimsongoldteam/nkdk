@@ -1,0 +1,13 @@
+<Settings>
+	<Parameter>
+		<dcssch:name>Параметр4</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Параметр4</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:value xsi:nil="true"/>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+	</Parameter>
+</Settings>

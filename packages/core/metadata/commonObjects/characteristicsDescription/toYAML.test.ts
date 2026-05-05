@@ -1,35 +1,36 @@
 import { describe, expect, it } from "vitest"
 import {
-  multiple,
-  multipleYAML,
-  singleSimple,
-  singleSimpleYAML,
-} from "~/tests/fixtures/characteristicsDescription/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportCharacteristicsDescriptionToYAML, exportCharacteristicsDescriptionsToYAML } from "./toYAML"
+  multipleCharacteristics,
+  multipleCharacteristicsYAML,
+  singleCharacteristic,
+  singleCharacteristicYAML,
+} from "./__fixtures__/data"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 
-describe("exportCharacteristicsDescriptionToYAML", () => {
-  it("should export single characteristic", () => {
-    const result = exportCharacteristicsDescriptionToYAML(mockContext, mockRule, singleSimple)
+const rule: PropertyRule = {
+  type: "CharacteristicsDescriptions",
+  yaml: "Характеристики",
+}
 
-    expect(result).toEqual(singleSimpleYAML)
-  })
-
-  it("should export multiple characteristics", () => {
-    const result = exportCharacteristicsDescriptionsToYAML(mockContext, mockRule, multiple)
-
-    expect(result).toEqual(multipleYAML)
-  })
-
-  it("should return undefined for undefined input", () => {
-    const result = exportCharacteristicsDescriptionToYAML(mockContext, mockRule, undefined)
-
+describe("exportCharacteristicsDescriptionsToYAML", () => {
+  it("exports undefined", () => {
+    const result = testExportPropertyToYAML({ rule, value: undefined })
     expect(result).toBeUndefined()
   })
 
-  it("should return undefined for undefined array input", () => {
-    const result = exportCharacteristicsDescriptionsToYAML(mockContext, mockRule, undefined)
-
+  it("exports empty array", () => {
+    const result = testExportPropertyToYAML({ rule, value: [] })
     expect(result).toBeUndefined()
+  })
+
+  it("exports single characteristic", () => {
+    const result = testExportPropertyToYAML({ rule, value: singleCharacteristic })
+    expect(result).toEqual({ Характеристики: singleCharacteristicYAML })
+  })
+
+  it("exports multiple characteristics", () => {
+    const result = testExportPropertyToYAML({ rule, value: multipleCharacteristics })
+    expect(result).toEqual({ Характеристики: multipleCharacteristicsYAML })
   })
 })

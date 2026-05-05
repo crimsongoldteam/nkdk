@@ -1,14 +1,11 @@
-import "./metadataCommand/fromXML"
-import "./metadataCommand/fromYAML"
-import "./metadataCommand/toXML"
-import "./metadataCommand/toYAML"
+import "./metadataCommand/register"
 
-import "./metadataCatalog/fromXML"
 import "./metadataCatalog/fromYAML"
-import "./metadataCatalog/toXML"
 import "./metadataCatalog/toYAML"
 
-import "./metadataDocument/toXML"
-import "./metadataDocument/toYAML"
-// import "./metadataDocument/fromYAML"
-import "./metadataDocument/fromXML"
+import "./metadataDocument"
+import "./metadataDocumentNumerator"
+
+import "./metadataEnumeration/fromYAML"
+
+import "./metadataSequence"

@@ -1,0 +1,6 @@
+<dcsset:dataParameters>
+	<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+		<dcscor:parameter>Параметр1</dcscor:parameter>
+		<dcscor:value xsi:type="dcscor:Field">ПараметрыДанных.Параметр1</dcscor:value>
+	</dcscor:item>
+</dcsset:dataParameters>

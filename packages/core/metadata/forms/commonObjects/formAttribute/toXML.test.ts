@@ -8,6 +8,7 @@ import {
   treeWithColumnFormAttribute,
   withAdditionalColumnFormAttribute,
   withEmptySettingsFormAttribute,
+  withoutTypeFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContextToXML, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
@@ -78,6 +79,19 @@ describe("exportFormAttributesToXML", () => {
 
     const context = mockContextToXML()
     const xmlData = exportFormAttributesToXML(context, mockRule, withEmptySettingsFormAttribute)
+
+    setIdsToElements(context)
+
+    const result = xmlExport(xmlData!, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export without type", () => {
+    const expectedResult = readXMLFileAsString("formAttributes/withoutType.xml")
+
+    const context = mockContextToXML()
+    const xmlData = exportFormAttributesToXML(context, mockRule, withoutTypeFormAttribute)
 
     setIdsToElements(context)
 

@@ -1,0 +1,28 @@
+<CommandInterface>
+	<CommandBar>
+		<Item>
+			<Command>CommonCommand.ИнтеграцияС1СДокументооборотСоздатьПисьмо</Command>
+			<Type>Auto</Type>
+			<DefaultVisible>false</DefaultVisible>
+			<Visible>
+				<xr:Common>false</xr:Common>
+			</Visible>
+		</Item>
+		<Item>
+			<Command>CommonCommand.ИнтеграцияС1СДокументооборотСоздатьБизнесПроцесс</Command>
+			<Type>Auto</Type>
+			<DefaultVisible>false</DefaultVisible>
+			<Visible>
+				<xr:Common>false</xr:Common>
+			</Visible>
+		</Item>
+		<Item>
+			<Command>BusinessProcess.Задание.StandardCommand.CreateBasedOn</Command>
+			<Type>Auto</Type>
+			<DefaultVisible>false</DefaultVisible>
+			<Visible>
+				<xr:Common>false</xr:Common>
+			</Visible>
+		</Item>
+	</CommandBar>
+</CommandInterface>

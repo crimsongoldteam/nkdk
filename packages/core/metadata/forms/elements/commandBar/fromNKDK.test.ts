@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { commandBarStructureFixturesTable } from "~/tests/fixtures/forms/commandBar/data"
+import { commandBarStructureFixturesTable } from "~/metadata/forms/elements/commandBar/__fixtures__/data"
 import { testimportElementFromNKDK } from "~/tests/fromNKDK"
 import { mockContext } from "~/tests/mockContext"
 

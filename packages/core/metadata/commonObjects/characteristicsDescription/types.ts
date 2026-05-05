@@ -4,11 +4,13 @@ import { MetadataItemLink, MetadataItemLinkYAML } from "~/metadata/commonObjects
 import {
   MetadataValue,
   MetadataValueJSONSchema,
+  MetadataValuePropertyRule,
   MetadataValueXML,
   MetadataValueYAML,
 } from "~/metadata/commonObjects/metadataValue/types"
 
 export interface CharacteristicsDescription {
+  itemType?: "CharacteristicsDescription"
   characteristicTypes?: MetadataItemLink
   characteristicValues?: MetadataItemLink
   dataPathField?: MetadataField
@@ -28,7 +30,7 @@ export interface CharacteristicsDescriptionXML {
     _from?: string
     "xr:KeyField"?: string
     "xr:TypesFilterField"?: string
-    "xr:TypesFilterValue"?: MetadataValueXML
+    "xr:TypesFilterValue"?: MetadataValueXML<MetadataValuePropertyRule, MetadataValue>
     "xr:DataPathField"?: string
     "xr:MultipleValuesUseField"?: string
   }

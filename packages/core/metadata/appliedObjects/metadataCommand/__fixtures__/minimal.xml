@@ -1,0 +1,21 @@
+<Command uuid="b6c4a1c1-5bcd-4b0c-ac14-c6f669501bde">
+	<Properties>
+		<Name>ПоУмолчанию</Name>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>По умолчанию</v8:content>
+			</v8:item>
+		</Synonym>
+		<Comment/>
+		<Group>NavigationPanelOrdinary</Group>
+		<CommandParameterType/>
+		<ParameterUseMode>Single</ParameterUseMode>
+		<ModifiesData>false</ModifiesData>
+		<Representation>Auto</Representation>
+		<ToolTip/>
+		<Picture/>
+		<Shortcut/>
+		<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
+	</Properties>
+</Command>

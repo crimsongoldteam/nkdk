@@ -1,0 +1,136 @@
+import {
+  CalendarField,
+  CalendarFieldEnterprise,
+  CalendarFieldPartialYAML,
+} from "~/metadata/forms/elements/calendarField/types"
+
+import {
+  fullFormFieldCommonFixture,
+  fullFormFieldEnterpriseCommonFixture,
+  fullFormFieldPartialYAMLCommonFixture,
+} from "~/tests/fixtures/forms/base/formField/rules"
+import { RequiredFieldsElement } from "~/tests/types"
+
+export const fullCalendarField = {
+  itemType: "CalendarField",
+  name: "ПолеКалендаря",
+  title: {
+    items: { ru: "Заголовок поле календаря" },
+  },
+  autoMaxHeight: false,
+  autoMaxWidth: false,
+  beginOfRepresentationPeriod: "2024-01-01T00:00:00",
+  border: {
+    width: 1,
+    controlBorderType: "DoubleUnderline",
+  },
+  borderColor: { type: "WebColor", value: "Green" },
+  calendarNavigation: false,
+  enableDrag: true,
+  enableStartDrag: true,
+  endOfRepresentationPeriod: "2024-12-31T00:00:00",
+  events: {
+    dragStart: "ПроцедураНачалаПеретаскивания",
+    dragEnd: "ПроцедураЗавершенияПеретаскивания",
+    drag: "ПроцедураПеретаскивания",
+    dragCheck: "ПроцедураПроверкиПеретаскивания",
+    onActivateDate: "ПроцедураАктивацииДаты",
+    onChange: "ПроцедураПриИзменении",
+    onPeriodOutput: "ПроцедураВыводаПериода",
+    selection: "ПроцедураВыбора",
+  },
+  font: { kind: "StyleItem", ref: "SmallTextFont" },
+  height: 4,
+  heightInMonths: 3,
+  horizontalStretch: false,
+  maxHeight: 5,
+  maxWidth: 4,
+  selectionMode: "Multiple",
+  showCurrentDate: false,
+  showMonthsPanel: true,
+  verticalStretch: false,
+  width: 4,
+  widthInMonths: 2,
+  ...fullFormFieldCommonFixture,
+} satisfies RequiredFieldsElement<CalendarField>
+
+export const fullCalendarFieldEnterprise = {
+  Name: "prefix_ПолеКалендаря",
+  Type: { Type: "SystemEnumeration", Value: "FormFieldType.CalendarField" },
+  ElementType: "FormField",
+  Title: "Заголовок поле календаря",
+  AutoMaxHeight: false,
+  AutoMaxWidth: false,
+  BeginOfRepresentationPeriod: "2024-01-01T00:00:00",
+  Border: {
+    Type: "Border",
+    Value: "ControlBorderType.DoubleUnderline",
+    Width: 1,
+  },
+  BorderColor: { Type: "Color", Value: "WebColors.Green" },
+  CalendarNavigation: false,
+  EnableDrag: true,
+  EnableStartDrag: true,
+  EndOfRepresentationPeriod: "2024-12-31T00:00:00",
+  Font: { Type: "Font", Value: "StyleFonts.SmallTextFont" },
+  Height: 4,
+  HeightInMonths: 3,
+  HorizontalStretch: false,
+  MaxHeight: 5,
+  MaxWidth: 4,
+  SelectionMode: {
+    Type: "SystemEnumeration",
+    Value: "DateSelectionMode.Multiple",
+  },
+  ShowCurrentDate: false,
+  ShowMonthsPanel: true,
+  VerticalStretch: false,
+  Width: 4,
+  WidthInMonths: 2,
+  ...fullFormFieldEnterpriseCommonFixture,
+} satisfies Required<CalendarFieldEnterprise>
+
+export const fullCalendarFieldPartialYAML = {
+  АвтоМаксимальнаяВысота: "Ложь",
+  АвтоМаксимальнаяШирина: "Ложь",
+  Высота: 4,
+  ВысотаВМесяцах: 3,
+  КонецПериодаОтображения: "2024-12-31T00:00:00",
+  МаксимальнаяВысота: 5,
+  МаксимальнаяШирина: 4,
+  НачалоПериодаОтображения: "2024-01-01T00:00:00",
+  ОтображатьПанельМесяцев: "Истина",
+  ОтображатьТекущуюДату: "Ложь",
+  ПеремещениеПоКалендарю: "Ложь",
+  РазрешитьНачалоПеретаскивания: "Истина",
+  РазрешитьПеретаскивание: "Истина",
+  Рамка: {
+    Ширина: 1,
+    ТипРамки: "ДвойноеПодчеркивание",
+  },
+  РастягиватьПоВертикали: "Ложь",
+  РастягиватьПоГоризонтали: "Ложь",
+  РежимВыделения: "Множественный",
+  ЦветРамки: "Зеленый",
+  Ширина: 4,
+  ШиринаВМесяцах: 2,
+  Шрифт: "МелкийШрифтТекста",
+  События: {
+    ПриИзменении: "ПроцедураПриИзменении",
+    Выбор: "ПроцедураВыбора",
+    НачалоПеретаскивания: "ПроцедураНачалаПеретаскивания",
+    ОкончаниеПеретаскивания: "ПроцедураЗавершенияПеретаскивания",
+    Перетаскивание: "ПроцедураПеретаскивания",
+    ПроверкаПеретаскивания: "ПроцедураПроверкиПеретаскивания",
+    ПриАктивизацииДаты: "ПроцедураАктивацииДаты",
+    ПриВыводеПериода: "ПроцедураВыводаПериода",
+  },
+  ...fullFormFieldPartialYAMLCommonFixture,
+} satisfies Omit<Required<CalendarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+
+export const minimalCalendarField: CalendarField = {
+  itemType: "CalendarField",
+  name: "ПолеКалендаря",
+}
+
+export const minimalCalendarFieldPartialYAML: CalendarFieldPartialYAML = {}

@@ -1,4 +1,4 @@
-import { syncConfigurationFromXML, syncConfigurationToXML } from "@nakidka/core"
+import { syncConfigurationFromXML, syncConfigurationToXML, type ConfigurationSyncResult } from "@nakidka/core"
 import * as path from "node:path"
 import * as vscode from "vscode"
 import type { BaseLanguageClient } from "vscode-languageclient"
@@ -11,6 +11,14 @@ import { activateYAML } from "./yaml/node/yamlClientMain.js"
 
 const languageClients: BaseLanguageClient[] = []
 let sseServer: SseServerHandle | undefined
+let nkdkOutputChannel: vscode.OutputChannel | undefined
+
+function getNkdkOutputChannel(): vscode.OutputChannel {
+  if (!nkdkOutputChannel) {
+    nkdkOutputChannel = vscode.window.createOutputChannel("NKDK")
+  }
+  return nkdkOutputChannel
+}
 
 // This function is called when the extension is activated.
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
@@ -38,6 +46,8 @@ export async function deactivate(): Promise<void> {
     await sseServer.stop()
     sseServer = undefined
   }
+  nkdkOutputChannel?.dispose()
+  nkdkOutputChannel = undefined
   await Promise.all(languageClients.map((client) => client.stop()))
   languageClients.length = 0
 }
@@ -94,14 +104,30 @@ async function runimportConfigurationFromXml(): Promise<void> {
     fromXML: { forReference: false },
   }
   try {
+    let result: ConfigurationSyncResult | undefined
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
         title: "Импорт конфигурации...",
       },
-      () => syncConfigurationFromXML({ context, inputDir, outputDir })
+      async () => {
+        result = await syncConfigurationFromXML({ context, inputDir, outputDir })
+      },
     )
-    await vscode.window.showInformationMessage("Конфигурация импортирована.")
+    if (result && result.failed.length > 0) {
+      const outputChannel = getNkdkOutputChannel()
+      outputChannel.clear()
+      for (const f of result.failed) {
+        const label = f.parent ? `${f.parent}/${f.name}` : f.name
+        outputChannel.appendLine(`✖ ${f.kind} "${label}": ${f.error.message}`)
+      }
+      outputChannel.show()
+      await vscode.window.showWarningMessage(
+        `Импорт завершён: ${result.succeeded} успешно, ${result.failed.length} с ошибкой. Подробности в Output.`,
+      )
+    } else {
+      await vscode.window.showInformationMessage("Конфигурация импортирована.")
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     await vscode.window.showErrorMessage(`Ошибка импорта конфигурации: ${message}`)
@@ -141,14 +167,30 @@ async function runSyncConfigurationToXml(): Promise<void> {
     },
   }
   try {
+    let result: ConfigurationSyncResult | undefined
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
         title: "Синхронизация конфигурации в XML...",
       },
-      () => syncConfigurationToXML({ context, inputDir, outputDir })
+      async () => {
+        result = await syncConfigurationToXML({ context, inputDir, outputDir })
+      },
     )
-    await vscode.window.showInformationMessage("Конфигурация синхронизирована с XML.")
+    if (result && result.failed.length > 0) {
+      const outputChannel = getNkdkOutputChannel()
+      outputChannel.clear()
+      for (const f of result.failed) {
+        const label = f.parent ? `${f.parent}/${f.name}` : f.name
+        outputChannel.appendLine(`✖ ${f.kind} "${label}": ${f.error.message}`)
+      }
+      outputChannel.show()
+      await vscode.window.showWarningMessage(
+        `Синхронизация завершена: ${result.succeeded} успешно, ${result.failed.length} с ошибкой. Подробности в Output.`,
+      )
+    } else {
+      await vscode.window.showInformationMessage("Конфигурация синхронизирована с XML.")
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     await vscode.window.showErrorMessage(`Ошибка синхронизации конфигурации с XML: ${message}`)

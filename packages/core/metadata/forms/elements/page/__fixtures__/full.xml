@@ -1,0 +1,64 @@
+<Page name="Страница" id="1" DisplayImportance="VeryHigh">
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">false</xr:Value>
+	</UserVisible>
+	<Enabled>false</Enabled>
+	<ReadOnly>true</ReadOnly>
+	<EnableContentChange>true</EnableContentChange>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок элемента</v8:content>
+		</v8:item>
+	</Title>
+	<TitleTextColor>web:Crimson</TitleTextColor>
+	<TitleFont ref="style:LargeTextFont" kind="StyleItem"/>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+	<Shortcut>S</Shortcut>
+	<Width>10</Width>
+	<Height>15</Height>
+	<HorizontalStretch>true</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<Picture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</Picture>
+	<Group>AlwaysHorizontal</Group>
+	<ChildrenAlign>ItemsLeftTitlesLeft</ChildrenAlign>
+	<HorizontalSpacing>OneAndHalf</HorizontalSpacing>
+	<VerticalSpacing>Double</VerticalSpacing>
+	<HorizontalAlign>Right</HorizontalAlign>
+	<VerticalAlign>Bottom</VerticalAlign>
+	<Format>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>ЧЦ=15</v8:content>
+		</v8:item>
+	</Format>
+	<TitleDataPath>Реквизит1</TitleDataPath>
+	<BackColor>web:MediumOrchid</BackColor>
+	<ScrollOnCompress>true</ScrollOnCompress>
+	<ExtendedTooltip name="СтраницаРасширеннаяПодсказка" id="2">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<ChildItems>
+		<UsualGroup name="Группа1" id="3">
+			<ExtendedTooltip name="Группа1РасширеннаяПодсказка" id="4"/>
+		</UsualGroup>
+	</ChildItems>
+</Page>

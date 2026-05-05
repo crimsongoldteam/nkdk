@@ -1,0 +1,15 @@
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { importMetadataValueFromXML } from "../fromXML"
+import { MetadataFixedArrayValue, MetadataFixedArrayValueXML } from "../types"
+
+export const importFixedArrayFromXML = (
+  context: ConfigurationContextFromXML,
+  data: MetadataFixedArrayValueXML | { "v8:Value": unknown | unknown[] }
+): MetadataFixedArrayValue => {
+  const raw = data["v8:Value"]
+  const values = Array.isArray(raw) ? raw : [raw]
+  return {
+    type: "fixedArray",
+    value: values.map((v) => importMetadataValueFromXML({ context, rule: undefined, value: v })!),
+  }
+}

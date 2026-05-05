@@ -6,8 +6,8 @@ import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { syncConfigurationFromXML } from "./convertFromXML"
 
 describe("sync configuration from xml", () => {
-  const inputDir = join(process.cwd(), "tests/fixtures/sync/syncConfiguration/xml")
-  const outputDir = join(process.cwd(), "tests/fixtures/sync/syncConfiguration/out")
+  const inputDir = join(__dirname, "../../../tests/fixtures/sync/syncConfiguration/xml")
+  const outputDir = join(__dirname, "../../../tests/fixtures/sync/syncConfiguration/out")
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {
@@ -48,5 +48,38 @@ describe("sync configuration from xml", () => {
     expect(resultCatalogYaml).toBe(expectedCatalogYaml)
     expect(resultFormNkdk).toBe(expectedFormNkdk)
     expect(resultFormYaml).toBe(expectedFormYaml)
+  })
+
+  it("импортирует Document, DocumentNumerator и Sequence в соответствующие YAML-папки", async () => {
+    fs.mkdirSync(outputDir, { recursive: true })
+
+    await syncConfigurationFromXML({
+      context: mockContextFromXML(),
+      inputDir,
+      outputDir,
+    })
+
+    expect(fs.existsSync(join(outputDir, "Документ", "ДокументПоУмолчанию", "Свойства.yaml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Нумератор", "НумераторПоУмолчанию", "Свойства.yaml"))).toBe(true)
+    expect(
+      fs.existsSync(join(outputDir, "Последовательность", "ПоследовательностьПоУмолчанию", "Свойства.yaml")),
+    ).toBe(true)
+  })
+
+  it("не падает на дампе без некоторых корневых разделов", async () => {
+    const partialInput = join(__dirname, "../../../tests/fixtures/sync/_partial_xml_tmp")
+    if (fs.existsSync(partialInput)) fs.rmSync(partialInput, { recursive: true })
+    fs.mkdirSync(join(partialInput, "Catalogs"), { recursive: true })
+    fs.mkdirSync(outputDir, { recursive: true })
+
+    const result = await syncConfigurationFromXML({
+      context: mockContextFromXML(),
+      inputDir: partialInput,
+      outputDir,
+    })
+
+    expect(result.failed).toEqual([])
+
+    fs.rmSync(partialInput, { recursive: true })
   })
 })

@@ -8,8 +8,12 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "~/metadata/context/types"
+import { createEmptyClientApplicationForm } from "~/metadata/forms/clientApplicationForm/createEmpty"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
+import { CypherCache } from "~/metadata/orchestration/property/cypherCache"
+import { collectCypherPredicates, resolveCypherPredicates } from "~/metadata/orchestration/property/cypherResolver"
+import { ClientApplicationFormRules } from "./rules"
 import type {
   ClientApplicationForm,
   ClientApplicationFormXML,
@@ -31,15 +35,24 @@ export const syncFormToXML = async (params: {
   const { context, inputDir, formName, outputDir } = params
   const referenceDir = params.referenceDir ?? outputDir
 
-  const { yamlContent, nkdkContent } = readFormFiles({ inputDir, formName })
+  const { yamlContent, nkdkContent, formDir } = await readFormFiles({ inputDir, formName })
 
   const yamlObj = importFromYAML<ClientApplicationFormYAML>(yamlContent)
-  const formFromNkdk = await parseFormFromNkdKString(context, nkdkContent)
+
+  const formFromNkdk = nkdkContent !== null
+    ? await parseFormFromNkdKString(context, nkdkContent)
+    : createEmptyClientApplicationForm()
+
   if (!formFromNkdk) {
     throw new Error(`Failed to parse NKDK for form "${formName}"`)
   }
 
-  const form = importClientApplicationFormFromYAML(context, yamlObj, formFromNkdk)
+  const contextWithFormDir: ConfigurationContextWithExportToXML = {
+    ...context,
+    importFromYAML: { formDir },
+  }
+
+  const form = importClientApplicationFormFromYAML(contextWithFormDir, yamlObj, formFromNkdk)
 
   const contextFromXML: ConfigurationContextFromXML = {
     fromXML: {
@@ -54,6 +67,12 @@ export const syncFormToXML = async (params: {
     formName,
   })
 
+  const cypherCache = new CypherCache()
+  const cypherPredicates = collectCypherPredicates(ClientApplicationFormRules, "")
+  await resolveCypherPredicates(cypherPredicates, cypherCache)
+
+  context.exportToXML.cypherCache = cypherCache
+
   const formXML = exportClientApplicationFormToXML({ context, form, referenceForm })
   const metadataXML = exportFormMetadataToXML({
     context,
@@ -65,20 +84,21 @@ export const syncFormToXML = async (params: {
   await writeFormToXML({ context, formXML, metadataXML, formName, outputDir })
 }
 
-function readFormFiles(params: { inputDir: string; formName: string }): {
+async function readFormFiles(params: { inputDir: string; formName: string }): Promise<{
   yamlContent: string
-  nkdkContent: string
-} {
+  nkdkContent: string | null
+  formDir: string
+}> {
   const { inputDir, formName } = params
   const formsDir = join(inputDir, "Формы")
   const formDir = join(formsDir, formName)
   const yamlPath = join(formDir, "Форма.yaml")
   const nkdkPath = join(formDir, "Форма.nkdk")
 
-  const yamlContent = fs.readFileSync(yamlPath, "utf-8")
-  const nkdkContent = fs.readFileSync(nkdkPath, "utf-8")
+  const yamlContent = await fs.promises.readFile(yamlPath, "utf-8")
+  const nkdkContent = fs.existsSync(nkdkPath) ? await fs.promises.readFile(nkdkPath, "utf-8") : null
 
-  return { yamlContent, nkdkContent }
+  return { yamlContent, nkdkContent, formDir }
 }
 
 const writeFormToXML = async (params: {
@@ -95,10 +115,10 @@ const writeFormToXML = async (params: {
   const formExtDir = join(formsOutDir, formName, "Ext")
   const formXmlPath = join(formExtDir, "Form.xml")
 
-  fs.mkdirSync(formExtDir, { recursive: true })
+  await fs.promises.mkdir(formExtDir, { recursive: true })
 
-  fs.writeFileSync(formMetadataPath, xmlExport({ MetaDataObject: metadataXML }), "utf-8")
-  fs.writeFileSync(formXmlPath, xmlExport({ Form: formXML }), "utf-8")
+  await fs.promises.writeFile(formMetadataPath, xmlExport({ MetaDataObject: metadataXML }), "utf-8")
+  await fs.promises.writeFile(formXmlPath, xmlExport({ Form: formXML }), "utf-8")
 }
 
 let parseHelperCached: ReturnType<typeof parseHelper<NkdkForm>> | null = null

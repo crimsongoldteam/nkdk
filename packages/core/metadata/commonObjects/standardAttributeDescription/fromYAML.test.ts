@@ -1,27 +1,35 @@
 import { describe, expect, it } from "vitest"
-import { all, allYAML, minimal, minimalYAML } from "~/tests/fixtures/standartAttributeDescription/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importStandardAttributeDescriptionsFromYAML } from "./fromYAML"
+import {
+  all,
+  allYAML,
+  minimal,
+  minimalYAML,
+} from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
+import { StandartAttributeNameToYAML } from "./types"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 
-describe("importStandardAttributeDescriptionFromYAML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importStandardAttributeDescriptionsFromYAML(mockContext, mockRule, undefined)
+const rule: PropertyRule = { type: "StandardAttributeDescriptions", standartAttributeNames: StandartAttributeNameToYAML }
+
+describe("importStandardAttributeDescriptionsFromYAML", () => {
+  it("imports undefined", () => {
+    const result = testImportPropertyFromYAML({ rule, value: undefined })
     expect(result).toBeUndefined()
   })
 
-  it("should return undefined when object is empty", () => {
-    const result = importStandardAttributeDescriptionsFromYAML(mockContext, mockRule, {})
+  it("imports empty object", () => {
+    const result = testImportPropertyFromYAML({ rule, value: {} })
     expect(result).toBeUndefined()
   })
 
-  it("should import all parameters from enterprise", () => {
-    const result = importStandardAttributeDescriptionsFromYAML(mockContext, mockRule, allYAML)
+  it("imports full fixture", () => {
+    const result = testImportPropertyFromYAML({ rule, value: allYAML })
 
     expect(result).toEqual(all)
   })
 
-  it("should import with only name", () => {
-    const result = importStandardAttributeDescriptionsFromYAML(mockContext, mockRule, minimalYAML)
+  it("imports minimal fixture", () => {
+    const result = testImportPropertyFromYAML({ rule, value: minimalYAML })
     expect(result).toEqual(minimal)
   })
 })

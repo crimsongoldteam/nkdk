@@ -1,27 +1,39 @@
 import { describe, expect, it } from "vitest"
-import { all, allYAML, minimal, minimalYAML } from "~/tests/fixtures/standartAttributeDescription/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportStandardAttributeDescriptionsToYAML } from "./toYAML"
+import {
+  all,
+  allYAML,
+  minimal,
+  minimalYAML,
+} from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
+import { StandartAttributeNameToYAML } from "./types"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 
-describe("exportStandardAttributeDescriptionToYAML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportStandardAttributeDescriptionsToYAML(mockContext, mockRule, undefined)
+const rule: PropertyRule = {
+  type: "StandardAttributeDescriptions",
+  yaml: "СтандартныеРеквизиты",
+  standartAttributeNames: StandartAttributeNameToYAML,
+}
+
+describe("exportStandardAttributeDescriptionsToYAML", () => {
+  it("exports undefined", () => {
+    const result = testExportPropertyToYAML({ rule, value: undefined })
     expect(result).toBeUndefined()
   })
 
-  it("should return undefined when array is empty", () => {
-    const result = exportStandardAttributeDescriptionsToYAML(mockContext, mockRule, [])
+  it("exports empty array", () => {
+    const result = testExportPropertyToYAML({ rule, value: [] })
     expect(result).toBeUndefined()
   })
 
-  it("should export all parameters to enterprise", () => {
-    const result = exportStandardAttributeDescriptionsToYAML(mockContext, mockRule, all)
+  it("exports full fixture", () => {
+    const result = testExportPropertyToYAML({ rule, value: all })
 
-    expect(result).toEqual(allYAML)
+    expect(result).toEqual({ СтандартныеРеквизиты: allYAML })
   })
 
-  it("should export with only name", () => {
-    const result = exportStandardAttributeDescriptionsToYAML(mockContext, mockRule, minimal)
-    expect(result).toEqual(minimalYAML)
+  it("exports minimal fixture", () => {
+    const result = testExportPropertyToYAML({ rule, value: minimal })
+    expect(result).toEqual({ СтандартныеРеквизиты: minimalYAML })
   })
 })

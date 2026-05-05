@@ -16,12 +16,14 @@ export const isEmptyMetadataItem = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   rule: ElementRule
   element: T | undefined
+  ignoreKeys?: string[]
 }): boolean => {
-  const { context, rule, element } = params
+  const { context, rule, element, ignoreKeys } = params
   if (element === undefined) return true
 
   for (const [key, propertyRule] of Object.entries(rule.properties) as [string, PropertyRule][]) {
     if (key === "itemType") continue
+    if (ignoreKeys?.includes(key)) continue
 
     const value = element[key as keyof T]
     if (value === undefined) continue

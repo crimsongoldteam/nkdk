@@ -1,0 +1,170 @@
+<Settings>
+	<Parameter>
+		<dcssch:name>ВходящиеПараметры</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Параметр1</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:value xsi:nil="true"/>
+		<dcssch:useRestriction>true</dcssch:useRestriction>
+		<dcssch:inputParameters>
+			<dcscor:item>
+				<dcscor:parameter>Маска</dcscor:parameter>
+				<dcscor:value xsi:type="xs:string">123</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>СвязиПараметровВыбора</dcscor:parameter>
+				<dcscor:value xsi:type="dcscor:ChoiceParameterLinks">
+					<dcscor:item>
+						<dcscor:choiceParameter>ПараметрВыбора</dcscor:choiceParameter>
+						<dcscor:value>Поле1</dcscor:value>
+						<dcscor:mode xsi:type="ent:LinkedValueChangeMode">DontChange</dcscor:mode>
+					</dcscor:item>
+				</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>ПараметрыВыбора</dcscor:parameter>
+				<dcscor:value xsi:type="dcscor:ChoiceParameters">
+					<dcscor:item>
+						<dcscor:choiceParameter>Параметр</dcscor:choiceParameter>
+						<dcscor:value xsi:type="xs:decimal">123</dcscor:value>
+					</dcscor:item>
+				</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>СвязьПоТипу</dcscor:parameter>
+				<dcscor:value xsi:type="dcscor:TypeLink">
+					<dcscor:field>Поле1</dcscor:field>
+					<dcscor:linkItem>2</dcscor:linkItem>
+				</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>ФормаВыбора</dcscor:parameter>
+				<dcscor:value xsi:type="xs:string">ФормаВыбора</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>ФорматРедактирования</dcscor:parameter>
+				<dcscor:value xsi:type="xs:string">ЧЦ=15; ЧДЦ=2</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>БыстрыйВыбор</dcscor:parameter>
+				<dcscor:value xsi:type="xs:boolean">true</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>ВыборГруппИЭлементов</dcscor:parameter>
+				<dcscor:value xsi:type="ent:FoldersAndItemsUse">Items</dcscor:value>
+			</dcscor:item>
+		</dcssch:inputParameters>
+	</Parameter>
+	<Parameter>
+		<dcssch:name>СоставнойДоступенСписок</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Составной доступен список</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:valueType>
+			<v8:Type>xs:boolean</v8:Type>
+			<v8:Type>xs:string</v8:Type>
+			<v8:Type>xs:dateTime</v8:Type>
+			<v8:Type>xs:decimal</v8:Type>
+			<v8:NumberQualifiers>
+				<v8:Digits>0</v8:Digits>
+				<v8:FractionDigits>0</v8:FractionDigits>
+				<v8:AllowedSign>Any</v8:AllowedSign>
+			</v8:NumberQualifiers>
+			<v8:StringQualifiers>
+				<v8:Length>0</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+			<v8:DateQualifiers>
+				<v8:DateFractions>DateTime</v8:DateFractions>
+			</v8:DateQualifiers>
+		</dcssch:valueType>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+		<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+	</Parameter>
+	<Parameter>
+		<dcssch:name>Составной</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Составной</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:valueType>
+			<v8:Type>xs:boolean</v8:Type>
+			<v8:Type>xs:string</v8:Type>
+			<v8:Type>xs:dateTime</v8:Type>
+			<v8:Type>xs:decimal</v8:Type>
+			<v8:NumberQualifiers>
+				<v8:Digits>0</v8:Digits>
+				<v8:FractionDigits>0</v8:FractionDigits>
+				<v8:AllowedSign>Any</v8:AllowedSign>
+			</v8:NumberQualifiers>
+			<v8:StringQualifiers>
+				<v8:Length>0</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+			<v8:DateQualifiers>
+				<v8:DateFractions>DateTime</v8:DateFractions>
+			</v8:DateQualifiers>
+		</dcssch:valueType>
+		<dcssch:value xsi:nil="true"/>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+	</Parameter>
+	<Parameter>
+		<dcssch:name>БезТипаДоступенСписок</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Без типа доступен список</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+		<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+	</Parameter>
+	<Parameter>
+		<dcssch:name>БезТипа</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Без типа</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:value xsi:nil="true"/>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+	</Parameter>
+	<Parameter>
+		<dcssch:name>СТипомДоступенСписок</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>С типом доступен список</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:valueType>
+			<v8:Type>xs:string</v8:Type>
+			<v8:StringQualifiers>
+				<v8:Length>0</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+		</dcssch:valueType>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+		<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+	</Parameter>
+	<Parameter>
+		<dcssch:name>СТипом</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>С типом</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:value xsi:nil="true"/>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+	</Parameter>
+</Settings>

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { multipleChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/multiple"
-import { singleChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/single"
-import { withStringDataPathChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/withStringDataPath"
+import { multipleChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/__fixtures__/multiple"
+import { singleChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/__fixtures__/single"
+import { withStringDataPathChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/__fixtures__/withStringDataPath"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportChoiceParameterLinksToXML } from "./toXML"
 
@@ -22,7 +22,7 @@ describe("exportChoiceParameterLinksToXML", () => {
 
   it("should export ChoiceParameterLinks with single Link", () => {
     const data = singleChoiceParameterLinks
-    const expectedResult = readXMLFileAsString("сhoiceParameterLinks/exportSingle.xml")
+    const expectedResult = readXMLFixtureAsString(import.meta.url, "exportSingle.xml")
 
     const exported = exportChoiceParameterLinksToXML(mockContext, mockRule, data)
     const xmlString = xmlExport({ ChoiceParameterLinks: exported }, false)
@@ -32,7 +32,7 @@ describe("exportChoiceParameterLinksToXML", () => {
 
   it("should export ChoiceParameterLinks with multiple Links", () => {
     const data = multipleChoiceParameterLinks
-    const expectedResult = readXMLFileAsString("сhoiceParameterLinks/exportMultiple.xml")
+    const expectedResult = readXMLFixtureAsString(import.meta.url, "exportMultiple.xml")
 
     const exported = exportChoiceParameterLinksToXML(mockContext, mockRule, data)
     const xmlString = xmlExport({ ChoiceParameterLinks: exported }, false)
@@ -42,7 +42,7 @@ describe("exportChoiceParameterLinksToXML", () => {
 
   it("should export ChoiceParameterLinks with DataPath as string", () => {
     const data = withStringDataPathChoiceParameterLinks
-    const expectedResult = readXMLFileAsString("сhoiceParameterLinks/withStringDataPath.xml")
+    const expectedResult = readXMLFixtureAsString(import.meta.url, "withStringDataPath.xml")
 
     const exported = exportChoiceParameterLinksToXML(mockContext, mockRule, data)
     const xmlString = xmlExport({ ChoiceParameterLinks: exported }, false)

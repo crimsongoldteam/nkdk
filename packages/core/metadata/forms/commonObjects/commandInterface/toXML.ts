@@ -34,20 +34,23 @@ const exportCommandInterfaceItemsToXML = (
   context: ConfigurationContext,
   items: CommandInterfaceItem[]
 ): CommandInterfaceItemXML[] => {
-  return items.map((item, index) => exportCommandInterfaceItemToXML(context, item, index))
+  return items.map((item) => exportCommandInterfaceItemToXML(context, item))
 }
 
 const exportCommandInterfaceItemToXML = (
   context: ConfigurationContext,
-  item: CommandInterfaceItem,
-  index: number
+  item: CommandInterfaceItem
 ): CommandInterfaceItemXML => {
   const result: CommandInterfaceItemXML = {
     Command: item.command,
     Type: item.type ?? "Auto",
-    Index: index,
-    DefaultVisible: item.defaultVisible,
   }
+
+  if (item.index !== undefined) {
+    result.Index = item.index
+  }
+
+  result.DefaultVisible = item.defaultVisible
 
   if (item.commandGroup) {
     result.CommandGroup = item.commandGroup

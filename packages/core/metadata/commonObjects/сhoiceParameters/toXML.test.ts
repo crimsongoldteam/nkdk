@@ -9,9 +9,9 @@ import {
   stringChoiceParameter,
   withoutOneValueChoiceParameter,
   withoutValueChoiceParameter,
-} from "~/tests/fixtures/choiceParameters/data"
+} from "~/metadata/commonObjects/сhoiceParameters/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportChoiceParametersToXML } from "./toXML"
 
@@ -23,7 +23,7 @@ describe("exportChoiceParametersToXML", () => {
   })
 
   it("should export choice parameters with single parameter correctly", () => {
-    const expectedResult = readXMLFileAsString("choiceParameters/single.xml")
+    const expectedResult = readXMLFixtureAsString(import.meta.url, "single.xml")
 
     const xmlData = exportChoiceParametersToXML(mockContext, mockRule, singleChoiceParameter)
     const result = xmlExport({ ChoiceParameters: xmlData }, false)
@@ -32,7 +32,7 @@ describe("exportChoiceParametersToXML", () => {
   })
 
   it("should export choice parameters with multiple parameters correctly", () => {
-    const expectedResult = readXMLFileAsString("choiceParameters/multiple.xml")
+    const expectedResult = readXMLFixtureAsString(import.meta.url, "multiple.xml")
 
     const xmlData = exportChoiceParametersToXML(mockContext, mockRule, multipleChoiceParameters)
     const result = xmlExport({ ChoiceParameters: xmlData }, false)
@@ -41,7 +41,7 @@ describe("exportChoiceParametersToXML", () => {
   })
 
   it("should export choice parameters with enum value correctly", () => {
-    const expectedResult = readXMLFileAsString("choiceParameters/enum.xml")
+    const expectedResult = readXMLFixtureAsString(import.meta.url, "enum.xml")
 
     const xmlData = exportChoiceParametersToXML(mockContext, mockRule, enumChoiceParameter)
     const result = xmlExport({ ChoiceParameters: xmlData }, false)
@@ -50,7 +50,7 @@ describe("exportChoiceParametersToXML", () => {
   })
 
   it("should export choice parameters with fixedArray value correctly", () => {
-    const expectedResult = readXMLFileAsString("choiceParameters/fixedArray.xml")
+    const expectedResult = readXMLFixtureAsString(import.meta.url, "fixedArray.xml")
 
     const xmlData = exportChoiceParametersToXML(mockContext, mockRule, fixedArrayChoiceParameter)
     const result = xmlExport({ ChoiceParameters: xmlData }, false)
@@ -59,7 +59,7 @@ describe("exportChoiceParametersToXML", () => {
   })
 
   it("should export choice parameters with string value correctly", () => {
-    const expectedResult = readXMLFileAsString("choiceParameters/string.xml")
+    const expectedResult = readXMLFixtureAsString(import.meta.url, "string.xml")
 
     const xmlData = exportChoiceParametersToXML(mockContext, mockRule, stringChoiceParameter)
     const result = xmlExport({ ChoiceParameters: xmlData }, false)
@@ -68,7 +68,7 @@ describe("exportChoiceParametersToXML", () => {
   })
 
   it("should export choice parameters with form boolean value correctly", () => {
-    const expectedResult = readXMLFileAsString("choiceParameters/form/boolean.xml")
+    const expectedResult = readXMLFixtureAsString(import.meta.url, "form/boolean.xml")
 
     const xmlData = exportChoiceParametersToXML(mockContext, mockRule, formBooleanChoiceParameter)
     const result = xmlExport({ ChoiceParameters: xmlData }, false)
@@ -77,7 +77,7 @@ describe("exportChoiceParametersToXML", () => {
   })
 
   it("should export choice parameters with form enum value correctly", () => {
-    const expectedResult = readXMLFileAsString("choiceParameters/form/enum.xml")
+    const expectedResult = readXMLFixtureAsString(import.meta.url, "form/enum.xml")
 
     const xmlData = exportChoiceParametersToXML(mockContext, mockRule, formEnumChoiceParameter)
     const result = xmlExport({ ChoiceParameters: xmlData }, false)
@@ -86,7 +86,7 @@ describe("exportChoiceParametersToXML", () => {
   })
 
   it("should export choice parameters without value", () => {
-    const expectedResult = readXMLFileAsString("choiceParameters/withoutValue.xml")
+    const expectedResult = readXMLFixtureAsString(import.meta.url, "withoutValue.xml")
 
     const xmlData = exportChoiceParametersToXML(mockContext, mockRule, withoutValueChoiceParameter)
     const result = xmlExport({ ChoiceParameters: xmlData }, false)
@@ -95,7 +95,7 @@ describe("exportChoiceParametersToXML", () => {
   })
 
   it("should export choice parameters without one value", () => {
-    const expectedResult = readXMLFileAsString("choiceParameters/withoutOneValue.xml")
+    const expectedResult = readXMLFixtureAsString(import.meta.url, "withoutOneValue.xml")
 
     const xmlData = exportChoiceParametersToXML(mockContext, mockRule, withoutOneValueChoiceParameter)
     const result = xmlExport({ ChoiceParameters: xmlData }, false)

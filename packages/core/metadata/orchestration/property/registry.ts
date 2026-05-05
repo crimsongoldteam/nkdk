@@ -1,5 +1,21 @@
 import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
-import { AdditionalIndex, AdditionalIndexYAML } from "~/metadata/commonObjects/additionalIndex/types"
+import {
+  MetadataDocumentNumerator,
+  MetadataDocumentNumeratorYAML,
+} from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
+import {
+  MetadataEnumerationValues,
+  MetadataEnumerationValuesYAML,
+} from "~/metadata/appliedObjects/metadataEnumeration/types"
+import { MetadataSequence, MetadataSequenceYAML } from "~/metadata/appliedObjects/metadataSequence/types"
+import {
+  AdditionalIndex,
+  AdditionalIndexCollection,
+  AdditionalIndexCollectionYAML,
+  AdditionalIndexItem,
+  AdditionalIndexItemYAML,
+  AdditionalIndexYAML,
+} from "~/metadata/commonObjects/additionalIndex/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
 import {
@@ -8,6 +24,85 @@ import {
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
+import {
+  AppearanceFields,
+  AppearanceFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
+import {
+  AvailableFields,
+  AvailableFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
+import {
+  CalculatedField,
+  CalculatedFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
+import {
+  CalculatedFieldOrderExpression,
+  CalculatedFieldOrderExpressionYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/types"
+import type {
+  CalculatedFieldUseRestriction,
+  CalculatedFieldUseRestrictionYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types"
+import {
+  ConditionalAppearance,
+  ConditionalAppearanceYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import {
+  ConditionalAppearanceItem,
+  ConditionalAppearanceItemsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types"
+import type {
+  DataCompositionSchemaDataSetField,
+  DataCompositionSchemaDataSetFieldYAML,
+  DataSetFieldFields,
+  DataSetFieldFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/types"
+import {
+  MetadataDcsMetadataValue,
+  MetadataDcsMetadataValueYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
+import {
+  DCSParameter,
+  DCSParametersYAML,
+  DCSParameterYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/dcsParameter/types"
+import {
+  DcsMetadataTypedValue,
+  DcsMetadataTypedValueYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/types"
+import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
+import { FilterItem, FilterItemYAML } from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
+import { Order, OrderYAML } from "~/metadata/commonObjects/dataCompositionSystem/order/types"
+import {
+  OrderItemFields,
+  OrderItemFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/orderItemFields/types"
+import {
+  SettingsParameterValue,
+  SettingsParameterValueYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
+import {
+  SettingsParameterValueCollection,
+  SettingsParameterValueCollectionYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/types"
+import {
+  StructureItemGroupCollection,
+  StructureItemGroupCollectionYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/types"
+import {
+  GroupItemAuto,
+  GroupItemAutoYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/types"
+import {
+  GroupItemField,
+  GroupItemFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/types"
+import {
+  StructureItemGroup,
+  StructureItemGroupYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
+import { DateTimeYAML } from "~/metadata/commonObjects/dateTime/types"
 import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
 import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
 import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"
@@ -20,6 +115,10 @@ import {
   MetadataAttributes,
   MetadataAttributesYAML,
   MetadataAttributeYAML,
+  MetadataDocumentAttributes,
+  MetadataDocumentAttributesYAML,
+  MetadataTabularSectionAttributes,
+  MetadataTabularSectionAttributesYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import { MetadataCommandGroup, MetadataCommandGroupYAML } from "~/metadata/commonObjects/metadataCommandGroup/types"
 import {
@@ -36,16 +135,35 @@ import {
   MetadataItemLinkYAML,
 } from "~/metadata/commonObjects/metadataRef/types"
 import {
+  MetadataSequenceDimension,
+  MetadataSequenceDimensions,
+  MetadataSequenceDimensionsYAML,
+  MetadataSequenceDimensionYAML,
+} from "~/metadata/commonObjects/metadataSequenceDimension/types"
+import {
+  MetadataDocumentTabularSections,
+  MetadataDocumentTabularSectionsYAML,
   MetadataTabularSections,
   MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
-import { MetadataValue, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
+import {
+  MetadataStringValue,
+  MetadataTypedPrimitiveValue,
+  MetadataValue,
+  MetadataValueYAML,
+} from "~/metadata/commonObjects/metadataValue/types"
 import {
   MetadataValueCollection,
   MetadataValueCollectionYAML,
 } from "~/metadata/commonObjects/metadataValueCollection/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
-import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predifined/types"
+import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
+import {
+  PredefinedItem,
+  PredefinedItemCollection,
+  PredefinedItemCollectionYAML,
+  PredefinedItemYAML,
+} from "~/metadata/commonObjects/predefinedItem/types"
 import {
   StandardAttributeDescription,
   StandardAttributeDescriptions,
@@ -59,13 +177,14 @@ import {
 } from "~/metadata/commonObjects/typeDescription/types"
 import { TypeLink, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { UsePurposes, UsePurposesYAML } from "~/metadata/commonObjects/usePurposes/types"
+import { UserSettingsID, UserSettingsIDYAML } from "~/metadata/commonObjects/userSettingsID/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
 import {
   CommandBarChildItems,
   CommandBarChildItemsEnterprise,
-  CommandBarChildItemsPartialYAML,
+  CommandBarChildItemsTypedYAML,
   GroupChildItems,
   GroupChildItemsEnterprise,
   GroupChildItemsPartialYAML,
@@ -88,6 +207,7 @@ import {
 } from "~/metadata/forms/commonObjects/formAttribute/types"
 import { FormCommands, FormCommandsYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { FormParameters, FormParametersYAML } from "~/metadata/forms/commonObjects/formParameter/types"
+import { ScrollBarUseEnterprise } from "~/metadata/forms/commonObjects/scrollBarUse/types"
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/types"
@@ -100,15 +220,23 @@ import {
   SingleSearchStringAdditionYAML,
 } from "~/metadata/forms/elements/searchStringAddition/types"
 import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/elements/viewStatusAddition/types"
-import { SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
+import { ScrollBarUseYAML, SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 
 export type PropertyTypeRegistry = {
   //#region Primitive types
 
+  uuid: {
+    item: string
+  }
   number: {
     item: number
     enterprise: number
     yaml: number
+  }
+  dateTime: {
+    item: string
+    enterprise: string
+    yaml: DateTimeYAML
   }
   string: {
     item: string
@@ -119,6 +247,10 @@ export type PropertyTypeRegistry = {
     item: boolean
     enterprise: boolean
     yaml: StringboolYAML
+  }
+  UserSettingsID: {
+    item: UserSettingsID
+    yaml: UserSettingsIDYAML
   }
   //#endregion
 
@@ -212,8 +344,15 @@ export type PropertyTypeRegistry = {
   }
   AdditionalIndex: {
     item: AdditionalIndex
-
     yaml: AdditionalIndexYAML
+  }
+  AdditionalIndexItem: {
+    item: AdditionalIndexItem
+    yaml: AdditionalIndexItemYAML
+  }
+  AdditionalIndexCollection: {
+    item: AdditionalIndexCollection
+    yaml: AdditionalIndexCollectionYAML
   }
   CharacteristicsDescriptions: {
     item: CharacteristicsDescriptions
@@ -279,6 +418,10 @@ export type PropertyTypeRegistry = {
 
     yaml: MetadataTabularSectionsYAML
   }
+  MetadataDocumentTabularSections: {
+    item: MetadataDocumentTabularSections
+    yaml: MetadataDocumentTabularSectionsYAML
+  }
   MetadataValue: {
     item: MetadataValue
 
@@ -292,6 +435,23 @@ export type PropertyTypeRegistry = {
   Predefined: {
     item: Predefined
     yaml: PredefinedYAML
+  }
+  PredefinedItem: {
+    item: PredefinedItem
+    yaml: PredefinedItemYAML
+  }
+  PredefinedItemCollection: {
+    item: PredefinedItemCollection
+    yaml: PredefinedItemCollectionYAML
+  }
+  Module: {
+    item: string | undefined
+  }
+  Template: {
+    item: string | undefined
+  }
+  Help: {
+    item: undefined
   }
   TypeLink: {
     item: TypeLink
@@ -313,6 +473,14 @@ export type PropertyTypeRegistry = {
     item: MetadataAttributes
     yaml: MetadataAttributesYAML
   }
+  MetadataDocumentAttributes: {
+    item: MetadataDocumentAttributes
+    yaml: MetadataDocumentAttributesYAML
+  }
+  MetadataTabularSectionAttributes: {
+    item: MetadataTabularSectionAttributes
+    yaml: MetadataTabularSectionAttributesYAML
+  }
   MetadataItemLinks: {
     item: MetadataItemLinks
     yaml: MetadataItemLinksYAML
@@ -321,6 +489,26 @@ export type PropertyTypeRegistry = {
     item: MetadataCommands
     yaml: MetadataCommandsYAML
   }
+  MetadataDocumentNumerator: {
+    item: MetadataDocumentNumerator
+    yaml: MetadataDocumentNumeratorYAML
+  }
+  MetadataEnumerationValues: {
+    item: MetadataEnumerationValues
+    yaml: MetadataEnumerationValuesYAML
+  }
+  MetadataSequence: {
+    item: MetadataSequence
+    yaml: MetadataSequenceYAML
+  }
+  MetadataSequenceDimension: {
+    item: MetadataSequenceDimension
+    yaml: MetadataSequenceDimensionYAML
+  }
+  MetadataSequenceDimensions: {
+    item: MetadataSequenceDimensions
+    yaml: MetadataSequenceDimensionsYAML
+  }
   CommandInterface: {
     item: CommandInterface
     yaml: CommandInterfaceYAML
@@ -328,8 +516,17 @@ export type PropertyTypeRegistry = {
   InternalInfo: {
     item: InternalInfo
   }
+  XMLRoot: {
+    item: undefined
+  }
+  ChildFormNames: {
+    item: string[]
+  }
+  ChildTemplateNames: {
+    item: string[]
+  }
   AssociatedTable: {
-    item: string
+    item: MetadataStringValue
     yaml: string
   }
 
@@ -418,7 +615,7 @@ export type PropertyTypeRegistry = {
   CommandBarChildItems: {
     item: CommandBarChildItems
     enterprise: CommandBarChildItemsEnterprise
-    yaml: CommandBarChildItemsPartialYAML
+    yaml: CommandBarChildItemsTypedYAML
   }
   TableChildItems: {
     item: TableChildItems
@@ -437,14 +634,152 @@ export type PropertyTypeRegistry = {
   // }
 
   //#endregion
+
+  ScrollBarUseBoolean: {
+    item: "AutoUse" | "DontUse" | "UseAlways"
+    enterprise: ScrollBarUseEnterprise
+    yaml: ScrollBarUseYAML
+  }
+  SettingsParameterValue: {
+    item: SettingsParameterValue
+    yaml: SettingsParameterValueYAML
+  }
+  SettingsParameterValueCollection: {
+    item: SettingsParameterValueCollection
+    yaml: SettingsParameterValueCollectionYAML
+  }
+  MetadataDcsMetadataValue: {
+    item: MetadataDcsMetadataValue
+    yaml: MetadataDcsMetadataValueYAML
+  }
+  DcsMetadataTypedValue: {
+    item: DcsMetadataTypedValue | DcsMetadataTypedValue[]
+    yaml: DcsMetadataTypedValueYAML | DcsMetadataTypedValueYAML[]
+  }
+  DcsField: {
+    item: string
+    yaml: string
+  }
+  DcsBoolean: {
+    item: string
+    yaml: string
+  }
+  DcsLocalStringType: {
+    item: I8nText
+    yaml: I8nTextYAML
+  }
+  FilterItemFieldValue: {
+    item: string
+    yaml: string
+  }
+  FilterItemLocalStringTypeValue: {
+    item: I8nText
+    yaml: I8nTextYAML
+  }
+  FilterItemPresentationValue: {
+    item: I8nText
+    yaml: I8nTextYAML
+  }
+  FilterItemPrimitiveValue: {
+    item: MetadataTypedPrimitiveValue
+    yaml: MetadataValueYAML
+  }
+  AppearanceFields: {
+    item: AppearanceFields
+    yaml: AppearanceFieldsYAML
+  }
+  CalculatedField: {
+    item: CalculatedField
+    yaml: CalculatedFieldYAML
+  }
+  CalculatedFieldUseRestriction: {
+    item: CalculatedFieldUseRestriction
+    yaml: CalculatedFieldUseRestrictionYAML
+  }
+  CalculatedFieldOrderExpression: {
+    item: CalculatedFieldOrderExpression
+    yaml: CalculatedFieldOrderExpressionYAML
+  }
+  DataCompositionSchemaDataSetField: {
+    item: DataCompositionSchemaDataSetField
+    yaml: DataCompositionSchemaDataSetFieldYAML
+  }
+  DataSetFieldFields: {
+    item: DataSetFieldFields
+    yaml: DataSetFieldFieldsYAML
+  }
+  Filter: {
+    item: Filter
+    yaml: FilterYAML
+  }
+  AvailableFields: {
+    item: AvailableFields
+    yaml: AvailableFieldsYAML
+  }
+  FilterItem: {
+    item: FilterItem
+    yaml: FilterItemYAML
+  }
+  Order: {
+    item: Order
+    yaml: OrderYAML
+  }
+  OrderItemFields: {
+    item: OrderItemFields
+    yaml: OrderItemFieldsYAML
+  }
+  GroupItemAuto: {
+    item: GroupItemAuto
+    yaml: GroupItemAutoYAML
+  }
+  GroupItemField: {
+    item: GroupItemField
+    yaml: GroupItemFieldYAML
+  }
+  StructureItemGroupCollection: {
+    item: StructureItemGroupCollection
+    yaml: StructureItemGroupCollectionYAML
+  }
+
+  StructureItemGroup: {
+    item: StructureItemGroup
+    yaml: StructureItemGroupYAML
+  }
+  ConditionalAppearance: {
+    item: ConditionalAppearance
+    yaml: ConditionalAppearanceYAML
+  }
+  ConditionalAppearanceItems: {
+    item: ConditionalAppearanceItem[]
+    yaml: ConditionalAppearanceItemsYAML
+  }
+  DCSParameter: {
+    item: DCSParameter
+    yaml: DCSParameterYAML
+  }
+  DCSParameters: {
+    item: DCSParameter[]
+    yaml: DCSParametersYAML
+  }
+  ElementId: {
+    item: string
+    yaml: string
+  }
+  UserSettingPresentation: {
+    item: I8nText
+    yaml: I8nTextYAML
+  }
 }
 
 export type PropertyRuleType = keyof PropertyTypeRegistry
 
 export const PropertyRuleTypeKeys = Object.keys({
+  uuid: "uuid",
   number: "number",
+  dateTime: "dateTime",
   string: "string",
   boolean: "boolean",
+  UserSettingsID: "UserSettingsID",
   SystemEnumeration: "SystemEnumeration",
   Color: "Color",
   TypeDescription: "TypeDescription",
@@ -464,6 +799,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataType: "MetadataType",
   MetadataTypeCollection: "MetadataTypeCollection",
   AdditionalIndex: "AdditionalIndex",
+  AdditionalIndexItem: "AdditionalIndexItem",
+  AdditionalIndexCollection: "AdditionalIndexCollection",
   CharacteristicsDescriptions: "CharacteristicsDescriptions",
   ChoiceList: "ChoiceList",
   ChoiceParameterLinks: "ChoiceParameterLinks",
@@ -477,9 +814,15 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataFields: "MetadataFields",
   MetadataItemLink: "MetadataItemLink",
   MetadataTabularSections: "MetadataTabularSections",
+  MetadataDocumentTabularSections: "MetadataDocumentTabularSections",
   MetadataValue: "MetadataValue",
   MetadataValueCollection: "MetadataValueCollection",
   Predefined: "Predefined",
+  PredefinedItem: "PredefinedItem",
+  PredefinedItemCollection: "PredefinedItemCollection",
+  Module: "Module",
+  Template: "Template",
+  Help: "Help",
   TypeLink: "TypeLink",
   UsePurposes: "UsePurposes",
   GroupChildItems: "GroupChildItems",
@@ -488,8 +831,15 @@ export const PropertyRuleTypeKeys = Object.keys({
   PagesChildItems: "PagesChildItems",
   FunctionalOptionsProperty: "FunctionalOptionsProperty",
   MetadataAttributes: "MetadataAttributes",
+  MetadataDocumentAttributes: "MetadataDocumentAttributes",
+  MetadataTabularSectionAttributes: "MetadataTabularSectionAttributes",
   MetadataItemLinks: "MetadataItemLinks",
   MetadataCommands: "MetadataCommands",
+  MetadataDocumentNumerator: "MetadataDocumentNumerator",
+  MetadataEnumerationValues: "MetadataEnumerationValues",
+  MetadataSequence: "MetadataSequence",
+  MetadataSequenceDimension: "MetadataSequenceDimension",
+  MetadataSequenceDimensions: "MetadataSequenceDimensions",
   CommandInterface: "CommandInterface",
   ContextMenu: "ContextMenu",
   ExtendedTooltip: "ExtendedTooltip",
@@ -506,6 +856,42 @@ export const PropertyRuleTypeKeys = Object.keys({
   FormAttributeColumns: "FormAttributeColumns",
   FormParameters: "FormParameters",
   InternalInfo: "InternalInfo",
+  XMLRoot: "XMLRoot",
+  ChildFormNames: "ChildFormNames",
+  ChildTemplateNames: "ChildTemplateNames",
+  ScrollBarUseBoolean: "ScrollBarUseBoolean",
+  SettingsParameterValue: "SettingsParameterValue",
+  SettingsParameterValueCollection: "SettingsParameterValueCollection",
+  MetadataDcsMetadataValue: "MetadataDcsMetadataValue",
+  DcsMetadataTypedValue: "DcsMetadataTypedValue",
+  DcsField: "DcsField",
+  DcsBoolean: "DcsBoolean",
+  DcsLocalStringType: "DcsLocalStringType",
+  FilterItemFieldValue: "FilterItemFieldValue",
+  FilterItemLocalStringTypeValue: "FilterItemLocalStringTypeValue",
+  FilterItemPresentationValue: "FilterItemPresentationValue",
+  FilterItemPrimitiveValue: "FilterItemPrimitiveValue",
+  AppearanceFields: "AppearanceFields",
+  CalculatedField: "CalculatedField",
+  CalculatedFieldUseRestriction: "CalculatedFieldUseRestriction",
+  CalculatedFieldOrderExpression: "CalculatedFieldOrderExpression",
+  DataCompositionSchemaDataSetField: "DataCompositionSchemaDataSetField",
+  DataSetFieldFields: "DataSetFieldFields",
+  Filter: "Filter",
+  AvailableFields: "AvailableFields",
+  FilterItem: "FilterItem",
+  Order: "Order",
+  OrderItemFields: "OrderItemFields",
+  GroupItemAuto: "GroupItemAuto",
+  GroupItemField: "GroupItemField",
+  StructureItemGroup: "StructureItemGroup",
+  ConditionalAppearance: "ConditionalAppearance",
+  ConditionalAppearanceItems: "ConditionalAppearanceItems",
+  DCSParameter: "DCSParameter",
+  DCSParameters: "DCSParameters",
+  ElementId: "ElementId",
+  UserSettingPresentation: "UserSettingPresentation",
+  StructureItemGroupCollection: "StructureItemGroupCollection",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends PropertyRuleType

@@ -1,41 +1,21 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportMetadataTabularSectionToYAML } from "./toYAML"
-import { MetadataTabularSection, MetadataTabularSectionYAML } from "./types"
+import { fullTabularSections, fullTabularSectionsYAML, minimalTabularSections, minimalTabularSectionsYAML } from "./__fixtures__/data"
+import { mockContext } from "~/tests/mockContext"
+import { exportMetadataTabularSectionsToYAML } from "./register"
 
-describe("exportMetadataTabularSectionToYAML", () => {
-  it("should export metadata tabular section to enterprise", () => {
-    const metadataTabularSection: MetadataTabularSection = {
-      itemType: "MetadataTabularSection",
-      name: "Контакты",
-      fillChecking: "DontCheck",
-      synonym: { items: { ru: "Какие-то контакты" } },
-      attributes: [],
-    }
-
-    const expectedResult: MetadataTabularSectionYAML = {
-      Синоним: "Какие-то контакты",
-      ПроверкаЗаполнения: "НеПроверять",
-    }
-
-    const result = exportMetadataTabularSectionToYAML(mockContext, mockRule, metadataTabularSection)
-    expect(result).toEqual(expectedResult)
+describe("export MetadataTabularSections to YAML", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = exportMetadataTabularSectionsToYAML(mockContext, undefined, undefined)
+    expect(result).toBeUndefined()
   })
 
-  it("should export with synonym is same as name", () => {
-    const metadataTabularSection: MetadataTabularSection = {
-      itemType: "MetadataTabularSection",
-      name: "ИсторияКПП",
-      fillChecking: "DontCheck",
-      synonym: { items: { ru: "История КПП" } },
-      attributes: [],
-    }
+  it("should export full", () => {
+    const result = exportMetadataTabularSectionsToYAML(mockContext, undefined, fullTabularSections)
+    expect(result).toEqual(fullTabularSectionsYAML)
+  })
 
-    const expectedResult: MetadataTabularSectionYAML = {
-      ПроверкаЗаполнения: "НеПроверять",
-    }
-
-    const result = exportMetadataTabularSectionToYAML(mockContext, mockRule, metadataTabularSection)
-    expect(result).toEqual(expectedResult)
+  it("should export minimal", () => {
+    const result = exportMetadataTabularSectionsToYAML(mockContext, undefined, minimalTabularSections)
+    expect(result).toEqual(minimalTabularSectionsYAML)
   })
 })

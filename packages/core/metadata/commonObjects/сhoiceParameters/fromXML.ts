@@ -1,8 +1,8 @@
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import { ChoiceParameter, ChoiceParameters, ChoiceParametersXML, ChoiceParameterXML } from "./types"
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const importChoiceParametersFromXML = (
   context: ConfigurationContextFromXML,
@@ -23,7 +23,11 @@ const importChoiceParameterFromXML = (
   _rule: PropertyRule | undefined,
   xml: ChoiceParameterXML
 ): ChoiceParameter => {
-  const value = importMetadataValueFromXML(context, undefined, xml["app:value"])
+  const value = importMetadataValueFromXML({
+    context,
+    rule: { type: "MetadataValue", valueType: ["string", "decimal", "boolean", "ref", "objectRef", "fixedArray", "formChoiceListDesTimeValue"] },
+    value: xml["app:value"],
+  })
 
   return {
     name: xml._name,

@@ -1,3 +1,4 @@
+import { describe, it } from "vitest"
 // import { EmptyFileSystem, type LangiumDocument } from "langium"
 // import { expandToString as s } from "langium/generate"
 // import { parseHelper } from "langium/test"
@@ -65,3 +66,7 @@
 // function diagnosticToString(d: Diagnostic) {
 //   return `[${d.range.start.line}:${d.range.start.character}..${d.range.end.line}:${d.range.end.character}]: ${d.message}`
 // }
+
+describe("Validating", () => {
+  it("placeholder", () => {})
+})

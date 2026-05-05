@@ -1,4 +1,78 @@
 import {
+  AppearanceFields,
+  AppearanceFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
+import {
+  AvailableFields,
+  AvailableFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
+import {
+  CalculatedField,
+  CalculatedFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
+import {
+  CalculatedFieldOrderExpressionItem,
+  CalculatedFieldOrderExpressionItemYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/types"
+import type {
+  CalculatedFieldUseRestriction,
+  CalculatedFieldUseRestrictionYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types"
+import type {
+  DataCompositionSchemaDataSetField,
+  DataCompositionSchemaDataSetFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/types"
+import {
+  ConditionalAppearance,
+  ConditionalAppearanceYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import {
+  ConditionalAppearanceItem,
+  ConditionalAppearanceItemYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types"
+import type { DCSParameter, DCSParameterYAML } from "~/metadata/commonObjects/dataCompositionSystem/dcsParameter/types"
+import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
+import {
+  FilterItemComparison,
+  FilterItemComparisonYAML,
+  FilterItemGroup,
+  FilterItemGroupYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
+import { Order, OrderYAML } from "~/metadata/commonObjects/dataCompositionSystem/order/types"
+import {
+  OrderItemField,
+  OrderItemFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/orderItemFields/types"
+import {
+  GroupItemAuto,
+  GroupItemAutoYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/types"
+import {
+  GroupItemField,
+  GroupItemFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/types"
+import {
+  StructureItemGroup,
+  StructureItemGroupYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
+import {
+  AdditionalIndex,
+  AdditionalIndexItem,
+  AdditionalIndexItemYAML,
+  AdditionalIndexYAML,
+} from "~/metadata/commonObjects/additionalIndex/types"
+import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
+import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
+import { PredefinedItem, PredefinedItemYAML } from "~/metadata/commonObjects/predefinedItem/types"
+import {
+  MetadataSequenceDimension,
+  MetadataSequenceDimensionYAML,
+} from "~/metadata/commonObjects/metadataSequenceDimension/types"
+import {
+  MetadataTabularSection,
+  MetadataTabularSectionYAML,
+} from "~/metadata/commonObjects/metadataTabularSection/types"
+import {
   AutoCommandBar,
   AutoCommandBarEnterprise,
   AutoCommandBarYAML,
@@ -9,18 +83,31 @@ import {
   ViewStatusAdditionYAML,
 } from "~/metadata/forms/elements/viewStatusAddition/types"
 // import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
-import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
 import {
-  MetadataTabularSection,
-  MetadataTabularSectionYAML,
-} from "~/metadata/commonObjects/metadataTabularSection/types"
+  CharacteristicsDescription,
+  CharacteristicsDescriptionYAML,
+} from "~/metadata/commonObjects/characteristicsDescription/types"
 import {
   StandardAttributeDescription,
   StandardAttributeDescriptionYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
+import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
+import {
+  MetadataDocumentNumerator,
+  MetadataDocumentNumeratorYAML,
+} from "../../appliedObjects/metadataDocumentNumerator/types"
+import {
+  MetadataEnumeration,
+  MetadataEnumerationYAML,
+} from "../../appliedObjects/metadataEnumeration/types"
+import {
+  MetadataSequence,
+  MetadataSequenceYAML,
+} from "../../appliedObjects/metadataSequence/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -38,7 +125,20 @@ import {
   FormAttributeColumnYAML,
   FormAttributeYAML,
 } from "../../forms/commonObjects/formAttribute/types"
-import { Button, ButtonEnterprise, ButtonPartialYAML, ButtonTypedYAML } from "../../forms/elements/button/types"
+import {
+  FormParameter,
+  FormParameterYAML,
+} from "../../forms/commonObjects/formParameter/types"
+import {
+  Button,
+  ButtonEnterprise,
+  ButtonPartialYAML,
+  ButtonTypedYAML,
+  CommandBarButton,
+  CommandBarButtonEnterprise,
+  CommandBarButtonPartialYAML,
+  CommandBarButtonTypedYAML,
+} from "../../forms/elements/button/types"
 import {
   ButtonGroup,
   ButtonGroupEnterprise,
@@ -55,7 +155,10 @@ import {
   CheckBoxField,
   CheckBoxFieldEnterprise,
   CheckBoxFieldPartialYAML,
-  CheckBoxFieldTypedYAML,
+  TableCheckBoxField,
+  TableCheckBoxFieldEnterprise,
+  TableCheckBoxFieldPartialYAML,
+  TableCheckBoxFieldTypedYAML,
 } from "../../forms/elements/checkBoxField/types"
 import {
   ColumnGroup,
@@ -104,7 +207,10 @@ import {
   InputField,
   InputFieldEnterprise,
   InputFieldPartialYAML,
-  InputFieldTypedYAML,
+  TableInputField,
+  TableInputFieldEnterprise,
+  TableInputFieldPartialYAML,
+  TableInputFieldTypedYAML,
 } from "../../forms/elements/inputField/types"
 import {
   LabelDecoration,
@@ -115,7 +221,10 @@ import {
   LabelField,
   LabelFieldEnterprise,
   LabelFieldPartialYAML,
-  LabelFieldTypedYAML,
+  TableLabelField,
+  TableLabelFieldEnterprise,
+  TableLabelFieldPartialYAML,
+  TableLabelFieldTypedYAML,
 } from "../../forms/elements/labelField/types"
 import { Page, PageEnterprise, PagePartialYAML } from "../../forms/elements/page/types"
 import { Pages, PagesEnterprise, PagesPartialYAML } from "../../forms/elements/pages/types"
@@ -134,7 +243,10 @@ import {
   PictureField,
   PictureFieldEnterprise,
   PictureFieldPartialYAML,
-  PictureFieldTypedYAML,
+  TablePictureField,
+  TablePictureFieldEnterprise,
+  TablePictureFieldPartialYAML,
+  TablePictureFieldTypedYAML,
 } from "../../forms/elements/pictureField/types"
 import { PlannerField, PlannerFieldEnterprise, PlannerFieldPartialYAML } from "../../forms/elements/plannerField/types"
 import { Popup, PopupEnterprise, PopupPartialYAML, PopupTypedYAML } from "../../forms/elements/popup/types"
@@ -192,6 +304,12 @@ export type MetadataItemTypeRegistry = {
     yamlTyped: ButtonTypedYAML
     enterprise: ButtonEnterprise
   }
+  CommandBarButton: {
+    metadata: CommandBarButton
+    yaml: CommandBarButtonPartialYAML
+    yamlTyped: CommandBarButtonTypedYAML
+    enterprise: CommandBarButtonEnterprise
+  }
   ButtonGroup: {
     metadata: ButtonGroup
     yaml: ButtonGroupPartialYAML
@@ -211,8 +329,13 @@ export type MetadataItemTypeRegistry = {
   CheckBoxField: {
     metadata: CheckBoxField
     yaml: CheckBoxFieldPartialYAML
-    yamlTyped: CheckBoxFieldTypedYAML
     enterprise: CheckBoxFieldEnterprise
+  }
+  TableCheckBoxField: {
+    metadata: TableCheckBoxField
+    yaml: TableCheckBoxFieldPartialYAML
+    yamlTyped: TableCheckBoxFieldTypedYAML
+    enterprise: TableCheckBoxFieldEnterprise
   }
   ColumnGroup: {
     metadata: ColumnGroup
@@ -258,8 +381,13 @@ export type MetadataItemTypeRegistry = {
   InputField: {
     metadata: InputField
     yaml: InputFieldPartialYAML
-    yamlTyped: InputFieldTypedYAML
     enterprise: InputFieldEnterprise
+  }
+  TableInputField: {
+    metadata: TableInputField
+    yaml: TableInputFieldPartialYAML
+    yamlTyped: TableInputFieldTypedYAML
+    enterprise: TableInputFieldEnterprise
   }
   LabelDecoration: {
     metadata: LabelDecoration
@@ -269,8 +397,13 @@ export type MetadataItemTypeRegistry = {
   LabelField: {
     metadata: LabelField
     yaml: LabelFieldPartialYAML
-    yamlTyped: LabelFieldTypedYAML
     enterprise: LabelFieldEnterprise
+  }
+  TableLabelField: {
+    metadata: TableLabelField
+    yaml: TableLabelFieldPartialYAML
+    yamlTyped: TableLabelFieldTypedYAML
+    enterprise: TableLabelFieldEnterprise
   }
   Page: {
     metadata: Page
@@ -300,8 +433,13 @@ export type MetadataItemTypeRegistry = {
   PictureField: {
     metadata: PictureField
     yaml: PictureFieldPartialYAML
-    yamlTyped: PictureFieldTypedYAML
     enterprise: PictureFieldEnterprise
+  }
+  TablePictureField: {
+    metadata: TablePictureField
+    yaml: TablePictureFieldPartialYAML
+    yamlTyped: TablePictureFieldTypedYAML
+    enterprise: TablePictureFieldEnterprise
   }
   PlannerField: {
     metadata: PlannerField
@@ -418,6 +556,14 @@ export type MetadataItemTypeRegistry = {
     metadata: FormCommand
     yaml: FormCommandYAML
   }
+  FormParameter: {
+    metadata: FormParameter
+    yaml: FormParameterYAML
+  }
+  DynamicList: {
+    metadata: DynamicList
+    yaml: DynamicListYAML
+  }
 
   //#endregion
 
@@ -438,14 +584,113 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataAttributeYAML
   }
 
+  PredefinedItem: {
+    metadata: PredefinedItem
+    yaml: PredefinedItemYAML
+  }
+
+  Predefined: {
+    metadata: Predefined
+    yaml: PredefinedYAML
+  }
+
+  AdditionalIndex: {
+    metadata: AdditionalIndex
+    yaml: AdditionalIndexYAML
+  }
+
+  AdditionalIndexItem: {
+    metadata: AdditionalIndexItem
+    yaml: AdditionalIndexItemYAML
+  }
+
+  MetadataSequenceDimension: {
+    metadata: MetadataSequenceDimension
+    yaml: MetadataSequenceDimensionYAML
+  }
+
   MetadataTabularSection: {
     metadata: MetadataTabularSection
     yaml: MetadataTabularSectionYAML
   }
 
+  CharacteristicsDescription: {
+    metadata: CharacteristicsDescription
+    yaml: CharacteristicsDescriptionYAML
+  }
+
   StandardAttributeDescription: {
     metadata: StandardAttributeDescription
     yaml: StandardAttributeDescriptionYAML
+  }
+
+  AppearanceFields: {
+    metadata: AppearanceFields
+    yaml: AppearanceFieldsYAML
+  }
+  CalculatedField: {
+    metadata: CalculatedField
+    yaml: CalculatedFieldYAML
+  }
+  CalculatedFieldUseRestriction: {
+    metadata: CalculatedFieldUseRestriction
+    yaml: CalculatedFieldUseRestrictionYAML
+  }
+  CalculatedFieldOrderExpression: {
+    metadata: CalculatedFieldOrderExpressionItem
+    yaml: CalculatedFieldOrderExpressionItemYAML
+  }
+  DataCompositionSchemaDataSetField: {
+    metadata: DataCompositionSchemaDataSetField
+    yaml: DataCompositionSchemaDataSetFieldYAML
+  }
+  ConditionalAppearance: {
+    metadata: ConditionalAppearance
+    yaml: ConditionalAppearanceYAML
+  }
+  ConditionalAppearanceItem: {
+    metadata: ConditionalAppearanceItem
+    yaml: ConditionalAppearanceItemYAML
+  }
+  DCSParameter: {
+    metadata: DCSParameter
+    yaml: DCSParameterYAML
+  }
+  Filter: {
+    metadata: Filter
+    yaml: FilterYAML
+  }
+  Order: {
+    metadata: Order
+    yaml: OrderYAML
+  }
+  AvailableFields: {
+    metadata: AvailableFields
+    yaml: AvailableFieldsYAML
+  }
+  FilterItemComparison: {
+    metadata: FilterItemComparison
+    yaml: FilterItemComparisonYAML
+  }
+  FilterItemGroup: {
+    metadata: FilterItemGroup
+    yaml: FilterItemGroupYAML
+  }
+  GroupItemField: {
+    metadata: GroupItemField
+    yaml: GroupItemFieldYAML
+  }
+  OrderItemField: {
+    metadata: OrderItemField
+    yaml: OrderItemFieldYAML
+  }
+  GroupItemAuto: {
+    metadata: GroupItemAuto
+    yaml: GroupItemAutoYAML
+  }
+  StructureItemGroup: {
+    metadata: StructureItemGroup
+    yaml: StructureItemGroupYAML
   }
 
   //#endregion
@@ -464,6 +709,26 @@ export type MetadataItemTypeRegistry = {
   MetadataCommand: {
     metadata: MetadataCommand
     yaml: MetadataCommandYAML
+  }
+
+  MetadataDocument: {
+    metadata: MetadataDocument
+    yaml: MetadataDocumentYAML
+  }
+
+  MetadataDocumentNumerator: {
+    metadata: MetadataDocumentNumerator
+    yaml: MetadataDocumentNumeratorYAML
+  }
+
+  MetadataEnumeration: {
+    metadata: MetadataEnumeration
+    yaml: MetadataEnumerationYAML
+  }
+
+  MetadataSequence: {
+    metadata: MetadataSequence
+    yaml: MetadataSequenceYAML
   }
 
   //#endregion

@@ -1,7 +1,8 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { exportMetadataSimpleValueToXML } from "../metadataValue/toXML"
+import { exportMetadataValueToXML } from "../metadataValue/toXML"
+import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 import { TypeLink, TypeLinkXML } from "./types"
 
 export const exportTypeLinkToXML = (
@@ -24,7 +25,11 @@ export const exportTypeLinkWithXSITypeToXML = (
 ): TypeLinkXML | undefined => {
   if (!typeLink) return undefined
 
-  const dataPath = exportMetadataSimpleValueToXML(context, undefined, typeLink.dataPath, "string")!
+  const dataPath = exportMetadataValueToXML({
+    context,
+    rule: { type: "MetadataValue", valueType: ["string"] },
+    value: { type: "string", value: typeLink.dataPath },
+  })! as MetadataPrimitiveValueXML
 
   return {
     "xr:DataPath": dataPath,

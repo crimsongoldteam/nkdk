@@ -1,6 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
+import { formGroupCommonProperties } from "../formGroup/rules"
 export type { ElementRule, PropertyRule }
 
 export const UsualGroupRules = {
@@ -18,6 +19,7 @@ export const UsualGroupRules = {
       yaml: "Поведение",
       type: "SystemEnumeration",
       typeSE: "UsualGroupBehavior",
+      defaultValueYAML: "Auto",
     },
     childItems: {
       type: "GroupChildItems",
@@ -31,12 +33,14 @@ export const UsualGroupRules = {
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
       xml: "HorizontalAlign",
+      defaultValueYAML: "Auto",
     },
     childItemsVerticalAlign: {
       yaml: "ВертикальноеПоложениеПодчиненных",
       type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
       xml: "VerticalAlign",
+      defaultValueYAML: "Auto",
     },
     collapsed: { yaml: "Свернута", type: "boolean" },
     collapsedRepresentationTitle: {
@@ -47,21 +51,21 @@ export const UsualGroupRules = {
       yaml: "ОтображениеУправления",
       type: "SystemEnumeration",
       typeSE: "UsualGroupControlRepresentation",
+      defaultValueYAML: "TitleHyperlink",
     },
     currentRowUse: {
       yaml: "ИспользованиеТекущейСтроки",
       type: "SystemEnumeration",
       typeSE: "CurrentRowUse",
+      defaultValueYAML: "Auto",
     },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
       type: "SystemEnumeration",
       typeSE: "DisplayImportance",
+      defaultValueYAML: "Auto",
     },
-    enableContentChange: { yaml: "РазрешитьИзменениеСостава", type: "boolean" },
-    enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     format: { yaml: "Формат", type: "I8nText" },
     group: {
       yaml: "Группировка",
@@ -71,41 +75,31 @@ export const UsualGroupRules = {
       defaultValue: "HorizontalIfPossible",
       // defaultValueXML: "HorizontalIfPossible",
       required: true,
+      defaultValueYAML: "HorizontalIfPossible",
     },
-    height: { yaml: "Высота", type: "number" },
     hiddenRepresentationTitleBackColor: {
       yaml: "ЦветФонаЗаголовкаСкрытогоОтображения",
       type: "Color",
       xml: "HiddenStateTitleBackColor",
     },
-    horizontalAlignInGroup: {
-      yaml: "ГоризонтальноеПоложениеВГруппе",
-      xml: "GroupHorizontalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemHorizontalLocation",
-    },
     horizontalSpacing: {
       yaml: "ГоризонтальныйИнтервал",
       type: "SystemEnumeration",
       typeSE: "FormItemSpacing",
+      defaultValueYAML: "Auto",
     },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     itemsAndTitlesAlign: {
       yaml: "ВыравниваниеЭлементовИЗаголовков",
       xml: "ChildrenAlign",
       type: "SystemEnumeration",
       typeSE: "ItemsAndTitlesAlignVariant",
+      defaultValueYAML: "Auto",
     },
-    readOnly: { yaml: "ТолькоПросмотр", type: "boolean" },
     representation: {
       yaml: "Отображение",
       type: "SystemEnumeration",
       typeSE: "UsualGroupRepresentation",
-    },
-    shortcut: {
-      yaml: "СочетаниеКлавиш",
-      type: "string",
-      toEnterprise: false,
+      defaultValueYAML: "WeakSeparation",
     },
     showLeftMargin: { yaml: "ОтображатьОтступСлева", type: "boolean" },
     showTitle: {
@@ -125,42 +119,24 @@ export const UsualGroupRules = {
       yaml: "СквозноеВыравнивание",
       type: "SystemEnumeration",
       typeSE: "ThroughAlign",
-    },
-    title: {
-      yaml: "Заголовок",
-      type: "I8nText",
-      yamlPartialOthers: true,
+      defaultValueYAML: "Auto",
     },
     titleDataPath: { yaml: "ПутьКДаннымЗаголовка", type: "DataPath", defaultType: "string" },
-    titleFont: { yaml: "ШрифтЗаголовка", type: "Font" },
-    titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color" },
-    toolTip: { yaml: "Подсказка", type: "I8nText" },
-    toolTipRepresentation: {
-      yaml: "ОтображениеПодсказки",
-      type: "SystemEnumeration",
-      typeSE: "ToolTipRepresentation",
-    },
     united: { yaml: "Объединенная", type: "boolean" },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
-    verticalAlignInGroup: {
-      yaml: "ВертикальноеПоложениеВГруппе",
-      xml: "GroupVerticalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemVerticalAlign",
-    },
     verticalSpacing: {
       yaml: "ВертикальныйИнтервал",
       type: "SystemEnumeration",
       typeSE: "FormItemSpacing",
+      defaultValueYAML: "Auto",
     },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
-    visible: { yaml: "Видимость", type: "boolean" },
-    width: { yaml: "Ширина", type: "number" },
+    ...formGroupCommonProperties,
+    type: {
+      yaml: "Вид",
+      type: "SystemEnumeration",
+      typeSE: "FormGroupType",
+      runtimeOnly: true,
+      defaultValueYAML: "UsualGroup",
+    },
   },
 } as const satisfies ElementRule
 

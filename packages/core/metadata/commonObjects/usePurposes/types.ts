@@ -1,10 +1,10 @@
 import { Static, Type } from "@sinclair/typebox"
-import { MetadataSimpleValueXML } from "../metadataValue/types"
+import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 
 export type UsePurposes = ("PlatformApplication" | "MobilePlatformApplication")[]
 
 export interface UsePurposesXML {
-  "v8:Value": MetadataSimpleValueXML | MetadataSimpleValueXML[]
+  "v8:Value": MetadataPrimitiveValueXML | MetadataPrimitiveValueXML[]
 }
 
 export const UsePurposesJSONSchema = Type.Union([

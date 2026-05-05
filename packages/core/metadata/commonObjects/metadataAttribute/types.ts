@@ -2,7 +2,7 @@ import { Type } from "@sinclair/typebox"
 import { StringboolXML, StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import {
-  MetadataSimpleValueXML,
+  MetadataPrimitiveValueXML,
   MetadataValueXML,
   MetadataValueYAML,
 } from "~/metadata/commonObjects/metadataValue/types"
@@ -21,7 +21,7 @@ export interface MetadataAttributeXML {
   _uuid: string
   Properties: {
     BinaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse
-    BinaryDataStorageLocationUseField?: StringboolXML
+    BinaryDataStorageLocationUseField?: string
     ChoiceFoldersAndItems?: SE.FoldersAndItemsUse
     ChoiceForm?: string
     ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
@@ -41,8 +41,8 @@ export interface MetadataAttributeXML {
     LinkByType?: TypeLinkXML
     MarkNegatives?: StringboolXML
     Mask?: string
-    MaxValue?: MetadataSimpleValueXML
-    MinValue?: MetadataSimpleValueXML
+    MaxValue?: MetadataPrimitiveValueXML
+    MinValue?: MetadataPrimitiveValueXML
     MultiLine?: StringboolXML
     Name: string
     ObjectBelonging?: SE.ObjectBelonging
@@ -75,7 +75,7 @@ export interface MetadataAttributeFullYAML {
   МногострочныйРежим?: StringboolYAML
   ПараметрыВыбора?: ChoiceParametersYAML
   Подсказка?: I8nTextYAML
-  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: StringboolYAML
+  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: string
   ПолнотекстовыйПоиск?: SE.UseFullTextSearchYAML
   ПринадлежностьОбъекта?: SE.ObjectBelongingYAML
   ПроверкаЗаполнения?: SE.FillCheckingYAML
@@ -98,3 +98,12 @@ export type MetadataAttributesXML = MetadataAttributeXML | MetadataAttributeXML[
 
 export const MetadataAttributesJSONSchema = Type.Record(Type.String(), Type.Any())
 export type MetadataAttributesYAML = Record<MetadataNameYAML, MetadataAttributeYAML>
+
+export type MetadataTabularSectionAttributes = MetadataAttributes
+export type MetadataTabularSectionAttributesXML = MetadataAttributesXML
+export type MetadataTabularSectionAttributesYAML = MetadataAttributesYAML
+
+export type MetadataDocumentAttribute = MetadataAttribute
+export type MetadataDocumentAttributes = MetadataAttributes
+export type MetadataDocumentAttributesXML = MetadataAttributesXML
+export type MetadataDocumentAttributesYAML = MetadataAttributesYAML
