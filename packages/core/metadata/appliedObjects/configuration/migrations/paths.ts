@@ -9,9 +9,12 @@ export interface ParsedMigrationPath {
 }
 
 const TOP_LEVEL_PREFIXES = new Set(["Справочник", "Документ", "Нумератор", "Последовательность"])
+const OBJECT_WITH_CHILDREN_PREFIXES = new Set(["Справочник", "Документ"])
 
 export function parseMigrationPath(path: string): ParsedMigrationPath {
   const segments = path.split(".")
+  if (segments.some((segment) => segment.length === 0)) throwUnsupportedPath(path)
+
   if (segments.length === 2 && TOP_LEVEL_PREFIXES.has(segments[0]!)) {
     return {
       kind: "object",
@@ -22,7 +25,7 @@ export function parseMigrationPath(path: string): ParsedMigrationPath {
     }
   }
 
-  if (segments.length === 4 && TOP_LEVEL_PREFIXES.has(segments[0]!) && segments[2] === "Реквизит") {
+  if (segments.length === 4 && OBJECT_WITH_CHILDREN_PREFIXES.has(segments[0]!) && segments[2] === "Реквизит") {
     return {
       kind: "attribute",
       segments,
@@ -32,7 +35,7 @@ export function parseMigrationPath(path: string): ParsedMigrationPath {
     }
   }
 
-  if (segments.length === 4 && TOP_LEVEL_PREFIXES.has(segments[0]!) && segments[2] === "ТабличнаяЧасть") {
+  if (segments.length === 4 && OBJECT_WITH_CHILDREN_PREFIXES.has(segments[0]!) && segments[2] === "ТабличнаяЧасть") {
     return {
       kind: "tabularSection",
       segments,
@@ -44,7 +47,7 @@ export function parseMigrationPath(path: string): ParsedMigrationPath {
 
   if (
     segments.length === 6 &&
-    TOP_LEVEL_PREFIXES.has(segments[0]!) &&
+    OBJECT_WITH_CHILDREN_PREFIXES.has(segments[0]!) &&
     segments[2] === "ТабличнаяЧасть" &&
     segments[4] === "Реквизит"
   ) {
@@ -67,7 +70,7 @@ export function parseMigrationPath(path: string): ParsedMigrationPath {
     }
   }
 
-  throw new Error(`Неподдерживаемый путь миграции "${path}"`)
+  throwUnsupportedPath(path)
 }
 
 export function buildRenameTargetPath(path: string, newLocalName: string): string {
@@ -76,4 +79,8 @@ export function buildRenameTargetPath(path: string, newLocalName: string): strin
   const parsed = parseMigrationPath(path)
   if (parsed.localName === newLocalName) throw new Error("Переименование в то же имя запрещено")
   return [...parsed.segments.slice(0, -1), newLocalName].join(".")
+}
+
+function throwUnsupportedPath(path: string): never {
+  throw new Error(`Неподдерживаемый путь миграции "${path}"`)
 }

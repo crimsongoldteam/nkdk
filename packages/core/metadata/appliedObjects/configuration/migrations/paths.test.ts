@@ -77,4 +77,19 @@ describe("migration paths", () => {
   it("rejects unsupported segments", () => {
     expect(() => parseMigrationPath("Справочник.Товары.Команда.Открыть")).toThrow("Неподдерживаемый путь миграции")
   })
+
+  it("rejects child paths for numerators", () => {
+    expect(() => parseMigrationPath("Нумератор.Ном.Реквизит.Код")).toThrow("Неподдерживаемый путь миграции")
+  })
+
+  it("rejects tabular section paths for sequences", () => {
+    expect(() => parseMigrationPath("Последовательность.Рег.ТабличнаяЧасть.Товары")).toThrow(
+      "Неподдерживаемый путь миграции",
+    )
+  })
+
+  it("rejects paths with empty segments", () => {
+    expect(() => parseMigrationPath("Справочник.")).toThrow("Неподдерживаемый путь миграции")
+    expect(() => parseMigrationPath("Справочник.Товары.Реквизит.")).toThrow("Неподдерживаемый путь миграции")
+  })
 })

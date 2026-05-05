@@ -88,6 +88,15 @@ describe("applyMigrationEntries", () => {
     ).toThrow('Целевой путь уже существует "Справочник.Товары.Реквизит.Новый"')
   })
 
+  it("rejects rename when target descendant exists in intermediate state", () => {
+    expect(() =>
+      applyMigrationEntries(
+        state(["Справочник.Товары", "Справочник.Номенклатура.Реквизит.Артикул"]),
+        [{ path: "Справочник.Товары", value: "Номенклатура" }],
+      ),
+    ).toThrow('Целевой путь уже существует "Справочник.Номенклатура"')
+  })
+
   it("rejects rename of missing path", () => {
     expect(() =>
       applyMigrationEntries(state([]), [{ path: "Справочник.Товары.Реквизит.Артикул", value: "НовыйАртикул" }]),

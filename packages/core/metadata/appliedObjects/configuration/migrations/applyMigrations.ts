@@ -52,7 +52,9 @@ function deletePath(nodes: Map<string, StructuralNode>, path: string): void {
 
 function renamePath(nodes: Map<string, StructuralNode>, from: string, to: string): void {
   if (!nodes.has(from)) throw new Error(`Путь для переименования не найден "${from}"`)
-  if (nodes.has(to)) throw new Error(`Целевой путь уже существует "${to}"`)
+  if ([...nodes.keys()].some((path) => path === to || path.startsWith(`${to}.`))) {
+    throw new Error(`Целевой путь уже существует "${to}"`)
+  }
 
   const moving = [...nodes.entries()].filter(([path]) => path === from || path.startsWith(`${from}.`))
   for (const [path] of moving) nodes.delete(path)
