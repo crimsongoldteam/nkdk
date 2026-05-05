@@ -95,6 +95,17 @@ For `type === undefined`, the property rule should supply the raw empty XML valu
 
 ## Case C: FormCommand ids
 
+### Fixture baseline
+
+Before changing command id behavior, align the existing `formCommand` TS fixtures with XML received from 1C:
+
+- `packages/core/metadata/forms/commonObjects/formCommand/__fixtures__/full.xml`
+- `packages/core/metadata/forms/commonObjects/formCommand/__fixtures__/minimal.xml`
+
+These XML fixtures are the source of truth. `__fixtures__/data.ts` should describe the same command names, titles, tooltips, visibility flags, shortcut, picture, action, representation, and YAML forms. This keeps current `formCommand` import/export tests green before the reference-id behavior is changed.
+
+`FormCommand.representation` has one local XML alias: 1C writes `<Representation>TextPicture</Representation>` for the command value that the model and YAML should call `PictureAndText` / `КартинкаИТекст`. This alias applies only to form commands. Buttons and other `ButtonRepresentation` users keep their normal XML value `PictureAndText`.
+
 ### Current behavior
 
 `FormCommandRules.id` is `forReferenceOnly`, with type `ElementId`. During export, `ElementId` registers the command in `metadataForNumbering`. Later, `setIdsToElements` copies `referenceElement.id` into XML if a reference was supplied; otherwise it assigns the next free id.
@@ -133,6 +144,7 @@ Use focused tests before changing behavior:
 - `metadataValue/formChoiceList`: export without presentation emits `<Presentation/>`.
 - `ChoiceParameters`: existing form boolean/enum fixtures expect `<Presentation/>`.
 - `forms/commonObjects/formAttribute`: attribute without model `type` exports `<Type/>`.
+- `forms/commonObjects/formCommand`: existing XML fixtures from 1C match `data.ts` before id behavior changes.
 - `clientApplicationForm` or `formCommand`: command ids are preserved from reference commands by `name`.
 
 Avoid a full-form fixture that combines all three causes. It would make failures harder to diagnose and would not identify the owning rule for each behavior.
