@@ -1,5 +1,6 @@
 import { ADD_ACTION, DELETE_ACTION, type MigrationEntry, type StructuralNode, type StructuralState } from "./types"
 import { buildRenameTargetPath, parseMigrationPath } from "./paths"
+import type { PendingMigrationFile } from "./readMigration"
 
 export function applyMigrationEntries(
   initial: StructuralState,
@@ -31,6 +32,25 @@ export function applyMigrationEntries(
       [...nodes].flatMap(([path, node]) => (node.referencePath ? [[path, node.referencePath] as const] : [])),
     ),
   }
+}
+
+export function applyPendingMigrationFiles(initial: StructuralState, files: PendingMigrationFile[]): {
+  state: StructuralState
+  referencePathByCurrentPath: Map<string, string>
+  appliedFileNames: string[]
+} {
+  let current = initial
+  let referencePathByCurrentPath = new Map<string, string>()
+  const appliedFileNames: string[] = []
+
+  for (const file of files) {
+    const result = applyMigrationEntries(current, file.entries)
+    current = result.state
+    referencePathByCurrentPath = result.referencePathByCurrentPath
+    appliedFileNames.push(file.fileName)
+  }
+
+  return { state: current, referencePathByCurrentPath, appliedFileNames }
 }
 
 function cloneNodes(nodes: Map<string, StructuralNode>): Map<string, StructuralNode> {

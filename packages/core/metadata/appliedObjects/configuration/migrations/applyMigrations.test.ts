@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { applyMigrationEntries } from "./applyMigrations"
+import { applyMigrationEntries, applyPendingMigrationFiles } from "./applyMigrations"
 import type { MigrationEntry, StructuralKind, StructuralState } from "./types"
 
 function state(paths: string[]): StructuralState {
@@ -123,5 +123,27 @@ describe("applyMigrationEntries", () => {
         { path: "Справочник.Товары.Реквизит.Артикул", value: null },
       ] as unknown as MigrationEntry[]),
     ).toThrow('Некорректное значение миграции для "Справочник.Товары.Реквизит.Артикул"')
+  })
+})
+
+describe("applyPendingMigrationFiles", () => {
+  it("applies files in order and returns applied file names", () => {
+    const result = applyPendingMigrationFiles(state(["Справочник.Товары"]), [
+      {
+        fileName: "2026-05-05-143000.yaml",
+        entries: [{ path: "Справочник.Товары", value: "Номенклатура" }],
+      },
+      {
+        fileName: "2026-05-05-143001.yaml",
+        entries: [{ path: "Справочник.Номенклатура.Реквизит.Артикул", value: "Добавить" }],
+      },
+    ])
+
+    expect([...result.state.nodes.keys()].sort()).toEqual([
+      "Справочник.Номенклатура",
+      "Справочник.Номенклатура.Реквизит.Артикул",
+    ])
+    expect(result.referencePathByCurrentPath.get("Справочник.Номенклатура")).toBe("Справочник.Товары")
+    expect(result.appliedFileNames).toEqual(["2026-05-05-143000.yaml", "2026-05-05-143001.yaml"])
   })
 })
