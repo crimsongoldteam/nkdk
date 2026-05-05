@@ -1,3 +1,5 @@
+Инструкции Claude: [`.claude/CLAUDE.md`](.claude/CLAUDE.md).
+
 ## Общение
 
 - пиши ответы на русском языке
@@ -24,4 +26,4 @@
 
 ## Архитектура слоя `orchestration`
 
-Архитектурные инварианты слоя `packages/core/metadata/orchestration/` — см. [`architecture-orchestration.md`](architecture-orchestration.md). Перед изменениями в этом слое обязательно прочитать и при необходимости обновить.
+Архитектурные инварианты слоя `packages/core/metadata/orchestration/` — см. [`.claude/architecture-orchestration.md`](.claude/architecture-orchestration.md). Перед изменениями в этом слое обязательно прочитать и при необходимости обновить.
