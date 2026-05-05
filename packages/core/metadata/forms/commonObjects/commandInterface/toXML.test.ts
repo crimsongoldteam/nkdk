@@ -37,7 +37,7 @@ describe("exportCommandInterfaceToXML", () => {
   })
 
   it("export commandBarIndexInsertion", () => {
-    const expectedResult = readXMLFileAsString("commandBarIndexInsertion.xml", fixturesDir)
+    const expectedResult = readXMLFileAsString("commandBarIndexInsertion.xml", fixturesDir).trimEnd()
     const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, commandBarIndexInsertion)
 
     const result = xmlExport({ CommandInterface: xmlData }, false)
