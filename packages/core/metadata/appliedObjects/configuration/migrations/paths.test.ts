@@ -12,6 +12,26 @@ describe("migration paths", () => {
     })
   })
 
+  it("parses object attribute paths", () => {
+    expect(parseMigrationPath("Справочник.Товары.Реквизит.Артикул")).toEqual({
+      kind: "attribute",
+      segments: ["Справочник", "Товары", "Реквизит", "Артикул"],
+      localName: "Артикул",
+      ownerPath: "Справочник.Товары",
+      levelPath: "Справочник.Товары.Реквизит",
+    })
+  })
+
+  it("parses tabular section paths", () => {
+    expect(parseMigrationPath("Документ.Заказ.ТабличнаяЧасть.Товары")).toEqual({
+      kind: "tabularSection",
+      segments: ["Документ", "Заказ", "ТабличнаяЧасть", "Товары"],
+      localName: "Товары",
+      ownerPath: "Документ.Заказ",
+      levelPath: "Документ.Заказ.ТабличнаяЧасть",
+    })
+  })
+
   it("parses tabular section attribute paths", () => {
     expect(parseMigrationPath("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")).toMatchObject({
       kind: "attribute",
@@ -21,11 +41,37 @@ describe("migration paths", () => {
     })
   })
 
+  it("parses sequence dimension paths", () => {
+    expect(parseMigrationPath("Последовательность.Нумерация.Измерение.Организация")).toEqual({
+      kind: "dimension",
+      segments: ["Последовательность", "Нумерация", "Измерение", "Организация"],
+      localName: "Организация",
+      ownerPath: "Последовательность.Нумерация",
+      levelPath: "Последовательность.Нумерация.Измерение",
+    })
+  })
+
   it("builds rename target from local name", () => {
     expect(buildRenameTargetPath("Справочник.Товары.Реквизит.Артикул", "НовыйАртикул")).toBe(
       "Справочник.Товары.Реквизит.НовыйАртикул",
     )
     expect(buildRenameTargetPath("Справочник.Товары", "Номенклатура")).toBe("Справочник.Номенклатура")
+  })
+
+  it("rejects empty rename target local name", () => {
+    expect(() => buildRenameTargetPath("Справочник.Товары", "")).toThrow("Новое имя не должно быть пустым")
+  })
+
+  it("rejects rename target local name with dot", () => {
+    expect(() => buildRenameTargetPath("Справочник.Товары", "Новая.Группа")).toThrow(
+      "Новое имя не должно содержать точку",
+    )
+  })
+
+  it("rejects rename target matching current local name", () => {
+    expect(() => buildRenameTargetPath("Справочник.Товары", "Товары")).toThrow(
+      "Переименование в то же имя запрещено",
+    )
   })
 
   it("rejects unsupported segments", () => {
