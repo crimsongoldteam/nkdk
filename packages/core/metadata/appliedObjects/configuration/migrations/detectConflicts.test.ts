@@ -31,4 +31,11 @@ describe("detectMigrationConflicts", () => {
       },
     ])
   })
+
+  it("allows deletion and addition on different levels", () => {
+    expect(detectMigrationConflicts(
+      state(["Справочник.Товары.Реквизит.Артикул"]),
+      state(["Справочник.Товары.ТабличнаяЧасть.Состав"]),
+    )).toEqual([])
+  })
 })

@@ -62,27 +62,33 @@ function addModel(nodes: Map<string, StructuralNode>, rule: MetadataItemRule, na
   nodes.set(objectPath, { path: objectPath, kind: "object", name, referencePath: objectPath })
 
   for (const attr of asItems(model["attributes"])) {
-    const attrName = String(attr["name"])
+    const attrName = requireNodeName(attr, objectPath, "Реквизит")
     const path = `${objectPath}.Реквизит.${attrName}`
     nodes.set(path, { path, kind: "attribute", name: attrName, referencePath: path })
   }
 
   for (const section of asItems(model["tabularSections"])) {
-    const sectionName = String(section["name"])
+    const sectionName = requireNodeName(section, objectPath, "ТабличнаяЧасть")
     const sectionPath = `${objectPath}.ТабличнаяЧасть.${sectionName}`
     nodes.set(sectionPath, { path: sectionPath, kind: "tabularSection", name: sectionName, referencePath: sectionPath })
     for (const attr of asItems(section["attributes"])) {
-      const attrName = String(attr["name"])
+      const attrName = requireNodeName(attr, sectionPath, "Реквизит")
       const attrPath = `${sectionPath}.Реквизит.${attrName}`
       nodes.set(attrPath, { path: attrPath, kind: "attribute", name: attrName, referencePath: attrPath })
     }
   }
 
   for (const dim of asItems(model["dimensions"])) {
-    const dimName = String(dim["name"])
+    const dimName = requireNodeName(dim, objectPath, "Измерение")
     const path = `${objectPath}.Измерение.${dimName}`
     nodes.set(path, { path, kind: "dimension", name: dimName, referencePath: path })
   }
+}
+
+function requireNodeName(item: Record<string, unknown>, ownerPath: string, nodeType: string): string {
+  const name = item["name"]
+  if (typeof name === "string" && name.length > 0) return name
+  throw new Error(`Некорректное имя узла: владелец ${ownerPath}, тип ${nodeType}`)
 }
 
 function asItems(value: unknown): Array<Record<string, unknown>> {
