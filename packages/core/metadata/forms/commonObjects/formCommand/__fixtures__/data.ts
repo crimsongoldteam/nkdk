@@ -4,38 +4,38 @@ export const fullFormCommands: Omit<Required<FormCommand>, "id">[] = [
   {
     itemType: "FormCommand",
     name: "СоставКомплектаПодобратьФайлы",
-    title: { items: { ru: "Файлы" } },
-    toolTip: { items: { ru: "Состав комплекта подобрать файлы" } },
+    title: { items: { ru: "Заголовок" } },
+    toolTip: { items: { ru: "Подсказка" } },
     use: {
       common: true,
-      values: [{ name: "Администратор", value: true }],
+      values: [{ name: "Администратор", value: false }],
     },
-    shortcut: "Ctrl+F",
+    shortcut: "S",
     picture: {
-      ref: "Print",
+      ref: "Properties",
       type: "StandardPicture",
       loadTransparent: true,
       transparentPixel: undefined,
     },
-    action: "СоставКомплектаПодобратьФайлы",
+    action: "Действие",
     representation: "PictureAndText",
-    currentRowUse: "DontUse",
     modifiesSavedData: true,
+    currentRowUse: "DontUse",
     table: { type: "string" as const, value: "Таблица" },
   },
 ]
 
 export const fullFormCommandsYAML: FormCommandsYAML = {
   СоставКомплектаПодобратьФайлы: {
-    Заголовок: "Файлы",
-    Подсказка: "Состав комплекта подобрать файлы",
-    Действие: "СоставКомплектаПодобратьФайлы",
-    СочетаниеКлавиш: "Ctrl+F",
+    Заголовок: "Заголовок",
+    Подсказка: "Подсказка",
+    Действие: "Действие",
+    СочетаниеКлавиш: "S",
     ОтображениеКнопки: "КартинкаИТекст",
     ИзменяемыеДанные: "Истина",
-    Картинка: "Печать",
+    Картинка: "Свойства",
     ИспользованиеТекущейСтроки: "НеИспользует",
-    РазрешитьИспользование: { Администратор: "Истина" },
+    РазрешитьИспользование: { Администратор: "Ложь" },
     Таблица: "Таблица",
   },
 }
@@ -43,26 +43,28 @@ export const fullFormCommandsYAML: FormCommandsYAML = {
 export const minimalFormCommands: FormCommand[] = [
   {
     itemType: "FormCommand",
-    name: "СоставКомплектаПодобратьФайлы",
+    id: "2",
+    name: "ПоУмолчанию",
+    title: { items: { ru: "По умолчанию" } },
   },
 ]
 
 export const minimalFormCommandsFromXML: FormCommand[] = [
   {
     itemType: "FormCommand",
-    name: "СоставКомплектаПодобратьФайлы",
-    title: { items: { ru: "" } },
+    name: "ПоУмолчанию",
+    title: { items: { ru: "По умолчанию" } },
   },
 ]
 
 export const minimalFormCommandsImportedFromYAML: FormCommand[] = [
   {
     itemType: "FormCommand",
-    name: "СоставКомплектаПодобратьФайлы",
-    title: { items: { ru: "Состав комплекта подобрать файлы" } },
+    name: "ПоУмолчанию",
+    title: { items: { ru: "По умолчанию" } },
   },
 ]
 
 export const minimalFormCommandYAML: FormCommandsYAML = {
-  СоставКомплектаПодобратьФайлы: {},
+  ПоУмолчанию: {},
 }

@@ -6,7 +6,9 @@ import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/met
 import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { ButtonRepresentation, CurrentRowUse } from "~/metadata/systemEnumerations/types"
+import { importFormCommandsFromXML } from "./fromXML"
 import { FormCommandRules } from "./rules"
+import { exportFormCommandsToXML } from "./toXML"
 
 export type FormCommand = FormTypeByRule<typeof FormCommandRules>
 
@@ -21,7 +23,7 @@ export interface FormCommandXML {
   Shortcut?: string
   Picture?: PictureXML
   Action?: string
-  Representation?: ButtonRepresentation
+  Representation?: ButtonRepresentation | "TextPicture"
   ModifiesSavedData?: boolean
   CurrentRowUse?: CurrentRowUse
   AssociatedTableElementId?: MetadataPrimitiveValueXML
@@ -38,4 +40,6 @@ registerMetadataItemCollectionRule({
   itemRule: FormCommandRules,
   xmlElement: "Command",
   keyField: "name",
+  fromXML: importFormCommandsFromXML,
+  toXML: exportFormCommandsToXML,
 })
