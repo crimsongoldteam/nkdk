@@ -4,7 +4,7 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
-const dynamicListFormAttributeQuery =
+export const dynamicListFormAttributeQuery =
   'MATCH (s {id: $scope})-[:FORM_ATTRIBUTE]->(a:FormAttribute) WHERE "DynamicList" IN a.p_type_type RETURN a.name AS name'
 
 export const TableRules = {

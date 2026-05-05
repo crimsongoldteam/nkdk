@@ -61,6 +61,37 @@ describe("exportToXML", () => {
 
       expect(result).toEqual(expectedResult)
     })
+
+    it("экспортирует Period и TopLevelParent для таблицы DynamicList без внешнего CypherCache", () => {
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: {
+          ...minimalClientApplicationForm,
+          attributes: [
+            {
+              itemType: "FormAttribute",
+              name: "Список",
+              type: { type: ["DynamicList"] },
+              columns: [],
+            },
+          ],
+          childItems: [
+            {
+              itemType: "Table",
+              name: "Список",
+              dataPath: "Список",
+              id: undefined,
+            },
+          ],
+        },
+        referenceForm: undefined,
+      })
+
+      const table = xmlData.ChildItems?.[0]?.Table
+
+      expect(table?.Period).toBeDefined()
+      expect(table?.TopLevelParent).toBeDefined()
+    })
   })
 
   describe("exportFormMetadataToXML", () => {
