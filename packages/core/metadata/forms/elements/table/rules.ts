@@ -4,6 +4,9 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
+const dynamicListFormAttributeQuery =
+  'MATCH (s {id: $scope})-[:FORM_ATTRIBUTE]->(a:FormAttribute) WHERE "DynamicList" IN a.p_type_type RETURN a.name AS name'
+
 export const TableRules = {
   itemType: "Table",
   enterpriseField: "FormTable",
@@ -264,7 +267,7 @@ export const TableRules = {
         "v8:endDate": "0001-01-01T00:00:00",
       },
       toXML: cypherPredicate({
-        query: "MATCH (s {id: $scope})-[:ATTRIBUTE]->(a:FormAttribute)-[:VALUE_TYPE]->(:Type {name: 'DynamicList'}) RETURN a.name AS name",
+        query: dynamicListFormAttributeQuery,
         test: (el: any, rows: Record<string, unknown>[]) =>
           rows.some((r) => r.name === el?.dataPath?.split(".")[0]),
       }),
@@ -277,7 +280,7 @@ export const TableRules = {
       fromYAML: false,
       defaultValueXMLRaw: { "_xsi:nil": "true" },
       toXML: cypherPredicate({
-        query: "MATCH (s {id: $scope})-[:ATTRIBUTE]->(a:FormAttribute)-[:VALUE_TYPE]->(:Type {name: 'DynamicList'}) RETURN a.name AS name",
+        query: dynamicListFormAttributeQuery,
         test: (el: any, rows: Record<string, unknown>[]) =>
           rows.some((r) => r.name === el?.dataPath?.split(".")[0]),
       }),
