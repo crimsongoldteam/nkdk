@@ -1,0 +1,57 @@
+<Button name="ОбычнаяКнопка" id="1" DisplayImportance="VeryHigh">
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<BackColor>web:Red</BackColor>
+	<BorderColor>web:Green</BorderColor>
+	<Check>true</Check>
+	<CommandName>Form.Command.КакаяТоКоманда</CommandName>
+	<CommandUniqueness>false</CommandUniqueness>
+	<DefaultButton>true</DefaultButton>
+	<DefaultItem>true</DefaultItem>
+	<Enabled>false</Enabled>
+	<ExtendedTooltip name="ОбычнаяКнопкаРасширеннаяПодсказка" id="2">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<Font ref="style:LargeTextFont" kind="StyleItem"/>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<Height>5</Height>
+	<HorizontalStretch>true</HorizontalStretch>
+	<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+	<MaxHeight>2</MaxHeight>
+	<MaxWidth>1</MaxWidth>
+	<OnlyInAllActions>true</OnlyInAllActions>
+	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+	<Picture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</Picture>
+	<PictureLocation>Left</PictureLocation>
+	<Representation>PictureAndText</Representation>
+	<RepresentationInContextMenu>AdditionalInContextMenu</RepresentationInContextMenu>
+	<Shape>Oval</Shape>
+	<ShapeRepresentation>Always</ShapeRepresentation>
+	<SkipOnInput>true</SkipOnInput>
+	<TextColor>web:Blue</TextColor>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок кнопки</v8:content>
+		</v8:item>
+	</Title>
+	<TitleHeight>3</TitleHeight>
+	<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+	<Type>UsualButton</Type>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<VerticalStretch>true</VerticalStretch>
+	<Visible>false</Visible>
+	<Width>10</Width>
+</Button>

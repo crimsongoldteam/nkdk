@@ -1,7 +1,0 @@
-<dcscor:value xsi:type="dcscor:ChoiceParameterLinks">
-	<dcscor:item>
-		<dcscor:choiceParameter>Отбор.ИмяПредопределенныхДанных</dcscor:choiceParameter>
-		<dcscor:value>Объект.PredefinedDataName</dcscor:value>
-		<dcscor:mode xsi:type="ent:LinkedValueChangeMode">Clear</dcscor:mode>
-	</dcscor:item>
-</dcscor:value>

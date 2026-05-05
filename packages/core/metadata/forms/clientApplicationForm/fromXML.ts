@@ -25,7 +25,7 @@ export function importClientApplicationFormFromXML(params: {
   })
 
   const result: ClientApplicationForm = {
-    itemType: ClientApplicationFormRules.itemType,
+    itemType: "ClientApplicationForm",
     ...formProperties,
     ...metadataProperties,
     childItems: formProperties.childItems ?? [],

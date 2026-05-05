@@ -266,19 +266,6 @@ export const withEmptySettingsFormAttributeYAML: FormAttributesYAML = {
 }
 //#endregion
 
-//#region WithoutType
-
-export const withoutTypeFormAttribute: FormAttributes = [
-  {
-    name: "СтруктураБыстрогоОтбора",
-    title: { items: { ru: "Структура быстрого отбора" } },
-    itemType: "FormAttribute",
-    columns: [],
-  },
-]
-
-//#endregion
-
 //#region WithDynamicList
 // export const withDynamicListFormAttribute: FormAttributes = [
 //   {

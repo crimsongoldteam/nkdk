@@ -1,0 +1,69 @@
+<StandardAttributes>
+	<xr:StandardAttribute name="PredefinedDataName">
+		<xr:ChoiceForm>ФормаВыбора</xr:ChoiceForm>
+		<xr:ChoiceHistoryOnInput>DontUse</xr:ChoiceHistoryOnInput>
+		<xr:ChoiceParameterLinks>
+			<xr:Link>
+				<xr:Name>Отбор.Владелец2</xr:Name>
+				<xr:DataPath xsi:type="xs:string">Catalog.Справочник2.Attribute.Реквизит2</xr:DataPath>
+				<xr:ValueChange>Clear</xr:ValueChange>
+			</xr:Link>
+		</xr:ChoiceParameterLinks>
+		<xr:ChoiceParameters>
+			<app:item name="Отбор.Владелец">
+				<app:value xsi:type="xs:string">Значение</app:value>
+			</app:item>
+		</xr:ChoiceParameters>
+		<xr:Comment>Какой-то комментарий</xr:Comment>
+		<xr:CreateOnInput>Use</xr:CreateOnInput>
+		<xr:DataHistory>DontUse</xr:DataHistory>
+		<xr:EditFormat>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Формат редактирования</v8:content>
+			</v8:item>
+		</xr:EditFormat>
+		<xr:ExtendedEdit>true</xr:ExtendedEdit>
+		<xr:FillChecking>ShowError</xr:FillChecking>
+		<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
+		<xr:FillValue xsi:type="xs:string">Текстовое значение</xr:FillValue>
+		<xr:Format>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Формат</v8:content>
+			</v8:item>
+		</xr:Format>
+		<xr:FullTextSearch>DontUse</xr:FullTextSearch>
+		<xr:LinkByType>
+			<xr:DataPath>Catalog.КакойТоСправочник.Attribute.КакойТоРеквизит</xr:DataPath>
+			<xr:LinkItem>0</xr:LinkItem>
+		</xr:LinkByType>
+		<xr:MarkNegatives>true</xr:MarkNegatives>
+		<xr:Mask>999</xr:Mask>
+		<xr:MaxValue>100</xr:MaxValue>
+		<xr:MinValue>0</xr:MinValue>
+		<xr:MultiLine>true</xr:MultiLine>
+		<xr:PasswordMode>true</xr:PasswordMode>
+		<xr:QuickChoice>DontUse</xr:QuickChoice>
+		<xr:Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Какой-то синоним</v8:content>
+			</v8:item>
+		</xr:Synonym>
+		<xr:ToolTip>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка для поля</v8:content>
+			</v8:item>
+		</xr:ToolTip>
+		<xr:Type>
+			<v8:Type>xs:string</v8:Type>
+			<v8:StringQualifiers>
+				<v8:Length>10</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+		</xr:Type>
+		<xr:TypeReductionMode>Deny</xr:TypeReductionMode>
+	</xr:StandardAttribute>
+</StandardAttributes>

@@ -25,4 +25,4 @@ export const importIndexFieldsFromYAML = (
     .filter((item): item is IndexField => item !== undefined)
 }
 
-registerTypeRule("IndexField", "importFromYAML", importIndexFieldsFromYAML)
+registerTypeRule("IndexField", "importFromYAML", importIndexFieldFromYAML)

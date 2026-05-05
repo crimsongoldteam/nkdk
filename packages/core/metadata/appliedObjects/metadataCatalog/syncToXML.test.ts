@@ -1,26 +1,34 @@
-import { describe, expect, it } from "vitest"
-import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
-import { MetadataCatalogRules } from "./rules"
+import fs from "fs"
+import { join } from "path"
+import { beforeEach, describe, expect, it } from "vitest"
+import { mockContextToXML } from "~/tests/mockContext"
+import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { syncCatalogToXML } from "./syncToXML"
 
-describe("syncAppliedObjectToXML — MetadataCatalog", () => {
-  it("читает Catalog из YAML и записывает XML в outputDir", async () => {
-    const { comparisons } = await testSyncAppliedObjectToXML({
-      rule: MetadataCatalogRules,
-      name: "СправочникCоВсемиОбъектами",
-      importMetaUrl: import.meta.url,
-      expectedFiles: [
-        "СправочникCоВсемиОбъектами.xml",
-        "Ext/Predefined.xml",
-        "Ext/AdditionalIndexes.xml",
-        "Ext/ObjectModule.bsl",
-        "Ext/ManagerModule.bsl",
-        "Ext/Help.xml",
-        "Ext/Help/ru.html",
-        "Commands/КомандаОбъекта/Ext/CommandModule.bsl",
-      ],
-    })
-    for (const { path, result, expected } of comparisons) {
-      expect(result, path).toBe(expected)
+describe("sync MetadataCatalog to XML", () => {
+  const inputDir = getXMLFixturePath("sync/syncCatalog/nkdk")
+  const referenceDir = getXMLFixturePath("sync/syncCatalog/xml")
+  const outputDir = getXMLFixturePath("sync/syncCatalog/out")
+  const catalogName = "Контрагенты"
+
+  beforeEach(() => {
+    if (fs.existsSync(outputDir)) {
+      fs.rmSync(outputDir, { recursive: true })
     }
+  })
+
+  it("should read catalog from YAML and export to XML file in output dir", async () => {
+    await syncCatalogToXML({
+      context: mockContextToXML(),
+      inputDir,
+      outputDir,
+      referenceDir,
+      catalogName,
+    })
+
+    const expectedMetadataXML = readXMLFileAsString(join("sync/syncCatalog/xml", `${catalogName}.xml`))
+    const resultMetadataXML = readXMLFileAsString(join("sync/syncCatalog/out", `${catalogName}.xml`))
+
+    expect(resultMetadataXML).toBe(expectedMetadataXML)
   })
 })

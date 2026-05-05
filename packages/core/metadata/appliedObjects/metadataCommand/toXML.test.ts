@@ -1,39 +1,41 @@
-import { describe, expect, it } from "vitest"
-import { fullMetadataCommandsFromXML, minimalMetadataCommandsFromXML } from "./__fixtures__/data"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { describe, expect, it, vi } from "vitest"
+import { defaultMetadataCommands, fullMetadataCommands } from "~/tests/fixtures/metadataCommand/data"
+import { mockContextToXML } from "~/tests/mockContext"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { xmlExport } from "~/xml/export/exporter"
+import { exportMetadataCommandsToXML } from "./toXML"
 
-const rule = { type: "MetadataCommands", xml: "Command" } as const
+vi.mock("uuid", () => ({
+  v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
+}))
 
-describe("export MetadataCommands to XML", () => {
-  it("should export full (round-trip)", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
-      rule,
-      value: fullMetadataCommandsFromXML,
-      xmlRootTag: "Command",
-      path: "full.xml",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(expectedResult)
+describe("exportMetadataCommandsToXML", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = exportMetadataCommandsToXML(mockContextToXML(), { type: "MetadataCommands" }, undefined)
+
+    expect(result).toBeUndefined()
   })
 
-  it("should export minimal (round-trip)", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
-      rule,
-      value: minimalMetadataCommandsFromXML,
-      xmlRootTag: "Command",
-      path: "minimal.xml",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(expectedResult)
+  it("should export metadata command with all fields to XML", () => {
+    const expectedResult = readXMLFileAsString("metadataCommand/full.xml")
+    const result = exportMetadataCommandsToXML(mockContextToXML(), { type: "MetadataCommands" }, fullMetadataCommands)
+
+    const xmlString = xmlExport({ Command: result }, false)
+
+    expect(xmlString).toEqual(expectedResult)
   })
 
-  it("should export empty string when data is undefined", () => {
-    const { result } = testExportPropertyToXML({
-      rule,
-      value: undefined,
-      xmlRootTag: "Command",
-      referenceMetadata: undefined,
-    })
-    expect(result).toEqual("")
+  it("should export defaults nodes to XML", () => {
+    const expectedResult = readXMLFileAsString("metadataCommand/defaults.xml")
+
+    const result = exportMetadataCommandsToXML(
+      mockContextToXML(),
+      { type: "MetadataCommands" },
+      defaultMetadataCommands
+    )
+
+    const xmlString = xmlExport({ Command: result }, false)
+
+    expect(xmlString).toEqual(expectedResult)
   })
 })

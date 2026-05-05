@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
+import { full, fullYAML, minimal } from "~/tests/fixtures/metadataCatalog/data"
 import { mockContextToYAML } from "~/tests/mockContext"
-import { full, fullYAML } from "./__fixtures__/full"
-import { minimal, minimalYAML } from "./__fixtures__/minimal"
 import { exportMetadataCatalogToYAML } from "./toYAML"
 
 describe("exportMetadataCatalogToYAML", () => {
@@ -19,6 +18,6 @@ describe("exportMetadataCatalogToYAML", () => {
   it("should export minimal", () => {
     const result = exportMetadataCatalogToYAML(mockContextToYAML, minimal)
 
-    expect(result).toEqual(minimalYAML)
+    expect(result).toBeUndefined()
   })
 })

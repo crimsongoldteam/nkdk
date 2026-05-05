@@ -1,9 +1,8 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { readExternalFile } from "~/metadata/forms/commonObjects/dynamicList/externalFile"
 import { MetadataItemType, ToMetadata, ToYAML } from "~/metadata/orchestration/metadataItem/registry"
 import { getTypeRule } from "../formElement/factory"
-import { importFromYAMLFunction, ImportFromYAMLFunctionNew } from "./fn"
-import { getValueOrDefault, shouldProcessProperty } from "./helpers"
+import { importFromYAMLFunction, importFromYAMLFunctionNew } from "./fn"
+import { getValueOrDefault } from "./helpers"
 import { MetadataItemRule, PropertyRule } from "./types"
 
 export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: {
@@ -24,6 +23,7 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
     context,
     yaml,
     metadataRule,
+    result,
     name,
   })
 
@@ -31,40 +31,10 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
     return shortFormatResult
   }
 
-  // Предварительный проход: читаем внешние файлы для свойств с опцией externalFile
-  const externalFileValues: Record<string, string | undefined> = {}
-  const formDir = context.importFromYAML?.formDir
-  const parentName = context.importFromYAML?.parent?.name
-  if (formDir !== undefined && parentName !== undefined) {
-    for (const [key, propertyRule] of Object.entries(metadataRule.properties)) {
-      if (!("externalFile" in propertyRule) || !propertyRule.externalFile) continue
-      const content = readExternalFile(propertyRule.externalFile, parentName, formDir)
-      externalFileValues[key] = content
-      if (content !== undefined) {
-        result[key as keyof ToMetadata<Rule["itemType"]>] = content as any
-      }
-    }
-  }
-
   for (const [key, curRule] of Object.entries(metadataRule.properties) as [
     keyof ToMetadata<Rule["itemType"]>,
     PropertyRule,
   ][]) {
-    if (!shouldProcessProperty({ rule: curRule, operation: "importFromYAML" })) continue
-
-    // Свойства с externalFile уже обработаны в предварительном проходе
-    if ("externalFile" in curRule && curRule.externalFile) continue
-
-    // Свойства с derivedFrom: вычисляем значение из наличия внешнего файла
-    if ("derivedFrom" in curRule && (curRule as any).derivedFrom?.externalFile) {
-      const referencedKey = (curRule as any).derivedFrom.externalFile as string
-      if (referencedKey in externalFileValues) {
-        result[key] = (externalFileValues[referencedKey] !== undefined) as any
-        continue
-      }
-      // Если externalFileValues не заполнен (нет formDir) — fallthrough к обычной обработке
-    }
-
     const yamlKey = curRule.yaml as keyof ToYAML<Rule["itemType"]>
     // if (yamlKey === undefined) continue
     if (curRule.fromYAML === false) continue
@@ -113,7 +83,7 @@ export const importPropertyFromYAML = (params: {
   }
 
   if (typeimportFn.length === 1) {
-    const importedValue = (typeimportFn as ImportFromYAMLFunctionNew)({
+    const importedValue = (typeimportFn as importFromYAMLFunctionNew)({
       context,
       rule,
       value,
@@ -124,7 +94,7 @@ export const importPropertyFromYAML = (params: {
     return getValueOrDefault({
       context,
       rule,
-      value: rule.type === "MetadataDcsMetadataValue" && importedValue === null ? null : (importedValue ?? sourceValue),
+      value: importedValue ?? sourceValue,
       name,
       operation: "importFromYAML",
     })
@@ -135,7 +105,7 @@ export const importPropertyFromYAML = (params: {
   return getValueOrDefault({
     context,
     rule,
-    value: rule.type === "MetadataDcsMetadataValue" && result === null ? null : (result ?? sourceValue),
+    value: result ?? sourceValue,
     name,
     operation: "importFromYAML",
   })
@@ -145,9 +115,10 @@ function handleShortFormatYAML<Type extends MetadataItemType>(params: {
   context: ConfigurationContext
   yaml: ToYAML<Type> | undefined
   metadataRule: MetadataItemRule
+  result: ToMetadata<Type>
   name?: string
 }): ToMetadata<Type> | undefined {
-  const { context, yaml, metadataRule: metadataRule, name } = params
+  const { context, yaml, metadataRule: metadataRule, result, name } = params
 
   if (typeof yaml !== "string") {
     return undefined
@@ -174,7 +145,7 @@ function handleShortFormatYAML<Type extends MetadataItemType>(params: {
   })
 
   const source = {
-    itemType: metadataRule.itemType as Type,
+    itemType: result.itemType,
     [propertyKey]: importedValue,
   } as ToMetadata<Type>
 

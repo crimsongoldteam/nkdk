@@ -37,11 +37,7 @@ export const exportI8nTextToXML = (
     v8Items.push({ "v8:lang": lang, "v8:content": content })
   })
 
-  const base: I8nTextXML = { "v8:item": v8Items }
-  if (narrowRule.typedXML) {
-    return { "_xsi:type": "v8:LocalStringType", ...base }
-  }
-  return base
+  return { "v8:item": v8Items }
 }
 
 registerTypeRule("I8nText", "exportToXML", exportI8nTextToXML)

@@ -1,0 +1,16 @@
+<Command uuid="11111111-1111-4111-8111-111111111111">
+	<Properties>
+		<Group>NavigationPanelImportant</Group>
+		<ModifiesData>false</ModifiesData>
+		<Name>Глоссарий</Name>
+		<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
+		<ParameterUseMode>Single</ParameterUseMode>
+		<Representation>Auto</Representation>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Глоссарий</v8:content>
+			</v8:item>
+		</Synonym>
+	</Properties>
+</Command>

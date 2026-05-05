@@ -1,8 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { dynamicListFormAttributeQuery } from "~/metadata/forms/elements/table/rules"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
-import { CypherCache } from "~/metadata/orchestration/property/cypherCache"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 
@@ -12,7 +10,6 @@ export const exportClientApplicationFormToXML = (params: {
   referenceForm: ClientApplicationForm | undefined
 }): ClientApplicationFormXML => {
   const { context, form, referenceForm } = params
-  ensureDynamicListCypherCache(context, form)
 
   const properties = exportPropertiesToXML({
     context,
@@ -47,27 +44,6 @@ export const exportClientApplicationFormToXML = (params: {
   }
 
   return result
-}
-
-const ensureDynamicListCypherCache = (
-  context: ConfigurationContextWithExportToXML,
-  form: ClientApplicationForm
-): void => {
-  const existingCache = context.exportToXML.cypherCache
-  if (existingCache?.get(dynamicListFormAttributeQuery) !== undefined) return
-
-  const cache = existingCache ?? new CypherCache()
-  const rows = (form.attributes ?? [])
-    .filter(
-      (attr) =>
-        attr.itemType === "FormAttribute" &&
-        Array.isArray(attr.type?.type) &&
-        attr.type.type.includes("DynamicList")
-    )
-    .map((attr) => ({ name: attr.name }))
-
-  cache.set(dynamicListFormAttributeQuery, rows)
-  context.exportToXML.cypherCache = cache
 }
 
 export const setIdsToElements = (context: ConfigurationContextWithExportToXML): void => {

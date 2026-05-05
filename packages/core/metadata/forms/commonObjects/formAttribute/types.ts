@@ -22,13 +22,54 @@ export interface FormAttributeAdditionalColumn {
 
 export type FormAttribute = FormTypeByRule<typeof FormAttributeRules>
 
+// export interface FormAttribute extends MetadataItem {
+//   itemType: "FormAttribute"
+//   name: string
+//   title?: I8nText
+//   type?: TypeDescription
+//   columns: FormAttributeColumns
+//   valueType?: TypeDescription
+//   mainAttribute?: boolean
+//   storedData?: boolean
+//   view?: UserVisible
+//   edit?: UserVisible
+//   fillCheck?: FillChecking
+//   settings?: TypeDescription | DynamicList
+//   functionalOptions?: FunctionalOptions
+//   fieldsList?: FieldsList
+//   save?: FieldsList
+// }
+
 export type FormAttributeColumn = FormTypeByRule<typeof FormAttributeColumnRules>
+
+// export interface FormAttributeColumn extends MetadataItem {
+//   itemType: "FormAttributeColumn"
+//   name: string
+//   title?: I8nText
+//   type?: TypeDescription
+//   view?: UserVisible
+//   edit?: UserVisible
+//   fillCheck?: FillChecking
+//   functionalOptions?: FunctionalOptions
+// }
 
 export interface FormAttributeAdditionalColumns {
   table: string
   columns: FormAttributeColumn[]
 }
 export type FormAttributeColumns = FormAttributeColumn[] | FormAttributeAdditionalColumns[]
+
+// export interface FormAttributeAdditionalColumn extends MetadataItem {
+//   itemType: "FormAttributeAdditionalColumn"
+//   name: string
+//   // table: string
+//   title?: I8nText
+//   type?: TypeDescription
+//   view?: UserVisible
+//   edit?: UserVisible
+//   fillCheck?: FillChecking
+//   functionalOptions?: FunctionalOptions
+// }
 
 interface SettingsTypeDescriptionXML extends TypeDescriptionXML {
   "_xsi:type": "v8:TypeDescription"

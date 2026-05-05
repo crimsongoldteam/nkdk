@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   checkBoxFieldContentStructureFixturesTable,
   checkBoxFieldStructureFixturesTable,
-} from "~/metadata/forms/elements/checkBoxField/__fixtures__/data"
+} from "~/tests/fixtures/forms/checkBoxField/data"
 import { mockContext } from "~/tests/mockContext"
 import { exportCheckBoxFieldContentToNKDK, exportCheckBoxFieldToNKDK } from "./toNKDK"
 

@@ -124,7 +124,4 @@ import "./viewStatusAddition/rules"
 import "./viewStatusAddition/types"
 
 import "../clientApplicationForm/toNKDK"
-import "./baseElement/toNKDK"
-import "./graphFromModel"
-import "../commonObjects/dataPath/graphFromModel"
-import "../commonObjects/associatedTable/graphFromModel"
+import "./baseElement/exportToStructure"

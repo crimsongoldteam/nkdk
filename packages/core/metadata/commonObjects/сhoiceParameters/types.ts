@@ -16,7 +16,7 @@ export type ChoiceParameters = ChoiceParameter[]
 
 export interface ChoiceParameterXML {
   _name: string
-  "app:value"?: MetadataValueXML<{ type: "MetadataValue" }, MetadataValue>
+  "app:value": MetadataValueXML
 }
 
 export interface ChoiceParametersXML {
@@ -25,32 +25,14 @@ export interface ChoiceParametersXML {
 
 //#endregion
 
-//#region ChoiceParameter DCS (dcscor)
-
-/** Один `dcscor:item` внутри `dcscor:value xsi:type="dcscor:ChoiceParameters"`. */
-export interface ChoiceParameterDcsItemXML {
-  "dcscor:choiceParameter": string | { "#text"?: string }
-  /** Сериализованное значение метаданных (`exportMetadataValueToXML`). */
-  "dcscor:value"?: unknown
-}
-
-/** Корень фрагмента для `xmlExport`: узел `dcscor:value` с типом ChoiceParameters. */
-export interface ChoiceParameterDcsValueRootXML {
-  "dcscor:value": {
-    "_xsi:type": "dcscor:ChoiceParameters"
-    "dcscor:item": ChoiceParameterDcsItemXML | ChoiceParameterDcsItemXML[]
-  }
-}
-
-//#endregion
-
 //#region ChoiceParametersYAML
+
+export type ChoiceParameterYAML = string
 
 export const ChoiceParametersJSONSchema = Type.Record(
   Type.String(),
   Type.Union([MetadataValueJSONSchema, Type.Undefined()])
 )
-
 export type ChoiceParametersYAML = Static<typeof ChoiceParametersJSONSchema>
 
 //#endregion

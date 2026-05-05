@@ -1,0 +1,46 @@
+<ColumnGroup name="ГруппаКолонок" id="1">
+	<EnableContentChange>true</EnableContentChange>
+	<Enabled>true</Enabled>
+	<ExtendedTooltip name="ГруппаКолонокРасширеннаяПодсказка" id="2"/>
+	<FixingInTable>None</FixingInTable>
+	<Group>Horizontal</Group>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<HeaderDataPath>Объект.Реквизит</HeaderDataPath>
+	<HeaderFormat>Формат</HeaderFormat>
+	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
+	<Height>200</Height>
+	<HorizontalStretch>true</HorizontalStretch>
+	<ReadOnly>false</ReadOnly>
+	<Shortcut>Ctrl+S</Shortcut>
+	<ShowInHeader>true</ShowInHeader>
+	<ShowTitle>true</ShowTitle>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Группа колонок</v8:content>
+		</v8:item>
+	</Title>
+	<TitleBackColor>web:Blue</TitleBackColor>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleTextColor>web:Black</TitleTextColor>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<Type>UsualGroup</Type>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<VerticalStretch>true</VerticalStretch>
+	<Visible>true</Visible>
+	<Width>300</Width>
+</ColumnGroup>

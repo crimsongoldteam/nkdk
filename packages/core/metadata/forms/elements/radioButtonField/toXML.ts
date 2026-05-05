@@ -1,14 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { exportElementToXML } from "~/metadata/orchestration"
-import { fullRadioButtonField, minimalRadioButtonField } from "~/metadata/forms/elements/radioButtonField/__fixtures__/data"
+import { fullRadioButtonField, minimalRadioButtonField } from "~/tests/fixtures/forms/radioButtonField/data"
 import { mockContextToXML } from "~/tests/mockContext"
-
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
 
 describe("exportRadioButtonFieldToXML", () => {
   it("should export all fields to XML", () => {
-    const expectedResult = readXMLFixtureAsString(import.meta.url, "full.xml")
+    const expectedResult = readXMLFileAsString("forms/radioButtonField/full.xml")
     const xmlData = exportElementToXML({ context: mockContextToXML(), element: fullRadioButtonField })
 
     const result = xmlExport({ RadioButtonField: xmlData }, false)
@@ -17,7 +16,7 @@ describe("exportRadioButtonFieldToXML", () => {
   })
 
   it("should export minimal", () => {
-    const expectedResult = readXMLFixtureAsString(import.meta.url, "minimal.xml")
+    const expectedResult = readXMLFileAsString("forms/radioButtonField/minimal.xml")
     const xmlData = exportElementToXML({ context: mockContextToXML(), element: minimalRadioButtonField })
 
     const result = xmlExport({ RadioButtonField: xmlData }, false)

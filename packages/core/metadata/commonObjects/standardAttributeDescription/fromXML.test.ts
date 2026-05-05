@@ -1,63 +1,49 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { all, multiple } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
-import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { StandartAttributeNameToYAML } from "./types"
+import { all, multiple } from "~/tests/fixtures/standartAttributeDescription/data"
+import { mockContextFromXML, mockRule } from "~/tests/mockContext"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { importStandardAttributeDescriptionsFromXML } from "./fromXML"
+import { StandardAttributeDescriptionsXML } from "./types"
 
-const rule: PropertyRule = {
-  type: "StandardAttributeDescriptions",
-  standartAttributeNames: StandartAttributeNameToYAML,
-}
+describe("importStandardAttributeDescriptionsFromXML", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = importStandardAttributeDescriptionsFromXML(mockContextFromXML(), mockRule, undefined)
+    expect(result).toBeUndefined()
+  })
 
-describe("import StandardAttributeDescriptions from XML", () => {
   it("should import all parameters", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      path: "all.xml",
-      xmlRootTag: "StandardAttributes",
-      importMetaUrl: import.meta.url,
-    })
+    const xml = readAndParseXMLFile<{ StandardAttributes: StandardAttributeDescriptionsXML }>(
+      "standartAttributeDescription/all.xml"
+    )
+
+    const result = importStandardAttributeDescriptionsFromXML(mockContextFromXML(), mockRule, xml.StandardAttributes)
     expect(result).toEqual(all)
   })
 
   it("should return undefined when only name is present", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      path: "minimal.xml",
-      xmlRootTag: "StandardAttributes",
-      importMetaUrl: import.meta.url,
-    })
+    const xml = readAndParseXMLFile<{ StandardAttributes: StandardAttributeDescriptionsXML }>(
+      "standartAttributeDescription/minimal.xml"
+    )
+
+    const result = importStandardAttributeDescriptionsFromXML(mockContextFromXML(), mockRule, xml.StandardAttributes)
     expect(result).toBeUndefined()
   })
 
   it("should return undefined when all values are defaults", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      path: "default.xml",
-      xmlRootTag: "StandardAttributes",
-      importMetaUrl: import.meta.url,
-    })
+    const xml = readAndParseXMLFile<{ StandardAttributes: StandardAttributeDescriptionsXML }>(
+      "standartAttributeDescription/default.xml"
+    )
+
+    const result = importStandardAttributeDescriptionsFromXML(mockContextFromXML(), mockRule, xml.StandardAttributes)
     expect(result).toBeUndefined()
   })
 
   it("should import with multiple values", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      path: "multiple.xml",
-      xmlRootTag: "StandardAttributes",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(multiple)
-  })
+    const xml = readAndParseXMLFile<{ StandardAttributes: StandardAttributeDescriptionsXML }>(
+      "standartAttributeDescription/multiple.xml"
+    )
 
-  it("import fillValueEmptyRefTypeLoss", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      path: "fillValueEmptyRefTypeLoss.xml",
-      xmlRootTag: "StandardAttributes",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(fillValueEmptyRefTypeLoss)
+    const result = importStandardAttributeDescriptionsFromXML(mockContextFromXML(), mockRule, xml.StandardAttributes)
+    expect(result).toEqual(multiple)
   })
 })

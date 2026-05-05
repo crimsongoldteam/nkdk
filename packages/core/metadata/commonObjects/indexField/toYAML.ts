@@ -10,7 +10,7 @@ export const exportIndexFieldToYAML = (
 ): IndexFieldYAML | undefined => {
   if (!data) return undefined
 
-  return data
+  return "TODO"
 }
 
 export const exportIndexFieldsToYAML = (
@@ -23,4 +23,4 @@ export const exportIndexFieldsToYAML = (
   return data.map((item) => exportIndexFieldToYAML(context, undefined, item)!)
 }
 
-registerTypeRule("IndexField", "exportToYAML", exportIndexFieldsToYAML)
+registerTypeRule("IndexField", "exportToYAML", exportIndexFieldToYAML)

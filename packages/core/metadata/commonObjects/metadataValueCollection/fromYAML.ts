@@ -1,8 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { importMetadataValueFromYAML } from "../metadataValue/fromYAML"
-import { MetadataRefValue } from "../metadataValue/types"
+import { importMetadataRefFromYAML } from "../metadataValue/fromYAML"
 import { MetadataValueCollection, MetadataValueCollectionYAML } from "./types"
 
 export const importMetadataValueCollectionFromYAML = (
@@ -13,8 +12,8 @@ export const importMetadataValueCollectionFromYAML = (
   if (!data || data.length === 0) return undefined
 
   return data.map((item) => {
-    const metadataValue = importMetadataValueFromYAML(context, undefined, item) as MetadataRefValue
-    return metadataValue.value
+    const metadataValue = importMetadataRefFromYAML(context, undefined, item)
+    return metadataValue.value as string
   })
 }
 

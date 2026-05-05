@@ -8,33 +8,43 @@ import {
   shortMultilanguageMetadataAttributeYAML,
   skipSynonymFromMetadataAttribute,
   skipSynonymFromMetadataAttributeYAML,
-} from "./__fixtures__/data"
-import { mockContext } from "~/tests/mockContext"
-import { exportMetadataAttributesToYAML } from "./register"
+} from "~/tests/fixtures/metadataAttribute/data"
+import { mockContextToYAML, mockRule } from "~/tests/mockContext"
+import { exportMetadataAttributesToYAML } from "./toYAML"
 
-describe("export MetadataAttributes to YAML", () => {
+describe("exportMetadataAttributeToYAML", () => {
   it("should export undefined when data is undefined", () => {
-    const result = exportMetadataAttributesToYAML(mockContext, undefined, undefined)
+    const result = exportMetadataAttributesToYAML(mockContextToYAML, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
   it("should export full", () => {
-    const result = exportMetadataAttributesToYAML(mockContext, undefined, fullMetadataAttributes)
+    const result = exportMetadataAttributesToYAML(mockContextToYAML, mockRule, fullMetadataAttributes)
+
     expect(result).toEqual(fullMetadataAttributesYAML)
   })
 
+  // it("should export minimal", () => {
+  //   const result = exportMetadataAttributesToYAML(mockContext, mockRule, minimal)
+
+  //   expect(result).toEqual(minimalYAML)
+  // })
+
   it("should export with short format", () => {
-    const result = exportMetadataAttributesToYAML(mockContext, undefined, shortMetadataAttribute)
+    const result = exportMetadataAttributesToYAML(mockContextToYAML, mockRule, shortMetadataAttribute)
+
     expect(result).toEqual(shortMetadataAttributeYAML)
   })
 
   it("should skip synonym if it is equal to name", () => {
-    const result = exportMetadataAttributesToYAML(mockContext, undefined, skipSynonymFromMetadataAttribute)
+    const result = exportMetadataAttributesToYAML(mockContextToYAML, mockRule, skipSynonymFromMetadataAttribute)
+
     expect(result).toEqual(skipSynonymFromMetadataAttributeYAML)
   })
 
   it("should export with short multilanguage format", () => {
-    const result = exportMetadataAttributesToYAML(mockContext, undefined, shortMultilanguageMetadataAttribute)
+    const result = exportMetadataAttributesToYAML(mockContextToYAML, mockRule, shortMultilanguageMetadataAttribute)
+
     expect(result).toEqual(shortMultilanguageMetadataAttributeYAML)
   })
 })

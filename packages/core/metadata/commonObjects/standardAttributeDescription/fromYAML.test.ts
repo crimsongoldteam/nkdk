@@ -1,35 +1,27 @@
 import { describe, expect, it } from "vitest"
-import {
-  all,
-  allYAML,
-  minimal,
-  minimalYAML,
-} from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
-import { StandartAttributeNameToYAML } from "./types"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { all, allYAML, minimal, minimalYAML } from "~/tests/fixtures/standartAttributeDescription/data"
+import { mockContext, mockRule } from "~/tests/mockContext"
+import { importStandardAttributeDescriptionsFromYAML } from "./fromYAML"
 
-const rule: PropertyRule = { type: "StandardAttributeDescriptions", standartAttributeNames: StandartAttributeNameToYAML }
-
-describe("importStandardAttributeDescriptionsFromYAML", () => {
-  it("imports undefined", () => {
-    const result = testImportPropertyFromYAML({ rule, value: undefined })
+describe("importStandardAttributeDescriptionFromYAML", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = importStandardAttributeDescriptionsFromYAML(mockContext, mockRule, undefined)
     expect(result).toBeUndefined()
   })
 
-  it("imports empty object", () => {
-    const result = testImportPropertyFromYAML({ rule, value: {} })
+  it("should return undefined when object is empty", () => {
+    const result = importStandardAttributeDescriptionsFromYAML(mockContext, mockRule, {})
     expect(result).toBeUndefined()
   })
 
-  it("imports full fixture", () => {
-    const result = testImportPropertyFromYAML({ rule, value: allYAML })
+  it("should import all parameters from enterprise", () => {
+    const result = importStandardAttributeDescriptionsFromYAML(mockContext, mockRule, allYAML)
 
     expect(result).toEqual(all)
   })
 
-  it("imports minimal fixture", () => {
-    const result = testImportPropertyFromYAML({ rule, value: minimalYAML })
+  it("should import with only name", () => {
+    const result = importStandardAttributeDescriptionsFromYAML(mockContext, mockRule, minimalYAML)
     expect(result).toEqual(minimal)
   })
 })

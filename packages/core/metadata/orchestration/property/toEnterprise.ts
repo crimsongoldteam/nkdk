@@ -4,7 +4,6 @@ import { EnterpriseExportableMetadataType, ToEnterprise, ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { PropertyRuleTypeKeys } from "./registry"
 import { MetadataItemRule, PropertyRule } from "./types"
-import { shouldProcessProperty } from "./helpers"
 
 export const exportPropertiesToEnterprise = <Type extends EnterpriseExportableMetadataType>(params: {
   context: ConfigurationContext
@@ -17,7 +16,7 @@ export const exportPropertiesToEnterprise = <Type extends EnterpriseExportableMe
 
   for (const [key, ruleProp] of Object.entries(rule.properties) as [keyof ToMetadata<Type> & string, PropertyRule][]) {
     if (key == "dataPath") continue
-    if (!shouldProcessProperty({ rule: ruleProp, operation: "exportToEnterprise" })) continue
+    if (ruleProp.toEnterprise === false) continue
 
     if (!PropertyRuleTypeKeys.includes(ruleProp.type)) continue
     const value = metadataItem[key]

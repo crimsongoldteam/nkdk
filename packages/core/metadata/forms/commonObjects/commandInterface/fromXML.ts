@@ -45,10 +45,6 @@ const importCommandInterfaceItemFromXML = (
     itemType: "CommandInterfaceItem",
   }
 
-  if (item.Index !== undefined) {
-    result.index = item.Index
-  }
-
   if (item.CommandGroup) {
     result.commandGroup = item.CommandGroup
   }

@@ -243,10 +243,6 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "УникальныйИдентификатор",
     prefix: "v8",
   },
-  Type: {
-    enterprise: "Тип",
-    prefix: "v8",
-  },
   TypeDescription: {
     enterprise: "ОписаниеТипов",
     prefix: "v8",

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 
-import { fullClientApplicationForm, fullClientApplicationFormYAML } from "./__fixtures__/data"
+import {
+  fullClientApplicationForm,
+  fullClientApplicationFormYAML,
+} from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockContext } from "~/tests/mockContext"
 import { ButtonGroup, ButtonGroupPartialYAML } from "../elements/buttonGroup/types"
 import { Table } from "../elements/table/types"

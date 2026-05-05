@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { checkBoxFieldStructureFixturesTable } from "~/metadata/forms/elements/checkBoxField/__fixtures__/data"
+import { checkBoxFieldStructureFixturesTable } from "~/tests/fixtures/forms/checkBoxField/data"
 import { testimportElementFromNKDK } from "~/tests/fromNKDK"
 import { mockContext } from "~/tests/mockContext"
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { labelFieldStructureFixturesTable } from "~/metadata/forms/elements/labelField/__fixtures__/data"
+import { labelFieldStructureFixturesTable } from "~/tests/fixtures/forms/labelField/data"
 import { mockContext } from "~/tests/mockContext"
 import { exportLabelFieldContentToNKDK, exportLabelFieldToNKDK } from "./toNKDK"
 

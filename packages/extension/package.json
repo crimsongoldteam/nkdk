@@ -73,7 +73,6 @@
     "request-light": "^0.8.0",
     "vscode-languageclient": "~9.0.1",
     "vscode-languageserver": "~9.0.1",
-    "yaml": "^2.8.3",
     "yaml-language-server": "next"
   },
   "devDependencies": {

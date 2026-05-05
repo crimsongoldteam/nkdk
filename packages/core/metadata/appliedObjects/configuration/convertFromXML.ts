@@ -1,79 +1,65 @@
 import fs from "fs"
 import { basename, join } from "path"
-import { BatchTask, runBatch } from "~/helpers/runBatch"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
-import { TopLevelMetadataItemRules } from "./topLevelRules"
-
-// TODO: вынести в настройки расширения
-const IO_CONCURRENCY = 64
-
-export type ConfigurationSyncResult = {
-  succeeded: number
-  failed: Array<{
-    kind: string
-    name: string
-    parent?: string
-    error: Error
-  }>
-}
+import { convertFormFromXML } from "~/metadata/forms/clientApplicationForm/convertFromXML"
+import { convertCatalogFromXML } from "../metadataCatalog/convertFromXML"
 
 export const syncConfigurationFromXML = async (params: {
   context: ConfigurationContextFromXML
   /**
-   * Путь к корню XML-выгрузки конфигурации
+   * Путь к каталогу Catalogs
    */
   inputDir: string
   /**
-   * Путь к корню YAML-проекта
+   * Путь к каталогу Справочник
    */
   outputDir: string
-}): Promise<ConfigurationSyncResult> => {
+}): Promise<void> => {
   const { context, inputDir, outputDir } = params
 
   if (!fs.existsSync(inputDir)) {
-    return { succeeded: 0, failed: [] }
+    return
   }
 
-  const tasks: BatchTask<void>[] = []
+  const catalogsXMLDir = join(inputDir, "Catalogs")
+  const catalogsYAMLDir = join(outputDir, "Справочник")
 
-  for (const rule of TopLevelMetadataItemRules) {
-    if (rule.xmlDir === undefined) continue
-    if (rule.itemTypePrefix === undefined) continue
+  const entries = fs.readdirSync(catalogsXMLDir, { withFileTypes: true })
+  const xmlFiles = entries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
 
-    const xmlDirAbs = join(inputDir, rule.xmlDir)
-    const yamlDirAbs = join(outputDir, rule.itemTypePrefix)
-    if (!fs.existsSync(xmlDirAbs)) continue
-
-    const entries = await fs.promises.readdir(xmlDirAbs, { withFileTypes: true })
-    const xmlFiles = entries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
-
-    for (const entry of xmlFiles) {
-      const name = basename(entry.name, ".xml")
-      tasks.push({
-        kind: rule.itemType,
+  for (const entry of xmlFiles) {
+    const name = basename(entry.name, ".xml")
+    try {
+      await convertCatalogFromXML({
+        context,
+        inputDir: catalogsXMLDir,
         name,
-        run: () =>
-          convertAppliedObjectFromXML({
-            rule,
-            context,
-            inputDir: xmlDirAbs,
-            name,
-            outputDir: yamlDirAbs,
-          }),
+        outputDir: catalogsYAMLDir,
       })
+    } catch (err) {
+      console.error(`Ошибка импорта каталога "${name}":`, err)
     }
-  }
 
-  const batchResult = await runBatch(tasks, { concurrency: IO_CONCURRENCY })
+    const formsDir = join(catalogsXMLDir, name, "Forms")
+    if (!fs.existsSync(formsDir)) {
+      continue
+    }
 
-  return {
-    succeeded: batchResult.succeeded,
-    failed: batchResult.failed.map((f) => ({
-      kind: f.kind,
-      name: f.name,
-      parent: f.parent,
-      error: f.error,
-    })),
+    const formEntries = fs.readdirSync(formsDir, { withFileTypes: true })
+    const formXmlFiles = formEntries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
+
+    for (const formEntry of formXmlFiles) {
+      const formName = basename(formEntry.name, ".xml")
+      try {
+        await convertFormFromXML({
+          context,
+          inputDir: formsDir,
+          formName,
+          outputDir: join(catalogsYAMLDir, name),
+        })
+      } catch (err) {
+        console.error(`Ошибка импорта формы "${name}/${formName}":`, err)
+      }
+    }
   }
 }

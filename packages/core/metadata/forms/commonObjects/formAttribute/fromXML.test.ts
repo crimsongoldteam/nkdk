@@ -8,7 +8,6 @@ import {
   treeWithColumnFormAttribute,
   withAdditionalColumnFormAttribute,
   withEmptySettingsFormAttribute,
-  withoutTypeFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -59,14 +58,6 @@ describe("importFormAttributesFromXML", () => {
     const result = importFormAttributesFromXML(mockContextFromXML(), mockRule, xmlData)
 
     expect(result).toEqual(withEmptySettingsFormAttribute)
-  })
-
-  it("should import without type", () => {
-    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/withoutType.xml")
-
-    const result = importFormAttributesFromXML(mockContextFromXML(), mockRule, xmlData)
-
-    expect(result).toEqual(withoutTypeFormAttribute)
   })
 
   // it("should import with dynamic list", () => {

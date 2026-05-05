@@ -4,42 +4,6 @@ import { PropertyRuleType, PropertyToYAML } from "~/metadata/orchestration/prope
 import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../property/types"
 
-/**
- * YAML-представление значения по умолчанию (с учётом преобразований).
- * Используется для исключения defaultValue из типа YAML — в YAML допускается только отсутствие ключа или значение, отличное от default.
- */
-type DefaultValueToYAML<PropertyType extends PropertyRuleType, DefaultValue> = PropertyType extends "boolean"
-  ? DefaultValue extends true
-    ? "Истина"
-    : DefaultValue extends false
-      ? "Ложь"
-      : never
-  : PropertyType extends "number" | "string"
-    ? DefaultValue
-    : PropertyType extends "SystemEnumeration"
-      ? DefaultValue extends string
-        ? DefaultValue
-        : never
-      : never
-
-type ValueTypeWithDefault<Base, P, PropertyType extends PropertyRuleType> = P extends {
-  defaultValueYAML: infer D
-}
-  ? D extends (...args: any[]) => any
-    ? Base
-    : Exclude<Base, DefaultValueToYAML<PropertyType, D>>
-  : Base
-
-type PropertyYAMLValueType<P> = P extends { type: "SystemEnumeration"; typeSE: infer TypeSE }
-  ? TypeSE extends string
-    ? ValueTypeWithDefault<SETypeByName<TypeSE>, P, "SystemEnumeration">
-    : unknown
-  : P extends { type: infer PropertyType }
-    ? PropertyType extends PropertyRuleType
-      ? ValueTypeWithDefault<PropertyToYAML<PropertyType>, P, PropertyType>
-      : unknown
-    : unknown
-
 export type YAMLTypeByRule<
   Rule extends {
     properties: Record<string, PropertyRule>
@@ -51,26 +15,20 @@ export type YAMLTypeByRule<
 type PropertiesByRule<Rule extends { properties: Record<string, PropertyRule> }> =
   Rule["properties"] extends infer Properties
     ? {
-        [K in keyof Properties as Properties[K] extends { runtimeOnly: true }
-          ? never
-          : Properties[K] extends { toYAML: false; fromYAML: false }
-            ? never
-            : Properties[K] extends { toPartialYAML: false }
-              ? never
-              : Properties[K] extends { yaml: infer YAMLName }
-                ? YAMLName extends string
-                  ? YAMLName
-                  : never
-                : never]?: Properties[K] extends {
+        [K in keyof Properties as Properties[K] extends { yaml: infer YAMLName }
+          ? YAMLName extends string
+            ? YAMLName
+            : never
+          : never]?: Properties[K] extends {
           type: "SystemEnumeration"
           typeSE: infer TypeSE
         }
           ? TypeSE extends string
-            ? PropertyYAMLValueType<Properties[K]>
+            ? SETypeByName<TypeSE>
             : unknown
           : Properties[K] extends { type: infer PropertyType }
             ? PropertyType extends PropertyRuleType
-              ? PropertyYAMLValueType<Properties[K]>
+              ? PropertyToYAML<PropertyType>
               : unknown
             : unknown
       }

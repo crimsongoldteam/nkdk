@@ -1,0 +1,44 @@
+import {
+  StandardAttributeDescription,
+  StandardAttributeDescriptions,
+  StandardAttributeDescriptionsXML,
+} from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
+import { StandardAttributeDescriptionRules } from "./rules"
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
+
+export const importStandardAttributeDescriptionsFromXML = (
+  context: ConfigurationContextFromXML,
+  _rule: PropertyRule | undefined,
+  xml: StandardAttributeDescriptionsXML | undefined
+): StandardAttributeDescriptions | undefined => {
+  if (!xml) return undefined
+
+  const xrStandardAttribute = xml["xr:StandardAttribute"]
+  const items = Array.isArray(xrStandardAttribute) ? xrStandardAttribute : [xrStandardAttribute]
+
+  const result: StandardAttributeDescriptions = []
+
+  for (const xmlItem of items) {
+    const properties = importPropertiesFromXML({
+      context,
+      xml: xmlItem,
+      rule: StandardAttributeDescriptionRules,
+    })
+
+    if (!properties) continue
+
+    if (Object.keys(properties).length === 1 && properties.name !== undefined) continue
+
+    const item: StandardAttributeDescription = { ...properties, itemType: "StandardAttributeDescription" as const }
+
+    result.push(item)
+  }
+
+  if (result.length === 0) return undefined
+
+  return result
+}
+
+registerTypeRule("StandardAttributeDescriptions", "importFromXML", importStandardAttributeDescriptionsFromXML)

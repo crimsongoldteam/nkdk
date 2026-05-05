@@ -16,15 +16,13 @@
     "prepare": "ts-patch install"
   },
   "dependencies": {
-    "@nakidka/graph": "workspace:*",
     "@sinclair/typebox": "^0.34.48",
-    "p-limit": "^6.2.0",
     "change-case": "^5.4.4",
     "chevrotain": "^11.0.3",
     "date-fns": "^4.1.0",
     "fast-xml-parser": "^5.4.2",
     "uuid": "^13.0.0",
-    "yaml": "^2.8.3"
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

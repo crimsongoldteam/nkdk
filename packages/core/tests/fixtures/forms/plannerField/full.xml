@@ -1,0 +1,126 @@
+<PlannerField name="ПолеПланировщика" id="1" DisplayImportance="High">
+	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
+	<AutoCellHeight>true</AutoCellHeight>
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<CellHyperlink>true</CellHyperlink>
+	<ContextMenu name="ПолеПланировщикаКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
+	<DataPath>Объект.Реквизит</DataPath>
+	<DefaultItem>true</DefaultItem>
+	<DimensionItemHyperlink>false</DimensionItemHyperlink>
+	<EditMode>EnterOnInput</EditMode>
+	<Enabled>true</Enabled>
+	<EnableDrag>false</EnableDrag>
+	<EnableStartDrag>false</EnableStartDrag>
+	<Events>
+		<Event name="BeforeCollapseDimensionItem">ПроцедураСворачиванияЭлемента</Event>
+		<Event name="BeforeCreate">ПроцедураСозданияЭлемента</Event>
+		<Event name="BeforeDelete">ПроцедураУдаленияЭлемента</Event>
+		<Event name="BeforeExpandDimensionItem">ПроцедураРазворачиванияЭлемента</Event>
+		<Event name="BeforePrint">ПроцедураПередПечатью</Event>
+		<Event name="BeforeStartEdit">ПроцедураНачалаРедактирования</Event>
+		<Event name="BeforeStartQuickEdit">ПроцедураНачалаБыстрогоРедактирования</Event>
+		<Event name="CommandGenerateProcessing">ПроцедураГенерацииКоманды</Event>
+		<Event name="DimensionItemClick">ПроцедураНажатияНаЭлементе</Event>
+		<Event name="Drag">ПроцедураПеретаскивания</Event>
+		<Event name="DragCheck">ПроцедураПроверкиПеретаскивания</Event>
+		<Event name="DragEnd">ПроцедураЗавершенияПеретаскивания</Event>
+		<Event name="DragStart">ПроцедураНачалаПеретаскивания</Event>
+		<Event name="InsideDragCheck">ПроцедураПроверкиПеретаскиванияВнутри</Event>
+		<Event name="OnActivate">ПроцедураАктивации</Event>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="OnCurrentRepresentationPeriodChange">ПроцедураИзмененияПериода</Event>
+		<Event name="OnEditEnd">ПроцедураЗавершенияРедактирования</Event>
+		<Event name="PlannerActionClick">ПроцедураНажатияНаПланировщике</Event>
+		<Event name="Selection">ПроцедураВыбора</Event>
+		<Event name="TimeScaleItemClick">ПроцедураНажатияНаЭлементе</Event>
+		<Event name="URLClick">ПроцедураНажатияНаСсылке</Event>
+		<Event name="WrappedTimeScaleHeaderClick">ПроцедураНажатияНаЗаголовке</Event>
+	</Events>
+	<ExtendedTooltip name="ПолеПланировщикаРасширеннаяПодсказка" id="3">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<FixingInTable>None</FixingInTable>
+	<FooterBackColor>web:White</FooterBackColor>
+	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
+	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+	<FooterPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</FooterPicture>
+	<FooterText>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Текст подвала</v8:content>
+		</v8:item>
+	</FooterText>
+	<FooterTextColor>web:Black</FooterTextColor>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
+	<Height>200</Height>
+	<HorizontalAlign>Left</HorizontalAlign>
+	<HorizontalStretch>false</HorizontalStretch>
+	<MaxHeight>500</MaxHeight>
+	<MaxWidth>400</MaxWidth>
+	<ReadOnly>false</ReadOnly>
+	<Shortcut>Ctrl+S</Shortcut>
+	<ShowInFooter>true</ShowInFooter>
+	<ShowInHeader>true</ShowInHeader>
+	<SkipOnInput>false</SkipOnInput>
+	<TimeScaleItemHyperlink>false</TimeScaleItemHyperlink>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Поле планировщика</v8:content>
+		</v8:item>
+	</Title>
+	<TitleBackColor>web:Blue</TitleBackColor>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleHeight>20</TitleHeight>
+	<TitleLocation>Left</TitleLocation>
+	<TitleTextColor>web:Black</TitleTextColor>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<Type>InputField</Type>
+	<TypeRestriction>
+		<v8:Type>xs:string</v8:Type>
+		<v8:StringQualifiers>
+			<v8:Length>0</v8:Length>
+			<v8:AllowedLength>Variable</v8:AllowedLength>
+		</v8:StringQualifiers>
+	</TypeRestriction>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<VerticalAlign>Top</VerticalAlign>
+	<VerticalStretch>false</VerticalStretch>
+	<Visible>true</Visible>
+	<WarningOnEdit>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Предупреждение</v8:content>
+		</v8:item>
+	</WarningOnEdit>
+	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+	<Width>300</Width>
+	<WrappedTimeScaleHeaderHyperlink>false</WrappedTimeScaleHeaderHyperlink>
+</PlannerField>

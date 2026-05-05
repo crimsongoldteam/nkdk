@@ -1,10 +1,108 @@
+import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { ColorYAML } from "~/metadata/commonObjects/color/types"
+import { FontYAML } from "~/metadata/commonObjects/font/types"
+import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { ContextMenuYAML } from "../contextMenu/types"
+import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { SpreadSheetDocumentFieldRules } from "./rules"
 
 export type SpreadSheetDocumentField = FormTypeByRule<typeof SpreadSheetDocumentFieldRules>
 
-export type SpreadSheetDocumentFieldPartialYAML = YAMLTypeByRule<typeof SpreadSheetDocumentFieldRules>
+export interface SpreadSheetDocumentFieldPartialYAML {
+  АвтоМаксимальнаяВысота?: StringboolYAML
+  АвтоМаксимальнаяШирина?: StringboolYAML
+  ВертикальнаяПолосаПрокрутки?: SE.ScrollBarUseYAML
+  Вывод?: SE.UseOutputYAML
+  Высота?: number
+  ГоризонтальнаяПолосаПрокрутки?: SE.ScrollBarUseYAML
+  Защита?: StringboolYAML
+  ИспользуемоеИмяФайла?: string
+  МаксимальнаяВысота?: number
+  МаксимальнаяШирина?: number
+  ОтображатьГруппировки?: StringboolYAML
+  ОтображатьЗаголовки?: StringboolYAML
+  ОтображатьИменаСтрокИКолонок?: StringboolYAML
+  ОтображатьИменаЯчеек?: StringboolYAML
+  ОтображатьСетку?: StringboolYAML
+  ОтображениеСостояния?: SE.StatePresentationYAML
+  РазрешитьИспользование?: UserVisibleYAML
+  ЗапретитьИспользование?: UserVisibleYAML
+  РазрешитьНачалоПеретаскивания?: StringboolYAML
+  РазрешитьПеретаскивание?: StringboolYAML
+  РастягиватьПоВертикали?: StringboolYAML
+  РастягиватьПоГоризонтали?: StringboolYAML
+  Редактирование?: StringboolYAML
+  РежимМасштабированияПросмотра?: SE.ViewScalingModeYAML
+  РежимОтображенияВыделения?: SE.SelectionShowModeYAML
+  РежимОтображенияВыделенияРисунков?: SE.DrawingSelectionShowModeYAML
+  ТипКурсоров?: SE.SpreadsheetDocumentPointerTypeYAML
+  ЦветРамки?: ColorYAML
+  ЧерноБелыйПросмотр?: StringboolYAML
+  Ширина?: number
+  События?: {
+    ПриИзменении?: string
+    Выбор?: string
+    НачалоПеретаскивания?: string
+    ОбработкаДополнительнойРасшифровки?: string
+    ОбработкаНавигационнойСсылки?: string
+    ОбработкаРасшифровки?: string
+    ОкончаниеПеретаскивания?: string
+    ПередЗаписью?: string
+    ПередПечатью?: string
+    Перетаскивание?: string
+    ПослеЗаписи?: string
+    ПриАктивизации?: string
+    ПриИзмененииСодержимогоОбласти?: string
+    ПроверкаПеретаскивания?: string
+  }
+  АвтоВысотаЯчейки?: StringboolYAML
+  АктивизироватьПоУмолчанию?: StringboolYAML
+  ВажностьПриОтображении?: SE.DisplayImportanceYAML
+  ВертикальноеПоложение?: SE.ItemVerticalAlignYAML
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignYAML
+  Вид?: SE.FormFieldTypeYAML
+  Видимость?: StringboolYAML
+  ВысотаЗаголовка?: number
+  ГиперссылкаЯчейки?: StringboolYAML
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationYAML
+  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationYAML
+  Доступность?: StringboolYAML
+  Заголовок?: I8nTextYAML
+  КартинкаПодвала?: PictureYAML
+  КартинкаШапки?: PictureYAML
+  КонтекстноеМеню?: ContextMenuYAML
+  ОграничениеТипа?: TypeDescriptionYAML
+  ОтображатьВПодвале?: StringboolYAML
+  ОтображатьВШапке?: StringboolYAML
+  ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
+  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationYAML
+  Подсказка?: I8nTextYAML
+  ПоложениеЗаголовка?: SE.FormItemTitleLocationYAML
+  ПредупреждениеПриРедактировании?: I8nTextYAML
+  ПропускатьПриВводе?: StringboolYAML
+  ПутьКДанным?: string
+  ПутьКДаннымПодвала?: string
+  РасширеннаяПодсказка?: ExtendedTooltipYAML
+  РежимРедактирования?: SE.ColumnEditModeYAML
+  СочетаниеКлавиш?: string
+  Таблица?: string
+  ТекстПодвала?: I8nTextYAML
+  ТолькоПросмотр?: StringboolYAML
+  ФиксацияВТаблице?: SE.FixingInTableYAML
+  ЦветТекстаЗаголовка?: ColorYAML
+  ЦветТекстаПодвала?: ColorYAML
+  ЦветФонаЗаголовка?: ColorYAML
+  ЦветФонаПодвала?: ColorYAML
+  ШрифтЗаголовка?: FontYAML
+  ШрифтПодвала?: FontYAML
+}
 
 export type SpreadSheetDocumentFieldEnterprise = EnterpriseType<typeof SpreadSheetDocumentFieldRules>

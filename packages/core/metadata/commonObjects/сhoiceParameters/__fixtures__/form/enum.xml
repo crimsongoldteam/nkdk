@@ -1,8 +1,0 @@
-<ChoiceParameters>
-	<app:item name="Отбор.ТипСчета">
-		<app:value xsi:type="FormChoiceListDesTimeValue">
-			<Presentation/>
-			<Value xsi:type="xr:DesignTimeRef">Enum.ТипыСчетов.EnumValue.НераспределеннаяПрибыль</Value>
-		</app:value>
-	</app:item>
-</ChoiceParameters>
