@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
+import { walkGraphToFileData } from "~/metadata/orchestration/buildGraph/walkGraphToFileData"
 import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
 import { extractTypeDescriptionGraph } from "./graphFromModel"
 import { TypeDescription } from "./types"
@@ -61,6 +62,11 @@ describe("extractTypeDescriptionGraph", () => {
 
   it("примитив без точки (string) → undefined", () => {
     const model: TypeDescription = { type: ["string"] }
+    expect(extractTypeDescriptionGraph(model)).toBeUndefined()
+  })
+
+  it("простой тип DynamicList → undefined", () => {
+    const model: TypeDescription = { type: ["DynamicList"] }
     expect(extractTypeDescriptionGraph(model)).toBeUndefined()
   })
 
@@ -160,5 +166,39 @@ describe("extractTypeDescriptionGraph — интеграция с importMetadata
     expect(typeEdges).toHaveLength(2)
     const targets = typeEdges.map((e) => e.target).sort()
     expect(targets).toEqual(["Документ.Накладная", "Справочник.Контрагенты"])
+  })
+
+  it("реквизит формы с Тип: DynamicList хранит тип в props и не создаёт VALUE_TYPE-ребро", () => {
+    const graph = new GraphBuilder()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Список:
+    Тип: DynamicList
+`,
+      },
+      kind: "form",
+      name: "ФормаВыбора",
+      graph,
+      context: baseContext,
+      ownerNodeId: "Справочник.Товары",
+    })
+
+    const attrNodeId = "Справочник.Товары.Форма.ФормаВыбора.Реквизит.Список"
+    expect(graph.hasNode(attrNodeId)).toBe(true)
+
+    const valueTypeEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
+      (e) => e.attributes.kind === "VALUE_TYPE"
+    )
+    expect(valueTypeEdges).toHaveLength(0)
+
+    const fileGraphData = walkGraphToFileData(graph)
+    const segment = fileGraphData.find((item) => item.declaredNodeIds.includes(attrNodeId))
+    const attrNode = segment?.nodes.find((node) => node.id === attrNodeId)
+
+    expect(attrNode?.label).toBe("FormAttribute")
+    expect(attrNode?.props.p_type_type).toEqual(["DynamicList"])
   })
 })
