@@ -11,6 +11,21 @@ const baseContext = {
 const FILE_PATH = "test/Свойства.yaml"
 
 describe("importMetadataFileWithGraph — catalog", () => {
+  it("старый вход использует внешнюю регистрацию catalog", async () => {
+    const graph = new GraphBuilder()
+    const result = await importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      sources: { yaml: "{}" },
+      kind: "catalog",
+      name: "Товары",
+      graph,
+      context: baseContext,
+    })
+
+    expect(result?.model.itemType).toBe("MetadataCatalog")
+    expect(graph.hasNode("Справочник.Товары")).toBe(true)
+  })
+
   it("возвращает модель и parsed для пустого справочника", async () => {
     const graph = new GraphBuilder()
     const result = await importMetadataFileWithGraph({
@@ -309,7 +324,7 @@ describe("importMetadataFileWithGraph — неизвестный kind", () => {
         graph,
         context: baseContext,
       }),
-    ).rejects.toThrow('importMetadataFileWithGraph: неизвестный kind "unknown"')
+    ).rejects.toThrow('importRegisteredMetadataSourceWithGraph: неизвестный kind "unknown"')
   })
 })
 
