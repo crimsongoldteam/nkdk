@@ -4,50 +4,43 @@ import { registerElementAsType, registerElementRule } from "~/metadata/orchestra
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { BaseElement } from "../baseElement/types"
+import { formDecorationCommonProperties } from "../formDecoration/rules"
 import { getExtendedTooltipName } from "./helper"
 export type { ElementRule, PropertyRule }
+
+const extendedTooltipCommonProperties = {
+  autoMaxHeight: formDecorationCommonProperties.autoMaxHeight,
+  autoMaxWidth: formDecorationCommonProperties.autoMaxWidth,
+  displayImportance: formDecorationCommonProperties.displayImportance,
+  enabled: formDecorationCommonProperties.enabled,
+  font: formDecorationCommonProperties.font,
+  height: formDecorationCommonProperties.height,
+  horizontalAlignInGroup: formDecorationCommonProperties.horizontalAlignInGroup,
+  horizontalStretch: formDecorationCommonProperties.horizontalStretch,
+  maxHeight: formDecorationCommonProperties.maxHeight,
+  maxWidth: formDecorationCommonProperties.maxWidth,
+  onMainServerUnavalableBehavior: formDecorationCommonProperties.onMainServerUnavalableBehavior,
+  shortcut: formDecorationCommonProperties.shortcut,
+  skipOnInput: formDecorationCommonProperties.skipOnInput,
+  textColor: formDecorationCommonProperties.textColor,
+  toolTip: formDecorationCommonProperties.toolTip,
+  toolTipRepresentation: formDecorationCommonProperties.toolTipRepresentation,
+  userVisible: formDecorationCommonProperties.userVisible,
+  verticalAlignInGroup: formDecorationCommonProperties.verticalAlignInGroup,
+  verticalStretch: formDecorationCommonProperties.verticalStretch,
+  visible: formDecorationCommonProperties.visible,
+  width: formDecorationCommonProperties.width,
+} as const satisfies ElementRule["properties"]
 
 export const ExtendedTooltipRules = {
   itemType: "ExtendedTooltip",
   enterpriseField: "FormDecoration",
   enterpriseFieldType: "None",
   properties: {
-    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
-    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-    displayImportance: {
-      yaml: "ВажностьПриОтображении",
-      xml: "_DisplayImportance",
-      type: "SystemEnumeration",
-      typeSE: "DisplayImportance",
-      defaultValueYAML: "Auto",
-    },
-    enabled: { yaml: "Доступность", type: "boolean" },
-    font: { yaml: "Шрифт", type: "Font" },
-    height: { yaml: "Высота", type: "number" },
-    horizontalAlignInGroup: {
-      yaml: "ГоризонтальноеПоложениеВГруппе",
-      xml: "GroupHorizontalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemHorizontalLocation",
-      defaultValueYAML: "Auto",
-    },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
-    skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },
-    textColor: { yaml: "ЦветТекста", type: "Color" },
     title: {
       type: "FormattedI8nText",
       yaml: "Заголовок",
       yamlFormatted: "ФорматированныйЗаголовок",
-    },
-    toolTip: { yaml: "Подсказка", type: "I8nText" },
-    toolTipRepresentation: {
-      yaml: "ОтображениеПодсказки",
-      type: "SystemEnumeration",
-      typeSE: "ToolTipRepresentation",
-      defaultValueYAML: "Auto",
     },
     type: {
       yaml: "Вид",
@@ -55,22 +48,31 @@ export const ExtendedTooltipRules = {
       typeSE: "FormDecorationType",
       defaultValueYAML: "Label",
     },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
+    ...extendedTooltipCommonProperties,
+    backColor: { yaml: "ЦветФона", type: "Color" },
+    border: { yaml: "Рамка", type: "Border" },
+    borderColor: { yaml: "ЦветРамки", type: "Color" },
+    horizontalAlign: {
+      yaml: "ГоризонтальноеПоложение",
+      type: "SystemEnumeration",
+      typeSE: "ItemHorizontalLocation",
     },
-    verticalAlignInGroup: {
-      yaml: "ВертикальноеПоложениеВГруппе",
-      xml: "GroupVerticalAlign",
+    hyperlink: { yaml: "Гиперссылка", type: "boolean" },
+    titleHeight: { yaml: "ВысотаЗаголовка", type: "number" },
+    verticalAlign: {
+      yaml: "ВертикальноеПоложение",
       type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
-      defaultValueYAML: "Auto",
     },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
-    visible: { yaml: "Видимость", type: "boolean" },
-    width: { yaml: "Ширина", type: "number" },
+    events: {
+      type: "Events",
+      yaml: "События",
+      toEnterprise: false,
+      items: {
+        click: "Нажатие",
+        uRLProcessing: "ОбработкаНавигационнойСсылки",
+      },
+    },
   },
 } as const satisfies ElementRule
 
