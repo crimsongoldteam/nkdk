@@ -1,11 +1,11 @@
 <Attribute name="Таблица" id="1">
 	<Columns>
-		<Column name="Колонка1" id="2">
+		<Column name="Колонка1" id="1">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Column>
-		<Column name="Колонка2" id="3">
+		<Column name="Колонка2" id="2">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

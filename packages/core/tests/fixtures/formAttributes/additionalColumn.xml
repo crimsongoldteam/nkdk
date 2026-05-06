@@ -1,7 +1,7 @@
 <Attribute name="Объект" id="1">
 	<Columns>
 		<AdditionalColumns table="КакаяТоТаблица">
-			<Column name="КолонкаТаблицы" id="2">
+			<Column name="КолонкаТаблицы" id="1">
 				<Title>
 					<v8:item>
 						<v8:lang>ru</v8:lang>

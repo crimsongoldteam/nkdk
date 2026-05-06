@@ -1,6 +1,6 @@
 <Attribute name="Дерево" id="1">
 	<Columns>
-		<Column name="Колонка1" id="2">
+		<Column name="Колонка1" id="1">
 			<Edit>
 				<xr:Common>false</xr:Common>
 			</Edit>
