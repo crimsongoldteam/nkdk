@@ -269,6 +269,12 @@ export const getOrderedKeysFromXML = <Rule extends MetadataItemRule>(params: {
     const result: string[] = []
 
     for (const k of Object.keys(obj)) {
+      const directKey = propsAtPath[k]
+      if (directKey !== undefined && !added.has(directKey)) {
+        added.add(directKey)
+        result.push(directKey)
+      }
+
       if (childContainers.has(k)) {
         const nested = walkXml(obj[k], pathPrefix.concat([k]))
         for (const key of nested) {
@@ -276,12 +282,6 @@ export const getOrderedKeysFromXML = <Rule extends MetadataItemRule>(params: {
             added.add(key)
             result.push(key)
           }
-        }
-      } else if (propsAtPath[k] !== undefined) {
-        const key = propsAtPath[k]!
-        if (!added.has(key)) {
-          added.add(key)
-          result.push(key)
         }
       }
     }
