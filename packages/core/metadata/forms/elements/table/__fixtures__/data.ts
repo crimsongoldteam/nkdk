@@ -54,10 +54,6 @@ export const sourceTable: Table = {
 export const fullTable = {
   itemType: "Table",
   name: "Таблица",
-  allowGettingCurrentRowURL: true,
-  allowRootChoice: true,
-  autoRefresh: true,
-  autoRefreshPeriod: 30,
   autoAddIncomplete: true,
   autoCommandBar: {
     itemType: "AutoCommandBar",
@@ -80,8 +76,6 @@ export const fullTable = {
   },
   changeRowOrder: false,
   changeRowSet: false,
-  choiceFoldersAndItems: "FoldersAndItems",
-  restoreCurrentRow: true,
   childItems: [
     {
       dataPath: "Таблица.Ввод",
@@ -101,14 +95,21 @@ export const fullTable = {
       dataPath: "Таблица.Флажок",
       editMode: "EnterOnInput",
       itemType: "TableCheckBoxField",
-      name: "ТаблицаФлажок",
-      title: { items: { ru: "Поле флажка" } },
+      name: "ТаблицаФлажок123",
     },
     {
       dataPath: "Таблица.Картинка",
       editMode: "EnterOnInput",
       itemType: "TablePictureField",
       name: "ТаблицаКартинка",
+    },
+    {
+      childItems: [],
+      group: "Vertical",
+      itemType: "ColumnGroup",
+      name: "ТаблицаГруппаКолонок",
+      title: { items: { ru: "Группа колонок" } },
+      toolTip: { items: { ru: "Таблица группа колонок" } },
     },
   ],
   choiceMode: true,
@@ -124,7 +125,6 @@ export const fullTable = {
   defaultItem: true,
   displayImportance: "VeryHigh",
   enableDrag: true,
-  enableStartDrag: true,
   enabled: false,
   events: {
     afterDeleteRow: "ТаблицаПослеУдаления",
@@ -150,7 +150,6 @@ export const fullTable = {
     refreshRequestProcessing: "ТаблицаОбработкаЗапросаОбновления",
     selection: "ТаблицаВыбор",
     valueChoice: "ТаблицаВыборЗначения",
-    beforeLoadUserSettingsAtServer: "ТаблицаПередЗагрузкойПользовательскихНастроекНаСервере",
   },
   extendedTooltip: {
     itemType: "ExtendedTooltip",
@@ -194,7 +193,6 @@ export const fullTable = {
   rowsPicture: {
     loadTransparent: true,
     ref: "Print",
-    transparentPixel: undefined,
     type: "StandardPicture",
   },
   searchControl: {
@@ -219,7 +217,6 @@ export const fullTable = {
   searchStringLocation: "Top",
   selectionMode: "SingleRow",
   shortcut: "Cmd+F",
-  showRoot: true,
   skipOnInput: false,
   textColor: {
     type: "WebColor",
@@ -247,8 +244,6 @@ export const fullTable = {
   },
   toolTipRepresentation: "Balloon",
   useAlternationRowColor: true,
-  updateOnDataChange: "DontUpdate",
-  userSettingsGroup: "ГруппаПользовательскихНастроек",
   userVisible: {
     common: true,
     values: [
@@ -281,7 +276,6 @@ export const fullTableYAML: TablePartialYAML = {
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяВысотаВСтрокахТаблицы: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
-  АвтоОбновление: "Истина",
   АвтоОтметкаНезаполненного: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "ОченьВысокая",
@@ -290,8 +284,6 @@ export const fullTableYAML: TablePartialYAML = {
   ВертикальноеПоложениеВГруппе: "Центр",
   ВертикальныеЛинии: "Ложь",
   Видимость: "Ложь",
-  ВосстанавливатьТекущуюСтроку: "Истина",
-  ВыборГруппИЭлементов: "ГруппыИЭлементы",
   Вывод: "Разрешить",
   Высота: 4,
   ВысотаВСтрокахТаблицы: 6,
@@ -301,7 +293,6 @@ export const fullTableYAML: TablePartialYAML = {
   ГоризонтальнаяПолосаПрокрутки: "ИспользоватьВсегда",
   ГоризонтальноеПоложениеВГруппе: "Лево",
   ГоризонтальныеЛинии: "Ложь",
-  ГруппаПользовательскихНастроек: "ГруппаПользовательскихНастроек",
   Доступность: "Ложь",
   ЗапросОбновления: "ПотянутьСверху",
   ИзменятьПорядокСтрок: "Ложь",
@@ -318,8 +309,6 @@ export const fullTableYAML: TablePartialYAML = {
   МножественныйВыбор: "Истина",
   НачальноеОтображениеДерева: "РаскрыватьВерхнийУровень",
   НачальноеОтображениеСписка: "Начало",
-  ОбновлениеПриИзмененииДанных: "НеОбновлять",
-  ОтображатьКорень: "Истина",
   Отображение: "Дерево",
   ОтображениеПодсказки: "Всплывающая",
   ОтображениеСостоянияПросмотра: {
@@ -328,7 +317,6 @@ export const fullTableYAML: TablePartialYAML = {
   ОтображениеСтрокиПоиска: {
     Заголовок: "Строка поиска",
   },
-  ПериодАвтоОбновления: 30,
   ПоведениеПриНедоступностиОсновногоСервера: "НеИзменятьПоведение",
   ПоведениеПриСжатииПоГоризонтали: "СкрыватьЭлементыПоВажности",
   Подвал: "Истина",
@@ -341,13 +329,10 @@ export const fullTableYAML: TablePartialYAML = {
   ПоложениеУправленияПоиском: "КоманднаяПанель",
   ПропускатьПриВводе: "Ложь",
   ПутьКДаннымКартинкиСтроки: "Таблица.Картинка",
-  РазрешитьВыборКорня: "Истина",
   РазрешитьИспользование: {
     Администратор: "Истина",
   },
-  РазрешитьНачалоПеретаскивания: "Истина",
   РазрешитьПеретаскивание: "Истина",
-  РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки: "Истина",
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
   РасширеннаяПодсказка: {
@@ -365,7 +350,6 @@ export const fullTableYAML: TablePartialYAML = {
     ОбработкаЗаписиНового: "ТаблицаОбработкаЗаписиНового",
     ОбработкаЗапросаОбновления: "ТаблицаОбработкаЗапросаОбновления",
     ОкончаниеПеретаскивания: "ТаблицаОкончаниеПеретаскивания",
-    ПередЗагрузкойПользовательскихНастроекНаСервере: "ТаблицаПередЗагрузкойПользовательскихНастроекНаСервере",
     ПередНачаломДобавления: "ТаблицаПередНачаломДобавления",
     ПередНачаломИзменения: "ТаблицаПередНачаломИзменения",
     ПередОкончаниемРедактирования: "ТаблицаПередОкончаниемРедактирования",
@@ -437,10 +421,9 @@ export const fullTableEnterprise = {
       CheckBoxType: { Type: "SystemEnumeration", Value: "CheckBoxType.Auto" },
       DataPath: "prefix_Таблица.Флажок",
       EditMode: { Type: "SystemEnumeration", Value: "ColumnEditMode.EnterOnInput" },
-      Title: "Поле флажка",
       ElementType: "FormField",
       Type: { Type: "SystemEnumeration", Value: "FormFieldType.CheckBoxField" },
-      Name: "prefix_ТаблицаФлажок",
+      Name: "prefix_ТаблицаФлажок123",
     },
     {
       DataPath: "prefix_Таблица.Картинка",
@@ -448,6 +431,15 @@ export const fullTableEnterprise = {
       ElementType: "FormField",
       Type: { Type: "SystemEnumeration", Value: "FormFieldType.PictureField" },
       Name: "prefix_ТаблицаКартинка",
+    },
+    {
+      ElementType: "FormGroup",
+      Name: "prefix_ТаблицаГруппаКолонок",
+      Type: { Type: "SystemEnumeration", Value: "FormGroupType.ColumnGroup" },
+      ChildItems: [],
+      Group: { Type: "SystemEnumeration", Value: "ColumnsGroup.Vertical" },
+      Title: "Группа колонок",
+      ToolTip: "Таблица группа колонок",
     },
   ],
   ChoiceMode: true,
@@ -467,7 +459,6 @@ export const fullTableEnterprise = {
   },
   Enabled: false,
   EnableDrag: true,
-  EnableStartDrag: true,
   FileDragMode: {
     Type: "SystemEnumeration",
     Value: "FileDragMode.AsFile",
@@ -576,23 +567,8 @@ export const fullTableEnterprise = {
   },
   Visible: false,
   Width: 1,
-  AutoRefresh: true,
-  RestoreCurrentRow: true,
-  ChoiceFoldersAndItems: {
-    Type: "SystemEnumeration",
-    Value: "FoldersAndItemsUse.FoldersAndItems",
-  },
-  UpdateOnDataChange: {
-    Type: "SystemEnumeration",
-    Value: "UpdateOnDataChange.DontUpdate",
-  },
-  ShowRoot: true,
-  AutoRefreshPeriod: 30,
-  AllowRootChoice: true,
-  AllowGettingCurrentRowURL: true,
-  UserSettingsGroup: "ГруппаПользовательскихНастроек",
   RowsPicture: { Type: "Picture", Value: "PictureLib.Print" },
-} satisfies Omit<Required<TableEnterprise>, "Period" | "TopLevelParent">
+} satisfies Omit<Required<TableEnterprise>, "Period" | "TopLevelParent" | "RowFilter">
 
 export const fullTableChildItems = {
   ТаблицаГруппа1: {

@@ -1069,6 +1069,9 @@ export const ElementFixtures: ElementFixture[] = [
     model: fullTable,
     yaml: fullTableYAML,
     enterprise: fullTableEnterprise,
+    contextAttributes: [
+      { itemType: "FormAttribute", name: "Таблица", type: { type: ["ValueTable"] }, columns: [] },
+    ],
   },
   {
     group: "Table",
