@@ -30,7 +30,8 @@ export interface ClientApplicationFormXML {
   _version?: string
 
   Attributes?: {
-    Attribute: FormAttributesXML
+    Attribute?: FormAttributesXML
+    ConditionalAppearance?: Record<string, unknown>
   }
   Parameters?: {
     Parameter: FormParametersXML

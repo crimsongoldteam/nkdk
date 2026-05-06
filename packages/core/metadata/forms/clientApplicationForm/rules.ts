@@ -14,6 +14,13 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValueXMLEmpty: [],
     },
+    attributesConditionalAppearance: {
+      yaml: "УсловноеОформлениеРеквизитов",
+      type: "ConditionalAppearance",
+      xml: "ConditionalAppearance",
+      xmlParents: ["Attributes"],
+      tag: FormRulesTags.Form,
+    },
     autoCommandBar: {
       yaml: "КоманднаяПанель",
       type: "AutoCommandBar",
