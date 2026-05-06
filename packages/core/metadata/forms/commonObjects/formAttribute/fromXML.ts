@@ -47,6 +47,14 @@ const importFormAttributeFromXML = (context: ConfigurationContextFromXML, xml: F
     rule: FormAttributeRules,
   })
 
+  if (context.fromXML.forReference) {
+    return {
+      itemType: FormAttributeRules.itemType,
+      ...properties,
+      name: xml._name,
+    } as FormAttribute
+  }
+
   const result: FormAttribute = {
     itemType: FormAttributeRules.itemType,
     name: xml._name,
