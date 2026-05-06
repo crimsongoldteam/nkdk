@@ -15,7 +15,10 @@ const fullCommandInterface: CommandInterface = {
   itemType: "CommandInterface",
 }
 
-export const fullClientApplicationForm: Omit<Required<ClientApplicationForm>, "uuid" | "formType" | "name"> = {
+export const fullClientApplicationForm: Omit<
+  Required<ClientApplicationForm>,
+  "uuid" | "formType" | "name" | "attributesConditionalAppearance"
+> = {
   parameters: [
     {
       name: "Параметр1",
@@ -155,7 +158,10 @@ export const clientApplicationFormReference: ClientApplicationForm = {
   uuid: "11111111-1111-4111-8111-111111111111",
 }
 
-export const fullClientApplicationFormYAML: Required<ClientApplicationFormYAML> = {
+export const fullClientApplicationFormYAML: Omit<
+  Required<ClientApplicationFormYAML>,
+  "УсловноеОформлениеРеквизитов"
+> = {
   Синоним: "Синоним формы",
   Комментарий: "Комментарий к форме",
   ВключатьСправкуВСодержание: "Истина",
@@ -279,7 +285,7 @@ export const fullClientApplicationFormYAML: Required<ClientApplicationFormYAML> 
   },
   РежимВыбора: "БыстрыйВыбор",
   // #endregion
-} satisfies Required<ClientApplicationFormYAML>
+} satisfies Omit<Required<ClientApplicationFormYAML>, "УсловноеОформлениеРеквизитов">
 
 export const minimalClientApplicationForm: ClientApplicationForm = {
   childItems: [],
@@ -290,6 +296,19 @@ export const minimalClientApplicationForm: ClientApplicationForm = {
   comment: "",
   includeHelpInContents: false,
   usePurposes: ["PlatformApplication", "MobilePlatformApplication"],
+}
+
+export const conditionalAppearanceWithoutAttributesClientApplicationForm: ClientApplicationForm & {
+  attributesConditionalAppearance: {
+    itemType: "ConditionalAppearance"
+    viewMode: "Normal"
+  }
+} = {
+  ...minimalClientApplicationForm,
+  attributesConditionalAppearance: {
+    itemType: "ConditionalAppearance",
+    viewMode: "Normal",
+  },
 }
 
 export const minimalClientApplicationFormReference: ClientApplicationForm = {
