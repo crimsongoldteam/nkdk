@@ -7,6 +7,9 @@ export type { ElementRule, PropertyRule }
 export const dynamicListFormAttributeQuery =
   'MATCH (s {id: $scope})-[:FORM_ATTRIBUTE]->(a:FormAttribute) WHERE "DynamicList" IN a.p_type_type RETURN a.name AS name'
 
+export const valueTableFormAttributeQuery =
+  'MATCH (s {id: $scope})-[:FORM_ATTRIBUTE]->(a:FormAttribute) WHERE "ValueTable" IN a.p_type_type RETURN a.name AS name'
+
 export const TableRules = {
   itemType: "Table",
   enterpriseField: "FormTable",
@@ -281,6 +284,19 @@ export const TableRules = {
       defaultValueXMLRaw: { "_xsi:nil": "true" },
       toXML: cypherPredicate({
         query: dynamicListFormAttributeQuery,
+        test: (el: any, rows: Record<string, unknown>[]) =>
+          rows.some((r) => r.name === el?.dataPath?.split(".")[0]),
+      }),
+    },
+    rowFilter: {
+      yaml: "ОтборСтрок",
+      type: "boolean",
+      fromXML: false,
+      toYAML: false,
+      fromYAML: false,
+      defaultValueXMLRaw: { "_xsi:nil": "true" },
+      toXML: cypherPredicate({
+        query: valueTableFormAttributeQuery,
         test: (el: any, rows: Record<string, unknown>[]) =>
           rows.some((r) => r.name === el?.dataPath?.split(".")[0]),
       }),
