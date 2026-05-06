@@ -131,6 +131,7 @@ export const FormAttributeColumnRules = {
       type: "TypeDescription",
       xml: "Type",
       order: 3,
+      defaultValueXMLRaw: {},
     },
     view: {
       yaml: "РазрешитьПросмотр",
