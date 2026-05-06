@@ -1,5 +1,6 @@
 import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
 import { FormAttribute } from "~/metadata/forms/commonObjects/formAttribute/types"
+import { dynamicListFormAttributeQuery, valueTableFormAttributeQuery } from "~/metadata/forms/elements/table/rules"
 import { CollectableElement, ElementXML, exportElementToXML, importElementFromXML } from "~/metadata/orchestration"
 import { CypherCache } from "~/metadata/orchestration/property/cypherCache"
 import { getElementXMLTagName } from "~/metadata/orchestration/formElement/ruleFactory"
@@ -37,20 +38,18 @@ export function testExportElementToXML<TElement extends CollectableElement>(
   const context = mockContextToXML()
 
   if (contextAttributes) {
-    const dynamicListQuery =
-      'MATCH (s {id: $scope})-[:FORM_ATTRIBUTE]->(a:FormAttribute) WHERE "DynamicList" IN a.p_type_type RETURN a.name AS name'
-    const rows = contextAttributes
-      .filter(
-        (attr) =>
-          attr.itemType === "FormAttribute" &&
-          Array.isArray(attr.type?.type) &&
-          attr.type.type.includes("DynamicList")
-      )
-      .map((attr) => ({ name: attr.name }))
     const cache = new CypherCache()
-    if (rows.length > 0) {
-      cache.set(dynamicListQuery, rows as Record<string, unknown>[])
+
+    const dynamicListRows = getContextAttributeRowsByType(contextAttributes, "DynamicList")
+    if (dynamicListRows.length > 0) {
+      cache.set(dynamicListFormAttributeQuery, dynamicListRows)
     }
+
+    const valueTableRows = getContextAttributeRowsByType(contextAttributes, "ValueTable")
+    if (valueTableRows.length > 0) {
+      cache.set(valueTableFormAttributeQuery, valueTableRows)
+    }
+
     context.exportToXML!.cypherCache = cache
   }
 
@@ -65,4 +64,18 @@ export function testExportElementToXML<TElement extends CollectableElement>(
   const result = xmlExport({ [metadataType]: xmlData }, false)
 
   return { expectedResult, result }
+}
+
+function getContextAttributeRowsByType(
+  contextAttributes: FormAttribute[],
+  typeName: "DynamicList" | "ValueTable"
+): Record<string, unknown>[] {
+  return contextAttributes
+    .filter(
+      (attr) =>
+        attr.itemType === "FormAttribute" &&
+        Array.isArray(attr.type?.type) &&
+        attr.type.type.includes(typeName)
+    )
+    .map((attr) => ({ name: attr.name }))
 }

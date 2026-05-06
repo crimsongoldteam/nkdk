@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { dynamicListFormAttributeQuery } from "~/metadata/forms/elements/table/rules"
+import { dynamicListFormAttributeQuery, valueTableFormAttributeQuery } from "~/metadata/forms/elements/table/rules"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
 import { CypherCache } from "~/metadata/orchestration/property/cypherCache"
@@ -12,7 +12,7 @@ export const exportClientApplicationFormToXML = (params: {
   referenceForm: ClientApplicationForm | undefined
 }): ClientApplicationFormXML => {
   const { context, form, referenceForm } = params
-  ensureDynamicListCypherCache(context, form)
+  ensureTableFormAttributeCypherCache(context, form)
 
   const properties = exportPropertiesToXML({
     context,
@@ -49,25 +49,41 @@ export const exportClientApplicationFormToXML = (params: {
   return result
 }
 
-const ensureDynamicListCypherCache = (
+const ensureTableFormAttributeCypherCache = (
   context: ConfigurationContextWithExportToXML,
   form: ClientApplicationForm
 ): void => {
   const existingCache = context.exportToXML.cypherCache
-  if (existingCache?.get(dynamicListFormAttributeQuery) !== undefined) return
+  const hasDynamicListRows = existingCache?.get(dynamicListFormAttributeQuery) !== undefined
+  const hasValueTableRows = existingCache?.get(valueTableFormAttributeQuery) !== undefined
+
+  if (hasDynamicListRows && hasValueTableRows) return
 
   const cache = existingCache ?? new CypherCache()
-  const rows = (form.attributes ?? [])
+
+  if (!hasDynamicListRows) {
+    cache.set(dynamicListFormAttributeQuery, getFormAttributeRowsByType(form, "DynamicList"))
+  }
+
+  if (!hasValueTableRows) {
+    cache.set(valueTableFormAttributeQuery, getFormAttributeRowsByType(form, "ValueTable"))
+  }
+
+  context.exportToXML.cypherCache = cache
+}
+
+const getFormAttributeRowsByType = (
+  form: ClientApplicationForm,
+  typeName: "DynamicList" | "ValueTable"
+): Record<string, unknown>[] => {
+  return (form.attributes ?? [])
     .filter(
       (attr) =>
         attr.itemType === "FormAttribute" &&
         Array.isArray(attr.type?.type) &&
-        attr.type.type.includes("DynamicList")
+        attr.type.type.includes(typeName)
     )
     .map((attr) => ({ name: attr.name }))
-
-  cache.set(dynamicListFormAttributeQuery, rows)
-  context.exportToXML.cypherCache = cache
 }
 
 const globalNumberingScope = Symbol("globalNumberingScope")
