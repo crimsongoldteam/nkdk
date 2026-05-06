@@ -133,6 +133,7 @@ if [ ! -d "${NKDK_XML_DIR}" ]; then
   echo "Ошибка: NKDK_XML_DIR ('${NKDK_XML_DIR}') не существует или не каталог" >&2
   exit 1
 fi
+NKDK_XML_DIR="$(cd "${NKDK_XML_DIR}" && pwd)"
 
 # ── Guard: чистое рабочее дерево nakidka-core ────────────────────────────────
 
@@ -160,6 +161,13 @@ echo "=== round-trip.sh ==="
 echo "XML репо:    ${NKDK_XML_REPO}"
 echo "XML каталог: ${NKDK_XML_DIR}"
 echo "nkdk:        ${NKDK}"
+echo "mode:        ${MODE}"
+if [ "${MODE}" = "single" ]; then
+  echo "diff index:  ${DIFF_INDEX}"
+else
+  echo "batch size:  ${BATCH_SIZE}"
+  echo "start index: ${START_INDEX}"
+fi
 echo ""
 
 # ── Чистый старт XML-репо ────────────────────────────────────────────────────
@@ -172,19 +180,90 @@ git -C "${NKDK_XML_DIR}" restore .
 echo "[round-trip] Запуск short-round-trip-test..."
 ${NKDK} short-round-trip-test "${NKDK_XML_DIR}"
 
-# ── Первый файл с диффом ─────────────────────────────────────────────────────
+# ── Файлы с диффом ───────────────────────────────────────────────────────────
 
-FIRST_DIFF_FILE="$(set +o pipefail; git -C "${NKDK_XML_DIR}" -c core.quotepath=false diff --name-only --relative -- . | sort | head -1)"
+DIFF_FILES=()
+while IFS= read -r diff_file; do
+  DIFF_FILES+=("${diff_file}")
+done < <(git -C "${NKDK_XML_DIR}" -c core.quotepath=false diff --name-only --relative -- . | sort)
+DIFF_COUNT="${#DIFF_FILES[@]}"
 
-if [ -z "${FIRST_DIFF_FILE}" ]; then
+if [ "${DIFF_COUNT}" -eq 0 ]; then
   echo ""
   echo "=== Round-trip чистый: диффов нет ==="
   exit 0
 fi
 
+xml_file_abs() {
+  local relative_path="$1"
+  echo "${NKDK_XML_DIR%/}/${relative_path}"
+}
+
+emit_single_diff() {
+  local index="$1"
+  local file="$2"
+
+  echo ""
+  echo "=== DIFF_COUNT ==="
+  echo "${DIFF_COUNT}"
+  echo ""
+  echo "=== SELECTED_DIFF_INDEX ==="
+  echo "${index}"
+  echo ""
+  echo "=== SELECTED_DIFF_FILE ==="
+  echo "${file}"
+  echo ""
+  echo "=== SELECTED_XML_FILE_ABS ==="
+  xml_file_abs "${file}"
+  echo ""
+  echo "=== FULL_DIFF ==="
+  git -C "${NKDK_XML_DIR}" -c core.quotepath=false diff --relative -- "${file}"
+}
+
+emit_triage_diff() {
+  local index="$1"
+  local file="$2"
+
+  echo ""
+  echo "=== TRIAGE_DIFF ==="
+  echo "INDEX: ${index}"
+  echo "FILE: ${file}"
+  echo "XML_FILE_ABS: $(xml_file_abs "${file}")"
+  echo "--- DIFF ---"
+  git -C "${NKDK_XML_DIR}" -c core.quotepath=false diff --relative -- "${file}"
+}
+
+if [ "${MODE}" = "single" ]; then
+  if [ "${DIFF_INDEX}" -gt "${DIFF_COUNT}" ]; then
+    die "--diff-index ${DIFF_INDEX} выходит за пределы списка diff'ов (${DIFF_COUNT})"
+  fi
+
+  SELECTED_DIFF_FILE="${DIFF_FILES[$((DIFF_INDEX - 1))]}"
+  emit_single_diff "${DIFF_INDEX}" "${SELECTED_DIFF_FILE}"
+  exit 0
+fi
+
+TRIAGE_START="${START_INDEX}"
+TRIAGE_END="$((START_INDEX + BATCH_SIZE - 1))"
+if [ "${TRIAGE_END}" -gt "${DIFF_COUNT}" ]; then
+  TRIAGE_END="${DIFF_COUNT}"
+fi
+
 echo ""
-echo "=== FIRST_DIFF_FILE ==="
-echo "${FIRST_DIFF_FILE}"
+echo "=== DIFF_COUNT ==="
+echo "${DIFF_COUNT}"
 echo ""
-echo "=== FULL_DIFF ==="
-git -C "${NKDK_XML_DIR}" -c core.quotepath=false diff --relative -- "${FIRST_DIFF_FILE}"
+echo "=== TRIAGE_RANGE ==="
+echo "${TRIAGE_START}-${TRIAGE_END}"
+
+if [ "${TRIAGE_START}" -gt "${DIFF_COUNT}" ]; then
+  echo ""
+  echo "=== TRIAGE_EMPTY ==="
+  echo "--start-index ${TRIAGE_START} выходит за пределы списка diff'ов (${DIFF_COUNT})"
+  exit 0
+fi
+
+for ((i = TRIAGE_START; i <= TRIAGE_END; i++)); do
+  TRIAGE_DIFF_FILE="${DIFF_FILES[$((i - 1))]}"
+  emit_triage_diff "${i}" "${TRIAGE_DIFF_FILE}"
+done
