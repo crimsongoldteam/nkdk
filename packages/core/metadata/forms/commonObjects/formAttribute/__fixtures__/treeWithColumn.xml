@@ -1,0 +1,32 @@
+<Attribute name="Дерево" id="1">
+	<Columns>
+		<Column name="Колонка1" id="1">
+			<Edit>
+				<xr:Common>false</xr:Common>
+			</Edit>
+			<FillCheck>ShowError</FillCheck>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>abc</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+			<View>
+				<xr:Common>false</xr:Common>
+			</View>
+		</Column>
+	</Columns>
+	<Type>
+		<v8:Type>v8:ValueTree</v8:Type>
+	</Type>
+	<UseAlways>
+		<Field>Дерево.Колонка1</Field>
+	</UseAlways>
+</Attribute>

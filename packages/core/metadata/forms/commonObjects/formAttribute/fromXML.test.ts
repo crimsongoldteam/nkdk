@@ -11,9 +11,17 @@ import {
   withoutTypeFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
+import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { attributeAnyType } from "./__fixtures__/attributeAnyType"
+import { columnAnyType } from "./__fixtures__/columnAnyType"
+import { tableWithColumns } from "./__fixtures__/tableWithColumns"
+import { treeWithColumn } from "./__fixtures__/treeWithColumn"
+import { twoTables } from "./__fixtures__/twoTables"
 import { importFormAttributesFromXML } from "./fromXML"
 import { FormAttributesXML } from "./types"
+
+const formAttributesRule = { type: "FormAttributes", xml: "Attribute" } as const
 
 describe("importFormAttributesFromXML", () => {
   it("should return undefined when data is undefined", () => {
@@ -99,6 +107,56 @@ describe("importFormAttributesFromXML", () => {
     const result = importFormAttributesFromXML(mockContextFromXML(), mockRule, xmlData)
 
     expect(result).toEqual(withAdditionalColumnFormAttribute)
+  })
+
+  it("import tableWithColumns", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "tableWithColumns.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(tableWithColumns)
+  })
+
+  it("import treeWithColumn", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "treeWithColumn.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(treeWithColumn)
+  })
+
+  it("import twoTables", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "twoTables.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(twoTables)
+  })
+
+  it("import attributeAnyType", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "attributeAnyType.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(attributeAnyType)
+  })
+
+  it("import columnAnyType", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "columnAnyType.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(columnAnyType)
   })
 
   // it("should throw error when ConditionalAppearance is present in XML", () => {

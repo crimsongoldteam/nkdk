@@ -11,10 +11,18 @@ import {
   withoutTypeFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContextToXML, mockRule } from "~/tests/mockContext"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { setIdsToElements } from "../../clientApplicationForm/toXML"
+import { attributeAnyType } from "./__fixtures__/attributeAnyType"
+import { columnAnyType } from "./__fixtures__/columnAnyType"
+import { tableWithColumns } from "./__fixtures__/tableWithColumns"
+import { treeWithColumn } from "./__fixtures__/treeWithColumn"
+import { twoTables } from "./__fixtures__/twoTables"
 import { exportFormAttributesToXML } from "./toXML"
+
+const formAttributesRule = { type: "FormAttributes", xml: "Attribute" } as const
 
 describe("exportFormAttributesToXML", () => {
   it("should export undefined when data is undefined", () => {
@@ -145,6 +153,71 @@ describe("exportFormAttributesToXML", () => {
     setIdsToElements(context)
 
     const result = xmlExport(xmlData!, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export tableWithColumns", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: tableWithColumns,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "tableWithColumns.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export treeWithColumn", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: treeWithColumn,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "treeWithColumn.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export twoTables", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: twoTables,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "twoTables.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export attributeAnyType", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: attributeAnyType,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "attributeAnyType.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export columnAnyType", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: columnAnyType,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "columnAnyType.xml",
+      importMetaUrl: import.meta.url,
+    })
 
     expect(result).toEqual(expectedResult)
   })
