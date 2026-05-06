@@ -105,6 +105,11 @@ export const FormAttributeRules = {
 export const FormAttributeColumnRules = {
   itemType: "FormAttributeColumn",
   properties: {
+    id: {
+      xml: "_id",
+      type: "string",
+      forReferenceOnly: true,
+    },
     name: {
       type: "string",
       xml: "_name",
@@ -126,6 +131,7 @@ export const FormAttributeColumnRules = {
       type: "TypeDescription",
       xml: "Type",
       order: 3,
+      defaultValueXMLRaw: {},
     },
     view: {
       yaml: "РазрешитьПросмотр",
