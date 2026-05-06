@@ -239,7 +239,7 @@ import {
   fullSpreadSheetDocumentFieldPartialYAML,
   minimalSpreadSheetDocumentField,
 } from "../spreadSheetDocumentField/__fixtures__/data"
-import { dynamicList } from "../table/__fixtures__/dynamicList"
+import { dynamicList, dynamicListYAML } from "../table/__fixtures__/dynamicList"
 import { fullTable, fullTableEnterprise, fullTableYAML, minimalTable } from "../table/__fixtures__/data"
 import {
   fullTextDocumentField,
@@ -1090,10 +1090,10 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "dynamicList.xml",
     xmlFolder: undefined,
     model: dynamicList,
-    yaml: undefined,
+    yaml: dynamicListYAML,
     enterprise: undefined,
     contextAttributes: [
-      { itemType: "FormAttribute", name: "Список", type: { type: ["DynamicList"] }, columns: [] },
+      { itemType: "FormAttribute", name: "ДинамическийСписок", type: { type: ["DynamicList"] }, columns: [] },
     ],
   },
   //#endregion
