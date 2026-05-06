@@ -22,6 +22,9 @@
 			<xr:LoadTransparent>true</xr:LoadTransparent>
 		</Picture>
 		<Action>Действие</Action>
+		<FunctionalOptions>
+			<Item>FunctionalOption.ФункциональнаяОпцияБулево</Item>
+		</FunctionalOptions>
 		<Representation>TextPicture</Representation>
 		<ModifiesSavedData>true</ModifiesSavedData>
 		<CurrentRowUse>DontUse</CurrentRowUse>

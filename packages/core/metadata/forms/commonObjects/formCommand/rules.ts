@@ -52,6 +52,10 @@ export const FormCommandRules = {
       xml: "Action",
       type: "string",
     },
+    functionalOptions: {
+      yaml: "ФункциональныеОпции",
+      type: "FunctionalOptionsProperty",
+    },
     representation: {
       yaml: "ОтображениеКнопки",
       xml: "Representation",

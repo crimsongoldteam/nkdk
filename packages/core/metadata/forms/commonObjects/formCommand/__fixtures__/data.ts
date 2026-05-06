@@ -18,6 +18,7 @@ export const fullFormCommands: Omit<Required<FormCommand>, "id">[] = [
       transparentPixel: undefined,
     },
     action: "Действие",
+    functionalOptions: ["FunctionalOption.ФункциональнаяОпцияБулево"],
     representation: "PictureAndText",
     modifiesSavedData: true,
     currentRowUse: "DontUse",
@@ -36,6 +37,7 @@ export const fullFormCommandsYAML: FormCommandsYAML = {
     Картинка: "Свойства",
     ИспользованиеТекущейСтроки: "НеИспользует",
     РазрешитьИспользование: { Администратор: "Ложь" },
+    ФункциональныеОпции: ["FunctionalOption.ФункциональнаяОпцияБулево"],
     Таблица: "Таблица",
   },
 }
