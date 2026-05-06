@@ -18,11 +18,12 @@ import {
 export const importFormAttributesFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  xml: { Attribute: FormAttributesXML } | undefined
+  xml: { Attribute: FormAttributesXML } | FormAttributeXML | FormAttributesXML | undefined
 ): FormAttributes | undefined => {
-  if (!xml || !xml.Attribute) return undefined
+  if (!xml) return undefined
 
-  const items = Array.isArray(xml.Attribute) ? xml.Attribute : [xml.Attribute]
+  const xmlAttributes = "Attribute" in xml ? xml.Attribute : xml
+  const items = Array.isArray(xmlAttributes) ? xmlAttributes : [xmlAttributes]
   const attributes = items.map((item) => importFormAttributeFromXML(context, item as FormAttributeXML))
 
   return attributes
@@ -86,11 +87,17 @@ const importColumnsFromXML = (
       rule: FormAttributeColumnRules,
     })
 
-    const column: FormAttributeColumn = {
-      itemType: FormAttributeColumnRules.itemType,
-      name: item._name,
-      ...properties,
-    }
+    const column: FormAttributeColumn = context.fromXML.forReference
+      ? ({
+          itemType: FormAttributeColumnRules.itemType,
+          ...properties,
+          name: item._name,
+        } as FormAttributeColumn)
+      : {
+          itemType: FormAttributeColumnRules.itemType,
+          name: item._name,
+          ...properties,
+        }
 
     return column
   })

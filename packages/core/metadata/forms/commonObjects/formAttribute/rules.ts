@@ -105,6 +105,11 @@ export const FormAttributeRules = {
 export const FormAttributeColumnRules = {
   itemType: "FormAttributeColumn",
   properties: {
+    id: {
+      xml: "_id",
+      type: "string",
+      forReferenceOnly: true,
+    },
     name: {
       type: "string",
       xml: "_name",

@@ -41,6 +41,7 @@ type ToXMLContextElement<Type extends MetadataItemType> = {
   element: ToMetadata<Type> | undefined
   referenceElement?: ToMetadata<Type> | undefined
   xmlElement: ElementXMLWithoutId
+  numberingScope?: unknown
 }
 
 export type ToXMLConfigurationContext = {

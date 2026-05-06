@@ -70,8 +70,30 @@ const ensureDynamicListCypherCache = (
   context.exportToXML.cypherCache = cache
 }
 
+const globalNumberingScope = Symbol("globalNumberingScope")
+
 export const setIdsToElements = (context: ConfigurationContextWithExportToXML): void => {
   const elementsMap = context.exportToXML?.context?.metadataForNumbering ?? []
+  const groups = new Map<unknown, typeof elementsMap>()
+
+  for (const element of elementsMap) {
+    const scope = element.numberingScope ?? globalNumberingScope
+    const group = groups.get(scope)
+    if (group === undefined) {
+      groups.set(scope, [element])
+    } else {
+      group.push(element)
+    }
+  }
+
+  for (const group of groups.values()) {
+    setIdsToElementsGroup(group)
+  }
+}
+
+const setIdsToElementsGroup = (
+  elementsMap: NonNullable<ConfigurationContextWithExportToXML["exportToXML"]["context"]>["metadataForNumbering"]
+): void => {
   const occupiedIds = new Set<string>()
 
   for (const element of elementsMap) {
