@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest"
 import { applyRequiredXMLParents, getOrderedKeysFromXML } from "./helpers"
 import { setXMLValue } from "./toXML"
 
-const createRule = (properties: Record<string, { xml?: string; tag?: string; runtimeOnly?: true }>): any => {
+const createRule = (
+  properties: Record<string, { xml?: string; xmlParents?: string[]; tag?: string; runtimeOnly?: true }>
+): any => {
   return {
     // Остальное для этих тестов не важно, используются только свойства
     properties: Object.fromEntries(
@@ -100,6 +102,31 @@ describe("getOrderedKeysFromXML", () => {
     })
 
     expect(result).toEqual(["visible"])
+  })
+
+  it("ставит свойство-контейнер перед вложенными свойствами того же XML-узла", () => {
+    const rule = createRule({
+      attributes: { xml: "Attributes" },
+      attributesConditionalAppearance: {
+        xml: "ConditionalAppearance",
+        xmlParents: ["Attributes"],
+      },
+    })
+
+    const xml = {
+      Attributes: {
+        ConditionalAppearance: {
+          "dcsset:viewMode": "Normal",
+        },
+      },
+    }
+
+    const result = getOrderedKeysFromXML({
+      rule,
+      xml,
+    })
+
+    expect(result).toEqual(["attributes", "attributesConditionalAppearance"])
   })
 })
 

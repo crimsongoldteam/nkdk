@@ -15,12 +15,21 @@ import {
   FormAttributeXML,
 } from "./types"
 
+const isAttributesContainerWithoutAttributes = (xml: unknown): boolean => {
+  if (xml === null || xml === undefined || Array.isArray(xml) || typeof xml !== "object") return false
+
+  const xmlObject = xml as Record<string, unknown>
+  return !("Attribute" in xmlObject) && !("_name" in xmlObject) && "ConditionalAppearance" in xmlObject
+}
+
 export const importFormAttributesFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: { Attribute: FormAttributesXML } | FormAttributeXML | FormAttributesXML | undefined
 ): FormAttributes | undefined => {
   if (!xml) return undefined
+
+  if (isAttributesContainerWithoutAttributes(xml)) return []
 
   const xmlAttributes = "Attribute" in xml ? xml.Attribute : xml
   const items = Array.isArray(xmlAttributes) ? xmlAttributes : [xmlAttributes]

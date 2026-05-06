@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { xmlExport } from "~/xml/export/exporter"
-import { fullClientApplicationForm, minimalClientApplicationForm } from "./__fixtures__/data"
+import {
+  conditionalAppearanceWithoutAttributesClientApplicationForm,
+  fullClientApplicationForm,
+  minimalClientApplicationForm,
+} from "./__fixtures__/data"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "./toXML"
 import { ClientApplicationFormXML, FormMetadataXML } from "./types"
@@ -54,6 +58,32 @@ describe("exportToXML", () => {
       const xmlData = exportClientApplicationFormToXML({
         context: mockContextToXML(),
         form: minimalClientApplicationForm,
+        referenceForm,
+      })
+
+      const result = xmlExport({ Form: xmlData })
+
+      expect(result).toEqual(expectedResult)
+    })
+
+    it("exports conditional appearance without attributes", () => {
+      const expectedResult = readXMLFixtureAsString(import.meta.url, "conditionalAppearanceWithoutAttributes.xml")
+      const referenceFormXML = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(
+        import.meta.url,
+        "conditionalAppearanceWithoutAttributes.xml"
+      )
+      const referenceMetadataXML = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+        import.meta.url,
+        "minimalMetadata.xml"
+      )
+      const referenceForm = importClientApplicationFormFromXML({
+        context: mockContextFromXML({ forReference: true }),
+        xml: referenceFormXML.Form,
+        xmlMetadata: referenceMetadataXML.MetaDataObject,
+      })
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: conditionalAppearanceWithoutAttributesClientApplicationForm,
         referenceForm,
       })
 
