@@ -30,7 +30,7 @@ pnpm --filter '@nakidka/core' test
 git push -u origin <branch>
 ```
 
-4. Create a PR into the intended base branch, usually `develop` for `nakidka-core`:
+4. Create a PR into `develop`. The PR base branch must be exactly `develop`; do not target `main`, `master`, or any other branch unless the user explicitly overrides this in the current request:
 
 ```bash
 gh pr create --base develop --head <branch> --title "<title>" --body "<summary and test plan>"
