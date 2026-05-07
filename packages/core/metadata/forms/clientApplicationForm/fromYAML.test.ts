@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
 
-import { fullClientApplicationForm, fullClientApplicationFormYAML } from "./__fixtures__/data"
+import {
+  catalogFullClientApplicationForm,
+  catalogFullClientApplicationFormYAML,
+  fullClientApplicationForm,
+  fullClientApplicationFormYAML,
+} from "./__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 import { ButtonGroup, ButtonGroupPartialYAML } from "../elements/buttonGroup/types"
 import { Table } from "../elements/table/types"
@@ -21,6 +26,38 @@ describe("importClientApplicationFormFromYAML", () => {
     })
 
     expect(result).toEqual(fullClientApplicationForm)
+  })
+
+  it("imports catalog full YAML", () => {
+    const result = importClientApplicationFormFromYAML(mockContext, catalogFullClientApplicationFormYAML, {
+      itemType: "ClientApplicationForm",
+      synonym: { items: {} },
+      comment: "",
+      includeHelpInContents: false,
+      commands: [],
+      childItems: [
+        {
+          itemType: "Button",
+          name: "ФормаКоманда1",
+          type: "UsualButton",
+          commandName: "Form.Command.Команда1",
+        },
+      ],
+      autoCommandBar: {
+        itemType: "AutoCommandBar",
+        autofill: true,
+        childItems: [
+          {
+            itemType: "CommandBarButton",
+            name: "ФормаКоманда2",
+            type: "CommandBarButton",
+            commandName: "Form.Command.Команда1",
+          },
+        ],
+      },
+    })
+
+    expect(result).toEqual(catalogFullClientApplicationForm)
   })
 
   it("should import from form command bar", () => {
