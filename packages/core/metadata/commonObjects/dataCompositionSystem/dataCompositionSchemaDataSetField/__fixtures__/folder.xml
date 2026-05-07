@@ -1,0 +1,12 @@
+<Field xsi:type="dcssch:DataSetFieldFolder">
+	<dcssch:dataPath>ГруппаПолей</dcssch:dataPath>
+	<dcssch:title xsi:type="v8:LocalStringType">
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Группа полей</v8:content>
+		</v8:item>
+	</dcssch:title>
+	<dcssch:useRestriction>
+		<dcssch:condition>true</dcssch:condition>
+	</dcssch:useRestriction>
+</Field>

@@ -58,6 +58,7 @@ import {
 } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types"
 import type {
   DataCompositionSchemaDataSetField,
+  DataCompositionSchemaDataSetFieldKind,
   DataCompositionSchemaDataSetFieldYAML,
   DataSetFieldFields,
   DataSetFieldFieldsYAML,
@@ -713,6 +714,10 @@ export type PropertyTypeRegistry = {
     item: DataCompositionSchemaDataSetField
     yaml: DataCompositionSchemaDataSetFieldYAML
   }
+  DataCompositionSchemaDataSetFieldKind: {
+    item: DataCompositionSchemaDataSetFieldKind
+    yaml: DataCompositionSchemaDataSetFieldKind
+  }
   DataSetFieldFields: {
     item: DataSetFieldFields
     yaml: DataSetFieldFieldsYAML
@@ -886,6 +891,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   CalculatedFieldUseRestriction: "CalculatedFieldUseRestriction",
   CalculatedFieldOrderExpression: "CalculatedFieldOrderExpression",
   DataCompositionSchemaDataSetField: "DataCompositionSchemaDataSetField",
+  DataCompositionSchemaDataSetFieldKind: "DataCompositionSchemaDataSetFieldKind",
   DataSetFieldFields: "DataSetFieldFields",
   Filter: "Filter",
   AvailableFields: "AvailableFields",

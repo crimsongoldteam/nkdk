@@ -1,0 +1,4 @@
+<Field xsi:type="dcssch:DataSetFieldNestedDataSet">
+	<dcssch:dataPath>Товары</dcssch:dataPath>
+	<dcssch:field>Товары</dcssch:field>
+</Field>

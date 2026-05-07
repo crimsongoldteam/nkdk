@@ -1,9 +1,32 @@
 import { MetadataItemRule } from "~/metadata/orchestration"
+import {
+  DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD,
+  DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FOLDER,
+  DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_NESTED_DATA_SET,
+  getDataCompositionSchemaDataSetFieldKind,
+} from "./kind"
+
+type DataSetFieldKindOwner = Parameters<typeof getDataCompositionSchemaDataSetFieldKind>[0]
+
+const isField = (item: DataSetFieldKindOwner) =>
+  getDataCompositionSchemaDataSetFieldKind(item) === DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD
+const isFolder = (item: DataSetFieldKindOwner) =>
+  getDataCompositionSchemaDataSetFieldKind(item) === DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FOLDER
+const isNestedDataSet = (item: DataSetFieldKindOwner) =>
+  getDataCompositionSchemaDataSetFieldKind(item) === DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_NESTED_DATA_SET
 
 export const DataCompositionSchemaDataSetFieldRules = {
   itemType: "DataCompositionSchemaDataSetField",
   xsiType: "dcssch:DataSetFieldField",
   properties: {
+    kind: {
+      type: "DataCompositionSchemaDataSetFieldKind",
+      xml: "_xsi:type",
+      yaml: "Вид",
+      defaultValue: DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD,
+      toXML: (metadataItem) => metadataItem?.kind !== undefined,
+      order: 0,
+    },
     dataPath: {
       type: "string",
       xml: "dcssch:dataPath",
@@ -14,24 +37,28 @@ export const DataCompositionSchemaDataSetFieldRules = {
       type: "string",
       xml: "dcssch:field",
       yaml: "Поле",
+      toXML: (metadataItem) => isField(metadataItem) || isNestedDataSet(metadataItem),
       order: 2,
     },
     role: {
       type: "string",
       xml: "dcssch:role",
       yaml: "Роль",
-      order: 3,
+      toXML: isField,
+      order: 6,
     },
     useRestriction: {
       type: "CalculatedFieldUseRestriction",
       xml: "dcssch:useRestriction",
       yaml: "ОграничениеИспользования",
+      toXML: (metadataItem) => isField(metadataItem) || isFolder(metadataItem),
       order: 4,
     },
     attributeUseRestriction: {
       type: "string",
       xml: "dcssch:attributeUseRestriction",
       yaml: "ОграничениеИспользованияРеквизитов",
+      toXML: isField,
       order: 5,
     },
     title: {
@@ -39,49 +66,56 @@ export const DataCompositionSchemaDataSetFieldRules = {
       xml: "dcssch:title",
       yaml: "Заголовок",
       typedXML: true,
-      order: 6,
+      order: 3,
     },
     valueType: {
       type: "TypeDescription",
       xml: "dcssch:valueType",
       yaml: "ТипЗначения",
-      order: 7,
+      toXML: isField,
+      order: 11,
     },
     appearance: {
       type: "string",
       xml: "dcssch:appearance",
       yaml: "Оформление",
-      order: 8,
+      toXML: isField,
+      order: 12,
     },
     editParameters: {
       type: "string",
       xml: "dcssch:editParameters",
       yaml: "ПараметрыРедактирования",
-      order: 9,
+      toXML: isField,
+      order: 13,
     },
     orderExpressions: {
       type: "string",
       xml: "dcssch:orderExpressions",
       yaml: "ВыраженияУпорядочивания",
-      order: 10,
+      toXML: isField,
+      order: 8,
     },
     presentationExpression: {
       type: "string",
       xml: "dcssch:presentationExpression",
       yaml: "ВыражениеПредставления",
-      order: 11,
+      toXML: isField,
+      order: 7,
     },
     hierarchyCheckDataSet: {
       type: "string",
       xml: "dcssch:hierarchyCheckDataSet",
       yaml: "НаборДанныхПроверкиИерархии",
-      order: 12,
+      toXML: isField,
+      order: 9,
     },
     hierarchyCheckDataSetParameter: {
       type: "string",
       xml: "dcssch:hierarchyCheckDataSetParameter",
       yaml: "ПараметрНабораДанныхПроверкиИерархии",
-      order: 13,
+      toXML: isField,
+      order: 10,
     },
   },
 } as const satisfies MetadataItemRule
