@@ -11,6 +11,17 @@ export const normalMinimalFontYAML: FontYAML = "Academy Engraved LET"
 
 // #endregion
 
+// #region emptyFaceNameMinimalFont
+
+export const emptyFaceNameMinimalFont: Font = {
+  faceName: "",
+  kind: "Absolute",
+}
+
+export const emptyFaceNameMinimalFontYAML: FontYAML = ""
+
+// #endregion
+
 // #region systemMinimalFont
 
 export const systemMinimalFont: Font = {
@@ -150,6 +161,13 @@ export const fontYAMLFixtures: FontYAMLFixture[] = [
     font: normalMinimalFont,
     yaml: normalMinimalFontYAML,
     preview: { Type: "Font", Name: "Academy Engraved LET" },
+  },
+  {
+    name: "empty faceName minimal",
+    xml: `<Font faceName="" kind="Absolute"/>`,
+    font: emptyFaceNameMinimalFont,
+    yaml: emptyFaceNameMinimalFontYAML,
+    preview: { Type: "Font", Name: "" },
   },
   {
     name: "system minimal",
