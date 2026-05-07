@@ -60,6 +60,7 @@ export const ClientApplicationFormRules = {
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",
       xml: "HorizontalAlign",
+      xmlAliases: ["ChildItemsHorizontalAlign"],
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
       tag: FormRulesTags.Form,
@@ -68,6 +69,7 @@ export const ClientApplicationFormRules = {
     childItemsVerticalAlign: {
       yaml: "ВертикальноеПоложениеПодчиненных",
       xml: "VerticalAlign",
+      xmlAliases: ["ChildItemsVerticalAlign"],
       type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
       tag: FormRulesTags.Form,
@@ -86,6 +88,7 @@ export const ClientApplicationFormRules = {
     collapseItemsByImportance: {
       yaml: "СворачиваниеЭлементовПоВажности",
       xml: "CollapseItemsByImportanceVariant",
+      xmlAliases: ["CollapseItemsByImportance"],
       type: "SystemEnumeration",
       typeSE: "CollapseFormItemsByImportance",
       tag: FormRulesTags.Form,
@@ -174,6 +177,7 @@ export const ClientApplicationFormRules = {
     itemsAndTitlesAlign: {
       yaml: "ВыравниваниеЭлементовИЗаголовков",
       xml: "ChildrenAlign",
+      xmlAliases: ["ItemsAndTitlesAlign"],
       type: "SystemEnumeration",
       typeSE: "ItemsAndTitlesAlignVariant",
       tag: FormRulesTags.Form,

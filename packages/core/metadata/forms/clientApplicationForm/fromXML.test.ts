@@ -19,15 +19,8 @@ describe("importClientApplicationFormFromXML", () => {
       xml: xmlForm.Form,
       xmlMetadata: xmlMetadata.MetaDataObject,
     })
-    const {
-      childItemsHorizontalAlign: _childItemsHorizontalAlign,
-      childItemsVerticalAlign: _childItemsVerticalAlign,
-      collapseItemsByImportance: _collapseItemsByImportance,
-      itemsAndTitlesAlign: _itemsAndTitlesAlign,
-      ...expected
-    } = fullClientApplicationForm
 
-    expect(result).toEqual(expected)
+    expect(result).toEqual(fullClientApplicationForm)
   })
 
   it("should import minimal", () => {

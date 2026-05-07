@@ -3,7 +3,7 @@ import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
-import { applyRequiredXMLParents, getOrderedKeysToXML, shouldProcessProperty } from "./helpers"
+import { applyRequiredXMLParents, getOrderedKeysToXML, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
 import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
@@ -31,7 +31,8 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
     for (const key of orderedKeys) {
       if (key === "itemType") continue
       const ruleProp = rule.properties[key]
-      if (!shouldProcessProperty({ rule: ruleProp, operation: "exportToXML", metadataItem: metadata, context })) continue
+      if (!shouldProcessProperty({ rule: ruleProp, operation: "exportToXML", metadataItem: metadata, context }))
+        continue
 
       const currentContext: ConfigurationContextWithExportToXML = {
         ...context,
@@ -59,7 +60,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
         metadataItem: metadata,
       })
 
-      setXMLValue(key, result, ruleProp, exportedValue)
+      setXMLValue(key, result, ruleProp, exportedValue, referenceMetadata)
     }
   } finally {
     xmlContext?.propertiesItemXmlStack?.pop()
@@ -72,7 +73,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   return result
 }
 
-export const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: any): void => {
+export const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: any, referenceMetadata?: any): void => {
   if (value === undefined) return
 
   if (Array.isArray(value) && value.length === 0) {
@@ -92,7 +93,11 @@ export const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: an
     return
   }
 
-  const xmlKey = rule.xml ?? capitalize(key)
+  const canonicalXmlKey = rule.xml ?? capitalize(key)
+  const sourceXmlKey = referenceMetadata?.[XML_SOURCE_KEYS]?.[key]
+  const xmlKey = [canonicalXmlKey, ...((rule as any).xmlAliases ?? [])].includes(sourceXmlKey)
+    ? sourceXmlKey
+    : canonicalXmlKey
 
   if (rule.xmlParents === undefined) {
     xml[xmlKey] = value

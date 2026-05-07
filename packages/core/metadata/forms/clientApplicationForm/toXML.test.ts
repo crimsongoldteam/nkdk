@@ -16,14 +16,6 @@ describe("exportToXML", () => {
   describe("exportClientApplicationFormToXML", () => {
     it("should export all fields to XML", () => {
       const expectedResult = readXMLFixtureAsString(import.meta.url, "full.xml")
-        .replace("\t<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>\n", "")
-        .replace("\t<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>\n", "")
-        .replace("\t<CollapseItemsByImportance>Use</CollapseItemsByImportance>\n", "")
-        .replace("\t<ItemsAndTitlesAlign>ItemsLeftTitlesLeft</ItemsAndTitlesAlign>\n", "")
-        .replace(
-          "\t<WindowOptionsKey>WindowOptionsKey</WindowOptionsKey>\n</Form>",
-          "\t<WindowOptionsKey>WindowOptionsKey</WindowOptionsKey>\n\t<HorizontalAlign>Left</HorizontalAlign>\n\t<VerticalAlign>Top</VerticalAlign>\n\t<CollapseItemsByImportanceVariant>Use</CollapseItemsByImportanceVariant>\n\t<ChildrenAlign>ItemsLeftTitlesLeft</ChildrenAlign>\n</Form>"
-        )
 
       const referenceForm = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
 

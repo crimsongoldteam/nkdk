@@ -69,6 +69,9 @@ export interface BasePropertyRule {
   /** Название в XML, если не заполнено - будет использован ключ*/
   xml?: string
 
+  /** Альтернативные названия XML-тега для импорта и round-trip по reference */
+  xmlAliases?: string[]
+
   /** Значение по умолчанию в XML (будет выгружено как при пустом значении)*/
   defaultValueXML?: any
 
