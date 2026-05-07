@@ -67,22 +67,26 @@ const buildFormAttributeColumnsGraph: BuildGraphFromModelFunction = ({
 
       // (1) Прокси-узел: owning-ребро «ДополнениеТаблицы» от реквизита к прокси
       sections.push({
-        children: [{
-          idSuffix: lastSegment,
-          name: lastSegment,
-          item: { itemType: "AdditionalColumnsProxy", table: tablePath },
-        }],
+        children: [
+          {
+            idSuffix: lastSegment,
+            name: lastSegment,
+            item: { itemType: "AdditionalColumnsProxy", table: tablePath },
+          },
+        ],
         edgeKind: ADDITION_EDGE_KIND,
         edgeYaml: ADDITION_EDGE_YAML,
       })
 
       // (2) Reference-ребро «Таблица» от прокси к ТЧ через resolveFormLocalPath
       sections.push({
-        formLocalReferences: [{
-          formLocalPath: tablePath,
-          formNodeId,
-          parentOverride: proxyNodeId,
-        }],
+        formLocalReferences: [
+          {
+            formLocalPath: tablePath,
+            formNodeId,
+            parentOverride: proxyNodeId,
+          },
+        ],
         edgeKind: TABLE_EDGE_KIND,
         edgeYaml: TABLE_EDGE_YAML,
       })
@@ -144,12 +148,15 @@ const buildFormAttributeColumnsGraph: BuildGraphFromModelFunction = ({
 
   if (children.length === 0) return undefined
 
-  return [{
-    children,
-    recurse: recurses,
-    edgeKind: COLUMN_EDGE_KIND,
-    edgeYaml: COLUMN_EDGE_YAML,
-  }]
+  return [
+    {
+      children,
+      recurse: recurses,
+      edgeKind: COLUMN_EDGE_KIND,
+      edgeYaml: COLUMN_EDGE_YAML,
+    },
+  ]
 }
 
 registerTypeRule("FormAttributeColumns", "buildGraphFromModel", buildFormAttributeColumnsGraph)
+registerTypeRule("FormAttributeAdditionalColumns", "buildGraphFromModel", buildFormAttributeColumnsGraph)

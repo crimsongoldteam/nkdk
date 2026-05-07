@@ -87,6 +87,8 @@ export const FormAttributeRules = {
       type: "FormAttributeAdditionalColumns",
       fromXML: false,
       toXML: false,
+      fromYAML: false,
+      toYAML: false,
     },
 
     functionalOptions: {

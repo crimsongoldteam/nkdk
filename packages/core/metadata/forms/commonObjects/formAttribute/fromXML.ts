@@ -7,6 +7,7 @@ import {
   FormAttributeAdditionalColumns,
   FormAttributeAdditionalColumnXML,
   FormAttributeColumn,
+  FormAttributeColumnsXML,
   FormAttributeColumnXML,
   FormAttributes,
   FormAttributesXML,
@@ -109,9 +110,23 @@ const importFormAttributeFromXML = (context: ConfigurationContextFromXML, xml: F
 const importFormAttributeColumnsFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  xml: FormAttributeColumnXML | FormAttributeColumnXML[] | undefined
+  xml: FormAttributeColumnsXML | FormAttributeColumnXML | FormAttributeColumnXML[] | undefined
 ): FormAttributeColumn[] | undefined => {
+  if (isFormAttributeColumnsXML(xml)) {
+    return importColumnsFromXML(context, xml.Column)
+  }
+
   return importColumnsFromXML(context, xml)
+}
+
+const isFormAttributeColumnsXML = (xml: unknown): xml is FormAttributeColumnsXML => {
+  return (
+    xml !== undefined &&
+    xml !== null &&
+    !Array.isArray(xml) &&
+    typeof xml === "object" &&
+    ("Column" in xml || "AdditionalColumns" in xml)
+  )
 }
 
 const importColumnsFromXML = (

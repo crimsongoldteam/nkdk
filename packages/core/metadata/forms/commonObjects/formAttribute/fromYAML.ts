@@ -5,6 +5,7 @@ import { importMetadataItemFromYAML, registerTypeRule } from "~/metadata/orchest
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
+  FormAttributeAdditionalColumnYAML,
   FormAttributeAdditionalColumns,
   FormAttributeColumn,
   FormAttributeColumnYAML,
@@ -55,8 +56,8 @@ const importFormAttributeFromYAML = (
     name,
   }
 
-  const columns = importFormAttributeColumnsFromYAML(context, yaml)
-  const additionalColumns = importFormAttributeAdditionalColumnsFromYAML(context, yaml)
+  const columns = importFormAttributeColumnsFromYAML(context, yaml, attribute as FormAttribute)
+  const additionalColumns = importFormAttributeAdditionalColumnsFromYAML(context, yaml, attribute as FormAttribute)
 
   if (columns == undefined) throw new Error("Columns are required")
 
@@ -75,7 +76,8 @@ const importFormAttributeFromYAML = (
 
 const importFormAttributeColumnsFromYAML = (
   context: ConfigurationContext,
-  yamlWithColumns: FormAttributeYAML | TypeDescriptionYAML
+  yamlWithColumns: FormAttributeYAML | TypeDescriptionYAML,
+  formAttribute: FormAttribute
 ): FormAttributeColumns => {
   if (
     typeof yamlWithColumns !== "object" ||
@@ -90,7 +92,16 @@ const importFormAttributeColumnsFromYAML = (
     return []
   }
 
+  if (!isFormObject(formAttribute)) {
+    return []
+  }
+
   return importColumnsFromYAML(context, columnsData)
+}
+
+const isFormObject = (formAttribute: FormAttribute): boolean => {
+  const formObjectTypes = ["ValueTable", "ValueTree", "ChoiceList"]
+  return formAttribute.type?.type.some((type) => formObjectTypes.includes(type)) ?? false
 }
 
 const importColumnsFromYAML = (
@@ -137,21 +148,23 @@ const importAdditionalColumnsFromYAML = (
 
 const importFormAttributeAdditionalColumnsFromYAML = (
   context: ConfigurationContext,
-  yamlWithColumns: FormAttributeYAML | TypeDescriptionYAML
+  yamlWithColumns: FormAttributeYAML | TypeDescriptionYAML,
+  formAttribute: FormAttribute
 ): FormAttributeAdditionalColumns[] => {
-  if (
-    typeof yamlWithColumns !== "object" ||
-    yamlWithColumns === null ||
-    Array.isArray(yamlWithColumns) ||
-    !("ДополнительныеКолонки" in yamlWithColumns)
-  ) {
+  if (typeof yamlWithColumns !== "object" || yamlWithColumns === null || Array.isArray(yamlWithColumns)) {
     return []
   }
 
-  const additionalColumnsData = (yamlWithColumns as FormAttributeYAML).ДополнительныеКолонки
-  if (additionalColumnsData == null) return []
+  const formAttributeYAML = yamlWithColumns as FormAttributeYAML
+  if (formAttributeYAML.ДополнительныеКолонки != null) {
+    return importAdditionalColumnsFromYAML(context, formAttributeYAML.ДополнительныеКолонки)
+  }
 
-  return importAdditionalColumnsFromYAML(context, additionalColumnsData)
+  if (!isFormObject(formAttribute) && formAttributeYAML.Колонки != null) {
+    return importAdditionalColumnsFromYAML(context, formAttributeYAML.Колонки as FormAttributeAdditionalColumnYAML)
+  }
+
+  return []
 }
 
 registerTypeRule("FormAttributes", "importFromYAML", importFormAttributesFromYAML)
