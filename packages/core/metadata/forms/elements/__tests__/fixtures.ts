@@ -240,7 +240,14 @@ import {
   minimalSpreadSheetDocumentField,
 } from "../spreadSheetDocumentField/__fixtures__/data"
 import { dynamicList, dynamicListYAML } from "../table/__fixtures__/dynamicList"
-import { fullTable, fullTableEnterprise, fullTableYAML, minimalTable } from "../table/__fixtures__/data"
+import {
+  fullTable,
+  fullTableEnterprise,
+  fullTableYAML,
+  fullTree,
+  fullTreeYAML,
+  minimalTable,
+} from "../table/__fixtures__/data"
 import {
   fullTextDocumentField,
   fullTextDocumentFieldEnterprise,
@@ -1095,6 +1102,16 @@ export const ElementFixtures: ElementFixture[] = [
     contextAttributes: [
       { itemType: "FormAttribute", name: "ДинамическийСписок", type: { type: ["DynamicList"] }, columns: [] },
     ],
+  },
+  {
+    group: "Table",
+    name: "full tree",
+    element: Table,
+    xml: "fullTree.xml",
+    xmlFolder: undefined,
+    model: fullTree,
+    yaml: fullTreeYAML,
+    enterprise: undefined,
   },
   //#endregion
   //#region TextDocumentField

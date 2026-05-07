@@ -270,6 +270,54 @@ export const fullTable = {
   width: 1,
 } satisfies Omit<RequiredFieldsElement<Table>, "period" | "topLevelParent">
 
+const fullTreeBase = (({
+  autoInsertNewRow: _autoInsertNewRow,
+  contextMenu: _contextMenu,
+  defaultItem: _defaultItem,
+  enableDrag: _enableDrag,
+  extendedTooltip: _extendedTooltip,
+  searchControl: _searchControl,
+  searchStringRepresentation: _searchStringRepresentation,
+  viewStatusRepresentation: _viewStatusRepresentation,
+  ...base
+}) => base)(fullTable)
+
+export const fullTree = {
+  ...fullTreeBase,
+  name: "Дерево",
+  dataPath: "Дерево",
+  title: { items: { ru: "Заголовок дерева" } },
+  rowPictureDataPath: "Дерево.Картинка",
+  childItems: [
+    {
+      dataPath: "Дерево.Ввод",
+      editMode: "EnterOnInput",
+      multipleValuesExtendedEdit: true,
+      itemType: "TableInputField",
+      name: "ДеревоВвод",
+    },
+    {
+      dataPath: "Дерево.Надпись",
+      editMode: "EnterOnInput",
+      itemType: "TableLabelField",
+      name: "ДеревоНадпись",
+    },
+    {
+      checkBoxType: "Auto",
+      dataPath: "Дерево.Флажок",
+      editMode: "EnterOnInput",
+      itemType: "TableCheckBoxField",
+      name: "ДеревоФлажок",
+    },
+    {
+      dataPath: "Дерево.Картинка",
+      editMode: "EnterOnInput",
+      itemType: "TablePictureField",
+      name: "ДеревоКартинка",
+    },
+  ],
+} satisfies Table
+
 export const fullTableYAML: TablePartialYAML = {
   АвтоВводНезаполненного: "Истина",
   АвтоВводНовойСтроки: "Истина",
@@ -382,6 +430,23 @@ export const fullTableYAML: TablePartialYAML = {
   Ширина: 1,
   Шрифт: "КрупныйШрифтТекста",
   ШрифтЗаголовка: "МелкийШрифтТекста",
+}
+
+const fullTreeYAMLBase = (({
+  АвтоВводНовойСтроки: _autoInsertNewRow,
+  АктивизироватьПоУмолчанию: _defaultItem,
+  КонтекстноеМеню: _contextMenu,
+  ОтображениеСостоянияПросмотра: _viewStatusRepresentation,
+  ОтображениеСтрокиПоиска: _searchStringRepresentation,
+  РазрешитьПеретаскивание: _enableDrag,
+  РасширеннаяПодсказка: _extendedTooltip,
+  УправлениеПоиском: _searchControl,
+  ...base
+}) => base)(fullTableYAML)
+
+export const fullTreeYAML: TablePartialYAML = {
+  ...fullTreeYAMLBase,
+  ПутьКДаннымКартинкиСтроки: "Дерево.Картинка",
 }
 
 export const fullTableEnterprise = {

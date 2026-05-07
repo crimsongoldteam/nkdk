@@ -1,0 +1,169 @@
+<Table name="Дерево" id="26" DisplayImportance="VeryHigh">
+	<Representation>Tree</Representation>
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<TitleLocation>Top</TitleLocation>
+	<TitleHeight>10</TitleHeight>
+	<CommandBarLocation>Top</CommandBarLocation>
+	<Enabled>false</Enabled>
+	<ReadOnly>true</ReadOnly>
+	<SkipOnInput>false</SkipOnInput>
+	<ChangeRowSet>false</ChangeRowSet>
+	<ChangeRowOrder>false</ChangeRowOrder>
+	<Width>1</Width>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<MaxWidth>3</MaxWidth>
+	<Height>4</Height>
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<MaxHeight>5</MaxHeight>
+	<HeightInTableRows>6</HeightInTableRows>
+	<HeightControlVariant>UseContentHeight</HeightControlVariant>
+	<AutoMaxRowsCount>false</AutoMaxRowsCount>
+	<MaxRowsCount>7</MaxRowsCount>
+	<ChoiceMode>true</ChoiceMode>
+	<MultipleChoice>true</MultipleChoice>
+	<RowInputMode>AfterCurrentRow</RowInputMode>
+	<SelectionMode>SingleRow</SelectionMode>
+	<RowSelectionMode>Row</RowSelectionMode>
+	<Header>false</Header>
+	<HeaderHeight>8</HeaderHeight>
+	<Footer>true</Footer>
+	<FooterHeight>9</FooterHeight>
+	<HorizontalScrollBar>UseAlways</HorizontalScrollBar>
+	<VerticalScrollBar>UseAlways</VerticalScrollBar>
+	<HorizontalLines>false</HorizontalLines>
+	<VerticalLines>false</VerticalLines>
+	<UseAlternationRowColor>true</UseAlternationRowColor>
+	<AutoAddIncomplete>true</AutoAddIncomplete>
+	<AutoMarkIncomplete>true</AutoMarkIncomplete>
+	<SearchOnInput>Use</SearchOnInput>
+	<InitialListView>Beginning</InitialListView>
+	<InitialTreeView>ExpandTopLevel</InitialTreeView>
+	<Output>Enable</Output>
+	<HorizontalStretch>false</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
+	<FileDragMode>AsFile</FileDragMode>
+	<DataPath>Дерево</DataPath>
+	<RowPictureDataPath>Дерево.Картинка</RowPictureDataPath>
+	<RowsPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</RowsPicture>
+	<TextColor>web:Blue</TextColor>
+	<BackColor>web:Red</BackColor>
+	<BorderColor>web:Green</BorderColor>
+	<Font ref="style:LargeTextFont" kind="StyleItem"/>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок дерева</v8:content>
+		</v8:item>
+	</Title>
+	<TitleTextColor>web:Yellow</TitleTextColor>
+	<TitleFont ref="style:SmallTextFont" kind="StyleItem"/>
+	<Shortcut>Cmd+F</Shortcut>
+	<CommandSet>
+		<ExcludedCommand>Add</ExcludedCommand>
+	</CommandSet>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Текст подсказки</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+	<SearchStringLocation>Top</SearchStringLocation>
+	<ViewStatusLocation>Top</ViewStatusLocation>
+	<SearchControlLocation>CommandBar</SearchControlLocation>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Center</GroupVerticalAlign>
+	<RefreshRequest>PullFromTop</RefreshRequest>
+	<CurrentRowUse>SelectionPresentationAndChoice</CurrentRowUse>
+	<BehaviorOnHorizontalCompression>HideItemsByImportance</BehaviorOnHorizontalCompression>
+	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+	<ContextMenu name="ДеревоКонтекстноеМеню" id="27"/>
+	<AutoCommandBar name="ДеревоКоманднаяПанель" id="28">
+		<Autofill>false</Autofill>
+	</AutoCommandBar>
+	<ExtendedTooltip name="ДеревоРасширеннаяПодсказка" id="29"/>
+	<SearchStringAddition name="ДеревоСтрокаПоиска" id="30">
+		<AdditionSource>
+			<Item>Дерево</Item>
+			<Type>SearchStringRepresentation</Type>
+		</AdditionSource>
+		<ContextMenu name="ДеревоСтрокаПоискаКонтекстноеМеню" id="31"/>
+		<ExtendedTooltip name="ДеревоСтрокаПоискаРасширеннаяПодсказка" id="32"/>
+	</SearchStringAddition>
+	<ViewStatusAddition name="ДеревоСостояниеПросмотра" id="33">
+		<AdditionSource>
+			<Item>Дерево</Item>
+			<Type>ViewStatusRepresentation</Type>
+		</AdditionSource>
+		<ContextMenu name="ДеревоСостояниеПросмотраКонтекстноеМеню" id="34"/>
+		<ExtendedTooltip name="ДеревоСостояниеПросмотраРасширеннаяПодсказка" id="35"/>
+	</ViewStatusAddition>
+	<SearchControlAddition name="ДеревоУправлениеПоиском" id="36">
+		<AdditionSource>
+			<Item>Дерево</Item>
+			<Type>SearchControl</Type>
+		</AdditionSource>
+		<ContextMenu name="ДеревоУправлениеПоискомКонтекстноеМеню" id="37"/>
+		<ExtendedTooltip name="ДеревоУправлениеПоискомРасширеннаяПодсказка" id="38"/>
+	</SearchControlAddition>
+	<Events>
+		<Event name="OnEditEnd">ТаблицаПриОкончанииРедактирования</Event>
+		<Event name="DragCheck">ТаблицаПроверкаПеретаскивания</Event>
+		<Event name="ValueChoice">ТаблицаВыборЗначения</Event>
+		<Event name="Selection">ТаблицаВыбор</Event>
+		<Event name="BeforeAddRow">ТаблицаПередНачаломДобавления</Event>
+		<Event name="OnCurrentParentChange">ТаблицаПриСменеТекущегоРодителя</Event>
+		<Event name="BeforeDeleteRow">ТаблицаПередУдалением</Event>
+		<Event name="BeforeEditEnd">ТаблицаПередОкончаниемРедактирования</Event>
+		<Event name="OnActivateRow">ТаблицаПриАктивизацииСтроки</Event>
+		<Event name="DragStart">ТаблицаНачалоПеретаскивания</Event>
+		<Event name="OnActivateField">ТаблицаПриАктивизацииПоля</Event>
+		<Event name="BeforeExpand">ТаблицаПередРазворачиванием</Event>
+		<Event name="Drag">ТаблицаПеретаскивание</Event>
+		<Event name="ChoiceProcessing">ТаблицаОбработкаВыбора</Event>
+		<Event name="BeforeCollapse">ТаблицаПередСворачиванием</Event>
+		<Event name="BeforeRowChange">ТаблицаПередНачаломИзменения</Event>
+		<Event name="OnStartEdit">ТаблицаПриНачалеРедактирования</Event>
+		<Event name="DragEnd">ТаблицаОкончаниеПеретаскивания</Event>
+		<Event name="NewWriteProcessing">ТаблицаОбработкаЗаписиНового</Event>
+		<Event name="AfterDeleteRow">ТаблицаПослеУдаления</Event>
+		<Event name="OnActivateCell">ТаблицаПриАктивизацииЯчейки</Event>
+		<Event name="OnChange">ТаблицаПриИзменении</Event>
+		<Event name="RefreshRequestProcessing">ТаблицаОбработкаЗапросаОбновления</Event>
+	</Events>
+	<ChildItems>
+		<InputField name="ДеревоВвод" id="48">
+			<DataPath>Дерево.Ввод</DataPath>
+			<EditMode>EnterOnInput</EditMode>
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<ContextMenu name="ДеревоВводКонтекстноеМеню" id="49"/>
+			<ExtendedTooltip name="ДеревоВводРасширеннаяПодсказка" id="50"/>
+		</InputField>
+		<LabelField name="ДеревоНадпись" id="39">
+			<DataPath>Дерево.Надпись</DataPath>
+			<EditMode>EnterOnInput</EditMode>
+			<ContextMenu name="ДеревоНадписьКонтекстноеМеню" id="40"/>
+			<ExtendedTooltip name="ДеревоНадписьРасширеннаяПодсказка" id="41"/>
+		</LabelField>
+		<CheckBoxField name="ДеревоФлажок" id="42">
+			<DataPath>Дерево.Флажок</DataPath>
+			<EditMode>EnterOnInput</EditMode>
+			<CheckBoxType>Auto</CheckBoxType>
+			<ContextMenu name="ДеревоФлажокКонтекстноеМеню" id="43"/>
+			<ExtendedTooltip name="ДеревоФлажокРасширеннаяПодсказка" id="44"/>
+		</CheckBoxField>
+		<PictureField name="ДеревоКартинка" id="45">
+			<DataPath>Дерево.Картинка</DataPath>
+			<EditMode>EnterOnInput</EditMode>
+			<ContextMenu name="ДеревоКартинкаКонтекстноеМеню" id="46"/>
+			<ExtendedTooltip name="ДеревоКартинкаРасширеннаяПодсказка" id="47"/>
+		</PictureField>
+	</ChildItems>
+</Table>
