@@ -112,6 +112,7 @@ const commonAttributeProperties = {
     type: "number",
     xmlParents: ["Properties"],
     order: 13,
+    typedXML: "xs:string",
     defaultValueXMLRaw: { "_xsi:nil": true },
   },
   maxValue: {
@@ -120,6 +121,7 @@ const commonAttributeProperties = {
     type: "number",
     xmlParents: ["Properties"],
     order: 14,
+    typedXML: "xs:string",
     defaultValueXMLRaw: { "_xsi:nil": true },
   },
   fillChecking: {
