@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockContextToXML } from "~/tests/mockContext"
 import { CypherCache } from "~/metadata/orchestration/property/cypherCache"
 import { exportPropertiesToXML } from "~/metadata/orchestration/property/toXML"
-import { TableRules, dynamicListFormAttributeQuery, valueTableFormAttributeQuery } from "./rules"
+import { TableRules, dynamicListFormAttributeQuery, rowFilterFormAttributeQuery } from "./rules"
 import type { Table } from "./types"
 
 function exportTableWithRows(
@@ -10,7 +10,7 @@ function exportTableWithRows(
   rows:
     | {
         dynamicList?: Record<string, unknown>[]
-        valueTable?: Record<string, unknown>[]
+        rowFilter?: Record<string, unknown>[]
       }
     | undefined,
 ): Record<string, unknown> {
@@ -21,8 +21,8 @@ function exportTableWithRows(
     if (rows.dynamicList !== undefined) {
       cache.set(dynamicListFormAttributeQuery, rows.dynamicList)
     }
-    if (rows.valueTable !== undefined) {
-      cache.set(valueTableFormAttributeQuery, rows.valueTable)
+    if (rows.rowFilter !== undefined) {
+      cache.set(rowFilterFormAttributeQuery, rows.rowFilter)
     }
     context.exportToXML!.cypherCache = cache
   }
@@ -120,7 +120,7 @@ describe("Table CypherPredicate — rowFilter", () => {
         dataPath: "Таблица",
         id: undefined,
       },
-      { valueTable: [{ name: "Таблица" }] },
+      { rowFilter: [{ name: "Таблица" }] },
     )
 
     expect(result.RowFilter).toEqual({ "_xsi:nil": "true" })
@@ -134,7 +134,21 @@ describe("Table CypherPredicate — rowFilter", () => {
         dataPath: "Таблица.Колонка",
         id: undefined,
       },
-      { valueTable: [{ name: "Таблица" }] },
+      { rowFilter: [{ name: "Таблица" }] },
+    )
+
+    expect(result.RowFilter).toEqual({ "_xsi:nil": "true" })
+  })
+
+  it("экспортирует rowFilter, когда dataPath начинается с обычного form attribute", () => {
+    const result = exportTableWithRows(
+      {
+        itemType: "Table",
+        name: "ЦеновыеГруппы",
+        dataPath: "Объект.ЦеновыеГруппы",
+        id: undefined,
+      },
+      { rowFilter: [{ name: "Объект" }] },
     )
 
     expect(result.RowFilter).toEqual({ "_xsi:nil": "true" })
@@ -150,13 +164,28 @@ describe("Table CypherPredicate — rowFilter", () => {
       },
       {
         dynamicList: [{ name: "ДинамическийСписок" }],
-        valueTable: [],
+        rowFilter: [],
       },
     )
 
     expect(result.RowFilter).toBeUndefined()
     expect(result.Period).toBeDefined()
     expect(result.TopLevelParent).toBeDefined()
+  })
+
+  it("НЕ экспортирует rowFilter для ValueTree-реквизита", () => {
+    // ValueTree-реквизиты отфильтровываются Cypher-запросом до predicate.
+    const result = exportTableWithRows(
+      {
+        itemType: "Table",
+        name: "Дерево",
+        dataPath: "Дерево",
+        id: undefined,
+      },
+      { rowFilter: [] },
+    )
+
+    expect(result.RowFilter).toBeUndefined()
   })
 
   it("НЕ экспортирует rowFilter, когда кеш пуст", () => {
@@ -167,7 +196,7 @@ describe("Table CypherPredicate — rowFilter", () => {
         dataPath: "Таблица",
         id: undefined,
       },
-      { valueTable: [] },
+      { rowFilter: [] },
     )
 
     expect(result.RowFilter).toBeUndefined()
