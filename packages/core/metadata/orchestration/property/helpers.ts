@@ -1,7 +1,6 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToMetadata } from ".."
-import { isCypherPredicate } from "./cypherPredicate"
 import { TypeRulesOperations } from "./fn"
 import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
@@ -50,7 +49,6 @@ export const shouldProcessProperty = (params: {
         return Object.hasOwn(referenceMetadata, propertyKey)
       }
       if (typeof rule.toXML === "function") return rule.toXML(metadataItem, context)
-      if (isCypherPredicate(rule.toXML)) return shouldProcessCypherPredicate(rule.toXML, metadataItem, context)
       return true
     case "importFromXML":
       if (rule.filePath !== undefined) return false
@@ -65,18 +63,6 @@ export const shouldProcessProperty = (params: {
     default:
       return true
   }
-}
-
-const shouldProcessCypherPredicate = (
-  predicate: import("./cypherPredicate").CypherPredicate,
-  metadataItem: unknown,
-  context?: import("~/metadata/context/types").ConfigurationContextWithExportToXML,
-): boolean => {
-  const cache = context?.exportToXML?.cypherCache
-  if (!cache) return false
-  const rows = cache.get(predicate.query)
-  if (rows === undefined) return false
-  return predicate.test(metadataItem, rows)
 }
 
 const buildPathStructure = <Rule extends MetadataItemRule>(

@@ -93,9 +93,8 @@ describe("exportToXML", () => {
     })
 
     it("не добавляет Period и TopLevelParent для таблицы DynamicList без referenceForm", () => {
-      const context = mockContextToXML()
       const xmlData = exportClientApplicationFormToXML({
-        context,
+        context: mockContextToXML(),
         form: {
           ...minimalClientApplicationForm,
           attributes: [
@@ -127,7 +126,6 @@ describe("exportToXML", () => {
 
       expect(table?.Period).toBeUndefined()
       expect(table?.TopLevelParent).toBeUndefined()
-      expect(context.exportToXML.cypherCache).toBeUndefined()
     })
 
     it("сохраняет Period и TopLevelParent для таблицы из referenceForm", () => {
@@ -191,9 +189,8 @@ describe("exportToXML", () => {
     })
 
     it("не добавляет RowFilter для обычного реквизита без referenceForm", () => {
-      const context = mockContextToXML()
       const xmlData = exportClientApplicationFormToXML({
-        context,
+        context: mockContextToXML(),
         form: {
           ...minimalClientApplicationForm,
           attributes: [
@@ -222,7 +219,6 @@ describe("exportToXML", () => {
       const table = childItems[0]?.Table
 
       expect(table?.RowFilter).toBeUndefined()
-      expect(context.exportToXML.cypherCache).toBeUndefined()
     })
 
     it("сохраняет RowFilter для таблицы из referenceForm", () => {
