@@ -1,6 +1,6 @@
 import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
 import { FormAttribute } from "~/metadata/forms/commonObjects/formAttribute/types"
-import { dynamicListFormAttributeQuery, valueTableFormAttributeQuery } from "~/metadata/forms/elements/table/rules"
+import { dynamicListFormAttributeQuery, rowFilterFormAttributeQuery } from "~/metadata/forms/elements/table/rules"
 import { CollectableElement, ElementXML, exportElementToXML, importElementFromXML } from "~/metadata/orchestration"
 import { CypherCache } from "~/metadata/orchestration/property/cypherCache"
 import { getElementXMLTagName } from "~/metadata/orchestration/formElement/ruleFactory"
@@ -45,9 +45,9 @@ export function testExportElementToXML<TElement extends CollectableElement>(
       cache.set(dynamicListFormAttributeQuery, dynamicListRows)
     }
 
-    const valueTableRows = getContextAttributeRowsByType(contextAttributes, "ValueTable")
-    if (valueTableRows.length > 0) {
-      cache.set(valueTableFormAttributeQuery, valueTableRows)
+    const rowFilterRows = getRowFilterContextAttributeRows(contextAttributes)
+    if (rowFilterRows.length > 0) {
+      cache.set(rowFilterFormAttributeQuery, rowFilterRows)
     }
 
     context.exportToXML!.cypherCache = cache
@@ -68,7 +68,7 @@ export function testExportElementToXML<TElement extends CollectableElement>(
 
 function getContextAttributeRowsByType(
   contextAttributes: FormAttribute[],
-  typeName: "DynamicList" | "ValueTable"
+  typeName: "DynamicList"
 ): Record<string, unknown>[] {
   return contextAttributes
     .filter(
@@ -76,6 +76,18 @@ function getContextAttributeRowsByType(
         attr.itemType === "FormAttribute" &&
         Array.isArray(attr.type?.type) &&
         attr.type.type.includes(typeName)
+    )
+    .map((attr) => ({ name: attr.name }))
+}
+
+function getRowFilterContextAttributeRows(contextAttributes: FormAttribute[]): Record<string, unknown>[] {
+  return contextAttributes
+    .filter(
+      (attr) =>
+        attr.itemType === "FormAttribute" &&
+        Array.isArray(attr.type?.type) &&
+        !attr.type.type.includes("DynamicList") &&
+        !attr.type.type.includes("ValueTree")
     )
     .map((attr) => ({ name: attr.name }))
 }
