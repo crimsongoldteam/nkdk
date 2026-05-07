@@ -17,7 +17,13 @@ const fullCommandInterface: CommandInterface = {
 
 export const fullClientApplicationForm: Omit<
   Required<ClientApplicationForm>,
-  "uuid" | "formType" | "name" | "attributesConditionalAppearance"
+  | "uuid"
+  | "formType"
+  | "name"
+  | "attributesConditionalAppearance"
+  | "mobileDeviceCommandBarContent"
+  | "settingsStorage"
+  | "scalingMode"
 > = {
   parameters: [
     {
@@ -283,7 +289,10 @@ export const catalogFullClientApplicationForm: ClientApplicationForm = {
 
 export const fullClientApplicationFormYAML: Omit<
   Required<ClientApplicationFormYAML>,
-  "УсловноеОформлениеРеквизитов"
+  | "УсловноеОформлениеРеквизитов"
+  | "СоставКоманднойПанелиНаМобильномУстройстве"
+  | "ХранилищеНастроек"
+  | "ВариантМасштаба"
 > = {
   Синоним: "Синоним формы",
   Комментарий: "Комментарий к форме",
@@ -408,7 +417,13 @@ export const fullClientApplicationFormYAML: Omit<
   },
   РежимВыбора: "БыстрыйВыбор",
   // #endregion
-} satisfies Omit<Required<ClientApplicationFormYAML>, "УсловноеОформлениеРеквизитов">
+} satisfies Omit<
+  Required<ClientApplicationFormYAML>,
+  | "УсловноеОформлениеРеквизитов"
+  | "СоставКоманднойПанелиНаМобильномУстройстве"
+  | "ХранилищеНастроек"
+  | "ВариантМасштаба"
+>
 
 export const minimalClientApplicationForm: ClientApplicationForm = {
   childItems: [],
