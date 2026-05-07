@@ -46,7 +46,7 @@ export const shouldProcessProperty = (params: {
       if (rule.preserveFromReferenceXML === true) {
         if (propertyKey === undefined) return false
         if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object") return false
-        return Object.hasOwn(referenceMetadata, propertyKey)
+        return Object.prototype.hasOwnProperty.call(referenceMetadata, propertyKey)
       }
       if (typeof rule.toXML === "function") return rule.toXML(metadataItem, context)
       return true

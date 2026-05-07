@@ -268,7 +268,22 @@ export const fullTable = {
   viewStatusLocation: "Top",
   visible: false,
   width: 1,
-} satisfies Omit<RequiredFieldsElement<Table>, "period" | "topLevelParent">
+} satisfies Omit<
+  RequiredFieldsElement<Table>,
+  | "allowGettingCurrentRowURL"
+  | "allowRootChoice"
+  | "autoRefresh"
+  | "autoRefreshPeriod"
+  | "choiceFoldersAndItems"
+  | "enableStartDrag"
+  | "period"
+  | "restoreCurrentRow"
+  | "rowFilter"
+  | "showRoot"
+  | "topLevelParent"
+  | "updateOnDataChange"
+  | "userSettingsGroup"
+>
 
 const fullTreeBase = (({
   autoInsertNewRow: _autoInsertNewRow,
@@ -633,7 +648,22 @@ export const fullTableEnterprise = {
   Visible: false,
   Width: 1,
   RowsPicture: { Type: "Picture", Value: "PictureLib.Print" },
-} satisfies Omit<Required<TableEnterprise>, "Period" | "TopLevelParent" | "RowFilter">
+} satisfies Omit<
+  Required<TableEnterprise>,
+  | "AllowGettingCurrentRowURL"
+  | "AllowRootChoice"
+  | "AutoRefresh"
+  | "AutoRefreshPeriod"
+  | "ChoiceFoldersAndItems"
+  | "EnableStartDrag"
+  | "Period"
+  | "RestoreCurrentRow"
+  | "RowFilter"
+  | "ShowRoot"
+  | "TopLevelParent"
+  | "UpdateOnDataChange"
+  | "UserSettingsGroup"
+>
 
 export const fullTableChildItems = {
   ТаблицаГруппа1: {

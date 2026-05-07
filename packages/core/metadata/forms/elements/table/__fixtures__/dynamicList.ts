@@ -1,4 +1,9 @@
+import type { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import type { Table, TablePartialYAML } from "../types"
+
+type DynamicListYAMLFixture = Omit<TablePartialYAML, "АвтоОбновление"> & {
+  АвтоОбновление?: StringboolYAML
+}
 
 export const dynamicList: Table = {
   itemType: "Table",
@@ -220,7 +225,7 @@ export const dynamicList: Table = {
   allowGettingCurrentRowURL: false,
 }
 
-export const dynamicListYAML: TablePartialYAML = {
+export const dynamicListYAML = {
   АвтоВводНезаполненного: "Истина",
   АвтоВводНовойСтроки: "Истина",
   АвтоМаксимальнаяВысота: "Ложь",
@@ -351,4 +356,4 @@ export const dynamicListYAML: TablePartialYAML = {
   Ширина: 1,
   Шрифт: "КрупныйШрифтТекста",
   ШрифтЗаголовка: "МелкийШрифтТекста",
-}
+} satisfies DynamicListYAMLFixture
