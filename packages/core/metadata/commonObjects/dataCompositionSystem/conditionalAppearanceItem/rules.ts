@@ -32,7 +32,7 @@ export const ConditionalAppearanceItemRules = {
       order: 3,
     },
     presentation: {
-      type: "I8nText",
+      type: "UserSettingPresentation",
       xml: "dcsset:presentation",
       yaml: "Представление",
     },

@@ -35,6 +35,7 @@ export const fullConditionalAppearanceItems: ConditionalAppearanceItem[] = [
     fields: ["Реквизит2", "Реквизит2РасширеннаяПодсказка"],
     filter: fullFixtureFilter,
     appearance: fixtureAppearanceFields,
+    presentation: { items: { ru: "Выделение цветом состояния" } },
   },
 ]
 
@@ -70,6 +71,7 @@ export const fullConditionalAppearanceItemsYAML = [
       ],
     },
     Оформление: fixtureAppearanceFieldsYAML,
+    Представление: "Выделение цветом состояния",
   },
 ] as const satisfies ConditionalAppearanceItemsYAML
 

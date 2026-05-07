@@ -24,8 +24,10 @@ export const exportMetadataCollectionToXML = <Rule extends MetadataItemRule, XML
         : []
   if (inputData.length === 0) return undefined
 
-  const result = inputData.map((item) => {
-    const referenceItem = keyField ? findReferenceByKey<Item>(item, referenceData, keyField as keyof Item) : undefined
+  const result = inputData.map((item, index) => {
+    const referenceItem = keyField
+      ? findReferenceByKey<Item>(item, referenceData, keyField as keyof Item)
+      : referenceData?.[index]
 
     const exported = exportMetadataItemToXML({
       context,

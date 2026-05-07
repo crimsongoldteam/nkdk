@@ -12,14 +12,19 @@ export const importFormattedI8nTextFromXML = (
 ): FormattedI8nText | undefined => {
   if (xml === undefined) return undefined
 
+  const formatted = importBooleanFromXML(context, undefined, xml._formatted) ?? false
   const resultI8nText = importI8nTextFromXML(context, rule, xml)
 
-  if (resultI8nText === undefined) return undefined
-
-  const formatted = importBooleanFromXML(context, undefined, xml._formatted) ?? false
+  if (resultI8nText === undefined) {
+    if (xml._formatted === undefined) return undefined
+    return {
+      formatted,
+      items: {},
+    }
+  }
 
   return {
-    formatted: formatted,
+    formatted,
     items: resultI8nText.items,
   }
 }

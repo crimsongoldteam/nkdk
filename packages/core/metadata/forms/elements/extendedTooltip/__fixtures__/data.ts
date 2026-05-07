@@ -50,6 +50,15 @@ export const fullExtendedTooltip: ExtendedTooltip = {
   },
 }
 
+export const formattedEmptyTitleExtendedTooltip: ExtendedTooltip = {
+  itemType: "ExtendedTooltip",
+  width: 14,
+  title: {
+    formatted: true,
+    items: {},
+  },
+}
+
 export const fullExtendedTooltipYAML: ExtendedTooltipYAML = {
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",

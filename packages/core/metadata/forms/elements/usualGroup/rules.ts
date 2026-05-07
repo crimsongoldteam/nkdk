@@ -101,6 +101,12 @@ export const UsualGroupRules = {
       typeSE: "UsualGroupRepresentation",
       defaultValueYAML: "WeakSeparation",
     },
+    slaveItemsWidth: {
+      yaml: "ШиринаПодчиненныхЭлементов",
+      xml: "ChildItemsWidth",
+      type: "SystemEnumeration",
+      typeSE: "ChildFormItemsWidth",
+    },
     showLeftMargin: { yaml: "ОтображатьОтступСлева", type: "boolean" },
     showTitle: {
       yaml: "ОтображатьЗаголовок",

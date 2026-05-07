@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, type PropertyRule } from "~/metadata/orchestration"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { fullExtendedTooltip } from "./__fixtures__/data"
+import { formattedEmptyTitleExtendedTooltip, fullExtendedTooltip } from "./__fixtures__/data"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const fixturesDir = resolve(__dirname, "__fixtures__")
@@ -33,5 +33,17 @@ describe("import ExtendedTooltip from XML", () => {
     })
 
     expect(result).toBeUndefined()
+  })
+
+  it("imports empty formatted title", () => {
+    const xmlData = readAndParseXMLFile<{ ExtendedTooltip: unknown }>("formattedEmptyTitle.xml", fixturesDir)
+
+    const result = importPropertyFromXML({
+      context: mockContextFromXML(),
+      rule,
+      value: xmlData.ExtendedTooltip,
+    })
+
+    expect(result).toEqual(formattedEmptyTitleExtendedTooltip)
   })
 })

@@ -7,6 +7,11 @@
 		<dcsset:field>Ссылка.Код</dcsset:field>
 		<dcsset:orderType>Desc</dcsset:orderType>
 	</dcsset:item>
+	<dcsset:item xsi:type="dcsset:OrderItemField">
+		<dcsset:use>false</dcsset:use>
+		<dcsset:field>Артикул</dcsset:field>
+		<dcsset:orderType>Asc</dcsset:orderType>
+	</dcsset:item>
 	<dcsset:userSettingID>86a851e8-fef1-4353-9e75-59d215155503</dcsset:userSettingID>
 	<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
 		<v8:item>

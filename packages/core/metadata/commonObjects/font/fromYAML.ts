@@ -11,7 +11,7 @@ export const importFontFromYAML = (
   _rule: PropertyRule | undefined,
   yaml: FontYAML | undefined
 ): Font | undefined => {
-  if (!yaml) return undefined
+  if (yaml === undefined) return undefined
 
   // Если данные - строка (компактный формат)
   if (typeof yaml === "string") {
