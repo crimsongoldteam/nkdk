@@ -45,6 +45,7 @@
 	<Collapsed>true</Collapsed>
 	<ControlRepresentation>Picture</ControlRepresentation>
 	<Representation>StrongSeparation</Representation>
+	<ChildItemsWidth>Equal</ChildItemsWidth>
 	<ShowLeftMargin>false</ShowLeftMargin>
 	<United>false</United>
 	<Format>
