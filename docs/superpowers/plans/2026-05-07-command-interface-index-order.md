@@ -13,7 +13,7 @@
 ## File Structure
 
 - Create: `packages/core/metadata/forms/commonObjects/commandInterface/__fixtures__/indexedItemOrderSwap.xml`
-  - Minimal `CommandInterface` XML with two `NavigationPanel.Item` nodes in source order: first without `Index`, second with `Index`.
+  - Minimal `CommandInterface` XML with two `NavigationPanel.Item` nodes in source order: first with `Index`, second without `Index`.
 - Create: `packages/core/metadata/forms/commonObjects/commandInterface/__fixtures__/indexedItemOrderSwap.ts`
   - Expected `CommandInterface` model in XML order.
 - Modify: `packages/core/metadata/forms/commonObjects/commandInterface/fromXML.test.ts`
@@ -49,8 +49,9 @@ Create `packages/core/metadata/forms/commonObjects/commandInterface/__fixtures__
 <CommandInterface>
 	<NavigationPanel>
 		<Item>
-			<Command>InformationRegister.ОтносительныеКурсыВалют.Command.ЗагрузитьКурсыИзТаблицы</Command>
+			<Command>DataProcessor.ЗагрузкаКурсовВалютЕЦБ.Command.ЗагрузитьКурсыВалютЕЦБ</Command>
 			<Type>Added</Type>
+			<Index>1</Index>
 			<DefaultVisible>false</DefaultVisible>
 			<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
 			<Visible>
@@ -58,9 +59,8 @@ Create `packages/core/metadata/forms/commonObjects/commandInterface/__fixtures__
 			</Visible>
 		</Item>
 		<Item>
-			<Command>DataProcessor.ЗагрузкаКурсовВалютЕЦБ.Command.ЗагрузитьКурсыВалютЕЦБ</Command>
+			<Command>InformationRegister.ОтносительныеКурсыВалют.Command.ЗагрузитьКурсыИзТаблицы</Command>
 			<Type>Added</Type>
-			<Index>1</Index>
 			<DefaultVisible>false</DefaultVisible>
 			<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
 			<Visible>
@@ -82,8 +82,9 @@ export const indexedItemOrderSwap = {
   itemType: "CommandInterface",
   NavigationPanel: [
     {
-      command: "InformationRegister.ОтносительныеКурсыВалют.Command.ЗагрузитьКурсыИзТаблицы",
+      command: "DataProcessor.ЗагрузкаКурсовВалютЕЦБ.Command.ЗагрузитьКурсыВалютЕЦБ",
       type: "Added",
+      index: 1,
       defaultVisible: false,
       commandGroup: "FormNavigationPanelGoTo",
       visible: {
@@ -93,9 +94,8 @@ export const indexedItemOrderSwap = {
       itemType: "CommandInterfaceItem",
     },
     {
-      command: "DataProcessor.ЗагрузкаКурсовВалютЕЦБ.Command.ЗагрузитьКурсыВалютЕЦБ",
+      command: "InformationRegister.ОтносительныеКурсыВалют.Command.ЗагрузитьКурсыИзТаблицы",
       type: "Added",
-      index: 1,
       defaultVisible: false,
       commandGroup: "FormNavigationPanelGoTo",
       visible: {
@@ -158,17 +158,17 @@ Inside `describe("exportCommandInterfaceToXML", () => { ... })`, after `it("expo
 Run:
 
 ```bash
-pnpm --filter '@nakidka/core' exec vitest run packages/core/metadata/forms/commonObjects/commandInterface/fromXML.test.ts -t "import indexedItemOrderSwap"
+pnpm --filter '@nakidka/core' exec vitest run metadata/forms/commonObjects/commandInterface/fromXML.test.ts -t "import indexedItemOrderSwap"
 ```
 
-Expected: FAIL. The diff must show `NavigationPanel` items in the wrong order: the item with command `DataProcessor.ЗагрузкаКурсовВалютЕЦБ.Command.ЗагрузитьКурсыВалютЕЦБ` appears before `InformationRegister.ОтносительныеКурсыВалют.Command.ЗагрузитьКурсыИзТаблицы`.
+Expected: FAIL. The diff must show `NavigationPanel` items in the wrong order: current sorting moves the unindexed item with command `InformationRegister.ОтносительныеКурсыВалют.Command.ЗагрузитьКурсыИзТаблицы` before the indexed item with command `DataProcessor.ЗагрузкаКурсовВалютЕЦБ.Command.ЗагрузитьКурсыВалютЕЦБ`.
 
 - [ ] **Step 6: Run the focused export test and verify it passes**
 
 Run:
 
 ```bash
-pnpm --filter '@nakidka/core' exec vitest run packages/core/metadata/forms/commonObjects/commandInterface/toXML.test.ts -t "export indexedItemOrderSwap"
+pnpm --filter '@nakidka/core' exec vitest run metadata/forms/commonObjects/commandInterface/toXML.test.ts -t "export indexedItemOrderSwap"
 ```
 
 Expected: PASS. If it fails only because of whitespace or final newline, adjust only `indexedItemOrderSwap.xml` formatting to match existing `commandInterface` fixtures and rerun this step.
@@ -217,7 +217,7 @@ with:
 Run:
 
 ```bash
-pnpm --filter '@nakidka/core' exec vitest run packages/core/metadata/forms/commonObjects/commandInterface/fromXML.test.ts -t "import indexedItemOrderSwap"
+pnpm --filter '@nakidka/core' exec vitest run metadata/forms/commonObjects/commandInterface/fromXML.test.ts -t "import indexedItemOrderSwap"
 ```
 
 Expected: PASS.
@@ -227,7 +227,7 @@ Expected: PASS.
 Run:
 
 ```bash
-pnpm --filter '@nakidka/core' exec vitest run packages/core/metadata/forms/commonObjects/commandInterface
+pnpm --filter '@nakidka/core' exec vitest run metadata/forms/commonObjects/commandInterface
 ```
 
 Expected: PASS for `fromXML.test.ts`, `toXML.test.ts`, `fromYAML.test.ts`, and `toYAML.test.ts`.

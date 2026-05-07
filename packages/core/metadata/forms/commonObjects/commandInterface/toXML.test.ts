@@ -5,6 +5,7 @@ import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { commandBarIndexInsertion } from "./__fixtures__/commandBarIndexInsertion"
+import { indexedItemOrderSwap } from "./__fixtures__/indexedItemOrderSwap"
 import { fullCommandInterface } from "./__fixtures__/full"
 import { exportCommandInterfaceToXML } from "./toXML"
 
@@ -39,6 +40,15 @@ describe("exportCommandInterfaceToXML", () => {
   it("export commandBarIndexInsertion", () => {
     const expectedResult = readXMLFileAsString("commandBarIndexInsertion.xml", fixturesDir).trimEnd()
     const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, commandBarIndexInsertion)
+
+    const result = xmlExport({ CommandInterface: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export indexedItemOrderSwap", () => {
+    const expectedResult = readXMLFileAsString("indexedItemOrderSwap.xml", fixturesDir).trimEnd()
+    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, indexedItemOrderSwap)
 
     const result = xmlExport({ CommandInterface: xmlData }, false)
 
