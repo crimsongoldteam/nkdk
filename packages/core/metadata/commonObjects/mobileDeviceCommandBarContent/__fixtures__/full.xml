@@ -1,0 +1,7 @@
+<MobileDeviceCommandBarContent>
+	<xr:Item>
+		<xr:Presentation/>
+		<xr:CheckState>0</xr:CheckState>
+		<xr:Value xsi:type="xs:string">ФормаКоманда1</xr:Value>
+	</xr:Item>
+</MobileDeviceCommandBarContent>

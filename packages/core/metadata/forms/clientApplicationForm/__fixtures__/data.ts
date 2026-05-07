@@ -17,7 +17,13 @@ const fullCommandInterface: CommandInterface = {
 
 export const fullClientApplicationForm: Omit<
   Required<ClientApplicationForm>,
-  "uuid" | "formType" | "name" | "attributesConditionalAppearance"
+  | "uuid"
+  | "formType"
+  | "name"
+  | "attributesConditionalAppearance"
+  | "mobileDeviceCommandBarContent"
+  | "settingsStorage"
+  | "scalingMode"
 > = {
   parameters: [
     {
@@ -158,9 +164,135 @@ export const clientApplicationFormReference: ClientApplicationForm = {
   uuid: "11111111-1111-4111-8111-111111111111",
 }
 
+export const catalogFullClientApplicationForm: ClientApplicationForm = {
+  itemType: "ClientApplicationForm",
+  synonym: { items: {} },
+  comment: "",
+  includeHelpInContents: false,
+  usePurposes: ["PlatformApplication", "MobilePlatformApplication"],
+  title: { items: { ru: "Заголовок" } },
+  width: 5,
+  height: 10,
+  formWindowOpeningMode: "LockWholeInterface",
+  enterKeyBehavior: "DefaultButton",
+  autoSaveDataInSettings: "Use",
+  saveDataInSettings: "UseList",
+  saveWindowSettings: false,
+  settingsStorage: "SettingsStorage.ХранилищеНастроек",
+  autoTitle: false,
+  autoURL: false,
+  group: "AlwaysHorizontal",
+  itemsAndTitlesAlign: "ItemsLeftTitlesLeft",
+  horizontalSpacing: "Single",
+  verticalSpacing: "Double",
+  childItemsHorizontalAlign: "Center",
+  childItemsVerticalAlign: "Bottom",
+  autoFillCheck: false,
+  customizable: false,
+  enabled: false,
+  commandBarLocation: "Top",
+  verticalScroll: "useIfNecessary",
+  scalingMode: "Compact",
+  scale: 90,
+  conversationsRepresentation: "Show",
+  mobileDeviceCommandBarContent: [{ type: "string", value: "ФормаКоманда1" }],
+  commandSet: ["Write"],
+  showTitle: false,
+  showCloseButton: false,
+  collapseItemsByImportance: "DontUse",
+  useForFoldersAndItems: "Folders",
+  autoCommandBar: {
+    itemType: "AutoCommandBar",
+    autofill: true,
+    childItems: [
+      {
+        itemType: "CommandBarButton",
+        name: "ФормаКоманда2",
+        type: "CommandBarButton",
+        commandName: "Form.Command.Команда1",
+      },
+    ],
+  },
+  childItems: [
+    {
+      itemType: "Button",
+      name: "ФормаКоманда1",
+      type: "UsualButton",
+      commandName: "Form.Command.Команда1",
+    },
+  ],
+  attributes: [
+    {
+      itemType: "FormAttribute",
+      name: "Объект",
+      type: { type: ["CatalogObject.СправочникФормаВсеСвойства"] },
+      mainAttribute: true,
+      storedData: true,
+      title: { items: { ru: "" } },
+      columns: [],
+    },
+    {
+      itemType: "FormAttribute",
+      name: "Реквизит1",
+      type: { type: ["string"] },
+      title: { items: { ru: "" } },
+      columns: [],
+    },
+  ],
+  attributesConditionalAppearance: {
+    itemType: "ConditionalAppearance",
+    viewMode: "QuickAccess",
+    conditionalAppearanceItems: [
+      {
+        itemType: "ConditionalAppearanceItem",
+        filter: {
+          itemType: "Filter",
+          items: [
+            {
+              itemType: "FilterItemComparison",
+              leftValue: { type: "Field", value: "Объект.Наименование" },
+              comparisonType: "Contains",
+              rightValue: { type: "string", value: "вба" },
+            },
+          ],
+        },
+        appearance: {
+          itemType: "AppearanceFields",
+          Текст: {
+            parameter: "Текст",
+            value: {
+              items: { ru: "абв" },
+            },
+          },
+        },
+      },
+    ],
+  },
+  commands: [
+    {
+      itemType: "FormCommand",
+      name: "Команда1",
+      title: { items: { ru: "" } },
+    },
+  ],
+  events: {
+    ...fullClientApplicationForm.events,
+    afterWrite: "ПослеЗаписи",
+    beforeReopenFromOtherServer: "ПередПереоткрытиемСДругогоСервера",
+    valueChoice: "ВыборЗначения",
+    onReopenFromOtherServer: "ПриПереоткрытииСДругогоСервера",
+    onSaveDataInSettingsAtServer: "ПриСохраненииДанныхВНастройкахНаСервере",
+    onClientApplicationSuspend: "ПриЗасыпанииКлиентскогоПриложения",
+    onClientApplicationResume: "ПриПробужденииКлиентскогоПриложения",
+  },
+}
+
 export const fullClientApplicationFormYAML: Omit<
   Required<ClientApplicationFormYAML>,
-  "УсловноеОформлениеРеквизитов"
+  | "УсловноеОформлениеРеквизитов"
+  | "СоставКоманднойПанелиНаМобильномУстройстве"
+  | "ХранилищеНастроек"
+  | "ВариантМасштаба"
 > = {
   Синоним: "Синоним формы",
   Комментарий: "Комментарий к форме",
@@ -285,7 +417,132 @@ export const fullClientApplicationFormYAML: Omit<
   },
   РежимВыбора: "БыстрыйВыбор",
   // #endregion
-} satisfies Omit<Required<ClientApplicationFormYAML>, "УсловноеОформлениеРеквизитов">
+} satisfies Omit<
+  Required<ClientApplicationFormYAML>,
+  | "УсловноеОформлениеРеквизитов"
+  | "СоставКоманднойПанелиНаМобильномУстройстве"
+  | "ХранилищеНастроек"
+  | "ВариантМасштаба"
+>
+
+export const catalogFullClientApplicationFormYAML: ClientApplicationFormYAML = {
+  НазначенияИспользования: "ПлатформаИМобильноеПриложение",
+  АвтоЗаголовок: "Ложь",
+  АвтоматическоеСохранениеДанныхВНастройках: "Использовать",
+  АвтоНавигационнаяСсылка: "Ложь",
+  ВертикальнаяПрокрутка: "ИспользоватьПриНеобходимости",
+  ВертикальноеПоложениеПодчиненных: "Низ",
+  ВертикальныйИнтервал: "Двойной",
+  ВыравниваниеЭлементовИЗаголовков: "ЭлементыЛевоЗаголовкиЛево",
+  Высота: 10,
+  ГоризонтальноеПоложениеПодчиненных: "Центр",
+  ГоризонтальныйИнтервал: "Одинарный",
+  Группировка: "ГоризонтальнаяВсегда",
+  РазрешитьИзменятьФорму: "Ложь",
+  Доступность: "Ложь",
+  Заголовок: "Заголовок",
+  Команды: {
+    Команда1: {
+      Заголовок: "",
+    },
+  },
+  Масштаб: 90,
+  ОтображатьЗаголовок: "Ложь",
+  ОтображатьКнопкуЗакрытия: "Ложь",
+  ОтображениеОбсуждений: "Отображать",
+  ПоведениеКлавишиEnter: "КнопкаПоУмолчанию",
+  ПоложениеКоманднойПанели: "Верх",
+  ПроверятьЗаполнениеАвтоматически: "Ложь",
+  РежимОткрытияОкнаФормы: "БлокироватьВесьИнтерфейс",
+  СворачиваниеЭлементовПоВажности: "НеИспользовать",
+  СоставКоманд: ["Write"],
+  СохранениеДанныхВНастройках: "ИспользоватьСписок",
+  Ширина: 5,
+  СохранятьНастройкиОкна: "Ложь",
+  Реквизиты: {
+    Объект: {
+      Тип: "СправочникОбъект.СправочникФормаВсеСвойства",
+      Заголовок: "",
+      ОсновнойРеквизит: "Истина",
+      СохраняемыеДанные: "Истина",
+    },
+    Реквизит1: {
+      Заголовок: "",
+      Тип: "Строка",
+    },
+  },
+  События: {
+    АвтоПодборПользователейСистемыВзаимодействия: "АвтоПодборПользователейСистемыВзаимодействия",
+    ВнешнееСобытие: "ВнешнееСобытие",
+    ОбработкаАктивизации: "ОбработкаАктивизации",
+    ОбработкаВыбора: "ОбработкаВыбора",
+    ОбработкаЗаписиНового: "ОбработкаЗаписиНового",
+    ОбработкаНавигационнойСсылки: "ОбработкаНавигационнойСсылки",
+    ОбработкаОповещения: "ОбработкаОповещения",
+    ОбработкаПерехода: "ОбработкаПерехода",
+    ОбработкаПолученияНавигационнойСсылки: "ОбработкаПолученияНавигационнойСсылки",
+    ОбработкаПолученияСпискаНавигационныхСсылок: "ОбработкаПолученияСпискаНавигационныхСсылок",
+    ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия:
+      "ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия",
+    ОбработкаПроверкиЗаполненияНаСервере: "ОбработкаПроверкиЗаполненияНаСервере",
+    ОтключениеВнешнейКомпонентыПриОшибке: "ОтключениеВнешнейКомпонентыПриОшибке",
+    ПередЗагрузкойДанныхИзНастроекНаСервере: "ПередЗагрузкойДанныхИзНастроекНаСервере",
+    ПередЗакрытием: "ПередЗакрытием",
+    ПередПереоткрытиемСДругогоСервера: "ПередПереоткрытиемСДругогоСервера",
+    ПриВставкеИзБуфераОбмена: "ПриВставкеИзБуфераОбмена",
+    ПриЗагрузкеДанныхИзНастроекНаСервере: "ПриЗагрузкеДанныхИзНастроекНаСервере",
+    ПриЗакрытии: "ПриЗакрытии",
+    ПриИзмененииДоступностиОсновногоСервера: "ПриИзмененииДоступностиОсновногоСервера",
+    ПриИзмененииПараметровЭкрана: "ПриИзмененииПараметровЭкрана",
+    ПриОткрытии: "ПриОткрытии",
+    ПриПереоткрытииСДругогоСервера: "ПриПереоткрытииСДругогоСервера",
+    ПриПовторномОткрытии: "ПриПовторномОткрытии",
+    ПриСозданииНаСервере: "ПриСозданииНаСервере",
+    ПриСохраненииДанныхВНастройкахНаСервере: "ПриСохраненииДанныхВНастройкахНаСервере",
+    ПриЗасыпанииКлиентскогоПриложения: "ПриЗасыпанииКлиентскогоПриложения",
+    ПриПробужденииКлиентскогоПриложения: "ПриПробужденииКлиентскогоПриложения",
+    ВыборЗначения: "ВыборЗначения",
+    ПередЗаписью: "ПередЗаписью",
+    ПередЗаписьюНаСервере: "ПередЗаписьюНаСервере",
+    ПослеЗаписи: "ПослеЗаписи",
+    ПослеЗаписиНаСервере: "ПослеЗаписиНаСервере",
+    ПриЗаписиНаСервере: "ПриЗаписиНаСервере",
+    ПриЧтенииНаСервере: "ПриЧтенииНаСервере",
+  },
+  Элементы: {
+    ФормаКоманда1: {
+      Вид: "ОбычнаяКнопка",
+      ИмяКоманды: "Form.Command.Команда1",
+    },
+    ФормаКоманда2: {
+      Вид: "КнопкаКоманднойПанели",
+      ИмяКоманды: "Form.Command.Команда1",
+    },
+  },
+  УсловноеОформлениеРеквизитов: {
+    Элементы: [
+      {
+        Отбор: {
+          Элементы: [
+            {
+              ЛевоеЗначение: ".Объект.Наименование",
+              ВидСравнения: "Содержит",
+              ПравоеЗначение: "'вба'",
+            },
+          ],
+        },
+        Оформление: {
+          Текст: "абв",
+        },
+      },
+    ],
+    РежимОтображения: "БыстрыйДоступ",
+  },
+  ХранилищеНастроек: "SettingsStorage.ХранилищеНастроек",
+  ВариантМасштаба: "Компактный",
+  СоставКоманднойПанелиНаМобильномУстройстве: ["ФормаКоманда1"],
+  ИспользованиеДляГруппИЭлементов: "Группы",
+}
 
 export const minimalClientApplicationForm: ClientApplicationForm = {
   childItems: [],

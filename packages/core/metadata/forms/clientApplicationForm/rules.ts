@@ -59,6 +59,8 @@ export const ClientApplicationFormRules = {
     },
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",
+      xml: "HorizontalAlign",
+      xmlAliases: ["ChildItemsHorizontalAlign"],
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
       tag: FormRulesTags.Form,
@@ -66,6 +68,8 @@ export const ClientApplicationFormRules = {
     },
     childItemsVerticalAlign: {
       yaml: "ВертикальноеПоложениеПодчиненных",
+      xml: "VerticalAlign",
+      xmlAliases: ["ChildItemsVerticalAlign"],
       type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
       tag: FormRulesTags.Form,
@@ -83,6 +87,8 @@ export const ClientApplicationFormRules = {
     },
     collapseItemsByImportance: {
       yaml: "СворачиваниеЭлементовПоВажности",
+      xml: "CollapseItemsByImportanceVariant",
+      xmlAliases: ["CollapseItemsByImportance"],
       type: "SystemEnumeration",
       typeSE: "CollapseFormItemsByImportance",
       tag: FormRulesTags.Form,
@@ -103,6 +109,11 @@ export const ClientApplicationFormRules = {
     commandSet: {
       yaml: "СоставКоманд",
       type: "CommandSet",
+      tag: FormRulesTags.Form,
+    },
+    mobileDeviceCommandBarContent: {
+      yaml: "СоставКоманднойПанелиНаМобильномУстройстве",
+      type: "MobileDeviceCommandBarContent",
       tag: FormRulesTags.Form,
     },
     commands: {
@@ -165,6 +176,8 @@ export const ClientApplicationFormRules = {
     },
     itemsAndTitlesAlign: {
       yaml: "ВыравниваниеЭлементовИЗаголовков",
+      xml: "ChildrenAlign",
+      xmlAliases: ["ItemsAndTitlesAlign"],
       type: "SystemEnumeration",
       typeSE: "ItemsAndTitlesAlignVariant",
       tag: FormRulesTags.Form,
@@ -217,6 +230,11 @@ export const ClientApplicationFormRules = {
       type: "boolean",
       tag: FormRulesTags.Form,
     },
+    settingsStorage: {
+      yaml: "ХранилищеНастроек",
+      type: "MetadataItemLink",
+      tag: FormRulesTags.Form,
+    },
     showCloseButton: {
       yaml: "ОтображатьКнопкуЗакрытия",
       type: "boolean",
@@ -252,6 +270,14 @@ export const ClientApplicationFormRules = {
       typeSE: "VerticalFormScroll",
       tag: FormRulesTags.Form,
       defaultValueYAML: "auto",
+    },
+    scalingMode: {
+      yaml: "ВариантМасштаба",
+      xml: "ScalingMode",
+      type: "SystemEnumeration",
+      typeSE: "ClientApplicationFormScaleVariant",
+      tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
     },
     verticalSpacing: {
       yaml: "ВертикальныйИнтервал",
@@ -384,6 +410,8 @@ export const ClientApplicationFormRules = {
         onReopen: "ПриПовторномОткрытии",
         onCreateAtServer: "ПриСозданииНаСервере",
         onSaveDataInSettingsAtServer: "ПриСохраненииДанныхВНастройкахНаСервере",
+        onClientApplicationSuspend: "ПриЗасыпанииКлиентскогоПриложения",
+        onClientApplicationResume: "ПриПробужденииКлиентскогоПриложения",
 
         // #region Catalog
         valueChoice: "ВыборЗначения",

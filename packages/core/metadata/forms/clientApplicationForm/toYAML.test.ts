@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
+  catalogFullClientApplicationForm,
+  catalogFullClientApplicationFormYAML,
   fullClientApplicationForm,
   fullClientApplicationFormYAML,
   minimalClientApplicationForm,
@@ -19,6 +21,12 @@ describe("exportClientApplicationFormToYAML", () => {
     const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, fullClientApplicationForm)
 
     expect(yaml).toEqual(fullClientApplicationFormYAML)
+  })
+
+  it("exports catalog full YAML", () => {
+    const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, catalogFullClientApplicationForm)
+
+    expect(yaml).toEqual(catalogFullClientApplicationFormYAML)
   })
 
   it("should export minimal", () => {

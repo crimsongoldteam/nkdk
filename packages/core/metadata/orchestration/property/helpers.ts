@@ -20,6 +20,8 @@ interface PathStructure {
   childContainersByPath: Map<string, Set<string>>
 }
 
+export const XML_SOURCE_KEYS = Symbol("xmlSourceKeys")
+
 type PropertyExportImportOperation =
   | "exportToXML"
   | "importFromXML"
@@ -90,16 +92,20 @@ const buildPathStructure = <Rule extends MetadataItemRule>(
     }
     const info = pathToInfo.get(pk)
     const xmlKey = ruleProp.xml ?? capitalize(key)
+    const xmlAliases = (ruleProp as any).xmlAliases ?? []
     const entry = { key, xmlKey, order: ruleProp.order }
     if (!info) {
+      const xmlKeyToKey: Record<string, string> = { [xmlKey]: key }
+      for (const xmlAlias of xmlAliases) xmlKeyToKey[xmlAlias] = key
       pathToInfo.set(pk, {
         keys: [key],
-        xmlKeyToKey: { [xmlKey]: key },
+        xmlKeyToKey,
         orderByRule: [entry],
       })
     } else {
       info.keys.push(key)
       info.xmlKeyToKey[xmlKey] = key
+      for (const xmlAlias of xmlAliases) info.xmlKeyToKey[xmlAlias] = key
       info.orderByRule.push(entry)
     }
   }

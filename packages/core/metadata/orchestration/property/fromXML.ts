@@ -3,7 +3,7 @@ import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { MetadataItemRule, PropertyRule, ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { importContentFromXML } from "~/xml/import/importer"
-import { getOrderedKeysFromXML, getValueOrDefault, shouldProcessProperty } from "./helpers"
+import { getOrderedKeysFromXML, getValueOrDefault, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
 
 export function importPropertiesFromXML<Rule extends MetadataItemRule>(
   params: {
@@ -27,8 +27,13 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
     const currentRule = rule.properties[key]
     if (!forReference && currentRule.forReferenceOnly === true) continue
 
-    let xmlValue = getXMLValue(key, xml, currentRule)
-    if (xmlValue === undefined && currentRule.type === "MetadataDcsMetadataValue" && isXMLKeyPresent(key, xml, currentRule)) {
+    const sourceXmlKey = getXMLKey(key, xml, currentRule)
+    let xmlValue = sourceXmlKey === undefined ? undefined : getXMLValueByKey(sourceXmlKey, xml, currentRule)
+    if (
+      xmlValue === undefined &&
+      currentRule.type === "MetadataDcsMetadataValue" &&
+      isXMLKeyPresent(key, xml, currentRule)
+    ) {
       xmlValue = null
     }
     const shouldImportForReference =
@@ -48,16 +53,13 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
           })
         : undefined
 
-    if (
-      value === undefined &&
-      "defaultValueXMLEmpty" in currentRule &&
-      isXMLKeyPresent(key, xml, currentRule)
-    ) {
+    if (value === undefined && "defaultValueXMLEmpty" in currentRule && isXMLKeyPresent(key, xml, currentRule)) {
       value = (currentRule as any).defaultValueXMLEmpty
     }
 
     if (forReference) {
       ;(result as any)[key] = value
+      if (sourceXmlKey !== undefined) setXMLSourceKey(result, key, sourceXmlKey)
       continue
     }
 
@@ -73,14 +75,25 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
 
     if (valueOrDefault === undefined) continue
     ;(result as any)[key] = valueOrDefault
+    if (sourceXmlKey !== undefined) setXMLSourceKey(result, key, sourceXmlKey)
   }
 
   return result
 }
 
-const getXMLValue = (key: string, xml: any, rule: PropertyRule): any => {
+const getXMLKeys = (key: string, rule: PropertyRule): string[] => {
   const xmlKey = rule.xml ?? capitalize(key)
+  return [xmlKey, ...((rule as any).xmlAliases ?? [])]
+}
 
+const getXMLKey = (key: string, xml: any, rule: PropertyRule): string | undefined => {
+  for (const xmlKey of getXMLKeys(key, rule)) {
+    if (isXMLKeyPresentByKey(xmlKey, xml, rule)) return xmlKey
+  }
+  return undefined
+}
+
+const getXMLValueByKey = (xmlKey: string, xml: any, rule: PropertyRule): any => {
   if (rule.xmlParents === undefined) return xml[xmlKey]
 
   let currentXml = xml
@@ -93,7 +106,10 @@ const getXMLValue = (key: string, xml: any, rule: PropertyRule): any => {
 }
 
 const isXMLKeyPresent = (key: string, xml: any, rule: PropertyRule): boolean => {
-  const xmlKey = rule.xml ?? capitalize(key)
+  return getXMLKey(key, xml, rule) !== undefined
+}
+
+const isXMLKeyPresentByKey = (xmlKey: string, xml: any, rule: PropertyRule): boolean => {
   if (rule.xmlParents === undefined) return xml !== undefined && xml !== null && xmlKey in xml
   let currentXml = xml
   for (const xmlParent of rule.xmlParents) {
@@ -101,6 +117,18 @@ const isXMLKeyPresent = (key: string, xml: any, rule: PropertyRule): boolean => 
     currentXml = currentXml[xmlParent]
   }
   return currentXml !== undefined && currentXml !== null && xmlKey in currentXml
+}
+
+const setXMLSourceKey = (result: object, key: string, xmlKey: string): void => {
+  const currentMap = (result as any)[XML_SOURCE_KEYS]
+  const sourceKeys = currentMap ?? {}
+  sourceKeys[key] = xmlKey
+  if (currentMap === undefined) {
+    Object.defineProperty(result, XML_SOURCE_KEYS, {
+      value: sourceKeys,
+      enumerable: false,
+    })
+  }
 }
 
 export const importPropertyFromXML = (params: {
