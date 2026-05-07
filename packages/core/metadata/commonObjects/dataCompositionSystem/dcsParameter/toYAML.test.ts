@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 import {
+  explicitNullValueDCSParameters,
+  explicitNullValueDCSParametersYAML,
   fullDCSParameters,
   fullDCSParametersYAML,
   minimalDCSParameters,
@@ -28,5 +30,10 @@ describe("export DCSParameter to YAML", () => {
   it("exports full collection", () => {
     const result = testExportPropertyToYAML({ rule, value: fullDCSParameters })
     expect(result).toEqual({ Параметры: fullDCSParametersYAML })
+  })
+
+  it("exports explicit null value fixture", () => {
+    const result = testExportPropertyToYAML({ rule, value: explicitNullValueDCSParameters })
+    expect(result).toEqual({ Параметры: explicitNullValueDCSParametersYAML })
   })
 })

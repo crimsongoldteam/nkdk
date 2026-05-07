@@ -30,8 +30,7 @@ export const DCSParameterRules = {
       yaml: "Значение",
       order: 4,
       exportNilValue: true,
-      toXML: (item: { value?: unknown; valueListAllowed?: boolean }) =>
-        !(item?.value === undefined && item?.valueListAllowed === true),
+      preserveFromReferenceXML: true,
     },
     useRestriction: {
       type: "boolean",

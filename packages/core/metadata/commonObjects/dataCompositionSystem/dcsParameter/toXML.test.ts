@@ -1,9 +1,22 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
+import { exportPropertyToXML, PropertyRule } from "~/metadata/orchestration"
+import { mockContextToXML } from "~/tests/mockContext"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { fullDCSParameters, minimalDCSParameters } from "./__fixtures__/data"
+import { xmlExport } from "~/xml/export/exporter"
+import { explicitNullValueDCSParameters, fullDCSParameters, minimalDCSParameters } from "./__fixtures__/data"
 
 const rule: PropertyRule = { type: "DCSParameters" }
+
+const exportDCSParameters = (value: unknown, referenceMetadata?: unknown): string => {
+  const xmlData = exportPropertyToXML({
+    context: mockContextToXML(),
+    rule,
+    value,
+    referenceMetadata,
+  })
+
+  return xmlExport({ Settings: xmlData }, false)
+}
 
 describe("export DCSParameter to XML", () => {
   it("exports minimal.xml", () => {
@@ -13,7 +26,6 @@ describe("export DCSParameter to XML", () => {
       xmlRootTag: "Settings",
       path: "minimal.xml",
       importMetaUrl: import.meta.url,
-      referenceMetadata: minimalDCSParameters,
     })
     expect(result).toEqual(expectedResult)
   })
@@ -25,8 +37,70 @@ describe("export DCSParameter to XML", () => {
       xmlRootTag: "Settings",
       path: "full.xml",
       importMetaUrl: import.meta.url,
-      referenceMetadata: fullDCSParameters,
     })
     expect(result).toEqual(expectedResult)
+  })
+
+  it("exports explicit null value as xsi:nil without reference", () => {
+    const result = exportDCSParameters(explicitNullValueDCSParameters)
+    expect(result).toContain(`<dcssch:value xsi:nil="true"/>`)
+  })
+
+  it("exports missing value as xsi:nil when reference item has value key", () => {
+    const value = [
+      {
+        itemType: "DCSParameter" as const,
+        name: "ПустоеЗначение",
+        title: { items: { ru: "Пустое значение" } },
+      },
+    ]
+    const referenceMetadata = [
+      {
+        itemType: "DCSParameter" as const,
+        name: "ПустоеЗначение",
+        title: { items: { ru: "Пустое значение" } },
+        value: undefined,
+      },
+    ]
+
+    const result = exportDCSParameters(value, referenceMetadata)
+    expect(result).toContain(`<dcssch:value xsi:nil="true"/>`)
+  })
+
+  it("exports explicit undefined value as xsi:nil instead of reference value", () => {
+    const value = [
+      {
+        itemType: "DCSParameter" as const,
+        name: "ПустоеЗначение",
+        title: { items: { ru: "Пустое значение" } },
+        value: undefined,
+      },
+    ]
+    const referenceMetadata = [
+      {
+        itemType: "DCSParameter" as const,
+        name: "ПустоеЗначение",
+        title: { items: { ru: "Пустое значение" } },
+        value: { type: "string" as const, value: "reference" },
+      },
+    ]
+
+    const result = exportDCSParameters(value, referenceMetadata)
+
+    expect(result).toContain(`<dcssch:value xsi:nil="true"/>`)
+    expect(result).not.toContain("reference")
+  })
+
+  it("omits missing value when neither model nor reference has value key", () => {
+    const value = [
+      {
+        itemType: "DCSParameter" as const,
+        name: "БезЗначения",
+        title: { items: { ru: "Без значения" } },
+      },
+    ]
+
+    const result = exportDCSParameters(value, value)
+    expect(result).not.toContain(`<dcssch:value`)
   })
 })

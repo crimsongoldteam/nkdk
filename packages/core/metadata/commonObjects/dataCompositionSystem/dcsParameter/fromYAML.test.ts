@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 import {
+  explicitNullValueDCSParameters,
+  explicitNullValueDCSParametersYAML,
   fullDCSParameters,
   fullDCSParametersYAML,
   minimalDCSParameters,
@@ -25,5 +27,10 @@ describe("import DCSParameter from YAML", () => {
   it("imports full fixture", () => {
     const result = testImportPropertyFromYAML({ rule, value: fullDCSParametersYAML })
     expect(result).toEqual(fullDCSParameters)
+  })
+
+  it("imports explicit null value fixture", () => {
+    const result = testImportPropertyFromYAML({ rule, value: explicitNullValueDCSParametersYAML })
+    expect(result).toEqual(explicitNullValueDCSParameters)
   })
 })
