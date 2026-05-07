@@ -24,7 +24,11 @@ const importFormParameterFromXML = (params: {
   const { context, xml } = params
   const result: FormParameter = {
     name: xml._name,
-    type: importTypeDescriptionFromXML(context, undefined, xml.Type)!,
+  }
+
+  const type = importTypeDescriptionFromXML(context, undefined, xml.Type)
+  if (type !== undefined) {
+    result.type = type
   }
 
   if (xml.KeyParameter !== undefined) {

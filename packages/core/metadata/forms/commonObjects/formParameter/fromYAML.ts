@@ -16,7 +16,11 @@ export const importFormParametersFromYAML = (
   return Object.entries(data).map(([name, parameter]) => {
     const result: FormParameter = {
       name,
-      type: importTypeDescriptionFromYAML(context, undefined, parameter.Тип)!,
+    }
+
+    const type = importTypeDescriptionFromYAML(context, undefined, parameter.Тип)
+    if (type !== undefined) {
+      result.type = type
     }
 
     if (parameter.Ключевой !== undefined) {
