@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest"
+import { rowFilterFormAttributeQuery } from "~/metadata/forms/elements/table/rules"
+import { CypherCache } from "~/metadata/orchestration/property/cypherCache"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { xmlExport } from "~/xml/export/exporter"
@@ -126,6 +128,111 @@ describe("exportToXML", () => {
 
       expect(table?.Period).toBeDefined()
       expect(table?.TopLevelParent).toBeDefined()
+    })
+
+    it("экспортирует RowFilter для таблицы обычного реквизита без внешнего CypherCache", () => {
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: {
+          ...minimalClientApplicationForm,
+          attributes: [
+            {
+              itemType: "FormAttribute",
+              name: "Объект",
+              type: { type: ["CatalogObject.БонусныеПрограммыЛояльности"] },
+              columns: [],
+            },
+          ],
+          childItems: [
+            {
+              itemType: "Table",
+              name: "ЦеновыеГруппы",
+              dataPath: "Объект.ЦеновыеГруппы",
+              id: undefined,
+            },
+          ],
+        },
+        referenceForm: undefined,
+      })
+
+      const childItems: Array<{ Table?: { RowFilter?: unknown } }> = Array.isArray(xmlData.ChildItems)
+        ? xmlData.ChildItems
+        : []
+      const table = childItems[0]?.Table
+
+      expect(table?.RowFilter).toEqual({ "_xsi:nil": "true" })
+    })
+
+    it("не экспортирует RowFilter для таблицы ValueTree-реквизита без внешнего CypherCache", () => {
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: {
+          ...minimalClientApplicationForm,
+          attributes: [
+            {
+              itemType: "FormAttribute",
+              name: "Дерево",
+              type: { type: ["ValueTree"] },
+              columns: [],
+            },
+          ],
+          childItems: [
+            {
+              itemType: "Table",
+              name: "Дерево",
+              dataPath: "Дерево",
+              id: undefined,
+            },
+          ],
+        },
+        referenceForm: undefined,
+      })
+
+      const childItems: Array<{ Table?: { RowFilter?: unknown } }> = Array.isArray(xmlData.ChildItems)
+        ? xmlData.ChildItems
+        : []
+      const table = childItems[0]?.Table
+
+      expect(table?.RowFilter).toBeUndefined()
+    })
+
+    it("не перезаписывает заранее заполненные rowFilter rows", () => {
+      const context = mockContextToXML()
+      const cache = new CypherCache()
+      cache.set(rowFilterFormAttributeQuery, [])
+      context.exportToXML!.cypherCache = cache
+
+      const xmlData = exportClientApplicationFormToXML({
+        context,
+        form: {
+          ...minimalClientApplicationForm,
+          attributes: [
+            {
+              itemType: "FormAttribute",
+              name: "Объект",
+              type: { type: ["CatalogObject.БонусныеПрограммыЛояльности"] },
+              columns: [],
+            },
+          ],
+          childItems: [
+            {
+              itemType: "Table",
+              name: "ЦеновыеГруппы",
+              dataPath: "Объект.ЦеновыеГруппы",
+              id: undefined,
+            },
+          ],
+        },
+        referenceForm: undefined,
+      })
+
+      const childItems: Array<{ Table?: { RowFilter?: unknown } }> = Array.isArray(xmlData.ChildItems)
+        ? xmlData.ChildItems
+        : []
+      const table = childItems[0]?.Table
+
+      expect(table?.RowFilter).toBeUndefined()
+      expect(context.exportToXML!.cypherCache?.get(rowFilterFormAttributeQuery)).toEqual([])
     })
 
     it("preserves command ids from reference form by name", () => {

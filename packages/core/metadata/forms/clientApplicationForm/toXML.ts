@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { dynamicListFormAttributeQuery, valueTableFormAttributeQuery } from "~/metadata/forms/elements/table/rules"
+import { dynamicListFormAttributeQuery, rowFilterFormAttributeQuery } from "~/metadata/forms/elements/table/rules"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
 import { CypherCache } from "~/metadata/orchestration/property/cypherCache"
@@ -55,9 +55,9 @@ const ensureTableFormAttributeCypherCache = (
 ): void => {
   const existingCache = context.exportToXML.cypherCache
   const hasDynamicListRows = existingCache?.get(dynamicListFormAttributeQuery) !== undefined
-  const hasValueTableRows = existingCache?.get(valueTableFormAttributeQuery) !== undefined
+  const hasRowFilterRows = existingCache?.get(rowFilterFormAttributeQuery) !== undefined
 
-  if (hasDynamicListRows && hasValueTableRows) return
+  if (hasDynamicListRows && hasRowFilterRows) return
 
   const cache = existingCache ?? new CypherCache()
 
@@ -65,8 +65,8 @@ const ensureTableFormAttributeCypherCache = (
     cache.set(dynamicListFormAttributeQuery, getFormAttributeRowsByType(form, "DynamicList"))
   }
 
-  if (!hasValueTableRows) {
-    cache.set(valueTableFormAttributeQuery, getFormAttributeRowsByType(form, "ValueTable"))
+  if (!hasRowFilterRows) {
+    cache.set(rowFilterFormAttributeQuery, getRowFilterFormAttributeRows(form))
   }
 
   context.exportToXML.cypherCache = cache
@@ -74,7 +74,7 @@ const ensureTableFormAttributeCypherCache = (
 
 const getFormAttributeRowsByType = (
   form: ClientApplicationForm,
-  typeName: "DynamicList" | "ValueTable"
+  typeName: "DynamicList"
 ): Record<string, unknown>[] => {
   return (form.attributes ?? [])
     .filter(
@@ -83,6 +83,17 @@ const getFormAttributeRowsByType = (
         Array.isArray(attr.type?.type) &&
         attr.type.type.includes(typeName)
     )
+    .map((attr) => ({ name: attr.name }))
+}
+
+const getRowFilterFormAttributeRows = (form: ClientApplicationForm): Record<string, unknown>[] => {
+  return (form.attributes ?? [])
+    .filter((attr) => {
+      if (attr.itemType !== "FormAttribute") return false
+      if (!Array.isArray(attr.type?.type)) return false
+
+      return !attr.type.type.includes("DynamicList") && !attr.type.type.includes("ValueTree")
+    })
     .map((attr) => ({ name: attr.name }))
 }
 
