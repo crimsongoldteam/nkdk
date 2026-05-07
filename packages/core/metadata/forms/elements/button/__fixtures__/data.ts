@@ -218,6 +218,25 @@ export const fullCommandBarButtonEnterprise = {
   Type: { Type: "SystemEnumeration" as const, Value: "FormButtonType.CommandBarButton" },
 } satisfies CommandBarButtonEnterprise
 
+export const commandBarButtonWithDataPath = {
+  itemType: "CommandBarButton",
+  name: "ОбщаяКомандаКомандаСПараметром",
+  type: "CommandBarButton",
+  commandName: "CommonCommand.КомандаСПараметром",
+  dataPath: "Items.ДинамическийСписок.CurrentData.Ref",
+} satisfies CommandBarButton
+
+export const commandBarButtonWithDataPathPartialYAML = {
+  Вид: "КнопкаКоманднойПанели",
+  ИмяКоманды: "CommonCommand.КомандаСПараметром",
+  Данные: "Items.ДинамическийСписок.CurrentData.Ref",
+} satisfies CommandBarButtonPartialYAML
+
+export const commandBarButtonWithDataPathTypedYAML: CommandBarButtonTypedYAML = {
+  ...commandBarButtonWithDataPathPartialYAML,
+  Тип: "КнопкаКоманднойПанели",
+}
+
 //#endregion
 
 //#region CommandBarButton / CommandBarHyperlink

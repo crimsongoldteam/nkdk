@@ -22,6 +22,9 @@ import {
   TablePictureField,
 } from "nkdk-language"
 import {
+  commandBarButtonWithDataPath,
+  commandBarButtonWithDataPathPartialYAML,
+  commandBarButtonWithDataPathTypedYAML,
   fullCommandBarButton,
   fullCommandBarButtonEnterprise,
   fullCommandBarButtonPartialYAML,
@@ -369,6 +372,17 @@ export const ElementFixtures: ElementFixture[] = [
     yaml: fullCommandBarButtonPartialYAML,
     typedYAML: fullCommandBarButtonTypedYAML,
     enterprise: fullCommandBarButtonEnterprise,
+  },
+  {
+    group: "CommandBarButton",
+    name: "with data path",
+    element: CommandBarButton,
+    xml: "withDataPath.xml",
+    xmlFolder: "button",
+    model: commandBarButtonWithDataPath,
+    yaml: commandBarButtonWithDataPathPartialYAML,
+    typedYAML: commandBarButtonWithDataPathTypedYAML,
+    enterprise: undefined,
   },
   {
     group: "CommandBarButton",
