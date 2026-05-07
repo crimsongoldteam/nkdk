@@ -8,3 +8,14 @@ export const fullMobileDeviceCommandBarContent: MobileDeviceCommandBarContent = 
 ]
 
 export const fullMobileDeviceCommandBarContentYAML: MobileDeviceCommandBarContentYAML = ["ФормаКоманда1"]
+
+export const twoItemsMobileDeviceCommandBarContent: MobileDeviceCommandBarContent = [
+  {
+    type: "string",
+    value: "ФормаКоманда1",
+  },
+  {
+    type: "string",
+    value: "ФормаКоманда2",
+  },
+]

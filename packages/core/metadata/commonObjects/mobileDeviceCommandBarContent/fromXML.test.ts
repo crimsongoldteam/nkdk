@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { fullMobileDeviceCommandBarContent } from "./__fixtures__/data"
+import { fullMobileDeviceCommandBarContent, twoItemsMobileDeviceCommandBarContent } from "./__fixtures__/data"
 import { importMobileDeviceCommandBarContentFromXML } from "./fromXML"
 import { MobileDeviceCommandBarContentXML } from "./types"
 
@@ -29,5 +29,20 @@ describe("importMobileDeviceCommandBarContentFromXML", () => {
     )
 
     expect(result).toEqual(fullMobileDeviceCommandBarContent)
+  })
+
+  it("imports two string items XML", () => {
+    const xml = readAndParseXMLFixture<{ MobileDeviceCommandBarContent: MobileDeviceCommandBarContentXML }>(
+      import.meta.url,
+      "twoItems.xml"
+    )
+
+    const result = importMobileDeviceCommandBarContentFromXML(
+      mockContextFromXML(),
+      mockRule,
+      xml.MobileDeviceCommandBarContent
+    )
+
+    expect(result).toEqual(twoItemsMobileDeviceCommandBarContent)
   })
 })
