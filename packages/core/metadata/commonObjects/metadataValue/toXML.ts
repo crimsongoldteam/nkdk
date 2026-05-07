@@ -25,6 +25,8 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "ref",
   "objectRef",
   "ApplicationUsePurpose",
+  "typeRef",
+  "uuid",
 ]
 
 /**

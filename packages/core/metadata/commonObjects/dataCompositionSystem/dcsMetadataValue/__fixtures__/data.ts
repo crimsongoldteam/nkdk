@@ -23,6 +23,16 @@ export const fixtureBooleanPrimitive: MetadataTypedPrimitiveValue = {
   value: true,
 }
 
+export const fixtureTypeRefPrimitive: MetadataTypedPrimitiveValue = {
+  type: "typeRef",
+  value: "d6p1:Undefined",
+}
+
+export const fixtureUuidPrimitive: MetadataTypedPrimitiveValue = {
+  type: "uuid",
+  value: "00000000-0000-0000-0000-000000000000",
+}
+
 export const fixtureLocalStringI8n: I8nText = {
   items: {
     ru: "ЧЦ=3; ЧДЦ=2",
@@ -77,6 +87,24 @@ export type DcsMetadataValueFixture = {
   value: MetadataDcsMetadataValue
   yaml: MetadataDcsMetadataValueYAML
   xml: string
+}
+
+const primitiveTypeRefFixture: DcsMetadataValueFixture = {
+  id: "primitiveTypeRef",
+  title: "Primitive typeRef",
+  rule: { type: "MetadataDcsMetadataValue", valueType: "Primitive", yaml: "value" },
+  value: fixtureTypeRefPrimitive,
+  yaml: "d6p1:Undefined",
+  xml: "primitive-type-ref.xml",
+}
+
+const primitiveUuidFixture: DcsMetadataValueFixture = {
+  id: "primitiveUuid",
+  title: "Primitive UUID",
+  rule: { type: "MetadataDcsMetadataValue", valueType: "Primitive", yaml: "value" },
+  value: fixtureUuidPrimitive,
+  yaml: "00000000-0000-0000-0000-000000000000",
+  xml: "primitive-uuid.xml",
 }
 
 export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
@@ -157,4 +185,10 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     yaml: yamlChoiceParameterDecimal,
     xml: "parameter.xml",
   },
+]
+
+export const dcsMetadataValueXMLFixtures: DcsMetadataValueFixture[] = [
+  ...dcsMetadataValueFixtures,
+  primitiveTypeRefFixture,
+  primitiveUuidFixture,
 ]
