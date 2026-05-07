@@ -1,4 +1,4 @@
-<Table name="Таблица" id="1" DisplayImportance="VeryHigh">
+<Table name="Дерево" id="26" DisplayImportance="VeryHigh">
 	<Representation>Tree</Representation>
 	<Visible>false</Visible>
 	<UserVisible>
@@ -11,7 +11,6 @@
 	<Enabled>false</Enabled>
 	<ReadOnly>true</ReadOnly>
 	<SkipOnInput>false</SkipOnInput>
-	<DefaultItem>true</DefaultItem>
 	<ChangeRowSet>false</ChangeRowSet>
 	<ChangeRowOrder>false</ChangeRowOrder>
 	<Width>1</Width>
@@ -38,7 +37,6 @@
 	<HorizontalLines>false</HorizontalLines>
 	<VerticalLines>false</VerticalLines>
 	<UseAlternationRowColor>true</UseAlternationRowColor>
-	<AutoInsertNewRow>true</AutoInsertNewRow>
 	<AutoAddIncomplete>true</AutoAddIncomplete>
 	<AutoMarkIncomplete>true</AutoMarkIncomplete>
 	<SearchOnInput>Use</SearchOnInput>
@@ -47,10 +45,9 @@
 	<Output>Enable</Output>
 	<HorizontalStretch>false</HorizontalStretch>
 	<VerticalStretch>false</VerticalStretch>
-	<EnableDrag>true</EnableDrag>
 	<FileDragMode>AsFile</FileDragMode>
-	<DataPath>Таблица</DataPath>
-	<RowPictureDataPath>Таблица.Картинка</RowPictureDataPath>
+	<DataPath>Дерево</DataPath>
+	<RowPictureDataPath>Дерево.Картинка</RowPictureDataPath>
 	<RowsPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
@@ -62,7 +59,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
-			<v8:content>Заголовок таблицы</v8:content>
+			<v8:content>Заголовок дерева</v8:content>
 		</v8:item>
 	</Title>
 	<TitleTextColor>web:Yellow</TitleTextColor>
@@ -87,62 +84,34 @@
 	<CurrentRowUse>SelectionPresentationAndChoice</CurrentRowUse>
 	<BehaviorOnHorizontalCompression>HideItemsByImportance</BehaviorOnHorizontalCompression>
 	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
-	<RowFilter xsi:nil="true"/>
-	<ContextMenu name="ТаблицаКонтекстноеМеню" id="2">
-		<Autofill>false</Autofill>
-	</ContextMenu>
-	<AutoCommandBar name="ТаблицаКоманднаяПанель" id="3">
+	<ContextMenu name="ДеревоКонтекстноеМеню" id="27"/>
+	<AutoCommandBar name="ДеревоКоманднаяПанель" id="28">
 		<Autofill>false</Autofill>
 	</AutoCommandBar>
-	<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="4">
-		<Title formatted="false">
-			<v8:item>
-				<v8:lang>ru</v8:lang>
-				<v8:content>Расширенная подсказка таблицы</v8:content>
-			</v8:item>
-		</Title>
-	</ExtendedTooltip>
-	<SearchStringAddition name="ТаблицаСтрокаПоиска" id="5">
+	<ExtendedTooltip name="ДеревоРасширеннаяПодсказка" id="29"/>
+	<SearchStringAddition name="ДеревоСтрокаПоиска" id="30">
 		<AdditionSource>
-			<Item>Таблица</Item>
+			<Item>Дерево</Item>
 			<Type>SearchStringRepresentation</Type>
 		</AdditionSource>
-		<Title>
-			<v8:item>
-				<v8:lang>ru</v8:lang>
-				<v8:content>Строка поиска</v8:content>
-			</v8:item>
-		</Title>
-		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="6"/>
-		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="7"/>
+		<ContextMenu name="ДеревоСтрокаПоискаКонтекстноеМеню" id="31"/>
+		<ExtendedTooltip name="ДеревоСтрокаПоискаРасширеннаяПодсказка" id="32"/>
 	</SearchStringAddition>
-	<ViewStatusAddition name="ТаблицаСостояниеПросмотра" id="8">
+	<ViewStatusAddition name="ДеревоСостояниеПросмотра" id="33">
 		<AdditionSource>
-			<Item>Таблица</Item>
+			<Item>Дерево</Item>
 			<Type>ViewStatusRepresentation</Type>
 		</AdditionSource>
-		<Title>
-			<v8:item>
-				<v8:lang>ru</v8:lang>
-				<v8:content>Состояние просмотра</v8:content>
-			</v8:item>
-		</Title>
-		<ContextMenu name="ТаблицаСостояниеПросмотраКонтекстноеМеню" id="9"/>
-		<ExtendedTooltip name="ТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="10"/>
+		<ContextMenu name="ДеревоСостояниеПросмотраКонтекстноеМеню" id="34"/>
+		<ExtendedTooltip name="ДеревоСостояниеПросмотраРасширеннаяПодсказка" id="35"/>
 	</ViewStatusAddition>
-	<SearchControlAddition name="ТаблицаУправлениеПоиском" id="11">
+	<SearchControlAddition name="ДеревоУправлениеПоиском" id="36">
 		<AdditionSource>
-			<Item>Таблица</Item>
+			<Item>Дерево</Item>
 			<Type>SearchControl</Type>
 		</AdditionSource>
-		<Title>
-			<v8:item>
-				<v8:lang>ru</v8:lang>
-				<v8:content>Управление поиском</v8:content>
-			</v8:item>
-		</Title>
-		<ContextMenu name="ТаблицаУправлениеПоискомКонтекстноеМеню" id="12"/>
-		<ExtendedTooltip name="ТаблицаУправлениеПоискомРасширеннаяПодсказка" id="13"/>
+		<ContextMenu name="ДеревоУправлениеПоискомКонтекстноеМеню" id="37"/>
+		<ExtendedTooltip name="ДеревоУправлениеПоискомРасширеннаяПодсказка" id="38"/>
 	</SearchControlAddition>
 	<Events>
 		<Event name="OnEditEnd">ТаблицаПриОкончанииРедактирования</Event>
@@ -170,46 +139,31 @@
 		<Event name="RefreshRequestProcessing">ТаблицаОбработкаЗапросаОбновления</Event>
 	</Events>
 	<ChildItems>
-		<InputField name="ТаблицаВвод" id="14">
-			<DataPath>Таблица.Ввод</DataPath>
+		<InputField name="ДеревоВвод" id="48">
+			<DataPath>Дерево.Ввод</DataPath>
 			<EditMode>EnterOnInput</EditMode>
 			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
-			<ContextMenu name="ТаблицаВводКонтекстноеМеню" id="15"/>
-			<ExtendedTooltip name="ТаблицаВводРасширеннаяПодсказка" id="16"/>
+			<ContextMenu name="ДеревоВводКонтекстноеМеню" id="49"/>
+			<ExtendedTooltip name="ДеревоВводРасширеннаяПодсказка" id="50"/>
 		</InputField>
-		<LabelField name="ТаблицаНадпись" id="17">
-			<DataPath>Таблица.Надпись</DataPath>
+		<LabelField name="ДеревоНадпись" id="39">
+			<DataPath>Дерево.Надпись</DataPath>
 			<EditMode>EnterOnInput</EditMode>
-			<ContextMenu name="ТаблицаНадписьКонтекстноеМеню" id="18"/>
-			<ExtendedTooltip name="ТаблицаНадписьРасширеннаяПодсказка" id="19"/>
+			<ContextMenu name="ДеревоНадписьКонтекстноеМеню" id="40"/>
+			<ExtendedTooltip name="ДеревоНадписьРасширеннаяПодсказка" id="41"/>
 		</LabelField>
-		<CheckBoxField name="ТаблицаФлажок123" id="20">
-			<DataPath>Таблица.Флажок</DataPath>
+		<CheckBoxField name="ДеревоФлажок" id="42">
+			<DataPath>Дерево.Флажок</DataPath>
 			<EditMode>EnterOnInput</EditMode>
 			<CheckBoxType>Auto</CheckBoxType>
-			<ContextMenu name="ТаблицаФлажок123КонтекстноеМеню" id="21"/>
-			<ExtendedTooltip name="ТаблицаФлажок123РасширеннаяПодсказка" id="22"/>
+			<ContextMenu name="ДеревоФлажокКонтекстноеМеню" id="43"/>
+			<ExtendedTooltip name="ДеревоФлажокРасширеннаяПодсказка" id="44"/>
 		</CheckBoxField>
-		<PictureField name="ТаблицаКартинка" id="23">
-			<DataPath>Таблица.Картинка</DataPath>
+		<PictureField name="ДеревоКартинка" id="45">
+			<DataPath>Дерево.Картинка</DataPath>
 			<EditMode>EnterOnInput</EditMode>
-			<ContextMenu name="ТаблицаКартинкаКонтекстноеМеню" id="24"/>
-			<ExtendedTooltip name="ТаблицаКартинкаРасширеннаяПодсказка" id="25"/>
+			<ContextMenu name="ДеревоКартинкаКонтекстноеМеню" id="46"/>
+			<ExtendedTooltip name="ДеревоКартинкаРасширеннаяПодсказка" id="47"/>
 		</PictureField>
-		<ColumnGroup name="ТаблицаГруппаКолонок" id="100">
-			<Title>
-				<v8:item>
-					<v8:lang>ru</v8:lang>
-					<v8:content>Группа колонок</v8:content>
-				</v8:item>
-			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>ru</v8:lang>
-					<v8:content>Таблица группа колонок</v8:content>
-				</v8:item>
-			</ToolTip>
-			<ExtendedTooltip name="ТаблицаГруппаКолонокРасширеннаяПодсказка" id="101"/>
-		</ColumnGroup>
 	</ChildItems>
 </Table>

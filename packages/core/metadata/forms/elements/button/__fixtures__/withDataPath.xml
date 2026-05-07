@@ -1,0 +1,6 @@
+<Button name="ОбщаяКомандаКомандаСПараметром" id="9">
+	<Type>CommandBarButton</Type>
+	<CommandName>CommonCommand.КомандаСПараметром</CommandName>
+	<DataPath>Items.ДинамическийСписок.CurrentData.Ref</DataPath>
+	<ExtendedTooltip name="ОбщаяКомандаКомандаСПараметромРасширеннаяПодсказка" id="10"/>
+</Button>

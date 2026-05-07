@@ -119,7 +119,7 @@ describe("exportToXML", () => {
       expect(result).toEqual(expectedResult)
     })
 
-    it("экспортирует Period и TopLevelParent для таблицы DynamicList без внешнего CypherCache", () => {
+    it("не добавляет Period и TopLevelParent для таблицы DynamicList без referenceForm", () => {
       const xmlData = exportClientApplicationFormToXML({
         context: mockContextToXML(),
         form: {
@@ -151,8 +151,153 @@ describe("exportToXML", () => {
         : []
       const table = childItems[0]?.Table
 
-      expect(table?.Period).toBeDefined()
-      expect(table?.TopLevelParent).toBeDefined()
+      expect(table?.Period).toBeUndefined()
+      expect(table?.TopLevelParent).toBeUndefined()
+    })
+
+    it("сохраняет Period и TopLevelParent для таблицы из referenceForm", () => {
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: {
+          ...minimalClientApplicationForm,
+          attributes: [
+            {
+              itemType: "FormAttribute",
+              name: "Список",
+              type: { type: ["DynamicList"] },
+              columns: [],
+            },
+          ],
+          childItems: [
+            {
+              itemType: "Table",
+              name: "Список",
+              dataPath: "Список",
+              id: undefined,
+            },
+          ],
+        },
+        referenceForm: {
+          ...minimalClientApplicationForm,
+          attributes: [
+            {
+              itemType: "FormAttribute",
+              name: "Список",
+              type: { type: ["DynamicList"] },
+              columns: [],
+            },
+          ],
+          childItems: [
+            {
+              itemType: "Table",
+              name: "Список",
+              dataPath: "Список",
+              id: undefined,
+              period: undefined,
+              topLevelParent: undefined,
+            },
+          ],
+        },
+      })
+
+      const childItems: Array<{ Table?: { Period?: unknown; TopLevelParent?: unknown } }> = Array.isArray(
+        xmlData.ChildItems,
+      )
+        ? xmlData.ChildItems
+        : []
+      const table = childItems[0]?.Table
+
+      expect(table?.Period).toEqual({
+        "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+        "v8:startDate": "0001-01-01T00:00:00",
+        "v8:endDate": "0001-01-01T00:00:00",
+      })
+      expect(table?.TopLevelParent).toEqual({ "_xsi:nil": "true" })
+    })
+
+    it("не добавляет RowFilter для обычного реквизита без referenceForm", () => {
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: {
+          ...minimalClientApplicationForm,
+          attributes: [
+            {
+              itemType: "FormAttribute",
+              name: "Объект",
+              type: { type: ["CatalogObject.БонусныеПрограммыЛояльности"] },
+              columns: [],
+            },
+          ],
+          childItems: [
+            {
+              itemType: "Table",
+              name: "ЦеновыеГруппы",
+              dataPath: "Объект.ЦеновыеГруппы",
+              id: undefined,
+            },
+          ],
+        },
+        referenceForm: undefined,
+      })
+
+      const childItems: Array<{ Table?: { RowFilter?: unknown } }> = Array.isArray(xmlData.ChildItems)
+        ? xmlData.ChildItems
+        : []
+      const table = childItems[0]?.Table
+
+      expect(table?.RowFilter).toBeUndefined()
+    })
+
+    it("сохраняет RowFilter для таблицы из referenceForm", () => {
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: {
+          ...minimalClientApplicationForm,
+          attributes: [
+            {
+              itemType: "FormAttribute",
+              name: "Объект",
+              type: { type: ["CatalogObject.БонусныеПрограммыЛояльности"] },
+              columns: [],
+            },
+          ],
+          childItems: [
+            {
+              itemType: "Table",
+              name: "ЦеновыеГруппы",
+              dataPath: "Объект.ЦеновыеГруппы",
+              id: undefined,
+            },
+          ],
+        },
+        referenceForm: {
+          ...minimalClientApplicationForm,
+          attributes: [
+            {
+              itemType: "FormAttribute",
+              name: "Объект",
+              type: { type: ["CatalogObject.БонусныеПрограммыЛояльности"] },
+              columns: [],
+            },
+          ],
+          childItems: [
+            {
+              itemType: "Table",
+              name: "ЦеновыеГруппы",
+              dataPath: "Объект.ЦеновыеГруппы",
+              id: undefined,
+              rowFilter: undefined,
+            },
+          ],
+        },
+      })
+
+      const childItems: Array<{ Table?: { RowFilter?: unknown } }> = Array.isArray(xmlData.ChildItems)
+        ? xmlData.ChildItems
+        : []
+      const table = childItems[0]?.Table
+
+      expect(table?.RowFilter).toEqual({ "_xsi:nil": "true" })
     })
 
     it("preserves command ids from reference form by name", () => {

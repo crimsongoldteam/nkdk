@@ -1,7 +1,5 @@
 import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
-import { FormAttribute } from "~/metadata/forms/commonObjects/formAttribute/types"
 import { CollectableElement, ElementXML, exportElementToXML, importElementFromXML } from "~/metadata/orchestration"
-import { CypherCache } from "~/metadata/orchestration/property/cypherCache"
 import { getElementXMLTagName } from "~/metadata/orchestration/formElement/ruleFactory"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
@@ -11,13 +9,12 @@ export type TestExportElementToXMLParams<TElement extends CollectableElement = C
   element: TElement
   path: string
   baseDir?: string
-  contextAttributes?: FormAttribute[]
 }
 
 export function testExportElementToXML<TElement extends CollectableElement>(
   params: TestExportElementToXMLParams<TElement>
 ): { expectedResult: string; result: string } {
-  const { element, path, baseDir, contextAttributes } = params
+  const { element, path, baseDir } = params
 
   const xmlTagName = getElementXMLTagName(element.itemType)
 
@@ -35,24 +32,6 @@ export function testExportElementToXML<TElement extends CollectableElement>(
   }) as TElement | undefined
 
   const context = mockContextToXML()
-
-  if (contextAttributes) {
-    const dynamicListQuery =
-      'MATCH (s {id: $scope})-[:FORM_ATTRIBUTE]->(a:FormAttribute) WHERE "DynamicList" IN a.p_type_type RETURN a.name AS name'
-    const rows = contextAttributes
-      .filter(
-        (attr) =>
-          attr.itemType === "FormAttribute" &&
-          Array.isArray(attr.type?.type) &&
-          attr.type.type.includes("DynamicList")
-      )
-      .map((attr) => ({ name: attr.name }))
-    const cache = new CypherCache()
-    if (rows.length > 0) {
-      cache.set(dynamicListQuery, rows as Record<string, unknown>[])
-    }
-    context.exportToXML!.cypherCache = cache
-  }
 
   const xmlData = exportElementToXML({
     context,

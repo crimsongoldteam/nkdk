@@ -1,7 +1,6 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToMetadata } from ".."
-import { isCypherPredicate } from "./cypherPredicate"
 import { TypeRulesOperations } from "./fn"
 import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
@@ -35,8 +34,10 @@ export const shouldProcessProperty = (params: {
   operation: PropertyExportImportOperation
   metadataItem?: any
   context?: import("~/metadata/context/types").ConfigurationContextWithExportToXML
+  propertyKey?: string
+  referenceMetadata?: unknown
 }): boolean => {
-  const { rule, operation, metadataItem, context } = params
+  const { rule, operation, metadataItem, context, propertyKey, referenceMetadata } = params
 
   if (rule.runtimeOnly) return false
 
@@ -44,8 +45,12 @@ export const shouldProcessProperty = (params: {
     case "exportToXML":
       if (rule.toXML === false) return false
       if (rule.filePath !== undefined) return false
+      if (rule.preserveFromReferenceXML === true) {
+        if (propertyKey === undefined) return false
+        if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object") return false
+        return Object.prototype.hasOwnProperty.call(referenceMetadata, propertyKey)
+      }
       if (typeof rule.toXML === "function") return rule.toXML(metadataItem, context)
-      if (isCypherPredicate(rule.toXML)) return shouldProcessCypherPredicate(rule.toXML, metadataItem, context)
       return true
     case "importFromXML":
       if (rule.filePath !== undefined) return false
@@ -60,18 +65,6 @@ export const shouldProcessProperty = (params: {
     default:
       return true
   }
-}
-
-const shouldProcessCypherPredicate = (
-  predicate: import("./cypherPredicate").CypherPredicate,
-  metadataItem: unknown,
-  context?: import("~/metadata/context/types").ConfigurationContextWithExportToXML
-): boolean => {
-  const cache = context?.exportToXML?.cypherCache
-  if (!cache) return false
-  const rows = cache.get(predicate.query)
-  if (rows === undefined) return false
-  return predicate.test(metadataItem, rows)
 }
 
 const buildPathStructure = <Rule extends MetadataItemRule>(

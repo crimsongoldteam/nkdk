@@ -1,36 +1,216 @@
-<Table name="Список" id="1">
-	<AutoCommandBar name="СписокКоманднаяПанель" id="2"/>
-	<ContextMenu name="СписокКонтекстноеМеню" id="3"/>
-	<DataPath>Список</DataPath>
-	<ExtendedTooltip name="СписокРасширеннаяПодсказка" id="4"/>
+<Table name="ДинамическийСписок" id="51">
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<TitleLocation>Top</TitleLocation>
+	<TitleHeight>10</TitleHeight>
+	<CommandBarLocation>Top</CommandBarLocation>
+	<Enabled>false</Enabled>
+	<ReadOnly>true</ReadOnly>
+	<SkipOnInput>false</SkipOnInput>
+	<DefaultItem>true</DefaultItem>
+	<ChangeRowSet>false</ChangeRowSet>
+	<ChangeRowOrder>false</ChangeRowOrder>
+	<Width>1</Width>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<MaxWidth>3</MaxWidth>
+	<Height>4</Height>
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<MaxHeight>5</MaxHeight>
+	<HeightInTableRows>6</HeightInTableRows>
+	<HeightControlVariant>UseContentHeight</HeightControlVariant>
+	<AutoMaxRowsCount>false</AutoMaxRowsCount>
+	<MaxRowsCount>7</MaxRowsCount>
+	<ChoiceMode>true</ChoiceMode>
+	<MultipleChoice>true</MultipleChoice>
+	<RowInputMode>AfterCurrentRow</RowInputMode>
+	<SelectionMode>SingleRow</SelectionMode>
+	<RowSelectionMode>Row</RowSelectionMode>
+	<Header>false</Header>
+	<HeaderHeight>8</HeaderHeight>
+	<Footer>true</Footer>
+	<FooterHeight>9</FooterHeight>
+	<HorizontalScrollBar>UseAlways</HorizontalScrollBar>
+	<VerticalScrollBar>UseAlways</VerticalScrollBar>
+	<HorizontalLines>false</HorizontalLines>
+	<VerticalLines>false</VerticalLines>
+	<UseAlternationRowColor>true</UseAlternationRowColor>
+	<AutoInsertNewRow>true</AutoInsertNewRow>
+	<AutoAddIncomplete>true</AutoAddIncomplete>
+	<AutoMarkIncomplete>true</AutoMarkIncomplete>
+	<SearchOnInput>Use</SearchOnInput>
+	<InitialListView>Beginning</InitialListView>
+	<InitialTreeView>ExpandTopLevel</InitialTreeView>
+	<Output>Enable</Output>
+	<HorizontalStretch>false</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
+	<EnableStartDrag>true</EnableStartDrag>
+	<FileDragMode>AsFile</FileDragMode>
+	<DataPath>ДинамическийСписок</DataPath>
+	<RowPictureDataPath>ДинамическийСписок.Картинка</RowPictureDataPath>
+	<RowsPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</RowsPicture>
+	<TextColor>web:Blue</TextColor>
+	<BackColor>web:Red</BackColor>
+	<BorderColor>web:Green</BorderColor>
+	<Font ref="style:LargeTextFont" kind="StyleItem"/>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок таблицы</v8:content>
+		</v8:item>
+	</Title>
+	<TitleTextColor>web:Yellow</TitleTextColor>
+	<TitleFont ref="style:SmallTextFont" kind="StyleItem"/>
+	<Shortcut>Cmd+F</Shortcut>
+	<CommandSet>
+		<ExcludedCommand>CancelSearch</ExcludedCommand>
+		<ExcludedCommand>ListSettings</ExcludedCommand>
+	</CommandSet>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Текст подсказки</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+	<SearchStringLocation>Top</SearchStringLocation>
+	<ViewStatusLocation>Top</ViewStatusLocation>
+	<SearchControlLocation>CommandBar</SearchControlLocation>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Center</GroupVerticalAlign>
+	<RefreshRequest>PullFromTop</RefreshRequest>
+	<CurrentRowUse>SelectionPresentationAndChoice</CurrentRowUse>
+	<BehaviorOnHorizontalCompression>HideItemsByImportance</BehaviorOnHorizontalCompression>
+	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+	<AutoRefresh>false</AutoRefresh>
+	<AutoRefreshPeriod>60</AutoRefreshPeriod>
 	<Period>
 		<v8:variant xsi:type="v8:StandardPeriodVariant">Custom</v8:variant>
 		<v8:startDate>0001-01-01T00:00:00</v8:startDate>
 		<v8:endDate>0001-01-01T00:00:00</v8:endDate>
 	</Period>
-	<SearchControlAddition name="СписокУправлениеПоиском" id="5">
+	<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+	<RestoreCurrentRow>false</RestoreCurrentRow>
+	<TopLevelParent xsi:nil="true"/>
+	<ShowRoot>false</ShowRoot>
+	<AllowRootChoice>true</AllowRootChoice>
+	<UpdateOnDataChange>Auto</UpdateOnDataChange>
+	<UserSettingsGroup>ГруппаПользовательскихНастроек</UserSettingsGroup>
+	<AllowGettingCurrentRowURL>false</AllowGettingCurrentRowURL>
+	<ContextMenu name="ДинамическийСписокКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
+	<AutoCommandBar name="ДинамическийСписокКоманднаяПанель" id="3">
+		<Autofill>false</Autofill>
+	</AutoCommandBar>
+	<ExtendedTooltip name="ДинамическийСписокРасширеннаяПодсказка" id="4">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка таблицы</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<SearchStringAddition name="ДинамическийСписокСтрокаПоиска" id="5">
 		<AdditionSource>
-			<Item>Список</Item>
-			<Type>SearchControl</Type>
-		</AdditionSource>
-		<ContextMenu name="СписокУправлениеПоискомКонтекстноеМеню" id="6"/>
-		<ExtendedTooltip name="СписокУправлениеПоискомРасширеннаяПодсказка" id="7"/>
-	</SearchControlAddition>
-	<SearchStringAddition name="СписокСтрокаПоиска" id="8">
-		<AdditionSource>
-			<Item>Список</Item>
+			<Item>ДинамическийСписок</Item>
 			<Type>SearchStringRepresentation</Type>
 		</AdditionSource>
-		<ContextMenu name="СписокСтрокаПоискаКонтекстноеМеню" id="9"/>
-		<ExtendedTooltip name="СписокСтрокаПоискаРасширеннаяПодсказка" id="10"/>
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Строка поиска</v8:content>
+			</v8:item>
+		</Title>
+		<ContextMenu name="ДинамическийСписокСтрокаПоискаКонтекстноеМеню" id="6"/>
+		<ExtendedTooltip name="ДинамическийСписокСтрокаПоискаРасширеннаяПодсказка" id="7"/>
 	</SearchStringAddition>
-	<TopLevelParent xsi:nil="true"/>
-	<ViewStatusAddition name="СписокСостояниеПросмотра" id="11">
+	<ViewStatusAddition name="ДинамическийСписокСостояниеПросмотра" id="8">
 		<AdditionSource>
-			<Item>Список</Item>
+			<Item>ДинамическийСписок</Item>
 			<Type>ViewStatusRepresentation</Type>
 		</AdditionSource>
-		<ContextMenu name="СписокСостояниеПросмотраКонтекстноеМеню" id="12"/>
-		<ExtendedTooltip name="СписокСостояниеПросмотраРасширеннаяПодсказка" id="13"/>
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Состояние просмотра</v8:content>
+			</v8:item>
+		</Title>
+		<ContextMenu name="ДинамическийСписокСостояниеПросмотраКонтекстноеМеню" id="9"/>
+		<ExtendedTooltip name="ДинамическийСписокСостояниеПросмотраРасширеннаяПодсказка" id="10"/>
 	</ViewStatusAddition>
+	<SearchControlAddition name="ДинамическийСписокУправлениеПоиском" id="11">
+		<AdditionSource>
+			<Item>ДинамическийСписок</Item>
+			<Type>SearchControl</Type>
+		</AdditionSource>
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Управление поиском</v8:content>
+			</v8:item>
+		</Title>
+		<ContextMenu name="ДинамическийСписокУправлениеПоискомКонтекстноеМеню" id="12"/>
+		<ExtendedTooltip name="ДинамическийСписокУправлениеПоискомРасширеннаяПодсказка" id="13"/>
+	</SearchControlAddition>
+	<Events>
+		<Event name="OnEditEnd">ТаблицаПриОкончанииРедактирования</Event>
+		<Event name="DragCheck">ТаблицаПроверкаПеретаскивания</Event>
+		<Event name="ValueChoice">ТаблицаВыборЗначения</Event>
+		<Event name="Selection">ТаблицаВыбор</Event>
+		<Event name="BeforeAddRow">ТаблицаПередНачаломДобавления</Event>
+		<Event name="OnCurrentParentChange">ТаблицаПриСменеТекущегоРодителя</Event>
+		<Event name="BeforeDeleteRow">ТаблицаПередУдалением</Event>
+		<Event name="OnLoadUserSettingsAtServer">ДинамическийСписокПриЗагрузкеПользовательскихНастроекНаСервере</Event>
+		<Event name="URLListGetProcessing">ДинамическийСписокОбработкаПолученияСпискаНавигационныхСсылок</Event>
+		<Event name="BeforeEditEnd">ТаблицаПередОкончаниемРедактирования</Event>
+		<Event name="OnActivateRow">ТаблицаПриАктивизацииСтроки</Event>
+		<Event name="URLGetProcessing">ДинамическийСписокОбработкаПолученияНавигационнойСсылки</Event>
+		<Event name="DragStart">ТаблицаНачалоПеретаскивания</Event>
+		<Event name="OnActivateField">ТаблицаПриАктивизацииПоля</Event>
+		<Event name="BeforeExpand">ТаблицаПередРазворачиванием</Event>
+		<Event name="Drag">ТаблицаПеретаскивание</Event>
+		<Event name="ChoiceProcessing">ТаблицаОбработкаВыбора</Event>
+		<Event name="OnGetDataAtServer">ДинамическийСписокПриПолученииДанныхНаСервере</Event>
+		<Event name="OnSaveUserSettingsAtServer">ДинамическийСписокПриСохраненииПользовательскихНастроекНаСервере</Event>
+		<Event name="BeforeCollapse">ТаблицаПередСворачиванием</Event>
+		<Event name="BeforeRowChange">ТаблицаПередНачаломИзменения</Event>
+		<Event name="OnStartEdit">ТаблицаПриНачалеРедактирования</Event>
+		<Event name="BeforeLoadUserSettingsAtServer">ДинамическийСписокПередЗагрузкойПользовательскихНастроекНаСервере</Event>
+		<Event name="DragEnd">ТаблицаОкончаниеПеретаскивания</Event>
+		<Event name="NewWriteProcessing">ТаблицаОбработкаЗаписиНового</Event>
+		<Event name="AfterDeleteRow">ТаблицаПослеУдаления</Event>
+		<Event name="OnUpdateUserSettingSetAtServer">ДинамическийСписокПриОбновленииСоставаПользовательскихНастроекНаСервере</Event>
+		<Event name="OnActivateCell">ТаблицаПриАктивизацииЯчейки</Event>
+		<Event name="OnChange">ТаблицаПриИзменении</Event>
+		<Event name="RefreshRequestProcessing">ТаблицаОбработкаЗапросаОбновления</Event>
+	</Events>
+	<ChildItems>
+		<LabelField name="ДинамическийСписокВвод" id="64">
+			<DataPath>ДинамическийСписок.Ввод</DataPath>
+			<ContextMenu name="ДинамическийСписокВводКонтекстноеМеню" id="65"/>
+			<ExtendedTooltip name="ДинамическийСписокВводРасширеннаяПодсказка" id="66"/>
+		</LabelField>
+		<LabelField name="ДинамическийСписокКартинка" id="67">
+			<DataPath>ДинамическийСписок.Картинка</DataPath>
+			<ContextMenu name="ДинамическийСписокКартинкаКонтекстноеМеню" id="68"/>
+			<ExtendedTooltip name="ДинамическийСписокКартинкаРасширеннаяПодсказка" id="69"/>
+		</LabelField>
+		<LabelField name="ДинамическийСписокНадпись" id="70">
+			<DataPath>ДинамическийСписок.Надпись</DataPath>
+			<ContextMenu name="ДинамическийСписокНадписьКонтекстноеМеню" id="71"/>
+			<ExtendedTooltip name="ДинамическийСписокНадписьРасширеннаяПодсказка" id="72"/>
+		</LabelField>
+		<CheckBoxField name="ДинамическийСписокФлажок" id="73">
+			<DataPath>ДинамическийСписок.Флажок</DataPath>
+			<CheckBoxType>Auto</CheckBoxType>
+			<ContextMenu name="ДинамическийСписокФлажокКонтекстноеМеню" id="74"/>
+			<ExtendedTooltip name="ДинамическийСписокФлажокРасширеннаяПодсказка" id="75"/>
+		</CheckBoxField>
+	</ChildItems>
 </Table>
