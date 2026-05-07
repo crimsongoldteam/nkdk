@@ -52,7 +52,7 @@ export const commonButtonProperties = {
   },
   check: { yaml: "Пометка", type: "boolean" },
   commandName: { yaml: "ИмяКоманды", type: "CommandName" },
-  dataPath: { yaml: "Данные", xml: "DataPath", type: "DataPath" },
+  dataPath: { yaml: "Данные", xml: "DataPath", type: "DataPath", defaultType: "string" },
   textColor: { yaml: "ЦветТекста", type: "Color" },
   backColor: { yaml: "ЦветФона", type: "Color" },
   borderColor: { yaml: "ЦветРамки", type: "Color" },

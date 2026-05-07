@@ -46,17 +46,12 @@ export const commandBarButtonWithDataPath = {
   type: "CommandBarButton",
   commandName: "CommonCommand.КомандаСПараметром",
   dataPath: "Items.ДинамическийСписок.CurrentData.Ref",
-  extendedTooltip: {
-    itemType: "ExtendedTooltip",
-    name: "ОбщаяКомандаКомандаСПараметромРасширеннаяПодсказка",
-  },
 } satisfies CommandBarButton
 
 export const commandBarButtonWithDataPathPartialYAML = {
   Вид: "КнопкаКоманднойПанели",
   ИмяКоманды: "CommonCommand.КомандаСПараметром",
   Данные: "Items.ДинамическийСписок.CurrentData.Ref",
-  РасширеннаяПодсказка: {},
 } satisfies CommandBarButtonPartialYAML
 
 export const commandBarButtonWithDataPathTypedYAML: CommandBarButtonTypedYAML = {
@@ -136,7 +131,7 @@ In `packages/core/metadata/forms/elements/button/rules.ts`, change the area arou
 ```ts
   check: { yaml: "Пометка", type: "boolean" },
   commandName: { yaml: "ИмяКоманды", type: "CommandName" },
-  dataPath: { yaml: "Данные", xml: "DataPath", type: "DataPath" },
+  dataPath: { yaml: "Данные", xml: "DataPath", type: "DataPath", defaultType: "string" },
   textColor: { yaml: "ЦветТекста", type: "Color" },
 ```
 
@@ -207,7 +202,7 @@ No output means the implementation and test commits captured all intended change
 
 ## Self-Review
 
-- Spec coverage: Task 1 covers the provided XML fixture and shared test registration. Task 2 covers the `dataPath` rule with YAML `Данные`, XML `DataPath`, and type `DataPath`. Task 3 covers package verification.
+- Spec coverage: Task 1 covers the provided XML fixture and shared test registration. Task 2 covers the `dataPath` rule with YAML `Данные`, XML `DataPath`, type `DataPath`, and Enterprise fallback type `string`. Task 3 covers package verification.
 - Scope check: The plan does not include `MobileDeviceCommandBarContent`, `CommandInterface` ordering, DCS `xsi:type`, chart settings, or form attribute columns.
 - Placeholder scan: No placeholders remain; each code-editing step includes concrete code and exact commands.
 - Type consistency: The property is consistently named `dataPath` in TS, `DataPath` in XML, and `Данные` in YAML.

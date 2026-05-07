@@ -17,6 +17,7 @@
 - YAML: `Данные`
 - XML: `DataPath`
 - тип: `DataPath`
+- fallback-тип для Enterprise: `string`
 
 Свойство размещается рядом с `commandName`, потому что `DataPath` задает данные для команды кнопки. Добавление в общие свойства делает его доступным как для обычной `Button`, так и для `CommandBarButton`, что согласуется с текущей моделью общих свойств кнопок.
 
@@ -29,7 +30,6 @@
 - `type: "CommandBarButton"`
 - `commandName: "CommonCommand.КомандаСПараметром"`
 - `dataPath: "Items.ДинамическийСписок.CurrentData.Ref"`
-- `extendedTooltip` по XML-фикстуре
 
 Для YAML-ожидания используется поле `Данные` с тем же путем.
 
