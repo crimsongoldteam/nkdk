@@ -411,7 +411,8 @@ export const withAdditionalColumnFormAttribute: FormAttributes = [
     name: "Объект",
     type: { type: ["string"] },
     title: { items: { ru: "" } },
-    columns: [
+    columns: [],
+    additionalColumns: [
       {
         table: "КакаяТоТаблица",
         columns: [
@@ -432,7 +433,7 @@ export const withAdditionalColumnFormAttributeYAML: FormAttributesYAML = {
   Объект: {
     Заголовок: "",
     Тип: "Строка",
-    Колонки: {
+    ДополнительныеКолонки: {
       КакаяТоТаблица: {
         КолонкаТаблицы: {
           Заголовок: "Описание колонки",

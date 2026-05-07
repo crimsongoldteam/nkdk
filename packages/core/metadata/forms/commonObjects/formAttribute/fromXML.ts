@@ -61,7 +61,7 @@ const importFormAttributeFromXML = (context: ConfigurationContextFromXML, xml: F
     columns: _importedColumns,
     additionalColumns: _importedAdditionalColumns,
     ...properties
-  } = importedProperties ?? {}
+  } = (importedProperties ?? {}) as FormAttributeWithAdditionalColumns
 
   if (context.fromXML.forReference) {
     const result = { itemType: FormAttributeRules.itemType } as FormAttributeWithAdditionalColumns
@@ -91,27 +91,19 @@ const importFormAttributeFromXML = (context: ConfigurationContextFromXML, xml: F
     return result as FormAttribute
   }
 
-  const useLegacyAdditionalColumns =
-    columns.length === 0 && additionalColumns.length > 0 && !isFormObject(properties.type)
-
   const result: FormAttributeWithAdditionalColumns = {
+    ...properties,
     itemType: FormAttributeRules.itemType,
     name: xml._name,
     title: properties.title!,
-    columns: useLegacyAdditionalColumns ? (additionalColumns as unknown as FormAttributeColumn[]) : columns,
-    ...properties,
+    columns,
   }
 
-  if (!useLegacyAdditionalColumns && additionalColumns.length > 0) {
+  if (additionalColumns.length > 0) {
     result.additionalColumns = additionalColumns
   }
 
   return result
-}
-
-const isFormObject = (type: FormAttribute["type"] | undefined): boolean => {
-  const formObjectTypes = ["ValueTable", "ValueTree", "ChoiceList"]
-  return type?.type.some((t) => formObjectTypes.includes(t)) ?? false
 }
 
 const importFormAttributeColumnsFromXML = (

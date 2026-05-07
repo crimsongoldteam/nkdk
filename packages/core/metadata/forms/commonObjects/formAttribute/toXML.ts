@@ -66,17 +66,11 @@ const exportFormAttributeToXML = (
     rule: FormAttributeRules,
   })
 
-  const legacyAdditionalColumns = isAdditionalColumns(data.columns) ? data.columns : []
-  const directColumns = isAdditionalColumns(data.columns) ? [] : data.columns
-  const referenceLegacyAdditionalColumns = isAdditionalColumns(referenceData?.columns) ? referenceData?.columns : []
-  const referenceDirectColumns = isAdditionalColumns(referenceData?.columns) ? [] : referenceData?.columns
-
-  const columns = exportColumnsToXML(context, directColumns, referenceDirectColumns, data)
+  const columns = exportColumnsToXML(context, data.columns, referenceData?.columns, data)
   const additionalColumns = exportAdditionalColumnsToXML(
     context,
-    (data as FormAttributeWithAdditionalColumns).additionalColumns ?? legacyAdditionalColumns,
-    (referenceData as FormAttributeWithAdditionalColumns | undefined)?.additionalColumns ??
-      referenceLegacyAdditionalColumns,
+    (data as FormAttributeWithAdditionalColumns).additionalColumns ?? [],
+    (referenceData as FormAttributeWithAdditionalColumns | undefined)?.additionalColumns,
     data
   )
 
@@ -131,16 +125,6 @@ const findReferenceColumn = (
 ): FormAttributeColumn | undefined => {
   if (!referenceData) return undefined
   return referenceData.find((referenceItem) => referenceItem.name === data.name)
-}
-
-const isAdditionalColumns = (columns: unknown): columns is FormAttributeAdditionalColumns[] => {
-  return (
-    Array.isArray(columns) &&
-    columns.length > 0 &&
-    typeof columns[0] === "object" &&
-    columns[0] !== null &&
-    "table" in columns[0]
-  )
 }
 
 const shouldPlaceColumnsAfterProperties = (referenceData: FormAttribute | undefined): boolean => {

@@ -11,6 +11,7 @@ import {
   FormAttributeColumnYAML,
   FormAttributeColumns,
   FormAttributeColumnsYAML,
+  FormAttributeWithAdditionalColumns,
   FormAttributeYAML,
   FormAttributes,
   FormAttributesYAML,
@@ -39,6 +40,11 @@ const exportFormAttributeToYAML = (
     rule: FormAttributeRules,
   })!
 
+  const additionalColumns = (data as FormAttributeWithAdditionalColumns).additionalColumns
+  if (additionalColumns !== undefined && additionalColumns.length > 0) {
+    result.ДополнительныеКолонки = exportAdditionalColumnsToYAML(context, undefined, additionalColumns)
+  }
+
   return result
 
   // if (data.settings !== undefined) {
@@ -56,20 +62,12 @@ const exportFormAttributeToYAML = (
   // }
 }
 
-const isAdditionalColumns = (columns: FormAttributeColumns): columns is FormAttributeAdditionalColumns[] => {
-  return columns.length > 0 && "table" in columns[0]
-}
-
 const exportFormAttributeColumnsToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   columns: FormAttributeColumns
 ): FormAttributeColumnsYAML | undefined => {
   if (columns.length === 0) return undefined
-
-  if (isAdditionalColumns(columns)) {
-    return exportAdditionalColumnsToYAML(context, undefined, columns)
-  }
 
   return exportColumnsToYAML(context, undefined, columns)
 }
