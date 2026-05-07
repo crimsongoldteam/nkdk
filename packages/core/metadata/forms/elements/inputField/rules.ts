@@ -126,6 +126,11 @@ export const InputFieldRules = {
     },
     inputHint: { yaml: "ПодсказкаВвода", type: "I8nText" },
     listChoiceMode: { yaml: "РежимВыбораИзСписка", type: "boolean" },
+    typeDomainEnabled: {
+      yaml: "РазрешитьСоставнойТип",
+      type: "boolean",
+      defaultValueYAML: true,
+    },
     // markIncomplete: { yaml: "ОтметкаНезаполненного", type: "boolean" },
     markNegatives: { yaml: "ВыделятьОтрицательные", type: "boolean" },
     mask: { yaml: "Маска", type: "string" },
@@ -206,11 +211,6 @@ export const InputFieldRules = {
     spinButton: { yaml: "КнопкаРегулирования", type: "boolean" },
     textColor: { yaml: "ЦветТекста", type: "Color" },
     textEdit: { yaml: "РедактированиеТекста", type: "boolean" },
-    // typeDomainEnabled: {
-    //   yaml: "РазрешитьСоставнойТип",
-    //   type: "boolean",
-    //   fromXML: false,
-    // },
     typeLink: { yaml: "СвязьПоТипу", type: "TypeLink", toEnterprise: false },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },

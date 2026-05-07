@@ -85,6 +85,7 @@
 	<CreateButton>true</CreateButton>
 	<Mask>999</Mask>
 	<ListChoiceMode>true</ListChoiceMode>
+	<TypeDomainEnabled>false</TypeDomainEnabled>
 	<MultipleValuesFont ref="style:NormalTextFont" kind="StyleItem"/>
 	<MultipleValuesTextColor>web:Red</MultipleValuesTextColor>
 	<MultipleValuesBackColor>web:Magenta</MultipleValuesBackColor>

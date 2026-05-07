@@ -13,6 +13,7 @@ export const FormParameterRules = {
       type: "TypeDescription",
       xml: "Type",
       useAsShortValueYAML: true,
+      defaultValueXMLRaw: {},
     },
     keyParameter: {
       yaml: "Ключевой",

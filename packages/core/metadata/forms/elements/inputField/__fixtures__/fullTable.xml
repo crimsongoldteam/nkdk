@@ -148,6 +148,7 @@
 		</v8:item>
 	</InputHint>
 	<ListChoiceMode>true</ListChoiceMode>
+	<TypeDomainEnabled>false</TypeDomainEnabled>
 	<MarkNegatives>true</MarkNegatives>
 	<Mask>999</Mask>
 	<MaxHeight>500</MaxHeight>

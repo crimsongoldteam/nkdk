@@ -8375,9 +8375,6 @@
       "patternProperties": {
         "^(.*)$": {
           "type": "object",
-          "required": [
-            "Тип"
-          ],
           "properties": {
             "Тип": {
               "anyOf": [

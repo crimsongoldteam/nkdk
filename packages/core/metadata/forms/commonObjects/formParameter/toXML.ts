@@ -29,7 +29,7 @@ const exportFormParameterToXML = (
 ): FormParameterXML => {
   const result: FormParameterXML = {
     _name: parameter.name,
-    Type: exportTypeDescriptionToXML(context, undefined, parameter.type)!,
+    Type: parameter.type !== undefined ? exportTypeDescriptionToXML(context, undefined, parameter.type) : {},
   }
 
   if (parameter.keyParameter !== undefined) {

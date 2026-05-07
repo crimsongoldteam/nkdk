@@ -274,15 +274,18 @@ export const fullTable = {
   | "allowRootChoice"
   | "autoRefresh"
   | "autoRefreshPeriod"
+  | "autofill"
   | "choiceFoldersAndItems"
   | "enableStartDrag"
   | "period"
   | "restoreCurrentRow"
   | "rowFilter"
+  | "settingsNamedItemDetailedRepresentation"
   | "showRoot"
   | "topLevelParent"
   | "updateOnDataChange"
   | "userSettingsGroup"
+  | "viewMode"
 >
 
 const fullTreeBase = (({
@@ -654,15 +657,18 @@ export const fullTableEnterprise = {
   | "AllowRootChoice"
   | "AutoRefresh"
   | "AutoRefreshPeriod"
+  | "Autofill"
   | "ChoiceFoldersAndItems"
   | "EnableStartDrag"
   | "Period"
   | "RestoreCurrentRow"
   | "RowFilter"
+  | "SettingsNamedItemDetailedRepresentation"
   | "ShowRoot"
   | "TopLevelParent"
   | "UpdateOnDataChange"
   | "UserSettingsGroup"
+  | "ViewMode"
 >
 
 export const fullTableChildItems = {

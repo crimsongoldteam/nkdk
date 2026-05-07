@@ -239,6 +239,8 @@ import {
   minimalSpreadSheetDocumentField,
 } from "../spreadSheetDocumentField/__fixtures__/data"
 import { dynamicList, dynamicListYAML } from "../table/__fixtures__/dynamicList"
+import { dcsComposerFilter, dcsComposerFilterYAML } from "../table/__fixtures__/dcsComposerFilter"
+import { dcsComposerSettings, dcsComposerSettingsYAML } from "../table/__fixtures__/dcsComposerSettings"
 import {
   fullTable,
   fullTableEnterprise,
@@ -1102,6 +1104,26 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: fullTree,
     yaml: fullTreeYAML,
+    enterprise: undefined,
+  },
+  {
+    group: "Table",
+    name: "dcsComposerFilter",
+    element: Table,
+    xml: "dcsComposerFilter.xml",
+    xmlFolder: undefined,
+    model: dcsComposerFilter,
+    yaml: dcsComposerFilterYAML,
+    enterprise: undefined,
+  },
+  {
+    group: "Table",
+    name: "dcsComposerSettings",
+    element: Table,
+    xml: "dcsComposerSettings.xml",
+    xmlFolder: undefined,
+    model: dcsComposerSettings,
+    yaml: dcsComposerSettingsYAML,
     enterprise: undefined,
   },
   //#endregion

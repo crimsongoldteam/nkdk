@@ -1,4 +1,4 @@
-import { FormParameters, FormParametersYAML } from "~/metadata/forms/commonObjects/formParameter/types"
+import type { FormParameters, FormParametersYAML } from "../types"
 
 export const fullFormParameters: FormParameters = [
   {
@@ -25,3 +25,9 @@ export const fullFormParametersYAML: FormParametersYAML = {
     Тип: "Булево",
   },
 }
+
+export const withoutTypeFormParameters: FormParameters = [
+  {
+    name: "ПараметрБезТипа",
+  },
+]

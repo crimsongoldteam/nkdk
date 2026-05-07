@@ -1,0 +1,45 @@
+<Table name="КомпоновщикНастроекКомпоновкиДанныхНастройки" id="102">
+	<Representation>Tree</Representation>
+	<HorizontalLines>false</HorizontalLines>
+	<UseAlternationRowColor>true</UseAlternationRowColor>
+	<InitialTreeView>ExpandAllLevels</InitialTreeView>
+	<EnableStartDrag>true</EnableStartDrag>
+	<EnableDrag>true</EnableDrag>
+	<DataPath>КомпоновщикНастроекКомпоновкиДанных.Settings</DataPath>
+	<ContextMenu name="КомпоновщикНастроекКомпоновкиДанныхНастройкиКонтекстноеМеню" id="103"/>
+	<AutoCommandBar name="КомпоновщикНастроекКомпоновкиДанныхНастройкиКоманднаяПанель" id="104"/>
+	<ExtendedTooltip name="КомпоновщикНастроекКомпоновкиДанныхНастройкиРасширеннаяПодсказка" id="105"/>
+	<SearchStringAddition name="КомпоновщикНастроекКомпоновкиДанныхНастройкиСтрокаПоиска" id="106">
+		<AdditionSource>
+			<Item>КомпоновщикНастроекКомпоновкиДанныхНастройки</Item>
+			<Type>SearchStringRepresentation</Type>
+		</AdditionSource>
+		<ContextMenu name="КомпоновщикНастроекКомпоновкиДанныхНастройкиСтрокаПоискаКонтекстноеМеню" id="107"/>
+		<ExtendedTooltip name="КомпоновщикНастроекКомпоновкиДанныхНастройкиСтрокаПоискаРасширеннаяПодсказка" id="108"/>
+	</SearchStringAddition>
+	<ViewStatusAddition name="КомпоновщикНастроекКомпоновкиДанныхНастройкиСостояниеПросмотра" id="109">
+		<AdditionSource>
+			<Item>КомпоновщикНастроекКомпоновкиДанныхНастройки</Item>
+			<Type>ViewStatusRepresentation</Type>
+		</AdditionSource>
+		<ContextMenu name="КомпоновщикНастроекКомпоновкиДанныхНастройкиСостояниеПросмотраКонтекстноеМеню" id="110"/>
+		<ExtendedTooltip name="КомпоновщикНастроекКомпоновкиДанныхНастройкиСостояниеПросмотраРасширеннаяПодсказка" id="111"/>
+	</ViewStatusAddition>
+	<SearchControlAddition name="КомпоновщикНастроекКомпоновкиДанныхНастройкиУправлениеПоиском" id="112">
+		<AdditionSource>
+			<Item>КомпоновщикНастроекКомпоновкиДанныхНастройки</Item>
+			<Type>SearchControl</Type>
+		</AdditionSource>
+		<ContextMenu name="КомпоновщикНастроекКомпоновкиДанныхНастройкиУправлениеПоискомКонтекстноеМеню" id="113"/>
+		<ExtendedTooltip name="КомпоновщикНастроекКомпоновкиДанныхНастройкиУправлениеПоискомРасширеннаяПодсказка" id="114"/>
+	</SearchControlAddition>
+	<ChildItems>
+		<CheckBoxField name="КомпоновщикНастроекКомпоновкиДанныхНастройкиИспользование" id="131">
+			<DataPath>КомпоновщикНастроекКомпоновкиДанных.Settings.Use</DataPath>
+			<EditMode>EnterOnInput</EditMode>
+			<CheckBoxType>Auto</CheckBoxType>
+			<ContextMenu name="КомпоновщикНастроекКомпоновкиДанныхНастройкиИспользованиеКонтекстноеМеню" id="132"/>
+			<ExtendedTooltip name="КомпоновщикНастроекКомпоновкиДанныхНастройкиИспользованиеРасширеннаяПодсказка" id="133"/>
+		</CheckBoxField>
+	</ChildItems>
+</Table>
