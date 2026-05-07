@@ -1,5 +1,4 @@
 import type { ConfigurationContext } from "~/metadata/context/types"
-import type { FormAttribute } from "~/metadata/forms/commonObjects/formAttribute/types"
 import { fullCommandBarChildItemsAllYAML } from "~/tests/fixtures/commandBarChildItems/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -284,8 +283,6 @@ export type ElementFixture = {
   typedYAML?: object
   enterprise?: object
   context?: ConfigurationContext
-  /** Мок-атрибуты формы для predicate'ов, читающих metadataForNumbering (например, isDynamicListAttribute) */
-  contextAttributes?: FormAttribute[]
 }
 
 export const ElementFixtures: ElementFixture[] = [
@@ -1076,9 +1073,6 @@ export const ElementFixtures: ElementFixture[] = [
     model: fullTable,
     yaml: fullTableYAML,
     enterprise: fullTableEnterprise,
-    contextAttributes: [
-      { itemType: "FormAttribute", name: "Таблица", type: { type: ["ValueTable"] }, columns: [] },
-    ],
   },
   {
     group: "Table",
@@ -1099,9 +1093,6 @@ export const ElementFixtures: ElementFixture[] = [
     model: dynamicList,
     yaml: dynamicListYAML,
     enterprise: undefined,
-    contextAttributes: [
-      { itemType: "FormAttribute", name: "ДинамическийСписок", type: { type: ["DynamicList"] }, columns: [] },
-    ],
   },
   {
     group: "Table",

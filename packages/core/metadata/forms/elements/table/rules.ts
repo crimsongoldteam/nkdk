@@ -3,12 +3,6 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 
-export const dynamicListFormAttributeQuery =
-  'MATCH (s {id: $scope})-[:FORM_ATTRIBUTE]->(a:FormAttribute) WHERE "DynamicList" IN a.p_type_type RETURN a.name AS name'
-
-export const rowFilterFormAttributeQuery =
-  'MATCH (s {id: $scope})-[:FORM_ATTRIBUTE]->(a:FormAttribute) WHERE a.p_type_type IS NOT NULL AND NOT ("DynamicList" IN a.p_type_type) AND NOT ("ValueTree" IN a.p_type_type) RETURN a.name AS name'
-
 export const TableRules = {
   itemType: "Table",
   enterpriseField: "FormTable",
