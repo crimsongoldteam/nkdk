@@ -1,0 +1,23 @@
+<CommandInterface>
+	<CommandBar>
+		<Item>
+			<Command>CommonCommand.ДополнительныеСведенияКоманднаяПанель</Command>
+			<Type>Auto</Type>
+			<CommandGroup>FormCommandBarImportant</CommandGroup>
+			<DefaultVisible>false</DefaultVisible>
+			<Visible>
+				<xr:Common>false</xr:Common>
+			</Visible>
+		</Item>
+		<Item>
+			<Command>Catalog.ДоговорыКонтрагентов.Command.ДоговорКонтрагентаВводНаОсновании</Command>
+			<Type>Auto</Type>
+			<CommandGroup>FormCommandBarCreateBasedOn</CommandGroup>
+			<Index>1</Index>
+			<DefaultVisible>false</DefaultVisible>
+			<Visible>
+				<xr:Common>false</xr:Common>
+			</Visible>
+		</Item>
+	</CommandBar>
+</CommandInterface>
