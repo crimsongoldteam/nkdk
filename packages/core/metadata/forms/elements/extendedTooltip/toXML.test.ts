@@ -6,7 +6,7 @@ import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
 import { mockContextToXML } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { fullExtendedTooltip, minimalExtendedTooltip } from "./__fixtures__/data"
+import { formattedEmptyTitleExtendedTooltip, fullExtendedTooltip, minimalExtendedTooltip } from "./__fixtures__/data"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const fixturesDir = resolve(__dirname, "__fixtures__")
@@ -44,6 +44,13 @@ describe("export ExtendedTooltip to XML", () => {
   it("exports empty tooltip with generated name", () => {
     const result = exportTooltip("КакойТоЭлемент", minimalExtendedTooltip)
     const expected = readXMLFileAsString("defaults.xml", fixturesDir)
+
+    expect(result).toEqual(expected)
+  })
+
+  it("exports empty formatted title", () => {
+    const result = exportTooltip("ПолеВвода", formattedEmptyTitleExtendedTooltip)
+    const expected = readXMLFileAsString("formattedEmptyTitle.xml", fixturesDir)
 
     expect(result).toEqual(expected)
   })
