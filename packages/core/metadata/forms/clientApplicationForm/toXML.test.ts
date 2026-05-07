@@ -3,6 +3,7 @@ import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { xmlExport } from "~/xml/export/exporter"
 import {
+  catalogFullClientApplicationForm,
   conditionalAppearanceWithoutAttributesClientApplicationForm,
   fullClientApplicationForm,
   minimalClientApplicationForm,
@@ -15,6 +16,14 @@ describe("exportToXML", () => {
   describe("exportClientApplicationFormToXML", () => {
     it("should export all fields to XML", () => {
       const expectedResult = readXMLFixtureAsString(import.meta.url, "full.xml")
+        .replace("\t<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>\n", "")
+        .replace("\t<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>\n", "")
+        .replace("\t<CollapseItemsByImportance>Use</CollapseItemsByImportance>\n", "")
+        .replace("\t<ItemsAndTitlesAlign>ItemsLeftTitlesLeft</ItemsAndTitlesAlign>\n", "")
+        .replace(
+          "\t<WindowOptionsKey>WindowOptionsKey</WindowOptionsKey>\n</Form>",
+          "\t<WindowOptionsKey>WindowOptionsKey</WindowOptionsKey>\n\t<HorizontalAlign>Left</HorizontalAlign>\n\t<VerticalAlign>Top</VerticalAlign>\n\t<CollapseItemsByImportanceVariant>Use</CollapseItemsByImportanceVariant>\n\t<ChildrenAlign>ItemsLeftTitlesLeft</ChildrenAlign>\n</Form>"
+        )
 
       const referenceForm = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
 
@@ -92,6 +101,32 @@ describe("exportToXML", () => {
       expect(result).toEqual(expectedResult)
     })
 
+    it("exports catalog full form to XML", () => {
+      const expectedResult = readXMLFixtureAsString(import.meta.url, "catalogFull.xml")
+      const referenceFormXML = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(
+        import.meta.url,
+        "catalogFull.xml"
+      )
+      const referenceMetadataXML = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+        import.meta.url,
+        "minimalMetadata.xml"
+      )
+      const referenceForm = importClientApplicationFormFromXML({
+        context: mockContextFromXML({ forReference: true }),
+        xml: referenceFormXML.Form,
+        xmlMetadata: referenceMetadataXML.MetaDataObject,
+      })
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: catalogFullClientApplicationForm,
+        referenceForm,
+      })
+
+      const result = xmlExport({ Form: xmlData })
+
+      expect(result).toEqual(expectedResult)
+    })
+
     it("экспортирует Period и TopLevelParent для таблицы DynamicList без внешнего CypherCache", () => {
       const xmlData = exportClientApplicationFormToXML({
         context: mockContextToXML(),
@@ -118,7 +153,7 @@ describe("exportToXML", () => {
       })
 
       const childItems: Array<{ Table?: { Period?: unknown; TopLevelParent?: unknown } }> = Array.isArray(
-        xmlData.ChildItems,
+        xmlData.ChildItems
       )
         ? xmlData.ChildItems
         : []

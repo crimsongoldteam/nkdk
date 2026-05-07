@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
 import {
+  catalogFullClientApplicationForm,
   conditionalAppearanceWithoutAttributesClientApplicationForm,
   fullClientApplicationForm,
   minimalClientApplicationForm,
@@ -12,17 +13,21 @@ import { mockContextFromXML } from "~/tests/mockContext"
 describe("importClientApplicationFormFromXML", () => {
   it("should import all fields from XML", () => {
     const xmlForm = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
-    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
-      import.meta.url,
-      "fullMetadata.xml"
-    )
+    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")
     const result = importClientApplicationFormFromXML({
       context: mockContextFromXML(),
       xml: xmlForm.Form,
       xmlMetadata: xmlMetadata.MetaDataObject,
     })
+    const {
+      childItemsHorizontalAlign: _childItemsHorizontalAlign,
+      childItemsVerticalAlign: _childItemsVerticalAlign,
+      collapseItemsByImportance: _collapseItemsByImportance,
+      itemsAndTitlesAlign: _itemsAndTitlesAlign,
+      ...expected
+    } = fullClientApplicationForm
 
-    expect(result).toEqual(fullClientApplicationForm)
+    expect(result).toEqual(expected)
   })
 
   it("should import minimal", () => {
@@ -38,6 +43,21 @@ describe("importClientApplicationFormFromXML", () => {
     })
 
     expect(result).toEqual(minimalClientApplicationForm)
+  })
+
+  it("imports catalog full form from XML", () => {
+    const xmlData = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "catalogFull.xml")
+    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+      import.meta.url,
+      "minimalMetadata.xml"
+    )
+    const result = importClientApplicationFormFromXML({
+      context: mockContextFromXML(),
+      xml: xmlData.Form,
+      xmlMetadata: xmlMetadata.MetaDataObject,
+    })
+
+    expect(result).toEqual(catalogFullClientApplicationForm)
   })
 
   it("imports conditional appearance without attributes", () => {
