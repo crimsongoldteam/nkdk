@@ -273,7 +273,10 @@ export const fullTable = {
   viewStatusLocation: "Top",
   visible: false,
   width: 1,
-} satisfies Omit<RequiredFieldsElement<Table>, "period" | "topLevelParent">
+} satisfies Omit<
+  RequiredFieldsElement<Table>,
+  "autofill" | "period" | "settingsNamedItemDetailedRepresentation" | "topLevelParent" | "viewMode"
+>
 
 export const fullTableYAML: TablePartialYAML = {
   АвтоВводНезаполненного: "Истина",
