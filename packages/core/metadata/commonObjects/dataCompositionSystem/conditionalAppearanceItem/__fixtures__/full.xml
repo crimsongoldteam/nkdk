@@ -90,5 +90,6 @@
 				<dcscor:value xsi:type="xs:boolean">false</dcscor:value>
 			</dcscor:item>
 		</dcsset:appearance>
+		<dcsset:presentation xsi:type="xs:string">Выделение цветом состояния</dcsset:presentation>
 	</dcsset:item>
 </ConditionalAppearance>
