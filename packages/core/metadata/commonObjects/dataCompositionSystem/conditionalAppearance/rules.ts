@@ -23,7 +23,7 @@ export const ConditionalAppearanceRules = {
       defaultValueYAML: false,
     },
     userSettingPresentation: {
-      type: "UserSettingPresentation",
+      type: "DcsLocalStringType",
       xml: "dcsset:userSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройки",
     },

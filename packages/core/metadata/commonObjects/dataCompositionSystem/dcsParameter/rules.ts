@@ -11,10 +11,9 @@ export const DCSParameterRules = {
       toYAML: false,
     },
     title: {
-      type: "I8nText",
+      type: "DcsLocalStringType",
       xml: "dcssch:title",
       yaml: "Заголовок",
-      typedXML: true,
       order: 2,
     },
     valueType: {

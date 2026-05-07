@@ -128,7 +128,7 @@ export const DynamicListRules = {
       xmlParents: ["ListSettings"],
     },
     itemsUserSettingPresentation: {
-      type: "UserSettingPresentation",
+      type: "DcsLocalStringType",
       xml: "dcsset:itemsUserSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройкиСтруктуры",
       xmlParents: ["ListSettings"],

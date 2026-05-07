@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
+import { exportPropertyToXML, PropertyRule } from "~/metadata/orchestration"
+import { mockContextToXML } from "~/tests/mockContext"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { xmlExport } from "~/xml/export/exporter"
 import {
   folderDataCompositionSchemaDataSetField,
   fullDataCompositionSchemaDataSetField,
@@ -10,6 +12,23 @@ import {
 import "./types"
 
 const rule: PropertyRule = { type: "DataCompositionSchemaDataSetField" }
+
+const xmlWithStringTitle = `<Field xsi:type="dcssch:DataSetFieldField">
+	<dcssch:dataPath>StringTitleField</dcssch:dataPath>
+	<dcssch:field>StringTitleField</dcssch:field>
+	<dcssch:title xsi:type="xs:string">String title</dcssch:title>
+</Field>`
+
+const exportDataCompositionSchemaDataSetField = (value: unknown, referenceMetadata?: unknown): string => {
+  const xmlData = exportPropertyToXML({
+    context: mockContextToXML(),
+    rule,
+    value,
+    referenceMetadata,
+  })
+
+  return xmlExport({ Field: xmlData }, false)
+}
 
 describe("import DataCompositionSchemaDataSetField from XML", () => {
   it("round-trips full.xml", () => {
@@ -100,5 +119,31 @@ describe("import DataCompositionSchemaDataSetField from XML", () => {
     })
 
     expect(result).toEqual(folderDataCompositionSchemaDataSetField)
+  })
+
+  it("imports and exports xs:string title", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlString: xmlWithStringTitle,
+      xmlRootTag: "Field",
+    })
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: xmlWithStringTitle,
+      xmlRootTag: "Field",
+      forReference: true,
+    })
+
+    expect(result).toEqual({
+      itemType: "DataCompositionSchemaDataSetField",
+      kind: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+      dataPath: "StringTitleField",
+      field: "StringTitleField",
+      title: { items: { ru: "String title" } },
+    })
+
+    const exported = exportDataCompositionSchemaDataSetField(result, referenceMetadata)
+    expect(exported).toContain(`<dcssch:title xsi:type="xs:string">String title</dcssch:title>`)
+    expect(exported).not.toContain(`<dcssch:title xsi:type="v8:LocalStringType">`)
   })
 })

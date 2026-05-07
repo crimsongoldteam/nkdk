@@ -2,19 +2,20 @@ import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import {
-  fixtureUSPLocalStringRef,
-  fixtureUSPLocalStringSingleLang,
-  fixtureUSPLocalStringTwoLangs,
-  fixtureUSPStringRef,
-  fixtureUSPStringSingleLang,
+  fixtureDcsLocalStringRef,
+  fixtureDcsLocalStringSingleLang,
+  fixtureDcsLocalStringTwoLangs,
+  fixtureDcsLocalStringTwoLangsRef,
+  fixtureDcsStringRef,
+  fixtureDcsStringSingleLang,
 } from "./__fixtures__/data"
 
-const rule: PropertyRule = { type: "UserSettingPresentation" }
+const rule: PropertyRule = { type: "DcsLocalStringType" }
 const xmlRootTag = "dcsset:userSettingPresentation"
 
-describe("importUserSettingPresentationFromXML", () => {
-  describe("обычный импорт (forReference=false)", () => {
-    it("string.xml → I8nText", () => {
+describe("importDcsLocalStringTypeFromXML", () => {
+  describe("обычный импорт", () => {
+    it("string.xml -> I8nText", () => {
       const result = testImportPropertyFromXML({
         rule,
         path: "string.xml",
@@ -22,10 +23,10 @@ describe("importUserSettingPresentationFromXML", () => {
         importMetaUrl: import.meta.url,
       })
 
-      expect(result).toEqual(fixtureUSPStringSingleLang)
+      expect(result).toEqual(fixtureDcsStringSingleLang)
     })
 
-    it("localString.xml → I8nText (один язык)", () => {
+    it("localString.xml -> I8nText с одним языком", () => {
       const result = testImportPropertyFromXML({
         rule,
         path: "localString.xml",
@@ -33,10 +34,10 @@ describe("importUserSettingPresentationFromXML", () => {
         importMetaUrl: import.meta.url,
       })
 
-      expect(result).toEqual(fixtureUSPLocalStringSingleLang)
+      expect(result).toEqual(fixtureDcsLocalStringSingleLang)
     })
 
-    it("localStringTwoLangs.xml → I8nText (два языка)", () => {
+    it("localStringTwoLangs.xml -> I8nText с двумя языками", () => {
       const result = testImportPropertyFromXML({
         rule,
         path: "localStringTwoLangs.xml",
@@ -44,12 +45,12 @@ describe("importUserSettingPresentationFromXML", () => {
         importMetaUrl: import.meta.url,
       })
 
-      expect(result).toEqual(fixtureUSPLocalStringTwoLangs)
+      expect(result).toEqual(fixtureDcsLocalStringTwoLangs)
     })
   })
 
-  describe("импорт для референса (forReference=true)", () => {
-    it("string.xml → true (был xs:string)", () => {
+  describe("импорт референса", () => {
+    it("string.xml -> строковый референс", () => {
       const result = testImportPropertyFromXML({
         rule,
         path: "string.xml",
@@ -58,10 +59,10 @@ describe("importUserSettingPresentationFromXML", () => {
         forReference: true,
       })
 
-      expect(result).toEqual(fixtureUSPStringRef)
+      expect(result).toEqual(fixtureDcsStringRef)
     })
 
-    it("localString.xml → I8nText (был LocalStringType)", () => {
+    it("localString.xml -> I8nText референс", () => {
       const result = testImportPropertyFromXML({
         rule,
         path: "localString.xml",
@@ -70,10 +71,10 @@ describe("importUserSettingPresentationFromXML", () => {
         forReference: true,
       })
 
-      expect(result).toEqual(fixtureUSPLocalStringRef)
+      expect(result).toEqual(fixtureDcsLocalStringRef)
     })
 
-    it("localStringTwoLangs.xml → I8nText (был LocalStringType)", () => {
+    it("localStringTwoLangs.xml -> I8nText референс", () => {
       const result = testImportPropertyFromXML({
         rule,
         path: "localStringTwoLangs.xml",
@@ -82,7 +83,7 @@ describe("importUserSettingPresentationFromXML", () => {
         forReference: true,
       })
 
-      expect(result).toEqual(fixtureUSPLocalStringTwoLangs)
+      expect(result).toEqual(fixtureDcsLocalStringTwoLangsRef)
     })
   })
 })
