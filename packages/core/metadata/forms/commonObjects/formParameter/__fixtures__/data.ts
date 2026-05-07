@@ -27,7 +27,6 @@ export const fullFormParametersYAML: FormParametersYAML = {
 }
 
 export const withoutTypeFormParameters: FormParameters = [
-  // @ts-expect-error Task 3 makes `type` optional.
   {
     name: "ПараметрБезТипа",
   },
