@@ -5,6 +5,8 @@ import {
   choiceListFormAttributeYAML,
   fullFormAttributes,
   fullFormAttributesYAML,
+  mixedColumnsFormAttribute,
+  mixedColumnsFormAttributeYAML,
   shortFormAttribute,
   shortFormAttributeYAML,
   tableWithColumnsFormAttribute,
@@ -95,5 +97,11 @@ describe("exportFormAttributesToYAML", () => {
     const result = exportFormAttributesToYAML(context, mockRule, withAdditionalColumnFormAttribute)
 
     expect(result).toEqual(withAdditionalColumnFormAttributeYAML)
+  })
+
+  it("should export mixed columns", () => {
+    const result = exportFormAttributesToYAML(context, mockRule, mixedColumnsFormAttribute)
+
+    expect(result).toEqual(mixedColumnsFormAttributeYAML)
   })
 })

@@ -8,6 +8,8 @@ import {
   mainAttributeTitleEqualsNameYAML,
   minimalFormAttributes,
   minimalFormAttributesYAML,
+  mixedColumnsFormAttribute,
+  mixedColumnsFormAttributeYAML,
   shortFormAttribute,
   shortFormAttributeYAML,
   tableWithColumnsFormAttribute,
@@ -94,5 +96,11 @@ describe("importFormAttributesFromYAML", () => {
     const result = importFormAttributesFromYAML(mockContext, mockRule, withAdditionalColumnFormAttributeYAML)
 
     expect(result).toEqual(withAdditionalColumnFormAttribute)
+  })
+
+  it("should import mixed columns", () => {
+    const result = importFormAttributesFromYAML(mockContext, mockRule, mixedColumnsFormAttributeYAML)
+
+    expect(result).toEqual(mixedColumnsFormAttribute)
   })
 })

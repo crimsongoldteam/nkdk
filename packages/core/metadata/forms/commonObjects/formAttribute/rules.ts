@@ -88,7 +88,6 @@ export const FormAttributeRules = {
       fromXML: false,
       toXML: false,
       fromYAML: false,
-      toYAML: false,
     },
 
     functionalOptions: {

@@ -11,7 +11,6 @@ import {
   FormAttributeColumnYAML,
   FormAttributeColumns,
   FormAttributeColumnsYAML,
-  FormAttributeWithAdditionalColumns,
   FormAttributeYAML,
   FormAttributes,
   FormAttributesYAML,
@@ -39,11 +38,6 @@ const exportFormAttributeToYAML = (
     data: data,
     rule: FormAttributeRules,
   })!
-
-  const additionalColumns = (data as FormAttributeWithAdditionalColumns).additionalColumns
-  if (additionalColumns !== undefined && additionalColumns.length > 0) {
-    result.ДополнительныеКолонки = exportAdditionalColumnsToYAML(context, undefined, additionalColumns)
-  }
 
   return result
 
@@ -108,11 +102,13 @@ export const exportFormAttributeColumnToYAML = (
 const exportAdditionalColumnsToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  additionalColumns: FormAttributeAdditionalColumns[]
-): FormAttributeAdditionalColumnYAML => {
+  additionalColumns: FormAttributeAdditionalColumns[] | undefined
+): FormAttributeAdditionalColumnYAML | undefined => {
+  if (additionalColumns === undefined || additionalColumns.length === 0) return undefined
+
   return Object.fromEntries(
     additionalColumns.map((additionalColumn) => [
-      additionalColumn.table.split(".").pop()!,
+      additionalColumn.table,
       exportColumnsToYAML(context, undefined, additionalColumn.columns),
     ])
   )
@@ -120,3 +116,4 @@ const exportAdditionalColumnsToYAML = (
 
 registerTypeRule("FormAttributes", "exportToYAML", exportFormAttributesToYAML)
 registerTypeRule("FormAttributeColumns", "exportToYAML", exportFormAttributeColumnsToYAML)
+registerTypeRule("FormAttributeAdditionalColumns", "exportToYAML", exportAdditionalColumnsToYAML)
