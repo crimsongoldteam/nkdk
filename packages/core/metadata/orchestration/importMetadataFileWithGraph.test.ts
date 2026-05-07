@@ -978,7 +978,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
   Объект:
     Тип: Справочник.Товары
   ДопКолонки:
-    Колонки:
+    ДополнительныеКолонки:
       "Объект.Состав":
         ДопКолонка:
           Тип: Строка(50)
@@ -1034,7 +1034,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
   Объект:
     Тип: Справочник.Товары
   ДопКолонки:
-    Колонки:
+    ДополнительныеКолонки:
       "Объект.Состав":
         Контрагент:
           Тип: Справочник.Контрагенты
@@ -1072,7 +1072,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
   Объект:
     Тип: Справочник.Товары
   ДопКолонки:
-    Колонки:
+    ДополнительныеКолонки:
       "Объект.Состав":
         ДопКолонка: {}
 `,
