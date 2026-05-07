@@ -15,7 +15,7 @@ export const exportChoiceParametersToXML = (
     _name: param.name,
     "app:value": exportMetadataValueToXML({
       context,
-      rule: { type: "MetadataValue" },
+      rule: { type: "MetadataValue", exportNilValue: true },
       value: param.value,
     })!,
   }))

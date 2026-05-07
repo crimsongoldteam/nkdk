@@ -101,7 +101,8 @@ describe("importChoiceParametersFromXML", () => {
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
-    expect(result).toEqual(nilChoiceParameters)
+    expect(result).toStrictEqual(nilChoiceParameters)
+    expect(Object.prototype.hasOwnProperty.call(result?.[0], "value")).toBe(false)
   })
 
   it("should import choice parameters with without value correctly", () => {
@@ -112,7 +113,8 @@ describe("importChoiceParametersFromXML", () => {
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
-    expect(result).toEqual(nilChoiceParameters)
+    expect(result).toStrictEqual(nilChoiceParameters)
+    expect(Object.prototype.hasOwnProperty.call(result?.[0], "value")).toBe(false)
   })
 
   it("should import choice parameters without one value correctly", () => {
@@ -123,6 +125,8 @@ describe("importChoiceParametersFromXML", () => {
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
-    expect(result).toEqual(withoutOneValueChoiceParameter)
+    expect(result).toStrictEqual(withoutOneValueChoiceParameter)
+    expect(Object.prototype.hasOwnProperty.call(result?.[0], "value")).toBe(false)
+    expect(result?.[1]?.value).toEqual(withoutOneValueChoiceParameter[1].value)
   })
 })

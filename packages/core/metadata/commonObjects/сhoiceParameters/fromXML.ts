@@ -29,10 +29,13 @@ const importChoiceParameterFromXML = (
     value: xml["app:value"],
   })
 
-  return {
+  const result: ChoiceParameter = {
     name: xml._name,
-    value,
   }
+
+  if (value !== undefined) result.value = value
+
+  return result
 }
 
 registerTypeRule("ChoiceParameters", "importFromXML", importChoiceParametersFromXML)
