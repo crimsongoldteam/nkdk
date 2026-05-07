@@ -33,8 +33,10 @@ export const shouldProcessProperty = (params: {
   operation: PropertyExportImportOperation
   metadataItem?: any
   context?: import("~/metadata/context/types").ConfigurationContextWithExportToXML
+  propertyKey?: string
+  referenceMetadata?: unknown
 }): boolean => {
-  const { rule, operation, metadataItem, context } = params
+  const { rule, operation, metadataItem, context, propertyKey, referenceMetadata } = params
 
   if (rule.runtimeOnly) return false
 
@@ -42,6 +44,11 @@ export const shouldProcessProperty = (params: {
     case "exportToXML":
       if (rule.toXML === false) return false
       if (rule.filePath !== undefined) return false
+      if (rule.preserveFromReferenceXML === true) {
+        if (propertyKey === undefined) return false
+        if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object") return false
+        return Object.hasOwn(referenceMetadata, propertyKey)
+      }
       if (typeof rule.toXML === "function") return rule.toXML(metadataItem, context)
       if (isCypherPredicate(rule.toXML)) return shouldProcessCypherPredicate(rule.toXML, metadataItem, context)
       return true

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { applyRequiredXMLParents, getOrderedKeysFromXML } from "./helpers"
+import { applyRequiredXMLParents, getOrderedKeysFromXML, shouldProcessProperty } from "./helpers"
 import { setXMLValue } from "./toXML"
 
 const createRule = (
@@ -154,6 +154,58 @@ describe("applyRequiredXMLParents", () => {
     const result: any = { Attributes: existing }
     applyRequiredXMLParents(result, [{ path: ["Attributes"], tag: "Form" }], ["Form"])
     expect(result.Attributes).toBe(existing)
+  })
+})
+
+describe("shouldProcessProperty preserveFromReferenceXML", () => {
+  const preserveRule = {
+    type: "boolean",
+    fromXML: false,
+    preserveFromReferenceXML: true,
+    defaultValueXMLRaw: { "_xsi:nil": "true" },
+  } as any
+
+  it("экспортирует поле, когда referenceMetadata содержит ключ со значением undefined", () => {
+    const result = shouldProcessProperty({
+      rule: preserveRule,
+      operation: "exportToXML",
+      propertyKey: "rowFilter",
+      referenceMetadata: { rowFilter: undefined },
+    })
+
+    expect(result).toBe(true)
+  })
+
+  it("не экспортирует поле, когда referenceMetadata не содержит ключ", () => {
+    const result = shouldProcessProperty({
+      rule: preserveRule,
+      operation: "exportToXML",
+      propertyKey: "rowFilter",
+      referenceMetadata: {},
+    })
+
+    expect(result).toBe(false)
+  })
+
+  it("не экспортирует поле без referenceMetadata", () => {
+    const result = shouldProcessProperty({
+      rule: preserveRule,
+      operation: "exportToXML",
+      propertyKey: "rowFilter",
+    })
+
+    expect(result).toBe(false)
+  })
+
+  it("не меняет поведение обычных полей без preserveFromReferenceXML", () => {
+    const result = shouldProcessProperty({
+      rule: { type: "string" } as any,
+      operation: "exportToXML",
+      propertyKey: "name",
+      referenceMetadata: {},
+    })
+
+    expect(result).toBe(true)
   })
 })
 

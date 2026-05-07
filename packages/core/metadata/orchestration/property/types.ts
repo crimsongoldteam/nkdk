@@ -90,6 +90,13 @@ export interface BasePropertyRule {
   /** Не импортировать из XML */
   fromXML?: false
 
+  /**
+   * XML-only preservation mode: export this property only when the reference metadata object
+   * owns the same property key. Used for service tags that must be kept during round-trip
+   * but never inferred for newly-created XML.
+   */
+  preserveFromReferenceXML?: true
+
   /** Не экспортировать в XML. Функция получает родительский metadataItem и опциональный context, возвращает `true` если экспортировать, `false` если пропустить */
   toXML?: false | ((metadataItem: any, context?: ConfigurationContextWithExportToXML) => boolean) | CypherPredicate
 
