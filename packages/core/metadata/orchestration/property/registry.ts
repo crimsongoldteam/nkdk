@@ -204,6 +204,8 @@ import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/comma
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import {
+  FormAttributeAdditionalColumnYAML,
+  FormAttributeAdditionalColumnsCollection,
   FormAttributeColumns,
   FormAttributeColumnsYAML,
   FormAttributes,
@@ -569,6 +571,11 @@ export type PropertyTypeRegistry = {
     yaml: FormAttributeColumnsYAML
   }
 
+  FormAttributeAdditionalColumns: {
+    item: FormAttributeAdditionalColumnsCollection
+    yaml: FormAttributeAdditionalColumnYAML
+  }
+
   // FormAttributeSettings: {
   //   item: FormAttributeSettings
   //   enterprise: unknown
@@ -864,6 +871,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   FormCommands: "FormCommands",
   FormAttributes: "FormAttributes",
   FormAttributeColumns: "FormAttributeColumns",
+  FormAttributeAdditionalColumns: "FormAttributeAdditionalColumns",
   FormParameters: "FormParameters",
   InternalInfo: "InternalInfo",
   XMLRoot: "XMLRoot",

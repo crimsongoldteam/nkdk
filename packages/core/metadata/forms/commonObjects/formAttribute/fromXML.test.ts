@@ -15,6 +15,7 @@ import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXM
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { attributeAnyType } from "./__fixtures__/attributeAnyType"
 import { columnAnyType } from "./__fixtures__/columnAnyType"
+import { mixedColumns } from "./__fixtures__/mixedColumns"
 import { tableWithColumns } from "./__fixtures__/tableWithColumns"
 import { treeWithColumn } from "./__fixtures__/treeWithColumn"
 import { twoTables } from "./__fixtures__/twoTables"
@@ -137,6 +138,16 @@ describe("importFormAttributesFromXML", () => {
     })
 
     expect(result).toEqual(twoTables)
+  })
+
+  it("import mixedColumns", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "mixedColumns.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(mixedColumns)
   })
 
   it("import attributeAnyType", () => {
