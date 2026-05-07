@@ -37,8 +37,10 @@ import "./choiceList/toXML"
 import "./choiceList/toYAML"
 
 import "./mobileDeviceCommandBarContent/fromXML"
+import "./mobileDeviceCommandBarContent/fromYAML"
 import "./mobileDeviceCommandBarContent/toJSONSchema"
 import "./mobileDeviceCommandBarContent/toXML"
+import "./mobileDeviceCommandBarContent/toYAML"
 
 import "./сhoiceParameterLinks/fromXML"
 import "./сhoiceParameterLinks/fromYAML"
