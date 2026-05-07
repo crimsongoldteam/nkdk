@@ -36,10 +36,10 @@ git push -u origin <branch>
 gh pr create --base develop --head <branch> --title "<title>" --body "<summary and test plan>"
 ```
 
-5. Merge the PR with squash unless the user requested another merge method:
+5. Merge the PR with a regular merge commit unless the user requested another merge method:
 
 ```bash
-gh pr merge <number> --squash --delete-branch --subject "<conventional commit title>"
+gh pr merge <number> --merge --delete-branch
 ```
 
 If `gh pr merge` reports a local git/worktree error, check the PR state before retrying:
