@@ -1,11 +1,7 @@
-import { cypherPredicate } from "~/metadata/orchestration/property/cypherPredicate"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
-
-export const dynamicListFormAttributeQuery =
-  'MATCH (s {id: $scope})-[:FORM_ATTRIBUTE]->(a:FormAttribute) WHERE "DynamicList" IN a.p_type_type RETURN a.name AS name'
 
 export const TableRules = {
   itemType: "Table",
@@ -264,8 +260,7 @@ export const TableRules = {
     allowRootChoice: { yaml: "РазрешитьВыборКорня", type: "boolean" },
     allowGettingCurrentRowURL: { yaml: "РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки", type: "boolean" },
     userSettingsGroup: { yaml: "ГруппаПользовательскихНастроек", type: "string" },
-    // Тип boolean: в XML значения всегда фиксированные (1С-дефолты); структуру в модели хранить не нужно.
-    // Эмитируются только когда DataPath указывает на FormAttribute с единственным типом "DynamicList".
+    // XML-only service fields are preserved only when present in the reference XML.
     period: {
       yaml: "Период",
       type: "boolean",
@@ -277,11 +272,7 @@ export const TableRules = {
         "v8:startDate": "0001-01-01T00:00:00",
         "v8:endDate": "0001-01-01T00:00:00",
       },
-      toXML: cypherPredicate({
-        query: dynamicListFormAttributeQuery,
-        test: (el: any, rows: Record<string, unknown>[]) =>
-          rows.some((r) => r.name === el?.dataPath?.split(".")[0]),
-      }),
+      preserveFromReferenceXML: true,
     },
     topLevelParent: {
       yaml: "РодительВерхнегоУровня",
@@ -290,11 +281,16 @@ export const TableRules = {
       toYAML: false,
       fromYAML: false,
       defaultValueXMLRaw: { "_xsi:nil": "true" },
-      toXML: cypherPredicate({
-        query: dynamicListFormAttributeQuery,
-        test: (el: any, rows: Record<string, unknown>[]) =>
-          rows.some((r) => r.name === el?.dataPath?.split(".")[0]),
-      }),
+      preserveFromReferenceXML: true,
+    },
+    rowFilter: {
+      yaml: "ОтборСтрок",
+      type: "boolean",
+      fromXML: false,
+      toYAML: false,
+      fromYAML: false,
+      defaultValueXMLRaw: { "_xsi:nil": "true" },
+      preserveFromReferenceXML: true,
     },
     events: {
       type: "Events",
@@ -308,6 +304,12 @@ export const TableRules = {
         newWriteProcessing: "ОбработкаЗаписиНового",
         refreshRequestProcessing: "ОбработкаЗапросаОбновления",
         dragEnd: "ОкончаниеПеретаскивания",
+        onLoadUserSettingsAtServer: "ПриЗагрузкеПользовательскихНастроекНаСервере",
+        uRLListGetProcessing: "ОбработкаПолученияСпискаНавигационныхСсылок",
+        uRLGetProcessing: "ОбработкаПолученияНавигационнойСсылки",
+        onGetDataAtServer: "ПриПолученииДанныхНаСервере",
+        onSaveUserSettingsAtServer: "ПриСохраненииПользовательскихНастроекНаСервере",
+        onUpdateUserSettingSetAtServer: "ПриОбновленииСоставаПользовательскихНастроекНаСервере",
         beforeLoadUserSettingsAtServer: "ПередЗагрузкойПользовательскихНастроекНаСервере",
         beforeAddRow: "ПередНачаломДобавления",
         beforeRowChange: "ПередНачаломИзменения",

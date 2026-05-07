@@ -5,7 +5,7 @@ import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formatted
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
 import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
-import type { CypherPredicate, CypherSet } from "./cypherPredicate"
+import type { CypherSet } from "./cypherPredicate"
 import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
 import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
@@ -90,8 +90,15 @@ export interface BasePropertyRule {
   /** Не импортировать из XML */
   fromXML?: false
 
+  /**
+   * XML-only preservation mode: export this property only when the reference metadata object
+   * owns the same property key. Used for service tags that must be kept during round-trip
+   * but never inferred for newly-created XML.
+   */
+  preserveFromReferenceXML?: true
+
   /** Не экспортировать в XML. Функция получает родительский metadataItem и опциональный context, возвращает `true` если экспортировать, `false` если пропустить */
-  toXML?: false | ((metadataItem: any, context?: ConfigurationContextWithExportToXML) => boolean) | CypherPredicate
+  toXML?: false | ((metadataItem: any, context?: ConfigurationContextWithExportToXML) => boolean)
 
   /** Родительские элементы в XML */
   xmlParents?: string[]

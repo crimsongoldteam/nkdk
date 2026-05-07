@@ -24,7 +24,6 @@ describe("exportElementToXML", () => {
         element: fixture.model as CollectableElement,
         path: fixture.xml,
         baseDir: fixtureXmlBaseDir(fixture),
-        contextAttributes: fixture.contextAttributes,
       }
       const resultData = testExportElementToXML(params)
 

@@ -1,5 +1,4 @@
 import type { ConfigurationContext } from "~/metadata/context/types"
-import type { FormAttribute } from "~/metadata/forms/commonObjects/formAttribute/types"
 import { fullCommandBarChildItemsAllYAML } from "~/tests/fixtures/commandBarChildItems/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -239,10 +238,17 @@ import {
   fullSpreadSheetDocumentFieldPartialYAML,
   minimalSpreadSheetDocumentField,
 } from "../spreadSheetDocumentField/__fixtures__/data"
-import { dynamicList } from "../table/__fixtures__/dynamicList"
+import { dynamicList, dynamicListYAML } from "../table/__fixtures__/dynamicList"
 import { dcsComposerFilter, dcsComposerFilterYAML } from "../table/__fixtures__/dcsComposerFilter"
 import { dcsComposerSettings, dcsComposerSettingsYAML } from "../table/__fixtures__/dcsComposerSettings"
-import { fullTable, fullTableEnterprise, fullTableYAML, minimalTable } from "../table/__fixtures__/data"
+import {
+  fullTable,
+  fullTableEnterprise,
+  fullTableYAML,
+  fullTree,
+  fullTreeYAML,
+  minimalTable,
+} from "../table/__fixtures__/data"
 import {
   fullTextDocumentField,
   fullTextDocumentFieldEnterprise,
@@ -279,8 +285,6 @@ export type ElementFixture = {
   typedYAML?: object
   enterprise?: object
   context?: ConfigurationContext
-  /** Мок-атрибуты формы для predicate'ов, читающих metadataForNumbering (например, isDynamicListAttribute) */
-  contextAttributes?: FormAttribute[]
 }
 
 export const ElementFixtures: ElementFixture[] = [
@@ -1089,11 +1093,18 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "dynamicList.xml",
     xmlFolder: undefined,
     model: dynamicList,
-    yaml: undefined,
+    yaml: dynamicListYAML,
     enterprise: undefined,
-    contextAttributes: [
-      { itemType: "FormAttribute", name: "Список", type: { type: ["DynamicList"] }, columns: [] },
-    ],
+  },
+  {
+    group: "Table",
+    name: "full tree",
+    element: Table,
+    xml: "fullTree.xml",
+    xmlFolder: undefined,
+    model: fullTree,
+    yaml: fullTreeYAML,
+    enterprise: undefined,
   },
   {
     group: "Table",

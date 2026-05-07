@@ -11,9 +11,6 @@ import {
 import { createEmptyClientApplicationForm } from "~/metadata/forms/clientApplicationForm/createEmpty"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
-import { CypherCache } from "~/metadata/orchestration/property/cypherCache"
-import { collectCypherPredicates, resolveCypherPredicates } from "~/metadata/orchestration/property/cypherResolver"
-import { ClientApplicationFormRules } from "./rules"
 import type {
   ClientApplicationForm,
   ClientApplicationFormXML,
@@ -67,12 +64,6 @@ export const syncFormToXML = async (params: {
     inputDir: referenceDir,
     formName,
   })
-
-  const cypherCache = new CypherCache()
-  const cypherPredicates = collectCypherPredicates(ClientApplicationFormRules, "")
-  await resolveCypherPredicates(cypherPredicates, cypherCache)
-
-  context.exportToXML.cypherCache = cypherCache
 
   const formXML = exportClientApplicationFormToXML({ context, form, referenceForm })
   const metadataXML = exportFormMetadataToXML({
