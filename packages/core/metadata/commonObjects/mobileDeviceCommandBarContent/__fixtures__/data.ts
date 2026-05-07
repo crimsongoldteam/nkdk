@@ -1,4 +1,4 @@
-import { MobileDeviceCommandBarContent } from "../types"
+import { MobileDeviceCommandBarContent, MobileDeviceCommandBarContentYAML } from "../types"
 
 export const fullMobileDeviceCommandBarContent: MobileDeviceCommandBarContent = [
   {
@@ -6,3 +6,5 @@ export const fullMobileDeviceCommandBarContent: MobileDeviceCommandBarContent = 
     value: "ФормаКоманда1",
   },
 ]
+
+export const fullMobileDeviceCommandBarContentYAML: MobileDeviceCommandBarContentYAML = ["ФормаКоманда1"]
