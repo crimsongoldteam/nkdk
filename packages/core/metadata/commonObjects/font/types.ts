@@ -2,7 +2,7 @@ import { Static, Type } from "@sinclair/typebox"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
 
-export const PrefixedFontsFromXML: Record<string, SE.StyleFonts | SE.WindowsFonts> = {
+export const PrefixedFontsFromXML = {
   "style:LargeTextFont": "LargeTextFont",
   "style:SmallTextFont": "SmallTextFont",
   "style:NormalTextFont": "NormalTextFont",
@@ -13,16 +13,21 @@ export const PrefixedFontsFromXML: Record<string, SE.StyleFonts | SE.WindowsFont
   "sys:OEMFixedFont": "OEMFixedFont",
   "sys:SystemFont": "SystemFont",
   "sys:DefaultGUIFont": "DefaultGUIFont",
-} as const
+} as const satisfies Record<string, SE.StyleFonts | SE.WindowsFonts>
 
 export const PrefixedFontsToXML = Object.fromEntries(
   Object.entries(PrefixedFontsFromXML).map(([key, value]) => [value, key])
 )
 
 export type PrefixedFontsXML = keyof typeof PrefixedFontsFromXML
+export type RawPrefixedFontRef = `style:${string}` | `sys:${string}`
+export type FontRef = SE.StyleFonts | SE.WindowsFonts | RawPrefixedFontRef
+
+export const isRawPrefixedFontRef = (value: unknown): value is RawPrefixedFontRef =>
+  typeof value === "string" && (value.startsWith("style:") || value.startsWith("sys:"))
 
 export interface FontXML {
-  _ref?: PrefixedFontsXML
+  _ref?: PrefixedFontsXML | RawPrefixedFontRef
   _faceName?: string
   _scale?: number
   _height?: number
@@ -35,7 +40,7 @@ export interface FontXML {
 
 export interface Font {
   kind: SE.FontType
-  ref?: SE.StyleFonts | SE.WindowsFonts
+  ref?: FontRef
   faceName?: string
   scale?: number
   height?: number
@@ -46,7 +51,7 @@ export interface Font {
 }
 
 export interface FontFullYAML {
-  Вид?: SE.StyleFontsYAML | SE.WindowsFontsYAML
+  Вид?: SE.StyleFontsYAML | SE.WindowsFontsYAML | RawPrefixedFontRef
   Имя?: string
   Масштаб?: number
   Размер?: number

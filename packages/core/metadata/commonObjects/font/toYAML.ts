@@ -4,7 +4,7 @@ import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumer
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { exportBooleanToYAML } from "../boolean/toYAML"
-import { Font, FontFullYAML, FontYAML } from "./types"
+import { Font, FontFullYAML, FontRef, FontYAML, RawPrefixedFontRef, isRawPrefixedFontRef } from "./types"
 
 export const exportFontToYAML = (
   _context: ConfigurationContext,
@@ -18,14 +18,16 @@ export const exportFontToYAML = (
     font.bold !== undefined ||
     font.italic !== undefined ||
     font.underline !== undefined ||
-    font.strikeout !== undefined
+    font.strikeout !== undefined ||
+    (font.faceName !== undefined && isRawPrefixedFontRef(font.faceName)) ||
+    (font.faceName !== undefined && isRawPrefixedFontRef(font.ref))
 
   if (hasFullFormat) {
-    const kind = convertRefToYAML(_context, font.ref, font.kind)!
+    const kind = convertRefToYAML(_context, font.ref, font.kind)
 
-    const result: FontFullYAML = {
-      Вид: kind,
-    }
+    const result: FontFullYAML = {}
+
+    if (kind !== undefined) result.Вид = kind
 
     if (font.faceName !== undefined) result.Имя = font.faceName
 
@@ -53,10 +55,12 @@ export const exportFontToYAML = (
 
 const convertRefToYAML = (
   context: ConfigurationContext,
-  ref: SE.StyleFonts | SE.WindowsFonts | undefined,
+  ref: FontRef | undefined,
   kind: SE.FontType
-): SE.StyleFontsYAML | SE.WindowsFontsYAML | undefined => {
+): SE.StyleFontsYAML | SE.WindowsFontsYAML | RawPrefixedFontRef | undefined => {
   if (ref === undefined) return undefined
+
+  if (isRawPrefixedFontRef(ref)) return ref
 
   if (kind === "StyleItem") {
     return exportSystemEnumerationToYAMLDeprecated(context, { type: "SystemEnumeration", typeSE: "StyleFonts" }, ref)

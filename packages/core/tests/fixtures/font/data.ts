@@ -22,6 +22,19 @@ export const emptyFaceNameMinimalFontYAML: FontYAML = ""
 
 // #endregion
 
+// #region prefixedFaceNameFont
+
+export const prefixedFaceNameFont: Font = {
+  faceName: "style:TooltipTitleFont",
+  kind: "Absolute",
+}
+
+export const prefixedFaceNameFontYAML: FontYAML = {
+  Имя: "style:TooltipTitleFont",
+}
+
+// #endregion
+
 // #region systemMinimalFont
 
 export const systemMinimalFont: Font = {
@@ -41,6 +54,32 @@ export const styleMinimalFont: Font = {
 }
 
 export const styleMinimalFontYAML: FontYAML = "ОченьКрупныйШрифтТекста"
+
+// #endregion
+
+// #region unknownStyleMinimalFont
+
+export const unknownStyleMinimalFont: Font = {
+  ref: "style:TooltipTitleFont",
+  kind: "StyleItem",
+}
+
+export const unknownStyleMinimalFontYAML: FontYAML = "style:TooltipTitleFont"
+
+// #endregion
+
+// #region unknownStyleWithFaceNameFont
+
+export const unknownStyleWithFaceNameFont: Font = {
+  ref: "style:TooltipTitleFont",
+  kind: "StyleItem",
+  faceName: "Arial",
+}
+
+export const unknownStyleWithFaceNameFontYAML: FontYAML = {
+  Имя: "Arial",
+  Вид: "style:TooltipTitleFont",
+}
 
 // #endregion
 
@@ -170,6 +209,13 @@ export const fontYAMLFixtures: FontYAMLFixture[] = [
     preview: { Type: "Font", Name: "" },
   },
   {
+    name: "prefixed faceName",
+    xml: `<Font faceName="style:TooltipTitleFont" kind="Absolute"/>`,
+    font: prefixedFaceNameFont,
+    yaml: prefixedFaceNameFontYAML,
+    preview: { Type: "Font", Name: "style:TooltipTitleFont" },
+  },
+  {
     name: "system minimal",
     xml: `<Font ref="sys:ANSIFixedFont" kind="WindowsFont"/>`,
     font: systemMinimalFont,
@@ -182,6 +228,20 @@ export const fontYAMLFixtures: FontYAMLFixture[] = [
     font: styleMinimalFont,
     yaml: styleMinimalFontYAML,
     preview: { Type: "Font", Value: "StyleFonts.ExtraLargeTextFont" },
+  },
+  {
+    name: "unknown style minimal",
+    xml: `<Font ref="style:TooltipTitleFont" kind="StyleItem"/>`,
+    font: unknownStyleMinimalFont,
+    yaml: unknownStyleMinimalFontYAML,
+    preview: { Type: "Font", Value: "style:TooltipTitleFont" },
+  },
+  {
+    name: "unknown style with faceName",
+    xml: `<Font ref="style:TooltipTitleFont" faceName="Arial" kind="StyleItem"/>`,
+    font: unknownStyleWithFaceNameFont,
+    yaml: unknownStyleWithFaceNameFontYAML,
+    preview: { Type: "Font", Value: "style:TooltipTitleFont", Name: "Arial" },
   },
   {
     name: "style full",

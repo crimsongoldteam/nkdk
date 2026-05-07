@@ -4,7 +4,7 @@ import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnum
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
-import { Font, FontFullYAML, FontYAML } from "./types"
+import { Font, FontFullYAML, FontYAML, isRawPrefixedFontRef } from "./types"
 
 export const importFontFromYAML = (
   context: ConfigurationContext,
@@ -15,29 +15,8 @@ export const importFontFromYAML = (
 
   // Если данные - строка (компактный формат)
   if (typeof yaml === "string") {
-    const styleFontRef = importSystemEnumerationFromYAMLDeprecated<SE.StyleFonts>(
-      context,
-      { type: "SystemEnumeration", typeSE: "StyleFonts" },
-      yaml
-    )
-    if (styleFontRef) {
-      return {
-        ref: styleFontRef,
-        kind: "StyleItem",
-      }
-    }
-
-    const windowsFontRef = importSystemEnumerationFromYAMLDeprecated<SE.WindowsFonts>(
-      context,
-      { type: "SystemEnumeration", typeSE: "WindowsFonts" },
-      yaml
-    )
-    if (windowsFontRef) {
-      return {
-        ref: windowsFontRef,
-        kind: "WindowsFont",
-      }
-    }
+    const importedRef = importRefFromYAML(context, yaml)
+    if (importedRef) return importedRef
 
     // Если не нашли в ref, значит это faceName
     return {
@@ -52,24 +31,10 @@ export const importFontFromYAML = (
 
   // Конвертируем Вид в ref и kind
   if (fullData.Вид !== undefined) {
-    const styleFontRef = importSystemEnumerationFromYAMLDeprecated<SE.StyleFonts>(
-      context,
-      { type: "SystemEnumeration", typeSE: "StyleFonts" },
-      fullData.Вид
-    )
-    if (styleFontRef) {
-      result.ref = styleFontRef
-      result.kind = "StyleItem"
-    } else {
-      const windowsFontRef = importSystemEnumerationFromYAMLDeprecated<SE.WindowsFonts>(
-        context,
-        { type: "SystemEnumeration", typeSE: "WindowsFonts" },
-        fullData.Вид
-      )
-      if (windowsFontRef) {
-        result.ref = windowsFontRef
-        result.kind = "WindowsFont"
-      }
+    const importedRef = importRefFromYAML(context, fullData.Вид)
+    if (importedRef) {
+      result.ref = importedRef.ref
+      result.kind = importedRef.kind
     }
   } else {
     result.kind = "Absolute"
@@ -86,6 +51,41 @@ export const importFontFromYAML = (
   if (fullData.Масштаб !== undefined) result.scale = fullData.Масштаб
 
   return result as Font
+}
+
+const importRefFromYAML = (context: ConfigurationContext, value: string): Pick<Font, "ref" | "kind"> | undefined => {
+  if (isRawPrefixedFontRef(value)) {
+    return {
+      ref: value,
+      kind: value.startsWith("style:") ? "StyleItem" : "WindowsFont",
+    }
+  }
+
+  const styleFontRef = importSystemEnumerationFromYAMLDeprecated<SE.StyleFonts>(
+    context,
+    { type: "SystemEnumeration", typeSE: "StyleFonts" },
+    value
+  )
+  if (styleFontRef) {
+    return {
+      ref: styleFontRef,
+      kind: "StyleItem",
+    }
+  }
+
+  const windowsFontRef = importSystemEnumerationFromYAMLDeprecated<SE.WindowsFonts>(
+    context,
+    { type: "SystemEnumeration", typeSE: "WindowsFonts" },
+    value
+  )
+  if (windowsFontRef) {
+    return {
+      ref: windowsFontRef,
+      kind: "WindowsFont",
+    }
+  }
+
+  return undefined
 }
 
 registerTypeRule("Font", "importFromYAML", importFontFromYAML)

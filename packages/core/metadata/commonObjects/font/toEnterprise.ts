@@ -1,5 +1,5 @@
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { Font, FontEnterprise } from "./types"
+import { Font, FontEnterprise, isRawPrefixedFontRef } from "./types"
 
 export const exportFontToEnterprise = (params: { value: Font | undefined }): FontEnterprise | undefined => {
   const { value: font } = params
@@ -9,7 +9,9 @@ export const exportFontToEnterprise = (params: { value: Font | undefined }): Fon
     Type: "Font",
   }
 
-  if (font.kind === "WindowsFont" && font.ref) {
+  if (font.ref && isRawPrefixedFontRef(font.ref)) {
+    result.Value = font.ref
+  } else if (font.kind === "WindowsFont" && font.ref) {
     result.Value = `WindowsFonts.${font.ref}`
   } else if (font.kind === "StyleItem" && font.ref) {
     result.Value = `StyleFonts.${font.ref}`
