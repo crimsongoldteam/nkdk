@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { commandBarIndexInsertion } from "./__fixtures__/commandBarIndexInsertion"
+import { commandGroupReferenceOrder } from "./__fixtures__/commandGroupReferenceOrder"
 import { indexedItemOrderSwap } from "./__fixtures__/indexedItemOrderSwap"
 import { fullCommandInterface } from "./__fixtures__/full"
 import { importCommandInterfaceFromXML } from "./fromXML"
@@ -46,5 +47,16 @@ describe("importCommandInterfaceFromXML", () => {
     const result = importCommandInterfaceFromXML(mockContextFromXML(), mockRule, xmlData.CommandInterface)
 
     expect(result).toEqual(indexedItemOrderSwap)
+  })
+
+  it("import commandGroupReferenceOrder", () => {
+    const xmlData = readAndParseXMLFile<{ CommandInterface: CommandInterfaceXML }>(
+      "commandGroupReferenceOrder.xml",
+      fixturesDir
+    )
+
+    const result = importCommandInterfaceFromXML(mockContextFromXML(), mockRule, xmlData.CommandInterface)
+
+    expect(result).toEqual(commandGroupReferenceOrder)
   })
 })

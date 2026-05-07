@@ -1,8 +1,8 @@
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/fromXML"
 import { registerTypeRule } from "~/metadata/orchestration"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
 
 export const importCommandInterfaceFromXML = (
   context: ConfigurationContextFromXML,
@@ -34,25 +34,71 @@ const importCommandInterfaceItemFromXML = (
   context: ConfigurationContextFromXML,
   item: CommandInterfaceItemXML
 ): CommandInterfaceItem => {
-  const result: CommandInterfaceItem = {
+  const values: Partial<CommandInterfaceItem> = {
     command: item.Command,
     type: item.Type,
+    index: item.Index,
+    commandGroup: item.CommandGroup,
     defaultVisible: item.DefaultVisible ?? true,
-    itemType: "CommandInterfaceItem",
-  }
-
-  if (item.Index !== undefined) {
-    result.index = item.Index
-  }
-
-  if (item.CommandGroup) {
-    result.commandGroup = item.CommandGroup
   }
 
   if (item.Visible) {
     const visible = importUserVisibleFromXML(context, undefined, item.Visible)
     if (visible) {
-      result.visible = visible
+      values.visible = visible
+    }
+  }
+
+  const orderedKeys = context.fromXML.forReference
+    ? getOrderedCommandInterfaceItemKeysFromXML(item)
+    : ["command", "type", "defaultVisible", "index", "commandGroup", "visible"]
+
+  const result = {} as CommandInterfaceItem
+  for (const key of orderedKeys) {
+    const value = values[key]
+    if (value !== undefined) {
+      ;(result as Record<string, unknown>)[key] = value
+    }
+  }
+  result.itemType = "CommandInterfaceItem"
+
+  return result
+}
+
+const commandInterfaceItemXmlToModelKeys = {
+  Command: "command",
+  Type: "type",
+  Index: "index",
+  CommandGroup: "commandGroup",
+  DefaultVisible: "defaultVisible",
+  Visible: "visible",
+} as const
+
+const fallbackCommandInterfaceItemKeys = [
+  "command",
+  "type",
+  "index",
+  "commandGroup",
+  "defaultVisible",
+  "visible",
+] as const satisfies readonly (keyof CommandInterfaceItem)[]
+
+const getOrderedCommandInterfaceItemKeysFromXML = (item: CommandInterfaceItemXML): (keyof CommandInterfaceItem)[] => {
+  const result: (keyof CommandInterfaceItem)[] = []
+  const added = new Set<keyof CommandInterfaceItem>()
+
+  for (const xmlKey of Object.keys(item)) {
+    const key = commandInterfaceItemXmlToModelKeys[xmlKey as keyof typeof commandInterfaceItemXmlToModelKeys]
+    if (key !== undefined && !added.has(key)) {
+      result.push(key)
+      added.add(key)
+    }
+  }
+
+  for (const key of fallbackCommandInterfaceItemKeys) {
+    if (!added.has(key)) {
+      result.push(key)
+      added.add(key)
     }
   }
 
