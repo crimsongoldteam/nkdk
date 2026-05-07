@@ -7,6 +7,6 @@ export type NumberYAML = Static<typeof NumberJSONSchema>
 
 export interface NumberPropertyRule extends BasePropertyRule {
   type: "number"
-  /** Выгружать число с указанием типа: `xsi:type="xs:decimal"` */
-  typedXML?: true
+  /** Выгружать число с указанием `xsi:type`. `true` сохраняет старое поведение: `xs:decimal`. */
+  typedXML?: true | "xs:decimal" | "xs:string"
 }

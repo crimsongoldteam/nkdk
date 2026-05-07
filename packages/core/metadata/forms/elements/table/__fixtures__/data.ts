@@ -595,7 +595,10 @@ export const fullTableEnterprise = {
   AllowGettingCurrentRowURL: true,
   UserSettingsGroup: "ГруппаПользовательскихНастроек",
   RowsPicture: { Type: "Picture", Value: "PictureLib.Print" },
-} satisfies Omit<Required<TableEnterprise>, "Period" | "TopLevelParent">
+} satisfies Omit<
+  Required<TableEnterprise>,
+  "Autofill" | "Period" | "SettingsNamedItemDetailedRepresentation" | "TopLevelParent" | "ViewMode"
+>
 
 export const fullTableChildItems = {
   ТаблицаГруппа1: {
