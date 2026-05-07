@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { fullMobileDeviceCommandBarContent, fullMobileDeviceCommandBarContentYAML } from "./__fixtures__/data"
+import {
+  fullMobileDeviceCommandBarContent,
+  fullMobileDeviceCommandBarContentYAML,
+  twoItemsMobileDeviceCommandBarContent,
+  twoItemsMobileDeviceCommandBarContentYAML,
+} from "./__fixtures__/data"
 import { exportMobileDeviceCommandBarContentToYAML } from "./toYAML"
 import { MobileDeviceCommandBarContent, MobileDeviceCommandBarContentYAML } from "./types"
 
@@ -19,6 +24,16 @@ describe("exportMobileDeviceCommandBarContentToYAML", () => {
     const result = exportMobileDeviceCommandBarContentToYAML(mockContext, mockRule, fullMobileDeviceCommandBarContent)
 
     expect(result).toEqual(fullMobileDeviceCommandBarContentYAML)
+  })
+
+  it("exports two string items YAML", () => {
+    const result = exportMobileDeviceCommandBarContentToYAML(
+      mockContext,
+      mockRule,
+      twoItemsMobileDeviceCommandBarContent
+    )
+
+    expect(result).toEqual(twoItemsMobileDeviceCommandBarContentYAML)
   })
 
   it("exports non-string values through MetadataValue YAML helpers", () => {

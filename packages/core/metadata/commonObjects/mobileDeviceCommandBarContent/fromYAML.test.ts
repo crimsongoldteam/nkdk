@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { fullMobileDeviceCommandBarContent, fullMobileDeviceCommandBarContentYAML } from "./__fixtures__/data"
+import {
+  fullMobileDeviceCommandBarContent,
+  fullMobileDeviceCommandBarContentYAML,
+  twoItemsMobileDeviceCommandBarContent,
+  twoItemsMobileDeviceCommandBarContentYAML,
+} from "./__fixtures__/data"
 import { importMobileDeviceCommandBarContentFromYAML } from "./fromYAML"
 
 describe("importMobileDeviceCommandBarContentFromYAML", () => {
@@ -22,5 +27,15 @@ describe("importMobileDeviceCommandBarContentFromYAML", () => {
     )
 
     expect(result).toEqual(fullMobileDeviceCommandBarContent)
+  })
+
+  it("imports two string items YAML", () => {
+    const result = importMobileDeviceCommandBarContentFromYAML(
+      mockContext,
+      mockRule,
+      twoItemsMobileDeviceCommandBarContentYAML
+    )
+
+    expect(result).toEqual(twoItemsMobileDeviceCommandBarContent)
   })
 })

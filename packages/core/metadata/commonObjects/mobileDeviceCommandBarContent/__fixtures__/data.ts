@@ -19,3 +19,8 @@ export const twoItemsMobileDeviceCommandBarContent: MobileDeviceCommandBarConten
     value: "ФормаКоманда2",
   },
 ]
+
+export const twoItemsMobileDeviceCommandBarContentYAML: MobileDeviceCommandBarContentYAML = [
+  "ФормаКоманда1",
+  "ФормаКоманда2",
+]
