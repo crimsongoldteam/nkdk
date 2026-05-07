@@ -27,7 +27,7 @@ export const exportFontToYAML = (
       Вид: kind,
     }
 
-    if (font.faceName) result.Имя = font.faceName
+    if (font.faceName !== undefined) result.Имя = font.faceName
 
     if (font.height !== undefined) result.Размер = font.height
 
@@ -48,7 +48,7 @@ export const exportFontToYAML = (
     return result
   }
 
-  return font.faceName || convertRefToYAML(_context, font.ref, font.kind)
+  return font.faceName !== undefined ? font.faceName : convertRefToYAML(_context, font.ref, font.kind)
 }
 
 const convertRefToYAML = (

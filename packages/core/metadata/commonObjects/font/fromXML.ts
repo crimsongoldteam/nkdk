@@ -18,7 +18,7 @@ export const importFontFromXML = (
     result.ref = PrefixedFontsFromXML[xml._ref]
   }
 
-  if (xml._faceName) result.faceName = xml._faceName
+  if (xml._faceName !== undefined) result.faceName = xml._faceName
   result.kind = xml._kind as SE.FontType
   if (xml._height !== undefined) result.height = Number(xml._height)
   if (xml._bold !== undefined) result.bold = importBooleanFromXML(_context, undefined, xml._bold)

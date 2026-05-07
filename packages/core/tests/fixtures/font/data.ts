@@ -110,6 +110,31 @@ export const systemFullFontYAML: FontYAML = {
 
 // #endregion
 
+// #region emptyFaceNameFullFont
+
+export const emptyFaceNameFullFont: Font = {
+  faceName: "",
+  kind: "Absolute",
+  height: 12,
+  bold: false,
+  italic: false,
+  underline: false,
+  strikeout: false,
+  scale: 100,
+}
+
+export const emptyFaceNameFullFontYAML: FontYAML = {
+  Имя: "",
+  Размер: 12,
+  Масштаб: 100,
+  Наклонный: "Ложь",
+  Подчеркивание: "Ложь",
+  Полужирный: "Ложь",
+  Зачеркивание: "Ложь",
+}
+
+// #endregion
+
 interface FontYAMLFixture {
   name: string
   xml: string
@@ -171,6 +196,22 @@ export const fontYAMLFixtures: FontYAMLFixture[] = [
       Italic: true,
       Underline: true,
       Strikeout: true,
+    },
+  },
+  {
+    name: "empty faceName full",
+    xml: `<Font faceName="" height="12" bold="false" italic="false" underline="false" strikeout="false" kind="Absolute" scale="100"/>`,
+    font: emptyFaceNameFullFont,
+    yaml: emptyFaceNameFullFontYAML,
+    preview: {
+      Type: "Font",
+      Name: "",
+      Scale: 100,
+      Height: 12,
+      Bold: false,
+      Italic: false,
+      Underline: false,
+      Strikeout: false,
     },
   },
   {

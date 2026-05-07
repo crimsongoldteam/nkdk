@@ -17,7 +17,7 @@ export const exportFontToXML = (
     result._ref = prefixedRef
   }
 
-  if (font.faceName) result._faceName = font.faceName
+  if (font.faceName !== undefined) result._faceName = font.faceName
   if (font.height !== undefined) result._height = font.height
   if (font.bold !== undefined) result._bold = font.bold
   if (font.italic !== undefined) result._italic = font.italic
