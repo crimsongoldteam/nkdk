@@ -19,6 +19,7 @@ import { attributeAnyType } from "./__fixtures__/attributeAnyType"
 import { columnAnyType } from "./__fixtures__/columnAnyType"
 import { mixedColumns } from "./__fixtures__/mixedColumns"
 import { tableWithColumns } from "./__fixtures__/tableWithColumns"
+import { titleColumnsType } from "./__fixtures__/titleColumnsType"
 import { treeWithColumn } from "./__fixtures__/treeWithColumn"
 import { twoTables } from "./__fixtures__/twoTables"
 import { exportFormAttributesToXML } from "./toXML"
@@ -204,6 +205,19 @@ describe("exportFormAttributesToXML", () => {
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "mixedColumns.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export titleColumnsType", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: titleColumnsType,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "titleColumnsType.xml",
       importMetaUrl: import.meta.url,
     })
 

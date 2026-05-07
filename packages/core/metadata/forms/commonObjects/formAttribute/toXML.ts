@@ -1,3 +1,4 @@
+import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ElementXML, exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
@@ -82,19 +83,7 @@ const exportFormAttributeToXML = (
         }
       : undefined
 
-  if (columnsXML && !shouldPlaceColumnsAfterProperties(referenceData)) {
-    result.Columns = {
-      ...columnsXML,
-    }
-  }
-
-  Object.assign(result, properties)
-
-  if (columnsXML && shouldPlaceColumnsAfterProperties(referenceData)) {
-    result.Columns = {
-      ...columnsXML,
-    }
-  }
+  assignPropertiesWithColumns(result, properties, columnsXML, referenceData)
 
   if (data.type?.type.includes("ValueListType") || result.Settings !== undefined) {
     result.Settings = {
@@ -127,14 +116,60 @@ const findReferenceColumn = (
   return referenceData.find((referenceItem) => referenceItem.name === data.name)
 }
 
-const shouldPlaceColumnsAfterProperties = (referenceData: FormAttribute | undefined): boolean => {
-  if (!referenceData) return false
+const assignPropertiesWithColumns = (
+  result: FormAttributeXML,
+  properties: Record<string, unknown>,
+  columnsXML: FormAttributeColumnsXML | undefined,
+  referenceData: FormAttribute | undefined
+): void => {
+  if (!columnsXML) {
+    Object.assign(result, properties)
+    return
+  }
 
+  const insertIndex = getReferenceColumnsInsertIndex(referenceData, properties)
+  if (insertIndex === undefined) {
+    result.Columns = columnsXML
+    Object.assign(result, properties)
+    return
+  }
+
+  const propertyEntries = Object.entries(properties)
+  const safeInsertIndex = Math.max(0, Math.min(insertIndex, propertyEntries.length))
+
+  for (const [index, [key, value]] of propertyEntries.entries()) {
+    if (index === safeInsertIndex) {
+      result.Columns = columnsXML
+    }
+    ;(result as Record<string, unknown>)[key] = value
+  }
+
+  if (safeInsertIndex === propertyEntries.length) {
+    result.Columns = columnsXML
+  }
+}
+
+const getReferenceColumnsInsertIndex = (
+  referenceData: FormAttribute | undefined,
+  properties: Record<string, unknown>
+): number | undefined => {
+  if (!referenceData) return undefined
   const keys = Object.keys(referenceData)
   const columnsIndex = keys.indexOf("columns")
-  if (columnsIndex < 0) return false
+  if (columnsIndex < 0) return undefined
 
-  return keys.slice(0, columnsIndex).some((key) => key !== "itemType" && key !== "id" && key !== "name")
+  return keys.slice(0, columnsIndex).filter((key) => isExportedPropertyKey(key, properties)).length
+}
+
+const isExportedPropertyKey = (key: string, properties: Record<string, unknown>): boolean => {
+  if (key === "itemType" || key === "id" || key === "name" || key === "columns" || key === "additionalColumns") {
+    return false
+  }
+
+  const rule = FormAttributeRules.properties[key as keyof typeof FormAttributeRules.properties]
+  const xmlKey = rule !== undefined && "xml" in rule && rule.xml !== undefined ? rule.xml : capitalize(key)
+
+  return xmlKey in properties
 }
 
 // const exportFormAttributeSettingsToXML = (params: {
