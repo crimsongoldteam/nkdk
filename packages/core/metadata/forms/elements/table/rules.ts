@@ -19,6 +19,17 @@ export const TableRules = {
     },
     autoAddIncomplete: { yaml: "АвтоВводНезаполненного", type: "boolean" },
     autoCommandBar: { yaml: "КоманднаяПанель", type: "TableAutoCommandBar", toEnterprise: false },
+    autofill: { yaml: "АвтозаполнениеКолонок", type: "boolean" },
+    viewMode: {
+      yaml: "РежимОтображения",
+      type: "SystemEnumeration",
+      typeSE: "DataCompositionSettingsViewMode",
+    },
+    settingsNamedItemDetailedRepresentation: {
+      yaml: "ПодробноеОтображениеИменованныхЭлементовНастройки",
+      xml: "SettingsNamedItemDetailedRepresentation",
+      type: "boolean",
+    },
     autoInsertNewRow: { yaml: "АвтоВводНовойСтроки", type: "boolean" },
     autoMarkIncomplete: { yaml: "АвтоОтметкаНезаполненного", type: "boolean" },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
