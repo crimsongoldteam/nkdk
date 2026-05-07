@@ -1,16 +1,17 @@
+import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { ElementXML, ExportToXMLFunctionNew, exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
+import { ElementXML, exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,
-  FormAttributeAdditionalColumn,
+  FormAttributeAdditionalColumns,
   FormAttributeAdditionalColumnXML,
   FormAttributeColumn,
-  FormAttributeColumns,
   FormAttributeColumnsXML,
   FormAttributeColumnXML,
   FormAttributes,
+  FormAttributeWithAdditionalColumns,
   FormAttributeXML,
 } from "./types"
 
@@ -66,7 +67,23 @@ const exportFormAttributeToXML = (
     rule: FormAttributeRules,
   })
 
-  Object.assign(result, properties)
+  const columns = exportColumnsToXML(context, data.columns, referenceData?.columns, data)
+  const additionalColumns = exportAdditionalColumnsToXML(
+    context,
+    (data as FormAttributeWithAdditionalColumns).additionalColumns ?? [],
+    (referenceData as FormAttributeWithAdditionalColumns | undefined)?.additionalColumns,
+    data
+  )
+
+  const columnsXML =
+    columns || additionalColumns
+      ? {
+          ...(columns ? { Column: columns.Column } : {}),
+          ...(additionalColumns ? { AdditionalColumns: additionalColumns.AdditionalColumns } : {}),
+        }
+      : undefined
+
+  assignPropertiesWithColumns(result, properties, columnsXML, referenceData)
 
   if (data.type?.type.includes("ValueListType") || result.Settings !== undefined) {
     result.Settings = {
@@ -97,6 +114,62 @@ const findReferenceColumn = (
 ): FormAttributeColumn | undefined => {
   if (!referenceData) return undefined
   return referenceData.find((referenceItem) => referenceItem.name === data.name)
+}
+
+const assignPropertiesWithColumns = (
+  result: FormAttributeXML,
+  properties: Record<string, unknown>,
+  columnsXML: FormAttributeColumnsXML | undefined,
+  referenceData: FormAttribute | undefined
+): void => {
+  if (!columnsXML) {
+    Object.assign(result, properties)
+    return
+  }
+
+  const insertIndex = getReferenceColumnsInsertIndex(referenceData, properties)
+  if (insertIndex === undefined) {
+    result.Columns = columnsXML
+    Object.assign(result, properties)
+    return
+  }
+
+  const propertyEntries = Object.entries(properties)
+  const safeInsertIndex = Math.max(0, Math.min(insertIndex, propertyEntries.length))
+
+  for (const [index, [key, value]] of propertyEntries.entries()) {
+    if (index === safeInsertIndex) {
+      result.Columns = columnsXML
+    }
+    ;(result as Record<string, unknown>)[key] = value
+  }
+
+  if (safeInsertIndex === propertyEntries.length) {
+    result.Columns = columnsXML
+  }
+}
+
+const getReferenceColumnsInsertIndex = (
+  referenceData: FormAttribute | undefined,
+  properties: Record<string, unknown>
+): number | undefined => {
+  if (!referenceData) return undefined
+  const keys = Object.keys(referenceData)
+  const columnsIndex = keys.indexOf("columns")
+  if (columnsIndex < 0) return undefined
+
+  return keys.slice(0, columnsIndex).filter((key) => isExportedPropertyKey(key, properties)).length
+}
+
+const isExportedPropertyKey = (key: string, properties: Record<string, unknown>): boolean => {
+  if (key === "itemType" || key === "id" || key === "name" || key === "columns" || key === "additionalColumns") {
+    return false
+  }
+
+  const rule = FormAttributeRules.properties[key as keyof typeof FormAttributeRules.properties]
+  const xmlKey = rule !== undefined && "xml" in rule && rule.xml !== undefined ? rule.xml : capitalize(key)
+
+  return xmlKey in properties
 }
 
 // const exportFormAttributeSettingsToXML = (params: {
@@ -137,30 +210,13 @@ const findReferenceColumn = (
 //   return undefined
 // }
 
-const exportFormAttributeColumnsToXML: ExportToXMLFunctionNew = (params): FormAttributeColumnsXML | undefined => {
-  const context = params.context
-  const columns = params.value as FormAttributeColumns
-  const referenceMetadata = params.referenceMetadata as FormAttributeColumns | undefined
-  const metadataItem = params.metadataItem as FormAttribute | undefined
-  if (columns.length === 0) return undefined
-
-  const isAdditionalColumns = "table" in columns[0]
-
-  if (isAdditionalColumns) {
-    return exportAdditionalColumnsToXML(
-      context,
-      columns as FormAttributeAdditionalColumn[],
-      referenceMetadata as FormAttributeAdditionalColumn[] | undefined,
-      metadataItem
-    )
-  }
-
-  return exportColumnsToXML(
-    context,
-    columns as FormAttributeColumn[],
-    referenceMetadata as FormAttributeColumn[] | undefined,
-    metadataItem
-  )
+const exportFormAttributeColumnsToXML = (
+  context: ConfigurationContextWithExportToXML,
+  _rule: PropertyRule | undefined,
+  columns: FormAttributeColumn[] | undefined,
+  referenceColumns?: FormAttributeColumn[] | undefined
+): FormAttributeColumnsXML | undefined => {
+  return exportColumnsToXML(context, columns ?? [], referenceColumns)
 }
 
 const exportColumnsToXML = (
@@ -202,8 +258,8 @@ const exportColumnsToXML = (
 
 const exportAdditionalColumnsToXML = (
   context: ConfigurationContextWithExportToXML,
-  additionalColumns: FormAttributeAdditionalColumn[],
-  referenceAdditionalColumns?: FormAttributeAdditionalColumn[] | undefined,
+  additionalColumns: FormAttributeAdditionalColumns[],
+  referenceAdditionalColumns?: FormAttributeAdditionalColumns[] | undefined,
   numberingScope?: unknown
 ): { AdditionalColumns: FormAttributeAdditionalColumnXML[] } | undefined => {
   const result: FormAttributeAdditionalColumnXML[] = additionalColumns.map((additionalColumn) => {
@@ -228,6 +284,16 @@ const exportAdditionalColumnsToXML = (
   return { AdditionalColumns: result }
 }
 
+const exportFormAttributeAdditionalColumnsToXML = (
+  context: ConfigurationContextWithExportToXML,
+  _rule: PropertyRule | undefined,
+  additionalColumns: FormAttributeAdditionalColumns[] | undefined,
+  referenceAdditionalColumns?: FormAttributeAdditionalColumns[] | undefined
+): { AdditionalColumns: FormAttributeAdditionalColumnXML[] } | undefined => {
+  return exportAdditionalColumnsToXML(context, additionalColumns ?? [], referenceAdditionalColumns)
+}
+
 registerTypeRule("FormAttributes", "exportToXML", exportFormAttributesToXML)
 registerTypeRule("FormAttributeColumns", "exportToXML", exportFormAttributeColumnsToXML)
+registerTypeRule("FormAttributeAdditionalColumns", "exportToXML", exportFormAttributeAdditionalColumnsToXML)
 // registerTypeRule("FormAttributeSettings", "exportToXML", exportFormAttributeSettingsToXML)

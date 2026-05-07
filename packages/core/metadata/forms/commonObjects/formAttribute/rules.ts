@@ -76,9 +76,18 @@ export const FormAttributeRules = {
     columns: {
       yaml: "Колонки",
       type: "FormAttributeColumns",
+      fromXML: false,
+      toXML: false,
       fromYAML: false,
       defaultValue: [],
       required: true,
+    },
+    additionalColumns: {
+      yaml: "ДополнительныеКолонки",
+      type: "FormAttributeAdditionalColumns",
+      fromXML: false,
+      toXML: false,
+      fromYAML: false,
     },
 
     functionalOptions: {

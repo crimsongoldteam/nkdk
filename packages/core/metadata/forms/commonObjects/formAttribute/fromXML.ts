@@ -7,11 +7,11 @@ import {
   FormAttributeAdditionalColumns,
   FormAttributeAdditionalColumnXML,
   FormAttributeColumn,
-  FormAttributeColumns,
   FormAttributeColumnsXML,
   FormAttributeColumnXML,
   FormAttributes,
   FormAttributesXML,
+  FormAttributeWithAdditionalColumns,
   FormAttributeXML,
 } from "./types"
 
@@ -50,26 +50,58 @@ export const importFormAttributeColumnFromXML = (
 }
 
 const importFormAttributeFromXML = (context: ConfigurationContextFromXML, xml: FormAttributeXML): FormAttribute => {
-  const properties = importMetadataItemFromXML({
+  const importedProperties = importMetadataItemFromXML({
     context: context,
     xml,
     rule: FormAttributeRules,
   })
 
+  const columns = importColumnsFromXML(context, xml.Columns?.Column)
+  const additionalColumns = importAdditionalColumnsFromXML(context, xml.Columns?.AdditionalColumns)
+  const {
+    columns: _importedColumns,
+    additionalColumns: _importedAdditionalColumns,
+    ...properties
+  } = (importedProperties ?? {}) as FormAttributeWithAdditionalColumns
+
   if (context.fromXML.forReference) {
-    return {
-      itemType: FormAttributeRules.itemType,
-      ...properties,
-      name: xml._name,
-    } as FormAttribute
+    const result = { itemType: FormAttributeRules.itemType } as FormAttributeWithAdditionalColumns
+    for (const key of Object.keys(importedProperties ?? {})) {
+      if (key === "columns") {
+        result.columns = columns
+        if (additionalColumns.length > 0) {
+          result.additionalColumns = additionalColumns
+        }
+        continue
+      }
+
+      if (key === "additionalColumns") {
+        if (additionalColumns.length > 0) {
+          result.additionalColumns = additionalColumns
+        }
+        continue
+      }
+
+      ;(result as Record<string, unknown>)[key] = (properties as Record<string, unknown>)[key]
+    }
+    result.name = xml._name
+    if (result.columns === undefined) result.columns = columns
+    if (result.additionalColumns === undefined && additionalColumns.length > 0)
+      result.additionalColumns = additionalColumns
+
+    return result as FormAttribute
   }
 
-  const result: FormAttribute = {
+  const result: FormAttributeWithAdditionalColumns = {
+    ...properties,
     itemType: FormAttributeRules.itemType,
     name: xml._name,
-    title: properties!.title!,
-    columns: [],
-    ...properties,
+    title: properties.title!,
+    columns,
+  }
+
+  if (additionalColumns.length > 0) {
+    result.additionalColumns = additionalColumns
   }
 
   return result
@@ -78,15 +110,23 @@ const importFormAttributeFromXML = (context: ConfigurationContextFromXML, xml: F
 const importFormAttributeColumnsFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
-  xml: FormAttributeColumnsXML | undefined
-): FormAttributeColumns | undefined => {
-  if (!xml) return undefined
+  xml: FormAttributeColumnsXML | FormAttributeColumnXML | FormAttributeColumnXML[] | undefined
+): FormAttributeColumn[] | undefined => {
+  if (isFormAttributeColumnsXML(xml)) {
+    return importColumnsFromXML(context, xml.Column)
+  }
 
-  const isAdditional = xml.AdditionalColumns !== undefined
+  return importColumnsFromXML(context, xml)
+}
 
-  if (isAdditional) return importAdditionalColumnsFromXML(context, xml.AdditionalColumns)
-
-  return importColumnsFromXML(context, xml.Column)
+const isFormAttributeColumnsXML = (xml: unknown): xml is FormAttributeColumnsXML => {
+  return (
+    xml !== undefined &&
+    xml !== null &&
+    !Array.isArray(xml) &&
+    typeof xml === "object" &&
+    ("Column" in xml || "AdditionalColumns" in xml)
+  )
 }
 
 const importColumnsFromXML = (
@@ -134,5 +174,14 @@ const importAdditionalColumnsFromXML = (
   }))
 }
 
+const importFormAttributeAdditionalColumnsFromXML = (
+  context: ConfigurationContextFromXML,
+  _rule: PropertyRule | undefined,
+  xml: FormAttributeAdditionalColumnXML | FormAttributeAdditionalColumnXML[] | undefined
+): FormAttributeAdditionalColumns[] | undefined => {
+  return importAdditionalColumnsFromXML(context, xml)
+}
+
 registerTypeRule("FormAttributes", "importFromXML", importFormAttributesFromXML)
 registerTypeRule("FormAttributeColumns", "importFromXML", importFormAttributeColumnsFromXML)
+registerTypeRule("FormAttributeAdditionalColumns", "importFromXML", importFormAttributeAdditionalColumnsFromXML)

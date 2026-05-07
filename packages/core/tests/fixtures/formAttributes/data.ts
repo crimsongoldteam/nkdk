@@ -411,7 +411,8 @@ export const withAdditionalColumnFormAttribute: FormAttributes = [
     name: "Объект",
     type: { type: ["string"] },
     title: { items: { ru: "" } },
-    columns: [
+    columns: [],
+    additionalColumns: [
       {
         table: "КакаяТоТаблица",
         columns: [
@@ -432,11 +433,62 @@ export const withAdditionalColumnFormAttributeYAML: FormAttributesYAML = {
   Объект: {
     Заголовок: "",
     Тип: "Строка",
-    Колонки: {
+    ДополнительныеКолонки: {
       КакаяТоТаблица: {
         КолонкаТаблицы: {
           Заголовок: "Описание колонки",
           Тип: "Строка",
+        },
+      },
+    },
+  },
+}
+
+//#endregion
+
+//#region MixedColumns
+
+export const mixedColumnsFormAttribute: FormAttributes = [
+  {
+    name: "График",
+    title: { items: { ru: "" } },
+    type: { type: ["ValueTable"] },
+    columns: [
+      {
+        name: "Отступ",
+        type: { type: ["string"] },
+        itemType: "FormAttributeColumn",
+      },
+    ],
+    additionalColumns: [
+      {
+        table: "Объект.ГрафикНачислений",
+        columns: [
+          {
+            name: "Сумма",
+            type: { type: ["decimal"] },
+            itemType: "FormAttributeColumn",
+          },
+        ],
+      },
+    ],
+    itemType: "FormAttribute",
+  },
+]
+
+export const mixedColumnsFormAttributeYAML: FormAttributesYAML = {
+  График: {
+    Заголовок: "",
+    Тип: "ТаблицаЗначений",
+    Колонки: {
+      Отступ: {
+        Тип: "Строка",
+      },
+    },
+    ДополнительныеКолонки: {
+      "Объект.ГрафикНачислений": {
+        Сумма: {
+          Тип: "Число",
         },
       },
     },

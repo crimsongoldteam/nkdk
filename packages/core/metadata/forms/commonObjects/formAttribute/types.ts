@@ -15,11 +15,6 @@ import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { FillCheckingYAML } from "~/metadata/systemEnumerations/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 
-export interface FormAttributeAdditionalColumn {
-  table: string
-  columns: FormAttributeColumn[]
-}
-
 export type FormAttribute = FormTypeByRule<typeof FormAttributeRules>
 
 export type FormAttributeColumn = FormTypeByRule<typeof FormAttributeColumnRules>
@@ -28,7 +23,16 @@ export interface FormAttributeAdditionalColumns {
   table: string
   columns: FormAttributeColumn[]
 }
-export type FormAttributeColumns = FormAttributeColumn[] | FormAttributeAdditionalColumns[]
+
+export type FormAttributeColumns = FormAttributeColumn[]
+
+export type FormAttributeAdditionalColumnsCollection = FormAttributeAdditionalColumns[]
+
+export type FormAttributeAdditionalColumn = FormAttributeAdditionalColumns
+
+export type FormAttributeWithAdditionalColumns = FormAttribute & {
+  additionalColumns?: FormAttributeAdditionalColumns[]
+}
 
 interface SettingsTypeDescriptionXML extends TypeDescriptionXML {
   "_xsi:type": "v8:TypeDescription"
@@ -71,7 +75,7 @@ export interface FormAttributeAdditionalColumnYAML {
   [tableName: string]: Record<string, FormAttributeColumnYAML>
 }
 
-export type FormAttributeColumnsYAML = Record<string, FormAttributeColumnYAML> | FormAttributeAdditionalColumnYAML
+export type FormAttributeColumnsYAML = Record<string, FormAttributeColumnYAML>
 
 export interface FormAttributeYAML {
   Заголовок?: I8nTextYAML
@@ -85,6 +89,7 @@ export interface FormAttributeYAML {
   [UserEditKeysYAML.Allow]?: UserEditYAML
   [UserEditKeysYAML.Deny]?: UserEditYAML
   Колонки?: FormAttributeColumnsYAML
+  ДополнительныеКолонки?: FormAttributeAdditionalColumnYAML
   ФункциональныеОпции?: FunctionalOptionsYAML
   ИспользоватьВсегда?: FieldsListYAML
   ПроверкаЗаполнения?: FillCheckingYAML
