@@ -13,7 +13,7 @@ export const exportFontToXML = (
   const result: any = {}
 
   if (font.ref !== undefined) {
-    const prefixedRef = PrefixedFontsToXML[font.ref]
+    const prefixedRef = PrefixedFontsToXML[font.ref as keyof typeof PrefixedFontsToXML] ?? font.ref
     result._ref = prefixedRef
   }
 

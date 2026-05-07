@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { applyRequiredXMLParents, getOrderedKeysFromXML, shouldProcessProperty } from "./helpers"
+import { applyRequiredXMLParents, getOrderedKeysFromXML, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
 import { setXMLValue } from "./toXML"
 
 const createRule = (
@@ -176,12 +176,51 @@ describe("shouldProcessProperty preserveFromReferenceXML", () => {
     expect(result).toBe(true)
   })
 
+  it("экспортирует поле, когда текущая модель содержит ключ со значением undefined", () => {
+    const result = shouldProcessProperty({
+      rule: preserveRule,
+      operation: "exportToXML",
+      propertyKey: "rowFilter",
+      metadataItem: { rowFilter: undefined },
+    })
+
+    expect(result).toBe(true)
+  })
+
+  it("экспортирует поле, когда текущая модель содержит ключ со значением null", () => {
+    const result = shouldProcessProperty({
+      rule: preserveRule,
+      operation: "exportToXML",
+      propertyKey: "rowFilter",
+      metadataItem: { rowFilter: null },
+    })
+
+    expect(result).toBe(true)
+  })
+
   it("не экспортирует поле, когда referenceMetadata не содержит ключ", () => {
     const result = shouldProcessProperty({
       rule: preserveRule,
       operation: "exportToXML",
       propertyKey: "rowFilter",
       referenceMetadata: {},
+    })
+
+    expect(result).toBe(false)
+  })
+
+  it("не экспортирует поле, когда imported XML reference содержит только модельный ключ без XML source key", () => {
+    const referenceMetadata = { rowFilter: undefined }
+    Object.defineProperty(referenceMetadata, XML_SOURCE_KEYS, {
+      value: {},
+      enumerable: false,
+    })
+
+    const result = shouldProcessProperty({
+      rule: preserveRule,
+      operation: "exportToXML",
+      propertyKey: "rowFilter",
+      referenceMetadata,
     })
 
     expect(result).toBe(false)

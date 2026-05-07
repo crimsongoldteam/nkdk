@@ -47,7 +47,22 @@ export const shouldProcessProperty = (params: {
       if (rule.filePath !== undefined) return false
       if (rule.preserveFromReferenceXML === true) {
         if (propertyKey === undefined) return false
+
+        const metadataHasOwnKey =
+          metadataItem !== null &&
+          metadataItem !== undefined &&
+          typeof metadataItem === "object" &&
+          Object.prototype.hasOwnProperty.call(metadataItem, propertyKey)
+
+        if (metadataHasOwnKey) return true
+
         if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object") return false
+
+        const referenceSourceKeys = (referenceMetadata as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
+        if (referenceSourceKeys !== undefined && referenceSourceKeys !== null && typeof referenceSourceKeys === "object") {
+          return Object.prototype.hasOwnProperty.call(referenceSourceKeys, propertyKey)
+        }
+
         return Object.prototype.hasOwnProperty.call(referenceMetadata, propertyKey)
       }
       if (typeof rule.toXML === "function") return rule.toXML(metadataItem, context)

@@ -61,18 +61,21 @@ describe("importChoiceParametersFromYAML", () => {
   it("should import choice parameters with nil value from yaml", () => {
     const result = importChoiceParametersFromYAML(mockContext, mockRule, nilChoiceParametersYAML)
 
-    expect(result).toEqual(nilChoiceParameters)
+    expect(result).toStrictEqual(nilChoiceParameters)
+    expect(Object.prototype.hasOwnProperty.call(result?.[0], "value")).toBe(false)
   })
 
   it("should import choice parameters without value from yaml", () => {
     const result = importChoiceParametersFromYAML(mockContext, mockRule, withoutValueChoiceParametersYAML)
 
-    expect(result).toEqual(withoutValueChoiceParameter)
+    expect(result).toStrictEqual(withoutValueChoiceParameter)
+    expect(Object.prototype.hasOwnProperty.call(result?.[0], "value")).toBe(false)
   })
 
   it("should import choice parameters without one value from yaml", () => {
     const result = importChoiceParametersFromYAML(mockContext, mockRule, withoutOneValueChoiceParametersYAML)
 
-    expect(result).toEqual(withoutOneValueChoiceParameter)
+    expect(result).toStrictEqual(withoutOneValueChoiceParameter)
+    expect(Object.prototype.hasOwnProperty.call(result?.[0], "value")).toBe(false)
   })
 })

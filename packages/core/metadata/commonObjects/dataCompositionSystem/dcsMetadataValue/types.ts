@@ -39,6 +39,7 @@ interface SystemEnumerationPropertyRule extends BasePropertyRule {
 export type DcsMetadataValuePropertyRule = DcsMetadataValueBasePropertyRule | SystemEnumerationPropertyRule
 
 export type MetadataDcsMetadataValue =
+  | null
   | Color
   | MetadataField
   | ChoiceParameter
@@ -50,6 +51,7 @@ export type MetadataDcsMetadataValue =
   | string
 
 export type MetadataDcsMetadataValueYAML =
+  | null
   | ColorYAML
   | MetadataFieldYAML
   | ChoiceParametersYAML

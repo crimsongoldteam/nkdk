@@ -3,7 +3,7 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
-import { Font, FontXML, PrefixedFontsFromXML } from "./types"
+import { Font, FontXML, PrefixedFontsFromXML, PrefixedFontsXML } from "./types"
 
 export const importFontFromXML = (
   _context: ConfigurationContext,
@@ -15,7 +15,7 @@ export const importFontFromXML = (
   const result: any = {}
 
   if (xml._ref !== undefined) {
-    result.ref = PrefixedFontsFromXML[xml._ref]
+    result.ref = PrefixedFontsFromXML[xml._ref as PrefixedFontsXML] ?? xml._ref
   }
 
   if (xml._faceName !== undefined) result.faceName = xml._faceName

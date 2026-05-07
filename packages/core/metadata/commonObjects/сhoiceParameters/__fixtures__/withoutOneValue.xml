@@ -1,5 +1,7 @@
 <ChoiceParameters>
-	<app:item name="ВыборСчетовГоловнойОрганизации"/>
+	<app:item name="ВыборСчетовГоловнойОрганизации">
+		<app:value xsi:nil="true"/>
+	</app:item>
 	<app:item name="Отбор.Закрыт">
 		<app:value xsi:type="xs:boolean">false</app:value>
 	</app:item>

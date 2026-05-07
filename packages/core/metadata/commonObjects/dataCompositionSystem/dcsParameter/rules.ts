@@ -11,10 +11,9 @@ export const DCSParameterRules = {
       toYAML: false,
     },
     title: {
-      type: "I8nText",
+      type: "DcsLocalStringType",
       xml: "dcssch:title",
       yaml: "Заголовок",
-      typedXML: true,
       order: 2,
     },
     valueType: {
@@ -30,8 +29,7 @@ export const DCSParameterRules = {
       yaml: "Значение",
       order: 4,
       exportNilValue: true,
-      toXML: (item: { value?: unknown; valueListAllowed?: boolean }) =>
-        !(item?.value === undefined && item?.valueListAllowed === true),
+      preserveFromReferenceXML: true,
     },
     useRestriction: {
       type: "boolean",

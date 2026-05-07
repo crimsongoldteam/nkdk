@@ -101,6 +101,15 @@ export const fullDCSParameters = [
   },
 ] as const satisfies DCSParameters
 
+export const explicitNullValueDCSParameters = [
+  {
+    itemType: "DCSParameter" as const,
+    name: "ПустоеЗначение",
+    title: { items: { ru: "Пустое значение" } },
+    value: null,
+  },
+] as const satisfies DCSParameters
+
 export const minimalDCSParameters = [
   {
     itemType: "DCSParameter" as const,
@@ -149,6 +158,13 @@ export const fullDCSParametersYAML = {
   },
   СТипом: {
     Заголовок: "С типом",
+  },
+} as const satisfies DCSParametersYAML
+
+export const explicitNullValueDCSParametersYAML = {
+  ПустоеЗначение: {
+    Заголовок: "Пустое значение",
+    Значение: null,
   },
 } as const satisfies DCSParametersYAML
 

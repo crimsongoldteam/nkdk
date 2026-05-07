@@ -62,10 +62,9 @@ export const DataCompositionSchemaDataSetFieldRules = {
       order: 5,
     },
     title: {
-      type: "I8nText",
+      type: "DcsLocalStringType",
       xml: "dcssch:title",
       yaml: "Заголовок",
-      typedXML: true,
       order: 3,
     },
     valueType: {

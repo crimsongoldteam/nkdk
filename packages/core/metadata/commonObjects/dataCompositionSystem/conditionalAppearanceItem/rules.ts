@@ -32,7 +32,7 @@ export const ConditionalAppearanceItemRules = {
       order: 3,
     },
     presentation: {
-      type: "UserSettingPresentation",
+      type: "DcsLocalStringType",
       xml: "dcsset:presentation",
       yaml: "Представление",
     },
@@ -49,7 +49,7 @@ export const ConditionalAppearanceItemRules = {
       yaml: "ИдентификаторПользовательскойНастройки",
     },
     userSettingPresentation: {
-      type: "UserSettingPresentation",
+      type: "DcsLocalStringType",
       xml: "dcsset:userSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройки",
     },

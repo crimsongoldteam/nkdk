@@ -21,7 +21,7 @@ export const OrderRules = {
       yaml: "ИспользоватьПользовательскуюНастройку",
     },
     userSettingPresentation: {
-      type: "UserSettingPresentation",
+      type: "DcsLocalStringType",
       xml: "dcsset:userSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройки",
     },

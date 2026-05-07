@@ -59,7 +59,7 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
 
     if (forReference) {
       ;(result as any)[key] = value
-      if (sourceXmlKey !== undefined) setXMLSourceKey(result, key, sourceXmlKey)
+      if (sourceXmlKey !== undefined) setXMLSourceKey(result, key, sourceXmlKey, true)
       continue
     }
 
@@ -75,7 +75,7 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
 
     if (valueOrDefault === undefined) continue
     ;(result as any)[key] = valueOrDefault
-    if (sourceXmlKey !== undefined) setXMLSourceKey(result, key, sourceXmlKey)
+    if (sourceXmlKey !== undefined) setXMLSourceKey(result, key, sourceXmlKey, false)
   }
 
   return result
@@ -119,14 +119,14 @@ const isXMLKeyPresentByKey = (xmlKey: string, xml: any, rule: PropertyRule): boo
   return currentXml !== undefined && currentXml !== null && xmlKey in currentXml
 }
 
-const setXMLSourceKey = (result: object, key: string, xmlKey: string): void => {
+const setXMLSourceKey = (result: object, key: string, xmlKey: string, enumerable: boolean): void => {
   const currentMap = (result as any)[XML_SOURCE_KEYS]
   const sourceKeys = currentMap ?? {}
   sourceKeys[key] = xmlKey
   if (currentMap === undefined) {
     Object.defineProperty(result, XML_SOURCE_KEYS, {
       value: sourceKeys,
-      enumerable: false,
+      enumerable,
     })
   }
 }

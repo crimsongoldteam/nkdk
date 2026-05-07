@@ -16,10 +16,9 @@ export const CalculatedFieldRules = {
       order: 2,
     },
     title: {
-      type: "I8nText",
+      type: "DcsLocalStringType",
       xml: "dcssch:title",
       yaml: "Заголовок",
-      typedXML: true,
       order: 3,
     },
     useRestriction: {

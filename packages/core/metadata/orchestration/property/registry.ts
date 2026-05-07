@@ -786,10 +786,6 @@ export type PropertyTypeRegistry = {
     item: string
     yaml: string
   }
-  UserSettingPresentation: {
-    item: I8nText
-    yaml: I8nTextYAML
-  }
 }
 
 export type PropertyRuleType = keyof PropertyTypeRegistry
@@ -914,7 +910,6 @@ export const PropertyRuleTypeKeys = Object.keys({
   DCSParameter: "DCSParameter",
   DCSParameters: "DCSParameters",
   ElementId: "ElementId",
-  UserSettingPresentation: "UserSettingPresentation",
   StructureItemGroupCollection: "StructureItemGroupCollection",
 } as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
 
