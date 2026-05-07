@@ -23,6 +23,10 @@ import {
   CharacteristicsDescriptionsYAML,
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
+import {
+  MobileDeviceCommandBarContent,
+  MobileDeviceCommandBarContentYAML,
+} from "~/metadata/commonObjects/mobileDeviceCommandBarContent/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
 import {
   AppearanceFields,
@@ -362,6 +366,11 @@ export type PropertyTypeRegistry = {
     item: ChoiceList
 
     yaml: ChoiceListYAML
+  }
+  MobileDeviceCommandBarContent: {
+    item: MobileDeviceCommandBarContent
+
+    yaml: MobileDeviceCommandBarContentYAML
   }
   ChoiceParameterLinks: {
     item: ChoiceParameterLinks
@@ -803,6 +812,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   AdditionalIndexCollection: "AdditionalIndexCollection",
   CharacteristicsDescriptions: "CharacteristicsDescriptions",
   ChoiceList: "ChoiceList",
+  MobileDeviceCommandBarContent: "MobileDeviceCommandBarContent",
   ChoiceParameterLinks: "ChoiceParameterLinks",
   ChoiceParameters: "ChoiceParameters",
   FieldsList: "FieldsList",

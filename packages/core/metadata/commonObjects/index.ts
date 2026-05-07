@@ -36,6 +36,10 @@ import "./choiceList/toJSONSchema"
 import "./choiceList/toXML"
 import "./choiceList/toYAML"
 
+import "./mobileDeviceCommandBarContent/fromXML"
+import "./mobileDeviceCommandBarContent/toJSONSchema"
+import "./mobileDeviceCommandBarContent/toXML"
+
 import "./сhoiceParameterLinks/fromXML"
 import "./сhoiceParameterLinks/fromYAML"
 import "./сhoiceParameterLinks/graphFromModel"
