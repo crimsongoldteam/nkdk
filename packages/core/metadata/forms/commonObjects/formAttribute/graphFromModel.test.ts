@@ -122,7 +122,7 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
     buildGraphFromModel({
       model: {
         name: "Объект",
-        columns: [
+        additionalColumns: [
           {
             table: "КакаяТоТаблица",
             columns: [{ name: "КолонкаТаблицы", itemType: "FormAttributeColumn" }],
@@ -156,6 +156,50 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
     )
     expect(additionalColumnEdges).toHaveLength(1)
     expect(additionalColumnEdges[0].target).toBe(columnNodeId)
+  })
+
+  it("mixed columns → direct column and additional-column proxy are both created", () => {
+    const graph = makeGraph()
+    graph.ensureNode(ATTR_NODE_ID, { name: "График" })
+
+    buildGraphFromModel({
+      model: {
+        name: "График",
+        columns: [{ name: "Отступ", itemType: "FormAttributeColumn" }],
+        additionalColumns: [
+          {
+            table: "Объект.ГрафикНачислений",
+            columns: [{ name: "Сумма", itemType: "FormAttributeColumn" }],
+          },
+        ],
+        itemType: "FormAttribute",
+      },
+      yamlMap: undefined,
+      rule: FormAttributeRules,
+      graph,
+      parentNodeId: ATTR_NODE_ID,
+      filePath: FILE_PATH,
+    })
+
+    const directColumnNodeId = `${ATTR_NODE_ID}.Отступ`
+    const proxyNodeId = `${ATTR_NODE_ID}.ГрафикНачислений`
+    const additionalColumnNodeId = `${proxyNodeId}.Сумма`
+
+    expect(graph.hasNode(directColumnNodeId)).toBe(true)
+    expect(graph.hasNode(proxyNodeId)).toBe(true)
+    expect(graph.hasNode(additionalColumnNodeId)).toBe(true)
+
+    expect(
+      [...graph.outEdgeEntries(ATTR_NODE_ID)].filter((e) => e.attributes.kind === "FORM_COLUMN"),
+    ).toHaveLength(1)
+    expect(
+      [...graph.outEdgeEntries(ATTR_NODE_ID)].filter((e) => e.attributes.kind === "TABLE_EXTENSION"),
+    ).toHaveLength(1)
+    expect(
+      [...graph.outEdgeEntries(proxyNodeId)].filter(
+        (e) => e.attributes.kind === "ADDITIONAL_COLUMN",
+      ),
+    ).toHaveLength(1)
   })
 
   it("узел колонки несёт item и filePaths", () => {
