@@ -1,5 +1,5 @@
 import { Static, Type } from "@sinclair/typebox"
-import { BooleanJSONSchema } from "~/metadata/commonObjects/boolean/types"
+import { StringboolXML } from "~/metadata/commonObjects/boolean/types"
 import { UserVisible, UserVisibleJSONSchema, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { MetadataItem } from "~/metadata/orchestration"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -18,7 +18,7 @@ export interface CommandInterfaceItem extends MetadataItem {
   type?: string
   index?: number
   commandGroup?: SE.StandardCommandsGroup
-  defaultVisible: boolean
+  defaultVisible?: false
   visible?: UserVisible
 }
 
@@ -41,8 +41,8 @@ export interface CommandInterfaceItemXML {
   Command: string
   Type: string
   CommandGroup?: SE.StandardCommandsGroup
-  Index?: number
-  DefaultVisible?: boolean
+  Index?: number | string
+  DefaultVisible?: StringboolXML
   Visible?: UserVisibleXML
 }
 
@@ -58,7 +58,7 @@ export const CommandInterfaceItemJSONSchema = Type.Object({
   Тип: Type.Optional(Type.String()),
   Индекс: Type.Optional(Type.Number()),
   ГруппаКоманд: Type.Optional(Type.Union(standardCommandsGroups)),
-  Автовидимость: BooleanJSONSchema,
+  Автовидимость: Type.Optional(Type.Literal("Ложь")),
   РазрешитьИспользование: Type.Optional(UserVisibleJSONSchema),
   ЗапретитьИспользование: Type.Optional(UserVisibleJSONSchema),
 })

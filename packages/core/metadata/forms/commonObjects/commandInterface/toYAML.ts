@@ -1,4 +1,3 @@
-import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { exportUserVisibleToYAMLDeprecated } from "~/metadata/commonObjects/userVisible/toYAML"
 import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
@@ -36,7 +35,10 @@ const exportCommandInterfaceItemToYAML = (
   const result: CommandInterfaceItemYAML = {
     Команда: item.command,
     Тип: item.type,
-    Автовидимость: exportBooleanToYAML(context, undefined, item.defaultVisible)!,
+  }
+
+  if (item.defaultVisible === false) {
+    result.Автовидимость = "Ложь"
   }
 
   if (item.index !== undefined) {
@@ -47,7 +49,7 @@ const exportCommandInterfaceItemToYAML = (
     result.ГруппаКоманд = StandardCommandsGroupToYAML[item.commandGroup]
   }
 
-  if (item.visible && item.visible.values.length > 0) {
+  if (item.visible) {
     const visibleYAML = exportUserVisibleToYAMLDeprecated(context, undefined, item.visible, {
       allow: UserVisibleKeysYAML.Allow,
       deny: UserVisibleKeysYAML.Deny,

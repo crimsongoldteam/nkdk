@@ -1,4 +1,3 @@
-import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/fromYAML"
 import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
@@ -38,8 +37,11 @@ const importCommandInterfaceItemFromYAML = (
   const result: CommandInterfaceItem = {
     command: item.Команда,
     type: item.Тип,
-    defaultVisible: importBooleanFromYAML(context, undefined, item.Автовидимость)!,
     itemType: "CommandInterfaceItem",
+  }
+
+  if (item.Автовидимость === "Ложь") {
+    result.defaultVisible = false
   }
 
   if (item.Индекс !== undefined) {

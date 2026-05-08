@@ -1,4 +1,6 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
+import { importNumberFromXML } from "~/metadata/commonObjects/number/fromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/fromXML"
 import { registerTypeRule } from "~/metadata/orchestration"
 import { PropertyRule } from "../../elements/calendarField/rules"
@@ -37,9 +39,13 @@ const importCommandInterfaceItemFromXML = (
   const values: Partial<CommandInterfaceItem> = {
     command: item.Command,
     type: item.Type,
-    index: item.Index,
+    index: importNumberFromXML(context, undefined, item.Index),
     commandGroup: item.CommandGroup,
-    defaultVisible: item.DefaultVisible ?? true,
+  }
+
+  const defaultVisible = importBooleanFromXML(context, undefined, item.DefaultVisible)
+  if (defaultVisible === false) {
+    values.defaultVisible = false
   }
 
   if (item.Visible) {

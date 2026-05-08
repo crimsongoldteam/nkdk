@@ -1,36 +1,45 @@
 <CommandInterface>
 	<NavigationPanel>
 		<Item>
-			<Command>Catalog.ПодчиненныйСправочник.StandardCommand.OpenByValue</Command>
+			<Command>InformationRegister.РегистрСведенийКомандныйИнтерфейс.StandardCommand.OpenByValue.Измерение1</Command>
 			<Type>Auto</Type>
-			<Index>0</Index>
-			<DefaultVisible>true</DefaultVisible>
-			<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
+			<DefaultVisible>false</DefaultVisible>
 		</Item>
 		<Item>
-			<Command>Catalog.ПримерСправочник.Command.КомандаСправочник2</Command>
-			<Type>Auto</Type>
-			<Index>1</Index>
+			<Command>Catalog.СправочникCоВсемиОбъектами.Command.КомандаОбъекта</Command>
+			<Type>Added</Type>
+			<CommandGroup>FormNavigationPanelImportant</CommandGroup>
 			<DefaultVisible>false</DefaultVisible>
-			<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
-		</Item>
-		<Item>
-			<Command>Catalog.ПримерСправочник.Command.КомандаСправоник</Command>
-			<Type>Auto</Type>
-			<Index>2</Index>
-			<DefaultVisible>false</DefaultVisible>
-			<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
 			<Visible>
-				<xr:Common>true</xr:Common>
-				<xr:Value name="Role.Администратор">true</xr:Value>
+				<xr:Common>false</xr:Common>
 			</Visible>
+		</Item>
+		<Item>
+			<Command>Catalog.СправочникCоВсемиОбъектами.Command.КомандаОбъекта</Command>
+			<Type>Added</Type>
+			<CommandGroup>FormNavigationPanelSeeAlso</CommandGroup>
+			<DefaultVisible>false</DefaultVisible>
+		</Item>
+		<Item>
+			<Command>InformationRegister.РегистрСведенийКомандныйИнтерфейс1.StandardCommand.OpenByValue.Измерение1</Command>
+			<Type>Auto</Type>
+			<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
 		</Item>
 	</NavigationPanel>
 	<CommandBar>
 		<Item>
-			<Command>Catalog.ПодчиненныйСправочник.StandardCommand.CreateBasedOn</Command>
-			<Type>Auto</Type>
-			<Index>0</Index>
+			<Command>Catalog.СправочникCоВсемиОбъектами.Command.КомандаОбъекта</Command>
+			<Type>Added</Type>
+			<CommandGroup>FormCommandBarImportant</CommandGroup>
+			<DefaultVisible>false</DefaultVisible>
+			<Visible>
+				<xr:Common>false</xr:Common>
+			</Visible>
+		</Item>
+		<Item>
+			<Command>Catalog.СправочникCоВсемиОбъектами.Command.КомандаОбъекта</Command>
+			<Type>Added</Type>
+			<CommandGroup>FormCommandBarCreateBasedOn</CommandGroup>
 			<DefaultVisible>false</DefaultVisible>
 		</Item>
 	</CommandBar>
