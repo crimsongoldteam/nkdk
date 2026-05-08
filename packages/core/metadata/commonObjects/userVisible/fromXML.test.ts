@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { withMultipleValuesUserVisible } from "~/tests/fixtures/userVisible/withMultipleValues"
+import { withSingleValueUserVisible } from "~/tests/fixtures/userVisible/withSingleValue"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importUserVisibleFromXML } from "./fromXML"
@@ -34,15 +35,11 @@ describe("importUserVisibleFromXML", () => {
   })
 
   it("should handle single value in Use XML", () => {
-    const result = importUserVisibleFromXML(mockContextFromXML(), mockRule, {
-      "xr:Common": "true",
-      "xr:Value": { _name: "Role.Администратор", "#text": "false" },
-    })
+    const xml = readAndParseXMLFile<{ UserVisible: UserVisibleXML }>("userVisible/withSingleValue.xml")
 
-    expect(result).toEqual({
-      common: true,
-      values: [{ name: "Администратор", value: false }],
-    })
+    const result = importUserVisibleFromXML(mockContextFromXML(), mockRule, xml.UserVisible)
+
+    expect(result).toEqual(withSingleValueUserVisible)
   })
 
   it("skips UserVisible values with unsupported boolean text", () => {
