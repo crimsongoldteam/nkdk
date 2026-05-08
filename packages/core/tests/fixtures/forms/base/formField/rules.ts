@@ -9,7 +9,7 @@ const baseExtendedTooltip = {
   title: { items: { ru: "Расширенная подсказка" }, formatted: false },
 } as const
 
-export const fullFormFieldCommonFixture = {
+const fullFormFieldCommonFixtureBase = {
   defaultItem: true,
   displayImportance: "High" as const,
   verticalAlign: "Top" as const,
@@ -66,6 +66,11 @@ export const fullFormFieldCommonFixture = {
   },
 }
 
+// AutoCellHeight покрыт отдельными фикстурами; full.xml-референсы его не содержат.
+export const fullFormFieldCommonFixture = fullFormFieldCommonFixtureBase as typeof fullFormFieldCommonFixtureBase & {
+  autoCellHeight: false
+}
+
 export const fullFormFieldTableRelatedFixture = {
   autoCellHeight: false,
   headerHorizontalAlign: "Left" as const,
@@ -74,7 +79,7 @@ export const fullFormFieldTableRelatedFixture = {
   fixingInTable: "None" as const,
 }
 
-export const fullFormFieldEnterpriseCommonFixture = {
+const fullFormFieldEnterpriseCommonFixtureBase = {
   CellHyperlink: true,
   DataPath: "prefix_Реквизит",
   DefaultItem: true,
@@ -143,6 +148,12 @@ export const fullFormFieldEnterpriseCommonFixture = {
   },
 } as const
 
+// AutoCellHeight покрыт отдельными фикстурами; full.xml-референсы его не содержат.
+export const fullFormFieldEnterpriseCommonFixture =
+  fullFormFieldEnterpriseCommonFixtureBase as typeof fullFormFieldEnterpriseCommonFixtureBase & {
+    readonly AutoCellHeight: false
+  }
+
 export const fullFormFieldEnterpriseTableRelatedFixture = {
   AutoCellHeight: false,
   HeaderHorizontalAlign: {
@@ -155,7 +166,7 @@ export const fullFormFieldEnterpriseTableRelatedFixture = {
   },
 } as const
 
-export const fullFormFieldPartialYAMLCommonFixture = {
+const fullFormFieldPartialYAMLCommonFixtureBase = {
   АктивизироватьПоУмолчанию: "Истина",
   ВажностьПриОтображении: "Высокая",
   ВертикальноеПоложение: "Верх",
@@ -195,6 +206,12 @@ export const fullFormFieldPartialYAMLCommonFixture = {
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ШрифтПодвала: "ОбычныйШрифтТекста",
 } as const
+
+// AutoCellHeight покрыт отдельными фикстурами; full.xml-референсы его не содержат.
+export const fullFormFieldPartialYAMLCommonFixture =
+  fullFormFieldPartialYAMLCommonFixtureBase as typeof fullFormFieldPartialYAMLCommonFixtureBase & {
+    readonly АвтоВысотаЯчейки: "Ложь"
+  }
 
 export const fullFormFieldTableRelatedPartialYAMLCommonFixture = {
   АвтоВысотаЯчейки: "Ложь",

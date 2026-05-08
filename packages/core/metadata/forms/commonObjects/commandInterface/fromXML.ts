@@ -55,15 +55,15 @@ const importCommandInterfaceItemFromXML = (
     }
   }
 
-  const orderedKeys = context.fromXML.forReference
+  const orderedKeys: readonly (keyof CommandInterfaceItem)[] = context.fromXML.forReference
     ? getOrderedCommandInterfaceItemKeysFromXML(item)
-    : ["command", "type", "defaultVisible", "index", "commandGroup", "visible"]
+    : nonReferenceCommandInterfaceItemKeys
 
   const result = {} as CommandInterfaceItem
   for (const key of orderedKeys) {
     const value = values[key]
     if (value !== undefined) {
-      ;(result as Record<string, unknown>)[key] = value
+      ;(result as unknown as Record<keyof CommandInterfaceItem, unknown>)[key] = value
     }
   }
   result.itemType = "CommandInterfaceItem"
@@ -79,6 +79,15 @@ const commandInterfaceItemXmlToModelKeys = {
   DefaultVisible: "defaultVisible",
   Visible: "visible",
 } as const
+
+const nonReferenceCommandInterfaceItemKeys = [
+  "command",
+  "type",
+  "defaultVisible",
+  "index",
+  "commandGroup",
+  "visible",
+] as const satisfies readonly (keyof CommandInterfaceItem)[]
 
 const fallbackCommandInterfaceItemKeys = [
   "command",
