@@ -119,6 +119,21 @@ describe("export DCSParameter to XML", () => {
     )
   })
 
+  it("exports Parameter rule as array without wrapper", () => {
+    const result = exportPropertyToXML({
+      context: mockContextToXML(),
+      rule: { type: "DCSParameters", xml: "Parameter" },
+      value: [parameterWithoutValue],
+      referenceMetadata: [parameterWithUndefinedTypeReference],
+    })
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        "dcssch:value": undefinedTypeReferenceValue,
+      }),
+    ])
+  })
+
   it("exports explicit undefined value from reference d6p1 Undefined", () => {
     const result = exportDCSParameters(
       [{ ...parameterWithoutValue, value: undefined }],

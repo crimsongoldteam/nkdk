@@ -1,6 +1,7 @@
 import { exportMetadataItemToXML } from "~/metadata/orchestration"
 import type { NamedElementXML } from "~/metadata/orchestration/metadataCollection/types"
 import type { ExportToXMLFunctionNew } from "~/metadata/orchestration/property/fn"
+import type { ItemXML } from "~/metadata/orchestration/property/types"
 
 import { DCSParameterRules } from "./rules"
 import type { DCSParameter, DCSParameters } from "./types"
@@ -68,7 +69,7 @@ export const exportDCSParametersToXML: ExportToXMLFunctionNew = (params) => {
         ? { ...referenceItem, value: undefined }
         : referenceItem
 
-    const itemXML =
+    const itemXML: ItemXML =
       (exportMetadataItemToXML({
         context: params.context,
         data: item,
