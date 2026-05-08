@@ -93,7 +93,7 @@ export type BuildGraphFromModelFunction = (params: {
 - [ ] **Step 3: Прогнать type-check**
 
 ```bash
-cd /Users/nikita/git/nakidka-core/.claude/worktrees/graph-pure-functions
+cd /Users/nikita/git/nakidka-core/.worktrees/graph-pure-functions
 pnpm --filter @nakidka/core run type-check
 ```
 
@@ -318,7 +318,7 @@ Expected: PASS — все 6 существующих тестов зелёные
 - [ ] **Step 4: Прогнать полный тестовый набор core**
 
 ```bash
-cd /Users/nikita/git/nakidka-core/.claude/worktrees/graph-pure-functions
+cd /Users/nikita/git/nakidka-core/.worktrees/graph-pure-functions
 pnpm --filter @nakidka/core test
 ```
 
@@ -420,7 +420,7 @@ describe("buildMetadataFieldsGraph (чистая функция)", () => {
 - [ ] **Step 2: Прогнать новый тест**
 
 ```bash
-cd /Users/nikita/git/nakidka-core/.claude/worktrees/graph-pure-functions/packages/core
+cd /Users/nikita/git/nakidka-core/.worktrees/graph-pure-functions/packages/core
 pnpm vitest run metadata/commonObjects/metadataField/graphFromModel.unit.test.ts
 ```
 
@@ -429,7 +429,7 @@ Expected: PASS — 4 теста зелёные.
 - [ ] **Step 3: Прогнать полный тестовый набор core**
 
 ```bash
-cd /Users/nikita/git/nakidka-core/.claude/worktrees/graph-pure-functions
+cd /Users/nikita/git/nakidka-core/.worktrees/graph-pure-functions
 pnpm --filter @nakidka/core test
 ```
 

@@ -115,7 +115,7 @@ registerTypeRule("MetadataItemLinks", "buildGraphFromModel", buildMetadataItemLi
 - [ ] **Step 2: Прогнать type-check**
 
 ```bash
-cd /Users/nikita/git/nakidka-core/.claude/worktrees/graph-pure-functions
+cd /Users/nikita/git/nakidka-core/.worktrees/graph-pure-functions
 pnpm --filter @nakidka/core run type-check
 ```
 
@@ -1202,7 +1202,7 @@ EOF
 - [ ] **Step 1: Прогнать полный тестовый набор проекта**
 
 ```bash
-cd /Users/nikita/git/nakidka-core/.claude/worktrees/graph-pure-functions
+cd /Users/nikita/git/nakidka-core/.worktrees/graph-pure-functions
 pnpm test
 ```
 

@@ -4,7 +4,7 @@
 
 **Goal:** Preserve physical XML order for `CommandInterface.NavigationPanel.Item` and `CommandInterface.CommandBar.Item` while keeping `Index` as an explicit optional field.
 
-**Architecture:** This is a local temporary measure for `CommandInterface`: `fromXML` must stop deriving item order from `Index` and must keep the XML item order. `Index` remains an ordinary optional value imported into `item.index` and exported only when present; broader domain semantics are documented as deferred in `.claude/architecture-orchestration.md`.
+**Architecture:** This is a local temporary measure for `CommandInterface`: `fromXML` must stop deriving item order from `Index` and must keep the XML item order. `Index` remains an ordinary optional value imported into `item.index` and exported only when present; broader domain semantics are documented as deferred in `.agents/architecture-orchestration.md`.
 
 **Tech Stack:** TypeScript, Vitest, existing `commandInterface` XML helpers, `xmlExport`.
 
@@ -237,7 +237,7 @@ Expected: PASS for `fromXML.test.ts`, `toXML.test.ts`, `fromYAML.test.ts`, and `
 Run:
 
 ```bash
-rg -n "Текущая временная норма|fromXML.*не должен сортировать элементы по `Index`|Это временная мера" .claude/architecture-orchestration.md
+rg -n "Текущая временная норма|fromXML.*не должен сортировать элементы по `Index`|Это временная мера" .agents/architecture-orchestration.md
 ```
 
 Expected: matches in the `Порядок элементов CommandInterface` section.

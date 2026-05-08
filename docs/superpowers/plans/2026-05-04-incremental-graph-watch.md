@@ -1575,7 +1575,7 @@ git commit -m "feat: :sparkles: добавить nkdk watch"
 ## Task 9: Full Verification And Documentation Sync
 
 **Files:**
-- Modify: `.claude/architecture-orchestration.md`
+- Modify: `.agents/architecture-orchestration.md`
 
 - [ ] **Step 1: Run focused package tests**
 
@@ -1611,7 +1611,7 @@ Expected: PASS across all packages.
 
 - [ ] **Step 4: Update architecture document**
 
-Add this section to `.claude/architecture-orchestration.md` under "Граф связей метаданных":
+Add this section to `.agents/architecture-orchestration.md` under "Граф связей метаданных":
 
 ```md
 ### Владение графовыми узлами файлами
@@ -1624,7 +1624,7 @@ Add this section to `.claude/architecture-orchestration.md` under "Граф св
 - [ ] **Step 5: Commit verification docs**
 
 ```bash
-git add .claude/architecture-orchestration.md
+git add .agents/architecture-orchestration.md
 git commit -m "docs: :memo: уточнить архитектуру владения графом"
 ```
 

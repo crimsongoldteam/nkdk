@@ -45,7 +45,7 @@
 - Modify `packages/core/metadata/orchestration/buildGraph/internal/edgeKinds.test.ts`
   Assert legacy dataPath kinds are not registered.
 
-- Modify `.claude/architecture-orchestration.md`
+- Modify `.agents/architecture-orchestration.md`
   Add an explicit note that dataPath property names are represented by `DATA_PATH.property`, not separate edge kinds or synthetic model fields.
 
 ---
@@ -1107,12 +1107,12 @@ git commit -m "feat: :sparkles: добавить зависимости dataPath
 ### Task 7: Update Architecture Notes and Final Verification
 
 **Files:**
-- Modify: `.claude/architecture-orchestration.md`
+- Modify: `.agents/architecture-orchestration.md`
 - Test: project test suite
 
 - [ ] **Step 1: Update architecture note**
 
-In `.claude/architecture-orchestration.md`, in the `DataPath как пример границы` section, add this paragraph after the `DATA_PATH` example:
+In `.agents/architecture-orchestration.md`, in the `DataPath как пример границы` section, add this paragraph after the `DATA_PATH` example:
 
 ```md
 Не вводи отдельные kind под имя свойства (`FOOTER_DATA_PATH`, `TITLE_DATA_PATH`, `ROW_PICTURE_DATA_PATH`). Имя свойства всегда хранится в `property` на `DATA_PATH`. Синтетические поля вроде `dataPathReference` не используются: если свойство представлено ребром, оно не должно дублироваться как `p_<property>` на узле.
@@ -1123,7 +1123,7 @@ In `.claude/architecture-orchestration.md`, in the `DataPath как пример
 Run:
 
 ```bash
-rg -n "FOOTER_DATA_PATH|TITLE_DATA_PATH|ROW_PICTURE_DATA_PATH|dataPathReference|p_dataPath" packages/core/metadata .claude docs/superpowers/specs/2026-05-04-data-path-binding-design.md
+rg -n "FOOTER_DATA_PATH|TITLE_DATA_PATH|ROW_PICTURE_DATA_PATH|dataPathReference|p_dataPath" packages/core/metadata .agents docs/superpowers/specs/2026-05-04-data-path-binding-design.md
 ```
 
 Expected: output may mention legacy names only in docs/spec text that says they are forbidden, and in tests that assert absence. No production `.ts` file should contain these strings.
@@ -1151,7 +1151,7 @@ Expected: PASS. This is required before closing the issue.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add .claude/architecture-orchestration.md
+git add .agents/architecture-orchestration.md
 git commit -m "docs: :memo: закрепить инварианты dataPath-графа"
 ```
 

@@ -35,8 +35,8 @@
 - `packages/core/metadata/appliedObjects/metadataDocument/syncToXML.test.ts` (полный rewrite)
 - `packages/core/metadata/appliedObjects/metadataSequence/{fromXML,toXML,fromYAML,syncToXML,convertFromXML}.test.ts`
 - `packages/core/metadata/appliedObjects/metadataDocumentNumerator/{fromXML,toXML,fromYAML,toYAML,syncToXML,convertFromXML}.test.ts`
-- `.claude/skills/_shared/metadata/io-tests.md`
-- `.claude/skills/_shared/metadata/tests.md`
+- `.agents/skills/_shared/metadata/io-tests.md`
+- `.agents/skills/_shared/metadata/tests.md`
 
 ---
 
@@ -1600,11 +1600,11 @@ git commit -m "chore: :wastebasket: убрать локальные sync/out и�
 ### Task 15: Обновить шаблон `_shared/metadata/io-tests.md`
 
 **Files:**
-- Modify: `.claude/skills/_shared/metadata/io-tests.md`
+- Modify: `.agents/skills/_shared/metadata/io-tests.md`
 
 - [ ] **Step 1: Заменить шаблон `convertFromXML.test.ts`**
 
-Открой `.claude/skills/_shared/metadata/io-tests.md`. Найди раздел `## Шаблон convertFromXML.test.ts` и замени его блок кода на:
+Открой `.agents/skills/_shared/metadata/io-tests.md`. Найди раздел `## Шаблон convertFromXML.test.ts` и замени его блок кода на:
 
 ````markdown
 ```typescript
@@ -1670,7 +1670,7 @@ describe("syncAppliedObjectToXML — <MetadataName>", () => {
 - [ ] **Step 5: Коммит**
 
 ```bash
-git add .claude/skills/_shared/metadata/io-tests.md
+git add .agents/skills/_shared/metadata/io-tests.md
 git commit -m "docs: :memo: обновить шаблон io-tests под appliedObject helpers"
 ```
 
@@ -1679,11 +1679,11 @@ git commit -m "docs: :memo: обновить шаблон io-tests под applie
 ### Task 16: Обновить шаблон `_shared/metadata/tests.md`
 
 **Files:**
-- Modify: `.claude/skills/_shared/metadata/tests.md`
+- Modify: `.agents/skills/_shared/metadata/tests.md`
 
 - [ ] **Step 1: Прочитать текущий шаблон**
 
-Run: `cat .claude/skills/_shared/metadata/tests.md`
+Run: `cat .agents/skills/_shared/metadata/tests.md`
 
 Expected: видны шаблоны `fromXML.test.ts`, `toXML.test.ts`, `fromYAML.test.ts`, `toYAML.test.ts`.
 
@@ -1702,7 +1702,7 @@ Expected: видны шаблоны `fromXML.test.ts`, `toXML.test.ts`, `fromYAM
 - [ ] **Step 7: Коммит**
 
 ```bash
-git add .claude/skills/_shared/metadata/tests.md
+git add .agents/skills/_shared/metadata/tests.md
 git commit -m "docs: :memo: обновить шаблон tests под appliedObject helpers"
 ```
 

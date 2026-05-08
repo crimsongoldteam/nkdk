@@ -57,7 +57,7 @@ We wanted to read credentials from a `.env` file in the project (already gitigno
 
 **Why it failed:** The sandbox overwrites `~/.claude/settings.json` on creation with its own defaults (`themeId`, `bypassPermissions`, etc.). Anything written at build time gets replaced at runtime. The file doesn't even exist at build time — it's created by the sandbox daemon on startup.
 
-### 7. `apiKeyHelper` in project `.claude/settings.local.json`
+### 7. `apiKeyHelper` in project-level Claude settings
 
 **Approach:** Put `apiKeyHelper` in the project-level settings (which are mounted into the sandbox).
 
