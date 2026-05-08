@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromYAML } from "./fromYAML"
+import { TypeDescriptionYAML } from "./types"
+
+const importUnsafeTypeDescriptionFromYAML = (value: unknown) =>
+  importTypeDescriptionFromYAML(mockContext, mockRule, value as TypeDescriptionYAML)
 
 describe("importTypeDescriptionFromYAML", () => {
   it("should parse undefined type description", () => {
@@ -21,6 +25,16 @@ describe("importTypeDescriptionFromYAML", () => {
 
   it("should parse empty type ids as undefined", () => {
     const result = importTypeDescriptionFromYAML(mockContext, mockRule, { ИдентификаторТипа: [] })
+    expect(result).toBeUndefined()
+  })
+
+  it("should ignore string type ids property from YAML", () => {
+    const result = importUnsafeTypeDescriptionFromYAML({ ИдентификаторТипа: "8c1e3694-da12-44d5-8b1f-d134b89a1282" })
+    expect(result).toBeUndefined()
+  })
+
+  it("should ignore non-string type ids from YAML", () => {
+    const result = importUnsafeTypeDescriptionFromYAML({ ИдентификаторТипа: [123] })
     expect(result).toBeUndefined()
   })
 

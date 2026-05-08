@@ -49,11 +49,11 @@ export const getTypes = (type: TypeDescriptionXMLType | TypeDescriptionXMLType[]
   return typeArray.map((typeItem) => getType(typeItem))
 }
 
-const getTypeIds = (typeId: TypeDescriptionXML["v8:TypeId"]): string[] | undefined => {
+const getTypeIds = (typeId: TypeDescriptionXML["v8:TypeId"] | unknown): string[] | undefined => {
   if (typeId === undefined) return undefined
 
   const typeIds = Array.isArray(typeId) ? typeId : [typeId]
-  const nonEmptyTypeIds = typeIds.filter((item) => item.trim() !== "")
+  const nonEmptyTypeIds = typeIds.filter((item): item is string => typeof item === "string" && item.trim() !== "")
 
   return nonEmptyTypeIds.length > 0 ? nonEmptyTypeIds : undefined
 }

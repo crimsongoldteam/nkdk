@@ -9,12 +9,19 @@ import {
   TypeDescriptionDateQualifiers,
   TypeDescriptionNumberQualifiers,
   TypeDescriptionStringQualifiers,
-  TypeDescriptionTypeIdYAML,
   TypeDescriptionYAML,
 } from "./types"
 
-const isTypeIdYAML = (value: TypeDescriptionYAML): value is TypeDescriptionTypeIdYAML =>
+const isTypeDescriptionYAMLObject = (value: TypeDescriptionYAML): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value)
+
+const getTypeIdsFromYAML = (typeId: unknown): string[] | undefined => {
+  if (!Array.isArray(typeId)) return undefined
+
+  const typeIds = typeId.filter((item): item is string => typeof item === "string" && item.trim() !== "")
+
+  return typeIds.length > 0 ? typeIds : undefined
+}
 
 export const importTypeDescriptionFromYAML = (
   _context: ConfigurationContext,
@@ -25,8 +32,8 @@ export const importTypeDescriptionFromYAML = (
     return undefined
   }
 
-  if (isTypeIdYAML(value)) {
-    const typeId = value.ИдентификаторТипа?.filter((item) => item.trim() !== "")
+  if (isTypeDescriptionYAMLObject(value)) {
+    const typeId = getTypeIdsFromYAML(value.ИдентификаторТипа)
 
     if (typeId === undefined || typeId.length === 0) {
       return undefined
