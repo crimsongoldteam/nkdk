@@ -1,3 +1,4 @@
+import { importNumberFromXML } from "~/metadata/commonObjects/number/fromXML"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
@@ -11,8 +12,8 @@ export const importTypeDescriptionFromXML = (
   if (!xml) return undefined
 
   const types = extractTypes(xml)
-  const stringQualifiers = getStringQualifiers(xml["v8:StringQualifiers"])
-  const numberQualifiers = getNumberQualifiers(xml["v8:NumberQualifiers"])
+  const stringQualifiers = getStringQualifiers(_context, xml["v8:StringQualifiers"])
+  const numberQualifiers = getNumberQualifiers(_context, xml["v8:NumberQualifiers"])
   const dateQualifiers = getDateQualifiers(xml["v8:DateQualifiers"])
 
   const result: TypeDescription = {
@@ -66,7 +67,15 @@ const removeTypePrefix = (type: string): string => {
   return typeName
 }
 
-function getStringQualifiers(xml?: TypeDescriptionXML["v8:StringQualifiers"]):
+const importQualifierNumber = (
+  context: ConfigurationContext,
+  value: number | string | undefined
+): number | undefined => importNumberFromXML(context, undefined, value)
+
+function getStringQualifiers(
+  context: ConfigurationContext,
+  xml?: TypeDescriptionXML["v8:StringQualifiers"]
+):
   | {
       length: number
       allowedLength: "Variable" | "Fixed"
@@ -74,8 +83,11 @@ function getStringQualifiers(xml?: TypeDescriptionXML["v8:StringQualifiers"]):
   | undefined {
   if (xml === undefined) return undefined
 
+  const length = importQualifierNumber(context, xml["v8:Length"])
+  if (length === undefined) return undefined
+
   const result = {
-    length: xml["v8:Length"],
+    length,
     allowedLength: xml["v8:AllowedLength"],
   }
 
@@ -87,12 +99,16 @@ function getStringQualifiers(xml?: TypeDescriptionXML["v8:StringQualifiers"]):
   return result
 }
 
-function getNumberQualifiers(xml?: TypeDescriptionXML["v8:NumberQualifiers"]) {
+function getNumberQualifiers(context: ConfigurationContext, xml?: TypeDescriptionXML["v8:NumberQualifiers"]) {
   if (!xml) return undefined
 
+  const digits = importQualifierNumber(context, xml["v8:Digits"])
+  const fractionDigits = importQualifierNumber(context, xml["v8:FractionDigits"])
+  if (digits === undefined || fractionDigits === undefined) return undefined
+
   const result = {
-    digits: xml["v8:Digits"],
-    fractionDigits: xml["v8:FractionDigits"],
+    digits,
+    fractionDigits,
     allowedSign: xml["v8:AllowedSign"],
   }
 

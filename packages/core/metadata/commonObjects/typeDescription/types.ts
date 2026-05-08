@@ -467,13 +467,13 @@ export type TypeDescriptionTypeWithNamespaceXML<TNamespace extends string = stri
 export type TypeDescriptionXMLType = string | TypeDescriptionTypeWithNamespaceXML
 
 export interface TypeDescriptionXMLStringQualifiers {
-  "v8:Length": number
+  "v8:Length": number | string
   "v8:AllowedLength": "Variable" | "Fixed"
 }
 
 export interface TypeDescriptionXMLNumberQualifiers {
-  "v8:Digits": number
-  "v8:FractionDigits": number
+  "v8:Digits": number | string
+  "v8:FractionDigits": number | string
   "v8:AllowedSign": "Any" | "Nonnegative"
 }
 
