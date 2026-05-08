@@ -20,11 +20,6 @@ export const formFieldTableRelatedProperties = {
     type: "AssociatedTable",
     toEnterprise: false,
   },
-  autoCellHeight: {
-    yaml: "АвтоВысотаЯчейки",
-    type: "boolean",
-    defaultValueYAML: true,
-  },
   fixingInTable: {
     yaml: "ФиксацияВТаблице",
     xml: "FixingInTable",
@@ -84,6 +79,11 @@ export const formFieldCommonProperties = {
   visible: { yaml: "Видимость", type: "boolean", defaultValueYAML: true },
   titleHeight: { yaml: "ВысотаЗаголовка", type: "number" },
   cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean", defaultValueYAML: false },
+  autoCellHeight: {
+    yaml: "АвтоВысотаЯчейки",
+    type: "boolean",
+    defaultValueYAML: true,
+  },
   horizontalAlign: {
     yaml: "ГоризонтальноеПоложение",
     type: "SystemEnumeration",

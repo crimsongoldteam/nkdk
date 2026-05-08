@@ -102,7 +102,10 @@ const findReferenceCommandInterfaceItem = (
   if (!referenceItems) return undefined
 
   const matches = referenceItems.filter(
-    (referenceItem) => referenceItem.command === item.command && referenceItem.commandGroup === item.commandGroup
+    (referenceItem) =>
+      referenceItem.command === item.command &&
+      referenceItem.commandGroup === item.commandGroup &&
+      referenceItem.index === item.index
   )
 
   return matches.length === 1 ? matches[0] : undefined
