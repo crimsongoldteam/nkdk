@@ -14,6 +14,13 @@ export const ButtonGroupRules = {
       xml: "_name",
       required: true,
     },
+    displayImportance: {
+      yaml: "ВажностьПриОтображении",
+      xml: "_DisplayImportance",
+      type: "SystemEnumeration",
+      typeSE: "DisplayImportance",
+      defaultValueYAML: "Auto",
+    },
     childItems: {
       yaml: "Элементы",
       type: "CommandBarChildItems",

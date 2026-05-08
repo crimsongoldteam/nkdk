@@ -13,28 +13,20 @@ import {
 
 import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 
+const { extendedTooltip: _eTBG, ...fullFormGroupCommonFixtureForButtonGroup } = fullFormGroupCommonFixture
+
 export const fullButtonGroup: ButtonGroup = {
   itemType: "ButtonGroup",
   name: "ГруппаКнопок",
-  ...fullFormGroupCommonFixture,
-  shortcut: "S",
-  extendedTooltip: {
-    itemType: "ExtendedTooltip",
-    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
-  },
-  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  titleTextColor: { type: "WebColor", value: "Black" },
-  toolTipRepresentation: "None",
-  verticalStretch: true,
-  width: 300,
-  height: 200,
-  title: {
-    items: { ru: "Группа кнопок" },
-  },
+  ...fullFormGroupCommonFixtureForButtonGroup,
+  displayImportance: "VeryHigh",
+  verticalAlignInGroup: "Center",
   childItems: [
     {
-      itemType: "Button",
-      name: "Кнопка",
+      itemType: "CommandBarButton",
+      name: "ФормаКоманда1",
+      type: "CommandBarButton",
+      commandName: "Form.Command.Команда1",
     },
   ],
   representation: "Compact",
@@ -48,55 +40,53 @@ export const fullButtonGroupEnterprise = {
   ChildItems: [
     {
       ElementType: "FormButton",
-      Type: { Type: "SystemEnumeration", Value: "FormButtonType.UsualButton" },
-      Name: "prefix_Кнопка",
+      Type: { Type: "SystemEnumeration", Value: "FormButtonType.CommandBarButton" },
+      Name: "prefix_ФормаКоманда1",
       CommandName: "КомандаЗаглушка",
     },
   ],
+  DisplayImportance: {
+    Type: "SystemEnumeration",
+    Value: "DisplayImportance.VeryHigh",
+  },
   Representation: {
     Type: "SystemEnumeration",
     Value: "ButtonGroupRepresentation.Compact",
   },
   ...fullFormGroupEnterpriseCommonFixture,
-  TitleFont: { Type: "Font", Value: "StyleFonts.NormalTextFont" },
-  TitleTextColor: { Type: "Color", Value: "WebColors.Black" },
-  ToolTipRepresentation: { Type: "SystemEnumeration", Value: "ToolTipRepresentation.None" },
-  VerticalStretch: true,
-  Width: 300,
-  Height: 200,
-  Title: "Группа кнопок",
+  VerticalAlignInGroup: {
+    Type: "SystemEnumeration",
+    Value: "ItemVerticalAlign.Center",
+  },
+  Title: "Заголовок элемента",
   CommandSource: "FormCommandPanelGlobalCommands",
 } satisfies Required<ButtonGroupEnterprise>
 
 export const fullButtonGroupSource: ButtonGroup = {
   itemType: "ButtonGroup",
   name: "ГруппаКнопок",
-  title: { items: { ru: "Группа кнопок" } },
+  title: { items: { ru: "Заголовок элемента" } },
   childItems: [],
 }
 
 export const fullButtonGroupPartialYAML: ButtonGroupPartialYAML = {
   ...fullFormGroupPartialYAMLCommonFixture,
-  СочетаниеКлавиш: "S",
-  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
-  ЦветТекстаЗаголовка: "Черный",
-  ОтображениеПодсказки: "Нет",
-  РастягиватьПоВертикали: "Истина" as any,
-  Ширина: 300,
-  Высота: 200,
+  ВажностьПриОтображении: "ОченьВысокая",
+  ВертикальноеПоложениеВГруппе: "Центр",
   ИсточникКоманд: "FormCommandPanelGlobalCommands",
   Отображение: "Компактное",
   Элементы: {
-    Кнопка: {
-      Тип: "Кнопка",
+    ФормаКоманда1: {
+      Тип: "КнопкаКоманднойПанели",
+      Вид: "КнопкаКоманднойПанели",
+      ИмяКоманды: "Form.Command.Команда1",
     },
   },
 }
 
 export const fullButtonGroupTypedYAML: ButtonGroupTypedYAML = {
   Тип: "ГруппаКнопок",
-  Заголовок: "Группа кнопок",
+  Заголовок: "Заголовок элемента",
   ...fullButtonGroupPartialYAML,
 }
 

@@ -1,6 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
+import { importBooleanFromXML } from "../boolean/fromXML"
 import { UserVisible, UserVisibleXML } from "./types"
 
 export const importUserVisibleFromXML = (
@@ -16,15 +17,20 @@ export const importUserVisibleFromXML = (
   }
 
   if (xml["xr:Common"] !== undefined) {
-    result.common = xml["xr:Common"]
+    const common = importBooleanFromXML(_context, undefined, xml["xr:Common"])
+    if (common !== undefined) {
+      result.common = common
+    }
   }
 
   if (xml["xr:Value"] !== undefined) {
     const xrValues = Array.isArray(xml["xr:Value"]) ? xml["xr:Value"] : [xml["xr:Value"]]
     for (const item of xrValues) {
+      const value = importBooleanFromXML(_context, undefined, item["#text"])
+      if (value === undefined) continue
       result.values.push({
         name: item["_name"].replace(/^Role\./, ""),
-        value: item["#text"],
+        value,
       })
     }
   }

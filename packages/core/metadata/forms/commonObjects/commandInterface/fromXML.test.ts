@@ -61,6 +61,23 @@ describe("importCommandInterfaceFromXML", () => {
     expect(result).toEqual(commandGroupReferenceOrder)
   })
 
+  it("does not create defaultVisible when DefaultVisible is absent", () => {
+    const result = importCommandInterfaceFromXML(mockContextFromXML(), mockRule, {
+      CommandBar: {
+        Item: {
+          Command: "Catalog.Справочник.Command.Команда",
+          Type: "Auto",
+        },
+      },
+    })
+
+    expect(result?.CommandBar[0]).toEqual({
+      command: "Catalog.Справочник.Command.Команда",
+      type: "Auto",
+      itemType: "CommandInterfaceItem",
+    })
+  })
+
   it("import duplicateAutoCommandOrder", () => {
     const xmlData = readAndParseXMLFile<{ CommandInterface: CommandInterfaceXML }>(
       "duplicateAutoCommandOrder.xml",

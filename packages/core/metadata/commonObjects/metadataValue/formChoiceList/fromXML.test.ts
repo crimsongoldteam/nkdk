@@ -4,6 +4,8 @@ import { importContentFromXML } from "~/xml/import/importer"
 import {
   withMultiLangPresentation,
   withMultiLangPresentationXML,
+  withNumericPresentation,
+  withNumericPresentationXML,
   withStringValue,
   withStringValueXML,
 } from "./__fixtures__/data"
@@ -24,5 +26,10 @@ describe("importFormChoiceListFromXML", () => {
   it("should import formChoiceList with multilingual presentation", () => {
     const result = importFormChoiceListFromXML(mockContextFromXML(), parseXML(withMultiLangPresentationXML))
     expect(result).toEqual(withMultiLangPresentation)
+  })
+
+  it("preserves numeric-looking presentation content", () => {
+    const result = importFormChoiceListFromXML(mockContextFromXML(), parseXML(withNumericPresentationXML))
+    expect(result).toEqual(withNumericPresentation)
   })
 })

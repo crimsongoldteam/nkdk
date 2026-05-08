@@ -52,3 +52,19 @@ export const withMultiLangPresentationYAML: MetadataFormChoiceListValueYAML = {
   Представление: { ru: "Физическое лицо", en: "Physical person" },
   Значение: '"ФЛ"',
 }
+
+export const withNumericPresentation: MetadataFormChoiceListValue = {
+  type: "formChoiceListDesTimeValue",
+  presentation: { items: { ru: "2.0" } },
+  value: { type: "boolean", value: false },
+}
+
+export const withNumericPresentationXML = `<Value xsi:type="FormChoiceListDesTimeValue">
+	<Presentation>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>2.0</v8:content>
+		</v8:item>
+	</Presentation>
+	<Value xsi:type="xs:boolean">false</Value>
+</Value>`

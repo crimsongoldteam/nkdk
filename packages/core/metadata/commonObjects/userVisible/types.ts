@@ -1,14 +1,14 @@
 import { Static, Type } from "@sinclair/typebox"
-import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
+import { BooleanJSONSchema, StringboolXML, StringboolYAML } from "../boolean/types"
 
 export interface UserVisibleItemXML {
   _name: string
-  "#text": boolean
+  "#text": StringboolXML
 }
 
 export type UserVisibleXML = {
-  "xr:Common"?: boolean
-  "xr:Value"?: UserVisibleItemXML[]
+  "xr:Common"?: StringboolXML
+  "xr:Value"?: UserVisibleItemXML[] | UserVisibleItemXML
 }
 
 export interface UserVisibleValue {

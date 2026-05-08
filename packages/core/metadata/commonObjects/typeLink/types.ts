@@ -4,7 +4,7 @@ import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 
 export interface TypeLinkXML {
   "xr:DataPath": string | MetadataPrimitiveValueXML
-  "xr:LinkItem": number
+  "xr:LinkItem": number | string
 }
 
 export interface TypeLink {

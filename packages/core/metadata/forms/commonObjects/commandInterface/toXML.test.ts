@@ -34,7 +34,13 @@ describe("exportCommandInterfaceToXML", () => {
 
   it("should export full command interface", () => {
     const expectedResult = readXMLFileAsString("full.xml", fixturesDir)
-    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, fullCommandInterface)
+    const referenceXML = readAndParseXMLFile<{ CommandInterface: CommandInterfaceXML }>("full.xml", fixturesDir)
+    const referenceData = importCommandInterfaceFromXML(
+      mockContextFromXML({ forReference: true }),
+      mockRule,
+      referenceXML.CommandInterface
+    )
+    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, fullCommandInterface, referenceData)
 
     const result = xmlExport({ CommandInterface: xmlData }, false)
 
@@ -109,5 +115,23 @@ describe("exportCommandInterfaceToXML", () => {
         "\t\t\t<CommandGroup>FormCommandBarCreateBasedOn</CommandGroup>",
       ].join("\n")
     )
+  })
+
+  it("does not export DefaultVisible when defaultVisible is absent", () => {
+    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, {
+      itemType: "CommandInterface",
+      NavigationPanel: [],
+      CommandBar: [
+        {
+          command: "Catalog.Справочник.Command.Команда",
+          type: "Auto",
+          itemType: "CommandInterfaceItem",
+        },
+      ],
+    })
+
+    const result = xmlExport({ CommandInterface: xmlData }, false)
+
+    expect(result).not.toContain("<DefaultVisible>")
   })
 })
