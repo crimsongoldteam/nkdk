@@ -70,7 +70,7 @@ const exportCommandInterfaceItemToXML = (
   for (const key of orderedKeys) {
     const value = values[key]
     if (value !== undefined) {
-      ;(result as Record<string, unknown>)[key] = value
+      ;(result as unknown as Record<keyof CommandInterfaceItemXML, unknown>)[key] = value
     }
   }
 

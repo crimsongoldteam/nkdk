@@ -21,7 +21,7 @@ describe("exportCommandInterfaceToJSONSchema", () => {
       context: mockContext,
       rule: mockRule,
       value: undefined,
-    }) as ObjectSchema
+    }) as unknown as ObjectSchema
     const itemSchema = schema.properties.ПанельНавигации.items
 
     expect(itemSchema.properties.Автовидимость.const).toBe("Ложь")
