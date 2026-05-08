@@ -18,6 +18,23 @@ const exportDCSParameters = (value: unknown, referenceMetadata?: unknown): strin
   return xmlExport({ Settings: xmlData }, false)
 }
 
+const undefinedTypeReferenceValue = {
+  "_xmlns:d6p1": "http://v8.1c.ru/8.2/data/types",
+  "_xsi:type": "v8:Type",
+  "#text": "d6p1:Undefined",
+} as const
+
+const parameterWithoutValue = {
+  itemType: "DCSParameter",
+  name: "ТипЗначенияКлюча",
+  title: { items: { ru: "Тип значения ключа" } },
+} as const
+
+const parameterWithUndefinedTypeReference = {
+  ...parameterWithoutValue,
+  value: undefinedTypeReferenceValue,
+} as const
+
 describe("export DCSParameter to XML", () => {
   it("exports minimal.xml", () => {
     const { expectedResult, result } = testExportPropertyToXML({
@@ -89,6 +106,28 @@ describe("export DCSParameter to XML", () => {
 
     expect(result).toContain(`<dcssch:value xsi:nil="true"/>`)
     expect(result).not.toContain("reference")
+  })
+
+  it("exports missing value from reference d6p1 Undefined", () => {
+    const result = exportDCSParameters(
+      [parameterWithoutValue],
+      [parameterWithUndefinedTypeReference],
+    )
+
+    expect(result).toContain(
+      '<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>',
+    )
+  })
+
+  it("exports explicit undefined value from reference d6p1 Undefined", () => {
+    const result = exportDCSParameters(
+      [{ ...parameterWithoutValue, value: undefined }],
+      [parameterWithUndefinedTypeReference],
+    )
+
+    expect(result).toContain(
+      '<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>',
+    )
   })
 
   it("omits missing value when neither model nor reference has value key", () => {
