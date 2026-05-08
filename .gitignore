@@ -23,10 +23,10 @@ delete/
 .ralph/status.json
 .ralph/progress.json
 
-# Локальные Claude-инструкции с приватными путями
-CLAUDE.local.md
-.claude/CLAUDE.local.md
-.claude/skills/*/local-resources.md
+# Локальные agent-инструкции с приватными путями
+AGENTS.local.md
+.agents/AGENTS.local.md
+.agents/settings.local.json
 
 # Логи внешних MCP-серверов (если всё-таки окажутся в проекте —
 # logback rotating policy может писать .tmp/.gz в cwd независимо от LOG_FILE)
@@ -34,5 +34,4 @@ mcp-server.log*
 
 # Изолированные git worktrees для параллельной разработки
 .worktrees/
-.claude/scheduled_tasks.lock
-.agents/
+.agents/scheduled_tasks.lock
