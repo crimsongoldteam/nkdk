@@ -119,6 +119,29 @@ describe("export DCSParameter to XML", () => {
     )
   })
 
+  it("does not use reference d6p1 Undefined from item with different name", () => {
+    const result = exportDCSParameters(
+      [{ ...parameterWithoutValue, name: "НовоеИмя" }],
+      [{ ...parameterWithUndefinedTypeReference, name: "СтароеИмя" }],
+    )
+
+    expect(result).not.toContain("<dcssch:value")
+  })
+
+  it("does not use reference d6p1 Undefined with extra QName part", () => {
+    const result = exportDCSParameters(
+      [parameterWithoutValue],
+      [
+        {
+          ...parameterWithUndefinedTypeReference,
+          value: { ...undefinedTypeReferenceValue, "#text": "d6p1:Undefined:extra" },
+        },
+      ],
+    )
+
+    expect(result).not.toContain("<dcssch:value")
+  })
+
   it("exports Parameter rule as array without wrapper", () => {
     const result = exportPropertyToXML({
       context: mockContextToXML(),

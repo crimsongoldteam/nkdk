@@ -14,8 +14,11 @@ type ReferenceUndefinedTypeValueXML = Record<string, unknown> & {
 const isObject = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object"
 
+const isReferenceTypeValue = (value: unknown): value is Record<string, unknown> =>
+  isObject(value) && value["_xsi:type"] === "v8:Type"
+
 const getReferenceUndefinedTypeValue = (value: unknown): ReferenceUndefinedTypeValueXML | undefined => {
-  if (!isObject(value) || value["_xsi:type"] !== "v8:Type") {
+  if (!isReferenceTypeValue(value)) {
     return undefined
   }
 
@@ -24,8 +27,13 @@ const getReferenceUndefinedTypeValue = (value: unknown): ReferenceUndefinedTypeV
     return undefined
   }
 
-  const [prefix, name] = text.split(":")
-  if (!prefix || name !== "Undefined") {
+  const parts = text.split(":")
+  if (parts.length !== 2) {
+    return undefined
+  }
+
+  const [prefix, name] = parts
+  if (prefix === "" || name !== "Undefined") {
     return undefined
   }
 
@@ -45,6 +53,11 @@ const findReferenceItem = (
   referenceData: DCSParameters | undefined,
 ): DCSParameter | undefined => referenceData?.find((referenceItem) => referenceItem.name === item.name)
 
+const omitValue = (item: DCSParameter): DCSParameter => {
+  const { value: _value, ...itemWithoutValue } = item
+  return itemWithoutValue
+}
+
 export const exportDCSParametersToXML: ExportToXMLFunctionNew = (params) => {
   const data = params.value as DCSParameters | undefined
   const referenceData = params.referenceMetadata as DCSParameters | undefined
@@ -59,14 +72,21 @@ export const exportDCSParametersToXML: ExportToXMLFunctionNew = (params) => {
     return undefined
   }
 
-  const result = inputData.map((item, index) => {
-    const referenceItem = findReferenceItem(item, referenceData) ?? referenceData?.[index]
+  const result = inputData.map((item) => {
+    const referenceItem = findReferenceItem(item, referenceData)
     const referenceUndefinedValue = hasMissingValue(item)
       ? getReferenceUndefinedTypeValue(referenceItem?.value)
       : undefined
+    const hasInvalidReferenceTypeValue =
+      hasMissingValue(item) &&
+      referenceItem !== undefined &&
+      isReferenceTypeValue(referenceItem.value) &&
+      referenceUndefinedValue === undefined
     const referenceForExport =
       referenceUndefinedValue !== undefined && referenceItem !== undefined
         ? { ...referenceItem, value: undefined }
+        : hasInvalidReferenceTypeValue
+          ? omitValue(referenceItem)
         : referenceItem
 
     const itemXML: ItemXML =
