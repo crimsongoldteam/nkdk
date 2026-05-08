@@ -13,7 +13,17 @@ export const exportTypeDescriptionToYAML = (
     return undefined
   }
 
-  const types = Array.isArray(typeDescription.type) ? typeDescription.type : [typeDescription.type]
+  const types = typeDescription.type
+
+  if (types.length === 0) {
+    if (typeDescription.typeId === undefined || typeDescription.typeId.length === 0) {
+      return undefined
+    }
+
+    return {
+      ИдентификаторТипа: typeDescription.typeId,
+    }
+  }
 
   if (types.length > 1) {
     return types.map((type) => formatSingleType(type, typeDescription))

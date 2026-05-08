@@ -484,6 +484,7 @@ export interface TypeDescriptionXMLDateQualifiers {
 export type TypeDescriptionXML = {
   "v8:Type"?: TypeDescriptionXMLType | TypeDescriptionXMLType[]
   "v8:TypeSet"?: TypeDescriptionXMLType | TypeDescriptionXMLType[]
+  "v8:TypeId"?: string | string[]
   "v8:StringQualifiers"?: TypeDescriptionXMLStringQualifiers
   "v8:NumberQualifiers"?: TypeDescriptionXMLNumberQualifiers
   "v8:DateQualifiers"?: TypeDescriptionXMLDateQualifiers
@@ -527,14 +528,28 @@ export type PrimitiveTypeYAML = (typeof PrimitiveTypeToYAML)[keyof typeof Primit
 
 export type TypeDescriptionType = string
 
+export interface TypeDescriptionTypeIdYAML {
+  ИдентификаторТипа?: string[]
+}
+
 export interface TypeDescription {
   type: TypeDescriptionType[]
+  typeId?: string[]
   stringQualifiers?: TypeDescriptionStringQualifiers
   numberQualifiers?: TypeDescriptionNumberQualifiers
   dateQualifiers?: TypeDescriptionDateQualifiers
 }
 
-export const TypeDescriptionJSONSchema = Type.Union([Type.String(), Type.Array(Type.String())])
+export const TypeDescriptionJSONSchema = Type.Union([
+  Type.String(),
+  Type.Array(Type.String()),
+  Type.Object(
+    {
+      ИдентификаторТипа: Type.Optional(Type.Array(Type.String())),
+    },
+    { additionalProperties: false }
+  ),
+])
 export type TypeDescriptionYAML = Static<typeof TypeDescriptionJSONSchema>
 
 //#region Enterprise

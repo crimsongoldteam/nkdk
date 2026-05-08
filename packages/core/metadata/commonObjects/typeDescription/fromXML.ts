@@ -12,18 +12,20 @@ export const importTypeDescriptionFromXML = (
   if (!xml) return undefined
 
   const types = extractTypes(xml)
+  const typeId = getTypeIds(xml["v8:TypeId"])
   const stringQualifiers = getStringQualifiers(_context, xml["v8:StringQualifiers"])
   const numberQualifiers = getNumberQualifiers(_context, xml["v8:NumberQualifiers"])
   const dateQualifiers = getDateQualifiers(xml["v8:DateQualifiers"])
 
   const result: TypeDescription = {
     type: types,
+    ...(typeId !== undefined && { typeId }),
     ...(stringQualifiers !== undefined && { stringQualifiers }),
     ...(numberQualifiers !== undefined && { numberQualifiers }),
     ...(dateQualifiers !== undefined && { dateQualifiers }),
   }
 
-  if (result.type.length === 0) return undefined
+  if (result.type.length === 0 && result.typeId === undefined) return undefined
 
   return result
 }
@@ -45,6 +47,15 @@ export const getTypes = (type: TypeDescriptionXMLType | TypeDescriptionXMLType[]
   let typeArray = Array.isArray(type) ? type : [type]
 
   return typeArray.map((typeItem) => getType(typeItem))
+}
+
+const getTypeIds = (typeId: TypeDescriptionXML["v8:TypeId"] | unknown): string[] | undefined => {
+  if (typeId === undefined) return undefined
+
+  const typeIds = Array.isArray(typeId) ? typeId : [typeId]
+  const nonEmptyTypeIds = typeIds.filter((item): item is string => typeof item === "string" && item.trim() !== "")
+
+  return nonEmptyTypeIds.length > 0 ? nonEmptyTypeIds : undefined
 }
 
 export const getType = (type: TypeDescriptionXMLType): string => {

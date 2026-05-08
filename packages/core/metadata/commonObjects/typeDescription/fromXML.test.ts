@@ -11,6 +11,13 @@ describe("importTypeDescriptionFromXML", () => {
     expect(result).toBeUndefined()
   })
 
+  it("should ignore non-string type ids from XML", () => {
+    const result = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, {
+      "v8:TypeId": 123,
+    } as unknown as TypeDescriptionXML)
+    expect(result).toBeUndefined()
+  })
+
   it.each(typeFixturesTable)("should import type from XML: $internal.type", ({ internal, xml }) => {
     const xmlData = importContentFromXML<{ TypeDescription?: TypeDescriptionXML; Type?: TypeDescriptionXML }>(xml)
     const typeDescription = xmlData.TypeDescription || xmlData.Type
