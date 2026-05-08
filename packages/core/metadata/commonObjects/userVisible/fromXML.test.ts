@@ -34,12 +34,22 @@ describe("importUserVisibleFromXML", () => {
   })
 
   it("should handle single value in Use XML", () => {
-    const xml = readAndParseXMLFile<{ UserVisible: UserVisibleXML }>("userVisible/withMultipleValues.xml")
+    const result = importUserVisibleFromXML(mockContextFromXML(), mockRule, {
+      "xr:Common": "true",
+      "xr:Value": { _name: "Role.Администратор", "#text": "false" },
+    })
 
-    const expectedResult = withMultipleValuesUserVisible
+    expect(result).toEqual({
+      common: true,
+      values: [{ name: "Администратор", value: false }],
+    })
+  })
 
-    const result = importUserVisibleFromXML(mockContextFromXML(), mockRule, xml.UserVisible)
+  it("skips UserVisible values with unsupported boolean text", () => {
+    const result = importUserVisibleFromXML(mockContextFromXML(), mockRule, {
+      "xr:Value": { _name: "Role.Администратор", "#text": "maybe" as any },
+    })
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual({ common: false, values: [] })
   })
 })

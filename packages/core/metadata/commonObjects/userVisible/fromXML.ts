@@ -27,9 +27,10 @@ export const importUserVisibleFromXML = (
     const xrValues = Array.isArray(xml["xr:Value"]) ? xml["xr:Value"] : [xml["xr:Value"]]
     for (const item of xrValues) {
       const value = importBooleanFromXML(_context, undefined, item["#text"])
+      if (value === undefined) continue
       result.values.push({
         name: item["_name"].replace(/^Role\./, ""),
-        value: value ?? false,
+        value,
       })
     }
   }

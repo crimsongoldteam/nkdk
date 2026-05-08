@@ -1,3 +1,4 @@
+import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/fromXML"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
@@ -32,7 +33,10 @@ const importFormParameterFromXML = (params: {
   }
 
   if (xml.KeyParameter !== undefined) {
-    result.keyParameter = xml.KeyParameter
+    const keyParameter = importBooleanFromXML(context, undefined, xml.KeyParameter)
+    if (keyParameter !== undefined) {
+      result.keyParameter = keyParameter
+    }
   }
 
   return result

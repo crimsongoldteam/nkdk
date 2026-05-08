@@ -1,4 +1,5 @@
 import { Static, Type } from "@sinclair/typebox"
+import { StringboolXML } from "~/metadata/commonObjects/boolean/types"
 import {
   TypeDescription,
   TypeDescriptionJSONSchema,
@@ -16,7 +17,7 @@ export type FormParameters = FormParameter[]
 export interface FormParameterXML {
   _name: string
   Type?: TypeDescriptionXML
-  KeyParameter?: boolean
+  KeyParameter?: StringboolXML
 }
 
 export type FormParametersXML = FormParameterXML | FormParameterXML[]
