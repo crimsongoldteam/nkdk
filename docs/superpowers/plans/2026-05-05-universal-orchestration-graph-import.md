@@ -27,7 +27,7 @@
 - Изменить `packages/core/metadata/orchestration/buildGraph/index.ts` — экспортировать универсальные типы пути.
 - Изменить `packages/core/index.ts` — экспортировать публичные обёртки из `metadata/graphImport`.
 - Создать `packages/core/metadata/orchestration/graphImport/noConcreteMetadataImports.test.ts` — защита универсального ядра от прямых импортов `appliedObjects`/`forms`.
-- Изменить `.claude/architecture-orchestration.md` — уточнить, что автоматическая проверка сначала покрывает универсальное графовое ядро.
+- Изменить `.agents/architecture-orchestration.md` — уточнить, что автоматическая проверка сначала покрывает универсальное графовое ядро.
 
 ## Task 1: Универсальный Реестр И Импорт
 
@@ -1159,7 +1159,7 @@ git commit -m "refactor: :recycle: перевести buildGraph на реест
 
 **Files:**
 - Create: `packages/core/metadata/orchestration/graphImport/noConcreteMetadataImports.test.ts`
-- Modify: `.claude/architecture-orchestration.md`
+- Modify: `.agents/architecture-orchestration.md`
 
 - [ ] **Step 1: Write failing import-guard test**
 
@@ -1220,7 +1220,7 @@ Expected: PASS if Tasks 1-4 kept concrete imports outside `metadata/orchestratio
 
 - [ ] **Step 3: Clarify architecture doc guard boundary**
 
-In `.claude/architecture-orchestration.md`, extend the "Универсальность слоя" section with this paragraph:
+In `.agents/architecture-orchestration.md`, extend the "Универсальность слоя" section with this paragraph:
 
 ```md
 Автоматическая проверка первой очереди покрывает универсальное графовое ядро `orchestration/graphImport`: там не должно быть прямых импортов конкретных appliedObjects/forms. Исторические formElement/property-модули могут требовать отдельного будущего разреза; при изменении графового импорта не расширяй их связанность и не добавляй новую конкретику в универсальное ядро.
@@ -1240,7 +1240,7 @@ Expected: no output and exit code 0.
 
 ```bash
 git add packages/core/metadata/orchestration/graphImport/noConcreteMetadataImports.test.ts \
-  .claude/architecture-orchestration.md
+  .agents/architecture-orchestration.md
 git commit -m "test: :white_check_mark: закрепить универсальность graphImport"
 ```
 

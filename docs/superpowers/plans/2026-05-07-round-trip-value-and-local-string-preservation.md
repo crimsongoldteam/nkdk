@@ -15,8 +15,8 @@
 - Design spec: `docs/superpowers/specs/2026-05-07-round-trip-font-and-choice-parameters-design.md`
 - Design spec: `docs/superpowers/specs/2026-05-07-round-trip-dcs-parameter-value-design.md`
 - Design spec: `docs/superpowers/specs/2026-05-07-round-trip-dcs-local-string-type-design.md`
-- Project rules: `.claude/CLAUDE.md`
-- Orchestration invariants: `.claude/architecture-orchestration.md`
+- Project rules: `AGENTS.md`
+- Orchestration invariants: `.agents/architecture-orchestration.md`
 
 ## File Structure
 

@@ -192,7 +192,7 @@ registerTypeRule("ChildFormNames", "syncExternalToXML", syncChildFormNamesToXML)
 
 ## Документация
 
-Обновить `.claude/architecture-orchestration.md`: добавить раздел «Свойства с типом `ChildFormNames`» по образцу раздела «Свойства с `filePath`». Описать:
+Обновить `.agents/architecture-orchestration.md`: добавить раздел «Свойства с типом `ChildFormNames`» по образцу раздела «Свойства с `filePath`». Описать:
 - двойную роль свойства (тег `<ChildObjects><Form>…</Form></ChildObjects>` + синхронизация файлов форм);
 - расширенную сигнатуру `SyncExternalToXMLFunction`/`SyncExternalFromXMLFunction` с полями `name` и `referenceDir`;
 - последовательную обработку форм внутри одного объекта.

@@ -1021,7 +1021,7 @@ grep -rln "MetadataGraph" packages --include="*.ts"
 
 - [ ] **Step 4: Архитектурный инвариант orchestration**
 
-Прочитать `docs/architecture-orchestration.md` и сверить, что после миграции инварианты по-прежнему держатся. При необходимости — обновить документ (см. CLAUDE.md: «при необходимости обновить»).
+Прочитать `docs/architecture-orchestration.md` и сверить, что после миграции инварианты по-прежнему держатся. При необходимости — обновить документ (см. AGENTS.md: «при необходимости обновить»).
 
 - [ ] **Step 5: Если документ обновлён — отдельный коммит**
 
@@ -1074,4 +1074,4 @@ gh pr create --title "feat: миграция на @nakidka/graph и удален
 
 **Type-консистентность:** `GraphBuilder.ensureNode/ensureEdge/...` — одно и то же имя по всему плану. `applyGraphOps` (function) — одно имя. `buildGraph(yamlFiles, context)` — одна сигнатура. `updateGraph(files, opts?)` — одна сигнатура (внешняя из `@nakidka/graph`). `FileGraphData/NodeData/EdgeData` — структурно совпадают между `core/buildGraph/types.ts` и `@nakidka/graph/types.ts`, как уже зафиксировано в `types.ts` обоих пакетов.
 
-**Совпадение с CLAUDE.md:** все коммиты следуют формату gitmoji с эмодзи-кодами; перед закрытием — `pnpm test`. Сообщения коммитов и пользовательские объяснения — на русском.
+**Совпадение с AGENTS.md:** все коммиты следуют формату gitmoji с эмодзи-кодами; перед закрытием — `pnpm test`. Сообщения коммитов и пользовательские объяснения — на русском.

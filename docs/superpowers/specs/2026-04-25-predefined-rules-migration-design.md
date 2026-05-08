@@ -129,9 +129,9 @@ catalog.predefined?.items[0].name
 "AdditionalIndexes"`) и инлайн-коллекцией. **Включается в эту же миграцию** (без него
 `externalFileEnvelopes` не получится удалить).
 
-### 6. Архитектурные инварианты слоя `orchestration` — в `.claude/architecture-orchestration.md`
+### 6. Архитектурные инварианты слоя `orchestration` — в `.agents/architecture-orchestration.md`
 
-Создаётся отдельный файл `.claude/architecture-orchestration.md` с фиксацией инвариантов слоя
+Создаётся отдельный файл `.agents/architecture-orchestration.md` с фиксацией инвариантов слоя
 оркестрации. Скоп — минимальный, под текущие изменения, с заделом на расширение в будущих задачах.
 Содержание:
 
@@ -143,7 +143,7 @@ catalog.predefined?.items[0].name
 - Флаг `yamlInline`: семантика и зона действия (только YAML и JSON-схема).
 - Поток данных при импорте и экспорте прикладного объекта (краткая последовательность вызовов).
 
-В `.claude/CLAUDE.md` добавляется одна строка-ссылка: «Архитектурные инварианты слоя `orchestration` —
+В `AGENTS.md` добавляется одна строка-ссылка: «Архитектурные инварианты слоя `orchestration` —
 см. [`architecture-orchestration.md`](architecture-orchestration.md). Перед изменениями в
 `packages/core/metadata/orchestration/` обязательно прочитать.»
 
@@ -257,8 +257,8 @@ registerMetadataItemRule({
 
 ### Документация
 
-- `.claude/architecture-orchestration.md` — новый файл, см. секцию «Архитектурные инварианты» выше.
-- `.claude/CLAUDE.md` — добавить ссылку и обязательство читать перед изменениями в `orchestration/`.
+- `.agents/architecture-orchestration.md` — новый файл, см. секцию «Архитектурные инварианты» выше.
+- `AGENTS.md` — добавить ссылку и обязательство читать перед изменениями в `orchestration/`.
 
 ## Тестирование
 
@@ -277,7 +277,7 @@ registerMetadataItemRule({
 
 - Расширение модели `PredefinedItem` за пределы существующих полей. Изменения внутри
   `commonObjects/predefinedItem/rules.ts` не предполагаются.
-- Полный обзор слоя `orchestration` в `.claude/architecture-orchestration.md` — фиксируем только
+- Полный обзор слоя `orchestration` в `.agents/architecture-orchestration.md` — фиксируем только
   то, что трогаем; остальные инварианты дополним по мере следующих изменений.
 - Введение flatten-механизмов для модели данных или XML — `yamlInline` действует только на YAML и
   JSON-схему.

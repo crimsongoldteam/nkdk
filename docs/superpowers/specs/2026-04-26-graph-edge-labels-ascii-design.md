@@ -69,7 +69,7 @@ errMsg: Invalid input '�': expected a relationship type line: 1, column: 14, o
 
 - `nodeSegment` — структурные сегменты в node ID остаются русскими (`Catalogs.Контрагенты.Реквизит.ИНН`).
 - `compressMetadataFieldPath`, `metadataPath/types.ts`, `metadataPath/compressPath.ts` — не трогаем.
-- YAML-фикстуры (`tests/fixtures/**`) — источник истины (CLAUDE.md явно запрещает изменения).
+- YAML-фикстуры (`tests/fixtures/**`) — источник истины (AGENTS.md явно запрещает изменения).
 - YAML round-trip — `yaml` поле сохраняет русское значение.
 - Property `yaml` на ребре в FalkorDB — остаётся русским (это property, не identifier; UTF-8 в значениях работает).
 - Сигнатуры публичного API (`addRelation`, `MetadataGraph.ensureEdge`, `isOwning`, `registerEdgeKind`).

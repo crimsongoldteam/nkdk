@@ -26,7 +26,7 @@
 - Создание helper-модуля `packages/core/tests/appliedObject/`.
 - Удаление текущего `syncToXML.test.ts` у Document (round-trip XML→YAML→XML) и замена на стандартный шаблон.
 - Приведение структуры `__fixtures__/sync/` Document'а к виду Catalog'а (`xml/`, `nkdk/`).
-- Обновление шаблонов в `.claude/skills/_shared/metadata/io-tests.md` и `tests.md`.
+- Обновление шаблонов в `.agents/skills/_shared/metadata/io-tests.md` и `tests.md`.
 
 В работу **не включается**:
 
@@ -257,8 +257,8 @@ it("читает Catalog из YAML и записывает XML в outputDir", as
 5. **DocumentNumerator** — все 6 тестов есть, прямая миграция.
 6. **Удалить локальные `__fixtures__/sync/out/`** — эти папки не закоммичены в git, но локально остаются от прошлых запусков. После перехода на `mkdtempSync` они больше не создаются. Дополнительно — добавить запись в `.gitignore`, если ещё не игнорируются.
 7. **Обновить шаблоны скиллов:**
-   - `.claude/skills/_shared/metadata/io-tests.md` — шаблоны `convertFromXML.test.ts` / `syncToXML.test.ts` на helper'ах.
-   - `.claude/skills/_shared/metadata/tests.md` — шаблоны `fromXML.test.ts` / `toXML.test.ts` / `fromYAML.test.ts` / `toYAML.test.ts` на helper'ах.
+   - `.agents/skills/_shared/metadata/io-tests.md` — шаблоны `convertFromXML.test.ts` / `syncToXML.test.ts` на helper'ах.
+   - `.agents/skills/_shared/metadata/tests.md` — шаблоны `fromXML.test.ts` / `toXML.test.ts` / `fromYAML.test.ts` / `toYAML.test.ts` на helper'ах.
 
 ## Тестирование
 

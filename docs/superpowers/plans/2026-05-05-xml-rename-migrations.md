@@ -70,7 +70,7 @@
 - Modify: `packages/cli/src/cli.ts`
   - Зарегистрировать `rename`, `delete`, `generate-migration`.
 - Create/Modify tests рядом с владельцами: `packages/core/metadata/appliedObjects/configuration/migrations/*.test.ts`, `packages/core/metadata/appliedObjects/configuration/syncToXML.test.ts`, `packages/cli/src/commands/migration.test.ts`.
-- Modify: `.claude/architecture-orchestration.md`
+- Modify: `.agents/architecture-orchestration.md`
   - В конце реализации привести архитектурный раздел миграций к финальным решениям интервью.
 
 ## Task 1: Migration File Names And Applied State
@@ -2097,12 +2097,12 @@ git commit -m "feat: :sparkles: добавить generate-migration"
 ## Task 9: Architecture Document And Full Verification
 
 **Files:**
-- Modify: `.claude/architecture-orchestration.md`
+- Modify: `.agents/architecture-orchestration.md`
 - Modify: `AGENTS.md`
 
 - [ ] **Step 1: Update architecture document from final decisions**
 
-Edit `.claude/architecture-orchestration.md` section `Миграции структурных изменений` so it contains these final decisions:
+Edit `.agents/architecture-orchestration.md` section `Миграции структурных изменений` so it contains these final decisions:
 
 ```md
 - имена файлов миграций: `YYYY-MM-DD-HHmmss.yaml` в UTC, без текстового хвоста;
@@ -2162,7 +2162,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit Task 9**
 
 ```bash
-git add .claude/architecture-orchestration.md AGENTS.md
+git add .agents/architecture-orchestration.md AGENTS.md
 git commit -m "docs: :memo: описать архитектуру миграций XML"
 ```
 

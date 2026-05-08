@@ -6,6 +6,7 @@ import { readAndParseXMLFile, readXMLFileAsString } from "~/tests/readAndParseXM
 import { xmlExport } from "~/xml/export/exporter"
 import { commandBarIndexInsertion } from "./__fixtures__/commandBarIndexInsertion"
 import { commandGroupReferenceOrder } from "./__fixtures__/commandGroupReferenceOrder"
+import { duplicateAutoCommandOrder } from "./__fixtures__/duplicateAutoCommandOrder"
 import { indexedItemOrderSwap } from "./__fixtures__/indexedItemOrderSwap"
 import { fullCommandInterface } from "./__fixtures__/full"
 import { importCommandInterfaceFromXML } from "./fromXML"
@@ -76,6 +77,24 @@ describe("exportCommandInterfaceToXML", () => {
       referenceXML.CommandInterface
     )
     const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, commandGroupReferenceOrder, referenceData)
+
+    const result = xmlExport({ CommandInterface: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export duplicateAutoCommandOrder with reference order", () => {
+    const expectedResult = readXMLFileAsString("duplicateAutoCommandOrder.xml", fixturesDir).trimEnd()
+    const referenceXML = readAndParseXMLFile<{ CommandInterface: CommandInterfaceXML }>(
+      "duplicateAutoCommandOrder.xml",
+      fixturesDir
+    )
+    const referenceData = importCommandInterfaceFromXML(
+      mockContextFromXML({ forReference: true }),
+      mockRule,
+      referenceXML.CommandInterface
+    )
+    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, duplicateAutoCommandOrder, referenceData)
 
     const result = xmlExport({ CommandInterface: xmlData }, false)
 

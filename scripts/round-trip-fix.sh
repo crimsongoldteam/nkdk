@@ -115,7 +115,7 @@ ${DIFF_TEXT}
 
 ПРАВИЛА (обязательные):
 - Правь ТОЛЬКО файлы в packages/core (в основном rules.ts, при необходимости types.ts)
-- XML-фикстуры в __fixtures__/ — неизменяемы (правило проекта из .claude/CLAUDE.md)
+- XML-фикстуры в __fixtures__/ — неизменяемы (правило проекта из AGENTS.md)
 - Не пиши новые функции fromXML/toXML/fromYAML/toYAML — используй только rules.ts
 - Перед коммитом ОБЯЗАТЕЛЬНО прогони гейт: pnpm -w typecheck && pnpm --filter @nakidka/core test
 - Если гейт красный — откати правку (git restore .), не коммить

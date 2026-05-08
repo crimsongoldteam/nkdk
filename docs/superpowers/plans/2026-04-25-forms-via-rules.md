@@ -27,7 +27,7 @@
 - `packages/core/metadata/commonObjects/index.ts` — добавить импорты новых модулей.
 - `packages/core/metadata/appliedObjects/configuration/syncToXML.ts` — удалить ветку `hasForms` и прямые вызовы `syncFormToXML`.
 - `packages/core/metadata/appliedObjects/configuration/convertFromXML.ts` — удалить ветку `hasForms` и прямые вызовы `convertFormFromXML`.
-- `.claude/architecture-orchestration.md` — добавить раздел про `ChildFormNames`.
+- `.agents/architecture-orchestration.md` — добавить раздел про `ChildFormNames`.
 
 ---
 
@@ -711,11 +711,11 @@ EOF
 ## Task 6: Обновить архитектурный документ
 
 **Files:**
-- Modify: `.claude/architecture-orchestration.md`
+- Modify: `.agents/architecture-orchestration.md`
 
 - [ ] **Step 1: Добавить раздел про `ChildFormNames`**
 
-В файл `.claude/architecture-orchestration.md` после раздела «Свойства с `filePath`» (перед разделом «Флаг `yamlInline`») добавить:
+В файл `.agents/architecture-orchestration.md` после раздела «Свойства с `filePath`» (перед разделом «Флаг `yamlInline`») добавить:
 
 ```markdown
 ## Свойства с типом `ChildFormNames`
@@ -732,7 +732,7 @@ EOF
 - [ ] **Step 2: Commit**
 
 ```bash
-git add .claude/architecture-orchestration.md
+git add .agents/architecture-orchestration.md
 git commit -m "$(cat <<'EOF'
 docs: :memo: раздел про ChildFormNames в architecture-orchestration
 
@@ -777,7 +777,7 @@ git status
 - Новый хук `syncExternalToXML` для `ChildFormNames` → Task 2 ✓
 - Новый хук `syncExternalFromXML` для `ChildFormNames` → Task 3 ✓
 - Регистрация в `commonObjects/index.ts` → Tasks 2, 3 (steps 4) ✓
-- Обновление `.claude/architecture-orchestration.md` → Task 6 ✓
+- Обновление `.agents/architecture-orchestration.md` → Task 6 ✓
 - Тесты для новых хуков → Tasks 2, 3 ✓
 - Финальный `pnpm test` → Task 7 ✓
 - Принимаемая регрессия (последовательная обработка, ошибки под `kind` объекта) → следует из удаления `kind: "form"` задач в Tasks 4, 5; явных тестов на гранулярность ошибок в спеке не требовалось

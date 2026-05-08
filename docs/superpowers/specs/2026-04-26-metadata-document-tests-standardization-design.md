@@ -6,7 +6,7 @@
 
 ## Цель
 
-Привести шесть тестовых файлов `metadataDocument` к шаблону, описанному в `.claude/skills/new-metadata-item/SKILL.md` и `.claude/skills/_shared/metadata/tests.md`. Допускается, что часть тестов после миграции станет красной — это честный сигнал об инфраструктурных блокерах, перечисленных в `2026-04-26-metadata-document-round-trip-gaps-design.md`. Маскировать падения через `it.skip` или ослабленные assertions запрещено.
+Привести шесть тестовых файлов `metadataDocument` к шаблону, описанному в `.agents/skills/new-metadata-item/SKILL.md` и `.agents/skills/_shared/metadata/tests.md`. Допускается, что часть тестов после миграции станет красной — это честный сигнал об инфраструктурных блокерах, перечисленных в `2026-04-26-metadata-document-round-trip-gaps-design.md`. Маскировать падения через `it.skip` или ослабленные assertions запрещено.
 
 ## Расхождения, которые закрываем
 

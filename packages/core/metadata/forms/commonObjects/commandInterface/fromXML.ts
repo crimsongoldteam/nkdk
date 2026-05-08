@@ -37,7 +37,7 @@ const importCommandInterfaceItemFromXML = (
   item: CommandInterfaceItemXML
 ): CommandInterfaceItem => {
   const values: Partial<CommandInterfaceItem> = {
-    command: item.Command,
+    command: String(item.Command),
     type: item.Type,
     index: importNumberFromXML(context, undefined, item.Index),
     commandGroup: item.CommandGroup,

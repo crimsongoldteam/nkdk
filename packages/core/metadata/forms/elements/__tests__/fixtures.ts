@@ -139,6 +139,7 @@ import {
   minimalTableInputField,
   minimalTableInputFieldTypedYAML,
 } from "../inputField/__fixtures__/data"
+import { autoCellHeightInputField } from "../inputField/__fixtures__/autoCellHeight"
 import {
   fullLabelDecoration,
   fullLabelDecorationEnterprise,
@@ -157,6 +158,7 @@ import {
   minimalTableLabelField,
   minimalTableLabelFieldTypedYAML,
 } from "../labelField/__fixtures__/data"
+import { autoCellHeightLabelField } from "../labelField/__fixtures__/autoCellHeight"
 import { fullPage, fullPageEnterprise, fullPagePartialYAML, minimalPage } from "../page/__fixtures__/data"
 import {
   fullPages,
@@ -311,6 +313,16 @@ export const ElementFixtures: ElementFixture[] = [
     model: minimalInputField,
     yaml: undefined,
     enterprise: minimalInputFieldEnterprise,
+  },
+  {
+    group: "InputField",
+    name: "autoCellHeight InputField",
+    element: InputField,
+    xml: "autoCellHeight.xml",
+    xmlFolder: undefined,
+    model: autoCellHeightInputField,
+    yaml: { АвтоВысотаЯчейки: "Истина" },
+    enterprise: undefined,
   },
   //#endregion
   //#region TableInputField
@@ -733,6 +745,16 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: minimalLabelField,
     yaml: undefined,
+    enterprise: undefined,
+  },
+  {
+    group: "LabelField",
+    name: "autoCellHeight LabelField",
+    element: LabelField,
+    xml: "autoCellHeight.xml",
+    xmlFolder: undefined,
+    model: autoCellHeightLabelField,
+    yaml: { АвтоВысотаЯчейки: "Истина" },
     enterprise: undefined,
   },
   //#endregion

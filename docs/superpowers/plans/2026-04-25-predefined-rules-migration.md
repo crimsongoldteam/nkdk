@@ -24,7 +24,7 @@
 - `packages/core/metadata/commonObjects/additionalIndex/__fixtures__/full.xml` — фикстура (если ещё нет).
 - `packages/core/metadata/commonObjects/additionalIndex/fromXML.test.ts`, `toXML.test.ts`, `fromYAML.test.ts`, `toYAML.test.ts` — round-trip-тесты.
 - `packages/core/metadata/orchestration/metadataItem/yamlInline.test.ts` — тесты нового флага `yamlInline`.
-- `.claude/architecture-orchestration.md` — архитектурные инварианты слоя `orchestration`.
+- `.agents/architecture-orchestration.md` — архитектурные инварианты слоя `orchestration`.
 
 **Переименовываются:**
 - `packages/core/metadata/commonObjects/metaDataObject/` → `packages/core/metadata/commonObjects/xmlRoot/` (вся папка).
@@ -46,7 +46,7 @@
 - `packages/core/metadata/orchestration/appliedObject/syncToXML.ts` — то же (строки 101–120 и далее `mergeItemIds`).
 - `packages/core/metadata/appliedObjects/metadataCatalog/rules.ts` — `metaDataObject` → `xmlRoot`, `type: "MetaDataObject"` → `type: "XMLRoot"`.
 - `packages/core/metadata/appliedObjects/metadataCatalog/types.ts` — переход с `PredefinedItemsXML/PredefinedItemsYAML` на новые выводимые типы.
-- `.claude/CLAUDE.md` — добавление ссылки на `architecture-orchestration.md`.
+- `AGENTS.md` — добавление ссылки на `architecture-orchestration.md`.
 
 **Удаляются:**
 - `packages/core/metadata/commonObjects/predefined/fromXML.ts`, `toXML.ts`, `fromYAML.ts`, `toYAML.ts`, `toJSONSchema.ts`.
@@ -1250,10 +1250,10 @@ git commit -m "refactor: :fire: удалить externalFileEnvelopes, обраб
 
 ## Phase 6: Документация и финальный прогон
 
-### Task 6.1: Создать `.claude/architecture-orchestration.md`
+### Task 6.1: Создать `.agents/architecture-orchestration.md`
 
 **Files:**
-- Create: `.claude/architecture-orchestration.md`
+- Create: `.agents/architecture-orchestration.md`
 
 - [ ] **Step 1: Записать**
 
@@ -1307,13 +1307,13 @@ git commit -m "refactor: :fire: удалить externalFileEnvelopes, обраб
 - [ ] **Step 2: Сохранить и проверить**
 
 ```bash
-ls -la .claude/architecture-orchestration.md
+ls -la .agents/architecture-orchestration.md
 ```
 
-### Task 6.2: Добавить ссылку в `.claude/CLAUDE.md`
+### Task 6.2: Добавить ссылку в `AGENTS.md`
 
 **Files:**
-- Modify: `.claude/CLAUDE.md`
+- Modify: `AGENTS.md`
 
 - [ ] **Step 1: Открыть файл и добавить раздел в подходящее место**
 
@@ -1341,7 +1341,7 @@ pnpm test 2>&1 | tail -60
 
 ```bash
 git add -A
-git commit -m "docs: :memo: архитектура слоя orchestration в .claude/architecture-orchestration.md"
+git commit -m "docs: :memo: архитектура слоя orchestration в .agents/architecture-orchestration.md"
 ```
 
 ---
