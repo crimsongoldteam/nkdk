@@ -14,7 +14,7 @@ describe("importTypeDescriptionFromXML", () => {
   it("should ignore non-string type ids from XML", () => {
     const result = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, {
       "v8:TypeId": 123,
-    } as TypeDescriptionXML)
+    } as unknown as TypeDescriptionXML)
     expect(result).toBeUndefined()
   })
 
