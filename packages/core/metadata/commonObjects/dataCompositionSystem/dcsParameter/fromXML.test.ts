@@ -15,6 +15,29 @@ const xmlWithStringTitle = `<Settings>
 	</Parameter>
 </Settings>`
 
+const undefinedTypeReferenceValue = {
+  "_xmlns:d6p1": "http://v8.1c.ru/8.2/data/types",
+  "_xsi:type": "v8:Type",
+  "#text": "d6p1:Undefined",
+} as const
+
+const xmlWithUndefinedTypeValue = `<Settings>
+	<Parameter>
+		<dcssch:name>ТипЗначенияКлюча</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Тип значения ключа</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:valueType>
+			<v8:Type>v8:Type</v8:Type>
+		</dcssch:valueType>
+		<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>
+		<dcssch:useRestriction>true</dcssch:useRestriction>
+	</Parameter>
+</Settings>`
+
 const exportDCSParameters = (value: unknown, referenceMetadata?: unknown): string => {
   const xmlData = exportPropertyToXML({
     context: mockContextToXML(),
@@ -71,5 +94,45 @@ describe("import DCSParameter from XML", () => {
     const exported = exportDCSParameters(result, referenceMetadata)
     expect(exported).toContain(`<dcssch:title xsi:type="xs:string">String title</dcssch:title>`)
     expect(exported).not.toContain(`<dcssch:title xsi:type="v8:LocalStringType">`)
+  })
+
+  it("imports v8 Type Undefined value as missing value", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlString: xmlWithUndefinedTypeValue,
+      xmlRootTag: "Settings",
+    }) as Record<string, unknown>[]
+
+    expect(result).toEqual([
+      {
+        itemType: "DCSParameter",
+        name: "ТипЗначенияКлюча",
+        title: { items: { ru: "Тип значения ключа" } },
+        valueType: { type: ["Type"] },
+        useRestriction: true,
+      },
+    ])
+    expect(Object.prototype.hasOwnProperty.call(result[0], "value")).toBe(false)
+  })
+
+  it("imports reference v8 Type Undefined value so export preserves namespace", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlString: xmlWithUndefinedTypeValue,
+      xmlRootTag: "Settings",
+    })
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: xmlWithUndefinedTypeValue,
+      xmlRootTag: "Settings",
+      forReference: true,
+    }) as Record<string, unknown>[]
+
+    expect(referenceMetadata[0]?.value).toEqual(undefinedTypeReferenceValue)
+
+    const exported = exportDCSParameters(result, referenceMetadata)
+    expect(exported).toContain(
+      '<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>',
+    )
   })
 })

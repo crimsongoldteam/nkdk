@@ -338,6 +338,13 @@ export const minimalDynamicList = {
   itemsUserSettingID: true,
 } as const satisfies DynamicList
 
+export const emptyListSettingsDynamicList = {
+  customQuery: false,
+  dynamicDataRead: true,
+  itemType: "DynamicList",
+  mainTable: "Catalog.Справочник1",
+} as const satisfies DynamicList
+
 export const customQueryDynamicList = {
   АвтоЗаполнениеДоступныхПолей: "Истина",
   АвтоматическоеСохранениеПользовательскихНастроек: "Истина",
