@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { fullDynamicList, minimalDynamicList } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
+import {
+  emptyListSettingsDynamicList,
+  fullDynamicList,
+  minimalDynamicList,
+} from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
@@ -39,6 +43,17 @@ describe("import DynamicList from XML", () => {
     expect(result).toEqual(minimalDynamicList)
   })
 
+  it("should import empty ListSettings", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "emptyListSettings.xml",
+      xmlRootTag: "Settings",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(emptyListSettingsDynamicList)
+  })
+
   it("round-trip: full.xml import → export", () => {
     const imported = testImportPropertyFromXML({
       rule,
@@ -68,6 +83,23 @@ describe("import DynamicList from XML", () => {
       value: imported,
       xmlRootTag: "Settings",
       path: "minimal.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("round-trip: emptyListSettings.xml import -> export", () => {
+    const imported = testImportPropertyFromXML({
+      rule,
+      path: "emptyListSettings.xml",
+      xmlRootTag: "Settings",
+      importMetaUrl: import.meta.url,
+    })
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: imported,
+      xmlRootTag: "Settings",
+      path: "emptyListSettings.xml",
       importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(expectedResult)
