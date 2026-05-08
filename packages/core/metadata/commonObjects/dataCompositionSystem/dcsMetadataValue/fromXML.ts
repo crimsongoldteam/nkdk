@@ -40,16 +40,59 @@ const getXsiType = (root: unknown): string | undefined => {
   return undefined
 }
 
+type ReferenceUndefinedTypeValueXML = Record<string, unknown> & {
+  "#text": string
+  "_xsi:type": "v8:Type"
+}
+
+const getUndefinedTypePrefix = (root: unknown): string | undefined => {
+  if (typeof root !== "object" || root === null || getXsiType(root) !== "v8:Type") {
+    return undefined
+  }
+
+  const text = (root as Record<string, unknown>)["#text"]
+  if (typeof text !== "string") {
+    return undefined
+  }
+
+  const parts = text.split(":")
+  if (parts.length !== 2) {
+    return undefined
+  }
+
+  const [prefix, name] = parts
+  return prefix !== "" && name === "Undefined" ? prefix : undefined
+}
+
+const shouldImportUndefinedTypeAsMissing = (rule: DcsMetadataValuePropertyRule): boolean =>
+  rule.valueType === "Primitive" && rule.exportNilValue === true && rule.preserveFromReferenceXML === true
+
+const asReferenceUndefinedTypeValueXML = (
+  root: unknown,
+  prefix: string
+): ReferenceUndefinedTypeValueXML | undefined => {
+  if (typeof root !== "object" || root === null) {
+    return undefined
+  }
+
+  const namespaceKey = `_xmlns:${prefix}`
+  if (typeof (root as Record<string, unknown>)[namespaceKey] !== "string") {
+    return undefined
+  }
+
+  return root as ReferenceUndefinedTypeValueXML
+}
+
 const hasSystemEnumeration = (
   rule: DcsMetadataValuePropertyRule
 ): rule is DcsMetadataValuePropertyRule & { valueType: "SystemEnumeration"; typeSE: keyof SystemEnumerationTypeMap } =>
   rule.valueType === "SystemEnumeration" && rule.typeSE !== undefined
 
-export const importDcsMetadataValueFromDcsXML = (
+const importDcsMetadataValueFromDcsXMLInternal = (
   context: ConfigurationContextFromXML,
   rule: DcsMetadataValuePropertyRule,
   xml: MetadataDcsMetadataValueDcsRootXML
-): MetadataDcsMetadataValue => {
+): MetadataDcsMetadataValue | undefined => {
   const root = xml["dcscor:value"]
   if (root === undefined) {
     throw new Error("DCS MetadataValue: missing dcscor:value")
@@ -112,6 +155,15 @@ export const importDcsMetadataValueFromDcsXML = (
   }
 
   const metadataPrimitive = xsi !== undefined ? MetadataValueTypeFromXML(xsi as MetadataValueTypeXML) : undefined
+  const undefinedTypePrefix = getUndefinedTypePrefix(root)
+  if (undefinedTypePrefix !== undefined && shouldImportUndefinedTypeAsMissing(rule)) {
+    if (context.fromXML.forReference) {
+      return asReferenceUndefinedTypeValueXML(root, undefinedTypePrefix) as unknown as MetadataDcsMetadataValue | undefined
+    }
+
+    return undefined
+  }
+
   if (metadataPrimitive !== undefined) {
     return importMetadataValueFromXML({
       context,
@@ -131,6 +183,19 @@ export const importDcsMetadataValueFromDcsXML = (
   throw new Error(`DCS MetadataValue: unsupported xsi:type ${String(xsi)}`)
 }
 
+export const importDcsMetadataValueFromDcsXML = (
+  context: ConfigurationContextFromXML,
+  rule: DcsMetadataValuePropertyRule,
+  xml: MetadataDcsMetadataValueDcsRootXML
+): MetadataDcsMetadataValue => {
+  const result = importDcsMetadataValueFromDcsXMLInternal(context, rule, xml)
+  if (result === undefined) {
+    throw new Error("DCS MetadataValue: unexpected missing value")
+  }
+
+  return result
+}
+
 const isDcsMetadataValueRootXml = (value: unknown): value is MetadataDcsMetadataValueDcsRootXML =>
   typeof value === "object" && value !== null && !Array.isArray(value) && "dcscor:value" in value
 
@@ -143,7 +208,7 @@ const importDcsMetadataValueFromXMLForRule: (
   const xml: MetadataDcsMetadataValueDcsRootXML = isDcsMetadataValueRootXml(value)
     ? value
     : { "dcscor:value": value as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }
-  return importDcsMetadataValueFromDcsXML(context, rule as unknown as DcsMetadataValuePropertyRule, xml)
+  return importDcsMetadataValueFromDcsXMLInternal(context, rule as unknown as DcsMetadataValuePropertyRule, xml)
 }
 
 registerTypeRule("MetadataDcsMetadataValue", "importFromXML", importDcsMetadataValueFromXMLForRule)
