@@ -15,9 +15,11 @@ export const exportTypeDescriptionToXML = (
   const dateQualifiers = getDateQualifiers(typeDescription)
 
   const typesXML = getTypesXML(typeDescription)
+  const typeIdXML = getTypeIdXML(typeDescription)
 
   const result = {
     ...typesXML,
+    ...(typeIdXML !== undefined ? { "v8:TypeId": typeIdXML } : undefined),
     ...(numberQualifiers !== undefined ? { "v8:NumberQualifiers": numberQualifiers } : undefined),
     ...(stringQualifiers !== undefined ? { "v8:StringQualifiers": stringQualifiers } : undefined),
     ...(dateQualifiers !== undefined ? { "v8:DateQualifiers": dateQualifiers } : undefined),
@@ -64,6 +66,12 @@ const getTypesXML = (
     ...(typesXML.length > 0 ? { "v8:Type": typesXML.length === 1 ? typesXML[0] : typesXML } : undefined),
     ...(typeSetXML.length > 0 ? { "v8:TypeSet": typeSetXML.length === 1 ? typeSetXML[0] : typeSetXML } : undefined),
   }
+}
+
+const getTypeIdXML = (typeDescription: TypeDescription): TypeDescriptionXML["v8:TypeId"] | undefined => {
+  if (typeDescription.typeId === undefined || typeDescription.typeId.length === 0) return undefined
+
+  return typeDescription.typeId.length === 1 ? typeDescription.typeId[0] : typeDescription.typeId
 }
 
 const getStringQualifiers = (

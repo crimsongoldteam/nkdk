@@ -19,6 +19,11 @@ describe("importTypeDescriptionFromYAML", () => {
     expect(result).toBeUndefined()
   })
 
+  it("should parse empty type ids as undefined", () => {
+    const result = importTypeDescriptionFromYAML(mockContext, mockRule, { ИдентификаторТипа: [] })
+    expect(result).toBeUndefined()
+  })
+
   it.each(typeFixturesTable)("should import type from YAML: $enterprise", ({ internal, YAML: enterprise }) => {
     const result = importTypeDescriptionFromYAML(mockContext, mockRule, enterprise)
     expect(result).toEqual(internal)

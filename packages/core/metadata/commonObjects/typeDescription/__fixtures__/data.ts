@@ -160,6 +160,19 @@ export const typeFixturesTable: TypeFixture[] = [
     YAML: "ДинамическийСписок",
     xml: "<TypeDescription>\n\t<v8:Type>cfg:DynamicList</v8:Type>\n</TypeDescription>",
   },
+  {
+    internal: {
+      type: [],
+      typeId: ["8c1e3694-da12-44d5-8b1f-d134b89a1282", "6b99868d-5f3a-44e2-bb6d-3ad3b5d3198c"],
+    },
+    YAML: {
+      ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282", "6b99868d-5f3a-44e2-bb6d-3ad3b5d3198c"],
+    },
+    xml: `<TypeDescription>
+	<v8:TypeId>8c1e3694-da12-44d5-8b1f-d134b89a1282</v8:TypeId>
+	<v8:TypeId>6b99868d-5f3a-44e2-bb6d-3ad3b5d3198c</v8:TypeId>
+</TypeDescription>`,
+  },
 
   //#endregion
   //#endregion
