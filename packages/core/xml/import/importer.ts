@@ -25,6 +25,7 @@ export const importContentFromXML = <T>(data: string): T => {
     attributeNamePrefix: "_",
     attributesGroupName: "@attributes",
     ignoreAttributes: ["xsi:nil"],
+    parseTagValue: false,
     numberParseOptions: { leadingZeros: false, hex: true, eNotation: true },
     trimValues: false,
   })
@@ -53,7 +54,7 @@ const defaultOptions = {
   removeNSPrefix: false, // remove NS from tag name or attribute name if true
   allowBooleanAttributes: false, //a tag can have attributes without any value
   //ignoreRootElement : false,
-  parseTagValue: true,
+  parseTagValue: false,
   parseAttributeValue: false,
   trimValues: true, //Trim string values of tag and attributes
   cdataPropName: false,
