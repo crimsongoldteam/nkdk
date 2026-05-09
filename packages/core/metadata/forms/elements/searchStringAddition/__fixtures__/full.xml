@@ -40,5 +40,7 @@
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<Visible>true</Visible>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<MaxWidth>20</MaxWidth>
 	<Width>300</Width>
 </SearchStringAddition>

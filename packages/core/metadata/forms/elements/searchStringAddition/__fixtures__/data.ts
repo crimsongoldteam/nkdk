@@ -37,6 +37,8 @@ export const fullSingleSearchStringAddition: SingleSearchStringAddition = {
   },
   verticalAlignInGroup: "Top",
   visible: true,
+  autoMaxWidth: false,
+  maxWidth: 20,
   width: 300,
   contextMenu: {
     itemType: "ContextMenu",
@@ -60,6 +62,8 @@ export const fullSingleSearchStringAdditionYAML: SingleSearchStringAdditionYAML 
   Подсказка: "Подсказка",
   РазрешитьИспользование: { Администратор: "Истина" },
   РастягиватьПоГоризонтали: "Истина",
+  АвтоМаксимальнаяШирина: "Ложь",
+  МаксимальнаяШирина: 20,
   ЦветРамки: "Черный",
   ЦветТекста: "Черный",
   ЦветФона: "Белый",

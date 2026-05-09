@@ -12,7 +12,9 @@ const commonProperties = {
   borderColor: { yaml: "ЦветРамки", type: "Color" },
   font: { yaml: "Шрифт", type: "Font" },
   horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
   textColor: { yaml: "ЦветТекста", type: "Color" },
+  maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
   width: { yaml: "Ширина", type: "number" },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {
