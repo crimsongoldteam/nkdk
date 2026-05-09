@@ -1207,27 +1207,105 @@ singleton-элементе тот же механизм сработает по�
 
 ### Фикстуры
 
-Добавить XML/TS/YAML-фикстуру на уровне `Table` или общего form-elements набора:
+Добавить отдельную XML-фикстуру таблицы:
 
-- XML: таблица `Подписи` с `SearchStringAddition name="ТаблицаЭПСтрокаПоиска"`,
-  вложенными `ContextMenu name="ТаблицаЭПСтрокаПоискаКонтекстноеМеню"` и
-  `ExtendedTooltip name="ТаблицаЭПСтрокаПоискаРасширеннаяПодсказка"`;
-- XML: `ViewStatusAddition name="ТаблицаЭПСостояниеПросмотра"` и
-  `SearchControlAddition name="ТаблицаЭПУправлениеПоиском"` с аналогичными вложенными
-  singleton-именами;
-- TS: singleton-свойства без публичного `name`, потому имя берётся из reference XML;
-- YAML: те же singleton-свойства без `Имя`; YAML-цикл не должен обещать сохранение
-  нестандартных XML-имён без reference.
+`packages/core/metadata/forms/elements/table/__fixtures__/nonCanonicalSingletonNames.xml`.
 
-Дополнительно добавить узкий unit-тест для `singletonName` / `singletonNameReference`:
+Фикстура должна быть минимальной, но покрывать все три singleton-дополнения:
 
+```xml
+<Table name="Подписи" id="1">
+  <DataPath>Подписи</DataPath>
+  <SearchStringAddition name="ТаблицаЭПСтрокаПоиска" id="2">
+    <AdditionSource>
+      <Item>Подписи</Item>
+      <Type>SearchStringRepresentation</Type>
+    </AdditionSource>
+    <ContextMenu name="ТаблицаЭПСтрокаПоискаКонтекстноеМеню" id="3"/>
+    <ExtendedTooltip name="ТаблицаЭПСтрокаПоискаРасширеннаяПодсказка" id="4"/>
+  </SearchStringAddition>
+  <ViewStatusAddition name="ТаблицаЭПСостояниеПросмотра" id="5">
+    <AdditionSource>
+      <Item>Подписи</Item>
+      <Type>ViewStatusRepresentation</Type>
+    </AdditionSource>
+    <HorizontalLocation>Left</HorizontalLocation>
+    <ContextMenu name="ТаблицаЭПСостояниеПросмотраКонтекстноеМеню" id="6"/>
+    <ExtendedTooltip name="ТаблицаЭПСостояниеПросмотраРасширеннаяПодсказка" id="7"/>
+  </ViewStatusAddition>
+  <SearchControlAddition name="ТаблицаЭПУправлениеПоиском" id="8">
+    <AdditionSource>
+      <Item>Подписи</Item>
+      <Type>SearchControl</Type>
+    </AdditionSource>
+    <ContextMenu name="ТаблицаЭПУправлениеПоискомКонтекстноеМеню" id="9"/>
+    <ExtendedTooltip name="ТаблицаЭПУправлениеПоискомРасширеннаяПодсказка" id="10"/>
+  </SearchControlAddition>
+</Table>
+```
+
+Добавить TS/YAML-ожидания рядом:
+
+`packages/core/metadata/forms/elements/table/__fixtures__/nonCanonicalSingletonNames.ts`.
+
+TS-модель должна содержать таблицу `Подписи` и singleton-свойства без публичного `name`:
+
+```ts
+export const nonCanonicalSingletonNames = {
+  itemType: "Table",
+  name: "Подписи",
+  dataPath: "Подписи",
+  searchStringRepresentation: {
+    itemType: "SingleSearchStringAddition",
+    contextMenu: { itemType: "ContextMenu", childItems: [] },
+    extendedTooltip: { itemType: "ExtendedTooltip" },
+  },
+  viewStatusRepresentation: {
+    itemType: "ViewStatusAddition",
+    horizontalAlign: "Left",
+    contextMenu: { itemType: "ContextMenu", childItems: [] },
+    extendedTooltip: { itemType: "ExtendedTooltip" },
+  },
+  searchControl: {
+    itemType: "SingleSearchControlAddition",
+    childItems: [],
+    contextMenu: { itemType: "ContextMenu", childItems: [] },
+    extendedTooltip: { itemType: "ExtendedTooltip" },
+  },
+} satisfies Table
+```
+
+YAML-ожидание тоже не должно содержать `Имя`: YAML-цикл не обещает сохранение нестандартных
+XML-имён без reference.
+
+Эту XML-фикстуру не подключать вслепую к общему `ElementFixtures` как обычный export-case:
+общий `forms/elements/__tests__/toXML.test.ts` экспортирует без reference XML, поэтому должен
+получать стандартные имена `ПодписиСтрокаПоиска`, `ПодписиСостояниеПросмотра`,
+`ПодписиУправлениеПоиском`. Проверка нестандартных имён должна жить в отдельном
+reference-aware тесте.
+
+### Тесты
+
+Добавить тесты в `packages/core/metadata/forms/elements/singletonNameReference.test.ts`
+или в отдельный соседний файл `singletonNonCanonicalNameReference.test.ts`.
+
+Обязательные сценарии:
+
+- `import` XML-фикстуры `nonCanonicalSingletonNames.xml` в обычном режиме возвращает TS-модель
+  без публичных `name` у singleton-дополнений;
+- `export` TS-модели с reference, полученным из этой же XML-фикстуры через
+  `mockContextFromXML({ forReference: true })`, сохраняет точные XML-имена:
+  `ТаблицаЭПСтрокаПоиска`, `ТаблицаЭПСостояниеПросмотра`,
+  `ТаблицаЭПУправлениеПоиском`;
+- тот же reference-aware export сохраняет вложенные имена относительно непосредственных
+  владельцев: `ТаблицаЭПСтрокаПоискаКонтекстноеМеню`,
+  `ТаблицаЭПСтрокаПоискаРасширеннаяПодсказка` и аналогичные имена для
+  `ViewStatusAddition` / `SearchControlAddition`;
 - стандартное reference-имя `СтарыйСписокСтрокаПоиска` при текущем владельце `НовыйСписок`
-  экспортируется как `НовыйСписокСтрокаПоиска`;
-- нестандартное reference-имя `ТаблицаЭПСтрокаПоиска` при reference-владельце `Подписи`
-  сохраняется как `ТаблицаЭПСтрокаПоиска`;
-- вложенный `ExtendedTooltip`, стандартный относительно нестандартного
-  `SearchStringAddition`, сохраняет имя
-  `ТаблицаЭПСтрокаПоискаРасширеннаяПодсказка`.
+  экспортируется как `НовыйСписокСтрокаПоиска`, чтобы переименование владельца не ломалось;
+- вложенный `ExtendedTooltip`, стандартный относительно стандартного reference-дополнения,
+  тоже пересчитывается при переименовании владельца:
+  `НовыйСписокСтрокаПоискаРасширеннаяПодсказка`.
 
 ### Проверки
 
