@@ -7,7 +7,7 @@ import {
 } from "~/metadata/forms/elements/formGroup/__fixtures__/data"
 
 export const fullPage: RequiredFieldsElement<
-  Omit<Page, "showTitle" | "childItemsVerticalAlign" | "slaveItemsWidth" | "verticalScrollOnReduceSize">
+  Omit<Page, "showTitle" | "childItemsVerticalAlign" | "verticalScrollOnReduceSize">
 > = {
   itemType: "Page",
   name: "Страница",
@@ -25,6 +25,7 @@ export const fullPage: RequiredFieldsElement<
   },
   group: "AlwaysHorizontal",
   childItemsHorizontalAlign: "Right",
+  slaveItemsWidth: "LeftNarrowest",
   itemsAndTitlesAlign: "ItemsLeftTitlesLeft",
   horizontalSpacing: "OneAndHalf",
   scrollOnCompress: true,
@@ -50,6 +51,7 @@ export const fullPagePartialYAML: PagePartialYAML = {
   ВертикальноеПоложение: "Низ",
   ВертикальныйИнтервал: "Двойной",
   ГоризонтальноеПоложениеПодчиненных: "Право",
+  ШиринаПодчиненныхЭлементов: "ЛевыйОченьУзкий",
   ВыравниваниеЭлементовИЗаголовков: "ЭлементыЛевоЗаголовкиЛево",
   ГоризонтальныйИнтервал: "Полуторный",
   Группировка: "ГоризонтальнаяВсегда",
@@ -84,6 +86,10 @@ export const fullPageEnterprise = {
     Type: "SystemEnumeration",
     Value: "ItemHorizontalLocation.Right",
   },
+  SlaveItemsWidth: {
+    Type: "SystemEnumeration",
+    Value: "ChildFormItemsWidth.LeftNarrowest",
+  },
   Group: {
     Type: "SystemEnumeration",
     Value: "ChildFormItemsGroup.AlwaysHorizontal",
@@ -110,7 +116,7 @@ export const fullPageEnterprise = {
   },
   ...fullFormGroupEnterpriseCommonFixture,
 } satisfies Required<
-  Omit<PageEnterprise, "ChildItemsVerticalAlign" | "ShowTitle" | "SlaveItemsWidth" | "VerticalScrollOnReduceSize">
+  Omit<PageEnterprise, "ChildItemsVerticalAlign" | "ShowTitle" | "VerticalScrollOnReduceSize">
 >
 
 export const minimalPage: Page = {

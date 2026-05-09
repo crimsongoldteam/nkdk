@@ -3,6 +3,7 @@
 		<Item>КакойТоЭлемент</Item>
 		<Type>SearchStringRepresentation</Type>
 	</AdditionSource>
+	<AutoMaxWidth>false</AutoMaxWidth>
 	<BackColor>web:White</BackColor>
 	<BorderColor>web:Black</BorderColor>
 	<ContextMenu name="КакойТоЭлементСтрокаПоискаКонтекстноеМеню" id="2">
@@ -21,6 +22,7 @@
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
 	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<HorizontalStretch>true</HorizontalStretch>
+	<MaxWidth>20</MaxWidth>
 	<TextColor>web:Black</TextColor>
 	<Title>
 		<v8:item>

@@ -8,10 +8,12 @@ import { getSearchStringAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
 
 const commonProperties = {
+  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
   backColor: { yaml: "ЦветФона", type: "Color" },
   borderColor: { yaml: "ЦветРамки", type: "Color" },
   font: { yaml: "Шрифт", type: "Font" },
   horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+  maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
   textColor: { yaml: "ЦветТекста", type: "Color" },
   width: { yaml: "Ширина", type: "number" },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },

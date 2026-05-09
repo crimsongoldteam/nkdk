@@ -38,6 +38,7 @@
 	<HorizontalSpacing>OneAndHalf</HorizontalSpacing>
 	<VerticalSpacing>Double</VerticalSpacing>
 	<HorizontalAlign>Right</HorizontalAlign>
+	<ChildItemsWidth>LeftNarrowest</ChildItemsWidth>
 	<VerticalAlign>Bottom</VerticalAlign>
 	<Format>
 		<v8:item>
