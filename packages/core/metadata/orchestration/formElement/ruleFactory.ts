@@ -152,12 +152,13 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
       referenceElement,
       nameStyle,
     })
+    const referenceElementForXML = nameStyle === undefined ? referenceElement : omitReferenceName(referenceElement)
 
     return exportSingleElementToXML({
       context,
       element,
       rule: elementRule,
-      referenceElement,
+      referenceElement: referenceElementForXML,
       additionalParams: {
         ...extraParams,
         name,
@@ -166,6 +167,16 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
   }
 
   registerTypeRule(propertyType, "exportToXML", fn)
+}
+
+const omitReferenceName = <T extends object | undefined>(referenceElement: T): T => {
+  if (referenceElement === undefined || !Object.prototype.hasOwnProperty.call(referenceElement, "name")) {
+    return referenceElement
+  }
+
+  const referenceElementWithoutName = { ...referenceElement }
+  delete (referenceElementWithoutName as { name?: unknown }).name
+  return referenceElementWithoutName as T
 }
 
 const elementRulesRegistry = new Map<ElementType, ElementRule>()

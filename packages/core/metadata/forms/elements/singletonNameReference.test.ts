@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportPropertyToXML, importPropertyFromXML, type PropertyRule } from "~/metadata/orchestration"
+import { getReferenceNameSuffix } from "~/metadata/orchestration/formElement/singletonName"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 
 type SingletonReferenceXML = {
@@ -60,7 +61,8 @@ describe("singleton XML name suffix from reference", () => {
     })
 
     expect(result._name).toBe("НовыйExtendedTooltip")
-    expect(Object.keys(reference as object)).toEqual(["id", "itemType"])
+    expect(Object.keys(reference as object)).toEqual(expect.arrayContaining(["id", "itemType"]))
+    expect(getReferenceNameSuffix(reference)).toBe("ExtendedTooltip")
   })
 
   it("keeps ContextMenu reference suffix and current parent name", () => {
