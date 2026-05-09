@@ -1,6 +1,5 @@
 import fs from "fs"
 import { basename, join } from "path"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { importMetadataItemFromXML } from "~/metadata/orchestration"
 import { importContentFromXML } from "~/xml/import/importer"
 import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
@@ -8,6 +7,7 @@ import { readFormFromXML } from "~/metadata/forms/clientApplicationForm/convertF
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
 import { exportMetadataItemToXML } from "~/metadata/orchestration"
 import { xmlExport } from "~/xml/export/exporter"
+import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 const makeContextFromXML = (forReference: boolean): ConfigurationContextFromXML => ({
   defaultLanguage: "ru",
@@ -31,6 +31,109 @@ const makeContextToXML = (parentName: string): ConfigurationContextWithExportToX
   },
 })
 
+const readMetadataItemXML = (params: {
+  itemDir: string
+  itemName: string
+  forReference: boolean
+  rule: (typeof TopLevelMetadataItemRules)[number]
+}) => {
+  const xmlContent = fs.readFileSync(join(params.itemDir, `${params.itemName}.xml`), "utf-8")
+  const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
+
+  return importMetadataItemFromXML({
+    context: makeContextFromXML(params.forReference),
+    xml: parsed.MetaDataObject,
+    rule: params.rule,
+  })
+}
+
+const roundTripMetadataItemXML = (params: {
+  inputDir: string
+  outputDir: string
+  itemName: string
+  rule: (typeof TopLevelMetadataItemRules)[number]
+}) => {
+  const item = readMetadataItemXML({
+    itemDir: params.inputDir,
+    itemName: params.itemName,
+    forReference: false,
+    rule: params.rule,
+  })
+  const referenceItem = readMetadataItemXML({
+    itemDir: params.inputDir,
+    itemName: params.itemName,
+    forReference: true,
+    rule: params.rule,
+  })
+
+  const xmlObj = exportMetadataItemToXML({
+    context: makeContextToXML(params.itemName),
+    data: item,
+    referenceData: referenceItem,
+    rule: params.rule,
+  })
+
+  if (xmlObj) {
+    fs.mkdirSync(params.outputDir, { recursive: true })
+    fs.writeFileSync(join(params.outputDir, `${params.itemName}.xml`), xmlExport(xmlObj), "utf-8")
+  }
+}
+
+const roundTripFormsXML = (params: { inputDir: string; outputDir: string; itemName: string; xmlDir: string }) => {
+  const formsInputDir = join(params.inputDir, params.itemName, "Forms")
+  if (!fs.existsSync(formsInputDir)) {
+    return
+  }
+
+  const formEntries = fs.readdirSync(formsInputDir, { withFileTypes: true })
+  const formXmlFiles = formEntries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".xml"))
+
+  for (const formEntry of formXmlFiles) {
+    const formName = basename(formEntry.name, ".xml")
+
+    const formExtPath = join(formsInputDir, formName, "Ext", "Form.xml")
+    if (!fs.existsSync(formExtPath)) continue
+
+    try {
+      const form = readFormFromXML({
+        context: makeContextFromXML(false),
+        inputDir: formsInputDir,
+        formName,
+      })
+
+      const referenceForm = readFormFromXML({
+        context: makeContextFromXML(true),
+        inputDir: formsInputDir,
+        formName,
+      })
+
+      const formContextToXML = makeContextToXML(params.itemName)
+
+      const formXML = exportClientApplicationFormToXML({
+        context: formContextToXML,
+        form,
+        referenceForm,
+      })
+
+      const metadataXML = exportFormMetadataToXML({
+        context: formContextToXML,
+        form,
+        referenceForm,
+        name: formName,
+      })
+
+      const formsOutputDir = join(params.outputDir, params.itemName, "Forms")
+      const formExtOutputDir = join(formsOutputDir, formName, "Ext")
+      fs.mkdirSync(formExtOutputDir, { recursive: true })
+
+      fs.writeFileSync(join(formsOutputDir, `${formName}.xml`), xmlExport({ MetaDataObject: metadataXML }), "utf-8")
+      fs.writeFileSync(join(formExtOutputDir, "Form.xml"), xmlExport({ Form: formXML }), "utf-8")
+    } catch (err) {
+      console.error(`Ошибка round-trip формы "${params.xmlDir}/${params.itemName}/${formName}":`, err)
+    }
+  }
+}
+
 export const shortRoundTripXML = async (params: { inputDir: string; outputDir: string }): Promise<void> => {
   const { inputDir, outputDir } = params
 
@@ -38,95 +141,37 @@ export const shortRoundTripXML = async (params: { inputDir: string; outputDir: s
     return
   }
 
-  const catalogsInputDir = join(inputDir, "Catalogs")
-  const catalogsOutputDir = join(outputDir, "Catalogs")
+  for (const rule of TopLevelMetadataItemRules) {
+    const { xmlDir } = rule
+    if (!xmlDir) continue
 
-  const entries = fs.readdirSync(catalogsInputDir, { withFileTypes: true })
-  const xmlFiles = entries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
+    const itemsInputDir = join(inputDir, xmlDir)
+    if (!fs.existsSync(itemsInputDir)) continue
 
-  for (const entry of xmlFiles) {
-    const catalogName = basename(entry.name, ".xml")
+    const itemsOutputDir = join(outputDir, xmlDir)
+    const entries = fs.readdirSync(itemsInputDir, { withFileTypes: true })
+    const xmlFiles = entries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".xml"))
 
-    try {
-      const readCatalogXML = (forReference: boolean) => {
-        const xmlContent = fs.readFileSync(join(catalogsInputDir, `${catalogName}.xml`), "utf-8")
-        const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
-        return importMetadataItemFromXML({
-          context: makeContextFromXML(forReference),
-          xml: parsed.MetaDataObject,
-          rule: MetadataCatalogRules,
-        })
-      }
-
-      const catalog = readCatalogXML(false)
-      const referenceCatalog = readCatalogXML(true)
-
-      const xmlObj = exportMetadataItemToXML({
-        context: makeContextToXML(catalogName),
-        data: catalog,
-        referenceData: referenceCatalog,
-        rule: MetadataCatalogRules,
-      })
-
-      if (xmlObj) {
-        fs.mkdirSync(catalogsOutputDir, { recursive: true })
-        fs.writeFileSync(join(catalogsOutputDir, `${catalogName}.xml`), xmlExport(xmlObj), "utf-8")
-      }
-    } catch (err) {
-      console.error(`Ошибка round-trip каталога "${catalogName}":`, err)
-    }
-
-    const formsInputDir = join(catalogsInputDir, catalogName, "Forms")
-    if (!fs.existsSync(formsInputDir)) {
-      continue
-    }
-
-    const formEntries = fs.readdirSync(formsInputDir, { withFileTypes: true })
-    const formXmlFiles = formEntries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
-
-    for (const formEntry of formXmlFiles) {
-      const formName = basename(formEntry.name, ".xml")
-
-      const formExtPath = join(formsInputDir, formName, "Ext", "Form.xml")
-      if (!fs.existsSync(formExtPath)) continue
+    for (const entry of xmlFiles) {
+      const itemName = basename(entry.name, ".xml")
 
       try {
-        const form = readFormFromXML({
-          context: makeContextFromXML(false),
-          inputDir: formsInputDir,
-          formName,
+        roundTripMetadataItemXML({
+          inputDir: itemsInputDir,
+          outputDir: itemsOutputDir,
+          itemName,
+          rule,
         })
-
-        const referenceForm = readFormFromXML({
-          context: makeContextFromXML(true),
-          inputDir: formsInputDir,
-          formName,
-        })
-
-        const formContextToXML = makeContextToXML(catalogName)
-
-        const formXML = exportClientApplicationFormToXML({
-          context: formContextToXML,
-          form,
-          referenceForm,
-        })
-
-        const metadataXML = exportFormMetadataToXML({
-          context: formContextToXML,
-          form,
-          referenceForm,
-          name: formName,
-        })
-
-        const formsOutputDir = join(catalogsOutputDir, catalogName, "Forms")
-        const formExtOutputDir = join(formsOutputDir, formName, "Ext")
-        fs.mkdirSync(formExtOutputDir, { recursive: true })
-
-        fs.writeFileSync(join(formsOutputDir, `${formName}.xml`), xmlExport({ MetaDataObject: metadataXML }), "utf-8")
-        fs.writeFileSync(join(formExtOutputDir, "Form.xml"), xmlExport({ Form: formXML }), "utf-8")
       } catch (err) {
-        console.error(`Ошибка round-trip формы "${catalogName}/${formName}":`, err)
+        console.error(`Ошибка round-trip объекта "${xmlDir}/${itemName}":`, err)
       }
+
+      roundTripFormsXML({
+        inputDir: itemsInputDir,
+        outputDir: itemsOutputDir,
+        itemName,
+        xmlDir,
+      })
     }
   }
 }
