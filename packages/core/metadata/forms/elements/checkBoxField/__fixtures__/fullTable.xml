@@ -1,4 +1,4 @@
-<TableCheckBoxField name="Флажок" id="1" DisplayImportance="High">
+<CheckBoxField name="Флажок" id="1" DisplayImportance="High">
 	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
 	<AutoCellHeight>false</AutoCellHeight>
 	<BackColor>web:Blue</BackColor>
@@ -104,4 +104,4 @@
 		</v8:item>
 	</WarningOnEdit>
 	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
-</TableCheckBoxField>
+</CheckBoxField>

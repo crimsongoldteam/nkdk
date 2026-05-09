@@ -1,4 +1,4 @@
-<TableInputField name="ПолеВвода" id="1" DisplayImportance="High">
+<InputField name="ПолеВвода" id="1" DisplayImportance="High">
 	<AllowInputEmptyMultipleValues>true</AllowInputEmptyMultipleValues>
 	<AllowMultipleValuesDuplicates>true</AllowMultipleValuesDuplicates>
 	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
@@ -230,4 +230,4 @@
 	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 	<Width>200</Width>
 	<Wrap>false</Wrap>
-</TableInputField>
+</InputField>

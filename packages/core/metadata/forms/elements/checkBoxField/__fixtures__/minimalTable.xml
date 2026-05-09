@@ -1,4 +1,4 @@
-<TableCheckBoxField name="Флажок" id="1">
+<CheckBoxField name="Флажок" id="1">
 	<ContextMenu name="ФлажокКонтекстноеМеню" id="2"/>
 	<ExtendedTooltip name="ФлажокРасширеннаяПодсказка" id="3"/>
-</TableCheckBoxField>
+</CheckBoxField>

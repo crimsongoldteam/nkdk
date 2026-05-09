@@ -1,4 +1,4 @@
-<TableLabelField name="ПолеНадписи" id="1" DisplayImportance="High">
+<LabelField name="ПолеНадписи" id="1" DisplayImportance="High">
 	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
 	<AutoCellHeight>false</AutoCellHeight>
 	<AutoMaxHeight>true</AutoMaxHeight>
@@ -114,4 +114,4 @@
 	</WarningOnEdit>
 	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 	<Width>300</Width>
-</TableLabelField>
+</LabelField>

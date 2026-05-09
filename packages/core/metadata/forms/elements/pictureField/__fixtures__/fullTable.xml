@@ -1,4 +1,4 @@
-<TablePictureField name="ПолеКартинки" id="1" DisplayImportance="High">
+<PictureField name="ПолеКартинки" id="1" DisplayImportance="High">
 	<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
 	<AutoCellHeight>false</AutoCellHeight>
 	<AutoMaxHeight>false</AutoMaxHeight>
@@ -124,4 +124,4 @@
 	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 	<Width>300</Width>
 	<Zoomable>true</Zoomable>
-</TablePictureField>
+</PictureField>
