@@ -9,7 +9,7 @@ import {
   fullClientApplicationFormYAML,
 } from "./__fixtures__/data"
 import { documentFullClientApplicationFormFromYAML } from "./__fixtures__/documentFull"
-import { documentFullClientApplicationFormYAML } from "./__fixtures__/documentFull.yaml"
+import { documentFullClientApplicationFormYAMLForImport } from "./__fixtures__/documentFull.yaml"
 import { mockContext } from "~/tests/mockContext"
 import { ButtonGroup, ButtonGroupPartialYAML } from "../elements/buttonGroup/types"
 import { Table } from "../elements/table/types"
@@ -69,7 +69,7 @@ describe("importClientApplicationFormFromYAML", () => {
   })
 
   it("imports document full YAML", () => {
-    const result = importClientApplicationFormFromYAML(mockContext, documentFullClientApplicationFormYAML, {
+    const result = importClientApplicationFormFromYAML(mockContext, documentFullClientApplicationFormYAMLForImport, {
       itemType: "ClientApplicationForm",
       synonym: { items: {} },
       comment: "",

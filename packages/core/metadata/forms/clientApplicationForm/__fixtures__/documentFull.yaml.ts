@@ -15,6 +15,13 @@ const numberInputFieldYAML: InputFieldPartialYAML = {
   РасширенноеРедактированиеМножественныхЗначений: "Истина",
 }
 
+const numberInputFieldYAMLForImport: InputFieldPartialYAML = {
+  ...numberInputFieldYAML,
+  ПутьКДанным: "Объект.Number",
+  КонтекстноеМеню: {},
+  РасширеннаяПодсказка: {},
+}
+
 const commandButtonYAML: ButtonPartialYAML = {
   Вид: "ОбычнаяКнопка",
   ИмяКоманды: "Form.Command.Команда1",
@@ -134,3 +141,11 @@ const documentFullClientApplicationFormYAMLData: DocumentClientApplicationFormYA
 
 export const documentFullClientApplicationFormYAML: ClientApplicationFormYAML =
   documentFullClientApplicationFormYAMLData
+
+export const documentFullClientApplicationFormYAMLForImport: ClientApplicationFormYAML = {
+  ...documentFullClientApplicationFormYAMLData,
+  Элементы: {
+    ...documentFullClientApplicationFormYAMLData.Элементы,
+    Номер: numberInputFieldYAMLForImport,
+  },
+}
