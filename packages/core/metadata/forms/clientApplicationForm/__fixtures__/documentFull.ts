@@ -161,6 +161,8 @@ const commandExtendedTooltip = {
   name: "Команда1РасширеннаяПодсказка",
 } as const
 
+const { dataPath: _numberDataPath, ...numberInputFieldFromYAML } = documentFullClientApplicationFormData.childItems[0]
+
 export const documentFullClientApplicationForm: ClientApplicationForm = documentFullClientApplicationFormData
 
 export const documentFullClientApplicationFormFromYAML: ClientApplicationForm = {
@@ -172,7 +174,7 @@ export const documentFullClientApplicationFormFromYAML: ClientApplicationForm = 
   },
   childItems: [
     {
-      ...documentFullClientApplicationFormData.childItems[0],
+      ...numberInputFieldFromYAML,
       contextMenu: numberContextMenu,
       extendedTooltip: numberExtendedTooltip,
     },

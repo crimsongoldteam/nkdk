@@ -10,18 +10,14 @@ type DocumentClientApplicationFormYAML = Omit<ClientApplicationFormYAML, "Эле
   Элементы: GroupChildItemsPartialYAML
 }
 
-const numberInputFieldYAML: InputFieldPartialYAML & { ПутьКДанным: string } = {
-  ПутьКДанным: "Объект.Number",
+const numberInputFieldYAML: InputFieldPartialYAML = {
   РежимРедактирования: "ВходПриВводе",
   РасширенноеРедактированиеМножественныхЗначений: "Истина",
-  КонтекстноеМеню: {},
-  РасширеннаяПодсказка: {},
 }
 
 const commandButtonYAML: ButtonPartialYAML = {
   Вид: "ОбычнаяКнопка",
   ИмяКоманды: "Form.Command.Команда1",
-  РасширеннаяПодсказка: {},
 }
 
 const documentFullClientApplicationFormYAMLData: DocumentClientApplicationFormYAML = {
@@ -113,6 +109,7 @@ const documentFullClientApplicationFormYAMLData: DocumentClientApplicationFormYA
     Команда1: commandButtonYAML,
   },
   УсловноеОформлениеРеквизитов: {
+    РежимОтображения: "БыстрыйДоступ",
     Элементы: [
       {
         Отбор: {
