@@ -682,3 +682,177 @@ XML должен быть маленьким для локального чте�
 - XML-only сохранение через `preserveFromReferenceXML`: выбран полноценный YAML-путь.
 - Добавление `order` в правила без отдельной необходимости; порядок должен определяться
   текущим reference-based механизмом.
+
+## Задача 6: nil-элементы внутри FixedArray
+
+### Исходный diff
+
+В документах после round-trip пропадает элемент массива выбора:
+
+```diff
+ <app:value xsi:type="v8:FixedArray">
+   <v8:Value xsi:type="xr:DesignTimeRef">Enum.ХозяйственныеОперации.EnumValue.РеализацияКлиенту</v8:Value>
+-  <v8:Value xsi:nil="true"/>
+   <v8:Value xsi:type="xr:DesignTimeRef">Enum.ХозяйственныеОперации.EmptyRef</v8:Value>
+ </app:value>
+```
+
+Затронутые файлы из triage:
+
+- `Documents/КорректировкаНазначенияТоваров.xml`;
+- `Documents/ПодтверждениеНулевойСтавкиНДС.xml`.
+
+Во втором документе внутри одного `FixedArray` теряются два таких элемента. Порядок важен:
+`xsi:nil` здесь является отдельным элементом массива, а не отсутствием всего параметра выбора.
+
+Владеющие модули:
+
+- `packages/core/metadata/commonObjects/metadataValue`;
+- `packages/core/metadata/commonObjects/metadataValue/fixedArray`;
+- `packages/core/metadata/commonObjects/сhoiceParameters`.
+
+### Текущая логика
+
+Одиночный nil на уровне `ChoiceParameters` уже поддержан:
+
+```xml
+<app:item name="ВыборСчетовГоловнойОрганизации">
+  <app:value xsi:nil="true"/>
+</app:item>
+```
+
+Такой параметр импортируется как `ChoiceParameter` без собственного поля `value`, а YAML-фикстура
+использует `undefined`:
+
+```ts
+{ ВыборСчетовГоловнойОрганизации: undefined }
+```
+
+Но `FixedArray` сейчас описан как массив только из `MetadataTypedValue`:
+
+```ts
+export interface MetadataFixedArrayValue {
+  type: "fixedArray"
+  value: MetadataTypedValue[]
+}
+```
+
+Импорт XML проходит по каждому `v8:Value` и вызывает `importMetadataValueFromXML`. Для
+`<v8:Value xsi:nil="true"/>` у узла нет распознаваемого `_xsi:type`, поэтому такой элемент
+не получает корректного представления в модели. При экспорте обратно нечего выгружать, и
+позиционный nil-элемент пропадает.
+
+### Решение
+
+Поддержать `undefined` как допустимый элемент именно внутри `MetadataValue/fixedArray`.
+
+TS-модель:
+
+```ts
+{
+  type: "fixedArray",
+  value: [
+    { type: "ref", value: "Enum.ХозяйственныеОперации.EnumValue.РеализацияКлиенту" },
+    undefined,
+    { type: "ref", value: "Enum.ХозяйственныеОперации.EmptyRef" },
+  ],
+}
+```
+
+YAML-модель в TS-фикстурах должна использовать тот же `undefined`:
+
+```ts
+[
+  "Перечисление.ХозяйственныеОперации.РеализацияКлиенту",
+  undefined,
+  "Перечисление.ХозяйственныеОперации.EmptyRef",
+]
+```
+
+Не вводить строковый маркер вроде `"undefined"` и не делать публичный тип `nil`.
+Если текстовый YAML-парсер в отдельном сценарии отдаст `null` для пустого элемента списка,
+импорт может трактовать его так же, как `undefined`, но экспорт из модели должен возвращать
+именно `undefined`.
+
+XML-поведение:
+
+- `fromXML` для `v8:Value xsi:nil="true"` внутри `FixedArray` возвращает элемент
+  `undefined` и сохраняет его позицию в массиве;
+- `toXML` для `undefined` внутри `FixedArray` выгружает `<v8:Value xsi:nil="true"/>`;
+- обычный одиночный `app:value xsi:nil="true"` в `ChoiceParameters` остаётся прежним:
+  параметр без поля `value`.
+
+### Архитектура
+
+Расширить типы `MetadataValue` только в границах `FixedArray`:
+
+```ts
+export interface MetadataFixedArrayValue {
+  type: "fixedArray"
+  value: Array<MetadataTypedValue | undefined>
+}
+```
+
+Для XML-типа `MetadataFixedArrayValueXML` разрешить `v8:Value` как обычное значение или
+nil-узел:
+
+```ts
+type MetadataFixedArrayItemXML = MetadataPrimitiveValueXML | { "_xsi:nil": true }
+```
+
+Для YAML-схемы `MetadataFixedArrayValueJSONSchema` разрешить `Type.Undefined()` среди
+элементов массива. Это соответствует уже существующему представлению одиночного nil в
+`ChoiceParametersYAML`.
+
+В `metadataValue/fixedArray/fromXML.ts` добавить явную проверку nil-узла перед вызовом
+`importMetadataValueFromXML`.
+
+В `metadataValue/fixedArray/toXML.ts` экспортировать `undefined` как `{ "_xsi:nil": true }`.
+Не фильтровать такие элементы: позиция в массиве является частью данных.
+
+В `metadataValue/fixedArray/fromYAML.ts` и `toYAML.ts` сохранить `undefined` как элемент
+массива.
+
+В `metadataValue/graphFromModel.ts` при обходе `fixedArray` пропускать `undefined`-элементы,
+потому что они не создают ссылочных рёбер.
+
+### Фикстуры
+
+Добавить низкоуровневую фикстуру в `metadataValue/fixedArray`:
+
+- XML с `v8:FixedArray`, где между двумя `xr:DesignTimeRef` находится
+  `<v8:Value xsi:nil="true"/>`;
+- TS-модель с `undefined` на той же позиции;
+- YAML-массив с `undefined` на той же позиции.
+
+Добавить отдельную фикстуру в `сhoiceParameters`, потому что реальные diff'ы приходят именно
+через `ChoiceParameters`:
+
+- XML с `ChoiceParameters/app:item/app:value xsi:type="v8:FixedArray"` и nil-элементом внутри;
+- TS-модель `ChoiceParameter`, где `value.type === "fixedArray"` и один элемент массива равен
+  `undefined`;
+- YAML-данные в `data.ts`, где значение параметра выбора является массивом с `undefined`
+  внутри.
+
+### Проверки
+
+Минимальный набор тестов:
+
+- `metadataValue/fixedArray fromXML` импортирует `v8:Value xsi:nil="true"` в `undefined`;
+- `metadataValue/fixedArray toXML` экспортирует `undefined` обратно в
+  `<v8:Value xsi:nil="true"/>`;
+- YAML-цикл `FixedArray` сохраняет `undefined` внутри массива;
+- `ChoiceParameters fromXML` импортирует `FixedArray` с nil-элементом без потери позиции;
+- `ChoiceParameters toXML` экспортирует тот же nil-элемент обратно;
+- `ChoiceParameters fromYAML/toYAML` сохраняет `undefined` внутри массива;
+- существующее поведение одиночного `app:value xsi:nil="true"` остаётся прежним.
+
+Ожидаемый эффект для round-trip: пункты 9 и 11 triage больше не должны терять
+`<v8:Value xsi:nil="true"/>` внутри `FixedArray`.
+
+### Не входит
+
+- Новый публичный тип `MetadataNilValue` для всех `MetadataValue`.
+- XML-only сохранение через reference без YAML-представления.
+- Строковый YAML-маркер для nil-элементов.
+- Изменение семантики одиночного nil-параметра выбора.
