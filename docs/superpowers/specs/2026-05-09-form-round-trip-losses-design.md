@@ -4,17 +4,35 @@
 
 ## Контекст
 
-Short round-trip по XML-дампу `trade` показал пачку расхождений в формах документов.
-Эта спецификация собирает согласованные решения по задачам из пачки 1-5. Задачи разбираются
+Short round-trip по XML-дампу `trade` показал пачки расхождений в формах документов.
+Эта спецификация собирает согласованные решения по задачам из triage. Задачи разбираются
 последовательно; каждая фиксируется отдельным разделом после согласования.
 
-Источник triage:
+Источник первого triage:
 
 1. `Documents/Встреча/Forms/ФормаДокумента/Ext/Form.xml`
 2. `Documents/ЗапланированноеВзаимодействие/Forms/ФормаДокумента/Ext/Form.xml`
 3. `Documents/ЗапросКоммерческихПредложенийПоставщиков/Forms/ФормаДокумента/Ext/Form.xml`
 4. `Documents/ЗаявкаНаВозвратТоваровОтКлиента/Forms/ФормаДокумента/Ext/Form.xml`
 5. `Documents/ЗаявкаНаВозвратТоваровОтКлиента/Forms/ФормаДокументаСамообслуживание/Ext/Form.xml`
+
+Источник второго triage:
+
+6. `Documents/ЗаявкаНаКомандировку/Forms/ФормаДокумента/Ext/Form.xml`
+7. `Documents/ЗаявлениеОВвозеТоваров/Forms/ФормаВыбораОснования/Ext/Form.xml`
+8. `Documents/ЗаявлениеОВвозеТоваров/Forms/ФормаРабочееМесто/Ext/Form.xml`
+9. `Documents/КорректировкаНазначенияТоваров.xml`
+10. `Documents/ОтчетКомитенту/Forms/ФормаПодбораДокументаПродажи/Ext/Form.xml`
+11. `Documents/ПодтверждениеНулевойСтавкиНДС.xml`
+12. `Documents/СообщениеSMS/Forms/ФормаДокумента/Ext/Form.xml`
+13. `Documents/СчетНаОплатуКлиенту/Forms/ФормаСозданияСчетовНаОплату/Ext/Form.xml`
+14. `Documents/ТелефонныйЗвонок/Forms/ФормаДокумента/Ext/Form.xml`
+15. `Documents/ЭлектронноеПисьмоВходящее/Forms/ФормаДокумента/Ext/Form.xml`
+16. `Documents/ЭлектронноеПисьмоИсходящее/Forms/ФормаДокумента/Ext/Form.xml`
+17. `Documents/ЭлектронныйДокументВходящийЭДО/Forms/ФормаПросмотра/Ext/Form.xml`
+18. `Documents/ЭлектронныйДокументВходящийЭДО/Forms/ФормаПросмотраМК/Ext/Form.xml`
+19. `Documents/ЭлектронныйДокументИсходящийЭДО/Forms/ФормаПросмотра/Ext/Form.xml`
+20. `Documents/ЭлектронныйДокументИсходящийЭДО/Forms/ФормаПросмотраМК/Ext/Form.xml`
 
 ## Задача 1: Parameter у кнопок формы
 
@@ -350,3 +368,168 @@ Fallback-порядок без reference не менять. Он уже покр
 - Сопоставление дубликатов по порядку потребления reference-item с хранением состояния.
 - Изменение YAML-представления `CommandInterface`.
 - Новые правила fromYAML/toYAML.
+
+## Задача 4: `xsi:type` у MinValue и MaxValue
+
+### Исходный diff
+
+В форме документа после round-trip значение `MinValue` сохраняется, но меняется его XML-тип:
+
+```diff
+ <SpinButton>true</SpinButton>
+-<MinValue xsi:type="xs:string">1</MinValue>
++<MinValue xsi:type="xs:decimal">1</MinValue>
+ <ContextMenu name="ЧислоДнейКонтекстноеМеню" id="114"/>
+```
+
+Затронутый файл из triage:
+`Documents/ЗаявкаНаКомандировку/Forms/ФормаДокумента/Ext/Form.xml`.
+
+Владеющий модуль:
+`packages/core/metadata/forms/elements/inputField`.
+
+Связанный общий код:
+`packages/core/metadata/commonObjects/number`.
+
+### Текущая логика
+
+Сейчас `minValue` и `maxValue` в `InputFieldRules` описаны как обычное число с
+типизированной XML-выгрузкой:
+
+```ts
+minValue: { yaml: "МинимальноеЗначение", type: "number", xml: "MinValue", typedXML: true }
+maxValue: { yaml: "МаксимальноеЗначение", type: "number", xml: "MaxValue", typedXML: true }
+```
+
+Для `number` значение `typedXML: true` означает старое поведение: экспортировать как
+`xsi:type="xs:decimal"`. Поэтому import читает `xs:string` и `xs:decimal` одинаково в число,
+а export без знания исходного XML-типа всегда пишет `xs:decimal`.
+
+В исходном XML-дампе встречаются оба допустимых варианта:
+
+- `MinValue/MaxValue xsi:type="xs:string"`;
+- `MinValue/MaxValue xsi:type="xs:decimal"`.
+
+Значит, простая замена на постоянный `xs:string` тоже будет ломать round-trip для части форм.
+
+### Решение
+
+Добавить отдельный тип свойства `MinMaxValue`.
+
+Снаружи этот тип ведёт себя как число:
+
+- обычная модель хранит `minValue` / `maxValue` как `number`;
+- YAML остаётся числом под теми же ключами `МинимальноеЗначение` и `МаксимальноеЗначение`;
+- JSON-схема для YAML остаётся числовой;
+- enterprise-представление, если оно используется, остаётся числовым.
+
+Отличие только в XML round-trip: `MinMaxValue` при экспорте с reference должен сохранять
+исходный `xsi:type` этого же XML-узла. Если reference содержит `xs:string`, export пишет
+`xs:string`; если reference содержит `xs:decimal`, export пишет `xs:decimal`.
+
+Если reference отсутствует или в reference нет `xsi:type`, используется текущий fallback
+`xs:decimal`. Это сохраняет поведение для создания нового XML без исходного файла.
+
+### Архитектура
+
+Создать общий модуль:
+
+`packages/core/metadata/commonObjects/minMaxValue/`.
+
+Минимальный состав:
+
+- `types.ts` с типом правила `MinMaxValuePropertyRule`;
+- `fromXML.ts`;
+- `toXML.ts`;
+- `toJSONSchema.ts` с числовой JSON-схемой;
+- узкие тесты на XML и YAML-поведение.
+
+Новый `PropertyRuleType`:
+
+```ts
+MinMaxValue: {
+  item: number
+  enterprise: number
+  yaml: number
+}
+```
+
+Reference-import не может хранить исходный `xsi:type` в обычном `number`, потому что число
+является примитивом. Поэтому `MinMaxValue` должен иметь внутреннюю служебную форму только для
+reference-модели, например `{ value: number, xsiType: "xs:string" | "xs:decimal" }`.
+
+Правило:
+
+- при обычном fromXML возвращать только `number`;
+- при `context.fromXML.forReference` возвращать служебный carrier с числом и исходным
+  `_xsi:type`;
+- при toXML принимать и обычный `number`, и reference-carrier;
+- при наличии `referenceMetadata` брать XML-тип из reference-carrier;
+- если экспортируется только reference-carrier как значение, экспортировать его числовую часть.
+
+Эта служебная форма не должна попадать в YAML, JSON-схему и публичную модель.
+Отдельные fromYAML/toYAML-переходники не нужны: стандартный fallback оркестратора уже
+передаёт числовое значение без преобразований. Для JSON-схемы нужен явный обработчик, потому
+что без `exportToJSONSchema` новый тип не получит числовую схему автоматически.
+
+### Где применять
+
+Перевести на `type: "MinMaxValue"` все правила `minValue` и `maxValue`, которые реально
+участвуют в XML round-trip:
+
+- `packages/core/metadata/commonObjects/metadataAttribute/rules.ts`;
+- `packages/core/metadata/commonObjects/standardAttributeDescription/rules.ts`;
+- `packages/core/metadata/forms/elements/inputField/rules.ts`:
+  - `InputFieldRules`;
+  - `TableInputFieldRules`.
+
+Для этих правил сохранить существующие XML/YAML-имена, `xmlParents`, `order`,
+`defaultValueXMLRaw` и остальные настройки. Меняется только `type` и удаляется потребность
+в `typedXML` на месте использования, потому что XML-тип теперь выбирает сам `MinMaxValue`.
+
+Не переводить правила без XML-сопоставления:
+
+- `packages/core/metadata/forms/elements/trackBarField/rules.ts`;
+- `packages/core/metadata/forms/elements/progressBarField/rules.ts`.
+
+У них сейчас `minValue` / `maxValue` не имеют `xml`, поэтому новый XML-aware тип не даёт
+пользы и может расширить поведение без необходимости.
+
+### Фикстуры
+
+Нужны узкие фикстуры для общего типа `MinMaxValue`:
+
+- XML с `<MinValue xsi:type="xs:string">1</MinValue>`;
+- XML с `<MaxValue xsi:type="xs:decimal">99.99</MaxValue>`;
+- TS-значения как обычные числа;
+- YAML-значения как обычные числа.
+
+Для form-element уровня нужна отдельная `InputField`-фикстура с `MinValue xsi:type="xs:string"`,
+чтобы защитить исходный diff из triage через общий набор тестов элементов.
+
+Для `metadataAttribute` и `standardAttributeDescription` добавить узкие property-level тесты
+на реальных правилах `minValue` и `maxValue`: они должны показать, что смена типа правила на
+`MinMaxValue` не меняет числовую модель и сохраняет reference `xsi:type` при XML-export.
+
+### Проверки
+
+Минимальный набор тестов:
+
+- обычный fromXML для `MinMaxValue` импортирует `xs:string` и `xs:decimal` в `number`;
+- toXML без reference экспортирует число как `xs:decimal`;
+- toXML с reference `xs:string` сохраняет `xs:string`;
+- toXML с reference `xs:decimal` сохраняет `xs:decimal`;
+- YAML-цикл остаётся числовым;
+- `InputField` round-trip с reference больше не меняет `MinValue xsi:type="xs:string"` на
+  `xs:decimal`.
+
+Ожидаемый эффект для round-trip: пункт 6 triage больше не должен менять `xsi:type` у
+`MinValue`. Если похожие `MinValue/MaxValue` встретятся в атрибутах или стандартных
+реквизитах, они используют тот же общий тип свойства.
+
+### Не входит
+
+- Хранение `xsi:type` в публичной модели или YAML.
+- Принудительная выгрузка всех `MinValue/MaxValue` как `xs:string`.
+- Изменение обычного типа `number`.
+- Перевод `trackBarField` и `progressBarField`, пока их `minValue/maxValue` не участвуют в XML.
