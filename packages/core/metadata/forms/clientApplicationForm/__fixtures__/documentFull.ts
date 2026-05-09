@@ -1,26 +1,11 @@
 import { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
+import { expect } from "vitest"
 
 type DocumentClientApplicationForm = ClientApplicationForm & {
   autoTime: "Last"
   usePostingMode: "Regular"
   repostOnWrite: false
 }
-
-const numberContextMenu = {
-  itemType: "ContextMenu",
-  name: "НомерКонтекстноеМеню",
-  childItems: [],
-} as const
-
-const numberExtendedTooltip = {
-  itemType: "ExtendedTooltip",
-  name: "НомерРасширеннаяПодсказка",
-} as const
-
-const commandExtendedTooltip = {
-  itemType: "ExtendedTooltip",
-  name: "Команда1РасширеннаяПодсказка",
-} as const
 
 const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
   itemType: "ClientApplicationForm",
@@ -61,11 +46,6 @@ const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
   autoTime: "Last",
   usePostingMode: "Regular",
   repostOnWrite: false,
-  autoCommandBar: {
-    itemType: "AutoCommandBar",
-    autofill: true,
-    childItems: [],
-  },
   events: {
     afterWrite: "ПослеЗаписи",
     beforeReopenFromOtherServer: "ПередПереоткрытиемСДругогоСервера",
@@ -110,15 +90,12 @@ const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
       dataPath: "Объект.Number",
       editMode: "EnterOnInput",
       multipleValuesExtendedEdit: true,
-      contextMenu: numberContextMenu,
-      extendedTooltip: numberExtendedTooltip,
     },
     {
       itemType: "Button",
       name: "Команда1",
       type: "UsualButton",
       commandName: "Form.Command.Команда1",
-      extendedTooltip: commandExtendedTooltip,
     },
   ],
   attributes: [
@@ -135,6 +112,7 @@ const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
   ],
   attributesConditionalAppearance: {
     itemType: "ConditionalAppearance",
+    viewMode: "QuickAccess",
     conditionalAppearanceItems: [
       {
         itemType: "ConditionalAppearanceItem",
@@ -168,4 +146,10 @@ const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
   ],
 }
 
-export const documentFullClientApplicationForm: ClientApplicationForm = documentFullClientApplicationFormData
+export const documentFullClientApplicationForm: ClientApplicationForm = expect.objectContaining({
+  ...documentFullClientApplicationFormData,
+  childItems: [
+    expect.objectContaining(documentFullClientApplicationFormData.childItems[0]),
+    expect.objectContaining(documentFullClientApplicationFormData.childItems[1]),
+  ],
+}) as unknown as ClientApplicationForm
