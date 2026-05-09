@@ -8,6 +8,8 @@ import {
   fullClientApplicationForm,
   fullClientApplicationFormYAML,
 } from "./__fixtures__/data"
+import { documentFullClientApplicationFormFromYAML } from "./__fixtures__/documentFull"
+import { documentFullClientApplicationFormYAMLForImport } from "./__fixtures__/documentFull.yaml"
 import { mockContext } from "~/tests/mockContext"
 import { ButtonGroup, ButtonGroupPartialYAML } from "../elements/buttonGroup/types"
 import { Table } from "../elements/table/types"
@@ -64,6 +66,46 @@ describe("importClientApplicationFormFromYAML", () => {
     })
 
     expect(result).toEqual(catalogFullClientApplicationForm)
+  })
+
+  it("imports document full YAML", () => {
+    const result = importClientApplicationFormFromYAML(mockContext, documentFullClientApplicationFormYAMLForImport, {
+      itemType: "ClientApplicationForm",
+      synonym: { items: {} },
+      comment: "",
+      includeHelpInContents: false,
+      commands: [],
+      childItems: [
+        {
+          itemType: "InputField",
+          name: "Номер",
+          contextMenu: {
+            itemType: "ContextMenu",
+            name: "НомерКонтекстноеМеню",
+            childItems: [],
+          },
+          extendedTooltip: {
+            itemType: "ExtendedTooltip",
+            name: "НомерРасширеннаяПодсказка",
+          },
+        },
+        {
+          itemType: "Button",
+          name: "Команда1",
+          extendedTooltip: {
+            itemType: "ExtendedTooltip",
+            name: "Команда1РасширеннаяПодсказка",
+          },
+        },
+      ],
+      autoCommandBar: {
+        itemType: "AutoCommandBar",
+        autofill: true,
+        childItems: [],
+      },
+    })
+
+    expect(result).toEqual(documentFullClientApplicationFormFromYAML)
   })
 
   it("should import from form command bar", () => {

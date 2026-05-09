@@ -9,6 +9,7 @@ import {
   fullClientApplicationForm,
   minimalClientApplicationForm,
 } from "./__fixtures__/data"
+import { documentFullClientApplicationForm } from "./__fixtures__/documentFull"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "./toXML"
 import { ClientApplicationFormXML, FormMetadataXML } from "./types"
@@ -139,6 +140,32 @@ describe("exportToXML", () => {
       const xmlData = exportClientApplicationFormToXML({
         context: mockContextToXML(),
         form: catalogFullClientApplicationForm,
+        referenceForm,
+      })
+
+      const result = xmlExport({ Form: xmlData })
+
+      expect(result).toEqual(expectedResult)
+    })
+
+    it("exports document full form to XML", () => {
+      const expectedResult = readXMLFixtureAsString(import.meta.url, "documentFull.xml")
+      const referenceFormXML = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(
+        import.meta.url,
+        "documentFull.xml"
+      )
+      const referenceMetadataXML = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+        import.meta.url,
+        "minimalMetadata.xml"
+      )
+      const referenceForm = importClientApplicationFormFromXML({
+        context: mockContextFromXML({ forReference: true }),
+        xml: referenceFormXML.Form,
+        xmlMetadata: referenceMetadataXML.MetaDataObject,
+      })
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: documentFullClientApplicationForm,
         referenceForm,
       })
 

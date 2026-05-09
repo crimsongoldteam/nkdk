@@ -384,6 +384,27 @@ export const ClientApplicationFormRules = {
     },
     // #endregion
 
+    // #region Document
+    autoTime: {
+      yaml: "АвтоВремя",
+      type: "SystemEnumeration",
+      typeSE: "AutoTimeMode",
+      tag: FormRulesTags.Form,
+    },
+    usePostingMode: {
+      yaml: "РежимПроведения",
+      xml: "UsePostingMode",
+      type: "SystemEnumeration",
+      typeSE: "DocumentPostingMode",
+      tag: FormRulesTags.Form,
+    },
+    repostOnWrite: {
+      yaml: "ПерепроводитьПриЗаписи",
+      type: "boolean",
+      tag: FormRulesTags.Form,
+    },
+    // #endregion
+
     events: {
       type: "Events",
       yaml: "События",

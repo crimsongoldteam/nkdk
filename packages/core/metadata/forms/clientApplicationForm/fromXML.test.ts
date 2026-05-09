@@ -7,6 +7,7 @@ import {
   fullClientApplicationForm,
   minimalClientApplicationForm,
 } from "./__fixtures__/data"
+import { documentFullClientApplicationForm } from "./__fixtures__/documentFull"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { mockContextFromXML } from "~/tests/mockContext"
@@ -52,6 +53,21 @@ describe("importClientApplicationFormFromXML", () => {
     })
 
     expect(result).toEqual(catalogFullClientApplicationForm)
+  })
+
+  it("imports document full form from XML", () => {
+    const xmlData = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "documentFull.xml")
+    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+      import.meta.url,
+      "minimalMetadata.xml"
+    )
+    const result = importClientApplicationFormFromXML({
+      context: mockContextFromXML(),
+      xml: xmlData.Form,
+      xmlMetadata: xmlMetadata.MetaDataObject,
+    })
+
+    expect(result).toEqual(documentFullClientApplicationForm)
   })
 
   it("imports conditional appearance without attributes", () => {

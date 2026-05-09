@@ -9,6 +9,8 @@ import {
   minimalClientApplicationForm,
   minimalClientApplicationFormYAML,
 } from "./__fixtures__/data"
+import { documentFullClientApplicationForm } from "./__fixtures__/documentFull"
+import { documentFullClientApplicationFormYAML } from "./__fixtures__/documentFull.yaml"
 import { mockContextToYAML } from "~/tests/mockContext"
 import { exportClientApplicationFormToYAML } from "./toYAML"
 
@@ -29,6 +31,12 @@ describe("exportClientApplicationFormToYAML", () => {
     const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, catalogFullClientApplicationForm)
 
     expect(yaml).toEqual(catalogFullClientApplicationFormYAML)
+  })
+
+  it("exports document full YAML", () => {
+    const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, documentFullClientApplicationForm)
+
+    expect(yaml).toEqual(documentFullClientApplicationFormYAML)
   })
 
   it("should export minimal", () => {
