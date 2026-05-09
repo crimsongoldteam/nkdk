@@ -14,13 +14,34 @@ describe("shortRoundTripXML", () => {
     }
   })
 
-  // TODO: снять it.skip после починки round-trip багов через scripts/round-trip-plan.sh
-  it("round-trip XML → модель → XML должен быть идемпотентным", async () => {
+  it("round-trip XML -> модель -> XML должен быть идемпотентным для зарегистрированных типов", async () => {
     await shortRoundTripXML({ inputDir, outputDir })
 
     const expectedCatalogXML = readXMLFileAsString("sync/syncConfiguration/xml/Catalogs/Контрагенты.xml")
     const resultCatalogXML = fs.readFileSync(join(outputDir, "Catalogs", "Контрагенты.xml"), "utf-8")
     expect(resultCatalogXML).toBe(expectedCatalogXML)
+
+    const expectedDocumentXML = readXMLFileAsString("sync/syncConfiguration/xml/Documents/ДокументПоУмолчанию.xml")
+    const resultDocumentXML = fs.readFileSync(join(outputDir, "Documents", "ДокументПоУмолчанию.xml"), "utf-8")
+    expect(resultDocumentXML).toBe(expectedDocumentXML)
+
+    const expectedNumeratorXML = readXMLFileAsString(
+      "sync/syncConfiguration/xml/DocumentNumerators/НумераторПоУмолчанию.xml"
+    )
+    const resultNumeratorXML = fs.readFileSync(
+      join(outputDir, "DocumentNumerators", "НумераторПоУмолчанию.xml"),
+      "utf-8"
+    )
+    expect(resultNumeratorXML).toBe(expectedNumeratorXML)
+
+    const expectedSequenceXML = readXMLFileAsString(
+      "sync/syncConfiguration/xml/Sequences/ПоследовательностьПоУмолчанию.xml"
+    )
+    const resultSequenceXML = fs.readFileSync(
+      join(outputDir, "Sequences", "ПоследовательностьПоУмолчанию.xml"),
+      "utf-8"
+    )
+    expect(resultSequenceXML).toBe(expectedSequenceXML)
 
     const expectedFormXML = readXMLFileAsString(
       "sync/syncConfiguration/xml/Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form.xml"
