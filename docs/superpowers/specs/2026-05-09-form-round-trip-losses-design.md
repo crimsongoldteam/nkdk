@@ -856,3 +856,225 @@ type MetadataFixedArrayItemXML = MetadataPrimitiveValueXML | { "_xsi:nil": true 
 - XML-only сохранение через reference без YAML-представления.
 - Строковый YAML-маркер для nil-элементов.
 - Изменение семантики одиночного nil-параметра выбора.
+
+## Задача 7: availableValue у полей СКД
+
+### Исходный diff
+
+В форме создания счетов после round-trip теряются два значения `dcssch:availableValue`
+у поля набора данных `Состояние`:
+
+```diff
+ <Field xsi:type="dcssch:DataSetFieldField">
+   <dcssch:dataPath>Состояние</dcssch:dataPath>
+   <dcssch:field>Состояние</dcssch:field>
+   <dcssch:title xsi:type="v8:LocalStringType">
+     ...
+   </dcssch:title>
+-  <dcssch:availableValue>
+-    <dcssch:value xsi:type="xs:string">Выставлен</dcssch:value>
+-    <dcssch:presentation xsi:type="v8:LocalStringType">...</dcssch:presentation>
+-  </dcssch:availableValue>
+-  <dcssch:availableValue>
+-    <dcssch:value xsi:type="xs:string">Аннулирован</dcssch:value>
+-    <dcssch:presentation xsi:type="v8:LocalStringType">...</dcssch:presentation>
+-  </dcssch:availableValue>
+ </Field>
+```
+
+Затронутый файл из triage:
+
+- `Documents/СчетНаОплатуКлиенту/Forms/ФормаСозданияСчетовНаОплату/Ext/Form.xml`.
+
+Владеющий модуль текущего diff:
+`packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField`.
+
+Связанный модуль, где встречается тот же XML-узел:
+`packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField`.
+
+Это не `packages/core/metadata/commonObjects/dataCompositionSystem/availableFields`.
+`availableFields` описывает доступные поля настроек СКД через `dcsset:field`, а текущий diff
+про доступные значения конкретного поля через `dcssch:availableValue`.
+
+### Текущая логика
+
+`DataCompositionSchemaDataSetFieldRules` содержит `dataPath`, `field`, `title`,
+`useRestriction`, `valueType` и другие свойства, но не содержит `availableValue`.
+Поэтому import не кладёт доступные значения в модель, а export не может восстановить их
+обратно.
+
+В XML-дампах найдено две формы `dcssch:availableValue`:
+
+```xml
+<dcssch:availableValue>
+  <dcssch:value xsi:type="xs:string">Выставлен</dcssch:value>
+  <dcssch:presentation xsi:type="v8:LocalStringType">...</dcssch:presentation>
+</dcssch:availableValue>
+```
+
+и для вычисляемого поля:
+
+```xml
+<dcssch:availableValue>
+  <dcssch:value xsi:nil="true"/>
+</dcssch:availableValue>
+<dcssch:availableValue>
+  <dcssch:value xsi:type="xs:boolean">true</dcssch:value>
+</dcssch:availableValue>
+```
+
+Значит решение должно быть общим для полей набора данных и вычисляемых полей, а nil-значение
+нужно представить без `null`.
+
+### Решение
+
+Добавить новый общий модуль:
+
+`packages/core/metadata/commonObjects/dataCompositionSystem/availableValues`.
+
+Модель одного элемента:
+
+```ts
+export interface DcsAvailableValue {
+  itemType: "DcsAvailableValue"
+  value?: MetadataDcsMetadataValue
+  presentation?: I8nText | string
+}
+```
+
+Коллекция:
+
+```ts
+export type DcsAvailableValues = DcsAvailableValue[]
+```
+
+YAML-имя свойства у владельцев: `ДоступныеЗначения`.
+
+YAML одного элемента:
+
+```yaml
+Значение: "'Выставлен'"
+Представление: Выставлен
+```
+
+Для `xsi:nil` не использовать `null` и не вводить строковый маркер. Модель и TS/YAML-фикстуры
+должны использовать отсутствие значения:
+
+```ts
+{ itemType: "DcsAvailableValue", value: undefined }
+```
+
+или, когда поле не нужно фиксировать явно:
+
+```ts
+{ itemType: "DcsAvailableValue" }
+```
+
+XML-экспорт nil-значения нельзя оставить обычному property-export механизму: свойство со
+значением `undefined` будет пропущено. Поэтому у `DcsAvailableValue` нужен собственный
+XML-обработчик элемента, который:
+
+- импортирует `<dcssch:value xsi:nil="true"/>` как отсутствующее `value`;
+- экспортирует отсутствующее `value` как `<dcssch:value xsi:nil="true"/>`;
+- обычные значения импортирует и экспортирует через `MetadataDcsMetadataValue` с
+  `valueType: "Primitive"`;
+- `dcssch:presentation` импортирует и экспортирует через `DcsLocalStringType`;
+- не использует `null` ни в модели, ни в YAML.
+
+Правила владельцев:
+
+```ts
+availableValues: {
+  type: "DcsAvailableValues",
+  xml: "dcssch:availableValue",
+  yaml: "ДоступныеЗначения",
+}
+```
+
+Свойство добавить в:
+
+- `DataCompositionSchemaDataSetFieldRules`;
+- `CalculatedFieldRules`.
+
+Порядок XML не задавать через `order` без необходимости: для реальных round-trip порядок
+должен подтягиваться из reference XML. Если узкая фикстура без reference потребует устойчивый
+порядок, допустимо указать порядок только для нового свойства и только рядом с наблюдаемым
+местом после `title` / `useRestriction`, чтобы не менять порядок остальных полей.
+
+### Архитектура
+
+Модуль `availableValues` должен регистрировать:
+
+- item rule для `DcsAvailableValue`;
+- collection rule `DcsAvailableValues` с XML-элементом `dcssch:availableValue`;
+- fromXML/toXML для элемента, потому nil-значение требует явного тега
+  `<dcssch:value xsi:nil="true"/>`;
+- fromYAML/toYAML можно оставить декларативными через item rule, если отсутствие `Значение`
+  корректно сохраняется как `undefined`.
+
+В `dataCompositionSystem/index.ts` нужно подключить новый модуль рядом с соседними DCS-типами.
+
+`PropertyRuleType` расширить:
+
+```ts
+DcsAvailableValue: {
+  item: DcsAvailableValue
+  yaml: DcsAvailableValueYAML
+}
+DcsAvailableValues: {
+  item: DcsAvailableValues
+  yaml: DcsAvailableValuesYAML
+}
+```
+
+`value` внутри элемента не должен использовать тип `DcsMetadataTypedValue`, потому в проекте
+уже есть `MetadataDcsMetadataValue` для DCS-значений в тегах `dcscor:value` / `dcssch:value`.
+Нужен только небольшой адаптер вокруг имени XML-узла: внутри `availableValue` это
+`dcssch:value`, а не `dcscor:value`.
+
+### Фикстуры
+
+Добавить фикстуры в `dataCompositionSystem/availableValues`:
+
+- XML с двумя `dcssch:availableValue`, где значения `xs:string`, а представления заданы через
+  `v8:LocalStringType`;
+- TS-модель с двумя элементами `DcsAvailableValue`;
+- YAML-модель коллекции с элементами, где используются `Значение` и `Представление`;
+- XML с `dcssch:value xsi:nil="true"` и XML с `xs:boolean`, чтобы закрыть вычисляемое поле.
+
+Добавить фикстуру для `dataCompositionSchemaDataSetField`:
+
+- XML `Field xsi:type="dcssch:DataSetFieldField"` с `dataPath`, `field`, `title` и двумя
+  `dcssch:availableValue`;
+- TS-модель с `availableValues`;
+- YAML-модель с `ДоступныеЗначения`.
+
+Добавить фикстуру для `calculatedField`:
+
+- XML `CalculatedField` с `dcssch:availableValue/dcssch:value xsi:nil="true"` и
+  `dcssch:availableValue/dcssch:value xsi:type="xs:boolean">true</dcssch:value>`;
+- TS-модель без `null`: первый элемент с отсутствующим `value`, второй с boolean-значением;
+- YAML-модель с тем же отсутствующим `Значение` у первого элемента.
+
+### Проверки
+
+Минимальный набор тестов:
+
+- `availableValues fromXML` импортирует строковые значения и представления;
+- `availableValues toXML` экспортирует строковые значения и представления обратно;
+- `availableValues fromXML` импортирует `dcssch:value xsi:nil="true"` как отсутствующее
+  `value`;
+- `availableValues toXML` экспортирует отсутствующее `value` обратно как
+  `<dcssch:value xsi:nil="true"/>`;
+- `availableValues fromYAML/toYAML` сохраняет `undefined`, не превращая его в `null`;
+- `DataCompositionSchemaDataSetField` импортирует и экспортирует `ДоступныеЗначения`;
+- `CalculatedField` импортирует и экспортирует `ДоступныеЗначения`;
+- XML round-trip формы из пункта 13 больше не теряет оба `dcssch:availableValue`.
+
+### Не входит
+
+- Использование существующего `availableFields`: это другой XML-пространственный контекст и
+  другая семантика.
+- Использование `null` в модели или YAML.
+- Строковый YAML-маркер для nil-значений.
+- XML-only сохранение через reference без полноценного YAML-представления.
