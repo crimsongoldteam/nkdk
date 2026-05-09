@@ -14,6 +14,7 @@ export const CalculatedFieldRules = {
       xml: "dcssch:expression",
       yaml: "Выражение",
       order: 2,
+      defaultValueXMLEmpty: "",
     },
     title: {
       type: "DcsLocalStringType",

@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest"
 import {
   catalogFullClientApplicationForm,
   catalogFullClientApplicationFormYAML,
+  customSettingsFolderClientApplicationForm,
+  customSettingsFolderClientApplicationFormYAML,
   fullClientApplicationForm,
   fullClientApplicationFormYAML,
 } from "./__fixtures__/data"
@@ -11,6 +13,10 @@ import { ButtonGroup, ButtonGroupPartialYAML } from "../elements/buttonGroup/typ
 import { Table } from "../elements/table/types"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
+
+type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
+  customSettingsFolder?: string
+}
 
 describe("importClientApplicationFormFromYAML", () => {
   it("should import all fields from YAML", () => {
@@ -198,5 +204,17 @@ describe("importClientApplicationFormFromYAML", () => {
     }
 
     expect(result).toEqual(expectedResult)
+  })
+
+  it("imports CustomSettingsFolder from YAML", () => {
+    const result = importClientApplicationFormFromYAML(mockContext, customSettingsFolderClientApplicationFormYAML, {
+      itemType: "ClientApplicationForm",
+      commands: [],
+      childItems: [],
+    })
+
+    expect((result as ClientApplicationFormWithCustomSettingsFolder).customSettingsFolder).toBe(
+      customSettingsFolderClientApplicationForm.customSettingsFolder
+    )
   })
 })

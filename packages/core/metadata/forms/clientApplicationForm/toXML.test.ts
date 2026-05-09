@@ -5,6 +5,7 @@ import { xmlExport } from "~/xml/export/exporter"
 import {
   catalogFullClientApplicationForm,
   conditionalAppearanceWithoutAttributesClientApplicationForm,
+  customSettingsFolderClientApplicationForm,
   fullClientApplicationForm,
   minimalClientApplicationForm,
 } from "./__fixtures__/data"
@@ -34,6 +35,33 @@ describe("exportToXML", () => {
         context: mockContextToXML(),
         form: fullClientApplicationForm,
         referenceForm: clientApplicationFormReference,
+      })
+
+      const result = xmlExport({ Form: xmlData })
+
+      expect(result).toEqual(expectedResult)
+    })
+
+    it("exports CustomSettingsFolder", () => {
+      const expectedXML = readXMLFixtureAsString(import.meta.url, "customSettingsFolder.xml").trimEnd()
+      const expectedResult = expectedXML.startsWith("\ufeff") ? expectedXML : `\ufeff${expectedXML}`
+      const referenceFormXML = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(
+        import.meta.url,
+        "customSettingsFolder.xml"
+      )
+      const referenceMetadataXML = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+        import.meta.url,
+        "customSettingsFolderMetadata.xml"
+      )
+      const referenceForm = importClientApplicationFormFromXML({
+        context: mockContextFromXML({ forReference: true }),
+        xml: referenceFormXML.Form,
+        xmlMetadata: referenceMetadataXML.MetaDataObject,
+      })
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: customSettingsFolderClientApplicationForm,
+        referenceForm,
       })
 
       const result = xmlExport({ Form: xmlData })

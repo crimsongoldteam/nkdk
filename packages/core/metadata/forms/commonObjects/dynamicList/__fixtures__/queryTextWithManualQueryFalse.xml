@@ -1,0 +1,10 @@
+<Settings xsi:type="DynamicList">
+	<ManualQuery>false</ManualQuery>
+	<DynamicDataRead>true</DynamicDataRead>
+	<QueryText>ВЫБРАТЬ
+  РеестрПартийЗЕРНО.Ссылка
+ИЗ
+  Справочник.РеестрПартийЗЕРНО КАК РеестрПартийЗЕРНО</QueryText>
+	<MainTable>Catalog.РеестрПартийЗЕРНО</MainTable>
+	<ListSettings/>
+</Settings>

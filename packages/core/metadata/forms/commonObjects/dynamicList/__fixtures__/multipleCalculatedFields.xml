@@ -1,0 +1,26 @@
+<Settings xsi:type="DynamicList">
+	<ManualQuery>false</ManualQuery>
+	<DynamicDataRead>true</DynamicDataRead>
+	<CalculatedField>
+		<dcssch:dataPath>РабочееМесто</dcssch:dataPath>
+		<dcssch:expression>ФискальноеУстройство.РабочееМесто</dcssch:expression>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Рабочее место</v8:content>
+			</v8:item>
+		</dcssch:title>
+	</CalculatedField>
+	<CalculatedField>
+		<dcssch:dataPath>ОбщееСостояниеПодключения</dcssch:dataPath>
+		<dcssch:expression/>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Настройки</v8:content>
+			</v8:item>
+		</dcssch:title>
+	</CalculatedField>
+	<MainTable>Catalog.ТСПИоТ</MainTable>
+	<ListSettings/>
+</Settings>

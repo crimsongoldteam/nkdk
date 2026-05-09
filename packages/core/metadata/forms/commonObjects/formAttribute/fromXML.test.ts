@@ -21,6 +21,8 @@ import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentS
 import { tableWithColumns } from "./__fixtures__/tableWithColumns"
 import { treeWithColumn } from "./__fixtures__/treeWithColumn"
 import { twoTables } from "./__fixtures__/twoTables"
+import { valueListWithReferenceEmptySettings } from "./__fixtures__/valueListWithReferenceEmptySettings"
+import { valueListWithoutSettings } from "./__fixtures__/valueListWithoutSettings"
 import { importFormAttributesFromXML } from "./fromXML"
 import { FormAttributesXML } from "./types"
 
@@ -190,6 +192,26 @@ describe("importFormAttributesFromXML", () => {
     })
 
     expect(result).toEqual(spreadsheetDocumentSettings)
+  })
+
+  it("imports ValueListType without Settings", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "valueListWithoutSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(valueListWithoutSettings)
+  })
+
+  it("imports ValueListType with empty reference Settings without valueType", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "valueListWithReferenceEmptySettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(valueListWithReferenceEmptySettings)
   })
 
   // it("should throw error when ConditionalAppearance is present in XML", () => {

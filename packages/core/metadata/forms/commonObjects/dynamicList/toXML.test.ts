@@ -3,6 +3,8 @@ import {
   emptyListSettingsDynamicList,
   fullDynamicList,
   minimalDynamicList,
+  multipleCalculatedFieldsDynamicList,
+  queryTextWithManualQueryFalseDynamicList,
 } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { exportPropertyToXML, PropertyRule } from "~/metadata/orchestration"
 import { mockContextToXML } from "~/tests/mockContext"
@@ -50,6 +52,30 @@ describe("export DynamicList to XML", () => {
       value: emptyListSettingsDynamicList,
       path: "emptyListSettings.xml",
       xmlRootTag: "Settings",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("exports QueryText with explicit ManualQuery false", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: queryTextWithManualQueryFalseDynamicList,
+      xmlRootTag: "Settings",
+      path: "queryTextWithManualQueryFalse.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("exports multiple CalculatedField nodes", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: multipleCalculatedFieldsDynamicList,
+      xmlRootTag: "Settings",
+      path: "multipleCalculatedFields.xml",
       importMetaUrl: import.meta.url,
     })
 

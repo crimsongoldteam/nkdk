@@ -5,39 +5,41 @@ export const queryText = "ВЫБРАТЬ\nСправочник1.Реквизит
 export const fullDynamicList = {
   autoFillAvailableFields: false,
   autoSaveUserSettings: false,
-  calculatedFields: {
-    dataPath: "Поле1",
-    expression: "Истина",
-    itemType: "CalculatedField",
-    orderExpressions: [
-      {
-        autoOrder: true,
-        expression: "Наименование",
-        itemType: "CalculatedFieldOrderExpression",
-        orderType: "Asc",
+  calculatedFields: [
+    {
+      dataPath: "Поле1",
+      expression: "Истина",
+      itemType: "CalculatedField",
+      orderExpressions: [
+        {
+          autoOrder: true,
+          expression: "Наименование",
+          itemType: "CalculatedFieldOrderExpression",
+          orderType: "Asc",
+        },
+        {
+          autoOrder: false,
+          expression: "Ссылка",
+          itemType: "CalculatedFieldOrderExpression",
+          orderType: "Desc",
+        },
+      ],
+      presentationExpression: "Наименование",
+      title: {
+        items: {
+          ru: "Поле1",
+        },
       },
-      {
-        autoOrder: false,
-        expression: "Ссылка",
-        itemType: "CalculatedFieldOrderExpression",
-        orderType: "Desc",
+      useRestriction: {
+        field: true,
+        group: true,
+        itemType: "CalculatedFieldUseRestriction",
       },
-    ],
-    presentationExpression: "Наименование",
-    title: {
-      items: {
-        ru: "Поле1",
+      valueType: {
+        type: ["string"],
       },
     },
-    useRestriction: {
-      field: true,
-      group: true,
-      itemType: "CalculatedFieldUseRestriction",
-    },
-    valueType: {
-      type: ["string"],
-    },
-  },
+  ],
   conditionalAppearance: {
     itemType: "ConditionalAppearance",
     userSettingID: true,
@@ -223,29 +225,31 @@ export const fullDynamicList = {
 export const fullDynamicListYAML = {
   АвтоЗаполнениеДоступныхПолей: "Ложь",
   АвтоматическоеСохранениеПользовательскихНастроек: "Ложь",
-  ВычисляемыеПоля: {
-    ПутьКДанным: "Поле1",
-    Выражение: "Истина",
-    Заголовок: "Поле1",
-    ОграничениеИспользования: {
-      Поле: "Истина",
-      Группировка: "Истина",
+  ВычисляемыеПоля: [
+    {
+      ПутьКДанным: "Поле1",
+      Выражение: "Истина",
+      Заголовок: "Поле1",
+      ОграничениеИспользования: {
+        Поле: "Истина",
+        Группировка: "Истина",
+      },
+      ВыражениеПредставления: "Наименование",
+      ВыраженияУпорядочивания: [
+        {
+          Выражение: "Наименование",
+          ТипУпорядочивания: "Возр",
+          Автоупорядочивание: "Истина",
+        },
+        {
+          Выражение: "Ссылка",
+          ТипУпорядочивания: "Убыв",
+          Автоупорядочивание: "Ложь",
+        },
+      ],
+      ТипЗначения: "Строка",
     },
-    ВыражениеПредставления: "Наименование",
-    ВыраженияУпорядочивания: [
-      {
-        Выражение: "Наименование",
-        ТипУпорядочивания: "Возр",
-        Автоупорядочивание: "Истина",
-      },
-      {
-        Выражение: "Ссылка",
-        ТипУпорядочивания: "Убыв",
-        Автоупорядочивание: "Ложь",
-      },
-    ],
-    ТипЗначения: "Строка",
-  },
+  ],
   УсловноеОформление: {
     Элементы: [
       {
@@ -344,6 +348,52 @@ export const emptyListSettingsDynamicList = {
   itemType: "DynamicList",
   mainTable: "Catalog.Справочник1",
 } as const satisfies DynamicList
+
+export const multipleCalculatedFieldsDynamicList = {
+  calculatedFields: [
+    {
+      itemType: "CalculatedField",
+      dataPath: "РабочееМесто",
+      expression: "ФискальноеУстройство.РабочееМесто",
+      title: {
+        items: {
+          ru: "Рабочее место",
+        },
+      },
+    },
+    {
+      itemType: "CalculatedField",
+      dataPath: "ОбщееСостояниеПодключения",
+      expression: "",
+      title: {
+        items: {
+          ru: "Настройки",
+        },
+      },
+    },
+  ],
+  customQuery: false,
+  dynamicDataRead: true,
+  itemType: "DynamicList",
+  mainTable: "Catalog.ТСПИоТ",
+} as const satisfies DynamicList
+
+export const queryTextWithManualQueryFalseText =
+  "ВЫБРАТЬ\n  РеестрПартийЗЕРНО.Ссылка\nИЗ\n  Справочник.РеестрПартийЗЕРНО КАК РеестрПартийЗЕРНО"
+
+export const queryTextWithManualQueryFalseDynamicList = {
+  customQuery: false,
+  dynamicDataRead: true,
+  itemType: "DynamicList",
+  queryText: queryTextWithManualQueryFalseText,
+  mainTable: "Catalog.РеестрПартийЗЕРНО",
+} as const satisfies DynamicList
+
+export const queryTextWithManualQueryFalseDynamicListYAML = {
+  ПроизвольныйЗапрос: "Ложь",
+  ДинамическоеСчитываниеДанных: "Истина",
+  ОсновнаяТаблица: "Catalog.РеестрПартийЗЕРНО",
+} as const satisfies Record<string, string>
 
 export const customQueryDynamicList = {
   АвтоЗаполнениеДоступныхПолей: "Истина",

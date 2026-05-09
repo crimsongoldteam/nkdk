@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { fullDynamicList, fullDynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
+import {
+  fullDynamicList,
+  fullDynamicListYAML,
+  queryTextWithManualQueryFalseDynamicListYAML,
+} from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
@@ -36,5 +40,19 @@ describe("import DynamicList from YAML", () => {
       value: imported,
     })
     expect(exported).toEqual({ ДинамическийСписок: fullDynamicListYAML })
+  })
+
+  it("imports explicit ManualQuery false from YAML even when queryText exists in model fixture", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: queryTextWithManualQueryFalseDynamicListYAML,
+    })
+
+    expect(result).toEqual({
+      customQuery: false,
+      dynamicDataRead: true,
+      itemType: "DynamicList",
+      mainTable: "Catalog.РеестрПартийЗЕРНО",
+    })
   })
 })

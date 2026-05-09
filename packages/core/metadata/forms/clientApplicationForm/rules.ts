@@ -111,6 +111,12 @@ export const ClientApplicationFormRules = {
       type: "CommandSet",
       tag: FormRulesTags.Form,
     },
+    customSettingsFolder: {
+      yaml: "ГруппаПользовательскихНастроек",
+      xml: "CustomSettingsFolder",
+      type: "string",
+      tag: FormRulesTags.Form,
+    },
     mobileDeviceCommandBarContent: {
       yaml: "СоставКоманднойПанелиНаМобильномУстройстве",
       type: "MobileDeviceCommandBarContent",

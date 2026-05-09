@@ -41,6 +41,10 @@ import {
   CalculatedFieldYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
 import {
+  CalculatedFields,
+  CalculatedFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFields/types"
+import {
   CalculatedFieldOrderExpression,
   CalculatedFieldOrderExpressionYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/types"
@@ -724,6 +728,10 @@ export type PropertyTypeRegistry = {
     item: CalculatedField
     yaml: CalculatedFieldYAML
   }
+  CalculatedFields: {
+    item: CalculatedFields
+    yaml: CalculatedFieldsYAML
+  }
   CalculatedFieldUseRestriction: {
     item: CalculatedFieldUseRestriction
     yaml: CalculatedFieldUseRestrictionYAML
@@ -909,6 +917,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   FilterItemPrimitiveValue: "FilterItemPrimitiveValue",
   AppearanceFields: "AppearanceFields",
   CalculatedField: "CalculatedField",
+  CalculatedFields: "CalculatedFields",
   CalculatedFieldUseRestriction: "CalculatedFieldUseRestriction",
   CalculatedFieldOrderExpression: "CalculatedFieldOrderExpression",
   DataCompositionSchemaDataSetField: "DataCompositionSchemaDataSetField",

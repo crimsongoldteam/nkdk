@@ -35,6 +35,14 @@ export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
     if (!shouldProcessProperty({ rule: propertyRule, operation: "exportToYAML" })) continue
     const value = data[key as keyof ToMetadata<Rule["itemType"]>]
 
+    if (propertyRule.derivedFrom?.externalFile) {
+      if (value === true) continue
+
+      const referencedKey = propertyRule.derivedFrom.externalFile as keyof ToMetadata<Rule["itemType"]>
+      const referencedValue = data[referencedKey]
+      if (value === propertyRule.defaultValueYAML && referencedValue === undefined) continue
+    }
+
     const exportedValues = exportPropertyToYAML({
       context,
       rule: propertyRule,

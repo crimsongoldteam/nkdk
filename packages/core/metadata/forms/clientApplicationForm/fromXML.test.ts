@@ -3,6 +3,7 @@ import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
 import {
   catalogFullClientApplicationForm,
   conditionalAppearanceWithoutAttributesClientApplicationForm,
+  customSettingsFolderClientApplicationForm,
   fullClientApplicationForm,
   minimalClientApplicationForm,
 } from "./__fixtures__/data"
@@ -69,5 +70,23 @@ describe("importClientApplicationFormFromXML", () => {
     })
 
     expect(result).toEqual(conditionalAppearanceWithoutAttributesClientApplicationForm)
+  })
+
+  it("imports CustomSettingsFolder", () => {
+    const xmlData = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(
+      import.meta.url,
+      "customSettingsFolder.xml"
+    )
+    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+      import.meta.url,
+      "customSettingsFolderMetadata.xml"
+    )
+    const result = importClientApplicationFormFromXML({
+      context: mockContextFromXML(),
+      xml: xmlData.Form,
+      xmlMetadata: xmlMetadata.MetaDataObject,
+    })
+
+    expect(result).toEqual(customSettingsFolderClientApplicationForm)
   })
 })

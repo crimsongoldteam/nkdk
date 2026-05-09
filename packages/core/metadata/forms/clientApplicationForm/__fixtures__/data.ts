@@ -1,6 +1,14 @@
 import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
 import { CommandInterface } from "~/metadata/forms/commonObjects/commandInterface/types"
 
+type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
+  customSettingsFolder: string
+}
+
+type ClientApplicationFormYAMLWithCustomSettingsFolder = ClientApplicationFormYAML & {
+  ГруппаПользовательскихНастроек: string
+}
+
 const fullCommandInterface: CommandInterface = {
   NavigationPanel: [],
   CommandBar: [
@@ -24,6 +32,7 @@ export const fullClientApplicationForm: Omit<
   | "mobileDeviceCommandBarContent"
   | "settingsStorage"
   | "scalingMode"
+  | "customSettingsFolder"
 > = {
   parameters: [
     {
@@ -293,6 +302,7 @@ export const fullClientApplicationFormYAML: Omit<
   | "СоставКоманднойПанелиНаМобильномУстройстве"
   | "ХранилищеНастроек"
   | "ВариантМасштаба"
+  | "ГруппаПользовательскихНастроек"
 > = {
   Синоним: "Синоним формы",
   Комментарий: "Комментарий к форме",
@@ -423,6 +433,7 @@ export const fullClientApplicationFormYAML: Omit<
   | "СоставКоманднойПанелиНаМобильномУстройстве"
   | "ХранилищеНастроек"
   | "ВариантМасштаба"
+  | "ГруппаПользовательскихНастроек"
 >
 
 export const catalogFullClientApplicationFormYAML: ClientApplicationFormYAML = {
@@ -579,4 +590,39 @@ export const minimalClientApplicationFormMetadataReference: ClientApplicationFor
 }
 export const minimalClientApplicationFormYAML: ClientApplicationFormYAML = {
   НазначенияИспользования: "ПлатформаИМобильноеПриложение",
+}
+
+export const customSettingsFolderClientApplicationForm: ClientApplicationFormWithCustomSettingsFolder = {
+  itemType: "ClientApplicationForm",
+  synonym: { items: {} },
+  comment: "",
+  includeHelpInContents: false,
+  autoCommandBar: {
+    itemType: "AutoCommandBar",
+    autofill: true,
+    horizontalAlign: "Right",
+    childItems: [],
+  },
+  childItems: [
+    {
+      itemType: "UsualGroup",
+      name: "ГруппаПользовательскихНастроек",
+      title: { items: { ru: "Пользовательские настройки" } },
+      group: "HorizontalIfPossible",
+      showTitle: true,
+      childItems: [],
+    },
+  ],
+  attributes: [],
+  commands: [],
+  commandSet: ["EndEdit"],
+  customSettingsFolder: "ГруппаПользовательскихНастроек",
+}
+
+export const customSettingsFolderClientApplicationFormYAML: ClientApplicationFormYAMLWithCustomSettingsFolder = {
+  КоманднаяПанель: {
+    ГоризонтальноеПоложение: "Право",
+  },
+  СоставКоманд: ["EndEdit"],
+  ГруппаПользовательскихНастроек: "ГруппаПользовательскихНастроек",
 }

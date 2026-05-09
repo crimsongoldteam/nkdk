@@ -1,6 +1,7 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importMetadataItemFromXML, registerTypeRule } from "~/metadata/orchestration"
+import { XML_SOURCE_KEYS } from "~/metadata/orchestration/property/helpers"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import { importTypedFormAttributeSettingsFromXML } from "./settings"
 import {
@@ -91,6 +92,10 @@ const importFormAttributeFromXML = (context: ConfigurationContextFromXML, xml: F
     if (result.additionalColumns === undefined && additionalColumns.length > 0)
       result.additionalColumns = additionalColumns
     Object.assign(result, typedSettings)
+
+    if (xml.Settings !== undefined && result.valueType === undefined) {
+      setXMLSourceKey(result, "valueType", "Settings")
+    }
 
     return result as FormAttribute
   }
@@ -189,3 +194,18 @@ const importFormAttributeAdditionalColumnsFromXML = (
 registerTypeRule("FormAttributes", "importFromXML", importFormAttributesFromXML)
 registerTypeRule("FormAttributeColumns", "importFromXML", importFormAttributeColumnsFromXML)
 registerTypeRule("FormAttributeAdditionalColumns", "importFromXML", importFormAttributeAdditionalColumnsFromXML)
+
+const setXMLSourceKey = (result: object, key: string, xmlKey: string): void => {
+  const currentMap = (result as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
+  const sourceKeys =
+    currentMap !== undefined && currentMap !== null && typeof currentMap === "object"
+      ? (currentMap as Record<string, string>)
+      : {}
+  sourceKeys[key] = xmlKey
+  if (currentMap === undefined) {
+    Object.defineProperty(result, XML_SOURCE_KEYS, {
+      value: sourceKeys,
+      enumerable: true,
+    })
+  }
+}
