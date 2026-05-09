@@ -1078,3 +1078,175 @@ DcsAvailableValues: {
 - Использование `null` в модели или YAML.
 - Строковый YAML-маркер для nil-значений.
 - XML-only сохранение через reference без полноценного YAML-представления.
+
+## Задача 8: нестандартные имена singleton-дополнений формы
+
+### Исходный diff
+
+В формах просмотра электронных документов после round-trip меняются имена singleton-элементов
+таблицы и имена их вложенных singleton-элементов:
+
+```diff
+- <SearchStringAddition name="ТаблицаЭПСтрокаПоиска" id="327">
++ <SearchStringAddition name="ПодписиСтрокаПоиска" id="327">
+    <AdditionSource>
+      <Item>Подписи</Item>
+      <Type>SearchStringRepresentation</Type>
+    </AdditionSource>
+    <ContextMenu name="ТаблицаЭПСтрокаПоискаКонтекстноеМеню" id="328"/>
+-   <ExtendedTooltip name="ТаблицаЭПСтрокаПоискаРасширеннаяПодсказка" id="329"/>
++   <ExtendedTooltip name="ПодписиСтрокаПоискаРасширеннаяПодсказка" id="329"/>
+  </SearchStringAddition>
+```
+
+Та же причина повторяется для:
+
+- `ViewStatusAddition`;
+- `SearchControlAddition`;
+- вложенных `ContextMenu` и `ExtendedTooltip`;
+- таблицы `СхемаМаршрутаПодписания`, где reference-имена начинаются с
+  `ДеревоМаршрутаПодписания...`.
+
+Затронутые файлы из triage:
+
+- `Documents/ЭлектронныйДокументВходящийЭДО/Forms/ФормаПросмотра/Ext/Form.xml`;
+- `Documents/ЭлектронныйДокументВходящийЭДО/Forms/ФормаПросмотраМК/Ext/Form.xml`;
+- `Documents/ЭлектронныйДокументИсходящийЭДО/Forms/ФормаПросмотра/Ext/Form.xml`;
+- `Documents/ЭлектронныйДокументИсходящийЭДО/Forms/ФормаПросмотраМК/Ext/Form.xml`.
+
+### Текущая логика
+
+`SearchStringAddition`, `ViewStatusAddition` и `SearchControlAddition` зарегистрированы как
+singletons через `registerElementAsType`. Их `toXML` всегда генерирует имя от текущего
+владельца:
+
+```ts
+getSearchStringAdditionName(parent) // `${parent.name}СтрокаПоиска`
+getViewStatusAdditionName(parent) // `${parent.name}СостояниеПросмотра`
+getSearchControlAdditionName(parent) // `${parent.name}УправлениеПоиском`
+```
+
+Механизм `nameStyle` сейчас сохраняет только суффикс из reference XML, например
+`SearchString` вместо `СтрокаПоиска`. База имени всегда берётся от текущего владельца.
+Поэтому нестандартная база `ТаблицаЭП...` теряется и заменяется на `Подписи...`.
+
+При этом нельзя просто сохранять любое несовпавшее имя: элемент-владелец мог быть
+переименован. Если reference-таблица называлась `СтарыйСписок`, а новая модель содержит
+`НовыйСписок`, стандартное reference-имя `СтарыйСписокСтрокаПоиска` должно стать
+`НовыйСписокСтрокаПоиска`.
+
+### Решение
+
+Расширить механизм singleton-имён так, чтобы он определял стандартность имени относительно
+имени reference-владельца, а не относительно текущего владельца.
+
+Для каждого singleton-элемента с `nameStyle` при reference-import нужно знать:
+
+- собственное XML-имя singleton-элемента;
+- XML-имя его непосредственного владельца;
+- список известных reference-суффиксов из `nameStyle.referenceSuffixes`.
+
+Правило:
+
+```ts
+const standardReferenceNames = referenceSuffixes.map((suffix) => `${ownerXmlName}${suffix}`)
+
+if (standardReferenceNames.includes(singletonXmlName)) {
+  // имя стандартное для старого владельца: при export пересчитываем базу от текущего владельца
+  mode = { kind: "suffix", suffix }
+} else {
+  // имя нестандартное или историческое: при export сохраняем точное XML-имя из reference
+  mode = { kind: "exact", name: singletonXmlName }
+}
+```
+
+Если reference отсутствует, поведение остаётся прежним: имя генерируется от текущего
+владельца.
+
+### Иерархия владельцев
+
+Владелец определяется на каждом уровне отдельно:
+
+- для `SearchStringAddition`, `ViewStatusAddition`, `SearchControlAddition` владелец -
+  таблица `Table`;
+- для вложенных `ContextMenu` и `ExtendedTooltip` внутри `SearchStringAddition` владелец -
+  сам `SearchStringAddition`;
+- для вложенных `ContextMenu` и `ExtendedTooltip` внутри `ViewStatusAddition` владелец -
+  сам `ViewStatusAddition`;
+- для вложенных `ContextMenu`, `ExtendedTooltip` и дочерних кнопок внутри
+  `SearchControlAddition` владелец - сам `SearchControlAddition`.
+
+Это важно для текущего diff: если `SearchStringAddition` сохраняет точное имя
+`ТаблицаЭПСтрокаПоиска`, то его `ExtendedTooltip` должен считаться стандартным относительно
+именно этого владельца и экспортироваться как
+`ТаблицаЭПСтрокаПоискаРасширеннаяПодсказка`.
+
+### Архитектура
+
+Обновить `packages/core/metadata/orchestration/formElement/singletonName.ts`:
+
+- заменить скрытый carrier только с суффиксом на скрытый carrier с режимом имени:
+  `suffix` или `exact`;
+- режим `suffix` работает как сейчас и поддерживает переименование владельца;
+- режим `exact` возвращает точное reference-имя и тем самым сохраняет нестандартные имена
+  в XML round-trip.
+
+Чтобы определить режим, reference-import должен передавать в singleton-name helper имя
+непосредственного XML-владельца. Это можно сделать на уровне `importPropertiesFromXML`:
+при обработке свойства текущего XML-элемента владельцем является `xml._name`; при вложенном
+singleton-элементе тот же механизм сработает повторно, уже с XML-именем этого singleton как
+владельца для его внутренних свойств.
+
+`registerElementAsType` и `importSingleElementFromXML` должны получить необязательный
+`ownerXmlName`. Если `ownerXmlName` недоступен, используется прежняя логика suffix-only,
+чтобы не ломать вызовы без иерархического контекста.
+
+Публичную TS/YAML-модель не расширять полем `name` для singleton-дополнений. Точные
+нестандартные имена остаются XML-reference деталью и не попадают в YAML. После YAML -> XML
+без reference имена по-прежнему генерируются стандартно.
+
+### Фикстуры
+
+Добавить XML/TS/YAML-фикстуру на уровне `Table` или общего form-elements набора:
+
+- XML: таблица `Подписи` с `SearchStringAddition name="ТаблицаЭПСтрокаПоиска"`,
+  вложенными `ContextMenu name="ТаблицаЭПСтрокаПоискаКонтекстноеМеню"` и
+  `ExtendedTooltip name="ТаблицаЭПСтрокаПоискаРасширеннаяПодсказка"`;
+- XML: `ViewStatusAddition name="ТаблицаЭПСостояниеПросмотра"` и
+  `SearchControlAddition name="ТаблицаЭПУправлениеПоиском"` с аналогичными вложенными
+  singleton-именами;
+- TS: singleton-свойства без публичного `name`, потому имя берётся из reference XML;
+- YAML: те же singleton-свойства без `Имя`; YAML-цикл не должен обещать сохранение
+  нестандартных XML-имён без reference.
+
+Дополнительно добавить узкий unit-тест для `singletonName` / `singletonNameReference`:
+
+- стандартное reference-имя `СтарыйСписокСтрокаПоиска` при текущем владельце `НовыйСписок`
+  экспортируется как `НовыйСписокСтрокаПоиска`;
+- нестандартное reference-имя `ТаблицаЭПСтрокаПоиска` при reference-владельце `Подписи`
+  сохраняется как `ТаблицаЭПСтрокаПоиска`;
+- вложенный `ExtendedTooltip`, стандартный относительно нестандартного
+  `SearchStringAddition`, сохраняет имя
+  `ТаблицаЭПСтрокаПоискаРасширеннаяПодсказка`.
+
+### Проверки
+
+Минимальный набор тестов:
+
+- XML import/export фикстуры таблицы сохраняет нестандартные имена `SearchStringAddition`,
+  `ViewStatusAddition`, `SearchControlAddition`;
+- XML import/export сохраняет вложенные `ContextMenu` и `ExtendedTooltip` относительно
+  точного имени их непосредственного владельца;
+- unit-тест подтверждает, что стандартное reference-имя пересчитывается при переименовании
+  владельца;
+- YAML import/export не добавляет публичное поле `name` / `Имя` для singleton-дополнений;
+- short round-trip файлов из пунктов 17-20 больше не меняет имена `ТаблицаЭП...`,
+  `ДеревоМаршрутаПодписания...` на имена от текущих таблиц.
+
+### Не входит
+
+- Добавление публичного `name` / `Имя` в YAML для singleton-дополнений.
+- Сохранение нестандартных XML-имён без reference XML.
+- Изменение правил генерации стандартных имён.
+- Изменение поиска reference для обычных дочерних элементов формы: переименование владельца
+  по-прежнему приводит к генерации новых стандартных singleton-имён.
