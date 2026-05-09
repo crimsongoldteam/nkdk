@@ -117,8 +117,8 @@
 	<TypeDomainEnabled>false</TypeDomainEnabled>
 	<TextEdit>false</TextEdit>
 	<EditTextUpdate>OnValueChange</EditTextUpdate>
-	<MinValue>10</MinValue>
-	<MaxValue>90</MaxValue>
+	<MinValue xsi:type="xs:decimal">10</MinValue>
+	<MaxValue xsi:type="xs:decimal">90</MaxValue>
 	<ChoiceButtonPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>

@@ -257,8 +257,8 @@ export const TableInputFieldRules = {
   properties: {
     ...InputFieldRules.properties,
     ...formFieldTableRelatedProperties,
-    minValue: { yaml: "МинимальноеЗначение", type: "number", xml: "MinValue" },
-    maxValue: { yaml: "МаксимальноеЗначение", type: "number", xml: "MaxValue" },
+    minValue: { yaml: "МинимальноеЗначение", type: "number", xml: "MinValue", typedXML: true },
+    maxValue: { yaml: "МаксимальноеЗначение", type: "number", xml: "MaxValue", typedXML: true },
   },
 } as const satisfies ElementRule
 
