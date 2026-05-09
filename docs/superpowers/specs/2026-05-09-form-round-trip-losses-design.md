@@ -533,3 +533,152 @@ reference-модели, например `{ value: number, xsiType: "xs:string" 
 - Принудительная выгрузка всех `MinValue/MaxValue` как `xs:string`.
 - Изменение обычного типа `number`.
 - Перевод `trackBarField` и `progressBarField`, пока их `minValue/maxValue` не участвуют в XML.
+
+## Задача 5: KeyField и KeyType у DynamicList
+
+### Исходный diff
+
+В двух формах после round-trip пропадает `KeyField` у динамического списка:
+
+```diff
+ <Parameter>
+   ...
+ </Parameter>
+-<KeyField>Ссылка</KeyField>
+ <ListSettings>
+```
+
+Затронутые файлы из triage:
+
+- `Documents/ЗаявлениеОВвозеТоваров/Forms/ФормаВыбораОснования/Ext/Form.xml`;
+- `Documents/ЗаявлениеОВвозеТоваров/Forms/ФормаРабочееМесто/Ext/Form.xml`.
+
+В ещё одной форме пропадает пара `KeyType` и `KeyField`:
+
+```diff
+ <Parameter>
+   ...
+ </Parameter>
+-<KeyType>FieldValue</KeyType>
+-<KeyField>Ссылка</KeyField>
+ <ListSettings/>
+```
+
+Затронутый файл:
+`Documents/ОтчетКомитенту/Forms/ФормаПодбораДокументаПродажи/Ext/Form.xml`.
+
+Владеющий модуль:
+`packages/core/metadata/forms/commonObjects/dynamicList`.
+
+### Текущая логика
+
+В `DynamicListRules` свойство `keyFields` уже описано как часть модели и YAML:
+
+```ts
+keyFields: {
+  type: "string",
+  xml: "KeyField",
+  yaml: "ПоляКлюча",
+  fromXML: false,
+  toXML: false,
+}
+```
+
+Но XML-импорт и XML-экспорт для него выключены, поэтому `KeyField` не попадает в модель
+из XML и не возвращается обратно.
+
+Свойство `keyType` сейчас закомментировано. При этом системное перечисление
+`DynamicListKeyType` уже есть и содержит нужные значения:
+
+- `Auto` / `Авто`;
+- `FieldValue` / `ЗначениеПоля`;
+- `RowKey` / `КлючСтроки`;
+- `RowNumber` / `НомерСтроки`.
+
+### Решение
+
+Сделать `KeyField` и `KeyType` полноценными свойствами `DynamicList` с поддержкой XML,
+TS-модели и YAML.
+
+Для `keyFields` убрать запреты `fromXML: false` и `toXML: false`, сохранив текущее имя
+модели и YAML:
+
+```ts
+keyFields: {
+  type: "string",
+  xml: "KeyField",
+  yaml: "ПоляКлюча",
+}
+```
+
+Для `keyType` включить правило через существующее перечисление:
+
+```ts
+keyType: {
+  type: "SystemEnumeration",
+  typeSE: "DynamicListKeyType",
+  xml: "KeyType",
+  yaml: "ВидКлюча",
+  defaultValueYAML: "Авто",
+}
+```
+
+YAML-представление:
+
+```yaml
+ВидКлюча: ЗначениеПоля
+ПоляКлюча: Ссылка
+```
+
+TS-модель:
+
+```ts
+{
+  keyType: "FieldValue",
+  keyFields: "Ссылка",
+}
+```
+
+Не добавлять `defaultValueXML` для `keyType`: если в исходном XML нет `KeyType`, новый
+экспорт не должен сам создавать `<KeyType>Auto</KeyType>`.
+
+Решение остаётся в `rules.ts`; отдельные fromXML/toXML/fromYAML/toYAML-обработчики не нужны.
+
+### Фикстуры
+
+Добавить отдельную узкую фикстуру в
+`packages/core/metadata/forms/commonObjects/dynamicList/__fixtures__/`, не расширяя большую
+`full`-фикстуру.
+
+Фикстура должна содержать:
+
+- XML с `<KeyType>FieldValue</KeyType>` и `<KeyField>Ссылка</KeyField>`;
+- TS-модель с `keyType: "FieldValue"` и `keyFields: "Ссылка"`;
+- YAML-данные в `data.ts` с `ВидКлюча: "ЗначениеПоля"` и `ПоляКлюча: "Ссылка"`.
+
+XML должен быть маленьким для локального чтения, но оставаться валидным
+`Settings xsi:type="DynamicList"`. Использовать минимальный динамический список с
+`ManualQuery`, `DynamicDataRead`, `QueryText`, `KeyType`, `KeyField` и `ListSettings`.
+
+### Проверки
+
+Минимальный набор тестов:
+
+- `fromXML` импортирует `KeyField` в `keyFields`;
+- `fromXML` импортирует `<KeyType>FieldValue</KeyType>` в `keyType: "FieldValue"`;
+- `toXML` экспортирует `keyFields` обратно в `<KeyField>Ссылка</KeyField>`;
+- `toXML` экспортирует `keyType: "FieldValue"` обратно в `<KeyType>FieldValue</KeyType>`;
+- `fromYAML` импортирует `ПоляКлюча` и `ВидКлюча` в модель;
+- `toYAML` экспортирует `keyFields` и `keyType` как `ПоляКлюча` и `ВидКлюча`;
+- XML round-trip новой фикстуры не теряет `KeyField` и `KeyType`.
+
+Ожидаемый эффект для round-trip: пункты 7, 8 и 10 triage больше не должны терять
+`KeyField`; пункт 10 также не должен терять `KeyType`.
+
+### Не входит
+
+- Перевод `keyFields` в массив: текущие наблюдаемые XML используют один `KeyField`, а
+  существующее правило уже моделирует это строкой.
+- XML-only сохранение через `preserveFromReferenceXML`: выбран полноценный YAML-путь.
+- Добавление `order` в правила без отдельной необходимости; порядок должен определяться
+  текущим reference-based механизмом.
