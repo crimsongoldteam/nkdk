@@ -35,6 +35,9 @@
 		</v8:item>
 	</WarningOnEdit>
 	<Shortcut>S</Shortcut>
+	<CommandSet>
+		<ExcludedCommand>Bold</ExcludedCommand>
+	</CommandSet>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<VerticalAlign>Top</VerticalAlign>
 	<GroupHorizontalAlign>Left</GroupHorizontalAlign>

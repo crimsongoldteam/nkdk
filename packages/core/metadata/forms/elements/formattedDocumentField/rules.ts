@@ -13,6 +13,7 @@ export const FormattedDocumentFieldRules = {
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     backColor: { yaml: "ЦветФона", type: "Color" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
+    commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
     font: { yaml: "Шрифт", type: "Font" },
     height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
