@@ -79,6 +79,10 @@ export const ExtendedTooltipRules = {
 registerElementAsType({
   propertyType: "ExtendedTooltip",
   elementRule: ExtendedTooltipRules,
+  nameStyle: {
+    canonicalSuffix: "РасширеннаяПодсказка",
+    referenceSuffixes: ["РасширеннаяПодсказка", "ExtendedTooltip"],
+  },
   toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
     const { context } = params
     const parent = getParentFromContext(context)

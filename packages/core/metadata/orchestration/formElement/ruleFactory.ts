@@ -22,6 +22,7 @@ import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { registerTypeRule } from "./factory"
 import { importSingleElementFromXML } from "./fromXML"
 import { importSingleElementFromYAML } from "./fromYAML"
+import { applyReferenceNameSuffix, type SingletonNameStyle } from "./singletonName"
 
 export const getElementRule = <Rule extends ElementRule>(itemType: Rule["itemType"]): Rule => {
   const rule = elementRulesRegistry.get(itemType)
@@ -55,17 +56,24 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
   propertyType: PropertyRuleType
   elementRule: Rule
   toXML: ToXMLFn<ToMetadata<Rule["itemType"]>>
+  nameStyle?: SingletonNameStyle
 }): void => {
-  const { propertyType, elementRule, toXML } = params
+  const { propertyType, elementRule, toXML, nameStyle } = params
   const itemType = elementRule.itemType
 
-  registerImportFromXML(propertyType, elementRule)
+  registerImportFromXML({ propertyType, elementRule, nameStyle })
   registerExportToYAML(propertyType)
   registerimportFromYAML(propertyType, itemType)
-  registerExportToXML({ propertyType, toXML, elementRule })
+  registerExportToXML({ propertyType, toXML, elementRule, nameStyle })
 }
 
-const registerImportFromXML = <Rule extends ElementRule>(propertyType: PropertyRuleType, elementRule: Rule): void => {
+const registerImportFromXML = <Rule extends ElementRule>(params: {
+  propertyType: PropertyRuleType
+  elementRule: Rule
+  nameStyle?: SingletonNameStyle
+}): void => {
+  const { propertyType, elementRule, nameStyle } = params
+
   registerTypeRule(
     propertyType,
     "importFromXML",
@@ -78,6 +86,7 @@ const registerImportFromXML = <Rule extends ElementRule>(propertyType: PropertyR
         context,
         elementRule: elementRule,
         xml,
+        nameStyle,
       }) as ToMetadata<Rule["itemType"]> | undefined
     }
   )
@@ -123,8 +132,9 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
   propertyType: PropertyRuleType
   toXML: ToXMLFn<ToMetadata<Rule["itemType"]>>
   elementRule: Rule
+  nameStyle?: SingletonNameStyle
 }): void => {
-  const { propertyType, toXML, elementRule } = params
+  const { propertyType, toXML, elementRule, nameStyle } = params
 
   const fn: ExportToXMLFunctionNew = (params: {
     context: ConfigurationContextWithExportToXML
@@ -135,18 +145,38 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
   }): ElementXMLWithoutId => {
     const { context, value, referenceMetadata } = params
     const element = value as ToMetadata<Rule["itemType"]> | undefined
+    const referenceElement = referenceMetadata as ToMetadata<Rule["itemType"]> | undefined
     const extraParams = toXML({ context, element })
+    const name = applyReferenceNameSuffix({
+      generatedName: extraParams.name,
+      referenceElement,
+      nameStyle,
+    })
+    const referenceElementForXML = nameStyle === undefined ? referenceElement : omitReferenceName(referenceElement)
 
     return exportSingleElementToXML({
       context,
       element,
       rule: elementRule,
-      referenceElement: referenceMetadata as ToMetadata<Rule["itemType"]> | undefined,
-      additionalParams: extraParams,
+      referenceElement: referenceElementForXML,
+      additionalParams: {
+        ...extraParams,
+        name,
+      },
     })
   }
 
   registerTypeRule(propertyType, "exportToXML", fn)
+}
+
+const omitReferenceName = <T extends object | undefined>(referenceElement: T): T => {
+  if (referenceElement === undefined || !Object.prototype.hasOwnProperty.call(referenceElement, "name")) {
+    return referenceElement
+  }
+
+  const referenceElementWithoutName = { ...referenceElement }
+  delete (referenceElementWithoutName as { name?: unknown }).name
+  return referenceElementWithoutName as T
 }
 
 const elementRulesRegistry = new Map<ElementType, ElementRule>()

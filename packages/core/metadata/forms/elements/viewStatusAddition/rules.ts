@@ -59,6 +59,10 @@ export const ViewStatusAdditionRules = {
 registerElementAsType({
   propertyType: "ViewStatusAddition",
   elementRule: ViewStatusAdditionRules,
+  nameStyle: {
+    canonicalSuffix: "СостояниеПросмотра",
+    referenceSuffixes: ["СостояниеПросмотра", "ViewStatus"],
+  },
   toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
     const { context } = params
     const parent = getParentFromContext(context, ["Table", "PDFDocumentField"])

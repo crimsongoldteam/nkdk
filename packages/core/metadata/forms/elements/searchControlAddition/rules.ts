@@ -98,6 +98,10 @@ export const SearchControlAdditionRules = {
 registerElementAsType({
   propertyType: "SingleSearchControlAddition",
   elementRule: SingleSearchControlAdditionRules,
+  nameStyle: {
+    canonicalSuffix: "УправлениеПоиском",
+    referenceSuffixes: ["УправлениеПоиском", "SearchControl"],
+  },
   toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
     const { context } = params
     if (!context.exportToXML.itemsTree) throw new Error("elementContext is not defined")

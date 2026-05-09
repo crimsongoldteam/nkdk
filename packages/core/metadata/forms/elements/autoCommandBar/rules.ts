@@ -48,6 +48,10 @@ export const AutoCommandBarRules = {
 registerElementAsType({
   propertyType: "AutoCommandBar",
   elementRule: AutoCommandBarRules,
+  nameStyle: {
+    canonicalSuffix: "ФормаКоманднаяПанель",
+    referenceSuffixes: ["ФормаКоманднаяПанель", "FormCommandBar"],
+  },
   toXML: () => ({
     id: "-1",
     name: "ФормаКоманднаяПанель",
@@ -57,6 +61,10 @@ registerElementAsType({
 registerElementAsType({
   propertyType: "TableAutoCommandBar",
   elementRule: AutoCommandBarRules,
+  nameStyle: {
+    canonicalSuffix: "КоманднаяПанель",
+    referenceSuffixes: ["КоманднаяПанель", "CommandBar"],
+  },
   toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
     const { context } = params
     const parentTable = getParentFromContext(context, ["Table"])
