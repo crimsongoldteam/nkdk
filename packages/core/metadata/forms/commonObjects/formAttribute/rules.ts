@@ -108,6 +108,20 @@ export const FormAttributeRules = {
       xml: "Settings",
       yaml: "ДинамическийСписок",
     },
+    chart: {
+      type: "Chart",
+      xml: "Settings",
+      yaml: "Диаграмма",
+      fromXML: false,
+      toXML: false,
+    },
+    spreadsheetDocument: {
+      type: "SpreadsheetDocument",
+      xml: "Settings",
+      yaml: "ТабличныйДокумент",
+      fromXML: false,
+      toXML: false,
+    },
   },
 } as const satisfies MetadataItemRule
 

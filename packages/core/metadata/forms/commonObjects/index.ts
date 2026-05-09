@@ -56,5 +56,7 @@ import "./event/toXML"
 import "./event/toYAML"
 
 import "./dynamicList/types"
+import "./chart/types"
+import "./spreadsheetDocument/types"
 
 import "./elementId/toXML"

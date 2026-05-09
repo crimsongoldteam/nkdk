@@ -2,6 +2,7 @@ import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importMetadataItemFromXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
+import { importTypedFormAttributeSettingsFromXML } from "./settings"
 import {
   FormAttribute,
   FormAttributeAdditionalColumns,
@@ -58,6 +59,7 @@ const importFormAttributeFromXML = (context: ConfigurationContextFromXML, xml: F
 
   const columns = importColumnsFromXML(context, xml.Columns?.Column)
   const additionalColumns = importAdditionalColumnsFromXML(context, xml.Columns?.AdditionalColumns)
+  const typedSettings = importTypedFormAttributeSettingsFromXML(context, xml.Settings)
   const {
     columns: _importedColumns,
     additionalColumns: _importedAdditionalColumns,
@@ -88,12 +90,14 @@ const importFormAttributeFromXML = (context: ConfigurationContextFromXML, xml: F
     if (result.columns === undefined) result.columns = columns
     if (result.additionalColumns === undefined && additionalColumns.length > 0)
       result.additionalColumns = additionalColumns
+    Object.assign(result, typedSettings)
 
     return result as FormAttribute
   }
 
   const result: FormAttributeWithAdditionalColumns = {
     ...properties,
+    ...typedSettings,
     itemType: FormAttributeRules.itemType,
     name: xml._name,
     title: properties.title!,

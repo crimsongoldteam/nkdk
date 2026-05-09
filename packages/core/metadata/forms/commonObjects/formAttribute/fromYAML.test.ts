@@ -24,7 +24,51 @@ import {
   withFunctionalOptionsFormAttributeYAML,
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
+import { chartSettings } from "./__fixtures__/chartSettings"
+import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
 import { importFormAttributesFromYAML } from "./fromYAML"
+
+const chartSettingsYAML = {
+  Диаграмма: {
+    Тип: "Диаграмма",
+    Заголовок: "",
+    Диаграмма: `<d4p1:seriesCurId>1</d4p1:seriesCurId>
+<d4p1:pointsCurId>0</d4p1:pointsCurId>
+<d4p1:realExSeriesData>
+	<d4p1:id>1</d4p1:id>
+	<d4p1:color>auto</d4p1:color>
+	<d4p1:line width="2" gap="false">
+		<v8ui:style xsi:type="v8ui:ChartLineType">Solid</v8ui:style>
+	</d4p1:line>
+	<d4p1:text/>
+</d4p1:realExSeriesData>
+<d4p1:valuesAxis/>
+<d4p1:pointsAxis/>`,
+  },
+}
+
+const spreadsheetDocumentSettingsYAML = {
+  Макет: {
+    Тип: "ТабличныйДокумент",
+    Заголовок: "",
+    ТабличныйДокумент: `<mxl:languageSettings>
+	<mxl:currentLanguage/>
+	<mxl:defaultLanguage/>
+</mxl:languageSettings>
+<mxl:columns>
+	<mxl:size>3</mxl:size>
+</mxl:columns>
+<mxl:rowsItem>
+	<mxl:index>0</mxl:index>
+	<mxl:row>
+		<mxl:empty>true</mxl:empty>
+	</mxl:row>
+</mxl:rowsItem>
+<mxl:format>
+	<mxl:width>72</mxl:width>
+</mxl:format>`,
+  },
+}
 
 describe("importFormAttributesFromYAML", () => {
   it("should return undefined when data is undefined", () => {
@@ -102,5 +146,17 @@ describe("importFormAttributesFromYAML", () => {
     const result = importFormAttributesFromYAML(mockContext, mockRule, mixedColumnsFormAttributeYAML)
 
     expect(result).toEqual(mixedColumnsFormAttribute)
+  })
+
+  it("should import chartSettings", () => {
+    const result = importFormAttributesFromYAML(mockContext, mockRule, chartSettingsYAML)
+
+    expect(result).toEqual(chartSettings)
+  })
+
+  it("should import spreadsheetDocumentSettings", () => {
+    const result = importFormAttributesFromYAML(mockContext, mockRule, spreadsheetDocumentSettingsYAML)
+
+    expect(result).toEqual(spreadsheetDocumentSettings)
   })
 })

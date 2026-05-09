@@ -204,6 +204,7 @@ import { CommandInterface, CommandInterfaceYAML } from "~/metadata/forms/commonO
 import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/commandSet/types"
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
+import { Chart, ChartYAML } from "~/metadata/forms/commonObjects/chart/types"
 import {
   FormAttributeAdditionalColumnYAML,
   FormAttributeAdditionalColumnsCollection,
@@ -215,6 +216,10 @@ import {
 import { FormCommands, FormCommandsYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { FormParameters, FormParametersYAML } from "~/metadata/forms/commonObjects/formParameter/types"
 import { ScrollBarUseEnterprise } from "~/metadata/forms/commonObjects/scrollBarUse/types"
+import {
+  SpreadsheetDocument,
+  SpreadsheetDocumentYAML,
+} from "~/metadata/forms/commonObjects/spreadsheetDocument/types"
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/types"
@@ -547,6 +552,16 @@ export type PropertyTypeRegistry = {
     yaml: DynamicListYAML
   }
 
+  Chart: {
+    item: Chart
+    yaml: ChartYAML
+  }
+
+  SpreadsheetDocument: {
+    item: SpreadsheetDocument
+    yaml: SpreadsheetDocumentYAML
+  }
+
   CommandSet: {
     item: CommandSet
     yaml: CommandSetYAML
@@ -868,6 +883,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   AutoCommandBar: "AutoCommandBar",
   TableAutoCommandBar: "TableAutoCommandBar",
   DynamicList: "DynamicList",
+  Chart: "Chart",
+  SpreadsheetDocument: "SpreadsheetDocument",
   CommandSet: "CommandSet",
   FormCommands: "FormCommands",
   FormAttributes: "FormAttributes",
