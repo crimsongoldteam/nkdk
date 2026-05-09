@@ -61,6 +61,7 @@ export const PageRules = {
     showTitle: { yaml: "ОтображатьЗаголовок", type: "boolean" },
     slaveItemsWidth: {
       yaml: "ШиринаПодчиненныхЭлементов",
+      xml: "ChildItemsWidth",
       type: "SystemEnumeration",
       typeSE: "ChildFormItemsWidth",
     },
