@@ -236,3 +236,117 @@ YAML-представление не меняется: свойство по-п�
 - Исправление порядка `CommandGroup` и `DefaultVisible` в `CommandInterface`.
 - Изменение YAML-имени `ШиринаПодчиненныхЭлементов`.
 - Новые правила fromXML/toXML/fromYAML/toYAML вне `rules.ts`.
+
+## Задача 3: порядок CommandInterface при одинаковых Item
+
+### Исходный diff
+
+В форме самообслуживания после round-trip меняется порядок полей внутри трёх одинаковых
+элементов `CommandInterface.CommandBar.Item`:
+
+```diff
+ <Item>
+   <Command>Form.StandardCommand.RestoreValues</Command>
+   <Type>Auto</Type>
+-  <CommandGroup>FormCommandBarImportant</CommandGroup>
+   <DefaultVisible>false</DefaultVisible>
++  <CommandGroup>FormCommandBarImportant</CommandGroup>
+   <Visible>
+```
+
+Затронутый файл из triage:
+`Documents/ЗаявкаНаВозвратТоваровОтКлиента/Forms/ФормаДокументаСамообслуживание/Ext/Form.xml`.
+
+Владеющий модуль:
+`packages/core/metadata/forms/commonObjects/commandInterface`.
+
+Вероятное место изменения:
+`packages/core/metadata/forms/commonObjects/commandInterface/toXML.ts`.
+
+### Текущая логика
+
+Для `CommandInterface` уже есть экспорт с учётом reference:
+
+- `fromXML` при `context.fromXML.forReference` сохраняет порядок XML-полей элемента через порядок
+  ключей в reference-модели;
+- `toXML` ищет соответствующий reference-item и пишет XML-поля в порядке этого reference-item;
+- если reference-item не найден, используется fallback-порядок:
+  `Command`, `Type`, `Index`, `DefaultVisible`, `CommandGroup`, `Visible`.
+
+Сопоставление reference-item сейчас выполняется по трём полям:
+
+```ts
+referenceItem.command === item.command &&
+referenceItem.commandGroup === item.commandGroup &&
+referenceItem.index === item.index
+```
+
+Но helper требует ровно одно совпадение. В проблемной форме есть три одинаковых элемента:
+
+```xml
+<Command>Form.StandardCommand.RestoreValues</Command>
+<Type>Auto</Type>
+<CommandGroup>FormCommandBarImportant</CommandGroup>
+<DefaultVisible>false</DefaultVisible>
+```
+
+У всех трёх одинаковые `Command`, `CommandGroup` и отсутствующий `Index`. Поэтому поиск находит
+три совпадения, отбрасывает reference как неоднозначный и включает fallback-порядок. Именно
+fallback переставляет `CommandGroup` после `DefaultVisible`.
+
+### Решение
+
+Сохранить текущий reference-based механизм и упростить поведение при дубликатах: если найдено
+несколько подходящих reference-item, брать первый совпавший.
+
+Практически это означает заменить требование `matches.length === 1` на поиск первого совпадения:
+
+```ts
+return referenceItems.find(
+  (referenceItem) =>
+    referenceItem.command === item.command &&
+    referenceItem.commandGroup === item.commandGroup &&
+    referenceItem.index === item.index
+)
+```
+
+Причина: в этой задаче reference нужен только как источник порядка XML-полей внутри `Item`.
+Для одинаковых элементов любой совпавший reference-item с теми же `Command`, `CommandGroup` и
+`Index` даёт нужный порядок. В наблюдаемой форме все три дубликата имеют одинаковый порядок
+полей, поэтому сопоставление с состоянием "следующий ещё не использованный reference-item" не нужно.
+
+Fallback-порядок без reference не менять. Он уже покрыт отдельным тестом и остаётся поведением
+для экспорта модели без исходного XML.
+
+### Фикстуры
+
+Нужна отдельная фикстура `CommandInterface` с настоящими дубликатами без `Index`, потому что
+существующая `duplicateAutoCommandOrder` различает элементы по `Index` и не воспроизводит эту
+ветку поиска.
+
+Добавить в `packages/core/metadata/forms/commonObjects/commandInterface/__fixtures__/`:
+
+- XML-фикстуру с тремя одинаковыми `CommandBar.Item`, где `CommandGroup` стоит перед
+  `DefaultVisible`;
+- TS-фикстуру с тремя одинаковыми `CommandInterfaceItem` без `index`.
+
+Фикстура должна быть подключена к существующим тестам `fromXML.test.ts` и `toXML.test.ts`.
+
+### Проверки
+
+Минимальный набор тестов:
+
+- `fromXML` импортирует новую XML-фикстуру в модель с тремя одинаковыми элементами;
+- `toXML` с reference-данными экспортирует эту модель обратно без перестановки
+  `CommandGroup` и `DefaultVisible`;
+- существующий тест fallback-порядка без reference остаётся прежним.
+
+Ожидаемый эффект для round-trip: пункт 5 triage больше не должен переставлять
+`CommandGroup` и `DefaultVisible` у трёх `Form.StandardCommand.RestoreValues`.
+
+### Не входит
+
+- Изменение fallback-порядка без reference.
+- Сопоставление дубликатов по порядку потребления reference-item с хранением состояния.
+- Изменение YAML-представления `CommandInterface`.
+- Новые правила fromYAML/toYAML.
