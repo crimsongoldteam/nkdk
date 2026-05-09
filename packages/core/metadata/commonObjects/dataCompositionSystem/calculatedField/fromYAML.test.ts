@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
-import { fullCalculatedField, fullCalculatedFieldYAML } from "./__fixtures__/data"
+import {
+  appearanceCalculatedField,
+  appearanceCalculatedFieldYAML,
+  fullCalculatedField,
+  fullCalculatedFieldYAML,
+} from "./__fixtures__/data"
 import "./types"
 
 describe("import CalculatedField from YAML", () => {
@@ -11,5 +16,14 @@ describe("import CalculatedField from YAML", () => {
     })
 
     expect(result).toEqual(fullCalculatedField)
+  })
+
+  it("imports appearance YAML", () => {
+    const result = testImportPropertyFromYAML({
+      rule: { type: "CalculatedField" },
+      value: appearanceCalculatedFieldYAML,
+    })
+
+    expect(result).toEqual(appearanceCalculatedField)
   })
 })

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 import {
   catalogFullClientApplicationForm,
   catalogFullClientApplicationFormYAML,
+  customSettingsFolderClientApplicationForm,
+  customSettingsFolderClientApplicationFormYAML,
   fullClientApplicationForm,
   fullClientApplicationFormYAML,
   minimalClientApplicationForm,
@@ -33,5 +35,13 @@ describe("exportClientApplicationFormToYAML", () => {
     const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, minimalClientApplicationForm)
 
     expect(yaml).toEqual(minimalClientApplicationFormYAML)
+  })
+
+  it("exports CustomSettingsFolder to YAML", () => {
+    const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, customSettingsFolderClientApplicationForm)
+
+    expect((yaml as typeof customSettingsFolderClientApplicationFormYAML).ГруппаПользовательскихНастроек).toBe(
+      customSettingsFolderClientApplicationFormYAML.ГруппаПользовательскихНастроек
+    )
   })
 })

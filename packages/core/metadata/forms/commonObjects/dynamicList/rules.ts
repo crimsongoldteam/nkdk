@@ -15,7 +15,7 @@ export const DynamicListRules = {
       defaultValueYAML: true,
     },
     calculatedFields: {
-      type: "CalculatedField",
+      type: "CalculatedFields",
       xml: "CalculatedField",
       yaml: "ВычисляемыеПоля",
     },
@@ -34,10 +34,11 @@ export const DynamicListRules = {
     customQuery: {
       type: "boolean",
       xml: "ManualQuery",
-      // Значение выводится из наличия внешнего файла queryText — не хранится в YAML
+      yaml: "ПроизвольныйЗапрос",
       derivedFrom: { externalFile: "queryText" },
       defaultValue: false,
       defaultValueXML: false,
+      defaultValueYAML: false,
     },
     dataParameters: {
       type: "SettingsParameterValueCollection",

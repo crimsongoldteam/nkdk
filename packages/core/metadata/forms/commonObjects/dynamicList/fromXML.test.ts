@@ -3,6 +3,8 @@ import {
   emptyListSettingsDynamicList,
   fullDynamicList,
   minimalDynamicList,
+  multipleCalculatedFieldsDynamicList,
+  queryTextWithManualQueryFalseDynamicList,
 } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { mockContextFromXML } from "~/tests/mockContext"
@@ -119,6 +121,46 @@ describe("import DynamicList from XML", () => {
       path: "customQuery.xml",
       importMetaUrl: import.meta.url,
     })
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("imports QueryText when ManualQuery is false", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "queryTextWithManualQueryFalse.xml",
+      xmlRootTag: "Settings",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(queryTextWithManualQueryFalseDynamicList)
+  })
+
+  it("imports multiple CalculatedField nodes", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "multipleCalculatedFields.xml",
+      xmlRootTag: "Settings",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(multipleCalculatedFieldsDynamicList)
+  })
+
+  it("round-trip: queryTextWithManualQueryFalse.xml import -> export", () => {
+    const imported = testImportPropertyFromXML({
+      rule,
+      path: "queryTextWithManualQueryFalse.xml",
+      xmlRootTag: "Settings",
+      importMetaUrl: import.meta.url,
+    })
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: imported,
+      xmlRootTag: "Settings",
+      path: "queryTextWithManualQueryFalse.xml",
+      importMetaUrl: import.meta.url,
+    })
+
     expect(result).toEqual(expectedResult)
   })
 })

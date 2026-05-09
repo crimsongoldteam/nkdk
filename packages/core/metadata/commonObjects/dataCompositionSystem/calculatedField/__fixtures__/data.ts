@@ -40,3 +40,26 @@ export const fullCalculatedFieldYAML = {
   ],
   ТипЗначения: "Строка",
 } as const satisfies CalculatedFieldYAML
+
+export const appearanceCalculatedField = {
+  itemType: "CalculatedField",
+  dataPath: "ОбщееСостояниеПодключения",
+  expression: "",
+  title: { items: { ru: "Настройки" } },
+  appearance: {
+    itemType: "AppearanceFields",
+    ЦветТекста: {
+      parameter: "ЦветТекста",
+      value: { type: "Absolute", value: "#1C55AE" },
+    },
+  },
+} as const satisfies CalculatedField
+
+export const appearanceCalculatedFieldYAML = {
+  ПутьКДанным: "ОбщееСостояниеПодключения",
+  Выражение: "",
+  Заголовок: "Настройки",
+  Оформление: {
+    ЦветТекста: "#1C55AE",
+  },
+} as const satisfies CalculatedFieldYAML

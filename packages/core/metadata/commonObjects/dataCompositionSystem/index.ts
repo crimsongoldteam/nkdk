@@ -20,6 +20,7 @@ import "./conditionalAppearanceItem/types"
 import "./structureItemGroup/types"
 
 import "./calculatedField/types"
+import "./calculatedFields/types"
 import "./calculatedFieldOrderExpression/types"
 import "./calculatedFieldUseRestriction/types"
 import "./dataCompositionSchemaDataSetField/types"

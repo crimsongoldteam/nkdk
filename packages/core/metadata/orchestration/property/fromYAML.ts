@@ -55,14 +55,20 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
     // Свойства с externalFile уже обработаны в предварительном проходе
     if ("externalFile" in curRule && curRule.externalFile) continue
 
-    // Свойства с derivedFrom: вычисляем значение из наличия внешнего файла
+    // Свойства с derivedFrom: вычисляем значение из наличия внешнего файла, если YAML не задал значение явно
     if ("derivedFrom" in curRule && (curRule as any).derivedFrom?.externalFile) {
-      const referencedKey = (curRule as any).derivedFrom.externalFile as string
-      if (referencedKey in externalFileValues) {
-        result[key] = (externalFileValues[referencedKey] !== undefined) as any
-        continue
+      const yamlKey = curRule.yaml as keyof ToYAML<Rule["itemType"]>
+      const hasExplicitYAMLValue =
+        yaml !== undefined && yamlKey !== undefined && Object.prototype.hasOwnProperty.call(yaml, yamlKey)
+
+      if (!hasExplicitYAMLValue) {
+        const referencedKey = (curRule as any).derivedFrom.externalFile as string
+        if (referencedKey in externalFileValues) {
+          result[key] = (externalFileValues[referencedKey] !== undefined) as any
+          continue
+        }
       }
-      // Если externalFileValues не заполнен (нет formDir) — fallthrough к обычной обработке
+      // Если externalFileValues не заполнен или YAML содержит явное значение — fallthrough к обычной обработке
     }
 
     const yamlKey = curRule.yaml as keyof ToYAML<Rule["itemType"]>

@@ -2,6 +2,7 @@ import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ElementXML, exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
+import { XML_SOURCE_KEYS } from "~/metadata/orchestration/property/helpers"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import { exportTypedFormAttributeSettingsToXML } from "./settings"
 import {
@@ -91,7 +92,13 @@ const exportFormAttributeToXML = (
     result.Settings = typedSettings
   }
 
-  if (typedSettings === undefined && (data.type?.type.includes("ValueListType") || result.Settings !== undefined)) {
+  const shouldPreserveEmptyTypeDescriptionSettings =
+    result.Settings === undefined &&
+    referenceData !== undefined &&
+    hasReferenceXMLSourceKey(referenceData, "valueType") &&
+    referenceData.valueType === undefined
+
+  if (typedSettings === undefined && (result.Settings !== undefined || shouldPreserveEmptyTypeDescriptionSettings)) {
     result.Settings = {
       "_xsi:type": "v8:TypeDescription",
       ...result.Settings,
@@ -104,6 +111,13 @@ const exportFormAttributeToXML = (
   // }
 
   return result
+}
+
+const hasReferenceXMLSourceKey = (referenceData: FormAttribute, key: string): boolean => {
+  const sourceKeys = (referenceData as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
+  return sourceKeys !== undefined && sourceKeys !== null && typeof sourceKeys === "object"
+    ? Object.prototype.hasOwnProperty.call(sourceKeys, key)
+    : false
 }
 
 const findReferenceAttribute = (

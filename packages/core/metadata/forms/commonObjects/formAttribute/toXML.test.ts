@@ -12,6 +12,7 @@ import {
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContextToXML, mockRule } from "~/tests/mockContext"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { setIdsToElements } from "../../clientApplicationForm/toXML"
@@ -24,9 +25,30 @@ import { tableWithColumns } from "./__fixtures__/tableWithColumns"
 import { titleColumnsType } from "./__fixtures__/titleColumnsType"
 import { treeWithColumn } from "./__fixtures__/treeWithColumn"
 import { twoTables } from "./__fixtures__/twoTables"
+import { valueListWithReferenceEmptySettings } from "./__fixtures__/valueListWithReferenceEmptySettings"
+import { valueListWithoutSettings } from "./__fixtures__/valueListWithoutSettings"
 import { exportFormAttributesToXML } from "./toXML"
 
 const formAttributesRule = { type: "FormAttributes", xml: "Attribute" } as const
+
+const referenceWithoutValueType = (path: string): unknown => {
+  const reference = testImportPropertyFromXML({
+    rule: formAttributesRule,
+    path,
+    importMetaUrl: import.meta.url,
+    forReference: true,
+  })
+
+  if (!Array.isArray(reference)) return reference
+
+  for (const attribute of reference) {
+    if (attribute !== null && typeof attribute === "object") {
+      delete (attribute as Record<string, unknown>).valueType
+    }
+  }
+
+  return reference
+}
 
 describe("exportFormAttributesToXML", () => {
   it("should export undefined when data is undefined", () => {
@@ -87,14 +109,20 @@ describe("exportFormAttributesToXML", () => {
   })
 
   it("should export with empty settings", () => {
-    const expectedResult = readXMLFileAsString("formAttributes/withEmptySettings.xml")
+    const reference = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "formAttributes/withEmptySettings.xml",
+      forReference: true,
+    })
 
-    const context = mockContextToXML()
-    const xmlData = exportFormAttributesToXML(context, mockRule, withEmptySettingsFormAttribute)
-
-    setIdsToElements(context)
-
-    const result = xmlExport(xmlData!, false)
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: withEmptySettingsFormAttribute,
+      referenceMetadata: reference,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "formAttributes/withEmptySettings.xml",
+    })
 
     expect(result).toEqual(expectedResult)
   })
@@ -165,6 +193,7 @@ describe("exportFormAttributesToXML", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule: formAttributesRule,
       value: tableWithColumns,
+      referenceMetadata: referenceWithoutValueType("tableWithColumns.xml"),
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "tableWithColumns.xml",
@@ -178,6 +207,7 @@ describe("exportFormAttributesToXML", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule: formAttributesRule,
       value: treeWithColumn,
+      referenceMetadata: referenceWithoutValueType("treeWithColumn.xml"),
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "treeWithColumn.xml",
@@ -191,6 +221,7 @@ describe("exportFormAttributesToXML", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule: formAttributesRule,
       value: twoTables,
+      referenceMetadata: referenceWithoutValueType("twoTables.xml"),
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "twoTables.xml",
@@ -204,6 +235,7 @@ describe("exportFormAttributesToXML", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule: formAttributesRule,
       value: mixedColumns,
+      referenceMetadata: referenceWithoutValueType("mixedColumns.xml"),
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "mixedColumns.xml",
@@ -217,6 +249,7 @@ describe("exportFormAttributesToXML", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule: formAttributesRule,
       value: titleColumnsType,
+      referenceMetadata: referenceWithoutValueType("titleColumnsType.xml"),
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "titleColumnsType.xml",
@@ -230,6 +263,7 @@ describe("exportFormAttributesToXML", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule: formAttributesRule,
       value: attributeAnyType,
+      referenceMetadata: referenceWithoutValueType("attributeAnyType.xml"),
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "attributeAnyType.xml",
@@ -243,6 +277,7 @@ describe("exportFormAttributesToXML", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule: formAttributesRule,
       value: columnAnyType,
+      referenceMetadata: referenceWithoutValueType("columnAnyType.xml"),
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "columnAnyType.xml",
@@ -272,6 +307,41 @@ describe("exportFormAttributesToXML", () => {
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "spreadsheetDocumentSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("exports ValueListType without Settings when reference is absent", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: valueListWithoutSettings,
+      referenceMetadata: undefined,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "valueListWithoutSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("preserves empty Settings for ValueListType from reference", () => {
+    const reference = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "valueListWithReferenceEmptySettings.xml",
+      importMetaUrl: import.meta.url,
+      forReference: true,
+    })
+
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: valueListWithReferenceEmptySettings,
+      referenceMetadata: reference,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "valueListWithReferenceEmptySettings.xml",
       importMetaUrl: import.meta.url,
     })
 

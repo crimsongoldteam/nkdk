@@ -21,7 +21,7 @@ registerMetadataItemRule({
 
 // Переопределяем importFromXML:
 // 1. Проверяем, что XML является DynamicList (xsi:type="DynamicList")
-// 2. Если ManualQuery=false, очищаем queryText (не допускаем запись мусорного .query)
+// 2. Сохраняем QueryText даже при ManualQuery=false: такие XML встречаются в реальных формах.
 registerTypeRule(
   "DynamicList",
   "importFromXML",
@@ -44,12 +44,6 @@ registerTypeRule(
 
     const result = importMetadataItemFromXML({ context, xml, rule: DynamicListRules }) as DynamicList | undefined
     if (!result) return undefined
-
-    // ManualQuery=false → queryText не попадает в модель (предотвращаем мусорный .query)
-    if (!result.customQuery && result.queryText !== undefined) {
-      const { queryText: _qt, ...rest } = result as Record<string, unknown>
-      return { ...rest, itemType: DynamicListRules.itemType } as DynamicList
-    }
 
     return result
   }
