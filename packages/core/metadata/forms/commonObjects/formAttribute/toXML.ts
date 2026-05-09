@@ -3,6 +3,7 @@ import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { ElementXML, exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
+import { exportTypedFormAttributeSettingsToXML } from "./settings"
 import {
   FormAttribute,
   FormAttributeAdditionalColumns,
@@ -85,7 +86,12 @@ const exportFormAttributeToXML = (
 
   assignPropertiesWithColumns(result, properties, columnsXML, referenceData)
 
-  if (data.type?.type.includes("ValueListType") || result.Settings !== undefined) {
+  const typedSettings = exportTypedFormAttributeSettingsToXML(context, data)
+  if (typedSettings !== undefined) {
+    result.Settings = typedSettings
+  }
+
+  if (typedSettings === undefined && (data.type?.type.includes("ValueListType") || result.Settings !== undefined)) {
     result.Settings = {
       "_xsi:type": "v8:TypeDescription",
       ...result.Settings,

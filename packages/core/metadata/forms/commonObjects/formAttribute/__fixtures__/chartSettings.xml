@@ -1,0 +1,19 @@
+<Attribute name="Диаграмма" id="1">
+	<Type>
+		<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/chart">d5p1:Chart</v8:Type>
+	</Type>
+	<Settings xmlns:d4p1="http://v8.1c.ru/8.2/data/chart" xsi:type="d4p1:Chart">
+		<d4p1:seriesCurId>1</d4p1:seriesCurId>
+		<d4p1:pointsCurId>0</d4p1:pointsCurId>
+		<d4p1:realExSeriesData>
+			<d4p1:id>1</d4p1:id>
+			<d4p1:color>auto</d4p1:color>
+			<d4p1:line width="2" gap="false">
+				<v8ui:style xsi:type="v8ui:ChartLineType">Solid</v8ui:style>
+			</d4p1:line>
+			<d4p1:text/>
+		</d4p1:realExSeriesData>
+		<d4p1:valuesAxis/>
+		<d4p1:pointsAxis/>
+	</Settings>
+</Attribute>

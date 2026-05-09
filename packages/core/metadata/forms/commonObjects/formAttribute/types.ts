@@ -9,7 +9,12 @@ import {
   UserViewKeysYAML,
   UserViewYAML,
 } from "~/metadata/commonObjects/userVisible/types"
+import { ChartXML, ChartYAML } from "~/metadata/forms/commonObjects/chart/types"
 import { DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
+import {
+  SpreadsheetDocumentXML,
+  SpreadsheetDocumentYAML,
+} from "~/metadata/forms/commonObjects/spreadsheetDocument/types"
 import { ElementXML } from "~/metadata/orchestration"
 import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { FillCheckingYAML } from "~/metadata/systemEnumerations/types"
@@ -52,7 +57,7 @@ export interface FormAttributeColumnsXML {
 
 export interface FormAttributeXML extends ElementXML {
   Columns?: FormAttributeColumnsXML
-  Settings?: SettingsTypeDescriptionXML | DynamicListXML
+  Settings?: SettingsTypeDescriptionXML | DynamicListXML | ChartXML | SpreadsheetDocumentXML
 }
 
 export interface ConditionalAppearanceXML {
@@ -84,6 +89,8 @@ export interface FormAttributeYAML {
   ОсновнойРеквизит?: StringboolYAML
   СохраняемыеДанные?: StringboolYAML
   ДинамическийСписок?: DynamicListYAML
+  Диаграмма?: ChartYAML
+  ТабличныйДокумент?: SpreadsheetDocumentYAML
   [UserViewKeysYAML.Allow]?: UserViewYAML
   [UserViewKeysYAML.Deny]?: UserViewYAML
   [UserEditKeysYAML.Allow]?: UserEditYAML

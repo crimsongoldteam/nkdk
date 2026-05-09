@@ -16,8 +16,10 @@ import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { setIdsToElements } from "../../clientApplicationForm/toXML"
 import { attributeAnyType } from "./__fixtures__/attributeAnyType"
+import { chartSettings } from "./__fixtures__/chartSettings"
 import { columnAnyType } from "./__fixtures__/columnAnyType"
 import { mixedColumns } from "./__fixtures__/mixedColumns"
+import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
 import { tableWithColumns } from "./__fixtures__/tableWithColumns"
 import { titleColumnsType } from "./__fixtures__/titleColumnsType"
 import { treeWithColumn } from "./__fixtures__/treeWithColumn"
@@ -244,6 +246,32 @@ describe("exportFormAttributesToXML", () => {
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "columnAnyType.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export chartSettings", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: chartSettings,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "chartSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export spreadsheetDocumentSettings", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: spreadsheetDocumentSettings,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "spreadsheetDocumentSettings.xml",
       importMetaUrl: import.meta.url,
     })
 

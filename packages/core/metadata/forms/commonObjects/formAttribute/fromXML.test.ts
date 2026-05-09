@@ -14,8 +14,10 @@ import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { attributeAnyType } from "./__fixtures__/attributeAnyType"
+import { chartSettings } from "./__fixtures__/chartSettings"
 import { columnAnyType } from "./__fixtures__/columnAnyType"
 import { mixedColumns } from "./__fixtures__/mixedColumns"
+import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
 import { tableWithColumns } from "./__fixtures__/tableWithColumns"
 import { treeWithColumn } from "./__fixtures__/treeWithColumn"
 import { twoTables } from "./__fixtures__/twoTables"
@@ -168,6 +170,26 @@ describe("importFormAttributesFromXML", () => {
     })
 
     expect(result).toEqual(columnAnyType)
+  })
+
+  it("import chartSettings", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "chartSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(chartSettings)
+  })
+
+  it("import spreadsheetDocumentSettings", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "spreadsheetDocumentSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(spreadsheetDocumentSettings)
   })
 
   // it("should throw error when ConditionalAppearance is present in XML", () => {
