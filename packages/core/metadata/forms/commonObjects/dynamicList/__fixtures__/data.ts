@@ -370,6 +370,13 @@ export const multipleCalculatedFieldsDynamicList = {
           ru: "Настройки",
         },
       },
+      appearance: {
+        itemType: "AppearanceFields",
+        ЦветТекста: {
+          parameter: "ЦветТекста",
+          value: { type: "Absolute", value: "#1C55AE" },
+        },
+      },
     },
   ],
   customQuery: false,

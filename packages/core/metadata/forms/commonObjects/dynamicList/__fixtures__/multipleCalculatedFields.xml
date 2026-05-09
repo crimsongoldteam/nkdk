@@ -20,6 +20,12 @@
 				<v8:content>Настройки</v8:content>
 			</v8:item>
 		</dcssch:title>
+		<dcssch:appearance>
+			<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+				<dcscor:parameter>ЦветТекста</dcscor:parameter>
+				<dcscor:value xsi:type="v8ui:Color">#1C55AE</dcscor:value>
+			</dcscor:item>
+		</dcssch:appearance>
 	</CalculatedField>
 	<MainTable>Catalog.ТСПИоТ</MainTable>
 	<ListSettings/>
