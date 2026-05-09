@@ -59,6 +59,37 @@ is_positive_integer() {
   [[ "${1:-}" =~ ^[1-9][0-9]*$ ]]
 }
 
+KNOWN_XML_DIRS=("Catalogs" "Documents" "DocumentNumerators" "Sequences")
+
+is_config_dir() {
+  local candidate="$1"
+  local xml_dir
+
+  for xml_dir in "${KNOWN_XML_DIRS[@]}"; do
+    if [ -d "${candidate}/${xml_dir}" ]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+collect_run_dirs() {
+  local root="$1"
+  local child
+
+  if is_config_dir "${root}"; then
+    printf '%s\n' "${root}"
+    return 0
+  fi
+
+  while IFS= read -r child; do
+    if is_config_dir "${child}"; then
+      printf '%s\n' "${child}"
+    fi
+  done < <(find "${root}" -mindepth 1 -maxdepth 1 -type d | sort)
+}
+
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --diff-index)
@@ -172,37 +203,63 @@ echo ""
 
 # ── Чистый старт XML-репо ────────────────────────────────────────────────────
 
+RUN_DIRS=()
+while IFS= read -r run_dir; do
+  RUN_DIRS+=("${run_dir}")
+done < <(collect_run_dirs "${NKDK_XML_DIR}")
+
+if [ "${#RUN_DIRS[@]}" -eq 0 ]; then
+  die "в NKDK_XML_DIR ('${NKDK_XML_DIR}') не найдено конфигурационных каталогов"
+fi
+
 echo "[restore] Откат XML-репо к HEAD..."
-git -C "${NKDK_XML_DIR}" restore .
+git -C "${NKDK_XML_REPO}" restore .
 
 # ── Short round-trip ─────────────────────────────────────────────────────────
 
-echo "[round-trip] Запуск short-round-trip-test..."
-${NKDK} short-round-trip-test "${NKDK_XML_DIR}"
-
-# ── Файлы с диффом ───────────────────────────────────────────────────────────
-
 DIFF_FILES=()
-while IFS= read -r diff_file; do
-  DIFF_FILES+=("${diff_file}")
-done < <(git -C "${NKDK_XML_DIR}" -c core.quotepath=false diff --name-only --relative -- . | sort)
+ACTIVE_XML_DIR=""
+
+for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
+  echo "[round-trip] Запуск short-round-trip-test: ${RUN_XML_DIR}"
+  ${NKDK} short-round-trip-test "${RUN_XML_DIR}"
+
+  DIFF_FILES=()
+  while IFS= read -r diff_file; do
+    DIFF_FILES+=("${diff_file}")
+  done < <(git -C "${RUN_XML_DIR}" -c core.quotepath=false diff --name-only --relative -- . | sort)
+
+  if [ "${#DIFF_FILES[@]}" -gt 0 ]; then
+    ACTIVE_XML_DIR="${RUN_XML_DIR}"
+    break
+  fi
+done
+
+if [ -z "${ACTIVE_XML_DIR}" ]; then
+  ACTIVE_XML_DIR="${RUN_DIRS[${#RUN_DIRS[@]} - 1]}"
+fi
+
 DIFF_COUNT="${#DIFF_FILES[@]}"
 
 if [ "${DIFF_COUNT}" -eq 0 ]; then
   echo ""
   echo "=== Round-trip чистый: диффов нет ==="
+  echo "Проверено каталогов: ${#RUN_DIRS[@]}"
   exit 0
 fi
 
 xml_file_abs() {
   local relative_path="$1"
-  echo "${NKDK_XML_DIR%/}/${relative_path}"
+  echo "${ACTIVE_XML_DIR%/}/${relative_path}"
 }
 
 emit_single_diff() {
   local index="$1"
   local file="$2"
 
+  echo ""
+  echo "=== ACTIVE_XML_DIR ==="
+  echo "${ACTIVE_XML_DIR}"
   echo ""
   echo "=== DIFF_COUNT ==="
   echo "${DIFF_COUNT}"
@@ -217,7 +274,7 @@ emit_single_diff() {
   xml_file_abs "${file}"
   echo ""
   echo "=== FULL_DIFF ==="
-  git -C "${NKDK_XML_DIR}" -c core.quotepath=false diff --relative -- "${file}"
+  git -C "${ACTIVE_XML_DIR}" -c core.quotepath=false diff --relative -- "${file}"
 }
 
 emit_triage_diff() {
@@ -227,10 +284,11 @@ emit_triage_diff() {
   echo ""
   echo "=== TRIAGE_DIFF ==="
   echo "INDEX: ${index}"
+  echo "ACTIVE_XML_DIR: ${ACTIVE_XML_DIR}"
   echo "FILE: ${file}"
   echo "XML_FILE_ABS: $(xml_file_abs "${file}")"
   echo "--- DIFF ---"
-  git -C "${NKDK_XML_DIR}" -c core.quotepath=false diff --relative -- "${file}"
+  git -C "${ACTIVE_XML_DIR}" -c core.quotepath=false diff --relative -- "${file}"
 }
 
 if [ "${MODE}" = "single" ]; then
