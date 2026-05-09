@@ -13,7 +13,6 @@ import {
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
-  fullFormFieldTableRelatedFixture,
   fullFormFieldTableRelatedPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
@@ -153,11 +152,179 @@ export const fullInputField: RequiredFieldsElement<InputField> = {
   ...fullFormFieldCommonFixture,
 } satisfies RequiredFieldsElement<InputField>
 
-export const fullTableInputField: RequiredFieldsElement<TableInputField> = {
-  ...fullInputField,
+export const fullTableInputField: TableInputField = {
   itemType: "TableInputField",
-  ...fullFormFieldTableRelatedFixture,
-} satisfies RequiredFieldsElement<TableInputField>
+  name: "ПолеВводаВсеСвойства",
+  displayImportance: "High",
+  dataPath: "Таблица.СписокЗначений",
+  table: { type: "string", value: "Таблица" },
+  visible: false,
+  userVisible: {
+    common: true,
+    values: [{ name: "Администратор", value: false }],
+  },
+  defaultItem: true,
+  enabled: false,
+  readOnly: true,
+  skipOnInput: true,
+  title: { items: { ru: "Заголовок" } },
+  titleTextColor: { type: "WebColor", value: "Black" },
+  titleBackColor: { type: "WebColor", value: "Blue" },
+  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
+  titleLocation: "Left",
+  titleHeight: 20,
+  toolTip: { items: { ru: "Подсказка" } },
+  toolTipRepresentation: "None",
+  warningOnEditRepresentation: "DontShow",
+  warningOnEdit: { items: { ru: "Предупреждение" } },
+  shortcut: "S",
+  horizontalAlign: "Left",
+  verticalAlign: "Top",
+  horizontalAlignInGroup: "Left",
+  verticalAlignInGroup: "Top",
+  editMode: "EnterOnInput",
+  cellHyperlink: true,
+  showInHeader: false,
+  headerHorizontalAlign: "Left",
+  headerPicture: {
+    type: "StandardPicture",
+    ref: "Print",
+    loadTransparent: true,
+  },
+  showInFooter: false,
+  footerDataPath: "РеквизитПодвала",
+  footerText: { items: { ru: "Текст подвала" } },
+  footerTextColor: { type: "WebColor", value: "Black" },
+  footerBackColor: { type: "WebColor", value: "White" },
+  footerFont: { kind: "StyleItem", ref: "NormalTextFont" },
+  footerPicture: {
+    type: "StandardPicture",
+    ref: "Print",
+    loadTransparent: true,
+  },
+  footerHorizontalAlign: "Left",
+  onMainServerUnavalableBehavior: "DontChangeBehavior",
+  width: 200,
+  autoMaxWidth: false,
+  maxWidth: 400,
+  height: 100,
+  autoCellHeight: false,
+  autoMaxHeight: false,
+  maxHeight: 500,
+  horizontalStretch: true,
+  verticalStretch: true,
+  wrap: false,
+  passwordMode: true,
+  multiLine: true,
+  extendedEdit: true,
+  markNegatives: true,
+  dropListButton: true,
+  choiceButton: true,
+  choiceButtonRepresentation: "ShowInInputField",
+  clearButton: true,
+  spinButton: true,
+  openButton: true,
+  createButton: true,
+  mask: "999",
+  listChoiceMode: true,
+  multipleValuesFont: { kind: "StyleItem", ref: "NormalTextFont" },
+  multipleValuesTextColor: { type: "WebColor", value: "Red" },
+  multipleValuesBackColor: { type: "WebColor", value: "Magenta" },
+  multipleValuesExtendedEdit: true,
+  multipleValuePictureSize: "Large",
+  multipleValuePictureShape: "Circle",
+  showCheckBoxesInDropListWhenInputMultipleValues: false,
+  multipleValuesHyperlink: true,
+  autoChoiceIncomplete: true,
+  quickChoice: true,
+  choiceFoldersAndItems: "FoldersAndItems",
+  format: { items: { ru: "ЧЦ=15; ЧДЦ=2" } },
+  editFormat: { items: { ru: "ЧЦ=16; ЧДЦ=3" } },
+  autoMarkIncomplete: true,
+  chooseType: false,
+  incompleteChoiceMode: "OnActivate",
+  typeDomainEnabled: false,
+  textEdit: false,
+  editTextUpdate: "OnValueChange",
+  minValue: 10,
+  maxValue: 90,
+  choiceButtonPicture: {
+    type: "StandardPicture",
+    ref: "Print",
+    loadTransparent: true,
+  },
+  choiceParameters: [
+    {
+      name: "Отбор.Параметр",
+      value: {
+        type: "string",
+        value: "Значение",
+      },
+    },
+  ],
+  availableTypes: { type: ["string"] },
+  choiceList: [
+    {
+      type: "formChoiceListDesTimeValue",
+      presentation: { items: { ru: "Значение 1" } },
+      value: {
+        type: "string",
+        value: "Значение1",
+      },
+    },
+  ],
+  choiceListButton: true,
+  choiceListHeight: 200,
+  dropListWidth: 300,
+  textColor: { type: "WebColor", value: "Yellow" },
+  backColor: { type: "WebColor", value: "Blue" },
+  borderColor: { type: "WebColor", value: "Green" },
+  font: { kind: "StyleItem", ref: "NormalTextFont" },
+  typeLink: {
+    dataPath: "РеквизитПодвала",
+    linkItem: 1,
+  },
+  typeRestriction: { type: ["string"] },
+  heightControlVariant: "UseContentHeight",
+  autoShowClearButton: "Always",
+  autoShowOpenButton: "FilledOnly",
+  autoCorrectionOnTextInput: "Use",
+  spellCheckingOnTextInput: "Use",
+  autoCapitalizationOnTextInput: "AllCharacters",
+  specialTextInputMode: "Email",
+  autoFillHint: "Email",
+  onScreenKeyboardReturnKeyText: "Done",
+  inputHint: { items: { ru: "Подсказка ввода" } },
+  choiceHistoryOnInput: "DontUse",
+  fixingInTable: "None",
+  contextMenu: {
+    itemType: "ContextMenu",
+    autofill: false,
+    childItems: [],
+  },
+  extendedTooltip: {
+    itemType: "ExtendedTooltip",
+    title: { items: { ru: "Расширенная подсказка" }, formatted: false },
+  },
+  events: {
+    onChange: "ПроцедураПриИзменении",
+    editTextChange: "ПроцедураИзмененияТекстаРедактирования",
+    autoComplete: "ПроцедураАвтоПодбора",
+    startChoice: "ПроцедураНачалаВыбора",
+    multipleValueURLProcessing: "ПроцедураОбработкиНавигационнойСсылкиМножественногоЗначения",
+    multipleValuesDelete: "ПроцедураУдаленияМножественныхЗначений",
+    tuning: "ПроцедураРегулирования",
+    multipleValuesAdd: "ПроцедураДобавленияМножественныхЗначений",
+    opening: "ПроцедураОткрытия",
+    creating: "ПроцедураСоздания",
+    startListChoice: "ПроцедураНачалаВыбораИзСписка",
+    clearing: "ПроцедураОчистки",
+    textEditEnd: "ПроцедураОкончанияВводаТекста",
+    multipleValueOpening: "ПроцедураОткрытияМножественногоЗначения",
+    choiceProcessing: "ПроцедураОбработкиВыбора",
+    commandGenerateProcessing: "ПроцедураОбработкиФормированияКоманд",
+  },
+} satisfies TableInputField
 
 export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
   АвтоВыборНезаполненного: "Истина",
@@ -257,16 +424,33 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<Required<InputFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
+const {
+  КартинкаМножественныхЗначений: _tableInputFieldMultipleValuesPicture,
+  ПутьКДаннымЗначенияМножественногоЗначения: _tableInputFieldMultipleValueValueDataPath,
+  ПутьКДаннымКартинкиМножественногоЗначения: _tableInputFieldMultipleValuePictureDataPath,
+  ПутьКДаннымПредставленияМножественногоЗначения: _tableInputFieldMultipleValuePresentationDataPath,
+  РазрешитьВводПустыхМножественныхЗначений: _tableInputFieldAllowInputEmptyMultipleValues,
+  РазрешитьДублированиеМножественныхЗначений: _tableInputFieldAllowMultipleValuesDuplicates,
+  СвязиПараметровВыбора: _tableInputFieldChoiceParameterLinks,
+  ФормаВыбора: _tableInputFieldChoiceForm,
+  ...fullTableInputFieldPartialYAMLBase
+} = fullInputFieldPartialYAML
+
 export const fullTableInputFieldPartialYAML: TableInputFieldPartialYAML = {
-  ...fullInputFieldPartialYAML,
+  ...fullTableInputFieldPartialYAMLBase,
+  МаксимальноеЗначение: 90,
+  МинимальноеЗначение: 10,
+  ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений: "Ложь",
+  Формат: "ЧЦ=15; ЧДЦ=2",
+  ФорматРедактирования: "ЧЦ=16; ЧДЦ=3",
   ...fullFormFieldTableRelatedPartialYAMLCommonFixture,
 }
 
 export const fullTableInputFieldTypedYAML: TableInputFieldTypedYAML = {
   ...fullTableInputFieldPartialYAML,
   Тип: "ПолеВвода",
-  Заголовок: "Поле ввода",
-  ПутьКДанным: "Реквизит",
+  Заголовок: "Заголовок",
+  ПутьКДанным: "Таблица.СписокЗначений",
 }
 
 export const minimalInputField: InputField = {
@@ -448,10 +632,28 @@ export const fullInputFieldEnterprise = {
   ...fullFormFieldEnterpriseCommonFixture,
 } satisfies Required<InputFieldEnterprise>
 
+const {
+  AllowInputEmptyMultipleValues: _tableInputFieldEnterpriseAllowInputEmptyMultipleValues,
+  AllowMultipleValuesDuplicates: _tableInputFieldEnterpriseAllowMultipleValuesDuplicates,
+  MultipleValuePictureDataPath: _tableInputFieldEnterpriseMultipleValuePictureDataPath,
+  MultipleValuePresentationDataPath: _tableInputFieldEnterpriseMultipleValuePresentationDataPath,
+  MultipleValueValueDataPath: _tableInputFieldEnterpriseMultipleValueValueDataPath,
+  MultipleValuesPicture: _tableInputFieldEnterpriseMultipleValuesPicture,
+  ...fullTableInputFieldEnterpriseBase
+} = fullInputFieldEnterprise
+
 export const fullTableInputFieldEnterprise = {
-  ...fullInputFieldEnterprise,
+  ...fullTableInputFieldEnterpriseBase,
+  Name: "prefix_ПолеВводаВсеСвойства",
+  Title: "Заголовок",
+  DataPath: "prefix_ТаблицаСписокЗначений",
+  EditFormat: "ЧЦ=16; ЧДЦ=3",
+  Format: "ЧЦ=15; ЧДЦ=2",
+  MaxValue: 90,
+  MinValue: 10,
+  ShowCheckBoxesInDropListWhenInputMultipleValues: false,
   ...fullFormFieldEnterpriseTableRelatedFixture,
-} satisfies Required<TableInputFieldEnterprise>
+} satisfies TableInputFieldEnterprise
 
 export const minimalInputFieldEnterprise = {
   ElementType: "FormField",
