@@ -126,3 +126,113 @@ YAML-представление является полноценной част
 - Исправление порядка `CommandGroup` и `DefaultVisible` в `CommandInterface`.
 - Частный XML-обработчик для `CommandBarButton`.
 - Новые правила fromXML/toXML/fromYAML/toYAML вне `rules.ts`.
+
+## Задача 2: ChildItemsWidth у корня формы
+
+### Исходный diff
+
+В двух формах после round-trip пропадает корневой узел `ChildItemsWidth`:
+
+```diff
+ <AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+ <AutoTitle>false</AutoTitle>
+-<ChildItemsWidth>LeftWide</ChildItemsWidth>
+ <Commands>
+```
+
+Затронутые файлы из triage:
+
+- `Documents/Встреча/Forms/ФормаДокумента/Ext/Form.xml`;
+- `Documents/ЗапланированноеВзаимодействие/Forms/ФормаДокумента/Ext/Form.xml`.
+
+Владеющий модуль:
+`packages/core/metadata/forms/clientApplicationForm`.
+
+Вероятное место изменения:
+`packages/core/metadata/forms/clientApplicationForm/rules.ts`.
+
+### Текущая логика
+
+У корневой формы уже есть свойство модели `slaveItemsWidth`:
+
+```ts
+slaveItemsWidth: {
+  yaml: "ШиринаПодчиненныхЭлементов",
+  type: "SystemEnumeration",
+  typeSE: "ChildFormItemsWidth",
+  tag: FormRulesTags.Form,
+  defaultValueYAML: "Auto",
+}
+```
+
+Но правило не содержит XML-имя. Из-за этого import не связывает XML-узел
+`<ChildItemsWidth>LeftWide</ChildItemsWidth>` с `slaveItemsWidth`, а export не может
+восстановить его обратно.
+
+В соседних правилах элементов формы уже есть тот же проектный смысл и то же XML-имя:
+
+- `packages/core/metadata/forms/elements/usualGroup/rules.ts`;
+- `packages/core/metadata/forms/elements/page/rules.ts`.
+
+Там `slaveItemsWidth` описан через `xml: "ChildItemsWidth"`, поэтому для корневой формы
+нужен такой же явный XML-мэппинг.
+
+### Решение
+
+Добавить `xml: "ChildItemsWidth"` к существующему свойству `slaveItemsWidth` в
+`ClientApplicationFormRules`.
+
+Итоговое правило:
+
+```ts
+slaveItemsWidth: {
+  yaml: "ШиринаПодчиненныхЭлементов",
+  xml: "ChildItemsWidth",
+  type: "SystemEnumeration",
+  typeSE: "ChildFormItemsWidth",
+  tag: FormRulesTags.Form,
+  defaultValueYAML: "Auto",
+}
+```
+
+YAML-представление не меняется: свойство по-прежнему называется
+`ШиринаПодчиненныхЭлементов` и хранит значение перечисления, например:
+
+```yaml
+ШиринаПодчиненныхЭлементов: LeftWide
+```
+
+Решение остаётся в `rules.ts`: отдельные fromXML/toXML-обработчики для корневой формы не нужны.
+
+### Фикстуры
+
+Нужна отдельная узкая фикстура формы с корневым `ChildItemsWidth`, чтобы не расширять большие
+полные формы и не смешивать эту проверку с другими свойствами.
+
+Добавить XML/TS/YAML-фикстуры для `ClientApplicationForm`:
+
+- XML-фикстуру с `<ChildItemsWidth>LeftWide</ChildItemsWidth>` на корневом уровне формы;
+- TS-фикстуру с `slaveItemsWidth: "LeftWide"`;
+- YAML-фикстуру с `ШиринаПодчиненныхЭлементов: LeftWide`.
+
+Фикстура должна проходить существующие общие проверки XML- и YAML-циклов для форм.
+
+### Проверки
+
+Минимальный набор тестов:
+
+- `fromXML` импортирует корневой `ChildItemsWidth` в `slaveItemsWidth`;
+- `toXML` экспортирует `slaveItemsWidth: "LeftWide"` обратно в `<ChildItemsWidth>LeftWide</ChildItemsWidth>`;
+- `fromYAML` импортирует `ШиринаПодчиненныхЭлементов` в `slaveItemsWidth`;
+- `toYAML` экспортирует `slaveItemsWidth` в `ШиринаПодчиненныхЭлементов`.
+
+Ожидаемый эффект для round-trip: пункты 1-2 triage больше не должны терять
+`ChildItemsWidth` у корня формы. Если в этих же файлах остаётся потеря `Parameter`, она
+закрывается задачей 1.
+
+### Не входит
+
+- Исправление `Parameter` у кнопок формы.
+- Исправление порядка `CommandGroup` и `DefaultVisible` в `CommandInterface`.
+- Изменение YAML-имени `ШиринаПодчиненныхЭлементов`.
+- Новые правила fromXML/toXML/fromYAML/toYAML вне `rules.ts`.
