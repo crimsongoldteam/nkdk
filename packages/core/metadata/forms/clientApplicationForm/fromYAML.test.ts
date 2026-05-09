@@ -8,7 +8,7 @@ import {
   fullClientApplicationForm,
   fullClientApplicationFormYAML,
 } from "./__fixtures__/data"
-import { documentFullClientApplicationForm } from "./__fixtures__/documentFull"
+import { documentFullClientApplicationFormFromYAML } from "./__fixtures__/documentFull"
 import { documentFullClientApplicationFormYAML } from "./__fixtures__/documentFull.yaml"
 import { mockContext } from "~/tests/mockContext"
 import { ButtonGroup, ButtonGroupPartialYAML } from "../elements/buttonGroup/types"
@@ -105,7 +105,7 @@ describe("importClientApplicationFormFromYAML", () => {
       },
     })
 
-    expect(result).toEqual(documentFullClientApplicationForm)
+    expect(result).toEqual(documentFullClientApplicationFormFromYAML)
   })
 
   it("should import from form command bar", () => {

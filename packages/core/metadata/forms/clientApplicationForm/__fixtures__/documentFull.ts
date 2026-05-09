@@ -1,5 +1,4 @@
 import { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
-import { expect } from "vitest"
 
 type DocumentClientApplicationForm = ClientApplicationForm & {
   autoTime: "Last"
@@ -146,10 +145,40 @@ const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
   ],
 }
 
-export const documentFullClientApplicationForm: ClientApplicationForm = expect.objectContaining({
+const numberContextMenu = {
+  itemType: "ContextMenu",
+  name: "НомерКонтекстноеМеню",
+  childItems: [],
+} as const
+
+const numberExtendedTooltip = {
+  itemType: "ExtendedTooltip",
+  name: "НомерРасширеннаяПодсказка",
+} as const
+
+const commandExtendedTooltip = {
+  itemType: "ExtendedTooltip",
+  name: "Команда1РасширеннаяПодсказка",
+} as const
+
+export const documentFullClientApplicationForm: ClientApplicationForm = documentFullClientApplicationFormData
+
+export const documentFullClientApplicationFormFromYAML: ClientApplicationForm = {
   ...documentFullClientApplicationFormData,
+  autoCommandBar: {
+    itemType: "AutoCommandBar",
+    autofill: true,
+    childItems: [],
+  },
   childItems: [
-    expect.objectContaining(documentFullClientApplicationFormData.childItems[0]),
-    expect.objectContaining(documentFullClientApplicationFormData.childItems[1]),
+    {
+      ...documentFullClientApplicationFormData.childItems[0],
+      contextMenu: numberContextMenu,
+      extendedTooltip: numberExtendedTooltip,
+    },
+    {
+      ...documentFullClientApplicationFormData.childItems[1],
+      extendedTooltip: commandExtendedTooltip,
+    },
   ],
-}) as unknown as ClientApplicationForm
+}
