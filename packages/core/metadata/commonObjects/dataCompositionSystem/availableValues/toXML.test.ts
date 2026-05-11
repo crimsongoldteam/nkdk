@@ -43,4 +43,24 @@ describe("export DcsAvailableValues to XML", () => {
       { "dcssch:value": { "_xsi:type": "xs:boolean", "#text": "true" } },
     ])
   })
+
+  it("preserves xs:string presentation from reference metadata", () => {
+    const result = exportPropertyToXML({
+      context: mockContextToXML(),
+      rule,
+      value: stringAvailableValues,
+      referenceMetadata: [
+        {
+          itemType: "DcsAvailableValue",
+          value: { type: "string", value: "Выставлен" },
+          presentation: "Выставлен",
+        },
+      ],
+    })
+
+    expect(result[0]["dcssch:presentation"]).toEqual({
+      "_xsi:type": "xs:string",
+      "#text": "Выставлен",
+    })
+  })
 })
