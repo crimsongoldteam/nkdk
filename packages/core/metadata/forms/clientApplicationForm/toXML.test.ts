@@ -4,6 +4,7 @@ import { readAndParseXMLFixture, readXMLFixtureAsString } from "~/tests/readFixt
 import { xmlExport } from "~/xml/export/exporter"
 import {
   catalogFullClientApplicationForm,
+  childItemsWidthClientApplicationForm,
   conditionalAppearanceWithoutAttributesClientApplicationForm,
   customSettingsFolderClientApplicationForm,
   fullClientApplicationForm,
@@ -62,6 +63,33 @@ describe("exportToXML", () => {
       const xmlData = exportClientApplicationFormToXML({
         context: mockContextToXML(),
         form: customSettingsFolderClientApplicationForm,
+        referenceForm,
+      })
+
+      const result = xmlExport({ Form: xmlData })
+
+      expect(result).toEqual(expectedResult)
+    })
+
+    it("exports root ChildItemsWidth", () => {
+      const expectedXML = readXMLFixtureAsString(import.meta.url, "childItemsWidth.xml").trimEnd()
+      const expectedResult = expectedXML.startsWith("\ufeff") ? expectedXML : `\ufeff${expectedXML}`
+      const referenceFormXML = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(
+        import.meta.url,
+        "childItemsWidth.xml"
+      )
+      const referenceMetadataXML = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+        import.meta.url,
+        "minimalMetadata.xml"
+      )
+      const referenceForm = importClientApplicationFormFromXML({
+        context: mockContextFromXML({ forReference: true }),
+        xml: referenceFormXML.Form,
+        xmlMetadata: referenceMetadataXML.MetaDataObject,
+      })
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: childItemsWidthClientApplicationForm,
         referenceForm,
       })
 

@@ -253,6 +253,8 @@ export const ClientApplicationFormRules = {
     },
     slaveItemsWidth: {
       yaml: "ШиринаПодчиненныхЭлементов",
+      xml: "ChildItemsWidth",
+      xmlAliases: ["SlaveItemsWidth"],
       type: "SystemEnumeration",
       typeSE: "ChildFormItemsWidth",
       tag: FormRulesTags.Form,

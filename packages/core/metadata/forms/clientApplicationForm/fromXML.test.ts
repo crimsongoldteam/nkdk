@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
 import {
   catalogFullClientApplicationForm,
+  childItemsWidthClientApplicationForm,
   conditionalAppearanceWithoutAttributesClientApplicationForm,
   customSettingsFolderClientApplicationForm,
   fullClientApplicationForm,
@@ -104,5 +105,20 @@ describe("importClientApplicationFormFromXML", () => {
     })
 
     expect(result).toEqual(customSettingsFolderClientApplicationForm)
+  })
+
+  it("imports root ChildItemsWidth", () => {
+    const xmlData = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "childItemsWidth.xml")
+    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+      import.meta.url,
+      "minimalMetadata.xml"
+    )
+    const result = importClientApplicationFormFromXML({
+      context: mockContextFromXML(),
+      xml: xmlData.Form,
+      xmlMetadata: xmlMetadata.MetaDataObject,
+    })
+
+    expect(result).toEqual(childItemsWidthClientApplicationForm)
   })
 })

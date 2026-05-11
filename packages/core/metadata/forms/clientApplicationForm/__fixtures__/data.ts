@@ -566,6 +566,11 @@ export const minimalClientApplicationForm: ClientApplicationForm = {
   usePurposes: ["PlatformApplication", "MobilePlatformApplication"],
 }
 
+export const childItemsWidthClientApplicationForm: ClientApplicationForm = {
+  ...minimalClientApplicationForm,
+  slaveItemsWidth: "LeftWide",
+}
+
 export const conditionalAppearanceWithoutAttributesClientApplicationForm: ClientApplicationForm & {
   attributesConditionalAppearance: {
     itemType: "ConditionalAppearance"
