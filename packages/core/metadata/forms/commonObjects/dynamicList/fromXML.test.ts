@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   emptyListSettingsDynamicList,
   fullDynamicList,
+  keyFieldDynamicList,
   minimalDynamicList,
   multipleCalculatedFieldsDynamicList,
   queryTextWithManualQueryFalseDynamicList,
@@ -144,6 +145,36 @@ describe("import DynamicList from XML", () => {
     })
 
     expect(result).toEqual(multipleCalculatedFieldsDynamicList)
+  })
+
+  it("imports KeyType and KeyField", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "keyField.xml",
+      xmlRootTag: "Settings",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(keyFieldDynamicList)
+  })
+
+  it("imports XML with only KeyType and KeyField", () => {
+    const result = importPropertyFromXML({
+      context: mockContextFromXML(),
+      rule,
+      value: {
+        "_xsi:type": "DynamicList",
+        KeyType: "FieldValue",
+        KeyField: "Ссылка",
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "DynamicList",
+      customQuery: false,
+      keyType: "FieldValue",
+      keyFields: "Ссылка",
+    })
   })
 
   it("round-trip: queryTextWithManualQueryFalse.xml import -> export", () => {

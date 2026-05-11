@@ -349,6 +349,22 @@ export const emptyListSettingsDynamicList = {
   mainTable: "Catalog.Справочник1",
 } as const satisfies DynamicList
 
+export const keyFieldDynamicList = {
+  itemType: "DynamicList",
+  customQuery: true,
+  dynamicDataRead: true,
+  queryText: "ВЫБРАТЬ\n\tСсылка\nИЗ\n\tДокумент.ЗаявлениеОВвозеТоваров КАК Документ",
+  keyType: "FieldValue",
+  keyFields: "Ссылка",
+} as const satisfies DynamicList
+
+export const keyFieldDynamicListYAML = {
+  ПроизвольныйЗапрос: "Истина",
+  ДинамическоеСчитываниеДанных: "Истина",
+  ВидКлюча: "ЗначениеПоля",
+  ПоляКлюча: "Ссылка",
+} as const satisfies DynamicListYAML
+
 export const multipleCalculatedFieldsDynamicList = {
   calculatedFields: [
     {
