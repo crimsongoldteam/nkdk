@@ -1,0 +1,7 @@
+<InputField name="ПолеВвода" id="1">
+	<DataPath>Объект.Количество</DataPath>
+	<MinValue xsi:type="xs:string">1</MinValue>
+	<MaxValue xsi:type="xs:decimal">99.99</MaxValue>
+	<ContextMenu name="ПолеВводаКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="3"/>
+</InputField>

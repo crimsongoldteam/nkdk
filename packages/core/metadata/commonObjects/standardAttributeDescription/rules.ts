@@ -141,14 +141,14 @@ export const StandardAttributeDescriptionRules = {
     maxValue: {
       yaml: "МаксимальноеЗначение",
       xml: "xr:MaxValue",
-      type: "number",
+      type: "MinMaxValue",
       order: 7,
       defaultValueXMLRaw: { "_xsi:nil": true },
     },
     minValue: {
       yaml: "МинимальноеЗначение",
       xml: "xr:MinValue",
-      type: "number",
+      type: "MinMaxValue",
       order: 18,
       defaultValueXMLRaw: { "_xsi:nil": true },
     },

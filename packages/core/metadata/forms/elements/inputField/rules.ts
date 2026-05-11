@@ -135,9 +135,9 @@ export const InputFieldRules = {
     markNegatives: { yaml: "ВыделятьОтрицательные", type: "boolean" },
     mask: { yaml: "Маска", type: "string" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxValue: { yaml: "МаксимальноеЗначение", type: "number", xml: "MaxValue", typedXML: true },
+    maxValue: { yaml: "МаксимальноеЗначение", type: "MinMaxValue", xml: "MaxValue" },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    minValue: { yaml: "МинимальноеЗначение", type: "number", xml: "MinValue", typedXML: true },
+    minValue: { yaml: "МинимальноеЗначение", type: "MinMaxValue", xml: "MinValue" },
     multiLine: { yaml: "МногострочныйРежим", type: "boolean" },
     multipleValuePictureDataPath: {
       yaml: "ПутьКДаннымКартинкиМножественногоЗначения",
@@ -257,8 +257,8 @@ export const TableInputFieldRules = {
   properties: {
     ...InputFieldRules.properties,
     ...formFieldTableRelatedProperties,
-    minValue: { yaml: "МинимальноеЗначение", type: "number", xml: "MinValue", typedXML: true },
-    maxValue: { yaml: "МаксимальноеЗначение", type: "number", xml: "MaxValue", typedXML: true },
+    minValue: { yaml: "МинимальноеЗначение", type: "MinMaxValue", xml: "MinValue" },
+    maxValue: { yaml: "МаксимальноеЗначение", type: "MinMaxValue", xml: "MaxValue" },
   },
 } as const satisfies ElementRule
 

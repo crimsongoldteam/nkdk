@@ -137,6 +137,7 @@ import {
   fullTableInputFieldEnterprise,
   fullTableInputFieldPartialYAML,
   fullTableInputFieldTypedYAML,
+  minMaxStringTypeInputField,
   minimalInputField,
   minimalInputFieldEnterprise,
   minimalTableInputField,
@@ -325,6 +326,19 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: autoCellHeightInputField,
     yaml: { АвтоВысотаЯчейки: "Истина" },
+    enterprise: undefined,
+  },
+  {
+    group: "InputField",
+    name: "minMaxStringType InputField",
+    element: InputField,
+    xml: "minMaxStringType.xml",
+    xmlFolder: undefined,
+    model: minMaxStringTypeInputField,
+    yaml: {
+      МинимальноеЗначение: 1,
+      МаксимальноеЗначение: 99.99,
+    },
     enterprise: undefined,
   },
   //#endregion

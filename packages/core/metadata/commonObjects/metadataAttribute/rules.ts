@@ -109,7 +109,7 @@ const commonAttributeProperties = {
   minValue: {
     yaml: "МинимальноеЗначение",
     xml: "MinValue",
-    type: "number",
+    type: "MinMaxValue",
     xmlParents: ["Properties"],
     order: 13,
     typedXML: "xs:string",
@@ -118,7 +118,7 @@ const commonAttributeProperties = {
   maxValue: {
     yaml: "МаксимальноеЗначение",
     xml: "MaxValue",
-    type: "number",
+    type: "MinMaxValue",
     xmlParents: ["Properties"],
     order: 14,
     typedXML: "xs:string",
