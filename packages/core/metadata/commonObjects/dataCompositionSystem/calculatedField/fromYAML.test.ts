@@ -3,6 +3,8 @@ import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromY
 import {
   appearanceCalculatedField,
   appearanceCalculatedFieldYAML,
+  availableValuesCalculatedField,
+  availableValuesCalculatedFieldYAML,
   fullCalculatedField,
   fullCalculatedFieldYAML,
 } from "./__fixtures__/data"
@@ -25,5 +27,14 @@ describe("import CalculatedField from YAML", () => {
     })
 
     expect(result).toEqual(appearanceCalculatedField)
+  })
+
+  it("imports available values", () => {
+    const result = testImportPropertyFromYAML({
+      rule: { type: "CalculatedField" },
+      value: availableValuesCalculatedFieldYAML,
+    })
+
+    expect(result).toEqual(availableValuesCalculatedField)
   })
 })

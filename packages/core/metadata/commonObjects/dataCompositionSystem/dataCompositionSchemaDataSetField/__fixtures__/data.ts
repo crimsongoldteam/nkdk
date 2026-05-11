@@ -1,4 +1,5 @@
 import type { DataCompositionSchemaDataSetField, DataCompositionSchemaDataSetFieldYAML } from "../types"
+import { stringAvailableValues, stringAvailableValuesYAML } from "../../availableValues/__fixtures__/data"
 
 export const fullDataCompositionSchemaDataSetField = {
   itemType: "DataCompositionSchemaDataSetField",
@@ -64,3 +65,24 @@ export const folderDataCompositionSchemaDataSetFieldYAML = {
     Условие: "Истина",
   },
 } as const
+
+export const availableValuesDataCompositionSchemaDataSetField = {
+  itemType: "DataCompositionSchemaDataSetField",
+  kind: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+  dataPath: "Состояние",
+  field: "Состояние",
+  title: {
+    items: {
+      ru: "Состояние",
+    },
+  },
+  availableValues: stringAvailableValues,
+} satisfies DataCompositionSchemaDataSetField
+
+export const availableValuesDataCompositionSchemaDataSetFieldYAML = {
+  Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+  ПутьКДанным: "Состояние",
+  Поле: "Состояние",
+  Заголовок: "Состояние",
+  ДоступныеЗначения: stringAvailableValuesYAML,
+} satisfies DataCompositionSchemaDataSetFieldYAML

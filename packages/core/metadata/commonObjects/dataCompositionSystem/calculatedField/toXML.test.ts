@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { appearanceCalculatedField, fullCalculatedField } from "./__fixtures__/data"
+import { appearanceCalculatedField, availableValuesCalculatedField, fullCalculatedField } from "./__fixtures__/data"
 import "./types"
 
 describe("export CalculatedField to XML", () => {
@@ -22,6 +22,18 @@ describe("export CalculatedField to XML", () => {
       value: appearanceCalculatedField,
       xmlRootTag: "CalculatedField",
       path: "appearance.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("exports availableValues.xml", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: { type: "CalculatedField" },
+      value: availableValuesCalculatedField,
+      xmlRootTag: "CalculatedField",
+      path: "availableValues.xml",
       importMetaUrl: import.meta.url,
     })
 
