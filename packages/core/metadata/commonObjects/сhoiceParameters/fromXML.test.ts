@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   enumChoiceParameter,
   fixedArrayChoiceParameter,
+  fixedArrayWithNilChoiceParameters,
   formBooleanChoiceParameter,
   formEnumChoiceParameter,
   multipleChoiceParameters,
@@ -61,6 +62,17 @@ describe("importChoiceParametersFromXML", () => {
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
     expect(result).toEqual(fixedArrayChoiceParameter)
+  })
+
+  it("imports fixedArrayWithNil", () => {
+    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
+      import.meta.url,
+      "fixedArrayWithNil.xml"
+    )
+
+    const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
+
+    expect(result).toEqual(fixedArrayWithNilChoiceParameters)
   })
 
   it("should import choice parameters with string value correctly", () => {

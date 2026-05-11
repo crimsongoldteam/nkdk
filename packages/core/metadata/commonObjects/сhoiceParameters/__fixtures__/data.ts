@@ -1,4 +1,8 @@
 import { ChoiceParameter, ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
+import {
+  refsWithNilFixedArray,
+  refsWithNilFixedArrayYAML,
+} from "~/metadata/commonObjects/metadataValue/fixedArray/__fixtures__/data"
 
 //#region DCS (один параметр для фрагмента СКД)
 export const dcsDecimalChoiceParameter: ChoiceParameter = {
@@ -125,6 +129,17 @@ export const fixedArrayChoiceParametersYAML: ChoiceParametersYAML = {
     "Перечисление.ТипыСтруктурныхЕдиниц.Розница",
     "Перечисление.ТипыСтруктурныхЕдиниц.РозницаСуммовойУчет",
   ],
+}
+
+export const fixedArrayWithNilChoiceParameter: ChoiceParameter = {
+  name: "Состояния",
+  value: refsWithNilFixedArray,
+}
+
+export const fixedArrayWithNilChoiceParameters: ChoiceParameters = [fixedArrayWithNilChoiceParameter]
+
+export const fixedArrayWithNilChoiceParameterYAML: ChoiceParametersYAML = {
+  Состояния: refsWithNilFixedArrayYAML,
 }
 //#endregion
 
