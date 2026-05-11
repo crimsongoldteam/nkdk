@@ -30,4 +30,5 @@ export function exportMetadataItemLinksToXML(
   }
 }
 
+registerTypeRule("MetadataItemLink", "exportToXML", exportMetadataItemLinkToXML)
 registerTypeRule("MetadataItemLinks", "exportToXML", exportMetadataItemLinksToXML)

@@ -27,4 +27,5 @@ export function importMetadataItemLinksFromXML(
   return items.map((value) => importMetadataItemLinkFromXML(context, undefined, value)!)
 }
 
+registerTypeRule("MetadataItemLink", "importFromXML", importMetadataItemLinkFromXML)
 registerTypeRule("MetadataItemLinks", "importFromXML", importMetadataItemLinksFromXML)

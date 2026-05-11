@@ -24,4 +24,5 @@ export const exportMetadataItemLinksToYAML = (
   return data.map((item) => exportMetadataItemLinkToYAML(_context, undefined, item)!)
 }
 
+registerTypeRule("MetadataItemLink", "exportToYAML", exportMetadataItemLinkToYAML)
 registerTypeRule("MetadataItemLinks", "exportToYAML", exportMetadataItemLinksToYAML)

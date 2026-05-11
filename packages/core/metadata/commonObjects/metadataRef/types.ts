@@ -8,6 +8,7 @@ export interface MetadataItemLinkXML {
 }
 
 export type MetadataItemLinkYAML = string
+export const MetadataItemLinkJSONSchema = Type.String()
 
 export type MetadataItemLinks = MetadataItemLink[]
 export interface MetadataItemLinksXML {
