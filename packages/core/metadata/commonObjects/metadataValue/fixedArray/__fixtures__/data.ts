@@ -43,3 +43,9 @@ export const refsWithNilFixedArrayXML = `<Value xsi:type="v8:FixedArray">
 	<v8:Value xsi:nil="true"/>
 	<v8:Value xsi:type="xr:DesignTimeRef">Enum.ХозяйственныеОперации.EmptyRef</v8:Value>
 </Value>`
+
+export const refsWithNilFixedArrayYAML: MetadataFixedArrayValueYAML = [
+  "Перечисление.ХозяйственныеОперации.РеализацияКлиенту",
+  undefined,
+  "Перечисление.ХозяйственныеОперации.ПустаяСсылка",
+]

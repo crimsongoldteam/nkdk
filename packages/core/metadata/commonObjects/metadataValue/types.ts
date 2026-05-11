@@ -133,9 +133,10 @@ export const MetadataSingleValueJSONSchema = Type.Union([Type.String(), Type.Num
 export type MetadataSingleValueYAML = Static<typeof MetadataSingleValueJSONSchema>
 
 export const MetadataFixedArrayValueJSONSchema = Type.Array(
-  Type.Union([MetadataSingleValueJSONSchema, Type.Undefined()])
+  Type.Union([MetadataSingleValueJSONSchema, Type.Undefined(), Type.Null()])
 )
-export type MetadataFixedArrayValueYAML = Static<typeof MetadataFixedArrayValueJSONSchema>
+export type MetadataFixedArrayValueYAML = Array<MetadataSingleValueYAML | undefined>
+export type MetadataFixedArrayValueYAMLInput = Static<typeof MetadataFixedArrayValueJSONSchema>
 
 export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
   Type.Union([

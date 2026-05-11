@@ -5,7 +5,7 @@ import { importFixedArrayFromYAML } from "./fixedArray/fromYAML"
 import { importFormChoiceListFromYAML } from "./formChoiceList/fromYAML"
 import { primitiveValueHandlers } from "./handlers"
 import {
-  MetadataFixedArrayValueYAML,
+  MetadataFixedArrayValueYAMLInput,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueYAML,
   MetadataStringValue,
@@ -36,7 +36,7 @@ export const importMetadataValueFromYAML = (
   }
 
   if (Array.isArray(data)) {
-    return importFixedArrayFromYAML(context, data as MetadataFixedArrayValueYAML)
+    return importFixedArrayFromYAML(context, data as MetadataFixedArrayValueYAMLInput)
   }
 
   const result = heuristicFromYAML(context, data as MetadataSingleYAML)
