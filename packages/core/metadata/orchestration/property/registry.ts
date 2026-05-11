@@ -249,6 +249,11 @@ export type PropertyTypeRegistry = {
     enterprise: number
     yaml: number
   }
+  MinMaxValue: {
+    item: number
+    enterprise: number
+    yaml: number
+  }
   dateTime: {
     item: string
     enterprise: string
@@ -816,6 +821,7 @@ export type PropertyRuleType = keyof PropertyTypeRegistry
 export const PropertyRuleTypeKeys = Object.keys({
   uuid: "uuid",
   number: "number",
+  MinMaxValue: "MinMaxValue",
   dateTime: "dateTime",
   string: "string",
   boolean: "boolean",
