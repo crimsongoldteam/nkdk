@@ -1,0 +1,20 @@
+<root>
+	<dcssch:availableValue>
+		<dcssch:value xsi:type="xs:string">Выставлен</dcssch:value>
+		<dcssch:presentation xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Выставлен</v8:content>
+			</v8:item>
+		</dcssch:presentation>
+	</dcssch:availableValue>
+	<dcssch:availableValue>
+		<dcssch:value xsi:type="xs:string">Аннулирован</dcssch:value>
+		<dcssch:presentation xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Аннулирован</v8:content>
+			</v8:item>
+		</dcssch:presentation>
+	</dcssch:availableValue>
+</root>

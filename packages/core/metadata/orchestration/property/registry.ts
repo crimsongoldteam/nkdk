@@ -37,6 +37,12 @@ import {
   AvailableFieldsYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
 import {
+  DcsAvailableValue,
+  DcsAvailableValues,
+  DcsAvailableValuesYAML,
+  DcsAvailableValueYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/availableValues/types"
+import {
   CalculatedField,
   CalculatedFieldYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
@@ -765,6 +771,14 @@ export type PropertyTypeRegistry = {
     item: AvailableFields
     yaml: AvailableFieldsYAML
   }
+  DcsAvailableValue: {
+    item: DcsAvailableValue
+    yaml: DcsAvailableValueYAML
+  }
+  DcsAvailableValues: {
+    item: DcsAvailableValues
+    yaml: DcsAvailableValuesYAML
+  }
   FilterItem: {
     item: FilterItem
     yaml: FilterItemYAML
@@ -931,6 +945,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   DataSetFieldFields: "DataSetFieldFields",
   Filter: "Filter",
   AvailableFields: "AvailableFields",
+  DcsAvailableValue: "DcsAvailableValue",
+  DcsAvailableValues: "DcsAvailableValues",
   FilterItem: "FilterItem",
   Order: "Order",
   OrderItemFields: "OrderItemFields",
