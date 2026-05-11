@@ -1,53 +1,119 @@
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import {
-  StandardAttributeDescriptions,
+  MetadataCommandsXML,
+  MetadataCommandsYAML,
+} from "~/metadata/appliedObjects/metadataCommand/types"
+import {
+  CharacteristicsDescriptionsXML,
+  CharacteristicsDescriptionsYAML,
+} from "~/metadata/commonObjects/characteristicsDescription/types"
+import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { InternalInfoItemsXML } from "~/metadata/commonObjects/internalInfo/types"
+import {
+  StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "~/metadata/orchestration"
+import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { MetadataEnumerationRules, MetadataEnumerationValueRules } from "./rules"
 
-export interface MetadataEnumerationValue {
-  itemType: "MetadataEnumerationValue"
-  name: string
-}
+export type MetadataEnumeration = MetadataTypeByRule<typeof MetadataEnumerationRules>
+export type MetadataEnumerationYAML = YAMLTypeByRule<typeof MetadataEnumerationRules>
+
+export type MetadataEnumerationValue = MetadataTypeByRule<typeof MetadataEnumerationValueRules>
+export type MetadataEnumerationValueYAML = YAMLTypeByRule<typeof MetadataEnumerationValueRules>
 
 export type MetadataEnumerationValues = MetadataEnumerationValue[]
-export type MetadataEnumerationValuesYAML = Record<string, unknown>
+export type MetadataEnumerationValuesYAML = Record<string, MetadataEnumerationValueYAML>
 
-export interface MetadataEnumeration {
-  itemType?: "MetadataEnumeration"
-  name: string
-  auxiliaryChoiceForm?: string
-  auxiliaryListForm?: string
-  comment?: string
-  defaultChoiceForm?: string
-  defaultListForm?: string
-  enumValues?: MetadataEnumerationValues
-  explanation?: I8nText
-  extendedListPresentation?: I8nText
-  extendedObjectPresentation?: I8nText
-  fullTextSearch?: SE.UseFullTextSearch
-  listPresentation?: I8nText
-  objectPresentation?: I8nText
-  standardAttributes?: StandardAttributeDescriptions
-  synonym?: I8nText
-  useStandardCommands?: boolean
+export type EnumerationInternalInfoParamsXML = [
+  { name: string; category: "Ref" },
+  { name: string; category: "Manager" },
+  { name: string; category: "List" },
+]
+
+export interface MetadataEnumerationValueXML {
+  _uuid: string
+  Properties: {
+    Comment?: string
+    Name: string
+    ObjectBelonging?: SE.ObjectBelonging
+    Synonym?: I8nTextXML
+  }
 }
 
-export interface MetadataEnumerationYAML {
-  ДополнительнаяФормаДляВыбора?: string
-  ДополнительнаяФормаСписка?: string
-  Комментарий?: string
-  ОсновнаяФормаДляВыбора?: string
-  ОсновнаяФормаСписка?: string
+export type MetadataEnumerationValuesXML = MetadataEnumerationValueXML | MetadataEnumerationValueXML[]
+export type ChildFormNamesXML = string[]
+export type ChildTemplateNamesXML = string[]
+
+export interface MetadataEnumerationXML {
+  _xmlns?: string
+  "_xmlns:app"?: string
+  "_xmlns:cfg"?: string
+  "_xmlns:cmi"?: string
+  "_xmlns:ent"?: string
+  "_xmlns:lf"?: string
+  "_xmlns:style"?: string
+  "_xmlns:sys"?: string
+  "_xmlns:v8"?: string
+  "_xmlns:v8ui"?: string
+  "_xmlns:web"?: string
+  "_xmlns:win"?: string
+  "_xmlns:xen"?: string
+  "_xmlns:xpr"?: string
+  "_xmlns:xr"?: string
+  "_xmlns:xs"?: string
+  "_xmlns:xsi"?: string
+  _version: string
+  Enum: {
+    _uuid: string
+    InternalInfo: InternalInfoItemsXML<EnumerationInternalInfoParamsXML> | undefined
+    Properties: {
+      AuxiliaryChoiceForm?: string
+      AuxiliaryListForm?: string
+      Characteristics?: CharacteristicsDescriptionsXML
+      ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
+      ChoiceMode?: SE.ChoiceMode
+      Comment?: string
+      DefaultChoiceForm?: string
+      DefaultListForm?: string
+      Explanation?: I8nTextXML
+      ExtendedListPresentation?: I8nTextXML
+      ListPresentation?: I8nTextXML
+      Name: string
+      ObjectBelonging?: SE.ObjectBelonging
+      QuickChoice?: boolean
+      StandardAttributes?: StandardAttributeDescriptionsXML
+      Synonym?: I8nTextXML
+      UseStandardCommands?: boolean
+    }
+    ChildObjects?: {
+      Command?: MetadataCommandsXML
+      EnumValue?: MetadataEnumerationValuesXML
+      Form?: ChildFormNamesXML
+      Template?: ChildTemplateNamesXML
+    }
+  }
+}
+
+export type MetadataEnumerationValuesLegacyYAML = Record<string, unknown>
+
+export type MetadataEnumerationLegacyYAML = MetadataEnumerationYAML & {
+  Команды?: MetadataCommandsYAML
   Значения?: MetadataEnumerationValuesYAML
-  Пояснение?: I8nTextYAML
-  ПолнотекстовыйПоиск?: SE.UseFullTextSearchYAML
-  ПредставлениеОбъекта?: I8nTextYAML
-  ПредставлениеСписка?: I8nTextYAML
-  РасширенноеПредставлениеОбъекта?: I8nTextYAML
-  РасширенноеПредставлениеСписка?: I8nTextYAML
-  Синоним?: I8nTextYAML
   СтандартныеРеквизиты?: StandardAttributeDescriptionsYAML
-  ИспользоватьСтандартныеКоманды?: StringboolYAML
+  Характеристики?: CharacteristicsDescriptionsYAML
 }
+
+registerMetadataItemRule({
+  propertyType: "MetadataEnumeration",
+  itemRule: MetadataEnumerationRules,
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataEnumerationValues",
+  itemRule: MetadataEnumerationValueRules,
+  xmlElement: "EnumValue",
+  keyField: "name",
+})

@@ -1,87 +1,119 @@
+import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule, type ReferenceScope } from "~/metadata/orchestration/property/types"
+import { MetadataCommandRules } from "../metadataCommand/rules"
 
-const enumProperties = ["Enum", "Properties"]
+const enumProperties = ["Properties"]
+const enumChildObjects = ["ChildObjects"]
 
 export const MetadataEnumerationStandardAttributeNames: Record<string, string> = {
-  Predefined: "Предопределенный",
-  PredefinedDataName: "ИмяПредопределенныхДанных",
+  Order: "Порядок",
   Ref: "Ссылка",
 }
+
+export const MetadataEnumerationValueRules = {
+  itemType: "MetadataEnumerationValue",
+  properties: {
+    uuid: {
+      type: "uuid",
+      xml: "_uuid",
+      forReferenceOnly: true,
+      xmlParents: [],
+    },
+    name: {
+      yaml: "Имя",
+      xml: "Name",
+      type: "string",
+      required: true,
+      xmlParents: enumProperties,
+    },
+    synonym: {
+      yaml: "Синоним",
+      xml: "Synonym",
+      type: "I8nText",
+      xmlParents: enumProperties,
+      defaultValueXMLRaw: "",
+    },
+    comment: {
+      yaml: "Комментарий",
+      xml: "Comment",
+      type: "string",
+      xmlParents: enumProperties,
+      defaultValueXMLRaw: "",
+    },
+    objectBelonging: {
+      yaml: "ПринадлежностьОбъекта",
+      xml: "ObjectBelonging",
+      type: "SystemEnumeration",
+      typeSE: "ObjectBelonging",
+      xmlParents: enumProperties,
+    },
+    extendedConfigurationObject: {
+      yaml: "ОбъектРасширяемойКонфигурации",
+      type: "string",
+      runtimeOnly: true,
+    },
+  },
+} as const satisfies MetadataItemRule
 
 export const MetadataEnumerationRules = {
   itemType: "MetadataEnumeration",
   itemTypePrefix: "Перечисление",
+  xmlDir: "Enums",
   properties: {
+    xmlRoot: {
+      type: "XMLRoot",
+      container: "Enum",
+      rootAttributes: V8_MDCLASSES_ROOT,
+      forReferenceOnly: true,
+    },
+    internalInfo: {
+      type: "InternalInfo",
+      xmlParents: [],
+      forReferenceOnly: true,
+      items: [
+        { name: "EnumRef", category: "Ref" },
+        { name: "EnumManager", category: "Manager" },
+        { name: "EnumList", category: "List" },
+      ],
+    },
     uuid: {
-      type: "string",
+      type: "uuid",
       xml: "_uuid",
       forReferenceOnly: true,
-      xmlParents: ["Enum"],
-    },
-    auxiliaryChoiceForm: {
-      yaml: "ДополнительнаяФормаДляВыбора",
-      type: "string",
-      xmlParents: enumProperties,
-      referenceScope: { target: "this", kind: "Form" },
-    },
-    auxiliaryListForm: {
-      yaml: "ДополнительнаяФормаСписка",
-      type: "string",
-      xmlParents: enumProperties,
-      referenceScope: { target: "this", kind: "Form" },
-    },
-    comment: {
-      yaml: "Комментарий",
-      type: "string",
-      xmlParents: enumProperties,
-    },
-    defaultChoiceForm: {
-      yaml: "ОсновнаяФормаДляВыбора",
-      type: "string",
-      xmlParents: enumProperties,
-      referenceScope: { target: "this", kind: "Form" },
-    },
-    defaultListForm: {
-      yaml: "ОсновнаяФормаСписка",
-      type: "string",
-      xmlParents: enumProperties,
-      referenceScope: { target: "this", kind: "Form" },
-    },
-    explanation: {
-      yaml: "Пояснение",
-      type: "I8nText",
-      xmlParents: enumProperties,
-    },
-    extendedListPresentation: {
-      yaml: "РасширенноеПредставлениеСписка",
-      type: "I8nText",
-      xmlParents: enumProperties,
-    },
-    extendedObjectPresentation: {
-      yaml: "РасширенноеПредставлениеОбъекта",
-      type: "I8nText",
-      xmlParents: enumProperties,
-    },
-    fullTextSearch: {
-      yaml: "ПолнотекстовыйПоиск",
-      type: "SystemEnumeration",
-      typeSE: "UseFullTextSearch",
-      defaultValueXML: "Use",
-      xmlParents: enumProperties,
-    },
-    listPresentation: {
-      yaml: "ПредставлениеСписка",
-      type: "I8nText",
-      xmlParents: enumProperties,
+      xmlParents: [],
     },
     name: {
       type: "string",
       xmlParents: enumProperties,
       required: true,
     },
-    objectPresentation: {
-      yaml: "ПредставлениеОбъекта",
+    synonym: {
+      yaml: "Синоним",
       type: "I8nText",
+      xmlParents: enumProperties,
+      defaultValueXMLRaw: "",
+    },
+    comment: {
+      yaml: "Комментарий",
+      type: "string",
+      xmlParents: enumProperties,
+      defaultValueXMLRaw: "",
+    },
+    objectBelonging: {
+      yaml: "ПринадлежностьОбъекта",
+      type: "SystemEnumeration",
+      typeSE: "ObjectBelonging",
+      xmlParents: enumProperties,
+    },
+    extendedConfigurationObject: {
+      yaml: "ОбъектРасширяемойКонфигурации",
+      type: "string",
+      runtimeOnly: true,
+    },
+    useStandardCommands: {
+      yaml: "ИспользоватьСтандартныеКоманды",
+      type: "boolean",
+      defaultValueXML: false,
       xmlParents: enumProperties,
     },
     standardAttributes: {
@@ -90,25 +122,113 @@ export const MetadataEnumerationRules = {
       standartAttributeNames: MetadataEnumerationStandardAttributeNames,
       xmlParents: enumProperties,
     },
-    synonym: {
-      yaml: "Синоним",
-      type: "I8nText",
+    characteristics: {
+      yaml: "Характеристики",
+      type: "CharacteristicsDescriptions",
       xmlParents: enumProperties,
+      defaultValueXMLRaw: {},
     },
-    useStandardCommands: {
-      yaml: "ИспользоватьСтандартныеКоманды",
+    quickChoice: {
+      yaml: "БыстрыйВыбор",
       type: "boolean",
       defaultValueXML: true,
+      xmlParents: enumProperties,
+    },
+    choiceMode: {
+      yaml: "СпособВыбора",
+      type: "SystemEnumeration",
+      typeSE: "ChoiceMode",
+      defaultValueXML: "BothWays",
+      xmlParents: enumProperties,
+    },
+    defaultListForm: {
+      yaml: "ОсновнаяФормаСписка",
+      type: "string",
+      xmlParents: enumProperties,
+      referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
+    },
+    defaultChoiceForm: {
+      yaml: "ОсновнаяФормаДляВыбора",
+      type: "string",
+      xmlParents: enumProperties,
+      referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
+    },
+    auxiliaryListForm: {
+      yaml: "ДополнительнаяФормаСписка",
+      type: "string",
+      xmlParents: enumProperties,
+      referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
+    },
+    auxiliaryChoiceForm: {
+      yaml: "ДополнительнаяФормаДляВыбора",
+      type: "string",
+      xmlParents: enumProperties,
+      referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
+    },
+    managerModule: {
+      type: "Module",
+      nkdkPath: "МодульМенеджера.bsl",
+      xmlPath: "Ext/ManagerModule.bsl",
+    },
+    listPresentation: {
+      yaml: "ПредставлениеСписка",
+      type: "I8nText",
+      xmlParents: enumProperties,
+      defaultValueXMLRaw: "",
+    },
+    extendedListPresentation: {
+      yaml: "РасширенноеПредставлениеСписка",
+      type: "I8nText",
+      xmlParents: enumProperties,
+      defaultValueXMLRaw: "",
+    },
+    explanation: {
+      yaml: "Пояснение",
+      type: "I8nText",
+      xmlParents: enumProperties,
+      defaultValueXMLRaw: "",
+    },
+    choiceHistoryOnInput: {
+      yaml: "ИсторияВыбораПриВводе",
+      type: "SystemEnumeration",
+      typeSE: "ChoiceHistoryOnInput",
+      defaultValueXML: "Auto",
       xmlParents: enumProperties,
     },
     enumValues: {
       yaml: "Значения",
       type: "MetadataEnumerationValues",
-      xmlParents: ["Enum", "EnumValues"],
+      xmlParents: enumChildObjects,
       xml: "EnumValue",
     },
+    commands: {
+      yaml: "Команды",
+      type: "MetadataCommands",
+      xmlParents: enumChildObjects,
+      xml: "Command",
+    },
+    forms: {
+      type: "ChildFormNames",
+      xml: "Form",
+      folderName: "Формы",
+      forReferenceOnly: true,
+      xmlParents: enumChildObjects,
+    },
+    templates: {
+      type: "ChildTemplateNames",
+      xml: "Template",
+      folderName: "Шаблоны",
+      forReferenceOnly: true,
+      xmlParents: enumChildObjects,
+    },
   },
+  requiredXMLParents: [["ChildObjects"]],
   graphTerminals: ["ПустаяСсылка"],
+  childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
 } as const satisfies MetadataItemRule
 
 /**
