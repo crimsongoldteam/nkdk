@@ -10,6 +10,10 @@ export const importFixedArrayFromXML = (
   const values = Array.isArray(raw) ? raw : [raw]
   return {
     type: "fixedArray",
-    value: values.map((v) => importMetadataValueFromXML({ context, rule: undefined, value: v })!),
+    value: values.map((v) =>
+      typeof v === "object" && v !== null && "_xsi:nil" in v && v["_xsi:nil"] === true
+        ? undefined
+        : importMetadataValueFromXML({ context, rule: undefined, value: v })!
+    ),
   }
 }
