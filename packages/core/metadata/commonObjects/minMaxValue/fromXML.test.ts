@@ -19,6 +19,26 @@ describe("importMinMaxValueFromXML", () => {
     expect(result).toBe(1)
   })
 
+  it("imports typed value without text as undefined", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlString: '<MinValue xsi:type="xs:string"/>',
+      xmlRootTag: "MinValue",
+    })
+
+    expect(result).toBeUndefined()
+  })
+
+  it("imports typed empty text as undefined", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlString: '<MinValue xsi:type="xs:string"></MinValue>',
+      xmlRootTag: "MinValue",
+    })
+
+    expect(result).toBeUndefined()
+  })
+
   it("imports xs:string as empty boxed number for reference", () => {
     const result = testImportPropertyFromXML({
       rule,

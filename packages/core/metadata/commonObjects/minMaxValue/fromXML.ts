@@ -16,7 +16,7 @@ export const importMinMaxValueFromXML = (
   _rule: PropertyRule | undefined,
   value: MinMaxValueXML
 ): number | Number | undefined => {
-  const rawValue = typeof value === "object" && value !== null && "#text" in value ? value["#text"] : value
+  const rawValue = typeof value === "object" && value !== null ? value["#text"] : value
 
   if (rawValue === undefined || rawValue === "") return undefined
 
