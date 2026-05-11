@@ -8,15 +8,16 @@ import {
 } from "~/metadata/orchestration"
 import { isEmptyMetadataItem } from "./helper"
 import { getElementRule } from "./ruleFactory"
-import { attachReferenceNameSuffix, type SingletonNameStyle } from "./singletonName"
+import { attachReferenceNameMode, type SingletonNameStyle } from "./singletonName"
 
 export function importSingleElementFromXML<Rule extends ElementRule>(params: {
   context: ConfigurationContextFromXML
   elementRule: ElementRule
   xml: ElementXML
   nameStyle?: SingletonNameStyle
+  ownerXmlName?: string
 }): ToMetadata<Rule["itemType"]> | undefined {
-  const { context, elementRule, xml, nameStyle } = params
+  const { context, elementRule, xml, nameStyle, ownerXmlName } = params
   const itemType = elementRule.itemType
   const forReference = context.fromXML.forReference
 
@@ -35,9 +36,10 @@ export function importSingleElementFromXML<Rule extends ElementRule>(params: {
   if (!forReference && isEmptyMetadataItem({ context, rule: elementRule, element: result })) return undefined
 
   if (forReference) {
-    return attachReferenceNameSuffix({
+    return attachReferenceNameMode({
       model: result,
       xmlName: xml._name,
+      ownerXmlName,
       nameStyle,
     })
   }

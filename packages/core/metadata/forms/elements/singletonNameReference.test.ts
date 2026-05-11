@@ -119,6 +119,32 @@ describe("singleton XML name suffix from reference", () => {
     expect(result.ExtendedTooltip._name).toBe("НовыйСписокSearchStringExtendedTooltip")
   })
 
+  it("keeps exact singleton name when it is noncanonical for the reference owner", () => {
+    const rule = { type: "SingleSearchStringAddition" } satisfies PropertyRule
+    const reference = importPropertyFromXML({
+      context: mockContextFromXML({ forReference: true }),
+      rule,
+      value: {
+        _name: "ТаблицаЭПСтрокаПоиска",
+        _id: "13",
+        AdditionSource: {
+          Item: "Подписи",
+          Type: "SearchStringRepresentation",
+        },
+      },
+      ownerXmlName: "Подписи",
+    })
+
+    const result = exportWithReference({
+      context: withParent({ itemType: "Table", name: "Подписи" }),
+      rule,
+      value: { itemType: "SingleSearchStringAddition" },
+      reference,
+    })
+
+    expect(result._name).toBe("ТаблицаЭПСтрокаПоиска")
+  })
+
   it("keeps ViewStatus reference suffix", () => {
     const rule = { type: "ViewStatusAddition" } satisfies PropertyRule
     const reference = importReference(rule, {

@@ -28,7 +28,8 @@ export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
 export type ImportFromXMLFunction = (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
-  xml: any
+  xml: any,
+  ownerXmlName?: string
 ) => any | undefined
 
 export type ImportFromYAMLFunctionNew = (params: {

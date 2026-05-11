@@ -22,7 +22,7 @@ import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { registerTypeRule } from "./factory"
 import { importSingleElementFromXML } from "./fromXML"
 import { importSingleElementFromYAML } from "./fromYAML"
-import { applyReferenceNameSuffix, type SingletonNameStyle } from "./singletonName"
+import { applyReferenceNameMode, type SingletonNameStyle } from "./singletonName"
 
 export const getElementRule = <Rule extends ElementRule>(itemType: Rule["itemType"]): Rule => {
   const rule = elementRulesRegistry.get(itemType)
@@ -80,13 +80,15 @@ const registerImportFromXML = <Rule extends ElementRule>(params: {
     (
       context: ConfigurationContextFromXML,
       _rule: PropertyRule,
-      xml: ElementXML
+      xml: ElementXML,
+      ownerXmlName?: string
     ): ToMetadata<Rule["itemType"]> | undefined => {
       return importSingleElementFromXML({
         context,
         elementRule: elementRule,
         xml,
         nameStyle,
+        ownerXmlName,
       }) as ToMetadata<Rule["itemType"]> | undefined
     }
   )
@@ -147,7 +149,7 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
     const element = value as ToMetadata<Rule["itemType"]> | undefined
     const referenceElement = referenceMetadata as ToMetadata<Rule["itemType"]> | undefined
     const extraParams = toXML({ context, element })
-    const name = applyReferenceNameSuffix({
+    const name = applyReferenceNameMode({
       generatedName: extraParams.name,
       referenceElement,
       nameStyle,
