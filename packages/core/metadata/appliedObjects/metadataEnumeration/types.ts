@@ -1,17 +1,8 @@
-import {
-  MetadataCommandsXML,
-  MetadataCommandsYAML,
-} from "~/metadata/appliedObjects/metadataCommand/types"
-import {
-  CharacteristicsDescriptionsXML,
-  CharacteristicsDescriptionsYAML,
-} from "~/metadata/commonObjects/characteristicsDescription/types"
+import { MetadataCommandsXML } from "~/metadata/appliedObjects/metadataCommand/types"
+import { CharacteristicsDescriptionsXML } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { InternalInfoItemsXML } from "~/metadata/commonObjects/internalInfo/types"
-import {
-  StandardAttributeDescriptionsXML,
-  StandardAttributeDescriptionsYAML,
-} from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { StandardAttributeDescriptionsXML } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "~/metadata/orchestration"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
@@ -95,15 +86,6 @@ export interface MetadataEnumerationXML {
       Template?: ChildTemplateNamesXML
     }
   }
-}
-
-export type MetadataEnumerationValuesLegacyYAML = Record<string, unknown>
-
-export type MetadataEnumerationLegacyYAML = MetadataEnumerationYAML & {
-  Команды?: MetadataCommandsYAML
-  Значения?: MetadataEnumerationValuesYAML
-  СтандартныеРеквизиты?: StandardAttributeDescriptionsYAML
-  Характеристики?: CharacteristicsDescriptionsYAML
 }
 
 registerMetadataItemRule({
