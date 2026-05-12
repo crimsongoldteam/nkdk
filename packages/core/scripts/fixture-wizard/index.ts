@@ -84,19 +84,44 @@ async function main(): Promise<void> {
     return
   }
 
-  const readline = createInterface({ input, output })
+  const { prompt, close } = await createCliPrompt()
 
   try {
     await runFixtureWizard({
       metadataItem,
       dumpRoot,
-      prompt: (question) => readline.question(question),
+      prompt,
     })
   } catch (error) {
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`)
     process.exitCode = 1
   } finally {
-    readline.close()
+    close()
+  }
+}
+
+async function createCliPrompt(): Promise<{ prompt: Prompt; close: () => void }> {
+  if (input.isTTY) {
+    const readline = createInterface({ input, output })
+    return {
+      prompt: (question) => readline.question(question),
+      close: () => readline.close(),
+    }
+  }
+
+  const chunks: Buffer[] = []
+  for await (const chunk of input) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+  }
+
+  const answers = Buffer.concat(chunks).toString("utf-8").split(/\r?\n/)
+
+  return {
+    prompt: async (question) => {
+      output.write(question)
+      return answers.shift() ?? ""
+    },
+    close: () => undefined,
   }
 }
 
