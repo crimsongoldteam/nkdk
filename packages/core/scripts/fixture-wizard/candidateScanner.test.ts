@@ -34,6 +34,7 @@ describe("candidateScanner", () => {
     await writeFile(join(documentsDir, "ЗаказВсеСвойства.xml"), "<root />", "utf-8")
     await writeFile(join(documentsDir, "ЗаказПоУмолчанию.xml"), "<root />", "utf-8")
     await writeFile(join(documentsDir, "Заказ.xml"), "<root />", "utf-8")
+    await writeFile(join(documentsDir, "ЗаказВерхнийРегистр.XML"), "<root />", "utf-8")
     await writeFile(join(documentsDir, ".DS_Store"), "", "utf-8")
     await writeFile(join(documentsDir, "readme.txt"), "", "utf-8")
     await writeFile(join(documentsDir, "Nested/Вложенный.xml"), "<root />", "utf-8")
@@ -46,6 +47,11 @@ describe("candidateScanner", () => {
           name: "Заказ",
           fileName: "Заказ.xml",
           path: join(documentsDir, "Заказ.xml"),
+        },
+        {
+          name: "ЗаказВерхнийРегистр",
+          fileName: "ЗаказВерхнийРегистр.XML",
+          path: join(documentsDir, "ЗаказВерхнийРегистр.XML"),
         },
         {
           name: "ЗаказВсеСвойства",
