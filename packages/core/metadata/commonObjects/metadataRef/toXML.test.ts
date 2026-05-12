@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { mockContextToXML } from "~/tests/mockContext"
-import { exportMetadataItemLinkToXML } from "./toXML"
+import { exportMetadataItemLinksToXML, exportMetadataItemLinkToXML } from "./toXML"
 
 describe("exportMetadataItemLinkToXML", () => {
   it("exports plain XML text by default", () => {
@@ -18,6 +18,28 @@ describe("exportMetadataItemLinkToXML", () => {
     expect(result).toEqual({
       "#text": "CommonCommand.ПоказатьВСписке",
       "_xsi:type": "xr:MDObjectRef",
+    })
+  })
+})
+
+describe("exportMetadataItemLinksToXML", () => {
+  it("exports collection items as typed XML text", () => {
+    const result = exportMetadataItemLinksToXML(mockContextToXML(), undefined, [
+      "CommonCommand.ПоказатьВСписке",
+      "SettingsStorage.ХранилищеНастроек",
+    ])
+
+    expect(result).toEqual({
+      "xr:Item": [
+        {
+          "#text": "CommonCommand.ПоказатьВСписке",
+          "_xsi:type": "xr:MDObjectRef",
+        },
+        {
+          "#text": "SettingsStorage.ХранилищеНастроек",
+          "_xsi:type": "xr:MDObjectRef",
+        },
+      ],
     })
   })
 })

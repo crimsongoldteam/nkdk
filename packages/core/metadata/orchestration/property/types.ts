@@ -109,6 +109,12 @@ export interface BasePropertyRule {
   /** XML namespace для элемента при экспорте: `xmlns="..."` */
   xmlNamespace?: string
 
+  /**
+   * Выгружать XML-значение с `_xsi:type`.
+   * `true` используется типами с собственным фиксированным XML-типом, строка задает конкретный XML-тип из rules.ts.
+   */
+  typedXML?: true | string
+
   /** Передавать значение в форму в 1С */
   toEnterprise?: false
 
