@@ -22,6 +22,7 @@ import {
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { chartSettings } from "./__fixtures__/chartSettings"
+import { plannerSettings } from "./__fixtures__/plannerSettings"
 import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
 import { exportFormAttributesToYAML } from "./toYAML"
 
@@ -66,6 +67,16 @@ const spreadsheetDocumentSettingsYAML = {
 <mxl:format>
 	<mxl:width>72</mxl:width>
 </mxl:format>`,
+  },
+}
+
+const plannerSettingsYAML = {
+  Канбан: {
+    Тип: "Планировщик",
+    Заголовок: "",
+    Планировщик: `<pl:itemsCurId>1</pl:itemsCurId>
+<pl:periodsCurId>2</pl:periodsCurId>
+<pl:resourcesCurId>3</pl:resourcesCurId>`,
   },
 }
 
@@ -159,5 +170,11 @@ describe("exportFormAttributesToYAML", () => {
     const result = exportFormAttributesToYAML(context, mockRule, spreadsheetDocumentSettings)
 
     expect(result).toEqual(spreadsheetDocumentSettingsYAML)
+  })
+
+  it("should export plannerSettings", () => {
+    const result = exportFormAttributesToYAML(context, mockRule, plannerSettings)
+
+    expect(result).toEqual(plannerSettingsYAML)
   })
 })
