@@ -5,6 +5,12 @@ description: Подсвечивает пачки расхождений short ro
 
 # round-trip-xml — reproducer для диффа short round-trip
 
+Перед диагностикой metadata round-trip обязательно прочитай:
+
+1. `.agents/knowledge/metadata/INDEX.md`
+2. `.agents/knowledge/metadata/sources-of-truth.md`
+3. `.agents/knowledge/metadata/round-trip-cycle.md`
+
 ## Что делает скилл
 
 У скилла два режима:
