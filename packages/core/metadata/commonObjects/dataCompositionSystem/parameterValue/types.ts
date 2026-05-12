@@ -22,6 +22,7 @@ export type ParameterValue = {
   parameter: string
   value?: MetadataDcsMetadataValue | MetadataDcsMetadataValue[]
   item?: ParameterValue[]
+  __referenceNilValue?: true
 }
 
 export type SettingsParameterValue = ParameterValue & {

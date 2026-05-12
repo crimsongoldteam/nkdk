@@ -118,6 +118,23 @@ const xmlFewValues = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 	</dcscor:value>
 </dcscor:item>`
 
+export const xmlNilSettingsParameterValue = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:use>false</dcscor:use>
+	<dcscor:parameter>Текст</dcscor:parameter>
+	<dcscor:value xsi:nil="true"/>
+</dcscor:item>`
+
+export const nilSettingsParameterValueRule: SettingsParameterValuePropertyRule = {
+  type: "SettingsParameterValue",
+  valueType: "DesignTimeValue",
+  yaml: "Текст",
+}
+
+export const nilSettingsParameterValue = {
+  use: false,
+  parameter: "Текст",
+} satisfies SettingsParameterValue
+
 export type ParameterValueFixture = {
   id: string
   title: string
