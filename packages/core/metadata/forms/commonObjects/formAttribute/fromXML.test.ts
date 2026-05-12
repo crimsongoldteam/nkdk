@@ -17,6 +17,7 @@ import { attributeAnyType } from "./__fixtures__/attributeAnyType"
 import { chartSettings } from "./__fixtures__/chartSettings"
 import { columnAnyType } from "./__fixtures__/columnAnyType"
 import { mixedColumns } from "./__fixtures__/mixedColumns"
+import { plannerSettings } from "./__fixtures__/plannerSettings"
 import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
 import { tableWithColumns } from "./__fixtures__/tableWithColumns"
 import { treeWithColumn } from "./__fixtures__/treeWithColumn"
@@ -192,6 +193,16 @@ describe("importFormAttributesFromXML", () => {
     })
 
     expect(result).toEqual(spreadsheetDocumentSettings)
+  })
+
+  it("import plannerSettings", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "plannerSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(plannerSettings)
   })
 
   it("imports ValueListType without Settings", () => {
