@@ -41,6 +41,7 @@ const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
   autoTitle: false,
   autoURL: false,
   group: "HorizontalIfPossible",
+  groupList: "2:02023637-7868-4a5f-8576-835a76e0c9ba",
   itemsAndTitlesAlign: "ItemsLeftTitlesLeft",
   horizontalSpacing: "OneAndHalf",
   verticalSpacing: "Double",

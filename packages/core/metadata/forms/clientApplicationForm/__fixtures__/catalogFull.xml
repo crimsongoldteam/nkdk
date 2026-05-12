@@ -17,6 +17,7 @@
 	<AutoTitle>false</AutoTitle>
 	<AutoURL>false</AutoURL>
 	<Group>AlwaysHorizontal</Group>
+	<GroupList>Дерево</GroupList>
 	<ChildrenAlign>ItemsLeftTitlesLeft</ChildrenAlign>
 	<HorizontalSpacing>Single</HorizontalSpacing>
 	<VerticalSpacing>Double</VerticalSpacing>
