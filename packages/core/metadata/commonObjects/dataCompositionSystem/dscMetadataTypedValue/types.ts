@@ -36,6 +36,9 @@ export type DcsMetadataTypedValue =
       type: "StandardBeginningDate"
       value: StandartBeginningDate
     }
+  | {
+      type: "EmptyValueList"
+    }
 
 export const DcsMetadataTypedValueJSONSchema = Type.Union([
   Type.String(),
@@ -66,5 +69,13 @@ export type DcsMetadataTypedValueXML =
   | {
       "_xsi:type": "xs:string"
       "#text"?: string
+    }
+  | {
+      "_xsi:type": "v8:ValueListType"
+      "v8:valueType"?: Record<string, never>
+      "v8:lastId"?: {
+        "_xsi:type": "xs:decimal"
+        "#text"?: string
+      }
     }
   | StandartBeginningDateXML

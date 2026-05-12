@@ -101,6 +101,27 @@ export const DcsMetadataTypedValueRegistry: Record<DcsMetadataTypedValue["type"]
     toXML: ({ item }) =>
       exportStandartBeginningDateToXML(getStandardBeginningDateValue(item)) as DcsMetadataTypedValueXML,
   },
+  EmptyValueList: {
+    detect: () => false,
+    fromYAML: () => {
+      throw new Error("DcsMetadataTypedValue YAML: EmptyValueList is XML-only")
+    },
+    fromXML: ({ xml }) => {
+      assertEmptyValueListXML(xml)
+      return { type: "EmptyValueList" }
+    },
+    toYAML: () => {
+      throw new Error("DcsMetadataTypedValue YAML: EmptyValueList is XML-only")
+    },
+    toXML: () => ({
+      "_xsi:type": "v8:ValueListType",
+      "v8:valueType": {},
+      "v8:lastId": {
+        "_xsi:type": "xs:decimal",
+        "#text": "-1",
+      },
+    }),
+  },
 }
 
 export const DcsMetadataTypedValueTypeFromXML = (
@@ -119,6 +140,8 @@ export const DcsMetadataTypedValueTypeFromXML = (
       return "string"
     case "v8:StandardBeginningDate":
       return "StandardBeginningDate"
+    case "v8:ValueListType":
+      return "EmptyValueList"
     default:
       throw new Error(`DcsMetadataTypedValue XML: unsupported _xsi:type ${String(valueType)}`)
   }
@@ -151,6 +174,33 @@ export type DcsMetadataTypedValueRegistryItem = {
 const xmlText = (xml: DcsMetadataTypedValueXML): string => {
   if ("#text" in xml) return xml["#text"] ?? ""
   return ""
+}
+
+const isEmptyRecord = (value: unknown): boolean =>
+  typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 0
+
+const isEmptyValueType = (value: unknown): boolean => value === undefined || isEmptyRecord(value)
+
+const assertEmptyValueListXML = (xml: DcsMetadataTypedValueXML): void => {
+  const raw = xml as Record<string, unknown>
+  const valueType = raw["v8:valueType"]
+  const lastId = raw["v8:lastId"]
+  const items = raw["v8:item"]
+  const availableValues = raw["v8:availableValues"]
+
+  const lastIdText =
+    typeof lastId === "object" && lastId !== null ? String((lastId as Record<string, unknown>)["#text"]) : undefined
+  const lastIdType =
+    typeof lastId === "object" && lastId !== null
+      ? String((lastId as Record<string, unknown>)["_xsi:type"])
+      : undefined
+
+  if (!isEmptyValueType(valueType) || lastIdText !== "-1" || lastIdType !== "xs:decimal") {
+    throw new Error("DcsMetadataTypedValue XML: unsupported non-empty v8:ValueListType")
+  }
+  if (items !== undefined || availableValues !== undefined) {
+    throw new Error("DcsMetadataTypedValue XML: unsupported non-empty v8:ValueListType")
+  }
 }
 
 type PrimitiveDcsType = Extract<DcsMetadataTypedValue["type"], "decimal" | "boolean" | "string">

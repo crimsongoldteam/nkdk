@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { dcsMetadataTypedValueFixtures } from "./__fixtures__/data"
+import { dcsMetadataTypedValueFixtures, emptyValueListTypedValue } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
   type: "DcsMetadataTypedValue" as any,
@@ -17,5 +17,16 @@ describe("import DcsMetadataTypedValue from XML", () => {
         xmlString: fixture.XML,
       })
     ).toEqual(fixture.model)
+  })
+
+  it("imports empty ValueListType", () => {
+    expect(
+      testImportPropertyFromXML({
+        rule,
+        xmlRootTag: "value",
+        path: "emptyValueList.xml",
+        importMetaUrl: import.meta.url,
+      })
+    ).toEqual(emptyValueListTypedValue)
   })
 })
