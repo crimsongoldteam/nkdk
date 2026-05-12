@@ -37,6 +37,7 @@ const importCommandInterfaceItemFromYAML = (
   const result: CommandInterfaceItem = {
     command: item.Команда,
     type: item.Тип,
+    attribute: item.Реквизит,
     itemType: "CommandInterfaceItem",
   }
 

@@ -37,6 +37,10 @@ const exportCommandInterfaceItemToYAML = (
     Тип: item.type,
   }
 
+  if (item.attribute !== undefined) {
+    result.Реквизит = item.attribute
+  }
+
   if (item.defaultVisible === false) {
     result.Автовидимость = "Ложь"
   }
