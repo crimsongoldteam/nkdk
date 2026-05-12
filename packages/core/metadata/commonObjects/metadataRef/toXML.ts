@@ -12,9 +12,8 @@ export function exportMetadataItemLinkToXML(
 
   const typedXML = rule?.typedXML
 
-  if (typeof typedXML === "string") {
-    // BasePropertyRule keeps typedXML generic; MetadataItemLink XML currently supports only xr:MDObjectRef.
-    return { "#text": data, "_xsi:type": typedXML as "xr:MDObjectRef" }
+  if (typedXML === "xr:MDObjectRef") {
+    return { "#text": data, "_xsi:type": typedXML }
   }
 
   return data
