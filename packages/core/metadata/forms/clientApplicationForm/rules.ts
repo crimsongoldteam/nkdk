@@ -168,6 +168,12 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValueYAML: "Horizontal",
     },
+    groupList: {
+      yaml: "СписокГрупп",
+      xml: "GroupList",
+      type: "string",
+      tag: FormRulesTags.Form,
+    },
     height: {
       yaml: "Высота",
       type: "number",
