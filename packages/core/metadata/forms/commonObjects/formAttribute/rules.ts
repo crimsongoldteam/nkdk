@@ -122,6 +122,13 @@ export const FormAttributeRules = {
       fromXML: false,
       toXML: false,
     },
+    planner: {
+      type: "Planner",
+      xml: "Settings",
+      yaml: "Планировщик",
+      fromXML: false,
+      toXML: false,
+    },
   },
 } as const satisfies MetadataItemRule
 

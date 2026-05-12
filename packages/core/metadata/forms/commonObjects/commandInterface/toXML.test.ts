@@ -126,7 +126,13 @@ describe("exportCommandInterfaceToXML", () => {
   })
 
   it("export commandGroupReferenceOrder without reference uses fallback order", () => {
-    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, commandGroupReferenceOrder)
+    const data = {
+      ...commandGroupReferenceOrder,
+      CommandBar: commandGroupReferenceOrder.CommandBar.map((item, index) =>
+        index === 1 ? { ...item, attribute: "Объект.Ref" } : item
+      ),
+    }
+    const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, data)
 
     const result = xmlExport({ CommandInterface: xmlData }, false)
 
@@ -134,6 +140,7 @@ describe("exportCommandInterfaceToXML", () => {
       [
         "\t\t\t<Command>Catalog.ДоговорыКонтрагентов.Command.ДоговорКонтрагентаВводНаОсновании</Command>",
         "\t\t\t<Type>Auto</Type>",
+        "\t\t\t<Attribute>Объект.Ref</Attribute>",
         "\t\t\t<Index>1</Index>",
         "\t\t\t<DefaultVisible>false</DefaultVisible>",
         "\t\t\t<CommandGroup>FormCommandBarCreateBasedOn</CommandGroup>",

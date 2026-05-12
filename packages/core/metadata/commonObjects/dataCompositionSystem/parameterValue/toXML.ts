@@ -36,14 +36,28 @@ const hasSettingsExtension = (data: ParameterValue | SettingsParameterValue): da
   (data as SettingsParameterValue).userSettingID !== undefined ||
   (data as SettingsParameterValue).userSettingPresentation !== undefined
 
+const findReferenceParameterValue = (
+  data: ParameterValue | SettingsParameterValue,
+  referenceItems: ParameterValue[] | undefined,
+  index: number
+): ParameterValue | undefined => {
+  if (referenceItems === undefined) return undefined
+
+  const sameParameter = referenceItems.filter((referenceItem) => referenceItem.parameter === data.parameter)
+  if (sameParameter.length === 1) return sameParameter[0]
+
+  return referenceItems[index] ?? sameParameter[0]
+}
+
 export const exportParameterValueToDcsXML = (params: {
   context: ConfigurationContext
   rule: SettingsParameterValuePropertyRule
   data: ParameterValue | SettingsParameterValue
+  referenceData?: ParameterValue | SettingsParameterValue | undefined
   /** Для корня из `registerTypeRule("SettingsParameterValue")` — всегда с `xsi:type`. */
   rootSettingsXsi: boolean
 }): ParameterValueXML | SettingsParameterValueXML => {
-  const { context, rule, data, rootSettingsXsi } = params
+  const { context, rule, data, referenceData, rootSettingsXsi } = params
   const dcsRule = toDcsMetadataValueRule(rule)
 
   const values = normalizeValues(data.value)
@@ -53,11 +67,16 @@ export const exportParameterValueToDcsXML = (params: {
     valueNodes.push(fragment["dcscor:value"] as ParameterValueDcsValueFragment)
   }
 
-  const itemsXml = data.item?.map((child) =>
+  if (valueNodes.length === 0 && data.value === undefined && referenceData?.__referenceNilValue === true) {
+    valueNodes.push({ "_xsi:nil": true } as ParameterValueDcsValueFragment)
+  }
+
+  const itemsXml = data.item?.map((child, index) =>
     exportParameterValueToDcsXML({
       context,
       rule,
       data: child,
+      referenceData: findReferenceParameterValue(child, referenceData?.item, index),
       rootSettingsXsi: hasSettingsExtension(child),
     })
   )
@@ -105,12 +124,14 @@ export const exportParameterValueToDcsXML = (params: {
 export const exportSettingsParameterValueToDcsXML = (
   context: ConfigurationContext,
   rule: PropertyRule,
-  data: ParameterValue | SettingsParameterValue
+  data: ParameterValue | SettingsParameterValue,
+  referenceData?: ParameterValue | SettingsParameterValue | undefined
 ): ParameterValueXML | SettingsParameterValueXML =>
   exportParameterValueToDcsXML({
     context,
     rule: rule as unknown as SettingsParameterValuePropertyRule,
     data,
+    referenceData,
     rootSettingsXsi: (rule as SettingsParameterValuePropertyRule).exportSettingsXsiType ?? true,
   })
 

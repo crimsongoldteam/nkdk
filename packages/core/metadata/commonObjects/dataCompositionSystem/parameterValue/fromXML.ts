@@ -26,6 +26,13 @@ const parseUse = (v: string | boolean | undefined): boolean | undefined => {
   return undefined
 }
 
+const isNilValueFragment = (fragment: unknown): boolean =>
+  typeof fragment === "object" &&
+  fragment !== null &&
+  !Array.isArray(fragment) &&
+  ((fragment as Record<string, unknown>)["_xsi:nil"] === true ||
+    (fragment as Record<string, unknown>)["_xsi:nil"] === "true")
+
 export const importParameterValueFromDcsXML = (
   context: ConfigurationContextFromXML,
   rule: SettingsParameterValuePropertyRule,
@@ -33,9 +40,11 @@ export const importParameterValueFromDcsXML = (
 ): ParameterValue | SettingsParameterValue => {
   const dcsRule = toDcsMetadataValueRule(rule)
   const valueFragments = asArray(xml["dcscor:value"])
-  const valueParts = valueFragments.map((fragment) =>
-    importDcsMetadataValueFromDcsXML(context, dcsRule, { "dcscor:value": fragment })
-  )
+  const valueNodePresent = Object.prototype.hasOwnProperty.call(xml, "dcscor:value")
+  const nilValuePresent = valueFragments.some(isNilValueFragment) || (valueNodePresent && valueFragments.length === 0)
+  const valueParts = valueFragments
+    .filter((fragment) => !isNilValueFragment(fragment))
+    .map((fragment) => importDcsMetadataValueFromDcsXML(context, dcsRule, { "dcscor:value": fragment }))
   const value: ParameterValue["value"] =
     valueParts.length === 0 ? undefined : valueParts.length === 1 ? valueParts[0] : valueParts
 
@@ -49,6 +58,7 @@ export const importParameterValueFromDcsXML = (
     ...(use !== undefined ? { use } : {}),
     ...(value !== undefined ? { value } : {}),
     ...(item !== undefined ? { item } : {}),
+    ...(context.fromXML.forReference && nilValuePresent ? { __referenceNilValue: true as const } : {}),
   }
 
   if (xml["_xsi:type"] === "dcsset:SettingsParameterValue") {

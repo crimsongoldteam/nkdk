@@ -7,6 +7,10 @@ type DcsMetadataTypedValueFixture = {
   XML: string
 }
 
+export const emptyValueListTypedValue: DcsMetadataTypedValue = {
+  type: "EmptyValueList",
+}
+
 export const dcsMetadataTypedValueFixtures: DcsMetadataTypedValueFixture[] = [
   {
     name: "field",

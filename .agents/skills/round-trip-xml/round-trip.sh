@@ -8,6 +8,7 @@
 #     - по умолчанию: первый alphabetically diff-файл в XML-репо;
 #     - --diff-index N: один выбранный diff-файл;
 #     - --triage --batch-size N [--start-index K]: пачка diff-файлов;
+#     - --all-configs: не останавливаться на первом каталоге с diff;
 #     - либо сообщение «round-trip чистый», если расхождений нет
 #
 # Охраны:
@@ -20,6 +21,7 @@
 #   ./.agents/skills/round-trip-xml/round-trip.sh --diff-index 3
 #   ./.agents/skills/round-trip-xml/round-trip.sh --triage --batch-size 5
 #   ./.agents/skills/round-trip-xml/round-trip.sh --triage --batch-size 5 --start-index 6
+#   ./.agents/skills/round-trip-xml/round-trip.sh --triage --all-configs --batch-size 20
 # ==============================================================================
 set -euo pipefail
 
@@ -33,6 +35,7 @@ START_INDEX="1"
 DIFF_INDEX_SET="0"
 BATCH_SIZE_SET="0"
 START_INDEX_SET="0"
+ALL_CONFIGS="0"
 
 usage() {
   cat <<'USAGE'
@@ -40,10 +43,12 @@ usage() {
   ./.agents/skills/round-trip-xml/round-trip.sh
   ./.agents/skills/round-trip-xml/round-trip.sh --diff-index N
   ./.agents/skills/round-trip-xml/round-trip.sh --triage [--batch-size N] [--start-index K]
+  ./.agents/skills/round-trip-xml/round-trip.sh --triage --all-configs [--batch-size N] [--start-index K]
 
 Параметры:
   --diff-index N   Показать один diff по 1-based номеру из отсортированного списка.
   --triage         Показать пачку diff'ов для информационного анализа.
+  --all-configs    Проверить все конфигурационные каталоги, не останавливаться на первом diff.
   --batch-size N   Размер triage-пачки. По умолчанию 5.
   --start-index K  1-based номер первого diff'а в triage-пачке. По умолчанию 1.
   -h, --help       Показать эту справку.
@@ -59,7 +64,7 @@ is_positive_integer() {
   [[ "${1:-}" =~ ^[1-9][0-9]*$ ]]
 }
 
-KNOWN_XML_DIRS=("Catalogs" "Documents" "DocumentNumerators" "Sequences")
+KNOWN_XML_DIRS=("Catalogs" "Documents" "DocumentNumerators" "Sequences" "Enums")
 
 is_config_dir() {
   local candidate="$1"
@@ -101,6 +106,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --triage)
       MODE="triage"
+      shift
+      ;;
+    --all-configs)
+      ALL_CONFIGS="1"
       shift
       ;;
     --batch-size)
@@ -193,6 +202,7 @@ echo "XML репо:    ${NKDK_XML_REPO}"
 echo "XML каталог: ${NKDK_XML_DIR}"
 echo "nkdk:        ${NKDK}"
 echo "mode:        ${MODE}"
+echo "all configs: ${ALL_CONFIGS}"
 if [ "${MODE}" = "single" ]; then
   echo "diff index:  ${DIFF_INDEX}"
 else
@@ -218,20 +228,27 @@ git -C "${NKDK_XML_REPO}" restore .
 # ── Short round-trip ─────────────────────────────────────────────────────────
 
 DIFF_FILES=()
+DIFF_FILE_DIRS=()
 ACTIVE_XML_DIR=""
 
 for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   echo "[round-trip] Запуск short-round-trip-test: ${RUN_XML_DIR}"
   ${NKDK} short-round-trip-test "${RUN_XML_DIR}"
 
-  DIFF_FILES=()
+  CURRENT_DIFF_FILES=()
   while IFS= read -r diff_file; do
-    DIFF_FILES+=("${diff_file}")
+    CURRENT_DIFF_FILES+=("${diff_file}")
   done < <(git -C "${RUN_XML_DIR}" -c core.quotepath=false diff --name-only --relative -- . | sort)
 
-  if [ "${#DIFF_FILES[@]}" -gt 0 ]; then
+  if [ "${#CURRENT_DIFF_FILES[@]}" -gt 0 ]; then
     ACTIVE_XML_DIR="${RUN_XML_DIR}"
-    break
+    for diff_file in "${CURRENT_DIFF_FILES[@]}"; do
+      DIFF_FILES+=("${diff_file}")
+      DIFF_FILE_DIRS+=("${RUN_XML_DIR}")
+    done
+    if [ "${ALL_CONFIGS}" != "1" ]; then
+      break
+    fi
   fi
 done
 
@@ -250,16 +267,18 @@ fi
 
 xml_file_abs() {
   local relative_path="$1"
-  echo "${ACTIVE_XML_DIR%/}/${relative_path}"
+  local active_dir="${2:-${ACTIVE_XML_DIR}}"
+  echo "${active_dir%/}/${relative_path}"
 }
 
 emit_single_diff() {
   local index="$1"
   local file="$2"
+  local active_dir="${3:-${ACTIVE_XML_DIR}}"
 
   echo ""
   echo "=== ACTIVE_XML_DIR ==="
-  echo "${ACTIVE_XML_DIR}"
+  echo "${active_dir}"
   echo ""
   echo "=== DIFF_COUNT ==="
   echo "${DIFF_COUNT}"
@@ -271,24 +290,25 @@ emit_single_diff() {
   echo "${file}"
   echo ""
   echo "=== SELECTED_XML_FILE_ABS ==="
-  xml_file_abs "${file}"
+  xml_file_abs "${file}" "${active_dir}"
   echo ""
   echo "=== FULL_DIFF ==="
-  git -C "${ACTIVE_XML_DIR}" -c core.quotepath=false diff --relative -- "${file}"
+  git -C "${active_dir}" -c core.quotepath=false diff --relative -- "${file}"
 }
 
 emit_triage_diff() {
   local index="$1"
   local file="$2"
+  local active_dir="${3:-${ACTIVE_XML_DIR}}"
 
   echo ""
   echo "=== TRIAGE_DIFF ==="
   echo "INDEX: ${index}"
-  echo "ACTIVE_XML_DIR: ${ACTIVE_XML_DIR}"
+  echo "ACTIVE_XML_DIR: ${active_dir}"
   echo "FILE: ${file}"
-  echo "XML_FILE_ABS: $(xml_file_abs "${file}")"
+  echo "XML_FILE_ABS: $(xml_file_abs "${file}" "${active_dir}")"
   echo "--- DIFF ---"
-  git -C "${ACTIVE_XML_DIR}" -c core.quotepath=false diff --relative -- "${file}"
+  git -C "${active_dir}" -c core.quotepath=false diff --relative -- "${file}"
 }
 
 if [ "${MODE}" = "single" ]; then
@@ -297,7 +317,8 @@ if [ "${MODE}" = "single" ]; then
   fi
 
   SELECTED_DIFF_FILE="${DIFF_FILES[$((DIFF_INDEX - 1))]}"
-  emit_single_diff "${DIFF_INDEX}" "${SELECTED_DIFF_FILE}"
+  SELECTED_DIFF_DIR="${DIFF_FILE_DIRS[$((DIFF_INDEX - 1))]}"
+  emit_single_diff "${DIFF_INDEX}" "${SELECTED_DIFF_FILE}" "${SELECTED_DIFF_DIR}"
   exit 0
 fi
 
@@ -323,5 +344,6 @@ fi
 
 for ((i = TRIAGE_START; i <= TRIAGE_END; i++)); do
   TRIAGE_DIFF_FILE="${DIFF_FILES[$((i - 1))]}"
-  emit_triage_diff "${i}" "${TRIAGE_DIFF_FILE}"
+  TRIAGE_DIFF_DIR="${DIFF_FILE_DIRS[$((i - 1))]}"
+  emit_triage_diff "${i}" "${TRIAGE_DIFF_FILE}" "${TRIAGE_DIFF_DIR}"
 done

@@ -2,6 +2,7 @@ import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
+import "~/metadata/forms/commonObjects/planner/types"
 import { FormAttribute, FormAttributeXML } from "./types"
 
 const chartSettingsRule = {
@@ -16,7 +17,13 @@ const spreadsheetDocumentSettingsRule = {
   yaml: "ТабличныйДокумент",
 } as const satisfies PropertyRule
 
-type TypedFormAttributeSettings = Pick<FormAttribute, "chart" | "spreadsheetDocument">
+const plannerSettingsRule = {
+  type: "Planner",
+  xml: "Settings",
+  yaml: "Планировщик",
+} as const satisfies PropertyRule
+
+type TypedFormAttributeSettings = Pick<FormAttribute, "chart" | "spreadsheetDocument" | "planner">
 
 const getXsiType = (settings: FormAttributeXML["Settings"] | undefined): string | undefined => {
   if (settings === undefined || settings === null || typeof settings !== "object" || Array.isArray(settings)) {
@@ -55,6 +62,17 @@ export const importTypedFormAttributeSettingsFromXML = (
     return spreadsheetDocument === undefined ? {} : { spreadsheetDocument }
   }
 
+  if (xsiType === "pl:Planner" || xsiType?.endsWith(":Planner")) {
+    const planner = importPropertyFromXML({
+      context,
+      rule: plannerSettingsRule,
+      value: settings,
+      name: "planner",
+    }) as FormAttribute["planner"] | undefined
+
+    return planner === undefined ? {} : { planner }
+  }
+
   return {}
 }
 
@@ -70,9 +88,19 @@ export const exportTypedFormAttributeSettingsToXML = (
 
   if (chart !== undefined) return chart
 
-  return exportPropertyToXML({
+  const spreadsheetDocument = exportPropertyToXML({
     context,
     rule: spreadsheetDocumentSettingsRule,
     value: data.spreadsheetDocument,
   }) as FormAttributeXML["Settings"] | undefined
+
+  if (spreadsheetDocument !== undefined) return spreadsheetDocument
+
+  const planner = exportPropertyToXML({
+    context,
+    rule: plannerSettingsRule,
+    value: data.planner,
+  }) as FormAttributeXML["Settings"] | undefined
+
+  if (planner !== undefined) return planner
 }
