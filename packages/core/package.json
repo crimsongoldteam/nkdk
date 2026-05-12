@@ -30,6 +30,7 @@
     "@types/node": "^24.10.1",
     "langium": "~4.2.0",
     "nkdk-language": "workspace:*",
+    "tsx": "^4.19.2",
     "ts-patch": "^3.3.0",
     "typescript": "~5.9.3",
     "vitest": "^4.0.15"
