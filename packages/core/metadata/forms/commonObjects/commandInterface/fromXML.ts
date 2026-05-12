@@ -39,6 +39,7 @@ const importCommandInterfaceItemFromXML = (
   const values: Partial<CommandInterfaceItem> = {
     command: String(item.Command),
     type: item.Type,
+    attribute: item.Attribute,
     index: importNumberFromXML(context, undefined, item.Index),
     commandGroup: item.CommandGroup,
   }
@@ -74,6 +75,7 @@ const importCommandInterfaceItemFromXML = (
 const commandInterfaceItemXmlToModelKeys = {
   Command: "command",
   Type: "type",
+  Attribute: "attribute",
   Index: "index",
   CommandGroup: "commandGroup",
   DefaultVisible: "defaultVisible",
@@ -83,6 +85,7 @@ const commandInterfaceItemXmlToModelKeys = {
 const nonReferenceCommandInterfaceItemKeys = [
   "command",
   "type",
+  "attribute",
   "defaultVisible",
   "index",
   "commandGroup",
@@ -92,6 +95,7 @@ const nonReferenceCommandInterfaceItemKeys = [
 const fallbackCommandInterfaceItemKeys = [
   "command",
   "type",
+  "attribute",
   "index",
   "commandGroup",
   "defaultVisible",

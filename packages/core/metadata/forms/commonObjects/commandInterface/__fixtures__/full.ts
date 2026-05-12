@@ -27,6 +27,7 @@ export const fullCommandInterface: CommandInterface = {
     {
       command: "InformationRegister.РегистрСведенийКомандныйИнтерфейс1.StandardCommand.OpenByValue.Измерение1",
       type: "Auto",
+      attribute: "Объект.Ref",
       commandGroup: "FormNavigationPanelGoTo",
       itemType: "CommandInterfaceItem",
     },
@@ -73,6 +74,7 @@ export const fullCommandInterfaceYAML: CommandInterfaceYAML = {
     {
       Команда: "InformationRegister.РегистрСведенийКомандныйИнтерфейс1.StandardCommand.OpenByValue.Измерение1",
       Тип: "Auto",
+      Реквизит: "Объект.Ref",
       ГруппаКоманд: "ПанельНавигацииФормыПерейти",
     },
   ],
