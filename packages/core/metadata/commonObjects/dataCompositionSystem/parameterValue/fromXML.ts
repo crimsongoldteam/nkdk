@@ -40,7 +40,8 @@ export const importParameterValueFromDcsXML = (
 ): ParameterValue | SettingsParameterValue => {
   const dcsRule = toDcsMetadataValueRule(rule)
   const valueFragments = asArray(xml["dcscor:value"])
-  const nilValuePresent = valueFragments.some(isNilValueFragment)
+  const valueNodePresent = Object.prototype.hasOwnProperty.call(xml, "dcscor:value")
+  const nilValuePresent = valueFragments.some(isNilValueFragment) || (valueNodePresent && valueFragments.length === 0)
   const valueParts = valueFragments
     .filter((fragment) => !isNilValueFragment(fragment))
     .map((fragment) => importDcsMetadataValueFromDcsXML(context, dcsRule, { "dcscor:value": fragment }))

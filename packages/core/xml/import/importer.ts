@@ -24,7 +24,7 @@ export const importContentFromXML = <T>(data: string): T => {
     preserveOrder: true,
     attributeNamePrefix: "_",
     attributesGroupName: "@attributes",
-    ignoreAttributes: false,
+    ignoreAttributes: ["xsi:nil"],
     parseTagValue: false,
     numberParseOptions: { leadingZeros: false, hex: true, eNotation: true },
     trimValues: false,
