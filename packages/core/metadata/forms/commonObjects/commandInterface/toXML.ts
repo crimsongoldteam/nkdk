@@ -49,6 +49,7 @@ const exportCommandInterfaceItemToXML = (
   const values: Partial<CommandInterfaceItemXML> = {
     Command: item.command,
     Type: item.type ?? "Auto",
+    Attribute: item.attribute,
     Index: item.index,
     DefaultVisible: item.defaultVisible,
     CommandGroup: item.commandGroup,
@@ -80,6 +81,7 @@ const exportCommandInterfaceItemToXML = (
 const commandInterfaceItemModelToXmlKeys = {
   command: "Command",
   type: "Type",
+  attribute: "Attribute",
   index: "Index",
   commandGroup: "CommandGroup",
   defaultVisible: "DefaultVisible",
@@ -89,6 +91,7 @@ const commandInterfaceItemModelToXmlKeys = {
 const fallbackCommandInterfaceItemXMLKeys = [
   "Command",
   "Type",
+  "Attribute",
   "Index",
   "DefaultVisible",
   "CommandGroup",
