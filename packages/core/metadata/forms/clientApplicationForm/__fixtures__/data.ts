@@ -33,6 +33,9 @@ export const fullClientApplicationForm: Omit<
   | "settingsStorage"
   | "scalingMode"
   | "customSettingsFolder"
+  | "autoTime"
+  | "usePostingMode"
+  | "repostOnWrite"
 > = {
   parameters: [
     {
@@ -67,7 +70,6 @@ export const fullClientApplicationForm: Omit<
   autoTitle: true,
   autoSaveDataInSettings: "Use",
   autoURL: true,
-  autoTime: "DontUse",
   customizable: false,
   verticalScroll: "useIfNecessary",
   childItemsVerticalAlign: "Top",
@@ -81,8 +83,6 @@ export const fullClientApplicationForm: Omit<
   title: { items: { ru: "Полная форма приложения" } },
   closeOnChoice: true,
   closeOnOwnerClose: false,
-  usePostingMode: "Regular",
-  repostOnWrite: false,
   usedFormServer: "Main",
   purposeUseKey: "PurposeKey",
   windowOptionsKey: "WindowOptionsKey",
@@ -306,12 +306,17 @@ export const fullClientApplicationFormYAML: Omit<
   | "ХранилищеНастроек"
   | "ВариантМасштаба"
   | "ГруппаПользовательскихНастроек"
+  | "АвтоВремя"
+  | "РежимПроведения"
+  | "ПерепроводитьПриЗаписи"
+  | "autoTime"
+  | "usePostingMode"
+  | "repostOnWrite"
 > = {
   Синоним: "Синоним формы",
   Комментарий: "Комментарий к форме",
   ВключатьСправкуВСодержание: "Истина",
   НазначенияИспользования: "ПлатформаИМобильноеПриложение",
-  АвтоВремя: "НеИспользовать",
   АвтоЗаголовок: "Истина",
   АвтоматическоеСохранениеДанныхВНастройках: "Использовать",
   АвтоНавигационнаяСсылка: "Истина",
@@ -356,11 +361,9 @@ export const fullClientApplicationFormYAML: Omit<
   ОтображатьКнопкуЗакрытия: "Истина",
   ОтображениеОбсуждений: "Отображать",
   ПоведениеКлавишиEnter: "КнопкаПоУмолчанию",
-  ПерепроводитьПриЗаписи: "Ложь",
   ПоложениеКоманднойПанели: "Верх",
   ПроверятьЗаполнениеАвтоматически: "Истина",
   РежимОткрытияОкнаФормы: "БлокироватьОкноВладельца",
-  РежимПроведения: "Неоперативный",
   СворачиваниеЭлементовПоВажности: "Использовать",
   СоставКоманд: ["WriteAndClose"],
   СохранениеДанныхВНастройках: "ИспользоватьСписок",
@@ -440,6 +443,12 @@ export const fullClientApplicationFormYAML: Omit<
   | "ХранилищеНастроек"
   | "ВариантМасштаба"
   | "ГруппаПользовательскихНастроек"
+  | "АвтоВремя"
+  | "РежимПроведения"
+  | "ПерепроводитьПриЗаписи"
+  | "autoTime"
+  | "usePostingMode"
+  | "repostOnWrite"
 >
 
 export const catalogFullClientApplicationFormYAML: ClientApplicationFormYAML = {
