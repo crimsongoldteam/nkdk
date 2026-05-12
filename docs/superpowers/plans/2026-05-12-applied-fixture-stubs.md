@@ -150,6 +150,17 @@ function hashFile(filePath) {
   return createHash("sha256").update(fs.readFileSync(filePath)).digest("hex")
 }
 
+function isUnsafePathComponent(value) {
+  return (
+    value === "" ||
+    path.posix.isAbsolute(value) ||
+    path.win32.isAbsolute(value) ||
+    value.includes("/") ||
+    value.includes("\\") ||
+    value.includes("..")
+  )
+}
+
 function copyDirWithoutTrash(sourceDir, targetDir) {
   if (!fs.existsSync(sourceDir)) return
   for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {
@@ -164,6 +175,21 @@ function copyDirWithoutTrash(sourceDir, targetDir) {
       fs.copyFileSync(sourcePath, targetPath)
     }
   }
+}
+
+function listFilesWithoutTrash(sourceDir, baseDir = sourceDir) {
+  if (!fs.existsSync(sourceDir)) return []
+  const files = []
+  for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {
+    if (entry.name === ".DS_Store") continue
+    const sourcePath = path.join(sourceDir, entry.name)
+    if (entry.isDirectory()) {
+      files.push(...listFilesWithoutTrash(sourcePath, baseDir))
+    } else if (entry.isFile()) {
+      files.push(path.relative(baseDir, sourcePath))
+    }
+  }
+  return files
 }
 
 function yamlExportName(metadataDir) {
@@ -194,6 +220,8 @@ function validate(selections) {
     const targetNames = new Map()
     for (const item of items) {
       const sourceFile = path.join(sourceRoot, xmlDir, `${item.sourceName}.xml`)
+      if (isUnsafePathComponent(item.sourceName)) errors.push(`Unsafe source name: ${xmlDir}/${item.sourceName}`)
+      if (isUnsafePathComponent(item.targetName)) errors.push(`Unsafe target name: ${xmlDir}/${item.sourceName} -> ${item.targetName}`)
       if (!fs.existsSync(sourceFile)) errors.push(`Missing source XML: ${sourceFile}`)
       if (!item.targetName.endsWith(".xml")) errors.push(`Target must end with .xml: ${xmlDir}/${item.sourceName} -> ${item.targetName}`)
       const duplicate = targetNames.get(item.targetName)
@@ -251,6 +279,16 @@ function writeFixtures(selections) {
   return report
 }
 
+function verifyHash(sourceFile, targetFile, errors) {
+  if (!fs.existsSync(targetFile)) {
+    errors.push(`Missing copied file: ${targetFile}`)
+    return
+  }
+  if (hashFile(sourceFile) !== hashFile(targetFile)) {
+    errors.push(`Hash mismatch: ${sourceFile} -> ${targetFile}`)
+  }
+}
+
 function verifyCopiedFiles(selections) {
   const bySection = groupByXmlDir(selections)
   const errors = []
@@ -261,9 +299,25 @@ function verifyCopiedFiles(selections) {
     for (const item of items) {
       const sourceFile = path.join(sourceRoot, xmlDir, `${item.sourceName}.xml`)
       const targetFile = path.join(fixtureDir, item.targetName)
-      if (hashFile(sourceFile) !== hashFile(targetFile)) {
-        errors.push(`Hash mismatch: ${sourceFile} -> ${targetFile}`)
-      }
+      verifyHash(sourceFile, targetFile, errors)
+    }
+
+    const syncCandidates = items.filter((item) => item.sourceName.includes("ВсеСвойства"))
+    if (syncCandidates.length === 0) continue
+
+    const syncSource = syncCandidates[0]
+    const syncXmlDir = path.join(fixtureDir, "sync", "xml")
+    verifyHash(
+      path.join(sourceRoot, xmlDir, `${syncSource.sourceName}.xml`),
+      path.join(syncXmlDir, `${syncSource.sourceName}.xml`),
+      errors,
+    )
+
+    const sourceDir = path.join(sourceRoot, xmlDir, syncSource.sourceName)
+    for (const relativeFile of listFilesWithoutTrash(sourceDir)) {
+      const sourceFile = path.join(sourceDir, relativeFile)
+      const targetFile = path.join(syncXmlDir, syncSource.sourceName, relativeFile)
+      verifyHash(sourceFile, targetFile, errors)
     }
   }
 
