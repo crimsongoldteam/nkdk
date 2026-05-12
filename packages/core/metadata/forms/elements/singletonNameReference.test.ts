@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest"
 import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { exportPropertyToXML, importPropertyFromXML, type PropertyRule } from "~/metadata/orchestration"
+import type { Table } from "~/metadata/forms/elements/table/types"
+import {
+  exportElementToXML,
+  exportPropertyToXML,
+  importElementFromXML,
+  importPropertyFromXML,
+  type ElementXML,
+  type PropertyRule,
+} from "~/metadata/orchestration"
 import { getReferenceNameSuffix } from "~/metadata/orchestration/formElement/singletonName"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 
@@ -143,6 +151,41 @@ describe("singleton XML name suffix from reference", () => {
     })
 
     expect(result._name).toBe("ТаблицаЭПСтрокаПоиска")
+  })
+
+  it("keeps noncanonical SearchString name through importElementFromXML pipeline", () => {
+    const xml = {
+      _name: "Подписи",
+      _id: "1",
+      SearchStringAddition: {
+        _name: "ТаблицаЭПСтрокаПоиска",
+        _id: "13",
+        AdditionSource: {
+          Item: "Подписи",
+          Type: "SearchStringRepresentation",
+        },
+      },
+    } satisfies ElementXML
+
+    const reference = importElementFromXML({
+      context: mockContextFromXML({ forReference: true }),
+      itemType: "Table",
+      xml,
+    })
+
+    const table: Table = {
+      itemType: "Table",
+      name: "Подписи",
+      searchStringRepresentation: { itemType: "SingleSearchStringAddition" },
+    }
+
+    const result = exportElementToXML({
+      context: mockContextToXML(),
+      element: table,
+      referenceElement: reference,
+    })
+
+    expect(result?.SearchStringAddition._name).toBe("ТаблицаЭПСтрокаПоиска")
   })
 
   it("keeps ViewStatus reference suffix", () => {
