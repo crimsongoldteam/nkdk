@@ -20,6 +20,7 @@ import { attributeAnyType } from "./__fixtures__/attributeAnyType"
 import { chartSettings } from "./__fixtures__/chartSettings"
 import { columnAnyType } from "./__fixtures__/columnAnyType"
 import { mixedColumns } from "./__fixtures__/mixedColumns"
+import { plannerSettings } from "./__fixtures__/plannerSettings"
 import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
 import { tableWithColumns } from "./__fixtures__/tableWithColumns"
 import { titleColumnsType } from "./__fixtures__/titleColumnsType"
@@ -307,6 +308,19 @@ describe("exportFormAttributesToXML", () => {
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "spreadsheetDocumentSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export plannerSettings", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: plannerSettings,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "plannerSettings.xml",
       importMetaUrl: import.meta.url,
     })
 
