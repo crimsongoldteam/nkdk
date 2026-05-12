@@ -29,4 +29,20 @@ describe("import DcsMetadataTypedValue from XML", () => {
       })
     ).toEqual(emptyValueListTypedValue)
   })
+
+  it("rejects non-empty ValueListType", () => {
+    expect(() =>
+      testImportPropertyFromXML({
+        rule,
+        xmlRootTag: "value",
+        xmlString: `<value xsi:type="v8:ValueListType">
+	<v8:valueType/>
+	<v8:lastId xsi:type="xs:decimal">0</v8:lastId>
+	<v8:item>
+		<v8:id>0</v8:id>
+	</v8:item>
+</value>`,
+      })
+    ).toThrow("DcsMetadataTypedValue XML: unsupported non-empty v8:ValueListType")
+  })
 })
