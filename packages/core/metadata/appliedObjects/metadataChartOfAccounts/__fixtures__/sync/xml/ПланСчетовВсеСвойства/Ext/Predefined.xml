@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<PredefinedData xmlns="http://v8.1c.ru/8.3/xcf/predef" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ChartOfAccountsPredefinedItems" version="2.20">
+	<Item id="5b4cd234-22a8-463c-b007-2525378b7565">
+		<Name>СчетПоУмолчанию</Name>
+		<Code>.</Code>
+		<Description>Счет по умолчанию</Description>
+		<AccountType>ActivePassive</AccountType>
+		<OffBalance>false</OffBalance>
+		<Order/>
+		<AccountingFlags>
+			<Flag ref="ChartOfAccounts.ПланСчетовВсеСвойства.AccountingFlag.ПризнакУчетаВсеСвойства">false</Flag>
+			<Flag ref="ChartOfAccounts.ПланСчетовВсеСвойства.AccountingFlag.ПризнакУчетаПоУмолчанию">false</Flag>
+		</AccountingFlags>
+		<ExtDimensionTypes/>
+	</Item>
+	<Item id="ec6054b4-fe6f-463d-b2d6-085dd7c5d5be">
+		<Name>СчетВсеСвойства</Name>
+		<Code>01.01</Code>
+		<Description>Наименование</Description>
+		<AccountType>Active</AccountType>
+		<OffBalance>true</OffBalance>
+		<Order>01.02</Order>
+		<AccountingFlags>
+			<Flag ref="ChartOfAccounts.ПланСчетовВсеСвойства.AccountingFlag.ПризнакУчетаВсеСвойства">true</Flag>
+			<Flag ref="ChartOfAccounts.ПланСчетовВсеСвойства.AccountingFlag.ПризнакУчетаПоУмолчанию">true</Flag>
+		</AccountingFlags>
+		<ExtDimensionTypes>
+			<ExtDimensionType name="ChartOfCharacteristicTypes.ВидыСубконто.СубкнтоОдно">
+				<Turnover>true</Turnover>
+				<AccountingFlags>
+					<Flag ref="ChartOfAccounts.ПланСчетовВсеСвойства.ExtDimensionAccountingFlag.ПризнакУчетаСубконтоВсеСвойства">false</Flag>
+					<Flag ref="ChartOfAccounts.ПланСчетовВсеСвойства.ExtDimensionAccountingFlag.ПризнакУчетаСубконтоПоУмолчанию">false</Flag>
+				</AccountingFlags>
+			</ExtDimensionType>
+			<ExtDimensionType name="ChartOfCharacteristicTypes.ВидыСубконто.СубконтоДругое">
+				<Turnover>false</Turnover>
+				<AccountingFlags>
+					<Flag ref="ChartOfAccounts.ПланСчетовВсеСвойства.ExtDimensionAccountingFlag.ПризнакУчетаСубконтоВсеСвойства">true</Flag>
+					<Flag ref="ChartOfAccounts.ПланСчетовВсеСвойства.ExtDimensionAccountingFlag.ПризнакУчетаСубконтоПоУмолчанию">true</Flag>
+				</AccountingFlags>
+			</ExtDimensionType>
+		</ExtDimensionTypes>
+	</Item>
+</PredefinedData>
