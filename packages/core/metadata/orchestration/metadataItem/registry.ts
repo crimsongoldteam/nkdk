@@ -102,6 +102,8 @@ import {
 } from "../../appliedObjects/metadataDocumentNumerator/types"
 import {
   MetadataEnumeration,
+  MetadataEnumerationValue,
+  MetadataEnumerationValueYAML,
   MetadataEnumerationYAML,
 } from "../../appliedObjects/metadataEnumeration/types"
 import {
@@ -724,6 +726,11 @@ export type MetadataItemTypeRegistry = {
   MetadataEnumeration: {
     metadata: MetadataEnumeration
     yaml: MetadataEnumerationYAML
+  }
+
+  MetadataEnumerationValue: {
+    metadata: MetadataEnumerationValue
+    yaml: MetadataEnumerationValueYAML
   }
 
   MetadataSequence: {

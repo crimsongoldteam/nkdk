@@ -4,8 +4,10 @@ import {
   MetadataDocumentNumeratorYAML,
 } from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
 import {
+  MetadataEnumeration,
   MetadataEnumerationValues,
   MetadataEnumerationValuesYAML,
+  MetadataEnumerationYAML,
 } from "~/metadata/appliedObjects/metadataEnumeration/types"
 import { MetadataSequence, MetadataSequenceYAML } from "~/metadata/appliedObjects/metadataSequence/types"
 import {
@@ -514,6 +516,10 @@ export type PropertyTypeRegistry = {
     item: MetadataDocumentNumerator
     yaml: MetadataDocumentNumeratorYAML
   }
+  MetadataEnumeration: {
+    item: MetadataEnumeration
+    yaml: MetadataEnumerationYAML
+  }
   MetadataEnumerationValues: {
     item: MetadataEnumerationValues
     yaml: MetadataEnumerationValuesYAML
@@ -877,6 +883,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataItemLinks: "MetadataItemLinks",
   MetadataCommands: "MetadataCommands",
   MetadataDocumentNumerator: "MetadataDocumentNumerator",
+  MetadataEnumeration: "MetadataEnumeration",
   MetadataEnumerationValues: "MetadataEnumerationValues",
   MetadataSequence: "MetadataSequence",
   MetadataSequenceDimension: "MetadataSequenceDimension",

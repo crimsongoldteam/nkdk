@@ -6,6 +6,6 @@ import "./metadataCatalog/toYAML"
 import "./metadataDocument"
 import "./metadataDocumentNumerator"
 
-import "./metadataEnumeration/fromYAML"
+import "./metadataEnumeration"
 
 import "./metadataSequence"
