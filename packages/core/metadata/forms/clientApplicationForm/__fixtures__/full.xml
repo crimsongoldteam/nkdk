@@ -99,6 +99,7 @@
 		<Event name="ValueChoice">ВыборЗначения</Event>
 	</Events>
 	<Group>Horizontal</Group>
+	<GroupList>Дерево</GroupList>
 	<Height>600</Height>
 	<HorizontalSpacing>Double</HorizontalSpacing>
 	<ItemsAndTitlesAlign>ItemsLeftTitlesLeft</ItemsAndTitlesAlign>
