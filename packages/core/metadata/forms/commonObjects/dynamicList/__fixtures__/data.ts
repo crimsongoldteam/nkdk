@@ -360,7 +360,7 @@ export const keyFieldDynamicList = {
 
 export const keyFieldDynamicListYAML = {
   ПроизвольныйЗапрос: "Истина",
-  ДинамическоеСчитываниеДанных: "Истина",
+  ДинамическоеСчитываниеДанных: "Ложь",
   ВидКлюча: "ЗначениеПоля",
   ПоляКлюча: "Ссылка",
 } as const satisfies DynamicListYAML

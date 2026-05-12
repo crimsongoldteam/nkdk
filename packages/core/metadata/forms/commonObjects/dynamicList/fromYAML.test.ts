@@ -66,7 +66,7 @@ describe("import DynamicList from YAML", () => {
     expect(result).toEqual({
       itemType: "DynamicList",
       customQuery: true,
-      dynamicDataRead: true,
+      dynamicDataRead: false,
       keyType: "FieldValue",
       keyFields: "Ссылка",
     })
@@ -84,7 +84,7 @@ describe("import DynamicList from YAML", () => {
 
     expect(exported).toEqual({
       ДинамическийСписок: {
-        ДинамическоеСчитываниеДанных: "Истина",
+        ДинамическоеСчитываниеДанных: "Ложь",
         ВидКлюча: "ЗначениеПоля",
         ПоляКлюча: "Ссылка",
       },
