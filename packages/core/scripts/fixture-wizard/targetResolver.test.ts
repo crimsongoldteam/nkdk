@@ -18,7 +18,7 @@ async function createMetadataItem(
   rulesSource?: string,
 ) {
   const itemDir = join(projectRoot, "packages/core/metadata/appliedObjects", metadataItem)
-  await mkdir(join(itemDir, "__fixtures__/sync"), { recursive: true })
+  await mkdir(join(itemDir, "__fixtures__/sync/xml"), { recursive: true })
 
   if (rulesSource !== undefined) {
     await writeFile(join(itemDir, "rules.ts"), rulesSource, "utf-8")
@@ -73,7 +73,7 @@ describe("targetResolver", () => {
       metadataItem: "metadataDocument",
       itemDir,
       fixturesDir: join(itemDir, "__fixtures__"),
-      syncXmlDir: join(itemDir, "__fixtures__/sync"),
+      syncXmlDir: join(itemDir, "__fixtures__/sync/xml"),
       xmlDir: "Documents",
     })
   })

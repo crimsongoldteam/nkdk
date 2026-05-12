@@ -63,7 +63,7 @@ export async function resolveMetadataTarget(
     metadataItem,
     itemDir,
     fixturesDir,
-    syncXmlDir: join(fixturesDir, "sync"),
+    syncXmlDir: join(fixturesDir, "sync/xml"),
     xmlDir: await readXmlDirFromRules(itemDir),
   }
 }
