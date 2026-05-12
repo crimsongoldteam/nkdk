@@ -1,4 +1,9 @@
+import { StandardAttributeDescriptionYAML } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { MetadataEnumeration, MetadataEnumerationYAML } from "../types"
+
+type MetadataEnumerationFixtureYAML = Omit<MetadataEnumerationYAML, "СтандартныеРеквизиты"> & {
+  СтандартныеРеквизиты?: Record<string, StandardAttributeDescriptionYAML>
+}
 
 export const full = {
   characteristics: [
@@ -96,11 +101,14 @@ export const full = {
   useStandardCommands: true,
 } satisfies MetadataEnumeration
 
-export const fullYAML: MetadataEnumerationYAML = {
+export const fullYAML = {
   БыстрыйВыбор: "Ложь",
   ИсторияВыбораПриВводе: "НеИспользовать",
   Команды: {
-    Команда1: "ПанельНавигацииВажное",
+    Команда1: {
+      Группа: "ПанельНавигацииВажное",
+      Синоним: "Синоним команды",
+    },
   },
   Комментарий: "Комментарий",
   ОсновнаяФормаДляВыбора: "Enum.ПеречислениеВсеСвойства.Form.ФормаВыбора",
@@ -138,4 +146,4 @@ export const fullYAML: MetadataEnumerationYAML = {
     },
   },
   ИспользоватьСтандартныеКоманды: "Истина",
-} satisfies MetadataEnumerationYAML
+} satisfies MetadataEnumerationFixtureYAML
