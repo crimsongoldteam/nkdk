@@ -10,6 +10,8 @@ export function importMetadataItemLinkFromXML(
 ): MetadataItemLink | undefined {
   if (!data) return undefined
 
+  if (typeof data === "string") return data
+
   return data["#text"]
 }
 
