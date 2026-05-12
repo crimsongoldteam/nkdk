@@ -1,4 +1,9 @@
-import { MetadataEnumeration } from "../types"
+import { StandardAttributeDescriptionYAML } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { MetadataEnumeration, MetadataEnumerationYAML } from "../types"
+
+type MetadataEnumerationFixtureYAML = Omit<MetadataEnumerationYAML, "СтандартныеРеквизиты"> & {
+  СтандартныеРеквизиты?: Record<string, StandardAttributeDescriptionYAML>
+}
 
 export const full = {
   characteristics: [
@@ -95,3 +100,50 @@ export const full = {
   },
   useStandardCommands: true,
 } satisfies MetadataEnumeration
+
+export const fullYAML = {
+  БыстрыйВыбор: "Ложь",
+  ИсторияВыбораПриВводе: "НеИспользовать",
+  Команды: {
+    Команда1: {
+      Группа: "ПанельНавигацииВажное",
+      Синоним: "Синоним команды",
+    },
+  },
+  Комментарий: "Комментарий",
+  ОсновнаяФормаДляВыбора: "Enum.ПеречислениеВсеСвойства.Form.ФормаВыбора",
+  ОсновнаяФормаСписка: "Enum.ПеречислениеВсеСвойства.Form.ФормаСписка",
+  Пояснение: "Пояснение\n",
+  ПредставлениеСписка: "Представление списка",
+  РасширенноеПредставлениеСписка: "Расширенное представление списка",
+  Синоним: "Синоним",
+  СтандартныеРеквизиты: {
+    Порядок: {
+      Синоним: "Другой синоним порядок",
+    },
+    Ссылка: {
+      Синоним: "Другой синоним",
+    },
+  },
+  Характеристики: [
+    {
+      ВидыХарактеристик: "ChartOfCharacteristicTypes.ХарактеристикиОбъектов",
+      ЗначенияХарактеристик: "Catalog.СправочникПолный",
+      ПолеВида: "Catalog.СправочникПолный.Attribute.Реквизит1",
+      ПолеКлюча: "ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Ref",
+      ПолеОбъекта: "Catalog.СправочникПолный.Attribute.Реквизит1",
+      ПолеПутиКДанным: "ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Ref",
+    },
+  ],
+  Значения: {
+    ЗначениеПеречисления1: {
+      Синоним: "Синоним",
+      Комментарий: "Комментарий",
+    },
+    ЗначениеПеречисления2: {
+      Синоним: "Синоним 2",
+      Комментарий: "Комментарий 2",
+    },
+  },
+  ИспользоватьСтандартныеКоманды: "Истина",
+} satisfies MetadataEnumerationFixtureYAML

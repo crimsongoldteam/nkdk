@@ -1,4 +1,4 @@
-import { MetadataEnumeration } from "../types"
+import { MetadataEnumeration, MetadataEnumerationYAML } from "../types"
 
 export const minimal = {
   itemType: "MetadataEnumeration",
@@ -9,3 +9,7 @@ export const minimal = {
     },
   },
 } satisfies MetadataEnumeration
+
+export const minimalYAML: MetadataEnumerationYAML = {
+  Синоним: "Перечисление по умолчанию",
+} satisfies MetadataEnumerationYAML

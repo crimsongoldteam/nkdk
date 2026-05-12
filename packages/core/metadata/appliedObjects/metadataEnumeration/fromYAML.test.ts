@@ -3,18 +3,36 @@ import path from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
+import { testExportAppliedObjectToYAML } from "~/tests/appliedObject"
 import { mockContext } from "~/tests/mockContext"
+import { full, fullYAML } from "./__fixtures__/full"
+import { minimal, minimalYAML } from "./__fixtures__/minimal"
 import { importMetadataEnumerationFromYAML } from "./fromYAML"
+import { MetadataEnumerationRules } from "./rules"
 
-describe("importMetadataEnumerationFromYAML", () => {
-  it("возвращает undefined при отсутствии данных", () => {
+describe("import MetadataEnumeration from YAML", () => {
+  it("imports undefined", () => {
     const result = importMetadataEnumerationFromYAML(mockContext, undefined, "СтатусЗаказа")
     expect(result).toBeUndefined()
   })
 
-  it("импортирует без значений", () => {
-    const result = importMetadataEnumerationFromYAML(mockContext, {}, "СтатусЗаказа")
-    expect(result).toMatchObject({ name: "СтатусЗаказа" })
+  it("imports full fixture", () => {
+    const result = importMetadataEnumerationFromYAML(mockContext, fullYAML, "ПеречислениеВсеСвойства")
+    expect(result).toEqual(full)
+  })
+
+  it("imports minimal fixture", () => {
+    const result = importMetadataEnumerationFromYAML(mockContext, minimalYAML, "ПеречислениеПоУмолчанию")
+    expect(result).toEqual(minimal)
+  })
+
+  it("round-trip: full — import затем export даёт тот же YAML (parsed)", () => {
+    const imported = importMetadataEnumerationFromYAML(mockContext, fullYAML, "ПеречислениеВсеСвойства")
+    const exported = testExportAppliedObjectToYAML({
+      rule: MetadataEnumerationRules,
+      data: imported,
+    })
+    expect(exported).toEqual(fullYAML)
   })
 })
 
@@ -66,5 +84,30 @@ describe("importMetadataEnumerationFromYAML — граф значений", () =
       "Перечисление.СтатусЗаказа.Открыт",
       "Перечисление.СтатусЗаказа.Отменён",
     ])
+  })
+
+  it("стандартный реквизит перечисления содержит item из YAML", () => {
+    const graph = new GraphBuilder()
+    importMetadataFileWithGraph({
+      filePath: "Перечисление/СтатусЗаказа/Свойства.yml",
+      sources: {
+        yaml: [
+          "СтандартныеРеквизиты:",
+          "  Порядок:",
+          "    Синоним: Другой синоним порядок",
+        ].join("\n"),
+      },
+      kind: "enumeration",
+      name: "СтатусЗаказа",
+      graph,
+      context: mockContext,
+    })
+
+    const attrs = graph.getNodeAttributes("Перечисление.СтатусЗаказа.СтандартныйРеквизит.Порядок")
+    expect(attrs.item).toMatchObject({
+      itemType: "StandardAttributeDescription",
+      name: "Order",
+      synonym: { items: { ru: "Другой синоним порядок" } },
+    })
   })
 })

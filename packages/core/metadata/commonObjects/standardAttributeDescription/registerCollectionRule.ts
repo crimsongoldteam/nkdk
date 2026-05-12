@@ -3,6 +3,7 @@ import { ConfigurationContext, ConfigurationContextFromXML, ConfigurationContext
 import { GraphOps, GraphOpsChild } from "~/metadata/orchestration/property/fn"
 import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
 import { importMetadataItemCollectionFromYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/fromYAML"
+import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { isEmptyMetadataItem } from "~/metadata/orchestration/formElement/helper"
@@ -55,9 +56,10 @@ function buildStandardAttributesGraph(params: {
 
   // Build map of explicitly defined items (russianName → item)
   const explicitItems = new Map<string, StandardAttributeDescription>()
+  const nameToYAML = buildNameToYAML(propRule)
   if (result) {
     for (const item of result) {
-      const russianName = StandartAttributeNameToYAML[item.name as StandartAttributeName]
+      const russianName = nameToYAML(item)
       if (russianName) explicitItems.set(russianName, item)
     }
   }
@@ -92,15 +94,28 @@ function buildStandardAttributesGraph(params: {
 
 function importStandardAttributeDescriptionsFromYAML(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   value: any
 ) {
   return importMetadataItemCollectionFromYAMLAsRecord({
     context,
     itemRule: StandardAttributeDescriptionRules,
     yaml: value,
-    nameFromYAMLKey: StandartAttributeNameFromYAML,
+    nameFromYAMLKey: buildNameFromYAML(rule),
   }) as StandardAttributeDescription[] | undefined
+}
+
+function buildNameFromYAML(rule: PropertyRule | undefined): (yamlKey: string) => string {
+  const names = (rule as StandardAttributeDescriptionsPropertyRule | undefined)?.standartAttributeNames
+  if (!names) return StandartAttributeNameFromYAML
+
+  const reverse = new Map(Object.entries(names).map(([internalName, yamlName]) => [yamlName, internalName]))
+  return (yamlKey) => reverse.get(yamlKey) ?? StandartAttributeNameFromYAML(yamlKey)
+}
+
+function buildNameToYAML(rule: PropertyRule | undefined): (item: StandardAttributeDescription) => string {
+  const names = (rule as StandardAttributeDescriptionsPropertyRule | undefined)?.standartAttributeNames
+  return (item) => names?.[item.name as string] ?? StandartAttributeNameToYAML[item.name as StandartAttributeName]
 }
 
 function importStandardAttributeDescriptionsFromXML(
@@ -176,6 +191,22 @@ function exportStandardAttributeDescriptionsToXML(p: {
   })
 }
 
+function exportStandardAttributeDescriptionsToYAML(
+  context: ConfigurationContext,
+  rule: PropertyRule | undefined,
+  value: StandardAttributeDescription[] | undefined
+) {
+  const data = value?.filter((item): item is StandardAttributeDescription & { name: string } => item.name !== undefined)
+
+  return exportMetadataCollectionToYAMLAsRecord({
+    context,
+    data,
+    itemRule: StandardAttributeDescriptionRules,
+    keyField: "name",
+    recordYamlKeyFromItem: buildNameToYAML(rule),
+  })
+}
+
 registerMetadataItemCollectionRule({
   propertyType: "StandardAttributeDescriptions",
   itemRule: StandardAttributeDescriptionRules,
@@ -185,6 +216,7 @@ registerMetadataItemCollectionRule({
   recordYamlKeyFromItem: (item) => StandartAttributeNameToYAML[item.name as StandartAttributeName],
   fromYAML: importStandardAttributeDescriptionsFromYAML,
   fromXML: importStandardAttributeDescriptionsFromXML,
+  toYAML: exportStandardAttributeDescriptionsToYAML,
   toXML: exportStandardAttributeDescriptionsToXML,
 })
 
