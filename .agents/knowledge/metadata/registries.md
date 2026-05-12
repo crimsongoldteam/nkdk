@@ -9,7 +9,7 @@
 2. `packages/core/metadata/orchestration/property/registry.ts`
    - `PropertyTypeRegistry`
    - `PropertyRuleTypeKeys`
-3. `types.ts` самого объекта
+3. `types.ts` или отдельный `register.ts` самого объекта
    - `registerMetadataItemRule`
    - или `registerMetadataItemCollectionRule` для массивов
 
@@ -36,4 +36,4 @@ rg -n "<ObjectName>|<ObjectName>s" packages/core/metadata/orchestration packages
 - тип в `MetadataItemTypeRegistry`, если это metadataItem;
 - тип в `PropertyTypeRegistry`;
 - ключ в `PropertyRuleTypeKeys`;
-- runtime-регистрация в `types.ts`.
+- runtime-регистрация в файле `types.ts` или `register.ts`.
