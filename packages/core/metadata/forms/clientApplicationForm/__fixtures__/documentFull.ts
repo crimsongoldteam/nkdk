@@ -1,10 +1,27 @@
 import { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
+import { Button } from "~/metadata/forms/elements/button/types"
+import { InputField } from "~/metadata/forms/elements/inputField/types"
 
 type DocumentClientApplicationForm = ClientApplicationForm & {
   autoTime: "Last"
   usePostingMode: "Regular"
   repostOnWrite: false
 }
+
+const numberInputField = {
+  itemType: "InputField",
+  name: "Номер",
+  dataPath: "Объект.Number",
+  editMode: "EnterOnInput",
+  multipleValuesExtendedEdit: true,
+} satisfies InputField
+
+const commandButton = {
+  itemType: "Button",
+  name: "Команда1",
+  type: "UsualButton",
+  commandName: "Form.Command.Команда1",
+} satisfies Button
 
 const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
   itemType: "ClientApplicationForm",
@@ -83,19 +100,8 @@ const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
     addInDetachmentOnError: "ОтключениеВнешнейКомпонентыПриОшибке",
   },
   childItems: [
-    {
-      itemType: "InputField",
-      name: "Номер",
-      dataPath: "Объект.Number",
-      editMode: "EnterOnInput",
-      multipleValuesExtendedEdit: true,
-    },
-    {
-      itemType: "Button",
-      name: "Команда1",
-      type: "UsualButton",
-      commandName: "Form.Command.Команда1",
-    },
+    numberInputField,
+    commandButton,
   ],
   attributes: [
     {
@@ -145,6 +151,13 @@ const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
   ],
 }
 
+const numberInputFieldFromYAML = {
+  itemType: "InputField",
+  name: "Номер",
+  editMode: "EnterOnInput",
+  multipleValuesExtendedEdit: true,
+} satisfies InputField
+
 const numberContextMenu = {
   itemType: "ContextMenu",
   name: "НомерКонтекстноеМеню",
@@ -153,12 +166,10 @@ const numberContextMenu = {
 
 const numberExtendedTooltip = {
   itemType: "ExtendedTooltip",
-  name: "НомерРасширеннаяПодсказка",
 } as const
 
 const commandExtendedTooltip = {
   itemType: "ExtendedTooltip",
-  name: "Команда1РасширеннаяПодсказка",
 } as const
 
 export const documentFullClientApplicationForm: ClientApplicationForm = documentFullClientApplicationFormData
@@ -172,12 +183,12 @@ export const documentFullClientApplicationFormFromYAML: ClientApplicationForm = 
   },
   childItems: [
     {
-      ...documentFullClientApplicationFormData.childItems[0],
+      ...numberInputFieldFromYAML,
       contextMenu: numberContextMenu,
       extendedTooltip: numberExtendedTooltip,
     },
     {
-      ...documentFullClientApplicationFormData.childItems[1],
+      ...commandButton,
       extendedTooltip: commandExtendedTooltip,
     },
   ],

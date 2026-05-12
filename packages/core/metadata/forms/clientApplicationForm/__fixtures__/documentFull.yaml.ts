@@ -17,7 +17,6 @@ const numberInputFieldYAML: InputFieldPartialYAML = {
 
 const numberInputFieldYAMLForImport: InputFieldPartialYAML = {
   ...numberInputFieldYAML,
-  ПутьКДанным: "Объект.Number",
   КонтекстноеМеню: {},
   РасширеннаяПодсказка: {},
 }
