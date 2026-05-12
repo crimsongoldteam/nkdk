@@ -304,7 +304,7 @@ node /private/tmp/create-applied-fixture-stubs.mjs
 Expected before copying:
 
 ```text
-OK: 76 fixture selections validated
+OK: 85 fixture selections validated
 ```
 
 - [ ] **Step 3: Stop on any validation error**
@@ -348,7 +348,7 @@ node /private/tmp/create-applied-fixture-stubs.mjs
 Expected:
 
 ```text
-OK: 76 fixture selections validated
+OK: 85 fixture selections validated
 ```
 
 ## Task 2: Generate Fixture Files
@@ -372,7 +372,7 @@ Expected:
 ```text
 fixture AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml -> packages/core/metadata/appliedObjects/metadataAccountingRegister/__fixtures__/full.xml
 ...
-OK: wrote and verified 76 fixture files
+OK: wrote and verified 85 fixture files
 ```
 
 - [ ] **Step 2: Inspect created directories**
