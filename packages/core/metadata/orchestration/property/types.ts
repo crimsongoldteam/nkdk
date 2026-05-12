@@ -57,6 +57,9 @@ export interface BasePropertyRule {
   /** Не экспортировать в YAML */
   toYAML?: false
 
+  /** Экспортировать пустой YAML-объект, если свойство явно задано в модели. */
+  preserveEmptyYAML?: true
+
   /** Не импортировать из YAML */
   fromYAML?: false
 

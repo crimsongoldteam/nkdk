@@ -7,6 +7,7 @@ import {
   importElementFromXML,
   type ElementXML,
 } from "~/metadata/orchestration"
+import { getReferenceNameSuffix } from "~/metadata/orchestration/formElement/singletonName"
 import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
 import { mockContext, mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
@@ -50,6 +51,19 @@ describe("singleton noncanonical XML names with reference", () => {
     setIdsToElements(context)
     const xmlString = xmlExport({ Table: result }, false)
     expect(xmlString).toEqual(readXMLFileAsString("nonCanonicalSingletonNames.xml", fixturesDir).trimEnd())
+  })
+
+  it("keeps nested singleton reference suffixes relative to immediate owner", () => {
+    const reference = importElementFromXML({
+      context: mockContextFromXML({ forReference: true }),
+      itemType: "Table",
+      xml: readTableXML(),
+    })
+
+    expect(getReferenceNameSuffix(reference.searchStringRepresentation?.contextMenu)).toBe("КонтекстноеМеню")
+    expect(getReferenceNameSuffix(reference.searchStringRepresentation?.extendedTooltip)).toBe("РасширеннаяПодсказка")
+    expect(getReferenceNameSuffix(reference.searchControl?.contextMenu)).toBe("КонтекстноеМеню")
+    expect(getReferenceNameSuffix(reference.searchControl?.extendedTooltip)).toBe("РасширеннаяПодсказка")
   })
 
   it("exports YAML without public singleton Имя fields", () => {

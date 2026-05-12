@@ -121,7 +121,15 @@ const getExportToYAMLResult = (rule: PropertyRule, yamlKey: string, value: any):
 
   if (Array.isArray(value) && value.length === 0) return undefined
 
-  if (value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0) return undefined
+  if (
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    Object.keys(value).length === 0 &&
+    rule.preserveEmptyYAML !== true
+  ) {
+    return undefined
+  }
 
   return value === undefined ? undefined : { [yamlKey]: value }
 }

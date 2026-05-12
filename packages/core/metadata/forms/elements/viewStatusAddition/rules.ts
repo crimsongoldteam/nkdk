@@ -34,7 +34,13 @@ export const ViewStatusAdditionRules = {
     titleFont: { yaml: "ШрифтЗаголовка", type: "Font" },
     titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color" },
     width: { yaml: "Ширина", type: "number" },
-    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
+    contextMenu: {
+      yaml: "КонтекстноеМеню",
+      type: "ContextMenu",
+      toEnterprise: false,
+      defaultValueXMLEmpty: { itemType: "ContextMenu", childItems: [] },
+      preserveEmptyYAML: true,
+    },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
@@ -42,7 +48,13 @@ export const ViewStatusAdditionRules = {
       typeSE: "DisplayImportance",
     },
     enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
+    extendedTooltip: {
+      yaml: "РасширеннаяПодсказка",
+      type: "ExtendedTooltip",
+      toEnterprise: false,
+      defaultValueXMLEmpty: { itemType: "ExtendedTooltip" },
+      preserveEmptyYAML: true,
+    },
     title: {
       yaml: "Заголовок",
       type: "I8nText",

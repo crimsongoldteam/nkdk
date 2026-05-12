@@ -17,7 +17,12 @@ const commonProperties = {
     defaultValue: [],
     required: true,
   },
-  contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
+  contextMenu: {
+    yaml: "КонтекстноеМеню",
+    type: "ContextMenu",
+    defaultValueXMLEmpty: { itemType: "ContextMenu", childItems: [] },
+    preserveEmptyYAML: true,
+  },
   displayImportance: {
     yaml: "ВажностьПриОтображении",
     xml: "_DisplayImportance",
@@ -25,7 +30,12 @@ const commonProperties = {
     typeSE: "DisplayImportance",
   },
   enabled: { yaml: "Доступность", type: "boolean" },
-  extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
+  extendedTooltip: {
+    yaml: "РасширеннаяПодсказка",
+    type: "ExtendedTooltip",
+    defaultValueXMLEmpty: { itemType: "ExtendedTooltip" },
+    preserveEmptyYAML: true,
+  },
   font: { yaml: "Шрифт", type: "Font" },
   horizontalAlignInGroup: {
     yaml: "ГоризонтальноеПоложениеВГруппе",
