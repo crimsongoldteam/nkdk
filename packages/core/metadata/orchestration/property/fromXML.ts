@@ -22,6 +22,7 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
   const result = {} as Omit<ToMetadata<Rule["itemType"]>, "itemType">
 
   const orderedKeys = getOrderedKeysFromXML({ rule, xml, tags })
+  const ownerXmlName = getOwnerXmlName(xml)
 
   for (const key of orderedKeys) {
     const currentRule = rule.properties[key]
@@ -50,6 +51,7 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
             rule: currentRule,
             value: xmlValue,
             name: key,
+            ownerXmlName,
           })
         : undefined
 
@@ -105,6 +107,12 @@ const getXMLValueByKey = (xmlKey: string, xml: any, rule: PropertyRule): any => 
   return currentXml[xmlKey]
 }
 
+const getOwnerXmlName = (xml: unknown): string | undefined => {
+  if (xml === null || xml === undefined || typeof xml !== "object") return undefined
+  const name = (xml as { _name?: unknown })._name
+  return typeof name === "string" ? name : undefined
+}
+
 const isXMLKeyPresent = (key: string, xml: any, rule: PropertyRule): boolean => {
   return getXMLKey(key, xml, rule) !== undefined
 }
@@ -136,8 +144,9 @@ export const importPropertyFromXML = (params: {
   rule: PropertyRule
   value: any
   name?: string
+  ownerXmlName?: string
 }): any => {
-  const { context, rule, value, name } = params
+  const { context, rule, value, name, ownerXmlName } = params
 
   const typeimportFn = rule.type ? getTypeRule(rule.type, "importFromXML") : undefined
 
@@ -145,7 +154,7 @@ export const importPropertyFromXML = (params: {
     return getValueOrDefault({ context, rule, value, name, operation: "importFromXML" })
   }
 
-  const result = typeimportFn(context, rule, value)
+  const result = typeimportFn(context, rule, value, ownerXmlName)
 
   return getValueOrDefault({ context, rule, value: result, name, operation: "importFromXML" })
 }

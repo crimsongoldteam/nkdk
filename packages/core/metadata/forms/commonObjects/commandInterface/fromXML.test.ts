@@ -6,6 +6,7 @@ import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { commandBarIndexInsertion } from "./__fixtures__/commandBarIndexInsertion"
 import { commandGroupReferenceOrder } from "./__fixtures__/commandGroupReferenceOrder"
 import { duplicateAutoCommandOrder } from "./__fixtures__/duplicateAutoCommandOrder"
+import { duplicateCommandGroupReferenceOrder } from "./__fixtures__/duplicateCommandGroupReferenceOrder"
 import { indexedItemOrderSwap } from "./__fixtures__/indexedItemOrderSwap"
 import { fullCommandInterface } from "./__fixtures__/full"
 import { importCommandInterfaceFromXML } from "./fromXML"
@@ -87,5 +88,16 @@ describe("importCommandInterfaceFromXML", () => {
     const result = importCommandInterfaceFromXML(mockContextFromXML(), mockRule, xmlData.CommandInterface)
 
     expect(result).toEqual(duplicateAutoCommandOrder)
+  })
+
+  it("import duplicateCommandGroupReferenceOrder", () => {
+    const xmlData = readAndParseXMLFile<{ CommandInterface: CommandInterfaceXML }>(
+      "duplicateCommandGroupReferenceOrder.xml",
+      fixturesDir
+    )
+
+    const result = importCommandInterfaceFromXML(mockContextFromXML(), mockRule, xmlData.CommandInterface)
+
+    expect(result).toEqual(duplicateCommandGroupReferenceOrder)
   })
 })

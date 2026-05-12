@@ -458,6 +458,14 @@ export const minimalInputField: InputField = {
   name: "ПолеВвода",
 }
 
+export const minMaxStringTypeInputField = {
+  itemType: "InputField",
+  name: "ПолеВвода",
+  dataPath: "Объект.Количество",
+  minValue: 1,
+  maxValue: 99.99,
+} satisfies InputField
+
 export const minimalInputFieldPartialYAML: InputFieldPartialYAML = {}
 
 export const minimalTableInputField: TableInputField = {

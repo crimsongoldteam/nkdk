@@ -1,0 +1,9 @@
+<ChoiceParameters>
+	<app:item name="Состояния">
+		<app:value xsi:type="v8:FixedArray">
+			<v8:Value xsi:type="xr:DesignTimeRef">Enum.ХозяйственныеОперации.EnumValue.РеализацияКлиенту</v8:Value>
+			<v8:Value xsi:nil="true"/>
+			<v8:Value xsi:type="xr:DesignTimeRef">Enum.ХозяйственныеОперации.EmptyRef</v8:Value>
+		</app:value>
+	</app:item>
+</ChoiceParameters>

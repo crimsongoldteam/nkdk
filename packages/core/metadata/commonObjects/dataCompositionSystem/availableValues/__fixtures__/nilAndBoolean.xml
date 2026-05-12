@@ -1,0 +1,8 @@
+<root>
+	<dcssch:availableValue>
+		<dcssch:value xsi:nil="true"/>
+	</dcssch:availableValue>
+	<dcssch:availableValue>
+		<dcssch:value xsi:type="xs:boolean">true</dcssch:value>
+	</dcssch:availableValue>
+</root>

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 import {
+  availableValuesDataCompositionSchemaDataSetField,
+  availableValuesDataCompositionSchemaDataSetFieldYAML,
   folderDataCompositionSchemaDataSetField,
   folderDataCompositionSchemaDataSetFieldYAML,
   fullDataCompositionSchemaDataSetField,
@@ -19,6 +21,17 @@ describe("export DataCompositionSchemaDataSetField to YAML", () => {
 
     expect(result).toEqual({
       ПолеНабораДанныхСхемыКомпоновкиДанных: fullDataCompositionSchemaDataSetFieldYAML,
+    })
+  })
+
+  it("exports available values", () => {
+    const result = testExportPropertyToYAML({
+      rule: { type: "DataCompositionSchemaDataSetField", yaml: "ПолеНабораДанныхСхемыКомпоновкиДанных" },
+      value: availableValuesDataCompositionSchemaDataSetField,
+    })
+
+    expect(result).toEqual({
+      ПолеНабораДанныхСхемыКомпоновкиДанных: availableValuesDataCompositionSchemaDataSetFieldYAML,
     })
   })
 

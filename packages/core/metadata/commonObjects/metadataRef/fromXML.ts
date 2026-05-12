@@ -10,6 +10,8 @@ export function importMetadataItemLinkFromXML(
 ): MetadataItemLink | undefined {
   if (!data) return undefined
 
+  if (typeof data === "string") return data
+
   return data["#text"]
 }
 
@@ -27,4 +29,5 @@ export function importMetadataItemLinksFromXML(
   return items.map((value) => importMetadataItemLinkFromXML(context, undefined, value)!)
 }
 
+registerTypeRule("MetadataItemLink", "importFromXML", importMetadataItemLinkFromXML)
 registerTypeRule("MetadataItemLinks", "importFromXML", importMetadataItemLinksFromXML)

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   emptyListSettingsDynamicList,
   fullDynamicList,
+  keyFieldDynamicList,
   minimalDynamicList,
   multipleCalculatedFieldsDynamicList,
   queryTextWithManualQueryFalseDynamicList,
@@ -80,5 +81,36 @@ describe("export DynamicList to XML", () => {
     })
 
     expect(result).toEqual(expectedResult)
+  })
+
+  it("exports KeyType and KeyField", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: keyFieldDynamicList,
+      xmlRootTag: "Settings",
+      path: "keyField.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("fresh export keeps QueryText, KeyType, KeyField, ListSettings order", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: keyFieldDynamicList,
+      xmlRootTag: "Settings",
+      referenceMetadata: undefined,
+    })
+
+    const queryTextIndex = result.indexOf("<QueryText>")
+    const keyTypeIndex = result.indexOf("<KeyType>FieldValue</KeyType>")
+    const keyFieldIndex = result.indexOf("<KeyField>Ссылка</KeyField>")
+    const listSettingsIndex = result.indexOf("<ListSettings/>")
+
+    expect(queryTextIndex).toBeGreaterThan(-1)
+    expect(keyTypeIndex).toBeGreaterThan(queryTextIndex)
+    expect(keyFieldIndex).toBeGreaterThan(keyTypeIndex)
+    expect(listSettingsIndex).toBeGreaterThan(keyFieldIndex)
   })
 })

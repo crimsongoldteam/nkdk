@@ -39,7 +39,9 @@ registerTypeRule(
       "ManualQuery" in xmlObj ||
       "DynamicDataRead" in xmlObj ||
       "MainTable" in xmlObj ||
-      "QueryText" in xmlObj
+      "QueryText" in xmlObj ||
+      "KeyType" in xmlObj ||
+      "KeyField" in xmlObj
     if (!isDynamicListXml) return undefined
 
     const result = importMetadataItemFromXML({ context, xml, rule: DynamicListRules }) as DynamicList | undefined

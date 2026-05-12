@@ -2,12 +2,15 @@ import { Static, Type } from "@sinclair/typebox"
 
 export type MetadataItemLink = string
 
-export interface MetadataItemLinkXML {
-  "_xsi:type": "xr:MDObjectRef"
-  "#text": string
-}
+export type MetadataItemLinkXML =
+  | string
+  | {
+      "_xsi:type"?: "xr:MDObjectRef"
+      "#text": string
+    }
 
 export type MetadataItemLinkYAML = string
+export const MetadataItemLinkJSONSchema = Type.String()
 
 export type MetadataItemLinks = MetadataItemLink[]
 export interface MetadataItemLinksXML {

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 import {
+  availableValuesDataCompositionSchemaDataSetField,
+  availableValuesDataCompositionSchemaDataSetFieldYAML,
   folderDataCompositionSchemaDataSetField,
   folderDataCompositionSchemaDataSetFieldYAML,
   fullDataCompositionSchemaDataSetField,
@@ -19,6 +21,15 @@ describe("import DataCompositionSchemaDataSetField from YAML", () => {
     })
 
     expect(result).toEqual(fullDataCompositionSchemaDataSetField)
+  })
+
+  it("imports available values", () => {
+    const result = testImportPropertyFromYAML({
+      rule: { type: "DataCompositionSchemaDataSetField" },
+      value: availableValuesDataCompositionSchemaDataSetFieldYAML,
+    })
+
+    expect(result).toEqual(availableValuesDataCompositionSchemaDataSetField)
   })
 
   it("imports legacy YAML without kind as field kind", () => {

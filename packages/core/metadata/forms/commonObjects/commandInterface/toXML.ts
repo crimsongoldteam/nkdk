@@ -101,14 +101,12 @@ const findReferenceCommandInterfaceItem = (
 ): CommandInterfaceItem | undefined => {
   if (!referenceItems) return undefined
 
-  const matches = referenceItems.filter(
+  return referenceItems.find(
     (referenceItem) =>
       referenceItem.command === item.command &&
       referenceItem.commandGroup === item.commandGroup &&
       referenceItem.index === item.index
   )
-
-  return matches.length === 1 ? matches[0] : undefined
 }
 
 const getOrderedCommandInterfaceItemXMLKeys = (

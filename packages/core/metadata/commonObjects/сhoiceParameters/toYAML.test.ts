@@ -5,6 +5,8 @@ import {
   enumChoiceParametersYAML,
   fixedArrayChoiceParameter,
   fixedArrayChoiceParametersYAML,
+  fixedArrayWithNilChoiceParameterYAML,
+  fixedArrayWithNilChoiceParameters,
   multipleChoiceParameters,
   multipleChoiceParametersYAML,
   nilChoiceParameters,
@@ -56,6 +58,12 @@ describe("exportChoiceParametersToYAML", () => {
     const result = exportChoiceParametersToYAML(mockContext, mockRule, fixedArrayChoiceParameter)
 
     expect(result).toEqual(fixedArrayChoiceParametersYAML)
+  })
+
+  it("exports fixedArrayWithNil YAML", () => {
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, fixedArrayWithNilChoiceParameters)
+
+    expect(result).toEqual(fixedArrayWithNilChoiceParameterYAML)
   })
 
   it("should export choice parameters with nil value to yaml", () => {

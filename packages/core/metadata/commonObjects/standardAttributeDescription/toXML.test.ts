@@ -3,6 +3,8 @@ import { all, minimal, multiple } from "~/metadata/commonObjects/standardAttribu
 import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { StandardAttributeDescriptionRules } from "./rules"
 
 describe("exportStandardAttributeDescriptionsToXML", () => {
   it("exports all.xml fixture", () => {
@@ -88,5 +90,21 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
       importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(expectedResult)
+  })
+
+  it("preserves maxValue xsi type from reference", () => {
+    const { result } = testExportPropertyToXML({
+      rule: StandardAttributeDescriptionRules.properties.maxValue,
+      value: 99.99,
+      referenceMetadata: testImportPropertyFromXML({
+        rule: StandardAttributeDescriptionRules.properties.maxValue,
+        xmlString: '<xr:MaxValue xsi:type="xs:decimal">99.99</xr:MaxValue>',
+        xmlRootTag: "xr:MaxValue",
+        forReference: true,
+      }),
+      xmlRootTag: "xr:MaxValue",
+    })
+
+    expect(result).toBe('<xr:MaxValue xsi:type="xs:decimal">99.99</xr:MaxValue>')
   })
 })

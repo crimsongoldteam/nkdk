@@ -75,7 +75,7 @@ export type MetadataObjectRefValue = Extract<MetadataTypedPrimitiveValue, { type
 
 export interface MetadataFixedArrayValue {
   type: "fixedArray"
-  value: MetadataTypedValue[]
+  value: Array<MetadataTypedValue | undefined>
 }
 
 export interface MetadataFormChoiceListValue {
@@ -108,7 +108,10 @@ export type MetadataPrimitiveValueXML<T extends MetadataPrimitiveValueType = Met
 
 export type MetadataFixedArrayValueXML = {
   "_xsi:type": "v8:FixedArray"
-  "v8:Value": MetadataPrimitiveValueXML | MetadataPrimitiveValueXML[]
+  "v8:Value":
+    | MetadataPrimitiveValueXML
+    | { "_xsi:nil": true }
+    | Array<MetadataPrimitiveValueXML | { "_xsi:nil": true }>
 }
 
 export interface MetadataFormChoiceListValueXML {
@@ -129,8 +132,11 @@ export type MetadataSimpleValueXML = {
 export const MetadataSingleValueJSONSchema = Type.Union([Type.String(), Type.Number()])
 export type MetadataSingleValueYAML = Static<typeof MetadataSingleValueJSONSchema>
 
-export const MetadataFixedArrayValueJSONSchema = Type.Array(MetadataSingleValueJSONSchema)
-export type MetadataFixedArrayValueYAML = Static<typeof MetadataFixedArrayValueJSONSchema>
+export const MetadataFixedArrayValueJSONSchema = Type.Array(
+  Type.Union([MetadataSingleValueJSONSchema, Type.Undefined(), Type.Null()])
+)
+export type MetadataFixedArrayValueYAML = Array<MetadataSingleValueYAML | undefined>
+export type MetadataFixedArrayValueYAMLInput = Static<typeof MetadataFixedArrayValueJSONSchema>
 
 export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
   Type.Union([

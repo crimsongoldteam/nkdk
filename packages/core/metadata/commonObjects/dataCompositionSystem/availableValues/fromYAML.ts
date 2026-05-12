@@ -1,0 +1,33 @@
+import { ConfigurationContext } from "~/metadata/context/types"
+import { importPropertyFromYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
+import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
+import type { DcsAvailableValue, DcsAvailableValues, DcsAvailableValuesYAML } from "./types"
+
+const valueRule = { type: "MetadataDcsMetadataValue", valueType: "Primitive" } as const satisfies DcsMetadataValuePropertyRule
+const presentationRule = { type: "DcsLocalStringType" } as const
+
+export const importDcsAvailableValuesFromYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  yaml: DcsAvailableValuesYAML | undefined
+): DcsAvailableValues | undefined => {
+  if (yaml === undefined) return undefined
+
+  return yaml.map((item): DcsAvailableValue => {
+    const value = importDcsMetadataValueFromYAML(context, valueRule, item.Значение)
+    const presentation = importPropertyFromYAML({
+      context,
+      rule: presentationRule,
+      value: item.Представление,
+    })
+
+    return {
+      itemType: "DcsAvailableValue",
+      ...(value !== undefined && value !== null ? { value } : {}),
+      ...(presentation !== undefined ? { presentation } : {}),
+    }
+  })
+}
+
+registerTypeRule("DcsAvailableValues", "importFromYAML", importDcsAvailableValuesFromYAML)

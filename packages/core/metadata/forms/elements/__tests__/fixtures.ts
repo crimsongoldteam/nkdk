@@ -25,6 +25,9 @@ import {
   commandBarButtonWithDataPath,
   commandBarButtonWithDataPathPartialYAML,
   commandBarButtonWithDataPathTypedYAML,
+  commandBarButtonWithParameter,
+  commandBarButtonWithParameterPartialYAML,
+  commandBarButtonWithParameterTypedYAML,
   fullCommandBarButton,
   fullCommandBarButtonEnterprise,
   fullCommandBarButtonPartialYAML,
@@ -134,6 +137,7 @@ import {
   fullTableInputFieldEnterprise,
   fullTableInputFieldPartialYAML,
   fullTableInputFieldTypedYAML,
+  minMaxStringTypeInputField,
   minimalInputField,
   minimalInputFieldEnterprise,
   minimalTableInputField,
@@ -324,6 +328,19 @@ export const ElementFixtures: ElementFixture[] = [
     yaml: { АвтоВысотаЯчейки: "Истина" },
     enterprise: undefined,
   },
+  {
+    group: "InputField",
+    name: "minMaxStringType InputField",
+    element: InputField,
+    xml: "minMaxStringType.xml",
+    xmlFolder: undefined,
+    model: minMaxStringTypeInputField,
+    yaml: {
+      МинимальноеЗначение: 1,
+      МаксимальноеЗначение: 99.99,
+    },
+    enterprise: undefined,
+  },
   //#endregion
   //#region TableInputField
   {
@@ -394,6 +411,17 @@ export const ElementFixtures: ElementFixture[] = [
     model: commandBarButtonWithDataPath,
     yaml: commandBarButtonWithDataPathPartialYAML,
     typedYAML: commandBarButtonWithDataPathTypedYAML,
+    enterprise: undefined,
+  },
+  {
+    group: "CommandBarButton",
+    name: "with Parameter",
+    element: CommandBarButton,
+    xml: "parameterCommandBarButton.xml",
+    xmlFolder: "button",
+    model: commandBarButtonWithParameter,
+    yaml: commandBarButtonWithParameterPartialYAML,
+    typedYAML: commandBarButtonWithParameterTypedYAML,
     enterprise: undefined,
   },
   {

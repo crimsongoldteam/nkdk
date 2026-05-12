@@ -1,4 +1,5 @@
 import type { CalculatedField, CalculatedFieldYAML } from "../types"
+import { nilAndBooleanAvailableValues, nilAndBooleanAvailableValuesYAML } from "../../availableValues/__fixtures__/data"
 
 export const fullCalculatedField = {
   itemType: "CalculatedField",
@@ -63,3 +64,16 @@ export const appearanceCalculatedFieldYAML = {
     ЦветТекста: "#1C55AE",
   },
 } as const satisfies CalculatedFieldYAML
+
+export const availableValuesCalculatedField = {
+  itemType: "CalculatedField",
+  dataPath: "ЭтоЗаказ",
+  expression: "Истина",
+  availableValues: nilAndBooleanAvailableValues,
+} satisfies CalculatedField
+
+export const availableValuesCalculatedFieldYAML = {
+  ПутьКДанным: "ЭтоЗаказ",
+  Выражение: "Истина",
+  ДоступныеЗначения: nilAndBooleanAvailableValuesYAML,
+} satisfies CalculatedFieldYAML

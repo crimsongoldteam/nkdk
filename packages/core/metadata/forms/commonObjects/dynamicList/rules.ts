@@ -35,6 +35,7 @@ export const DynamicListRules = {
       type: "boolean",
       xml: "ManualQuery",
       yaml: "ПроизвольныйЗапрос",
+      order: 1,
       derivedFrom: { externalFile: "queryText" },
       defaultValue: false,
       defaultValueXML: false,
@@ -53,6 +54,7 @@ export const DynamicListRules = {
     dynamicDataRead: {
       type: "boolean",
       yaml: "ДинамическоеСчитываниеДанных",
+      order: 2,
       defaultValueYAML: true,
     },
     fields: {
@@ -77,19 +79,6 @@ export const DynamicListRules = {
       yaml: "Группировка",
       xmlParents: ["ListSettings"],
     },
-    keyFields: {
-      type: "string",
-      xml: "KeyField",
-      yaml: "ПоляКлюча",
-      fromXML: false,
-      toXML: false,
-    },
-    // keyType: {
-    //   type: "SystemEnumeration",
-    //   typeSE: "DynamicListKeyType",
-    //   yaml: "ВидКлюча",
-    //   defaultValueYAML: "Авто",
-    // },
     mainTable: {
       type: "string",
       yaml: "ОсновнаяТаблица",
@@ -108,8 +97,23 @@ export const DynamicListRules = {
     queryText: {
       type: "string",
       xml: "QueryText",
+      order: 3,
       // Значение хранится во внешнем файле — не в YAML
       externalFile: { dir: "ДинамическийСписок", extension: "query", nameFrom: "parent" },
+    },
+    keyType: {
+      type: "SystemEnumeration",
+      typeSE: "DynamicListKeyType",
+      xml: "KeyType",
+      yaml: "ВидКлюча",
+      order: 4,
+      defaultValueYAML: "Auto",
+    },
+    keyFields: {
+      type: "string",
+      xml: "KeyField",
+      yaml: "ПоляКлюча",
+      order: 5,
     },
     itemsViewMode: {
       type: "SystemEnumeration",

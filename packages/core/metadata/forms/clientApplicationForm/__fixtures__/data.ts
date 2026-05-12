@@ -33,6 +33,9 @@ export const fullClientApplicationForm: Omit<
   | "settingsStorage"
   | "scalingMode"
   | "customSettingsFolder"
+  | "autoTime"
+  | "usePostingMode"
+  | "repostOnWrite"
 > = {
   parameters: [
     {
@@ -303,6 +306,12 @@ export const fullClientApplicationFormYAML: Omit<
   | "ХранилищеНастроек"
   | "ВариантМасштаба"
   | "ГруппаПользовательскихНастроек"
+  | "АвтоВремя"
+  | "РежимПроведения"
+  | "ПерепроводитьПриЗаписи"
+  | "autoTime"
+  | "usePostingMode"
+  | "repostOnWrite"
 > = {
   Синоним: "Синоним формы",
   Комментарий: "Комментарий к форме",
@@ -434,6 +443,12 @@ export const fullClientApplicationFormYAML: Omit<
   | "ХранилищеНастроек"
   | "ВариантМасштаба"
   | "ГруппаПользовательскихНастроек"
+  | "АвтоВремя"
+  | "РежимПроведения"
+  | "ПерепроводитьПриЗаписи"
+  | "autoTime"
+  | "usePostingMode"
+  | "repostOnWrite"
 >
 
 export const catalogFullClientApplicationFormYAML: ClientApplicationFormYAML = {
@@ -564,6 +579,11 @@ export const minimalClientApplicationForm: ClientApplicationForm = {
   comment: "",
   includeHelpInContents: false,
   usePurposes: ["PlatformApplication", "MobilePlatformApplication"],
+}
+
+export const childItemsWidthClientApplicationForm: ClientApplicationForm = {
+  ...minimalClientApplicationForm,
+  slaveItemsWidth: "LeftWide",
 }
 
 export const conditionalAppearanceWithoutAttributesClientApplicationForm: ClientApplicationForm & {

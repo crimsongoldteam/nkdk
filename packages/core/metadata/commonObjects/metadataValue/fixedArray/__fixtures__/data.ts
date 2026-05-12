@@ -28,3 +28,24 @@ export const singleStringFixedArrayXML = `<Value xsi:type="v8:FixedArray">
 </Value>`
 
 export const singleStringFixedArrayYAML: MetadataFixedArrayValueYAML = ['"Тест"']
+
+export const refsWithNilFixedArray: MetadataFixedArrayValue = {
+  type: "fixedArray",
+  value: [
+    { type: "ref", value: "Enum.ХозяйственныеОперации.EnumValue.РеализацияКлиенту" },
+    undefined,
+    { type: "ref", value: "Enum.ХозяйственныеОперации.EmptyRef" },
+  ],
+}
+
+export const refsWithNilFixedArrayXML = `<Value xsi:type="v8:FixedArray">
+	<v8:Value xsi:type="xr:DesignTimeRef">Enum.ХозяйственныеОперации.EnumValue.РеализацияКлиенту</v8:Value>
+	<v8:Value xsi:nil="true"/>
+	<v8:Value xsi:type="xr:DesignTimeRef">Enum.ХозяйственныеОперации.EmptyRef</v8:Value>
+</Value>`
+
+export const refsWithNilFixedArrayYAML: MetadataFixedArrayValueYAML = [
+  "Перечисление.ХозяйственныеОперации.РеализацияКлиенту",
+  undefined,
+  "Перечисление.ХозяйственныеОперации.ПустаяСсылка",
+]

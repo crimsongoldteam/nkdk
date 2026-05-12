@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest"
 import {
+  applyReferenceNameMode,
   applyReferenceNameSuffix,
+  attachReferenceNameMode,
   attachReferenceNameSuffix,
+  getReferenceNameMode,
   getReferenceNameSuffix,
   type SingletonNameStyle,
 } from "./singletonName"
@@ -12,6 +15,67 @@ const extendedTooltipStyle = {
 } as const satisfies SingletonNameStyle
 
 describe("singletonName", () => {
+  it("stores suffix mode for a standard reference name relative to owner", () => {
+    const reference = attachReferenceNameMode({
+      model: { itemType: "ExtendedTooltip" },
+      xmlName: "СтарыйРодительExtendedTooltip",
+      ownerXmlName: "СтарыйРодитель",
+      nameStyle: extendedTooltipStyle,
+    })
+
+    expect(getReferenceNameMode(reference)).toEqual({ kind: "suffix", suffix: "ExtendedTooltip" })
+    expect(Object.keys(reference)).toEqual(["itemType"])
+  })
+
+  it("stores exact mode for a noncanonical reference name relative to owner", () => {
+    const reference = attachReferenceNameMode({
+      model: { itemType: "ExtendedTooltip" },
+      xmlName: "ИсторическоеИмяExtendedTooltip",
+      ownerXmlName: "СтарыйРодитель",
+      nameStyle: extendedTooltipStyle,
+    })
+
+    expect(getReferenceNameMode(reference)).toEqual({
+      kind: "exact",
+      name: "ИсторическоеИмяExtendedTooltip",
+    })
+    expect(Object.keys(reference)).toEqual(["itemType"])
+  })
+
+  it("applies exact reference name before generated suffix replacement", () => {
+    const reference = attachReferenceNameMode({
+      model: { itemType: "ExtendedTooltip" },
+      xmlName: "ИсторическоеИмяExtendedTooltip",
+      ownerXmlName: "СтарыйРодитель",
+      nameStyle: extendedTooltipStyle,
+    })
+
+    const result = applyReferenceNameMode({
+      generatedName: "НовыйРодительРасширеннаяПодсказка",
+      referenceElement: reference,
+      nameStyle: extendedTooltipStyle,
+    })
+
+    expect(result).toBe("ИсторическоеИмяExtendedTooltip")
+  })
+
+  it("keeps owner rename behavior for standard reference names", () => {
+    const reference = attachReferenceNameMode({
+      model: { itemType: "ExtendedTooltip" },
+      xmlName: "СтарыйРодительExtendedTooltip",
+      ownerXmlName: "СтарыйРодитель",
+      nameStyle: extendedTooltipStyle,
+    })
+
+    const result = applyReferenceNameMode({
+      generatedName: "НовыйРодительРасширеннаяПодсказка",
+      referenceElement: reference,
+      nameStyle: extendedTooltipStyle,
+    })
+
+    expect(result).toBe("НовыйРодительExtendedTooltip")
+  })
+
   it("stores a known reference suffix as non-enumerable metadata", () => {
     const reference = attachReferenceNameSuffix({
       model: { itemType: "ExtendedTooltip" },

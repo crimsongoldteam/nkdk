@@ -39,6 +39,12 @@ import {
   AvailableFieldsYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
 import {
+  DcsAvailableValue,
+  DcsAvailableValues,
+  DcsAvailableValuesYAML,
+  DcsAvailableValueYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/availableValues/types"
+import {
   CalculatedField,
   CalculatedFieldYAML,
 } from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
@@ -247,6 +253,11 @@ export type PropertyTypeRegistry = {
     item: string
   }
   number: {
+    item: number
+    enterprise: number
+    yaml: number
+  }
+  MinMaxValue: {
     item: number
     enterprise: number
     yaml: number
@@ -766,6 +777,14 @@ export type PropertyTypeRegistry = {
     item: AvailableFields
     yaml: AvailableFieldsYAML
   }
+  DcsAvailableValue: {
+    item: DcsAvailableValue
+    yaml: DcsAvailableValueYAML
+  }
+  DcsAvailableValues: {
+    item: DcsAvailableValues
+    yaml: DcsAvailableValuesYAML
+  }
   FilterItem: {
     item: FilterItem
     yaml: FilterItemYAML
@@ -822,6 +841,7 @@ export type PropertyRuleType = keyof PropertyTypeRegistry
 export const PropertyRuleTypeKeys = Object.keys({
   uuid: "uuid",
   number: "number",
+  MinMaxValue: "MinMaxValue",
   dateTime: "dateTime",
   string: "string",
   boolean: "boolean",
@@ -932,6 +952,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   DataSetFieldFields: "DataSetFieldFields",
   Filter: "Filter",
   AvailableFields: "AvailableFields",
+  DcsAvailableValue: "DcsAvailableValue",
+  DcsAvailableValues: "DcsAvailableValues",
   FilterItem: "FilterItem",
   Order: "Order",
   OrderItemFields: "OrderItemFields",

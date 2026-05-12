@@ -52,6 +52,13 @@ export const commonButtonProperties = {
   },
   check: { yaml: "Пометка", type: "boolean" },
   commandName: { yaml: "ИмяКоманды", type: "CommandName" },
+  parameter: {
+    yaml: "Параметр",
+    xml: "Parameter",
+    type: "MetadataItemLink",
+    typedXML: "xr:MDObjectRef",
+    toEnterprise: false,
+  },
   dataPath: { yaml: "Данные", xml: "DataPath", type: "DataPath", defaultType: "string" },
   textColor: { yaml: "ЦветТекста", type: "Color" },
   backColor: { yaml: "ЦветФона", type: "Color" },

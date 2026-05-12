@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   fullDynamicList,
   fullDynamicListYAML,
+  keyFieldDynamicList,
   multipleCalculatedFieldsDynamicList,
   queryTextWithManualQueryFalseDynamicList,
   queryTextWithManualQueryFalseDynamicListYAML,
@@ -65,6 +66,22 @@ describe("export DynamicList to YAML", () => {
         },
       },
     ])
+  })
+
+  it("exports KeyType and KeyField", () => {
+    const result = exportPropertyToYAML({
+      context: mockContextToTypedYAML,
+      rule,
+      value: keyFieldDynamicList,
+    })
+
+    expect(result).toEqual({
+      ДинамическийСписок: {
+        ДинамическоеСчитываниеДанных: "Истина",
+        ВидКлюча: "ЗначениеПоля",
+        ПоляКлюча: "Ссылка",
+      },
+    })
   })
 
   it("does not export ManualQuery true when queryText is present and collects query file", () => {

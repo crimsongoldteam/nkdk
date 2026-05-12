@@ -256,6 +256,35 @@ describe("buildMetadataValueGraph", () => {
       expect(targets).toContain("Перечисление.ТипыСчетов.Расходы")
       expect(targets).toContain("Перечисление.ТипыСчетов.ПрямыеЗатраты")
     })
+
+    it("fixedArray с undefined между ref → 2 ребра kind Значение", () => {
+      const graph = makeGraph()
+      const value: MetadataFixedArrayValue = {
+        type: "fixedArray",
+        value: [
+          { type: "ref", value: "Enum.ТипыСчетов.EnumValue.КосвенныеЗатраты" },
+          undefined,
+          { type: "ref", value: "Enum.ТипыСчетов.EnumValue.Расходы" },
+        ],
+      }
+
+      runBuild({
+        model: value,
+        parentNodeId: PARENT_NODE,
+        filePath: FILE_PATH,
+        yamlMap: undefined,
+        propRule: { type: "MetadataValue", yaml: "Свойство" },
+        graph,
+      })
+
+      const edges = [...graph.outEdgeEntries(PARENT_NODE)]
+      expect(edges).toHaveLength(2)
+      expect(edges.every((e) => e.attributes.kind === "VALUE")).toBe(true)
+      expect(edges.map((e) => e.target)).toEqual([
+        "Перечисление.ТипыСчетов.КосвенныеЗатраты",
+        "Перечисление.ТипыСчетов.Расходы",
+      ])
+    })
   })
 
   describe("formChoiceListDesTimeValue", () => {

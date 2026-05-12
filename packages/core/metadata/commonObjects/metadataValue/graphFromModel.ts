@@ -43,9 +43,10 @@ function convertRefValueToNodeId(refValue: string): string | undefined {
 }
 
 export function extractSingleValueRef(
-  value: MetadataTypedValue,
+  value: MetadataTypedValue | undefined,
   position?: SourcePosition,
 ): { ref: GraphOpsReference; kind: string; yaml: string } | undefined {
+  if (!value) return undefined
   if (value.type === "ref") {
     const nodeId = convertRefValueToNodeId((value as MetadataRefValue).value)
     if (!nodeId) return undefined

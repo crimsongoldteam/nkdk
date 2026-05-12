@@ -1,0 +1,7 @@
+<Button name="ФормаПоказатьВСписке" id="1">
+	<Type>CommandBarButton</Type>
+	<Visible>false</Visible>
+	<CommandName>Form.StandardCommand.ShowInList</CommandName>
+	<Parameter xsi:type="xr:MDObjectRef">Document.Встреча</Parameter>
+	<ExtendedTooltip name="ФормаПоказатьВСпискеРасширеннаяПодсказка" id="2"/>
+</Button>

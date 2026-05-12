@@ -86,7 +86,6 @@ describe("importClientApplicationFormFromYAML", () => {
           },
           extendedTooltip: {
             itemType: "ExtendedTooltip",
-            name: "НомерРасширеннаяПодсказка",
           },
         },
         {
@@ -94,7 +93,6 @@ describe("importClientApplicationFormFromYAML", () => {
           name: "Команда1",
           extendedTooltip: {
             itemType: "ExtendedTooltip",
-            name: "Команда1РасширеннаяПодсказка",
           },
         },
       ],

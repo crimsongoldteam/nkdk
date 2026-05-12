@@ -1,0 +1,11 @@
+<Settings xsi:type="DynamicList">
+	<ManualQuery>true</ManualQuery>
+	<DynamicDataRead>true</DynamicDataRead>
+	<QueryText>ВЫБРАТЬ
+	Ссылка
+ИЗ
+	Документ.ЗаявлениеОВвозеТоваров КАК Документ</QueryText>
+	<KeyType>FieldValue</KeyType>
+	<KeyField>Ссылка</KeyField>
+	<ListSettings/>
+</Settings>

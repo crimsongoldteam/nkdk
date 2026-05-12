@@ -1,6 +1,7 @@
 import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "~/metadata/orchestration"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import "../availableValues/types"
 import "../calculatedFieldUseRestriction/types"
 import "./kind"
 import { DataCompositionSchemaDataSetFieldRules } from "./rules"

@@ -15,6 +15,10 @@ import "./number/fromXML"
 import "./number/toJSONSchema"
 import "./number/toXML"
 
+import "./minMaxValue/fromXML"
+import "./minMaxValue/toJSONSchema"
+import "./minMaxValue/toXML"
+
 import "./userSettingsID/fromXML"
 import "./userSettingsID/fromYAML"
 import "./userSettingsID/toXML"

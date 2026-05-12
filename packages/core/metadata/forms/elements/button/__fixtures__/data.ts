@@ -237,6 +237,27 @@ export const commandBarButtonWithDataPathTypedYAML: CommandBarButtonTypedYAML = 
   Тип: "КнопкаКоманднойПанели",
 }
 
+export const commandBarButtonWithParameter = {
+  itemType: "CommandBarButton",
+  name: "ФормаПоказатьВСписке",
+  type: "CommandBarButton",
+  visible: false,
+  commandName: "Form.StandardCommand.ShowInList",
+  parameter: "Document.Встреча",
+} satisfies CommandBarButton
+
+export const commandBarButtonWithParameterPartialYAML = {
+  Вид: "КнопкаКоманднойПанели",
+  Видимость: "Ложь",
+  ИмяКоманды: "Form.StandardCommand.ShowInList",
+  Параметр: "Документ.Встреча",
+} satisfies CommandBarButtonPartialYAML
+
+export const commandBarButtonWithParameterTypedYAML: CommandBarButtonTypedYAML = {
+  ...commandBarButtonWithParameterPartialYAML,
+  Тип: "КнопкаКоманднойПанели",
+}
+
 //#endregion
 
 //#region CommandBarButton / CommandBarHyperlink

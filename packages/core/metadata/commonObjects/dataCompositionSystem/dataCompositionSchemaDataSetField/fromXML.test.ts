@@ -5,6 +5,7 @@ import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { xmlExport } from "~/xml/export/exporter"
 import {
+  availableValuesDataCompositionSchemaDataSetField,
   folderDataCompositionSchemaDataSetField,
   fullDataCompositionSchemaDataSetField,
   nestedDataCompositionSchemaDataSetField,
@@ -59,6 +60,36 @@ describe("import DataCompositionSchemaDataSetField from XML", () => {
     })
 
     expect(result).toEqual(fullDataCompositionSchemaDataSetField)
+  })
+
+  it("imports available values", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "availableValues.xml",
+      xmlRootTag: "Field",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(availableValuesDataCompositionSchemaDataSetField)
+  })
+
+  it("round-trips availableValues.xml", () => {
+    const imported = testImportPropertyFromXML({
+      rule,
+      path: "availableValues.xml",
+      xmlRootTag: "Field",
+      importMetaUrl: import.meta.url,
+    })
+
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule,
+      value: imported,
+      xmlRootTag: "Field",
+      path: "availableValues.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
   })
 
   it("round-trips nested-data-set.xml", () => {

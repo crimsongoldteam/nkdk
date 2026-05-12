@@ -15,6 +15,12 @@ import "./availableFields/toXML"
 import "./availableFields/toYAML"
 import "./availableFields/types"
 
+import "./availableValues/fromXML"
+import "./availableValues/fromYAML"
+import "./availableValues/toXML"
+import "./availableValues/toYAML"
+import "./availableValues/types"
+
 import "./conditionalAppearance/types"
 import "./conditionalAppearanceItem/types"
 import "./structureItemGroup/types"
