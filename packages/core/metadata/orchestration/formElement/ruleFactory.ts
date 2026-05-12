@@ -99,11 +99,10 @@ const registerExportToYAML = <T extends BaseElement>(propertyType: PropertyRuleT
     "exportToYAML",
     (
       context: ConfigurationContext,
-      rule: PropertyRule,
+      _rule: PropertyRule,
       data: ToMetadata<T["itemType"]> | undefined
     ): ToYAML<T["itemType"]> | undefined => {
-      const result = exportElementToPartialYAML({ context, element: data })
-      return result ?? (data !== undefined && rule.preserveEmptyYAML === true ? {} : undefined)
+      return exportElementToPartialYAML({ context, element: data })
     }
   )
 }

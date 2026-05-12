@@ -9,6 +9,7 @@ import {
 } from "~/metadata/orchestration"
 import { getReferenceNameSuffix } from "~/metadata/orchestration/formElement/singletonName"
 import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
+import type { Table } from "~/metadata/forms/elements/table/types"
 import { mockContext, mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
@@ -44,7 +45,7 @@ describe("singleton noncanonical XML names with reference", () => {
 
     const result = exportElementToXML({
       context,
-      element: nonCanonicalSingletonNames,
+      element: nonCanonicalSingletonNames as Table,
       referenceElement: reference,
     })
 
@@ -59,6 +60,9 @@ describe("singleton noncanonical XML names with reference", () => {
       itemType: "Table",
       xml: readTableXML(),
     })
+
+    expect(reference).toBeDefined()
+    if (reference === undefined) throw new Error("Expected table reference")
 
     expect(getReferenceNameSuffix(reference.searchStringRepresentation?.contextMenu)).toBe("КонтекстноеМеню")
     expect(getReferenceNameSuffix(reference.searchStringRepresentation?.extendedTooltip)).toBe("РасширеннаяПодсказка")

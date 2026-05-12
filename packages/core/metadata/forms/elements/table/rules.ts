@@ -158,7 +158,6 @@ export const TableRules = {
       type: "SingleSearchControlAddition",
       xml: "SearchControlAddition",
       toEnterprise: false,
-      preserveEmptyYAML: true,
     },
     searchControlLocation: {
       yaml: "ПоложениеУправленияПоиском",
@@ -180,7 +179,6 @@ export const TableRules = {
       type: "SingleSearchStringAddition",
       toEnterprise: false,
       xml: "SearchStringAddition",
-      preserveEmptyYAML: true,
     },
     selectionMode: {
       yaml: "РежимВыделения",
