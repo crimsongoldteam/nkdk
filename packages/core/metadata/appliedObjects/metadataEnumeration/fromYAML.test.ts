@@ -85,4 +85,29 @@ describe("importMetadataEnumerationFromYAML — граф значений", () =
       "Перечисление.СтатусЗаказа.Отменён",
     ])
   })
+
+  it("стандартный реквизит перечисления содержит item из YAML", () => {
+    const graph = new GraphBuilder()
+    importMetadataFileWithGraph({
+      filePath: "Перечисление/СтатусЗаказа/Свойства.yml",
+      sources: {
+        yaml: [
+          "СтандартныеРеквизиты:",
+          "  Порядок:",
+          "    Синоним: Другой синоним порядок",
+        ].join("\n"),
+      },
+      kind: "enumeration",
+      name: "СтатусЗаказа",
+      graph,
+      context: mockContext,
+    })
+
+    const attrs = graph.getNodeAttributes("Перечисление.СтатусЗаказа.СтандартныйРеквизит.Порядок")
+    expect(attrs.item).toMatchObject({
+      itemType: "StandardAttributeDescription",
+      name: "Order",
+      synonym: { items: { ru: "Другой синоним порядок" } },
+    })
+  })
 })

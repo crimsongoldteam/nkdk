@@ -56,9 +56,10 @@ function buildStandardAttributesGraph(params: {
 
   // Build map of explicitly defined items (russianName → item)
   const explicitItems = new Map<string, StandardAttributeDescription>()
+  const nameToYAML = buildNameToYAML(propRule)
   if (result) {
     for (const item of result) {
-      const russianName = StandartAttributeNameToYAML[item.name as StandartAttributeName]
+      const russianName = nameToYAML(item)
       if (russianName) explicitItems.set(russianName, item)
     }
   }

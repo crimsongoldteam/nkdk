@@ -612,4 +612,3 @@ git commit -m "test: :white_check_mark: привести тесты перечи
 ```
 
 If the working tree is clean, skip this commit.
-
