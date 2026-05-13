@@ -12,6 +12,33 @@ describe("migration paths", () => {
     })
   })
 
+  it("parses simple top level applied object paths", () => {
+    expect(parseMigrationPath("ОпределяемыйТип.ТипДокумента")).toMatchObject({
+      kind: "object",
+      localName: "ТипДокумента",
+      ownerPath: "ОпределяемыйТип",
+      levelPath: "ОпределяемыйТип",
+    })
+    expect(parseMigrationPath("ПараметрСеанса.ТекущийПользователь")).toMatchObject({
+      kind: "object",
+      localName: "ТекущийПользователь",
+      ownerPath: "ПараметрСеанса",
+      levelPath: "ПараметрСеанса",
+    })
+    expect(parseMigrationPath("ПодпискаНаСобытие.ПриЗаписи")).toMatchObject({
+      kind: "object",
+      localName: "ПриЗаписи",
+      ownerPath: "ПодпискаНаСобытие",
+      levelPath: "ПодпискаНаСобытие",
+    })
+    expect(parseMigrationPath("ПараметрФункциональныхОпций.Организация")).toMatchObject({
+      kind: "object",
+      localName: "Организация",
+      ownerPath: "ПараметрФункциональныхОпций",
+      levelPath: "ПараметрФункциональныхОпций",
+    })
+  })
+
   it("parses object attribute paths", () => {
     expect(parseMigrationPath("Справочник.Товары.Реквизит.Артикул")).toEqual({
       kind: "attribute",
@@ -80,6 +107,12 @@ describe("migration paths", () => {
 
   it("rejects child paths for numerators", () => {
     expect(() => parseMigrationPath("Нумератор.Ном.Реквизит.Код")).toThrow("Неподдерживаемый путь миграции")
+  })
+
+  it("rejects child paths for simple top level applied objects", () => {
+    expect(() => parseMigrationPath("ОпределяемыйТип.ТипДокумента.Реквизит.Код")).toThrow(
+      "Неподдерживаемый путь миграции",
+    )
   })
 
   it("rejects tabular section paths for sequences", () => {
