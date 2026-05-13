@@ -4,15 +4,18 @@ import { getUUID } from "../../helpers/uuid"
 import { InternalInfo, InternalInfoItemsXML, InternalInfoParam, InternalInfoRootXML } from "./types"
 
 export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): InternalInfoRootXML => {
-  const { context, rule, referenceMetadata, metadataItem } = params
+  const { context, rule, value, referenceMetadata, metadataItem } = params
 
   const internalInfoRule = rule as InternalInfoPropertyRule
 
+  const metadata = value as InternalInfo | undefined
   const reference = referenceMetadata as InternalInfo | undefined
+  const thisNode =
+    internalInfoRule.thisNode === true ? (reference?.thisNode ?? metadata?.thisNode ?? getUUID(context)) : undefined
 
   const itemsRule = (rule as any).items as { name: string; category: string }[] | undefined
   if (!itemsRule || itemsRule.length === 0) {
-    return {}
+    return thisNode === undefined ? {} : { "xr:ThisNode": thisNode }
   }
 
   const nameItemPart = internalInfoRule?.getName
@@ -22,7 +25,7 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
   const generated = itemsRule.map((item) => {
     const name = item.name
 
-    const fromReference = reference?.[name]
+    const fromReference = getInternalInfoItem(reference?.[name])
 
     const typeId = fromReference?.typeId ?? getUUID(context)
     const valueId = fromReference?.valueId ?? getUUID(context)
@@ -37,9 +40,18 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
     }
   })
 
-  return {
-    "xr:GeneratedType": generated,
+  const result: InternalInfoRootXML = {}
+  if (thisNode !== undefined) {
+    result["xr:ThisNode"] = thisNode
   }
+  result["xr:GeneratedType"] = generated
+
+  return result
+}
+
+const getInternalInfoItem = (value: InternalInfo[string]): { typeId: string; valueId: string } | undefined => {
+  if (value === undefined || value === null || typeof value !== "object") return undefined
+  return value
 }
 
 /** @deprecated */

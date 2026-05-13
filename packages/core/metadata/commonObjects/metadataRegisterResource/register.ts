@@ -1,0 +1,82 @@
+import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
+import { importMetadataItemFromYAML } from "~/metadata/orchestration"
+import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
+import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
+import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { MetadataRegisterResourceRules } from "./rules"
+import {
+  MetadataRegisterResourceYAML,
+  MetadataRegisterResources,
+  MetadataRegisterResourcesXML,
+  MetadataRegisterResourcesYAML,
+} from "./types"
+
+const dropImplicitEmptySynonym = <T extends { synonym?: { items?: Record<string, string> } }>(properties: T): T => {
+  if (properties.synonym && Object.keys(properties.synonym.items ?? {}).length === 0) {
+    const { synonym: _synonym, ...rest } = properties
+    return rest as T
+  }
+
+  return properties
+}
+
+const importMetadataRegisterResourcesFromYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: MetadataRegisterResourcesYAML | undefined
+): MetadataRegisterResources | undefined => {
+  if (!data) return undefined
+
+  const results = Object.entries(data).map(([name, value]) => {
+    const properties = importMetadataItemFromYAML({
+      context,
+      yaml: value as MetadataRegisterResourceYAML,
+      rule: MetadataRegisterResourceRules,
+      name,
+    })
+
+    if (properties == undefined) throw new Error("Properties are required")
+
+    return {
+      ...dropImplicitEmptySynonym(properties),
+      name,
+    }
+  })
+
+  return results.length > 0 ? (results as MetadataRegisterResources) : undefined
+}
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataRegisterResources",
+  itemRule: MetadataRegisterResourceRules,
+  xmlElement: "Resource",
+  keyField: "name",
+  fromYAML: importMetadataRegisterResourcesFromYAML,
+  graphChild: { idFrom: "name", edgeKind: "ATTRIBUTE", edgeYaml: "Ресурс", nodeSegment: "Ресурс" },
+})
+
+export const importMetadataRegisterResourcesFromXML = (
+  context: ConfigurationContextFromXML,
+  _rule: PropertyRule | undefined,
+  xml: MetadataRegisterResourcesXML | undefined
+): MetadataRegisterResources | undefined => {
+  return importPropertyFromXML({
+    context,
+    rule: { type: "MetadataRegisterResources" },
+    value: xml,
+  }) as MetadataRegisterResources | undefined
+}
+
+export const exportMetadataRegisterResourcesToYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: MetadataRegisterResources | undefined
+): MetadataRegisterResourcesYAML | undefined => {
+  return exportMetadataCollectionToYAMLAsRecord({
+    context,
+    data,
+    itemRule: MetadataRegisterResourceRules,
+    keyField: "name",
+  }) as MetadataRegisterResourcesYAML | undefined
+}

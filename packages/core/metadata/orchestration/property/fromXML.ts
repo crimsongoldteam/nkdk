@@ -65,7 +65,11 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
       continue
     }
 
-    const cleanValue = value === currentRule.defaultValueXML ? undefined : value
+    const preserveExplicitDefault =
+      currentRule.preserveExplicitDefaultXML === true &&
+      sourceXmlKey !== undefined &&
+      value === currentRule.defaultValueXML
+    const cleanValue = value === currentRule.defaultValueXML && !preserveExplicitDefault ? undefined : value
 
     const valueOrDefault = getValueOrDefault({
       context,

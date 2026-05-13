@@ -7,6 +7,17 @@ import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/propert
 
 const propertiesParents = ["Properties"]
 const childObjectsParents = ["ChildObjects"]
+const emptyAttributes: [] = []
+
+const getParentNameByItemType = (context: ConfigurationContextWithExportToXML, parentItemType: string): string => {
+  const elements = context.exportToXML.itemsTree
+  for (let i = elements.length - 1; i >= 0; i--) {
+    const element = elements[i]
+    if (String(element.itemType) === parentItemType) return element.name
+  }
+
+  return getParentFromContext(context).name
+}
 
 const commonTabularSectionProperties = {
   uuid: uuidPropertyRule,
@@ -67,6 +78,7 @@ const commonTabularSectionProperties = {
     type: "number",
     xmlParents: propertiesParents,
     defaultValueXML: 5,
+    preserveFromReferenceXML: true,
     order: 8,
   },
   objectBelonging: {
@@ -80,7 +92,8 @@ const commonTabularSectionProperties = {
   attributes: {
     yaml: "Реквизиты",
     type: "MetadataTabularSectionAttributes",
-    defaultValue: [],
+    defaultValue: emptyAttributes,
+    defaultValueXMLEmpty: emptyAttributes,
     defaultValueXMLRaw: {},
     required: true,
     xmlParents: childObjectsParents,
@@ -134,6 +147,46 @@ export const MetadataDocumentTabularSectionRules = {
       items: [
         { name: `DocumentTabularSection`, category: "TabularSection" },
         { name: `DocumentTabularSectionRow`, category: "TabularSectionRow" },
+      ],
+    },
+  },
+} as const satisfies MetadataItemRule
+
+export const MetadataDataProcessorTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const { context, metadata } = params
+        const parentPath = getParentNameByItemType(context, "MetadataDataProcessor")
+        return `${parentPath}.${metadata.name}`
+      },
+      items: [
+        { name: "DataProcessorTabularSection", category: "TabularSection" },
+        { name: "DataProcessorTabularSectionRow", category: "TabularSectionRow" },
+      ],
+    },
+  },
+} as const satisfies MetadataItemRule
+
+export const MetadataExchangePlanTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const { context, metadata } = params
+        const parentPath = getParentNameByItemType(context, "MetadataExchangePlan")
+        return `${parentPath}.${metadata.name}`
+      },
+      items: [
+        { name: "ExchangePlanTabularSection", category: "TabularSection" },
+        { name: "ExchangePlanTabularSectionRow", category: "TabularSectionRow" },
       ],
     },
   },

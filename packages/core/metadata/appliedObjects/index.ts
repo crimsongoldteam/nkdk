@@ -13,6 +13,12 @@ import "./metadataFunctionalOptionsParameter"
 import "./metadataSettingsStorage"
 
 import "./metadataDocument"
+import "./metadataDataProcessor"
+import "./metadataDocumentJournal"
+import "./metadataHTTPService"
+import "./metadataInformationRegister"
+import "./metadataAccumulationRegister"
+import "./metadataExchangePlan"
 import "./metadataDocumentNumerator"
 
 import "./metadataEnumeration"

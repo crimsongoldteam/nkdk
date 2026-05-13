@@ -7,6 +7,30 @@ import { MetadataBot, MetadataBotYAML } from "~/metadata/appliedObjects/metadata
 import { MetadataConstant, MetadataConstantYAML } from "~/metadata/appliedObjects/metadataConstant/types"
 import { MetadataDefinedType, MetadataDefinedTypeYAML } from "~/metadata/appliedObjects/metadataDefinedType/types"
 import {
+  MetadataDataProcessor,
+  MetadataDataProcessorYAML,
+} from "~/metadata/appliedObjects/metadataDataProcessor/types"
+import {
+  MetadataDocumentJournal,
+  MetadataDocumentJournalYAML,
+} from "~/metadata/appliedObjects/metadataDocumentJournal/types"
+import {
+  MetadataHTTPService,
+  MetadataHTTPServiceYAML,
+} from "~/metadata/appliedObjects/metadataHTTPService/types"
+import {
+  MetadataInformationRegister,
+  MetadataInformationRegisterYAML,
+} from "~/metadata/appliedObjects/metadataInformationRegister/types"
+import {
+  MetadataAccumulationRegister,
+  MetadataAccumulationRegisterYAML,
+} from "~/metadata/appliedObjects/metadataAccumulationRegister/types"
+import {
+  MetadataExchangePlan,
+  MetadataExchangePlanYAML,
+} from "~/metadata/appliedObjects/metadataExchangePlan/types"
+import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorYAML,
 } from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
@@ -50,6 +74,16 @@ import {
   AdditionalIndexItemYAML,
   AdditionalIndexYAML,
 } from "~/metadata/commonObjects/additionalIndex/types"
+import {
+  AccumulationRegisterAggregate,
+  AccumulationRegisterAggregateCollection,
+  AccumulationRegisterAggregateCollectionYAML,
+  AccumulationRegisterAggregateDimensions,
+  AccumulationRegisterAggregateDimensionsYAML,
+  AccumulationRegisterAggregates,
+  AccumulationRegisterAggregateYAML,
+  AccumulationRegisterAggregatesYAML,
+} from "~/metadata/commonObjects/accumulationRegisterAggregates/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
 import {
@@ -61,6 +95,14 @@ import {
   CommonAttributeContent,
   CommonAttributeContentYAML,
 } from "~/metadata/commonObjects/commonAttributeContent/types"
+import {
+  ExchangePlanContent,
+  ExchangePlanContentItem,
+  ExchangePlanContentItems,
+  ExchangePlanContentItemsYAML,
+  ExchangePlanContentItemYAML,
+  ExchangePlanContentYAML,
+} from "~/metadata/commonObjects/exchangePlanContent/types"
 import {
   MobileDeviceCommandBarContent,
   MobileDeviceCommandBarContentYAML,
@@ -181,6 +223,30 @@ import {
   MetadataFieldsYAML,
   MetadataFieldYAML,
 } from "~/metadata/commonObjects/metadataField/types"
+import {
+  MetadataDocumentJournalColumns,
+  MetadataDocumentJournalColumnsYAML,
+} from "~/metadata/commonObjects/metadataDocumentJournalColumn/types"
+import {
+  MetadataHTTPServiceMethods,
+  MetadataHTTPServiceMethodsYAML,
+} from "~/metadata/commonObjects/metadataHTTPServiceMethod/types"
+import {
+  MetadataHTTPServiceURLTemplates,
+  MetadataHTTPServiceURLTemplatesYAML,
+} from "~/metadata/commonObjects/metadataHTTPServiceURLTemplate/types"
+import {
+  MetadataRegisterAttributes,
+  MetadataRegisterAttributesYAML,
+} from "~/metadata/commonObjects/metadataRegisterAttribute/types"
+import {
+  MetadataRegisterDimensions,
+  MetadataRegisterDimensionsYAML,
+} from "~/metadata/commonObjects/metadataRegisterDimension/types"
+import {
+  MetadataRegisterResources,
+  MetadataRegisterResourcesYAML,
+} from "~/metadata/commonObjects/metadataRegisterResource/types"
 import { DataPathYAML, MetadataType, MetadataTypeYAML } from "~/metadata/commonObjects/metadataPath/types"
 import {
   MetadataItemLink,
@@ -195,8 +261,12 @@ import {
   MetadataSequenceDimensionYAML,
 } from "~/metadata/commonObjects/metadataSequenceDimension/types"
 import {
+  MetadataDataProcessorTabularSections,
+  MetadataDataProcessorTabularSectionsYAML,
   MetadataDocumentTabularSections,
   MetadataDocumentTabularSectionsYAML,
+  MetadataExchangePlanTabularSections,
+  MetadataExchangePlanTabularSectionsYAML,
   MetadataTabularSections,
   MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
@@ -422,6 +492,22 @@ export type PropertyTypeRegistry = {
     item: AdditionalIndexCollection
     yaml: AdditionalIndexCollectionYAML
   }
+  AccumulationRegisterAggregateDimensions: {
+    item: AccumulationRegisterAggregateDimensions
+    yaml: AccumulationRegisterAggregateDimensionsYAML
+  }
+  AccumulationRegisterAggregate: {
+    item: AccumulationRegisterAggregate
+    yaml: AccumulationRegisterAggregateYAML
+  }
+  AccumulationRegisterAggregateCollection: {
+    item: AccumulationRegisterAggregateCollection
+    yaml: AccumulationRegisterAggregateCollectionYAML
+  }
+  AccumulationRegisterAggregates: {
+    item: AccumulationRegisterAggregates
+    yaml: AccumulationRegisterAggregatesYAML
+  }
   CharacteristicsDescriptions: {
     item: CharacteristicsDescriptions
     yaml: CharacteristicsDescriptionsYAML
@@ -439,6 +525,18 @@ export type PropertyTypeRegistry = {
   CommonAttributeContent: {
     item: CommonAttributeContent
     yaml: CommonAttributeContentYAML
+  }
+  ExchangePlanContent: {
+    item: ExchangePlanContent
+    yaml: ExchangePlanContentYAML
+  }
+  ExchangePlanContentItem: {
+    item: ExchangePlanContentItem
+    yaml: ExchangePlanContentItemYAML
+  }
+  ExchangePlanContentItems: {
+    item: ExchangePlanContentItems
+    yaml: ExchangePlanContentItemsYAML
   }
   ChoiceParameterLinks: {
     item: ChoiceParameterLinks
@@ -485,6 +583,30 @@ export type PropertyTypeRegistry = {
     enterprise: string
     yaml: MetadataFieldsYAML
   }
+  MetadataDocumentJournalColumns: {
+    item: MetadataDocumentJournalColumns
+    yaml: MetadataDocumentJournalColumnsYAML
+  }
+  MetadataHTTPServiceMethods: {
+    item: MetadataHTTPServiceMethods
+    yaml: MetadataHTTPServiceMethodsYAML
+  }
+  MetadataHTTPServiceURLTemplates: {
+    item: MetadataHTTPServiceURLTemplates
+    yaml: MetadataHTTPServiceURLTemplatesYAML
+  }
+  MetadataRegisterResources: {
+    item: MetadataRegisterResources
+    yaml: MetadataRegisterResourcesYAML
+  }
+  MetadataRegisterDimensions: {
+    item: MetadataRegisterDimensions
+    yaml: MetadataRegisterDimensionsYAML
+  }
+  MetadataRegisterAttributes: {
+    item: MetadataRegisterAttributes
+    yaml: MetadataRegisterAttributesYAML
+  }
   MetadataItemLink: {
     item: MetadataItemLink
     enterprise: string
@@ -498,6 +620,14 @@ export type PropertyTypeRegistry = {
   MetadataDocumentTabularSections: {
     item: MetadataDocumentTabularSections
     yaml: MetadataDocumentTabularSectionsYAML
+  }
+  MetadataDataProcessorTabularSections: {
+    item: MetadataDataProcessorTabularSections
+    yaml: MetadataDataProcessorTabularSectionsYAML
+  }
+  MetadataExchangePlanTabularSections: {
+    item: MetadataExchangePlanTabularSections
+    yaml: MetadataExchangePlanTabularSectionsYAML
   }
   MetadataValue: {
     item: MetadataValue
@@ -597,6 +727,30 @@ export type PropertyTypeRegistry = {
   MetadataSettingsStorage: {
     item: MetadataSettingsStorage
     yaml: MetadataSettingsStorageYAML
+  }
+  MetadataDataProcessor: {
+    item: MetadataDataProcessor
+    yaml: MetadataDataProcessorYAML
+  }
+  MetadataDocumentJournal: {
+    item: MetadataDocumentJournal
+    yaml: MetadataDocumentJournalYAML
+  }
+  MetadataHTTPService: {
+    item: MetadataHTTPService
+    yaml: MetadataHTTPServiceYAML
+  }
+  MetadataInformationRegister: {
+    item: MetadataInformationRegister
+    yaml: MetadataInformationRegisterYAML
+  }
+  MetadataAccumulationRegister: {
+    item: MetadataAccumulationRegister
+    yaml: MetadataAccumulationRegisterYAML
+  }
+  MetadataExchangePlan: {
+    item: MetadataExchangePlan
+    yaml: MetadataExchangePlanYAML
   }
   MetadataDocumentNumerator: {
     item: MetadataDocumentNumerator
@@ -960,10 +1114,17 @@ export const PropertyRuleTypeKeys = Object.keys({
   AdditionalIndex: "AdditionalIndex",
   AdditionalIndexItem: "AdditionalIndexItem",
   AdditionalIndexCollection: "AdditionalIndexCollection",
+  AccumulationRegisterAggregateDimensions: "AccumulationRegisterAggregateDimensions",
+  AccumulationRegisterAggregate: "AccumulationRegisterAggregate",
+  AccumulationRegisterAggregateCollection: "AccumulationRegisterAggregateCollection",
+  AccumulationRegisterAggregates: "AccumulationRegisterAggregates",
   CharacteristicsDescriptions: "CharacteristicsDescriptions",
   ChoiceList: "ChoiceList",
   MobileDeviceCommandBarContent: "MobileDeviceCommandBarContent",
   CommonAttributeContent: "CommonAttributeContent",
+  ExchangePlanContent: "ExchangePlanContent",
+  ExchangePlanContentItem: "ExchangePlanContentItem",
+  ExchangePlanContentItems: "ExchangePlanContentItems",
   ChoiceParameterLinks: "ChoiceParameterLinks",
   ChoiceParameters: "ChoiceParameters",
   FieldsList: "FieldsList",
@@ -973,9 +1134,17 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataCommandGroup: "MetadataCommandGroup",
   MetadataField: "MetadataField",
   MetadataFields: "MetadataFields",
+  MetadataDocumentJournalColumns: "MetadataDocumentJournalColumns",
+  MetadataHTTPServiceMethods: "MetadataHTTPServiceMethods",
+  MetadataHTTPServiceURLTemplates: "MetadataHTTPServiceURLTemplates",
+  MetadataRegisterResources: "MetadataRegisterResources",
+  MetadataRegisterDimensions: "MetadataRegisterDimensions",
+  MetadataRegisterAttributes: "MetadataRegisterAttributes",
   MetadataItemLink: "MetadataItemLink",
   MetadataTabularSections: "MetadataTabularSections",
   MetadataDocumentTabularSections: "MetadataDocumentTabularSections",
+  MetadataDataProcessorTabularSections: "MetadataDataProcessorTabularSections",
+  MetadataExchangePlanTabularSections: "MetadataExchangePlanTabularSections",
   MetadataValue: "MetadataValue",
   MetadataValueCollection: "MetadataValueCollection",
   Predefined: "Predefined",
@@ -1004,6 +1173,12 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataFilterCriterion: "MetadataFilterCriterion",
   MetadataFunctionalOptionsParameter: "MetadataFunctionalOptionsParameter",
   MetadataSettingsStorage: "MetadataSettingsStorage",
+  MetadataDataProcessor: "MetadataDataProcessor",
+  MetadataDocumentJournal: "MetadataDocumentJournal",
+  MetadataHTTPService: "MetadataHTTPService",
+  MetadataInformationRegister: "MetadataInformationRegister",
+  MetadataAccumulationRegister: "MetadataAccumulationRegister",
+  MetadataExchangePlan: "MetadataExchangePlan",
   MetadataDocumentNumerator: "MetadataDocumentNumerator",
   MetadataEnumeration: "MetadataEnumeration",
   MetadataEnumerationValues: "MetadataEnumerationValues",

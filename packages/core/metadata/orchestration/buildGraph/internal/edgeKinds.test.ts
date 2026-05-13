@@ -19,6 +19,12 @@ describe("edgeKinds — isOwning", () => {
       "METADATA_CATALOG",
       "METADATA_DOCUMENT",
       "METADATA_ENUMERATION",
+      "METADATA_DATA_PROCESSOR",
+      "METADATA_DOCUMENT_JOURNAL",
+      "METADATA_HTTP_SERVICE",
+      "METADATA_INFORMATION_REGISTER",
+      "METADATA_ACCUMULATION_REGISTER",
+      "METADATA_EXCHANGE_PLAN",
       "PARENT",
     ])("%s → true", (kind) => {
       expect(isOwning(kind)).toBe(true)

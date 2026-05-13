@@ -47,6 +47,28 @@ describe("remapReferenceModel", () => {
     expect(referenceModel.attributes).toEqual([{ name: "Артикул", uuid: "attribute-old-uuid" }])
   })
 
+  it("сохраняет reference item при переименовании ресурса регистра через map", () => {
+    const currentModel = {
+      resources: [{ name: "НовыйОстаток" }],
+    }
+    const referenceModel = {
+      resources: [{ name: "Остаток", uuid: "resource-old-uuid" }],
+    }
+
+    const result = remapReferenceModel({
+      rule,
+      currentObjectPath: "РегистрНакопления.Остатки",
+      currentModel,
+      referenceModel,
+      referencePathByCurrentPath: new Map([
+        ["РегистрНакопления.Остатки.Ресурс.НовыйОстаток", "РегистрНакопления.Остатки.Ресурс.Остаток"],
+      ]),
+    })
+
+    expect(result?.resources).toEqual([{ name: "НовыйОстаток", uuid: "resource-old-uuid" }])
+    expect(referenceModel.resources).toEqual([{ name: "Остаток", uuid: "resource-old-uuid" }])
+  })
+
   it("сохраняет reference item для табличной части и её реквизита через map", () => {
     const currentModel = {
       tabularSections: [

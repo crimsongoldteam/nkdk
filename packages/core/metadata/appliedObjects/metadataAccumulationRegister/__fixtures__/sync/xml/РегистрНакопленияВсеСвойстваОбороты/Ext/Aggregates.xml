@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<AccumulationRegisterAggregates xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Aggregate id="35aa98aa-6732-4e20-8187-b6b54e2ad9ef">
+		<Use>Always</Use>
+		<Periodicity>Day</Periodicity>
+		<Dimensions>
+			<Dimension ref="AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты.Dimension.ИзмерениеВсеСвойства">true</Dimension>
+			<Dimension ref="AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты.Dimension.ИспользоватьХранилищеДвоичныхДанных">true</Dimension>
+		</Dimensions>
+	</Aggregate>
+	<Aggregate id="15941cf4-dc0f-455a-a9eb-c66073c1b0d8">
+		<Use>Auto</Use>
+		<Periodicity>Auto</Periodicity>
+		<Dimensions>
+			<Dimension ref="AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты.Dimension.ИзмерениеВсеСвойства">false</Dimension>
+			<Dimension ref="AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты.Dimension.ИспользоватьХранилищеДвоичныхДанных">false</Dimension>
+		</Dimensions>
+	</Aggregate>
+</AccumulationRegisterAggregates>

@@ -1,5 +1,5 @@
 import fs from "fs"
-import { dirname, join } from "path"
+import { basename, dirname, join } from "path"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type { HelpPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { xmlExport } from "~/xml/export/exporter"
@@ -12,6 +12,7 @@ export const syncHelpToXML = async (params: {
   rule: PropertyRule
   nkdkDir: string
   xmlDir: string
+  name?: string
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
   const { nkdkDir, xmlDir } = params
@@ -33,12 +34,15 @@ export const syncHelpToXML = async (params: {
       Page: langs.length === 1 ? langs[0] : langs,
     },
   }
-  const helpXmlPath = join(xmlDir, rule.filePath)
+  const rawXmlPath = rule.xmlPath ?? rule.filePath
+  const filePath = typeof rawXmlPath === "function" ? rawXmlPath({ name: params.name! }) : rawXmlPath
+  const normalizedFilePath = stripObjectPrefix({ xmlDir, filePath, objectName: params.name })
+  const helpXmlPath = join(xmlDir, normalizedFilePath)
   await fs.promises.mkdir(dirname(helpXmlPath), { recursive: true })
   await fs.promises.writeFile(helpXmlPath, xmlExport(helpXmlObj), "utf-8")
   params.xmlManifest?.addFile(helpXmlPath)
 
-  const helpHtmlDir = rule.filePath.replace(/\.xml$/, "")
+  const helpHtmlDir = normalizedFilePath.replace(/\.xml$/, "")
   for (const lang of langs) {
     const srcHtmlPath = join(nkdkHelpDir, `${lang}.html`)
     const dstHtmlPath = join(xmlDir, helpHtmlDir, `${lang}.html`)
@@ -49,3 +53,10 @@ export const syncHelpToXML = async (params: {
 }
 
 registerTypeRule("Help", "syncExternalToXML", syncHelpToXML)
+
+const stripObjectPrefix = (params: { xmlDir: string; filePath: string; objectName?: string }): string => {
+  const { xmlDir, filePath, objectName } = params
+  if (!objectName || basename(xmlDir) !== objectName) return filePath
+  const prefix = `${objectName}/`
+  return filePath.startsWith(prefix) ? filePath.slice(prefix.length) : filePath
+}

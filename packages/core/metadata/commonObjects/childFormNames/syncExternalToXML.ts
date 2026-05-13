@@ -3,6 +3,7 @@ import { dirname, join } from "path"
 import { syncFormToXML } from "~/metadata/forms/clientApplicationForm/syncToXML"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
+import { xmlExport } from "~/xml/export/exporter"
 import type { ChildFormNamesPropertyRule } from "./types"
 
 /**
@@ -39,6 +40,7 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
       xmlManifest,
     })
     await copyFormModuleToXML({ nkdkDir, formOutputDir, formName, xmlManifest })
+    await copyFormHelpToXML({ nkdkDir, formOutputDir, formName, xmlManifest })
   }
 }
 
@@ -56,6 +58,42 @@ async function copyFormModuleToXML(params: {
   await fs.promises.mkdir(dirname(dstPath), { recursive: true })
   await fs.promises.copyFile(srcPath, dstPath)
   xmlManifest?.addFile(dstPath)
+}
+
+async function copyFormHelpToXML(params: {
+  nkdkDir: string
+  formOutputDir: string
+  formName: string
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+}): Promise<void> {
+  const { nkdkDir, formOutputDir, formName, xmlManifest } = params
+  const srcDir = join(nkdkDir, "Формы", formName, "Справка")
+  if (!fs.existsSync(srcDir)) return
+
+  const htmlFiles = (await fs.promises.readdir(srcDir)).filter((file) => file.endsWith(".html"))
+  if (htmlFiles.length === 0) return
+
+  const helpXmlPath = join(formOutputDir, "Forms", formName, "Ext", "Help.xml")
+  await fs.promises.mkdir(dirname(helpXmlPath), { recursive: true })
+  const langs = htmlFiles.map((file) => file.replace(/\.html$/, ""))
+  const helpXmlObj = {
+    Help: {
+      _xmlns: "http://v8.1c.ru/8.3/xcf/extrnprops",
+      "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
+      "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+      _version: "2.20",
+      Page: langs.length === 1 ? langs[0] : langs,
+    },
+  }
+  await fs.promises.writeFile(helpXmlPath, xmlExport(helpXmlObj), "utf-8")
+  xmlManifest?.addFile(helpXmlPath)
+
+  for (const file of htmlFiles) {
+    const dstPath = join(formOutputDir, "Forms", formName, "Ext", "Help", file)
+    await fs.promises.mkdir(dirname(dstPath), { recursive: true })
+    await fs.promises.copyFile(join(srcDir, file), dstPath)
+    xmlManifest?.addFile(dstPath)
+  }
 }
 
 registerTypeRule("ChildFormNames", "syncExternalToXML", syncChildFormNamesToXML)

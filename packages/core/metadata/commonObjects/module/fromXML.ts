@@ -16,19 +16,22 @@ export const syncModuleFromXML = async (params: {
   rule: PropertyRule
   xmlDir: string
   nkdkDir: string
+  name?: string
   itemName?: string
 }): Promise<void> => {
   const { xmlDir, nkdkDir, itemName } = params
   const rule = params.rule as ModulePropertyRule | TemplatePropertyRule
 
   const { xmlPath: rawXmlPath, nkdkPath: rawNkdkPath } = rule
-  const needsItemName = typeof rawXmlPath === "function" || typeof rawNkdkPath === "function"
-  if (needsItemName && !itemName) return
+  const name = itemName ?? params.name
+  const needsName = typeof rawXmlPath === "function" || typeof rawNkdkPath === "function"
+  if (needsName && !name) return
 
-  const xmlPath = typeof rawXmlPath === "function" ? rawXmlPath({ name: itemName! }) : rawXmlPath
-  const nkdkPath = typeof rawNkdkPath === "function" ? rawNkdkPath({ name: itemName! }) : rawNkdkPath
+  const pathParams = { name: name!, parentName: params.name }
+  const xmlPath = typeof rawXmlPath === "function" ? rawXmlPath(pathParams) : rawXmlPath
+  const nkdkPath = typeof rawNkdkPath === "function" ? rawNkdkPath(pathParams) : rawNkdkPath
 
-  const srcPath = join(xmlDir, xmlPath)
+  const srcPath = resolveSourcePath({ xmlDir, xmlPath, objectName: params.name })
   if (!fs.existsSync(srcPath)) return
   const dstPath = join(nkdkDir, nkdkPath)
   await fs.promises.mkdir(dirname(dstPath), { recursive: true })
@@ -37,3 +40,12 @@ export const syncModuleFromXML = async (params: {
 
 registerTypeRule("Module", "syncExternalFromXML", syncModuleFromXML)
 registerTypeRule("Template", "syncExternalFromXML", syncModuleFromXML)
+
+const resolveSourcePath = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
+  const directPath = join(params.xmlDir, params.xmlPath)
+  if (fs.existsSync(directPath)) return directPath
+  if (!params.objectName) return directPath
+
+  const objectPath = join(params.xmlDir, params.objectName, params.xmlPath)
+  return fs.existsSync(objectPath) ? objectPath : directPath
+}

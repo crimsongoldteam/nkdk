@@ -363,6 +363,13 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
     },
+    extendedPresentation: {
+      yaml: "РасширенноеПредставление",
+      type: "I8nText",
+      tag: FormRulesTags.Metadata,
+      xml: "ExtendedPresentation",
+      xmlParents: ["Form", "Properties"],
+    },
     // #endregion
 
     // #region Catalog

@@ -12,6 +12,7 @@ type Params = {
   importMetaUrl: string
   fixturesSubdir?: string
   expectedFiles: string[]
+  externalObjectDir?: boolean
 }
 
 export const testSyncAppliedObjectToXML = async (
@@ -28,6 +29,8 @@ export const testSyncAppliedObjectToXML = async (
   const inputDir = join(fixturesDir, "nkdk")
   const referenceDir = join(fixturesDir, "xml")
   const outputDir = fs.mkdtempSync(join(os.tmpdir(), "applied-sync-"))
+  const externalOutputDir = params.externalObjectDir ? join(outputDir, name) : undefined
+  const externalReferenceDir = params.externalObjectDir ? join(referenceDir, name) : undefined
 
   await syncAppliedObjectToXML({
     rule,
@@ -36,6 +39,8 @@ export const testSyncAppliedObjectToXML = async (
     name,
     outputDir,
     referenceDir,
+    externalOutputDir,
+    externalReferenceDir,
   })
 
   const comparisons = expectedFiles.map((path) => ({

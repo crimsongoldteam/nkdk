@@ -36,6 +36,8 @@ export const syncAppliedObjectToXML = async (params: {
   const referenceDir = params.referenceDir ?? outputDir
   const externalOutputDir = params.externalOutputDir ?? outputDir
   const externalReferenceDir = params.externalReferenceDir ?? referenceDir
+  const hasExplicitExternalOutputDir = params.externalOutputDir !== undefined
+  const hasExplicitExternalReferenceDir = params.externalReferenceDir !== undefined
 
   const yamlPath = join(inputDir, name, PROPERTIES_YAML)
   const yamlContent = await fs.promises.readFile(yamlPath, "utf-8")
@@ -160,7 +162,11 @@ export const syncAppliedObjectToXML = async (params: {
     if (modelValue === undefined) continue
 
     let referenceValue: unknown = undefined
-    const referenceExtPath = join(externalReferenceDir, propRule.filePath)
+    const rootReferenceExtPath = join(externalReferenceDir, propRule.filePath)
+    const objectReferenceExtPath = hasExplicitExternalReferenceDir
+      ? rootReferenceExtPath
+      : join(externalReferenceDir, referenceName, propRule.filePath)
+    const referenceExtPath = fs.existsSync(rootReferenceExtPath) ? rootReferenceExtPath : objectReferenceExtPath
     if (fs.existsSync(referenceExtPath)) {
       const refContent = fs.readFileSync(referenceExtPath, "utf-8")
       const refParsed = importContentFromXML<Record<string, unknown>>(refContent)
@@ -180,7 +186,9 @@ export const syncAppliedObjectToXML = async (params: {
     }) as Record<string, unknown> | undefined
     if (!xmlFileObj) continue
 
-    const extOutputPath = join(externalOutputDir, propRule.filePath)
+    const extOutputPath = fs.existsSync(rootReferenceExtPath) || hasExplicitExternalOutputDir
+      ? join(externalOutputDir, propRule.filePath)
+      : join(externalOutputDir, name, propRule.filePath)
     await fs.promises.mkdir(dirname(extOutputPath), { recursive: true })
     await fs.promises.writeFile(extOutputPath, xmlExport(xmlFileObj), "utf-8")
     params.xmlManifest?.addFile(extOutputPath)

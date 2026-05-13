@@ -95,15 +95,32 @@ const importChildItemProperties = <To extends ChildItem>(
   allElements: FormElementsYAML
 ): To => {
   const propertiesYAML = allElements[item.name] as ToYAML<To["itemType"]>
+  const source = dropSyntheticTableLabelDataPath({ item, propertiesYAML })
 
   const result = importElementFromPartialYAML({
     context: context,
-    itemType: item.itemType,
+    itemType: source.itemType,
     yaml: propertiesYAML,
-    source: item,
+    source,
   })!
 
   return result as To
+}
+
+const dropSyntheticTableLabelDataPath = <To extends ChildItem>(params: {
+  item: To
+  propertiesYAML: ToYAML<To["itemType"]> | undefined
+}): To => {
+  const { item, propertiesYAML } = params
+
+  if (item.itemType !== "TableLabelField") return item
+  if (!("dataPath" in item)) return item
+  if (item.dataPath !== item.name) return item
+  if (propertiesYAML && typeof propertiesYAML === "object" && "ПутьКДанным" in propertiesYAML) return item
+
+  const result = { ...item }
+  delete (result as { dataPath?: string }).dataPath
+  return result
 }
 
 registerTypeRule("GroupChildItems", "importFromYAML", importChildItemsFromYAML)

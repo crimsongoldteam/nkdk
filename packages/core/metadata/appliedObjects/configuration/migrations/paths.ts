@@ -11,6 +11,9 @@ export interface ParsedMigrationPath {
 const TOP_LEVEL_PREFIXES = new Set([
   "Справочник",
   "Документ",
+  "РегистрСведений",
+  "РегистрНакопления",
+  "ПланОбмена",
   "Нумератор",
   "Последовательность",
   "ОпределяемыйТип",
@@ -24,7 +27,8 @@ const TOP_LEVEL_PREFIXES = new Set([
   "Бот",
   "WSСсылка",
 ])
-const OBJECT_WITH_CHILDREN_PREFIXES = new Set(["Справочник", "Документ"])
+const OBJECT_WITH_CHILDREN_PREFIXES = new Set(["Справочник", "Документ", "ПланОбмена"])
+const REGISTER_PREFIXES = new Set(["РегистрСведений", "РегистрНакопления"])
 
 export function parseMigrationPath(path: string): ParsedMigrationPath {
   const segments = path.split(".")
@@ -82,6 +86,36 @@ export function parseMigrationPath(path: string): ParsedMigrationPath {
       localName: segments[3]!,
       ownerPath: `${segments[0]}.${segments[1]}`,
       levelPath: `${segments[0]}.${segments[1]}.Измерение`,
+    }
+  }
+
+  if (segments.length === 4 && REGISTER_PREFIXES.has(segments[0]!) && segments[2] === "Реквизит") {
+    return {
+      kind: "attribute",
+      segments,
+      localName: segments[3]!,
+      ownerPath: `${segments[0]}.${segments[1]}`,
+      levelPath: `${segments[0]}.${segments[1]}.Реквизит`,
+    }
+  }
+
+  if (segments.length === 4 && REGISTER_PREFIXES.has(segments[0]!) && segments[2] === "Измерение") {
+    return {
+      kind: "dimension",
+      segments,
+      localName: segments[3]!,
+      ownerPath: `${segments[0]}.${segments[1]}`,
+      levelPath: `${segments[0]}.${segments[1]}.Измерение`,
+    }
+  }
+
+  if (segments.length === 4 && REGISTER_PREFIXES.has(segments[0]!) && segments[2] === "Ресурс") {
+    return {
+      kind: "attribute",
+      segments,
+      localName: segments[3]!,
+      ownerPath: `${segments[0]}.${segments[1]}`,
+      levelPath: `${segments[0]}.${segments[1]}.Ресурс`,
     }
   }
 

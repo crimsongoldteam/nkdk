@@ -46,6 +46,28 @@ describe("collectStructuralState", () => {
     )
   })
 
+  it("collects register resources, dimensions and attributes from YAML", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
+    fs.mkdirSync(join(dir, "РегистрНакопления", "Остатки"), { recursive: true })
+    fs.writeFileSync(join(dir, "РегистрНакопления", "Остатки", "Свойства.yaml"), [
+      "Ресурсы:",
+      "  Количество: Число(10, 0)",
+      "Измерения:",
+      "  Склад: Строка(10)",
+      "Реквизиты:",
+      "  Комментарий: Строка(10)",
+      "",
+    ].join("\n"))
+
+    const state = await collectStructuralStateFromYAML({ yamlDir: dir, context: mockContextToXML() })
+    expect([...state.nodes.keys()].sort()).toEqual([
+      "РегистрНакопления.Остатки",
+      "РегистрНакопления.Остатки.Измерение.Склад",
+      "РегистрНакопления.Остатки.Реквизит.Комментарий",
+      "РегистрНакопления.Остатки.Ресурс.Количество",
+    ])
+  })
+
   it("collects catalog object, attributes and tabular section attributes from XML", async () => {
     const dir = mkdtempSync(join(tmpdir(), "nkdk-xml-"))
     fs.mkdirSync(join(dir, "Catalogs"), { recursive: true })

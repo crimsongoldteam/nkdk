@@ -34,7 +34,9 @@ export const convertAppliedObjectFromXML = async (params: {
   for (const [key, propRule] of Object.entries(rule.properties)) {
     if (propRule.filePath === undefined) continue
     if (!getTypeRule(propRule.type, "importFromXML")) continue
-    const extFilePath = join(inputDir, propRule.filePath)
+    const rootExtFilePath = join(inputDir, propRule.filePath)
+    const objectExtFilePath = join(inputDir, name, propRule.filePath)
+    const extFilePath = fs.existsSync(rootExtFilePath) ? rootExtFilePath : objectExtFilePath
     if (!fs.existsSync(extFilePath)) continue
     const extContent = await fs.promises.readFile(extFilePath, "utf-8")
     const extParsed = importContentFromXML<Record<string, unknown>>(extContent)

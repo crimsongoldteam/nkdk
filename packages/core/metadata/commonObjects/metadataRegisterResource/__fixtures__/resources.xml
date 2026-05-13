@@ -1,0 +1,70 @@
+<Resource uuid="11111111-1111-4111-8111-111111111111">
+	<Properties>
+		<Name>РесурсВсеСвойства</Name>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Ресурс все свойства</v8:content>
+			</v8:item>
+		</Synonym>
+		<Comment>Комментарий</Comment>
+		<Type>
+			<v8:Type>v8:ValueStorage</v8:Type>
+		</Type>
+		<PasswordMode>true</PasswordMode>
+		<Format>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Формат отображения</v8:content>
+			</v8:item>
+		</Format>
+		<EditFormat>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Формат редактирования</v8:content>
+			</v8:item>
+		</EditFormat>
+		<ToolTip>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка</v8:content>
+			</v8:item>
+		</ToolTip>
+		<MarkNegatives>true</MarkNegatives>
+		<Mask>999</Mask>
+		<MultiLine>true</MultiLine>
+		<ExtendedEdit>true</ExtendedEdit>
+		<MinValue xsi:type="xs:string">10</MinValue>
+		<MaxValue xsi:type="xs:string">100</MaxValue>
+		<FillFromFillingValue>true</FillFromFillingValue>
+		<FillValue xsi:type="xs:string">Значение заполнения</FillValue>
+		<FillChecking>ShowError</FillChecking>
+		<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+		<ChoiceParameterLinks>
+			<xr:Link>
+				<xr:Name>Отбор.Владелец</xr:Name>
+				<xr:DataPath xsi:type="xs:string">Catalog.Справочник.Attribute.Реквизит</xr:DataPath>
+				<xr:ValueChange>Clear</xr:ValueChange>
+			</xr:Link>
+		</ChoiceParameterLinks>
+		<ChoiceParameters>
+			<app:item name="Отбор.Параметр">
+				<app:value xsi:type="xs:string">Значение</app:value>
+			</app:item>
+		</ChoiceParameters>
+		<QuickChoice>Auto</QuickChoice>
+		<CreateOnInput>DontUse</CreateOnInput>
+		<ChoiceForm>Catalog.Справочник.Form.ФормаВыбора</ChoiceForm>
+		<LinkByType>
+			<xr:DataPath>Catalog.Справочник.Attribute.Реквизит</xr:DataPath>
+			<xr:LinkItem>1</xr:LinkItem>
+		</LinkByType>
+		<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
+		<Indexing>DontIndex</Indexing>
+		<FullTextSearch>DontUse</FullTextSearch>
+		<DataHistory>Use</DataHistory>
+		<BinaryDataStorageLocationUse>DontUse</BinaryDataStorageLocationUse>
+		<BinaryDataStorageLocationUseField>InformationRegister.Регистр.Attribute.ИспользоватьХранилищеДвоичныхДанных</BinaryDataStorageLocationUseField>
+		<ObjectBelonging>Native</ObjectBelonging>
+	</Properties>
+</Resource>

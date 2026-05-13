@@ -3,6 +3,7 @@ import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { ToMetadata } from ".."
 import { exportPropertiesToXML } from "../property/toXML"
+import { XML_SOURCE_KEYS } from "../property/helpers"
 import { getElementRule } from "./ruleFactory"
 import { ElementRule, ElementXMLWithoutId } from "./types"
 
@@ -74,8 +75,37 @@ function exportToXML<Rule extends ElementRule>(params: {
   })
 
   Object.assign(result, properties)
+  removeSyntheticEmptyTitle(result, referenceElement)
 
   return result
+}
+
+function removeSyntheticEmptyTitle(result: ElementXMLWithoutId, referenceElement: unknown): void {
+  if (referenceElement !== undefined && hasXMLSourceKey(referenceElement, "title")) return
+  const title = (result as { Title?: unknown }).Title
+  if (!isEmptyI8nTextXML(title)) return
+  delete (result as { Title?: unknown }).Title
+}
+
+function hasXMLSourceKey(value: unknown, key: string): boolean {
+  if (value === null || value === undefined || typeof value !== "object") return false
+  const sourceKeys = (value as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
+  return sourceKeys !== null && sourceKeys !== undefined && typeof sourceKeys === "object" && Object.prototype.hasOwnProperty.call(sourceKeys, key)
+}
+
+function isEmptyI8nTextXML(value: unknown): boolean {
+  if (value === undefined || value === null) return false
+  if (typeof value !== "object") return false
+  if ((value as { _formatted?: unknown })._formatted === true) return false
+  const item = (value as { "v8:item"?: unknown })["v8:item"]
+  if (Array.isArray(item)) return item.every(isEmptyI8nTextItem)
+  return isEmptyI8nTextItem(item)
+}
+
+function isEmptyI8nTextItem(value: unknown): boolean {
+  if (value === undefined || value === null || typeof value !== "object") return false
+  const content = (value as { "v8:content"?: unknown })["v8:content"]
+  return content === undefined || content === ""
 }
 
 // Moved to ../events/mapEventsToXML.ts

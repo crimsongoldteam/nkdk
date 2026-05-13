@@ -25,7 +25,19 @@ const importChoiceParameterFromXML = (
 ): ChoiceParameter => {
   const value = importMetadataValueFromXML({
     context,
-    rule: { type: "MetadataValue", valueType: ["string", "decimal", "boolean", "ref", "objectRef", "fixedArray", "formChoiceListDesTimeValue"] },
+    rule: {
+      type: "MetadataValue",
+      valueType: [
+        "string",
+        "decimal",
+        "dateTime",
+        "boolean",
+        "ref",
+        "objectRef",
+        "fixedArray",
+        "formChoiceListDesTimeValue",
+      ],
+    },
     value: xml["app:value"],
   })
 
