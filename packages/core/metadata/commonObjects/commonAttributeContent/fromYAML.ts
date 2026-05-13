@@ -1,24 +1,31 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/fromYAML"
+import * as SE from "~/metadata/systemEnumerations/types"
 import { importCommonAttributeContentPathFromYAML } from "./metadataPath"
 import { CommonAttributeContent, CommonAttributeContentYAML } from "./types"
 
+const commonAttributeUseRule: SE.SystemEnumerationPropertyRule = {
+  type: "SystemEnumeration",
+  typeSE: "CommonAttributeUse",
+}
+
 export const importCommonAttributeContentFromYAML = (
-  context: unknown,
-  _rule: unknown,
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   yaml: CommonAttributeContentYAML | undefined
 ): CommonAttributeContent | undefined => {
   if (!yaml) return undefined
 
   return yaml.map((item) => ({
-    metadata: importCommonAttributeContentPathFromYAML(context as never, item.Объект),
-    use: importSystemEnumerationFromYAML({
-      context: context as never,
-      rule: { type: "SystemEnumeration", typeSE: "CommonAttributeUse" } as never,
+    metadata: importCommonAttributeContentPathFromYAML(context, item.Объект),
+    use: importSystemEnumerationFromYAML<SE.CommonAttributeUse>({
+      context,
+      rule: commonAttributeUseRule,
       value: item.Использование,
-    }) as never,
-    conditionalSeparation: importCommonAttributeContentPathFromYAML(context as never, item.УсловноеРазделение ?? ""),
+    })!,
+    conditionalSeparation: importCommonAttributeContentPathFromYAML(context, item.УсловноеРазделение ?? ""),
   }))
 }
 
-registerTypeRule("CommonAttributeContent", "importFromYAML", importCommonAttributeContentFromYAML as never)
+registerTypeRule("CommonAttributeContent", "importFromYAML", importCommonAttributeContentFromYAML)

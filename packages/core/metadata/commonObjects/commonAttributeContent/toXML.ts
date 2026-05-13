@@ -1,12 +1,13 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { CommonAttributeContent, CommonAttributeContentXML } from "./types"
 
 export const exportCommonAttributeContentToXML = (
-  _context: unknown,
-  _rule: unknown,
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   value: CommonAttributeContent | undefined
 ): CommonAttributeContentXML | undefined => {
-  if (!value) return undefined
+  if (!value || value.length === 0) return undefined
 
   return {
     "xr:Item": value.map((item) => ({
@@ -17,4 +18,4 @@ export const exportCommonAttributeContentToXML = (
   }
 }
 
-registerTypeRule("CommonAttributeContent", "exportToXML", exportCommonAttributeContentToXML as never)
+registerTypeRule("CommonAttributeContent", "exportToXML", exportCommonAttributeContentToXML)

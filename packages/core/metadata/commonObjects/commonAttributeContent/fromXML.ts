@@ -1,4 +1,5 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { CommonAttributeContent, CommonAttributeContentXML } from "./types"
 
 const toArray = <T>(value: T | T[] | undefined): T[] => {
@@ -7,17 +8,20 @@ const toArray = <T>(value: T | T[] | undefined): T[] => {
 }
 
 export const importCommonAttributeContentFromXML = (
-  _context: unknown,
-  _rule: unknown,
+  _context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
   xml: CommonAttributeContentXML | undefined
 ): CommonAttributeContent | undefined => {
   if (!xml) return undefined
 
-  return toArray(xml["xr:Item"]).map((item) => ({
+  const items = toArray(xml["xr:Item"])
+  if (items.length === 0) return undefined
+
+  return items.map((item) => ({
     metadata: item["xr:Metadata"],
     use: item["xr:Use"],
     conditionalSeparation: item["xr:ConditionalSeparation"] ?? "",
   }))
 }
 
-registerTypeRule("CommonAttributeContent", "importFromXML", importCommonAttributeContentFromXML as never)
+registerTypeRule("CommonAttributeContent", "importFromXML", importCommonAttributeContentFromXML)

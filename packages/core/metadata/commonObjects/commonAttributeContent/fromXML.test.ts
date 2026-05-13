@@ -49,4 +49,10 @@ describe("importCommonAttributeContentFromXML", () => {
 
     expect(result).toBeUndefined()
   })
+
+  it("returns undefined when XML has no items", () => {
+    const result = importCommonAttributeContentFromXML(mockContextFromXML(), mockRule, {})
+
+    expect(result).toBeUndefined()
+  })
 })

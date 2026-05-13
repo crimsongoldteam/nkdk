@@ -41,4 +41,10 @@ describe("exportCommonAttributeContentToXML", () => {
 
     expect(result).toBeUndefined()
   })
+
+  it("returns undefined when model is empty array", () => {
+    const result = exportCommonAttributeContentToXML(mockContextToXML(), mockRule, [])
+
+    expect(result).toBeUndefined()
+  })
 })
