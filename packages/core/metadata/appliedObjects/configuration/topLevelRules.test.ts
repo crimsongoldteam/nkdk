@@ -16,6 +16,7 @@ describe("TopLevelMetadataItemRules", () => {
         { itemType: "MetadataFilterCriterion", xmlDir: "FilterCriteria" },
         { itemType: "MetadataFunctionalOptionsParameter", xmlDir: "FunctionalOptionsParameters" },
         { itemType: "MetadataStyleItem", xmlDir: "StyleItems" },
+        { itemType: "MetadataCommonAttribute", xmlDir: "CommonAttributes" },
       ])
     )
   })

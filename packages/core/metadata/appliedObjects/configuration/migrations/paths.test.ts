@@ -49,6 +49,12 @@ describe("migration paths", () => {
       ownerPath: "ЭлементСтиля",
       levelPath: "ЭлементСтиля",
     })
+    expect(parseMigrationPath("ОбщийРеквизит.Организация")).toMatchObject({
+      kind: "object",
+      localName: "Организация",
+      ownerPath: "ОбщийРеквизит",
+      levelPath: "ОбщийРеквизит",
+    })
   })
 
   it("parses object attribute paths", () => {
@@ -129,6 +135,9 @@ describe("migration paths", () => {
       "Неподдерживаемый путь миграции",
     )
     expect(() => parseMigrationPath("КритерийОтбора.ПоСкладу.Форма.ФормаСписка")).toThrow(
+      "Неподдерживаемый путь миграции",
+    )
+    expect(() => parseMigrationPath("ОбщийРеквизит.Организация.Реквизит.Код")).toThrow(
       "Неподдерживаемый путь миграции",
     )
   })

@@ -4,6 +4,7 @@ import "./metadataCatalog/fromYAML"
 import "./metadataCatalog/toYAML"
 
 import "./metadataConstant"
+import "./metadataCommonAttribute"
 import "./metadataDefinedType"
 import "./metadataEventSubscription"
 import "./metadataFilterCriterion"

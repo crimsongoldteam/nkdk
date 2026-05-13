@@ -95,6 +95,10 @@ import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dyn
 import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
+import {
+  MetadataCommonAttribute,
+  MetadataCommonAttributeYAML,
+} from "../../appliedObjects/metadataCommonAttribute/types"
 import { MetadataConstant, MetadataConstantYAML } from "../../appliedObjects/metadataConstant/types"
 import { MetadataDefinedType, MetadataDefinedTypeYAML } from "../../appliedObjects/metadataDefinedType/types"
 import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
@@ -729,6 +733,11 @@ export type MetadataItemTypeRegistry = {
   MetadataConstant: {
     metadata: MetadataConstant
     yaml: MetadataConstantYAML
+  }
+
+  MetadataCommonAttribute: {
+    metadata: MetadataCommonAttribute
+    yaml: MetadataCommonAttributeYAML
   }
 
   MetadataDefinedType: {

@@ -19,6 +19,7 @@ const TOP_LEVEL_PREFIXES = new Set([
   "КритерийОтбора",
   "ПараметрФункциональныхОпций",
   "ЭлементСтиля",
+  "ОбщийРеквизит",
 ])
 const OBJECT_WITH_CHILDREN_PREFIXES = new Set(["Справочник", "Документ"])
 

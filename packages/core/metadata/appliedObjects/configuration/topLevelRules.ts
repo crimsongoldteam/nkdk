@@ -1,5 +1,6 @@
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { MetadataCatalogRules } from "../metadataCatalog/rules"
+import { MetadataCommonAttributeRules } from "../metadataCommonAttribute/rules"
 import { MetadataDefinedTypeRules } from "../metadataDefinedType/rules"
 import { MetadataDocumentRules } from "../metadataDocument/rules"
 import { MetadataDocumentNumeratorRules } from "../metadataDocumentNumerator/rules"
@@ -26,4 +27,5 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataFilterCriterionRules,
   MetadataFunctionalOptionsParameterRules,
   MetadataStyleItemRules,
+  MetadataCommonAttributeRules,
 ]
