@@ -75,6 +75,9 @@ export interface BasePropertyRule {
   /** Значение по умолчанию в XML (будет выгружено как при пустом значении)*/
   defaultValueXML?: any
 
+  /** Сохранять явно присутствующее XML-значение, даже если оно равно defaultValueXML. */
+  preserveExplicitDefaultXML?: true
+
   /**
    * Сырая XML-форма пустого значения — подставляется напрямую, без прогона через typeExportFn и wrapWithNamespace.
    * Триггер срабатывания идентичен defaultValueXML.
@@ -232,28 +235,31 @@ export interface InternalInfoPropertyRule extends BasePropertyRule {
   items: Array<{ name: string; category: string }>
   forReferenceOnly: true
   getName?: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => string
+  thisNode?: boolean
 }
 
 export interface ModulePropertyRule extends BasePropertyRule {
   type: "Module"
   /** Путь к файлу на nkdk-стороне (относительно корня объекта), строка или функция от { name } */
-  nkdkPath: string | ((params: { name: string }) => string)
+  nkdkPath: string | ((params: { name: string; parentName?: string }) => string)
   /** Путь к файлу на xml-стороне (относительно директории объекта), строка или функция от { name } */
-  xmlPath: string | ((params: { name: string }) => string)
+  xmlPath: string | ((params: { name: string; parentName?: string }) => string)
 }
 
 export interface TemplatePropertyRule extends BasePropertyRule {
   type: "Template"
   /** Путь к файлу на nkdk-стороне (относительно корня объекта), строка или функция от { name } */
-  nkdkPath: string | ((params: { name: string }) => string)
+  nkdkPath: string | ((params: { name: string; parentName?: string }) => string)
   /** Путь к файлу на xml-стороне (относительно директории объекта), строка или функция от { name } */
-  xmlPath: string | ((params: { name: string }) => string)
+  xmlPath: string | ((params: { name: string; parentName?: string }) => string)
 }
 
 export interface HelpPropertyRule extends BasePropertyRule {
   type: "Help"
   /** Путь к Ext/Help.xml относительно директории объекта */
   filePath: string
+  /** Путь к Help.xml на XML-стороне, если он отличается от filePath. */
+  xmlPath?: string | ((params: { name: string }) => string)
   /** Папка с HTML-файлами на nkdk-стороне (например "Справка") */
   nkdkDir: string
 }

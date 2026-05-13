@@ -1,0 +1,38 @@
+<URLTemplate uuid="33333333-3333-4333-8333-333333333333">
+	<Properties>
+		<Name>Шаблон</Name>
+		<Synonym/>
+		<Comment/>
+		<Template>/goods/{id}</Template>
+	</Properties>
+	<ChildObjects>
+		<Method uuid="22222222-2222-4222-8222-222222222222">
+			<Properties>
+				<Name>МетодHEAD</Name>
+				<Synonym>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Метод HEAD</v8:content>
+					</v8:item>
+				</Synonym>
+				<Comment>Комментарий метода</Comment>
+				<HTTPMethod>HEAD</HTTPMethod>
+				<Handler>МетодHEAD</Handler>
+			</Properties>
+		</Method>
+	</ChildObjects>
+</URLTemplate>
+<URLTemplate uuid="44444444-4444-4444-8444-444444444444">
+	<Properties>
+		<Name>ПустойШаблон</Name>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Пустой шаблон</v8:content>
+			</v8:item>
+		</Synonym>
+		<Comment/>
+		<Template>/*</Template>
+	</Properties>
+	<ChildObjects/>
+</URLTemplate>

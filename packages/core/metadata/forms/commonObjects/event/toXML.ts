@@ -4,6 +4,10 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { EventsXML, EventXML } from "./types"
 
+const isEventsPropertyRule = (rule: PropertyRule): rule is PropertyRule & { items: Record<string, string> } => {
+  return rule.type === "Events"
+}
+
 export const exportEventsToXML = (
   _context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule,
@@ -15,7 +19,8 @@ export const exportEventsToXML = (
   const dataEvents = value as Record<string, string>
   const items: EventXML[] = []
 
-  const referenceEvents = _referenceValue && typeof _referenceValue === "object" ? (_referenceValue as Record<string, unknown>) : undefined
+  const referenceEvents = _referenceValue && typeof _referenceValue === "object" ? (_referenceValue as Record<string, string>) : undefined
+  const knownEventKeys = isEventsPropertyRule(_rule) ? new Set(Object.keys(_rule.items)) : new Set<string>()
 
   const orderedKeys: string[] = []
 
@@ -23,6 +28,8 @@ export const exportEventsToXML = (
     // сначала ключи в порядке, заданном референсным значением
     for (const key of Object.keys(referenceEvents)) {
       if (key in dataEvents) {
+        orderedKeys.push(key)
+      } else if (!knownEventKeys.has(key)) {
         orderedKeys.push(key)
       }
     }
@@ -39,9 +46,10 @@ export const exportEventsToXML = (
   }
 
   for (const key of orderedKeys) {
-    const eventValue = dataEvents[key]
+    const eventValue = dataEvents[key] ?? referenceEvents?.[key]
     if (eventValue === undefined) continue
-    items.push({ _name: capitalize(key), "#text": eventValue })
+    const xmlName = referenceEvents !== undefined && key in referenceEvents && !knownEventKeys.has(key) ? key : capitalize(key)
+    items.push({ _name: xmlName, "#text": eventValue })
   }
 
   if (items.length === 0) return undefined

@@ -83,6 +83,12 @@ function addModel(nodes: Map<string, StructuralNode>, rule: MetadataItemRule, na
     const path = `${objectPath}.Измерение.${dimName}`
     nodes.set(path, { path, kind: "dimension", name: dimName, referencePath: path })
   }
+
+  for (const resource of asItems(model["resources"])) {
+    const resourceName = requireNodeName(resource, objectPath, "Ресурс")
+    const path = `${objectPath}.Ресурс.${resourceName}`
+    nodes.set(path, { path, kind: "attribute", name: resourceName, referencePath: path })
+  }
 }
 
 function requireNodeName(item: Record<string, unknown>, ownerPath: string, nodeType: string): string {

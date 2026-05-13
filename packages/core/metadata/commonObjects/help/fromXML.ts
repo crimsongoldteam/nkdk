@@ -11,11 +11,15 @@ export const syncHelpFromXML = async (params: {
   rule: PropertyRule
   xmlDir: string
   nkdkDir: string
+  name?: string
 }): Promise<void> => {
   const { xmlDir, nkdkDir } = params
   const rule = params.rule as HelpPropertyRule
 
-  const helpXmlPath = join(xmlDir, rule.filePath)
+  const rawXmlPath = rule.xmlPath ?? rule.filePath
+  const filePath = typeof rawXmlPath === "function" ? rawXmlPath({ name: params.name! }) : rawXmlPath
+  const resolvedFilePath = resolveHelpFilePath({ xmlDir, filePath, objectName: params.name })
+  const helpXmlPath = join(xmlDir, resolvedFilePath)
   if (!fs.existsSync(helpXmlPath)) return
 
   const helpXmlContent = await fs.promises.readFile(helpXmlPath, "utf-8")
@@ -23,7 +27,7 @@ export const syncHelpFromXML = async (params: {
   const pages = helpParsed.Help?.Page
   const langs: string[] = pages === undefined ? [] : Array.isArray(pages) ? pages : [pages]
 
-  const helpHtmlDir = rule.filePath.replace(/\.xml$/, "")
+  const helpHtmlDir = resolvedFilePath.replace(/\.xml$/, "")
   for (const lang of langs) {
     const srcHtmlPath = join(xmlDir, helpHtmlDir, `${lang}.html`)
     if (!fs.existsSync(srcHtmlPath)) continue
@@ -34,3 +38,11 @@ export const syncHelpFromXML = async (params: {
 }
 
 registerTypeRule("Help", "syncExternalFromXML", syncHelpFromXML)
+
+const resolveHelpFilePath = (params: { xmlDir: string; filePath: string; objectName?: string }): string => {
+  const directPath = join(params.xmlDir, params.filePath)
+  if (fs.existsSync(directPath) || !params.objectName) return params.filePath
+
+  const objectFilePath = join(params.objectName, params.filePath)
+  return fs.existsSync(join(params.xmlDir, objectFilePath)) ? objectFilePath : params.filePath
+}

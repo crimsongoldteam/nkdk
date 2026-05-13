@@ -58,3 +58,13 @@ export type MetadataDocumentTabularSection = MetadataTabularSection
 export type MetadataDocumentTabularSections = MetadataTabularSections
 export type MetadataDocumentTabularSectionsXML = MetadataTabularSectionsXML
 export type MetadataDocumentTabularSectionsYAML = MetadataTabularSectionsYAML
+
+export type MetadataDataProcessorTabularSection = MetadataTabularSection
+export type MetadataDataProcessorTabularSections = MetadataTabularSections
+export type MetadataDataProcessorTabularSectionsXML = MetadataTabularSectionsXML
+export type MetadataDataProcessorTabularSectionsYAML = MetadataTabularSectionsYAML
+
+export type MetadataExchangePlanTabularSection = MetadataTabularSection
+export type MetadataExchangePlanTabularSections = MetadataTabularSections
+export type MetadataExchangePlanTabularSectionsXML = MetadataTabularSectionsXML
+export type MetadataExchangePlanTabularSectionsYAML = MetadataTabularSectionsYAML

@@ -3,7 +3,13 @@ import { MetadataBotRules } from "../metadataBot/rules"
 import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { MetadataCommonAttributeRules } from "../metadataCommonAttribute/rules"
 import { MetadataDefinedTypeRules } from "../metadataDefinedType/rules"
+import { MetadataDataProcessorRules } from "../metadataDataProcessor/rules"
+import { MetadataDocumentJournalRules } from "../metadataDocumentJournal/rules"
 import { MetadataDocumentRules } from "../metadataDocument/rules"
+import { MetadataHTTPServiceRules } from "../metadataHTTPService/rules"
+import { MetadataInformationRegisterRules } from "../metadataInformationRegister/rules"
+import { MetadataAccumulationRegisterRules } from "../metadataAccumulationRegister/rules"
+import { MetadataExchangePlanRules } from "../metadataExchangePlan/rules"
 import { MetadataDocumentNumeratorRules } from "../metadataDocumentNumerator/rules"
 import { MetadataEnumerationRules } from "../metadataEnumeration/rules"
 import { MetadataEventSubscriptionRules } from "../metadataEventSubscription/rules"
@@ -23,6 +29,12 @@ import { MetadataWSReferenceRules } from "../metadataWSReference/rules"
 export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataCatalogRules,
   MetadataDocumentRules,
+  MetadataDataProcessorRules,
+  MetadataDocumentJournalRules,
+  MetadataHTTPServiceRules,
+  MetadataInformationRegisterRules,
+  MetadataAccumulationRegisterRules,
+  MetadataExchangePlanRules,
   MetadataDocumentNumeratorRules,
   MetadataEnumerationRules,
   MetadataSequenceRules,

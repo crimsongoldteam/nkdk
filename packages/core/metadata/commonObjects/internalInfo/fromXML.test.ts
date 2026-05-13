@@ -1,0 +1,124 @@
+import { describe, expect, it } from "vitest"
+import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
+import { xmlExport } from "~/xml/export/exporter"
+import { importContentFromXML } from "~/xml/import/importer"
+import { PropertyRule } from "~/metadata/orchestration"
+import { importInternalInfoFromXML } from "./fromXML"
+import { exportInternalInfoToXML } from "./toXML"
+import { InternalInfoRootXML } from "./types"
+
+const rule: PropertyRule = {
+  type: "InternalInfo",
+  forReferenceOnly: true,
+  items: [{ name: "ExchangePlanRef", category: "Ref" }],
+}
+
+const ruleWithThisNode: PropertyRule = { ...rule, thisNode: true }
+
+const xml = `
+<InternalInfo>
+	<xr:GeneratedType name="ExchangePlanRef" category="Ref">
+		<xr:TypeId>00000000-0000-0000-0000-000000000001</xr:TypeId>
+		<xr:ValueId>00000000-0000-0000-0000-000000000003</xr:ValueId>
+	</xr:GeneratedType>
+	<xr:ThisNode>00000000-0000-0000-0000-000000000002</xr:ThisNode>
+</InternalInfo>`
+
+const importFixture = () => {
+  const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xml)
+  return importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, parsed.InternalInfo)
+}
+
+describe("importInternalInfoFromXML", () => {
+  it("imports GeneratedType and ThisNode", () => {
+    expect(importFixture()).toEqual({
+      ExchangePlanRef: {
+        typeId: "00000000-0000-0000-0000-000000000001",
+        valueId: "00000000-0000-0000-0000-000000000003",
+      },
+      thisNode: "00000000-0000-0000-0000-000000000002",
+    })
+  })
+
+  it("round-trips ThisNode with GeneratedType", () => {
+    const imported = importFixture()
+    const exported = exportInternalInfoToXML({
+      context: mockContextToXML(),
+      rule: ruleWithThisNode,
+      value: imported,
+      referenceMetadata: imported,
+      metadataItem: { itemType: "MetadataExchangePlan" as never },
+    })
+    const exportedXML = xmlExport({ InternalInfo: exported }, false)
+    const reparsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(exportedXML)
+
+    expect(importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, reparsed.InternalInfo)).toEqual(
+      imported
+    )
+  })
+
+  it("prefers reference ThisNode when exporting", () => {
+    const exported = exportInternalInfoToXML({
+      context: mockContextToXML(),
+      rule: ruleWithThisNode,
+      value: {
+        ExchangePlanRef: {
+          typeId: "00000000-0000-0000-0000-000000000001",
+          valueId: "00000000-0000-0000-0000-000000000003",
+        },
+        thisNode: "new",
+      },
+      referenceMetadata: {
+        ExchangePlanRef: {
+          typeId: "00000000-0000-0000-0000-000000000001",
+          valueId: "00000000-0000-0000-0000-000000000003",
+        },
+        thisNode: "ref",
+      },
+      metadataItem: { itemType: "MetadataExchangePlan" as never },
+    })
+
+    expect(exported["xr:ThisNode"]).toBe("ref")
+  })
+
+  it("generates ThisNode when rule opts in and no model or reference value exists", () => {
+    const exported = exportInternalInfoToXML({
+      context: mockContextToXML(),
+      rule: ruleWithThisNode,
+      value: {
+        ExchangePlanRef: {
+          typeId: "00000000-0000-0000-0000-000000000001",
+          valueId: "00000000-0000-0000-0000-000000000003",
+        },
+      },
+      referenceMetadata: undefined,
+      metadataItem: { itemType: "MetadataExchangePlan" as never },
+    })
+
+    expect(exported["xr:ThisNode"]).toBe("11111111-1111-4111-8111-111111111111")
+  })
+
+  it("does not export ThisNode without rule opt-in", () => {
+    const exported = exportInternalInfoToXML({
+      context: mockContextToXML(),
+      rule,
+      value: {
+        ExchangePlanRef: {
+          typeId: "00000000-0000-0000-0000-000000000001",
+          valueId: "00000000-0000-0000-0000-000000000003",
+        },
+        thisNode: "new",
+      },
+      referenceMetadata: {
+        ExchangePlanRef: {
+          typeId: "00000000-0000-0000-0000-000000000001",
+          valueId: "00000000-0000-0000-0000-000000000003",
+        },
+        thisNode: "ref",
+      },
+      metadataItem: { itemType: "MetadataExchangePlan" as never },
+    })
+
+    expect(exported).not.toHaveProperty("xr:ThisNode")
+  })
+})

@@ -144,7 +144,8 @@ export const exportPropertyToXML = (params: {
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
 
   if (!typeExportFn) {
-    if (value === rule.defaultValue) {
+    if (isDefaultValue(value, rule.defaultValue)) {
+      if (shouldLetSetXMLValueCreateRawParent(value, rule)) return value
       return hasRaw ? (rule as any).defaultValueXMLRaw : defaultValueXML
     }
     return wrapWithNamespace(rule, value)
@@ -158,7 +159,8 @@ export const exportPropertyToXML = (params: {
       metadataItem,
       referenceMetadata,
     })
-    if (exportedValue === rule.defaultValue) {
+    if (isDefaultValue(exportedValue, rule.defaultValue) || (exportedValue === undefined && isDefaultValue(value, rule.defaultValue))) {
+      if (shouldLetSetXMLValueCreateRawParent(value, rule)) return value
       if (hasRaw) return (rule as any).defaultValueXMLRaw
       const fallback = (typeExportFn as ExportToXMLFunctionNew)({
         context,
@@ -173,13 +175,27 @@ export const exportPropertyToXML = (params: {
   }
 
   const exportedValue = (typeExportFn as ExportToXMLFunction)(context, rule, value, referenceMetadata)
-  if (exportedValue === rule.defaultValue) {
+  if (isDefaultValue(exportedValue, rule.defaultValue) || (exportedValue === undefined && isDefaultValue(value, rule.defaultValue))) {
+    if (shouldLetSetXMLValueCreateRawParent(value, rule)) return value
     if (hasRaw) return (rule as any).defaultValueXMLRaw
     const fallback = (typeExportFn as ExportToXMLFunction)(context, rule, defaultValueXML, referenceMetadata)
     return wrapWithNamespace(rule, fallback)
   }
   return wrapWithNamespace(rule, exportedValue)
 }
+
+const isDefaultValue = (value: unknown, defaultValue: unknown): boolean => {
+  if (value === defaultValue) return true
+  return Array.isArray(value) && Array.isArray(defaultValue) && value.length === 0 && defaultValue.length === 0
+}
+
+const shouldLetSetXMLValueCreateRawParent = (value: unknown, rule: PropertyRule): boolean =>
+  Array.isArray(value) &&
+  value.length === 0 &&
+  rule.xmlParents !== undefined &&
+  "defaultValueXMLRaw" in rule &&
+  typeof (rule as any).defaultValueXMLRaw === "object" &&
+  (rule as any).defaultValueXMLRaw !== null
 
 const wrapWithNamespace = (rule: PropertyRule, value: any): any => {
   if (value === undefined || value === null) return value

@@ -2,6 +2,7 @@ import "./uuid/fromXML"
 import "./uuid/toXML"
 
 import "./additionalIndex"
+import "./accumulationRegisterAggregates/register"
 
 import "./boolean/fromXML"
 import "./boolean/toJSONSchema"
@@ -134,6 +135,17 @@ import "./childTemplateNames/syncExternalToXML"
 import "./childTemplateNames/syncExternalFromXML"
 
 import "./metadataAttribute/register"
+
+import "./metadataDocumentJournalColumn/register"
+
+import "./metadataHTTPServiceMethod/register"
+import "./metadataHTTPServiceURLTemplate/register"
+
+import "./metadataRegisterAttribute/register"
+import "./metadataRegisterDimension/register"
+import "./metadataRegisterResource/register"
+
+import "./exchangePlanContent/register"
 
 import "./metadataSequenceDimension/register"
 

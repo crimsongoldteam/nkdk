@@ -36,6 +36,7 @@ export const fullClientApplicationForm: Omit<
   | "autoTime"
   | "usePostingMode"
   | "repostOnWrite"
+  | "extendedPresentation"
 > = {
   parameters: [
     {
@@ -314,6 +315,7 @@ export const fullClientApplicationFormYAML: Omit<
   | "autoTime"
   | "usePostingMode"
   | "repostOnWrite"
+  | "РасширенноеПредставление"
 > = {
   Синоним: "Синоним формы",
   Комментарий: "Комментарий к форме",
@@ -452,6 +454,7 @@ export const fullClientApplicationFormYAML: Omit<
   | "autoTime"
   | "usePostingMode"
   | "repostOnWrite"
+  | "РасширенноеПредставление"
 >
 
 export const catalogFullClientApplicationFormYAML: ClientApplicationFormYAML = {

@@ -5,7 +5,10 @@ export type InternalInfoItem = {
   valueId: string
 }
 
-export type InternalInfo = Record<string, InternalInfoItem>
+export interface InternalInfo {
+  thisNode?: string
+  [generatedTypeName: string]: InternalInfoItem | string | undefined
+}
 
 export interface InternalInfoParam {
   name: string
@@ -22,6 +25,7 @@ export interface InternalInfoXML {
 /** Корневой XML-элемент InternalInfo при чтении (содержит массив xr:GeneratedType) */
 export interface InternalInfoRootXML {
   "xr:GeneratedType"?: InternalInfoXML | InternalInfoXML[]
+  "xr:ThisNode"?: string
 }
 
 export type InternalInfoItemsXML<T extends InternalInfoParam[]> = {
@@ -31,6 +35,7 @@ export type InternalInfoItemsXML<T extends InternalInfoParam[]> = {
     "xr:TypeId": string
     "xr:ValueId": string
   }[]
+  "xr:ThisNode"?: string
 }
 
 export type InternalInfoParams = InternalInfoParam[]

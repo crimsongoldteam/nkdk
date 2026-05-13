@@ -61,7 +61,43 @@ import {
   AdditionalIndexItemYAML,
   AdditionalIndexYAML,
 } from "~/metadata/commonObjects/additionalIndex/types"
+import {
+  AccumulationRegisterAggregate,
+  AccumulationRegisterAggregateYAML,
+  AccumulationRegisterAggregates,
+  AccumulationRegisterAggregatesYAML,
+} from "~/metadata/commonObjects/accumulationRegisterAggregates/types"
+import {
+  ExchangePlanContent,
+  ExchangePlanContentItem,
+  ExchangePlanContentItemYAML,
+  ExchangePlanContentYAML,
+} from "~/metadata/commonObjects/exchangePlanContent/types"
 import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
+import {
+  MetadataDocumentJournalColumn,
+  MetadataDocumentJournalColumnYAML,
+} from "~/metadata/commonObjects/metadataDocumentJournalColumn/types"
+import {
+  MetadataHTTPServiceMethod,
+  MetadataHTTPServiceMethodYAML,
+} from "~/metadata/commonObjects/metadataHTTPServiceMethod/types"
+import {
+  MetadataHTTPServiceURLTemplate,
+  MetadataHTTPServiceURLTemplateYAML,
+} from "~/metadata/commonObjects/metadataHTTPServiceURLTemplate/types"
+import {
+  MetadataRegisterAttribute,
+  MetadataRegisterAttributeYAML,
+} from "~/metadata/commonObjects/metadataRegisterAttribute/types"
+import {
+  MetadataRegisterDimension,
+  MetadataRegisterDimensionYAML,
+} from "~/metadata/commonObjects/metadataRegisterDimension/types"
+import {
+  MetadataRegisterResource,
+  MetadataRegisterResourceYAML,
+} from "~/metadata/commonObjects/metadataRegisterResource/types"
 import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
 import { PredefinedItem, PredefinedItemYAML } from "~/metadata/commonObjects/predefinedItem/types"
 import {
@@ -102,7 +138,31 @@ import {
 } from "../../appliedObjects/metadataCommonAttribute/types"
 import { MetadataConstant, MetadataConstantYAML } from "../../appliedObjects/metadataConstant/types"
 import { MetadataDefinedType, MetadataDefinedTypeYAML } from "../../appliedObjects/metadataDefinedType/types"
+import {
+  MetadataDataProcessor,
+  MetadataDataProcessorYAML,
+} from "../../appliedObjects/metadataDataProcessor/types"
 import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
+import {
+  MetadataDocumentJournal,
+  MetadataDocumentJournalYAML,
+} from "../../appliedObjects/metadataDocumentJournal/types"
+import {
+  MetadataHTTPService,
+  MetadataHTTPServiceYAML,
+} from "../../appliedObjects/metadataHTTPService/types"
+import {
+  MetadataInformationRegister,
+  MetadataInformationRegisterYAML,
+} from "../../appliedObjects/metadataInformationRegister/types"
+import {
+  MetadataAccumulationRegister,
+  MetadataAccumulationRegisterYAML,
+} from "../../appliedObjects/metadataAccumulationRegister/types"
+import {
+  MetadataExchangePlan,
+  MetadataExchangePlanYAML,
+} from "../../appliedObjects/metadataExchangePlan/types"
 import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorYAML,
@@ -612,6 +672,36 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataAttributeYAML
   }
 
+  MetadataDocumentJournalColumn: {
+    metadata: MetadataDocumentJournalColumn
+    yaml: MetadataDocumentJournalColumnYAML
+  }
+
+  MetadataHTTPServiceMethod: {
+    metadata: MetadataHTTPServiceMethod
+    yaml: MetadataHTTPServiceMethodYAML
+  }
+
+  MetadataHTTPServiceURLTemplate: {
+    metadata: MetadataHTTPServiceURLTemplate
+    yaml: MetadataHTTPServiceURLTemplateYAML
+  }
+
+  MetadataRegisterResource: {
+    metadata: MetadataRegisterResource
+    yaml: MetadataRegisterResourceYAML
+  }
+
+  MetadataRegisterDimension: {
+    metadata: MetadataRegisterDimension
+    yaml: MetadataRegisterDimensionYAML
+  }
+
+  MetadataRegisterAttribute: {
+    metadata: MetadataRegisterAttribute
+    yaml: MetadataRegisterAttributeYAML
+  }
+
   PredefinedItem: {
     metadata: PredefinedItem
     yaml: PredefinedItemYAML
@@ -630,6 +720,26 @@ export type MetadataItemTypeRegistry = {
   AdditionalIndexItem: {
     metadata: AdditionalIndexItem
     yaml: AdditionalIndexItemYAML
+  }
+
+  AccumulationRegisterAggregate: {
+    metadata: AccumulationRegisterAggregate
+    yaml: AccumulationRegisterAggregateYAML
+  }
+
+  AccumulationRegisterAggregates: {
+    metadata: AccumulationRegisterAggregates
+    yaml: AccumulationRegisterAggregatesYAML
+  }
+
+  ExchangePlanContent: {
+    metadata: ExchangePlanContent
+    yaml: ExchangePlanContentYAML
+  }
+
+  ExchangePlanContentItem: {
+    metadata: ExchangePlanContentItem
+    yaml: ExchangePlanContentItemYAML
   }
 
   MetadataSequenceDimension: {
@@ -782,6 +892,36 @@ export type MetadataItemTypeRegistry = {
   MetadataDocument: {
     metadata: MetadataDocument
     yaml: MetadataDocumentYAML
+  }
+
+  MetadataDataProcessor: {
+    metadata: MetadataDataProcessor
+    yaml: MetadataDataProcessorYAML
+  }
+
+  MetadataDocumentJournal: {
+    metadata: MetadataDocumentJournal
+    yaml: MetadataDocumentJournalYAML
+  }
+
+  MetadataHTTPService: {
+    metadata: MetadataHTTPService
+    yaml: MetadataHTTPServiceYAML
+  }
+
+  MetadataInformationRegister: {
+    metadata: MetadataInformationRegister
+    yaml: MetadataInformationRegisterYAML
+  }
+
+  MetadataAccumulationRegister: {
+    metadata: MetadataAccumulationRegister
+    yaml: MetadataAccumulationRegisterYAML
+  }
+
+  MetadataExchangePlan: {
+    metadata: MetadataExchangePlan
+    yaml: MetadataExchangePlanYAML
   }
 
   MetadataDocumentNumerator: {

@@ -213,6 +213,7 @@ const commonAttributeProperties = {
     typeSE: "Indexing",
     defaultValueXML: "DontIndex",
     defaultValueYAML: "DontIndex",
+    preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
     order: 27,
   },
@@ -223,6 +224,7 @@ const commonAttributeProperties = {
     typeSE: "UseFullTextSearch",
     defaultValueXML: "Use",
     defaultValueYAML: "Use",
+    preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
     order: 28,
   },
@@ -233,6 +235,7 @@ const commonAttributeProperties = {
     typeSE: "DataHistoryUse",
     defaultValueXML: "Use",
     defaultValueYAML: "Use",
+    preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
     order: 29,
   },
@@ -254,6 +257,7 @@ const fillProperties = {
     xml: "FillFromFillingValue",
     type: "boolean",
     defaultValueXML: false,
+    preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
     order: 15,
   },
@@ -263,6 +267,7 @@ const fillProperties = {
     type: "MetadataValue",
     xmlParents: ["Properties"],
     order: 16,
+    preserveFromReferenceXML: true,
     defaultValueXMLRaw: { "_xsi:nil": true },
   },
 } as const satisfies Record<string, PropertyRule>
@@ -292,6 +297,7 @@ export const MetadataAttributeRules = {
       typeSE: "AttributeUse",
       defaultValueXML: "ForItem",
       defaultValueYAML: "ForItem",
+      preserveFromReferenceXML: true,
       xmlParents: ["Properties"],
       order: 26,
     },
@@ -318,5 +324,8 @@ export const MetadataDocumentAttributeRules = {
 
 export const MetadataTabularSectionAttributeRules = {
   itemType: "MetadataAttribute",
-  properties: commonAttributeProperties,
+  properties: {
+    ...commonAttributeProperties,
+    ...fillProperties,
+  },
 } as const satisfies MetadataItemRule

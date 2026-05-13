@@ -114,6 +114,28 @@ describe("migration paths", () => {
     })
   })
 
+  it("parses register child paths", () => {
+    expect(parseMigrationPath("РегистрНакопления.Остатки.Ресурс.Количество")).toEqual({
+      kind: "attribute",
+      segments: ["РегистрНакопления", "Остатки", "Ресурс", "Количество"],
+      localName: "Количество",
+      ownerPath: "РегистрНакопления.Остатки",
+      levelPath: "РегистрНакопления.Остатки.Ресурс",
+    })
+    expect(parseMigrationPath("РегистрНакопления.Остатки.Измерение.Склад")).toMatchObject({
+      kind: "dimension",
+      localName: "Склад",
+      ownerPath: "РегистрНакопления.Остатки",
+      levelPath: "РегистрНакопления.Остатки.Измерение",
+    })
+    expect(parseMigrationPath("РегистрСведений.Цены.Реквизит.Валюта")).toMatchObject({
+      kind: "attribute",
+      localName: "Валюта",
+      ownerPath: "РегистрСведений.Цены",
+      levelPath: "РегистрСведений.Цены.Реквизит",
+    })
+  })
+
   it("builds rename target from local name", () => {
     expect(buildRenameTargetPath("Справочник.Товары.Реквизит.Артикул", "НовыйАртикул")).toBe(
       "Справочник.Товары.Реквизит.НовыйАртикул",

@@ -36,6 +36,12 @@ const _byKind = new Map<string, EdgeKindEntry>([
   ["METADATA_CATALOG", { yaml: "MetadataCatalog", owning: true }],
   ["METADATA_DOCUMENT", { yaml: "MetadataDocument", owning: true }],
   ["METADATA_ENUMERATION", { yaml: "MetadataEnumeration", owning: true }],
+  ["METADATA_DATA_PROCESSOR", { yaml: "MetadataDataProcessor", owning: true }],
+  ["METADATA_DOCUMENT_JOURNAL", { yaml: "MetadataDocumentJournal", owning: true }],
+  ["METADATA_HTTP_SERVICE", { yaml: "MetadataHTTPService", owning: true }],
+  ["METADATA_INFORMATION_REGISTER", { yaml: "MetadataInformationRegister", owning: true }],
+  ["METADATA_ACCUMULATION_REGISTER", { yaml: "MetadataAccumulationRegister", owning: true }],
+  ["METADATA_EXCHANGE_PLAN", { yaml: "MetadataExchangePlan", owning: true }],
   // Owning: формы (PRD #112)
   ["FORM", { yaml: "Форма", owning: true }],
   // Owning: реквизиты формы (PRD #114)

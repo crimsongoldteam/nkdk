@@ -1,5 +1,5 @@
 import fs from "fs"
-import { dirname, join } from "path"
+import { basename, dirname, join } from "path"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type {
   ModulePropertyRule,
@@ -16,6 +16,7 @@ export const syncModuleToXML = async (params: {
   rule: PropertyRule
   nkdkDir: string
   xmlDir: string
+  name?: string
   itemName?: string
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
@@ -23,15 +24,17 @@ export const syncModuleToXML = async (params: {
   const rule = params.rule as ModulePropertyRule | TemplatePropertyRule
 
   const { xmlPath: rawXmlPath, nkdkPath: rawNkdkPath } = rule
-  const needsItemName = typeof rawXmlPath === "function" || typeof rawNkdkPath === "function"
-  if (needsItemName && !itemName) return
+  const name = itemName ?? params.name
+  const needsName = typeof rawXmlPath === "function" || typeof rawNkdkPath === "function"
+  if (needsName && !name) return
 
-  const xmlPath = typeof rawXmlPath === "function" ? rawXmlPath({ name: itemName! }) : rawXmlPath
-  const nkdkPath = typeof rawNkdkPath === "function" ? rawNkdkPath({ name: itemName! }) : rawNkdkPath
+  const pathParams = { name: name!, parentName: params.name }
+  const xmlPath = typeof rawXmlPath === "function" ? rawXmlPath(pathParams) : rawXmlPath
+  const nkdkPath = typeof rawNkdkPath === "function" ? rawNkdkPath(pathParams) : rawNkdkPath
 
   const srcPath = join(nkdkDir, nkdkPath)
   if (!fs.existsSync(srcPath)) return
-  const dstPath = join(xmlDir, xmlPath)
+  const dstPath = join(xmlDir, stripObjectPrefix({ xmlDir, xmlPath, objectName: params.name }))
   await fs.promises.mkdir(dirname(dstPath), { recursive: true })
   await fs.promises.copyFile(srcPath, dstPath)
   params.xmlManifest?.addFile(dstPath)
@@ -39,3 +42,10 @@ export const syncModuleToXML = async (params: {
 
 registerTypeRule("Module", "syncExternalToXML", syncModuleToXML)
 registerTypeRule("Template", "syncExternalToXML", syncModuleToXML)
+
+const stripObjectPrefix = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
+  const { xmlDir, xmlPath, objectName } = params
+  if (!objectName || basename(xmlDir) !== objectName) return xmlPath
+  const prefix = `${objectName}/`
+  return xmlPath.startsWith(prefix) ? xmlPath.slice(prefix.length) : xmlPath
+}
