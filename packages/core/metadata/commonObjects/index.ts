@@ -87,6 +87,11 @@ import "./font/toJSONSchema"
 import "./font/toXML"
 import "./font/toYAML"
 
+import "./styleItemValue/fromXML"
+import "./styleItemValue/fromYAML"
+import "./styleItemValue/toXML"
+import "./styleItemValue/toYAML"
+
 import "./formattedI8nText/fromXML"
 import "./formattedI8nText/fromYAML"
 import "./formattedI8nText/toEnterprise"

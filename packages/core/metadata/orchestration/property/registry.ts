@@ -35,6 +35,7 @@ import {
   MobileDeviceCommandBarContentYAML,
 } from "~/metadata/commonObjects/mobileDeviceCommandBarContent/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { StyleItemValue, StyleItemValueYAML } from "~/metadata/commonObjects/styleItemValue/types"
 import {
   AppearanceFields,
   AppearanceFieldsYAML,
@@ -321,6 +322,10 @@ export type PropertyTypeRegistry = {
     item: Font
     enterprise: FontEnterprise
     yaml: FontYAML
+  }
+  StyleItemValue: {
+    item: StyleItemValue
+    yaml: StyleItemValueYAML
   }
 
   Events: {
@@ -863,6 +868,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   I8nText: "I8nText",
   FormattedI8nText: "FormattedI8nText",
   Font: "Font",
+  StyleItemValue: "StyleItemValue",
   Events: "Events",
   // ChildItems: "ChildItems",
   Picture: "Picture",
