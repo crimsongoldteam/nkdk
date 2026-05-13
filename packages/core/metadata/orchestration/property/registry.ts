@@ -1,5 +1,6 @@
 import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
 import { MetadataConstant, MetadataConstantYAML } from "~/metadata/appliedObjects/metadataConstant/types"
+import { MetadataDefinedType, MetadataDefinedTypeYAML } from "~/metadata/appliedObjects/metadataDefinedType/types"
 import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorYAML,
@@ -11,6 +12,10 @@ import {
   MetadataEnumerationYAML,
 } from "~/metadata/appliedObjects/metadataEnumeration/types"
 import { MetadataSequence, MetadataSequenceYAML } from "~/metadata/appliedObjects/metadataSequence/types"
+import {
+  MetadataSessionParameter,
+  MetadataSessionParameterYAML,
+} from "~/metadata/appliedObjects/metadataSessionParameter/types"
 import {
   AdditionalIndex,
   AdditionalIndexCollection,
@@ -538,6 +543,10 @@ export type PropertyTypeRegistry = {
     item: MetadataConstant
     yaml: MetadataConstantYAML
   }
+  MetadataDefinedType: {
+    item: MetadataDefinedType
+    yaml: MetadataDefinedTypeYAML
+  }
   MetadataDocumentNumerator: {
     item: MetadataDocumentNumerator
     yaml: MetadataDocumentNumeratorYAML
@@ -553,6 +562,10 @@ export type PropertyTypeRegistry = {
   MetadataSequence: {
     item: MetadataSequence
     yaml: MetadataSequenceYAML
+  }
+  MetadataSessionParameter: {
+    item: MetadataSessionParameter
+    yaml: MetadataSessionParameterYAML
   }
   MetadataSequenceDimension: {
     item: MetadataSequenceDimension
@@ -920,10 +933,12 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataItemLinks: "MetadataItemLinks",
   MetadataCommands: "MetadataCommands",
   MetadataConstant: "MetadataConstant",
+  MetadataDefinedType: "MetadataDefinedType",
   MetadataDocumentNumerator: "MetadataDocumentNumerator",
   MetadataEnumeration: "MetadataEnumeration",
   MetadataEnumerationValues: "MetadataEnumerationValues",
   MetadataSequence: "MetadataSequence",
+  MetadataSessionParameter: "MetadataSessionParameter",
   MetadataSequenceDimension: "MetadataSequenceDimension",
   MetadataSequenceDimensions: "MetadataSequenceDimensions",
   CommandInterface: "CommandInterface",

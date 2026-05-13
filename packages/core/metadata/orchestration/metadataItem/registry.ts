@@ -96,6 +96,7 @@ import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/for
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
 import { MetadataConstant, MetadataConstantYAML } from "../../appliedObjects/metadataConstant/types"
+import { MetadataDefinedType, MetadataDefinedTypeYAML } from "../../appliedObjects/metadataDefinedType/types"
 import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
 import {
   MetadataDocumentNumerator,
@@ -108,6 +109,10 @@ import {
   MetadataEnumerationYAML,
 } from "../../appliedObjects/metadataEnumeration/types"
 import { MetadataSequence, MetadataSequenceYAML } from "../../appliedObjects/metadataSequence/types"
+import {
+  MetadataSessionParameter,
+  MetadataSessionParameterYAML,
+} from "../../appliedObjects/metadataSessionParameter/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -713,6 +718,11 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataConstantYAML
   }
 
+  MetadataDefinedType: {
+    metadata: MetadataDefinedType
+    yaml: MetadataDefinedTypeYAML
+  }
+
   MetadataDocument: {
     metadata: MetadataDocument
     yaml: MetadataDocumentYAML
@@ -736,6 +746,11 @@ export type MetadataItemTypeRegistry = {
   MetadataSequence: {
     metadata: MetadataSequence
     yaml: MetadataSequenceYAML
+  }
+
+  MetadataSessionParameter: {
+    metadata: MetadataSessionParameter
+    yaml: MetadataSessionParameterYAML
   }
 
   //#endregion

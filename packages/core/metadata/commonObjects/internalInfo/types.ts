@@ -21,7 +21,7 @@ export interface InternalInfoXML {
 
 /** Корневой XML-элемент InternalInfo при чтении (содержит массив xr:GeneratedType) */
 export interface InternalInfoRootXML {
-  "xr:GeneratedType"?: InternalInfoXML[]
+  "xr:GeneratedType"?: InternalInfoXML | InternalInfoXML[]
 }
 
 export type InternalInfoItemsXML<T extends InternalInfoParam[]> = {
