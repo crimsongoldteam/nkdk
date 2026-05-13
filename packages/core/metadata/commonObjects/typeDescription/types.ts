@@ -201,6 +201,10 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "ВидСчета",
     prefix: "ent",
   },
+  ComparisonType: {
+    enterprise: "ComparisonType",
+    prefix: "ent",
+  },
   // Settings Composer namespace (no xmlns in XML)
   SettingsComposer: {
     enterprise: "КомпоновщикНастроекКомпоновкиДанных",
@@ -208,6 +212,10 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
   },
   Filter: {
     enterprise: "Отбор",
+    prefix: "dcsset",
+  },
+  DataCompositionComparisonType: {
+    enterprise: "DataCompositionComparisonType",
     prefix: "dcsset",
   },
   // Primitive types
@@ -249,6 +257,18 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
   },
   TypeDescription: {
     enterprise: "ОписаниеТипов",
+    prefix: "v8",
+  },
+  FixedStructure: {
+    enterprise: "ФиксированнаяСтруктура",
+    prefix: "v8",
+  },
+  FixedArray: {
+    enterprise: "ФиксированныйМассив",
+    prefix: "v8",
+  },
+  FixedMap: {
+    enterprise: "ФиксированноеСоответствие",
     prefix: "v8",
   },
   StandardPeriod: {
@@ -407,8 +427,26 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     modifier: "complex",
     ignoreInEnterprise: true,
   },
+  ChartOfAccountsObject: {
+    enterprise: "ChartOfAccountsObject",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
   ReportObject: {
     enterprise: "ОтчетОбъект",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  ReportManager: {
+    enterprise: "ReportManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  ReportBuilder: {
+    enterprise: "ReportBuilder",
     prefix: "cfg",
     modifier: "alwaysType",
     ignoreInEnterprise: true,
@@ -419,9 +457,81 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     modifier: "alwaysType",
     ignoreInEnterprise: true,
   },
+  DataProcessorManager: {
+    enterprise: "DataProcessorManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
   ConstantsSet: {
     enterprise: "КонстантыНабор",
     prefix: "cfg",
+    ignoreInEnterprise: true,
+  },
+  ConstantValueManager: {
+    enterprise: "ConstantValueManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  CatalogManager: {
+    enterprise: "CatalogManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  DocumentManager: {
+    enterprise: "DocumentManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  DocumentJournalManager: {
+    enterprise: "DocumentJournalManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  BusinessProcessManager: {
+    enterprise: "BusinessProcessManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  TaskManager: {
+    enterprise: "TaskManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  ExchangePlanManager: {
+    enterprise: "ExchangePlanManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  ChartOfAccountsManager: {
+    enterprise: "ChartOfAccountsManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  ChartOfCharacteristicTypesManager: {
+    enterprise: "ChartOfCharacteristicTypesManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  ChartOfCalculationTypesManager: {
+    enterprise: "ChartOfCalculationTypesManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  InformationRegisterManager: {
+    enterprise: "InformationRegisterManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
     ignoreInEnterprise: true,
   },
   InformationRegisterRecordSet: {
@@ -444,6 +554,42 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
   },
   AccountingRegisterRecordManager: {
     enterprise: "РегистрБухгалтерииМенеджерЗаписи",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  AccountingRegisterManager: {
+    enterprise: "AccountingRegisterManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  AccumulationRegisterRecordSet: {
+    enterprise: "AccumulationRegisterRecordSet",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  AccumulationRegisterManager: {
+    enterprise: "AccumulationRegisterManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  CalculationRegisterRecordSet: {
+    enterprise: "CalculationRegisterRecordSet",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  CalculationRegisterManager: {
+    enterprise: "CalculationRegisterManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  RecalculationRecordSet: {
+    enterprise: "RecalculationRecordSet",
     prefix: "cfg",
     modifier: "alwaysType",
     ignoreInEnterprise: true,
