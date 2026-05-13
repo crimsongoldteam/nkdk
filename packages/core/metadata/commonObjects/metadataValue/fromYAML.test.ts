@@ -15,6 +15,16 @@ describe("importMetadataValueFromYAML", () => {
     expect(result).toEqual(fixture.YAML === undefined ? undefined : fixture.internal)
   })
 
+  it("imports DataCompositionComparisonType from YAML", () => {
+    const result = importMetadataValueFromYAML(
+      mockContext,
+      { type: "MetadataValue", valueType: ["DataCompositionComparisonType"] } as any,
+      "Равно"
+    )
+
+    expect(result).toEqual({ type: "DataCompositionComparisonType", value: "Equal" })
+  })
+
   describe("строгая валидация valueType", () => {
     it("должен бросить при valueType: [string] и фактическом boolean (Истина)", () => {
       expect(() =>

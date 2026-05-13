@@ -21,11 +21,13 @@ describe("exportTypeDescriptionToXML", () => {
   it.each([
     ["ConstantValueManager.ИспользоватьНачислениеЗарплаты", "cfg:ConstantValueManager.ИспользоватьНачислениеЗарплаты"],
     ["AccumulationRegisterRecordSet.РасчетыСКлиентами", "cfg:AccumulationRegisterRecordSet.РасчетыСКлиентами"],
+    ["SequenceRecordSet.ДокументыОрганизаций", "cfg:SequenceRecordSet.ДокументыОрганизаций"],
     ["CatalogManager", "cfg:CatalogManager"],
     ["DocumentManager", "cfg:DocumentManager"],
     ["FixedStructure", "v8:FixedStructure"],
     ["FixedArray", "v8:FixedArray"],
     ["FixedMap", "v8:FixedMap"],
+    ["Field", "dcscor:Field"],
     ["ComparisonType", "ent:ComparisonType"],
     ["DataCompositionComparisonType", "dcsset:DataCompositionComparisonType"],
   ])("should export generated platform type to XML: %s", (type, xmlType) => {

@@ -14,10 +14,18 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnumerations/fromYAML"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
-import { DcsMetadataValuePropertyRule, MetadataDcsMetadataValue, MetadataDcsMetadataValueYAML } from "./types"
+import {
+  DcsMetadataValuePropertyRule,
+  MetadataDcsMetadataSingleValue,
+  MetadataDcsMetadataValue,
+  MetadataDcsMetadataValueYAML,
+} from "./types"
 
 const isEnumValueMetadataPath = (value: string | undefined): boolean =>
   value !== undefined && value.startsWith("Enum.") && value.split(".").includes("EnumValue")
+
+const isEnterpriseDesignTimeValue = (value: unknown): value is string =>
+  typeof value === "string" && value.startsWith("Перечисление.")
 
 export const importDcsMetadataValueFromYAML = (
   context: ConfigurationContext,
@@ -26,6 +34,11 @@ export const importDcsMetadataValueFromYAML = (
 ): MetadataDcsMetadataValue | null | undefined => {
   if (data === undefined) return undefined
   if (data === null) return null
+  if (Array.isArray(data) && rule.valueType === "Primitive") {
+    return data
+      .map((item) => importDcsMetadataValueFromYAML(context, rule, item))
+      .filter((value): value is MetadataDcsMetadataSingleValue => value !== undefined && !Array.isArray(value))
+  }
 
   switch (rule.valueType) {
     case "Color":
@@ -57,6 +70,9 @@ export const importDcsMetadataValueFromYAML = (
         value: data as I8nTextYAML,
       })!
     case "Primitive":
+      if (isEnterpriseDesignTimeValue(data)) {
+        return { type: "DesignTimeValue", value: data }
+      }
       return importMetadataValueFromYAML(context, undefined, data as any) as MetadataDcsMetadataValue
     case "TypeLink":
       return importTypeLinkFromYAML(context, undefined, data as any)!

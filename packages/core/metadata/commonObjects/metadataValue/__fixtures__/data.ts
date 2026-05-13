@@ -151,4 +151,11 @@ export const metadataValueFixtures: MetadataValueFixture[] = [
     YAML: '""',
     XML: '<Value xsi:type="xs:string"/>',
   },
+  {
+    name: "valueList",
+    rule: { type: "MetadataValue", valueType: ["valueList"] },
+    internal: { type: "valueList" },
+    YAML: "СписокЗначений",
+    XML: '<Value xsi:type="xr:ValueList"/>',
+  },
 ]

@@ -11,6 +11,28 @@ describe("exportMetadataValueToXML", () => {
     expect(result).toEqual(XML)
   })
 
+  it("exports empty xr:ValueList", () => {
+    const xmlData = exportMetadataValueToXML({
+      context: mockContext,
+      rule: { type: "MetadataValue" },
+      value: { type: "valueList" } as any,
+    })
+    const result = xmlExport({ Value: xmlData }, false)
+
+    expect(result).toEqual('<Value xsi:type="xr:ValueList"/>')
+  })
+
+  it("exports dcsset:DataCompositionComparisonType", () => {
+    const xmlData = exportMetadataValueToXML({
+      context: mockContext,
+      rule: { type: "MetadataValue" },
+      value: { type: "DataCompositionComparisonType", value: "Equal" } as any,
+    })
+    const result = xmlExport({ Value: xmlData }, false)
+
+    expect(result).toEqual('<Value xsi:type="dcsset:DataCompositionComparisonType">Equal</Value>')
+  })
+
   describe("строгая валидация valueType", () => {
     it("должен бросить при valueType: [string] и фактическом boolean", () => {
       expect(() =>

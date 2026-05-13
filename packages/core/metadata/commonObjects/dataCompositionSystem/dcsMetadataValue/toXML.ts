@@ -48,6 +48,18 @@ export const exportDcsMetadataValueToDcsXML = (params: {
     }
     return { "dcscor:value": undefined as unknown as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }
   }
+  if (Array.isArray(data) && rule.valueType === "Primitive") {
+    return {
+      "dcscor:value": data.map(
+        (item) =>
+          exportDcsMetadataValueToDcsXML({
+            context,
+            rule,
+            data: item,
+          })["dcscor:value"]
+      ) as MetadataDcsMetadataValueDcsRootXML["dcscor:value"],
+    }
+  }
 
   if (isExplicitTextValue(data)) {
     return {

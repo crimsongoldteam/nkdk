@@ -22,6 +22,28 @@ describe("importMetadataValueFromXML", () => {
     expect(result).toEqual(fixture.internal)
   })
 
+  it("imports empty xr:ValueList", () => {
+    const xmlValue = parseValue('<Value xsi:type="xr:ValueList"/>')
+    const result = importMetadataValueFromXML({
+      context: mockContextFromXML(),
+      rule: undefined,
+      value: xmlValue,
+    })
+
+    expect(result).toEqual({ type: "valueList" })
+  })
+
+  it("imports dcsset:DataCompositionComparisonType", () => {
+    const xmlValue = parseValue('<Value xsi:type="dcsset:DataCompositionComparisonType">Equal</Value>')
+    const result = importMetadataValueFromXML({
+      context: mockContextFromXML(),
+      rule: undefined,
+      value: xmlValue,
+    })
+
+    expect(result).toEqual({ type: "DataCompositionComparisonType", value: "Equal" })
+  })
+
   describe("строгая валидация valueType", () => {
     it("должен бросить при valueType: [string] и фактическом boolean", () => {
       const xml = '<Value xsi:type="xs:boolean">true</Value>'

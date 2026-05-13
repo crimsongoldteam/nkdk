@@ -42,7 +42,7 @@ export type MetadataDcsFieldValue = { type: "Field"; value: string }
 export type MetadataDcsDesignTimeValue = { type: "DesignTimeValue"; value: string }
 export type MetadataDcsExplicitTextValue = MetadataDcsFieldValue | MetadataDcsDesignTimeValue
 
-export type MetadataDcsMetadataValue =
+export type MetadataDcsMetadataSingleValue =
   | null
   | Color
   | MetadataField
@@ -55,7 +55,9 @@ export type MetadataDcsMetadataValue =
   | Font
   | string
 
-export type MetadataDcsMetadataValueYAML =
+export type MetadataDcsMetadataValue = MetadataDcsMetadataSingleValue | MetadataDcsMetadataSingleValue[]
+
+export type MetadataDcsMetadataSingleValueYAML =
   | null
   | ColorYAML
   | MetadataFieldYAML
@@ -67,9 +69,12 @@ export type MetadataDcsMetadataValueYAML =
   | FontYAML
   | string
 
+export type MetadataDcsMetadataValueYAML = MetadataDcsMetadataSingleValueYAML | MetadataDcsMetadataSingleValueYAML[]
+
 export type MetadataDcsMetadataValueDcsRootXML = {
   "dcscor:value":
     | string
+    | Array<string | { "_xsi:type"?: string; "#text"?: string; [key: string]: unknown }>
     | {
         "_xsi:type"?: string
         "#text"?: string

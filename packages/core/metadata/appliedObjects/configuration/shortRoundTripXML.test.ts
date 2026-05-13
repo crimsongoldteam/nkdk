@@ -1,4 +1,5 @@
 import fs from "fs"
+import { tmpdir } from "os"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
@@ -60,5 +61,36 @@ describe("shortRoundTripXML", () => {
       "utf-8"
     )
     expect(resultFormMetaXML).toBe(expectedFormMetaXML)
+  })
+
+  it("останавливается на первой ошибке round-trip объекта", async () => {
+    const brokenInputDir = fs.mkdtempSync(join(tmpdir(), "short-round-trip-object-"))
+    const brokenOutputDir = fs.mkdtempSync(join(tmpdir(), "short-round-trip-object-out-"))
+    fs.mkdirSync(join(brokenInputDir, "Catalogs"), { recursive: true })
+    fs.writeFileSync(join(brokenInputDir, "Catalogs", "Сломанный.xml"), "<broken", "utf-8")
+
+    await expect(shortRoundTripXML({ inputDir: brokenInputDir, outputDir: brokenOutputDir })).rejects.toThrow(
+      'Ошибка round-trip объекта "Catalogs/Сломанный"'
+    )
+  })
+
+  it("останавливается на первой ошибке round-trip формы", async () => {
+    const brokenInputDir = fs.mkdtempSync(join(tmpdir(), "short-round-trip-form-"))
+    const brokenOutputDir = fs.mkdtempSync(join(tmpdir(), "short-round-trip-form-out-"))
+    const catalogInputDir = join(brokenInputDir, "Catalogs")
+    const catalogFixtureDir = join(inputDir, "Catalogs")
+
+    fs.mkdirSync(catalogInputDir, { recursive: true })
+    fs.copyFileSync(join(catalogFixtureDir, "Контрагенты.xml"), join(catalogInputDir, "Контрагенты.xml"))
+    fs.cpSync(join(catalogFixtureDir, "Контрагенты"), join(catalogInputDir, "Контрагенты"), { recursive: true })
+    fs.writeFileSync(
+      join(catalogInputDir, "Контрагенты", "Forms", "ФормаЭлемента", "Ext", "Form.xml"),
+      "<broken",
+      "utf-8"
+    )
+
+    await expect(shortRoundTripXML({ inputDir: brokenInputDir, outputDir: brokenOutputDir })).rejects.toThrow(
+      'Ошибка round-trip формы "Catalogs/Контрагенты/ФормаЭлемента"'
+    )
   })
 })

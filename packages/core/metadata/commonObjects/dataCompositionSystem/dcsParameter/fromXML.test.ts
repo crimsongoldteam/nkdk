@@ -38,6 +38,14 @@ const xmlWithUndefinedTypeValue = `<Settings>
 	</Parameter>
 </Settings>`
 
+const xmlWithMultipleValues = `<Settings>
+	<Parameter>
+		<dcssch:name>ТипыНалогообложения</dcssch:name>
+		<dcssch:value xsi:type="dcscor:DesignTimeValue">Перечисление.ТипыНалогообложенияНДС.ПродажаНаЭкспорт</dcssch:value>
+		<dcssch:value xsi:type="dcscor:DesignTimeValue">Перечисление.ТипыНалогообложенияНДС.ЭкспортСырьевыхТоваровУслуг</dcssch:value>
+	</Parameter>
+</Settings>`
+
 const exportDCSParameters = (value: unknown, referenceMetadata?: unknown): string => {
   const xmlData = exportPropertyToXML({
     context: mockContextToXML(),
@@ -134,5 +142,30 @@ describe("import DCSParameter from XML", () => {
     expect(exported).toContain(
       '<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>',
     )
+  })
+
+  it("imports multiple values", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlString: xmlWithMultipleValues,
+      xmlRootTag: "Settings",
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "DCSParameter",
+        name: "ТипыНалогообложения",
+        value: [
+          {
+            type: "DesignTimeValue",
+            value: "Перечисление.ТипыНалогообложенияНДС.ПродажаНаЭкспорт",
+          },
+          {
+            type: "DesignTimeValue",
+            value: "Перечисление.ТипыНалогообложенияНДС.ЭкспортСырьевыхТоваровУслуг",
+          },
+        ],
+      },
+    ])
   })
 })

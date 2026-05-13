@@ -35,6 +35,17 @@ export const multipleCharacteristics: CharacteristicsDescriptions = [
     multipleValuesKeyField: "InformationRegister.ЗначенияХарактеристикОбъектов.Dimension.КлючУникальности",
     multipleValuesOrderField: "InformationRegister.ЗначенияХарактеристикОбъектов.Dimension.Характеристика",
   },
+  {
+    itemType: "CharacteristicsDescription",
+    characteristicTypes: "ChartOfCharacteristicTypes.ДолжностиПодключаемыеХарактеристики",
+    keyField: "ChartOfCharacteristicTypes.ДолжностиПодключаемыеХарактеристики.StandardAttribute.Ref",
+    typesFilterField: "ChartOfCharacteristicTypes.ДолжностиПодключаемыеХарактеристики.Attribute.Используется",
+    typesFilterValue: { type: "boolean", value: true },
+    characteristicValues: "InformationRegister.ДолжностиПодключаемыеХарактеристики",
+    objectField: "InformationRegister.ДолжностиПодключаемыеХарактеристики.Dimension.Объект",
+    typeField: "InformationRegister.ДолжностиПодключаемыеХарактеристики.Dimension.Свойство",
+    valueField: "InformationRegister.ДолжностиПодключаемыеХарактеристики.Resource.Значение",
+  },
 ]
 
 export const singleCharacteristicYAML: CharacteristicsDescriptionsYAML = [
@@ -68,5 +79,15 @@ export const multipleCharacteristicsYAML: CharacteristicsDescriptionsYAML = [
     ПолеЗначения: "InformationRegister.ЗначенияХарактеристикОбъектов.Resource.Значение",
     ПолеКлючаМножественныхЗначений: "InformationRegister.ЗначенияХарактеристикОбъектов.Dimension.КлючУникальности",
     ПолеПорядкаМножественныхЗначений: "InformationRegister.ЗначенияХарактеристикОбъектов.Dimension.Характеристика",
+  },
+  {
+    ВидыХарактеристик: "ChartOfCharacteristicTypes.ДолжностиПодключаемыеХарактеристики",
+    ПолеКлюча: "ChartOfCharacteristicTypes.ДолжностиПодключаемыеХарактеристики.StandardAttribute.Ref",
+    ПолеОтбораВидов: "ChartOfCharacteristicTypes.ДолжностиПодключаемыеХарактеристики.Attribute.Используется",
+    ЗначениеОтбораВидов: "Истина",
+    ЗначенияХарактеристик: "InformationRegister.ДолжностиПодключаемыеХарактеристики",
+    ПолеОбъекта: "InformationRegister.ДолжностиПодключаемыеХарактеристики.Dimension.Объект",
+    ПолеВида: "InformationRegister.ДолжностиПодключаемыеХарактеристики.Dimension.Свойство",
+    ПолеЗначения: "InformationRegister.ДолжностиПодключаемыеХарактеристики.Resource.Значение",
   },
 ]

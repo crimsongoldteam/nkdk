@@ -12,6 +12,7 @@ const detectTypeFromYAML = (context: ConfigurationContext, value: DcsMetadataTyp
   if (typeof value === "object" && value !== null && !Array.isArray(value) && "Вариант" in value)
     return "StandardBeginningDate"
   if (typeof value === "string" && value.startsWith("'") && value.endsWith("'")) return "string"
+  if (DcsMetadataTypedValueRegistry.dateTime.detect({ context, yaml: value })) return "dateTime"
   if (DcsMetadataTypedValueRegistry.DesignTimeValue.detect({ context, yaml: value })) return "DesignTimeValue"
   if (DcsMetadataTypedValueRegistry.string.detect({ context, yaml: value })) return "string"
 

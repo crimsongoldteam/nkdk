@@ -33,4 +33,35 @@ describe("import DCSParameter from YAML", () => {
     const result = testImportPropertyFromYAML({ rule, value: explicitNullValueDCSParametersYAML })
     expect(result).toEqual(explicitNullValueDCSParameters)
   })
+
+  it("imports multiple values", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        ТипыНалогообложения: {
+          Значение: [
+            "Перечисление.ТипыНалогообложенияНДС.ПродажаНаЭкспорт",
+            "Перечисление.ТипыНалогообложенияНДС.ЭкспортСырьевыхТоваровУслуг",
+          ],
+        },
+      },
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "DCSParameter",
+        name: "ТипыНалогообложения",
+        value: [
+          {
+            type: "DesignTimeValue",
+            value: "Перечисление.ТипыНалогообложенияНДС.ПродажаНаЭкспорт",
+          },
+          {
+            type: "DesignTimeValue",
+            value: "Перечисление.ТипыНалогообложенияНДС.ЭкспортСырьевыхТоваровУслуг",
+          },
+        ],
+      },
+    ])
+  })
 })

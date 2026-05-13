@@ -29,6 +29,19 @@ export const importMetadataValueFromYAML = (
   data: MetadataValueYAML | undefined
 ): MetadataTypedValue | undefined => {
   if (data === undefined || data === null) return undefined
+  const ruleTyped = rule as MetadataValuePropertyRule | undefined
+
+  if (
+    data === "СписокЗначений" &&
+    (ruleTyped?.valueType === undefined || ruleTyped.valueType.includes("valueList"))
+  ) {
+    return { type: "valueList" }
+  }
+
+  if (ruleTyped?.valueType?.includes("DataCompositionComparisonType")) {
+    const result = primitiveValueHandlers.DataCompositionComparisonType.fromYAML(context, data)
+    if (result !== undefined) return result
+  }
 
   // Агрегатные типы определяются по форме данных, не по rule
   if (typeof data === "object" && !Array.isArray(data) && "Представление" in data) {
@@ -42,7 +55,6 @@ export const importMetadataValueFromYAML = (
   const result = heuristicFromYAML(context, data as MetadataSingleYAML)
 
   // Строгая валидация: если valueType задан, фактический тип должен совпадать
-  const ruleTyped = rule as MetadataValuePropertyRule | undefined
   if (result !== undefined) {
     assertValueType(ruleTyped?.valueType, result.type, "fromYAML")
   }

@@ -218,6 +218,10 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "DataCompositionComparisonType",
     prefix: "dcsset",
   },
+  Field: {
+    enterprise: "ПолеКомпоновкиДанных",
+    prefix: "dcscor",
+  },
   // Primitive types
   string: {
     enterprise: "Строка",
@@ -578,6 +582,12 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
   },
   CalculationRegisterRecordSet: {
     enterprise: "CalculationRegisterRecordSet",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  SequenceRecordSet: {
+    enterprise: "SequenceRecordSet",
     prefix: "cfg",
     modifier: "alwaysType",
     ignoreInEnterprise: true,

@@ -9,6 +9,16 @@ describe("exportMetadataValueToYAML", () => {
     expect(result).toEqual(fixture.YAML)
   })
 
+  it("exports DataCompositionComparisonType to YAML", () => {
+    const result = exportMetadataValueToYAML(
+      mockContext,
+      { type: "MetadataValue", valueType: ["DataCompositionComparisonType"] } as any,
+      { type: "DataCompositionComparisonType", value: "Equal" } as any
+    )
+
+    expect(result).toEqual("Равно")
+  })
+
   describe("строгая валидация valueType", () => {
     it("должен бросить при valueType: [string] и фактическом boolean", () => {
       expect(() =>

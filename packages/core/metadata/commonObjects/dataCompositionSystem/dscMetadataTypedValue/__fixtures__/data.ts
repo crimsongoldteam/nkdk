@@ -37,6 +37,12 @@ export const dcsMetadataTypedValueFixtures: DcsMetadataTypedValueFixture[] = [
     XML: '<value xsi:type="xs:boolean">false</value>',
   },
   {
+    name: "dateTime",
+    model: { type: "dateTime", value: "2024-01-02T03:04:05" },
+    YAML: "02.01.2024 03:04:05",
+    XML: '<value xsi:type="xs:dateTime">2024-01-02T03:04:05</value>',
+  },
+  {
     name: "string",
     model: { type: "string", value: "Какой-то текст" },
     YAML: "'Какой-то текст'",

@@ -17,7 +17,12 @@ import { SystemEnumerationDcsValueRootXML } from "~/metadata/systemEnumerations/
 import { importSystemEnumerationFromDcsXML } from "~/metadata/systemEnumerations/fromDcsXML"
 import { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContextFromXML } from "../../../context/types"
-import { DcsMetadataValuePropertyRule, MetadataDcsMetadataValue, MetadataDcsMetadataValueDcsRootXML } from "./types"
+import {
+  DcsMetadataValuePropertyRule,
+  MetadataDcsMetadataSingleValue,
+  MetadataDcsMetadataValue,
+  MetadataDcsMetadataValueDcsRootXML,
+} from "./types"
 
 const textNode = (value: string | { "#text"?: string } | undefined): string => {
   if (value === undefined) {
@@ -46,6 +51,11 @@ const getXsiType = (root: unknown): string | undefined => {
   }
   return undefined
 }
+
+const isNilValue = (root: unknown): boolean =>
+  typeof root === "object" &&
+  root !== null &&
+  ((root as Record<string, unknown>)["_xsi:nil"] === true || (root as Record<string, unknown>)["_xsi:nil"] === "true")
 
 type ReferenceUndefinedTypeValueXML = Record<string, unknown> & {
   "#text": string
@@ -105,6 +115,18 @@ const importDcsMetadataValueFromDcsXMLInternal = (
     throw new Error("DCS MetadataValue: missing dcscor:value")
   }
 
+  if (Array.isArray(root)) {
+    const values = root
+      .map((item) =>
+        importDcsMetadataValueFromDcsXMLInternal(context, rule, {
+          "dcscor:value": item,
+        } as MetadataDcsMetadataValueDcsRootXML)
+      )
+      .filter((value): value is MetadataDcsMetadataSingleValue => value !== undefined)
+
+    return values.length > 0 ? values : undefined
+  }
+
   if (typeof root === "string") {
     if (!hasSystemEnumeration(rule)) {
       throw new Error("DCS MetadataValue: string dcscor:value requires rule.typeSE for system enumeration")
@@ -117,6 +139,10 @@ const importDcsMetadataValueFromDcsXMLInternal = (
   }
 
   const xsi = getXsiType(root)
+
+  if (isNilValue(root)) {
+    return undefined
+  }
 
   if (xsi === "dcscor:TypeLink") {
     return importTypeLinkFromDcsXML(context, rule as unknown as PropertyRule, xml as TypeLinkDcsValueRootXML)
@@ -151,7 +177,7 @@ const importDcsMetadataValueFromDcsXMLInternal = (
   }
 
   if (xsi === "v8:LocalStringType") {
-    return importI8nTextFromXML(context, { type: "I8nText" }, root as I8nTextXML)!
+    return importI8nTextFromXML(context, { type: "I8nText" }, root as I8nTextXML) ?? { items: {} }
   }
 
   if (xsi === "v8ui:Color") {
@@ -193,7 +219,7 @@ const importDcsMetadataValueFromDcsXMLInternal = (
     )
   }
 
-  throw new Error(`DCS MetadataValue: unsupported xsi:type ${String(xsi)}`)
+  throw new Error(`DCS MetadataValue: unsupported xsi:type ${String(xsi)} in ${JSON.stringify(root)}`)
 }
 
 export const importDcsMetadataValueFromDcsXML = (

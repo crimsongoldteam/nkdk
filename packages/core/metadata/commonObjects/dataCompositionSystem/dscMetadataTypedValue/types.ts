@@ -29,6 +29,10 @@ export type DcsMetadataTypedValue =
       value: boolean
     }
   | {
+      type: "dateTime"
+      value: string
+    }
+  | {
       type: "string"
       value: string
     }
@@ -68,6 +72,10 @@ export type DcsMetadataTypedValueXML =
     }
   | {
       "_xsi:type": "xs:boolean"
+      "#text"?: string
+    }
+  | {
+      "_xsi:type": "xs:dateTime"
       "#text"?: string
     }
   | {

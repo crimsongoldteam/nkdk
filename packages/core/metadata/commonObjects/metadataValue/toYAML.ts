@@ -26,6 +26,7 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "ApplicationUsePurpose",
   "typeRef",
   "uuid",
+  "DataCompositionComparisonType",
 ]
 
 /**
@@ -43,6 +44,7 @@ export const exportMetadataValueToYAML = (
 
   if (data.type === "fixedArray") return exportFixedArrayToYAML(context, data as MetadataFixedArrayValue)
   if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListToYAML(context, data as MetadataFormChoiceListValue)
+  if (data.type === "valueList") return "СписокЗначений"
 
   if (!PRIMITIVE_TYPES.includes(data.type as MetadataPrimitiveValueType)) {
     throw new Error(`MetadataValue: неподдерживаемый тип для YAML: ${data.type}`)

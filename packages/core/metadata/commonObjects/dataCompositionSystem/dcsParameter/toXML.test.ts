@@ -84,6 +84,32 @@ describe("export DCSParameter to XML", () => {
     expect(result).toContain(`<dcssch:value xsi:nil="true"/>`)
   })
 
+  it("exports multiple values", () => {
+    const result = exportDCSParameters([
+      {
+        itemType: "DCSParameter" as const,
+        name: "ТипыНалогообложения",
+        value: [
+          {
+            type: "DesignTimeValue" as const,
+            value: "Перечисление.ТипыНалогообложенияНДС.ПродажаНаЭкспорт",
+          },
+          {
+            type: "DesignTimeValue" as const,
+            value: "Перечисление.ТипыНалогообложенияНДС.ЭкспортСырьевыхТоваровУслуг",
+          },
+        ],
+      },
+    ])
+
+    expect(result).toContain(
+      `<dcssch:value xsi:type="dcscor:DesignTimeValue">Перечисление.ТипыНалогообложенияНДС.ПродажаНаЭкспорт</dcssch:value>`
+    )
+    expect(result).toContain(
+      `<dcssch:value xsi:type="dcscor:DesignTimeValue">Перечисление.ТипыНалогообложенияНДС.ЭкспортСырьевыхТоваровУслуг</dcssch:value>`
+    )
+  })
+
   it("exports explicit undefined value as xsi:nil instead of reference value", () => {
     const value = [
       {

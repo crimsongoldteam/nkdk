@@ -18,6 +18,9 @@ export const importMetadataValueCollectionFromXML = (
 
   const result: MetadataValueCollection = items.map((item: MetadataPrimitiveValueXML) => {
     const metadataValue = importMetadataValueFromXML({ context, rule: undefined, value: item })!
+    if (!("value" in metadataValue)) {
+      throw new Error(`MetadataValueCollection: ожидался примитив, получен ${metadataValue.type}`)
+    }
     return String(metadataValue.value)
   })
 

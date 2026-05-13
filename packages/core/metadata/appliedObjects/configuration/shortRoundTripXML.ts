@@ -9,6 +9,21 @@ import { exportMetadataItemToXML } from "~/metadata/orchestration"
 import { xmlExport } from "~/xml/export/exporter"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
+const formatUnknownError = (err: unknown): string => {
+  if (err instanceof Error) {
+    return err.stack ?? err.message
+  }
+
+  return String(err)
+}
+
+class RoundTripXMLContextError extends Error {
+  constructor(message: string, cause: unknown) {
+    super(`${message}\n${formatUnknownError(cause)}`)
+    this.name = "RoundTripXMLContextError"
+  }
+}
+
 const makeContextFromXML = (forReference: boolean): ConfigurationContextFromXML => ({
   defaultLanguage: "ru",
   version: "2.20",
@@ -129,7 +144,7 @@ const roundTripFormsXML = (params: { inputDir: string; outputDir: string; itemNa
       fs.writeFileSync(join(formsOutputDir, `${formName}.xml`), xmlExport({ MetaDataObject: metadataXML }), "utf-8")
       fs.writeFileSync(join(formExtOutputDir, "Form.xml"), xmlExport({ Form: formXML }), "utf-8")
     } catch (err) {
-      console.error(`Ошибка round-trip формы "${params.xmlDir}/${params.itemName}/${formName}":`, err)
+      throw new RoundTripXMLContextError(`Ошибка round-trip формы "${params.xmlDir}/${params.itemName}/${formName}"`, err)
     }
   }
 }
@@ -163,7 +178,7 @@ export const shortRoundTripXML = async (params: { inputDir: string; outputDir: s
           rule,
         })
       } catch (err) {
-        console.error(`Ошибка round-trip объекта "${xmlDir}/${itemName}":`, err)
+        throw new RoundTripXMLContextError(`Ошибка round-trip объекта "${xmlDir}/${itemName}"`, err)
       }
 
       roundTripFormsXML({

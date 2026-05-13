@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { multiple, single } from "~/tests/fixtures/metadataValueCollection/data"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { importContentFromXML } from "~/xml/import/importer"
 import { importMetadataValueCollectionFromXML } from "./fromXML"
 import { MetadataValueCollectionXML } from "./types"
 
@@ -23,5 +24,15 @@ describe("importMetadataValueCollectionFromXML", () => {
 
     const result = importMetadataValueCollectionFromXML(mockContextFromXML(), mockRule, xml.BasedOn)
     expect(result).toEqual(multiple)
+  })
+
+  it("rejects aggregate metadata values", () => {
+    const xml = importContentFromXML<{ BasedOn: MetadataValueCollectionXML }>(
+      '<BasedOn><xr:Item xsi:type="xr:ValueList"/></BasedOn>'
+    )
+
+    expect(() => importMetadataValueCollectionFromXML(mockContextFromXML(), mockRule, xml.BasedOn)).toThrow(
+      "MetadataValueCollection: ожидался примитив, получен valueList"
+    )
   })
 })

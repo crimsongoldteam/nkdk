@@ -1,5 +1,9 @@
 import { format, parse } from "date-fns"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
+import {
+  DataCompositionComparisonTypeFromYAML,
+  DataCompositionComparisonTypeToYAML,
+} from "~/metadata/systemEnumerations/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { importMetadataValueStringFromYAML } from "../metadataPath/fromYAML"
@@ -204,5 +208,28 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
     fromYAML: (_ctx: ConfigurationContext, _data: MetadataValueYAML) => undefined,
     toYAML: (_ctx: ConfigurationContext, v: MetadataTypedValue) =>
       String((v as unknown as { type: "uuid"; value: string }).value),
+  } satisfies MetadataPrimitiveValueHandler,
+
+  DataCompositionComparisonType: {
+    fromXML: (_ctx: ConfigurationContextFromXML, text: string | boolean | number | undefined) => {
+      if (text === undefined) return undefined
+      return { type: "DataCompositionComparisonType", value: String(text) } as unknown as MetadataTypedValue
+    },
+    toXML: (v: MetadataTypedValue) =>
+      ({
+        "_xsi:type": MetadataValueTypeToXML.DataCompositionComparisonType,
+        "#text": String((v as unknown as { type: "DataCompositionComparisonType"; value: string }).value),
+      }) as unknown as MetadataPrimitiveValueXML,
+    fromYAML: (_ctx: ConfigurationContext, data: MetadataValueYAML) => {
+      if (typeof data !== "string") return undefined
+      const value = DataCompositionComparisonTypeFromYAML[data as keyof typeof DataCompositionComparisonTypeFromYAML]
+      if (value === undefined) return undefined
+      return { type: "DataCompositionComparisonType", value } as unknown as MetadataTypedValue
+    },
+    toYAML: (_ctx: ConfigurationContext, v: MetadataTypedValue) =>
+      DataCompositionComparisonTypeToYAML[
+        (v as unknown as { type: "DataCompositionComparisonType"; value: keyof typeof DataCompositionComparisonTypeToYAML })
+          .value
+      ],
   } satisfies MetadataPrimitiveValueHandler,
 }

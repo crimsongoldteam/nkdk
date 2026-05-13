@@ -85,8 +85,8 @@ export type DcsMetadataValueFixture = {
   id: string
   title: string
   rule: DcsMetadataValuePropertyRule
-  value: MetadataDcsMetadataValue
-  yaml: MetadataDcsMetadataValueYAML
+  value: MetadataDcsMetadataValue | undefined
+  yaml: MetadataDcsMetadataValueYAML | undefined
   xml: string
 }
 
@@ -118,6 +118,24 @@ const primitiveUuidFixture: DcsMetadataValueFixture = {
   value: fixtureUuidPrimitive,
   yaml: "00000000-0000-0000-0000-000000000000",
   xml: "primitive-uuid.xml",
+}
+
+const emptyLocalStringFixture: DcsMetadataValueFixture = {
+  id: "emptyLocalString",
+  title: "DesignTimeValue (empty LocalStringType)",
+  rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+  value: { items: {} },
+  yaml: undefined,
+  xml: "empty-local-string.xml",
+}
+
+const nilFixture: DcsMetadataValueFixture = {
+  id: "nil",
+  title: "nil value",
+  rule: { type: "MetadataDcsMetadataValue", valueType: "Primitive", exportNilValue: true, yaml: "value" },
+  value: undefined,
+  yaml: undefined,
+  xml: "nil.xml",
 }
 
 export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
@@ -203,6 +221,8 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
 
 export const dcsMetadataValueXMLFixtures: DcsMetadataValueFixture[] = [
   ...dcsMetadataValueFixtures,
+  emptyLocalStringFixture,
+  nilFixture,
   primitiveTypeRefFixture,
   primitiveUuidFixture,
 ]

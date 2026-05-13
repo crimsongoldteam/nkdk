@@ -14,6 +14,8 @@ export const MetadataValueTypeToXML = {
   ApplicationUsePurpose: "app:ApplicationUsePurpose",
   typeRef: "v8:Type",
   uuid: "v8:UUID",
+  valueList: "xr:ValueList",
+  DataCompositionComparisonType: "dcsset:DataCompositionComparisonType",
   fixedArray: "v8:FixedArray",
   formChoiceListDesTimeValue: "FormChoiceListDesTimeValue",
 } as const
@@ -28,6 +30,7 @@ export type MetadataValueTypeToXMLTypes = [
   ["ApplicationUsePurpose", string],
   ["typeRef", string],
   ["uuid", string],
+  ["DataCompositionComparisonType", string],
   // ["fixedArray", string[] | number[] | boolean[]],
   // ["formChoiceListDesTimeValue", { presentation: I8nText; value: MetadataValue }],
 ]
@@ -53,6 +56,7 @@ export type MetadataPrimitiveValueType =
   | "ApplicationUsePurpose"
   | "typeRef"
   | "uuid"
+  | "DataCompositionComparisonType"
 
 type MetadataValueTypeToXMLTypesTuple = MetadataValueTypeToXMLTypes[number]
 type MetadataValueTypeToXMLTypesMap = {
@@ -84,6 +88,10 @@ export interface MetadataFormChoiceListValue {
   value?: MetadataTypedValue
 }
 
+export interface MetadataValueListValue {
+  type: "valueList"
+}
+
 export type MetadataSimpleValue =
   | MetadataTypedPrimitiveValue["value"]
   | MetadataTypedPrimitiveValue["value"][]
@@ -93,7 +101,7 @@ export type MetadataSimpleValue =
     }
 
 export type MetadataTypedValue<T extends MetadataValueType = MetadataValueType> = Extract<
-  MetadataTypedPrimitiveValue | MetadataFixedArrayValue | MetadataFormChoiceListValue,
+  MetadataTypedPrimitiveValue | MetadataFixedArrayValue | MetadataFormChoiceListValue | MetadataValueListValue,
   { type: T }
 >
 
@@ -117,7 +125,11 @@ export type MetadataFixedArrayValueXML = {
 export interface MetadataFormChoiceListValueXML {
   "_xsi:type": "FormChoiceListDesTimeValue"
   Presentation?: I8nTextXML
-  Value: MetadataPrimitiveValueXML | { "_xsi:nil": true }
+  Value: MetadataPrimitiveValueXML | MetadataValueListXML | { "_xsi:nil": true }
+}
+
+export type MetadataValueListXML = {
+  "_xsi:type": "xr:ValueList"
 }
 
 export type MetadataSimpleValueXML = {
@@ -185,6 +197,7 @@ export type MetadataValueXML<_Rule = unknown, _Value = unknown> =
   | MetadataPrimitiveValueXML
   | MetadataFixedArrayValueXML
   | MetadataFormChoiceListValueXML
+  | MetadataValueListXML
   | { "_xsi:nil": true }
 
 /** Validates that the actual type matches the rule's allowed types. Throws if not. */

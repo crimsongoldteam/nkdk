@@ -27,6 +27,7 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "ApplicationUsePurpose",
   "typeRef",
   "uuid",
+  "DataCompositionComparisonType",
 ]
 
 /**
@@ -57,6 +58,10 @@ export const exportMetadataValueToXML = (params: {
 
   if (value.type === "formChoiceListDesTimeValue") {
     return exportFormChoiceListToXML(params.context, value as MetadataFormChoiceListValue)
+  }
+
+  if (value.type === "valueList") {
+    return { "_xsi:type": MetadataValueTypeToXML.valueList }
   }
 
   if (!PRIMITIVE_TYPES.includes(value.type as MetadataPrimitiveValueType)) {

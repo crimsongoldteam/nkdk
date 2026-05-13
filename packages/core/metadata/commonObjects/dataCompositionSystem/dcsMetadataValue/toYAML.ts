@@ -36,6 +36,11 @@ export const exportDcsMetadataValueToYAML = (
 ): MetadataDcsMetadataValueYAML | undefined => {
   if (data === undefined) return undefined
   if (data === null) return null as unknown as MetadataDcsMetadataValueYAML
+  if (Array.isArray(data) && rule.valueType === "Primitive") {
+    return data.map((item) =>
+      exportDcsMetadataValueToYAML(context, rule, item)
+    ) as MetadataDcsMetadataValueYAML
+  }
 
   if (isExplicitTextValue(data)) {
     if (data.type === "DesignTimeValue") {
