@@ -60,6 +60,19 @@
 - runtime-регистрацию через `registerMetadataItemRule`;
 - импорт в `packages/core/metadata/appliedObjects/index.ts`, если объект должен подключаться при старте metadata-пакета.
 
+Если объект должен участвовать в configuration sync верхнего уровня, дополнительно проверь:
+
+- `packages/core/metadata/appliedObjects/configuration/topLevelRules.ts`;
+- `packages/core/metadata/appliedObjects/configuration/migrations/paths.ts`.
+
+Для объектов с `ChildFormNames` или `ChildTemplateNames` добавь sync-регрессию на путь внешних файлов. Проверь,
+что итоговый XML-путь содержит имя объекта ровно один раз, например `SettingsStorages/<name>/Templates/...`, а
+не `SettingsStorages/<name>/<name>/Templates/...`.
+
+Если внешний XML-файл должен сохраняться без разбора, например `WSDefinition.xml`, веди его как непрозрачный
+внешний файл через существующий механизм внешней синхронизации (`Template`, `Module`, `Help` и похожие правила),
+а не добавляй модельный разбор XML.
+
 ## Тесты
 
 Минимальный набор для объекта верхнего уровня:
