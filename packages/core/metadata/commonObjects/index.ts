@@ -46,6 +46,11 @@ import "./mobileDeviceCommandBarContent/toJSONSchema"
 import "./mobileDeviceCommandBarContent/toXML"
 import "./mobileDeviceCommandBarContent/toYAML"
 
+import "./commonAttributeContent/fromXML"
+import "./commonAttributeContent/fromYAML"
+import "./commonAttributeContent/toXML"
+import "./commonAttributeContent/toYAML"
+
 import "./сhoiceParameterLinks/fromXML"
 import "./сhoiceParameterLinks/fromYAML"
 import "./сhoiceParameterLinks/graphFromModel"

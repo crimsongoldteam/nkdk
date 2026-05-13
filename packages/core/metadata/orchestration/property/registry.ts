@@ -27,6 +27,10 @@ import {
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
 import {
+  CommonAttributeContent,
+  CommonAttributeContentYAML,
+} from "~/metadata/commonObjects/commonAttributeContent/types"
+import {
   MobileDeviceCommandBarContent,
   MobileDeviceCommandBarContentYAML,
 } from "~/metadata/commonObjects/mobileDeviceCommandBarContent/types"
@@ -394,6 +398,10 @@ export type PropertyTypeRegistry = {
     item: MobileDeviceCommandBarContent
 
     yaml: MobileDeviceCommandBarContentYAML
+  }
+  CommonAttributeContent: {
+    item: CommonAttributeContent
+    yaml: CommonAttributeContentYAML
   }
   ChoiceParameterLinks: {
     item: ChoiceParameterLinks
@@ -872,6 +880,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   CharacteristicsDescriptions: "CharacteristicsDescriptions",
   ChoiceList: "ChoiceList",
   MobileDeviceCommandBarContent: "MobileDeviceCommandBarContent",
+  CommonAttributeContent: "CommonAttributeContent",
   ChoiceParameterLinks: "ChoiceParameterLinks",
   ChoiceParameters: "ChoiceParameters",
   FieldsList: "FieldsList",
