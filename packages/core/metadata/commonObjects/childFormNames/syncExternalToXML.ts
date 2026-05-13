@@ -7,8 +7,8 @@ import type { ChildFormNamesPropertyRule } from "./types"
 
 /**
  * Сканирует папку форм объекта (`<nkdkDir>/<folderName>`) и для каждой подпапки
- * с `Форма.yaml` + `Форма.nkdk` вызывает `syncFormToXML`. Формы обрабатываются
- * последовательно внутри объекта.
+ * с `Форма.yaml` вызывает `syncFormToXML`. Формы обрабатываются последовательно
+ * внутри объекта.
  */
 export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params) => {
   const { context, rule: rawRule, nkdkDir, xmlDir, name, referenceDir, referenceName, xmlManifest } = params
@@ -22,8 +22,7 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
     .filter((e) => e.isDirectory())
     .filter((e) => {
       const yamlPath = join(formsDir, e.name, "Форма.yaml")
-      const nkdkPath = join(formsDir, e.name, "Форма.nkdk")
-      return fs.existsSync(yamlPath) && fs.existsSync(nkdkPath)
+      return fs.existsSync(yamlPath)
     })
     .map((e) => e.name)
 

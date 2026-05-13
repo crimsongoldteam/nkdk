@@ -10,6 +10,7 @@ import "./metadataDefinedType"
 import "./metadataEventSubscription"
 import "./metadataFilterCriterion"
 import "./metadataFunctionalOptionsParameter"
+import "./metadataSettingsStorage"
 
 import "./metadataDocument"
 import "./metadataDocumentNumerator"

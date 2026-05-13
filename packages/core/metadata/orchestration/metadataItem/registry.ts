@@ -125,6 +125,10 @@ import {
   MetadataFunctionalOptionsParameter,
   MetadataFunctionalOptionsParameterYAML,
 } from "../../appliedObjects/metadataFunctionalOptionsParameter/types"
+import {
+  MetadataSettingsStorage,
+  MetadataSettingsStorageYAML,
+} from "../../appliedObjects/metadataSettingsStorage/types"
 import { MetadataSequence, MetadataSequenceYAML } from "../../appliedObjects/metadataSequence/types"
 import {
   MetadataSessionParameter,
@@ -768,6 +772,11 @@ export type MetadataItemTypeRegistry = {
   MetadataFunctionalOptionsParameter: {
     metadata: MetadataFunctionalOptionsParameter
     yaml: MetadataFunctionalOptionsParameterYAML
+  }
+
+  MetadataSettingsStorage: {
+    metadata: MetadataSettingsStorage
+    yaml: MetadataSettingsStorageYAML
   }
 
   MetadataDocument: {

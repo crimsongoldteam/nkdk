@@ -8,6 +8,7 @@ import { MetadataDocumentNumeratorRules } from "../metadataDocumentNumerator/rul
 import { MetadataEventSubscriptionRules } from "../metadataEventSubscription/rules"
 import { MetadataFilterCriterionRules } from "../metadataFilterCriterion/rules"
 import { MetadataFunctionalOptionsParameterRules } from "../metadataFunctionalOptionsParameter/rules"
+import { MetadataSettingsStorageRules } from "../metadataSettingsStorage/rules"
 import { MetadataSequenceRules } from "../metadataSequence/rules"
 import { MetadataSessionParameterRules } from "../metadataSessionParameter/rules"
 import { MetadataStyleItemRules } from "../metadataStyleItem/rules"
@@ -28,6 +29,7 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataEventSubscriptionRules,
   MetadataFilterCriterionRules,
   MetadataFunctionalOptionsParameterRules,
+  MetadataSettingsStorageRules,
   MetadataStyleItemRules,
   MetadataCommonAttributeRules,
   MetadataBotRules,

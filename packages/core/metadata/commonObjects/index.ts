@@ -130,6 +130,8 @@ import "./childFormNames/syncExternalFromXML"
 
 import "./childTemplateNames/fromXML"
 import "./childTemplateNames/toXML"
+import "./childTemplateNames/syncExternalToXML"
+import "./childTemplateNames/syncExternalFromXML"
 
 import "./metadataAttribute/register"
 

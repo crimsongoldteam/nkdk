@@ -43,6 +43,12 @@ describe("migration paths", () => {
       ownerPath: "ПараметрФункциональныхОпций",
       levelPath: "ПараметрФункциональныхОпций",
     })
+    expect(parseMigrationPath("ХранилищеНастроек.ПользовательскиеНастройки")).toMatchObject({
+      kind: "object",
+      localName: "ПользовательскиеНастройки",
+      ownerPath: "ХранилищеНастроек",
+      levelPath: "ХранилищеНастроек",
+    })
     expect(parseMigrationPath("ЭлементСтиля.ОсновнойШрифт")).toMatchObject({
       kind: "object",
       localName: "ОсновнойШрифт",
@@ -147,6 +153,9 @@ describe("migration paths", () => {
       "Неподдерживаемый путь миграции",
     )
     expect(() => parseMigrationPath("КритерийОтбора.ПоСкладу.Форма.ФормаСписка")).toThrow(
+      "Неподдерживаемый путь миграции",
+    )
+    expect(() => parseMigrationPath("ХранилищеНастроек.ПользовательскиеНастройки.Форма.Основная")).toThrow(
       "Неподдерживаемый путь миграции",
     )
     expect(() => parseMigrationPath("ОбщийРеквизит.Организация.Реквизит.Код")).toThrow(

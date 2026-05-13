@@ -28,6 +28,10 @@ import {
   MetadataFunctionalOptionsParameter,
   MetadataFunctionalOptionsParameterYAML,
 } from "~/metadata/appliedObjects/metadataFunctionalOptionsParameter/types"
+import {
+  MetadataSettingsStorage,
+  MetadataSettingsStorageYAML,
+} from "~/metadata/appliedObjects/metadataSettingsStorage/types"
 import { MetadataSequence, MetadataSequenceYAML } from "~/metadata/appliedObjects/metadataSequence/types"
 import {
   MetadataSessionParameter,
@@ -589,6 +593,10 @@ export type PropertyTypeRegistry = {
     item: MetadataFunctionalOptionsParameter
     yaml: MetadataFunctionalOptionsParameterYAML
   }
+  MetadataSettingsStorage: {
+    item: MetadataSettingsStorage
+    yaml: MetadataSettingsStorageYAML
+  }
   MetadataDocumentNumerator: {
     item: MetadataDocumentNumerator
     yaml: MetadataDocumentNumeratorYAML
@@ -989,6 +997,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataEventSubscription: "MetadataEventSubscription",
   MetadataFilterCriterion: "MetadataFilterCriterion",
   MetadataFunctionalOptionsParameter: "MetadataFunctionalOptionsParameter",
+  MetadataSettingsStorage: "MetadataSettingsStorage",
   MetadataDocumentNumerator: "MetadataDocumentNumerator",
   MetadataEnumeration: "MetadataEnumeration",
   MetadataEnumerationValues: "MetadataEnumerationValues",

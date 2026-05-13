@@ -15,6 +15,7 @@ describe("TopLevelMetadataItemRules", () => {
         { itemType: "MetadataEventSubscription", xmlDir: "EventSubscriptions" },
         { itemType: "MetadataFilterCriterion", xmlDir: "FilterCriteria" },
         { itemType: "MetadataFunctionalOptionsParameter", xmlDir: "FunctionalOptionsParameters" },
+        { itemType: "MetadataSettingsStorage", xmlDir: "SettingsStorages" },
         { itemType: "MetadataStyleItem", xmlDir: "StyleItems" },
         { itemType: "MetadataCommonAttribute", xmlDir: "CommonAttributes" },
         { itemType: "MetadataBot", xmlDir: "Bots" },
