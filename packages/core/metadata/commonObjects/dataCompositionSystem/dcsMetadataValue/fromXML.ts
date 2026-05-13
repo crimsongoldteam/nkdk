@@ -33,6 +33,13 @@ const textNode = (value: string | { "#text"?: string } | undefined): string => {
   throw new Error("DCS MetadataValue: invalid text node")
 }
 
+const maybeTextNode = (value: string | { "#text"?: unknown } | undefined): string | undefined => {
+  if (value === undefined) return undefined
+  if (typeof value === "string") return value
+  const text = value["#text"]
+  return typeof text === "string" ? text : undefined
+}
+
 const getXsiType = (root: unknown): string | undefined => {
   if (typeof root === "object" && root !== null && "_xsi:type" in root) {
     return String((root as { "_xsi:type": string })["_xsi:type"])
@@ -132,9 +139,15 @@ const importDcsMetadataValueFromDcsXMLInternal = (
   }
 
   if (xsi === "dcscor:DesignTimeValue") {
-    return {
-      items: { ru: textNode(root as string | { "#text"?: string }) },
+    const text = maybeTextNode(root as string | { "#text"?: unknown })
+    if (text !== undefined) {
+      return { type: "DesignTimeValue", value: text }
     }
+
+    const i8nText = importI8nTextFromXML(context, { type: "I8nText" }, root as I8nTextXML)
+    if (i8nText !== undefined) return i8nText
+
+    throw new Error("DCS MetadataValue: invalid DesignTimeValue")
   }
 
   if (xsi === "v8:LocalStringType") {

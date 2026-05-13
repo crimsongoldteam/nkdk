@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+  designTimeDataParametersDynamicList,
   emptyListSettingsDynamicList,
   fullDynamicList,
   keyFieldDynamicList,
@@ -103,6 +104,25 @@ describe("import DynamicList from XML", () => {
       value: imported,
       xmlRootTag: "Settings",
       path: "emptyListSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("round-trip: designTimeDataParameters.xml import -> export", () => {
+    const imported = testImportPropertyFromXML({
+      rule,
+      path: "designTimeDataParameters.xml",
+      xmlRootTag: "Settings",
+      importMetaUrl: import.meta.url,
+    })
+    expect(imported).toEqual(designTimeDataParametersDynamicList)
+
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: imported,
+      xmlRootTag: "Settings",
+      path: "designTimeDataParameters.xml",
       importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(expectedResult)

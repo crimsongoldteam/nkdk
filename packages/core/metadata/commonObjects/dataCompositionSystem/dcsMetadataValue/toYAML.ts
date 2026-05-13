@@ -3,6 +3,7 @@ import { exportFontToYAML } from "~/metadata/commonObjects/font/toYAML"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { exportMetadataFieldToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
+import { exportMetadataFieldStringToYAML, exportMetadataValueStringToYAML } from "~/metadata/commonObjects/metadataPath/toYAML"
 import { exportMetadataValueToYAML } from "~/metadata/commonObjects/metadataValue/toYAML"
 import { exportTypeLinkToYAML } from "~/metadata/commonObjects/typeLink/toYAML"
 import { exportChoiceParameterLinksToYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/toYAML"
@@ -13,7 +14,20 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
-import { DcsMetadataValuePropertyRule, MetadataDcsMetadataValue, MetadataDcsMetadataValueYAML } from "./types"
+import {
+  DcsMetadataValuePropertyRule,
+  MetadataDcsExplicitTextValue,
+  MetadataDcsMetadataValue,
+  MetadataDcsMetadataValueYAML,
+} from "./types"
+
+const isExplicitTextValue = (data: MetadataDcsMetadataValue): data is MetadataDcsExplicitTextValue =>
+  data !== null &&
+  typeof data === "object" &&
+  "type" in data &&
+  "value" in data &&
+  (data.type === "DesignTimeValue" || data.type === "Field") &&
+  typeof data.value === "string"
 
 export const exportDcsMetadataValueToYAML = (
   context: ConfigurationContext,
@@ -22,6 +36,14 @@ export const exportDcsMetadataValueToYAML = (
 ): MetadataDcsMetadataValueYAML | undefined => {
   if (data === undefined) return undefined
   if (data === null) return null as unknown as MetadataDcsMetadataValueYAML
+
+  if (isExplicitTextValue(data)) {
+    if (data.type === "DesignTimeValue") {
+      return (exportMetadataValueStringToYAML(context, undefined, data.value) ?? data.value) as MetadataDcsMetadataValueYAML
+    }
+
+    return (exportMetadataFieldStringToYAML(context, undefined, data.value) ?? data.value) as MetadataDcsMetadataValueYAML
+  }
 
   switch (rule.valueType) {
     case "Color":

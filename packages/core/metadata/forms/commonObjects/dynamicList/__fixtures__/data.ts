@@ -2,6 +2,31 @@ import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dyn
 
 export const queryText = "ВЫБРАТЬ\nСправочник1.Реквизит1 КАК Реквизит1\nИЗ\nСправочник.Справочник1 КАК Справочник1"
 
+export const designTimeDataParametersDynamicList = {
+  customQuery: false,
+  dynamicDataRead: true,
+  dataParameters: {
+    itemType: "SettingsParameterValueCollection",
+    parameters: {
+      УведомленияЕГРЮЛ: {
+        parameter: "УведомленияЕГРЮЛ",
+        use: false,
+        value: [
+          {
+            type: "DesignTimeValue",
+            value: "Перечисление.СтраницыЖурналаОтчетность.ЕГРЮЛ",
+          },
+          {
+            type: "DesignTimeValue",
+            value: "Перечисление.СтраницыЖурналаОтчетность.Уведомления",
+          },
+        ],
+      },
+    },
+  },
+  itemType: "DynamicList",
+} as const satisfies DynamicList
+
 export const fullDynamicList = {
   autoFillAvailableFields: false,
   autoSaveUserSettings: false,
