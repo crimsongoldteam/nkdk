@@ -301,4 +301,39 @@ describe("sync configuration to XML", () => {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }
   })
+
+  it("пишет шаблоны дочерних объектов без повторного имени объекта", async () => {
+    const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_child_templates")
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+    const name = "ТестовоеХранилище"
+    if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    fs.mkdirSync(join(yamlDir, "ХранилищеНастроек", name, "Шаблоны", "Макет"), { recursive: true })
+    fs.writeFileSync(join(yamlDir, "ХранилищеНастроек", name, "Свойства.yaml"), [
+      "Синоним: Тестовое хранилище",
+      "Шаблоны:",
+      "  - Макет",
+      "",
+    ].join("\n"))
+    fs.writeFileSync(join(yamlDir, "ХранилищеНастроек", name, "Шаблоны", "Макет", "Template.xml"), "<Template/>")
+    fs.writeFileSync(join(yamlDir, "ХранилищеНастроек", name, "Шаблоны", "Макет", "Template.txt"), "template text")
+
+    try {
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      expect(result.failed).toEqual([])
+      expect(
+        fs.readFileSync(join(outDir, "SettingsStorages", name, "Templates", "Макет", "Ext", "Template.txt"), "utf-8"),
+      ).toBe("template text")
+      expect(fs.existsSync(join(outDir, "SettingsStorages", name, name, "Templates", "Макет", "Ext", "Template.txt"))).toBe(false)
+    } finally {
+      if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    }
+  })
 })
