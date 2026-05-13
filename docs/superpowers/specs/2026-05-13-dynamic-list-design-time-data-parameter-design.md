@@ -11,9 +11,11 @@ Short round-trip по `/Users/nikita/git/round-trip-source/acc` показыва
 + <dcscor:value xsi:type="dcscor:Field">...</dcscor:value>
 ```
 
-Владелец правила - `packages/core/metadata/forms/commonObjects/dynamicList/rules.ts`.
-Сейчас `DynamicListRules.dataParameters` задаёт общий `defaultItemRule` как
-`valueType: "Field"`, поэтому неизвестные параметры экспортируются как поле СКД.
+Проблема не в имени `УведомленияЕГРЮЛ`: это имя поля/параметра конкретного
+динамического списка, а не устойчивое правило платформы. Сейчас значение
+`dcscor:DesignTimeValue` при импорте схлопывается в форму, не сохраняющую
+исходный DCS-тип. На экспорте `DynamicListRules.dataParameters.defaultItemRule`
+трактует такую строку как `Field`, поэтому XML-тип меняется.
 
 ## Goal
 
@@ -29,35 +31,49 @@ Short round-trip по `/Users/nikita/git/round-trip-source/acc` показыва
 `dcsset:dataParameters` содержит `dcscor:item` с параметром `УведомленияЕГРЮЛ`
 и двумя `dcscor:value xsi:type="dcscor:DesignTimeValue"` элементами.
 
-Исправление выполнить через `rules.ts`: добавить для
-`DynamicListRules.dataParameters` запись в `parameterRules`, где
-`УведомленияЕГРЮЛ` использует `type: "SettingsParameterValue"` и
-`valueType: "DesignTimeValue"`.
+Исправление не должно завязываться на имя `УведомленияЕГРЮЛ`. Нужно сохранить
+тип самого DCS-значения при XML-импорте: `dcscor:Field` и
+`dcscor:DesignTimeValue` должны различаться в модели до XML-экспорта.
+Реализация должна переиспользовать существующий паттерн
+`DcsMetadataTypedValue`: типизированная форма `{ type, value }`,
+определение `DesignTimeValue` из XML по `xsi:type`, а из YAML/строки - через
+`importMetadataValueStringFromYAML`.
 
 Не менять общий `defaultItemRule`, потому что он нужен для параметров, которые
 действительно являются `dcscor:Field`.
 
+Не добавлять `parameterRules` по имени `УведомленияЕГРЮЛ`, потому что это имя
+поля конфигурации, а не типовое имя параметра.
+
 ## Data Flow
 
-`SettingsParameterValueCollection` выбирает правило элемента по имени параметра:
+Для XML-цикла исходный `xsi:type` является источником истины:
 
-1. `parameterRules[parameterName]`
-2. `defaultItemRule`
+1. `dcscor:value xsi:type="dcscor:DesignTimeValue"` импортируется как
+   типизированное DCS-значение `DesignTimeValue`.
+2. `dcscor:value xsi:type="dcscor:Field"` импортируется как типизированное
+   DCS-значение `Field`.
+3. Экспорт смотрит на типизированное значение и возвращает тот же `xsi:type`,
+   без угадывания по имени параметра.
 
-После добавления правила `УведомленияЕГРЮЛ` импорт и экспорт будут использовать
-`DcsMetadataValue.valueType = "DesignTimeValue"` для этого параметра, а остальные
-параметры продолжат идти через default `Field`.
+Для YAML-цикла дискриминатор явно не хранится. Если YAML содержит строку вроде
+`Перечисление.СтраницыЖурналаОтчетность.ЕГРЮЛ`, импорт восстанавливает
+`DesignTimeValue` через `importMetadataValueStringFromYAML`. Если строка
+распознаётся как путь поля, она остаётся `Field`. Это осознанная граница:
+YAML не становится новым источником истины для XML `xsi:type`.
 
 ## Error Handling
 
-Если в будущем появятся другие параметры данных с `DesignTimeValue`, они должны
-получить отдельные тесты и отдельные записи `parameterRules`. Автоопределение
-типа по XML не входит в этот шаг, чтобы не менять форму модели и поведение
-неизвестных параметров.
+Если строка в YAML неоднозначна и не распознаётся картой metadata value,
+сохраняется существующее поведение по умолчанию для `dataParameters`. Явный
+расширенный YAML-синтаксис вида `{ Тип, Значение }` не входит в этот шаг.
 
 ## Testing
 
-1. Добавить красный точечный тест на round-trip `DynamicList` с параметром
+1. Добавить красный точечный тест на XML round-trip `DynamicList` с параметром
    `УведомленияЕГРЮЛ`.
-2. После правки запустить точечный тест `dynamicList`.
-3. После зелёного точечного теста запустить `pnpm test` из корня worktree.
+2. Добавить точечный тест на YAML-импорт строки `Перечисление...` как
+   `DesignTimeValue`, если реализация затронет YAML-эвристику.
+3. После правки запустить точечный тест `dynamicList` и тесты изменённого DCS
+   value-модуля.
+4. После зелёных точечных тестов запустить `pnpm test` из корня worktree.
