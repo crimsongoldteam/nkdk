@@ -266,6 +266,7 @@ import { FormCommands, FormCommandsYAML } from "~/metadata/forms/commonObjects/f
 import { FormParameters, FormParametersYAML } from "~/metadata/forms/commonObjects/formParameter/types"
 import { ScrollBarUseEnterprise } from "~/metadata/forms/commonObjects/scrollBarUse/types"
 import { SpreadsheetDocument, SpreadsheetDocumentYAML } from "~/metadata/forms/commonObjects/spreadsheetDocument/types"
+import { Planner, PlannerYAML } from "~/metadata/forms/commonObjects/planner/types"
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/types"
@@ -669,6 +670,11 @@ export type PropertyTypeRegistry = {
     yaml: SpreadsheetDocumentYAML
   }
 
+  Planner: {
+    item: Planner
+    yaml: PlannerYAML
+  }
+
   CommandSet: {
     item: CommandSet
     yaml: CommandSetYAML
@@ -1019,6 +1025,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   DynamicList: "DynamicList",
   Chart: "Chart",
   SpreadsheetDocument: "SpreadsheetDocument",
+  Planner: "Planner",
   CommandSet: "CommandSet",
   FormCommands: "FormCommands",
   FormAttributes: "FormAttributes",

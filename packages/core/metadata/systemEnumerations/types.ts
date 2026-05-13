@@ -13669,6 +13669,7 @@ export type SystemEnumerationTypeMap = {
   WebColors: WebColors
   WindowsColors: WindowsColors
   WindowsFonts: WindowsFonts
+  CommonAttributeConfigurationExtensionsSeparation: CommonAttributeConfigurationExtensionsSeparation
   BinaryDataStorageLocationUse: BinaryDataStorageLocationUse
   StatePresentation: StatePresentation
   ButtonLocationInContextMenu: ButtonLocationInContextMenu
