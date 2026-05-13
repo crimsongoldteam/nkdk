@@ -20,6 +20,8 @@ const TOP_LEVEL_PREFIXES = new Set([
   "ПараметрФункциональныхОпций",
   "ЭлементСтиля",
   "ОбщийРеквизит",
+  "Бот",
+  "WSСсылка",
 ])
 const OBJECT_WITH_CHILDREN_PREFIXES = new Set(["Справочник", "Документ"])
 

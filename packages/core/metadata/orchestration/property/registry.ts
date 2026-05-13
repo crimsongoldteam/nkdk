@@ -3,6 +3,7 @@ import {
   MetadataCommonAttribute,
   MetadataCommonAttributeYAML,
 } from "~/metadata/appliedObjects/metadataCommonAttribute/types"
+import { MetadataBot, MetadataBotYAML } from "~/metadata/appliedObjects/metadataBot/types"
 import { MetadataConstant, MetadataConstantYAML } from "~/metadata/appliedObjects/metadataConstant/types"
 import { MetadataDefinedType, MetadataDefinedTypeYAML } from "~/metadata/appliedObjects/metadataDefinedType/types"
 import {
@@ -33,6 +34,10 @@ import {
   MetadataSessionParameterYAML,
 } from "~/metadata/appliedObjects/metadataSessionParameter/types"
 import { MetadataStyleItem, MetadataStyleItemYAML } from "~/metadata/appliedObjects/metadataStyleItem/types"
+import {
+  MetadataWSReference,
+  MetadataWSReferenceYAML,
+} from "~/metadata/appliedObjects/metadataWSReference/types"
 import {
   AdditionalIndex,
   AdditionalIndexCollection,
@@ -564,6 +569,10 @@ export type PropertyTypeRegistry = {
     item: MetadataCommonAttribute
     yaml: MetadataCommonAttributeYAML
   }
+  MetadataBot: {
+    item: MetadataBot
+    yaml: MetadataBotYAML
+  }
   MetadataDefinedType: {
     item: MetadataDefinedType
     yaml: MetadataDefinedTypeYAML
@@ -603,6 +612,10 @@ export type PropertyTypeRegistry = {
   MetadataStyleItem: {
     item: MetadataStyleItem
     yaml: MetadataStyleItemYAML
+  }
+  MetadataWSReference: {
+    item: MetadataWSReference
+    yaml: MetadataWSReferenceYAML
   }
   MetadataSequenceDimension: {
     item: MetadataSequenceDimension
@@ -971,6 +984,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataCommands: "MetadataCommands",
   MetadataConstant: "MetadataConstant",
   MetadataCommonAttribute: "MetadataCommonAttribute",
+  MetadataBot: "MetadataBot",
   MetadataDefinedType: "MetadataDefinedType",
   MetadataEventSubscription: "MetadataEventSubscription",
   MetadataFilterCriterion: "MetadataFilterCriterion",
@@ -981,6 +995,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataSequence: "MetadataSequence",
   MetadataSessionParameter: "MetadataSessionParameter",
   MetadataStyleItem: "MetadataStyleItem",
+  MetadataWSReference: "MetadataWSReference",
   MetadataSequenceDimension: "MetadataSequenceDimension",
   MetadataSequenceDimensions: "MetadataSequenceDimensions",
   CommandInterface: "CommandInterface",

@@ -55,6 +55,18 @@ describe("migration paths", () => {
       ownerPath: "ОбщийРеквизит",
       levelPath: "ОбщийРеквизит",
     })
+    expect(parseMigrationPath("Бот.Телеграм")).toMatchObject({
+      kind: "object",
+      localName: "Телеграм",
+      ownerPath: "Бот",
+      levelPath: "Бот",
+    })
+    expect(parseMigrationPath("WSСсылка.Калькулятор")).toMatchObject({
+      kind: "object",
+      localName: "Калькулятор",
+      ownerPath: "WSСсылка",
+      levelPath: "WSСсылка",
+    })
   })
 
   it("parses object attribute paths", () => {
@@ -138,6 +150,10 @@ describe("migration paths", () => {
       "Неподдерживаемый путь миграции",
     )
     expect(() => parseMigrationPath("ОбщийРеквизит.Организация.Реквизит.Код")).toThrow(
+      "Неподдерживаемый путь миграции",
+    )
+    expect(() => parseMigrationPath("Бот.Телеграм.Реквизит.Код")).toThrow("Неподдерживаемый путь миграции")
+    expect(() => parseMigrationPath("WSСсылка.Калькулятор.Форма.Основная")).toThrow(
       "Неподдерживаемый путь миграции",
     )
   })

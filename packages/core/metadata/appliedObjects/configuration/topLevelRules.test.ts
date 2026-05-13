@@ -17,6 +17,8 @@ describe("TopLevelMetadataItemRules", () => {
         { itemType: "MetadataFunctionalOptionsParameter", xmlDir: "FunctionalOptionsParameters" },
         { itemType: "MetadataStyleItem", xmlDir: "StyleItems" },
         { itemType: "MetadataCommonAttribute", xmlDir: "CommonAttributes" },
+        { itemType: "MetadataBot", xmlDir: "Bots" },
+        { itemType: "MetadataWSReference", xmlDir: "WSReferences" },
       ])
     )
   })

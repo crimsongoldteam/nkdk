@@ -93,6 +93,7 @@ import {
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
+import { MetadataBot, MetadataBotYAML } from "../../appliedObjects/metadataBot/types"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
 import {
@@ -130,6 +131,10 @@ import {
   MetadataSessionParameterYAML,
 } from "../../appliedObjects/metadataSessionParameter/types"
 import { MetadataStyleItem, MetadataStyleItemYAML } from "../../appliedObjects/metadataStyleItem/types"
+import {
+  MetadataWSReference,
+  MetadataWSReferenceYAML,
+} from "../../appliedObjects/metadataWSReference/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -740,6 +745,11 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataCommonAttributeYAML
   }
 
+  MetadataBot: {
+    metadata: MetadataBot
+    yaml: MetadataBotYAML
+  }
+
   MetadataDefinedType: {
     metadata: MetadataDefinedType
     yaml: MetadataDefinedTypeYAML
@@ -793,6 +803,11 @@ export type MetadataItemTypeRegistry = {
   MetadataStyleItem: {
     metadata: MetadataStyleItem
     yaml: MetadataStyleItemYAML
+  }
+
+  MetadataWSReference: {
+    metadata: MetadataWSReference
+    yaml: MetadataWSReferenceYAML
   }
 
   //#endregion
