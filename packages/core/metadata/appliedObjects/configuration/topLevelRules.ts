@@ -1,8 +1,12 @@
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { MetadataCatalogRules } from "../metadataCatalog/rules"
+import { MetadataDefinedTypeRules } from "../metadataDefinedType/rules"
 import { MetadataDocumentRules } from "../metadataDocument/rules"
 import { MetadataDocumentNumeratorRules } from "../metadataDocumentNumerator/rules"
+import { MetadataEventSubscriptionRules } from "../metadataEventSubscription/rules"
+import { MetadataFunctionalOptionsParameterRules } from "../metadataFunctionalOptionsParameter/rules"
 import { MetadataSequenceRules } from "../metadataSequence/rules"
+import { MetadataSessionParameterRules } from "../metadataSessionParameter/rules"
 
 /**
  * Реестр корневых прикладных объектов, которые обходит configuration walker
@@ -14,4 +18,8 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataDocumentRules,
   MetadataDocumentNumeratorRules,
   MetadataSequenceRules,
+  MetadataDefinedTypeRules,
+  MetadataSessionParameterRules,
+  MetadataEventSubscriptionRules,
+  MetadataFunctionalOptionsParameterRules,
 ]
