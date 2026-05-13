@@ -12,6 +12,69 @@ describe("migration paths", () => {
     })
   })
 
+  it("parses simple top level applied object paths", () => {
+    expect(parseMigrationPath("ОпределяемыйТип.ТипДокумента")).toMatchObject({
+      kind: "object",
+      localName: "ТипДокумента",
+      ownerPath: "ОпределяемыйТип",
+      levelPath: "ОпределяемыйТип",
+    })
+    expect(parseMigrationPath("ПараметрСеанса.ТекущийПользователь")).toMatchObject({
+      kind: "object",
+      localName: "ТекущийПользователь",
+      ownerPath: "ПараметрСеанса",
+      levelPath: "ПараметрСеанса",
+    })
+    expect(parseMigrationPath("ПодпискаНаСобытие.ПриЗаписи")).toMatchObject({
+      kind: "object",
+      localName: "ПриЗаписи",
+      ownerPath: "ПодпискаНаСобытие",
+      levelPath: "ПодпискаНаСобытие",
+    })
+    expect(parseMigrationPath("КритерийОтбора.ПоСкладу")).toMatchObject({
+      kind: "object",
+      localName: "ПоСкладу",
+      ownerPath: "КритерийОтбора",
+      levelPath: "КритерийОтбора",
+    })
+    expect(parseMigrationPath("ПараметрФункциональныхОпций.Организация")).toMatchObject({
+      kind: "object",
+      localName: "Организация",
+      ownerPath: "ПараметрФункциональныхОпций",
+      levelPath: "ПараметрФункциональныхОпций",
+    })
+    expect(parseMigrationPath("ХранилищеНастроек.ПользовательскиеНастройки")).toMatchObject({
+      kind: "object",
+      localName: "ПользовательскиеНастройки",
+      ownerPath: "ХранилищеНастроек",
+      levelPath: "ХранилищеНастроек",
+    })
+    expect(parseMigrationPath("ЭлементСтиля.ОсновнойШрифт")).toMatchObject({
+      kind: "object",
+      localName: "ОсновнойШрифт",
+      ownerPath: "ЭлементСтиля",
+      levelPath: "ЭлементСтиля",
+    })
+    expect(parseMigrationPath("ОбщийРеквизит.Организация")).toMatchObject({
+      kind: "object",
+      localName: "Организация",
+      ownerPath: "ОбщийРеквизит",
+      levelPath: "ОбщийРеквизит",
+    })
+    expect(parseMigrationPath("Бот.Телеграм")).toMatchObject({
+      kind: "object",
+      localName: "Телеграм",
+      ownerPath: "Бот",
+      levelPath: "Бот",
+    })
+    expect(parseMigrationPath("WSСсылка.Калькулятор")).toMatchObject({
+      kind: "object",
+      localName: "Калькулятор",
+      ownerPath: "WSСсылка",
+      levelPath: "WSСсылка",
+    })
+  })
+
   it("parses object attribute paths", () => {
     expect(parseMigrationPath("Справочник.Товары.Реквизит.Артикул")).toEqual({
       kind: "attribute",
@@ -80,6 +143,28 @@ describe("migration paths", () => {
 
   it("rejects child paths for numerators", () => {
     expect(() => parseMigrationPath("Нумератор.Ном.Реквизит.Код")).toThrow("Неподдерживаемый путь миграции")
+  })
+
+  it("rejects child paths for simple top level applied objects", () => {
+    expect(() => parseMigrationPath("ОпределяемыйТип.ТипДокумента.Реквизит.Код")).toThrow(
+      "Неподдерживаемый путь миграции",
+    )
+    expect(() => parseMigrationPath("ЭлементСтиля.ОсновнойШрифт.Реквизит.Код")).toThrow(
+      "Неподдерживаемый путь миграции",
+    )
+    expect(() => parseMigrationPath("КритерийОтбора.ПоСкладу.Форма.ФормаСписка")).toThrow(
+      "Неподдерживаемый путь миграции",
+    )
+    expect(() => parseMigrationPath("ХранилищеНастроек.ПользовательскиеНастройки.Форма.Основная")).toThrow(
+      "Неподдерживаемый путь миграции",
+    )
+    expect(() => parseMigrationPath("ОбщийРеквизит.Организация.Реквизит.Код")).toThrow(
+      "Неподдерживаемый путь миграции",
+    )
+    expect(() => parseMigrationPath("Бот.Телеграм.Реквизит.Код")).toThrow("Неподдерживаемый путь миграции")
+    expect(() => parseMigrationPath("WSСсылка.Калькулятор.Форма.Основная")).toThrow(
+      "Неподдерживаемый путь миграции",
+    )
   })
 
   it("rejects tabular section paths for sequences", () => {

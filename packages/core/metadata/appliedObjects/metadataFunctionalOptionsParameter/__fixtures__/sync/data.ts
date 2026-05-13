@@ -1,1 +1,5 @@
-export const readFunctionalOptionsParameterYAML = ""
+export const readFunctionalOptionsParameterYAML = `Синоним: Синоним
+Комментарий: Комментарий
+Использование:
+  - Справочник.СправочникПолный
+  - РегистрСведений.РегистрСведений1.Измерение.Измерение1`

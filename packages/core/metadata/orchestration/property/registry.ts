@@ -1,5 +1,11 @@
 import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
+import {
+  MetadataCommonAttribute,
+  MetadataCommonAttributeYAML,
+} from "~/metadata/appliedObjects/metadataCommonAttribute/types"
+import { MetadataBot, MetadataBotYAML } from "~/metadata/appliedObjects/metadataBot/types"
 import { MetadataConstant, MetadataConstantYAML } from "~/metadata/appliedObjects/metadataConstant/types"
+import { MetadataDefinedType, MetadataDefinedTypeYAML } from "~/metadata/appliedObjects/metadataDefinedType/types"
 import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorYAML,
@@ -10,7 +16,32 @@ import {
   MetadataEnumerationValuesYAML,
   MetadataEnumerationYAML,
 } from "~/metadata/appliedObjects/metadataEnumeration/types"
+import {
+  MetadataEventSubscription,
+  MetadataEventSubscriptionYAML,
+} from "~/metadata/appliedObjects/metadataEventSubscription/types"
+import {
+  MetadataFilterCriterion,
+  MetadataFilterCriterionYAML,
+} from "~/metadata/appliedObjects/metadataFilterCriterion/types"
+import {
+  MetadataFunctionalOptionsParameter,
+  MetadataFunctionalOptionsParameterYAML,
+} from "~/metadata/appliedObjects/metadataFunctionalOptionsParameter/types"
+import {
+  MetadataSettingsStorage,
+  MetadataSettingsStorageYAML,
+} from "~/metadata/appliedObjects/metadataSettingsStorage/types"
 import { MetadataSequence, MetadataSequenceYAML } from "~/metadata/appliedObjects/metadataSequence/types"
+import {
+  MetadataSessionParameter,
+  MetadataSessionParameterYAML,
+} from "~/metadata/appliedObjects/metadataSessionParameter/types"
+import { MetadataStyleItem, MetadataStyleItemYAML } from "~/metadata/appliedObjects/metadataStyleItem/types"
+import {
+  MetadataWSReference,
+  MetadataWSReferenceYAML,
+} from "~/metadata/appliedObjects/metadataWSReference/types"
 import {
   AdditionalIndex,
   AdditionalIndexCollection,
@@ -27,10 +58,15 @@ import {
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
 import {
+  CommonAttributeContent,
+  CommonAttributeContentYAML,
+} from "~/metadata/commonObjects/commonAttributeContent/types"
+import {
   MobileDeviceCommandBarContent,
   MobileDeviceCommandBarContentYAML,
 } from "~/metadata/commonObjects/mobileDeviceCommandBarContent/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { StyleItemValue, StyleItemValueYAML } from "~/metadata/commonObjects/styleItemValue/types"
 import {
   AppearanceFields,
   AppearanceFieldsYAML,
@@ -318,6 +354,10 @@ export type PropertyTypeRegistry = {
     enterprise: FontEnterprise
     yaml: FontYAML
   }
+  StyleItemValue: {
+    item: StyleItemValue
+    yaml: StyleItemValueYAML
+  }
 
   Events: {
     item: Record<string, string>
@@ -394,6 +434,10 @@ export type PropertyTypeRegistry = {
     item: MobileDeviceCommandBarContent
 
     yaml: MobileDeviceCommandBarContentYAML
+  }
+  CommonAttributeContent: {
+    item: CommonAttributeContent
+    yaml: CommonAttributeContentYAML
   }
   ChoiceParameterLinks: {
     item: ChoiceParameterLinks
@@ -525,6 +569,34 @@ export type PropertyTypeRegistry = {
     item: MetadataConstant
     yaml: MetadataConstantYAML
   }
+  MetadataCommonAttribute: {
+    item: MetadataCommonAttribute
+    yaml: MetadataCommonAttributeYAML
+  }
+  MetadataBot: {
+    item: MetadataBot
+    yaml: MetadataBotYAML
+  }
+  MetadataDefinedType: {
+    item: MetadataDefinedType
+    yaml: MetadataDefinedTypeYAML
+  }
+  MetadataEventSubscription: {
+    item: MetadataEventSubscription
+    yaml: MetadataEventSubscriptionYAML
+  }
+  MetadataFilterCriterion: {
+    item: MetadataFilterCriterion
+    yaml: MetadataFilterCriterionYAML
+  }
+  MetadataFunctionalOptionsParameter: {
+    item: MetadataFunctionalOptionsParameter
+    yaml: MetadataFunctionalOptionsParameterYAML
+  }
+  MetadataSettingsStorage: {
+    item: MetadataSettingsStorage
+    yaml: MetadataSettingsStorageYAML
+  }
   MetadataDocumentNumerator: {
     item: MetadataDocumentNumerator
     yaml: MetadataDocumentNumeratorYAML
@@ -540,6 +612,18 @@ export type PropertyTypeRegistry = {
   MetadataSequence: {
     item: MetadataSequence
     yaml: MetadataSequenceYAML
+  }
+  MetadataSessionParameter: {
+    item: MetadataSessionParameter
+    yaml: MetadataSessionParameterYAML
+  }
+  MetadataStyleItem: {
+    item: MetadataStyleItem
+    yaml: MetadataStyleItemYAML
+  }
+  MetadataWSReference: {
+    item: MetadataWSReference
+    yaml: MetadataWSReferenceYAML
   }
   MetadataSequenceDimension: {
     item: MetadataSequenceDimension
@@ -855,6 +939,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   I8nText: "I8nText",
   FormattedI8nText: "FormattedI8nText",
   Font: "Font",
+  StyleItemValue: "StyleItemValue",
   Events: "Events",
   // ChildItems: "ChildItems",
   Picture: "Picture",
@@ -872,6 +957,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   CharacteristicsDescriptions: "CharacteristicsDescriptions",
   ChoiceList: "ChoiceList",
   MobileDeviceCommandBarContent: "MobileDeviceCommandBarContent",
+  CommonAttributeContent: "CommonAttributeContent",
   ChoiceParameterLinks: "ChoiceParameterLinks",
   ChoiceParameters: "ChoiceParameters",
   FieldsList: "FieldsList",
@@ -905,10 +991,20 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataItemLinks: "MetadataItemLinks",
   MetadataCommands: "MetadataCommands",
   MetadataConstant: "MetadataConstant",
+  MetadataCommonAttribute: "MetadataCommonAttribute",
+  MetadataBot: "MetadataBot",
+  MetadataDefinedType: "MetadataDefinedType",
+  MetadataEventSubscription: "MetadataEventSubscription",
+  MetadataFilterCriterion: "MetadataFilterCriterion",
+  MetadataFunctionalOptionsParameter: "MetadataFunctionalOptionsParameter",
+  MetadataSettingsStorage: "MetadataSettingsStorage",
   MetadataDocumentNumerator: "MetadataDocumentNumerator",
   MetadataEnumeration: "MetadataEnumeration",
   MetadataEnumerationValues: "MetadataEnumerationValues",
   MetadataSequence: "MetadataSequence",
+  MetadataSessionParameter: "MetadataSessionParameter",
+  MetadataStyleItem: "MetadataStyleItem",
+  MetadataWSReference: "MetadataWSReference",
   MetadataSequenceDimension: "MetadataSequenceDimension",
   MetadataSequenceDimensions: "MetadataSequenceDimensions",
   CommandInterface: "CommandInterface",

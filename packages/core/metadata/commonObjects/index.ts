@@ -46,6 +46,11 @@ import "./mobileDeviceCommandBarContent/toJSONSchema"
 import "./mobileDeviceCommandBarContent/toXML"
 import "./mobileDeviceCommandBarContent/toYAML"
 
+import "./commonAttributeContent/fromXML"
+import "./commonAttributeContent/fromYAML"
+import "./commonAttributeContent/toXML"
+import "./commonAttributeContent/toYAML"
+
 import "./сhoiceParameterLinks/fromXML"
 import "./сhoiceParameterLinks/fromYAML"
 import "./сhoiceParameterLinks/graphFromModel"
@@ -81,6 +86,11 @@ import "./font/toEnterprise"
 import "./font/toJSONSchema"
 import "./font/toXML"
 import "./font/toYAML"
+
+import "./styleItemValue/fromXML"
+import "./styleItemValue/fromYAML"
+import "./styleItemValue/toXML"
+import "./styleItemValue/toYAML"
 
 import "./formattedI8nText/fromXML"
 import "./formattedI8nText/fromYAML"
@@ -120,6 +130,8 @@ import "./childFormNames/syncExternalFromXML"
 
 import "./childTemplateNames/fromXML"
 import "./childTemplateNames/toXML"
+import "./childTemplateNames/syncExternalToXML"
+import "./childTemplateNames/syncExternalFromXML"
 
 import "./metadataAttribute/register"
 

@@ -1,0 +1,15 @@
+import { MetadataCommonAttribute, MetadataCommonAttributeYAML } from "../types"
+
+export const minimal: MetadataCommonAttribute = {
+  itemType: "MetadataCommonAttribute",
+  name: "ОбщийРеквизитПоУмолчанию",
+  synonym: { items: { ru: "Общий реквизит по умолчанию" } },
+  type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
+  fillValue: { type: "string", value: "" },
+}
+
+export const minimalYAML: MetadataCommonAttributeYAML = {
+  Синоним: "Общий реквизит по умолчанию",
+  Тип: "Строка(10)",
+  ЗначениеЗаполнения: '""',
+}

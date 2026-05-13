@@ -1,1 +1,5 @@
-export const readEventSubscriptionYAML = ""
+export const readEventSubscriptionYAML = `Синоним: Синоним
+Комментарий: Комментарий
+Источник: СправочникОбъект.СправочникПолный
+Событие: OnSetNewCode
+Обработчик: CommonModule.ОбщийМодульПодпискаНаСобытие.ПодпискаНаСобытиеВсеСвойстваПриУстановкеНовогоКода`

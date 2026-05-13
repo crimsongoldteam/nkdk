@@ -8,6 +8,7 @@ const detectTypeFromYAML = (context: ConfigurationContext, value: DcsMetadataTyp
   if (typeof value === "string" && value.startsWith(".")) return "Field"
   if (typeof value === "number") return "decimal"
   if (value === "Истина" || value === "Ложь") return "boolean"
+  if (value === "Порядок") return "Order"
   if (typeof value === "object" && value !== null && !Array.isArray(value) && "Вариант" in value)
     return "StandardBeginningDate"
   if (typeof value === "string" && value.startsWith("'") && value.endsWith("'")) return "string"

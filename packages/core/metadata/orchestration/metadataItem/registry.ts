@@ -93,9 +93,15 @@ import {
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
+import { MetadataBot, MetadataBotYAML } from "../../appliedObjects/metadataBot/types"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
+import {
+  MetadataCommonAttribute,
+  MetadataCommonAttributeYAML,
+} from "../../appliedObjects/metadataCommonAttribute/types"
 import { MetadataConstant, MetadataConstantYAML } from "../../appliedObjects/metadataConstant/types"
+import { MetadataDefinedType, MetadataDefinedTypeYAML } from "../../appliedObjects/metadataDefinedType/types"
 import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
 import {
   MetadataDocumentNumerator,
@@ -107,7 +113,32 @@ import {
   MetadataEnumerationValueYAML,
   MetadataEnumerationYAML,
 } from "../../appliedObjects/metadataEnumeration/types"
+import {
+  MetadataEventSubscription,
+  MetadataEventSubscriptionYAML,
+} from "../../appliedObjects/metadataEventSubscription/types"
+import {
+  MetadataFilterCriterion,
+  MetadataFilterCriterionYAML,
+} from "../../appliedObjects/metadataFilterCriterion/types"
+import {
+  MetadataFunctionalOptionsParameter,
+  MetadataFunctionalOptionsParameterYAML,
+} from "../../appliedObjects/metadataFunctionalOptionsParameter/types"
+import {
+  MetadataSettingsStorage,
+  MetadataSettingsStorageYAML,
+} from "../../appliedObjects/metadataSettingsStorage/types"
 import { MetadataSequence, MetadataSequenceYAML } from "../../appliedObjects/metadataSequence/types"
+import {
+  MetadataSessionParameter,
+  MetadataSessionParameterYAML,
+} from "../../appliedObjects/metadataSessionParameter/types"
+import { MetadataStyleItem, MetadataStyleItemYAML } from "../../appliedObjects/metadataStyleItem/types"
+import {
+  MetadataWSReference,
+  MetadataWSReferenceYAML,
+} from "../../appliedObjects/metadataWSReference/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -713,6 +744,41 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataConstantYAML
   }
 
+  MetadataCommonAttribute: {
+    metadata: MetadataCommonAttribute
+    yaml: MetadataCommonAttributeYAML
+  }
+
+  MetadataBot: {
+    metadata: MetadataBot
+    yaml: MetadataBotYAML
+  }
+
+  MetadataDefinedType: {
+    metadata: MetadataDefinedType
+    yaml: MetadataDefinedTypeYAML
+  }
+
+  MetadataEventSubscription: {
+    metadata: MetadataEventSubscription
+    yaml: MetadataEventSubscriptionYAML
+  }
+
+  MetadataFilterCriterion: {
+    metadata: MetadataFilterCriterion
+    yaml: MetadataFilterCriterionYAML
+  }
+
+  MetadataFunctionalOptionsParameter: {
+    metadata: MetadataFunctionalOptionsParameter
+    yaml: MetadataFunctionalOptionsParameterYAML
+  }
+
+  MetadataSettingsStorage: {
+    metadata: MetadataSettingsStorage
+    yaml: MetadataSettingsStorageYAML
+  }
+
   MetadataDocument: {
     metadata: MetadataDocument
     yaml: MetadataDocumentYAML
@@ -736,6 +802,21 @@ export type MetadataItemTypeRegistry = {
   MetadataSequence: {
     metadata: MetadataSequence
     yaml: MetadataSequenceYAML
+  }
+
+  MetadataSessionParameter: {
+    metadata: MetadataSessionParameter
+    yaml: MetadataSessionParameterYAML
+  }
+
+  MetadataStyleItem: {
+    metadata: MetadataStyleItem
+    yaml: MetadataStyleItemYAML
+  }
+
+  MetadataWSReference: {
+    metadata: MetadataWSReference
+    yaml: MetadataWSReferenceYAML
   }
 
   //#endregion

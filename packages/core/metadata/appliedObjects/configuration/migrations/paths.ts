@@ -8,7 +8,22 @@ export interface ParsedMigrationPath {
   levelPath: string
 }
 
-const TOP_LEVEL_PREFIXES = new Set(["Справочник", "Документ", "Нумератор", "Последовательность"])
+const TOP_LEVEL_PREFIXES = new Set([
+  "Справочник",
+  "Документ",
+  "Нумератор",
+  "Последовательность",
+  "ОпределяемыйТип",
+  "ПараметрСеанса",
+  "ПодпискаНаСобытие",
+  "КритерийОтбора",
+  "ПараметрФункциональныхОпций",
+  "ХранилищеНастроек",
+  "ЭлементСтиля",
+  "ОбщийРеквизит",
+  "Бот",
+  "WSСсылка",
+])
 const OBJECT_WITH_CHILDREN_PREFIXES = new Set(["Справочник", "Документ"])
 
 export function parseMigrationPath(path: string): ParsedMigrationPath {

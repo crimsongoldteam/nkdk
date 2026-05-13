@@ -11,8 +11,10 @@ export const importInternalInfoFromXML = (
 
   if (rule?.forReferenceOnly !== true) return undefined
 
-  const items = xml["xr:GeneratedType"]
-  if (!items) return undefined
+  const rawItems = xml["xr:GeneratedType"]
+  if (!rawItems) return undefined
+
+  const items = Array.isArray(rawItems) ? rawItems : [rawItems]
 
   const result: InternalInfo = {}
   for (const item of items) {

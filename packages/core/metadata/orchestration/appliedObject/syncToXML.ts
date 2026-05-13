@@ -103,8 +103,9 @@ export const syncAppliedObjectToXML = async (params: {
   for (const [, propRule] of Object.entries(rule.properties)) {
     const syncFn = getTypeRule(propRule.type, "syncExternalToXML")
     if (!syncFn) continue
-    const syncXmlDir = propRule.type === "ChildFormNames" ? outputDir : externalOutputDir
-    const syncReferenceDir = propRule.type === "ChildFormNames" ? referenceDir : externalReferenceDir
+    const syncUsesItemDir = propRule.type === "ChildFormNames" || propRule.type === "ChildTemplateNames"
+    const syncXmlDir = syncUsesItemDir ? outputDir : externalOutputDir
+    const syncReferenceDir = syncUsesItemDir ? referenceDir : externalReferenceDir
     await syncFn({
       context: contextWithForms,
       rule: propRule,

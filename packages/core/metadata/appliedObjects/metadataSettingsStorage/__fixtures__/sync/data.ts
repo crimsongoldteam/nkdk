@@ -1,1 +1,4 @@
-export const readSettingsStorageYAML = ""
+export const readSettingsStorageYAML = `Синоним: Синоним
+Комментарий: Комментарий
+ОсновнаяФормаСохранения: SettingsStorage.ХранилищеНастроекВсеСвойства.Form.ФормаСохранения
+ОсновнаяФормаЗагрузки: SettingsStorage.ХранилищеНастроекВсеСвойства.Form.ФормаЗагрузки`
