@@ -121,6 +121,7 @@ import {
   MetadataSessionParameter,
   MetadataSessionParameterYAML,
 } from "../../appliedObjects/metadataSessionParameter/types"
+import { MetadataStyleItem, MetadataStyleItemYAML } from "../../appliedObjects/metadataStyleItem/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -769,6 +770,11 @@ export type MetadataItemTypeRegistry = {
   MetadataSessionParameter: {
     metadata: MetadataSessionParameter
     yaml: MetadataSessionParameterYAML
+  }
+
+  MetadataStyleItem: {
+    metadata: MetadataStyleItem
+    yaml: MetadataStyleItemYAML
   }
 
   //#endregion

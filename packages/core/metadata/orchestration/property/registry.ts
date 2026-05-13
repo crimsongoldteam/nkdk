@@ -24,6 +24,7 @@ import {
   MetadataSessionParameter,
   MetadataSessionParameterYAML,
 } from "~/metadata/appliedObjects/metadataSessionParameter/types"
+import { MetadataStyleItem, MetadataStyleItemYAML } from "~/metadata/appliedObjects/metadataStyleItem/types"
 import {
   AdditionalIndex,
   AdditionalIndexCollection,
@@ -583,6 +584,10 @@ export type PropertyTypeRegistry = {
     item: MetadataSessionParameter
     yaml: MetadataSessionParameterYAML
   }
+  MetadataStyleItem: {
+    item: MetadataStyleItem
+    yaml: MetadataStyleItemYAML
+  }
   MetadataSequenceDimension: {
     item: MetadataSequenceDimension
     yaml: MetadataSequenceDimensionYAML
@@ -957,6 +962,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataEnumerationValues: "MetadataEnumerationValues",
   MetadataSequence: "MetadataSequence",
   MetadataSessionParameter: "MetadataSessionParameter",
+  MetadataStyleItem: "MetadataStyleItem",
   MetadataSequenceDimension: "MetadataSequenceDimension",
   MetadataSequenceDimensions: "MetadataSequenceDimensions",
   CommandInterface: "CommandInterface",

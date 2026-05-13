@@ -17,6 +17,7 @@ const TOP_LEVEL_PREFIXES = new Set([
   "ПараметрСеанса",
   "ПодпискаНаСобытие",
   "ПараметрФункциональныхОпций",
+  "ЭлементСтиля",
 ])
 const OBJECT_WITH_CHILDREN_PREFIXES = new Set(["Справочник", "Документ"])
 

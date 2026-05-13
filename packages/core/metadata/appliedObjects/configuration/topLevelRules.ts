@@ -7,6 +7,7 @@ import { MetadataEventSubscriptionRules } from "../metadataEventSubscription/rul
 import { MetadataFunctionalOptionsParameterRules } from "../metadataFunctionalOptionsParameter/rules"
 import { MetadataSequenceRules } from "../metadataSequence/rules"
 import { MetadataSessionParameterRules } from "../metadataSessionParameter/rules"
+import { MetadataStyleItemRules } from "../metadataStyleItem/rules"
 
 /**
  * Реестр корневых прикладных объектов, которые обходит configuration walker
@@ -22,4 +23,5 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataSessionParameterRules,
   MetadataEventSubscriptionRules,
   MetadataFunctionalOptionsParameterRules,
+  MetadataStyleItemRules,
 ]

@@ -14,6 +14,7 @@ describe("TopLevelMetadataItemRules", () => {
         { itemType: "MetadataSessionParameter", xmlDir: "SessionParameters" },
         { itemType: "MetadataEventSubscription", xmlDir: "EventSubscriptions" },
         { itemType: "MetadataFunctionalOptionsParameter", xmlDir: "FunctionalOptionsParameters" },
+        { itemType: "MetadataStyleItem", xmlDir: "StyleItems" },
       ])
     )
   })

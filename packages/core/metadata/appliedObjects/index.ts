@@ -15,3 +15,4 @@ import "./metadataEnumeration"
 
 import "./metadataSequence"
 import "./metadataSessionParameter"
+import "./metadataStyleItem"

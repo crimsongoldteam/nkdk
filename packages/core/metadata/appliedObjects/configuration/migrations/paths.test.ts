@@ -37,6 +37,12 @@ describe("migration paths", () => {
       ownerPath: "ПараметрФункциональныхОпций",
       levelPath: "ПараметрФункциональныхОпций",
     })
+    expect(parseMigrationPath("ЭлементСтиля.ОсновнойШрифт")).toMatchObject({
+      kind: "object",
+      localName: "ОсновнойШрифт",
+      ownerPath: "ЭлементСтиля",
+      levelPath: "ЭлементСтиля",
+    })
   })
 
   it("parses object attribute paths", () => {
@@ -111,6 +117,9 @@ describe("migration paths", () => {
 
   it("rejects child paths for simple top level applied objects", () => {
     expect(() => parseMigrationPath("ОпределяемыйТип.ТипДокумента.Реквизит.Код")).toThrow(
+      "Неподдерживаемый путь миграции",
+    )
+    expect(() => parseMigrationPath("ЭлементСтиля.ОсновнойШрифт.Реквизит.Код")).toThrow(
       "Неподдерживаемый путь миграции",
     )
   })
