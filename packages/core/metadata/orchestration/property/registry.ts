@@ -11,6 +11,14 @@ import {
   MetadataEnumerationValuesYAML,
   MetadataEnumerationYAML,
 } from "~/metadata/appliedObjects/metadataEnumeration/types"
+import {
+  MetadataEventSubscription,
+  MetadataEventSubscriptionYAML,
+} from "~/metadata/appliedObjects/metadataEventSubscription/types"
+import {
+  MetadataFunctionalOptionsParameter,
+  MetadataFunctionalOptionsParameterYAML,
+} from "~/metadata/appliedObjects/metadataFunctionalOptionsParameter/types"
 import { MetadataSequence, MetadataSequenceYAML } from "~/metadata/appliedObjects/metadataSequence/types"
 import {
   MetadataSessionParameter,
@@ -547,6 +555,14 @@ export type PropertyTypeRegistry = {
     item: MetadataDefinedType
     yaml: MetadataDefinedTypeYAML
   }
+  MetadataEventSubscription: {
+    item: MetadataEventSubscription
+    yaml: MetadataEventSubscriptionYAML
+  }
+  MetadataFunctionalOptionsParameter: {
+    item: MetadataFunctionalOptionsParameter
+    yaml: MetadataFunctionalOptionsParameterYAML
+  }
   MetadataDocumentNumerator: {
     item: MetadataDocumentNumerator
     yaml: MetadataDocumentNumeratorYAML
@@ -934,6 +950,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataCommands: "MetadataCommands",
   MetadataConstant: "MetadataConstant",
   MetadataDefinedType: "MetadataDefinedType",
+  MetadataEventSubscription: "MetadataEventSubscription",
+  MetadataFunctionalOptionsParameter: "MetadataFunctionalOptionsParameter",
   MetadataDocumentNumerator: "MetadataDocumentNumerator",
   MetadataEnumeration: "MetadataEnumeration",
   MetadataEnumerationValues: "MetadataEnumerationValues",

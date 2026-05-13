@@ -108,6 +108,14 @@ import {
   MetadataEnumerationValueYAML,
   MetadataEnumerationYAML,
 } from "../../appliedObjects/metadataEnumeration/types"
+import {
+  MetadataEventSubscription,
+  MetadataEventSubscriptionYAML,
+} from "../../appliedObjects/metadataEventSubscription/types"
+import {
+  MetadataFunctionalOptionsParameter,
+  MetadataFunctionalOptionsParameterYAML,
+} from "../../appliedObjects/metadataFunctionalOptionsParameter/types"
 import { MetadataSequence, MetadataSequenceYAML } from "../../appliedObjects/metadataSequence/types"
 import {
   MetadataSessionParameter,
@@ -721,6 +729,16 @@ export type MetadataItemTypeRegistry = {
   MetadataDefinedType: {
     metadata: MetadataDefinedType
     yaml: MetadataDefinedTypeYAML
+  }
+
+  MetadataEventSubscription: {
+    metadata: MetadataEventSubscription
+    yaml: MetadataEventSubscriptionYAML
+  }
+
+  MetadataFunctionalOptionsParameter: {
+    metadata: MetadataFunctionalOptionsParameter
+    yaml: MetadataFunctionalOptionsParameterYAML
   }
 
   MetadataDocument: {
