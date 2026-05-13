@@ -95,6 +95,7 @@ import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dyn
 import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
+import { MetadataConstant, MetadataConstantYAML } from "../../appliedObjects/metadataConstant/types"
 import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
 import {
   MetadataDocumentNumerator,
@@ -106,10 +107,7 @@ import {
   MetadataEnumerationValueYAML,
   MetadataEnumerationYAML,
 } from "../../appliedObjects/metadataEnumeration/types"
-import {
-  MetadataSequence,
-  MetadataSequenceYAML,
-} from "../../appliedObjects/metadataSequence/types"
+import { MetadataSequence, MetadataSequenceYAML } from "../../appliedObjects/metadataSequence/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -127,10 +125,7 @@ import {
   FormAttributeColumnYAML,
   FormAttributeYAML,
 } from "../../forms/commonObjects/formAttribute/types"
-import {
-  FormParameter,
-  FormParameterYAML,
-} from "../../forms/commonObjects/formParameter/types"
+import { FormParameter, FormParameterYAML } from "../../forms/commonObjects/formParameter/types"
 import {
   Button,
   ButtonEnterprise,
@@ -711,6 +706,11 @@ export type MetadataItemTypeRegistry = {
   MetadataCommand: {
     metadata: MetadataCommand
     yaml: MetadataCommandYAML
+  }
+
+  MetadataConstant: {
+    metadata: MetadataConstant
+    yaml: MetadataConstantYAML
   }
 
   MetadataDocument: {

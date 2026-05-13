@@ -1,4 +1,5 @@
 import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
+import { MetadataConstant, MetadataConstantYAML } from "~/metadata/appliedObjects/metadataConstant/types"
 import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorYAML,
@@ -228,10 +229,7 @@ import {
 import { FormCommands, FormCommandsYAML } from "~/metadata/forms/commonObjects/formCommand/types"
 import { FormParameters, FormParametersYAML } from "~/metadata/forms/commonObjects/formParameter/types"
 import { ScrollBarUseEnterprise } from "~/metadata/forms/commonObjects/scrollBarUse/types"
-import {
-  SpreadsheetDocument,
-  SpreadsheetDocumentYAML,
-} from "~/metadata/forms/commonObjects/spreadsheetDocument/types"
+import { SpreadsheetDocument, SpreadsheetDocumentYAML } from "~/metadata/forms/commonObjects/spreadsheetDocument/types"
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/types"
@@ -522,6 +520,10 @@ export type PropertyTypeRegistry = {
   MetadataCommands: {
     item: MetadataCommands
     yaml: MetadataCommandsYAML
+  }
+  MetadataConstant: {
+    item: MetadataConstant
+    yaml: MetadataConstantYAML
   }
   MetadataDocumentNumerator: {
     item: MetadataDocumentNumerator
@@ -902,6 +904,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataTabularSectionAttributes: "MetadataTabularSectionAttributes",
   MetadataItemLinks: "MetadataItemLinks",
   MetadataCommands: "MetadataCommands",
+  MetadataConstant: "MetadataConstant",
   MetadataDocumentNumerator: "MetadataDocumentNumerator",
   MetadataEnumeration: "MetadataEnumeration",
   MetadataEnumerationValues: "MetadataEnumerationValues",
