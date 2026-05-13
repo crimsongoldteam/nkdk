@@ -1,5 +1,5 @@
 import fs from "fs"
-import { join } from "path"
+import { dirname, join } from "path"
 import { syncFormToXML } from "~/metadata/forms/clientApplicationForm/syncToXML"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
@@ -39,7 +39,24 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
       referenceDir: formReferenceDir,
       xmlManifest,
     })
+    await copyFormModuleToXML({ nkdkDir, formOutputDir, formName, xmlManifest })
   }
+}
+
+async function copyFormModuleToXML(params: {
+  nkdkDir: string
+  formOutputDir: string
+  formName: string
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+}): Promise<void> {
+  const { nkdkDir, formOutputDir, formName, xmlManifest } = params
+  const srcPath = join(nkdkDir, "Формы", formName, "Модуль.bsl")
+  if (!fs.existsSync(srcPath)) return
+
+  const dstPath = join(formOutputDir, "Forms", formName, "Ext", "Form", "Module.bsl")
+  await fs.promises.mkdir(dirname(dstPath), { recursive: true })
+  await fs.promises.copyFile(srcPath, dstPath)
+  xmlManifest?.addFile(dstPath)
 }
 
 registerTypeRule("ChildFormNames", "syncExternalToXML", syncChildFormNamesToXML)

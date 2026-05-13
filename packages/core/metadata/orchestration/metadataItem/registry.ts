@@ -113,6 +113,10 @@ import {
   MetadataEventSubscriptionYAML,
 } from "../../appliedObjects/metadataEventSubscription/types"
 import {
+  MetadataFilterCriterion,
+  MetadataFilterCriterionYAML,
+} from "../../appliedObjects/metadataFilterCriterion/types"
+import {
   MetadataFunctionalOptionsParameter,
   MetadataFunctionalOptionsParameterYAML,
 } from "../../appliedObjects/metadataFunctionalOptionsParameter/types"
@@ -735,6 +739,11 @@ export type MetadataItemTypeRegistry = {
   MetadataEventSubscription: {
     metadata: MetadataEventSubscription
     yaml: MetadataEventSubscriptionYAML
+  }
+
+  MetadataFilterCriterion: {
+    metadata: MetadataFilterCriterion
+    yaml: MetadataFilterCriterionYAML
   }
 
   MetadataFunctionalOptionsParameter: {

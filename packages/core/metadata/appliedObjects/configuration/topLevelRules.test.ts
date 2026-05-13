@@ -13,6 +13,7 @@ describe("TopLevelMetadataItemRules", () => {
         { itemType: "MetadataDefinedType", xmlDir: "DefinedTypes" },
         { itemType: "MetadataSessionParameter", xmlDir: "SessionParameters" },
         { itemType: "MetadataEventSubscription", xmlDir: "EventSubscriptions" },
+        { itemType: "MetadataFilterCriterion", xmlDir: "FilterCriteria" },
         { itemType: "MetadataFunctionalOptionsParameter", xmlDir: "FunctionalOptionsParameters" },
         { itemType: "MetadataStyleItem", xmlDir: "StyleItems" },
       ])

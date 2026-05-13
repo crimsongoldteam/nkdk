@@ -65,4 +65,10 @@ export const dcsMetadataTypedValueFixtures: DcsMetadataTypedValueFixture[] = [
 	<v8:variant xsi:type="v8:StandardBeginningDateVariant">BeginningOfThisDay</v8:variant>
 </value>`,
   },
+  {
+    name: "order",
+    model: { type: "Order" },
+    YAML: "Порядок",
+    XML: '<value xsi:type="dcsset:Order"/>',
+  },
 ]

@@ -39,8 +39,12 @@ export type DcsMetadataTypedValue =
   | {
       type: "EmptyValueList"
     }
+  | {
+      type: "Order"
+    }
 
 export const DcsMetadataTypedValueJSONSchema = Type.Union([
+  Type.Literal("Порядок"),
   Type.String(),
   Type.Number(),
   BooleanJSONSchema,
@@ -77,5 +81,8 @@ export type DcsMetadataTypedValueXML =
         "_xsi:type": "xs:decimal"
         "#text"?: string
       }
+    }
+  | {
+      "_xsi:type": "dcsset:Order"
     }
   | StandartBeginningDateXML

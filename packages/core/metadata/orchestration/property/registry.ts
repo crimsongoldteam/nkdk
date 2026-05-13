@@ -16,6 +16,10 @@ import {
   MetadataEventSubscriptionYAML,
 } from "~/metadata/appliedObjects/metadataEventSubscription/types"
 import {
+  MetadataFilterCriterion,
+  MetadataFilterCriterionYAML,
+} from "~/metadata/appliedObjects/metadataFilterCriterion/types"
+import {
   MetadataFunctionalOptionsParameter,
   MetadataFunctionalOptionsParameterYAML,
 } from "~/metadata/appliedObjects/metadataFunctionalOptionsParameter/types"
@@ -560,6 +564,10 @@ export type PropertyTypeRegistry = {
     item: MetadataEventSubscription
     yaml: MetadataEventSubscriptionYAML
   }
+  MetadataFilterCriterion: {
+    item: MetadataFilterCriterion
+    yaml: MetadataFilterCriterionYAML
+  }
   MetadataFunctionalOptionsParameter: {
     item: MetadataFunctionalOptionsParameter
     yaml: MetadataFunctionalOptionsParameterYAML
@@ -956,6 +964,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataConstant: "MetadataConstant",
   MetadataDefinedType: "MetadataDefinedType",
   MetadataEventSubscription: "MetadataEventSubscription",
+  MetadataFilterCriterion: "MetadataFilterCriterion",
   MetadataFunctionalOptionsParameter: "MetadataFunctionalOptionsParameter",
   MetadataDocumentNumerator: "MetadataDocumentNumerator",
   MetadataEnumeration: "MetadataEnumeration",

@@ -27,6 +27,13 @@ import {
 } from "./types"
 
 export const DcsMetadataTypedValueRegistry: Record<DcsMetadataTypedValue["type"], DcsMetadataTypedValueRegistryItem> = {
+  Order: {
+    detect: ({ yaml }) => yaml === "Порядок",
+    fromYAML: () => ({ type: "Order" }),
+    fromXML: () => ({ type: "Order" }),
+    toYAML: () => "Порядок",
+    toXML: () => ({ "_xsi:type": "dcsset:Order" }),
+  },
   Field: {
     detect: ({ yaml }) => isStringYAML(yaml) && yaml.startsWith("."),
     fromYAML: ({ context, yaml }) => ({
@@ -142,6 +149,8 @@ export const DcsMetadataTypedValueTypeFromXML = (
       return "StandardBeginningDate"
     case "v8:ValueListType":
       return "EmptyValueList"
+    case "dcsset:Order":
+      return "Order"
     default:
       throw new Error(`DcsMetadataTypedValue XML: unsupported _xsi:type ${String(valueType)}`)
   }

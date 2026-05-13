@@ -6,6 +6,7 @@ import "./metadataCatalog/toYAML"
 import "./metadataConstant"
 import "./metadataDefinedType"
 import "./metadataEventSubscription"
+import "./metadataFilterCriterion"
 import "./metadataFunctionalOptionsParameter"
 
 import "./metadataDocument"

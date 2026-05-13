@@ -4,6 +4,7 @@ import { MetadataDefinedTypeRules } from "../metadataDefinedType/rules"
 import { MetadataDocumentRules } from "../metadataDocument/rules"
 import { MetadataDocumentNumeratorRules } from "../metadataDocumentNumerator/rules"
 import { MetadataEventSubscriptionRules } from "../metadataEventSubscription/rules"
+import { MetadataFilterCriterionRules } from "../metadataFilterCriterion/rules"
 import { MetadataFunctionalOptionsParameterRules } from "../metadataFunctionalOptionsParameter/rules"
 import { MetadataSequenceRules } from "../metadataSequence/rules"
 import { MetadataSessionParameterRules } from "../metadataSessionParameter/rules"
@@ -22,6 +23,7 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataDefinedTypeRules,
   MetadataSessionParameterRules,
   MetadataEventSubscriptionRules,
+  MetadataFilterCriterionRules,
   MetadataFunctionalOptionsParameterRules,
   MetadataStyleItemRules,
 ]
