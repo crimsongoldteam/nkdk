@@ -17,7 +17,20 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportSystemEnumerationToDcsXML } from "~/metadata/systemEnumerations/toDcsXML"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
-import { DcsMetadataValuePropertyRule, MetadataDcsMetadataValue, MetadataDcsMetadataValueDcsRootXML } from "./types"
+import {
+  DcsMetadataValuePropertyRule,
+  MetadataDcsExplicitTextValue,
+  MetadataDcsMetadataValue,
+  MetadataDcsMetadataValueDcsRootXML,
+} from "./types"
+
+const isExplicitTextValue = (data: MetadataDcsMetadataValue): data is MetadataDcsExplicitTextValue =>
+  data !== null &&
+  typeof data === "object" &&
+  "type" in data &&
+  "value" in data &&
+  (data.type === "DesignTimeValue" || data.type === "Field") &&
+  typeof data.value === "string"
 
 export const exportDcsMetadataValueToDcsXML = (params: {
   context: ConfigurationContext
@@ -34,6 +47,15 @@ export const exportDcsMetadataValueToDcsXML = (params: {
       return { "dcscor:value": { "_xsi:nil": true } as unknown as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }
     }
     return { "dcscor:value": undefined as unknown as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }
+  }
+
+  if (isExplicitTextValue(data)) {
+    return {
+      "dcscor:value": {
+        "_xsi:type": `dcscor:${data.type}`,
+        "#text": data.value,
+      },
+    }
   }
 
   switch (rule.valueType) {

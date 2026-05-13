@@ -17,6 +17,7 @@ export const fixtureColorWebRed: Color = {
 }
 
 export const fixtureFieldPath = "Реквизит1"
+export const fixtureDesignTimeRefPath = "Перечисление.СтраницыЖурналаОтчетность.ЕГРЮЛ"
 
 export const fixtureBooleanPrimitive: MetadataTypedPrimitiveValue = {
   type: "boolean",
@@ -98,6 +99,18 @@ const primitiveTypeRefFixture: DcsMetadataValueFixture = {
   xml: "primitive-type-ref.xml",
 }
 
+const designTimeRefUnderFieldDefaultFixture: DcsMetadataValueFixture = {
+  id: "designTimeRefUnderFieldDefault",
+  title: "DesignTimeValue under Field default",
+  rule: { type: "MetadataDcsMetadataValue", valueType: "Field", yaml: "value" },
+  value: {
+    type: "DesignTimeValue",
+    value: fixtureDesignTimeRefPath,
+  },
+  yaml: fixtureDesignTimeRefPath,
+  xml: "design-time-ref.xml",
+}
+
 const primitiveUuidFixture: DcsMetadataValueFixture = {
   id: "primitiveUuid",
   title: "Primitive UUID",
@@ -124,6 +137,7 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     yaml: yamlFieldPath,
     xml: "field.xml",
   },
+  designTimeRefUnderFieldDefaultFixture,
   {
     id: "primitiveBoolean",
     title: "Primitive boolean",

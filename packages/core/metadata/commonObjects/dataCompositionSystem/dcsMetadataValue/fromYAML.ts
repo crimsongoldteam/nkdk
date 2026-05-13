@@ -3,6 +3,7 @@ import { importFontFromYAML } from "~/metadata/commonObjects/font/fromYAML"
 import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
 import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { importMetadataFieldFromYAML } from "~/metadata/commonObjects/metadataField/fromYAML"
+import { importMetadataValueStringFromYAML } from "~/metadata/commonObjects/metadataPath/fromYAML"
 import { importMetadataValueFromYAML } from "~/metadata/commonObjects/metadataValue/fromYAML"
 import { importTypeLinkFromYAML } from "~/metadata/commonObjects/typeLink/fromYAML"
 import { importChoiceParameterLinksFromYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/fromYAML"
@@ -15,6 +16,9 @@ import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/typ
 import { ConfigurationContext } from "../../../context/types"
 import { DcsMetadataValuePropertyRule, MetadataDcsMetadataValue, MetadataDcsMetadataValueYAML } from "./types"
 
+const isEnumValueMetadataPath = (value: string | undefined): boolean =>
+  value !== undefined && value.startsWith("Enum.") && value.split(".").includes("EnumValue")
+
 export const importDcsMetadataValueFromYAML = (
   context: ConfigurationContext,
   rule: DcsMetadataValuePropertyRule,
@@ -26,8 +30,16 @@ export const importDcsMetadataValueFromYAML = (
   switch (rule.valueType) {
     case "Color":
       return importColorFromYAML(context, undefined, data as any)!
-    case "Field":
+    case "Field": {
+      const metadataValuePath =
+        typeof data === "string" && !data.startsWith(".")
+          ? importMetadataValueStringFromYAML(context, undefined, data)
+          : undefined
+      if (typeof data === "string" && isEnumValueMetadataPath(metadataValuePath)) {
+        return { type: "DesignTimeValue", value: data }
+      }
       return importMetadataFieldFromYAML(context, undefined, data as any)!
+    }
     case "Parameter": {
       const list = importChoiceParametersFromYAML(context, undefined, data as ChoiceParametersYAML)
       return list?.[0]

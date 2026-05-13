@@ -38,10 +38,15 @@ interface SystemEnumerationPropertyRule extends BasePropertyRule {
 
 export type DcsMetadataValuePropertyRule = DcsMetadataValueBasePropertyRule | SystemEnumerationPropertyRule
 
+export type MetadataDcsFieldValue = { type: "Field"; value: string }
+export type MetadataDcsDesignTimeValue = { type: "DesignTimeValue"; value: string }
+export type MetadataDcsExplicitTextValue = MetadataDcsFieldValue | MetadataDcsDesignTimeValue
+
 export type MetadataDcsMetadataValue =
   | null
   | Color
   | MetadataField
+  | MetadataDcsExplicitTextValue
   | ChoiceParameter
   | I8nText
   | MetadataValue
