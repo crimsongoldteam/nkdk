@@ -24,6 +24,9 @@ export const importStyleItemValueFromYAML = (
   if (!value) return undefined
 
   const type = kindFromYAML[value.Вид]
+  if (type === undefined) {
+    throw new Error(`StyleItemValue: неподдержанный Вид ${String(value.Вид)}`)
+  }
 
   if (type === "Font") {
     return {

@@ -71,4 +71,13 @@ describe("importStyleItemValueFromYAML", () => {
       value: { width: 5, controlBorderType: "Overline" },
     })
   })
+
+  it("should reject unsupported style item value kind from YAML", () => {
+    expect(() =>
+      importStyleItemValueFromYAML(mockContext, mockRule, {
+        Вид: "Тень",
+        Значение: "#8A31E2",
+      } as unknown as StyleItemValueYAML)
+    ).toThrow("StyleItemValue: неподдержанный Вид Тень")
+  })
 })
