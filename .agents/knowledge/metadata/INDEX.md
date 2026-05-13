@@ -6,7 +6,7 @@
 
 ## Всегда
 
-- `sources-of-truth.md` — источники истины, приоритет XML/XSD/MCP/ru-en-map/соседей.
+- `sources-of-truth.md` — источники истины, приоритет XML/XSD/справка 1С/ru-en-map/соседей.
 
 ## Если меняешь `rules.ts`, `types.ts`, фикстуры или тесты metadataItem
 
@@ -17,6 +17,7 @@
 ## Если добавляешь или исследуешь новый прикладной объект
 
 - `object-research.md`
+- `applied-object-implementation.md`
 - `sources-of-truth.md`
 - `registries.md`
 
