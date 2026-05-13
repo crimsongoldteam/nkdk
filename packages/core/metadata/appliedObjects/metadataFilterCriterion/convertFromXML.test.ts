@@ -28,19 +28,28 @@ describe("convertAppliedObjectFromXML — MetadataFilterCriterion", () => {
         output: join(outputDir, name, "Команды", "Команда1.bsl"),
       },
       {
-        input: join(inputDir, "Forms", "ФормаСписка.xml"),
+        input: join(inputDir, name, "Forms", "ФормаСписка.xml"),
         output: join(outputDir, name, "Формы", "ФормаСписка", "Форма.yaml"),
       },
       {
-        input: join(inputDir, "Forms", "ФормаСписка", "Ext", "Form", "Module.bsl"),
+        input: join(inputDir, name, "Forms", "ФормаСписка", "Ext", "Form.xml"),
+        output: join(outputDir, name, "Формы", "ФормаСписка", "Форма.nkdk"),
+      },
+      {
+        input: join(inputDir, name, "Forms", "ФормаСписка", "Ext", "Form", "Module.bsl"),
         output: join(outputDir, name, "Формы", "ФормаСписка", "Модуль.bsl"),
       },
     ]
 
     for (const { input, output } of expectedFiles) {
       expect(fs.existsSync(output), output).toBe(true)
-      expect(fs.readFileSync(output, "utf-8").length).toBeGreaterThan(0)
       expect(fs.existsSync(input), input).toBe(true)
+      if (output.endsWith("Форма.yaml") || output.endsWith("Форма.nkdk")) {
+        expect(fs.readFileSync(output, "utf-8").length).toBeGreaterThan(0)
+        continue
+      }
+      const expectedContent = fs.readFileSync(input, "utf-8")
+      expect(fs.readFileSync(output, "utf-8"), output).toBe(expectedContent)
     }
   })
 })
