@@ -28,6 +28,7 @@ The implementation policy is common for all objects below:
 - `metadataScheduledJob`
 - `metadataLanguage`
 - `metadataCommonTemplate`
+- `metadataCommonPicture`
 - `metadataStyle`
 - `metadataCommandGroup`
 - `metadataSubsystem`
@@ -45,8 +46,6 @@ The implementation policy is common for all objects below:
 ## Deferred Objects
 
 - `metadataExternalDataSource`: skipped for now because external data sources are complex and not currently demanded.
-- `metadataCommonPicture`: skipped for now because sync contains both `Ext/Picture.xml` and
-  `Ext/Picture/Picture.zip`; current external-file helpers copy a file, not an external folder with a nested archive.
 
 ## Object: MetadataFunctionalOption
 
@@ -171,6 +170,63 @@ Testing:
 - verify `TemplateType=SpreadsheetDocument` default;
 - sync from XML copies `Ext/Template.xml` to `Template.xml`;
 - sync to XML restores `Template.xml` to `Ext/Template.xml`.
+
+## Object: MetadataCommonPicture
+
+- `itemType`: `MetadataCommonPicture`
+- `itemTypePrefix`: `ОбщаяКартинка`
+- XML directory: `CommonPictures`
+- XML container: `CommonPicture`
+- implement through `rules.ts`
+
+Properties from `.res`:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `picture` | `Picture` | `Картинка` | new `ExternalPicture` folder-preserving type |
+| `availabilityForChoice` | `AvailabilityForChoice` | `ДоступностьДляВыбора` | `boolean` |
+| `availabilityForAppearance` | `AvailabilityForAppearance` | `ДоступностьДляОформления` | `boolean` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+External picture files:
+
+- XML descriptor: `CommonPictures/<name>/Ext/Picture.xml`
+- XML payload folder: `CommonPictures/<name>/Ext/Picture/*`
+- nkdk descriptor: `Картинка/Picture.xml`
+- nkdk payload folder: `Картинка/*`
+
+The descriptor uses `ExtPicture/Picture/xr:Abs` to point to the payload filename. Current fixtures cover:
+
+- collection mode: `xr:Abs=Picture.zip`, payload `Picture.zip`;
+- single picture mode: `xr:Abs=Picture.png`, payload `Picture.png`.
+
+Implementation notes:
+
+- Do not parse the image payload in the first implementation.
+- Add a small `ExternalPicture` common property type for sync copying of `Picture.xml` and every regular file under the
+  sibling `Ext/Picture/` directory. This is different from `Template`, which copies a single file.
+- Preserve `Picture.xml` opaquely so `xr:Abs` and `xr:LoadTransparent` round-trip exactly.
+- Copy payload files as bytes, not UTF-8 text; `Picture.zip` and `Picture.png` are binary.
+- The existing common object `picture` is for references to pictures in metadata fields, not for this top-level common
+  picture payload.
+
+Default policy from `minimal.xml`:
+
+- `availabilityForChoice`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `availabilityForAppearance`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+
+Testing:
+
+- standard XML/YAML/sync tests;
+- XML tests cover `minimal.xml`, `full.xml`, `single.xml`, and `collection.xml`;
+- sync from XML copies `Ext/Picture.xml` to `Картинка/Picture.xml` and payload files such as `Picture.zip`;
+- sync to XML restores `Картинка/Picture.xml` to `Ext/Picture.xml` and payload files to `Ext/Picture/`;
+- include binary-byte comparison for the copied payload.
 
 ## Object: MetadataStyle
 
