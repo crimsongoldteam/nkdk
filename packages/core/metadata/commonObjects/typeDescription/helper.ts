@@ -4,6 +4,9 @@ import { TypeDescriptionRule, TypeDescriptionRules } from "./types"
 const systemEnumerationPrefix = "СистемноеПеречисление."
 const fromYAMLSuffix = "FromYAML"
 const toYAMLSuffix = "ToYAML"
+const systemEnumerationYAMLNames: Record<string, string> = {
+  FillChecking: "ПроверкаЗаполнения",
+}
 
 const isRecord = (value: unknown): value is Record<string, string> =>
   typeof value === "object" && value !== null && !Array.isArray(value)
@@ -42,10 +45,7 @@ export const isKnownSystemEnumerationType = (type: string): boolean => {
 export const getSystemEnumerationYAMLType = (type: string): string | undefined => {
   if (!isKnownSystemEnumerationType(type)) return undefined
 
-  const fromYAML = getSystemEnumerationFromYAMLMap(type)
-  if (fromYAML === undefined) return undefined
-
-  const russianName = Object.keys(fromYAML)[0]
+  const russianName = systemEnumerationYAMLNames[type]
   if (russianName === undefined || russianName.trim() === "") {
     return undefined
   }
@@ -59,12 +59,8 @@ export const getSystemEnumerationTypeFromYAML = (type: string): string | undefin
   const russianName = type.substring(systemEnumerationPrefix.length)
   if (russianName.trim() === "") return undefined
 
-  for (const [key, value] of Object.entries(SE)) {
-    if (!key.endsWith(fromYAMLSuffix)) continue
-    if (!isRecord(value)) continue
-    if (!Object.prototype.hasOwnProperty.call(value, russianName)) continue
-
-    const typeName = key.substring(0, key.length - fromYAMLSuffix.length)
+  for (const [typeName, systemEnumerationYAMLName] of Object.entries(systemEnumerationYAMLNames)) {
+    if (systemEnumerationYAMLName !== russianName) continue
     if (isKnownSystemEnumerationType(typeName)) return typeName
   }
 

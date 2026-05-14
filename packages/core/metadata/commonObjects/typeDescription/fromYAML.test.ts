@@ -42,4 +42,24 @@ describe("importTypeDescriptionFromYAML", () => {
     const result = importTypeDescriptionFromYAML(mockContext, mockRule, enterprise)
     expect(result).toEqual(internal)
   })
+
+  it("should import known system enumeration type from explicit YAML form", () => {
+    const result = importTypeDescriptionFromYAML(
+      mockContext,
+      mockRule,
+      "СистемноеПеречисление.ПроверкаЗаполнения"
+    )
+
+    expect(result).toEqual({ type: ["FillChecking"] })
+  })
+
+  it("should keep system enumeration type with complex suffix unchanged during YAML import", () => {
+    const result = importTypeDescriptionFromYAML(
+      mockContext,
+      mockRule,
+      "СистемноеПеречисление.ПроверкаЗаполнения.Anything"
+    )
+
+    expect(result).toEqual({ type: ["СистемноеПеречисление.ПроверкаЗаполнения.Anything"] })
+  })
 })

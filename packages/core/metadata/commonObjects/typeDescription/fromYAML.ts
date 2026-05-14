@@ -2,7 +2,7 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
-import { getTypeFromYAML } from "./helper"
+import { getSystemEnumerationTypeFromYAML, getTypeFromYAML } from "./helper"
 import {
   PrimitiveTypeFromYAML,
   TypeDescription,
@@ -91,6 +91,12 @@ export const importTypeDescriptionFromYAML = (
     if (type === "Булево") {
       const primitiveType = PrimitiveTypeFromYAML("Булево")
       types.push(primitiveType)
+      continue
+    }
+
+    const systemEnumerationType = getSystemEnumerationTypeFromYAML(type)
+    if (systemEnumerationType !== undefined) {
+      types.push(systemEnumerationType)
       continue
     }
 
