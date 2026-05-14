@@ -60,6 +60,11 @@ export {
   type ImportMetadataFileResult,
 } from "./metadata/orchestration/importMetadataFileWithGraph"
 export { buildGraph, buildGraphForChangedFile } from "./metadata/graphImport/buildGraph"
+export {
+  discoverProjectGraphFiles,
+  isSupportedProjectGraphFile,
+  pairedProjectGraphFile,
+} from "./metadata/graphImport/projectFiles"
 export type {
   BuildGraphForChangedFileParams,
   FileGraphData,
