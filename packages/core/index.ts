@@ -60,11 +60,13 @@ export {
   type ImportMetadataFileResult,
 } from "./metadata/orchestration/importMetadataFileWithGraph"
 export { buildGraph, buildGraphForChangedFile } from "./metadata/graphImport/buildGraph"
+export { topLevelGraphImportSpecs } from "./metadata/graphImport/registerTopLevelGraphImports"
 export {
   discoverProjectGraphFiles,
   isSupportedProjectGraphFile,
   pairedProjectGraphFile,
 } from "./metadata/graphImport/projectFiles"
+export { cypherSet, isCypherSet, type CypherSet } from "./metadata/orchestration/property/cypherPredicate"
 export type {
   BuildGraphForChangedFileParams,
   FileGraphData,

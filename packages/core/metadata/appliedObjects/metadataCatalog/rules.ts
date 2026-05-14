@@ -1,7 +1,15 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
+import { cypherSet } from "~/metadata/orchestration/property/cypherPredicate"
 import { MetadataItemRule, type ReferenceScope } from "~/metadata/orchestration/property/types"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 import { MetadataCatalogStandardAttributeNames } from "./types"
+
+const catalogFormCypherSet = cypherSet({
+  query: `
+    MATCH (scope {id: $scope})-[:FORM]->(form)
+    RETURN form.id AS value, form.name AS label, "FORM" AS detail
+  `,
+})
 
 export const MetadataCatalogRules = {
   itemType: "MetadataCatalog",
@@ -200,6 +208,7 @@ export const MetadataCatalogRules = {
       type: "string",
       xmlParents: ["Properties"],
       referenceScope: { target: "this", kind: "Form" },
+      allowedValues: catalogFormCypherSet,
       defaultValueXMLRaw: "",
     },
     defaultFolderChoiceForm: {
@@ -207,6 +216,7 @@ export const MetadataCatalogRules = {
       type: "string",
       xmlParents: ["Properties"],
       referenceScope: { target: "this", kind: "Form" },
+      allowedValues: catalogFormCypherSet,
       defaultValueXMLRaw: "",
     },
     defaultFolderForm: {
@@ -214,6 +224,7 @@ export const MetadataCatalogRules = {
       type: "string",
       xmlParents: ["Properties"],
       referenceScope: { target: "this", kind: "Form" },
+      allowedValues: catalogFormCypherSet,
       defaultValueXMLRaw: "",
     },
     defaultListForm: {
@@ -221,6 +232,7 @@ export const MetadataCatalogRules = {
       type: "string",
       xmlParents: ["Properties"],
       referenceScope: { target: "this", kind: "Form" },
+      allowedValues: catalogFormCypherSet,
       defaultValueXMLRaw: "",
     },
     defaultObjectForm: {
@@ -228,6 +240,7 @@ export const MetadataCatalogRules = {
       type: "string",
       xmlParents: ["Properties"],
       referenceScope: { target: "this", kind: "Form" },
+      allowedValues: catalogFormCypherSet,
       defaultValueXMLRaw: "",
     },
     defaultPresentation: {
