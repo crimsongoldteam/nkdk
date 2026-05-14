@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "~/metadata/commonObjects/i8nText/toXML"
 import "~/metadata/commonObjects/metadataRegisterDimension/register"
 import { dimensionsFromXML } from "~/metadata/commonObjects/metadataRegisterDimension/__fixtures__/data"
 import { mockContextToXML } from "~/tests/mockContext"
@@ -11,6 +12,7 @@ const rule = {
   itemType: "Recalculation",
   properties: {
     name: { xml: "Name", type: "string", xmlParents: ["Properties"] },
+    synonym: { xml: "Synonym", type: "I8nText", xmlParents: ["Properties"] },
     use: { xml: "Use", type: "boolean", xmlParents: ["Properties"], defaultValueXML: true },
     dimensions: {
       xml: "Dimension",
@@ -20,6 +22,11 @@ const rule = {
       defaultValueXMLRaw: {},
     },
   },
+} as const satisfies MetadataItemRule
+
+const ruleWithXsiType = {
+  ...rule,
+  xsiType: "GeneratedType",
 } as const satisfies MetadataItemRule
 
 const withReferenceRaw = (raw: Record<string, unknown>) => {
@@ -63,6 +70,60 @@ describe("exportMetadataItemToXML reference preservation", () => {
     })
     expect((xml?.Properties as Record<string, unknown>).Use).toBeUndefined()
     expect((xml?.ChildObjects as Record<string, unknown>).Dimension).toBeDefined()
+  })
+
+  it("keeps generated rule xsi:type over reference raw xsi:type", () => {
+    const reference = withReferenceRaw({
+      "_xsi:type": "ReferenceType",
+      Properties: {
+        Name: "СтароеИмя",
+      },
+    })
+
+    const xml = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: { itemType: "Recalculation", name: "НовоеИмя" },
+      referenceData: reference,
+      rule: ruleWithXsiType,
+    })
+
+    expect(xml).toMatchObject({
+      "_xsi:type": "GeneratedType",
+      Properties: {
+        Name: "НовоеИмя",
+      },
+    })
+  })
+
+  it("preserves unknown nested reference XML inside a generated object property", () => {
+    const reference = withReferenceRaw({
+      Properties: {
+        Synonym: {
+          "v8:item": { "v8:lang": "ru", "v8:content": "СтарыйСиноним" },
+          UnknownNested: "keep-nested",
+        },
+      },
+    })
+
+    const xml = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: {
+        itemType: "Recalculation",
+        name: "Имя",
+        synonym: { items: { ru: "НовыйСиноним" } },
+      },
+      referenceData: reference,
+      rule,
+    })
+
+    expect(xml).toMatchObject({
+      Properties: {
+        Synonym: {
+          "v8:item": [{ "v8:lang": "ru", "v8:content": "НовыйСиноним" }],
+          UnknownNested: "keep-nested",
+        },
+      },
+    })
   })
 
   it("exports nested generated fields when they are not XML defaults", () => {

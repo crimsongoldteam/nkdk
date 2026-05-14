@@ -35,11 +35,8 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
 
   if (Object.keys(result).length === 0) return undefined
 
-  let finalResult: ItemXML = mergeWithReferenceRawXML(result, referenceData, rule)
-
-  if (rule.xsiType) {
-    finalResult = { "_xsi:type": rule.xsiType, ...finalResult }
-  }
+  const generatedResult: ItemXML = rule.xsiType ? { "_xsi:type": rule.xsiType, ...result } : result
+  const finalResult: ItemXML = mergeWithReferenceRawXML(generatedResult, referenceData, rule)
 
   // Если правило содержит XMLRoot-property, оборачиваем результат:
   // - по умолчанию: { MetaDataObject: { ...rootAttributes, [container]: result } };
@@ -132,8 +129,7 @@ const mergeXMLValue = (params: {
   path: string[]
 }): unknown => {
   const { key, generated, reference, rule, path } = params
-  const propertyRule = findPropertyRuleForXMLPath({ rule, path, xmlKey: key })
-  if (propertyRule === undefined && isPlainXMLObject(generated) && isPlainXMLObject(reference)) {
+  if (isPlainXMLObject(generated) && isPlainXMLObject(reference)) {
     return mergeXMLObject({ generated, reference, rule, path: [...path, key] })
   }
   return generated
