@@ -113,4 +113,44 @@ describe("export DynamicList to XML", () => {
     expect(keyFieldIndex).toBeGreaterThan(keyTypeIndex)
     expect(listSettingsIndex).toBeGreaterThan(keyFieldIndex)
   })
+
+  it("preserves reference KeyField when current value is undefined", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: {
+        itemType: "DynamicList",
+        keyType: "RowKey",
+        keyFields: undefined,
+      },
+      referenceMetadata: {
+        itemType: "DynamicList",
+        keyType: "RowKey",
+        keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+      },
+      xmlRootTag: "Settings",
+    })
+
+    expect(result).toContain("<KeyType>RowKey</KeyType>")
+    expect(result).toContain("<KeyField>КлючПриглашения</KeyField>")
+    expect(result).toContain("<KeyField>Контрагент</KeyField>")
+    expect(result).toContain("<KeyField>ИдентификаторОрганизации</KeyField>")
+  })
+
+  it("exports keyFields array as repeated KeyField nodes", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: {
+        itemType: "DynamicList",
+        keyType: "RowKey",
+        keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+      },
+      xmlRootTag: "Settings",
+    })
+
+    expect(result.match(/<KeyField>/g)).toHaveLength(3)
+    expect(result).toContain("<KeyType>RowKey</KeyType>")
+    expect(result).toContain("<KeyField>КлючПриглашения</KeyField>")
+    expect(result).toContain("<KeyField>Контрагент</KeyField>")
+    expect(result).toContain("<KeyField>ИдентификаторОрганизации</KeyField>")
+  })
 })

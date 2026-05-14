@@ -10,7 +10,7 @@ import {
   withEmptySettingsFormAttribute,
   withoutTypeFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
-import { mockContextToXML, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockContextToXML, mockRule } from "~/tests/mockContext"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
@@ -28,6 +28,7 @@ import { treeWithColumn } from "./__fixtures__/treeWithColumn"
 import { twoTables } from "./__fixtures__/twoTables"
 import { valueListWithReferenceEmptySettings } from "./__fixtures__/valueListWithReferenceEmptySettings"
 import { valueListWithoutSettings } from "./__fixtures__/valueListWithoutSettings"
+import { importFormAttributesFromXML } from "./fromXML"
 import { exportFormAttributesToXML } from "./toXML"
 
 const formAttributesRule = { type: "FormAttributes", xml: "Attribute" } as const
@@ -258,6 +259,34 @@ describe("exportFormAttributesToXML", () => {
     })
 
     expect(result).toEqual(expectedResult)
+  })
+
+  it("round-trip keeps repeated DynamicList KeyField nodes in Settings", () => {
+    const context = mockContextToXML()
+    const value = importFormAttributesFromXML(
+      mockContextFromXML({ forReference: true }),
+      mockRule,
+      {
+        Attribute: [{
+          _name: "Список",
+          _id: "1",
+          Settings: {
+            "_xsi:type": "DynamicList",
+            KeyType: "RowKey",
+            KeyField: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+          },
+        }],
+      }
+    )
+
+    const xmlData = exportFormAttributesToXML(context, mockRule, value, value)
+    const result = xmlExport(xmlData!, false)
+
+    expect(result.match(/<KeyField>/g)).toHaveLength(3)
+    expect(result).toContain("<KeyType>RowKey</KeyType>")
+    expect(result).toContain("<KeyField>КлючПриглашения</KeyField>")
+    expect(result).toContain("<KeyField>Контрагент</KeyField>")
+    expect(result).toContain("<KeyField>ИдентификаторОрганизации</KeyField>")
   })
 
   it("export attributeAnyType", () => {

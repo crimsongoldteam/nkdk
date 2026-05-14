@@ -1,5 +1,10 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { ExportToXMLFunctionNew } from "~/metadata/orchestration/property/fn"
+import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import "~/metadata/commonObjects/metadataAttribute/register"
+import { MetadataAttributeRules } from "~/metadata/commonObjects/metadataAttribute/rules"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 
 const properties = ["Properties"]
@@ -16,6 +21,38 @@ const MetadataDataProcessorCommandRules = {
     },
   },
 } as const satisfies MetadataItemRule
+
+const MetadataDataProcessorAttributeRules = {
+  ...MetadataAttributeRules,
+  properties: {
+    ...MetadataAttributeRules.properties,
+    type: {
+      ...MetadataAttributeRules.properties.type,
+      declareTypeNamespaceXML: true,
+    },
+  },
+} as const satisfies MetadataItemRule
+
+const getMetadataAttributeItemRule = (rule: PropertyRule | undefined): MetadataItemRule => {
+  if (rule && "itemRule" in rule && rule.itemRule !== undefined) return rule.itemRule as MetadataItemRule
+  return MetadataAttributeRules
+}
+
+const exportMetadataAttributesToXML: ExportToXMLFunctionNew = (params) => {
+  const effectiveXmlElement = params.rule.xml === "Attribute" ? undefined : "Attribute"
+
+  return exportMetadataCollectionToXML({
+    context: params.context,
+    rule: params.rule,
+    data: params.value,
+    referenceData: params.referenceMetadata,
+    itemRule: getMetadataAttributeItemRule(params.rule),
+    xmlElement: effectiveXmlElement,
+    keyField: "name",
+  })
+}
+
+registerTypeRule("MetadataAttributes", "exportToXML", exportMetadataAttributesToXML)
 
 export const MetadataDataProcessorRules = {
   itemType: "MetadataDataProcessor",
@@ -123,6 +160,7 @@ export const MetadataDataProcessorRules = {
       type: "MetadataAttributes",
       xmlParents: childObjects,
       xml: "Attribute",
+      ...({ itemRule: MetadataDataProcessorAttributeRules } as { itemRule: MetadataItemRule }),
     },
     tabularSections: {
       yaml: "ТабличныеЧасти",

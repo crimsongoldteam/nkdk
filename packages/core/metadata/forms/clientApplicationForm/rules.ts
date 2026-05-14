@@ -455,6 +455,7 @@ export const ClientApplicationFormRules = {
         onReopen: "ПриПовторномОткрытии",
         onCreateAtServer: "ПриСозданииНаСервере",
         onSaveDataInSettingsAtServer: "ПриСохраненииДанныхВНастройкахНаСервере",
+        onUpdateUserSettingSetAtServer: "ПриОбновленииСоставаПользовательскихНастроекНаСервере",
         onClientApplicationSuspend: "ПриЗасыпанииКлиентскогоПриложения",
         onClientApplicationResume: "ПриПробужденииКлиентскогоПриложения",
 

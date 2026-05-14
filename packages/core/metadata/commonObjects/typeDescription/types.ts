@@ -209,14 +209,17 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
   SettingsComposer: {
     enterprise: "КомпоновщикНастроекКомпоновкиДанных",
     prefix: "dcsset",
+    namespace: "http://v8.1c.ru/8.1/data-composition-system/settings",
   },
   Filter: {
     enterprise: "Отбор",
     prefix: "dcsset",
+    namespace: "http://v8.1c.ru/8.1/data-composition-system/settings",
   },
   DataCompositionComparisonType: {
     enterprise: "DataCompositionComparisonType",
     prefix: "dcsset",
+    namespace: "http://v8.1c.ru/8.1/data-composition-system/settings",
   },
   Field: {
     enterprise: "ПолеКомпоновкиДанных",

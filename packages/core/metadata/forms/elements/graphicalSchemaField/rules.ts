@@ -12,7 +12,7 @@ export const GraphicalSchemaFieldRules = {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     borderColor: { yaml: "ЦветРамки", type: "Color" },
-    edit: { yaml: "Редактирование", type: "boolean", runtimeOnly: true },
+    edit: { yaml: "Редактирование", type: "boolean", toYAML: false, fromYAML: false, toEnterprise: false },
     height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },

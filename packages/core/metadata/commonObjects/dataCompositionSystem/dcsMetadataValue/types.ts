@@ -41,6 +41,15 @@ export type DcsMetadataValuePropertyRule = DcsMetadataValueBasePropertyRule | Sy
 export type MetadataDcsFieldValue = { type: "Field"; value: string }
 export type MetadataDcsDesignTimeValue = { type: "DesignTimeValue"; value: string }
 export type MetadataDcsExplicitTextValue = MetadataDcsFieldValue | MetadataDcsDesignTimeValue
+export type MetadataDcsExplicitTextValueYAML =
+  | {
+      Тип: "Поле"
+      Значение: string
+    }
+  | {
+      Тип: "ЗначениеВремениПроектирования"
+      Значение: string
+    }
 
 export type MetadataDcsMetadataSingleValue =
   | null
@@ -61,6 +70,7 @@ export type MetadataDcsMetadataSingleValueYAML =
   | null
   | ColorYAML
   | MetadataFieldYAML
+  | MetadataDcsExplicitTextValueYAML
   | ChoiceParametersYAML
   | I8nTextYAML
   | MetadataValueYAML

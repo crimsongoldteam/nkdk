@@ -30,6 +30,33 @@ describe("import DcsMetadataTypedValue from XML", () => {
     ).toEqual(emptyValueListTypedValue)
   })
 
+  it("imports v8 Type Undefined as missing value", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlRootTag: "value",
+      xmlString:
+        '<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value>',
+    })
+
+    expect(result).toBeUndefined()
+  })
+
+  it("imports reference v8 Type Undefined as raw XML", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlRootTag: "value",
+      xmlString:
+        '<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value>',
+      forReference: true,
+    })
+
+    expect(result).toEqual({
+      "_xmlns:d8p1": "http://v8.1c.ru/8.2/data/types",
+      "_xsi:type": "v8:Type",
+      "#text": "d8p1:Undefined",
+    })
+  })
+
   it("rejects non-empty ValueListType", () => {
     expect(() =>
       testImportPropertyFromXML({

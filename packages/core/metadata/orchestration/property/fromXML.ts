@@ -37,6 +37,9 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
     ) {
       xmlValue = null
     }
+    if (xmlValue === undefined && currentRule.type === "MetadataValue" && isXMLKeyPresent(key, xml, currentRule)) {
+      xmlValue = { "_xsi:nil": true }
+    }
     const shouldImportForReference =
       forReference &&
       currentRule.fromXML === false &&

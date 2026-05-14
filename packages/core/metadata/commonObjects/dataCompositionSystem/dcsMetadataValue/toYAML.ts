@@ -43,6 +43,13 @@ export const exportDcsMetadataValueToYAML = (
   }
 
   if (isExplicitTextValue(data)) {
+    if (rule.valueType === "DesignTimeValue") {
+      return {
+        Тип: data.type === "Field" ? "Поле" : "ЗначениеВремениПроектирования",
+        Значение: data.value,
+      } as MetadataDcsMetadataValueYAML
+    }
+
     if (data.type === "DesignTimeValue") {
       return (exportMetadataValueStringToYAML(context, undefined, data.value) ?? data.value) as MetadataDcsMetadataValueYAML
     }

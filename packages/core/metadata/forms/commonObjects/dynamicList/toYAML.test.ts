@@ -84,6 +84,25 @@ describe("export DynamicList to YAML", () => {
     })
   })
 
+  it("exports keyFields array as ПоляКлюча array", () => {
+    const result = exportPropertyToYAML({
+      context: mockContextToTypedYAML,
+      rule,
+      value: {
+        itemType: "DynamicList",
+        keyType: "RowKey",
+        keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+      },
+    })
+
+    expect(result).toEqual({
+      ДинамическийСписок: {
+        ВидКлюча: "КлючСтроки",
+        ПоляКлюча: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+      },
+    })
+  })
+
   it("does not export ManualQuery true when queryText is present and collects query file", () => {
     const externalFilesCollector: { relativePath: string; content: string }[] = []
     const queryText = "ВЫБРАТЬ\n  Справочник1.Ссылка\nИЗ\n  Справочник.Справочник1 КАК Справочник1"

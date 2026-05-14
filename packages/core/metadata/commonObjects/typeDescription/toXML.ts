@@ -14,7 +14,7 @@ export const exportTypeDescriptionToXML = (
   const numberQualifiers = getNumberQualifiers(typeDescription)
   const dateQualifiers = getDateQualifiers(typeDescription)
 
-  const typesXML = getTypesXML(typeDescription)
+  const typesXML = getTypesXML(typeDescription, shouldDeclareTypeNamespace(_rule))
   const typeIdXML = getTypeIdXML(typeDescription)
 
   const result = {
@@ -28,8 +28,12 @@ export const exportTypeDescriptionToXML = (
   return result
 }
 
+const shouldDeclareTypeNamespace = (rule: PropertyRule | undefined): boolean =>
+  Boolean(rule && "declareTypeNamespaceXML" in rule && rule.declareTypeNamespaceXML)
+
 const getTypesXML = (
-  typeDescription: TypeDescription
+  typeDescription: TypeDescription,
+  declareTypeNamespace: boolean
 ): {
   "v8:Type"?: TypeDescriptionXMLType[] | TypeDescriptionXMLType
   "v8:TypeSet"?: TypeDescriptionXMLType[] | TypeDescriptionXMLType
@@ -48,7 +52,7 @@ const getTypesXML = (
     if (!rule) throw new Error(`Type ${type} not found in TypeDescriptionRules`)
 
     const typeXML = `${rule.prefix}:${type}`
-    const item = rule.namespace
+    const item = shouldExportTypeNamespace(rule, declareTypeNamespace)
       ? {
           [`_xmlns:${rule.prefix}`]: rule.namespace,
           "#text": typeXML,
@@ -67,6 +71,12 @@ const getTypesXML = (
     ...(typeSetXML.length > 0 ? { "v8:TypeSet": typeSetXML.length === 1 ? typeSetXML[0] : typeSetXML } : undefined),
   }
 }
+
+const shouldExportTypeNamespace = (
+  rule: ReturnType<typeof getTypeDescriptionRule>,
+  declareTypeNamespace: boolean
+): rule is NonNullable<typeof rule> & { namespace: string } =>
+  Boolean(rule?.namespace && (declareTypeNamespace || rule.prefix !== "dcsset"))
 
 const getTypeIdXML = (typeDescription: TypeDescription): TypeDescriptionXML["v8:TypeId"] | undefined => {
   if (typeDescription.typeId === undefined || typeDescription.typeId.length === 0) return undefined

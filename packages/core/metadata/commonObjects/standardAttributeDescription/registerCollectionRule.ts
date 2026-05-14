@@ -167,7 +167,9 @@ function exportStandardAttributeDescriptionsToXML(p: {
   if (!isGroupChanged) return undefined
 
   // Expand to full canonical list from standartAttributeNames
-  const standartAttributeNames: Record<string, string> = (p.rule as any).standartAttributeNames ?? {}
+  const stdAttrRule = p.rule as StandardAttributeDescriptionsPropertyRule
+  const standartAttributeNames: Record<string, string> =
+    stdAttrRule.standartAttributeNamesXML?.(p.metadataItem) ?? stdAttrRule.standartAttributeNames ?? {}
   const explicitByName = new Map<string, StandardAttributeDescription>()
   for (const item of items) {
     if (item.name) explicitByName.set(item.name as string, item)

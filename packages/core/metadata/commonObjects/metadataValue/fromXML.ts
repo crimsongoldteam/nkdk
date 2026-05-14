@@ -43,6 +43,9 @@ export const importMetadataValueFromXML = (params: {
 }): MetadataTypedValue | undefined => {
   const { context, value: data, type } = params
   if (!data) return undefined
+  if (data["_xsi:nil"] === true) {
+    return context.fromXML.forReference ? (data as any) : undefined
+  }
 
   const resultedType: MetadataValueType | undefined = type ?? MetadataValueTypeFromXML(data["_xsi:type"] as MetadataValueTypeXML)
   if (!resultedType) throw new Error(`MetadataValue: не распознан тип: ${data["_xsi:type"]}`)

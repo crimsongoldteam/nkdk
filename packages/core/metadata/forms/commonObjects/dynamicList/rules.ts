@@ -110,10 +110,11 @@ export const DynamicListRules = {
       defaultValueYAML: "Auto",
     },
     keyFields: {
-      type: "string",
+      type: "DynamicListKeyFields",
       xml: "KeyField",
       yaml: "ПоляКлюча",
       order: 5,
+      preserveFromReferenceXML: true,
     },
     itemsViewMode: {
       type: "SystemEnumeration",

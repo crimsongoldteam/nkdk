@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
+import { MetadataCommonAttributeRules } from "~/metadata/appliedObjects/metadataCommonAttribute/rules"
 import { metadataValueFixtures } from "~/metadata/commonObjects/metadataValue/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportMetadataValueToXML } from "./toXML"
 
@@ -31,6 +33,28 @@ describe("exportMetadataValueToXML", () => {
     const result = xmlExport({ Value: xmlData }, false)
 
     expect(result).toEqual('<Value xsi:type="dcsset:DataCompositionComparisonType">Equal</Value>')
+  })
+
+  it("preserves reference xsi:nil for missing value", () => {
+    const { result } = testExportPropertyToXML({
+      rule: MetadataCommonAttributeRules.properties.fillValue,
+      value: undefined,
+      referenceMetadata: { "_xsi:nil": true },
+      xmlRootTag: "FillValue",
+    })
+
+    expect(result).toBe('<FillValue xsi:nil="true"/>')
+  })
+
+  it("exports reference-only xsi:nil when passed as value", () => {
+    const { result } = testExportPropertyToXML({
+      rule: MetadataCommonAttributeRules.properties.fillValue,
+      value: { "_xsi:nil": true },
+      referenceMetadata: { "_xsi:nil": true },
+      xmlRootTag: "FillValue",
+    })
+
+    expect(result).toBe('<FillValue xsi:nil="true"/>')
   })
 
   describe("строгая валидация valueType", () => {

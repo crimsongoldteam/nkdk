@@ -76,4 +76,14 @@ describe("export MetadataAttributes to XML", () => {
 
     expect(result).toBe('<MinValue xsi:type="xs:string">1</MinValue>')
   })
+
+  it("exports empty Type tag when attribute type is missing", () => {
+    const { result } = testExportPropertyToXML({
+      rule: MetadataAttributeRules.properties.type,
+      value: undefined,
+      xmlRootTag: "Type",
+    })
+
+    expect(result).toBe("<Type/>")
+  })
 })

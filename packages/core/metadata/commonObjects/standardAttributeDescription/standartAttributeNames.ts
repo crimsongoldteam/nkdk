@@ -10,6 +10,7 @@ export const StandartAttributeNameToYAML = {
   IsFolder: "ЭтоГруппа",
   LineNumber: "НомерСтроки",
   Active: "Активность",
+  RecordType: "ВидДвижения",
   Recorder: "Регистратор",
   Period: "Период",
   Date: "Дата",

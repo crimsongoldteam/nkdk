@@ -209,6 +209,7 @@ export interface StandardAttributeDescriptionPropertyRule extends BasePropertyRu
 export interface StandardAttributeDescriptionsPropertyRule extends BasePropertyRule {
   type: "StandardAttributeDescriptions"
   standartAttributeNames: Record<string, string>
+  standartAttributeNamesXML?: (metadataItem: unknown) => Record<string, string>
 }
 
 export interface EventsPropertyRule extends BasePropertyRule {
@@ -229,6 +230,7 @@ export interface TableAdditionalSourcePropertyRule extends BasePropertyRule {
 export interface TypeDescriptionPropertyRule extends BasePropertyRule {
   type: "TypeDescription"
   addTypeDescriptionAttributeToXML?: true
+  declareTypeNamespaceXML?: boolean
 }
 
 export interface DataPathPropertyRule extends BasePropertyRule {

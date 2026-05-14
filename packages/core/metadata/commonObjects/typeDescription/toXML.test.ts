@@ -4,6 +4,12 @@ import { xmlExport } from "~/xml/export/exporter"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { exportTypeDescriptionToXML } from "./toXML"
 
+const typeDescriptionRule = { type: "TypeDescription" } as const
+const typeDescriptionRuleWithLocalNamespace = {
+  type: "TypeDescription",
+  declareTypeNamespaceXML: true,
+} as const
+
 describe("exportTypeDescriptionToXML", () => {
   it("should export undefined type description to XML", () => {
     const result = exportTypeDescriptionToXML(mockContext, mockRule, undefined)
@@ -36,6 +42,28 @@ describe("exportTypeDescriptionToXML", () => {
     const result = xmlExport({ TypeDescription: resultXml }, false)
 
     expect(result).toEqual(`<TypeDescription>\n\t<v8:Type>${xmlType}</v8:Type>\n</TypeDescription>`)
+  })
+
+  it("exports local type namespace when rule requests it", () => {
+    const resultXml = exportTypeDescriptionToXML(
+      mockContext,
+      typeDescriptionRuleWithLocalNamespace,
+      { type: ["SettingsComposer"] }
+    )
+
+    const result = xmlExport({ TypeDescription: resultXml }, false)
+
+    expect(result).toEqual(
+      '<TypeDescription>\n\t<v8:Type xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings">dcsset:SettingsComposer</v8:Type>\n</TypeDescription>'
+    )
+  })
+
+  it("does not export local type namespace by default", () => {
+    const resultXml = exportTypeDescriptionToXML(mockContext, typeDescriptionRule, { type: ["SettingsComposer"] })
+
+    const result = xmlExport({ TypeDescription: resultXml }, false)
+
+    expect(result).toEqual("<TypeDescription>\n\t<v8:Type>dcsset:SettingsComposer</v8:Type>\n</TypeDescription>")
   })
 
   it("should export known system enumeration type to XML with v8 prefix", () => {

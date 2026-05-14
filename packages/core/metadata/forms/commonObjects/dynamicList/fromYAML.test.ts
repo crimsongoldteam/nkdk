@@ -90,4 +90,21 @@ describe("import DynamicList from YAML", () => {
       },
     })
   })
+
+  it("imports ПоляКлюча array as keyFields array", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        ВидКлюча: "КлючСтроки",
+        ПоляКлюча: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "DynamicList",
+      customQuery: false,
+      keyType: "RowKey",
+      keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+    })
+  })
 })
