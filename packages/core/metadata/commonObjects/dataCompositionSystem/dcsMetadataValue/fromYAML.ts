@@ -27,6 +27,18 @@ const isEnumValueMetadataPath = (value: string | undefined): boolean =>
 const isEnterpriseDesignTimeValue = (value: unknown): value is string =>
   typeof value === "string" && value.startsWith("Перечисление.")
 
+const importExplicitTextValueFromYAML = (data: unknown): MetadataDcsMetadataValue | undefined => {
+  if (typeof data !== "object" || data === null || Array.isArray(data)) return undefined
+  const record = data as Record<string, unknown>
+  if (record["Тип"] === "Поле" && typeof record["Значение"] === "string") {
+    return { type: "Field", value: record["Значение"] }
+  }
+  if (record["Тип"] === "ЗначениеВремениПроектирования" && typeof record["Значение"] === "string") {
+    return { type: "DesignTimeValue", value: record["Значение"] }
+  }
+  return undefined
+}
+
 export const importDcsMetadataValueFromYAML = (
   context: ConfigurationContext,
   rule: DcsMetadataValuePropertyRule,
@@ -57,7 +69,11 @@ export const importDcsMetadataValueFromYAML = (
       const list = importChoiceParametersFromYAML(context, undefined, data as ChoiceParametersYAML)
       return list?.[0]
     }
-    case "DesignTimeValue":
+    case "DesignTimeValue": {
+      const explicitTextValue = importExplicitTextValueFromYAML(data)
+      if (explicitTextValue !== undefined) {
+        return explicitTextValue
+      }
       if (typeof data === "string" && /^".*"$/.test(data)) {
         return importMetadataValueFromYAML(context, undefined, data as any) as MetadataDcsMetadataValue
       }
@@ -69,6 +85,7 @@ export const importDcsMetadataValueFromYAML = (
         rule: { type: "I8nText" },
         value: data as I8nTextYAML,
       })!
+    }
     case "Primitive":
       if (isEnterpriseDesignTimeValue(data)) {
         return { type: "DesignTimeValue", value: data }

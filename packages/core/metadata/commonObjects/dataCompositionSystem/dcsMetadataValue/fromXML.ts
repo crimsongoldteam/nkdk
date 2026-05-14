@@ -201,7 +201,8 @@ const importDcsMetadataValueFromDcsXMLInternal = (
   }
 
   if (xsi === "dcscor:Field") {
-    return textNode(root as string | { "#text"?: string })
+    const value = textNode(root as string | { "#text"?: string })
+    return rule.valueType === "DesignTimeValue" ? { type: "Field", value } : value
   }
 
   const metadataPrimitive = xsi !== undefined ? MetadataValueTypeFromXML(xsi as MetadataValueTypeXML) : undefined

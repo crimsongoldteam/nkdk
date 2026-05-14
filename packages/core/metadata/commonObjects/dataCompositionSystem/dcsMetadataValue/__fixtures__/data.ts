@@ -18,6 +18,7 @@ export const fixtureColorWebRed: Color = {
 
 export const fixtureFieldPath = "Реквизит1"
 export const fixtureDesignTimeRefPath = "Перечисление.СтраницыЖурналаОтчетность.ЕГРЮЛ"
+export const fixtureDesignTimeFieldPath = "Сертификаты.СертификатПредставление"
 
 export const fixtureBooleanPrimitive: MetadataTypedPrimitiveValue = {
   type: "boolean",
@@ -71,6 +72,10 @@ export const fixtureChoiceParameterDecimal: ChoiceParameter = {
 
 export const yamlColorWebRed: ColorYAML = "Красный"
 export const yamlFieldPath: MetadataFieldYAML = "Реквизит1"
+export const yamlDesignTimeFieldExplicit = {
+  Тип: "Поле",
+  Значение: fixtureDesignTimeFieldPath,
+} as const
 export const yamlBooleanPrimitive: MetadataValueYAML = "Истина"
 export const yamlLocalStringI8n: I8nTextYAML = "ЧЦ=3; ЧДЦ=2"
 export const yamlHorizontalAlign = "Центр" as const
@@ -109,6 +114,18 @@ const designTimeRefUnderFieldDefaultFixture: DcsMetadataValueFixture = {
   },
   yaml: fixtureDesignTimeRefPath,
   xml: "design-time-ref.xml",
+}
+
+const designTimeFieldFixture: DcsMetadataValueFixture = {
+  id: "designTimeField",
+  title: "DesignTimeValue explicit Field",
+  rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+  value: {
+    type: "Field",
+    value: fixtureDesignTimeFieldPath,
+  },
+  yaml: yamlDesignTimeFieldExplicit,
+  xml: "design-time-field.xml",
 }
 
 const primitiveUuidFixture: DcsMetadataValueFixture = {
@@ -181,6 +198,7 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     yaml: yamlLocalStringI8n,
     xml: "design-time-value.xml",
   },
+  designTimeFieldFixture,
   {
     id: "systemEnumerationHorizontalAlign",
     title: "SystemEnumeration (HorizontalAlign)",
