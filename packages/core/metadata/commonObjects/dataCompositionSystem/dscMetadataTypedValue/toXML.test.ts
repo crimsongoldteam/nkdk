@@ -51,13 +51,24 @@ describe("export DcsMetadataTypedValue to XML", () => {
   })
 
   it("does not export invalid reference v8 Type value", () => {
+    expect(() =>
+      testExportPropertyToXML({
+        rule,
+        value: undefined,
+        referenceMetadata: {
+          ...undefinedTypeReferenceValue,
+          "#text": "d8p1:String",
+        },
+        xmlRootTag: "value",
+      })
+    ).toThrow("DcsMetadataTypedValue XML: unsupported reference v8:Type")
+  })
+
+  it("does not restore unrelated reference metadata", () => {
     const { result } = testExportPropertyToXML({
       rule,
       value: undefined,
-      referenceMetadata: {
-        ...undefinedTypeReferenceValue,
-        "#text": "d8p1:String",
-      },
+      referenceMetadata: { "_xsi:type": "xs:string", "#text": "x" },
       xmlRootTag: "value",
     })
 

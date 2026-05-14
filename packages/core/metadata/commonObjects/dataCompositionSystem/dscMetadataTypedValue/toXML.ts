@@ -11,6 +11,8 @@ import {
 
 const DATA_TYPES_NAMESPACE = "http://v8.1c.ru/8.2/data/types"
 
+type DcsMetadataTypedValueEmptyXML = Record<string, never>
+
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value)
 
@@ -47,11 +49,14 @@ export const exportDcsMetadataTypedValueToXML = (
   rule: DcsMetadataTypedValuePropertyRule,
   value: DcsMetadataTypedValue | DcsMetadataTypedValue[] | undefined,
   referenceMetadata?: unknown
-): DcsMetadataTypedValueXML | DcsMetadataTypedValueXML[] | undefined => {
+): DcsMetadataTypedValueXML | DcsMetadataTypedValueEmptyXML | DcsMetadataTypedValueXML[] | undefined => {
   if (value === undefined) {
     const referenceUndefinedValue = getReferenceUndefinedTypeValue(referenceMetadata)
     if (referenceUndefinedValue !== undefined) return referenceUndefinedValue
-    if (isReferenceTypeValue(referenceMetadata)) return {} as DcsMetadataTypedValueXML
+    if (isReferenceTypeValue(referenceMetadata)) {
+      throw new Error("DcsMetadataTypedValue XML: unsupported reference v8:Type")
+    }
+    if (isObject(referenceMetadata)) return {}
     return undefined
   }
   if (Array.isArray(value)) return value.map((item) => exportSingle(context, rule, item))
@@ -63,7 +68,7 @@ const exportDcsMetadataTypedValueToXMLForRule = (
   rule: PropertyRule,
   value: unknown,
   referenceMetadata?: unknown
-): DcsMetadataTypedValueXML | DcsMetadataTypedValueXML[] | undefined =>
+): DcsMetadataTypedValueXML | DcsMetadataTypedValueEmptyXML | DcsMetadataTypedValueXML[] | undefined =>
   exportDcsMetadataTypedValueToXML(
     context,
     rule as DcsMetadataTypedValuePropertyRule,
