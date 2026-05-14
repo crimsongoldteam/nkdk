@@ -36,6 +36,7 @@ The implementation policy is common for all objects below:
 - `metadataCalculationRegister`
 - `metadataChartOfAccounts`
 - `metadataChartOfCalculationTypes`
+- `metadataChartOfCharacteristicTypes`
 
 ## Deferred Objects
 
@@ -920,6 +921,155 @@ Testing:
   `Ext/Predefined.xml`, `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`, `Ext/Help/ru.html`, form XML, template XML, and
   command module.
 
+## Object: MetadataChartOfCharacteristicTypes
+
+- `itemType`: `MetadataChartOfCharacteristicTypes`
+- `itemTypePrefix`: `ПланВидовХарактеристик`
+- XML directory: `ChartsOfCharacteristicTypes`
+- XML container: `ChartOfCharacteristicTypes`
+- implement through `rules.ts`
+- `InternalInfo` generated categories:
+  - `Object`
+  - `Ref`
+  - `Selection`
+  - `List`
+  - `Characteristic`
+  - `Manager`
+
+Parent properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `useStandardCommands` | `UseStandardCommands` | `ИспользоватьСтандартныеКоманды` | `boolean` |
+| `includeHelpInContents` | `IncludeHelpInContents` | `ВключатьСправкуВСодержание` | `boolean` |
+| `characteristicExtValues` | `CharacteristicExtValues` | `ДополнительныеЗначенияХарактеристик` | `string` / `MDObjectRef` |
+| `type` | `Type` | `ТипЗначения` | `TypeDescription` |
+| `hierarchical` | `Hierarchical` | `Иерархический` | `boolean` |
+| `foldersOnTop` | `FoldersOnTop` | `ГруппыСверху` | `boolean` |
+| `codeLength` | `CodeLength` | `ДлинаКода` | `number` |
+| `codeAllowedLength` | `CodeAllowedLength` | `ДопустимаяДлинаКода` | `AllowedLength` |
+| `descriptionLength` | `DescriptionLength` | `ДлинаНаименования` | `number` |
+| `codeSeries` | `CodeSeries` | `СерииКодов` | `SystemEnumeration: CharacteristicKindCodesSeries` |
+| `checkUnique` | `CheckUnique` | `КонтрольУникальности` | `boolean` |
+| `autonumbering` | `Autonumbering` | `Автонумерация` | `boolean` |
+| `defaultPresentation` | `DefaultPresentation` | `ОсновноеПредставление` | `SystemEnumeration: CharacteristicTypeMainPresentation` |
+| `standardAttributes` | `StandardAttributes` | `СтандартныеРеквизиты` | `StandardAttributeDescriptions` |
+| `characteristics` | `Characteristics` | `Характеристики` | `CharacteristicsDescriptions` |
+| `predefinedDataUpdate` | `PredefinedDataUpdate` | `ОбновлениеПредопределенныхДанных` | `SystemEnumeration: PredefinedDataUpdate` |
+| `editType` | `EditType` | `СпособРедактирования` | `SystemEnumeration: EditType` |
+| `quickChoice` | `QuickChoice` | `БыстрыйВыбор` | `boolean` |
+| `choiceMode` | `ChoiceMode` | `РежимВыбора` | `SystemEnumeration: ChoiceMode` |
+| `inputByString` | `InputByString` | `ВводПоСтроке` | `MetadataFields` |
+| `createOnInput` | `CreateOnInput` | `СозданиеПриВводе` | `SystemEnumeration: CreateOnInput` |
+| `searchStringModeOnInputByString` | `SearchStringModeOnInputByString` | `РежимСтрокиПоискаПриВводеПоСтроке` | `SystemEnumeration: SearchStringModeOnInputByString` |
+| `choiceDataGetModeOnInputByString` | `ChoiceDataGetModeOnInputByString` | `РежимПолученияДанныхВыбораПриВводеПоСтроке` | `SystemEnumeration: ChoiceDataGetModeOnInputByString` |
+| `fullTextSearchOnInputByString` | `FullTextSearchOnInputByString` | `ПолнотекстовыйПоискПриВводеПоСтроке` | `SystemEnumeration: FullTextSearchOnInputByString` |
+| `choiceHistoryOnInput` | `ChoiceHistoryOnInput` | `ИсторияВыбораПриВводе` | `SystemEnumeration: ChoiceHistoryOnInput` |
+| `defaultObjectForm` | `DefaultObjectForm` | `ОсновнаяФормаОбъекта` | `string` |
+| `defaultFolderForm` | `DefaultFolderForm` | `ОсновнаяФормаГруппы` | `string` |
+| `defaultListForm` | `DefaultListForm` | `ОсновнаяФормаСписка` | `string` |
+| `defaultChoiceForm` | `DefaultChoiceForm` | `ОсновнаяФормаВыбора` | `string` |
+| `defaultFolderChoiceForm` | `DefaultFolderChoiceForm` | `ОсновнаяФормаВыбораГруппы` | `string` |
+| `auxiliaryObjectForm` | `AuxiliaryObjectForm` | `ДополнительнаяФормаОбъекта` | `string` |
+| `auxiliaryFolderForm` | `AuxiliaryFolderForm` | `ДополнительнаяФормаГруппы` | `string` |
+| `auxiliaryListForm` | `AuxiliaryListForm` | `ДополнительнаяФормаСписка` | `string` |
+| `auxiliaryChoiceForm` | `AuxiliaryChoiceForm` | `ДополнительнаяФормаВыбора` | `string` |
+| `auxiliaryFolderChoiceForm` | `AuxiliaryFolderChoiceForm` | `ДополнительнаяФормаВыбораГруппы` | `string` |
+| `basedOn` | `BasedOn` | `ВводитсяНаОсновании` | `MetadataItemLinks` |
+| `dataLockFields` | `DataLockFields` | `ПоляБлокировкиДанных` | `MetadataFields` |
+| `dataLockControlMode` | `DataLockControlMode` | `РежимУправленияБлокировкойДанных` | `SystemEnumeration: DefaultDataLockControlMode` |
+| `fullTextSearch` | `FullTextSearch` | `ПолнотекстовыйПоиск` | `SystemEnumeration: FullTextSearchUsing` |
+| `objectPresentation` | `ObjectPresentation` | `ПредставлениеОбъекта` | `I8nText` |
+| `extendedObjectPresentation` | `ExtendedObjectPresentation` | `РасширенноеПредставлениеОбъекта` | `I8nText` |
+| `listPresentation` | `ListPresentation` | `ПредставлениеСписка` | `I8nText` |
+| `extendedListPresentation` | `ExtendedListPresentation` | `РасширенноеПредставлениеСписка` | `I8nText` |
+| `explanation` | `Explanation` | `Пояснение` | `I8nText` |
+| `dataHistory` | `DataHistory` | `ИсторияДанных` | `SystemEnumeration: DataHistoryUse` |
+| `updateDataHistoryImmediatelyAfterWrite` | `UpdateDataHistoryImmediatelyAfterWrite` | `ОбновлятьИсториюДанныхСразуПослеЗаписи` | `boolean` |
+| `executeAfterWriteDataHistoryVersionProcessing` | `ExecuteAfterWriteDataHistoryVersionProcessing` | `ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных` | `boolean` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+Child objects:
+
+- `Attribute[]`: existing `MetadataAttributes`.
+- `TabularSection[]`: chart-of-characteristic-types-specific wrapper over the common tabular-section property set, with
+  generated type names `ChartOfCharacteristicTypesTabularSection` and `ChartOfCharacteristicTypesTabularSectionRow`.
+- `Form[]`: existing `ChildFormNames`, including object, folder, list, choice, and folder-choice forms.
+- `Template[]`: existing `ChildTemplateNames`.
+- `Command[]`: existing `MetadataCommands`, and include `childCollections` so both command modules are copied.
+
+There are no new unique child metadata objects in current fixtures.
+
+External files:
+
+- `objectModule`: existing `Module`, XML `Ext/ObjectModule.bsl`, nkdk `МодульОбъекта.bsl`
+- `managerModule`: existing `Module`, XML `Ext/ManagerModule.bsl`, nkdk `МодульМенеджера.bsl`
+- `predefined`: opaque `Template`, XML `Ext/Predefined.xml`, nkdk `Predefined.xml`
+- `additionalIndexes`: existing `AdditionalIndex`, XML `Ext/AdditionalIndexes.xml`
+- `help`: existing `Help`, XML `Ext/Help.xml` and `Ext/Help/ru.html`, nkdk `Справка/`
+- child forms through `ChildFormNames`
+- child templates through `ChildTemplateNames`
+- command modules through `MetadataCommands`
+
+`Predefined.xml` contains predefined characteristic values. The first implementation preserves it opaquely; parsing
+predefined characteristic values is deferred.
+
+Default policy from `minimal.xml`:
+
+- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `hierarchical`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `foldersOnTop`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `codeLength`: `defaultValueXML: 9`, `defaultValueYAML: 9`
+- `codeAllowedLength`: `defaultValueXML: "Variable"`, `defaultValueYAML: "Variable"`
+- `descriptionLength`: `defaultValueXML: 25`, `defaultValueYAML: 25`
+- `codeSeries`: `defaultValueXML: "WholeCharacteristicKind"`, `defaultValueYAML: "WholeCharacteristicKind"`
+- `checkUnique`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `autonumbering`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `defaultPresentation`: `defaultValueXML: "AsDescription"`, `defaultValueYAML: "AsDescription"`
+- `predefinedDataUpdate`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
+- `editType`: `defaultValueXML: "InDialog"`, `defaultValueYAML: "InDialog"`
+- `quickChoice`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `choiceMode`: `defaultValueXML: "BothWays"`, `defaultValueYAML: "BothWays"`
+- `createOnInput`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `defaultValueYAML: "Begin"`
+- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `defaultValueYAML: "Directly"`
+- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
+- `fullTextSearch`: `defaultValueXML: "Use"`, `defaultValueYAML: "Use"`
+- `dataHistory`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+
+Keep `characteristicExtValues`, `type`, `inputByString`, `basedOn`, `characteristics`, `dataLockFields`, child
+attributes, tabular sections, and predefined data as explicit content, not YAML defaults.
+
+Implementation notes:
+
+- Reuse existing common behavior from `metadataCatalog`, `metadataChartOfAccounts`, and `metadataChartOfCalculationTypes`.
+- `Type` is normal `TypeDescription`, and its default-looking string fixture remains explicit YAML content.
+- Standard attribute names include characteristic-kind-specific names from fixtures; validate the full fixture names
+  during implementation rather than relying only on the shared global standard-attribute map.
+- Command sync must cover both `Commands/ПолнаяКоманда` and `Commands/ПоУмолчанию`.
+
+Testing:
+
+- standard XML/YAML/sync tests;
+- XML tests cover `minimal.xml` and `full.xml`;
+- tests cover `CharacteristicExtValues`, `Type`, hierarchy/code settings, all object/folder/list/choice form references,
+  `BasedOn`, `Characteristics`, child attributes, tabular sections, and both commands;
+- sync from XML verifies `Свойства.yaml`, `МодульОбъекта.bsl`, `МодульМенеджера.bsl`, `Predefined.xml`, `Справка/`,
+  `ДополнительныеИндексы`, forms, templates, and both command modules;
+- sync to XML verifies `ChartsOfCharacteristicTypes/<name>.xml`, `Ext/ObjectModule.bsl`, `Ext/ManagerModule.bsl`,
+  `Ext/Predefined.xml`, `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`, `Ext/Help/ru.html`, form XML, template XML, and
+  both command modules.
+
 ## Registries And Tests
 
 Every included object should be added to the same registry set as other top-level applied objects:
@@ -947,7 +1097,6 @@ Sync tests must cover opaque external-file copying for role, scheduled job, comm
 
 Objects still needing brainstorming in this pass:
 
-- `metadataChartOfCharacteristicTypes`
 - `metadataCommonForm`
 - `metadataIntegrationService`
 - `metadataTask`
