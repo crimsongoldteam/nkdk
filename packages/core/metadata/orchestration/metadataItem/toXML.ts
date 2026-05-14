@@ -2,7 +2,7 @@ import { capitalize } from "~/helpers/capitalize"
 import { getChildContextToXML } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportPropertiesToXML } from "../property/toXML"
-import { ItemXML, MetadataItemRule } from "../property/types"
+import { ItemXML, MetadataItemRule, PropertyRule } from "../property/types"
 import { ToMetadata } from "./registry"
 
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
@@ -90,15 +90,53 @@ const mergeWithReferenceRawXML = (result: ItemXML, referenceData: unknown, rule:
   const referenceRaw = getReferenceRawXML(referenceData)
   if (!referenceRaw) return result
 
+  return mergeXMLObject({ generated: result, reference: referenceRaw, rule, path: [] })
+}
+
+const mergeXMLObject = (params: {
+  generated: Record<string, unknown>
+  reference: Record<string, unknown>
+  rule: MetadataItemRule
+  path: string[]
+}): ItemXML => {
+  const { generated, reference, rule, path } = params
   const merged: ItemXML = {}
-  for (const [key, value] of Object.entries(referenceRaw)) {
-    merged[key] = key in result ? result[key] : value
+  for (const [key, value] of Object.entries(reference)) {
+    merged[key] =
+      key in generated
+        ? mergeXMLValue({ key, generated: generated[key], reference: value, rule, path })
+        : value
   }
-  for (const [key, value] of Object.entries(result)) {
-    if (isDefaultValueMissingFromReference({ xmlKey: key, value, referenceRaw, rule })) continue
-    if (!(key in merged)) merged[key] = value
+  for (const [key, value] of Object.entries(generated)) {
+    if (key in merged) continue
+    const propertyRule = findPropertyRuleForXMLPath({ rule, path, xmlKey: key })
+    if (isDefaultValueMissingFromReference({ value, propertyRule })) continue
+
+    if (propertyRule === undefined && isPlainXMLObject(value)) {
+      const nested = mergeXMLObject({ generated: value, reference: {}, rule, path: [...path, key] })
+      if (Object.keys(nested).length === 0) continue
+      merged[key] = nested
+      continue
+    }
+
+    merged[key] = value
   }
   return merged
+}
+
+const mergeXMLValue = (params: {
+  key: string
+  generated: unknown
+  reference: unknown
+  rule: MetadataItemRule
+  path: string[]
+}): unknown => {
+  const { key, generated, reference, rule, path } = params
+  const propertyRule = findPropertyRuleForXMLPath({ rule, path, xmlKey: key })
+  if (propertyRule === undefined && isPlainXMLObject(generated) && isPlainXMLObject(reference)) {
+    return mergeXMLObject({ generated, reference, rule, path: [...path, key] })
+  }
+  return generated
 }
 
 const getReferenceRawXML = (referenceData: unknown): Record<string, unknown> | undefined => {
@@ -122,13 +160,28 @@ const sanitizeReferenceRawXML = (value: unknown): unknown => {
 }
 
 const isDefaultValueMissingFromReference = (params: {
-  xmlKey: string
   value: unknown
-  referenceRaw: Record<string, unknown>
-  rule: MetadataItemRule
+  propertyRule: PropertyRule | undefined
 }): boolean => {
-  if (params.xmlKey in params.referenceRaw) return false
-  const propertyRule = Object.entries(params.rule.properties).find(([key, rule]) => (rule.xml ?? capitalize(key)) === params.xmlKey)?.[1]
-  if (!propertyRule) return false
-  return "defaultValueXML" in propertyRule && params.value === propertyRule.defaultValueXML
+  if (!params.propertyRule) return false
+  return "defaultValueXML" in params.propertyRule && params.value === params.propertyRule.defaultValueXML
 }
+
+const findPropertyRuleForXMLPath = (params: {
+  rule: MetadataItemRule
+  path: string[]
+  xmlKey: string
+}): PropertyRule | undefined => {
+  const { rule, path, xmlKey } = params
+  return Object.entries(rule.properties).find(([key, propertyRule]) => {
+    const propertyPath = propertyRule.xmlParents ?? []
+    if (propertyPath.length !== path.length || propertyPath.some((part, index) => part !== path[index])) {
+      return false
+    }
+    const canonicalXmlKey = propertyRule.xml ?? capitalize(key)
+    return canonicalXmlKey === xmlKey || ((propertyRule as { xmlAliases?: string[] }).xmlAliases ?? []).includes(xmlKey)
+  })?.[1]
+}
+
+const isPlainXMLObject = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === "object" && !Array.isArray(value)

@@ -102,7 +102,7 @@ export const syncAppliedObjectToXML = async (params: {
 
   // Обработчики внешних файлов на уровне объекта (Help, Module, Template со статическими путями)
   const nkdkDir = join(inputDir, name)
-  for (const [, propRule] of Object.entries(rule.properties)) {
+  for (const [key, propRule] of Object.entries(rule.properties)) {
     const syncFn = getTypeRule(propRule.type, "syncExternalToXML")
     if (!syncFn) continue
     const syncUsesItemDir = propRule.type === "ChildFormNames" || propRule.type === "ChildTemplateNames"
@@ -116,6 +116,9 @@ export const syncAppliedObjectToXML = async (params: {
       name,
       referenceDir: syncReferenceDir,
       referenceName,
+      propertyValue: (model as Record<string, unknown>)[key],
+      referencePropertyValue:
+        referenceModel === undefined ? undefined : (referenceModel as Record<string, unknown>)[key],
       xmlManifest: params.xmlManifest,
     })
   }

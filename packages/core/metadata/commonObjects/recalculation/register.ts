@@ -82,18 +82,30 @@ export const syncRecalculationsFromXML: SyncExternalFromXMLFunction = async ({ x
   }
 }
 
-export const syncRecalculationsToXML: SyncExternalToXMLFunction = async ({ nkdkDir, xmlDir, name, xmlManifest }) => {
+export const syncRecalculationsToXML: SyncExternalToXMLFunction = async ({
+  nkdkDir,
+  xmlDir,
+  name,
+  referenceDir,
+  referenceName,
+  propertyValue,
+  referencePropertyValue,
+  xmlManifest,
+}) => {
+  const recalculationNames = getRecalculationNames(propertyValue ?? referencePropertyValue)
+  if (recalculationNames.length === 0) return
+
   const recalculationsDir = join(nkdkDir, RECALCULATIONS_NKDK_DIR)
-  if (!fs.existsSync(recalculationsDir)) return
-
-  const entries = await fs.promises.readdir(recalculationsDir, { withFileTypes: true })
-  const recalculationDirs = entries.filter((entry) => entry.isDirectory())
   const xmlRecalculationsDir = join(resolveXmlObjectDir({ xmlDir, name }), RECALCULATIONS_XML_DIR)
+  const referenceRecalculationsDir = referenceDir
+    ? join(resolveXmlObjectDir({ xmlDir: referenceDir, name: referenceName ?? name }), RECALCULATIONS_XML_DIR)
+    : undefined
 
-  for (const entry of recalculationDirs) {
+  for (const recalculationName of recalculationNames) {
     await copyIfExists({
-      src: join(recalculationsDir, entry.name, RECALCULATION_NKDK_XML),
-      dst: join(xmlRecalculationsDir, `${entry.name}.xml`),
+      src: join(recalculationsDir, recalculationName, RECALCULATION_NKDK_XML),
+      fallbackSrc: referenceRecalculationsDir ? join(referenceRecalculationsDir, `${recalculationName}.xml`) : undefined,
+      dst: join(xmlRecalculationsDir, `${recalculationName}.xml`),
       xmlManifest,
     })
   }
@@ -105,14 +117,33 @@ const resolveXmlObjectDir = (params: { xmlDir: string; name: string }): string =
 
 async function copyIfExists(params: {
   src: string
+  fallbackSrc?: string
   dst: string
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> {
-  const { src, dst, xmlManifest } = params
-  if (!fs.existsSync(src)) return
+  const { src, fallbackSrc, dst, xmlManifest } = params
+  const existingSrc = fs.existsSync(src)
+    ? src
+    : fallbackSrc && fs.existsSync(fallbackSrc)
+      ? fallbackSrc
+      : undefined
+  if (!existingSrc) return
   await fs.promises.mkdir(dirname(dst), { recursive: true })
-  await fs.promises.copyFile(src, dst)
+  await fs.promises.copyFile(existingSrc, dst)
   xmlManifest?.addFile(dst)
+}
+
+const getRecalculationNames = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return []
+  return value
+    .map((item) => {
+      if (typeof item === "string") return item
+      if (item !== null && typeof item === "object" && typeof (item as { name?: unknown }).name === "string") {
+        return (item as { name: string }).name
+      }
+      return undefined
+    })
+    .filter((item): item is string => item !== undefined && item.length > 0)
 }
 
 registerTypeRule("Recalculations", "syncExternalFromXML", syncRecalculationsFromXML)

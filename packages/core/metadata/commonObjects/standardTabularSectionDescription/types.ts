@@ -1,15 +1,29 @@
 import { Type } from "@sinclair/typebox"
-import {
+import type { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import type {
   StandardAttributeDescriptions,
+  StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import type { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import type { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import type * as SE from "~/metadata/systemEnumerations/types"
+import type { StandardTabularSectionDescriptionRules } from "./rules"
 
-export type StandardTabularSectionDescription = Record<string, unknown>
-export type StandardTabularSectionDescriptionYAML = Record<string, unknown>
+export type StandardTabularSectionDescription = MetadataTypeByRule<typeof StandardTabularSectionDescriptionRules>
+export type StandardTabularSectionDescriptionYAML = YAMLTypeByRule<typeof StandardTabularSectionDescriptionRules>
 
 export type StandardTabularSectionDescriptions = StandardTabularSectionDescription[]
+export interface StandardTabularSectionDescriptionXML {
+  _name: string
+  "xr:Synonym"?: I8nTextXML
+  "xr:Comment"?: string
+  "xr:ToolTip"?: I8nTextXML
+  "xr:FillChecking"?: SE.FillChecking
+  "xr:StandardAttributes"?: StandardAttributeDescriptionsXML
+}
 export type StandardTabularSectionDescriptionsXML = {
-  "xr:StandardTabularSection": Record<string, unknown> | Record<string, unknown>[]
+  "xr:StandardTabularSection": StandardTabularSectionDescriptionXML | StandardTabularSectionDescriptionXML[]
 }
 
 export const StandardTabularSectionDescriptionsJSONSchema = Type.Record(Type.String(), Type.Any())
