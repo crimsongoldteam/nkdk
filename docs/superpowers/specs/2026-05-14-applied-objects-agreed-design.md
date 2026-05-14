@@ -32,6 +32,7 @@ The implementation policy is common for all objects below:
 - `metadataCommandGroup`
 - `metadataSubsystem`
 - `metadataAccountingRegister`
+- `metadataBusinessProcess`
 
 ## Deferred Objects
 
@@ -338,6 +339,137 @@ Testing:
 - sync to XML verifies `AccountingRegisters/<name>.xml`, `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`,
   `Ext/Help/ru.html`, `Ext/RecordSetModule.bsl`, `Ext/ManagerModule.bsl`, form XML, template XML, and command module.
 
+## Object: MetadataBusinessProcess
+
+- `itemType`: `MetadataBusinessProcess`
+- `itemTypePrefix`: `БизнесПроцесс`
+- XML directory: `BusinessProcesses`
+- XML container: `BusinessProcess`
+- implement through `rules.ts`
+- use `/Users/nikita/git/roundTripElements/BusinessProcesses` as the reference fixture source for external files
+- `InternalInfo` generated categories:
+  - `Object`
+  - `Ref`
+  - `Selection`
+  - `List`
+  - `Manager`
+  - `RoutePointRef`
+
+Parent properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `useStandardCommands` | `UseStandardCommands` | `ИспользоватьСтандартныеКоманды` | `boolean` |
+| `editType` | `EditType` | `СпособРедактирования` | `SystemEnumeration: EditType` |
+| `inputByString` | `InputByString` | `ВводПоСтроке` | `MetadataFields` |
+| `createOnInput` | `CreateOnInput` | `СозданиеПриВводе` | `SystemEnumeration: CreateOnInput` |
+| `searchStringModeOnInputByString` | `SearchStringModeOnInputByString` | `РежимСтрокиПоискаПриВводеПоСтроке` | `SystemEnumeration: SearchStringModeOnInputByString` |
+| `choiceDataGetModeOnInputByString` | `ChoiceDataGetModeOnInputByString` | `РежимПолученияДанныхВыбораПриВводеПоСтроке` | `SystemEnumeration: ChoiceDataGetModeOnInputByString` |
+| `fullTextSearchOnInputByString` | `FullTextSearchOnInputByString` | `ПолнотекстовыйПоискПриВводеПоСтроке` | `SystemEnumeration: FullTextSearchOnInputByString` |
+| `defaultObjectForm` | `DefaultObjectForm` | `ОсновнаяФормаОбъекта` | `string` |
+| `defaultListForm` | `DefaultListForm` | `ОсновнаяФормаСписка` | `string` |
+| `defaultChoiceForm` | `DefaultChoiceForm` | `ОсновнаяФормаВыбора` | `string` |
+| `auxiliaryObjectForm` | `AuxiliaryObjectForm` | `ДополнительнаяФормаОбъекта` | `string` |
+| `auxiliaryListForm` | `AuxiliaryListForm` | `ДополнительнаяФормаСписка` | `string` |
+| `auxiliaryChoiceForm` | `AuxiliaryChoiceForm` | `ДополнительнаяФормаВыбора` | `string` |
+| `choiceHistoryOnInput` | `ChoiceHistoryOnInput` | `ИсторияВыбораПриВводе` | `SystemEnumeration: ChoiceHistoryOnInput` |
+| `numberType` | `NumberType` | `ТипНомера` | `SystemEnumeration: BusinessProcessNumberType` |
+| `numberLength` | `NumberLength` | `ДлинаНомера` | `number` |
+| `numberAllowedLength` | `NumberAllowedLength` | `ДопустимаяДлинаНомера` | `AllowedLength` |
+| `checkUnique` | `CheckUnique` | `КонтрольУникальности` | `boolean` |
+| `standardAttributes` | `StandardAttributes` | `СтандартныеРеквизиты` | `StandardAttributeDescriptions` |
+| `characteristics` | `Characteristics` | `Характеристики` | `CharacteristicsDescriptions` |
+| `autonumbering` | `Autonumbering` | `Автонумерация` | `boolean` |
+| `basedOn` | `BasedOn` | `ВводитсяНаОсновании` | `MetadataItemLinks` |
+| `numberPeriodicity` | `NumberPeriodicity` | `ПериодичностьНомера` | `SystemEnumeration: BusinessProcessNumberPeriodicity` |
+| `task` | `Task` | `Задача` | `string` / `MDObjectRef` |
+| `createTaskInPrivilegedMode` | `CreateTaskInPrivilegedMode` | `ПривилегированныйРежимПриСозданииЗадач` | `boolean` |
+| `dataLockFields` | `DataLockFields` | `ПоляБлокировкиДанных` | `MetadataFields` |
+| `dataLockControlMode` | `DataLockControlMode` | `РежимУправленияБлокировкойДанных` | `SystemEnumeration: DefaultDataLockControlMode` |
+| `includeHelpInContents` | `IncludeHelpInContents` | `ВключатьСправкуВСодержание` | `boolean` |
+| `fullTextSearch` | `FullTextSearch` | `ПолнотекстовыйПоиск` | `SystemEnumeration: FullTextSearchUsing` |
+| `objectPresentation` | `ObjectPresentation` | `ПредставлениеОбъекта` | `I8nText` |
+| `extendedObjectPresentation` | `ExtendedObjectPresentation` | `РасширенноеПредставлениеОбъекта` | `I8nText` |
+| `listPresentation` | `ListPresentation` | `ПредставлениеСписка` | `I8nText` |
+| `extendedListPresentation` | `ExtendedListPresentation` | `РасширенноеПредставлениеСписка` | `I8nText` |
+| `explanation` | `Explanation` | `Пояснение` | `I8nText` |
+| `dataHistory` | `DataHistory` | `ИсторияДанных` | `SystemEnumeration: DataHistoryUse` |
+| `updateDataHistoryImmediatelyAfterWrite` | `UpdateDataHistoryImmediatelyAfterWrite` | `ОбновлятьИсториюДанныхСразуПослеЗаписи` | `boolean` |
+| `executeAfterWriteDataHistoryVersionProcessing` | `ExecuteAfterWriteDataHistoryVersionProcessing` | `ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных` | `boolean` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+Child objects:
+
+- `Attribute[]`: existing `MetadataAttributes`.
+- `TabularSection[]`: business-process-specific wrapper over the common tabular-section property set, with generated
+  type names `BusinessProcessTabularSection` and `BusinessProcessTabularSectionRow`.
+- `Form[]`: existing `ChildFormNames`.
+- `Template[]`: existing `ChildTemplateNames`.
+- `Command[]`: existing `MetadataCommands`, and include `childCollections` so command modules are copied if present.
+
+External files:
+
+- `objectModule`: existing `Module`, XML `Ext/ObjectModule.bsl`, nkdk `МодульОбъекта.bsl`
+- `managerModule`: existing `Module`, XML `Ext/ManagerModule.bsl`, nkdk `МодульМенеджера.bsl`
+- `flowchart`: opaque `Template`, XML `Ext/Flowchart.xml`, nkdk `Flowchart.xml`
+- `additionalIndexes`: existing `AdditionalIndex`, XML `Ext/AdditionalIndexes.xml`
+- `help`: existing `Help`, XML `Ext/Help.xml` and `Ext/Help/ru.html`, nkdk `Справка/`
+- child forms through `ChildFormNames`
+- child templates through `ChildTemplateNames`
+
+Default policy from `minimal.xml`:
+
+- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `editType`: `defaultValueXML: "InDialog"`, `defaultValueYAML: "InDialog"`
+- `createOnInput`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `defaultValueYAML: "Begin"`
+- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `defaultValueYAML: "Directly"`
+- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
+- `numberType`: `defaultValueXML: "String"`, `defaultValueYAML: "String"`
+- `numberLength`: `defaultValueXML: 9`, `defaultValueYAML: 9`
+- `numberAllowedLength`: `defaultValueXML: "Variable"`, `defaultValueYAML: "Variable"`
+- `checkUnique`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `autonumbering`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `numberPeriodicity`: `defaultValueXML: "Nonperiodical"`, `defaultValueYAML: "Nonperiodical"`
+- `createTaskInPrivilegedMode`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
+- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `fullTextSearch`: `defaultValueXML: "Use"`, `defaultValueYAML: "Use"`
+- `dataHistory`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+
+Keep `InputByString`, `Task`, `BasedOn`, `Characteristics`, child attributes, tabular sections, and forms as explicit
+content, not YAML defaults. The `Task.ЗадачаВсеСвойства` reference does not require `metadataTask` to be implemented
+first.
+
+Implementation notes:
+
+- Reuse existing common behavior from `metadataDocument`, `metadataCatalog`, and `metadataExchangePlan`.
+- `Flowchart.xml` is preserved opaquely in the first implementation; parsing route points and graphical schema is
+  outside the first scope.
+- The updated reference fixture source includes `Ext/ObjectModule.bsl`, `Ext/ManagerModule.bsl`, and
+  `Ext/Flowchart.xml`; sync tests must include these files.
+- Standard attribute names include business-process-specific names from fixtures: `Started`, `HeadTask`, `Completed`,
+  plus common `Ref`, `DeletionMark`, `Date`, and `Number`.
+
+Testing:
+
+- standard XML/YAML/sync tests;
+- XML tests cover `minimal.xml` and `full.xml`;
+- tests cover `InputByString`, `Characteristics`, `BasedOn`, `Task`, all forms, tabular sections, and standard
+  attributes;
+- sync from XML verifies `Свойства.yaml`, `МодульОбъекта.bsl`, `МодульМенеджера.bsl`, `Flowchart.xml`, `Справка/`,
+  `ДополнительныеИндексы`, `Формы/*`, and `Шаблоны/Макет/Template.txt`;
+- sync to XML verifies `BusinessProcesses/<name>.xml`, `Ext/ObjectModule.bsl`, `Ext/ManagerModule.bsl`,
+  `Ext/Flowchart.xml`, `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`, `Ext/Help/ru.html`, form XML, and template XML.
+
 ## Registries And Tests
 
 Every included object should be added to the same registry set as other top-level applied objects:
@@ -365,7 +497,6 @@ Sync tests must cover opaque external-file copying for role, scheduled job, comm
 
 Objects still needing brainstorming in this pass:
 
-- `metadataBusinessProcess`
 - `metadataCalculationRegister`
 - `metadataChartOfAccounts`
 - `metadataChartOfCalculationTypes`
