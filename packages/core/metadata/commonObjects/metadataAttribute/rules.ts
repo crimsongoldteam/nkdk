@@ -41,6 +41,7 @@ const commonAttributeProperties = {
     useAsShortValueYAML: true,
     xmlParents: ["Properties"],
     order: 4,
+    defaultValueXMLRaw: "",
   },
   passwordMode: {
     yaml: "РежимПароля",
