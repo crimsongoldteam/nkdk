@@ -197,6 +197,25 @@ describe("import DynamicList from XML", () => {
     })
   })
 
+  it("imports repeated KeyField nodes as keyFields array", () => {
+    const result = importPropertyFromXML({
+      context: mockContextFromXML(),
+      rule,
+      value: {
+        "_xsi:type": "DynamicList",
+        KeyType: "RowKey",
+        KeyField: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "DynamicList",
+      customQuery: false,
+      keyType: "RowKey",
+      keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+    })
+  })
+
   it("round-trip: queryTextWithManualQueryFalse.xml import -> export", () => {
     const imported = testImportPropertyFromXML({
       rule,

@@ -998,8 +998,252 @@ git add <tracked-generated-file>
 git commit -m "chore: :wrench: обновить проверочные файлы"
 ```
 
+## Task 7: Add Accumulation Register RecordType Standard Attribute
+
+**Files:**
+- Modify: `packages/core/metadata/commonObjects/standardAttributeDescription/*`
+- Modify: `packages/core/metadata/appliedObjects/metadataAccumulationRegister/*`
+
+- [x] **Step 1: Add failing XML tests**
+
+Cover `RecordType` export for balance/default accumulation registers and prove `Turnovers` does not receive it.
+
+- [x] **Step 2: Implement contextual standard attributes**
+
+Add `RecordType: "ВидДвижения"` to standard attribute dictionaries and derive XML export order from accumulation register type.
+
+- [x] **Step 3: Run focused tests**
+
+Run:
+
+```bash
+pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/standardAttributeDescription metadata/appliedObjects/metadataAccumulationRegister
+```
+
+Expected: `PASS`.
+
+- [x] **Step 4: Commit**
+
+Committed as:
+
+```text
+fix: :bug: сохранять RecordType регистра накопления
+```
+
+## Task 8: Preserve Root Form Event XML Case
+
+**Files:**
+- Modify: `packages/core/metadata/forms/clientApplicationForm/rules.ts`
+- Modify: `packages/core/metadata/forms/commonObjects/event/toXML.test.ts`
+
+- [x] **Step 1: Add failing event export test**
+
+Export `onUpdateUserSettingSetAtServer` through root form event rules and expect XML `name="OnUpdateUserSettingSetAtServer"`.
+
+- [x] **Step 2: Add event to root form rule**
+
+Add:
+
+```ts
+onUpdateUserSettingSetAtServer: "ПриОбновленииСоставаПользовательскихНастроекНаСервере"
+```
+
+- [x] **Step 3: Run focused tests**
+
+Run:
+
+```bash
+pnpm --filter @nakidka/core exec vitest run metadata/forms/commonObjects/event/toXML.test.ts metadata/forms/clientApplicationForm/toXML.test.ts
+```
+
+Expected: `PASS`.
+
+- [x] **Step 4: Commit**
+
+Committed as:
+
+```text
+fix: :bug: сохранять регистр события формы
+```
+
+## Task 9: Restore CommonAttribute FillValue xsi:nil
+
+**Files:**
+- Modify: `packages/core/metadata/commonObjects/metadataValue/fromXML.ts`
+- Modify: `packages/core/metadata/commonObjects/metadataValue/toXML.ts`
+- Modify: `packages/core/metadata/orchestration/property/fromXML.ts`
+- Modify: `packages/core/metadata/commonObjects/metadataValue/fromXML.test.ts`
+- Modify: `packages/core/metadata/commonObjects/metadataValue/toXML.test.ts`
+- Modify: `packages/core/metadata/appliedObjects/metadataCommonAttribute/toXML.test.ts`
+
+- [x] **Step 1: Add failing nil tests**
+
+Assert normal import of `{ "_xsi:nil": true }` is `undefined`, reference import preserves the raw marker, and export restores `<FillValue xsi:nil="true"/>` from reference.
+
+- [x] **Step 2: Preserve raw nil marker at XML import boundary**
+
+When an XML key is present but its parsed value is `undefined`, pass `{ "_xsi:nil": true }` to `MetadataValue` import.
+
+- [x] **Step 3: Restore marker during XML export**
+
+If `value` or `referenceMetadata` is the raw nil marker, export it unchanged.
+
+- [x] **Step 4: Run focused tests**
+
+Run:
+
+```bash
+pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/metadataValue metadata/appliedObjects/metadataCommonAttribute
+```
+
+Expected: `PASS`.
+
+- [x] **Step 5: Commit**
+
+Committed as:
+
+```text
+fix: :bug: сохранять nil MetadataValue
+```
+
+## Task 10: Keep GraphicalSchemaField Edit in XML Only
+
+**Files:**
+- Modify: `packages/core/metadata/forms/elements/graphicalSchemaField/rules.ts`
+- Modify: `packages/core/metadata/forms/elements/graphicalSchemaField/toXML.test.ts`
+- Modify: `packages/core/metadata/forms/elements/__fixtures__/data.ts`
+
+- [x] **Step 1: Add failing XML export test**
+
+Export `GraphicalSchemaField` with `edit: false` and expect `<Edit>false</Edit>`.
+
+- [x] **Step 2: Make `edit` XML-only**
+
+Use:
+
+```ts
+edit: { type: "boolean", xml: "Edit", yaml: "Редактирование", toYAML: false, fromYAML: false, toEnterprise: false }
+```
+
+- [x] **Step 3: Keep generic YAML/enterprise fixtures stable**
+
+Remove `edit` from generic full fixture expectations where YAML/enterprise export should not expose it.
+
+- [x] **Step 4: Run focused tests**
+
+Run:
+
+```bash
+pnpm --filter @nakidka/core exec vitest run metadata/forms/elements/graphicalSchemaField metadata/forms/elements
+```
+
+Expected: `PASS`.
+
+- [x] **Step 5: Commit**
+
+Committed as:
+
+```text
+fix: :bug: сохранять Edit графической схемы
+```
+
+## Task 11: Preserve DynamicList KeyField for RowKey
+
+**Files:**
+- Modify: `packages/core/metadata/forms/commonObjects/dynamicList/rules.ts`
+- Modify: `packages/core/metadata/forms/commonObjects/dynamicList/fromXML.test.ts`
+- Modify: `packages/core/metadata/forms/commonObjects/dynamicList/toXML.test.ts`
+- Modify if needed: `packages/core/metadata/forms/commonObjects/dynamicList/fromYAML.test.ts`
+- Modify if needed: `packages/core/metadata/forms/commonObjects/dynamicList/toYAML.test.ts`
+- Modify if needed: `packages/core/metadata/orchestration/property/toXML.ts`
+
+- [x] **Step 1: Prove direct multi-KeyField XML import/export**
+
+Add a test to `fromXML.test.ts`:
+
+```ts
+  it("imports multiple KeyField nodes as an array", () => {
+    const result = importPropertyFromXML({
+      context: mockContextFromXML(),
+      rule,
+      value: {
+        "_xsi:type": "DynamicList",
+        KeyType: "RowKey",
+        KeyField: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "DynamicList",
+      customQuery: false,
+      keyType: "RowKey",
+      keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+    })
+  })
+```
+
+Add a matching `toXML.test.ts` assertion that exports all three repeated `<KeyField>` nodes from a model value.
+
+- [x] **Step 2: Prove YAML preserves arrays if YAML is the loss point**
+
+If Step 1 passes but round-trip still drops `KeyField`, add YAML tests where `ПоляКлюча` is an array of three strings and assert import/export keeps the array unchanged.
+
+- [x] **Step 3: Implement the minimal fix**
+
+Keep `preserveFromReferenceXML: true` for `DynamicList.keyFields`. If XML/YAML array tests fail, adjust only the narrow string-property import/export path or the `keyFields` rule so repeated `KeyField` stays `string[]`; do not add a new broad conversion for all string fields without tests.
+
+- [x] **Step 4: Run focused tests**
+
+Run:
+
+```bash
+pnpm --filter @nakidka/core exec vitest run metadata/forms/commonObjects/dynamicList/fromXML.test.ts metadata/forms/commonObjects/dynamicList/toXML.test.ts metadata/forms/commonObjects/dynamicList/fromYAML.test.ts metadata/forms/commonObjects/dynamicList/toYAML.test.ts
+```
+
+Expected: `PASS`.
+
+- [ ] **Step 5: Run round-trip triage**
+
+Run:
+
+```bash
+env NKDK_XML_REPO=/Users/nikita/git/round-trip-source NKDK_XML_DIR=/Users/nikita/git/round-trip-source/trade ./.agents/skills/round-trip-xml/round-trip.sh --triage --batch-size 5
+```
+
+Expected: the first diff must no longer be loss of `DynamicList` `KeyField`.
+
+- [x] **Step 6: Commit**
+
+Run:
+
+```bash
+git add packages/core/metadata/forms/commonObjects/dynamicList packages/core/metadata/orchestration/property/toXML.ts docs/superpowers/specs/2026-05-14-round-trip-xml-next-5-design.md docs/superpowers/plans/2026-05-14-round-trip-xml-next-5.md
+git commit -m "fix: :bug: сохранять KeyField динамического списка"
+```
+
+## Task 12: Continue With Next Triage Diff
+
+**Files:**
+- To be selected from the next first unresolved diff after Task 11.
+
+- [ ] **Step 1: Capture the first unresolved diff**
+
+Run the round-trip triage command from Task 11 and copy the first diff class into the spec under `Принятые решения`.
+
+- [ ] **Step 2: Brainstorm the solution**
+
+Compare XML reference, imported model, YAML output, and XML export. Choose the narrowest rule-level fix that does not edit source XML fixtures.
+
+- [ ] **Step 3: Add focused failing tests**
+
+Place tests next to the owning metadata object or common object. The test must fail before implementation and must not depend on external XML fixture mutation.
+
+- [ ] **Step 4: Implement, verify, and commit**
+
+Run focused tests, then round-trip triage. Commit only after the targeted diff class disappears.
+
 ## Self-Review Notes
 
-- Spec coverage: Task 1 covers empty `<Type/>`; Tasks 2-3 cover local `xmlns:dcsset`; Task 4 covers XML and YAML behavior for `dcscor:Field`; Task 5 covers `v8:Type *:Undefined`; Task 6 covers focused and round-trip verification.
-- Placeholder scan: no red-flag placeholder text and no vague implementation steps.
-- Type consistency: `declareTypeNamespaceXML` is introduced as a `TypeDescriptionPropertyRule` field and used only by `TypeDescription` export; explicit DCS YAML form uses `Тип`/`Значение` consistently; reference restoration uses the existing `referenceMetadata` parameter shape.
+- Spec coverage: Tasks 1-6 cover the initial four accepted issues and integrated verification. Tasks 7-11 cover all later accepted decisions currently written in the spec: `RecordType`, form event XML case, `xsi:nil`, `GraphicalSchemaField.Edit`, and `DynamicList.KeyField`.
+- Placeholder scan: the only future-looking task is Task 12, intentionally a triage loop because the exact next diff is discovered by the tool after Task 11.
+- Type consistency: `declareTypeNamespaceXML`, explicit DCS YAML `Тип`/`Значение`, `v8:Type *:Undefined`, `RecordType`, `edit`, and `keyFields` names match the source rules and tests.

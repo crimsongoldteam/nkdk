@@ -135,4 +135,22 @@ describe("export DynamicList to XML", () => {
     expect(result).toContain("<KeyField>Контрагент</KeyField>")
     expect(result).toContain("<KeyField>ИдентификаторОрганизации</KeyField>")
   })
+
+  it("exports keyFields array as repeated KeyField nodes", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: {
+        itemType: "DynamicList",
+        keyType: "RowKey",
+        keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+      },
+      xmlRootTag: "Settings",
+    })
+
+    expect(result.match(/<KeyField>/g)).toHaveLength(3)
+    expect(result).toContain("<KeyType>RowKey</KeyType>")
+    expect(result).toContain("<KeyField>КлючПриглашения</KeyField>")
+    expect(result).toContain("<KeyField>Контрагент</KeyField>")
+    expect(result).toContain("<KeyField>ИдентификаторОрганизации</KeyField>")
+  })
 })

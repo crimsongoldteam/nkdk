@@ -225,6 +225,35 @@ describe("importFormAttributesFromXML", () => {
     expect(result).toEqual(valueListWithReferenceEmptySettings)
   })
 
+  it("imports DynamicList Settings with repeated KeyField nodes", () => {
+    const result = importFormAttributesFromXML(mockContextFromXML(), mockRule, {
+      Attribute: [{
+        _name: "Список",
+        _id: "1",
+        Settings: {
+          "_xsi:type": "DynamicList",
+          KeyType: "RowKey",
+          KeyField: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+        },
+      }],
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "FormAttribute",
+        name: "Список",
+        title: { items: { ru: "" } },
+        columns: [],
+        dynamicList: {
+          itemType: "DynamicList",
+          customQuery: false,
+          keyType: "RowKey",
+          keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+        },
+      },
+    ])
+  })
+
   // it("should throw error when ConditionalAppearance is present in XML", () => {
   //   const xmlData = readAndParseXMLFile<{ Attributes: FormAttributesXML }>("formAttributes/conditionalAppearance.xml")
 

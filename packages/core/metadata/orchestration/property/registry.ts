@@ -553,6 +553,10 @@ export type PropertyTypeRegistry = {
     enterprise: string[]
     yaml: FieldsListYAML
   }
+  DynamicListKeyFields: {
+    item: string | string[]
+    yaml: string | string[]
+  }
   FunctionalOptions: {
     item: FunctionalOptions
     enterprise: string[]
@@ -1128,6 +1132,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   ChoiceParameterLinks: "ChoiceParameterLinks",
   ChoiceParameters: "ChoiceParameters",
   FieldsList: "FieldsList",
+  DynamicListKeyFields: "DynamicListKeyFields",
   FunctionalOptions: "FunctionalOptions",
   IndexField: "IndexField",
   MetadataAttribute: "MetadataAttribute",
