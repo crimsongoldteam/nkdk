@@ -16,7 +16,8 @@ import {
   MetadataEnumerationValuesYAML,
 } from "./types"
 
-const EDGE_NAME = "ЗначениеПеречисления"
+const EDGE_KIND = "ENUM_VALUE"
+const EDGE_YAML = "ЗначениеПеречисления"
 
 export const importMetadataEnumerationValuesFromYAML = (
   context: ConfigurationContext,
@@ -86,7 +87,7 @@ function buildEnumerationValuesGraph(params: {
     }
   })
 
-  return { children, edgeKind: EDGE_NAME, edgeYaml: EDGE_NAME }
+  return { children, edgeKind: EDGE_KIND, edgeYaml: EDGE_YAML }
 }
 
 registerTypeRule("MetadataEnumerationValues", "importFromYAML", importMetadataEnumerationValuesFromYAML)

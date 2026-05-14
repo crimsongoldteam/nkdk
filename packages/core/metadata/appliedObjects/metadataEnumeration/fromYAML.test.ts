@@ -75,7 +75,7 @@ describe("importMetadataEnumerationFromYAML — граф значений", () =
   it("значения связаны с перечислением composition-рёбрами", () => {
     // Заменяем getDependencies-DSL на прямой обход рёбер через outEdgeEntries
     const valueEdges = [...graph.outEdgeEntries("Перечисление.СтатусЗаказа")].filter(
-      (e) => e.attributes.kind === "ЗначениеПеречисления",
+      (e) => e.attributes.kind === "ENUM_VALUE",
     )
     const valueNodeIds = valueEdges.map((e) => e.target).sort()
 
@@ -83,6 +83,11 @@ describe("importMetadataEnumerationFromYAML — граф значений", () =
       "Перечисление.СтатусЗаказа.Закрыт",
       "Перечисление.СтатусЗаказа.Открыт",
       "Перечисление.СтатусЗаказа.Отменён",
+    ])
+    expect(valueEdges.map((e) => e.attributes.yaml)).toEqual([
+      "ЗначениеПеречисления",
+      "ЗначениеПеречисления",
+      "ЗначениеПеречисления",
     ])
   })
 

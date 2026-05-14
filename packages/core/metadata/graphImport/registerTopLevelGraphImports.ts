@@ -13,76 +13,96 @@ import {
   registerGraphImport,
   toGraphModel,
   type GraphImportedMetadataModel,
+  type GraphModelImportParams,
+  type GraphModelImportResult,
   type GraphImportSourceMatch,
 } from "~/metadata/orchestration/graphImport/registry"
 import { declareMetadataItemGraphRoot } from "~/metadata/orchestration/graphImport/root"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
-export function registerTopLevelGraphImports(): void {
-  registerGraphImport({
+export interface TopLevelGraphImportSpec {
+  kind: string
+  dir: string
+  rule: MetadataItemRule
+  importModel?: (params: GraphModelImportParams) => GraphModelImportResult | undefined
+}
+
+export const topLevelGraphImportSpecs: TopLevelGraphImportSpec[] = [
+  {
     kind: "catalog",
-    phase: 0,
-    matchPath: matchTopLevelPath("Справочник", "catalog"),
+    dir: "Справочник",
+    rule: MetadataCatalogRules,
     importModel: ({ context, parsed, name }) => {
       const model = importMetadataCatalogFromYAML(context, parsed.data, name)
       if (!model) return undefined
       return { model, graphModel: toGraphModel(model), rule: MetadataCatalogRules }
     },
-    declareRoot: ({ graph, rule, name, filePath }) =>
-      declareMetadataItemGraphRoot({ graph, rule, name, filePath }),
-  })
-
-  registerGraphImport({
+  },
+  {
     kind: "document",
-    phase: 0,
-    matchPath: matchTopLevelPath("Документ", "document"),
-    importModel: ({ context, parsed, name }) => {
-      const model = importMetadataItemFromYAML({
-        context,
-        yaml: parsed.data,
-        rule: MetadataDocumentRules,
-        name,
-      })
-      if (!model) return undefined
-      return { model, graphModel: toGraphModel(model), rule: MetadataDocumentRules }
-    },
-    declareRoot: ({ graph, rule, name, filePath }) =>
-      declareMetadataItemGraphRoot({ graph, rule, name, filePath }),
-  })
-
-  registerGraphImport({
+    dir: "Документ",
+    rule: MetadataDocumentRules,
+  },
+  {
     kind: "enumeration",
-    phase: 0,
-    matchPath: matchTopLevelPath("Перечисление", "enumeration"),
+    dir: "Перечисление",
+    rule: MetadataEnumerationRules,
     importModel: ({ context, parsed, name }) => {
       const model = importMetadataEnumerationFromYAML(context, parsed.data, name)
       if (!model) return undefined
       return { model, graphModel: toGraphModel(model), rule: MetadataEnumerationRules }
     },
-    declareRoot: ({ graph, rule, name, filePath }) =>
-      declareMetadataItemGraphRoot({ graph, rule, name, filePath }),
-  })
+  },
+  {
+    kind: "dataProcessor",
+    dir: "Обработка",
+    rule: MetadataDataProcessorRules,
+  },
+  {
+    kind: "documentJournal",
+    dir: "ЖурналДокументов",
+    rule: MetadataDocumentJournalRules,
+  },
+  {
+    kind: "httpService",
+    dir: "HTTPСервис",
+    rule: MetadataHTTPServiceRules,
+  },
+  {
+    kind: "informationRegister",
+    dir: "РегистрСведений",
+    rule: MetadataInformationRegisterRules,
+  },
+  {
+    kind: "accumulationRegister",
+    dir: "РегистрНакопления",
+    rule: MetadataAccumulationRegisterRules,
+  },
+  {
+    kind: "exchangePlan",
+    dir: "ПланОбмена",
+    rule: MetadataExchangePlanRules,
+  },
+]
 
-  registerTopLevelMetadataItem("dataProcessor", "Обработка", MetadataDataProcessorRules)
-  registerTopLevelMetadataItem("documentJournal", "ЖурналДокументов", MetadataDocumentJournalRules)
-  registerTopLevelMetadataItem("httpService", "HTTPСервис", MetadataHTTPServiceRules)
-  registerTopLevelMetadataItem("informationRegister", "РегистрСведений", MetadataInformationRegisterRules)
-  registerTopLevelMetadataItem("accumulationRegister", "РегистрНакопления", MetadataAccumulationRegisterRules)
-  registerTopLevelMetadataItem("exchangePlan", "ПланОбмена", MetadataExchangePlanRules)
+export function registerTopLevelGraphImports(): void {
+  for (const spec of topLevelGraphImportSpecs) {
+    registerTopLevelMetadataItem(spec)
+  }
 }
 
-function registerTopLevelMetadataItem(kind: string, dir: string, rule: MetadataItemRule) {
+function registerTopLevelMetadataItem(spec: TopLevelGraphImportSpec) {
   registerGraphImport({
-    kind,
+    kind: spec.kind,
     phase: 0,
-    matchPath: matchTopLevelPath(dir, kind),
-    importModel: ({ context, parsed, name }) => {
-      const model = importMetadataItemFromYAML({ context, yaml: parsed.data, rule, name })
+    matchPath: matchTopLevelPath(spec.dir, spec.kind),
+    importModel: spec.importModel ?? (({ context, parsed, name }) => {
+      const model = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: spec.rule, name })
       if (!model) return undefined
       const graphModel = model as GraphImportedMetadataModel
-      return { model: graphModel, graphModel: toGraphModel(graphModel), rule }
-    },
+      return { model: graphModel, graphModel: toGraphModel(graphModel), rule: spec.rule }
+    }),
     declareRoot: ({ graph, rule, name, filePath }) =>
       declareMetadataItemGraphRoot({ graph, rule, name, filePath }),
   })

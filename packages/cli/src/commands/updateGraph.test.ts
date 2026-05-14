@@ -1,5 +1,5 @@
 import type { FileGraphData, ProjectGraphSource } from "@nakidka/core"
-import { mkdirSync, mkdtempSync, writeFileSync } from "fs"
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
@@ -9,6 +9,7 @@ import { updateGraph, updateGraphFiles } from "./updateGraph"
 const mocks = vi.hoisted(() => ({
   buildGraph: vi.fn(),
   buildGraphForChangedFile: vi.fn(),
+  discoverProjectGraphFiles: vi.fn(),
   writeGraph: vi.fn(),
 }))
 
@@ -16,6 +17,21 @@ vi.mock("@nakidka/core", () => {
   return {
     buildGraph: mocks.buildGraph,
     buildGraphForChangedFile: mocks.buildGraphForChangedFile,
+    discoverProjectGraphFiles: mocks.discoverProjectGraphFiles,
+    isSupportedProjectGraphFile: (filePath: string) =>
+      filePath.startsWith("Справочник/") &&
+      (filePath.endsWith("/Свойства.yaml") ||
+        filePath.endsWith("/Форма.yaml") ||
+        filePath.endsWith("/Форма.nkdk")),
+    pairedProjectGraphFile: (filePath: string) => {
+      if (filePath.endsWith("/Форма.nkdk")) {
+        return `${filePath.slice(0, -"Форма.nkdk".length)}Форма.yaml`
+      }
+      if (filePath.endsWith("/Форма.yaml")) {
+        return `${filePath.slice(0, -"Форма.yaml".length)}Форма.nkdk`
+      }
+      return undefined
+    },
   }
 })
 
@@ -50,10 +66,37 @@ const graphPayloadFor = (sources: readonly ProjectGraphSource[]): FileGraphData[
   ])
 }
 
+const discoverTestProjectGraphFiles = (projectPath: string): string[] => {
+  const files: string[] = []
+  const catalogRoot = join(projectPath, "Справочник")
+  if (!existsSync(catalogRoot)) return files
+
+  for (const entry of readdirSync(catalogRoot, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue
+
+    const formsRoot = join(catalogRoot, entry.name, "Формы")
+    if (!existsSync(formsRoot)) continue
+
+    for (const formEntry of readdirSync(formsRoot, { withFileTypes: true })) {
+      if (!formEntry.isDirectory()) continue
+
+      for (const fileName of ["Форма.yaml", "Форма.nkdk"] as const) {
+        const fullPath = join(formsRoot, formEntry.name, fileName)
+        if (existsSync(fullPath)) {
+          files.push(`Справочник/${entry.name}/Формы/${formEntry.name}/${fileName}`)
+        }
+      }
+    }
+  }
+
+  return files.sort()
+}
+
 describe("updateGraph command", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.buildGraph.mockImplementation(graphPayloadFor)
+    mocks.discoverProjectGraphFiles.mockImplementation(discoverTestProjectGraphFiles)
     mocks.writeGraph.mockResolvedValue(undefined)
     vi.spyOn(console, "log").mockImplementation(() => undefined)
   })
