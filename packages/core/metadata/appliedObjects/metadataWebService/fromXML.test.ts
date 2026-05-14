@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
 import { MetadataWebServiceRules } from "./rules"
 import { MetadataWebService } from "./types"
+
+const normalizeXml = (xml: string): string => xml.replace(/\r\n/g, "\n")
 
 describe("import MetadataWebService from XML", () => {
   it("imports operation parameters from updated fixture", () => {
@@ -31,4 +33,24 @@ describe("import MetadataWebService from XML", () => {
       },
     ])
   })
+
+  it.each(["full.xml", "minimal.xml"])(
+    "round-trip: %s — import затем export совпадает с исходным XML",
+    (fixture) => {
+      const data = testImportAppliedObjectFromXML<MetadataWebService>({
+        rule: MetadataWebServiceRules,
+        importMetaUrl: import.meta.url,
+        fixture,
+      })
+
+      const { result, expected } = testExportAppliedObjectToXML({
+        rule: MetadataWebServiceRules,
+        importMetaUrl: import.meta.url,
+        fixture,
+        data: data!,
+      })
+
+      expect(normalizeXml(result)).toEqual(normalizeXml(expected))
+    }
+  )
 })

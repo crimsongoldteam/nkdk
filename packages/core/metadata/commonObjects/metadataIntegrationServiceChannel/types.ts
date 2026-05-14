@@ -1,4 +1,5 @@
 import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { InternalInfoItemsXML } from "~/metadata/commonObjects/internalInfo/types"
 import { MetadataNameYAML } from "~/metadata/commonObjects/metadataName/types"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
@@ -7,8 +8,11 @@ import { MetadataIntegrationServiceChannelRules } from "./rules"
 
 export type MetadataIntegrationServiceChannel = MetadataTypeByRule<typeof MetadataIntegrationServiceChannelRules>
 
+export type IntegrationServiceChannelInternalInfoParamsXML = [{ name: string; category: "Manager" }]
+
 export interface MetadataIntegrationServiceChannelXML {
   _uuid?: string
+  InternalInfo?: InternalInfoItemsXML<IntegrationServiceChannelInternalInfoParamsXML>
   Properties: {
     Comment?: string
     ExtendedConfigurationObject?: string

@@ -1,4 +1,6 @@
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
+import { getParentFromContext } from "~/metadata/context/helpers"
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 
 const propertiesParents = ["Properties"]
@@ -7,6 +9,17 @@ export const MetadataIntegrationServiceChannelRules = {
   itemType: "MetadataIntegrationServiceChannel",
   properties: {
     uuid: uuidPropertyRule,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      toYAML: false,
+      fromYAML: false,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const parent = getParentFromContext(params.context, ["MetadataIntegrationService"])
+        return `${parent.name}.${params.metadata.name}`
+      },
+      items: [{ name: "IntegrationServiceChannelManager", category: "Manager" }],
+    },
     name: {
       xml: "Name",
       type: "string",
