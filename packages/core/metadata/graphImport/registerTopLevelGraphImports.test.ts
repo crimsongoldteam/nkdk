@@ -20,13 +20,65 @@ describe("topLevelGraphImportSpecs", () => {
     expect(
       topLevelGraphImportSpecs.map((spec) => ({
         kind: spec.kind,
+        dir: spec.dir,
         itemType: spec.rule.itemType,
         prefix: spec.rule.itemTypePrefix,
       })),
-    ).toContainEqual({
-      kind: "dataProcessor",
-      itemType: "MetadataDataProcessor",
-      prefix: "Обработка",
-    })
+    ).toEqual([
+      {
+        kind: "catalog",
+        dir: "Справочник",
+        itemType: "MetadataCatalog",
+        prefix: "Справочник",
+      },
+      {
+        kind: "document",
+        dir: "Документ",
+        itemType: "MetadataDocument",
+        prefix: "Документ",
+      },
+      {
+        kind: "enumeration",
+        dir: "Перечисление",
+        itemType: "MetadataEnumeration",
+        prefix: "Перечисление",
+      },
+      {
+        kind: "dataProcessor",
+        dir: "Обработка",
+        itemType: "MetadataDataProcessor",
+        prefix: "Обработка",
+      },
+      {
+        kind: "documentJournal",
+        dir: "ЖурналДокументов",
+        itemType: "MetadataDocumentJournal",
+        prefix: "ЖурналДокументов",
+      },
+      {
+        kind: "httpService",
+        dir: "HTTPСервис",
+        itemType: "MetadataHTTPService",
+        prefix: "HTTPСервис",
+      },
+      {
+        kind: "informationRegister",
+        dir: "РегистрСведений",
+        itemType: "MetadataInformationRegister",
+        prefix: "РегистрСведений",
+      },
+      {
+        kind: "accumulationRegister",
+        dir: "РегистрНакопления",
+        itemType: "MetadataAccumulationRegister",
+        prefix: "РегистрНакопления",
+      },
+      {
+        kind: "exchangePlan",
+        dir: "ПланОбмена",
+        itemType: "MetadataExchangePlan",
+        prefix: "ПланОбмена",
+      },
+    ])
   })
 })
