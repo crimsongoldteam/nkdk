@@ -69,6 +69,7 @@
   },
   "dependencies": {
     "@nakidka/core": "workspace:*",
+    "@nakidka/graph": "workspace:*",
     "fs-extra": "~11.2.0",
     "langium": "~4.2.0",
     "nkdk-language": "workspace:*",

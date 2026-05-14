@@ -241,6 +241,9 @@ importers:
       '@nakidka/core':
         specifier: workspace:*
         version: link:../core
+      '@nakidka/graph':
+        specifier: workspace:*
+        version: link:../graph
       fs-extra:
         specifier: ~11.2.0
         version: 11.2.0

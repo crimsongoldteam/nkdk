@@ -10,6 +10,7 @@ export default defineConfig({
     globals: true,
     watch: false,
     alias: {
+      "@nakidka/graph": resolve(__dirname, "../graph/src/index.ts"),
       "~": resolve(__dirname, "../core"),
     },
   },

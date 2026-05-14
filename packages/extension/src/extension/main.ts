@@ -7,6 +7,7 @@ import { LanguageClient, TransportKind } from "vscode-languageclient/node.js"
 import { registerDocumentChangeHandler } from "./documentChangeHandler.js"
 import type { SseServerHandle } from "./sseServer.js"
 import { startSseServer } from "./sseServer.js"
+import { registerYamlCypherCompletionProvider } from "./yaml/cypherCompletion/index.js"
 import { activateYAML } from "./yaml/node/yamlClientMain.js"
 
 const languageClients: BaseLanguageClient[] = []
@@ -32,6 +33,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   sseServer = startSseServer(formPreviewDir)
 
   context.subscriptions.push(registerDocumentChangeHandler(sseServer))
+  context.subscriptions.push(registerYamlCypherCompletionProvider(context))
   context.subscriptions.push(
     vscode.commands.registerCommand("nkdk.importConfigurationFromXml", () => runimportConfigurationFromXml())
   )
