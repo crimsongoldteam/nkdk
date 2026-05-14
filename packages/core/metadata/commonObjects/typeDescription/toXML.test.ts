@@ -38,6 +38,28 @@ describe("exportTypeDescriptionToXML", () => {
     expect(result).toEqual(`<TypeDescription>\n\t<v8:Type>${xmlType}</v8:Type>\n</TypeDescription>`)
   })
 
+  it("exports local type namespace when rule requests it", () => {
+    const resultXml = exportTypeDescriptionToXML(
+      mockContext,
+      { ...mockRule, declareTypeNamespaceXML: true },
+      { type: ["SettingsComposer"] }
+    )
+
+    const result = xmlExport({ TypeDescription: resultXml }, false)
+
+    expect(result).toEqual(
+      '<TypeDescription>\n\t<v8:Type xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings">dcsset:SettingsComposer</v8:Type>\n</TypeDescription>'
+    )
+  })
+
+  it("does not export local type namespace by default", () => {
+    const resultXml = exportTypeDescriptionToXML(mockContext, mockRule, { type: ["SettingsComposer"] })
+
+    const result = xmlExport({ TypeDescription: resultXml }, false)
+
+    expect(result).toEqual("<TypeDescription>\n\t<v8:Type>dcsset:SettingsComposer</v8:Type>\n</TypeDescription>")
+  })
+
   it("should export known system enumeration type to XML with v8 prefix", () => {
     const resultXml = exportTypeDescriptionToXML(mockContext, mockRule, { type: ["FillChecking"] })
 

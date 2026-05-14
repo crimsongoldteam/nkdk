@@ -1,4 +1,5 @@
 import { Static, Type } from "@sinclair/typebox"
+import type { BasePropertyRule } from "~/metadata/orchestration"
 
 export type TypeModifier = "complex" | "typeset" | "alwaysType"
 
@@ -8,6 +9,11 @@ export interface TypeDescriptionRule {
   namespace?: string
   modifier?: TypeModifier
   ignoreInEnterprise?: boolean
+}
+
+export type TypeDescriptionPropertyRule = BasePropertyRule & {
+  type: "TypeDescription"
+  declareTypeNamespaceXML?: boolean
 }
 
 export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
@@ -209,14 +215,17 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
   SettingsComposer: {
     enterprise: "КомпоновщикНастроекКомпоновкиДанных",
     prefix: "dcsset",
+    namespace: "http://v8.1c.ru/8.1/data-composition-system/settings",
   },
   Filter: {
     enterprise: "Отбор",
     prefix: "dcsset",
+    namespace: "http://v8.1c.ru/8.1/data-composition-system/settings",
   },
   DataCompositionComparisonType: {
     enterprise: "DataCompositionComparisonType",
     prefix: "dcsset",
+    namespace: "http://v8.1c.ru/8.1/data-composition-system/settings",
   },
   Field: {
     enterprise: "ПолеКомпоновкиДанных",
