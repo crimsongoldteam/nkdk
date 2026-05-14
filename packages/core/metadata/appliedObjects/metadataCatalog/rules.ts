@@ -64,6 +64,7 @@ export const MetadataCatalogRules = {
       type: "string",
       xmlParents: ["Properties"],
       referenceScope: { target: "this", kind: "Form" },
+      allowedValues: catalogFormCypherSet,
       defaultValueXMLRaw: "",
     },
     auxiliaryFolderChoiceForm: {
@@ -71,6 +72,7 @@ export const MetadataCatalogRules = {
       type: "string",
       xmlParents: ["Properties"],
       referenceScope: { target: "this", kind: "Form" },
+      allowedValues: catalogFormCypherSet,
       defaultValueXMLRaw: "",
     },
     auxiliaryFolderForm: {
@@ -78,6 +80,7 @@ export const MetadataCatalogRules = {
       type: "string",
       xmlParents: ["Properties"],
       referenceScope: { target: "this", kind: "Form" },
+      allowedValues: catalogFormCypherSet,
       defaultValueXMLRaw: "",
     },
     auxiliaryListForm: {
@@ -85,6 +88,7 @@ export const MetadataCatalogRules = {
       type: "string",
       xmlParents: ["Properties"],
       referenceScope: { target: "this", kind: "Form" },
+      allowedValues: catalogFormCypherSet,
       defaultValueXMLRaw: "",
     },
     auxiliaryObjectForm: {
@@ -92,6 +96,7 @@ export const MetadataCatalogRules = {
       type: "string",
       xmlParents: ["Properties"],
       referenceScope: { target: "this", kind: "Form" },
+      allowedValues: catalogFormCypherSet,
       defaultValueXMLRaw: "",
     },
     basedOn: {

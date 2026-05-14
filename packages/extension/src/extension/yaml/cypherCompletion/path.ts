@@ -10,7 +10,7 @@ export type TopLevelPropertiesOwner = {
 export type OwnerScope = Pick<TopLevelPropertiesOwner, "dir" | "name">
 
 export function parseTopLevelPropertiesPath(filePath: string): TopLevelPropertiesOwner | undefined {
-  const normalizedPath = filePath.replaceAll("\\", "/")
+  const normalizedPath = filePath.replace(/\\/g, "/")
   const parts = normalizedPath.split("/")
 
   const fileName = parts.at(-1)

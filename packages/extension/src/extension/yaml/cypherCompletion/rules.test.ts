@@ -2,9 +2,22 @@ import { describe, expect, it } from "vitest"
 
 import { findCypherSetForYamlProperty } from "./rules"
 
+const catalogFormYamlKeys = [
+  "ОсновнаяФормаДляВыбора",
+  "ОсновнаяФормаДляВыбораГруппы",
+  "ОсновнаяФормаГруппы",
+  "ОсновнаяФормаСписка",
+  "ОсновнаяФормаОбъекта",
+  "ДополнительнаяФормаДляВыбора",
+  "ДополнительнаяФормаДляВыбораГруппы",
+  "ДополнительнаяФормаГруппы",
+  "ДополнительнаяФормаСписка",
+  "ДополнительнаяФормаОбъекта",
+]
+
 describe("findCypherSetForYamlProperty", () => {
-  it("returns catalog form Cypher set by YAML property", () => {
-    const set = findCypherSetForYamlProperty("Справочник", "ОсновнаяФормаДляВыбора")
+  it.each(catalogFormYamlKeys)("returns catalog form Cypher set for %s", (yamlKey) => {
+    const set = findCypherSetForYamlProperty("Справочник", yamlKey)
 
     expect(set).toBeDefined()
     expect(set?.query).toContain("MATCH (scope {id: $scope})-[:FORM]->(form)")
