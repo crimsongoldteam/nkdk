@@ -44,7 +44,7 @@ function resolveUmdToEsmPlugin() {
     format: "cjs",
     outExtension: { ".js": ".cjs" },
     loader: { ".ts": "ts" },
-    external: ["vscode"],
+    external: ["vscode", "jsbi"],
     platform: "node",
     sourcemap: !minify,
     minify,

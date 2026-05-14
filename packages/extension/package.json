@@ -71,6 +71,7 @@
     "@nakidka/core": "workspace:*",
     "@nakidka/graph": "workspace:*",
     "fs-extra": "~11.2.0",
+    "jsbi": "^4.3.2",
     "langium": "~4.2.0",
     "nkdk-language": "workspace:*",
     "request-light": "^0.8.0",
