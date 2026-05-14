@@ -94,11 +94,19 @@ function childProjectGraphFileMatchers(rule: MetadataItemRule): Array<(filePath:
     if (!isChildFormRule(propertyRule)) return []
 
     return [
-      (filePath: string) =>
-        filePath.startsWith(`${propertyRule.folderName}/`) &&
-        (filePath.endsWith("/Форма.yaml") || filePath.endsWith("/Форма.nkdk")),
+      (filePath: string) => isExactChildFormFilePath(filePath, propertyRule.folderName),
     ]
   })
+}
+
+function isExactChildFormFilePath(filePath: string, folderName: string): boolean {
+  const parts = filePath.split("/")
+  return (
+    parts.length === 3 &&
+    parts[0] === folderName &&
+    parts[1] !== "" &&
+    (parts[2] === "Форма.yaml" || parts[2] === "Форма.nkdk")
+  )
 }
 
 function isChildFormRule(rule: PropertyRule): rule is ChildFormNamesPropertyRule {

@@ -49,6 +49,9 @@ describe("graphImport projectFiles", () => {
   it("проверяет поддержанные пути тем же rule-driven механизмом", () => {
     expect(isSupportedProjectGraphFile("Обработка/ЗагрузкаДанных/Свойства.yaml")).toBe(true)
     expect(isSupportedProjectGraphFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml")).toBe(true)
+    expect(isSupportedProjectGraphFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")).toBe(true)
+    expect(isSupportedProjectGraphFile("Справочник/Товары/Формы/Группа/Под/Форма.yaml")).toBe(false)
+    expect(isSupportedProjectGraphFile("Справочник/Товары/Формы/Форма.yaml")).toBe(false)
     expect(isSupportedProjectGraphFile("HTTPСервис/API/Формы/Форма/Форма.yaml")).toBe(false)
     expect(isSupportedProjectGraphFile("README.md")).toBe(false)
   })
