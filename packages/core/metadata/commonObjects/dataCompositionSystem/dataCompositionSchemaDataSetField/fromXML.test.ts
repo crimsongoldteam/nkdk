@@ -20,6 +20,17 @@ const xmlWithStringTitle = `<Field xsi:type="dcssch:DataSetFieldField">
 	<dcssch:title xsi:type="xs:string">String title</dcssch:title>
 </Field>`
 
+const xmlWithAttributeUseRestriction = `<Field xsi:type="dcssch:DataSetFieldField">
+	<dcssch:dataPath>МЧД</dcssch:dataPath>
+	<dcssch:field>МЧД</dcssch:field>
+	<dcssch:attributeUseRestriction>
+		<dcssch:field>true</dcssch:field>
+		<dcssch:condition>true</dcssch:condition>
+		<dcssch:group>true</dcssch:group>
+		<dcssch:order>true</dcssch:order>
+	</dcssch:attributeUseRestriction>
+</Field>`
+
 const exportDataCompositionSchemaDataSetField = (value: unknown, referenceMetadata?: unknown): string => {
   const xmlData = exportPropertyToXML({
     context: mockContextToXML(),
@@ -176,5 +187,31 @@ describe("import DataCompositionSchemaDataSetField from XML", () => {
     const exported = exportDataCompositionSchemaDataSetField(result, referenceMetadata)
     expect(exported).toContain(`<dcssch:title xsi:type="xs:string">String title</dcssch:title>`)
     expect(exported).not.toContain(`<dcssch:title xsi:type="v8:LocalStringType">`)
+  })
+
+  it("round-trips attributeUseRestriction", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlString: xmlWithAttributeUseRestriction,
+      xmlRootTag: "Field",
+    })
+
+    expect(result).toEqual({
+      itemType: "DataCompositionSchemaDataSetField",
+      kind: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+      dataPath: "МЧД",
+      field: "МЧД",
+      attributeUseRestriction: {
+        itemType: "CalculatedFieldUseRestriction",
+        field: true,
+        condition: true,
+        group: true,
+        order: true,
+      },
+    })
+
+    const exported = exportDataCompositionSchemaDataSetField(result)
+
+    expect(exported).toEqual(xmlWithAttributeUseRestriction)
   })
 })
