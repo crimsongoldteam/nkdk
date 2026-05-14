@@ -51,4 +51,10 @@ describe("exportTypeDescriptionToXML", () => {
       exportTypeDescriptionToXML(mockContext, mockRule, { type: ["DefinitelyUnknownType"] })
     ).toThrow("Type DefinitelyUnknownType not found in TypeDescriptionRules")
   })
+
+  it("should throw on dotted system enumeration type during XML export", () => {
+    expect(() =>
+      exportTypeDescriptionToXML(mockContext, mockRule, { type: ["FillChecking.Anything"] })
+    ).toThrow("Type FillChecking.Anything not found in TypeDescriptionRules")
+  })
 })
