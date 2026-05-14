@@ -147,6 +147,13 @@ import "./metadataDocumentJournalColumn/register"
 
 import "./metadataHTTPServiceMethod/register"
 import "./metadataHTTPServiceURLTemplate/register"
+import "./metadataIntegrationServiceChannel/register"
+import "./metadataWebServiceOperation/register"
+import "./xDTOPackages/fromXML"
+import "./xDTOPackages/fromYAML"
+import "./xDTOPackages/toJSONSchema"
+import "./xDTOPackages/toXML"
+import "./xDTOPackages/toYAML"
 
 import "./metadataRegisterAttribute/register"
 import "./metadataRegisterDimension/register"

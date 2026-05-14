@@ -87,6 +87,16 @@ import {
   MetadataHTTPServiceURLTemplateYAML,
 } from "~/metadata/commonObjects/metadataHTTPServiceURLTemplate/types"
 import {
+  MetadataIntegrationServiceChannel,
+  MetadataIntegrationServiceChannelYAML,
+} from "~/metadata/commonObjects/metadataIntegrationServiceChannel/types"
+import {
+  MetadataWebServiceOperation,
+  MetadataWebServiceOperationYAML,
+  MetadataWebServiceParameter,
+  MetadataWebServiceParameterYAML,
+} from "~/metadata/commonObjects/metadataWebServiceOperation/types"
+import {
   MetadataRegisterAttribute,
   MetadataRegisterAttributeYAML,
 } from "~/metadata/commonObjects/metadataRegisterAttribute/types"
@@ -146,6 +156,10 @@ import {
 } from "../../appliedObjects/metadataDocumentJournal/types"
 import { MetadataHTTPService, MetadataHTTPServiceYAML } from "../../appliedObjects/metadataHTTPService/types"
 import {
+  MetadataIntegrationService,
+  MetadataIntegrationServiceYAML,
+} from "../../appliedObjects/metadataIntegrationService/types"
+import {
   MetadataInformationRegister,
   MetadataInformationRegisterYAML,
 } from "../../appliedObjects/metadataInformationRegister/types"
@@ -201,6 +215,7 @@ import {
   MetadataSessionParameterYAML,
 } from "../../appliedObjects/metadataSessionParameter/types"
 import { MetadataStyleItem, MetadataStyleItemYAML } from "../../appliedObjects/metadataStyleItem/types"
+import { MetadataWebService, MetadataWebServiceYAML } from "../../appliedObjects/metadataWebService/types"
 import { MetadataWSReference, MetadataWSReferenceYAML } from "../../appliedObjects/metadataWSReference/types"
 import {
   ClientApplicationForm,
@@ -690,6 +705,21 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataHTTPServiceURLTemplateYAML
   }
 
+  MetadataIntegrationServiceChannel: {
+    metadata: MetadataIntegrationServiceChannel
+    yaml: MetadataIntegrationServiceChannelYAML
+  }
+
+  MetadataWebServiceOperation: {
+    metadata: MetadataWebServiceOperation
+    yaml: MetadataWebServiceOperationYAML
+  }
+
+  MetadataWebServiceParameter: {
+    metadata: MetadataWebServiceParameter
+    yaml: MetadataWebServiceParameterYAML
+  }
+
   MetadataRegisterResource: {
     metadata: MetadataRegisterResource
     yaml: MetadataRegisterResourceYAML
@@ -955,6 +985,16 @@ export type MetadataItemTypeRegistry = {
   MetadataHTTPService: {
     metadata: MetadataHTTPService
     yaml: MetadataHTTPServiceYAML
+  }
+
+  MetadataIntegrationService: {
+    metadata: MetadataIntegrationService
+    yaml: MetadataIntegrationServiceYAML
+  }
+
+  MetadataWebService: {
+    metadata: MetadataWebService
+    yaml: MetadataWebServiceYAML
   }
 
   MetadataInformationRegister: {

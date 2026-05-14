@@ -34,6 +34,8 @@ const TOP_LEVEL_PREFIXES = new Set([
   "ЭлементСтиля",
   "ОбщийРеквизит",
   "Бот",
+  "СервисИнтеграции",
+  "WebСервис",
   "WSСсылка",
 ])
 const OBJECT_WITH_CHILDREN_PREFIXES = new Set(["Справочник", "Документ", "ПланОбмена"])

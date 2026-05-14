@@ -13,6 +13,10 @@ import {
 } from "~/metadata/appliedObjects/metadataDocumentJournal/types"
 import { MetadataHTTPService, MetadataHTTPServiceYAML } from "~/metadata/appliedObjects/metadataHTTPService/types"
 import {
+  MetadataIntegrationService,
+  MetadataIntegrationServiceYAML,
+} from "~/metadata/appliedObjects/metadataIntegrationService/types"
+import {
   MetadataInformationRegister,
   MetadataInformationRegisterYAML,
 } from "~/metadata/appliedObjects/metadataInformationRegister/types"
@@ -71,6 +75,7 @@ import {
   MetadataSessionParameterYAML,
 } from "~/metadata/appliedObjects/metadataSessionParameter/types"
 import { MetadataStyleItem, MetadataStyleItemYAML } from "~/metadata/appliedObjects/metadataStyleItem/types"
+import { MetadataWebService, MetadataWebServiceYAML } from "~/metadata/appliedObjects/metadataWebService/types"
 import { MetadataWSReference, MetadataWSReferenceYAML } from "~/metadata/appliedObjects/metadataWSReference/types"
 import {
   AdditionalIndex,
@@ -242,9 +247,20 @@ import {
   MetadataHTTPServiceURLTemplatesYAML,
 } from "~/metadata/commonObjects/metadataHTTPServiceURLTemplate/types"
 import {
+  MetadataIntegrationServiceChannels,
+  MetadataIntegrationServiceChannelsYAML,
+} from "~/metadata/commonObjects/metadataIntegrationServiceChannel/types"
+import {
+  MetadataWebServiceOperations,
+  MetadataWebServiceOperationsYAML,
+  MetadataWebServiceParameters,
+  MetadataWebServiceParametersYAML,
+} from "~/metadata/commonObjects/metadataWebServiceOperation/types"
+import {
   MetadataRegisterAttributes,
   MetadataRegisterAttributesYAML,
 } from "~/metadata/commonObjects/metadataRegisterAttribute/types"
+import { XDTOPackages, XDTOPackagesYAML } from "~/metadata/commonObjects/xDTOPackages/types"
 import {
   MetadataRegisterDimensions,
   MetadataRegisterDimensionsYAML,
@@ -607,6 +623,22 @@ export type PropertyTypeRegistry = {
     item: MetadataHTTPServiceURLTemplates
     yaml: MetadataHTTPServiceURLTemplatesYAML
   }
+  MetadataIntegrationServiceChannels: {
+    item: MetadataIntegrationServiceChannels
+    yaml: MetadataIntegrationServiceChannelsYAML
+  }
+  MetadataWebServiceOperations: {
+    item: MetadataWebServiceOperations
+    yaml: MetadataWebServiceOperationsYAML
+  }
+  MetadataWebServiceParameters: {
+    item: MetadataWebServiceParameters
+    yaml: MetadataWebServiceParametersYAML
+  }
+  XDTOPackages: {
+    item: XDTOPackages
+    yaml: XDTOPackagesYAML
+  }
   MetadataRegisterResources: {
     item: MetadataRegisterResources
     yaml: MetadataRegisterResourcesYAML
@@ -787,6 +819,14 @@ export type PropertyTypeRegistry = {
   MetadataHTTPService: {
     item: MetadataHTTPService
     yaml: MetadataHTTPServiceYAML
+  }
+  MetadataIntegrationService: {
+    item: MetadataIntegrationService
+    yaml: MetadataIntegrationServiceYAML
+  }
+  MetadataWebService: {
+    item: MetadataWebService
+    yaml: MetadataWebServiceYAML
   }
   MetadataInformationRegister: {
     item: MetadataInformationRegister
@@ -1190,6 +1230,10 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataDocumentJournalColumns: "MetadataDocumentJournalColumns",
   MetadataHTTPServiceMethods: "MetadataHTTPServiceMethods",
   MetadataHTTPServiceURLTemplates: "MetadataHTTPServiceURLTemplates",
+  MetadataIntegrationServiceChannels: "MetadataIntegrationServiceChannels",
+  MetadataWebServiceOperations: "MetadataWebServiceOperations",
+  MetadataWebServiceParameters: "MetadataWebServiceParameters",
+  XDTOPackages: "XDTOPackages",
   MetadataRegisterResources: "MetadataRegisterResources",
   MetadataRegisterDimensions: "MetadataRegisterDimensions",
   MetadataRegisterAttributes: "MetadataRegisterAttributes",
@@ -1238,6 +1282,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataDataProcessor: "MetadataDataProcessor",
   MetadataDocumentJournal: "MetadataDocumentJournal",
   MetadataHTTPService: "MetadataHTTPService",
+  MetadataIntegrationService: "MetadataIntegrationService",
+  MetadataWebService: "MetadataWebService",
   MetadataInformationRegister: "MetadataInformationRegister",
   MetadataAccumulationRegister: "MetadataAccumulationRegister",
   MetadataExchangePlan: "MetadataExchangePlan",
