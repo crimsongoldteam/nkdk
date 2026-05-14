@@ -1,3 +1,4 @@
+import "~/metadata/forms/clientApplicationForm/propertyRules"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 

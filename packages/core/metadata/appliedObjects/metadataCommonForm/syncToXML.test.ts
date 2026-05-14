@@ -1,5 +1,4 @@
-import { describe, expect, it } from "vitest"
-import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { describe, expect, it, vi } from "vitest"
 import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
 import { MetadataCommonFormRules } from "./rules"
 
@@ -19,10 +18,31 @@ describe("syncAppliedObjectToXML — MetadataCommonForm", () => {
     }
   })
 
-  it("uses registered ClientApplicationForm property handlers", () => {
-    expect(getTypeRule("ClientApplicationForm", "importFromYAML")).toBeTypeOf("function")
-    expect(getTypeRule("ClientApplicationForm", "exportToYAML")).toBeTypeOf("function")
-    expect(getTypeRule("ClientApplicationForm", "importFromXML")).toBeTypeOf("function")
-    expect(getTypeRule("ClientApplicationForm", "exportToXML")).toBeTypeOf("function")
+  it("enables ClientApplicationForm export after direct MetadataCommonFormRules import", async () => {
+    vi.resetModules()
+
+    const { clearTypeRulesRegistry, getTypeRule } = await import("~/metadata/orchestration/formElement/factory")
+    clearTypeRulesRegistry()
+    expect(getTypeRule("ClientApplicationForm", "exportToXML")).toBeUndefined()
+
+    const { MetadataCommonFormRules } = await import("./rules")
+    const { createEmptyClientApplicationForm } = await import("~/metadata/forms/clientApplicationForm/createEmpty")
+    const { exportPropertyToXML } = await import("~/metadata/orchestration/property/toXML")
+    const { mockContextToXML } = await import("~/tests/mockContext")
+
+    const exportToXML = getTypeRule("ClientApplicationForm", "exportToXML")
+    expect(exportToXML).toBeTypeOf("function")
+
+    const result = exportPropertyToXML({
+      context: mockContextToXML(),
+      rule: MetadataCommonFormRules.properties.form,
+      value: createEmptyClientApplicationForm(),
+    })
+
+    expect(result).toMatchObject({
+      Form: {
+        _xmlns: "http://v8.1c.ru/8.3/xcf/logform",
+      },
+    })
   })
 })

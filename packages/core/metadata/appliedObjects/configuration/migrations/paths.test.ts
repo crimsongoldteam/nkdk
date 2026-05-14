@@ -67,6 +67,12 @@ describe("migration paths", () => {
       ownerPath: "Бот",
       levelPath: "Бот",
     })
+    expect(parseMigrationPath("ОбщаяФорма.КонстантаВсеСвойства")).toMatchObject({
+      kind: "object",
+      localName: "КонстантаВсеСвойства",
+      ownerPath: "ОбщаяФорма",
+      levelPath: "ОбщаяФорма",
+    })
     expect(parseMigrationPath("WSСсылка.Калькулятор")).toMatchObject({
       kind: "object",
       localName: "Калькулятор",
