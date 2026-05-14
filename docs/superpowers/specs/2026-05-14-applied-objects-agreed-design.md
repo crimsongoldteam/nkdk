@@ -34,6 +34,7 @@ The implementation policy is common for all objects below:
 - `metadataAccountingRegister`
 - `metadataBusinessProcess`
 - `metadataCalculationRegister`
+- `metadataChartOfAccounts`
 
 ## Deferred Objects
 
@@ -603,6 +604,172 @@ Testing:
   `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`, `Ext/Help/ru.html`, `Recalculations/<name>.xml`,
   `Recalculations/<name>/Ext/RecordSetModule.bsl`, form XML, template XML, and command module.
 
+## Object: MetadataChartOfAccounts
+
+- `itemType`: `MetadataChartOfAccounts`
+- `itemTypePrefix`: `ПланСчетов`
+- XML directory: `ChartOfAccounts`
+- XML container: `ChartOfAccounts`
+- implement through `rules.ts`
+- `InternalInfo` generated categories:
+  - `Object`
+  - `Ref`
+  - `Selection`
+  - `List`
+  - `Manager`
+  - `ExtDimensionTypes`
+  - `ExtDimensionTypesRow`
+
+Parent properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `useStandardCommands` | `UseStandardCommands` | `ИспользоватьСтандартныеКоманды` | `boolean` |
+| `includeHelpInContents` | `IncludeHelpInContents` | `ВключатьСправкуВСодержание` | `boolean` |
+| `basedOn` | `BasedOn` | `ВводитсяНаОсновании` | `MetadataItemLinks` |
+| `extDimensionTypes` | `ExtDimensionTypes` | `ВидыСубконто` | `string` / `MDObjectRef` |
+| `maxExtDimensionCount` | `MaxExtDimensionCount` | `МаксКоличествоСубконто` | `number` |
+| `codeMask` | `CodeMask` | `МаскаКода` | `string` |
+| `codeLength` | `CodeLength` | `ДлинаКода` | `number` |
+| `descriptionLength` | `DescriptionLength` | `ДлинаНаименования` | `number` |
+| `codeSeries` | `CodeSeries` | `СерииКодов` | `SystemEnumeration: CharOfAccountCodeSeries` |
+| `checkUnique` | `CheckUnique` | `КонтрольУникальности` | `boolean` |
+| `defaultPresentation` | `DefaultPresentation` | `ОсновноеПредставление` | `SystemEnumeration: AccountMainPresentation` |
+| `standardAttributes` | `StandardAttributes` | `СтандартныеРеквизиты` | `StandardAttributeDescriptions` |
+| `characteristics` | `Characteristics` | `Характеристики` | `CharacteristicsDescriptions` |
+| `standardTabularSections` | `StandardTabularSections` | `СтандартныеТабличныеЧасти` | `StandardTabularSectionDescriptions` |
+| `predefinedDataUpdate` | `PredefinedDataUpdate` | `ОбновлениеПредопределенныхДанных` | `SystemEnumeration: PredefinedDataUpdate` |
+| `editType` | `EditType` | `СпособРедактирования` | `SystemEnumeration: EditType` |
+| `quickChoice` | `QuickChoice` | `БыстрыйВыбор` | `boolean` |
+| `choiceMode` | `ChoiceMode` | `РежимВыбора` | `SystemEnumeration: ChoiceMode` |
+| `inputByString` | `InputByString` | `ВводПоСтроке` | `MetadataFields` |
+| `searchStringModeOnInputByString` | `SearchStringModeOnInputByString` | `РежимСтрокиПоискаПриВводеПоСтроке` | `SystemEnumeration: SearchStringModeOnInputByString` |
+| `fullTextSearchOnInputByString` | `FullTextSearchOnInputByString` | `ПолнотекстовыйПоискПриВводеПоСтроке` | `SystemEnumeration: FullTextSearchOnInputByString` |
+| `choiceDataGetModeOnInputByString` | `ChoiceDataGetModeOnInputByString` | `РежимПолученияДанныхВыбораПриВводеПоСтроке` | `SystemEnumeration: ChoiceDataGetModeOnInputByString` |
+| `createOnInput` | `CreateOnInput` | `СозданиеПриВводе` | `SystemEnumeration: CreateOnInput` |
+| `choiceHistoryOnInput` | `ChoiceHistoryOnInput` | `ИсторияВыбораПриВводе` | `SystemEnumeration: ChoiceHistoryOnInput` |
+| `defaultObjectForm` | `DefaultObjectForm` | `ОсновнаяФормаОбъекта` | `string` |
+| `defaultListForm` | `DefaultListForm` | `ОсновнаяФормаСписка` | `string` |
+| `defaultChoiceForm` | `DefaultChoiceForm` | `ОсновнаяФормаВыбора` | `string` |
+| `auxiliaryObjectForm` | `AuxiliaryObjectForm` | `ДополнительнаяФормаОбъекта` | `string` |
+| `auxiliaryListForm` | `AuxiliaryListForm` | `ДополнительнаяФормаСписка` | `string` |
+| `auxiliaryChoiceForm` | `AuxiliaryChoiceForm` | `ДополнительнаяФормаВыбора` | `string` |
+| `autoOrderByCode` | `AutoOrderByCode` | `АвтоПорядокПоКоду` | `boolean` |
+| `orderLength` | `OrderLength` | `ДлинаПорядка` | `number` |
+| `dataLockFields` | `DataLockFields` | `ПоляБлокировкиДанных` | `MetadataFields` |
+| `dataLockControlMode` | `DataLockControlMode` | `РежимУправленияБлокировкойДанных` | `SystemEnumeration: DefaultDataLockControlMode` |
+| `fullTextSearch` | `FullTextSearch` | `ПолнотекстовыйПоиск` | `SystemEnumeration: FullTextSearchUsing` |
+| `dataHistory` | `DataHistory` | `ИсторияДанных` | `SystemEnumeration: DataHistoryUse` |
+| `objectPresentation` | `ObjectPresentation` | `ПредставлениеОбъекта` | `I8nText` |
+| `extendedObjectPresentation` | `ExtendedObjectPresentation` | `РасширенноеПредставлениеОбъекта` | `I8nText` |
+| `listPresentation` | `ListPresentation` | `ПредставлениеСписка` | `I8nText` |
+| `extendedListPresentation` | `ExtendedListPresentation` | `РасширенноеПредставлениеСписка` | `I8nText` |
+| `explanation` | `Explanation` | `Пояснение` | `I8nText` |
+| `updateDataHistoryImmediatelyAfterWrite` | `UpdateDataHistoryImmediatelyAfterWrite` | `ОбновлятьИсториюДанныхСразуПослеЗаписи` | `boolean` |
+| `executeAfterWriteDataHistoryVersionProcessing` | `ExecuteAfterWriteDataHistoryVersionProcessing` | `ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных` | `boolean` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+Child objects:
+
+- `Attribute[]`: existing `MetadataAttributes`.
+- `TabularSection[]`: chart-of-accounts-specific wrapper over the common tabular-section property set, with generated
+  type names `ChartOfAccountsTabularSection` and `ChartOfAccountsTabularSectionRow`.
+- `AccountingFlag[]`: new common object under `packages/core/metadata/commonObjects/metadataAccountingFlag/`.
+- `ExtDimensionAccountingFlag[]`: new common object under
+  `packages/core/metadata/commonObjects/metadataExtDimensionAccountingFlag/`.
+- `Form[]`: existing `ChildFormNames`.
+- `Template[]`: existing `ChildTemplateNames`.
+- `Command[]`: existing `MetadataCommands`, and include `childCollections` so command modules are copied.
+
+New common objects: accounting flags
+
+`metadataAccountingFlag` and `metadataExtDimensionAccountingFlag` share the same field-like property set:
+
+- XML containers: `AccountingFlag` and `ExtDimensionAccountingFlag`.
+- properties: `name`, `synonym`, `comment`, `type`, `passwordMode`, `format`, `editFormat`, `toolTip`,
+  `markNegatives`, `mask`, `multiLine`, `extendedEdit`, `minValue`, `maxValue`, `fillFromFillingValue`, `fillValue`,
+  `fillChecking`, `choiceFoldersAndItems`, `choiceParameterLinks`, `choiceParameters`, `quickChoice`, `createOnInput`,
+  `choiceForm`, `linkByType`, `choiceHistoryOnInput`, `dataHistory`.
+- `type`: `TypeDescription`
+- `fillValue`: `MetadataValue`
+- `linkByType`: existing `TypeLink`
+- hidden `objectBelonging`, `defaultValueYAML: "Native"`
+- `extendedConfigurationObject`: runtime-only `string`
+
+These common objects are real nested metadata structures referenced by accounting registers through
+`AccountingFlag.*` and `ExtDimensionAccountingFlag.*` paths. They should not be represented as plain names.
+
+External files:
+
+- `objectModule`: existing `Module`, XML `Ext/ObjectModule.bsl`, nkdk `МодульОбъекта.bsl`
+- `managerModule`: existing `Module`, XML `Ext/ManagerModule.bsl`, nkdk `МодульМенеджера.bsl`
+- `predefined`: opaque `Template`, XML `Ext/Predefined.xml`, nkdk `Predefined.xml`
+- `additionalIndexes`: existing `AdditionalIndex`, XML `Ext/AdditionalIndexes.xml`
+- `help`: existing `Help`, XML `Ext/Help.xml` and `Ext/Help/ru.html`, nkdk `Справка/`
+- child forms through `ChildFormNames`
+- child templates through `ChildTemplateNames`
+- command modules through `MetadataCommands`
+
+`Predefined.xml` contains predefined chart-of-accounts items with accounting flags and ext-dimension types. The first
+implementation preserves it opaquely; parsing predefined accounts is deferred.
+
+Default policy from `minimal.xml`:
+
+- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `maxExtDimensionCount`: `defaultValueXML: 0`, `defaultValueYAML: 0`
+- `codeLength`: `defaultValueXML: 9`, `defaultValueYAML: 9`
+- `descriptionLength`: `defaultValueXML: 25`, `defaultValueYAML: 25`
+- `codeSeries`: `defaultValueXML: "WholeChartOfAccounts"`, `defaultValueYAML: "WholeChartOfAccounts"`
+- `checkUnique`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `defaultPresentation`: `defaultValueXML: "AsCode"`, `defaultValueYAML: "AsCode"`
+- `predefinedDataUpdate`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
+- `editType`: `defaultValueXML: "InDialog"`, `defaultValueYAML: "InDialog"`
+- `quickChoice`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `choiceMode`: `defaultValueXML: "BothWays"`, `defaultValueYAML: "BothWays"`
+- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `defaultValueYAML: "Begin"`
+- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `defaultValueYAML: "Directly"`
+- `createOnInput`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
+- `autoOrderByCode`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `orderLength`: `defaultValueXML: 0`, `defaultValueYAML: 0`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
+- `fullTextSearch`: `defaultValueXML: "Use"`, `defaultValueYAML: "Use"`
+- `dataHistory`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+
+Keep `basedOn`, `extDimensionTypes`, `inputByString`, `dataLockFields`, `characteristics`, standard tabular sections,
+child attributes, tabular sections, accounting flags, and predefined data as explicit content, not YAML defaults.
+
+Implementation notes:
+
+- Reuse existing common behavior from `metadataCatalog`, `metadataDocument`, and `metadataExchangePlan`.
+- Use the same shared field-property shape for `metadataAccountingFlag` and `metadataExtDimensionAccountingFlag`; avoid
+  copy-pasting two divergent rules.
+- Standard attribute names include chart-of-accounts-specific names from fixtures: `PredefinedDataName`, `Order`,
+  `OffBalance`, `Type`, `Description`, `Code`, `Parent`, `Predefined`, `DeletionMark`, and `Ref`.
+- `StandardTabularSections/ExtDimensionTypes` should use existing `StandardTabularSectionDescriptions` if it already
+  supports the fixture shape; otherwise add the smallest common-object extension needed by this fixture.
+
+Testing:
+
+- standard XML/YAML/sync tests;
+- XML tests cover `minimal.xml` and `full.xml`;
+- tests cover `BasedOn`, `ExtDimensionTypes`, code settings, standard attributes, `StandardTabularSections`,
+  characteristics, accounting flags, ext-dimension accounting flags, and all form/template/command names;
+- sync from XML verifies `Свойства.yaml`, `МодульОбъекта.bsl`, `МодульМенеджера.bsl`, `Predefined.xml`, `Справка/`,
+  `ДополнительныеИндексы`, forms, templates, and command modules;
+- sync to XML verifies `ChartOfAccounts/<name>.xml`, `Ext/ObjectModule.bsl`, `Ext/ManagerModule.bsl`,
+  `Ext/Predefined.xml`, `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`, `Ext/Help/ru.html`, form XML, template XML, and
+  command module.
+
 ## Registries And Tests
 
 Every included object should be added to the same registry set as other top-level applied objects:
@@ -630,7 +797,6 @@ Sync tests must cover opaque external-file copying for role, scheduled job, comm
 
 Objects still needing brainstorming in this pass:
 
-- `metadataChartOfAccounts`
 - `metadataChartOfCalculationTypes`
 - `metadataChartOfCharacteristicTypes`
 - `metadataCommonForm`
