@@ -1,1 +1,5 @@
-export const readCommonPictureYAML = ""
+export const readCommonPictureYAML = `Синоним: Синоним
+Комментарий: Комментарий
+ДоступностьДляВыбора: Истина
+ДоступностьДляОформления: Истина
+`

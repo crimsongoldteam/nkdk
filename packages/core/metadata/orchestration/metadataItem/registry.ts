@@ -138,19 +138,13 @@ import {
 } from "../../appliedObjects/metadataCommonAttribute/types"
 import { MetadataConstant, MetadataConstantYAML } from "../../appliedObjects/metadataConstant/types"
 import { MetadataDefinedType, MetadataDefinedTypeYAML } from "../../appliedObjects/metadataDefinedType/types"
-import {
-  MetadataDataProcessor,
-  MetadataDataProcessorYAML,
-} from "../../appliedObjects/metadataDataProcessor/types"
+import { MetadataDataProcessor, MetadataDataProcessorYAML } from "../../appliedObjects/metadataDataProcessor/types"
 import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
 import {
   MetadataDocumentJournal,
   MetadataDocumentJournalYAML,
 } from "../../appliedObjects/metadataDocumentJournal/types"
-import {
-  MetadataHTTPService,
-  MetadataHTTPServiceYAML,
-} from "../../appliedObjects/metadataHTTPService/types"
+import { MetadataHTTPService, MetadataHTTPServiceYAML } from "../../appliedObjects/metadataHTTPService/types"
 import {
   MetadataInformationRegister,
   MetadataInformationRegisterYAML,
@@ -159,10 +153,7 @@ import {
   MetadataAccumulationRegister,
   MetadataAccumulationRegisterYAML,
 } from "../../appliedObjects/metadataAccumulationRegister/types"
-import {
-  MetadataExchangePlan,
-  MetadataExchangePlanYAML,
-} from "../../appliedObjects/metadataExchangePlan/types"
+import { MetadataExchangePlan, MetadataExchangePlanYAML } from "../../appliedObjects/metadataExchangePlan/types"
 import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorYAML,
@@ -186,6 +177,20 @@ import {
   MetadataFunctionalOptionsParameterYAML,
 } from "../../appliedObjects/metadataFunctionalOptionsParameter/types"
 import {
+  MetadataFunctionalOption,
+  MetadataFunctionalOptionYAML,
+} from "../../appliedObjects/metadataFunctionalOption/types"
+import { MetadataLanguage, MetadataLanguageYAML } from "../../appliedObjects/metadataLanguage/types"
+import { MetadataRole, MetadataRoleYAML } from "../../appliedObjects/metadataRole/types"
+import { MetadataScheduledJob, MetadataScheduledJobYAML } from "../../appliedObjects/metadataScheduledJob/types"
+import { MetadataCommonPicture, MetadataCommonPictureYAML } from "../../appliedObjects/metadataCommonPicture/types"
+import { MetadataCommonTemplate, MetadataCommonTemplateYAML } from "../../appliedObjects/metadataCommonTemplate/types"
+import {
+  MetadataCommandGroup as MetadataAppliedCommandGroup,
+  MetadataCommandGroupYAML as MetadataAppliedCommandGroupYAML,
+} from "../../appliedObjects/metadataCommandGroup/types"
+import { MetadataStyle, MetadataStyleYAML } from "../../appliedObjects/metadataStyle/types"
+import {
   MetadataSettingsStorage,
   MetadataSettingsStorageYAML,
 } from "../../appliedObjects/metadataSettingsStorage/types"
@@ -195,10 +200,7 @@ import {
   MetadataSessionParameterYAML,
 } from "../../appliedObjects/metadataSessionParameter/types"
 import { MetadataStyleItem, MetadataStyleItemYAML } from "../../appliedObjects/metadataStyleItem/types"
-import {
-  MetadataWSReference,
-  MetadataWSReferenceYAML,
-} from "../../appliedObjects/metadataWSReference/types"
+import { MetadataWSReference, MetadataWSReferenceYAML } from "../../appliedObjects/metadataWSReference/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -882,6 +884,46 @@ export type MetadataItemTypeRegistry = {
   MetadataFunctionalOptionsParameter: {
     metadata: MetadataFunctionalOptionsParameter
     yaml: MetadataFunctionalOptionsParameterYAML
+  }
+
+  MetadataFunctionalOption: {
+    metadata: MetadataFunctionalOption
+    yaml: MetadataFunctionalOptionYAML
+  }
+
+  MetadataLanguage: {
+    metadata: MetadataLanguage
+    yaml: MetadataLanguageYAML
+  }
+
+  MetadataRole: {
+    metadata: MetadataRole
+    yaml: MetadataRoleYAML
+  }
+
+  MetadataScheduledJob: {
+    metadata: MetadataScheduledJob
+    yaml: MetadataScheduledJobYAML
+  }
+
+  MetadataCommonPicture: {
+    metadata: MetadataCommonPicture
+    yaml: MetadataCommonPictureYAML
+  }
+
+  MetadataCommonTemplate: {
+    metadata: MetadataCommonTemplate
+    yaml: MetadataCommonTemplateYAML
+  }
+
+  MetadataCommandGroup: {
+    metadata: MetadataAppliedCommandGroup
+    yaml: MetadataAppliedCommandGroupYAML
+  }
+
+  MetadataStyle: {
+    metadata: MetadataStyle
+    yaml: MetadataStyleYAML
   }
 
   MetadataSettingsStorage: {

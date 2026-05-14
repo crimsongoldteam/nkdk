@@ -6,18 +6,12 @@ import {
 import { MetadataBot, MetadataBotYAML } from "~/metadata/appliedObjects/metadataBot/types"
 import { MetadataConstant, MetadataConstantYAML } from "~/metadata/appliedObjects/metadataConstant/types"
 import { MetadataDefinedType, MetadataDefinedTypeYAML } from "~/metadata/appliedObjects/metadataDefinedType/types"
-import {
-  MetadataDataProcessor,
-  MetadataDataProcessorYAML,
-} from "~/metadata/appliedObjects/metadataDataProcessor/types"
+import { MetadataDataProcessor, MetadataDataProcessorYAML } from "~/metadata/appliedObjects/metadataDataProcessor/types"
 import {
   MetadataDocumentJournal,
   MetadataDocumentJournalYAML,
 } from "~/metadata/appliedObjects/metadataDocumentJournal/types"
-import {
-  MetadataHTTPService,
-  MetadataHTTPServiceYAML,
-} from "~/metadata/appliedObjects/metadataHTTPService/types"
+import { MetadataHTTPService, MetadataHTTPServiceYAML } from "~/metadata/appliedObjects/metadataHTTPService/types"
 import {
   MetadataInformationRegister,
   MetadataInformationRegisterYAML,
@@ -26,10 +20,7 @@ import {
   MetadataAccumulationRegister,
   MetadataAccumulationRegisterYAML,
 } from "~/metadata/appliedObjects/metadataAccumulationRegister/types"
-import {
-  MetadataExchangePlan,
-  MetadataExchangePlanYAML,
-} from "~/metadata/appliedObjects/metadataExchangePlan/types"
+import { MetadataExchangePlan, MetadataExchangePlanYAML } from "~/metadata/appliedObjects/metadataExchangePlan/types"
 import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorYAML,
@@ -53,6 +44,23 @@ import {
   MetadataFunctionalOptionsParameterYAML,
 } from "~/metadata/appliedObjects/metadataFunctionalOptionsParameter/types"
 import {
+  MetadataFunctionalOption,
+  MetadataFunctionalOptionYAML,
+} from "~/metadata/appliedObjects/metadataFunctionalOption/types"
+import { MetadataLanguage, MetadataLanguageYAML } from "~/metadata/appliedObjects/metadataLanguage/types"
+import { MetadataRole, MetadataRoleYAML } from "~/metadata/appliedObjects/metadataRole/types"
+import { MetadataScheduledJob, MetadataScheduledJobYAML } from "~/metadata/appliedObjects/metadataScheduledJob/types"
+import { MetadataCommonPicture, MetadataCommonPictureYAML } from "~/metadata/appliedObjects/metadataCommonPicture/types"
+import {
+  MetadataCommonTemplate,
+  MetadataCommonTemplateYAML,
+} from "~/metadata/appliedObjects/metadataCommonTemplate/types"
+import {
+  MetadataCommandGroup as MetadataAppliedCommandGroup,
+  MetadataCommandGroupYAML as MetadataAppliedCommandGroupYAML,
+} from "~/metadata/appliedObjects/metadataCommandGroup/types"
+import { MetadataStyle, MetadataStyleYAML } from "~/metadata/appliedObjects/metadataStyle/types"
+import {
   MetadataSettingsStorage,
   MetadataSettingsStorageYAML,
 } from "~/metadata/appliedObjects/metadataSettingsStorage/types"
@@ -62,10 +70,7 @@ import {
   MetadataSessionParameterYAML,
 } from "~/metadata/appliedObjects/metadataSessionParameter/types"
 import { MetadataStyleItem, MetadataStyleItemYAML } from "~/metadata/appliedObjects/metadataStyleItem/types"
-import {
-  MetadataWSReference,
-  MetadataWSReferenceYAML,
-} from "~/metadata/appliedObjects/metadataWSReference/types"
+import { MetadataWSReference, MetadataWSReferenceYAML } from "~/metadata/appliedObjects/metadataWSReference/types"
 import {
   AdditionalIndex,
   AdditionalIndexCollection,
@@ -729,6 +734,38 @@ export type PropertyTypeRegistry = {
     item: MetadataFunctionalOptionsParameter
     yaml: MetadataFunctionalOptionsParameterYAML
   }
+  MetadataFunctionalOption: {
+    item: MetadataFunctionalOption
+    yaml: MetadataFunctionalOptionYAML
+  }
+  MetadataLanguage: {
+    item: MetadataLanguage
+    yaml: MetadataLanguageYAML
+  }
+  MetadataRole: {
+    item: MetadataRole
+    yaml: MetadataRoleYAML
+  }
+  MetadataScheduledJob: {
+    item: MetadataScheduledJob
+    yaml: MetadataScheduledJobYAML
+  }
+  MetadataCommonPicture: {
+    item: MetadataCommonPicture
+    yaml: MetadataCommonPictureYAML
+  }
+  MetadataCommonTemplate: {
+    item: MetadataCommonTemplate
+    yaml: MetadataCommonTemplateYAML
+  }
+  MetadataAppliedCommandGroup: {
+    item: MetadataAppliedCommandGroup
+    yaml: MetadataAppliedCommandGroupYAML
+  }
+  MetadataStyle: {
+    item: MetadataStyle
+    yaml: MetadataStyleYAML
+  }
   MetadataSettingsStorage: {
     item: MetadataSettingsStorage
     yaml: MetadataSettingsStorageYAML
@@ -1178,6 +1215,14 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataEventSubscription: "MetadataEventSubscription",
   MetadataFilterCriterion: "MetadataFilterCriterion",
   MetadataFunctionalOptionsParameter: "MetadataFunctionalOptionsParameter",
+  MetadataFunctionalOption: "MetadataFunctionalOption",
+  MetadataLanguage: "MetadataLanguage",
+  MetadataRole: "MetadataRole",
+  MetadataScheduledJob: "MetadataScheduledJob",
+  MetadataCommonPicture: "MetadataCommonPicture",
+  MetadataCommonTemplate: "MetadataCommonTemplate",
+  MetadataAppliedCommandGroup: "MetadataAppliedCommandGroup",
+  MetadataStyle: "MetadataStyle",
   MetadataSettingsStorage: "MetadataSettingsStorage",
   MetadataDataProcessor: "MetadataDataProcessor",
   MetadataDocumentJournal: "MetadataDocumentJournal",

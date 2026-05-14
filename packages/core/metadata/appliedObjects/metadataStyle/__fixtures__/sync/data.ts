@@ -1,1 +1,3 @@
-export const readStyleYAML = ""
+export const readStyleYAML = `Синоним: Синоним
+Комментарий: Комментарий
+`

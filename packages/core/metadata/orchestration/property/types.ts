@@ -128,6 +128,9 @@ export interface BasePropertyRule {
   /** Теги, по которым будет выгружаться свойство */
   tag?: string
 
+  /** Имя элемента внутри коллекции MetadataItemLinks, если используется не xr:Item. */
+  metadataItemLinksXMLItem?: "xr:Item" | "xr:Object"
+
   /** Если все поля пустые - это поле будет выгружено как значение */
   useAsShortValueYAML?: true
 

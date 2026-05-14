@@ -1,1 +1,3 @@
-export const readRoleYAML = ""
+export const readRoleYAML = `Синоним: Синоним
+Комментарий: Комментарий
+`

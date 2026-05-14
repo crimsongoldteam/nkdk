@@ -1,1 +1,3 @@
-export const readCommonTemplateYAML = ""
+export const readCommonTemplateYAML = `Синоним: Синоним
+Комментарий: Комментарий
+`

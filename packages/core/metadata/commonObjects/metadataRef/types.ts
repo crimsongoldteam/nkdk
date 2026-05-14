@@ -15,6 +15,7 @@ export const MetadataItemLinkJSONSchema = Type.String()
 export type MetadataItemLinks = MetadataItemLink[]
 export interface MetadataItemLinksXML {
   "xr:Item"?: MetadataItemLinkXML | MetadataItemLinkXML[]
+  "xr:Object"?: MetadataItemLinkXML | MetadataItemLinkXML[]
 }
 export const MetadataItemLinksJSONSchema = Type.Array(Type.String())
 export type MetadataItemLinksYAML = Static<typeof MetadataItemLinksJSONSchema>

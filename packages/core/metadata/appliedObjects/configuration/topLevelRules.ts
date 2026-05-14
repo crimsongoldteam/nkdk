@@ -14,10 +14,18 @@ import { MetadataDocumentNumeratorRules } from "../metadataDocumentNumerator/rul
 import { MetadataEnumerationRules } from "../metadataEnumeration/rules"
 import { MetadataEventSubscriptionRules } from "../metadataEventSubscription/rules"
 import { MetadataFilterCriterionRules } from "../metadataFilterCriterion/rules"
+import { MetadataFunctionalOptionRules } from "../metadataFunctionalOption/rules"
 import { MetadataFunctionalOptionsParameterRules } from "../metadataFunctionalOptionsParameter/rules"
+import { MetadataLanguageRules } from "../metadataLanguage/rules"
+import { MetadataRoleRules } from "../metadataRole/rules"
+import { MetadataScheduledJobRules } from "../metadataScheduledJob/rules"
 import { MetadataSettingsStorageRules } from "../metadataSettingsStorage/rules"
 import { MetadataSequenceRules } from "../metadataSequence/rules"
 import { MetadataSessionParameterRules } from "../metadataSessionParameter/rules"
+import { MetadataCommandGroupRules } from "../metadataCommandGroup/rules"
+import { MetadataCommonPictureRules } from "../metadataCommonPicture/rules"
+import { MetadataCommonTemplateRules } from "../metadataCommonTemplate/rules"
+import { MetadataStyleRules } from "../metadataStyle/rules"
 import { MetadataStyleItemRules } from "../metadataStyleItem/rules"
 import { MetadataWSReferenceRules } from "../metadataWSReference/rules"
 
@@ -42,7 +50,15 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataSessionParameterRules,
   MetadataEventSubscriptionRules,
   MetadataFilterCriterionRules,
+  MetadataFunctionalOptionRules,
   MetadataFunctionalOptionsParameterRules,
+  MetadataRoleRules,
+  MetadataScheduledJobRules,
+  MetadataLanguageRules,
+  MetadataCommonTemplateRules,
+  MetadataCommonPictureRules,
+  MetadataStyleRules,
+  MetadataCommandGroupRules,
   MetadataSettingsStorageRules,
   MetadataStyleItemRules,
   MetadataCommonAttributeRules,

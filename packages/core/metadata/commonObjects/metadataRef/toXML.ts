@@ -21,17 +21,21 @@ export function exportMetadataItemLinkToXML(
 
 export function exportMetadataItemLinksToXML(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: MetadataItemLinks | undefined
 ): MetadataItemLinksXML | "" | undefined {
   if (!data) return undefined
 
   if (data.length === 0) return ""
 
-  const itemRule = { type: "MetadataItemLink", typedXML: "xr:MDObjectRef" } satisfies PropertyRule
+  const itemTag = rule?.metadataItemLinksXMLItem ?? "xr:Item"
+  const itemRule = {
+    type: "MetadataItemLink",
+    ...(itemTag === "xr:Item" ? { typedXML: "xr:MDObjectRef" } : {}),
+  } satisfies PropertyRule
 
   return {
-    "xr:Item": data.map((value) => exportMetadataItemLinkToXML(context, itemRule, value)!),
+    [itemTag]: data.map((value) => exportMetadataItemLinkToXML(context, itemRule, value)!),
   }
 }
 
