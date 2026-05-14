@@ -197,6 +197,7 @@ import {
 import { MetadataLanguage, MetadataLanguageYAML } from "../../appliedObjects/metadataLanguage/types"
 import { MetadataRole, MetadataRoleYAML } from "../../appliedObjects/metadataRole/types"
 import { MetadataScheduledJob, MetadataScheduledJobYAML } from "../../appliedObjects/metadataScheduledJob/types"
+import { MetadataCommonForm, MetadataCommonFormYAML } from "../../appliedObjects/metadataCommonForm/types"
 import { MetadataCommonPicture, MetadataCommonPictureYAML } from "../../appliedObjects/metadataCommonPicture/types"
 import { MetadataCommonTemplate, MetadataCommonTemplateYAML } from "../../appliedObjects/metadataCommonTemplate/types"
 import {
@@ -935,6 +936,11 @@ export type MetadataItemTypeRegistry = {
   MetadataScheduledJob: {
     metadata: MetadataScheduledJob
     yaml: MetadataScheduledJobYAML
+  }
+
+  MetadataCommonForm: {
+    metadata: MetadataCommonForm
+    yaml: MetadataCommonFormYAML
   }
 
   MetadataCommonPicture: {

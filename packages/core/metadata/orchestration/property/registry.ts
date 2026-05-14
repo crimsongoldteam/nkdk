@@ -54,11 +54,13 @@ import {
 import { MetadataLanguage, MetadataLanguageYAML } from "~/metadata/appliedObjects/metadataLanguage/types"
 import { MetadataRole, MetadataRoleYAML } from "~/metadata/appliedObjects/metadataRole/types"
 import { MetadataScheduledJob, MetadataScheduledJobYAML } from "~/metadata/appliedObjects/metadataScheduledJob/types"
+import { MetadataCommonForm, MetadataCommonFormYAML } from "~/metadata/appliedObjects/metadataCommonForm/types"
 import { MetadataCommonPicture, MetadataCommonPictureYAML } from "~/metadata/appliedObjects/metadataCommonPicture/types"
 import {
   MetadataCommonTemplate,
   MetadataCommonTemplateYAML,
 } from "~/metadata/appliedObjects/metadataCommonTemplate/types"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
 import {
   MetadataCommandGroup as MetadataAppliedCommandGroup,
   MetadataCommandGroupYAML as MetadataAppliedCommandGroupYAML,
@@ -784,6 +786,10 @@ export type PropertyTypeRegistry = {
     item: MetadataScheduledJob
     yaml: MetadataScheduledJobYAML
   }
+  MetadataCommonForm: {
+    item: MetadataCommonForm
+    yaml: MetadataCommonFormYAML
+  }
   MetadataCommonPicture: {
     item: MetadataCommonPicture
     yaml: MetadataCommonPictureYAML
@@ -791,6 +797,10 @@ export type PropertyTypeRegistry = {
   MetadataCommonTemplate: {
     item: MetadataCommonTemplate
     yaml: MetadataCommonTemplateYAML
+  }
+  ClientApplicationForm: {
+    item: ClientApplicationForm
+    yaml: ClientApplicationFormYAML
   }
   MetadataAppliedCommandGroup: {
     item: MetadataAppliedCommandGroup
@@ -1273,8 +1283,10 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataLanguage: "MetadataLanguage",
   MetadataRole: "MetadataRole",
   MetadataScheduledJob: "MetadataScheduledJob",
+  MetadataCommonForm: "MetadataCommonForm",
   MetadataCommonPicture: "MetadataCommonPicture",
   MetadataCommonTemplate: "MetadataCommonTemplate",
+  ClientApplicationForm: "ClientApplicationForm",
   MetadataAppliedCommandGroup: "MetadataAppliedCommandGroup",
   MetadataStyle: "MetadataStyle",
   MetadataSubsystem: "MetadataSubsystem",
