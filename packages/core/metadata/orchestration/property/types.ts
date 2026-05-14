@@ -218,6 +218,7 @@ export interface TableAdditionalSourcePropertyRule extends BasePropertyRule {
 export interface TypeDescriptionPropertyRule extends BasePropertyRule {
   type: "TypeDescription"
   addTypeDescriptionAttributeToXML?: true
+  declareTypeNamespaceXML?: boolean
 }
 
 export interface DataPathPropertyRule extends BasePropertyRule {

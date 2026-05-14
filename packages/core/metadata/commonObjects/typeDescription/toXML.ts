@@ -3,7 +3,6 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { getSystemEnumerationTypeDescriptionRule, getTypeDescriptionRule } from "./helper"
 import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
-import type { TypeDescriptionPropertyRule } from "./types"
 
 export const exportTypeDescriptionToXML = (
   _context: ConfigurationContext,
@@ -30,7 +29,7 @@ export const exportTypeDescriptionToXML = (
 }
 
 const shouldDeclareTypeNamespace = (rule: PropertyRule | undefined): boolean =>
-  Boolean((rule as TypeDescriptionPropertyRule | undefined)?.declareTypeNamespaceXML)
+  Boolean(rule && "declareTypeNamespaceXML" in rule && rule.declareTypeNamespaceXML)
 
 const getTypesXML = (
   typeDescription: TypeDescription,
