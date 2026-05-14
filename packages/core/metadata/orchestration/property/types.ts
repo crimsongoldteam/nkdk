@@ -5,6 +5,7 @@ import type { ExternalPicturePropertyRule } from "~/metadata/commonObjects/exter
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
+import type { ChildSubsystemNamesPropertyRule } from "~/metadata/commonObjects/childSubsystemNames/types"
 import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
 import type { CypherSet } from "./cypherPredicate"
 import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
@@ -287,6 +288,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "XMLRoot"
     | "ChildFormNames"
     | "ChildTemplateNames"
+    | "ChildSubsystemNames"
     | "GroupChildItems"
     | "CommandBarChildItems"
     | "TableChildItems"
@@ -341,6 +343,7 @@ export type PropertyRule =
   | XMLRootPropertyRule
   | ChildFormNamesPropertyRule
   | ChildTemplateNamesPropertyRule
+  | ChildSubsystemNamesPropertyRule
   | ModulePropertyRule
   | TemplatePropertyRule
   | HelpPropertyRule

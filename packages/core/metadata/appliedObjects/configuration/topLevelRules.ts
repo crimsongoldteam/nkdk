@@ -27,6 +27,7 @@ import { MetadataCommonPictureRules } from "../metadataCommonPicture/rules"
 import { MetadataCommonTemplateRules } from "../metadataCommonTemplate/rules"
 import { MetadataStyleRules } from "../metadataStyle/rules"
 import { MetadataStyleItemRules } from "../metadataStyleItem/rules"
+import { MetadataSubsystemRules } from "../metadataSubsystem/rules"
 import { MetadataWSReferenceRules } from "../metadataWSReference/rules"
 
 /**
@@ -59,6 +60,7 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataCommonPictureRules,
   MetadataStyleRules,
   MetadataCommandGroupRules,
+  MetadataSubsystemRules,
   MetadataSettingsStorageRules,
   MetadataStyleItemRules,
   MetadataCommonAttributeRules,

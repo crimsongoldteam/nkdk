@@ -190,6 +190,7 @@ import {
   MetadataCommandGroupYAML as MetadataAppliedCommandGroupYAML,
 } from "../../appliedObjects/metadataCommandGroup/types"
 import { MetadataStyle, MetadataStyleYAML } from "../../appliedObjects/metadataStyle/types"
+import { MetadataSubsystem, MetadataSubsystemYAML } from "../../appliedObjects/metadataSubsystem/types"
 import {
   MetadataSettingsStorage,
   MetadataSettingsStorageYAML,
@@ -924,6 +925,11 @@ export type MetadataItemTypeRegistry = {
   MetadataStyle: {
     metadata: MetadataStyle
     yaml: MetadataStyleYAML
+  }
+
+  MetadataSubsystem: {
+    metadata: MetadataSubsystem
+    yaml: MetadataSubsystemYAML
   }
 
   MetadataSettingsStorage: {

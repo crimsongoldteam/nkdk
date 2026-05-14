@@ -60,6 +60,7 @@ import {
   MetadataCommandGroupYAML as MetadataAppliedCommandGroupYAML,
 } from "~/metadata/appliedObjects/metadataCommandGroup/types"
 import { MetadataStyle, MetadataStyleYAML } from "~/metadata/appliedObjects/metadataStyle/types"
+import { MetadataSubsystem, MetadataSubsystemYAML } from "~/metadata/appliedObjects/metadataSubsystem/types"
 import {
   MetadataSettingsStorage,
   MetadataSettingsStorageYAML,
@@ -286,6 +287,7 @@ import {
   MetadataValueCollectionYAML,
 } from "~/metadata/commonObjects/metadataValueCollection/types"
 import type { ExternalPicture, ExternalPictureYAML } from "~/metadata/commonObjects/externalPicture/types"
+import type { ChildSubsystemNames, ChildSubsystemNamesYAML } from "~/metadata/commonObjects/childSubsystemNames/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
 import {
@@ -766,6 +768,10 @@ export type PropertyTypeRegistry = {
     item: MetadataStyle
     yaml: MetadataStyleYAML
   }
+  MetadataSubsystem: {
+    item: MetadataSubsystem
+    yaml: MetadataSubsystemYAML
+  }
   MetadataSettingsStorage: {
     item: MetadataSettingsStorage
     yaml: MetadataSettingsStorageYAML
@@ -845,6 +851,10 @@ export type PropertyTypeRegistry = {
   }
   ChildTemplateNames: {
     item: string[]
+  }
+  ChildSubsystemNames: {
+    item: ChildSubsystemNames
+    yaml: ChildSubsystemNamesYAML
   }
   AssociatedTable: {
     item: MetadataStringValue
@@ -1223,6 +1233,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataCommonTemplate: "MetadataCommonTemplate",
   MetadataAppliedCommandGroup: "MetadataAppliedCommandGroup",
   MetadataStyle: "MetadataStyle",
+  MetadataSubsystem: "MetadataSubsystem",
   MetadataSettingsStorage: "MetadataSettingsStorage",
   MetadataDataProcessor: "MetadataDataProcessor",
   MetadataDocumentJournal: "MetadataDocumentJournal",
@@ -1262,6 +1273,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   XMLRoot: "XMLRoot",
   ChildFormNames: "ChildFormNames",
   ChildTemplateNames: "ChildTemplateNames",
+  ChildSubsystemNames: "ChildSubsystemNames",
   ScrollBarUseBoolean: "ScrollBarUseBoolean",
   SettingsParameterValue: "SettingsParameterValue",
   SettingsParameterValueCollection: "SettingsParameterValueCollection",
