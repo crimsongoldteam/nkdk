@@ -59,6 +59,11 @@ export const exportDcsMetadataTypedValueToXML = (
     if (isObject(referenceMetadata)) return {}
     return undefined
   }
+  const valueUndefinedType = getReferenceUndefinedTypeValue(value)
+  if (valueUndefinedType !== undefined) return valueUndefinedType
+  if (isReferenceTypeValue(value)) {
+    throw new Error("DcsMetadataTypedValue XML: unsupported reference v8:Type")
+  }
   if (Array.isArray(value)) return value.map((item) => exportSingle(context, rule, item))
   return exportSingle(context, rule, value)
 }

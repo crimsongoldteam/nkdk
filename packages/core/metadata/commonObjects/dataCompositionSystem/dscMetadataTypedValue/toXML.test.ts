@@ -50,6 +50,19 @@ describe("export DcsMetadataTypedValue to XML", () => {
     )
   })
 
+  it("exports reference-only v8 Type Undefined when passed as value", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: undefinedTypeReferenceValue,
+      referenceMetadata: undefinedTypeReferenceValue,
+      xmlRootTag: "value",
+    })
+
+    expect(result).toEqual(
+      '<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value>'
+    )
+  })
+
   it("does not export invalid reference v8 Type value", () => {
     expect(() =>
       testExportPropertyToXML({
