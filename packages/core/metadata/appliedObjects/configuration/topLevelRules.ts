@@ -10,7 +10,12 @@ import { MetadataHTTPServiceRules } from "../metadataHTTPService/rules"
 import { MetadataIntegrationServiceRules } from "../metadataIntegrationService/rules"
 import { MetadataInformationRegisterRules } from "../metadataInformationRegister/rules"
 import { MetadataAccumulationRegisterRules } from "../metadataAccumulationRegister/rules"
+import { MetadataAccountingRegisterRules } from "../metadataAccountingRegister/rules"
 import { MetadataBusinessProcessRules } from "../metadataBusinessProcess/rules"
+import { MetadataCalculationRegisterRules } from "../metadataCalculationRegister/rules"
+import { MetadataChartOfAccountsRules } from "../metadataChartOfAccounts/rules"
+import { MetadataChartOfCalculationTypesRules } from "../metadataChartOfCalculationTypes/rules"
+import { MetadataChartOfCharacteristicTypesRules } from "../metadataChartOfCharacteristicTypes/rules"
 import { MetadataExchangePlanRules } from "../metadataExchangePlan/rules"
 import { MetadataDocumentNumeratorRules } from "../metadataDocumentNumerator/rules"
 import { MetadataEnumerationRules } from "../metadataEnumeration/rules"
@@ -67,10 +72,15 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataStyleRules,
   MetadataCommandGroupRules,
   MetadataSubsystemRules,
+  MetadataAccountingRegisterRules,
   MetadataSettingsStorageRules,
   MetadataStyleItemRules,
   MetadataCommonAttributeRules,
   MetadataBusinessProcessRules,
+  MetadataCalculationRegisterRules,
+  MetadataChartOfAccountsRules,
+  MetadataChartOfCalculationTypesRules,
+  MetadataChartOfCharacteristicTypesRules,
   MetadataBotRules,
   MetadataIntegrationServiceRules,
   MetadataTaskRules,
