@@ -44,6 +44,28 @@ describe("importMetadataValueFromXML", () => {
     expect(result).toEqual({ type: "DataCompositionComparisonType", value: "Equal" })
   })
 
+  it("imports xsi:nil as undefined", () => {
+    const xmlValue = parseValue('<Value xsi:nil="true"/>')
+    const result = importMetadataValueFromXML({
+      context: mockContextFromXML(),
+      rule: undefined,
+      value: xmlValue,
+    })
+
+    expect(result).toBeUndefined()
+  })
+
+  it("keeps xsi:nil for reference import", () => {
+    const xmlValue = parseValue('<Value xsi:nil="true"/>') ?? { "_xsi:nil": true }
+    const result = importMetadataValueFromXML({
+      context: mockContextFromXML({ forReference: true }),
+      rule: undefined,
+      value: xmlValue,
+    })
+
+    expect(result).toEqual({ "_xsi:nil": true })
+  })
+
   describe("строгая валидация valueType", () => {
     it("должен бросить при valueType: [string] и фактическом boolean", () => {
       const xml = '<Value xsi:type="xs:boolean">true</Value>'

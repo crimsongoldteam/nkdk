@@ -30,17 +30,27 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "DataCompositionComparisonType",
 ]
 
+const isNilMetadataValueXML = (value: unknown): value is { "_xsi:nil": true } =>
+  typeof value === "object" &&
+  value !== null &&
+  !Array.isArray(value) &&
+  (value as Record<string, unknown>)["_xsi:nil"] === true
+
 /**
  * Экспортирует MetadataValue в XML. Принимает тегированную форму {type, value}.
  */
 export const exportMetadataValueToXML = (params: {
   context: ConfigurationContext
   rule: MetadataValuePropertyRule
-  value: MetadataTypedValue | undefined
+  value: MetadataTypedValue | { "_xsi:nil": true } | undefined
+  referenceMetadata?: unknown
 }): any => {
-  const { rule, value } = params
+  const { rule, value, referenceMetadata } = params
+
+  if (isNilMetadataValueXML(value)) return { "_xsi:nil": true }
 
   if (value === undefined) {
+    if (isNilMetadataValueXML(referenceMetadata)) return { "_xsi:nil": true }
     if (rule.exportNilValue) return { "_xsi:nil": true }
     if (rule.valueType !== undefined && rule.valueType.length > 0) {
       const firstType = rule.valueType[0]

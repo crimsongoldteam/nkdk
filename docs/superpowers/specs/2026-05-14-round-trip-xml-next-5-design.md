@@ -138,3 +138,29 @@ reference и отказа от восстановления некорректн
 
 Проверка: точечный тест экспорта `Events` по правилу корневой формы должен выдавать
 `name="OnUpdateUserSettingSetAtServer"`.
+
+### CommonAttribute FillValue xsi:nil
+
+Следующий diff показывает потерю raw-формы пустого значения заполнения общего реквизита:
+
+```diff
+- <FillValue xsi:nil="true"/>
++ <FillValue xsi:type="xs:string"/>
+```
+
+Модельно это по-прежнему отсутствующее значение, а не строка и не отдельный тип. Поэтому свежий
+экспорт без reference должен сохранить существующее поведение `defaultValueXMLRaw:
+{ "_xsi:type": "xs:string" }`, но round-trip из XML должен восстановить `xsi:nil`, если такая
+форма была в reference.
+
+Решение:
+
+- при XML-импорте `MetadataValue`, если XML-ключ присутствует, но парсер вернул `undefined`
+  из-за `xsi:nil`, передавать в импортёр raw-маркер `{ "_xsi:nil": true }`;
+- обычный импорт читает этот маркер как `undefined`;
+- reference-импорт сохраняет маркер;
+- XML-экспорт восстанавливает `{ "_xsi:nil": true }`, если маркер пришёл как `value` или
+  `referenceMetadata`.
+
+Проверка: точечный тест `MetadataCommonAttributeRules.properties.fillValue` с пустым значением и
+reference `{ "_xsi:nil": true }` должен экспортировать `<FillValue xsi:nil="true"/>`.
