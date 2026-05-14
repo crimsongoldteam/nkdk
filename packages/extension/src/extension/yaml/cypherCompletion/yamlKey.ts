@@ -5,11 +5,11 @@ export function topLevelYamlKeyAtLine(text: string, line: number): string | unde
     return undefined
   }
 
-  const separatorIndex = currentLine.indexOf(":")
+  const match = /^([^:#][^:]*):/.exec(currentLine)
 
-  if (separatorIndex === -1) {
+  if (!match) {
     return undefined
   }
 
-  return currentLine.slice(0, separatorIndex)
+  return match[1].trim()
 }
