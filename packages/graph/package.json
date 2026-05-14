@@ -10,7 +10,8 @@
     }
   },
   "scripts": {
-    "test": "vitest run",
+    "test": "vitest run --no-isolate --sequence.shuffle",
+    "test:isolated": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "type-check": "tsc --noEmit"
   },

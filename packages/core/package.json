@@ -10,7 +10,8 @@
     }
   },
   "scripts": {
-    "test": "vitest run",
+    "test": "vitest run --no-isolate --sequence.shuffle",
+    "test:isolated": "vitest run",
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
     "prepare": "ts-patch install"

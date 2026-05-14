@@ -32,7 +32,8 @@
         "build:clean": "npm run clean && npm run build",
         "langium:generate": "langium generate",
         "langium:watch": "langium generate --watch",
-        "test": "vitest run"
+        "test": "vitest run --no-isolate --sequence.shuffle",
+        "test:isolated": "vitest run"
     },
     "dependencies": {
         "langium": "~4.2.0"
@@ -42,4 +43,3 @@
         "vitest": "~3.1.3"
     }
 }
- 
