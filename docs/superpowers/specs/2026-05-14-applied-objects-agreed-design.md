@@ -39,6 +39,7 @@ The implementation policy is common for all objects below:
 - `metadataChartOfCharacteristicTypes`
 - `metadataCommonForm`
 - `metadataIntegrationService`
+- `metadataTask`
 
 ## Deferred Objects
 
@@ -1204,6 +1205,147 @@ Testing:
 - sync from XML verifies `Свойства.yaml` and `Модуль.bsl` when present;
 - sync to XML verifies `IntegrationServices/<name>.xml` and `IntegrationServices/<name>/Ext/Module.bsl` when present.
 
+## Object: MetadataTask
+
+- `itemType`: `MetadataTask`
+- `itemTypePrefix`: `Задача`
+- XML directory: `Tasks`
+- XML container: `Task`
+- implement through `rules.ts`
+- `InternalInfo` generated categories:
+  - `Object`
+  - `Ref`
+  - `Selection`
+  - `List`
+  - `Manager`
+
+Parent properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `useStandardCommands` | `UseStandardCommands` | `ИспользоватьСтандартныеКоманды` | `boolean` |
+| `numberType` | `NumberType` | `ТипНомера` | `SystemEnumeration: TaskNumberType` |
+| `numberLength` | `NumberLength` | `ДлинаНомера` | `number` |
+| `numberAllowedLength` | `NumberAllowedLength` | `ДопустимаяДлинаНомера` | `AllowedLength` |
+| `checkUnique` | `CheckUnique` | `КонтрольУникальности` | `boolean` |
+| `autonumbering` | `Autonumbering` | `Автонумерация` | `boolean` |
+| `taskNumberAutoPrefix` | `TaskNumberAutoPrefix` | `АвтоПрефиксНомераЗадачи` | `SystemEnumeration: TaskNumberAutoPrefix` |
+| `descriptionLength` | `DescriptionLength` | `ДлинаНаименования` | `number` |
+| `addressing` | `Addressing` | `Адресация` | `string` / `MDObjectRef` |
+| `mainAddressingAttribute` | `MainAddressingAttribute` | `ОсновнойРеквизитАдресации` | `string` / `MDObjectRef` |
+| `currentPerformer` | `CurrentPerformer` | `ТекущийИсполнитель` | `string` / `MDObjectRef` |
+| `basedOn` | `BasedOn` | `ВводитсяНаОсновании` | `MetadataItemLinks` |
+| `standardAttributes` | `StandardAttributes` | `СтандартныеРеквизиты` | `StandardAttributeDescriptions` |
+| `characteristics` | `Characteristics` | `Характеристики` | `CharacteristicsDescriptions` |
+| `defaultPresentation` | `DefaultPresentation` | `ОсновноеПредставление` | `SystemEnumeration: TaskMainPresentation` |
+| `editType` | `EditType` | `СпособРедактирования` | `SystemEnumeration: EditType` |
+| `inputByString` | `InputByString` | `ВводПоСтроке` | `MetadataFields` |
+| `searchStringModeOnInputByString` | `SearchStringModeOnInputByString` | `РежимСтрокиПоискаПриВводеПоСтроке` | `SystemEnumeration: SearchStringModeOnInputByString` |
+| `fullTextSearchOnInputByString` | `FullTextSearchOnInputByString` | `ПолнотекстовыйПоискПриВводеПоСтроке` | `SystemEnumeration: FullTextSearchOnInputByString` |
+| `choiceDataGetModeOnInputByString` | `ChoiceDataGetModeOnInputByString` | `РежимПолученияДанныхВыбораПриВводеПоСтроке` | `SystemEnumeration: ChoiceDataGetModeOnInputByString` |
+| `createOnInput` | `CreateOnInput` | `СозданиеПриВводе` | `SystemEnumeration: CreateOnInput` |
+| `defaultObjectForm` | `DefaultObjectForm` | `ОсновнаяФормаОбъекта` | `string` |
+| `defaultListForm` | `DefaultListForm` | `ОсновнаяФормаСписка` | `string` |
+| `defaultChoiceForm` | `DefaultChoiceForm` | `ОсновнаяФормаВыбора` | `string` |
+| `auxiliaryObjectForm` | `AuxiliaryObjectForm` | `ДополнительнаяФормаОбъекта` | `string` |
+| `auxiliaryListForm` | `AuxiliaryListForm` | `ДополнительнаяФормаСписка` | `string` |
+| `auxiliaryChoiceForm` | `AuxiliaryChoiceForm` | `ДополнительнаяФормаВыбора` | `string` |
+| `choiceHistoryOnInput` | `ChoiceHistoryOnInput` | `ИсторияВыбораПриВводе` | `SystemEnumeration: ChoiceHistoryOnInput` |
+| `includeHelpInContents` | `IncludeHelpInContents` | `ВключатьСправкуВСодержание` | `boolean` |
+| `dataLockFields` | `DataLockFields` | `ПоляБлокировкиДанных` | `MetadataFields` |
+| `dataLockControlMode` | `DataLockControlMode` | `РежимУправленияБлокировкойДанных` | `SystemEnumeration: DefaultDataLockControlMode` |
+| `fullTextSearch` | `FullTextSearch` | `ПолнотекстовыйПоиск` | `SystemEnumeration: FullTextSearchUsing` |
+| `objectPresentation` | `ObjectPresentation` | `ПредставлениеОбъекта` | `I8nText` |
+| `extendedObjectPresentation` | `ExtendedObjectPresentation` | `РасширенноеПредставлениеОбъекта` | `I8nText` |
+| `listPresentation` | `ListPresentation` | `ПредставлениеСписка` | `I8nText` |
+| `extendedListPresentation` | `ExtendedListPresentation` | `РасширенноеПредставлениеСписка` | `I8nText` |
+| `explanation` | `Explanation` | `Пояснение` | `I8nText` |
+| `dataHistory` | `DataHistory` | `ИсторияДанных` | `SystemEnumeration: DataHistoryUse` |
+| `updateDataHistoryImmediatelyAfterWrite` | `UpdateDataHistoryImmediatelyAfterWrite` | `ОбновлятьИсториюДанныхСразуПослеЗаписи` | `boolean` |
+| `executeAfterWriteDataHistoryVersionProcessing` | `ExecuteAfterWriteDataHistoryVersionProcessing` | `ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных` | `boolean` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+Child objects:
+
+- `Attribute[]`: existing `MetadataAttributes`.
+- `TabularSection[]`: task-specific wrapper over the common tabular-section property set, with generated type names
+  `TaskTabularSection` and `TaskTabularSectionRow`.
+- `Form[]`: existing `ChildFormNames`, including object, list, and choice forms.
+- `Template[]`: existing `ChildTemplateNames`.
+- `AddressingAttribute[]`: new task child object; reuse attribute rules and add `AddressingDimension`.
+- `Command[]`: existing `MetadataCommands`, and include `childCollections` so command modules are copied.
+
+Addressing attribute specifics:
+
+- base fields match normal metadata attributes: type, formats, filling, choice links/parameters, quick choice,
+  `CreateOnInput`, link by type, indexing, full-text search, and data history;
+- extra field `addressingDimension`: XML `AddressingDimension`, YAML `ИзмерениеАдресации`, type `string` / `MDObjectRef`;
+- generated type is not emitted for addressing attributes in current fixtures.
+
+External files:
+
+- `objectModule`: existing `Module`, XML `Ext/ObjectModule.bsl`, nkdk `МодульОбъекта.bsl`
+- `managerModule`: existing `Module`, XML `Ext/ManagerModule.bsl`, nkdk `МодульМенеджера.bsl`
+- `additionalIndexes`: existing `AdditionalIndex`, XML `Ext/AdditionalIndexes.xml`
+- `help`: existing `Help`, XML `Ext/Help.xml` and `Ext/Help/ru.html`, nkdk `Справка/`
+- child forms through `ChildFormNames`
+- child templates through `ChildTemplateNames`
+- command modules through `MetadataCommands`
+
+Default policy from `minimal.xml`:
+
+- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `numberType`: `defaultValueXML: "String"`, `defaultValueYAML: "String"`
+- `numberLength`: `defaultValueXML: 9`, `defaultValueYAML: 9`
+- `numberAllowedLength`: `defaultValueXML: "Variable"`, `defaultValueYAML: "Variable"`
+- `checkUnique`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `autonumbering`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `taskNumberAutoPrefix`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `descriptionLength`: `defaultValueXML: 25`, `defaultValueYAML: 25`
+- `defaultPresentation`: `defaultValueXML: "AsDescription"`, `defaultValueYAML: "AsDescription"`
+- `editType`: `defaultValueXML: "InDialog"`, `defaultValueYAML: "InDialog"`
+- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `defaultValueYAML: "Begin"`
+- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `defaultValueYAML: "Directly"`
+- `createOnInput`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
+- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
+- `fullTextSearch`: `defaultValueXML: "Use"`, `defaultValueYAML: "Use"`
+- `dataHistory`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+
+Keep `addressing`, `mainAddressingAttribute`, `currentPerformer`, `basedOn`, `standardAttributes`, `characteristics`,
+`inputByString`, `dataLockFields`, child attributes, tabular sections, addressing attributes, forms, templates, commands,
+and additional indexes as explicit content, not YAML defaults.
+
+Implementation notes:
+
+- Reuse existing common behavior from `metadataDocument`, `metadataBusinessProcess`, and register-specific objects.
+- `AdditionalIndexes.xml` is parsed through the existing `AdditionalIndex` common object, not copied as an opaque
+  template.
+- The full sync fixture already contains forms, form modules, one template file, one command module, help, and
+  additional indexes; object and manager modules should be handled by rules when present even if the current fixture
+  does not include them.
+- `Task.ЗадачаВсеСвойства` is referenced by `metadataBusinessProcess`; adding this object lets that reference resolve
+  naturally in later round-trip coverage.
+
+Testing:
+
+- standard XML/YAML/sync tests;
+- XML tests cover `minimal.xml` and `full.xml`;
+- tests cover number settings, addressing links, default/auxiliary form references, input by string, data lock fields,
+  standard attributes, characteristics, attributes, tabular sections, addressing attributes, and commands;
+- sync from XML verifies `Свойства.yaml`, `ДополнительныеИндексы`, `Справка/`, forms, templates, and command modules;
+- sync to XML verifies `Tasks/<name>.xml`, `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`, `Ext/Help/ru.html`, form XML,
+  template XML, and command module.
+
 ## Registries And Tests
 
 Every included object should be added to the same registry set as other top-level applied objects:
@@ -1232,5 +1374,4 @@ external form files for common forms.
 
 Objects still needing brainstorming in this pass:
 
-- `metadataTask`
 - `metadataWebService`
