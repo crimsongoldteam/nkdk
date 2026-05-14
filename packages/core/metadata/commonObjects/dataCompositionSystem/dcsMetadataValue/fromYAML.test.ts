@@ -11,4 +11,16 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
       })
     ).toEqual(fixture.value)
   })
+
+  it("rejects invalid explicit text value", () => {
+    expect(() =>
+      testImportPropertyFromYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        value: {
+          Тип: "Поле",
+          Значение: 123,
+        },
+      })
+    ).toThrow("MetadataDcsMetadataValue YAML: invalid explicit text value")
+  })
 })
