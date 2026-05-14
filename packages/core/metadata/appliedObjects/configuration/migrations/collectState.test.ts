@@ -68,6 +68,24 @@ describe("collectStructuralState", () => {
     ])
   })
 
+  it("collects task addressing attributes from YAML", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
+    fs.mkdirSync(join(dir, "Задача", "Исполнение"), { recursive: true })
+    fs.writeFileSync(join(dir, "Задача", "Исполнение", "Свойства.yaml"), [
+      "РеквизитыАдресации:",
+      "  Исполнитель:",
+      "    Тип: string",
+      "    ИзмерениеАдресации: InformationRegister.Адресация.Dimension.Исполнитель",
+      "",
+    ].join("\n"))
+
+    const state = await collectStructuralStateFromYAML({ yamlDir: dir, context: mockContextToXML() })
+    expect([...state.nodes.keys()].sort()).toEqual([
+      "Задача.Исполнение",
+      "Задача.Исполнение.РеквизитАдресации.Исполнитель",
+    ])
+  })
+
   it("collects catalog object, attributes and tabular section attributes from XML", async () => {
     const dir = mkdtempSync(join(tmpdir(), "nkdk-xml-"))
     fs.mkdirSync(join(dir, "Catalogs"), { recursive: true })
@@ -83,6 +101,21 @@ describe("collectStructuralState", () => {
       "Справочник.СправочникПолный.Реквизит.СтроковыйРеквизитСИндексом",
       "Справочник.СправочникПолный.ТабличнаяЧасть.ТабличнаяЧасть",
       "Справочник.СправочникПолный.ТабличнаяЧасть.ТабличнаяЧасть.Реквизит.РеквизитТабличнойЧасти",
+    ])
+  })
+
+  it("collects task addressing attributes from XML", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "nkdk-xml-"))
+    fs.mkdirSync(join(dir, "Tasks"), { recursive: true })
+    fs.copyFileSync(
+      new URL("../../metadataTask/__fixtures__/full.xml", import.meta.url),
+      join(dir, "Tasks", "ЗадачаВсеСвойства.xml")
+    )
+
+    const state = await collectStructuralStateFromXML({ xmlDir: dir, context: mockContextFromXML() })
+    expect([...state.nodes.keys()].filter((path) => path.includes("РеквизитАдресации")).sort()).toEqual([
+      "Задача.ЗадачаВсеСвойства.РеквизитАдресации.РеквизитАдресацииВсеСвойства",
+      "Задача.ЗадачаВсеСвойства.РеквизитАдресации.РеквизитАдресацииПоУмолчанию",
     ])
   })
 

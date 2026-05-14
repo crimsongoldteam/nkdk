@@ -226,6 +226,8 @@ export type SyncExternalToXMLFunction = (params: {
   name: string
   referenceDir?: string
   referenceName?: string
+  propertyValue?: unknown
+  referencePropertyValue?: unknown
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
   itemName?: string
 }) => Promise<void>

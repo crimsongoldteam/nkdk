@@ -5,19 +5,30 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 
 const propertiesParents = ["Properties"]
 const emptySynonym = { items: {} }
+const registerParentItemTypes = [
+  "MetadataAccumulationRegister",
+  "MetadataInformationRegister",
+  "MetadataAccountingRegister",
+  "MetadataCalculationRegister",
+] as const
 
-const isAccumulationRegisterField = (context?: ConfigurationContextWithExportToXML): boolean =>
-  context
-    ? getParentFromContext(context, ["MetadataAccumulationRegister" as never]).itemType === "MetadataAccumulationRegister"
-    : false
+const getRegisterParentItemType = (context?: ConfigurationContextWithExportToXML): string | undefined => {
+  if (!context) return undefined
+  const parent = getParentFromContext(context, [...registerParentItemTypes] as never[])
+  return registerParentItemTypes.includes(parent.itemType as (typeof registerParentItemTypes)[number])
+    ? parent.itemType
+    : undefined
+}
 
 const isMetadataRegisterResource = (context?: ConfigurationContextWithExportToXML): boolean =>
   context ? getParentFromContext(context).itemType === "MetadataRegisterResource" : false
 
-const exportOnlyExplicitForAccumulationRegister =
+const exportInformationRegisterOrExplicit =
   (propertyKey: string) =>
   (metadataItem: unknown, context?: ConfigurationContextWithExportToXML): boolean => {
-    if (!isAccumulationRegisterField(context)) return true
+    const parentItemType = getRegisterParentItemType(context)
+    if (parentItemType === undefined) return true
+    if (parentItemType === "MetadataInformationRegister") return true
     return (
       metadataItem !== null &&
       metadataItem !== undefined &&
@@ -150,7 +161,7 @@ export const commonRegisterFieldProperties = {
     type: "boolean",
     defaultValueXML: false,
     xmlParents: propertiesParents,
-    toXML: exportOnlyExplicitForAccumulationRegister("fillFromFillingValue"),
+    toXML: exportInformationRegisterOrExplicit("fillFromFillingValue"),
     order: 15,
   },
   fillValue: {
@@ -159,7 +170,7 @@ export const commonRegisterFieldProperties = {
     type: "MetadataValue",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: { "_xsi:nil": true },
-    toXML: exportOnlyExplicitForAccumulationRegister("fillValue"),
+    toXML: exportInformationRegisterOrExplicit("fillValue"),
     order: 16,
   },
   fillChecking: {
@@ -253,7 +264,10 @@ export const commonRegisterFieldProperties = {
     defaultValueYAML: "DontIndex",
     xmlParents: propertiesParents,
     toXML: (metadataItem: unknown, context?: ConfigurationContextWithExportToXML): boolean => {
-      if (!isAccumulationRegisterField(context) || !isMetadataRegisterResource(context)) return true
+      const parentItemType = getRegisterParentItemType(context)
+      if (parentItemType === undefined) return true
+      if (parentItemType === "MetadataInformationRegister") return true
+      if (!isMetadataRegisterResource(context)) return true
       return (
         metadataItem !== null &&
         metadataItem !== undefined &&
@@ -281,7 +295,7 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: "Use",
     defaultValueYAML: "Use",
     xmlParents: propertiesParents,
-    toXML: exportOnlyExplicitForAccumulationRegister("dataHistory"),
+    toXML: exportInformationRegisterOrExplicit("dataHistory"),
     order: 29,
   },
   binaryDataStorageLocationUse: {

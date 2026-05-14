@@ -13,6 +13,8 @@ const TOP_LEVEL_PREFIXES = new Set([
   "Документ",
   "РегистрСведений",
   "РегистрНакопления",
+  "БизнесПроцесс",
+  "Задача",
   "ПланОбмена",
   "Нумератор",
   "Последовательность",
@@ -20,15 +22,41 @@ const TOP_LEVEL_PREFIXES = new Set([
   "ПараметрСеанса",
   "ПодпискаНаСобытие",
   "КритерийОтбора",
+  "ФункциональнаяОпция",
   "ПараметрФункциональныхОпций",
+  "Роль",
+  "РегламентноеЗадание",
+  "Язык",
+  "ОбщийМакет",
+  "ОбщаяФорма",
+  "ОбщаяКартинка",
+  "Стиль",
+  "ГруппаКоманд",
+  "Подсистема",
+  "РегистрБухгалтерии",
+  "РегистрРасчета",
+  "ПланСчетов",
+  "ПланВидовРасчета",
+  "ПланВидовХарактеристик",
   "ХранилищеНастроек",
   "ЭлементСтиля",
   "ОбщийРеквизит",
   "Бот",
+  "СервисИнтеграции",
+  "WebСервис",
   "WSСсылка",
 ])
-const OBJECT_WITH_CHILDREN_PREFIXES = new Set(["Справочник", "Документ", "ПланОбмена"])
-const REGISTER_PREFIXES = new Set(["РегистрСведений", "РегистрНакопления"])
+const OBJECT_WITH_CHILDREN_PREFIXES = new Set([
+  "Справочник",
+  "Документ",
+  "ПланОбмена",
+  "БизнесПроцесс",
+  "Задача",
+  "ПланСчетов",
+  "ПланВидовРасчета",
+  "ПланВидовХарактеристик",
+])
+const REGISTER_PREFIXES = new Set(["РегистрСведений", "РегистрНакопления", "РегистрБухгалтерии", "РегистрРасчета"])
 
 export function parseMigrationPath(path: string): ParsedMigrationPath {
   const segments = path.split(".")
@@ -51,6 +79,16 @@ export function parseMigrationPath(path: string): ParsedMigrationPath {
       localName: segments[3]!,
       ownerPath: `${segments[0]}.${segments[1]}`,
       levelPath: `${segments[0]}.${segments[1]}.Реквизит`,
+    }
+  }
+
+  if (segments.length === 4 && segments[0] === "Задача" && segments[2] === "РеквизитАдресации") {
+    return {
+      kind: "attribute",
+      segments,
+      localName: segments[3]!,
+      ownerPath: `${segments[0]}.${segments[1]}`,
+      levelPath: `${segments[0]}.${segments[1]}.РеквизитАдресации`,
     }
   }
 

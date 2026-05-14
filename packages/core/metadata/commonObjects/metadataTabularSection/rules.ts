@@ -152,6 +152,44 @@ export const MetadataDocumentTabularSectionRules = {
   },
 } as const satisfies MetadataItemRule
 
+export const MetadataTaskTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const parentPath = getParentNameByItemType(params.context, "MetadataTask")
+        return `${parentPath}.${params.metadata.name}`
+      },
+      items: [
+        { name: "TaskTabularSection", category: "TabularSection" },
+        { name: "TaskTabularSectionRow", category: "TabularSectionRow" },
+      ],
+    },
+  },
+} as const satisfies MetadataItemRule
+
+export const MetadataBusinessProcessTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const parentPath = getParentNameByItemType(params.context, "MetadataBusinessProcess")
+        return `${parentPath}.${params.metadata.name}`
+      },
+      items: [
+        { name: "BusinessProcessTabularSection", category: "TabularSection" },
+        { name: "BusinessProcessTabularSectionRow", category: "TabularSectionRow" },
+      ],
+    },
+  },
+} as const satisfies MetadataItemRule
+
 export const MetadataDataProcessorTabularSectionRules = {
   itemType: "MetadataTabularSection",
   properties: {
@@ -188,6 +226,72 @@ export const MetadataExchangePlanTabularSectionRules = {
         { name: "ExchangePlanTabularSection", category: "TabularSection" },
         { name: "ExchangePlanTabularSectionRow", category: "TabularSectionRow" },
       ],
+    },
+  },
+} as const satisfies MetadataItemRule
+
+export const MetadataChartOfAccountsTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const parent = getParentFromContext(params.context, ["MetadataChartOfAccounts" as never])
+        return `${parent.name}.${params.metadata.name}`
+      },
+      items: [
+        { name: "ChartOfAccountsTabularSection", category: "TabularSection" },
+        { name: "ChartOfAccountsTabularSectionRow", category: "TabularSectionRow" },
+      ],
+    },
+  },
+} as const satisfies MetadataItemRule
+
+export const MetadataChartOfCalculationTypesTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const parent = getParentFromContext(params.context, ["MetadataChartOfCalculationTypes" as never])
+        return `${parent.name}.${params.metadata.name}`
+      },
+      items: [
+        { name: "ChartOfCalculationTypesTabularSection", category: "TabularSection" },
+        { name: "ChartOfCalculationTypesTabularSectionRow", category: "TabularSectionRow" },
+      ],
+    },
+  },
+} as const satisfies MetadataItemRule
+
+export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const parent = getParentFromContext(params.context, ["MetadataChartOfCharacteristicTypes" as never])
+        return `${parent.name}.${params.metadata.name}`
+      },
+      items: [
+        { name: "ChartOfCharacteristicTypesTabularSection", category: "TabularSection" },
+        { name: "ChartOfCharacteristicTypesTabularSectionRow", category: "TabularSectionRow" },
+      ],
+    },
+    use: {
+      yaml: "Использование",
+      xml: "Use",
+      type: "SystemEnumeration",
+      typeSE: "AttributeUse",
+      xmlParents: propertiesParents,
+      defaultValueXML: "ForItem",
+      order: 7,
     },
   },
 } as const satisfies MetadataItemRule

@@ -67,6 +67,12 @@ function addModel(nodes: Map<string, StructuralNode>, rule: MetadataItemRule, na
     nodes.set(path, { path, kind: "attribute", name: attrName, referencePath: path })
   }
 
+  for (const attr of asItems(model["addressingAttributes"])) {
+    const attrName = requireNodeName(attr, objectPath, "РеквизитАдресации")
+    const path = `${objectPath}.РеквизитАдресации.${attrName}`
+    nodes.set(path, { path, kind: "attribute", name: attrName, referencePath: path })
+  }
+
   for (const section of asItems(model["tabularSections"])) {
     const sectionName = requireNodeName(section, objectPath, "ТабличнаяЧасть")
     const sectionPath = `${objectPath}.ТабличнаяЧасть.${sectionName}`

@@ -22,7 +22,7 @@ export const importI8nTextFromXML = (
 
   for (const item of items) {
     const { "v8:lang": lang, "v8:content": content } = item
-    result.items[lang] = content != null && content !== "" ? String(content) : ""
+    result.items[lang ?? ""] = content != null && content !== "" ? String(content) : ""
   }
 
   return result

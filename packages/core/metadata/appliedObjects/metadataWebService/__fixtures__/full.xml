@@ -49,7 +49,38 @@
 					<ProcedureName>ОперацияВсеСвойства</ProcedureName>
 					<DataLockControlMode>Automatic</DataLockControlMode>
 				</Properties>
-				<ChildObjects/>
+				<ChildObjects>
+					<Parameter uuid="58088704-401d-4567-a6de-f4ad9266d2b0">
+						<Properties>
+							<Name>ПараметрВсеСвойства</Name>
+							<Synonym>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Синоним</v8:content>
+								</v8:item>
+							</Synonym>
+							<Comment>Комментарий</Comment>
+							<XDTOValueType>xs:time</XDTOValueType>
+							<Nillable>true</Nillable>
+							<TransferDirection>InOut</TransferDirection>
+						</Properties>
+					</Parameter>
+					<Parameter uuid="698c3550-f790-4793-a780-fb814bc6d25c">
+						<Properties>
+							<Name>ПараметрПоУмолчанию</Name>
+							<Synonym>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Параметр по умолчанию</v8:content>
+								</v8:item>
+							</Synonym>
+							<Comment/>
+							<XDTOValueType>xs:string</XDTOValueType>
+							<Nillable>false</Nillable>
+							<TransferDirection>In</TransferDirection>
+						</Properties>
+					</Parameter>
+				</ChildObjects>
 			</Operation>
 			<Operation uuid="082a5842-c927-41e5-ba85-6b36d9173298">
 				<Properties>

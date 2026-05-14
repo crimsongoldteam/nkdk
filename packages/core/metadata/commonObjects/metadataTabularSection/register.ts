@@ -5,9 +5,14 @@ import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
+  MetadataChartOfAccountsTabularSectionRules,
+  MetadataBusinessProcessTabularSectionRules,
+  MetadataChartOfCalculationTypesTabularSectionRules,
+  MetadataChartOfCharacteristicTypesTabularSectionRules,
   MetadataDataProcessorTabularSectionRules,
   MetadataDocumentTabularSectionRules,
   MetadataExchangePlanTabularSectionRules,
+  MetadataTaskTabularSectionRules,
   MetadataTabularSectionRules,
 } from "./rules"
 import {
@@ -104,6 +109,22 @@ registerMetadataItemCollectionRule({
   graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
 })
 
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataTaskTabularSections",
+  itemRule: MetadataTaskTabularSectionRules,
+  xmlElement: "TabularSection",
+  keyField: "name",
+  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataBusinessProcessTabularSections",
+  itemRule: MetadataBusinessProcessTabularSectionRules,
+  xmlElement: "TabularSection",
+  keyField: "name",
+  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+})
+
 const importMetadataDataProcessorTabularSectionFromYAML = (
   context: ConfigurationContext,
   yaml: MetadataTabularSectionYAML | undefined,
@@ -187,6 +208,30 @@ registerMetadataItemCollectionRule({
   xmlElement: "TabularSection",
   keyField: "name",
   fromYAML: importMetadataExchangePlanTabularSectionsFromYAML,
+  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataChartOfAccountsTabularSections",
+  itemRule: MetadataChartOfAccountsTabularSectionRules,
+  xmlElement: "TabularSection",
+  keyField: "name",
+  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataChartOfCalculationTypesTabularSections",
+  itemRule: MetadataChartOfCalculationTypesTabularSectionRules,
+  xmlElement: "TabularSection",
+  keyField: "name",
+  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataChartOfCharacteristicTypesTabularSections",
+  itemRule: MetadataChartOfCharacteristicTypesTabularSectionRules,
+  xmlElement: "TabularSection",
+  keyField: "name",
   graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
 })
 

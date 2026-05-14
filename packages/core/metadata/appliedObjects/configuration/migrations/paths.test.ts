@@ -10,6 +10,18 @@ describe("migration paths", () => {
       ownerPath: "Справочник",
       levelPath: "Справочник",
     })
+    expect(parseMigrationPath("БизнесПроцесс.Согласование")).toMatchObject({
+      kind: "object",
+      localName: "Согласование",
+      ownerPath: "БизнесПроцесс",
+      levelPath: "БизнесПроцесс",
+    })
+    expect(parseMigrationPath("Задача.Исполнение")).toMatchObject({
+      kind: "object",
+      localName: "Исполнение",
+      ownerPath: "Задача",
+      levelPath: "Задача",
+    })
   })
 
   it("parses simple top level applied object paths", () => {
@@ -67,11 +79,35 @@ describe("migration paths", () => {
       ownerPath: "Бот",
       levelPath: "Бот",
     })
+    expect(parseMigrationPath("ОбщаяФорма.КонстантаВсеСвойства")).toMatchObject({
+      kind: "object",
+      localName: "КонстантаВсеСвойства",
+      ownerPath: "ОбщаяФорма",
+      levelPath: "ОбщаяФорма",
+    })
     expect(parseMigrationPath("WSСсылка.Калькулятор")).toMatchObject({
       kind: "object",
       localName: "Калькулятор",
       ownerPath: "WSСсылка",
       levelPath: "WSСсылка",
+    })
+    expect(parseMigrationPath("ПланСчетов.Основной")).toMatchObject({
+      kind: "object",
+      localName: "Основной",
+      ownerPath: "ПланСчетов",
+      levelPath: "ПланСчетов",
+    })
+    expect(parseMigrationPath("ПланВидовРасчета.Начисления")).toMatchObject({
+      kind: "object",
+      localName: "Начисления",
+      ownerPath: "ПланВидовРасчета",
+      levelPath: "ПланВидовРасчета",
+    })
+    expect(parseMigrationPath("ПланВидовХарактеристик.Свойства")).toMatchObject({
+      kind: "object",
+      localName: "Свойства",
+      ownerPath: "ПланВидовХарактеристик",
+      levelPath: "ПланВидовХарактеристик",
     })
   })
 
@@ -82,6 +118,28 @@ describe("migration paths", () => {
       localName: "Артикул",
       ownerPath: "Справочник.Товары",
       levelPath: "Справочник.Товары.Реквизит",
+    })
+    expect(parseMigrationPath("БизнесПроцесс.Согласование.Реквизит.Комментарий")).toMatchObject({
+      kind: "attribute",
+      localName: "Комментарий",
+      ownerPath: "БизнесПроцесс.Согласование",
+      levelPath: "БизнесПроцесс.Согласование.Реквизит",
+    })
+    expect(parseMigrationPath("Задача.Исполнение.Реквизит.Срок")).toMatchObject({
+      kind: "attribute",
+      localName: "Срок",
+      ownerPath: "Задача.Исполнение",
+      levelPath: "Задача.Исполнение.Реквизит",
+    })
+  })
+
+  it("parses task addressing attribute paths", () => {
+    expect(parseMigrationPath("Задача.Исполнение.РеквизитАдресации.Исполнитель")).toEqual({
+      kind: "attribute",
+      segments: ["Задача", "Исполнение", "РеквизитАдресации", "Исполнитель"],
+      localName: "Исполнитель",
+      ownerPath: "Задача.Исполнение",
+      levelPath: "Задача.Исполнение.РеквизитАдресации",
     })
   })
 
@@ -133,6 +191,39 @@ describe("migration paths", () => {
       localName: "Валюта",
       ownerPath: "РегистрСведений.Цены",
       levelPath: "РегистрСведений.Цены.Реквизит",
+    })
+    expect(parseMigrationPath("РегистрБухгалтерии.Учет.Ресурс.Сумма")).toMatchObject({
+      kind: "attribute",
+      localName: "Сумма",
+      ownerPath: "РегистрБухгалтерии.Учет",
+      levelPath: "РегистрБухгалтерии.Учет.Ресурс",
+    })
+    expect(parseMigrationPath("РегистрРасчета.Начисления.Измерение.Сотрудник")).toMatchObject({
+      kind: "dimension",
+      localName: "Сотрудник",
+      ownerPath: "РегистрРасчета.Начисления",
+      levelPath: "РегистрРасчета.Начисления.Измерение",
+    })
+  })
+
+  it("parses chart child paths", () => {
+    expect(parseMigrationPath("ПланСчетов.Основной.Реквизит.КодГруппы")).toMatchObject({
+      kind: "attribute",
+      localName: "КодГруппы",
+      ownerPath: "ПланСчетов.Основной",
+      levelPath: "ПланСчетов.Основной.Реквизит",
+    })
+    expect(parseMigrationPath("ПланСчетов.Основной.ТабличнаяЧасть.Параметры")).toMatchObject({
+      kind: "tabularSection",
+      localName: "Параметры",
+      ownerPath: "ПланСчетов.Основной",
+      levelPath: "ПланСчетов.Основной.ТабличнаяЧасть",
+    })
+    expect(parseMigrationPath("ПланВидовРасчета.Начисления.ТабличнаяЧасть.Показатели.Реквизит.Значение")).toMatchObject({
+      kind: "attribute",
+      localName: "Значение",
+      ownerPath: "ПланВидовРасчета.Начисления.ТабличнаяЧасть.Показатели",
+      levelPath: "ПланВидовРасчета.Начисления.ТабличнаяЧасть.Показатели.Реквизит",
     })
   })
 

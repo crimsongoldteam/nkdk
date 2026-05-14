@@ -133,17 +133,36 @@ import "./childTemplateNames/fromXML"
 import "./childTemplateNames/toXML"
 import "./childTemplateNames/syncExternalToXML"
 import "./childTemplateNames/syncExternalFromXML"
+import "./childSubsystemNames/fromXML"
+import "./childSubsystemNames/toXML"
+import "./childSubsystemNames/fromYAML"
+import "./childSubsystemNames/toYAML"
+
+import "./externalPicture/fromXML"
+import "./externalPicture/toXML"
 
 import "./metadataAttribute/register"
+import "./metadataTaskAddressingAttribute/register"
 
 import "./metadataDocumentJournalColumn/register"
 
 import "./metadataHTTPServiceMethod/register"
 import "./metadataHTTPServiceURLTemplate/register"
+import "./metadataIntegrationServiceChannel/register"
+import "./metadataWebServiceOperation/register"
+import "./xDTOPackages/fromXML"
+import "./xDTOPackages/fromYAML"
+import "./xDTOPackages/toJSONSchema"
+import "./xDTOPackages/toXML"
+import "./xDTOPackages/toYAML"
 
 import "./metadataRegisterAttribute/register"
 import "./metadataRegisterDimension/register"
 import "./metadataRegisterResource/register"
+import "./recalculation/register"
+import "./accountingFlag/register"
+import "./standardAttributeDescription/registerCollectionRule"
+import "./standardTabularSectionDescription/register"
 
 import "./exchangePlanContent/register"
 
@@ -198,7 +217,6 @@ import "./predefined"
 
 import "./predefinedItem"
 
-import "./standardAttributeDescription/registerCollectionRule"
 import "./standardAttributeDescription/rules"
 import "./standardAttributeDescription/toJSONSchema"
 import "./standardAttributeDescription/types"

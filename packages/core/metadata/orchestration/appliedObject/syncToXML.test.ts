@@ -170,3 +170,31 @@ describe("syncAppliedObjectToXML — (д) explicit null reference", () => {
     expect(result).not.toContain("ФормаИзReference")
   })
 })
+
+describe("syncAppliedObjectToXML — (е) filePath без YAML-значения", () => {
+  it("не копирует внешний XML из reference для обычных filePath-свойств", async () => {
+    const inputDir = join(tmpDir, "input")
+    const referenceDir = join(tmpDir, "reference")
+    const outputDir = join(tmpDir, "output")
+
+    fs.mkdirSync(join(inputDir, "ТестСправочник"), { recursive: true })
+    fs.writeFileSync(join(inputDir, "ТестСправочник", "Свойства.yaml"), "", "utf-8")
+    fs.mkdirSync(join(referenceDir, "Ext"), { recursive: true })
+    fs.writeFileSync(join(referenceDir, "ТестСправочник.xml"), catalogXml([]), "utf-8")
+    fs.copyFileSync(
+      join(import.meta.dirname, "../../appliedObjects/metadataCatalog/__fixtures__/sync/xml/Ext/AdditionalIndexes.xml"),
+      join(referenceDir, "Ext/AdditionalIndexes.xml")
+    )
+
+    await syncAppliedObjectToXML({
+      rule: MetadataCatalogRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ТестСправочник",
+      outputDir,
+      referenceDir,
+    })
+
+    expect(fs.existsSync(join(outputDir, "Ext/AdditionalIndexes.xml"))).toBe(false)
+  })
+})

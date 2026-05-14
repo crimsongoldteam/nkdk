@@ -3,6 +3,11 @@ import { registerTypeRule } from "~/metadata/orchestration"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataItemLink, MetadataItemLinks, MetadataItemLinkXML } from "./types"
 
+interface MetadataItemLinksXMLInput {
+  "xr:Item"?: MetadataItemLinkXML | MetadataItemLinkXML[]
+  "xr:Object"?: MetadataItemLinkXML | MetadataItemLinkXML[]
+}
+
 export function importMetadataItemLinkFromXML(
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
@@ -17,12 +22,13 @@ export function importMetadataItemLinkFromXML(
 
 export function importMetadataItemLinksFromXML(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: { "xr:Item"?: MetadataItemLinkXML | MetadataItemLinkXML[] } | undefined
+  rule: PropertyRule | undefined,
+  data: MetadataItemLinksXMLInput | undefined
 ): MetadataItemLinks | undefined {
   if (!data) return undefined
 
-  const rawItems = data["xr:Item"]
+  const itemTag = rule?.metadataItemLinksXMLItem ?? "xr:Item"
+  const rawItems = data[itemTag] ?? data["xr:Item"] ?? data["xr:Object"]
   if (rawItems === undefined) return []
 
   const items = Array.isArray(rawItems) ? rawItems : [rawItems]

@@ -87,6 +87,16 @@ import {
   MetadataHTTPServiceURLTemplateYAML,
 } from "~/metadata/commonObjects/metadataHTTPServiceURLTemplate/types"
 import {
+  MetadataIntegrationServiceChannel,
+  MetadataIntegrationServiceChannelYAML,
+} from "~/metadata/commonObjects/metadataIntegrationServiceChannel/types"
+import {
+  MetadataWebServiceOperation,
+  MetadataWebServiceOperationYAML,
+  MetadataWebServiceParameter,
+  MetadataWebServiceParameterYAML,
+} from "~/metadata/commonObjects/metadataWebServiceOperation/types"
+import {
   MetadataRegisterAttribute,
   MetadataRegisterAttributeYAML,
 } from "~/metadata/commonObjects/metadataRegisterAttribute/types"
@@ -98,6 +108,17 @@ import {
   MetadataRegisterResource,
   MetadataRegisterResourceYAML,
 } from "~/metadata/commonObjects/metadataRegisterResource/types"
+import { Recalculation, RecalculationYAML } from "~/metadata/commonObjects/recalculation/types"
+import {
+  AccountingFlag,
+  AccountingFlagYAML,
+  ExtDimensionAccountingFlag,
+  ExtDimensionAccountingFlagYAML,
+} from "~/metadata/commonObjects/accountingFlag/types"
+import {
+  StandardTabularSectionDescription,
+  StandardTabularSectionDescriptionYAML,
+} from "~/metadata/commonObjects/standardTabularSectionDescription/types"
 import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
 import { PredefinedItem, PredefinedItemYAML } from "~/metadata/commonObjects/predefinedItem/types"
 import {
@@ -138,19 +159,17 @@ import {
 } from "../../appliedObjects/metadataCommonAttribute/types"
 import { MetadataConstant, MetadataConstantYAML } from "../../appliedObjects/metadataConstant/types"
 import { MetadataDefinedType, MetadataDefinedTypeYAML } from "../../appliedObjects/metadataDefinedType/types"
-import {
-  MetadataDataProcessor,
-  MetadataDataProcessorYAML,
-} from "../../appliedObjects/metadataDataProcessor/types"
+import { MetadataDataProcessor, MetadataDataProcessorYAML } from "../../appliedObjects/metadataDataProcessor/types"
 import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
 import {
   MetadataDocumentJournal,
   MetadataDocumentJournalYAML,
 } from "../../appliedObjects/metadataDocumentJournal/types"
+import { MetadataHTTPService, MetadataHTTPServiceYAML } from "../../appliedObjects/metadataHTTPService/types"
 import {
-  MetadataHTTPService,
-  MetadataHTTPServiceYAML,
-} from "../../appliedObjects/metadataHTTPService/types"
+  MetadataIntegrationService,
+  MetadataIntegrationServiceYAML,
+} from "../../appliedObjects/metadataIntegrationService/types"
 import {
   MetadataInformationRegister,
   MetadataInformationRegisterYAML,
@@ -160,9 +179,30 @@ import {
   MetadataAccumulationRegisterYAML,
 } from "../../appliedObjects/metadataAccumulationRegister/types"
 import {
-  MetadataExchangePlan,
-  MetadataExchangePlanYAML,
-} from "../../appliedObjects/metadataExchangePlan/types"
+  MetadataBusinessProcess,
+  MetadataBusinessProcessYAML,
+} from "../../appliedObjects/metadataBusinessProcess/types"
+import {
+  MetadataAccountingRegister,
+  MetadataAccountingRegisterYAML,
+} from "../../appliedObjects/metadataAccountingRegister/types"
+import {
+  MetadataCalculationRegister,
+  MetadataCalculationRegisterYAML,
+} from "../../appliedObjects/metadataCalculationRegister/types"
+import {
+  MetadataChartOfAccounts,
+  MetadataChartOfAccountsYAML,
+} from "../../appliedObjects/metadataChartOfAccounts/types"
+import {
+  MetadataChartOfCalculationTypes,
+  MetadataChartOfCalculationTypesYAML,
+} from "../../appliedObjects/metadataChartOfCalculationTypes/types"
+import {
+  MetadataChartOfCharacteristicTypes,
+  MetadataChartOfCharacteristicTypesYAML,
+} from "../../appliedObjects/metadataChartOfCharacteristicTypes/types"
+import { MetadataExchangePlan, MetadataExchangePlanYAML } from "../../appliedObjects/metadataExchangePlan/types"
 import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorYAML,
@@ -186,19 +226,34 @@ import {
   MetadataFunctionalOptionsParameterYAML,
 } from "../../appliedObjects/metadataFunctionalOptionsParameter/types"
 import {
+  MetadataFunctionalOption,
+  MetadataFunctionalOptionYAML,
+} from "../../appliedObjects/metadataFunctionalOption/types"
+import { MetadataLanguage, MetadataLanguageYAML } from "../../appliedObjects/metadataLanguage/types"
+import { MetadataRole, MetadataRoleYAML } from "../../appliedObjects/metadataRole/types"
+import { MetadataScheduledJob, MetadataScheduledJobYAML } from "../../appliedObjects/metadataScheduledJob/types"
+import { MetadataCommonForm, MetadataCommonFormYAML } from "../../appliedObjects/metadataCommonForm/types"
+import { MetadataCommonPicture, MetadataCommonPictureYAML } from "../../appliedObjects/metadataCommonPicture/types"
+import { MetadataCommonTemplate, MetadataCommonTemplateYAML } from "../../appliedObjects/metadataCommonTemplate/types"
+import {
+  MetadataCommandGroup as MetadataAppliedCommandGroup,
+  MetadataCommandGroupYAML as MetadataAppliedCommandGroupYAML,
+} from "../../appliedObjects/metadataCommandGroup/types"
+import { MetadataStyle, MetadataStyleYAML } from "../../appliedObjects/metadataStyle/types"
+import { MetadataSubsystem, MetadataSubsystemYAML } from "../../appliedObjects/metadataSubsystem/types"
+import {
   MetadataSettingsStorage,
   MetadataSettingsStorageYAML,
 } from "../../appliedObjects/metadataSettingsStorage/types"
 import { MetadataSequence, MetadataSequenceYAML } from "../../appliedObjects/metadataSequence/types"
+import { MetadataTask, MetadataTaskYAML } from "../../appliedObjects/metadataTask/types"
 import {
   MetadataSessionParameter,
   MetadataSessionParameterYAML,
 } from "../../appliedObjects/metadataSessionParameter/types"
 import { MetadataStyleItem, MetadataStyleItemYAML } from "../../appliedObjects/metadataStyleItem/types"
-import {
-  MetadataWSReference,
-  MetadataWSReferenceYAML,
-} from "../../appliedObjects/metadataWSReference/types"
+import { MetadataWebService, MetadataWebServiceYAML } from "../../appliedObjects/metadataWebService/types"
+import { MetadataWSReference, MetadataWSReferenceYAML } from "../../appliedObjects/metadataWSReference/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -687,6 +742,21 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataHTTPServiceURLTemplateYAML
   }
 
+  MetadataIntegrationServiceChannel: {
+    metadata: MetadataIntegrationServiceChannel
+    yaml: MetadataIntegrationServiceChannelYAML
+  }
+
+  MetadataWebServiceOperation: {
+    metadata: MetadataWebServiceOperation
+    yaml: MetadataWebServiceOperationYAML
+  }
+
+  MetadataWebServiceParameter: {
+    metadata: MetadataWebServiceParameter
+    yaml: MetadataWebServiceParameterYAML
+  }
+
   MetadataRegisterResource: {
     metadata: MetadataRegisterResource
     yaml: MetadataRegisterResourceYAML
@@ -700,6 +770,26 @@ export type MetadataItemTypeRegistry = {
   MetadataRegisterAttribute: {
     metadata: MetadataRegisterAttribute
     yaml: MetadataRegisterAttributeYAML
+  }
+
+  Recalculation: {
+    metadata: Recalculation
+    yaml: RecalculationYAML
+  }
+
+  AccountingFlag: {
+    metadata: AccountingFlag
+    yaml: AccountingFlagYAML
+  }
+
+  ExtDimensionAccountingFlag: {
+    metadata: ExtDimensionAccountingFlag
+    yaml: ExtDimensionAccountingFlagYAML
+  }
+
+  StandardTabularSectionDescription: {
+    metadata: StandardTabularSectionDescription
+    yaml: StandardTabularSectionDescriptionYAML
   }
 
   PredefinedItem: {
@@ -884,6 +974,56 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataFunctionalOptionsParameterYAML
   }
 
+  MetadataFunctionalOption: {
+    metadata: MetadataFunctionalOption
+    yaml: MetadataFunctionalOptionYAML
+  }
+
+  MetadataLanguage: {
+    metadata: MetadataLanguage
+    yaml: MetadataLanguageYAML
+  }
+
+  MetadataRole: {
+    metadata: MetadataRole
+    yaml: MetadataRoleYAML
+  }
+
+  MetadataScheduledJob: {
+    metadata: MetadataScheduledJob
+    yaml: MetadataScheduledJobYAML
+  }
+
+  MetadataCommonForm: {
+    metadata: MetadataCommonForm
+    yaml: MetadataCommonFormYAML
+  }
+
+  MetadataCommonPicture: {
+    metadata: MetadataCommonPicture
+    yaml: MetadataCommonPictureYAML
+  }
+
+  MetadataCommonTemplate: {
+    metadata: MetadataCommonTemplate
+    yaml: MetadataCommonTemplateYAML
+  }
+
+  MetadataCommandGroup: {
+    metadata: MetadataAppliedCommandGroup
+    yaml: MetadataAppliedCommandGroupYAML
+  }
+
+  MetadataStyle: {
+    metadata: MetadataStyle
+    yaml: MetadataStyleYAML
+  }
+
+  MetadataSubsystem: {
+    metadata: MetadataSubsystem
+    yaml: MetadataSubsystemYAML
+  }
+
   MetadataSettingsStorage: {
     metadata: MetadataSettingsStorage
     yaml: MetadataSettingsStorageYAML
@@ -909,6 +1049,16 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataHTTPServiceYAML
   }
 
+  MetadataIntegrationService: {
+    metadata: MetadataIntegrationService
+    yaml: MetadataIntegrationServiceYAML
+  }
+
+  MetadataWebService: {
+    metadata: MetadataWebService
+    yaml: MetadataWebServiceYAML
+  }
+
   MetadataInformationRegister: {
     metadata: MetadataInformationRegister
     yaml: MetadataInformationRegisterYAML
@@ -917,6 +1067,36 @@ export type MetadataItemTypeRegistry = {
   MetadataAccumulationRegister: {
     metadata: MetadataAccumulationRegister
     yaml: MetadataAccumulationRegisterYAML
+  }
+
+  MetadataBusinessProcess: {
+    metadata: MetadataBusinessProcess
+    yaml: MetadataBusinessProcessYAML
+  }
+
+  MetadataAccountingRegister: {
+    metadata: MetadataAccountingRegister
+    yaml: MetadataAccountingRegisterYAML
+  }
+
+  MetadataCalculationRegister: {
+    metadata: MetadataCalculationRegister
+    yaml: MetadataCalculationRegisterYAML
+  }
+
+  MetadataChartOfAccounts: {
+    metadata: MetadataChartOfAccounts
+    yaml: MetadataChartOfAccountsYAML
+  }
+
+  MetadataChartOfCalculationTypes: {
+    metadata: MetadataChartOfCalculationTypes
+    yaml: MetadataChartOfCalculationTypesYAML
+  }
+
+  MetadataChartOfCharacteristicTypes: {
+    metadata: MetadataChartOfCharacteristicTypes
+    yaml: MetadataChartOfCharacteristicTypesYAML
   }
 
   MetadataExchangePlan: {
@@ -942,6 +1122,11 @@ export type MetadataItemTypeRegistry = {
   MetadataSequence: {
     metadata: MetadataSequence
     yaml: MetadataSequenceYAML
+  }
+
+  MetadataTask: {
+    metadata: MetadataTask
+    yaml: MetadataTaskYAML
   }
 
   MetadataSessionParameter: {
