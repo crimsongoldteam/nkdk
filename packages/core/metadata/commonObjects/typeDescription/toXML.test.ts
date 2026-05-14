@@ -4,6 +4,12 @@ import { xmlExport } from "~/xml/export/exporter"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { exportTypeDescriptionToXML } from "./toXML"
 
+const typeDescriptionRule = { type: "TypeDescription" } as const
+const typeDescriptionRuleWithLocalNamespace = {
+  type: "TypeDescription",
+  declareTypeNamespaceXML: true,
+} as const
+
 describe("exportTypeDescriptionToXML", () => {
   it("should export undefined type description to XML", () => {
     const result = exportTypeDescriptionToXML(mockContext, mockRule, undefined)
@@ -41,7 +47,7 @@ describe("exportTypeDescriptionToXML", () => {
   it("exports local type namespace when rule requests it", () => {
     const resultXml = exportTypeDescriptionToXML(
       mockContext,
-      { ...mockRule, declareTypeNamespaceXML: true },
+      typeDescriptionRuleWithLocalNamespace,
       { type: ["SettingsComposer"] }
     )
 
@@ -53,7 +59,7 @@ describe("exportTypeDescriptionToXML", () => {
   })
 
   it("does not export local type namespace by default", () => {
-    const resultXml = exportTypeDescriptionToXML(mockContext, mockRule, { type: ["SettingsComposer"] })
+    const resultXml = exportTypeDescriptionToXML(mockContext, typeDescriptionRule, { type: ["SettingsComposer"] })
 
     const result = xmlExport({ TypeDescription: resultXml }, false)
 
