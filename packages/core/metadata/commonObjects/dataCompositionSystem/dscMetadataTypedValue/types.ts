@@ -57,6 +57,14 @@ export const DcsMetadataTypedValueJSONSchema = Type.Union([
 
 export type DcsMetadataTypedValueYAML = Static<typeof DcsMetadataTypedValueJSONSchema>
 
+export type DcsMetadataTypedValueUndefinedTypeXML = {
+  "_xsi:type": "v8:Type"
+  "#text"?: string
+  [key: `_xmlns:${string}`]: string | undefined
+}
+
+export type DcsMetadataTypedValueReference = DcsMetadataTypedValue | DcsMetadataTypedValueUndefinedTypeXML
+
 export type DcsMetadataTypedValueXML =
   | {
       "_xsi:type": "dcscor:Field"
@@ -93,4 +101,5 @@ export type DcsMetadataTypedValueXML =
   | {
       "_xsi:type": "dcsset:Order"
     }
+  | DcsMetadataTypedValueUndefinedTypeXML
   | StandartBeginningDateXML
