@@ -1,3 +1,4 @@
+import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
 import { createEmptyClientApplicationForm } from "~/metadata/forms/clientApplicationForm/createEmpty"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { parseClientApplicationFormFromNKDK } from "~/metadata/forms/clientApplicationForm/parseNKDK"
@@ -7,6 +8,7 @@ import {
   toGraphModel,
   type GraphImportSourceMatch,
 } from "~/metadata/orchestration/graphImport/registry"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { parseProjectGraphFileOwner } from "./projectFiles"
 
 export function registerFormGraphImport(): void {
@@ -77,10 +79,7 @@ function matchFormPath(filePath: string): GraphImportSourceMatch | undefined {
 
   const formName = parts[3]!
   const hasFormsRule = Object.values(owner.rule.properties).some(
-    (rule) =>
-      rule.type === "ChildFormNames" &&
-      typeof (rule as { folderName?: unknown }).folderName === "string" &&
-      parts[2] === (rule as { folderName: string }).folderName,
+    (rule) => isChildFormRule(rule) && parts[2] === rule.folderName,
   )
   if (!hasFormsRule) return undefined
 
@@ -93,4 +92,8 @@ function matchFormPath(filePath: string): GraphImportSourceMatch | undefined {
       ownerName: owner.name,
     },
   }
+}
+
+function isChildFormRule(rule: PropertyRule): rule is ChildFormNamesPropertyRule {
+  return rule.type === "ChildFormNames"
 }
