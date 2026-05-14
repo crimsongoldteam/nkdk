@@ -31,6 +31,7 @@ The implementation policy is common for all objects below:
 - `metadataStyle`
 - `metadataCommandGroup`
 - `metadataSubsystem`
+- `metadataAccountingRegister`
 
 ## Deferred Objects
 
@@ -232,6 +233,111 @@ Summary:
 The first implementation does not parse command interface contents, help contents, or nested subsystem XML files as
 separate child metadata items.
 
+## Object: MetadataAccountingRegister
+
+- `itemType`: `MetadataAccountingRegister`
+- `itemTypePrefix`: `РегистрБухгалтерии`
+- XML directory: `AccountingRegisters`
+- XML container: `AccountingRegister`
+- implement through `rules.ts`
+- `InternalInfo` generated categories:
+  - `Record`
+  - `ExtDimensions`
+  - `RecordSet`
+  - `RecordKey`
+  - `Selection`
+  - `List`
+  - `Manager`
+
+Parent properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `useStandardCommands` | `UseStandardCommands` | `ИспользоватьСтандартныеКоманды` | `boolean` |
+| `includeHelpInContents` | `IncludeHelpInContents` | `ВключатьСправкуВСодержание` | `boolean` |
+| `chartOfAccounts` | `ChartOfAccounts` | `ПланСчетов` | `string` / `MDObjectRef` |
+| `correspondence` | `Correspondence` | `Корреспонденция` | `boolean` |
+| `periodAdjustmentLength` | `PeriodAdjustmentLength` | `ДлинаУточненияПериода` | `number` |
+| `defaultListForm` | `DefaultListForm` | `ОсновнаяФормаСписка` | `string` |
+| `auxiliaryListForm` | `AuxiliaryListForm` | `ДополнительнаяФормаСписка` | `string` |
+| `standardAttributes` | `StandardAttributes` | `СтандартныеРеквизиты` | `StandardAttributeDescriptions` |
+| `dataLockControlMode` | `DataLockControlMode` | `РежимУправленияБлокировкойДанных` | `SystemEnumeration: DefaultDataLockControlMode` |
+| `enableTotalsSplitting` | `EnableTotalsSplitting` | `РазрешитьРазделениеИтогов` | `boolean` |
+| `fullTextSearch` | `FullTextSearch` | `ПолнотекстовыйПоиск` | `SystemEnumeration: FullTextSearchUsing` |
+| `listPresentation` | `ListPresentation` | `ПредставлениеСписка` | `I8nText` |
+| `extendedListPresentation` | `ExtendedListPresentation` | `РасширенноеПредставлениеСписка` | `I8nText` |
+| `explanation` | `Explanation` | `Пояснение` | `I8nText` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+Child objects:
+
+- `Dimension[]`: use shared `metadataRegisterDimension` collection, extended with accounting-specific fields.
+- `Resource[]`: use shared `metadataRegisterResource` collection, extended with accounting-specific fields.
+- `Attribute[]`: use shared `metadataRegisterAttribute` collection.
+- `Form[]`: existing `ChildFormNames`.
+- `Template[]`: existing `ChildTemplateNames`.
+- `Command[]`: existing `MetadataCommands`, and include `childCollections` so command modules are copied.
+
+Accounting-specific child fields:
+
+- `balance`: `boolean`, XML `Balance`, YAML `Балансовый`
+- `accountingFlag`: `string` / `MDObjectRef`, XML `AccountingFlag`, YAML `ПризнакУчета`
+- `extDimensionAccountingFlag`: `string` / `MDObjectRef`, XML `ExtDimensionAccountingFlag`,
+  YAML `ПризнакУчетаСубконто`
+- `denyIncompleteValues`: `boolean`, XML `DenyIncompleteValues`, YAML `ЗапретНезаполненныхЗначений`
+
+`denyIncompleteValues` is present on accounting-register dimensions. `extDimensionAccountingFlag` is present on
+accounting-register resources. The shared register common objects should allow object-specific extra fields instead of
+forcing unrelated register families to expose every accounting-only field.
+
+External files:
+
+- `additionalIndexes`: existing `AdditionalIndex`, XML `Ext/AdditionalIndexes.xml`
+- `help`: existing `Help`, XML `Ext/Help.xml` and `Ext/Help/ru.html`, nkdk `Справка/`
+- `recordSetModule`: existing `Module`, XML `Ext/RecordSetModule.bsl`, nkdk `МодульНабораЗаписей.bsl`
+- `managerModule`: existing `Module`, XML `Ext/ManagerModule.bsl`, nkdk `МодульМенеджера.bsl`
+- child forms through `ChildFormNames`
+- child templates through `ChildTemplateNames`
+- command modules through `MetadataCommands`
+
+Default policy from `minimal.xml`:
+
+- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `correspondence`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `periodAdjustmentLength`: `defaultValueXML: 0`, `defaultValueYAML: 0`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
+- `enableTotalsSplitting`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `fullTextSearch`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+
+Keep `chartOfAccounts`, resource rows, and dimension rows as explicit content, not YAML defaults. Empty strings,
+presentations, empty form references, and empty standard-attribute values are XML defaults only.
+
+Implementation notes:
+
+- Preserve links to `ChartOfAccounts.*`, `AccountingFlag.*`, and `ExtDimensionAccountingFlag.*` as strings; the
+  `metadataChartOfAccounts` object does not need to be implemented first.
+- Reuse the register common objects already planned for information/accumulation registers. Add accounting-specific
+  extension fields in a way that does not pollute non-accounting register YAML.
+- Standard attribute names include accounting-specific names from fixtures: `PeriodAdjustment`, `Account`, `Active`,
+  `LineNumber`, `Recorder`, `Period`, `ExtDimension1..4`, and `ExtDimensionType1..4`.
+
+Testing:
+
+- standard XML/YAML/sync tests;
+- XML tests cover `minimal.xml` and `full.xml`;
+- tests cover `ChartOfAccounts`, `Correspondence`, `PeriodAdjustmentLength`, all accounting standard attributes,
+  dimension/resource accounting flags, and `EnableTotalsSplitting=false` from the full fixture;
+- sync from XML verifies `Свойства.yaml`, `МодульНабораЗаписей.bsl`, `МодульМенеджера.bsl`, `Справка/`,
+  `ДополнительныеИндексы`, `Формы/ФормаСписка/...`, `Шаблоны/Макет/Template.xml`, and `Команды/Команда1.bsl`;
+- sync to XML verifies `AccountingRegisters/<name>.xml`, `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`,
+  `Ext/Help/ru.html`, `Ext/RecordSetModule.bsl`, `Ext/ManagerModule.bsl`, form XML, template XML, and command module.
+
 ## Registries And Tests
 
 Every included object should be added to the same registry set as other top-level applied objects:
@@ -259,7 +365,6 @@ Sync tests must cover opaque external-file copying for role, scheduled job, comm
 
 Objects still needing brainstorming in this pass:
 
-- `metadataAccountingRegister`
 - `metadataBusinessProcess`
 - `metadataCalculationRegister`
 - `metadataChartOfAccounts`
