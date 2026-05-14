@@ -1,6 +1,7 @@
 import type { DcsMetadataValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
 import { SettingsParameterValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
 import { DateTimePropertyRule } from "~/metadata/commonObjects/dateTime/types"
+import type { ExternalPicturePropertyRule } from "~/metadata/commonObjects/externalPicture/types"
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
@@ -296,6 +297,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "Module"
     | "Template"
     | "Help"
+    | "ExternalPicture"
   >
 }
 
@@ -339,6 +341,7 @@ export type PropertyRule =
   | ModulePropertyRule
   | TemplatePropertyRule
   | HelpPropertyRule
+  | ExternalPicturePropertyRule
 
 type PropertiesType = Record<string, PropertyRule>
 

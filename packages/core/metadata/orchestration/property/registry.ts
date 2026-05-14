@@ -280,6 +280,7 @@ import {
   MetadataValueCollection,
   MetadataValueCollectionYAML,
 } from "~/metadata/commonObjects/metadataValueCollection/types"
+import type { ExternalPicture, ExternalPictureYAML } from "~/metadata/commonObjects/externalPicture/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
 import {
@@ -439,6 +440,10 @@ export type PropertyTypeRegistry = {
     item: Picture
     enterprise: PictureEnterprise
     yaml: PictureYAML
+  }
+  ExternalPicture: {
+    item: ExternalPicture
+    yaml: ExternalPictureYAML
   }
   Border: {
     item: Border
@@ -1103,6 +1108,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   Events: "Events",
   // ChildItems: "ChildItems",
   Picture: "Picture",
+  ExternalPicture: "ExternalPicture",
   Border: "Border",
   CommandName: "CommandName",
   UserVisible: "UserVisible",

@@ -134,6 +134,9 @@ import "./childTemplateNames/toXML"
 import "./childTemplateNames/syncExternalToXML"
 import "./childTemplateNames/syncExternalFromXML"
 
+import "./externalPicture/fromXML"
+import "./externalPicture/toXML"
+
 import "./metadataAttribute/register"
 
 import "./metadataDocumentJournalColumn/register"
