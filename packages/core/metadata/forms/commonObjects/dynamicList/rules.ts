@@ -114,6 +114,7 @@ export const DynamicListRules = {
       xml: "KeyField",
       yaml: "ПоляКлюча",
       order: 5,
+      preserveFromReferenceXML: true,
     },
     itemsViewMode: {
       type: "SystemEnumeration",

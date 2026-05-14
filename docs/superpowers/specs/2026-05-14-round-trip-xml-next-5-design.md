@@ -181,3 +181,26 @@ fromXML/toXML, но отключить `fromYAML`, `toYAML` и `toEnterprise`.
 
 Проверка: точечный тест экспорта `GraphicalSchemaField` с `edit: false` должен содержать
 `<Edit>false</Edit>`.
+
+### DynamicList KeyField при RowKey
+
+Следующий diff показывает потерю повторяющихся `KeyField` у `DynamicList`:
+
+```diff
+- <KeyField>КлючПриглашения</KeyField>
+- <KeyField>Контрагент</KeyField>
+- <KeyField>ИдентификаторОрганизации</KeyField>
+```
+
+Причина: `keyFields` приходит из reference, но текущая модель может содержать ключ
+`keyFields` со значением `undefined`. Общий XML-экспорт считает наличие ключа в модели более
+важным, чем reference, и не восстанавливает XML-only значение.
+
+Решение:
+
+- для `DynamicList.keyFields` включить `preserveFromReferenceXML`;
+- в общем `exportPropertiesToXML` для `preserveFromReferenceXML` брать значение из reference,
+  когда текущее значение равно `undefined`, даже если ключ присутствует в модели.
+
+Проверка: точечный тест `DynamicList` с `keyFields: undefined` в текущей модели и массивом
+`keyFields` в reference должен экспортировать все `KeyField`.

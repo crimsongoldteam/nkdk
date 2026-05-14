@@ -57,7 +57,10 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
       const value = metadataHasOwnKey ? (metadata as any)[key] : undefined
       const referenceValue = referenceMetadata === undefined ? undefined : (referenceMetadata as any)[key]
 
-      let valueToExport = metadataHasOwnKey ? value : referenceValue
+      let valueToExport =
+        metadataHasOwnKey && !(ruleProp.preserveFromReferenceXML === true && value === undefined)
+          ? value
+          : referenceValue
 
       // derivedFrom: вычисляем значение из наличия связанного свойства, если в модели нет явного значения
       if ("derivedFrom" in ruleProp && (ruleProp as any).derivedFrom?.externalFile && !metadataHasOwnKey) {
