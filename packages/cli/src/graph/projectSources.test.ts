@@ -8,7 +8,13 @@ import {
   readProjectGraphSources,
 } from "./projectSources"
 
-const createProject = (): string => mkdtempSync(join(tmpdir(), "nakidka-project-sources-"))
+const createProject = (files: Record<string, string> = {}): string => {
+  const projectPath = mkdtempSync(join(tmpdir(), "nakidka-project-sources-"))
+  for (const [filePath, text] of Object.entries(files)) {
+    writeProjectFile(projectPath, filePath, text)
+  }
+  return projectPath
+}
 const byteSize = (text: string): number => Buffer.byteLength(text)
 
 const writeProjectFile = (projectPath: string, filePath: string, text: string): void => {
@@ -109,6 +115,28 @@ describe("projectSources", () => {
         text: "ПолеВвода1(Реквизит):\n",
       },
     })
+  })
+
+  it("readChangedProjectSources читает форму Обработка через rule-driven paired path", () => {
+    const yamlPath = "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml"
+    const nkdkPath = "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk"
+    const projectPath = createProject({
+      [yamlPath]: "Заголовок: Форма\n",
+      [nkdkPath]: "Элементы:\n",
+    })
+
+    const changed = readChangedProjectSources(projectPath, [nkdkPath])
+
+    expect(changed.deletedFilePaths).toEqual([])
+    expect(changed.sources).toMatchObject([
+      {
+        filePath: yamlPath,
+        pairedText: {
+          filePath: nkdkPath,
+          text: "Элементы:\n",
+        },
+      },
+    ])
   })
 
   it("batch-нормализация удаляет вклад Форма.nkdk при сохранённом Форма.yaml", () => {
