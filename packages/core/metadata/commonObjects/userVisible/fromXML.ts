@@ -29,7 +29,7 @@ export const importUserVisibleFromXML = (
       const value = importBooleanFromXML(_context, undefined, item["#text"])
       if (value === undefined) continue
       result.values.push({
-        name: item["_name"].replace(/^Role\./, ""),
+        name: item["_name"],
         value,
       })
     }

@@ -13,7 +13,7 @@ export const exportUserVisibleToXML = (
   const result: UserVisibleXML = {
     "xr:Common": userVisible.common,
     "xr:Value": userVisible.values.map((item) => ({
-      _name: `Role.${item.name}`,
+      _name: item.name,
       "#text": item.value,
     })),
   }

@@ -8,15 +8,15 @@ describe("exportUserVisibleToYAML", () => {
     const use: UserVisible = {
       common: true,
       values: [
-        { name: "Администратор", value: true },
-        { name: "Пользователь", value: false },
+        { name: "Role.Администратор", value: true },
+        { name: "Role.Пользователь", value: false },
       ],
     }
 
     const expectedResult = {
       РазрешитьИспользование: {
-        Администратор: "Истина",
-        Пользователь: "Ложь",
+        "Role.Администратор": "Истина",
+        "Role.Пользователь": "Ложь",
       },
     }
 
@@ -32,15 +32,35 @@ describe("exportUserVisibleToYAML", () => {
     const use: UserVisible = {
       common: false,
       values: [
-        { name: "Администратор", value: true },
-        { name: "Пользователь", value: false },
+        { name: "Role.Администратор", value: true },
+        { name: "Role.Пользователь", value: false },
       ],
     }
 
     const expectedResult = {
       ЗапретитьИспользование: {
-        Администратор: "Истина",
-        Пользователь: "Ложь",
+        "Role.Администратор": "Истина",
+        "Role.Пользователь": "Ложь",
+      },
+    }
+
+    const result = exportUserVisibleToYAMLDeprecated(mockContext, mockRule, use, {
+      allow: UserVisibleKeysYAML.Allow,
+      deny: UserVisibleKeysYAML.Deny,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("preserves UUID YAML keys", () => {
+    const use: UserVisible = {
+      common: true,
+      values: [{ name: "b1d9c8b4-d05c-45c7-8db2-abc84e597700", value: true }],
+    }
+
+    const expectedResult = {
+      РазрешитьИспользование: {
+        "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Истина",
       },
     }
 

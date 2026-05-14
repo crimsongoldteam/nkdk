@@ -51,4 +51,23 @@ describe("exportUserVisibleToXML", () => {
 
     expect(xmlString).toEqual(expectedResult)
   })
+
+  it("exports Role-prefixed names and UUID names exactly", () => {
+    const mockUserVisible: UserVisible = {
+      common: false,
+      values: [
+        { name: "Role.ПолныеПрава", value: true },
+        { name: "b1d9c8b4-d05c-45c7-8db2-abc84e597700", value: true },
+      ],
+    }
+
+    const exported = exportUserVisibleToXML(mockContext, mockRule, mockUserVisible)
+    const xmlString = xmlExport({ UserVisible: exported }, false)
+
+    expect(xmlString).toEqual(`<UserVisible>
+	<xr:Common>false</xr:Common>
+	<xr:Value name="Role.ПолныеПрава">true</xr:Value>
+	<xr:Value name="b1d9c8b4-d05c-45c7-8db2-abc84e597700">true</xr:Value>
+</UserVisible>`)
+  })
 })
