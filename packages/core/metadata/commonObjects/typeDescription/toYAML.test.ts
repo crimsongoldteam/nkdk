@@ -13,4 +13,22 @@ describe("exportTypeDescriptionToYAML", () => {
     const result = exportTypeDescriptionToYAML(mockContext, mockRule, internal)
     expect(result).toEqual(YAML)
   })
+
+  it("should export known system enumeration type to explicit YAML form", () => {
+    const result = exportTypeDescriptionToYAML(mockContext, mockRule, { type: ["FillChecking"] })
+
+    expect(result).toEqual("СистемноеПеречисление.ПроверкаЗаполнения")
+  })
+
+  it("should throw on unknown non-enumeration type during YAML export", () => {
+    expect(() =>
+      exportTypeDescriptionToYAML(mockContext, mockRule, { type: ["DefinitelyUnknownType"] })
+    ).toThrow("Type DefinitelyUnknownType not found in TypeDescriptionRules")
+  })
+
+  it("should throw on system enumeration type with complex suffix during YAML export", () => {
+    expect(() => exportTypeDescriptionToYAML(mockContext, mockRule, { type: ["FillChecking.Anything"] })).toThrow(
+      "Type FillChecking.Anything not found in TypeDescriptionRules"
+    )
+  })
 })

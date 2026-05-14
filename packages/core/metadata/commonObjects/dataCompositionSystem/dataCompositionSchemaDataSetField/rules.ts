@@ -55,7 +55,7 @@ export const DataCompositionSchemaDataSetFieldRules = {
       order: 5,
     },
     attributeUseRestriction: {
-      type: "string",
+      type: "CalculatedFieldUseRestriction",
       xml: "dcssch:attributeUseRestriction",
       yaml: "ОграничениеИспользованияРеквизитов",
       toXML: isField,

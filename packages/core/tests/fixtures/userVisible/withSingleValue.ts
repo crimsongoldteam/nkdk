@@ -4,7 +4,7 @@ export const withSingleValueUserVisible: UserVisible = {
   common: true,
   values: [
     {
-      name: "Менеджер",
+      name: "Role.Менеджер",
       value: true,
     },
   ],

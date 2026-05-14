@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { getTypeDescriptionRule } from "./helper"
+import { getSystemEnumerationTypeDescriptionRule, getTypeDescriptionRule } from "./helper"
 import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
 
 export const exportTypeDescriptionToXML = (
@@ -44,7 +44,7 @@ const getTypesXML = (
     const isComplex = dotIndex !== -1
     const baseType = isComplex ? type.substring(0, dotIndex) : type
 
-    const rule = getTypeDescriptionRule(baseType)
+    const rule = getTypeDescriptionRule(baseType) ?? (!isComplex ? getSystemEnumerationTypeDescriptionRule(type) : undefined)
     if (!rule) throw new Error(`Type ${type} not found in TypeDescriptionRules`)
 
     const typeXML = `${rule.prefix}:${type}`

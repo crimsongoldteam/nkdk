@@ -369,6 +369,9 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Metadata,
       xml: "ExtendedPresentation",
       xmlParents: ["Form", "Properties"],
+      defaultValueXMLEmpty: { items: {} },
+      defaultValueXMLRaw: "",
+      preserveFromReferenceXML: true,
     },
     // #endregion
 

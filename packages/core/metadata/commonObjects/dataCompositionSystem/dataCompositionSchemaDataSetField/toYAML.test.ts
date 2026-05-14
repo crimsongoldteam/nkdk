@@ -56,4 +56,37 @@ describe("export DataCompositionSchemaDataSetField to YAML", () => {
       ПолеНабораДанныхСхемыКомпоновкиДанных: folderDataCompositionSchemaDataSetFieldYAML,
     })
   })
+
+  it("exports attribute use restriction", () => {
+    const result = testExportPropertyToYAML({
+      rule: { type: "DataCompositionSchemaDataSetField", yaml: "ПолеНабораДанныхСхемыКомпоновкиДанных" },
+      value: {
+        itemType: "DataCompositionSchemaDataSetField",
+        kind: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+        dataPath: "МЧД",
+        field: "МЧД",
+        attributeUseRestriction: {
+          itemType: "CalculatedFieldUseRestriction",
+          field: true,
+          condition: true,
+          group: true,
+          order: true,
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      ПолеНабораДанныхСхемыКомпоновкиДанных: {
+        Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+        ПутьКДанным: "МЧД",
+        Поле: "МЧД",
+        ОграничениеИспользованияРеквизитов: {
+          Поле: "Истина",
+          Условие: "Истина",
+          Группировка: "Истина",
+          Порядок: "Истина",
+        },
+      },
+    })
+  })
 })

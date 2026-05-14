@@ -41,6 +41,23 @@ describe("importClientApplicationFormFromXML", () => {
     expect(result).toEqual(minimalClientApplicationForm)
   })
 
+  it("imports explicit empty ExtendedPresentation from metadata XML", () => {
+    const xmlData = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
+    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+      import.meta.url,
+      "minimalMetadata.xml"
+    )
+    xmlMetadata.MetaDataObject.Form.Properties.ExtendedPresentation = ""
+
+    const result = importClientApplicationFormFromXML({
+      context: mockContextFromXML(),
+      xml: xmlData.Form,
+      xmlMetadata: xmlMetadata.MetaDataObject,
+    })
+
+    expect(result.extendedPresentation).toEqual({ items: {} })
+  })
+
   it("imports catalog full form from XML", () => {
     const xmlData = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "catalogFull.xml")
     const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(

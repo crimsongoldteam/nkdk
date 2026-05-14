@@ -33,7 +33,7 @@ export const fullSingleSearchStringAddition: SingleSearchStringAddition = {
   toolTipRepresentation: "None",
   userVisible: {
     common: true,
-    values: [{ name: "Администратор", value: true }],
+    values: [{ name: "Role.Администратор", value: true }],
   },
   verticalAlignInGroup: "Top",
   visible: true,
@@ -60,7 +60,7 @@ export const fullSingleSearchStringAdditionYAML: SingleSearchStringAdditionYAML 
   Заголовок: "Добавление элемента формы",
   ОтображениеПодсказки: "Нет",
   Подсказка: "Подсказка",
-  РазрешитьИспользование: { Администратор: "Истина" },
+  РазрешитьИспользование: { "Role.Администратор": "Истина" },
   РастягиватьПоГоризонтали: "Истина",
   АвтоМаксимальнаяШирина: "Ложь",
   МаксимальнаяШирина: 20,

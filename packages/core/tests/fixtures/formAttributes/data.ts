@@ -14,15 +14,15 @@ export const fullFormAttributes: Required<FormAttributes> = [
     view: {
       common: true,
       values: [
-        { name: "Администратор", value: true },
-        { name: "Пользователь", value: false },
+        { name: "Role.Администратор", value: true },
+        { name: "Role.Пользователь", value: false },
       ],
     },
     edit: {
       common: true,
       values: [
-        { name: "Администратор", value: true },
-        { name: "Пользователь", value: false },
+        { name: "Role.Администратор", value: true },
+        { name: "Role.Пользователь", value: false },
       ],
     },
     fillCheck: "ShowError",
@@ -41,15 +41,15 @@ export const fullFormAttributes: Required<FormAttributes> = [
     view: {
       common: true,
       values: [
-        { name: "Администратор", value: true },
-        { name: "Пользователь", value: false },
+        { name: "Role.Администратор", value: true },
+        { name: "Role.Пользователь", value: false },
       ],
     },
     edit: {
       common: false,
       values: [
-        { name: "Администратор", value: true },
-        { name: "Пользователь", value: false },
+        { name: "Role.Администратор", value: true },
+        { name: "Role.Пользователь", value: false },
       ],
     },
     fillCheck: "ShowError",
@@ -67,12 +67,12 @@ export const fullFormAttributesYAML: FormAttributesYAML = {
     ОсновнойРеквизит: "Истина",
     СохраняемыеДанные: "Истина",
     РазрешитьРедактирование: {
-      Администратор: "Истина",
-      Пользователь: "Ложь",
+      "Role.Администратор": "Истина",
+      "Role.Пользователь": "Ложь",
     },
     РазрешитьПросмотр: {
-      Администратор: "Истина",
-      Пользователь: "Ложь",
+      "Role.Администратор": "Истина",
+      "Role.Пользователь": "Ложь",
     },
     ПроверкаЗаполнения: "ВыдаватьОшибку",
     ИспользоватьВсегда: ["Список.Ref"],
@@ -83,12 +83,12 @@ export const fullFormAttributesYAML: FormAttributesYAML = {
     Тип: "Строка",
     СохраняемыеДанные: "Истина",
     ЗапретитьРедактирование: {
-      Администратор: "Истина",
-      Пользователь: "Ложь",
+      "Role.Администратор": "Истина",
+      "Role.Пользователь": "Ложь",
     },
     РазрешитьПросмотр: {
-      Администратор: "Истина",
-      Пользователь: "Ложь",
+      "Role.Администратор": "Истина",
+      "Role.Пользователь": "Ложь",
     },
     ПроверкаЗаполнения: "ВыдаватьОшибку",
     ФункциональныеОпции: ["FunctionalOption.ФункциональнаяОпция1"],

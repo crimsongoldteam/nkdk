@@ -476,6 +476,32 @@ describe("exportToXML", () => {
       const result = xmlExport({ MetaDataObject: xmlData })
 
       expect(result).toEqual(expectedResult)
+      expect(result).not.toContain("<ExtendedPresentation")
+    })
+
+    it("preserves empty ExtendedPresentation when it exists in reference metadata", () => {
+      const minimalFormXML = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
+      const minimalMetadataXML = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+        import.meta.url,
+        "minimalMetadata.xml"
+      )
+      minimalMetadataXML.MetaDataObject.Form.Properties.ExtendedPresentation = ""
+      const referenceForm = importClientApplicationFormFromXML({
+        context: mockContextFromXML({ forReference: true }),
+        xml: minimalFormXML.Form,
+        xmlMetadata: minimalMetadataXML.MetaDataObject,
+      })
+
+      const xmlData = exportFormMetadataToXML({
+        context: mockContextToXML(),
+        form: minimalClientApplicationForm,
+        referenceForm,
+        name: "Минимальная",
+      })
+
+      const result = xmlExport({ MetaDataObject: xmlData })
+
+      expect(result).toContain("\n\t\t\t<ExtendedPresentation/>")
     })
   })
 })

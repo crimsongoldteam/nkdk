@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { getTypeDescriptionRule } from "./helper"
+import { getSystemEnumerationYAMLType, getTypeDescriptionRule } from "./helper"
 import { PrimitiveTypeToYAML, TypeDescription, TypeDescriptionYAML } from "./types"
 
 export const exportTypeDescriptionToYAML = (
@@ -102,7 +102,16 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
   const detailType = isComplex ? type.substring(dotIndex + 1) : undefined
 
   const rule = getTypeDescriptionRule(baseType)
-  if (!rule) throw new Error(`Type ${baseType} not found in TypeDescriptionRules`)
+  if (!rule) {
+    if (!isComplex) {
+      const systemEnumerationYAMLType = getSystemEnumerationYAMLType(baseType)
+      if (systemEnumerationYAMLType !== undefined) {
+        return systemEnumerationYAMLType
+      }
+    }
+
+    throw new Error(`Type ${type} not found in TypeDescriptionRules`)
+  }
 
   if (isComplex) {
     return `${rule.enterprise}.${detailType}`

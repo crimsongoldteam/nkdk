@@ -4,11 +4,11 @@ export const withMultipleValuesUserVisible: UserVisible = {
   common: true,
   values: [
     {
-      name: "Администратор",
+      name: "Role.Администратор",
       value: true,
     },
     {
-      name: "Пользователь",
+      name: "Role.Пользователь",
       value: false,
     },
   ],

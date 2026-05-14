@@ -58,4 +58,35 @@ describe("import DataCompositionSchemaDataSetField from YAML", () => {
 
     expect(result).toEqual(folderDataCompositionSchemaDataSetField)
   })
+
+  it("imports attribute use restriction", () => {
+    const result = testImportPropertyFromYAML({
+      rule: { type: "DataCompositionSchemaDataSetField" },
+      value: {
+        Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+        ПутьКДанным: "МЧД",
+        Поле: "МЧД",
+        ОграничениеИспользованияРеквизитов: {
+          Поле: "Истина",
+          Условие: "Истина",
+          Группировка: "Истина",
+          Порядок: "Истина",
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "DataCompositionSchemaDataSetField",
+      kind: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+      dataPath: "МЧД",
+      field: "МЧД",
+      attributeUseRestriction: {
+        itemType: "CalculatedFieldUseRestriction",
+        field: true,
+        condition: true,
+        group: true,
+        order: true,
+      },
+    })
+  })
 })

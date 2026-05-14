@@ -49,4 +49,22 @@ describe("importUserVisibleFromXML", () => {
 
     expect(result).toEqual({ common: false, values: [] })
   })
+
+  it("preserves Role-prefixed names and UUID names exactly", () => {
+    const result = importUserVisibleFromXML(mockContextFromXML(), mockRule, {
+      "xr:Common": "false",
+      "xr:Value": [
+        { _name: "Role.ПолныеПрава", "#text": "true" },
+        { _name: "b1d9c8b4-d05c-45c7-8db2-abc84e597700", "#text": "true" },
+      ],
+    })
+
+    expect(result).toEqual({
+      common: false,
+      values: [
+        { name: "Role.ПолныеПрава", value: true },
+        { name: "b1d9c8b4-d05c-45c7-8db2-abc84e597700", value: true },
+      ],
+    })
+  })
 })

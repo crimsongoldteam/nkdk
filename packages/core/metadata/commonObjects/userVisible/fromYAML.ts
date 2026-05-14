@@ -22,7 +22,7 @@ export const importUserVisibleFromYAMLDeprecated = (
   const value = common ? valueAllow : valueDeny!
 
   const values = Object.entries(value).map(([key, val]) => {
-    const name = key.replace(/^Role\./, "")
+    const name = key
     const parsedValue = importBooleanFromYAML(context, undefined, val)
     return {
       name,
@@ -56,7 +56,7 @@ export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   const value = common ? valueAllow! : valueDeny!
 
   const values = Object.entries(value).map(([key, val]) => {
-    const name = key.replace(/^Role\./, "")
+    const name = key
     const parsedValue = importBooleanFromYAML(context, undefined, val)
     return {
       name,

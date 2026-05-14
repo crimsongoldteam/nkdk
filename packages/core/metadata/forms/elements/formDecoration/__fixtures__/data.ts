@@ -26,7 +26,7 @@ export const fullFormDecorationCommonFixture = {
   toolTipRepresentation: "Balloon" as const,
   userVisible: {
     common: true,
-    values: [{ name: "Администратор", value: false }],
+    values: [{ name: "Role.Администратор", value: false }],
   },
   verticalAlignInGroup: "Top" as const,
   verticalStretch: false,
@@ -74,7 +74,7 @@ export const fullFormDecorationPartialYAMLCommonFixture = {
   Подсказка: "Подсказка",
   ПоведениеПриНедоступностиОсновногоСервера: "ОтключитьДоступность",
   ПропускатьПриВводе: "Истина",
-  РазрешитьИспользование: { Администратор: "Ложь" },
+  РазрешитьИспользование: { "Role.Администратор": "Ложь" },
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Истина",
   СочетаниеКлавиш: "Cmd+S",
