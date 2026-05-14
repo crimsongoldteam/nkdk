@@ -40,6 +40,7 @@ The implementation policy is common for all objects below:
 - `metadataCommonForm`
 - `metadataIntegrationService`
 - `metadataTask`
+- `metadataWebService`
 
 ## Deferred Objects
 
@@ -1346,6 +1347,106 @@ Testing:
 - sync to XML verifies `Tasks/<name>.xml`, `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`, `Ext/Help/ru.html`, form XML,
   template XML, and command module.
 
+## Object: MetadataWebService
+
+- `itemType`: `MetadataWebService`
+- `itemTypePrefix`: `WebСервис`
+- XML directory: `WebServices`
+- XML container: `WebService`
+- implement through `rules.ts`
+
+Parent properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `namespace` | `Namespace` | `ПространствоИмен` | `string` |
+| `xdtoPackages` | `XDTOPackages` | `ПакетыXDTO` | new `XDTOPackages` common type |
+| `descriptorFileName` | `DescriptorFileName` | `ИмяФайлаДескриптора` | `string` |
+| `reuseSessions` | `ReuseSessions` | `ПовторноеИспользованиеСеансов` | `SystemEnumeration: SessionReuseMode` |
+| `sessionMaxAge` | `SessionMaxAge` | `ВремяЖизниСеанса` | `number` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+Child objects:
+
+- `Operation[]`: new child object collection under `ChildObjects/Operation`.
+- `Parameter[]`: new operation child object collection under `Operation/ChildObjects/Parameter`.
+
+Operation properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `xdtoReturningValueType` | `XDTOReturningValueType` | `ТипВозвращаемогоЗначенияXDTO` | `string` / QName |
+| `nillable` | `Nillable` | `МожетБытьНеопределено` | `boolean` |
+| `transactioned` | `Transactioned` | `Транзакционный` | `boolean` |
+| `procedureName` | `ProcedureName` | `ИмяПроцедуры` | `string` |
+| `dataLockControlMode` | `DataLockControlMode` | `РежимУправленияБлокировкойДанных` | `SystemEnumeration: DefaultDataLockControlMode` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+Parameter properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `xdtoValueType` | `XDTOValueType` | `ТипЗначенияXDTO` | `string` / QName |
+| `nillable` | `Nillable` | `МожетБытьНеопределено` | `boolean` |
+| `transferDirection` | `TransferDirection` | `НаправлениеПередачи` | `SystemEnumeration: TransferDirection` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+External files:
+
+- `module`: existing `Module`, XML `WebServices/<name>/Ext/Module.bsl`, nkdk `Модуль.bsl`
+
+`XDTOPackages`:
+
+- do not reuse `MetadataValueCollection`: the XML item shape is not plain `xr:Item xsi:type=...`; it contains
+  `xr:Presentation`, `xr:CheckState`, and nested `xr:Value`;
+- the first implementation should preserve `Presentation` and `CheckState` fields even when presentation is empty and
+  check state is `0`;
+- `xr:Value` can be either `xr:MDObjectRef` such as `XDTOPackage.ПакетXDTO1` or plain string namespace URI.
+
+Default policy from `minimal.xml`:
+
+- `reuseSessions`: `defaultValueXML: "AutoUse"`, `defaultValueYAML: "AutoUse"`
+- `sessionMaxAge`: `defaultValueXML: 20`, `defaultValueYAML: 20`
+- the minimal object has empty `XDTOPackages` and no operations;
+- `namespace` and `descriptorFileName` remain explicit content, not YAML defaults;
+- operation defaults from the full fixture:
+  - `nillable`: `defaultValueXML: false`, `defaultValueYAML: false`
+  - `transactioned`: `defaultValueXML: false`, `defaultValueYAML: false`
+  - `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
+- parameter defaults from the updated fixture copied from `/Users/nikita/git/roundTripElements/WebServices`:
+  - `nillable`: `defaultValueXML: false`, `defaultValueYAML: false`
+  - `transferDirection`: `defaultValueXML: "In"`, `defaultValueYAML: "In"`
+- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+
+Implementation notes:
+
+- Reuse the existing child-collection pattern from `metadataHTTPService` and `metadataIntegrationService`.
+- The updated `full.xml` and sync XML fixtures include two parameters under `ОперацияВсеСвойства`; use them for
+  `Parameter[]` round-trip coverage.
+- The module contains handlers named by `Operation.ProcedureName`, so it must be preserved with normal `Module`
+  external-file handling.
+
+Testing:
+
+- standard XML/YAML/sync tests;
+- XML tests cover `minimal.xml` and updated `full.xml`;
+- tests cover XDTO package references, string namespace package values, operation return type, operation defaults, and
+  operation parameters with both `InOut` and default `In` transfer directions;
+- sync from XML verifies `Свойства.yaml` and `Модуль.bsl` when present;
+- sync to XML verifies `WebServices/<name>.xml` and `WebServices/<name>/Ext/Module.bsl` when present.
+
 ## Registries And Tests
 
 Every included object should be added to the same registry set as other top-level applied objects:
@@ -1372,6 +1473,4 @@ external form files for common forms.
 
 ## Open Queue
 
-Objects still needing brainstorming in this pass:
-
-- `metadataWebService`
+Objects still needing brainstorming in this pass: none.
