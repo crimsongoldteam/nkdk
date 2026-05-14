@@ -25,6 +25,10 @@ import {
   MetadataAccumulationRegisterYAML,
 } from "~/metadata/appliedObjects/metadataAccumulationRegister/types"
 import {
+  MetadataBusinessProcess,
+  MetadataBusinessProcessYAML,
+} from "~/metadata/appliedObjects/metadataBusinessProcess/types"
+import {
   MetadataAccountingRegister,
   MetadataAccountingRegisterYAML,
 } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
@@ -92,6 +96,7 @@ import {
   MetadataSettingsStorageYAML,
 } from "~/metadata/appliedObjects/metadataSettingsStorage/types"
 import { MetadataSequence, MetadataSequenceYAML } from "~/metadata/appliedObjects/metadataSequence/types"
+import { MetadataTask, MetadataTaskYAML } from "~/metadata/appliedObjects/metadataTask/types"
 import {
   MetadataSessionParameter,
   MetadataSessionParameterYAML,
@@ -249,6 +254,12 @@ import {
   MetadataTabularSectionAttributes,
   MetadataTabularSectionAttributesYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
+import {
+  MetadataTaskAddressingAttribute,
+  MetadataTaskAddressingAttributeYAML,
+  MetadataTaskAddressingAttributes,
+  MetadataTaskAddressingAttributesYAML,
+} from "~/metadata/commonObjects/metadataTaskAddressingAttribute/types"
 import { MetadataCommandGroup, MetadataCommandGroupYAML } from "~/metadata/commonObjects/metadataCommandGroup/types"
 import {
   MetadataField,
@@ -320,6 +331,8 @@ import {
 import {
   MetadataChartOfAccountsTabularSections,
   MetadataChartOfAccountsTabularSectionsYAML,
+  MetadataBusinessProcessTabularSections,
+  MetadataBusinessProcessTabularSectionsYAML,
   MetadataChartOfCalculationTypesTabularSections,
   MetadataChartOfCalculationTypesTabularSectionsYAML,
   MetadataChartOfCharacteristicTypesTabularSections,
@@ -330,6 +343,8 @@ import {
   MetadataDocumentTabularSectionsYAML,
   MetadataExchangePlanTabularSections,
   MetadataExchangePlanTabularSectionsYAML,
+  MetadataTaskTabularSections,
+  MetadataTaskTabularSectionsYAML,
   MetadataTabularSections,
   MetadataTabularSectionsYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
@@ -637,6 +652,10 @@ export type PropertyTypeRegistry = {
 
     yaml: MetadataAttributeYAML
   }
+  MetadataTaskAddressingAttribute: {
+    item: MetadataTaskAddressingAttribute
+    yaml: MetadataTaskAddressingAttributeYAML
+  }
   MetadataCommandGroup: {
     item: MetadataCommandGroup
     enterprise: string
@@ -718,6 +737,14 @@ export type PropertyTypeRegistry = {
     item: MetadataDocumentTabularSections
     yaml: MetadataDocumentTabularSectionsYAML
   }
+  MetadataTaskTabularSections: {
+    item: MetadataTaskTabularSections
+    yaml: MetadataTaskTabularSectionsYAML
+  }
+  MetadataBusinessProcessTabularSections: {
+    item: MetadataBusinessProcessTabularSections
+    yaml: MetadataBusinessProcessTabularSectionsYAML
+  }
   MetadataDataProcessorTabularSections: {
     item: MetadataDataProcessorTabularSections
     yaml: MetadataDataProcessorTabularSectionsYAML
@@ -796,6 +823,10 @@ export type PropertyTypeRegistry = {
   MetadataAttributes: {
     item: MetadataAttributes
     yaml: MetadataAttributesYAML
+  }
+  MetadataTaskAddressingAttributes: {
+    item: MetadataTaskAddressingAttributes
+    yaml: MetadataTaskAddressingAttributesYAML
   }
   MetadataDocumentAttributes: {
     item: MetadataDocumentAttributes
@@ -917,6 +948,10 @@ export type PropertyTypeRegistry = {
     item: MetadataAccumulationRegister
     yaml: MetadataAccumulationRegisterYAML
   }
+  MetadataBusinessProcess: {
+    item: MetadataBusinessProcess
+    yaml: MetadataBusinessProcessYAML
+  }
   MetadataAccountingRegister: {
     item: MetadataAccountingRegister
     yaml: MetadataAccountingRegisterYAML
@@ -956,6 +991,10 @@ export type PropertyTypeRegistry = {
   MetadataSequence: {
     item: MetadataSequence
     yaml: MetadataSequenceYAML
+  }
+  MetadataTask: {
+    item: MetadataTask
+    yaml: MetadataTaskYAML
   }
   MetadataSessionParameter: {
     item: MetadataSessionParameter
@@ -1325,6 +1364,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   FunctionalOptions: "FunctionalOptions",
   IndexField: "IndexField",
   MetadataAttribute: "MetadataAttribute",
+  MetadataTaskAddressingAttribute: "MetadataTaskAddressingAttribute",
   MetadataCommandGroup: "MetadataCommandGroup",
   MetadataField: "MetadataField",
   MetadataFields: "MetadataFields",
@@ -1344,6 +1384,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataItemLink: "MetadataItemLink",
   MetadataTabularSections: "MetadataTabularSections",
   MetadataDocumentTabularSections: "MetadataDocumentTabularSections",
+  MetadataTaskTabularSections: "MetadataTaskTabularSections",
+  MetadataBusinessProcessTabularSections: "MetadataBusinessProcessTabularSections",
   MetadataDataProcessorTabularSections: "MetadataDataProcessorTabularSections",
   MetadataExchangePlanTabularSections: "MetadataExchangePlanTabularSections",
   MetadataChartOfAccountsTabularSections: "MetadataChartOfAccountsTabularSections",
@@ -1367,6 +1409,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   PagesChildItems: "PagesChildItems",
   FunctionalOptionsProperty: "FunctionalOptionsProperty",
   MetadataAttributes: "MetadataAttributes",
+  MetadataTaskAddressingAttributes: "MetadataTaskAddressingAttributes",
   MetadataDocumentAttributes: "MetadataDocumentAttributes",
   MetadataTabularSectionAttributes: "MetadataTabularSectionAttributes",
   MetadataItemLinks: "MetadataItemLinks",
@@ -1397,6 +1440,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataWebService: "MetadataWebService",
   MetadataInformationRegister: "MetadataInformationRegister",
   MetadataAccumulationRegister: "MetadataAccumulationRegister",
+  MetadataBusinessProcess: "MetadataBusinessProcess",
   MetadataAccountingRegister: "MetadataAccountingRegister",
   MetadataCalculationRegister: "MetadataCalculationRegister",
   MetadataChartOfAccounts: "MetadataChartOfAccounts",
@@ -1407,6 +1451,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataEnumeration: "MetadataEnumeration",
   MetadataEnumerationValues: "MetadataEnumerationValues",
   MetadataSequence: "MetadataSequence",
+  MetadataTask: "MetadataTask",
   MetadataSessionParameter: "MetadataSessionParameter",
   MetadataStyleItem: "MetadataStyleItem",
   MetadataWSReference: "MetadataWSReference",

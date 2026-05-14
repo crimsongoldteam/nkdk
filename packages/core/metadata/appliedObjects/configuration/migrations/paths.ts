@@ -13,6 +13,8 @@ const TOP_LEVEL_PREFIXES = new Set([
   "Документ",
   "РегистрСведений",
   "РегистрНакопления",
+  "БизнесПроцесс",
+  "Задача",
   "ПланОбмена",
   "Нумератор",
   "Последовательность",
@@ -39,7 +41,7 @@ const TOP_LEVEL_PREFIXES = new Set([
   "WebСервис",
   "WSСсылка",
 ])
-const OBJECT_WITH_CHILDREN_PREFIXES = new Set(["Справочник", "Документ", "ПланОбмена"])
+const OBJECT_WITH_CHILDREN_PREFIXES = new Set(["Справочник", "Документ", "ПланОбмена", "БизнесПроцесс", "Задача"])
 const REGISTER_PREFIXES = new Set(["РегистрСведений", "РегистрНакопления"])
 
 export function parseMigrationPath(path: string): ParsedMigrationPath {

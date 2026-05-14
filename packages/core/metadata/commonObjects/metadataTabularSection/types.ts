@@ -59,6 +59,16 @@ export type MetadataDocumentTabularSections = MetadataTabularSections
 export type MetadataDocumentTabularSectionsXML = MetadataTabularSectionsXML
 export type MetadataDocumentTabularSectionsYAML = MetadataTabularSectionsYAML
 
+export type MetadataTaskTabularSection = MetadataTabularSection
+export type MetadataTaskTabularSections = MetadataTabularSections
+export type MetadataTaskTabularSectionsXML = MetadataTabularSectionsXML
+export type MetadataTaskTabularSectionsYAML = MetadataTabularSectionsYAML
+
+export type MetadataBusinessProcessTabularSection = MetadataTabularSection
+export type MetadataBusinessProcessTabularSections = MetadataTabularSections
+export type MetadataBusinessProcessTabularSectionsXML = MetadataTabularSectionsXML
+export type MetadataBusinessProcessTabularSectionsYAML = MetadataTabularSectionsYAML
+
 export type MetadataDataProcessorTabularSection = MetadataTabularSection
 export type MetadataDataProcessorTabularSections = MetadataTabularSections
 export type MetadataDataProcessorTabularSectionsXML = MetadataTabularSectionsXML

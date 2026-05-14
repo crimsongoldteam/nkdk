@@ -152,6 +152,44 @@ export const MetadataDocumentTabularSectionRules = {
   },
 } as const satisfies MetadataItemRule
 
+export const MetadataTaskTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const parentPath = getParentNameByItemType(params.context, "MetadataTask")
+        return `${parentPath}.${params.metadata.name}`
+      },
+      items: [
+        { name: "TaskTabularSection", category: "TabularSection" },
+        { name: "TaskTabularSectionRow", category: "TabularSectionRow" },
+      ],
+    },
+  },
+} as const satisfies MetadataItemRule
+
+export const MetadataBusinessProcessTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const parentPath = getParentNameByItemType(params.context, "MetadataBusinessProcess")
+        return `${parentPath}.${params.metadata.name}`
+      },
+      items: [
+        { name: "BusinessProcessTabularSection", category: "TabularSection" },
+        { name: "BusinessProcessTabularSectionRow", category: "TabularSectionRow" },
+      ],
+    },
+  },
+} as const satisfies MetadataItemRule
+
 export const MetadataDataProcessorTabularSectionRules = {
   itemType: "MetadataTabularSection",
   properties: {

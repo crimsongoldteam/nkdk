@@ -10,6 +10,7 @@ import { MetadataHTTPServiceRules } from "../metadataHTTPService/rules"
 import { MetadataIntegrationServiceRules } from "../metadataIntegrationService/rules"
 import { MetadataInformationRegisterRules } from "../metadataInformationRegister/rules"
 import { MetadataAccumulationRegisterRules } from "../metadataAccumulationRegister/rules"
+import { MetadataBusinessProcessRules } from "../metadataBusinessProcess/rules"
 import { MetadataExchangePlanRules } from "../metadataExchangePlan/rules"
 import { MetadataDocumentNumeratorRules } from "../metadataDocumentNumerator/rules"
 import { MetadataEnumerationRules } from "../metadataEnumeration/rules"
@@ -30,6 +31,7 @@ import { MetadataCommonTemplateRules } from "../metadataCommonTemplate/rules"
 import { MetadataStyleRules } from "../metadataStyle/rules"
 import { MetadataStyleItemRules } from "../metadataStyleItem/rules"
 import { MetadataSubsystemRules } from "../metadataSubsystem/rules"
+import { MetadataTaskRules } from "../metadataTask/rules"
 import { MetadataWebServiceRules } from "../metadataWebService/rules"
 import { MetadataWSReferenceRules } from "../metadataWSReference/rules"
 
@@ -68,8 +70,10 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataSettingsStorageRules,
   MetadataStyleItemRules,
   MetadataCommonAttributeRules,
+  MetadataBusinessProcessRules,
   MetadataBotRules,
   MetadataIntegrationServiceRules,
+  MetadataTaskRules,
   MetadataWebServiceRules,
   MetadataWSReferenceRules,
 ]

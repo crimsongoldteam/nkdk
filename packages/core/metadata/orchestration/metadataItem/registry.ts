@@ -179,6 +179,10 @@ import {
   MetadataAccumulationRegisterYAML,
 } from "../../appliedObjects/metadataAccumulationRegister/types"
 import {
+  MetadataBusinessProcess,
+  MetadataBusinessProcessYAML,
+} from "../../appliedObjects/metadataBusinessProcess/types"
+import {
   MetadataAccountingRegister,
   MetadataAccountingRegisterYAML,
 } from "../../appliedObjects/metadataAccountingRegister/types"
@@ -242,6 +246,7 @@ import {
   MetadataSettingsStorageYAML,
 } from "../../appliedObjects/metadataSettingsStorage/types"
 import { MetadataSequence, MetadataSequenceYAML } from "../../appliedObjects/metadataSequence/types"
+import { MetadataTask, MetadataTaskYAML } from "../../appliedObjects/metadataTask/types"
 import {
   MetadataSessionParameter,
   MetadataSessionParameterYAML,
@@ -1064,6 +1069,11 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataAccumulationRegisterYAML
   }
 
+  MetadataBusinessProcess: {
+    metadata: MetadataBusinessProcess
+    yaml: MetadataBusinessProcessYAML
+  }
+
   MetadataAccountingRegister: {
     metadata: MetadataAccountingRegister
     yaml: MetadataAccountingRegisterYAML
@@ -1112,6 +1122,11 @@ export type MetadataItemTypeRegistry = {
   MetadataSequence: {
     metadata: MetadataSequence
     yaml: MetadataSequenceYAML
+  }
+
+  MetadataTask: {
+    metadata: MetadataTask
+    yaml: MetadataTaskYAML
   }
 
   MetadataSessionParameter: {

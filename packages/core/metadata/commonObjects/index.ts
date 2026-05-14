@@ -142,6 +142,7 @@ import "./externalPicture/fromXML"
 import "./externalPicture/toXML"
 
 import "./metadataAttribute/register"
+import "./metadataTaskAddressingAttribute/register"
 
 import "./metadataDocumentJournalColumn/register"
 
