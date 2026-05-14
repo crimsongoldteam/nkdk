@@ -255,8 +255,6 @@ import {
   MetadataTabularSectionAttributesYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import {
-  MetadataTaskAddressingAttribute,
-  MetadataTaskAddressingAttributeYAML,
   MetadataTaskAddressingAttributes,
   MetadataTaskAddressingAttributesYAML,
 } from "~/metadata/commonObjects/metadataTaskAddressingAttribute/types"
@@ -651,10 +649,6 @@ export type PropertyTypeRegistry = {
     item: MetadataAttribute
 
     yaml: MetadataAttributeYAML
-  }
-  MetadataTaskAddressingAttribute: {
-    item: MetadataTaskAddressingAttribute
-    yaml: MetadataTaskAddressingAttributeYAML
   }
   MetadataCommandGroup: {
     item: MetadataCommandGroup
@@ -1364,7 +1358,6 @@ export const PropertyRuleTypeKeys = Object.keys({
   FunctionalOptions: "FunctionalOptions",
   IndexField: "IndexField",
   MetadataAttribute: "MetadataAttribute",
-  MetadataTaskAddressingAttribute: "MetadataTaskAddressingAttribute",
   MetadataCommandGroup: "MetadataCommandGroup",
   MetadataField: "MetadataField",
   MetadataFields: "MetadataFields",

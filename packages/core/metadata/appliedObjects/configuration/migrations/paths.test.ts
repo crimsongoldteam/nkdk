@@ -10,6 +10,18 @@ describe("migration paths", () => {
       ownerPath: "Справочник",
       levelPath: "Справочник",
     })
+    expect(parseMigrationPath("БизнесПроцесс.Согласование")).toMatchObject({
+      kind: "object",
+      localName: "Согласование",
+      ownerPath: "БизнесПроцесс",
+      levelPath: "БизнесПроцесс",
+    })
+    expect(parseMigrationPath("Задача.Исполнение")).toMatchObject({
+      kind: "object",
+      localName: "Исполнение",
+      ownerPath: "Задача",
+      levelPath: "Задача",
+    })
   })
 
   it("parses simple top level applied object paths", () => {
@@ -88,6 +100,28 @@ describe("migration paths", () => {
       localName: "Артикул",
       ownerPath: "Справочник.Товары",
       levelPath: "Справочник.Товары.Реквизит",
+    })
+    expect(parseMigrationPath("БизнесПроцесс.Согласование.Реквизит.Комментарий")).toMatchObject({
+      kind: "attribute",
+      localName: "Комментарий",
+      ownerPath: "БизнесПроцесс.Согласование",
+      levelPath: "БизнесПроцесс.Согласование.Реквизит",
+    })
+    expect(parseMigrationPath("Задача.Исполнение.Реквизит.Срок")).toMatchObject({
+      kind: "attribute",
+      localName: "Срок",
+      ownerPath: "Задача.Исполнение",
+      levelPath: "Задача.Исполнение.Реквизит",
+    })
+  })
+
+  it("parses task addressing attribute paths", () => {
+    expect(parseMigrationPath("Задача.Исполнение.РеквизитАдресации.Исполнитель")).toEqual({
+      kind: "attribute",
+      segments: ["Задача", "Исполнение", "РеквизитАдресации", "Исполнитель"],
+      localName: "Исполнитель",
+      ownerPath: "Задача.Исполнение",
+      levelPath: "Задача.Исполнение.РеквизитАдресации",
     })
   })
 

@@ -68,6 +68,16 @@ export function parseMigrationPath(path: string): ParsedMigrationPath {
     }
   }
 
+  if (segments.length === 4 && segments[0] === "Задача" && segments[2] === "РеквизитАдресации") {
+    return {
+      kind: "attribute",
+      segments,
+      localName: segments[3]!,
+      ownerPath: `${segments[0]}.${segments[1]}`,
+      levelPath: `${segments[0]}.${segments[1]}.РеквизитАдресации`,
+    }
+  }
+
   if (segments.length === 4 && OBJECT_WITH_CHILDREN_PREFIXES.has(segments[0]!) && segments[2] === "ТабличнаяЧасть") {
     return {
       kind: "tabularSection",

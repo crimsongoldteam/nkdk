@@ -113,4 +113,33 @@ describe("remapReferenceModel", () => {
     expect(referenceModel.tabularSections[0]?.name).toBe("Товары")
     expect(referenceModel.tabularSections[0]?.attributes[0]?.name).toBe("Количество")
   })
+
+  it("сохраняет reference item при переименовании реквизита адресации задачи", () => {
+    const currentModel = {
+      addressingAttributes: [{ name: "НовыйИсполнитель" }],
+    }
+    const referenceModel = {
+      addressingAttributes: [{ name: "Исполнитель", uuid: "addressing-attribute-old-uuid" }],
+    }
+
+    const result = remapReferenceModel({
+      rule,
+      currentObjectPath: "Задача.Исполнение",
+      currentModel,
+      referenceModel,
+      referencePathByCurrentPath: new Map([
+        [
+          "Задача.Исполнение.РеквизитАдресации.НовыйИсполнитель",
+          "Задача.Исполнение.РеквизитАдресации.Исполнитель",
+        ],
+      ]),
+    })
+
+    expect(result?.addressingAttributes).toEqual([
+      { name: "НовыйИсполнитель", uuid: "addressing-attribute-old-uuid" },
+    ])
+    expect(referenceModel.addressingAttributes).toEqual([
+      { name: "Исполнитель", uuid: "addressing-attribute-old-uuid" },
+    ])
+  })
 })

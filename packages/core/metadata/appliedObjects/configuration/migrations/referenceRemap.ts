@@ -20,6 +20,13 @@ export function remapReferenceModel(params: {
   })
   remapCollection({
     ownerPath: currentObjectPath,
+    segment: "РеквизитАдресации",
+    currentItems: currentModel["addressingAttributes"],
+    referenceItems: cloned["addressingAttributes"],
+    referencePathByCurrentPath,
+  })
+  remapCollection({
+    ownerPath: currentObjectPath,
     segment: "Измерение",
     currentItems: currentModel["dimensions"],
     referenceItems: cloned["dimensions"],
@@ -54,7 +61,7 @@ export function remapReferenceModel(params: {
 
 function remapCollection(params: {
   ownerPath: string
-  segment: "Реквизит" | "ТабличнаяЧасть" | "Измерение" | "Ресурс"
+  segment: "Реквизит" | "РеквизитАдресации" | "ТабличнаяЧасть" | "Измерение" | "Ресурс"
   currentItems: unknown
   referenceItems: unknown
   referencePathByCurrentPath: Map<string, string>
