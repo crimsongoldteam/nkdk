@@ -30,17 +30,20 @@ example `"Expense"` or `"Receipt"`.
 
 ## Export
 
-Do not add heuristic export for raw strings. A generic string value does not carry `typeSE`, so
-choosing an `ent:*` type during export would be ambiguous.
+Do not add heuristic export for raw strings in generic `MetadataDcsMetadataValue`. A generic string
+value does not carry `typeSE`, so choosing an `ent:*` type during export would be ambiguous.
 
-Existing export remains the supported path:
+Generic export remains the supported explicit path:
 
 ```ts
 { type: "MetadataDcsMetadataValue", valueType: "SystemEnumeration", typeSE: "AccumulationRecordType" }
 ```
 
-This keeps round-trip behavior explicit on export while unblocking import of real DCS XML where the
-type is already present in `xsi:type`.
+For DCS parameters, export has additional local context: the same item contains `dcssch:valueType`.
+When that `valueType` is a single known `ent:*` system enumeration, `dcsParameter/toXML.ts` should
+export the parameter value through a temporary `SystemEnumeration` rule for that item. This keeps
+the generic value model unchanged while allowing XML -> model -> XML round-trip for parameters like
+`AccumulationRecordType`.
 
 ## Tests
 
@@ -50,6 +53,8 @@ Add a focused XML import fixture for `ent:AccumulationRecordType` under
 Expected behavior:
 
 - `xsi:type="ent:AccumulationRecordType"` imports as `"Expense"`;
+- a DCS parameter with `valueType` `ent:AccumulationRecordType` exports the value back as
+  `xsi:type="ent:AccumulationRecordType"`;
 - the existing unsupported-type error still applies to unknown `ent:*` names;
 - export tests continue to cover the explicit `SystemEnumeration` rule path.
 
