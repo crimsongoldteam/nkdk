@@ -18,7 +18,7 @@ export interface CommandBarButtonStructureFixture {
 
 const commonButtonModel = {
   visible: false,
-  userVisible: { common: true, values: [{ name: "Администратор", value: false }] },
+  userVisible: { common: true, values: [{ name: "Role.Администратор", value: false }] },
   titleHeight: 30,
   representation: "PictureAndText" as const,
   defaultButton: true,
@@ -57,7 +57,7 @@ const commonButtonModel = {
 const commonButtonPartialYAML = {
   Вид: "ОбычнаяКнопка" as const,
   Видимость: "Ложь" as const,
-  РазрешитьИспользование: { Администратор: "Ложь" as const },
+  РазрешитьИспользование: { "Role.Администратор": "Ложь" as const },
   ВысотаЗаголовка: 30,
   Отображение: "КартинкаИТекст" as const,
   КнопкаПоУмолчанию: "Истина" as const,

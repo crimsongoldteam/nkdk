@@ -61,7 +61,7 @@ export const fullSingleSearchControlAddition: SingleSearchControlAddition = {
     type: "Label",
     userVisible: {
       common: true,
-      values: [{ name: "Администратор", value: true }],
+      values: [{ name: "Role.Администратор", value: true }],
     },
     verticalAlignInGroup: "Top",
     verticalStretch: true,
@@ -78,7 +78,7 @@ export const fullSingleSearchControlAddition: SingleSearchControlAddition = {
   toolTipRepresentation: "None",
   userVisible: {
     common: true,
-    values: [{ name: "Администратор", value: true }],
+    values: [{ name: "Role.Администратор", value: true }],
   },
   verticalAlignInGroup: "Top",
   visible: true,
@@ -106,7 +106,7 @@ export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAM
   },
   ОтображениеПодсказки: "Нет",
   Подсказка: "Подсказка",
-  РазрешитьИспользование: { Администратор: "Истина" },
+  РазрешитьИспользование: { "Role.Администратор": "Истина" },
   РасширеннаяПодсказка: {
     Заголовок: "Оформление формы",
     АвтоМаксимальнаяВысота: "Истина",
@@ -122,7 +122,7 @@ export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAM
     МаксимальнаяШирина: 400,
     ОтображениеПодсказки: "Нет",
     Подсказка: "Подсказка",
-    РазрешитьИспользование: { Администратор: "Истина" },
+    РазрешитьИспользование: { "Role.Администратор": "Истина" },
     ПропускатьПриВводе: "Ложь",
     РастягиватьПоВертикали: "Истина",
     РастягиватьПоГоризонтали: "Истина",

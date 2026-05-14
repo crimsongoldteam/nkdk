@@ -8,7 +8,7 @@ export const fullFormCommands: Omit<Required<FormCommand>, "id">[] = [
     toolTip: { items: { ru: "Подсказка" } },
     use: {
       common: true,
-      values: [{ name: "Администратор", value: false }],
+      values: [{ name: "Role.Администратор", value: false }],
     },
     shortcut: "S",
     picture: {
@@ -36,7 +36,7 @@ export const fullFormCommandsYAML: FormCommandsYAML = {
     ИзменяемыеДанные: "Истина",
     Картинка: "Свойства",
     ИспользованиеТекущейСтроки: "НеИспользует",
-    РазрешитьИспользование: { Администратор: "Ложь" },
+    РазрешитьИспользование: { "Role.Администратор": "Ложь" },
     ФункциональныеОпции: ["FunctionalOption.ФункциональнаяОпцияБулево"],
     Таблица: "Таблица",
   },

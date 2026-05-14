@@ -161,7 +161,7 @@ export const fullTableInputField: TableInputField = {
   visible: false,
   userVisible: {
     common: true,
-    values: [{ name: "Администратор", value: false }],
+    values: [{ name: "Role.Администратор", value: false }],
   },
   defaultItem: true,
   enabled: false,

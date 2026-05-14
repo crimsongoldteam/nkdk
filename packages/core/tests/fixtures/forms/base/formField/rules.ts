@@ -62,7 +62,7 @@ const fullFormFieldCommonFixtureBase = {
   footerFont: { kind: "StyleItem" as const, ref: "NormalTextFont" as const },
   userVisible: {
     common: true,
-    values: [{ name: "Администратор", value: false }],
+    values: [{ name: "Role.Администратор", value: false }],
   },
 }
 
@@ -193,7 +193,7 @@ const fullFormFieldPartialYAMLCommonFixtureBase = {
   ПредупреждениеПриРедактировании: "Предупреждение",
   ПропускатьПриВводе: "Истина",
   ПутьКДаннымПодвала: "РеквизитПодвала",
-  РазрешитьИспользование: { Администратор: "Ложь" },
+  РазрешитьИспользование: { "Role.Администратор": "Ложь" },
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   РежимРедактирования: "ВходПриВводе",
   СочетаниеКлавиш: "S",

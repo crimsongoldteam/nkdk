@@ -17,7 +17,7 @@ export const fullFormGroupCommonFixture = {
   toolTipRepresentation: "Balloon" as const,
   userVisible: {
     common: true,
-    values: [{ name: "Администратор", value: false }],
+    values: [{ name: "Role.Администратор", value: false }],
   },
   verticalAlignInGroup: "Top" as const,
   verticalStretch: false,
@@ -62,7 +62,7 @@ export const fullFormGroupPartialYAMLCommonFixture = {
   ЦветТекстаЗаголовка: "Малиновый",
   Подсказка: "Подсказка",
   ОтображениеПодсказки: "Всплывающая",
-  РазрешитьИспользование: { Администратор: "Ложь" },
+  РазрешитьИспользование: { "Role.Администратор": "Ложь" },
   ВертикальноеПоложениеВГруппе: "Верх",
   РастягиватьПоВертикали: "Ложь",
   Видимость: "Ложь",
