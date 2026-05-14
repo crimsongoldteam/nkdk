@@ -117,3 +117,24 @@ reference и отказа от восстановления некорректн
 Проверка: точечный тест `StandardAttributeDescriptions` должен подтверждать экспорт и порядок
 `RecordType` перед `Active`; тест накопительного регистра должен подтверждать, что `Turnovers`
 не получает `RecordType`, а `Balance` получает; затем повторить round-trip triage.
+
+### Событие формы OnUpdateUserSettingSetAtServer
+
+После исправления `RecordType` следующий triage показал смену регистра XML-имени события формы:
+
+```diff
+- <Event name="OnUpdateUserSettingSetAtServer">
++ <Event name="onUpdateUserSettingSetAtServer">
+```
+
+Причина: XML-импорт нормализует имя события в ключ модели с маленькой первой буквой, а XML-экспорт
+возвращает canonical XML-case только для событий, известных правилу. Событие
+`onUpdateUserSettingSetAtServer` уже есть у элемента `Table`, но отсутствует в списке событий
+корневой формы.
+
+Решение: добавить `onUpdateUserSettingSetAtServer:
+"ПриОбновленииСоставаПользовательскихНастроекНаСервере"` в
+`MetadataClientApplicationFormRules.properties.events.items`.
+
+Проверка: точечный тест экспорта `Events` по правилу корневой формы должен выдавать
+`name="OnUpdateUserSettingSetAtServer"`.
