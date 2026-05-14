@@ -62,6 +62,25 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 
+  it("exports RecordType when it is part of standard attribute names", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: {
+        RecordType: "ВидДвижения",
+        Active: "Активность",
+      },
+    }
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [{ itemType: "StandardAttributeDescription", name: "Active", comment: "changed" }],
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:StandardAttribute name="RecordType">')
+    expect(result).toContain('<xr:StandardAttribute name="Active">')
+    expect(result.indexOf('name="RecordType"')).toBeLessThan(result.indexOf('name="Active"'))
+  })
+
   it("exports undefined", () => {
     const rule: PropertyRule = {
       type: "StandardAttributeDescriptions",

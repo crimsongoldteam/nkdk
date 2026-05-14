@@ -6,11 +6,25 @@ const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 
 export const MetadataAccumulationRegisterStandardAttributeNames: Record<string, string> = {
+  RecordType: "ВидДвижения",
   Active: "Активность",
   LineNumber: "НомерСтроки",
   Recorder: "Регистратор",
   Period: "Период",
 }
+
+const MetadataAccumulationRegisterTurnoverStandardAttributeNames: Record<string, string> = {
+  Active: "Активность",
+  LineNumber: "НомерСтроки",
+  Recorder: "Регистратор",
+  Period: "Период",
+}
+
+const isTurnoverAccumulationRegister = (metadataItem: unknown): boolean =>
+  typeof metadataItem === "object" &&
+  metadataItem !== null &&
+  "registerType" in metadataItem &&
+  metadataItem.registerType === "Turnovers"
 
 const MetadataAccumulationRegisterCommandRules = {
   ...MetadataCommandRules,
@@ -113,6 +127,10 @@ export const MetadataAccumulationRegisterRules = {
       yaml: "СтандартныеРеквизиты",
       type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataAccumulationRegisterStandardAttributeNames,
+      standartAttributeNamesXML: (metadataItem) =>
+        isTurnoverAccumulationRegister(metadataItem)
+          ? MetadataAccumulationRegisterTurnoverStandardAttributeNames
+          : MetadataAccumulationRegisterStandardAttributeNames,
       xmlParents: properties,
     },
     dataLockControlMode: {

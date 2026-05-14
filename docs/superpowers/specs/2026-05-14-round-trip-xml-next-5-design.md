@@ -88,3 +88,32 @@ XML-тип `dcscor:Field` должен сохраняться без угады�
 
 Проверка: добавить тесты для обычного импорта, reference-импорта, экспорта пустого значения с
 reference и отказа от восстановления некорректного reference.
+
+### StandardAttribute RecordType у регистров накопления
+
+Следующий triage после снятия DCS-блокеров показал однотипное расхождение в первых пяти файлах:
+у balance-регистров накопления удаляется стандартный реквизит `RecordType`.
+
+По XML-источнику `HEAD` все 69 регистров накопления в текущем наборе имеют
+`<RegisterType>Balance</RegisterType>` и блок:
+
+```xml
+<xr:StandardAttribute name="RecordType">
+```
+
+Причина: `MetadataAccumulationRegisterStandardAttributeNames` не содержит `RecordType`, а экспорт
+`StandardAttributeDescriptions` разворачивает секцию только по списку стандартных реквизитов из
+правила.
+
+Решение:
+
+- добавить `RecordType: "ВидДвижения"` в общий словарь стандартных реквизитов;
+- добавить `RecordType: "ВидДвижения"` в YAML/graph-словарь стандартных реквизитов
+  `MetadataAccumulationRegister`;
+- для XML-экспорта сделать список стандартных реквизитов контекстным: при
+  `registerType === "Turnovers"` не добавлять `RecordType`, во всех остальных случаях считать
+  регистр balance/default и ставить `RecordType` перед `Active`.
+
+Проверка: точечный тест `StandardAttributeDescriptions` должен подтверждать экспорт и порядок
+`RecordType` перед `Active`; тест накопительного регистра должен подтверждать, что `Turnovers`
+не получает `RecordType`, а `Balance` получает; затем повторить round-trip triage.
