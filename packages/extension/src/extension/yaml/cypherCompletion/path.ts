@@ -13,9 +13,9 @@ export function parseTopLevelPropertiesPath(filePath: string): TopLevelPropertie
   const normalizedPath = filePath.replace(/\\/g, "/")
   const parts = normalizedPath.split("/")
 
-  const fileName = parts.at(-1)
-  const name = parts.at(-2)
-  const dir = parts.at(-3)
+  const fileName = parts[parts.length - 1]
+  const name = parts[parts.length - 2]
+  const dir = parts[parts.length - 3]
 
   if (fileName !== "Свойства.yaml" || dir !== "Справочник" || !name) {
     return undefined
