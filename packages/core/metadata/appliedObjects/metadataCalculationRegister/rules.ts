@@ -175,7 +175,7 @@ export const MetadataCalculationRegisterRules = {
       xml: "Template",
       type: "ChildTemplateNames",
       xmlParents: childObjects,
-      folderName: "Шаблоны",
+      folderName: "Макеты",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,

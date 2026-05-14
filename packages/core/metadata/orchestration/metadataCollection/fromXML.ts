@@ -31,10 +31,15 @@ export const importMetadataItemCollectionFromXML = <
           rule: itemRule,
         })
         if (!properties) return undefined
-        return {
+        const result = {
           ...properties,
           ...(item._name !== undefined ? { name: item._name } : {}),
         } as ToMetadata<Rule["itemType"]> & NamedMetadataItem
+        for (const key of Object.getOwnPropertyNames(properties)) {
+          const descriptor = Object.getOwnPropertyDescriptor(properties, key)
+          if (descriptor && descriptor.enumerable === false) Object.defineProperty(result, key, descriptor)
+        }
+        return result
       })
       .filter((item): item is ToMetadata<Rule["itemType"]> & NamedMetadataItem => item !== undefined)
 
