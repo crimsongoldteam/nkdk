@@ -223,24 +223,79 @@ Testing:
 
 ## Object: MetadataSubsystem
 
-Detailed design is kept in
-`docs/superpowers/specs/2026-05-14-metadata-subsystem-design.md`.
-
-Summary:
-
 - `itemType`: `MetadataSubsystem`
 - `itemTypePrefix`: `Подсистема`
 - XML directory: `Subsystems`
 - XML container: `Subsystem`
 - implement through `rules.ts`
-- preserve `Content` with `MetadataItemLinks`
-- preserve child subsystem names through a small `ChildSubsystemNames` common property type
-- copy external files opaquely:
-  - `Ext/CommandInterface.xml` -> `CommandInterface.xml`
-  - `Ext/Help.xml` and `Ext/Help/ru.html` -> `Справка/`
+- `InternalInfo`: absent in current fixtures and not required by the XDTO fragment
 
-The first implementation does not parse command interface contents, help contents, or nested subsystem XML files as
-separate child metadata items.
+Parent properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `includeHelpInContents` | `IncludeHelpInContents` | `ВключатьСправкуВСодержание` | `boolean` |
+| `includeInCommandInterface` | `IncludeInCommandInterface` | `ВключатьВКомандныйИнтерфейс` | `boolean` |
+| `useOneCommand` | `UseOneCommand` | `ИспользоватьОднуКоманду` | `boolean` |
+| `explanation` | `Explanation` | `Пояснение` | `I8nText` |
+| `picture` | `Picture` | `Картинка` | `Picture` |
+| `content` | `Content` | `Состав` | `MetadataItemLinks` |
+| `subsystems` | `ChildObjects/Subsystem` | `Подсистемы` | new `ChildSubsystemNames` common type |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+External files:
+
+- `commandInterface`: opaque `Template`, XML `Ext/CommandInterface.xml`, nkdk `CommandInterface.xml`
+- `help`: existing `Help`, XML `Ext/Help.xml` and `Ext/Help/ru.html`, nkdk `Справка/`
+
+Default policy from `minimal.xml`:
+
+- `includeHelpInContents`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `includeInCommandInterface`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `useOneCommand`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+
+Do not set YAML defaults for empty string, empty `I8nText`, empty `Picture`, empty `Content`, or external files.
+
+`ChildSubsystemNames`:
+
+- add a tiny common property type only for `ChildObjects/Subsystem`;
+- XML import accepts `undefined`, a single string, or a string array;
+- YAML/model shape is `string[]`;
+- XML export returns a single string or string array according to normal XML exporter behavior;
+- do not reuse `ChildFormNames` or `ChildTemplateNames`, because their names and sync behavior are tied to
+  form/template folders;
+- do not use plain `string`, because XDTO allows multiple `<Subsystem>` entries.
+
+Implementation notes:
+
+- Preserve `Content` with `MetadataItemLinks`; references may point to objects not implemented yet and should remain
+  strings.
+- Preserve command interface and help opaquely in the first implementation.
+- Preserve nested subsystem names in the parent object, but do not parse nested subsystem XML files as separate child
+  metadata items in this step.
+- Add `ChildSubsystemNames` to `PropertyTypeRegistry` and `PropertyRuleTypeKeys`.
+- Add the migration prefix `Подсистема`; object-level paths are `Подсистема.<name>`. Nested subsystem migration paths
+  can be designed separately when recursive subsystem implementation is added.
+
+Testing:
+
+- standard XML/YAML/sync tests;
+- XML tests cover `minimal.xml` and `full.xml`;
+- YAML tests cover the non-default values from `full.xml`;
+- `content` test includes all `xr:Item xsi:type="xr:MDObjectRef"` values from `full.xml`;
+- `subsystems` test includes `ПодчиненнаяПодсистема` from `ChildObjects`;
+- sync from XML copies `Ext/CommandInterface.xml`, `Ext/Help.xml`, and `Ext/Help/ru.html` into the nkdk object folder;
+- sync to XML restores those files back to `Ext/CommandInterface.xml`, `Ext/Help.xml`, and `Ext/Help/ru.html`.
+
+Risks:
+
+- `CommandInterface.xml` contains command visibility and ordering that deserves a model later.
+- Nested subsystem XML exists under `Subsystems/<name>.xml`; recursive child processing is deferred.
 
 ## Object: MetadataAccountingRegister
 
