@@ -33,6 +33,7 @@ The implementation policy is common for all objects below:
 - `metadataSubsystem`
 - `metadataAccountingRegister`
 - `metadataBusinessProcess`
+- `metadataCalculationRegister`
 
 ## Deferred Objects
 
@@ -470,6 +471,138 @@ Testing:
 - sync to XML verifies `BusinessProcesses/<name>.xml`, `Ext/ObjectModule.bsl`, `Ext/ManagerModule.bsl`,
   `Ext/Flowchart.xml`, `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`, `Ext/Help/ru.html`, form XML, and template XML.
 
+## Object: MetadataCalculationRegister
+
+- `itemType`: `MetadataCalculationRegister`
+- `itemTypePrefix`: `РегистрРасчета`
+- XML directory: `CalculationRegisters`
+- XML container: `CalculationRegister`
+- implement through `rules.ts`
+- `InternalInfo` generated categories:
+  - `Record`
+  - `Manager`
+  - `Selection`
+  - `List`
+  - `RecordSet`
+  - `RecordKey`
+  - `Recalcs`
+
+Parent properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `useStandardCommands` | `UseStandardCommands` | `ИспользоватьСтандартныеКоманды` | `boolean` |
+| `defaultListForm` | `DefaultListForm` | `ОсновнаяФормаСписка` | `string` |
+| `auxiliaryListForm` | `AuxiliaryListForm` | `ДополнительнаяФормаСписка` | `string` |
+| `periodicity` | `Periodicity` | `Периодичность` | `SystemEnumeration: CalculationRegisterPeriodicity` |
+| `actionPeriod` | `ActionPeriod` | `ПериодДействия` | `boolean` |
+| `basePeriod` | `BasePeriod` | `БазовыйПериод` | `boolean` |
+| `schedule` | `Schedule` | `График` | `string` / `MDObjectRef` |
+| `scheduleValue` | `ScheduleValue` | `ЗначениеГрафика` | `string` / `MDObjectRef` |
+| `scheduleDate` | `ScheduleDate` | `ДатаГрафика` | `string` / `MDObjectRef` |
+| `chartOfCalculationTypes` | `ChartOfCalculationTypes` | `ПланВидовРасчета` | `string` / `MDObjectRef` |
+| `includeHelpInContents` | `IncludeHelpInContents` | `ВключатьСправкуВСодержание` | `boolean` |
+| `standardAttributes` | `StandardAttributes` | `СтандартныеРеквизиты` | `StandardAttributeDescriptions` |
+| `dataLockControlMode` | `DataLockControlMode` | `РежимУправленияБлокировкойДанных` | `SystemEnumeration: DefaultDataLockControlMode` |
+| `fullTextSearch` | `FullTextSearch` | `ПолнотекстовыйПоиск` | `SystemEnumeration: FullTextSearchUsing` |
+| `listPresentation` | `ListPresentation` | `ПредставлениеСписка` | `I8nText` |
+| `extendedListPresentation` | `ExtendedListPresentation` | `РасширенноеПредставлениеСписка` | `I8nText` |
+| `explanation` | `Explanation` | `Пояснение` | `I8nText` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+Child objects:
+
+- `Resource[]`: use shared `metadataRegisterResource` collection.
+- `Attribute[]`: use shared `metadataRegisterAttribute` collection, extended with calculation-register fields where
+  needed.
+- `Dimension[]`: use shared `metadataRegisterDimension` collection, extended with calculation-register fields.
+- `Recalculation[]`: new common object under `packages/core/metadata/commonObjects/metadataRecalculation/`, not inside
+  the applied-object folder.
+- `Form[]`: existing `ChildFormNames`.
+- `Template[]`: existing `ChildTemplateNames`.
+- `Command[]`: existing `MetadataCommands`, and include `childCollections` so command modules are copied.
+
+Calculation-specific child fields:
+
+- `denyIncompleteValues`: `boolean`, XML `DenyIncompleteValues`, YAML `ЗапретНезаполненныхЗначений`
+- `baseDimension`: `boolean`, XML `BaseDimension`, YAML `БазовоеИзмерение`
+- `scheduleLink`: `string` / `MDObjectRef`, XML `ScheduleLink`, YAML `СвязьСГрафиком`
+
+`baseDimension` and `scheduleLink` are present on calculation-register dimensions. `scheduleLink` is also present on
+calculation-register attributes in current fixtures. These fields should be optional extensions to shared register
+common objects.
+
+New common object: `metadataRecalculation`
+
+- XML container: `Recalculation`
+- collection XML path under parent: `ChildObjects/Recalculation`
+- sync XML directory under parent: `Recalculations`
+- properties: `name`, `synonym`, `comment`, `dataLockControlMode`
+- `dataLockControlMode`: `SystemEnumeration: DefaultDataLockControlMode`, YAML
+  `РежимУправленияБлокировкойДанных`, default from the default recalculation fixture is `Managed`
+- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `defaultValueYAML: "Native"`
+- `extendedConfigurationObject`: runtime-only `string`
+- external file:
+  - `recordSetModule`: existing `Module`
+  - XML `Recalculations/<name>/Ext/RecordSetModule.bsl`
+  - nkdk `Перерасчеты/<name>/МодульНабораЗаписей.bsl`
+- generated categories: `Record`, `Manager`, `RecordSet`
+- XDTO also allows child `Dimension[]`; current fixtures do not contain recalculation dimensions, so this is deferred
+  until a fixture requires it.
+
+External files:
+
+- `recordSetModule`: existing `Module`, XML `Ext/RecordSetModule.bsl`, nkdk `МодульНабораЗаписей.bsl`
+- `managerModule`: existing `Module`, XML `Ext/ManagerModule.bsl`, nkdk `МодульМенеджера.bsl`
+- `additionalIndexes`: existing `AdditionalIndex`, XML `Ext/AdditionalIndexes.xml`
+- `help`: existing `Help`, XML `Ext/Help.xml` and `Ext/Help/ru.html`, nkdk `Справка/`
+- recalculation record-set modules through `metadataRecalculation`
+- child forms through `ChildFormNames`
+- child templates through `ChildTemplateNames`
+- command modules through `MetadataCommands`
+
+Default policy from `minimal.xml`:
+
+- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `periodicity`: `defaultValueXML: "Month"`, `defaultValueYAML: "Month"`
+- `actionPeriod`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `basePeriod`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
+- `fullTextSearch`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+
+Keep `chartOfCalculationTypes`, `schedule`, `scheduleValue`, `scheduleDate`, resources, dimensions, attributes, and
+recalculations as explicit content, not YAML defaults. References to `ChartOfCalculationTypes.*` and
+`InformationRegister.*` do not require those target objects to be implemented first.
+
+Implementation notes:
+
+- Reuse the shared register common objects planned for information, accumulation, and accounting registers.
+- Put `metadataRecalculation` in `commonObjects`, following the project pattern for nested metadata structures.
+- Do not parse missing recalculation child dimensions in the first implementation; current sync fixtures only need
+  recalculation names/properties and the recalculation record-set module.
+- Standard attribute names include calculation-register-specific names from fixtures: `RegistrationPeriod`,
+  `ReversingEntry`, `Active`, `EndOfBasePeriod`, `BegOfBasePeriod`, `EndOfActionPeriod`, `BegOfActionPeriod`,
+  `ActionPeriod`, `CalculationType`, `LineNumber`, and `Recorder`.
+
+Testing:
+
+- standard XML/YAML/sync tests;
+- XML tests cover `minimal.xml` and `full.xml`;
+- tests cover `Periodicity=Quarter`, action/base periods, schedule links, chart of calculation types, all calculation
+  standard attributes, register resources/attributes/dimensions, and both recalculations;
+- sync from XML verifies `Свойства.yaml`, `МодульНабораЗаписей.bsl`, `МодульМенеджера.bsl`, `Справка/`,
+  `ДополнительныеИндексы`, `Перерасчеты/ПерерасчетВсеСвойства/МодульНабораЗаписей.bsl`, forms, templates, and command
+  modules;
+- sync to XML verifies `CalculationRegisters/<name>.xml`, `Ext/RecordSetModule.bsl`, `Ext/ManagerModule.bsl`,
+  `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`, `Ext/Help/ru.html`, `Recalculations/<name>.xml`,
+  `Recalculations/<name>/Ext/RecordSetModule.bsl`, form XML, template XML, and command module.
+
 ## Registries And Tests
 
 Every included object should be added to the same registry set as other top-level applied objects:
@@ -497,7 +630,6 @@ Sync tests must cover opaque external-file copying for role, scheduled job, comm
 
 Objects still needing brainstorming in this pass:
 
-- `metadataCalculationRegister`
 - `metadataChartOfAccounts`
 - `metadataChartOfCalculationTypes`
 - `metadataChartOfCharacteristicTypes`
