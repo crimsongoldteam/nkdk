@@ -35,6 +35,7 @@ The implementation policy is common for all objects below:
 - `metadataBusinessProcess`
 - `metadataCalculationRegister`
 - `metadataChartOfAccounts`
+- `metadataChartOfCalculationTypes`
 
 ## Deferred Objects
 
@@ -770,6 +771,155 @@ Testing:
   `Ext/Predefined.xml`, `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`, `Ext/Help/ru.html`, form XML, template XML, and
   command module.
 
+## Object: MetadataChartOfCalculationTypes
+
+- `itemType`: `MetadataChartOfCalculationTypes`
+- `itemTypePrefix`: `ПланВидовРасчета`
+- XML directory: `ChartsOfCalculationTypes`
+- XML container: `ChartOfCalculationTypes`
+- implement through `rules.ts`
+- `InternalInfo` generated categories:
+  - `Object`
+  - `Ref`
+  - `Selection`
+  - `List`
+  - `Manager`
+  - `DisplacingCalculationTypes`
+  - `DisplacingCalculationTypesRow`
+  - `BaseCalculationTypes`
+  - `BaseCalculationTypesRow`
+  - `LeadingCalculationTypes`
+  - `LeadingCalculationTypesRow`
+
+Parent properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `useStandardCommands` | `UseStandardCommands` | `ИспользоватьСтандартныеКоманды` | `boolean` |
+| `codeLength` | `CodeLength` | `ДлинаКода` | `number` |
+| `descriptionLength` | `DescriptionLength` | `ДлинаНаименования` | `number` |
+| `codeType` | `CodeType` | `ТипКода` | `SystemEnumeration: ChartOfCalculationTypesCodeType` |
+| `codeAllowedLength` | `CodeAllowedLength` | `ДопустимаяДлинаКода` | `AllowedLength` |
+| `defaultPresentation` | `DefaultPresentation` | `ОсновноеПредставление` | `SystemEnumeration: CalculationTypeMainPresentation` |
+| `editType` | `EditType` | `СпособРедактирования` | `SystemEnumeration: EditType` |
+| `quickChoice` | `QuickChoice` | `БыстрыйВыбор` | `boolean` |
+| `choiceMode` | `ChoiceMode` | `РежимВыбора` | `SystemEnumeration: ChoiceMode` |
+| `inputByString` | `InputByString` | `ВводПоСтроке` | `MetadataFields` |
+| `searchStringModeOnInputByString` | `SearchStringModeOnInputByString` | `РежимСтрокиПоискаПриВводеПоСтроке` | `SystemEnumeration: SearchStringModeOnInputByString` |
+| `fullTextSearchOnInputByString` | `FullTextSearchOnInputByString` | `ПолнотекстовыйПоискПриВводеПоСтроке` | `SystemEnumeration: FullTextSearchOnInputByString` |
+| `choiceDataGetModeOnInputByString` | `ChoiceDataGetModeOnInputByString` | `РежимПолученияДанныхВыбораПриВводеПоСтроке` | `SystemEnumeration: ChoiceDataGetModeOnInputByString` |
+| `createOnInput` | `CreateOnInput` | `СозданиеПриВводе` | `SystemEnumeration: CreateOnInput` |
+| `choiceHistoryOnInput` | `ChoiceHistoryOnInput` | `ИсторияВыбораПриВводе` | `SystemEnumeration: ChoiceHistoryOnInput` |
+| `defaultObjectForm` | `DefaultObjectForm` | `ОсновнаяФормаОбъекта` | `string` |
+| `defaultListForm` | `DefaultListForm` | `ОсновнаяФормаСписка` | `string` |
+| `defaultChoiceForm` | `DefaultChoiceForm` | `ОсновнаяФормаВыбора` | `string` |
+| `auxiliaryObjectForm` | `AuxiliaryObjectForm` | `ДополнительнаяФормаОбъекта` | `string` |
+| `auxiliaryListForm` | `AuxiliaryListForm` | `ДополнительнаяФормаСписка` | `string` |
+| `auxiliaryChoiceForm` | `AuxiliaryChoiceForm` | `ДополнительнаяФормаВыбора` | `string` |
+| `basedOn` | `BasedOn` | `ВводитсяНаОсновании` | `MetadataItemLinks` |
+| `dependenceOnCalculationTypes` | `DependenceOnCalculationTypes` | `ЗависимостьОтВидовРасчета` | `SystemEnumeration: ChartOfCalculationTypesBaseUse` |
+| `baseCalculationTypes` | `BaseCalculationTypes` | `БазовыеВидыРасчета` | `MetadataItemLinks` |
+| `actionPeriodUse` | `ActionPeriodUse` | `ПериодДействияБазовый` | `boolean` |
+| `standardAttributes` | `StandardAttributes` | `СтандартныеРеквизиты` | `StandardAttributeDescriptions` |
+| `characteristics` | `Characteristics` | `Характеристики` | `CharacteristicsDescriptions` |
+| `standardTabularSections` | `StandardTabularSections` | `СтандартныеТабличныеЧасти` | `StandardTabularSectionDescriptions` |
+| `predefinedDataUpdate` | `PredefinedDataUpdate` | `ОбновлениеПредопределенныхДанных` | `SystemEnumeration: PredefinedDataUpdate` |
+| `includeHelpInContents` | `IncludeHelpInContents` | `ВключатьСправкуВСодержание` | `boolean` |
+| `dataLockFields` | `DataLockFields` | `ПоляБлокировкиДанных` | `MetadataFields` |
+| `dataLockControlMode` | `DataLockControlMode` | `РежимУправленияБлокировкойДанных` | `SystemEnumeration: DefaultDataLockControlMode` |
+| `fullTextSearch` | `FullTextSearch` | `ПолнотекстовыйПоиск` | `SystemEnumeration: FullTextSearchUsing` |
+| `objectPresentation` | `ObjectPresentation` | `ПредставлениеОбъекта` | `I8nText` |
+| `extendedObjectPresentation` | `ExtendedObjectPresentation` | `РасширенноеПредставлениеОбъекта` | `I8nText` |
+| `listPresentation` | `ListPresentation` | `ПредставлениеСписка` | `I8nText` |
+| `extendedListPresentation` | `ExtendedListPresentation` | `РасширенноеПредставлениеСписка` | `I8nText` |
+| `explanation` | `Explanation` | `Пояснение` | `I8nText` |
+| `dataHistory` | `DataHistory` | `ИсторияДанных` | `SystemEnumeration: DataHistoryUse` |
+| `updateDataHistoryImmediatelyAfterWrite` | `UpdateDataHistoryImmediatelyAfterWrite` | `ОбновлятьИсториюДанныхСразуПослеЗаписи` | `boolean` |
+| `executeAfterWriteDataHistoryVersionProcessing` | `ExecuteAfterWriteDataHistoryVersionProcessing` | `ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных` | `boolean` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+Child objects:
+
+- `Attribute[]`: existing `MetadataAttributes`.
+- `TabularSection[]`: chart-of-calculation-types-specific wrapper over the common tabular-section property set, with
+  generated type names `ChartOfCalculationTypesTabularSection` and `ChartOfCalculationTypesTabularSectionRow`.
+- `Form[]`: existing `ChildFormNames`.
+- `Template[]`: existing `ChildTemplateNames`.
+- `Command[]`: existing `MetadataCommands`, and include `childCollections` so command modules are copied.
+
+There are no new unique child metadata objects in current fixtures. Calculation-type dependency tables are represented
+through `StandardTabularSectionDescriptions`, not as separate child objects.
+
+External files:
+
+- `objectModule`: existing `Module`, XML `Ext/ObjectModule.bsl`, nkdk `МодульОбъекта.bsl`
+- `managerModule`: existing `Module`, XML `Ext/ManagerModule.bsl`, nkdk `МодульМенеджера.bsl`
+- `predefined`: opaque `Template`, XML `Ext/Predefined.xml`, nkdk `Predefined.xml`
+- `additionalIndexes`: existing `AdditionalIndex`, XML `Ext/AdditionalIndexes.xml`
+- `help`: existing `Help`, XML `Ext/Help.xml` and `Ext/Help/ru.html`, nkdk `Справка/`
+- child forms through `ChildFormNames`
+- child templates through `ChildTemplateNames`
+- command modules through `MetadataCommands`
+
+`Predefined.xml` contains predefined calculation types. The first implementation preserves it opaquely; parsing
+predefined calculation types is deferred.
+
+Default policy from `minimal.xml`:
+
+- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
+- `codeLength`: `defaultValueXML: 9`, `defaultValueYAML: 9`
+- `descriptionLength`: `defaultValueXML: 40`, `defaultValueYAML: 40`
+- `codeType`: `defaultValueXML: "String"`, `defaultValueYAML: "String"`
+- `codeAllowedLength`: `defaultValueXML: "Variable"`, `defaultValueYAML: "Variable"`
+- `defaultPresentation`: `defaultValueXML: "AsDescription"`, `defaultValueYAML: "AsDescription"`
+- `editType`: `defaultValueXML: "InDialog"`, `defaultValueYAML: "InDialog"`
+- `quickChoice`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `choiceMode`: `defaultValueXML: "BothWays"`, `defaultValueYAML: "BothWays"`
+- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `defaultValueYAML: "Begin"`
+- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `defaultValueYAML: "Directly"`
+- `createOnInput`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
+- `dependenceOnCalculationTypes`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `actionPeriodUse`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `predefinedDataUpdate`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
+- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
+- `fullTextSearch`: `defaultValueXML: "Use"`, `defaultValueYAML: "Use"`
+- `dataHistory`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
+- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+
+Keep `inputByString`, `basedOn`, `baseCalculationTypes`, `characteristics`, standard tabular sections, child
+attributes, tabular sections, and predefined data as explicit content, not YAML defaults.
+
+Implementation notes:
+
+- Reuse existing common behavior from `metadataChartOfAccounts`, `metadataDocument`, and `metadataCatalog`.
+- `StandardTabularSections` must preserve `LeadingCalculationTypes`, `DisplacingCalculationTypes`, and
+  `BaseCalculationTypes`.
+- Standard attribute names include calculation-type-specific names from fixtures: `PredefinedDataName`, `Predefined`,
+  `Ref`, `DeletionMark`, `ActionPeriodIsBasic`, `Description`, and `Code`.
+- References to `Document.*` and `ChartOfCalculationTypes.*` in `BasedOn` and `BaseCalculationTypes` are stored as
+  strings; target object implementation is not required first.
+
+Testing:
+
+- standard XML/YAML/sync tests;
+- XML tests cover `minimal.xml` and `full.xml`;
+- tests cover code settings, `BasedOn`, `DependenceOnCalculationTypes`, `BaseCalculationTypes`, `ActionPeriodUse`,
+  standard tabular sections, characteristics, child attributes, tabular sections, and all form/template/command names;
+- sync from XML verifies `Свойства.yaml`, `МодульОбъекта.bsl`, `МодульМенеджера.bsl`, `Predefined.xml`, `Справка/`,
+  `ДополнительныеИндексы`, forms, templates, and command modules;
+- sync to XML verifies `ChartsOfCalculationTypes/<name>.xml`, `Ext/ObjectModule.bsl`, `Ext/ManagerModule.bsl`,
+  `Ext/Predefined.xml`, `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`, `Ext/Help/ru.html`, form XML, template XML, and
+  command module.
+
 ## Registries And Tests
 
 Every included object should be added to the same registry set as other top-level applied objects:
@@ -797,7 +947,6 @@ Sync tests must cover opaque external-file copying for role, scheduled job, comm
 
 Objects still needing brainstorming in this pass:
 
-- `metadataChartOfCalculationTypes`
 - `metadataChartOfCharacteristicTypes`
 - `metadataCommonForm`
 - `metadataIntegrationService`
