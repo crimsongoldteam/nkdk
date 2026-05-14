@@ -164,3 +164,20 @@ reference и отказа от восстановления некорректн
 
 Проверка: точечный тест `MetadataCommonAttributeRules.properties.fillValue` с пустым значением и
 reference `{ "_xsi:nil": true }` должен экспортировать `<FillValue xsi:nil="true"/>`.
+
+### GraphicalSchemaField Edit=false
+
+Следующий diff показывает потерю XML-поля у графической схемы формы:
+
+```diff
+- <Edit>false</Edit>
+```
+
+Оба первых случая относятся к `GraphicalSchemaField`. В правилах этого элемента свойство `edit`
+помечено `runtimeOnly`, поэтому оно не импортируется и не экспортируется в XML.
+
+Решение: сделать `edit` XML-only, а не runtime-only: оставить тип `boolean`, разрешить
+fromXML/toXML, но отключить `fromYAML`, `toYAML` и `toEnterprise`.
+
+Проверка: точечный тест экспорта `GraphicalSchemaField` с `edit: false` должен содержать
+`<Edit>false</Edit>`.

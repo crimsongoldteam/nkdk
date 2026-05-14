@@ -11,7 +11,7 @@ import {
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaField> = {
+export const fullGraphicalSchemaField = {
   itemType: "GraphicalSchemaField",
   name: "ПолеГрафическойСхемы",
   title: {
@@ -36,7 +36,7 @@ export const fullGraphicalSchemaField: RequiredFieldsElement<GraphicalSchemaFiel
     onActivate: "ПроцедураАктивации",
   },
   ...fullFormFieldCommonFixture,
-} satisfies RequiredFieldsElement<GraphicalSchemaField>
+} satisfies Omit<RequiredFieldsElement<GraphicalSchemaField>, "edit">
 
 export const fullGraphicalSchemaFieldEnterprise = {
   ElementType: "FormField",
