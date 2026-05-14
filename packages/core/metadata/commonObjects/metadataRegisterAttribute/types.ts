@@ -1,13 +1,22 @@
 import { Type } from "@sinclair/typebox"
 import { MetadataNameYAML } from "~/metadata/commonObjects/metadataName/types"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { MetadataRegisterFieldYAML, MetadataRegisterFieldXML } from "../metadataRegisterField/types"
+import { MetadataRegisterFieldFullYAML, MetadataRegisterFieldYAML, MetadataRegisterFieldXML } from "../metadataRegisterField/types"
 import { MetadataRegisterAttributeRules } from "./rules"
 
 export type MetadataRegisterAttribute = MetadataTypeByRule<typeof MetadataRegisterAttributeRules>
 
-export type MetadataRegisterAttributeXML = MetadataRegisterFieldXML
-export type MetadataRegisterAttributeYAML = MetadataRegisterFieldYAML
+export interface MetadataRegisterAttributeXML extends MetadataRegisterFieldXML {
+  Properties: MetadataRegisterFieldXML["Properties"] & {
+    ScheduleLink?: string
+  }
+}
+
+export interface MetadataRegisterAttributeFullYAML extends MetadataRegisterFieldFullYAML {
+  СвязьСГрафиком?: string
+}
+
+export type MetadataRegisterAttributeYAML = MetadataRegisterAttributeFullYAML | MetadataRegisterFieldYAML
 
 export type MetadataRegisterAttributes = MetadataRegisterAttribute[]
 export type MetadataRegisterAttributesXML = MetadataRegisterAttributeXML | MetadataRegisterAttributeXML[]

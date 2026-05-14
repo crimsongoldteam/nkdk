@@ -191,3 +191,69 @@ export const MetadataExchangePlanTabularSectionRules = {
     },
   },
 } as const satisfies MetadataItemRule
+
+export const MetadataChartOfAccountsTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const parent = getParentFromContext(params.context, ["MetadataChartOfAccounts" as never])
+        return `${parent.name}.${params.metadata.name}`
+      },
+      items: [
+        { name: "ChartOfAccountsTabularSection", category: "TabularSection" },
+        { name: "ChartOfAccountsTabularSectionRow", category: "TabularSectionRow" },
+      ],
+    },
+  },
+} as const satisfies MetadataItemRule
+
+export const MetadataChartOfCalculationTypesTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const parent = getParentFromContext(params.context, ["MetadataChartOfCalculationTypes" as never])
+        return `${parent.name}.${params.metadata.name}`
+      },
+      items: [
+        { name: "ChartOfCalculationTypesTabularSection", category: "TabularSection" },
+        { name: "ChartOfCalculationTypesTabularSectionRow", category: "TabularSectionRow" },
+      ],
+    },
+  },
+} as const satisfies MetadataItemRule
+
+export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const parent = getParentFromContext(params.context, ["MetadataChartOfCharacteristicTypes" as never])
+        return `${parent.name}.${params.metadata.name}`
+      },
+      items: [
+        { name: "ChartOfCharacteristicTypesTabularSection", category: "TabularSection" },
+        { name: "ChartOfCharacteristicTypesTabularSectionRow", category: "TabularSectionRow" },
+      ],
+    },
+    use: {
+      yaml: "Использование",
+      xml: "Use",
+      type: "SystemEnumeration",
+      typeSE: "AttributeUse",
+      xmlParents: propertiesParents,
+      defaultValueXML: "ForItem",
+      order: 7,
+    },
+  },
+} as const satisfies MetadataItemRule

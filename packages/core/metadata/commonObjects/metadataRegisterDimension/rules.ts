@@ -3,6 +3,13 @@ import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
+const registerParentItemTypes = [
+  "MetadataAccumulationRegister",
+  "MetadataInformationRegister",
+  "MetadataAccountingRegister",
+  "MetadataCalculationRegister",
+] as const
+
 export const MetadataRegisterDimensionRules = {
   itemType: "MetadataRegisterDimension",
   properties: {
@@ -15,7 +22,7 @@ export const MetadataRegisterDimensionRules = {
       defaultValueXML: false,
       defaultValueYAML: false,
       toXML: (metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
-        exportDimensionDefaultForXML("master", metadataItem, context),
+        exportDimensionDefaultForXML("master", metadataItem, context, "MetadataInformationRegister"),
       order: 26,
     },
     mainFilter: {
@@ -26,7 +33,7 @@ export const MetadataRegisterDimensionRules = {
       defaultValueXML: true,
       defaultValueYAML: true,
       toXML: (metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
-        exportDimensionDefaultForXML("mainFilter", metadataItem, context),
+        exportDimensionDefaultForXML("mainFilter", metadataItem, context, "MetadataInformationRegister"),
       order: 26,
     },
     denyIncompleteValues: {
@@ -38,6 +45,40 @@ export const MetadataRegisterDimensionRules = {
       defaultValueYAML: false,
       order: 26,
     },
+    baseDimension: {
+      yaml: "БазовоеИзмерение",
+      xml: "BaseDimension",
+      type: "boolean",
+      xmlParents: ["Properties"],
+      defaultValueXML: false,
+      defaultValueYAML: false,
+      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isCalculationRegisterField(context),
+    },
+    scheduleLink: {
+      yaml: "СвязьСГрафиком",
+      xml: "ScheduleLink",
+      type: "string",
+      xmlParents: ["Properties"],
+      defaultValueXMLRaw: "",
+      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isCalculationRegisterField(context),
+    },
+    balance: {
+      yaml: "Балансовый",
+      xml: "Balance",
+      type: "boolean",
+      xmlParents: ["Properties"],
+      defaultValueXML: true,
+      defaultValueYAML: true,
+      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
+    },
+    accountingFlag: {
+      yaml: "ПризнакУчета",
+      xml: "AccountingFlag",
+      type: "string",
+      xmlParents: ["Properties"],
+      defaultValueXMLRaw: "",
+      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
+    },
     useInTotals: {
       yaml: "ИспользоватьВИтогах",
       xml: "UseInTotals",
@@ -45,8 +86,8 @@ export const MetadataRegisterDimensionRules = {
       xmlParents: ["Properties"],
       defaultValueXML: true,
       defaultValueYAML: true,
-      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
-        context ? getParentFromContext(context, ["MetadataInformationRegister" as never]).itemType !== "MetadataInformationRegister" : true,
+      toXML: (metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
+        exportDimensionDefaultForXML("useInTotals", metadataItem, context, "MetadataAccumulationRegister"),
       order: 30,
     },
     typeReductionMode: {
@@ -58,7 +99,7 @@ export const MetadataRegisterDimensionRules = {
       defaultValueXML: "TransformValues",
       defaultValueYAML: "TransformValues",
       toXML: (metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
-        exportDimensionDefaultForXML("typeReductionMode", metadataItem, context),
+        exportDimensionDefaultForXML("typeReductionMode", metadataItem, context, "MetadataInformationRegister"),
       order: 31,
     },
   },
@@ -67,11 +108,17 @@ export const MetadataRegisterDimensionRules = {
 const exportDimensionDefaultForXML = (
   propertyKey: string,
   metadataItem: unknown,
-  context?: ConfigurationContextWithExportToXML
+  context: ConfigurationContextWithExportToXML | undefined,
+  parentItemTypeWithDefault: string
 ): boolean => {
   if (!context) return true
-  const parent = getParentFromContext(context, ["MetadataAccumulationRegister" as never])
-  if (parent.itemType !== "MetadataAccumulationRegister") return true
+  const parent = getParentFromContext(context, [...registerParentItemTypes] as never[])
+  if (!registerParentItemTypes.includes(parent.itemType as (typeof registerParentItemTypes)[number])) {
+    return true
+  }
+  if (parent.itemType === parentItemTypeWithDefault) {
+    return true
+  }
 
   return (
     metadataItem !== null &&
@@ -80,3 +127,13 @@ const exportDimensionDefaultForXML = (
     Object.prototype.hasOwnProperty.call(metadataItem, propertyKey)
   )
 }
+
+const isAccountingRegisterField = (context?: ConfigurationContextWithExportToXML): boolean =>
+  context
+    ? getParentFromContext(context, ["MetadataAccountingRegister" as never]).itemType === "MetadataAccountingRegister"
+    : false
+
+const isCalculationRegisterField = (context?: ConfigurationContextWithExportToXML): boolean =>
+  context
+    ? getParentFromContext(context, ["MetadataCalculationRegister" as never]).itemType === "MetadataCalculationRegister"
+    : false

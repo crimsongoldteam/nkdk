@@ -10,19 +10,27 @@ export type MetadataRegisterDimension = MetadataTypeByRule<typeof MetadataRegist
 
 export interface MetadataRegisterDimensionXML extends MetadataRegisterFieldXML {
   Properties: MetadataRegisterFieldXML["Properties"] & {
+    AccountingFlag?: string
+    Balance?: StringboolXML
+    BaseDimension?: StringboolXML
     DenyIncompleteValues?: StringboolXML
     MainFilter?: StringboolXML
     Master?: StringboolXML
+    ScheduleLink?: string
     TypeReductionMode?: SE.TypeReductionMode
     UseInTotals?: StringboolXML
   }
 }
 
 export interface MetadataRegisterDimensionFullYAML extends MetadataRegisterFieldFullYAML {
+  Балансовый?: StringboolYAML
+  БазовоеИзмерение?: StringboolYAML
   Ведущее?: StringboolYAML
   ЗапретНезавершенныхЗначений?: StringboolYAML
   ОсновнойОтбор?: StringboolYAML
+  ПризнакУчета?: string
   РежимСокращенияТипа?: SE.TypeReductionModeYAML
+  СвязьСГрафиком?: string
   ИспользоватьВИтогах?: StringboolYAML
 }
 

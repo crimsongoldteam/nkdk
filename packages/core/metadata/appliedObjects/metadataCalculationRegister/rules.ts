@@ -1,1 +1,206 @@
-export {}
+import { RecalculationRules } from "~/metadata/commonObjects/recalculation/rules"
+import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
+import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { MetadataCommandRules } from "../metadataCommand/rules"
+
+const properties = ["Properties"]
+const childObjects = ["ChildObjects"]
+
+export const MetadataCalculationRegisterStandardAttributeNames: Record<string, string> = {
+  RegistrationPeriod: "ПериодРегистрации",
+  ReversingEntry: "Сторно",
+  Active: "Активность",
+  EndOfBasePeriod: "КонецБазовогоПериода",
+  BegOfBasePeriod: "НачалоБазовогоПериода",
+  EndOfActionPeriod: "КонецПериодаДействия",
+  BegOfActionPeriod: "НачалоПериодаДействия",
+  ActionPeriod: "ПериодДействия",
+  CalculationType: "ВидРасчета",
+  LineNumber: "НомерСтроки",
+  Recorder: "Регистратор",
+}
+
+const MetadataCalculationRegisterCommandRules = {
+  ...MetadataCommandRules,
+  properties: {
+    ...MetadataCommandRules.properties,
+    commandModule: {
+      ...MetadataCommandRules.properties.commandModule,
+      xmlPath: ({ name }: { name: string }) => `Commands/${name}/Ext/CommandModule.bsl`,
+    },
+  },
+} as const satisfies MetadataItemRule
+
+export const MetadataCalculationRegisterRules = {
+  itemType: "MetadataCalculationRegister",
+  itemTypePrefix: "РегистрРасчета",
+  xmlDir: "CalculationRegisters",
+  properties: {
+    xmlRoot: {
+      type: "XMLRoot",
+      container: "CalculationRegister",
+      rootAttributes: V8_MDCLASSES_ROOT,
+      forReferenceOnly: true,
+      toYAML: false,
+      fromYAML: false,
+    },
+    internalInfo: {
+      type: "InternalInfo",
+      xmlParents: [],
+      forReferenceOnly: true,
+      items: [
+        { name: "CalculationRegisterRecord", category: "Record" },
+        { name: "CalculationRegisterManager", category: "Manager" },
+        { name: "CalculationRegisterSelection", category: "Selection" },
+        { name: "CalculationRegisterList", category: "List" },
+        { name: "CalculationRegisterRecordSet", category: "RecordSet" },
+        { name: "CalculationRegisterRecordKey", category: "RecordKey" },
+        { name: "RecalculationsManager", category: "Recalcs" },
+      ],
+    },
+    uuid: { type: "uuid", xml: "_uuid", forReferenceOnly: true, xmlParents: [] },
+    name: { type: "string", xmlParents: properties, required: true, defaultValue: ({ name }: { name?: string }) => name },
+    synonym: { yaml: "Синоним", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
+    comment: { yaml: "Комментарий", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
+    useStandardCommands: {
+      yaml: "ИспользоватьСтандартныеКоманды",
+      type: "boolean",
+      defaultValueXML: true,
+      defaultValueYAML: true,
+      xmlParents: properties,
+    },
+    defaultListForm: {
+      yaml: "ОсновнаяФормаСписка",
+      type: "string",
+      xmlParents: properties,
+      referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
+    },
+    auxiliaryListForm: {
+      yaml: "ДополнительнаяФормаСписка",
+      type: "string",
+      xmlParents: properties,
+      referenceScope: { target: "this", kind: "Form" },
+      defaultValueXMLRaw: "",
+    },
+    periodicity: {
+      yaml: "Периодичность",
+      type: "SystemEnumeration",
+      typeSE: "CalculationRegisterPeriodicity",
+      defaultValueXML: "Month",
+      defaultValueYAML: "Month",
+      xmlParents: properties,
+    },
+    actionPeriod: {
+      yaml: "ПериодДействия",
+      type: "boolean",
+      defaultValueXML: false,
+      defaultValueYAML: false,
+      xmlParents: properties,
+    },
+    basePeriod: {
+      yaml: "БазовыйПериод",
+      type: "boolean",
+      defaultValueXML: false,
+      defaultValueYAML: false,
+      xmlParents: properties,
+    },
+    schedule: { yaml: "График", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
+    scheduleValue: { yaml: "ЗначениеГрафика", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
+    scheduleDate: { yaml: "ДатаГрафика", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
+    chartOfCalculationTypes: { yaml: "ПланВидовРасчета", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
+    includeHelpInContents: {
+      yaml: "ВключатьСправкуВСодержание",
+      type: "boolean",
+      defaultValueXML: false,
+      defaultValueYAML: false,
+      xmlParents: properties,
+    },
+    standardAttributes: {
+      yaml: "СтандартныеРеквизиты",
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: MetadataCalculationRegisterStandardAttributeNames,
+      xmlParents: properties,
+    },
+    dataLockControlMode: {
+      yaml: "РежимУправленияБлокировкойДанных",
+      type: "SystemEnumeration",
+      typeSE: "DefaultDataLockControlMode",
+      defaultValueXML: "Managed",
+      defaultValueYAML: "Managed",
+      xmlParents: properties,
+    },
+    fullTextSearch: {
+      yaml: "ПолнотекстовыйПоиск",
+      type: "SystemEnumeration",
+      typeSE: "UseFullTextSearch",
+      defaultValueXML: "DontUse",
+      defaultValueYAML: "DontUse",
+      xmlParents: properties,
+    },
+    listPresentation: { yaml: "ПредставлениеСписка", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
+    extendedListPresentation: {
+      yaml: "РасширенноеПредставлениеСписка",
+      type: "I8nText",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+    },
+    explanation: { yaml: "Пояснение", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
+    objectBelonging: {
+      yaml: "ПринадлежностьОбъекта",
+      type: "SystemEnumeration",
+      typeSE: "ObjectBelonging",
+      xmlParents: properties,
+      toYAML: false,
+      fromYAML: false,
+      defaultValueYAML: "Native",
+    },
+    extendedConfigurationObject: { type: "string", runtimeOnly: true },
+    resources: { yaml: "Ресурсы", xml: "Resource", type: "MetadataRegisterResources", xmlParents: childObjects },
+    dimensions: { yaml: "Измерения", xml: "Dimension", type: "MetadataRegisterDimensions", xmlParents: childObjects },
+    attributes: { yaml: "Реквизиты", xml: "Attribute", type: "MetadataRegisterAttributes", xmlParents: childObjects },
+    recalculations: { yaml: "Перерасчеты", xml: "Recalculation", type: "Recalculations", xmlParents: childObjects },
+    forms: {
+      yaml: "Формы",
+      xml: "Form",
+      type: "ChildFormNames",
+      xmlParents: childObjects,
+      folderName: "Формы",
+      forReferenceOnly: true,
+      toYAML: false,
+      fromYAML: false,
+    },
+    templates: {
+      yaml: "Макеты",
+      xml: "Template",
+      type: "ChildTemplateNames",
+      xmlParents: childObjects,
+      folderName: "Шаблоны",
+      forReferenceOnly: true,
+      toYAML: false,
+      fromYAML: false,
+    },
+    commands: { yaml: "Команды", xml: "Command", type: "MetadataCommands", xmlParents: childObjects },
+    recordSetModule: {
+      type: "Module",
+      nkdkPath: "МодульНабораЗаписей.bsl",
+      xmlPath: "Ext/RecordSetModule.bsl",
+      toXML: false,
+      fromXML: false,
+    },
+    managerModule: {
+      type: "Module",
+      nkdkPath: "МодульМенеджера.bsl",
+      xmlPath: "Ext/ManagerModule.bsl",
+      toXML: false,
+      fromXML: false,
+    },
+    additionalIndexes: { yaml: "ДополнительныеИндексы", type: "AdditionalIndex", filePath: "Ext/AdditionalIndexes.xml" },
+    help: { type: "Help", filePath: "Ext/Help.xml", xmlPath: "Ext/Help.xml", nkdkDir: "Справка", toXML: false, fromXML: false },
+  },
+  requiredXMLParents: [["ChildObjects"]],
+  childCollections: [
+    { propertyKey: "commands", itemRule: MetadataCalculationRegisterCommandRules },
+    { propertyKey: "recalculations", itemRule: RecalculationRules },
+  ],
+} as const satisfies MetadataItemRule

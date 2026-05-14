@@ -24,6 +24,26 @@ import {
   MetadataAccumulationRegister,
   MetadataAccumulationRegisterYAML,
 } from "~/metadata/appliedObjects/metadataAccumulationRegister/types"
+import {
+  MetadataAccountingRegister,
+  MetadataAccountingRegisterYAML,
+} from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import {
+  MetadataCalculationRegister,
+  MetadataCalculationRegisterYAML,
+} from "~/metadata/appliedObjects/metadataCalculationRegister/types"
+import {
+  MetadataChartOfAccounts,
+  MetadataChartOfAccountsYAML,
+} from "~/metadata/appliedObjects/metadataChartOfAccounts/types"
+import {
+  MetadataChartOfCalculationTypes,
+  MetadataChartOfCalculationTypesYAML,
+} from "~/metadata/appliedObjects/metadataChartOfCalculationTypes/types"
+import {
+  MetadataChartOfCharacteristicTypes,
+  MetadataChartOfCharacteristicTypesYAML,
+} from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/types"
 import { MetadataExchangePlan, MetadataExchangePlanYAML } from "~/metadata/appliedObjects/metadataExchangePlan/types"
 import {
   MetadataDocumentNumerator,
@@ -271,6 +291,19 @@ import {
   MetadataRegisterResources,
   MetadataRegisterResourcesYAML,
 } from "~/metadata/commonObjects/metadataRegisterResource/types"
+import { Recalculations, RecalculationsYAML } from "~/metadata/commonObjects/recalculation/types"
+import {
+  AccountingFlags,
+  AccountingFlagsYAML,
+  ExtDimensionAccountingFlags,
+  ExtDimensionAccountingFlagsYAML,
+} from "~/metadata/commonObjects/accountingFlag/types"
+import {
+  StandardTabularSectionAttributeDescriptions,
+  StandardTabularSectionAttributeDescriptionsYAML,
+  StandardTabularSectionDescriptions,
+  StandardTabularSectionDescriptionsYAML,
+} from "~/metadata/commonObjects/standardTabularSectionDescription/types"
 import { DataPathYAML, MetadataType, MetadataTypeYAML } from "~/metadata/commonObjects/metadataPath/types"
 import {
   MetadataItemLink,
@@ -285,6 +318,12 @@ import {
   MetadataSequenceDimensionYAML,
 } from "~/metadata/commonObjects/metadataSequenceDimension/types"
 import {
+  MetadataChartOfAccountsTabularSections,
+  MetadataChartOfAccountsTabularSectionsYAML,
+  MetadataChartOfCalculationTypesTabularSections,
+  MetadataChartOfCalculationTypesTabularSectionsYAML,
+  MetadataChartOfCharacteristicTypesTabularSections,
+  MetadataChartOfCharacteristicTypesTabularSectionsYAML,
   MetadataDataProcessorTabularSections,
   MetadataDataProcessorTabularSectionsYAML,
   MetadataDocumentTabularSections,
@@ -653,6 +692,18 @@ export type PropertyTypeRegistry = {
     item: MetadataRegisterAttributes
     yaml: MetadataRegisterAttributesYAML
   }
+  Recalculations: {
+    item: Recalculations
+    yaml: RecalculationsYAML
+  }
+  AccountingFlags: {
+    item: AccountingFlags
+    yaml: AccountingFlagsYAML
+  }
+  ExtDimensionAccountingFlags: {
+    item: ExtDimensionAccountingFlags
+    yaml: ExtDimensionAccountingFlagsYAML
+  }
   MetadataItemLink: {
     item: MetadataItemLink
     enterprise: string
@@ -674,6 +725,26 @@ export type PropertyTypeRegistry = {
   MetadataExchangePlanTabularSections: {
     item: MetadataExchangePlanTabularSections
     yaml: MetadataExchangePlanTabularSectionsYAML
+  }
+  MetadataChartOfAccountsTabularSections: {
+    item: MetadataChartOfAccountsTabularSections
+    yaml: MetadataChartOfAccountsTabularSectionsYAML
+  }
+  MetadataChartOfCalculationTypesTabularSections: {
+    item: MetadataChartOfCalculationTypesTabularSections
+    yaml: MetadataChartOfCalculationTypesTabularSectionsYAML
+  }
+  MetadataChartOfCharacteristicTypesTabularSections: {
+    item: MetadataChartOfCharacteristicTypesTabularSections
+    yaml: MetadataChartOfCharacteristicTypesTabularSectionsYAML
+  }
+  StandardTabularSectionDescriptions: {
+    item: StandardTabularSectionDescriptions
+    yaml: StandardTabularSectionDescriptionsYAML
+  }
+  StandardTabularSectionAttributeDescriptions: {
+    item: StandardTabularSectionAttributeDescriptions
+    yaml: StandardTabularSectionAttributeDescriptionsYAML
   }
   MetadataValue: {
     item: MetadataValue
@@ -845,6 +916,26 @@ export type PropertyTypeRegistry = {
   MetadataAccumulationRegister: {
     item: MetadataAccumulationRegister
     yaml: MetadataAccumulationRegisterYAML
+  }
+  MetadataAccountingRegister: {
+    item: MetadataAccountingRegister
+    yaml: MetadataAccountingRegisterYAML
+  }
+  MetadataCalculationRegister: {
+    item: MetadataCalculationRegister
+    yaml: MetadataCalculationRegisterYAML
+  }
+  MetadataChartOfAccounts: {
+    item: MetadataChartOfAccounts
+    yaml: MetadataChartOfAccountsYAML
+  }
+  MetadataChartOfCalculationTypes: {
+    item: MetadataChartOfCalculationTypes
+    yaml: MetadataChartOfCalculationTypesYAML
+  }
+  MetadataChartOfCharacteristicTypes: {
+    item: MetadataChartOfCharacteristicTypes
+    yaml: MetadataChartOfCharacteristicTypesYAML
   }
   MetadataExchangePlan: {
     item: MetadataExchangePlan
@@ -1247,11 +1338,19 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataRegisterResources: "MetadataRegisterResources",
   MetadataRegisterDimensions: "MetadataRegisterDimensions",
   MetadataRegisterAttributes: "MetadataRegisterAttributes",
+  Recalculations: "Recalculations",
+  AccountingFlags: "AccountingFlags",
+  ExtDimensionAccountingFlags: "ExtDimensionAccountingFlags",
   MetadataItemLink: "MetadataItemLink",
   MetadataTabularSections: "MetadataTabularSections",
   MetadataDocumentTabularSections: "MetadataDocumentTabularSections",
   MetadataDataProcessorTabularSections: "MetadataDataProcessorTabularSections",
   MetadataExchangePlanTabularSections: "MetadataExchangePlanTabularSections",
+  MetadataChartOfAccountsTabularSections: "MetadataChartOfAccountsTabularSections",
+  MetadataChartOfCalculationTypesTabularSections: "MetadataChartOfCalculationTypesTabularSections",
+  MetadataChartOfCharacteristicTypesTabularSections: "MetadataChartOfCharacteristicTypesTabularSections",
+  StandardTabularSectionDescriptions: "StandardTabularSectionDescriptions",
+  StandardTabularSectionAttributeDescriptions: "StandardTabularSectionAttributeDescriptions",
   MetadataValue: "MetadataValue",
   MetadataValueCollection: "MetadataValueCollection",
   Predefined: "Predefined",
@@ -1298,6 +1397,11 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataWebService: "MetadataWebService",
   MetadataInformationRegister: "MetadataInformationRegister",
   MetadataAccumulationRegister: "MetadataAccumulationRegister",
+  MetadataAccountingRegister: "MetadataAccountingRegister",
+  MetadataCalculationRegister: "MetadataCalculationRegister",
+  MetadataChartOfAccounts: "MetadataChartOfAccounts",
+  MetadataChartOfCalculationTypes: "MetadataChartOfCalculationTypes",
+  MetadataChartOfCharacteristicTypes: "MetadataChartOfCharacteristicTypes",
   MetadataExchangePlan: "MetadataExchangePlan",
   MetadataDocumentNumerator: "MetadataDocumentNumerator",
   MetadataEnumeration: "MetadataEnumeration",

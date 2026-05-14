@@ -158,6 +158,10 @@ import "./xDTOPackages/toYAML"
 import "./metadataRegisterAttribute/register"
 import "./metadataRegisterDimension/register"
 import "./metadataRegisterResource/register"
+import "./recalculation/register"
+import "./accountingFlag/register"
+import "./standardAttributeDescription/registerCollectionRule"
+import "./standardTabularSectionDescription/register"
 
 import "./exchangePlanContent/register"
 
@@ -212,7 +216,6 @@ import "./predefined"
 
 import "./predefinedItem"
 
-import "./standardAttributeDescription/registerCollectionRule"
 import "./standardAttributeDescription/rules"
 import "./standardAttributeDescription/toJSONSchema"
 import "./standardAttributeDescription/types"

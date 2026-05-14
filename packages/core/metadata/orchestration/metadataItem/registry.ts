@@ -108,6 +108,17 @@ import {
   MetadataRegisterResource,
   MetadataRegisterResourceYAML,
 } from "~/metadata/commonObjects/metadataRegisterResource/types"
+import { Recalculation, RecalculationYAML } from "~/metadata/commonObjects/recalculation/types"
+import {
+  AccountingFlag,
+  AccountingFlagYAML,
+  ExtDimensionAccountingFlag,
+  ExtDimensionAccountingFlagYAML,
+} from "~/metadata/commonObjects/accountingFlag/types"
+import {
+  StandardTabularSectionDescription,
+  StandardTabularSectionDescriptionYAML,
+} from "~/metadata/commonObjects/standardTabularSectionDescription/types"
 import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
 import { PredefinedItem, PredefinedItemYAML } from "~/metadata/commonObjects/predefinedItem/types"
 import {
@@ -167,6 +178,26 @@ import {
   MetadataAccumulationRegister,
   MetadataAccumulationRegisterYAML,
 } from "../../appliedObjects/metadataAccumulationRegister/types"
+import {
+  MetadataAccountingRegister,
+  MetadataAccountingRegisterYAML,
+} from "../../appliedObjects/metadataAccountingRegister/types"
+import {
+  MetadataCalculationRegister,
+  MetadataCalculationRegisterYAML,
+} from "../../appliedObjects/metadataCalculationRegister/types"
+import {
+  MetadataChartOfAccounts,
+  MetadataChartOfAccountsYAML,
+} from "../../appliedObjects/metadataChartOfAccounts/types"
+import {
+  MetadataChartOfCalculationTypes,
+  MetadataChartOfCalculationTypesYAML,
+} from "../../appliedObjects/metadataChartOfCalculationTypes/types"
+import {
+  MetadataChartOfCharacteristicTypes,
+  MetadataChartOfCharacteristicTypesYAML,
+} from "../../appliedObjects/metadataChartOfCharacteristicTypes/types"
 import { MetadataExchangePlan, MetadataExchangePlanYAML } from "../../appliedObjects/metadataExchangePlan/types"
 import {
   MetadataDocumentNumerator,
@@ -736,6 +767,26 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataRegisterAttributeYAML
   }
 
+  Recalculation: {
+    metadata: Recalculation
+    yaml: RecalculationYAML
+  }
+
+  AccountingFlag: {
+    metadata: AccountingFlag
+    yaml: AccountingFlagYAML
+  }
+
+  ExtDimensionAccountingFlag: {
+    metadata: ExtDimensionAccountingFlag
+    yaml: ExtDimensionAccountingFlagYAML
+  }
+
+  StandardTabularSectionDescription: {
+    metadata: StandardTabularSectionDescription
+    yaml: StandardTabularSectionDescriptionYAML
+  }
+
   PredefinedItem: {
     metadata: PredefinedItem
     yaml: PredefinedItemYAML
@@ -1011,6 +1062,31 @@ export type MetadataItemTypeRegistry = {
   MetadataAccumulationRegister: {
     metadata: MetadataAccumulationRegister
     yaml: MetadataAccumulationRegisterYAML
+  }
+
+  MetadataAccountingRegister: {
+    metadata: MetadataAccountingRegister
+    yaml: MetadataAccountingRegisterYAML
+  }
+
+  MetadataCalculationRegister: {
+    metadata: MetadataCalculationRegister
+    yaml: MetadataCalculationRegisterYAML
+  }
+
+  MetadataChartOfAccounts: {
+    metadata: MetadataChartOfAccounts
+    yaml: MetadataChartOfAccountsYAML
+  }
+
+  MetadataChartOfCalculationTypes: {
+    metadata: MetadataChartOfCalculationTypes
+    yaml: MetadataChartOfCalculationTypesYAML
+  }
+
+  MetadataChartOfCharacteristicTypes: {
+    metadata: MetadataChartOfCharacteristicTypes
+    yaml: MetadataChartOfCharacteristicTypesYAML
   }
 
   MetadataExchangePlan: {
