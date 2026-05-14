@@ -7,6 +7,7 @@ import {
   toGraphModel,
   type GraphImportSourceMatch,
 } from "~/metadata/orchestration/graphImport/registry"
+import { parseProjectGraphFileOwner } from "./projectFiles"
 
 export function registerFormGraphImport(): void {
   registerGraphImport({
@@ -68,21 +69,28 @@ export function registerFormGraphImport(): void {
 }
 
 function matchFormPath(filePath: string): GraphImportSourceMatch | undefined {
-  const parts = filePath.split("/")
-  if (parts.length !== 5 || parts[2] !== "Формы" || parts[4] !== "Форма.yaml") return undefined
+  const owner = parseProjectGraphFileOwner(filePath)
+  if (!owner) return undefined
 
-  const ownerDir = parts[0]!
-  const ownerName = parts[1]!
+  const parts = filePath.split("/")
+  if (parts.length !== 5 || parts[4] !== "Форма.yaml") return undefined
+
   const formName = parts[3]!
-  if (!["Справочник", "Документ", "Перечисление"].includes(ownerDir)) return undefined
+  const hasFormsRule = Object.values(owner.rule.properties).some(
+    (rule) =>
+      rule.type === "ChildFormNames" &&
+      typeof (rule as { folderName?: unknown }).folderName === "string" &&
+      parts[2] === (rule as { folderName: string }).folderName,
+  )
+  if (!hasFormsRule) return undefined
 
   return {
     kind: "form",
     name: formName,
     pathParams: {
-      ownerNodeId: `${ownerDir}.${ownerName}`,
-      ownerDir,
-      ownerName,
+      ownerNodeId: `${owner.dir}.${owner.name}`,
+      ownerDir: owner.dir,
+      ownerName: owner.name,
     },
   }
 }

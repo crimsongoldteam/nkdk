@@ -220,6 +220,26 @@ describe("buildGraph (формы)", () => {
     )
     expect(formEdge).toBeDefined()
   })
+
+  it("строит граф формы для объекта, владелец которого найден через top-level rules", async () => {
+    const result = await buildGraph(
+      [
+        {
+          filePath: "Обработка/ЗагрузкаДанных/Свойства.yaml",
+          text: "Синоним: Загрузка данных\nФормы:\n  - Форма\n",
+        },
+        {
+          filePath: "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml",
+          text: "Заголовок: Форма\n",
+        },
+      ],
+      ctx,
+    )
+
+    const nodeIds = result.flatMap((file) => file.nodes.map((node) => node.id))
+    expect(nodeIds).toContain("Обработка.ЗагрузкаДанных")
+    expect(nodeIds).toContain("Обработка.ЗагрузкаДанных.Форма.Форма")
+  })
 })
 
 describe("buildGraph (рёбра и стабы)", () => {
