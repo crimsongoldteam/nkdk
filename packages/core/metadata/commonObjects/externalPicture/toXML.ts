@@ -19,7 +19,7 @@ export const syncExternalPictureToXML = async (params: {
   const srcDescriptorPath = join(nkdkPictureDir, descriptorName)
   if (!fs.existsSync(srcDescriptorPath)) return
 
-  const objectXmlDir = join(params.xmlDir, params.name)
+  const objectXmlDir = resolveObjectXmlDir({ xmlDir: params.xmlDir, objectName: params.name })
   const dstDescriptorPath = join(objectXmlDir, rule.xmlPath)
   await fs.promises.mkdir(dirname(dstDescriptorPath), { recursive: true })
   await fs.promises.copyFile(srcDescriptorPath, dstDescriptorPath)
@@ -38,3 +38,8 @@ export const syncExternalPictureToXML = async (params: {
 }
 
 registerTypeRule("ExternalPicture", "syncExternalToXML", syncExternalPictureToXML)
+
+const resolveObjectXmlDir = (params: { xmlDir: string; objectName: string }): string => {
+  const { xmlDir, objectName } = params
+  return basename(xmlDir) === objectName ? xmlDir : join(xmlDir, objectName)
+}

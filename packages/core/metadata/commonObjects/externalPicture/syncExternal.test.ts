@@ -51,4 +51,24 @@ describe("ExternalPicture sync", () => {
       71,
     ])
   })
+
+  it("does not duplicate object name when XML dir already points at object dir", async () => {
+    fs.rmSync(tmpRoot, { recursive: true, force: true })
+    const xmlDir = join(tmpRoot, "xml", "CommonPictures", "ОбщаяКартинкаВсеСвойства")
+    const nkdkDir = join(tmpRoot, "nkdk", "ОбщаяКартинкаВсеСвойства")
+    fs.mkdirSync(join(nkdkDir, "Картинка"), { recursive: true })
+    fs.writeFileSync(join(nkdkDir, "Картинка", "Picture.xml"), "<ExtPicture/>")
+    fs.writeFileSync(join(nkdkDir, "Картинка", "Picture.png"), Buffer.from([137, 80, 78, 71]))
+
+    await syncExternalPictureToXML({ rule, nkdkDir, xmlDir, name: "ОбщаяКартинкаВсеСвойства" })
+
+    expect(fs.readFileSync(join(xmlDir, "Ext", "Picture.xml"), "utf-8")).toBe("<ExtPicture/>")
+    expect([...fs.readFileSync(join(xmlDir, "Ext", "Picture", "Picture.png"))]).toEqual([137, 80, 78, 71])
+    expect(
+      fs.existsSync(join(xmlDir, "ОбщаяКартинкаВсеСвойства", "Ext", "Picture.xml")),
+    ).toBe(false)
+    expect(
+      fs.existsSync(join(xmlDir, "ОбщаяКартинкаВсеСвойства", "Ext", "Picture", "Picture.png")),
+    ).toBe(false)
+  })
 })
