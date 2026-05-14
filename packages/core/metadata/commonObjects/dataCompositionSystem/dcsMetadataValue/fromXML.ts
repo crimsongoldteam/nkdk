@@ -15,7 +15,8 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { SystemEnumerationDcsValueRootXML } from "~/metadata/systemEnumerations/dcsTypes"
 import { importSystemEnumerationFromDcsXML } from "~/metadata/systemEnumerations/fromDcsXML"
-import { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "~/metadata/systemEnumerations/types"
+import * as SystemEnumerations from "~/metadata/systemEnumerations/types"
+import type { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContextFromXML } from "../../../context/types"
 import {
   DcsMetadataValuePropertyRule,
@@ -104,6 +105,16 @@ const hasSystemEnumeration = (
   rule: DcsMetadataValuePropertyRule
 ): rule is DcsMetadataValuePropertyRule & { valueType: "SystemEnumeration"; typeSE: keyof SystemEnumerationTypeMap } =>
   rule.valueType === "SystemEnumeration" && rule.typeSE !== undefined
+
+const inferEntSystemEnumerationType = (xsi: string | undefined): keyof SystemEnumerationTypeMap | undefined => {
+  if (xsi === undefined || !xsi.startsWith("ent:")) return undefined
+
+  const typeName = xsi.slice("ent:".length)
+  const yamlMapName = `${typeName}ToYAML`
+  return Object.prototype.hasOwnProperty.call(SystemEnumerations, yamlMapName)
+    ? (typeName as keyof SystemEnumerationTypeMap)
+    : undefined
+}
 
 const importDcsMetadataValueFromDcsXMLInternal = (
   context: ConfigurationContextFromXML,
@@ -215,6 +226,15 @@ const importDcsMetadataValueFromDcsXMLInternal = (
     return importSystemEnumerationFromDcsXML(
       context,
       { type: "SystemEnumeration", typeSE: rule.typeSE } as SystemEnumerationPropertyRule,
+      xml as SystemEnumerationDcsValueRootXML
+    )
+  }
+
+  const inferredTypeSE = inferEntSystemEnumerationType(xsi)
+  if (inferredTypeSE !== undefined) {
+    return importSystemEnumerationFromDcsXML(
+      context,
+      { type: "SystemEnumeration", typeSE: inferredTypeSE } as SystemEnumerationPropertyRule,
       xml as SystemEnumerationDcsValueRootXML
     )
   }

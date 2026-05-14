@@ -138,6 +138,15 @@ const nilFixture: DcsMetadataValueFixture = {
   xml: "nil.xml",
 }
 
+const inferredAccumulationRecordTypeFixture: DcsMetadataValueFixture = {
+  id: "systemEnumerationAccumulationRecordTypeInferred",
+  title: "SystemEnumeration inferred from ent:AccumulationRecordType",
+  rule: { type: "MetadataDcsMetadataValue", valueType: "Primitive", yaml: "value" },
+  value: "Expense",
+  yaml: "Expense",
+  xml: "system-enumeration-accumulation-record-type.xml",
+}
+
 export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
   {
     id: "color",
@@ -225,4 +234,9 @@ export const dcsMetadataValueXMLFixtures: DcsMetadataValueFixture[] = [
   nilFixture,
   primitiveTypeRefFixture,
   primitiveUuidFixture,
+]
+
+export const dcsMetadataValueFromXMLFixtures: DcsMetadataValueFixture[] = [
+  ...dcsMetadataValueXMLFixtures,
+  inferredAccumulationRecordTypeFixture,
 ]

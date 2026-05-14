@@ -46,6 +46,17 @@ const xmlWithMultipleValues = `<Settings>
 	</Parameter>
 </Settings>`
 
+const xmlWithAccumulationRecordTypeValue = `<Settings>
+	<Parameter>
+		<dcssch:name>ВидДвижения</dcssch:name>
+		<dcssch:valueType>
+			<v8:Type>ent:AccumulationRecordType</v8:Type>
+		</dcssch:valueType>
+		<dcssch:value xsi:type="ent:AccumulationRecordType">Expense</dcssch:value>
+		<dcssch:useRestriction>true</dcssch:useRestriction>
+	</Parameter>
+</Settings>`
+
 const exportDCSParameters = (value: unknown, referenceMetadata?: unknown): string => {
   const xmlData = exportPropertyToXML({
     context: mockContextToXML(),
@@ -167,5 +178,27 @@ describe("import DCSParameter from XML", () => {
         ],
       },
     ])
+  })
+
+  it("imports and exports ent system enumeration value", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlString: xmlWithAccumulationRecordTypeValue,
+      xmlRootTag: "Settings",
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "DCSParameter",
+        name: "ВидДвижения",
+        valueType: { type: ["AccumulationRecordType"] },
+        value: "Expense",
+        useRestriction: true,
+      },
+    ])
+
+    expect(exportDCSParameters(result)).toContain(
+      '<dcssch:value xsi:type="ent:AccumulationRecordType">Expense</dcssch:value>',
+    )
   })
 })

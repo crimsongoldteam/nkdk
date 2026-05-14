@@ -1,7 +1,11 @@
 import { exportMetadataItemToXML } from "~/metadata/orchestration"
+import type { MetadataItemRule } from "~/metadata/orchestration"
 import type { NamedElementXML } from "~/metadata/orchestration/metadataCollection/types"
 import type { ExportToXMLFunctionNew } from "~/metadata/orchestration/property/fn"
 import type { ItemXML } from "~/metadata/orchestration/property/types"
+import { resolveSystemEnumerationXsiType } from "~/metadata/systemEnumerations/toDcsXML"
+import * as SystemEnumerations from "~/metadata/systemEnumerations/types"
+import type { SystemEnumerationTypeMap } from "~/metadata/systemEnumerations/types"
 
 import { DCSParameterRules } from "./rules"
 import type { DCSParameter, DCSParameters } from "./types"
@@ -58,6 +62,44 @@ const omitValue = (item: DCSParameter): DCSParameter => {
   return itemWithoutValue
 }
 
+const getSingleValueTypeName = (item: DCSParameter): string | undefined => {
+  const valueType = item.valueType
+  if (!isObject(valueType)) return undefined
+
+  const type = valueType.type
+  if (!Array.isArray(type) || type.length !== 1) return undefined
+
+  return typeof type[0] === "string" ? type[0] : undefined
+}
+
+const inferEntSystemEnumerationType = (item: DCSParameter): keyof SystemEnumerationTypeMap | undefined => {
+  const typeName = getSingleValueTypeName(item)
+  if (typeName === undefined) return undefined
+
+  const yamlMapName = `${typeName}ToYAML`
+  if (!Object.prototype.hasOwnProperty.call(SystemEnumerations, yamlMapName)) return undefined
+
+  const typeSE = typeName as keyof SystemEnumerationTypeMap
+  return resolveSystemEnumerationXsiType(typeSE).startsWith("ent:") ? typeSE : undefined
+}
+
+const ruleForItem = (item: DCSParameter): MetadataItemRule => {
+  const typeSE = inferEntSystemEnumerationType(item)
+  if (typeSE === undefined) return DCSParameterRules
+
+  return {
+    ...DCSParameterRules,
+    properties: {
+      ...DCSParameterRules.properties,
+      value: {
+        ...DCSParameterRules.properties.value,
+        valueType: "SystemEnumeration",
+        typeSE,
+      },
+    },
+  } satisfies MetadataItemRule
+}
+
 export const exportDCSParametersToXML: ExportToXMLFunctionNew = (params) => {
   const data = params.value as DCSParameters | undefined
   const referenceData = params.referenceMetadata as DCSParameters | undefined
@@ -94,7 +136,7 @@ export const exportDCSParametersToXML: ExportToXMLFunctionNew = (params) => {
         context: params.context,
         data: item,
         referenceData: referenceForExport,
-        rule: DCSParameterRules,
+        rule: ruleForItem(item),
       }) as NamedElementXML | undefined) ?? {}
 
     if (referenceUndefinedValue !== undefined) {
