@@ -37,6 +37,7 @@ The implementation policy is common for all objects below:
 - `metadataChartOfAccounts`
 - `metadataChartOfCalculationTypes`
 - `metadataChartOfCharacteristicTypes`
+- `metadataCommonForm`
 
 ## Deferred Objects
 
@@ -1070,6 +1071,69 @@ Testing:
   `Ext/Predefined.xml`, `Ext/AdditionalIndexes.xml`, `Ext/Help.xml`, `Ext/Help/ru.html`, form XML, template XML, and
   both command modules.
 
+## Object: MetadataCommonForm
+
+- `itemType`: `MetadataCommonForm`
+- `itemTypePrefix`: `ОбщаяФорма`
+- XML directory: `CommonForms`
+- XML container: `CommonForm`
+- implement through `rules.ts`
+
+Properties from `.res`:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `form` | `Form` | `Форма` | `ClientApplicationForm` external file |
+| `formType` | `FormType` | `ТипФормы` | `SystemEnumeration: FormType` |
+| `includeHelpInContents` | `IncludeHelpInContents` | `ВключатьСправкуВСодержание` | `boolean` |
+| `help` | `Help` | `Справка` | `Help` |
+| `usePurposes` | `UsePurposes` | `НазначенияИспользования` | `UsePurposes` |
+| `useStandardCommands` | `UseStandardCommands` | `ИспользоватьСтандартныеКоманды` | `boolean` |
+| `extendedPresentation` | `ExtendedPresentation` | `РасширенноеПредставление` | `I8nText` |
+| `explanation` | `Explanation` | `Пояснение` | `I8nText` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+External files:
+
+- `form`: parse and export through the existing `ClientApplicationForm` model:
+  - XML `CommonForms/<name>/Ext/Form.xml`
+  - nkdk `Форма/Форма.yaml` and `Форма/Форма.nkdk`
+- form module is preserved with the form:
+  - XML `CommonForms/<name>/Ext/Form/Module.bsl`
+  - nkdk `Форма/Модули/МодульФормы.bsl`, following the current `ClientApplicationForm` external-file convention
+- `help`: existing `Help`, XML `CommonForms/<name>/Ext/Help.xml` and `CommonForms/<name>/Ext/Help/ru.html`,
+  nkdk `Справка/`
+
+Default policy:
+
+- `formType`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
+- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `useStandardCommands`: fixture default is `true`; set YAML default to `true` only after confirming it from
+  `minimal.xml` or another default fixture during implementation
+- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+
+Implementation notes:
+
+- Common form is a top-level metadata item; do not merge it with child form lists such as `ChildFormNames`.
+- The external form XML should reuse the existing form parser/exporter rather than being stored as an opaque
+  `Template`, because `ClientApplicationForm` already models form metadata and form body.
+- Some reference fixtures contain nested form resources such as `Ext/Form/Items/.../*.zip`. Preserve support for
+  `Ext/Form.xml` and `Ext/Form/Module.bsl` in the first implementation; recursive binary resources under `Ext/Form/**`
+  are a separate extension unless the current form external-file helper already handles them.
+
+Testing:
+
+- standard XML/YAML/sync tests;
+- XML tests cover the existing common-form fixtures such as constant, search, report settings, report option, history,
+  and dialog forms;
+- sync from XML verifies `Свойства.yaml`, `Форма/Форма.yaml`, `Форма/Форма.nkdk`, and form module when present;
+- sync to XML verifies `CommonForms/<name>.xml`, `CommonForms/<name>/Ext/Form.xml`, and
+  `CommonForms/<name>/Ext/Form/Module.bsl` when present.
+
 ## Registries And Tests
 
 Every included object should be added to the same registry set as other top-level applied objects:
@@ -1091,13 +1155,13 @@ Every included object gets the standard test set:
 - `convertFromXML.test.ts`;
 - `syncToXML.test.ts`.
 
-Sync tests must cover opaque external-file copying for role, scheduled job, common template, style, and subsystem.
+Sync tests must cover opaque external-file copying for role, scheduled job, common template, style, and subsystem, plus
+external form files for common forms.
 
 ## Open Queue
 
 Objects still needing brainstorming in this pass:
 
-- `metadataCommonForm`
 - `metadataIntegrationService`
 - `metadataTask`
 - `metadataWebService`
