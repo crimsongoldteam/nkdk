@@ -37,4 +37,18 @@ describe("exportTypeDescriptionToXML", () => {
 
     expect(result).toEqual(`<TypeDescription>\n\t<v8:Type>${xmlType}</v8:Type>\n</TypeDescription>`)
   })
+
+  it("should export known system enumeration type to XML with v8 prefix", () => {
+    const resultXml = exportTypeDescriptionToXML(mockContext, mockRule, { type: ["FillChecking"] })
+
+    const result = xmlExport({ TypeDescription: resultXml }, false)
+
+    expect(result).toEqual("<TypeDescription>\n\t<v8:Type>v8:FillChecking</v8:Type>\n</TypeDescription>")
+  })
+
+  it("should throw on unknown non-enumeration type during XML export", () => {
+    expect(() =>
+      exportTypeDescriptionToXML(mockContext, mockRule, { type: ["DefinitelyUnknownType"] })
+    ).toThrow("Type DefinitelyUnknownType not found in TypeDescriptionRules")
+  })
 })
