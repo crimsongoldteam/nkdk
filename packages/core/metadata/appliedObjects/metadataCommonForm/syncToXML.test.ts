@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
 import { MetadataCommonFormRules } from "./rules"
 
@@ -16,5 +17,12 @@ describe("syncAppliedObjectToXML — MetadataCommonForm", () => {
     for (const { path, result, expected } of comparisons) {
       expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
     }
+  })
+
+  it("uses registered ClientApplicationForm property handlers", () => {
+    expect(getTypeRule("ClientApplicationForm", "importFromYAML")).toBeTypeOf("function")
+    expect(getTypeRule("ClientApplicationForm", "exportToYAML")).toBeTypeOf("function")
+    expect(getTypeRule("ClientApplicationForm", "importFromXML")).toBeTypeOf("function")
+    expect(getTypeRule("ClientApplicationForm", "exportToXML")).toBeTypeOf("function")
   })
 })

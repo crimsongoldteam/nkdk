@@ -2,13 +2,6 @@ import fs from "fs"
 import { dirname, join } from "path"
 import { remapReferenceModel } from "~/metadata/appliedObjects/configuration/migrations/referenceRemap"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/fromXML"
-import { exportClientApplicationFormToXML } from "~/metadata/forms/clientApplicationForm/toXML"
-import type {
-  ClientApplicationForm,
-  ClientApplicationFormXML,
-  FormMetadataXML,
-} from "~/metadata/forms/clientApplicationForm/types"
 import {
   exportMetadataItemToXML,
   importMetadataItemFromXML,
@@ -163,8 +156,7 @@ export const syncAppliedObjectToXML = async (params: {
   // syncExternalToXML (у них нет exportToXML-обработчика).
   for (const [key, propRule] of Object.entries(rule.properties)) {
     if (propRule.filePath === undefined) continue
-    const isClientApplicationFormFile = propRule.type === "ClientApplicationForm"
-    if (!isClientApplicationFormFile && !getTypeRule(propRule.type, "exportToXML")) continue
+    if (!getTypeRule(propRule.type, "exportToXML")) continue
 
     const modelHasOwnValue = Object.prototype.hasOwnProperty.call(model as Record<string, unknown>, key)
     const modelValue = (model as Record<string, unknown>)[key]
@@ -178,37 +170,27 @@ export const syncAppliedObjectToXML = async (params: {
     if (fs.existsSync(referenceExtPath)) {
       const refContent = fs.readFileSync(referenceExtPath, "utf-8")
       const refParsed = importContentFromXML<Record<string, unknown>>(refContent)
-      referenceValue = isClientApplicationFormFile
-        ? importClientApplicationFormFromXML({
-            context: contextFromXML,
-            xml: refParsed.Form as ClientApplicationFormXML,
-            xmlMetadata: createEmptyFormMetadataXML(),
-          })
-        : importPropertyFromXML({
-            context: contextFromXML,
-            rule: propRule as PropertyRule,
-            value: refParsed,
-            name: key,
-          })
+      referenceValue = importPropertyFromXML({
+        context: contextFromXML,
+        rule: propRule as PropertyRule,
+        value: refParsed,
+        name: key,
+      })
     }
 
-    const valueToExport = modelHasOwnValue ? modelValue : referenceValue
+    const valueToExport = modelHasOwnValue
+      ? modelValue
+      : propRule.exportReferenceFileOnMissingValue === true
+        ? referenceValue
+        : undefined
     if (valueToExport === undefined) continue
 
-    const xmlFileObj = isClientApplicationFormFile
-      ? {
-          Form: exportClientApplicationFormToXML({
-            context: contextWithForms,
-            form: valueToExport as ClientApplicationForm,
-            referenceForm: referenceValue as ClientApplicationForm | undefined,
-          }),
-        }
-      : (exportPropertyToXML({
-          context: contextWithForms,
-          rule: propRule as PropertyRule,
-          value: valueToExport,
-          referenceMetadata: referenceValue,
-        }) as Record<string, unknown> | undefined)
+    const xmlFileObj = exportPropertyToXML({
+      context: contextWithForms,
+      rule: propRule as PropertyRule,
+      value: valueToExport,
+      referenceMetadata: referenceValue,
+    }) as Record<string, unknown> | undefined
     if (!xmlFileObj) continue
 
     const extOutputPath = fs.existsSync(rootReferenceExtPath) || hasExplicitExternalOutputDir
@@ -217,14 +199,6 @@ export const syncAppliedObjectToXML = async (params: {
     await fs.promises.mkdir(dirname(extOutputPath), { recursive: true })
     await fs.promises.writeFile(extOutputPath, xmlExport(xmlFileObj), "utf-8")
     params.xmlManifest?.addFile(extOutputPath)
-  }
-}
-
-function createEmptyFormMetadataXML(): FormMetadataXML {
-  return {
-    Form: {
-      Properties: {},
-    },
   }
 }
 

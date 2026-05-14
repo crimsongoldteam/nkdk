@@ -43,6 +43,7 @@ export const MetadataCommonFormRules = {
       yaml: "Форма",
       type: "ClientApplicationForm",
       filePath: "Ext/Form.xml",
+      exportReferenceFileOnMissingValue: true,
     },
     formType: {
       yaml: "ТипФормы",
