@@ -1,6 +1,6 @@
 import fs from "fs"
 import { join } from "path"
-import { describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it } from "vitest"
 import { syncExternalPictureFromXML } from "./fromXML"
 import { syncExternalPictureToXML } from "./toXML"
 
@@ -11,6 +11,10 @@ const rule = {
   xmlPath: "Ext/Picture.xml",
   payloadXmlDir: "Ext/Picture",
 } as const
+
+afterEach(() => {
+  fs.rmSync(tmpRoot, { recursive: true, force: true })
+})
 
 describe("ExternalPicture sync", () => {
   it("copies Picture.xml and binary payload from XML to nkdk", async () => {
