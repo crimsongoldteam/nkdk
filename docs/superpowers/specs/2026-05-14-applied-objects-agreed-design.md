@@ -38,6 +38,7 @@ The implementation policy is common for all objects below:
 - `metadataChartOfCalculationTypes`
 - `metadataChartOfCharacteristicTypes`
 - `metadataCommonForm`
+- `metadataIntegrationService`
 
 ## Deferred Objects
 
@@ -1134,6 +1135,75 @@ Testing:
 - sync to XML verifies `CommonForms/<name>.xml`, `CommonForms/<name>/Ext/Form.xml`, and
   `CommonForms/<name>/Ext/Form/Module.bsl` when present.
 
+## Object: MetadataIntegrationService
+
+- `itemType`: `MetadataIntegrationService`
+- `itemTypePrefix`: `СервисИнтеграции`
+- XML directory: `IntegrationServices`
+- XML container: `IntegrationService`
+- implement through `rules.ts`
+- `InternalInfo` generated category: `Manager`
+
+Parent properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `externalIntegrationServiceAddress` | `ExternalIntegrationServiceAddress` | `АдресВнешнегоСервисаИнтеграции` | `string` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+Child objects:
+
+- `IntegrationServiceChannel[]`: new child object collection under `ChildObjects/IntegrationServiceChannel`.
+
+Channel properties:
+
+| TS key | XML tag | YAML key | Rule type |
+|---|---|---|---|
+| `name` | `Name` | `Имя` | `string` |
+| `synonym` | `Synonym` | `Синоним` | `I8nText` |
+| `comment` | `Comment` | `Комментарий` | `string` |
+| `externalIntegrationServiceChannelName` | `ExternalIntegrationServiceChannelName` | `ИмяКаналаВнешнегоСервисаИнтеграции` | `string` |
+| `messageDirection` | `MessageDirection` | `НаправлениеСообщения` | `SystemEnumeration: IntegrationServiceChannelMessageDirection` |
+| `receiveMessageProcessing` | `ReceiveMessageProcessing` | `ОбработкаПолученияСообщения` | `string` |
+| `transactioned` | `Transactioned` | `Транзакционный` | `boolean` |
+| `objectBelonging` | `ObjectBelonging` | hidden | `SystemEnumeration: ObjectBelonging` |
+| `extendedConfigurationObject` | `ExtendedConfigurationObject` | hidden | runtime-only `string` |
+
+External files:
+
+- `module`: existing `Module`, XML `IntegrationServices/<name>/Ext/Module.bsl`, nkdk `Модуль.bsl`
+
+Default policy from `minimal.xml` copied from
+`/Users/nikita/git/roundTripElements/IntegrationServices/СервисИнтеграцииПоУмолчанию.xml`:
+
+- the minimal object has no channels and no module;
+- `ExternalIntegrationServiceAddress` is an empty string in XML and remains explicit content if present, not a YAML
+  default;
+- do not set YAML defaults for `messageDirection` or `transactioned` from the full fixture: it contains both
+  `Receive/false` and `Send/true`, so those values are meaningful channel content;
+- `objectBelonging`: hidden, `defaultValueYAML: "Native"`.
+
+Implementation notes:
+
+- Reuse the existing child-collection pattern from `metadataHTTPService`: parent `ChildObjects`, a separate child rule,
+  and `requiredXMLParents: [["ChildObjects"]]`.
+- The manager module contains the receive-message handler procedures referenced by channels, so it must be preserved
+  with normal `Module` external-file handling.
+- No external data-source implementation is required for this object.
+
+Testing:
+
+- standard XML/YAML/sync tests;
+- XML tests cover `minimal.xml` and `full.xml`;
+- tests cover empty `ChildObjects`, multiple channels, both message directions, transaction flag, and
+  `ReceiveMessageProcessing`;
+- sync from XML verifies `Свойства.yaml` and `Модуль.bsl` when present;
+- sync to XML verifies `IntegrationServices/<name>.xml` and `IntegrationServices/<name>/Ext/Module.bsl` when present.
+
 ## Registries And Tests
 
 Every included object should be added to the same registry set as other top-level applied objects:
@@ -1162,6 +1232,5 @@ external form files for common forms.
 
 Objects still needing brainstorming in this pass:
 
-- `metadataIntegrationService`
 - `metadataTask`
 - `metadataWebService`
