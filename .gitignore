@@ -35,3 +35,4 @@ mcp-server.log*
 # Изолированные git worktrees для параллельной разработки
 .worktrees/
 .agents/scheduled_tasks.lock
+data/dump.rdb
