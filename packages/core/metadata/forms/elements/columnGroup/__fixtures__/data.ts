@@ -39,6 +39,7 @@ export const fullColumnGroup: ColumnGroup = {
   displayImportance: "VeryHigh",
   fixingInTable: "Left",
   group: "InCell",
+  headerFormat: { items: { ru: "ЧЦ=15; ЧДЦ=2" } },
   headerHorizontalAlign: "Left",
   headerPicture: {
     type: "StandardPicture",
@@ -66,6 +67,7 @@ export const fullColumnGroupEnterprise = {
     Type: "SystemEnumeration",
     Value: "ItemHorizontalLocation.Left",
   },
+  HeaderFormat: "ЧЦ=15; ЧДЦ=2",
   ShowInHeader: true,
   ShowTitle: false,
   TitleBackColor: { Type: "Color", Value: "WebColors.MediumOrchid" },
@@ -73,7 +75,7 @@ export const fullColumnGroupEnterprise = {
   HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
   ...fullFormGroupEnterpriseCommonFixtureForColumnGroup,
 } satisfies Required<
-  Omit<ColumnGroupEnterprise, "HeaderDataPath" | "HeaderFormat" | "HorizontalAlignInGroup" | "VerticalAlignInGroup">
+  Omit<ColumnGroupEnterprise, "HeaderDataPath" | "HorizontalAlignInGroup" | "VerticalAlignInGroup">
 >
 
 export const fullColumnGroupPartialYAML: ColumnGroupPartialYAML = {
@@ -85,6 +87,7 @@ export const fullColumnGroupPartialYAML: ColumnGroupPartialYAML = {
   ОтображатьВШапке: "Истина",
   ОтображатьЗаголовок: "Ложь",
   ФиксацияВТаблице: "Лево",
+  ФорматШапки: "ЧЦ=15; ЧДЦ=2",
   ЦветФонаЗаголовка: "ОрхидеяНейтральный",
 }
 

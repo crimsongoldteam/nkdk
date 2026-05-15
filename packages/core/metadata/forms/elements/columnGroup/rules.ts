@@ -38,7 +38,7 @@ export const ColumnGroupRules = {
       defaultValueYAML: "Horizontal",
     },
     headerDataPath: { yaml: "ПутьКДаннымШапки", type: "DataPath", defaultType: "string" },
-    headerFormat: { yaml: "ФорматШапки", type: "string" },
+    headerFormat: { yaml: "ФорматШапки", type: "I8nText" },
     headerHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеВШапке",
       type: "SystemEnumeration",
