@@ -1,0 +1,9 @@
+<Field xsi:type="dcssch:DataSetFieldField">
+	<dcssch:dataPath>Сумма</dcssch:dataPath>
+	<dcssch:field>Сумма</dcssch:field>
+	<dcssch:appearance>
+		<dcsset:format>
+			<dcsset:value xsi:type="xs:string">ЧЦ=15; ЧДЦ=2</dcsset:value>
+		</dcsset:format>
+	</dcssch:appearance>
+</Field>

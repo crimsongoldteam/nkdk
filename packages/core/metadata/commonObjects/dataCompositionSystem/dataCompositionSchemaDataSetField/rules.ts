@@ -1,4 +1,4 @@
-import { MetadataItemRule } from "~/metadata/orchestration"
+import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration"
 import {
   DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD,
   DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FOLDER,
@@ -14,6 +14,15 @@ const isFolder = (item: DataSetFieldKindOwner) =>
   getDataCompositionSchemaDataSetFieldKind(item) === DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FOLDER
 const isNestedDataSet = (item: DataSetFieldKindOwner) =>
   getDataCompositionSchemaDataSetFieldKind(item) === DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_NESTED_DATA_SET
+
+const appearanceRule = {
+  type: "AppearanceFields",
+  xml: "dcssch:appearance",
+  yaml: "Оформление",
+  toXML: isField,
+  order: 13,
+  appearanceXml: "dataSetField",
+} as const satisfies PropertyRule & { appearanceXml: "dataSetField" }
 
 export const DataCompositionSchemaDataSetFieldRules = {
   itemType: "DataCompositionSchemaDataSetField",
@@ -81,13 +90,7 @@ export const DataCompositionSchemaDataSetFieldRules = {
       toXML: isField,
       order: 12,
     },
-    appearance: {
-      type: "string",
-      xml: "dcssch:appearance",
-      yaml: "Оформление",
-      toXML: isField,
-      order: 13,
-    },
+    appearance: appearanceRule,
     editParameters: {
       type: "string",
       xml: "dcssch:editParameters",
