@@ -12,14 +12,15 @@ export const MetadataAccountingRegisterStandardAttributeNames: Record<string, st
   LineNumber: "НомерСтроки",
   Recorder: "Регистратор",
   Period: "Период",
-  ExtDimension1: "Субконто1",
-  ExtDimensionType1: "ВидСубконто1",
-  ExtDimension2: "Субконто2",
-  ExtDimensionType2: "ВидСубконто2",
-  ExtDimension3: "Субконто3",
-  ExtDimensionType3: "ВидСубконто3",
-  ExtDimension4: "Субконто4",
-  ExtDimensionType4: "ВидСубконто4",
+  ...Object.fromEntries(
+    Array.from({ length: 50 }, (_, index) => {
+      const number = index + 1
+      return [
+        [`ExtDimension${number}`, `Субконто${number}`],
+        [`ExtDimensionType${number}`, `ВидСубконто${number}`],
+      ]
+    }).flat()
+  ),
 }
 
 const MetadataAccountingRegisterCommandRules = {

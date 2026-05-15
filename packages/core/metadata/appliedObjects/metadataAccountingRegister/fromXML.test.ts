@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest"
 import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
-import { MetadataAccountingRegisterRules } from "./rules"
+import { MetadataAccountingRegisterRules, MetadataAccountingRegisterStandardAttributeNames } from "./rules"
 import { MetadataAccountingRegister } from "./types"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
 
 describe("import MetadataAccountingRegister from XML", () => {
+  it("defines standard ExtDimension attributes up to 50", () => {
+    expect(MetadataAccountingRegisterStandardAttributeNames.ExtDimension1).toBe("Субконто1")
+    expect(MetadataAccountingRegisterStandardAttributeNames.ExtDimensionType1).toBe("ВидСубконто1")
+    expect(MetadataAccountingRegisterStandardAttributeNames.ExtDimension50).toBe("Субконто50")
+    expect(MetadataAccountingRegisterStandardAttributeNames.ExtDimensionType50).toBe("ВидСубконто50")
+  })
+
   it("imports accounting register fields and children", () => {
     const result = testImportAppliedObjectFromXML<MetadataAccountingRegister>({
       rule: MetadataAccountingRegisterRules,
