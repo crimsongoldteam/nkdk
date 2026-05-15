@@ -9,7 +9,7 @@ const rule: PropertyRule = {
   yaml: "Поля",
 }
 
-describe("export AvailableFields to YAML", () => {
+describe("export available fields to YAML", () => {
   it("exports full YAML", () => {
     const result = testExportPropertyToYAML({
       rule,

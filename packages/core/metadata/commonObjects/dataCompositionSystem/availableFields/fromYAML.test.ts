@@ -8,7 +8,7 @@ const rule: PropertyRule = {
   type: "AvailableFields",
 }
 
-describe("import AvailableFields from YAML", () => {
+describe("import available fields from YAML", () => {
   it("imports full YAML", () => {
     const result = testImportPropertyFromYAML({
       rule,

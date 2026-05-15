@@ -8,7 +8,7 @@ const rule: PropertyRule = {
   type: "AvailableFields",
 }
 
-describe("export AvailableFields to XML", () => {
+describe("export available fields to XML", () => {
   it("exports full.xml", () => {
     const { expectedResult, result } = testExportPropertyToXML({
       rule,

@@ -8,7 +8,7 @@ const rule: PropertyRule = {
   type: "AvailableFields",
 }
 
-describe("import AvailableFields from XML", () => {
+describe("import available fields from XML", () => {
   it("imports full.xml", () => {
     const result = testImportPropertyFromXML({
       rule,
