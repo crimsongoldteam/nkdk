@@ -66,6 +66,52 @@ describe("importMetadataValueFromXML", () => {
     expect(result).toEqual({ "_xsi:nil": true })
   })
 
+  it("keeps unknown xsi:type for reference import", () => {
+    const xmlValue = parseValue('<Value xsi:type="v8:TypeDescription"/>')
+    const result = importMetadataValueFromXML({
+      context: mockContextFromXML({ forReference: true }),
+      rule: undefined,
+      value: xmlValue,
+    })
+
+    expect(result).toEqual({ "_xsi:type": "v8:TypeDescription" })
+  })
+
+  it("throws on unknown xsi:type with text outside reference import", () => {
+    const xmlValue = parseValue('<Value xsi:type="v8:TypeDescription">unexpected</Value>')
+
+    expect(() =>
+      importMetadataValueFromXML({
+        context: mockContextFromXML(),
+        rule: undefined,
+        value: xmlValue,
+      })
+    ).toThrowError("MetadataValue: не распознан тип: v8:TypeDescription")
+  })
+
+  it("throws on unknown xsi:type with child nodes outside reference import", () => {
+    const xmlValue = parseValue('<Value xsi:type="v8:TypeDescription"><Foo>bar</Foo></Value>')
+
+    expect(() =>
+      importMetadataValueFromXML({
+        context: mockContextFromXML(),
+        rule: undefined,
+        value: xmlValue,
+      })
+    ).toThrowError("MetadataValue: не распознан тип: v8:TypeDescription")
+  })
+
+  it("imports empty unknown xsi:type as undefined outside reference import", () => {
+    const xmlValue = parseValue('<Value xsi:type="v8:TypeDescription"/>')
+    const result = importMetadataValueFromXML({
+      context: mockContextFromXML(),
+      rule: undefined,
+      value: xmlValue,
+    })
+
+    expect(result).toBeUndefined()
+  })
+
   describe("строгая валидация valueType", () => {
     it("должен бросить при valueType: [string] и фактическом boolean", () => {
       const xml = '<Value xsi:type="xs:boolean">true</Value>'

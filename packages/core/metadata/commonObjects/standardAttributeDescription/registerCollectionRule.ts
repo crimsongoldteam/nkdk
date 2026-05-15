@@ -175,18 +175,22 @@ function exportStandardAttributeDescriptionsToXML(p: {
     if (item.name) explicitByName.set(item.name as string, item)
   }
 
-  const allItems: StandardAttributeDescription[] = Object.keys(standartAttributeNames).map(
-    (internalName) =>
+  const allItems: StandardAttributeDescription[] = Object.keys(standartAttributeNames).map((internalName) => {
+    const item =
       explicitByName.get(internalName) ?? {
         itemType: "StandardAttributeDescription" as const,
         name: internalName as StandartAttributeName,
       }
-  )
+    return Object.prototype.hasOwnProperty.call(item, "fillValue")
+      ? item
+      : { ...item, fillValue: undefined }
+  })
 
   return exportMetadataCollectionToXML({
     context: p.context,
     rule: p.rule,
     data: allItems,
+    referenceData: p.referenceMetadata,
     itemRule: StandardAttributeDescriptionRules,
     xmlElement: "xr:StandardAttribute",
     keyField: "name",
