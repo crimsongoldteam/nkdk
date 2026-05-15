@@ -28,6 +28,7 @@ import {
   commandBarButtonWithParameter,
   commandBarButtonWithParameterPartialYAML,
   commandBarButtonWithParameterTypedYAML,
+  commandButtonWithTypeDescriptionParameter,
   fullCommandBarButton,
   fullCommandBarButtonEnterprise,
   fullCommandBarButtonPartialYAML,
@@ -422,6 +423,19 @@ export const ElementFixtures: ElementFixture[] = [
     model: commandBarButtonWithParameter,
     yaml: commandBarButtonWithParameterPartialYAML,
     typedYAML: commandBarButtonWithParameterTypedYAML,
+    enterprise: undefined,
+  },
+  {
+    group: "Button",
+    name: "with TypeDescription Parameter",
+    element: Button,
+    xml: "parameterTypeDescription.xml",
+    xmlFolder: "button",
+    model: commandButtonWithTypeDescriptionParameter,
+    yaml: {
+      ИмяКоманды: "Form.Item.Список.StandardCommand.CreateByParameter",
+    },
+    typedYAML: undefined,
     enterprise: undefined,
   },
   {

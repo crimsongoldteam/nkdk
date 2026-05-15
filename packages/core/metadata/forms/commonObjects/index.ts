@@ -60,3 +60,4 @@ import "./chart/types"
 import "./spreadsheetDocument/types"
 
 import "./elementId/toXML"
+import "../elements/button/parameter"

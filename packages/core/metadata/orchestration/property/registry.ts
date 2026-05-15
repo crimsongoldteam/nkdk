@@ -416,6 +416,7 @@ import { ScrollBarUseEnterprise } from "~/metadata/forms/commonObjects/scrollBar
 import { SpreadsheetDocument, SpreadsheetDocumentYAML } from "~/metadata/forms/commonObjects/spreadsheetDocument/types"
 import { Planner, PlannerYAML } from "~/metadata/forms/commonObjects/planner/types"
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
+import type { ButtonParameter } from "~/metadata/forms/elements/button/parameter"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/types"
 import {
@@ -482,6 +483,10 @@ export type PropertyTypeRegistry = {
     item: TypeDescription
     enterprise: TypeDescriptionEnterprise
     yaml: TypeDescriptionYAML
+  }
+  ButtonParameter: {
+    item: ButtonParameter
+    yaml: MetadataItemLinkYAML
   }
   DataPath: {
     item: DataPath
@@ -1325,6 +1330,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   SystemEnumeration: "SystemEnumeration",
   Color: "Color",
   TypeDescription: "TypeDescription",
+  ButtonParameter: "ButtonParameter",
   DataPath: "DataPath",
   I8nText: "I8nText",
   FormattedI8nText: "FormattedI8nText",

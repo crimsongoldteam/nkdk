@@ -55,8 +55,7 @@ export const commonButtonProperties = {
   parameter: {
     yaml: "Параметр",
     xml: "Parameter",
-    type: "MetadataItemLink",
-    typedXML: "xr:MDObjectRef",
+    type: "ButtonParameter",
     toEnterprise: false,
   },
   dataPath: { yaml: "Данные", xml: "DataPath", type: "DataPath", defaultType: "string" },
