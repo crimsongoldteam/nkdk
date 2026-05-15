@@ -1,0 +1,23 @@
+<dcsset:selection>
+	<dcsset:item>
+		<dcsset:field>Документ</dcsset:field>
+		<dcsset:use>true</dcsset:use>
+		<dcsset:title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Документ</v8:content>
+			</v8:item>
+		</dcsset:title>
+		<dcsset:viewMode>Normal</dcsset:viewMode>
+	</dcsset:item>
+	<dcsset:item>
+		<dcsset:field>Документ</dcsset:field>
+		<dcsset:use>false</dcsset:use>
+		<dcsset:lwsTitle>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Многоязычный документ</v8:content>
+			</v8:item>
+		</dcsset:lwsTitle>
+	</dcsset:item>
+</dcsset:selection>

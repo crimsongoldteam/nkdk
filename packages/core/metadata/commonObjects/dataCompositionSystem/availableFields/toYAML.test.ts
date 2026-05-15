@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 import {
-  availableFieldsWithLwsTitleAndFalseUse,
-  availableFieldsWithLwsTitleAndFalseUseYAML,
   fullAvailableFields,
   fullAvailableFieldsYAML,
+  selectedItemAvailableFields,
+  selectedItemAvailableFieldsYAML,
 } from "./__fixtures__/data"
 import "./types"
 
@@ -26,14 +26,14 @@ describe("export available fields to YAML", () => {
     })
   })
 
-  it("exports false use and lwsTitle", () => {
+  it("exports selected items", () => {
     const result = testExportPropertyToYAML({
       rule,
-      value: availableFieldsWithLwsTitleAndFalseUse,
+      value: selectedItemAvailableFields,
     })
 
     expect(result).toEqual({
-      Поля: availableFieldsWithLwsTitleAndFalseUseYAML,
+      Поля: selectedItemAvailableFieldsYAML,
     })
   })
 
