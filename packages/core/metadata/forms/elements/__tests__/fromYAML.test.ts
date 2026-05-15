@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import type { CollectableElement } from "~/metadata/orchestration"
 import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/orchestration"
 import { mockContext } from "~/tests/mockContext"
+import { commandButtonWithTypeDescriptionParameter } from "../button/__fixtures__/data"
 import { groupedFixtures, groupedTypedFixtures } from "./fixtures"
 
 describe("importElementFromPartialYAML", () => {
@@ -20,6 +21,21 @@ describe("importElementFromPartialYAML", () => {
 
       expect(result).toEqual(model)
     })
+  })
+})
+
+describe("importElementFromPartialYAML preserve", () => {
+  it("preserves TypeDescription Parameter from source when YAML omits Parameter", () => {
+    const result = importElementFromPartialYAML({
+      context: mockContext,
+      itemType: "Button",
+      yaml: {
+        ИмяКоманды: "Form.Item.Список.StandardCommand.CreateByParameter",
+      },
+      source: commandButtonWithTypeDescriptionParameter,
+    })
+
+    expect(result).toEqual(commandButtonWithTypeDescriptionParameter)
   })
 })
 

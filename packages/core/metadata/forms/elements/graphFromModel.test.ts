@@ -167,4 +167,66 @@ describe("graphFromModel — элементы формы", () => {
     const filePaths = graph.getNodeAttributes(nodeId).filePaths
     expect(filePaths).toContain(FILE_PATH)
   })
+
+  it("создаёт OBJECT-ребро для строкового Button.parameter", () => {
+    const graph = makeGraph()
+
+    buildGraphFromModel({
+      model: {
+        childItems: [
+          {
+            name: "ПоказатьВСписке",
+            itemType: "CommandBarButton",
+            parameter: "Document.Встреча",
+          },
+        ],
+      },
+      yamlMap: undefined,
+      rule: ClientApplicationFormRules as never,
+      graph,
+      parentNodeId: FORM_NODE_ID,
+      filePath: FILE_PATH,
+    })
+
+    const buttonNodeId = `${FORM_NODE_ID}.Элемент.ПоказатьВСписке`
+    const edges = [...graph.outEdgeEntries(buttonNodeId)].filter(
+      (edge) => edge.attributes.kind === "OBJECT"
+    )
+
+    expect(edges).toHaveLength(1)
+    expect(edges[0].target).toBe("Документ.Встреча")
+    expect(edges[0].attributes.yaml).toBe("Параметр")
+  })
+
+  it("создаёт OBJECT-ребро для Button.parameter с TypeDescription", () => {
+    const graph = makeGraph()
+
+    buildGraphFromModel({
+      model: {
+        childItems: [
+          {
+            name: "СоздатьПриемНаРаботу",
+            itemType: "Button",
+            parameter: {
+              typeDescription: { type: ["DocumentRef.ПриемНаРаботу"] },
+            },
+          },
+        ],
+      },
+      yamlMap: undefined,
+      rule: ClientApplicationFormRules as never,
+      graph,
+      parentNodeId: FORM_NODE_ID,
+      filePath: FILE_PATH,
+    })
+
+    const buttonNodeId = `${FORM_NODE_ID}.Элемент.СоздатьПриемНаРаботу`
+    const edges = [...graph.outEdgeEntries(buttonNodeId)].filter(
+      (edge) => edge.attributes.kind === "OBJECT"
+    )
+
+    expect(edges).toHaveLength(1)
+    expect(edges[0].target).toBe("Документ.ПриемНаРаботу")
+    expect(edges[0].attributes.yaml).toBe("Параметр")
+  })
 })
