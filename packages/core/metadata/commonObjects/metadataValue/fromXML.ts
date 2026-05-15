@@ -48,7 +48,10 @@ export const importMetadataValueFromXML = (params: {
   }
 
   const resultedType: MetadataValueType | undefined = type ?? MetadataValueTypeFromXML(data["_xsi:type"] as MetadataValueTypeXML)
-  if (!resultedType) throw new Error(`MetadataValue: не распознан тип: ${data["_xsi:type"]}`)
+  if (!resultedType) {
+    if (context.fromXML.forReference && typeof data["_xsi:type"] === "string") return data as any
+    throw new Error(`MetadataValue: не распознан тип: ${data["_xsi:type"]}`)
+  }
 
   const ruleTyped = params.rule as MetadataValuePropertyRule | undefined
   assertValueType(ruleTyped?.valueType, resultedType, "fromXML")

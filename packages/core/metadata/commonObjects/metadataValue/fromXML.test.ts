@@ -66,6 +66,29 @@ describe("importMetadataValueFromXML", () => {
     expect(result).toEqual({ "_xsi:nil": true })
   })
 
+  it("keeps unknown xsi:type for reference import", () => {
+    const xmlValue = parseValue('<Value xsi:type="v8:TypeDescription"/>')
+    const result = importMetadataValueFromXML({
+      context: mockContextFromXML({ forReference: true }),
+      rule: undefined,
+      value: xmlValue,
+    })
+
+    expect(result).toEqual({ "_xsi:type": "v8:TypeDescription" })
+  })
+
+  it("throws on unknown xsi:type outside reference import", () => {
+    const xmlValue = parseValue('<Value xsi:type="v8:TypeDescription"/>')
+
+    expect(() =>
+      importMetadataValueFromXML({
+        context: mockContextFromXML(),
+        rule: undefined,
+        value: xmlValue,
+      })
+    ).toThrowError("MetadataValue: не распознан тип: v8:TypeDescription")
+  })
+
   describe("строгая валидация valueType", () => {
     it("должен бросить при valueType: [string] и фактическом boolean", () => {
       const xml = '<Value xsi:type="xs:boolean">true</Value>'
