@@ -126,4 +126,20 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
 
     expect(result).toBe('<xr:MaxValue xsi:type="xs:decimal">99.99</xr:MaxValue>')
   })
+
+  it("preserves fillValue reference xsi type for missing value", () => {
+    const { result } = testExportPropertyToXML({
+      rule: StandardAttributeDescriptionRules.properties.fillValue,
+      value: undefined,
+      referenceMetadata: testImportPropertyFromXML({
+        rule: StandardAttributeDescriptionRules.properties.fillValue,
+        xmlString: '<xr:FillValue xsi:type="v8:TypeDescription"/>',
+        xmlRootTag: "xr:FillValue",
+        forReference: true,
+      }),
+      xmlRootTag: "xr:FillValue",
+    })
+
+    expect(result).toBe('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+  })
 })
