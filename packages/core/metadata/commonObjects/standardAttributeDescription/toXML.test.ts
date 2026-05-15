@@ -6,6 +6,7 @@ import {
   multiple,
 } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
 import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
+import { MetadataAccountingRegisterStandardAttributeNames } from "~/metadata/appliedObjects/metadataAccountingRegister/rules"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
@@ -101,6 +102,27 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 
+  it("does not export canonical standard attributes without reference", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: {
+        PredefinedDataName: "ИмяПредопределенныхДанных",
+        Predefined: "Предопределенный",
+      },
+    }
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        { itemType: "StandardAttributeDescription", name: "PredefinedDataName" },
+        { itemType: "StandardAttributeDescription", name: "Predefined" },
+      ],
+      referenceMetadata: undefined,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toBe("")
+  })
+
   it("export fillValueEmptyRefTypeLoss", () => {
     const rule: PropertyRule = {
       type: "StandardAttributeDescriptions",
@@ -190,5 +212,26 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
       importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(expectedResult)
+  })
+
+  it("exports explicit accounting ExtDimension standard attributes without reference", () => {
+    const rule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,
+    } satisfies PropertyRule
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        { itemType: "StandardAttributeDescription", name: "ExtDimension50" },
+        { itemType: "StandardAttributeDescription", name: "ExtDimensionType50" },
+      ],
+      referenceMetadata: undefined,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:StandardAttribute name="ExtDimension50"/>')
+    expect(result).toContain('<xr:StandardAttribute name="ExtDimensionType50"/>')
+    expect(result).not.toContain('<xr:StandardAttribute name="ExtDimension1"/>')
+    expect(result).not.toContain('<xr:StandardAttribute name="ExtDimensionType1"/>')
   })
 })

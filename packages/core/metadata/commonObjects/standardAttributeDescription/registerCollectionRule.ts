@@ -164,6 +164,11 @@ function exportStandardAttributeDescriptionsToXML(p: {
   const canonicalNames = Object.keys(standartAttributeNames)
   const referenceNames = referenceItems.map((item) => item.name).filter((name): name is string => name !== undefined)
   const modelNames = items.map((item) => item.name).filter((name): name is string => name !== undefined)
+  const modelNameSet = new Set(modelNames)
+  const modelMatchesCanonical =
+    canonicalNames.length > 0 &&
+    modelNameSet.size === canonicalNames.length &&
+    canonicalNames.every((name) => modelNameSet.has(name))
 
   // All-or-nothing: если ни один реквизит не изменён — секция не печатается
   const isGroupChanged = items.some(
@@ -176,12 +181,18 @@ function exportStandardAttributeDescriptionsToXML(p: {
       })
   )
 
-  if (!isGroupChanged && referenceNames.length === 0 && !(canonicalNames.length === 0 && modelNames.length > 0)) {
+  if (!isGroupChanged && referenceNames.length === 0 && (modelNames.length === 0 || modelMatchesCanonical)) {
     return undefined
   }
 
   const names = Array.from(
-    new Set(referenceNames.length > 0 ? [...referenceNames, ...modelNames] : [...canonicalNames, ...modelNames])
+    new Set(
+      referenceNames.length > 0
+        ? [...referenceNames, ...modelNames]
+        : !isGroupChanged
+          ? modelNames
+          : [...canonicalNames, ...modelNames]
+    )
   )
   const valueByName = new Map<string, StandardAttributeDescription>()
   for (const item of items) {
