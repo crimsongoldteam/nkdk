@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
-import { all, multiple } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
+import {
+  accountingExtDimensions,
+  all,
+  multiple,
+} from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
 import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { StandartAttributeNameToYAML } from "./types"
@@ -9,6 +13,11 @@ const rule: PropertyRule = {
   type: "StandardAttributeDescriptions",
   standartAttributeNames: StandartAttributeNameToYAML,
 }
+
+const accountingRule = {
+  type: "StandardAttributeDescriptions",
+  standartAttributeNames: {},
+} satisfies PropertyRule
 
 describe("import StandardAttributeDescriptions from XML", () => {
   it("should import all parameters", () => {
@@ -59,5 +68,15 @@ describe("import StandardAttributeDescriptions from XML", () => {
       importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(fillValueEmptyRefTypeLoss)
+  })
+
+  it("imports explicit accounting ExtDimension standard attributes", () => {
+    const result = testImportPropertyFromXML({
+      rule: accountingRule,
+      path: "accounting-ext-dimensions.xml",
+      xmlRootTag: "StandardAttributes",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(accountingExtDimensions)
   })
 })

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { all, minimal, multiple } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
+import {
+  accountingExtDimensions,
+  all,
+  minimal,
+  multiple,
+} from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
 import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
@@ -170,5 +175,20 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     })
 
     expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+  })
+
+  it("exports explicit accounting ExtDimension standard attributes", () => {
+    const rule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: {},
+    } satisfies PropertyRule
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: accountingExtDimensions,
+      xmlRootTag: "StandardAttributes",
+      path: "accounting-ext-dimensions.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
   })
 })

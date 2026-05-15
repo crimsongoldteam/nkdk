@@ -1,10 +1,14 @@
 import { LineCounter, YAMLMap } from "yaml"
-import { ConfigurationContext, ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import {
+  ConfigurationContext,
+  ConfigurationContextFromXML,
+  ConfigurationContextWithExportToXML,
+} from "~/metadata/context/types"
 import { GraphOps, GraphOpsChild } from "~/metadata/orchestration/property/fn"
 import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
 import { importMetadataItemCollectionFromYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/fromYAML"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
-import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"
+import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { isEmptyMetadataItem } from "~/metadata/orchestration/formElement/helper"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
@@ -24,18 +28,22 @@ const EDGE_YAML = "СтандартныйРеквизит"
 
 function filterNonEmpty(
   context: ConfigurationContext,
+  rule: PropertyRule,
   items: readonly StandardAttributeDescription[] | undefined
 ): StandardAttributeDescription[] | undefined {
   if (!items) return undefined
-  const filtered = items.filter(
-    (item) =>
-      !isEmptyMetadataItem({
-        context,
-        rule: StandardAttributeDescriptionRules as any,
-        element: item as any,
-        ignoreKeys: ["name"],
-      })
+  const canonicalNames = new Set(
+    Object.keys((rule as StandardAttributeDescriptionsPropertyRule).standartAttributeNames ?? {})
   )
+  const filtered = items.filter((item) => {
+    if (canonicalNames.size === 0 || !canonicalNames.has(item.name as string)) return true
+    return !isEmptyMetadataItem({
+      context,
+      rule: StandardAttributeDescriptionRules as any,
+      element: item as any,
+      ignoreKeys: ["name"],
+    })
+  })
   return filtered.length > 0 ? filtered : undefined
 }
 
@@ -65,9 +73,7 @@ function buildStandardAttributesGraph(params: {
   }
 
   const children: GraphOpsChild[] = []
-  for (const [index, [internalName, russianName]] of Object.entries(
-    stdAttrRule.standartAttributeNames,
-  ).entries()) {
+  for (const [index, [internalName, russianName]] of Object.entries(stdAttrRule.standartAttributeNames).entries()) {
     const absoluteId = `${parentNodeId}.${NODE_SEGMENT}.${russianName}`
 
     // US 13: standard attributes always have item so they are never treated as stubs
@@ -80,9 +86,7 @@ function buildStandardAttributesGraph(params: {
       absoluteId,
       name: russianName,
       positionFrom:
-        stdAttrsYamlMap && lineCounter
-          ? computeKeyPosition(stdAttrsYamlMap, russianName, lineCounter)
-          : undefined,
+        stdAttrsYamlMap && lineCounter ? computeKeyPosition(stdAttrsYamlMap, russianName, lineCounter) : undefined,
       index,
       item: item as unknown as Record<string, unknown>,
     })
@@ -128,10 +132,10 @@ function importStandardAttributeDescriptionsFromXML(
     xml && typeof xml === "object" && "xr:StandardAttribute" in xml ? xml : { "xr:StandardAttribute": xml }
   const raw = importer(context, rule, xmlForImporter) as StandardAttributeDescription[] | undefined
 
-  const result = filterNonEmpty(context, raw)
+  const result = context.fromXML.forReference ? raw : filterNonEmpty(context, rule, raw)
 
   if (result) {
-    const canonicalKeys = Object.keys((rule as any).standartAttributeNames ?? {})
+    const canonicalKeys = Object.keys((rule as StandardAttributeDescriptionsPropertyRule).standartAttributeNames ?? {})
     if (canonicalKeys.length > 0) {
       result.sort((a, b) => {
         const idxA = canonicalKeys.indexOf(a.name as string)
@@ -152,6 +156,14 @@ function exportStandardAttributeDescriptionsToXML(p: {
   metadataItem?: any
 }) {
   const items: StandardAttributeDescription[] = p.value ?? []
+  const referenceItems: StandardAttributeDescription[] = Array.isArray(p.referenceMetadata) ? p.referenceMetadata : []
+
+  const stdAttrRule = p.rule as StandardAttributeDescriptionsPropertyRule
+  const standartAttributeNames: Record<string, string> =
+    stdAttrRule.standartAttributeNamesXML?.(p.metadataItem) ?? stdAttrRule.standartAttributeNames ?? {}
+  const canonicalNames = Object.keys(standartAttributeNames)
+  const referenceNames = referenceItems.map((item) => item.name).filter((name): name is string => name !== undefined)
+  const modelNames = items.map((item) => item.name).filter((name): name is string => name !== undefined)
 
   // All-or-nothing: если ни один реквизит не изменён — секция не печатается
   const isGroupChanged = items.some(
@@ -164,37 +176,62 @@ function exportStandardAttributeDescriptionsToXML(p: {
       })
   )
 
-  if (!isGroupChanged) return undefined
-
-  // Expand to full canonical list from standartAttributeNames
-  const stdAttrRule = p.rule as StandardAttributeDescriptionsPropertyRule
-  const standartAttributeNames: Record<string, string> =
-    stdAttrRule.standartAttributeNamesXML?.(p.metadataItem) ?? stdAttrRule.standartAttributeNames ?? {}
-  const explicitByName = new Map<string, StandardAttributeDescription>()
-  for (const item of items) {
-    if (item.name) explicitByName.set(item.name as string, item)
+  if (!isGroupChanged && referenceNames.length === 0 && !(canonicalNames.length === 0 && modelNames.length > 0)) {
+    return undefined
   }
 
-  const allItems: StandardAttributeDescription[] = Object.keys(standartAttributeNames).map((internalName) => {
-    const item =
-      explicitByName.get(internalName) ?? {
+  const names = Array.from(
+    new Set(referenceNames.length > 0 ? [...referenceNames, ...modelNames] : [...canonicalNames, ...modelNames])
+  )
+  const valueByName = new Map<string, StandardAttributeDescription>()
+  for (const item of items) {
+    if (item.name) valueByName.set(item.name as string, item)
+  }
+  const referenceByName = new Map<string, StandardAttributeDescription>()
+  for (const item of referenceItems) {
+    if (item.name) referenceByName.set(item.name as string, item)
+  }
+
+  const allItems = names.map((internalName) => {
+    const item = valueByName.get(internalName) ??
+      referenceByName.get(internalName) ?? {
         itemType: "StandardAttributeDescription" as const,
         name: internalName as StandartAttributeName,
       }
-    return Object.prototype.hasOwnProperty.call(item, "fillValue")
+    if (
+      isEmptyMetadataItem({
+        context: p.context,
+        rule: StandardAttributeDescriptionRules as any,
+        element: item as any,
+        ignoreKeys: ["name"],
+      })
+    ) {
+      if (referenceNames.length === 0 && canonicalNames.includes(internalName) && !valueByName.has(internalName)) {
+        return (
+          exportMetadataItemToXML({
+            context: p.context,
+            data: { ...item, fillValue: undefined },
+            referenceData: referenceByName.get(internalName),
+            rule: StandardAttributeDescriptionRules,
+          }) ?? { _name: internalName }
+        )
+      }
+      return { _name: internalName }
+    }
+    const itemWithFillValue = Object.prototype.hasOwnProperty.call(item, "fillValue")
       ? item
       : { ...item, fillValue: undefined }
+    return (
+      exportMetadataItemToXML({
+        context: p.context,
+        data: itemWithFillValue,
+        referenceData: referenceByName.get(internalName),
+        rule: StandardAttributeDescriptionRules,
+      }) ?? { _name: internalName }
+    )
   })
 
-  return exportMetadataCollectionToXML({
-    context: p.context,
-    rule: p.rule,
-    data: allItems,
-    referenceData: p.referenceMetadata,
-    itemRule: StandardAttributeDescriptionRules,
-    xmlElement: "xr:StandardAttribute",
-    keyField: "name",
-  })
+  return { "xr:StandardAttribute": allItems }
 }
 
 function exportStandardAttributeDescriptionsToYAML(

@@ -100,3 +100,10 @@ export const multiple: StandardAttributeDescriptions = [
     synonym: { items: { ru: "Другой какой-то синоним" } },
   },
 ]
+
+export const accountingExtDimensions = [
+  { itemType: "StandardAttributeDescription", name: "ExtDimension1" },
+  { itemType: "StandardAttributeDescription", name: "ExtDimensionType1" },
+  { itemType: "StandardAttributeDescription", name: "ExtDimension50" },
+  { itemType: "StandardAttributeDescription", name: "ExtDimensionType50" },
+] satisfies StandardAttributeDescriptions
