@@ -29,6 +29,20 @@ const ruleWithXsiType = {
   xsiType: "GeneratedType",
 } as const satisfies MetadataItemRule
 
+const ruleWithXmlRoot = {
+  itemType: "Recalculation",
+  xsiType: "GeneratedType",
+  properties: {
+    xmlRoot: {
+      type: "XMLRoot",
+      container: "Recalculation",
+      rootAttributes: { _xmlns: "http://v8.1c.ru/8.3/MDClasses" },
+      forReferenceOnly: true,
+    },
+    name: { xml: "Name", type: "string", xmlParents: ["Properties"] },
+  },
+} as const satisfies MetadataItemRule
+
 const withReferenceRaw = (raw: Record<string, unknown>) => {
   const reference = { itemType: "Recalculation" as const, name: "Имя" }
   Object.defineProperty(reference, XML_REFERENCE_RAW, {
@@ -91,6 +105,36 @@ describe("exportMetadataItemToXML reference preservation", () => {
       "_xsi:type": "GeneratedType",
       Properties: {
         Name: "НовоеИмя",
+      },
+    })
+  })
+
+  it("keeps ordinary metadata item generation before raw reference fallback", () => {
+    const reference = withReferenceRaw({
+      "_xsi:type": "ReferenceType",
+      Properties: {
+        Name: "Имя",
+      },
+      UnknownRoot: "keep-root",
+    })
+
+    const xml = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: { itemType: "Recalculation", name: "Имя" },
+      referenceData: reference,
+      rule: ruleWithXmlRoot,
+    })
+
+    expect(xml).toEqual({
+      MetaDataObject: {
+        _xmlns: "http://v8.1c.ru/8.3/MDClasses",
+        Recalculation: {
+          "_xsi:type": "GeneratedType",
+          Properties: {
+            Name: "Имя",
+          },
+          UnknownRoot: "keep-root",
+        },
       },
     })
   })

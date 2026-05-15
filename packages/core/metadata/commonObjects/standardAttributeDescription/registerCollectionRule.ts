@@ -12,7 +12,7 @@ import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/t
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { isEmptyMetadataItem } from "~/metadata/orchestration/formElement/helper"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
+import { ItemXML, PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
 import { computeKeyPosition, findSubmap } from "~/metadata/orchestration/property/position"
 import { StandardAttributeDescriptionRules } from "./rules"
 import {
@@ -25,6 +25,7 @@ import type { StandardAttributeDescription } from "./types"
 const NODE_SEGMENT = "СтандартныйРеквизит"
 const EDGE_KIND = "STANDARD_ATTRIBUTE"
 const EDGE_YAML = "СтандартныйРеквизит"
+const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 
 function filterNonEmpty(
   context: ConfigurationContext,
@@ -235,13 +236,8 @@ function exportStandardAttributeDescriptionsToXML(p: {
     ) {
       const referenceData = referenceByName.get(internalName)
       if (referenceData) {
-        const exported = exportMetadataItemToXML({
-          context: p.context,
-          data: item,
-          referenceData,
-          rule: StandardAttributeDescriptionRules,
-        })
-        if (exported) return exported
+        const referenceRaw = getStandardAttributeReferenceRawXML(referenceData)
+        if (referenceRaw) return referenceRaw
       }
 
       if (referenceNames.length === 0 && canonicalNames.includes(internalName) && !valueByName.has(internalName)) {
@@ -269,6 +265,54 @@ function exportStandardAttributeDescriptionsToXML(p: {
   })
 
   return { "xr:StandardAttribute": allItems }
+}
+
+const getStandardAttributeReferenceRawXML = (referenceData: StandardAttributeDescription): ItemXML | undefined => {
+  const raw = getReferenceRawXML(referenceData)
+  if (!raw) return undefined
+
+  return fillMissingReferenceDefaults({
+    raw,
+    referenceData,
+    rule: StandardAttributeDescriptionRules,
+  })
+}
+
+const getReferenceRawXML = (referenceData: unknown): ItemXML | undefined => {
+  if (referenceData === null || referenceData === undefined || typeof referenceData !== "object") return undefined
+  const value = (referenceData as Record<string, unknown>)[XML_REFERENCE_RAW]
+  if (value === null || value === undefined || typeof value !== "object" || Array.isArray(value)) return undefined
+  return sanitizeReferenceRawXML(value) as ItemXML
+}
+
+const sanitizeReferenceRawXML = (value: unknown): unknown => {
+  if (value === undefined) return undefined
+  if (Array.isArray(value)) return value.map(sanitizeReferenceRawXML)
+  if (value === null || typeof value !== "object") return value
+
+  const result: Record<string, unknown> = {}
+  for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+    if (key === "#text" && typeof entry === "string" && entry.trim() === "") continue
+    result[key] = sanitizeReferenceRawXML(entry)
+  }
+  return result
+}
+
+const fillMissingReferenceDefaults = (params: {
+  raw: ItemXML
+  referenceData: StandardAttributeDescription
+  rule: typeof StandardAttributeDescriptionRules
+}): ItemXML => {
+  const result: ItemXML = { ...params.raw }
+
+  for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
+    const xmlKey = propertyRule.xml ?? propertyKey
+    if (!(xmlKey in result) || result[xmlKey] !== undefined || !("defaultValueXMLRaw" in propertyRule)) continue
+    if (!Object.prototype.hasOwnProperty.call(params.referenceData, propertyKey)) continue
+    result[xmlKey] = propertyRule.defaultValueXMLRaw
+  }
+
+  return result
 }
 
 function exportStandardAttributeDescriptionsToYAML(

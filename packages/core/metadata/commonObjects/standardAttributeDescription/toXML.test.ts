@@ -228,6 +228,38 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     expect(result).not.toBe('<StandardAttributes><xr:StandardAttribute name="ValueType"/></StandardAttributes>')
   })
 
+  it("preserves nil reference XML for empty standard attribute values", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { Value: "Значение" },
+    }
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <StandardAttributes>
+          <xr:StandardAttribute name="Value">
+            <xr:FillValue xsi:nil="true"/>
+            <xr:MaxValue xsi:nil="true"/>
+            <xr:MinValue xsi:nil="true"/>
+          </xr:StandardAttribute>
+        </StandardAttributes>
+      `,
+      xmlRootTag: "StandardAttributes",
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [{ itemType: "StandardAttributeDescription", name: "Value" }],
+      referenceMetadata,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:FillValue xsi:nil="true"/>')
+    expect(result).toContain('<xr:MaxValue xsi:nil="true"/>')
+    expect(result).toContain('<xr:MinValue xsi:nil="true"/>')
+  })
+
   it("exports explicit accounting ExtDimension standard attributes", () => {
     const rule = {
       type: "StandardAttributeDescriptions",
