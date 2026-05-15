@@ -32,7 +32,7 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
 ]
 
 const isEmptyMetadataValueXML = (value: Record<string, unknown>): boolean =>
-  !Object.prototype.hasOwnProperty.call(value, "#text")
+  Object.keys(value).every((key) => key === "_xsi:type")
 
 /**
  * Импортирует MetadataValue из XML. Всегда возвращает тегированную форму {type, value}.

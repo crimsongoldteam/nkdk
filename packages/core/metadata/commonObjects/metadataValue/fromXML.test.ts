@@ -89,6 +89,18 @@ describe("importMetadataValueFromXML", () => {
     ).toThrowError("MetadataValue: не распознан тип: v8:TypeDescription")
   })
 
+  it("throws on unknown xsi:type with child nodes outside reference import", () => {
+    const xmlValue = parseValue('<Value xsi:type="v8:TypeDescription"><Foo>bar</Foo></Value>')
+
+    expect(() =>
+      importMetadataValueFromXML({
+        context: mockContextFromXML(),
+        rule: undefined,
+        value: xmlValue,
+      })
+    ).toThrowError("MetadataValue: не распознан тип: v8:TypeDescription")
+  })
+
   it("imports empty unknown xsi:type as undefined outside reference import", () => {
     const xmlValue = parseValue('<Value xsi:type="v8:TypeDescription"/>')
     const result = importMetadataValueFromXML({
