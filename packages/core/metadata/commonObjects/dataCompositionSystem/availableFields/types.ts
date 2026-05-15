@@ -20,7 +20,7 @@ export type AvailableFieldItemYAML =
       Поле: string
       Использование?: StringboolYAML
       Заголовок?: I8nTextYAML
-      ЗаголовокLWS?: I8nTextYAML
+      МногоязычныйЗаголовок?: I8nTextYAML
       РежимОтображения?: SE.DataCompositionSettingsItemViewModeYAML
     }
 

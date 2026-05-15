@@ -21,3 +21,19 @@ export const fullAvailableFieldsYAML = [
     РежимОтображения: "Обычный",
   },
 ] as const satisfies AvailableFieldsYAML
+
+export const availableFieldsWithLwsTitleAndFalseUse = [
+  {
+    field: "Документ",
+    use: false,
+    lwsTitle: { items: { ru: "Многоязычный документ" } },
+  },
+] as const satisfies AvailableFields
+
+export const availableFieldsWithLwsTitleAndFalseUseYAML = [
+  {
+    Поле: "Документ",
+    Использование: "Ложь",
+    МногоязычныйЗаголовок: "Многоязычный документ",
+  },
+] as const satisfies AvailableFieldsYAML

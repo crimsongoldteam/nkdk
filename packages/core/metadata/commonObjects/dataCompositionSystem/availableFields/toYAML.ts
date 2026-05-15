@@ -23,7 +23,7 @@ const exportItem = (context: ConfigurationContext, item: AvailableFieldItem): Av
       : {}),
     ...(item.lwsTitle !== undefined
       ? {
-          ЗаголовокLWS: exportI8nTextToYAML({
+          МногоязычныйЗаголовок: exportI8nTextToYAML({
             context,
             rule: { type: "I8nText" },
             value: item.lwsTitle,

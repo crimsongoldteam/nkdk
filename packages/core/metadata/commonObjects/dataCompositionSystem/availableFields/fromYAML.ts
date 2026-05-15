@@ -30,12 +30,12 @@ const importItem = (context: ConfigurationContext, item: AvailableFieldItemYAML)
           }),
         }
       : {}),
-    ...(item.ЗаголовокLWS !== undefined
+    ...(item.МногоязычныйЗаголовок !== undefined
       ? {
           lwsTitle: importI8nTextFromYAML({
             context,
             rule: { type: "I8nText" },
-            value: item.ЗаголовокLWS,
+            value: item.МногоязычныйЗаголовок,
           }),
         }
       : {}),

@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
-import { fullAvailableFields, fullAvailableFieldsYAML } from "./__fixtures__/data"
+import {
+  availableFieldsWithLwsTitleAndFalseUse,
+  availableFieldsWithLwsTitleAndFalseUseYAML,
+  fullAvailableFields,
+  fullAvailableFieldsYAML,
+} from "./__fixtures__/data"
 import "./types"
 
 const rule: PropertyRule = {
@@ -16,5 +21,14 @@ describe("import available fields from YAML", () => {
     })
 
     expect(result).toEqual(fullAvailableFields)
+  })
+
+  it("imports false use and lwsTitle", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: availableFieldsWithLwsTitleAndFalseUseYAML,
+    })
+
+    expect(result).toEqual(availableFieldsWithLwsTitleAndFalseUse)
   })
 })
