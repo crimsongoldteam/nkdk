@@ -24,6 +24,9 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
   const effectiveContext: ConfigurationContextWithExportToXML = itemName
     ? getChildContextToXML({ context, itemType: rule.itemType, path: `${rule.itemType}.${itemName}`, name: itemName })
     : context
+  const referenceRaw = getReferenceRawXML(referenceData)
+  const hasModelPayload = Object.keys(data as Record<string, unknown>).some((key) => key !== "itemType" && key !== "name")
+  if (!hasModelPayload && referenceRaw) return referenceRaw
 
   const result = exportPropertiesToXML({
     context: effectiveContext,
@@ -33,7 +36,7 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
     tag,
   })
 
-  if (Object.keys(result).length === 0) return undefined
+  if (Object.keys(result).length === 0) return referenceRaw
 
   const generatedResult: ItemXML = rule.xsiType ? { "_xsi:type": rule.xsiType, ...result } : result
   const finalResult: ItemXML = mergeWithReferenceRawXML(generatedResult, referenceData, rule)

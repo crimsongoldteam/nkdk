@@ -29,7 +29,8 @@ const EDGE_YAML = "СтандартныйРеквизит"
 function filterNonEmpty(
   context: ConfigurationContext,
   rule: PropertyRule,
-  items: readonly StandardAttributeDescription[] | undefined
+  items: readonly StandardAttributeDescription[] | undefined,
+  preserveEmptyNames = new Set<string>()
 ): StandardAttributeDescription[] | undefined {
   if (!items) return undefined
   const canonicalNames = new Set(
@@ -37,6 +38,7 @@ function filterNonEmpty(
   )
   const filtered = items.filter((item) => {
     if (canonicalNames.size === 0 || !canonicalNames.has(item.name as string)) return true
+    if (typeof item.name === "string" && preserveEmptyNames.has(item.name)) return true
     return !isEmptyMetadataItem({
       context,
       rule: StandardAttributeDescriptionRules as any,
@@ -131,8 +133,9 @@ function importStandardAttributeDescriptionsFromXML(
   const xmlForImporter =
     xml && typeof xml === "object" && "xr:StandardAttribute" in xml ? xml : { "xr:StandardAttribute": xml }
   const raw = importer(context, rule, xmlForImporter) as StandardAttributeDescription[] | undefined
+  const preserveEmptyNames = collectSelfClosingExtDimensionNames(xmlForImporter["xr:StandardAttribute"])
 
-  const result = context.fromXML.forReference ? raw : filterNonEmpty(context, rule, raw)
+  const result = context.fromXML.forReference ? raw : filterNonEmpty(context, rule, raw, preserveEmptyNames)
 
   if (result) {
     const canonicalKeys = Object.keys((rule as StandardAttributeDescriptionsPropertyRule).standartAttributeNames ?? {})
@@ -145,6 +148,19 @@ function importStandardAttributeDescriptionsFromXML(
     }
   }
 
+  return result
+}
+
+const collectSelfClosingExtDimensionNames = (xml: unknown): Set<string> => {
+  const result = new Set<string>()
+  const xmlItems = Array.isArray(xml) ? xml : xml ? [xml] : []
+  for (const item of xmlItems) {
+    if (item === null || typeof item !== "object" || Array.isArray(item)) continue
+    const entry = item as Record<string, unknown>
+    const name = entry._name
+    if (typeof name !== "string" || !/^ExtDimension(Type)?\d+$/.test(name)) continue
+    if (Object.keys(entry).every((key) => key.startsWith("_"))) result.add(name)
+  }
   return result
 }
 
@@ -217,12 +233,22 @@ function exportStandardAttributeDescriptionsToXML(p: {
         ignoreKeys: ["name"],
       })
     ) {
+      const referenceData = referenceByName.get(internalName)
+      if (referenceData) {
+        const exported = exportMetadataItemToXML({
+          context: p.context,
+          data: item,
+          referenceData,
+          rule: StandardAttributeDescriptionRules,
+        })
+        if (exported) return exported
+      }
+
       if (referenceNames.length === 0 && canonicalNames.includes(internalName) && !valueByName.has(internalName)) {
         return (
           exportMetadataItemToXML({
             context: p.context,
             data: { ...item, fillValue: undefined },
-            referenceData: referenceByName.get(internalName),
             rule: StandardAttributeDescriptionRules,
           }) ?? { _name: internalName }
         )

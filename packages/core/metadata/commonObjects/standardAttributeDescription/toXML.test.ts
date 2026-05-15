@@ -199,6 +199,35 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
   })
 
+  it("preserves reference XML for an empty standard attribute item", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { ValueType: "ТипЗначения" },
+    }
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <StandardAttributes>
+          <xr:StandardAttribute name="ValueType">
+            <xr:FillValue xsi:type="v8:TypeDescription"/>
+          </xr:StandardAttribute>
+        </StandardAttributes>
+      `,
+      xmlRootTag: "StandardAttributes",
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [{ itemType: "StandardAttributeDescription", name: "ValueType" }],
+      referenceMetadata,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+    expect(result).not.toBe('<StandardAttributes><xr:StandardAttribute name="ValueType"/></StandardAttributes>')
+  })
+
   it("exports explicit accounting ExtDimension standard attributes", () => {
     const rule = {
       type: "StandardAttributeDescriptions",

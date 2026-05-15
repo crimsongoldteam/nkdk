@@ -1,9 +1,16 @@
 import { describe, expect, it } from "vitest"
 import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import { accountingExtDimensions } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { MetadataAccountingRegisterRules, MetadataAccountingRegisterStandardAttributeNames } from "./rules"
 import { MetadataAccountingRegister } from "./types"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
+const standardAttributeDescriptionFixturesUrl = new URL(
+  "../../commonObjects/standardAttributeDescription/fromXML.test.ts",
+  import.meta.url
+).href
 
 describe("import MetadataAccountingRegister from XML", () => {
   it("defines standard ExtDimension attributes up to 50", () => {
@@ -31,6 +38,22 @@ describe("import MetadataAccountingRegister from XML", () => {
     expect(result?.resources?.map(({ name }) => name)).toEqual(["РесурсВсеСвойства", "ИзмерениеИндексировать"])
     expect(result?.attributes?.map(({ name }) => name)).toEqual(["РеквизитВсеСвойства", "РеквизитПоУмолчанию"])
     expect(result?.commands?.map(({ name }) => name)).toEqual(["Команда1"])
+  })
+
+  it("imports explicitly present empty ExtDimension attributes with accounting standard names", () => {
+    const rule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,
+    } satisfies PropertyRule
+
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "accounting-ext-dimensions.xml",
+      xmlRootTag: "StandardAttributes",
+      importMetaUrl: standardAttributeDescriptionFixturesUrl,
+    })
+
+    expect(result).toEqual(accountingExtDimensions)
   })
 
   it.each(["full.xml", "minimal.xml"])("round-trip: %s", (fixture) => {
