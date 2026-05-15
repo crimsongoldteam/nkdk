@@ -142,4 +142,33 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
 
     expect(result).toBe('<xr:FillValue xsi:type="v8:TypeDescription"/>')
   })
+
+  it("preserves fillValue reference xsi type through collection export", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { ValueType: "ТипЗначения" },
+    }
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <StandardAttributes>
+          <xr:StandardAttribute name="ValueType">
+            <xr:Comment>changed</xr:Comment>
+            <xr:FillValue xsi:type="v8:TypeDescription"/>
+          </xr:StandardAttribute>
+        </StandardAttributes>
+      `,
+      xmlRootTag: "StandardAttributes",
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [{ itemType: "StandardAttributeDescription", name: "ValueType", comment: "changed" }],
+      referenceMetadata,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+  })
 })
