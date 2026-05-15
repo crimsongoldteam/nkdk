@@ -6,8 +6,12 @@ import type { AvailableFieldItem, AvailableFieldItemYAML, AvailableFields, Avail
 
 const exportBoolean = (value: boolean): "Истина" | "Ложь" => (value ? "Истина" : "Ложь")
 
+const hasMetadata = (item: Exclude<AvailableFieldItem, string>): boolean =>
+  item.use !== undefined || item.title !== undefined || item.lwsTitle !== undefined || item.viewMode !== undefined
+
 const exportItem = (context: ConfigurationContext, item: AvailableFieldItem): AvailableFieldItemYAML => {
   if (typeof item === "string") return item
+  if (!hasMetadata(item)) return item.field
 
   return {
     Поле: item.field,

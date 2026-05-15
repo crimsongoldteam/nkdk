@@ -36,4 +36,15 @@ describe("export available fields to YAML", () => {
       Поля: availableFieldsWithLwsTitleAndFalseUseYAML,
     })
   })
+
+  it("exports item with only field as string", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: [{ field: "Документ" }],
+    })
+
+    expect(result).toEqual({
+      Поля: ["Документ"],
+    })
+  })
 })

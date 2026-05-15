@@ -7,6 +7,12 @@ import type { AvailableFieldItem, AvailableFieldItemYAML, AvailableFields, Avail
 const isYamlObject = (value: AvailableFieldItemYAML): value is Exclude<AvailableFieldItemYAML, string> =>
   typeof value === "object" && value !== null && !Array.isArray(value)
 
+const hasMetadata = (item: Exclude<AvailableFieldItemYAML, string>): boolean =>
+  item.Использование !== undefined ||
+  item.Заголовок !== undefined ||
+  item.МногоязычныйЗаголовок !== undefined ||
+  item.РежимОтображения !== undefined
+
 const importBoolean = (value: Exclude<AvailableFieldItemYAML, string>["Использование"]): boolean | undefined => {
   if (value === undefined) return undefined
   return value === "Истина"
@@ -15,6 +21,7 @@ const importBoolean = (value: Exclude<AvailableFieldItemYAML, string>["Испо�
 const importItem = (context: ConfigurationContext, item: AvailableFieldItemYAML): AvailableFieldItem | undefined => {
   if (typeof item === "string") return item || undefined
   if (!isYamlObject(item) || !item.Поле) return undefined
+  if (!hasMetadata(item)) return item.Поле
 
   const viewMode = item.РежимОтображения
 

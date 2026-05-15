@@ -31,4 +31,13 @@ describe("import available fields from YAML", () => {
 
     expect(result).toEqual(availableFieldsWithLwsTitleAndFalseUse)
   })
+
+  it("imports item with only field as string", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: [{ Поле: "Документ" }],
+    })
+
+    expect(result).toEqual(["Документ"])
+  })
 })
