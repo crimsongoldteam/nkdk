@@ -53,6 +53,15 @@ The source `model.xdtomngbase_root.res` places these properties near other form-
 <property xmlns:d4p1="http://v8.1c.ru/8.1/data/enterprise" name="ViewModeApplicationOnSetReportResult" type="d4p1:ViewModeApplicationOnSetReportResult" lowerBound="0"/>
 ```
 
+The form designer shows the report-form property captions without spaces:
+
+- `ReportResult` -> `Результат отчета`
+- `ReportResultViewMode` -> `РежимОтображенияРезультата`
+- `ViewModeApplicationOnSetReportResult` -> `ПрименениеРежимаОтображенияПриУстановкеРезультата`
+- `DetailsData` -> `Данные расшифровки`
+- `VariantAppearance` -> `Представление варианта`
+- `CustomSettingsFolder` -> `Группа пользовательских настроек`
+
 ## Decision
 
 Add these four properties to `ClientApplicationFormRules` as a separate report-form property block, not mixed into unrelated generic form settings.
@@ -80,14 +89,14 @@ autoShowState: {
   tag: FormRulesTags.Form,
 },
 reportResultViewMode: {
-  yaml: "РежимПросмотраРезультатаОтчета",
+  yaml: "РежимОтображенияРезультата",
   xml: "ReportResultViewMode",
   type: "SystemEnumeration",
   typeSE: "ReportResultViewMode",
   tag: FormRulesTags.Form,
 },
 viewModeApplicationOnSetReportResult: {
-  yaml: "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета",
+  yaml: "ПрименениеРежимаОтображенияПриУстановкеРезультата",
   xml: "ViewModeApplicationOnSetReportResult",
   type: "SystemEnumeration",
   typeSE: "ViewModeApplicationOnSetReportResult",
@@ -105,7 +114,8 @@ No XML defaults should be added at this stage. The diff is loss of explicit sour
    - export preserves them in the same root form area.
 
 2. YAML test, if this layer already covers root form YAML fields:
-   - the four Russian YAML keys map to the expected internal enum values.
+   - the four Russian YAML keys map to the expected internal enum values;
+   - `ReportResultViewMode` and `ViewModeApplicationOnSetReportResult` use the exact designer captions without the extra `Отчета` suffix.
 
 ## Non-goals
 
