@@ -20,3 +20,12 @@ export const fullOrderFixtureYAML = {
   ИспользоватьПользовательскуюНастройку: "Истина",
   ПредставлениеПользовательскойНастройки: "Представление порядка",
 } as const
+
+export const autoOrderFixture = {
+  itemType: "Order",
+  items: [{ itemType: "OrderItemAuto" }],
+} as const satisfies Order
+
+export const autoOrderFixtureYAML = {
+  Элементы: ["[Авто]"],
+} as const

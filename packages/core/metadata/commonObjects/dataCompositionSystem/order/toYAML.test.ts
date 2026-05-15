@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import { fullOrderFixtureYAML, orderFixture } from "./__fixtures__/data"
+import { autoOrderFixture, autoOrderFixtureYAML, fullOrderFixtureYAML, orderFixture } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
   type: "Order",
@@ -16,5 +16,14 @@ describe("export Order to YAML", () => {
     })
 
     expect(result).toEqual({ Порядок: fullOrderFixtureYAML })
+  })
+
+  it("exports auto item to YAML", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: autoOrderFixture,
+    })
+
+    expect(result).toEqual({ Порядок: autoOrderFixtureYAML })
   })
 })
