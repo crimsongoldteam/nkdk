@@ -31,6 +31,9 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "DataCompositionComparisonType",
 ]
 
+const isEmptyMetadataValueXML = (value: Record<string, unknown>): boolean =>
+  !Object.prototype.hasOwnProperty.call(value, "#text")
+
 /**
  * Импортирует MetadataValue из XML. Всегда возвращает тегированную форму {type, value}.
  * Тип берётся из xsi:type в XML или из параметра `type`.
@@ -50,6 +53,7 @@ export const importMetadataValueFromXML = (params: {
   const resultedType: MetadataValueType | undefined = type ?? MetadataValueTypeFromXML(data["_xsi:type"] as MetadataValueTypeXML)
   if (!resultedType) {
     if (context.fromXML.forReference && typeof data["_xsi:type"] === "string") return data as any
+    if (typeof data["_xsi:type"] === "string" && isEmptyMetadataValueXML(data)) return undefined
     throw new Error(`MetadataValue: не распознан тип: ${data["_xsi:type"]}`)
   }
 
