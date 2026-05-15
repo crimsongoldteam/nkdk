@@ -36,6 +36,12 @@ const isNilMetadataValueXML = (value: unknown): value is { "_xsi:nil": true } =>
   !Array.isArray(value) &&
   (value as Record<string, unknown>)["_xsi:nil"] === true
 
+const getReferenceMetadataValueXMLType = (value: unknown): string | undefined => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined
+  const xsiType = (value as Record<string, unknown>)["_xsi:type"]
+  return typeof xsiType === "string" ? xsiType : undefined
+}
+
 /**
  * Экспортирует MetadataValue в XML. Принимает тегированную форму {type, value}.
  */
@@ -51,6 +57,8 @@ export const exportMetadataValueToXML = (params: {
 
   if (value === undefined) {
     if (isNilMetadataValueXML(referenceMetadata)) return { "_xsi:nil": true }
+    const referenceXMLType = getReferenceMetadataValueXMLType(referenceMetadata)
+    if (referenceXMLType !== undefined) return { "_xsi:type": referenceXMLType }
     if (rule.exportNilValue) return { "_xsi:nil": true }
     if (rule.valueType !== undefined && rule.valueType.length > 0) {
       const firstType = rule.valueType[0]

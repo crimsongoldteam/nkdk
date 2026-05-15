@@ -46,6 +46,28 @@ describe("exportMetadataValueToXML", () => {
     expect(result).toBe('<FillValue xsi:nil="true"/>')
   })
 
+  it("preserves reference xsi:type for missing value", () => {
+    const { result } = testExportPropertyToXML({
+      rule: { type: "MetadataValue" },
+      value: undefined,
+      referenceMetadata: { "_xsi:type": "v8:TypeDescription" },
+      xmlRootTag: "Value",
+    })
+
+    expect(result).toBe('<Value xsi:type="v8:TypeDescription"/>')
+  })
+
+  it("prefers reference xsi:type over rule valueType for missing value", () => {
+    const { result } = testExportPropertyToXML({
+      rule: { type: "MetadataValue", valueType: ["string"] },
+      value: undefined,
+      referenceMetadata: { "_xsi:type": "v8:TypeDescription" },
+      xmlRootTag: "Value",
+    })
+
+    expect(result).toBe('<Value xsi:type="v8:TypeDescription"/>')
+  })
+
   it("exports reference-only xsi:nil when passed as value", () => {
     const { result } = testExportPropertyToXML({
       rule: MetadataCommonAttributeRules.properties.fillValue,
