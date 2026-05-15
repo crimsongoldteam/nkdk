@@ -1,4 +1,5 @@
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration"
+import { MetadataItemRule } from "~/metadata/orchestration"
+import type { AppearanceFieldsPropertyRule } from "../appearanceFields/rules"
 import {
   DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD,
   DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FOLDER,
@@ -22,7 +23,7 @@ const appearanceRule = {
   toXML: isField,
   order: 13,
   appearanceXml: "dataSetField",
-} as const satisfies PropertyRule & { appearanceXml: "dataSetField" }
+} as const satisfies AppearanceFieldsPropertyRule
 
 export const DataCompositionSchemaDataSetFieldRules = {
   itemType: "DataCompositionSchemaDataSetField",

@@ -1,0 +1,12 @@
+<Field xsi:type="dcssch:DataSetFieldField">
+	<dcssch:dataPath>Сумма</dcssch:dataPath>
+	<dcssch:field>Сумма</dcssch:field>
+	<dcssch:appearance>
+		<dcsset:format>
+			<dcsset:value xsi:type="xs:string">ЧЦ=15; ЧДЦ=2</dcsset:value>
+		</dcsset:format>
+		<dcsset:textColor>
+			<dcsset:value xsi:type="v8ui:Color">web:Blue</dcsset:value>
+		</dcsset:textColor>
+	</dcssch:appearance>
+</Field>

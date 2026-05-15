@@ -15,6 +15,24 @@ export const appearanceDataCompositionSchemaDataSetField = {
   },
 } as const satisfies DataCompositionSchemaDataSetField
 
+export const directAppearanceFieldsDataCompositionSchemaDataSetField = {
+  itemType: "DataCompositionSchemaDataSetField",
+  kind: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+  dataPath: "Сумма",
+  field: "Сумма",
+  appearance: {
+    itemType: "AppearanceFields",
+    Формат: {
+      parameter: "Формат",
+      value: { type: "string", value: "ЧЦ=15; ЧДЦ=2" },
+    },
+    ЦветТекста: {
+      parameter: "ЦветТекста",
+      value: { type: "WebColor", value: "Blue" },
+    },
+  },
+} as const satisfies DataCompositionSchemaDataSetField
+
 export const fullDataCompositionSchemaDataSetField = {
   itemType: "DataCompositionSchemaDataSetField",
   kind: "ПолеНабораДанныхСхемыКомпоновкиДанных",

@@ -2,42 +2,50 @@ import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importPropertyFromXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import type { ParameterValueXML, SettingsParameterValue, SettingsParameterValuePropertyRule } from "../parameterValue/types"
 import { importSettingsParameterValueDcscorItemsFromXML } from "../settingsParameterValueCollection/dcscorItemsXML"
-import { AppearanceFieldsRules } from "./rules"
+import { AppearanceFieldsPropertyRule, AppearanceFieldsRules, directAppearanceXmlTags } from "./rules"
 import type { AppearanceFields, AppearanceFieldsXML } from "./types"
 
 const appearanceParameterRules = AppearanceFieldsRules.properties as unknown as Partial<
   Record<string, SettingsParameterValuePropertyRule>
 >
 
-type DataSetFieldAppearanceRule = PropertyRule & { appearanceXml?: "dataSetField" }
-
 const usesDataSetFieldAppearanceXML = (rule: PropertyRule): boolean =>
-  (rule as DataSetFieldAppearanceRule).appearanceXml === "dataSetField"
+  (rule as AppearanceFieldsPropertyRule).appearanceXml === "dataSetField"
 
 const importDataSetFieldAppearanceFromXML = (
   context: ConfigurationContextFromXML,
   xml: AppearanceFieldsXML | undefined
 ): AppearanceFields | undefined => {
-  const format = xml?.["dcsset:format"]
-  if (format === undefined) return undefined
+  if (xml === undefined) return undefined
 
-  const formatRule = appearanceParameterRules["Формат"]
-  if (formatRule === undefined) return undefined
+  const parameters: Record<string, SettingsParameterValue> = {}
 
-  const value = importPropertyFromXML({
-    context,
-    rule: formatRule,
-    value: {
-      "dcscor:parameter": "Формат",
-      "dcscor:value": format["dcsset:value"],
-    } satisfies ParameterValueXML,
-  }) as SettingsParameterValue | undefined
+  for (const [parameterName, xmlTag] of Object.entries(directAppearanceXmlTags)) {
+    const fieldXml = xml[xmlTag]
+    if (fieldXml === undefined) continue
 
-  if (value === undefined) return undefined
+    const parameterRule = appearanceParameterRules[parameterName]
+    if (parameterRule === undefined) continue
+
+    const value = importPropertyFromXML({
+      context,
+      rule: parameterRule,
+      value: {
+        "dcscor:parameter": parameterName,
+        "dcscor:value": fieldXml["dcsset:value"],
+      } satisfies ParameterValueXML,
+    }) as SettingsParameterValue | undefined
+
+    if (value !== undefined) {
+      parameters[parameterName] = value
+    }
+  }
+
+  if (Object.keys(parameters).length === 0) return undefined
 
   return {
     itemType: "AppearanceFields",
-    Формат: value,
+    ...parameters,
   }
 }
 

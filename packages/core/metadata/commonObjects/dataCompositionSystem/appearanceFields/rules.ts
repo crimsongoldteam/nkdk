@@ -1,4 +1,11 @@
-import { MetadataItemRule } from "~/metadata/orchestration"
+import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration"
+
+export type AppearanceFieldsXMLMode = "dataSetField"
+
+export type AppearanceFieldsPropertyRule = PropertyRule & {
+  type: "AppearanceFields"
+  appearanceXml?: AppearanceFieldsXMLMode
+}
 
 export const AppearanceFieldsRules = {
   itemType: "AppearanceFields",
@@ -66,3 +73,20 @@ export const AppearanceFieldsRules = {
     },
   },
 } as const satisfies MetadataItemRule
+
+export const directAppearanceXmlTags = {
+  ЦветФона: "dcsset:backColor",
+  ЦветТекста: "dcsset:textColor",
+  Шрифт: "dcsset:font",
+  ГоризонтальноеПоложение: "dcsset:horizontalAlign",
+  Формат: "dcsset:format",
+  ВыделятьОтрицательные: "dcsset:markNegatives",
+  ОтметкаНезаполненного: "dcsset:markIncomplete",
+  Текст: "dcsset:text",
+  Видимость: "dcsset:visible",
+  Доступность: "dcsset:enabled",
+  ТолькоПросмотр: "dcsset:readOnly",
+  Отображать: "dcsset:show",
+} as const satisfies Record<keyof typeof AppearanceFieldsRules.properties, `dcsset:${string}`>
+
+export type DirectAppearanceXMLTag = (typeof directAppearanceXmlTags)[keyof typeof directAppearanceXmlTags]

@@ -2,7 +2,7 @@ import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportPropertyToXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import type { ParameterValueXML, SettingsParameterValue, SettingsParameterValuePropertyRule } from "../parameterValue/types"
 import { exportSettingsParameterValueDcscorItemsToXML } from "../settingsParameterValueCollection/dcscorItemsXML"
-import { AppearanceFieldsRules } from "./rules"
+import { AppearanceFieldsPropertyRule, AppearanceFieldsRules, directAppearanceXmlTags } from "./rules"
 import type { AppearanceFields, AppearanceFieldsXML } from "./types"
 
 const appearanceParameterRules = AppearanceFieldsRules.properties as unknown as Partial<
@@ -11,36 +11,40 @@ const appearanceParameterRules = AppearanceFieldsRules.properties as unknown as 
 
 const orderedAppearanceParameterNames = Object.keys(AppearanceFieldsRules.properties) as string[]
 
-type DataSetFieldAppearanceRule = PropertyRule & { appearanceXml?: "dataSetField" }
-
 const usesDataSetFieldAppearanceXML = (rule: PropertyRule): boolean =>
-  (rule as DataSetFieldAppearanceRule).appearanceXml === "dataSetField"
+  (rule as AppearanceFieldsPropertyRule).appearanceXml === "dataSetField"
 
 const exportDataSetFieldAppearanceToXML = (
   context: ConfigurationContextWithExportToXML,
   value: AppearanceFields,
   referenceMetadata?: AppearanceFields | undefined
 ): AppearanceFieldsXML | undefined => {
-  const format = value["Формат"]
-  if (format === undefined) return undefined
+  const result: AppearanceFieldsXML = {}
 
-  const formatRule = appearanceParameterRules["Формат"]
-  if (formatRule === undefined) return undefined
+  for (const parameterName of orderedAppearanceParameterNames) {
+    const fieldValue = value[parameterName as keyof AppearanceFields]
+    if (fieldValue === undefined || parameterName === "itemType") continue
 
-  const formatXml = exportPropertyToXML({
-    context,
-    rule: formatRule,
-    value: format,
-    referenceMetadata: referenceMetadata?.["Формат"],
-  }) as ParameterValueXML | undefined
+    const parameterRule = appearanceParameterRules[parameterName]
+    const xmlTag = directAppearanceXmlTags[parameterName as keyof typeof directAppearanceXmlTags]
+    if (parameterRule === undefined || xmlTag === undefined) continue
 
-  if (formatXml?.["dcscor:value"] === undefined) return undefined
+    const referenceField = referenceMetadata?.[parameterName as keyof AppearanceFields]
+    const itemXml = exportPropertyToXML({
+      context,
+      rule: parameterRule,
+      value: fieldValue,
+      referenceMetadata: referenceField,
+    }) as ParameterValueXML | undefined
 
-  return {
-    "dcsset:format": {
-      "dcsset:value": formatXml["dcscor:value"],
-    },
+    if (itemXml?.["dcscor:value"] !== undefined) {
+      result[xmlTag] = {
+        "dcsset:value": itemXml["dcscor:value"],
+      }
+    }
   }
+
+  return Object.keys(result).length > 0 ? result : undefined
 }
 
 const exportAppearanceToXML = (
