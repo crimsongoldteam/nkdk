@@ -105,18 +105,24 @@ export const exportPropertyToYAML = (params: {
       name: name,
     })
 
-    return getExportToYAMLResult(rule, yamlKey, exportedValue)
+    return getExportToYAMLResult(rule, yamlKey, exportedValue, value)
   }
 
   const result = (typeExportFn as ExportToYAMLFunction)(context, rule, value)
-  return getExportToYAMLResult(rule, yamlKey, result)
+  return getExportToYAMLResult(rule, yamlKey, result, value)
 }
 
-const getExportToYAMLResult = (rule: PropertyRule, yamlKey: string, value: any): Record<string, any> | undefined => {
+const getExportToYAMLResult = (
+  rule: PropertyRule,
+  yamlKey: string,
+  value: any,
+  sourceValue?: any
+): Record<string, any> | undefined => {
   if (rule.type == "UserVisible" || rule.type == "FormattedI8nText") {
     return value
   }
 
+  if ("defaultValueYAML" in rule && sourceValue === (rule as any).defaultValueYAML) return undefined
   if ("defaultValueYAML" in rule && value === (rule as any).defaultValueYAML) return undefined
 
   if (Array.isArray(value) && value.length === 0) return undefined
