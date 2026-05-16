@@ -267,10 +267,17 @@ describe("importClientApplicationFormFromYAML", () => {
       "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета"
     )
 
+    const {
+      autoShowState: _autoShowState,
+      reportResultViewMode: _reportResultViewMode,
+      viewModeApplicationOnSetReportResult: _viewModeApplicationOnSetReportResult,
+      ...baseFormWithoutAutoDefaults
+    } = reportFormClientApplicationForm
+
     const result = importClientApplicationFormFromYAML(
       mockContext,
       reportFormClientApplicationFormYAML,
-      reportFormClientApplicationForm
+      baseFormWithoutAutoDefaults
     )
 
     expect(result).toEqual(reportFormClientApplicationForm)

@@ -106,6 +106,9 @@ export const importPropertyFromYAML = (params: {
 }): any => {
   const { context, rule, value, sourceValue, yaml, name } = params
 
+  const defaultValueYAML = getDefaultValueYAMLForImport({ context, rule, value, sourceValue, yaml, name })
+  if (defaultValueYAML !== undefined) return defaultValueYAML
+
   const typeimportFn = rule.type ? getTypeRule(rule.type, "importFromYAML") : undefined
 
   if (!typeimportFn) {
@@ -145,6 +148,32 @@ export const importPropertyFromYAML = (params: {
     name,
     operation: "importFromYAML",
   })
+}
+
+const getDefaultValueYAMLForImport = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  value: any
+  sourceValue: any
+  yaml?: any
+  name?: string
+}): any => {
+  const { context, rule, value, sourceValue, yaml, name } = params
+
+  if (value !== undefined || sourceValue !== undefined) return undefined
+  if (!shouldApplyDefaultValueYAMLOnImport(rule, yaml)) return undefined
+  if (!Object.prototype.hasOwnProperty.call(rule, "defaultValueYAML")) return undefined
+
+  return typeof rule.defaultValueYAML === "function" ? rule.defaultValueYAML({ context, name }) : rule.defaultValueYAML
+}
+
+const shouldApplyDefaultValueYAMLOnImport = (rule: PropertyRule, yaml: any): boolean => {
+  const option = rule.applyDefaultValueYAMLOnImport
+  if (option === true) return true
+  if (option === undefined) return false
+  if (yaml === null || typeof yaml !== "object") return false
+
+  return option.whenAnyYAMLKeyPresent.some((key) => Object.prototype.hasOwnProperty.call(yaml, key))
 }
 
 function handleShortFormatYAML<Type extends MetadataItemType>(params: {

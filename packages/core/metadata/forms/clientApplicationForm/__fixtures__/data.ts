@@ -56,6 +56,13 @@ export const fullClientApplicationForm: Omit<
   | "usePostingMode"
   | "repostOnWrite"
   | "extendedPresentation"
+  | "reportResult"
+  | "detailsData"
+  | "reportFormType"
+  | "variantAppearance"
+  | "autoShowState"
+  | "reportResultViewMode"
+  | "viewModeApplicationOnSetReportResult"
 > = {
   parameters: [
     {
@@ -335,6 +342,20 @@ export const fullClientApplicationFormYAML: Omit<
   | "usePostingMode"
   | "repostOnWrite"
   | "РасширенноеПредставление"
+  | "reportResult"
+  | "detailsData"
+  | "reportFormType"
+  | "variantAppearance"
+  | "autoShowState"
+  | "reportResultViewMode"
+  | "viewModeApplicationOnSetReportResult"
+  | "РезультатОтчета"
+  | "ДанныеРасшифровки"
+  | "ТипФормыОтчета"
+  | "ПредставлениеВарианта"
+  | "АвтоОтображениеСостояния"
+  | "РежимОтображенияРезультатаОтчета"
+  | "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета"
 > = {
   Синоним: "Синоним формы",
   Комментарий: "Комментарий к форме",
@@ -474,6 +495,20 @@ export const fullClientApplicationFormYAML: Omit<
   | "usePostingMode"
   | "repostOnWrite"
   | "РасширенноеПредставление"
+  | "reportResult"
+  | "detailsData"
+  | "reportFormType"
+  | "variantAppearance"
+  | "autoShowState"
+  | "reportResultViewMode"
+  | "viewModeApplicationOnSetReportResult"
+  | "РезультатОтчета"
+  | "ДанныеРасшифровки"
+  | "ТипФормыОтчета"
+  | "ПредставлениеВарианта"
+  | "АвтоОтображениеСостояния"
+  | "РежимОтображенияРезультатаОтчета"
+  | "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета"
 >
 
 export const catalogFullClientApplicationFormYAML: ClientApplicationFormYAML = {
