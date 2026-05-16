@@ -9,11 +9,12 @@ import { importNameFromNKDK } from "~/metadata/orchestration/formElement/fromNKD
 import { OtherElement, OtherElementElementType } from "../../commonObjects/childItems/types"
 import { SearchControlAddition } from "../searchControlAddition/types"
 import { SearchStringAddition } from "../searchStringAddition/types"
+import { ViewStatusAddition } from "../viewStatusAddition/types"
 
 export const importCommandAdditionFieldFromNKDK = (params: {
   context: ConfigurationContext
   source: NKDK.CommandAdditionField
-}): SearchStringAddition | SearchControlAddition => {
+}): SearchStringAddition | SearchControlAddition | ViewStatusAddition => {
   const props = importFromNKDK(params)
 
   if (props.itemType === "SearchStringAddition") {
@@ -23,11 +24,18 @@ export const importCommandAdditionFieldFromNKDK = (params: {
     } satisfies SearchStringAddition
   }
 
+  if (props.itemType === "SearchControlAddition") {
+    return {
+      itemType: "SearchControlAddition",
+      name: props.name,
+      childItems: [],
+    } satisfies SearchControlAddition
+  }
+
   return {
-    itemType: "SearchControlAddition",
+    itemType: "ViewStatusAddition",
     name: props.name,
-    childItems: [],
-  } satisfies SearchControlAddition
+  } satisfies ViewStatusAddition
 }
 
 export const importOtherFieldFromNKDK = (params: {

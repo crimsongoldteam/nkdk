@@ -36,7 +36,7 @@ import { Table } from "../../elements/table/types"
 import { TextDocumentField } from "../../elements/textDocumentField/types"
 import { TrackBarField } from "../../elements/trackBarField/types"
 import { UsualGroup } from "../../elements/usualGroup/types"
-import { SingleViewStatusAddition } from "../../elements/viewStatusAddition/types"
+import { SingleViewStatusAddition, ViewStatusAddition } from "../../elements/viewStatusAddition/types"
 
 // #region GroupChildItem
 
@@ -79,7 +79,14 @@ export type GroupChildItemsEnterprise = ToEnterprise<GroupChildItem["itemType"]>
 
 // #region CommandBarChildItem
 
-export type CommandBarChildItem = Button | CommandBarButton | ButtonGroup | Popup | SearchStringAddition | SearchControlAddition
+export type CommandBarChildItem =
+  | Button
+  | CommandBarButton
+  | ButtonGroup
+  | Popup
+  | SearchStringAddition
+  | SearchControlAddition
+  | ViewStatusAddition
 export type CommandBarChildItems = ReadonlyArray<CommandBarChildItem>
 
 export type CommandBarChildItemsPartialYAML = Record<string, ToYAML<CommandBarChildItem["itemType"]>>

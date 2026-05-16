@@ -5,10 +5,11 @@ import { exportFormElementTypeToYAML } from "~/metadata/orchestration/formElemen
 import { OtherElement } from "../../commonObjects/childItems/types"
 import { SearchControlAddition } from "../searchControlAddition/types"
 import { SearchStringAddition } from "../searchStringAddition/types"
+import { ViewStatusAddition } from "../viewStatusAddition/types"
 
 export const exportOtherElementToNKDK = (params: {
   context: ConfigurationContext
-  element: OtherElement | SearchStringAddition | SearchControlAddition
+  element: OtherElement | SearchStringAddition | SearchControlAddition | ViewStatusAddition
 }): ToNKDKResult => {
   const { context, element } = params
   const itemType = exportFormElementTypeToYAML(context, element.itemType)
