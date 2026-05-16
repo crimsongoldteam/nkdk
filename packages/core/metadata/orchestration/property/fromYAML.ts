@@ -168,7 +168,7 @@ const getDefaultValueYAMLForImport = (params: {
 }
 
 const shouldApplyDefaultValueYAMLOnImport = (rule: PropertyRule, yaml: any): boolean => {
-  const option = rule.applyDefaultValueYAMLOnImport
+  const option = rule.applyModelDefaultValueYAMLOnImport
   if (option === true) return true
   if (option === undefined) return false
   if (yaml === null || typeof yaml !== "object") return false

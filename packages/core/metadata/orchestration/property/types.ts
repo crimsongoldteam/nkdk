@@ -72,8 +72,11 @@ export interface BasePropertyRule {
   /** Исключать YAML-default по модельному значению до преобразования типа. */
   omitDefaultValueYAMLBySource?: true
 
-  /** Подставлять defaultValueYAML при импорте, если значения нет ни в YAML, ни в source. */
-  applyDefaultValueYAMLOnImport?: true | { whenAnyYAMLKeyPresent: string[] }
+  /**
+   * Подставлять defaultValueYAML при импорте, если значения нет ни в YAML, ни в source.
+   * Используй только когда defaultValueYAML уже совместим с модельным значением.
+   */
+  applyModelDefaultValueYAMLOnImport?: true | { whenAnyYAMLKeyPresent: string[] }
 
   /** Название в XML, если не заполнено - будет использован ключ*/
   xml?: string

@@ -3,6 +3,8 @@ import { ElementRule } from "../../orchestration/formElement/types"
 import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
 
+const reportFormYAMLKeys = ["РезультатОтчета", "ДанныеРасшифровки", "ТипФормыОтчета", "ПредставлениеВарианта"]
+
 export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
   properties: {
@@ -144,8 +146,8 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValueYAML: "Auto",
       omitDefaultValueYAMLBySource: true,
-      applyDefaultValueYAMLOnImport: {
-        whenAnyYAMLKeyPresent: ["РезультатОтчета", "ДанныеРасшифровки", "ТипФормыОтчета", "ПредставлениеВарианта"],
+      applyModelDefaultValueYAMLOnImport: {
+        whenAnyYAMLKeyPresent: reportFormYAMLKeys,
       },
     },
     customSettingsFolder: {
@@ -162,8 +164,8 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValueYAML: "Auto",
       omitDefaultValueYAMLBySource: true,
-      applyDefaultValueYAMLOnImport: {
-        whenAnyYAMLKeyPresent: ["РезультатОтчета", "ДанныеРасшифровки", "ТипФормыОтчета", "ПредставлениеВарианта"],
+      applyModelDefaultValueYAMLOnImport: {
+        whenAnyYAMLKeyPresent: reportFormYAMLKeys,
       },
     },
     viewModeApplicationOnSetReportResult: {
@@ -174,8 +176,8 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValueYAML: "Auto",
       omitDefaultValueYAMLBySource: true,
-      applyDefaultValueYAMLOnImport: {
-        whenAnyYAMLKeyPresent: ["РезультатОтчета", "ДанныеРасшифровки", "ТипФормыОтчета", "ПредставлениеВарианта"],
+      applyModelDefaultValueYAMLOnImport: {
+        whenAnyYAMLKeyPresent: reportFormYAMLKeys,
       },
     },
     mobileDeviceCommandBarContent: {
