@@ -258,7 +258,7 @@ export const fullTable = {
   verticalScrollBar: "UseAlways",
   verticalStretch: false,
   viewStatusRepresentation: {
-    itemType: "ViewStatusAddition",
+    itemType: "SingleViewStatusAddition",
     title: {
       items: {
         ru: "Состояние просмотра",

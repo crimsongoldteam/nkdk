@@ -124,6 +124,10 @@ import "./internalInfo/toXML"
 import "./xmlRoot/fromXML"
 import "./xmlRoot/toXML"
 
+import "./xdtoTypeName/fromXML"
+import "./xdtoTypeName/toJSONSchema"
+import "./xdtoTypeName/toXML"
+
 import "./childFormNames/fromXML"
 import "./childFormNames/toXML"
 import "./childFormNames/syncExternalToXML"

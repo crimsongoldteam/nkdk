@@ -1,8 +1,19 @@
 import { importNumberFromXML } from "~/metadata/commonObjects/number/fromXML"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { ConfigurationContext } from "../../context/types"
-import { TypeDescription, TypeDescriptionPrefixes, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
+import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import { getTypePrefix, removeTypePrefix } from "./helper"
+import {
+  TYPE_DESCRIPTION_SOURCE_TYPES,
+  TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE,
+  TypeDescription,
+  TypeDescriptionSourceTypes,
+  TypeDescriptionXML,
+  TypeDescriptionXMLContainerByType,
+  TypeDescriptionXMLType,
+} from "./types"
+
+type TypeDescriptionXMLWithTypeSetAttribute = TypeDescriptionXML & { "_xsi:type"?: "v8:TypeSet" }
 
 export const importTypeDescriptionFromXML = (
   _context: ConfigurationContext,
@@ -26,6 +37,20 @@ export const importTypeDescriptionFromXML = (
   }
 
   if (result.type.length === 0 && result.typeId === undefined) return undefined
+  const xmlContainerByType = extractXMLContainerByType(xml)
+  if (Object.keys(xmlContainerByType).length > 0) {
+    Object.defineProperty(result, TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE, {
+      value: xmlContainerByType,
+      enumerable: false,
+    })
+  }
+  const sourceTypes = shouldImportReferenceSourceTypes(_context) ? extractSourceTypes(xml) : {}
+  if (Object.keys(sourceTypes).length > 0) {
+    Object.defineProperty(result, TYPE_DESCRIPTION_SOURCE_TYPES, {
+      value: sourceTypes,
+      enumerable: false,
+    })
+  }
 
   return result
 }
@@ -49,6 +74,46 @@ export const getTypes = (type: TypeDescriptionXMLType | TypeDescriptionXMLType[]
   return typeArray.map((typeItem) => getType(typeItem))
 }
 
+const extractXMLContainerByType = (item: TypeDescriptionXML): TypeDescriptionXMLContainerByType => {
+  const result: TypeDescriptionXMLContainerByType = {}
+  for (const type of getTypes(item["v8:Type"]) ?? []) result[type] = "Type"
+  for (const type of getTypes(item["v8:TypeSet"]) ?? []) result[type] = "TypeSet"
+
+  if ((item as TypeDescriptionXMLWithTypeSetAttribute)["_xsi:type"] === "v8:TypeSet") {
+    for (const type of getTypes(item["v8:Type"]) ?? []) result[type] = "TypeSetAttribute"
+  }
+
+  return result
+}
+
+const shouldImportReferenceSourceTypes = (context: ConfigurationContext): boolean =>
+  (context as Partial<ConfigurationContextFromXML>).fromXML?.forReference === true
+
+const extractSourceTypes = (item: TypeDescriptionXML): TypeDescriptionSourceTypes => {
+  const result: TypeDescriptionSourceTypes = {}
+  for (const type of toTypeArray(item["v8:Type"])) setSourceType(result, type)
+  for (const type of toTypeArray(item["v8:TypeSet"])) setSourceType(result, type)
+
+  return result
+}
+
+const toTypeArray = (type: TypeDescriptionXMLType | TypeDescriptionXMLType[] | undefined): TypeDescriptionXMLType[] => {
+  if (type === undefined) return []
+  return Array.isArray(type) ? type : [type]
+}
+
+const setSourceType = (sourceTypes: TypeDescriptionSourceTypes, type: TypeDescriptionXMLType): void => {
+  const value = getTypeText(type)
+  if (value === undefined) return
+
+  const semanticType = removeTypePrefix(value)
+  const namespace = getTypeNamespace(type, value)
+  sourceTypes[semanticType] = {
+    value,
+    ...(namespace !== undefined ? { namespace } : undefined),
+  }
+}
+
 const getTypeIds = (typeId: TypeDescriptionXML["v8:TypeId"] | unknown): string[] | undefined => {
   if (typeId === undefined) return undefined
 
@@ -59,23 +124,24 @@ const getTypeIds = (typeId: TypeDescriptionXML["v8:TypeId"] | unknown): string[]
 }
 
 export const getType = (type: TypeDescriptionXMLType): string => {
-  const text = typeof type === "string" ? type : type["#text"]
+  const text = getTypeText(type)
 
   if (text === undefined) throw new Error("Type is undefined")
 
   return removeTypePrefix(text)
 }
 
-const removeTypePrefix = (type: string): string => {
-  const colonIndex = type.indexOf(":")
-  if (colonIndex === -1) return type
+const getTypeText = (type: TypeDescriptionXMLType): string | undefined =>
+  typeof type === "string" ? type : type["#text"]
 
-  const prefix = type.substring(0, colonIndex)
-  const typeName = type.substring(colonIndex + 1)
+const getTypeNamespace = (type: TypeDescriptionXMLType, value: string): string | undefined => {
+  if (typeof type === "string") return undefined
 
-  if (TypeDescriptionPrefixes[prefix]) return typeName
+  const prefix = getTypePrefix(value)
+  if (prefix === undefined) return undefined
 
-  return typeName
+  const namespaces: Record<`_xmlns:${string}`, string> = type
+  return namespaces[`_xmlns:${prefix}`]
 }
 
 const importQualifierNumber = (

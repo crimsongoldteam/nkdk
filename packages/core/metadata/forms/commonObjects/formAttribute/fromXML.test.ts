@@ -16,6 +16,7 @@ import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { attributeAnyType } from "./__fixtures__/attributeAnyType"
 import { chartSettings } from "./__fixtures__/chartSettings"
 import { columnAnyType } from "./__fixtures__/columnAnyType"
+import { ganttChartSettings } from "./__fixtures__/ganttChartSettings"
 import { mixedColumns } from "./__fixtures__/mixedColumns"
 import { plannerSettings } from "./__fixtures__/plannerSettings"
 import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
@@ -183,6 +184,16 @@ describe("importFormAttributesFromXML", () => {
     })
 
     expect(result).toEqual(chartSettings)
+  })
+
+  it("import ganttChartSettings", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "ganttChartSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(ganttChartSettings)
   })
 
   it("import spreadsheetDocumentSettings", () => {

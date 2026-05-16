@@ -1,10 +1,10 @@
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { Picture, PictureEnterprise } from "./types"
+import { isRawPictureRef, Picture, PictureEnterprise } from "./types"
 
 export const exportPictureToEnterprise = (params: { value: Picture | undefined }): PictureEnterprise | undefined => {
   const { value: picture } = params
 
-  if (!picture || !picture.ref) return undefined
+  if (!picture || isRawPictureRef(picture) || !picture.ref) return undefined
 
   if (picture.type === "AbsolutePicture") {
     return { Type: "AbsolutePicture" as const }

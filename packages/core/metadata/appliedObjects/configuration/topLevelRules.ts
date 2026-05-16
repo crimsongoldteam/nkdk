@@ -4,6 +4,7 @@ import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { MetadataCommonAttributeRules } from "../metadataCommonAttribute/rules"
 import { MetadataDefinedTypeRules } from "../metadataDefinedType/rules"
 import { MetadataDataProcessorRules } from "../metadataDataProcessor/rules"
+import { MetadataReportRules } from "../metadataReport/rules"
 import { MetadataDocumentJournalRules } from "../metadataDocumentJournal/rules"
 import { MetadataDocumentRules } from "../metadataDocument/rules"
 import { MetadataHTTPServiceRules } from "../metadataHTTPService/rules"
@@ -49,6 +50,7 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataCatalogRules,
   MetadataDocumentRules,
   MetadataDataProcessorRules,
+  MetadataReportRules,
   MetadataDocumentJournalRules,
   MetadataHTTPServiceRules,
   MetadataInformationRegisterRules,

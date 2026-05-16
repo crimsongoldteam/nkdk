@@ -19,6 +19,24 @@ describe("importPictureFromYAML", () => {
         expect(result).toEqual(picture)
       }
     )
+
+    it.each(["0", "0:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"])(
+      "should import %s as raw ref from YAML",
+      (rawRef) => {
+        const result = importPictureFromYAML(mockContext, mockRule, rawRef)
+
+        expect(result).toEqual({ rawRef })
+      }
+    )
+
+    it.each(["00", "0:g", "1:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"])(
+      "should not classify %s as raw ref from YAML",
+      (ref) => {
+        const result = importPictureFromYAML(mockContext, mockRule, ref)
+
+        expect(result).not.toEqual({ rawRef: ref })
+      }
+    )
   })
   // describe("importPictureCombinedFromYAML", () => {
   //   it("should return undefined for undefined input", () => {

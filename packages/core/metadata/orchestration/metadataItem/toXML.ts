@@ -24,6 +24,7 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
   const effectiveContext: ConfigurationContextWithExportToXML = itemName
     ? getChildContextToXML({ context, itemType: rule.itemType, path: `${rule.itemType}.${itemName}`, name: itemName })
     : context
+  const referenceRaw = getReferenceRawXML(referenceData)
 
   const result = exportPropertiesToXML({
     context: effectiveContext,
@@ -33,7 +34,7 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
     tag,
   })
 
-  if (Object.keys(result).length === 0) return undefined
+  if (Object.keys(result).length === 0 && !referenceRaw) return undefined
 
   const generatedResult: ItemXML = rule.xsiType ? { "_xsi:type": rule.xsiType, ...result } : result
   const finalResult: ItemXML = mergeWithReferenceRawXML(generatedResult, referenceData, rule)
@@ -99,12 +100,16 @@ const mergeXMLObject = (params: {
   const { generated, reference, rule, path } = params
   const merged: ItemXML = {}
   for (const [key, value] of Object.entries(reference)) {
-    merged[key] =
-      key in generated
-        ? mergeXMLValue({ key, generated: generated[key], reference: value, rule, path })
-        : value
+    if (key in generated) {
+      const generatedValue = generated[key]
+      if (generatedValue === undefined) continue
+      merged[key] = mergeXMLValue({ key, generated: generatedValue, reference: value, rule, path })
+    } else {
+      merged[key] = value
+    }
   }
   for (const [key, value] of Object.entries(generated)) {
+    if (value === undefined) continue
     if (key in merged) continue
     const propertyRule = findPropertyRuleForXMLPath({ rule, path, xmlKey: key })
     if (isDefaultValueMissingFromReference({ value, propertyRule })) continue

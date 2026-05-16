@@ -26,6 +26,10 @@ export const syncChildTemplateNamesFromXML: SyncExternalFromXMLFunction = async 
       src: join(templatesDir, templateName, "Ext", "Template.txt"),
       dst: join(templateOutputDir, "Template.txt"),
     })
+    await copyIfExists({
+      src: join(templatesDir, templateName, "Ext", "Template.xml"),
+      dst: join(templateOutputDir, "Ext", "Template.xml"),
+    })
   }
 }
 

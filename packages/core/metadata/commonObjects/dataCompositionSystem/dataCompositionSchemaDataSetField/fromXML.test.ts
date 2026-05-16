@@ -5,7 +5,9 @@ import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { xmlExport } from "~/xml/export/exporter"
 import {
+  appearanceDataCompositionSchemaDataSetField,
   availableValuesDataCompositionSchemaDataSetField,
+  directAppearanceFieldsDataCompositionSchemaDataSetField,
   folderDataCompositionSchemaDataSetField,
   fullDataCompositionSchemaDataSetField,
   nestedDataCompositionSchemaDataSetField,
@@ -100,6 +102,59 @@ describe("import DataCompositionSchemaDataSetField from XML", () => {
       importMetaUrl: import.meta.url,
     })
 
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("imports appearance.xml", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "appearance.xml",
+      xmlRootTag: "Field",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(appearanceDataCompositionSchemaDataSetField)
+  })
+
+  it("round-trips appearance.xml", () => {
+    const imported = testImportPropertyFromXML({
+      rule,
+      path: "appearance.xml",
+      xmlRootTag: "Field",
+      importMetaUrl: import.meta.url,
+    })
+
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule,
+      value: imported,
+      xmlRootTag: "Field",
+      path: "appearance.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("round-trips appearance direct fields", () => {
+    const imported = testImportPropertyFromXML({
+      rule,
+      path: "appearance-direct-fields.xml",
+      xmlRootTag: "Field",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(imported).toEqual(directAppearanceFieldsDataCompositionSchemaDataSetField)
+
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule,
+      value: imported,
+      xmlRootTag: "Field",
+      path: "appearance-direct-fields.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toContain(`<dcsset:value xsi:type="xs:string">ЧЦ=15; ЧДЦ=2</dcsset:value>`)
+    expect(result).toContain(`<dcsset:textColor>`)
     expect(result).toEqual(expectedResult)
   })
 

@@ -5,14 +5,16 @@ import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
 export interface PictureXML {
   "xr:Ref"?: string
   "xr:Abs"?: string
-  "xr:LoadTransparent": boolean
+  "xr:LoadTransparent"?: boolean
   "xr:TransparentPixel"?: {
     _x: string | number
     _y: string | number
   }
 }
 
-export interface Picture {
+export type RawPictureRef = { rawRef: string }
+
+export interface LinkedPicture {
   ref: string | SE.PictureLib
   type: "StandardPicture" | "CommonPicture" | "AbsolutePicture"
   loadTransparent: boolean
@@ -20,6 +22,18 @@ export interface Picture {
     x: number
     y: number
   }
+}
+
+export type Picture = LinkedPicture | RawPictureRef
+
+export function isRawPictureRef(picture: Picture): picture is RawPictureRef {
+  return "rawRef" in picture
+}
+
+const rawPictureRefPattern = /^0(?::[0-9a-fA-F-]+)?$/
+
+export function isRawPictureRefValue(ref: string): boolean {
+  return rawPictureRefPattern.test(ref)
 }
 
 export type PictureYAMLRef = string | SE.PictureLibYAML

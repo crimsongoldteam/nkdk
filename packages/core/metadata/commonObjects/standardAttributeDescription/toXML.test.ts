@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { all, minimal, multiple } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
+import {
+  accountingExtDimensions,
+  all,
+  minimal,
+  multiple,
+} from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
 import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
+import { MetadataAccountingRegisterStandardAttributeNames } from "~/metadata/appliedObjects/metadataAccountingRegister/rules"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
@@ -96,6 +102,27 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 
+  it("does not export canonical standard attributes without reference", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: {
+        PredefinedDataName: "ИмяПредопределенныхДанных",
+        Predefined: "Предопределенный",
+      },
+    }
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        { itemType: "StandardAttributeDescription", name: "PredefinedDataName" },
+        { itemType: "StandardAttributeDescription", name: "Predefined" },
+      ],
+      referenceMetadata: undefined,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toBe("")
+  })
+
   it("export fillValueEmptyRefTypeLoss", () => {
     const rule: PropertyRule = {
       type: "StandardAttributeDescriptions",
@@ -170,5 +197,102 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     })
 
     expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+  })
+
+  it("preserves reference XML for an empty standard attribute item", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { ValueType: "ТипЗначения" },
+    }
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <StandardAttributes>
+          <xr:StandardAttribute name="ValueType">
+            <xr:FillValue xsi:type="v8:TypeDescription"/>
+          </xr:StandardAttribute>
+        </StandardAttributes>
+      `,
+      xmlRootTag: "StandardAttributes",
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [{ itemType: "StandardAttributeDescription", name: "ValueType" }],
+      referenceMetadata,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+    expect(result).not.toBe('<StandardAttributes><xr:StandardAttribute name="ValueType"/></StandardAttributes>')
+  })
+
+  it("preserves nil reference XML for empty standard attribute values", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { Value: "Значение" },
+    }
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <StandardAttributes>
+          <xr:StandardAttribute name="Value">
+            <xr:FillValue xsi:nil="true"/>
+            <xr:MaxValue xsi:nil="true"/>
+            <xr:MinValue xsi:nil="true"/>
+          </xr:StandardAttribute>
+        </StandardAttributes>
+      `,
+      xmlRootTag: "StandardAttributes",
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [{ itemType: "StandardAttributeDescription", name: "Value" }],
+      referenceMetadata,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:FillValue xsi:nil="true"/>')
+    expect(result).toContain('<xr:MaxValue xsi:nil="true"/>')
+    expect(result).toContain('<xr:MinValue xsi:nil="true"/>')
+  })
+
+  it("exports explicit accounting ExtDimension standard attributes", () => {
+    const rule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: {},
+    } satisfies PropertyRule
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: accountingExtDimensions,
+      xmlRootTag: "StandardAttributes",
+      path: "accounting-ext-dimensions.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("exports explicit accounting ExtDimension standard attributes without reference", () => {
+    const rule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,
+    } satisfies PropertyRule
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        { itemType: "StandardAttributeDescription", name: "ExtDimension50" },
+        { itemType: "StandardAttributeDescription", name: "ExtDimensionType50" },
+      ],
+      referenceMetadata: undefined,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:StandardAttribute name="ExtDimension50"/>')
+    expect(result).toContain('<xr:StandardAttribute name="ExtDimensionType50"/>')
+    expect(result).not.toContain('<xr:StandardAttribute name="ExtDimension1"/>')
+    expect(result).not.toContain('<xr:StandardAttribute name="ExtDimensionType1"/>')
   })
 })

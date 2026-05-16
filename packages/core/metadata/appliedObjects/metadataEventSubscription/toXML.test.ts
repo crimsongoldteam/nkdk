@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest"
+import { exportMetadataItemToXML } from "~/metadata/orchestration"
 import { testExportAppliedObjectToXML } from "~/tests/appliedObject"
+import { mockContextToXML } from "~/tests/mockContext"
+import { xmlExport } from "~/xml/export/exporter"
 import { full } from "./__fixtures__/full"
 import { minimal } from "./__fixtures__/minimal"
 import { MetadataEventSubscriptionRules } from "./rules"
@@ -25,5 +28,24 @@ describe("export MetadataEventSubscription to XML", () => {
       data: minimal,
     })
     expect(normalizeLineEndings(result)).toEqual(normalizeLineEndings(expected))
+  })
+
+  it("exports new single Source without reference canonically as v8:Type", () => {
+    const xmlData = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: {
+        ...minimal,
+        name: "ПодпискаНаСобытиеНовая",
+        source: { type: ["DocumentObject.ЗаказКлиента"] },
+      },
+      rule: MetadataEventSubscriptionRules,
+    })
+
+    const result = xmlExport(xmlData!)
+
+    expect(result).toContain("<Source>")
+    expect(result).toContain("<v8:Type>cfg:DocumentObject.ЗаказКлиента</v8:Type>")
+    expect(result).not.toContain("<v8:TypeSet>")
+    expect(result).not.toContain('xsi:type="v8:TypeSet"')
   })
 })

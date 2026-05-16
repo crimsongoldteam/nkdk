@@ -94,4 +94,5 @@ export const ExportToNKDKCommandBarChildItemsGeneratorFn = {
   ButtonGroup: exportButtonGroupContentToNKDK,
   SearchStringAddition: exportOtherElementToNKDK,
   SearchControlAddition: exportOtherElementToNKDK,
+  ViewStatusAddition: exportOtherElementToNKDK,
 } as const satisfies ExportToNKDKFnMap<CommandBarChildItem>

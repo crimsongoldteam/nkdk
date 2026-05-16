@@ -19,8 +19,10 @@ import { setIdsToElements } from "../../clientApplicationForm/toXML"
 import { attributeAnyType } from "./__fixtures__/attributeAnyType"
 import { chartSettings } from "./__fixtures__/chartSettings"
 import { columnAnyType } from "./__fixtures__/columnAnyType"
+import { ganttChartSettings } from "./__fixtures__/ganttChartSettings"
 import { mixedColumns } from "./__fixtures__/mixedColumns"
 import { plannerSettings } from "./__fixtures__/plannerSettings"
+import { plannerSettingsWithNil } from "./__fixtures__/plannerSettingsWithNil"
 import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
 import { tableWithColumns } from "./__fixtures__/tableWithColumns"
 import { titleColumnsType } from "./__fixtures__/titleColumnsType"
@@ -330,6 +332,19 @@ describe("exportFormAttributesToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 
+  it("export ganttChartSettings", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: ganttChartSettings,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "ganttChartSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
   it("export spreadsheetDocumentSettings", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule: formAttributesRule,
@@ -350,6 +365,19 @@ describe("exportFormAttributesToXML", () => {
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "plannerSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export plannerSettingsWithNil", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value: plannerSettingsWithNil,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "plannerSettingsWithNil.xml",
       importMetaUrl: import.meta.url,
     })
 

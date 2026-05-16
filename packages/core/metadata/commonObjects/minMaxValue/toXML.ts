@@ -1,9 +1,8 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { getMinMaxValueXsiType } from "./types"
+import { getMinMaxValueXsiType, MinMaxValueXsiType } from "./types"
 
-type MinMaxValueXsiType = "xs:string" | "xs:decimal"
 type RuleWithTypedXML = PropertyRule & { typedXML?: unknown }
 
 export const exportMinMaxValueToXML = (
@@ -13,11 +12,17 @@ export const exportMinMaxValueToXML = (
   referenceValue?: unknown
 ): { "_xsi:type": MinMaxValueXsiType; "#text": string } | undefined => {
   if (value === undefined) return undefined
+  const xsiType = getMinMaxValueXsiType(referenceValue) ?? getRuleMinMaxValueXsiType(rule) ?? "xs:decimal"
 
   return {
-    "_xsi:type": getMinMaxValueXsiType(referenceValue) ?? getRuleMinMaxValueXsiType(rule) ?? "xs:decimal",
-    "#text": String(value),
+    "_xsi:type": xsiType,
+    "#text": formatMinMaxValueText(value, xsiType),
   }
+}
+
+const formatMinMaxValueText = (value: number | Number, xsiType: MinMaxValueXsiType): string => {
+  const text = String(value)
+  return xsiType === "xs:string" && !Number.isInteger(Number(value)) ? text.replace(".", ",") : text
 }
 
 const getRuleMinMaxValueXsiType = (rule: PropertyRule | undefined): MinMaxValueXsiType | undefined => {

@@ -2,7 +2,7 @@ import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importBooleanFromXML } from "../boolean/fromXML"
-import { Picture, PictureXML } from "./types"
+import { isRawPictureRefValue, Picture, PictureXML } from "./types"
 
 export const importPictureFromXML = (
   context: ConfigurationContextFromXML,
@@ -10,6 +10,11 @@ export const importPictureFromXML = (
   xml: PictureXML | undefined
 ): Picture | undefined => {
   if (!xml) return undefined
+
+  const xmlRef = xml["xr:Ref"]
+  if (xmlRef && isRawPictureRefValue(xmlRef)) {
+    return { rawRef: xmlRef }
+  }
 
   const loadTransparent = importBooleanFromXML(context, undefined, xml["xr:LoadTransparent"])!
 
@@ -29,7 +34,7 @@ export const importPictureFromXML = (
     }
   }
 
-  const [type, ref] = xml["xr:Ref"]!.split(".")
+  const [type, ref] = xmlRef!.split(".")
   return {
     ref,
     type: type === "StdPicture" ? "StandardPicture" : "CommonPicture",

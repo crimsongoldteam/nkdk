@@ -7,6 +7,7 @@ import { MetadataBot, MetadataBotYAML } from "~/metadata/appliedObjects/metadata
 import { MetadataConstant, MetadataConstantYAML } from "~/metadata/appliedObjects/metadataConstant/types"
 import { MetadataDefinedType, MetadataDefinedTypeYAML } from "~/metadata/appliedObjects/metadataDefinedType/types"
 import { MetadataDataProcessor, MetadataDataProcessorYAML } from "~/metadata/appliedObjects/metadataDataProcessor/types"
+import { MetadataReport, MetadataReportYAML } from "~/metadata/appliedObjects/metadataReport/types"
 import {
   MetadataDocumentJournal,
   MetadataDocumentJournalYAML,
@@ -146,6 +147,7 @@ import {
   MobileDeviceCommandBarContentYAML,
 } from "~/metadata/commonObjects/mobileDeviceCommandBarContent/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { XDTOTypeName } from "~/metadata/commonObjects/xdtoTypeName/types"
 import { StyleItemValue, StyleItemValueYAML } from "~/metadata/commonObjects/styleItemValue/types"
 import {
   AppearanceFields,
@@ -251,6 +253,8 @@ import {
   MetadataAttributeYAML,
   MetadataDocumentAttributes,
   MetadataDocumentAttributesYAML,
+  MetadataReportAttributes,
+  MetadataReportAttributesYAML,
   MetadataTabularSectionAttributes,
   MetadataTabularSectionAttributesYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
@@ -341,6 +345,8 @@ import {
   MetadataDocumentTabularSectionsYAML,
   MetadataExchangePlanTabularSections,
   MetadataExchangePlanTabularSectionsYAML,
+  MetadataReportTabularSections,
+  MetadataReportTabularSectionsYAML,
   MetadataTaskTabularSections,
   MetadataTaskTabularSectionsYAML,
   MetadataTabularSections,
@@ -402,6 +408,7 @@ import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/comma
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { Chart, ChartYAML } from "~/metadata/forms/commonObjects/chart/types"
+import { GanttChart, GanttChartYAML } from "~/metadata/forms/commonObjects/ganttChart/types"
 import {
   FormAttributeAdditionalColumnYAML,
   FormAttributeAdditionalColumnsCollection,
@@ -416,6 +423,7 @@ import { ScrollBarUseEnterprise } from "~/metadata/forms/commonObjects/scrollBar
 import { SpreadsheetDocument, SpreadsheetDocumentYAML } from "~/metadata/forms/commonObjects/spreadsheetDocument/types"
 import { Planner, PlannerYAML } from "~/metadata/forms/commonObjects/planner/types"
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
+import type { ButtonParameter } from "~/metadata/forms/elements/button/parameter"
 import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/types"
 import {
@@ -426,7 +434,12 @@ import {
   SingleSearchStringAddition,
   SingleSearchStringAdditionYAML,
 } from "~/metadata/forms/elements/searchStringAddition/types"
-import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/elements/viewStatusAddition/types"
+import {
+  SingleViewStatusAddition,
+  SingleViewStatusAdditionYAML,
+  ViewStatusAddition,
+  ViewStatusAdditionYAML,
+} from "~/metadata/forms/elements/viewStatusAddition/types"
 import { ScrollBarUseYAML, SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 
 export type PropertyTypeRegistry = {
@@ -453,6 +466,10 @@ export type PropertyTypeRegistry = {
   string: {
     item: string
     enterprise: string
+    yaml: string
+  }
+  XDTOTypeName: {
+    item: XDTOTypeName
     yaml: string
   }
   boolean: {
@@ -482,6 +499,10 @@ export type PropertyTypeRegistry = {
     item: TypeDescription
     enterprise: TypeDescriptionEnterprise
     yaml: TypeDescriptionYAML
+  }
+  ButtonParameter: {
+    item: ButtonParameter
+    yaml: MetadataItemLinkYAML
   }
   DataPath: {
     item: DataPath
@@ -747,6 +768,10 @@ export type PropertyTypeRegistry = {
     item: MetadataDataProcessorTabularSections
     yaml: MetadataDataProcessorTabularSectionsYAML
   }
+  MetadataReportTabularSections: {
+    item: MetadataReportTabularSections
+    yaml: MetadataReportTabularSectionsYAML
+  }
   MetadataExchangePlanTabularSections: {
     item: MetadataExchangePlanTabularSections
     yaml: MetadataExchangePlanTabularSectionsYAML
@@ -829,6 +854,10 @@ export type PropertyTypeRegistry = {
   MetadataDocumentAttributes: {
     item: MetadataDocumentAttributes
     yaml: MetadataDocumentAttributesYAML
+  }
+  MetadataReportAttributes: {
+    item: MetadataReportAttributes
+    yaml: MetadataReportAttributesYAML
   }
   MetadataTabularSectionAttributes: {
     item: MetadataTabularSectionAttributes
@@ -921,6 +950,10 @@ export type PropertyTypeRegistry = {
   MetadataDataProcessor: {
     item: MetadataDataProcessor
     yaml: MetadataDataProcessorYAML
+  }
+  MetadataReport: {
+    item: MetadataReport
+    yaml: MetadataReportYAML
   }
   MetadataDocumentJournal: {
     item: MetadataDocumentJournal
@@ -1049,6 +1082,11 @@ export type PropertyTypeRegistry = {
     yaml: ChartYAML
   }
 
+  GanttChart: {
+    item: GanttChart
+    yaml: GanttChartYAML
+  }
+
   SpreadsheetDocument: {
     item: SpreadsheetDocument
     yaml: SpreadsheetDocumentYAML
@@ -1122,6 +1160,10 @@ export type PropertyTypeRegistry = {
   ViewStatusAddition: {
     item: ViewStatusAddition
     yaml: ViewStatusAdditionYAML
+  }
+  SingleViewStatusAddition: {
+    item: SingleViewStatusAddition
+    yaml: SingleViewStatusAdditionYAML
   }
   AutoCommandBar: {
     item: AutoCommandBar
@@ -1320,11 +1362,13 @@ export const PropertyRuleTypeKeys = Object.keys({
   MinMaxValue: "MinMaxValue",
   dateTime: "dateTime",
   string: "string",
+  XDTOTypeName: "XDTOTypeName",
   boolean: "boolean",
   UserSettingsID: "UserSettingsID",
   SystemEnumeration: "SystemEnumeration",
   Color: "Color",
   TypeDescription: "TypeDescription",
+  ButtonParameter: "ButtonParameter",
   DataPath: "DataPath",
   I8nText: "I8nText",
   FormattedI8nText: "FormattedI8nText",
@@ -1385,6 +1429,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataTaskTabularSections: "MetadataTaskTabularSections",
   MetadataBusinessProcessTabularSections: "MetadataBusinessProcessTabularSections",
   MetadataDataProcessorTabularSections: "MetadataDataProcessorTabularSections",
+  MetadataReportTabularSections: "MetadataReportTabularSections",
   MetadataExchangePlanTabularSections: "MetadataExchangePlanTabularSections",
   MetadataChartOfAccountsTabularSections: "MetadataChartOfAccountsTabularSections",
   MetadataChartOfCalculationTypesTabularSections: "MetadataChartOfCalculationTypesTabularSections",
@@ -1409,6 +1454,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataAttributes: "MetadataAttributes",
   MetadataTaskAddressingAttributes: "MetadataTaskAddressingAttributes",
   MetadataDocumentAttributes: "MetadataDocumentAttributes",
+  MetadataReportAttributes: "MetadataReportAttributes",
   MetadataTabularSectionAttributes: "MetadataTabularSectionAttributes",
   MetadataItemLinks: "MetadataItemLinks",
   MetadataCommands: "MetadataCommands",
@@ -1432,6 +1478,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataSubsystem: "MetadataSubsystem",
   MetadataSettingsStorage: "MetadataSettingsStorage",
   MetadataDataProcessor: "MetadataDataProcessor",
+  MetadataReport: "MetadataReport",
   MetadataDocumentJournal: "MetadataDocumentJournal",
   MetadataHTTPService: "MetadataHTTPService",
   MetadataIntegrationService: "MetadataIntegrationService",
@@ -1461,11 +1508,13 @@ export const PropertyRuleTypeKeys = Object.keys({
   SingleSearchControlAddition: "SingleSearchControlAddition",
   SingleSearchStringAddition: "SingleSearchStringAddition",
   ViewStatusAddition: "ViewStatusAddition",
+  SingleViewStatusAddition: "SingleViewStatusAddition",
   AssociatedTable: "AssociatedTable",
   AutoCommandBar: "AutoCommandBar",
   TableAutoCommandBar: "TableAutoCommandBar",
   DynamicList: "DynamicList",
   Chart: "Chart",
+  GanttChart: "GanttChart",
   SpreadsheetDocument: "SpreadsheetDocument",
   Planner: "Planner",
   CommandSet: "CommandSet",

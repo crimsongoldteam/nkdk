@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext, mockContextFromXML, mockRule } from "~/tests/mockContext"
+import { importContentFromXML } from "~/xml/import/importer"
 import { xmlExport } from "~/xml/export/exporter"
 import { typeFixturesTable } from "./__fixtures__/data"
+import { importTypeDescriptionFromXML } from "./fromXML"
 import { exportTypeDescriptionToXML } from "./toXML"
+import { TypeDescriptionXML } from "./types"
 
 const typeDescriptionRule = { type: "TypeDescription" } as const
 const typeDescriptionRuleWithLocalNamespace = {
@@ -72,6 +75,97 @@ describe("exportTypeDescriptionToXML", () => {
     const result = xmlExport({ TypeDescription: resultXml }, false)
 
     expect(result).toEqual("<TypeDescription>\n\t<v8:Type>v8:FillChecking</v8:Type>\n</TypeDescription>")
+  })
+
+  it("should export ConditionalAppearance type to XML with entext namespace", () => {
+    const referenceXml = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+      '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.3/data/entext">d7p1:ConditionalAppearance</v8:Type>\n</Type>'
+    )
+    const referenceTypeDescription = importTypeDescriptionFromXML(
+      mockContextFromXML({ forReference: true }),
+      mockRule,
+      referenceXml.Type
+    )
+
+    const resultXml = exportTypeDescriptionToXML(
+      mockContext,
+      mockRule,
+      { type: ["ConditionalAppearance"] },
+      referenceTypeDescription
+    )
+
+    const result = xmlExport({ Type: resultXml }, false)
+
+    expect(result).toEqual(
+      '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.3/data/entext">d7p1:ConditionalAppearance</v8:Type>\n</Type>'
+    )
+  })
+
+  it("should preserve reference prefix spelling during XML export", () => {
+    const referenceXml = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+      '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n</Type>'
+    )
+    const referenceTypeDescription = importTypeDescriptionFromXML(
+      mockContextFromXML({ forReference: true }),
+      mockRule,
+      referenceXml.Type
+    )
+
+    const resultXml = exportTypeDescriptionToXML(mockContext, mockRule, { type: ["Chart"] }, referenceTypeDescription)
+
+    const result = xmlExport({ Type: resultXml }, false)
+
+    expect(result).toEqual(
+      '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n</Type>'
+    )
+  })
+
+  it("should preserve reference prefix spelling for matching type when another type changes", () => {
+    const referenceXml = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+      '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n\t<v8:Type>xs:string</v8:Type>\n</Type>'
+    )
+    const referenceTypeDescription = importTypeDescriptionFromXML(
+      mockContextFromXML({ forReference: true }),
+      mockRule,
+      referenceXml.Type
+    )
+
+    const resultXml = exportTypeDescriptionToXML(
+      mockContext,
+      mockRule,
+      { type: ["Chart", "boolean"] },
+      referenceTypeDescription
+    )
+
+    const result = xmlExport({ Type: resultXml }, false)
+
+    expect(result).toEqual(
+      '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n\t<v8:Type>xs:boolean</v8:Type>\n</Type>'
+    )
+  })
+
+  it("should not reuse reference prefix spelling for changed semantic type", () => {
+    const referenceXml = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+      '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n</Type>'
+    )
+    const referenceTypeDescription = importTypeDescriptionFromXML(
+      mockContextFromXML({ forReference: true }),
+      mockRule,
+      referenceXml.Type
+    )
+
+    const resultXml = exportTypeDescriptionToXML(
+      mockContext,
+      typeDescriptionRuleWithLocalNamespace,
+      { type: ["Dendrogram"] },
+      referenceTypeDescription
+    )
+
+    const result = xmlExport({ Type: resultXml }, false)
+
+    expect(result).toEqual(
+      '<Type>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/chart">d5p1:Dendrogram</v8:Type>\n</Type>'
+    )
   })
 
   it("should throw on unknown non-enumeration type during XML export", () => {

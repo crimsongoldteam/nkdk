@@ -25,7 +25,7 @@ export const PDFDocumentFieldRules = {
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     viewStatusRepresentation: {
       yaml: "ОтображениеСостоянияПросмотра",
-      type: "ViewStatusAddition",
+      type: "SingleViewStatusAddition",
       xml: "ViewStatusAddition",
       toEnterprise: false,
     },

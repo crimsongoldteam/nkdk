@@ -2,6 +2,8 @@ import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/ele
 
 export const fullViewStatusAddition: ViewStatusAddition = {
   itemType: "ViewStatusAddition",
+  name: "КакойТоЭлементСостояниеПросмотра",
+  additionSource: "КакойТоЭлемент",
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "White" },
   border: { ref: "style:ControlBorder" },
@@ -35,7 +37,26 @@ export const fullViewStatusAddition: ViewStatusAddition = {
   },
 }
 
-export const fullViewStatusAdditionYAML: Required<ViewStatusAdditionYAML> = {
+export const nonCanonicalViewStatusAddition = {
+  itemType: "ViewStatusAddition",
+  name: "ТаблицаЭПСостояниеПросмотра",
+  additionSource: "Подписи",
+  contextMenu: { itemType: "ContextMenu", childItems: [] },
+  extendedTooltip: { itemType: "ExtendedTooltip" },
+} satisfies ViewStatusAddition
+
+export const visibleFalseViewStatusAddition = {
+  itemType: "ViewStatusAddition",
+  name: "КакойТоЭлементСостояниеПросмотра",
+  additionSource: "КакойТоЭлемент",
+  contextMenu: { itemType: "ContextMenu", childItems: [] },
+  enabled: true,
+  extendedTooltip: { itemType: "ExtendedTooltip" },
+  visible: false,
+} satisfies ViewStatusAddition
+
+export const fullViewStatusAdditionYAML: ViewStatusAdditionYAML = {
+  Источник: "КакойТоЭлемент",
   АвтоМаксимальнаяШирина: "Истина",
   ГоризонтальноеПоложение: "Лево",
   МаксимальнаяШирина: 500,
@@ -56,6 +77,12 @@ export const fullViewStatusAdditionYAML: Required<ViewStatusAdditionYAML> = {
   Подсказка: "Подсказка",
   КонтекстноеМеню: { Автозаполнение: "Ложь" },
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
+}
+
+export const visibleFalseViewStatusAdditionYAML: ViewStatusAdditionYAML = {
+  Источник: "КакойТоЭлемент",
+  Доступность: "Истина",
+  Видимость: "Ложь",
 }
 
 export const minimalViewStatusAdditionYAML: ViewStatusAdditionYAML = {}

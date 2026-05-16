@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { Picture, PictureXML } from "./types"
+import { isRawPictureRef, Picture, PictureXML } from "./types"
 
 export const exportPictureToXML = (
   _context: ConfigurationContext,
@@ -10,7 +10,11 @@ export const exportPictureToXML = (
 ): PictureXML | undefined => {
   if (!picture) return undefined
 
-  const result: PictureXML = {} as PictureXML
+  if (isRawPictureRef(picture)) {
+    return { "xr:Ref": picture.rawRef }
+  }
+
+  const result: PictureXML = {}
 
   if (picture.type === "AbsolutePicture") {
     result["xr:Abs"] = picture.ref as string

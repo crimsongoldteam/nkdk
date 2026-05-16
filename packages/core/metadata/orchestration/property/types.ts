@@ -23,6 +23,7 @@ export type ReferenceScopeFilterName = "stringIndexedAttribute"
 /** Ссылка на объект текущего объекта-владельца (target: "this"). */
 export type ReferenceScopeThis =
   | { target: "this"; kind: "Form" }
+  | { target: "this"; kind: "Template" }
   | { target: "this"; kind: "Attribute"; filter?: ReferenceScopeFilterName }
 
 /** Ссылка на top-level объект одного из допустимых типов. */
@@ -67,6 +68,15 @@ export interface BasePropertyRule {
 
   /** Значение по умолчанию в YAML (будет исключено из выбора)*/
   defaultValueYAML?: any | DefaultValueFunction
+
+  /** Исключать YAML-default по модельному значению до преобразования типа. */
+  omitDefaultValueYAMLBySource?: true
+
+  /**
+   * Подставлять defaultValueYAML при импорте, если значения нет ни в YAML, ни в source.
+   * Используй только когда defaultValueYAML уже совместим с модельным значением.
+   */
+  applyModelDefaultValueYAMLOnImport?: true | { whenAnyYAMLKeyPresent: string[] }
 
   /** Название в XML, если не заполнено - будет использован ключ*/
   xml?: string

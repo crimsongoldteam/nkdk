@@ -2,6 +2,7 @@ import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
+import "~/metadata/forms/commonObjects/ganttChart/types"
 import "~/metadata/forms/commonObjects/planner/types"
 import { FormAttribute, FormAttributeXML } from "./types"
 
@@ -9,6 +10,12 @@ const chartSettingsRule = {
   type: "Chart",
   xml: "Settings",
   yaml: "Диаграмма",
+} as const satisfies PropertyRule
+
+const ganttChartSettingsRule = {
+  type: "GanttChart",
+  xml: "Settings",
+  yaml: "ДиаграммаГанта",
 } as const satisfies PropertyRule
 
 const spreadsheetDocumentSettingsRule = {
@@ -23,7 +30,7 @@ const plannerSettingsRule = {
   yaml: "Планировщик",
 } as const satisfies PropertyRule
 
-type TypedFormAttributeSettings = Pick<FormAttribute, "chart" | "spreadsheetDocument" | "planner">
+type TypedFormAttributeSettings = Pick<FormAttribute, "chart" | "ganttChart" | "spreadsheetDocument" | "planner">
 
 const getXsiType = (settings: FormAttributeXML["Settings"] | undefined): string | undefined => {
   if (settings === undefined || settings === null || typeof settings !== "object" || Array.isArray(settings)) {
@@ -49,6 +56,17 @@ export const importTypedFormAttributeSettingsFromXML = (
     }) as FormAttribute["chart"] | undefined
 
     return chart === undefined ? {} : { chart }
+  }
+
+  if (xsiType === "d4p1:GanttChart" || xsiType?.endsWith(":GanttChart")) {
+    const ganttChart = importPropertyFromXML({
+      context,
+      rule: ganttChartSettingsRule,
+      value: settings,
+      name: "ganttChart",
+    }) as FormAttribute["ganttChart"] | undefined
+
+    return ganttChart === undefined ? {} : { ganttChart }
   }
 
   if (xsiType === "mxl:SpreadsheetDocument" || xsiType?.endsWith(":SpreadsheetDocument")) {
@@ -87,6 +105,14 @@ export const exportTypedFormAttributeSettingsToXML = (
   }) as FormAttributeXML["Settings"] | undefined
 
   if (chart !== undefined) return chart
+
+  const ganttChart = exportPropertyToXML({
+    context,
+    rule: ganttChartSettingsRule,
+    value: data.ganttChart,
+  }) as FormAttributeXML["Settings"] | undefined
+
+  if (ganttChart !== undefined) return ganttChart
 
   const spreadsheetDocument = exportPropertyToXML({
     context,

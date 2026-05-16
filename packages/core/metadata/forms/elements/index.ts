@@ -1,5 +1,6 @@
 import "./autoCommandBar/rules"
 
+import "./button/parameter"
 import "./button/rules"
 import "./button/toNKDK"
 import "./button/types"

@@ -1,0 +1,6 @@
+<PlannerField name="ПолеПланировщика" id="6">
+	<EnableDrag>true</EnableDrag>
+	<EnableStartDrag>true</EnableStartDrag>
+	<ContextMenu name="ПолеПланировщикаКонтекстноеМеню" id="7"/>
+	<ExtendedTooltip name="ПолеПланировщикаРасширеннаяПодсказка" id="8"/>
+</PlannerField>

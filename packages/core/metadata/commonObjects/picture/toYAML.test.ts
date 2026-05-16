@@ -17,6 +17,12 @@ describe("exportPictureToYAML", () => {
     expect(result).toEqual(enterpriseExpected)
   })
 
+  it.each(["0", "0:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"])("should export %s as raw ref to YAML", (rawRef) => {
+    const result = exportPictureToYAML(mockContext, mockRule, { rawRef })
+
+    expect(result).toBe(rawRef)
+  })
+
   it("should throw error when standard picture is not found", () => {
     const invalidStandardPicture = {
       ref: "NonExistentPicture",

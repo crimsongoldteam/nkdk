@@ -258,6 +258,15 @@ export const commandBarButtonWithParameterTypedYAML: CommandBarButtonTypedYAML =
   Тип: "КнопкаКоманднойПанели",
 }
 
+export const commandButtonWithTypeDescriptionParameter = {
+  itemType: "Button",
+  name: "СоздатьПриемНаРаботу",
+  commandName: "Form.Item.Список.StandardCommand.CreateByParameter",
+  parameter: {
+    typeDescription: { type: ["DocumentRef.ПриемНаРаботу"] },
+  },
+} satisfies Button
+
 //#endregion
 
 //#region CommandBarButton / CommandBarHyperlink

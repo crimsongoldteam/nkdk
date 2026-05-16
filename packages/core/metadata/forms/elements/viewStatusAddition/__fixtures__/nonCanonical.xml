@@ -1,0 +1,8 @@
+<ViewStatusAddition name="ТаблицаЭПСостояниеПросмотра" id="10">
+	<AdditionSource>
+		<Item>Подписи</Item>
+		<Type>ViewStatusRepresentation</Type>
+	</AdditionSource>
+	<ContextMenu name="ТаблицаЭПСостояниеПросмотраКонтекстноеМеню" id="11"/>
+	<ExtendedTooltip name="ТаблицаЭПСостояниеПросмотраРасширеннаяПодсказка" id="12"/>
+</ViewStatusAddition>

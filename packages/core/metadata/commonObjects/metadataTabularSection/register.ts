@@ -12,6 +12,7 @@ import {
   MetadataDataProcessorTabularSectionRules,
   MetadataDocumentTabularSectionRules,
   MetadataExchangePlanTabularSectionRules,
+  MetadataReportTabularSectionRules,
   MetadataTaskTabularSectionRules,
   MetadataTabularSectionRules,
 } from "./rules"
@@ -165,6 +166,49 @@ registerMetadataItemCollectionRule({
   xmlElement: "TabularSection",
   keyField: "name",
   fromYAML: importMetadataDataProcessorTabularSectionsFromYAML,
+  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+})
+
+const importMetadataReportTabularSectionFromYAML = (
+  context: ConfigurationContext,
+  yaml: MetadataTabularSectionYAML | undefined,
+  name: string
+): MetadataTabularSection | undefined => {
+  if (!yaml) return undefined
+
+  const properties = importMetadataItemFromYAML({
+    context,
+    yaml: yaml as MetadataTabularSectionYAML,
+    rule: MetadataReportTabularSectionRules,
+    name,
+  })
+
+  if (properties == undefined) throw new Error("Properties are required")
+
+  return {
+    ...properties,
+    name,
+  }
+}
+
+const importMetadataReportTabularSectionsFromYAML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  data: MetadataTabularSectionsYAML | undefined
+): MetadataTabularSections | undefined => {
+  if (!data) return undefined
+
+  return Object.entries(data)
+    .map(([name, value]) => importMetadataReportTabularSectionFromYAML(context, value, name))
+    .filter((item): item is MetadataTabularSection => item !== undefined)
+}
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataReportTabularSections",
+  itemRule: MetadataReportTabularSectionRules,
+  xmlElement: "TabularSection",
+  keyField: "name",
+  fromYAML: importMetadataReportTabularSectionsFromYAML,
   graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
 })
 

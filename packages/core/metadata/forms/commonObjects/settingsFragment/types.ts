@@ -35,6 +35,8 @@ const normalizeImportedFragment = (value: unknown): unknown => {
   if (Array.isArray(value)) return value.map(normalizeImportedFragment)
 
   if (isSettingsFragmentXML(value)) {
+    if (value["_xsi:nil"] === true || value["_xsi:nil"] === "true") return { "_xsi:nil": true }
+
     const result: SettingsFragment = {}
 
     for (const [key, nestedValue] of Object.entries(value)) {
@@ -87,7 +89,8 @@ export const registerSettingsFragmentType = <TModel extends SettingsFragment>({
     if (fragment.length === 0) return {} as TModel
 
     const parsed = importContentFromXML<{ SettingsFragment?: SettingsFragment }>(
-      `<SettingsFragment>${fragment}</SettingsFragment>`
+      `<SettingsFragment>${fragment}</SettingsFragment>`,
+      { preserveXsiNil: true }
     )
     return normalizeImportedFragment(parsed.SettingsFragment) as TModel | undefined
   })

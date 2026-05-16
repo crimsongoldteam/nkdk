@@ -31,6 +31,12 @@
 	<TitleBackColor>web:MediumOrchid</TitleBackColor>
 	<ShowInHeader>true</ShowInHeader>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
+	<HeaderFormat>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>
+		</v8:item>
+	</HeaderFormat>
 	<HeaderPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>

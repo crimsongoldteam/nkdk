@@ -115,6 +115,13 @@ export const FormAttributeRules = {
       fromXML: false,
       toXML: false,
     },
+    ganttChart: {
+      type: "GanttChart",
+      xml: "Settings",
+      yaml: "ДиаграммаГанта",
+      fromXML: false,
+      toXML: false,
+    },
     spreadsheetDocument: {
       type: "SpreadsheetDocument",
       xml: "Settings",

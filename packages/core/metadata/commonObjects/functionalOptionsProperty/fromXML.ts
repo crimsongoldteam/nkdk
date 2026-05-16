@@ -8,9 +8,10 @@ export const importFunctionalOptionsFromXML = (
   _rule: PropertyRule | undefined,
   xml: FunctionalOptionsXML | undefined
 ): FunctionalOptions | undefined => {
-  if (!xml || !xml.Item) return undefined
+  if (!xml || !Object.prototype.hasOwnProperty.call(xml, "Item")) return undefined
 
-  return Array.isArray(xml.Item) ? xml.Item : [xml.Item]
+  const items = Array.isArray(xml.Item) ? xml.Item : [xml.Item]
+  return items.map((item) => item ?? "")
 }
 
 registerTypeRule("FunctionalOptionsProperty", "importFromXML", importFunctionalOptionsFromXML)

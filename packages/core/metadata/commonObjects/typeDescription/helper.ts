@@ -78,3 +78,13 @@ export const getTypeFromYAML = (enterprise: string): string | undefined => {
   }
   return undefined
 }
+
+export const getTypePrefix = (type: string): string | undefined => {
+  const colonIndex = type.indexOf(":")
+  return colonIndex === -1 ? undefined : type.substring(0, colonIndex)
+}
+
+export const removeTypePrefix = (type: string): string => {
+  const colonIndex = type.indexOf(":")
+  return colonIndex === -1 ? type : type.substring(colonIndex + 1)
+}

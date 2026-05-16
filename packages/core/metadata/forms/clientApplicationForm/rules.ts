@@ -3,6 +3,8 @@ import { ElementRule } from "../../orchestration/formElement/types"
 import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
 
+const reportFormYAMLKeys = ["РезультатОтчета", "ДанныеРасшифровки", "ТипФормыОтчета", "ПредставлениеВарианта"]
+
 export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
   properties: {
@@ -111,11 +113,72 @@ export const ClientApplicationFormRules = {
       type: "CommandSet",
       tag: FormRulesTags.Form,
     },
+    reportResult: {
+      yaml: "РезультатОтчета",
+      xml: "ReportResult",
+      type: "string",
+      tag: FormRulesTags.Form,
+    },
+    detailsData: {
+      yaml: "ДанныеРасшифровки",
+      xml: "DetailsData",
+      type: "string",
+      tag: FormRulesTags.Form,
+    },
+    reportFormType: {
+      yaml: "ТипФормыОтчета",
+      xml: "ReportFormType",
+      type: "SystemEnumeration",
+      typeSE: "ReportFormType",
+      tag: FormRulesTags.Form,
+    },
+    variantAppearance: {
+      yaml: "ПредставлениеВарианта",
+      xml: "VariantAppearance",
+      type: "string",
+      tag: FormRulesTags.Form,
+    },
+    autoShowState: {
+      yaml: "АвтоОтображениеСостояния",
+      xml: "AutoShowState",
+      type: "SystemEnumeration",
+      typeSE: "AutoShowStateMode",
+      tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
+      omitDefaultValueYAMLBySource: true,
+      applyModelDefaultValueYAMLOnImport: {
+        whenAnyYAMLKeyPresent: reportFormYAMLKeys,
+      },
+    },
     customSettingsFolder: {
       yaml: "ГруппаПользовательскихНастроек",
       xml: "CustomSettingsFolder",
       type: "string",
       tag: FormRulesTags.Form,
+    },
+    reportResultViewMode: {
+      yaml: "РежимОтображенияРезультатаОтчета",
+      xml: "ReportResultViewMode",
+      type: "SystemEnumeration",
+      typeSE: "ReportResultViewMode",
+      tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
+      omitDefaultValueYAMLBySource: true,
+      applyModelDefaultValueYAMLOnImport: {
+        whenAnyYAMLKeyPresent: reportFormYAMLKeys,
+      },
+    },
+    viewModeApplicationOnSetReportResult: {
+      yaml: "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета",
+      xml: "ViewModeApplicationOnSetReportResult",
+      type: "SystemEnumeration",
+      typeSE: "ViewModeApplicationOnSetReportResult",
+      tag: FormRulesTags.Form,
+      defaultValueYAML: "Auto",
+      omitDefaultValueYAMLBySource: true,
+      applyModelDefaultValueYAMLOnImport: {
+        whenAnyYAMLKeyPresent: reportFormYAMLKeys,
+      },
     },
     mobileDeviceCommandBarContent: {
       yaml: "СоставКоманднойПанелиНаМобильномУстройстве",

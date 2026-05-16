@@ -28,6 +28,7 @@ import {
   commandBarButtonWithParameter,
   commandBarButtonWithParameterPartialYAML,
   commandBarButtonWithParameterTypedYAML,
+  commandButtonWithTypeDescriptionParameter,
   fullCommandBarButton,
   fullCommandBarButtonEnterprise,
   fullCommandBarButtonPartialYAML,
@@ -203,6 +204,9 @@ import {
   minimalTablePictureFieldTypedYAML,
 } from "../pictureField/__fixtures__/data"
 import {
+  dragPlannerField,
+  dragPlannerFieldEnterprise,
+  dragPlannerFieldPartialYAML,
   fullPlannerField,
   fullPlannerFieldEnterprise,
   fullPlannerFieldPartialYAML,
@@ -241,6 +245,13 @@ import {
   minimalSearchStringAddition,
   sourceSearchStringAddition,
 } from "../searchStringAddition/__fixtures__/data"
+import {
+  fullViewStatusAddition,
+  fullViewStatusAdditionYAML,
+  nonCanonicalViewStatusAddition,
+  visibleFalseViewStatusAddition,
+  visibleFalseViewStatusAdditionYAML,
+} from "../viewStatusAddition/__fixtures__/data"
 import {
   fullSpreadSheetDocumentField,
   fullSpreadSheetDocumentFieldEnterprise,
@@ -422,6 +433,19 @@ export const ElementFixtures: ElementFixture[] = [
     model: commandBarButtonWithParameter,
     yaml: commandBarButtonWithParameterPartialYAML,
     typedYAML: commandBarButtonWithParameterTypedYAML,
+    enterprise: undefined,
+  },
+  {
+    group: "Button",
+    name: "with TypeDescription Parameter",
+    element: Button,
+    xml: "parameterTypeDescription.xml",
+    xmlFolder: "button",
+    model: commandButtonWithTypeDescriptionParameter,
+    yaml: {
+      ИмяКоманды: "Form.Item.Список.StandardCommand.CreateByParameter",
+    },
+    typedYAML: undefined,
     enterprise: undefined,
   },
   {
@@ -989,6 +1013,16 @@ export const ElementFixtures: ElementFixture[] = [
     yaml: undefined,
     enterprise: undefined,
   },
+  {
+    group: "PlannerField",
+    name: "drag properties",
+    element: undefined,
+    xml: "drag.xml",
+    xmlFolder: undefined,
+    model: dragPlannerField,
+    yaml: dragPlannerFieldPartialYAML,
+    enterprise: dragPlannerFieldEnterprise,
+  },
   //#endregion
   //#region Popup
   {
@@ -1104,6 +1138,38 @@ export const ElementFixtures: ElementFixture[] = [
     model: minimalSearchControlAddition,
     source: sourceSearchControlAddition,
     yaml: undefined,
+    enterprise: undefined,
+  },
+  //#endregion
+  //#region ViewStatusAddition
+  {
+    group: "ViewStatusAddition",
+    name: "all fields",
+    element: undefined,
+    xml: "full.xml",
+    xmlFolder: undefined,
+    model: fullViewStatusAddition,
+    yaml: fullViewStatusAdditionYAML,
+    enterprise: undefined,
+  },
+  {
+    group: "ViewStatusAddition",
+    name: "non-canonical source",
+    element: undefined,
+    xml: "nonCanonical.xml",
+    xmlFolder: undefined,
+    model: nonCanonicalViewStatusAddition,
+    yaml: { Источник: "Подписи" },
+    enterprise: undefined,
+  },
+  {
+    group: "ViewStatusAddition",
+    name: "visible false",
+    element: undefined,
+    xml: "visibleFalse.xml",
+    xmlFolder: undefined,
+    model: visibleFalseViewStatusAddition,
+    yaml: visibleFalseViewStatusAdditionYAML,
     enterprise: undefined,
   },
   //#endregion

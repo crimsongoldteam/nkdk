@@ -19,6 +19,16 @@ describe("importMinMaxValueFromXML", () => {
     expect(result).toBe(1)
   })
 
+  it("imports xs:string decimal comma as number", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlString: '<MinValue xsi:type="xs:string">0,005</MinValue>',
+      xmlRootTag: "MinValue",
+    })
+
+    expect(result).toBe(0.005)
+  })
+
   it("imports typed value without text as undefined", () => {
     const result = testImportPropertyFromXML({
       rule,

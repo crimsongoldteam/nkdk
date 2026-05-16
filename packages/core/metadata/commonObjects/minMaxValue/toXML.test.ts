@@ -33,12 +33,34 @@ describe("exportMinMaxValueToXML", () => {
 
     expect(result).toBe('<MinValue xsi:type="xs:string">1</MinValue>')
   })
+
+  it("exports xs:string decimal comma from reference", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: 0.005,
+      referenceMetadata: testImportReference('<MinValue xsi:type="xs:string">0,005</MinValue>'),
+      xmlRootTag: "MinValue",
+    })
+
+    expect(result).toBe('<MinValue xsi:type="xs:string">0,005</MinValue>')
+  })
+
+  it("exports xs:decimal decimal dot from reference", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: 0.005,
+      referenceMetadata: testImportReference('<MinValue xsi:type="xs:decimal">0.005</MinValue>'),
+      xmlRootTag: "MinValue",
+    })
+
+    expect(result).toBe('<MinValue xsi:type="xs:decimal">0.005</MinValue>')
+  })
 })
 
-const testImportReference = (): unknown => {
+const testImportReference = (xmlString = '<MinValue xsi:type="xs:string">1</MinValue>'): unknown => {
   return testImportPropertyFromXML({
     rule,
-    xmlString: '<MinValue xsi:type="xs:string">1</MinValue>',
+    xmlString,
     xmlRootTag: "MinValue",
     forReference: true,
   })

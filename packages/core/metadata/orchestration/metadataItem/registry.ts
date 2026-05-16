@@ -135,6 +135,9 @@ import {
   AutoCommandBarYAML,
 } from "~/metadata/forms/elements/autoCommandBar/types"
 import {
+  SingleViewStatusAddition,
+  SingleViewStatusAdditionEnterprise,
+  SingleViewStatusAdditionYAML,
   ViewStatusAddition,
   ViewStatusAdditionEnterprise,
   ViewStatusAdditionYAML,
@@ -160,6 +163,7 @@ import {
 import { MetadataConstant, MetadataConstantYAML } from "../../appliedObjects/metadataConstant/types"
 import { MetadataDefinedType, MetadataDefinedTypeYAML } from "../../appliedObjects/metadataDefinedType/types"
 import { MetadataDataProcessor, MetadataDataProcessorYAML } from "../../appliedObjects/metadataDataProcessor/types"
+import { MetadataReport, MetadataReportYAML } from "../../appliedObjects/metadataReport/types"
 import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
 import {
   MetadataDocumentJournal,
@@ -672,6 +676,11 @@ export type MetadataItemTypeRegistry = {
     yaml: ViewStatusAdditionYAML
     enterprise: ViewStatusAdditionEnterprise
   }
+  SingleViewStatusAddition: {
+    metadata: SingleViewStatusAddition
+    yaml: SingleViewStatusAdditionYAML
+    enterprise: SingleViewStatusAdditionEnterprise
+  }
   AutoCommandBar: {
     metadata: AutoCommandBar
     yaml: AutoCommandBarYAML
@@ -1037,6 +1046,11 @@ export type MetadataItemTypeRegistry = {
   MetadataDataProcessor: {
     metadata: MetadataDataProcessor
     yaml: MetadataDataProcessorYAML
+  }
+
+  MetadataReport: {
+    metadata: MetadataReport
+    yaml: MetadataReportYAML
   }
 
   MetadataDocumentJournal: {

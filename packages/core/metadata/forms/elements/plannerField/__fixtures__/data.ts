@@ -11,7 +11,13 @@ import {
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
-export const fullPlannerField: RequiredFieldsElement<PlannerField> = {
+type PlannerFieldWithoutDrag = Omit<PlannerField, "enableDrag" | "enableStartDrag">
+type PlannerFieldPartialYAMLWithoutDrag = Omit<
+  PlannerFieldPartialYAML,
+  "РазрешитьПеретаскивание" | "РазрешитьНачалоПеретаскивания"
+>
+
+export const fullPlannerField: RequiredFieldsElement<PlannerFieldWithoutDrag> = {
   itemType: "PlannerField",
   name: "ПолеПланировщика",
   title: {
@@ -124,7 +130,31 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
     ПроверкаПеретаскиванияВнутри: "ПроцедураПроверкиПеретаскиванияВнутри",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<PlannerFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<
+  Required<PlannerFieldPartialYAMLWithoutDrag>,
+  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+>
+
+export const dragPlannerField: PlannerField = {
+  itemType: "PlannerField",
+  name: "ПолеПланировщика",
+  enableDrag: true,
+  enableStartDrag: true,
+}
+
+export const dragPlannerFieldEnterprise: PlannerFieldEnterprise = {
+  ElementType: "FormField",
+  Name: "prefix_ПолеПланировщика",
+  Type: {
+    Type: "SystemEnumeration",
+    Value: "FormFieldType.PlannerField",
+  },
+}
+
+export const dragPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
+  РазрешитьПеретаскивание: "Истина",
+  РазрешитьНачалоПеретаскивания: "Истина",
+}
 
 export const minimalPlannerField: PlannerField = {
   itemType: "PlannerField",

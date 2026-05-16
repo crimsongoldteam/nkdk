@@ -29,6 +29,28 @@ const ruleWithXsiType = {
   xsiType: "GeneratedType",
 } as const satisfies MetadataItemRule
 
+const ruleWithXmlRoot = {
+  itemType: "Recalculation",
+  xsiType: "GeneratedType",
+  properties: {
+    xmlRoot: {
+      type: "XMLRoot",
+      container: "Recalculation",
+      rootAttributes: { _xmlns: "http://v8.1c.ru/8.3/MDClasses" },
+      forReferenceOnly: true,
+    },
+    name: { xml: "Name", type: "string", xmlParents: ["Properties"] },
+  },
+} as const satisfies MetadataItemRule
+
+const ruleWithRawObject = {
+  ...rule,
+  properties: {
+    ...rule.properties,
+    raw: { xml: "Raw", type: "string", xmlParents: ["Properties"] },
+  },
+} as const satisfies MetadataItemRule
+
 const withReferenceRaw = (raw: Record<string, unknown>) => {
   const reference = { itemType: "Recalculation" as const, name: "Имя" }
   Object.defineProperty(reference, XML_REFERENCE_RAW, {
@@ -95,6 +117,36 @@ describe("exportMetadataItemToXML reference preservation", () => {
     })
   })
 
+  it("keeps ordinary metadata item generation before raw reference fallback", () => {
+    const reference = withReferenceRaw({
+      "_xsi:type": "ReferenceType",
+      Properties: {
+        Name: "Имя",
+      },
+      UnknownRoot: "keep-root",
+    })
+
+    const xml = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: { itemType: "Recalculation", name: "Имя" },
+      referenceData: reference,
+      rule: ruleWithXmlRoot,
+    })
+
+    expect(xml).toEqual({
+      MetaDataObject: {
+        _xmlns: "http://v8.1c.ru/8.3/MDClasses",
+        Recalculation: {
+          "_xsi:type": "GeneratedType",
+          Properties: {
+            Name: "Имя",
+          },
+          UnknownRoot: "keep-root",
+        },
+      },
+    })
+  })
+
   it("preserves unknown nested reference XML inside a generated object property", () => {
     const reference = withReferenceRaw({
       Properties: {
@@ -144,6 +196,40 @@ describe("exportMetadataItemToXML reference preservation", () => {
       Properties: {
         Name: "Имя",
         Use: false,
+      },
+    })
+  })
+
+  it("removes reference keys when generated nested field is undefined", () => {
+    const reference = withReferenceRaw({
+      Properties: {
+        Name: "Имя",
+        Raw: {
+          GeneratedUndefined: "remove",
+          UnknownNested: "keep-nested",
+        },
+      },
+    })
+
+    const xml = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: {
+        itemType: "Recalculation",
+        name: "Имя",
+        raw: {
+          GeneratedUndefined: undefined,
+        },
+      } as never,
+      referenceData: reference,
+      rule: ruleWithRawObject,
+    })
+
+    expect(xml).toEqual({
+      Properties: {
+        Name: "Имя",
+        Raw: {
+          UnknownNested: "keep-nested",
+        },
       },
     })
   })

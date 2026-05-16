@@ -8,6 +8,8 @@ import {
   fullClientApplicationFormYAML,
   minimalClientApplicationForm,
   minimalClientApplicationFormYAML,
+  reportFormClientApplicationForm,
+  reportFormClientApplicationFormYAML,
 } from "./__fixtures__/data"
 import { documentFullClientApplicationForm } from "./__fixtures__/documentFull"
 import { documentFullClientApplicationFormYAML } from "./__fixtures__/documentFull.yaml"
@@ -51,5 +53,14 @@ describe("exportClientApplicationFormToYAML", () => {
     expect((yaml as typeof customSettingsFolderClientApplicationFormYAML).ГруппаПользовательскихНастроек).toBe(
       customSettingsFolderClientApplicationFormYAML.ГруппаПользовательскихНастроек
     )
+  })
+
+  it("omits report form Auto defaults when exporting YAML", () => {
+    const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, reportFormClientApplicationForm)
+
+    expect(yaml).toEqual(reportFormClientApplicationFormYAML)
+    expect(yaml).not.toHaveProperty("АвтоОтображениеСостояния")
+    expect(yaml).not.toHaveProperty("РежимОтображенияРезультатаОтчета")
+    expect(yaml).not.toHaveProperty("ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета")
   })
 })

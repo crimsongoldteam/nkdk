@@ -4,7 +4,7 @@ import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
-import { Picture, PictureYAML, PictureYAMLExtended } from "./types"
+import { isRawPictureRefValue, Picture, PictureYAML, PictureYAMLExtended } from "./types"
 
 export const importPictureCombinedFromYAML = (
   context: ConfigurationContext,
@@ -50,6 +50,10 @@ export const importPictureFromYAML = (
     // First check if it's a standard picture to determine default loadTransparent
     const isStandard = tryimportStandardPicture(context, ref as string) !== undefined
     loadTransparent = isStandard ? true : false
+  }
+
+  if (typeof ref === "string" && isRawPictureRefValue(ref)) {
+    return { rawRef: ref }
   }
 
   const standardPicture = tryimportStandardPicture(context, ref as string)

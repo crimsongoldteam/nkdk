@@ -32,7 +32,7 @@ export const MetadataWebServiceParameterRules = {
     xdtoValueType: {
       yaml: "ТипЗначенияXDTO",
       xml: "XDTOValueType",
-      type: "string",
+      type: "XDTOTypeName",
       xmlParents: propertiesParents,
     },
     nillable: {
@@ -101,7 +101,7 @@ export const MetadataWebServiceOperationRules = {
     xdtoReturningValueType: {
       yaml: "ТипВозвращаемогоЗначенияXDTO",
       xml: "XDTOReturningValueType",
-      type: "string",
+      type: "XDTOTypeName",
       xmlParents: propertiesParents,
     },
     nillable: {

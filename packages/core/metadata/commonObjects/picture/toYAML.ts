@@ -4,7 +4,7 @@ import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
 import { exportBooleanToYAML } from "../boolean/toYAML"
-import { type Picture, type PictureYAML, type PictureYAMLExtended } from "./types"
+import { isRawPictureRef, type Picture, type PictureYAML, type PictureYAMLExtended } from "./types"
 
 export function exportPictureToYAML(
   context: ConfigurationContext,
@@ -12,6 +12,10 @@ export function exportPictureToYAML(
   picture: Picture | undefined
 ): PictureYAML | undefined {
   if (!picture) return undefined
+
+  if (isRawPictureRef(picture)) {
+    return picture.rawRef
+  }
 
   let ref: PictureYAML | undefined
 

@@ -1,0 +1,10 @@
+<ViewStatusAddition name="КакойТоЭлементСостояниеПросмотра" id="1">
+	<AdditionSource>
+		<Item>КакойТоЭлемент</Item>
+		<Type>ViewStatusRepresentation</Type>
+	</AdditionSource>
+	<ContextMenu name="КакойТоЭлементСостояниеПросмотраКонтекстноеМеню" id="2"/>
+	<Enabled>true</Enabled>
+	<Visible>false</Visible>
+	<ExtendedTooltip name="КакойТоЭлементСостояниеПросмотраРасширеннаяПодсказка" id="3"/>
+</ViewStatusAddition>

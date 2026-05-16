@@ -25,6 +25,7 @@ import { SingleSearchControlAdditionRules } from "./searchControlAddition/rules"
 import { getSearchControlAdditionName } from "./searchControlAddition/helper"
 import { SingleSearchStringAdditionRules } from "./searchStringAddition/rules"
 import { getSearchStringAdditionName } from "./searchStringAddition/helper"
+import { SingleViewStatusAdditionRules } from "./viewStatusAddition/rules"
 import { getViewStatusAdditionName } from "./viewStatusAddition/helper"
 
 const FORM_ELEMENT_EDGE_KIND = "FORM_ELEMENT"
@@ -213,7 +214,7 @@ registerSingletonHandler({
 })
 
 registerSingletonHandler({
-  propertyType: "ViewStatusAddition",
+  propertyType: "SingleViewStatusAddition",
   getName: (name) => getViewStatusAdditionName({ name }),
-  // ViewStatusAddition не имеет childItems
+  singletonRule: SingleViewStatusAdditionRules as unknown as MetadataItemRule,
 })

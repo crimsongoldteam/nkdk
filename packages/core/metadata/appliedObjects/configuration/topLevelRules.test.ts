@@ -21,6 +21,7 @@ describe("TopLevelMetadataItemRules", () => {
         { itemType: "MetadataBot", xmlDir: "Bots" },
         { itemType: "MetadataWSReference", xmlDir: "WSReferences" },
         { itemType: "MetadataEnumeration", xmlDir: "Enums" },
+        { itemType: "MetadataReport", xmlDir: "Reports" },
       ])
     )
   })
