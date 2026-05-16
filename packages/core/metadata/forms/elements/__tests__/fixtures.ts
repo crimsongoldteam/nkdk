@@ -204,6 +204,9 @@ import {
   minimalTablePictureFieldTypedYAML,
 } from "../pictureField/__fixtures__/data"
 import {
+  dragPlannerField,
+  dragPlannerFieldEnterprise,
+  dragPlannerFieldPartialYAML,
   fullPlannerField,
   fullPlannerFieldEnterprise,
   fullPlannerFieldPartialYAML,
@@ -1002,6 +1005,16 @@ export const ElementFixtures: ElementFixture[] = [
     model: minimalPlannerField,
     yaml: undefined,
     enterprise: undefined,
+  },
+  {
+    group: "PlannerField",
+    name: "drag properties",
+    element: undefined,
+    xml: "drag.xml",
+    xmlFolder: undefined,
+    model: dragPlannerField,
+    yaml: dragPlannerFieldPartialYAML,
+    enterprise: dragPlannerFieldEnterprise,
   },
   //#endregion
   //#region Popup
