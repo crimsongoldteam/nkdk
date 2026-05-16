@@ -4,12 +4,19 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { Picture, PictureXML } from "./types"
 
+const rawPictureRefPattern = /^0(?::[0-9a-fA-F-]+)?$/
+
 export const importPictureFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: PictureXML | undefined
 ): Picture | undefined => {
   if (!xml) return undefined
+
+  const xmlRef = xml["xr:Ref"]
+  if (xmlRef && rawPictureRefPattern.test(xmlRef)) {
+    return { rawRef: xmlRef }
+  }
 
   const loadTransparent = importBooleanFromXML(context, undefined, xml["xr:LoadTransparent"])!
 
@@ -29,7 +36,7 @@ export const importPictureFromXML = (
     }
   }
 
-  const [type, ref] = xml["xr:Ref"]!.split(".")
+  const [type, ref] = xmlRef!.split(".")
   return {
     ref,
     type: type === "StdPicture" ? "StandardPicture" : "CommonPicture",

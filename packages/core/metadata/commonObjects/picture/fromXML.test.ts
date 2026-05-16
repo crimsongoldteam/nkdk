@@ -18,4 +18,11 @@ describe("importPictureFromXML", () => {
 
     expect(result).toBeUndefined()
   })
+
+  it("should import raw ref from XML", () => {
+    const rawRef = "0:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"
+    const result = importPictureFromXML(mockContextFromXML(), mockRule, { "xr:Ref": rawRef })
+
+    expect(result).toEqual({ rawRef })
+  })
 })

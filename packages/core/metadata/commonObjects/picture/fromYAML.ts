@@ -6,6 +6,8 @@ import * as SE from "../../systemEnumerations/types"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
 import { Picture, PictureYAML, PictureYAMLExtended } from "./types"
 
+const rawPictureRefPattern = /^0(?::[0-9a-fA-F-]+)?$/
+
 export const importPictureCombinedFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
@@ -50,6 +52,10 @@ export const importPictureFromYAML = (
     // First check if it's a standard picture to determine default loadTransparent
     const isStandard = tryimportStandardPicture(context, ref as string) !== undefined
     loadTransparent = isStandard ? true : false
+  }
+
+  if (typeof ref === "string" && rawPictureRefPattern.test(ref)) {
+    return { rawRef: ref }
   }
 
   const standardPicture = tryimportStandardPicture(context, ref as string)
