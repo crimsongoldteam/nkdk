@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { getSystemEnumerationTypeDescriptionRule, getTypeDescriptionRule } from "./helper"
+import { getSystemEnumerationTypeDescriptionRule, getTypeDescriptionRule, getTypePrefix, removeTypePrefix } from "./helper"
 import {
   TYPE_DESCRIPTION_SOURCE_TYPES,
   TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE,
@@ -29,7 +29,7 @@ export const exportTypeDescriptionToXML = (
   const dateQualifiers = getDateQualifiers(typeDescription)
 
   const referenceContainerByType = getMatchingReferenceContainerByType(typeDescription, referenceTypeDescription)
-  const referenceSourceTypes = getMatchingReferenceSourceTypes(typeDescription, referenceTypeDescription)
+  const referenceSourceTypes = getReferenceSourceTypes(referenceTypeDescription)
   const typesXML = getTypesXML(
     typeDescription,
     shouldDeclareTypeNamespace(_rule),
@@ -111,11 +111,10 @@ const getMatchingReferenceContainerByType = (
   return referenceTypeDescription[TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE]
 }
 
-const getMatchingReferenceSourceTypes = (
-  typeDescription: TypeDescription,
+const getReferenceSourceTypes = (
   referenceTypeDescription: TypeDescription | undefined
 ): TypeDescriptionSourceTypes | undefined => {
-  if (!referenceTypeDescription || !isSameTypes(typeDescription.type, referenceTypeDescription.type)) return undefined
+  if (!referenceTypeDescription) return undefined
   return referenceTypeDescription[TYPE_DESCRIPTION_SOURCE_TYPES]
 }
 
@@ -179,16 +178,6 @@ const getCanonicalTypeXML = (
         "#text": typeXML,
       }
     : typeXML
-}
-
-const removeTypePrefix = (type: string): string => {
-  const colonIndex = type.indexOf(":")
-  return colonIndex === -1 ? type : type.substring(colonIndex + 1)
-}
-
-const getTypePrefix = (type: string): string | undefined => {
-  const colonIndex = type.indexOf(":")
-  return colonIndex === -1 ? undefined : type.substring(0, colonIndex)
 }
 
 const getTypeIdXML = (typeDescription: TypeDescription): TypeDescriptionXML["v8:TypeId"] | undefined => {

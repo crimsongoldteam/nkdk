@@ -2,11 +2,11 @@ import { importNumberFromXML } from "~/metadata/commonObjects/number/fromXML"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import { getTypePrefix, removeTypePrefix } from "./helper"
 import {
   TYPE_DESCRIPTION_SOURCE_TYPES,
   TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE,
   TypeDescription,
-  TypeDescriptionPrefixes,
   TypeDescriptionSourceTypes,
   TypeDescriptionXML,
   TypeDescriptionXMLContainerByType,
@@ -142,23 +142,6 @@ const getTypeNamespace = (type: TypeDescriptionXMLType, value: string): string |
 
   const namespaces: Record<`_xmlns:${string}`, string> = type
   return namespaces[`_xmlns:${prefix}`]
-}
-
-const getTypePrefix = (type: string): string | undefined => {
-  const colonIndex = type.indexOf(":")
-  return colonIndex === -1 ? undefined : type.substring(0, colonIndex)
-}
-
-const removeTypePrefix = (type: string): string => {
-  const colonIndex = type.indexOf(":")
-  if (colonIndex === -1) return type
-
-  const prefix = type.substring(0, colonIndex)
-  const typeName = type.substring(colonIndex + 1)
-
-  if (TypeDescriptionPrefixes[prefix]) return typeName
-
-  return typeName
 }
 
 const importQualifierNumber = (
