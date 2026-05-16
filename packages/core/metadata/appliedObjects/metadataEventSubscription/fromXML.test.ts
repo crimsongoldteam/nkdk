@@ -49,23 +49,29 @@ describe("import MetadataEventSubscription from XML", () => {
     }
   )
 
-  it("round-trip: Source с TypeSet сохраняет XML-контейнер при той же семантике", () => {
+  it.each([
+    ["source-typeset.xml", '<Source xsi:type="v8:TypeSet">'],
+    ["source-child-typeset.xml", "<v8:TypeSet>cfg:DocumentObject.ЗаказКлиента</v8:TypeSet>"],
+  ])("round-trip: Source с TypeSet сохраняет XML-контейнер при той же семантике: %s", (fixture, xml) => {
     const data = testImportAppliedObjectFromXML<MetadataEventSubscription>({
       rule: MetadataEventSubscriptionRules,
       importMetaUrl: import.meta.url,
-      fixture: "source-typeset.xml",
+      fixture,
     })
 
     expect(data?.source).toEqual({ type: ["DocumentObject.ЗаказКлиента"] })
+    expect(JSON.stringify(data?.source)).toEqual('{"type":["DocumentObject.ЗаказКлиента"]}')
+    expect(Object.keys(data?.source ?? {})).toEqual(["type"])
 
     const { result, expected } = testExportAppliedObjectToXML({
       rule: MetadataEventSubscriptionRules,
       importMetaUrl: import.meta.url,
-      fixture: "source-typeset.xml",
+      fixture,
       data: data!,
     })
 
     expect(normalizeLineEndings(result)).toEqual(normalizeLineEndings(expected))
+    expect(result).toContain(xml)
   })
 
   it("export: Source не наследует TypeSet из reference, если семантика изменилась", () => {
@@ -90,5 +96,6 @@ describe("import MetadataEventSubscription from XML", () => {
 
     expect(result).toContain("<v8:Type>cfg:DocumentObject.ДругойЗаказ</v8:Type>")
     expect(result).not.toContain('<Source xsi:type="v8:TypeSet">')
+    expect(result).not.toContain("<v8:TypeSet>")
   })
 })

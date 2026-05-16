@@ -43,6 +43,14 @@ const ruleWithXmlRoot = {
   },
 } as const satisfies MetadataItemRule
 
+const ruleWithRawObject = {
+  ...rule,
+  properties: {
+    ...rule.properties,
+    raw: { xml: "Raw", type: "string", xmlParents: ["Properties"] },
+  },
+} as const satisfies MetadataItemRule
+
 const withReferenceRaw = (raw: Record<string, unknown>) => {
   const reference = { itemType: "Recalculation" as const, name: "Имя" }
   Object.defineProperty(reference, XML_REFERENCE_RAW, {
@@ -188,6 +196,40 @@ describe("exportMetadataItemToXML reference preservation", () => {
       Properties: {
         Name: "Имя",
         Use: false,
+      },
+    })
+  })
+
+  it("removes reference keys when generated nested field is undefined", () => {
+    const reference = withReferenceRaw({
+      Properties: {
+        Name: "Имя",
+        Raw: {
+          GeneratedUndefined: "remove",
+          UnknownNested: "keep-nested",
+        },
+      },
+    })
+
+    const xml = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: {
+        itemType: "Recalculation",
+        name: "Имя",
+        raw: {
+          GeneratedUndefined: undefined,
+        },
+      } as never,
+      referenceData: reference,
+      rule: ruleWithRawObject,
+    })
+
+    expect(xml).toEqual({
+      Properties: {
+        Name: "Имя",
+        Raw: {
+          UnknownNested: "keep-nested",
+        },
       },
     })
   })

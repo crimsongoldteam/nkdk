@@ -78,6 +78,8 @@ const getTypesXML = (
 
     if (referenceContainerByType?.[type] === "TypeSetAttribute") {
       typesXML.push(item)
+    } else if (referenceContainerByType?.[type] === "TypeSet") {
+      typeSetXML.push(item)
     } else if (rule.modifier === "typeset" || (rule.modifier === "complex" && !isComplex)) {
       typeSetXML.push(item)
     } else {
