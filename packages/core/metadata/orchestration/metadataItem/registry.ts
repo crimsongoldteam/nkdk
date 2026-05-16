@@ -135,6 +135,9 @@ import {
   AutoCommandBarYAML,
 } from "~/metadata/forms/elements/autoCommandBar/types"
 import {
+  SingleViewStatusAddition,
+  SingleViewStatusAdditionEnterprise,
+  SingleViewStatusAdditionYAML,
   ViewStatusAddition,
   ViewStatusAdditionEnterprise,
   ViewStatusAdditionYAML,
@@ -671,6 +674,11 @@ export type MetadataItemTypeRegistry = {
     metadata: ViewStatusAddition
     yaml: ViewStatusAdditionYAML
     enterprise: ViewStatusAdditionEnterprise
+  }
+  SingleViewStatusAddition: {
+    metadata: SingleViewStatusAddition
+    yaml: SingleViewStatusAdditionYAML
+    enterprise: SingleViewStatusAdditionEnterprise
   }
   AutoCommandBar: {
     metadata: AutoCommandBar

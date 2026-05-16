@@ -2,6 +2,8 @@ import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/ele
 
 export const fullViewStatusAddition: ViewStatusAddition = {
   itemType: "ViewStatusAddition",
+  name: "КакойТоЭлементСостояниеПросмотра",
+  additionSource: "КакойТоЭлемент",
   autoMaxWidth: true,
   backColor: { type: "WebColor", value: "White" },
   border: { ref: "style:ControlBorder" },
@@ -35,7 +37,16 @@ export const fullViewStatusAddition: ViewStatusAddition = {
   },
 }
 
+export const nonCanonicalViewStatusAddition = {
+  itemType: "ViewStatusAddition",
+  name: "ТаблицаЭПСостояниеПросмотра",
+  additionSource: "Подписи",
+  contextMenu: { itemType: "ContextMenu", childItems: [] },
+  extendedTooltip: { itemType: "ExtendedTooltip" },
+} satisfies ViewStatusAddition
+
 export const fullViewStatusAdditionYAML: Required<ViewStatusAdditionYAML> = {
+  Источник: "КакойТоЭлемент",
   АвтоМаксимальнаяШирина: "Истина",
   ГоризонтальноеПоложение: "Лево",
   МаксимальнаяШирина: 500,

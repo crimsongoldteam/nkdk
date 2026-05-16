@@ -6,7 +6,7 @@ export const nonCanonicalSingletonNames = {
   childItems: [],
   dataPath: "Подписи",
   viewStatusRepresentation: {
-    itemType: "ViewStatusAddition",
+    itemType: "SingleViewStatusAddition",
     horizontalAlign: "Left",
   },
 } satisfies Table

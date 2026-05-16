@@ -245,6 +245,7 @@ import {
   minimalSearchStringAddition,
   sourceSearchStringAddition,
 } from "../searchStringAddition/__fixtures__/data"
+import { nonCanonicalViewStatusAddition } from "../viewStatusAddition/__fixtures__/data"
 import {
   fullSpreadSheetDocumentField,
   fullSpreadSheetDocumentFieldEnterprise,
@@ -1131,6 +1132,18 @@ export const ElementFixtures: ElementFixture[] = [
     model: minimalSearchControlAddition,
     source: sourceSearchControlAddition,
     yaml: undefined,
+    enterprise: undefined,
+  },
+  //#endregion
+  //#region ViewStatusAddition
+  {
+    group: "ViewStatusAddition",
+    name: "non-canonical source",
+    element: undefined,
+    xml: "nonCanonical.xml",
+    xmlFolder: undefined,
+    model: nonCanonicalViewStatusAddition,
+    yaml: { Источник: "Подписи" },
     enterprise: undefined,
   },
   //#endregion

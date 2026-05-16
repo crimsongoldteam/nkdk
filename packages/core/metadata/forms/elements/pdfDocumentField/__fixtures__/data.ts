@@ -33,7 +33,7 @@ export const fullPDFDocumentField = {
     uRLClick: "НажатиеНаНавигационнойСсылке",
   },
   viewStatusRepresentation: {
-    itemType: "ViewStatusAddition",
+    itemType: "SingleViewStatusAddition",
     autoMaxWidth: false,
     backColor: { type: "WebColor", value: "Yellow" },
     border: { width: 4, controlBorderType: "Double" },

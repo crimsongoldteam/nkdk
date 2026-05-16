@@ -428,7 +428,12 @@ import {
   SingleSearchStringAddition,
   SingleSearchStringAdditionYAML,
 } from "~/metadata/forms/elements/searchStringAddition/types"
-import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/elements/viewStatusAddition/types"
+import {
+  SingleViewStatusAddition,
+  SingleViewStatusAdditionYAML,
+  ViewStatusAddition,
+  ViewStatusAdditionYAML,
+} from "~/metadata/forms/elements/viewStatusAddition/types"
 import { ScrollBarUseYAML, SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 
 export type PropertyTypeRegistry = {
@@ -1134,6 +1139,10 @@ export type PropertyTypeRegistry = {
     item: ViewStatusAddition
     yaml: ViewStatusAdditionYAML
   }
+  SingleViewStatusAddition: {
+    item: SingleViewStatusAddition
+    yaml: SingleViewStatusAdditionYAML
+  }
   AutoCommandBar: {
     item: AutoCommandBar
     yaml: AutoCommandBarYAML
@@ -1473,6 +1482,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   SingleSearchControlAddition: "SingleSearchControlAddition",
   SingleSearchStringAddition: "SingleSearchStringAddition",
   ViewStatusAddition: "ViewStatusAddition",
+  SingleViewStatusAddition: "SingleViewStatusAddition",
   AssociatedTable: "AssociatedTable",
   AutoCommandBar: "AutoCommandBar",
   TableAutoCommandBar: "TableAutoCommandBar",

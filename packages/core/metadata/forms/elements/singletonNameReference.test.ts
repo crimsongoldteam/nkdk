@@ -189,7 +189,7 @@ describe("singleton XML name suffix from reference", () => {
   })
 
   it("keeps ViewStatus reference suffix", () => {
-    const rule = { type: "ViewStatusAddition" } satisfies PropertyRule
+    const rule = { type: "SingleViewStatusAddition" } satisfies PropertyRule
     const reference = importReference(rule, {
       _name: "СписокViewStatus",
       _id: "16",
@@ -202,7 +202,7 @@ describe("singleton XML name suffix from reference", () => {
     const result = exportWithReference({
       context: withParent({ itemType: "Table", name: "НовыйСписок" }),
       rule,
-      value: { itemType: "ViewStatusAddition" },
+      value: { itemType: "SingleViewStatusAddition" },
       reference,
     })
 

@@ -236,7 +236,7 @@ export const TableRules = {
     },
     viewStatusRepresentation: {
       yaml: "ОтображениеСостоянияПросмотра",
-      type: "ViewStatusAddition",
+      type: "SingleViewStatusAddition",
       xml: "ViewStatusAddition",
       toEnterprise: false,
     },

@@ -211,7 +211,7 @@ export const dynamicList: Table = {
   verticalScrollBar: "UseAlways",
   verticalStretch: false,
   viewStatusRepresentation: {
-    itemType: "ViewStatusAddition",
+    itemType: "SingleViewStatusAddition",
     title: {
       items: {
         ru: "Состояние просмотра",

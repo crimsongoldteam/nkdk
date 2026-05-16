@@ -9,11 +9,14 @@ import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltipYAML } from "../extendedTooltip/types"
-import { ViewStatusAdditionRules } from "./rules"
+import { SingleViewStatusAdditionRules, ViewStatusAdditionRules } from "./rules"
 
 export type ViewStatusAddition = FormTypeByRule<typeof ViewStatusAdditionRules>
 
+export type SingleViewStatusAddition = FormTypeByRule<typeof SingleViewStatusAdditionRules>
+
 export interface ViewStatusAdditionYAML {
+  Источник?: string
   АвтоМаксимальнаяШирина?: StringboolYAML
   ГоризонтальноеПоложение?: SE.ItemHorizontalLocationYAML
   МаксимальнаяШирина?: number
@@ -36,4 +39,8 @@ export interface ViewStatusAdditionYAML {
   РасширеннаяПодсказка?: ExtendedTooltipYAML
 }
 
+export interface SingleViewStatusAdditionYAML extends Omit<ViewStatusAdditionYAML, "Источник"> {}
+
 export type ViewStatusAdditionEnterprise = EnterpriseType<typeof ViewStatusAdditionRules>
+
+export type SingleViewStatusAdditionEnterprise = EnterpriseType<typeof SingleViewStatusAdditionRules>

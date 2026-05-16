@@ -43,6 +43,7 @@ export const CollectableElementTypeToYAML = {
   UsualGroup: "Группа",
   SearchControlAddition: "УправлениеПоиском",
   SearchStringAddition: "ОтображениеСтрокиПоиска",
+  ViewStatusAddition: "ОтображениеСостоянияПросмотра",
 } as const
 
 export const CollectableElementTypeFromYAML = Object.fromEntries(
@@ -63,7 +64,7 @@ export type SingleElementType = Extract<
   MetadataItemType,
   | "SingleSearchControlAddition"
   | "SingleSearchStringAddition"
-  | "ViewStatusAddition"
+  | "SingleViewStatusAddition"
   | "ContextMenu"
   | "ExtendedTooltip"
   | "AutoCommandBar"
