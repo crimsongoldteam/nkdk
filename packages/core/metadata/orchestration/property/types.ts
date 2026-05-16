@@ -69,6 +69,9 @@ export interface BasePropertyRule {
   /** Значение по умолчанию в YAML (будет исключено из выбора)*/
   defaultValueYAML?: any | DefaultValueFunction
 
+  /** Исключать YAML-default по модельному значению до преобразования типа. */
+  omitDefaultValueYAMLBySource?: true
+
   /** Название в XML, если не заполнено - будет использован ключ*/
   xml?: string
 

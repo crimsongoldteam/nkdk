@@ -122,7 +122,13 @@ const getExportToYAMLResult = (
     return value
   }
 
-  if ("defaultValueYAML" in rule && sourceValue === (rule as any).defaultValueYAML) return undefined
+  if (
+    rule.omitDefaultValueYAMLBySource === true &&
+    "defaultValueYAML" in rule &&
+    sourceValue === (rule as any).defaultValueYAML
+  ) {
+    return undefined
+  }
   if ("defaultValueYAML" in rule && value === (rule as any).defaultValueYAML) return undefined
 
   if (Array.isArray(value) && value.length === 0) return undefined
