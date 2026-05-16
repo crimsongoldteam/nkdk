@@ -2,22 +2,38 @@ import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { getSystemEnumerationTypeDescriptionRule, getTypeDescriptionRule } from "./helper"
-import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
+import {
+  TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE,
+  TypeDescription,
+  TypeDescriptionXML,
+  TypeDescriptionXMLContainerByType,
+  TypeDescriptionXMLType,
+} from "./types"
+
+type TypeDescriptionXMLWithTypeSetAttribute = TypeDescriptionXML & { "_xsi:type"?: "v8:TypeSet" }
 
 export const exportTypeDescriptionToXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  typeDescription: TypeDescription | undefined
+  typeDescription: TypeDescription | undefined,
+  referenceTypeDescription?: TypeDescription
 ): TypeDescriptionXML | undefined => {
   if (!typeDescription) return undefined
   const stringQualifiers = getStringQualifiers(typeDescription)
   const numberQualifiers = getNumberQualifiers(typeDescription)
   const dateQualifiers = getDateQualifiers(typeDescription)
 
-  const typesXML = getTypesXML(typeDescription, shouldDeclareTypeNamespace(_rule))
+  const referenceContainerByType = getMatchingReferenceContainerByType(typeDescription, referenceTypeDescription)
+  const typesXML = getTypesXML(typeDescription, shouldDeclareTypeNamespace(_rule), referenceContainerByType)
   const typeIdXML = getTypeIdXML(typeDescription)
+  const sourceTypeSetMarkerXML = getSourceTypeSetMarkerXML(
+    typeDescription,
+    referenceTypeDescription,
+    referenceContainerByType
+  )
 
   const result = {
+    ...sourceTypeSetMarkerXML,
     ...typesXML,
     ...(typeIdXML !== undefined ? { "v8:TypeId": typeIdXML } : undefined),
     ...(numberQualifiers !== undefined ? { "v8:NumberQualifiers": numberQualifiers } : undefined),
@@ -33,7 +49,8 @@ const shouldDeclareTypeNamespace = (rule: PropertyRule | undefined): boolean =>
 
 const getTypesXML = (
   typeDescription: TypeDescription,
-  declareTypeNamespace: boolean
+  declareTypeNamespace: boolean,
+  referenceContainerByType: TypeDescriptionXMLContainerByType | undefined
 ): {
   "v8:Type"?: TypeDescriptionXMLType[] | TypeDescriptionXMLType
   "v8:TypeSet"?: TypeDescriptionXMLType[] | TypeDescriptionXMLType
@@ -59,7 +76,9 @@ const getTypesXML = (
         }
       : typeXML
 
-    if (rule.modifier === "typeset" || (rule.modifier === "complex" && !isComplex)) {
+    if (referenceContainerByType?.[type] === "TypeSetAttribute") {
+      typesXML.push(item)
+    } else if (rule.modifier === "typeset" || (rule.modifier === "complex" && !isComplex)) {
       typeSetXML.push(item)
     } else {
       typesXML.push(item)
@@ -71,6 +90,29 @@ const getTypesXML = (
     ...(typeSetXML.length > 0 ? { "v8:TypeSet": typeSetXML.length === 1 ? typeSetXML[0] : typeSetXML } : undefined),
   }
 }
+
+const getMatchingReferenceContainerByType = (
+  typeDescription: TypeDescription,
+  referenceTypeDescription: TypeDescription | undefined
+): TypeDescriptionXMLContainerByType | undefined => {
+  if (!referenceTypeDescription || !isSameTypes(typeDescription.type, referenceTypeDescription.type)) return undefined
+  return referenceTypeDescription[TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE]
+}
+
+const getSourceTypeSetMarkerXML = (
+  typeDescription: TypeDescription,
+  referenceTypeDescription: TypeDescription | undefined,
+  referenceContainerByType: TypeDescriptionXMLContainerByType | undefined
+): TypeDescriptionXMLWithTypeSetAttribute | { "_xsi:type": undefined } | undefined => {
+  if (!referenceTypeDescription?.[TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE]) return undefined
+  if (!referenceContainerByType) return { "_xsi:type": undefined }
+  return typeDescription.type.some((type) => referenceContainerByType[type] === "TypeSetAttribute")
+    ? { "_xsi:type": "v8:TypeSet" }
+    : undefined
+}
+
+const isSameTypes = (left: string[], right: string[]): boolean =>
+  left.length === right.length && left.every((type, index) => type === right[index])
 
 const shouldExportTypeNamespace = (
   rule: ReturnType<typeof getTypeDescriptionRule>,

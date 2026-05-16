@@ -2,7 +2,16 @@ import { importNumberFromXML } from "~/metadata/commonObjects/number/fromXML"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { TypeDescription, TypeDescriptionPrefixes, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
+import {
+  TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE,
+  TypeDescription,
+  TypeDescriptionPrefixes,
+  TypeDescriptionXML,
+  TypeDescriptionXMLContainerByType,
+  TypeDescriptionXMLType,
+} from "./types"
+
+type TypeDescriptionXMLWithTypeSetAttribute = TypeDescriptionXML & { "_xsi:type"?: "v8:TypeSet" }
 
 export const importTypeDescriptionFromXML = (
   _context: ConfigurationContext,
@@ -26,6 +35,13 @@ export const importTypeDescriptionFromXML = (
   }
 
   if (result.type.length === 0 && result.typeId === undefined) return undefined
+  const xmlContainerByType = extractXMLContainerByType(xml)
+  if (Object.keys(xmlContainerByType).length > 0) {
+    Object.defineProperty(result, TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE, {
+      value: xmlContainerByType,
+      enumerable: false,
+    })
+  }
 
   return result
 }
@@ -47,6 +63,18 @@ export const getTypes = (type: TypeDescriptionXMLType | TypeDescriptionXMLType[]
   let typeArray = Array.isArray(type) ? type : [type]
 
   return typeArray.map((typeItem) => getType(typeItem))
+}
+
+const extractXMLContainerByType = (item: TypeDescriptionXML): TypeDescriptionXMLContainerByType => {
+  const result: TypeDescriptionXMLContainerByType = {}
+  for (const type of getTypes(item["v8:Type"]) ?? []) result[type] = "Type"
+  for (const type of getTypes(item["v8:TypeSet"]) ?? []) result[type] = "TypeSet"
+
+  if ((item as TypeDescriptionXMLWithTypeSetAttribute)["_xsi:type"] === "v8:TypeSet") {
+    for (const type of getTypes(item["v8:Type"]) ?? []) result[type] = "TypeSetAttribute"
+  }
+
+  return result
 }
 
 const getTypeIds = (typeId: TypeDescriptionXML["v8:TypeId"] | unknown): string[] | undefined => {
