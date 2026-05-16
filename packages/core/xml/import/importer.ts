@@ -19,19 +19,23 @@ export const I8N_TEXT_FIELDS = [
   "ExtendedObjectPresentation",
 ]
 
-export const importContentFromXML = <T>(data: string): T => {
+type ImportContentFromXMLOptions = {
+  preserveXsiNil?: true
+}
+
+export const importContentFromXML = <T>(data: string, importOptions: ImportContentFromXMLOptions = {}): T => {
   const parser = new XMLParser({
     preserveOrder: true,
     attributeNamePrefix: "_",
     attributesGroupName: "@attributes",
-    ignoreAttributes: ["xsi:nil"],
+    ignoreAttributes: false,
     parseTagValue: false,
     numberParseOptions: { leadingZeros: false, hex: true, eNotation: true },
     trimValues: false,
   })
   const parsedData = parser.parse(data)
 
-  let options = { ...defaultOptions }
+  let options = { ...defaultOptions, ...importOptions }
   options.isArray = (name: string, _jPath: string, _isLeaf: boolean) => {
     return name === "ChildItems"
   }
@@ -131,15 +135,16 @@ function compress(arr: any[], options: any, jPath: string): any {
         val = attrs ? {} : undefined
       }
 
+      let assignedAttributesCount = 0
       if (attrs) {
         // Ensure val is an object to assign attributes to
         if (val === undefined || (typeof val === "object" && Object.keys(val).length === 0 && !Array.isArray(val))) {
           val = {}
         }
-        assignAttributes(val, attrs, newJpath, options)
+        assignedAttributesCount = assignAttributes(val, attrs, newJpath, options)
       }
 
-      if (!attrs) {
+      if (!attrs || assignedAttributesCount === 0) {
         if (val && typeof val === "object" && !Array.isArray(val)) {
           if (
             Object.keys(val).length === 1 &&
@@ -184,19 +189,32 @@ function propName(obj: any): string | undefined {
   return undefined
 }
 
-function assignAttributes(obj: any, attrMap: any, jpath: string, options: any): void {
+function assignAttributes(obj: any, attrMap: any, jpath: string, options: any): number {
+  let assignedAttributesCount = 0
+
   if (attrMap) {
     const keys = Object.keys(attrMap)
     const len = keys.length //don't make it inline
     for (let i = 0; i < len; i++) {
       const atrrName = keys[i]
+      if (isIgnoredXsiNilAttribute(atrrName, jpath, options)) continue
+
       if (options.isArray(atrrName, jpath + "." + atrrName, true, true)) {
         obj[atrrName] = [attrMap[atrrName]]
       } else {
         obj[atrrName] = attrMap[atrrName]
       }
+      assignedAttributesCount += 1
     }
   }
+
+  return assignedAttributesCount
+}
+
+const isIgnoredXsiNilAttribute = (attributeName: string, jpath: string, options: ImportContentFromXMLOptions): boolean => {
+  if (attributeName !== "_xsi:nil") return false
+  if (options.preserveXsiNil === true) return false
+  return !jpath.includes(".Settings.") && !jpath.startsWith(".SettingsFragment.")
 }
 
 export default importContentFromXML

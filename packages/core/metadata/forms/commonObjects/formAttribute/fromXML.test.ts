@@ -16,8 +16,10 @@ import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { attributeAnyType } from "./__fixtures__/attributeAnyType"
 import { chartSettings } from "./__fixtures__/chartSettings"
 import { columnAnyType } from "./__fixtures__/columnAnyType"
+import { ganttChartSettings } from "./__fixtures__/ganttChartSettings"
 import { mixedColumns } from "./__fixtures__/mixedColumns"
 import { plannerSettings } from "./__fixtures__/plannerSettings"
+import { plannerSettingsWithNil } from "./__fixtures__/plannerSettingsWithNil"
 import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
 import { tableWithColumns } from "./__fixtures__/tableWithColumns"
 import { treeWithColumn } from "./__fixtures__/treeWithColumn"
@@ -185,6 +187,16 @@ describe("importFormAttributesFromXML", () => {
     expect(result).toEqual(chartSettings)
   })
 
+  it("import ganttChartSettings", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "ganttChartSettings.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(ganttChartSettings)
+  })
+
   it("import spreadsheetDocumentSettings", () => {
     const result = testImportPropertyFromXML({
       rule: formAttributesRule,
@@ -203,6 +215,16 @@ describe("importFormAttributesFromXML", () => {
     })
 
     expect(result).toEqual(plannerSettings)
+  })
+
+  it("import plannerSettingsWithNil", () => {
+    const result = testImportPropertyFromXML({
+      rule: formAttributesRule,
+      path: "plannerSettingsWithNil.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(plannerSettingsWithNil)
   })
 
   it("imports ValueListType without Settings", () => {

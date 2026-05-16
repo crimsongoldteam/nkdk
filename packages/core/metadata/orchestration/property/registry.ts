@@ -402,6 +402,7 @@ import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/comma
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { Chart, ChartYAML } from "~/metadata/forms/commonObjects/chart/types"
+import { GanttChart, GanttChartYAML } from "~/metadata/forms/commonObjects/ganttChart/types"
 import {
   FormAttributeAdditionalColumnYAML,
   FormAttributeAdditionalColumnsCollection,
@@ -1054,6 +1055,11 @@ export type PropertyTypeRegistry = {
     yaml: ChartYAML
   }
 
+  GanttChart: {
+    item: GanttChart
+    yaml: GanttChartYAML
+  }
+
   SpreadsheetDocument: {
     item: SpreadsheetDocument
     yaml: SpreadsheetDocumentYAML
@@ -1472,6 +1478,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   TableAutoCommandBar: "TableAutoCommandBar",
   DynamicList: "DynamicList",
   Chart: "Chart",
+  GanttChart: "GanttChart",
   SpreadsheetDocument: "SpreadsheetDocument",
   Planner: "Planner",
   CommandSet: "CommandSet",
