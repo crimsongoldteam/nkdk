@@ -19,4 +19,28 @@ describe("importContentFromXML", () => {
     expect(result.root.Presentation["v8:item"]["v8:content"]).toBe("2.0")
     expect(typeof result.root.Presentation["v8:item"]["v8:content"]).toBe("string")
   })
+
+  it("drops xsi:nil attributes unless preserveXsiNil is enabled", () => {
+    const xml = `<Root><Settings><Value xsi:nil="true"/></Settings><Outside><Value xsi:nil="true"/></Outside></Root>`
+
+    const result = importContentFromXML<{
+      Root: {
+        Settings: { Value?: { "_xsi:nil": string } }
+        Outside: { Value?: { "_xsi:nil": string } }
+      }
+    }>(xml)
+
+    expect(result.Root.Settings.Value).toBeUndefined()
+    expect(result.Root.Outside.Value).toBeUndefined()
+
+    const preserved = importContentFromXML<{
+      Root: {
+        Settings: { Value: { "_xsi:nil": string } }
+        Outside: { Value: { "_xsi:nil": string } }
+      }
+    }>(xml, { preserveXsiNil: true })
+
+    expect(preserved.Root.Settings.Value).toEqual({ "_xsi:nil": "true" })
+    expect(preserved.Root.Outside.Value).toEqual({ "_xsi:nil": "true" })
+  })
 })

@@ -19,7 +19,7 @@ export const I8N_TEXT_FIELDS = [
   "ExtendedObjectPresentation",
 ]
 
-type ImportContentFromXMLOptions = {
+export type ImportContentFromXMLOptions = {
   preserveXsiNil?: true
 }
 
@@ -211,10 +211,14 @@ function assignAttributes(obj: any, attrMap: any, jpath: string, options: any): 
   return assignedAttributesCount
 }
 
-const isIgnoredXsiNilAttribute = (attributeName: string, jpath: string, options: ImportContentFromXMLOptions): boolean => {
+const isIgnoredXsiNilAttribute = (
+  attributeName: string,
+  _jpath: string,
+  options: ImportContentFromXMLOptions
+): boolean => {
   if (attributeName !== "_xsi:nil") return false
   if (options.preserveXsiNil === true) return false
-  return !jpath.includes(".Settings.") && !jpath.startsWith(".SettingsFragment.")
+  return true
 }
 
 export default importContentFromXML
