@@ -25,4 +25,14 @@ describe("importTypeDescriptionFromXML", () => {
 
     expect(result).toEqual(internal)
   })
+
+  it("should import ConditionalAppearance type from XML", () => {
+    const xmlData = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+      '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.3/data/entext">d7p1:ConditionalAppearance</v8:Type>\n</Type>'
+    )
+
+    const result = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, xmlData.Type)
+
+    expect(result).toEqual({ type: ["ConditionalAppearance"] })
+  })
 })

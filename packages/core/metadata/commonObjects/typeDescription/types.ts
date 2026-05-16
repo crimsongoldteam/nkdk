@@ -141,6 +141,12 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     prefix: "d5p1",
     namespace: "http://v8.1c.ru/8.2/data/geo",
   },
+  // Extended Text namespace
+  ConditionalAppearance: {
+    enterprise: "ConditionalAppearance",
+    prefix: "d7p1",
+    namespace: "http://v8.1c.ru/8.3/data/entext",
+  },
   // Formatted Document namespace
   FormattedDocument: {
     enterprise: "ФорматированныйДокумент",
