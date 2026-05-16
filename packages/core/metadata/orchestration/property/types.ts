@@ -23,6 +23,7 @@ export type ReferenceScopeFilterName = "stringIndexedAttribute"
 /** Ссылка на объект текущего объекта-владельца (target: "this"). */
 export type ReferenceScopeThis =
   | { target: "this"; kind: "Form" }
+  | { target: "this"; kind: "Template" }
   | { target: "this"; kind: "Attribute"; filter?: ReferenceScopeFilterName }
 
 /** Ссылка на top-level объект одного из допустимых типов. */

@@ -14,6 +14,7 @@ import "./metadataSettingsStorage"
 
 import "./metadataDocument"
 import "./metadataDataProcessor"
+import "./metadataReport"
 import "./metadataDocumentJournal"
 import "./metadataHTTPService"
 import "./metadataInformationRegister"

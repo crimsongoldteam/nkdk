@@ -7,6 +7,7 @@ import { MetadataBot, MetadataBotYAML } from "~/metadata/appliedObjects/metadata
 import { MetadataConstant, MetadataConstantYAML } from "~/metadata/appliedObjects/metadataConstant/types"
 import { MetadataDefinedType, MetadataDefinedTypeYAML } from "~/metadata/appliedObjects/metadataDefinedType/types"
 import { MetadataDataProcessor, MetadataDataProcessorYAML } from "~/metadata/appliedObjects/metadataDataProcessor/types"
+import { MetadataReport, MetadataReportYAML } from "~/metadata/appliedObjects/metadataReport/types"
 import {
   MetadataDocumentJournal,
   MetadataDocumentJournalYAML,
@@ -252,6 +253,8 @@ import {
   MetadataAttributeYAML,
   MetadataDocumentAttributes,
   MetadataDocumentAttributesYAML,
+  MetadataReportAttributes,
+  MetadataReportAttributesYAML,
   MetadataTabularSectionAttributes,
   MetadataTabularSectionAttributesYAML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
@@ -846,6 +849,10 @@ export type PropertyTypeRegistry = {
     item: MetadataDocumentAttributes
     yaml: MetadataDocumentAttributesYAML
   }
+  MetadataReportAttributes: {
+    item: MetadataReportAttributes
+    yaml: MetadataReportAttributesYAML
+  }
   MetadataTabularSectionAttributes: {
     item: MetadataTabularSectionAttributes
     yaml: MetadataTabularSectionAttributesYAML
@@ -937,6 +944,10 @@ export type PropertyTypeRegistry = {
   MetadataDataProcessor: {
     item: MetadataDataProcessor
     yaml: MetadataDataProcessorYAML
+  }
+  MetadataReport: {
+    item: MetadataReport
+    yaml: MetadataReportYAML
   }
   MetadataDocumentJournal: {
     item: MetadataDocumentJournal
@@ -1436,6 +1447,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataAttributes: "MetadataAttributes",
   MetadataTaskAddressingAttributes: "MetadataTaskAddressingAttributes",
   MetadataDocumentAttributes: "MetadataDocumentAttributes",
+  MetadataReportAttributes: "MetadataReportAttributes",
   MetadataTabularSectionAttributes: "MetadataTabularSectionAttributes",
   MetadataItemLinks: "MetadataItemLinks",
   MetadataCommands: "MetadataCommands",
@@ -1459,6 +1471,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataSubsystem: "MetadataSubsystem",
   MetadataSettingsStorage: "MetadataSettingsStorage",
   MetadataDataProcessor: "MetadataDataProcessor",
+  MetadataReport: "MetadataReport",
   MetadataDocumentJournal: "MetadataDocumentJournal",
   MetadataHTTPService: "MetadataHTTPService",
   MetadataIntegrationService: "MetadataIntegrationService",

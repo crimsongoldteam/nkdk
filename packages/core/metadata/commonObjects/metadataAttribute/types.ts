@@ -107,3 +107,7 @@ export type MetadataDocumentAttribute = MetadataAttribute
 export type MetadataDocumentAttributes = MetadataAttributes
 export type MetadataDocumentAttributesXML = MetadataAttributesXML
 export type MetadataDocumentAttributesYAML = MetadataAttributesYAML
+
+export type MetadataReportAttributes = MetadataAttributes
+export type MetadataReportAttributesXML = MetadataAttributesXML
+export type MetadataReportAttributesYAML = MetadataAttributesYAML

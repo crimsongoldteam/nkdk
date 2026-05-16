@@ -25,4 +25,18 @@ describe("import MetadataReport from XML", () => {
 
     expect(result).toMatchObject(full)
   })
+
+  it("imports report with main data composition schema", () => {
+    const result = testImportAppliedObjectFromXML<MetadataReport>({
+      rule: MetadataReportRules,
+      fixture: "dcs.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toMatchObject({
+      itemType: "MetadataReport",
+      name: "ОтчетСКД",
+      mainDataCompositionSchema: "Report.ОтчетСКД.Template.ОсновнаяСхемаКомпоновкиДанных",
+    })
+  })
 })
