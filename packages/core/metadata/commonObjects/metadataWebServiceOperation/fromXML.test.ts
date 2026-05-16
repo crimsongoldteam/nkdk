@@ -16,5 +16,7 @@ describe("import MetadataWebServiceOperations from XML", () => {
     }) as MetadataWebServiceOperations
 
     expect(result).toEqual(operationsWithXDTOTypeNamespace)
+    expect(typeof result[0]?.xdtoReturningValueType).toBe("string")
+    expect(typeof result[0]?.parameters?.[0]?.xdtoValueType).toBe("string")
   })
 })

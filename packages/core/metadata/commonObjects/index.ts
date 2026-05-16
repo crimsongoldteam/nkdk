@@ -125,6 +125,7 @@ import "./xmlRoot/fromXML"
 import "./xmlRoot/toXML"
 
 import "./xdtoTypeName/fromXML"
+import "./xdtoTypeName/toJSONSchema"
 import "./xdtoTypeName/toXML"
 
 import "./childFormNames/fromXML"
