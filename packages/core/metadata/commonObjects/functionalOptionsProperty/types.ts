@@ -3,7 +3,7 @@ import { Static, Type } from "@sinclair/typebox"
 export type FunctionalOptions = string[]
 
 export interface FunctionalOptionsXML {
-  Item: string | string[]
+  Item?: string | undefined | (string | undefined)[]
 }
 
 export const FunctionalOptionsPropertyJSONSchema = Type.Array(Type.String())
