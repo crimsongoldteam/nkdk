@@ -34,6 +34,9 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
 const isEmptyMetadataValueXML = (value: Record<string, unknown>): boolean =>
   Object.keys(value).every((key) => key === "_xsi:type")
 
+const isNilMetadataValueXML = (value: Record<string, unknown>): boolean =>
+  value["_xsi:nil"] === true || value["_xsi:nil"] === "true"
+
 /**
  * Импортирует MetadataValue из XML. Всегда возвращает тегированную форму {type, value}.
  * Тип берётся из xsi:type в XML или из параметра `type`.
@@ -46,7 +49,7 @@ export const importMetadataValueFromXML = (params: {
 }): MetadataTypedValue | undefined => {
   const { context, value: data, type } = params
   if (!data) return undefined
-  if (data["_xsi:nil"] === true) {
+  if (isNilMetadataValueXML(data)) {
     return context.fromXML.forReference ? (data as any) : undefined
   }
 

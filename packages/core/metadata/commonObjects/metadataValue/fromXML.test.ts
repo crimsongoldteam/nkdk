@@ -55,6 +55,16 @@ describe("importMetadataValueFromXML", () => {
     expect(result).toBeUndefined()
   })
 
+  it("imports string xsi:nil as undefined", () => {
+    const result = importMetadataValueFromXML({
+      context: mockContextFromXML(),
+      rule: undefined,
+      value: { "_xsi:nil": "true" },
+    })
+
+    expect(result).toBeUndefined()
+  })
+
   it("keeps xsi:nil for reference import", () => {
     const xmlValue = parseValue('<Value xsi:nil="true"/>') ?? { "_xsi:nil": true }
     const result = importMetadataValueFromXML({
