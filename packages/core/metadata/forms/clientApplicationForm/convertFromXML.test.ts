@@ -1,9 +1,10 @@
 import fs from "fs"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
+import { plannerSettingsWithNil } from "~/metadata/forms/commonObjects/formAttribute/__fixtures__/plannerSettingsWithNil"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { getXMLFixtureDir, readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { convertFormFromXML } from "./convertFromXML"
+import { convertFormFromXML, readFormFromXML } from "./convertFromXML"
 
 describe("import from XML string", () => {
   const inputDir = getXMLFixtureDir(import.meta.url, "sync/xml/Forms")
@@ -56,5 +57,30 @@ describe("import from XML string", () => {
     const queryPath = join(formOutputPath, "ДинамическийСписок", `${attributeName}.query`)
     expect(fs.existsSync(queryPath)).toBe(true)
     expect(fs.readFileSync(queryPath, "utf-8")).toBe(expectedQueryText)
+  })
+
+  it("preserves xsi:nil in raw SettingsFragment when reading form XML", () => {
+    const nilFormName = "plannerSettingsWithNil"
+    const nilInputDir = join(outputDir, "input")
+    const nilFormDir = join(nilInputDir, nilFormName, "Ext")
+    fs.mkdirSync(nilFormDir, { recursive: true })
+
+    const metadataXML = readXMLFixtureAsString(import.meta.url, "minimalMetadata.xml")
+    const formXML = readXMLFixtureAsString(import.meta.url, "minimal.xml")
+    const attributeXML = readXMLFixtureAsString(
+      import.meta.url,
+      "../../commonObjects/formAttribute/__fixtures__/plannerSettingsWithNil.xml"
+    )
+
+    fs.writeFileSync(join(nilInputDir, `${nilFormName}.xml`), metadataXML)
+    fs.writeFileSync(join(nilFormDir, "Form.xml"), formXML.replace("<Attributes/>", `<Attributes>${attributeXML}</Attributes>`))
+
+    const form = readFormFromXML({
+      context: mockContextFromXML(),
+      inputDir: nilInputDir,
+      formName: nilFormName,
+    })
+
+    expect(form.attributes).toEqual(plannerSettingsWithNil)
   })
 })

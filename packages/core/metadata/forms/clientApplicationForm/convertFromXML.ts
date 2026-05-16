@@ -90,7 +90,7 @@ function parseFormFromXML(params: {
 }): ClientApplicationForm {
   const { context, formXML, metadataXML } = params
 
-  const parsedForm = importContentFromXML<{ Form: ClientApplicationFormXML }>(formXML)
+  const parsedForm = importContentFromXML<{ Form: ClientApplicationFormXML }>(formXML, { preserveXsiNil: true })
   const parsedMetadata = importContentFromXML<{ MetaDataObject: FormMetadataXML }>(metadataXML)
 
   return importClientApplicationFormFromXML({

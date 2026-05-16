@@ -12,16 +12,13 @@ import {
 } from "~/tests/fixtures/formAttributes/data"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importContentFromXML } from "~/xml/import/importer"
 import { attributeAnyType } from "./__fixtures__/attributeAnyType"
 import { chartSettings } from "./__fixtures__/chartSettings"
 import { columnAnyType } from "./__fixtures__/columnAnyType"
 import { ganttChartSettings } from "./__fixtures__/ganttChartSettings"
 import { mixedColumns } from "./__fixtures__/mixedColumns"
 import { plannerSettings } from "./__fixtures__/plannerSettings"
-import { plannerSettingsWithNil } from "./__fixtures__/plannerSettingsWithNil"
 import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
 import { tableWithColumns } from "./__fixtures__/tableWithColumns"
 import { treeWithColumn } from "./__fixtures__/treeWithColumn"
@@ -217,15 +214,6 @@ describe("importFormAttributesFromXML", () => {
     })
 
     expect(result).toEqual(plannerSettings)
-  })
-
-  it("import plannerSettingsWithNil", () => {
-    const xml = readXMLFixtureAsString(import.meta.url, "plannerSettingsWithNil.xml")
-    const xmlData = importContentFromXML<{ Attribute: FormAttributesXML }>(xml, { preserveXsiNil: true })
-
-    const result = importFormAttributesFromXML(mockContextFromXML(), mockRule, xmlData)
-
-    expect(result).toEqual(plannerSettingsWithNil)
   })
 
   it("imports ValueListType without Settings", () => {
