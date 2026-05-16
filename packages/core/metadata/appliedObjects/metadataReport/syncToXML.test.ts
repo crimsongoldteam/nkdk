@@ -11,6 +11,7 @@ describe("syncAppliedObjectToXML — MetadataReport", () => {
       name: "ОтчетВсеСвойства",
       importMetaUrl: import.meta.url,
       expectedFiles: [
+        "ОтчетВсеСвойства.xml",
         "ОтчетВсеСвойства/Ext/ObjectModule.bsl",
         "ОтчетВсеСвойства/Ext/ManagerModule.bsl",
         "ОтчетВсеСвойства/Ext/Help.xml",
@@ -19,6 +20,7 @@ describe("syncAppliedObjectToXML — MetadataReport", () => {
         "ОтчетВсеСвойства/Templates/Макет.xml",
         "ОтчетВсеСвойства/Templates/Макет/Ext/Template.txt",
         "ОтчетВсеСвойства/Templates/ОсновнаяСхемаКомпоновкиДанных.xml",
+        "ОтчетВсеСвойства/Templates/ОсновнаяСхемаКомпоновкиДанных/Ext/Template.xml",
         "ОтчетВсеСвойства/Forms/ФормаОтчета.xml",
         "ОтчетВсеСвойства/Forms/ФормаОтчета/Ext/Form/Module.bsl",
         "ОтчетВсеСвойства/Forms/ФормаОтчета/Ext/Help.xml",

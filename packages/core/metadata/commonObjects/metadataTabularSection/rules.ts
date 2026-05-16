@@ -210,6 +210,26 @@ export const MetadataDataProcessorTabularSectionRules = {
   },
 } as const satisfies MetadataItemRule
 
+export const MetadataReportTabularSectionRules = {
+  itemType: "MetadataTabularSection",
+  properties: {
+    ...commonTabularSectionProperties,
+    internalInfo: {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+        const { context, metadata } = params
+        const parentPath = getParentNameByItemType(context, "MetadataReport")
+        return `${parentPath}.${metadata.name}`
+      },
+      items: [
+        { name: "ReportTabularSection", category: "TabularSection" },
+        { name: "ReportTabularSectionRow", category: "TabularSectionRow" },
+      ],
+    },
+  },
+} as const satisfies MetadataItemRule
+
 export const MetadataExchangePlanTabularSectionRules = {
   itemType: "MetadataTabularSection",
   properties: {

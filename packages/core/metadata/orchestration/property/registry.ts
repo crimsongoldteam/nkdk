@@ -345,6 +345,8 @@ import {
   MetadataDocumentTabularSectionsYAML,
   MetadataExchangePlanTabularSections,
   MetadataExchangePlanTabularSectionsYAML,
+  MetadataReportTabularSections,
+  MetadataReportTabularSectionsYAML,
   MetadataTaskTabularSections,
   MetadataTaskTabularSectionsYAML,
   MetadataTabularSections,
@@ -765,6 +767,10 @@ export type PropertyTypeRegistry = {
   MetadataDataProcessorTabularSections: {
     item: MetadataDataProcessorTabularSections
     yaml: MetadataDataProcessorTabularSectionsYAML
+  }
+  MetadataReportTabularSections: {
+    item: MetadataReportTabularSections
+    yaml: MetadataReportTabularSectionsYAML
   }
   MetadataExchangePlanTabularSections: {
     item: MetadataExchangePlanTabularSections
@@ -1423,6 +1429,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataTaskTabularSections: "MetadataTaskTabularSections",
   MetadataBusinessProcessTabularSections: "MetadataBusinessProcessTabularSections",
   MetadataDataProcessorTabularSections: "MetadataDataProcessorTabularSections",
+  MetadataReportTabularSections: "MetadataReportTabularSections",
   MetadataExchangePlanTabularSections: "MetadataExchangePlanTabularSections",
   MetadataChartOfAccountsTabularSections: "MetadataChartOfAccountsTabularSections",
   MetadataChartOfCalculationTypesTabularSections: "MetadataChartOfCalculationTypesTabularSections",

@@ -227,7 +227,7 @@ export const MetadataReportRules = {
     },
     tabularSections: {
       yaml: "ТабличныеЧасти",
-      type: "MetadataDataProcessorTabularSections",
+      type: "MetadataReportTabularSections",
       xmlParents: childObjects,
       xml: "TabularSection",
     },
