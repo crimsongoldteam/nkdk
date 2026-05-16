@@ -7,6 +7,7 @@ import {
   customSettingsFolderClientApplicationForm,
   fullClientApplicationForm,
   minimalClientApplicationForm,
+  reportFormClientApplicationForm,
 } from "./__fixtures__/data"
 import { documentFullClientApplicationForm } from "./__fixtures__/documentFull"
 import { importClientApplicationFormFromXML } from "./fromXML"
@@ -137,5 +138,20 @@ describe("importClientApplicationFormFromXML", () => {
     })
 
     expect(result).toEqual(childItemsWidthClientApplicationForm)
+  })
+
+  it("imports report form extension fields", () => {
+    const xmlData = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "reportForm.xml")
+    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+      import.meta.url,
+      "reportFormMetadata.xml"
+    )
+    const result = importClientApplicationFormFromXML({
+      context: mockContextFromXML(),
+      xml: xmlData.Form,
+      xmlMetadata: xmlMetadata.MetaDataObject,
+    })
+
+    expect(result).toEqual(reportFormClientApplicationForm)
   })
 })

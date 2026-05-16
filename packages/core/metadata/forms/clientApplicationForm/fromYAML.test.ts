@@ -7,6 +7,8 @@ import {
   customSettingsFolderClientApplicationFormYAML,
   fullClientApplicationForm,
   fullClientApplicationFormYAML,
+  reportFormClientApplicationForm,
+  reportFormClientApplicationFormYAML,
 } from "./__fixtures__/data"
 import { documentFullClientApplicationFormFromYAML } from "./__fixtures__/documentFull"
 import { documentFullClientApplicationFormYAMLForImport } from "./__fixtures__/documentFull.yaml"
@@ -256,5 +258,21 @@ describe("importClientApplicationFormFromYAML", () => {
     expect((result as ClientApplicationFormWithCustomSettingsFolder).customSettingsFolder).toBe(
       customSettingsFolderClientApplicationForm.customSettingsFolder
     )
+  })
+
+  it("applies report form Auto defaults when importing YAML", () => {
+    expect(reportFormClientApplicationFormYAML).not.toHaveProperty("АвтоОтображениеСостояния")
+    expect(reportFormClientApplicationFormYAML).not.toHaveProperty("РежимОтображенияРезультатаОтчета")
+    expect(reportFormClientApplicationFormYAML).not.toHaveProperty(
+      "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета"
+    )
+
+    const result = importClientApplicationFormFromYAML(
+      mockContext,
+      reportFormClientApplicationFormYAML,
+      reportFormClientApplicationForm
+    )
+
+    expect(result).toEqual(reportFormClientApplicationForm)
   })
 })

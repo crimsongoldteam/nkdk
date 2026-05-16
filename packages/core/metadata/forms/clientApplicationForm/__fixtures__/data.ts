@@ -9,6 +9,25 @@ type ClientApplicationFormYAMLWithCustomSettingsFolder = ClientApplicationFormYA
   ГруппаПользовательскихНастроек: string
 }
 
+type ReportFormClientApplicationForm = ClientApplicationForm & {
+  reportResult: string
+  detailsData: string
+  reportFormType: "Main"
+  variantAppearance: string
+  autoShowState: "Auto"
+  customSettingsFolder: string
+  reportResultViewMode: "Auto"
+  viewModeApplicationOnSetReportResult: "Auto"
+}
+
+type ReportFormClientApplicationFormYAML = ClientApplicationFormYAML & {
+  РезультатОтчета: string
+  ДанныеРасшифровки: string
+  ТипФормыОтчета: "Основная"
+  ПредставлениеВарианта: string
+  ГруппаПользовательскихНастроек: string
+}
+
 const fullCommandInterface: CommandInterface = {
   NavigationPanel: [],
   CommandBar: [
@@ -652,4 +671,49 @@ export const customSettingsFolderClientApplicationFormYAML: ClientApplicationFor
   },
   СоставКоманд: ["EndEdit"],
   ГруппаПользовательскихНастроек: "ГруппаПользовательскихНастроек",
+}
+
+export const reportFormClientApplicationForm: ReportFormClientApplicationForm = {
+  itemType: "ClientApplicationForm",
+  synonym: { items: {} },
+  comment: "",
+  includeHelpInContents: false,
+  autoCommandBar: {
+    itemType: "AutoCommandBar",
+    autofill: true,
+    horizontalAlign: "Right",
+    childItems: [],
+  },
+  childItems: [
+    {
+      itemType: "UsualGroup",
+      name: "КомпоновщикНастроекПользовательскиеНастройки",
+      title: { items: { ru: "Пользовательские настройки" } },
+      group: "HorizontalIfPossible",
+      showTitle: true,
+      childItems: [],
+    },
+  ],
+  attributes: [],
+  commands: [],
+  reportResult: "Результат",
+  detailsData: "ДанныеРасшифровки",
+  reportFormType: "Main",
+  variantAppearance: "ДанныеРасшифровки",
+  autoShowState: "Auto",
+  customSettingsFolder: "КомпоновщикНастроекПользовательскиеНастройки",
+  reportResultViewMode: "Auto",
+  viewModeApplicationOnSetReportResult: "Auto",
+}
+
+export const reportFormClientApplicationFormYAML: ReportFormClientApplicationFormYAML = {
+  КоманднаяПанель: {
+    ГоризонтальноеПоложение: "Право",
+  },
+  РезультатОтчета: "Результат",
+  ДанныеРасшифровки: "ДанныеРасшифровки",
+  ТипФормыОтчета: "Основная",
+  ПредставлениеВарианта: "ДанныеРасшифровки",
+  ГруппаПользовательскихНастроек: "КомпоновщикНастроекПользовательскиеНастройки",
+  Элементы: {},
 }

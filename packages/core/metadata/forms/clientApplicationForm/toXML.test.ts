@@ -9,6 +9,7 @@ import {
   customSettingsFolderClientApplicationForm,
   fullClientApplicationForm,
   minimalClientApplicationForm,
+  reportFormClientApplicationForm,
 } from "./__fixtures__/data"
 import { documentFullClientApplicationForm } from "./__fixtures__/documentFull"
 import { importClientApplicationFormFromXML } from "./fromXML"
@@ -90,6 +91,33 @@ describe("exportToXML", () => {
       const xmlData = exportClientApplicationFormToXML({
         context: mockContextToXML(),
         form: childItemsWidthClientApplicationForm,
+        referenceForm,
+      })
+
+      const result = xmlExport({ Form: xmlData })
+
+      expect(result).toEqual(expectedResult)
+    })
+
+    it("exports report form extension fields", () => {
+      const expectedXML = readXMLFixtureAsString(import.meta.url, "reportForm.xml").trimEnd()
+      const expectedResult = expectedXML.startsWith("\ufeff") ? expectedXML : `\ufeff${expectedXML}`
+      const referenceFormXML = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(
+        import.meta.url,
+        "reportForm.xml"
+      )
+      const referenceMetadataXML = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+        import.meta.url,
+        "reportFormMetadata.xml"
+      )
+      const referenceForm = importClientApplicationFormFromXML({
+        context: mockContextFromXML({ forReference: true }),
+        xml: referenceFormXML.Form,
+        xmlMetadata: referenceMetadataXML.MetaDataObject,
+      })
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: reportFormClientApplicationForm,
         referenceForm,
       })
 
