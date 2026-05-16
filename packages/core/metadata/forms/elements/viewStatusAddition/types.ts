@@ -32,6 +32,7 @@ export interface ViewStatusAdditionYAML {
   ШрифтЗаголовка?: FontYAML
   ВажностьПриОтображении?: SE.DisplayImportanceYAML
   Доступность?: StringboolYAML
+  Видимость?: StringboolYAML
   Заголовок?: I8nTextYAML
   КонтекстноеМеню?: ContextMenuYAML
   ОтображениеПодсказки?: SE.ToolTipRepresentationYAML

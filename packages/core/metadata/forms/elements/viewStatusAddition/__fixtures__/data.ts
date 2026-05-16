@@ -45,7 +45,17 @@ export const nonCanonicalViewStatusAddition = {
   extendedTooltip: { itemType: "ExtendedTooltip" },
 } satisfies ViewStatusAddition
 
-export const fullViewStatusAdditionYAML: Required<ViewStatusAdditionYAML> = {
+export const visibleFalseViewStatusAddition = {
+  itemType: "ViewStatusAddition",
+  name: "КакойТоЭлементСостояниеПросмотра",
+  additionSource: "КакойТоЭлемент",
+  contextMenu: { itemType: "ContextMenu", childItems: [] },
+  enabled: true,
+  extendedTooltip: { itemType: "ExtendedTooltip" },
+  visible: false,
+} satisfies ViewStatusAddition
+
+export const fullViewStatusAdditionYAML: ViewStatusAdditionYAML = {
   Источник: "КакойТоЭлемент",
   АвтоМаксимальнаяШирина: "Истина",
   ГоризонтальноеПоложение: "Лево",
@@ -67,6 +77,12 @@ export const fullViewStatusAdditionYAML: Required<ViewStatusAdditionYAML> = {
   Подсказка: "Подсказка",
   КонтекстноеМеню: { Автозаполнение: "Ложь" },
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
+}
+
+export const visibleFalseViewStatusAdditionYAML: ViewStatusAdditionYAML = {
+  Источник: "КакойТоЭлемент",
+  Доступность: "Истина",
+  Видимость: "Ложь",
 }
 
 export const minimalViewStatusAdditionYAML: ViewStatusAdditionYAML = {}

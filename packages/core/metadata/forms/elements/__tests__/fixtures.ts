@@ -249,6 +249,8 @@ import {
   fullViewStatusAddition,
   fullViewStatusAdditionYAML,
   nonCanonicalViewStatusAddition,
+  visibleFalseViewStatusAddition,
+  visibleFalseViewStatusAdditionYAML,
 } from "../viewStatusAddition/__fixtures__/data"
 import {
   fullSpreadSheetDocumentField,
@@ -1158,6 +1160,16 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: nonCanonicalViewStatusAddition,
     yaml: { Источник: "Подписи" },
+    enterprise: undefined,
+  },
+  {
+    group: "ViewStatusAddition",
+    name: "visible false",
+    element: undefined,
+    xml: "visibleFalse.xml",
+    xmlFolder: undefined,
+    model: visibleFalseViewStatusAddition,
+    yaml: visibleFalseViewStatusAdditionYAML,
     enterprise: undefined,
   },
   //#endregion

@@ -34,6 +34,7 @@ const commonProperties = {
     typeSE: "DisplayImportance",
   },
   enabled: { yaml: "Доступность", type: "boolean" },
+  visible: { yaml: "Видимость", type: "boolean" },
   extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
   title: {
     yaml: "Заголовок",
