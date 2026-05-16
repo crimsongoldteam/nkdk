@@ -20,7 +20,7 @@ export const importMinMaxValueFromXML = (
 
   if (rawValue === undefined || rawValue === "") return undefined
 
-  const result = typeof rawValue === "number" ? rawValue : Number(rawValue)
+  const result = typeof rawValue === "number" ? rawValue : Number(rawValue.replace(",", "."))
   const xsiType = typeof value === "object" && value !== null ? value["_xsi:type"] : undefined
 
   if (context.fromXML.forReference && isMinMaxValueXsiType(xsiType)) {

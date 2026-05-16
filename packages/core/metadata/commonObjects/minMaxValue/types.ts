@@ -1,4 +1,4 @@
-const MIN_MAX_VALUE_XSI_TYPE = Symbol("minMaxValueXsiType")
+const MIN_MAX_VALUE_XSI_TYPE: unique symbol = Symbol("minMaxValueXsiType")
 
 export type MinMaxValueXsiType = "xs:string" | "xs:decimal"
 
