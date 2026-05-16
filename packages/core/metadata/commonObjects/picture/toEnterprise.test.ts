@@ -8,4 +8,10 @@ describe("exportPictureToEnterprise", () => {
 
     expect(result).toEqual(preview)
   })
+
+  it("should not export raw ref to Enterprise", () => {
+    const result = exportPictureToEnterprise({ value: { rawRef: "0:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065" } })
+
+    expect(result).toBeUndefined()
+  })
 })

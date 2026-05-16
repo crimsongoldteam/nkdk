@@ -4,9 +4,7 @@ import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
-import { Picture, PictureYAML, PictureYAMLExtended } from "./types"
-
-const rawPictureRefPattern = /^0(?::[0-9a-fA-F-]+)?$/
+import { isRawPictureRefValue, Picture, PictureYAML, PictureYAMLExtended } from "./types"
 
 export const importPictureCombinedFromYAML = (
   context: ConfigurationContext,
@@ -54,7 +52,7 @@ export const importPictureFromYAML = (
     loadTransparent = isStandard ? true : false
   }
 
-  if (typeof ref === "string" && rawPictureRefPattern.test(ref)) {
+  if (typeof ref === "string" && isRawPictureRefValue(ref)) {
     return { rawRef: ref }
   }
 

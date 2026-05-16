@@ -27,4 +27,11 @@ describe("exportPictureToXML", () => {
 
     expect(result?.["xr:Ref"]).toBe(rawRef)
   })
+
+  it("should export empty raw ref to XML", () => {
+    const rawRef = "0"
+    const result = exportPictureToXML(mockContext, mockRule, { rawRef })
+
+    expect(result?.["xr:Ref"]).toBe(rawRef)
+  })
 })

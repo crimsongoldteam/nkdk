@@ -30,6 +30,12 @@ export function isRawPictureRef(picture: Picture): picture is RawPictureRef {
   return "rawRef" in picture
 }
 
+const rawPictureRefPattern = /^0(?::[0-9a-fA-F-]+)?$/
+
+export function isRawPictureRefValue(ref: string): boolean {
+  return rawPictureRefPattern.test(ref)
+}
+
 export type PictureYAMLRef = string | SE.PictureLibYAML
 
 export interface PictureYAMLExtended {

@@ -25,4 +25,20 @@ describe("importPictureFromXML", () => {
 
     expect(result).toEqual({ rawRef })
   })
+
+  it("should import empty raw ref from XML", () => {
+    const rawRef = "0"
+    const result = importPictureFromXML(mockContextFromXML(), mockRule, { "xr:Ref": rawRef })
+
+    expect(result).toEqual({ rawRef })
+  })
+
+  it.each(["00", "0:g", "1:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"])(
+    "should not classify %s as raw ref from XML",
+    (ref) => {
+      const result = importPictureFromXML(mockContextFromXML(), mockRule, { "xr:Ref": ref })
+
+      expect(result).not.toEqual({ rawRef: ref })
+    }
+  )
 })

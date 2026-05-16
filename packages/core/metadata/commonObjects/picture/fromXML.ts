@@ -2,9 +2,7 @@ import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importBooleanFromXML } from "../boolean/fromXML"
-import { Picture, PictureXML } from "./types"
-
-const rawPictureRefPattern = /^0(?::[0-9a-fA-F-]+)?$/
+import { isRawPictureRefValue, Picture, PictureXML } from "./types"
 
 export const importPictureFromXML = (
   context: ConfigurationContextFromXML,
@@ -14,7 +12,7 @@ export const importPictureFromXML = (
   if (!xml) return undefined
 
   const xmlRef = xml["xr:Ref"]
-  if (xmlRef && rawPictureRefPattern.test(xmlRef)) {
+  if (xmlRef && isRawPictureRefValue(xmlRef)) {
     return { rawRef: xmlRef }
   }
 
