@@ -695,6 +695,12 @@ export type TypeDescriptionType = string
 export type TypeDescriptionXMLContainerKind = "Type" | "TypeSet" | "TypeSetAttribute"
 export type TypeDescriptionXMLContainerByType = Partial<Record<TypeDescriptionType, TypeDescriptionXMLContainerKind>>
 export const TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE = Symbol("typeDescriptionXmlContainerByType")
+export type TypeDescriptionSourceType = {
+  value: string
+  namespace?: string
+}
+export type TypeDescriptionSourceTypes = Partial<Record<TypeDescriptionType, TypeDescriptionSourceType>>
+export const TYPE_DESCRIPTION_SOURCE_TYPES = Symbol("typeDescriptionSourceTypes")
 
 export interface TypeDescriptionTypeIdYAML {
   ИдентификаторТипа?: string[]
@@ -707,6 +713,7 @@ export interface TypeDescription {
   numberQualifiers?: TypeDescriptionNumberQualifiers
   dateQualifiers?: TypeDescriptionDateQualifiers
   [TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE]?: TypeDescriptionXMLContainerByType
+  [TYPE_DESCRIPTION_SOURCE_TYPES]?: TypeDescriptionSourceTypes
 }
 
 export const TypeDescriptionJSONSchema = Type.Union([

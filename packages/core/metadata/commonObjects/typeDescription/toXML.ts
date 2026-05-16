@@ -3,11 +3,16 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { getSystemEnumerationTypeDescriptionRule, getTypeDescriptionRule } from "./helper"
 import {
+  TYPE_DESCRIPTION_SOURCE_TYPES,
   TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE,
   TypeDescription,
+  TypeDescriptionRule,
+  TypeDescriptionSourceType,
+  TypeDescriptionSourceTypes,
   TypeDescriptionXML,
   TypeDescriptionXMLContainerByType,
   TypeDescriptionXMLType,
+  TypeDescriptionTypeWithNamespaceXML,
 } from "./types"
 
 type TypeDescriptionXMLWithTypeSetAttribute = TypeDescriptionXML & { "_xsi:type"?: "v8:TypeSet" }
@@ -24,7 +29,13 @@ export const exportTypeDescriptionToXML = (
   const dateQualifiers = getDateQualifiers(typeDescription)
 
   const referenceContainerByType = getMatchingReferenceContainerByType(typeDescription, referenceTypeDescription)
-  const typesXML = getTypesXML(typeDescription, shouldDeclareTypeNamespace(_rule), referenceContainerByType)
+  const referenceSourceTypes = getMatchingReferenceSourceTypes(typeDescription, referenceTypeDescription)
+  const typesXML = getTypesXML(
+    typeDescription,
+    shouldDeclareTypeNamespace(_rule),
+    referenceContainerByType,
+    referenceSourceTypes
+  )
   const typeIdXML = getTypeIdXML(typeDescription)
   const sourceTypeSetMarkerXML = getSourceTypeSetMarkerXML(
     typeDescription,
@@ -50,7 +61,8 @@ const shouldDeclareTypeNamespace = (rule: PropertyRule | undefined): boolean =>
 const getTypesXML = (
   typeDescription: TypeDescription,
   declareTypeNamespace: boolean,
-  referenceContainerByType: TypeDescriptionXMLContainerByType | undefined
+  referenceContainerByType: TypeDescriptionXMLContainerByType | undefined,
+  referenceSourceTypes: TypeDescriptionSourceTypes | undefined
 ): {
   "v8:Type"?: TypeDescriptionXMLType[] | TypeDescriptionXMLType
   "v8:TypeSet"?: TypeDescriptionXMLType[] | TypeDescriptionXMLType
@@ -68,13 +80,11 @@ const getTypesXML = (
     const rule = getTypeDescriptionRule(baseType) ?? (!isComplex ? getSystemEnumerationTypeDescriptionRule(type) : undefined)
     if (!rule) throw new Error(`Type ${type} not found in TypeDescriptionRules`)
 
-    const typeXML = `${rule.prefix}:${type}`
-    const item = shouldExportTypeNamespace(rule, declareTypeNamespace)
-      ? {
-          [`_xmlns:${rule.prefix}`]: rule.namespace,
-          "#text": typeXML,
-        }
-      : typeXML
+    const sourceType = getMatchingReferenceSourceType(type, rule, referenceSourceTypes)
+    const item =
+      sourceType !== undefined
+        ? getSourceTypeXML(sourceType)
+        : getCanonicalTypeXML(type, rule, declareTypeNamespace)
 
     if (referenceContainerByType?.[type] === "TypeSetAttribute") {
       typesXML.push(item)
@@ -101,6 +111,14 @@ const getMatchingReferenceContainerByType = (
   return referenceTypeDescription[TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE]
 }
 
+const getMatchingReferenceSourceTypes = (
+  typeDescription: TypeDescription,
+  referenceTypeDescription: TypeDescription | undefined
+): TypeDescriptionSourceTypes | undefined => {
+  if (!referenceTypeDescription || !isSameTypes(typeDescription.type, referenceTypeDescription.type)) return undefined
+  return referenceTypeDescription[TYPE_DESCRIPTION_SOURCE_TYPES]
+}
+
 const getSourceTypeSetMarkerXML = (
   typeDescription: TypeDescription,
   referenceTypeDescription: TypeDescription | undefined,
@@ -121,6 +139,57 @@ const shouldExportTypeNamespace = (
   declareTypeNamespace: boolean
 ): rule is NonNullable<typeof rule> & { namespace: string } =>
   Boolean(rule?.namespace && (declareTypeNamespace || rule.prefix !== "dcsset"))
+
+const getMatchingReferenceSourceType = (
+  type: string,
+  rule: TypeDescriptionRule,
+  referenceSourceTypes: TypeDescriptionSourceTypes | undefined
+): TypeDescriptionSourceType | undefined => {
+  const sourceType = referenceSourceTypes?.[type]
+  if (sourceType === undefined) return undefined
+  if (removeTypePrefix(sourceType.value) !== type) return undefined
+  if (sourceType.namespace !== rule.namespace) return undefined
+
+  return sourceType
+}
+
+const getSourceTypeXML = (sourceType: TypeDescriptionSourceType): TypeDescriptionXMLType => {
+  if (sourceType.namespace === undefined) return sourceType.value
+
+  const prefix = getTypePrefix(sourceType.value)
+  if (prefix === undefined) return sourceType.value
+
+  const item: TypeDescriptionTypeWithNamespaceXML = {
+    [`_xmlns:${prefix}`]: sourceType.namespace,
+    "#text": sourceType.value,
+  }
+
+  return item
+}
+
+const getCanonicalTypeXML = (
+  type: string,
+  rule: TypeDescriptionRule,
+  declareTypeNamespace: boolean
+): TypeDescriptionXMLType => {
+  const typeXML = `${rule.prefix}:${type}`
+  return shouldExportTypeNamespace(rule, declareTypeNamespace)
+    ? {
+        [`_xmlns:${rule.prefix}`]: rule.namespace,
+        "#text": typeXML,
+      }
+    : typeXML
+}
+
+const removeTypePrefix = (type: string): string => {
+  const colonIndex = type.indexOf(":")
+  return colonIndex === -1 ? type : type.substring(colonIndex + 1)
+}
+
+const getTypePrefix = (type: string): string | undefined => {
+  const colonIndex = type.indexOf(":")
+  return colonIndex === -1 ? undefined : type.substring(0, colonIndex)
+}
 
 const getTypeIdXML = (typeDescription: TypeDescription): TypeDescriptionXML["v8:TypeId"] | undefined => {
   if (typeDescription.typeId === undefined || typeDescription.typeId.length === 0) return undefined

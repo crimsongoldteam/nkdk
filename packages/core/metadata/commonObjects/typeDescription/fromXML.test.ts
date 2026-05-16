@@ -35,4 +35,14 @@ describe("importTypeDescriptionFromXML", () => {
 
     expect(result).toEqual({ type: ["ConditionalAppearance"] })
   })
+
+  it("should import type with reference prefix spelling from XML", () => {
+    const xmlData = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+      '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n</Type>'
+    )
+
+    const result = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, xmlData.Type)
+
+    expect(result).toEqual({ type: ["Chart"] })
+  })
 })
