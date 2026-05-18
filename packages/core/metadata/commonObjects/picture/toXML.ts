@@ -11,7 +11,13 @@ export const exportPictureToXML = (
   if (!picture) return undefined
 
   if (isRawPictureRef(picture)) {
-    return { "xr:Ref": picture.rawRef }
+    return {
+      "xr:Ref": picture.rawRef,
+      ...(picture.loadTransparent !== undefined ? { "xr:LoadTransparent": picture.loadTransparent } : {}),
+      ...(picture.transparentPixel
+        ? { "xr:TransparentPixel": { _x: picture.transparentPixel.x, _y: picture.transparentPixel.y } }
+        : {}),
+    }
   }
 
   const result: PictureXML = {}

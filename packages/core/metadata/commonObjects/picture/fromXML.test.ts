@@ -33,6 +33,41 @@ describe("importPictureFromXML", () => {
     expect(result).toEqual({ rawRef })
   })
 
+  it("should import raw ref with LoadTransparent=false from XML", () => {
+    const rawRef = "0:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"
+    const result = importPictureFromXML(mockContextFromXML(), mockRule, {
+      "xr:Ref": rawRef,
+      "xr:LoadTransparent": false,
+    })
+
+    expect(result).toEqual({ rawRef, loadTransparent: false })
+  })
+
+  it("should import raw ref with LoadTransparent=true from XML", () => {
+    const rawRef = "0:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"
+    const result = importPictureFromXML(mockContextFromXML(), mockRule, {
+      "xr:Ref": rawRef,
+      "xr:LoadTransparent": true,
+    })
+
+    expect(result).toEqual({ rawRef, loadTransparent: true })
+  })
+
+  it("should import raw ref with transparent pixel from XML", () => {
+    const rawRef = "0"
+    const result = importPictureFromXML(mockContextFromXML(), mockRule, {
+      "xr:Ref": rawRef,
+      "xr:LoadTransparent": true,
+      "xr:TransparentPixel": { _x: "12", _y: "2" },
+    })
+
+    expect(result).toEqual({
+      rawRef,
+      loadTransparent: true,
+      transparentPixel: { x: 12, y: 2 },
+    })
+  })
+
   it.each(["00", "0:g", "1:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"])(
     "should not classify %s as raw ref from XML",
     (ref) => {

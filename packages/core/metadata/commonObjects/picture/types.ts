@@ -12,7 +12,14 @@ export interface PictureXML {
   }
 }
 
-export type RawPictureRef = { rawRef: string }
+export type RawPictureRef = {
+  rawRef: string
+  loadTransparent?: boolean
+  transparentPixel?: {
+    x: number
+    y: number
+  }
+}
 
 export interface LinkedPicture {
   ref: string | SE.PictureLib
