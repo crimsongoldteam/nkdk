@@ -138,7 +138,7 @@ function importStandardAttributeDescriptionsFromXML(
 
   const result = context.fromXML.forReference ? raw : filterNonEmpty(context, rule, raw, preserveEmptyNames)
 
-  if (result) {
+  if (result && !context.fromXML.forReference) {
     const canonicalKeys = Object.keys((rule as StandardAttributeDescriptionsPropertyRule).standartAttributeNames ?? {})
     if (canonicalKeys.length > 0) {
       result.sort((a, b) => {
@@ -202,15 +202,10 @@ function exportStandardAttributeDescriptionsToXML(p: {
     return undefined
   }
 
-  const names = Array.from(
-    new Set(
-      referenceNames.length > 0
-        ? [...referenceNames, ...modelNames]
-        : !isGroupChanged
-          ? modelNames
-          : [...canonicalNames, ...modelNames]
-    )
-  )
+  const names =
+    referenceNames.length > 0
+      ? [...referenceNames, ...modelNames.filter((name) => !referenceNames.includes(name))]
+      : Array.from(new Set(!isGroupChanged ? modelNames : [...canonicalNames, ...modelNames]))
   const valueByName = new Map<string, StandardAttributeDescription>()
   for (const item of items) {
     if (item.name) valueByName.set(item.name as string, item)
