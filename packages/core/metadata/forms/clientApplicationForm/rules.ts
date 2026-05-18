@@ -1,4 +1,6 @@
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration"
+import "~/metadata/commonObjects/stringOrNumber/fromXML"
+import "~/metadata/commonObjects/stringOrNumber/toXML"
 import { ElementRule } from "../../orchestration/formElement/types"
 import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
@@ -116,13 +118,13 @@ export const ClientApplicationFormRules = {
     reportResult: {
       yaml: "РезультатОтчета",
       xml: "ReportResult",
-      type: "string",
+      type: "StringOrNumber",
       tag: FormRulesTags.Form,
     },
     detailsData: {
       yaml: "ДанныеРасшифровки",
       xml: "DetailsData",
-      type: "string",
+      type: "StringOrNumber",
       tag: FormRulesTags.Form,
     },
     reportFormType: {

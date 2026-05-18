@@ -140,6 +140,20 @@ describe("importClientApplicationFormFromXML", () => {
     expect(result).toEqual(childItemsWidthClientApplicationForm)
   })
 
+  it("imports decimal report result fields as numbers", () => {
+    const result = importClientApplicationFormFromXML({
+      context: mockContextFromXML(),
+      xml: {
+        ReportResult: { "_xsi:type": "xs:decimal", "#text": "3" },
+        DetailsData: { "_xsi:type": "xs:decimal", "#text": "0" },
+      },
+      xmlMetadata: { Form: { Properties: {} } },
+    })
+
+    expect(result.reportResult).toBe(3)
+    expect(result.detailsData).toBe(0)
+  })
+
   it("imports report form extension fields", () => {
     const xmlData = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "reportForm.xml")
     const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
