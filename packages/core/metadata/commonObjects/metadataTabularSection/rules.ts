@@ -35,9 +35,21 @@ const commonTabularSectionProperties = {
     excludeIfEqualNameYAML: true,
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    defaultValue: ({ context, name }: { context: ConfigurationContext; name?: string }) =>
-      addDefaultLanguageNameToSynonym(context, undefined, name ?? ""),
+    defaultValue: ({
+      context,
+      name,
+      operation,
+    }: {
+      context: ConfigurationContext
+      name?: string
+      operation?: string
+    }) =>
+      operation === "importFromYAML" && name
+        ? addDefaultLanguageNameToSynonym(context, undefined, name)
+        : { items: { [context.defaultLanguage]: "" } },
     order: 2,
+    defaultValueXMLEmpty: { items: {} },
+    emptyAsRawXML: true,
   },
   comment: {
     yaml: "Комментарий",

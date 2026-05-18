@@ -216,6 +216,39 @@ describe("importFormAttributesFromXML", () => {
     expect(result).toEqual(plannerSettings)
   })
 
+  it("imports FlowchartContextType Settings", () => {
+    const result = importFormAttributesFromXML(mockContextFromXML(), mockRule, {
+      Attribute: [{
+        _name: "Схема",
+        _id: "1",
+        Type: {
+          "v8:Type": {
+            "_xmlns:d5p1": "http://v8.1c.ru/8.2/data/graphscheme",
+            "#text": "d5p1:FlowchartContextType",
+          },
+        },
+        Settings: {
+          "_xmlns:d4p1": "http://v8.1c.ru/8.2/data/graphscheme",
+          "_xsi:type": "d4p1:FlowchartContextType",
+          "d4p1:pointsCurId": "7",
+        },
+      }],
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "FormAttribute",
+        name: "Схема",
+        type: { type: ["FlowchartContextType"] },
+        title: { items: { ru: "" } },
+        columns: [],
+        flowchartContext: {
+          "d4p1:pointsCurId": "7",
+        },
+      },
+    ])
+  })
+
   it("imports ValueListType without Settings", () => {
     const result = testImportPropertyFromXML({
       rule: formAttributesRule,

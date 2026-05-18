@@ -221,8 +221,15 @@ function exportStandardAttributeDescriptionsToXML(p: {
   }
 
   const allItems = names.map((internalName) => {
-    const item = valueByName.get(internalName) ??
-      referenceByName.get(internalName) ?? {
+    const modelItem = valueByName.get(internalName)
+    const referenceData = referenceByName.get(internalName)
+    if (!modelItem && referenceData) {
+      const referenceRaw = getStandardAttributeReferenceRawXML(referenceData)
+      if (referenceRaw) return referenceRaw
+    }
+
+    const item = modelItem ??
+      referenceData ?? {
         itemType: "StandardAttributeDescription" as const,
         name: internalName as StandartAttributeName,
       }

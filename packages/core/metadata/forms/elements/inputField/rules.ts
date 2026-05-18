@@ -31,7 +31,7 @@ export const InputFieldRules = {
       yaml: "ПодсказкаАвтозаполнения",
       type: "SystemEnumeration",
       typeSE: "InputFieldAutofillHint",
-      xml: "SpecialTextInputMode",
+      xml: "AutofillHint",
       defaultValueYAML: "DontUse",
     },
     autoMarkIncomplete: {

@@ -57,6 +57,7 @@ import "./event/toYAML"
 
 import "./dynamicList/types"
 import "./chart/types"
+import "./flowchartContext/types"
 import "./spreadsheetDocument/types"
 
 import "./elementId/toXML"

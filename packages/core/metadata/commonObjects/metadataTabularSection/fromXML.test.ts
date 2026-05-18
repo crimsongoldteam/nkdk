@@ -25,6 +25,35 @@ describe("import MetadataTabularSections from XML", () => {
     expect(result).toEqual(minimalFromXML)
   })
 
+  it("imports explicit empty Synonym as empty i18n text", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlRootTag: "TabularSection",
+      xmlString:
+        '<TabularSection uuid="3cf6b85b-5422-44cc-bb0a-11d41703d9f5">' +
+        "<Properties>" +
+        "<Name>Исполнители</Name>" +
+        "<Synonym/>" +
+        "<Comment/>" +
+        "<ToolTip/>" +
+        "<FillChecking>DontCheck</FillChecking>" +
+        "<Use>ForItem</Use>" +
+        "<LineNumberLength>5</LineNumberLength>" +
+        "</Properties>" +
+        "<ChildObjects/>" +
+        "</TabularSection>",
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "MetadataTabularSection",
+        attributes: [],
+        name: "Исполнители",
+        synonym: { items: {} },
+      },
+    ])
+  })
+
   it("should return undefined when data is undefined", () => {
     const result = testImportPropertyFromXML({
       rule,

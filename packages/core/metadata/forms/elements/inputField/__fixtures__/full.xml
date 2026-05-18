@@ -181,6 +181,7 @@
 	<SpellCheckingOnTextInput>Use</SpellCheckingOnTextInput>
 	<AutoCapitalizationOnTextInput>AllCharacters</AutoCapitalizationOnTextInput>
 	<SpecialTextInputMode>Email</SpecialTextInputMode>
+	<AutofillHint>FullName</AutofillHint>
 	<OnScreenKeyboardReturnKeyText>Done</OnScreenKeyboardReturnKeyText>
 	<InputHint>
 		<v8:item>

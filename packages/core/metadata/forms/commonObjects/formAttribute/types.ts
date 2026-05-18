@@ -11,6 +11,7 @@ import {
 } from "~/metadata/commonObjects/userVisible/types"
 import { ChartXML, ChartYAML } from "~/metadata/forms/commonObjects/chart/types"
 import { DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
+import { FlowchartContextXML, FlowchartContextYAML } from "~/metadata/forms/commonObjects/flowchartContext/types"
 import { GanttChartXML, GanttChartYAML } from "~/metadata/forms/commonObjects/ganttChart/types"
 import { PlannerXML, PlannerYAML } from "~/metadata/forms/commonObjects/planner/types"
 import {
@@ -59,7 +60,14 @@ export interface FormAttributeColumnsXML {
 
 export interface FormAttributeXML extends ElementXML {
   Columns?: FormAttributeColumnsXML
-  Settings?: SettingsTypeDescriptionXML | DynamicListXML | ChartXML | GanttChartXML | SpreadsheetDocumentXML | PlannerXML
+  Settings?:
+    | SettingsTypeDescriptionXML
+    | DynamicListXML
+    | ChartXML
+    | GanttChartXML
+    | FlowchartContextXML
+    | SpreadsheetDocumentXML
+    | PlannerXML
 }
 
 export interface ConditionalAppearanceXML {
@@ -93,6 +101,7 @@ export interface FormAttributeYAML {
   ДинамическийСписок?: DynamicListYAML
   Диаграмма?: ChartYAML
   ДиаграммаГанта?: GanttChartYAML
+  ГрафическаяСхема?: FlowchartContextYAML
   ТабличныйДокумент?: SpreadsheetDocumentYAML
   Планировщик?: PlannerYAML
   [UserViewKeysYAML.Allow]?: UserViewYAML

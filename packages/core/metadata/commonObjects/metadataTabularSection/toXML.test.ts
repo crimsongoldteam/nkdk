@@ -108,6 +108,32 @@ describe("export MetadataTabularSections to XML", () => {
     expect(result).toEqual(minimalFromXML)
   })
 
+  it("preserves explicit empty Synonym as empty XML tag", () => {
+    const xmlString =
+      '<TabularSection uuid="3cf6b85b-5422-44cc-bb0a-11d41703d9f5">' +
+      "<Properties>" +
+      "<Name>Исполнители</Name>" +
+      "<Synonym/>" +
+      "<Comment/>" +
+      "<ToolTip/>" +
+      "<FillChecking>DontCheck</FillChecking>" +
+      "<Use>ForItem</Use>" +
+      "<LineNumberLength>5</LineNumberLength>" +
+      "</Properties>" +
+      "<ChildObjects/>" +
+      "</TabularSection>"
+    const parsed = importContentFromXML<Record<string, unknown>>(xmlString)
+    const value = importPropertyFromXML({ context: mockContextFromXML(), rule, value: parsed["TabularSection"] })
+
+    const exportContext = mockContextToXML()
+    const xmlArray = exportPropertyToXML({ context: exportContext, rule, value, referenceMetadata: undefined })
+    setIdsToElements(exportContext)
+    const result = xmlExport({ TabularSection: xmlArray }, false)
+
+    expect(result).toContain("<Synonym/>")
+    expect(result).not.toContain("<v8:content>Исполнители</v8:content>")
+  })
+
   it("should return undefined when data is undefined", () => {
     const result = exportAndReimport(undefined)
     expect(result).toBeUndefined()
