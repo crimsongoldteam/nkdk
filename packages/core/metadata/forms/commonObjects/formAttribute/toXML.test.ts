@@ -291,6 +291,28 @@ describe("exportFormAttributesToXML", () => {
     expect(result).toContain("<KeyField>ИдентификаторОрганизации</KeyField>")
   })
 
+  it("exports FlowchartContextType Settings", () => {
+    const context = mockContextToXML()
+    const value = [{
+      itemType: "FormAttribute" as const,
+      name: "Схема",
+      type: { type: ["FlowchartContextType"] },
+      title: { items: { ru: "" } },
+      columns: [],
+      flowchartContext: {
+        "d4p1:pointsCurId": "7",
+      },
+    }]
+
+    const xmlData = exportFormAttributesToXML(context, mockRule, value)
+    const result = xmlExport(xmlData!, false)
+
+    expect(result).toContain('xmlns:d4p1="http://v8.1c.ru/8.2/data/graphscheme"')
+    expect(result).toContain('xsi:type="d4p1:FlowchartContextType"')
+    expect(result).toContain("<d4p1:pointsCurId>7</d4p1:pointsCurId>")
+    expect(result).not.toContain('xsi:type="v8:TypeDescription"')
+  })
+
   it("export attributeAnyType", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule: formAttributesRule,

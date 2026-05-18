@@ -7,9 +7,9 @@ import {
   customSettingsFolderClientApplicationForm,
   fullClientApplicationForm,
   minimalClientApplicationForm,
-  reportFormClientApplicationForm,
 } from "./__fixtures__/data"
 import { documentFullClientApplicationForm } from "./__fixtures__/documentFull"
+import { reportFormClientApplicationForm } from "./__fixtures__/reportForm"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { mockContextFromXML } from "~/tests/mockContext"

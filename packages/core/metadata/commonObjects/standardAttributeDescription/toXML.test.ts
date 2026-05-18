@@ -228,6 +228,36 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     expect(result).not.toBe('<StandardAttributes><xr:StandardAttribute name="ValueType"/></StandardAttributes>')
   })
 
+  it("preserves fillValue reference xsi type when standard attribute is missing from model", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { ValueType: "ТипЗначения" },
+    }
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <StandardAttributes>
+          <xr:StandardAttribute name="ValueType">
+            <xr:Comment>reference-only</xr:Comment>
+            <xr:FillValue xsi:type="v8:TypeDescription"/>
+          </xr:StandardAttribute>
+        </StandardAttributes>
+      `,
+      xmlRootTag: "StandardAttributes",
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: undefined,
+      referenceMetadata,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+    expect(result).toContain("<xr:Comment>reference-only</xr:Comment>")
+  })
+
   it("preserves nil reference XML for empty standard attribute values", () => {
     const rule: PropertyRule = {
       type: "StandardAttributeDescriptions",

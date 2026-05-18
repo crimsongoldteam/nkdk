@@ -19,7 +19,10 @@ type SingletonReferenceXML = {
   ExtendedTooltip: { _name: unknown }
 }
 
-const withParent = (parent: { itemType: "Button" | "Table" | "PDFDocumentField"; name: string }) => {
+const withParent = (parent: {
+  itemType: "Button" | "Table" | "PDFDocumentField" | "GanttChartField"
+  name: string
+}) => {
   const context = mockContextToXML()
   return {
     ...context,
@@ -246,6 +249,33 @@ describe("singleton XML name suffix from reference", () => {
     })
 
     expect(result._name).toBe("НовыйСписокCommandBar")
+  })
+
+  it("keeps GanttChartFieldTable reference suffix and current parent name", () => {
+    const rule = { type: "GanttChartFieldTable" } satisfies PropertyRule
+    const reference = importPropertyFromXML({
+      context: mockContextFromXML({ forReference: true }),
+      rule,
+      value: {
+        _name: "СтараяДиаграммаTable",
+        _id: "496",
+        ChildItems: [],
+      },
+      ownerXmlName: "СтараяДиаграмма",
+    })
+
+    const result = exportWithReference({
+      context: withParent({ itemType: "GanttChartField", name: "НоваяДиаграмма" }),
+      rule,
+      value: {
+        itemType: "Table",
+        name: "СтараяДиаграммаTable",
+        childItems: [],
+      },
+      reference,
+    }) as SingletonReferenceXML
+
+    expect(result._name).toBe("НоваяДиаграммаTable")
   })
 
   it("keeps root AutoCommandBar FormCommandBar name", () => {

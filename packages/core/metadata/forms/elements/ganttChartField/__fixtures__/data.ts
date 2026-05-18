@@ -3,6 +3,7 @@ import {
   GanttChartFieldEnterprise,
   GanttChartFieldPartialYAML,
 } from "~/metadata/forms/elements/ganttChartField/types"
+import { Table, TablePartialYAML } from "~/metadata/forms/elements/table/types"
 
 import {
   fullFormFieldCommonFixture,
@@ -10,6 +11,27 @@ import {
   fullFormFieldPartialYAMLCommonFixture,
 } from "~/tests/fixtures/forms/base/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
+
+const fullGanttChartFieldTable = {
+  itemType: "Table",
+  name: "ЭлементФормыТаблица",
+  representation: "Tree",
+  visible: false,
+  height: 10,
+  heightControlVariant: "UseHeightInFormRows",
+  verticalScrollBar: "DontUse",
+  dataPath: "Реквизит",
+  searchStringLocation: "None",
+  viewStatusLocation: "None",
+  searchControlLocation: "None",
+  childItems: [
+    {
+      itemType: "TableInputField",
+      name: "ЭлементФормыТаблицаТочка",
+      dataPath: "Реквизит.Point",
+    },
+  ],
+} satisfies Table
 
 export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
   itemType: "GanttChartField",
@@ -29,6 +51,7 @@ export const fullGanttChartField: RequiredFieldsElement<GanttChartField> = {
   valuesSelectionMode: "Single",
   verticalLines: false,
   verticalStretch: false,
+  table: fullGanttChartFieldTable,
   width: 300,
   events: {
     onChange: "ПроцедураПриИзменении",
@@ -76,6 +99,17 @@ export const fullGanttChartFieldEnterprise = {
   ...fullFormFieldEnterpriseCommonFixture,
 } satisfies Required<GanttChartFieldEnterprise>
 
+const fullGanttChartFieldTablePartialYAML = {
+  Отображение: "Дерево",
+  Видимость: "Ложь",
+  Высота: 10,
+  ВариантУправленияВысотой: "ВСтрокахФормы",
+  ВертикальнаяПолосаПрокрутки: "НеИспользовать",
+  ПоложениеСтрокиПоиска: "Нет",
+  ПоложениеСостоянияПросмотра: "Нет",
+  ПоложениеУправленияПоиском: "Нет",
+} satisfies TablePartialYAML
+
 export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
@@ -90,6 +124,7 @@ export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
   РежимВыделенияЗначений: "Одиночный",
   РежимВыделенияИнтервалов: "Одиночный",
   Ширина: 300,
+  Таблица: fullGanttChartFieldTablePartialYAML,
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     Выбор: "ПроцедураВыбора",

@@ -87,6 +87,27 @@
 			</v8:item>
 		</Title>
 	</ExtendedTooltip>
+	<Table name="ЭлементФормыТаблица" id="6">
+		<Representation>Tree</Representation>
+		<Visible>false</Visible>
+		<Height>10</Height>
+		<HeightControlVariant>UseHeightInFormRows</HeightControlVariant>
+		<VerticalScrollBar>DontUse</VerticalScrollBar>
+		<DataPath>Реквизит</DataPath>
+		<SearchStringLocation>None</SearchStringLocation>
+		<ViewStatusLocation>None</ViewStatusLocation>
+		<SearchControlLocation>None</SearchControlLocation>
+		<ContextMenu name="ЭлементФормыТаблицаКонтекстноеМеню" id="7"/>
+		<AutoCommandBar name="ЭлементФормыТаблицаКоманднаяПанель" id="8"/>
+		<ExtendedTooltip name="ЭлементФормыТаблицаРасширеннаяПодсказка" id="9"/>
+		<ChildItems>
+			<InputField name="ЭлементФормыТаблицаТочка" id="10">
+				<DataPath>Реквизит.Point</DataPath>
+				<ContextMenu name="ЭлементФормыТаблицаТочкаКонтекстноеМеню" id="11"/>
+				<ExtendedTooltip name="ЭлементФормыТаблицаТочкаРасширеннаяПодсказка" id="12"/>
+			</InputField>
+		</ChildItems>
+	</Table>
 	<Events>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 		<Event name="Selection">ПроцедураВыбора</Event>

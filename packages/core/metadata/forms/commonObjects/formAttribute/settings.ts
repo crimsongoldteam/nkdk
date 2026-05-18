@@ -2,6 +2,7 @@ import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
+import "~/metadata/forms/commonObjects/flowchartContext/types"
 import "~/metadata/forms/commonObjects/ganttChart/types"
 import "~/metadata/forms/commonObjects/planner/types"
 import { FormAttribute, FormAttributeXML } from "./types"
@@ -18,6 +19,12 @@ const ganttChartSettingsRule = {
   yaml: "ДиаграммаГанта",
 } as const satisfies PropertyRule
 
+const flowchartContextSettingsRule = {
+  type: "FlowchartContext",
+  xml: "Settings",
+  yaml: "ГрафическаяСхема",
+} as const satisfies PropertyRule
+
 const spreadsheetDocumentSettingsRule = {
   type: "SpreadsheetDocument",
   xml: "Settings",
@@ -30,7 +37,10 @@ const plannerSettingsRule = {
   yaml: "Планировщик",
 } as const satisfies PropertyRule
 
-type TypedFormAttributeSettings = Pick<FormAttribute, "chart" | "ganttChart" | "spreadsheetDocument" | "planner">
+type TypedFormAttributeSettings = Pick<
+  FormAttribute,
+  "chart" | "ganttChart" | "flowchartContext" | "spreadsheetDocument" | "planner"
+>
 
 const getXsiType = (settings: FormAttributeXML["Settings"] | undefined): string | undefined => {
   if (settings === undefined || settings === null || typeof settings !== "object" || Array.isArray(settings)) {
@@ -67,6 +77,17 @@ export const importTypedFormAttributeSettingsFromXML = (
     }) as FormAttribute["ganttChart"] | undefined
 
     return ganttChart === undefined ? {} : { ganttChart }
+  }
+
+  if (xsiType === "d4p1:FlowchartContextType" || xsiType?.endsWith(":FlowchartContextType")) {
+    const flowchartContext = importPropertyFromXML({
+      context,
+      rule: flowchartContextSettingsRule,
+      value: settings,
+      name: "flowchartContext",
+    }) as FormAttribute["flowchartContext"] | undefined
+
+    return flowchartContext === undefined ? {} : { flowchartContext }
   }
 
   if (xsiType === "mxl:SpreadsheetDocument" || xsiType?.endsWith(":SpreadsheetDocument")) {
@@ -113,6 +134,14 @@ export const exportTypedFormAttributeSettingsToXML = (
   }) as FormAttributeXML["Settings"] | undefined
 
   if (ganttChart !== undefined) return ganttChart
+
+  const flowchartContext = exportPropertyToXML({
+    context,
+    rule: flowchartContextSettingsRule,
+    value: data.flowchartContext,
+  }) as FormAttributeXML["Settings"] | undefined
+
+  if (flowchartContext !== undefined) return flowchartContext
 
   const spreadsheetDocument = exportPropertyToXML({
     context,

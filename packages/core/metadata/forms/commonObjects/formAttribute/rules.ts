@@ -122,6 +122,13 @@ export const FormAttributeRules = {
       fromXML: false,
       toXML: false,
     },
+    flowchartContext: {
+      type: "FlowchartContext",
+      xml: "Settings",
+      yaml: "ГрафическаяСхема",
+      fromXML: false,
+      toXML: false,
+    },
     spreadsheetDocument: {
       type: "SpreadsheetDocument",
       xml: "Settings",

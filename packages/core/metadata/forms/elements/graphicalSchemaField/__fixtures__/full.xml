@@ -19,6 +19,11 @@
 	<TitleBackColor>web:Blue</TitleBackColor>
 	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
 	<TitleLocation>Left</TitleLocation>
+	<CommandSet>
+		<ExcludedCommand>AlignBottom</ExcludedCommand>
+		<ExcludedCommand>InsertItemActivity</ExcludedCommand>
+		<ExcludedCommand>Ungroup</ExcludedCommand>
+	</CommandSet>
 	<TitleHeight>20</TitleHeight>
 	<ToolTip>
 		<v8:item>
