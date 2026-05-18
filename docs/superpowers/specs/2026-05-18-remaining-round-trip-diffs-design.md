@@ -16,7 +16,7 @@ Existing XML sources and project XML fixtures remain sources of truth. Implement
 
 - Preserve reference XML ordering for standard attributes during XML export.
 - Preserve empty singleton XML names from reference metadata.
-- Import numeric report form fields as numbers and export them with typed decimal XML.
+- Import numeric report form fields as numbers and export them with XML type taken from reference metadata.
 - Add focused tests for each behavior before implementation changes.
 
 ## Non-Goals
@@ -24,7 +24,7 @@ Existing XML sources and project XML fixtures remain sources of truth. Implement
 - Do not rewrite the full form element naming model.
 - Do not change XML fixtures from the external ERP source repository.
 - Do not introduce YAML behavior changes while XML round-trip remains under correction.
-- Do not add broad string-or-number modeling for report result fields in this pass.
+- Do not force all report result fields to `number`; existing textual XML values must keep round-trip behavior.
 
 ## Design
 
@@ -55,33 +55,41 @@ During export, `applyReferenceNameMode` already returns exact names unchanged. T
 
 This should fix report forms where root `AutoCommandBar name="" id="-1"` currently exports as `name="ФормаКоманднаяПанель"`.
 
-### Numeric Report Form Fields
+### Reference-Typed Report Form Fields
 
-`ReportResult` and `DetailsData` should be modeled as numbers for the numeric XML cases that appear in ERP:
+`ReportResult` and `DetailsData` can appear as typed decimal XML in ERP:
 
 ```xml
 <ReportResult xsi:type="xs:decimal">3</ReportResult>
 <DetailsData xsi:type="xs:decimal">0</DetailsData>
 ```
 
-The existing `number` type already imports `xs:decimal` XML values as numbers and can export typed XML when `typedXML: true` is set. The form rules for `reportResult` and `detailsData` should therefore use:
+They can also appear as plain textual XML in existing fixtures:
 
-```ts
-type: "number",
-typedXML: true,
+```xml
+<ReportResult>Результат</ReportResult>
+<DetailsData>ДанныеРасшифровки</DetailsData>
 ```
 
-This intentionally chooses a numeric model over preserving these values as strings with reference-backed XML type metadata.
+The model should therefore use `string | number` semantics for these two fields:
+
+- XML with numeric `xsi:type` such as `xs:decimal` imports as `number`.
+- Plain textual XML imports as `string`.
+- Export uses the reference XML type as the source of truth. If the reference value had `xsi:type="xs:decimal"` and the model value is numeric, export keeps `xsi:type="xs:decimal"`.
+- If the reference value was plain text, export remains plain text without adding a numeric `xsi:type`.
+
+This preserves both source XML shapes while still representing typed numeric ERP values as numbers in the model.
 
 ## Testing Strategy
 
 - Add a focused `StandardAttributeDescriptions` export test with reference order `Active`, `LineNumber`, `RecordType`, then verify exported XML keeps that order even when model changes a standard attribute.
 - Add a singleton name test next to the existing `FormCommandBar` reference test: import/export a root `AutoCommandBar` reference with `_name: ""`, expect exported `_name` to remain `""`.
-- Add focused `ClientApplicationForm` import/export tests for decimal `ReportResult` and `DetailsData`, expecting model values `3` and `0`, and exported XML with `xsi:type="xs:decimal"`.
+- Add focused `ClientApplicationForm` import/export tests for decimal `ReportResult` and `DetailsData`, expecting model values `3` and `0`, and exported XML with `xsi:type="xs:decimal"` when the reference has that type.
+- Keep existing textual `reportForm.xml` import/export tests green: text values remain strings and export without decimal `xsi:type`.
 - After focused tests pass, run ERP round-trip triage and then full `pnpm test` after regenerating Langium files if needed.
 
 ## Risks
 
-- Changing `reportResult` and `detailsData` from `string` to `number` may expose existing fixtures that use textual values for those fields. The implementation should update tests deliberately around the numeric contract chosen here and report any conflicting fixture before broadening the model.
+- The implementation needs a small reference-aware XML type or equivalent mechanism because primitive `number` values cannot carry the original `xsi:type` by themselves. Keep that mechanism scoped to these report form fields unless another existing rule already provides the same behavior.
 - Standard attribute ordering must only use reference order when reference metadata exists; otherwise newly generated XML should keep the existing deterministic canonical behavior.
 - Empty singleton names should be exact reference names, not suffixes, to avoid `endsWith("")` behavior affecting unrelated singleton names.

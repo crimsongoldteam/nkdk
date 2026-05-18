@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Remove the remaining ERP round-trip diffs for standard attribute order, empty singleton names, and typed decimal report form fields.
+**Goal:** Remove the remaining ERP round-trip diffs for standard attribute order, empty singleton names, and reference-typed report form fields.
 
-**Architecture:** Keep XML reference metadata as the preservation boundary. Make three narrow changes: reference order for `StandardAttributeDescriptions`, exact empty names for singleton references, and numeric typed XML rules for report form fields.
+**Architecture:** Keep XML reference metadata as the preservation boundary. Make three narrow changes: reference order for `StandardAttributeDescriptions`, exact empty names for singleton references, and reference-backed XML typing for report form fields.
 
 **Tech Stack:** TypeScript, Vitest, `round-trip-xml`, metadata rules, form element orchestration.
 
@@ -18,8 +18,13 @@
 - Modify `packages/core/metadata/orchestration/formElement/singletonName.ts`: treat empty XML singleton names as exact reference names.
 - Modify `packages/core/metadata/forms/clientApplicationForm/fromXML.test.ts`: add focused decimal import assertions.
 - Modify `packages/core/metadata/forms/clientApplicationForm/toXML.test.ts`: add focused decimal export assertions.
-- Modify `packages/core/metadata/forms/clientApplicationForm/rules.ts`: change `reportResult` and `detailsData` to typed number XML fields.
-- Modify `packages/core/metadata/forms/clientApplicationForm/__fixtures__/data.ts`: update report form type aliases only if TypeScript requires it after the rule change.
+- Create `packages/core/metadata/commonObjects/stringOrNumber/fromXML.ts`: import numeric typed XML as numbers and plain XML as strings.
+- Create `packages/core/metadata/commonObjects/stringOrNumber/toXML.ts`: export numbers with the XML type preserved from reference metadata, and strings as plain text.
+- Create `packages/core/metadata/commonObjects/stringOrNumber/types.ts`: define the model/YAML type as `string | number`.
+- Modify `packages/core/metadata/orchestration/property/registry.ts`: register `StringOrNumber` as a property type.
+- Modify `packages/core/metadata/orchestration/property/types.ts`: allow `StringOrNumber` rules.
+- Modify `packages/core/metadata/forms/clientApplicationForm/rules.ts`: change `reportResult` and `detailsData` to `StringOrNumber`.
+- Modify `packages/core/metadata/forms/clientApplicationForm/__fixtures__/data.ts`: update report form type aliases to `string | number` only if TypeScript requires it after the rule change.
 
 Do not change XML fixtures in `/Users/nikita/git/round-trip-source`.
 
@@ -220,13 +225,18 @@ git commit -m "fix: :bug: сохранить пустое имя singleton"
 
 ---
 
-### Task 3: Import ReportResult And DetailsData As Typed Numbers
+### Task 3: Import ReportResult And DetailsData With Reference XML Type
 
 **Files:**
+- Create: `packages/core/metadata/commonObjects/stringOrNumber/types.ts`
+- Create: `packages/core/metadata/commonObjects/stringOrNumber/fromXML.ts`
+- Create: `packages/core/metadata/commonObjects/stringOrNumber/toXML.ts`
 - Modify: `packages/core/metadata/forms/clientApplicationForm/fromXML.test.ts`
 - Modify: `packages/core/metadata/forms/clientApplicationForm/toXML.test.ts`
 - Modify: `packages/core/metadata/forms/clientApplicationForm/rules.ts`
 - Modify: `packages/core/metadata/forms/clientApplicationForm/__fixtures__/data.ts`
+- Modify: `packages/core/metadata/orchestration/property/registry.ts`
+- Modify: `packages/core/metadata/orchestration/property/types.ts`
 
 - [ ] **Step 1: Add the failing decimal import test**
 
@@ -254,6 +264,14 @@ In `packages/core/metadata/forms/clientApplicationForm/toXML.test.ts`, add this 
 
 ```ts
     it("exports decimal report result fields with xsi type", () => {
+      const referenceForm = importClientApplicationFormFromXML({
+        context: mockContextFromXML({ forReference: true }),
+        xml: {
+          ReportResult: { "_xsi:type": "xs:decimal", "#text": "3" },
+          DetailsData: { "_xsi:type": "xs:decimal", "#text": "0" },
+        },
+        xmlMetadata: { Form: { Properties: {} } },
+      })
       const xmlData = exportClientApplicationFormToXML({
         context: mockContextToXML(),
         form: {
@@ -263,7 +281,7 @@ In `packages/core/metadata/forms/clientApplicationForm/toXML.test.ts`, add this 
           childItems: [],
           commands: [],
         },
-        referenceForm: undefined,
+        referenceForm,
       })
 
       const result = xmlExport({ Form: xmlData })
@@ -283,7 +301,134 @@ pnpm --filter @nakidka/core exec vitest run --no-isolate metadata/forms/clientAp
 
 Expected: FAIL. Import currently returns strings or untyped values, and export currently omits `xsi:type`.
 
-- [ ] **Step 4: Change report form field rules to typed numbers**
+- [ ] **Step 4: Add the StringOrNumber type files**
+
+Create `packages/core/metadata/commonObjects/stringOrNumber/types.ts`:
+
+```ts
+import { Static, Type } from "@sinclair/typebox"
+import { BasePropertyRule } from "~/metadata/orchestration"
+
+export const StringOrNumberJSONSchema = Type.Union([Type.String(), Type.Number()])
+
+export type StringOrNumber = string | number
+export type StringOrNumberYAML = Static<typeof StringOrNumberJSONSchema>
+
+export interface StringOrNumberPropertyRule extends BasePropertyRule {
+  type: "StringOrNumber"
+}
+
+export type StringOrNumberReference = {
+  value: StringOrNumber
+  xsiType?: string
+}
+```
+
+Create `packages/core/metadata/commonObjects/stringOrNumber/fromXML.ts`:
+
+```ts
+import { PropertyRule } from "~/metadata/orchestration"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { ConfigurationContext } from "../../context/types"
+import { StringOrNumber, StringOrNumberReference } from "./types"
+
+const NUMERIC_XSI_TYPES = new Set(["xs:decimal", "xs:integer", "xs:double", "xs:float"])
+
+type StringOrNumberXML =
+  | string
+  | number
+  | { "#text"?: string | number; "_xsi:type"?: string }
+  | undefined
+
+export const importStringOrNumberFromXML = (
+  context: ConfigurationContext,
+  _rule: PropertyRule | undefined,
+  value: StringOrNumberXML
+): StringOrNumber | StringOrNumberReference | undefined => {
+  if (value === undefined) return undefined
+
+  if (typeof value === "object" && value !== null) {
+    const text = value["#text"]
+    const xsiType = value["_xsi:type"]
+    if (text === undefined || text === "") return undefined
+    const importedValue = typeof xsiType === "string" && NUMERIC_XSI_TYPES.has(xsiType)
+      ? Number(text)
+      : String(text)
+    return context.fromXML.forReference && typeof xsiType === "string"
+      ? { value: importedValue, xsiType }
+      : importedValue
+  }
+
+  return typeof value === "number" ? value : value.toString()
+}
+
+registerTypeRule("StringOrNumber", "importFromXML", importStringOrNumberFromXML)
+```
+
+Create `packages/core/metadata/commonObjects/stringOrNumber/toXML.ts`:
+
+```ts
+import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { PropertyRule } from "~/metadata/orchestration"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { StringOrNumber, StringOrNumberReference } from "./types"
+
+const isReference = (value: unknown): value is StringOrNumberReference =>
+  typeof value === "object" && value !== null && "value" in value
+
+export const exportStringOrNumberToXML = (
+  _context: ConfigurationContextWithExportToXML,
+  _rule: PropertyRule | undefined,
+  value: StringOrNumber | StringOrNumberReference | undefined,
+  referenceMetadata?: StringOrNumber | StringOrNumberReference
+): string | number | { "_xsi:type": string; "#text": string } | undefined => {
+  if (value === undefined) return undefined
+  const actualValue = isReference(value) ? value.value : value
+  const reference = isReference(referenceMetadata) ? referenceMetadata : undefined
+
+  if (typeof actualValue === "number" && reference?.xsiType) {
+    return { "_xsi:type": reference.xsiType, "#text": String(actualValue) }
+  }
+
+  return actualValue
+}
+
+registerTypeRule("StringOrNumber", "exportToXML", exportStringOrNumberToXML)
+```
+
+- [ ] **Step 5: Register StringOrNumber in property typing**
+
+In `packages/core/metadata/orchestration/property/registry.ts`, import the type near the primitive imports:
+
+```ts
+import { StringOrNumber, StringOrNumberYAML } from "~/metadata/commonObjects/stringOrNumber/types"
+```
+
+Add this entry to `PropertyTypeRegistry` near `string` and `number`:
+
+```ts
+  StringOrNumber: {
+    item: StringOrNumber
+    enterprise: StringOrNumber
+    yaml: StringOrNumberYAML
+  }
+```
+
+Add this entry to `PropertyRuleTypeKeys` near `string` and `number`:
+
+```ts
+  StringOrNumber: "StringOrNumber",
+```
+
+In `packages/core/metadata/orchestration/property/types.ts`, import:
+
+```ts
+import { StringOrNumberPropertyRule } from "~/metadata/commonObjects/stringOrNumber/types"
+```
+
+Then add `| StringOrNumberPropertyRule` to the `PropertyRule` union next to `NumberPropertyRule`.
+
+- [ ] **Step 6: Change report form field rules to StringOrNumber**
 
 In `packages/core/metadata/forms/clientApplicationForm/rules.ts`, replace the `reportResult` and `detailsData` rules with:
 
@@ -291,27 +436,25 @@ In `packages/core/metadata/forms/clientApplicationForm/rules.ts`, replace the `r
     reportResult: {
       yaml: "РезультатОтчета",
       xml: "ReportResult",
-      type: "number",
-      typedXML: true,
+      type: "StringOrNumber",
       tag: FormRulesTags.Form,
     },
     detailsData: {
       yaml: "ДанныеРасшифровки",
       xml: "DetailsData",
-      type: "number",
-      typedXML: true,
+      type: "StringOrNumber",
       tag: FormRulesTags.Form,
     },
 ```
 
-- [ ] **Step 5: Update local report form type aliases only if TypeScript requires it**
+- [ ] **Step 7: Update local report form type aliases only if TypeScript requires it**
 
-If TypeScript reports that the local report form aliases conflict with the new rules, update the `ReportFormClientApplicationForm` and `ReportFormClientApplicationFormYAML` aliases to use numbers for these two fields:
+If TypeScript reports that the local report form aliases conflict with the new rules, update the `ReportFormClientApplicationForm` and `ReportFormClientApplicationFormYAML` aliases to use `string | number` for these two fields:
 
 ```ts
 type ReportFormClientApplicationForm = ClientApplicationForm & {
-  reportResult: number
-  detailsData: number
+  reportResult: string | number
+  detailsData: string | number
   reportFormType: "Main"
   variantAppearance: string
   autoShowState: "Auto"
@@ -321,17 +464,17 @@ type ReportFormClientApplicationForm = ClientApplicationForm & {
 }
 
 type ReportFormClientApplicationFormYAML = ClientApplicationFormYAML & {
-  РезультатОтчета: number
-  ДанныеРасшифровки: number
+  РезультатОтчета: string | number
+  ДанныеРасшифровки: string | number
   ТипФормыОтчета: "Основная"
   ПредставлениеВарианта: string
   ГруппаПользовательскихНастроек: string
 }
 ```
 
-Do not rewrite existing textual `reportFormClientApplicationForm` expected values to invented numbers. If the existing `reportForm.xml` fixture fails because it contains textual `ReportResult` or `DetailsData`, stop after Step 7 and report the exact conflict.
+Do not rewrite existing textual `reportFormClientApplicationForm` expected values. Textual `reportForm.xml` must continue importing as strings and exporting without `xsi:type`.
 
-- [ ] **Step 6: Run the focused decimal tests and verify they pass**
+- [ ] **Step 8: Run the focused decimal tests and verify they pass**
 
 Run:
 
@@ -341,7 +484,7 @@ pnpm --filter @nakidka/core exec vitest run --no-isolate metadata/forms/clientAp
 
 Expected: PASS.
 
-- [ ] **Step 7: Run client application form tests**
+- [ ] **Step 9: Run client application form tests**
 
 Run:
 
@@ -349,14 +492,14 @@ Run:
 pnpm --filter @nakidka/core exec vitest run --no-isolate metadata/forms/clientApplicationForm
 ```
 
-Expected: PASS. If a test fails because an existing XML fixture contains textual `ReportResult` or `DetailsData`, stop and report the exact fixture path and failing assertion before broadening the model.
+Expected: PASS, including existing textual `reportForm.xml`.
 
-- [ ] **Step 8: Commit Task 3**
+- [ ] **Step 10: Commit Task 3**
 
 Run:
 
 ```bash
-git add packages/core/metadata/forms/clientApplicationForm/fromXML.test.ts packages/core/metadata/forms/clientApplicationForm/toXML.test.ts packages/core/metadata/forms/clientApplicationForm/rules.ts packages/core/metadata/forms/clientApplicationForm/__fixtures__/data.ts
+git add packages/core/metadata/commonObjects/stringOrNumber packages/core/metadata/orchestration/property/registry.ts packages/core/metadata/orchestration/property/types.ts packages/core/metadata/forms/clientApplicationForm/fromXML.test.ts packages/core/metadata/forms/clientApplicationForm/toXML.test.ts packages/core/metadata/forms/clientApplicationForm/rules.ts packages/core/metadata/forms/clientApplicationForm/__fixtures__/data.ts
 git commit -m "fix: :bug: импортировать поля отчета числами"
 ```
 
