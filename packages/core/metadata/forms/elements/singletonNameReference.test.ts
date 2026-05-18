@@ -295,4 +295,22 @@ describe("singleton XML name suffix from reference", () => {
     expect(result._name).toBe("FormCommandBar")
     expect(result._id).toBe("-1")
   })
+
+  it("keeps root AutoCommandBar empty reference name", () => {
+    const rule = { type: "AutoCommandBar" } satisfies PropertyRule
+    const reference = importReference(rule, {
+      _name: "",
+      _id: "-1",
+    })
+
+    const result = exportWithReference({
+      context: mockContextToXML(),
+      rule,
+      value: { itemType: "AutoCommandBar", childItems: [] },
+      reference,
+    })
+
+    expect(result._name).toBe("")
+    expect(result._id).toBe("-1")
+  })
 })
