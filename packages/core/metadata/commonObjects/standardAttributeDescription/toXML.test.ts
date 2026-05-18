@@ -104,7 +104,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
             <xr:Comment>existing active comment</xr:Comment>
           </xr:StandardAttribute>
           <xr:StandardAttribute name="LineNumber"/>
-          <xr:StandardAttribute name="RecordType"/>
+          <xr:StandardAttribute name="LineNumber"/>
         </StandardAttributes>
       `,
       xmlRootTag: "StandardAttributes",
@@ -113,13 +113,17 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
 
     const { result } = testExportPropertyToXML({
       rule,
-      value: [{ itemType: "StandardAttributeDescription", name: "Active", comment: "changed" }],
+      value: [
+        { itemType: "StandardAttributeDescription", name: "Active", comment: "changed" },
+        { itemType: "StandardAttributeDescription", name: "RecordType" },
+        { itemType: "StandardAttributeDescription", name: "RecordType" },
+      ],
       referenceMetadata,
       xmlRootTag: "StandardAttributes",
     })
 
-    expect(result.indexOf('name="Active"')).toBeLessThan(result.indexOf('name="LineNumber"'))
-    expect(result.indexOf('name="LineNumber"')).toBeLessThan(result.indexOf('name="RecordType"'))
+    const names = Array.from(result.matchAll(/<xr:StandardAttribute name="([^"]+)"/g), ([, name]) => name)
+    expect(names).toEqual(["Active", "LineNumber", "RecordType"])
   })
 
   it("exports undefined", () => {

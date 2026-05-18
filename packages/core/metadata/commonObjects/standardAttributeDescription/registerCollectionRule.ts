@@ -204,7 +204,7 @@ function exportStandardAttributeDescriptionsToXML(p: {
 
   const names =
     referenceNames.length > 0
-      ? [...referenceNames, ...modelNames.filter((name) => !referenceNames.includes(name))]
+      ? Array.from(new Set([...referenceNames, ...modelNames]))
       : Array.from(new Set(!isGroupChanged ? modelNames : [...canonicalNames, ...modelNames]))
   const valueByName = new Map<string, StandardAttributeDescription>()
   for (const item of items) {
