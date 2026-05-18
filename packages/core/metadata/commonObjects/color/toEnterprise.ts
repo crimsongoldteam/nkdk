@@ -1,9 +1,11 @@
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { Color, ColorEnterprise } from "./types"
+import { Color, ColorEnterprise, isRawColorRef } from "./types"
 
 export const exportColorToEnterprise = (params: { value: Color | undefined }): ColorEnterprise | undefined => {
   const { value } = params
   if (!value) return undefined
+
+  if (isRawColorRef(value)) throw new Error("Color Enterprise: rawRef is XML-only")
 
   if (value.type === "WebColor" && value.value.startsWith("#")) {
     const hex = value.value.slice(1)

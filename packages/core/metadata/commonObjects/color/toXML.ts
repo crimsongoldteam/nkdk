@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { Color, ColorTypeToPrefix, ColorXML } from "./types"
+import { Color, ColorTypeToPrefix, ColorXML, isRawColorRef } from "./types"
 
 export const exportColorToXML = (
   _context: ConfigurationContext,
@@ -9,6 +9,8 @@ export const exportColorToXML = (
   color: Color | undefined
 ): ColorXML | undefined => {
   if (!color) return undefined
+
+  if (isRawColorRef(color)) return color.rawRef
 
   const prefix = ColorTypeToPrefix[color.type as keyof typeof ColorTypeToPrefix]
   if (prefix) {

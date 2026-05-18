@@ -15,4 +15,10 @@ describe("exportColorToYAML", () => {
 
     expect(result).toEqual(enterpriseExpected)
   })
+
+  it("should reject raw XML color ref", () => {
+    expect(() =>
+      exportColorToYAML(mockContext, mockRule, { rawRef: "0:615512b6-4378-4fce-86f1-a56725f945da" })
+    ).toThrow("Color YAML: rawRef is XML-only")
+  })
 })

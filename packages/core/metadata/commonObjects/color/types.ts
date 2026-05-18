@@ -1,9 +1,23 @@
 import { Static, Type } from "@sinclair/typebox"
 import { ColorType, WebColorsFromYAML } from "~/metadata/systemEnumerations/types"
 
-export interface Color {
+export interface TypedColor {
   type: ColorType
   value: string
+}
+
+export type RawColorRef = { rawRef: string }
+
+export type Color = TypedColor | RawColorRef
+
+export function isRawColorRef(color: Color): color is RawColorRef {
+  return "rawRef" in color
+}
+
+const rawColorRefPattern = /^0(?::[0-9a-fA-F-]+)?$/
+
+export function isRawColorRefValue(value: string): boolean {
+  return rawColorRefPattern.test(value)
 }
 
 export type ColorXML = string
