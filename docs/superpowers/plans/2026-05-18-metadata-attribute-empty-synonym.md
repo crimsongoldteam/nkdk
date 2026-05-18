@@ -14,10 +14,16 @@
 
 - Modify `packages/core/metadata/commonObjects/i8nText/types.ts`
   - Add the opt-in rule flag `emptyAsRawXML?: true`.
+- Modify `packages/core/metadata/commonObjects/i8nText/fromXML.ts`
+  - Import an explicit empty XML node as `{ items: {} }` only when `emptyAsRawXML` is enabled.
+- Modify `packages/core/metadata/commonObjects/i8nText/fromXML.test.ts`
+  - Add coverage for opt-in empty XML import.
 - Modify `packages/core/metadata/commonObjects/i8nText/toXML.ts`
   - If `emptyAsRawXML` is enabled and `isEmptyI8nText(context, data)` is true, return `{}` so the surrounding XML exporter writes an empty tag.
 - Modify `packages/core/metadata/commonObjects/i8nText/toXML.test.ts`
   - Add tests that prove the new flag collapses empty text and default behavior remains unchanged.
+- Modify `packages/core/metadata/orchestration/property/fromXML.ts`
+  - Apply `defaultValueXMLEmpty` before invoking the type importer, so explicit empty XML nodes are not overwritten by normal `defaultValue`.
 - Modify `packages/core/metadata/commonObjects/metadataAttribute/rules.ts`
   - Add `defaultValueXMLEmpty: { items: {} }` and `emptyAsRawXML: true` to `synonym`.
 - Modify `packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts`
@@ -30,6 +36,7 @@ No existing XML fixtures should be changed.
 ### Task 1: Add Failing I8nText Export Tests
 
 **Files:**
+
 - Modify: `packages/core/metadata/commonObjects/i8nText/toXML.test.ts`
 - Test: `packages/core/metadata/commonObjects/i8nText/toXML.test.ts`
 
@@ -38,21 +45,26 @@ No existing XML fixtures should be changed.
 In `packages/core/metadata/commonObjects/i8nText/toXML.test.ts`, add these tests inside `describe("exportI8nTextToXML", () => { ... })`, after the existing fixture loop and before `describe("exportI8nTextToXMLWithDefaultLanguage", ...)`:
 
 ```ts
-  it("exports empty default-language item by default", () => {
-    const result = exportI8nTextToXML(mockContext, mockRule, { items: { ru: "" } })
-    const xml = result ? xmlExport({ Title: result }, false) : undefined
+it("exports empty default-language item by default", () => {
+  const result = exportI8nTextToXML(mockContext, mockRule, { items: { ru: "" } })
+  const xml = result ? xmlExport({ Title: result }, false) : undefined
 
-    expect(xml).toEqual(
-      "<Title>\n" + "\t<v8:item>\n" + "\t\t<v8:lang>ru</v8:lang>\n" + "\t\t<v8:content/>\n" + "\t</v8:item>\n" + "</Title>"
-    )
-  })
+  expect(xml).toEqual(
+    "<Title>\n" +
+      "\t<v8:item>\n" +
+      "\t\t<v8:lang>ru</v8:lang>\n" +
+      "\t\t<v8:content/>\n" +
+      "\t</v8:item>\n" +
+      "</Title>"
+  )
+})
 
-  it("exports empty text as raw XML when rule opts in", () => {
-    const result = exportI8nTextToXML(mockContext, { ...mockRule, emptyAsRawXML: true }, { items: { ru: "" } })
-    const xml = result ? xmlExport({ Title: result }, false) : undefined
+it("exports empty text as raw XML when rule opts in", () => {
+  const result = exportI8nTextToXML(mockContext, { ...mockRule, emptyAsRawXML: true }, { items: { ru: "" } })
+  const xml = result ? xmlExport({ Title: result }, false) : undefined
 
-    expect(xml).toEqual("<Title/>")
-  })
+  expect(xml).toEqual("<Title/>")
+})
 ```
 
 - [ ] **Step 2: Run the focused test and verify only the opt-in test fails**
@@ -71,9 +83,13 @@ Expected:
 ### Task 2: Implement the I8nText Opt-in Flag
 
 **Files:**
+
 - Modify: `packages/core/metadata/commonObjects/i8nText/types.ts`
+- Modify: `packages/core/metadata/commonObjects/i8nText/fromXML.ts`
+- Modify: `packages/core/metadata/commonObjects/i8nText/fromXML.test.ts`
 - Modify: `packages/core/metadata/commonObjects/i8nText/toXML.ts`
 - Test: `packages/core/metadata/commonObjects/i8nText/toXML.test.ts`
+- Test: `packages/core/metadata/commonObjects/i8nText/fromXML.test.ts`
 
 - [ ] **Step 1: Add the flag to the rule type**
 
@@ -98,43 +114,72 @@ to:
 In `packages/core/metadata/commonObjects/i8nText/toXML.ts`, change:
 
 ```ts
-  if (narrowRule.skipEmptyToXML && isEmptyI8nText(context, data)) {
-    return undefined
-  }
+if (narrowRule.skipEmptyToXML && isEmptyI8nText(context, data)) {
+  return undefined
+}
 ```
 
 to:
 
 ```ts
-  if (isEmptyI8nText(context, data)) {
-    if (narrowRule.skipEmptyToXML) {
-      return undefined
-    }
-    if (narrowRule.emptyAsRawXML) {
-      return {}
-    }
+if (isEmptyI8nText(context, data)) {
+  if (narrowRule.skipEmptyToXML) {
+    return undefined
   }
+  if (narrowRule.emptyAsRawXML) {
+    return {}
+  }
+}
 ```
 
 Do not change `exportI8nTextToXMLWithDefaultLanguage`.
 
-- [ ] **Step 3: Run the focused I8nText test**
+- [ ] **Step 3: Add opt-in import coverage**
+
+In `packages/core/metadata/commonObjects/i8nText/fromXML.test.ts`, add:
+
+```ts
+it("imports empty XML tag as empty text when rule opts in", () => {
+  const result = importI8nTextFromXML(mockContextFromXML(), { ...mockRule, emptyAsRawXML: true }, {})
+
+  expect(result).toEqual({ items: {} })
+})
+```
+
+- [ ] **Step 4: Implement opt-in empty import**
+
+In `packages/core/metadata/commonObjects/i8nText/fromXML.ts`, cast `_rule` to `I8nTextPropertyRule` and return `{ items: {} }` for an object without `v8:item` only when `emptyAsRawXML` is enabled.
+
+The relevant branch should be:
+
+```ts
+const narrowRule = _rule as I8nTextPropertyRule
+
+if (xml === "") return narrowRule.emptyAsRawXML ? { items: {} } : undefined
+if (!xml) return undefined
+
+if (!xml["v8:item"]) return narrowRule.emptyAsRawXML ? { items: {} } : undefined
+```
+
+- [ ] **Step 5: Run the focused I8nText test**
 
 Run:
 
 ```bash
-pnpm --filter '@nakidka/core' exec vitest run metadata/commonObjects/i8nText/toXML.test.ts
+pnpm --filter '@nakidka/core' exec vitest run metadata/commonObjects/i8nText/fromXML.test.ts metadata/commonObjects/i8nText/toXML.test.ts
 ```
 
 Expected:
 
 - All `i8nText/toXML.test.ts` tests pass.
+- All `i8nText/fromXML.test.ts` tests pass.
 - The opt-in test writes `<Title/>`.
 - The default-behavior test still writes a `v8:item`.
 
 ### Task 3: Add Failing MetadataAttribute Synonym Tests
 
 **Files:**
+
 - Modify: `packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts`
 - Modify: `packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts`
 - Test: `packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts`
@@ -145,31 +190,31 @@ Expected:
 In `packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts`, inside `describe("import MetadataAttributes from XML", () => { ... })`, add this test before `it("should return undefined when data is undefined", ...)`:
 
 ```ts
-  it("imports explicit empty Synonym as empty i18n text", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      xmlRootTag: "Attribute",
-      xmlString:
-        '<Attribute uuid="39425133-94f9-40f6-a821-f6cd6b64fde1">' +
-        "<Properties>" +
-        "<Name>ПравилаОтправкиДокументов</Name>" +
-        "<Synonym/>" +
-        "<Comment/>" +
-        "<Type><v8:Type>xs:string</v8:Type><v8:StringQualifiers><v8:Length>0</v8:Length><v8:AllowedLength>Variable</v8:AllowedLength></v8:StringQualifiers></Type>" +
-        "</Properties>" +
-        "</Attribute>",
-    })
-
-    expect(result).toEqual([
-      {
-        itemType: "MetadataAttribute",
-        name: "ПравилаОтправкиДокументов",
-        synonym: { items: {} },
-        type: { type: ["string"], stringQualifiers: { length: 0, allowedLength: "Variable" } },
-        fillValue: { type: "string", value: "" },
-      },
-    ])
+it("imports explicit empty Synonym as empty i18n text", () => {
+  const result = testImportPropertyFromXML({
+    rule,
+    xmlRootTag: "Attribute",
+    xmlString:
+      '<Attribute uuid="39425133-94f9-40f6-a821-f6cd6b64fde1">' +
+      "<Properties>" +
+      "<Name>ПравилаОтправкиДокументов</Name>" +
+      "<Synonym/>" +
+      "<Comment/>" +
+      "<Type><v8:Type>xs:string</v8:Type><v8:StringQualifiers><v8:Length>0</v8:Length><v8:AllowedLength>Variable</v8:AllowedLength></v8:StringQualifiers></Type>" +
+      "</Properties>" +
+      "</Attribute>",
   })
+
+  expect(result).toEqual([
+    {
+      itemType: "MetadataAttribute",
+      name: "ПравилаОтправкиДокументов",
+      synonym: { items: {} },
+      type: { type: ["string"], stringQualifiers: { length: 0, allowedLength: "Variable" } },
+      fillValue: { type: "string", value: "" },
+    },
+  ])
+})
 ```
 
 - [ ] **Step 2: Add export coverage for empty Synonym**
@@ -177,25 +222,25 @@ In `packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts`, ins
 In `packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts`, inside `describe("export MetadataAttributes to XML", () => { ... })`, add this test before `it("should export empty string when data is undefined", ...)`:
 
 ```ts
-  it("exports explicit empty Synonym as empty XML tag", () => {
-    const { result } = testExportPropertyToXML({
-      rule,
-      value: [
-        {
-          itemType: "MetadataAttribute",
-          name: "ПравилаОтправкиДокументов",
-          synonym: { items: {} },
-          type: { type: ["string"], stringQualifiers: { length: 0, allowedLength: "Variable" } },
-          fillValue: { type: "string", value: "" },
-        },
-      ],
-      xmlRootTag: "Attribute",
-      referenceMetadata: undefined,
-    })
-
-    expect(result).toContain("<Synonym/>")
-    expect(result).not.toContain("<v8:item>")
+it("exports explicit empty Synonym as empty XML tag", () => {
+  const { result } = testExportPropertyToXML({
+    rule,
+    value: [
+      {
+        itemType: "MetadataAttribute",
+        name: "ПравилаОтправкиДокументов",
+        synonym: { items: {} },
+        type: { type: ["string"], stringQualifiers: { length: 0, allowedLength: "Variable" } },
+        fillValue: { type: "string", value: "" },
+      },
+    ],
+    xmlRootTag: "Attribute",
+    referenceMetadata: undefined,
   })
+
+  expect(result).toContain("<Synonym/>")
+  expect(result).not.toContain("<v8:item>")
+})
 ```
 
 - [ ] **Step 3: Run metadataAttribute XML tests and verify they fail**
@@ -214,7 +259,9 @@ Expected:
 ### Task 4: Enable the Behavior for MetadataAttribute.synonym
 
 **Files:**
+
 - Modify: `packages/core/metadata/commonObjects/metadataAttribute/rules.ts`
+- Modify: `packages/core/metadata/orchestration/property/fromXML.ts`
 - Test: `packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts`
 - Test: `packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts`
 
@@ -240,7 +287,31 @@ to:
 
 Do not change the existing `defaultValue` function.
 
-- [ ] **Step 2: Run metadataAttribute XML tests**
+- [ ] **Step 2: Apply defaultValueXMLEmpty before normal defaultValue**
+
+In `packages/core/metadata/orchestration/property/fromXML.ts`, ensure `defaultValueXMLEmpty` is applied before `importPropertyFromXML`, because `importPropertyFromXML` applies normal `defaultValue` when a type importer returns `undefined`.
+
+The value block should follow this shape:
+
+```ts
+let value
+if (xmlValue === undefined && "defaultValueXMLEmpty" in currentRule && isXMLKeyPresent(key, xml, currentRule)) {
+  value = (currentRule as any).defaultValueXMLEmpty
+} else {
+  value =
+    shouldImportForReference || currentRule.fromXML !== false
+      ? importPropertyFromXML({
+          context,
+          rule: currentRule,
+          value: xmlValue,
+          name: key,
+          ownerXmlName,
+        })
+      : undefined
+}
+```
+
+- [ ] **Step 3: Run metadataAttribute XML tests**
 
 Run:
 
@@ -254,31 +325,33 @@ Expected:
 - The new import test returns `synonym: { items: {} }`.
 - The new export test writes `<Synonym/>` and no `v8:item`.
 
-- [ ] **Step 3: Run I8nText tests again**
+- [ ] **Step 4: Run I8nText tests again**
 
 Run:
 
 ```bash
-pnpm --filter '@nakidka/core' exec vitest run metadata/commonObjects/i8nText/toXML.test.ts
+pnpm --filter '@nakidka/core' exec vitest run metadata/commonObjects/i8nText/fromXML.test.ts metadata/commonObjects/i8nText/toXML.test.ts
 ```
 
 Expected:
 
 - All tests pass.
 
-- [ ] **Step 4: Commit the implementation**
+- [ ] **Step 5: Commit the implementation**
 
 Run:
 
 ```bash
-git add packages/core/metadata/commonObjects/i8nText/types.ts packages/core/metadata/commonObjects/i8nText/toXML.ts packages/core/metadata/commonObjects/i8nText/toXML.test.ts packages/core/metadata/commonObjects/metadataAttribute/rules.ts packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts
+git add packages/core/metadata/commonObjects/i8nText/types.ts packages/core/metadata/commonObjects/i8nText/fromXML.ts packages/core/metadata/commonObjects/i8nText/fromXML.test.ts packages/core/metadata/commonObjects/i8nText/toXML.ts packages/core/metadata/commonObjects/i8nText/toXML.test.ts packages/core/metadata/commonObjects/metadataAttribute/rules.ts packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts packages/core/metadata/orchestration/property/fromXML.ts
 git commit -m "fix: :bug: сохранить пустой Synonym реквизита"
 ```
 
 ### Task 5: Wider Verification
 
 **Files:**
+
 - Test: `packages/core/metadata/commonObjects/i8nText/toXML.test.ts`
+- Test: `packages/core/metadata/commonObjects/i8nText/fromXML.test.ts`
 - Test: `packages/core/metadata/commonObjects/metadataAttribute/*.test.ts`
 - Test: project root test suite
 
@@ -287,7 +360,7 @@ git commit -m "fix: :bug: сохранить пустой Synonym реквизи
 Run:
 
 ```bash
-pnpm --filter '@nakidka/core' exec vitest run metadata/commonObjects/i8nText/toXML.test.ts metadata/commonObjects/metadataAttribute/fromXML.test.ts metadata/commonObjects/metadataAttribute/toXML.test.ts
+pnpm --filter '@nakidka/core' exec vitest run metadata/commonObjects/i8nText/fromXML.test.ts metadata/commonObjects/i8nText/toXML.test.ts metadata/commonObjects/metadataAttribute/fromXML.test.ts metadata/commonObjects/metadataAttribute/toXML.test.ts
 ```
 
 Expected:
@@ -310,6 +383,7 @@ Expected:
 ### Task 6: Optional Round-trip Confirmation
 
 **Files:**
+
 - No source files.
 - External XML source: `/Users/nikita/git/round-trip-source/acc`.
 
