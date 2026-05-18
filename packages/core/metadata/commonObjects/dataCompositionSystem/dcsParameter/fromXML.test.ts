@@ -192,7 +192,11 @@ describe("import DCSParameter from XML", () => {
         itemType: "DCSParameter",
         name: "ВидДвижения",
         valueType: { type: ["AccumulationRecordType"] },
-        value: "Expense",
+        value: {
+          type: "SystemEnumeration",
+          typeSE: "AccumulationRecordType",
+          value: "Expense",
+        },
         useRestriction: true,
       },
     ])
