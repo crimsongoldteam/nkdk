@@ -43,6 +43,12 @@ export const fixtureLocalStringI8n: I8nText = {
 
 export const fixtureHorizontalAlign = "Center"
 
+export const fixtureAccumulationRecordType = {
+  type: "SystemEnumeration",
+  typeSE: "AccumulationRecordType",
+  value: "Expense",
+} as const
+
 export const fixtureFontStyleExtraLarge: Font = {
   kind: "StyleItem",
   ref: "ExtraLargeTextFont",
@@ -159,7 +165,7 @@ const inferredAccumulationRecordTypeFixture: DcsMetadataValueFixture = {
   id: "systemEnumerationAccumulationRecordTypeInferred",
   title: "SystemEnumeration inferred from ent:AccumulationRecordType",
   rule: { type: "MetadataDcsMetadataValue", valueType: "Primitive", yaml: "value" },
-  value: "Expense",
+  value: fixtureAccumulationRecordType,
   yaml: "Expense",
   xml: "system-enumeration-accumulation-record-type.xml",
 }
@@ -252,9 +258,7 @@ export const dcsMetadataValueXMLFixtures: DcsMetadataValueFixture[] = [
   nilFixture,
   primitiveTypeRefFixture,
   primitiveUuidFixture,
-]
-
-export const dcsMetadataValueFromXMLFixtures: DcsMetadataValueFixture[] = [
-  ...dcsMetadataValueXMLFixtures,
   inferredAccumulationRecordTypeFixture,
 ]
+
+export const dcsMetadataValueFromXMLFixtures: DcsMetadataValueFixture[] = dcsMetadataValueXMLFixtures

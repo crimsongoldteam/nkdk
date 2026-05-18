@@ -34,4 +34,39 @@ describe("exportPictureToXML", () => {
 
     expect(result?.["xr:Ref"]).toBe(rawRef)
   })
+
+  it("should export raw ref with LoadTransparent=false to XML", () => {
+    const rawRef = "0:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"
+    const result = exportPictureToXML(mockContext, mockRule, { rawRef, loadTransparent: false })
+
+    expect(result).toEqual({
+      "xr:Ref": rawRef,
+      "xr:LoadTransparent": false,
+    })
+  })
+
+  it("should export raw ref with LoadTransparent=true to XML", () => {
+    const rawRef = "0:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"
+    const result = exportPictureToXML(mockContext, mockRule, { rawRef, loadTransparent: true })
+
+    expect(result).toEqual({
+      "xr:Ref": rawRef,
+      "xr:LoadTransparent": true,
+    })
+  })
+
+  it("should export raw ref with transparent pixel to XML", () => {
+    const rawRef = "0"
+    const result = exportPictureToXML(mockContext, mockRule, {
+      rawRef,
+      loadTransparent: true,
+      transparentPixel: { x: 12, y: 2 },
+    })
+
+    expect(result).toEqual({
+      "xr:Ref": rawRef,
+      "xr:LoadTransparent": true,
+      "xr:TransparentPixel": { _x: 12, _y: 2 },
+    })
+  })
 })

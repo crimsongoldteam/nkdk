@@ -10,8 +10,8 @@ const exportItem = (
   if (typeof item === "string") return { "dcsset:field": item }
 
   return {
-    "dcsset:field": item.field,
     ...(item.use !== undefined ? { "dcsset:use": item.use } : {}),
+    "dcsset:field": item.field,
     ...(item.title !== undefined
       ? { "dcsset:title": exportI8nTextToXML(context, { type: "I8nText" }, item.title) }
       : {}),
