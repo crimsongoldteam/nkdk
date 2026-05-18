@@ -104,6 +104,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
             <xr:Comment>existing active comment</xr:Comment>
           </xr:StandardAttribute>
           <xr:StandardAttribute name="LineNumber"/>
+          <xr:StandardAttribute name="RecordType"/>
           <xr:StandardAttribute name="LineNumber"/>
         </StandardAttributes>
       `,
