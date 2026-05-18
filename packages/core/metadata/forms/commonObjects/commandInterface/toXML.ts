@@ -98,17 +98,34 @@ const fallbackCommandInterfaceItemXMLKeys = [
   "Visible",
 ] as const satisfies readonly (keyof CommandInterfaceItemXML)[]
 
+const commandInterfaceItemIdentityKeys = ["command", "type", "attribute", "index", "commandGroup"] as const
+
+const commandInterfaceItemValueEquals = (left: unknown, right: unknown): boolean =>
+  JSON.stringify(left) === JSON.stringify(right)
+
+const commandInterfaceItemFullIdentityMatches = (
+  item: CommandInterfaceItem,
+  referenceItem: CommandInterfaceItem
+): boolean =>
+  commandInterfaceItemIdentityKeys.every((key) => commandInterfaceItemValueEquals(item[key], referenceItem[key]))
+
+const commandInterfaceItemCoarseIdentityMatches = (
+  item: CommandInterfaceItem,
+  referenceItem: CommandInterfaceItem
+): boolean =>
+  referenceItem.command === item.command &&
+  referenceItem.commandGroup === item.commandGroup &&
+  referenceItem.index === item.index
+
 const findReferenceCommandInterfaceItem = (
   item: CommandInterfaceItem,
   referenceItems: CommandInterfaceItem[] | undefined
 ): CommandInterfaceItem | undefined => {
   if (!referenceItems) return undefined
 
-  return referenceItems.find(
-    (referenceItem) =>
-      referenceItem.command === item.command &&
-      referenceItem.commandGroup === item.commandGroup &&
-      referenceItem.index === item.index
+  return (
+    referenceItems.find((referenceItem) => commandInterfaceItemFullIdentityMatches(item, referenceItem)) ??
+    referenceItems.find((referenceItem) => commandInterfaceItemCoarseIdentityMatches(item, referenceItem))
   )
 }
 

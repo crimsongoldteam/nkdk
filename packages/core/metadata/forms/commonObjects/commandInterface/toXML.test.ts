@@ -7,6 +7,7 @@ import { xmlExport } from "~/xml/export/exporter"
 import { commandBarIndexInsertion } from "./__fixtures__/commandBarIndexInsertion"
 import { commandGroupReferenceOrder } from "./__fixtures__/commandGroupReferenceOrder"
 import { duplicateAutoCommandOrder } from "./__fixtures__/duplicateAutoCommandOrder"
+import { duplicateCommandAttributeReferenceOrder } from "./__fixtures__/duplicateCommandAttributeReferenceOrder"
 import { duplicateCommandGroupReferenceOrder } from "./__fixtures__/duplicateCommandGroupReferenceOrder"
 import { indexedItemOrderSwap } from "./__fixtures__/indexedItemOrderSwap"
 import { fullCommandInterface } from "./__fixtures__/full"
@@ -117,6 +118,29 @@ describe("exportCommandInterfaceToXML", () => {
       mockContext,
       mockRule,
       duplicateCommandGroupReferenceOrder,
+      referenceData
+    )
+
+    const result = xmlExport({ CommandInterface: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("export duplicateCommandAttributeReferenceOrder with reference order", () => {
+    const expectedResult = readXMLFileAsString("duplicateCommandAttributeReferenceOrder.xml", fixturesDir).trimEnd()
+    const referenceXML = readAndParseXMLFile<{ CommandInterface: CommandInterfaceXML }>(
+      "duplicateCommandAttributeReferenceOrder.xml",
+      fixturesDir
+    )
+    const referenceData = importCommandInterfaceFromXML(
+      mockContextFromXML({ forReference: true }),
+      mockRule,
+      referenceXML.CommandInterface
+    )
+    const xmlData = exportCommandInterfaceToXML(
+      mockContext,
+      mockRule,
+      duplicateCommandAttributeReferenceOrder,
       referenceData
     )
 

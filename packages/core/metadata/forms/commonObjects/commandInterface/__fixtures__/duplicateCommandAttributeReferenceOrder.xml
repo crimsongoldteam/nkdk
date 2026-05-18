@@ -1,0 +1,17 @@
+<CommandInterface>
+	<NavigationPanel>
+		<Item>
+			<Command>Catalog.ОтветственныеЛицаОрганизаций.StandardCommand.OpenByValue</Command>
+			<Type>Auto</Type>
+			<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
+			<DefaultVisible>false</DefaultVisible>
+		</Item>
+		<Item>
+			<Command>Catalog.ОтветственныеЛицаОрганизаций.StandardCommand.OpenByValue</Command>
+			<Type>Added</Type>
+			<Attribute>Объект.Ref</Attribute>
+			<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
+			<DefaultVisible>false</DefaultVisible>
+		</Item>
+	</NavigationPanel>
+</CommandInterface>
