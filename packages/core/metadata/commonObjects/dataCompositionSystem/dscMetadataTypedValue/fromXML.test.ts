@@ -41,6 +41,33 @@ describe("import DcsMetadataTypedValue from XML", () => {
     expect(result).toBeUndefined()
   })
 
+  it("imports xsi:nil as missing value", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlRootTag: "value",
+      xmlString: '<value xsi:nil="true"/>',
+    })
+
+    expect(result).toBeUndefined()
+  })
+
+  it("preserves xsi:nil position inside value array", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlRootTag: "value",
+      xmlString:
+        '<value xsi:type="dcscor:DesignTimeValue">x</value>\n' +
+        '<value xsi:nil="true"/>\n' +
+        '<value xsi:type="dcscor:DesignTimeValue">y</value>',
+    })
+
+    expect(result).toEqual([
+      { type: "DesignTimeValue", value: "x" },
+      undefined,
+      { type: "DesignTimeValue", value: "y" },
+    ])
+  })
+
   it("imports reference v8 Type Undefined as raw XML", () => {
     const result = testImportPropertyFromXML({
       rule,

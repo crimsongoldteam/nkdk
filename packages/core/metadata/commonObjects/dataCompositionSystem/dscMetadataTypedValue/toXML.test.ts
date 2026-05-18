@@ -77,6 +77,30 @@ describe("export DcsMetadataTypedValue to XML", () => {
     )
   })
 
+  it("exports missing array item as xsi:nil only when reference slot is missing too", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [{ type: "string", value: "x" }, undefined, { type: "string", value: "y" }],
+      referenceMetadata: [{ type: "string", value: "x" }, undefined, { type: "string", value: "y" }],
+      xmlRootTag: "value",
+    })
+
+    expect(result).toEqual(
+      '<value xsi:type="xs:string">x</value>\n<value xsi:nil="true"/>\n<value xsi:type="xs:string">y</value>'
+    )
+  })
+
+  it("does not invent xsi:nil without a reference array slot", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [{ type: "string", value: "x" }, undefined],
+      referenceMetadata: [{ type: "string", value: "x" }],
+      xmlRootTag: "value",
+    })
+
+    expect(result).toEqual('<value xsi:type="xs:string">x</value>')
+  })
+
   it("does not export invalid reference v8 Type value", () => {
     expect(() =>
       testExportPropertyToXML({

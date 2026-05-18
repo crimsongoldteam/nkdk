@@ -138,9 +138,7 @@ export const DcsMetadataTypedValueRegistry: Record<DcsMetadataTypedValue["type"]
   },
 }
 
-export const DcsMetadataTypedValueTypeFromXML = (
-  valueType: DcsMetadataTypedValueXML["_xsi:type"]
-): DcsMetadataTypedValue["type"] => {
+export const DcsMetadataTypedValueTypeFromXML = (valueType: string | undefined): DcsMetadataTypedValue["type"] => {
   switch (valueType) {
     case "dcscor:Field":
       return "Field"

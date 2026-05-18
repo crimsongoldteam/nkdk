@@ -4,6 +4,7 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { DcsMetadataTypedValueRegistry } from "./rules"
 import {
   DcsMetadataTypedValue,
+  DcsMetadataTypedValueNilXML,
   DcsMetadataTypedValuePropertyRule,
   DcsMetadataTypedValueUndefinedTypeXML,
   DcsMetadataTypedValueXML,
@@ -13,9 +14,18 @@ const DATA_TYPES_NAMESPACE = "http://v8.1c.ru/8.2/data/types"
 
 type DcsMetadataTypedValueEmptyXML = Record<string, never>
 type ExportableDcsMetadataTypedValue = DcsMetadataTypedValue | DcsMetadataTypedValueUndefinedTypeXML
+type ExportableDcsMetadataTypedValueOrNil = ExportableDcsMetadataTypedValue | undefined
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value)
+
+const isNilXML = (value: unknown): value is DcsMetadataTypedValueNilXML =>
+  isObject(value) && (value["_xsi:nil"] === true || value["_xsi:nil"] === "true")
+
+const isNilReferenceSlot = (referenceMetadata: unknown, index: number): boolean =>
+  Array.isArray(referenceMetadata) &&
+  index in referenceMetadata &&
+  (referenceMetadata[index] === undefined || isNilXML(referenceMetadata[index]))
 
 const isReferenceTypeValue = (value: unknown): value is Record<string, unknown> =>
   isObject(value) && value["_xsi:type"] === "v8:Type"
@@ -58,10 +68,23 @@ const exportSingle = (
   return DcsMetadataTypedValueRegistry[modelValue.type].toXML({ context, rule, item: modelValue })
 }
 
+const exportArrayItem = (
+  context: ConfigurationContextWithExportToXML,
+  rule: DcsMetadataTypedValuePropertyRule,
+  value: ExportableDcsMetadataTypedValueOrNil,
+  referenceMetadata: unknown,
+  index: number
+): DcsMetadataTypedValueXML | undefined => {
+  if (value === undefined) {
+    return isNilReferenceSlot(referenceMetadata, index) ? { "_xsi:nil": "true" } : undefined
+  }
+  return exportSingle(context, rule, value)
+}
+
 export const exportDcsMetadataTypedValueToXML = (
   context: ConfigurationContextWithExportToXML,
   rule: DcsMetadataTypedValuePropertyRule,
-  value: ExportableDcsMetadataTypedValue | ExportableDcsMetadataTypedValue[] | undefined,
+  value: ExportableDcsMetadataTypedValue | ExportableDcsMetadataTypedValueOrNil[] | undefined,
   referenceMetadata?: unknown
 ): DcsMetadataTypedValueXML | DcsMetadataTypedValueEmptyXML | DcsMetadataTypedValueXML[] | undefined => {
   if (value === undefined) {
@@ -73,7 +96,12 @@ export const exportDcsMetadataTypedValueToXML = (
     if (isObject(referenceMetadata)) return {}
     return undefined
   }
-  if (Array.isArray(value)) return value.map((item) => exportSingle(context, rule, item))
+  if (Array.isArray(value)) {
+    const items = value
+      .map((item, index) => exportArrayItem(context, rule, item, referenceMetadata, index))
+      .filter((item): item is DcsMetadataTypedValueXML => item !== undefined)
+    return items.length > 0 ? items : undefined
+  }
   return exportSingle(context, rule, value)
 }
 
@@ -86,7 +114,7 @@ const exportDcsMetadataTypedValueToXMLForRule = (
   exportDcsMetadataTypedValueToXML(
     context,
     rule as DcsMetadataTypedValuePropertyRule,
-    value as ExportableDcsMetadataTypedValue | ExportableDcsMetadataTypedValue[] | undefined,
+    value as ExportableDcsMetadataTypedValue | ExportableDcsMetadataTypedValueOrNil[] | undefined,
     referenceMetadata
   )
 

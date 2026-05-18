@@ -3,8 +3,10 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { DcsMetadataTypedValueRegistry, DcsMetadataTypedValueTypeFromXML } from "./rules"
 import {
+  DcsMetadataTypedValueNilXML,
   DcsMetadataTypedValuePropertyRule,
   DcsMetadataTypedValueReference,
+  DcsMetadataTypedValueReferenceOrNil,
   DcsMetadataTypedValueUndefinedTypeXML,
   DcsMetadataTypedValueXML,
 } from "./types"
@@ -12,7 +14,7 @@ import {
 const DATA_TYPES_NAMESPACE = "http://v8.1c.ru/8.2/data/types"
 
 const getUndefinedTypePrefix = (xml: DcsMetadataTypedValueXML): string | undefined => {
-  if (xml["_xsi:type"] !== "v8:Type") return undefined
+  if (!("_xsi:type" in xml) || xml["_xsi:type"] !== "v8:Type") return undefined
 
   const text = "#text" in xml ? xml["#text"] : undefined
   if (typeof text !== "string") return undefined
@@ -33,11 +35,15 @@ const isUndefinedTypeXML = (xml: DcsMetadataTypedValueXML): xml is DcsMetadataTy
   return (xml as Record<`_xmlns:${string}`, unknown>)[`_xmlns:${prefix}`] === DATA_TYPES_NAMESPACE
 }
 
+const isNilXML = (xml: DcsMetadataTypedValueXML | undefined): xml is DcsMetadataTypedValueNilXML | undefined =>
+  xml === undefined || ("_xsi:nil" in xml && (xml["_xsi:nil"] === true || xml["_xsi:nil"] === "true"))
+
 const importSingle = (
   context: ConfigurationContextFromXML,
   rule: DcsMetadataTypedValuePropertyRule,
-  xml: DcsMetadataTypedValueXML
-): DcsMetadataTypedValueReference | undefined => {
+  xml: DcsMetadataTypedValueXML | undefined
+): DcsMetadataTypedValueReferenceOrNil => {
+  if (isNilXML(xml)) return undefined
   if (isUndefinedTypeXML(xml)) {
     return context.fromXML.forReference ? xml : undefined
   }
@@ -49,13 +55,11 @@ const importSingle = (
 export const importDcsMetadataTypedValueFromXML = (
   context: ConfigurationContextFromXML,
   rule: DcsMetadataTypedValuePropertyRule,
-  xml: DcsMetadataTypedValueXML | DcsMetadataTypedValueXML[] | undefined
-): DcsMetadataTypedValueReference | DcsMetadataTypedValueReference[] | undefined => {
+  xml: DcsMetadataTypedValueXML | (DcsMetadataTypedValueXML | undefined)[] | undefined
+): DcsMetadataTypedValueReference | DcsMetadataTypedValueReferenceOrNil[] | undefined => {
   if (xml === undefined) return undefined
   if (Array.isArray(xml)) {
-    const items = xml
-      .map((item) => importSingle(context, rule, item))
-      .filter((item): item is DcsMetadataTypedValueReference => item !== undefined)
+    const items = xml.map((item) => importSingle(context, rule, item))
     return items.length > 0 ? items : undefined
   }
   return importSingle(context, rule, xml)
@@ -65,11 +69,11 @@ const importDcsMetadataTypedValueFromXMLForRule = (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
   value: unknown
-): DcsMetadataTypedValueReference | DcsMetadataTypedValueReference[] | undefined =>
+): DcsMetadataTypedValueReference | DcsMetadataTypedValueReferenceOrNil[] | undefined =>
   importDcsMetadataTypedValueFromXML(
     context,
     rule as DcsMetadataTypedValuePropertyRule,
-    value as DcsMetadataTypedValueXML | DcsMetadataTypedValueXML[]
+    value as DcsMetadataTypedValueXML | (DcsMetadataTypedValueXML | undefined)[]
   )
 
 registerTypeRule("DcsMetadataTypedValue", "importFromXML", importDcsMetadataTypedValueFromXMLForRule)

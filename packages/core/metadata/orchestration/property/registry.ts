@@ -1238,7 +1238,7 @@ export type PropertyTypeRegistry = {
     yaml: MetadataDcsMetadataValueYAML
   }
   DcsMetadataTypedValue: {
-    item: DcsMetadataTypedValue | DcsMetadataTypedValue[]
+    item: DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[]
     yaml: DcsMetadataTypedValueYAML | DcsMetadataTypedValueYAML[]
   }
   DcsField: {

@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { fullFilterItemComparison, fullFilterItemGroup, inListFilterItemComparison } from "./__fixtures__/data"
+import {
+  fullFilterItemComparison,
+  fullFilterItemGroup,
+  inListFilterItemComparison,
+  inListWithNilFilterItemComparison,
+} from "./__fixtures__/data"
 import "./types"
 import { FilterItemComparison, FilterItemGroup } from "./types"
 
@@ -28,6 +33,19 @@ describe("export FilterItem to XML", () => {
       value: [inListFilterItemComparison],
       xmlRootTag: "dcsset:item",
       path: "inList.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("exports FilterItemComparison InList with xsi:nil to XML", () => {
+    const { result, expectedResult } = testExportPropertyToXML({
+      rule,
+      value: [inListWithNilFilterItemComparison],
+      referenceMetadata: [inListWithNilFilterItemComparison],
+      xmlRootTag: "dcsset:item",
+      path: "inListWithNil.xml",
       importMetaUrl: import.meta.url,
     })
 
