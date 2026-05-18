@@ -233,11 +233,12 @@ const importDcsMetadataValueFromDcsXMLInternal = (
 
   const inferredTypeSE = inferEntSystemEnumerationType(xsi)
   if (inferredTypeSE !== undefined) {
-    return importSystemEnumerationFromDcsXML(
+    const value = importSystemEnumerationFromDcsXML(
       context,
       { type: "SystemEnumeration", typeSE: inferredTypeSE } as SystemEnumerationPropertyRule,
       xml as SystemEnumerationDcsValueRootXML
     )
+    return { type: "SystemEnumeration", typeSE: inferredTypeSE, value }
   }
 
   throw new Error(`DCS MetadataValue: unsupported xsi:type ${String(xsi)} in ${JSON.stringify(root)}`)

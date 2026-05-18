@@ -22,6 +22,7 @@ import {
   MetadataDcsExplicitTextValue,
   MetadataDcsMetadataValue,
   MetadataDcsMetadataValueDcsRootXML,
+  MetadataDcsSystemEnumerationValue,
 } from "./types"
 
 const isExplicitTextValue = (data: MetadataDcsMetadataValue): data is MetadataDcsExplicitTextValue =>
@@ -30,6 +31,18 @@ const isExplicitTextValue = (data: MetadataDcsMetadataValue): data is MetadataDc
   "type" in data &&
   "value" in data &&
   (data.type === "DesignTimeValue" || data.type === "Field") &&
+  typeof data.value === "string"
+
+const isDcsSystemEnumerationValue = (
+  data: MetadataDcsMetadataValue
+): data is MetadataDcsSystemEnumerationValue =>
+  data !== null &&
+  typeof data === "object" &&
+  !Array.isArray(data) &&
+  "type" in data &&
+  "typeSE" in data &&
+  "value" in data &&
+  data.type === "SystemEnumeration" &&
   typeof data.value === "string"
 
 export const exportDcsMetadataValueToDcsXML = (params: {
@@ -68,6 +81,18 @@ export const exportDcsMetadataValueToDcsXML = (params: {
         "#text": data.value,
       },
     }
+  }
+
+  if (isDcsSystemEnumerationValue(data)) {
+    const out = exportSystemEnumerationToDcsXML(
+      context,
+      { type: "SystemEnumeration", typeSE: data.typeSE } as SystemEnumerationPropertyRule,
+      data.value
+    )
+    if (!out) {
+      throw new Error("DCS MetadataValue: cannot export empty inferred system enumeration")
+    }
+    return out
   }
 
   switch (rule.valueType) {
