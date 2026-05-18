@@ -26,6 +26,12 @@ export const GanttChartFieldRules = {
       type: "SystemEnumeration",
       typeSE: "GanttChartTableLocation",
     },
+    table: {
+      yaml: "Таблица",
+      xml: "Table",
+      type: "GanttChartFieldTable",
+      toEnterprise: false,
+    },
     valuesSelectionMode: {
       yaml: "РежимВыделенияЗначений",
       type: "SystemEnumeration",

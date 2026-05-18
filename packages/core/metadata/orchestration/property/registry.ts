@@ -410,6 +410,10 @@ import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dyn
 import { Chart, ChartYAML } from "~/metadata/forms/commonObjects/chart/types"
 import { FlowchartContext, FlowchartContextYAML } from "~/metadata/forms/commonObjects/flowchartContext/types"
 import { GanttChart, GanttChartYAML } from "~/metadata/forms/commonObjects/ganttChart/types"
+import type {
+  GanttChartFieldTable,
+  GanttChartFieldTableYAML,
+} from "~/metadata/forms/commonObjects/ganttChartFieldTable/types"
 import {
   FormAttributeAdditionalColumnYAML,
   FormAttributeAdditionalColumnsCollection,
@@ -1179,6 +1183,10 @@ export type PropertyTypeRegistry = {
     item: AutoCommandBar
     yaml: AutoCommandBarYAML
   }
+  GanttChartFieldTable: {
+    item: GanttChartFieldTable
+    yaml: GanttChartFieldTableYAML
+  }
 
   //#endregion
 
@@ -1518,6 +1526,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   AssociatedTable: "AssociatedTable",
   AutoCommandBar: "AutoCommandBar",
   TableAutoCommandBar: "TableAutoCommandBar",
+  GanttChartFieldTable: "GanttChartFieldTable",
   DynamicList: "DynamicList",
   Chart: "Chart",
   GanttChart: "GanttChart",
