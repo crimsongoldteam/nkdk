@@ -18,25 +18,34 @@ git branch --show-current
 
 If dirty, stop and report the changed files. Do not stash or discard.
 
-2. Verify tests if they were not just run in this session. Prefer the project's normal focused or full test command. In `nakidka-core`, use:
+2. Update the branch from the PR base before verification. The PR base for this project is `develop`, so pull in the latest merged work before running tests or creating the PR:
+
+```bash
+git fetch origin develop
+git merge --no-edit origin/develop
+```
+
+If the merge conflicts, stop and report the conflicted files. Do not resolve conflicts silently. This is required because stale feature branches can rediscover round-trip diffs that were already fixed and merged in another branch.
+
+3. Verify tests if they were not just run in this session. Prefer the project's normal focused or full test command. In `nakidka-core`, use:
 
 ```bash
 pnpm --filter '@nakidka/core' test
 ```
 
-3. Push the current branch:
+4. Push the current branch:
 
 ```bash
 git push -u origin <branch>
 ```
 
-4. Create a PR into `develop`. The PR base branch must be exactly `develop`; do not target `main`, `master`, or any other branch unless the user explicitly overrides this in the current request:
+5. Create a PR into `develop`. The PR base branch must be exactly `develop`; do not target `main`, `master`, or any other branch unless the user explicitly overrides this in the current request:
 
 ```bash
 gh pr create --base develop --head <branch> --title "<title>" --body "<summary and test plan>"
 ```
 
-5. Merge the PR with a regular merge commit unless the user requested another merge method:
+6. Merge the PR with a regular merge commit unless the user requested another merge method:
 
 ```bash
 gh pr merge <number> --merge --delete-branch
@@ -50,20 +59,20 @@ gh pr view <number> --json state,mergedAt,mergeCommit,url,headRefName,baseRefNam
 
 If the PR is already `MERGED`, continue cleanup.
 
-6. Confirm the remote branch is gone. If it remains, delete it:
+7. Confirm the remote branch is gone. If it remains, delete it:
 
 ```bash
 git ls-remote --heads origin <branch>
 git push origin --delete <branch>
 ```
 
-7. Remove the feature worktree:
+8. Remove the feature worktree:
 
 ```bash
 git worktree remove <absolute-worktree-path>
 ```
 
-8. Delete the local branch:
+9. Delete the local branch:
 
 ```bash
 git branch -D <branch>
@@ -71,7 +80,7 @@ git branch -D <branch>
 
 Use `-D` only after confirming the PR is merged.
 
-9. Verify cleanup:
+10. Verify cleanup:
 
 ```bash
 git worktree list
