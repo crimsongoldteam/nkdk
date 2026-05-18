@@ -362,3 +362,137 @@ autoFillHint: "FullName"
 - `pnpm test` — PASS после повторного запуска: graph 53, language 60, core 3649 passed / 13 skipped, cli 43.
 
 Первый полный `pnpm test` один раз упал на `metadata/forms/elements/inputField/fromNKDK.test.ts` с `nkdkParse is not a function`; focused воспроизведение и повторный полный прогон прошли. Код для этого не менялся.
+
+## Следующие diff после `--start-index 1`
+
+После исправления предыдущей пачки в short round-trip для `/Users/nikita/git/round-trip-source/doc` осталось два других расхождения:
+
+- `Catalogs/ПроектныеЗадачи/Forms/ФормаПланаПроекта/Ext/Form.xml`: внутри `GanttChartField` удаляется вложенная `Table name="ДиаграммаГантаТаблица"`.
+- `DataProcessors/КартаМаршрутаБизнесПроцесса/Forms/Форма/Ext/Form.xml`: внутри `GraphicalSchemaField` удаляется `CommandSet`.
+
+### Проблема 5: вложенная таблица GanttChartField
+
+#### Исходный XML
+
+В форме проекта внутри поля диаграммы Ганта есть прямой дочерний узел `Table`:
+
+```xml
+<GanttChartField name="ДиаграммаГанта" id="111">
+  <DataPath>ДиаграммаГанта</DataPath>
+  <ContextMenu name="ДиаграммаГантаКонтекстноеМеню" id="494"/>
+  <ExtendedTooltip name="ДиаграммаГантаРасширеннаяПодсказка" id="495"/>
+  <Table name="ДиаграммаГантаТаблица" id="496">
+    <Representation>Tree</Representation>
+    <Visible>false</Visible>
+    <Height>10</Height>
+    <DataPath>ДиаграммаГанта</DataPath>
+    <AutoCommandBar name="ДиаграммаГантаТаблицаКоманднаяПанель" id="497"/>
+    <ChildItems>
+      <InputField name="ДиаграммаГантаТаблицаТочка" id="509">
+        <DataPath>ДиаграммаГанта.Point</DataPath>
+      </InputField>
+      <InputField name="ДиаграммаГантаТаблицаТекст" id="512">
+        <DataPath>ДиаграммаГанта.Text</DataPath>
+      </InputField>
+    </ChildItems>
+  </Table>
+  <Events>
+    <Event name="Selection">ДиаграммаГантаВыбор</Event>
+  </Events>
+</GanttChartField>
+```
+
+Сейчас `GanttChartFieldRules` не знает о прямом дочернем `Table`, поэтому `fromXML` игнорирует узел, а `toXML` не может восстановить его.
+
+#### Решение
+
+Ввести отдельный singleton-type `GanttChartFieldTable`, а не использовать `Table` как произвольный property-type.
+
+Смысл типа:
+
+- XML-тег остаётся `Table`;
+- модельное значение использует структуру обычной `Table`;
+- YAML-представление использует `TablePartialYAML`;
+- имя таблицы в XML генерируется от родительского `GanttChartField`, например `ДиаграммаГантаТаблица`;
+- при наличии reference сохраняются reference-суффикс имени и `id`, как у других singleton-элементов.
+
+В `GanttChartFieldRules` добавить поле:
+
+```ts
+table: {
+  yaml: "Таблица",
+  xml: "Table",
+  type: "GanttChartFieldTable",
+  toEnterprise: false,
+}
+```
+
+В YAML таблица должна выглядеть как одиночное свойство поля диаграммы Ганта:
+
+```yaml
+Таблица:
+  РежимОтображения: Дерево
+  Видимость: Ложь
+  Высота: 10
+  ПутьКДанным: ДиаграммаГанта
+```
+
+Дочерние элементы вложенной таблицы должны идти по уже существующему YAML-контракту таблицы, без отдельного нового формата.
+
+#### Альтернативы
+
+Рекомендованный вариант: отдельный `GanttChartFieldTable`.
+
+Отклонённые варианты:
+
+- Добавить `Table` напрямую в `PropertyTypeRegistry`: это делает обычный элемент формы типом свойства слишком широко.
+- Сохранять вложенную таблицу только из reference XML: быстро закрывает round-trip, но не даёт YAML-поддержки.
+- Представлять YAML как именованный набор `{ ДиаграммаГантаТаблица: ... }`: для единственной вложенной таблицы это шумнее, чем одиночное свойство.
+
+#### Проверка
+
+- `fromXML` для `GanttChartField` импортирует вложенный `Table` в `table`.
+- `toXML` экспортирует `table` обратно прямым дочерним `<Table>`.
+- YAML export показывает таблицу под ключом `Таблица`.
+- YAML import умеет наложить `Таблица` на source/reference-модель.
+- Round-trip внешнего файла `Catalogs/ПроектныеЗадачи/Forms/ФормаПланаПроекта/Ext/Form.xml` больше не удаляет `ДиаграммаГантаТаблица`.
+
+### Проблема 6: CommandSet у GraphicalSchemaField
+
+#### Исходный XML
+
+В форме карты маршрута у `GraphicalSchemaField` есть список исключённых команд:
+
+```xml
+<GraphicalSchemaField name="КартаМаршрута" id="3">
+  <DataPath>КартаМаршрута</DataPath>
+  <TitleLocation>None</TitleLocation>
+  <CommandSet>
+    <ExcludedCommand>AlignBottom</ExcludedCommand>
+    <ExcludedCommand>AlignCenter</ExcludedCommand>
+    <ExcludedCommand>InsertItemActivity</ExcludedCommand>
+    <ExcludedCommand>Ungroup</ExcludedCommand>
+  </CommandSet>
+  <Width>80</Width>
+  <Height>18</Height>
+</GraphicalSchemaField>
+```
+
+Общий тип `CommandSet` уже реализован и используется у соседних элементов, включая `PlannerField`.
+
+#### Решение
+
+Добавить в `GraphicalSchemaFieldRules.properties` поле:
+
+```ts
+commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false }
+```
+
+Это переиспользует существующий импорт/экспорт `CommandSet` и не требует нового XML/YAML-формата.
+
+#### Проверка
+
+- `fromXML` читает `CommandSet/ExcludedCommand` в `commandSet`.
+- `toXML` возвращает `CommandSet` в исходном порядке.
+- YAML export/import использует тот же ключ `Команда`, что и у `PlannerField`.
+- Round-trip внешнего файла `DataProcessors/КартаМаршрутаБизнесПроцесса/Forms/Форма/Ext/Form.xml` больше не удаляет `CommandSet`.
