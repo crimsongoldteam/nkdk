@@ -40,6 +40,26 @@ describe("export MetadataAttributes to XML", () => {
     expect(result).toEqual(expectedResult)
   })
 
+  it("exports explicit empty Synonym as empty XML tag", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        {
+          itemType: "MetadataAttribute",
+          name: "ПравилаОтправкиДокументов",
+          synonym: { items: {} },
+          type: { type: ["string"], stringQualifiers: { length: 0, allowedLength: "Variable" } },
+          fillValue: { type: "string", value: "" },
+        },
+      ],
+      xmlRootTag: "Attribute",
+      referenceMetadata: undefined,
+    })
+
+    expect(result).toContain("<Synonym/>")
+    expect(result).not.toContain("<v8:item>")
+  })
+
   it("should export empty string when data is undefined", () => {
     const { result } = testExportPropertyToXML({
       rule,

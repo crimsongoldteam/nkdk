@@ -41,6 +41,55 @@ describe("import MetadataAttributes from XML", () => {
     expect(result).toEqual(fullFromXML)
   })
 
+  it("imports explicit empty Synonym as empty i18n text", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlRootTag: "Attribute",
+      xmlString:
+        '<Attribute uuid="39425133-94f9-40f6-a821-f6cd6b64fde1">' +
+        "<Properties>" +
+        "<Name>ПравилаОтправкиДокументов</Name>" +
+        "<Synonym/>" +
+        "<Comment/>" +
+        "<Type><v8:Type>xs:string</v8:Type><v8:StringQualifiers><v8:Length>10</v8:Length><v8:AllowedLength>Variable</v8:AllowedLength></v8:StringQualifiers></Type>" +
+        "<PasswordMode>false</PasswordMode>" +
+        "<Format/>" +
+        "<EditFormat/>" +
+        "<ToolTip/>" +
+        "<MarkNegatives>false</MarkNegatives>" +
+        "<Mask/>" +
+        "<MultiLine>false</MultiLine>" +
+        "<ExtendedEdit>false</ExtendedEdit>" +
+        '<MinValue xsi:nil="true"/>' +
+        '<MaxValue xsi:nil="true"/>' +
+        "<FillFromFillingValue>false</FillFromFillingValue>" +
+        '<FillValue xsi:type="xs:string"/>' +
+        "<FillChecking>DontCheck</FillChecking>" +
+        "<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>" +
+        "<ChoiceParameterLinks/>" +
+        "<ChoiceParameters/>" +
+        "<QuickChoice>Auto</QuickChoice>" +
+        "<CreateOnInput>Auto</CreateOnInput>" +
+        "<ChoiceForm/>" +
+        "<LinkByType/>" +
+        "<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>" +
+        "<Use>ForItem</Use>" +
+        "<Indexing>DontIndex</Indexing>" +
+        "<FullTextSearch>Use</FullTextSearch>" +
+        "<DataHistory>Use</DataHistory>" +
+        "</Properties>" +
+        "</Attribute>",
+    })
+
+    expect(result).toEqual([
+      {
+        ...minimalFromXML[0],
+        name: "ПравилаОтправкиДокументов",
+        synonym: { items: {} },
+      },
+    ])
+  })
+
   it("should return undefined when data is undefined", () => {
     const result = testImportPropertyFromXML({
       rule,

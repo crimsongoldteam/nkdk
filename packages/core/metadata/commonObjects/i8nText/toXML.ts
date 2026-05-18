@@ -28,8 +28,13 @@ export const exportI8nTextToXML = (
 
   const narrowRule = rule as I8nTextPropertyRule
 
-  if (narrowRule.skipEmptyToXML && isEmptyI8nText(context, data)) {
-    return undefined
+  if (isEmptyI8nText(context, data)) {
+    if (narrowRule.skipEmptyToXML) {
+      return undefined
+    }
+    if (narrowRule.emptyAsRawXML) {
+      return {}
+    }
   }
 
   const v8Items: I8nTextLanguageXML[] = []
