@@ -18,13 +18,23 @@ const commonAttributeProperties = {
     xml: "Synonym",
     type: "I8nText",
     excludeIfEqualNameYAML: true,
-    defaultValue: ({ context, name, operation }: { context: ConfigurationContext; name?: string; operation?: string }) =>
+    defaultValue: ({
+      context,
+      name,
+      operation,
+    }: {
+      context: ConfigurationContext
+      name?: string
+      operation?: string
+    }) =>
       operation === "importFromYAML" && name
         ? addDefaultLanguageNameToSynonym(context, undefined, name)
         : { items: { [context.defaultLanguage]: "" } },
     xmlParents: ["Properties"],
     order: 2,
+    defaultValueXMLEmpty: { items: {} },
     defaultValueXMLRaw: "",
+    emptyAsRawXML: true,
   },
   comment: {
     yaml: "Комментарий",
@@ -281,7 +291,8 @@ const binaryDataStorageLocationUseFieldProperty = {
     xmlParents: ["Properties"],
     order: 31,
     allowedValues: cypherSet({
-      query: "MATCH (s {id: $scope})-[:ATTRIBUTE]->(a:MetadataAttribute)-[:TYPE]->(:Type {name: 'Boolean'}) RETURN a.name AS name",
+      query:
+        "MATCH (s {id: $scope})-[:ATTRIBUTE]->(a:MetadataAttribute)-[:TYPE]->(:Type {name: 'Boolean'}) RETURN a.name AS name",
     }),
   },
 } as const satisfies Record<string, PropertyRule>

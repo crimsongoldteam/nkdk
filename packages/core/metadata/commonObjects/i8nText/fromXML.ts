@@ -1,16 +1,19 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
+import { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./types"
 
 export const importI8nTextFromXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule,
   xml: I8nTextXML | undefined
 ): I8nText | undefined => {
+  const narrowRule = _rule as I8nTextPropertyRule
+
+  if (xml === "") return narrowRule.emptyAsRawXML ? { items: {} } : undefined
   if (!xml) return undefined
 
-  if (!xml["v8:item"]) return undefined
+  if (!xml["v8:item"]) return narrowRule.emptyAsRawXML ? { items: {} } : undefined
 
   const items: I8nTextLanguageXML[] = Array.isArray(xml["v8:item"]) ? xml["v8:item"] : [xml["v8:item"]]
 

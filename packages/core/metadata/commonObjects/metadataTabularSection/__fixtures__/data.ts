@@ -10,7 +10,7 @@ export const fullFromXML: MetadataTabularSections = [
       {
         itemType: "MetadataAttribute",
         name: "Реквизит1",
-        synonym: { items: { ru: "" } },
+        synonym: { items: {} },
         type: { stringQualifiers: { allowedLength: "Variable", length: 10 }, type: ["string"] },
       },
     ],

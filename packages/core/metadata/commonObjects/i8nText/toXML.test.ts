@@ -17,6 +17,27 @@ describe("exportI8nTextToXML", () => {
         expect(xml).toEqual(fixture.xml)
       })
     })
+
+    it("exports empty default-language item by default", () => {
+      const result = exportI8nTextToXML(mockContext, mockRule, { items: { ru: "" } })
+      const xml = result ? xmlExport({ Title: result }, false) : undefined
+
+      expect(xml).toEqual(
+        "<Title>\n" +
+          "\t<v8:item>\n" +
+          "\t\t<v8:lang>ru</v8:lang>\n" +
+          "\t\t<v8:content/>\n" +
+          "\t</v8:item>\n" +
+          "</Title>"
+      )
+    })
+
+    it("exports empty text as raw XML when rule opts in", () => {
+      const result = exportI8nTextToXML(mockContext, { ...mockRule, emptyAsRawXML: true }, { items: { ru: "" } })
+      const xml = result ? xmlExport({ Title: result }, false) : undefined
+
+      expect(xml).toEqual("<Title/>")
+    })
   })
 
   describe("exportI8nTextToXMLWithDefaultLanguage", () => {

@@ -11,4 +11,10 @@ describe("importI8nTextFromXML", () => {
     const result = importI8nTextFromXML(mockContextFromXML(), mockRule, xml?.Title)
     expect(result).toEqual(fixture.text)
   })
+
+  it("imports empty XML tag as empty text when rule opts in", () => {
+    const result = importI8nTextFromXML(mockContextFromXML(), { ...mockRule, emptyAsRawXML: true }, {})
+
+    expect(result).toEqual({ items: {} })
+  })
 })

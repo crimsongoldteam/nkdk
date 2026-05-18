@@ -32,6 +32,8 @@ export interface I8nTextPropertyRule extends Omit<BasePropertyRule, "defaultValu
   type: "I8nText"
   yamlPartialOthers?: true
   skipEmptyToXML?: true
+  /** Выгружать полностью пустой I8nText как пустой XML-тег. */
+  emptyAsRawXML?: true
 
   /**
    * Если значение поля приведенное к pascalCase равно имени элемента - поле не будет выгружено в yaml

@@ -47,18 +47,27 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
 
     if (!shouldProcessProperty({ rule: currentRule, operation: "importFromXML" }) && !shouldImportForReference) continue
 
-    let value =
-      shouldImportForReference || currentRule.fromXML !== false
-        ? importPropertyFromXML({
-            context,
-            rule: currentRule,
-            value: xmlValue,
-            name: key,
-            ownerXmlName,
-          })
-        : undefined
+    const hasExplicitXMLKeyWithEmptyDefault =
+      "defaultValueXMLEmpty" in currentRule && isXMLKeyPresent(key, xml, currentRule)
+    const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && (xmlValue === undefined || xmlValue === "")
 
-    if (value === undefined && "defaultValueXMLEmpty" in currentRule && isXMLKeyPresent(key, xml, currentRule)) {
+    let value
+    if (hasRawEmptyXML && (currentRule as any).emptyAsRawXML === true) {
+      value = (currentRule as any).defaultValueXMLEmpty
+    } else {
+      value =
+        shouldImportForReference || currentRule.fromXML !== false
+          ? importPropertyFromXML({
+              context,
+              rule: currentRule,
+              value: xmlValue,
+              name: key,
+              ownerXmlName,
+            })
+          : undefined
+    }
+
+    if (value === undefined && hasExplicitXMLKeyWithEmptyDefault) {
       value = (currentRule as any).defaultValueXMLEmpty
     }
 
