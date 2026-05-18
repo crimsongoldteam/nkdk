@@ -116,13 +116,13 @@ export const ClientApplicationFormRules = {
     reportResult: {
       yaml: "РезультатОтчета",
       xml: "ReportResult",
-      type: "string",
+      type: "StringOrNumber",
       tag: FormRulesTags.Form,
     },
     detailsData: {
       yaml: "ДанныеРасшифровки",
       xml: "DetailsData",
-      type: "string",
+      type: "StringOrNumber",
       tag: FormRulesTags.Form,
     },
     reportFormType: {

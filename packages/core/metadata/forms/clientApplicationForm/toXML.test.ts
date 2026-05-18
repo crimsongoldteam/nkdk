@@ -126,6 +126,33 @@ describe("exportToXML", () => {
       expect(result).toEqual(expectedResult)
     })
 
+    it("exports decimal report result fields with xsi type", () => {
+      const referenceForm = importClientApplicationFormFromXML({
+        context: mockContextFromXML({ forReference: true }),
+        xml: {
+          ReportResult: { "_xsi:type": "xs:decimal", "#text": "3" },
+          DetailsData: { "_xsi:type": "xs:decimal", "#text": "0" },
+        },
+        xmlMetadata: { Form: { Properties: {} } },
+      })
+      const xmlData = exportClientApplicationFormToXML({
+        context: mockContextToXML(),
+        form: {
+          itemType: "ClientApplicationForm",
+          reportResult: 3,
+          detailsData: 0,
+          childItems: [],
+          commands: [],
+        },
+        referenceForm,
+      })
+
+      const result = xmlExport({ Form: xmlData })
+
+      expect(result).toContain('<ReportResult xsi:type="xs:decimal">3</ReportResult>')
+      expect(result).toContain('<DetailsData xsi:type="xs:decimal">0</DetailsData>')
+    })
+
     it("should export minimal", () => {
       const expectedResult = readXMLFixtureAsString(import.meta.url, "minimal.xml")
       const referenceFormXML = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(

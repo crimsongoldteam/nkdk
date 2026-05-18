@@ -21,4 +21,10 @@ describe("importColorFromXML", () => {
 
     expect(result).toBeUndefined()
   })
+
+  it.each(["0", "0:615512b6-4378-4fce-86f1-a56725f945da"])("should preserve raw XML color ref %s", (rawRef) => {
+    const result = importColorFromXML(mockContextFromXML(), mockRule, rawRef)
+
+    expect(result).toEqual({ rawRef })
+  })
 })

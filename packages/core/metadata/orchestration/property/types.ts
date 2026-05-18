@@ -11,6 +11,7 @@ import type { CypherSet } from "./cypherPredicate"
 import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
 import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
+import { StringOrNumberPropertyRule } from "~/metadata/commonObjects/stringOrNumber/types"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
@@ -316,6 +317,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "SettingsParameterValue"
     | "SettingsParameterValueCollection"
     | "number"
+    | "StringOrNumber"
     | "dateTime"
     | "Module"
     | "Template"
@@ -357,6 +359,7 @@ export type PropertyRule =
   | SettingsParameterValuePropertyRule
   | SettingsParameterValueCollectionPropertyRule
   | NumberPropertyRule
+  | StringOrNumberPropertyRule
   | DateTimePropertyRule
   | XMLRootPropertyRule
   | ChildFormNamesPropertyRule

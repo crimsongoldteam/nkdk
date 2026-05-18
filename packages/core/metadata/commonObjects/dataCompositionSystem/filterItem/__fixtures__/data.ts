@@ -50,6 +50,17 @@ export const inListFilterItemComparisonYAML = {
   ВидСравнения: "ВСписке"
 }
 
+export const inListWithNilFilterItemComparison = {
+  itemType: "FilterItemComparison",
+  leftValue: { type: "Field", value: "Объект.Корректировки.Документ" },
+  comparisonType: "InList",
+  rightValue: [
+    { type: "DesignTimeValue", value: "Документ.ВыбытиеИнвестиций.ПустаяСсылка" },
+    { type: "DesignTimeValue", value: "Документ.ПоступлениеИнвестиций.ПустаяСсылка" },
+    undefined,
+  ],
+} as const satisfies FilterItemComparison
+
 export const fullFilterItemGroup = {
   itemType: "FilterItemGroup",
   groupType: "OrGroup",

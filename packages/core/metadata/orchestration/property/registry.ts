@@ -378,6 +378,7 @@ import {
   StandardAttributeDescriptionsYAML,
   StandardAttributeDescriptionYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { StringOrNumber, StringOrNumberYAML } from "~/metadata/commonObjects/stringOrNumber/types"
 import {
   TypeDescription,
   TypeDescriptionEnterprise,
@@ -457,6 +458,11 @@ export type PropertyTypeRegistry = {
     item: number
     enterprise: number
     yaml: number
+  }
+  StringOrNumber: {
+    item: StringOrNumber
+    enterprise: StringOrNumber
+    yaml: StringOrNumberYAML
   }
   MinMaxValue: {
     item: number
@@ -1238,7 +1244,7 @@ export type PropertyTypeRegistry = {
     yaml: MetadataDcsMetadataValueYAML
   }
   DcsMetadataTypedValue: {
-    item: DcsMetadataTypedValue | DcsMetadataTypedValue[]
+    item: DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[]
     yaml: DcsMetadataTypedValueYAML | DcsMetadataTypedValueYAML[]
   }
   DcsField: {
@@ -1373,6 +1379,7 @@ export type PropertyRuleType = keyof PropertyTypeRegistry
 export const PropertyRuleTypeKeys = Object.keys({
   uuid: "uuid",
   number: "number",
+  StringOrNumber: "StringOrNumber",
   MinMaxValue: "MinMaxValue",
   dateTime: "dateTime",
   string: "string",

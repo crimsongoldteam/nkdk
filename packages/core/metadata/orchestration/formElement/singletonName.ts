@@ -77,6 +77,7 @@ const getModeFromXML = (params: {
 }): ReferenceNameMode | undefined => {
   const { xmlName, ownerXmlName, nameStyle } = params
   if (xmlName === undefined || nameStyle === undefined) return undefined
+  if (xmlName === "") return { kind: "exact", name: "" }
 
   const suffixes = [...nameStyle.referenceSuffixes].sort((left, right) => right.length - left.length)
 

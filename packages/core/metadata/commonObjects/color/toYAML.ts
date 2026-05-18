@@ -3,7 +3,7 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
-import { Color } from "./types"
+import { Color, isRawColorRef } from "./types"
 
 export const exportColorToYAML = <T extends Color | undefined>(
   context: ConfigurationContext,
@@ -11,6 +11,8 @@ export const exportColorToYAML = <T extends Color | undefined>(
   color: T
 ): string | undefined => {
   if (!color) return undefined
+
+  if (isRawColorRef(color)) throw new Error("Color YAML: rawRef is XML-only")
 
   if (color.type === "StyleItem") {
     const standardColor = exportSystemEnumerationToYAMLDeprecated<SE.StyleColors>(

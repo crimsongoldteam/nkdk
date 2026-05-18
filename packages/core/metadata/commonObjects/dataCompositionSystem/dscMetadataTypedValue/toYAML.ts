@@ -4,6 +4,8 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { DcsMetadataTypedValueRegistry } from "./rules"
 import { DcsMetadataTypedValue, DcsMetadataTypedValuePropertyRule, DcsMetadataTypedValueYAML } from "./types"
 
+const NIL_XML_ONLY_ERROR = "DcsMetadataTypedValue YAML: xsi:nil is XML-only"
+
 const exportSingle = (
   context: ConfigurationContext,
   rule: DcsMetadataTypedValuePropertyRule,
@@ -25,10 +27,15 @@ const exportSingle = (
 export const exportDcsMetadataTypedValueToYAML = (
   context: ConfigurationContext,
   rule: DcsMetadataTypedValuePropertyRule,
-  value: DcsMetadataTypedValue | DcsMetadataTypedValue[] | undefined
+  value: DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[] | undefined
 ): DcsMetadataTypedValueYAML | DcsMetadataTypedValueYAML[] | undefined => {
   if (value === undefined) return undefined
-  if (Array.isArray(value)) return value.map((item) => exportSingle(context, rule, item))
+  if (Array.isArray(value)) {
+    return value.map((item) => {
+      if (item === undefined) throw new Error(NIL_XML_ONLY_ERROR)
+      return exportSingle(context, rule, item)
+    })
+  }
   return exportSingle(context, rule, value)
 }
 
@@ -40,7 +47,7 @@ const exportDcsMetadataTypedValueToYAMLForRule = (
   exportDcsMetadataTypedValueToYAML(
     context,
     rule as DcsMetadataTypedValuePropertyRule,
-    value as DcsMetadataTypedValue | DcsMetadataTypedValue[]
+    value as DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[]
   )
 
 registerTypeRule("DcsMetadataTypedValue", "exportToYAML", exportDcsMetadataTypedValueToYAMLForRule)

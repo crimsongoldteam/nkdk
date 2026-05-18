@@ -63,7 +63,12 @@ export type DcsMetadataTypedValueUndefinedTypeXML = {
   [key: `_xmlns:${string}`]: string | undefined
 }
 
+export type DcsMetadataTypedValueNilXML = {
+  "_xsi:nil": true | "true"
+}
+
 export type DcsMetadataTypedValueReference = DcsMetadataTypedValue | DcsMetadataTypedValueUndefinedTypeXML
+export type DcsMetadataTypedValueReferenceOrNil = DcsMetadataTypedValueReference | undefined
 
 export type DcsMetadataTypedValueXML =
   | {
@@ -102,4 +107,5 @@ export type DcsMetadataTypedValueXML =
       "_xsi:type": "dcsset:Order"
     }
   | DcsMetadataTypedValueUndefinedTypeXML
+  | DcsMetadataTypedValueNilXML
   | StandartBeginningDateXML

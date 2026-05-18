@@ -16,6 +16,10 @@ import "./number/fromXML"
 import "./number/toJSONSchema"
 import "./number/toXML"
 
+import "./stringOrNumber/fromXML"
+import "./stringOrNumber/toJSONSchema"
+import "./stringOrNumber/toXML"
+
 import "./minMaxValue/fromXML"
 import "./minMaxValue/toJSONSchema"
 import "./minMaxValue/toXML"

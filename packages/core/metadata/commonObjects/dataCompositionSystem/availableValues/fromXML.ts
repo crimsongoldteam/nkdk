@@ -13,7 +13,10 @@ const toArray = <T>(value: T | T[] | undefined): T[] => {
 }
 
 const isNilValueXML = (value: unknown): boolean =>
-  typeof value === "object" && value !== null && (value as { "_xsi:nil"?: unknown })["_xsi:nil"] === true
+  typeof value === "object" &&
+  value !== null &&
+  ((value as { "_xsi:nil"?: unknown })["_xsi:nil"] === true ||
+    (value as { "_xsi:nil"?: unknown })["_xsi:nil"] === "true")
 
 export const importDcsAvailableValuesFromXML = (
   context: ConfigurationContextFromXML,

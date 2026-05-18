@@ -95,6 +95,57 @@ collect_run_dirs() {
   done < <(find "${root}" -mindepth 1 -maxdepth 1 -type d | sort)
 }
 
+KNOWN_INVALID_DIFF_FILE="${SCRIPT_DIR}/known-invalid-diffs.tsv"
+KNOWN_INVALID_KEYS=()
+KNOWN_INVALID_REASONS=()
+
+config_rel_path() {
+  local dir="$1"
+  local repo="${NKDK_XML_REPO%/}"
+
+  if [ "${dir}" = "${repo}" ]; then
+    printf '.'
+    return 0
+  fi
+
+  printf '%s' "${dir#${repo}/}"
+}
+
+load_known_invalid_diffs() {
+  local config_rel
+  local diff_path
+  local reason
+
+  if [ ! -f "${KNOWN_INVALID_DIFF_FILE}" ]; then
+    return 0
+  fi
+
+  while IFS=$'\t' read -r config_rel diff_path reason; do
+    if [ -z "${config_rel:-}" ] || [[ "${config_rel}" == \#* ]]; then
+      continue
+    fi
+    KNOWN_INVALID_KEYS+=("${config_rel}"$'\t'"${diff_path}")
+    KNOWN_INVALID_REASONS+=("${reason}")
+  done < "${KNOWN_INVALID_DIFF_FILE}"
+}
+
+known_invalid_reason() {
+  local active_dir="$1"
+  local diff_path="$2"
+  local key
+  local i
+
+  key="$(config_rel_path "${active_dir}")"$'\t'"${diff_path}"
+  for ((i = 0; i < ${#KNOWN_INVALID_KEYS[@]}; i++)); do
+    if [ "${KNOWN_INVALID_KEYS[$i]}" = "${key}" ]; then
+      printf '%s' "${KNOWN_INVALID_REASONS[$i]}"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --diff-index)
@@ -174,6 +225,7 @@ if [ ! -d "${NKDK_XML_DIR}" ]; then
   exit 1
 fi
 NKDK_XML_DIR="$(cd "${NKDK_XML_DIR}" && pwd)"
+load_known_invalid_diffs
 
 # ── Guard: чистое рабочее дерево nakidka-core ────────────────────────────────
 
@@ -241,12 +293,16 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   done < <(git -C "${RUN_XML_DIR}" -c core.quotepath=false diff --name-only --relative -- . | sort)
 
   if [ "${#CURRENT_DIFF_FILES[@]}" -gt 0 ]; then
+    HAS_ACTIONABLE_DIFF="0"
     ACTIVE_XML_DIR="${RUN_XML_DIR}"
     for diff_file in "${CURRENT_DIFF_FILES[@]}"; do
       DIFF_FILES+=("${diff_file}")
       DIFF_FILE_DIRS+=("${RUN_XML_DIR}")
+      if ! known_invalid_reason "${RUN_XML_DIR}" "${diff_file}" >/dev/null; then
+        HAS_ACTIONABLE_DIFF="1"
+      fi
     done
-    if [ "${ALL_CONFIGS}" != "1" ]; then
+    if [ "${ALL_CONFIGS}" != "1" ] && [ "${HAS_ACTIONABLE_DIFF}" = "1" ]; then
       break
     fi
   fi
@@ -256,19 +312,51 @@ if [ -z "${ACTIVE_XML_DIR}" ]; then
   ACTIVE_XML_DIR="${RUN_DIRS[${#RUN_DIRS[@]} - 1]}"
 fi
 
-DIFF_COUNT="${#DIFF_FILES[@]}"
-
-if [ "${DIFF_COUNT}" -eq 0 ]; then
-  echo ""
-  echo "=== Round-trip чистый: диффов нет ==="
-  echo "Проверено каталогов: ${#RUN_DIRS[@]}"
-  exit 0
-fi
-
 xml_file_abs() {
   local relative_path="$1"
   local active_dir="${2:-${ACTIVE_XML_DIR}}"
   echo "${active_dir%/}/${relative_path}"
+}
+
+ACTIONABLE_DIFF_FILES=()
+ACTIONABLE_DIFF_FILE_DIRS=()
+SKIPPED_INVALID_DIFF_FILES=()
+SKIPPED_INVALID_DIFF_FILE_DIRS=()
+SKIPPED_INVALID_DIFF_REASONS=()
+
+for ((i = 0; i < ${#DIFF_FILES[@]}; i++)); do
+  diff_file="${DIFF_FILES[$i]}"
+  diff_dir="${DIFF_FILE_DIRS[$i]}"
+  if reason="$(known_invalid_reason "${diff_dir}" "${diff_file}")"; then
+    SKIPPED_INVALID_DIFF_FILES+=("${diff_file}")
+    SKIPPED_INVALID_DIFF_FILE_DIRS+=("${diff_dir}")
+    SKIPPED_INVALID_DIFF_REASONS+=("${reason}")
+  else
+    ACTIONABLE_DIFF_FILES+=("${diff_file}")
+    ACTIONABLE_DIFF_FILE_DIRS+=("${diff_dir}")
+  fi
+done
+
+DIFF_FILES=()
+DIFF_FILE_DIRS=()
+if [ "${#ACTIONABLE_DIFF_FILES[@]}" -gt 0 ]; then
+  DIFF_FILES=("${ACTIONABLE_DIFF_FILES[@]}")
+  DIFF_FILE_DIRS=("${ACTIONABLE_DIFF_FILE_DIRS[@]}")
+fi
+DIFF_COUNT="${#DIFF_FILES[@]}"
+SKIPPED_INVALID_DIFF_COUNT="${#SKIPPED_INVALID_DIFF_FILES[@]}"
+
+emit_skipped_invalid_diffs() {
+  local i
+
+  for ((i = 0; i < SKIPPED_INVALID_DIFF_COUNT; i++)); do
+    echo ""
+    echo "=== SKIPPED_INVALID_DIFF ==="
+    echo "ACTIVE_XML_DIR: ${SKIPPED_INVALID_DIFF_FILE_DIRS[$i]}"
+    echo "FILE: ${SKIPPED_INVALID_DIFF_FILES[$i]}"
+    echo "XML_FILE_ABS: $(xml_file_abs "${SKIPPED_INVALID_DIFF_FILES[$i]}" "${SKIPPED_INVALID_DIFF_FILE_DIRS[$i]}")"
+    echo "REASON: ${SKIPPED_INVALID_DIFF_REASONS[$i]}"
+  done
 }
 
 emit_single_diff() {
@@ -310,6 +398,20 @@ emit_triage_diff() {
   echo "--- DIFF ---"
   git -C "${active_dir}" -c core.quotepath=false diff --relative -- "${file}"
 }
+
+emit_skipped_invalid_diffs
+
+if [ "${DIFF_COUNT}" -eq 0 ]; then
+  echo ""
+  if [ "${SKIPPED_INVALID_DIFF_COUNT}" -gt 0 ]; then
+    echo "=== Round-trip actionable diff'ов нет ==="
+    echo "Пропущено известных невалидных diff'ов: ${SKIPPED_INVALID_DIFF_COUNT}"
+  else
+    echo "=== Round-trip чистый: диффов нет ==="
+  fi
+  echo "Проверено каталогов: ${#RUN_DIRS[@]}"
+  exit 0
+fi
 
 if [ "${MODE}" = "single" ]; then
   if [ "${DIFF_INDEX}" -gt "${DIFF_COUNT}" ]; then

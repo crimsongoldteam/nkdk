@@ -87,6 +87,46 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     expect(result.indexOf('name="RecordType"')).toBeLessThan(result.indexOf('name="Active"'))
   })
 
+  it("keeps reference order when exporting standard attributes", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: {
+        RecordType: "ВидДвижения",
+        Active: "Активность",
+        LineNumber: "НомерСтроки",
+      },
+    }
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <StandardAttributes>
+          <xr:StandardAttribute name="Active">
+            <xr:Comment>existing active comment</xr:Comment>
+          </xr:StandardAttribute>
+          <xr:StandardAttribute name="LineNumber"/>
+          <xr:StandardAttribute name="RecordType"/>
+          <xr:StandardAttribute name="LineNumber"/>
+        </StandardAttributes>
+      `,
+      xmlRootTag: "StandardAttributes",
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        { itemType: "StandardAttributeDescription", name: "Active", comment: "changed" },
+        { itemType: "StandardAttributeDescription", name: "RecordType" },
+        { itemType: "StandardAttributeDescription", name: "RecordType" },
+      ],
+      referenceMetadata,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    const names = Array.from(result.matchAll(/<xr:StandardAttribute name="([^"]+)"/g), ([, name]) => name)
+    expect(names).toEqual(["Active", "LineNumber", "RecordType"])
+  })
+
   it("exports undefined", () => {
     const rule: PropertyRule = {
       type: "StandardAttributeDescriptions",

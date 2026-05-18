@@ -16,6 +16,10 @@ export const fixtureColorWebRed: Color = {
   value: "Red",
 }
 
+export const fixtureColorRawRef: Color = {
+  rawRef: "0:615512b6-4378-4fce-86f1-a56725f945da",
+}
+
 export const fixtureFieldPath = "Реквизит1"
 export const fixtureDesignTimeRefPath = "Перечисление.СтраницыЖурналаОтчетность.ЕГРЮЛ"
 export const fixtureDesignTimeFieldPath = "Сертификаты.СертификатПредставление"
@@ -170,6 +174,15 @@ const inferredAccumulationRecordTypeFixture: DcsMetadataValueFixture = {
   xml: "system-enumeration-accumulation-record-type.xml",
 }
 
+const colorRawRefFixture: DcsMetadataValueFixture = {
+  id: "colorRawRef",
+  title: "Color raw XML ref",
+  rule: { type: "MetadataDcsMetadataValue", valueType: "Color", yaml: "value" },
+  value: fixtureColorRawRef,
+  yaml: undefined,
+  xml: "color-raw-ref.xml",
+}
+
 export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
   {
     id: "color",
@@ -254,6 +267,7 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
 
 export const dcsMetadataValueXMLFixtures: DcsMetadataValueFixture[] = [
   ...dcsMetadataValueFixtures,
+  colorRawRefFixture,
   emptyLocalStringFixture,
   nilFixture,
   primitiveTypeRefFixture,
