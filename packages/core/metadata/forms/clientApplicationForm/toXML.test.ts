@@ -9,9 +9,9 @@ import {
   customSettingsFolderClientApplicationForm,
   fullClientApplicationForm,
   minimalClientApplicationForm,
-  reportFormClientApplicationForm,
 } from "./__fixtures__/data"
 import { documentFullClientApplicationForm } from "./__fixtures__/documentFull"
+import { reportFormClientApplicationForm } from "./__fixtures__/reportForm"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "./toXML"
 import { ClientApplicationFormXML, FormMetadataXML } from "./types"
