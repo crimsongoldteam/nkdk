@@ -1,6 +1,4 @@
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration"
-import "~/metadata/commonObjects/stringOrNumber/fromXML"
-import "~/metadata/commonObjects/stringOrNumber/toXML"
 import { ElementRule } from "../../orchestration/formElement/types"
 import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
