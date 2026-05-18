@@ -605,3 +605,11 @@ git commit -m "docs: :memo: обновить проверку оставшихс
 - Spec coverage: Task 1-2 cover `GraphicalSchemaField.CommandSet`; Task 3-5 cover `GanttChartFieldTable` XML/YAML/model behavior; Task 6 covers external round-trip and full tests.
 - Placeholder scan: no `TODO`, `TBD`, or vague implementation-only steps remain.
 - Type consistency: the property type is consistently named `GanttChartFieldTable`; the model type is `Table`; YAML type is `TablePartialYAML`; the rule key is `table` with YAML key `Таблица`.
+
+## Execution Results
+
+- `pnpm --filter nkdk-language langium:generate` — PASS.
+- `pnpm --filter @nakidka/core exec vitest run metadata/forms/elements` — PASS: 621 passed, 2 skipped.
+- `round-trip.sh --triage --batch-size 5 --start-index 1` for `/Users/nikita/git/round-trip-source/doc` — PASS: `=== Round-trip чистый: диффов нет ===`.
+- External XML repository restored after triage; `git status --short` is clean.
+- `pnpm test` — PASS: graph 53, language 60, core 3650 passed / 13 skipped, cli 43.
