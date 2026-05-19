@@ -17,4 +17,13 @@ describe("import DcsMetadataTypedValue from YAML", () => {
       })
     ).toEqual(fixture.model)
   })
+
+  it("imports quoted СписокЗначений as string", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule,
+        value: "'СписокЗначений'",
+      })
+    ).toEqual({ type: "string", value: "СписокЗначений" })
+  })
 })
