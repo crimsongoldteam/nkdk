@@ -115,6 +115,18 @@ describe("export DcsMetadataTypedValue to XML", () => {
     ).toThrow("DcsMetadataTypedValue XML: unsupported reference v8:Type")
   })
 
+  it("reports missing toXML handler for unknown runtime typed value", () => {
+    expect(() =>
+      testExportPropertyToXML({
+        rule,
+        value: { type: "UnknownDcsTypedValue", value: "x" },
+        xmlRootTag: "value",
+      })
+    ).toThrow(
+      "DcsMetadataTypedValue: отсутствует toXML-обработчик для типа UnknownDcsTypedValue (rule.type: DcsMetadataTypedValue)"
+    )
+  })
+
   it("does not restore unrelated reference metadata", () => {
     const { result } = testExportPropertyToXML({
       rule,
