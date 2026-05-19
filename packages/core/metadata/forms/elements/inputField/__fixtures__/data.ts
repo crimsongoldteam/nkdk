@@ -511,6 +511,18 @@ export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
       toOneLineGroup: true,
     },
   },
+  {
+    name: "with raw platform data path",
+    element: {
+      name: "ВидЗанятости",
+      itemType: "InputField",
+      dataPath: "1/0:a917a122-f663-4c45-8de0-fd5104007de3",
+    },
+    structured: {
+      strings: ["ВидЗанятости(1/0:a917a122-f663-4c45-8de0-fd5104007de3): "],
+      toOneLineGroup: true,
+    },
+  },
 ]
 
 export const fullInputFieldEnterprise = {
