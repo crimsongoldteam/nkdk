@@ -109,6 +109,36 @@ describe("migration paths", () => {
       ownerPath: "ПланВидовХарактеристик",
       levelPath: "ПланВидовХарактеристик",
     })
+    expect(parseMigrationPath("Отчет.Продажи")).toMatchObject({
+      kind: "object",
+      localName: "Продажи",
+      ownerPath: "Отчет",
+      levelPath: "Отчет",
+    })
+    expect(parseMigrationPath("Обработка.ЗагрузкаДанных")).toMatchObject({
+      kind: "object",
+      localName: "ЗагрузкаДанных",
+      ownerPath: "Обработка",
+      levelPath: "Обработка",
+    })
+    expect(parseMigrationPath("ЖурналДокументов.Продажи")).toMatchObject({
+      kind: "object",
+      localName: "Продажи",
+      ownerPath: "ЖурналДокументов",
+      levelPath: "ЖурналДокументов",
+    })
+    expect(parseMigrationPath("HTTPСервис.ExternalAPI")).toMatchObject({
+      kind: "object",
+      localName: "ExternalAPI",
+      ownerPath: "HTTPСервис",
+      levelPath: "HTTPСервис",
+    })
+    expect(parseMigrationPath("Перечисление.Статусы")).toMatchObject({
+      kind: "object",
+      localName: "Статусы",
+      ownerPath: "Перечисление",
+      levelPath: "Перечисление",
+    })
   })
 
   it("parses object attribute paths", () => {
@@ -131,6 +161,18 @@ describe("migration paths", () => {
       ownerPath: "Задача.Исполнение",
       levelPath: "Задача.Исполнение.Реквизит",
     })
+    expect(parseMigrationPath("Отчет.Продажи.Реквизит.Период")).toMatchObject({
+      kind: "attribute",
+      localName: "Период",
+      ownerPath: "Отчет.Продажи",
+      levelPath: "Отчет.Продажи.Реквизит",
+    })
+    expect(parseMigrationPath("Обработка.ЗагрузкаДанных.Реквизит.Файл")).toMatchObject({
+      kind: "attribute",
+      localName: "Файл",
+      ownerPath: "Обработка.ЗагрузкаДанных",
+      levelPath: "Обработка.ЗагрузкаДанных.Реквизит",
+    })
   })
 
   it("parses task addressing attribute paths", () => {
@@ -150,6 +192,18 @@ describe("migration paths", () => {
       localName: "Товары",
       ownerPath: "Документ.Заказ",
       levelPath: "Документ.Заказ.ТабличнаяЧасть",
+    })
+    expect(parseMigrationPath("Отчет.Продажи.ТабличнаяЧасть.Показатели")).toMatchObject({
+      kind: "tabularSection",
+      localName: "Показатели",
+      ownerPath: "Отчет.Продажи",
+      levelPath: "Отчет.Продажи.ТабличнаяЧасть",
+    })
+    expect(parseMigrationPath("Обработка.ЗагрузкаДанных.ТабличнаяЧасть.Файлы")).toMatchObject({
+      kind: "tabularSection",
+      localName: "Файлы",
+      ownerPath: "Обработка.ЗагрузкаДанных",
+      levelPath: "Обработка.ЗагрузкаДанных.ТабличнаяЧасть",
     })
   })
 
