@@ -43,6 +43,52 @@ describe("sync ClientApplicationForm to XML", () => {
     expect(resultFormXML).toBe(expectedFormXML)
     expect(resultMetadataXML).toBe(expectedMetadataXML)
   })
+
+  it("не накапливает состояние нумерации в родительском контексте между формами", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-numbering-"))
+    const tmpInputDir = join(tmpRoot, "nkdk")
+    const tmpReferenceDir = join(tmpRoot, "reference-forms")
+    const tmpOutputDir = join(tmpRoot, "out")
+    const secondFormName = "ФормаВторая"
+
+    try {
+      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
+      fs.cpSync(referenceDir, tmpReferenceDir, { recursive: true })
+      fs.cpSync(join(inputDir, "Формы", formName), join(tmpInputDir, "Формы", secondFormName), {
+        recursive: true,
+      })
+      fs.cpSync(join(referenceDir, `${formName}.xml`), join(tmpReferenceDir, `${secondFormName}.xml`))
+      fs.cpSync(join(referenceDir, formName), join(tmpReferenceDir, secondFormName), { recursive: true })
+
+      const context = mockContextToXML()
+
+      await syncFormToXML({
+        context,
+        inputDir: tmpInputDir,
+        outputDir: tmpOutputDir,
+        referenceDir: tmpReferenceDir,
+        formName,
+      })
+
+      expect(fs.existsSync(join(tmpOutputDir, "Forms", formName, "Ext", "Form.xml"))).toBe(true)
+      expect(context.exportToXML.context?.metadataForNumbering).toHaveLength(0)
+      expect(context.exportToXML.context?.propertiesItemXmlStack).toBeUndefined()
+
+      await syncFormToXML({
+        context,
+        inputDir: tmpInputDir,
+        outputDir: tmpOutputDir,
+        referenceDir: tmpReferenceDir,
+        formName: secondFormName,
+      })
+
+      expect(fs.existsSync(join(tmpOutputDir, "Forms", secondFormName, "Ext", "Form.xml"))).toBe(true)
+      expect(context.exportToXML.context?.metadataForNumbering).toHaveLength(0)
+      expect(context.exportToXML.context?.propertiesItemXmlStack).toBeUndefined()
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
 })
 
 describe("round-trip: withDynamicList XML → YAML+bsl → XML", () => {

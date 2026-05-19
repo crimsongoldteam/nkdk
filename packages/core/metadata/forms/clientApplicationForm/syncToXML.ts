@@ -45,10 +45,7 @@ export const syncFormToXML = async (params: {
     throw new Error(`Failed to parse NKDK for form "${formName}"`)
   }
 
-  const contextWithFormDir: ConfigurationContextWithExportToXML = {
-    ...context,
-    importFromYAML: { formDir },
-  }
+  const contextWithFormDir = createFormScopedContext({ context, formDir })
 
   const form = importClientApplicationFormFromYAML(contextWithFormDir, yamlObj, formFromNkdk)
 
@@ -65,15 +62,22 @@ export const syncFormToXML = async (params: {
     formName,
   })
 
-  const formXML = exportClientApplicationFormToXML({ context, form, referenceForm })
+  const formXML = exportClientApplicationFormToXML({ context: contextWithFormDir, form, referenceForm })
   const metadataXML = exportFormMetadataToXML({
-    context,
+    context: contextWithFormDir,
     form,
     referenceForm: referenceForm,
     name: formName,
   })
 
-  await writeFormToXML({ context, formXML, metadataXML, formName, outputDir, xmlManifest: params.xmlManifest })
+  await writeFormToXML({
+    context: contextWithFormDir,
+    formXML,
+    metadataXML,
+    formName,
+    outputDir,
+    xmlManifest: params.xmlManifest,
+  })
 }
 
 async function readFormFiles(params: { inputDir: string; formName: string }): Promise<{
@@ -91,6 +95,34 @@ async function readFormFiles(params: { inputDir: string; formName: string }): Pr
   const nkdkContent = fs.existsSync(nkdkPath) ? await fs.promises.readFile(nkdkPath, "utf-8") : null
 
   return { yamlContent, nkdkContent, formDir }
+}
+
+const createFormScopedContext = (params: {
+  context: ConfigurationContextWithExportToXML
+  formDir: string
+}): ConfigurationContextWithExportToXML => {
+  const { context, formDir } = params
+  const exportContext = context.exportToXML.context
+
+  if (exportContext === undefined) {
+    throw new Error("exportToXML.context обязателен для синхронизации формы в XML")
+  }
+
+  return {
+    ...context,
+    importFromYAML: {
+      ...(context.importFromYAML ?? {}),
+      formDir,
+    },
+    exportToXML: {
+      ...context.exportToXML,
+      context: {
+        ...exportContext,
+        metadataForNumbering: [],
+        propertiesItemXmlStack: [],
+      },
+    },
+  }
 }
 
 const writeFormToXML = async (params: {
