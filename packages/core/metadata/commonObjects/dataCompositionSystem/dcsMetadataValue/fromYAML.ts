@@ -122,6 +122,9 @@ export const importDcsMetadataValueFromYAML = (
       })!
     }
     case "Primitive":
+      if (isDcsSystemEnumerationValueYAML(data)) {
+        return importDcsSystemEnumerationValueFromYAML(context, data)
+      }
       if (isEnterpriseDesignTimeValue(data)) {
         return { type: "DesignTimeValue", value: data }
       }

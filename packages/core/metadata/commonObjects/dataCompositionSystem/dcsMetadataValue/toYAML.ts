@@ -112,8 +112,11 @@ export const exportDcsMetadataValueToYAML = (
       }
       if (typeof data === "string") return data as unknown as MetadataDcsMetadataValueYAML
       return exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data as I8nText })
-    case "Primitive":
+    case "Primitive": {
+      const typedValue = exportTypedValueToYAML(context, data)
+      if (typedValue !== undefined) return typedValue
       return exportMetadataValueToYAML(context, undefined, data as any)
+    }
     case "TypeLink":
       return exportTypeLinkToYAML(context, undefined, data as any)
     case "ChoiceParameterLinks":

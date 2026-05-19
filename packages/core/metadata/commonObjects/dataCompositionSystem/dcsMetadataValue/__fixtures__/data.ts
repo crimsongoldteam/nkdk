@@ -172,7 +172,11 @@ const inferredAccumulationRecordTypeFixture: DcsMetadataValueFixture = {
   title: "SystemEnumeration inferred from ent:AccumulationRecordType",
   rule: { type: "MetadataDcsMetadataValue", valueType: "Primitive", yaml: "value" },
   value: fixtureAccumulationRecordType,
-  yaml: "Expense",
+  yaml: {
+    Тип: "СистемноеПеречисление",
+    Имя: "AccumulationRecordType",
+    Значение: "Расход",
+  },
   xml: "system-enumeration-accumulation-record-type.xml",
 }
 
@@ -292,6 +296,7 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
 
 export const dcsMetadataValueYAMLFixtures: DcsMetadataValueYAMLFixture[] = [
   ...dcsMetadataValueFixtures,
+  inferredAccumulationRecordTypeFixture,
   fieldRuleDecimalFixture,
   fieldRuleInferredSystemEnumerationFixture,
 ]
