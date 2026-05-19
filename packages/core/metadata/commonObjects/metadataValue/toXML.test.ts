@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCommonAttributeRules } from "~/metadata/appliedObjects/metadataCommonAttribute/rules"
 import { metadataValueFixtures } from "~/metadata/commonObjects/metadataValue/__fixtures__/data"
+import { MetadataPrimitiveValueHandler, primitiveValueHandlers } from "~/metadata/commonObjects/metadataValue/handlers"
+import { MetadataPrimitiveValueType } from "~/metadata/commonObjects/metadataValue/types"
 import { mockContext } from "~/tests/mockContext"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { xmlExport } from "~/xml/export/exporter"
@@ -77,6 +79,26 @@ describe("exportMetadataValueToXML", () => {
     })
 
     expect(result).toBe('<FillValue xsi:nil="true"/>')
+  })
+
+  it("reports missing primitive toXML handler", () => {
+    const handlers = primitiveValueHandlers as Partial<Record<MetadataPrimitiveValueType, MetadataPrimitiveValueHandler>>
+    const originalHandler = handlers.DataCompositionComparisonType
+    delete handlers.DataCompositionComparisonType
+
+    try {
+      expect(() =>
+        exportMetadataValueToXML({
+          context: mockContext,
+          rule: { type: "MetadataValue" },
+          value: { type: "DataCompositionComparisonType", value: "Equal" } as any,
+        })
+      ).toThrow(
+        "MetadataValue: отсутствует toXML-обработчик для типа DataCompositionComparisonType (rule.type: MetadataValue)"
+      )
+    } finally {
+      handlers.DataCompositionComparisonType = originalHandler
+    }
   })
 
   describe("строгая валидация valueType", () => {

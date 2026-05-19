@@ -87,6 +87,9 @@ export const exportMetadataValueToXML = (params: {
   }
 
   const handler = primitiveValueHandlers[value.type as MetadataPrimitiveValueType]
+  if (handler === undefined) {
+    throw new Error(`MetadataValue: отсутствует toXML-обработчик для типа ${value.type} (rule.type: ${rule.type})`)
+  }
   return handler.toXML(value)
 }
 
