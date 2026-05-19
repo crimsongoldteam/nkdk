@@ -49,6 +49,7 @@ ChildItem:
     | InputField  
     | LabelField
     | OtherField  
+    | CommandAdditionField
     | LabelDecoration 
     | PictureDecoration 
     | CheckBoxField
@@ -66,6 +67,7 @@ OneLineGroupField:
     | InputField 
     | LabelField
     | OtherField  
+    | CommandAdditionField
     | LabelDecoration 
     | PictureDecoration 
     | CheckBoxField 

@@ -576,6 +576,47 @@ export const parsingFixtures: ParsingFixture[] = [
     },
   },
   {
+    name: "vertical group with search string addition",
+    input: `+Группа
+  ?ОтображениеСтрокиПоиска СтрокаПоиска`,
+    expected: {
+      $type: "Group",
+      group: "+",
+      isMainAttribute: false,
+      elementName: "Группа",
+      $container: undefined,
+      childItems: [
+        {
+          $type: "CommandAdditionField",
+          type: "?ОтображениеСтрокиПоиска",
+          isMainAttribute: false,
+          elementName: "СтрокаПоиска",
+          $container: undefined,
+        },
+      ],
+    },
+  },
+  {
+    name: "one-line group with search control addition",
+    input: `=Группа ?УправлениеПоиском УправлениеПоиском`,
+    expected: {
+      $type: "Group",
+      group: "=",
+      isMainAttribute: false,
+      elementName: "Группа",
+      $container: undefined,
+      childItems: [
+        {
+          $type: "CommandAdditionField",
+          type: "?УправлениеПоиском",
+          isMainAttribute: false,
+          elementName: "УправлениеПоиском",
+          $container: undefined,
+        },
+      ],
+    },
+  },
+  {
     name: "group vertical without children",
     input: `+ГруппаДополнительныеРеквизиты`,
     expected: {
