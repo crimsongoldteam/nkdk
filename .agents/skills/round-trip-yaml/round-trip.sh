@@ -90,7 +90,20 @@ config_rel_path() {
 yaml_dir_for() {
   local active_dir="$1"
   local rel
+  local yaml_root="${NKDK_ROUND_TRIP_YAML_DIR:-}"
+
   rel="$(config_rel_path "${active_dir}")"
+  if [ -n "${yaml_root}" ]; then
+    yaml_root="${yaml_root%/}"
+    if [ "${rel}" = "." ] || [ "${#RUN_DIRS[@]}" -le 1 ]; then
+      printf '%s' "${yaml_root}"
+      return 0
+    fi
+
+    printf '%s/%s' "${yaml_root}" "$(sanitize_path_segment "${rel}")"
+    return 0
+  fi
+
   printf '%s/round-trip-yaml/%s' "${TMPDIR:-/tmp}" "$(sanitize_path_segment "${rel}")"
 }
 
