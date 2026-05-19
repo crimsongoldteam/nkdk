@@ -1,6 +1,18 @@
+import { EmptyFileSystem } from "langium"
+import { parseHelper } from "langium/test"
+import { createNkdkServices, Form as NkdkForm } from "nkdk-language"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importClientApplicationFromFromNKDK } from "~/metadata/forms/clientApplicationForm/fromNKDK"
-import { nkdkParse } from "./setupTests"
+
+let nkdkParseCached: ReturnType<typeof parseHelper<NkdkForm>> | null = null
+
+const getNkdkParse = (): ReturnType<typeof parseHelper<NkdkForm>> => {
+  if (!nkdkParseCached) {
+    const nkdkServices = createNkdkServices(EmptyFileSystem)
+    nkdkParseCached = parseHelper<NkdkForm>(nkdkServices.Nkdk)
+  }
+  return nkdkParseCached
+}
 
 // /** Конвертирует имена в формате структуры {Name} в NKDK-формат %Name */
 // const structureToNkdkString = (s: string): string => s.replace(/\{([^}]+)\}/g, "%$1")
@@ -33,6 +45,7 @@ export const testimportFormAutoCommandBarFromNKDK = async (context: Configuratio
 
 export const importFormFromNKDK = async (context: ConfigurationContext, input: string | string[]) => {
   const rawString = Array.isArray(input) ? input.join("\n") : input
+  const nkdkParse = getNkdkParse()
   const result = await nkdkParse(rawString)
 
   if (!result) {
