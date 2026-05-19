@@ -201,7 +201,11 @@ const fieldRuleInferredSystemEnumerationFixture: DcsMetadataValueYAMLFixture = {
   title: "Field rule with inferred system enumeration typed value",
   rule: { type: "MetadataDcsMetadataValue", valueType: "Field", yaml: "value" },
   value: fixtureAccumulationRecordType,
-  yaml: "Expense",
+  yaml: {
+    Тип: "СистемноеПеречисление",
+    Имя: "AccumulationRecordType",
+    Значение: "Расход",
+  },
 }
 
 export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
