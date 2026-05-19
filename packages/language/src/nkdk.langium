@@ -25,8 +25,13 @@ terminal DEDENT: '\*ё';
 hidden terminal WS: /[\t ]+/;
 
 entry Form:
-    (autoCommandBar=AutoCommandBar (NEWLINE | EOF))?
-    (childItems+=ChildItem)*;
+    (
+        autoCommandBar=AutoCommandBar (
+            EOF
+            | NEWLINE childItems+=TopLevelChildItemAfterFormAuto (childItems+=ChildItem)*
+        )
+    )
+    | (childItems+=ChildItem)*;
 
 
 fragment DataPath:
@@ -63,6 +68,25 @@ ChildItem:
     | CommandBar  
     | Button  
     | Table)(NEWLINE | EOF)?);
+
+TopLevelChildItemAfterFormAuto:
+     Group
+    | Pages
+    | ((PictureField
+    | InputField
+    | LabelField
+    | OtherField
+    | CommandAdditionField
+    | LabelDecoration
+    | PictureDecoration
+    | CheckBoxField
+    | CheckBoxFieldRightTitled
+    | CheckBoxFieldSwitch
+    | CheckBoxFieldSwitchRightTitled
+    | CheckBoxFieldTumbler
+    | CheckBoxFieldTumblerRightTitled
+    | CommandBar
+    | Button)(NEWLINE | EOF)?);
  
 OneLineGroupField:
     PictureField
