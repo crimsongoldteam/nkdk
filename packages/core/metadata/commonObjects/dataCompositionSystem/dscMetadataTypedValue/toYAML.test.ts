@@ -26,4 +26,13 @@ describe("export DcsMetadataTypedValue to YAML", () => {
       })
     ).toThrow("DcsMetadataTypedValue YAML: xsi:nil is XML-only")
   })
+
+  it("exports ref as YAML metadata reference", () => {
+    expect(
+      testExportPropertyToYAML({
+        rule,
+        value: { type: "ref", value: "Catalog.Организации.EmptyRef" },
+      })
+    ).toEqual({ value: "Справочник.Организации.ПустаяСсылка" })
+  })
 })

@@ -21,6 +21,10 @@ export type DcsMetadataTypedValue =
       value: string
     }
   | {
+      type: "ref"
+      value: string
+    }
+  | {
       type: "decimal"
       value: number
     }
@@ -78,6 +82,10 @@ export type DcsMetadataTypedValueXML =
     }
   | {
       "_xsi:type": "dcscor:DesignTimeValue"
+      "#text"?: string
+    }
+  | {
+      "_xsi:type": "xr:DesignTimeRef"
       "#text"?: string
     }
   | {

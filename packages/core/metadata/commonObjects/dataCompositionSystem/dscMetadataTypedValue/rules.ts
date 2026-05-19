@@ -65,6 +65,14 @@ export const DcsMetadataTypedValueRegistry: Record<DcsMetadataTypedValue["type"]
       "#text": getDesignTimeValue(item),
     }),
   },
+  ref: {
+    detect: ({ context, yaml }) =>
+      isStringYAML(yaml) && importMetadataValueStringFromYAML(context, undefined, yaml) !== undefined,
+    fromYAML: ({ context, yaml }) => importPrimitiveFromYAML(context, yaml),
+    fromXML: ({ context, xml }) => importPrimitiveFromXML(context, xml, "ref"),
+    toYAML: ({ context, item }) => exportPrimitiveToYAML(context, item),
+    toXML: ({ context, item }) => exportPrimitiveToXML(context, item, "ref"),
+  },
   decimal: {
     detect: ({ yaml }) => typeof yaml === "number",
     fromYAML: ({ context, yaml }) => importPrimitiveFromYAML(context, yaml),
@@ -140,6 +148,8 @@ export const DcsMetadataTypedValueTypeFromXML = (valueType: string | undefined):
       return "Field"
     case "dcscor:DesignTimeValue":
       return "DesignTimeValue"
+    case "xr:DesignTimeRef":
+      return "ref"
     case "xs:decimal":
       return "decimal"
     case "xs:boolean":
@@ -215,7 +225,7 @@ const assertEmptyValueListXML = (xml: DcsMetadataTypedValueXML): void => {
   }
 }
 
-type PrimitiveDcsType = Extract<DcsMetadataTypedValue["type"], "decimal" | "boolean" | "dateTime" | "string">
+type PrimitiveDcsType = Extract<DcsMetadataTypedValue["type"], "decimal" | "boolean" | "dateTime" | "string" | "ref">
 type MetadataValueRule = { type: "MetadataValue"; valueType: [PrimitiveDcsType] }
 
 const isStringYAML = (yaml: DcsMetadataTypedValueYAML): yaml is string => typeof yaml === "string"
