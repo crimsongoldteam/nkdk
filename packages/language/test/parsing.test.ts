@@ -34,6 +34,20 @@ describe("Parsing nkdk language", async () => {
     expect(document.parseResult.value?.childItems[0]?.$type).toBe("InputField")
   })
 
+  it("parses form auto command bar followed by table auto command bar", async () => {
+    const services = createNkdkServices(EmptyFileSystem)
+    const parse = parseHelper<Form>(services.Nkdk)
+    const document = await parse("<<ОК>>\n<<Добавить>>\n| Колонка | Список")
+
+    expect(document.parseResult.parserErrors).toHaveLength(0)
+    expect(document.parseResult.value?.autoCommandBar).toMatchObject({ $type: "AutoCommandBar" })
+    expect(document.parseResult.value?.childItems).toHaveLength(1)
+    expect(document.parseResult.value?.childItems[0]?.$type).toBe("Table")
+    expect(document.parseResult.value?.childItems[0]).toMatchObject({
+      autoCommandBar: { $type: "AutoCommandBar" },
+    })
+  })
+
   it.sequential.each(parsingFixtures)("parse $name $input", async ({ input, expected }) => {
     const services = createNkdkServices(EmptyFileSystem)
     const parse = parseHelper<Form>(services.Nkdk)

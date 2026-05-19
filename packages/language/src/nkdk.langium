@@ -70,7 +70,8 @@ ChildItem:
     | Table)(NEWLINE | EOF)?);
 
 TopLevelChildItemAfterFormAuto:
-     Group
+     TableWithAutoCommandBar
+    | Group
     | Pages
     | ((PictureField
     | InputField
@@ -189,6 +190,10 @@ fragment OneLineGroupFragment:
     childItems+=OneLineGroupField (';' childItems+=OneLineGroupField )* (NEWLINE | EOF)?;
 
 // table
+
+TableWithAutoCommandBar infers Table:
+    autoCommandBar = AutoCommandBar (NEWLINE | EOF)
+    '|' ( (childItems+=TableField ('|' childItems+=TableField )* '|') | '|'? ) NameAndDataPath (NEWLINE | EOF)?;
 
 Table:
     (autoCommandBar = AutoCommandBar (NEWLINE | EOF))?

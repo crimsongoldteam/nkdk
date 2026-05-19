@@ -81,12 +81,12 @@ TopLevelChildItemAfterFormAuto:
 Insert this immediately before the existing `Table` rule:
 
 ```langium
-TableWithAutoCommandBar:
+TableWithAutoCommandBar infers Table:
     autoCommandBar = AutoCommandBar (NEWLINE | EOF)
-    '|' ( (childItems+=TableField ('|' childItems+=TableField )* '|') | '|'? ) NameAndDataPath;
+    '|' ( (childItems+=TableField ('|' childItems+=TableField )* '|') | '|'? ) NameAndDataPath (NEWLINE | EOF)?;
 ```
 
-Do not change the existing `Table` rule in this task. Keeping both rules lets `ChildItem` continue to parse ordinary tables, while `TopLevelChildItemAfterFormAuto` gets a non-ambiguous table shape after a form-level command bar.
+Do not change the existing `Table` rule in this task. Keeping both rules lets `ChildItem` continue to parse ordinary tables, while `TopLevelChildItemAfterFormAuto` gets a non-ambiguous table shape after a form-level command bar. The rule must `infer Table` so downstream code still receives `$type: "Table"`, and it must consume `(NEWLINE | EOF)?` so following top-level elements remain parseable.
 
 - [ ] **Step 3: Generate Langium files**
 
