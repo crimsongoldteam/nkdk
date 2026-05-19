@@ -82,6 +82,17 @@ export const parsingFixtures: ParsingFixture[] = [
       $container: undefined,
     },
   },
+  {
+    name: "form attribute with raw platform data path",
+    input: `ВидЗанятости(1/0:a917a122-f663-4c45-8de0-fd5104007de3):`,
+    expected: {
+      $type: "InputField",
+      isMainAttribute: false,
+      rawDataPath: "1/0:a917a122-f663-4c45-8de0-fd5104007de3",
+      elementName: "ВидЗанятости",
+      $container: undefined,
+    },
+  },
   // #endregion
   // #region LabelDecoration
   {
@@ -902,6 +913,17 @@ export const parsingFixtures: ParsingFixture[] = [
       type: "?ПолеКалендаря",
       isMainAttribute: false,
       elementName: "ГрафикРаботы",
+      $container: undefined,
+    },
+  },
+  {
+    name: "other field chart",
+    input: `?ПолеДиаграммы ДиаграммаАнализ`,
+    expected: {
+      $type: "OtherField",
+      type: "?ПолеДиаграммы",
+      isMainAttribute: false,
+      elementName: "ДиаграммаАнализ",
       $container: undefined,
     },
   },
