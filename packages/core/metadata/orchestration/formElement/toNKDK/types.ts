@@ -70,10 +70,13 @@ export const ExportToNKDKGeneratorFn: ExportToNKDKFnMap<GenerateChildItem> = {
   PlannerField: exportOtherElementToNKDK,
   ProgressBarField: exportOtherElementToNKDK,
   RadioButtonField: exportOtherElementToNKDK,
+  SearchControlAddition: exportOtherElementToNKDK,
+  SearchStringAddition: exportOtherElementToNKDK,
   SpreadSheetDocumentField: exportOtherElementToNKDK,
   Table: exportTableToNKDK,
   TextDocumentField: exportOtherElementToNKDK,
   TrackBarField: exportOtherElementToNKDK,
+  ViewStatusAddition: exportOtherElementToNKDK,
 } as const satisfies ExportToNKDKFnMap<GenerateChildItem>
 
 /** Тип функции экспорта для конкретного itemType */

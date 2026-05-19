@@ -1,5 +1,6 @@
 import fs from "fs"
 import { join } from "path"
+import "~/metadata/commonObjects"
 import { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } from "~/metadata/context/types"
 import { exportClientApplicationFormToNKDK } from "~/metadata/forms/clientApplicationForm/toNKDK"
 import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/toYAML"

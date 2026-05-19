@@ -439,6 +439,39 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     },
   },
   {
+    name: "vertical group with addition elements",
+    element: {
+      name: "Группа",
+      itemType: "UsualGroup",
+      group: "Vertical",
+      showTitle: false,
+      childItems: [
+        {
+          name: "СтрокаПоиска",
+          itemType: "SearchStringAddition",
+        },
+        {
+          name: "УправлениеПоиском",
+          itemType: "SearchControlAddition",
+          childItems: [],
+        },
+        {
+          name: "СостояниеПросмотра",
+          itemType: "ViewStatusAddition",
+        },
+      ],
+    },
+    structured: {
+      strings: [
+        `+Группа
+  ?ОтображениеСтрокиПоиска СтрокаПоиска
+  ?УправлениеПоиском УправлениеПоиском
+  ?ОтображениеСостоянияПросмотра СостояниеПросмотра`,
+      ],
+      toOneLineGroup: false,
+    },
+  },
+  {
     name: "empty horizontal group",
     element: {
       name: "Группа",

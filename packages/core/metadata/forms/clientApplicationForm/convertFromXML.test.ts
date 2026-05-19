@@ -1,4 +1,5 @@
 import fs from "fs"
+import { execFileSync } from "node:child_process"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { plannerSettingsWithNil } from "~/metadata/forms/commonObjects/formAttribute/__fixtures__/plannerSettingsWithNil"
@@ -82,5 +83,42 @@ describe("import from XML string", () => {
     })
 
     expect(form.attributes).toEqual(plannerSettingsWithNil)
+  })
+
+  it("registers commonObjects before reading form title from XML", async () => {
+    const script = String.raw`
+      import assert from "node:assert/strict"
+      import "./metadata/forms/commonObjects/index"
+      import "./metadata/forms/elements"
+      import { readFormFromXML } from "./metadata/forms/clientApplicationForm/convertFromXML"
+
+      const context = {
+        defaultLanguage: "ru",
+        version: "2.20",
+        exportToYAML: { toTyped: false },
+        fromXML: { forReference: false },
+      }
+
+      const form = readFormFromXML({
+        context,
+        inputDir: "/Users/nikita/git/round-trip-source/acc/Catalogs/КонтактныеЛица/Forms",
+        formName: "ФормаВыбораЛидов",
+      })
+
+      const findElementByName = (items, name) => {
+        for (const item of items ?? []) {
+          if (item.name === name) return item
+          const found = findElementByName(item.childItems, name)
+          if (found !== undefined) return found
+        }
+      }
+
+      const buttonGroup = findElementByName(form.childItems, "ГруппаСтандартныеКоманды")
+      assert.deepEqual(buttonGroup?.title, { items: { ru: "Стандартные команды" } })
+    `
+
+    expect(() =>
+      execFileSync("node", ["--import", "tsx", "-e", script], { cwd: process.cwd(), encoding: "utf-8" })
+    ).not.toThrow()
   })
 })

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import { dcsMetadataValueFixtures } from "./__fixtures__/data"
+import { dcsMetadataValueYAMLFixtures } from "./__fixtures__/data"
 
 describe("export MetadataDcsMetadataValue to YAML", () => {
-  it.each(dcsMetadataValueFixtures)("exports $title", (fixture) => {
+  it.each(dcsMetadataValueYAMLFixtures)("exports $title", (fixture) => {
     expect(
       testExportPropertyToYAML({
         rule: fixture.rule,

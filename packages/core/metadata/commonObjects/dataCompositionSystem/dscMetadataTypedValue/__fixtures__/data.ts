@@ -11,7 +11,18 @@ export const emptyValueListTypedValue: DcsMetadataTypedValue = {
   type: "EmptyValueList",
 }
 
+export const emptyValueListTypedValueYAML: DcsMetadataTypedValueYAML = "СписокЗначений"
+
 export const dcsMetadataTypedValueFixtures: DcsMetadataTypedValueFixture[] = [
+  {
+    name: "emptyValueList",
+    model: emptyValueListTypedValue,
+    YAML: emptyValueListTypedValueYAML,
+    XML: `<value xsi:type="v8:ValueListType">
+	<v8:valueType/>
+	<v8:lastId xsi:type="xs:decimal">-1</v8:lastId>
+</value>`,
+  },
   {
     name: "field",
     model: { type: "Field", value: "СтандартныйПериод.ДатаНачала" },

@@ -17,4 +17,32 @@ describe("import DcsMetadataTypedValue from YAML", () => {
       })
     ).toEqual(fixture.model)
   })
+
+  it("imports quoted СписокЗначений as string", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule,
+        value: "'СписокЗначений'",
+      })
+    ).toEqual({ type: "string", value: "СписокЗначений" })
+  })
+
+  it("imports YAML metadata reference as ref when source value was ref", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule,
+        value: "Справочник.Организации.ПустаяСсылка",
+        sourceValue: { type: "ref", value: "Catalog.Организации.EmptyRef" },
+      })
+    ).toEqual({ type: "ref", value: "Catalog.Организации.EmptyRef" })
+  })
+
+  it("keeps YAML metadata reference as DesignTimeValue without ref source", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule,
+        value: "Справочник.Организации.ПустаяСсылка",
+      })
+    ).toEqual({ type: "DesignTimeValue", value: "Справочник.Организации.ПустаяСсылка" })
+  })
 })

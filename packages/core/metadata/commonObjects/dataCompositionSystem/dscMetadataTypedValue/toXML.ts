@@ -65,7 +65,13 @@ const exportSingle = (
     throw new Error("DcsMetadataTypedValue XML: unsupported typed value")
   }
   const modelValue = value as DcsMetadataTypedValue
-  return DcsMetadataTypedValueRegistry[modelValue.type].toXML({ context, rule, item: modelValue })
+  const handler = DcsMetadataTypedValueRegistry[modelValue.type]
+  if (handler === undefined) {
+    throw new Error(
+      `DcsMetadataTypedValue: отсутствует toXML-обработчик для типа ${modelValue.type} (rule.type: ${rule.type})`
+    )
+  }
+  return handler.toXML({ context, rule, item: modelValue })
 }
 
 const exportArrayItem = (

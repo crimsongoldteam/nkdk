@@ -105,6 +105,8 @@ export type DcsMetadataValueFixture = {
   xml: string
 }
 
+export type DcsMetadataValueYAMLFixture = Omit<DcsMetadataValueFixture, "xml">
+
 const primitiveTypeRefFixture: DcsMetadataValueFixture = {
   id: "primitiveTypeRef",
   title: "Primitive typeRef",
@@ -170,7 +172,11 @@ const inferredAccumulationRecordTypeFixture: DcsMetadataValueFixture = {
   title: "SystemEnumeration inferred from ent:AccumulationRecordType",
   rule: { type: "MetadataDcsMetadataValue", valueType: "Primitive", yaml: "value" },
   value: fixtureAccumulationRecordType,
-  yaml: "Expense",
+  yaml: {
+    Тип: "СистемноеПеречисление",
+    Имя: "AccumulationRecordType",
+    Значение: "Расход",
+  },
   xml: "system-enumeration-accumulation-record-type.xml",
 }
 
@@ -181,6 +187,29 @@ const colorRawRefFixture: DcsMetadataValueFixture = {
   value: fixtureColorRawRef,
   yaml: undefined,
   xml: "color-raw-ref.xml",
+}
+
+const fieldRuleDecimalFixture: DcsMetadataValueYAMLFixture = {
+  id: "fieldRuleDecimal",
+  title: "Field rule with decimal typed value",
+  rule: { type: "MetadataDcsMetadataValue", valueType: "Field", yaml: "value" },
+  value: {
+    type: "decimal",
+    value: 0,
+  },
+  yaml: 0,
+}
+
+const fieldRuleInferredSystemEnumerationFixture: DcsMetadataValueYAMLFixture = {
+  id: "fieldRuleInferredSystemEnumeration",
+  title: "Field rule with inferred system enumeration typed value",
+  rule: { type: "MetadataDcsMetadataValue", valueType: "Field", yaml: "value" },
+  value: fixtureAccumulationRecordType,
+  yaml: {
+    Тип: "СистемноеПеречисление",
+    Имя: "AccumulationRecordType",
+    Значение: "Расход",
+  },
 }
 
 export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
@@ -263,6 +292,13 @@ export const dcsMetadataValueFixtures: DcsMetadataValueFixture[] = [
     yaml: yamlChoiceParameterDecimal,
     xml: "parameter.xml",
   },
+]
+
+export const dcsMetadataValueYAMLFixtures: DcsMetadataValueYAMLFixture[] = [
+  ...dcsMetadataValueFixtures,
+  inferredAccumulationRecordTypeFixture,
+  fieldRuleDecimalFixture,
+  fieldRuleInferredSystemEnumerationFixture,
 ]
 
 export const dcsMetadataValueXMLFixtures: DcsMetadataValueFixture[] = [

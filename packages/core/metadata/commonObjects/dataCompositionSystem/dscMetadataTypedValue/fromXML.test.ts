@@ -41,6 +41,16 @@ describe("import DcsMetadataTypedValue from XML", () => {
     expect(result).toBeUndefined()
   })
 
+  it("imports xr DesignTimeRef as ref", () => {
+    expect(
+      testImportPropertyFromXML({
+        rule,
+        xmlRootTag: "value",
+        xmlString: '<value xsi:type="xr:DesignTimeRef">Catalog.Организации.EmptyRef</value>',
+      })
+    ).toEqual({ type: "ref", value: "Catalog.Организации.EmptyRef" })
+  })
+
   it("imports xsi:nil as missing value", () => {
     const result = testImportPropertyFromXML({
       rule,

@@ -19,6 +19,8 @@ import {
   MetadataDcsExplicitTextValue,
   MetadataDcsMetadataValue,
   MetadataDcsMetadataValueYAML,
+  MetadataDcsSystemEnumerationValue,
+  MetadataDcsSystemEnumerationValueYAML,
 } from "./types"
 
 const isExplicitTextValue = (data: MetadataDcsMetadataValue): data is MetadataDcsExplicitTextValue =>
@@ -28,6 +30,43 @@ const isExplicitTextValue = (data: MetadataDcsMetadataValue): data is MetadataDc
   "value" in data &&
   (data.type === "DesignTimeValue" || data.type === "Field") &&
   typeof data.value === "string"
+
+const isDcsSystemEnumerationValue = (
+  data: MetadataDcsMetadataValue
+): data is MetadataDcsSystemEnumerationValue =>
+  data !== null &&
+  typeof data === "object" &&
+  !Array.isArray(data) &&
+  "type" in data &&
+  "typeSE" in data &&
+  "value" in data &&
+  data.type === "SystemEnumeration" &&
+  typeof data.value === "string"
+
+const exportTypedValueToYAML = (
+  context: ConfigurationContext,
+  data: MetadataDcsMetadataValue
+): MetadataDcsMetadataValueYAML | undefined => {
+  if (isDcsSystemEnumerationValue(data)) {
+    const value = exportSystemEnumerationToYAMLDeprecated(
+      context,
+      { type: "SystemEnumeration", typeSE: data.typeSE } as SystemEnumerationPropertyRule,
+      data.value
+    )
+    if (value === undefined) return undefined
+    return {
+      Тип: "СистемноеПеречисление",
+      Имя: data.typeSE,
+      Значение: value,
+    } satisfies MetadataDcsSystemEnumerationValueYAML
+  }
+
+  if (data !== null && typeof data === "object" && "type" in (data as object) && "value" in (data as object)) {
+    return exportMetadataValueToYAML(context, undefined, data as any) as MetadataDcsMetadataValueYAML
+  }
+
+  return undefined
+}
 
 export const exportDcsMetadataValueToYAML = (
   context: ConfigurationContext,
@@ -60,8 +99,11 @@ export const exportDcsMetadataValueToYAML = (
   switch (rule.valueType) {
     case "Color":
       return exportColorToYAML(context, undefined, data as any)
-    case "Field":
+    case "Field": {
+      const typedValue = exportTypedValueToYAML(context, data)
+      if (typedValue !== undefined) return typedValue
       return exportMetadataFieldToYAML(context, undefined, data as any)
+    }
     case "Parameter":
       return exportChoiceParametersToYAML(context, undefined, [data as ChoiceParameter])
     case "DesignTimeValue":
@@ -70,8 +112,11 @@ export const exportDcsMetadataValueToYAML = (
       }
       if (typeof data === "string") return data as unknown as MetadataDcsMetadataValueYAML
       return exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data as I8nText })
-    case "Primitive":
+    case "Primitive": {
+      const typedValue = exportTypedValueToYAML(context, data)
+      if (typedValue !== undefined) return typedValue
       return exportMetadataValueToYAML(context, undefined, data as any)
+    }
     case "TypeLink":
       return exportTypeLinkToYAML(context, undefined, data as any)
     case "ChoiceParameterLinks":

@@ -37,6 +37,16 @@ describe("export DcsMetadataTypedValue to XML", () => {
     expect(result).toEqual(expectedResult)
   })
 
+  it("exports ref as xr DesignTimeRef", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: { type: "ref", value: "Catalog.Организации.EmptyRef" },
+      xmlRootTag: "value",
+    })
+
+    expect(result).toEqual('<value xsi:type="xr:DesignTimeRef">Catalog.Организации.EmptyRef</value>')
+  })
+
   it("exports missing value from reference v8 Type Undefined", () => {
     const { result } = testExportPropertyToXML({
       rule,
@@ -113,6 +123,18 @@ describe("export DcsMetadataTypedValue to XML", () => {
         xmlRootTag: "value",
       })
     ).toThrow("DcsMetadataTypedValue XML: unsupported reference v8:Type")
+  })
+
+  it("reports missing toXML handler for unknown runtime typed value", () => {
+    expect(() =>
+      testExportPropertyToXML({
+        rule,
+        value: { type: "UnknownDcsTypedValue", value: "x" },
+        xmlRootTag: "value",
+      })
+    ).toThrow(
+      "DcsMetadataTypedValue: отсутствует toXML-обработчик для типа UnknownDcsTypedValue (rule.type: DcsMetadataTypedValue)"
+    )
   })
 
   it("does not restore unrelated reference metadata", () => {

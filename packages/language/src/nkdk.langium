@@ -12,11 +12,13 @@ terminal PICTURE: /\[[\t ]*[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_.]*[\
 
 terminal NAME: /[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*(?:\[[0-9]+\])?/;
 
+terminal RAW_DATA_PATH: /[0-9]+\/[0-9]+:[a-fA-F0-9-]+/;
+
 terminal TEXT: /"(?:[^"]|"")*"|'(?:[^']|'')*'/;
 
 terminal SEARCHFIELD: /\?(УправлениеПоиском|ОтображениеСтрокиПоиска|ОтображениеСостоянияПросмотра)/;
 
-terminal OTHERFIELD: /\?(ПолеКалендаря|ПолеФорматированногоДокумента|ПолеДиаграммыГанта|ПолеГеографическойСхемы|ПолеГрафическойСхемы|ПолеHTMLДокумента|ПолеPDFДокумента|ПолеПериода|ПолеПланировщика|ПолеИндикатора|ПолеПереключателя|ПолеРисунка|ПолеТабличногоДокумента|ПолеТекстовогоДокумента|ПолеПолосыПрокрутки)/;
+terminal OTHERFIELD: /\?(ПолеКалендаря|ПолеФорматированногоДокумента|ПолеДиаграммы|ПолеДиаграммыГанта|ПолеГеографическойСхемы|ПолеГрафическойСхемы|ПолеHTMLДокумента|ПолеPDFДокумента|ПолеПериода|ПолеПланировщика|ПолеИндикатора|ПолеПереключателя|ПолеРисунка|ПолеТабличногоДокумента|ПолеТекстовогоДокумента|ПолеПолосыПрокрутки)/;
 
 terminal INDENT: '\*Ё';
 terminal DEDENT: '\*ё';
@@ -34,7 +36,7 @@ fragment Name:
     (isMainAttribute?='.')? elementName=NAME;
  
 fragment NameAndDataPath:
-    (isMainAttribute?='.')? ((elementName=NAME '(' DataPath? ')') | DataPath);
+    (isMainAttribute?='.')? ((elementName=NAME '(' rawDataPath=RAW_DATA_PATH ')') | (elementName=NAME '(' DataPath? ')') | DataPath);
 
 fragment Titled:
     (title=TEXT)?; 
@@ -49,6 +51,7 @@ ChildItem:
     | InputField  
     | LabelField
     | OtherField  
+    | CommandAdditionField
     | LabelDecoration 
     | PictureDecoration 
     | CheckBoxField
@@ -66,6 +69,7 @@ OneLineGroupField:
     | InputField 
     | LabelField
     | OtherField  
+    | CommandAdditionField
     | LabelDecoration 
     | PictureDecoration 
     | CheckBoxField 

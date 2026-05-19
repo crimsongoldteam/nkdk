@@ -19,6 +19,7 @@ import {
   MetadataDcsMetadataSingleValue,
   MetadataDcsMetadataValue,
   MetadataDcsMetadataValueYAML,
+  MetadataDcsSystemEnumerationValueYAML,
 } from "./types"
 
 const isEnumValueMetadataPath = (value: string | undefined): boolean =>
@@ -39,6 +40,32 @@ const importExplicitTextValueFromYAML = (data: unknown): MetadataDcsMetadataValu
     return { type: "DesignTimeValue", value: data["Значение"] }
   }
   throw new Error("MetadataDcsMetadataValue YAML: invalid explicit text value")
+}
+
+const isDcsSystemEnumerationValueYAML = (data: unknown): data is MetadataDcsSystemEnumerationValueYAML =>
+  typeof data === "object" &&
+  data !== null &&
+  !Array.isArray(data) &&
+  (data as Record<string, unknown>)["Тип"] === "СистемноеПеречисление" &&
+  typeof (data as Record<string, unknown>)["Имя"] === "string" &&
+  typeof (data as Record<string, unknown>)["Значение"] === "string"
+
+const importDcsSystemEnumerationValueFromYAML = (
+  context: ConfigurationContext,
+  data: MetadataDcsSystemEnumerationValueYAML
+): MetadataDcsMetadataValue | undefined => {
+  const value = importSystemEnumerationFromYAMLDeprecated(
+    context,
+    { type: "SystemEnumeration", typeSE: data["Имя"] } as SystemEnumerationPropertyRule,
+    data["Значение"]
+  )
+
+  if (value === undefined) return undefined
+  return {
+    type: "SystemEnumeration",
+    typeSE: data["Имя"],
+    value,
+  }
 }
 
 export const importDcsMetadataValueFromYAML = (
@@ -65,6 +92,12 @@ export const importDcsMetadataValueFromYAML = (
       if (typeof data === "string" && isEnumValueMetadataPath(metadataValuePath)) {
         return { type: "DesignTimeValue", value: data }
       }
+      if (isDcsSystemEnumerationValueYAML(data)) {
+        return importDcsSystemEnumerationValueFromYAML(context, data)
+      }
+      if (typeof data !== "string") {
+        return importMetadataValueFromYAML(context, undefined, data as any) as MetadataDcsMetadataValue
+      }
       return importMetadataFieldFromYAML(context, undefined, data as any)!
     }
     case "Parameter": {
@@ -89,6 +122,9 @@ export const importDcsMetadataValueFromYAML = (
       })!
     }
     case "Primitive":
+      if (isDcsSystemEnumerationValueYAML(data)) {
+        return importDcsSystemEnumerationValueFromYAML(context, data)
+      }
       if (isEnterpriseDesignTimeValue(data)) {
         return { type: "DesignTimeValue", value: data }
       }

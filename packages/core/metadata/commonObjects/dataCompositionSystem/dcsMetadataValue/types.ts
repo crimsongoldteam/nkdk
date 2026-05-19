@@ -57,6 +57,12 @@ export type MetadataDcsSystemEnumerationValue = {
   value: string
 }
 
+export type MetadataDcsSystemEnumerationValueYAML = {
+  Тип: "СистемноеПеречисление"
+  Имя: keyof SystemEnumerationTypeMap
+  Значение: string
+}
+
 export type MetadataDcsMetadataSingleValue =
   | null
   | Color
@@ -84,6 +90,7 @@ export type MetadataDcsMetadataSingleValueYAML =
   | TypeLinkYAML
   | ChoiceParameterLinksYAML
   | FontYAML
+  | MetadataDcsSystemEnumerationValueYAML
   | string
 
 export type MetadataDcsMetadataValueYAML = MetadataDcsMetadataSingleValueYAML | MetadataDcsMetadataSingleValueYAML[]

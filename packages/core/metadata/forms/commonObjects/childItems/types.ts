@@ -63,11 +63,14 @@ export type GroupChildItem =
   | PlannerField
   | ProgressBarField
   | RadioButtonField
+  | SearchControlAddition
+  | SearchStringAddition
   | SpreadSheetDocumentField
   | Table
   | TextDocumentField
   | TrackBarField
   | UsualGroup
+  | ViewStatusAddition
 
 export type GroupChildItems = GroupChildItem[]
 
@@ -226,8 +229,11 @@ export type GenerateChildItem =
   | Page
   | Pages
   | PictureDecoration
+  | SearchControlAddition
+  | SearchStringAddition
   | Table
   | UsualGroup
+  | ViewStatusAddition
   | OtherElement
 
 // #endregion

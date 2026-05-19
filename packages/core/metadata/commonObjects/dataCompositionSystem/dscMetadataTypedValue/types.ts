@@ -21,6 +21,10 @@ export type DcsMetadataTypedValue =
       value: string
     }
   | {
+      type: "ref"
+      value: string
+    }
+  | {
       type: "decimal"
       value: number
     }
@@ -49,6 +53,7 @@ export type DcsMetadataTypedValue =
 
 export const DcsMetadataTypedValueJSONSchema = Type.Union([
   Type.Literal("Порядок"),
+  Type.Literal("СписокЗначений"),
   Type.String(),
   Type.Number(),
   BooleanJSONSchema,
@@ -77,6 +82,10 @@ export type DcsMetadataTypedValueXML =
     }
   | {
       "_xsi:type": "dcscor:DesignTimeValue"
+      "#text"?: string
+    }
+  | {
+      "_xsi:type": "xr:DesignTimeRef"
       "#text"?: string
     }
   | {
