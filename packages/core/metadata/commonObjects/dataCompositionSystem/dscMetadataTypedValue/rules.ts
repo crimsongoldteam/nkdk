@@ -116,17 +116,13 @@ export const DcsMetadataTypedValueRegistry: Record<DcsMetadataTypedValue["type"]
       exportStandartBeginningDateToXML(getStandardBeginningDateValue(item)) as DcsMetadataTypedValueXML,
   },
   EmptyValueList: {
-    detect: () => false,
-    fromYAML: () => {
-      throw new Error("DcsMetadataTypedValue YAML: EmptyValueList is XML-only")
-    },
+    detect: ({ yaml }) => yaml === "СписокЗначений",
+    fromYAML: () => ({ type: "EmptyValueList" }),
     fromXML: ({ xml }) => {
       assertEmptyValueListXML(xml)
       return { type: "EmptyValueList" }
     },
-    toYAML: () => {
-      throw new Error("DcsMetadataTypedValue YAML: EmptyValueList is XML-only")
-    },
+    toYAML: () => "СписокЗначений",
     toXML: () => ({
       "_xsi:type": "v8:ValueListType",
       "v8:valueType": {},

@@ -49,6 +49,7 @@ export type DcsMetadataTypedValue =
 
 export const DcsMetadataTypedValueJSONSchema = Type.Union([
   Type.Literal("Порядок"),
+  Type.Literal("СписокЗначений"),
   Type.String(),
   Type.Number(),
   BooleanJSONSchema,
