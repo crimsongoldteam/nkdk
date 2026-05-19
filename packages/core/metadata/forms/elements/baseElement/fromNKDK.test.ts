@@ -38,4 +38,34 @@ describe("import other field from structure", () => {
       name: "СписокСостояниеПросмотра",
     })
   })
+
+  it("should import command addition fields inside ordinary group", async () => {
+    const form = await importFormFromNKDK(mockContext, [
+      "+Группа",
+      "  ?ОтображениеСтрокиПоиска СтрокаПоиска",
+      "  ?УправлениеПоиском УправлениеПоиском",
+      "  ?ОтображениеСостоянияПросмотра СостояниеПросмотра",
+    ])
+    const group = form?.childItems[0]
+
+    if (group?.itemType !== "UsualGroup") {
+      throw new Error("Expected UsualGroup")
+    }
+
+    expect(group.childItems).toEqual([
+      {
+        itemType: "SearchStringAddition",
+        name: "СтрокаПоиска",
+      },
+      {
+        itemType: "SearchControlAddition",
+        name: "УправлениеПоиском",
+        childItems: [],
+      },
+      {
+        itemType: "ViewStatusAddition",
+        name: "СостояниеПросмотра",
+      },
+    ])
+  })
 })
