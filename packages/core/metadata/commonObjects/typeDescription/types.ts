@@ -227,6 +227,23 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     prefix: "dcsset",
     namespace: "http://v8.1c.ru/8.1/data-composition-system/settings",
   },
+  DataCompositionFieldPlacement: {
+    enterprise: "DataCompositionFieldPlacement",
+    prefix: "dcsset",
+    namespace: "http://v8.1c.ru/8.1/data-composition-system/settings",
+  },
+  DataCompositionGroupType: {
+    enterprise: "DataCompositionGroupType",
+    prefix: "dcscor",
+  },
+  DataCompositionPeriodAdditionType: {
+    enterprise: "DataCompositionPeriodAdditionType",
+    prefix: "dcscor",
+  },
+  DataCompositionSortDirection: {
+    enterprise: "DataCompositionSortDirection",
+    prefix: "dcscor",
+  },
   Field: {
     enterprise: "ПолеКомпоновкиДанных",
     prefix: "dcscor",

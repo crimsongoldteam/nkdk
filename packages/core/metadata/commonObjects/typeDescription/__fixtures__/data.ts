@@ -161,6 +161,26 @@ export const typeFixturesTable: TypeFixture[] = [
     xml: "<TypeDescription>\n\t<v8:Type>cfg:DynamicList</v8:Type>\n</TypeDescription>",
   },
   {
+    internal: { type: ["DataCompositionSortDirection"] },
+    YAML: "DataCompositionSortDirection",
+    xml: "<TypeDescription>\n\t<v8:Type>dcscor:DataCompositionSortDirection</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["DataCompositionFieldPlacement"] },
+    YAML: "DataCompositionFieldPlacement",
+    xml: "<TypeDescription>\n\t<v8:Type>dcsset:DataCompositionFieldPlacement</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["DataCompositionGroupType"] },
+    YAML: "DataCompositionGroupType",
+    xml: "<TypeDescription>\n\t<v8:Type>dcscor:DataCompositionGroupType</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["DataCompositionPeriodAdditionType"] },
+    YAML: "DataCompositionPeriodAdditionType",
+    xml: "<TypeDescription>\n\t<v8:Type>dcscor:DataCompositionPeriodAdditionType</v8:Type>\n</TypeDescription>",
+  },
+  {
     internal: {
       type: [],
       typeId: ["8c1e3694-da12-44d5-8b1f-d134b89a1282", "6b99868d-5f3a-44e2-bb6d-3ad3b5d3198c"],
