@@ -88,6 +88,7 @@ export const parsingFixtures: ParsingFixture[] = [
     expected: {
       $type: "InputField",
       isMainAttribute: false,
+      dataPath: [],
       rawDataPath: "1/0:a917a122-f663-4c45-8de0-fd5104007de3",
       elementName: "ВидЗанятости",
       $container: undefined,
