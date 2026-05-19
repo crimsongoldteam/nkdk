@@ -19,7 +19,7 @@ import { ConfigurationSyncResult } from "./convertFromXML"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 // TODO: вынести в настройки расширения
-const IO_CONCURRENCY = 64
+const IO_CONCURRENCY = 16
 
 export const syncConfigurationToXML = async (params: {
   context: ConfigurationContextWithExportToXML
