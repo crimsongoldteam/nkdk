@@ -7,7 +7,10 @@ export const normalMinimalFont: Font = {
   kind: "Absolute",
 }
 
-export const normalMinimalFontYAML: FontYAML = "Academy Engraved LET"
+export const normalMinimalFontYAML: FontYAML = {
+  ВидXML: "Absolute",
+  Имя: "Academy Engraved LET",
+}
 
 // #endregion
 
@@ -18,7 +21,10 @@ export const emptyFaceNameMinimalFont: Font = {
   kind: "Absolute",
 }
 
-export const emptyFaceNameMinimalFontYAML: FontYAML = ""
+export const emptyFaceNameMinimalFontYAML: FontYAML = {
+  ВидXML: "Absolute",
+  Имя: "",
+}
 
 // #endregion
 
@@ -30,6 +36,7 @@ export const prefixedFaceNameFont: Font = {
 }
 
 export const prefixedFaceNameFontYAML: FontYAML = {
+  ВидXML: "Absolute",
   Имя: "style:TooltipTitleFont",
 }
 
@@ -42,7 +49,9 @@ export const systemMinimalFont: Font = {
   kind: "WindowsFont",
 }
 
-export const systemMinimalFontYAML: FontYAML = "ANSIШрифтМоноширинный"
+export const systemMinimalFontYAML: FontYAML = {
+  Вид: "ANSIШрифтМоноширинный",
+}
 
 // #endregion
 
@@ -53,7 +62,9 @@ export const styleMinimalFont: Font = {
   kind: "StyleItem",
 }
 
-export const styleMinimalFontYAML: FontYAML = "ОченьКрупныйШрифтТекста"
+export const styleMinimalFontYAML: FontYAML = {
+  Вид: "ОченьКрупныйШрифтТекста",
+}
 
 // #endregion
 
@@ -64,7 +75,9 @@ export const unknownStyleMinimalFont: Font = {
   kind: "StyleItem",
 }
 
-export const unknownStyleMinimalFontYAML: FontYAML = "style:TooltipTitleFont"
+export const unknownStyleMinimalFontYAML: FontYAML = {
+  Вид: "style:TooltipTitleFont",
+}
 
 // #endregion
 
@@ -124,6 +137,7 @@ export const normalFullFont: Font = {
 }
 
 export const normalFullFontYAML: FontYAML = {
+  ВидXML: "Absolute",
   Имя: "Times New Roman",
   Размер: 20,
   Масштаб: 200,
@@ -174,6 +188,7 @@ export const emptyFaceNameFullFont: Font = {
 }
 
 export const emptyFaceNameFullFontYAML: FontYAML = {
+  ВидXML: "Absolute",
   Имя: "",
   Размер: 12,
   Масштаб: 100,
@@ -181,6 +196,35 @@ export const emptyFaceNameFullFontYAML: FontYAML = {
   Подчеркивание: "Ложь",
   Полужирный: "Ложь",
   Зачеркивание: "Ложь",
+}
+
+// #endregion
+
+// #region styleScale100Font
+
+export const styleScale100Font: Font = {
+  ref: "NormalTextFont",
+  kind: "StyleItem",
+  scale: 100,
+}
+
+export const styleScale100FontYAML: FontYAML = {
+  Вид: "ОбычныйШрифтТекста",
+  Масштаб: 100,
+}
+
+// #endregion
+
+// #region autoBoldFont
+
+export const autoBoldFont: Font = {
+  kind: "AutoFont",
+  bold: true,
+}
+
+export const autoBoldFontYAML: FontYAML = {
+  ВидXML: "AutoFont",
+  Полужирный: "Истина",
 }
 
 // #endregion
@@ -291,6 +335,20 @@ export const fontYAMLFixtures: FontYAMLFixture[] = [
       Underline: false,
       Strikeout: false,
     },
+  },
+  {
+    name: "style scale 100",
+    xml: `<Font ref="style:NormalTextFont" kind="StyleItem" scale="100"/>`,
+    font: styleScale100Font,
+    yaml: styleScale100FontYAML,
+    preview: { Type: "Font", Value: "StyleFonts.NormalTextFont", Scale: 100 },
+  },
+  {
+    name: "auto bold",
+    xml: `<Font bold="true" kind="AutoFont"/>`,
+    font: autoBoldFont,
+    yaml: autoBoldFontYAML,
+    preview: { Type: "Font", Bold: true },
   },
   {
     name: "system full",
