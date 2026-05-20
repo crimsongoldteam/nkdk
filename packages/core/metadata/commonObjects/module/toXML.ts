@@ -1,5 +1,5 @@
 import fs from "fs"
-import { basename, dirname, join, resolve } from "path"
+import { basename, dirname, join } from "path"
 import { syncExplicitExternalFilesToXML } from "~/metadata/commonObjects/externalFiles/sync"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type {
@@ -44,7 +44,7 @@ export const syncModuleToXML = async (params: {
   await syncExplicitExternalFilesToXML({
     rules: rule.externalFiles,
     nkdkDir,
-    xmlDir: resolveOutputRoot({ dstPath, xmlRelativePath }),
+    xmlDir: resolveExternalOutputRoot({ xmlDir, xmlPath, objectName: params.name }),
     pathParams,
     xmlManifest: params.xmlManifest,
   })
@@ -60,10 +60,9 @@ const stripObjectPrefix = (params: { xmlDir: string; xmlPath: string; objectName
   return xmlPath.startsWith(prefix) ? xmlPath.slice(prefix.length) : xmlPath
 }
 
-const resolveOutputRoot = (params: { dstPath: string; xmlRelativePath: string }): string => {
-  const xmlDir = dirname(params.xmlRelativePath)
-  if (xmlDir === ".") return dirname(params.dstPath)
+const resolveExternalOutputRoot = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
+  if (!params.objectName || basename(params.xmlDir) === params.objectName) return params.xmlDir
 
-  const segments = xmlDir.split("/").filter(Boolean)
-  return resolve(dirname(params.dstPath), ...segments.map(() => ".."))
+  const prefix = `${params.objectName}/`
+  return params.xmlPath.startsWith(prefix) ? params.xmlDir : join(params.xmlDir, params.objectName)
 }
