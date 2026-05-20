@@ -6,7 +6,7 @@ import { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./
 export const importI8nTextFromXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule,
-  xml: I8nTextXML | undefined
+  xml: I8nTextXML | "" | undefined
 ): I8nText | undefined => {
   const narrowRule = _rule as I8nTextPropertyRule
 
