@@ -76,6 +76,27 @@ describe("exportClientApplicationFormToYAML", () => {
     })
   })
 
+  it("exports disabled auto command bar autofill to YAML", () => {
+    const form: ClientApplicationForm = {
+      itemType: "ClientApplicationForm",
+      commands: [],
+      autoCommandBar: {
+        itemType: "AutoCommandBar",
+        autofill: false,
+        childItems: [],
+      },
+      childItems: [],
+    }
+
+    const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, form)
+
+    expect(yaml).toEqual({
+      КоманднаяПанель: {
+        Автозаполнение: "Ложь",
+      },
+    })
+  })
+
   it("exports catalog full YAML", () => {
     const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, catalogFullClientApplicationForm)
 

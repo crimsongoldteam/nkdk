@@ -39,7 +39,6 @@ export const LabelFieldRules = {
     dataPath: {
       yaml: "ПутьКДанным",
       type: "DataPath",
-      toPartialYAML: false,
       defaultType: "string",
     },
     ...formFieldCommonProperties,

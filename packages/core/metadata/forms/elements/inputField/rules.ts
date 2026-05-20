@@ -241,7 +241,6 @@ export const InputFieldRules = {
     dataPath: {
       yaml: "ПутьКДанным",
       type: "DataPath",
-      toPartialYAML: false,
       // fromYAML: false,
       defaultType: "string",
     },

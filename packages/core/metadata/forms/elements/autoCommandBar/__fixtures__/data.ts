@@ -31,6 +31,7 @@ export const fullAutoCommandBar: AutoCommandBar = {
 }
 
 export const fullAutoExportCommandBarYAML: AutoCommandBarYAML = {
+  Автозаполнение: "Ложь",
   ВажностьПриОтображении: "Высокая",
   ГоризонтальноеПоложение: "Лево",
 }

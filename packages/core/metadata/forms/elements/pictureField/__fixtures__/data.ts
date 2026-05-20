@@ -138,6 +138,7 @@ export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
   },
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
+  ПутьКДанным: "Реквизит",
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<Required<PictureFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
 
