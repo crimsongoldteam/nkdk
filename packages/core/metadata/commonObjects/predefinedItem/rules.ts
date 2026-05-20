@@ -14,7 +14,7 @@ export const PredefinedItemRules = {
       required: true,
     },
     code: {
-      type: "string",
+      type: "PredefinedCode",
       xml: "Code",
       yaml: "Код",
       required: true,

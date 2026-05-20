@@ -221,6 +221,7 @@ import "./picture/toJSONSchema"
 import "./picture/toXML"
 import "./picture/toYAML"
 
+import "./predefinedCode"
 import "./predefined"
 
 import "./predefinedItem"
