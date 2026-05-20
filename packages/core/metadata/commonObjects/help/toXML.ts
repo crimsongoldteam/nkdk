@@ -1,5 +1,6 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
+import { syncExplicitExternalFilesToXML } from "~/metadata/commonObjects/externalFiles/sync"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type { HelpPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { xmlExport } from "~/xml/export/exporter"
@@ -50,6 +51,21 @@ export const syncHelpToXML = async (params: {
     await fs.promises.copyFile(srcHtmlPath, dstHtmlPath)
     params.xmlManifest?.addFile(dstHtmlPath)
   }
+
+  await syncExplicitExternalFilesToXML({
+    rules: [
+      {
+        kind: "directory",
+        xmlDir: `${helpHtmlDir}/_files`,
+        nkdkDir: `${rule.nkdkDir}/_files`,
+        include: [/.*/],
+      },
+    ],
+    nkdkDir,
+    xmlDir,
+    pathParams: { name: params.name! },
+    xmlManifest: params.xmlManifest,
+  })
 }
 
 registerTypeRule("Help", "syncExternalToXML", syncHelpToXML)

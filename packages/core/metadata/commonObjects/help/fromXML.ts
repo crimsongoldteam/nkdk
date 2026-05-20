@@ -1,5 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
+import { syncExplicitExternalFilesFromXML } from "~/metadata/commonObjects/externalFiles/sync"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type { HelpPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { importContentFromXML } from "~/xml/import/importer"
@@ -35,6 +36,20 @@ export const syncHelpFromXML = async (params: {
     await fs.promises.mkdir(dirname(dstHtmlPath), { recursive: true })
     await fs.promises.copyFile(srcHtmlPath, dstHtmlPath)
   }
+
+  await syncExplicitExternalFilesFromXML({
+    rules: [
+      {
+        kind: "directory",
+        xmlDir: `${helpHtmlDir}/_files`,
+        nkdkDir: `${rule.nkdkDir}/_files`,
+        include: [/.*/],
+      },
+    ],
+    xmlDir,
+    nkdkDir,
+    pathParams: { name: params.name! },
+  })
 }
 
 registerTypeRule("Help", "syncExternalFromXML", syncHelpFromXML)
