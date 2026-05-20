@@ -51,7 +51,10 @@ describe("exportMobileDeviceCommandBarContentToYAML", () => {
       5,
       "Истина",
       "Справочник.Пользователи.ПустаяСсылка",
-      '"A"(А)',
+      {
+        Представление: "А",
+        Значение: '"A"',
+      },
     ]
 
     const result = exportMobileDeviceCommandBarContentToYAML(mockContext, mockRule, mixed)
