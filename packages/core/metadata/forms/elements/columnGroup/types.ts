@@ -8,7 +8,7 @@ export type ColumnGroup = FormTypeByRule<typeof ColumnGroupRules>
 
 export type ColumnGroupPartialYAML = YAMLTypeByRule<typeof ColumnGroupRules>
 
-export interface ColumnGroupTypedYAML extends ColumnGroupPartialYAML {
+export interface ColumnGroupTypedYAML extends Omit<ColumnGroupPartialYAML, "Группировка"> {
   Тип: "ГруппаКолонок"
   Группировка?: SE.ColumnsGroupYAML
 }

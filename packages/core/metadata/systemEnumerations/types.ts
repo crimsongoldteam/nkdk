@@ -13680,6 +13680,6 @@ export type SystemEnumerationPropertyRule<T extends keyof SystemEnumerationTypeM
     ? Omit<BasePropertyRule, "defaultValueYAML"> & {
         type: "SystemEnumeration"
         typeSE: T
-        defaultValueYAML?: SystemEnumerationTypeMap[T]
+        defaultValueYAML?: SystemEnumerationTypeMap[T] | string
       }
     : never
