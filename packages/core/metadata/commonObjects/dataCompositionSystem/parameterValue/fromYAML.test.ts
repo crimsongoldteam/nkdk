@@ -12,4 +12,18 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
     })
     expect(result).toEqual(fixture.value)
   })
+
+  it("imports wrapper whose name matches a Font YAML key for non-Font values", () => {
+    const result = testImportPropertyFromYAML({
+      rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue" } as PropertyRule,
+      value: {
+        Имя: "Значение",
+      },
+    })
+
+    expect(result).toEqual({
+      parameter: "Имя",
+      value: { items: { ru: "Значение" } },
+    })
+  })
 })
