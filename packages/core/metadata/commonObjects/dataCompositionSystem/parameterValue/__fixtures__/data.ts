@@ -259,4 +259,16 @@ export const parameterValueFixtures: ParameterValueFixture[] = [
 	<dcscor:value xsi:type="v8ui:Color">web:Blue</dcscor:value>
 </dcscor:item>`,
   },
+  {
+    id: "wrapperNameMatchesFontKey",
+    title: "wrapper name matches Font YAML key (DesignTimeValue)",
+    rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue" },
+    value: {
+      parameter: "Имя",
+      value: { items: { ru: "Значение" } },
+    },
+    yaml: {
+      Имя: "Значение",
+    },
+  },
 ]

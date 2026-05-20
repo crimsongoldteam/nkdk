@@ -16,14 +16,18 @@ import type {
 const isYamlObject = (x: unknown): x is Record<string, unknown> =>
   typeof x === "object" && x !== null && !Array.isArray(x)
 
-/** Поля развёрнутого SPV и известных object-value YAML — не имя параметра снаружи */
-const PARAMETER_VALUE_YAML_OBJECT_VALUE_KEYS = new Set([
+/** Поля развёрнутого SPV — не имя параметра снаружи. */
+const PARAMETER_VALUE_YAML_INTERNAL_KEYS = new Set([
   "Использовать",
   "Значение",
   "Элементы",
   "РежимОтображения",
   "ИдентификаторПользовательскойНастройки",
   "ПредставлениеПользовательскойНастройки",
+])
+
+/** Поля объектного Font YAML. Для Font-значения они не являются wrapper-именем параметра. */
+const FONT_YAML_OBJECT_VALUE_KEYS = new Set([
   "Вид",
   "ВидXML",
   "Имя",
@@ -40,13 +44,15 @@ const PARAMETER_VALUE_YAML_OBJECT_VALUE_KEYS = new Set([
  * Ключ «Параметр» не разворачиваем: это ChoiceParameters, а не имя SPV.
  */
 const tryUnwrapParameterValueWrapper = (
+  rule: SettingsParameterValuePropertyRule,
   yaml: unknown
 ): { parameter: string; inner: unknown } | undefined => {
   if (!isYamlObject(yaml)) return undefined
   const keys = Object.keys(yaml)
   if (keys.length !== 1) return undefined
   const k = keys[0]!
-  if (PARAMETER_VALUE_YAML_OBJECT_VALUE_KEYS.has(k)) return undefined
+  if (PARAMETER_VALUE_YAML_INTERNAL_KEYS.has(k)) return undefined
+  if (rule.valueType === "Font" && FONT_YAML_OBJECT_VALUE_KEYS.has(k)) return undefined
   if (k === "Параметр") return undefined
   return { parameter: k, inner: yaml[k] }
 }
@@ -62,7 +68,7 @@ export const importParameterValueFromYAML = (
 
   const dcsRule = toDcsMetadataValueRule(rule)
 
-  const unwrapped = tryUnwrapParameterValueWrapper(yaml)
+  const unwrapped = tryUnwrapParameterValueWrapper(rule, yaml)
   const yamlToParse = unwrapped !== undefined ? unwrapped.inner : yaml
   const parameterFromWrapper = unwrapped?.parameter
 
