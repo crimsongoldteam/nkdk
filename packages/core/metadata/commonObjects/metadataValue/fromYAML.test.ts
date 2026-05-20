@@ -37,5 +37,14 @@ describe("importMetadataValueFromYAML", () => {
         importMetadataValueFromYAML(mockContext, { type: "MetadataValue", valueType: ["string"] } as any, 10)
       ).toThrowError("MetadataValue: ожидались [string], получен decimal в fromYAML")
     })
+
+    it("должен бросить при valueType: [string] и объектном FormChoiceListDesTimeValue", () => {
+      expect(() =>
+        importMetadataValueFromYAML(mockContext, { type: "MetadataValue", valueType: ["string"] } as any, {
+          Представление: "Физическое лицо",
+          Значение: '"ФЛ"',
+        })
+      ).toThrowError("MetadataValue: ожидались [string], получен formChoiceListDesTimeValue в fromYAML")
+    })
   })
 })

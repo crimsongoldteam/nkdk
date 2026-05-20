@@ -100,7 +100,10 @@ export const metadataValueFixtures: MetadataValueFixture[] = [
       presentation: { items: { ru: "Физическое лицо" } },
       value: { type: "string", value: "ФЛ" },
     },
-    YAML: '"ФЛ"(Физическое лицо)',
+    YAML: {
+      Представление: "Физическое лицо",
+      Значение: '"ФЛ"',
+    },
     XML: `<Value xsi:type="FormChoiceListDesTimeValue">
 	<Presentation>
 		<v8:item>

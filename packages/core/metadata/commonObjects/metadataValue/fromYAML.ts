@@ -45,7 +45,9 @@ export const importMetadataValueFromYAML = (
 
   // Агрегатные типы определяются по форме данных, не по rule
   if (typeof data === "object" && !Array.isArray(data) && "Представление" in data) {
-    return importFormChoiceListFromYAML(context, data as MetadataFormChoiceListValueYAML)
+    const result = importFormChoiceListFromYAML(context, data as MetadataFormChoiceListValueYAML)
+    assertValueType(ruleTyped?.valueType, result.type, "fromYAML")
+    return result
   }
 
   if (Array.isArray(data)) {

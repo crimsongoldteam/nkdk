@@ -11,7 +11,12 @@ export const oneItemChoiceList: ChoiceList = [
   },
 ]
 
-export const oneItemChoiceListYAML: ChoiceListYAML = ['"Значение1"(Значение 1)']
+export const oneItemChoiceListYAML: ChoiceListYAML = [
+  {
+    Представление: "Значение 1",
+    Значение: '"Значение1"',
+  },
+]
 
 export const twoItemsChoiceList: ChoiceList = [
   {
@@ -32,7 +37,16 @@ export const twoItemsChoiceList: ChoiceList = [
   },
 ]
 
-export const twoItemsChoiceListYAML: ChoiceListYAML = ['"Значение1"(Значение 1)', "2(Значение 2)"]
+export const twoItemsChoiceListYAML: ChoiceListYAML = [
+  {
+    Представление: "Значение 1",
+    Значение: '"Значение1"',
+  },
+  {
+    Представление: "Значение 2",
+    Значение: 2,
+  },
+]
 
 export const emptyValueChoiceList: ChoiceList = [
   {
@@ -42,4 +56,8 @@ export const emptyValueChoiceList: ChoiceList = [
   },
 ]
 
-export const emptyValueChoiceListYAML: ChoiceListYAML = ["(Пустое значение)"]
+export const emptyValueChoiceListYAML: ChoiceListYAML = [
+  {
+    Представление: "Пустое значение",
+  },
+]
