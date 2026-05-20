@@ -112,8 +112,10 @@ describe("sync ClientApplicationForm to XML", () => {
       fs.cpSync(inputDir, tmpInputDir, { recursive: true })
       fs.cpSync(referenceDir, tmpReferenceDir, { recursive: true })
       fs.mkdirSync(join(tmpInputDir, "Формы", formName, "Картинки"), { recursive: true })
+      fs.mkdirSync(join(tmpInputDir, "Формы", formName, "КартинкиШапки"), { recursive: true })
       fs.mkdirSync(join(tmpInputDir, "Формы", formName, "КартинкиЗначений"), { recursive: true })
       fs.writeFileSync(join(tmpInputDir, "Формы", formName, "Картинки", "Декорация2.png"), Buffer.from([1, 2, 3]))
+      fs.writeFileSync(join(tmpInputDir, "Формы", formName, "КартинкиШапки", "ГруппаСШапкой.gif"), Buffer.from([7, 8, 9]))
       fs.writeFileSync(join(tmpInputDir, "Формы", formName, "КартинкиЗначений", "Статус.bmp"), Buffer.from([4, 5, 6]))
 
       await syncFormToXML({
@@ -136,10 +138,22 @@ describe("sync ClientApplicationForm to XML", () => {
         "Статус",
         "ValuesPicture.bmp"
       )
+      const headerPicturePath = join(
+        outputDir,
+        "Forms",
+        formName,
+        "Ext",
+        "Form",
+        "Items",
+        "ГруппаСШапкой",
+        "HeaderPicture.gif"
+      )
 
       expect([...fs.readFileSync(picturePath)]).toEqual([1, 2, 3])
+      expect([...fs.readFileSync(headerPicturePath)]).toEqual([7, 8, 9])
       expect([...fs.readFileSync(valuesPicturePath)]).toEqual([4, 5, 6])
       expect(xmlManifest.expectedFiles()).toContain("Forms/ФормаЭлемента/Ext/Form/Items/Декорация2/Picture.png")
+      expect(xmlManifest.expectedFiles()).toContain("Forms/ФормаЭлемента/Ext/Form/Items/ГруппаСШапкой/HeaderPicture.gif")
       expect(xmlManifest.expectedFiles()).toContain("Forms/ФормаЭлемента/Ext/Form/Items/Статус/ValuesPicture.bmp")
     } finally {
       fs.rmSync(tmpRoot, { recursive: true, force: true })

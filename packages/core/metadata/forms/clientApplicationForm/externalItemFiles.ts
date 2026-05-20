@@ -1,11 +1,25 @@
 import fs from "fs"
 import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from "path"
 import type { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
+import type { PropertyRule } from "~/metadata/orchestration"
+import { ClientApplicationFormRules } from "./rules"
 
-const externalItemFileSpecs = [
-  { xmlName: "Picture", nkdkDir: "Картинки" },
-  { xmlName: "ValuesPicture", nkdkDir: "КартинкиЗначений" },
-] as const
+type ExternalFormItemFileSpec = {
+  xmlName: string
+  nkdkDir: string
+}
+
+const isExternalFormItemFileRule = (
+  rule: PropertyRule
+): rule is PropertyRule & { type: "ExternalFormItemFile"; xml: string; yaml: string } =>
+  rule.type === "ExternalFormItemFile"
+
+const getExternalItemFileSpecs = (): ExternalFormItemFileSpec[] =>
+  (Object.values(ClientApplicationFormRules.properties) as PropertyRule[])
+    .filter(isExternalFormItemFileRule)
+    .map((rule) => ({ xmlName: rule.xml, nkdkDir: rule.yaml }))
+
+const externalItemFileSpecs = getExternalItemFileSpecs()
 
 export async function copyFormItemExternalFilesFromXML(params: {
   formXmlDir: string

@@ -67,8 +67,13 @@ describe("import from XML string", () => {
     try {
       fs.cpSync(inputDir, tmpInputDir, { recursive: true })
       fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "Декорация2"), { recursive: true })
+      fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "ГруппаСШапкой"), { recursive: true })
       fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "Статус"), { recursive: true })
       fs.writeFileSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "Декорация2", "Picture.png"), Buffer.from([1, 2, 3]))
+      fs.writeFileSync(
+        join(tmpInputDir, formName, "Ext", "Form", "Items", "ГруппаСШапкой", "HeaderPicture.gif"),
+        Buffer.from([7, 8, 9])
+      )
       fs.writeFileSync(
         join(tmpInputDir, formName, "Ext", "Form", "Items", "Статус", "ValuesPicture.bmp"),
         Buffer.from([4, 5, 6])
@@ -83,6 +88,9 @@ describe("import from XML string", () => {
 
       expect([...fs.readFileSync(join(outputDir, "Формы", formName, "Картинки", "Декорация2.png"))]).toEqual([
         1, 2, 3,
+      ])
+      expect([...fs.readFileSync(join(outputDir, "Формы", formName, "КартинкиШапки", "ГруппаСШапкой.gif"))]).toEqual([
+        7, 8, 9,
       ])
       expect([...fs.readFileSync(join(outputDir, "Формы", formName, "КартинкиЗначений", "Статус.bmp"))]).toEqual([
         4, 5, 6,
