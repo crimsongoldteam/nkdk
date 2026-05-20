@@ -27,7 +27,6 @@ export const ClientApplicationFormRules = {
       yaml: "КоманднаяПанель",
       type: "AutoCommandBar",
       tag: FormRulesTags.Form,
-      fromYAML: false,
     },
     autoFillCheck: {
       yaml: "ПроверятьЗаполнениеАвтоматически",
@@ -51,12 +50,10 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
     },
     childItems: {
+      yaml: "Элементы",
       type: "GroupChildItems",
-      // yaml: "Элементы",
       tag: FormRulesTags.Form,
       defaultValue: [],
-      fromPartialYAML: true,
-      toPartialYAML: false,
       required: true,
     },
     childItemsHorizontalAlign: {

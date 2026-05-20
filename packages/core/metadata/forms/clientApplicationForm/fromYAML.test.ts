@@ -13,7 +13,7 @@ import {
 import { documentFullClientApplicationFormFromYAML } from "./__fixtures__/documentFull"
 import { documentFullClientApplicationFormYAMLForImport } from "./__fixtures__/documentFull.yaml"
 import { mockContext } from "~/tests/mockContext"
-import { ButtonGroup, ButtonGroupPartialYAML } from "../elements/buttonGroup/types"
+import { ButtonGroup } from "../elements/buttonGroup/types"
 import { Table } from "../elements/table/types"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
@@ -23,6 +23,50 @@ type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
 }
 
 describe("importClientApplicationFormFromYAML", () => {
+  it("imports complete form from one YAML source without source", () => {
+    const data: ClientApplicationFormYAML = {
+      КоманднаяПанель: {
+        Элементы: {
+          Записать: {
+            Вид: "Кнопка",
+            ИмяКоманды: "Записать",
+          },
+        },
+      },
+      Элементы: {
+        Товар: {
+          Вид: "ПолеВвода",
+          ПутьКДанным: "Объект.Товар",
+        },
+      },
+    }
+
+    const result = importClientApplicationFormFromYAML(mockContext, data)
+
+    expect(result).toEqual({
+      itemType: "ClientApplicationForm",
+      commands: [],
+      autoCommandBar: {
+        itemType: "AutoCommandBar",
+        autofill: true,
+        childItems: [
+          {
+            itemType: "Button",
+            name: "Записать",
+            commandName: "Записать",
+          },
+        ],
+      },
+      childItems: [
+        {
+          itemType: "InputField",
+          name: "Товар",
+          dataPath: "Объект.Товар",
+        },
+      ],
+    })
+  })
+
   it("should import all fields from YAML", () => {
     const result = importClientApplicationFormFromYAML(mockContext, fullClientApplicationFormYAML, {
       commands: [],
@@ -121,16 +165,19 @@ describe("importClientApplicationFormFromYAML", () => {
     }
 
     const enterpriseData: ClientApplicationFormYAML = {
-      Элементы: {
-        ГруппаКнопок1: {
-          Доступность: "Ложь",
-          Элементы: {
-            Кнопка1: {
-              Тип: "Кнопка",
-              ИмяКоманды: "Команда1",
+      КоманднаяПанель: {
+        Элементы: {
+          ГруппаКнопок1: {
+            Вид: "ГруппаКнопок",
+            Доступность: "Ложь",
+            Элементы: {
+              Кнопка1: {
+                Вид: "Кнопка",
+                ИмяКоманды: "Команда1",
+              },
             },
           },
-        } as unknown as ButtonGroupPartialYAML,
+        },
       },
     }
 
@@ -198,13 +245,24 @@ describe("importClientApplicationFormFromYAML", () => {
 
     const enterpriseData: ClientApplicationFormYAML = {
       Элементы: {
-        ГруппаКнопок1: {
-          Доступность: "Ложь",
-          Элементы: {
-            Кнопка1: { Тип: "Кнопка", ИмяКоманды: "Команда1" },
+        Таблица1: {
+          Вид: "ТаблицаФормы",
+          МножественныйВыбор: "Ложь",
+          КоманднаяПанель: {
+            Элементы: {
+              ГруппаКнопок1: {
+                Вид: "ГруппаКнопок",
+                Доступность: "Ложь",
+                Элементы: {
+                  Кнопка1: {
+                    Вид: "Кнопка",
+                    ИмяКоманды: "Команда1",
+                  },
+                },
+              },
+            },
           },
-        } as unknown as ButtonGroupPartialYAML,
-        Таблица1: { МножественныйВыбор: "Ложь" },
+        },
       },
     }
 

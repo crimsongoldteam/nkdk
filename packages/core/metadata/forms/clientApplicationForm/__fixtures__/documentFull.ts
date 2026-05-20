@@ -155,23 +155,10 @@ const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
 const numberInputFieldFromYAML = {
   itemType: "InputField",
   name: "Номер",
+  dataPath: "Объект.Number",
   editMode: "EnterOnInput",
   multipleValuesExtendedEdit: true,
 } satisfies InputField
-
-const numberContextMenu = {
-  itemType: "ContextMenu",
-  name: "НомерКонтекстноеМеню",
-  childItems: [],
-} as const
-
-const numberExtendedTooltip = {
-  itemType: "ExtendedTooltip",
-} as const
-
-const commandExtendedTooltip = {
-  itemType: "ExtendedTooltip",
-} as const
 
 export const documentFullClientApplicationForm: ClientApplicationForm = documentFullClientApplicationFormData
 
@@ -182,15 +169,5 @@ export const documentFullClientApplicationFormFromYAML: ClientApplicationForm = 
     autofill: true,
     childItems: [],
   },
-  childItems: [
-    {
-      ...numberInputFieldFromYAML,
-      contextMenu: numberContextMenu,
-      extendedTooltip: numberExtendedTooltip,
-    },
-    {
-      ...commandButton,
-      extendedTooltip: commandExtendedTooltip,
-    },
-  ],
+  childItems: [numberInputFieldFromYAML, commandButton],
 }

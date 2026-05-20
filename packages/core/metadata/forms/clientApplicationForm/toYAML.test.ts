@@ -15,6 +15,7 @@ import { documentFullClientApplicationForm } from "./__fixtures__/documentFull"
 import { documentFullClientApplicationFormYAML } from "./__fixtures__/documentFull.yaml"
 import { mockContextToYAML } from "~/tests/mockContext"
 import { exportClientApplicationFormToYAML } from "./toYAML"
+import { ClientApplicationForm } from "./types"
 
 describe("exportClientApplicationFormToYAML", () => {
   // it("should return undefined when data is undefined", () => {
@@ -27,6 +28,52 @@ describe("exportClientApplicationFormToYAML", () => {
     const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, fullClientApplicationForm)
 
     expect(yaml).toEqual(fullClientApplicationFormYAML)
+  })
+
+  it("exports form and command bar elements from one YAML source", () => {
+    const form: ClientApplicationForm = {
+      itemType: "ClientApplicationForm",
+      commands: [],
+      autoCommandBar: {
+        itemType: "AutoCommandBar",
+        autofill: true,
+        childItems: [
+          {
+            itemType: "Button",
+            name: "Записать",
+            type: "UsualButton",
+            commandName: "Записать",
+          },
+        ],
+      },
+      childItems: [
+        {
+          itemType: "InputField",
+          name: "Товар",
+          dataPath: "Объект.Товар",
+        },
+      ],
+    }
+
+    const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, form)
+
+    expect(yaml).toEqual({
+      КоманднаяПанель: {
+        Элементы: {
+          Записать: {
+            Вид: "Кнопка",
+            ИмяКоманды: "Записать",
+            ТипКнопки: "ОбычнаяКнопка",
+          },
+        },
+      },
+      Элементы: {
+        Товар: {
+          Вид: "ПолеВвода",
+          ПутьКДанным: "Объект.Товар",
+        },
+      },
+    })
   })
 
   it("exports catalog full YAML", () => {
