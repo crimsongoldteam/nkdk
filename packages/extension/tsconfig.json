@@ -12,10 +12,5 @@
       "~/*": ["../core/*"]
     }
   },
-  "references": [
-    {
-      "path": "../language/tsconfig.src.json"
-    }
-  ],
   "include": ["src/**/*.ts"]
 }

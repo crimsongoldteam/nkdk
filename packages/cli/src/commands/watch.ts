@@ -16,10 +16,9 @@ import { updateGraphFiles } from "./updateGraph"
 const WATCH_PATTERNS = [
   "**/Свойства.yaml",
   "**/Форма.yaml",
-  "**/Форма.nkdk",
 ] as const
 
-const PROJECT_FILE_ORDER = ["Свойства.yaml", "Форма.yaml", "Форма.nkdk"] as const
+const PROJECT_FILE_ORDER = ["Свойства.yaml", "Форма.yaml"] as const
 
 const projectFileOrder = (filePath: string): number => {
   const parts = filePath.split("/")

@@ -1,8 +1,6 @@
 export { exportFormMetadataToXML } from "./clientApplicationForm/toXML"
 export type { FormMetadataXML } from "./clientApplicationForm/types"
 
-export { importChildItemsFromNKDK } from "./commonObjects/childItems/fromNKDK"
-
 export {
   clearElementRulesRegistry,
   getElementRule,

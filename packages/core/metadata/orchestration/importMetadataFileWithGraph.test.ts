@@ -607,16 +607,14 @@ describe("importMetadataFileWithGraph — graphTerminals (ПустаяСсылк
 })
 
 describe("importMetadataFileWithGraph — form", () => {
-  const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
-  const NKDK_PATH = "Справочник/Товары/Формы/ФормаСписка/Модуль.nkdk"
+  const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
   const OWNER_NODE_ID = "Справочник.Товары"
 
   it("создаёт form-узел с owning-ребром Форма от владельца", async () => {
     const graph = new GraphBuilder()
     await importMetadataFileWithGraph({
       filePath: YAML_PATH,
-      nkdkFilePath: NKDK_PATH,
-      sources: { yaml: "{}", nkdk: "" },
+      sources: { yaml: "{}" },
       kind: "form",
       name: "ФормаСписка",
       graph,
@@ -633,12 +631,11 @@ describe("importMetadataFileWithGraph — form", () => {
     expect(formEdges[0].target).toBe(formNodeId)
   })
 
-  it("form-узел объявляется YAML и дополняется nkdk", async () => {
+  it("form-узел объявляется только YAML", async () => {
     const graph = new GraphBuilder()
     await importMetadataFileWithGraph({
       filePath: YAML_PATH,
-      nkdkFilePath: NKDK_PATH,
-      sources: { yaml: "{}", nkdk: "" },
+      sources: { yaml: "{}" },
       kind: "form",
       name: "ФормаСписка",
       graph,
@@ -649,23 +646,21 @@ describe("importMetadataFileWithGraph — form", () => {
     const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
     const attrs = graph.getNodeAttributes(formNodeId)
     expect(attrs.filePaths).toContain(YAML_PATH)
-    expect(attrs.filePaths).not.toContain(NKDK_PATH)
-    expect(attrs.contributedFilePaths).toContain(NKDK_PATH)
   })
 
-  it("визуальные элементы объявляются nkdk при paired text", async () => {
+  it("визуальные элементы объявляются YAML при едином файле формы", async () => {
     const graph = new GraphBuilder()
     await importMetadataFileWithGraph({
       filePath: YAML_PATH,
-      nkdkFilePath: NKDK_PATH,
       sources: {
         yaml: [
           "Элементы:",
           "  ПолеВвода1:",
+          "    Вид: ПолеВвода",
+          "    ПутьКДанным: Реквизит",
           "    Ширина: 10",
           "",
         ].join("\n"),
-        nkdk: "ПолеВвода1(Реквизит): \n",
       },
       kind: "form",
       name: "ФормаСписка",
@@ -676,19 +671,16 @@ describe("importMetadataFileWithGraph — form", () => {
 
     const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
     const formFile = walkGraphToFileData(graph).find((file) => file.filePath === YAML_PATH)!
-    const nkdkFile = walkGraphToFileData(graph).find((file) => file.filePath === NKDK_PATH)!
 
     expect(formFile.declaredNodeIds).toContain(formNodeId)
-    expect(formFile.declaredNodeIds?.some((id) => id.startsWith(`${formNodeId}.Элемент.`))).toBe(false)
-    expect(nkdkFile.contributedNodeIds).toContain(formNodeId)
-    expect(nkdkFile.declaredNodeIds?.some((id) => id.startsWith(`${formNodeId}.Элемент.`))).toBe(true)
+    expect(formFile.declaredNodeIds?.some((id) => id.startsWith(`${formNodeId}.Элемент.`))).toBe(true)
 
     const root = formFile.nodes.find((node) => node.id === formNodeId)!
     expect(Object.keys(root.props).some((key) => key.startsWith("p_childItems_"))).toBe(false)
     expect(Object.keys(root.props).some((key) => key.startsWith("p_autoCommandBar_"))).toBe(false)
   })
 
-  it("не обходит все узлы графа при перепривязке визуальных элементов к nkdk", async () => {
+  it("не обходит все узлы графа после построения визуальных элементов формы", async () => {
     const graph = new GraphBuilder()
     graph.ensureNode("Справочник.Другой.Форма.ФормаСписка.Элемент.Чужой")
 
@@ -696,15 +688,15 @@ describe("importMetadataFileWithGraph — form", () => {
 
     await importMetadataFileWithGraph({
       filePath: YAML_PATH,
-      nkdkFilePath: NKDK_PATH,
       sources: {
         yaml: [
           "Элементы:",
           "  ПолеВвода1:",
+          "    Вид: ПолеВвода",
+          "    ПутьКДанным: Реквизит",
           "    Ширина: 10",
           "",
         ].join("\n"),
-        nkdk: "ПолеВвода1(Реквизит): \n",
       },
       kind: "form",
       name: "ФормаСписка",

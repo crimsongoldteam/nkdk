@@ -12,6 +12,7 @@ export const nonCanonicalSingletonNames = {
 } satisfies Table
 
 export const nonCanonicalSingletonNamesYAML = {
+  ПутьКДанным: "Подписи",
   ОтображениеСостоянияПросмотра: {
     ГоризонтальноеПоложение: "Лево",
   },

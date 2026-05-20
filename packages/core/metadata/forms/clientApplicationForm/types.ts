@@ -1,7 +1,7 @@
 import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import { FormChildItemsPartialYAML } from "../commonObjects/childItems/types"
+import { FormElementTreeYAML } from "../commonObjects/childItems/types"
 import { FormAttributesXML } from "../commonObjects/formAttribute/types"
 import { FormCommandsXML } from "../commonObjects/formCommand/types"
 import { FormParametersXML } from "../commonObjects/formParameter/types"
@@ -48,7 +48,7 @@ export interface ClientApplicationFormXML {
 }
 
 export type ClientApplicationFormYAML = YAMLTypeByRule<typeof ClientApplicationFormRules> & {
-  Элементы?: FormChildItemsPartialYAML
+  Элементы?: FormElementTreeYAML
 }
 
 export interface FormMetadataXML {

@@ -8,12 +8,12 @@ import {
   CommandBarButtonPartialYAML,
   CommandBarButtonTypedYAML,
 } from "~/metadata/forms/elements/button/types"
-import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import { StructureResult } from "~/tests/types"
 
 export interface CommandBarButtonStructureFixture {
   name: string
   element: CommandBarButton
-  structured: ToNKDKResult
+  structured: StructureResult
 }
 
 const commonButtonModel = {
@@ -300,7 +300,7 @@ export const fullCommandBarHyperlinkEnterprise = {
 export interface ButtonStructureFixture {
   name: string
   element: Button
-  structured: ToNKDKResult
+  structured: StructureResult
 }
 
 export const buttonStructureFixturesTable: ButtonStructureFixture[] = [

@@ -1,7 +1,5 @@
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
-import { createEmptyClientApplicationForm } from "~/metadata/forms/clientApplicationForm/createEmpty"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
-import { parseClientApplicationFormFromNKDK } from "~/metadata/forms/clientApplicationForm/parseNKDK"
 import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
 import {
   registerGraphImport,
@@ -17,27 +15,13 @@ export function registerFormGraphImport(): void {
     phase: 1,
     includeStubEdgesInChangedFile: true,
     matchPath: matchFormPath,
-    importModel: ({ context, parsed, sources }) => {
-      const buildModel = (nkdkModel = createEmptyClientApplicationForm()) => {
-        const model = importClientApplicationFormFromYAML(
-          context,
-          parsed.data,
-          nkdkModel,
-        )
-        return {
-          model,
-          graphModel: toGraphModel(model),
-          rule: ClientApplicationFormRules,
-        }
+    importModel: ({ context, parsed }) => {
+      const model = importClientApplicationFormFromYAML(context, parsed.data)
+      return {
+        model,
+        graphModel: toGraphModel(model),
+        rule: ClientApplicationFormRules,
       }
-
-      if (!sources.paired?.text) {
-        return buildModel()
-      }
-
-      return parseClientApplicationFormFromNKDK(context, sources.paired.text).then(
-        (nkdkModel) => buildModel(nkdkModel ?? createEmptyClientApplicationForm()),
-      )
     },
     declareRoot: ({ graph, name, pathParams }) => {
       const ownerNodeId = pathParams.ownerNodeId
@@ -50,22 +34,6 @@ export function registerFormGraphImport(): void {
       graph.ensureNode(formNodeId, { name })
       graph.ensureEdge(ownerNodeId, formNodeId, "FORM", { yaml: "Форма" })
       return formNodeId
-    },
-    afterBuildGraph: ({ graph, parentNodeId, filePath, sources }) => {
-      if (!sources.paired?.filePath) return
-
-      graph.addContributedFilePath(parentNodeId, sources.paired.filePath)
-      const visualPrefix = `${parentNodeId}.Элемент.`
-      const visualNodeIds = [...graph.nodesWithPrefix(visualPrefix)]
-
-      for (const nodeId of visualNodeIds) {
-        graph.removeFilePath(nodeId, filePath)
-        graph.addFilePath(nodeId, sources.paired.filePath)
-      }
-
-      for (const { source, target, attributes } of graph.edgeEntriesTouching(visualNodeIds)) {
-        graph.ensureEdge(source, target, attributes.kind, { filePath: sources.paired.filePath })
-      }
     },
   })
 }

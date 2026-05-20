@@ -5,7 +5,6 @@ export type {
   GraphPrimitive,
   ImportContext,
   NodeData,
-  PairedGraphSourceText,
   ProjectGraphInput,
   ProjectGraphSource,
 } from "./types"

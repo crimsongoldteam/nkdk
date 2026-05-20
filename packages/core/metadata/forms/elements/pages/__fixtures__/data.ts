@@ -82,6 +82,11 @@ export const fullPagesPartialYAML: PagesPartialYAML = {
   События: {
     ПриСменеСтраницы: "ПриСменеСтраницы",
   },
+  Элементы: {
+    СтраницаМинимальная: {
+      Вид: "Страница",
+    },
+  },
 }
 
 export const fullPagesTypedYAML: PagesTypedYAML = {

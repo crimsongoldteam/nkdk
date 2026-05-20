@@ -15,10 +15,9 @@ export const PagesRules = {
       required: true,
     },
     childItems: {
+      yaml: "Элементы",
       type: "PagesChildItems",
       defaultValue: [],
-      toPartialYAML: false,
-      fromPartialYAML: true,
       required: true,
     },
     displayImportance: {

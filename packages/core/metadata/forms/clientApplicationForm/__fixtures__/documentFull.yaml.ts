@@ -1,29 +1,24 @@
 import { ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
-import { GroupChildItemsPartialYAML } from "~/metadata/forms/commonObjects/childItems/types"
-import { ButtonPartialYAML } from "~/metadata/forms/elements/button/types"
-import { InputFieldPartialYAML } from "~/metadata/forms/elements/inputField/types"
+import { FormElementTreeNodeYAML, FormElementTreeYAML } from "~/metadata/forms/commonObjects/childItems/types"
 
 type DocumentClientApplicationFormYAML = Omit<ClientApplicationFormYAML, "Элементы"> & {
   АвтоВремя: "Последним"
   РежимПроведения: "Неоперативный"
   ПерепроводитьПриЗаписи: "Ложь"
-  Элементы: GroupChildItemsPartialYAML
+  Элементы: FormElementTreeYAML
 }
 
-const numberInputFieldYAML: InputFieldPartialYAML = {
+const numberInputFieldYAML: FormElementTreeNodeYAML = {
+  Вид: "ПолеВвода",
+  ПутьКДанным: "Объект.Number",
   РежимРедактирования: "ВходПриВводе",
   РасширенноеРедактированиеМножественныхЗначений: "Истина",
 }
 
-const numberInputFieldYAMLForImport: InputFieldPartialYAML = {
-  ...numberInputFieldYAML,
-  КонтекстноеМеню: {},
-  РасширеннаяПодсказка: {},
-}
-
-const commandButtonYAML: ButtonPartialYAML = {
-  Вид: "ОбычнаяКнопка",
+const commandButtonYAML: FormElementTreeNodeYAML = {
+  Вид: "Кнопка",
   ИмяКоманды: "Form.Command.Команда1",
+  ТипКнопки: "ОбычнаяКнопка",
 }
 
 const documentFullClientApplicationFormYAMLData: DocumentClientApplicationFormYAML = {
@@ -142,10 +137,5 @@ const documentFullClientApplicationFormYAMLData: DocumentClientApplicationFormYA
 export const documentFullClientApplicationFormYAML: ClientApplicationFormYAML =
   documentFullClientApplicationFormYAMLData
 
-export const documentFullClientApplicationFormYAMLForImport: ClientApplicationFormYAML = {
-  ...documentFullClientApplicationFormYAMLData,
-  Элементы: {
-    ...documentFullClientApplicationFormYAMLData.Элементы,
-    Номер: numberInputFieldYAMLForImport,
-  },
-}
+export const documentFullClientApplicationFormYAMLForImport: ClientApplicationFormYAML =
+  documentFullClientApplicationFormYAMLData

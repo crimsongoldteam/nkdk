@@ -1,6 +1,6 @@
 import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import { StructureResult } from "~/tests/types"
 import {
   fullCommandBarChildItemsAllYAML,
   fullCommandBarChildItemsStructure,
@@ -44,7 +44,7 @@ export const minimalAutoCommandBar: AutoCommandBar = {
 export interface AutoCommandBarStructureFixture {
   name: string
   element: AutoCommandBar
-  structured: ToNKDKResult
+  structured: StructureResult
 }
 
 export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixture[] = [

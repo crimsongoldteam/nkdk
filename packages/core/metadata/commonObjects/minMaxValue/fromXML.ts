@@ -16,7 +16,7 @@ export const importMinMaxValueFromXML = (
   _rule: PropertyRule | undefined,
   value: MinMaxValueXML
 ): number | Number | undefined => {
-  const rawValue = typeof value === "object" && value !== null ? value["#text"] : value
+  const rawValue = getMinMaxValueText(value)
 
   if (rawValue === undefined || rawValue === "") return undefined
 
@@ -28,6 +28,18 @@ export const importMinMaxValueFromXML = (
   }
 
   return result
+}
+
+const getMinMaxValueText = (value: MinMaxValueXML): number | string | undefined => {
+  if (typeof value === "object" && value !== null) {
+    return value["#text"]
+  }
+
+  if (typeof value === "number" || typeof value === "string") {
+    return value
+  }
+
+  return undefined
 }
 
 const isMinMaxValueXsiType = (value: string | undefined): value is MinMaxValueXsiType => {

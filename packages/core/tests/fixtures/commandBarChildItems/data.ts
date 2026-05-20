@@ -1,6 +1,5 @@
 import {
   CommandBarChildItem,
-  CommandBarChildItemsTypedYAML,
   FormElementsYAML,
 } from "~/metadata/forms/commonObjects/childItems/types"
 import { ButtonPartialYAML } from "~/metadata/forms/elements/button/types"
@@ -14,19 +13,19 @@ export const fullCommandBarChildItemsAllYAML: FormElementsYAML = {
     Подсказка: "Подсказка для группы кнопок",
     Элементы: {
       Кнопка2: {
-        Тип: "Кнопка",
+        Вид: "Кнопка",
         ИмяКоманды: "ВыполнитьКоманда2",
       },
-    } as CommandBarChildItemsTypedYAML,
+    },
   },
   Подменю: {
     Подсказка: "Подсказка для подменю",
     Элементы: {
       Кнопка3: {
-        Тип: "Кнопка",
+        Вид: "Кнопка",
         ИмяКоманды: "ВыполнитьКоманда3",
       },
-    } as CommandBarChildItemsTypedYAML,
+    },
   },
 }
 

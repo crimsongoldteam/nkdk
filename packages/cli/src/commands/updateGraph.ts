@@ -67,14 +67,6 @@ const createSkippedSourceFiles = (
       })
     }
 
-    if (source.pairedText && !graphFilePaths.has(source.pairedText.filePath)) {
-      result.push({
-        filePath: source.pairedText.filePath,
-        fileStats: source.pairedText.fileStats,
-        nodes: [],
-        edges: [],
-      })
-    }
   }
 
   return result

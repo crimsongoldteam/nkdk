@@ -22,10 +22,9 @@ export const UsualGroupRules = {
       defaultValueYAML: "Auto",
     },
     childItems: {
+      yaml: "Элементы",
       type: "GroupChildItems",
       defaultValue: [],
-      fromPartialYAML: true,
-      toPartialYAML: false,
       required: true,
     },
     childItemsHorizontalAlign: {

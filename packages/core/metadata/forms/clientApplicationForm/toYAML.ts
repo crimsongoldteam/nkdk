@@ -1,7 +1,5 @@
 import { ConfigurationContext, ExternalFileEntry } from "~/metadata/context/types"
 import { exportPropertiesToYAML } from "~/metadata/orchestration"
-import { exportChildItemsToPartialYAML } from "../commonObjects/childItems/toYAML"
-import { getAllElements } from "./getAllElements"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 
@@ -26,19 +24,11 @@ export const exportClientApplicationFormToYAML = (
       }
     : context
 
-  const properties = exportPropertiesToYAML({
+  const yaml = exportPropertiesToYAML({
     context: contextWithCollector,
     data: data,
     rule: ClientApplicationFormRules,
-  })
-
-  const allElements = getAllElements(data)
-  const childItemsPartial = exportChildItemsToPartialYAML(contextWithCollector, allElements)
-
-  const yaml: ClientApplicationFormYAML = {
-    ...properties,
-    ...(childItemsPartial ? { Элементы: childItemsPartial } : {}),
-  }
+  }) as ClientApplicationFormYAML | undefined
 
   return { yaml, externalFiles: externalFilesCollector }
 }

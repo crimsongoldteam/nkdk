@@ -20,18 +20,7 @@ vi.mock("@nakidka/core", () => {
     discoverProjectGraphFiles: mocks.discoverProjectGraphFiles,
     isSupportedProjectGraphFile: (filePath: string) =>
       filePath.startsWith("Справочник/") &&
-      (filePath.endsWith("/Свойства.yaml") ||
-        filePath.endsWith("/Форма.yaml") ||
-        filePath.endsWith("/Форма.nkdk")),
-    pairedProjectGraphFile: (filePath: string) => {
-      if (filePath.endsWith("/Форма.nkdk")) {
-        return `${filePath.slice(0, -"Форма.nkdk".length)}Форма.yaml`
-      }
-      if (filePath.endsWith("/Форма.yaml")) {
-        return `${filePath.slice(0, -"Форма.yaml".length)}Форма.nkdk`
-      }
-      return undefined
-    },
+      (filePath.endsWith("/Свойства.yaml") || filePath.endsWith("/Форма.yaml")),
   }
 })
 
@@ -60,10 +49,7 @@ const graphFile = (filePath: string): FileGraphData => ({
 })
 
 const graphPayloadFor = (sources: readonly ProjectGraphSource[]): FileGraphData[] => {
-  return sources.flatMap((source) => [
-    graphFile(source.filePath),
-    ...(source.pairedText ? [graphFile(source.pairedText.filePath)] : []),
-  ])
+  return sources.map((source) => graphFile(source.filePath))
 }
 
 const discoverTestProjectGraphFiles = (projectPath: string): string[] => {
@@ -80,11 +66,9 @@ const discoverTestProjectGraphFiles = (projectPath: string): string[] => {
     for (const formEntry of readdirSync(formsRoot, { withFileTypes: true })) {
       if (!formEntry.isDirectory()) continue
 
-      for (const fileName of ["Форма.yaml", "Форма.nkdk"] as const) {
-        const fullPath = join(formsRoot, formEntry.name, fileName)
-        if (existsSync(fullPath)) {
-          files.push(`Справочник/${entry.name}/Формы/${formEntry.name}/${fileName}`)
-        }
+      const fullPath = join(formsRoot, formEntry.name, "Форма.yaml")
+      if (existsSync(fullPath)) {
+        files.push(`Справочник/${entry.name}/Формы/${formEntry.name}/Форма.yaml`)
       }
     }
   }
@@ -105,12 +89,10 @@ describe("updateGraph command", () => {
     vi.restoreAllMocks()
   })
 
-  it("полный updateGraph собирает paired Форма.nkdk и пишет в граф проекта", async () => {
+  it("полный updateGraph собирает Форма.yaml", async () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
     writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
 
     await updateGraph(projectPath)
 
@@ -119,40 +101,25 @@ describe("updateGraph command", () => {
     expect(mocks.buildGraph.mock.calls[0]?.[0]).toMatchObject([
       {
         filePath: yamlPath,
-        pairedText: {
-          filePath: nkdkPath,
-          text: "ПолеВвода1(Реквизит):\n",
-        },
       },
     ])
     expect(mocks.writeGraph).toHaveBeenNthCalledWith(1, [], { graphName })
     expect(mocks.writeGraph).toHaveBeenNthCalledWith(
       2,
-      [graphFile(yamlPath), graphFile(nkdkPath)],
+      [graphFile(yamlPath)],
       expect.objectContaining({ graphName }),
     )
   })
 
-  it("updateGraphFiles пересобирает через buildGraph и добавляет tombstone для удалённой Форма.nkdk", async () => {
+  it("updateGraphFiles игнорирует неподдержанный файл", async () => {
     const projectPath = createProject()
-    const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
-    writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
+    const textPath = "Справочник/Товары/Формы/ФормаСписка/Форма.txt"
 
-    await updateGraphFiles(projectPath, [nkdkPath])
+    await updateGraphFiles(projectPath, [textPath])
 
-    const graphName = projectGraphName(projectPath)
     expect(mocks.buildGraph).toHaveBeenCalledOnce()
-    expect(mocks.buildGraph.mock.calls[0]?.[0]).toMatchObject([
-      {
-        filePath: yamlPath,
-        text: "Элементы: {}\n",
-      },
-    ])
-    expect(mocks.writeGraph).toHaveBeenCalledWith(
-      [graphFile(yamlPath), { filePath: nkdkPath, nodes: [], edges: [] }],
-      expect.objectContaining({ graphName }),
-    )
+    expect(mocks.buildGraph.mock.calls[0]?.[0]).toEqual([])
+    expect(mocks.writeGraph).not.toHaveBeenCalled()
   })
 
   it("updateGraphFiles не пишет в граф при пустом batch payload", async () => {
@@ -167,9 +134,7 @@ describe("updateGraph command", () => {
   it("updateGraphFiles записывает пустой File для прочитанного файла, который buildGraph пропустил", async () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
     writeProjectFile(projectPath, yamlPath, "Реквизиты: {}\n")
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
     mocks.buildGraph.mockResolvedValue([])
 
     await updateGraphFiles(projectPath, [yamlPath])
@@ -177,7 +142,6 @@ describe("updateGraph command", () => {
     const payload = mocks.writeGraph.mock.calls[0]?.[0] as FileGraphData[]
     expect(payload).toMatchObject([
       { filePath: yamlPath, nodes: [], edges: [], fileStats: expect.objectContaining({ size: 23 }) },
-      { filePath: nkdkPath, nodes: [], edges: [], fileStats: expect.objectContaining({ size: 39 }) },
     ])
   })
 

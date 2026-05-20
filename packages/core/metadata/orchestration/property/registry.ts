@@ -393,16 +393,13 @@ import { ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects
 import {
   CommandBarChildItems,
   CommandBarChildItemsEnterprise,
-  CommandBarChildItemsTypedYAML,
+  FormElementTreeYAML,
   GroupChildItems,
   GroupChildItemsEnterprise,
-  GroupChildItemsPartialYAML,
   PagesChildItems,
   PagesChildItemsEnterprise,
-  PagesChildItemsPartialYAML,
   TableChildItems,
   TableChildItemsEnterprise,
-  TableChildItemsPartialYAML,
 } from "~/metadata/forms/commonObjects/childItems/types"
 import { CommandInterface, CommandInterfaceYAML } from "~/metadata/forms/commonObjects/commandInterface/types"
 import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/commandSet/types"
@@ -1201,22 +1198,22 @@ export type PropertyTypeRegistry = {
   GroupChildItems: {
     item: GroupChildItems
     enterprise: GroupChildItemsEnterprise
-    yaml: GroupChildItemsPartialYAML
+    yaml: FormElementTreeYAML
   }
   CommandBarChildItems: {
     item: CommandBarChildItems
     enterprise: CommandBarChildItemsEnterprise
-    yaml: CommandBarChildItemsTypedYAML
+    yaml: FormElementTreeYAML
   }
   TableChildItems: {
     item: TableChildItems
     enterprise: TableChildItemsEnterprise
-    yaml: TableChildItemsPartialYAML
+    yaml: FormElementTreeYAML
   }
   PagesChildItems: {
     item: PagesChildItems
     enterprise: PagesChildItemsEnterprise
-    yaml: PagesChildItemsPartialYAML
+    yaml: FormElementTreeYAML
   }
   // ChildItems: {
   //   item: unknown

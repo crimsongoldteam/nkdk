@@ -8,7 +8,7 @@ import {
   TableLabelFieldTypedYAML,
 } from "~/metadata/forms/elements/labelField/types"
 
-import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import { StructureResult } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
@@ -117,8 +117,8 @@ export const minimalTableLabelFieldTypedYAML: TableLabelFieldTypedYAML = {
 export interface LabelFieldStructureFixture {
   name: string
   element: LabelField
-  structured: ToNKDKResult
-  content: ToNKDKResult
+  structured: StructureResult
+  content: StructureResult
 }
 
 export const labelFieldStructureFixturesTable: LabelFieldStructureFixture[] = [

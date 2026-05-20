@@ -94,44 +94,4 @@ describe("graphImport registry", () => {
       }),
     )
   })
-
-  it("передаёт парный источник в afterBuildGraph без знания его предметного смысла", async () => {
-    registerGraphImport({
-      kind: "test-paired",
-      importModel: ({ name }) => {
-        const model = { itemType: "MetadataCatalog", name }
-        return { model, graphModel: toGraphModel(model), rule: testRule }
-      },
-      declareRoot: ({ graph, rule, name, filePath }) =>
-        declareMetadataItemGraphRoot({ graph, rule, name, filePath }),
-      afterBuildGraph: ({ graph, parentNodeId, sources }) => {
-        if (!sources.paired?.filePath) return
-        graph.addContributedFilePath(parentNodeId, sources.paired.filePath)
-      },
-    })
-
-    const graph = new GraphBuilder()
-    await importRegisteredMetadataSourceWithGraph({
-      filePath: "ТестовыйОбъект/Демо/Свойства.yaml",
-      sources: {
-        yaml: "{}",
-        paired: {
-          filePath: "ТестовыйОбъект/Демо/Парный.txt",
-          text: "pair",
-        },
-      },
-      kind: "test-paired",
-      name: "Демо",
-      graph,
-      context,
-    })
-
-    const files = walkGraphToFileData(graph)
-    expect(files).toContainEqual(
-      expect.objectContaining({
-        filePath: "ТестовыйОбъект/Демо/Парный.txt",
-        contributedNodeIds: expect.arrayContaining(["ТестовыйОбъект.Демо"]),
-      }),
-    )
-  })
 })

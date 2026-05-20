@@ -8,25 +8,36 @@ import { convertFormFromXML } from "./convertFromXML"
 import { syncFormToXML } from "./syncToXML"
 
 describe("sync ClientApplicationForm to XML", () => {
-  const inputDir = getXMLFixtureDir(import.meta.url, "sync/nkdk")
+  const inputDir = getXMLFixtureDir(import.meta.url, "sync/yaml")
   const referenceDir = getXMLFixtureDir(import.meta.url, "sync/xml/Forms")
-  const outputDir = getXMLFixtureDir(import.meta.url, "sync/out")
   const formName = "ФормаЭлемента"
+  let outputDir: string
 
   beforeEach(() => {
-    if (fs.existsSync(outputDir)) {
-      fs.rmSync(outputDir, { recursive: true })
-    }
+    outputDir = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-sync-"))
   })
 
-  it("should read form from YAML/nkdk and export to XML files in output dir", async () => {
-    await syncFormToXML({
-      context: mockContextToXML(),
-      inputDir: inputDir,
-      outputDir: outputDir,
-      referenceDir: referenceDir,
-      formName,
-    })
+  afterEach(() => {
+    fs.rmSync(outputDir, { recursive: true, force: true })
+  })
+
+  it("читает форму из YAML и экспортирует XML", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-yaml-only-"))
+    const tmpInputDir = join(tmpRoot, "yaml")
+
+    try {
+      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
+
+      await syncFormToXML({
+        context: mockContextToXML(),
+        inputDir: tmpInputDir,
+        outputDir: outputDir,
+        referenceDir: referenceDir,
+        formName,
+      })
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
 
     const expectedFormXML = readXMLFixtureAsString(
       import.meta.url,
@@ -46,7 +57,7 @@ describe("sync ClientApplicationForm to XML", () => {
 
   it("не накапливает состояние нумерации в родительском контексте между формами", async () => {
     const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-numbering-"))
-    const tmpInputDir = join(tmpRoot, "nkdk")
+    const tmpInputDir = join(tmpRoot, "yaml")
     const tmpReferenceDir = join(tmpRoot, "reference-forms")
     const tmpOutputDir = join(tmpRoot, "out")
     const secondFormName = "ФормаВторая"

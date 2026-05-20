@@ -15,7 +15,7 @@ describe("syncChildFormNamesFromXML (через convertAppliedObjectFromXML)", (
     if (fs.existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true })
   })
 
-  it("записывает Формы/<form>/Форма.yaml и Форма.nkdk для каталога", async () => {
+  it("записывает Формы/<form>/Форма.yaml для каталога", async () => {
     await convertAppliedObjectFromXML({
       rule: MetadataCatalogRules,
       context: mockContextFromXML(),
@@ -25,10 +25,8 @@ describe("syncChildFormNamesFromXML (через convertAppliedObjectFromXML)", (
     })
 
     const yamlPath = join(outputDir, name, "Формы", "ФормаЭлемента", "Форма.yaml")
-    const nkdkPath = join(outputDir, name, "Формы", "ФормаЭлемента", "Форма.nkdk")
 
     expect(fs.existsSync(yamlPath), `expected ${yamlPath}`).toBe(true)
-    expect(fs.existsSync(nkdkPath), `expected ${nkdkPath}`).toBe(true)
 
     fs.rmSync(outputDir, { recursive: true })
   })
@@ -36,7 +34,7 @@ describe("syncChildFormNamesFromXML (через convertAppliedObjectFromXML)", (
   it("импортирует только страницы справки формы, перечисленные в Forms/<form>/Ext/Help.xml", async () => {
     const tmpRoot = getXMLFixturePath("sync/syncConfiguration/_tmp_form_help_in")
     const tmpInputDir = join(tmpRoot, "xml", "Catalogs")
-    const tmpOutputDir = join(tmpRoot, "nkdk")
+    const tmpOutputDir = join(tmpRoot, "yaml")
     const sourceDir = getXMLFixturePath("sync/syncConfiguration/xml/Catalogs")
     if (fs.existsSync(tmpRoot)) fs.rmSync(tmpRoot, { recursive: true })
     fs.cpSync(sourceDir, tmpInputDir, { recursive: true })

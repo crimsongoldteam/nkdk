@@ -11,7 +11,7 @@ import {
   fullFormGroupPartialYAMLCommonFixture,
 } from "~/metadata/forms/elements/formGroup/__fixtures__/data"
 
-import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import { StructureResult } from "~/tests/types"
 
 const { extendedTooltip: _eTBG, ...fullFormGroupCommonFixtureForButtonGroup } = fullFormGroupCommonFixture
 
@@ -77,8 +77,8 @@ export const fullButtonGroupPartialYAML: ButtonGroupPartialYAML = {
   Отображение: "Компактное",
   Элементы: {
     ФормаКоманда1: {
-      Тип: "КнопкаКоманднойПанели",
       Вид: "КнопкаКоманднойПанели",
+      ТипКнопки: "КнопкаКоманднойПанели",
       ИмяКоманды: "Form.Command.Команда1",
     },
   },
@@ -105,7 +105,7 @@ export const minimalButtonGroupTypedYAML: ButtonGroupTypedYAML = {
 export interface ButtonGroupStructureFixture {
   name: string
   element: ButtonGroup
-  structured: ToNKDKResult
+  structured: StructureResult
 }
 
 export const buttonGroupStructureFixturesTable: ButtonGroupStructureFixture[] = [

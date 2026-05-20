@@ -2,7 +2,7 @@ import { importRegisteredMetadataSourceWithGraph } from "~/metadata/orchestratio
 import { getGraphImportRegistration } from "~/metadata/orchestration/graphImport/registry"
 import { parseFilePath } from "./buildGraph"
 import { GraphBuilder } from "./internal/GraphBuilder"
-import type { FileGraphData, ImportContext, ProjectGraphSource } from "./types"
+import type { FileGraphData, ImportContext } from "./types"
 import { walkGraphToFileData } from "./walkGraphToFileData"
 
 export interface BuildGraphForChangedFileParams {
@@ -10,13 +10,12 @@ export interface BuildGraphForChangedFileParams {
   filePath: string
   text: string
   context: ImportContext
-  pairedText?: ProjectGraphSource["pairedText"]
 }
 
 export async function buildGraphForChangedFile(
   params: BuildGraphForChangedFileParams,
 ): Promise<FileGraphData[]> {
-  const { filePath, text, context, pairedText } = params
+  const { filePath, text, context } = params
   void params.projectPath
 
   const parsed = parseFilePath(filePath)
@@ -26,7 +25,7 @@ export async function buildGraphForChangedFile(
 
   await importRegisteredMetadataSourceWithGraph({
     filePath,
-    sources: { yaml: text, paired: pairedText },
+    sources: { yaml: text },
     kind: parsed.kind,
     name: parsed.name,
     pathParams: parsed.pathParams,

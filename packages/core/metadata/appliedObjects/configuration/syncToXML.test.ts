@@ -7,7 +7,7 @@ import { syncConfigurationFromXML } from "./convertFromXML"
 import { syncConfigurationToXML } from "./syncToXML"
 
 describe("sync configuration to XML", () => {
-  const inputDir = getXMLFixturePath("sync/syncConfiguration/nkdk")
+  const inputDir = getXMLFixturePath("sync/syncConfiguration/yaml")
   const referenceDir = getXMLFixturePath("sync/syncConfiguration/xml")
   const outputDir = getXMLFixturePath("sync/syncConfiguration/out-to-xml")
   const catalogName = "Контрагенты"

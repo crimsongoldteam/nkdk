@@ -75,10 +75,10 @@ describe("GraphBuilder: addFilePath / removeFilePath", () => {
   it("addContributedFilePath дописывает уникально", () => {
     const g = new GraphBuilder()
     g.ensureNode("X")
-    g.addContributedFilePath("X", "a.nkdk")
-    g.addContributedFilePath("X", "a.nkdk")
-    g.addContributedFilePath("X", "b.nkdk")
-    expect(g.getNodeAttributes("X").contributedFilePaths).toEqual(["a.nkdk", "b.nkdk"])
+    g.addContributedFilePath("X", "a.yaml")
+    g.addContributedFilePath("X", "a.yaml")
+    g.addContributedFilePath("X", "b.yaml")
+    expect(g.getNodeAttributes("X").contributedFilePaths).toEqual(["a.yaml", "b.yaml"])
   })
 })
 

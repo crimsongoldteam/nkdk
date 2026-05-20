@@ -108,6 +108,13 @@ const fullGanttChartFieldTablePartialYAML = {
   ПоложениеСтрокиПоиска: "Нет",
   ПоложениеСостоянияПросмотра: "Нет",
   ПоложениеУправленияПоиском: "Нет",
+  ПутьКДанным: "Реквизит",
+  Элементы: {
+    ЭлементФормыТаблицаТочка: {
+      Вид: "ПолеВвода",
+      ПутьКДанным: "Реквизит.Point",
+    },
+  },
 } satisfies TablePartialYAML
 
 export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {

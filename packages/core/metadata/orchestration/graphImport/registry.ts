@@ -1,6 +1,5 @@
 import type { ConfigurationContext } from "~/metadata/context/types"
 import type { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
-import type { PairedGraphSourceText } from "~/metadata/orchestration/buildGraph/types"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 
@@ -10,7 +9,6 @@ export interface GraphImportedMetadataModel {
 
 export interface GraphImportSources {
   yaml: string
-  paired?: PairedGraphSourceText
 }
 
 export interface GraphImportSourceMatch {

@@ -14,7 +14,7 @@ export const ColumnGroupRules = {
       xml: "_name",
       required: true,
     },
-    childItems: { type: "TableChildItems", defaultValue: [] },
+    childItems: { yaml: "Элементы", type: "TableChildItems", defaultValue: [] },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",

@@ -6,7 +6,7 @@ import {
   UsualGroupTypedYAML,
 } from "~/metadata/forms/elements/usualGroup/types"
 
-import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import { StructureResult } from "~/tests/types"
 import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormGroupCommonFixture,
@@ -107,6 +107,13 @@ export const fullUsualGroupPartialYAML: Required<
   ЦветФона: "ОрхидеяНейтральный",
   ЦветФонаЗаголовкаСкрытогоОтображения: "Зеленый",
   Таблица: "Таблица",
+  Элементы: {
+    Группа1: {
+      Вид: "Группа",
+      Группировка: "ГоризонтальнаяЕслиВозможно",
+      ОтображатьЗаголовок: "Истина",
+    },
+  },
 }
 
 export const fullUsualGroupTypedYAML: UsualGroupTypedYAML = {
@@ -172,7 +179,7 @@ export const minimalUsualGroupTypedYAML: UsualGroupTypedYAML = {
 export interface StructureFixture<T> {
   name: string
   element: T
-  structured: ToNKDKResult
+  structured: StructureResult
 }
 
 export type StructureFixturesTable<T> = StructureFixture<T>[]

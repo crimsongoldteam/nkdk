@@ -11,7 +11,6 @@ export default defineConfig({
     watch: false,
     alias: {
       "~": resolve(__dirname, "../core"),
-      "nkdk-language": resolve(__dirname, "../language/src/index"),
     },
   },
 })

@@ -120,15 +120,12 @@ describe("watch command", () => {
     )
   })
 
-  it("не вызывает updateGraphFiles, если paired form files на диске совпадают с графом", async () => {
+  it("не вызывает updateGraphFiles, если form YAML на диске совпадает с графом", async () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
     writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
     mocks.getGraphFiles.mockResolvedValue([
       graphRecord(projectPath, yamlPath),
-      graphRecord(projectPath, nkdkPath),
     ])
 
     const promise = watch(projectPath)
@@ -138,27 +135,23 @@ describe("watch command", () => {
     expect(mocks.updateGraphFiles).not.toHaveBeenCalled()
   })
 
-  it("вызывает updateGraphFiles одним batch, если граф пустой, а на диске есть paired form files", async () => {
+  it("вызывает updateGraphFiles одним batch, если граф пустой, а на диске есть form YAML", async () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
     writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
 
     const promise = watch(projectPath)
     watcher.emit("ready")
     await promise
 
     expect(mocks.updateGraphFiles).toHaveBeenCalledOnce()
-    expect(mocks.updateGraphFiles).toHaveBeenCalledWith(projectPath, [yamlPath, nkdkPath])
+    expect(mocks.updateGraphFiles).toHaveBeenCalledWith(projectPath, [yamlPath])
   })
 
   it("после initial updateGraphFiles дожимает watcher event вторым batch-вызовом", async () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
     const fullYamlPath = writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
     const initialUpdate = createDeferred()
     ;(mocks.updateGraphFiles as Mock)
       .mockImplementationOnce(async () => {
@@ -177,8 +170,21 @@ describe("watch command", () => {
     await promise
 
     expect(mocks.updateGraphFiles).toHaveBeenCalledTimes(2)
-    expect(mocks.updateGraphFiles).toHaveBeenNthCalledWith(1, projectPath, [yamlPath, nkdkPath])
+    expect(mocks.updateGraphFiles).toHaveBeenNthCalledWith(1, projectPath, [yamlPath])
     expect(mocks.updateGraphFiles).toHaveBeenNthCalledWith(2, projectPath, [yamlPath])
+  })
+
+  it("игнорирует watcher event для неподдержанного файла", async () => {
+    const projectPath = createProject()
+    const textPath = "Справочник/Товары/Формы/ФормаСписка/Форма.txt"
+    const fullTextPath = writeProjectFile(projectPath, textPath, "не источник формы\n")
+
+    const promise = watch(projectPath)
+    watcher.emit("ready")
+    watcher.emit("change", fullTextPath)
+    await promise
+
+    expect(mocks.updateGraphFiles).not.toHaveBeenCalled()
   })
 
   it("передаёт unlink поддерживаемого файла в updateGraphFiles через batch queue", async () => {

@@ -6,7 +6,7 @@ import {
   fullFormGroupPartialYAMLCommonFixture,
 } from "~/metadata/forms/elements/formGroup/__fixtures__/data"
 
-import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import { StructureResult } from "~/tests/types"
 import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullCommandBarChildItemsAllYAML,
@@ -109,12 +109,38 @@ export const fullCommandBarPartialYAML: CommandBarPartialYAML = {
   ВажностьПриОтображении: "ОченьВысокая",
   ГоризонтальноеПоложение: "Центр",
   ИсточникКоманд: "FormCommandPanelGlobalCommands",
+  Элементы: {
+    Кнопка1: {
+      Вид: "Кнопка",
+      ИмяКоманды: "ВыполнитьКоманда1",
+    },
+    ГруппаКнопок: {
+      Вид: "ГруппаКнопок",
+      Подсказка: "Подсказка для группы кнопок",
+      Элементы: {
+        Кнопка2: {
+          Вид: "Кнопка",
+          ИмяКоманды: "ВыполнитьКоманда2",
+        },
+      },
+    },
+    Подменю: {
+      Вид: "Подменю",
+      Подсказка: "Подсказка для подменю",
+      Элементы: {
+        Кнопка3: {
+          Вид: "Кнопка",
+          ИмяКоманды: "ВыполнитьКоманда3",
+        },
+      },
+    },
+  },
 }
 
 export interface CommandBarStructureFixture {
   name: string
   element: CommandBar
-  structured: ToNKDKResult
+  structured: StructureResult
 }
 
 export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [

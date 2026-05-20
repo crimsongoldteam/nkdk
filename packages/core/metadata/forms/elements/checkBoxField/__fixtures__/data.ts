@@ -8,7 +8,7 @@ import {
   TableCheckBoxFieldTypedYAML,
 } from "~/metadata/forms/elements/checkBoxField/types"
 
-import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import { StructureResult } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
@@ -103,19 +103,19 @@ export const minimalTableCheckBoxFieldTypedYAML: TableCheckBoxFieldTypedYAML = {
 export interface CheckBoxFieldStructureFixture {
   description: string
   element: CheckBoxField
-  nkdk: ToNKDKResult
+  structure: StructureResult
   xml?: string
 }
 
 // НЕДЕЙСТВИТЕЛЬНО
-// Если заголовок (pascalCase) равен имени, title = undefined, не выводится в NKDK
-// Если заголовок не равен имени, заголовок на основном языке выводится в NKDK, на остальных в YAML
+// Если заголовок (pascalCase) равен имени, title = undefined, не выводится в structure
+// Если заголовок не равен имени, заголовок на основном языке выводится в structure, на остальных в YAML
 // Если заголовок пустой, на форму выводится ''
 // Если ПоложениеЗаголовка = Нет, пока непонятно
 
 // ДЕЙСТВИТЕЛЬНО
 // Если заголовок, есть заголовок выводим его
-// Если заголовок пустой, title = undefined, не выводится в NKDK
+// Если заголовок пустой, title = undefined, не выводится в structure
 export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[] = [
   // #region checkbox
   {
@@ -126,7 +126,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       title: { items: { ru: "Заголовок флажка" } },
       dataPath: "Флажок",
     },
-    nkdk: { strings: ['"Заголовок флажка" [ ] Флажок'], toOneLineGroup: true },
+    structure: { strings: ['"Заголовок флажка" [ ] Флажок'], toOneLineGroup: true },
   },
   {
     description: "left titled without title",
@@ -135,7 +135,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       itemType: "CheckBoxField",
       dataPath: "Флажок",
     },
-    nkdk: { strings: ["Флажок [ ]"], toOneLineGroup: true },
+    structure: { strings: ["Флажок [ ]"], toOneLineGroup: true },
   },
   // {
   //   description: "left titled with empty title",
@@ -144,7 +144,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
   //     itemType: "CheckBoxField",
   //     title: { items: { ru: "" } },
   //   },
-  //   nkdk: { strings: ["'' [ ] Флажок"], toOneLineGroup: true },
+  //   structure: { strings: ["'' [ ] Флажок"], toOneLineGroup: true },
   // },
   {
     description: "right titled",
@@ -155,7 +155,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       title: { items: { ru: "Заголовок флажка" } },
       dataPath: "Флажок",
     },
-    nkdk: { strings: ['[ ] "Заголовок флажка" Флажок'], toOneLineGroup: true },
+    structure: { strings: ['[ ] "Заголовок флажка" Флажок'], toOneLineGroup: true },
   },
   {
     description: "right titled without title",
@@ -165,7 +165,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       titleLocation: "Right",
       dataPath: "Флажок",
     },
-    nkdk: { strings: ["[ ] Флажок"], toOneLineGroup: true },
+    structure: { strings: ["[ ] Флажок"], toOneLineGroup: true },
   },
   // #endregion
 
@@ -179,7 +179,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       title: { items: { ru: "Заголовок флажка" } },
       dataPath: "Флажок",
     },
-    nkdk: { strings: ['"Заголовок флажка" [ | ] Флажок'], toOneLineGroup: true },
+    structure: { strings: ['"Заголовок флажка" [ | ] Флажок'], toOneLineGroup: true },
   },
   {
     description: "left titled switch without title",
@@ -189,7 +189,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Switch",
       dataPath: "Флажок",
     },
-    nkdk: { strings: ["Флажок [ | ]"], toOneLineGroup: true },
+    structure: { strings: ["Флажок [ | ]"], toOneLineGroup: true },
   },
   {
     description: "right titled switch",
@@ -201,7 +201,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       title: { items: { ru: "Заголовок флажка" } },
       dataPath: "Флажок",
     },
-    nkdk: { strings: ['[ | ] "Заголовок флажка" Флажок'], toOneLineGroup: true },
+    structure: { strings: ['[ | ] "Заголовок флажка" Флажок'], toOneLineGroup: true },
   },
   {
     description: "right titled switch without title",
@@ -212,7 +212,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Switch",
       dataPath: "Флажок",
     },
-    nkdk: { strings: ["[ | ] Флажок"], toOneLineGroup: true },
+    structure: { strings: ["[ | ] Флажок"], toOneLineGroup: true },
   },
   // #endregion
   // #region tumbler
@@ -225,7 +225,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       title: { items: { ru: "Заголовок флажка" } },
       dataPath: "Флажок",
     },
-    nkdk: {
+    structure: {
       strings: ['"Заголовок флажка" < | > Флажок'],
       toOneLineGroup: true,
     },
@@ -238,7 +238,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Tumbler",
       dataPath: "Флажок",
     },
-    nkdk: {
+    structure: {
       strings: ["Флажок < | >"],
       toOneLineGroup: true,
     },
@@ -253,7 +253,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       title: { items: { ru: "Заголовок флажка" } },
       dataPath: "Флажок",
     },
-    nkdk: {
+    structure: {
       strings: ['< | > "Заголовок флажка" Флажок'],
       toOneLineGroup: true,
     },
@@ -267,7 +267,7 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       checkBoxType: "Tumbler",
       dataPath: "Флажок",
     },
-    nkdk: { strings: ["< | > Флажок"], toOneLineGroup: true },
+    structure: { strings: ["< | > Флажок"], toOneLineGroup: true },
   },
   // #endregion
 ]
@@ -280,7 +280,7 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
       itemType: "CheckBoxField",
       title: { items: { ru: "Заголовок флажка" } },
     },
-    nkdk: { strings: ['[ ] "Заголовок флажка" Флажок'], toOneLineGroup: true },
+    structure: { strings: ['[ ] "Заголовок флажка" Флажок'], toOneLineGroup: true },
   },
   {
     description: "left titled without title",
@@ -288,7 +288,7 @@ export const checkBoxFieldContentStructureFixturesTable: CheckBoxFieldStructureF
       name: "Флажок",
       itemType: "CheckBoxField",
     },
-    nkdk: { strings: ["[ ] Флажок"], toOneLineGroup: true },
+    structure: { strings: ["[ ] Флажок"], toOneLineGroup: true },
   },
 ]
 

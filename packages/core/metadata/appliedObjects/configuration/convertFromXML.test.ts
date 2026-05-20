@@ -15,7 +15,7 @@ describe("sync configuration from xml", () => {
     }
   })
 
-  it("should produce catalog and form YAML/nkdk in output dir", async () => {
+  it("should produce catalog and form YAML in output dir", async () => {
     fs.mkdirSync(outputDir, { recursive: true })
 
     await syncConfigurationFromXML({
@@ -24,21 +24,14 @@ describe("sync configuration from xml", () => {
       outputDir,
     })
 
-    const expectedFormNkdk = readXMLFileAsString(
-      join("sync/syncConfiguration/nkdk/Справочник/Контрагенты/Формы/ФормаЭлемента", "Форма.nkdk")
-    )
     const expectedFormYaml = readXMLFileAsString(
-      join("sync/syncConfiguration/nkdk/Справочник/Контрагенты/Формы/ФормаЭлемента", "Форма.yaml")
+      join("sync/syncConfiguration/yaml/Справочник/Контрагенты/Формы/ФормаЭлемента", "Форма.yaml")
     )
 
     const expectedCatalogYaml = readXMLFileAsString(
-      join("sync/syncConfiguration/nkdk/Справочник/Контрагенты", "Свойства.yaml")
+      join("sync/syncConfiguration/yaml/Справочник/Контрагенты", "Свойства.yaml")
     )
 
-    const resultFormNkdk = fs.readFileSync(
-      join(outputDir, "Справочник", "Контрагенты", "Формы", "ФормаЭлемента", "Форма.nkdk"),
-      "utf-8"
-    )
     const resultFormYaml = fs.readFileSync(
       join(outputDir, "Справочник", "Контрагенты", "Формы", "ФормаЭлемента", "Форма.yaml"),
       "utf-8"
@@ -46,7 +39,6 @@ describe("sync configuration from xml", () => {
     const resultCatalogYaml = fs.readFileSync(join(outputDir, "Справочник", "Контрагенты", "Свойства.yaml"), "utf-8")
 
     expect(resultCatalogYaml).toBe(expectedCatalogYaml)
-    expect(resultFormNkdk).toBe(expectedFormNkdk)
     expect(resultFormYaml).toBe(expectedFormYaml)
   })
 

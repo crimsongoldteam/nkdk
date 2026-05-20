@@ -2,7 +2,6 @@ import fs from "fs"
 import { join } from "path"
 import "~/metadata/commonObjects"
 import { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } from "~/metadata/context/types"
-import { exportClientApplicationFormToNKDK } from "~/metadata/forms/clientApplicationForm/toNKDK"
 import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/toYAML"
 import importContentFromXML from "~/xml/import/importer"
 import { exportToYAML } from "~/yaml/export"
@@ -11,7 +10,6 @@ import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from
 
 export type ReadFormFromXMLResult = {
   yaml: string | undefined
-  nkdk: string | undefined
   externalFiles: ExternalFileEntry[]
 }
 
@@ -31,9 +29,9 @@ export const convertFormFromXML = async (params: {
 
   const form = parseFormFromXML({ context, formXML, metadataXML })
 
-  const { yaml, nkdk, externalFiles } = await convertFormToYAMLAndNKDK({ context, form })
+  const { yaml, externalFiles } = await convertFormToYAML({ context, form })
 
-  await writeFormToYAMLAndNKDK({ context, formYAML: yaml, formNKDK: nkdk, externalFiles, formName, outputDir })
+  await writeFormToYAML({ formYAML: yaml, externalFiles, formName, outputDir })
 }
 
 export function readFormFromXML(params: {
@@ -54,15 +52,13 @@ export function readFormFromXML(params: {
   return form
 }
 
-const writeFormToYAMLAndNKDK = async (params: {
-  context: ConfigurationContext
+const writeFormToYAML = async (params: {
   formYAML: string | undefined
-  formNKDK: string | undefined
   externalFiles: ExternalFileEntry[]
   formName: string
   outputDir: string
 }): Promise<void> => {
-  const { formYAML, formNKDK, externalFiles, formName, outputDir } = params
+  const { formYAML, externalFiles, formName, outputDir } = params
 
   const formOutputPath = join(outputDir, "Формы", formName)
   await fs.promises.mkdir(formOutputPath, { recursive: true })
@@ -70,11 +66,6 @@ const writeFormToYAMLAndNKDK = async (params: {
   if (formYAML) {
     const yamlFilePath = join(formOutputPath, "Форма.yaml")
     await fs.promises.writeFile(yamlFilePath, formYAML, "utf-8")
-  }
-
-  if (formNKDK) {
-    const nkdkPath = join(formOutputPath, "Форма.nkdk")
-    await fs.promises.writeFile(nkdkPath, formNKDK, "utf-8")
   }
 
   for (const { relativePath, content } of externalFiles) {
@@ -101,7 +92,7 @@ function parseFormFromXML(params: {
   })
 }
 
-const convertFormToYAMLAndNKDK = async (params: {
+const convertFormToYAML = async (params: {
   context: ConfigurationContext
   form: ClientApplicationForm
 }): Promise<ReadFormFromXMLResult> => {
@@ -110,8 +101,5 @@ const convertFormToYAMLAndNKDK = async (params: {
   const { yaml: yamlObj, externalFiles } = exportClientApplicationFormToYAML(context, form)
   const yaml = yamlObj != null ? exportToYAML(yamlObj) : undefined
 
-  const nkdkResult = exportClientApplicationFormToNKDK(context, form)
-  const nkdk = nkdkResult.strings.join("\n")
-
-  return { yaml, nkdk, externalFiles }
+  return { yaml, externalFiles }
 }

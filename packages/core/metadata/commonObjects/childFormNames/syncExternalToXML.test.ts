@@ -8,7 +8,7 @@ import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/s
 import { importContentFromXML } from "~/xml/import/importer"
 
 describe("syncChildFormNamesToXML (через syncAppliedObjectToXML)", () => {
-  const inputDir = getXMLFixturePath("sync/syncConfiguration/nkdk/Справочник")
+  const inputDir = getXMLFixturePath("sync/syncConfiguration/yaml/Справочник")
   const referenceDir = getXMLFixturePath("sync/syncConfiguration/xml/Catalogs")
   const outputDir = getXMLFixturePath("sync/syncConfiguration/_tmp_form_hook_out")
   const name = "Контрагенты"

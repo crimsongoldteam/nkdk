@@ -1,18 +1,9 @@
 import fs from "fs"
-import { EmptyFileSystem } from "langium"
-import { parseHelper } from "langium/test"
-import { createNkdkServices, type Form as NkdkForm } from "nkdk-language"
 import { join } from "path"
-import {
-  ConfigurationContext,
-  ConfigurationContextFromXML,
-  ConfigurationContextWithExportToXML,
-} from "~/metadata/context/types"
-import { createEmptyClientApplicationForm } from "~/metadata/forms/clientApplicationForm/createEmpty"
+import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
 import type {
-  ClientApplicationForm,
   ClientApplicationFormXML,
   ClientApplicationFormYAML,
   FormMetadataXML,
@@ -20,7 +11,6 @@ import type {
 import { xmlExport } from "~/xml/export/exporter"
 import { importFromYAML } from "~/yaml/import"
 import { readFormFromXML } from "./convertFromXML"
-import { importClientApplicationFromFromNKDK } from "./fromNKDK"
 
 export const syncFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -33,21 +23,13 @@ export const syncFormToXML = async (params: {
   const { context, inputDir, formName, outputDir } = params
   const referenceDir = params.referenceDir ?? outputDir
 
-  const { yamlContent, nkdkContent, formDir } = await readFormFiles({ inputDir, formName })
+  const { yamlContent, formDir } = await readFormFiles({ inputDir, formName })
 
   const yamlObj = importFromYAML<ClientApplicationFormYAML>(yamlContent)
 
-  const formFromNkdk = nkdkContent !== null
-    ? await parseFormFromNkdKString(context, nkdkContent)
-    : createEmptyClientApplicationForm()
-
-  if (!formFromNkdk) {
-    throw new Error(`Failed to parse NKDK for form "${formName}"`)
-  }
-
   const contextWithFormDir = createFormScopedContext({ context, formDir })
 
-  const form = importClientApplicationFormFromYAML(contextWithFormDir, yamlObj, formFromNkdk)
+  const form = importClientApplicationFormFromYAML(contextWithFormDir, yamlObj)
 
   const contextFromXML: ConfigurationContextFromXML = {
     fromXML: {
@@ -82,19 +64,16 @@ export const syncFormToXML = async (params: {
 
 async function readFormFiles(params: { inputDir: string; formName: string }): Promise<{
   yamlContent: string
-  nkdkContent: string | null
   formDir: string
 }> {
   const { inputDir, formName } = params
   const formsDir = join(inputDir, "Формы")
   const formDir = join(formsDir, formName)
   const yamlPath = join(formDir, "Форма.yaml")
-  const nkdkPath = join(formDir, "Форма.nkdk")
 
   const yamlContent = await fs.promises.readFile(yamlPath, "utf-8")
-  const nkdkContent = fs.existsSync(nkdkPath) ? await fs.promises.readFile(nkdkPath, "utf-8") : null
 
-  return { yamlContent, nkdkContent, formDir }
+  return { yamlContent, formDir }
 }
 
 const createFormScopedContext = (params: {
@@ -147,29 +126,4 @@ const writeFormToXML = async (params: {
   await fs.promises.writeFile(formXmlPath, xmlExport({ Form: formXML }), "utf-8")
   params.xmlManifest?.addFile(formMetadataPath)
   params.xmlManifest?.addFile(formXmlPath)
-}
-
-let parseHelperCached: ReturnType<typeof parseHelper<NkdkForm>> | null = null
-
-function getNkdKParse(): ReturnType<typeof parseHelper<NkdkForm>> {
-  if (!parseHelperCached) {
-    const services = createNkdkServices(EmptyFileSystem)
-    parseHelperCached = parseHelper<NkdkForm>(services.Nkdk)
-  }
-  return parseHelperCached
-}
-
-const parseFormFromNkdKString = async (
-  context: ConfigurationContext,
-  nkdkString: string
-): Promise<ClientApplicationForm | undefined> => {
-  const nkdkParse = getNkdKParse()
-  const result = await nkdkParse(nkdkString)
-  if (!result || result.parseResult.parserErrors.length > 0) {
-    return undefined
-  }
-  return importClientApplicationFromFromNKDK({
-    context,
-    value: result.parseResult.value,
-  })
 }
