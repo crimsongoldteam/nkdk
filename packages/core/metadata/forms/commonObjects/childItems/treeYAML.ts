@@ -4,15 +4,17 @@ import {
   CollectableElementTypeToYAML,
   ExportToYAMLFunctionNew,
   importElementFromPartialYAML,
+  importElementFromTypedYAML,
   ImportFromYAMLFunctionNew,
   PropertyRule,
   ToMetadata,
+  ToTypedYAML,
   ToYAML,
   exportPropertyToYAML,
 } from "~/metadata/orchestration"
 import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { exportElementToYAML, exportFormElementTypeToYAML } from "~/metadata/orchestration/formElement/toYAML"
-import { ChildItem, FormElementTreeNodeYAML, FormElementTreeYAML } from "./types"
+import { ChildItem, FormElementTreeNodeYAML, FormElementTreeYAML, TypedElement } from "./types"
 
 const childItemsTreePropertyTypes = [
   "GroupChildItems",
@@ -181,6 +183,17 @@ export const importChildItemsFromTreeYAMLProperty: ImportFromYAMLFunctionNew = (
     })
   }
 
+  if (
+    params.context.allElements !== undefined &&
+    Array.isArray(params.source) &&
+    isLegacyTypedChildItemsYAML(params.value)
+  ) {
+    return importChildItemsFromLegacyTypedYAML({
+      context: params.context,
+      yaml: params.value,
+    })
+  }
+
   const propertyType = getChildItemsTreePropertyType(params.rule)
   return importChildItemsFromTreeYAML({
     context: params.context,
@@ -213,21 +226,38 @@ const importChildItemsFromPartialYAML = (params: {
   })
 }
 
+const importChildItemsFromLegacyTypedYAML = (params: {
+  context: ConfigurationContext
+  yaml: Record<string, Record<string, unknown>>
+}): ChildItem[] => {
+  const { context, yaml } = params
+
+  const result: ChildItem[] = []
+  for (const [name, item] of Object.entries(yaml)) {
+    result.push(
+      importElementFromTypedYAML({
+        context,
+        yaml: item as ToTypedYAML<TypedElement["itemType"]>,
+        name,
+      }) as ChildItem
+    )
+  }
+
+  return result
+}
+
 const getTreeNodeObject = (params: {
   name: string
   node: unknown
 }): Record<string, unknown> => {
   const { name, node } = params
   if (!isRecord(node)) throw new Error(`Элемент "${name}": должен быть объектом`)
-  if (typeof node.Вид !== "string" && typeof node.Тип !== "string") {
-    throw new Error(`Элемент "${name}": обязательное поле "Вид" не задано`)
-  }
+  if (typeof node.Вид !== "string") throw new Error(`Элемент "${name}": обязательное поле "Вид" не задано`)
   return node
 }
 
 const getTreeNodeDiscriminator = (params: { name: string; node: Record<string, unknown> }): string => {
   const { node } = params
-  if (typeof node.Тип === "string") return node.Тип
   return node.Вид as string
 }
 
@@ -289,17 +319,11 @@ const toElementYAML = <Type extends CollectableElementType>(params: {
   node: Record<string, unknown>
 }): ToYAML<Type> => {
   const { itemType, node } = params
-  const { Вид: kindOrButtonType, Тип: _legacyKind, ТипКнопки: buttonType, ...yaml } = node
+  const { Вид: _kind, Тип: _legacyKind, ТипКнопки: buttonType, ...yaml } = node
   if (isButtonElementType(itemType) && buttonType !== undefined) {
     return {
       ...yaml,
       Вид: buttonType,
-    } as ToYAML<Type>
-  }
-  if (isButtonElementType(itemType) && _legacyKind !== undefined && kindOrButtonType !== undefined) {
-    return {
-      ...yaml,
-      Вид: kindOrButtonType,
     } as ToYAML<Type>
   }
 
@@ -327,6 +351,12 @@ const isChildItemsTreePropertyType = (value: string): value is ChildItemsTreePro
 
 const isButtonElementType = (itemType: CollectableElementType): itemType is "Button" | "CommandBarButton" => {
   return itemType === "Button" || itemType === "CommandBarButton"
+}
+
+const isLegacyTypedChildItemsYAML = (value: unknown): value is Record<string, Record<string, unknown>> => {
+  if (!isRecord(value)) return false
+
+  return Object.values(value).some((item) => isRecord(item) && typeof item.Тип === "string" && item.Вид === undefined)
 }
 
 const dropSyntheticTableLabelDataPath = (params: {

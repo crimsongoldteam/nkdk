@@ -86,14 +86,14 @@ describe("child item tree YAML", () => {
     ])
   })
 
-  it("imports legacy typed YAML without losing button type", () => {
+  it("imports command bar button type from ТипКнопки without using Тип discriminator", () => {
     const result = importChildItemsFromTreeYAML({
       context: mockContext,
       propertyType: "CommandBarChildItems",
       yaml: {
         Команда: {
-          Тип: "КнопкаКоманднойПанели",
           Вид: "КнопкаКоманднойПанели",
+          ТипКнопки: "КнопкаКоманднойПанели",
           ИмяКоманды: "Команда",
         },
       },
@@ -107,6 +107,20 @@ describe("child item tree YAML", () => {
         commandName: "Команда",
       },
     ])
+  })
+
+  it("does not accept Тип as a tree discriminator", () => {
+    expect(() =>
+      importChildItemsFromTreeYAML({
+        context: mockContext,
+        yaml: {
+          Товар: {
+            Тип: "ПолеВвода",
+            ПутьКДанным: "Объект.Товар",
+          },
+        },
+      })
+    ).toThrow('Элемент "Товар": обязательное поле "Вид" не задано')
   })
 
   it("imports transitional partial YAML from source when tree YAML is absent", () => {
