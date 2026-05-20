@@ -64,7 +64,7 @@ export const importMetadataValueFromYAML = (
 
 /**
  * Детерминистская диспетчеризация по синтаксису YAML-значения.
- * Порядок: число → boolean → dateTime → formChoiceList → строка в кавычках → ref → string.
+ * Порядок: число → строка в кавычках → boolean → dateTime → ref → string.
  */
 const heuristicFromYAML = (
   context: ConfigurationContext,
@@ -75,28 +75,6 @@ const heuristicFromYAML = (
   }
 
   if (typeof data !== "string") return undefined
-
-  // FormChoiceList: "значение"(представление)
-  const formChoiceListMatch = data.match(/^"([^"]+)"\(([^)]+)\)$/)
-  if (formChoiceListMatch) {
-    const [, value, presentation] = formChoiceListMatch
-    return {
-      type: "formChoiceListDesTimeValue",
-      presentation: { items: { ru: presentation } },
-      value: { type: "string", value } satisfies MetadataStringValue,
-    }
-  }
-
-  // FormChoiceList с пустым значением: (представление)
-  const emptyFormChoiceListMatch = data.match(/^\(([^)]+)\)$/)
-  if (emptyFormChoiceListMatch) {
-    const [, presentation] = emptyFormChoiceListMatch
-    return {
-      type: "formChoiceListDesTimeValue",
-      presentation: { items: { ru: presentation } },
-      value: undefined,
-    }
-  }
 
   // Строка в кавычках
   if (data.startsWith('"') && data.endsWith('"')) {

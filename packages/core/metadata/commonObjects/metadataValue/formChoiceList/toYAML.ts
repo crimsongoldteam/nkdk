@@ -9,19 +9,15 @@ export const exportFormChoiceListToYAML = (
   const valueResult = exportMetadataValueToYAML(context, undefined, data.value as MetadataTypedValue | undefined)
   const presentationItems = data.presentation?.items
   const hasMultipleLanguages = presentationItems && Object.keys(presentationItems).length > 1
+  const presentation = hasMultipleLanguages
+    ? presentationItems
+    : presentationItems?.[context.defaultLanguage] || presentationItems?.ru || ""
 
-  if (valueResult === undefined) {
-    const presentation = presentationItems?.[context.defaultLanguage] || presentationItems?.ru || ""
-    return `(${presentation})`
+  const result: MetadataFormChoiceListValueYAML = {
+    Представление: presentation,
   }
 
-  if (hasMultipleLanguages && presentationItems) {
-    return {
-      Представление: presentationItems,
-      Значение: valueResult,
-    }
-  }
+  if (valueResult !== undefined) result.Значение = valueResult
 
-  const presentation = presentationItems?.[context.defaultLanguage] || presentationItems?.ru || ""
-  return `${valueResult}(${presentation})`
+  return result
 }
