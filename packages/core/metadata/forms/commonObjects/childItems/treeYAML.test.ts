@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockContextToYAML } from "~/tests/mockContext"
-import { exportChildItemsToTreeYAML, importChildItemsFromTreeYAML } from "./treeYAML"
-import type { GroupChildItems } from "./types"
+import {
+  exportChildItemsToTreeYAML,
+  importChildItemsFromTreeYAML,
+  importChildItemsFromTreeYAMLProperty,
+} from "./treeYAML"
+import type { FormElementsYAML, GroupChildItems } from "./types"
 
 describe("child item tree YAML", () => {
   it("exports a simple input field node with Вид", () => {
@@ -30,6 +34,101 @@ describe("child item tree YAML", () => {
           ПутьКДанным: "Объект.Товар",
         },
       },
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "InputField",
+        name: "Товар",
+        dataPath: "Объект.Товар",
+      },
+    ])
+  })
+
+  it("exports button type as ТипКнопки without losing Вид discriminator", () => {
+    const items: GroupChildItems = [
+      {
+        itemType: "Button",
+        name: "Открыть",
+        type: "Hyperlink",
+        commandName: "Открыть",
+      },
+    ]
+
+    expect(exportChildItemsToTreeYAML({ context: mockContextToYAML, items })).toEqual({
+      Открыть: {
+        Вид: "Кнопка",
+        ТипКнопки: "Гиперссылка",
+        ИмяКоманды: "Открыть",
+      },
+    })
+  })
+
+  it("imports button type from ТипКнопки without losing Вид discriminator", () => {
+    const result = importChildItemsFromTreeYAML<GroupChildItems>({
+      context: mockContext,
+      yaml: {
+        Открыть: {
+          Вид: "Кнопка",
+          ТипКнопки: "Гиперссылка",
+          ИмяКоманды: "Открыть",
+        },
+      },
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "Button",
+        name: "Открыть",
+        type: "Hyperlink",
+        commandName: "Открыть",
+      },
+    ])
+  })
+
+  it("imports legacy typed YAML without losing button type", () => {
+    const result = importChildItemsFromTreeYAML({
+      context: mockContext,
+      propertyType: "CommandBarChildItems",
+      yaml: {
+        Команда: {
+          Тип: "КнопкаКоманднойПанели",
+          Вид: "КнопкаКоманднойПанели",
+          ИмяКоманды: "Команда",
+        },
+      },
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "CommandBarButton",
+        name: "Команда",
+        type: "CommandBarButton",
+        commandName: "Команда",
+      },
+    ])
+  })
+
+  it("imports transitional partial YAML from source when tree YAML is absent", () => {
+    const allElements = {
+      Товар: {
+        ПутьКДанным: "Объект.Товар",
+      },
+    } as FormElementsYAML
+
+    const result = importChildItemsFromTreeYAMLProperty({
+      context: {
+        ...mockContext,
+        allElements,
+      },
+      rule: { type: "GroupChildItems", defaultValue: [] },
+      value: undefined,
+      source: [
+        {
+          itemType: "InputField",
+          name: "Товар",
+        },
+      ],
     })
 
     expect(result).toEqual([

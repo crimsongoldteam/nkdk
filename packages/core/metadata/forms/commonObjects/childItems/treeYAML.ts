@@ -8,6 +8,7 @@ import {
   PropertyRule,
   ToMetadata,
   ToYAML,
+  exportPropertyToYAML,
 } from "~/metadata/orchestration"
 import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { exportElementToYAML, exportFormElementTypeToYAML } from "~/metadata/orchestration/formElement/toYAML"
@@ -68,15 +69,6 @@ const childItemTypesByPropertyType = {
   PagesChildItems: ["Page"],
 } as const satisfies Record<ChildItemsTreePropertyType, readonly CollectableElementType[]>
 
-const childItemsPropertyTypeByElementType: Partial<Record<CollectableElementType, ChildItemsTreePropertyType>> = {
-  UsualGroup: "GroupChildItems",
-  Page: "GroupChildItems",
-  CommandBar: "CommandBarChildItems",
-  Table: "TableChildItems",
-  ColumnGroup: "TableChildItems",
-  Pages: "PagesChildItems",
-}
-
 const elementTypesByYAMLKind = Object.entries(CollectableElementTypeToYAML).reduce<
   Record<string, CollectableElementType[]>
 >((acc, [itemType, yamlKind]) => {
@@ -107,26 +99,23 @@ export const exportChildItemToTreeNodeYAML = <From extends ChildItem>(params: {
   item: From
 }): FormElementTreeNodeYAML => {
   const { context, item } = params
-  const yamlContext = createFullElementYAMLContext(context)
   const properties = exportElementToYAML({
-    context: yamlContext,
+    context,
     element: item as ToMetadata<From["itemType"]>,
     rule: getElementRule(item.itemType),
   }) as Record<string, unknown> | undefined
+  const nodeProperties = moveButtonTypeToTreeYAML({
+    itemType: item.itemType,
+    yaml: {
+      ...(properties ?? {}),
+      ...exportTreeOnlyDataPath({ context, item }),
+    },
+  })
 
   const result: FormElementTreeNodeYAML = {
     Вид: exportFormElementTypeToYAML(context, item.itemType),
-    ...(properties ?? {}),
+    ...nodeProperties,
   }
-  result.Вид = exportFormElementTypeToYAML(context, item.itemType)
-
-  const childItems = getChildItems(item)
-  const childItemsYAML = exportChildItemsToTreeYAML({ context, items: childItems })
-  if (childItemsYAML !== undefined) {
-    result.Элементы = childItemsYAML
-  }
-
-  addAutoCommandBarTreeYAML({ context, item, node: result })
 
   return result
 }
@@ -159,12 +148,12 @@ export const importChildItemFromTreeNodeYAML = <To extends ChildItem>(params: {
   const propertyType = params.propertyType ?? "GroupChildItems"
 
   const treeNode = getTreeNodeObject({ name, node })
-  const yamlKind = treeNode.Вид
+  const yamlKind = getTreeNodeDiscriminator({ name, node: treeNode })
   const itemType = getItemTypeFromYAMLKind({ name, yamlKind, propertyType })
   const element = importElementFromPartialYAML({
     context,
     itemType,
-    yaml: toElementYAML(itemType, treeNode),
+    yaml: toElementYAML({ itemType, node: treeNode }),
     source: createElementSource({ itemType, name }),
   })
 
@@ -173,20 +162,6 @@ export const importChildItemFromTreeNodeYAML = <To extends ChildItem>(params: {
     itemType,
     name,
   } as ChildItem & Record<string, unknown>
-
-  const childItemsPropertyType = childItemsPropertyTypeByElementType[itemType]
-  if (treeNode.Элементы !== undefined) {
-    if (!isRecord(treeNode.Элементы)) throw new Error(`Элемент "${name}": поле "Элементы" должно быть объектом`)
-    if (childItemsPropertyType !== undefined) {
-      result.childItems = importChildItemsFromTreeYAML({
-        context,
-        yaml: treeNode.Элементы,
-        propertyType: childItemsPropertyType,
-      })
-    }
-  }
-
-  importAutoCommandBarFromTreeYAML({ context, node: treeNode, item: result })
 
   return result as To
 }
@@ -199,6 +174,13 @@ export const exportChildItemsToTreeYAMLProperty: ExportToYAMLFunctionNew = (para
 }
 
 export const importChildItemsFromTreeYAMLProperty: ImportFromYAMLFunctionNew = (params) => {
+  if (params.value === undefined && Array.isArray(params.source)) {
+    return importChildItemsFromPartialYAML({
+      context: params.context,
+      source: params.source as ChildItem[],
+    })
+  }
+
   const propertyType = getChildItemsTreePropertyType(params.rule)
   return importChildItemsFromTreeYAML({
     context: params.context,
@@ -211,122 +193,42 @@ export const isChildItemsTreeRule = (rule: PropertyRule): boolean => {
   return isChildItemsTreePropertyType(rule.type)
 }
 
-const createFullElementYAMLContext = (context: ConfigurationContext): ConfigurationContext => ({
-  ...context,
-  exportToYAML: {
-    ...(context.exportToYAML ?? {}),
-    toTyped: true,
-  },
-})
-
-const getChildItems = (item: ChildItem): readonly ChildItem[] | undefined => {
-  const value = (item as { childItems?: unknown }).childItems
-  if (!Array.isArray(value)) return undefined
-  return value as readonly ChildItem[]
-}
-
-const addAutoCommandBarTreeYAML = (params: {
+const importChildItemsFromPartialYAML = (params: {
   context: ConfigurationContext
-  item: ChildItem
-  node: FormElementTreeNodeYAML
-}): void => {
-  const { context, item, node } = params
-  const autoCommandBar = getAutoCommandBar(item)
-  if (autoCommandBar === undefined) return
+  source: ChildItem[]
+}): ChildItem[] => {
+  const { context, source } = params
+  const childItemsProperties = context.allElements ?? {}
 
-  const commandBarYAML = getOrCreateCommandBarYAML({
-    context,
-    itemType: "AutoCommandBar",
-    yaml: node.КоманднаяПанель,
-    element: autoCommandBar,
-  })
+  return source.map((item) => {
+    const propertiesYAML = childItemsProperties[item.name] as ToYAML<ChildItem["itemType"]>
+    const sourceItem = dropSyntheticTableLabelDataPath({ item, propertiesYAML })
 
-  const commandBarChildItems = getCommandBarChildItems(autoCommandBar)
-  const commandBarChildItemsYAML = exportChildItemsToTreeYAML({ context, items: commandBarChildItems })
-  if (commandBarChildItemsYAML !== undefined) {
-    commandBarYAML.Элементы = commandBarChildItemsYAML
-  }
-
-  if (Object.keys(commandBarYAML).length > 0) {
-    node.КоманднаяПанель = commandBarYAML
-  }
-}
-
-const getAutoCommandBar = (item: ChildItem): Record<string, unknown> | undefined => {
-  const value = (item as { autoCommandBar?: unknown }).autoCommandBar
-  if (!isRecord(value)) return undefined
-  return value
-}
-
-const getCommandBarChildItems = (autoCommandBar: Record<string, unknown>): readonly ChildItem[] | undefined => {
-  const value = autoCommandBar.childItems
-  if (!Array.isArray(value)) return undefined
-  return value as readonly ChildItem[]
-}
-
-const getOrCreateCommandBarYAML = (params: {
-  context: ConfigurationContext
-  itemType: "AutoCommandBar"
-  yaml: unknown
-  element: Record<string, unknown>
-}): Record<string, unknown> => {
-  const { context, itemType, yaml, element } = params
-  if (isRecord(yaml)) return { ...yaml }
-
-  const properties = exportElementToYAML({
-    context: createFullElementYAMLContext(context),
-    element: element as ToMetadata<typeof itemType>,
-    rule: getElementRule(itemType),
-  }) as Record<string, unknown> | undefined
-
-  return properties ?? {}
-}
-
-const importAutoCommandBarFromTreeYAML = (params: {
-  context: ConfigurationContext
-  node: FormElementTreeNodeYAML
-  item: ChildItem & Record<string, unknown>
-}): void => {
-  const { context, node, item } = params
-  const commandBarYAML = node.КоманднаяПанель
-  if (commandBarYAML === undefined) return
-  if (!isRecord(commandBarYAML)) throw new Error(`Элемент "${item.name}": поле "КоманднаяПанель" должно быть объектом`)
-
-  const importedCommandBar = importElementFromPartialYAML({
-    context,
-    itemType: "AutoCommandBar",
-    yaml: commandBarYAML as ToYAML<"AutoCommandBar">,
-    source: { itemType: "AutoCommandBar" } as ToMetadata<"AutoCommandBar">,
-  })
-
-  const commandBar = {
-    ...importedCommandBar,
-    itemType: "AutoCommandBar",
-  } as Record<string, unknown>
-
-  const commandBarChildItems = commandBarYAML.Элементы
-  if (commandBarChildItems !== undefined) {
-    if (!isRecord(commandBarChildItems)) {
-      throw new Error(`Элемент "${item.name}": поле "КоманднаяПанель.Элементы" должно быть объектом`)
-    }
-    commandBar.childItems = importChildItemsFromTreeYAML({
+    return importElementFromPartialYAML({
       context,
-      yaml: commandBarChildItems,
-      propertyType: "CommandBarChildItems",
-    })
-  }
-
-  item.autoCommandBar = commandBar
+      itemType: sourceItem.itemType,
+      yaml: propertiesYAML,
+      source: sourceItem as ToMetadata<ChildItem["itemType"]>,
+    })! as ChildItem
+  })
 }
 
 const getTreeNodeObject = (params: {
   name: string
   node: unknown
-}): FormElementTreeNodeYAML => {
+}): Record<string, unknown> => {
   const { name, node } = params
   if (!isRecord(node)) throw new Error(`Элемент "${name}": должен быть объектом`)
-  if (typeof node.Вид !== "string") throw new Error(`Элемент "${name}": обязательное поле "Вид" не задано`)
-  return node as FormElementTreeNodeYAML
+  if (typeof node.Вид !== "string" && typeof node.Тип !== "string") {
+    throw new Error(`Элемент "${name}": обязательное поле "Вид" не задано`)
+  }
+  return node
+}
+
+const getTreeNodeDiscriminator = (params: { name: string; node: Record<string, unknown> }): string => {
+  const { node } = params
+  if (typeof node.Тип === "string") return node.Тип
+  return node.Вид as string
 }
 
 const getItemTypeFromYAMLKind = (params: {
@@ -346,11 +248,61 @@ const getItemTypeFromYAMLKind = (params: {
   return itemType
 }
 
-const toElementYAML = <Type extends CollectableElementType>(
-  _itemType: Type,
-  node: FormElementTreeNodeYAML
-): ToYAML<Type> => {
-  const { Вид: _kind, ...yaml } = node
+const moveButtonTypeToTreeYAML = (params: {
+  itemType: CollectableElementType
+  yaml: Record<string, unknown> | undefined
+}): Record<string, unknown> => {
+  const result = { ...(params.yaml ?? {}) }
+  if (isButtonElementType(params.itemType) && result.Вид !== undefined) {
+    result.ТипКнопки = result.Вид
+    delete result.Вид
+  }
+  return result
+}
+
+const exportTreeOnlyDataPath = (params: {
+  context: ConfigurationContext
+  item: ChildItem
+}): Record<string, unknown> | undefined => {
+  const { context, item } = params
+  if (!("dataPath" in item)) return undefined
+
+  const dataPathRule = getElementRule(item.itemType).properties.dataPath
+  if (dataPathRule?.yaml === undefined) return undefined
+
+  return exportPropertyToYAML({
+    context: {
+      ...context,
+      exportToYAML: {
+        ...(context.exportToYAML ?? {}),
+        toTyped: true,
+      },
+    },
+    rule: dataPathRule,
+    value: item.dataPath,
+    name: item.name,
+  })
+}
+
+const toElementYAML = <Type extends CollectableElementType>(params: {
+  itemType: Type
+  node: Record<string, unknown>
+}): ToYAML<Type> => {
+  const { itemType, node } = params
+  const { Вид: kindOrButtonType, Тип: _legacyKind, ТипКнопки: buttonType, ...yaml } = node
+  if (isButtonElementType(itemType) && buttonType !== undefined) {
+    return {
+      ...yaml,
+      Вид: buttonType,
+    } as ToYAML<Type>
+  }
+  if (isButtonElementType(itemType) && _legacyKind !== undefined && kindOrButtonType !== undefined) {
+    return {
+      ...yaml,
+      Вид: kindOrButtonType,
+    } as ToYAML<Type>
+  }
+
   return yaml as ToYAML<Type>
 }
 
@@ -371,6 +323,26 @@ const getChildItemsTreePropertyType = (rule: PropertyRule): ChildItemsTreeProper
 
 const isChildItemsTreePropertyType = (value: string): value is ChildItemsTreePropertyType => {
   return childItemsTreePropertyTypes.some((propertyType) => propertyType === value)
+}
+
+const isButtonElementType = (itemType: CollectableElementType): itemType is "Button" | "CommandBarButton" => {
+  return itemType === "Button" || itemType === "CommandBarButton"
+}
+
+const dropSyntheticTableLabelDataPath = (params: {
+  item: ChildItem
+  propertiesYAML: ToYAML<ChildItem["itemType"]> | undefined
+}): ChildItem => {
+  const { item, propertiesYAML } = params
+
+  if (item.itemType !== "TableLabelField") return item
+  if (!("dataPath" in item)) return item
+  if (item.dataPath !== item.name) return item
+  if (propertiesYAML && typeof propertiesYAML === "object" && "ПутьКДанным" in propertiesYAML) return item
+
+  const result = { ...item }
+  delete (result as { dataPath?: string }).dataPath
+  return result
 }
 
 const castImportedChildItems = <To extends readonly ChildItem[]>(items: ChildItem[]): To => {
