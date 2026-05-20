@@ -366,6 +366,7 @@ import type { ExternalPicture, ExternalPictureYAML } from "~/metadata/commonObje
 import type { ChildSubsystemNames, ChildSubsystemNamesYAML } from "~/metadata/commonObjects/childSubsystemNames/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
 import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
+import { PredefinedCode, PredefinedCodeYAML } from "~/metadata/commonObjects/predefinedCode/types"
 import {
   PredefinedItem,
   PredefinedItemCollection,
@@ -817,6 +818,10 @@ export type PropertyTypeRegistry = {
   Predefined: {
     item: Predefined
     yaml: PredefinedYAML
+  }
+  PredefinedCode: {
+    item: PredefinedCode
+    yaml: PredefinedCodeYAML
   }
   PredefinedItem: {
     item: PredefinedItem
@@ -1457,6 +1462,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataValue: "MetadataValue",
   MetadataValueCollection: "MetadataValueCollection",
   Predefined: "Predefined",
+  PredefinedCode: "PredefinedCode",
   PredefinedItem: "PredefinedItem",
   PredefinedItemCollection: "PredefinedItemCollection",
   Module: "Module",

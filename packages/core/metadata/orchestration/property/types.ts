@@ -12,6 +12,7 @@ import type { CypherSet } from "./cypherPredicate"
 import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
 import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
+import { PredefinedCodePropertyRule } from "~/metadata/commonObjects/predefinedCode/types"
 import { StringOrNumberPropertyRule } from "~/metadata/commonObjects/stringOrNumber/types"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
@@ -321,6 +322,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "SettingsParameterValue"
     | "SettingsParameterValueCollection"
     | "number"
+    | "PredefinedCode"
     | "StringOrNumber"
     | "dateTime"
     | "Module"
@@ -363,6 +365,7 @@ export type PropertyRule =
   | SettingsParameterValuePropertyRule
   | SettingsParameterValueCollectionPropertyRule
   | NumberPropertyRule
+  | PredefinedCodePropertyRule
   | StringOrNumberPropertyRule
   | DateTimePropertyRule
   | XMLRootPropertyRule
