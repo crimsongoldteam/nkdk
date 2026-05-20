@@ -1,5 +1,5 @@
 import fs from "fs"
-import { dirname, isAbsolute, join, relative, resolve } from "path"
+import { dirname, isAbsolute, join, relative, resolve, sep } from "path"
 
 import type { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
 import type { ExternalFilePath, ExternalFilePathParams, ExternalFileRule } from "./types"
@@ -12,7 +12,7 @@ const matches = (name: string, include: readonly (string | RegExp)[]): boolean =
 
 const assertInside = (root: string, target: string): boolean => {
   const rel = relative(resolve(root), resolve(target))
-  return rel !== "" && !rel.startsWith("..") && !isAbsolute(rel)
+  return rel !== "" && rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel)
 }
 
 export async function syncExplicitExternalFilesFromXML(params: {
