@@ -89,7 +89,7 @@ export const yamlDesignTimeFieldExplicit = {
 export const yamlBooleanPrimitive: MetadataValueYAML = "Истина"
 export const yamlLocalStringI8n: I8nTextYAML = "ЧЦ=3; ЧДЦ=2"
 export const yamlHorizontalAlign = "Центр" as const
-export const yamlFontStyleExtraLarge: FontYAML = "ОченьКрупныйШрифтТекста"
+export const yamlFontStyleExtraLarge: FontYAML = { Вид: "ОченьКрупныйШрифтТекста" }
 export const yamlTypeLink: TypeLinkYAML = "Поле1(2)"
 export const yamlChoiceParameterLinks: ChoiceParameterLinksYAML = "ПараметрВыбора(Поле1, НеИзменять)"
 export const yamlChoiceParameterDecimal: ChoiceParametersYAML = {
