@@ -1,7 +1,11 @@
 import fs from "fs"
-import { join } from "path"
+import os from "os"
+import { dirname, join } from "path"
+import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
+import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
 import { testConvertAppliedObjectFromXML } from "~/tests/appliedObject"
+import { mockContextFromXML } from "~/tests/mockContext"
 import { readInformationRegisterYAML } from "./__fixtures__/sync/data"
 import { MetadataInformationRegisterRules } from "./rules"
 
@@ -44,5 +48,33 @@ describe("convertAppliedObjectFromXML — MetadataInformationRegister", () => {
 
     const expectedTemplate = fs.readFileSync(join(objectDir, "Templates", "Макет.xml"), "utf-8")
     expect(fs.readFileSync(join(outputDir, name, "Шаблоны", "Макет", "Template.xml"), "utf-8")).toBe(expectedTemplate)
+  })
+
+  it("читает object-level модули регистра сведений из XML во временной фикстуре", async () => {
+    const testDir = dirname(fileURLToPath(import.meta.url))
+    const fixturesDir = join(testDir, "__fixtures__", "sync")
+    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "information-register-modules-"))
+    const fixtureDir = join(tmpDir, "sync")
+    const inputDir = join(fixtureDir, "xml")
+    const outputDir = join(tmpDir, "out")
+    const managerModule =
+      "Процедура ОбработкаПолученияДанныхВыбора(ДанныеВыбора, Параметры, СтандартнаяОбработка)\nКонецПроцедуры\n"
+    const recordSetModule = "Процедура ПередЗаписью(Отказ, Замещение)\nКонецПроцедуры\n"
+
+    await fs.promises.cp(fixturesDir, fixtureDir, { recursive: true })
+    await fs.promises.mkdir(join(inputDir, name, "Ext"), { recursive: true })
+    await fs.promises.writeFile(join(inputDir, name, "Ext", "ManagerModule.bsl"), managerModule)
+    await fs.promises.writeFile(join(inputDir, name, "Ext", "RecordSetModule.bsl"), recordSetModule)
+
+    await convertAppliedObjectFromXML({
+      rule: MetadataInformationRegisterRules,
+      context: mockContextFromXML(),
+      inputDir,
+      name,
+      outputDir,
+    })
+
+    expect(fs.readFileSync(join(outputDir, name, "МодульМенеджера.bsl"), "utf-8")).toBe(managerModule)
+    expect(fs.readFileSync(join(outputDir, name, "МодульНабораЗаписей.bsl"), "utf-8")).toBe(recordSetModule)
   })
 })

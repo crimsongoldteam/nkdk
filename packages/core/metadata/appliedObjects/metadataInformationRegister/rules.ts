@@ -291,6 +291,20 @@ export const MetadataInformationRegisterRules = {
       xmlParents: childObjects,
       xml: "Command",
     },
+    recordSetModule: {
+      type: "Module",
+      nkdkPath: "МодульНабораЗаписей.bsl",
+      xmlPath: "Ext/RecordSetModule.bsl",
+      toXML: false,
+      fromXML: false,
+    },
+    managerModule: {
+      type: "Module",
+      nkdkPath: "МодульМенеджера.bsl",
+      xmlPath: "Ext/ManagerModule.bsl",
+      toXML: false,
+      fromXML: false,
+    },
     additionalIndexes: {
       yaml: "ДополнительныеИндексы",
       type: "AdditionalIndex",
