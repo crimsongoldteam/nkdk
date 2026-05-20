@@ -40,7 +40,12 @@ describe("import DynamicList from YAML", () => {
       rule,
       value: imported,
     })
-    expect(exported).toEqual({ ДинамическийСписок: fullDynamicListYAML })
+    expect(exported).toEqual({
+      ДинамическийСписок: {
+        ...fullDynamicListYAML,
+        ПроизвольныйЗапрос: "Ложь",
+      },
+    })
   })
 
   it("imports explicit ManualQuery false from YAML even when queryText exists in model fixture", () => {
@@ -51,6 +56,24 @@ describe("import DynamicList from YAML", () => {
 
     expect(result).toEqual({
       customQuery: false,
+      dynamicDataRead: true,
+      itemType: "DynamicList",
+      mainTable: "Catalog.РеестрПартийЗЕРНО",
+    })
+  })
+
+  it("imports explicit ManualQuery true from YAML without query file", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        ПроизвольныйЗапрос: "Истина",
+        ДинамическоеСчитываниеДанных: "Истина",
+        ОсновнаяТаблица: "Catalog.РеестрПартийЗЕРНО",
+      },
+    })
+
+    expect(result).toEqual({
+      customQuery: true,
       dynamicDataRead: true,
       itemType: "DynamicList",
       mainTable: "Catalog.РеестрПартийЗЕРНО",
@@ -84,6 +107,7 @@ describe("import DynamicList from YAML", () => {
 
     expect(exported).toEqual({
       ДинамическийСписок: {
+        ПроизвольныйЗапрос: "Истина",
         ДинамическоеСчитываниеДанных: "Ложь",
         ВидКлюча: "ЗначениеПоля",
         ПоляКлюча: "Ссылка",

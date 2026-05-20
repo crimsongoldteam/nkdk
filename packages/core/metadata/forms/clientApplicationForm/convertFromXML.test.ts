@@ -53,7 +53,7 @@ describe("import from XML string", () => {
     const yaml = fs.readFileSync(join(formOutputPath, "Форма.yaml"), "utf-8")
 
     expect(yaml).not.toContain("ТекстЗапроса:")
-    expect(yaml).not.toContain("ПроизвольныйЗапрос:")
+    expect(yaml).toContain("ПроизвольныйЗапрос: Истина")
 
     const queryPath = join(formOutputPath, "ДинамическийСписок", `${attributeName}.query`)
     expect(fs.existsSync(queryPath)).toBe(true)

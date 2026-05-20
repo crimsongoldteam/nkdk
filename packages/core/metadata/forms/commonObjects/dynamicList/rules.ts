@@ -36,7 +36,6 @@ export const DynamicListRules = {
       xml: "ManualQuery",
       yaml: "ПроизвольныйЗапрос",
       order: 1,
-      derivedFrom: { externalFile: "queryText" },
       defaultValue: false,
       defaultValueXML: false,
       defaultValueYAML: false,
