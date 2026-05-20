@@ -121,4 +121,88 @@ describe("import from XML string", () => {
       execFileSync("node", ["--import", "tsx", "-e", script], { cwd: process.cwd(), encoding: "utf-8" })
     ).not.toThrow()
   })
+
+  it("public core entrypoint exports child items through element YAML rules", async () => {
+    const script = `
+      import assert from "node:assert/strict"
+      import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs"
+      import { tmpdir } from "node:os"
+      import { join } from "node:path"
+      import "./index"
+      import { convertFormFromXML } from "./metadata/forms/clientApplicationForm/convertFromXML"
+
+      const metadataXML = \`<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <Form uuid="21a1cd6e-30f0-4f8a-9b2a-0e6f30a4f100">
+    <Properties>
+      <Name>ФормаСписка</Name>
+      <Synonym>
+        <v8:item>
+          <v8:lang>ru</v8:lang>
+          <v8:content>Форма списка</v8:content>
+        </v8:item>
+      </Synonym>
+      <Comment/>
+      <UsePurposes>PersonalComputer</UsePurposes>
+    </Properties>
+  </Form>
+</MetaDataObject>\`
+
+      const formXML = \`<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <ChildItems>
+    <UsualGroup name="ГруппаБыстрыеОтборы" id="62">
+      <Title>
+        <v8:item>
+          <v8:lang>ru</v8:lang>
+          <v8:content>Быстрые отборы</v8:content>
+        </v8:item>
+      </Title>
+      <Group>Horizontal</Group>
+      <Behavior>Usual</Behavior>
+      <Representation>None</Representation>
+      <ShowTitle>false</ShowTitle>
+      <ExtendedTooltip name="ГруппаБыстрыеОтборыExtendedTooltip" id="87"/>
+    </UsualGroup>
+  </ChildItems>
+</Form>\`
+
+      const projectDir = mkdtempSync(join(tmpdir(), "nakidka-form-yaml-public-"))
+      const inputDir = join(projectDir, "input")
+      const formExtDir = join(inputDir, "ФормаСписка", "Ext")
+      const outputDir = join(projectDir, "output")
+
+      try {
+        mkdirSync(formExtDir, { recursive: true })
+        writeFileSync(join(inputDir, "ФормаСписка.xml"), metadataXML, "utf-8")
+        writeFileSync(join(formExtDir, "Form.xml"), formXML, "utf-8")
+
+        await convertFormFromXML({
+          context: {
+            defaultLanguage: "ru",
+            version: "2.20",
+            exportToYAML: { toTyped: false },
+            fromXML: { forReference: false },
+          },
+          inputDir,
+          formName: "ФормаСписка",
+          outputDir,
+        })
+
+        const yaml = readFileSync(join(outputDir, "Формы", "ФормаСписка", "Форма.yaml"), "utf-8")
+
+        assert.match(yaml, /Элементы:\\n  ГруппаБыстрыеОтборы:/)
+        assert.match(yaml, /Вид: Группа/)
+        assert.match(yaml, /Заголовок: Быстрые отборы/)
+        assert.doesNotMatch(yaml, /"#text"/)
+        assert.doesNotMatch(yaml, /- UsualGroup:/)
+      } finally {
+        rmSync(projectDir, { recursive: true, force: true })
+      }
+    `
+
+    expect(() =>
+      execFileSync("node", ["--import", "tsx", "-e", script], { cwd: process.cwd(), encoding: "utf-8" })
+    ).not.toThrow()
+  })
 })
