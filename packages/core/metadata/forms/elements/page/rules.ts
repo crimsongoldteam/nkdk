@@ -19,6 +19,7 @@ export const PageRules = {
       yaml: "Элементы",
       type: "GroupChildItems",
       defaultValue: [],
+      required: true,
     },
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",
