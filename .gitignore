@@ -27,6 +27,7 @@ delete/
 AGENTS.local.md
 .agents/AGENTS.local.md
 .agents/settings.local.json
+.superpowers/
 
 # Логи внешних MCP-серверов (если всё-таки окажутся в проекте —
 # logback rotating policy может писать .tmp/.gz в cwd независимо от LOG_FILE)
