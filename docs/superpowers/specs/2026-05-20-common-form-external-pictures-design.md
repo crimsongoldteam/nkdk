@@ -14,6 +14,16 @@
 
 Обычные формы уже имеют механизм копирования внешних картинок элементов через `ClientApplicationForm`, но список файлов зашит в коде, а путь общей формы отличается: форма лежит в `ОбщаяФорма/<Имя>` и XML находится в `CommonForms/<Имя>/Ext/Form.xml`.
 
+## Корневая Причина
+
+Расхождение складывается из двух проблем.
+
+Первая: `packages/core/metadata/forms/clientApplicationForm/externalItemFiles.ts` содержит жёсткий список внешних файлов элементов формы. В нём есть `Picture` и `ValuesPicture`, но нет `HeaderPicture`, поэтому файлы `HeaderPicture.png` не могут пройти полный цикл даже для уже поддержанного пути.
+
+Вторая: прямое свойство `MetadataCommonFormRules.form` типа `ClientApplicationForm` обрабатывается как `filePath`-свойство оркестратора. Для `ClientApplicationForm` зарегистрированы `importFromXML`, `exportToXML`, `importFromYAML` и `exportToYAML`, но нет `syncExternalFromXML` / `syncExternalToXML`. Поэтому внешний sync картинок элементов формы вызывается только из `ChildFormNames`, а общая форма, где форма встроена в `Свойства.yaml`, не получает копирование файлов из `Ext/Form/Items`.
+
+Следствие: YAML содержит ссылки внутри формы, например `Картинка: Picture.png` или `КартинкаШапки: HeaderPicture.png`, но соответствующий бинарный файл отсутствует в YAML-каталоге. При обратном sync файл не добавляется в `XmlSyncManifest`, и cleanup удаляет исходный PNG из XML.
+
 ## Цель
 
 Сделать обработку внешних картинок элементов форм декларативной через `rules.ts`, чтобы один механизм работал для:
@@ -47,21 +57,32 @@
 
 Исполняющий код работает только с правилом и каталогами, которые уже вычислены оркестратором. Он не должен проверять тип родительского объекта и не должен иметь отдельной ветки для `CommonForms`.
 
+Для прямых свойств `ClientApplicationForm` нужно зарегистрировать внешние sync-обработчики:
+
+- `syncExternalFromXML` копирует файлы по `externalItemFiles` из XML-каталога формы в YAML-каталог объекта;
+- `syncExternalToXML` восстанавливает файлы по той же настройке и добавляет их в `XmlSyncManifest`.
+
+Эти обработчики должны использовать `rule.filePath` для вычисления XML-каталога формы. Для `MetadataCommonFormRules.form` путь `Ext/Form.xml` означает, что внешние файлы формы лежат рядом в `Ext/Form/Items`.
+
 ## Поток Данных
 
 XML -> YAML:
 
 1. Оркестратор читает форму по правилу свойства.
-2. Код `ClientApplicationForm` получает фактический XML-каталог формы и YAML-каталог формы.
-3. По `externalItemFiles` сканируется `Ext/Form/Items/<Элемент>/<XmlName>.*`.
-4. Найденные файлы копируются в `<YAML-каталог>/<nkdkDir>/<Элемент>.<ext>`.
+2. Для `ChildFormNames` фактические каталоги формы приходят из `syncChildFormNamesFromXML`.
+3. Для прямого свойства `ClientApplicationForm` фактический XML-каталог формы вычисляется из `rule.filePath`, а YAML-каталогом является каталог текущего объекта.
+4. Код `ClientApplicationForm` получает фактический XML-каталог формы и YAML-каталог формы.
+5. По `externalItemFiles` сканируется `Ext/Form/Items/<Элемент>/<XmlName>.*`.
+6. Найденные файлы копируются в `<YAML-каталог>/<nkdkDir>/<Элемент>.<ext>`.
 
 YAML -> XML:
 
 1. Код `ClientApplicationForm` получает те же настройки из rule.
-2. Сканирует `<YAML-каталог>/<nkdkDir>/*.*`.
-3. Восстанавливает файлы в `Ext/Form/Items/<Элемент>/<XmlName>.<ext>`.
-4. Добавляет восстановленные файлы в `XmlSyncManifest`, чтобы cleanup их не удалил.
+2. Для `ChildFormNames` пишет в `Forms/<ИмяФормы>/Ext/Form/Items`.
+3. Для прямого свойства `ClientApplicationForm` пишет рядом с `rule.filePath`, например в `Ext/Form/Items`.
+4. Сканирует `<YAML-каталог>/<nkdkDir>/*.*`.
+5. Восстанавливает файлы в `Ext/Form/Items/<Элемент>/<XmlName>.<ext>`.
+6. Добавляет восстановленные файлы в `XmlSyncManifest`, чтобы cleanup их не удалил.
 
 YAML-текст остаётся прежним: значения вроде `Картинка: Picture.png` и `КартинкаШапки: HeaderPicture.png` не разворачиваются в содержимое файла.
 
