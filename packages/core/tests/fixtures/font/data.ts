@@ -1,5 +1,7 @@
 import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
 
+type FontObjectYAML = Exclude<FontYAML, string> & { ВидXML?: string }
+
 // #region normalMinimalFont
 
 export const normalMinimalFont: Font = {
@@ -7,7 +9,7 @@ export const normalMinimalFont: Font = {
   kind: "Absolute",
 }
 
-export const normalMinimalFontYAML: FontYAML = {
+export const normalMinimalFontYAML: FontObjectYAML = {
   ВидXML: "Absolute",
   Имя: "Academy Engraved LET",
 }
@@ -21,7 +23,7 @@ export const emptyFaceNameMinimalFont: Font = {
   kind: "Absolute",
 }
 
-export const emptyFaceNameMinimalFontYAML: FontYAML = {
+export const emptyFaceNameMinimalFontYAML: FontObjectYAML = {
   ВидXML: "Absolute",
   Имя: "",
 }
@@ -35,7 +37,7 @@ export const prefixedFaceNameFont: Font = {
   kind: "Absolute",
 }
 
-export const prefixedFaceNameFontYAML: FontYAML = {
+export const prefixedFaceNameFontYAML: FontObjectYAML = {
   ВидXML: "Absolute",
   Имя: "style:TooltipTitleFont",
 }
@@ -49,7 +51,7 @@ export const systemMinimalFont: Font = {
   kind: "WindowsFont",
 }
 
-export const systemMinimalFontYAML: FontYAML = {
+export const systemMinimalFontYAML: FontObjectYAML = {
   Вид: "ANSIШрифтМоноширинный",
 }
 
@@ -62,7 +64,7 @@ export const styleMinimalFont: Font = {
   kind: "StyleItem",
 }
 
-export const styleMinimalFontYAML: FontYAML = {
+export const styleMinimalFontYAML: FontObjectYAML = {
   Вид: "ОченьКрупныйШрифтТекста",
 }
 
@@ -75,7 +77,7 @@ export const unknownStyleMinimalFont: Font = {
   kind: "StyleItem",
 }
 
-export const unknownStyleMinimalFontYAML: FontYAML = {
+export const unknownStyleMinimalFontYAML: FontObjectYAML = {
   Вид: "style:TooltipTitleFont",
 }
 
@@ -89,7 +91,7 @@ export const unknownStyleWithFaceNameFont: Font = {
   faceName: "Arial",
 }
 
-export const unknownStyleWithFaceNameFontYAML: FontYAML = {
+export const unknownStyleWithFaceNameFontYAML: FontObjectYAML = {
   Имя: "Arial",
   Вид: "style:TooltipTitleFont",
 }
@@ -110,7 +112,7 @@ export const styleFullFont: Font = {
   scale: 200,
 }
 
-export const styleFullFontYAML: FontYAML = {
+export const styleFullFontYAML: FontObjectYAML = {
   Имя: "Times New Roman",
   Размер: 20,
   Масштаб: 200,
@@ -136,7 +138,7 @@ export const normalFullFont: Font = {
   scale: 200,
 }
 
-export const normalFullFontYAML: FontYAML = {
+export const normalFullFontYAML: FontObjectYAML = {
   ВидXML: "Absolute",
   Имя: "Times New Roman",
   Размер: 20,
@@ -161,7 +163,7 @@ export const systemFullFont: Font = {
   scale: 200,
 }
 
-export const systemFullFontYAML: FontYAML = {
+export const systemFullFontYAML: FontObjectYAML = {
   Имя: "Times New Roman",
   Размер: 20,
   Масштаб: 200,
@@ -187,7 +189,7 @@ export const emptyFaceNameFullFont: Font = {
   scale: 100,
 }
 
-export const emptyFaceNameFullFontYAML: FontYAML = {
+export const emptyFaceNameFullFontYAML: FontObjectYAML = {
   ВидXML: "Absolute",
   Имя: "",
   Размер: 12,
@@ -208,7 +210,7 @@ export const styleScale100Font: Font = {
   scale: 100,
 }
 
-export const styleScale100FontYAML: FontYAML = {
+export const styleScale100FontYAML: FontObjectYAML = {
   Вид: "ОбычныйШрифтТекста",
   Масштаб: 100,
 }
@@ -222,7 +224,7 @@ export const autoBoldFont: Font = {
   bold: true,
 }
 
-export const autoBoldFontYAML: FontYAML = {
+export const autoBoldFontYAML: FontObjectYAML = {
   ВидXML: "AutoFont",
   Полужирный: "Истина",
 }
@@ -233,7 +235,7 @@ interface FontYAMLFixture {
   name: string
   xml: string
   font: Font
-  yaml: FontYAML
+  yaml: FontObjectYAML
   preview: FontEnterprise
 }
 
