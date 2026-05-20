@@ -16,14 +16,23 @@ import type {
 const isYamlObject = (x: unknown): x is Record<string, unknown> =>
   typeof x === "object" && x !== null && !Array.isArray(x)
 
-/** Поля развёрнутого объекта настроек — не имя параметра снаружи */
-const PARAMETER_VALUE_YAML_INTERNAL_KEYS = new Set([
+/** Поля развёрнутого SPV и известных object-value YAML — не имя параметра снаружи */
+const PARAMETER_VALUE_YAML_OBJECT_VALUE_KEYS = new Set([
   "Использовать",
   "Значение",
   "Элементы",
   "РежимОтображения",
   "ИдентификаторПользовательскойНастройки",
   "ПредставлениеПользовательскойНастройки",
+  "Вид",
+  "ВидXML",
+  "Имя",
+  "Масштаб",
+  "Размер",
+  "Наклонный",
+  "Подчеркивание",
+  "Полужирный",
+  "Зачеркивание",
 ])
 
 /**
@@ -37,7 +46,7 @@ const tryUnwrapParameterValueWrapper = (
   const keys = Object.keys(yaml)
   if (keys.length !== 1) return undefined
   const k = keys[0]!
-  if (PARAMETER_VALUE_YAML_INTERNAL_KEYS.has(k)) return undefined
+  if (PARAMETER_VALUE_YAML_OBJECT_VALUE_KEYS.has(k)) return undefined
   if (k === "Параметр") return undefined
   return { parameter: k, inner: yaml[k] }
 }

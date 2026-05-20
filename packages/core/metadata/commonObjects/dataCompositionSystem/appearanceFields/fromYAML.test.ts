@@ -8,18 +8,11 @@ const rule: PropertyRule = {
   type: "AppearanceFields",
 }
 
-const fixtureAppearanceFieldsYAMLForImport = {
-  ...fixtureAppearanceFieldsYAML,
-  Шрифт: {
-    Значение: { Вид: "ОченьКрупныйШрифтТекста" },
-  },
-}
-
 describe("import Appearance from YAML", () => {
   it("should import YAML to metadata", () => {
     const result = testImportPropertyFromYAML({
       rule,
-      value: fixtureAppearanceFieldsYAMLForImport,
+      value: fixtureAppearanceFieldsYAML,
     })
 
     expect(result).toEqual(fixtureAppearanceFields)
