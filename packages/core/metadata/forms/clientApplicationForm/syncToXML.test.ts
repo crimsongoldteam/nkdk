@@ -2,6 +2,7 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { getXMLFixtureDir, readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { convertFormFromXML } from "./convertFromXML"
@@ -96,6 +97,50 @@ describe("sync ClientApplicationForm to XML", () => {
       expect(fs.existsSync(join(tmpOutputDir, "Forms", secondFormName, "Ext", "Form.xml"))).toBe(true)
       expect(context.exportToXML.context?.metadataForNumbering).toHaveLength(0)
       expect(context.exportToXML.context?.propertiesItemXmlStack).toBeUndefined()
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
+  it("восстанавливает внешние картинки элементов формы из YAML и добавляет их в manifest", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-item-pictures-to-xml-"))
+    const tmpInputDir = join(tmpRoot, "yaml")
+    const tmpReferenceDir = join(tmpRoot, "reference-forms")
+    const xmlManifest = new XmlSyncManifest(outputDir)
+
+    try {
+      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
+      fs.cpSync(referenceDir, tmpReferenceDir, { recursive: true })
+      fs.mkdirSync(join(tmpInputDir, "Формы", formName, "Картинки"), { recursive: true })
+      fs.mkdirSync(join(tmpInputDir, "Формы", formName, "КартинкиЗначений"), { recursive: true })
+      fs.writeFileSync(join(tmpInputDir, "Формы", formName, "Картинки", "Декорация2.png"), Buffer.from([1, 2, 3]))
+      fs.writeFileSync(join(tmpInputDir, "Формы", formName, "КартинкиЗначений", "Статус.bmp"), Buffer.from([4, 5, 6]))
+
+      await syncFormToXML({
+        context: mockContextToXML(),
+        inputDir: tmpInputDir,
+        outputDir,
+        referenceDir: tmpReferenceDir,
+        formName,
+        xmlManifest,
+      })
+
+      const picturePath = join(outputDir, "Forms", formName, "Ext", "Form", "Items", "Декорация2", "Picture.png")
+      const valuesPicturePath = join(
+        outputDir,
+        "Forms",
+        formName,
+        "Ext",
+        "Form",
+        "Items",
+        "Статус",
+        "ValuesPicture.bmp"
+      )
+
+      expect([...fs.readFileSync(picturePath)]).toEqual([1, 2, 3])
+      expect([...fs.readFileSync(valuesPicturePath)]).toEqual([4, 5, 6])
+      expect(xmlManifest.expectedFiles()).toContain("Forms/ФормаЭлемента/Ext/Form/Items/Декорация2/Picture.png")
+      expect(xmlManifest.expectedFiles()).toContain("Forms/ФормаЭлемента/Ext/Form/Items/Статус/ValuesPicture.bmp")
     } finally {
       fs.rmSync(tmpRoot, { recursive: true, force: true })
     }

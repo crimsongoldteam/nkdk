@@ -60,6 +60,38 @@ describe("import from XML string", () => {
     expect(fs.readFileSync(queryPath, "utf-8")).toBe(expectedQueryText)
   })
 
+  it("копирует внешние картинки элементов формы в YAML-каталоги по имени элемента", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-item-pictures-"))
+    const tmpInputDir = join(tmpRoot, "xml")
+
+    try {
+      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
+      fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "Декорация2"), { recursive: true })
+      fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "Статус"), { recursive: true })
+      fs.writeFileSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "Декорация2", "Picture.png"), Buffer.from([1, 2, 3]))
+      fs.writeFileSync(
+        join(tmpInputDir, formName, "Ext", "Form", "Items", "Статус", "ValuesPicture.bmp"),
+        Buffer.from([4, 5, 6])
+      )
+
+      await convertFormFromXML({
+        context: mockContextFromXML(),
+        inputDir: tmpInputDir,
+        formName,
+        outputDir,
+      })
+
+      expect([...fs.readFileSync(join(outputDir, "Формы", formName, "Картинки", "Декорация2.png"))]).toEqual([
+        1, 2, 3,
+      ])
+      expect([...fs.readFileSync(join(outputDir, "Формы", formName, "КартинкиЗначений", "Статус.bmp"))]).toEqual([
+        4, 5, 6,
+      ])
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
   it("preserves xsi:nil in raw SettingsFragment when reading form XML", () => {
     const nilFormName = "plannerSettingsWithNil"
     const nilInputDir = join(outputDir, "input")

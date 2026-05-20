@@ -11,6 +11,7 @@ import type {
 import { xmlExport } from "~/xml/export/exporter"
 import { importFromYAML } from "~/yaml/import"
 import { readFormFromXML } from "./convertFromXML"
+import { copyFormItemExternalFilesToXML } from "./externalItemFiles"
 
 export const syncFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -58,6 +59,11 @@ export const syncFormToXML = async (params: {
     metadataXML,
     formName,
     outputDir,
+    xmlManifest: params.xmlManifest,
+  })
+  await copyFormItemExternalFilesToXML({
+    formNkdkDir: formDir,
+    formXmlDir: join(outputDir, "Forms", formName),
     xmlManifest: params.xmlManifest,
   })
 }
