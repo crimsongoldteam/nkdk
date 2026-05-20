@@ -74,6 +74,104 @@ describe("syncAppliedObjectToXML — MetadataSubsystem", () => {
       "Администрирование/Subsystems/НастройкиПрограммы/Ext/CommandInterface.xml"
     )
   })
+
+  it("не дублирует имя родителя для подсистем второго уровня", async () => {
+    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "subsystem-sync-yaml-"))
+    const referenceDir = fs.mkdtempSync(join(os.tmpdir(), "subsystem-sync-ref-"))
+    const outputDir = fs.mkdtempSync(join(os.tmpdir(), "subsystem-sync-xml-"))
+    const xmlManifest = new XmlSyncManifest(outputDir)
+
+    writeFile(join(inputDir, "Администрирование", "Свойства.yaml"), `Синоним: Администрирование
+Подсистемы:
+  - НастройкиПрограммы
+`)
+    writeFile(
+      join(inputDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "Свойства.yaml"),
+      `Синоним: Настройки программы
+Подсистемы:
+  - Интерфейс
+`
+    )
+    writeFile(
+      join(inputDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "Подсистемы", "Интерфейс", "Свойства.yaml"),
+      "Синоним: Интерфейс\n"
+    )
+    writeFile(
+      join(
+        inputDir,
+        "Администрирование",
+        "Подсистемы",
+        "НастройкиПрограммы",
+        "Подсистемы",
+        "Интерфейс",
+        "CommandInterface.xml"
+      ),
+      commandInterfaceXML
+    )
+    writeFile(join(referenceDir, "Администрирование.xml"), subsystemXML({
+      name: "Администрирование",
+      synonym: "Администрирование",
+      childName: "НастройкиПрограммы",
+    }))
+    writeFile(
+      join(referenceDir, "Администрирование", "Subsystems", "НастройкиПрограммы.xml"),
+      subsystemXML({ name: "НастройкиПрограммы", synonym: "Настройки программы", childName: "Интерфейс" })
+    )
+    writeFile(
+      join(referenceDir, "Администрирование", "Subsystems", "НастройкиПрограммы", "Subsystems", "Интерфейс.xml"),
+      subsystemXML({ name: "Интерфейс", synonym: "Интерфейс" })
+    )
+
+    await syncAppliedObjectToXML({
+      rule: MetadataSubsystemRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "Администрирование",
+      outputDir,
+      referenceDir,
+      xmlManifest,
+    })
+
+    expect(
+      fs.existsSync(
+        join(outputDir, "Администрирование", "Subsystems", "НастройкиПрограммы", "Subsystems", "Интерфейс.xml")
+      )
+    ).toBe(true)
+    expect(
+      fs.existsSync(
+        join(
+          outputDir,
+          "Администрирование",
+          "Subsystems",
+          "НастройкиПрограммы",
+          "НастройкиПрограммы",
+          "Subsystems",
+          "Интерфейс.xml"
+        )
+      )
+    ).toBe(false)
+    expect(
+      fs.readFileSync(
+        join(
+          outputDir,
+          "Администрирование",
+          "Subsystems",
+          "НастройкиПрограммы",
+          "Subsystems",
+          "Интерфейс",
+          "Ext",
+          "CommandInterface.xml"
+        ),
+        "utf-8"
+      )
+    ).toBe(commandInterfaceXML)
+    expect(xmlManifest.expectedFiles()).toContain(
+      "Администрирование/Subsystems/НастройкиПрограммы/Subsystems/Интерфейс.xml"
+    )
+    expect(xmlManifest.expectedFiles()).toContain(
+      "Администрирование/Subsystems/НастройкиПрограммы/Subsystems/Интерфейс/Ext/CommandInterface.xml"
+    )
+  })
 })
 
 const writeFile = (path: string, content: string): void => {

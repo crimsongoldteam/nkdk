@@ -40,8 +40,8 @@ export const syncChildSubsystemNamesToXML = async (params: {
   if (!fs.existsSync(childInputDir)) return
 
   const parentReferenceName = params.referenceName ?? params.name
-  const childXmlDir = join(params.xmlDir, params.name, "Subsystems")
-  const childReferenceDir = join(params.referenceDir ?? params.xmlDir, parentReferenceName, "Subsystems")
+  const childXmlDir = childSubsystemDir(params.xmlDir, params.name)
+  const childReferenceDir = childSubsystemDir(params.referenceDir ?? params.xmlDir, parentReferenceName)
 
   for (const childName of childNames) {
     await syncAppliedObjectToXML({
@@ -65,6 +65,9 @@ const getFolderName = (rule: import("~/metadata/orchestration/property/types").P
   (rule as ChildSubsystemNamesPropertyRule).folderName ?? rule.yaml ?? "Подсистемы"
 
 const isSafeName = (name: string): boolean => name !== "." && name !== ".." && !name.includes("/") && !name.includes("\\")
+
+const childSubsystemDir = (xmlDir: string, name: string): string =>
+  xmlDir.endsWith(`/${name}`) || xmlDir.endsWith(`\\${name}`) ? join(xmlDir, "Subsystems") : join(xmlDir, name, "Subsystems")
 
 const normalizeChildNames = (value: unknown): ChildSubsystemNames => {
   if (typeof value === "string") return [value]
