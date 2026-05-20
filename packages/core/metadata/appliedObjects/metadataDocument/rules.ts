@@ -1,5 +1,6 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule, type ReferenceScope } from "~/metadata/orchestration/property/types"
+import { MetadataCommandRules } from "../metadataCommand/rules"
 
 const documentProperties = ["Properties"]
 const documentChildObjects = ["ChildObjects"]
@@ -11,6 +12,17 @@ export const MetadataDocumentStandardAttributeNames: Record<string, string> = {
   Date: "Дата",
   Number: "Номер",
 }
+
+const MetadataDocumentCommandRules = {
+  ...MetadataCommandRules,
+  properties: {
+    ...MetadataCommandRules.properties,
+    commandModule: {
+      ...MetadataCommandRules.properties.commandModule,
+      xmlPath: ({ name }: { name: string }) => `Commands/${name}/Ext/CommandModule.bsl`,
+    },
+  },
+} as const satisfies MetadataItemRule
 
 export const MetadataDocumentRules = {
   itemType: "MetadataDocument",
@@ -126,6 +138,20 @@ export const MetadataDocumentRules = {
       type: "MetadataCommands",
       xmlParents: documentChildObjects,
       xml: "Command",
+    },
+    objectModule: {
+      type: "Module",
+      nkdkPath: "МодульОбъекта.bsl",
+      xmlPath: "Ext/ObjectModule.bsl",
+      toXML: false,
+      fromXML: false,
+    },
+    managerModule: {
+      type: "Module",
+      nkdkPath: "МодульМенеджера.bsl",
+      xmlPath: "Ext/ManagerModule.bsl",
+      toXML: false,
+      fromXML: false,
     },
     forms: {
       type: "ChildFormNames",
@@ -399,6 +425,7 @@ export const MetadataDocumentRules = {
     },
   },
   requiredXMLParents: [["ChildObjects"]],
+  childCollections: [{ propertyKey: "commands", itemRule: MetadataDocumentCommandRules }],
   graphTerminals: ["ПустаяСсылка"],
 } as const satisfies MetadataItemRule
 
