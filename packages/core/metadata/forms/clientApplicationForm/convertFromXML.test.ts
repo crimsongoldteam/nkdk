@@ -1,7 +1,8 @@
 import fs from "fs"
 import { execFileSync } from "node:child_process"
+import os from "os"
 import { join } from "path"
-import { beforeEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { plannerSettingsWithNil } from "~/metadata/forms/commonObjects/formAttribute/__fixtures__/plannerSettingsWithNil"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { getXMLFixtureDir, readXMLFixtureAsString } from "~/tests/readFixtureXML"
@@ -9,16 +10,18 @@ import { convertFormFromXML, readFormFromXML } from "./convertFromXML"
 
 describe("import from XML string", () => {
   const inputDir = getXMLFixtureDir(import.meta.url, "sync/xml/Forms")
-  const outputDir = getXMLFixtureDir(import.meta.url, "sync/out")
   const formName = "ФормаЭлемента"
+  let outputDir: string
 
   beforeEach(() => {
-    if (fs.existsSync(outputDir)) {
-      fs.rmSync(outputDir, { recursive: true })
-    }
+    outputDir = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-convert-"))
   })
 
-  it("should read form from XML and export to YAML file in output dir", async () => {
+  afterEach(() => {
+    fs.rmSync(outputDir, { recursive: true, force: true })
+  })
+
+  it("should read form from XML and export to YAML file in output dir without NKDK", async () => {
     await convertFormFromXML({
       context: mockContextFromXML(),
       inputDir,
@@ -26,14 +29,19 @@ describe("import from XML string", () => {
       outputDir,
     })
 
-    const expectedNkdk = readXMLFixtureAsString(import.meta.url, join("sync/nkdk/Формы", formName, "Форма.nkdk"))
     const expectedYaml = readXMLFixtureAsString(import.meta.url, join("sync/nkdk/Формы", formName, "Форма.yaml"))
 
-    const resultNkdk = fs.readFileSync(join(outputDir, "Формы", formName, "Форма.nkdk"), "utf-8")
+    const resultNkdkPath = join(outputDir, "Формы", formName, "Форма.nkdk")
     const resultYaml = fs.readFileSync(join(outputDir, "Формы", formName, "Форма.yaml"), "utf-8")
 
-    expect(resultNkdk).toBe(expectedNkdk)
+    expect(fs.existsSync(resultNkdkPath)).toBe(false)
     expect(resultYaml).toBe(expectedYaml)
+  })
+
+  it("не подключает NKDK-экспорт при конвертации XML формы", () => {
+    const source = fs.readFileSync(new URL("./convertFromXML.ts", import.meta.url), "utf-8")
+
+    expect(source).not.toContain("exportClientApplicationFormToNKDK")
   })
 
   it("должен экспортировать текст запроса DynamicList во внешний .query файл", async () => {

@@ -10,23 +10,35 @@ import { syncFormToXML } from "./syncToXML"
 describe("sync ClientApplicationForm to XML", () => {
   const inputDir = getXMLFixtureDir(import.meta.url, "sync/nkdk")
   const referenceDir = getXMLFixtureDir(import.meta.url, "sync/xml/Forms")
-  const outputDir = getXMLFixtureDir(import.meta.url, "sync/out")
   const formName = "ФормаЭлемента"
+  let outputDir: string
 
   beforeEach(() => {
-    if (fs.existsSync(outputDir)) {
-      fs.rmSync(outputDir, { recursive: true })
-    }
+    outputDir = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-sync-"))
   })
 
-  it("should read form from YAML/nkdk and export to XML files in output dir", async () => {
-    await syncFormToXML({
-      context: mockContextToXML(),
-      inputDir: inputDir,
-      outputDir: outputDir,
-      referenceDir: referenceDir,
-      formName,
-    })
+  afterEach(() => {
+    fs.rmSync(outputDir, { recursive: true, force: true })
+  })
+
+  it("читает форму из YAML и экспортирует XML, не разбирая NKDK", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-yaml-only-"))
+    const tmpInputDir = join(tmpRoot, "nkdk")
+
+    try {
+      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
+      fs.writeFileSync(join(tmpInputDir, "Формы", formName, "Форма.nkdk"), '"unterminated', "utf-8")
+
+      await syncFormToXML({
+        context: mockContextToXML(),
+        inputDir: tmpInputDir,
+        outputDir: outputDir,
+        referenceDir: referenceDir,
+        formName,
+      })
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
 
     const expectedFormXML = readXMLFixtureAsString(
       import.meta.url,
@@ -42,6 +54,14 @@ describe("sync ClientApplicationForm to XML", () => {
 
     expect(resultFormXML).toBe(expectedFormXML)
     expect(resultMetadataXML).toBe(expectedMetadataXML)
+  })
+
+  it("не подключает NKDK-разбор при синхронизации формы в XML", () => {
+    const source = fs.readFileSync(new URL("./syncToXML.ts", import.meta.url), "utf-8")
+
+    expect(source).not.toContain("nkdk-language")
+    expect(source).not.toContain("parseHelper")
+    expect(source).not.toContain("importClientApplicationFromFromNKDK")
   })
 
   it("не накапливает состояние нумерации в родительском контексте между формами", async () => {
