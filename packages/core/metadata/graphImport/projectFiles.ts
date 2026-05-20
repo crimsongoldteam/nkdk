@@ -10,16 +10,6 @@ export interface ProjectGraphFileOwner {
   rule: MetadataItemRule
 }
 
-export function pairedProjectGraphFile(filePath: string): string | undefined {
-  if (filePath.endsWith("/Форма.nkdk")) {
-    return `${filePath.slice(0, -"Форма.nkdk".length)}Форма.yaml`
-  }
-  if (filePath.endsWith("/Форма.yaml")) {
-    return `${filePath.slice(0, -"Форма.yaml".length)}Форма.nkdk`
-  }
-  return undefined
-}
-
 export function discoverProjectGraphFiles(projectPath: string): string[] {
   const files: string[] = []
 
@@ -77,11 +67,9 @@ function discoverChildProjectGraphFiles(projectPath: string, owner: ProjectGraph
     for (const entry of readdirSync(formsRoot, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue
 
-      for (const fileName of ["Форма.yaml", "Форма.nkdk"] as const) {
-        const fullPath = join(formsRoot, entry.name, fileName)
-        if (existsSync(fullPath)) {
-          files.push(ownerFile(owner, `${rule.folderName}/${entry.name}/${fileName}`))
-        }
+      const fullPath = join(formsRoot, entry.name, "Форма.yaml")
+      if (existsSync(fullPath)) {
+        files.push(ownerFile(owner, `${rule.folderName}/${entry.name}/Форма.yaml`))
       }
     }
   }
@@ -105,7 +93,7 @@ function isExactChildFormFilePath(filePath: string, folderName: string): boolean
     parts.length === 3 &&
     parts[0] === folderName &&
     parts[1] !== "" &&
-    (parts[2] === "Форма.yaml" || parts[2] === "Форма.nkdk")
+    parts[2] === "Форма.yaml"
   )
 }
 

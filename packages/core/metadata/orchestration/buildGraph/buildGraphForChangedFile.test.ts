@@ -10,29 +10,25 @@ ensureDefaultGraphImportsRegistered()
 const ctx: ImportContext = { version: "2.20", defaultLanguage: "ru" }
 
 describe("buildGraphForChangedFile", () => {
-  it("для Форма.nkdk объявляет визуальные элементы и contributes в корень формы", async () => {
+  it("для Форма.yaml объявляет визуальные элементы в том же файле", async () => {
     const result = await buildGraphForChangedFile({
       projectPath: "/project",
       filePath: "Справочник/Товары/Формы/ФормаСписка/Форма.yaml",
       text: [
         "Элементы:",
         "  ПолеВвода1:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Реквизит",
         "    Ширина: 10",
         "",
       ].join("\n"),
-      pairedText: {
-        filePath: "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk",
-        text: "ПолеВвода1(Реквизит): \n",
-      },
       context: ctx,
     })
 
-    const nkdk = result.find((file) => file.filePath.endsWith("Форма.nkdk"))
     const yaml = result.find((file) => file.filePath.endsWith("Форма.yaml"))
-    expect(nkdk?.contributedNodeIds).toContain("Справочник.Товары.Форма.ФормаСписка")
-    expect(nkdk?.declaredNodeIds?.some((id) => id.includes(".Элемент."))).toBe(true)
-    expect(nkdk?.edges.some((edge) => edge.tgt.includes(".Элемент."))).toBe(true)
-    expect(yaml?.edges.some((edge) => edge.tgt.includes(".Элемент."))).toBe(false)
+    expect(result.some((file) => file.filePath.endsWith("Форма.nkdk"))).toBe(false)
+    expect(yaml?.declaredNodeIds?.some((id) => id.includes(".Элемент."))).toBe(true)
+    expect(yaml?.edges.some((edge) => edge.tgt.includes(".Элемент."))).toBe(true)
   })
 
   it("строит сегмент одного Свойства.yaml и declaredNodeIds содержит корень", async () => {

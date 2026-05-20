@@ -5,7 +5,6 @@ import { describe, expect, it } from "vitest"
 import {
   isSupportedProjectFile,
   normalizeProjectFile,
-  pairedFormPath,
   readProjectFileList,
 } from "./projectFiles"
 
@@ -19,18 +18,10 @@ describe("projectFiles", () => {
     ).toBe("Справочник/Товары/Свойства.yaml")
   })
 
-  it("находит пару Форма.yaml для Форма.nkdk", () => {
-    expect(
-      pairedFormPath("Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"),
-    ).toBe("Справочник/Товары/Формы/ФормаСписка/Форма.yaml")
-    expect(
-      pairedFormPath("Справочник/Товары/Формы/ФормаСписка/Форма.yaml"),
-    ).toBe("Справочник/Товары/Формы/ФормаСписка/Форма.nkdk")
-  })
-
   it("распознаёт поддержанные файлы проекта", () => {
     expect(isSupportedProjectFile("Обработка/ЗагрузкаДанных/Свойства.yaml")).toBe(true)
-    expect(isSupportedProjectFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")).toBe(true)
+    expect(isSupportedProjectFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml")).toBe(true)
+    expect(isSupportedProjectFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")).toBe(false)
     expect(isSupportedProjectFile("HTTPСервис/API/Формы/Форма/Форма.yaml")).toBe(false)
     expect(isSupportedProjectFile("README.md")).toBe(false)
   })
@@ -40,6 +31,7 @@ describe("projectFiles", () => {
     writeProjectFile(projectPath, "Обработка/ЗагрузкаДанных/Свойства.yaml")
     writeProjectFile(projectPath, "РегистрСведений/Цены/Свойства.yaml")
     writeProjectFile(projectPath, "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml")
+    writeProjectFile(projectPath, "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")
     writeProjectFile(projectPath, "HTTPСервис/API/Формы/Форма/Форма.yaml")
 
     expect(readProjectFileList(projectPath)).toEqual([

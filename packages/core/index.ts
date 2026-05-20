@@ -63,14 +63,12 @@ export { buildGraph, buildGraphForChangedFile } from "./metadata/graphImport/bui
 export {
   discoverProjectGraphFiles,
   isSupportedProjectGraphFile,
-  pairedProjectGraphFile,
 } from "./metadata/graphImport/projectFiles"
 export type {
   BuildGraphForChangedFileParams,
   FileGraphData,
   FileStats,
   ImportContext,
-  PairedGraphSourceText,
   ProjectGraphInput,
   ProjectGraphSource,
 } from "./metadata/orchestration/buildGraph"

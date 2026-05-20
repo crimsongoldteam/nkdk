@@ -26,9 +26,6 @@ const applySourceStats = (
   const statsByPath = new Map<string, ProjectGraphSource["fileStats"]>()
   for (const source of sources) {
     statsByPath.set(source.filePath, source.fileStats)
-    if (source.pairedText) {
-      statsByPath.set(source.pairedText.filePath, source.pairedText.fileStats)
-    }
   }
   return files.map((file) => {
     const fileStats = statsByPath.get(file.filePath)
@@ -54,7 +51,6 @@ export async function buildGraph(
         filePath: source.filePath,
         sources: {
           yaml: source.text,
-          paired: source.pairedText,
         },
         kind: parsed.kind,
         name: parsed.name,

@@ -15,30 +15,16 @@ export function validateForm({ formDir, formName: _formName }: ValidateFormParam
   const yamlExists = existsSync(yamlPath)
   const nkdkExists = existsSync(nkdkPath)
 
-  if (yamlExists && !nkdkExists) {
-    diagnostics.push({
-      filePath: yamlPath,
-      line: 1,
-      col: 1,
-      message: `Отсутствует файл структуры формы: Форма.nkdk`,
-      severity: "error",
-      source: "external-file",
-    })
-  }
-
   if (nkdkExists && !yamlExists) {
     diagnostics.push({
       filePath: nkdkPath,
       line: 1,
       col: 1,
-      message: `Отсутствует файл свойств формы: Форма.yaml`,
+      message: `Устаревший файл структуры формы: Форма.nkdk`,
       severity: "error",
       source: "external-file",
     })
   }
-
-  // Кросс-файловые проверки (пустой блок в этой итерации)
-  // TODO: validateCrossFile({ yamlPath, nkdkPath })
 
   return diagnostics
 }

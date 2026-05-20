@@ -5,7 +5,6 @@ import { describe, expect, it } from "vitest"
 import {
   discoverProjectGraphFiles,
   isSupportedProjectGraphFile,
-  pairedProjectGraphFile,
 } from "./projectFiles"
 
 const createProject = () => mkdtempSync(join(tmpdir(), "nkdk-graph-files-"))
@@ -41,7 +40,6 @@ describe("graphImport projectFiles", () => {
     expect(discoverProjectGraphFiles(root)).toEqual([
       "HTTPСервис/API/Свойства.yaml",
       "Обработка/ЗагрузкаДанных/Свойства.yaml",
-      "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk",
       "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml",
     ].sort())
   })
@@ -49,19 +47,17 @@ describe("graphImport projectFiles", () => {
   it("проверяет поддержанные пути тем же rule-driven механизмом", () => {
     expect(isSupportedProjectGraphFile("Обработка/ЗагрузкаДанных/Свойства.yaml")).toBe(true)
     expect(isSupportedProjectGraphFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml")).toBe(true)
-    expect(isSupportedProjectGraphFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")).toBe(true)
+    expect(isSupportedProjectGraphFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")).toBe(false)
     expect(isSupportedProjectGraphFile("Справочник/Товары/Формы/Группа/Под/Форма.yaml")).toBe(false)
     expect(isSupportedProjectGraphFile("Справочник/Товары/Формы/Форма.yaml")).toBe(false)
     expect(isSupportedProjectGraphFile("HTTPСервис/API/Формы/Форма/Форма.yaml")).toBe(false)
     expect(isSupportedProjectGraphFile("README.md")).toBe(false)
   })
 
-  it("находит пару формы без знания владельца", () => {
-    expect(pairedProjectGraphFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")).toBe(
-      "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml",
-    )
-    expect(pairedProjectGraphFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml")).toBe(
-      "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk",
-    )
+  it("игнорирует устаревший Форма.nkdk без Форма.yaml", () => {
+    const root = createProject()
+    write(root, "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")
+
+    expect(discoverProjectGraphFiles(root)).toEqual([])
   })
 })

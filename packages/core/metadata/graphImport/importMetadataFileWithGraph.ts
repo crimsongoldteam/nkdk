@@ -10,8 +10,7 @@ export type ImportMetadataFileResult = ImportRegisteredMetadataSourceResult
 
 export async function importMetadataFileWithGraph(params: {
   filePath: string
-  nkdkFilePath?: string
-  sources: { yaml: string; nkdk?: string }
+  sources: { yaml: string }
   kind: string
   name: string
   graph: GraphBuilder
@@ -19,19 +18,11 @@ export async function importMetadataFileWithGraph(params: {
   ownerNodeId?: string
 }): Promise<ImportMetadataFileResult | undefined> {
   ensureDefaultGraphImportsRegistered()
-  const paired =
-    params.nkdkFilePath || params.sources.nkdk !== undefined
-      ? {
-          filePath: params.nkdkFilePath ?? "",
-          text: params.sources.nkdk ?? "",
-        }
-      : undefined
 
   return importRegisteredMetadataSourceWithGraph({
     filePath: params.filePath,
     sources: {
       yaml: params.sources.yaml,
-      paired,
     },
     kind: params.kind,
     name: params.name,
