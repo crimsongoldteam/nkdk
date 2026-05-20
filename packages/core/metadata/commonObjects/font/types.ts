@@ -52,6 +52,7 @@ export interface Font {
 
 export interface FontFullYAML {
   Вид?: SE.StyleFontsYAML | SE.WindowsFontsYAML | RawPrefixedFontRef
+  ВидXML?: SE.FontType
   Имя?: string
   Масштаб?: number
   Размер?: number
@@ -61,21 +62,17 @@ export interface FontFullYAML {
   Зачеркивание?: StringboolYAML
 }
 
-export type FontCompactYAML = string
-
-export const FontJSONSchema = Type.Union([
-  Type.Object({
-    Вид: Type.Optional(Type.String()),
-    Имя: Type.Optional(Type.String()),
-    Масштаб: Type.Optional(Type.Number()),
-    Размер: Type.Optional(Type.Number()),
-    Наклонный: Type.Optional(BooleanJSONSchema),
-    Подчеркивание: Type.Optional(BooleanJSONSchema),
-    Полужирный: Type.Optional(BooleanJSONSchema),
-    Зачеркивание: Type.Optional(BooleanJSONSchema),
-  }),
-  Type.String(),
-])
+export const FontJSONSchema = Type.Object({
+  Вид: Type.Optional(Type.String()),
+  ВидXML: Type.Optional(Type.String()),
+  Имя: Type.Optional(Type.String()),
+  Масштаб: Type.Optional(Type.Number()),
+  Размер: Type.Optional(Type.Number()),
+  Наклонный: Type.Optional(BooleanJSONSchema),
+  Подчеркивание: Type.Optional(BooleanJSONSchema),
+  Полужирный: Type.Optional(BooleanJSONSchema),
+  Зачеркивание: Type.Optional(BooleanJSONSchema),
+})
 
 export type FontYAML = Static<typeof FontJSONSchema>
 
