@@ -30,10 +30,9 @@ function resolveUmdToEsmPlugin() {
 
 ;(async () => {
   const ctx = await esbuild.context({
-    // Entry points for the vscode extension and the language server
+    // Entry points for the VS Code extension and YAML language server
     entryPoints: {
       extension: "src/extension/main.ts",
-      language: "src/language/main.ts",
       "yaml-language-server": "node_modules/yaml-language-server/out/server/src/server.js",
     },
 

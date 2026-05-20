@@ -4,7 +4,7 @@ import {
   PictureDecorationPartialYAML,
 } from "~/metadata/forms/elements/pictureDecoration/types"
 
-import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import { StructureResult } from "~/tests/types"
 import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullFormDecorationCommonFixture,
@@ -98,7 +98,7 @@ export const sourcePictureDecoration: PictureDecoration = {
 export interface PictureDecorationStructureFixture {
   name: string
   element: PictureDecoration
-  structured: ToNKDKResult
+  structured: StructureResult
   skipImport?: boolean
 }
 

@@ -25,14 +25,13 @@ describe("sync configuration from xml", () => {
     })
 
     const expectedFormYaml = readXMLFileAsString(
-      join("sync/syncConfiguration/nkdk/Справочник/Контрагенты/Формы/ФормаЭлемента", "Форма.yaml")
+      join("sync/syncConfiguration/yaml/Справочник/Контрагенты/Формы/ФормаЭлемента", "Форма.yaml")
     )
 
     const expectedCatalogYaml = readXMLFileAsString(
-      join("sync/syncConfiguration/nkdk/Справочник/Контрагенты", "Свойства.yaml")
+      join("sync/syncConfiguration/yaml/Справочник/Контрагенты", "Свойства.yaml")
     )
 
-    const resultFormNkdkPath = join(outputDir, "Справочник", "Контрагенты", "Формы", "ФормаЭлемента", "Форма.nkdk")
     const resultFormYaml = fs.readFileSync(
       join(outputDir, "Справочник", "Контрагенты", "Формы", "ФормаЭлемента", "Форма.yaml"),
       "utf-8"
@@ -40,7 +39,6 @@ describe("sync configuration from xml", () => {
     const resultCatalogYaml = fs.readFileSync(join(outputDir, "Справочник", "Контрагенты", "Свойства.yaml"), "utf-8")
 
     expect(resultCatalogYaml).toBe(expectedCatalogYaml)
-    expect(fs.existsSync(resultFormNkdkPath), `unexpected ${resultFormNkdkPath}`).toBe(false)
     expect(resultFormYaml).toBe(expectedFormYaml)
   })
 

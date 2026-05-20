@@ -608,7 +608,6 @@ describe("importMetadataFileWithGraph — graphTerminals (ПустаяСсылк
 
 describe("importMetadataFileWithGraph — form", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-  const NKDK_PATH = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
   const OWNER_NODE_ID = "Справочник.Товары"
 
   it("создаёт form-узел с owning-ребром Форма от владельца", async () => {
@@ -647,8 +646,6 @@ describe("importMetadataFileWithGraph — form", () => {
     const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
     const attrs = graph.getNodeAttributes(formNodeId)
     expect(attrs.filePaths).toContain(YAML_PATH)
-    expect(attrs.filePaths).not.toContain(NKDK_PATH)
-    expect(attrs.contributedFilePaths).not.toContain(NKDK_PATH)
   })
 
   it("визуальные элементы объявляются YAML при едином файле формы", async () => {
@@ -677,7 +674,6 @@ describe("importMetadataFileWithGraph — form", () => {
 
     expect(formFile.declaredNodeIds).toContain(formNodeId)
     expect(formFile.declaredNodeIds?.some((id) => id.startsWith(`${formNodeId}.Элемент.`))).toBe(true)
-    expect(walkGraphToFileData(graph).some((file) => file.filePath === NKDK_PATH)).toBe(false)
 
     const root = formFile.nodes.find((node) => node.id === formNodeId)!
     expect(Object.keys(root.props).some((key) => key.startsWith("p_childItems_"))).toBe(false)

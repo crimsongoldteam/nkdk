@@ -320,4 +320,4 @@ Owning-рёбра (`owning: true`) выражают состав: владеле
 
 Графовые узлы не хранят `filePath` в props. Владение задаётся в `FileGraphData.declaredNodeIds` и в FalkorDB хранится как `(:File)-[:DECLARES]->(node)`. Влияющий файл, который не владеет жизненным циклом узла, задаётся через `contributedNodeIds` и хранится как `(:File)-[:CONTRIBUTES]->(node)`.
 
-Для форм `Форма.yaml` является обязательным владельцем корня `ClientApplicationForm` и YAML-частей формы. `Форма.nkdk` владеет визуальными элементами формы и contributes в корневой узел формы.
+Для форм `Форма.yaml` является единственным владельцем корня `ClientApplicationForm`, свойств формы и визуальных элементов формы.

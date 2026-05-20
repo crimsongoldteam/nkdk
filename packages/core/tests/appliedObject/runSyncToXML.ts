@@ -26,7 +26,7 @@ export const testSyncAppliedObjectToXML = async (
 
   const testDir = dirname(fileURLToPath(importMetaUrl))
   const fixturesDir = join(testDir, fixturesSubdir)
-  const inputDir = join(fixturesDir, "nkdk")
+  const inputDir = join(fixturesDir, "yaml")
   const referenceDir = join(fixturesDir, "xml")
   const outputDir = fs.mkdtempSync(join(os.tmpdir(), "applied-sync-"))
   const externalOutputDir = params.externalObjectDir ? join(outputDir, name) : undefined

@@ -57,7 +57,7 @@ program
 
 program
   .command("watch")
-  .description("Следить за YAML/NKDK-проектом и инкрементально обновлять граф")
+  .description("Следить за YAML-проектом и инкрементально обновлять граф")
   .argument("<path>", "путь к корню YAML-проекта")
   .action((projectPath: string) => {
     run(() => watch(projectPath))

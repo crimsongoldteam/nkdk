@@ -23,16 +23,6 @@
     ],
     "languages": [
       {
-        "id": "nkdk",
-        "aliases": [
-          "nkdk"
-        ],
-        "extensions": [
-          ".nkdk"
-        ],
-        "configuration": "./language-configuration.json"
-      },
-      {
         "id": "yaml",
         "aliases": [
           "yaml"
@@ -41,13 +31,6 @@
           ".yaml"
         ],
         "configuration": "./language-configuration-yaml.json"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "nkdk",
-        "scopeName": "source.nkdk",
-        "path": "syntaxes/nkdk.tmLanguage.json"
       }
     ]
   },
@@ -59,7 +42,7 @@
   "scripts": {
     "clean": "shx rm -fr *.tsbuildinfo ./out",
     "vscode:prepublish": "pnpm run build",
-    "build": "pnpm --filter nkdk-language run build && tsc -b tsconfig.json && node esbuild.mjs && pnpm run copy-l10n",
+    "build": "tsc -b tsconfig.json && node esbuild.mjs && pnpm run copy-l10n",
     "build:clean": "pnpm run clean && pnpm run build",
     "copy-l10n": "cp -r node_modules/yaml-language-server/l10n out/extension/l10n",
     "watch": "concurrently -n tsc,esbuild -c blue,yellow \"tsc -b tsconfig.json --watch\" \"node esbuild.mjs --watch\"",
@@ -68,11 +51,8 @@
   "dependencies": {
     "@nakidka/core": "workspace:*",
     "fs-extra": "~11.2.0",
-    "langium": "~4.2.0",
-    "nkdk-language": "workspace:*",
     "request-light": "^0.8.0",
     "vscode-languageclient": "~9.0.1",
-    "vscode-languageserver": "~9.0.1",
     "yaml": "^2.8.3",
     "yaml-language-server": "next"
   },

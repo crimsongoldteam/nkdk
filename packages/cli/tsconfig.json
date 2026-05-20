@@ -18,8 +18,7 @@
     "paths": {
       "@nakidka/core": ["../core/index.ts"],
       "@nakidka/graph": ["../graph/src/index.ts"],
-      "~/*": ["../core/*"],
-      "nkdk-language": ["../language/src/index.ts"]
+      "~/*": ["../core/*"]
     },
     "allowImportingTsExtensions": true,
     "emitDeclarationOnly": true

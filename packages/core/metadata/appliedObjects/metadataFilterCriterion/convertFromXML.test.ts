@@ -32,22 +32,12 @@ describe("convertAppliedObjectFromXML — MetadataFilterCriterion", () => {
         output: join(outputDir, name, "Формы", "ФормаСписка", "Форма.yaml"),
       },
       {
-        input: join(inputDir, name, "Forms", "ФормаСписка", "Ext", "Form.xml"),
-        output: join(outputDir, name, "Формы", "ФормаСписка", "Форма.nkdk"),
-        shouldExist: false,
-      },
-      {
         input: join(inputDir, name, "Forms", "ФормаСписка", "Ext", "Form", "Module.bsl"),
         output: join(outputDir, name, "Формы", "ФормаСписка", "Модуль.bsl"),
       },
     ]
 
-    for (const { input, output, shouldExist = true } of expectedFiles) {
-      if (!shouldExist) {
-        expect(fs.existsSync(output), output).toBe(false)
-        expect(fs.existsSync(input), input).toBe(true)
-        continue
-      }
+    for (const { input, output } of expectedFiles) {
       expect(fs.existsSync(output), output).toBe(true)
       expect(fs.existsSync(input), input).toBe(true)
       if (output.endsWith("Форма.yaml")) {

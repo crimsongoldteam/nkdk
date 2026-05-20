@@ -123,9 +123,7 @@ describe("watch command", () => {
   it("не вызывает updateGraphFiles, если form YAML на диске совпадает с графом", async () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
     writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
     mocks.getGraphFiles.mockResolvedValue([
       graphRecord(projectPath, yamlPath),
     ])
@@ -140,9 +138,7 @@ describe("watch command", () => {
   it("вызывает updateGraphFiles одним batch, если граф пустой, а на диске есть form YAML", async () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
     writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
 
     const promise = watch(projectPath)
     watcher.emit("ready")
@@ -155,9 +151,7 @@ describe("watch command", () => {
   it("после initial updateGraphFiles дожимает watcher event вторым batch-вызовом", async () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
     const fullYamlPath = writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
     const initialUpdate = createDeferred()
     ;(mocks.updateGraphFiles as Mock)
       .mockImplementationOnce(async () => {
@@ -180,14 +174,14 @@ describe("watch command", () => {
     expect(mocks.updateGraphFiles).toHaveBeenNthCalledWith(2, projectPath, [yamlPath])
   })
 
-  it("игнорирует watcher event для устаревшего Форма.nkdk", async () => {
+  it("игнорирует watcher event для неподдержанного файла", async () => {
     const projectPath = createProject()
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
-    const fullNkdkPath = writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
+    const textPath = "Справочник/Товары/Формы/ФормаСписка/Форма.txt"
+    const fullTextPath = writeProjectFile(projectPath, textPath, "не источник формы\n")
 
     const promise = watch(projectPath)
     watcher.emit("ready")
-    watcher.emit("change", fullNkdkPath)
+    watcher.emit("change", fullTextPath)
     await promise
 
     expect(mocks.updateGraphFiles).not.toHaveBeenCalled()

@@ -178,7 +178,6 @@ describe("buildGraph (формы)", () => {
     expect(yaml.declaredNodeIds).toContain("Справочник.Товары.Форма.ФормаСписка")
     expect(yaml.declaredNodeIds?.some((id) => id.includes(".Элемент."))).toBe(true)
     expect(yaml.edges.some((edge) => edge.src.includes(".Элемент.") || edge.tgt.includes(".Элемент."))).toBe(true)
-    expect(result.some((file) => file.filePath.endsWith("Форма.nkdk"))).toBe(false)
     expect(
       stub?.nodes.every((node) => typeof node.label === "string" && node.label.length > 0),
     ).toBe(true)

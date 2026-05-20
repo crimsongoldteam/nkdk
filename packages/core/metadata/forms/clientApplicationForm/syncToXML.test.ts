@@ -8,7 +8,7 @@ import { convertFormFromXML } from "./convertFromXML"
 import { syncFormToXML } from "./syncToXML"
 
 describe("sync ClientApplicationForm to XML", () => {
-  const inputDir = getXMLFixtureDir(import.meta.url, "sync/nkdk")
+  const inputDir = getXMLFixtureDir(import.meta.url, "sync/yaml")
   const referenceDir = getXMLFixtureDir(import.meta.url, "sync/xml/Forms")
   const formName = "ФормаЭлемента"
   let outputDir: string
@@ -21,13 +21,12 @@ describe("sync ClientApplicationForm to XML", () => {
     fs.rmSync(outputDir, { recursive: true, force: true })
   })
 
-  it("читает форму из YAML и экспортирует XML, не разбирая NKDK", async () => {
+  it("читает форму из YAML и экспортирует XML", async () => {
     const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-yaml-only-"))
-    const tmpInputDir = join(tmpRoot, "nkdk")
+    const tmpInputDir = join(tmpRoot, "yaml")
 
     try {
       fs.cpSync(inputDir, tmpInputDir, { recursive: true })
-      fs.writeFileSync(join(tmpInputDir, "Формы", formName, "Форма.nkdk"), '"unterminated', "utf-8")
 
       await syncFormToXML({
         context: mockContextToXML(),
@@ -56,17 +55,9 @@ describe("sync ClientApplicationForm to XML", () => {
     expect(resultMetadataXML).toBe(expectedMetadataXML)
   })
 
-  it("не подключает NKDK-разбор при синхронизации формы в XML", () => {
-    const source = fs.readFileSync(new URL("./syncToXML.ts", import.meta.url), "utf-8")
-
-    expect(source).not.toContain("nkdk-language")
-    expect(source).not.toContain("parseHelper")
-    expect(source).not.toContain("importClientApplicationFromFromNKDK")
-  })
-
   it("не накапливает состояние нумерации в родительском контексте между формами", async () => {
     const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-numbering-"))
-    const tmpInputDir = join(tmpRoot, "nkdk")
+    const tmpInputDir = join(tmpRoot, "yaml")
     const tmpReferenceDir = join(tmpRoot, "reference-forms")
     const tmpOutputDir = join(tmpRoot, "out")
     const secondFormName = "ФормаВторая"

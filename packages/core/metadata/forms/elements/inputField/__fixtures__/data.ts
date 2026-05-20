@@ -7,7 +7,7 @@ import {
   TableInputFieldPartialYAML,
   TableInputFieldTypedYAML,
 } from "~/metadata/forms/elements/inputField/types"
-import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import { StructureResult } from "~/tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
@@ -482,7 +482,7 @@ export const minimalTableInputFieldTypedYAML: TableInputFieldTypedYAML = {
 export interface InputFieldStructureFixture {
   name: string
   element: InputField
-  structured: ToNKDKResult
+  structured: StructureResult
 }
 
 export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [

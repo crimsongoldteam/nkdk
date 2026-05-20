@@ -26,7 +26,6 @@ describe("buildGraphForChangedFile", () => {
     })
 
     const yaml = result.find((file) => file.filePath.endsWith("Форма.yaml"))
-    expect(result.some((file) => file.filePath.endsWith("Форма.nkdk"))).toBe(false)
     expect(yaml?.declaredNodeIds?.some((id) => id.includes(".Элемент."))).toBe(true)
     expect(yaml?.edges.some((edge) => edge.tgt.includes(".Элемент."))).toBe(true)
   })

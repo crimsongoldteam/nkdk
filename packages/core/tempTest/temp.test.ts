@@ -60,13 +60,9 @@ describe("DO test", () => {
     //   )
     //   const yamlObject = exportClientApplicationFormToYAML(configurationContext, form)
     //   const yaml = exportToYAML(yamlObject)
-    //   const structuredObject = exportClientApplicationFormToNKDK(configurationContext, form)
-    //   const strings = structuredObject.strings.join("\n")
     //   writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
-    //   writeFileSync(join(__dirname, "After/Form.nkdk"), strings, "utf-8")
-    //   const sourceForm = await importFormFromNKDK(configurationContext, strings)
     //   const importedYaml = importFromYAML<ClientApplicationFormYAML>(yaml)
-    //   const newForm = importClientApplicationFormFromYAML(configurationContext, importedYaml, sourceForm!)
+    //   const newForm = importClientApplicationFormFromYAML(configurationContext, importedYaml)
     //   const newXMLData = exportClientApplicationFormToXML({
     //     context: configurationContext,
     //     form: newForm,

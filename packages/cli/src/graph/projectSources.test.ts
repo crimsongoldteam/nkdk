@@ -24,12 +24,10 @@ const writeProjectFile = (projectPath: string, filePath: string, text: string): 
 }
 
 describe("projectSources", () => {
-  it("читает Форма.yaml без парного Форма.nkdk", () => {
+  it("читает Форма.yaml как источник формы", () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
     writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
 
     const sources = readProjectGraphSources(projectPath)
 
@@ -58,8 +56,6 @@ describe("projectSources", () => {
   it("для удалённой Форма.yaml возвращает только YAML filePath для очистки", () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
 
     const changed = readChangedProjectSource(projectPath, yamlPath)
 
@@ -69,14 +65,14 @@ describe("projectSources", () => {
     })
   })
 
-  it("batch-нормализация игнорирует устаревший Форма.nkdk", () => {
+  it("batch-нормализация игнорирует неподдержанный файл", () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
+    const textPath = "Справочник/Товары/Формы/ФормаСписка/Форма.txt"
     writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
+    writeProjectFile(projectPath, textPath, "не источник формы\n")
 
-    const changed = readChangedProjectSources(projectPath, [nkdkPath])
+    const changed = readChangedProjectSources(projectPath, [textPath])
 
     expect(changed.deletedFilePaths).toEqual([])
     expect(changed.sources).toEqual([])
@@ -84,10 +80,8 @@ describe("projectSources", () => {
 
   it("readChangedProjectSources читает форму Обработка через rule-driven YAML path", () => {
     const yamlPath = "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml"
-    const nkdkPath = "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk"
     const projectPath = createProject({
       [yamlPath]: "Заголовок: Форма\n",
-      [nkdkPath]: "Элементы:\n",
     })
 
     const changed = readChangedProjectSources(projectPath, [yamlPath])
@@ -100,24 +94,24 @@ describe("projectSources", () => {
     ])
   })
 
-  it("batch-нормализация не создаёт tombstone для Форма.nkdk при сохранённом Форма.yaml", () => {
+  it("batch-нормализация не создаёт tombstone для неподдержанного файла", () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
+    const textPath = "Справочник/Товары/Формы/ФормаСписка/Форма.txt"
     writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
 
-    const changed = readChangedProjectSources(projectPath, [nkdkPath])
+    const changed = readChangedProjectSources(projectPath, [textPath])
 
     expect(changed.sources).toEqual([])
     expect(changed.deletedFilePaths).toEqual([])
   })
 
-  it("batch-нормализация не делает одинокий Форма.nkdk graph source", () => {
+  it("batch-нормализация не делает одинокий неподдержанный graph source", () => {
     const projectPath = createProject()
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
+    const textPath = "Справочник/Товары/Формы/ФормаСписка/Форма.txt"
+    writeProjectFile(projectPath, textPath, "не источник формы\n")
 
-    const changed = readChangedProjectSources(projectPath, [nkdkPath])
+    const changed = readChangedProjectSources(projectPath, [textPath])
 
     expect(changed.sources).toEqual([])
     expect(changed.deletedFilePaths).toEqual([])
@@ -126,8 +120,6 @@ describe("projectSources", () => {
   it("batch-нормализация удаляет только YAML при удалённой Форма.yaml", () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
 
     const changed = readChangedProjectSources(projectPath, [yamlPath])
 

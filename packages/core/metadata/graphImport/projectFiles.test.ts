@@ -33,7 +33,7 @@ describe("graphImport projectFiles", () => {
     const root = createProject()
     write(root, "Обработка/ЗагрузкаДанных/Свойства.yaml")
     write(root, "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml")
-    write(root, "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")
+    write(root, "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.txt")
     write(root, "HTTPСервис/API/Свойства.yaml")
     write(root, "HTTPСервис/API/Формы/Форма/Форма.yaml")
 
@@ -47,16 +47,16 @@ describe("graphImport projectFiles", () => {
   it("проверяет поддержанные пути тем же rule-driven механизмом", () => {
     expect(isSupportedProjectGraphFile("Обработка/ЗагрузкаДанных/Свойства.yaml")).toBe(true)
     expect(isSupportedProjectGraphFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml")).toBe(true)
-    expect(isSupportedProjectGraphFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")).toBe(false)
+    expect(isSupportedProjectGraphFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.txt")).toBe(false)
     expect(isSupportedProjectGraphFile("Справочник/Товары/Формы/Группа/Под/Форма.yaml")).toBe(false)
     expect(isSupportedProjectGraphFile("Справочник/Товары/Формы/Форма.yaml")).toBe(false)
     expect(isSupportedProjectGraphFile("HTTPСервис/API/Формы/Форма/Форма.yaml")).toBe(false)
     expect(isSupportedProjectGraphFile("README.md")).toBe(false)
   })
 
-  it("игнорирует устаревший Форма.nkdk без Форма.yaml", () => {
+  it("игнорирует неподдержанный файл формы без Форма.yaml", () => {
     const root = createProject()
-    write(root, "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")
+    write(root, "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.txt")
 
     expect(discoverProjectGraphFiles(root)).toEqual([])
   })

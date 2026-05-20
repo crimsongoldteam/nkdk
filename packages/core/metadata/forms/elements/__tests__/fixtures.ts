@@ -2,25 +2,23 @@ import type { ConfigurationContext } from "~/metadata/context/types"
 import { fullCommandBarChildItemsAllYAML } from "~/tests/fixtures/commandBarChildItems/data"
 import { mockContext } from "~/tests/mockContext"
 
-import {
-  Button,
-  CheckBoxField,
-  CommandBar,
-  CommandBarButton,
-  InputField,
-  LabelDecoration,
-  LabelField,
-  Page,
-  Pages,
-  PictureDecoration,
-  PictureField,
-  Popup,
-  Table,
-  TableCheckbox,
-  TableInputField,
-  TableLabelField,
-  TablePictureField,
-} from "nkdk-language"
+const Button = undefined
+const CheckBoxField = undefined
+const CommandBar = undefined
+const CommandBarButton = undefined
+const InputField = undefined
+const LabelDecoration = undefined
+const LabelField = undefined
+const Page = undefined
+const Pages = undefined
+const PictureDecoration = undefined
+const PictureField = undefined
+const Popup = undefined
+const Table = undefined
+const TableCheckbox = undefined
+const TableInputField = undefined
+const TableLabelField = undefined
+const TablePictureField = undefined
 import {
   commandBarButtonWithDataPath,
   commandBarButtonWithDataPathPartialYAML,

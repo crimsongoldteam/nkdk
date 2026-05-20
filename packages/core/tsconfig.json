@@ -19,7 +19,7 @@
     "strictNullChecks": true,
     "plugins": [],
     "baseUrl": ".",
-    "paths": { "~/*": ["./*"], "nkdk-language": ["../language/src/index.ts"] }
+    "paths": { "~/*": ["./*"] }
   },
   "include": ["**/*.ts", "vitest.config.ts"],
   "exclude": ["node_modules", "dist"]

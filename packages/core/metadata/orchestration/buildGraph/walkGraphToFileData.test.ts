@@ -148,15 +148,15 @@ describe("walkGraphToFileData", () => {
       itemType: "ClientApplicationForm",
       name: "Ф",
     })
-    g.addContributedFilePath("Справочник.К.Форма.Ф", "nkdk.nkdk")
+    g.addContributedFilePath("Справочник.К.Форма.Ф", "secondary.yaml")
 
     const result = walkGraphToFileData(g)
     const yaml = result.find((f) => f.filePath === "yaml.yaml")!
-    const nkdk = result.find((f) => f.filePath === "nkdk.nkdk")!
+    const secondary = result.find((f) => f.filePath === "secondary.yaml")!
 
     expect(yaml.declaredNodeIds).toEqual(["Справочник.К.Форма.Ф"])
-    expect(nkdk.nodes).toEqual([])
-    expect(nkdk.contributedNodeIds).toEqual(["Справочник.К.Форма.Ф"])
+    expect(secondary.nodes).toEqual([])
+    expect(secondary.contributedNodeIds).toEqual(["Справочник.К.Форма.Ф"])
   })
 
   it("если item не задан и узел не stub — лейбл Unknown", () => {

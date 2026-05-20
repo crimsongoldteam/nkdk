@@ -1,13 +1,12 @@
 import {
   exportClientApplicationFormToEnterprise,
-  importClientApplicationFromFromNKDK,
   type ClientApplicationFormEnterprise,
 } from "@nakidka/core"
 import { getFormFromCache } from "src/documentCache.js"
 import * as vscode from "vscode"
 import type { SseServerHandle } from "./sseServer.js"
 
-type FormContext = Parameters<typeof importClientApplicationFromFromNKDK>[0]["context"]
+type FormContext = Parameters<typeof exportClientApplicationFormToEnterprise>[0]
 
 async function broadcastPayloadForDocument(
   document: vscode.TextDocument,
@@ -20,7 +19,7 @@ async function broadcastPayloadForDocument(
     }
     sseServer?.broadcast(payload)
   } catch {
-    // игнорируем (документ не yaml/nkdk, ещё не распарсен и т.д.)
+    // игнорируем: документ не YAML или ещё не распарсен
   }
 }
 
@@ -48,12 +47,12 @@ export function registerDocumentChangeHandler(sseServer: SseServerHandle | undef
   return vscode.Disposable.from(changeDisposable, openDisposable, activeEditorDisposable)
 }
 
-export async function getPayload(document: vscode.TextDocument): Promise<ClientApplicationFormEnterprise> {
-  if (document.languageId !== "yaml" && document.languageId !== "nkdk") return undefined
+export async function getPayload(document: vscode.TextDocument): Promise<ClientApplicationFormEnterprise | undefined> {
+  if (document.languageId !== "yaml") return undefined
 
   const formInfo = await getFormFromCache(document)
   if (!formInfo) {
-    throw new Error("Не удалось импортировать форму из NKDK")
+    throw new Error("Не удалось импортировать форму из YAML")
   }
 
   const context: FormContext = {

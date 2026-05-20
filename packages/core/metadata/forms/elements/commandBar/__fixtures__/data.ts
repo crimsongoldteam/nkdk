@@ -6,7 +6,7 @@ import {
   fullFormGroupPartialYAMLCommonFixture,
 } from "~/metadata/forms/elements/formGroup/__fixtures__/data"
 
-import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
+import { StructureResult } from "~/tests/types"
 import { RequiredFieldsElement } from "~/tests/types"
 import {
   fullCommandBarChildItemsAllYAML,
@@ -140,7 +140,7 @@ export const fullCommandBarPartialYAML: CommandBarPartialYAML = {
 export interface CommandBarStructureFixture {
   name: string
   element: CommandBar
-  structured: ToNKDKResult
+  structured: StructureResult
 }
 
 export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [

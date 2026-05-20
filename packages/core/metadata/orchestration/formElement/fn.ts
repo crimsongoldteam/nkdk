@@ -1,24 +1,9 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { ToNKDKResult } from "~/metadata/orchestration/formElement/toNKDK/types"
 import { ExportToEnterpriseFunction } from "../property/fn"
 
 // #endregion
 // #region factory
 
-export type ExportToStructureFn = <From extends BaseElement>(context: ConfigurationContext, data: From) => ToNKDKResult
-
-export type ExportToStructureContentFn = <From extends BaseElement>(
-  context: ConfigurationContext,
-  data: From
-) => ToNKDKResult
-
-export type importFromNKDKFn = <To extends BaseElement>(params: { context: ConfigurationContext; source: any }) => To
-type fnPairs =
-  | ["ExportToStructure", ExportToStructureFn]
-  | ["ExportToStructureContent", ExportToStructureContentFn]
-  | ["ExportToEnterprise", ExportToEnterpriseFunction]
-  | ["importFromNKDK", importFromNKDKFn]
+type fnPairs = ["ExportToEnterprise", ExportToEnterpriseFunction]
 
 export type ItemOperationType = fnPairs extends infer T ? (T extends [infer Op, any] ? Op : never) : never
 

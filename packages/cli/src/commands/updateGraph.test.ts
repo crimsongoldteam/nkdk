@@ -89,12 +89,10 @@ describe("updateGraph command", () => {
     vi.restoreAllMocks()
   })
 
-  it("полный updateGraph собирает Форма.yaml без парного Форма.nkdk", async () => {
+  it("полный updateGraph собирает Форма.yaml", async () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
     writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
 
     await updateGraph(projectPath)
 
@@ -113,13 +111,11 @@ describe("updateGraph command", () => {
     )
   })
 
-  it("updateGraphFiles игнорирует устаревший Форма.nkdk", async () => {
+  it("updateGraphFiles игнорирует неподдержанный файл", async () => {
     const projectPath = createProject()
-    const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
-    writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
+    const textPath = "Справочник/Товары/Формы/ФормаСписка/Форма.txt"
 
-    await updateGraphFiles(projectPath, [nkdkPath])
+    await updateGraphFiles(projectPath, [textPath])
 
     expect(mocks.buildGraph).toHaveBeenCalledOnce()
     expect(mocks.buildGraph.mock.calls[0]?.[0]).toEqual([])
@@ -138,9 +134,7 @@ describe("updateGraph command", () => {
   it("updateGraphFiles записывает пустой File для прочитанного файла, который buildGraph пропустил", async () => {
     const projectPath = createProject()
     const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-    const nkdkPath = "Справочник/Товары/Формы/ФормаСписка/Форма.nkdk"
     writeProjectFile(projectPath, yamlPath, "Реквизиты: {}\n")
-    writeProjectFile(projectPath, nkdkPath, "ПолеВвода1(Реквизит):\n")
     mocks.buildGraph.mockResolvedValue([])
 
     await updateGraphFiles(projectPath, [yamlPath])

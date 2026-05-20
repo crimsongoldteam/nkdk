@@ -21,7 +21,7 @@ describe("projectFiles", () => {
   it("распознаёт поддержанные файлы проекта", () => {
     expect(isSupportedProjectFile("Обработка/ЗагрузкаДанных/Свойства.yaml")).toBe(true)
     expect(isSupportedProjectFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml")).toBe(true)
-    expect(isSupportedProjectFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")).toBe(false)
+    expect(isSupportedProjectFile("Обработка/ЗагрузкаДанных/Формы/Форма/Форма.txt")).toBe(false)
     expect(isSupportedProjectFile("HTTPСервис/API/Формы/Форма/Форма.yaml")).toBe(false)
     expect(isSupportedProjectFile("README.md")).toBe(false)
   })
@@ -31,7 +31,7 @@ describe("projectFiles", () => {
     writeProjectFile(projectPath, "Обработка/ЗагрузкаДанных/Свойства.yaml")
     writeProjectFile(projectPath, "РегистрСведений/Цены/Свойства.yaml")
     writeProjectFile(projectPath, "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.yaml")
-    writeProjectFile(projectPath, "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.nkdk")
+    writeProjectFile(projectPath, "Обработка/ЗагрузкаДанных/Формы/Форма/Форма.txt")
     writeProjectFile(projectPath, "HTTPСервис/API/Формы/Форма/Форма.yaml")
 
     expect(readProjectFileList(projectPath)).toEqual([
