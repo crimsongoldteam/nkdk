@@ -64,20 +64,21 @@ const exportClientApplicationFormPropertyToXML: ExportToXMLFunctionNew = (params
 const getDirectFormXmlDir = (params: { baseDir: string; rule: { filePath?: string } }): string =>
   join(params.baseDir, dirname(params.rule.filePath ?? ""))
 
-const getDirectFormObjectDir = (params: { baseDir: string; rule: { filePath?: string } }): string =>
-  join(getDirectFormXmlDir(params), "..")
-
 const syncClientApplicationFormExternalFromXML: SyncExternalFromXMLFunction = async (params) => {
+  if (params.rule.filePath === undefined) return
+
   await copyFormItemExternalFilesFromXML({
-    formXmlDir: getDirectFormObjectDir({ baseDir: join(params.xmlDir, params.name), rule: params.rule }),
+    formXmlDir: getDirectFormXmlDir({ baseDir: join(params.xmlDir, params.name), rule: params.rule }),
     formNkdkDir: params.nkdkDir,
   })
 }
 
 const syncClientApplicationFormExternalToXML: SyncExternalToXMLFunction = async (params) => {
+  if (params.rule.filePath === undefined) return
+
   await copyFormItemExternalFilesToXML({
     formNkdkDir: params.nkdkDir,
-    formXmlDir: getDirectFormObjectDir({ baseDir: params.xmlDir, rule: params.rule }),
+    formXmlDir: getDirectFormXmlDir({ baseDir: params.xmlDir, rule: params.rule }),
     xmlManifest: params.xmlManifest,
   })
 }

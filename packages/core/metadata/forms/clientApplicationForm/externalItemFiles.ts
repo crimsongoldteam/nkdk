@@ -25,7 +25,7 @@ export async function copyFormItemExternalFilesFromXML(params: {
   formXmlDir: string
   formNkdkDir: string
 }): Promise<void> {
-  const itemsDir = join(params.formXmlDir, "Ext", "Form", "Items")
+  const itemsDir = join(params.formXmlDir, "Form", "Items")
   if (!fs.existsSync(itemsDir)) return
 
   for (const item of await fs.promises.readdir(itemsDir, { withFileTypes: true })) {
@@ -65,8 +65,8 @@ export async function copyFormItemExternalFilesToXML(params: {
       const itemName = file.name.slice(0, -ext.length)
       if (itemName === "" || itemName === "." || itemName === "..") continue
       const src = join(srcDir, file.name)
-      const dst = join(params.formXmlDir, "Ext", "Form", "Items", itemName, `${spec.xmlName}${ext}`)
-      if (!isInside(join(params.formXmlDir, "Ext", "Form", "Items"), dst)) continue
+      const dst = join(params.formXmlDir, "Form", "Items", itemName, `${spec.xmlName}${ext}`)
+      if (!isInside(join(params.formXmlDir, "Form", "Items"), dst)) continue
       await fs.promises.mkdir(dirname(dst), { recursive: true })
       await fs.promises.copyFile(src, dst)
       params.xmlManifest?.addFile(dst)

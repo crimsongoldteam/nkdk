@@ -34,7 +34,7 @@ export const convertFormFromXML = async (params: {
 
   await writeFormToYAML({ formYAML: yaml, externalFiles, formName, outputDir })
   await copyFormItemExternalFilesFromXML({
-    formXmlDir: join(inputDir, formName),
+    formXmlDir: join(inputDir, formName, "Ext"),
     formNkdkDir: join(outputDir, "Формы", formName),
   })
 }

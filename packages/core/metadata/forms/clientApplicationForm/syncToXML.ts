@@ -63,7 +63,7 @@ export const syncFormToXML = async (params: {
   })
   await copyFormItemExternalFilesToXML({
     formNkdkDir: formDir,
-    formXmlDir: join(outputDir, "Forms", formName),
+    formXmlDir: join(outputDir, "Forms", formName, "Ext"),
     xmlManifest: params.xmlManifest,
   })
 }
