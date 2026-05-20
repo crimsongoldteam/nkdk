@@ -93,7 +93,7 @@ export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAM
   ЦветТекста: "Черный",
   ЦветФона: "Белый",
   Ширина: 300,
-  Шрифт: "ОбычныйШрифтТекста",
+  Шрифт: { Вид: "ОбычныйШрифтТекста" },
   ВажностьПриОтображении: "Высокая",
   ВертикальноеПоложениеВГруппе: "Верх",
   Видимость: "Истина",
@@ -129,7 +129,7 @@ export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAM
     СочетаниеКлавиш: "S",
     ЦветТекста: "Синий",
     Ширина: 300,
-    Шрифт: "ОбычныйШрифтТекста",
+    Шрифт: { Вид: "ОбычныйШрифтТекста" },
   },
 }
 

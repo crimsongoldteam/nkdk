@@ -88,7 +88,7 @@ export const fullExtendedTooltipYAML: ExtendedTooltipYAML = {
   ЦветТекста: "Фиолетовый",
   ЦветФона: "СинеФиолетовый",
   Ширина: 5,
-  Шрифт: "МелкийШрифтТекста",
+  Шрифт: { Вид: "МелкийШрифтТекста" },
 }
 
 export const minimalExtendedTooltip: ExtendedTooltip = {
