@@ -12,6 +12,9 @@ export const importFontFromYAML = (
   yaml: FontYAML | undefined
 ): Font | undefined => {
   if (yaml === undefined) return undefined
+  if (yaml === null || typeof yaml !== "object" || Array.isArray(yaml)) {
+    throw new Error("Font: ожидался объект YAML")
+  }
 
   const fullData = yaml as FontFullYAML
   const result: Partial<Font> = {}

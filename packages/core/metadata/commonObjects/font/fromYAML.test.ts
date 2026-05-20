@@ -15,4 +15,10 @@ describe("importFontFromYAML", () => {
 
     expect(result).toEqual(font)
   })
+
+  it("rejects compact string YAML", () => {
+    expect(() => importFontFromYAML(mockContext, mockRule, "ОченьКрупныйШрифтТекста" as never)).toThrow(
+      "Font: ожидался объект YAML"
+    )
+  })
 })

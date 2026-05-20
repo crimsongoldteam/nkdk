@@ -2119,6 +2119,9 @@
                     "Вид": {
                       "type": "string"
                     },
+                    "ВидXML": {
+                      "type": "string"
+                    },
                     "Имя": {
                       "type": "string"
                     },
@@ -2177,9 +2180,6 @@
                       ]
                     }
                   }
-                },
-                {
-                  "type": "string"
                 }
               ]
             },
@@ -2973,6 +2973,9 @@
                     "Вид": {
                       "type": "string"
                     },
+                    "ВидXML": {
+                      "type": "string"
+                    },
                     "Имя": {
                       "type": "string"
                     },
@@ -3031,9 +3034,6 @@
                       ]
                     }
                   }
-                },
-                {
-                  "type": "string"
                 }
               ]
             },
@@ -5214,6 +5214,9 @@
                     "Вид": {
                       "type": "string"
                     },
+                    "ВидXML": {
+                      "type": "string"
+                    },
                     "Имя": {
                       "type": "string"
                     },
@@ -5272,9 +5275,6 @@
                       ]
                     }
                   }
-                },
-                {
-                  "type": "string"
                 }
               ]
             },
@@ -6721,6 +6721,9 @@
                     "Вид": {
                       "type": "string"
                     },
+                    "ВидXML": {
+                      "type": "string"
+                    },
                     "Имя": {
                       "type": "string"
                     },
@@ -6779,9 +6782,6 @@
                       ]
                     }
                   }
-                },
-                {
-                  "type": "string"
                 }
               ]
             },
