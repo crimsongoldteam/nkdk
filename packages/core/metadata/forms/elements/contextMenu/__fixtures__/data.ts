@@ -23,7 +23,7 @@ export const fullContextMenuYAML: ContextMenuYAML = {
   Автозаполнение: "Истина",
   Элементы: {
     Кнопка: {
-      Тип: "Кнопка",
+      Вид: "Кнопка",
     },
   },
 }

@@ -16,11 +16,9 @@ export const PageRules = {
     },
     backColor: { yaml: "ЦветФона", type: "Color" },
     childItems: {
+      yaml: "Элементы",
       type: "GroupChildItems",
       defaultValue: [],
-      toPartialYAML: false,
-      fromPartialYAML: true,
-      required: true,
     },
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",

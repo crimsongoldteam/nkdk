@@ -101,8 +101,9 @@ export const exportChildItemToTreeNodeYAML = <From extends ChildItem>(params: {
   item: From
 }): FormElementTreeNodeYAML => {
   const { context, item } = params
+  const treeContext = getTreeNodeExportContext(context)
   const properties = exportElementToYAML({
-    context,
+    context: treeContext,
     element: item as ToMetadata<From["itemType"]>,
     rule: getElementRule(item.itemType),
   }) as Record<string, unknown> | undefined
@@ -110,7 +111,7 @@ export const exportChildItemToTreeNodeYAML = <From extends ChildItem>(params: {
     itemType: item.itemType,
     yaml: {
       ...(properties ?? {}),
-      ...exportTreeOnlyDataPath({ context, item }),
+      ...exportTreeOnlyDataPath({ context: treeContext, item }),
     },
   })
 
@@ -120,6 +121,16 @@ export const exportChildItemToTreeNodeYAML = <From extends ChildItem>(params: {
   }
 
   return result
+}
+
+const getTreeNodeExportContext = (context: ConfigurationContext): ConfigurationContext => {
+  return {
+    ...context,
+    exportToYAML: {
+      ...(context.exportToYAML ?? {}),
+      toTyped: true,
+    },
+  }
 }
 
 export const importChildItemsFromTreeYAML = <To extends readonly ChildItem[]>(params: {
@@ -237,7 +248,7 @@ const importChildItemsFromLegacyTypedYAML = (params: {
     result.push(
       importElementFromTypedYAML({
         context,
-        yaml: item as ToTypedYAML<TypedElement["itemType"]>,
+        yaml: item as unknown as ToTypedYAML<TypedElement["itemType"]>,
         name,
       }) as ChildItem
     )

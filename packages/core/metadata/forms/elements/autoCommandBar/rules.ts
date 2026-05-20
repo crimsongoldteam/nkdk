@@ -36,9 +36,8 @@ export const AutoCommandBarRules = {
       typeSE: "ItemHorizontalLocation",
     },
     childItems: {
+      yaml: "Элементы",
       type: "CommandBarChildItems",
-      toPartialYAML: false,
-      fromPartialYAML: true,
       required: true,
       defaultValue: [],
     },

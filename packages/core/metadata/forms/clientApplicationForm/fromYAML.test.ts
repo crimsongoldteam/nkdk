@@ -130,7 +130,7 @@ describe("importClientApplicationFormFromYAML", () => {
               ИмяКоманды: "Команда1",
             },
           },
-        } as ButtonGroupPartialYAML,
+        } as unknown as ButtonGroupPartialYAML,
       },
     }
 
@@ -203,7 +203,7 @@ describe("importClientApplicationFormFromYAML", () => {
           Элементы: {
             Кнопка1: { Тип: "Кнопка", ИмяКоманды: "Команда1" },
           },
-        } as ButtonGroupPartialYAML,
+        } as unknown as ButtonGroupPartialYAML,
         Таблица1: { МножественныйВыбор: "Ложь" },
       },
     }

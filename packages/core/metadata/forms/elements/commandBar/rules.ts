@@ -16,10 +16,9 @@ export const CommandBarRules = {
     },
     autofill: { yaml: "Автозаполнение", type: "boolean" },
     childItems: {
+      yaml: "Элементы",
       type: "CommandBarChildItems",
       defaultValue: [],
-      fromPartialYAML: true,
-      toPartialYAML: false,
       required: true,
     },
     displayImportance: {
