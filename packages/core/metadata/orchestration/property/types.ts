@@ -54,6 +54,9 @@ export interface BasePropertyRule {
   /** Отключает свойство при любом экспорте/импорте */
   runtimeOnly?: true
 
+  /** Свойство участвует только во внешней синхронизации и не входит в XML/YAML/модель. */
+  syncExternalOnly?: true
+
   /** Порядок свойства при выгрузке в XML (используй только при необходимости) */
   order?: number
 
@@ -293,6 +296,15 @@ export interface HelpPropertyRule extends BasePropertyRule {
   externalFiles?: readonly ExternalFileRule[]
 }
 
+export interface ExternalFormItemFilePropertyRule extends BasePropertyRule {
+  type: "ExternalFormItemFile"
+  /** Имя файла внутри Ext/Form/Items/<Элемент>, например Picture или HeaderPicture. */
+  xml: string
+  /** Каталог на YAML-стороне, например Картинки или КартинкиШапки. */
+  yaml: string
+  syncExternalOnly: true
+}
+
 export interface CleanPropertyRule extends BasePropertyRule {
   type: Exclude<
     PropertyRuleType,
@@ -329,6 +341,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "Template"
     | "Help"
     | "ExternalPicture"
+    | "ExternalFormItemFile"
   >
 }
 
@@ -375,6 +388,7 @@ export type PropertyRule =
   | ModulePropertyRule
   | TemplatePropertyRule
   | HelpPropertyRule
+  | ExternalFormItemFilePropertyRule
   | ExternalPicturePropertyRule
 
 type PropertiesType = Record<string, PropertyRule>

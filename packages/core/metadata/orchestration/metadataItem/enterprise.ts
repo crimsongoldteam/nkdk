@@ -7,6 +7,8 @@ export type EnterpriseType<
   ? {
       [K in keyof Properties as Properties[K] extends { runtimeOnly: true }
         ? never
+        : Properties[K] extends { syncExternalOnly: true }
+        ? never
         : Properties[K] extends { toEnterprise?: false }
         ? never
         : Capitalize<K extends string ? K : never>]?: Properties[K] extends {

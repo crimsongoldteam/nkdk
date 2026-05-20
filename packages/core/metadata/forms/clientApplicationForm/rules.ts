@@ -10,6 +10,24 @@ export const ClientApplicationFormRules = {
   properties: {
     // #region Form
 
+    itemPictures: {
+      type: "ExternalFormItemFile",
+      xml: "Picture",
+      yaml: "Картинки",
+      syncExternalOnly: true,
+    },
+    itemHeaderPictures: {
+      type: "ExternalFormItemFile",
+      xml: "HeaderPicture",
+      yaml: "КартинкиШапки",
+      syncExternalOnly: true,
+    },
+    itemValuesPictures: {
+      type: "ExternalFormItemFile",
+      xml: "ValuesPicture",
+      yaml: "КартинкиЗначений",
+      syncExternalOnly: true,
+    },
     attributes: {
       yaml: "Реквизиты",
       type: "FormAttributes",

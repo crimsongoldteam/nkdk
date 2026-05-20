@@ -40,6 +40,7 @@ export const shouldProcessProperty = (params: {
   const { rule, operation, metadataItem, context, propertyKey, referenceMetadata } = params
 
   if (rule.runtimeOnly) return false
+  if (rule.syncExternalOnly) return false
 
   switch (operation) {
     case "exportToXML":
@@ -94,6 +95,7 @@ const buildPathStructure = <Rule extends MetadataItemRule>(
 
   const propertyEntries = Object.entries(rule.properties).filter(([_key, ruleProp]) => {
     if (ruleProp.runtimeOnly) return false
+    if (ruleProp.syncExternalOnly) return false
     if (ruleProp.filePath !== undefined) return false
     return tagFilter === undefined || (ruleProp.tag !== undefined && tagFilter.includes(ruleProp.tag))
   })

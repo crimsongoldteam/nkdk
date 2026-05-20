@@ -43,11 +43,13 @@ type PropertyValueByRule<P extends PropertyRule> = P extends {
 type FilteredKeys<Properties, Tag extends string | undefined> = {
   [K in keyof Properties]: Properties[K] extends { runtimeOnly: true }
     ? never
-    : [Tag] extends [undefined]
-      ? K
-      : Properties[K] extends { tag: Tag }
+    : Properties[K] extends { syncExternalOnly: true }
+      ? never
+      : [Tag] extends [undefined]
         ? K
-        : never
+        : Properties[K] extends { tag: Tag }
+          ? K
+          : never
 }[keyof Properties] &
   keyof Properties
 

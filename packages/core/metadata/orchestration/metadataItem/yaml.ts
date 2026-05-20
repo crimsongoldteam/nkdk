@@ -53,15 +53,18 @@ type PropertiesByRule<Rule extends { properties: Record<string, PropertyRule> }>
     ? {
         [K in keyof Properties as Properties[K] extends { runtimeOnly: true }
           ? never
-          : Properties[K] extends { toYAML: false; fromYAML: false }
+          : Properties[K] extends { syncExternalOnly: true }
             ? never
-            : Properties[K] extends { toPartialYAML: false }
+            : Properties[K] extends { toYAML: false; fromYAML: false }
               ? never
-              : Properties[K] extends { yaml: infer YAMLName }
-                ? YAMLName extends string
-                  ? YAMLName
+              : Properties[K] extends { toPartialYAML: false }
+                ? never
+                : Properties[K] extends { yaml: infer YAMLName }
+                  ? YAMLName extends string
+                    ? YAMLName
+                    : never
                   : never
-                : never]?: Properties[K] extends {
+          ]?: Properties[K] extends {
           type: "SystemEnumeration"
           typeSE: infer TypeSE
         }

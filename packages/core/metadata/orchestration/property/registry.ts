@@ -552,6 +552,10 @@ export type PropertyTypeRegistry = {
     item: ExternalPicture
     yaml: ExternalPictureYAML
   }
+  ExternalFormItemFile: {
+    item: never
+    yaml: never
+  }
   Border: {
     item: Border
     enterprise: BorderEnterprise
@@ -1401,6 +1405,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   // ChildItems: "ChildItems",
   Picture: "Picture",
   ExternalPicture: "ExternalPicture",
+  ExternalFormItemFile: "ExternalFormItemFile",
   Border: "Border",
   CommandName: "CommandName",
   UserVisible: "UserVisible",
