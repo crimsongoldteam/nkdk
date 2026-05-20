@@ -6,11 +6,12 @@ import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { group } from "./__fixtures__/group"
 import { item } from "./__fixtures__/item"
-import "./types"
+import { typedCode } from "./__fixtures__/typed-code"
+import "./index"
 
 const rule: PropertyRule = { type: "PredefinedItem" }
 
-const fixtures = ["group.xml", "item.xml"] as const
+const fixtures = ["group.xml", "item.xml", "typed-code.xml"] as const
 
 describe("import PredefinedItem from XML", () => {
   it("imports group.xml", () => {
@@ -31,6 +32,16 @@ describe("import PredefinedItem from XML", () => {
       importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(item)
+  })
+
+  it("imports typed-code.xml", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      path: "typed-code.xml",
+      xmlRootTag: "Item",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(typedCode)
   })
 
   it.each(fixtures)("round-trip: %s", (fixtureName) => {
