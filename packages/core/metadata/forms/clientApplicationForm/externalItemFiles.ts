@@ -1,5 +1,5 @@
 import fs from "fs"
-import { dirname, extname, join } from "path"
+import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from "path"
 import type { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
 
 const externalItemFileSpecs = [
@@ -21,9 +21,9 @@ export async function copyFormItemExternalFilesFromXML(params: {
 
     for (const spec of externalItemFileSpecs) {
       for (const file of files) {
-        if (!file.isFile() || !file.name.startsWith(`${spec.xmlName}.`)) continue
+        if (!file.isFile()) continue
         const ext = extname(file.name)
-        if (ext === "") continue
+        if (ext === "" || basename(file.name, ext) !== spec.xmlName) continue
 
         const src = join(itemDir, file.name)
         const dst = join(params.formNkdkDir, spec.nkdkDir, `${item.name}${ext}`)
@@ -49,11 +49,18 @@ export async function copyFormItemExternalFilesToXML(params: {
       if (ext === "") continue
 
       const itemName = file.name.slice(0, -ext.length)
+      if (itemName === "" || itemName === "." || itemName === "..") continue
       const src = join(srcDir, file.name)
       const dst = join(params.formXmlDir, "Ext", "Form", "Items", itemName, `${spec.xmlName}${ext}`)
+      if (!isInside(join(params.formXmlDir, "Ext", "Form", "Items"), dst)) continue
       await fs.promises.mkdir(dirname(dst), { recursive: true })
       await fs.promises.copyFile(src, dst)
       params.xmlManifest?.addFile(dst)
     }
   }
+}
+
+const isInside = (root: string, target: string): boolean => {
+  const rel = relative(resolve(root), resolve(target))
+  return rel !== "" && rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel)
 }
