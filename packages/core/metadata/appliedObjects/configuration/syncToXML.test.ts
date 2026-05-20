@@ -1,5 +1,5 @@
 import fs from "fs"
-import { join } from "path"
+import { dirname, join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
@@ -336,4 +336,120 @@ describe("sync configuration to XML", () => {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }
   })
+
+  it("не удаляет поддержанные внешние файлы после manifest prune", async () => {
+    const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_manifest_external_files")
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    fs.mkdirSync(tmp, { recursive: true })
+    fs.cpSync(inputDir, yamlDir, { recursive: true })
+
+    writeTestFile(join(yamlDir, "ОбщийМакет", "ДвоичныйМакет", "Свойства.yaml"), "ВидМакета: BinaryData\n")
+    writeTestFile(join(yamlDir, "ОбщийМакет", "ДвоичныйМакет", "Template.bin"), Buffer.from([1, 2, 3]))
+    writeTestFile(join(yamlDir, "Справочник", catalogName, "Справка", "ru.html"), "<html>help</html>")
+    writeTestFile(join(yamlDir, "Справочник", catalogName, "Справка", "_files", "logo.png"), Buffer.from([4, 5, 6]))
+    writeTestFile(
+      join(yamlDir, "Справочник", catalogName, "Формы", "ФормаЭлемента", "Картинки", "ПолеВвода1.png"),
+      Buffer.from([7, 8, 9]),
+    )
+    writeTestFile(
+      join(yamlDir, "Справочник", catalogName, "Формы", "ФормаЭлемента", "КартинкиЗначений", "ПолеВвода1.bmp"),
+      Buffer.from([10, 11, 12]),
+    )
+    writeTestFile(join(yamlDir, "WSСсылка", "Калькулятор", "Свойства.yaml"), "URL: http://example.test/wsdl\n")
+    writeTestFile(join(yamlDir, "WSСсылка", "Калькулятор", "WSDefinition.xml"), "<definitions/>")
+    writeTestFile(join(yamlDir, "WSСсылка", "Калькулятор", "XSD", "schema.xsd"), "<xs:schema/>")
+
+    writeTestFile(join(outDir, "CommonTemplates", "ДвоичныйМакет", "Ext", "stale.bin"), "stale")
+    writeTestFile(join(outDir, "Catalogs", catalogName, "Ext", "Help", "_files", "stale.png"), "stale")
+    writeTestFile(
+      join(outDir, "Catalogs", catalogName, "Forms", "ФормаЭлемента", "Ext", "Form", "Items", "ПолеВвода1", "Stale.png"),
+      "stale",
+    )
+    writeTestFile(join(outDir, "WSReferences", "Калькулятор", "Ext", "stale.xsd"), "stale")
+
+    try {
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir,
+      })
+
+      expect(result.failed).toEqual([])
+      expect([...fs.readFileSync(join(outDir, "CommonTemplates", "ДвоичныйМакет", "Ext", "Template.bin"))]).toEqual([
+        1,
+        2,
+        3,
+      ])
+      expect([...fs.readFileSync(join(outDir, "Catalogs", catalogName, "Ext", "Help", "_files", "logo.png"))]).toEqual([
+        4,
+        5,
+        6,
+      ])
+      expect([
+        ...fs.readFileSync(
+          join(
+            outDir,
+            "Catalogs",
+            catalogName,
+            "Forms",
+            "ФормаЭлемента",
+            "Ext",
+            "Form",
+            "Items",
+            "ПолеВвода1",
+            "Picture.png",
+          )
+        ),
+      ]).toEqual([7, 8, 9])
+      expect([
+        ...fs.readFileSync(
+          join(
+            outDir,
+            "Catalogs",
+            catalogName,
+            "Forms",
+            "ФормаЭлемента",
+            "Ext",
+            "Form",
+            "Items",
+            "ПолеВвода1",
+            "ValuesPicture.bmp",
+          )
+        ),
+      ]).toEqual([10, 11, 12])
+      expect(fs.readFileSync(join(outDir, "WSReferences", "Калькулятор", "Ext", "schema.xsd"), "utf-8")).toBe(
+        "<xs:schema/>"
+      )
+
+      expect(fs.existsSync(join(outDir, "CommonTemplates", "ДвоичныйМакет", "Ext", "stale.bin"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Catalogs", catalogName, "Ext", "Help", "_files", "stale.png"))).toBe(false)
+      expect(
+        fs.existsSync(
+          join(
+            outDir,
+            "Catalogs",
+            catalogName,
+            "Forms",
+            "ФормаЭлемента",
+            "Ext",
+            "Form",
+            "Items",
+            "ПолеВвода1",
+            "Stale.png",
+          )
+        )
+      ).toBe(false)
+      expect(fs.existsSync(join(outDir, "WSReferences", "Калькулятор", "Ext", "stale.xsd"))).toBe(false)
+    } finally {
+      if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    }
+  })
 })
+
+const writeTestFile = (path: string, content: string | Buffer): void => {
+  fs.mkdirSync(dirname(path), { recursive: true })
+  fs.writeFileSync(path, content)
+}
