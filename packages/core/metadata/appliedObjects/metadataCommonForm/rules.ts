@@ -46,6 +46,13 @@ export const MetadataCommonFormRules = {
       filePath: "Ext/Form.xml",
       exportReferenceFileOnMissingValue: true,
     },
+    module: {
+      type: "Module",
+      nkdkPath: "Модуль.bsl",
+      xmlPath: "Ext/Form/Module.bsl",
+      toXML: false,
+      fromXML: false,
+    },
     formType: {
       yaml: "ТипФормы",
       xml: "FormType",
