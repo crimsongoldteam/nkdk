@@ -1,11 +1,15 @@
+import { dirname, join } from "path"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import type {
   ExportToXMLFunctionNew,
   ExportToYAMLFunctionNew,
   ImportFromXMLFunction,
   ImportFromYAMLFunctionNew,
+  SyncExternalFromXMLFunction,
+  SyncExternalToXMLFunction,
 } from "~/metadata/orchestration/property/fn"
 import { createEmptyClientApplicationForm } from "./createEmpty"
+import { copyFormItemExternalFilesFromXML, copyFormItemExternalFilesToXML } from "./externalItemFiles"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { exportClientApplicationFormToXML } from "./toXML"
@@ -57,10 +61,33 @@ const exportClientApplicationFormPropertyToXML: ExportToXMLFunctionNew = (params
   }
 }
 
+const getDirectFormXmlDir = (params: { baseDir: string; rule: { filePath?: string } }): string =>
+  join(params.baseDir, dirname(params.rule.filePath ?? ""))
+
+const getDirectFormObjectDir = (params: { baseDir: string; rule: { filePath?: string } }): string =>
+  join(getDirectFormXmlDir(params), "..")
+
+const syncClientApplicationFormExternalFromXML: SyncExternalFromXMLFunction = async (params) => {
+  await copyFormItemExternalFilesFromXML({
+    formXmlDir: getDirectFormObjectDir({ baseDir: join(params.xmlDir, params.name), rule: params.rule }),
+    formNkdkDir: params.nkdkDir,
+  })
+}
+
+const syncClientApplicationFormExternalToXML: SyncExternalToXMLFunction = async (params) => {
+  await copyFormItemExternalFilesToXML({
+    formNkdkDir: params.nkdkDir,
+    formXmlDir: getDirectFormObjectDir({ baseDir: params.xmlDir, rule: params.rule }),
+    xmlManifest: params.xmlManifest,
+  })
+}
+
 registerTypeRule("ClientApplicationForm", "importFromYAML", importClientApplicationFormPropertyFromYAML)
 registerTypeRule("ClientApplicationForm", "exportToYAML", exportClientApplicationFormPropertyToYAML)
 registerTypeRule("ClientApplicationForm", "importFromXML", importClientApplicationFormPropertyFromXML)
 registerTypeRule("ClientApplicationForm", "exportToXML", exportClientApplicationFormPropertyToXML)
+registerTypeRule("ClientApplicationForm", "syncExternalFromXML", syncClientApplicationFormExternalFromXML)
+registerTypeRule("ClientApplicationForm", "syncExternalToXML", syncClientApplicationFormExternalToXML)
 
 function asClientApplicationForm(value: unknown): ClientApplicationForm | undefined {
   if (!isRecord(value)) return undefined
