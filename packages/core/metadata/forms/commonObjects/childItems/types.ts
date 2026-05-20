@@ -1,5 +1,12 @@
 // import { ToEnterpriseType } from "~/metadata/metadataFactory/types"
-import { CollectableElement, ToEnterprise, ToTypedYAML, ToYAML } from "~/metadata/orchestration"
+import {
+  CollectableElement,
+  CollectableElementToYAML,
+  CollectableElementType,
+  ToEnterprise,
+  ToTypedYAML,
+  ToYAML,
+} from "~/metadata/orchestration"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonTypedYAML, CommandBarButton, CommandBarButtonTypedYAML } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedYAML } from "../../elements/buttonGroup/types"
@@ -75,6 +82,13 @@ export type GroupChildItem =
 export type GroupChildItems = GroupChildItem[]
 
 export type GroupChildItemsPartialYAML = Record<string, ToYAML<GroupChildItem["itemType"]>>
+
+export type FormElementTreeYAML = Record<string, FormElementTreeNodeYAML>
+
+export type FormElementTreeNodeYAML = {
+  Вид: CollectableElementToYAML<CollectableElementType>
+  Элементы?: FormElementTreeYAML
+} & Record<string, unknown>
 
 export type GroupChildItemsEnterprise = ToEnterprise<GroupChildItem["itemType"]>[]
 

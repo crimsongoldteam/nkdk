@@ -3,6 +3,7 @@ import { exportElementToPartialYAML, exportElementToTypedYAML, ToTypedYAML, ToYA
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { mockContext } from "~/tests/mockContext"
 import { PropertyRule } from "../../elements/calendarField/rules"
+import { exportChildItemsToTreeYAMLProperty } from "./treeYAML"
 import { ChildItem, TypedElement } from "./types"
 
 export const exportChildItemsToTypedYAML = <From extends TypedElement>(
@@ -46,7 +47,7 @@ export const exportChildItemsToPartialYAML = <From extends ChildItem>(
   return result
 }
 
-registerTypeRule("TableChildItems", "exportToYAML", exportChildItemsToTypedYAML)
-registerTypeRule("GroupChildItems", "exportToYAML", exportChildItemsToTypedYAML)
-registerTypeRule("CommandBarChildItems", "exportToYAML", exportChildItemsToTypedYAML)
-registerTypeRule("PagesChildItems", "exportToYAML", exportChildItemsToTypedYAML)
+registerTypeRule("TableChildItems", "exportToYAML", exportChildItemsToTreeYAMLProperty)
+registerTypeRule("GroupChildItems", "exportToYAML", exportChildItemsToTreeYAMLProperty)
+registerTypeRule("CommandBarChildItems", "exportToYAML", exportChildItemsToTreeYAMLProperty)
+registerTypeRule("PagesChildItems", "exportToYAML", exportChildItemsToTreeYAMLProperty)
