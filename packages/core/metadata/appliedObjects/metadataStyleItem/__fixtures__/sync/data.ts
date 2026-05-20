@@ -4,6 +4,7 @@ export const readStyleItemYAML = `Синоним: Синоним
 Значение:
   Вид: Шрифт
   Значение:
+    ВидXML: Absolute
     Имя: Devanagari MT
     Размер: 16
     Масштаб: 99

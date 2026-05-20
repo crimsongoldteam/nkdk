@@ -42,6 +42,7 @@ describe("exportStyleItemValueToYAML", () => {
       Значение: {
         Имя: "Devanagari MT",
         Размер: 16,
+        ВидXML: "Absolute",
         Полужирный: "Истина",
         Наклонный: "Истина",
         Подчеркивание: "Истина",

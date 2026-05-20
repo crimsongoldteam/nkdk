@@ -30,6 +30,7 @@ export const fontYAML: MetadataStyleItemYAML = {
     Значение: {
       Имя: "Devanagari MT",
       Размер: 16,
+      ВидXML: "Absolute",
       Масштаб: 99,
       Полужирный: "Истина",
       Наклонный: "Истина",
