@@ -21,6 +21,50 @@
 
 Причина в компактном YAML-представлении `FormChoiceListDesTimeValue`: значение `Ложь()` выглядит как строковая формула и при обратном чтении может быть восстановлено не как обертка выбора, а как обычная строка. Та же проблема видна для `Истина()`.
 
+## Наблюдаемые расхождения
+
+Расхождения повторяются в разных формах и для обоих boolean-значений.
+
+`BusinessProcesses/ЗаявкаСотрудникаСправка2НДФЛ/Forms/ДействиеВыполнить/Ext/Form.xml`, параметр `Отбор.ПометкаУдаления`:
+
+```diff
+-<app:value xsi:type="FormChoiceListDesTimeValue">
+-  <Presentation/>
+-  <Value xsi:type="xs:boolean">false</Value>
+-</app:value>
++<app:value xsi:type="xs:string">Ложь()</app:value>
+```
+
+`BusinessProcesses/ОбращениеСотрудника/Forms/ДействиеВыполнить/Ext/Form.xml`, параметр `Отбор.ПометкаУдаления`:
+
+```diff
+-<app:value xsi:type="FormChoiceListDesTimeValue">
+-  <Presentation/>
+-  <Value xsi:type="xs:boolean">false</Value>
+-</app:value>
++<app:value xsi:type="xs:string">Ложь()</app:value>
+```
+
+`Catalogs/АктыОтбораПробЗЕРНО/Forms/ФормаСписка/Ext/Form.xml`, параметр `Отбор.СоответствуетОрганизации`:
+
+```diff
+-<app:value xsi:type="FormChoiceListDesTimeValue">
+-  <Presentation/>
+-  <Value xsi:type="xs:boolean">true</Value>
+-</app:value>
++<app:value xsi:type="xs:string">Истина()</app:value>
+```
+
+`Catalogs/ВЕТИСПрисоединенныеФайлы/Forms/ФормаСписка/Ext/Form.xml`, параметр `Отбор.СоответствуетОрганизации`:
+
+```diff
+-<app:value xsi:type="FormChoiceListDesTimeValue">
+-  <Presentation/>
+-  <Value xsi:type="xs:boolean">true</Value>
+-</app:value>
++<app:value xsi:type="xs:string">Истина()</app:value>
+```
+
 ## Решение
 
 Для всех `MetadataValue` с типом `formChoiceListDesTimeValue` YAML-контракт становится только объектным:
