@@ -1,5 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
+import { syncExplicitExternalFilesFromXML } from "~/metadata/commonObjects/externalFiles/sync"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type {
   ModulePropertyRule,
@@ -32,10 +33,17 @@ export const syncModuleFromXML = async (params: {
   const nkdkPath = typeof rawNkdkPath === "function" ? rawNkdkPath(pathParams) : rawNkdkPath
 
   const srcPath = resolveSourcePath({ xmlDir, xmlPath, objectName: params.name })
-  if (!fs.existsSync(srcPath)) return
-  const dstPath = join(nkdkDir, nkdkPath)
-  await fs.promises.mkdir(dirname(dstPath), { recursive: true })
-  await fs.promises.copyFile(srcPath, dstPath)
+  if (fs.existsSync(srcPath)) {
+    const dstPath = join(nkdkDir, nkdkPath)
+    await fs.promises.mkdir(dirname(dstPath), { recursive: true })
+    await fs.promises.copyFile(srcPath, dstPath)
+  }
+  await syncExplicitExternalFilesFromXML({
+    rules: rule.externalFiles,
+    xmlDir: resolveSourceRoot({ xmlDir, xmlPath, objectName: params.name }),
+    nkdkDir,
+    pathParams,
+  })
 }
 
 registerTypeRule("Module", "syncExternalFromXML", syncModuleFromXML)
@@ -48,4 +56,14 @@ const resolveSourcePath = (params: { xmlDir: string; xmlPath: string; objectName
 
   const objectPath = join(params.xmlDir, params.objectName, params.xmlPath)
   return fs.existsSync(objectPath) ? objectPath : directPath
+}
+
+const resolveSourceRoot = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
+  const directPath = join(params.xmlDir, params.xmlPath)
+  if (fs.existsSync(directPath)) return params.xmlDir
+  if (!params.objectName) return params.xmlDir
+
+  const objectRoot = join(params.xmlDir, params.objectName)
+  const objectPath = join(objectRoot, params.xmlPath)
+  return fs.existsSync(objectPath) || fs.existsSync(objectRoot) ? objectRoot : params.xmlDir
 }
