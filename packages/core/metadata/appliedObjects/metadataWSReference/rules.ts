@@ -71,6 +71,7 @@ export const MetadataWSReferenceRules = {
       type: "Template",
       nkdkPath: "WSDefinition.xml",
       xmlPath: "Ext/WSDefinition.xml",
+      externalFiles: [{ kind: "directory", xmlDir: "Ext", nkdkDir: "XSD", include: [/\.xsd$/] }],
     },
   },
 } as const satisfies MetadataItemRule

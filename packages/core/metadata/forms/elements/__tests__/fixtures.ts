@@ -291,6 +291,15 @@ export const commandBarYAMLContext: ConfigurationContext = {
   allElements: fullCommandBarChildItemsAllYAML,
 }
 
+const fullPagePartialYAMLForExport = {
+  ...fullPagePartialYAML,
+  Элементы: {
+    Группа1: {
+      Вид: "Группа",
+    },
+  },
+}
+
 export type ElementFixture = {
   group: string
   name: string
@@ -347,6 +356,7 @@ export const ElementFixtures: ElementFixture[] = [
     yaml: {
       МинимальноеЗначение: 1,
       МаксимальноеЗначение: 99.99,
+      ПутьКДанным: "Объект.Количество",
     },
     enterprise: undefined,
   },
@@ -840,7 +850,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "full.xml",
     xmlFolder: undefined,
     model: fullPage,
-    yaml: fullPagePartialYAML,
+    yaml: fullPagePartialYAMLForExport,
     enterprise: fullPageEnterprise,
   },
   {

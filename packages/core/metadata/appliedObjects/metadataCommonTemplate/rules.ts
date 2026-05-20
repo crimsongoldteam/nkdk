@@ -52,6 +52,7 @@ export const MetadataCommonTemplateRules = {
       type: "Template",
       nkdkPath: "Template.xml",
       xmlPath: "Ext/Template.xml",
+      externalFiles: [{ kind: "file", xmlPath: "Ext/Template.bin", nkdkPath: "Template.bin" }],
       toXML: false,
       fromXML: false,
     },

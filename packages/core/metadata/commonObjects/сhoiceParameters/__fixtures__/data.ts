@@ -157,7 +157,12 @@ export const formBooleanChoiceParameter: ChoiceParameters = [
   },
 ]
 
-export const formBooleanChoiceParametersYAML: ChoiceParametersYAML = { БезПроизводныхЗначений: "Истина" }
+export const formBooleanChoiceParametersYAML: ChoiceParametersYAML = {
+  БезПроизводныхЗначений: {
+    Представление: "",
+    Значение: "Истина",
+  },
+}
 //#endregion
 
 //#region FormEnum
@@ -175,7 +180,10 @@ export const formEnumChoiceParameter: ChoiceParameters = [
 ]
 
 export const formEnumChoiceParametersYAML: ChoiceParametersYAML = {
-  "Отбор.ТипСчета": "Перечисление.ТипыСчетов.НераспределеннаяПрибыль",
+  "Отбор.ТипСчета": {
+    Представление: "",
+    Значение: "Перечисление.ТипыСчетов.НераспределеннаяПрибыль",
+  },
 }
 //#endregion
 

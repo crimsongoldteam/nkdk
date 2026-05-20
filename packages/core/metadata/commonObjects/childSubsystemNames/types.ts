@@ -7,4 +7,5 @@ export type ChildSubsystemNamesYAML = string[]
 export interface ChildSubsystemNamesPropertyRule extends BasePropertyRule {
   type: "ChildSubsystemNames"
   xml: string
+  folderName?: string
 }

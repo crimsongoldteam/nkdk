@@ -67,6 +67,22 @@ describe("importClientApplicationFormFromYAML", () => {
     })
   })
 
+  it("imports disabled auto command bar autofill without source", () => {
+    const data: ClientApplicationFormYAML = {
+      КоманднаяПанель: {
+        Автозаполнение: "Ложь",
+      },
+    }
+
+    const result = importClientApplicationFormFromYAML(mockContext, data)
+
+    expect(result.autoCommandBar).toEqual({
+      itemType: "AutoCommandBar",
+      autofill: false,
+      childItems: [],
+    })
+  })
+
   it("should import all fields from YAML", () => {
     const result = importClientApplicationFormFromYAML(mockContext, fullClientApplicationFormYAML, {
       commands: [],

@@ -70,11 +70,10 @@ export const UsualGroupRules = {
       yaml: "Группировка",
       type: "SystemEnumeration",
       typeSE: "ChildFormItemsGroup",
-      toPartialYAML: false,
       defaultValue: "HorizontalIfPossible",
       // defaultValueXML: "HorizontalIfPossible",
       required: true,
-      defaultValueYAML: "HorizontalIfPossible",
+      defaultValueYAML: "ГоризонтальнаяЕслиВозможно",
     },
     hiddenRepresentationTitleBackColor: {
       yaml: "ЦветФонаЗаголовкаСкрытогоОтображения",
@@ -109,10 +108,9 @@ export const UsualGroupRules = {
     showLeftMargin: { yaml: "ОтображатьОтступСлева", type: "boolean" },
     showTitle: {
       yaml: "ОтображатьЗаголовок",
-      toPartialYAML: false,
       type: "boolean",
       defaultValue: true,
-      // defaultValueXML: true,
+      defaultValueYAML: "Истина",
     },
     table: {
       yaml: "Таблица",

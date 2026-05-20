@@ -7,6 +7,10 @@ import {
   fixedArrayChoiceParametersYAML,
   fixedArrayWithNilChoiceParameterYAML,
   fixedArrayWithNilChoiceParameters,
+  formBooleanChoiceParameter,
+  formBooleanChoiceParametersYAML,
+  formEnumChoiceParameter,
+  formEnumChoiceParametersYAML,
   multipleChoiceParameters,
   multipleChoiceParametersYAML,
   nilChoiceParameters,
@@ -64,6 +68,18 @@ describe("exportChoiceParametersToYAML", () => {
     const result = exportChoiceParametersToYAML(mockContext, mockRule, fixedArrayWithNilChoiceParameters)
 
     expect(result).toEqual(fixedArrayWithNilChoiceParameterYAML)
+  })
+
+  it("exports choice parameters with form boolean value to yaml object", () => {
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, formBooleanChoiceParameter)
+
+    expect(result).toEqual(formBooleanChoiceParametersYAML)
+  })
+
+  it("exports choice parameters with form enum value to yaml object", () => {
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, formEnumChoiceParameter)
+
+    expect(result).toEqual(formEnumChoiceParametersYAML)
   })
 
   it("should export choice parameters with nil value to yaml", () => {

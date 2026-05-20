@@ -9,13 +9,4 @@ export {
 export type { ElementRule } from "../orchestration/formElement/types"
 
 import "./elements"
-
-import "./commonObjects/commandInterface/fromXML"
-import "./commonObjects/commandInterface/fromYAML"
-import "./commonObjects/commandInterface/toXML"
-import "./commonObjects/commandInterface/toYAML"
-
-import "./commonObjects/formAttribute/fromXML"
-import "./commonObjects/formAttribute/fromYAML"
-import "./commonObjects/formAttribute/toXML"
-import "./commonObjects/formAttribute/toYAML"
+import "./commonObjects/index"

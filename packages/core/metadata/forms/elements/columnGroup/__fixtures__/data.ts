@@ -83,6 +83,7 @@ export const fullColumnGroupPartialYAML: ColumnGroupPartialYAML = {
   РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
   ВажностьПриОтображении: "ОченьВысокая",
   ГоризонтальноеПоложениеВШапке: "Лево",
+  Группировка: "ВЯчейке",
   КартинкаШапки: "Печать",
   ОтображатьВШапке: "Истина",
   ОтображатьЗаголовок: "Ложь",
@@ -95,7 +96,6 @@ export const fullColumnGroupTypedYAML: ColumnGroupTypedYAML = {
   Тип: "ГруппаКолонок",
   Заголовок: "Заголовок элемента",
   ...fullColumnGroupPartialYAML,
-  Группировка: "ВЯчейке",
 }
 
 export const minimalColumnGroup: ColumnGroup = {
@@ -109,5 +109,4 @@ export const minimalColumnGroupPartialYAML: ColumnGroupPartialYAML = {}
 
 export const minimalColumnGroupTypedYAML: ColumnGroupTypedYAML = {
   Тип: "ГруппаКолонок",
-  Группировка: "Вертикальная",
 }

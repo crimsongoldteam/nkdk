@@ -24,7 +24,6 @@ export const ButtonGroupRules = {
     childItems: {
       yaml: "Элементы",
       type: "CommandBarChildItems",
-      // toPartialYAML: false,
       defaultValue: [],
       required: true,
     },

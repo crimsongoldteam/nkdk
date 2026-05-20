@@ -16,7 +16,10 @@ export const withStringValueXML = `<Value xsi:type="FormChoiceListDesTimeValue">
 	<Value xsi:type="xs:string">ФЛ</Value>
 </Value>`
 
-export const withStringValueYAML: MetadataFormChoiceListValueYAML = '"ФЛ"(Физическое лицо)'
+export const withStringValueYAML: MetadataFormChoiceListValueYAML = {
+  Представление: "Физическое лицо",
+  Значение: '"ФЛ"',
+}
 
 export const withoutPresentation: MetadataFormChoiceListValue = {
   type: "formChoiceListDesTimeValue",
@@ -27,6 +30,11 @@ export const withoutPresentationXML = `<Value xsi:type="FormChoiceListDesTimeVal
 	<Presentation/>
 	<Value xsi:type="xs:boolean">true</Value>
 </Value>`
+
+export const withoutPresentationYAML: MetadataFormChoiceListValueYAML = {
+  Представление: "",
+  Значение: "Истина",
+}
 
 export const withMultiLangPresentation: MetadataFormChoiceListValue = {
   type: "formChoiceListDesTimeValue",
@@ -68,3 +76,8 @@ export const withNumericPresentationXML = `<Value xsi:type="FormChoiceListDesTim
 	</Presentation>
 	<Value xsi:type="xs:boolean">false</Value>
 </Value>`
+
+export const withNumericPresentationYAML: MetadataFormChoiceListValueYAML = {
+  Представление: "2.0",
+  Значение: "Ложь",
+}

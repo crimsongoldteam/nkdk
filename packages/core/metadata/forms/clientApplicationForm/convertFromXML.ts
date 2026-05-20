@@ -5,6 +5,7 @@ import { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } 
 import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/toYAML"
 import importContentFromXML from "~/xml/import/importer"
 import { exportToYAML } from "~/yaml/export"
+import { copyFormItemExternalFilesFromXML } from "./externalItemFiles"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
 
@@ -32,6 +33,10 @@ export const convertFormFromXML = async (params: {
   const { yaml, externalFiles } = await convertFormToYAML({ context, form })
 
   await writeFormToYAML({ formYAML: yaml, externalFiles, formName, outputDir })
+  await copyFormItemExternalFilesFromXML({
+    formXmlDir: join(inputDir, formName),
+    formNkdkDir: join(outputDir, "Формы", formName),
+  })
 }
 
 export function readFormFromXML(params: {

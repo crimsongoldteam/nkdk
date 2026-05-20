@@ -1,6 +1,7 @@
 import fs from "fs"
 import { dirname, join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
 import { getXMLFixturePath } from "~/tests/readAndParseXMLFile"
 import type { HelpPropertyRule } from "~/metadata/orchestration/property/types"
 import { importContentFromXML } from "~/xml/import/importer"
@@ -37,11 +38,14 @@ describe("syncHelp", () => {
     )
     fs.writeFileSync(join(helpDir, "ru.html"), "<html>current</html>", "utf-8")
     fs.writeFileSync(join(helpDir, "stale.html"), "<html>stale</html>", "utf-8")
+    fs.mkdirSync(join(helpDir, "_files"), { recursive: true })
+    fs.writeFileSync(join(helpDir, "_files", "logo.png"), Buffer.from([137, 80]))
 
     await syncHelpFromXML({ rule, xmlDir, nkdkDir })
 
     expect(fs.existsSync(join(nkdkDir, "Справка", "ru.html"))).toBe(true)
     expect(fs.existsSync(join(nkdkDir, "Справка", "stale.html"))).toBe(false)
+    expect([...fs.readFileSync(join(nkdkDir, "Справка", "_files", "logo.png"))]).toEqual([137, 80])
   })
 
   it("toXML пересобирает Ext/Help.xml по текущим страницам nkdk", async () => {
@@ -51,8 +55,11 @@ describe("syncHelp", () => {
     fs.mkdirSync(nkdkHelpDir, { recursive: true })
     fs.writeFileSync(join(nkdkHelpDir, "ru.html"), "<html>ru</html>", "utf-8")
     fs.writeFileSync(join(nkdkHelpDir, "en.html"), "<html>en</html>", "utf-8")
+    fs.mkdirSync(join(nkdkHelpDir, "_files"), { recursive: true })
+    fs.writeFileSync(join(nkdkHelpDir, "_files", "logo.png"), Buffer.from([137, 80]))
+    const xmlManifest = new XmlSyncManifest(xmlDir)
 
-    await syncHelpToXML({ rule, nkdkDir, xmlDir })
+    await syncHelpToXML({ rule, nkdkDir, xmlDir, xmlManifest })
 
     const helpXmlContent = fs.readFileSync(join(xmlDir, "Ext", "Help.xml"), "utf-8")
     const helpParsed = importContentFromXML<{ Help: { Page?: string | string[] } }>(helpXmlContent)
@@ -62,5 +69,7 @@ describe("syncHelp", () => {
     expect(pageList.sort()).toEqual(["en", "ru"])
     expect(fs.existsSync(join(xmlDir, "Ext", "Help", "ru.html"))).toBe(true)
     expect(fs.existsSync(join(xmlDir, "Ext", "Help", "en.html"))).toBe(true)
+    expect([...fs.readFileSync(join(xmlDir, "Ext", "Help", "_files", "logo.png"))]).toEqual([137, 80])
+    expect(xmlManifest.expectedFiles()).toContain("Ext/Help/_files/logo.png")
   })
 })

@@ -1,7 +1,9 @@
 import fs from "fs"
 import { dirname, join } from "path"
+import { syncExplicitExternalFilesToXML } from "~/metadata/commonObjects/externalFiles/sync"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
+import { externalTemplateFiles } from "./externalFiles"
 import type { ChildTemplateNamesPropertyRule } from "./types"
 
 export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (params) => {
@@ -29,6 +31,13 @@ export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (par
     await copyIfExists({
       src: join(templatesDir, templateName, "Ext", "Template.xml"),
       dst: join(templateOutputDir, templateName, "Ext", "Template.xml"),
+      xmlManifest,
+    })
+    await syncExplicitExternalFilesToXML({
+      rules: externalTemplateFiles,
+      nkdkDir: join(templatesDir, templateName),
+      xmlDir: templateOutputDir,
+      pathParams: { name: templateName, parentName: name },
       xmlManifest,
     })
   }
