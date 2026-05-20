@@ -15,7 +15,7 @@ describe("syncChildFormNamesFromXML (через convertAppliedObjectFromXML)", (
     if (fs.existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true })
   })
 
-  it("записывает Формы/<form>/Форма.yaml и Форма.nkdk для каталога", async () => {
+  it("записывает Формы/<form>/Форма.yaml без Форма.nkdk для каталога", async () => {
     await convertAppliedObjectFromXML({
       rule: MetadataCatalogRules,
       context: mockContextFromXML(),
@@ -28,7 +28,7 @@ describe("syncChildFormNamesFromXML (через convertAppliedObjectFromXML)", (
     const nkdkPath = join(outputDir, name, "Формы", "ФормаЭлемента", "Форма.nkdk")
 
     expect(fs.existsSync(yamlPath), `expected ${yamlPath}`).toBe(true)
-    expect(fs.existsSync(nkdkPath), `expected ${nkdkPath}`).toBe(true)
+    expect(fs.existsSync(nkdkPath), `unexpected ${nkdkPath}`).toBe(false)
 
     fs.rmSync(outputDir, { recursive: true })
   })

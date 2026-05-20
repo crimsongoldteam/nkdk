@@ -62,7 +62,7 @@ describe("convertAppliedObjectFromXML — MetadataReport", () => {
       expectedFormHelp
     )
 
-    expect(fs.existsSync(join(outputDir, name, "Формы", "ФормаОтчета", "Форма.nkdk"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, name, "Формы", "ФормаОтчета", "Форма.nkdk"))).toBe(false)
     expect(fs.existsSync(join(outputDir, name, "Формы", "ФормаОтчета", "Форма.yaml"))).toBe(true)
   })
 })
