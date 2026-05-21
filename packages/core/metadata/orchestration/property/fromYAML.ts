@@ -133,7 +133,12 @@ export const importPropertyFromYAML = (params: {
     return getValueOrDefault({
       context,
       rule,
-      value: rule.type === "MetadataDcsMetadataValue" && importedValue === null ? null : (importedValue ?? sourceValue),
+      value: getImportedValueOrSourceFallback({
+        rule,
+        value,
+        importedValue,
+        sourceValue,
+      }),
       name,
       operation: "importFromYAML",
     })
@@ -144,10 +149,55 @@ export const importPropertyFromYAML = (params: {
   return getValueOrDefault({
     context,
     rule,
-    value: rule.type === "MetadataDcsMetadataValue" && result === null ? null : (result ?? sourceValue),
+    value: getImportedValueOrSourceFallback({
+      rule,
+      value,
+      importedValue: result,
+      sourceValue,
+    }),
     name,
     operation: "importFromYAML",
   })
+}
+
+const getImportedValueOrSourceFallback = (params: {
+  rule: PropertyRule
+  value: any
+  importedValue: any
+  sourceValue: any
+}): any => {
+  const { rule, value, importedValue, sourceValue } = params
+
+  if (rule.type === "MetadataDcsMetadataValue" && importedValue === null) return null
+  if (shouldSkipMetadataDcsMetadataValueSourceFallback({ rule, value, importedValue, sourceValue })) return undefined
+  return importedValue ?? sourceValue
+}
+
+const shouldSkipMetadataDcsMetadataValueSourceFallback = (params: {
+  rule: PropertyRule
+  value: any
+  importedValue: any
+  sourceValue: any
+}): boolean => {
+  const { rule, value, importedValue, sourceValue } = params
+
+  if (rule.type !== "MetadataDcsMetadataValue") return false
+  if ((rule as { valueType?: unknown }).valueType !== "DesignTimeValue") return false
+  if (value !== undefined || importedValue !== undefined) return false
+  if (!isObjectWithItems(sourceValue)) return false
+
+  return !isExactEmptyItemsObject(sourceValue)
+}
+
+const isObjectWithItems = (value: unknown): value is { items: unknown } =>
+  typeof value === "object" && value !== null && !Array.isArray(value) && "items" in value
+
+const isExactEmptyItemsObject = (value: { items: unknown }): boolean => {
+  const keys = Object.keys(value)
+  if (keys.length !== 1 || keys[0] !== "items") return false
+
+  const items = value.items
+  return typeof items === "object" && items !== null && !Array.isArray(items) && Object.keys(items).length === 0
 }
 
 const getDefaultValueYAMLForImport = (params: {
