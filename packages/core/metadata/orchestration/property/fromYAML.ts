@@ -170,7 +170,16 @@ const getImportedValueOrSourceFallback = (params: {
 
   if (rule.type === "MetadataDcsMetadataValue" && importedValue === null) return null
   if (shouldUseOnlyImportedMetadataDcsMetadataValue({ rule, value })) return importedValue
-  return importedValue ?? sourceValue
+  return importedValue ?? normalizeSourceFallbackValue(rule, sourceValue)
+}
+
+const normalizeSourceFallbackValue = (rule: PropertyRule, sourceValue: any): any => {
+  if (rule.type === "SystemEnumeration" && sourceValue !== null && typeof sourceValue === "object" && !Array.isArray(sourceValue)) {
+    const text = sourceValue["#text"]
+    if (typeof text === "string") return text
+  }
+
+  return sourceValue
 }
 
 const shouldUseOnlyImportedMetadataDcsMetadataValue = (params: {

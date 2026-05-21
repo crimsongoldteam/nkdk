@@ -156,7 +156,10 @@ describe("import DynamicList from YAML", () => {
           "dcssch:expression": "Дата",
           "dcssch:orderExpression": {
             expression: "Дата",
-            orderType: "Asc",
+            orderType: {
+              "#text": "Asc",
+              _xmlns: "http://v8.1c.ru/8.1/data-composition-system/common",
+            },
             autoOrder: false,
           },
         },

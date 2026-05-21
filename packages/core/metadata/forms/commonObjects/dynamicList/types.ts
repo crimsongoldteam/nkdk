@@ -8,6 +8,7 @@ import {
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
+import "~/metadata/commonObjects/dataCompositionSystem/index"
 import { DynamicListRules } from "./rules"
 
 /** Внутренняя модель по правилам; `Record<string, unknown>` — для pass-through полей до полного перевода импорта на rules. */
