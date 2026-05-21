@@ -84,6 +84,8 @@ async function copyTemplateEntryToXML(params: {
     return
   }
 
+  if (!entry.isFile()) return
+
   await fs.promises.mkdir(dirname(dst), { recursive: true })
   await fs.promises.copyFile(src, dst)
   xmlManifest?.addFile(dst)

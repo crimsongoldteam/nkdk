@@ -2,6 +2,7 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
+import { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { syncChildTemplateNamesFromXML } from "./syncExternalFromXML"
 import { syncChildTemplateNamesToXML } from "./syncExternalToXML"
@@ -59,12 +60,15 @@ describe("syncChildTemplateNames external files", () => {
       ...fs.readFileSync(join(nkdkDir, "Шаблоны", "СКартинкой", "Ext", "Template", "Items", "Подложка", "Picture.png")),
     ]).toEqual([10, 20, 30])
 
+    const xmlManifest = new XmlSyncManifest(outputDir)
+
     await syncChildTemplateNamesToXML({
       context: mockContextToXML(),
       rule,
       nkdkDir,
       xmlDir: outputDir,
       name: "Отчет",
+      xmlManifest,
     })
 
     expect(fs.readFileSync(join(outputDir, "Отчет", "Templates", "Макет.xml"), "utf-8")).toBe("<MetaDataObject/>")
@@ -88,5 +92,8 @@ describe("syncChildTemplateNames external files", () => {
         join(outputDir, "Отчет", "Templates", "СКартинкой", "Ext", "Template", "Items", "Подложка", "Picture.png")
       ),
     ]).toEqual([10, 20, 30])
+    expect(xmlManifest.expectedFiles()).toContain(
+      "Отчет/Templates/СКартинкой/Ext/Template/Items/Подложка/Picture.png"
+    )
   })
 })
