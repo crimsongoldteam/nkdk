@@ -1,11 +1,7 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
 import { registerTypeRule } from "~/metadata/orchestration"
-import type {
-  ModulePropertyRule,
-  PropertyRule,
-  TemplatePropertyRule,
-} from "~/metadata/orchestration/property/types"
+import type { ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "~/metadata/orchestration/property/types"
 
 /**
  * Копирует внешний .bsl-файл (модуль или шаблон) из nkdk-директории объекта
@@ -51,6 +47,17 @@ export const syncModuleToXML = async (params: {
     await fs.promises.copyFile(found[0], dstPath)
     params.xmlManifest?.addFile(dstPath)
   }
+
+  if (rule.type === "Template") {
+    await syncTemplateCompanionsToXML({
+      nkdkDir,
+      xmlDir,
+      nkdkPath,
+      xmlPath,
+      objectName: params.name,
+      xmlManifest: params.xmlManifest,
+    })
+  }
 }
 
 registerTypeRule("Module", "syncExternalToXML", syncModuleToXML)
@@ -70,3 +77,65 @@ const alternateNkdkPath = (path: string): string | undefined =>
   path.endsWith(".bsl") ? path.replace(/\.bsl$/i, ".bin") : undefined
 
 const existingPaths = (paths: string[]): string[] => paths.filter((path) => fs.existsSync(path))
+
+const syncTemplateCompanionsToXML = async (params: {
+  nkdkDir: string
+  xmlDir: string
+  nkdkPath: string
+  xmlPath: string
+  objectName?: string
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+}): Promise<void> => {
+  const nkdkBasePath = stripXmlExtension(params.nkdkPath)
+  const xmlBasePath = stripXmlExtension(params.xmlPath)
+  if (!nkdkBasePath || !xmlBasePath) return
+
+  for (const extension of [".bin", ".txt"]) {
+    const srcPath = join(params.nkdkDir, `${nkdkBasePath}${extension}`)
+    if (!fs.existsSync(srcPath)) continue
+
+    const xmlRelativePath = stripObjectPrefix({
+      xmlDir: params.xmlDir,
+      xmlPath: `${xmlBasePath}${extension}`,
+      objectName: params.objectName,
+    })
+    const dstPath = join(params.xmlDir, xmlRelativePath)
+    await fs.promises.mkdir(dirname(dstPath), { recursive: true })
+    await fs.promises.copyFile(srcPath, dstPath)
+    params.xmlManifest?.addFile(dstPath)
+  }
+
+  const srcDir = join(params.nkdkDir, nkdkBasePath)
+  if (!fs.existsSync(srcDir) || !fs.statSync(srcDir).isDirectory()) return
+
+  const xmlRelativeDir = stripObjectPrefix({
+    xmlDir: params.xmlDir,
+    xmlPath: xmlBasePath,
+    objectName: params.objectName,
+  })
+  await copyDirectoryRecursive({ srcDir, dstDir: join(params.xmlDir, xmlRelativeDir), xmlManifest: params.xmlManifest })
+}
+
+const copyDirectoryRecursive = async (params: {
+  srcDir: string
+  dstDir: string
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+}): Promise<void> => {
+  const entries = await fs.promises.readdir(params.srcDir, { withFileTypes: true })
+  for (const entry of entries) {
+    const srcPath = join(params.srcDir, entry.name)
+    const dstPath = join(params.dstDir, entry.name)
+    if (entry.isDirectory()) {
+      await copyDirectoryRecursive({ srcDir: srcPath, dstDir: dstPath, xmlManifest: params.xmlManifest })
+      continue
+    }
+    if (!entry.isFile()) continue
+
+    await fs.promises.mkdir(dirname(dstPath), { recursive: true })
+    await fs.promises.copyFile(srcPath, dstPath)
+    params.xmlManifest?.addFile(dstPath)
+  }
+}
+
+const stripXmlExtension = (path: string): string | undefined =>
+  path.endsWith(".xml") ? path.replace(/\.xml$/i, "") : undefined

@@ -148,6 +148,8 @@ import "./childSubsystemNames/toYAML"
 
 import "./externalPicture/fromXML"
 import "./externalPicture/toXML"
+import "./wsDefinitionSchemas/fromXML"
+import "./wsDefinitionSchemas/toXML"
 
 import "./metadataAttribute/register"
 import "./metadataTaskAddressingAttribute/register"

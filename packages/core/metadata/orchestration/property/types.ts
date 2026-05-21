@@ -14,6 +14,7 @@ import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValu
 import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
 import { PredefinedCodePropertyRule } from "~/metadata/commonObjects/predefinedCode/types"
 import { StringOrNumberPropertyRule } from "~/metadata/commonObjects/stringOrNumber/types"
+import type { WSDefinitionSchemasPropertyRule } from "~/metadata/commonObjects/wsDefinitionSchemas/types"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
@@ -340,6 +341,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "Help"
     | "ExternalPicture"
     | "ExternalFormItemFile"
+    | "WSDefinitionSchemas"
   >
 }
 
@@ -388,6 +390,7 @@ export type PropertyRule =
   | HelpPropertyRule
   | ExternalFormItemFilePropertyRule
   | ExternalPicturePropertyRule
+  | WSDefinitionSchemasPropertyRule
 
 type PropertiesType = Record<string, PropertyRule>
 
