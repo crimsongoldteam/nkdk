@@ -10,6 +10,13 @@ describe("exportToYAML", () => {
     expect(yaml).toContain("Пояснение: |+")
   })
 
+  it("preserves trailing line endings inside block scalar values", () => {
+    const value = "Текст\n\n"
+    const yaml = exportToYAML({ Пояснение: value })
+
+    expect(importFromYAML<{ Пояснение: string }>(yaml)).toEqual({ Пояснение: value })
+  })
+
   it("does not add a service newline for ordinary YAML documents", () => {
     expect(exportToYAML({ Имя: "Тест" }).endsWith("\n")).toBe(false)
   })
