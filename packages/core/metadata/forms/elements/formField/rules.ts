@@ -107,7 +107,6 @@ export const formFieldCommonProperties = {
   title: {
     yaml: "Заголовок",
     type: "I8nText",
-    yamlPartialOthers: true,
   },
   footerPicture: { yaml: "КартинкаПодвала", type: "Picture" },
   headerPicture: { yaml: "КартинкаШапки", type: "Picture" },

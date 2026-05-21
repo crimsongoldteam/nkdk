@@ -67,7 +67,6 @@ export const commonButtonProperties = {
   title: {
     yaml: "Заголовок",
     type: "I8nText",
-    yamlPartialOthers: true,
   },
   toolTipRepresentation: {
     yaml: "ОтображениеПодсказки",

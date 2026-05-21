@@ -48,7 +48,6 @@ export const formGroupCommonProperties = {
   title: {
     yaml: "Заголовок",
     type: "I8nText",
-    yamlPartialOthers: true,
   },
   titleFont: {
     yaml: "ШрифтЗаголовка",

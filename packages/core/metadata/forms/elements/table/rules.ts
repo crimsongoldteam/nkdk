@@ -191,7 +191,6 @@ export const TableRules = {
     title: {
       yaml: "Заголовок",
       type: "I8nText",
-      yamlPartialOthers: true,
     },
     titleFont: { yaml: "ШрифтЗаголовка", type: "Font" },
     titleHeight: { yaml: "ВысотаЗаголовка", type: "number" },
