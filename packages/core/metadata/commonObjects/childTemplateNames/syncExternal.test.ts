@@ -29,6 +29,11 @@ describe("syncChildTemplateNames external files", () => {
     writeFile(join(xmlDir, "Отчет", "Templates", "HTML.xml"), "<MetaDataObject/>")
     writeFile(join(xmlDir, "Отчет", "Templates", "HTML", "Ext", "Template", "index.html"), "<html></html>")
     writeFile(join(xmlDir, "Отчет", "Templates", "HTML", "Ext", "Template", "_files", "logo.png"), Buffer.from([137, 80]))
+    writeFile(
+      join(xmlDir, "Отчет", "Templates", "СКартинкой", "Ext", "Template", "Items", "Подложка", "Picture.png"),
+      Buffer.from([10, 20, 30])
+    )
+    writeFile(join(xmlDir, "Отчет", "Templates", "СКартинкой.xml"), "<MetaDataObject/>")
 
     await syncChildTemplateNamesFromXML({
       context: mockContextFromXML(),
@@ -39,15 +44,20 @@ describe("syncChildTemplateNames external files", () => {
     })
 
     expect(fs.readFileSync(join(nkdkDir, "Шаблоны", "Макет", "Template.xml"), "utf-8")).toBe("<MetaDataObject/>")
-    expect(fs.readFileSync(join(nkdkDir, "Шаблоны", "Макет", "Template.txt"), "utf-8")).toBe("text-template")
-    expect([...fs.readFileSync(join(nkdkDir, "Шаблоны", "Бинарный", "Template.bin"))]).toEqual([0, 1, 2, 255])
+    expect(fs.readFileSync(join(nkdkDir, "Шаблоны", "Макет", "Ext", "Template.txt"), "utf-8")).toBe("text-template")
+    expect([...fs.readFileSync(join(nkdkDir, "Шаблоны", "Бинарный", "Ext", "Template.bin"))]).toEqual([0, 1, 2, 255])
     expect(fs.readFileSync(join(nkdkDir, "Шаблоны", "Схема", "Ext", "Template.xml"), "utf-8")).toBe(
       "<DataCompositionSchema/>"
     )
-    expect(fs.readFileSync(join(nkdkDir, "Шаблоны", "HTML", "Template", "index.html"), "utf-8")).toBe("<html></html>")
-    expect([...fs.readFileSync(join(nkdkDir, "Шаблоны", "HTML", "Template", "_files", "logo.png"))]).toEqual([
+    expect(fs.readFileSync(join(nkdkDir, "Шаблоны", "HTML", "Ext", "Template", "index.html"), "utf-8")).toBe(
+      "<html></html>"
+    )
+    expect([...fs.readFileSync(join(nkdkDir, "Шаблоны", "HTML", "Ext", "Template", "_files", "logo.png"))]).toEqual([
       137, 80,
     ])
+    expect([
+      ...fs.readFileSync(join(nkdkDir, "Шаблоны", "СКартинкой", "Ext", "Template", "Items", "Подложка", "Picture.png")),
+    ]).toEqual([10, 20, 30])
 
     await syncChildTemplateNamesToXML({
       context: mockContextToXML(),
@@ -73,5 +83,10 @@ describe("syncChildTemplateNames external files", () => {
     expect([
       ...fs.readFileSync(join(outputDir, "Отчет", "Templates", "HTML", "Ext", "Template", "_files", "logo.png")),
     ]).toEqual([137, 80])
+    expect([
+      ...fs.readFileSync(
+        join(outputDir, "Отчет", "Templates", "СКартинкой", "Ext", "Template", "Items", "Подложка", "Picture.png")
+      ),
+    ]).toEqual([10, 20, 30])
   })
 })

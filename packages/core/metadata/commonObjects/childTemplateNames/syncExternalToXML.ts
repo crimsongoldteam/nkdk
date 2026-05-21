@@ -1,9 +1,8 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { syncExplicitExternalFilesToXML } from "~/metadata/commonObjects/externalFiles/sync"
+import type { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
-import { externalTemplateFiles } from "./externalFiles"
 import type { ChildTemplateNamesPropertyRule } from "./types"
 
 export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (params) => {
@@ -23,21 +22,9 @@ export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (par
       dst: join(templateOutputDir, `${templateName}.xml`),
       xmlManifest,
     })
-    await copyIfExists({
-      src: join(templatesDir, templateName, "Template.txt"),
-      dst: join(templateOutputDir, templateName, "Ext", "Template.txt"),
-      xmlManifest,
-    })
-    await copyIfExists({
-      src: join(templatesDir, templateName, "Ext", "Template.xml"),
-      dst: join(templateOutputDir, templateName, "Ext", "Template.xml"),
-      xmlManifest,
-    })
-    await syncExplicitExternalFilesToXML({
-      rules: externalTemplateFiles,
-      nkdkDir: join(templatesDir, templateName),
-      xmlDir: templateOutputDir,
-      pathParams: { name: templateName, parentName: name },
+    await copyTemplateDirectoryToXML({
+      srcDir: join(templatesDir, templateName),
+      dstDir: join(templateOutputDir, templateName),
       xmlManifest,
     })
   }
@@ -46,10 +33,57 @@ export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (par
 async function copyIfExists(params: {
   src: string
   dst: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlSyncManifest
 }): Promise<void> {
   const { src, dst, xmlManifest } = params
   if (!fs.existsSync(src)) return
+  await fs.promises.mkdir(dirname(dst), { recursive: true })
+  await fs.promises.copyFile(src, dst)
+  xmlManifest?.addFile(dst)
+}
+
+async function copyTemplateDirectoryToXML(params: {
+  srcDir: string
+  dstDir: string
+  xmlManifest?: XmlSyncManifest
+}): Promise<void> {
+  const { srcDir, dstDir, xmlManifest } = params
+  if (!fs.existsSync(srcDir)) return
+
+  const entries = await fs.promises.readdir(srcDir, { withFileTypes: true })
+  for (const entry of entries) {
+    if (entry.name === "Template.xml") continue
+
+    await copyTemplateEntryToXML({
+      src: join(srcDir, entry.name),
+      dst: join(dstDir, entry.name),
+      entry,
+      xmlManifest,
+    })
+  }
+}
+
+async function copyTemplateEntryToXML(params: {
+  src: string
+  dst: string
+  entry: fs.Dirent
+  xmlManifest?: XmlSyncManifest
+}): Promise<void> {
+  const { src, dst, entry, xmlManifest } = params
+  if (entry.isDirectory()) {
+    await fs.promises.mkdir(dst, { recursive: true })
+    const children = await fs.promises.readdir(src, { withFileTypes: true })
+    for (const child of children) {
+      await copyTemplateEntryToXML({
+        src: join(src, child.name),
+        dst: join(dst, child.name),
+        entry: child,
+        xmlManifest,
+      })
+    }
+    return
+  }
+
   await fs.promises.mkdir(dirname(dst), { recursive: true })
   await fs.promises.copyFile(src, dst)
   xmlManifest?.addFile(dst)

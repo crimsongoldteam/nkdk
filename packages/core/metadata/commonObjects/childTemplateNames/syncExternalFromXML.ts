@@ -1,9 +1,7 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
-import { syncExplicitExternalFilesFromXML } from "~/metadata/commonObjects/externalFiles/sync"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import type { SyncExternalFromXMLFunction } from "~/metadata/orchestration/property/fn"
-import { externalTemplateFiles } from "./externalFiles"
 import type { ChildTemplateNamesPropertyRule } from "./types"
 
 export const syncChildTemplateNamesFromXML: SyncExternalFromXMLFunction = async (params) => {
@@ -24,19 +22,9 @@ export const syncChildTemplateNamesFromXML: SyncExternalFromXMLFunction = async 
       src: join(templatesDir, `${templateName}.xml`),
       dst: join(templateOutputDir, "Template.xml"),
     })
-    await copyIfExists({
-      src: join(templatesDir, templateName, "Ext", "Template.txt"),
-      dst: join(templateOutputDir, "Template.txt"),
-    })
-    await copyIfExists({
-      src: join(templatesDir, templateName, "Ext", "Template.xml"),
-      dst: join(templateOutputDir, "Ext", "Template.xml"),
-    })
-    await syncExplicitExternalFilesFromXML({
-      rules: externalTemplateFiles,
-      xmlDir: templatesDir,
-      nkdkDir: templateOutputDir,
-      pathParams: { name: templateName, parentName: name },
+    await copyDirectoryIfExists({
+      src: join(templatesDir, templateName),
+      dst: templateOutputDir,
     })
   }
 }
@@ -46,6 +34,12 @@ async function copyIfExists(params: { src: string; dst: string }): Promise<void>
   if (!fs.existsSync(src)) return
   await fs.promises.mkdir(dirname(dst), { recursive: true })
   await fs.promises.copyFile(src, dst)
+}
+
+async function copyDirectoryIfExists(params: { src: string; dst: string }): Promise<void> {
+  if (!fs.existsSync(params.src)) return
+  await fs.promises.mkdir(params.dst, { recursive: true })
+  await fs.promises.cp(params.src, params.dst, { recursive: true })
 }
 
 registerTypeRule("ChildTemplateNames", "syncExternalFromXML", syncChildTemplateNamesFromXML)
