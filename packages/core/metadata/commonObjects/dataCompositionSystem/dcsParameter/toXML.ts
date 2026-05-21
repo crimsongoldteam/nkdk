@@ -83,6 +83,17 @@ const inferEntSystemEnumerationType = (item: DCSParameter): keyof SystemEnumerat
   return resolveSystemEnumerationXsiType(typeSE).startsWith("ent:") ? typeSE : undefined
 }
 
+const normalizeValueByValueType = (item: DCSParameter): DCSParameter => {
+  if (item.value === undefined || item.value === null || typeof item.value !== "string") return item
+
+  const typeName = getSingleValueTypeName(item)
+  if (typeName === "UUID") {
+    return { ...item, value: { type: "uuid", value: item.value } }
+  }
+
+  return item
+}
+
 const ruleForItem = (item: DCSParameter): MetadataItemRule => {
   const typeSE = inferEntSystemEnumerationType(item)
   if (typeSE === undefined) return DCSParameterRules
@@ -114,7 +125,8 @@ export const exportDCSParametersToXML: ExportToXMLFunctionNew = (params) => {
     return undefined
   }
 
-  const result = inputData.map((item) => {
+  const result = inputData.map((rawItem) => {
+    const item = normalizeValueByValueType(rawItem)
     const referenceItem = findReferenceItem(item, referenceData)
     const referenceUndefinedValue = hasMissingValue(item)
       ? getReferenceUndefinedTypeValue(referenceItem?.value)
