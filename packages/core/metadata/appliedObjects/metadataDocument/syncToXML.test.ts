@@ -16,6 +16,9 @@ describe("syncAppliedObjectToXML — MetadataDocument", () => {
         "ДокументВсеСвойства/Ext/AdditionalIndexes.xml",
         "ДокументВсеСвойства/Ext/ObjectModule.bsl",
         "ДокументВсеСвойства/Ext/ManagerModule.bsl",
+        "ДокументВсеСвойства/Ext/Help.xml",
+        "ДокументВсеСвойства/Ext/Help/ru.html",
+        "ДокументВсеСвойства/Ext/Help/_files/logo.png",
         "ДокументВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
       ],
     })

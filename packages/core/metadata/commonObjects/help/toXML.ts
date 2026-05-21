@@ -1,8 +1,8 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
-import { syncExplicitExternalFilesToXML } from "~/metadata/commonObjects/externalFiles/sync"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type { HelpPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import type { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
 import { xmlExport } from "~/xml/export/exporter"
 
 /**
@@ -14,7 +14,7 @@ export const syncHelpToXML = async (params: {
   nkdkDir: string
   xmlDir: string
   name?: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlSyncManifest
 }): Promise<void> => {
   const { nkdkDir, xmlDir } = params
   const rule = params.rule as HelpPropertyRule
@@ -52,23 +52,32 @@ export const syncHelpToXML = async (params: {
     params.xmlManifest?.addFile(dstHtmlPath)
   }
 
-  await syncExplicitExternalFilesToXML({
-    rules: [
-      {
-        kind: "directory",
-        xmlDir: `${helpHtmlDir}/_files`,
-        nkdkDir: `${rule.nkdkDir}/_files`,
-        include: [/.*/],
-      },
-    ],
-    nkdkDir,
-    xmlDir,
-    pathParams: { name: params.name! },
-    xmlManifest: params.xmlManifest,
-  })
+  await copyDirectoryFilesOnly(join(nkdkHelpDir, "_files"), join(xmlDir, helpHtmlDir, "_files"), params.xmlManifest)
 }
 
 registerTypeRule("Help", "syncExternalToXML", syncHelpToXML)
+
+const copyDirectoryFilesOnly = async (
+  srcDir: string,
+  dstDir: string,
+  xmlManifest?: XmlSyncManifest
+): Promise<void> => {
+  if (!fs.existsSync(srcDir)) return
+  const srcStat = await fs.promises.lstat(srcDir)
+  if (!srcStat.isDirectory()) return
+
+  for (const entry of await fs.promises.readdir(srcDir, { withFileTypes: true })) {
+    const srcPath = join(srcDir, entry.name)
+    const dstPath = join(dstDir, entry.name)
+    if (entry.isDirectory()) {
+      await copyDirectoryFilesOnly(srcPath, dstPath, xmlManifest)
+    } else if (entry.isFile()) {
+      await fs.promises.mkdir(dirname(dstPath), { recursive: true })
+      await fs.promises.copyFile(srcPath, dstPath)
+      xmlManifest?.addFile(dstPath)
+    }
+  }
+}
 
 const stripObjectPrefix = (params: { xmlDir: string; filePath: string; objectName?: string }): string => {
   const { xmlDir, filePath, objectName } = params

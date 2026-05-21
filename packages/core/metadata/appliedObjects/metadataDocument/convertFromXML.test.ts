@@ -31,5 +31,11 @@ describe("convertAppliedObjectFromXML — MetadataDocument", () => {
       "utf-8"
     )
     expect(fs.readFileSync(join(outputDir, name, "Команды", "Команда1.bsl"), "utf-8")).toBe(expectedCommandModule)
+
+    const expectedHelpPage = fs.readFileSync(join(objectDir, "Ext", "Help", "ru.html"), "utf-8")
+    expect(fs.readFileSync(join(outputDir, name, "Справка", "ru.html"), "utf-8")).toBe(expectedHelpPage)
+
+    const expectedHelpLogo = fs.readFileSync(join(objectDir, "Ext", "Help", "_files", "logo.png"), "utf-8")
+    expect(fs.readFileSync(join(outputDir, name, "Справка", "_files", "logo.png"), "utf-8")).toBe(expectedHelpLogo)
   })
 })

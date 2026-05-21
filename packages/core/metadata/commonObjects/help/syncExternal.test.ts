@@ -40,12 +40,15 @@ describe("syncHelp", () => {
     fs.writeFileSync(join(helpDir, "stale.html"), "<html>stale</html>", "utf-8")
     fs.mkdirSync(join(helpDir, "_files"), { recursive: true })
     fs.writeFileSync(join(helpDir, "_files", "logo.png"), Buffer.from([137, 80]))
+    fs.mkdirSync(join(helpDir, "_files", "nested"), { recursive: true })
+    fs.writeFileSync(join(helpDir, "_files", "nested", "pic.png"), Buffer.from([1, 2, 3]))
 
     await syncHelpFromXML({ rule, xmlDir, nkdkDir })
 
     expect(fs.existsSync(join(nkdkDir, "Справка", "ru.html"))).toBe(true)
     expect(fs.existsSync(join(nkdkDir, "Справка", "stale.html"))).toBe(false)
     expect([...fs.readFileSync(join(nkdkDir, "Справка", "_files", "logo.png"))]).toEqual([137, 80])
+    expect([...fs.readFileSync(join(nkdkDir, "Справка", "_files", "nested", "pic.png"))]).toEqual([1, 2, 3])
   })
 
   it("toXML пересобирает Ext/Help.xml по текущим страницам nkdk", async () => {
@@ -57,6 +60,8 @@ describe("syncHelp", () => {
     fs.writeFileSync(join(nkdkHelpDir, "en.html"), "<html>en</html>", "utf-8")
     fs.mkdirSync(join(nkdkHelpDir, "_files"), { recursive: true })
     fs.writeFileSync(join(nkdkHelpDir, "_files", "logo.png"), Buffer.from([137, 80]))
+    fs.mkdirSync(join(nkdkHelpDir, "_files", "nested"), { recursive: true })
+    fs.writeFileSync(join(nkdkHelpDir, "_files", "nested", "pic.png"), Buffer.from([1, 2, 3]))
     const xmlManifest = new XmlSyncManifest(xmlDir)
 
     await syncHelpToXML({ rule, nkdkDir, xmlDir, xmlManifest })
@@ -70,6 +75,8 @@ describe("syncHelp", () => {
     expect(fs.existsSync(join(xmlDir, "Ext", "Help", "ru.html"))).toBe(true)
     expect(fs.existsSync(join(xmlDir, "Ext", "Help", "en.html"))).toBe(true)
     expect([...fs.readFileSync(join(xmlDir, "Ext", "Help", "_files", "logo.png"))]).toEqual([137, 80])
+    expect([...fs.readFileSync(join(xmlDir, "Ext", "Help", "_files", "nested", "pic.png"))]).toEqual([1, 2, 3])
     expect(xmlManifest.expectedFiles()).toContain("Ext/Help/_files/logo.png")
+    expect(xmlManifest.expectedFiles()).toContain("Ext/Help/_files/nested/pic.png")
   })
 })

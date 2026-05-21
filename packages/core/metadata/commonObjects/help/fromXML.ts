@@ -1,6 +1,5 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { syncExplicitExternalFilesFromXML } from "~/metadata/commonObjects/externalFiles/sync"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type { HelpPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { importContentFromXML } from "~/xml/import/importer"
@@ -37,22 +36,27 @@ export const syncHelpFromXML = async (params: {
     await fs.promises.copyFile(srcHtmlPath, dstHtmlPath)
   }
 
-  await syncExplicitExternalFilesFromXML({
-    rules: [
-      {
-        kind: "directory",
-        xmlDir: `${helpHtmlDir}/_files`,
-        nkdkDir: `${rule.nkdkDir}/_files`,
-        include: [/.*/],
-      },
-    ],
-    xmlDir,
-    nkdkDir,
-    pathParams: { name: params.name! },
-  })
+  await copyDirectoryFilesOnly(join(xmlDir, helpHtmlDir, "_files"), join(nkdkDir, rule.nkdkDir, "_files"))
 }
 
 registerTypeRule("Help", "syncExternalFromXML", syncHelpFromXML)
+
+const copyDirectoryFilesOnly = async (srcDir: string, dstDir: string): Promise<void> => {
+  if (!fs.existsSync(srcDir)) return
+  const srcStat = await fs.promises.lstat(srcDir)
+  if (!srcStat.isDirectory()) return
+
+  for (const entry of await fs.promises.readdir(srcDir, { withFileTypes: true })) {
+    const srcPath = join(srcDir, entry.name)
+    const dstPath = join(dstDir, entry.name)
+    if (entry.isDirectory()) {
+      await copyDirectoryFilesOnly(srcPath, dstPath)
+    } else if (entry.isFile()) {
+      await fs.promises.mkdir(dirname(dstPath), { recursive: true })
+      await fs.promises.copyFile(srcPath, dstPath)
+    }
+  }
+}
 
 const resolveHelpFilePath = (params: { xmlDir: string; filePath: string; objectName?: string }): string => {
   const directPath = join(params.xmlDir, params.filePath)

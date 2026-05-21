@@ -1,7 +1,6 @@
 import type { DcsMetadataValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
 import { SettingsParameterValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
 import { DateTimePropertyRule } from "~/metadata/commonObjects/dateTime/types"
-import type { ExternalFileRule } from "~/metadata/commonObjects/externalFiles/types"
 import type { ExternalPicturePropertyRule } from "~/metadata/commonObjects/externalPicture/types"
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
@@ -292,7 +291,6 @@ export interface HelpPropertyRule extends BasePropertyRule {
   xmlPath?: string | ((params: { name: string }) => string)
   /** Папка с HTML-файлами на nkdk-стороне (например "Справка") */
   nkdkDir: string
-  externalFiles?: readonly ExternalFileRule[]
 }
 
 export interface ExternalFormItemFilePropertyRule extends BasePropertyRule {

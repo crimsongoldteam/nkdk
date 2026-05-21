@@ -153,6 +153,13 @@ export const MetadataDocumentRules = {
       toXML: false,
       fromXML: false,
     },
+    help: {
+      type: "Help",
+      filePath: "Ext/Help.xml",
+      nkdkDir: "Справка",
+      toXML: false,
+      fromXML: false,
+    },
     forms: {
       type: "ChildFormNames",
       xml: "Form",
