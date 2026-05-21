@@ -2,6 +2,7 @@ import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/
 import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { StandardCommandsGroupFromYAML } from "~/metadata/systemEnumerations/types"
+import type { StandardCommandsGroupYAML } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemYAML, CommandInterfaceYAML } from "./types"
@@ -30,6 +31,15 @@ export const importCommandInterfaceFromYAML = (
   return result
 }
 
+const isStandardCommandsGroupYAML = (commandGroup: string): commandGroup is StandardCommandsGroupYAML =>
+  commandGroup in StandardCommandsGroupFromYAML
+
+const importCommandGroupFromYAML = (commandGroup: StandardCommandsGroupYAML | string): string => {
+  if (isStandardCommandsGroupYAML(commandGroup)) return StandardCommandsGroupFromYAML[commandGroup]
+
+  return commandGroup
+}
+
 const importCommandInterfaceItemFromYAML = (
   context: ConfigurationContext,
   item: CommandInterfaceItemYAML
@@ -50,7 +60,7 @@ const importCommandInterfaceItemFromYAML = (
   }
 
   if (item.ГруппаКоманд) {
-    result.commandGroup = StandardCommandsGroupFromYAML[item.ГруппаКоманд] ?? item.ГруппаКоманд
+    result.commandGroup = importCommandGroupFromYAML(item.ГруппаКоманд)
   }
 
   const visible = importUserVisibleFromYAML({
