@@ -14,7 +14,24 @@ export function exportPictureToYAML(
   if (!picture) return undefined
 
   if (isRawPictureRef(picture)) {
-    return picture.rawRef
+    const hasLoadTransparent = picture.loadTransparent !== undefined
+    const hasTransparentPixel = !!picture.transparentPixel
+
+    if (!hasLoadTransparent && !hasTransparentPixel) {
+      return picture.rawRef
+    }
+
+    const result: PictureYAMLExtended = { Ссылка: picture.rawRef }
+
+    if (hasLoadTransparent || hasTransparentPixel) {
+      result.ПрозрачныйФон = exportBooleanToYAML(context, undefined, picture.loadTransparent ?? false)
+    }
+
+    if (hasTransparentPixel) {
+      result.ПрозрачныйПиксель = picture.transparentPixel
+    }
+
+    return result
   }
 
   let ref: PictureYAML | undefined

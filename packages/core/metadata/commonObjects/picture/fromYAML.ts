@@ -53,7 +53,11 @@ export const importPictureFromYAML = (
   }
 
   if (typeof ref === "string" && isRawPictureRefValue(ref)) {
-    return { rawRef: ref }
+    return {
+      rawRef: ref,
+      ...(isPictureYAMLExtended(data) && data.ПрозрачныйФон !== undefined ? { loadTransparent } : {}),
+      ...(transparentPixel ? { transparentPixel } : {}),
+    }
   }
 
   const standardPicture = tryimportStandardPicture(context, ref as string)
