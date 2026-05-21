@@ -35,7 +35,7 @@ describe("exportCommandInterfaceToYAML", () => {
           itemType: "CommandInterfaceItem",
           command: "0",
           type: "Auto",
-          commandGroup: "CommandGroup.Печать" as never,
+          commandGroup: "CommandGroup.Печать",
         },
       ],
     })

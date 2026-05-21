@@ -22,7 +22,7 @@ describe("importCommandInterfaceFromYAML", () => {
         {
           Команда: "0",
           Тип: "Auto",
-          ГруппаКоманд: "CommandGroup.Печать" as never,
+          ГруппаКоманд: "CommandGroup.Печать",
         },
       ],
     })
