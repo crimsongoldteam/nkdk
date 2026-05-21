@@ -53,13 +53,9 @@ describe("syncModule external files", () => {
       ...templateImage,
     ])
 
-    expect(xmlManifest.expectedFiles()).toEqual(
-      expect.arrayContaining([
-        "CommonTemplates/Шаблон/Ext/Template.bin",
-        "CommonTemplates/Шаблон/Ext/Template.txt",
-        "CommonTemplates/Шаблон/Ext/Template/ru.html",
-        "CommonTemplates/Шаблон/Ext/Template/_files/1.png",
-      ])
-    )
+    expect(xmlManifest.expectedFiles()).toContain("CommonTemplates/Шаблон/Ext/Template.bin")
+    expect(xmlManifest.expectedFiles()).toContain("CommonTemplates/Шаблон/Ext/Template.txt")
+    expect(xmlManifest.expectedFiles()).toContain("CommonTemplates/Шаблон/Ext/Template/ru.html")
+    expect(xmlManifest.expectedFiles()).toContain("CommonTemplates/Шаблон/Ext/Template/_files/1.png")
   })
 })

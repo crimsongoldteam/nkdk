@@ -52,7 +52,12 @@ export const MetadataCommonTemplateRules = {
       type: "Template",
       nkdkPath: "Template.xml",
       xmlPath: "Ext/Template.xml",
-      externalFiles: [{ kind: "file", xmlPath: "Ext/Template.bin", nkdkPath: "Template.bin" }],
+      externalFiles: [
+        { kind: "file", xmlPath: "Ext/Template.bin", nkdkPath: "Template.bin" },
+        { kind: "file", xmlPath: "Ext/Template.txt", nkdkPath: "Template.txt" },
+        { kind: "directory", xmlDir: "Ext/Template", nkdkDir: "Template", include: [/\.html$/i] },
+        { kind: "directory", xmlDir: "Ext/Template/_files", nkdkDir: "Template/_files", include: [/.*/] },
+      ],
       toXML: false,
       fromXML: false,
     },
