@@ -43,10 +43,6 @@ export const syncAppliedObjectToXML = async (params: {
   const yamlContent = await fs.promises.readFile(yamlPath, "utf-8")
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const yamlObj = importFromYAML<any>(yamlContent)
-  const rawModel = importMetadataItemFromYAML({ context, yaml: yamlObj, rule, name })
-
-  if (!rawModel) return
-  const model = { ...rawModel, name } as typeof rawModel
 
   const contextFromXML: ConfigurationContextFromXML = {
     fromXML: { forReference: true },
@@ -59,6 +55,27 @@ export const syncAppliedObjectToXML = async (params: {
   const loadedReferenceModel = params.referenceModel === undefined
     ? readReferenceModel({ context: contextFromXML, xmlPath: referenceXmlPath, rule })
     : (params.referenceModel ?? undefined)
+  const filePathReferenceValues = params.referenceModel === null
+    ? {}
+    : readFilePathReferenceValues({
+        context: contextFromXML,
+        rule,
+        externalReferenceDir,
+        referenceName,
+        hasExplicitExternalReferenceDir,
+      })
+  const sourceForYAMLImport = params.referenceModel === null
+    ? undefined
+    : filterFilePathReferenceValuesForYAMLImport({
+        rule,
+        yaml: yamlObj,
+        filePathReferenceValues,
+      })
+  const rawModel = importMetadataItemFromYAML({ context, yaml: yamlObj, rule, name, source: sourceForYAMLImport })
+
+  if (!rawModel) return
+  const model = { ...rawModel, name } as typeof rawModel
+
   const referenceModel = params.referencePathByCurrentPath?.size && params.currentObjectPath
     ? remapReferenceModel({
         rule,
@@ -164,22 +181,8 @@ export const syncAppliedObjectToXML = async (params: {
     const modelHasOwnValue = Object.prototype.hasOwnProperty.call(model as Record<string, unknown>, key)
     const modelValue = (model as Record<string, unknown>)[key]
 
-    let referenceValue: unknown = undefined
+    const referenceValue = filePathReferenceValues[key]
     const rootReferenceExtPath = join(externalReferenceDir, propRule.filePath)
-    const objectReferenceExtPath = hasExplicitExternalReferenceDir
-      ? rootReferenceExtPath
-      : join(externalReferenceDir, referenceName, propRule.filePath)
-    const referenceExtPath = fs.existsSync(rootReferenceExtPath) ? rootReferenceExtPath : objectReferenceExtPath
-    if (fs.existsSync(referenceExtPath)) {
-      const refContent = fs.readFileSync(referenceExtPath, "utf-8")
-      const refParsed = importContentFromXML<Record<string, unknown>>(refContent)
-      referenceValue = importPropertyFromXML({
-        context: contextFromXML,
-        rule: propRule as PropertyRule,
-        value: refParsed,
-        name: key,
-      })
-    }
 
     const valueToExport = modelHasOwnValue
       ? modelValue
@@ -203,6 +206,77 @@ export const syncAppliedObjectToXML = async (params: {
     await fs.promises.writeFile(extOutputPath, xmlExport(xmlFileObj), "utf-8")
     params.xmlManifest?.addFile(extOutputPath)
   }
+}
+
+function filterFilePathReferenceValuesForYAMLImport(params: {
+  rule: MetadataItemRule
+  yaml: Record<string, unknown> | undefined
+  filePathReferenceValues: Record<string, unknown>
+}): Record<string, unknown> {
+  const { rule, yaml, filePathReferenceValues } = params
+  const result: Record<string, unknown> = {}
+
+  for (const [key, value] of Object.entries(filePathReferenceValues)) {
+    const propRule = rule.properties[key]
+    if (!propRule) continue
+    const yamlKey = propRule.yaml
+    const hasYAMLValue =
+      yaml !== undefined && yamlKey !== undefined && Object.prototype.hasOwnProperty.call(yaml, yamlKey)
+    if (!hasYAMLValue && propRule.exportReferenceFileOnMissingValue !== true) continue
+    result[key] = value
+  }
+
+  return result
+}
+
+function readFilePathReferenceValues(params: {
+  context: ConfigurationContextFromXML
+  rule: MetadataItemRule
+  externalReferenceDir: string
+  referenceName: string
+  hasExplicitExternalReferenceDir: boolean
+}): Record<string, unknown> {
+  const { context, rule, externalReferenceDir, referenceName, hasExplicitExternalReferenceDir } = params
+  const result: Record<string, unknown> = {}
+
+  for (const [key, propRule] of Object.entries(rule.properties)) {
+    if (propRule.filePath === undefined) continue
+    if (!getTypeRule(propRule.type, "exportToXML")) continue
+    if (!getTypeRule(propRule.type, "importFromXML")) continue
+
+    const referenceExtPath = resolveReferenceFilePath({
+      externalReferenceDir,
+      filePath: propRule.filePath,
+      referenceName,
+      hasExplicitExternalReferenceDir,
+    })
+    if (!fs.existsSync(referenceExtPath)) continue
+
+    const refContent = fs.readFileSync(referenceExtPath, "utf-8")
+    const refParsed = importContentFromXML<Record<string, unknown>>(refContent)
+    result[key] = importPropertyFromXML({
+      context,
+      rule: propRule as PropertyRule,
+      value: refParsed,
+      name: key,
+    })
+  }
+
+  return result
+}
+
+function resolveReferenceFilePath(params: {
+  externalReferenceDir: string
+  filePath: string
+  referenceName: string
+  hasExplicitExternalReferenceDir: boolean
+}): string {
+  const { externalReferenceDir, filePath, referenceName, hasExplicitExternalReferenceDir } = params
+  const rootReferenceExtPath = join(externalReferenceDir, filePath)
+  const objectReferenceExtPath = hasExplicitExternalReferenceDir
+    ? rootReferenceExtPath
+    : join(externalReferenceDir, referenceName, filePath)
+  return fs.existsSync(rootReferenceExtPath) ? rootReferenceExtPath : objectReferenceExtPath
 }
 
 function readReferenceModel<Rule extends MetadataItemRule>(params: {

@@ -4,6 +4,8 @@ import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { MetadataDocumentNumeratorRules } from "~/metadata/appliedObjects/metadataDocumentNumerator/rules"
+import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { mockContextToXML } from "~/tests/mockContext"
 import { syncAppliedObjectToXML } from "./syncToXML"
 
@@ -92,6 +94,87 @@ describe("syncAppliedObjectToXML — (б) формы из reference-XML", () => 
 
     const result = fs.readFileSync(join(outputDir, "ТестСправочник.xml"), "utf-8")
     expect(result).toContain("ФормаЭлемента")
+  })
+})
+
+describe("syncAppliedObjectToXML — (б2) основной reference XML", () => {
+  it("не передаёт обычные свойства из reference в YAML import", async () => {
+    const inputDir = join(tmpDir, "input")
+    const referenceDir = join(tmpDir, "reference")
+    const outputDir = join(tmpDir, "output")
+    const propertyType = "RoundTripYamlOrdinarySource" as never
+    let observedYamlImportSource: { marker?: string } | undefined
+
+    registerTypeRule(propertyType, "importFromXML", () => ({ marker: "from-main-reference" }))
+    registerTypeRule(propertyType, "importFromYAML", (params: { source?: { marker?: string } }) => {
+      observedYamlImportSource = params.source
+      return {
+        marker: params.source?.marker ?? "without-main-reference-source",
+      }
+    })
+    registerTypeRule(propertyType, "exportToXML", (_context: unknown, _rule: unknown, value: { marker?: string }) => ({
+      Ordinary: {
+        Marker: value.marker,
+      },
+    }))
+
+    const rule = {
+      itemType: "RoundTripYamlOrdinarySourceObject",
+      properties: {
+        xmlRoot: {
+          type: "XMLRoot",
+          container: "Catalog",
+          forReferenceOnly: true,
+        },
+        name: {
+          type: "string",
+          xmlParents: ["Properties"],
+          required: true,
+        },
+        ordinarySource: {
+          yaml: "ОбычныйИсточник",
+          xml: "Ordinary",
+          xmlParents: ["Properties"],
+          type: propertyType,
+        },
+      },
+    } as unknown as MetadataItemRule
+
+    fs.mkdirSync(join(inputDir, "ТестСправочник"), { recursive: true })
+    fs.writeFileSync(
+      join(inputDir, "ТестСправочник", "Свойства.yaml"),
+      ["ОбычныйИсточник: {}", ""].join("\n"),
+      "utf-8"
+    )
+    fs.mkdirSync(referenceDir, { recursive: true })
+    fs.writeFileSync(
+      join(referenceDir, "ТестСправочник.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject ${XMLNS}>
+\t<Catalog uuid="00000000-0000-0000-0000-000000000001">
+\t\t<InternalInfo/>
+\t\t<Properties>
+\t\t\t<Name>ТестСправочник</Name>
+\t\t\t<Ordinary>
+\t\t\t\t<Marker>from-main-reference</Marker>
+\t\t\t</Ordinary>
+\t\t</Properties>
+\t\t<ChildObjects/>
+\t</Catalog>
+</MetaDataObject>`,
+      "utf-8"
+    )
+
+    await syncAppliedObjectToXML({
+      rule,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ТестСправочник",
+      outputDir,
+      referenceDir,
+    })
+
+    expect(observedYamlImportSource).toBeUndefined()
   })
 })
 
@@ -196,5 +279,84 @@ describe("syncAppliedObjectToXML — (е) filePath без YAML-значения"
     })
 
     expect(fs.existsSync(join(outputDir, "Ext/AdditionalIndexes.xml"))).toBe(false)
+  })
+})
+
+describe("syncAppliedObjectToXML — (ж) source из filePath reference для YAML import", () => {
+  it("передаёт во внешний filePath-свойство source, прочитанный из reference XML", async () => {
+    const inputDir = join(tmpDir, "input")
+    const referenceDir = join(tmpDir, "reference")
+    const outputDir = join(tmpDir, "output")
+    const fileType = "RoundTripYamlSourceFile" as never
+    let observedYamlImportSource: { marker?: string } | undefined
+
+    registerTypeRule(fileType, "importFromXML", () => ({ marker: "from-reference-file" }))
+    registerTypeRule(fileType, "importFromYAML", (params: { source?: { marker?: string } }) => {
+      observedYamlImportSource = params.source
+      return {
+        marker: params.source?.marker ?? "without-reference-file-source",
+      }
+    })
+    registerTypeRule(fileType, "exportToXML", (_context: unknown, _rule: unknown, value: { marker?: string }) => ({
+      ExternalSource: {
+        Marker: value.marker,
+      },
+    }))
+
+    const rule = {
+      itemType: "RoundTripYamlSourceObject",
+      properties: {
+        xmlRoot: {
+          type: "XMLRoot",
+          container: "Catalog",
+          forReferenceOnly: true,
+        },
+        name: {
+          type: "string",
+          xmlParents: ["Properties"],
+          required: true,
+        },
+        externalSource: {
+          yaml: "ВнешнийИсточник",
+          type: fileType,
+          filePath: "Ext/Source.xml",
+        },
+      },
+    } as unknown as MetadataItemRule
+
+    fs.mkdirSync(join(inputDir, "ТестСправочник"), { recursive: true })
+    fs.writeFileSync(
+      join(inputDir, "ТестСправочник", "Свойства.yaml"),
+      ["ВнешнийИсточник: {}", ""].join("\n"),
+      "utf-8"
+    )
+    fs.mkdirSync(join(referenceDir, "Ext"), { recursive: true })
+    fs.writeFileSync(join(referenceDir, "ТестСправочник.xml"), catalogXml([]), "utf-8")
+    fs.writeFileSync(
+      join(referenceDir, "Ext", "Source.xml"),
+      [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        "<ExternalSource>",
+        "\t<Marker>from-reference-file</Marker>",
+        "</ExternalSource>",
+      ].join("\n"),
+      "utf-8"
+    )
+
+    await syncAppliedObjectToXML({
+      rule,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ТестСправочник",
+      outputDir,
+      referenceDir,
+    })
+
+    const result = fs.readFileSync(join(outputDir, "Ext", "Source.xml"), "utf-8")
+    const mainResult = fs.readFileSync(join(outputDir, "ТестСправочник.xml"), "utf-8")
+    expect(observedYamlImportSource).toEqual({ marker: "from-reference-file" })
+    expect(result).toContain("<Marker>from-reference-file</Marker>")
+    expect(result).not.toContain("<Marker>without-reference-file-source</Marker>")
+    expect(mainResult).not.toContain("<Marker>without-reference-file-source</Marker>")
   })
 })
