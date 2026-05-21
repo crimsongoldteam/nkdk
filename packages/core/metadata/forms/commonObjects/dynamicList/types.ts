@@ -1,5 +1,10 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importMetadataItemFromXML, registerMetadataItemRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
+import {
+  importMetadataItemFromXML,
+  importMetadataItemFromYAML,
+  registerMetadataItemRule,
+  registerTypeRule,
+} from "~/metadata/orchestration"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
@@ -43,6 +48,21 @@ registerMetadataItemRule({
   itemRule: DynamicListRules,
 })
 
+registerTypeRule(
+  "DynamicList",
+  "importFromYAML",
+  (context: ConfigurationContext, _rule: PropertyRule, yaml: DynamicListYAML | undefined, source: unknown) => {
+    if (yaml === undefined) return undefined
+
+    return importMetadataItemFromYAML({
+      context,
+      yaml,
+      rule: DynamicListRules,
+      source: normalizeDynamicListSource(context, source),
+    }) as DynamicList | undefined
+  }
+)
+
 // Переопределяем importFromXML:
 // 1. Проверяем, что XML является DynamicList (xsi:type="DynamicList")
 // 2. Сохраняем QueryText даже при ManualQuery=false: такие XML встречаются в реальных формах.
@@ -74,3 +94,20 @@ registerTypeRule(
     return result
   }
 )
+
+const normalizeDynamicListSource = (context: ConfigurationContext, source: unknown): DynamicList | undefined => {
+  if (source === undefined || source === null || typeof source !== "object" || Array.isArray(source)) return undefined
+
+  const sourceObject = source as Record<string, unknown>
+  if (sourceObject.itemType === "DynamicList" || "calculatedFields" in sourceObject) return source as DynamicList
+  if (sourceObject["_xsi:type"] !== undefined && sourceObject["_xsi:type"] !== "DynamicList") return undefined
+
+  return importMetadataItemFromXML({
+    context: {
+      ...context,
+      fromXML: { forReference: true },
+    },
+    xml: source,
+    rule: DynamicListRules,
+  }) as DynamicList | undefined
+}
