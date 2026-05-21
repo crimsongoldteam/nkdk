@@ -6,6 +6,11 @@ import { ExchangePlanContentRules } from "./rules"
 
 import "./register"
 
+const emptyContent = {
+  itemType: "ExchangePlanContent" as const,
+  items: [],
+}
+
 describe("export ExchangePlanContent to YAML", () => {
   it("exports content items with current AutoChangeRecord YAML values", () => {
     const result = exportMetadataItemToYAML({
@@ -15,5 +20,15 @@ describe("export ExchangePlanContent to YAML", () => {
     })
 
     expect(result).toEqual(contentYAML)
+  })
+
+  it("exports empty content as []", () => {
+    const result = exportMetadataItemToYAML({
+      context: mockContext,
+      data: emptyContent,
+      rule: ExchangePlanContentRules,
+    })
+
+    expect(result).toEqual([])
   })
 })

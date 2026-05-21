@@ -34,8 +34,6 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
     tag,
   })
 
-  if (Object.keys(result).length === 0 && !referenceRaw) return undefined
-
   const generatedResult: ItemXML = rule.xsiType ? { "_xsi:type": rule.xsiType, ...result } : result
   const finalResult: ItemXML = mergeWithReferenceRawXML(generatedResult, referenceData, rule)
 
@@ -58,6 +56,8 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
     }
     return { MetaDataObject: { ...rootAttributes, [container]: finalResult } }
   }
+
+  if (Object.keys(result).length === 0 && !referenceRaw) return undefined
 
   return finalResult
 }

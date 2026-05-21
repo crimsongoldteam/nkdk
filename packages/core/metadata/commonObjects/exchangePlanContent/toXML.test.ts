@@ -8,6 +8,11 @@ import { ExchangePlanContentRules } from "./rules"
 
 import "./register"
 
+const emptyContent = {
+  itemType: "ExchangePlanContent" as const,
+  items: [],
+}
+
 describe("export ExchangePlanContent to XML", () => {
   it("round-trips content items with Allow and Deny auto record", () => {
     const source = readXMLFixtureAsString(import.meta.url, "content.xml")
@@ -26,5 +31,16 @@ describe("export ExchangePlanContent to XML", () => {
     const exported = xmlExport(xmlObj!)
 
     expect(exported).toEqual(source.trimEnd())
+  })
+
+  it("exports empty content as an empty ExchangePlanContent container", () => {
+    const xmlObj = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: emptyContent,
+      rule: ExchangePlanContentRules,
+    })
+
+    expect(xmlExport(xmlObj!)).toContain("<ExchangePlanContent")
+    expect(xmlExport(xmlObj!)).not.toContain("<Item>")
   })
 })

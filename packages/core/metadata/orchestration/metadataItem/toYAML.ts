@@ -20,6 +20,16 @@ export const exportMetadataItemToYAML = <Rule extends MetadataItemRule>(params: 
 
   const inline = findInlineProperty(rule)
   if (inline) {
+    const inlineValue = (data as any)[inline.key]
+    if (
+      Array.isArray(inlineValue) &&
+      inlineValue.length === 0 &&
+      Array.isArray((inline.prop as any).defaultValue) &&
+      (inline.prop as any).defaultValue.length === 0
+    ) {
+      return inlineValue as ToYAML<Rule["itemType"]>
+    }
+
     return (yamlObj as any)?.[inline.yamlKey]
   }
 

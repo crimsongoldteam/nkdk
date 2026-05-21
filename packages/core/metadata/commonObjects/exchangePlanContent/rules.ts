@@ -38,6 +38,8 @@ export const ExchangePlanContentRules = {
     items: {
       type: "ExchangePlanContentItems",
       xml: "Item",
+      defaultValueXMLEmpty: [],
+      defaultValue: [],
       yamlInline: true,
       yaml: "items",
     },
