@@ -45,7 +45,7 @@ describe("syncChildTemplateNames external files", () => {
     })
 
     expect(fs.readFileSync(join(nkdkDir, "Шаблоны", "Макет", "Template.xml"), "utf-8")).toBe("<MetaDataObject/>")
-    expect(fs.readFileSync(join(nkdkDir, "Шаблоны", "Макет", "Ext", "Template.txt"), "utf-8")).toBe("text-template")
+    expect(fs.readFileSync(join(nkdkDir, "Шаблоны", "Макет", "Template.txt"), "utf-8")).toBe("text-template")
     expect([...fs.readFileSync(join(nkdkDir, "Шаблоны", "Бинарный", "Ext", "Template.bin"))]).toEqual([0, 1, 2, 255])
     expect(fs.readFileSync(join(nkdkDir, "Шаблоны", "Схема", "Ext", "Template.xml"), "utf-8")).toBe(
       "<DataCompositionSchema/>"
@@ -75,6 +75,7 @@ describe("syncChildTemplateNames external files", () => {
     expect(fs.readFileSync(join(outputDir, "Отчет", "Templates", "Макет", "Ext", "Template.txt"), "utf-8")).toBe(
       "text-template"
     )
+    expect(fs.existsSync(join(outputDir, "Отчет", "Templates", "Макет", "Template.txt"))).toBe(false)
     expect([...fs.readFileSync(join(outputDir, "Отчет", "Templates", "Бинарный", "Ext", "Template.bin"))]).toEqual([
       0, 1, 2, 255,
     ])

@@ -22,6 +22,14 @@ export const syncChildTemplateNamesFromXML: SyncExternalFromXMLFunction = async 
       src: join(templatesDir, `${templateName}.xml`),
       dst: join(templateOutputDir, "Template.xml"),
     })
+    await copyIfExists({
+      src: join(templatesDir, templateName, "Ext", "Template.txt"),
+      dst: join(templateOutputDir, "Template.txt"),
+    })
+    await copyIfExists({
+      src: join(templatesDir, templateName, "Ext", "Template.bin"),
+      dst: join(templateOutputDir, "Template.bin"),
+    })
     await copyDirectoryIfExists({
       src: join(templatesDir, templateName),
       dst: templateOutputDir,

@@ -22,6 +22,16 @@ export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (par
       dst: join(templateOutputDir, `${templateName}.xml`),
       xmlManifest,
     })
+    await copyIfExists({
+      src: join(templatesDir, templateName, "Template.txt"),
+      dst: join(templateOutputDir, templateName, "Ext", "Template.txt"),
+      xmlManifest,
+    })
+    await copyIfExists({
+      src: join(templatesDir, templateName, "Template.bin"),
+      dst: join(templateOutputDir, templateName, "Ext", "Template.bin"),
+      xmlManifest,
+    })
     await copyTemplateDirectoryToXML({
       srcDir: join(templatesDir, templateName),
       dstDir: join(templateOutputDir, templateName),
@@ -52,7 +62,7 @@ async function copyTemplateDirectoryToXML(params: {
 
   const entries = await fs.promises.readdir(srcDir, { withFileTypes: true })
   for (const entry of entries) {
-    if (entry.name === "Template.xml") continue
+    if (entry.name === "Template.xml" || entry.name === "Template.txt" || entry.name === "Template.bin") continue
 
     await copyTemplateEntryToXML({
       src: join(srcDir, entry.name),
