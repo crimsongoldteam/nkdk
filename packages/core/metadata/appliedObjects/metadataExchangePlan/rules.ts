@@ -111,6 +111,7 @@ export const MetadataExchangePlanRules = {
       yaml: "Состав",
       type: "ExchangePlanContent",
       filePath: "Ext/Content.xml",
+      exportReferenceFileOnMissingValue: true,
     },
     defaultPresentation: {
       yaml: "ОсновноеПредставление",

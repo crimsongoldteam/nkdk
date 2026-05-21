@@ -48,6 +48,9 @@ describe("convertAppliedObjectFromXML — MetadataInformationRegister", () => {
 
     const expectedTemplate = fs.readFileSync(join(objectDir, "Templates", "Макет.xml"), "utf-8")
     expect(fs.readFileSync(join(outputDir, name, "Шаблоны", "Макет", "Template.xml"), "utf-8")).toBe(expectedTemplate)
+
+    const expectedHelpRu = fs.readFileSync(join(objectDir, "Ext", "Help", "ru.html"), "utf-8")
+    expect(fs.readFileSync(join(outputDir, name, "Справка", "ru.html"), "utf-8")).toBe(expectedHelpRu)
   })
 
   it("читает object-level модули регистра сведений из XML во временной фикстуре", async () => {

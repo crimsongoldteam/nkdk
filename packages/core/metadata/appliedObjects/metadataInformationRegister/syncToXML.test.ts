@@ -8,7 +8,7 @@ import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
 import { mockContextToXML } from "~/tests/mockContext"
 import { MetadataInformationRegisterRules } from "./rules"
 
-const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
+const normalizeLineEndings = (value: string) => value.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").trimEnd()
 
 describe("syncAppliedObjectToXML — MetadataInformationRegister", () => {
   it("читает InformationRegister из YAML и записывает XML в outputDir", async () => {
@@ -20,6 +20,8 @@ describe("syncAppliedObjectToXML — MetadataInformationRegister", () => {
       expectedFiles: [
         "РегистрСведенийВсеСвойстваНезависимый.xml",
         "РегистрСведенийВсеСвойстваНезависимый/Ext/AdditionalIndexes.xml",
+        "РегистрСведенийВсеСвойстваНезависимый/Ext/Help.xml",
+        "РегистрСведенийВсеСвойстваНезависимый/Ext/Help/ru.html",
         "РегистрСведенийВсеСвойстваНезависимый/Commands/Команда1/Ext/CommandModule.bsl",
         "РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаСписка.xml",
         "РегистрСведенийВсеСвойстваНезависимый/Forms/ФормаСписка/Ext/Form.xml",
