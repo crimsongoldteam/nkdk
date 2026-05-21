@@ -28,6 +28,12 @@ export const ClientApplicationFormRules = {
       yaml: "КартинкиЗначений",
       syncExternalOnly: true,
     },
+    itemRowsPictures: {
+      type: "ExternalFormItemFile",
+      xml: "RowsPicture",
+      yaml: "КартинкиСтрок",
+      syncExternalOnly: true,
+    },
     attributes: {
       yaml: "Реквизиты",
       type: "FormAttributes",

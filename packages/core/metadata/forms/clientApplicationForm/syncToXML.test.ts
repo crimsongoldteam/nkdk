@@ -114,9 +114,14 @@ describe("sync ClientApplicationForm to XML", () => {
       fs.mkdirSync(join(tmpInputDir, "Формы", formName, "Картинки"), { recursive: true })
       fs.mkdirSync(join(tmpInputDir, "Формы", formName, "КартинкиШапки"), { recursive: true })
       fs.mkdirSync(join(tmpInputDir, "Формы", formName, "КартинкиЗначений"), { recursive: true })
+      fs.mkdirSync(join(tmpInputDir, "Формы", formName, "КартинкиСтрок"), { recursive: true })
       fs.writeFileSync(join(tmpInputDir, "Формы", formName, "Картинки", "Декорация2.png"), Buffer.from([1, 2, 3]))
       fs.writeFileSync(join(tmpInputDir, "Формы", formName, "КартинкиШапки", "ГруппаСШапкой.gif"), Buffer.from([7, 8, 9]))
       fs.writeFileSync(join(tmpInputDir, "Формы", formName, "КартинкиЗначений", "Статус.bmp"), Buffer.from([4, 5, 6]))
+      fs.writeFileSync(
+        join(tmpInputDir, "Формы", formName, "КартинкиСтрок", "ТаблицаСКартинкойСтрок.png"),
+        Buffer.from([11, 12, 13])
+      )
 
       await syncFormToXML({
         context: mockContextToXML(),
@@ -148,13 +153,27 @@ describe("sync ClientApplicationForm to XML", () => {
         "ГруппаСШапкой",
         "HeaderPicture.gif"
       )
+      const rowsPicturePath = join(
+        outputDir,
+        "Forms",
+        formName,
+        "Ext",
+        "Form",
+        "Items",
+        "ТаблицаСКартинкойСтрок",
+        "RowsPicture.png"
+      )
 
       expect([...fs.readFileSync(picturePath)]).toEqual([1, 2, 3])
       expect([...fs.readFileSync(headerPicturePath)]).toEqual([7, 8, 9])
       expect([...fs.readFileSync(valuesPicturePath)]).toEqual([4, 5, 6])
+      expect([...fs.readFileSync(rowsPicturePath)]).toEqual([11, 12, 13])
       expect(xmlManifest.expectedFiles()).toContain("Forms/ФормаЭлемента/Ext/Form/Items/Декорация2/Picture.png")
       expect(xmlManifest.expectedFiles()).toContain("Forms/ФормаЭлемента/Ext/Form/Items/ГруппаСШапкой/HeaderPicture.gif")
       expect(xmlManifest.expectedFiles()).toContain("Forms/ФормаЭлемента/Ext/Form/Items/Статус/ValuesPicture.bmp")
+      expect(xmlManifest.expectedFiles()).toContain(
+        "Forms/ФормаЭлемента/Ext/Form/Items/ТаблицаСКартинкойСтрок/RowsPicture.png"
+      )
     } finally {
       fs.rmSync(tmpRoot, { recursive: true, force: true })
     }

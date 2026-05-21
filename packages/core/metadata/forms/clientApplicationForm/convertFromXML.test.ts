@@ -69,6 +69,7 @@ describe("import from XML string", () => {
       fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "Декорация2"), { recursive: true })
       fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "ГруппаСШапкой"), { recursive: true })
       fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "Статус"), { recursive: true })
+      fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "ТаблицаСКартинкойСтрок"), { recursive: true })
       fs.writeFileSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "Декорация2", "Picture.png"), Buffer.from([1, 2, 3]))
       fs.writeFileSync(
         join(tmpInputDir, formName, "Ext", "Form", "Items", "ГруппаСШапкой", "HeaderPicture.gif"),
@@ -77,6 +78,10 @@ describe("import from XML string", () => {
       fs.writeFileSync(
         join(tmpInputDir, formName, "Ext", "Form", "Items", "Статус", "ValuesPicture.bmp"),
         Buffer.from([4, 5, 6])
+      )
+      fs.writeFileSync(
+        join(tmpInputDir, formName, "Ext", "Form", "Items", "ТаблицаСКартинкойСтрок", "RowsPicture.png"),
+        Buffer.from([11, 12, 13])
       )
 
       await convertFormFromXML({
@@ -95,6 +100,9 @@ describe("import from XML string", () => {
       expect([...fs.readFileSync(join(outputDir, "Формы", formName, "КартинкиЗначений", "Статус.bmp"))]).toEqual([
         4, 5, 6,
       ])
+      expect([
+        ...fs.readFileSync(join(outputDir, "Формы", formName, "КартинкиСтрок", "ТаблицаСКартинкойСтрок.png")),
+      ]).toEqual([11, 12, 13])
     } finally {
       fs.rmSync(tmpRoot, { recursive: true, force: true })
     }
