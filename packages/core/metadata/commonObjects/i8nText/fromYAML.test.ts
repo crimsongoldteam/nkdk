@@ -43,5 +43,23 @@ describe("importI8nTextFromYAML", () => {
         },
       })
     })
+
+    it("does not restore default language from the name when source does not contain it", () => {
+      const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
+
+      const result = importI8nTextFromYAML({
+        context: mockContext,
+        rule,
+        name: "ОценкаОтправлена",
+        value: { en: "Оценка отправлена" },
+        source: { items: { en: "Оценка отправлена" } },
+      })
+
+      expect(result).toEqual({
+        items: {
+          en: "Оценка отправлена",
+        },
+      })
+    })
   })
 })

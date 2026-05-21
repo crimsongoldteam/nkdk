@@ -19,11 +19,19 @@ import {
 export const importFormAttributesFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  data: FormAttributesYAML | undefined
+  data: FormAttributesYAML | undefined,
+  source?: FormAttributes
 ): FormAttributes | undefined => {
   if (!data) return undefined
 
-  const results = Object.entries(data).map(([name, value]) => importFormAttributeFromYAML(context, value, name))
+  const results = Object.entries(data).map(([name, value]) =>
+    importFormAttributeFromYAML(
+      context,
+      value,
+      name,
+      source?.find((attribute) => attribute.name === name)
+    )
+  )
 
   return results.length > 0 ? results : undefined
 }
@@ -41,13 +49,15 @@ export const importFormAttributeColumnFromYAML = (
 const importFormAttributeFromYAML = (
   context: ConfigurationContext,
   yaml: FormAttributeYAML | TypeDescriptionYAML,
-  name: string
+  name: string,
+  source?: FormAttribute
 ): FormAttribute => {
   const properties = importMetadataItemFromYAML({
     context: context,
     yaml: yaml as FormAttributeYAML,
     rule: FormAttributeRules,
     name,
+    source,
   })
 
   const attribute = {

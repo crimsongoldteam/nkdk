@@ -176,4 +176,32 @@ describe("importFormAttributesFromYAML", () => {
 
     expect(result).toEqual(plannerSettings)
   })
+
+  it("should preserve title languages from source when default language is absent", () => {
+    const result = importFormAttributesFromYAML(
+      mockContext,
+      mockRule,
+      {
+        ОценкаОтправлена: {
+          Заголовок: { en: "Оценка отправлена" },
+          Тип: "Булево",
+        },
+      },
+      [
+        {
+          name: "ОценкаОтправлена",
+          title: { items: { en: "Оценка отправлена" } },
+          type: { type: ["boolean"] },
+          itemType: "FormAttribute",
+          columns: [],
+        },
+      ]
+    )
+
+    expect(result?.[0]?.title).toEqual({
+      items: {
+        en: "Оценка отправлена",
+      },
+    })
+  })
 })
