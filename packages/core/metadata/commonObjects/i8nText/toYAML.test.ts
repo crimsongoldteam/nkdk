@@ -19,15 +19,6 @@ describe("exportI8nTextToYAML", () => {
     })
   })
 
-  describe("exportI8nTextOtherToYAML", () => {
-    it.each(i8nTextFixtures)("should export other: $name", (fixture) => {
-      const rule: I8nTextPropertyRule = { type: "I8nText", yamlPartialOthers: true }
-
-      const result = exportI8nTextToYAML({ context: contextWithExportToYAML, rule, value: fixture.text })
-      expect(result).toEqual(fixture.otherLanguagesYAML)
-    })
-  })
-
   describe("excludeIfEqualNameYAML", () => {
     it("keeps non-default languages when default language equals the name", () => {
       const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }

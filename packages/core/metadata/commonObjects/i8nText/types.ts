@@ -30,7 +30,6 @@ type I8nTextDefaultValueFunction = (params: {
 
 export interface I8nTextPropertyRule extends Omit<BasePropertyRule, "defaultValue"> {
   type: "I8nText"
-  yamlPartialOthers?: true
   skipEmptyToXML?: true
   /** Выгружать полностью пустой I8nText как пустой XML-тег. */
   emptyAsRawXML?: true

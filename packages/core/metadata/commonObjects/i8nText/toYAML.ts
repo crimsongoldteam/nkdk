@@ -15,14 +15,7 @@ export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {
   if (!context.exportToYAML) throw new Error("context.exportToYAML is required")
 
   const i8nRule = rule as I8nTextPropertyRule
-  const toTyped = context.exportToYAML?.toTyped
-  const yamlPartialOthers = toTyped ? undefined : i8nRule.yamlPartialOthers
-
   const textClean = getTextWithoutName({ context, rule: i8nRule, text, name })
-
-  if (yamlPartialOthers) {
-    return exportI8nTextOtherToYAML(context, textClean)
-  }
 
   return exportFullI8nTextToYAML(context, textClean)
 }
@@ -67,19 +60,6 @@ const exportFullI8nTextToYAML = (
   if (Object.keys(items).length === 1 && items[defaultLanguage] !== undefined) return items[defaultLanguage]
 
   return items
-}
-
-const exportI8nTextOtherToYAML = (
-  context: ConfigurationContext,
-  text: I8nText | undefined
-): I8nTextYAML | undefined => {
-  if (!text) return undefined
-
-  const defaultLanguage = context.defaultLanguage
-
-  const filtredItems = Object.fromEntries(Object.entries(text.items).filter(([lang]) => lang !== defaultLanguage))
-
-  return exportFullI8nTextToYAML(context, { items: filtredItems })
 }
 
 registerTypeRule("I8nText", "exportToYAML", exportI8nTextToYAML)
