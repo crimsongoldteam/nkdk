@@ -3,7 +3,7 @@ import { stringify } from "yaml"
 const leadingSpaceCount = (line: string): number => line.length - line.trimStart().length
 
 const isKeepChompingBlockScalarHeader = (line: string): boolean => {
-  return /(?:^|[:\-\s])[|>](?:\+\d?|\d\+)\s*(?:#.*)?$/.test(line)
+  return /^\s*(?:(?:[^#\n]*?:|-)\s*)?[|>](?:\+(?:[1-9])?|[1-9]\+)\s*(?:#.*)?$/.test(line)
 }
 
 const endsInsideBlockScalar = (yaml: string): boolean => {

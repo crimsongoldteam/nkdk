@@ -21,6 +21,12 @@ describe("exportToYAML", () => {
     expect(exportToYAML({ k: "a\nb" }).endsWith("\n")).toBe(false)
   })
 
+  it("does not treat plain scalar endings as block scalar headers", () => {
+    for (const value of ["some |+", "some >+", "some |+2", "some |2+"]) {
+      expect(exportToYAML({ k: value }).endsWith("\n")).toBe(false)
+    }
+  })
+
   it("does not add a service newline for ordinary YAML documents", () => {
     expect(exportToYAML({ Имя: "Тест" }).endsWith("\n")).toBe(false)
   })
