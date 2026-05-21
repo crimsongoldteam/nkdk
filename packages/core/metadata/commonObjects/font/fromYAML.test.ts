@@ -16,6 +16,20 @@ describe("importFontFromYAML", () => {
     expect(result).toEqual(font)
   })
 
+  it("imports raw non-prefixed ref with Russian font kind", () => {
+    const result = importFontFromYAML(mockContext, mockRule, {
+      Вид: "ЭлементСтиля",
+      Значение: "0",
+      Размер: 10,
+    } as never)
+
+    expect(result).toEqual({
+      ref: "0",
+      kind: "StyleItem",
+      height: 10,
+    })
+  })
+
   it("rejects compact string YAML", () => {
     expect(() => importFontFromYAML(mockContext, mockRule, "ОченьКрупныйШрифтТекста" as never)).toThrow(
       "Font: ожидался объект YAML"

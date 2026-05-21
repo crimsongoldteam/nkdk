@@ -21,7 +21,8 @@ export const PrefixedFontsToXML = Object.fromEntries(
 
 export type PrefixedFontsXML = keyof typeof PrefixedFontsFromXML
 export type RawPrefixedFontRef = `style:${string}` | `sys:${string}`
-export type FontRef = SE.StyleFonts | SE.WindowsFonts | RawPrefixedFontRef
+export type RawFontRef = RawPrefixedFontRef | string
+export type FontRef = SE.StyleFonts | SE.WindowsFonts | RawFontRef
 
 export const isRawPrefixedFontRef = (value: unknown): value is RawPrefixedFontRef =>
   typeof value === "string" && (value.startsWith("style:") || value.startsWith("sys:"))
@@ -51,8 +52,9 @@ export interface Font {
 }
 
 export interface FontFullYAML {
-  Вид?: SE.StyleFontsYAML | SE.WindowsFontsYAML | RawPrefixedFontRef
+  Вид?: SE.StyleFontsYAML | SE.WindowsFontsYAML | SE.FontTypeYAML | RawPrefixedFontRef
   ВидXML?: SE.FontType
+  Значение?: string
   Имя?: string
   Масштаб?: number
   Размер?: number
@@ -65,6 +67,7 @@ export interface FontFullYAML {
 export const FontJSONSchema = Type.Object({
   Вид: Type.Optional(Type.String()),
   ВидXML: Type.Optional(Type.String()),
+  Значение: Type.Optional(Type.String()),
   Имя: Type.Optional(Type.String()),
   Масштаб: Type.Optional(Type.Number()),
   Размер: Type.Optional(Type.Number()),

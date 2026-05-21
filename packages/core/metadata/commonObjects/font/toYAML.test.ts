@@ -15,4 +15,18 @@ describe("exportFontToYAML", () => {
 
     expect(result).toEqual(enterprise)
   })
+
+  it("exports raw non-prefixed ref with Russian font kind", () => {
+    const result = exportFontToYAML(mockContext, mockRule, {
+      ref: "0" as never,
+      kind: "StyleItem",
+      height: 10,
+    })
+
+    expect(result).toEqual({
+      Вид: "ЭлементСтиля",
+      Значение: "0",
+      Размер: 10,
+    })
+  })
 })

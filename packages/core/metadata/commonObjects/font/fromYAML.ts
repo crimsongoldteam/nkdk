@@ -19,7 +19,15 @@ export const importFontFromYAML = (
   const fullData = yaml as FontFullYAML
   const result: Partial<Font> = {}
 
-  if (fullData.Вид !== undefined) {
+  if (fullData.Вид !== undefined && fullData.Значение !== undefined) {
+    const kind = SE.FontTypeFromYAML[fullData.Вид as SE.FontTypeYAML]
+    if (kind !== undefined) {
+      result.kind = kind
+      result.ref = fullData.Значение
+    }
+  }
+
+  if (result.kind === undefined && fullData.Вид !== undefined) {
     const importedRef = importRefFromYAML(context, fullData.Вид)
     if (importedRef) {
       result.ref = importedRef.ref

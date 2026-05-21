@@ -18,6 +18,9 @@ export const exportFontToYAML = (
 
   if (ref !== undefined) {
     result.Вид = ref
+  } else if (font.ref !== undefined) {
+    result.Вид = SE.FontTypeToYAML[font.kind]
+    result.Значение = font.ref
   } else {
     result.ВидXML = font.kind
   }
