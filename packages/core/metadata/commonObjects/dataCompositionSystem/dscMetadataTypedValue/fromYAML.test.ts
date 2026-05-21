@@ -27,6 +27,15 @@ describe("import DcsMetadataTypedValue from YAML", () => {
     ).toEqual({ type: "string", value: "СписокЗначений" })
   })
 
+  it("imports quoted .PDF as string before design-time detection", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule,
+        value: "'.PDF'",
+      })
+    ).toEqual({ type: "string", value: ".PDF" })
+  })
+
   it("imports YAML metadata reference as ref when source value was ref", () => {
     expect(
       testImportPropertyFromYAML({

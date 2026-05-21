@@ -16,9 +16,9 @@ const detectTypeFromYAML = (
   if (value === "СписокЗначений") return "EmptyValueList"
   if (typeof value === "object" && value !== null && !Array.isArray(value) && "Вариант" in value)
     return "StandardBeginningDate"
-  if (typeof value === "string" && value.startsWith("'") && value.endsWith("'")) return "string"
   if (sourceValue?.type === "ref" && DcsMetadataTypedValueRegistry.ref.detect({ context, yaml: value })) return "ref"
   if (DcsMetadataTypedValueRegistry.dateTime.detect({ context, yaml: value })) return "dateTime"
+  if (typeof value === "string" && value.startsWith("'") && value.endsWith("'")) return "string"
   if (DcsMetadataTypedValueRegistry.DesignTimeValue.detect({ context, yaml: value })) return "DesignTimeValue"
   if (DcsMetadataTypedValueRegistry.string.detect({ context, yaml: value })) return "string"
 
@@ -32,6 +32,11 @@ const importSingle = (
   sourceValue?: DcsMetadataTypedValue
 ): DcsMetadataTypedValue => {
   const type = detectTypeFromYAML(context, value, sourceValue)
+
+  if (type === "string" && typeof value === "string" && value.startsWith("'") && value.endsWith("'")) {
+    return { type: "string", value: value.slice(1, -1) }
+  }
+
   const imported = DcsMetadataTypedValueRegistry[type].fromYAML({ context, rule, yaml: value })
 
   if (imported.type === "Field") {
@@ -40,10 +45,6 @@ const importSingle = (
 
   if (imported.type === "DesignTimeValue" && typeof value === "string") {
     return { type: "DesignTimeValue", value }
-  }
-
-  if (imported.type === "string" && typeof value === "string" && value.startsWith("'") && value.endsWith("'")) {
-    return { type: "string", value: value.slice(1, -1) }
   }
 
   return imported
