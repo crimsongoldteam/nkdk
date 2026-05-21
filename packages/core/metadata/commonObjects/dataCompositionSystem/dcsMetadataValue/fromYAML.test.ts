@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
+import { mockContext } from "~/tests/mockContext"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { importDcsMetadataValueFromYAML } from "./fromYAML"
 import { dcsMetadataValueYAMLFixtures } from "./__fixtures__/data"
 
 describe("import MetadataDcsMetadataValue from YAML", () => {
@@ -10,6 +12,34 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
         value: fixture.yaml,
       })
     ).toEqual(fixture.value)
+  })
+
+  it("imports explicit DesignTimeValue field", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        value: {
+          Тип: "Поле",
+          Значение: "СписокФайлов.ФормаРСВ_Представление",
+        },
+      })
+    ).toEqual({
+      type: "Field",
+      value: "СписокФайлов.ФормаРСВ_Представление",
+    })
+  })
+
+  it("preserves source empty LocalStringType when YAML value is undefined", () => {
+    const sourceValue = { items: {} }
+
+    expect(
+      importDcsMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        undefined,
+        sourceValue
+      )
+    ).toEqual(sourceValue)
   })
 
   it("rejects invalid explicit text value", () => {

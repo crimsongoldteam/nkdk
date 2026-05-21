@@ -28,6 +28,15 @@ const isEnumValueMetadataPath = (value: string | undefined): boolean =>
 const isEnterpriseDesignTimeValue = (value: unknown): value is string =>
   typeof value === "string" && value.startsWith("Перечисление.")
 
+const isExplicitEmptyLocalStringType = (value: unknown): value is MetadataDcsMetadataValue =>
+  typeof value === "object" &&
+  value !== null &&
+  !Array.isArray(value) &&
+  "items" in value &&
+  typeof (value as { items?: unknown }).items === "object" &&
+  (value as { items?: unknown }).items !== null &&
+  Object.keys((value as { items: Record<string, unknown> }).items).length === 0
+
 const hasExplicitTextType = (data: unknown): data is Record<string, unknown> =>
   typeof data === "object" && data !== null && !Array.isArray(data) && "Тип" in data
 
@@ -71,8 +80,12 @@ const importDcsSystemEnumerationValueFromYAML = (
 export const importDcsMetadataValueFromYAML = (
   context: ConfigurationContext,
   rule: DcsMetadataValuePropertyRule,
-  data: MetadataDcsMetadataValueYAML | undefined
+  data: MetadataDcsMetadataValueYAML | undefined,
+  sourceValue?: MetadataDcsMetadataValue
 ): MetadataDcsMetadataValue | null | undefined => {
+  if (data === undefined && rule.valueType === "DesignTimeValue" && isExplicitEmptyLocalStringType(sourceValue)) {
+    return sourceValue
+  }
   if (data === undefined) return undefined
   if (data === null) return null
   if (Array.isArray(data) && rule.valueType === "Primitive") {
