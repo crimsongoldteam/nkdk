@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { i8nTextFixtures } from "~/tests/fixtures/i8nText/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { importI8nTextFromYAML } from "./fromYAML"
+import { I8nTextPropertyRule } from "./types"
 
 describe("importI8nTextFromYAML", () => {
   describe("importI8nTextFromYAML", () => {
@@ -21,6 +22,26 @@ describe("importI8nTextFromYAML", () => {
       })
 
       expect(result).toEqual(fixture.text)
+    })
+  })
+
+  describe("excludeIfEqualNameYAML", () => {
+    it("restores default language from the name and preserves non-default languages", () => {
+      const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
+
+      const result = importI8nTextFromYAML({
+        context: mockContext,
+        rule,
+        name: "ОценкаОтправлена",
+        value: { en: "Rating sent" },
+      })
+
+      expect(result).toEqual({
+        items: {
+          ru: "Оценка отправлена",
+          en: "Rating sent",
+        },
+      })
     })
   })
 })
