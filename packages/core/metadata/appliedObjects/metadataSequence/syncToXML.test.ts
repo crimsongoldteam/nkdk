@@ -8,7 +8,8 @@ describe("syncAppliedObjectToXML — MetadataSequence", () => {
       rule: MetadataSequenceRules,
       name: "ПоследовательностьВсеПоля",
       importMetaUrl: import.meta.url,
-      expectedFiles: ["ПоследовательностьВсеПоля.xml"],
+      externalObjectDir: true,
+      expectedFiles: ["ПоследовательностьВсеПоля.xml", "ПоследовательностьВсеПоля/Ext/RecordSetModule.bsl"],
     })
     for (const { path, result, expected } of comparisons) {
       expect(result, path).toBe(expected)

@@ -82,6 +82,13 @@ export const MetadataSequenceRules = {
       type: "AdditionalIndex",
       xmlParents: ["Properties"],
     },
+    recordSetModule: {
+      type: "Module",
+      nkdkPath: "МодульНабораЗаписей.bsl",
+      xmlPath: "Ext/RecordSetModule.bsl",
+      toXML: false,
+      fromXML: false,
+    },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
       type: "SystemEnumeration",
