@@ -194,12 +194,14 @@ const getDefaultValueYAMLForImport = (params: {
 }): any => {
   const { context, rule, value, sourceValue, yaml, name } = params
 
-  if (value !== undefined || sourceValue !== undefined) return undefined
+  if (value !== undefined || hasSourceValueForImportDefault(sourceValue)) return undefined
   if (!shouldApplyDefaultValueYAMLOnImport(rule, yaml)) return undefined
   if (!Object.prototype.hasOwnProperty.call(rule, "defaultValueYAML")) return undefined
 
   return typeof rule.defaultValueYAML === "function" ? rule.defaultValueYAML({ context, name }) : rule.defaultValueYAML
 }
+
+const hasSourceValueForImportDefault = (sourceValue: any): boolean => sourceValue !== undefined
 
 const shouldApplyDefaultValueYAMLOnImport = (rule: PropertyRule, yaml: any): boolean => {
   const option = rule.applyModelDefaultValueYAMLOnImport
