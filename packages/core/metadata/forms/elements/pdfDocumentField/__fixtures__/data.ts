@@ -115,6 +115,7 @@ export const fullPDFDocumentFieldPartialYAML = {
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
   ЦветРамки: "Красный",
+  Заголовок: "Заголовок",
   Команда: ["ScaleUp"],
   ПоложениеСостоянияПросмотра: "Верх",
   ОтображениеСостоянияПросмотра: {
@@ -151,7 +152,7 @@ export const fullPDFDocumentFieldPartialYAML = {
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<PDFDocumentFieldPartialYAML>,
-  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+  "ЗапретитьИспользование" | "РазрешитьИспользование"
 >
 
 export const minimalPDFDocumentField: PDFDocumentField = {

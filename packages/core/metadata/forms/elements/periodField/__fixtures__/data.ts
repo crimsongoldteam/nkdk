@@ -66,6 +66,7 @@ export const fullPeriodFieldPartialYAML: PeriodFieldPartialYAML = {
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
   ЦветРамки: "Черный",
+  Заголовок: "Поле периода",
   Ширина: 300,
   Шрифт: { Вид: "ОбычныйШрифтТекста" },
   События: {
@@ -75,7 +76,7 @@ export const fullPeriodFieldPartialYAML: PeriodFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<PeriodFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<Required<PeriodFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
 
 export const fullPeriodFieldTypedYAML: PeriodFieldTypedYAML = {
   ...fullPeriodFieldPartialYAML,

@@ -102,6 +102,7 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
   ГиперссылкаЭлементаШкалыВремени: "Истина",
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
+  Заголовок: "Поле планировщика",
   Ширина: 300,
   ГиперссылкаПеренесенногоЗаголовкаШкалыВремени: "Истина",
   События: {
@@ -132,7 +133,7 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<PlannerFieldPartialYAMLWithoutDrag>,
-  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+  "ЗапретитьИспользование" | "РазрешитьИспользование"
 >
 
 export const dragPlannerField: PlannerField = {

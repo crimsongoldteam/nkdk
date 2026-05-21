@@ -54,6 +54,7 @@ export const fullFormGroupEnterpriseCommonFixture = {
 export const fullFormGroupPartialYAMLCommonFixture = {
   РазрешитьИзменениеСостава: "Истина" as any,
   Доступность: "Ложь",
+  Заголовок: "Заголовок элемента",
   Высота: 15,
   ГоризонтальноеПоложениеВГруппе: "Лево",
   РастягиватьПоГоризонтали: "Истина",

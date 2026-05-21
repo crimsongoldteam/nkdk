@@ -71,6 +71,7 @@ export const fullTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {
   ЦветРамки: "Зеленый",
   ЦветТекста: "Желтый",
   ЦветФона: "Синий",
+  Заголовок: "Поле текстового документа",
   Ширина: 300,
   Шрифт: { Вид: "ОбычныйШрифтТекста" },
   События: {
@@ -82,7 +83,7 @@ export const fullTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<TextDocumentFieldPartialYAML>,
-  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+  "ЗапретитьИспользование" | "РазрешитьИспользование"
 >
 
 export const minimalTextDocumentField: TextDocumentField = {

@@ -70,6 +70,7 @@ export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
   ЦветРамки: "Зеленый",
   ЦветТекста: "Желтый",
   ЦветФона: "Синий",
+  Заголовок: "Поле переключателя",
   ШиринаЭлемента: 100,
   Шрифт: { Вид: "ОбычныйШрифтТекста" },
   СписокВыбора: [
@@ -82,7 +83,7 @@ export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
     ПриИзменении: "ПроцедураПриИзменении",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<RadioButtonFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<Required<RadioButtonFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
 
 export const minimalRadioButtonField: RadioButtonField = {
   itemType: "RadioButtonField",

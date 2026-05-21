@@ -400,6 +400,7 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
   ФормаВыбора: "Catalog.Справочник.Form.ФормаВыбора",
   Формат: "Формат отображения",
   ФорматРедактирования: "Формат редактирования",
+  Заголовок: "Поле ввода",
   ЦветРамки: "Зеленый",
   ЦветТекста: "Желтый",
   ЦветТекстаМножественныхЗначений: "Красный",
@@ -428,7 +429,7 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
     УдалениеМножественныхЗначений: "ПроцедураУдаленияМножественныхЗначений",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<InputFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<Required<InputFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
 
 const {
   КартинкаМножественныхЗначений: _tableInputFieldMultipleValuesPicture,
@@ -444,6 +445,7 @@ const {
 
 export const fullTableInputFieldPartialYAML: TableInputFieldPartialYAML = {
   ...fullTableInputFieldPartialYAMLBase,
+  Заголовок: "Заголовок",
   МаксимальноеЗначение: 90,
   МинимальноеЗначение: 10,
   ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений: "Ложь",

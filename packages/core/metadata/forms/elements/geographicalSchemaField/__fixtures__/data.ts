@@ -72,6 +72,7 @@ export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPart
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
   ЦветРамки: "Черный",
+  Заголовок: "Поле географической схемы",
   Ширина: 300,
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
@@ -80,7 +81,7 @@ export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPart
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<GeographicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<Required<GeographicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
 
 export const minimalGeographicalSchemaField: GeographicalSchemaField = {
   itemType: "GeographicalSchemaField",

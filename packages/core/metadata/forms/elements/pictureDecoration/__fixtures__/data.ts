@@ -60,7 +60,7 @@ export const fullPictureDecorationEnterprise = {
 export const fullPictureDecorationPartialYAML: Required<
   Omit<
     PictureDecorationPartialYAML,
-    "Заголовок" | "ФорматированныйЗаголовок" | "ЗапретитьИспользование" | "Картинка" | "Рамка" | "ЦветРамки" | "РазмерКартинки"
+    "Заголовок" | "ЗапретитьИспользование" | "Картинка" | "Рамка" | "ЦветРамки" | "РазмерКартинки"
   >
 > = {
   ...fullFormDecorationPartialYAMLCommonFixture,
@@ -69,6 +69,7 @@ export const fullPictureDecorationPartialYAML: Required<
   Масштабировать: "Истина",
   РазрешитьНачалоПеретаскивания: "Истина",
   РазрешитьПеретаскивание: "Истина",
+  ФорматированныйЗаголовок: "<b>Заголовок</>",
   ТекстНевыбраннойКартинки: "Текст невыбранной картинки",
   СпособПеретаскиванияФайлов: "КакФайл",
   КонтекстноеМеню: { Автозаполнение: "Ложь" },

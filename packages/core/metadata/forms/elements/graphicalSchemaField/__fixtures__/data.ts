@@ -77,6 +77,7 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
   ЦветРамки: "Черный",
+  Заголовок: "Поле графической схемы",
   Ширина: 300,
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
@@ -89,7 +90,7 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<GraphicalSchemaFieldPartialYAML>,
-  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+  "ЗапретитьИспользование" | "РазрешитьИспользование"
 >
 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {

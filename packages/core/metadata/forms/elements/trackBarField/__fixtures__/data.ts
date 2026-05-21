@@ -73,6 +73,7 @@ export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Высота: 100,
+  Заголовок: "Заголовок элемента",
   МаксимальнаяВысота: 200,
   МаксимальнаяШирина: 300,
   ОтображениеРазметки: "СверхуИлиСлева",
@@ -86,10 +87,7 @@ export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
   МинимальноеЗначение: 10,
   Ориентация: "Вертикально",
   Шаг: 2,
-} satisfies Omit<Required<TrackBarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
-
-// Удаляем Заголовок, так как exportFormFieldPropsToYAML не экспортирует его
-delete (fullTrackBarFieldPartialYAML as any).Заголовок
+} satisfies Omit<Required<TrackBarFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
 
 export const minimalTrackBarField: TrackBarField = {
   itemType: "TrackBarField",

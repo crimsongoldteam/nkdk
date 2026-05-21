@@ -92,6 +92,7 @@ export const fullFormattedDocumentFieldPartialYAML: FormattedDocumentFieldPartia
   ЦветРамки: "Черный",
   ЦветТекста: "Синий",
   ЦветФона: "Белый",
+  Заголовок: "Поле форматированного документа",
   Ширина: 300,
   Шрифт: { Вид: "ОбычныйШрифтТекста" },
   События: {
@@ -103,7 +104,7 @@ export const fullFormattedDocumentFieldPartialYAML: FormattedDocumentFieldPartia
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<FormattedDocumentFieldPartialYAML>,
-  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+  "ЗапретитьИспользование" | "РазрешитьИспользование"
 >
 
 export const minimalFormattedDocumentField: FormattedDocumentField = {

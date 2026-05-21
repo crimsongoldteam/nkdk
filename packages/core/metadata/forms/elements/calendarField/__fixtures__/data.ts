@@ -112,6 +112,7 @@ export const fullCalendarFieldPartialYAML = {
   РастягиватьПоГоризонтали: "Ложь",
   РежимВыделения: "Множественный",
   ЦветРамки: "Зеленый",
+  Заголовок: "Заголовок поле календаря",
   Ширина: 4,
   ШиринаВМесяцах: 2,
   Шрифт: { Вид: "МелкийШрифтТекста" },
@@ -126,7 +127,7 @@ export const fullCalendarFieldPartialYAML = {
     ПриВыводеПериода: "ПроцедураВыводаПериода",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<CalendarFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<Required<CalendarFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
 
 export const minimalCalendarField: CalendarField = {
   itemType: "CalendarField",

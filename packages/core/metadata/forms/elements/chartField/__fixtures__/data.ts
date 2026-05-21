@@ -54,6 +54,7 @@ export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {
   МаксимальнаяШирина: 400,
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
+  Заголовок: "Поле диаграммы",
   Ширина: 300,
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
@@ -62,7 +63,7 @@ export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {
     ПриАктивизации: "ПроцедураПриАктивизации",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<ChartFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<Required<ChartFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
 
 export const minimalChartField: ChartField = {
   itemType: "ChartField",

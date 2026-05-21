@@ -82,8 +82,9 @@ export const fullLabelFieldPartialYAML: LabelFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   ПутьКДанным: "Реквизит",
+  Заголовок: "Поле надписи",
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<LabelFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<Required<LabelFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
 
 export const fullTableLabelFieldPartialYAML: TableLabelFieldPartialYAML = {
   ...fullLabelFieldPartialYAML,

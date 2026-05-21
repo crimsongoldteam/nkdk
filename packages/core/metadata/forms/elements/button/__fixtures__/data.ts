@@ -81,7 +81,7 @@ const commonButtonPartialYAML = {
   ЦветРамки: "Кирпичный" as const,
   Шрифт: { Вид: "КрупныйШрифтТекста" } as const,
   Картинка: "Печать" as const,
-  // Заголовок absent: only ru language present
+  Заголовок: "Заголовок элемента" as const,
   ОтображениеПодсказки: "Всплывающая" as const,
   ОтображениеВКонтекстномМеню: "Нет" as const,
   Фигура: "Обычная" as const,

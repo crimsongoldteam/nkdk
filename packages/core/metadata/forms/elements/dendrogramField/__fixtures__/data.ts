@@ -60,6 +60,7 @@ export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
   МаксимальнаяШирина: 400,
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
+  Заголовок: "Поле дендрограммы",
   Ширина: 300,
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
@@ -70,7 +71,7 @@ export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<DendrogramFieldPartialYAML>,
-  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+  "ЗапретитьИспользование" | "РазрешитьИспользование"
 >
 
 export const minimalDendrogramField: DendrogramField = {

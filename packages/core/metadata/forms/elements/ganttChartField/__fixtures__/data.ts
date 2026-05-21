@@ -130,6 +130,7 @@ export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
   РастягиватьПоГоризонтали: "Ложь",
   РежимВыделенияЗначений: "Одиночный",
   РежимВыделенияИнтервалов: "Одиночный",
+  Заголовок: "Поле диаграммы Ганта",
   Ширина: 300,
   Таблица: fullGanttChartFieldTablePartialYAML,
   События: {
@@ -143,7 +144,7 @@ export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
     ПриОкончанииРедактированияИнтервала: "ПроцедураПриОкончанииРедактированияИнтервала",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<GanttChartFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<Required<GanttChartFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
 
 export const minimalGanttChartField: GanttChartField = {
   itemType: "GanttChartField",

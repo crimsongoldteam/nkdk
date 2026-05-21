@@ -149,6 +149,7 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
   ТипКурсоров: "Обычные",
   ЦветРамки: "Черный",
   ЧерноБелыйПросмотр: "Истина",
+  Заголовок: "Поле табличного документа",
   Ширина: 300,
   События: {
     Выбор: "ПроцедураПриВыборе",
@@ -171,7 +172,7 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<SpreadSheetDocumentFieldPartialYAML>,
-  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+  "ЗапретитьИспользование" | "РазрешитьИспользование"
 >
 
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {

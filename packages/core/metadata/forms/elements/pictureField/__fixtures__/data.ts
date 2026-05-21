@@ -139,8 +139,9 @@ export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   ПутьКДанным: "Реквизит",
+  Заголовок: "Поле картинки",
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<PictureFieldPartialYAML>, "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование">
+} satisfies Omit<Required<PictureFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
 
 export const fullTablePictureFieldPartialYAML: TablePictureFieldPartialYAML = {
   ...fullPictureFieldPartialYAML,

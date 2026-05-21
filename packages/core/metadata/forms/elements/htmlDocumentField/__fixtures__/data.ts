@@ -78,6 +78,7 @@ export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
   Ширина: 300,
   // ИнформацияПрограммыПросмотра: "Информация программы просмотра",
   ЦветРамки: "Черный",
+  Заголовок: "Поле HTML документа",
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     ПередЗаписью: "ПроцедураПередЗаписью",
@@ -89,7 +90,7 @@ export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<HTMLDocumentFieldPartialYAML>,
-  "ЗапретитьИспользование" | "Заголовок" | "РазрешитьИспользование"
+  "ЗапретитьИспользование" | "РазрешитьИспользование"
 >
 
 export const minimalHtmlDocumentField: HTMLDocumentField = {
