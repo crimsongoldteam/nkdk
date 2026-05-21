@@ -15,14 +15,7 @@ export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyR
 
   const formattedRule = rule as FormattedI8nTextPropertyRule
 
-  const filtredText: FormattedI8nText = formattedRule.yamlPartialOthers
-    ? {
-        formatted: text.formatted,
-        items: Object.fromEntries(Object.entries(text.items).filter(([lang]) => lang !== context.defaultLanguage)),
-      }
-    : text
-
-  return exportToYAML(context, formattedRule, filtredText) as {
+  return exportToYAML(context, formattedRule, text) as {
     [K in NonNullable<R["yaml"] | R["yamlFormatted"]>]?: FormattedI8nTextYAML
   }
 }
@@ -80,25 +73,6 @@ export const exportFormattedI8nTextToYAMLDeprecated = <Key extends string, Forma
   return {
     [key]: exported,
   } as { [K in Key | FormattedKey]?: I8nTextYAML }
-}
-
-/** @deprecated */
-export const exportFormattedI8nTextOtherToYAML = <Key extends string, FormattedKey extends string>(
-  context: ConfigurationContext,
-  _rule: PropertyRule,
-  text: FormattedI8nText | undefined,
-  key: Key,
-  formattedKey: FormattedKey
-): { [K in Key | FormattedKey]?: FormattedI8nTextYAML } => {
-  if (!text) return {}
-
-  const defaultLanguage = context.defaultLanguage
-
-  const filtredItems = Object.fromEntries(Object.entries(text.items).filter(([lang]) => lang !== defaultLanguage))
-
-  const filtrdText: FormattedI8nText = { formatted: text.formatted, items: filtredItems }
-
-  return exportFormattedI8nTextToYAMLDeprecated(context, { type: "I8nText" }, filtrdText, key, formattedKey)
 }
 
 registerTypeRule("FormattedI8nText", "exportToYAML", exportFormattedI8nTextToYAML as any)

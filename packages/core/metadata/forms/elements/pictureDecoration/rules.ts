@@ -18,7 +18,6 @@ export const PictureDecorationRules = {
       yaml: "Заголовок",
       type: "FormattedI8nText",
       yamlFormatted: "ФорматированныйЗаголовок",
-      yamlPartialOthers: true,
     },
     type: {
       type: "SystemEnumeration",
