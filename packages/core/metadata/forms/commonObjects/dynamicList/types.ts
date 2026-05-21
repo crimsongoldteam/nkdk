@@ -52,14 +52,27 @@ registerMetadataItemRule({
 registerTypeRule(
   "DynamicList",
   "importFromYAML",
-  (context: ConfigurationContext, _rule: PropertyRule, yaml: DynamicListYAML | undefined, source: unknown) => {
+  (params: { context: ConfigurationContext; value: DynamicListYAML | undefined; source?: unknown; name?: string }) => {
+    const { context, value: yaml, source, name } = params
     if (yaml === undefined) return undefined
 
+    const contextWithParent =
+      name !== undefined && context.importFromYAML !== undefined
+        ? {
+            ...context,
+            importFromYAML: {
+              ...context.importFromYAML,
+              parent: { name },
+            },
+          }
+        : context
+
     return importMetadataItemFromYAML({
-      context,
+      context: contextWithParent,
       yaml,
       rule: DynamicListRules,
-      source: normalizeDynamicListSource(context, source),
+      source: normalizeDynamicListSource(contextWithParent, source),
+      name,
     }) as DynamicList | undefined
   }
 )
