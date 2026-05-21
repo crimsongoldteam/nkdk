@@ -17,4 +17,55 @@ describe("import Appearance from YAML", () => {
 
     expect(result).toEqual(fixtureAppearanceFields)
   })
+
+  it("imports explicit field value for text appearance", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        Текст: {
+          Тип: "Поле",
+          Значение: "СписокФайлов.ФормаРСВ_Представление",
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "AppearanceFields",
+      Текст: {
+        parameter: "Текст",
+        value: {
+          type: "Field",
+          value: "СписокФайлов.ФормаРСВ_Представление",
+        },
+      },
+    })
+  })
+
+  it("preserves source empty LocalStringType for text appearance when YAML omits value", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        Текст: {
+          Использовать: "Ложь",
+        },
+      },
+      sourceValue: {
+        itemType: "AppearanceFields",
+        Текст: {
+          parameter: "Текст",
+          use: false,
+          value: { items: {} },
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "AppearanceFields",
+      Текст: {
+        parameter: "Текст",
+        use: false,
+        value: { items: {} },
+      },
+    })
+  })
 })
