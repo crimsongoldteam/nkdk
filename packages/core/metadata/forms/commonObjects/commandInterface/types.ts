@@ -5,6 +5,8 @@ import { UserVisible, UserVisibleJSONSchema, UserVisibleXML } from "~/metadata/c
 import { MetadataItem } from "~/metadata/orchestration"
 import * as SE from "~/metadata/systemEnumerations/types"
 
+type RawCommandGroup = string
+
 //#region inner
 
 export interface CommandInterface extends MetadataItem {
@@ -19,7 +21,7 @@ export interface CommandInterfaceItem extends MetadataItem {
   type?: string
   attribute?: DataPath
   index?: number
-  commandGroup?: SE.StandardCommandsGroup
+  commandGroup?: SE.StandardCommandsGroup | RawCommandGroup
   defaultVisible?: false
   visible?: UserVisible
 }
@@ -43,7 +45,7 @@ export interface CommandInterfaceItemXML {
   Command: string
   Type: string
   Attribute?: DataPathXML
-  CommandGroup?: SE.StandardCommandsGroup
+  CommandGroup?: SE.StandardCommandsGroup | RawCommandGroup
   Index?: number | string
   DefaultVisible?: StringboolXML
   Visible?: UserVisibleXML
@@ -53,15 +55,12 @@ export interface CommandInterfaceItemXML {
 
 //#region enterprise
 
-const standardCommandsGroupsYAML = Object.keys(SE.StandardCommandsGroupFromYAML) as SE.StandardCommandsGroupYAML[]
-const standardCommandsGroups = standardCommandsGroupsYAML.map((key) => Type.Literal(key))
-
 export const CommandInterfaceItemJSONSchema = Type.Object({
   Команда: Type.String(),
   Тип: Type.Optional(Type.String()),
   Реквизит: Type.Optional(Type.String()),
   Индекс: Type.Optional(Type.Number()),
-  ГруппаКоманд: Type.Optional(Type.Union(standardCommandsGroups)),
+  ГруппаКоманд: Type.Optional(Type.String()),
   Автовидимость: Type.Optional(Type.Literal("Ложь")),
   РазрешитьИспользование: Type.Optional(UserVisibleJSONSchema),
   ЗапретитьИспользование: Type.Optional(UserVisibleJSONSchema),

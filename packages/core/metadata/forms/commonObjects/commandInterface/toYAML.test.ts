@@ -25,4 +25,29 @@ describe("exportCommandInterfaceToYAML", () => {
 
     expect(result).toEqual(fullCommandInterfaceYAML)
   })
+
+  it("exports unknown command group as raw XML identifier", () => {
+    const result = exportCommandInterfaceToYAML(mockContext, mockRule, {
+      itemType: "CommandInterface",
+      NavigationPanel: [],
+      CommandBar: [
+        {
+          itemType: "CommandInterfaceItem",
+          command: "0",
+          type: "Auto",
+          commandGroup: "CommandGroup.Печать" as never,
+        },
+      ],
+    })
+
+    expect(result).toEqual({
+      КоманднаяПанель: [
+        {
+          Команда: "0",
+          Тип: "Auto",
+          ГруппаКоманд: "CommandGroup.Печать",
+        },
+      ],
+    })
+  })
 })

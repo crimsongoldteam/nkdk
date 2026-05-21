@@ -50,7 +50,7 @@ const exportCommandInterfaceItemToYAML = (
   }
 
   if (item.commandGroup) {
-    result.ГруппаКоманд = StandardCommandsGroupToYAML[item.commandGroup]
+    result.ГруппаКоманд = StandardCommandsGroupToYAML[item.commandGroup] ?? item.commandGroup
   }
 
   if (item.visible) {

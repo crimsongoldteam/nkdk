@@ -15,4 +15,29 @@ describe("importCommandInterfaceFromYAML", () => {
 
     expect(result).toEqual(fullCommandInterface)
   })
+
+  it("imports unknown command group as raw XML identifier", () => {
+    const result = importCommandInterfaceFromYAML(mockContext, mockRule, {
+      КоманднаяПанель: [
+        {
+          Команда: "0",
+          Тип: "Auto",
+          ГруппаКоманд: "CommandGroup.Печать" as never,
+        },
+      ],
+    })
+
+    expect(result).toEqual({
+      itemType: "CommandInterface",
+      NavigationPanel: [],
+      CommandBar: [
+        {
+          itemType: "CommandInterfaceItem",
+          command: "0",
+          type: "Auto",
+          commandGroup: "CommandGroup.Печать",
+        },
+      ],
+    })
+  })
 })

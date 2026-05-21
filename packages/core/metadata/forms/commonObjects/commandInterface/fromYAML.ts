@@ -50,7 +50,7 @@ const importCommandInterfaceItemFromYAML = (
   }
 
   if (item.ГруппаКоманд) {
-    result.commandGroup = StandardCommandsGroupFromYAML[item.ГруппаКоманд]
+    result.commandGroup = StandardCommandsGroupFromYAML[item.ГруппаКоманд] ?? item.ГруппаКоманд
   }
 
   const visible = importUserVisibleFromYAML({
