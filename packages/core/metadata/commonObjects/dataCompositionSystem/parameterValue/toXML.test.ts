@@ -59,4 +59,22 @@ describe("exportParameterValueToDcsXML", () => {
     expect(result).toContain('<dcscor:value xsi:type="v8:LocalStringType">')
     expect(result).not.toContain('xsi:nil="true"')
   })
+
+  it("restores empty LocalStringType from reference when current value is absent", () => {
+    const { result } = testExportPropertyToXML({
+      rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue" },
+      value: {
+        parameter: "Текст",
+        use: false,
+      },
+      xmlRootTag: "dcscor:item",
+      referenceMetadata: {
+        parameter: "Текст",
+        use: false,
+        value: { items: {} },
+      },
+    })
+
+    expect(result).toContain('<dcscor:value xsi:type="v8:LocalStringType"/>')
+  })
 })

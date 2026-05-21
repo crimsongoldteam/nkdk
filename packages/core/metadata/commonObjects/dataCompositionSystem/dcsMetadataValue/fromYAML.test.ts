@@ -88,6 +88,18 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
     ).toBeUndefined()
   })
 
+  it("imports Russian metadata path as enterprise DesignTimeValue for primitive DCS values", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "Primitive", yaml: "value" },
+        value: "ПланСчетов.Хозрасчетный.ПФР_ОПС_ИП",
+      })
+    ).toEqual({
+      type: "DesignTimeValue",
+      value: "ПланСчетов.Хозрасчетный.ПФР_ОПС_ИП",
+    })
+  })
+
   it("rejects invalid explicit text value", () => {
     expect(() =>
       testImportPropertyFromYAML({

@@ -1,5 +1,6 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { canConvertToPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
@@ -145,6 +146,10 @@ export const exportPropertyToXML = (params: {
 
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToXML") : undefined
 
+  if (shouldRestoreReferenceEmptyI8nTextRaw({ context, rule, value, referenceMetadata, metadataItem })) {
+    return (rule as any).defaultValueXMLRaw
+  }
+
   if (!typeExportFn) {
     if (isDefaultValue(value, rule.defaultValue)) {
       if (shouldLetSetXMLValueCreateRawParent(value, rule)) return value
@@ -198,6 +203,55 @@ const shouldLetSetXMLValueCreateRawParent = (value: unknown, rule: PropertyRule)
   "defaultValueXMLRaw" in rule &&
   typeof (rule as any).defaultValueXMLRaw === "object" &&
   (rule as any).defaultValueXMLRaw !== null
+
+const shouldRestoreReferenceEmptyI8nTextRaw = (params: {
+  context: ConfigurationContextWithExportToXML
+  rule: PropertyRule
+  value: unknown
+  referenceMetadata: unknown
+  metadataItem: unknown
+}): boolean => {
+  const { context, rule, value, referenceMetadata, metadataItem } = params
+  if (rule.type !== "I8nText") return false
+  if ((rule as any).emptyAsRawXML !== true || !("defaultValueXMLRaw" in rule)) return false
+  if (!isExplicitEmptyI8nText(referenceMetadata)) return false
+
+  const name = typeof (metadataItem as { name?: unknown } | undefined)?.name === "string"
+    ? (metadataItem as { name: string }).name
+    : undefined
+  if (name === undefined) return false
+
+  return isGeneratedDefaultI8nTextForName(context, value, name)
+}
+
+const isExplicitEmptyI8nText = (value: unknown): boolean => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false
+
+  const keys = Object.keys(value)
+  if (keys.length !== 1 || keys[0] !== "items") return false
+
+  const items = (value as { items?: unknown }).items
+  return typeof items === "object" && items !== null && !Array.isArray(items) && Object.keys(items).length === 0
+}
+
+const isGeneratedDefaultI8nTextForName = (
+  context: ConfigurationContextWithExportToXML,
+  value: unknown,
+  name: string
+): boolean => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false
+
+  const items = (value as { items?: unknown }).items
+  if (typeof items !== "object" || items === null || Array.isArray(items)) return false
+
+  const entries = Object.entries(items)
+  if (entries.length === 0) return false
+
+  return entries.every(
+    ([lang, itemValue]) =>
+      lang === context.defaultLanguage && typeof itemValue === "string" && canConvertToPascalCase(itemValue, name)
+  )
+}
 
 const wrapWithNamespace = (rule: PropertyRule, value: any): any => {
   if (value === undefined || value === null) return value

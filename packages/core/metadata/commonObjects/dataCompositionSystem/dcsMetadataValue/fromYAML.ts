@@ -4,6 +4,7 @@ import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { importMetadataFieldFromYAML } from "~/metadata/commonObjects/metadataField/fromYAML"
 import { importMetadataValueStringFromYAML } from "~/metadata/commonObjects/metadataPath/fromYAML"
+import { MetadataFieldTypeFromYAML, MetadataTypeFromYAML } from "~/metadata/commonObjects/metadataPath/types"
 import { importMetadataValueFromYAML } from "~/metadata/commonObjects/metadataValue/fromYAML"
 import { importTypeLinkFromYAML } from "~/metadata/commonObjects/typeLink/fromYAML"
 import { importChoiceParameterLinksFromYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/fromYAML"
@@ -26,7 +27,9 @@ const isEnumValueMetadataPath = (value: string | undefined): boolean =>
   value !== undefined && value.startsWith("Enum.") && value.split(".").includes("EnumValue")
 
 const isEnterpriseDesignTimeValue = (value: unknown): value is string =>
-  typeof value === "string" && value.startsWith("Перечисление.")
+  typeof value === "string" &&
+  value.includes(".") &&
+  (value.split(".")[0] in MetadataFieldTypeFromYAML || value.split(".")[0] in MetadataTypeFromYAML)
 
 const isExplicitEmptyLocalStringType = (value: unknown): value is I8nText => {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return false

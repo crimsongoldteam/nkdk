@@ -60,6 +60,34 @@ describe("export MetadataAttributes to XML", () => {
     expect(result).not.toContain("<v8:item>")
   })
 
+  it("preserves reference empty Synonym when current synonym is generated from name", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        {
+          itemType: "MetadataAttribute",
+          name: "ПравилаОтправкиДокументов",
+          synonym: { items: { ru: "Правила отправки документов" } },
+          type: { type: ["string"], stringQualifiers: { length: 0, allowedLength: "Variable" } },
+          fillValue: { type: "string", value: "" },
+        },
+      ],
+      xmlRootTag: "Attribute",
+      referenceMetadata: [
+        {
+          itemType: "MetadataAttribute",
+          name: "ПравилаОтправкиДокументов",
+          synonym: { items: {} },
+          type: { type: ["string"], stringQualifiers: { length: 0, allowedLength: "Variable" } },
+          fillValue: { type: "string", value: "" },
+        },
+      ],
+    })
+
+    expect(result).toContain("<Synonym/>")
+    expect(result).not.toContain("Правила отправки документов")
+  })
+
   it("should export empty string when data is undefined", () => {
     const { result } = testExportPropertyToXML({
       rule,
