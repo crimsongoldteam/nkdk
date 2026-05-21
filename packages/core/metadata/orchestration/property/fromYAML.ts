@@ -169,35 +169,19 @@ const getImportedValueOrSourceFallback = (params: {
   const { rule, value, importedValue, sourceValue } = params
 
   if (rule.type === "MetadataDcsMetadataValue" && importedValue === null) return null
-  if (shouldSkipMetadataDcsMetadataValueSourceFallback({ rule, value, importedValue, sourceValue })) return undefined
+  if (shouldUseOnlyImportedMetadataDcsMetadataValue({ rule, value })) return importedValue
   return importedValue ?? sourceValue
 }
 
-const shouldSkipMetadataDcsMetadataValueSourceFallback = (params: {
+const shouldUseOnlyImportedMetadataDcsMetadataValue = (params: {
   rule: PropertyRule
   value: any
-  importedValue: any
-  sourceValue: any
 }): boolean => {
-  const { rule, value, importedValue, sourceValue } = params
+  const { rule, value } = params
 
   if (rule.type !== "MetadataDcsMetadataValue") return false
   if ((rule as { valueType?: unknown }).valueType !== "DesignTimeValue") return false
-  if (value !== undefined || importedValue !== undefined) return false
-  if (!isObjectWithItems(sourceValue)) return false
-
-  return !isExactEmptyItemsObject(sourceValue)
-}
-
-const isObjectWithItems = (value: unknown): value is { items: unknown } =>
-  typeof value === "object" && value !== null && !Array.isArray(value) && "items" in value
-
-const isExactEmptyItemsObject = (value: { items: unknown }): boolean => {
-  const keys = Object.keys(value)
-  if (keys.length !== 1 || keys[0] !== "items") return false
-
-  const items = value.items
-  return typeof items === "object" && items !== null && !Array.isArray(items) && Object.keys(items).length === 0
+  return value === undefined
 }
 
 const getDefaultValueYAMLForImport = (params: {

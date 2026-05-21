@@ -78,6 +78,16 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
     ).toBeUndefined()
   })
 
+  it("does not preserve source explicit field when YAML value is undefined", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        value: undefined,
+        sourceValue: { type: "Field", value: "X" },
+      })
+    ).toBeUndefined()
+  })
+
   it("rejects invalid explicit text value", () => {
     expect(() =>
       testImportPropertyFromYAML({
