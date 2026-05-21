@@ -36,6 +36,16 @@ describe("import DcsMetadataTypedValue from YAML", () => {
     ).toEqual({ type: "string", value: ".PDF" })
   })
 
+  it("imports quoted .PDF as string when source value was ref", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule,
+        value: "'.PDF'",
+        sourceValue: { type: "ref", value: "Catalog.Организации.EmptyRef" },
+      })
+    ).toEqual({ type: "string", value: ".PDF" })
+  })
+
   it("imports YAML metadata reference as ref when source value was ref", () => {
     expect(
       testImportPropertyFromYAML({

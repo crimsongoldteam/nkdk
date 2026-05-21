@@ -16,9 +16,9 @@ const detectTypeFromYAML = (
   if (value === "СписокЗначений") return "EmptyValueList"
   if (typeof value === "object" && value !== null && !Array.isArray(value) && "Вариант" in value)
     return "StandardBeginningDate"
+  if (typeof value === "string" && value.startsWith("'") && value.endsWith("'")) return "string"
   if (sourceValue?.type === "ref" && DcsMetadataTypedValueRegistry.ref.detect({ context, yaml: value })) return "ref"
   if (DcsMetadataTypedValueRegistry.dateTime.detect({ context, yaml: value })) return "dateTime"
-  if (typeof value === "string" && value.startsWith("'") && value.endsWith("'")) return "string"
   if (DcsMetadataTypedValueRegistry.DesignTimeValue.detect({ context, yaml: value })) return "DesignTimeValue"
   if (DcsMetadataTypedValueRegistry.string.detect({ context, yaml: value })) return "string"
 
