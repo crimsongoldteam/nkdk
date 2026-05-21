@@ -87,7 +87,8 @@ export const importParameterValueFromYAML = (
   const parameter = String(
     parameterFromWrapper ?? parameterFromExpandedField ?? parameterFromRule ?? ""
   )
-  const rawValue = y?.["Значение"] ?? yamlToParse
+  const hasExplicitValue = y !== undefined && "Значение" in y
+  const rawValue = hasExplicitValue ? y["Значение"] : isExpandedSpvShape ? undefined : yamlToParse
   const rawList = rawValue === undefined ? [] : Array.isArray(rawValue) ? rawValue : [rawValue]
   const valueParts = rawList
     .map((v) => importDcsMetadataValueFromYAML(context, dcsRule, v as never))

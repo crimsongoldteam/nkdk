@@ -26,4 +26,18 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
       value: { items: { ru: "Значение" } },
     })
   })
+
+  it("imports expanded use-only SettingsParameterValue without treating it as value", () => {
+    const result = testImportPropertyFromYAML({
+      rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Текст" } as PropertyRule,
+      value: {
+        Использовать: "Ложь",
+      },
+    })
+
+    expect(result).toEqual({
+      parameter: "Текст",
+      use: false,
+    })
+  })
 })
