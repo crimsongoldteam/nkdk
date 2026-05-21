@@ -1,7 +1,7 @@
 import { importColorFromYAML } from "~/metadata/commonObjects/color/fromYAML"
 import { importFontFromYAML } from "~/metadata/commonObjects/font/fromYAML"
 import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
-import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { importMetadataFieldFromYAML } from "~/metadata/commonObjects/metadataField/fromYAML"
 import { importMetadataValueStringFromYAML } from "~/metadata/commonObjects/metadataPath/fromYAML"
 import { importMetadataValueFromYAML } from "~/metadata/commonObjects/metadataValue/fromYAML"
@@ -28,14 +28,15 @@ const isEnumValueMetadataPath = (value: string | undefined): boolean =>
 const isEnterpriseDesignTimeValue = (value: unknown): value is string =>
   typeof value === "string" && value.startsWith("Перечисление.")
 
-const isExplicitEmptyLocalStringType = (value: unknown): value is MetadataDcsMetadataValue =>
-  typeof value === "object" &&
-  value !== null &&
-  !Array.isArray(value) &&
-  "items" in value &&
-  typeof (value as { items?: unknown }).items === "object" &&
-  (value as { items?: unknown }).items !== null &&
-  Object.keys((value as { items: Record<string, unknown> }).items).length === 0
+const isExplicitEmptyLocalStringType = (value: unknown): value is I8nText => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false
+
+  const keys = Object.keys(value)
+  if (keys.length !== 1 || keys[0] !== "items") return false
+
+  const items = (value as { items?: unknown }).items
+  return typeof items === "object" && items !== null && !Array.isArray(items) && Object.keys(items).length === 0
+}
 
 const hasExplicitTextType = (data: unknown): data is Record<string, unknown> =>
   typeof data === "object" && data !== null && !Array.isArray(data) && "Тип" in data
@@ -166,12 +167,14 @@ export const importDcsMetadataValueFromYAML = (
 const importDcsMetadataValueFromYAMLForRule = (
   context: ConfigurationContext,
   rule: PropertyRule,
-  value: unknown
+  value: unknown,
+  sourceValue?: unknown
 ): MetadataDcsMetadataValue | undefined =>
   importDcsMetadataValueFromYAML(
     context,
     rule as DcsMetadataValuePropertyRule,
-    value as MetadataDcsMetadataValueYAML
+    value as MetadataDcsMetadataValueYAML,
+    sourceValue as MetadataDcsMetadataValue | undefined
   ) as MetadataDcsMetadataValue | undefined
 
 registerTypeRule("MetadataDcsMetadataValue", "importFromYAML", importDcsMetadataValueFromYAMLForRule)

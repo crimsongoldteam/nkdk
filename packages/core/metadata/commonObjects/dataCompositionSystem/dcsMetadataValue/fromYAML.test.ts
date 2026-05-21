@@ -33,13 +33,41 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
     const sourceValue = { items: {} }
 
     expect(
+      testImportPropertyFromYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        value: undefined,
+        sourceValue
+      })
+    ).toEqual(sourceValue)
+  })
+
+  it("uses explicit YAML field over source empty LocalStringType", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        value: {
+          Тип: "Поле",
+          Значение: "СписокФайлов.ФормаРСВ_Представление",
+        },
+        sourceValue: { items: {} },
+      })
+    ).toEqual({
+      type: "Field",
+      value: "СписокФайлов.ФормаРСВ_Представление",
+    })
+  })
+
+  it("does not preserve non-empty-shape source LocalStringType", () => {
+    const sourceValue = { items: {}, extra: true }
+
+    expect(
       importDcsMetadataValueFromYAML(
         mockContext,
         { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         undefined,
         sourceValue
       )
-    ).toEqual(sourceValue)
+    ).toBeUndefined()
   })
 
   it("rejects invalid explicit text value", () => {

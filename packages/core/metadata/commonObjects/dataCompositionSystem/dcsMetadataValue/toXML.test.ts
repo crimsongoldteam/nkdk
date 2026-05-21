@@ -41,4 +41,19 @@ describe("export MetadataDcsMetadataValue to XML", () => {
       "_xsi:type": "v8:LocalStringType",
     })
   })
+
+  it("does not treat LocalStringType with extra fields as empty typed XML", () => {
+    const value = { items: {}, extra: true }
+
+    expect(
+      exportDcsMetadataValueToXML(
+        mockContextToXML(),
+        { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        value
+      )
+    ).toEqual({
+      "_xsi:type": "v8:LocalStringType",
+      "v8:item": [],
+    })
+  })
 })
