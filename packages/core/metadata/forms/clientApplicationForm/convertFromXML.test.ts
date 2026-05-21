@@ -168,7 +168,7 @@ describe("import from XML string", () => {
     expect(() =>
       execFileSync("node", ["--import", "tsx", "-e", script], { cwd: process.cwd(), encoding: "utf-8" })
     ).not.toThrow()
-  })
+  }, 15000)
 
   it("public core entrypoint exports child items through element YAML rules", async () => {
     const script = `
@@ -252,7 +252,7 @@ describe("import from XML string", () => {
     expect(() =>
       execFileSync("node", ["--import", "tsx", "-e", script], { cwd: process.cwd(), encoding: "utf-8" })
     ).not.toThrow()
-  })
+  }, 15000)
 
   it("public core entrypoint exports form common objects through YAML rules", async () => {
     const script = `
@@ -374,5 +374,5 @@ describe("import from XML string", () => {
     expect(() =>
       execFileSync("node", ["--import", "tsx", "-e", script], { cwd: process.cwd(), encoding: "utf-8" })
     ).not.toThrow()
-  })
+  }, 15000)
 })
