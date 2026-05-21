@@ -28,7 +28,7 @@ becomes YAML with only the non-default language:
 
 After YAML import, the missing `ru` item cannot be reconstructed without the XML source and is lost in XML sync.
 
-A related issue appears with `excludeIfEqualNameYAML`: when YAML explicitly contains only `en`, import currently reconstructs default-language `ru` from the object name. That changes the source XML by adding a new `ru` item.
+`excludeIfEqualNameYAML` is a separate feature and should continue to work for multilingual values: when the default-language title is equal to the object name, YAML may omit only that default-language item and keep the other languages.
 
 ## Decision
 
@@ -36,7 +36,7 @@ Remove `yamlPartialOthers` as a supported YAML feature.
 
 Full YAML export must keep all languages. The short string form still exists through normal `I8nText` behavior when there is exactly one default-language item. If a value has `{ ru, en }`, YAML must keep both languages.
 
-`excludeIfEqualNameYAML` remains, but only for its intended case: hiding/restoring a title equal to the object name when the YAML value is absent or intentionally empty. It must not add a default-language item when YAML explicitly provides a non-empty language map without that default language.
+`excludeIfEqualNameYAML` remains. It must work for bilingual and multilingual values: if the default-language item is equal to the object name, export omits that item and keeps only the languages that differ from the default/name-derived value. Import then restores the omitted default-language item from the object name.
 
 ## Alternatives Considered
 
@@ -59,7 +59,7 @@ Remove the feature in layers:
 - delete `yamlPartialOthers` from `I8nTextPropertyRule` and `FormattedI8nTextPropertyRule`;
 - remove `exportI8nTextOtherToYAML` and `exportFormattedI8nTextOtherToYAML` behavior if it has no remaining callers;
 - remove `yamlPartialOthers: true` from form element rules and any tests/fixtures that expect default-language titles to disappear;
-- update `excludeIfEqualNameYAML` import behavior so explicit non-empty language maps are respected as-is.
+- keep `excludeIfEqualNameYAML` behavior for multilingual values: export only non-default languages when the default-language value equals the object name, and import restores that default-language value from the object name.
 
 No XML fixtures should change.
 
@@ -79,14 +79,14 @@ For a Russian-only title, the existing compact shape remains:
 Заголовок: Вам нравится приложение?
 ```
 
-For an attribute title with only English in source XML:
+For an attribute title where the default-language title equals the attribute name and English differs:
 
 ```yaml
 Заголовок:
-  en: Оценка отправлена
+  en: Rating sent
 ```
 
-YAML import must preserve only `en`; it must not synthesize `ru` from the attribute name.
+YAML import must restore the default-language item from the attribute name and preserve `en`.
 
 ## Tests
 
@@ -94,7 +94,8 @@ Add focused coverage for:
 
 - `FormattedI8nText` export keeps both `ru` and `en` after removing `yamlPartialOthers`;
 - form element YAML export keeps multilingual titles;
-- `I8nText` import with `excludeIfEqualNameYAML` does not synthesize default language when YAML explicitly contains a non-empty language map without it;
+- `I8nText` export with `excludeIfEqualNameYAML` keeps only non-default languages when the default-language item equals the object name;
+- `I8nText` import with `excludeIfEqualNameYAML` restores the omitted default-language item from the object name while preserving non-default languages;
 - existing empty/absent title cases still restore the default name where this is the documented behavior.
 
 Verification should include targeted tests for `i8nText`, `formattedI8nText`, and affected form YAML tests, followed by YAML round-trip triage for the current batch.
