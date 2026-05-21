@@ -15,11 +15,12 @@ export const exportCalculatedFieldOrderExpressionToXML: ExportToXMLFunctionNew =
   const exported = (value as CalculatedFieldOrderExpressionItem[]).flatMap((item) => {
     const referenceItem = referenceMetadata?.find((reference) => reference.expression === item.expression)
     const data = restoreExplicitReferenceAsc(item, referenceItem)
+    const referenceData = omitNonAscReferenceOrderType(item, referenceItem)
     const result = exportMetadataItemToXML({
       context,
       data,
       rule: CalculatedFieldOrderExpressionRules,
-      referenceData: referenceItem,
+      referenceData,
     })
     return result ? [result] : []
   })
@@ -42,4 +43,16 @@ const restoreExplicitReferenceAsc = (
   }
 
   return value
+}
+
+const omitNonAscReferenceOrderType = (
+  value: CalculatedFieldOrderExpressionItem,
+  referenceMetadata: CalculatedFieldOrderExpressionItem | undefined
+): CalculatedFieldOrderExpressionItem | undefined => {
+  if (value.orderType !== undefined || referenceMetadata?.orderType === "Asc") return referenceMetadata
+  if (referenceMetadata === undefined) return undefined
+
+  const referenceWithoutOrderType = { ...referenceMetadata }
+  delete referenceWithoutOrderType.orderType
+  return referenceWithoutOrderType
 }

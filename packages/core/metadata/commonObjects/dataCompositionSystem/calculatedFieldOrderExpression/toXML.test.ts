@@ -58,4 +58,29 @@ describe("export CalculatedFieldOrderExpression to XML", () => {
 
     expect(result).not.toContain("<orderType")
   })
+
+  it("does not restore Desc from reference XML when current orderType is omitted", () => {
+    const { result } = testExportPropertyToXML({
+      rule: { type: "CalculatedFieldOrderExpression" },
+      value: [
+        {
+          itemType: "CalculatedFieldOrderExpression",
+          expression: "Дата",
+          autoOrder: false,
+        },
+      ],
+      referenceMetadata: [
+        {
+          itemType: "CalculatedFieldOrderExpression",
+          expression: "Дата",
+          orderType: "Desc",
+          autoOrder: false,
+        },
+      ],
+      xmlRootTag: "dcssch:orderExpression",
+    })
+
+    expect(result).not.toContain("<orderType")
+    expect(result).not.toContain("Desc")
+  })
 })

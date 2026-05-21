@@ -229,4 +229,52 @@ describe("export DynamicList to XML", () => {
 
     expect(result).not.toContain("<orderType")
   })
+
+  it("does not restore Desc calculated field orderType from reference XML when current value omits it", () => {
+    const currentValue = {
+      itemType: "DynamicList",
+      calculatedFields: [
+        {
+          itemType: "CalculatedField",
+          dataPath: "Дата",
+          expression: "Дата",
+          orderExpressions: [
+            {
+              itemType: "CalculatedFieldOrderExpression",
+              expression: "Дата",
+              autoOrder: false,
+            },
+          ],
+        },
+      ],
+    }
+    const referenceMetadata = {
+      itemType: "DynamicList",
+      calculatedFields: [
+        {
+          itemType: "CalculatedField",
+          dataPath: "Дата",
+          expression: "Дата",
+          orderExpressions: [
+            {
+              itemType: "CalculatedFieldOrderExpression",
+              expression: "Дата",
+              orderType: "Desc",
+              autoOrder: false,
+            },
+          ],
+        },
+      ],
+    }
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: currentValue,
+      referenceMetadata,
+      xmlRootTag: "Settings",
+    })
+
+    expect(result).not.toContain("<orderType")
+    expect(result).not.toContain("Desc")
+  })
 })
