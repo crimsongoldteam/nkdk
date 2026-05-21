@@ -14,16 +14,25 @@ export const importMetadataItemCollectionFromYAMLAsArray = <Rule extends Metadat
   context: ConfigurationContext
   itemRule: Rule
   yaml: ToYAML<Rule["itemType"]>[] | undefined
+  source?: ToMetadata<Rule["itemType"]>[]
+  keyField?: keyof Rule["properties"]
 }): ToMetadata<Rule["itemType"]>[] | undefined => {
-  const { context, itemRule, yaml } = params
+  const { context, itemRule, yaml, source, keyField } = params
 
   if (yaml == undefined || yaml.length === 0) return undefined
 
   const result: ToMetadata<Rule["itemType"]>[] = []
-  for (const item of yaml) {
-    const itemMetadata = importMetadataItemFromYAML({ context, rule: itemRule, yaml: item }) as ToMetadata<
-      Rule["itemType"]
-    >
+  for (const [index, item] of yaml.entries()) {
+    const itemSource = findSourceItem({
+      itemRule,
+      yaml: item,
+      source,
+      keyField,
+      index,
+    })
+    const itemMetadata = importMetadataItemFromYAML({ context, rule: itemRule, yaml: item, source: itemSource }) as
+      | ToMetadata<Rule["itemType"]>
+      | undefined
     if (itemMetadata == undefined) continue
     result.push(itemMetadata)
   }
@@ -55,4 +64,24 @@ export const importMetadataItemCollectionFromYAMLAsRecord = <Rule extends Metada
   }
 
   return result.length > 0 ? result : undefined
+}
+
+const findSourceItem = <Rule extends MetadataItemRule>(params: {
+  itemRule: Rule
+  yaml: ToYAML<Rule["itemType"]>
+  source: ToMetadata<Rule["itemType"]>[] | undefined
+  keyField: keyof Rule["properties"] | undefined
+  index: number
+}): ToMetadata<Rule["itemType"]> | undefined => {
+  const { itemRule, yaml, source, keyField, index } = params
+  if (source === undefined) return undefined
+  if (keyField === undefined) return source[index]
+
+  const keyRule = itemRule.properties[keyField as string]
+  const yamlKey = keyRule?.yaml
+  if (yamlKey === undefined || yaml === undefined || yaml === null || typeof yaml !== "object") return source[index]
+
+  const yamlValue = (yaml as Record<string, unknown>)[yamlKey]
+  const sourceItem = source.find((item) => item[keyField as keyof typeof item] === yamlValue)
+  return sourceItem ?? source[index]
 }

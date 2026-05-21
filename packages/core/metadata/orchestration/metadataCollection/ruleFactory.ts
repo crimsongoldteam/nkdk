@@ -100,9 +100,15 @@ export const registerMetadataItemCollectionRule = <
   const fromXML = params.fromXML ?? fromXMLDefault
   registerTypeRule(propertyType, "importFromXML", fromXML)
 
-  const fromYAMLDefault: importFromYAMLFunction = (context, _rule, value) =>
+  const fromYAMLDefault: importFromYAMLFunction = (context, _rule, value, source) =>
     params.yamlAsArray
-      ? importMetadataItemCollectionFromYAMLAsArray({ context, itemRule, yaml: value })
+      ? importMetadataItemCollectionFromYAMLAsArray({
+          context,
+          itemRule,
+          yaml: value,
+          source,
+          keyField: params.keyField,
+        })
       : importMetadataItemCollectionFromYAMLAsRecord({
           context,
           itemRule,
