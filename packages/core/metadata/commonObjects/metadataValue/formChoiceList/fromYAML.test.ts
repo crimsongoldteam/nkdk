@@ -32,4 +32,14 @@ describe("importFormChoiceListFromYAML", () => {
     const result = importFormChoiceListFromYAML(mockContext, withMultiLangPresentationYAML)
     expect(result).toEqual(withMultiLangPresentation)
   })
+
+  it("imports a single non-default presentation language map", () => {
+    const result = importFormChoiceListFromYAML(mockContext, {
+      Представление: { en: "Labor compensation expenses" },
+    })
+
+    expect(result.presentation).toEqual({
+      items: { en: "Labor compensation expenses" },
+    })
+  })
 })

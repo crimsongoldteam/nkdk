@@ -32,4 +32,18 @@ describe("exportFormChoiceListToYAML", () => {
     const result = exportFormChoiceListToYAML(mockContext, withMultiLangPresentation)
     expect(result).toEqual(withMultiLangPresentationYAML)
   })
+
+  it("exports a single non-default presentation language as a map", () => {
+    const result = exportFormChoiceListToYAML(mockContext, {
+      type: "formChoiceListDesTimeValue",
+      value: { type: "string", value: "x" },
+      presentation: { items: { en: "Labor compensation expenses" } },
+    })
+
+    expect(result).toMatchObject({
+      Представление: {
+        en: "Labor compensation expenses",
+      },
+    })
+  })
 })
