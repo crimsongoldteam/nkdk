@@ -17,6 +17,10 @@ describe("exportToYAML", () => {
     expect(importFromYAML<{ Пояснение: string }>(yaml)).toEqual({ Пояснение: value })
   })
 
+  it("does not add a service newline for multiline scalar values without trailing blank line", () => {
+    expect(exportToYAML({ k: "a\nb" }).endsWith("\n")).toBe(false)
+  })
+
   it("does not add a service newline for ordinary YAML documents", () => {
     expect(exportToYAML({ Имя: "Тест" }).endsWith("\n")).toBe(false)
   })

@@ -2,8 +2,8 @@ import { stringify } from "yaml"
 
 const leadingSpaceCount = (line: string): number => line.length - line.trimStart().length
 
-const isBlockScalarHeader = (line: string): boolean => {
-  return /(?:^|[:\-\s])[|>](?:[+-]?\d?|\d?[+-]?)\s*(?:#.*)?$/.test(line)
+const isKeepChompingBlockScalarHeader = (line: string): boolean => {
+  return /(?:^|[:\-\s])[|>](?:\+\d?|\d\+)\s*(?:#.*)?$/.test(line)
 }
 
 const endsInsideBlockScalar = (yaml: string): boolean => {
@@ -15,7 +15,7 @@ const endsInsideBlockScalar = (yaml: string): boolean => {
     if (line.trim() === "") continue
 
     const indent = leadingSpaceCount(line)
-    if (isBlockScalarHeader(line)) return indent < finalContentIndent
+    if (isKeepChompingBlockScalarHeader(line)) return indent < finalContentIndent
 
     finalContentIndent = Math.min(finalContentIndent, indent)
   }
