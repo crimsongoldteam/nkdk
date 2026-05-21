@@ -1,6 +1,5 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { syncExplicitExternalFilesFromXML } from "~/metadata/commonObjects/externalFiles/sync"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type {
   ModulePropertyRule,
@@ -33,17 +32,23 @@ export const syncModuleFromXML = async (params: {
   const nkdkPath = typeof rawNkdkPath === "function" ? rawNkdkPath(pathParams) : rawNkdkPath
 
   const srcPath = resolveSourcePath({ xmlDir, xmlPath, objectName: params.name })
-  if (fs.existsSync(srcPath)) {
-    const dstPath = join(nkdkDir, nkdkPath)
-    await fs.promises.mkdir(dirname(dstPath), { recursive: true })
-    await fs.promises.copyFile(srcPath, dstPath)
+  const altXmlPath = alternateModulePath(xmlPath)
+  const altSrcPath =
+    altXmlPath === undefined ? undefined : resolveSourcePath({ xmlDir, xmlPath: altXmlPath, objectName: params.name })
+  const found = existingPaths([srcPath, ...(altSrcPath ? [altSrcPath] : [])])
+
+  if (found.length > 1) {
+    throw new Error(`Module has both .bsl and .bin: ${xmlPath}`)
   }
-  await syncExplicitExternalFilesFromXML({
-    rules: rule.externalFiles,
-    xmlDir: resolveSourceRoot({ xmlDir, xmlPath, objectName: params.name }),
-    nkdkDir,
-    pathParams,
-  })
+
+  if (found.length === 1) {
+    const isBinary = found[0].toLowerCase().endsWith(".bin")
+    const dstRelativePath = isBinary ? alternateNkdkPath(nkdkPath) : nkdkPath
+    if (!dstRelativePath) throw new Error(`Module binary alternative requires .bsl nkdkPath: ${nkdkPath}`)
+    const dstPath = join(nkdkDir, dstRelativePath)
+    await fs.promises.mkdir(dirname(dstPath), { recursive: true })
+    await fs.promises.copyFile(found[0], dstPath)
+  }
 }
 
 registerTypeRule("Module", "syncExternalFromXML", syncModuleFromXML)
@@ -58,12 +63,10 @@ const resolveSourcePath = (params: { xmlDir: string; xmlPath: string; objectName
   return fs.existsSync(objectPath) ? objectPath : directPath
 }
 
-const resolveSourceRoot = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
-  const directPath = join(params.xmlDir, params.xmlPath)
-  if (fs.existsSync(directPath)) return params.xmlDir
-  if (!params.objectName) return params.xmlDir
+const alternateModulePath = (path: string): string | undefined =>
+  path.endsWith(".bsl") ? path.replace(/\.bsl$/i, ".bin") : undefined
 
-  const objectRoot = join(params.xmlDir, params.objectName)
-  const objectPath = join(objectRoot, params.xmlPath)
-  return fs.existsSync(objectPath) || fs.existsSync(objectRoot) ? objectRoot : params.xmlDir
-}
+const alternateNkdkPath = (path: string): string | undefined =>
+  path.endsWith(".bsl") ? path.replace(/\.bsl$/i, ".bin") : undefined
+
+const existingPaths = (paths: string[]): string[] => paths.filter((path) => fs.existsSync(path))

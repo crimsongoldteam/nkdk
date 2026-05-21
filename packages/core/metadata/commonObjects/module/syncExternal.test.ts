@@ -8,22 +8,16 @@ import { syncModuleFromXML } from "./fromXML"
 import { syncModuleToXML } from "./toXML"
 
 describe("syncModule external files", () => {
-  it("round-trips CommonTemplate external files through rule externalFiles", async () => {
+  it("round-trips CommonTemplate primary template file", async () => {
     const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "module-external-"))
     const xmlDir = join(tmpDir, "xml", "CommonTemplates")
     const nkdkDir = join(tmpDir, "yaml", "Шаблон")
     const outputDir = join(tmpDir, "out", "CommonTemplates")
     const name = "Шаблон"
-    const templateBin = Buffer.from([0, 1, 2, 255])
-    const templateTxt = "plain text template"
-    const templateHtml = "<html><body>Привет</body></html>"
-    const templateImage = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
+    const templateXml = "<Template/>"
 
-    await fs.promises.mkdir(join(xmlDir, name, "Ext", "Template", "_files"), { recursive: true })
-    await fs.promises.writeFile(join(xmlDir, name, "Ext", "Template.bin"), templateBin)
-    await fs.promises.writeFile(join(xmlDir, name, "Ext", "Template.txt"), templateTxt)
-    await fs.promises.writeFile(join(xmlDir, name, "Ext", "Template", "ru.html"), templateHtml)
-    await fs.promises.writeFile(join(xmlDir, name, "Ext", "Template", "_files", "1.png"), templateImage)
+    await fs.promises.mkdir(join(xmlDir, name, "Ext"), { recursive: true })
+    await fs.promises.writeFile(join(xmlDir, name, "Ext", "Template.xml"), templateXml)
 
     await syncModuleFromXML({
       rule: MetadataCommonTemplateRules.properties.template,
@@ -32,30 +26,86 @@ describe("syncModule external files", () => {
       name,
     })
 
-    expect([...fs.readFileSync(join(nkdkDir, "Template.bin"))]).toEqual([...templateBin])
-    expect(fs.readFileSync(join(nkdkDir, "Template.txt"), "utf-8")).toBe(templateTxt)
-    expect(fs.readFileSync(join(nkdkDir, "Template", "ru.html"), "utf-8")).toBe(templateHtml)
-    expect([...fs.readFileSync(join(nkdkDir, "Template", "_files", "1.png"))]).toEqual([...templateImage])
+    expect(fs.readFileSync(join(nkdkDir, "Template.xml"), "utf-8")).toBe(templateXml)
 
     const xmlManifest = new XmlSyncManifest(join(tmpDir, "out"))
     await syncModuleToXML({
       rule: MetadataCommonTemplateRules.properties.template,
       nkdkDir,
-      xmlDir: outputDir,
+      xmlDir: join(outputDir, name),
       name,
       xmlManifest,
     })
 
-    expect([...fs.readFileSync(join(outputDir, name, "Ext", "Template.bin"))]).toEqual([...templateBin])
-    expect(fs.readFileSync(join(outputDir, name, "Ext", "Template.txt"), "utf-8")).toBe(templateTxt)
-    expect(fs.readFileSync(join(outputDir, name, "Ext", "Template", "ru.html"), "utf-8")).toBe(templateHtml)
-    expect([...fs.readFileSync(join(outputDir, name, "Ext", "Template", "_files", "1.png"))]).toEqual([
-      ...templateImage,
-    ])
+    expect(fs.readFileSync(join(outputDir, name, "Ext", "Template.xml"), "utf-8")).toBe(templateXml)
+    expect(xmlManifest.expectedFiles()).toContain("CommonTemplates/Шаблон/Ext/Template.xml")
+  })
 
-    expect(xmlManifest.expectedFiles()).toContain("CommonTemplates/Шаблон/Ext/Template.bin")
-    expect(xmlManifest.expectedFiles()).toContain("CommonTemplates/Шаблон/Ext/Template.txt")
-    expect(xmlManifest.expectedFiles()).toContain("CommonTemplates/Шаблон/Ext/Template/ru.html")
-    expect(xmlManifest.expectedFiles()).toContain("CommonTemplates/Шаблон/Ext/Template/_files/1.png")
+  it("round-trips encrypted Module .bin as an alternative to .bsl", async () => {
+    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "module-bin-"))
+    const xmlDir = join(tmpDir, "xml", "DataProcessors")
+    const nkdkDir = join(tmpDir, "yaml", "Обработка")
+    const outputDir = join(tmpDir, "out", "DataProcessors")
+    const name = "Обработка"
+    const moduleBin = Buffer.from([0xff, 0xfe, 0x01, 0x02])
+    const rule = {
+      type: "Module" as const,
+      nkdkPath: "МодульОбъекта.bsl",
+      xmlPath: ({ name }: { name: string }) => `${name}/Ext/ObjectModule.bsl`,
+    }
+
+    await fs.promises.mkdir(join(xmlDir, name, "Ext"), { recursive: true })
+    await fs.promises.writeFile(join(xmlDir, name, "Ext", "ObjectModule.bin"), moduleBin)
+
+    await syncModuleFromXML({ rule, xmlDir, nkdkDir, name })
+
+    expect([...fs.readFileSync(join(nkdkDir, "МодульОбъекта.bin"))]).toEqual([...moduleBin])
+    expect(fs.existsSync(join(nkdkDir, "МодульОбъекта.bsl"))).toBe(false)
+
+    const xmlManifest = new XmlSyncManifest(join(tmpDir, "out"))
+    await syncModuleToXML({ rule, nkdkDir, xmlDir: outputDir, name, xmlManifest })
+
+    expect([...fs.readFileSync(join(outputDir, name, "Ext", "ObjectModule.bin"))]).toEqual([...moduleBin])
+    expect(xmlManifest.expectedFiles()).toContain("DataProcessors/Обработка/Ext/ObjectModule.bin")
+  })
+
+  it("fails when XML contains both .bsl and .bin for one Module", async () => {
+    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "module-bin-conflict-"))
+    const xmlDir = join(tmpDir, "xml", "DataProcessors")
+    const nkdkDir = join(tmpDir, "yaml", "Обработка")
+    const name = "Обработка"
+    const rule = {
+      type: "Module" as const,
+      nkdkPath: "МодульОбъекта.bsl",
+      xmlPath: ({ name }: { name: string }) => `${name}/Ext/ObjectModule.bsl`,
+    }
+
+    await fs.promises.mkdir(join(xmlDir, name, "Ext"), { recursive: true })
+    await fs.promises.writeFile(join(xmlDir, name, "Ext", "ObjectModule.bsl"), "Процедура Тест()\nКонецПроцедуры\n")
+    await fs.promises.writeFile(join(xmlDir, name, "Ext", "ObjectModule.bin"), Buffer.from([1, 2, 3]))
+
+    await expect(syncModuleFromXML({ rule, xmlDir, nkdkDir, name })).rejects.toThrow(
+      "Module has both .bsl and .bin"
+    )
+  })
+
+  it("fails when YAML contains both .bsl and .bin for one Module", async () => {
+    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "module-yaml-bin-conflict-"))
+    const nkdkDir = join(tmpDir, "yaml", "Обработка")
+    const outputDir = join(tmpDir, "out", "DataProcessors")
+    const name = "Обработка"
+    const rule = {
+      type: "Module" as const,
+      nkdkPath: "МодульОбъекта.bsl",
+      xmlPath: ({ name }: { name: string }) => `${name}/Ext/ObjectModule.bsl`,
+    }
+
+    await fs.promises.mkdir(nkdkDir, { recursive: true })
+    await fs.promises.writeFile(join(nkdkDir, "МодульОбъекта.bsl"), "Процедура Тест()\nКонецПроцедуры\n")
+    await fs.promises.writeFile(join(nkdkDir, "МодульОбъекта.bin"), Buffer.from([1, 2, 3]))
+
+    await expect(syncModuleToXML({ rule, nkdkDir, xmlDir: outputDir, name })).rejects.toThrow(
+      "Module has both .bsl and .bin"
+    )
   })
 })

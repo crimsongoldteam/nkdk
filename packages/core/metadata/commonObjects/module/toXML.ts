@@ -1,6 +1,5 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
-import { syncExplicitExternalFilesToXML } from "~/metadata/commonObjects/externalFiles/sync"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type {
   ModulePropertyRule,
@@ -34,20 +33,24 @@ export const syncModuleToXML = async (params: {
   const nkdkPath = typeof rawNkdkPath === "function" ? rawNkdkPath(pathParams) : rawNkdkPath
 
   const srcPath = join(nkdkDir, nkdkPath)
-  const xmlRelativePath = stripObjectPrefix({ xmlDir, xmlPath, objectName: params.name })
-  const dstPath = join(xmlDir, xmlRelativePath)
-  if (fs.existsSync(srcPath)) {
+  const altNkdkPath = alternateNkdkPath(nkdkPath)
+  const altSrcPath = altNkdkPath === undefined ? undefined : join(nkdkDir, altNkdkPath)
+  const found = existingPaths([srcPath, ...(altSrcPath ? [altSrcPath] : [])])
+
+  if (found.length > 1) {
+    throw new Error(`Module has both .bsl and .bin: ${nkdkPath}`)
+  }
+
+  if (found.length === 1) {
+    const isBinary = found[0].toLowerCase().endsWith(".bin")
+    const outputXmlPath = isBinary ? alternateModulePath(xmlPath) : xmlPath
+    if (!outputXmlPath) throw new Error(`Module binary alternative requires .bsl xmlPath: ${xmlPath}`)
+    const xmlRelativePath = stripObjectPrefix({ xmlDir, xmlPath: outputXmlPath, objectName: params.name })
+    const dstPath = join(xmlDir, xmlRelativePath)
     await fs.promises.mkdir(dirname(dstPath), { recursive: true })
-    await fs.promises.copyFile(srcPath, dstPath)
+    await fs.promises.copyFile(found[0], dstPath)
     params.xmlManifest?.addFile(dstPath)
   }
-  await syncExplicitExternalFilesToXML({
-    rules: rule.externalFiles,
-    nkdkDir,
-    xmlDir: resolveExternalOutputRoot({ xmlDir, xmlPath, objectName: params.name }),
-    pathParams,
-    xmlManifest: params.xmlManifest,
-  })
 }
 
 registerTypeRule("Module", "syncExternalToXML", syncModuleToXML)
@@ -60,9 +63,10 @@ const stripObjectPrefix = (params: { xmlDir: string; xmlPath: string; objectName
   return xmlPath.startsWith(prefix) ? xmlPath.slice(prefix.length) : xmlPath
 }
 
-const resolveExternalOutputRoot = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
-  if (!params.objectName || basename(params.xmlDir) === params.objectName) return params.xmlDir
+const alternateModulePath = (path: string): string | undefined =>
+  path.endsWith(".bsl") ? path.replace(/\.bsl$/i, ".bin") : undefined
 
-  const prefix = `${params.objectName}/`
-  return params.xmlPath.startsWith(prefix) ? params.xmlDir : join(params.xmlDir, params.objectName)
-}
+const alternateNkdkPath = (path: string): string | undefined =>
+  path.endsWith(".bsl") ? path.replace(/\.bsl$/i, ".bin") : undefined
+
+const existingPaths = (paths: string[]): string[] => paths.filter((path) => fs.existsSync(path))

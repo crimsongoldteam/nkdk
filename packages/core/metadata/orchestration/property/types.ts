@@ -273,7 +273,6 @@ export interface ModulePropertyRule extends BasePropertyRule {
   nkdkPath: string | ((params: { name: string; parentName?: string }) => string)
   /** Путь к файлу на xml-стороне (относительно директории объекта), строка или функция от { name } */
   xmlPath: string | ((params: { name: string; parentName?: string }) => string)
-  externalFiles?: readonly ExternalFileRule[]
 }
 
 export interface TemplatePropertyRule extends BasePropertyRule {
@@ -282,7 +281,6 @@ export interface TemplatePropertyRule extends BasePropertyRule {
   nkdkPath: string | ((params: { name: string; parentName?: string }) => string)
   /** Путь к файлу на xml-стороне (относительно директории объекта), строка или функция от { name } */
   xmlPath: string | ((params: { name: string; parentName?: string }) => string)
-  externalFiles?: readonly ExternalFileRule[]
 }
 
 export interface HelpPropertyRule extends BasePropertyRule {
