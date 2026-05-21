@@ -116,7 +116,7 @@ describe("export DCSParameter to XML", () => {
         itemType: "DCSParameter" as const,
         name: "ИдентификаторПоиска",
         valueType: { type: ["UUID"] },
-        value: "00000000-0000-0000-0000-000000000000",
+        value: { type: "string" as const, value: "00000000-0000-0000-0000-000000000000" },
         useRestriction: true,
       },
     ])

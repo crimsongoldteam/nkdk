@@ -84,11 +84,21 @@ const inferEntSystemEnumerationType = (item: DCSParameter): keyof SystemEnumerat
 }
 
 const normalizeValueByValueType = (item: DCSParameter): DCSParameter => {
-  if (item.value === undefined || item.value === null || typeof item.value !== "string") return item
+  if (item.value === undefined || item.value === null) return item
 
   const typeName = getSingleValueTypeName(item)
   if (typeName === "UUID") {
-    return { ...item, value: { type: "uuid", value: item.value } }
+    if (typeof item.value === "string") {
+      return { ...item, value: { type: "uuid", value: item.value } }
+    }
+    if (
+      typeof item.value === "object" &&
+      !Array.isArray(item.value) &&
+      item.value.type === "string" &&
+      typeof item.value.value === "string"
+    ) {
+      return { ...item, value: { type: "uuid", value: item.value.value } }
+    }
   }
 
   return item
