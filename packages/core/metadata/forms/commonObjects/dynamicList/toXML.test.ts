@@ -153,4 +153,80 @@ describe("export DynamicList to XML", () => {
     expect(result).toContain("<KeyField>Контрагент</KeyField>")
     expect(result).toContain("<KeyField>ИдентификаторОрганизации</KeyField>")
   })
+
+  it("restores explicit Asc calculated field orderType from reference XML", () => {
+    const currentValue = {
+      itemType: "DynamicList",
+      calculatedFields: [
+        {
+          itemType: "CalculatedField",
+          dataPath: "Дата",
+          expression: "Дата",
+          orderExpressions: [
+            {
+              itemType: "CalculatedFieldOrderExpression",
+              expression: "Дата",
+              autoOrder: false,
+            },
+          ],
+        },
+      ],
+    }
+    const referenceMetadata = {
+      itemType: "DynamicList",
+      calculatedFields: [
+        {
+          itemType: "CalculatedField",
+          dataPath: "Дата",
+          expression: "Дата",
+          orderExpressions: [
+            {
+              itemType: "CalculatedFieldOrderExpression",
+              expression: "Дата",
+              orderType: "Asc",
+              autoOrder: false,
+            },
+          ],
+        },
+      ],
+    }
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: currentValue,
+      referenceMetadata,
+      xmlRootTag: "Settings",
+    })
+
+    expect(result).toContain(
+      '<orderType xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Asc</orderType>'
+    )
+  })
+
+  it("does not invent Asc calculated field orderType without reference XML", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: {
+        itemType: "DynamicList",
+        calculatedFields: [
+          {
+            itemType: "CalculatedField",
+            dataPath: "Дата",
+            expression: "Дата",
+            orderExpressions: [
+              {
+                itemType: "CalculatedFieldOrderExpression",
+                expression: "Дата",
+                autoOrder: false,
+              },
+            ],
+          },
+        ],
+      },
+      referenceMetadata: undefined,
+      xmlRootTag: "Settings",
+    })
+
+    expect(result).not.toContain("<orderType")
+  })
 })

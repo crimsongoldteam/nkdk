@@ -7,12 +7,20 @@ import { CalculatedFieldOrderExpressionRules } from "./rules"
 export const exportCalculatedFieldOrderExpressionToXML: ExportToXMLFunctionNew = (params: {
   context: ConfigurationContextWithExportToXML
   value: CalculatedFieldOrderExpression | undefined
+  referenceMetadata?: CalculatedFieldOrderExpression | undefined
 }) => {
-  const { context, value } = params
+  const { context, value, referenceMetadata } = params
   if (!value || value.length === 0) return undefined
 
   const exported = (value as CalculatedFieldOrderExpressionItem[]).flatMap((item) => {
-    const result = exportMetadataItemToXML({ context, data: item, rule: CalculatedFieldOrderExpressionRules })
+    const referenceItem = referenceMetadata?.find((reference) => reference.expression === item.expression)
+    const data = restoreExplicitReferenceAsc(item, referenceItem)
+    const result = exportMetadataItemToXML({
+      context,
+      data,
+      rule: CalculatedFieldOrderExpressionRules,
+      referenceData: referenceItem,
+    })
     return result ? [result] : []
   })
 
@@ -20,3 +28,18 @@ export const exportCalculatedFieldOrderExpressionToXML: ExportToXMLFunctionNew =
 }
 
 type CalculatedFieldOrderExpression = CalculatedFieldOrderExpressionItem[]
+
+const restoreExplicitReferenceAsc = (
+  value: CalculatedFieldOrderExpressionItem,
+  referenceMetadata: CalculatedFieldOrderExpressionItem | undefined
+): CalculatedFieldOrderExpressionItem => {
+  if (
+    value.orderType === undefined &&
+    referenceMetadata?.orderType === "Asc" &&
+    value.expression === referenceMetadata.expression
+  ) {
+    return { ...value, orderType: "Asc" }
+  }
+
+  return value
+}
