@@ -45,4 +45,47 @@ describe("export CalculatedFields to XML", () => {
       },
     ])
   })
+
+  it("matches reference fields by dataPath when restoring explicit Asc", () => {
+    const result = exportPropertyToXML({
+      context: mockContextToXML(),
+      rule,
+      value: [
+        {
+          itemType: "CalculatedField",
+          dataPath: "ПредставлениеПериода",
+          expression: "",
+          orderExpressions: [
+            {
+              itemType: "CalculatedFieldOrderExpression",
+              expression: "Дата",
+              autoOrder: false,
+            },
+          ],
+        },
+      ],
+      referenceMetadata: [
+        {
+          itemType: "CalculatedField",
+          dataPath: "ДругоеПоле",
+          expression: "",
+        },
+        {
+          itemType: "CalculatedField",
+          dataPath: "ПредставлениеПериода",
+          expression: "",
+          orderExpressions: [
+            {
+              itemType: "CalculatedFieldOrderExpression",
+              expression: "Дата",
+              orderType: "Asc",
+              autoOrder: false,
+            },
+          ],
+        },
+      ],
+    })
+
+    expect(JSON.stringify(result)).toContain('"orderType":{"#text":"Asc"')
+  })
 })
