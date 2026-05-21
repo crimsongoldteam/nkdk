@@ -204,4 +204,94 @@ describe("importFormAttributesFromYAML", () => {
       },
     })
   })
+
+  it("should preserve column title languages from source when default language is absent", () => {
+    const result = importFormAttributesFromYAML(
+      mockContext,
+      mockRule,
+      {
+        Таблица: {
+          Заголовок: "",
+          Тип: "ТаблицаЗначений",
+          Колонки: {
+            Колонка: {
+              Заголовок: { en: "Column sent" },
+              Тип: "Строка",
+            },
+          },
+        },
+      },
+      [
+        {
+          name: "Таблица",
+          title: { items: { ru: "" } },
+          type: { type: ["ValueTable"] },
+          itemType: "FormAttribute",
+          columns: [
+            {
+              name: "Колонка",
+              title: { items: { en: "Column sent" } },
+              type: { type: ["string"] },
+              itemType: "FormAttributeColumn",
+            },
+          ],
+        },
+      ]
+    )
+
+    expect(result?.[0]?.columns[0]?.title).toEqual({
+      items: {
+        en: "Column sent",
+      },
+    })
+  })
+
+  it("should preserve additional column title languages from source when default language is absent", () => {
+    const result = importFormAttributesFromYAML(
+      mockContext,
+      mockRule,
+      {
+        Таблица: {
+          Заголовок: "",
+          Тип: "ТаблицаЗначений",
+          ДополнительныеКолонки: {
+            "Объект.Таблица": {
+              Колонка: {
+                Заголовок: { en: "Column sent" },
+                Тип: "Строка",
+              },
+            },
+          },
+        },
+      },
+      [
+        {
+          name: "Таблица",
+          title: { items: { ru: "" } },
+          type: { type: ["ValueTable"] },
+          itemType: "FormAttribute",
+          columns: [],
+          additionalColumns: [
+            {
+              table: "Объект.Таблица",
+              columns: [
+                {
+                  name: "Колонка",
+                  title: { items: { en: "Column sent" } },
+                  type: { type: ["string"] },
+                  itemType: "FormAttributeColumn",
+                },
+              ],
+            },
+          ],
+        },
+      ]
+    )
+
+    expect(result?.[0]?.additionalColumns?.[0]?.columns[0]?.title).toEqual({
+      items: {
+        en: "Column sent",
+      },
+    })
+  })
 })
