@@ -8,11 +8,23 @@ describe("exportMetadataFieldToYAML", () => {
     const result = exportMetadataFieldStringToYAML(mockContext, mockRule, expected)
     expect(result).toEqual(enterpriseValue)
   })
+
+  test("keeps user-defined field path segment that matches metadata type alias literal", () => {
+    expect(exportMetadataFieldStringToYAML(mockContext, mockRule, "Document.Продажа.Attribute.Документ")).toBe(
+      "Документ.Продажа.Реквизит.Документ"
+    )
+  })
 })
 
 describe("exportMetadataValueStringToYAML", () => {
   test.each(tableMetadataValues)("export %s to %s", (expected: string, enterpriseValue: string) => {
     const result = exportMetadataValueStringToYAML(mockContext, mockRule, expected)
     expect(result).toEqual(enterpriseValue)
+  })
+
+  test("keeps user-defined value path segment that matches metadata type alias literal", () => {
+    expect(exportMetadataValueStringToYAML(mockContext, mockRule, "CommonCommand.ПланСчетов")).toBe(
+      "ОбщаяКоманда.ПланСчетов"
+    )
   })
 })

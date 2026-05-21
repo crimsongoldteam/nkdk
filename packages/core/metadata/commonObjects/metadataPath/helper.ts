@@ -63,6 +63,7 @@ export const convertPath = (rules: MetadataFieldsRules, path: string): string =>
   const parts = path.split(".")
   const result: string[] = []
   let currentRules: MetadataFieldsRules | undefined = rules
+  let pendingRules: MetadataFieldsRules | undefined
   let i = 0
 
   while (i < parts.length) {
@@ -74,17 +75,24 @@ export const convertPath = (rules: MetadataFieldsRules, path: string): string =>
       if (typeof rule === "string") {
         result.push(rule)
         currentRules = undefined
+        pendingRules = undefined
         i++
         continue
       }
 
+      const shouldActivateFieldsAfterLiteralSegment =
+        Boolean(rule.fields) && (result.length === 0 || part === "TabularSection" || part === "ТабличнаяЧасть")
+
       result.push(rule.name)
-      currentRules = rule.fields as MetadataFieldsRules
+      currentRules = shouldActivateFieldsAfterLiteralSegment ? undefined : (rule.fields as MetadataFieldsRules)
+      pendingRules = shouldActivateFieldsAfterLiteralSegment ? (rule.fields as MetadataFieldsRules) : undefined
       i++
       continue
     }
 
     result.push(part)
+    currentRules = pendingRules
+    pendingRules = undefined
     i++
   }
 

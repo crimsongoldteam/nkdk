@@ -15,4 +15,16 @@ describe("importMetadataValueStringFromYAML", () => {
     const result = importMetadataValueStringFromYAML(mockContext, mockRule, enterpriseValue)
     expect(result).toEqual(expected)
   })
+
+  test("keeps user-defined value path segment that matches metadata type alias literal", () => {
+    expect(importMetadataValueStringFromYAML(mockContext, mockRule, "ОбщаяКоманда.ПланСчетов")).toBe(
+      "CommonCommand.ПланСчетов"
+    )
+  })
+
+  test("converts real value path category and empty reference segments", () => {
+    expect(importMetadataValueStringFromYAML(mockContext, mockRule, "ПланСчетов.Хозрасчетный.ПустаяСсылка")).toBe(
+      "ChartOfAccounts.Хозрасчетный.EmptyRef"
+    )
+  })
 })
