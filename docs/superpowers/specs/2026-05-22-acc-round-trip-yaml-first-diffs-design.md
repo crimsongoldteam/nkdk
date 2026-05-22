@@ -238,7 +238,7 @@ Existing tests should continue to prove that Russian-only presentation remains:
 Verification should include focused `formChoiceList` YAML tests and then
 `round-trip-yaml --triage --batch-size 5` for the current batch.
 
-## Open Point: Empty v8:LocalStringType value in SettingsParameterValue
+## Accepted Decision: Empty v8:LocalStringType value in SettingsParameterValue
 
 Diff 4 loses an explicitly present empty value:
 
@@ -250,13 +250,85 @@ The current round-trip removes the node entirely. This must be analyzed
 separately from the explicit `dcscor:Field` group, because the value is empty
 but still positionally and semantically present in the source XML.
 
-Questions to settle:
+### Root cause
 
-- whether the empty typed value should be represented in YAML explicitly;
-- whether reference XML should preserve this node when YAML omits a public
-  value;
-- whether this belongs in `parameterValue`, `dcsMetadataValue`, or
-  `DcsLocalStringType`.
+`dcsMetadataValue/fromXML.ts` imports empty `v8:LocalStringType` as:
+
+```ts
+{ items: {} }
+```
+
+Then `dcsMetadataValue/toYAML.ts` delegates to the shared `I8nText` YAML
+exporter. Empty `items` exports as `undefined`, so
+`parameterValue/toYAML.ts` does not write `Значение`. During YAML import the
+public value is absent, and XML sync no longer knows that the source XML had an
+explicit empty typed value.
+
+### Decision
+
+Keep YAML compact and preserve this case through reference XML.
+
+If current YAML/model has no public `value`, but the reference import saw an
+explicit empty `dcscor:value xsi:type="v8:LocalStringType"`, XML export should
+restore:
+
+```xml
+<dcscor:value xsi:type="v8:LocalStringType"/>
+```
+
+This mirrors the existing reference-preservation approach for
+`SettingsParameterValue` nil values: YAML does not need to grow a new marker
+for a value that is empty and only matters for exact XML round-trip.
+
+### Alternatives considered
+
+Option A, add an explicit YAML marker such as
+`Тип: ЛокализованнаяСтрока` plus `Значение: {}`, was rejected because it makes
+YAML noisier for an XML-only empty typed node.
+
+Option B, preserve via reference XML, is accepted. It keeps YAML compact and
+fits the current round-trip flow where XML sync has access to reference
+metadata.
+
+Option C, use plain `Значение: {}`, was rejected because it is ambiguous and
+does not clearly express the original XML type.
+
+### Implementation shape
+
+Change the `SettingsParameterValue` XML reference path:
+
+- during reference XML import, remember that `dcscor:value` was explicitly
+  present as empty `v8:LocalStringType`;
+- keep ordinary import/YAML export compact, so public YAML omits `Значение`;
+- during XML export, when current data has no public value and reference data
+  carries the empty-local-string marker, write
+  `<dcscor:value xsi:type="v8:LocalStringType"/>`;
+- explicit current values must still win over reference preservation.
+
+The marker should live on the internal `ParameterValue`/`SettingsParameterValue`
+reference data, similar to `__referenceNilValue`, and should not appear in
+public YAML.
+
+No XML fixtures should change.
+
+### Tests
+
+Add focused `parameterValue` coverage:
+
+- XML import of a `SettingsParameterValue` with empty
+  `v8:LocalStringType` keeps no public `value` in ordinary import;
+- reference XML import records an internal marker for that empty typed value;
+- XML export restores empty `v8:LocalStringType` from reference when current
+  value is absent;
+- XML export writes the explicit current value instead of the reference empty
+  node when current value is present.
+
+Also keep existing tests for `xsi:nil` reference preservation green.
+
+This behavior intentionally depends on reference XML. If there is no reference
+metadata and YAML omits `Значение`, XML export should not invent an empty
+`v8:LocalStringType`.
+
 
 ## Scope
 
@@ -268,6 +340,7 @@ The accepted implementation units are:
 
 - `SettingsParameterValue` explicit DCS value type preservation;
 - `FormChoiceListDesTimeValue` single non-default-language presentation.
+- `SettingsParameterValue` empty `v8:LocalStringType` reference preservation.
 
 Other points must be accepted before they are included in an implementation
 plan.
