@@ -231,3 +231,49 @@ Add focused tests for:
 - YAML import of that shape restores `type: "DataCompositionComparisonType"` and the internal enum value.
 - XML export from imported YAML writes `dcsset:DataCompositionComparisonType`.
 - Existing plain string form choice values remain plain strings.
+
+## Decision 4: form help external files
+
+### Observed diffs
+
+The full ERP triage has 139 deleted files under form help directories:
+
+```text
+Ext/Help/_files/*
+```
+
+Examples:
+
+- `Catalogs/ИсточникиДанныхДляРасчетов/Forms/ФормаЭлемента/Ext/Help/_files/001.png`
+- `DataProcessors/СхемыСправки/Forms/ЗакупкиОбщаяСхема/Ext/Help/_files/ЗакупкиОбщаяСхема.png`
+- `Documents/ЭтапПроизводства2_2/Forms/Диспетчирование/Ext/Help/_files/Кнопка.png`
+
+Round-trip deletes these binary/image files during YAML -> XML sync.
+
+### Current behavior
+
+Form help content itself is handled, but files nested in `Ext/Help/_files` are not preserved by the current
+external-file sync path for forms.
+
+These files are opaque external files. They are not metadata model properties and should not be parsed into YAML.
+
+### Accepted design
+
+Preserve form help files as raw external files:
+
+- During XML -> YAML import, copy every file under form `Ext/Help/_files/**` to the YAML tree.
+- During YAML -> XML sync, copy those files back to the XML tree.
+- Preserve file names, extensions, nested paths, and bytes exactly.
+- Do not derive model fields from these files.
+- Do not require a corresponding YAML scalar/object entry for each file.
+
+This is the same kind of behavior as other form external files that must survive round-trip without semantic parsing.
+
+### Testing
+
+Add focused sync tests for:
+
+- A form with `Ext/Help/_files/001.png` keeps the file after XML -> YAML -> XML.
+- The copied file is byte-identical.
+- Multiple files in the same help `_files` directory are preserved.
+- The behavior is limited to external file copying and does not add YAML model properties for help images.
