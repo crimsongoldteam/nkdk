@@ -50,6 +50,58 @@ describe("sync ClientApplicationForm to XML", () => {
     expect(resultMetadataXML).toBe(expectedMetadataXML)
   })
 
+  it("передаёт currentXMLPath в экспорт формы и восстанавливает ERP AdditionalColumns", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-current-xml-path-"))
+    const tmpInputDir = join(tmpRoot, "yaml")
+    const tmpReferenceDir = join(tmpRoot, "reference-forms")
+    const erpFormName = "ФормаСписка"
+
+    try {
+      fs.mkdirSync(join(tmpInputDir, "Формы", erpFormName), { recursive: true })
+      fs.cpSync(referenceDir, tmpReferenceDir, { recursive: true })
+      fs.copyFileSync(join(referenceDir, `${formName}.xml`), join(tmpReferenceDir, `${erpFormName}.xml`))
+      fs.cpSync(join(referenceDir, formName), join(tmpReferenceDir, erpFormName), { recursive: true })
+      fs.writeFileSync(
+        join(tmpInputDir, "Формы", erpFormName, "Форма.yaml"),
+        [
+          "Реквизиты:",
+          "  Объект:",
+          "    Заголовок: ''",
+          "    Тип: Строка",
+          "    ДополнительныеКолонки:",
+          "      Список.Способы:",
+          "        Реквизит1:",
+          "          Заголовок: Реквизит1",
+          "          Тип: Строка",
+          "Элементы:",
+          "  ПолеВвода1:",
+          "    Вид: ПолеВвода",
+          "    ПутьКДанным: Объект",
+          "",
+        ].join("\n"),
+        "utf-8"
+      )
+
+      await syncFormToXML({
+        context: mockContextToXML(),
+        inputDir: tmpInputDir,
+        outputDir,
+        referenceDir: tmpReferenceDir,
+        formName: erpFormName,
+        currentXMLPath: "Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml",
+      })
+
+      const resultFormXML = fs.readFileSync(join(outputDir, "Forms", erpFormName, "Ext", "Form.xml"), "utf-8")
+
+      expect(resultFormXML.match(/<Column name="Реквизит1" id="[1-5]">/g)).toHaveLength(5)
+      for (const id of ["1", "2", "3", "4", "5"]) {
+        expect(resultFormXML).toContain(`<Column name="Реквизит1" id="${id}">`)
+      }
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
   it("не накапливает состояние нумерации в родительском контексте между формами", async () => {
     const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-numbering-"))
     const tmpInputDir = join(tmpRoot, "yaml")
