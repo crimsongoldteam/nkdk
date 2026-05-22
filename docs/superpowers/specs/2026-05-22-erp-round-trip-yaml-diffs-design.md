@@ -335,3 +335,135 @@ Add focused sync tests for:
 - A nested owner form with `Forms/<name>/Ext/Form.bin` preserves the file through XML -> YAML -> XML.
 - `Form.bin` bytes are identical after round-trip.
 - The behavior works when `Ext/Form.xml` is absent.
+
+## Decision 6: explicit empty `xs:string` in DCS settings parameter values
+
+### Observed diffs
+
+Files:
+
+- `DataProcessors/УправлениеПродажамиНаМаркетплейсах/Forms/ВыгрузкаТоварногоКаталога/Ext/Form.xml`
+- `InformationRegisters/ЗаказыТорговыхПлощадок/Forms/ПодготовкаОтгрузки/Ext/Form.xml`
+
+Round-trip changes an empty typed string parameter value into a DCS field:
+
+```diff
+  <dcscor:parameter>НоменклатураВключение</dcscor:parameter>
+- <dcscor:value xsi:type="xs:string"/>
++ <dcscor:value xsi:type="dcscor:Field">""</dcscor:value>
+```
+
+The same happens for `НомераОтправленийИсключенные`.
+
+### Current behavior
+
+XML import keeps the empty value as a typed primitive string:
+
+```ts
+{ type: "string", value: "" }
+```
+
+YAML export currently writes it as a scalar that visually looks like an empty string literal:
+
+```yaml
+ПараметрыДанных:
+  НоменклатураВключение:
+    Использовать: Ложь
+    Значение: '""'
+```
+
+On YAML import, this scalar is parsed in a `Field`-typed DCS context and becomes a DCS field expression with
+the text `""`. XML export then writes `dcscor:Field`.
+
+### Accepted design
+
+When a DCS settings parameter value contains a typed primitive string in a context where a plain scalar would
+be interpreted as a field, export it with an explicit value wrapper:
+
+```yaml
+ПараметрыДанных:
+  НоменклатураВключение:
+    Использовать: Ложь
+    Значение:
+      Тип: Строка
+      Значение: ""
+```
+
+Rules:
+
+- `Тип: Строка` maps to internal metadata value `{ type: "string", value: ... }`.
+- Empty string must round-trip as `xs:string` with no `#text`.
+- The explicit wrapper is used to disambiguate typed primitive strings from DCS field expressions.
+- Plain scalar field syntax stays supported for actual `dcscor:Field` values.
+- This rule applies to `SettingsParameterValue` and any other DCS value location where the rule context would
+  otherwise interpret a quoted scalar as `Field`.
+
+### Testing
+
+Add focused tests for:
+
+- XML import of empty `xs:string` in `SettingsParameterValue` exports to YAML as `Тип: Строка` / `Значение: ""`.
+- YAML import of that shape restores `{ type: "string", value: "" }`.
+- XML export from that YAML writes `dcscor:value xsi:type="xs:string"` without text.
+- Existing DCS field values still export/import as plain field scalars or explicit `Тип: Поле` where applicable.
+
+## Decision 7: known ERP duplicate `AdditionalColumns` anomaly
+
+### Observed diff
+
+File:
+
+- `Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml`
+
+The source XML has multiple additional columns with the same name and type, but different `id` values:
+
+```xml
+<AdditionalColumns table="Список.Способы">
+  <Column name="Реквизит1" id="1">...</Column>
+  <Column name="Реквизит1" id="2">...</Column>
+  <Column name="Реквизит1" id="3">...</Column>
+  <Column name="Реквизит1" id="4">...</Column>
+  <Column name="Реквизит1" id="5">...</Column>
+</AdditionalColumns>
+```
+
+Round-trip keeps only one column because YAML stores additional columns by column name:
+
+```yaml
+ДополнительныеКолонки:
+  Список.Способы:
+    Реквизит1:
+      Тип: Строка
+```
+
+### Accepted design
+
+Treat this as a known ERP XML anomaly, not as a reason to change the general YAML contract.
+
+Keep the normal YAML shape:
+
+```yaml
+ДополнительныеКолонки:
+  Список.Способы:
+    Реквизит1:
+      Тип: Строка
+```
+
+Rules:
+
+- Do not change `ДополнительныеКолонки` to an array format for the general case.
+- Do not expose duplicate ERP columns in YAML.
+- Add a narrow compatibility workaround for this exact XML file:
+  `Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml`.
+- During YAML -> XML sync for that exact form, restore the five `Реквизит1` additional columns with their original `id`
+  values when the canonical YAML contains the single `Реквизит1` column.
+- Keep the workaround path-specific and documented so it does not affect other forms or catalogs.
+
+### Testing
+
+Add focused tests for:
+
+- The known ERP form YAML stays canonical and contains one `Реквизит1` additional column.
+- XML export/sync for the exact known form restores all five duplicate `Реквизит1` columns.
+- Other forms with `ДополнительныеКолонки` are not affected by the workaround.
+- The existing dictionary YAML import/export for normal additional columns remains unchanged.
