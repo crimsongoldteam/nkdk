@@ -178,7 +178,132 @@ describe("sync ClientApplicationForm to XML", () => {
       fs.rmSync(tmpRoot, { recursive: true, force: true })
     }
   })
+
+  it("восстанавливает ordinary form metadata и Form.bin без Ext/Form.xml", async () => {
+    const ordinaryFormName = "ОбычнаяФорма"
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-ordinary-form-bin-"))
+    const xmlInputDir = join(tmpRoot, "xml", "Forms")
+    const yamlInputDir = join(tmpRoot, "yaml")
+    const formExtDir = join(xmlInputDir, ordinaryFormName, "Ext")
+
+    try {
+      fs.mkdirSync(formExtDir, { recursive: true })
+      fs.writeFileSync(join(xmlInputDir, `${ordinaryFormName}.xml`), ordinaryFormMetadataXML(ordinaryFormName))
+      fs.writeFileSync(join(formExtDir, "Form.bin"), Buffer.from([0, 1, 2, 255]))
+
+      await convertFormFromXML({
+        context: mockContextFromXML(),
+        inputDir: xmlInputDir,
+        formName: ordinaryFormName,
+        outputDir: yamlInputDir,
+      })
+
+      await syncFormToXML({
+        context: mockContextToXML(),
+        inputDir: yamlInputDir,
+        outputDir,
+        referenceDir: xmlInputDir,
+        formName: ordinaryFormName,
+      })
+
+      expect(fs.existsSync(join(outputDir, "Forms", ordinaryFormName, "Ext", "Form.xml"))).toBe(false)
+      expect([...fs.readFileSync(join(outputDir, "Forms", ordinaryFormName, "Ext", "Form.bin"))]).toEqual([
+        0, 1, 2, 255,
+      ])
+      expect(fs.readFileSync(join(outputDir, "Forms", `${ordinaryFormName}.xml`), "utf-8")).toContain(
+        "<FormType>Ordinary</FormType>"
+      )
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
+  it("восстанавливает metadata-only ordinary form без каталога Ext", async () => {
+    const ordinaryFormName = "ОбычнаяБезТела"
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-ordinary-form-metadata-only-"))
+    const xmlInputDir = join(tmpRoot, "xml", "Forms")
+    const yamlInputDir = join(tmpRoot, "yaml")
+
+    try {
+      fs.mkdirSync(xmlInputDir, { recursive: true })
+      fs.writeFileSync(join(xmlInputDir, `${ordinaryFormName}.xml`), ordinaryFormMetadataXML(ordinaryFormName))
+
+      await convertFormFromXML({
+        context: mockContextFromXML(),
+        inputDir: xmlInputDir,
+        formName: ordinaryFormName,
+        outputDir: yamlInputDir,
+      })
+
+      await syncFormToXML({
+        context: mockContextToXML(),
+        inputDir: yamlInputDir,
+        outputDir,
+        referenceDir: xmlInputDir,
+        formName: ordinaryFormName,
+      })
+
+      expect(fs.readFileSync(join(outputDir, "Forms", `${ordinaryFormName}.xml`), "utf-8")).toContain(
+        "<FormType>Ordinary</FormType>"
+      )
+      expect(fs.existsSync(join(outputDir, "Forms", ordinaryFormName, "Ext"))).toBe(false)
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
+  it("сохраняет Ext/Form.xml для ordinary form, если тело есть в reference", async () => {
+    const ordinaryFormName = "ОбычнаяФормаСТелом"
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-ordinary-form-xml-body-"))
+    const xmlInputDir = join(tmpRoot, "xml", "Forms")
+    const yamlInputDir = join(tmpRoot, "yaml")
+    const formExtDir = join(xmlInputDir, ordinaryFormName, "Ext")
+
+    try {
+      fs.mkdirSync(formExtDir, { recursive: true })
+      fs.writeFileSync(join(xmlInputDir, `${ordinaryFormName}.xml`), ordinaryFormMetadataXML(ordinaryFormName))
+      const formXML = readXMLFixtureAsString(import.meta.url, "minimal.xml")
+      fs.writeFileSync(join(formExtDir, "Form.xml"), formXML)
+
+      await convertFormFromXML({
+        context: mockContextFromXML(),
+        inputDir: xmlInputDir,
+        formName: ordinaryFormName,
+        outputDir: yamlInputDir,
+      })
+
+      await syncFormToXML({
+        context: mockContextToXML(),
+        inputDir: yamlInputDir,
+        outputDir,
+        referenceDir: xmlInputDir,
+        formName: ordinaryFormName,
+      })
+
+      expect(fs.readFileSync(join(outputDir, "Forms", ordinaryFormName, "Ext", "Form.xml"), "utf-8")).toBe(formXML)
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
 })
+
+const ordinaryFormMetadataXML = (formName: string): string => `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Form uuid="ed103b94-8ed1-443a-a7ea-5a2eb7fc6fbc">
+		<Properties>
+			<Name>${formName}</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>${formName}</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment/>
+			<FormType>Ordinary</FormType>
+			<IncludeHelpInContents>false</IncludeHelpInContents>
+		</Properties>
+	</Form>
+</MetaDataObject>`
 
 describe("round-trip: withDynamicList XML → YAML+bsl → XML", () => {
   const xmlFixturesDir = getXMLFixtureDir(import.meta.url, "sync/xml/Forms")

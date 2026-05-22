@@ -1,5 +1,5 @@
 import fs from "fs"
-import { join } from "path"
+import { dirname, join } from "path"
 import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
@@ -30,8 +30,6 @@ export const syncFormToXML = async (params: {
 
   const contextWithFormDir = createFormScopedContext({ context, formDir })
 
-  const form = importClientApplicationFormFromYAML(contextWithFormDir, yamlObj)
-
   const contextFromXML: ConfigurationContextFromXML = {
     fromXML: {
       forReference: true,
@@ -45,7 +43,13 @@ export const syncFormToXML = async (params: {
     formName,
   })
 
-  const formXML = exportClientApplicationFormToXML({ context: contextWithFormDir, form, referenceForm })
+  const form = importClientApplicationFormFromYAML(contextWithFormDir, yamlObj, referenceForm)
+  const isOrdinaryForm = form.formType === "Ordinary"
+  const referenceHasFormXML = hasReferenceFormXML({ referenceDir, formName })
+
+  const formXML = isOrdinaryForm && !referenceHasFormXML
+    ? undefined
+    : exportClientApplicationFormToXML({ context: contextWithFormDir, form, referenceForm })
   const metadataXML = exportFormMetadataToXML({
     context: contextWithFormDir,
     form,
@@ -61,11 +65,16 @@ export const syncFormToXML = async (params: {
     outputDir,
     xmlManifest: params.xmlManifest,
   })
-  await copyFormItemExternalFilesToXML({
-    formNkdkDir: formDir,
-    formXmlDir: join(outputDir, "Forms", formName, "Ext"),
-    xmlManifest: params.xmlManifest,
-  })
+  if (formXML !== undefined) {
+    await copyFormItemExternalFilesToXML({
+      formNkdkDir: formDir,
+      formXmlDir: join(outputDir, "Forms", formName, "Ext"),
+      xmlManifest: params.xmlManifest,
+    })
+  }
+  if (isOrdinaryForm) {
+    await copyFormBinToXML({ formDir, formName, outputDir, xmlManifest: params.xmlManifest })
+  }
 }
 
 async function readFormFiles(params: { inputDir: string; formName: string }): Promise<{
@@ -110,9 +119,12 @@ const createFormScopedContext = (params: {
   }
 }
 
+const hasReferenceFormXML = (params: { referenceDir: string; formName: string }): boolean =>
+  fs.existsSync(join(params.referenceDir, params.formName, "Ext", "Form.xml"))
+
 const writeFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
-  formXML: ClientApplicationFormXML
+  formXML: ClientApplicationFormXML | undefined
   metadataXML: FormMetadataXML
   formName: string
   outputDir: string
@@ -126,10 +138,27 @@ const writeFormToXML = async (params: {
   const formXmlPath = join(formExtDir, "Form.xml")
 
   await fs.promises.mkdir(formsOutDir, { recursive: true })
-  await fs.promises.mkdir(formExtDir, { recursive: true })
 
   await fs.promises.writeFile(formMetadataPath, xmlExport({ MetaDataObject: metadataXML }), "utf-8")
-  await fs.promises.writeFile(formXmlPath, xmlExport({ Form: formXML }), "utf-8")
   params.xmlManifest?.addFile(formMetadataPath)
-  params.xmlManifest?.addFile(formXmlPath)
+  if (formXML !== undefined) {
+    await fs.promises.mkdir(formExtDir, { recursive: true })
+    await fs.promises.writeFile(formXmlPath, xmlExport({ Form: formXML }), "utf-8")
+    params.xmlManifest?.addFile(formXmlPath)
+  }
+}
+
+const copyFormBinToXML = async (params: {
+  formDir: string
+  formName: string
+  outputDir: string
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+}): Promise<void> => {
+  const sourcePath = join(params.formDir, "Form.bin")
+  if (!fs.existsSync(sourcePath)) return
+
+  const targetPath = join(params.outputDir, "Forms", params.formName, "Ext", "Form.bin")
+  await fs.promises.mkdir(dirname(targetPath), { recursive: true })
+  await fs.promises.copyFile(sourcePath, targetPath)
+  params.xmlManifest?.addFile(targetPath)
 }
