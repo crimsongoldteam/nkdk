@@ -75,3 +75,91 @@ Add focused tests for:
 - `Clear` is omitted on YAML export and restored on import.
 - `DontChange` is exported as `РежимИзменения: НеИзменять` and imported back.
 - XML export still writes `xr:DataPath xsi:type="xs:string"` with the raw data path.
+
+## Decision 2: `GroupItemField` YAML shape for non-default fields
+
+### Observed diff
+
+File:
+
+- `Catalogs/ВидыЦен/Forms/ФормаНастройкиРасписанияАвтообновленияЦен/Ext/Form.xml`
+
+Round-trip changes the DCS group item type:
+
+```diff
+- <dcsset:groupType>Hierarchy</dcsset:groupType>
++ <dcsset:groupType>Items</dcsset:groupType>
+```
+
+### Current behavior
+
+`GroupItemField` currently exports to a compact string:
+
+```yaml
+Группировка:
+  - СсылкаВидЦен
+```
+
+The string stores only `field`.
+Other XML properties, including `groupType`, have no place in this YAML shape.
+On YAML import, `groupType` falls back to `Items`, so explicit `Hierarchy` is lost.
+
+The old YAML syntax also encodes disabled fields as a parenthesized string:
+
+```yaml
+Группировка:
+  - (СсылкаВидЦен)
+```
+
+### Accepted design
+
+Keep the compact string only for the full default case:
+
+```yaml
+Группировка:
+  - Валюта
+```
+
+This means:
+
+- `Поле: Валюта`
+- `Использование: Истина`
+- `ТипГруппировки: Элементы`
+- `ТипДополнения: Нет`
+- default period dates
+
+When any meaningful property differs from the default, export an object:
+
+```yaml
+Группировка:
+  - Поле: СсылкаВидЦен
+    ТипГруппировки: Иерархия
+```
+
+For disabled fields, export an object instead of the old parenthesized string:
+
+```yaml
+Группировка:
+  - Поле: СсылкаВидЦен
+    Использование: Ложь
+```
+
+Rules:
+
+- String YAML stays supported on import as the default shorthand.
+- Parenthesized string YAML stays supported on import for compatibility and imports as `Использование: Ложь`.
+- New exports should not use the parenthesized string form.
+- Object YAML may contain `Поле`, `Использование`, `ТипГруппировки`, `ТипДополнения`, `НачалоПериода`, and `КонецПериода`.
+- Object export omits default-valued properties where the existing YAML default rules allow it.
+- XML export keeps the existing defaults and still writes explicit non-default `dcsset:groupType`.
+
+### Testing
+
+Add focused tests for:
+
+- Default `GroupItemField` still exports as a string.
+- `groupType: "Hierarchy"` exports as an object with `ТипГруппировки: Иерархия`.
+- Object YAML with `ТипГруппировки: Иерархия` imports to `groupType: "Hierarchy"`.
+- `use: false` exports as an object with `Использование: Ложь`.
+- Old `(Поле)` YAML still imports to `use: false`.
+- XML export writes `Hierarchy` when the YAML object contains `ТипГруппировки: Иерархия`.
