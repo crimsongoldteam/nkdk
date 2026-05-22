@@ -77,4 +77,39 @@ describe("importFromYAML", () => {
       },
     ])
   })
+
+  it("imports structured links with raw dataPath", () => {
+    const result = importChoiceParameterLinksFromYAML(mockContext, mockRule, [
+      {
+        Имя: "Отбор.ПланСчетов",
+        ПутьКДанным: "ПланСчетов",
+      },
+    ])
+
+    expect(result).toEqual([
+      {
+        name: "Отбор.ПланСчетов",
+        dataPath: "ПланСчетов",
+        valueChange: "Clear",
+      },
+    ])
+  })
+
+  it("imports structured links with DontChange", () => {
+    const result = importChoiceParameterLinksFromYAML(mockContext, mockRule, [
+      {
+        Имя: "Отбор.ПланСчетов",
+        ПутьКДанным: "ПланСчетов.Ref",
+        РежимИзменения: "НеИзменять",
+      },
+    ])
+
+    expect(result).toEqual([
+      {
+        name: "Отбор.ПланСчетов",
+        dataPath: "ПланСчетов.Ref",
+        valueChange: "DontChange",
+      },
+    ])
+  })
 })

@@ -1,7 +1,6 @@
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
-import { exportMetadataFieldToYAML } from "../metadataField/toYAML"
 import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "./types"
 
 export const exportChoiceParameterLinksToYAML = (
@@ -11,13 +10,11 @@ export const exportChoiceParameterLinksToYAML = (
 ): ChoiceParameterLinksYAML | undefined => {
   if (!data) return undefined
 
-  const result = []
-  for (const link of data) {
-    const dataPath = exportMetadataFieldToYAML(_context, undefined, link.dataPath)
-    const valueChangeParam = link.valueChange === "DontChange" ? ", НеИзменять" : ""
-    result.push(`${link.name}(${dataPath}${valueChangeParam})`)
-  }
-  return result.join(", ")
+  return data.map((link) => ({
+    Имя: link.name,
+    ПутьКДанным: link.dataPath,
+    ...(link.valueChange === "DontChange" ? { РежимИзменения: "НеИзменять" as const } : {}),
+  }))
 }
 
 registerTypeRule("ChoiceParameterLinks", "exportToYAML", exportChoiceParameterLinksToYAML)
