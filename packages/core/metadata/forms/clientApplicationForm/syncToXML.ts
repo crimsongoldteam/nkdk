@@ -1,5 +1,5 @@
 import fs from "fs"
-import { dirname, join } from "path"
+import { join } from "path"
 import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
@@ -12,6 +12,7 @@ import { xmlExport } from "~/xml/export/exporter"
 import { importFromYAML } from "~/yaml/import"
 import { readFormFromXML } from "./convertFromXML"
 import { copyFormItemExternalFilesToXML } from "./externalItemFiles"
+import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
 
 export const syncFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -47,9 +48,10 @@ export const syncFormToXML = async (params: {
   const isOrdinaryForm = form.formType === "Ordinary"
   const referenceHasFormXML = hasReferenceFormXML({ referenceDir, formName })
 
-  const formXML = isOrdinaryForm && !referenceHasFormXML
-    ? undefined
-    : exportClientApplicationFormToXML({ context: contextWithFormDir, form, referenceForm })
+  const formXML =
+    isOrdinaryForm && !referenceHasFormXML
+      ? undefined
+      : exportClientApplicationFormToXML({ context: contextWithFormDir, form, referenceForm })
   const metadataXML = exportFormMetadataToXML({
     context: contextWithFormDir,
     form,
@@ -72,9 +74,8 @@ export const syncFormToXML = async (params: {
       xmlManifest: params.xmlManifest,
     })
   }
-  if (isOrdinaryForm) {
-    await copyFormBinToXML({ formDir, formName, outputDir, xmlManifest: params.xmlManifest })
-  }
+  await copyFormHelpFilesToXML({ formDir, formName, outputDir, xmlManifest: params.xmlManifest })
+  await copyFormBinToXML({ formDir, formName, outputDir, xmlManifest: params.xmlManifest })
 }
 
 async function readFormFiles(params: { inputDir: string; formName: string }): Promise<{
@@ -155,10 +156,19 @@ const copyFormBinToXML = async (params: {
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
   const sourcePath = join(params.formDir, "Form.bin")
-  if (!fs.existsSync(sourcePath)) return
-
   const targetPath = join(params.outputDir, "Forms", params.formName, "Ext", "Form.bin")
-  await fs.promises.mkdir(dirname(targetPath), { recursive: true })
-  await fs.promises.copyFile(sourcePath, targetPath)
-  params.xmlManifest?.addFile(targetPath)
+  await copyExistingRawFile({ sourcePath, targetPath, xmlManifest: params.xmlManifest })
+}
+
+const copyFormHelpFilesToXML = async (params: {
+  formDir: string
+  formName: string
+  outputDir: string
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+}): Promise<void> => {
+  await copyRawDirectoryFiles({
+    sourceDir: join(params.formDir, "Справка", "_files"),
+    targetDir: join(params.outputDir, "Forms", params.formName, "Ext", "Help", "_files"),
+    xmlManifest: params.xmlManifest,
+  })
 }
