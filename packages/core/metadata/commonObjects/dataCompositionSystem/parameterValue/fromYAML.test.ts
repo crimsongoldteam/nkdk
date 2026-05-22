@@ -59,4 +59,19 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
       value: { type: "string", value: "" },
     })
   })
+
+  it("does not import explicit string wrapper as primitive string outside field context", () => {
+    expect(() =>
+      testImportPropertyFromYAML({
+        rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Текст" } as PropertyRule,
+        value: {
+          Использовать: "Ложь",
+          Значение: {
+            Тип: "Строка",
+            Значение: "",
+          },
+        },
+      })
+    ).toThrow("MetadataDcsMetadataValue YAML: invalid explicit text value")
+  })
 })

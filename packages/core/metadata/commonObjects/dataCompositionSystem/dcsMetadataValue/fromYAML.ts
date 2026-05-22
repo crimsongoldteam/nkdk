@@ -101,7 +101,7 @@ export const importDcsMetadataValueFromYAML = (
   }
   if (data === undefined) return undefined
   if (data === null) return null
-  if (isExplicitPrimitiveStringValueYAML(data)) {
+  if (rule.valueType === "Field" && isExplicitPrimitiveStringValueYAML(data)) {
     return { type: "string", value: data.Значение }
   }
   if (Array.isArray(data) && rule.valueType === "Primitive") {
