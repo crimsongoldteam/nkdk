@@ -20,6 +20,7 @@ export const syncFormToXML = async (params: {
   formName: string
   outputDir: string
   referenceDir?: string
+  currentXMLPath?: string
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
   const { context, inputDir, formName, outputDir } = params
@@ -29,7 +30,7 @@ export const syncFormToXML = async (params: {
 
   const yamlObj = importFromYAML<ClientApplicationFormYAML>(yamlContent)
 
-  const contextWithFormDir = createFormScopedContext({ context, formDir })
+  const contextWithFormDir = createFormScopedContext({ context, formDir, currentXMLPath: params.currentXMLPath })
 
   const contextFromXML: ConfigurationContextFromXML = {
     fromXML: {
@@ -95,8 +96,9 @@ async function readFormFiles(params: { inputDir: string; formName: string }): Pr
 const createFormScopedContext = (params: {
   context: ConfigurationContextWithExportToXML
   formDir: string
+  currentXMLPath?: string
 }): ConfigurationContextWithExportToXML => {
-  const { context, formDir } = params
+  const { context, formDir, currentXMLPath } = params
   const exportContext = context.exportToXML.context
 
   if (exportContext === undefined) {
@@ -114,6 +116,7 @@ const createFormScopedContext = (params: {
       context: {
         ...exportContext,
         metadataForNumbering: [],
+        currentXMLPath: currentXMLPath ?? exportContext.currentXMLPath,
         propertiesItemXmlStack: [],
       },
     },

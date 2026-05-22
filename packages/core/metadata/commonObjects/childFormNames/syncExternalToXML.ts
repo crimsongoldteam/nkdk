@@ -1,5 +1,5 @@
 import fs from "fs"
-import { dirname, join } from "path"
+import { basename, dirname, join } from "path"
 import { syncFormToXML } from "~/metadata/forms/clientApplicationForm/syncToXML"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
@@ -37,6 +37,7 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
       formName,
       outputDir: formOutputDir,
       referenceDir: formReferenceDir,
+      currentXMLPath: join(basename(xmlDir), name, "Forms", formName, "Ext", "Form.xml"),
       xmlManifest,
     })
     await copyFormModuleToXML({ nkdkDir, formOutputDir, formName, xmlManifest })
