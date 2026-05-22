@@ -27,6 +27,15 @@ const normalizeSourceValues = (
   return Array.isArray(value) ? (value as MetadataDcsMetadataValue[]) : [value]
 }
 
+const normalizeRawValues = (
+  valueType: SettingsParameterValuePropertyRule["valueType"],
+  rawValue: unknown
+): unknown[] => {
+  if (rawValue === undefined) return []
+  if (valueType === "ChoiceParameterLinks") return [rawValue]
+  return Array.isArray(rawValue) ? rawValue : [rawValue]
+}
+
 /** Поля развёрнутого SPV — не имя параметра снаружи. */
 const PARAMETER_VALUE_YAML_INTERNAL_KEYS = new Set([
   "Использовать",
@@ -107,7 +116,7 @@ export const importParameterValueFromYAML = (
       : isExpandedSpvShape
         ? undefined
         : yamlToParse
-  const rawList = rawValue === undefined ? [] : Array.isArray(rawValue) ? rawValue : [rawValue]
+  const rawList = normalizeRawValues(dcsRule.valueType, rawValue)
   const sourceValues = normalizeSourceValues(sourceValue?.value)
   const valueParts = rawList
     .map((v, index) => importDcsMetadataValueFromYAML(context, dcsRule, v as never, sourceValues[index]))
