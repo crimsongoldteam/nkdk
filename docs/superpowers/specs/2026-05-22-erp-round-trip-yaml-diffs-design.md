@@ -277,3 +277,58 @@ Add focused sync tests for:
 - The copied file is byte-identical.
 - Multiple files in the same help `_files` directory are preserved.
 - The behavior is limited to external file copying and does not add YAML model properties for help images.
+
+## Decision 5: raw `Ext/Form.bin` for every form
+
+### Observed diff
+
+File:
+
+- `CommonForms/ФормаРедактированияСпискаЗначений/Ext/Form.bin`
+
+Round-trip deletes the binary form file:
+
+```diff
+deleted file mode 100644
+Binary files .../Ext/Form.bin and /dev/null differ
+```
+
+The temporary YAML tree contains only:
+
+```text
+ОбщаяФорма/ФормаРедактированияСпискаЗначений/Свойства.yaml
+```
+
+No `Form.bin` is copied to YAML for this form.
+
+### Current behavior
+
+`Ext/Form.bin` is already handled for some ordinary-form paths, but the preservation is not applied uniformly
+to every form owner/type.
+
+### Accepted design
+
+Preserve `Ext/Form.bin` as a raw external file for every form:
+
+- common forms;
+- object forms;
+- report/data processor forms;
+- any other form represented by `Forms/<name>/Ext/Form.bin` or `<form>/Ext/Form.bin`.
+
+Rules:
+
+- During XML -> YAML import, copy `Ext/Form.bin` to the form's YAML directory.
+- During YAML -> XML sync, copy it back to the form `Ext/Form.bin`.
+- Preserve bytes exactly.
+- Do not parse `Form.bin`.
+- Do not require `Ext/Form.xml` to be present.
+- The rule applies to all forms, not only ordinary forms or a specific owner metadata item.
+
+### Testing
+
+Add focused sync tests for:
+
+- CommonForm with only `Ext/Form.bin` preserves the file through XML -> YAML -> XML.
+- A nested owner form with `Forms/<name>/Ext/Form.bin` preserves the file through XML -> YAML -> XML.
+- `Form.bin` bytes are identical after round-trip.
+- The behavior works when `Ext/Form.xml` is absent.
