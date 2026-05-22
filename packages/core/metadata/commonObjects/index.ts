@@ -172,6 +172,7 @@ import "./metadataRegisterResource/register"
 import "./recalculation/register"
 import "./accountingFlag/register"
 import "./standardAttributeDescription/registerCollectionRule"
+import "./standardPeriod"
 import "./standardTabularSectionDescription/register"
 
 import "./exchangePlanContent/register"

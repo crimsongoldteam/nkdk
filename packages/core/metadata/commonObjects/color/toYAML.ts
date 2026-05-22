@@ -12,7 +12,7 @@ export const exportColorToYAML = <T extends Color | undefined>(
 ): string | undefined => {
   if (!color) return undefined
 
-  if (isRawColorRef(color)) throw new Error("Color YAML: rawRef is XML-only")
+  if (isRawColorRef(color)) return color.rawRef
 
   if (color.type === "StyleItem") {
     const standardColor = exportSystemEnumerationToYAMLDeprecated<SE.StyleColors>(

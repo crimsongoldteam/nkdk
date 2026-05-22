@@ -64,4 +64,13 @@ describe("import DcsMetadataTypedValue from YAML", () => {
       })
     ).toEqual({ type: "DesignTimeValue", value: "Справочник.Организации.ПустаяСсылка" })
   })
+
+  it("imports empty object array item as xsi:nil position", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule,
+        value: ["'x'", {}],
+      })
+    ).toEqual([{ type: "string", value: "x" }, undefined])
+  })
 })

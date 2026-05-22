@@ -18,13 +18,13 @@ describe("export DcsMetadataTypedValue to YAML", () => {
     ).toEqual({ value: fixture.YAML })
   })
 
-  it("rejects xsi:nil array item as XML-only", () => {
-    expect(() =>
+  it("exports xsi:nil array item as empty object", () => {
+    expect(
       testExportPropertyToYAML({
         rule,
         value: [{ type: "string", value: "x" }, undefined],
       })
-    ).toThrow("DcsMetadataTypedValue YAML: xsi:nil is XML-only")
+    ).toEqual({ value: ["'x'", {}] })
   })
 
   it("exports ref as YAML metadata reference", () => {

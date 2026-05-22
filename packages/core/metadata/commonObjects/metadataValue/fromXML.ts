@@ -5,6 +5,8 @@ import { ConfigurationContextFromXML } from "../../context/types"
 import { importFixedArrayFromXML } from "./fixedArray/fromXML"
 import { importFormChoiceListFromXML } from "./formChoiceList/fromXML"
 import { primitiveValueHandlers } from "./handlers"
+import { importStandardPeriodFromXML } from "../standardPeriod/fromXML"
+import { StandardPeriodXML } from "../standardPeriod/types"
 import {
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueXML,
@@ -73,6 +75,11 @@ export const importMetadataValueFromXML = (params: {
 
   if (resultedType === "valueList") {
     return { type: "valueList" }
+  }
+
+  if (resultedType === "standardPeriod") {
+    const value = importStandardPeriodFromXML(data as StandardPeriodXML)
+    return value === undefined ? undefined : { type: "standardPeriod", value }
   }
 
   if (!PRIMITIVE_TYPES.includes(resultedType as MetadataPrimitiveValueType)) {

@@ -2,9 +2,12 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { DcsMetadataTypedValueRegistry } from "./rules"
-import { DcsMetadataTypedValue, DcsMetadataTypedValuePropertyRule, DcsMetadataTypedValueYAML } from "./types"
-
-const NIL_XML_ONLY_ERROR = "DcsMetadataTypedValue YAML: xsi:nil is XML-only"
+import {
+  DcsMetadataTypedValue,
+  DcsMetadataTypedValueArrayItemYAML,
+  DcsMetadataTypedValuePropertyRule,
+  DcsMetadataTypedValueYAML,
+} from "./types"
 
 const exportSingle = (
   context: ConfigurationContext,
@@ -28,11 +31,11 @@ export const exportDcsMetadataTypedValueToYAML = (
   context: ConfigurationContext,
   rule: DcsMetadataTypedValuePropertyRule,
   value: DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[] | undefined
-): DcsMetadataTypedValueYAML | DcsMetadataTypedValueYAML[] | undefined => {
+): DcsMetadataTypedValueYAML | DcsMetadataTypedValueArrayItemYAML[] | undefined => {
   if (value === undefined) return undefined
   if (Array.isArray(value)) {
     return value.map((item) => {
-      if (item === undefined) throw new Error(NIL_XML_ONLY_ERROR)
+      if (item === undefined) return {}
       return exportSingle(context, rule, item)
     })
   }
@@ -43,7 +46,7 @@ const exportDcsMetadataTypedValueToYAMLForRule = (
   context: ConfigurationContext,
   rule: PropertyRule,
   value: unknown
-): DcsMetadataTypedValueYAML | DcsMetadataTypedValueYAML[] | undefined =>
+): DcsMetadataTypedValueYAML | DcsMetadataTypedValueArrayItemYAML[] | undefined =>
   exportDcsMetadataTypedValueToYAML(
     context,
     rule as DcsMetadataTypedValuePropertyRule,

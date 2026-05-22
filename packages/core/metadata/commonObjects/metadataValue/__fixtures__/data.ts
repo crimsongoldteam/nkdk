@@ -161,4 +161,26 @@ export const metadataValueFixtures: MetadataValueFixture[] = [
     YAML: "СписокЗначений",
     XML: '<Value xsi:type="xr:ValueList"/>',
   },
+  {
+    name: "standardPeriod",
+    rule: { type: "MetadataValue", valueType: ["standardPeriod"] },
+    internal: {
+      type: "standardPeriod",
+      value: {
+        variant: "Custom",
+        startDate: "0001-01-01T00:00:00",
+        endDate: "0001-01-01T00:00:00",
+      },
+    },
+    YAML: {
+      Вариант: "ПроизвольныйПериод",
+      ДатаНачала: "01.01.0001 00:00:00",
+      ДатаОкончания: "01.01.0001 00:00:00",
+    },
+    XML: `<Value xsi:type="v8:StandardPeriod">
+	<v8:variant xsi:type="v8:StandardPeriodVariant">Custom</v8:variant>
+	<v8:startDate>0001-01-01T00:00:00</v8:startDate>
+	<v8:endDate>0001-01-01T00:00:00</v8:endDate>
+</Value>`,
+  },
 ]

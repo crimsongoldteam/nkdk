@@ -14,7 +14,7 @@ export function isRawColorRef(color: Color): color is RawColorRef {
   return "rawRef" in color
 }
 
-const rawColorRefPattern = /^0(?::[0-9a-fA-F-]+)?$/
+const rawColorRefPattern = /^0(?::[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})?$/
 
 export function isRawColorRefValue(value: string): boolean {
   return rawColorRefPattern.test(value)
@@ -25,7 +25,8 @@ export type ColorXML = string
 const webColors = Object.keys(WebColorsFromYAML).map((key) => Type.Literal(key))
 
 export const AbsoluteColorJSONSchema = Type.String({ pattern: "^#[0-9A-Fa-f]{6}$" })
-export const ColorJSONSchema = Type.Union([...webColors, AbsoluteColorJSONSchema])
+export const RawColorRefJSONSchema = Type.String({ pattern: rawColorRefPattern.source })
+export const ColorJSONSchema = Type.Union([...webColors, AbsoluteColorJSONSchema, RawColorRefJSONSchema])
 
 export type ColorYAML = Static<typeof ColorJSONSchema>
 
