@@ -163,3 +163,71 @@ Add focused tests for:
 - `use: false` exports as an object with `Использование: Ложь`.
 - Old `(Поле)` YAML still imports to `use: false`.
 - XML export writes `Hierarchy` when the YAML object contains `ТипГруппировки: Иерархия`.
+
+## Decision 3: typed enum values inside `FormChoiceListDesTimeValue`
+
+### Observed diff
+
+File:
+
+- `Catalogs/Запросы/Forms/НастройкаОтборов/Ext/Form.xml`
+
+Round-trip changes `ChoiceList` values:
+
+```diff
+- <Value xsi:type="dcsset:DataCompositionComparisonType">Equal</Value>
++ <Value xsi:type="xs:string">Равно</Value>
+```
+
+The same happens for `NotEqual`, `InList`, `NotInList`, `InHierarchy`, and `InListByHierarchy`.
+
+### Current behavior
+
+The XML value is imported as a typed metadata value:
+
+```ts
+{ type: "DataCompositionComparisonType", value: "Equal" }
+```
+
+YAML export currently writes only the localized scalar:
+
+```yaml
+СписокВыбора:
+  - Представление: Равно
+    Значение: Равно
+```
+
+On YAML import, the nested `Значение` has no type context.
+The generic metadata value importer treats `Равно` as a string, so XML export writes `xs:string`.
+
+### Accepted design
+
+When a `FormChoiceListDesTimeValue` nested `Значение` has a type that cannot be recovered from scalar syntax,
+export the value with an explicit type wrapper.
+
+For `DataCompositionComparisonType`, use:
+
+```yaml
+СписокВыбора:
+  - Представление: Равно
+    Значение:
+      Тип: ВидСравненияКомпоновкиДанных
+      Значение: Равно
+```
+
+Rules:
+
+- `Тип: ВидСравненияКомпоновкиДанных` maps to internal type `DataCompositionComparisonType`.
+- The nested `Значение` uses the existing `DataCompositionComparisonType` YAML names, for example `Равно` -> `Equal`.
+- YAML import must preserve the typed value as `{ type: "DataCompositionComparisonType", value: "Equal" }`.
+- XML export must restore `xsi:type="dcsset:DataCompositionComparisonType"`.
+- Plain scalar `Значение` remains supported for values that are intentionally strings or can be inferred safely.
+
+### Testing
+
+Add focused tests for:
+
+- YAML export of `FormChoiceListDesTimeValue` with `DataCompositionComparisonType` uses `Тип/Значение`.
+- YAML import of that shape restores `type: "DataCompositionComparisonType"` and the internal enum value.
+- XML export from imported YAML writes `dcsset:DataCompositionComparisonType`.
+- Existing plain string form choice values remain plain strings.
