@@ -308,11 +308,14 @@ to every form owner/type.
 
 ### Accepted design
 
-Preserve `Ext/Form.bin` as a raw external file for every form:
+Preserve `Ext/Form.bin` as a raw external file for every form, without narrowing this rule to a
+specific form kind or owner path:
 
 - common forms;
 - object forms;
 - report/data processor forms;
+- ordinary forms;
+- managed forms when they also have `Ext/Form.bin`;
 - any other form represented by `Forms/<name>/Ext/Form.bin` or `<form>/Ext/Form.bin`.
 
 Rules:
@@ -322,7 +325,7 @@ Rules:
 - Preserve bytes exactly.
 - Do not parse `Form.bin`.
 - Do not require `Ext/Form.xml` to be present.
-- The rule applies to all forms, not only ordinary forms or a specific owner metadata item.
+- The rule applies to all forms, not only ordinary forms, common forms, or a specific owner metadata item.
 
 ### Testing
 
