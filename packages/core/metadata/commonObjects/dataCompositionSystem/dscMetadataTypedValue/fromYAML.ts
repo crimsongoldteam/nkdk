@@ -2,7 +2,15 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { DcsMetadataTypedValueRegistry } from "./rules"
-import { DcsMetadataTypedValue, DcsMetadataTypedValuePropertyRule, DcsMetadataTypedValueYAML } from "./types"
+import {
+  DcsMetadataTypedValue,
+  DcsMetadataTypedValueArrayItemYAML,
+  DcsMetadataTypedValuePropertyRule,
+  DcsMetadataTypedValueYAML,
+} from "./types"
+
+const isNilArrayItemYAML = (value: DcsMetadataTypedValueArrayItemYAML): value is Record<string, never> =>
+  typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 0
 
 const detectTypeFromYAML = (
   context: ConfigurationContext,
@@ -53,13 +61,16 @@ const importSingle = (
 export const importDcsMetadataTypedValueFromYAML = (
   context: ConfigurationContext,
   rule: DcsMetadataTypedValuePropertyRule,
-  value: DcsMetadataTypedValueYAML | DcsMetadataTypedValueYAML[] | undefined,
+  value: DcsMetadataTypedValueYAML | DcsMetadataTypedValueArrayItemYAML[] | undefined,
   sourceValue?: DcsMetadataTypedValue | DcsMetadataTypedValue[]
-): DcsMetadataTypedValue | DcsMetadataTypedValue[] | undefined => {
+): DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[] | undefined => {
   if (value === undefined) return undefined
   if (Array.isArray(value)) {
     const sourceItems = Array.isArray(sourceValue) ? sourceValue : []
-    return value.map((item, index) => importSingle(context, rule, item, sourceItems[index]))
+    return value.map((item, index) => {
+      if (isNilArrayItemYAML(item)) return undefined
+      return importSingle(context, rule, item, sourceItems[index])
+    })
   }
   return importSingle(context, rule, value, Array.isArray(sourceValue) ? undefined : sourceValue)
 }
@@ -69,11 +80,11 @@ const importDcsMetadataTypedValueFromYAMLForRule = (
   rule: PropertyRule,
   value: unknown,
   sourceValue?: unknown
-): DcsMetadataTypedValue | DcsMetadataTypedValue[] | undefined =>
+): DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[] | undefined =>
   importDcsMetadataTypedValueFromYAML(
     context,
     rule as DcsMetadataTypedValuePropertyRule,
-    value as DcsMetadataTypedValueYAML | DcsMetadataTypedValueYAML[],
+    value as DcsMetadataTypedValueYAML | DcsMetadataTypedValueArrayItemYAML[],
     sourceValue as DcsMetadataTypedValue | DcsMetadataTypedValue[] | undefined
   )
 
