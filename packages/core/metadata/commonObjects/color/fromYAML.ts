@@ -3,7 +3,7 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
-import { Color, ColorYAML } from "./types"
+import { Color, ColorYAML, isRawColorRefValue } from "./types"
 
 export const importColorFromYAML = (
   _context: ConfigurationContext,
@@ -11,6 +11,10 @@ export const importColorFromYAML = (
   data: ColorYAML | undefined
 ): Color | undefined => {
   if (!data) return undefined
+
+  if (isRawColorRefValue(data)) {
+    return { rawRef: data }
+  }
 
   // Проверяем, является ли это custom style color (начинается с "ЭлементСтиля.")
   if (data.startsWith("ЭлементСтиля.")) {
