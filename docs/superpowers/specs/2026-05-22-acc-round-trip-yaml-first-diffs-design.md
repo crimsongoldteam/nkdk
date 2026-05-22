@@ -136,23 +136,107 @@ Expected model value:
 Verification should include focused `parameterValue` YAML tests and then
 `round-trip-yaml --triage --batch-size 5` for the current batch.
 
-## Open Point: FormChoiceListDesTimeValue single non-default presentation
+## Accepted Decision: FormChoiceListDesTimeValue single non-default presentation
 
 Diff 2 loses an English-only `Presentation` under
 `FormChoiceListDesTimeValue` and writes `<Presentation/>`.
 
-There is an existing candidate decision in
-`docs/superpowers/specs/2026-05-21-form-choice-list-i8n-yaml-design.md`: use
-the shared `I8nText` YAML exporter so a single non-default language is emitted
-as a language map, for example:
+Source XML contains:
+
+```xml
+<Presentation>
+  <v8:item>
+    <v8:lang>en</v8:lang>
+    <v8:content>Labor compensation expenses</v8:content>
+  </v8:item>
+</Presentation>
+```
+
+Current `formChoiceList/toYAML.ts` uses local presentation logic:
+
+- if there are multiple languages, write the whole language map;
+- otherwise write `context.defaultLanguage` or `ru`;
+- if neither exists, write an empty string.
+
+For a single `en` item in a Russian default context, YAML receives:
+
+```yaml
+Представление: ""
+```
+
+Then YAML import treats the empty string as absent presentation, and XML sync
+writes `<Presentation/>`.
+
+### Decision
+
+Use the shared `exportI8nTextToYAML` function for
+`FormChoiceListDesTimeValue/Presentation`.
+
+This keeps the existing YAML contract for `I8nText`:
+
+- one default-language item stays a short string;
+- multiple languages stay a language map;
+- one non-default-language item also stays a language map.
+
+The resulting YAML for the observed case should be:
 
 ```yaml
 Представление:
   en: Labor compensation expenses
 ```
 
-This point still needs confirmation in the context of the current batch before
-it is treated as accepted here.
+`fromYAML.ts` already delegates to `importI8nTextFromYAML`, so it can import
+that shape without behavioral changes.
+
+### Alternatives considered
+
+Option A, delegate to shared `I8nText` export, is accepted. It removes
+duplicated language-selection logic and aligns `FormChoiceList` with the rest
+of the YAML layer.
+
+Option B, patch the local condition, was rejected because it preserves a second
+implementation of the same `I8nText` export rule.
+
+Option C, always export presentation as a language map, was rejected because it
+would make common Russian-only YAML noisier without being required for
+round-trip correctness.
+
+### Implementation shape
+
+Change `packages/core/metadata/commonObjects/metadataValue/formChoiceList/toYAML.ts`:
+
+- import `exportI8nTextToYAML`;
+- replace local `presentationItems` and `hasMultipleLanguages` logic with the
+  shared exporter;
+- keep `Представление: ""` only when presentation is absent or empty,
+  preserving the existing empty-presentation YAML shape.
+
+No XML fixtures should change.
+
+### Tests
+
+Add fixture coverage for a `FormChoiceListDesTimeValue` with a single English
+presentation:
+
+```ts
+presentation: { items: { en: "Labor compensation expenses" } }
+```
+
+Expected YAML:
+
+```yaml
+Представление:
+  en: Labor compensation expenses
+```
+
+Existing tests should continue to prove that Russian-only presentation remains:
+
+```yaml
+Представление: Физическое лицо
+```
+
+Verification should include focused `formChoiceList` YAML tests and then
+`round-trip-yaml --triage --batch-size 5` for the current batch.
 
 ## Open Point: Empty v8:LocalStringType value in SettingsParameterValue
 
@@ -180,9 +264,13 @@ This spec covers the first five diffs from the current `acc` YAML round-trip
 batch. It does not cover the remaining `28` diffs until they are shown and
 classified.
 
-The first accepted implementation unit is only the `SettingsParameterValue`
-explicit DCS value type group. Other points must be accepted before they are
-included in an implementation plan.
+The accepted implementation units are:
+
+- `SettingsParameterValue` explicit DCS value type preservation;
+- `FormChoiceListDesTimeValue` single non-default-language presentation.
+
+Other points must be accepted before they are included in an implementation
+plan.
 
 ## Verification
 
