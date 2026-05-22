@@ -125,6 +125,42 @@ describe("syncAppliedObjectToXML — MetadataCommonForm", () => {
     expect(fs.readFileSync(join(outputDir, name, "Ext", "Form", "Module.bsl"), "utf-8")).toBe(moduleText)
   })
 
+  it("copies common form Form.bin from XML to YAML", async () => {
+    const { inputDir, outputDir } = await createCommonFormTempFixture()
+    await fs.promises.writeFile(join(inputDir, name, "Ext", "Form.bin"), Buffer.from([0, 1, 2, 255]))
+
+    await convertAppliedObjectFromXML({
+      rule: MetadataCommonFormRules,
+      context: mockContextFromXML(),
+      inputDir,
+      name,
+      outputDir,
+    })
+
+    expect([...fs.readFileSync(join(outputDir, name, "Form.bin"))]).toEqual([0, 1, 2, 255])
+  })
+
+  it("restores common form Form.bin from YAML to XML and registers it in manifest", async () => {
+    const { inputDir, yamlDir, outputDir } = await createCommonFormTempFixture()
+    const xmlManifest = new XmlSyncManifest(outputDir)
+    await fs.promises.writeFile(join(yamlDir, name, "Form.bin"), Buffer.from([0, 1, 2, 255]))
+
+    await syncAppliedObjectToXML({
+      rule: MetadataCommonFormRules,
+      context: mockContextToXML(),
+      inputDir: yamlDir,
+      name,
+      outputDir,
+      referenceDir: inputDir,
+      externalOutputDir: join(outputDir, name),
+      externalReferenceDir: join(inputDir, name),
+      xmlManifest,
+    })
+
+    expect([...fs.readFileSync(join(outputDir, name, "Ext", "Form.bin"))]).toEqual([0, 1, 2, 255])
+    expect(xmlManifest.expectedFiles()).toContain(`${name}/Ext/Form.bin`)
+  })
+
   it("copies common form HeaderPicture from XML to YAML", async () => {
     const { inputDir, outputDir } = await createCommonFormTempFixture()
     const picturePath = join(inputDir, name, "Ext", "Form", "Items", "ГруппаСШапкой", "HeaderPicture.png")

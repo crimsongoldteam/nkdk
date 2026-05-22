@@ -63,6 +63,15 @@ const isDcsSystemEnumerationValueYAML = (data: unknown): data is MetadataDcsSyst
   typeof (data as Record<string, unknown>)["Имя"] === "string" &&
   typeof (data as Record<string, unknown>)["Значение"] === "string"
 
+const isExplicitPrimitiveStringValueYAML = (
+  data: unknown
+): data is { Тип: "Строка"; Значение: string } =>
+  typeof data === "object" &&
+  data !== null &&
+  !Array.isArray(data) &&
+  (data as Record<string, unknown>).Тип === "Строка" &&
+  typeof (data as Record<string, unknown>).Значение === "string"
+
 const importDcsSystemEnumerationValueFromYAML = (
   context: ConfigurationContext,
   data: MetadataDcsSystemEnumerationValueYAML
@@ -92,6 +101,9 @@ export const importDcsMetadataValueFromYAML = (
   }
   if (data === undefined) return undefined
   if (data === null) return null
+  if (rule.valueType === "Field" && isExplicitPrimitiveStringValueYAML(data)) {
+    return { type: "string", value: data.Значение }
+  }
   if (Array.isArray(data) && rule.valueType === "Primitive") {
     return data
       .map((item) => importDcsMetadataValueFromYAML(context, rule, item))

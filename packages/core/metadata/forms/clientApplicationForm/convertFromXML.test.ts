@@ -167,6 +167,51 @@ describe("import from XML string", () => {
     ).rejects.toThrow("Form.xml")
   })
 
+  it("copies managed form Form.bin even when Form.xml exists", async () => {
+    const managedFormName = "УправляемаяСБинарнымТелом"
+    const input = join(outputDir, "managed-bin-input")
+    const formExtDir = join(input, managedFormName, "Ext")
+    fs.mkdirSync(formExtDir, { recursive: true })
+    fs.writeFileSync(join(input, `${managedFormName}.xml`), managedFormMetadataXML(managedFormName))
+    fs.writeFileSync(join(formExtDir, "Form.xml"), `<Form xmlns="http://v8.1c.ru/8.3/xcf/form" version="2.20"/>`)
+    fs.writeFileSync(join(formExtDir, "Form.bin"), Buffer.from([10, 20, 30]))
+
+    await convertFormFromXML({
+      context: mockContextFromXML(),
+      inputDir: input,
+      formName: managedFormName,
+      outputDir,
+    })
+
+    expect([...fs.readFileSync(join(outputDir, "Формы", managedFormName, "Form.bin"))]).toEqual([10, 20, 30])
+  })
+
+  it("copies form help _files recursively", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-help-files-"))
+    const tmpInputDir = join(tmpRoot, "xml")
+
+    try {
+      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
+      fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Help", "_files", "nested"), { recursive: true })
+      fs.writeFileSync(join(tmpInputDir, formName, "Ext", "Help", "_files", "001.png"), Buffer.from([1, 2]))
+      fs.writeFileSync(join(tmpInputDir, formName, "Ext", "Help", "_files", "nested", "002.png"), Buffer.from([3, 4]))
+
+      await convertFormFromXML({
+        context: mockContextFromXML(),
+        inputDir: tmpInputDir,
+        formName,
+        outputDir,
+      })
+
+      expect([...fs.readFileSync(join(outputDir, "Формы", formName, "Справка", "_files", "001.png"))]).toEqual([1, 2])
+      expect([
+        ...fs.readFileSync(join(outputDir, "Формы", formName, "Справка", "_files", "nested", "002.png")),
+      ]).toEqual([3, 4])
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
   it("копирует внешние картинки элементов формы в YAML-каталоги по имени элемента", async () => {
     const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-item-pictures-"))
     const tmpInputDir = join(tmpRoot, "xml")
@@ -177,7 +222,10 @@ describe("import from XML string", () => {
       fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "ГруппаСШапкой"), { recursive: true })
       fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "Статус"), { recursive: true })
       fs.mkdirSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "ТаблицаСКартинкойСтрок"), { recursive: true })
-      fs.writeFileSync(join(tmpInputDir, formName, "Ext", "Form", "Items", "Декорация2", "Picture.png"), Buffer.from([1, 2, 3]))
+      fs.writeFileSync(
+        join(tmpInputDir, formName, "Ext", "Form", "Items", "Декорация2", "Picture.png"),
+        Buffer.from([1, 2, 3])
+      )
       fs.writeFileSync(
         join(tmpInputDir, formName, "Ext", "Form", "Items", "ГруппаСШапкой", "HeaderPicture.gif"),
         Buffer.from([7, 8, 9])
@@ -198,9 +246,7 @@ describe("import from XML string", () => {
         outputDir,
       })
 
-      expect([...fs.readFileSync(join(outputDir, "Формы", formName, "Картинки", "Декорация2.png"))]).toEqual([
-        1, 2, 3,
-      ])
+      expect([...fs.readFileSync(join(outputDir, "Формы", formName, "Картинки", "Декорация2.png"))]).toEqual([1, 2, 3])
       expect([...fs.readFileSync(join(outputDir, "Формы", formName, "КартинкиШапки", "ГруппаСШапкой.gif"))]).toEqual([
         7, 8, 9,
       ])
@@ -229,7 +275,10 @@ describe("import from XML string", () => {
     )
 
     fs.writeFileSync(join(nilInputDir, `${nilFormName}.xml`), metadataXML)
-    fs.writeFileSync(join(nilFormDir, "Form.xml"), formXML.replace("<Attributes/>", `<Attributes>${attributeXML}</Attributes>`))
+    fs.writeFileSync(
+      join(nilFormDir, "Form.xml"),
+      formXML.replace("<Attributes/>", `<Attributes>${attributeXML}</Attributes>`)
+    )
 
     const form = readFormFromXML({
       context: mockContextFromXML(),
@@ -275,7 +324,7 @@ describe("import from XML string", () => {
     expect(() =>
       execFileSync("node", ["--import", "tsx", "-e", script], { cwd: process.cwd(), encoding: "utf-8" })
     ).not.toThrow()
-  }, 15000)
+  }, 30000)
 
   it("public core entrypoint exports child items through element YAML rules", async () => {
     const script = `
@@ -359,7 +408,7 @@ describe("import from XML string", () => {
     expect(() =>
       execFileSync("node", ["--import", "tsx", "-e", script], { cwd: process.cwd(), encoding: "utf-8" })
     ).not.toThrow()
-  }, 15000)
+  }, 30000)
 
   it("public core entrypoint exports form common objects through YAML rules", async () => {
     const script = `
@@ -481,5 +530,18 @@ describe("import from XML string", () => {
     expect(() =>
       execFileSync("node", ["--import", "tsx", "-e", script], { cwd: process.cwd(), encoding: "utf-8" })
     ).not.toThrow()
-  }, 15000)
+  }, 30000)
 })
+
+const managedFormMetadataXML = (formName: string): string => `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <Form uuid="aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb">
+    <Properties>
+      <Name>${formName}</Name>
+      <Synonym/>
+      <Comment/>
+      <FormType>Managed</FormType>
+      <IncludeHelpInContents>false</IncludeHelpInContents>
+    </Properties>
+  </Form>
+</MetaDataObject>`

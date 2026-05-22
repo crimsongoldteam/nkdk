@@ -40,20 +40,66 @@ describe("sync ClientApplicationForm to XML", () => {
       fs.rmSync(tmpRoot, { recursive: true, force: true })
     }
 
-    const expectedFormXML = readXMLFixtureAsString(
-      import.meta.url,
-      join("sync/xml/Forms", formName, "Ext", "Form.xml")
-    )
-    const expectedMetadataXML = readXMLFixtureAsString(
-      import.meta.url,
-      join("sync/xml/Forms", "ФормаЭлемента.xml")
-    )
+    const expectedFormXML = readXMLFixtureAsString(import.meta.url, join("sync/xml/Forms", formName, "Ext", "Form.xml"))
+    const expectedMetadataXML = readXMLFixtureAsString(import.meta.url, join("sync/xml/Forms", "ФормаЭлемента.xml"))
 
     const resultFormXML = fs.readFileSync(join(outputDir, "Forms", formName, "Ext", "Form.xml"), "utf-8")
     const resultMetadataXML = fs.readFileSync(join(outputDir, "Forms", "ФормаЭлемента.xml"), "utf-8")
 
     expect(resultFormXML).toBe(expectedFormXML)
     expect(resultMetadataXML).toBe(expectedMetadataXML)
+  })
+
+  it("передаёт currentXMLPath в экспорт формы и восстанавливает ERP AdditionalColumns", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-current-xml-path-"))
+    const tmpInputDir = join(tmpRoot, "yaml")
+    const tmpReferenceDir = join(tmpRoot, "reference-forms")
+    const erpFormName = "ФормаСписка"
+
+    try {
+      fs.mkdirSync(join(tmpInputDir, "Формы", erpFormName), { recursive: true })
+      fs.cpSync(referenceDir, tmpReferenceDir, { recursive: true })
+      fs.copyFileSync(join(referenceDir, `${formName}.xml`), join(tmpReferenceDir, `${erpFormName}.xml`))
+      fs.cpSync(join(referenceDir, formName), join(tmpReferenceDir, erpFormName), { recursive: true })
+      fs.writeFileSync(
+        join(tmpInputDir, "Формы", erpFormName, "Форма.yaml"),
+        [
+          "Реквизиты:",
+          "  Объект:",
+          "    Заголовок: ''",
+          "    Тип: Строка",
+          "    ДополнительныеКолонки:",
+          "      Список.Способы:",
+          "        Реквизит1:",
+          "          Заголовок: Реквизит1",
+          "          Тип: Строка",
+          "Элементы:",
+          "  ПолеВвода1:",
+          "    Вид: ПолеВвода",
+          "    ПутьКДанным: Объект",
+          "",
+        ].join("\n"),
+        "utf-8"
+      )
+
+      await syncFormToXML({
+        context: mockContextToXML(),
+        inputDir: tmpInputDir,
+        outputDir,
+        referenceDir: tmpReferenceDir,
+        formName: erpFormName,
+        currentXMLPath: "Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml",
+      })
+
+      const resultFormXML = fs.readFileSync(join(outputDir, "Forms", erpFormName, "Ext", "Form.xml"), "utf-8")
+
+      expect(resultFormXML.match(/<Column name="Реквизит1" id="[1-5]">/g)).toHaveLength(5)
+      for (const id of ["1", "2", "3", "4", "5"]) {
+        expect(resultFormXML).toContain(`<Column name="Реквизит1" id="${id}">`)
+      }
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
   })
 
   it("не накапливает состояние нумерации в родительском контексте между формами", async () => {
@@ -116,7 +162,10 @@ describe("sync ClientApplicationForm to XML", () => {
       fs.mkdirSync(join(tmpInputDir, "Формы", formName, "КартинкиЗначений"), { recursive: true })
       fs.mkdirSync(join(tmpInputDir, "Формы", formName, "КартинкиСтрок"), { recursive: true })
       fs.writeFileSync(join(tmpInputDir, "Формы", formName, "Картинки", "Декорация2.png"), Buffer.from([1, 2, 3]))
-      fs.writeFileSync(join(tmpInputDir, "Формы", formName, "КартинкиШапки", "ГруппаСШапкой.gif"), Buffer.from([7, 8, 9]))
+      fs.writeFileSync(
+        join(tmpInputDir, "Формы", formName, "КартинкиШапки", "ГруппаСШапкой.gif"),
+        Buffer.from([7, 8, 9])
+      )
       fs.writeFileSync(join(tmpInputDir, "Формы", formName, "КартинкиЗначений", "Статус.bmp"), Buffer.from([4, 5, 6]))
       fs.writeFileSync(
         join(tmpInputDir, "Формы", formName, "КартинкиСтрок", "ТаблицаСКартинкойСтрок.png"),
@@ -169,11 +218,76 @@ describe("sync ClientApplicationForm to XML", () => {
       expect([...fs.readFileSync(valuesPicturePath)]).toEqual([4, 5, 6])
       expect([...fs.readFileSync(rowsPicturePath)]).toEqual([11, 12, 13])
       expect(xmlManifest.expectedFiles()).toContain("Forms/ФормаЭлемента/Ext/Form/Items/Декорация2/Picture.png")
-      expect(xmlManifest.expectedFiles()).toContain("Forms/ФормаЭлемента/Ext/Form/Items/ГруппаСШапкой/HeaderPicture.gif")
+      expect(xmlManifest.expectedFiles()).toContain(
+        "Forms/ФормаЭлемента/Ext/Form/Items/ГруппаСШапкой/HeaderPicture.gif"
+      )
       expect(xmlManifest.expectedFiles()).toContain("Forms/ФормаЭлемента/Ext/Form/Items/Статус/ValuesPicture.bmp")
       expect(xmlManifest.expectedFiles()).toContain(
         "Forms/ФормаЭлемента/Ext/Form/Items/ТаблицаСКартинкойСтрок/RowsPicture.png"
       )
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
+  it("восстанавливает Form.bin для managed form с Ext/Form.xml", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-managed-form-bin-to-xml-"))
+    const tmpInputDir = join(tmpRoot, "yaml")
+    const tmpReferenceDir = join(tmpRoot, "reference-forms")
+
+    try {
+      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
+      fs.cpSync(referenceDir, tmpReferenceDir, { recursive: true })
+      fs.writeFileSync(join(tmpInputDir, "Формы", formName, "Form.bin"), Buffer.from([10, 20, 30]))
+
+      await syncFormToXML({
+        context: mockContextToXML(),
+        inputDir: tmpInputDir,
+        outputDir,
+        referenceDir: tmpReferenceDir,
+        formName,
+      })
+
+      expect([...fs.readFileSync(join(outputDir, "Forms", formName, "Ext", "Form.bin"))]).toEqual([10, 20, 30])
+      expect(fs.existsSync(join(outputDir, "Forms", formName, "Ext", "Form.xml"))).toBe(true)
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
+  it("восстанавливает form help _files recursively и добавляет их в manifest", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-help-files-to-xml-"))
+    const tmpInputDir = join(tmpRoot, "yaml")
+    const tmpReferenceDir = join(tmpRoot, "reference-forms")
+    const xmlManifest = new XmlSyncManifest(outputDir)
+
+    try {
+      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
+      fs.cpSync(referenceDir, tmpReferenceDir, { recursive: true })
+      fs.mkdirSync(join(tmpInputDir, "Формы", formName, "Справка", "_files", "nested"), { recursive: true })
+      fs.writeFileSync(join(tmpInputDir, "Формы", formName, "Справка", "_files", "001.png"), Buffer.from([1, 2]))
+      fs.writeFileSync(
+        join(tmpInputDir, "Формы", formName, "Справка", "_files", "nested", "002.png"),
+        Buffer.from([3, 4])
+      )
+
+      await syncFormToXML({
+        context: mockContextToXML(),
+        inputDir: tmpInputDir,
+        outputDir,
+        referenceDir: tmpReferenceDir,
+        formName,
+        xmlManifest,
+      })
+
+      expect([...fs.readFileSync(join(outputDir, "Forms", formName, "Ext", "Help", "_files", "001.png"))]).toEqual([
+        1, 2,
+      ])
+      expect([
+        ...fs.readFileSync(join(outputDir, "Forms", formName, "Ext", "Help", "_files", "nested", "002.png")),
+      ]).toEqual([3, 4])
+      expect(xmlManifest.expectedFiles()).toContain(`Forms/${formName}/Ext/Help/_files/001.png`)
+      expect(xmlManifest.expectedFiles()).toContain(`Forms/${formName}/Ext/Help/_files/nested/002.png`)
     } finally {
       fs.rmSync(tmpRoot, { recursive: true, force: true })
     }
@@ -337,10 +451,7 @@ describe("round-trip: withDynamicList XML → YAML+bsl → XML", () => {
       outputDir: xmlOutDir,
     })
 
-    const expectedFormXML = readXMLFixtureAsString(
-      import.meta.url,
-      join("sync/xml/Forms", formName, "Ext", "Form.xml")
-    )
+    const expectedFormXML = readXMLFixtureAsString(import.meta.url, join("sync/xml/Forms", formName, "Ext", "Form.xml"))
 
     const resultFormXML = fs.readFileSync(join(xmlOutDir, "Forms", formName, "Ext", "Form.xml"), "utf-8")
     expect(resultFormXML).toBe(expectedFormXML)

@@ -90,8 +90,13 @@ export const importChoiceParameterLinksFromYAML = (
   data: ChoiceParameterLinksYAML | undefined
 ): ChoiceParameterLinks | undefined => {
   if (!data) return undefined
+  if (typeof data === "string") return parseChoiceParameterLinksString(context, rule, data)
 
-  return parseChoiceParameterLinksString(context, rule, data)
+  return data.map((link) => ({
+    name: link.Имя,
+    dataPath: link.ПутьКДанным,
+    valueChange: link.РежимИзменения === "НеИзменять" ? "DontChange" : "Clear",
+  }))
 }
 
 registerTypeRule("ChoiceParameterLinks", "importFromYAML", importChoiceParameterLinksFromYAML)

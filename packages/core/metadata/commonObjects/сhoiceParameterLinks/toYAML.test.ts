@@ -14,9 +14,13 @@ describe("exportToYAML", () => {
     ]
 
     const result = exportChoiceParameterLinksToYAML(mockContext, mockRule, mock)
-    expect(result).toEqual(
-      "Отбор.Владелец(Справочник.ВетеринарноСопроводительныйДокументВЕТИС.Реквизит.ГрузоотправительХозяйствующийСубъект)"
-    )
+    expect(result).toEqual([
+      {
+        Имя: "Отбор.Владелец",
+        ПутьКДанным:
+          "Catalog.ВетеринарноСопроводительныйДокументВЕТИС.Attribute.ГрузоотправительХозяйствующийСубъект",
+      },
+    ])
   })
 
   it("should export multiple links to yaml", () => {
@@ -34,9 +38,16 @@ describe("exportToYAML", () => {
     ]
 
     const result = exportChoiceParameterLinksToYAML(mockContext, mockRule, mock)
-    expect(result).toEqual(
-      "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
-    )
+    expect(result).toEqual([
+      {
+        Имя: "Отбор.Владелец",
+        ПутьКДанным: "Catalog.Справочник1.Attribute.Реквизит1",
+      },
+      {
+        Имя: "Отбор.Владелец2",
+        ПутьКДанным: "Catalog.Справочник2.Attribute.Реквизит2",
+      },
+    ])
   })
 
   it("should export with `DontChange` parameter", () => {
@@ -49,6 +60,41 @@ describe("exportToYAML", () => {
     ]
 
     const result = exportChoiceParameterLinksToYAML(mockContext, mockRule, mock)
-    expect(result).toEqual("Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1, НеИзменять)")
+    expect(result).toEqual([
+      {
+        Имя: "Отбор.Владелец",
+        ПутьКДанным: "Catalog.Справочник1.Attribute.Реквизит1",
+        РежимИзменения: "НеИзменять",
+      },
+    ])
+  })
+
+  it("exports structured links without translating dataPath", () => {
+    const mock: ChoiceParameterLinks = [
+      {
+        name: "Отбор.ПланСчетов",
+        dataPath: "ПланСчетов",
+        valueChange: "Clear",
+      },
+      {
+        name: "Отбор.Характеристика",
+        dataPath: "Характеристика",
+        valueChange: "DontChange",
+      },
+    ]
+
+    const result = exportChoiceParameterLinksToYAML(mockContext, mockRule, mock)
+
+    expect(result).toEqual([
+      {
+        Имя: "Отбор.ПланСчетов",
+        ПутьКДанным: "ПланСчетов",
+      },
+      {
+        Имя: "Отбор.Характеристика",
+        ПутьКДанным: "Характеристика",
+        РежимИзменения: "НеИзменять",
+      },
+    ])
   })
 })

@@ -11,6 +11,11 @@ export const dynamicListGroupItemFieldDefault = {
   field: "Наименование",
 } as const satisfies GroupItemField
 
-export const dynamicListGroupItemFieldUseFalseYAML = "(Наименование)" as const satisfies GroupItemFieldYAML
+export const dynamicListGroupItemFieldUseFalseLegacyYAML = "(Наименование)" as const satisfies GroupItemFieldYAML
+
+export const dynamicListGroupItemFieldUseFalseYAML = {
+  Поле: "Наименование",
+  Использование: "Ложь",
+} as const satisfies GroupItemFieldYAML
 
 export const dynamicListGroupItemFieldDefaultYAML = "Наименование" as const satisfies GroupItemFieldYAML

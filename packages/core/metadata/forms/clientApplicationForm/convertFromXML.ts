@@ -1,11 +1,12 @@
 import fs from "fs"
-import { dirname, join } from "path"
+import { join } from "path"
 import "~/metadata/commonObjects"
 import { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } from "~/metadata/context/types"
 import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/toYAML"
 import importContentFromXML from "~/xml/import/importer"
 import { exportToYAML } from "~/yaml/export"
 import { copyFormItemExternalFilesFromXML } from "./externalItemFiles"
+import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
 
@@ -34,6 +35,7 @@ export const convertFormFromXML = async (params: {
   if (hasFormBin) {
     await copyFormBinFromXML({ inputDir, formName, outputDir })
   }
+  await copyFormHelpFilesFromXML({ inputDir, formName, outputDir })
   await copyFormItemExternalFilesFromXML({
     formXmlDir: join(inputDir, formName, "Ext"),
     formNkdkDir: join(outputDir, "Формы", formName),
@@ -91,7 +93,7 @@ const readFormBodyFromXML = async (params: {
   const isOrdinaryForm = getFormTypeFromMetadataXML(metadataXML) === "Ordinary"
 
   try {
-    return { formXML: await fs.promises.readFile(formPath, "utf-8"), hasFormBin: isOrdinaryForm && fs.existsSync(formBinPath) }
+    return { formXML: await fs.promises.readFile(formPath, "utf-8"), hasFormBin: fs.existsSync(formBinPath) }
   } catch (error) {
     if (!isMissingFileError(error)) throw error
     if (!isOrdinaryForm) throw error
@@ -110,7 +112,7 @@ const readFormBodyFromXMLSync = (params: {
   const isOrdinaryForm = getFormTypeFromMetadataXML(metadataXML) === "Ordinary"
 
   try {
-    return { formXML: fs.readFileSync(formPath, "utf-8"), hasFormBin: isOrdinaryForm && fs.existsSync(formBinPath) }
+    return { formXML: fs.readFileSync(formPath, "utf-8"), hasFormBin: fs.existsSync(formBinPath) }
   } catch (error) {
     if (!isMissingFileError(error)) throw error
     if (!isOrdinaryForm) throw error
@@ -122,8 +124,19 @@ const copyFormBinFromXML = async (params: { inputDir: string; formName: string; 
   const { inputDir, formName, outputDir } = params
   const sourcePath = join(inputDir, formName, "Ext", "Form.bin")
   const targetPath = join(outputDir, "Формы", formName, "Form.bin")
-  await fs.promises.mkdir(dirname(targetPath), { recursive: true })
-  await fs.promises.copyFile(sourcePath, targetPath)
+  await copyExistingRawFile({ sourcePath, targetPath })
+}
+
+const copyFormHelpFilesFromXML = async (params: {
+  inputDir: string
+  formName: string
+  outputDir: string
+}): Promise<void> => {
+  const { inputDir, formName, outputDir } = params
+  await copyRawDirectoryFiles({
+    sourceDir: join(inputDir, formName, "Ext", "Help", "_files"),
+    targetDir: join(outputDir, "Формы", formName, "Справка", "_files"),
+  })
 }
 
 const isMissingFileError = (error: unknown): error is NodeJS.ErrnoException =>

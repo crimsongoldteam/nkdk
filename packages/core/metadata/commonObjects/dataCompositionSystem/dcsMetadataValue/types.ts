@@ -51,6 +51,11 @@ export type MetadataDcsExplicitTextValueYAML =
       Значение: string
     }
 
+export type MetadataDcsPrimitiveStringValueYAML = {
+  Тип: "Строка"
+  Значение: string
+}
+
 export type MetadataDcsSystemEnumerationValue = {
   type: "SystemEnumeration"
   typeSE: keyof SystemEnumerationTypeMap
@@ -84,6 +89,7 @@ export type MetadataDcsMetadataSingleValueYAML =
   | ColorYAML
   | MetadataFieldYAML
   | MetadataDcsExplicitTextValueYAML
+  | MetadataDcsPrimitiveStringValueYAML
   | ChoiceParametersYAML
   | I8nTextYAML
   | MetadataValueYAML

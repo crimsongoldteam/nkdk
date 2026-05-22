@@ -6,6 +6,7 @@ import { getXMLFixturePath } from "~/tests/readAndParseXMLFile"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
 import { importContentFromXML } from "~/xml/import/importer"
+import { buildChildFormCurrentXMLPath } from "./syncExternalToXML"
 
 describe("syncChildFormNamesToXML (через syncAppliedObjectToXML)", () => {
   const inputDir = getXMLFixturePath("sync/syncConfiguration/yaml/Справочник")
@@ -15,6 +16,16 @@ describe("syncChildFormNamesToXML (через syncAppliedObjectToXML)", () => {
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true })
+  })
+
+  it("строит currentXMLPath с POSIX-разделителями", () => {
+    expect(
+      buildChildFormCurrentXMLPath({
+        xmlDir: "C:\\repo\\xml\\Catalogs",
+        name: "СпособыОтраженияРасходовПоАмортизацииМСФО",
+        formName: "ФормаСписка",
+      })
+    ).toBe("Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml")
   })
 
   it("записывает Forms/<form>.xml и Forms/<form>/Ext/Form.xml для каталога", async () => {

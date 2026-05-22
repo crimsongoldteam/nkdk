@@ -43,6 +43,15 @@ const isDcsSystemEnumerationValue = (
   data.type === "SystemEnumeration" &&
   typeof data.value === "string"
 
+const isPrimitiveStringValue = (
+  data: MetadataDcsMetadataValue
+): data is { type: "string"; value: string } =>
+  data !== null &&
+  typeof data === "object" &&
+  !Array.isArray(data) &&
+  (data as Record<string, unknown>).type === "string" &&
+  typeof (data as Record<string, unknown>).value === "string"
+
 const exportTypedValueToYAML = (
   context: ConfigurationContext,
   data: MetadataDcsMetadataValue
@@ -79,6 +88,13 @@ export const exportDcsMetadataValueToYAML = (
     return data.map((item) =>
       exportDcsMetadataValueToYAML(context, rule, item)
     ) as MetadataDcsMetadataValueYAML
+  }
+
+  if (rule.valueType === "Field" && isPrimitiveStringValue(data)) {
+    return {
+      Тип: "Строка",
+      Значение: data.value,
+    } as MetadataDcsMetadataValueYAML
   }
 
   if (isExplicitTextValue(data)) {
