@@ -28,4 +28,11 @@ export const fixtureDynamicListStructureItemGroup = {
   },
 } as const satisfies StructureItemGroup
 
-export const fixtureDynamicListStructureItemGroupYAML = ["Наименование", "[Авто]", "(ПометкаУдаления)"]
+export const fixtureDynamicListStructureItemGroupYAML = [
+  "Наименование",
+  "[Авто]",
+  {
+    Поле: "ПометкаУдаления",
+    Использование: "Ложь",
+  },
+]

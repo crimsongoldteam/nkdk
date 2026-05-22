@@ -1,5 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import type { StructureItemGroupCollectionYAML } from "./collection/types"
 import { StructureItemGroupRules } from "./rules"
 import type { StructureItemGroup, StructureItemGroupYAML } from "./types"
 
@@ -15,7 +16,7 @@ export const exportStructureItemGroupToYAML = (
 ): StructureItemGroupYAML | undefined => {
   if (!params.value || typeof params.value !== "object" || Array.isArray(params.value)) return undefined
 
-  const result: string[] = []
+  const result: StructureItemGroupCollectionYAML = []
   const stack: StructureItemGroup[] = [params.value as StructureItemGroup]
   const groupItemsRule = StructureItemGroupRules.properties.groupItems as PropertyRule
 
@@ -30,7 +31,7 @@ export const exportStructureItemGroupToYAML = (
     const groupItemsYaml = exportedGroupItems?.[groupItemsRule.yaml!]
 
     if (Array.isArray(groupItemsYaml)) {
-      result.push(...groupItemsYaml.filter((item): item is string => typeof item === "string"))
+      result.push(...groupItemsYaml)
     }
 
     const nestedItems = normalizeStructureItems(current.item)

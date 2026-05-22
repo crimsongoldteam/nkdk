@@ -4,7 +4,7 @@ import {
   dynamicListGroupItemFieldDefault,
   dynamicListGroupItemFieldDefaultYAML,
   dynamicListGroupItemFieldUseFalse,
-  dynamicListGroupItemFieldUseFalseYAML,
+  dynamicListGroupItemFieldUseFalseLegacyYAML,
 } from "./__fixtures__/data"
 import "./index"
 
@@ -12,7 +12,7 @@ const rule = { type: "GroupItemField" } as const
 
 describe("import GroupItemField from YAML", () => {
   it("imports '(Наименование)' as use=false", () => {
-    const result = testImportPropertyFromYAML({ rule, value: dynamicListGroupItemFieldUseFalseYAML })
+    const result = testImportPropertyFromYAML({ rule, value: dynamicListGroupItemFieldUseFalseLegacyYAML })
     expect(result).toEqual(dynamicListGroupItemFieldUseFalse)
   })
 

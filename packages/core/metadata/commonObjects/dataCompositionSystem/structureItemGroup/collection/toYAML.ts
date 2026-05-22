@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import { StructureItemGroupCollectionYAML, StructureItemGroupCollection } from "./types"
+import { StructureItemGroupCollectionItemYAML, StructureItemGroupCollectionYAML, StructureItemGroupCollection } from "./types"
 
 export const exportStructureItemGroupCollectionToYAML = (
   context: ConfigurationContext,
@@ -21,7 +21,7 @@ export const exportStructureItemGroupCollectionToYAML = (
     })
     const converted = convertedWithTempKey?.__item__
 
-    if (typeof converted === "string") result.push(converted)
+    if (converted != null) result.push(converted as StructureItemGroupCollectionItemYAML)
   }
 
   return result.length > 0 ? result : undefined
