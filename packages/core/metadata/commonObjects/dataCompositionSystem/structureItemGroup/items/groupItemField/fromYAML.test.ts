@@ -20,4 +20,20 @@ describe("import GroupItemField from YAML", () => {
     const result = testImportPropertyFromYAML({ rule, value: dynamicListGroupItemFieldDefaultYAML })
     expect(result).toEqual(dynamicListGroupItemFieldDefault)
   })
+
+  it("imports object with hierarchy group type", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        Поле: "СсылкаВидЦен",
+        ТипГруппировки: "Иерархия",
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "GroupItemField",
+      field: "СсылкаВидЦен",
+      groupType: "Hierarchy",
+    })
+  })
 })
