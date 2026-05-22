@@ -40,4 +40,23 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
       use: false,
     })
   })
+
+  it("imports explicit empty string value in field context", () => {
+    const result = testImportPropertyFromYAML({
+      rule: { type: "SettingsParameterValue", valueType: "Field", yaml: "НоменклатураВключение" } as PropertyRule,
+      value: {
+        Использовать: "Ложь",
+        Значение: {
+          Тип: "Строка",
+          Значение: "",
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      parameter: "НоменклатураВключение",
+      use: false,
+      value: { type: "string", value: "" },
+    })
+  })
 })
