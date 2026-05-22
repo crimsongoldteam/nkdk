@@ -174,7 +174,6 @@ export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
     MetadataSingleValueJSONSchema,
     MetadataFixedArrayValueJSONSchema,
     StandardPeriodYAMLJSONSchema,
-    MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
     Type.Object({
       Представление: I8nTextJSONSchema,
       Значение: Type.Optional(ThisType),
@@ -184,7 +183,9 @@ export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
 
 export const MetadataFormChoiceListComplexValueJSONSchema = Type.Object({
   Представление: I8nTextJSONSchema,
-  Значение: Type.Optional(MetadataValueJSONSchema),
+  Значение: Type.Optional(
+    Type.Union([MetadataValueJSONSchema, MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema])
+  ),
 })
 export type MetadataFormChoiceListComplexValueYAML = Static<typeof MetadataFormChoiceListComplexValueJSONSchema>
 

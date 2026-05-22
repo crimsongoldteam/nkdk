@@ -24,7 +24,7 @@ const importExplicitChoiceListValueFromYAML = (
   return {
     type: "DataCompositionComparisonType",
     value: enumValue,
-  } as MetadataFormChoiceListValue["value"]
+  }
 }
 
 export const importFormChoiceListFromYAML = (
