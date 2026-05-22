@@ -161,11 +161,20 @@ export const MetadataFixedArrayValueJSONSchema = Type.Array(
 export type MetadataFixedArrayValueYAML = Array<MetadataSingleValueYAML | undefined>
 export type MetadataFixedArrayValueYAMLInput = Static<typeof MetadataFixedArrayValueJSONSchema>
 
+export const MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema = Type.Object({
+  Тип: Type.Literal("ВидСравненияКомпоновкиДанных"),
+  Значение: Type.String(),
+})
+export type MetadataExplicitDataCompositionComparisonTypeYAML = Static<
+  typeof MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema
+>
+
 export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
   Type.Union([
     MetadataSingleValueJSONSchema,
     MetadataFixedArrayValueJSONSchema,
     StandardPeriodYAMLJSONSchema,
+    MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
     Type.Object({
       Представление: I8nTextJSONSchema,
       Значение: Type.Optional(ThisType),

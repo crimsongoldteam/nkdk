@@ -11,6 +11,7 @@ import {
   withoutPresentationYAML,
 } from "./__fixtures__/data"
 import { exportFormChoiceListToYAML } from "./toYAML"
+import type { MetadataFormChoiceListValue } from "../types"
 
 describe("exportFormChoiceListToYAML", () => {
   it("exports formChoiceList with string value to YAML object", () => {
@@ -43,6 +44,27 @@ describe("exportFormChoiceListToYAML", () => {
     expect(result).toMatchObject({
       Представление: {
         en: "Labor compensation expenses",
+      },
+    })
+  })
+
+  it("exports DataCompositionComparisonType explicit value", () => {
+    const value: MetadataFormChoiceListValue = {
+      type: "formChoiceListDesTimeValue",
+      presentation: { items: { ru: "Равно" } },
+      value: {
+        type: "DataCompositionComparisonType",
+        value: "Equal",
+      } as MetadataFormChoiceListValue["value"],
+    }
+
+    const result = exportFormChoiceListToYAML(mockContext, value)
+
+    expect(result).toEqual({
+      Представление: "Равно",
+      Значение: {
+        Тип: "ВидСравненияКомпоновкиДанных",
+        Значение: "Равно",
       },
     })
   })
