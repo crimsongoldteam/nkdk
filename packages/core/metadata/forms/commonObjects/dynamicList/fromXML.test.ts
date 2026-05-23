@@ -4,7 +4,6 @@ import {
   emptyListSettingsDynamicList,
   fullDynamicList,
   keyFieldDynamicList,
-  minimalDynamicList,
   multipleCalculatedFieldsDynamicList,
   queryTextWithManualQueryFalseDynamicList,
 } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
@@ -18,7 +17,7 @@ const rule: PropertyRule = {
 }
 
 describe("import DynamicList from XML", () => {
-  it.skip("should return undefined when data is undefined", () => {
+  it("should return undefined when data is undefined", () => {
     const result = importPropertyFromXML({
       context: mockContextFromXML(),
       rule,
@@ -35,16 +34,6 @@ describe("import DynamicList from XML", () => {
       importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(fullDynamicList)
-  })
-
-  it.skip("should import minimal", () => {
-    const result = testImportPropertyFromXML({
-      rule,
-      path: "minimal.xml",
-      xmlRootTag: "Settings",
-      importMetaUrl: import.meta.url,
-    })
-    expect(result).toEqual(minimalDynamicList)
   })
 
   it("should import empty ListSettings", () => {
