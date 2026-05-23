@@ -1,8 +1,14 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importMetadataItemFromXML, registerMetadataItemRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
+import {
+  importMetadataItemFromXML,
+  importMetadataItemFromYAML,
+  registerMetadataItemRule,
+  registerTypeRule,
+} from "~/metadata/orchestration"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
+import "~/metadata/commonObjects/dataCompositionSystem/index"
 import { DynamicListRules } from "./rules"
 
 /** Внутренняя модель по правилам; `Record<string, unknown>` — для pass-through полей до полного перевода импорта на rules. */
@@ -43,6 +49,34 @@ registerMetadataItemRule({
   itemRule: DynamicListRules,
 })
 
+registerTypeRule(
+  "DynamicList",
+  "importFromYAML",
+  (params: { context: ConfigurationContext; value: DynamicListYAML | undefined; source?: unknown; name?: string }) => {
+    const { context, value: yaml, source, name } = params
+    if (yaml === undefined) return undefined
+
+    const contextWithParent =
+      name !== undefined && context.importFromYAML !== undefined
+        ? {
+            ...context,
+            importFromYAML: {
+              ...context.importFromYAML,
+              parent: { name },
+            },
+          }
+        : context
+
+    return importMetadataItemFromYAML({
+      context: contextWithParent,
+      yaml,
+      rule: DynamicListRules,
+      source: normalizeDynamicListSource(contextWithParent, source),
+      name,
+    }) as DynamicList | undefined
+  }
+)
+
 // Переопределяем importFromXML:
 // 1. Проверяем, что XML является DynamicList (xsi:type="DynamicList")
 // 2. Сохраняем QueryText даже при ManualQuery=false: такие XML встречаются в реальных формах.
@@ -74,3 +108,20 @@ registerTypeRule(
     return result
   }
 )
+
+const normalizeDynamicListSource = (context: ConfigurationContext, source: unknown): DynamicList | undefined => {
+  if (source === undefined || source === null || typeof source !== "object" || Array.isArray(source)) return undefined
+
+  const sourceObject = source as Record<string, unknown>
+  if (sourceObject.itemType === "DynamicList" || "calculatedFields" in sourceObject) return source as DynamicList
+  if (sourceObject["_xsi:type"] !== undefined && sourceObject["_xsi:type"] !== "DynamicList") return undefined
+
+  return importMetadataItemFromXML({
+    context: {
+      ...context,
+      fromXML: { forReference: true },
+    },
+    xml: source,
+    rule: DynamicListRules,
+  }) as DynamicList | undefined
+}

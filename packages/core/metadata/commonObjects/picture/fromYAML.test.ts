@@ -29,6 +29,44 @@ describe("importPictureFromYAML", () => {
       }
     )
 
+    it("imports expanded raw picture refs with LoadTransparent from YAML", () => {
+      const result = importPictureFromYAML(mockContext, mockRule, {
+        Ссылка: "0:00000000-0000-0000-0000-000000000000",
+        ПрозрачныйФон: "Ложь",
+      })
+
+      expect(result).toEqual({
+        rawRef: "0:00000000-0000-0000-0000-000000000000",
+        loadTransparent: false,
+      })
+    })
+
+    it("imports expanded raw picture refs with transparent pixel from YAML", () => {
+      const result = importPictureFromYAML(mockContext, mockRule, {
+        Ссылка: "0:00000000-0000-0000-0000-000000000000",
+        ПрозрачныйФон: "Истина",
+        ПрозрачныйПиксель: { x: 1, y: 2 },
+      })
+
+      expect(result).toEqual({
+        rawRef: "0:00000000-0000-0000-0000-000000000000",
+        loadTransparent: true,
+        transparentPixel: { x: 1, y: 2 },
+      })
+    })
+
+    it("imports expanded raw picture refs with transparent pixel and without LoadTransparent from YAML", () => {
+      const result = importPictureFromYAML(mockContext, mockRule, {
+        Ссылка: "0",
+        ПрозрачныйПиксель: { x: 12, y: 2 },
+      })
+
+      expect(result).toEqual({
+        rawRef: "0",
+        transparentPixel: { x: 12, y: 2 },
+      })
+    })
+
     it.each(["00", "0:g", "1:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"])(
       "should not classify %s as raw ref from YAML",
       (ref) => {

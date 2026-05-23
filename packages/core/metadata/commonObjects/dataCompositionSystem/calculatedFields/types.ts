@@ -10,4 +10,5 @@ registerMetadataItemCollectionRule({
   itemRule: CalculatedFieldRules,
   xmlElement: "CalculatedField",
   yamlAsArray: true,
+  keyField: "dataPath",
 })

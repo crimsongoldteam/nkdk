@@ -10,6 +10,7 @@ import type {
 } from "~/metadata/orchestration/property/fn"
 import { createEmptyClientApplicationForm } from "./createEmpty"
 import { copyFormItemExternalFilesFromXML, copyFormItemExternalFilesToXML } from "./externalItemFiles"
+import { copyExistingRawFile } from "./externalRawFiles"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { exportClientApplicationFormToXML } from "./toXML"
@@ -67,18 +68,29 @@ const getDirectFormXmlDir = (params: { baseDir: string; rule: { filePath?: strin
 const syncClientApplicationFormExternalFromXML: SyncExternalFromXMLFunction = async (params) => {
   if (params.rule.filePath === undefined) return
 
+  const formXmlDir = getDirectFormXmlDir({ baseDir: join(params.xmlDir, params.name), rule: params.rule })
   await copyFormItemExternalFilesFromXML({
-    formXmlDir: getDirectFormXmlDir({ baseDir: join(params.xmlDir, params.name), rule: params.rule }),
+    formXmlDir,
     formNkdkDir: params.nkdkDir,
+  })
+  await copyExistingRawFile({
+    sourcePath: join(formXmlDir, "Form.bin"),
+    targetPath: join(params.nkdkDir, "Form.bin"),
   })
 }
 
 const syncClientApplicationFormExternalToXML: SyncExternalToXMLFunction = async (params) => {
   if (params.rule.filePath === undefined) return
 
+  const formXmlDir = getDirectFormXmlDir({ baseDir: params.xmlDir, rule: params.rule })
   await copyFormItemExternalFilesToXML({
     formNkdkDir: params.nkdkDir,
-    formXmlDir: getDirectFormXmlDir({ baseDir: params.xmlDir, rule: params.rule }),
+    formXmlDir,
+    xmlManifest: params.xmlManifest,
+  })
+  await copyExistingRawFile({
+    sourcePath: join(params.nkdkDir, "Form.bin"),
+    targetPath: join(formXmlDir, "Form.bin"),
     xmlManifest: params.xmlManifest,
   })
 }

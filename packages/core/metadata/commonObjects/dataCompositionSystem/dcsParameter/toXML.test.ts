@@ -110,6 +110,23 @@ describe("export DCSParameter to XML", () => {
     )
   })
 
+  it("exports UUID parameter value according to valueType", () => {
+    const result = exportDCSParameters([
+      {
+        itemType: "DCSParameter" as const,
+        name: "ИдентификаторПоиска",
+        valueType: { type: ["UUID"] },
+        value: { type: "string" as const, value: "00000000-0000-0000-0000-000000000000" },
+        useRestriction: true,
+      },
+    ])
+
+    expect(result).toContain(
+      '<dcssch:value xsi:type="v8:UUID">00000000-0000-0000-0000-000000000000</dcssch:value>'
+    )
+    expect(result).not.toContain('xsi:type="xs:string"')
+  })
+
   it("exports explicit undefined value as xsi:nil instead of reference value", () => {
     const value = [
       {

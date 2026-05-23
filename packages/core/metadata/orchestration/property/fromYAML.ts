@@ -133,7 +133,12 @@ export const importPropertyFromYAML = (params: {
     return getValueOrDefault({
       context,
       rule,
-      value: rule.type === "MetadataDcsMetadataValue" && importedValue === null ? null : (importedValue ?? sourceValue),
+      value: getImportedValueOrSourceFallback({
+        rule,
+        value,
+        importedValue,
+        sourceValue,
+      }),
       name,
       operation: "importFromYAML",
     })
@@ -144,10 +149,48 @@ export const importPropertyFromYAML = (params: {
   return getValueOrDefault({
     context,
     rule,
-    value: rule.type === "MetadataDcsMetadataValue" && result === null ? null : (result ?? sourceValue),
+    value: getImportedValueOrSourceFallback({
+      rule,
+      value,
+      importedValue: result,
+      sourceValue,
+    }),
     name,
     operation: "importFromYAML",
   })
+}
+
+const getImportedValueOrSourceFallback = (params: {
+  rule: PropertyRule
+  value: any
+  importedValue: any
+  sourceValue: any
+}): any => {
+  const { rule, value, importedValue, sourceValue } = params
+
+  if (rule.type === "MetadataDcsMetadataValue" && importedValue === null) return null
+  if (shouldUseOnlyImportedMetadataDcsMetadataValue({ rule, value })) return importedValue
+  return importedValue ?? normalizeSourceFallbackValue(rule, sourceValue)
+}
+
+const normalizeSourceFallbackValue = (rule: PropertyRule, sourceValue: any): any => {
+  if (rule.type === "SystemEnumeration" && sourceValue !== null && typeof sourceValue === "object" && !Array.isArray(sourceValue)) {
+    const text = sourceValue["#text"]
+    if (typeof text === "string") return text
+  }
+
+  return sourceValue
+}
+
+const shouldUseOnlyImportedMetadataDcsMetadataValue = (params: {
+  rule: PropertyRule
+  value: any
+}): boolean => {
+  const { rule, value } = params
+
+  if (rule.type !== "MetadataDcsMetadataValue") return false
+  if ((rule as { valueType?: unknown }).valueType !== "DesignTimeValue") return false
+  return value === undefined
 }
 
 const getDefaultValueYAMLForImport = (params: {
@@ -160,12 +203,14 @@ const getDefaultValueYAMLForImport = (params: {
 }): any => {
   const { context, rule, value, sourceValue, yaml, name } = params
 
-  if (value !== undefined || sourceValue !== undefined) return undefined
+  if (value !== undefined || hasSourceValueForImportDefault(sourceValue)) return undefined
   if (!shouldApplyDefaultValueYAMLOnImport(rule, yaml)) return undefined
   if (!Object.prototype.hasOwnProperty.call(rule, "defaultValueYAML")) return undefined
 
   return typeof rule.defaultValueYAML === "function" ? rule.defaultValueYAML({ context, name }) : rule.defaultValueYAML
 }
+
+const hasSourceValueForImportDefault = (sourceValue: any): boolean => sourceValue !== undefined
 
 const shouldApplyDefaultValueYAMLOnImport = (rule: PropertyRule, yaml: any): boolean => {
   const option = rule.applyModelDefaultValueYAMLOnImport

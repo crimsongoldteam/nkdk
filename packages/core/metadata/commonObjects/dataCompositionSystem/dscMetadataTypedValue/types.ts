@@ -61,6 +61,8 @@ export const DcsMetadataTypedValueJSONSchema = Type.Union([
 ])
 
 export type DcsMetadataTypedValueYAML = Static<typeof DcsMetadataTypedValueJSONSchema>
+export type DcsMetadataTypedValueNilArrayItemYAML = Record<string, never>
+export type DcsMetadataTypedValueArrayItemYAML = DcsMetadataTypedValueYAML | DcsMetadataTypedValueNilArrayItemYAML
 
 export type DcsMetadataTypedValueUndefinedTypeXML = {
   "_xsi:type": "v8:Type"

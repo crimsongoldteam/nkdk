@@ -4,6 +4,7 @@ import { ConfigurationContext } from "../../context/types"
 import { importFixedArrayFromYAML } from "./fixedArray/fromYAML"
 import { importFormChoiceListFromYAML } from "./formChoiceList/fromYAML"
 import { primitiveValueHandlers } from "./handlers"
+import { importStandardPeriodFromYAML, isStandardPeriodYAML } from "../standardPeriod/fromYAML"
 import {
   MetadataFixedArrayValueYAMLInput,
   MetadataFormChoiceListValue,
@@ -44,6 +45,14 @@ export const importMetadataValueFromYAML = (
   }
 
   // Агрегатные типы определяются по форме данных, не по rule
+  if (isStandardPeriodYAML(data)) {
+    const value = importStandardPeriodFromYAML(context, undefined, data)
+    if (value === undefined) return undefined
+    const result = { type: "standardPeriod", value } satisfies MetadataTypedValue
+    assertValueType(ruleTyped?.valueType, result.type, "fromYAML")
+    return result
+  }
+
   if (typeof data === "object" && !Array.isArray(data) && "Представление" in data) {
     const result = importFormChoiceListFromYAML(context, data as MetadataFormChoiceListValueYAML)
     assertValueType(ruleTyped?.valueType, result.type, "fromYAML")

@@ -1,5 +1,5 @@
 import fs from "fs"
-import { dirname, join } from "path"
+import { dirname, join, posix } from "path"
 import { syncFormToXML } from "~/metadata/forms/clientApplicationForm/syncToXML"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
@@ -37,11 +37,26 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
       formName,
       outputDir: formOutputDir,
       referenceDir: formReferenceDir,
+      currentXMLPath: buildChildFormCurrentXMLPath({ xmlDir, name, formName }),
       xmlManifest,
     })
     await copyFormModuleToXML({ nkdkDir, formOutputDir, formName, xmlManifest })
     await copyFormHelpToXML({ nkdkDir, formOutputDir, formName, xmlManifest })
   }
+}
+
+export const buildChildFormCurrentXMLPath = (params: {
+  xmlDir: string
+  name: string
+  formName: string
+}): string => {
+  const xmlDirName = getLastPathSegment(params.xmlDir)
+  return posix.join(xmlDirName, params.name, "Forms", params.formName, "Ext", "Form.xml")
+}
+
+const getLastPathSegment = (value: string): string => {
+  const segments = value.split(/[\\/]+/).filter((segment) => segment.length > 0)
+  return segments.length > 0 ? segments[segments.length - 1] : value
 }
 
 async function copyFormModuleToXML(params: {

@@ -4,6 +4,8 @@ import { fixtureGroupItemAuto, fixtureGroupItemAutoYAML } from "../items/groupIt
 import {
   dynamicListGroupItemFieldDefault,
   dynamicListGroupItemFieldDefaultYAML,
+  dynamicListGroupItemFieldUseFalse,
+  dynamicListGroupItemFieldUseFalseYAML,
 } from "../items/groupItemField/__fixtures__/data"
 import "./index"
 
@@ -26,5 +28,14 @@ describe("import GroupItem collection from YAML", () => {
     })
 
     expect(result).toEqual([dynamicListGroupItemFieldDefault])
+  })
+
+  it("imports object GroupItemField by detectYAML", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: [dynamicListGroupItemFieldUseFalseYAML],
+    })
+
+    expect(result).toEqual([dynamicListGroupItemFieldUseFalse])
   })
 })

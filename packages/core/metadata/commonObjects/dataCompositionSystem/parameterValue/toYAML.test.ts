@@ -25,4 +25,25 @@ describe("exportParameterValueToYAML (через exportPropertyToYAML)", () => {
       [yamlKey]: fixture.yaml,
     })
   })
+
+  it("exports explicit empty string value in field context", () => {
+    const result = testExportPropertyToYAML({
+      rule: { type: "SettingsParameterValue", valueType: "Field", yaml: "НоменклатураВключение" } as PropertyRule,
+      value: {
+        parameter: "НоменклатураВключение",
+        use: false,
+        value: { type: "string", value: "" },
+      },
+    })
+
+    expect(result).toEqual({
+      НоменклатураВключение: {
+        Использовать: "Ложь",
+        Значение: {
+          Тип: "Строка",
+          Значение: "",
+        },
+      },
+    })
+  })
 })

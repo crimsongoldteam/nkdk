@@ -45,6 +45,16 @@ const isDcsSystemEnumerationValue = (
   data.type === "SystemEnumeration" &&
   typeof data.value === "string"
 
+const isExplicitEmptyLocalStringType = (data: MetadataDcsMetadataValue): data is I8nText => {
+  if (data === null || typeof data !== "object" || Array.isArray(data)) return false
+
+  const keys = Object.keys(data)
+  if (keys.length !== 1 || keys[0] !== "items") return false
+
+  const items = (data as { items?: unknown }).items
+  return typeof items === "object" && items !== null && !Array.isArray(items) && Object.keys(items).length === 0
+}
+
 export const exportDcsMetadataValueToDcsXML = (params: {
   context: ConfigurationContext
   rule: DcsMetadataValuePropertyRule
@@ -116,6 +126,13 @@ export const exportDcsMetadataValueToDcsXML = (params: {
     case "DesignTimeValue": {
       // DesignTimeValue может быть I8nText (v8:LocalStringType) либо типизированным примитивом
       // (например xs:string/xs:decimal/xs:boolean). Различаем по форме объекта.
+      if (isExplicitEmptyLocalStringType(data)) {
+        return {
+          "dcscor:value": {
+            "_xsi:type": "v8:LocalStringType",
+          },
+        }
+      }
       if (data !== null && typeof data === "object" && "type" in (data as object) && "value" in (data as object)) {
         const inner = exportMetadataValueToXML({
           context,

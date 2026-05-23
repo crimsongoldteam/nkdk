@@ -1,13 +1,27 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
-import { importPropertyFromYAML } from "./fromYAML"
-import type { PropertyRule } from "./types"
+import "~/metadata/commonObjects/i8nText/fromYAML"
+import { importPropertiesFromYAML, importPropertyFromYAML } from "./fromYAML"
+import type { MetadataItemRule, PropertyRule } from "./types"
 
 const defaultRule = {
   yaml: "Поле",
   type: "string",
   defaultValueYAML: "model-default",
 } as const satisfies PropertyRule
+
+const synonymRule = {
+  itemType: "TestItem",
+  properties: {
+    name: { type: "string", yaml: "Имя" },
+    synonym: {
+      type: "I8nText",
+      yaml: "Синоним",
+      defaultValueYAML: ({ name }: { name?: string }) => ({ items: { ru: name } }),
+      applyModelDefaultValueYAMLOnImport: { whenAnyYAMLKeyPresent: ["Имя"] },
+    },
+  },
+} as const satisfies MetadataItemRule
 
 describe("importPropertyFromYAML", () => {
   it("does not apply defaultValueYAML to missing YAML without opt-in", () => {
@@ -51,5 +65,46 @@ describe("importPropertyFromYAML", () => {
         yaml: {},
       })
     ).toBeUndefined()
+  })
+})
+
+describe("importPropertiesFromYAML", () => {
+  it("preserves explicit empty synonym from source when YAML omits synonym", () => {
+    const result = importPropertiesFromYAML({
+      context: mockContext,
+      metadataRule: synonymRule,
+      name: "ПравилаОтправкиДокументов",
+      yaml: { Имя: "ПравилаОтправкиДокументов" },
+      source: { itemType: "TestItem", synonym: { items: {} } } as never,
+    })
+
+    expect(result.synonym).toEqual({ items: {} })
+  })
+
+  it("applies default synonym when YAML omits synonym and source has no synonym", () => {
+    const result = importPropertiesFromYAML({
+      context: mockContext,
+      metadataRule: synonymRule,
+      name: "ПравилаОтправкиДокументов",
+      yaml: { Имя: "ПравилаОтправкиДокументов" },
+      source: { itemType: "TestItem" } as never,
+    })
+
+    expect(result.synonym).toEqual({ items: { ru: "ПравилаОтправкиДокументов" } })
+  })
+
+  it("uses explicit YAML synonym over empty synonym from source", () => {
+    const result = importPropertiesFromYAML({
+      context: mockContext,
+      metadataRule: synonymRule,
+      name: "ПравилаОтправкиДокументов",
+      yaml: {
+        Имя: "ПравилаОтправкиДокументов",
+        Синоним: "Явный синоним",
+      },
+      source: { itemType: "TestItem", synonym: { items: {} } } as never,
+    })
+
+    expect(result.synonym).toEqual({ items: { ru: "Явный синоним" } })
   })
 })

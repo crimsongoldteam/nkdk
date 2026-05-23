@@ -2,6 +2,7 @@ import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/ty
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { importMetadataItemFromYAML, registerTypeRule } from "~/metadata/orchestration"
+import "~/metadata/forms/commonObjects/dynamicList/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,

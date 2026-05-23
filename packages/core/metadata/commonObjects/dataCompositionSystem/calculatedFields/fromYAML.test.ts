@@ -11,4 +11,58 @@ describe("import CalculatedFields from YAML", () => {
 
     expect(result).toEqual(calculatedFields)
   })
+
+  it("preserves source order type by dataPath", () => {
+    const result = testImportPropertyFromYAML({
+      rule: { type: "CalculatedFields" },
+      value: [
+        {
+          ПутьКДанным: "ПредставлениеПериода",
+          Выражение: "",
+          ВыраженияУпорядочивания: [
+            {
+              Выражение: "Дата",
+              Автоупорядочивание: "Ложь",
+            },
+          ],
+        },
+      ],
+      sourceValue: [
+        {
+          itemType: "CalculatedField",
+          dataPath: "ДругоеПоле",
+          expression: "",
+        },
+        {
+          itemType: "CalculatedField",
+          dataPath: "ПредставлениеПериода",
+          expression: "",
+          orderExpressions: [
+            {
+              itemType: "CalculatedFieldOrderExpression",
+              expression: "Дата",
+              orderType: "Asc",
+              autoOrder: false,
+            },
+          ],
+        },
+      ],
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "CalculatedField",
+        dataPath: "ПредставлениеПериода",
+        expression: "",
+        orderExpressions: [
+          {
+            itemType: "CalculatedFieldOrderExpression",
+            expression: "Дата",
+            orderType: "Asc",
+            autoOrder: false,
+          },
+        ],
+      },
+    ])
+  })
 })

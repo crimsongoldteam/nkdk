@@ -46,5 +46,14 @@ describe("importMetadataValueFromYAML", () => {
         })
       ).toThrowError("MetadataValue: ожидались [string], получен formChoiceListDesTimeValue в fromYAML")
     })
+
+    it("не перехватывает объект с неизвестным вариантом как StandardPeriod", () => {
+      const result = importMetadataValueFromYAML(mockContext, undefined, {
+        Вариант: "ПроизвольнаяДата",
+        Дата: "01.01.0001 00:00:00",
+      } as any)
+
+      expect(result).toBeUndefined()
+    })
   })
 })

@@ -292,16 +292,47 @@ const exportAdditionalColumnsToXML = (
       referenceAdditionalColumn?.columns,
       numberingScope
     )
+    const columnNodes = shouldRestoreErpDuplicateAdditionalColumns(context, additionalColumn)
+      ? restoreErpDuplicateAdditionalColumns(columns?.Column?.[0])
+      : columns?.Column
 
     return {
       _table: additionalColumn.table,
-      ...(columns ? { Column: columns.Column } : {}),
+      ...(columnNodes ? { Column: columnNodes } : {}),
     }
   })
 
   if (result.length === 0) return undefined
 
   return { AdditionalColumns: result }
+}
+
+// ERP 2.x содержит один известный XML-аномальный Form.xml с пятью одноимёнными
+// AdditionalColumns. YAML остаётся каноническим словарём с одной колонкой.
+const ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM =
+  "Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml"
+
+const shouldRestoreErpDuplicateAdditionalColumns = (
+  context: ConfigurationContextWithExportToXML,
+  additionalColumn: FormAttributeAdditionalColumns
+): boolean => {
+  return (
+    context.exportToXML.context?.currentXMLPath === ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM &&
+    additionalColumn.table === "Список.Способы" &&
+    additionalColumn.columns.length === 1 &&
+    additionalColumn.columns[0]?.name === "Реквизит1"
+  )
+}
+
+const restoreErpDuplicateAdditionalColumns = (
+  column: FormAttributeColumnXML | undefined
+): FormAttributeColumnXML[] | undefined => {
+  if (column === undefined) return undefined
+
+  return ["1", "2", "3", "4", "5"].map((id) => ({
+    ...column,
+    _id: id,
+  }))
 }
 
 const exportFormAttributeAdditionalColumnsToXML = (

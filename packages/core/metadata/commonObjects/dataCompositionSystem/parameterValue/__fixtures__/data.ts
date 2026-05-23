@@ -49,7 +49,13 @@ export const fixtureChoiceParameterLinks: ChoiceParameterLinks = [
   },
 ]
 
-export const fixtureChoiceParameterLinksYAML: ChoiceParameterLinksYAML = "ПараметрВыбора(Поле1, НеИзменять)"
+export const fixtureChoiceParameterLinksYAML: ChoiceParameterLinksYAML = [
+  {
+    Имя: "ПараметрВыбора",
+    ПутьКДанным: "Поле1",
+    РежимИзменения: "НеИзменять",
+  },
+]
 
 const xmlFull = `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 	<dcscor:parameter>Формат</dcscor:parameter>

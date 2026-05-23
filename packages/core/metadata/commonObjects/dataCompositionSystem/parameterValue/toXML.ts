@@ -31,6 +31,16 @@ const normalizeValues = (v: ParameterValue["value"]): MetadataDcsMetadataValue[]
   return v
 }
 
+const isExplicitEmptyLocalStringType = (value: unknown): value is MetadataDcsMetadataValue => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false
+
+  const keys = Object.keys(value)
+  if (keys.length !== 1 || keys[0] !== "items") return false
+
+  const items = (value as { items?: unknown }).items
+  return typeof items === "object" && items !== null && !Array.isArray(items) && Object.keys(items).length === 0
+}
+
 const hasSettingsExtension = (data: ParameterValue | SettingsParameterValue): data is SettingsParameterValue =>
   (data as SettingsParameterValue).viewMode !== undefined ||
   (data as SettingsParameterValue).userSettingID !== undefined ||
@@ -69,6 +79,15 @@ export const exportParameterValueToDcsXML = (params: {
 
   if (valueNodes.length === 0 && data.value === undefined && referenceData?.__referenceNilValue === true) {
     valueNodes.push({ "_xsi:nil": true } as ParameterValueDcsValueFragment)
+  }
+
+  const referenceValues = referenceData?.value !== undefined ? normalizeValues(referenceData.value) : []
+  if (valueNodes.length === 0 && data.value === undefined && referenceValues.length === 1) {
+    const referenceValue = referenceValues[0]
+    if (isExplicitEmptyLocalStringType(referenceValue)) {
+      const fragment = exportDcsMetadataValueToDcsXML({ context, rule: dcsRule, data: referenceValue })
+      valueNodes.push(fragment["dcscor:value"] as ParameterValueDcsValueFragment)
+    }
   }
 
   const itemsXml = data.item?.map((child, index) =>

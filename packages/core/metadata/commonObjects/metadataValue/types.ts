@@ -1,6 +1,7 @@
 import { Static, Type } from "@sinclair/typebox"
 import { BasePropertyRule } from "~/metadata/orchestration"
 import { I8nText, I8nTextJSONSchema, I8nTextXML } from "../i8nText/types"
+import { StandardPeriod, StandardPeriodXML, StandardPeriodYAMLJSONSchema } from "../standardPeriod/types"
 
 //#region MetadataValue
 
@@ -18,6 +19,7 @@ export const MetadataValueTypeToXML = {
   DataCompositionComparisonType: "dcsset:DataCompositionComparisonType",
   fixedArray: "v8:FixedArray",
   formChoiceListDesTimeValue: "FormChoiceListDesTimeValue",
+  standardPeriod: "v8:StandardPeriod",
 } as const
 
 export type MetadataValueTypeToXMLTypes = [
@@ -92,6 +94,11 @@ export interface MetadataValueListValue {
   type: "valueList"
 }
 
+export interface MetadataStandardPeriodValue {
+  type: "standardPeriod"
+  value: StandardPeriod
+}
+
 export type MetadataSimpleValue =
   | MetadataTypedPrimitiveValue["value"]
   | MetadataTypedPrimitiveValue["value"][]
@@ -101,7 +108,11 @@ export type MetadataSimpleValue =
     }
 
 export type MetadataTypedValue<T extends MetadataValueType = MetadataValueType> = Extract<
-  MetadataTypedPrimitiveValue | MetadataFixedArrayValue | MetadataFormChoiceListValue | MetadataValueListValue,
+  | MetadataTypedPrimitiveValue
+  | MetadataFixedArrayValue
+  | MetadataFormChoiceListValue
+  | MetadataValueListValue
+  | MetadataStandardPeriodValue,
   { type: T }
 >
 
@@ -150,10 +161,19 @@ export const MetadataFixedArrayValueJSONSchema = Type.Array(
 export type MetadataFixedArrayValueYAML = Array<MetadataSingleValueYAML | undefined>
 export type MetadataFixedArrayValueYAMLInput = Static<typeof MetadataFixedArrayValueJSONSchema>
 
+export const MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema = Type.Object({
+  Тип: Type.Literal("ВидСравненияКомпоновкиДанных"),
+  Значение: Type.String(),
+})
+export type MetadataExplicitDataCompositionComparisonTypeYAML = Static<
+  typeof MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema
+>
+
 export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
   Type.Union([
     MetadataSingleValueJSONSchema,
     MetadataFixedArrayValueJSONSchema,
+    StandardPeriodYAMLJSONSchema,
     Type.Object({
       Представление: I8nTextJSONSchema,
       Значение: Type.Optional(ThisType),
@@ -163,7 +183,9 @@ export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
 
 export const MetadataFormChoiceListComplexValueJSONSchema = Type.Object({
   Представление: I8nTextJSONSchema,
-  Значение: Type.Optional(MetadataValueJSONSchema),
+  Значение: Type.Optional(
+    Type.Union([MetadataValueJSONSchema, MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema])
+  ),
 })
 export type MetadataFormChoiceListComplexValueYAML = Static<typeof MetadataFormChoiceListComplexValueJSONSchema>
 
@@ -192,6 +214,7 @@ export type MetadataValueXML<_Rule = unknown, _Value = unknown> =
   | MetadataFixedArrayValueXML
   | MetadataFormChoiceListValueXML
   | MetadataValueListXML
+  | StandardPeriodXML
   | { "_xsi:nil": true }
 
 /** Validates that the actual type matches the rule's allowed types. Throws if not. */

@@ -131,4 +131,57 @@ describe("import DynamicList from YAML", () => {
       keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
     })
   })
+
+  it("preserves calculated field Asc from raw XML source", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        ВычисляемыеПоля: [
+          {
+            ПутьКДанным: "УниверсальнаяДата",
+            Выражение: "Дата",
+            ВыраженияУпорядочивания: [
+              {
+                Выражение: "Дата",
+                Автоупорядочивание: "Ложь",
+              },
+            ],
+          },
+        ],
+      },
+      sourceValue: {
+        "_xsi:type": "DynamicList",
+        CalculatedField: {
+          "dcssch:dataPath": "УниверсальнаяДата",
+          "dcssch:expression": "Дата",
+          "dcssch:orderExpression": {
+            expression: "Дата",
+            orderType: {
+              "#text": "Asc",
+              _xmlns: "http://v8.1c.ru/8.1/data-composition-system/common",
+            },
+            autoOrder: false,
+          },
+        },
+      },
+    })
+
+    expect(result).toMatchObject({
+      itemType: "DynamicList",
+      calculatedFields: [
+        {
+          itemType: "CalculatedField",
+          dataPath: "УниверсальнаяДата",
+          orderExpressions: [
+            {
+              itemType: "CalculatedFieldOrderExpression",
+              expression: "Дата",
+              orderType: "Asc",
+              autoOrder: false,
+            },
+          ],
+        },
+      ],
+    })
+  })
 })

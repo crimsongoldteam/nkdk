@@ -4,6 +4,7 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportFixedArrayToYAML } from "./fixedArray/toYAML"
 import { exportFormChoiceListToYAML } from "./formChoiceList/toYAML"
 import { primitiveValueHandlers } from "./handlers"
+import { exportStandardPeriodToYAML } from "../standardPeriod/toYAML"
 import {
   MetadataFixedArrayValue,
   MetadataFormChoiceListValue,
@@ -45,6 +46,7 @@ export const exportMetadataValueToYAML = (
   if (data.type === "fixedArray") return exportFixedArrayToYAML(context, data as MetadataFixedArrayValue)
   if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListToYAML(context, data as MetadataFormChoiceListValue)
   if (data.type === "valueList") return "СписокЗначений"
+  if (data.type === "standardPeriod") return exportStandardPeriodToYAML(data.value, context, rule)
 
   if (!PRIMITIVE_TYPES.includes(data.type as MetadataPrimitiveValueType)) {
     throw new Error(`MetadataValue: неподдерживаемый тип для YAML: ${data.type}`)

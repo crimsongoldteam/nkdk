@@ -4,6 +4,7 @@ import { ConfigurationContext } from "../../context/types"
 import { exportFixedArrayToXML } from "./fixedArray/toXML"
 import { exportFormChoiceListToXML } from "./formChoiceList/toXML"
 import { primitiveValueHandlers } from "./handlers"
+import { exportStandardPeriodToXML } from "../standardPeriod/toXML"
 import {
   MetadataFixedArrayValue,
   MetadataFormChoiceListValue,
@@ -80,6 +81,10 @@ export const exportMetadataValueToXML = (params: {
 
   if (value.type === "valueList") {
     return { "_xsi:type": MetadataValueTypeToXML.valueList }
+  }
+
+  if (value.type === "standardPeriod") {
+    return exportStandardPeriodToXML(value.value)
   }
 
   if (!PRIMITIVE_TYPES.includes(value.type as MetadataPrimitiveValueType)) {

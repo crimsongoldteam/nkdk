@@ -4,6 +4,7 @@ import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
+import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
 import type {
   ParameterValue,
@@ -15,6 +16,25 @@ import type {
 
 const isYamlObject = (x: unknown): x is Record<string, unknown> =>
   typeof x === "object" && x !== null && !Array.isArray(x)
+
+const isExplicitDcsValueYAML = (x: unknown): x is Record<string, unknown> =>
+  isYamlObject(x) && typeof x["Тип"] === "string" && "Значение" in x
+
+const normalizeSourceValues = (
+  value: ParameterValue["value"] | undefined
+): MetadataDcsMetadataValue[] => {
+  if (value === undefined) return []
+  return Array.isArray(value) ? (value as MetadataDcsMetadataValue[]) : [value]
+}
+
+const normalizeRawValues = (
+  valueType: SettingsParameterValuePropertyRule["valueType"],
+  rawValue: unknown
+): unknown[] => {
+  if (rawValue === undefined) return []
+  if (valueType === "ChoiceParameterLinks") return [rawValue]
+  return Array.isArray(rawValue) ? rawValue : [rawValue]
+}
 
 /** Поля развёрнутого SPV — не имя параметра снаружи. */
 const PARAMETER_VALUE_YAML_INTERNAL_KEYS = new Set([
@@ -60,7 +80,8 @@ const tryUnwrapParameterValueWrapper = (
 export const importParameterValueFromYAML = (
   context: ConfigurationContext,
   rule: SettingsParameterValuePropertyRule,
-  yaml: ParameterValueYAML | SettingsParameterValueYAML
+  yaml: ParameterValueYAML | SettingsParameterValueYAML,
+  sourceValue?: ParameterValue | SettingsParameterValue
 ): ParameterValue | SettingsParameterValue | undefined => {
   if (yaml === undefined || yaml === null) {
     return undefined
@@ -88,11 +109,22 @@ export const importParameterValueFromYAML = (
     parameterFromWrapper ?? parameterFromExpandedField ?? parameterFromRule ?? ""
   )
   const hasExplicitValue = y !== undefined && "Значение" in y
-  const rawValue = hasExplicitValue ? y["Значение"] : isExpandedSpvShape ? undefined : yamlToParse
-  const rawList = rawValue === undefined ? [] : Array.isArray(rawValue) ? rawValue : [rawValue]
+  const rawValue = isExplicitDcsValueYAML(yamlToParse)
+    ? yamlToParse
+    : hasExplicitValue
+      ? y["Значение"]
+      : isExpandedSpvShape
+        ? undefined
+        : yamlToParse
+  const rawList = normalizeRawValues(dcsRule.valueType, rawValue)
+  const sourceValues = normalizeSourceValues(sourceValue?.value)
   const valueParts = rawList
-    .map((v) => importDcsMetadataValueFromYAML(context, dcsRule, v as never))
+    .map((v, index) => importDcsMetadataValueFromYAML(context, dcsRule, v as never, sourceValues[index]))
     .filter((v): v is NonNullable<typeof v> => v !== undefined)
+  if (rawList.length === 0 && sourceValue?.value !== undefined) {
+    const sourceOnlyValue = importDcsMetadataValueFromYAML(context, dcsRule, undefined, sourceValue.value as never)
+    if (sourceOnlyValue !== undefined) valueParts.push(sourceOnlyValue)
+  }
 
   const value: ParameterValue["value"] =
     valueParts.length === 0 ? undefined : valueParts.length === 1 ? valueParts[0] : valueParts
@@ -150,12 +182,14 @@ export const importParameterValueFromYAML = (
 const importSettingsParameterValueFromYAMLForRule = (
   context: ConfigurationContext,
   rule: PropertyRule,
-  value: unknown
+  value: unknown,
+  sourceValue?: unknown
 ) =>
   importParameterValueFromYAML(
     context,
     rule as unknown as SettingsParameterValuePropertyRule,
-    value as SettingsParameterValueYAML
+    value as SettingsParameterValueYAML,
+    sourceValue as ParameterValue | SettingsParameterValue | undefined
   )
 
 registerTypeRule("SettingsParameterValue", "importFromYAML", importSettingsParameterValueFromYAMLForRule)

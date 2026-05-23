@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import {
@@ -58,5 +59,38 @@ describe("exportParameterValueToDcsXML", () => {
 
     expect(result).toContain('<dcscor:value xsi:type="v8:LocalStringType">')
     expect(result).not.toContain('xsi:nil="true"')
+  })
+
+  it("restores empty LocalStringType from reference when current value is absent", () => {
+    const { result } = testExportPropertyToXML({
+      rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue" },
+      value: {
+        parameter: "Текст",
+        use: false,
+      },
+      xmlRootTag: "dcscor:item",
+      referenceMetadata: {
+        parameter: "Текст",
+        use: false,
+        value: { items: {} },
+      },
+    })
+
+    expect(result).toContain('<dcscor:value xsi:type="v8:LocalStringType"/>')
+  })
+
+  it("exports explicit empty xs:string instead of dcscor:Field", () => {
+    const { result } = testExportPropertyToXML({
+      rule: { type: "SettingsParameterValue", valueType: "Field" } as PropertyRule,
+      value: {
+        parameter: "НоменклатураВключение",
+        use: false,
+        value: { type: "string", value: "" },
+      },
+      xmlRootTag: "dcscor:item",
+    })
+
+    expect(result).toContain('<dcscor:value xsi:type="xs:string"/>')
+    expect(result).not.toContain('xsi:type="dcscor:Field"')
   })
 })

@@ -1,4 +1,4 @@
-import { Static, Type } from "@sinclair/typebox"
+import { Type } from "@sinclair/typebox"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 
@@ -53,9 +53,19 @@ export interface ChoiceParameterLinkDcsValueRootXML {
 
 //#region ChoiceParameterLinkYAML
 
-export type ChoiceParameterLinkYAML = string
+export interface ChoiceParameterLinkYAML {
+  Имя: string
+  ПутьКДанным: string
+  РежимИзменения?: "НеИзменять"
+}
 
-export const ChoiceParameterLinksJSONSchema = Type.String()
-export type ChoiceParameterLinksYAML = Static<typeof ChoiceParameterLinksJSONSchema>
+export const ChoiceParameterLinkJSONSchema = Type.Object({
+  Имя: Type.String(),
+  ПутьКДанным: Type.String(),
+  РежимИзменения: Type.Optional(Type.Literal("НеИзменять")),
+})
+
+export const ChoiceParameterLinksJSONSchema = Type.Union([Type.String(), Type.Array(ChoiceParameterLinkJSONSchema)])
+export type ChoiceParameterLinksYAML = string | ChoiceParameterLinkYAML[]
 
 //#endregion

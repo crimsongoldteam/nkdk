@@ -32,8 +32,67 @@ import { valueListWithReferenceEmptySettings } from "./__fixtures__/valueListWit
 import { valueListWithoutSettings } from "./__fixtures__/valueListWithoutSettings"
 import { importFormAttributesFromXML } from "./fromXML"
 import { exportFormAttributesToXML } from "./toXML"
+import type { FormAttributeAdditionalColumnXML, FormAttributeColumnXML, FormAttributes } from "./types"
 
 const formAttributesRule = { type: "FormAttributes", xml: "Attribute" } as const
+const erpDuplicateAdditionalColumnsFormPath =
+  "Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml"
+
+const formAttributesWithCanonicalErpAdditionalColumn: FormAttributes = [
+  {
+    itemType: "FormAttribute",
+    name: "Объект",
+    title: { items: { ru: "" } },
+    type: { type: ["string"] },
+    columns: [],
+    additionalColumns: [
+      {
+        table: "Список.Способы",
+        columns: [
+          {
+            itemType: "FormAttributeColumn",
+            name: "Реквизит1",
+            title: { items: { ru: "Реквизит1" } },
+            type: { type: ["string"] },
+          },
+        ],
+      },
+    ],
+  },
+]
+
+const withErpAdditionalColumn = (params: { table?: string; column?: string }): FormAttributes => [
+  {
+    ...formAttributesWithCanonicalErpAdditionalColumn[0],
+    additionalColumns: [
+      {
+        table: params.table ?? "Список.Способы",
+        columns: [
+          {
+            ...formAttributesWithCanonicalErpAdditionalColumn[0].additionalColumns![0].columns[0],
+            name: params.column ?? "Реквизит1",
+          },
+        ],
+      },
+    ],
+  },
+]
+
+const getFirstAdditionalColumnGroup = (
+  xmlData: ReturnType<typeof exportFormAttributesToXML>
+): FormAttributeAdditionalColumnXML | undefined => {
+  const firstAttribute = xmlData?.Attribute[0] as
+    | { Columns?: { AdditionalColumns?: FormAttributeAdditionalColumnXML | FormAttributeAdditionalColumnXML[] } }
+    | undefined
+  const additionalColumns = firstAttribute?.Columns?.AdditionalColumns
+  return Array.isArray(additionalColumns) ? additionalColumns[0] : additionalColumns
+}
+
+const getFirstAdditionalColumnNodes = (
+  xmlData: ReturnType<typeof exportFormAttributesToXML>
+): FormAttributeColumnXML[] | undefined => {
+  return getFirstAdditionalColumnGroup(xmlData)?.Column
+}
 
 const referenceWithoutValueType = (path: string): unknown => {
   const reference = testImportPropertyFromXML({
@@ -191,6 +250,63 @@ describe("exportFormAttributesToXML", () => {
     const result = xmlExport(xmlData!, false)
 
     expect(result).toEqual(expectedResult)
+  })
+
+  it("restores ERP duplicate AdditionalColumns only for the known form path", () => {
+    const context = mockContextToXML()
+    context.exportToXML.context!.currentXMLPath = erpDuplicateAdditionalColumnsFormPath
+
+    const xmlData = exportFormAttributesToXML(context, mockRule, formAttributesWithCanonicalErpAdditionalColumn)
+    const columns = getFirstAdditionalColumnNodes(xmlData)
+
+    expect(columns).toHaveLength(5)
+    expect(columns?.map((column) => column._name)).toEqual([
+      "Реквизит1",
+      "Реквизит1",
+      "Реквизит1",
+      "Реквизит1",
+      "Реквизит1",
+    ])
+    expect(columns?.map((column) => column._id)).toEqual(["1", "2", "3", "4", "5"])
+  })
+
+  it("keeps canonical AdditionalColumns for other form paths", () => {
+    const context = mockContextToXML()
+    context.exportToXML.context!.currentXMLPath = "Catalogs/ДругойСправочник/Forms/ФормаСписка/Ext/Form.xml"
+
+    const xmlData = exportFormAttributesToXML(context, mockRule, formAttributesWithCanonicalErpAdditionalColumn)
+    const columns = getFirstAdditionalColumnNodes(xmlData)
+
+    expect(columns).toHaveLength(1)
+    expect(columns?.map((column) => column._name)).toEqual(["Реквизит1"])
+  })
+
+  it("keeps canonical AdditionalColumns for the ERP path when table is different", () => {
+    const context = mockContextToXML()
+    context.exportToXML.context!.currentXMLPath = erpDuplicateAdditionalColumnsFormPath
+
+    const xmlData = exportFormAttributesToXML(
+      context,
+      mockRule,
+      withErpAdditionalColumn({ table: "Список.ДругиеСпособы" })
+    )
+    const firstAdditionalColumn = getFirstAdditionalColumnGroup(xmlData)
+    const columns = firstAdditionalColumn?.Column
+
+    expect(columns).toHaveLength(1)
+    expect(firstAdditionalColumn?._table).toBe("Список.ДругиеСпособы")
+    expect(columns?.map((column) => column._name)).toEqual(["Реквизит1"])
+  })
+
+  it("keeps canonical AdditionalColumns for the ERP path when column name is different", () => {
+    const context = mockContextToXML()
+    context.exportToXML.context!.currentXMLPath = erpDuplicateAdditionalColumnsFormPath
+
+    const xmlData = exportFormAttributesToXML(context, mockRule, withErpAdditionalColumn({ column: "Реквизит2" }))
+    const columns = getFirstAdditionalColumnNodes(xmlData)
+
+    expect(columns).toHaveLength(1)
+    expect(columns?.map((column) => column._name)).toEqual(["Реквизит2"])
   })
 
   it("export tableWithColumns", () => {
