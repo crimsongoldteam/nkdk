@@ -20,6 +20,10 @@
 
 Пакет `@nakidka/cli` предоставляет бинарник `nkdk` для работы с конфигурацией вне VS Code.
 
+## Лицензия
+
+Проект распространяется на условиях GNU Affero General Public License v3.0 or later. Подробности см. в файле [LICENSE](LICENSE).
+
 ### Команды
 
 #### `nkdk import <xml-dir> <yaml-dir>`

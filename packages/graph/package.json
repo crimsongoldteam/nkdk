@@ -2,6 +2,7 @@
   "name": "@nakidka/graph",
   "version": "1.0.0",
   "description": "Пакет для работы с графом метаданных в FalkorDB",
+  "license": "AGPL-3.0-or-later",
   "type": "module",
   "main": "./src/index.ts",
   "exports": {

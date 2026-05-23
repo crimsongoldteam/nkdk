@@ -3,6 +3,7 @@
   "description": "The extension for 1C:Enterprise configuration in YAML format",
   "publisher": "nikita-zherebtsov",
   "version": "0.0.1",
+  "license": "AGPL-3.0-or-later",
   "displayName": "nkdk",
   "engines": {
     "vscode": "^1.75.0"
