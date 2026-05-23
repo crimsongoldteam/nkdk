@@ -2,6 +2,7 @@
 import { Command } from "commander"
 import { importConfiguration } from "./commands/import"
 import { deleteMigration, generateMigration, renameMigration } from "./commands/migration"
+import { printJSONSchema } from "./commands/schema"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
 import { syncConfiguration } from "./commands/sync"
 import { updateGraph, updateGraphFile } from "./commands/updateGraph"
@@ -61,6 +62,15 @@ program
   .argument("<path>", "путь к корню YAML-проекта")
   .action((projectPath: string) => {
     run(() => watch(projectPath))
+  })
+
+program
+  .command("schema")
+  .description("Показать JSON Schema для YAML-файла проекта")
+  .argument("<file>", "путь к YAML-файлу проекта")
+  .option("--project <yamlDir>", "путь к корню YAML-проекта")
+  .action((file: string, opts: { project?: string }) => {
+    run(() => printJSONSchema(file, opts))
   })
 
 program

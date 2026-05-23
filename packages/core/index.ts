@@ -73,5 +73,10 @@ export type {
   ProjectGraphSource,
 } from "./metadata/orchestration/buildGraph"
 export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
+export {
+  exportJSONSchemaForProjectFile,
+  ProjectFileSchemaError,
+  type ExportJSONSchemaForProjectFileParams,
+} from "./metadata/validation/projectFileSchema"
 export { exportMetadataDocumentToJSONSchema } from "./metadata/appliedObjects/metadataDocument/toJSONSchema"
 export { exportMetadataEnumerationToJSONSchema } from "./metadata/appliedObjects/metadataEnumeration/toJSONSchema"
