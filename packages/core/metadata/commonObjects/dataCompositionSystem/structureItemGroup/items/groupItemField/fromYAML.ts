@@ -1,18 +1,11 @@
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import {
+  DataCompositionGroupTypeFromYAML,
+  DataCompositionPeriodAdditionTypeFromYAML,
+} from "~/metadata/systemEnumerations/types"
 import type { GroupItemField, GroupItemFieldYAML } from "./types"
-
-const groupTypeFromYAML = {
-  Элементы: "Items",
-  Иерархия: "Hierarchy",
-} as const
-
-const periodAdditionTypeFromYAML = {
-  Нет: "None",
-  Элементы: "Items",
-  Иерархия: "Hierarchy",
-} as const
 
 export const importGroupItemFieldFromYAML = (
   _context: ConfigurationContext,
@@ -27,8 +20,10 @@ export const importGroupItemFieldFromYAML = (
       itemType: "GroupItemField",
       field: value.Поле,
       ...(value.Использование === "Ложь" ? { use: false } : {}),
-      ...(value.ТипГруппировки != null ? { groupType: groupTypeFromYAML[value.ТипГруппировки] } : {}),
-      ...(value.ТипДополнения != null ? { periodAdditionType: periodAdditionTypeFromYAML[value.ТипДополнения] } : {}),
+      ...(value.ТипГруппировки != null ? { groupType: DataCompositionGroupTypeFromYAML[value.ТипГруппировки] } : {}),
+      ...(value.ТипДополнения != null
+        ? { periodAdditionType: DataCompositionPeriodAdditionTypeFromYAML[value.ТипДополнения] }
+        : {}),
       ...(value.НачалоПериода != null ? { periodAdditionBegin: value.НачалоПериода } : {}),
       ...(value.КонецПериода != null ? { periodAdditionEnd: value.КонецПериода } : {}),
     }

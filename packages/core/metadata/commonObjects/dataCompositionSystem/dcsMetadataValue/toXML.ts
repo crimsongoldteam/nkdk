@@ -33,9 +33,7 @@ const isExplicitTextValue = (data: MetadataDcsMetadataValue): data is MetadataDc
   (data.type === "DesignTimeValue" || data.type === "Field") &&
   typeof data.value === "string"
 
-const isDcsSystemEnumerationValue = (
-  data: MetadataDcsMetadataValue
-): data is MetadataDcsSystemEnumerationValue =>
+const isDcsSystemEnumerationValue = (data: MetadataDcsMetadataValue): data is MetadataDcsSystemEnumerationValue =>
   data !== null &&
   typeof data === "object" &&
   !Array.isArray(data) &&
@@ -54,6 +52,15 @@ const isExplicitEmptyLocalStringType = (data: MetadataDcsMetadataValue): data is
   const items = (data as { items?: unknown }).items
   return typeof items === "object" && items !== null && !Array.isArray(items) && Object.keys(items).length === 0
 }
+
+const isI8nTextValue = (data: MetadataDcsMetadataValue): data is I8nText =>
+  data !== null &&
+  typeof data === "object" &&
+  !Array.isArray(data) &&
+  "items" in data &&
+  typeof (data as { items?: unknown }).items === "object" &&
+  (data as { items?: unknown }).items !== null &&
+  !Array.isArray((data as { items?: unknown }).items)
 
 export const exportDcsMetadataValueToDcsXML = (params: {
   context: ConfigurationContext
@@ -151,7 +158,10 @@ export const exportDcsMetadataValueToDcsXML = (params: {
           },
         }
       }
-      const i8nXml = exportI8nTextToXML(context, { type: "I8nText" }, data as I8nText)
+      if (!isI8nTextValue(data)) {
+        throw new Error("DCS MetadataValue: DesignTimeValue expects I8nText")
+      }
+      const i8nXml = exportI8nTextToXML(context, { type: "I8nText" }, data)
       return {
         "dcscor:value": {
           "_xsi:type": "v8:LocalStringType",

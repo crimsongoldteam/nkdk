@@ -70,7 +70,7 @@ export const convertPath = (rules: MetadataFieldsRules, path: string): string =>
     const part = parts[i]
 
     if (currentRules && part in currentRules) {
-      const rule = currentRules[part]
+      const rule: MetadataFieldsRules[string] = currentRules[part]
 
       if (typeof rule === "string") {
         result.push(rule)
@@ -80,7 +80,7 @@ export const convertPath = (rules: MetadataFieldsRules, path: string): string =>
         continue
       }
 
-      const shouldActivateFieldsAfterLiteralSegment =
+      const shouldActivateFieldsAfterLiteralSegment: boolean =
         Boolean(rule.fields) && (result.length === 0 || part === "TabularSection" || part === "ТабличнаяЧасть")
 
       result.push(rule.name)

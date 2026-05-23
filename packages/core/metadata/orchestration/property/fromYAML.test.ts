@@ -11,7 +11,7 @@ const defaultRule = {
 } as const satisfies PropertyRule
 
 const synonymRule = {
-  itemType: "TestItem",
+  itemType: "MetadataCatalog",
   properties: {
     name: { type: "string", yaml: "Имя" },
     synonym: {
@@ -75,7 +75,11 @@ describe("importPropertiesFromYAML", () => {
       metadataRule: synonymRule,
       name: "ПравилаОтправкиДокументов",
       yaml: { Имя: "ПравилаОтправкиДокументов" },
-      source: { itemType: "TestItem", synonym: { items: {} } } as never,
+      source: {
+        itemType: "MetadataCatalog",
+        name: "ПравилаОтправкиДокументов",
+        synonym: { items: {} },
+      },
     })
 
     expect(result.synonym).toEqual({ items: {} })
@@ -87,7 +91,7 @@ describe("importPropertiesFromYAML", () => {
       metadataRule: synonymRule,
       name: "ПравилаОтправкиДокументов",
       yaml: { Имя: "ПравилаОтправкиДокументов" },
-      source: { itemType: "TestItem" } as never,
+      source: { itemType: "MetadataCatalog", name: "ПравилаОтправкиДокументов" },
     })
 
     expect(result.synonym).toEqual({ items: { ru: "ПравилаОтправкиДокументов" } })
@@ -102,7 +106,11 @@ describe("importPropertiesFromYAML", () => {
         Имя: "ПравилаОтправкиДокументов",
         Синоним: "Явный синоним",
       },
-      source: { itemType: "TestItem", synonym: { items: {} } } as never,
+      source: {
+        itemType: "MetadataCatalog",
+        name: "ПравилаОтправкиДокументов",
+        synonym: { items: {} },
+      },
     })
 
     expect(result.synonym).toEqual({ items: { ru: "Явный синоним" } })

@@ -15,8 +15,7 @@ type ReferenceUndefinedTypeValueXML = Record<string, unknown> & {
   "_xsi:type": "v8:Type"
 }
 
-const isObject = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object"
+const isObject = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === "object"
 
 const isReferenceTypeValue = (value: unknown): value is Record<string, unknown> =>
   isObject(value) && value["_xsi:type"] === "v8:Type"
@@ -52,10 +51,8 @@ const getReferenceUndefinedTypeValue = (value: unknown): ReferenceUndefinedTypeV
 const hasMissingValue = (item: DCSParameter): boolean =>
   !Object.prototype.hasOwnProperty.call(item, "value") || item.value === undefined
 
-const findReferenceItem = (
-  item: DCSParameter,
-  referenceData: DCSParameters | undefined,
-): DCSParameter | undefined => referenceData?.find((referenceItem) => referenceItem.name === item.name)
+const findReferenceItem = (item: DCSParameter, referenceData: DCSParameters | undefined): DCSParameter | undefined =>
+  referenceData?.find((referenceItem) => referenceItem.name === item.name)
 
 const omitValue = (item: DCSParameter): DCSParameter => {
   const { value: _value, ...itemWithoutValue } = item
@@ -94,6 +91,7 @@ const normalizeValueByValueType = (item: DCSParameter): DCSParameter => {
     if (
       typeof item.value === "object" &&
       !Array.isArray(item.value) &&
+      "type" in item.value &&
       item.value.type === "string" &&
       typeof item.value.value === "string"
     ) {
@@ -151,7 +149,7 @@ export const exportDCSParametersToXML: ExportToXMLFunctionNew = (params) => {
         ? { ...referenceItem, value: undefined }
         : hasInvalidReferenceTypeValue
           ? omitValue(referenceItem)
-        : referenceItem
+          : referenceItem
 
     const itemXML: ItemXML =
       (exportMetadataItemToXML({

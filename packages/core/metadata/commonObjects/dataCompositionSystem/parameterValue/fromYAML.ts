@@ -20,11 +20,17 @@ const isYamlObject = (x: unknown): x is Record<string, unknown> =>
 const isExplicitDcsValueYAML = (x: unknown): x is Record<string, unknown> =>
   isYamlObject(x) && typeof x["Тип"] === "string" && "Значение" in x
 
-const normalizeSourceValues = (
-  value: ParameterValue["value"] | undefined
-): MetadataDcsMetadataValue[] => {
+const normalizeSourceValues = (value: ParameterValue["value"] | undefined): MetadataDcsMetadataValue[] => {
   if (value === undefined) return []
   return Array.isArray(value) ? (value as MetadataDcsMetadataValue[]) : [value]
+}
+
+const appendImportedValue = (
+  target: MetadataDcsMetadataValue[],
+  value: MetadataDcsMetadataValue | null | undefined
+): void => {
+  if (value === undefined) return
+  target.push(value)
 }
 
 const normalizeRawValues = (
@@ -105,9 +111,7 @@ export const importParameterValueFromYAML = (
       y["ПредставлениеПользовательскойНастройки"] !== undefined)
   const parameterFromExpandedField =
     isExpandedSpvShape && typeof y?.["Параметр"] === "string" ? String(y["Параметр"]) : undefined
-  const parameter = String(
-    parameterFromWrapper ?? parameterFromExpandedField ?? parameterFromRule ?? ""
-  )
+  const parameter = String(parameterFromWrapper ?? parameterFromExpandedField ?? parameterFromRule ?? "")
   const hasExplicitValue = y !== undefined && "Значение" in y
   const rawValue = isExplicitDcsValueYAML(yamlToParse)
     ? yamlToParse
@@ -118,20 +122,28 @@ export const importParameterValueFromYAML = (
         : yamlToParse
   const rawList = normalizeRawValues(dcsRule.valueType, rawValue)
   const sourceValues = normalizeSourceValues(sourceValue?.value)
-  const valueParts = rawList
-    .map((v, index) => importDcsMetadataValueFromYAML(context, dcsRule, v as never, sourceValues[index]))
-    .filter((v): v is NonNullable<typeof v> => v !== undefined)
+  const valueParts: MetadataDcsMetadataValue[] = []
+  rawList.forEach((v, index) => {
+    appendImportedValue(
+      valueParts,
+      importDcsMetadataValueFromYAML(context, dcsRule, v as never, sourceValues[index] ?? undefined)
+    )
+  })
   if (rawList.length === 0 && sourceValue?.value !== undefined) {
-    const sourceOnlyValue = importDcsMetadataValueFromYAML(context, dcsRule, undefined, sourceValue.value as never)
-    if (sourceOnlyValue !== undefined) valueParts.push(sourceOnlyValue)
+    const sourceOnlyValues = normalizeSourceValues(sourceValue.value)
+    sourceOnlyValues.forEach((sourceOnlyValue) => {
+      appendImportedValue(
+        valueParts,
+        importDcsMetadataValueFromYAML(context, dcsRule, undefined, sourceOnlyValue ?? undefined)
+      )
+    })
   }
 
   const value: ParameterValue["value"] =
     valueParts.length === 0 ? undefined : valueParts.length === 1 ? valueParts[0] : valueParts
 
   const rawElements = y?.["Элементы"]
-  const elementList =
-    rawElements === undefined ? [] : Array.isArray(rawElements) ? rawElements : [rawElements]
+  const elementList = rawElements === undefined ? [] : Array.isArray(rawElements) ? rawElements : [rawElements]
   const item =
     elementList.length === 0
       ? undefined
@@ -158,9 +170,7 @@ export const importParameterValueFromYAML = (
     const viewKey = y?.["РежимОтображения"] as SE.DataCompositionSettingsItemViewModeYAML | undefined
     return {
       ...base,
-      ...(viewKey !== undefined
-        ? { viewMode: SE.DataCompositionSettingsItemViewModeFromYAML[viewKey] }
-        : {}),
+      ...(viewKey !== undefined ? { viewMode: SE.DataCompositionSettingsItemViewModeFromYAML[viewKey] } : {}),
       ...(y?.["ИдентификаторПользовательскойНастройки"] !== undefined
         ? { userSettingID: String(y?.["ИдентификаторПользовательскойНастройки"]) }
         : {}),

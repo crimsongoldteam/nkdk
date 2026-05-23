@@ -127,10 +127,7 @@ export type MetadataPrimitiveValueXML<T extends MetadataPrimitiveValueType = Met
 
 export type MetadataFixedArrayValueXML = {
   "_xsi:type": "v8:FixedArray"
-  "v8:Value":
-    | MetadataPrimitiveValueXML
-    | { "_xsi:nil": true }
-    | Array<MetadataPrimitiveValueXML | { "_xsi:nil": true }>
+  "v8:Value": MetadataPrimitiveValueXML | { "_xsi:nil": true } | Array<MetadataPrimitiveValueXML | { "_xsi:nil": true }>
 }
 
 export interface MetadataFormChoiceListValueXML {
@@ -173,6 +170,7 @@ export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
   Type.Union([
     MetadataSingleValueJSONSchema,
     MetadataFixedArrayValueJSONSchema,
+    MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
     StandardPeriodYAMLJSONSchema,
     Type.Object({
       Представление: I8nTextJSONSchema,
