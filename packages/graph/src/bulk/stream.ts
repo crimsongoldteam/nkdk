@@ -39,6 +39,12 @@ const DEFAULT_LIMITS: BulkTokenLimits = {
   maxTokenCount: 1024,
 }
 
+export const resolveBulkTokenLimits = (limits: Partial<BulkTokenLimits> = {}): BulkTokenLimits => ({
+  maxTokenBytes: limits.maxTokenBytes ?? DEFAULT_LIMITS.maxTokenBytes,
+  maxCommandBytes: limits.maxCommandBytes ?? DEFAULT_LIMITS.maxCommandBytes,
+  maxTokenCount: limits.maxTokenCount ?? DEFAULT_LIMITS.maxTokenCount,
+})
+
 const commandBytes = (command: BulkCommand): number =>
   command.blobs.reduce((sum, blob) => sum + blob.buffer.byteLength, 0)
 
@@ -123,11 +129,7 @@ export const buildBulkTokenCommands = (
   input: { nodeGroups: readonly BulkNodeGroup[]; edgeGroups: readonly BulkEdgeGroup[] },
   limits: Partial<BulkTokenLimits> = {},
 ): BulkTokenBuildResult => {
-  const effective = {
-    maxTokenBytes: limits.maxTokenBytes ?? DEFAULT_LIMITS.maxTokenBytes,
-    maxCommandBytes: limits.maxCommandBytes ?? DEFAULT_LIMITS.maxCommandBytes,
-    maxTokenCount: limits.maxTokenCount ?? DEFAULT_LIMITS.maxTokenCount,
-  }
+  const effective = resolveBulkTokenLimits(limits)
   const commands: BulkCommand[] = []
   const stats: BulkTokenStats = { commands: 0, nodeBlobs: 0, edgeBlobs: 0, totalBytes: 0 }
   let current = createEmptyCommand(true)

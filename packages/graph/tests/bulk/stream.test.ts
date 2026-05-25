@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { BulkPropertyType } from "../../src/bulk/encoder"
-import { buildBulkTokenCommands } from "../../src/bulk/stream"
+import { buildBulkTokenCommands, resolveBulkTokenLimits } from "../../src/bulk/stream"
 import type { BulkEdgeGroup, BulkNodeGroup } from "../../src/bulk/plan"
 
 const readPropertyCount = (buffer: Buffer, name: string): number =>
@@ -117,22 +117,14 @@ describe("bulk stream", () => {
   })
 
   it("использует default maxCommandBytes, если caller передал undefined", () => {
-    const nodeGroups: BulkNodeGroup[] = [
-      {
-        label: "MetadataCatalog",
-        nodes: [
-          { id: 0, logicalId: "A", props: { id: "A", text: "x".repeat(40_000_000) } },
-          { id: 1, logicalId: "B", props: { id: "B", text: "y".repeat(40_000_000) } },
-        ],
-      },
-    ]
-
-    const { commands } = buildBulkTokenCommands({ nodeGroups, edgeGroups: [] }, {
+    expect(resolveBulkTokenLimits({
       maxTokenBytes: undefined,
       maxCommandBytes: undefined,
+    })).toEqual({
+      maxTokenBytes: 64_000_000,
+      maxCommandBytes: 64_000_000,
+      maxTokenCount: 1024,
     })
-
-    expect(commands.length).toBeGreaterThan(1)
   })
 
   it("сбрасывает command до превышения maxTokenCount", () => {
