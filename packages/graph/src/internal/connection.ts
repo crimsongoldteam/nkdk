@@ -14,6 +14,7 @@ export type GraphConnection = { readonly [graphConnectionBrand]: true }
 type InternalGraphConnection = {
   client: Awaited<ReturnType<typeof FalkorDB.connect>>
   graph: ReturnType<Awaited<ReturnType<typeof FalkorDB.connect>>["selectGraph"]>
+  graphName: string
 }
 
 const asInternal = (conn: GraphConnection): InternalGraphConnection =>
@@ -27,7 +28,7 @@ export const connect = async (opts?: GraphOptions): Promise<GraphConnection> => 
   const graphName = opts?.graphName ?? process.env["NKDK_GRAPH_NAME"] ?? DEFAULT_GRAPH_NAME
   const client = await FalkorDB.connect({ url })
   const graph = client.selectGraph(graphName)
-  return asExternal({ client, graph })
+  return asExternal({ client, graph, graphName })
 }
 
 export const close = async (conn: GraphConnection): Promise<void> => {
@@ -57,4 +58,21 @@ export const ensureIndex = async (
     const msg = err instanceof Error ? err.message : String(err)
     if (!/already indexed|equivalent index|index already exists/i.test(msg)) throw err
   }
+}
+
+export type RawGraphCommandArg = string | Buffer
+
+export const graphNameOf = (conn: GraphConnection): string => asInternal(conn).graphName
+
+export const rawCommand = async (
+  conn: GraphConnection,
+  args: readonly RawGraphCommandArg[],
+): Promise<unknown> => {
+  const client = asInternal(conn).client as unknown as {
+    executeCommand?: (args: readonly RawGraphCommandArg[]) => Promise<unknown>
+    sendCommand?: (args: readonly RawGraphCommandArg[]) => Promise<unknown>
+  }
+  if (typeof client.executeCommand === "function") return await client.executeCommand(args)
+  if (typeof client.sendCommand === "function") return await client.sendCommand(args)
+  throw new Error("FalkorDB client does not expose raw command execution")
 }
