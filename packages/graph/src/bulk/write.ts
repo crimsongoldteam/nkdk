@@ -17,7 +17,7 @@ export interface BulkCommand {
   begin: boolean
   nodeCount: number
   edgeCount: number
-  blobs: Buffer[]
+  blobs: BulkWriteBlob[]
 }
 
 const DEFAULT_LIMITS: BulkWriteLimits = {
@@ -26,7 +26,7 @@ const DEFAULT_LIMITS: BulkWriteLimits = {
 }
 
 const commandBytes = (command: BulkCommand): number =>
-  command.blobs.reduce((sum, blob) => sum + blob.byteLength, 0)
+  command.blobs.reduce((sum, blob) => sum + blob.buffer.byteLength, 0)
 
 export const buildBulkCommands = (
   blobs: readonly BulkWriteBlob[],
@@ -52,7 +52,7 @@ export const buildBulkCommands = (
     if (current.blobs.length > 0 && commandBytes(current) + blob.buffer.byteLength > effective.maxCommandBytes) {
       flush()
     }
-    current.blobs.push(blob.buffer)
+    current.blobs.push(blob)
     if (blob.kind === "node") current.nodeCount += blob.count
     else current.edgeCount += blob.count
   }
@@ -66,13 +66,18 @@ export const writeBulkCommands = async (
 ): Promise<void> => {
   const graphName = graphNameOf(conn)
   for (const command of commands) {
+    const nodeBlobs = command.blobs.filter((blob) => blob.kind === "node")
+    const edgeBlobs = command.blobs.filter((blob) => blob.kind === "edge")
     const args = [
       "GRAPH.BULK",
       graphName,
       ...(command.begin ? ["BEGIN"] : []),
       String(command.nodeCount),
       String(command.edgeCount),
-      ...command.blobs,
+      String(nodeBlobs.length),
+      String(edgeBlobs.length),
+      ...nodeBlobs.map((blob) => blob.buffer),
+      ...edgeBlobs.map((blob) => blob.buffer),
     ]
     await rawCommand(conn, args)
   }

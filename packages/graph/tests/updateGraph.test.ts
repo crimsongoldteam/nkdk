@@ -5,6 +5,7 @@ const selectGraphMock = vi.fn()
 const connectMock = vi.fn()
 const closeMock = vi.fn()
 const executeCommandMock = vi.fn()
+const deleteGraphMock = vi.fn()
 
 vi.mock("falkordb", () => ({
   FalkorDB: { connect: (opts?: unknown) => connectMock(opts) },
@@ -16,7 +17,8 @@ import type { FileGraphData } from "../src/types"
 beforeEach(() => {
   queryMock.mockReset().mockResolvedValue({})
   executeCommandMock.mockReset().mockResolvedValue("OK")
-  selectGraphMock.mockReset().mockReturnValue({ query: queryMock })
+  deleteGraphMock.mockReset().mockResolvedValue(undefined)
+  selectGraphMock.mockReset().mockReturnValue({ query: queryMock, delete: deleteGraphMock })
   closeMock.mockReset().mockResolvedValue(undefined)
   connectMock
     .mockReset()

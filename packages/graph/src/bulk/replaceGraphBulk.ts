@@ -1,6 +1,6 @@
-import { query } from "../internal/connection"
+import { deleteGraph, query } from "../internal/connection"
 import type { GraphConnection } from "../internal/connection"
-import { ensureFileIndexes, ensureLabelIndexes, resetGraph, validateReplacePayload } from "../internal/operations"
+import { ensureFileIndexes, ensureLabelIndexes, validateReplacePayload } from "../internal/operations"
 import type { FileGraphData, GraphProgress } from "../types"
 import { encodeEdgeBlobs, encodeNodeBlobs } from "./encoder"
 import { createBulkPlan } from "./plan"
@@ -28,7 +28,7 @@ export const replaceGraphBulk = async (
   opts: BulkReplaceOptions = {},
 ): Promise<void> => {
   validateReplacePayload(files)
-  await report("resetGraph", opts.onProgress, () => resetGraph(conn))
+  await report("resetGraph", opts.onProgress, () => deleteGraph(conn))
 
   const plan = await (async () => {
     let created = createBulkPlan(files)

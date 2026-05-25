@@ -48,13 +48,20 @@ describe("bulk write", () => {
   it("отправляет GRAPH.BULK через rawCommand", async () => {
     await writeBulkCommands(
       {} as GraphConnection,
-      [{ begin: true, nodeCount: 1, edgeCount: 0, blobs: [Buffer.from("x")] }],
+      [{
+        begin: true,
+        nodeCount: 1,
+        edgeCount: 0,
+        blobs: [{ kind: "node", name: "A", count: 1, buffer: Buffer.from("x") }],
+      }],
     )
 
     expect(mocks.rawCommand).toHaveBeenCalledWith({} as GraphConnection, [
       "GRAPH.BULK",
       "g",
       "BEGIN",
+      "1",
+      "0",
       "1",
       "0",
       Buffer.from("x"),
