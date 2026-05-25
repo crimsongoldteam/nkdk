@@ -14,7 +14,7 @@ describe("buildGraph (smoke)", () => {
     expect(await buildGraph(new Map(), ctx)).toEqual([])
   })
 
-  it("импортирует справочник: один узел MetadataCatalog с правильным id и label", async () => {
+  it("импортирует справочник: один узел MetadataObject с правильным id и kind", async () => {
     const yaml = `\
 ИмяОбъекта: Контрагенты
 Иерархический: true
@@ -30,7 +30,8 @@ describe("buildGraph (smoke)", () => {
 
     const root = fileSegment!.nodes.find((n) => n.id === "Справочник.Контрагенты")
     expect(root).toBeDefined()
-    expect(root!.label).toBe("MetadataCatalog")
+    expect(root!.label).toBe("MetadataObject")
+    expect(root!.props.kind).toBe("MetadataCatalog")
     expect(root!.props.name).toBe("Контрагенты")
     expect(root!.props.filePath).toBeUndefined()
     expect(fileSegment!.declaredNodeIds).toContain("Справочник.Контрагенты")
