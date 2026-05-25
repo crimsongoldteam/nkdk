@@ -139,6 +139,12 @@ describe("migration paths", () => {
       ownerPath: "Перечисление",
       levelPath: "Перечисление",
     })
+    expect(parseMigrationPath("Константа.АвтоматическиВосстанавливатьОтборы")).toMatchObject({
+      kind: "object",
+      localName: "АвтоматическиВосстанавливатьОтборы",
+      ownerPath: "Константа",
+      levelPath: "Константа",
+    })
   })
 
   it("parses object attribute paths", () => {

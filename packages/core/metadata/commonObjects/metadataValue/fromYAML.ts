@@ -9,14 +9,28 @@ import {
   MetadataFixedArrayValueYAMLInput,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueYAML,
-  MetadataStringValue,
   MetadataTypedValue,
+  MetadataStringValue,
   MetadataValuePropertyRule,
   MetadataValueYAML,
   assertValueType,
 } from "./types"
 
 type MetadataSingleYAML = string | number
+type ExplicitMetadataValueYAML = {
+  Тип?: unknown
+  Значение?: unknown
+}
+
+const importExplicitValueFromYAML = (
+  context: ConfigurationContext,
+  data: ExplicitMetadataValueYAML
+): MetadataTypedValue | undefined => {
+  if (data.Тип === "ВидСчета" && typeof data.Значение === "string") {
+    return primitiveValueHandlers.AccountType.fromYAML(context, data.Значение as MetadataValueYAML)
+  }
+  return undefined
+}
 
 /**
  * Импортирует MetadataValue из YAML. Всегда возвращает тегированную форму {type, value}.
@@ -57,6 +71,14 @@ export const importMetadataValueFromYAML = (
     const result = importFormChoiceListFromYAML(context, data as MetadataFormChoiceListValueYAML)
     assertValueType(ruleTyped?.valueType, result.type, "fromYAML")
     return result
+  }
+
+  if (typeof data === "object" && !Array.isArray(data)) {
+    const result = importExplicitValueFromYAML(context, data as ExplicitMetadataValueYAML)
+    if (result !== undefined) {
+      assertValueType(ruleTyped?.valueType, result.type, "fromYAML")
+      return result
+    }
   }
 
   if (Array.isArray(data)) {

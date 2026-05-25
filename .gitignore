@@ -8,6 +8,7 @@ node_modules/
 dist/
 out/
 out-round-trip/
+packages/core/tests/fixtures/sync/syncConfiguration/out-to-xml/
 **/src/generated
 # syntaxes/
 *.tsbuildinfo

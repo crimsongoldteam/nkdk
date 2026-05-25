@@ -18,6 +18,8 @@ describe("TopLevelMetadataItemRules", () => {
         { itemType: "MetadataSettingsStorage", xmlDir: "SettingsStorages" },
         { itemType: "MetadataStyleItem", xmlDir: "StyleItems" },
         { itemType: "MetadataCommonAttribute", xmlDir: "CommonAttributes" },
+        { itemType: "MetadataConstant", xmlDir: "Constants" },
+        { itemType: "MetadataChartOfAccounts", xmlDir: "ChartsOfAccounts" },
         { itemType: "MetadataBot", xmlDir: "Bots" },
         { itemType: "MetadataWSReference", xmlDir: "WSReferences" },
         { itemType: "MetadataEnumeration", xmlDir: "Enums" },

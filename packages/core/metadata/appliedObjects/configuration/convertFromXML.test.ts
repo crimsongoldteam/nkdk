@@ -1,9 +1,11 @@
 import fs from "fs"
+import os from "os"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { syncConfigurationFromXML } from "./convertFromXML"
+import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 
 describe("sync configuration from xml", () => {
   const inputDir = join(__dirname, "../../../tests/fixtures/sync/syncConfiguration/xml")
@@ -73,5 +75,30 @@ describe("sync configuration from xml", () => {
     expect(result.failed).toEqual([])
 
     fs.rmSync(partialInput, { recursive: true })
+  })
+
+  it("пишет корневой файл Конфигурация.yaml из Configuration.xml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-from-xml-"))
+    const rootInput = join(tmp, "xml")
+    const rootOutput = join(tmp, "yaml")
+    try {
+      fs.mkdirSync(rootInput, { recursive: true })
+      fs.copyFileSync(
+        join(__dirname, "../../../tests/fixtures/configuration/full.xml"),
+        join(rootInput, CONFIGURATION_XML_FILE)
+      )
+
+      await syncConfigurationFromXML({
+        context: mockContextFromXML(),
+        inputDir: rootInput,
+        outputDir: rootOutput,
+      })
+
+      const yaml = fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")
+      expect(yaml).toContain("Имя: Конфигурация")
+      expect(yaml).not.toContain("ChildObjects")
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
   })
 })

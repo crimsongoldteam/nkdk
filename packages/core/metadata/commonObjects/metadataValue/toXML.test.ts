@@ -37,6 +37,17 @@ describe("exportMetadataValueToXML", () => {
     expect(result).toEqual('<Value xsi:type="dcsset:DataCompositionComparisonType">Equal</Value>')
   })
 
+  it("exports ent:AccountType", () => {
+    const xmlData = exportMetadataValueToXML({
+      context: mockContext,
+      rule: { type: "MetadataValue" },
+      value: { type: "AccountType", value: "ActivePassive" } as any,
+    })
+    const result = xmlExport({ Value: xmlData }, false)
+
+    expect(result).toEqual('<Value xsi:type="ent:AccountType">ActivePassive</Value>')
+  })
+
   it("preserves reference xsi:nil for missing value", () => {
     const { result } = testExportPropertyToXML({
       rule: MetadataCommonAttributeRules.properties.fillValue,

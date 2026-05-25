@@ -19,6 +19,16 @@ describe("exportMetadataValueToYAML", () => {
     expect(result).toEqual("Равно")
   })
 
+  it("exports AccountType to explicit YAML", () => {
+    const result = exportMetadataValueToYAML(
+      mockContext,
+      { type: "MetadataValue" } as any,
+      { type: "AccountType", value: "ActivePassive" } as any
+    )
+
+    expect(result).toEqual({ Тип: "ВидСчета", Значение: "АктивноПассивный" })
+  })
+
   describe("строгая валидация valueType", () => {
     it("должен бросить при valueType: [string] и фактическом boolean", () => {
       expect(() =>

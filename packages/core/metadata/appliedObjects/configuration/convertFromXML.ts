@@ -3,6 +3,7 @@ import { basename, join } from "path"
 import { BatchTask, runBatch } from "~/helpers/runBatch"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
+import { CONFIGURATION_XML_FILE, readConfigurationFromXML, writeConfigurationToYAML } from "./rootIO"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 // TODO: вынести в настройки расширения
@@ -33,6 +34,11 @@ export const syncConfigurationFromXML = async (params: {
 
   if (!fs.existsSync(inputDir)) {
     return { succeeded: 0, failed: [] }
+  }
+
+  if (fs.existsSync(join(inputDir, CONFIGURATION_XML_FILE))) {
+    const configuration = readConfigurationFromXML({ context, inputDir })
+    writeConfigurationToYAML({ context, configuration, outputDir })
   }
 
   const tasks: BatchTask<void>[] = []

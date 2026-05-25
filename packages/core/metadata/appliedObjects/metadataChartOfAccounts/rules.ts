@@ -32,7 +32,7 @@ const MetadataChartOfAccountsCommandRules = {
 export const MetadataChartOfAccountsRules = {
   itemType: "MetadataChartOfAccounts",
   itemTypePrefix: "ПланСчетов",
-  xmlDir: "ChartOfAccounts",
+  xmlDir: "ChartsOfAccounts",
   properties: {
     xmlRoot: { type: "XMLRoot", container: "ChartOfAccounts", rootAttributes: V8_MDCLASSES_ROOT, forReferenceOnly: true, toYAML: false, fromYAML: false },
     internalInfo: {

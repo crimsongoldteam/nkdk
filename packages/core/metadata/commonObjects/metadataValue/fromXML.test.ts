@@ -44,6 +44,17 @@ describe("importMetadataValueFromXML", () => {
     expect(result).toEqual({ type: "DataCompositionComparisonType", value: "Equal" })
   })
 
+  it("imports ent:AccountType", () => {
+    const xmlValue = parseValue('<Value xsi:type="ent:AccountType">ActivePassive</Value>')
+    const result = importMetadataValueFromXML({
+      context: mockContextFromXML(),
+      rule: undefined,
+      value: xmlValue,
+    })
+
+    expect(result).toEqual({ type: "AccountType", value: "ActivePassive" })
+  })
+
   it("imports xsi:nil as undefined", () => {
     const xmlValue = parseValue('<Value xsi:nil="true"/>')
     const result = importMetadataValueFromXML({

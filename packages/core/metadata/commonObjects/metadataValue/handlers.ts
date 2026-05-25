@@ -1,6 +1,8 @@
 import { format, parse } from "date-fns"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import {
+  AccountTypeFromYAML,
+  AccountTypeToYAML,
   DataCompositionComparisonTypeFromYAML,
   DataCompositionComparisonTypeToYAML,
 } from "~/metadata/systemEnumerations/types"
@@ -231,5 +233,25 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
         (v as unknown as { type: "DataCompositionComparisonType"; value: keyof typeof DataCompositionComparisonTypeToYAML })
           .value
       ],
+  } satisfies MetadataPrimitiveValueHandler,
+
+  AccountType: {
+    fromXML: (_ctx: ConfigurationContextFromXML, text: string | boolean | number | undefined) => {
+      if (text === undefined) return undefined
+      return { type: "AccountType", value: String(text) } as unknown as MetadataTypedValue
+    },
+    toXML: (v: MetadataTypedValue) =>
+      ({
+        "_xsi:type": MetadataValueTypeToXML.AccountType,
+        "#text": String((v as unknown as { type: "AccountType"; value: string }).value),
+      }) as unknown as MetadataPrimitiveValueXML,
+    fromYAML: (_ctx: ConfigurationContext, data: MetadataValueYAML) => {
+      if (typeof data !== "string") return undefined
+      const value = AccountTypeFromYAML[data as keyof typeof AccountTypeFromYAML]
+      if (value === undefined) return undefined
+      return { type: "AccountType", value } as unknown as MetadataTypedValue
+    },
+    toYAML: (_ctx: ConfigurationContext, v: MetadataTypedValue) =>
+      AccountTypeToYAML[(v as unknown as { type: "AccountType"; value: keyof typeof AccountTypeToYAML }).value],
   } satisfies MetadataPrimitiveValueHandler,
 }
