@@ -116,6 +116,50 @@ describe("bulk stream", () => {
     expect(stats.nodeBlobs).toBe(2)
   })
 
+  it("использует default maxCommandBytes, если caller передал undefined", () => {
+    const nodeGroups: BulkNodeGroup[] = [
+      {
+        label: "MetadataCatalog",
+        nodes: [
+          { id: 0, logicalId: "A", props: { id: "A", text: "x".repeat(40_000_000) } },
+          { id: 1, logicalId: "B", props: { id: "B", text: "y".repeat(40_000_000) } },
+        ],
+      },
+    ]
+
+    const { commands } = buildBulkTokenCommands({ nodeGroups, edgeGroups: [] }, {
+      maxTokenBytes: undefined,
+      maxCommandBytes: undefined,
+    })
+
+    expect(commands.length).toBeGreaterThan(1)
+  })
+
+  it("сбрасывает command до превышения maxTokenCount", () => {
+    const nodeGroups: BulkNodeGroup[] = [
+      {
+        label: "MetadataCatalog",
+        nodes: [
+          { id: 0, logicalId: "A", props: { id: "A", value: "one" } },
+          { id: 1, logicalId: "B", props: { id: "B", value: 1 } },
+          { id: 2, logicalId: "C", props: { id: "C", value: true } },
+          { id: 3, logicalId: "D", props: { id: "D", value: 1.5 } },
+        ],
+      },
+    ]
+
+    const { commands, stats } = buildBulkTokenCommands({ nodeGroups, edgeGroups: [] }, {
+      maxTokenBytes: 1024,
+      maxCommandBytes: 4096,
+      maxTokenCount: 3,
+    })
+
+    expect(stats.nodeBlobs).toBe(4)
+    expect(commands).toHaveLength(2)
+    expect(commands[0]!.blobs).toHaveLength(2)
+    expect(commands[1]!.blobs).toHaveLength(2)
+  })
+
   it("кодирует edge token с union-схемой свойств", () => {
     const nodeGroups: BulkNodeGroup[] = [
       {

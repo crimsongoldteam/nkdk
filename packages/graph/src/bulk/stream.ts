@@ -9,6 +9,7 @@ import type { BulkCommand, BulkWriteBlob } from "./write"
 export interface BulkTokenLimits {
   maxTokenBytes: number
   maxCommandBytes: number
+  maxTokenCount: number
 }
 
 export interface BulkTokenStats {
@@ -33,8 +34,9 @@ interface SchemaBucket<T extends RecordWithProps> {
 }
 
 const DEFAULT_LIMITS: BulkTokenLimits = {
-  maxTokenBytes: 64 * 1024 * 1024,
-  maxCommandBytes: 64 * 1024 * 1024,
+  maxTokenBytes: 64_000_000,
+  maxCommandBytes: 64_000_000,
+  maxTokenCount: 1024,
 }
 
 const commandBytes = (command: BulkCommand): number =>
@@ -121,7 +123,11 @@ export const buildBulkTokenCommands = (
   input: { nodeGroups: readonly BulkNodeGroup[]; edgeGroups: readonly BulkEdgeGroup[] },
   limits: Partial<BulkTokenLimits> = {},
 ): BulkTokenBuildResult => {
-  const effective = { ...DEFAULT_LIMITS, ...limits }
+  const effective = {
+    maxTokenBytes: limits.maxTokenBytes ?? DEFAULT_LIMITS.maxTokenBytes,
+    maxCommandBytes: limits.maxCommandBytes ?? DEFAULT_LIMITS.maxCommandBytes,
+    maxTokenCount: limits.maxTokenCount ?? DEFAULT_LIMITS.maxTokenCount,
+  }
   const commands: BulkCommand[] = []
   const stats: BulkTokenStats = { commands: 0, nodeBlobs: 0, edgeBlobs: 0, totalBytes: 0 }
   let current = createEmptyCommand(true)
@@ -141,7 +147,13 @@ export const buildBulkTokenCommands = (
     if (blob.buffer.byteLength > effective.maxCommandBytes) {
       throw new Error(`GRAPH.BULK command part ${blob.name} is ${blob.buffer.byteLength} bytes, limit is ${effective.maxCommandBytes} bytes`)
     }
-    if (current.blobs.length > 0 && commandBytes(current) + blob.buffer.byteLength > effective.maxCommandBytes) {
+    if (
+      current.blobs.length > 0
+      && (
+        commandBytes(current) + blob.buffer.byteLength >= effective.maxCommandBytes
+        || current.blobs.length + 1 >= effective.maxTokenCount
+      )
+    ) {
       flushCommand()
     }
     current.blobs.push(blob)
