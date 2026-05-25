@@ -6,6 +6,12 @@ import type { BulkEdgeGroup, BulkNodeGroup } from "../../src/bulk/plan"
 const readPropertyCount = (buffer: Buffer, name: string): number =>
   buffer.readUInt32LE(Buffer.byteLength(name) + 1)
 
+const readUInt64 = (buffer: Buffer, offset: number): number =>
+  Number(buffer.readBigUInt64LE(offset))
+
+const rowOffset = (buffer: Buffer, name: string, propertyNames: readonly string[]): number =>
+  Buffer.byteLength(name) + 1 + 4 + propertyNames.reduce((sum, propertyName) => sum + Buffer.byteLength(propertyName) + 1, 0)
+
 describe("bulk stream", () => {
   it("объединяет optional свойства в один node token и кодирует пропуски как NULL", () => {
     const nodeGroups: BulkNodeGroup[] = [
@@ -52,7 +58,7 @@ describe("bulk stream", () => {
     expect(stats.nodeBlobs).toBe(2)
   })
 
-  it("сохраняет порядок записей при конфликтующих buckets", () => {
+  it("переупорядочивает compatible node buckets и remap-ит edge endpoints", () => {
     const nodeGroups: BulkNodeGroup[] = [
       {
         label: "MetadataCatalog",
@@ -63,17 +69,26 @@ describe("bulk stream", () => {
         ],
       },
     ]
+    const edgeGroups: BulkEdgeGroup[] = [
+      { kind: "VALUE", edges: [{ src: 1, tgt: 2, props: {} }] },
+    ]
 
-    const { commands } = buildBulkTokenCommands({ nodeGroups, edgeGroups: [] }, {
+    const { commands, stats } = buildBulkTokenCommands({ nodeGroups, edgeGroups }, {
       maxTokenBytes: 1024,
       maxCommandBytes: 4096,
     })
 
-    const blobs = commands[0]!.blobs
-    expect(blobs).toHaveLength(3)
-    expect(blobs.map((blob) => blob.buffer.toString("utf8").includes("A\0"))).toEqual([true, false, false])
-    expect(blobs.map((blob) => blob.buffer.toString("utf8").includes("B\0"))).toEqual([false, true, false])
-    expect(blobs.map((blob) => blob.buffer.toString("utf8").includes("C\0"))).toEqual([false, false, true])
+    const nodeBlobs = commands[0]!.blobs.filter((blob) => blob.kind === "node")
+    const edgeBlob = commands[0]!.blobs.find((blob) => blob.kind === "edge")!
+    expect(nodeBlobs).toHaveLength(2)
+    expect(nodeBlobs[0]!.buffer.toString("utf8")).toContain("A\0")
+    expect(nodeBlobs[0]!.buffer.toString("utf8")).toContain("C\0")
+    expect(nodeBlobs[1]!.buffer.toString("utf8")).toContain("B\0")
+    expect(stats.nodeBlobs).toBe(2)
+
+    const edgeRowOffset = rowOffset(edgeBlob.buffer, "VALUE", [])
+    expect(readUInt64(edgeBlob.buffer, edgeRowOffset)).toBe(2)
+    expect(readUInt64(edgeBlob.buffer, edgeRowOffset + 8)).toBe(1)
   })
 
   it("сбрасывает token до превышения maxTokenBytes", () => {
