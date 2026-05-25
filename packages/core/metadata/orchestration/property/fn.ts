@@ -6,6 +6,7 @@ import {
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
 import type { GraphPrimitive } from "~/metadata/orchestration/buildGraph/types"
+import type { RuntimeChildKind } from "~/metadata/commonObjects/metadataPath/graphPath"
 import { PropertyRuleType } from "./registry"
 import { SourcePosition } from "./position"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
@@ -129,11 +130,10 @@ export interface GraphOpsReference {
   id: string
   name: string
   positionFrom?: SourcePosition
+  /** Если задано — reference-ребро идёт от этого узла вместо ctx.parentNodeId. */
+  parentOverride?: string
   /** Дополнительные primitive props конкретного reference-ребра. */
   edgeProps?: GraphOpsEdgeProps
-  // parentOverride намеренно не поддерживается: reference создаёт глобальный stub-узел
-  // и ребро всегда от ctx.parentNodeId. Если нужен override-источник ребра — используй
-  // formLocalReferences (с собственной семантикой резолвинга цели).
 }
 
 export interface GraphOpsFormLocalReference {
@@ -146,6 +146,8 @@ export interface GraphOpsFormLocalReference {
   parentOverride?: string
   /** Дополнительные primitive props конкретного reference-ребра. */
   edgeProps?: GraphOpsEdgeProps
+  /** Тип дочернего runtime-сегмента для fallback-цели, когда владелец ещё не материализован в графе. */
+  fallbackChildKind?: RuntimeChildKind
   /** Если задано — applyGraphOps создаёт dependency-рёбра от источника к узлам, участвовавшим в разрешении form-local пути. */
   dependsOnEdgeKind?: string
 }

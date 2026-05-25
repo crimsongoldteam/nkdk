@@ -178,4 +178,129 @@ describe("updateGraph (integration)", () => {
     )
     expect(rows[0]?.cnt).toBe(1)
   })
+
+  it("replace-режим создаёт тот же маленький граф, что и обычный полный путь", async () => {
+    const readSnapshot = async () =>
+      await withGraph(
+        async (g) => {
+          const files = await g.query<{ path: string; mtimeMs: number; size: number; updatedAt: number }>(
+            [
+              "MATCH (f:File)",
+              "RETURN f.path AS path, f.mtimeMs AS mtimeMs, f.size AS size, f.updatedAt AS updatedAt",
+              "ORDER BY path",
+            ].join(" "),
+          )
+          const nodes = await g.query<{
+            id: string
+            labels: string[]
+            name: string | null
+            kind: string | null
+            p_hierarchical: boolean | null
+            p_values: string[] | null
+            p_ratio: number | null
+          }>(
+            [
+              "MATCH (n) WHERE NOT n:File",
+              "RETURN n.id AS id, labels(n) AS labels, n.name AS name, n.kind AS kind, n.p_hierarchical AS p_hierarchical, n.p_values AS p_values, n.p_ratio AS p_ratio",
+              "ORDER BY id",
+            ].join(" "),
+          )
+          const values = await g.query<{
+            src: string
+            tgt: string
+            yaml: string | null
+            filePath: string | null
+          }>(
+            [
+              "MATCH (src)-[value:VALUE]->(tgt)",
+              "WHERE NOT src:File AND NOT tgt:File",
+              "RETURN src.id AS src, tgt.id AS tgt, value.yaml AS yaml, value.filePath AS filePath",
+              "ORDER BY src, tgt, yaml, filePath",
+            ].join(" "),
+          )
+          const declares = await g.query<{ file: string; node: string }>(
+            [
+              "MATCH (file:File)-[:DECLARES]->(node)",
+              "WHERE NOT node:File",
+              "RETURN file.path AS file, node.id AS node",
+              "ORDER BY file, node",
+            ].join(" "),
+          )
+          const contributes = await g.query<{ file: string; node: string }>(
+            [
+              "MATCH (file:File)-[:CONTRIBUTES]->(node)",
+              "WHERE NOT node:File",
+              "RETURN file.path AS file, node.id AS node",
+              "ORDER BY file, node",
+            ].join(" "),
+          )
+
+          return {
+            files,
+            nodes: nodes.map((node) => ({ ...node, labels: [...node.labels].sort() })),
+            values,
+            declares,
+            contributes,
+          }
+        },
+        opts(),
+      )
+
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        fileStats: { mtimeMs: 1, size: 2, updatedAt: 3 },
+        nodes: [
+          { id: "A", label: "MetadataObject", props: { name: "A", kind: "MetadataCatalog", p_hierarchical: true, p_ratio: 1.5 } },
+          { id: "B", label: "MetadataAttribute", props: { name: "B", p_values: ["x", "y"] } },
+        ],
+        edges: [{ src: "A", tgt: "B", kind: "VALUE", props: { yaml: "Реквизит" } }],
+        declaredNodeIds: ["A"],
+        contributedNodeIds: ["B"],
+      },
+    ]
+
+    await updateGraph(files, opts())
+    const normalSnapshot = await readSnapshot()
+
+    await withGraph(
+      async (g) => {
+        await g.query("MATCH (n) DETACH DELETE n")
+      },
+      opts(),
+    )
+
+    await updateGraph(files, { ...opts(), replace: true })
+    const replaceSnapshot = await readSnapshot()
+
+    expect(replaceSnapshot).toEqual(normalSnapshot)
+
+    await withGraph(
+      async (g) => {
+        await g.query("MATCH (n) DETACH DELETE n")
+      },
+      opts(),
+    )
+
+    await updateGraph(files, {
+      ...opts(),
+      replace: true,
+      bulk: true,
+      maxBulkBlobBytes: 1024,
+      maxBulkCommandBytes: 4096,
+    })
+    const bulkSnapshot = await readSnapshot()
+
+    expect(bulkSnapshot).toEqual(normalSnapshot)
+    expect(replaceSnapshot).toEqual({
+      files: [{ path: "a.yaml", mtimeMs: 1, size: 2, updatedAt: 3 }],
+      nodes: [
+        { id: "A", labels: ["MetadataObject"], name: "A", kind: "MetadataCatalog", p_hierarchical: true, p_values: null, p_ratio: 1.5 },
+        { id: "B", labels: ["MetadataAttribute"], name: "B", kind: null, p_hierarchical: null, p_values: ["x", "y"], p_ratio: null },
+      ],
+      values: [{ src: "A", tgt: "B", yaml: "Реквизит", filePath: "a.yaml" }],
+      declares: [{ file: "a.yaml", node: "A" }],
+      contributes: [{ file: "a.yaml", node: "B" }],
+    })
+  })
 })

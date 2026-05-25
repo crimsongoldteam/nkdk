@@ -1,3 +1,7 @@
+import {
+  canonicalizeMetadataGraphPath,
+  canonicalizeMetadataValueGraphPath,
+} from "~/metadata/commonObjects/metadataPath/graphPath"
 import { getKindByYaml } from "~/metadata/orchestration/buildGraph/internal/edgeKinds"
 import type { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
@@ -13,13 +17,14 @@ export function declareMetadataItemGraphRoot(params: {
     throw new Error(`declareMetadataItemGraphRoot: правило "${rule.itemType}" не задаёт itemTypePrefix`)
   }
 
-  const itemNodeId = `${rule.itemTypePrefix}.${name}`
-  graph.ensureNode(rule.itemTypePrefix, { name: rule.itemTypePrefix })
+  const rootNodeId = canonicalizeMetadataGraphPath(rule.itemTypePrefix)
+  const itemNodeId = `${rootNodeId}.${name}`
+  graph.ensureNode(rootNodeId, { name: rule.itemTypePrefix })
   graph.ensureNode(itemNodeId, { name })
   graph.addFilePath(itemNodeId, filePath)
 
   const edgeKind = getKindByYaml(rule.itemType) ?? rule.itemType
-  graph.ensureEdge(rule.itemTypePrefix, itemNodeId, edgeKind, { yaml: rule.itemType })
+  graph.ensureEdge(rootNodeId, itemNodeId, edgeKind, { yaml: rule.itemType })
   materializeGraphTerminals({ graph, rule, itemNodeId, ownerName: name, filePath })
   return itemNodeId
 }
@@ -36,8 +41,12 @@ function materializeGraphTerminals(params: {
 
   const ownerType = rule.itemTypePrefix ?? ""
   for (const terminalName of rule.graphTerminals) {
-    const terminalId = `${itemNodeId}.${terminalName}`
-    graph.ensureNode(terminalId, { name: terminalName })
+    const terminalId =
+      terminalName === "ПустаяСсылка"
+        ? `${itemNodeId}.EmptyRef`
+        : canonicalizeMetadataValueGraphPath(`${itemNodeId}.${terminalName}`)
+    const terminalNodeName = terminalId.split(".").at(-1) ?? terminalName
+    graph.ensureNode(terminalId, { name: terminalNodeName })
     graph.addFilePath(terminalId, filePath)
     graph.setItem(terminalId, { itemType: "EmptyRef", ownerType, ownerName })
 

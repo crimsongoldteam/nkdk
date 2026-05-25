@@ -13,34 +13,46 @@ import "./graphFromModel"
 // ---------------------------------------------------------------------------
 
 describe("extractTypeDescriptionGraph", () => {
-  it("CatalogRef → ссылка на Справочник.X", () => {
+  it("CatalogRef → ссылка на Catalog.X", () => {
     const model: TypeDescription = { type: ["CatalogRef.Товары"] }
     const result = extractTypeDescriptionGraph(model)
     const refs = result?.references ?? []
     expect(refs).toHaveLength(1)
-    expect(refs[0].id).toBe("Справочник.Товары")
+    expect(refs[0].id).toBe("Catalog.Товары")
     expect(refs[0].name).toBe("Товары")
   })
 
-  it("DocumentRef → ссылка на Документ.X", () => {
+  it("DocumentRef → ссылка на Document.X", () => {
     const model: TypeDescription = { type: ["DocumentRef.Накладная"] }
     const refs = extractTypeDescriptionGraph(model)?.references ?? []
     expect(refs).toHaveLength(1)
-    expect(refs[0].id).toBe("Документ.Накладная")
+    expect(refs[0].id).toBe("Document.Накладная")
   })
 
-  it("EnumRef → ссылка на Перечисление.X", () => {
+  it("EnumRef → ссылка на Enum.X", () => {
     const model: TypeDescription = { type: ["EnumRef.Статус"] }
     const refs = extractTypeDescriptionGraph(model)?.references ?? []
     expect(refs).toHaveLength(1)
-    expect(refs[0].id).toBe("Перечисление.Статус")
+    expect(refs[0].id).toBe("Enum.Статус")
   })
 
-  it("DefinedType (typeset) → ссылка на ОпределяемыйТип.X", () => {
+  it("DefinedType (typeset) → ссылка на DefinedType.X", () => {
     const model: TypeDescription = { type: ["DefinedType.МойТип"] }
     const refs = extractTypeDescriptionGraph(model)?.references ?? []
     expect(refs).toHaveLength(1)
-    expect(refs[0].id).toBe("ОпределяемыйТип.МойТип")
+    expect(refs[0].id).toBe("DefinedType.МойТип")
+  })
+
+  it.each([
+    ["DefinedType.ДенежнаяСумма", "DefinedType.ДенежнаяСумма"],
+    ["CatalogObject.Номенклатура", "Catalog.Номенклатура"],
+    ["DocumentObject.Заказ", "Document.Заказ"],
+    ["ChartOfAccountsRef.Хозрасчетный", "ChartOfAccounts.Хозрасчетный"],
+  ])("канонизирует TYPE target %s", (sourceType, expectedId) => {
+    const model: TypeDescription = { type: [sourceType] }
+    const refs = extractTypeDescriptionGraph(model)?.references ?? []
+    expect(refs).toHaveLength(1)
+    expect(refs[0].id).toBe(expectedId)
   })
 
   it("несколько типов → несколько ссылок", () => {
@@ -50,9 +62,9 @@ describe("extractTypeDescriptionGraph", () => {
     const refs = extractTypeDescriptionGraph(model)?.references ?? []
     expect(refs).toHaveLength(3)
     const ids = refs.map((r) => r.id)
-    expect(ids).toContain("Справочник.Товары")
-    expect(ids).toContain("Документ.Накладная")
-    expect(ids).toContain("Перечисление.Статус")
+    expect(ids).toContain("Catalog.Товары")
+    expect(ids).toContain("Document.Накладная")
+    expect(ids).toContain("Enum.Статус")
   })
 
   it("пустой массив типов → undefined", () => {
@@ -89,7 +101,7 @@ describe("extractTypeDescriptionGraph", () => {
     const model: TypeDescription = { type: ["string", "CatalogRef.Контрагенты"] }
     const refs = extractTypeDescriptionGraph(model)?.references ?? []
     expect(refs).toHaveLength(1)
-    expect(refs[0].id).toBe("Справочник.Контрагенты")
+    expect(refs[0].id).toBe("Catalog.Контрагенты")
   })
 
   it("position пробрасывается в каждую ссылку", () => {
@@ -130,14 +142,14 @@ describe("extractTypeDescriptionGraph — интеграция с importMetadata
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Товары.Реквизит.Контрагент"
+    const attrNodeId = "Catalog.Товары.Attribute.Контрагент"
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
     const typeEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
       (e) => e.attributes.kind === "TYPE"
     )
     expect(typeEdges).toHaveLength(1)
-    expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
+    expect(typeEdges[0].target).toBe("Catalog.Контрагенты")
   })
 
   it("реквизит с несколькими типами → несколько рёбер kind «Тип»", () => {
@@ -159,13 +171,13 @@ describe("extractTypeDescriptionGraph — интеграция с importMetadata
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Товары.Реквизит.Объект"
+    const attrNodeId = "Catalog.Товары.Attribute.Объект"
     const typeEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
       (e) => e.attributes.kind === "TYPE"
     )
     expect(typeEdges).toHaveLength(2)
     const targets = typeEdges.map((e) => e.target).sort()
-    expect(targets).toEqual(["Документ.Накладная", "Справочник.Контрагенты"])
+    expect(targets).toEqual(["Catalog.Контрагенты", "Document.Накладная"])
   })
 
   it("реквизит формы с Тип: DynamicList хранит тип в props и не создаёт VALUE_TYPE-ребро", () => {
@@ -183,10 +195,10 @@ describe("extractTypeDescriptionGraph — интеграция с importMetadata
       name: "ФормаВыбора",
       graph,
       context: baseContext,
-      ownerNodeId: "Справочник.Товары",
+      ownerNodeId: "Catalog.Товары",
     })
 
-    const attrNodeId = "Справочник.Товары.Форма.ФормаВыбора.Реквизит.Список"
+    const attrNodeId = "Catalog.Товары.Form.ФормаВыбора.Attribute.Список"
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
     const valueTypeEdges = [...graph.outEdgeEntries(attrNodeId)].filter(

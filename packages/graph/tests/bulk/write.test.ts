@@ -1,0 +1,122 @@
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+const mocks = vi.hoisted(() => ({
+  rawCommand: vi.fn(),
+}))
+
+vi.mock("../../src/internal/connection", () => ({
+  graphNameOf: () => "g",
+  rawCommand: mocks.rawCommand,
+}))
+
+import { buildBulkCommands, writeBulkCommands } from "../../src/bulk/write"
+import type { GraphConnection } from "../../src/internal/connection"
+
+describe("bulk write", () => {
+  beforeEach(() => {
+    mocks.rawCommand.mockReset()
+    mocks.rawCommand.mockResolvedValue("ok")
+  })
+
+  it("строит BEGIN-команду и последующие команды без BEGIN", () => {
+    const commands = buildBulkCommands(
+      [
+        { kind: "node" as const, name: "A", count: 2, buffer: Buffer.alloc(30) },
+        { kind: "edge" as const, name: "R", count: 3, buffer: Buffer.alloc(30) },
+      ],
+      { maxCommandBytes: 50, maxBlobBytes: 64 },
+    )
+
+    expect(commands).toHaveLength(2)
+    expect(commands[0]!.begin).toBe(true)
+    expect(commands[0]!.nodeCount).toBe(2)
+    expect(commands[0]!.edgeCount).toBe(0)
+    expect(commands[1]!.begin).toBe(false)
+    expect(commands[1]!.nodeCount).toBe(0)
+    expect(commands[1]!.edgeCount).toBe(3)
+  })
+
+  it("падает, если один blob превышает maxBlobBytes", () => {
+    expect(() =>
+      buildBulkCommands(
+        [{ kind: "node" as const, name: "A", count: 1, buffer: Buffer.alloc(65) }],
+        { maxCommandBytes: 100, maxBlobBytes: 64 },
+      ),
+    ).toThrow("GRAPH.BULK blob A is 65 bytes, limit is 64 bytes")
+  })
+
+  it("отправляет GRAPH.BULK через rawCommand", async () => {
+    await writeBulkCommands(
+      {} as GraphConnection,
+      [{
+        begin: true,
+        nodeCount: 1,
+        edgeCount: 0,
+        blobs: [{ kind: "node", name: "A", count: 1, buffer: Buffer.from("x") }],
+      }],
+    )
+
+    expect(mocks.rawCommand).toHaveBeenCalledWith({} as GraphConnection, [
+      "GRAPH.BULK",
+      "g",
+      "BEGIN",
+      "1",
+      "0",
+      "1",
+      "0",
+      Buffer.from("x"),
+    ])
+  })
+
+  it("возвращает статистику отправленных команд", async () => {
+    const result = await writeBulkCommands(
+      {} as GraphConnection,
+      [{
+        begin: true,
+        nodeCount: 2,
+        edgeCount: 0,
+        blobs: [{ kind: "node", name: "A", count: 2, buffer: Buffer.from("xx") }],
+      }],
+    )
+
+    expect(result).toEqual({ commands: 1, nodeBlobs: 1, edgeBlobs: 0, totalBytes: 2 })
+  })
+
+  it("отправляет GRAPH.BULK команды строго последовательно", async () => {
+    const resolvers: Array<() => void> = []
+    const flushPromises = async (): Promise<void> => {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    }
+    mocks.rawCommand.mockImplementation(
+      () => new Promise((resolve) => {
+        resolvers.push(() => resolve("ok"))
+      }),
+    )
+
+    const commands = Array.from({ length: 3 }, (_, index) => ({
+      begin: index === 0,
+      nodeCount: 1,
+      edgeCount: 0,
+      blobs: [{ kind: "node" as const, name: `A${index}`, count: 1, buffer: Buffer.from(`x${index}`) }],
+    }))
+
+    const promise = writeBulkCommands({} as GraphConnection, commands)
+    await flushPromises()
+
+    expect(mocks.rawCommand).toHaveBeenCalledTimes(1)
+
+    resolvers[0]!()
+    await flushPromises()
+
+    expect(mocks.rawCommand).toHaveBeenCalledTimes(2)
+
+    resolvers[1]!()
+    await flushPromises()
+
+    expect(mocks.rawCommand).toHaveBeenCalledTimes(3)
+
+    resolvers[2]!()
+    await promise
+    expect(mocks.rawCommand).toHaveBeenCalledTimes(3)
+  })
+})

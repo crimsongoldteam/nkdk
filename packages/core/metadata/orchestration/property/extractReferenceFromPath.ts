@@ -1,5 +1,9 @@
-import { convertPath } from "~/metadata/commonObjects/metadataPath/helper"
-import { MetadataFieldsRulesToYAML } from "~/metadata/commonObjects/metadataPath/types"
+import { canonicalizeMetadataGraphPath } from "~/metadata/commonObjects/metadataPath/graphPath"
+import {
+  MetadataFieldsRulesToYAML,
+  MetadataTypeFromYAML,
+  MetadataTypeToYAML,
+} from "~/metadata/commonObjects/metadataPath/types"
 import { GraphOpsReference } from "./fn"
 import { SourcePosition } from "./position"
 
@@ -22,9 +26,13 @@ export function extractReferenceFromPath(
   if (dotIndex === -1) return undefined
 
   const prefix = path.substring(0, dotIndex)
-  if (!(prefix in MetadataFieldsRulesToYAML)) return undefined
+  if (
+    !(prefix in MetadataFieldsRulesToYAML) &&
+    !(prefix in MetadataTypeFromYAML) &&
+    !(prefix in MetadataTypeToYAML)
+  ) return undefined
 
-  const nodeId = convertPath(MetadataFieldsRulesToYAML, path)
+  const nodeId = canonicalizeMetadataGraphPath(path)
 
   const parts = nodeId.split(".")
   const name = parts[parts.length - 1]
