@@ -27,8 +27,9 @@ describe("bulk plan", () => {
     expect(plan.nodeGroups.map((group) => [group.label, group.nodes.map((node) => node.id)])).toEqual([
       ["File", [0]],
       ["MetadataCatalog", [1]],
-      ["GraphNode", [2]],
+      ["GraphStub", [2]],
     ])
+    expect(plan.labels).not.toContain("GraphNode")
     expect(plan.edgeGroups.map((group) => [group.kind, group.edges.map((edge) => [edge.src, edge.tgt])])).toEqual([
       ["VALUE", [[1, 2]]],
       ["DECLARES", [[0, 1]]],

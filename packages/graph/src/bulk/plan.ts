@@ -70,7 +70,7 @@ export const createBulkPlan = (files: readonly FileGraphData[]): BulkPlan => {
     return id
   }
 
-  const ensureStub = (logicalId: string): number => addNode("GraphNode", logicalId, {})
+  const ensureStub = (logicalId: string): number => addNode("GraphStub", logicalId, {})
 
   for (const file of files) {
     addNode("File", file.filePath, fileProps(file))

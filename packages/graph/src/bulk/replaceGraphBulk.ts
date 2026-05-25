@@ -1,4 +1,4 @@
-import { deleteGraph, query } from "../internal/connection"
+import { deleteGraph } from "../internal/connection"
 import type { GraphConnection } from "../internal/connection"
 import { ensureFileIndexes, ensureLabelIndexes, validateReplacePayload } from "../internal/operations"
 import type { FileGraphData, GraphProgress } from "../types"
@@ -55,7 +55,6 @@ export const replaceGraphBulk = async (
 
   await report("bulkWrite", opts.onProgress, async () => {
     await writeBulkCommands(conn, commands)
-    await query(conn, "MATCH (n) WHERE n.id IS NOT NULL AND NOT n:File SET n:GraphNode")
   })
   await report("ensureFileIndexes", opts.onProgress, () => ensureFileIndexes(conn))
   await report("ensureLabelIndexes", opts.onProgress, () => ensureLabelIndexes(conn, plan.labels))
