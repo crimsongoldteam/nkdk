@@ -2,6 +2,7 @@ import {
   canonicalizeGraphChildIdSuffix,
   canonicalizeGraphNodeId,
   canonicalizeRuntimeObjectPath,
+  type RuntimeChildKind,
 } from "~/metadata/commonObjects/metadataPath/graphPath"
 import { GraphOps } from "~/metadata/orchestration/property/fn"
 import { GraphBuilder } from "./GraphBuilder"
@@ -148,7 +149,7 @@ function resolveFormLocalPath(
   graph: GraphBuilder,
   formNodeId: string,
   path: string,
-  fallbackChildKind?: Parameters<typeof canonicalizeRuntimeObjectPath>[1]["defaultChildKind"],
+  fallbackChildKind?: RuntimeChildKind,
 ): FormLocalPathResolution | undefined {
   if (!path) return undefined
   if (!graph.hasNode(formNodeId)) return undefined

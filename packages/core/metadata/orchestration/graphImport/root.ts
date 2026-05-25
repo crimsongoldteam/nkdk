@@ -45,7 +45,7 @@ function materializeGraphTerminals(params: {
       terminalName === "ПустаяСсылка"
         ? `${itemNodeId}.EmptyRef`
         : canonicalizeMetadataValueGraphPath(`${itemNodeId}.${terminalName}`)
-    const terminalNodeName = terminalId.split(".").at(-1) ?? terminalName
+    const terminalNodeName = terminalId.split(".").pop() ?? terminalName
     graph.ensureNode(terminalId, { name: terminalNodeName })
     graph.addFilePath(terminalId, filePath)
     graph.setItem(terminalId, { itemType: "EmptyRef", ownerType, ownerName })
