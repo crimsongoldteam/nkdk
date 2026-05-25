@@ -218,6 +218,56 @@ describe("updateGraph", () => {
     expect(closeMock).toHaveBeenCalledTimes(1)
   })
 
+  it("replace-режим очищает граф и пишет через CREATE без delete/cleanup", async () => {
+    await updateGraph([
+      {
+        filePath: "a.yaml",
+        fileStats: { mtimeMs: 10, size: 20, updatedAt: 30 },
+        nodes: [{ id: "A", label: "MetadataCatalog", props: { name: "A" } }],
+        edges: [{ src: "A", tgt: "A", kind: "SELF", props: { yaml: "Сам" } }],
+        declaredNodeIds: ["A"],
+      },
+    ], { replace: true })
+
+    const cypher = queryMock.mock.calls.map((c) => c[0] as string)
+    expect(cypher[0]).toBe("MATCH (n) DETACH DELETE n")
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE (f:File {path: file.path"))
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE (m:MetadataCatalog:GraphNode {id: n.id}"))
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE (s)-[r:SELF"))
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE (f)-[:DECLARES]->(n)"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("MATCH (f:File) WHERE f.path IN $filePaths"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("MERGE (f:File {path: file.path})"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("MERGE (m:MetadataCatalog"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("MERGE (s)-[r:SELF]->(t)"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("WHERE NOT (:File)-[:DECLARES]->(n)"))
+  })
+
+  it("replace-режим сообщает progress по create-фазам", async () => {
+    const onProgress = vi.fn()
+    await updateGraph([
+      {
+        filePath: "a.yaml",
+        nodes: [
+          { id: "A", label: "MetadataCatalog", props: { name: "A" } },
+          { id: "B", label: "ClientApplicationForm", props: { name: "B" } },
+        ],
+        edges: [{ src: "A", tgt: "B", kind: "FORM" }],
+        declaredNodeIds: ["A"],
+        contributedNodeIds: ["B"],
+      },
+    ], { replace: true, onProgress })
+
+    const phases = onProgress.mock.calls.map(([progress]) => progress.phase)
+    expect(phases).toContain("resetGraph")
+    expect(phases).toContain("createFiles")
+    expect(phases).toContain("createNodes")
+    expect(phases).toContain("createEdges")
+    expect(phases).toContain("createFileLinks")
+    expect(phases).not.toContain("deleteByFiles")
+    expect(phases).not.toContain("mergeNodes")
+    expect(phases).not.toContain("cleanupOrphanStubs")
+  })
+
   it("прокидывает ConnectionOptions в connect", async () => {
     await updateGraph([], { url: "redis://h:1", graphName: "g" })
     expect(connectMock).toHaveBeenCalledWith({ url: "redis://h:1" })

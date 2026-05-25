@@ -63,6 +63,10 @@ export type GraphUpdatePhase =
   | "mergeNodes"
   | "mergeEdges"
   | "mergeFileLinks"
+  | "createFiles"
+  | "createNodes"
+  | "createEdges"
+  | "createFileLinks"
   | "cleanupOrphanStubs"
 
 export interface GraphProgress {
@@ -73,4 +77,6 @@ export interface GraphProgress {
 
 export interface GraphUpdateOptions extends ConnectionOptions {
   onProgress?: (progress: GraphProgress) => void
+  /** Полная замена графа: reset + CREATE-путь без инкрементального delete/MERGE. */
+  replace?: boolean
 }
