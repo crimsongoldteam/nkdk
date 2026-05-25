@@ -50,7 +50,7 @@ describe("replaceGraphBulk", () => {
     await replaceGraphBulk({} as GraphConnection, files)
 
     expect(mocks.writeBulkCommands).toHaveBeenCalledTimes(1)
-    expect(mocks.query.mock.calls.map((call) => call[1] as string)).not.toContain(
+    expect(mocks.query.mock.calls.map((call) => call[0] as string)).not.toContain(
       "MATCH (n) WHERE n.id IS NOT NULL AND NOT n:File SET n:GraphNode",
     )
   })

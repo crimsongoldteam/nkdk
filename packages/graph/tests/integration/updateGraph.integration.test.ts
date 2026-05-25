@@ -194,13 +194,14 @@ describe("updateGraph (integration)", () => {
             id: string
             labels: string[]
             name: string | null
+            kind: string | null
             p_hierarchical: boolean | null
             p_values: string[] | null
             p_ratio: number | null
           }>(
             [
-              "MATCH (n:GraphNode)",
-              "RETURN n.id AS id, labels(n) AS labels, n.name AS name, n.p_hierarchical AS p_hierarchical, n.p_values AS p_values, n.p_ratio AS p_ratio",
+              "MATCH (n) WHERE NOT n:File",
+              "RETURN n.id AS id, labels(n) AS labels, n.name AS name, n.kind AS kind, n.p_hierarchical AS p_hierarchical, n.p_values AS p_values, n.p_ratio AS p_ratio",
               "ORDER BY id",
             ].join(" "),
           )
@@ -211,21 +212,24 @@ describe("updateGraph (integration)", () => {
             filePath: string | null
           }>(
             [
-              "MATCH (src:GraphNode)-[value:VALUE]->(tgt:GraphNode)",
+              "MATCH (src)-[value:VALUE]->(tgt)",
+              "WHERE NOT src:File AND NOT tgt:File",
               "RETURN src.id AS src, tgt.id AS tgt, value.yaml AS yaml, value.filePath AS filePath",
               "ORDER BY src, tgt, yaml, filePath",
             ].join(" "),
           )
           const declares = await g.query<{ file: string; node: string }>(
             [
-              "MATCH (file:File)-[:DECLARES]->(node:GraphNode)",
+              "MATCH (file:File)-[:DECLARES]->(node)",
+              "WHERE NOT node:File",
               "RETURN file.path AS file, node.id AS node",
               "ORDER BY file, node",
             ].join(" "),
           )
           const contributes = await g.query<{ file: string; node: string }>(
             [
-              "MATCH (file:File)-[:CONTRIBUTES]->(node:GraphNode)",
+              "MATCH (file:File)-[:CONTRIBUTES]->(node)",
+              "WHERE NOT node:File",
               "RETURN file.path AS file, node.id AS node",
               "ORDER BY file, node",
             ].join(" "),
@@ -247,7 +251,7 @@ describe("updateGraph (integration)", () => {
         filePath: "a.yaml",
         fileStats: { mtimeMs: 1, size: 2, updatedAt: 3 },
         nodes: [
-          { id: "A", label: "MetadataCatalog", props: { name: "A", p_hierarchical: true, p_ratio: 1.5 } },
+          { id: "A", label: "MetadataObject", props: { name: "A", kind: "MetadataCatalog", p_hierarchical: true, p_ratio: 1.5 } },
           { id: "B", label: "MetadataAttribute", props: { name: "B", p_values: ["x", "y"] } },
         ],
         edges: [{ src: "A", tgt: "B", kind: "VALUE", props: { yaml: "Реквизит" } }],
@@ -291,8 +295,8 @@ describe("updateGraph (integration)", () => {
     expect(replaceSnapshot).toEqual({
       files: [{ path: "a.yaml", mtimeMs: 1, size: 2, updatedAt: 3 }],
       nodes: [
-        { id: "A", labels: ["GraphNode", "MetadataCatalog"], name: "A", p_hierarchical: true, p_values: null, p_ratio: 1.5 },
-        { id: "B", labels: ["GraphNode", "MetadataAttribute"], name: "B", p_hierarchical: null, p_values: ["x", "y"], p_ratio: null },
+        { id: "A", labels: ["MetadataObject"], name: "A", kind: "MetadataCatalog", p_hierarchical: true, p_values: null, p_ratio: 1.5 },
+        { id: "B", labels: ["MetadataAttribute"], name: "B", kind: null, p_hierarchical: null, p_values: ["x", "y"], p_ratio: null },
       ],
       values: [{ src: "A", tgt: "B", yaml: "Реквизит", filePath: "a.yaml" }],
       declares: [{ file: "a.yaml", node: "A" }],
