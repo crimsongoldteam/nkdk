@@ -178,4 +178,63 @@ describe("updateGraph (integration)", () => {
     )
     expect(rows[0]?.cnt).toBe(1)
   })
+
+  it("replace-режим создаёт тот же маленький граф, что и обычный полный путь", async () => {
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        fileStats: { mtimeMs: 1, size: 2, updatedAt: 3 },
+        nodes: [
+          { id: "A", label: "MetadataCatalog", props: { name: "A", p_hierarchical: true } },
+          { id: "B", label: "MetadataAttribute", props: { name: "B" } },
+        ],
+        edges: [{ src: "A", tgt: "B", kind: "VALUE", props: { yaml: "Реквизит" } }],
+        declaredNodeIds: ["A"],
+        contributedNodeIds: ["B"],
+      },
+    ]
+
+    await updateGraph(files, opts())
+    const normalRows = await withGraph(
+      async (g) =>
+        await g.query<{ files: number; nodes: number; values: number; declares: number; contributes: number }>(
+          [
+            "MATCH (f:File)",
+            "WITH count(f) AS files",
+            "MATCH (n:GraphNode)",
+            "WITH files, count(n) AS nodes",
+            "MATCH ()-[value:VALUE]->()",
+            "WITH files, nodes, count(value) AS values",
+            "MATCH (:File)-[declares:DECLARES]->()",
+            "WITH files, nodes, values, count(declares) AS declares",
+            "MATCH (:File)-[contributes:CONTRIBUTES]->()",
+            "RETURN files, nodes, values, declares, count(contributes) AS contributes",
+          ].join(" "),
+        ),
+      opts(),
+    )
+
+    await updateGraph(files, { ...opts(), replace: true })
+    const replaceRows = await withGraph(
+      async (g) =>
+        await g.query<{ files: number; nodes: number; values: number; declares: number; contributes: number }>(
+          [
+            "MATCH (f:File)",
+            "WITH count(f) AS files",
+            "MATCH (n:GraphNode)",
+            "WITH files, count(n) AS nodes",
+            "MATCH ()-[value:VALUE]->()",
+            "WITH files, nodes, count(value) AS values",
+            "MATCH (:File)-[declares:DECLARES]->()",
+            "WITH files, nodes, values, count(declares) AS declares",
+            "MATCH (:File)-[contributes:CONTRIBUTES]->()",
+            "RETURN files, nodes, values, declares, count(contributes) AS contributes",
+          ].join(" "),
+        ),
+      opts(),
+    )
+
+    expect(replaceRows).toEqual(normalRows)
+    expect(replaceRows[0]).toEqual({ files: 1, nodes: 2, values: 1, declares: 1, contributes: 1 })
+  })
 })
