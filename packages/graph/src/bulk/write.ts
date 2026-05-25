@@ -32,7 +32,10 @@ export const buildBulkCommands = (
   blobs: readonly BulkWriteBlob[],
   limits: Partial<BulkWriteLimits> = {},
 ): BulkCommand[] => {
-  const effective = { ...DEFAULT_LIMITS, ...limits }
+  const effective = {
+    maxBlobBytes: limits.maxBlobBytes ?? DEFAULT_LIMITS.maxBlobBytes,
+    maxCommandBytes: limits.maxCommandBytes ?? DEFAULT_LIMITS.maxCommandBytes,
+  }
   const commands: BulkCommand[] = []
   let current: BulkCommand = { begin: true, nodeCount: 0, edgeCount: 0, blobs: [] }
 

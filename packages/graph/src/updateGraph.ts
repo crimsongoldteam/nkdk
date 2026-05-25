@@ -1,5 +1,6 @@
 import { close, connect } from "./internal/connection"
 import type { GraphConnection } from "./internal/connection"
+import { replaceGraphBulk } from "./bulk/replaceGraphBulk"
 import {
   cleanupOrphanStubs,
   createEdges,
@@ -78,6 +79,14 @@ export const updateGraph = async (
     }
 
     if (opts?.replace === true) {
+      if (opts.bulk === true) {
+        await replaceGraphBulk(conn, filesToMerge, {
+          onProgress,
+          maxBlobBytes: opts.maxBulkBlobBytes,
+          maxCommandBytes: opts.maxBulkCommandBytes,
+        })
+        return
+      }
       await replaceGraph(conn, filesToMerge, labels, labelByNodeId, onProgress)
       return
     }

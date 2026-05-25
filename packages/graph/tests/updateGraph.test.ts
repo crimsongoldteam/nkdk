@@ -4,6 +4,7 @@ const queryMock = vi.fn()
 const selectGraphMock = vi.fn()
 const connectMock = vi.fn()
 const closeMock = vi.fn()
+const executeCommandMock = vi.fn()
 
 vi.mock("falkordb", () => ({
   FalkorDB: { connect: (opts?: unknown) => connectMock(opts) },
@@ -14,11 +15,12 @@ import type { FileGraphData } from "../src/types"
 
 beforeEach(() => {
   queryMock.mockReset().mockResolvedValue({})
+  executeCommandMock.mockReset().mockResolvedValue("OK")
   selectGraphMock.mockReset().mockReturnValue({ query: queryMock })
   closeMock.mockReset().mockResolvedValue(undefined)
   connectMock
     .mockReset()
-    .mockResolvedValue({ selectGraph: selectGraphMock, close: closeMock })
+    .mockResolvedValue({ selectGraph: selectGraphMock, executeCommand: executeCommandMock, close: closeMock })
 })
 
 describe("updateGraph", () => {
@@ -266,6 +268,23 @@ describe("updateGraph", () => {
     expect(phases).not.toContain("deleteByFiles")
     expect(phases).not.toContain("mergeNodes")
     expect(phases).not.toContain("cleanupOrphanStubs")
+  })
+
+  it("replace + bulk использует GRAPH.BULK путь без createEdges", async () => {
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [{ id: "A", label: "MetadataCatalog", props: { name: "A" } }],
+        edges: [],
+      },
+    ]
+
+    await updateGraph(files, { graphName: "test", replace: true, bulk: true })
+
+    const cypher = queryMock.mock.calls.map((call) => call[0] as string)
+    expect(executeCommandMock).toHaveBeenCalledWith(expect.arrayContaining(["GRAPH.BULK", "test", "BEGIN"]))
+    expect(cypher).not.toContainEqual(expect.stringContaining("CREATE (m:MetadataCatalog"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("CREATE (f:File"))
   })
 
   it("прокидывает ConnectionOptions в connect", async () => {
