@@ -1,4 +1,4 @@
-import { deleteGraph } from "../internal/connection"
+import { deleteGraph, graphNameOf, rawCommand } from "../internal/connection"
 import type { GraphConnection } from "../internal/connection"
 import { ensureFileIndexes, ensureLabelIndexes, validateReplacePayload } from "../internal/operations"
 import type { FileGraphData, GraphProgress } from "../types"
@@ -29,6 +29,7 @@ export const replaceGraphBulk = async (
 ): Promise<void> => {
   validateReplacePayload(files)
   await report("resetGraph", opts.onProgress, () => deleteGraph(conn))
+  await rawCommand(conn, ["DEL", graphNameOf(conn)])
 
   const plan = await (async () => {
     let created = createBulkPlan(files)

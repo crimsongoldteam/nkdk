@@ -70,8 +70,6 @@ export const createBulkPlan = (files: readonly FileGraphData[]): BulkPlan => {
     return id
   }
 
-  const ensureStub = (logicalId: string): number => addNode("GraphStub", logicalId, {})
-
   for (const file of files) {
     addNode("File", file.filePath, fileProps(file))
     for (const node of file.nodes) {
@@ -84,18 +82,21 @@ export const createBulkPlan = (files: readonly FileGraphData[]): BulkPlan => {
     if (fileNodeId === undefined) throw new Error(`Missing File node in bulk plan: ${file.filePath}`)
 
     for (const edge of file.edges) {
-      const src = nodeIdByLogicalId.get(edge.src) ?? ensureStub(edge.src)
-      const tgt = nodeIdByLogicalId.get(edge.tgt) ?? ensureStub(edge.tgt)
+      const src = nodeIdByLogicalId.get(edge.src)
+      const tgt = nodeIdByLogicalId.get(edge.tgt)
+      if (src === undefined || tgt === undefined) continue
       groupPush(edgeGroups, edge.kind, { src, tgt, props: normalizeBulkProperties(edgeProps(file, edge)) })
     }
 
     for (const nodeId of file.declaredNodeIds ?? file.nodes.map((node: NodeData) => node.id)) {
-      const tgt = nodeIdByLogicalId.get(nodeId) ?? ensureStub(nodeId)
+      const tgt = nodeIdByLogicalId.get(nodeId)
+      if (tgt === undefined) continue
       groupPush(edgeGroups, "DECLARES", { src: fileNodeId, tgt, props: {} })
     }
 
     for (const nodeId of file.contributedNodeIds ?? []) {
-      const tgt = nodeIdByLogicalId.get(nodeId) ?? ensureStub(nodeId)
+      const tgt = nodeIdByLogicalId.get(nodeId)
+      if (tgt === undefined) continue
       groupPush(edgeGroups, "CONTRIBUTES", { src: fileNodeId, tgt, props: {} })
     }
   }
