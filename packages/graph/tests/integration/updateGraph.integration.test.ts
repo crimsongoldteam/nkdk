@@ -247,8 +247,8 @@ describe("updateGraph (integration)", () => {
         filePath: "a.yaml",
         fileStats: { mtimeMs: 1, size: 2, updatedAt: 3 },
         nodes: [
-          { id: "A", label: "MetadataCatalog", props: { name: "A", p_hierarchical: true } },
-          { id: "B", label: "MetadataAttribute", props: { name: "B", p_values: ["x", "y"], p_ratio: 1.5 } },
+          { id: "A", label: "MetadataCatalog", props: { name: "A", p_hierarchical: true, p_ratio: 1.5 } },
+          { id: "B", label: "MetadataAttribute", props: { name: "B", p_values: ["x", "y"] } },
         ],
         edges: [{ src: "A", tgt: "B", kind: "VALUE", props: { yaml: "Реквизит" } }],
         declaredNodeIds: ["A"],
@@ -291,8 +291,8 @@ describe("updateGraph (integration)", () => {
     expect(replaceSnapshot).toEqual({
       files: [{ path: "a.yaml", mtimeMs: 1, size: 2, updatedAt: 3 }],
       nodes: [
-        { id: "A", labels: ["GraphNode", "MetadataCatalog"], name: "A", p_hierarchical: true, p_values: null, p_ratio: null },
-        { id: "B", labels: ["GraphNode", "MetadataAttribute"], name: "B", p_hierarchical: null, p_values: ["x", "y"], p_ratio: 1.5 },
+        { id: "A", labels: ["GraphNode", "MetadataCatalog"], name: "A", p_hierarchical: true, p_values: null, p_ratio: 1.5 },
+        { id: "B", labels: ["GraphNode", "MetadataAttribute"], name: "B", p_hierarchical: null, p_values: ["x", "y"], p_ratio: null },
       ],
       values: [{ src: "A", tgt: "B", yaml: "Реквизит", filePath: "a.yaml" }],
       declares: [{ file: "a.yaml", node: "A" }],
