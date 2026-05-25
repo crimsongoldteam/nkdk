@@ -195,10 +195,12 @@ describe("updateGraph (integration)", () => {
             labels: string[]
             name: string | null
             p_hierarchical: boolean | null
+            p_values: string[] | null
+            p_ratio: number | null
           }>(
             [
               "MATCH (n:GraphNode)",
-              "RETURN n.id AS id, labels(n) AS labels, n.name AS name, n.p_hierarchical AS p_hierarchical",
+              "RETURN n.id AS id, labels(n) AS labels, n.name AS name, n.p_hierarchical AS p_hierarchical, n.p_values AS p_values, n.p_ratio AS p_ratio",
               "ORDER BY id",
             ].join(" "),
           )
@@ -246,7 +248,7 @@ describe("updateGraph (integration)", () => {
         fileStats: { mtimeMs: 1, size: 2, updatedAt: 3 },
         nodes: [
           { id: "A", label: "MetadataCatalog", props: { name: "A", p_hierarchical: true } },
-          { id: "B", label: "MetadataAttribute", props: { name: "B" } },
+          { id: "B", label: "MetadataAttribute", props: { name: "B", p_values: ["x", "y"], p_ratio: 1.5 } },
         ],
         edges: [{ src: "A", tgt: "B", kind: "VALUE", props: { yaml: "Реквизит" } }],
         declaredNodeIds: ["A"],
@@ -268,11 +270,29 @@ describe("updateGraph (integration)", () => {
     const replaceSnapshot = await readSnapshot()
 
     expect(replaceSnapshot).toEqual(normalSnapshot)
+
+    await withGraph(
+      async (g) => {
+        await g.query("MATCH (n) DETACH DELETE n")
+      },
+      opts(),
+    )
+
+    await updateGraph(files, {
+      ...opts(),
+      replace: true,
+      bulk: true,
+      maxBulkBlobBytes: 1024,
+      maxBulkCommandBytes: 4096,
+    })
+    const bulkSnapshot = await readSnapshot()
+
+    expect(bulkSnapshot).toEqual(normalSnapshot)
     expect(replaceSnapshot).toEqual({
       files: [{ path: "a.yaml", mtimeMs: 1, size: 2, updatedAt: 3 }],
       nodes: [
-        { id: "A", labels: ["GraphNode", "MetadataCatalog"], name: "A", p_hierarchical: true },
-        { id: "B", labels: ["GraphNode", "MetadataAttribute"], name: "B", p_hierarchical: null },
+        { id: "A", labels: ["GraphNode", "MetadataCatalog"], name: "A", p_hierarchical: true, p_values: null, p_ratio: null },
+        { id: "B", labels: ["GraphNode", "MetadataAttribute"], name: "B", p_hierarchical: null, p_values: ["x", "y"], p_ratio: 1.5 },
       ],
       values: [{ src: "A", tgt: "B", yaml: "Реквизит", filePath: "a.yaml" }],
       declares: [{ file: "a.yaml", node: "A" }],
