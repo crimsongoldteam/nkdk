@@ -67,4 +67,33 @@ describe("bulk write", () => {
       Buffer.from("x"),
     ])
   })
+
+  it("отправляет GRAPH.BULK команды окном до 5 запросов", async () => {
+    const resolvers: Array<() => void> = []
+    mocks.rawCommand.mockImplementation(
+      () => new Promise((resolve) => {
+        resolvers.push(() => resolve("ok"))
+      }),
+    )
+
+    const commands = Array.from({ length: 6 }, (_, index) => ({
+      begin: index === 0,
+      nodeCount: 1,
+      edgeCount: 0,
+      blobs: [{ kind: "node" as const, name: `A${index}`, count: 1, buffer: Buffer.from(`x${index}`) }],
+    }))
+
+    const promise = writeBulkCommands({} as GraphConnection, commands)
+    await Promise.resolve()
+
+    expect(mocks.rawCommand).toHaveBeenCalledTimes(5)
+
+    for (const resolve of resolvers.splice(0, 5)) resolve()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(mocks.rawCommand).toHaveBeenCalledTimes(6)
+
+    resolvers[0]?.()
+    await promise
+  })
 })
