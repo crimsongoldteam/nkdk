@@ -50,7 +50,7 @@ const replaceGraph = async (
   await createFiles(conn, filesToMerge, onProgress)
   await createNodes(conn, filesToMerge.flatMap((f) => f.nodes), onProgress)
   await createEdges(conn, filesToMerge, labelByNodeId, onProgress)
-  await createFileLinks(conn, filesToMerge, onProgress)
+  await createFileLinks(conn, filesToMerge, labelByNodeId, onProgress)
 }
 
 /**
@@ -97,7 +97,7 @@ export const updateGraph = async (
     await mergeFiles(conn, filesToMerge, onProgress)
     await mergeNodes(conn, allNodes, onProgress)
     await mergeEdges(conn, filesToMerge, labelByNodeId, onProgress)
-    await mergeFileLinks(conn, filesToMerge, onProgress)
+    await mergeFileLinks(conn, filesToMerge, labelByNodeId, onProgress)
     await reportPhase("cleanupOrphanStubs", onProgress, () => cleanupOrphanStubs(conn, true))
   } finally {
     await close(conn)

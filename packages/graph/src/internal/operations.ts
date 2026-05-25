@@ -3,7 +3,7 @@ import type { GraphConnection } from "./connection"
 import type { EdgeData, FileGraphData, FileStats, GraphProgress, GraphUpdatePhase, NodeData } from "../types"
 
 export const BATCH_SIZE = 500
-const GRAPH_NODE_LABEL = "GraphNode"
+const GRAPH_STUB_LABEL = "GraphStub"
 
 type CypherPrimitive = string | number | boolean | null
 type CypherValue = CypherPrimitive | CypherPrimitive[]
@@ -39,14 +39,10 @@ const cypherLabel = (label: string | undefined): string =>
   label === undefined ? "" : `:${label}`
 
 const cypherLookupLabel = (label: string | undefined): string =>
-  cypherLabel(label && label.length > 0 ? label : GRAPH_NODE_LABEL)
+  cypherLabel(label && label.length > 0 ? label : GRAPH_STUB_LABEL)
 
-const cypherMergeLabels = (label: string): string => {
-  const labels = [label, GRAPH_NODE_LABEL].filter((value, index, all) =>
-    value.length > 0 && all.indexOf(value) === index
-  )
-  return labels.map(cypherLabel).join("")
-}
+const cypherWriteLabel = (label: string): string =>
+  cypherLabel(label.length > 0 ? label : GRAPH_STUB_LABEL)
 
 const cypherValue = (value: CypherValue): string => {
   if (Array.isArray(value)) return `[${value.map(cypherValue).join(",")}]`
@@ -153,6 +149,14 @@ const cypherLinkBatch = (links: readonly { filePath: string; nodeId: string }[])
     .map((link) => `{filePath:${cypherString(link.filePath)},nodeId:${cypherString(link.nodeId)}}`)
     .join(",")}]`
 
+const groupFileLinksByLabel = (
+  links: readonly { filePath: string; nodeId: string }[],
+  labelByNodeId?: ReadonlyMap<string, string>,
+): { label: string; payload: { filePath: string; nodeId: string }[] }[] =>
+  Array.from(
+    groupBy(links, (link) => labelByNodeId?.get(link.nodeId) ?? "").entries(),
+  ).map(([label, payload]) => ({ label, payload }))
+
 const batchCount = (itemsLength: number): number => Math.ceil(itemsLength / BATCH_SIZE)
 
 const sendBatches = async <T>(
@@ -199,7 +203,7 @@ export const mergeNodes = async (
       conn,
       payload,
       (batch) =>
-        `UNWIND ${cypherNodeBatch(batch)} AS n MERGE (m${cypherMergeLabels(label)} {id: n.id}) SET m += n.props`,
+        `UNWIND ${cypherNodeBatch(batch)} AS n MERGE (m${cypherWriteLabel(label)} {id: n.id}) SET m += n.props`,
       progress,
     )
   }
@@ -227,7 +231,7 @@ export const createNodes = async (
       conn,
       payload,
       (batch) =>
-        `UNWIND ${cypherNodeBatch(batch)} AS n CREATE (m${cypherMergeLabels(label)} {id: n.id}) SET m += n.props`,
+        `UNWIND ${cypherNodeBatch(batch)} AS n CREATE (m${cypherWriteLabel(label)} {id: n.id}) SET m += n.props`,
       progress,
     )
   }
@@ -457,6 +461,7 @@ export const createFiles = async (
 export const mergeFileLinks = async (
   conn: GraphConnection,
   files: readonly FileGraphData[],
+  labelByNodeId?: ReadonlyMap<string, string>,
   onProgress?: (progress: GraphProgress) => void,
 ): Promise<void> => {
   const declared = files.flatMap((file) =>
@@ -468,32 +473,40 @@ export const mergeFileLinks = async (
   const contributed = files.flatMap((file) =>
     (file.contributedNodeIds ?? []).map((nodeId) => ({ filePath: file.filePath, nodeId })),
   )
+  const groups = [
+    ...groupFileLinksByLabel(declared, labelByNodeId).map((group) => ({
+      kind: "DECLARES" as const,
+      label: group.label,
+      payload: group.payload,
+    })),
+    ...groupFileLinksByLabel(contributed, labelByNodeId).map((group) => ({
+      kind: "CONTRIBUTES" as const,
+      label: group.label,
+      payload: group.payload,
+    })),
+  ]
   const progress = {
     phase: "mergeFileLinks" as const,
     onProgress,
-    total: batchCount(declared.length) + batchCount(contributed.length),
+    total: groups.reduce((sum, group) => sum + batchCount(group.payload.length), 0),
     state: { done: 0 },
   }
 
-  await sendBatches(
-    conn,
-    declared,
-    (batch) =>
-      `UNWIND ${cypherLinkBatch(batch)} AS link MATCH (f:File {path: link.filePath}), (n:GraphNode {id: link.nodeId}) MERGE (f)-[:DECLARES]->(n)`,
-    progress,
-  )
-  await sendBatches(
-    conn,
-    contributed,
-    (batch) =>
-      `UNWIND ${cypherLinkBatch(batch)} AS link MATCH (f:File {path: link.filePath}), (n:GraphNode {id: link.nodeId}) MERGE (f)-[:CONTRIBUTES]->(n)`,
-    progress,
-  )
+  for (const { kind, label, payload } of groups) {
+    await sendBatches(
+      conn,
+      payload,
+      (batch) =>
+        `UNWIND ${cypherLinkBatch(batch)} AS link MATCH (f:File {path: link.filePath}), (n${cypherLookupLabel(label)} {id: link.nodeId}) MERGE (f)-[:${kind}]->(n)`,
+      progress,
+    )
+  }
 }
 
 export const createFileLinks = async (
   conn: GraphConnection,
   files: readonly FileGraphData[],
+  labelByNodeId?: ReadonlyMap<string, string>,
   onProgress?: (progress: GraphProgress) => void,
 ): Promise<void> => {
   const declared = files.flatMap((file) =>
@@ -505,27 +518,34 @@ export const createFileLinks = async (
   const contributed = files.flatMap((file) =>
     (file.contributedNodeIds ?? []).map((nodeId) => ({ filePath: file.filePath, nodeId })),
   )
+  const groups = [
+    ...groupFileLinksByLabel(declared, labelByNodeId).map((group) => ({
+      kind: "DECLARES" as const,
+      label: group.label,
+      payload: group.payload,
+    })),
+    ...groupFileLinksByLabel(contributed, labelByNodeId).map((group) => ({
+      kind: "CONTRIBUTES" as const,
+      label: group.label,
+      payload: group.payload,
+    })),
+  ]
   const progress = {
     phase: "createFileLinks" as const,
     onProgress,
-    total: batchCount(declared.length) + batchCount(contributed.length),
+    total: groups.reduce((sum, group) => sum + batchCount(group.payload.length), 0),
     state: { done: 0 },
   }
 
-  await sendBatches(
-    conn,
-    declared,
-    (batch) =>
-      `UNWIND ${cypherLinkBatch(batch)} AS link MATCH (f:File {path: link.filePath}), (n:GraphNode {id: link.nodeId}) CREATE (f)-[:DECLARES]->(n)`,
-    progress,
-  )
-  await sendBatches(
-    conn,
-    contributed,
-    (batch) =>
-      `UNWIND ${cypherLinkBatch(batch)} AS link MATCH (f:File {path: link.filePath}), (n:GraphNode {id: link.nodeId}) CREATE (f)-[:CONTRIBUTES]->(n)`,
-    progress,
-  )
+  for (const { kind, label, payload } of groups) {
+    await sendBatches(
+      conn,
+      payload,
+      (batch) =>
+        `UNWIND ${cypherLinkBatch(batch)} AS link MATCH (f:File {path: link.filePath}), (n${cypherLookupLabel(label)} {id: link.nodeId}) CREATE (f)-[:${kind}]->(n)`,
+      progress,
+    )
+  }
 }
 
 export const deleteByFilePaths = async (
@@ -583,10 +603,8 @@ export const ensureLabelIndexes = async (
   conn: GraphConnection,
   labels: readonly string[],
 ): Promise<void> => {
-  await ensureIndex(conn, GRAPH_NODE_LABEL, "id")
-  const unique = new Set(labels)
+  const unique = new Set(labels.filter((label) => label.length > 0))
   for (const label of unique) {
-    if (label === GRAPH_NODE_LABEL) continue
     await ensureIndex(conn, label, "id")
   }
 }
