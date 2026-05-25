@@ -13,6 +13,7 @@ const CONTEXT = { version: "2.20", defaultLanguage: "ru" }
 
 export interface UpdateGraphCommandOptions {
   replace?: boolean
+  bulk?: boolean
 }
 
 const createProgressReporter = () => {
@@ -125,6 +126,11 @@ export const updateGraph = async (
   projectPath: string,
   opts: UpdateGraphCommandOptions = {},
 ): Promise<void> => {
+  if (opts.bulk === true && opts.replace !== true) {
+    console.error(chalk.red("--bulk можно использовать только вместе с --replace"))
+    process.exit(1)
+  }
+
   const absoluteProjectPath = resolve(projectPath)
   if (!existsSync(absoluteProjectPath)) {
     console.error(chalk.red(`Директория не найдена: ${projectPath}`))
@@ -144,7 +150,12 @@ export const updateGraph = async (
   const tWriteStart = performance.now()
   const graphOptions = createGraphOptions(absoluteProjectPath)
   if (opts.replace === true) {
-    await writeGraph(graphFiles, { ...graphOptions, replace: true, onProgress: createProgressReporter() })
+    await writeGraph(graphFiles, {
+      ...graphOptions,
+      replace: true,
+      bulk: opts.bulk === true,
+      onProgress: createProgressReporter(),
+    })
   } else {
     await writeGraph([], graphOptions)
     await writeGraph(graphFiles, { ...graphOptions, onProgress: createProgressReporter() })

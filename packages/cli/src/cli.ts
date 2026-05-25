@@ -53,8 +53,11 @@ program
   .argument("<path>", "путь к корню YAML-проекта")
   .option("--file <filePath>", "обновить только один файл проекта")
   .option("--replace", "полностью заменить граф быстрым CREATE-путём")
-  .action((projectPath: string, opts: { file?: string; replace?: boolean }) => {
-    run(() => opts.file ? updateGraphFile(projectPath, opts.file) : updateGraph(projectPath, { replace: opts.replace === true }))
+  .option("--bulk", "использовать экспериментальный GRAPH.BULK replace-путь; требует --replace")
+  .action((projectPath: string, opts: { file?: string; replace?: boolean; bulk?: boolean }) => {
+    run(() => opts.file
+      ? updateGraphFile(projectPath, opts.file)
+      : updateGraph(projectPath, { replace: opts.replace === true, bulk: opts.bulk === true }))
   })
 
 program

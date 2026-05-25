@@ -126,6 +126,19 @@ describe("updateGraph command", () => {
     )
   })
 
+  it("передаёт bulk: true вместе с replace", async () => {
+    const projectPath = createProject()
+    writeFileSync(join(projectPath, "a.yaml"), "x: y")
+    mocks.buildGraph.mockResolvedValue([{ filePath: "a.yaml", nodes: [], edges: [] }])
+
+    await updateGraph(projectPath, { replace: true, bulk: true })
+
+    expect(mocks.writeGraph).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({ graphName: expect.any(String), replace: true, bulk: true }),
+    )
+  })
+
   it("updateGraphFiles игнорирует неподдержанный файл", async () => {
     const projectPath = createProject()
     const textPath = "Справочник/Товары/Формы/ФормаСписка/Форма.txt"
