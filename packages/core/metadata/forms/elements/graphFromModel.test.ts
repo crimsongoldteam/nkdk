@@ -12,7 +12,7 @@ import { ClientApplicationFormRules } from "../clientApplicationForm/rules"
 import "."
 
 const FILE_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
-const FORM_NODE_ID = "Справочник.Товары.ФормаСписка"
+const FORM_NODE_ID = "Catalog.Товары.Form.ФормаСписка"
 
 function makeGraph() {
   const graph = new GraphBuilder()
@@ -39,7 +39,7 @@ describe("graphFromModel — элементы формы", () => {
       filePath: FILE_PATH,
     })
 
-    const nodeId = `${FORM_NODE_ID}.Элемент.Кнопка1`
+    const nodeId = `${FORM_NODE_ID}.Element.Кнопка1`
     expect(graph.hasNode(nodeId)).toBe(true)
     expect(graph.getNodeAttributes(nodeId).name).toBe("Кнопка1")
 
@@ -74,8 +74,8 @@ describe("graphFromModel — элементы формы", () => {
       filePath: FILE_PATH,
     })
 
-    const groupNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
-    const fieldNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
+    const groupNodeId = `${FORM_NODE_ID}.Element.Группа1`
+    const fieldNodeId = `${FORM_NODE_ID}.Element.ПолеВвода1`
 
     // Оба узла существуют
     expect(graph.hasNode(groupNodeId)).toBe(true)
@@ -125,8 +125,8 @@ describe("graphFromModel — элементы формы", () => {
       filePath: FILE_PATH,
     })
 
-    const tableNodeId = `${FORM_NODE_ID}.Элемент.Таблица1`
-    const menuNodeId = `${FORM_NODE_ID}.Элемент.Таблица1КонтекстноеМеню`
+    const tableNodeId = `${FORM_NODE_ID}.Element.Таблица1`
+    const menuNodeId = `${FORM_NODE_ID}.Element.Таблица1КонтекстноеМеню`
 
     expect(graph.hasNode(tableNodeId)).toBe(true)
     expect(graph.hasNode(menuNodeId)).toBe(true)
@@ -163,7 +163,7 @@ describe("graphFromModel — элементы формы", () => {
       filePath: FILE_PATH,
     })
 
-    const nodeId = `${FORM_NODE_ID}.Элемент.Декорация1`
+    const nodeId = `${FORM_NODE_ID}.Element.Декорация1`
     const filePaths = graph.getNodeAttributes(nodeId).filePaths
     expect(filePaths).toContain(FILE_PATH)
   })
@@ -188,13 +188,13 @@ describe("graphFromModel — элементы формы", () => {
       filePath: FILE_PATH,
     })
 
-    const buttonNodeId = `${FORM_NODE_ID}.Элемент.ПоказатьВСписке`
+    const buttonNodeId = `${FORM_NODE_ID}.Element.ПоказатьВСписке`
     const edges = [...graph.outEdgeEntries(buttonNodeId)].filter(
       (edge) => edge.attributes.kind === "OBJECT"
     )
 
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Документ.Встреча")
+    expect(edges[0].target).toBe("Document.Встреча")
     expect(edges[0].attributes.yaml).toBe("Параметр")
   })
 
@@ -220,13 +220,13 @@ describe("graphFromModel — элементы формы", () => {
       filePath: FILE_PATH,
     })
 
-    const buttonNodeId = `${FORM_NODE_ID}.Элемент.СоздатьПриемНаРаботу`
+    const buttonNodeId = `${FORM_NODE_ID}.Element.СоздатьПриемНаРаботу`
     const edges = [...graph.outEdgeEntries(buttonNodeId)].filter(
       (edge) => edge.attributes.kind === "OBJECT"
     )
 
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Документ.ПриемНаРаботу")
+    expect(edges[0].target).toBe("Document.ПриемНаРаботу")
     expect(edges[0].attributes.yaml).toBe("Параметр")
   })
 })

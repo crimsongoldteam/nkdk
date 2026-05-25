@@ -1,5 +1,6 @@
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { findSubmap } from "~/metadata/orchestration/property/position"
+import { buildDataPathGraphOps } from "~/metadata/forms/commonObjects/dataPath/graphOps"
 import {
   BuildGraphFromModelFunction,
   GraphOps,
@@ -25,7 +26,7 @@ registerTypeRule("FormAttributes", "graphChild", {
   idFrom: "name",
   edgeKind: "FORM_ATTRIBUTE",
   edgeYaml: "РеквизитФормы",
-  nodeSegment: "Реквизит",
+  nodeSegment: "Attribute",
   itemRule: FormAttributeRules,
 })
 
@@ -78,7 +79,7 @@ const buildFormAttributeAdditionalColumnsGraph: BuildGraphFromModelFunction = ({
 }): GraphOps[] | undefined => {
   if (!Array.isArray(model) || model.length === 0) return undefined
 
-  // parentNodeId = <formNodeId>.Реквизит.<attrName>; формируем formNodeId обратным путём.
+  // parentNodeId = <formNodeId>.Attribute.<attrName>; формируем formNodeId обратным путём.
   const formNodeId = parentNodeId.split(".").slice(0, -2).join(".")
   const sections: GraphOps[] = []
 
@@ -102,17 +103,33 @@ const buildFormAttributeAdditionalColumnsGraph: BuildGraphFromModelFunction = ({
       edgeYaml: ADDITION_EDGE_YAML,
     })
 
-    sections.push({
-      formLocalReferences: [
-        {
-          formLocalPath: tablePath,
-          formNodeId,
-          parentOverride: proxyNodeId,
-        },
-      ],
-      edgeKind: TABLE_EDGE_KIND,
+    const tableOps = buildDataPathGraphOps({
+      sourcePath: tablePath,
+      propertyName: "table",
       edgeYaml: TABLE_EDGE_YAML,
+      formNodeId,
+      fallbackChildKind: "TabularSection",
     })
+    if (tableOps) {
+      sections.push({
+        ...tableOps,
+        edgeKind: TABLE_EDGE_KIND,
+        edgeYaml: TABLE_EDGE_YAML,
+        formLocalReferences: tableOps.formLocalReferences?.map((reference) => ({
+          ...reference,
+          parentOverride: proxyNodeId,
+        })),
+        references: tableOps.references?.map((reference) => ({
+          ...reference,
+          parentOverride: proxyNodeId,
+          edgeProps: {
+            ...reference.edgeProps,
+            property: "table",
+            sourcePath: tablePath,
+          },
+        })),
+      })
+    }
 
     const columnChildren: GraphOpsChild[] = []
     const columnRecurses: GraphOpsRecurse[] = []

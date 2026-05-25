@@ -3,7 +3,7 @@ import { GraphOps } from "~/metadata/orchestration/property/fn"
 import { applyGraphOps, ApplyGraphOpsContext } from "./applyGraphOps"
 import { GraphBuilder } from "./GraphBuilder"
 
-const PARENT_NODE_ID = "Справочник.Товары.Цена"
+const PARENT_NODE_ID = "Catalog.Товары.Цена"
 const FILE_PATH = "catalogs/goods.yaml"
 
 function ensureNodeWithFile(graph: GraphBuilder, id: string, name: string, filePath: string): void {
@@ -47,7 +47,7 @@ describe("applyGraphOps", () => {
 
       applyGraphOps(ops, ctx)
 
-      const childId = "Справочник.Товары.Цена.Валюта"
+      const childId = "Catalog.Товары.Цена.Валюта"
       expect(ctx.graph.hasNode(childId)).toBe(true)
       const attrs = ctx.graph.getNodeAttributes(childId)
       expect(attrs.name).toBe("Валюта")
@@ -69,8 +69,8 @@ describe("applyGraphOps", () => {
 
       applyGraphOps(ops, ctx)
 
-      expect(ctx.graph.hasNode("Справочник.Товары.Цена.А")).toBe(true)
-      expect(ctx.graph.hasNode("Справочник.Товары.Цена.Б")).toBe(true)
+      expect(ctx.graph.hasNode("Catalog.Товары.Цена.А")).toBe(true)
+      expect(ctx.graph.hasNode("Catalog.Товары.Цена.Б")).toBe(true)
       expect([...ctx.graph.outEdgeEntries(PARENT_NODE_ID)]).toHaveLength(2)
     })
 
@@ -109,8 +109,9 @@ describe("applyGraphOps", () => {
 
       applyGraphOps(ops, ctx)
 
-      expect(ctx.graph.hasNode("Справочник.Валюты")).toBe(true)
-      const attrs = ctx.graph.getNodeAttributes("Справочник.Валюты")
+      expect(ctx.graph.hasNode("Catalog.Валюты")).toBe(true)
+      expect(ctx.graph.hasNode("Справочник.Валюты")).toBe(false)
+      const attrs = ctx.graph.getNodeAttributes("Catalog.Валюты")
       expect(attrs.name).toBe("Валюты")
       expect(attrs.filePaths).toEqual([])
 
@@ -189,8 +190,8 @@ describe("applyGraphOps", () => {
 
       applyGraphOps(ops, ctx)
 
-      expect(ctx.graph.hasNode("Справочник.А")).toBe(true)
-      expect(ctx.graph.hasNode("Справочник.Б")).toBe(true)
+      expect(ctx.graph.hasNode("Catalog.А")).toBe(true)
+      expect(ctx.graph.hasNode("Catalog.Б")).toBe(true)
       expect([...ctx.graph.outEdgeEntries(PARENT_NODE_ID)]).toHaveLength(2)
     })
   })
@@ -199,16 +200,16 @@ describe("applyGraphOps", () => {
     it("не перезаписывает owned-узел при повторном reference", () => {
       const graph = new GraphBuilder()
       const ownedItem = { itemType: "MetadataCatalog", name: "Валюты" }
-      ensureNodeWithFile(graph, "Справочник.Валюты", "Валюты", "currencies.yaml")
-      graph.setItem("Справочник.Валюты", ownedItem)
+      ensureNodeWithFile(graph, "Catalog.Валюты", "Валюты", "currencies.yaml")
+      graph.setItem("Catalog.Валюты", ownedItem)
 
       applyGraphOps(
         { references: [{ id: "Справочник.Валюты", name: "Валюты" }] },
         makeCtx({ graph }),
       )
 
-      expect(graph.getNodeAttributes("Справочник.Валюты").item).toBe(ownedItem)
-      expect(graph.getNodeAttributes("Справочник.Валюты").filePaths).toEqual(["currencies.yaml"])
+      expect(graph.getNodeAttributes("Catalog.Валюты").item).toBe(ownedItem)
+      expect(graph.getNodeAttributes("Catalog.Валюты").filePaths).toEqual(["currencies.yaml"])
     })
 
     it("stub-узел не получает filePath", () => {
@@ -218,7 +219,7 @@ describe("applyGraphOps", () => {
         ctx,
       )
 
-      const attrs = ctx.graph.getNodeAttributes("Справочник.Неизвестный")
+      const attrs = ctx.graph.getNodeAttributes("Catalog.Неизвестный")
       expect(attrs.filePaths).toEqual([])
       expect(attrs.item).toBeUndefined()
     })
@@ -243,8 +244,8 @@ describe("applyGraphOps", () => {
   describe("formLocalReferences", () => {
     function makeFormGraph() {
       const graph = new GraphBuilder()
-      const formNodeId = "Форма.ТестоваяФорма"
-      const attrId = `${formNodeId}.Реквизит.Объект`
+      const formNodeId = "Form.ТестоваяФорма"
+      const attrId = `${formNodeId}.Attribute.Объект`
       ensureNodeWithFile(graph, formNodeId, "ТестоваяФорма", "test/Форма.yaml")
       ensureNodeWithFile(graph, attrId, "Объект", "test/Форма.yaml")
       graph.ensureEdge(formNodeId, attrId, "FORM_ATTRIBUTE", { yaml: "РеквизитФормы" })
@@ -253,7 +254,7 @@ describe("applyGraphOps", () => {
 
     it("создаёт ребро на резолвимую цель (happy path)", () => {
       const { graph, formNodeId, attrId } = makeFormGraph()
-      const elementId = `${formNodeId}.Элемент.Кнопка`
+      const elementId = `${formNodeId}.Element.Кнопка`
       ensureNodeWithFile(graph, elementId, "Кнопка", "test/Форма.yaml")
 
       const ctx: ApplyGraphOpsContext = {
@@ -277,7 +278,7 @@ describe("applyGraphOps", () => {
 
     it("пробрасывает edgeProps на formLocalReferences-ребро", () => {
       const { graph, formNodeId, attrId } = makeFormGraph()
-      const elementId = `${formNodeId}.Элемент.Кнопка`
+      const elementId = `${formNodeId}.Element.Кнопка`
       ensureNodeWithFile(graph, elementId, "Кнопка", "test/Форма.yaml")
 
       const ctx: ApplyGraphOpsContext = {
@@ -321,9 +322,9 @@ describe("applyGraphOps", () => {
 
     it("создаёт DATA_PATH_DEPENDS_ON для form-local пути", () => {
       const { graph, formNodeId, attrId } = makeFormGraph()
-      const elementId = `${formNodeId}.Элемент.Поле`
-      const typeId = "Справочник.Товары"
-      const targetId = `${typeId}.Наименование`
+      const elementId = `${formNodeId}.Element.Поле`
+      const typeId = "Catalog.Товары"
+      const targetId = `${typeId}.StandardAttribute.Description`
 
       ensureNodeWithFile(graph, elementId, "Поле", "test/Форма.yaml")
       graph.ensureNode(typeId, { name: "Товары" })
@@ -373,8 +374,8 @@ describe("applyGraphOps", () => {
 
     it("не создаёт DATA_PATH_DEPENDS_ON к итоговой цели одно-сегментного form-local пути", () => {
       const { graph, formNodeId } = makeFormGraph()
-      const elementId = `${formNodeId}.Элемент.Поле`
-      const footerAttrId = `${formNodeId}.Реквизит.РеквизитПодвала`
+      const elementId = `${formNodeId}.Element.Поле`
+      const footerAttrId = `${formNodeId}.Attribute.РеквизитПодвала`
 
       ensureNodeWithFile(graph, elementId, "Поле", "test/Форма.yaml")
       ensureNodeWithFile(graph, footerAttrId, "РеквизитПодвала", "test/Форма.yaml")
@@ -419,9 +420,9 @@ describe("applyGraphOps", () => {
 
     it("не создаёт DATA_PATH_DEPENDS_ON к итоговой цели, найденной через childByEdge", () => {
       const { graph, formNodeId, attrId } = makeFormGraph()
-      const elementId = `${formNodeId}.Элемент.Поле`
-      const typeId = "Справочник.Товары"
-      const targetId = `${typeId}.Реквизит.Артикул`
+      const elementId = `${formNodeId}.Element.Поле`
+      const typeId = "Catalog.Товары"
+      const targetId = `${typeId}.Attribute.Артикул`
 
       ensureNodeWithFile(graph, elementId, "Поле", "test/Форма.yaml")
       graph.ensureNode(typeId, { name: "Товары" })
@@ -468,7 +469,7 @@ describe("applyGraphOps", () => {
 
     it("не создаёт ребро, если resolveFormLocalPath вернул undefined (нет первого сегмента)", () => {
       const { graph, formNodeId } = makeFormGraph()
-      const elementId = `${formNodeId}.Элемент.Кнопка`
+      const elementId = `${formNodeId}.Element.Кнопка`
       ensureNodeWithFile(graph, elementId, "Кнопка", "test/Форма.yaml")
 
       const ctx: ApplyGraphOpsContext = {
@@ -488,7 +489,7 @@ describe("applyGraphOps", () => {
 
     it("пробрасывает positionFrom на ребро", () => {
       const { graph, formNodeId } = makeFormGraph()
-      const elementId = `${formNodeId}.Элемент.Кнопка`
+      const elementId = `${formNodeId}.Element.Кнопка`
       ensureNodeWithFile(graph, elementId, "Кнопка", "test/Форма.yaml")
 
       const ctx: ApplyGraphOpsContext = {
@@ -512,7 +513,7 @@ describe("applyGraphOps", () => {
 
     it("пустой formLocalReferences не создаёт рёбер", () => {
       const { graph, formNodeId } = makeFormGraph()
-      const elementId = `${formNodeId}.Элемент.Кнопка`
+      const elementId = `${formNodeId}.Element.Кнопка`
       ensureNodeWithFile(graph, elementId, "Кнопка", "test/Форма.yaml")
 
       const ctx: ApplyGraphOpsContext = {
@@ -572,8 +573,8 @@ describe("applyGraphOps", () => {
 
     it("formLocalReferences.parentOverride меняет источник ребра", () => {
       const ctx = makeCtx()
-      const formNodeId = "Форма.ТестоваяФорма"
-      const attrId = `${formNodeId}.Реквизит.Объект`
+      const formNodeId = "Form.ТестоваяФорма"
+      const attrId = `${formNodeId}.Attribute.Объект`
       ensureNodeWithFile(ctx.graph, formNodeId, "ТестоваяФорма", FILE_PATH)
       ensureNodeWithFile(ctx.graph, attrId, "Объект", FILE_PATH)
       ctx.graph.ensureEdge(formNodeId, attrId, "FORM_ATTRIBUTE", { yaml: "РеквизитФормы" })
@@ -597,6 +598,35 @@ describe("applyGraphOps", () => {
         (e) => e.attributes.kind === "TABLE",
       )
       expect(tableEdges).toHaveLength(0)
+    })
+
+    it("formLocalReferences.fallbackChildKind создаёт typed stub для отсутствующего дочернего узла", () => {
+      const ctx = makeCtx()
+      const formNodeId = "Catalog.Товары.Form.ФормаСписка"
+      const attrId = `${formNodeId}.Attribute.Объект`
+      ensureNodeWithFile(ctx.graph, formNodeId, "ФормаСписка", FILE_PATH)
+      ensureNodeWithFile(ctx.graph, attrId, "Объект", FILE_PATH)
+      ctx.graph.ensureEdge(formNodeId, attrId, "FORM_ATTRIBUTE", { yaml: "РеквизитФормы" })
+      ctx.graph.ensureNode("Catalog.Товары", { name: "Товары" })
+      ctx.graph.ensureEdge(attrId, "Catalog.Товары", "TYPE", { yaml: "Тип" })
+
+      const ops: GraphOps = {
+        formLocalReferences: [
+          {
+            formLocalPath: "Объект.Состав",
+            formNodeId,
+            fallbackChildKind: "TabularSection",
+          },
+        ],
+      }
+      applyGraphOps(ops, { ...ctx, edgeKind: "TABLE", edgeYaml: "Таблица" })
+
+      const tableEdges = [...ctx.graph.outEdgeEntries(PARENT_NODE_ID)].filter(
+        (e) => e.attributes.kind === "TABLE",
+      )
+      expect(tableEdges).toHaveLength(1)
+      expect(tableEdges[0].target).toBe("Catalog.Товары.TabularSection.Состав")
+      expect(ctx.graph.getNodeAttributes(tableEdges[0].target).item).toBeUndefined()
     })
   })
 
@@ -656,12 +686,12 @@ describe("applyGraphOps", () => {
 
       applyGraphOps(ops, ctx)
 
-      expect(ctx.graph.hasNode("FORM_NODE.Элемент.Кнопка")).toBe(true)
+      expect(ctx.graph.hasNode("FORM_NODE.Element.Кнопка")).toBe(true)
       expect(ctx.graph.hasNode(`${PARENT_NODE_ID}.НеИспользуется`)).toBe(false)
 
       const edgesFromForm = [...ctx.graph.outEdgeEntries(edgeFromId)]
       expect(edgesFromForm).toHaveLength(1)
-      expect(edgesFromForm[0].target).toBe("FORM_NODE.Элемент.Кнопка")
+      expect(edgesFromForm[0].target).toBe("FORM_NODE.Element.Кнопка")
 
       expect([...ctx.graph.outEdgeEntries(PARENT_NODE_ID)]).toHaveLength(0)
     })

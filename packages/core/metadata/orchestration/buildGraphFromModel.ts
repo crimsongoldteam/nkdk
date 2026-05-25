@@ -1,4 +1,8 @@
 import { LineCounter } from "yaml"
+import {
+  canonicalizeGraphNodeId,
+  canonicalizeGraphTechnicalSegment,
+} from "~/metadata/commonObjects/metadataPath/graphPath"
 import { applyGraphOps } from "./buildGraph/internal/applyGraphOps"
 import { getKindByYaml } from "./buildGraph/internal/edgeKinds"
 import { GraphBuilder } from "./buildGraph/internal/GraphBuilder"
@@ -56,7 +60,7 @@ export function applyBuildGraphResult(
         lineCounter: recurse.lineCounter ?? ctx.lineCounter,
         rule: recurse.rule,
         graph: ctx.graph,
-        parentNodeId: recurse.parentNodeId,
+        parentNodeId: canonicalizeGraphNodeId(recurse.parentNodeId),
         filePath: ctx.filePath,
         extra: recurse.extra ?? ctx.extra,
       })
@@ -167,7 +171,7 @@ export function buildGraphFromModel(params: {
       if (!idSuffix) continue
 
       const childNodeId = graphChildDef.nodeSegment
-        ? `${parentNodeId}.${graphChildDef.nodeSegment}.${idSuffix}`
+        ? `${parentNodeId}.${canonicalizeGraphTechnicalSegment(graphChildDef.nodeSegment)}.${idSuffix}`
         : `${parentNodeId}.${idSuffix}`
       const itemYamlMap = collectionYamlMap ? findSubmap(collectionYamlMap, idSuffix) : undefined
 

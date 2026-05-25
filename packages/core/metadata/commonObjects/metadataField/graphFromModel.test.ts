@@ -19,7 +19,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Справочник.X.Реквизит.Y
+  - Catalog.X.Attribute.Y
 ` },
       kind: "catalog",
       name: "Товары",
@@ -27,9 +27,9 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       context: baseContext,
     })
 
-    const edges = fieldEdges(graph, "Справочник.Товары")
+    const edges = fieldEdges(graph, "Catalog.Товары")
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Справочник.X.Реквизит.Y")
+    expect(edges[0].target).toBe("Catalog.X.Attribute.Y")
   })
 
   it("реквизит табличной части → полный node ID с ТабличнаяЧасть и Реквизит", () => {
@@ -38,7 +38,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Справочник.Контрагенты.ТабличнаяЧасть.Контакты.Реквизит.Email
+  - Catalog.Контрагенты.TabularSection.Контакты.Attribute.Email
 ` },
       kind: "catalog",
       name: "Товары",
@@ -46,9 +46,9 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       context: baseContext,
     })
 
-    const edges = fieldEdges(graph, "Справочник.Товары")
+    const edges = fieldEdges(graph, "Catalog.Товары")
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Справочник.Контрагенты.ТабличнаяЧасть.Контакты.Реквизит.Email")
+    expect(edges[0].target).toBe("Catalog.Контрагенты.TabularSection.Контакты.Attribute.Email")
   })
 
   it("стандартный реквизит → полный node ID с СтандартныйРеквизит", () => {
@@ -57,7 +57,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Справочник.X.СтандартныйРеквизит.Наименование
+  - Catalog.X.StandardAttribute.Description
 ` },
       kind: "catalog",
       name: "Товары",
@@ -65,9 +65,9 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       context: baseContext,
     })
 
-    const edges = fieldEdges(graph, "Справочник.Товары")
+    const edges = fieldEdges(graph, "Catalog.Товары")
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Справочник.X.СтандартныйРеквизит.Наименование")
+    expect(edges[0].target).toBe("Catalog.X.StandardAttribute.Description")
   })
 
   it("несколько ссылок → несколько рёбер Поле", () => {
@@ -76,9 +76,9 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Справочник.A.Реквизит.П1
-  - Справочник.B.Реквизит.П2
-  - Справочник.C.Реквизит.П3
+  - Catalog.A.Attribute.П1
+  - Catalog.B.Attribute.П2
+  - Catalog.C.Attribute.П3
 ` },
       kind: "catalog",
       name: "Товары",
@@ -86,13 +86,13 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       context: baseContext,
     })
 
-    const edges = fieldEdges(graph, "Справочник.Товары")
+    const edges = fieldEdges(graph, "Catalog.Товары")
     expect(edges).toHaveLength(3)
     const targets = edges.map((e) => e.target).sort()
     expect(targets).toEqual([
-      "Справочник.A.Реквизит.П1",
-      "Справочник.B.Реквизит.П2",
-      "Справочник.C.Реквизит.П3",
+      "Catalog.A.Attribute.П1",
+      "Catalog.B.Attribute.П2",
+      "Catalog.C.Attribute.П3",
     ])
   })
 
@@ -102,8 +102,8 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Справочник.A.Реквизит.П1
-  - Справочник.B.Реквизит.П2
+  - Catalog.A.Attribute.П1
+  - Catalog.B.Attribute.П2
 ` },
       kind: "catalog",
       name: "Товары",
@@ -111,7 +111,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       context: baseContext,
     })
 
-    const edges = fieldEdges(graph, "Справочник.Товары")
+    const edges = fieldEdges(graph, "Catalog.Товары")
     expect(edges).toHaveLength(2)
     const offsets = edges.map((e) => e.attributes.positionFrom?.offset)
     // Оба offset определены и различны — каждый указывает на свой элемент массива
@@ -131,7 +131,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       context: baseContext,
     })
 
-    const edges = fieldEdges(graph, "Справочник.Товары")
+    const edges = fieldEdges(graph, "Catalog.Товары")
     expect(edges).toHaveLength(0)
   })
 })

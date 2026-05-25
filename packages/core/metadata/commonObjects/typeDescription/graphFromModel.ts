@@ -1,4 +1,5 @@
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { canonicalizeMetadataTypeGraphPath } from "~/metadata/commonObjects/metadataPath/graphPath"
 import { GraphOps, GraphOpsReference } from "~/metadata/orchestration/property/fn"
 import { SourcePosition } from "~/metadata/orchestration/property/position"
 import { getTypeDescriptionRule } from "./helper"
@@ -19,11 +20,16 @@ export function extractTypeDescriptionGraph(
     const rule = getTypeDescriptionRule(baseType)
     if (!rule?.modifier || rule.modifier === "alwaysType") continue
 
-    const targetNodeId = `${rule.enterprise}.${detailType}`
+    const targetNodeId = canonicalizeMetadataTypeGraphPath(`${baseType}.${detailType}`)
     references.push({
       id: targetNodeId,
       name: detailType,
       positionFrom: position,
+      edgeProps: baseType.endsWith("Object")
+        ? { typeKind: "object" }
+        : baseType.endsWith("Ref")
+          ? { typeKind: "ref" }
+          : undefined,
     })
   }
 

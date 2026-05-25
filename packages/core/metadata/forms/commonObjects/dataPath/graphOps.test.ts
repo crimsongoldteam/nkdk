@@ -12,7 +12,7 @@ describe("buildDataPathGraphOps", () => {
     expect(result).toEqual({
       references: [
         {
-          id: "Справочник.Товары.Реквизит.Владелец",
+          id: "Catalog.Товары.Attribute.Владелец",
           name: "Владелец",
           edgeProps: {
             property: "dataPath",
@@ -24,6 +24,32 @@ describe("buildDataPathGraphOps", () => {
       edgeKind: "DATA_PATH",
       edgeYaml: "ПутьКДанным",
     })
+  })
+
+  it.each([
+    ["Document.Заказ.StandardAttribute.Date", "Document.Заказ.StandardAttribute.Date"],
+    ["Документ.Заказ.СтандартныйРеквизит.Date", "Document.Заказ.StandardAttribute.Date"],
+    ["DocumentObject.Заказ.Number", "Document.Заказ.StandardAttribute.Number"],
+    ["CatalogObject.Товары.Description", "Catalog.Товары.StandardAttribute.Description"],
+  ])("создаёт canonical DATA_PATH reference для %s", (sourcePath, expectedId) => {
+    const result = buildDataPathGraphOps({
+      sourcePath,
+      propertyName: "dataPath",
+      edgeYaml: "ПутьКДанным",
+    })
+
+    expect(result?.references?.[0].id).toBe(expectedId)
+  })
+
+  it("создаёт TABLE reference с fallback в TabularSection для глобального runtime-пути", () => {
+    const result = buildDataPathGraphOps({
+      sourcePath: "Catalog.Товары.Состав",
+      propertyName: "table",
+      edgeYaml: "Таблица",
+      fallbackChildKind: "TabularSection",
+    })
+
+    expect(result?.references?.[0].id).toBe("Catalog.Товары.TabularSection.Состав")
   })
 
   it("создаёт DATA_PATH formLocalReference для form-local пути", () => {
@@ -50,6 +76,18 @@ describe("buildDataPathGraphOps", () => {
       edgeKind: "DATA_PATH",
       edgeYaml: "ПутьКДаннымПодвала",
     })
+  })
+
+  it("передаёт fallbackChildKind для form-local TABLE пути", () => {
+    const result = buildDataPathGraphOps({
+      sourcePath: "Объект.Состав",
+      propertyName: "table",
+      edgeYaml: "Таблица",
+      formNodeId: "Catalog.Товары.Form.ФормаСписка",
+      fallbackChildKind: "TabularSection",
+    })
+
+    expect(result?.formLocalReferences?.[0].fallbackChildKind).toBe("TabularSection")
   })
 
   it("не создаёт GraphOps для пустого пути", () => {

@@ -1,3 +1,8 @@
+import {
+  canonicalizeGraphChildIdSuffix,
+  canonicalizeGraphNodeId,
+  canonicalizeRuntimeObjectPath,
+} from "~/metadata/commonObjects/metadataPath/graphPath"
 import { GraphOps } from "~/metadata/orchestration/property/fn"
 import { GraphBuilder } from "./GraphBuilder"
 
@@ -29,9 +34,11 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
   const { graph, parentNodeId, filePath, edgeKind, edgeYaml } = ctx
 
   for (const [index, child] of (ops.children ?? []).entries()) {
-    const idParent = child.parentOverride ?? parentNodeId
-    const childNodeId = child.absoluteId ?? `${idParent}.${child.idSuffix}`
-    const edgeSource = child.edgeFrom ?? child.parentOverride ?? parentNodeId
+    const idParent = canonicalizeGraphNodeId(child.parentOverride ?? parentNodeId)
+    const childNodeId = child.absoluteId
+      ? canonicalizeGraphNodeId(child.absoluteId)
+      : `${idParent}.${canonicalizeGraphChildIdSuffix(child.idSuffix)}`
+    const edgeSource = canonicalizeGraphNodeId(child.edgeFrom ?? child.parentOverride ?? parentNodeId)
 
     // Снимок item ДО ensureNode/setItem, чтобы детектить конфликт itemType.
     const existingItem = graph.hasNode(childNodeId)
@@ -64,15 +71,22 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
   }
 
   for (const ref of ops.references ?? []) {
-    graph.ensureNode(ref.id, { name: ref.name })
+    const sourceNodeId = canonicalizeGraphNodeId(ref.parentOverride ?? parentNodeId)
+    const targetNodeId = canonicalizeGraphNodeId(ref.id)
+    graph.ensureNode(targetNodeId, { name: ref.name })
     const edgeAttrs: Record<string, unknown> = { ...sanitizeEdgeProps(ref.edgeProps), yaml: edgeYaml }
     if (ref.positionFrom !== undefined) edgeAttrs.positionFrom = ref.positionFrom
-    graph.ensureEdge(parentNodeId, ref.id, edgeKind, edgeAttrs)
+    graph.ensureEdge(sourceNodeId, targetNodeId, edgeKind, edgeAttrs)
   }
 
   for (const local of ops.formLocalReferences ?? []) {
-    const effectiveParent = local.parentOverride ?? parentNodeId
-    const resolution = resolveFormLocalPath(graph, local.formNodeId, local.formLocalPath)
+    const effectiveParent = canonicalizeGraphNodeId(local.parentOverride ?? parentNodeId)
+    const resolution = resolveFormLocalPath(
+      graph,
+      canonicalizeGraphNodeId(local.formNodeId),
+      local.formLocalPath,
+      local.fallbackChildKind,
+    )
     if (resolution === undefined) continue
     const edgeAttrs: Record<string, unknown> = { ...sanitizeEdgeProps(local.edgeProps), yaml: edgeYaml }
     if (local.positionFrom !== undefined) edgeAttrs.positionFrom = local.positionFrom
@@ -134,6 +148,7 @@ function resolveFormLocalPath(
   graph: GraphBuilder,
   formNodeId: string,
   path: string,
+  fallbackChildKind?: Parameters<typeof canonicalizeRuntimeObjectPath>[1]["defaultChildKind"],
 ): FormLocalPathResolution | undefined {
   if (!path) return undefined
   if (!graph.hasNode(formNodeId)) return undefined
@@ -169,7 +184,11 @@ function resolveFormLocalPath(
     if (typeTargetId === undefined) return undefined
 
     const childByEdge = findChildByName(graph, typeTargetId, segment)
-    const nextNodeId = childByEdge ?? `${typeTargetId}.${segment}`
+    const nextNodeId =
+      childByEdge ??
+      canonicalizeRuntimeObjectPath(`${typeTargetId}.${segment}`, {
+        defaultChildKind: fallbackChildKind,
+      })
 
     if (childByEdge !== undefined) uniquePush(dependencyIds, childByEdge)
 

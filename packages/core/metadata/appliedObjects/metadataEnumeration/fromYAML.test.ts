@@ -53,36 +53,36 @@ describe("importMetadataEnumerationFromYAML — граф значений", () =
   })
 
   it("создаёт узел перечисления", () => {
-    expect(graph.hasNode("Перечисление.СтатусЗаказа")).toBe(true)
+    expect(graph.hasNode("Enum.СтатусЗаказа")).toBe(true)
   })
 
   it("создаёт узел для каждого значения", () => {
-    expect(graph.hasNode("Перечисление.СтатусЗаказа.Открыт")).toBe(true)
-    expect(graph.hasNode("Перечисление.СтатусЗаказа.Закрыт")).toBe(true)
-    expect(graph.hasNode("Перечисление.СтатусЗаказа.Отменён")).toBe(true)
+    expect(graph.hasNode("Enum.СтатусЗаказа.Открыт")).toBe(true)
+    expect(graph.hasNode("Enum.СтатусЗаказа.Закрыт")).toBe(true)
+    expect(graph.hasNode("Enum.СтатусЗаказа.Отменён")).toBe(true)
   })
 
   it("узел значения содержит item с itemType и name", () => {
-    const attrs = graph.getNodeAttributes("Перечисление.СтатусЗаказа.Открыт")
+    const attrs = graph.getNodeAttributes("Enum.СтатусЗаказа.Открыт")
     expect(attrs.item).toMatchObject({ itemType: "MetadataEnumerationValue", name: "Открыт" })
   })
 
   it("узел значения принадлежит правильному файлу", () => {
-    const attrs = graph.getNodeAttributes("Перечисление.СтатусЗаказа.Закрыт")
+    const attrs = graph.getNodeAttributes("Enum.СтатусЗаказа.Закрыт")
     expect(attrs.filePaths[0]).toBe("Перечисление/СтатусЗаказа/Свойства.yml")
   })
 
   it("значения связаны с перечислением composition-рёбрами", () => {
     // Заменяем getDependencies-DSL на прямой обход рёбер через outEdgeEntries
-    const valueEdges = [...graph.outEdgeEntries("Перечисление.СтатусЗаказа")].filter(
+    const valueEdges = [...graph.outEdgeEntries("Enum.СтатусЗаказа")].filter(
       (e) => e.attributes.kind === "ENUM_VALUE",
     )
     const valueNodeIds = valueEdges.map((e) => e.target).sort()
 
     expect(valueNodeIds).toEqual([
-      "Перечисление.СтатусЗаказа.Закрыт",
-      "Перечисление.СтатусЗаказа.Открыт",
-      "Перечисление.СтатусЗаказа.Отменён",
+      "Enum.СтатусЗаказа.Закрыт",
+      "Enum.СтатусЗаказа.Открыт",
+      "Enum.СтатусЗаказа.Отменён",
     ])
     expect(valueEdges.map((e) => e.attributes.yaml)).toEqual([
       "ЗначениеПеречисления",
@@ -108,7 +108,7 @@ describe("importMetadataEnumerationFromYAML — граф значений", () =
       context: mockContext,
     })
 
-    const attrs = graph.getNodeAttributes("Перечисление.СтатусЗаказа.СтандартныйРеквизит.Порядок")
+    const attrs = graph.getNodeAttributes("Enum.СтатусЗаказа.StandardAttribute.Порядок")
     expect(attrs.item).toMatchObject({
       itemType: "StandardAttributeDescription",
       name: "Order",

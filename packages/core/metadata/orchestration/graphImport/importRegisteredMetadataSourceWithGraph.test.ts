@@ -81,7 +81,7 @@ describe("graphImport registry", () => {
 
     expect(result?.model.itemType).toBe("MetadataCatalog")
     expect(graph.hasNode("ТестовыйОбъект.Демо")).toBe(true)
-    expect(graph.hasNode("ТестовыйОбъект.Демо.ПустаяСсылка")).toBe(true)
+    expect(graph.hasNode("ТестовыйОбъект.Демо.EmptyRef")).toBe(true)
 
     const files = walkGraphToFileData(graph)
     expect(files).toContainEqual(
@@ -89,7 +89,7 @@ describe("graphImport registry", () => {
         filePath: "ТестовыйОбъект/Демо/Свойства.yaml",
         declaredNodeIds: expect.arrayContaining([
           "ТестовыйОбъект.Демо",
-          "ТестовыйОбъект.Демо.ПустаяСсылка",
+          "ТестовыйОбъект.Демо.EmptyRef",
         ]),
       }),
     )

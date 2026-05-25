@@ -28,12 +28,13 @@ describe("buildGraph (smoke)", () => {
     const fileSegment = result.find((f) => f.filePath === "Справочник/Контрагенты/Свойства.yaml")
     expect(fileSegment).toBeDefined()
 
-    const root = fileSegment!.nodes.find((n) => n.id === "Справочник.Контрагенты")
+    const root = fileSegment!.nodes.find((n) => n.id === "Catalog.Контрагенты")
     expect(root).toBeDefined()
     expect(root!.label).toBe("MetadataCatalog")
     expect(root!.props.name).toBe("Контрагенты")
     expect(root!.props.filePath).toBeUndefined()
-    expect(fileSegment!.declaredNodeIds).toContain("Справочник.Контрагенты")
+    expect(fileSegment!.declaredNodeIds).toContain("Catalog.Контрагенты")
+    expect(fileSegment!.declaredNodeIds).not.toContain("Справочник.Контрагенты")
   })
 
   it("не дублирует реквизиты справочника в props при прямом импорте buildGraph", async () => {
@@ -46,15 +47,16 @@ describe("buildGraph (smoke)", () => {
     const result = await buildGraph(new Map([[filePath, yaml]]), ctx)
     const fileSegment = result.find((f) => f.filePath === filePath)!
 
-    const root = fileSegment.nodes.find((n) => n.id === "Справочник.Файлы")!
+    const root = fileSegment.nodes.find((n) => n.id === "Catalog.Файлы")!
     expect(Object.keys(root.props).some((key) => key.startsWith("p_attributes_"))).toBe(false)
-    expect(fileSegment.nodes.some((n) => n.id === "Справочник.Файлы.Реквизит.Автор")).toBe(true)
+    expect(fileSegment.nodes.some((n) => n.id === "Catalog.Файлы.Attribute.Автор")).toBe(true)
+    expect(fileSegment.nodes.some((n) => n.id === "Справочник.Файлы.Реквизит.Автор")).toBe(false)
     expect(
       fileSegment.edges.some(
         (e) =>
           e.kind === "ATTRIBUTE" &&
-          e.src === "Справочник.Файлы" &&
-          e.tgt === "Справочник.Файлы.Реквизит.Автор",
+          e.src === "Catalog.Файлы" &&
+          e.tgt === "Catalog.Файлы.Attribute.Автор",
       ),
     ).toBe(true)
   })
@@ -72,10 +74,10 @@ describe("buildGraph (smoke)", () => {
     const fileSegment = result.find((f) => f.filePath === filePath)!
 
     const attr = fileSegment.nodes.find(
-      (n) => n.id === "Справочник.Товары.Реквизит.Характеристика",
+      (n) => n.id === "Catalog.Товары.Attribute.Характеристика",
     )!
     const choice = fileSegment.nodes.find(
-      (n) => n.id === "Справочник.Товары.Реквизит.Характеристика.ПараметрВыбора[0]",
+      (n) => n.id === "Catalog.Товары.Attribute.Характеристика.ПараметрВыбора[0]",
     )!
 
     expect(Object.keys(attr.props).some((key) => key.startsWith("p_choiceParameters_"))).toBe(false)
@@ -83,8 +85,8 @@ describe("buildGraph (smoke)", () => {
     expect(choice.props.name).toBe("Отбор.Владелец")
     expect(fileSegment.edges).toContainEqual(
       expect.objectContaining({
-        src: "Справочник.Товары.Реквизит.Характеристика",
-        tgt: "Справочник.Товары.Реквизит.Характеристика.ПараметрВыбора[0]",
+        src: "Catalog.Товары.Attribute.Характеристика",
+        tgt: "Catalog.Товары.Attribute.Характеристика.ПараметрВыбора[0]",
         kind: "CHOICE_PARAMETER",
         props: expect.objectContaining({ index: 0 }),
       }),
@@ -103,12 +105,12 @@ describe("buildGraph (smoke)", () => {
     const fileSegment = result.find((f) => f.filePath === filePath)!
 
     const attr = fileSegment.nodes.find(
-      (n) => n.id === "Справочник.Товары.Реквизит.Характеристика",
+      (n) => n.id === "Catalog.Товары.Attribute.Характеристика",
     )!
     const link = fileSegment.nodes.find(
       (n) =>
         n.id ===
-        "Справочник.Товары.Реквизит.Характеристика.СвязьПараметровВыбора[0]",
+        "Catalog.Товары.Attribute.Характеристика.СвязьПараметровВыбора[0]",
     )!
 
     expect(Object.keys(attr.props).some((key) => key.startsWith("p_choiceParameterLinks_"))).toBe(
@@ -119,8 +121,8 @@ describe("buildGraph (smoke)", () => {
     expect(link.props.p_valueChange).toBe("DontChange")
     expect(fileSegment.edges).toContainEqual(
       expect.objectContaining({
-        src: "Справочник.Товары.Реквизит.Характеристика",
-        tgt: "Справочник.Товары.Реквизит.Характеристика.СвязьПараметровВыбора[0]",
+        src: "Catalog.Товары.Attribute.Характеристика",
+        tgt: "Catalog.Товары.Attribute.Характеристика.СвязьПараметровВыбора[0]",
         kind: "CHOICE_PARAMETER_LINK",
         props: expect.objectContaining({ index: 0 }),
       }),
@@ -175,9 +177,12 @@ describe("buildGraph (формы)", () => {
     const yaml = result.find((file) => file.filePath.endsWith("Форма.yaml"))!
     const stub = result.find((file) => file.filePath === "")
 
-    expect(yaml.declaredNodeIds).toContain("Справочник.Товары.Форма.ФормаСписка")
-    expect(yaml.declaredNodeIds?.some((id) => id.includes(".Элемент."))).toBe(true)
-    expect(yaml.edges.some((edge) => edge.src.includes(".Элемент.") || edge.tgt.includes(".Элемент."))).toBe(true)
+    expect(yaml.declaredNodeIds).toContain("Catalog.Товары.Form.ФормаСписка")
+    expect(yaml.declaredNodeIds).not.toContain("Справочник.Товары")
+    expect(yaml.declaredNodeIds).not.toContain("Catalog.Товары.Форма.ФормаСписка")
+    expect(yaml.declaredNodeIds?.some((id) => id.includes(".Element."))).toBe(true)
+    expect(yaml.declaredNodeIds?.some((id) => id.includes(".Элемент."))).toBe(false)
+    expect(yaml.edges.some((edge) => edge.src.includes(".Element.") || edge.tgt.includes(".Element."))).toBe(true)
     expect(
       stub?.nodes.every((node) => typeof node.label === "string" && node.label.length > 0),
     ).toBe(true)
@@ -200,7 +205,7 @@ describe("buildGraph (формы)", () => {
       (f) => f.filePath === "Справочник/Контрагенты/Формы/ФормаСписка/Форма.yaml",
     )!
     const formNode = formFile.nodes.find(
-      (n) => n.id === "Справочник.Контрагенты.Форма.ФормаСписка",
+      (n) => n.id === "Catalog.Контрагенты.Form.ФормаСписка",
     )
     expect(formNode).toBeDefined()
     expect(formNode!.label).toBe("ClientApplicationForm")
@@ -211,7 +216,7 @@ describe("buildGraph (формы)", () => {
       (f) => f.filePath === "Справочник/Контрагенты/Свойства.yaml",
     )!
     const formEdge = catalogFile.edges.find(
-      (e) => e.kind === "FORM" && e.tgt === "Справочник.Контрагенты.Форма.ФормаСписка",
+      (e) => e.kind === "FORM" && e.tgt === "Catalog.Контрагенты.Form.ФормаСписка",
     )
     expect(formEdge).toBeDefined()
   })
@@ -232,8 +237,10 @@ describe("buildGraph (формы)", () => {
     )
 
     const nodeIds = result.flatMap((file) => file.nodes.map((node) => node.id))
-    expect(nodeIds).toContain("Обработка.ЗагрузкаДанных")
-    expect(nodeIds).toContain("Обработка.ЗагрузкаДанных.Форма.Форма")
+    expect(nodeIds).toContain("DataProcessor.ЗагрузкаДанных")
+    expect(nodeIds).toContain("DataProcessor.ЗагрузкаДанных.Form.Форма")
+    expect(nodeIds).not.toContain("Обработка.ЗагрузкаДанных")
+    expect(nodeIds).not.toContain("DataProcessor.ЗагрузкаДанных.Форма.Форма")
   })
 })
 
@@ -256,7 +263,7 @@ describe("buildGraph (рёбра и стабы)", () => {
     const enumFile = result.find(
       (f) => f.filePath === "Перечисление/ВидыКонтрагентов/Свойства.yaml",
     )!
-    const root = enumFile.nodes.find((n) => n.id === "Перечисление.ВидыКонтрагентов")
+    const root = enumFile.nodes.find((n) => n.id === "Enum.ВидыКонтрагентов")
     expect(root).toBeDefined()
     // Если в результате есть stub-сегмент — он должен иметь filePath ''.
     const stubSegment = result.find((f) => f.filePath === "")

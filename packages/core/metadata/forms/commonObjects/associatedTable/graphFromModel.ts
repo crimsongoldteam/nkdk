@@ -29,7 +29,7 @@ const buildAssociatedTableGraph: BuildGraphFromModelFunction = ({
   const formNodeId = extra?.formNodeId as string | undefined
   if (!formNodeId) return undefined
 
-  const targetId = `${formNodeId}.Элемент.${model}`
+  const targetId = `${formNodeId}.Element.${model}`
   return {
     references: [{ id: targetId, name: model }],
     edgeKind: EDGE_KIND,

@@ -23,7 +23,7 @@ describe("importMetadataFileWithGraph — catalog", () => {
     })
 
     expect(result?.model.itemType).toBe("MetadataCatalog")
-    expect(graph.hasNode("Справочник.Товары")).toBe(true)
+    expect(graph.hasNode("Catalog.Товары")).toBe(true)
   })
 
   it("возвращает модель и parsed для пустого справочника", async () => {
@@ -57,7 +57,7 @@ describe("importMetadataFileWithGraph — catalog", () => {
       context: baseContext,
     })
 
-    expect(graph.hasNode("Справочник.Товары.Реквизит.ДатаСоздания")).toBe(true)
+    expect(graph.hasNode("Catalog.Товары.Attribute.ДатаСоздания")).toBe(true)
   })
 
   it("добавляет ребро ссылки на TypeDescription в граф", async () => {
@@ -94,7 +94,7 @@ describe("importMetadataFileWithGraph — catalog", () => {
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Товары.Реквизит.Контрагент"
+    const attrNodeId = "Catalog.Товары.Attribute.Контрагент"
     const outEdges = [...graph.outEdgeEntries(attrNodeId)]
     const typeEdges = outEdges.filter((e) => e.attributes.kind === "TYPE")
 
@@ -121,7 +121,7 @@ describe("importMetadataFileWithGraph — catalog", () => {
       context: baseContext,
     })
 
-    const outEdges = [...graph.outEdgeEntries("Справочник.Товары")]
+    const outEdges = [...graph.outEdgeEntries("Catalog.Товары")]
     const fieldEdges = outEdges.filter((e) => e.attributes.kind === "FIELD")
 
     expect(
@@ -131,11 +131,11 @@ describe("importMetadataFileWithGraph — catalog", () => {
       })),
     ).toEqual([
       {
-        target: "Справочник.A.Реквизит.П1",
+        target: "Catalog.A.Attribute.П1",
         positionFrom: { offset: 19, line: 3, column: 5 },
       },
       {
-        target: "Справочник.B.Реквизит.П2",
+        target: "Catalog.B.Attribute.П2",
         positionFrom: { offset: 48, line: 4, column: 5 },
       },
     ])
@@ -174,7 +174,7 @@ describe("importMetadataFileWithGraph — document", () => {
       context: baseContext,
     })
 
-    expect(graph.hasNode("Документ.РасходнаяНакладная.Реквизит.Склад")).toBe(true)
+    expect(graph.hasNode("Document.РасходнаяНакладная.Attribute.Склад")).toBe(true)
   })
 
   it("не дублирует graphChild record-коллекцию в props родительского узла", async () => {
@@ -199,7 +199,7 @@ describe("importMetadataFileWithGraph — document", () => {
     const file = walkGraphToFileData(graph).find(
       (f) => f.filePath === "Документ/Продажа/Свойства.yaml",
     )!
-    const parent = file.nodes.find((n) => n.id === "Документ.Продажа")!
+    const parent = file.nodes.find((n) => n.id === "Document.Продажа")!
 
     expect(Object.keys(parent.props).some((key) => key.startsWith("p_attributes_"))).toBe(false)
   })
@@ -223,7 +223,7 @@ describe("importMetadataFileWithGraph — document", () => {
       context: { version: "2.20", defaultLanguage: "ru" },
     })
 
-    const edges = [...graph.outEdgeEntries("Документ.Продажа")]
+    const edges = [...graph.outEdgeEntries("Document.Продажа")]
       .filter((edge) => edge.attributes.kind === "ATTRIBUTE")
       .map((edge) => ({
         target: edge.target,
@@ -231,9 +231,9 @@ describe("importMetadataFileWithGraph — document", () => {
       }))
 
     expect(edges).toEqual([
-      { target: "Документ.Продажа.Реквизит.First", index: 0 },
-      { target: "Документ.Продажа.Реквизит.Second", index: 1 },
-      { target: "Документ.Продажа.Реквизит.Third", index: 2 },
+      { target: "Document.Продажа.Attribute.First", index: 0 },
+      { target: "Document.Продажа.Attribute.Second", index: 1 },
+      { target: "Document.Продажа.Attribute.Third", index: 2 },
     ])
   })
 
@@ -260,8 +260,8 @@ describe("importMetadataFileWithGraph — document", () => {
     const file = walkGraphToFileData(graph).find(
       (f) => f.filePath === "Справочник/Контрагенты/Свойства.yaml",
     )!
-    const parent = file.nodes.find((n) => n.id === "Справочник.Контрагенты")!
-    const edges = [...graph.outEdgeEntries("Справочник.Контрагенты")]
+    const parent = file.nodes.find((n) => n.id === "Catalog.Контрагенты")!
+    const edges = [...graph.outEdgeEntries("Catalog.Контрагенты")]
       .filter((edge) => edge.attributes.kind === "STANDARD_ATTRIBUTE")
       .map((edge) => edge.attributes.index)
 
@@ -307,8 +307,8 @@ describe("importMetadataFileWithGraph — enumeration", () => {
       context: baseContext,
     })
 
-    expect(graph.hasNode("Перечисление.СтатусЗаказа.Открыт")).toBe(true)
-    expect(graph.hasNode("Перечисление.СтатусЗаказа.Закрыт")).toBe(true)
+    expect(graph.hasNode("Enum.СтатусЗаказа.Открыт")).toBe(true)
+    expect(graph.hasNode("Enum.СтатусЗаказа.Закрыт")).toBe(true)
   })
 })
 
@@ -343,13 +343,13 @@ describe("importMetadataFileWithGraph — MetadataItemLinks (document)", () => {
       context: baseContext,
     })
 
-    const docNodeId = "Документ.ПриёмНаРаботу"
+    const docNodeId = "Document.ПриёмНаРаботу"
     const outEdges = [...graph.outEdgeEntries(docNodeId)]
     const objEdges = outEdges.filter((e) => e.attributes.kind === "OBJECT")
     expect(objEdges).toHaveLength(1)
-    expect(graph.hasNode("Справочник.Контрагенты")).toBe(true)
+    expect(graph.hasNode("Catalog.Контрагенты")).toBe(true)
     // stub-узел не имеет filePaths (в GraphBuilder — пустой массив)
-    expect(graph.getNodeAttributes("Справочник.Контрагенты").filePaths).toEqual([])
+    expect(graph.getNodeAttributes("Catalog.Контрагенты").filePaths).toEqual([])
   })
 
   it("добавляет N рёбер kind Объект с разными позициями для массива Движения", async () => {
@@ -367,13 +367,13 @@ describe("importMetadataFileWithGraph — MetadataItemLinks (document)", () => {
       context: baseContext,
     })
 
-    const docNodeId = "Документ.Накладная"
+    const docNodeId = "Document.Накладная"
     const outEdges = [...graph.outEdgeEntries(docNodeId)]
     const objEdges = outEdges.filter((e) => e.attributes.kind === "OBJECT")
     expect(objEdges).toHaveLength(2)
 
-    expect(graph.hasNode("РегистрСведений.Продажи")).toBe(true)
-    expect(graph.hasNode("РегистрСведений.Закупки")).toBe(true)
+    expect(graph.hasNode("InformationRegister.Продажи")).toBe(true)
+    expect(graph.hasNode("InformationRegister.Закупки")).toBe(true)
 
     expect(
       objEdges.map(({ target, attributes }) => ({
@@ -382,11 +382,11 @@ describe("importMetadataFileWithGraph — MetadataItemLinks (document)", () => {
       })),
     ).toEqual([
       {
-        target: "РегистрСведений.Продажи",
+        target: "InformationRegister.Продажи",
         positionFrom: { offset: 15, line: 3, column: 5 },
       },
       {
-        target: "РегистрСведений.Закупки",
+        target: "InformationRegister.Закупки",
         positionFrom: { offset: 43, line: 4, column: 5 },
       },
     ])
@@ -411,13 +411,13 @@ describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗап�
     })
 
     const file = walkGraphToFileData(graph).find((f) => f.filePath === FILE_PATH)!
-    const attrNode = file.nodes.find((n) => n.id === "Справочник.Товары.Реквизит.Комментарий")!
+    const attrNode = file.nodes.find((n) => n.id === "Catalog.Товары.Attribute.Комментарий")!
 
     expect(attrNode.props.p_fillValue_type).toBe("string")
     expect(attrNode.props.p_fillValue_value).toBe("Черновик")
   })
 
-  it("ref в ЗначениеЗаполнения реквизита → ребро kind Значение к ПустаяСсылка", async () => {
+  it("ref в ЗначениеЗаполнения реквизита → ребро kind Значение к EmptyRef", async () => {
     const graph = new GraphBuilder()
     await importMetadataFileWithGraph({
       filePath: FILE_PATH,
@@ -433,14 +433,14 @@ describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗап�
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Товары.Реквизит.Ответственный"
+    const attrNodeId = "Catalog.Товары.Attribute.Ответственный"
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
     const outEdges = [...graph.outEdgeEntries(attrNodeId)]
     const valEdges = outEdges.filter((e) => e.attributes.kind === "VALUE")
     expect(valEdges).toHaveLength(1)
-    expect(valEdges[0].target).toBe("Справочник.Пользователи.ПустаяСсылка")
-    expect(graph.hasNode("Справочник.Пользователи.ПустаяСсылка")).toBe(true)
+    expect(valEdges[0].target).toBe("Catalog.Пользователи.EmptyRef")
+    expect(graph.hasNode("Catalog.Пользователи.EmptyRef")).toBe(true)
   })
 
   it("ref на значение перечисления → ребро kind Значение к узлу перечисления", async () => {
@@ -459,11 +459,11 @@ describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗап�
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Контрагенты.Реквизит.ВидДоговора"
+    const attrNodeId = "Catalog.Контрагенты.Attribute.ВидДоговора"
     const outEdges = [...graph.outEdgeEntries(attrNodeId)]
     const valEdges = outEdges.filter((e) => e.attributes.kind === "VALUE")
     expect(valEdges).toHaveLength(1)
-    expect(valEdges[0].target).toBe("Перечисление.ВидыДоговоров.СПоставщиком")
+    expect(valEdges[0].target).toBe("Enum.ВидыДоговоров.СПоставщиком")
   })
 
   it("fixedArray из N ref → N рёбер kind Значение с разными позициями", async () => {
@@ -483,7 +483,7 @@ describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗап�
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Статьи.Реквизит.ТипыСчетов"
+    const attrNodeId = "Catalog.Статьи.Attribute.ТипыСчетов"
     const outEdges = [...graph.outEdgeEntries(attrNodeId)]
     const valEdges = outEdges.filter((e) => e.attributes.kind === "VALUE")
     expect(valEdges).toHaveLength(2)
@@ -495,11 +495,11 @@ describe("importMetadataFileWithGraph — MetadataValue (ЗначениеЗап�
       })),
     ).toEqual([
       {
-        target: "Перечисление.ТипыСчетов.КосвенныеЗатраты",
+        target: "Enum.ТипыСчетов.КосвенныеЗатраты",
         positionFrom: { offset: 58, line: 5, column: 9 },
       },
       {
-        target: "Перечисление.ТипыСчетов.Расходы",
+        target: "Enum.ТипыСчетов.Расходы",
         positionFrom: { offset: 107, line: 6, column: 9 },
       },
     ])
@@ -534,7 +534,7 @@ describe("importMetadataFileWithGraph — graphTerminals (ПустаяСсылк
       context: baseContext,
     })
 
-    expect(graph.hasNode("Справочник.Товары.ПустаяСсылка")).toBe(true)
+    expect(graph.hasNode("Catalog.Товары.EmptyRef")).toBe(true)
   })
 
   it("узел ПустаяСсылка имеет item с itemType=EmptyRef и filePaths", async () => {
@@ -548,7 +548,7 @@ describe("importMetadataFileWithGraph — graphTerminals (ПустаяСсылк
       context: baseContext,
     })
 
-    const nodeId = "Справочник.Товары.ПустаяСсылка"
+    const nodeId = "Catalog.Товары.EmptyRef"
     const item = graph.getNodeAttributes(nodeId).item as Record<string, string>
     expect(item.itemType).toBe("EmptyRef")
     expect(item.ownerType).toBe("Справочник")
@@ -578,15 +578,15 @@ describe("importMetadataFileWithGraph — graphTerminals (ПустаяСсылк
       context: baseContext,
     })
 
-    expect(graph.hasNode("Документ.Накладная.ПустаяСсылка")).toBe(true)
-    expect(graph.hasNode("Перечисление.Статус.ПустаяСсылка")).toBe(true)
+    expect(graph.hasNode("Document.Накладная.EmptyRef")).toBe(true)
+    expect(graph.hasNode("Enum.Статус.EmptyRef")).toBe(true)
   })
 
   it("stub-узел ПустаяСсылка, созданный до импорта владельца, повышается до полного через promoteNode", async () => {
     const graph = new GraphBuilder()
 
     // Эмулируем стаб: другой объект ссылается на ПустаяСсылка до импорта Товары
-    const stubId = "Справочник.Товары.ПустаяСсылка"
+    const stubId = "Catalog.Товары.EmptyRef"
     graph.ensureNode(stubId, { name: "ПустаяСсылка" })
     expect(graph.getNodeAttributes(stubId).item).toBeUndefined()
 
@@ -608,7 +608,7 @@ describe("importMetadataFileWithGraph — graphTerminals (ПустаяСсылк
 
 describe("importMetadataFileWithGraph — form", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
-  const OWNER_NODE_ID = "Справочник.Товары"
+  const OWNER_NODE_ID = "Catalog.Товары"
 
   it("создаёт form-узел с owning-ребром Форма от владельца", async () => {
     const graph = new GraphBuilder()
@@ -622,7 +622,7 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
+    const formNodeId = `${OWNER_NODE_ID}.Form.ФормаСписка`
     expect(graph.hasNode(formNodeId)).toBe(true)
 
     const outEdges = [...graph.outEdgeEntries(OWNER_NODE_ID)]
@@ -643,7 +643,7 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
+    const formNodeId = `${OWNER_NODE_ID}.Form.ФормаСписка`
     const attrs = graph.getNodeAttributes(formNodeId)
     expect(attrs.filePaths).toContain(YAML_PATH)
   })
@@ -669,11 +669,11 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
+    const formNodeId = `${OWNER_NODE_ID}.Form.ФормаСписка`
     const formFile = walkGraphToFileData(graph).find((file) => file.filePath === YAML_PATH)!
 
     expect(formFile.declaredNodeIds).toContain(formNodeId)
-    expect(formFile.declaredNodeIds?.some((id) => id.startsWith(`${formNodeId}.Элемент.`))).toBe(true)
+    expect(formFile.declaredNodeIds?.some((id) => id.startsWith(`${formNodeId}.Element.`))).toBe(true)
 
     const root = formFile.nodes.find((node) => node.id === formNodeId)!
     expect(Object.keys(root.props).some((key) => key.startsWith("p_childItems_"))).toBe(false)
@@ -682,7 +682,7 @@ describe("importMetadataFileWithGraph — form", () => {
 
   it("не обходит все узлы графа после построения визуальных элементов формы", async () => {
     const graph = new GraphBuilder()
-    graph.ensureNode("Справочник.Другой.Форма.ФормаСписка.Элемент.Чужой")
+    graph.ensureNode("Catalog.Другой.Form.ФормаСписка.Element.Чужой")
 
     const nodesSpy = vi.spyOn(graph, "nodes")
 
@@ -740,8 +740,8 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
-    const attrNodeId = `${formNodeId}.Реквизит.Контрагент`
+    const formNodeId = `${OWNER_NODE_ID}.Form.ФормаСписка`
+    const attrNodeId = `${formNodeId}.Attribute.Контрагент`
 
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
@@ -770,14 +770,14 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
-    const attrNodeId = `${formNodeId}.Реквизит.Контрагент`
+    const formNodeId = `${OWNER_NODE_ID}.Form.ФормаСписка`
+    const attrNodeId = `${formNodeId}.Attribute.Контрагент`
 
     const refEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
       (e) => e.attributes.kind === "TYPE",
     )
     expect(refEdges).toHaveLength(1)
-    expect(refEdges[0].target).toBe("Справочник.Контрагенты")
+    expect(refEdges[0].target).toBe("Catalog.Контрагенты")
   })
 
   it("реквизит формы с valueType → reference-ребро ТипЗначения к целевому узлу", async () => {
@@ -798,14 +798,14 @@ describe("importMetadataFileWithGraph — form", () => {
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const formNodeId = `${OWNER_NODE_ID}.Форма.ФормаСписка`
-    const attrNodeId = `${formNodeId}.Реквизит.СписокТоваров`
+    const formNodeId = `${OWNER_NODE_ID}.Form.ФормаСписка`
+    const attrNodeId = `${formNodeId}.Attribute.СписокТоваров`
 
     const refEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
       (e) => e.attributes.kind === "VALUE_TYPE",
     )
     expect(refEdges).toHaveLength(1)
-    expect(refEdges[0].target).toBe("Справочник.Товары")
+    expect(refEdges[0].target).toBe("Catalog.Товары")
   })
 
   it("реквизиты catalog сохраняют ребро kind Тип после изменения правила yaml-name", async () => {
@@ -827,19 +827,19 @@ describe("importMetadataFileWithGraph — form", () => {
       context: baseContext,
     })
 
-    const attrNodeId = "Справочник.Товары.Реквизит.Контрагент"
+    const attrNodeId = "Catalog.Товары.Attribute.Контрагент"
     const refEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
       (e) => e.attributes.kind === "TYPE",
     )
     expect(refEdges).toHaveLength(1)
-    expect(refEdges[0].target).toBe("Справочник.Контрагенты")
+    expect(refEdges[0].target).toBe("Catalog.Контрагенты")
   })
 })
 
 describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
-  const OWNER_NODE_ID = "Справочник.Товары"
-  const FORM_NODE_ID = `${OWNER_NODE_ID}.Форма.ФормаСписка`
+  const OWNER_NODE_ID = "Catalog.Товары"
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.Form.ФормаСписка`
 
   it("колонки реквизита-таблицы → узлы с owning-ребром КолонкаФормы", async () => {
     const graph = new GraphBuilder()
@@ -864,7 +864,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)"
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const attrNodeId = `${FORM_NODE_ID}.Реквизит.Таблица`
+    const attrNodeId = `${FORM_NODE_ID}.Attribute.Таблица`
     const col1NodeId = `${attrNodeId}.Колонка1`
     const col2NodeId = `${attrNodeId}.Колонка2`
 
@@ -900,14 +900,14 @@ describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)"
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const colNodeId = `${FORM_NODE_ID}.Реквизит.Таблица.Контрагент`
+    const colNodeId = `${FORM_NODE_ID}.Attribute.Таблица.Контрагент`
     expect(graph.hasNode(colNodeId)).toBe(true)
 
     const typeEdges = [...graph.outEdgeEntries(colNodeId)].filter(
       (e) => e.attributes.kind === "TYPE",
     )
     expect(typeEdges).toHaveLength(1)
-    expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
+    expect(typeEdges[0].target).toBe("Catalog.Контрагенты")
   })
 
   it("пустые колонки реквизита → узлов КолонкаФормы не создаётся", async () => {
@@ -928,7 +928,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)"
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const attrNodeId = `${FORM_NODE_ID}.Реквизит.Обычный`
+    const attrNodeId = `${FORM_NODE_ID}.Attribute.Обычный`
     const colEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
       (e) => e.attributes.kind === "FORM_COLUMN",
     )
@@ -938,8 +938,8 @@ describe("importMetadataFileWithGraph — form, FormAttributeColumns (PRD #115)"
 
 describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (PRD #116)", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
-  const OWNER_NODE_ID = "Справочник.Товары"
-  const FORM_NODE_ID = `${OWNER_NODE_ID}.Форма.ФормаСписка`
+  const OWNER_NODE_ID = "Catalog.Товары"
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.Form.ФормаСписка`
 
   it("дополнительные колонки → прокси-узел + ДополнениеТаблицы + Таблица + ДополнительнаяКолонка", async () => {
     const graph = new GraphBuilder()
@@ -983,7 +983,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const attrNodeId = `${FORM_NODE_ID}.Реквизит.ДопКолонки`
+    const attrNodeId = `${FORM_NODE_ID}.Attribute.ДопКолонки`
     const proxyNodeId = `${attrNodeId}.Состав`
     const colNodeId = `${proxyNodeId}.ДопКолонка`
 
@@ -1005,7 +1005,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
       (e) => e.attributes.kind === "TABLE",
     )
     expect(tableEdges).toHaveLength(1)
-    expect(tableEdges[0].target).toBe("Справочник.Товары.ТабличнаяЧасть.Состав")
+    expect(tableEdges[0].target).toBe("Catalog.Товары.TabularSection.Состав")
 
     // Узел колонки создан с owning-ребром ДополнительнаяКолонка
     expect(graph.hasNode(colNodeId)).toBe(true)
@@ -1039,7 +1039,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const attrNodeId = `${FORM_NODE_ID}.Реквизит.ДопКолонки`
+    const attrNodeId = `${FORM_NODE_ID}.Attribute.ДопКолонки`
     const proxyNodeId = `${attrNodeId}.Состав`
     const colNodeId = `${proxyNodeId}.Контрагент`
 
@@ -1049,7 +1049,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
       (e) => e.attributes.kind === "TYPE",
     )
     expect(typeEdges).toHaveLength(1)
-    expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
+    expect(typeEdges[0].target).toBe("Catalog.Контрагенты")
   })
 
   it("форма импортируется до владельца → Таблица-ребро ведёт на заглушку ТЧ", async () => {
@@ -1076,7 +1076,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const proxyNodeId = `${FORM_NODE_ID}.Реквизит.ДопКолонки.Состав`
+    const proxyNodeId = `${FORM_NODE_ID}.Attribute.ДопКолонки.Состав`
 
     // Таблица-ребро ведёт на заглушку
     const tableEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
@@ -1084,12 +1084,11 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     )
     expect(tableEdges).toHaveLength(1)
     const stubId = tableEdges[0].target
-    expect(stubId).toBe("Справочник.Товары.Состав")
+    expect(stubId).toBe("Catalog.Товары.TabularSection.Состав")
     // Заглушка не имеет item
     expect(graph.getNodeAttributes(stubId).item).toBeUndefined()
 
-    // После импорта владельца — ТЧ создаётся по новому полному пути с сегментом ТабличнаяЧасть
-    // Заглушка на старом пути НЕ повышается (будет исправлено в Slice 2 при переписи resolveFormLocalPath)
+    // После импорта владельца — ТЧ создаётся по тому же canonical-id и повышает stub
     await importMetadataFileWithGraph({
       filePath: "Справочник/Товары/Свойства.yaml",
       sources: {
@@ -1108,17 +1107,16 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     })
 
     // Реальная ТЧ создана по новому пути
-    expect(graph.hasNode("Справочник.Товары.ТабличнаяЧасть.Состав")).toBe(true)
-    expect(graph.getNodeAttributes("Справочник.Товары.ТабличнаяЧасть.Состав").item).toBeDefined()
-    // Заглушка на старом пути остаётся без item
-    expect(graph.getNodeAttributes(stubId).item).toBeUndefined()
+    expect(graph.hasNode("Catalog.Товары.TabularSection.Состав")).toBe(true)
+    expect(graph.getNodeAttributes("Catalog.Товары.TabularSection.Состав").item).toBeDefined()
+    expect(graph.getNodeAttributes(stubId).item).toBeDefined()
   })
 })
 
 describe("importMetadataFileWithGraph — form, FormParameters (PRD #120)", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
-  const OWNER_NODE_ID = "Справочник.Товары"
-  const FORM_NODE_ID = `${OWNER_NODE_ID}.Форма.ФормаСписка`
+  const OWNER_NODE_ID = "Catalog.Товары"
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.Form.ФормаСписка`
 
   it("создаёт узел параметра формы с owning-ребром ПараметрФормы", async () => {
     const graph = new GraphBuilder()
@@ -1138,7 +1136,7 @@ describe("importMetadataFileWithGraph — form, FormParameters (PRD #120)", () =
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const paramNodeId = `${FORM_NODE_ID}.Параметр.Период`
+    const paramNodeId = `${FORM_NODE_ID}.Parameter.Период`
     expect(graph.hasNode(paramNodeId)).toBe(true)
 
     const owningEdges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(
@@ -1166,19 +1164,19 @@ describe("importMetadataFileWithGraph — form, FormParameters (PRD #120)", () =
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const paramNodeId = `${FORM_NODE_ID}.Параметр.Контрагент`
+    const paramNodeId = `${FORM_NODE_ID}.Parameter.Контрагент`
     const typeEdges = [...graph.outEdgeEntries(paramNodeId)].filter(
       (e) => e.attributes.kind === "TYPE",
     )
     expect(typeEdges).toHaveLength(1)
-    expect(typeEdges[0].target).toBe("Справочник.Контрагенты")
+    expect(typeEdges[0].target).toBe("Catalog.Контрагенты")
   })
 })
 
 describe("importMetadataFileWithGraph — form, DataPath-рёбра (PRD #118)", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаЭлемента/Свойства.yaml"
-  const OWNER_NODE_ID = "Справочник.Товары"
-  const FORM_NODE_ID = `${OWNER_NODE_ID}.Форма.ФормаЭлемента`
+  const OWNER_NODE_ID = "Catalog.Товары"
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.Form.ФормаЭлемента`
 
   it("реквизит формы с Тип: Справочник.Товары создаёт ребро Тип (база для resolveFormLocalPath)", async () => {
     const graph = new GraphBuilder()
@@ -1199,21 +1197,21 @@ describe("importMetadataFileWithGraph — form, DataPath-рёбра (PRD #118)",
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const attrNodeId = `${FORM_NODE_ID}.Реквизит.Объект`
+    const attrNodeId = `${FORM_NODE_ID}.Attribute.Объект`
     expect(graph.hasNode(attrNodeId)).toBe(true)
 
     const typeEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
       (e) => e.attributes.kind === "TYPE",
     )
     expect(typeEdges).toHaveLength(1)
-    expect(typeEdges[0].target).toBe("Справочник.Товары")
+    expect(typeEdges[0].target).toBe("Catalog.Товары")
   })
 })
 
 describe("importMetadataFileWithGraph — form, FormCommands (PRD #121)", () => {
   const YAML_PATH = "Справочник/Товары/Формы/ФормаСписка/Свойства.yaml"
-  const OWNER_NODE_ID = "Справочник.Товары"
-  const FORM_NODE_ID = `${OWNER_NODE_ID}.Форма.ФормаСписка`
+  const OWNER_NODE_ID = "Catalog.Товары"
+  const FORM_NODE_ID = `${OWNER_NODE_ID}.Form.ФормаСписка`
 
   it("создаёт узел команды формы с owning-ребром КомандаФормы", async () => {
     const graph = new GraphBuilder()
@@ -1233,7 +1231,7 @@ describe("importMetadataFileWithGraph — form, FormCommands (PRD #121)", () => 
       ownerNodeId: OWNER_NODE_ID,
     })
 
-    const cmdNodeId = `${FORM_NODE_ID}.Команда.ОткрытьВнешний`
+    const cmdNodeId = `${FORM_NODE_ID}.Command.ОткрытьВнешний`
     expect(graph.hasNode(cmdNodeId)).toBe(true)
 
     const owningEdges = [...graph.outEdgeEntries(FORM_NODE_ID)].filter(
