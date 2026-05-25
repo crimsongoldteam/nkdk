@@ -68,6 +68,20 @@ describe("bulk write", () => {
     ])
   })
 
+  it("возвращает статистику отправленных команд", async () => {
+    const result = await writeBulkCommands(
+      {} as GraphConnection,
+      [{
+        begin: true,
+        nodeCount: 2,
+        edgeCount: 0,
+        blobs: [{ kind: "node", name: "A", count: 2, buffer: Buffer.from("xx") }],
+      }],
+    )
+
+    expect(result).toEqual({ commands: 1, nodeBlobs: 1, edgeBlobs: 0, totalBytes: 2 })
+  })
+
   it("отправляет GRAPH.BULK команды окном до 5 запросов", async () => {
     const resolvers: Array<() => void> = []
     mocks.rawCommand.mockImplementation(

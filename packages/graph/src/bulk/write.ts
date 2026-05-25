@@ -20,6 +20,13 @@ export interface BulkCommand {
   blobs: BulkWriteBlob[]
 }
 
+export interface BulkWriteStats {
+  commands: number
+  nodeBlobs: number
+  edgeBlobs: number
+  totalBytes: number
+}
+
 export interface BulkWriteOptions {
   concurrency?: number
 }
@@ -69,9 +76,15 @@ export const writeBulkCommands = async (
   conn: GraphConnection,
   commands: readonly BulkCommand[],
   opts: BulkWriteOptions = {},
-): Promise<void> => {
+): Promise<BulkWriteStats> => {
   const graphName = graphNameOf(conn)
   const concurrency = opts.concurrency ?? DEFAULT_CONCURRENCY
+  const stats: BulkWriteStats = {
+    commands: commands.length,
+    nodeBlobs: commands.reduce((sum, command) => sum + command.blobs.filter((blob) => blob.kind === "node").length, 0),
+    edgeBlobs: commands.reduce((sum, command) => sum + command.blobs.filter((blob) => blob.kind === "edge").length, 0),
+    totalBytes: commands.reduce((sum, command) => sum + commandBytes(command), 0),
+  }
 
   const send = async (command: BulkCommand): Promise<void> => {
     const nodeBlobs = command.blobs.filter((blob) => blob.kind === "node")
@@ -93,4 +106,5 @@ export const writeBulkCommands = async (
   for (let i = 0; i < commands.length; i += concurrency) {
     await Promise.all(commands.slice(i, i + concurrency).map(send))
   }
+  return stats
 }

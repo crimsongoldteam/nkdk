@@ -2,9 +2,9 @@ import { deleteGraph, query } from "../internal/connection"
 import type { GraphConnection } from "../internal/connection"
 import { ensureFileIndexes, ensureLabelIndexes, validateReplacePayload } from "../internal/operations"
 import type { FileGraphData, GraphProgress } from "../types"
-import { encodeEdgeBlobs, encodeNodeBlobs } from "./encoder"
 import { createBulkPlan } from "./plan"
-import { buildBulkCommands, writeBulkCommands } from "./write"
+import { buildBulkTokenCommands } from "./stream"
+import { writeBulkCommands } from "./write"
 
 interface BulkReplaceOptions {
   maxBlobBytes?: number
@@ -38,16 +38,20 @@ export const replaceGraphBulk = async (
     return created
   })()
 
-  const nodeBlobs = plan.nodeGroups.flatMap((group) =>
-    encodeNodeBlobs(group.label, group.nodes).map((blob) => ({ kind: "node" as const, ...blob })),
-  )
-  const edgeBlobs = plan.edgeGroups.flatMap((group) =>
-    encodeEdgeBlobs(group.kind, group.edges).map((blob) => ({ kind: "edge" as const, ...blob })),
-  )
-  const commands = buildBulkCommands([...nodeBlobs, ...edgeBlobs], {
-    maxBlobBytes: opts.maxBlobBytes,
+  const { commands, stats } = buildBulkTokenCommands({
+    nodeGroups: plan.nodeGroups,
+    edgeGroups: plan.edgeGroups,
+  }, {
+    maxTokenBytes: opts.maxBlobBytes,
     maxCommandBytes: opts.maxCommandBytes,
   })
+
+  if (process.env["DEBUG"]) {
+    console.log(`bulkCommands      ${stats.commands}`)
+    console.log(`bulkNodeBlobs     ${stats.nodeBlobs}`)
+    console.log(`bulkEdgeBlobs     ${stats.edgeBlobs}`)
+    console.log(`bulkBytes         ${stats.totalBytes}`)
+  }
 
   await report("bulkWrite", opts.onProgress, async () => {
     await writeBulkCommands(conn, commands)
