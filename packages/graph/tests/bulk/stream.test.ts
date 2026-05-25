@@ -80,10 +80,15 @@ describe("bulk stream", () => {
 
     const nodeBlobs = commands[0]!.blobs.filter((blob) => blob.kind === "node")
     const edgeBlob = commands[0]!.blobs.find((blob) => blob.kind === "edge")!
+    const firstNodeBlobText = nodeBlobs[0]!.buffer.toString("utf8")
+    const secondNodeBlobText = nodeBlobs[1]!.buffer.toString("utf8")
     expect(nodeBlobs).toHaveLength(2)
-    expect(nodeBlobs[0]!.buffer.toString("utf8")).toContain("A\0")
-    expect(nodeBlobs[0]!.buffer.toString("utf8")).toContain("C\0")
-    expect(nodeBlobs[1]!.buffer.toString("utf8")).toContain("B\0")
+    expect(firstNodeBlobText).toContain("A\0")
+    expect(firstNodeBlobText).toContain("C\0")
+    expect(secondNodeBlobText).toContain("B\0")
+    expect(firstNodeBlobText).not.toContain("B\0")
+    expect(secondNodeBlobText).not.toContain("A\0")
+    expect(secondNodeBlobText).not.toContain("C\0")
     expect(stats.nodeBlobs).toBe(2)
 
     const edgeRowOffset = rowOffset(edgeBlob.buffer, "VALUE", [])
