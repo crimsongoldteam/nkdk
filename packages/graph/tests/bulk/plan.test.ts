@@ -3,7 +3,7 @@ import { createBulkPlan } from "../../src/bulk/plan"
 import type { FileGraphData } from "../../src/types"
 
 describe("bulk plan", () => {
-  it("назначает стабильные numeric IDs для File, предметных узлов и stub-узлов", () => {
+  it("пропускает связи с отсутствующими узлами как обычный replace-путь", () => {
     const files: FileGraphData[] = [
       {
         filePath: "a.yaml",
@@ -17,23 +17,20 @@ describe("bulk plan", () => {
 
     const plan = createBulkPlan(files)
 
-    expect(plan.nodeCount).toBe(3)
-    expect(plan.edgeCount).toBe(3)
+    expect(plan.nodeCount).toBe(2)
+    expect(plan.edgeCount).toBe(1)
     expect(plan.nodeIdByLogicalId).toEqual(new Map([
       ["a.yaml", 0],
       ["A", 1],
-      ["Missing", 2],
     ]))
     expect(plan.nodeGroups.map((group) => [group.label, group.nodes.map((node) => node.id)])).toEqual([
       ["File", [0]],
       ["MetadataCatalog", [1]],
-      ["GraphStub", [2]],
     ])
     expect(plan.labels).not.toContain("GraphNode")
+    expect(plan.labels).not.toContain("GraphStub")
     expect(plan.edgeGroups.map((group) => [group.kind, group.edges.map((edge) => [edge.src, edge.tgt])])).toEqual([
-      ["VALUE", [[1, 2]]],
       ["DECLARES", [[0, 1]]],
-      ["CONTRIBUTES", [[0, 2]]],
     ])
   })
 })
