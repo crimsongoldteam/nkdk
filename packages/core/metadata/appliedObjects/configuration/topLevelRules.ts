@@ -34,6 +34,7 @@ import { MetadataCommandGroupRules } from "../metadataCommandGroup/rules"
 import { MetadataCommonFormRules } from "../metadataCommonForm/rules"
 import { MetadataCommonPictureRules } from "../metadataCommonPicture/rules"
 import { MetadataCommonTemplateRules } from "../metadataCommonTemplate/rules"
+import { MetadataConstantRules } from "../metadataConstant/rules"
 import { MetadataStyleRules } from "../metadataStyle/rules"
 import { MetadataStyleItemRules } from "../metadataStyleItem/rules"
 import { MetadataSubsystemRules } from "../metadataSubsystem/rules"
@@ -73,6 +74,7 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataCommonPictureRules,
   MetadataStyleRules,
   MetadataCommandGroupRules,
+  MetadataConstantRules,
   MetadataSubsystemRules,
   MetadataAccountingRegisterRules,
   MetadataSettingsStorageRules,
