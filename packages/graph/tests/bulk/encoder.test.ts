@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest"
 import {
   BulkPropertyType,
+  encodeEdgeBlobs,
   encodeBulkHeader,
   encodeBulkValue,
+  encodeNodeBlobs,
   normalizeBulkProperties,
 } from "../../src/bulk/encoder"
 
@@ -41,5 +43,43 @@ describe("bulk encoder", () => {
     expect(encoded.toString("utf8")).toContain("id\0")
     expect(encoded.toString("utf8")).toContain("name\0")
     expect(encoded.readUInt32LE(Buffer.byteLength("MetadataCatalog") + 1)).toBe(2)
+  })
+})
+
+describe("bulk blob encoder", () => {
+  it("кодирует node blob с header и свойствами в стабильном порядке", () => {
+    const blobs = encodeNodeBlobs("MetadataCatalog", [
+      { id: 0, logicalId: "A", props: { id: "A", name: "A", enabled: true } },
+      { id: 1, logicalId: "B", props: { id: "B", name: "B", enabled: false } },
+    ])
+
+    expect(blobs).toHaveLength(1)
+    expect(blobs[0]!.count).toBe(2)
+    expect(blobs[0]!.buffer.toString("utf8")).toContain("MetadataCatalog\0")
+    expect(blobs[0]!.buffer.toString("utf8")).toContain("enabled\0")
+    expect(blobs[0]!.buffer.toString("utf8")).toContain("id\0")
+    expect(blobs[0]!.buffer.toString("utf8")).toContain("name\0")
+  })
+
+  it("разбивает blob при конфликте типов одного свойства", () => {
+    const blobs = encodeNodeBlobs("MetadataCatalog", [
+      { id: 0, logicalId: "A", props: { id: "A", value: "1" } },
+      { id: 1, logicalId: "B", props: { id: "B", value: 1 } },
+    ])
+
+    expect(blobs).toHaveLength(2)
+    expect(blobs.map((blob) => blob.count)).toEqual([1, 1])
+  })
+
+  it("кодирует edge blob с source и target numeric IDs", () => {
+    const blobs = encodeEdgeBlobs("VALUE", [
+      { src: 0, tgt: 1, props: { yaml: "Реквизит", index: 2 } },
+    ])
+
+    expect(blobs).toHaveLength(1)
+    const buffer = blobs[0]!.buffer
+    const headerEnd = buffer.indexOf("yaml\0", "utf8") + Buffer.byteLength("yaml\0")
+    expect(buffer.readBigUInt64LE(headerEnd)).toBe(0n)
+    expect(buffer.readBigUInt64LE(headerEnd + 8)).toBe(1n)
   })
 })

@@ -93,3 +93,81 @@ export const encodeBulkHeader = (name: string, propertyNames: readonly string[])
     uint32(propertyNames.length),
     ...propertyNames.map(nulString),
   ])
+
+export interface EncodedBulkBlob {
+  name: string
+  count: number
+  buffer: Buffer
+}
+
+interface NodeLike {
+  props: BulkProperties
+}
+
+interface EdgeLike {
+  src: number
+  tgt: number
+  props: BulkProperties
+}
+
+const uint64 = (value: number): Buffer => {
+  const buffer = Buffer.allocUnsafe(8)
+  buffer.writeBigUInt64LE(BigInt(value), 0)
+  return buffer
+}
+
+const valueSignature = (value: BulkValue): string => {
+  if (Array.isArray(value)) return `array:${typeof value[0]}`
+  if (typeof value === "number") return Number.isSafeInteger(value) ? "long" : "double"
+  return typeof value
+}
+
+const schemaKey = (props: BulkProperties): string =>
+  Object.entries(props)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => `${key}:${valueSignature(value)}`)
+    .join("|")
+
+const propertyNamesFor = (props: BulkProperties): string[] =>
+  Object.keys(props).sort((a, b) => a.localeCompare(b))
+
+const groupBySchema = <T extends NodeLike | EdgeLike>(records: readonly T[]): T[][] => {
+  const groups = new Map<string, T[]>()
+  for (const record of records) {
+    const key = schemaKey(record.props)
+    const group = groups.get(key)
+    if (group === undefined) groups.set(key, [record])
+    else group.push(record)
+  }
+  return [...groups.values()]
+}
+
+export const encodeNodeBlobs = (label: string, nodes: readonly NodeLike[]): EncodedBulkBlob[] =>
+  groupBySchema(nodes).map((group) => {
+    const propertyNames = propertyNamesFor(group[0]?.props ?? {})
+    const records = group.map((node) =>
+      Buffer.concat(propertyNames.map((name) => encodeBulkValue(node.props[name]!))),
+    )
+    return {
+      name: label,
+      count: group.length,
+      buffer: Buffer.concat([encodeBulkHeader(label, propertyNames), ...records]),
+    }
+  })
+
+export const encodeEdgeBlobs = (kind: string, edges: readonly EdgeLike[]): EncodedBulkBlob[] =>
+  groupBySchema(edges).map((group) => {
+    const propertyNames = propertyNamesFor(group[0]?.props ?? {})
+    const records = group.map((edge) =>
+      Buffer.concat([
+        uint64(edge.src),
+        uint64(edge.tgt),
+        ...propertyNames.map((name) => encodeBulkValue(edge.props[name]!)),
+      ]),
+    )
+    return {
+      name: kind,
+      count: group.length,
+      buffer: Buffer.concat([encodeBulkHeader(kind, propertyNames), ...records]),
+    }
+  })
