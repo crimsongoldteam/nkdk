@@ -52,7 +52,7 @@ export const deleteGraph = async (conn: GraphConnection): Promise<void> => {
     await asInternal(conn).graph.delete()
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    if (!/does not exist|not found|no such graph/i.test(msg)) throw err
+    if (!/does not exist|not found|no such graph|empty key/i.test(msg)) throw err
   }
 }
 

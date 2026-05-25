@@ -22,7 +22,7 @@ export interface BulkCommand {
 
 const DEFAULT_LIMITS: BulkWriteLimits = {
   maxBlobBytes: 256 * 1024 * 1024,
-  maxCommandBytes: 768 * 1024 * 1024,
+  maxCommandBytes: 64 * 1024 * 1024,
 }
 
 const commandBytes = (command: BulkCommand): number =>
