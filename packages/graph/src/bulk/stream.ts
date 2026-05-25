@@ -69,22 +69,21 @@ const addToBucket = <T extends RecordWithProps>(
 
 const bucketByConflictingTypes = <T extends RecordWithProps>(records: readonly T[]): SchemaBucket<T>[] => {
   const buckets: SchemaBucket<T>[] = []
-  let current: SchemaBucket<T> | undefined
 
   for (const record of records) {
     const entries = propertyTypeEntries(record.props)
-    if (current !== undefined && canAddToBucket(current, entries)) {
-      addToBucket(current, record, entries)
+    const bucket = buckets.find((candidate) => canAddToBucket(candidate, entries))
+    if (bucket !== undefined) {
+      addToBucket(bucket, record, entries)
       continue
     }
 
     const typesByProperty = new Map(entries)
-    current = {
+    buckets.push({
       propertyNames: [...typesByProperty.keys()].sort((a, b) => a.localeCompare(b)),
       typesByProperty,
       records: [record],
-    }
-    buckets.push(current)
+    })
   }
 
   return buckets
@@ -99,10 +98,15 @@ const uint64 = (value: number): Buffer => {
 const encodeNodeRecord = (record: BulkNodeRecord, propertyNames: readonly string[]): Buffer =>
   Buffer.concat(propertyNames.map((name) => encodeBulkValue(record.props[name] ?? null)))
 
-const encodeEdgeRecord = (record: BulkEdgeRecord, propertyNames: readonly string[]): Buffer =>
+interface RemappedEdgeRecord extends BulkEdgeRecord {
+  bulkSrc: number
+  bulkTgt: number
+}
+
+const encodeEdgeRecord = (record: RemappedEdgeRecord, propertyNames: readonly string[]): Buffer =>
   Buffer.concat([
-    uint64(record.src),
-    uint64(record.tgt),
+    uint64(record.bulkSrc),
+    uint64(record.bulkTgt),
     ...propertyNames.map((name) => encodeBulkValue(record.props[name] ?? null)),
   ])
 
@@ -121,6 +125,8 @@ export const buildBulkTokenCommands = (
   const commands: BulkCommand[] = []
   const stats: BulkTokenStats = { commands: 0, nodeBlobs: 0, edgeBlobs: 0, totalBytes: 0 }
   let current = createEmptyCommand(true)
+  const nodeIdRemap = new Map<number, number>()
+  let nextBulkNodeId = 0
 
   const flushCommand = (): void => {
     if (current.blobs.length === 0) return
@@ -147,6 +153,12 @@ export const buildBulkTokenCommands = (
       current.edgeCount += blob.count
       stats.edgeBlobs += 1
     }
+  }
+
+  const encodeNodeRecordWithRemap = (record: BulkNodeRecord, propertyNames: readonly string[]): Buffer => {
+    nodeIdRemap.set(record.id, nextBulkNodeId)
+    nextBulkNodeId += 1
+    return encodeNodeRecord(record, propertyNames)
   }
 
   const appendRecords = <T extends RecordWithProps>(
@@ -181,10 +193,19 @@ export const buildBulkTokenCommands = (
   }
 
   for (const group of input.nodeGroups) {
-    appendRecords("node", group.label, group.nodes, encodeNodeRecord)
+    appendRecords("node", group.label, group.nodes, encodeNodeRecordWithRemap)
   }
+
+  const remapEdge = (edge: BulkEdgeRecord): RemappedEdgeRecord => {
+    const bulkSrc = nodeIdRemap.get(edge.src)
+    if (bulkSrc === undefined) throw new Error(`Missing GRAPH.BULK node id remap for edge endpoint: ${edge.src}`)
+    const bulkTgt = nodeIdRemap.get(edge.tgt)
+    if (bulkTgt === undefined) throw new Error(`Missing GRAPH.BULK node id remap for edge endpoint: ${edge.tgt}`)
+    return { ...edge, bulkSrc, bulkTgt }
+  }
+
   for (const group of input.edgeGroups) {
-    appendRecords("edge", group.kind, group.edges, encodeEdgeRecord)
+    appendRecords("edge", group.kind, group.edges.map(remapEdge), encodeEdgeRecord)
   }
   flushCommand()
   stats.commands = commands.length

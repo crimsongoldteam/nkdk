@@ -117,6 +117,15 @@ describe("bulk stream", () => {
   })
 
   it("кодирует edge token с union-схемой свойств", () => {
+    const nodeGroups: BulkNodeGroup[] = [
+      {
+        label: "MetadataCatalog",
+        nodes: [
+          { id: 0, logicalId: "A", props: { id: "A" } },
+          { id: 1, logicalId: "B", props: { id: "B" } },
+        ],
+      },
+    ]
     const edgeGroups: BulkEdgeGroup[] = [
       {
         kind: "VALUE",
@@ -127,16 +136,29 @@ describe("bulk stream", () => {
       },
     ]
 
-    const { commands, stats } = buildBulkTokenCommands({ nodeGroups: [], edgeGroups }, {
+    const { commands, stats } = buildBulkTokenCommands({ nodeGroups, edgeGroups }, {
       maxTokenBytes: 1024,
       maxCommandBytes: 4096,
     })
 
     expect(commands).toHaveLength(1)
     expect(commands[0]!.edgeCount).toBe(2)
-    expect(commands[0]!.blobs).toHaveLength(1)
+    const edgeBlob = commands[0]!.blobs.find((blob) => blob.kind === "edge")!
     expect(stats.edgeBlobs).toBe(1)
-    expect(readPropertyCount(commands[0]!.blobs[0]!.buffer, "VALUE")).toBe(2)
-    expect([...commands[0]!.blobs[0]!.buffer.values()]).toContain(BulkPropertyType.Null)
+    expect(readPropertyCount(edgeBlob.buffer, "VALUE")).toBe(2)
+    expect([...edgeBlob.buffer.values()]).toContain(BulkPropertyType.Null)
+  })
+
+  it("падает, если edge endpoint не имеет bulk remap", () => {
+    const edgeGroups: BulkEdgeGroup[] = [
+      { kind: "VALUE", edges: [{ src: 0, tgt: 1, props: {} }] },
+    ]
+
+    expect(() =>
+      buildBulkTokenCommands({ nodeGroups: [], edgeGroups }, {
+        maxTokenBytes: 1024,
+        maxCommandBytes: 4096,
+      }),
+    ).toThrow("Missing GRAPH.BULK node id remap for edge endpoint: 0")
   })
 })
