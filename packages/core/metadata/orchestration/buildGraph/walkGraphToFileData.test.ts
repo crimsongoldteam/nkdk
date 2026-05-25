@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { GraphBuilder } from "./internal/GraphBuilder"
+import { FORM_ELEMENT_LABEL, GRAPH_STUB_LABEL, METADATA_OBJECT_LABEL } from "./labelConsolidation"
 import { walkGraphToFileData } from "./walkGraphToFileData"
 
 function promote(g: GraphBuilder, id: string, name: string, filePaths: string[], item?: unknown): void {
@@ -14,7 +15,7 @@ describe("walkGraphToFileData", () => {
     expect(walkGraphToFileData(g)).toEqual([])
   })
 
-  it("группирует узлы по filePath, лейбл из item.itemType", () => {
+  it("группирует узлы по filePath, схлопывает label прикладного объекта и сохраняет kind", () => {
     const g = new GraphBuilder()
     promote(g, "Справочник.К", "К", ["a.yaml"], { itemType: "MetadataCatalog", codeLength: 9 })
     promote(g, "Документ.Д", "Д", ["b.yaml"], { itemType: "MetadataDocument", numberLength: 5 })
@@ -26,16 +27,54 @@ describe("walkGraphToFileData", () => {
     expect(fileA.nodes).toEqual([
       {
         id: "Справочник.К",
-        label: "MetadataCatalog",
-        props: { name: "К", p_codeLength: 9 },
+        label: METADATA_OBJECT_LABEL,
+        props: { name: "К", kind: "MetadataCatalog", p_codeLength: 9 },
       },
     ])
     expect(fileA.declaredNodeIds).toEqual(["Справочник.К"])
     expect(fileB.nodes).toEqual([
       {
         id: "Документ.Д",
-        label: "MetadataDocument",
-        props: { name: "Д", p_numberLength: 5 },
+        label: METADATA_OBJECT_LABEL,
+        props: { name: "Д", kind: "MetadataDocument", p_numberLength: 5 },
+      },
+    ])
+  })
+
+  it("схлопывает label элемента формы и сохраняет исходный itemType в props.kind", () => {
+    const g = new GraphBuilder()
+    promote(g, "Справочник.К.Форма.Ф.Элемент.Поле", "Поле", ["form.yaml"], {
+      itemType: "InputField",
+      title: "Поле",
+    })
+
+    const result = walkGraphToFileData(g)
+    const file = result.find((f) => f.filePath === "form.yaml")!
+
+    expect(file.nodes).toEqual([
+      {
+        id: "Справочник.К.Форма.Ф.Элемент.Поле",
+        label: FORM_ELEMENT_LABEL,
+        props: { name: "Поле", kind: "InputField", p_title: "Поле" },
+      },
+    ])
+  })
+
+  it("не схлопывает исключенные дочерние metadata labels и не добавляет kind", () => {
+    const g = new GraphBuilder()
+    promote(g, "Справочник.К.Реквизит.Код", "Код", ["catalog.yaml"], {
+      itemType: "MetadataAttribute",
+      type: "Строка",
+    })
+
+    const result = walkGraphToFileData(g)
+    const file = result.find((f) => f.filePath === "catalog.yaml")!
+
+    expect(file.nodes).toEqual([
+      {
+        id: "Справочник.К.Реквизит.Код",
+        label: "MetadataAttribute",
+        props: { name: "Код", p_type: "Строка" },
       },
     ])
   })
@@ -136,9 +175,7 @@ describe("walkGraphToFileData", () => {
 
     const result = walkGraphToFileData(g)
     const stubFile = result.find((f) => f.filePath === "")!
-    expect(stubFile.nodes).toEqual([
-      { id: "B", label: "Unknown", props: { name: "B" } },
-    ])
+    expect(stubFile.nodes).toEqual([{ id: "B", label: GRAPH_STUB_LABEL, props: { name: "B" } }])
     expect(stubFile.declaredNodeIds).toEqual([])
   })
 
@@ -183,6 +220,7 @@ describe("walkGraphToFileData", () => {
 
     expect(file.nodes[0]?.props).toEqual({
       name: "К",
+      kind: "MetadataCatalog",
       p_name: "К",
       p_synonym_items_ru: "К",
     })
