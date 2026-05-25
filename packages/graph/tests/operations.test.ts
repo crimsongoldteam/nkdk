@@ -10,8 +10,19 @@ vi.mock("falkordb", () => ({
 }))
 
 import { connect } from "../src/internal/connection"
-import { mergeNodes, mergeEdges, deleteByFilePaths, cleanupOrphanStubs, ensureLabelIndexes } from "../src/internal/operations"
-import type { NodeData, EdgeData } from "../src/types"
+import {
+  createEdges,
+  createFileLinks,
+  createFiles,
+  createNodes,
+  deleteByFilePaths,
+  cleanupOrphanStubs,
+  ensureLabelIndexes,
+  mergeNodes,
+  mergeEdges,
+  validateReplacePayload,
+} from "../src/internal/operations"
+import type { NodeData, EdgeData, FileGraphData } from "../src/types"
 
 beforeEach(() => {
   queryMock.mockReset().mockResolvedValue({})
@@ -193,6 +204,149 @@ describe("mergeEdges", () => {
     expect(cypher).toContain("MATCH (s:GraphNode {id: e.src}), (t:GraphNode {id: e.tgt})")
     expect(cypher).not.toContain("(s {id: e.src})")
     expect(cypher).not.toContain("(t {id: e.tgt})")
+  })
+})
+
+describe("createFiles", () => {
+  it("пишет File-узлы через CREATE", async () => {
+    const conn = await connect()
+    const files: FileGraphData[] = [
+      { filePath: "a.yaml", fileStats: { mtimeMs: 1, size: 2, updatedAt: 3 }, nodes: [], edges: [] },
+    ]
+
+    await createFiles(conn, files)
+
+    expect(queryMock).toHaveBeenCalledTimes(1)
+    expect(queryMock.mock.calls[0][0]).toContain("CREATE (f:File {path: file.path")
+    expect(queryMock.mock.calls[0][0]).not.toContain("MERGE (f:File")
+  })
+})
+
+describe("createNodes", () => {
+  it("пишет предметные узлы через CREATE с GraphNode label", async () => {
+    const conn = await connect()
+    const nodes: NodeData[] = [
+      { id: "A", label: "MetadataCatalog", props: { name: "A" } },
+    ]
+
+    await createNodes(conn, nodes)
+
+    expect(queryMock).toHaveBeenCalledTimes(1)
+    expect(queryMock.mock.calls[0][0]).toContain("CREATE (m:MetadataCatalog:GraphNode {id: n.id}")
+    expect(queryMock.mock.calls[0][0]).not.toContain("MERGE (m:")
+  })
+})
+
+describe("createEdges", () => {
+  it("пишет предметные рёбра через CREATE и сохраняет filePath", async () => {
+    const conn = await connect()
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [],
+        edges: [{ src: "A", tgt: "B", kind: "VALUE", props: { yaml: "Значение" } }],
+      },
+    ]
+
+    await createEdges(conn, files, new Map([["A", "MetadataCatalog"], ["B", "MetadataAttribute"]]))
+
+    expect(queryMock).toHaveBeenCalledTimes(1)
+    expect(queryMock.mock.calls[0][0]).toContain("MATCH (s:MetadataCatalog {id: e.src}), (t:MetadataAttribute {id: e.tgt})")
+    expect(queryMock.mock.calls[0][0]).toContain("CREATE (s)-[r:VALUE")
+    expect(queryMock.mock.calls[0][0]).toContain("SET r.filePath = e.filePath")
+    expect(queryMock.mock.calls[0][0]).not.toContain("MERGE (s)-[r:VALUE")
+  })
+})
+
+describe("createFileLinks", () => {
+  it("пишет DECLARES и CONTRIBUTES через CREATE", async () => {
+    const conn = await connect()
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [{ id: "A", label: "MetadataCatalog", props: {} }],
+        edges: [],
+        declaredNodeIds: ["A"],
+        contributedNodeIds: ["B"],
+      },
+    ]
+
+    await createFileLinks(conn, files)
+
+    const cypher = queryMock.mock.calls.map((call) => call[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE (f)-[:DECLARES]->(n)"))
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE (f)-[:CONTRIBUTES]->(n)"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("MERGE (f)-[:DECLARES]->(n)"))
+  })
+})
+
+describe("validateReplacePayload", () => {
+  it("падает на повторяющемся filePath", () => {
+    const files: FileGraphData[] = [
+      { filePath: "a.yaml", nodes: [], edges: [] },
+      { filePath: "a.yaml", nodes: [], edges: [] },
+    ]
+
+    expect(() => validateReplacePayload(files)).toThrow("Duplicate File.path in replace payload: a.yaml")
+  })
+
+  it("падает на повторяющемся node id", () => {
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [
+          { id: "A", label: "MetadataCatalog", props: {} },
+          { id: "A", label: "MetadataAttribute", props: {} },
+        ],
+        edges: [],
+      },
+    ]
+
+    expect(() => validateReplacePayload(files)).toThrow("Duplicate Node.id in replace payload: A")
+  })
+
+  it("падает на повторяющейся DECLARES-связи", () => {
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [{ id: "A", label: "MetadataCatalog", props: {} }],
+        edges: [],
+        declaredNodeIds: ["A", "A"],
+      },
+    ]
+
+    expect(() => validateReplacePayload(files)).toThrow("Duplicate DECLARES link in replace payload: a.yaml -> A")
+  })
+
+  it("падает на повторяющейся CONTRIBUTES-связи", () => {
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [],
+        edges: [],
+        contributedNodeIds: ["B", "B"],
+      },
+    ]
+
+    expect(() => validateReplacePayload(files)).toThrow("Duplicate CONTRIBUTES link in replace payload: a.yaml -> B")
+  })
+
+  it("не запрещает повторяющиеся предметные рёбра", () => {
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [
+          { id: "A", label: "MetadataCatalog", props: {} },
+          { id: "B", label: "MetadataAttribute", props: {} },
+        ],
+        edges: [
+          { src: "A", tgt: "B", kind: "VALUE" },
+          { src: "A", tgt: "B", kind: "VALUE" },
+        ],
+      },
+    ]
+
+    expect(() => validateReplacePayload(files)).not.toThrow()
   })
 })
 
