@@ -15,6 +15,7 @@ describe("GraphBuilder: ensureNode / getNodeAttributes / hasNode", () => {
       filePaths: [],
       contributedFilePaths: [],
       flattenSkipKeys: new Set(),
+      itemFlattenTransforms: [],
     })
   })
 
@@ -118,6 +119,23 @@ describe("GraphBuilder: addFlattenSkipKeys", () => {
     g.addFlattenSkipKeys("X", ["name", "owner"])
     g.addFlattenSkipKeys("X", ["name"])
     expect(g.getNodeAttributes("X").flattenSkipKeys).toEqual(new Set(["name", "owner"]))
+  })
+})
+
+describe("GraphBuilder: item flatten transforms", () => {
+  it("addItemFlattenTransform добавляет преобразователи в порядке регистрации", () => {
+    const g = new GraphBuilder()
+    g.ensureNode("X")
+
+    const first = (item: unknown): unknown =>
+      item && typeof item === "object" ? { ...(item as Record<string, unknown>), first: true } : item
+    const second = (item: unknown): unknown =>
+      item && typeof item === "object" ? { ...(item as Record<string, unknown>), second: true } : item
+
+    g.addItemFlattenTransform("X", first)
+    g.addItemFlattenTransform("X", second)
+
+    expect(g.getNodeAttributes("X").itemFlattenTransforms).toEqual([first, second])
   })
 })
 

@@ -225,4 +225,31 @@ describe("walkGraphToFileData", () => {
       p_synonym_items_ru: "К",
     })
   })
+
+  it("применяет itemFlattenTransforms перед flattenItem и не меняет исходный item", () => {
+    const g = new GraphBuilder()
+    const item = {
+      itemType: "MetadataAttribute",
+      name: "Статус",
+      type: { type: ["string", "EnumRef.Статусы"] },
+    }
+    promote(g, "Catalog.Организации.Attribute.Статус", "Статус", ["catalog.yaml"], item)
+    g.addItemFlattenTransform("Catalog.Организации.Attribute.Статус", (source) => {
+      const record = source as typeof item
+      return {
+        ...record,
+        type: { ...record.type, type: ["string"] },
+      }
+    })
+
+    const result = walkGraphToFileData(g)
+    const file = result.find((f) => f.filePath === "catalog.yaml")!
+
+    expect(file.nodes[0]?.props).toEqual({
+      name: "Статус",
+      p_name: "Статус",
+      p_type_type: ["string"],
+    })
+    expect(g.getNodeAttributes("Catalog.Организации.Attribute.Статус").item).toBe(item)
+  })
 })

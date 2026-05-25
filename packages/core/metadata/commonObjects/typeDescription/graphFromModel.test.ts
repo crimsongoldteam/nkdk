@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest"
 import { GraphBuilder } from "~/metadata/orchestration/buildGraph/internal/GraphBuilder"
 import { walkGraphToFileData } from "~/metadata/orchestration/buildGraph/walkGraphToFileData"
 import { importMetadataFileWithGraph } from "~/metadata/orchestration/importMetadataFileWithGraph"
-import { extractTypeDescriptionGraph } from "./graphFromModel"
+import {
+  extractTypeDescriptionGraph,
+  filterTypeDescriptionGraphProps,
+  isGraphReferenceTypeDescriptionItem,
+} from "./graphFromModel"
 import { TypeDescription } from "./types"
 
 // Активирует регистрации side-effect (registerTypeRule)
@@ -115,6 +119,30 @@ describe("extractTypeDescriptionGraph", () => {
       expect(ref.positionFrom).toEqual(pos)
     }
   })
+
+  it.each([
+    ["CatalogRef.Товары", true],
+    ["EnumRef.Статус", true],
+    ["DefinedType.МойТип", true],
+    ["string", false],
+    ["DynamicList", false],
+    ["ReportObject.Отчёт", false],
+    ["НеизвестныйТип.X", false],
+  ])("isGraphReferenceTypeDescriptionItem(%s) → %s", (type, expected) => {
+    expect(isGraphReferenceTypeDescriptionItem(type)).toBe(expected)
+  })
+
+  it("filterTypeDescriptionGraphProps удаляет только ссылочные элементы type", () => {
+    const model: TypeDescription = {
+      type: ["string", "CatalogRef.Контрагенты", "DynamicList", "EnumRef.Статус"],
+      stringQualifiers: { length: 120, allowedLength: "Variable" },
+    }
+
+    expect(filterTypeDescriptionGraphProps(model)).toEqual({
+      type: ["string", "DynamicList"],
+      stringQualifiers: { length: 120, allowedLength: "Variable" },
+    })
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -178,6 +206,94 @@ describe("extractTypeDescriptionGraph — интеграция с importMetadata
     expect(typeEdges).toHaveLength(2)
     const targets = typeEdges.map((e) => e.target).sort()
     expect(targets).toEqual(["Catalog.Контрагенты", "Document.Накладная"])
+  })
+
+  it("реквизит с Тип: Перечисление.X создаёт TYPE-ребро и не сохраняет ссылочный тип в props", () => {
+    const graph = new GraphBuilder()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Статус:
+    Тип: Перечисление.СтатусыОрганизацийПодразделений
+`,
+      },
+      kind: "catalog",
+      name: "Организации",
+      graph,
+      context: baseContext,
+    })
+
+    const attrNodeId = "Catalog.Организации.Attribute.Статус"
+    const typeEdges = [...graph.outEdgeEntries(attrNodeId)].filter((e) => e.attributes.kind === "TYPE")
+    expect(typeEdges).toHaveLength(1)
+    expect(typeEdges[0].target).toBe("Enum.СтатусыОрганизацийПодразделений")
+
+    const fileGraphData = walkGraphToFileData(graph)
+    const segment = fileGraphData.find((item) => item.declaredNodeIds?.includes(attrNodeId))
+    const attrNode = segment?.nodes.find((node) => node.id === attrNodeId)
+
+    expect(attrNode?.props.p_type_type).toBeUndefined()
+  })
+
+  it("смешанный TypeDescription сохраняет только нессылочные type props", () => {
+    const graph = new GraphBuilder()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Контакт:
+    Тип:
+      - Строка
+      - Справочник.Контрагенты
+`,
+      },
+      kind: "catalog",
+      name: "Организации",
+      graph,
+      context: baseContext,
+    })
+
+    const attrNodeId = "Catalog.Организации.Attribute.Контакт"
+    const typeEdges = [...graph.outEdgeEntries(attrNodeId)].filter((e) => e.attributes.kind === "TYPE")
+    expect(typeEdges).toHaveLength(1)
+    expect(typeEdges[0].target).toBe("Catalog.Контрагенты")
+
+    const fileGraphData = walkGraphToFileData(graph)
+    const segment = fileGraphData.find((item) => item.declaredNodeIds?.includes(attrNodeId))
+    const attrNode = segment?.nodes.find((node) => node.id === attrNodeId)
+
+    expect(attrNode?.props.p_type_type).toEqual(["string"])
+  })
+
+  it("TypeDescription qualifiers сохраняются после удаления ссылочного type", () => {
+    const graph = new GraphBuilder()
+    importMetadataFileWithGraph({
+      filePath: FILE_PATH,
+      sources: {
+        yaml: `
+Реквизиты:
+  Код:
+    Тип:
+      - Строка(20)
+      - Справочник.Контрагенты
+`,
+      },
+      kind: "catalog",
+      name: "Организации",
+      graph,
+      context: baseContext,
+    })
+
+    const attrNodeId = "Catalog.Организации.Attribute.Код"
+    const fileGraphData = walkGraphToFileData(graph)
+    const segment = fileGraphData.find((item) => item.declaredNodeIds?.includes(attrNodeId))
+    const attrNode = segment?.nodes.find((node) => node.id === attrNodeId)
+
+    expect(attrNode?.props.p_type_type).toEqual(["string"])
+    expect(attrNode?.props.p_type_stringQualifiers_length).toBe(20)
   })
 
   it("реквизит формы с Тип: DynamicList хранит тип в props и не создаёт VALUE_TYPE-ребро", () => {
