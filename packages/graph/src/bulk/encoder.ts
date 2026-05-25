@@ -111,6 +111,8 @@ export interface EncodedBulkBlob {
 }
 
 interface NodeLike {
+  id?: number
+  logicalId?: string
   props: BulkProperties
 }
 

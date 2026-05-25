@@ -9,7 +9,7 @@ const readPropertyCount = (buffer: Buffer, name: string): number =>
 const readUInt64 = (buffer: Buffer, offset: number): number =>
   Number(buffer.readBigUInt64LE(offset))
 
-const rowOffset = (buffer: Buffer, name: string, propertyNames: readonly string[]): number =>
+const rowOffset = (name: string, propertyNames: readonly string[]): number =>
   Buffer.byteLength(name) + 1 + 4 + propertyNames.reduce((sum, propertyName) => sum + Buffer.byteLength(propertyName) + 1, 0)
 
 describe("bulk stream", () => {
@@ -91,7 +91,7 @@ describe("bulk stream", () => {
     expect(secondNodeBlobText).not.toContain("C\0")
     expect(stats.nodeBlobs).toBe(2)
 
-    const edgeRowOffset = rowOffset(edgeBlob.buffer, "VALUE", [])
+    const edgeRowOffset = rowOffset("VALUE", [])
     expect(readUInt64(edgeBlob.buffer, edgeRowOffset)).toBe(2)
     expect(readUInt64(edgeBlob.buffer, edgeRowOffset + 8)).toBe(1)
   })
