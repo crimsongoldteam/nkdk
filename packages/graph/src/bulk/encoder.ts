@@ -9,8 +9,9 @@ export enum BulkPropertyType {
   Array = 5,
 }
 
-export type BulkScalar = Exclude<GraphPrimitive, null>
-export type BulkValue = BulkScalar | BulkScalar[]
+export type BulkScalar = GraphPrimitive
+export type BulkNonNullScalar = Exclude<GraphPrimitive, null>
+export type BulkValue = BulkScalar | BulkNonNullScalar[]
 export type BulkProperties = Record<string, BulkValue>
 
 const nulString = (value: string): Buffer => Buffer.from(`${value}\0`, "utf8")
@@ -39,10 +40,17 @@ const assertFiniteNumber = (value: number): void => {
   if (!Number.isFinite(value)) throw new Error(`Cannot encode non-finite bulk number: ${value}`)
 }
 
-const arrayElementKind = (values: readonly BulkScalar[]): string => {
+const arrayElementKind = (values: readonly BulkNonNullScalar[]): string => {
   const kinds = new Set(values.map((value) => typeof value))
   if (kinds.size !== 1) throw new Error("GRAPH.BULK arrays must contain values of one primitive type")
   return [...kinds][0]!
+}
+
+export const bulkValueSignature = (value: BulkValue): string => {
+  if (value === null) return "null"
+  if (Array.isArray(value)) return `array:${typeof value[0]}`
+  if (typeof value === "number") return Number.isSafeInteger(value) ? "long" : "double"
+  return typeof value
 }
 
 export const normalizeBulkProperties = (
@@ -52,7 +60,7 @@ export const normalizeBulkProperties = (
   for (const [key, value] of Object.entries(props)) {
     if (value === null) continue
     if (Array.isArray(value)) {
-      const values = value.filter((item): item is BulkScalar => item !== null)
+      const values = value.filter((item): item is BulkNonNullScalar => item !== null)
       if (values.length === 0) continue
       arrayElementKind(values)
       result[key] = values
@@ -64,6 +72,8 @@ export const normalizeBulkProperties = (
 }
 
 export const encodeBulkValue = (value: BulkValue): Buffer => {
+  if (value === null) return typeByte(BulkPropertyType.Null)
+
   if (Array.isArray(value)) {
     const parts = [typeByte(BulkPropertyType.Array), int64(BigInt(value.length))]
     for (const item of value) {
@@ -116,16 +126,10 @@ const uint64 = (value: number): Buffer => {
   return buffer
 }
 
-const valueSignature = (value: BulkValue): string => {
-  if (Array.isArray(value)) return `array:${typeof value[0]}`
-  if (typeof value === "number") return Number.isSafeInteger(value) ? "long" : "double"
-  return typeof value
-}
-
 const schemaKey = (props: BulkProperties): string =>
   Object.entries(props)
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => `${key}:${valueSignature(value)}`)
+    .map(([key, value]) => `${key}:${bulkValueSignature(value)}`)
     .join("|")
 
 const propertyNamesFor = (props: BulkProperties): string[] =>

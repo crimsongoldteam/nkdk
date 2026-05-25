@@ -26,6 +26,10 @@ describe("bulk encoder", () => {
     expect(encodeBulkValue("абв").subarray(1).toString("utf8")).toBe("абв\0")
   })
 
+  it("кодирует отсутствующее свойство как GRAPH.BULK NULL", () => {
+    expect([...encodeBulkValue(null).values()]).toEqual([BulkPropertyType.Null])
+  })
+
   it("кодирует массивы одного типа и пропускает null-значения при нормализации", () => {
     expect(normalizeBulkProperties({ a: null, b: [null], c: ["x", null, "y"] })).toEqual({
       c: ["x", "y"],
