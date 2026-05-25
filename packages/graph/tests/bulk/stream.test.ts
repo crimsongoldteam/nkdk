@@ -52,6 +52,30 @@ describe("bulk stream", () => {
     expect(stats.nodeBlobs).toBe(2)
   })
 
+  it("сохраняет порядок записей при конфликтующих buckets", () => {
+    const nodeGroups: BulkNodeGroup[] = [
+      {
+        label: "MetadataCatalog",
+        nodes: [
+          { id: 0, logicalId: "A", props: { id: "A", value: "one" } },
+          { id: 1, logicalId: "B", props: { id: "B", value: 1 } },
+          { id: 2, logicalId: "C", props: { id: "C", value: "three" } },
+        ],
+      },
+    ]
+
+    const { commands } = buildBulkTokenCommands({ nodeGroups, edgeGroups: [] }, {
+      maxTokenBytes: 1024,
+      maxCommandBytes: 4096,
+    })
+
+    const blobs = commands[0]!.blobs
+    expect(blobs).toHaveLength(3)
+    expect(blobs.map((blob) => blob.buffer.toString("utf8").includes("A\0"))).toEqual([true, false, false])
+    expect(blobs.map((blob) => blob.buffer.toString("utf8").includes("B\0"))).toEqual([false, true, false])
+    expect(blobs.map((blob) => blob.buffer.toString("utf8").includes("C\0"))).toEqual([false, false, true])
+  })
+
   it("сбрасывает token до превышения maxTokenBytes", () => {
     const nodeGroups: BulkNodeGroup[] = [
       {

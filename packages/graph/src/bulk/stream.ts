@@ -2,7 +2,6 @@ import {
   bulkValueSignature,
   encodeBulkHeader,
   encodeBulkValue,
-  type BulkProperties,
 } from "./encoder"
 import type { BulkEdgeGroup, BulkEdgeRecord, BulkNodeGroup, BulkNodeRecord } from "./plan"
 import type { BulkCommand, BulkWriteBlob } from "./write"
@@ -41,16 +40,10 @@ const DEFAULT_LIMITS: BulkTokenLimits = {
 const commandBytes = (command: BulkCommand): number =>
   command.blobs.reduce((sum, blob) => sum + blob.buffer.byteLength, 0)
 
-const sortedPropertyNames = (props: BulkProperties): string[] =>
+const propertyTypeEntries = (props: RecordWithProps["props"]): [string, string][] =>
   Object.entries(props)
     .filter(([, value]) => value !== null)
-    .map(([name]) => name)
-    .sort((a, b) => a.localeCompare(b))
-
-const propertyTypeEntries = (props: BulkProperties): [string, string][] =>
-  Object.entries(props)
-    .filter(([, value]) => value !== null)
-    .map(([name, value]) => [name, bulkValueSignature(value)])
+    .map(([name, value]) => [name, bulkValueSignature(value)] as [string, string])
     .sort(([a], [b]) => a.localeCompare(b))
 
 const canAddToBucket = <T extends RecordWithProps>(
@@ -76,21 +69,22 @@ const addToBucket = <T extends RecordWithProps>(
 
 const bucketByConflictingTypes = <T extends RecordWithProps>(records: readonly T[]): SchemaBucket<T>[] => {
   const buckets: SchemaBucket<T>[] = []
+  let current: SchemaBucket<T> | undefined
 
   for (const record of records) {
     const entries = propertyTypeEntries(record.props)
-    const bucket = buckets.find((candidate) => canAddToBucket(candidate, entries))
-    if (bucket !== undefined) {
-      addToBucket(bucket, record, entries)
+    if (current !== undefined && canAddToBucket(current, entries)) {
+      addToBucket(current, record, entries)
       continue
     }
 
     const typesByProperty = new Map(entries)
-    buckets.push({
+    current = {
       propertyNames: [...typesByProperty.keys()].sort((a, b) => a.localeCompare(b)),
       typesByProperty,
       records: [record],
-    })
+    }
+    buckets.push(current)
   }
 
   return buckets
