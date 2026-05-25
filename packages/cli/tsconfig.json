@@ -14,7 +14,6 @@
     "declarationMap": true,
     "sourceMap": true,
     "typeRoots": ["./node_modules/@types", "../node_modules/@types"],
-    "baseUrl": ".",
     "paths": {
       "@nakidka/core": ["../core/index.ts"],
       "@nakidka/graph": ["../graph/src/index.ts"],
