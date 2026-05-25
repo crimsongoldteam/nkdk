@@ -1,9 +1,11 @@
 import fs from "fs"
+import os from "os"
 import { dirname, join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { syncConfigurationFromXML } from "./convertFromXML"
+import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 import { syncConfigurationToXML } from "./syncToXML"
 
 describe("sync configuration to XML", () => {
@@ -45,6 +47,54 @@ describe("sync configuration to XML", () => {
       join("sync/syncConfiguration/out-to-xml", "Catalogs", catalogName, "Forms", "ФормаЭлемента.xml")
     )
     expect(resultFormMetadataXML).toBe(expectedFormMetadataXML)
+  })
+
+  it("пишет корневой Configuration.xml из Конфигурация.yaml и вычисляет пустой ChildObjects", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.mkdirSync(xmlDir, { recursive: true })
+      fs.copyFileSync(getXMLFixturePath("configuration/full.xml"), join(xmlDir, CONFIGURATION_XML_FILE))
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      const result = fs.readFileSync(join(outDir, CONFIGURATION_XML_FILE), "utf-8")
+      expect(result).toContain("<ChildObjects/>")
+      expect(result).not.toContain("<Catalog>")
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("удаляет старый корневой Configuration.xml, если Конфигурация.yaml отсутствует", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-prune-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.mkdirSync(outDir, { recursive: true })
+      fs.writeFileSync(join(outDir, CONFIGURATION_XML_FILE), "<MetaDataObject/>", "utf-8")
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir,
+      })
+
+      expect(fs.existsSync(join(outDir, CONFIGURATION_XML_FILE))).toBe(false)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
   })
 
   it("round-trip Document/DocumentNumerator/Sequence: XML → YAML → XML возвращает исходный XML", async () => {

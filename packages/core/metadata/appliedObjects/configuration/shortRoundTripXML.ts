@@ -7,6 +7,8 @@ import { readFormFromXML } from "~/metadata/forms/clientApplicationForm/convertF
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
 import { exportMetadataItemToXML } from "~/metadata/orchestration"
 import { xmlExport } from "~/xml/export/exporter"
+import { CONFIGURATION_XML_FILE } from "./rootIO"
+import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 const formatUnknownError = (err: unknown): string => {
@@ -94,6 +96,35 @@ const roundTripMetadataItemXML = (params: {
   }
 }
 
+const roundTripConfigurationXML = (params: { inputDir: string; outputDir: string }) => {
+  const configurationPath = join(params.inputDir, CONFIGURATION_XML_FILE)
+  if (!fs.existsSync(configurationPath)) return
+
+  const xmlContent = fs.readFileSync(configurationPath, "utf-8")
+  const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
+  const item = importMetadataItemFromXML({
+    context: makeContextFromXML(false),
+    xml: parsed.MetaDataObject,
+    rule: MetadataConfigurationRules,
+  })
+  const referenceItem = importMetadataItemFromXML({
+    context: makeContextFromXML(true),
+    xml: parsed.MetaDataObject,
+    rule: MetadataConfigurationRules,
+  })
+  const xmlObj = exportMetadataItemToXML({
+    context: makeContextToXML(""),
+    data: item,
+    referenceData: referenceItem,
+    rule: MetadataConfigurationRules,
+  })
+
+  if (xmlObj) {
+    fs.mkdirSync(params.outputDir, { recursive: true })
+    fs.writeFileSync(join(params.outputDir, CONFIGURATION_XML_FILE), xmlExport(xmlObj), "utf-8")
+  }
+}
+
 const roundTripFormsXML = (params: { inputDir: string; outputDir: string; itemName: string; xmlDir: string }) => {
   const formsInputDir = join(params.inputDir, params.itemName, "Forms")
   if (!fs.existsSync(formsInputDir)) {
@@ -154,6 +185,12 @@ export const shortRoundTripXML = async (params: { inputDir: string; outputDir: s
 
   if (!fs.existsSync(inputDir)) {
     return
+  }
+
+  try {
+    roundTripConfigurationXML({ inputDir, outputDir })
+  } catch (err) {
+    throw new RoundTripXMLContextError("Ошибка round-trip корневого Configuration.xml", err)
   }
 
   for (const rule of TopLevelMetadataItemRules) {

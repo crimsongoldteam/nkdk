@@ -13,9 +13,26 @@ import { exportToYAML } from "~/yaml/export"
 import { importFromYAML } from "~/yaml/import"
 import { MetadataConfigurationRules } from "./rules"
 import type { MetadataConfiguration, MetadataConfigurationYAML } from "./types"
+import type { ConfigurationChildObjectsXML } from "./childObjects"
 
 export const CONFIGURATION_XML_FILE = "Configuration.xml"
 export const CONFIGURATION_YAML_FILE = "Конфигурация.yaml"
+
+type MetadataConfigurationXMLObject = {
+  MetaDataObject?: {
+    Configuration?: Record<string, unknown>
+  }
+}
+
+const setConfigurationChildObjectsXML = (
+  xmlObject: Record<string, unknown>,
+  childObjects: ConfigurationChildObjectsXML
+): void => {
+  const root = (xmlObject as MetadataConfigurationXMLObject).MetaDataObject?.Configuration
+  if (root !== undefined) {
+    root.ChildObjects = childObjects
+  }
+}
 
 export const readConfigurationFromXML = (params: {
   context: ConfigurationContextFromXML
@@ -68,6 +85,7 @@ export const writeConfigurationToXML = (params: {
   configuration: MetadataConfiguration | undefined
   outputDir: string
   referenceConfiguration?: MetadataConfiguration
+  childObjects?: ConfigurationChildObjectsXML
 }): void => {
   const xmlObject = exportMetadataItemToXML({
     context: params.context,
@@ -76,6 +94,9 @@ export const writeConfigurationToXML = (params: {
     rule: MetadataConfigurationRules,
   })
   if (xmlObject === undefined) return
+  if (params.childObjects !== undefined) {
+    setConfigurationChildObjectsXML(xmlObject, params.childObjects)
+  }
 
   fs.mkdirSync(params.outputDir, { recursive: true })
   fs.writeFileSync(join(params.outputDir, CONFIGURATION_XML_FILE), xmlExport(xmlObject), "utf-8")

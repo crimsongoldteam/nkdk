@@ -3,7 +3,10 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { CONFIGURATION_XML_FILE } from "./rootIO"
 import { shortRoundTripXML } from "./shortRoundTripXML"
+
+const normalizeXML = (value: string) => value.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n$/, "")
 
 describe("shortRoundTripXML", () => {
   const inputDir = getXMLFixturePath("sync/syncConfiguration/xml")
@@ -61,6 +64,22 @@ describe("shortRoundTripXML", () => {
       "utf-8"
     )
     expect(resultFormMetaXML).toBe(expectedFormMetaXML)
+  })
+
+  it("включает корневой Configuration.xml в short round-trip", async () => {
+    const rootInputDir = fs.mkdtempSync(join(tmpdir(), "short-round-trip-root-"))
+    const rootOutputDir = fs.mkdtempSync(join(tmpdir(), "short-round-trip-root-out-"))
+    try {
+      fs.copyFileSync(getXMLFixturePath("configuration/full.xml"), join(rootInputDir, CONFIGURATION_XML_FILE))
+
+      await shortRoundTripXML({ inputDir: rootInputDir, outputDir: rootOutputDir })
+
+      const actual = fs.readFileSync(join(rootOutputDir, CONFIGURATION_XML_FILE), "utf-8")
+      expect(normalizeXML(actual)).toBe(normalizeXML(readXMLFileAsString("configuration/full.xml")))
+    } finally {
+      fs.rmSync(rootInputDir, { recursive: true, force: true })
+      fs.rmSync(rootOutputDir, { recursive: true, force: true })
+    }
   })
 
   it("останавливается на первой ошибке round-trip объекта", async () => {

@@ -16,6 +16,14 @@ import {
 } from "./migrations"
 import { pruneXmlByManifest, XmlSyncManifest } from "./migrations/xmlManifest"
 import { ConfigurationSyncResult } from "./convertFromXML"
+import { buildConfigurationChildObjects, readConfigurationChildObjectsFromXML } from "./childObjects"
+import {
+  CONFIGURATION_XML_FILE,
+  CONFIGURATION_YAML_FILE,
+  readConfigurationFromXML,
+  readConfigurationFromYAML,
+  writeConfigurationToXML,
+} from "./rootIO"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 // TODO: вынести в настройки расширения
@@ -64,6 +72,32 @@ export const syncConfigurationToXML = async (params: {
   }
   const xmlManifest = new XmlSyncManifest(outputDir)
   const tasks: BatchTask<void>[] = []
+  const rootYAMLPath = join(inputDir, CONFIGURATION_YAML_FILE)
+  const hasRootYAML = fs.existsSync(rootYAMLPath)
+
+  if (hasRootYAML) {
+    const referenceConfigurationPath = join(referenceDir, CONFIGURATION_XML_FILE)
+    const referenceConfiguration = fs.existsSync(referenceConfigurationPath)
+      ? readConfigurationFromXML({ context: contextFromXML, inputDir: referenceDir })
+      : undefined
+    const referenceChildObjects = fs.existsSync(referenceConfigurationPath)
+      ? readConfigurationChildObjectsFromXML(referenceDir)
+      : undefined
+    const configuration = readConfigurationFromYAML({
+      context,
+      inputDir,
+      source: referenceConfiguration,
+    })
+
+    writeConfigurationToXML({
+      context,
+      configuration,
+      outputDir,
+      referenceConfiguration,
+      childObjects: buildConfigurationChildObjects({ yamlDir: inputDir, referenceChildObjects }),
+    })
+    xmlManifest.addFile(join(outputDir, CONFIGURATION_XML_FILE))
+  }
 
   for (const rule of TopLevelMetadataItemRules) {
     if (rule.xmlDir === undefined) continue
@@ -120,6 +154,9 @@ export const syncConfigurationToXML = async (params: {
       xmlDirs: TopLevelMetadataItemRules.flatMap((rule) => rule.xmlDir ? [rule.xmlDir] : []),
       expectedFiles: xmlManifest.expectedFiles(),
     })
+    if (!hasRootYAML) {
+      await fs.promises.rm(join(outputDir, CONFIGURATION_XML_FILE), { force: true })
+    }
     writeAppliedMigrationsState(outputDir, {
       applied: [...appliedState.applied, ...migrationResult.appliedFileNames],
     })
