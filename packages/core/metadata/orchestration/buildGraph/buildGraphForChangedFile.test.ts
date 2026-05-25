@@ -26,8 +26,10 @@ describe("buildGraphForChangedFile", () => {
     })
 
     const yaml = result.find((file) => file.filePath.endsWith("Форма.yaml"))
-    expect(yaml?.declaredNodeIds?.some((id) => id.includes(".Элемент."))).toBe(true)
-    expect(yaml?.edges.some((edge) => edge.tgt.includes(".Элемент."))).toBe(true)
+    expect(yaml?.declaredNodeIds?.some((id) => id.includes(".Element."))).toBe(true)
+    expect(yaml?.declaredNodeIds?.some((id) => id.includes(".Элемент."))).toBe(false)
+    expect(yaml?.edges.some((edge) => edge.tgt.includes(".Element."))).toBe(true)
+    expect(yaml?.edges.some((edge) => edge.tgt.includes(".Элемент."))).toBe(false)
   })
 
   it("строит сегмент одного Свойства.yaml и declaredNodeIds содержит корень", async () => {
@@ -41,11 +43,12 @@ describe("buildGraphForChangedFile", () => {
     expect(result).toHaveLength(1)
     expect(result[0]).toMatchObject({
       filePath: "Справочник/Контрагенты/Свойства.yaml",
-      declaredNodeIds: expect.arrayContaining(["Справочник.Контрагенты"]),
+      declaredNodeIds: expect.arrayContaining(["Catalog.Контрагенты"]),
     })
+    expect(result[0]!.declaredNodeIds).not.toContain("Справочник.Контрагенты")
     expect(result[0]!.nodes).toContainEqual(
       expect.objectContaining({
-        id: "Справочник.Контрагенты",
+        id: "Catalog.Контрагенты",
         label: "MetadataObject",
         props: expect.objectContaining({ kind: "MetadataCatalog" }),
       }),
@@ -64,19 +67,20 @@ describe("buildGraphForChangedFile", () => {
     expect(result[0]).toMatchObject({
       filePath: "Справочник/Контрагенты/Формы/ФормаСписка/Форма.yaml",
       declaredNodeIds: expect.arrayContaining([
-        "Справочник.Контрагенты.Форма.ФормаСписка",
+        "Catalog.Контрагенты.Form.ФормаСписка",
       ]),
     })
+    expect(result[0]!.declaredNodeIds).not.toContain("Справочник.Контрагенты.Форма.ФормаСписка")
     expect(result[0]!.nodes).toContainEqual(
       expect.objectContaining({
-        id: "Справочник.Контрагенты.Форма.ФормаСписка",
+        id: "Catalog.Контрагенты.Form.ФормаСписка",
         label: "ClientApplicationForm",
       }),
     )
     expect(result[0]!.edges).toContainEqual(
       expect.objectContaining({
-        src: "Справочник.Контрагенты",
-        tgt: "Справочник.Контрагенты.Форма.ФормаСписка",
+        src: "Catalog.Контрагенты",
+        tgt: "Catalog.Контрагенты.Form.ФормаСписка",
         kind: "FORM",
       }),
     )

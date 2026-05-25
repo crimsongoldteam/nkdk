@@ -6,7 +6,7 @@ import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import "./graphFromModel"
 
 const filePath = "Справочник/Товары/Свойства.yaml"
-const parentNodeId = "Справочник.Товары.Реквизит.Характеристика"
+const parentNodeId = "Catalog.Товары.Attribute.Характеристика"
 
 const ownerRule = {
   itemType: "MetadataAttribute",
@@ -101,7 +101,7 @@ describe("ChoiceParameterLinks graphFromModel", () => {
     const dataPathEdge = [...graph.outEdgeEntries(linkNodeId)].find(
       (edge) => edge.attributes.kind === "DATA_PATH",
     )
-    expect(dataPathEdge?.target).toBe("Справочник.Товары.Реквизит.Владелец")
+    expect(dataPathEdge?.target).toBe("Catalog.Товары.Attribute.Владелец")
     expect(dataPathEdge?.attributes).toMatchObject({
       yaml: "ПутьКДанным",
       property: "dataPath",
@@ -112,8 +112,8 @@ describe("ChoiceParameterLinks graphFromModel", () => {
 
   it("создаёт DATA_PATH-ребро от ChoiceParameterLink для form-local пути", () => {
     const graph = new GraphBuilder()
-    const formNodeId = "Справочник.Товары.Форма.ФормаЭлемента"
-    const footerAttrId = `${formNodeId}.РеквизитФормы.РеквизитПодвала`
+    const formNodeId = "Catalog.Товары.Form.ФормаЭлемента"
+    const footerAttrId = `${formNodeId}.Attribute.РеквизитПодвала`
 
     graph.ensureNode(formNodeId, {
       name: "ФормаЭлемента",

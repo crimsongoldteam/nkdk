@@ -2,26 +2,26 @@ import { describe, expect, it } from "vitest"
 import { extractReferenceFromPath } from "./extractReferenceFromPath"
 
 describe("extractReferenceFromPath", () => {
-  it("валидный путь Catalog.X → Справочник.X", () => {
+  it("валидный путь Catalog.X → Catalog.X", () => {
     const ref = extractReferenceFromPath("Catalog.Контрагенты")
-    expect(ref).toEqual({ id: "Справочник.Контрагенты", name: "Контрагенты", positionFrom: undefined })
+    expect(ref).toEqual({ id: "Catalog.Контрагенты", name: "Контрагенты", positionFrom: undefined })
   })
 
-  it("валидный путь Document.X → Документ.X", () => {
+  it("валидный путь Document.X → Document.X", () => {
     const ref = extractReferenceFromPath("Document.РасходнаяНакладная")
-    expect(ref?.id).toBe("Документ.РасходнаяНакладная")
+    expect(ref?.id).toBe("Document.РасходнаяНакладная")
     expect(ref?.name).toBe("РасходнаяНакладная")
   })
 
-  it("валидный путь Enum.X → Перечисление.X", () => {
+  it("валидный путь Enum.X → Enum.X", () => {
     const ref = extractReferenceFromPath("Enum.СтатусЗаказа")
-    expect(ref?.id).toBe("Перечисление.СтатусЗаказа")
+    expect(ref?.id).toBe("Enum.СтатусЗаказа")
     expect(ref?.name).toBe("СтатусЗаказа")
   })
 
-  it("валидный путь InformationRegister.X → РегистрСведений.X", () => {
+  it("валидный путь InformationRegister.X → InformationRegister.X", () => {
     const ref = extractReferenceFromPath("InformationRegister.Продажи")
-    expect(ref?.id).toBe("РегистрСведений.Продажи")
+    expect(ref?.id).toBe("InformationRegister.Продажи")
     expect(ref?.name).toBe("Продажи")
   })
 

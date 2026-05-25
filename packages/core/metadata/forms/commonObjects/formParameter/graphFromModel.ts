@@ -13,6 +13,6 @@ registerTypeRule("FormParameters", "graphChild", {
   idFrom: "name",
   edgeKind: "FORM_PARAMETER",
   edgeYaml: "ПараметрФормы",
-  nodeSegment: "Параметр",
+  nodeSegment: "Parameter",
   itemRule: FormParameterRules,
 })

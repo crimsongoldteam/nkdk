@@ -6,7 +6,7 @@ import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import "./graphFromModel"
 
 const filePath = "Справочник/Товары/Свойства.yaml"
-const parentNodeId = "Справочник.Товары.Реквизит.Владелец"
+const parentNodeId = "Catalog.Товары.Attribute.Владелец"
 
 const ownerRule = {
   itemType: "MetadataAttribute",
@@ -97,7 +97,40 @@ describe("ChoiceParameters graphFromModel", () => {
     const valueEdge = [...graph.outEdgeEntries(choiceNodeId)].find(
       (edge) => edge.attributes.kind === "VALUE",
     )
-    expect(valueEdge?.target).toBe("Справочник.Товары.ПустаяСсылка")
+    expect(valueEdge?.target).toBe("Catalog.Товары.EmptyRef")
+  })
+
+  it("создаёт VALUE-ребро от ChoiceParameter к PredefinedData", () => {
+    const graph = new GraphBuilder()
+    graph.ensureNode(parentNodeId, {
+      name: "Владелец",
+      item: {
+        itemType: "MetadataAttribute",
+        name: "Владелец",
+        choiceParameters: [
+          {
+            name: "Отбор.СтавкаНДС",
+            value: { type: "ref", value: "Catalog.СтавкиНДС.БезНДС" },
+          },
+        ],
+      },
+    })
+    graph.addFilePath(parentNodeId, filePath)
+
+    buildGraphFromModel({
+      model: graph.getNodeAttributes(parentNodeId).item as Record<string, unknown>,
+      yamlMap: undefined,
+      rule: ownerRule,
+      graph,
+      parentNodeId,
+      filePath,
+    })
+
+    const choiceNodeId = `${parentNodeId}.ПараметрВыбора[0]`
+    const valueEdge = [...graph.outEdgeEntries(choiceNodeId)].find(
+      (edge) => edge.attributes.kind === "VALUE",
+    )
+    expect(valueEdge?.target).toBe("Catalog.СтавкиНДС.PredefinedData.БезНДС")
   })
 
   it("поддерживает YAML-словарь параметров выбора и не выгружает его в props владельца", () => {

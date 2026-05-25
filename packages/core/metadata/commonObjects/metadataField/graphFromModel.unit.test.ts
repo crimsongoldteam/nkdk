@@ -38,7 +38,7 @@ describe("buildMetadataFieldsGraph (чистая функция)", () => {
     expect(result.edgeKind).toBe("FIELD")
     expect(result.edgeYaml).toBe("Поле")
     expect(result.references).toHaveLength(1)
-    expect(result.references?.[0]?.id).toBe("Справочник.X.Реквизит.Y")
+    expect(result.references?.[0]?.id).toBe("Catalog.X.Attribute.Y")
   })
 
   it("формирует по ссылке на каждый элемент массива", () => {
@@ -53,9 +53,9 @@ describe("buildMetadataFieldsGraph (чистая функция)", () => {
     expect(result.references).toHaveLength(3)
     const ids = result.references?.map((r) => r.id).sort()
     expect(ids).toEqual([
-      "Справочник.A.Реквизит.П1",
-      "Справочник.B.Реквизит.П2",
-      "Справочник.C.Реквизит.П3",
+      "Catalog.A.Attribute.П1",
+      "Catalog.B.Attribute.П2",
+      "Catalog.C.Attribute.П3",
     ])
   })
 })

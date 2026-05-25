@@ -16,6 +16,6 @@ registerTypeRule("FormCommands", "graphChild", {
   idFrom: "name",
   edgeKind: "FORM_COMMAND",
   edgeYaml: "КомандаФормы",
-  nodeSegment: "Команда",
+  nodeSegment: "Command",
   itemRule: FormCommandRules,
 })

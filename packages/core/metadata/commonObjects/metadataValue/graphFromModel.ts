@@ -12,8 +12,7 @@ import {
   SourcePosition,
 } from "~/metadata/orchestration/property/position"
 import { extractReferenceFromPath } from "~/metadata/orchestration/property/extractReferenceFromPath"
-import { convertPath } from "~/metadata/commonObjects/metadataPath/helper"
-import { MetadataValuesRulesToYAML } from "~/metadata/commonObjects/metadataPath/types"
+import { canonicalizeMetadataValueGraphPath } from "~/metadata/commonObjects/metadataPath/graphPath"
 import {
   MetadataFixedArrayValue,
   MetadataFormChoiceListValue,
@@ -30,16 +29,7 @@ const OBJECT_REF_EDGE_YAML = "Объект"
 
 function convertRefValueToNodeId(refValue: string): string | undefined {
   if (!refValue) return undefined
-  let processedPath = refValue
-  if (refValue.startsWith("Enum.")) {
-    processedPath = refValue.split(".").filter((p) => p !== "EnumValue").join(".")
-  }
-  const nodeId = convertPath(MetadataValuesRulesToYAML, processedPath)
-  const dotInInput = processedPath.indexOf(".")
-  const dotInOutput = nodeId.indexOf(".")
-  if (dotInInput === -1 || dotInOutput === -1) return undefined
-  if (processedPath.substring(0, dotInInput) === nodeId.substring(0, dotInOutput)) return undefined
-  return nodeId
+  return canonicalizeMetadataValueGraphPath(refValue)
 }
 
 export function extractSingleValueRef(

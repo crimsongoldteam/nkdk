@@ -23,46 +23,46 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
   })
 
   it("imports owning dependencies as direct edges", () => {
-    const catalog = "Справочник.TestCatalog"
+    const catalog = "Catalog.TestCatalog"
     const edges = [...graph.outEdgeEntries(catalog)]
 
     expect(edges).toContainEqual(
       expect.objectContaining({
-        target: "Справочник.TestCatalog.Реквизит.КакойТоРеквизит",
+        target: "Catalog.TestCatalog.Attribute.КакойТоРеквизит",
         attributes: expect.objectContaining({ kind: "ATTRIBUTE" }),
       }),
     )
     expect(edges).toContainEqual(
       expect.objectContaining({
-        target: "Справочник.TestCatalog.ТабличнаяЧасть.КакаяТоТабличнаяЧасть",
+        target: "Catalog.TestCatalog.TabularSection.КакаяТоТабличнаяЧасть",
         attributes: expect.objectContaining({ kind: "TABULAR_SECTION" }),
       }),
     )
     expect(edges).toContainEqual(
       expect.objectContaining({
-        target: "Справочник.TestCatalog.СтандартныйРеквизит.Владелец",
+        target: "Catalog.TestCatalog.StandardAttribute.Owner",
         attributes: expect.objectContaining({ kind: "STANDARD_ATTRIBUTE" }),
       }),
     )
   })
 
   it("imports reference dependencies with target stubs", () => {
-    const attr = "Справочник.TestCatalog.Реквизит.КакойТоРеквизит"
+    const attr = "Catalog.TestCatalog.Attribute.КакойТоРеквизит"
     expect([...graph.outEdgeEntries(attr)]).toContainEqual(
       expect.objectContaining({
-        target: "Справочник.ДругойСправочник",
+        target: "Catalog.ДругойСправочник",
         attributes: expect.objectContaining({ kind: "TYPE" }),
       }),
     )
   })
 
   it("stub node has no item before target is imported", () => {
-    const stubAttrs = graph.getNodeAttributes("Справочник.ДругойСправочник")
+    const stubAttrs = graph.getNodeAttributes("Catalog.ДругойСправочник")
     expect(stubAttrs.item).toBeUndefined()
   })
 
   it("stub node has no filePaths (belongs to no file)", () => {
-    const stubAttrs = graph.getNodeAttributes("Справочник.ДругойСправочник")
+    const stubAttrs = graph.getNodeAttributes("Catalog.ДругойСправочник")
     // В GraphBuilder stub-узел имеет пустой массив filePaths (не undefined)
     expect(stubAttrs.filePaths).toEqual([])
   })
@@ -77,20 +77,20 @@ describe("importMetadataCatalogDependenciesFromYAML", () => {
       context: mockContext,
     })
 
-    const attrs = graph.getNodeAttributes("Справочник.ДругойСправочник")
+    const attrs = graph.getNodeAttributes("Catalog.ДругойСправочник")
     expect(attrs.item).toBeDefined()
     expect((attrs.item as { name: string }).name).toBe("ДругойСправочник")
     expect(attrs.filePaths[0]).toBe("other.yaml")
   })
 
   it("стандартный реквизит из YAML имеет item", () => {
-    const attrs = graph.getNodeAttributes("Справочник.TestCatalog.СтандартныйРеквизит.Владелец")
+    const attrs = graph.getNodeAttributes("Catalog.TestCatalog.StandardAttribute.Owner")
     expect(attrs.item).toBeDefined()
     expect((attrs.item as { name: string }).name).toBe("Owner")
   })
 
   it("стандартный реквизит без описания в YAML имеет default item", () => {
-    const attrs = graph.getNodeAttributes("Справочник.TestCatalog.СтандартныйРеквизит.Ссылка")
+    const attrs = graph.getNodeAttributes("Catalog.TestCatalog.StandardAttribute.Ref")
     expect(attrs.item).toBeDefined()
     expect((attrs.item as { itemType: string; name: string }).itemType).toBe("StandardAttributeDescription")
     expect((attrs.item as { name: string }).name).toBe("Ref")

@@ -14,7 +14,7 @@ import {
 // Активирует регистрации side-effect (registerTypeRule)
 import "./graphFromModel"
 
-const PARENT_NODE = "Справочник.Товары"
+const PARENT_NODE = "Catalog.Товары"
 const FILE_PATH = "test/Свойства.yaml"
 
 function makeGraph() {
@@ -84,9 +84,26 @@ describe("extractSingleValueRef", () => {
     const result = extractSingleValueRef(v, { offset: 10, line: 2, column: 5 })
     expect(result).toBeDefined()
     expect(result!.kind).toBe("VALUE")
-    expect(result!.ref.id).toBe("Справочник.Пользователи.ПустаяСсылка")
-    expect(result!.ref.name).toBe("ПустаяСсылка")
+    expect(result!.ref.id).toBe("Catalog.Пользователи.EmptyRef")
+    expect(result!.ref.name).toBe("EmptyRef")
     expect(result!.ref.positionFrom).toEqual({ offset: 10, line: 2, column: 5 })
+  })
+
+  it("ref со значением справочника → ребро к PredefinedData", () => {
+    const v: MetadataRefValue = { type: "ref", value: "Catalog.СтавкиНДС.БезНДС" }
+    const result = extractSingleValueRef(v)
+    expect(result).toBeDefined()
+    expect(result!.kind).toBe("VALUE")
+    expect(result!.ref.id).toBe("Catalog.СтавкиНДС.PredefinedData.БезНДС")
+    expect(result!.ref.name).toBe("БезНДС")
+  })
+
+  it("ref со значением плана счетов → ребро к PredefinedData", () => {
+    const v: MetadataRefValue = { type: "ref", value: "ChartOfAccounts.Хозрасчетный.Основной" }
+    const result = extractSingleValueRef(v)
+    expect(result).toBeDefined()
+    expect(result!.ref.id).toBe("ChartOfAccounts.Хозрасчетный.PredefinedData.Основной")
+    expect(result!.ref.name).toBe("Основной")
   })
 
   it("ref со значением перечисления (EnumValue) → ребро kind Значение без EnumValue в nodeId", () => {
@@ -94,7 +111,7 @@ describe("extractSingleValueRef", () => {
     const result = extractSingleValueRef(v)
     expect(result).toBeDefined()
     expect(result!.kind).toBe("VALUE")
-    expect(result!.ref.id).toBe("Перечисление.ВидыДоговоров.СПоставщиком")
+    expect(result!.ref.id).toBe("Enum.ВидыДоговоров.СПоставщиком")
     expect(result!.ref.name).toBe("СПоставщиком")
   })
 
@@ -102,7 +119,7 @@ describe("extractSingleValueRef", () => {
     const v: MetadataRefValue = { type: "ref", value: "Enum.Статус.EmptyRef" }
     const result = extractSingleValueRef(v)
     expect(result).toBeDefined()
-    expect(result!.ref.id).toBe("Перечисление.Статус.ПустаяСсылка")
+    expect(result!.ref.id).toBe("Enum.Статус.EmptyRef")
   })
 
   it("objectRef → ребро kind Объект", () => {
@@ -113,7 +130,7 @@ describe("extractSingleValueRef", () => {
     const result = extractSingleValueRef(v, { offset: 5, line: 1, column: 6 })
     expect(result).toBeDefined()
     expect(result!.kind).toBe("OBJECT")
-    expect(result!.ref.id).toBe("ПланВидовХарактеристик.ДополнительныеРеквизиты")
+    expect(result!.ref.id).toBe("ChartOfCharacteristicTypes.ДополнительныеРеквизиты")
     expect(result!.ref.positionFrom).toEqual({ offset: 5, line: 1, column: 6 })
   })
 
@@ -122,7 +139,7 @@ describe("extractSingleValueRef", () => {
     const result = extractSingleValueRef(v)
     expect(result).toBeDefined()
     expect(result!.kind).toBe("OBJECT")
-    expect(result!.ref.id).toBe("Справочник.Контрагенты")
+    expect(result!.ref.id).toBe("Catalog.Контрагенты")
   })
 })
 
@@ -160,8 +177,8 @@ describe("buildMetadataValueGraph", () => {
     const edges = [...graph.outEdgeEntries(PARENT_NODE)]
     expect(edges).toHaveLength(1)
     expect(edges[0].attributes.kind).toBe("VALUE")
-    expect(edges[0].target).toBe("Справочник.Пользователи.ПустаяСсылка")
-    expect(graph.hasNode("Справочник.Пользователи.ПустаяСсылка")).toBe(true)
+    expect(edges[0].target).toBe("Catalog.Пользователи.EmptyRef")
+    expect(graph.hasNode("Catalog.Пользователи.EmptyRef")).toBe(true)
   })
 
   it("objectRef → создаёт ребро kind Объект", () => {
@@ -179,7 +196,7 @@ describe("buildMetadataValueGraph", () => {
     const edges = [...graph.outEdgeEntries(PARENT_NODE)]
     expect(edges).toHaveLength(1)
     expect(edges[0].attributes.kind).toBe("OBJECT")
-    expect(edges[0].target).toBe("Справочник.Контрагенты")
+    expect(edges[0].target).toBe("Catalog.Контрагенты")
   })
 
   it("undefined model → не создаёт рёбер", () => {
@@ -214,9 +231,9 @@ describe("buildMetadataValueGraph", () => {
       const graph = makeGraph()
       const yaml = `
 Свойство:
-  - Перечисление.ТипыСчетов.КосвенныеЗатраты
-  - Перечисление.ТипыСчетов.Расходы
-  - Перечисление.ТипыСчетов.ПрямыеЗатраты
+  - Enum.ТипыСчетов.КосвенныеЗатраты
+  - Enum.ТипыСчетов.Расходы
+  - Enum.ТипыСчетов.ПрямыеЗатраты
 `
       const lineCounter = new LineCounter()
       const doc = parseDocument(yaml, { lineCounter })
@@ -252,9 +269,9 @@ describe("buildMetadataValueGraph", () => {
 
       // Целевые узлы
       const targets = edges.map((e) => e.target)
-      expect(targets).toContain("Перечисление.ТипыСчетов.КосвенныеЗатраты")
-      expect(targets).toContain("Перечисление.ТипыСчетов.Расходы")
-      expect(targets).toContain("Перечисление.ТипыСчетов.ПрямыеЗатраты")
+      expect(targets).toContain("Enum.ТипыСчетов.КосвенныеЗатраты")
+      expect(targets).toContain("Enum.ТипыСчетов.Расходы")
+      expect(targets).toContain("Enum.ТипыСчетов.ПрямыеЗатраты")
     })
 
     it("fixedArray с undefined между ref → 2 ребра kind Значение", () => {
@@ -281,8 +298,8 @@ describe("buildMetadataValueGraph", () => {
       expect(edges).toHaveLength(2)
       expect(edges.every((e) => e.attributes.kind === "VALUE")).toBe(true)
       expect(edges.map((e) => e.target)).toEqual([
-        "Перечисление.ТипыСчетов.КосвенныеЗатраты",
-        "Перечисление.ТипыСчетов.Расходы",
+        "Enum.ТипыСчетов.КосвенныеЗатраты",
+        "Enum.ТипыСчетов.Расходы",
       ])
     })
   })
@@ -325,7 +342,7 @@ describe("buildMetadataValueGraph", () => {
       const edges = [...graph.outEdgeEntries(PARENT_NODE)]
       expect(edges).toHaveLength(1)
       expect(edges[0].attributes.kind).toBe("VALUE")
-      expect(edges[0].target).toBe("Перечисление.ВидыДоговоров.СПоставщиком")
+      expect(edges[0].target).toBe("Enum.ВидыДоговоров.СПоставщиком")
     })
 
     it("formChoiceList с вложенной строкой → не создаёт рёбер", () => {

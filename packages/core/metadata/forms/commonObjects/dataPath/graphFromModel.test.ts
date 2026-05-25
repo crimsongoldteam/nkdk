@@ -14,11 +14,11 @@ import "../../elements"
 import "../formAttribute/graphFromModel"
 import "~/metadata/commonObjects/typeDescription/graphFromModel"
 
-const FORM_NODE_ID = "Справочник.Товары.Форма.ФормаЭлемента"
+const FORM_NODE_ID = "Catalog.Товары.Form.ФормаЭлемента"
 const FILE_PATH = "Справочник/Товары/Формы/ФормаЭлемента/Свойства.yaml"
 
 /**
- * Создаёт граф с реквизитом формы «Объект» типа «Справочник.Товары»
+ * Создаёт граф с реквизитом формы «Объект» типа «Catalog.Товары»
  * и несколькими реквизитами прикладного объекта (Наименование, Количество).
  */
 function makeGraphWithFormAttribute() {
@@ -26,19 +26,38 @@ function makeGraphWithFormAttribute() {
   // Форма
   graph.ensureNode(FORM_NODE_ID, { name: "ФормаЭлемента" })
 
-  // Реквизит формы «Объект» типа Справочник.Товары
-  const attrNodeId = `${FORM_NODE_ID}.Реквизит.Объект`
+  // Реквизит формы «Объект» типа Catalog.Товары
+  const attrNodeId = `${FORM_NODE_ID}.Attribute.Объект`
   graph.ensureNode(attrNodeId, { name: "Объект" })
   graph.ensureEdge(FORM_NODE_ID, attrNodeId, "FORM_ATTRIBUTE", { yaml: "РеквизитФормы" })
 
-  // «Тип»-ребро: Объект → Справочник.Товары
-  const typeTargetId = "Справочник.Товары"
+  // «Тип»-ребро: Объект → Catalog.Товары
+  const typeTargetId = "Catalog.Товары"
   graph.ensureNode(typeTargetId, { name: "Товары" })
   graph.ensureEdge(attrNodeId, typeTargetId, "TYPE", { yaml: "Тип" })
 
-  // Реквизиты прикладного объекта
-  graph.ensureNode("Справочник.Товары.Наименование", { name: "Наименование" })
-  graph.ensureNode("Справочник.Товары.Количество", { name: "Количество" })
+  // Стандартные реквизиты прикладного объекта
+  graph.ensureNode("Catalog.Товары.StandardAttribute.Description", { name: "Наименование" })
+  graph.ensureNode("Catalog.Товары.Количество", { name: "Количество" })
+
+  return graph
+}
+
+function makeGraphWithDocumentFormAttribute() {
+  const graph = new GraphBuilder()
+  graph.ensureNode(FORM_NODE_ID, { name: "ФормаЭлемента" })
+
+  const attrNodeId = `${FORM_NODE_ID}.Attribute.Объект`
+  graph.ensureNode(attrNodeId, { name: "Объект" })
+  graph.ensureEdge(FORM_NODE_ID, attrNodeId, "FORM_ATTRIBUTE", { yaml: "РеквизитФормы" })
+
+  const typeTargetId = "Document.Заказ"
+  graph.ensureNode(typeTargetId, { name: "Заказ" })
+  graph.ensureEdge(attrNodeId, typeTargetId, "TYPE", { yaml: "Тип" })
+  graph.ensureNode("Document.Заказ.TabularSection.Товары", { name: "Товары" })
+  graph.ensureEdge(typeTargetId, "Document.Заказ.TabularSection.Товары", "TABULAR_SECTION", {
+    yaml: "ТабличнаяЧасть",
+  })
 
   return graph
 }
@@ -68,14 +87,14 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Element.ПолеВвода1`
     expect(graph.hasNode(elementNodeId)).toBe(true)
 
     const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "DATA_PATH",
     )
     expect(dataPathEdges).toHaveLength(1)
-    expect(dataPathEdges[0].target).toBe("Справочник.Товары.Наименование")
+    expect(dataPathEdges[0].target).toBe("Catalog.Товары.StandardAttribute.Description")
     expect(dataPathEdges[0].attributes).toMatchObject({
       yaml: "ПутьКДанным",
       property: "dataPath",
@@ -104,18 +123,62 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Element.ПолеВвода1`
     const edges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "DATA_PATH",
     )
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Справочник.Товары.Количество")
+    expect(edges[0].target).toBe("Catalog.Товары.Количество")
     expect(edges[0].attributes).toMatchObject({
       yaml: "ПутьКДаннымПодвала",
       property: "footerDataPath",
       sourcePath: "Объект.Количество",
       pathMode: "formLocal",
     })
+  })
+
+  it("form-local standard attribute ведёт к StandardAttribute", () => {
+    const graph = makeGraphWithDocumentFormAttribute()
+
+    buildGraphFromModel({
+      model: {
+        childItems: [{ name: "ПолеНомера", itemType: "InputField", dataPath: "Объект.Number" }],
+      },
+      yamlMap: undefined,
+      rule: ClientApplicationFormRules as never,
+      graph,
+      parentNodeId: FORM_NODE_ID,
+      filePath: FILE_PATH,
+    })
+
+    const elementNodeId = `${FORM_NODE_ID}.Element.ПолеНомера`
+    const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
+      (e) => e.attributes.kind === "DATA_PATH",
+    )
+    expect(dataPathEdges).toHaveLength(1)
+    expect(dataPathEdges[0].target).toBe("Document.Заказ.StandardAttribute.Number")
+  })
+
+  it("form-local табличная часть ведёт к TabularSection", () => {
+    const graph = makeGraphWithDocumentFormAttribute()
+
+    buildGraphFromModel({
+      model: {
+        childItems: [{ name: "ТаблицаТоваров", itemType: "Table", dataPath: "Объект.Товары" }],
+      },
+      yamlMap: undefined,
+      rule: ClientApplicationFormRules as never,
+      graph,
+      parentNodeId: FORM_NODE_ID,
+      filePath: FILE_PATH,
+    })
+
+    const elementNodeId = `${FORM_NODE_ID}.Element.ТаблицаТоваров`
+    const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
+      (e) => e.attributes.kind === "DATA_PATH",
+    )
+    expect(dataPathEdges).toHaveLength(1)
+    expect(dataPathEdges[0].target).toBe("Document.Заказ.TabularSection.Товары")
   })
 
   it("создаёт reference-ребро ПутьКДаннымЗаголовка для titleDataPath", () => {
@@ -138,12 +201,12 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
+    const elementNodeId = `${FORM_NODE_ID}.Element.Группа1`
     const edges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "DATA_PATH",
     )
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Справочник.Товары.Наименование")
+    expect(edges[0].target).toBe("Catalog.Товары.StandardAttribute.Description")
     expect(edges[0].attributes).toMatchObject({
       yaml: "ПутьКДаннымЗаголовка",
       property: "titleDataPath",
@@ -177,8 +240,8 @@ describe("DataPath buildGraphFromModel — ПутьКДанным", () => {
       filePath: FILE_PATH,
     })
 
-    const inputFieldNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
-    const groupNodeId = `${FORM_NODE_ID}.Элемент.Группа1`
+    const inputFieldNodeId = `${FORM_NODE_ID}.Element.ПолеВвода1`
+    const groupNodeId = `${FORM_NODE_ID}.Element.Группа1`
     const legacyKinds = new Set([
       "FOOTER_DATA_PATH",
       "TITLE_DATA_PATH",
@@ -222,7 +285,7 @@ describe("DataPath buildGraphFromModel — edge-cases", () => {
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Element.ПолеВвода1`
     const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "DATA_PATH",
     )
@@ -251,14 +314,14 @@ describe("DataPath buildGraphFromModel — edge-cases", () => {
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Element.ПолеВвода1`
     const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "DATA_PATH",
     )
     // Ребро создано (к заглушке)
     expect(dataPathEdges).toHaveLength(1)
     const stubId = dataPathEdges[0].target
-    expect(stubId).toBe("Справочник.Товары.НесуществующийРеквизит")
+    expect(stubId).toBe("Catalog.Товары.НесуществующийРеквизит")
     // В GraphBuilder stub-узел имеет пустой массив filePaths (не undefined)
     expect(graph.getNodeAttributes(stubId).filePaths).toEqual([])
   })
@@ -283,7 +346,7 @@ describe("DataPath buildGraphFromModel — edge-cases", () => {
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Element.ПолеВвода1`
     const dataPathEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "DATA_PATH",
     )
@@ -318,11 +381,11 @@ describe("extractGraph для TypeDescription на элементах формы
       filePath: FILE_PATH,
     })
 
-    const elementNodeId = `${FORM_NODE_ID}.Элемент.ПолеВвода1`
+    const elementNodeId = `${FORM_NODE_ID}.Element.ПолеВвода1`
     const typeEdges = [...graph.outEdgeEntries(elementNodeId)].filter(
       (e) => e.attributes.kind === "AVAILABLE_TYPES",
     )
     expect(typeEdges).toHaveLength(1)
-    expect(typeEdges[0].target).toBe("Справочник.Товары")
+    expect(typeEdges[0].target).toBe("Catalog.Товары")
   })
 })

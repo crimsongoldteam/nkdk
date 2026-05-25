@@ -1,4 +1,5 @@
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
+import { canonicalizeMetadataGraphPath } from "~/metadata/commonObjects/metadataPath/graphPath"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
 import {
@@ -24,12 +25,13 @@ export function registerFormGraphImport(): void {
       }
     },
     declareRoot: ({ graph, name, pathParams }) => {
-      const ownerNodeId = pathParams.ownerNodeId
-      if (!ownerNodeId) {
+      const rawOwnerNodeId = pathParams.ownerNodeId
+      if (!rawOwnerNodeId) {
         throw new Error("importMetadataFileWithGraph: form kind требует ownerNodeId")
       }
+      const ownerNodeId = canonicalizeMetadataGraphPath(rawOwnerNodeId)
 
-      const formNodeId = `${ownerNodeId}.Форма.${name}`
+      const formNodeId = `${ownerNodeId}.Form.${name}`
       graph.ensureNode(ownerNodeId, { name: ownerNodeId.split(".").pop() ?? ownerNodeId })
       graph.ensureNode(formNodeId, { name })
       graph.ensureEdge(ownerNodeId, formNodeId, "FORM", { yaml: "Форма" })
@@ -55,7 +57,7 @@ function matchFormPath(filePath: string): GraphImportSourceMatch | undefined {
     kind: "form",
     name: formName,
     pathParams: {
-      ownerNodeId: `${owner.dir}.${owner.name}`,
+      ownerNodeId: canonicalizeMetadataGraphPath(`${owner.dir}.${owner.name}`),
       ownerDir: owner.dir,
       ownerName: owner.name,
     },
