@@ -132,6 +132,7 @@ describe("updateGraph", () => {
     expect(cypher).toContainEqual(expect.stringContaining("MATCH (f:File) WHERE f.path IN $filePaths"))
     expect(cypher).toContainEqual(expect.stringContaining("[oldRel:DECLARES|CONTRIBUTES]"))
     expect(cypher).toContainEqual(expect.stringContaining("DELETE oldRel"))
+    expect(cypher).toContainEqual(expect.stringContaining("count(ownerFile) AS owners"))
     expect(cypher).toContainEqual(expect.stringContaining("DETACH DELETE f"))
   })
 
