@@ -25,6 +25,15 @@ describe("importMetadataValueFromYAML", () => {
     expect(result).toEqual({ type: "DataCompositionComparisonType", value: "Equal" })
   })
 
+  it("imports AccountType from explicit YAML", () => {
+    const result = importMetadataValueFromYAML(mockContext, { type: "MetadataValue" } as any, {
+      Тип: "ВидСчета",
+      Значение: "АктивноПассивный",
+    } as any)
+
+    expect(result).toEqual({ type: "AccountType", value: "ActivePassive" })
+  })
+
   describe("строгая валидация valueType", () => {
     it("должен бросить при valueType: [string] и фактическом boolean (Истина)", () => {
       expect(() =>

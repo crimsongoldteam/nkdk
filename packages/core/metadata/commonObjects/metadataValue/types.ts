@@ -17,6 +17,7 @@ export const MetadataValueTypeToXML = {
   uuid: "v8:UUID",
   valueList: "xr:ValueList",
   DataCompositionComparisonType: "dcsset:DataCompositionComparisonType",
+  AccountType: "ent:AccountType",
   fixedArray: "v8:FixedArray",
   formChoiceListDesTimeValue: "FormChoiceListDesTimeValue",
   standardPeriod: "v8:StandardPeriod",
@@ -33,6 +34,7 @@ export type MetadataValueTypeToXMLTypes = [
   ["typeRef", string],
   ["uuid", string],
   ["DataCompositionComparisonType", string],
+  ["AccountType", string],
   // ["fixedArray", string[] | number[] | boolean[]],
   // ["formChoiceListDesTimeValue", { presentation: I8nText; value: MetadataValue }],
 ]
@@ -59,6 +61,7 @@ export type MetadataPrimitiveValueType =
   | "typeRef"
   | "uuid"
   | "DataCompositionComparisonType"
+  | "AccountType"
 
 type MetadataValueTypeToXMLTypesTuple = MetadataValueTypeToXMLTypes[number]
 type MetadataValueTypeToXMLTypesMap = {
@@ -166,11 +169,18 @@ export type MetadataExplicitDataCompositionComparisonTypeYAML = Static<
   typeof MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema
 >
 
+export const MetadataExplicitAccountTypeYAMLJSONSchema = Type.Object({
+  Тип: Type.Literal("ВидСчета"),
+  Значение: Type.String(),
+})
+export type MetadataExplicitAccountTypeYAML = Static<typeof MetadataExplicitAccountTypeYAMLJSONSchema>
+
 export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
   Type.Union([
     MetadataSingleValueJSONSchema,
     MetadataFixedArrayValueJSONSchema,
     MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
+    MetadataExplicitAccountTypeYAMLJSONSchema,
     StandardPeriodYAMLJSONSchema,
     Type.Object({
       Представление: I8nTextJSONSchema,
@@ -182,7 +192,11 @@ export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
 export const MetadataFormChoiceListComplexValueJSONSchema = Type.Object({
   Представление: I8nTextJSONSchema,
   Значение: Type.Optional(
-    Type.Union([MetadataValueJSONSchema, MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema])
+    Type.Union([
+      MetadataValueJSONSchema,
+      MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
+      MetadataExplicitAccountTypeYAMLJSONSchema,
+    ])
   ),
 })
 export type MetadataFormChoiceListComplexValueYAML = Static<typeof MetadataFormChoiceListComplexValueJSONSchema>

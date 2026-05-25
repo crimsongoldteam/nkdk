@@ -28,6 +28,7 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "typeRef",
   "uuid",
   "DataCompositionComparisonType",
+  "AccountType",
 ]
 
 /**
@@ -50,6 +51,13 @@ export const exportMetadataValueToYAML = (
 
   if (!PRIMITIVE_TYPES.includes(data.type as MetadataPrimitiveValueType)) {
     throw new Error(`MetadataValue: неподдерживаемый тип для YAML: ${data.type}`)
+  }
+
+  if (data.type === "AccountType") {
+    return {
+      Тип: "ВидСчета",
+      Значение: primitiveValueHandlers.AccountType.toYAML(context, data) as string,
+    } as MetadataValueYAML
   }
 
   const handler = primitiveValueHandlers[data.type as MetadataPrimitiveValueType]

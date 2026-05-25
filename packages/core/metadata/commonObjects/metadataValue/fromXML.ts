@@ -31,6 +31,7 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "typeRef",
   "uuid",
   "DataCompositionComparisonType",
+  "AccountType",
 ]
 
 const isEmptyMetadataValueXML = (value: Record<string, unknown>): boolean =>

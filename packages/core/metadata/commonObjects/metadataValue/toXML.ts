@@ -29,6 +29,7 @@ const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
   "typeRef",
   "uuid",
   "DataCompositionComparisonType",
+  "AccountType",
 ]
 
 const isNilMetadataValueXML = (value: unknown): value is { "_xsi:nil": true } =>
