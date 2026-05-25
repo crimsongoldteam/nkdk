@@ -1,6 +1,11 @@
 import { close, connect } from "./internal/connection"
+import type { GraphConnection } from "./internal/connection"
 import {
   cleanupOrphanStubs,
+  createEdges,
+  createFileLinks,
+  createFiles,
+  createNodes,
   deleteByFiles,
   ensureFileIndexes,
   ensureLabelIndexes,
@@ -9,6 +14,7 @@ import {
   mergeFiles,
   mergeNodes,
   resetGraph,
+  validateReplacePayload,
 } from "./internal/operations"
 import type { FileGraphData, GraphProgress, GraphUpdateOptions, GraphUpdatePhase } from "./types"
 
@@ -27,6 +33,23 @@ const reportPhase = async (
   onProgress?.({ phase, done: 0, total: 1 })
   await fn()
   onProgress?.({ phase, done: 1, total: 1 })
+}
+
+const replaceGraph = async (
+  conn: GraphConnection,
+  filesToMerge: readonly FileGraphData[],
+  labels: readonly string[],
+  labelByNodeId: ReadonlyMap<string, string>,
+  onProgress: ((progress: GraphProgress) => void) | undefined,
+): Promise<void> => {
+  validateReplacePayload(filesToMerge)
+  await reportPhase("resetGraph", onProgress, () => resetGraph(conn))
+  await reportPhase("ensureFileIndexes", onProgress, () => ensureFileIndexes(conn))
+  await reportPhase("ensureLabelIndexes", onProgress, () => ensureLabelIndexes(conn, labels))
+  await createFiles(conn, filesToMerge, onProgress)
+  await createNodes(conn, filesToMerge.flatMap((f) => f.nodes), onProgress)
+  await createEdges(conn, filesToMerge, labelByNodeId, onProgress)
+  await createFileLinks(conn, filesToMerge, onProgress)
 }
 
 /**
@@ -51,6 +74,11 @@ export const updateGraph = async (
   try {
     if (files.length === 0) {
       await reportPhase("resetGraph", onProgress, () => resetGraph(conn))
+      return
+    }
+
+    if (opts?.replace === true) {
+      await replaceGraph(conn, filesToMerge, labels, labelByNodeId, onProgress)
       return
     }
 
