@@ -5,6 +5,22 @@ import { SourcePosition } from "~/metadata/orchestration/property/position"
 import { getTypeDescriptionRule } from "./helper"
 import { TypeDescription } from "./types"
 
+export function isGraphReferenceTypeDescriptionItem(type: string): boolean {
+  const dotIndex = type.indexOf(".")
+  if (dotIndex === -1) return false
+  const baseType = type.substring(0, dotIndex)
+  const rule = getTypeDescriptionRule(baseType)
+  return Boolean(rule?.modifier && rule.modifier !== "alwaysType")
+}
+
+export function filterTypeDescriptionGraphProps(model: unknown): unknown {
+  const typeDescription = model as TypeDescription | undefined
+  if (!typeDescription || !Array.isArray(typeDescription.type)) return model
+
+  const type = typeDescription.type.filter((item) => !isGraphReferenceTypeDescriptionItem(item))
+  return { ...typeDescription, type }
+}
+
 export function extractTypeDescriptionGraph(
   model: unknown,
   position?: SourcePosition
@@ -13,12 +29,10 @@ export function extractTypeDescriptionGraph(
   const references: GraphOpsReference[] = []
 
   for (const type of typeDescription.type) {
+    if (!isGraphReferenceTypeDescriptionItem(type)) continue
     const dotIndex = type.indexOf(".")
-    if (dotIndex === -1) continue
     const baseType = type.substring(0, dotIndex)
     const detailType = type.substring(dotIndex + 1)
-    const rule = getTypeDescriptionRule(baseType)
-    if (!rule?.modifier || rule.modifier === "alwaysType") continue
 
     const targetNodeId = canonicalizeMetadataTypeGraphPath(`${baseType}.${detailType}`)
     references.push({
@@ -34,7 +48,7 @@ export function extractTypeDescriptionGraph(
   }
 
   if (references.length === 0) return undefined
-  return { references }
+  return { references, itemFlattenTransforms: [filterTypeDescriptionGraphProps] }
 }
 
 registerTypeRule("TypeDescription", "extractGraph", extractTypeDescriptionGraph)

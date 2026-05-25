@@ -27,6 +27,10 @@ function addPositionFromProps(
   props.positionFromColumn = positionFrom.column
 }
 
+function applyItemFlattenTransforms(item: unknown, transforms: readonly ((item: unknown) => unknown)[]): unknown {
+  return transforms.reduce((current, transform) => transform(current), item)
+}
+
 /**
  * Обходит GraphBuilder и группирует узлы и рёбра по filePath.
  *
@@ -60,7 +64,8 @@ export function walkGraphToFileData(graph: GraphBuilder): FileGraphData[] {
     for (const filePath of filePaths) {
       const props: NodeData["props"] = {}
       if (attrs.name !== undefined) props.name = attrs.name
-      Object.assign(props, flattenItem(attrs.item, { skipKeys: attrs.flattenSkipKeys }))
+      const flattenedItem = applyItemFlattenTransforms(attrs.item, attrs.itemFlattenTransforms)
+      Object.assign(props, flattenItem(flattenedItem, { skipKeys: attrs.flattenSkipKeys }))
 
       const item = attrs.item as Record<string, unknown> | undefined
       const itemType = item && typeof item.itemType === "string" ? (item.itemType as string) : undefined

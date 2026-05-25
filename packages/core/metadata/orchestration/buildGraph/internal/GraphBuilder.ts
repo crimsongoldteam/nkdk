@@ -1,5 +1,7 @@
 import type { SourcePosition } from "~/metadata/orchestration/property/position"
 
+export type ItemFlattenTransform = (item: unknown) => unknown
+
 /** Атрибуты узла графа. */
 export interface NodeAttributes {
   name: string | undefined
@@ -7,6 +9,7 @@ export interface NodeAttributes {
   filePaths: string[]
   contributedFilePaths: string[]
   flattenSkipKeys: Set<string>
+  itemFlattenTransforms: ItemFlattenTransform[]
 }
 
 /** Атрибуты ребра графа (kind всегда присутствует; дополнительные поля опциональны). */
@@ -53,6 +56,7 @@ export class GraphBuilder {
       filePaths: [],
       contributedFilePaths: [],
       flattenSkipKeys: new Set(),
+      itemFlattenTransforms: [],
     })
     this.indexNodePrefixes(id)
   }
@@ -125,6 +129,12 @@ export class GraphBuilder {
     for (const key of keys) {
       node.flattenSkipKeys.add(key)
     }
+  }
+
+  /** Добавляет преобразователь item перед flattenItem props. */
+  addItemFlattenTransform(id: string, transform: ItemFlattenTransform): void {
+    const node = this.getNodeAttributes(id)
+    node.itemFlattenTransforms.push(transform)
   }
 
   // ── рёбра ────────────────────────────────────────────────────

@@ -38,6 +38,9 @@ export function applyBuildGraphResult(
       section.children?.length ||
       section.references?.length ||
       section.formLocalReferences?.length
+    for (const transform of section.itemFlattenTransforms ?? []) {
+      ctx.graph.addItemFlattenTransform(ctx.parentNodeId, transform)
+    }
     if (hasOps) {
       if (!section.edgeKind || !section.edgeYaml) {
         throw new Error(
@@ -75,8 +78,25 @@ function hasBuildGraphResult(result: GraphOps | GraphOps[] | undefined | void): 
       Boolean(section.children?.length) ||
       Boolean(section.references?.length) ||
       Boolean(section.formLocalReferences?.length) ||
+      Boolean(section.itemFlattenTransforms?.length) ||
       Boolean(section.recurse?.length),
   )
+}
+
+function applyPropertyItemTransform(
+  item: unknown,
+  key: string,
+  transform: (item: unknown) => unknown,
+): unknown {
+  if (item === null || typeof item !== "object" || Array.isArray(item)) return item
+
+  const record = item as Record<string, unknown>
+  if (!(key in record)) return item
+
+  return {
+    ...record,
+    [key]: transform(record[key]),
+  }
 }
 
 /**
@@ -121,6 +141,11 @@ export function buildGraphFromModel(params: {
             : undefined
         const ops = extractGraphFn(modelValue, position)
         if (ops) {
+          for (const transform of ops.itemFlattenTransforms ?? []) {
+            graph.addItemFlattenTransform(parentNodeId, (item) =>
+              applyPropertyItemTransform(item, key, transform)
+            )
+          }
           // yaml = propRule.yaml ?? edgeDef.yaml (русский YAML-ключ)
           // kind = propRule.graphEdgeKind ?? edgeDef.kind ?? getKindByYaml(yaml)
           const edgeYaml = propRule.yaml ?? edgeDef.yaml

@@ -172,6 +172,8 @@ export interface GraphOps {
   references?: GraphOpsReference[]
   /** Reference-рёбра, цель которых нужно резолвить через resolveFormLocalPath. */
   formLocalReferences?: GraphOpsFormLocalReference[]
+  /** Преобразователи item перед flattenItem props текущего parent-узла. */
+  itemFlattenTransforms?: Array<(item: unknown) => unknown>
   /** Рекурсивные задачи: оркестратор пройдёт по правилу для каждой подмодели после применения локальных ops. */
   recurse?: GraphOpsRecurse[]
   /** ASCII-метка ребра. Передаётся в applyGraphOps оркестратором, когда BuildGraphFromModelFunction возвращает GraphOps вместо мутации graph. */
