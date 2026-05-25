@@ -49,7 +49,8 @@ describe("buildGraphForChangedFile", () => {
     expect(result[0]!.nodes).toContainEqual(
       expect.objectContaining({
         id: "Catalog.Контрагенты",
-        label: "MetadataCatalog",
+        label: "MetadataObject",
+        props: expect.objectContaining({ kind: "MetadataCatalog" }),
       }),
     )
   })

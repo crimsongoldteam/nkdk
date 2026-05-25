@@ -52,8 +52,12 @@ program
   .description("Обновить граф метаданных в FalkorDB по YAML-проекту")
   .argument("<path>", "путь к корню YAML-проекта")
   .option("--file <filePath>", "обновить только один файл проекта")
-  .action((projectPath: string, opts: { file?: string }) => {
-    run(() => opts.file ? updateGraphFile(projectPath, opts.file) : updateGraph(projectPath))
+  .option("--replace", "полностью заменить граф быстрым CREATE-путём")
+  .option("--bulk", "использовать экспериментальный GRAPH.BULK replace-путь; требует --replace")
+  .action((projectPath: string, opts: { file?: string; replace?: boolean; bulk?: boolean }) => {
+    run(() => opts.file
+      ? updateGraphFile(projectPath, opts.file)
+      : updateGraph(projectPath, { replace: opts.replace === true, bulk: opts.bulk === true }))
   })
 
 program

@@ -10,8 +10,19 @@ vi.mock("falkordb", () => ({
 }))
 
 import { connect } from "../src/internal/connection"
-import { mergeNodes, mergeEdges, deleteByFilePaths, cleanupOrphanStubs, ensureLabelIndexes } from "../src/internal/operations"
-import type { NodeData, EdgeData } from "../src/types"
+import {
+  createEdges,
+  createFileLinks,
+  createFiles,
+  createNodes,
+  deleteByFilePaths,
+  cleanupOrphanStubs,
+  ensureLabelIndexes,
+  mergeNodes,
+  mergeEdges,
+  validateReplacePayload,
+} from "../src/internal/operations"
+import type { NodeData, EdgeData, FileGraphData } from "../src/types"
 
 beforeEach(() => {
   queryMock.mockReset().mockResolvedValue({})
@@ -40,31 +51,34 @@ describe("mergeNodes", () => {
     const [catalogCall, documentCall] = queryMock.mock.calls
     expect(catalogCall[0]).toContain("UNWIND [{id:\"Справочник.A\"")
     expect(catalogCall[0]).toContain("props:{`name`:\"A\",`filePath`:\"a.yaml\"}")
-    expect(catalogCall[0]).toContain("MERGE (m:MetadataCatalog:GraphNode {id: n.id}) SET m += n.props")
+    expect(catalogCall[0]).toContain("MERGE (m:MetadataCatalog {id: n.id}) SET m += n.props")
+    expect(catalogCall[0]).not.toContain(":GraphNode")
     expect(catalogCall[1]).toBeUndefined()
-    expect(documentCall[0]).toContain("MERGE (m:MetadataDocument:GraphNode {id: n.id}) SET m += n.props")
+    expect(documentCall[0]).toContain("MERGE (m:MetadataDocument {id: n.id}) SET m += n.props")
+    expect(documentCall[0]).not.toContain(":GraphNode")
   })
 
-  it("не дублирует GraphNode label при merge узла GraphNode", async () => {
+  it("оставляет GraphStub label при merge стаб-узла", async () => {
     const conn = await connect()
     await mergeNodes(conn, [
-      { id: "A", label: "GraphNode", props: { name: "A" } },
+      { id: "A", label: "GraphStub", props: { name: "A" } },
     ])
 
     const cypher = queryMock.mock.calls[0][0] as string
-    expect(cypher).toContain("MERGE (m:GraphNode {id: n.id}) SET m += n.props")
-    expect(cypher).not.toContain(":GraphNode:GraphNode")
+    expect(cypher).toContain("MERGE (m:GraphStub {id: n.id}) SET m += n.props")
+    expect(cypher).not.toContain(":GraphNode")
   })
 
-  it("использует безопасный GraphNode fallback для пустого label узла", async () => {
+  it("использует безопасный GraphStub fallback для пустого label узла", async () => {
     const conn = await connect()
     await mergeNodes(conn, [
       { id: "A", label: "", props: { name: "A" } },
     ])
 
     const cypher = queryMock.mock.calls[0][0] as string
-    expect(cypher).toContain("MERGE (m:GraphNode {id: n.id}) SET m += n.props")
+    expect(cypher).toContain("MERGE (m:GraphStub {id: n.id}) SET m += n.props")
     expect(cypher).not.toContain("m::")
+    expect(cypher).not.toContain(":GraphNode")
   })
 
   it("экранирует ключи props, которые нельзя передать в Cypher-map без кавычек", async () => {
@@ -171,7 +185,7 @@ describe("mergeEdges", () => {
     )
   })
 
-  it("использует GraphNode fallback для неизвестных label концов ребра", async () => {
+  it("использует GraphStub fallback для неизвестных label концов ребра", async () => {
     const conn = await connect()
     await mergeEdges(
       conn,
@@ -180,19 +194,182 @@ describe("mergeEdges", () => {
     )
 
     expect(queryMock.mock.calls[0][0]).toContain(
-      "MATCH (s:MetadataAttribute {id: e.src}), (t:GraphNode {id: e.tgt})",
+      "MATCH (s:MetadataAttribute {id: e.src}), (t:GraphStub {id: e.tgt})",
     )
     expect(queryMock.mock.calls[0][0]).not.toContain("(t {id: e.tgt})")
   })
 
-  it("legacy-вызов без label ищет концы ребра через GraphNode fallback", async () => {
+  it("legacy-вызов без label ищет концы ребра через GraphStub fallback", async () => {
     const conn = await connect()
     await mergeEdges(conn, [{ src: "A", tgt: "B", kind: "VALUE" }])
 
     const cypher = queryMock.mock.calls[0][0] as string
-    expect(cypher).toContain("MATCH (s:GraphNode {id: e.src}), (t:GraphNode {id: e.tgt})")
+    expect(cypher).toContain("MATCH (s:GraphStub {id: e.src}), (t:GraphStub {id: e.tgt})")
     expect(cypher).not.toContain("(s {id: e.src})")
     expect(cypher).not.toContain("(t {id: e.tgt})")
+  })
+})
+
+describe("createFiles", () => {
+  it("пишет File-узлы через CREATE", async () => {
+    const conn = await connect()
+    const files: FileGraphData[] = [
+      { filePath: "a.yaml", fileStats: { mtimeMs: 1, size: 2, updatedAt: 3 }, nodes: [], edges: [] },
+    ]
+
+    await createFiles(conn, files)
+
+    expect(queryMock).toHaveBeenCalledTimes(1)
+    expect(queryMock.mock.calls[0][0]).toContain("CREATE (f:File {path: file.path")
+    expect(queryMock.mock.calls[0][0]).not.toContain("MERGE (f:File")
+  })
+})
+
+describe("createNodes", () => {
+  it("пишет предметные узлы через CREATE без общей GraphNode label", async () => {
+    const conn = await connect()
+    const nodes: NodeData[] = [
+      { id: "A", label: "MetadataCatalog", props: { name: "A" } },
+    ]
+
+    await createNodes(conn, nodes)
+
+    expect(queryMock).toHaveBeenCalledTimes(1)
+    expect(queryMock.mock.calls[0][0]).toContain("CREATE (m:MetadataCatalog {id: n.id}")
+    expect(queryMock.mock.calls[0][0]).not.toContain(":GraphNode")
+    expect(queryMock.mock.calls[0][0]).not.toContain("MERGE (m:")
+  })
+})
+
+describe("createEdges", () => {
+  it("пишет предметные рёбра через CREATE и сохраняет filePath", async () => {
+    const conn = await connect()
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [],
+        edges: [{ src: "A", tgt: "B", kind: "VALUE", props: { yaml: "Значение" } }],
+      },
+    ]
+
+    await createEdges(conn, files, new Map([["A", "MetadataCatalog"], ["B", "MetadataAttribute"]]))
+
+    expect(queryMock).toHaveBeenCalledTimes(1)
+    expect(queryMock.mock.calls[0][0]).toContain("MATCH (s:MetadataCatalog {id: e.src}), (t:MetadataAttribute {id: e.tgt})")
+    expect(queryMock.mock.calls[0][0]).toContain("CREATE (s)-[r:VALUE")
+    expect(queryMock.mock.calls[0][0]).toContain("SET r.filePath = e.filePath")
+    expect(queryMock.mock.calls[0][0]).not.toContain("MERGE (s)-[r:VALUE")
+  })
+})
+
+describe("createFileLinks", () => {
+  it("пишет DECLARES и CONTRIBUTES через CREATE", async () => {
+    const conn = await connect()
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [{ id: "A", label: "MetadataCatalog", props: {} }],
+        edges: [],
+        declaredNodeIds: ["A"],
+        contributedNodeIds: ["B"],
+      },
+    ]
+
+    await createFileLinks(conn, files)
+
+    const cypher = queryMock.mock.calls.map((call) => call[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE (f)-[:DECLARES]->(n)"))
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE (f)-[:CONTRIBUTES]->(n)"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("MERGE (f)-[:DECLARES]->(n)"))
+  })
+
+  it("ищет узлы для File links через переданные labels", async () => {
+    const conn = await connect()
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [{ id: "A", label: "MetadataObject", props: {} }],
+        edges: [],
+        declaredNodeIds: ["A"],
+        contributedNodeIds: ["B"],
+      },
+    ]
+
+    await createFileLinks(conn, files, new Map([["A", "MetadataObject"], ["B", "FormElement"]]))
+
+    const cypher = queryMock.mock.calls.map((call) => call[0] as string)
+    expect(cypher).toContainEqual(expect.stringContaining("(n:MetadataObject {id: link.nodeId}) CREATE (f)-[:DECLARES]->(n)"))
+    expect(cypher).toContainEqual(expect.stringContaining("(n:FormElement {id: link.nodeId}) CREATE (f)-[:CONTRIBUTES]->(n)"))
+  })
+})
+
+describe("validateReplacePayload", () => {
+  it("падает на повторяющемся filePath", () => {
+    const files: FileGraphData[] = [
+      { filePath: "a.yaml", nodes: [], edges: [] },
+      { filePath: "a.yaml", nodes: [], edges: [] },
+    ]
+
+    expect(() => validateReplacePayload(files)).toThrow("Duplicate File.path in replace payload: a.yaml")
+  })
+
+  it("падает на повторяющемся node id", () => {
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [
+          { id: "A", label: "MetadataCatalog", props: {} },
+          { id: "A", label: "MetadataAttribute", props: {} },
+        ],
+        edges: [],
+      },
+    ]
+
+    expect(() => validateReplacePayload(files)).toThrow("Duplicate Node.id in replace payload: A")
+  })
+
+  it("падает на повторяющейся DECLARES-связи", () => {
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [{ id: "A", label: "MetadataCatalog", props: {} }],
+        edges: [],
+        declaredNodeIds: ["A", "A"],
+      },
+    ]
+
+    expect(() => validateReplacePayload(files)).toThrow("Duplicate DECLARES link in replace payload: a.yaml -> A")
+  })
+
+  it("падает на повторяющейся CONTRIBUTES-связи", () => {
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [],
+        edges: [],
+        contributedNodeIds: ["B", "B"],
+      },
+    ]
+
+    expect(() => validateReplacePayload(files)).toThrow("Duplicate CONTRIBUTES link in replace payload: a.yaml -> B")
+  })
+
+  it("не запрещает повторяющиеся предметные рёбра", () => {
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [
+          { id: "A", label: "MetadataCatalog", props: {} },
+          { id: "B", label: "MetadataAttribute", props: {} },
+        ],
+        edges: [
+          { src: "A", tgt: "B", kind: "VALUE" },
+          { src: "A", tgt: "B", kind: "VALUE" },
+        ],
+      },
+    ]
+
+    expect(() => validateReplacePayload(files)).not.toThrow()
   })
 })
 
@@ -240,20 +417,21 @@ describe("ensureLabelIndexes", () => {
     const conn = await connect()
     await ensureLabelIndexes(conn, ["MetadataCatalog", "MetadataDocument", "MetadataCatalog"])
 
-    expect(queryMock).toHaveBeenCalledTimes(3)
+    expect(queryMock).toHaveBeenCalledTimes(2)
     const queries = queryMock.mock.calls.map((c) => c[0])
-    expect(queries).toContain("CREATE INDEX FOR (n:GraphNode) ON (n.id)")
     expect(queries).toContain("CREATE INDEX FOR (n:MetadataCatalog) ON (n.id)")
     expect(queries).toContain("CREATE INDEX FOR (n:MetadataDocument) ON (n.id)")
+    expect(queries).not.toContain("CREATE INDEX FOR (n:GraphNode) ON (n.id)")
   })
 
-  it("не создаёт предметный индекс GraphNode повторно", async () => {
+  it("создаёт индекс GraphStub только когда он есть во входных labels", async () => {
     const conn = await connect()
-    await ensureLabelIndexes(conn, ["GraphNode", "MetadataCatalog", "GraphNode"])
+    await ensureLabelIndexes(conn, ["GraphStub", "MetadataCatalog", "GraphStub"])
 
     const queries = queryMock.mock.calls.map((c) => c[0])
-    expect(queries.filter((q) => q === "CREATE INDEX FOR (n:GraphNode) ON (n.id)")).toHaveLength(1)
+    expect(queries.filter((q) => q === "CREATE INDEX FOR (n:GraphStub) ON (n.id)")).toHaveLength(1)
     expect(queries).toContain("CREATE INDEX FOR (n:MetadataCatalog) ON (n.id)")
+    expect(queries).not.toContain("CREATE INDEX FOR (n:GraphNode) ON (n.id)")
   })
 
   it("глотает 'already indexed' / 'equivalent index'", async () => {
@@ -267,7 +445,6 @@ describe("ensureLabelIndexes", () => {
   it("ничего не делает на пустом массиве", async () => {
     const conn = await connect()
     await ensureLabelIndexes(conn, [])
-    expect(queryMock).toHaveBeenCalledTimes(1)
-    expect(queryMock.mock.calls[0][0]).toBe("CREATE INDEX FOR (n:GraphNode) ON (n.id)")
+    expect(queryMock).not.toHaveBeenCalled()
   })
 })

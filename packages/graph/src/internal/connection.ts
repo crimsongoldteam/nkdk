@@ -14,6 +14,7 @@ export type GraphConnection = { readonly [graphConnectionBrand]: true }
 type InternalGraphConnection = {
   client: Awaited<ReturnType<typeof FalkorDB.connect>>
   graph: ReturnType<Awaited<ReturnType<typeof FalkorDB.connect>>["selectGraph"]>
+  graphName: string
 }
 
 const asInternal = (conn: GraphConnection): InternalGraphConnection =>
@@ -27,7 +28,7 @@ export const connect = async (opts?: GraphOptions): Promise<GraphConnection> => 
   const graphName = opts?.graphName ?? process.env["NKDK_GRAPH_NAME"] ?? DEFAULT_GRAPH_NAME
   const client = await FalkorDB.connect({ url })
   const graph = client.selectGraph(graphName)
-  return asExternal({ client, graph })
+  return asExternal({ client, graph, graphName })
 }
 
 export const close = async (conn: GraphConnection): Promise<void> => {
@@ -46,6 +47,15 @@ export const query = async (
   return await asInternal(conn).graph.query(cypher, opts)
 }
 
+export const deleteGraph = async (conn: GraphConnection): Promise<void> => {
+  try {
+    await asInternal(conn).graph.delete()
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (!/does not exist|not found|no such graph|empty key/i.test(msg)) throw err
+  }
+}
+
 export const ensureIndex = async (
   conn: GraphConnection,
   label: string,
@@ -57,4 +67,30 @@ export const ensureIndex = async (
     const msg = err instanceof Error ? err.message : String(err)
     if (!/already indexed|equivalent index|index already exists/i.test(msg)) throw err
   }
+}
+
+export type RawGraphCommandArg = string | Buffer
+
+export const graphNameOf = (conn: GraphConnection): string => asInternal(conn).graphName
+
+export const rawCommand = async (
+  conn: GraphConnection,
+  args: readonly RawGraphCommandArg[],
+): Promise<unknown> => {
+  const falkorClient = asInternal(conn).client as unknown as {
+    executeCommand?: (args: readonly RawGraphCommandArg[]) => Promise<unknown>
+    sendCommand?: (args: readonly RawGraphCommandArg[]) => Promise<unknown>
+    connection?: Promise<unknown>
+  }
+  if (typeof falkorClient.executeCommand === "function") return await falkorClient.executeCommand(args)
+  if (typeof falkorClient.sendCommand === "function") return await falkorClient.sendCommand(args)
+
+  const redisClient = await falkorClient.connection as {
+    executeCommand?: (args: readonly RawGraphCommandArg[]) => Promise<unknown>
+    sendCommand?: (args: readonly RawGraphCommandArg[]) => Promise<unknown>
+  } | undefined
+  if (typeof redisClient?.executeCommand === "function") return await redisClient.executeCommand(args)
+  if (typeof redisClient?.sendCommand === "function") return await redisClient.sendCommand(args)
+
+  throw new Error("FalkorDB client does not expose raw command execution")
 }
