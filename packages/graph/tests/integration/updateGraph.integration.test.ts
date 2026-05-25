@@ -180,6 +180,66 @@ describe("updateGraph (integration)", () => {
   })
 
   it("replace-режим создаёт тот же маленький граф, что и обычный полный путь", async () => {
+    const readSnapshot = async () =>
+      await withGraph(
+        async (g) => {
+          const files = await g.query<{ path: string; mtimeMs: number; size: number; updatedAt: number }>(
+            [
+              "MATCH (f:File)",
+              "RETURN f.path AS path, f.mtimeMs AS mtimeMs, f.size AS size, f.updatedAt AS updatedAt",
+              "ORDER BY path",
+            ].join(" "),
+          )
+          const nodes = await g.query<{
+            id: string
+            labels: string[]
+            name: string | null
+            p_hierarchical: boolean | null
+          }>(
+            [
+              "MATCH (n:GraphNode)",
+              "RETURN n.id AS id, labels(n) AS labels, n.name AS name, n.p_hierarchical AS p_hierarchical",
+              "ORDER BY id",
+            ].join(" "),
+          )
+          const values = await g.query<{
+            src: string
+            tgt: string
+            yaml: string | null
+            filePath: string | null
+          }>(
+            [
+              "MATCH (src:GraphNode)-[value:VALUE]->(tgt:GraphNode)",
+              "RETURN src.id AS src, tgt.id AS tgt, value.yaml AS yaml, value.filePath AS filePath",
+              "ORDER BY src, tgt, yaml, filePath",
+            ].join(" "),
+          )
+          const declares = await g.query<{ file: string; node: string }>(
+            [
+              "MATCH (file:File)-[:DECLARES]->(node:GraphNode)",
+              "RETURN file.path AS file, node.id AS node",
+              "ORDER BY file, node",
+            ].join(" "),
+          )
+          const contributes = await g.query<{ file: string; node: string }>(
+            [
+              "MATCH (file:File)-[:CONTRIBUTES]->(node:GraphNode)",
+              "RETURN file.path AS file, node.id AS node",
+              "ORDER BY file, node",
+            ].join(" "),
+          )
+
+          return {
+            files,
+            nodes: nodes.map((node) => ({ ...node, labels: [...node.labels].sort() })),
+            values,
+            declares,
+            contributes,
+          }
+        },
+        opts(),
+      )
+
     const files: FileGraphData[] = [
       {
         filePath: "a.yaml",
@@ -195,46 +255,28 @@ describe("updateGraph (integration)", () => {
     ]
 
     await updateGraph(files, opts())
-    const normalRows = await withGraph(
-      async (g) =>
-        await g.query<{ files: number; nodes: number; values: number; declares: number; contributes: number }>(
-          [
-            "MATCH (f:File)",
-            "WITH count(f) AS files",
-            "MATCH (n:GraphNode)",
-            "WITH files, count(n) AS nodes",
-            "MATCH ()-[value:VALUE]->()",
-            "WITH files, nodes, count(value) AS values",
-            "MATCH (:File)-[declares:DECLARES]->()",
-            "WITH files, nodes, values, count(declares) AS declares",
-            "MATCH (:File)-[contributes:CONTRIBUTES]->()",
-            "RETURN files, nodes, values, declares, count(contributes) AS contributes",
-          ].join(" "),
-        ),
+    const normalSnapshot = await readSnapshot()
+
+    await withGraph(
+      async (g) => {
+        await g.query("MATCH (n) DETACH DELETE n")
+      },
       opts(),
     )
 
     await updateGraph(files, { ...opts(), replace: true })
-    const replaceRows = await withGraph(
-      async (g) =>
-        await g.query<{ files: number; nodes: number; values: number; declares: number; contributes: number }>(
-          [
-            "MATCH (f:File)",
-            "WITH count(f) AS files",
-            "MATCH (n:GraphNode)",
-            "WITH files, count(n) AS nodes",
-            "MATCH ()-[value:VALUE]->()",
-            "WITH files, nodes, count(value) AS values",
-            "MATCH (:File)-[declares:DECLARES]->()",
-            "WITH files, nodes, values, count(declares) AS declares",
-            "MATCH (:File)-[contributes:CONTRIBUTES]->()",
-            "RETURN files, nodes, values, declares, count(contributes) AS contributes",
-          ].join(" "),
-        ),
-      opts(),
-    )
+    const replaceSnapshot = await readSnapshot()
 
-    expect(replaceRows).toEqual(normalRows)
-    expect(replaceRows[0]).toEqual({ files: 1, nodes: 2, values: 1, declares: 1, contributes: 1 })
+    expect(replaceSnapshot).toEqual(normalSnapshot)
+    expect(replaceSnapshot).toEqual({
+      files: [{ path: "a.yaml", mtimeMs: 1, size: 2, updatedAt: 3 }],
+      nodes: [
+        { id: "A", labels: ["GraphNode", "MetadataCatalog"], name: "A", p_hierarchical: true },
+        { id: "B", labels: ["GraphNode", "MetadataAttribute"], name: "B", p_hierarchical: null },
+      ],
+      values: [{ src: "A", tgt: "B", yaml: "Реквизит", filePath: "a.yaml" }],
+      declares: [{ file: "a.yaml", node: "A" }],
+      contributes: [{ file: "a.yaml", node: "B" }],
+    })
   })
 })
