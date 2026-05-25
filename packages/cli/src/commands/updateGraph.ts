@@ -11,6 +11,11 @@ import { readChangedProjectSources, readProjectGraphSources } from "../graph/pro
 
 const CONTEXT = { version: "2.20", defaultLanguage: "ru" }
 
+export interface UpdateGraphCommandOptions {
+  replace?: boolean
+  bulk?: boolean
+}
+
 const createProgressReporter = () => {
   const startedAtByPhase = new Map<string, number>()
   let lastLine = ""
@@ -117,7 +122,15 @@ export const updateGraphFile = async (projectPath: string, filePath: string): Pr
   await updateGraphFiles(projectPath, [filePath])
 }
 
-export const updateGraph = async (projectPath: string): Promise<void> => {
+export const updateGraph = async (
+  projectPath: string,
+  opts: UpdateGraphCommandOptions = {},
+): Promise<void> => {
+  if (opts.bulk === true && opts.replace !== true) {
+    console.error(chalk.red("--bulk можно использовать только вместе с --replace"))
+    process.exit(1)
+  }
+
   const absoluteProjectPath = resolve(projectPath)
   if (!existsSync(absoluteProjectPath)) {
     console.error(chalk.red(`Директория не найдена: ${projectPath}`))
@@ -136,8 +149,17 @@ export const updateGraph = async (projectPath: string): Promise<void> => {
 
   const tWriteStart = performance.now()
   const graphOptions = createGraphOptions(absoluteProjectPath)
-  await writeGraph([], graphOptions)
-  await writeGraph(graphFiles, { ...graphOptions, onProgress: createProgressReporter() })
+  if (opts.replace === true) {
+    await writeGraph(graphFiles, {
+      ...graphOptions,
+      replace: true,
+      bulk: opts.bulk === true,
+      onProgress: createProgressReporter(),
+    })
+  } else {
+    await writeGraph([], graphOptions)
+    await writeGraph(graphFiles, { ...graphOptions, onProgress: createProgressReporter() })
+  }
   const tWrite = performance.now() - tWriteStart
 
   const totalNodes = graphFiles.reduce((sum, file) => sum + file.nodes.length, 0)

@@ -4,6 +4,8 @@ const queryMock = vi.fn()
 const selectGraphMock = vi.fn()
 const connectMock = vi.fn()
 const closeMock = vi.fn()
+const executeCommandMock = vi.fn()
+const deleteGraphMock = vi.fn()
 
 vi.mock("falkordb", () => ({
   FalkorDB: { connect: (opts?: unknown) => connectMock(opts) },
@@ -14,11 +16,13 @@ import type { FileGraphData } from "../src/types"
 
 beforeEach(() => {
   queryMock.mockReset().mockResolvedValue({})
-  selectGraphMock.mockReset().mockReturnValue({ query: queryMock })
+  executeCommandMock.mockReset().mockResolvedValue("OK")
+  deleteGraphMock.mockReset().mockResolvedValue(undefined)
+  selectGraphMock.mockReset().mockReturnValue({ query: queryMock, delete: deleteGraphMock })
   closeMock.mockReset().mockResolvedValue(undefined)
   connectMock
     .mockReset()
-    .mockResolvedValue({ selectGraph: selectGraphMock, close: closeMock })
+    .mockResolvedValue({ selectGraph: selectGraphMock, executeCommand: executeCommandMock, close: closeMock })
 })
 
 describe("updateGraph", () => {
@@ -46,12 +50,14 @@ describe("updateGraph", () => {
     expect(cypher).toContainEqual(expect.stringContaining("MERGE (f:File {path: file.path})"))
     expect(cypher).toContainEqual(expect.stringContaining("MERGE (f)-[:DECLARES]->(n)"))
     expect(cypher).toContainEqual(expect.stringContaining("MERGE (f)-[:CONTRIBUTES]->(n)"))
-    expect(cypher).toContainEqual(expect.stringContaining("(n:GraphNode {id: link.nodeId})"))
+    expect(cypher).toContainEqual(expect.stringContaining("(n:MetadataCatalog {id: link.nodeId})"))
+    expect(cypher).toContainEqual(expect.stringContaining("(n:ClientApplicationForm {id: link.nodeId})"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("(n:GraphNode {id: link.nodeId})"))
     expect(cypher).not.toContainEqual(expect.stringContaining("(n {id: link.nodeId})"))
     expect(cypher).toContainEqual(expect.stringContaining("SET r.filePath = e.filePath"))
   })
 
-  it("создаёт GraphNode index и пишет предметные узлы с общей меткой", async () => {
+  it("не создаёт GraphNode index и пишет предметные узлы без общей метки", async () => {
     await updateGraph([
       {
         filePath: "a.yaml",
@@ -61,11 +67,13 @@ describe("updateGraph", () => {
     ])
 
     const cypher = queryMock.mock.calls.map((call) => call[0] as string)
-    expect(cypher).toContainEqual(expect.stringContaining("CREATE INDEX FOR (n:GraphNode) ON (n.id)"))
-    expect(cypher).toContainEqual(expect.stringContaining("MERGE (m:MetadataCatalog:GraphNode {id: n.id})"))
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE INDEX FOR (n:MetadataCatalog) ON (n.id)"))
+    expect(cypher).toContainEqual(expect.stringContaining("MERGE (m:MetadataCatalog {id: n.id})"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("CREATE INDEX FOR (n:GraphNode) ON (n.id)"))
+    expect(cypher).not.toContainEqual(expect.stringContaining(":GraphNode"))
   })
 
-  it("для неизвестной метки target использует GraphNode fallback", async () => {
+  it("для неизвестной метки target использует GraphStub fallback", async () => {
     await updateGraph([
       {
         filePath: "a.yaml",
@@ -75,7 +83,7 @@ describe("updateGraph", () => {
     ])
 
     const cypher = queryMock.mock.calls.map((call) => call[0] as string)
-    expect(cypher).toContainEqual(expect.stringContaining("MATCH (s:MetadataCatalog {id: e.src}), (t:GraphNode {id: e.tgt})"))
+    expect(cypher).toContainEqual(expect.stringContaining("MATCH (s:MetadataCatalog {id: e.src}), (t:GraphStub {id: e.tgt})"))
     expect(cypher).not.toContainEqual(expect.stringContaining("MATCH (s:MetadataCatalog {id: e.src}), (t {id: e.tgt})"))
   })
 
@@ -124,6 +132,7 @@ describe("updateGraph", () => {
     expect(cypher).toContainEqual(expect.stringContaining("MATCH (f:File) WHERE f.path IN $filePaths"))
     expect(cypher).toContainEqual(expect.stringContaining("[oldRel:DECLARES|CONTRIBUTES]"))
     expect(cypher).toContainEqual(expect.stringContaining("DELETE oldRel"))
+    expect(cypher).toContainEqual(expect.stringContaining("count(ownerFile) AS owners"))
     expect(cypher).toContainEqual(expect.stringContaining("DETACH DELETE f"))
   })
 
@@ -216,6 +225,74 @@ describe("updateGraph", () => {
       "MATCH (n) DETACH DELETE n",
     ])
     expect(closeMock).toHaveBeenCalledTimes(1)
+  })
+
+  it("replace-режим очищает граф и пишет через CREATE без delete/cleanup", async () => {
+    await updateGraph([
+      {
+        filePath: "a.yaml",
+        fileStats: { mtimeMs: 10, size: 20, updatedAt: 30 },
+        nodes: [{ id: "A", label: "MetadataCatalog", props: { name: "A" } }],
+        edges: [{ src: "A", tgt: "A", kind: "SELF", props: { yaml: "Сам" } }],
+        declaredNodeIds: ["A"],
+      },
+    ], { replace: true })
+
+    const cypher = queryMock.mock.calls.map((c) => c[0] as string)
+    expect(cypher[0]).toBe("MATCH (n) DETACH DELETE n")
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE (f:File {path: file.path"))
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE (m:MetadataCatalog {id: n.id}"))
+    expect(cypher).not.toContainEqual(expect.stringContaining(":GraphNode"))
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE (s)-[r:SELF"))
+    expect(cypher).toContainEqual(expect.stringContaining("CREATE (f)-[:DECLARES]->(n)"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("MATCH (f:File) WHERE f.path IN $filePaths"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("MERGE (f:File {path: file.path})"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("MERGE (m:MetadataCatalog"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("MERGE (s)-[r:SELF]->(t)"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("WHERE NOT (:File)-[:DECLARES]->(n)"))
+  })
+
+  it("replace-режим сообщает progress по create-фазам", async () => {
+    const onProgress = vi.fn()
+    await updateGraph([
+      {
+        filePath: "a.yaml",
+        nodes: [
+          { id: "A", label: "MetadataCatalog", props: { name: "A" } },
+          { id: "B", label: "ClientApplicationForm", props: { name: "B" } },
+        ],
+        edges: [{ src: "A", tgt: "B", kind: "FORM" }],
+        declaredNodeIds: ["A"],
+        contributedNodeIds: ["B"],
+      },
+    ], { replace: true, onProgress })
+
+    const phases = onProgress.mock.calls.map(([progress]) => progress.phase)
+    expect(phases).toContain("resetGraph")
+    expect(phases).toContain("createFiles")
+    expect(phases).toContain("createNodes")
+    expect(phases).toContain("createEdges")
+    expect(phases).toContain("createFileLinks")
+    expect(phases).not.toContain("deleteByFiles")
+    expect(phases).not.toContain("mergeNodes")
+    expect(phases).not.toContain("cleanupOrphanStubs")
+  })
+
+  it("replace + bulk использует GRAPH.BULK путь без createEdges", async () => {
+    const files: FileGraphData[] = [
+      {
+        filePath: "a.yaml",
+        nodes: [{ id: "A", label: "MetadataCatalog", props: { name: "A" } }],
+        edges: [],
+      },
+    ]
+
+    await updateGraph(files, { graphName: "test", replace: true, bulk: true })
+
+    const cypher = queryMock.mock.calls.map((call) => call[0] as string)
+    expect(executeCommandMock).toHaveBeenCalledWith(expect.arrayContaining(["GRAPH.BULK", "test", "BEGIN"]))
+    expect(cypher).not.toContainEqual(expect.stringContaining("CREATE (m:MetadataCatalog"))
+    expect(cypher).not.toContainEqual(expect.stringContaining("CREATE (f:File"))
   })
 
   it("прокидывает ConnectionOptions в connect", async () => {

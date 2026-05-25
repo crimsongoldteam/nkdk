@@ -63,6 +63,12 @@ export type GraphUpdatePhase =
   | "mergeNodes"
   | "mergeEdges"
   | "mergeFileLinks"
+  | "createFiles"
+  | "createNodes"
+  | "createEdges"
+  | "createFileLinks"
+  | "bulkPlan"
+  | "bulkWrite"
   | "cleanupOrphanStubs"
 
 export interface GraphProgress {
@@ -73,4 +79,12 @@ export interface GraphProgress {
 
 export interface GraphUpdateOptions extends ConnectionOptions {
   onProgress?: (progress: GraphProgress) => void
+  /** Полная замена графа: reset + CREATE-путь без инкрементального delete/MERGE. */
+  replace?: boolean
+  /** Экспериментальный replace-путь через прямой GRAPH.BULK binary import. */
+  bulk?: boolean
+  /** Максимальный размер одного GRAPH.BULK blob. По умолчанию 256MB, максимум FalkorDB 512MB. */
+  maxBulkBlobBytes?: number
+  /** Максимальный размер одной GRAPH.BULK команды. По умолчанию 768MB. */
+  maxBulkCommandBytes?: number
 }

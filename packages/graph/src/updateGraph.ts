@@ -1,6 +1,12 @@
 import { close, connect } from "./internal/connection"
+import type { GraphConnection } from "./internal/connection"
+import { replaceGraphBulk } from "./bulk/replaceGraphBulk"
 import {
   cleanupOrphanStubs,
+  createEdges,
+  createFileLinks,
+  createFiles,
+  createNodes,
   deleteByFiles,
   ensureFileIndexes,
   ensureLabelIndexes,
@@ -9,6 +15,7 @@ import {
   mergeFiles,
   mergeNodes,
   resetGraph,
+  validateReplacePayload,
 } from "./internal/operations"
 import type { FileGraphData, GraphProgress, GraphUpdateOptions, GraphUpdatePhase } from "./types"
 
@@ -27,6 +34,23 @@ const reportPhase = async (
   onProgress?.({ phase, done: 0, total: 1 })
   await fn()
   onProgress?.({ phase, done: 1, total: 1 })
+}
+
+const replaceGraph = async (
+  conn: GraphConnection,
+  filesToMerge: readonly FileGraphData[],
+  labels: readonly string[],
+  labelByNodeId: ReadonlyMap<string, string>,
+  onProgress: ((progress: GraphProgress) => void) | undefined,
+): Promise<void> => {
+  validateReplacePayload(filesToMerge)
+  await reportPhase("resetGraph", onProgress, () => resetGraph(conn))
+  await reportPhase("ensureFileIndexes", onProgress, () => ensureFileIndexes(conn))
+  await reportPhase("ensureLabelIndexes", onProgress, () => ensureLabelIndexes(conn, labels))
+  await createFiles(conn, filesToMerge, onProgress)
+  await createNodes(conn, filesToMerge.flatMap((f) => f.nodes), onProgress)
+  await createEdges(conn, filesToMerge, labelByNodeId, onProgress)
+  await createFileLinks(conn, filesToMerge, labelByNodeId, onProgress)
 }
 
 /**
@@ -54,13 +78,26 @@ export const updateGraph = async (
       return
     }
 
+    if (opts?.replace === true) {
+      if (opts.bulk === true) {
+        await replaceGraphBulk(conn, filesToMerge, {
+          onProgress,
+          maxBlobBytes: opts.maxBulkBlobBytes,
+          maxCommandBytes: opts.maxBulkCommandBytes,
+        })
+        return
+      }
+      await replaceGraph(conn, filesToMerge, labels, labelByNodeId, onProgress)
+      return
+    }
+
     await reportPhase("ensureFileIndexes", onProgress, () => ensureFileIndexes(conn))
     await reportPhase("ensureLabelIndexes", onProgress, () => ensureLabelIndexes(conn, labels))
     await reportPhase("deleteByFiles", onProgress, () => deleteByFiles(conn, filePaths))
     await mergeFiles(conn, filesToMerge, onProgress)
     await mergeNodes(conn, allNodes, onProgress)
     await mergeEdges(conn, filesToMerge, labelByNodeId, onProgress)
-    await mergeFileLinks(conn, filesToMerge, onProgress)
+    await mergeFileLinks(conn, filesToMerge, labelByNodeId, onProgress)
     await reportPhase("cleanupOrphanStubs", onProgress, () => cleanupOrphanStubs(conn, true))
   } finally {
     await close(conn)

@@ -1,10 +1,9 @@
 import type { SourcePosition } from "~/metadata/orchestration/property/position"
 import { GraphBuilder } from "./internal/GraphBuilder"
 import { flattenItem } from "./flattenItem"
+import { consolidateGraphLabel } from "./labelConsolidation"
 import { EdgeData, FileGraphData, NodeData } from "./types"
 
-/** Sentinel-метка для узлов без itemType — даёт видеть пробелы сразу. */
-const UNKNOWN_LABEL = "Unknown"
 /** Сегмент для stub-узлов (без filePath). */
 const STUB_SEGMENT = ""
 
@@ -32,7 +31,7 @@ function addPositionFromProps(
  * Обходит GraphBuilder и группирует узлы и рёбра по filePath.
  *
  * Узлы:
- *  - label = item.itemType (если задан), иначе "Unknown".
+ *  - label = схлопнутый item.itemType, иначе "Unknown" или "GraphStub".
  *  - props: name + flattenItem(item) (под p_).
  *  - узлы без filePaths (стабы) уезжают в сегмент с filePath ''.
  *  - узлы с filePaths объявляются в declaredNodeIds соответствующего сегмента.
@@ -65,7 +64,8 @@ export function walkGraphToFileData(graph: GraphBuilder): FileGraphData[] {
 
       const item = attrs.item as Record<string, unknown> | undefined
       const itemType = item && typeof item.itemType === "string" ? (item.itemType as string) : undefined
-      const label = itemType ?? UNKNOWN_LABEL
+      const { label, kind } = consolidateGraphLabel(itemType, filePath !== STUB_SEGMENT)
+      if (kind !== undefined) props.kind = kind
 
       const segment = ensureSegment(filePath)
       segment.nodes.push({ id: nodeId, label, props })
