@@ -142,7 +142,10 @@ import {
   ViewStatusAdditionEnterprise,
   ViewStatusAdditionYAML,
 } from "~/metadata/forms/elements/viewStatusAddition/types"
-// import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
+import type {
+  MetadataConfiguration,
+  MetadataConfigurationYAML,
+} from "../../appliedObjects/configuration/types"
 import {
   CharacteristicsDescription,
   CharacteristicsDescriptionYAML,
@@ -933,10 +936,10 @@ export type MetadataItemTypeRegistry = {
   //#endregion
 
   //#region Applied objects
-  // Configuration: {
-  //   metadata: Configuration
-  //   yaml: ConfigurationYAML
-  // }
+  MetadataConfiguration: {
+    metadata: MetadataConfiguration
+    yaml: MetadataConfigurationYAML
+  }
 
   MetadataCatalog: {
     metadata: MetadataCatalog
