@@ -111,6 +111,21 @@ describe("updateGraph command", () => {
     )
   })
 
+  it("полный updateGraph с replace пишет граф одним replace-вызовом", async () => {
+    const projectPath = createProject()
+    const yamlPath = "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
+    writeProjectFile(projectPath, yamlPath, "Элементы: {}\n")
+
+    await updateGraph(projectPath, { replace: true })
+
+    const graphName = projectGraphName(projectPath)
+    expect(mocks.writeGraph).toHaveBeenCalledOnce()
+    expect(mocks.writeGraph).toHaveBeenCalledWith(
+      [graphFile(yamlPath)],
+      expect.objectContaining({ graphName, replace: true }),
+    )
+  })
+
   it("updateGraphFiles игнорирует неподдержанный файл", async () => {
     const projectPath = createProject()
     const textPath = "Справочник/Товары/Формы/ФормаСписка/Форма.txt"
