@@ -35,7 +35,6 @@ const DEFAULT_LIMITS: BulkWriteLimits = {
   maxBlobBytes: 256 * 1024 * 1024,
   maxCommandBytes: 64 * 1024 * 1024,
 }
-const DEFAULT_CONCURRENCY = 5
 
 const commandBytes = (command: BulkCommand): number =>
   command.blobs.reduce((sum, blob) => sum + blob.buffer.byteLength, 0)
@@ -75,10 +74,9 @@ export const buildBulkCommands = (
 export const writeBulkCommands = async (
   conn: GraphConnection,
   commands: readonly BulkCommand[],
-  opts: BulkWriteOptions = {},
+  _opts: BulkWriteOptions = {},
 ): Promise<BulkWriteStats> => {
   const graphName = graphNameOf(conn)
-  const concurrency = opts.concurrency ?? DEFAULT_CONCURRENCY
   const stats: BulkWriteStats = {
     commands: commands.length,
     nodeBlobs: commands.reduce((sum, command) => sum + command.blobs.filter((blob) => blob.kind === "node").length, 0),
@@ -103,8 +101,8 @@ export const writeBulkCommands = async (
     await rawCommand(conn, args)
   }
 
-  for (let i = 0; i < commands.length; i += concurrency) {
-    await Promise.all(commands.slice(i, i + concurrency).map(send))
+  for (const command of commands) {
+    await send(command)
   }
   return stats
 }

@@ -82,15 +82,18 @@ describe("bulk write", () => {
     expect(result).toEqual({ commands: 1, nodeBlobs: 1, edgeBlobs: 0, totalBytes: 2 })
   })
 
-  it("отправляет GRAPH.BULK команды окном до 5 запросов", async () => {
+  it("отправляет GRAPH.BULK команды строго последовательно", async () => {
     const resolvers: Array<() => void> = []
+    const flushPromises = async (): Promise<void> => {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    }
     mocks.rawCommand.mockImplementation(
       () => new Promise((resolve) => {
         resolvers.push(() => resolve("ok"))
       }),
     )
 
-    const commands = Array.from({ length: 6 }, (_, index) => ({
+    const commands = Array.from({ length: 3 }, (_, index) => ({
       begin: index === 0,
       nodeCount: 1,
       edgeCount: 0,
@@ -98,16 +101,22 @@ describe("bulk write", () => {
     }))
 
     const promise = writeBulkCommands({} as GraphConnection, commands)
-    await Promise.resolve()
+    await flushPromises()
 
-    expect(mocks.rawCommand).toHaveBeenCalledTimes(5)
+    expect(mocks.rawCommand).toHaveBeenCalledTimes(1)
 
-    for (const resolve of resolvers.splice(0, 5)) resolve()
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    resolvers[0]!()
+    await flushPromises()
 
-    expect(mocks.rawCommand).toHaveBeenCalledTimes(6)
+    expect(mocks.rawCommand).toHaveBeenCalledTimes(2)
 
-    resolvers[0]?.()
+    resolvers[1]!()
+    await flushPromises()
+
+    expect(mocks.rawCommand).toHaveBeenCalledTimes(3)
+
+    resolvers[2]!()
     await promise
+    expect(mocks.rawCommand).toHaveBeenCalledTimes(3)
   })
 })
