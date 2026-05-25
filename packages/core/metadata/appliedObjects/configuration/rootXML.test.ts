@@ -47,6 +47,41 @@ describe("root Configuration XML", () => {
 
   it("сохраняет неизвестные корневые XML-узлы из reference", () => {
     const source = readXMLFileAsString("configuration/full.xml")
+    const data = importConfiguration(source, false)
+
+    expect(data).toMatchObject({
+      itemType: "MetadataConfiguration",
+      name: "Конфигурация",
+      namePrefix: "",
+      configurationExtensionCompatibilityMode: "Version8_3_27",
+      defaultRunMode: "ManagedApplication",
+      usePurposes: expect.arrayContaining(["PlatformApplication", "MobilePlatformApplication"]),
+      scriptVariant: "Russian",
+      defaultRoles: ["Role.Администратор"],
+      vendor: "Поставщик",
+      version: "Версия",
+      includeHelpInContents: true,
+      additionalFullTextSearchDictionaries: [],
+      commonSettingsStorage: "SettingsStorage.ХранилищеНастроек1",
+      defaultReportForm: "CommonForm.ОбычнаяГруппа",
+      usedMobileApplicationFunctionalities: expect.arrayContaining([
+        { functionality: "Biometrics", use: true },
+        { functionality: "Location", use: true },
+      ]),
+      standaloneConfigurationRestrictionRoles: [],
+      mainClientApplicationWindowMode: "Normal",
+      defaultInterface: "",
+      defaultStyle: "Style.Стиль1",
+      defaultLanguage: "Language.Русский",
+      dataLockControlMode: "AutomaticAndManaged",
+      objectAutonumerationMode: "AutoFree",
+      modalityUseMode: "UseWithWarnings",
+      synchronousPlatformExtensionAndAddInCallUseMode: "UseWithWarnings",
+      interfaceCompatibilityMode: "TaxiEnableVersion8_2",
+      databaseTablespacesUseMode: "DontUse",
+      compatibilityMode: "Version8_3_26",
+      defaultConstantsForm: "",
+    })
 
     expect(normalizeXML(roundTripConfigurationXML(source))).toBe(normalizeXML(source))
   })

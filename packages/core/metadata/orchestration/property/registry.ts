@@ -387,6 +387,10 @@ import {
 } from "~/metadata/commonObjects/typeDescription/types"
 import { TypeLink, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { UsePurposes, UsePurposesYAML } from "~/metadata/commonObjects/usePurposes/types"
+import type {
+  UsedMobileApplicationFunctionalities,
+  UsedMobileApplicationFunctionalitiesYAML,
+} from "~/metadata/appliedObjects/configuration/usedMobileApplicationFunctionalities"
 import { UserSettingsID, UserSettingsIDYAML } from "~/metadata/commonObjects/userSettingsID/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
@@ -855,6 +859,10 @@ export type PropertyTypeRegistry = {
     item: UsePurposes
     enterprise: string[]
     yaml: UsePurposesYAML
+  }
+  UsedMobileApplicationFunctionalities: {
+    item: UsedMobileApplicationFunctionalities
+    yaml: UsedMobileApplicationFunctionalitiesYAML
   }
 
   FunctionalOptionsProperty: {
@@ -1479,6 +1487,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   WSDefinitionSchemas: "WSDefinitionSchemas",
   TypeLink: "TypeLink",
   UsePurposes: "UsePurposes",
+  UsedMobileApplicationFunctionalities: "UsedMobileApplicationFunctionalities",
   GroupChildItems: "GroupChildItems",
   CommandBarChildItems: "CommandBarChildItems",
   TableChildItems: "TableChildItems",
