@@ -1,0 +1,133 @@
+import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
+import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+
+const properties = ["Properties"]
+
+export const MetadataWebSocketClientRules = {
+  itemType: "MetadataWebSocketClient",
+  itemTypePrefix: "WebSocketКлиент",
+  xmlDir: "WebSocketClients",
+  properties: {
+    xmlRoot: {
+      type: "XMLRoot",
+      container: "WebSocketClient",
+      rootAttributes: V8_MDCLASSES_ROOT,
+      forReferenceOnly: true,
+      toYAML: false,
+      fromYAML: false,
+    },
+    uuid: {
+      type: "uuid",
+      xml: "_uuid",
+      forReferenceOnly: true,
+      xmlParents: [],
+    },
+    name: {
+      type: "string",
+      xmlParents: properties,
+      required: true,
+    },
+    synonym: {
+      yaml: "Синоним",
+      type: "I8nText",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+    },
+    comment: {
+      yaml: "Комментарий",
+      type: "string",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+    },
+    predefined: {
+      yaml: "Предопределенный",
+      xml: "Predefined",
+      type: "boolean",
+      xmlParents: properties,
+      defaultValueXML: false,
+      defaultValueYAML: false,
+    },
+    autoConnect: {
+      yaml: "АвтоПодключение",
+      xml: "AutoConnect",
+      type: "boolean",
+      xmlParents: properties,
+      defaultValueXML: false,
+      defaultValueYAML: false,
+    },
+    serverURL: {
+      yaml: "АдресСервера",
+      xml: "ServerURL",
+      type: "string",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+    },
+    user: {
+      yaml: "Пользователь",
+      xml: "User",
+      type: "string",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+    },
+    password: {
+      yaml: "Пароль",
+      xml: "Password",
+      type: "string",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+    },
+    headers: {
+      yaml: "Заголовки",
+      xml: "Headers",
+      type: "WebSocketClientHeaders",
+      xmlParents: properties,
+      defaultValueXML: [],
+      defaultValueYAML: [],
+    },
+    useOSProxy: {
+      yaml: "ИспользоватьПроксиОС",
+      xml: "UseOSProxy",
+      type: "boolean",
+      xmlParents: properties,
+      defaultValueXML: false,
+      defaultValueYAML: false,
+    },
+    useOSAuthentication: {
+      yaml: "ИспользоватьАутентификациюОС",
+      xml: "UseOSAuthentication",
+      type: "boolean",
+      xmlParents: properties,
+      defaultValueXML: false,
+      defaultValueYAML: false,
+    },
+    timeout: {
+      yaml: "Таймаут",
+      xml: "Timeout",
+      type: "number",
+      xmlParents: properties,
+      defaultValueXML: 30,
+      defaultValueYAML: 30,
+    },
+    module: {
+      type: "Module",
+      nkdkPath: "Модуль.bsl",
+      xmlPath: "Ext/Module.bsl",
+    },
+    objectBelonging: {
+      yaml: "ПринадлежностьОбъекта",
+      xml: "ObjectBelonging",
+      type: "SystemEnumeration",
+      typeSE: "ObjectBelonging",
+      xmlParents: properties,
+      defaultValueYAML: "Native",
+      toYAML: false,
+      fromYAML: false,
+    },
+    extendedConfigurationObject: {
+      xml: "ExtendedConfigurationObject",
+      type: "string",
+      xmlParents: properties,
+      runtimeOnly: true,
+    },
+  },
+} as const satisfies MetadataItemRule

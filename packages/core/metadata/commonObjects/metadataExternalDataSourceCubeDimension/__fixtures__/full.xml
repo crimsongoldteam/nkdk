@@ -1,0 +1,54 @@
+<Dimension uuid="e6dfd431-5737-49f2-a414-d92aa8516219">
+	<Properties>
+		<Name>ИзмерениеВсеСвойства</Name>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Синоним</v8:content>
+			</v8:item>
+		</Synonym>
+		<Comment>Комментарий</Comment>
+		<Type>
+			<v8:Type>cfg:ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства</v8:Type>
+		</Type>
+		<PasswordMode>true</PasswordMode>
+		<Format>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>
+			</v8:item>
+		</Format>
+		<EditFormat>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>
+			</v8:item>
+		</EditFormat>
+		<ToolTip>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка</v8:content>
+			</v8:item>
+		</ToolTip>
+		<MarkNegatives>true</MarkNegatives>
+		<Mask>Маска</Mask>
+		<MultiLine>true</MultiLine>
+		<ExtendedEdit>true</ExtendedEdit>
+		<MinValue xsi:type="xs:string">4</MinValue>
+		<MaxValue xsi:type="xs:string">96</MaxValue>
+		<FillFromFillingValue>true</FillFromFillingValue>
+		<FillValue xsi:nil="true"/>
+		<FillChecking>ShowError</FillChecking>
+		<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+		<ChoiceParameterLinks/>
+		<ChoiceParameters/>
+		<QuickChoice>Auto</QuickChoice>
+		<CreateOnInput>DontUse</CreateOnInput>
+		<ChoiceForm/>
+		<LinkByType>
+			<xr:DataPath>-2</xr:DataPath>
+			<xr:LinkItem>1</xr:LinkItem>
+		</LinkByType>
+		<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
+	</Properties>
+</Dimension>

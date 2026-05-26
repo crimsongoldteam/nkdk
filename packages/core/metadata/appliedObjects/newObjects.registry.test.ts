@@ -21,6 +21,10 @@ const expectedItemTypes = [
   "MetadataIntegrationService",
   "MetadataTask",
   "MetadataWebService",
+  "MetadataCommonModule",
+  "MetadataXDTOPackage",
+  "MetadataWebSocketClient",
+  "MetadataExternalDataSource",
 ]
 
 describe("new applied object rules are registered as top-level rules", () => {

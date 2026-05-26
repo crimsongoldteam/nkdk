@@ -257,6 +257,10 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "Число",
     prefix: "xs",
   },
+  base64Binary: {
+    enterprise: "ДвоичныеДанные",
+    prefix: "xs",
+  },
   dateTime: {
     enterprise: "ДатаВремя",
     prefix: "xs",
@@ -376,6 +380,18 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
   },
   ExchangePlanObject: {
     enterprise: "ПланОбменаОбъект",
+    prefix: "cfg",
+    modifier: "complex",
+    ignoreInEnterprise: true,
+  },
+  ExternalDataSourceTableRef: {
+    enterprise: "ВнешнийИсточникДанныхТаблица",
+    prefix: "cfg",
+    modifier: "complex",
+    ignoreInEnterprise: true,
+  },
+  ExternalDataSourceCubeDimensionTableRef: {
+    enterprise: "ВнешнийИсточникДанныхКубТаблицаИзмерения",
     prefix: "cfg",
     modifier: "complex",
     ignoreInEnterprise: true,

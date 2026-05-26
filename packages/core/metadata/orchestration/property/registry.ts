@@ -85,6 +85,16 @@ import {
   MetadataCommonTemplate,
   MetadataCommonTemplateYAML,
 } from "~/metadata/appliedObjects/metadataCommonTemplate/types"
+import { MetadataCommonModule, MetadataCommonModuleYAML } from "~/metadata/appliedObjects/metadataCommonModule/types"
+import { MetadataXDTOPackage, MetadataXDTOPackageYAML } from "~/metadata/appliedObjects/metadataXDTOPackage/types"
+import {
+  MetadataWebSocketClient,
+  MetadataWebSocketClientYAML,
+} from "~/metadata/appliedObjects/metadataWebSocketClient/types"
+import {
+  MetadataExternalDataSource,
+  MetadataExternalDataSourceYAML,
+} from "~/metadata/appliedObjects/metadataExternalDataSource/types"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
 import {
   MetadataCommandGroup as MetadataAppliedCommandGroup,
@@ -297,6 +307,10 @@ import {
 } from "~/metadata/commonObjects/metadataRegisterAttribute/types"
 import { XDTOPackages, XDTOPackagesYAML } from "~/metadata/commonObjects/xDTOPackages/types"
 import {
+  WebSocketClientHeaders,
+  WebSocketClientHeadersYAML,
+} from "~/metadata/commonObjects/webSocketClientHeaders/types"
+import {
   MetadataRegisterDimensions,
   MetadataRegisterDimensionsYAML,
 } from "~/metadata/commonObjects/metadataRegisterDimension/types"
@@ -304,6 +318,48 @@ import {
   MetadataRegisterResources,
   MetadataRegisterResourcesYAML,
 } from "~/metadata/commonObjects/metadataRegisterResource/types"
+import {
+  MetadataExternalDataSourceCubeDimension,
+  MetadataExternalDataSourceCubeDimensions,
+  MetadataExternalDataSourceCubeDimensionsYAML,
+  MetadataExternalDataSourceCubeDimensionYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceCubeDimension/types"
+import {
+  MetadataExternalDataSourceCubeResource,
+  MetadataExternalDataSourceCubeResources,
+  MetadataExternalDataSourceCubeResourcesYAML,
+  MetadataExternalDataSourceCubeResourceYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceCubeResource/types"
+import {
+  MetadataExternalDataSourceField,
+  MetadataExternalDataSourceFields,
+  MetadataExternalDataSourceFieldsYAML,
+  MetadataExternalDataSourceFieldYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceField/types"
+import {
+  MetadataExternalDataSourceFunction,
+  MetadataExternalDataSourceFunctions,
+  MetadataExternalDataSourceFunctionsYAML,
+  MetadataExternalDataSourceFunctionYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceFunction/types"
+import {
+  MetadataExternalDataSourceTable,
+  MetadataExternalDataSourceTables,
+  MetadataExternalDataSourceTablesYAML,
+  MetadataExternalDataSourceTableYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceTable/types"
+import {
+  MetadataExternalDataSourceDimensionTable,
+  MetadataExternalDataSourceDimensionTables,
+  MetadataExternalDataSourceDimensionTablesYAML,
+  MetadataExternalDataSourceDimensionTableYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceDimensionTable/types"
+import {
+  MetadataExternalDataSourceCube,
+  MetadataExternalDataSourceCubes,
+  MetadataExternalDataSourceCubesYAML,
+  MetadataExternalDataSourceCubeYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceCube/types"
 import { Recalculations, RecalculationsYAML } from "~/metadata/commonObjects/recalculation/types"
 import {
   AccountingFlags,
@@ -362,6 +418,7 @@ import {
   MetadataValueCollection,
   MetadataValueCollectionYAML,
 } from "~/metadata/commonObjects/metadataValueCollection/types"
+import type { ExternalFile, ExternalFileYAML } from "~/metadata/commonObjects/externalFile/types"
 import type { ExternalPicture, ExternalPictureYAML } from "~/metadata/commonObjects/externalPicture/types"
 import type { ChildSubsystemNames, ChildSubsystemNamesYAML } from "~/metadata/commonObjects/childSubsystemNames/types"
 import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
@@ -556,6 +613,10 @@ export type PropertyTypeRegistry = {
     item: ExternalPicture
     yaml: ExternalPictureYAML
   }
+  ExternalFile: {
+    item: ExternalFile
+    yaml: ExternalFileYAML
+  }
   ExternalFormItemFile: {
     item: never
     yaml: never
@@ -735,6 +796,10 @@ export type PropertyTypeRegistry = {
     item: XDTOPackages
     yaml: XDTOPackagesYAML
   }
+  WebSocketClientHeaders: {
+    item: WebSocketClientHeaders
+    yaml: WebSocketClientHeadersYAML
+  }
   MetadataRegisterResources: {
     item: MetadataRegisterResources
     yaml: MetadataRegisterResourcesYAML
@@ -742,6 +807,62 @@ export type PropertyTypeRegistry = {
   MetadataRegisterDimensions: {
     item: MetadataRegisterDimensions
     yaml: MetadataRegisterDimensionsYAML
+  }
+  MetadataExternalDataSourceField: {
+    item: MetadataExternalDataSourceField
+    yaml: MetadataExternalDataSourceFieldYAML
+  }
+  MetadataExternalDataSourceFields: {
+    item: MetadataExternalDataSourceFields
+    yaml: MetadataExternalDataSourceFieldsYAML
+  }
+  MetadataExternalDataSourceFunction: {
+    item: MetadataExternalDataSourceFunction
+    yaml: MetadataExternalDataSourceFunctionYAML
+  }
+  MetadataExternalDataSourceFunctions: {
+    item: MetadataExternalDataSourceFunctions
+    yaml: MetadataExternalDataSourceFunctionsYAML
+  }
+  MetadataExternalDataSourceTable: {
+    item: MetadataExternalDataSourceTable
+    yaml: MetadataExternalDataSourceTableYAML
+  }
+  MetadataExternalDataSourceTables: {
+    item: MetadataExternalDataSourceTables
+    yaml: MetadataExternalDataSourceTablesYAML
+  }
+  MetadataExternalDataSourceDimensionTable: {
+    item: MetadataExternalDataSourceDimensionTable
+    yaml: MetadataExternalDataSourceDimensionTableYAML
+  }
+  MetadataExternalDataSourceDimensionTables: {
+    item: MetadataExternalDataSourceDimensionTables
+    yaml: MetadataExternalDataSourceDimensionTablesYAML
+  }
+  MetadataExternalDataSourceCube: {
+    item: MetadataExternalDataSourceCube
+    yaml: MetadataExternalDataSourceCubeYAML
+  }
+  MetadataExternalDataSourceCubes: {
+    item: MetadataExternalDataSourceCubes
+    yaml: MetadataExternalDataSourceCubesYAML
+  }
+  MetadataExternalDataSourceCubeDimension: {
+    item: MetadataExternalDataSourceCubeDimension
+    yaml: MetadataExternalDataSourceCubeDimensionYAML
+  }
+  MetadataExternalDataSourceCubeDimensions: {
+    item: MetadataExternalDataSourceCubeDimensions
+    yaml: MetadataExternalDataSourceCubeDimensionsYAML
+  }
+  MetadataExternalDataSourceCubeResource: {
+    item: MetadataExternalDataSourceCubeResource
+    yaml: MetadataExternalDataSourceCubeResourceYAML
+  }
+  MetadataExternalDataSourceCubeResources: {
+    item: MetadataExternalDataSourceCubeResources
+    yaml: MetadataExternalDataSourceCubeResourcesYAML
   }
   MetadataRegisterAttributes: {
     item: MetadataRegisterAttributes
@@ -954,6 +1075,22 @@ export type PropertyTypeRegistry = {
   MetadataCommonTemplate: {
     item: MetadataCommonTemplate
     yaml: MetadataCommonTemplateYAML
+  }
+  MetadataCommonModule: {
+    item: MetadataCommonModule
+    yaml: MetadataCommonModuleYAML
+  }
+  MetadataXDTOPackage: {
+    item: MetadataXDTOPackage
+    yaml: MetadataXDTOPackageYAML
+  }
+  MetadataWebSocketClient: {
+    item: MetadataWebSocketClient
+    yaml: MetadataWebSocketClientYAML
+  }
+  MetadataExternalDataSource: {
+    item: MetadataExternalDataSource
+    yaml: MetadataExternalDataSourceYAML
   }
   ClientApplicationForm: {
     item: ClientApplicationForm
@@ -1416,6 +1553,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   // ChildItems: "ChildItems",
   Picture: "Picture",
   ExternalPicture: "ExternalPicture",
+  ExternalFile: "ExternalFile",
   ExternalFormItemFile: "ExternalFormItemFile",
   Border: "Border",
   CommandName: "CommandName",
@@ -1456,8 +1594,23 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataWebServiceOperations: "MetadataWebServiceOperations",
   MetadataWebServiceParameters: "MetadataWebServiceParameters",
   XDTOPackages: "XDTOPackages",
+  WebSocketClientHeaders: "WebSocketClientHeaders",
   MetadataRegisterResources: "MetadataRegisterResources",
   MetadataRegisterDimensions: "MetadataRegisterDimensions",
+  MetadataExternalDataSourceField: "MetadataExternalDataSourceField",
+  MetadataExternalDataSourceFields: "MetadataExternalDataSourceFields",
+  MetadataExternalDataSourceFunction: "MetadataExternalDataSourceFunction",
+  MetadataExternalDataSourceFunctions: "MetadataExternalDataSourceFunctions",
+  MetadataExternalDataSourceTable: "MetadataExternalDataSourceTable",
+  MetadataExternalDataSourceTables: "MetadataExternalDataSourceTables",
+  MetadataExternalDataSourceDimensionTable: "MetadataExternalDataSourceDimensionTable",
+  MetadataExternalDataSourceDimensionTables: "MetadataExternalDataSourceDimensionTables",
+  MetadataExternalDataSourceCube: "MetadataExternalDataSourceCube",
+  MetadataExternalDataSourceCubes: "MetadataExternalDataSourceCubes",
+  MetadataExternalDataSourceCubeDimension: "MetadataExternalDataSourceCubeDimension",
+  MetadataExternalDataSourceCubeDimensions: "MetadataExternalDataSourceCubeDimensions",
+  MetadataExternalDataSourceCubeResource: "MetadataExternalDataSourceCubeResource",
+  MetadataExternalDataSourceCubeResources: "MetadataExternalDataSourceCubeResources",
   MetadataRegisterAttributes: "MetadataRegisterAttributes",
   Recalculations: "Recalculations",
   AccountingFlags: "AccountingFlags",
@@ -1514,6 +1667,10 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataCommonForm: "MetadataCommonForm",
   MetadataCommonPicture: "MetadataCommonPicture",
   MetadataCommonTemplate: "MetadataCommonTemplate",
+  MetadataCommonModule: "MetadataCommonModule",
+  MetadataXDTOPackage: "MetadataXDTOPackage",
+  MetadataWebSocketClient: "MetadataWebSocketClient",
+  MetadataExternalDataSource: "MetadataExternalDataSource",
   ClientApplicationForm: "ClientApplicationForm",
   MetadataAppliedCommandGroup: "MetadataAppliedCommandGroup",
   MetadataStyle: "MetadataStyle",

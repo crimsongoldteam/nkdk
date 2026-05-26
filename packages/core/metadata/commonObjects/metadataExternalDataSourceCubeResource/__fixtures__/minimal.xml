@@ -1,0 +1,32 @@
+<Resource uuid="7a598ea1-6876-44df-9916-5f48e2a5fc5d">
+	<Properties>
+		<Name>РесурсПоУмолчанию</Name>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Ресурс по умолчанию</v8:content>
+			</v8:item>
+		</Synonym>
+		<Comment/>
+		<Type>
+			<v8:Type>xs:string</v8:Type>
+			<v8:StringQualifiers>
+				<v8:Length>10</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+		</Type>
+		<PasswordMode>false</PasswordMode>
+		<Format/>
+		<EditFormat/>
+		<ToolTip/>
+		<MarkNegatives>false</MarkNegatives>
+		<Mask/>
+		<MultiLine>false</MultiLine>
+		<ChoiceParameterLinks/>
+		<ChoiceParameters/>
+		<QuickChoice>Auto</QuickChoice>
+		<ChoiceForm/>
+		<ExtendedEdit>false</ExtendedEdit>
+		<NameInDataSource>КакоеТоИмяВИсточнике</NameInDataSource>
+	</Properties>
+</Resource>
