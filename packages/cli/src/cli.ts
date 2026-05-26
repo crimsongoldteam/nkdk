@@ -35,8 +35,9 @@ program
   .description("Синхронизация конфигурации из YAML в XML (YAML → XML)")
   .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
   .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
-  .action((yamlDir: string, xmlDir: string) => {
-    run(() => syncConfiguration(yamlDir, xmlDir))
+  .option("--reference <xml-dir>", "путь к XML-каталогу для чтения reference-данных")
+  .action((yamlDir: string, xmlDir: string, opts: { reference?: string }) => {
+    run(() => syncConfiguration(yamlDir, xmlDir, { referenceDir: opts.reference }))
   })
 
 program

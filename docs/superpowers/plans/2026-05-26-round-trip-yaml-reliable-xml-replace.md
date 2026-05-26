@@ -4,7 +4,7 @@
 
 **Goal:** Make `round-trip-yaml` show XML files lost during `XML -> YAML -> XML` as deletions in `git diff`.
 
-**Architecture:** Keep the public `round-trip-yaml` interface unchanged, but change the runner internals. For each active XML directory, start from an empty temporary XML directory, run `nkdk sync` into that temporary directory, and only after successful sync replace the active XML directory contents with the temporary result. The check is intentionally strict: files that are not recreated from YAML disappear from the active XML directory and become deletions in `git diff`.
+**Architecture:** Keep the public `round-trip-yaml` interface unchanged, but change the runner internals. For each active XML directory, start from an empty temporary XML directory, run `nkdk sync` into that temporary directory with the active XML directory passed only as `--reference`, and only after successful sync replace the active XML directory contents with the temporary result. The check is intentionally strict: files that are not recreated from YAML disappear from the active XML directory and become deletions in `git diff`.
 
 **Tech Stack:** Bash, git, `nkdk import`, `nkdk sync`, existing Codex skill markdown format.
 
@@ -12,9 +12,11 @@
 
 ## File Structure
 
-- Modify `.agents/skills/round-trip-yaml/round-trip.sh`: add temporary XML directory helpers, sync YAML into an empty temp XML directory, then replace active XML contents before collecting `git diff`.
+- Modify `.agents/skills/round-trip-yaml/round-trip.sh`: add temporary XML directory helpers, sync YAML into an empty temp XML directory with `--reference`, then replace active XML contents before collecting `git diff`.
 - Modify `.agents/skills/round-trip-yaml/SKILL.md`: document the new temp XML step and explain that the temp XML directory is not the retained diagnostic result.
-- No changes in `packages/core/metadata/**`: this is a runner behavior change, not metadata serialization logic.
+- Modify `packages/cli/src/commands/sync.ts` and `packages/cli/src/cli.ts`: expose `--reference <xml-dir>` and pass it to `syncConfigurationToXML`.
+- Test `packages/cli/src/commands/sync.test.ts`: verify that explicit `referenceDir` reaches `syncConfigurationToXML`.
+- No changes in `packages/core/metadata/**`: this is runner/CLI wiring behavior, not metadata serialization logic.
 
 ## Task 1: Add Safe Directory Helpers
 
@@ -107,7 +109,7 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   fi
 
   echo "[round-trip] YAML -> временный XML: ${RUN_YAML_DIR}"
-  if ! run_nkdk "${NKDK[@]}" sync "${RUN_YAML_DIR}" "${RUN_XML_TMP_DIR}"; then
+  if ! run_nkdk "${NKDK[@]}" sync "${RUN_YAML_DIR}" "${RUN_XML_TMP_DIR}" --reference "${RUN_XML_DIR}"; then
     echo "=== ROUND_TRIP_ERROR ==="
     echo "STAGE: sync"
     echo "ACTIVE_XML_DIR: ${RUN_XML_DIR}"
@@ -143,7 +145,84 @@ bash -n .agents/skills/round-trip-yaml/round-trip.sh
 
 Expected: command exits with status `0` and prints nothing.
 
-## Task 3: Update Skill Documentation
+## Task 3: Add CLI reference Option
+
+**Files:**
+- Create: `packages/cli/src/commands/sync.test.ts`
+- Modify: `packages/cli/src/commands/sync.ts`
+- Modify: `packages/cli/src/cli.ts`
+
+- [ ] **Step 1: Write the failing CLI test**
+
+Create `packages/cli/src/commands/sync.test.ts`:
+
+```typescript
+import { syncConfigurationToXML } from "@nakidka/core"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { syncConfiguration } from "./sync"
+
+const mocks = vi.hoisted(() => ({
+  syncConfigurationToXML: vi.fn(async () => ({ succeeded: 0, failed: [] })),
+}))
+
+vi.mock("@nakidka/core", () => ({
+  syncConfigurationToXML: mocks.syncConfigurationToXML,
+}))
+
+describe("sync command", () => {
+  const originalExitCode = process.exitCode
+
+  beforeEach(() => {
+    mocks.syncConfigurationToXML.mockClear()
+  })
+
+  afterEach(() => {
+    process.exitCode = originalExitCode
+    vi.restoreAllMocks()
+  })
+
+  it("передает явный referenceDir в syncConfigurationToXML", async () => {
+    vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+
+    await syncConfiguration("yaml", "xml", { referenceDir: "reference-xml" })
+
+    expect(syncConfigurationToXML).toHaveBeenCalledWith(expect.objectContaining({
+      inputDir: "yaml",
+      outputDir: "xml",
+      referenceDir: "reference-xml",
+    }))
+  })
+})
+```
+
+- [ ] **Step 2: Verify RED**
+
+Run:
+
+```bash
+pnpm --filter @nakidka/cli exec vitest run src/commands/sync.test.ts
+```
+
+Expected: FAIL because `referenceDir` is not passed to `syncConfigurationToXML`.
+
+- [ ] **Step 3: Implement the CLI option**
+
+Update `packages/cli/src/commands/sync.ts` so `syncConfiguration` accepts `{ referenceDir?: string }` and forwards it to `syncConfigurationToXML`.
+
+Update `packages/cli/src/cli.ts` so `nkdk sync` accepts `--reference <xml-dir>` and calls `syncConfiguration(yamlDir, xmlDir, { referenceDir: opts.reference })`.
+
+- [ ] **Step 4: Verify GREEN**
+
+Run:
+
+```bash
+pnpm --filter @nakidka/cli exec vitest run src/commands/sync.test.ts
+```
+
+Expected: PASS.
+
+## Task 4: Update Skill Documentation
 
 **Files:**
 - Modify: `.agents/skills/round-trip-yaml/SKILL.md`
@@ -159,7 +238,7 @@ Replace the sentence:
 with:
 
 ```markdown
-На выходе он показывает XML diff'ы, появившиеся после `nkdk import <xml-dir> <tmp-yaml-dir>`, `nkdk sync <tmp-yaml-dir> <tmp-xml-dir>` и полной замены активного XML-каталога результатом временного XML-каталога.
+На выходе он показывает XML diff'ы, появившиеся после `nkdk import <xml-dir> <tmp-yaml-dir>`, `nkdk sync <tmp-yaml-dir> <tmp-xml-dir> --reference <xml-dir>` и полной замены активного XML-каталога результатом временного XML-каталога.
 ```
 
 - [ ] **Step 2: Update the runner steps**
@@ -170,7 +249,7 @@ Replace steps 6-10 in the "Скрипт:" list with:
 6. перед каждым прогоном удаляет временный YAML-каталог для активного XML-каталога;
 7. перед каждым прогоном очищает временный XML-каталог;
 8. запускает `nkdk import <xml-dir> <tmp-yaml-dir>`;
-9. запускает `nkdk sync <tmp-yaml-dir> <tmp-xml-dir>`;
+9. запускает `nkdk sync <tmp-yaml-dir> <tmp-xml-dir> --reference <xml-dir>`;
 10. после успешного `sync` полностью заменяет активный XML-каталог содержимым временного XML-каталога;
 11. собирает XML diff'ы через `git diff`;
 12. если после каталога появился хотя бы один diff — останавливается на этом каталоге и дальше не смотрит, если не указан `--all-configs`.
@@ -185,7 +264,7 @@ Add this subsection immediately after the existing "Каталог YAML" subsect
 
 Для экспорта YAML обратно в XML скрипт использует временный XML-каталог `${TMPDIR:-/tmp}/round-trip-yaml-xml/<config>`.
 
-Перед `sync` каталог очищается. Результат после успешного `sync` полностью заменяет активный XML-каталог, поэтому любые файлы, которые не были восстановлены из YAML, становятся удалениями в `git diff`. Сам временный XML-каталог не считается диагностическим результатом; анализировать нужно diff в XML-репо и сохраненный YAML-каталог.
+Перед `sync` каталог очищается. Активный XML-каталог передаётся в `sync` только как `--reference`: старые XML-файлы не копируются во временный XML-каталог. Результат после успешного `sync` полностью заменяет активный XML-каталог, поэтому любые файлы, которые не были восстановлены из YAML, становятся удалениями в `git diff`. Сам временный XML-каталог не считается диагностическим результатом; анализировать нужно diff в XML-репо и сохраненный YAML-каталог.
 ```
 
 - [ ] **Step 4: Check that old direct-sync wording is gone**
@@ -198,11 +277,14 @@ rg -n "sync <tmp-yaml-dir> <xml-dir>|прямо.*<xml-dir>" .agents/skills/round
 
 Expected: no matches.
 
-## Task 4: Commit Static-Checked Implementation
+## Task 5: Commit Static-Checked Implementation
 
 **Files:**
 - Modify: `.agents/skills/round-trip-yaml/round-trip.sh`
 - Modify: `.agents/skills/round-trip-yaml/SKILL.md`
+- Modify: `packages/cli/src/commands/sync.ts`
+- Modify: `packages/cli/src/cli.ts`
+- Test: `packages/cli/src/commands/sync.test.ts`
 
 - [ ] **Step 1: Run syntax and whitespace checks**
 
@@ -223,7 +305,7 @@ Run:
 git diff -- .agents/skills/round-trip-yaml/round-trip.sh .agents/skills/round-trip-yaml/SKILL.md
 ```
 
-Expected: the diff only changes the runner flow and the skill documentation. No files under `packages/core/metadata/**` are changed.
+Expected: the diff only changes the runner flow, CLI `sync` reference wiring, the CLI regression test, and the skill documentation. No files under `packages/core/metadata/**` are changed.
 
 - [ ] **Step 3: Commit the implementation before a real round-trip run**
 
@@ -233,12 +315,13 @@ Run:
 
 ```bash
 git add .agents/skills/round-trip-yaml/round-trip.sh .agents/skills/round-trip-yaml/SKILL.md
+git add packages/cli/src/commands/sync.ts packages/cli/src/cli.ts packages/cli/src/commands/sync.test.ts
 git commit -m "fix: :bug: показывать потери XML в round-trip-yaml"
 ```
 
 Expected: commit succeeds and `git status --short` is empty.
 
-## Task 5: Run a Real Smoke Check
+## Task 6: Run a Real Smoke Check
 
 **Files:**
 - Execute: `.agents/skills/round-trip-yaml/round-trip.sh`
@@ -292,6 +375,6 @@ Do not run `git restore` in the external XML repo after a successful diagnostic 
 
 ## Self-Review
 
-- Spec coverage: the plan implements temporary XML export, full active XML replacement, strict deletion of files not restored from YAML, preserved YAML diagnostics, unchanged single/triage output, and documentation updates.
+- Spec coverage: the plan implements temporary XML export, reference-aware sync without copying old XML files, full active XML replacement, strict deletion of files not restored from YAML, preserved YAML diagnostics, unchanged single/triage output, and documentation updates.
 - Placeholder scan: the plan contains exact files, code blocks, commands, and expected outcomes.
 - Type consistency: all new names are Bash functions or local variables defined before use: `xml_tmp_dir_for`, `ensure_safe_dir`, `clear_dir_contents`, `move_dir_contents`, and `RUN_XML_TMP_DIR`.

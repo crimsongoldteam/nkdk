@@ -1,6 +1,14 @@
 import { syncConfigurationToXML } from "@nakidka/core"
 
-export const syncConfiguration = async (yamlDir: string, xmlDir: string): Promise<void> => {
+export interface SyncConfigurationOptions {
+  referenceDir?: string
+}
+
+export const syncConfiguration = async (
+  yamlDir: string,
+  xmlDir: string,
+  options: SyncConfigurationOptions = {},
+): Promise<void> => {
   const context = {
     defaultLanguage: "ru",
     version: "2.20",
@@ -17,7 +25,12 @@ export const syncConfiguration = async (yamlDir: string, xmlDir: string): Promis
       },
     },
   }
-  const result = await syncConfigurationToXML({ context, inputDir: yamlDir, outputDir: xmlDir })
+  const result = await syncConfigurationToXML({
+    context,
+    inputDir: yamlDir,
+    outputDir: xmlDir,
+    ...(options.referenceDir ? { referenceDir: options.referenceDir } : {}),
+  })
 
   for (const f of result.failed) {
     const label = f.parent ? `${f.parent}/${f.name}` : f.name
