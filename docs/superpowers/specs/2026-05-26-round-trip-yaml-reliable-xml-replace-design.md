@@ -1,7 +1,5 @@
 # Более достоверный round-trip-yaml через замену XML-каталога
 
-Наглядная HTML-версия: [2026-05-26-round-trip-yaml-reliable-xml-replace-design.html](./2026-05-26-round-trip-yaml-reliable-xml-replace-design.html).
-
 ## Контекст
 
 Сейчас `.agents/skills/round-trip-yaml/round-trip.sh` выполняет `nkdk sync <yaml-dir> <xml-dir>` прямо поверх исходного XML-каталога. Такой порядок показывает изменения внутри файлов, но может скрыть потерю файлов: если `import` не создал YAML для части XML, старые XML-файлы остаются в каталоге и не попадают в `git diff` как удаления.
