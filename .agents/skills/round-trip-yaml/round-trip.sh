@@ -107,6 +107,41 @@ yaml_dir_for() {
   printf '%s/round-trip-yaml/%s' "${TMPDIR:-/tmp}" "$(sanitize_path_segment "${rel}")"
 }
 
+xml_tmp_dir_for() {
+  local active_dir="$1"
+  local rel
+
+  rel="$(config_rel_path "${active_dir}")"
+  printf '%s/round-trip-yaml-xml/%s' "${TMPDIR:-/tmp}" "$(sanitize_path_segment "${rel}")"
+}
+
+ensure_safe_dir() {
+  local dir="$1"
+
+  if [ -z "${dir}" ] || [ "${dir}" = "/" ]; then
+    die "небезопасный каталог для очистки: '${dir}'"
+  fi
+}
+
+clear_dir_contents() {
+  local dir="$1"
+
+  ensure_safe_dir "${dir}"
+  mkdir -p "${dir}"
+  find "${dir}" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+}
+
+move_dir_contents() {
+  local source_dir="$1"
+  local target_dir="$2"
+
+  ensure_safe_dir "${source_dir}"
+  ensure_safe_dir "${target_dir}"
+  [ -d "${source_dir}" ] || die "каталог-источник не существует: ${source_dir}"
+  mkdir -p "${target_dir}"
+  find "${source_dir}" -mindepth 1 -maxdepth 1 ! -name .git -exec mv {} "${target_dir}/" \;
+}
+
 run_nkdk() {
   echo "[command] $*"
   "$@"
@@ -233,6 +268,7 @@ ACTIVE_YAML_DIR=""
 
 for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   RUN_YAML_DIR="$(yaml_dir_for "${RUN_XML_DIR}")"
+  RUN_XML_TMP_DIR="$(xml_tmp_dir_for "${RUN_XML_DIR}")"
 
   echo "[restore] Откат XML-репо к HEAD..."
   git -C "${NKDK_XML_REPO}" restore .
@@ -241,23 +277,32 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   rm -rf "${RUN_YAML_DIR}"
   mkdir -p "${RUN_YAML_DIR}"
 
+  echo "[xml] Очистка временного XML-каталога: ${RUN_XML_TMP_DIR}"
+  clear_dir_contents "${RUN_XML_TMP_DIR}"
+
   echo "[round-trip] XML -> YAML: ${RUN_XML_DIR}"
   if ! run_nkdk "${NKDK[@]}" import "${RUN_XML_DIR}" "${RUN_YAML_DIR}"; then
     echo "=== ROUND_TRIP_ERROR ==="
     echo "STAGE: import"
     echo "ACTIVE_XML_DIR: ${RUN_XML_DIR}"
     echo "YAML_DIR: ${RUN_YAML_DIR}"
+    echo "XML_TMP_DIR: ${RUN_XML_TMP_DIR}"
     exit 1
   fi
 
-  echo "[round-trip] YAML -> XML: ${RUN_YAML_DIR}"
-  if ! run_nkdk "${NKDK[@]}" sync "${RUN_YAML_DIR}" "${RUN_XML_DIR}"; then
+  echo "[round-trip] YAML -> временный XML: ${RUN_YAML_DIR}"
+  if ! run_nkdk "${NKDK[@]}" sync "${RUN_YAML_DIR}" "${RUN_XML_TMP_DIR}"; then
     echo "=== ROUND_TRIP_ERROR ==="
     echo "STAGE: sync"
     echo "ACTIVE_XML_DIR: ${RUN_XML_DIR}"
     echo "YAML_DIR: ${RUN_YAML_DIR}"
+    echo "XML_TMP_DIR: ${RUN_XML_TMP_DIR}"
     exit 1
   fi
+
+  echo "[xml] Замена XML-каталога результатом временного XML: ${RUN_XML_DIR}"
+  clear_dir_contents "${RUN_XML_DIR}"
+  move_dir_contents "${RUN_XML_TMP_DIR}" "${RUN_XML_DIR}"
 
   CURRENT_DIFF_FILES=()
   while IFS= read -r diff_file; do
