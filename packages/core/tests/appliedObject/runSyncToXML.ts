@@ -12,6 +12,7 @@ type Params = {
   importMetaUrl: string
   fixturesSubdir?: string
   expectedFiles: string[]
+  binaryExpectedFiles?: string[]
   externalObjectDir?: boolean
 }
 
@@ -20,6 +21,7 @@ export const testSyncAppliedObjectToXML = async (
 ): Promise<{
   outputDir: string
   comparisons: Array<{ path: string; result: string; expected: string }>
+  binaryComparisons: Array<{ path: string; result: Buffer; expected: Buffer }>
 }> => {
   const { rule, name, importMetaUrl, expectedFiles } = params
   const fixturesSubdir = params.fixturesSubdir ?? "__fixtures__/sync"
@@ -43,11 +45,18 @@ export const testSyncAppliedObjectToXML = async (
     externalReferenceDir,
   })
 
-  const comparisons = expectedFiles.map((path) => ({
+  const comparisons = expectedFiles.map((path) => {
+    return {
+      path,
+      result: fs.readFileSync(join(outputDir, path), "utf-8"),
+      expected: fs.readFileSync(join(referenceDir, path), "utf-8"),
+    }
+  })
+  const binaryComparisons = (params.binaryExpectedFiles ?? []).map((path) => ({
     path,
-    result: fs.readFileSync(join(outputDir, path), "utf-8"),
-    expected: fs.readFileSync(join(referenceDir, path), "utf-8"),
+    result: fs.readFileSync(join(outputDir, path)),
+    expected: fs.readFileSync(join(referenceDir, path)),
   }))
 
-  return { outputDir, comparisons }
+  return { outputDir, comparisons, binaryComparisons }
 }

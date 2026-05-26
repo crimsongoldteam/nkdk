@@ -145,6 +145,30 @@ describe("migration paths", () => {
       ownerPath: "Константа",
       levelPath: "Константа",
     })
+    expect(parseMigrationPath("ОбщийМодуль.ОбщийМодульГлобальный")).toMatchObject({
+      kind: "object",
+      localName: "ОбщийМодульГлобальный",
+      ownerPath: "ОбщийМодуль",
+      levelPath: "ОбщийМодуль",
+    })
+    expect(parseMigrationPath("ПакетXDTO.ПакетXDTOВсеСвойства")).toMatchObject({
+      kind: "object",
+      localName: "ПакетXDTOВсеСвойства",
+      ownerPath: "ПакетXDTO",
+      levelPath: "ПакетXDTO",
+    })
+    expect(parseMigrationPath("WebSocketКлиент.WebSocketКлиентВсеСвойства")).toMatchObject({
+      kind: "object",
+      localName: "WebSocketКлиентВсеСвойства",
+      ownerPath: "WebSocketКлиент",
+      levelPath: "WebSocketКлиент",
+    })
+    expect(parseMigrationPath("ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства")).toMatchObject({
+      kind: "object",
+      localName: "ВнешнийИсточникДанныхВсеСвойства",
+      ownerPath: "ВнешнийИсточникДанных",
+      levelPath: "ВнешнийИсточникДанных",
+    })
   })
 
   it("parses object attribute paths", () => {
@@ -292,6 +316,9 @@ describe("migration paths", () => {
       "Справочник.Товары.Реквизит.НовыйАртикул",
     )
     expect(buildRenameTargetPath("Справочник.Товары", "Номенклатура")).toBe("Справочник.Номенклатура")
+    expect(buildRenameTargetPath("ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства", "НовыйИсточник")).toBe(
+      "ВнешнийИсточникДанных.НовыйИсточник",
+    )
   })
 
   it("rejects empty rename target local name", () => {

@@ -1,7 +1,9 @@
 import type { DcsMetadataValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
 import { SettingsParameterValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
 import { DateTimePropertyRule } from "~/metadata/commonObjects/dateTime/types"
+import type { ExternalFilePropertyRule } from "~/metadata/commonObjects/externalFile/types"
 import type { ExternalPicturePropertyRule } from "~/metadata/commonObjects/externalPicture/types"
+import type { FieldsListPropertyRule } from "~/metadata/commonObjects/fieldsList/types"
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
@@ -337,9 +339,11 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "Module"
     | "Template"
     | "Help"
+    | "ExternalFile"
     | "ExternalPicture"
     | "ExternalFormItemFile"
     | "WSDefinitionSchemas"
+    | "FieldsList"
   >
 }
 
@@ -386,9 +390,11 @@ export type PropertyRule =
   | ModulePropertyRule
   | TemplatePropertyRule
   | HelpPropertyRule
+  | ExternalFilePropertyRule
   | ExternalFormItemFilePropertyRule
   | ExternalPicturePropertyRule
   | WSDefinitionSchemasPropertyRule
+  | FieldsListPropertyRule
 
 type PropertiesType = Record<string, PropertyRule>
 
@@ -446,10 +452,14 @@ export interface MetadataItemRule extends MetadataItem {
    * Дочерние коллекции, которые оркестратор должен обойти для обработки Module/Template-свойств.
    * Ключ в модели (`propertyKey`) указывает на Record<itemName, itemData>;
    * `itemRule` содержит правила, в которых могут быть Module-свойства с функциональными путями.
+   * `fileItemRule` задаёт полное правило с XMLRoot, если элемент коллекции пишется в отдельный XML-файл.
    * Пути вычисляются относительно корня владельца (того же outputDir/name/).
    */
   childCollections?: ReadonlyArray<{
     propertyKey: string
     itemRule: MetadataItemRule
+    fileItemRule?: MetadataItemRule
+    nkdkDir?: string | ((params: { name: string; parentName?: string }) => string)
+    xmlDir?: string | ((params: { name: string; parentName?: string }) => string)
   }>
 }

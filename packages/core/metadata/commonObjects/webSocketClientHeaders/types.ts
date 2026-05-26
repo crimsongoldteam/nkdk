@@ -1,0 +1,36 @@
+import { Static, Type } from "@sinclair/typebox"
+
+export const WebSocketClientHeadersJSONSchema = Type.Array(
+  Type.Object({
+    key: Type.String(),
+    value: Type.String(),
+  })
+)
+
+export type WebSocketClientHeaders = Static<typeof WebSocketClientHeadersJSONSchema>
+export interface WebSocketClientHeaderYAML {
+  Ключ: string
+  Значение: string
+}
+
+export type WebSocketClientHeadersYAML = WebSocketClientHeaderYAML[]
+
+export interface WebSocketClientHeaderXMLString {
+  "_xsi:type": "xs:string"
+  "#text"?: string
+}
+
+export interface WebSocketClientHeaderXMLItem {
+  "xr:Presentation"?: ""
+  "xr:CheckState": 0
+  "xr:Value": {
+    "_xsi:type": "v8:KeyAndValue"
+    "v8:Key": WebSocketClientHeaderXMLString
+    "v8:Value": WebSocketClientHeaderXMLString
+  }
+}
+
+export interface WebSocketClientHeadersXML {
+  "_xsi:type": "xr:ValueList"
+  "xr:Item"?: WebSocketClientHeaderXMLItem | WebSocketClientHeaderXMLItem[]
+}

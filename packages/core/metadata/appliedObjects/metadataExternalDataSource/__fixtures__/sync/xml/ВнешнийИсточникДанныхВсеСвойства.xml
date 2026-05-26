@@ -26,6 +26,150 @@
 			<Comment>Комментарий</Comment>
 			<DataLockControlMode>AutomaticAndManaged</DataLockControlMode>
 		</Properties>
-		<ChildObjects/>
+		<ChildObjects>
+			<Cube uuid="11111111-1111-4111-8111-111111111111">
+				<InternalInfo>
+					<xr:GeneratedType name="ExternalDataSourceCubeManager.ВнешнийИсточникДанныхВсеСвойства.Продажи" category="Manager">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceCubeList.ВнешнийИсточникДанныхВсеСвойства.Продажи" category="List">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceCubeRecordSet.ВнешнийИсточникДанныхВсеСвойства.Продажи" category="RecordSet">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceCubeRecord.ВнешнийИсточникДанныхВсеСвойства.Продажи" category="Record">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceCubeRecordKey.ВнешнийИсточникДанныхВсеСвойства.Продажи" category="RecordKey">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceCubeRecordManager.ВнешнийИсточникДанныхВсеСвойства.Продажи" category="RecordManager">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceCubeDimensionsTablesManager.ВнешнийИсточникДанныхВсеСвойства.Продажи" category="DimensionTables">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<Characteristics/>
+					<Comment/>
+					<DefaultListForm/>
+					<DefaultRecordForm/>
+					<Explanation/>
+					<ExtendedListPresentation/>
+					<ExtendedRecordPresentation/>
+					<IncludeHelpInContents>false</IncludeHelpInContents>
+					<ListPresentation/>
+					<Name>Продажи</Name>
+					<NameInDataSource>Sales</NameInDataSource>
+					<RecordPresentation/>
+					<Synonym/>
+					<UseStandardCommands>false</UseStandardCommands>
+				</Properties>
+				<ChildObjects/>
+			</Cube>
+			<Table uuid="11111111-1111-4111-8111-111111111111">
+				<InternalInfo>
+					<xr:GeneratedType name="ExternalDataSourceTableManager.ВнешнийИсточникДанныхВсеСвойства.ТаблицаНоменклатура" category="Manager">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceTableObject.ВнешнийИсточникДанныхВсеСвойства.ТаблицаНоменклатура" category="Object">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceTableRef.ВнешнийИсточникДанныхВсеСвойства.ТаблицаНоменклатура" category="Ref">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceTableList.ВнешнийИсточникДанныхВсеСвойства.ТаблицаНоменклатура" category="List">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceTableRecord.ВнешнийИсточникДанныхВсеСвойства.ТаблицаНоменклатура" category="Record">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceTableRecordSet.ВнешнийИсточникДанныхВсеСвойства.ТаблицаНоменклатура" category="RecordSet">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceTableRecordKey.ВнешнийИсточникДанныхВсеСвойства.ТаблицаНоменклатура" category="RecordKey">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExternalDataSourceTableRecordManager.ВнешнийИсточникДанныхВсеСвойства.ТаблицаНоменклатура" category="RecordManager">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<BasedOn/>
+					<Characteristics/>
+					<ChoiceDataGetModeOnInputByString>Directly</ChoiceDataGetModeOnInputByString>
+					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+					<Comment/>
+					<CreateOnInput>Auto</CreateOnInput>
+					<DataLockControlMode>Automatic</DataLockControlMode>
+					<DataLockFields/>
+					<DataVersionField/>
+					<DefaultChoiceForm/>
+					<DefaultListForm/>
+					<DefaultObjectForm/>
+					<DefaultRecordForm/>
+					<EditType>InDialog</EditType>
+					<Explanation/>
+					<ExpressionInDataSource/>
+					<ExtendedListPresentation/>
+					<ExtendedObjectPresentation/>
+					<ExtendedRecordPresentation/>
+					<IncludeHelpInContents>false</IncludeHelpInContents>
+					<InputByString/>
+					<KeyFields/>
+					<ListPresentation/>
+					<Name>ТаблицаНоменклатура</Name>
+					<NameInDataSource>Catalog_Items</NameInDataSource>
+					<ObjectPresentation/>
+					<ParentField/>
+					<PresentationField/>
+					<QuickChoice>false</QuickChoice>
+					<ReadOnly>false</ReadOnly>
+					<RecordPresentation/>
+					<SearchStringModeOnInputByString>Begin</SearchStringModeOnInputByString>
+					<Synonym/>
+					<TableDataType>NonobjectData</TableDataType>
+					<TableType>Table</TableType>
+					<TransactionsIsolationLevel>Auto</TransactionsIsolationLevel>
+					<UnfilledParentValue xsi:nil="true"/>
+					<UseStandardCommands>true</UseStandardCommands>
+				</Properties>
+				<ChildObjects>
+					<Command uuid="11111111-1111-4111-8111-111111111111">
+						<Properties>
+							<Name>Команда1</Name>
+							<Synonym/>
+							<Comment/>
+							<Group>FormNavigationPanelGoTo</Group>
+							<CommandParameterType/>
+							<ParameterUseMode>Single</ParameterUseMode>
+							<ModifiesData>false</ModifiesData>
+							<Representation>Auto</Representation>
+							<ToolTip/>
+							<Picture/>
+							<Shortcut/>
+							<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
+						</Properties>
+					</Command>
+				</ChildObjects>
+			</Table>
+		</ChildObjects>
 	</ExternalDataSource>
 </MetaDataObject>

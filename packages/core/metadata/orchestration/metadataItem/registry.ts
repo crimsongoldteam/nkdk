@@ -108,6 +108,38 @@ import {
   MetadataRegisterResource,
   MetadataRegisterResourceYAML,
 } from "~/metadata/commonObjects/metadataRegisterResource/types"
+import {
+  MetadataExternalDataSourceCubeDimension,
+  MetadataExternalDataSourceCubeDimensionYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceCubeDimension/types"
+import {
+  MetadataExternalDataSourceCubeResource,
+  MetadataExternalDataSourceCubeResourceYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceCubeResource/types"
+import {
+  MetadataExternalDataSourceField,
+  MetadataExternalDataSourceFieldYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceField/types"
+import {
+  MetadataExternalDataSourceFunction,
+  MetadataExternalDataSourceFunctionYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceFunction/types"
+import {
+  MetadataExternalDataSourceTable,
+  MetadataExternalDataSourceTableYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceTable/types"
+import {
+  MetadataExternalDataSourceDimensionTable,
+  MetadataExternalDataSourceDimensionTableYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceDimensionTable/types"
+import {
+  MetadataExternalDataSourceCube,
+  MetadataExternalDataSourceCubeYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceCube/types"
+import {
+  MetadataExternalDataSource,
+  MetadataExternalDataSourceYAML,
+} from "~/metadata/appliedObjects/metadataExternalDataSource/types"
 import { Recalculation, RecalculationYAML } from "~/metadata/commonObjects/recalculation/types"
 import {
   AccountingFlag,
@@ -242,6 +274,12 @@ import { MetadataScheduledJob, MetadataScheduledJobYAML } from "../../appliedObj
 import { MetadataCommonForm, MetadataCommonFormYAML } from "../../appliedObjects/metadataCommonForm/types"
 import { MetadataCommonPicture, MetadataCommonPictureYAML } from "../../appliedObjects/metadataCommonPicture/types"
 import { MetadataCommonTemplate, MetadataCommonTemplateYAML } from "../../appliedObjects/metadataCommonTemplate/types"
+import { MetadataCommonModule, MetadataCommonModuleYAML } from "../../appliedObjects/metadataCommonModule/types"
+import { MetadataXDTOPackage, MetadataXDTOPackageYAML } from "../../appliedObjects/metadataXDTOPackage/types"
+import {
+  MetadataWebSocketClient,
+  MetadataWebSocketClientYAML,
+} from "../../appliedObjects/metadataWebSocketClient/types"
 import {
   MetadataCommandGroup as MetadataAppliedCommandGroup,
   MetadataCommandGroupYAML as MetadataAppliedCommandGroupYAML,
@@ -779,6 +817,46 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataRegisterDimensionYAML
   }
 
+  MetadataExternalDataSourceField: {
+    metadata: MetadataExternalDataSourceField
+    yaml: MetadataExternalDataSourceFieldYAML
+  }
+
+  MetadataExternalDataSourceFunction: {
+    metadata: MetadataExternalDataSourceFunction
+    yaml: MetadataExternalDataSourceFunctionYAML
+  }
+
+  MetadataExternalDataSourceTable: {
+    metadata: MetadataExternalDataSourceTable
+    yaml: MetadataExternalDataSourceTableYAML
+  }
+
+  MetadataExternalDataSourceDimensionTable: {
+    metadata: MetadataExternalDataSourceDimensionTable
+    yaml: MetadataExternalDataSourceDimensionTableYAML
+  }
+
+  MetadataExternalDataSourceCube: {
+    metadata: MetadataExternalDataSourceCube
+    yaml: MetadataExternalDataSourceCubeYAML
+  }
+
+  MetadataExternalDataSourceCubeDimension: {
+    metadata: MetadataExternalDataSourceCubeDimension
+    yaml: MetadataExternalDataSourceCubeDimensionYAML
+  }
+
+  MetadataExternalDataSourceCubeResource: {
+    metadata: MetadataExternalDataSourceCubeResource
+    yaml: MetadataExternalDataSourceCubeResourceYAML
+  }
+
+  MetadataExternalDataSource: {
+    metadata: MetadataExternalDataSource
+    yaml: MetadataExternalDataSourceYAML
+  }
+
   MetadataRegisterAttribute: {
     metadata: MetadataRegisterAttribute
     yaml: MetadataRegisterAttributeYAML
@@ -1019,6 +1097,21 @@ export type MetadataItemTypeRegistry = {
   MetadataCommonTemplate: {
     metadata: MetadataCommonTemplate
     yaml: MetadataCommonTemplateYAML
+  }
+
+  MetadataCommonModule: {
+    metadata: MetadataCommonModule
+    yaml: MetadataCommonModuleYAML
+  }
+
+  MetadataXDTOPackage: {
+    metadata: MetadataXDTOPackage
+    yaml: MetadataXDTOPackageYAML
+  }
+
+  MetadataWebSocketClient: {
+    metadata: MetadataWebSocketClient
+    yaml: MetadataWebSocketClientYAML
   }
 
   MetadataCommandGroup: {

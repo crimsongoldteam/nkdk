@@ -34,6 +34,10 @@ import { MetadataCommandGroupRules } from "../metadataCommandGroup/rules"
 import { MetadataCommonFormRules } from "../metadataCommonForm/rules"
 import { MetadataCommonPictureRules } from "../metadataCommonPicture/rules"
 import { MetadataCommonTemplateRules } from "../metadataCommonTemplate/rules"
+import { MetadataCommonModuleRules } from "../metadataCommonModule/rules"
+import { MetadataXDTOPackageRules } from "../metadataXDTOPackage/rules"
+import { MetadataWebSocketClientRules } from "../metadataWebSocketClient/rules"
+import { MetadataExternalDataSourceRules } from "../metadataExternalDataSource/rules"
 import { MetadataConstantRules } from "../metadataConstant/rules"
 import { MetadataStyleRules } from "../metadataStyle/rules"
 import { MetadataStyleItemRules } from "../metadataStyleItem/rules"
@@ -70,6 +74,10 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataScheduledJobRules,
   MetadataLanguageRules,
   MetadataCommonTemplateRules,
+  MetadataCommonModuleRules,
+  MetadataXDTOPackageRules,
+  MetadataWebSocketClientRules,
+  MetadataExternalDataSourceRules,
   MetadataCommonFormRules,
   MetadataCommonPictureRules,
   MetadataStyleRules,

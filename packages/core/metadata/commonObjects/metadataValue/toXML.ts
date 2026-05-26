@@ -38,6 +38,12 @@ const isNilMetadataValueXML = (value: unknown): value is { "_xsi:nil": true } =>
   !Array.isArray(value) &&
   (value as Record<string, unknown>)["_xsi:nil"] === true
 
+const isV8NullMetadataValueXML = (value: unknown): value is { "_xsi:type": "v8:Null" } =>
+  typeof value === "object" &&
+  value !== null &&
+  !Array.isArray(value) &&
+  (value as Record<string, unknown>)["_xsi:type"] === "v8:Null"
+
 const getReferenceMetadataValueXMLType = (value: unknown): string | undefined => {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined
   const xsiType = (value as Record<string, unknown>)["_xsi:type"]
@@ -56,6 +62,7 @@ export const exportMetadataValueToXML = (params: {
   const { rule, value, referenceMetadata } = params
 
   if (isNilMetadataValueXML(value)) return { "_xsi:nil": true }
+  if (isV8NullMetadataValueXML(value)) return { "_xsi:type": "v8:Null" }
 
   if (value === undefined) {
     if (isNilMetadataValueXML(referenceMetadata)) return { "_xsi:nil": true }
