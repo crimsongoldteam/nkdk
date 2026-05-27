@@ -171,7 +171,7 @@ function compress(arr: any[], options: any, jPath: string): any {
         continue
       }
 
-      if (compressedObj[property] !== undefined && compressedObj.hasOwnProperty(property)) {
+      if (compressedObj.hasOwnProperty(property)) {
         if (!isArray && !Array.isArray(compressedObj[property])) {
           compressedObj[property] = [compressedObj[property]]
         }

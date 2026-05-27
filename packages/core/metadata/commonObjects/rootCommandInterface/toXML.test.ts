@@ -177,4 +177,19 @@ describe("export RootCommandInterface to XML", () => {
     expect(result).toContain("<UnknownOrderChild>keep order</UnknownOrderChild>")
     expect(result).toContain("<CommandGroup>ActionsPanelCreate</CommandGroup>")
   })
+
+  it("preserves empty subsystem order items through YAML round-trip", () => {
+    const xmlString = `<?xml version="1.0" encoding="UTF-8"?>
+<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+\t<SubsystemsOrder>
+\t\t<Subsystem/>
+\t\t<Subsystem>Subsystem.Продажи</Subsystem>
+\t</SubsystemsOrder>
+</CommandInterface>`
+
+    const result = roundTripRootCommandInterfaceThroughYAML(xmlString)
+
+    expect(result).toContain("<Subsystem/>")
+    expect(result).toContain("<Subsystem>Subsystem.Продажи</Subsystem>")
+  })
 })

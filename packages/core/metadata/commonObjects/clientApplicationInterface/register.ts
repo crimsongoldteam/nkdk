@@ -521,7 +521,8 @@ const mergeGroupWithReference = (
 ): Record<string, unknown> => {
   const referenceXML = getReferenceRawXML(referenceGroup) ?? referenceGroup
   const xml = copyUnknownXMLKeys(referenceXML, ["_id", "id", "panel", "group"])
-  xml._id = group.id ?? getXMLId(referenceXML as { _id?: string; id?: string } | undefined) ?? getUUID(context)
+  const id = group.id ?? getXMLId(referenceXML as { _id?: string; id?: string } | undefined)
+  if (id !== undefined) xml._id = id
   const childItems = exportItemsToSectionXML({
     context,
     items: group.items ?? [],
@@ -656,7 +657,6 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({ value, metadataItem, ref
   const result: Record<string, unknown>[] = []
 
   for (const referencePanelDef of referencePanelDefs) {
-    if (!usedPanelIds.has(referencePanelDef.id)) continue
     emittedIds.add(referencePanelDef.id)
     const panel = panels.find((item) => item.uuid === referencePanelDef.id)
     result.push(

@@ -39,6 +39,14 @@ describe("importMetadataItemLinkFromYAML", () => {
       "CommonForm.НачалоРаботы"
     )
   })
+
+  it("keeps uuid-like visibility keys unchanged in short role mode", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(importMetadataItemLinkFromYAML(mockContext, rule, "418deaa0-683e-4862-9348-c0086ba6909f")).toBe(
+      "418deaa0-683e-4862-9348-c0086ba6909f"
+    )
+  })
 })
 
 describe("importMetadataItemLinksFromYAML", () => {

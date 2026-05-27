@@ -215,6 +215,25 @@ describe("export ClientApplicationInterface to XML", () => {
     expect(result).toContain('<panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>')
   })
 
+  it("preserves reference panel definitions even when panels are not used", () => {
+    const referenceXml = `<?xml version="1.0" encoding="UTF-8"?>
+<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+\t<top>
+\t\t<panel id="opened-panel">
+\t\t\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
+\t\t</panel>
+\t</top>
+\t<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>
+\t<panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>
+</ClientApplicationInterface>`
+    const result = exportClientApplicationInterfaceYAMLWithReference(referenceXml, {
+      Верх: [{ Панель: "ПанельОткрытых" }],
+    })
+
+    expect(result).toContain('<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>')
+    expect(result).toContain('<panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>')
+  })
+
   it("does not move existing panel id to a new panel inserted before it", () => {
     const referenceXml = `<?xml version="1.0" encoding="UTF-8"?>
 <ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
@@ -278,11 +297,28 @@ describe("export ClientApplicationInterface to XML", () => {
       Верх: [{ Панель: "ПанельОткрытых" }, { Группа: { Элементы: [] } }, { Группа: { Элементы: [] } }],
     })
 
-    expect(result).not.toContain(`<panel id="anchor-panel">
-\t\t\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
-\t\t</panel>
-\t\t<group id="existing-group"/>`)
-    expect(result).toMatch(/<group id="[^"]+"\/>[\s\S]*<group id="existing-group"\/>/)
+    expect(result).toContain("<group/>")
+    expect(result).toContain('<group id="existing-group"/>')
+    expect(result).not.toContain('id="11111111-1111-4111-8111-111111111111"')
+  })
+
+  it("does not generate ids for reference groups that had no id", () => {
+    const referenceXml = `<?xml version="1.0" encoding="UTF-8"?>
+<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+\t<top>
+\t\t<group>
+\t\t\t<panel id="opened-panel">
+\t\t\t\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
+\t\t\t</panel>
+\t\t</group>
+\t</top>
+\t<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>
+</ClientApplicationInterface>`
+
+    const result = roundTripClientApplicationInterfaceThroughYAML(referenceXml)
+
+    expect(result).toContain("<group>")
+    expect(result).not.toContain("<group id=")
   })
 
   it("creates panel definition for a new non-standard panel with presentation", () => {

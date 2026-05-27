@@ -4,10 +4,13 @@ import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldStringFromYAML } from "../metadataPath/fromYAML"
 import { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 const fromRoleYAML = (rule: { roleReferenceYAML?: "full" | "name" } | undefined, value: string): string => {
   if (rule?.roleReferenceYAML !== "name") return value
   if (value.startsWith("Role.")) return value
   if (value.includes(".")) return value
+  if (UUID_PATTERN.test(value)) return value
   return `Role.${value}`
 }
 
@@ -16,7 +19,7 @@ export const importMetadataItemLinkFromYAML = (
   rule: PropertyRule | undefined,
   data: MetadataItemLinkYAML | undefined
 ): MetadataItemLink | undefined => {
-  if (!data) return undefined
+  if (data === undefined) return undefined
 
   return importMetadataFieldStringFromYAML(context, undefined, fromRoleYAML(rule, data))
 }

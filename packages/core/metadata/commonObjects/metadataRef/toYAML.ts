@@ -14,7 +14,7 @@ export const exportMetadataItemLinkToYAML = (
   rule: PropertyRule | undefined,
   data: MetadataItemLink | undefined
 ): MetadataItemLinkYAML | undefined => {
-  if (!data) return undefined
+  if (data === undefined) return undefined
 
   return exportMetadataFieldStringToYAML(context, rule, toRoleYAML(rule, data))
 }
