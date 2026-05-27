@@ -1,4 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { restoreKnownDuplicateCommandBarButtonIds } from "~/metadata/forms/knownAnomalies"
 import { ElementXML, exportElementToXML, PropertyRule } from "~/metadata/orchestration"
 import { getElementXMLTagName } from "~/metadata/orchestration/formElement/ruleFactory"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
@@ -24,7 +25,10 @@ export const exportChildItemsToXML = <From extends ChildItem>(
     return { [xmlTag]: value } as Record<From["itemType"], ElementXML>
   })
 
-  return result
+  return restoreKnownDuplicateCommandBarButtonIdsForXMLTags({
+    currentXMLPath: context.exportToXML.context?.currentXMLPath,
+    items: result,
+  })
 }
 
 const findReferenceElement = <From extends ChildItem>(
@@ -33,6 +37,26 @@ const findReferenceElement = <From extends ChildItem>(
 ): From | undefined => {
   if (referenceData === undefined) return undefined
   return referenceData.find((referenceItem) => "name" in data && referenceItem.name === data.name)
+}
+
+const restoreKnownDuplicateCommandBarButtonIdsForXMLTags = <From extends ChildItem>(params: {
+  currentXMLPath: string | undefined
+  items: Record<From["itemType"], ElementXML>[]
+}): Record<From["itemType"], ElementXML>[] => {
+  const commandBarItems = params.items.map((item) => {
+    if (!("Button" in item)) return item
+    return { CommandBarButton: item.Button }
+  })
+
+  const restoredItems = restoreKnownDuplicateCommandBarButtonIds({
+    currentXMLPath: params.currentXMLPath,
+    items: commandBarItems,
+  })
+
+  return restoredItems.map((item, index) => {
+    if (!("CommandBarButton" in item)) return params.items[index]
+    return { Button: item.CommandBarButton } as Record<From["itemType"], ElementXML>
+  })
 }
 
 registerTypeRule("GroupChildItems", "exportToXML", exportChildItemsToXML)
