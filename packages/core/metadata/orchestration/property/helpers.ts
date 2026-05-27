@@ -57,10 +57,15 @@ export const shouldProcessProperty = (params: {
 
         if (metadataHasOwnKey) return true
 
-        if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object") return false
+        if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object")
+          return false
 
         const referenceSourceKeys = (referenceMetadata as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
-        if (referenceSourceKeys !== undefined && referenceSourceKeys !== null && typeof referenceSourceKeys === "object") {
+        if (
+          referenceSourceKeys !== undefined &&
+          referenceSourceKeys !== null &&
+          typeof referenceSourceKeys === "object"
+        ) {
           return Object.prototype.hasOwnProperty.call(referenceSourceKeys, propertyKey)
         }
 
@@ -332,17 +337,18 @@ export const getValueOrDefault = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: any
+  yaml?: any
   name?: string
   operation: TypeRulesOperations
 }): any => {
-  const { context, rule, value, name, operation } = params
+  const { context, rule, value, yaml, name, operation } = params
 
   if (value !== undefined) {
     return value
   }
 
   if (typeof rule.defaultValue === "function") {
-    return rule.defaultValue({ context, name, operation })
+    return rule.defaultValue({ context, yaml, name, operation })
   }
 
   return rule.defaultValue

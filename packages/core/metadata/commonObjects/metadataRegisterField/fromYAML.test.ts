@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration"
+import { importPropertyFromYAML } from "~/metadata/orchestration/property/fromYAML"
 import { mockContext } from "~/tests/mockContext"
 import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "../accountingFlag/rules"
+import { MetadataRegisterDimensionRules } from "../metadataRegisterDimension/rules"
+import "../metadataRegisterDimension/register"
 
 describe("metadata register field YAML import", () => {
   it.each([
@@ -42,5 +45,34 @@ describe("metadata register field YAML import", () => {
       synonym: { items: {} },
       type: { type: ["string"], stringQualifiers: { length: 21 } },
     })
+  })
+
+  it("keeps empty source synonym for short YAML register dimension collection", () => {
+    const result = importPropertyFromYAML({
+      context: mockContext,
+      rule: { type: "MetadataRegisterDimensions" },
+      value: {
+        УдалитьОКТМО_КПП: "Строка(21)",
+      },
+      sourceValue: [
+        {
+          itemType: MetadataRegisterDimensionRules.itemType,
+          name: "УдалитьОКТМО_КПП",
+          synonym: { items: {} },
+        },
+      ],
+    })
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        itemType: MetadataRegisterDimensionRules.itemType,
+        name: "УдалитьОКТМО_КПП",
+        type: expect.objectContaining({
+          type: ["string"],
+          stringQualifiers: expect.objectContaining({ length: 21 }),
+        }),
+      }),
+    ])
+    expect(result[0]).not.toHaveProperty("synonym")
   })
 })

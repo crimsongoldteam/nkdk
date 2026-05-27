@@ -54,14 +54,18 @@ export const commonRegisterFieldProperties = {
     excludeIfEqualNameYAML: true,
     defaultValue: ({
       context,
+      yaml,
       name,
       operation,
     }: {
       context: ConfigurationContext
+      yaml?: unknown
       name?: string
       operation?: string
     }) =>
-      operation === "importFromYAML" && name ? addDefaultLanguageNameToSynonym(context, undefined, name) : emptySynonym,
+      operation === "importFromYAML" && name && yaml !== null && typeof yaml === "object" && !Array.isArray(yaml)
+        ? addDefaultLanguageNameToSynonym(context, undefined, name)
+        : emptySynonym,
     defaultValueXMLEmpty: emptySynonym,
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",

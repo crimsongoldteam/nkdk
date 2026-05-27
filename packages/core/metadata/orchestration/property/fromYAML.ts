@@ -117,6 +117,7 @@ export const importPropertyFromYAML = (params: {
       context,
       rule,
       value: value ?? sourceValue,
+      yaml,
       name,
       operation: "importFromYAML",
     })
@@ -140,6 +141,7 @@ export const importPropertyFromYAML = (params: {
         importedValue,
         sourceValue,
       }),
+      yaml,
       name,
       operation: "importFromYAML",
     })
@@ -156,6 +158,7 @@ export const importPropertyFromYAML = (params: {
       importedValue: result,
       sourceValue,
     }),
+    yaml,
     name,
     operation: "importFromYAML",
   })
@@ -268,6 +271,6 @@ function handleShortFormatYAML<Type extends MetadataItemType>(params: {
     metadataRule: metadataRule,
     name,
     source: shortFormatSource,
-    yaml: {},
+    yaml: undefined,
   })
 }

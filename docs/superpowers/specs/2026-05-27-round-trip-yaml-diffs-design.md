@@ -71,7 +71,8 @@
 Реализация:
 
 - в `packages/core/metadata/commonObjects/metadataRegisterField/rules.ts` для `synonym.defaultValue` добавлена ветка `operation === "importFromYAML"`, которая восстанавливает синоним из имени через `addDefaultLanguageNameToSynonym`;
-- в short YAML-формате сохранена передача `source`, чтобы поля с исходным пустым `<Synonym/>` не получали сгенерированный синоним при синхронизации с reference;
+- восстановление `Synonym` ограничено полной YAML-записью объекта, чтобы короткая запись вида `Имя: Строка(21)` не генерировала синоним там, где в XML был пустой `<Synonym/>`;
+- в short YAML-формате и коллекциях измерений/ресурсов регистров сохранена передача `source`, чтобы локальные импорты поверх reference не теряли пустой `Synonym`;
 - добавлен точечный тест `packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts`.
 
 Проверка:
@@ -81,7 +82,8 @@
 
 Фактическая проверка:
 
-- `pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/metadataRegisterField/fromYAML.test.ts metadata/appliedObjects/configuration/migrations/paths.test.ts metadata/appliedObjects/metadataCommonCommand/fromXML.test.ts metadata/appliedObjects/metadataCommonCommand/fromYAML.test.ts metadata/appliedObjects/metadataCommonCommand/syncToXML.test.ts` — пройдено, `26` тестов.
+- `pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/metadataRegisterField/fromYAML.test.ts metadata/appliedObjects/configuration/migrations/paths.test.ts metadata/appliedObjects/metadataCommonCommand/fromXML.test.ts metadata/appliedObjects/metadataCommonCommand/fromYAML.test.ts metadata/appliedObjects/metadataCommonCommand/syncToXML.test.ts` — пройдено, `27` тестов.
+- `round-trip-yaml --triage --batch-size 10 --start-index 1` после реализации больше не показывает исходный diff `ChartsOfAccounts/Хозрасчетный.xml`; побочный diff по `AccumulationRegisters/РасчетыНалоговыхАгентовСБюджетомПоНДФЛ.xml` устранен ограничением восстановления `Synonym` полной YAML-записью.
 
 Статус: реализовано, точечные тесты пройдены.
 
@@ -167,7 +169,9 @@ Triage `--start-index 6 --batch-size 5` показал, что diff'ы `6-10` н
 - `metadata/appliedObjects/metadataCommonCommand/fromYAML.test.ts` — YAML import и канонический YAML export;
 - `metadata/appliedObjects/metadataCommonCommand/syncToXML.test.ts` — запись `CommonCommands/<Имя>.xml` и `CommonCommands/<Имя>/Ext/CommandModule.bsl`;
 - `metadata/appliedObjects/configuration/migrations/paths.test.ts` — поддержка пути `ОбщаяКоманда.<Имя>`;
-- общий точечный запуск вместе с тестом `metadataRegisterField/fromYAML.test.ts` — пройдено, `25` тестов.
+- общий точечный запуск вместе с тестом `metadataRegisterField/fromYAML.test.ts` — пройдено, `27` тестов.
+- `round-trip-yaml --triage --batch-size 10 --start-index 1` проходит стадии `import` и `sync` без ошибок, `CommonCommands/*.xml` и `CommonCommands/*/Ext/CommandModule.bsl` больше не удаляются в первой пачке diff'ов.
+- Общее количество diff'ов для `acc` снизилось с `1173` до `15`. Оставшиеся первые diff'ы относятся к другим областям: `ConfigDumpInfo.xml`, root `Ext/*` и интерфейсные файлы конфигурации.
 
 Статус: реализовано, точечные тесты пройдены.
 
