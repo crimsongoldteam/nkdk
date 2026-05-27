@@ -30,6 +30,7 @@ import { MetadataScheduledJobRules } from "../metadataScheduledJob/rules"
 import { MetadataSettingsStorageRules } from "../metadataSettingsStorage/rules"
 import { MetadataSequenceRules } from "../metadataSequence/rules"
 import { MetadataSessionParameterRules } from "../metadataSessionParameter/rules"
+import { MetadataCommonCommandRules } from "../metadataCommonCommand/rules"
 import { MetadataCommandGroupRules } from "../metadataCommandGroup/rules"
 import { MetadataCommonFormRules } from "../metadataCommonForm/rules"
 import { MetadataCommonPictureRules } from "../metadataCommonPicture/rules"
@@ -81,6 +82,7 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataCommonFormRules,
   MetadataCommonPictureRules,
   MetadataStyleRules,
+  MetadataCommonCommandRules,
   MetadataCommandGroupRules,
   MetadataConstantRules,
   MetadataSubsystemRules,

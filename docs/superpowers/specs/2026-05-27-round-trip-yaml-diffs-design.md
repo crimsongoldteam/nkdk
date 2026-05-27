@@ -68,12 +68,21 @@
 
 Решение должно затронуть `packages/core/metadata/commonObjects/metadataRegisterField/rules.ts`, а не локально `accountingFlag/rules.ts`, потому что проблема находится в общем правиле, унаследованном `AccountingFlag` / `ExtDimensionAccountingFlag`.
 
+Реализация:
+
+- в `packages/core/metadata/commonObjects/metadataRegisterField/rules.ts` для `synonym.defaultValue` добавлена ветка `operation === "importFromYAML"`, которая восстанавливает синоним из имени через `addDefaultLanguageNameToSynonym`;
+- добавлен точечный тест `packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts`.
+
 Проверка:
 
 - точечный тест на XML/YAML round-trip для признаков учета;
 - повторный `round-trip-yaml` triage для подтверждения, что diff `1` исчез или изменился ожидаемо.
 
-Статус: решение согласовано, реализация не начата.
+Фактическая проверка:
+
+- `pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/metadataRegisterField/fromYAML.test.ts metadata/appliedObjects/metadataCommonCommand/fromXML.test.ts metadata/appliedObjects/metadataCommonCommand/fromYAML.test.ts metadata/appliedObjects/metadataCommonCommand/syncToXML.test.ts` — пройдено, `7` тестов.
+
+Статус: реализовано, точечные тесты пройдены.
 
 ## Решение 2: CommonCommand
 
@@ -136,13 +145,28 @@
 
 Triage `--start-index 6 --batch-size 5` показал, что diff'ы `6-10` не добавляют новую причину. Это те же удаления корневых `CommonCommand` и их модулей, поэтому они покрываются выбранным решением 2.
 
+Реализация:
+
+- добавлен root metadataItem `MetadataCommonCommand` в `packages/core/metadata/appliedObjects/metadataCommonCommand`;
+- правило переиспользует `MetadataCommandRules`, но задает собственные `xmlRoot`, `xmlDir: "CommonCommands"`, `itemTypePrefix: "ОбщаяКоманда"`;
+- модуль команды включен для XML round-trip: `Ext/CommandModule.bsl` <-> `Модуль.bsl`;
+- `IncludeHelpInContents` добавлен только для корневой общей команды, с порядком XML, соответствующим root `CommonCommand`;
+- `MetadataCommonCommandRules` добавлен в `TopLevelMetadataItemRules`, а тип зарегистрирован через `appliedObjects/index.ts`.
+
 Проверка:
 
 - точечные тесты import/export для корневой общей команды;
 - проверка восстановления внешнего модуля;
 - повторный `round-trip-yaml` triage для подтверждения, что diff'ы `2-5` исчезли или изменились ожидаемо.
 
-Статус: решение согласовано, реализация не начата.
+Фактическая проверка:
+
+- `metadata/appliedObjects/metadataCommonCommand/fromXML.test.ts` — импорт и XML round-trip корневой `CommonCommand`;
+- `metadata/appliedObjects/metadataCommonCommand/fromYAML.test.ts` — YAML import и канонический YAML export;
+- `metadata/appliedObjects/metadataCommonCommand/syncToXML.test.ts` — запись `CommonCommands/<Имя>.xml` и `CommonCommands/<Имя>/Ext/CommandModule.bsl`;
+- общий точечный запуск вместе с тестом `metadataRegisterField/fromYAML.test.ts` — пройдено, `7` тестов.
+
+Статус: реализовано, точечные тесты пройдены.
 
 ## Порядок работы
 
