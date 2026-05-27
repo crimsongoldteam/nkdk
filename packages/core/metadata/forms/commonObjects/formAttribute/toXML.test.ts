@@ -10,6 +10,7 @@ import {
   withEmptySettingsFormAttribute,
   withoutTypeFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
+import { ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM } from "~/metadata/forms/knownAnomalies"
 import { mockContextFromXML, mockContextToXML, mockRule } from "~/tests/mockContext"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
@@ -35,8 +36,6 @@ import { exportFormAttributesToXML } from "./toXML"
 import type { FormAttributeAdditionalColumnXML, FormAttributeColumnXML, FormAttributes } from "./types"
 
 const formAttributesRule = { type: "FormAttributes", xml: "Attribute" } as const
-const erpDuplicateAdditionalColumnsFormPath =
-  "Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml"
 
 const formAttributesWithCanonicalErpAdditionalColumn: FormAttributes = [
   {
@@ -61,7 +60,7 @@ const formAttributesWithCanonicalErpAdditionalColumn: FormAttributes = [
   },
 ]
 
-const withErpAdditionalColumn = (params: { table?: string; column?: string }): FormAttributes => [
+const withErpAdditionalColumn = (params: { table?: string; column?: string; extraColumn?: string }): FormAttributes => [
   {
     ...formAttributesWithCanonicalErpAdditionalColumn[0],
     additionalColumns: [
@@ -72,6 +71,12 @@ const withErpAdditionalColumn = (params: { table?: string; column?: string }): F
             ...formAttributesWithCanonicalErpAdditionalColumn[0].additionalColumns![0].columns[0],
             name: params.column ?? "Реквизит1",
           },
+          ...(params.extraColumn === undefined
+            ? []
+            : [{
+                ...formAttributesWithCanonicalErpAdditionalColumn[0].additionalColumns![0].columns[0],
+                name: params.extraColumn,
+              }]),
         ],
       },
     ],
@@ -254,7 +259,7 @@ describe("exportFormAttributesToXML", () => {
 
   it("restores ERP duplicate AdditionalColumns only for the known form path", () => {
     const context = mockContextToXML()
-    context.exportToXML.context!.currentXMLPath = erpDuplicateAdditionalColumnsFormPath
+    context.exportToXML.context!.currentXMLPath = ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM
 
     const xmlData = exportFormAttributesToXML(context, mockRule, formAttributesWithCanonicalErpAdditionalColumn)
     const columns = getFirstAdditionalColumnNodes(xmlData)
@@ -283,7 +288,7 @@ describe("exportFormAttributesToXML", () => {
 
   it("keeps canonical AdditionalColumns for the ERP path when table is different", () => {
     const context = mockContextToXML()
-    context.exportToXML.context!.currentXMLPath = erpDuplicateAdditionalColumnsFormPath
+    context.exportToXML.context!.currentXMLPath = ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM
 
     const xmlData = exportFormAttributesToXML(
       context,
@@ -300,13 +305,28 @@ describe("exportFormAttributesToXML", () => {
 
   it("keeps canonical AdditionalColumns for the ERP path when column name is different", () => {
     const context = mockContextToXML()
-    context.exportToXML.context!.currentXMLPath = erpDuplicateAdditionalColumnsFormPath
+    context.exportToXML.context!.currentXMLPath = ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM
 
     const xmlData = exportFormAttributesToXML(context, mockRule, withErpAdditionalColumn({ column: "Реквизит2" }))
     const columns = getFirstAdditionalColumnNodes(xmlData)
 
     expect(columns).toHaveLength(1)
     expect(columns?.map((column) => column._name)).toEqual(["Реквизит2"])
+  })
+
+  it("keeps canonical AdditionalColumns for the ERP path when the known group has multiple columns", () => {
+    const context = mockContextToXML()
+    context.exportToXML.context!.currentXMLPath = ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM
+
+    const xmlData = exportFormAttributesToXML(
+      context,
+      mockRule,
+      withErpAdditionalColumn({ extraColumn: "Реквизит2" })
+    )
+    const columns = getFirstAdditionalColumnNodes(xmlData)
+
+    expect(columns).toHaveLength(2)
+    expect(columns?.map((column) => column._name)).toEqual(["Реквизит1", "Реквизит2"])
   })
 
   it("export tableWithColumns", () => {

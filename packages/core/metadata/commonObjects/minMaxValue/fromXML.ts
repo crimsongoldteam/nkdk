@@ -24,7 +24,7 @@ export const importMinMaxValueFromXML = (
   const xsiType = typeof value === "object" && value !== null ? value["_xsi:type"] : undefined
 
   if (context.fromXML.forReference && isMinMaxValueXsiType(xsiType)) {
-    return attachMinMaxValueXsiType(result, xsiType)
+    return attachMinMaxValueXsiType(result, xsiType, String(rawValue))
   }
 
   return result
