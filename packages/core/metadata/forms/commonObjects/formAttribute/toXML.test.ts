@@ -10,6 +10,7 @@ import {
   withEmptySettingsFormAttribute,
   withoutTypeFormAttribute,
 } from "~/tests/fixtures/formAttributes/data"
+import { ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM } from "~/metadata/forms/knownAnomalies"
 import { mockContextFromXML, mockContextToXML, mockRule } from "~/tests/mockContext"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
@@ -35,8 +36,6 @@ import { exportFormAttributesToXML } from "./toXML"
 import type { FormAttributeAdditionalColumnXML, FormAttributeColumnXML, FormAttributes } from "./types"
 
 const formAttributesRule = { type: "FormAttributes", xml: "Attribute" } as const
-const erpDuplicateAdditionalColumnsFormPath =
-  "Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml"
 
 const formAttributesWithCanonicalErpAdditionalColumn: FormAttributes = [
   {
@@ -254,7 +253,7 @@ describe("exportFormAttributesToXML", () => {
 
   it("restores ERP duplicate AdditionalColumns only for the known form path", () => {
     const context = mockContextToXML()
-    context.exportToXML.context!.currentXMLPath = erpDuplicateAdditionalColumnsFormPath
+    context.exportToXML.context!.currentXMLPath = ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM
 
     const xmlData = exportFormAttributesToXML(context, mockRule, formAttributesWithCanonicalErpAdditionalColumn)
     const columns = getFirstAdditionalColumnNodes(xmlData)
@@ -283,7 +282,7 @@ describe("exportFormAttributesToXML", () => {
 
   it("keeps canonical AdditionalColumns for the ERP path when table is different", () => {
     const context = mockContextToXML()
-    context.exportToXML.context!.currentXMLPath = erpDuplicateAdditionalColumnsFormPath
+    context.exportToXML.context!.currentXMLPath = ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM
 
     const xmlData = exportFormAttributesToXML(
       context,
@@ -300,7 +299,7 @@ describe("exportFormAttributesToXML", () => {
 
   it("keeps canonical AdditionalColumns for the ERP path when column name is different", () => {
     const context = mockContextToXML()
-    context.exportToXML.context!.currentXMLPath = erpDuplicateAdditionalColumnsFormPath
+    context.exportToXML.context!.currentXMLPath = ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM
 
     const xmlData = exportFormAttributesToXML(context, mockRule, withErpAdditionalColumn({ column: "Реквизит2" }))
     const columns = getFirstAdditionalColumnNodes(xmlData)

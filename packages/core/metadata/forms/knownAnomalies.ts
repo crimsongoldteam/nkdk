@@ -1,0 +1,79 @@
+type XMLObject = Record<string, unknown>
+
+export const ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM =
+  "Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml"
+
+export const MASTER_SIMPLIFIED_CONNECTION_FORM =
+  "DataProcessors/ДокументооборотСКонтролирующимиОрганами/Forms/МастерФормированияЗаявкиНаПодключениеУпрощенное/Ext/Form.xml"
+
+export const restoreKnownDuplicateErpAdditionalColumns = <ColumnXML extends XMLObject>(params: {
+  currentXMLPath: string | undefined
+  table: string
+  columnName: string | undefined
+  column: ColumnXML | undefined
+}): ColumnXML[] | undefined => {
+  const { currentXMLPath, table, columnName, column } = params
+  if (column === undefined) return undefined
+  if (currentXMLPath !== ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM) return undefined
+  if (table !== "Список.Способы") return undefined
+  if (columnName !== "Реквизит1") return undefined
+
+  return ["1", "2", "3", "4", "5"].map((id) => ({
+    ...column,
+    _id: id,
+  }))
+}
+
+const KNOWN_MASTER_BUTTON_IDS = [
+  { name: "ЕстьКЭП", buttonId: "1823", tooltipId: "1825" },
+  { name: "НетКЭП", buttonId: "1824", tooltipId: "1826" },
+  { name: "ЕстьКЭП", buttonId: "1314", tooltipId: "1315" },
+  { name: "НетКЭП", buttonId: "1316", tooltipId: "1317" },
+] as const
+
+export const restoreKnownDuplicateCommandBarButtonIds = <ItemXML extends XMLObject>(params: {
+  currentXMLPath: string | undefined
+  items: ItemXML[]
+}): ItemXML[] => {
+  const { currentXMLPath, items } = params
+  if (currentXMLPath !== MASTER_SIMPLIFIED_CONNECTION_FORM) return items
+  if (!isKnownMasterButtonSequence(items)) return items
+
+  return items.map((item, index) => {
+    const commandBarButton = (item as XMLObject).CommandBarButton
+    if (!isXMLObject(commandBarButton)) return item
+
+    const ids = KNOWN_MASTER_BUTTON_IDS[index]
+    const nextButton: XMLObject = {
+      ...commandBarButton,
+      _id: ids.buttonId,
+    }
+
+    if (isXMLObject(commandBarButton.ExtendedTooltip)) {
+      nextButton.ExtendedTooltip = {
+        ...commandBarButton.ExtendedTooltip,
+        _id: ids.tooltipId,
+      }
+    }
+
+    return {
+      ...item,
+      CommandBarButton: nextButton,
+    }
+  }) as ItemXML[]
+}
+
+const isKnownMasterButtonSequence = (items: XMLObject[]): boolean => {
+  if (items.length !== KNOWN_MASTER_BUTTON_IDS.length) return false
+
+  return items.every((item, index) => {
+    const commandBarButton = item.CommandBarButton
+    if (!isXMLObject(commandBarButton)) return false
+    if (commandBarButton._name !== KNOWN_MASTER_BUTTON_IDS[index].name) return false
+    return isXMLObject(commandBarButton.ExtendedTooltip)
+  })
+}
+
+const isXMLObject = (value: unknown): value is XMLObject => {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+}
