@@ -24,4 +24,18 @@ describe("exportMetadataItemLinkToYAML", () => {
 
     expect(result).toEqual("Документ.Встреча")
   })
+
+  it("exports role references without Role prefix when rule asks for name form", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(exportMetadataItemLinkToYAML(mockContext, rule, "Role.Администратор")).toBe("Администратор")
+  })
+
+  it("keeps non-role references unchanged in short role mode", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(exportMetadataItemLinkToYAML(mockContext, rule, "CommonForm.НачалоРаботы")).toBe(
+      "CommonForm.НачалоРаботы"
+    )
+  })
 })

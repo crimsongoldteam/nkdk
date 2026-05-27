@@ -4,25 +4,32 @@ import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldStringFromYAML } from "../metadataPath/fromYAML"
 import { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
 
+const fromRoleYAML = (rule: { roleReferenceYAML?: "full" | "name" } | undefined, value: string): string => {
+  if (rule?.roleReferenceYAML !== "name") return value
+  if (value.startsWith("Role.")) return value
+  if (value.includes(".")) return value
+  return `Role.${value}`
+}
+
 export const importMetadataItemLinkFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: MetadataItemLinkYAML | undefined
 ): MetadataItemLink | undefined => {
   if (!data) return undefined
 
-  return importMetadataFieldStringFromYAML(context, undefined, data)
+  return importMetadataFieldStringFromYAML(context, undefined, fromRoleYAML(rule, data))
 }
 
 export const importMetadataItemLinksFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: MetadataItemLinksYAML | undefined
 ): MetadataItemLinks | undefined => {
   if (!data) return undefined
 
   return data
-    .map((item) => importMetadataItemLinkFromYAML(context, undefined, item)!)
+    .map((item) => importMetadataItemLinkFromYAML(context, rule, item)!)
     .filter((item): item is MetadataItemLink => item !== undefined)
 }
 

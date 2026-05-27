@@ -24,6 +24,21 @@ describe("importMetadataItemLinkFromYAML", () => {
 
     expect(result).toEqual("CommonCommand.ПланСчетов")
   })
+
+  it("imports short role references back to full Role reference when rule asks for name form", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(importMetadataItemLinkFromYAML(mockContext, rule, "Администратор")).toBe("Role.Администратор")
+    expect(importMetadataItemLinkFromYAML(mockContext, rule, "Role.Администратор")).toBe("Role.Администратор")
+  })
+
+  it("keeps non-role references unchanged in short role mode", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(importMetadataItemLinkFromYAML(mockContext, rule, "CommonForm.НачалоРаботы")).toBe(
+      "CommonForm.НачалоРаботы"
+    )
+  })
 })
 
 describe("importMetadataItemLinksFromYAML", () => {
