@@ -77,6 +77,17 @@ describe("exportMinMaxValueToXML", () => {
 
     expect(result).toBe('<MinValue xsi:type="xs:string">1</MinValue>')
   })
+
+  it("preserves xs:string non-numeric text from reference for NaN", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: Number.NaN,
+      referenceMetadata: testImportReference('<MinValue xsi:type="xs:string">abc</MinValue>'),
+      xmlRootTag: "MinValue",
+    })
+
+    expect(result).toBe('<MinValue xsi:type="xs:string">abc</MinValue>')
+  })
 })
 
 const testImportReference = (xmlString = '<MinValue xsi:type="xs:string">1</MinValue>'): unknown => {

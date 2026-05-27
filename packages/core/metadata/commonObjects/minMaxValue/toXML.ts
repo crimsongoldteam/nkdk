@@ -25,7 +25,10 @@ const getUnchangedReferenceXMLText = (
   value: number | Number,
   referenceValue: unknown
 ): string | undefined => {
-  if (Number(value) !== Number(referenceValue)) return undefined
+  const currentNumber = Number(value)
+  const referenceNumber = Number(referenceValue)
+
+  if (currentNumber !== referenceNumber && !Object.is(currentNumber, referenceNumber)) return undefined
 
   return getMinMaxValueXMLText(referenceValue)
 }
