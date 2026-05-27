@@ -8,6 +8,7 @@ export interface ExternalPicturePropertyRule extends BasePropertyRule {
   nkdkDir: string
   xmlPath: string
   payloadXmlDir: string
+  syncExternalOnly?: true
   toXML?: false
   fromXML?: false
 }

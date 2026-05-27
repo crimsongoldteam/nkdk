@@ -4,6 +4,7 @@ import { BatchTask, runBatch } from "~/helpers/runBatch"
 import type { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
+import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
 import {
   applyPendingMigrationFiles,
   collectStructuralStateFromXML,
@@ -24,6 +25,7 @@ import {
   readConfigurationFromYAML,
   writeConfigurationToXML,
 } from "./rootIO"
+import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 // TODO: вынести в настройки расширения
@@ -97,6 +99,7 @@ export const syncConfigurationToXML = async (params: {
       childObjects: buildConfigurationChildObjects({ yamlDir: inputDir, referenceChildObjects }),
     })
     xmlManifest.addFile(join(outputDir, CONFIGURATION_XML_FILE))
+    await syncRootConfigurationExternalFilesToXML({ context, inputDir, outputDir, xmlManifest })
   }
 
   for (const rule of TopLevelMetadataItemRules) {
@@ -170,5 +173,26 @@ export const syncConfigurationToXML = async (params: {
       parent: f.parent,
       error: f.error,
     })),
+  }
+}
+
+async function syncRootConfigurationExternalFilesToXML(params: {
+  context: ConfigurationContextWithExportToXML
+  inputDir: string
+  outputDir: string
+  xmlManifest: XmlSyncManifest
+}): Promise<void> {
+  for (const [, propRule] of Object.entries(MetadataConfigurationRules.properties)) {
+    const syncFn = getTypeRule(propRule.type, "syncExternalToXML")
+    if (!syncFn) continue
+    await syncFn({
+      context: params.context,
+      rule: propRule,
+      nkdkDir: params.inputDir,
+      xmlDir: params.outputDir,
+      propertyValue: undefined,
+      referencePropertyValue: undefined,
+      xmlManifest: params.xmlManifest,
+    })
   }
 }

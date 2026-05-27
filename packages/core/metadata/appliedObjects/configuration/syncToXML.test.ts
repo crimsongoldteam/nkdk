@@ -75,6 +75,55 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("сохраняет простые корневые внешние файлы конфигурации в XML", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const outputDir = join(tmp, "out")
+    const managedApplicationModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
+    const sessionModule = "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n"
+    const externalConnectionModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
+    const ordinaryApplicationModule = "Процедура ПередНачаломРаботыСистемы()\nКонецПроцедуры\n"
+
+    try {
+      fs.mkdirSync(join(yamlDir, "КартинкаОсновногоРаздела"), { recursive: true })
+      fs.mkdirSync(join(yamlDir, "Заставка"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(join(yamlDir, "МодульПриложения.bsl"), managedApplicationModule, "utf-8")
+      fs.writeFileSync(join(yamlDir, "МодульСеанса.bsl"), sessionModule, "utf-8")
+      fs.writeFileSync(join(yamlDir, "МодульВнешнегоСоединения.bsl"), externalConnectionModule, "utf-8")
+      fs.writeFileSync(join(yamlDir, "МодульОбычногоПриложения.bsl"), ordinaryApplicationModule, "utf-8")
+      fs.writeFileSync(join(yamlDir, "ПодписьМобильногоКлиента.bin"), Buffer.from([0, 1, 2, 255]))
+      fs.writeFileSync(join(yamlDir, "КартинкаОсновногоРаздела", "MainSectionPicture.xml"), "<MainSectionPicture/>", "utf-8")
+      fs.writeFileSync(join(yamlDir, "КартинкаОсновногоРаздела", "Picture.svg"), "<svg/>", "utf-8")
+      fs.writeFileSync(join(yamlDir, "Заставка", "Splash.xml"), "<Splash/>", "utf-8")
+      fs.writeFileSync(join(yamlDir, "Заставка", "Picture.png"), Buffer.from([137, 80, 78, 71]))
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir,
+      })
+
+      expect(fs.readFileSync(join(outputDir, "Ext", "ManagedApplicationModule.bsl"), "utf-8")).toBe(
+        managedApplicationModule,
+      )
+      expect(fs.readFileSync(join(outputDir, "Ext", "SessionModule.bsl"), "utf-8")).toBe(sessionModule)
+      expect(fs.readFileSync(join(outputDir, "Ext", "ExternalConnectionModule.bsl"), "utf-8")).toBe(
+        externalConnectionModule,
+      )
+      expect(fs.readFileSync(join(outputDir, "Ext", "OrdinaryApplicationModule.bsl"), "utf-8")).toBe(
+        ordinaryApplicationModule,
+      )
+      expect([...fs.readFileSync(join(outputDir, "Ext", "MobileClientSignature.bin"))]).toEqual([0, 1, 2, 255])
+      expect(fs.readFileSync(join(outputDir, "Ext", "MainSectionPicture.xml"), "utf-8")).toBe("<MainSectionPicture/>")
+      expect(fs.readFileSync(join(outputDir, "Ext", "MainSectionPicture", "Picture.svg"), "utf-8")).toBe("<svg/>")
+      expect(fs.readFileSync(join(outputDir, "Ext", "Splash.xml"), "utf-8")).toBe("<Splash/>")
+      expect([...fs.readFileSync(join(outputDir, "Ext", "Splash", "Picture.png"))]).toEqual([137, 80, 78, 71])
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("удаляет старый корневой Configuration.xml, если Конфигурация.yaml отсутствует", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-prune-"))
     const yamlDir = join(tmp, "yaml")

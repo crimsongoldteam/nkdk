@@ -3,7 +3,9 @@ import { basename, join } from "path"
 import { BatchTask, runBatch } from "~/helpers/runBatch"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
+import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { CONFIGURATION_XML_FILE, readConfigurationFromXML, writeConfigurationToYAML } from "./rootIO"
+import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 // TODO: вынести в настройки расширения
@@ -39,6 +41,7 @@ export const syncConfigurationFromXML = async (params: {
   if (fs.existsSync(join(inputDir, CONFIGURATION_XML_FILE))) {
     const configuration = readConfigurationFromXML({ context, inputDir })
     writeConfigurationToYAML({ context, configuration, outputDir })
+    await syncRootConfigurationExternalFilesFromXML({ context, inputDir, outputDir })
   }
 
   const tasks: BatchTask<void>[] = []
@@ -81,5 +84,22 @@ export const syncConfigurationFromXML = async (params: {
       parent: f.parent,
       error: f.error,
     })),
+  }
+}
+
+async function syncRootConfigurationExternalFilesFromXML(params: {
+  context: ConfigurationContextFromXML
+  inputDir: string
+  outputDir: string
+}): Promise<void> {
+  for (const [, propRule] of Object.entries(MetadataConfigurationRules.properties)) {
+    const syncFn = getTypeRule(propRule.type, "syncExternalFromXML")
+    if (!syncFn) continue
+    await syncFn({
+      context: params.context,
+      rule: propRule,
+      xmlDir: params.inputDir,
+      nkdkDir: params.outputDir,
+    })
   }
 }

@@ -101,4 +101,53 @@ describe("sync configuration from xml", () => {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
   })
+
+  it("сохраняет простые корневые внешние файлы конфигурации", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-from-xml-"))
+    const rootInput = join(tmp, "xml")
+    const rootOutput = join(tmp, "yaml")
+    const managedApplicationModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
+    const sessionModule = "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n"
+    const externalConnectionModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
+    const ordinaryApplicationModule = "Процедура ПередНачаломРаботыСистемы()\nКонецПроцедуры\n"
+
+    try {
+      fs.mkdirSync(join(rootInput, "Ext", "MainSectionPicture"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext", "Splash"), { recursive: true })
+      fs.copyFileSync(
+        join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
+        join(rootInput, CONFIGURATION_XML_FILE),
+      )
+      fs.writeFileSync(join(rootInput, "Ext", "ManagedApplicationModule.bsl"), managedApplicationModule, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "SessionModule.bsl"), sessionModule, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "ExternalConnectionModule.bsl"), externalConnectionModule, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "OrdinaryApplicationModule.bsl"), ordinaryApplicationModule, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
+      fs.writeFileSync(join(rootInput, "Ext", "MainSectionPicture.xml"), "<MainSectionPicture/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "MainSectionPicture", "Picture.svg"), "<svg/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Splash.xml"), "<Splash/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
+
+      await syncConfigurationFromXML({
+        context: mockContextFromXML(),
+        inputDir: rootInput,
+        outputDir: rootOutput,
+      })
+
+      expect(fs.readFileSync(join(rootOutput, "МодульПриложения.bsl"), "utf-8")).toBe(managedApplicationModule)
+      expect(fs.readFileSync(join(rootOutput, "МодульСеанса.bsl"), "utf-8")).toBe(sessionModule)
+      expect(fs.readFileSync(join(rootOutput, "МодульВнешнегоСоединения.bsl"), "utf-8")).toBe(externalConnectionModule)
+      expect(fs.readFileSync(join(rootOutput, "МодульОбычногоПриложения.bsl"), "utf-8")).toBe(ordinaryApplicationModule)
+      expect([...fs.readFileSync(join(rootOutput, "ПодписьМобильногоКлиента.bin"))]).toEqual([0, 1, 2, 255])
+      expect(fs.readFileSync(join(rootOutput, "КартинкаОсновногоРаздела", "MainSectionPicture.xml"), "utf-8")).toBe(
+        "<MainSectionPicture/>",
+      )
+      expect(fs.readFileSync(join(rootOutput, "КартинкаОсновногоРаздела", "Picture.svg"), "utf-8")).toBe("<svg/>")
+      expect(fs.readFileSync(join(rootOutput, "Заставка", "Splash.xml"), "utf-8")).toBe("<Splash/>")
+      expect([...fs.readFileSync(join(rootOutput, "Заставка", "Picture.png"))]).toEqual([137, 80, 78, 71])
+      expect(fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")).not.toContain("МодульПриложения")
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
 })
