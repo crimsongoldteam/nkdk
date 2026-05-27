@@ -126,14 +126,6 @@ async function syncChildCollectionsFromXML(params: {
         }
       }
 
-      await importFilePathPropertiesFromXML({
-        context,
-        rule: childCollection.itemRule,
-        model: item.model,
-        inputDir: childXmlDir,
-        name: item.name,
-      })
-
       for (const [, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
         const syncFn = getTypeRule(itemPropRule.type, "syncExternalFromXML")
         if (!syncFn) continue
@@ -157,29 +149,6 @@ async function syncChildCollectionsFromXML(params: {
         xmlDirContainsCurrentItem: params.xmlDirContainsCurrentItem || childCollection.xmlDir !== undefined,
       })
     }
-  }
-}
-
-async function importFilePathPropertiesFromXML(params: {
-  context: ConfigurationContextFromXML
-  rule: MetadataItemRule
-  model: Record<string, unknown>
-  inputDir: string
-  name: string
-}): Promise<void> {
-  const { context, rule, model, inputDir, name } = params
-
-  for (const [key, propRule] of Object.entries(rule.properties)) {
-    if (propRule.filePath === undefined) continue
-    if (!getTypeRule(propRule.type, "importFromXML")) continue
-    const rootExtFilePath = join(inputDir, propRule.filePath)
-    const objectExtFilePath = join(inputDir, name, propRule.filePath)
-    const extFilePath = fs.existsSync(rootExtFilePath) ? rootExtFilePath : objectExtFilePath
-    if (!fs.existsSync(extFilePath)) continue
-    const extContent = await fs.promises.readFile(extFilePath, "utf-8")
-    const extParsed = importContentFromXML<Record<string, unknown>>(extContent)
-    const value = importPropertyFromXML({ context, rule: propRule as PropertyRule, value: extParsed, name: key })
-    if (value !== undefined) model[key] = value
   }
 }
 

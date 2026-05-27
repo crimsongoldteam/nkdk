@@ -276,16 +276,6 @@ async function syncChildCollectionExternalFilesToXML(params: {
         }
       }
 
-      await writeFilePathPropertiesToXML({
-        context: childContext,
-        rule: childCollection.itemRule,
-        model: item.model,
-        outputDir: childXmlDir,
-        referenceDir: childReferenceDir,
-        referenceName: item.name,
-        xmlManifest,
-      })
-
       for (const [, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
         const syncFn = getTypeRule(itemPropRule.type, "syncExternalToXML")
         if (!syncFn) continue
@@ -315,55 +305,6 @@ async function syncChildCollectionExternalFilesToXML(params: {
         xmlDirContainsCurrentItem: params.xmlDirContainsCurrentItem || childCollection.xmlDir !== undefined,
       })
     }
-  }
-}
-
-async function writeFilePathPropertiesToXML(params: {
-  context: ConfigurationContextWithExportToXML
-  rule: MetadataItemRule
-  model: Record<string, unknown>
-  outputDir: string
-  referenceDir: string
-  referenceName: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
-}): Promise<void> {
-  const { context, rule, model, outputDir, referenceDir, referenceName, xmlManifest } = params
-  const referenceValues = readFilePathReferenceValues({
-    context: {
-      fromXML: { forReference: true },
-      defaultLanguage: context.defaultLanguage,
-      version: context.version,
-    },
-    rule,
-    externalReferenceDir: referenceDir,
-    referenceName,
-    hasExplicitExternalReferenceDir: true,
-  })
-
-  for (const [key, propRule] of Object.entries(rule.properties)) {
-    if (propRule.filePath === undefined) continue
-    if (!getTypeRule(propRule.type, "exportToXML")) continue
-
-    const modelHasOwnValue = Object.prototype.hasOwnProperty.call(model, key)
-    const valueToExport = modelHasOwnValue
-      ? model[key]
-      : propRule.exportReferenceFileOnMissingValue === true
-        ? referenceValues[key]
-        : undefined
-    if (valueToExport === undefined) continue
-
-    const xmlFileObj = exportPropertyToXML({
-      context,
-      rule: propRule as PropertyRule,
-      value: valueToExport,
-      referenceMetadata: referenceValues[key],
-    }) as Record<string, unknown> | undefined
-    if (!xmlFileObj) continue
-
-    const outputPath = join(outputDir, propRule.filePath)
-    await fs.promises.mkdir(dirname(outputPath), { recursive: true })
-    await fs.promises.writeFile(outputPath, xmlExport(xmlFileObj), "utf-8")
-    xmlManifest?.addFile(outputPath)
   }
 }
 
