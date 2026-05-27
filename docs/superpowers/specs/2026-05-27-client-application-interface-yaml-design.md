@@ -11,6 +11,7 @@ YAML-представление должно жить внутри `Конфиг
 - `model.xdtomngcore_root.res`: `InterfaceLayouter` содержит повторяемые секции `top`, `left`, `right`, `bottom` и `panelDef`.
 - `/Users/nikita/git/roundTripElements/ext/ClientApplicationInterface.xml`: фикстура с повторяющимися секциями, прямыми панелями, пустой группой и вложенной группой.
 - `/Users/nikita/git/round-trip-source/doc/Ext/ClientApplicationInterface.xml`: реальный пример `panelDef` с `spr`.
+- `/Users/nikita/git/clean_cf`: чистая конфигурация без `Ext/ClientApplicationInterface.xml`, используется как источник default-поведения.
 
 ## YAML-форма
 
@@ -60,6 +61,15 @@ YAML-представление должно жить внутри `Конфиг
 Если в XML встретится неизвестный `uuid`, YAML должен сохранить его явно через развернутую форму `UUID`.
 Если в XML встретится `<panel><name>...</name></panel>`, YAML должен сохранить его как `Имя`.
 
+## Default-поведение
+
+`ИнтерфейсКлиентскогоПриложения` является необязательным свойством.
+Если в XML-выгрузке нет `Ext/ClientApplicationInterface.xml`, YAML-ключ не создается.
+Если в YAML нет ключа `ИнтерфейсКлиентскогоПриложения` и нет reference-файла, экспорт не должен создавать `Ext/ClientApplicationInterface.xml`.
+
+Если YAML-ключ отсутствует, но reference содержит `Ext/ClientApplicationInterface.xml`, экспорт сохраняет reference-файл только в сценарии сохранения существующего XML без изменения этой части модели.
+Если YAML-ключ присутствует, экспорт строит XML из YAML и reference используется только для восстановления служебных `id` и порядка.
+
 ## Служебные идентификаторы
 
 Атрибуты `id` у `panel`, `group` и `panelDef` не попадают в YAML.
@@ -100,6 +110,8 @@ YAML-представление должно жить внутри `Конфиг
 Порядок реализации должен идти через XML-барьер:
 
 1. XML -> модель -> XML для фикстур `roundTripElements/ext`, `acc`, `doc`.
-2. YAML-форма для коротких панелей и развернутых панелей с `Представление`.
-3. YAML -> модель -> XML с reference, чтобы проверить восстановление `id`.
-4. Полный `round-trip-yaml` для выбранной конфигурации.
+2. XML -> YAML для `/Users/nikita/git/clean_cf`: ключ `ИнтерфейсКлиентскогоПриложения` отсутствует.
+3. YAML -> XML для `/Users/nikita/git/clean_cf`: `Ext/ClientApplicationInterface.xml` не создается.
+4. YAML-форма для коротких панелей и развернутых панелей с `Представление`.
+5. YAML -> модель -> XML с reference, чтобы проверить восстановление `id`.
+6. Полный `round-trip-yaml` для выбранной конфигурации.
