@@ -297,6 +297,7 @@ const exportAdditionalColumnsToXML = (
       currentXMLPath: context.exportToXML.context?.currentXMLPath,
       table: additionalColumn.table,
       columnName: additionalColumn.columns[0]?.name,
+      columnsCount: additionalColumn.columns.length,
       column: columns?.Column?.[0],
     })
     const columnNodes = restoredColumnNodes ?? columns?.Column

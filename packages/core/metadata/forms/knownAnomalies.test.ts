@@ -15,6 +15,7 @@ describe("known form XML anomalies", () => {
         currentXMLPath: ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM,
         table: "Список.Способы",
         columnName: "Реквизит1",
+        columnsCount: 1,
         column,
       })
     ).toEqual([
@@ -34,6 +35,21 @@ describe("known form XML anomalies", () => {
         currentXMLPath: "Catalogs/Другой/Forms/ФормаСписка/Ext/Form.xml",
         table: "Список.Способы",
         columnName: "Реквизит1",
+        columnsCount: 1,
+        column,
+      })
+    ).toBeUndefined()
+  })
+
+  it("does not restore ERP AdditionalColumns when the known group has multiple columns", () => {
+    const column = { _name: "Реквизит1", _id: "" }
+
+    expect(
+      restoreKnownDuplicateErpAdditionalColumns({
+        currentXMLPath: ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM,
+        table: "Список.Способы",
+        columnName: "Реквизит1",
+        columnsCount: 2,
         column,
       })
     ).toBeUndefined()

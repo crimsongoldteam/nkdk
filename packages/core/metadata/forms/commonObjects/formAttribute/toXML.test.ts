@@ -60,7 +60,7 @@ const formAttributesWithCanonicalErpAdditionalColumn: FormAttributes = [
   },
 ]
 
-const withErpAdditionalColumn = (params: { table?: string; column?: string }): FormAttributes => [
+const withErpAdditionalColumn = (params: { table?: string; column?: string; extraColumn?: string }): FormAttributes => [
   {
     ...formAttributesWithCanonicalErpAdditionalColumn[0],
     additionalColumns: [
@@ -71,6 +71,12 @@ const withErpAdditionalColumn = (params: { table?: string; column?: string }): F
             ...formAttributesWithCanonicalErpAdditionalColumn[0].additionalColumns![0].columns[0],
             name: params.column ?? "Реквизит1",
           },
+          ...(params.extraColumn === undefined
+            ? []
+            : [{
+                ...formAttributesWithCanonicalErpAdditionalColumn[0].additionalColumns![0].columns[0],
+                name: params.extraColumn,
+              }]),
         ],
       },
     ],
@@ -306,6 +312,21 @@ describe("exportFormAttributesToXML", () => {
 
     expect(columns).toHaveLength(1)
     expect(columns?.map((column) => column._name)).toEqual(["Реквизит2"])
+  })
+
+  it("keeps canonical AdditionalColumns for the ERP path when the known group has multiple columns", () => {
+    const context = mockContextToXML()
+    context.exportToXML.context!.currentXMLPath = ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM
+
+    const xmlData = exportFormAttributesToXML(
+      context,
+      mockRule,
+      withErpAdditionalColumn({ extraColumn: "Реквизит2" })
+    )
+    const columns = getFirstAdditionalColumnNodes(xmlData)
+
+    expect(columns).toHaveLength(2)
+    expect(columns?.map((column) => column._name)).toEqual(["Реквизит1", "Реквизит2"])
   })
 
   it("export tableWithColumns", () => {

@@ -10,13 +10,15 @@ export const restoreKnownDuplicateErpAdditionalColumns = <ColumnXML extends XMLO
   currentXMLPath: string | undefined
   table: string
   columnName: string | undefined
+  columnsCount: number
   column: ColumnXML | undefined
 }): ColumnXML[] | undefined => {
-  const { currentXMLPath, table, columnName, column } = params
+  const { currentXMLPath, table, columnName, columnsCount, column } = params
   if (column === undefined) return undefined
   if (currentXMLPath !== ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM) return undefined
   if (table !== "Список.Способы") return undefined
   if (columnName !== "Реквизит1") return undefined
+  if (columnsCount !== 1) return undefined
 
   return ["1", "2", "3", "4", "5"].map((id) => ({
     ...column,
