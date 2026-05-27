@@ -15,6 +15,30 @@ describe("sync configuration from xml", () => {
     __dirname,
     "../../commonObjects/clientApplicationInterface/__fixtures__"
   )
+  const homePageWorkAreaXML = `<?xml version="1.0" encoding="UTF-8"?>
+<HomePageWorkArea xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+\t<WorkingAreaTemplate>TwoColumnsVariableWidth</WorkingAreaTemplate>
+\t<LeftColumn>
+\t\t<Item>
+\t\t\t<Form>CommonForm.НачалоРаботы</Form>
+\t\t\t<Height>100</Height>
+\t\t\t<Visibility>
+\t\t\t\t<xr:Common>true</xr:Common>
+\t\t\t\t<xr:Value name="Role.Администратор">false</xr:Value>
+\t\t\t</Visibility>
+\t\t</Item>
+\t</LeftColumn>
+\t<RightColumn>
+\t\t<Item>
+\t\t\t<Form>DataProcessor.ИнформационныйЦентр.Form.ИнформационныйЦентр</Form>
+\t\t\t<Height>10</Height>
+\t\t\t<Visibility>
+\t\t\t\t<xr:Common>false</xr:Common>
+\t\t\t</Visibility>
+\t\t</Item>
+\t</RightColumn>
+\t<MACommandInterfaceDisplays>Top</MACommandInterfaceDisplays>
+</HomePageWorkArea>`
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {
@@ -171,6 +195,35 @@ describe("sync configuration from xml", () => {
       expect(yaml).toContain("ПанельФункцийТекущегоРаздела")
       expect(yaml).toContain("Представление: КартинкаСлеваИТекст")
       expect(yaml).not.toContain("left-history")
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("импортирует корневой HomePageWorkArea.xml в Конфигурация.yaml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-home-page-work-area-from-xml-"))
+    const rootInput = join(tmp, "xml")
+    const rootOutput = join(tmp, "yaml")
+    try {
+      fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
+      fs.copyFileSync(
+        join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
+        join(rootInput, CONFIGURATION_XML_FILE)
+      )
+      fs.writeFileSync(join(rootInput, "Ext", "HomePageWorkArea.xml"), homePageWorkAreaXML, "utf-8")
+
+      await syncConfigurationFromXML({
+        context: mockContextFromXML(),
+        inputDir: rootInput,
+        outputDir: rootOutput,
+      })
+
+      const yaml = fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")
+      expect(yaml).toContain("РабочаяОбластьНачальнойСтраницы:")
+      expect(yaml).toContain("ШаблонРабочейОбласти: ДвеКолонкиПеременнойШирины")
+      expect(yaml).toContain("Форма: CommonForm.НачалоРаботы")
+      expect(yaml).toContain("Администратор: Ложь")
+      expect(yaml).toContain("ОтображениеКомандногоИнтерфейса: Верх")
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }

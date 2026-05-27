@@ -483,6 +483,14 @@ import {
   ClientApplicationInterfacePanelDefs,
   ClientApplicationInterfaceYAML,
 } from "~/metadata/commonObjects/clientApplicationInterface/types"
+import {
+  HomePageWorkArea,
+  HomePageWorkAreaColumnItems,
+  HomePageWorkAreaColumnItemsYAML,
+  HomePageWorkAreaCommandInterfaceDisplay,
+  HomePageWorkAreaYAML,
+  HomePageWorkAreaTemplate,
+} from "~/metadata/commonObjects/homePageWorkArea/types"
 import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/commandSet/types"
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
@@ -1243,6 +1251,22 @@ export type PropertyTypeRegistry = {
     item: ClientApplicationInterface
     yaml: ClientApplicationInterfaceYAML
   }
+  HomePageWorkArea: {
+    item: HomePageWorkArea
+    yaml: HomePageWorkAreaYAML
+  }
+  HomePageWorkAreaTemplate: {
+    item: HomePageWorkAreaTemplate
+    yaml: string
+  }
+  HomePageWorkAreaCommandInterfaceDisplay: {
+    item: HomePageWorkAreaCommandInterfaceDisplay
+    yaml: string
+  }
+  HomePageWorkAreaColumnItems: {
+    item: HomePageWorkAreaColumnItems
+    yaml: HomePageWorkAreaColumnItemsYAML
+  }
   CommandInterfaceVisibilityMap: {
     item: CommandInterfaceVisibilityMap
     yaml: CommandInterfaceVisibilityMapYAML
@@ -1755,6 +1779,10 @@ export const PropertyRuleTypeKeys = Object.keys({
   CommandInterface: "CommandInterface",
   RootCommandInterface: "RootCommandInterface",
   ClientApplicationInterface: "ClientApplicationInterface",
+  HomePageWorkArea: "HomePageWorkArea",
+  HomePageWorkAreaTemplate: "HomePageWorkAreaTemplate",
+  HomePageWorkAreaCommandInterfaceDisplay: "HomePageWorkAreaCommandInterfaceDisplay",
+  HomePageWorkAreaColumnItems: "HomePageWorkAreaColumnItems",
   CommandInterfaceVisibilityMap: "CommandInterfaceVisibilityMap",
   CommandInterfacePlacementMap: "CommandInterfacePlacementMap",
   CommandInterfaceOrder: "CommandInterfaceOrder",

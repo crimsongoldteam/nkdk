@@ -236,6 +236,73 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("восстанавливает корневой HomePageWorkArea.xml из Конфигурация.yaml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-home-page-work-area-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.writeFileSync(
+        join(yamlDir, CONFIGURATION_YAML_FILE),
+        [
+          "Имя: Конфигурация",
+          "РабочаяОбластьНачальнойСтраницы:",
+          "  ШаблонРабочейОбласти: ДвеКолонкиПеременнойШирины",
+          "  ЛеваяКолонка:",
+          "    - Форма: CommonForm.НачалоРаботы",
+          "      Высота: 100",
+          "      Видимость:",
+          "        Общее: Истина",
+          "        Роли:",
+          "          Администратор: Ложь",
+          "  ПраваяКолонка:",
+          "    - Форма: DataProcessor.ИнформационныйЦентр.Form.ИнформационныйЦентр",
+          "      Высота: 10",
+          "      Видимость:",
+          "        Общее: Ложь",
+          "  ОтображениеКомандногоИнтерфейса: Верх",
+          "",
+        ].join("\n"),
+        "utf-8"
+      )
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      const result = fs.readFileSync(join(outDir, "Ext", "HomePageWorkArea.xml"), "utf-8")
+      expect(result).toContain("<HomePageWorkArea")
+      expect(result).toContain("<WorkingAreaTemplate>TwoColumnsVariableWidth</WorkingAreaTemplate>")
+      expect(result).toContain("<Form>CommonForm.НачалоРаботы</Form>")
+      expect(result).toContain('<xr:Value name="Role.Администратор">false</xr:Value>')
+      expect(result).toContain("<MACommandInterfaceDisplays>Top</MACommandInterfaceDisplays>")
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("не создаёт HomePageWorkArea.xml для чистой конфигурации без YAML-ключа", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-home-page-work-area-clean-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(fs.existsSync(join(outDir, "Ext", "HomePageWorkArea.xml"))).toBe(false)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("удаляет старые корневые внешние файлы, которых нет в YAML", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-prune-"))
     const yamlDir = join(tmp, "yaml")

@@ -311,6 +311,7 @@ import {
   ClientApplicationInterface,
   ClientApplicationInterfaceYAML,
 } from "../../commonObjects/clientApplicationInterface/types"
+import { HomePageWorkArea, HomePageWorkAreaYAML } from "../../commonObjects/homePageWorkArea/types"
 import { RootCommandInterface, RootCommandInterfaceYAML } from "../../commonObjects/rootCommandInterface/types"
 import {
   FormAttribute,
@@ -782,6 +783,11 @@ export type MetadataItemTypeRegistry = {
   ClientApplicationInterface: {
     metadata: ClientApplicationInterface
     yaml: ClientApplicationInterfaceYAML
+  }
+
+  HomePageWorkArea: {
+    metadata: HomePageWorkArea
+    yaml: HomePageWorkAreaYAML
   }
 
   MetadataAttribute: {

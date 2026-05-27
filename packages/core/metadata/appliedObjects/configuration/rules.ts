@@ -1,5 +1,6 @@
 import "./usedMobileApplicationFunctionalities"
 import "~/metadata/commonObjects/clientApplicationInterface/register"
+import "~/metadata/commonObjects/homePageWorkArea/register"
 import "~/metadata/commonObjects/rootCommandInterface/register"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
@@ -334,6 +335,11 @@ export const MetadataConfigurationRules = {
       yaml: "ИнтерфейсКлиентскогоПриложения",
       type: "ClientApplicationInterface",
       filePath: "Ext/ClientApplicationInterface.xml",
+    },
+    homePageWorkArea: {
+      yaml: "РабочаяОбластьНачальнойСтраницы",
+      type: "HomePageWorkArea",
+      filePath: "Ext/HomePageWorkArea.xml",
     },
     mobileClientSignature: {
       type: "ExternalFile",
