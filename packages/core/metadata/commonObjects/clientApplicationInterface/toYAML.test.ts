@@ -10,6 +10,8 @@ import "./register"
 
 const fixturesDir = join(__dirname, "__fixtures__")
 const clientInterfaceXmlPath = join(fixturesDir, "ClientApplicationInterface.xml")
+const mixedOrderXmlPath = join(fixturesDir, "MixedOrder.xml")
+const namedStandardPanelXmlPath = join(fixturesDir, "NamedStandardPanel.xml")
 const unknownPanelXmlPath = join(fixturesDir, "UnknownPanel.xml")
 
 const exportClientApplicationInterfaceToYAML = (path: string) => {
@@ -59,5 +61,28 @@ describe("export ClientApplicationInterface to YAML", () => {
         },
       },
     ])
+  })
+
+  it("keeps mixed panel and group order", () => {
+    const result = exportClientApplicationInterfaceToYAML(mixedOrderXmlPath)
+
+    expect(result?.Верх).toEqual([
+      { Панель: "ПанельФункцийТекущегоРаздела" },
+      { Группа: { Элементы: [] } },
+      { Панель: "ПанельОткрытых" },
+    ])
+  })
+
+  it("does not expose uuid for named standard panel", () => {
+    const result = exportClientApplicationInterfaceToYAML(namedStandardPanelXmlPath)
+
+    expect(result?.Лево).toEqual([
+      {
+        Панель: {
+          Имя: "МояПанельИстории",
+        },
+      },
+    ])
+    expect(exportToYAML(result)).not.toContain("b553047f-c9aa-4157-978d-448ecad24248")
   })
 })

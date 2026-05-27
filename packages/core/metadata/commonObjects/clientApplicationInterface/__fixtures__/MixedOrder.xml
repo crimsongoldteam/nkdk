@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+	<top>
+		<panel id="first-panel">
+			<uuid>c933ac92-92cd-459d-81cc-e0c8a83ced99</uuid>
+		</panel>
+		<group id="middle-group"/>
+		<panel id="last-panel">
+			<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
+		</panel>
+	</top>
+	<panelDef id="c933ac92-92cd-459d-81cc-e0c8a83ced99"/>
+	<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>
+</ClientApplicationInterface>

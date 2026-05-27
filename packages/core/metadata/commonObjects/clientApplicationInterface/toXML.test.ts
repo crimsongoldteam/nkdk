@@ -16,6 +16,8 @@ import "./register"
 
 const fixturesDir = join(__dirname, "__fixtures__")
 const clientInterfaceXmlPath = join(fixturesDir, "ClientApplicationInterface.xml")
+const mixedOrderXmlPath = join(fixturesDir, "MixedOrder.xml")
+const namedStandardPanelXmlPath = join(fixturesDir, "NamedStandardPanel.xml")
 const unknownPanelXmlPath = join(fixturesDir, "UnknownPanel.xml")
 
 const normalizeXML = (value: string): string => value.replace(/\r\n/g, "\n").replace(/^\uFEFF/, "")
@@ -98,6 +100,21 @@ describe("export ClientApplicationInterface to XML", () => {
     expect(result).toContain("<UnknownPanelDefChild>keep def</UnknownPanelDefChild>")
   })
 
+  it("round-trips mixed panel and group order", () => {
+    expect(roundTripClientApplicationInterface(mixedOrderXmlPath)).toBe(
+      normalizeXML(readFileSync(mixedOrderXmlPath, "utf-8").trimEnd())
+    )
+  })
+
+  it("round-trips named standard panel through YAML without losing uuid", () => {
+    const xmlString = readFileSync(namedStandardPanelXmlPath, "utf-8")
+    const result = roundTripClientApplicationInterfaceThroughYAML(xmlString)
+
+    expect(result).toBe(normalizeXML(xmlString.trimEnd()))
+    expect(result).toContain("<uuid>b553047f-c9aa-4157-978d-448ecad24248</uuid>")
+    expect(result).toContain("<name>МояПанельИстории</name>")
+  })
+
   it("creates default panel definitions for used standard panels without reference", () => {
     const data = importMetadataItemFromYAML({
       context: mockContext,
@@ -111,6 +128,41 @@ describe("export ClientApplicationInterface to XML", () => {
       context: mockContextToXML(),
       data,
       rule: ClientApplicationInterfaceRules,
+    })
+    const result = normalizeXML(xmlExport(xml!).trimEnd())
+
+    expect(result).toContain('<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>')
+    expect(result).toContain('<panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>')
+  })
+
+  it("creates default panel definition for new used standard panel when reference has partial panel definitions", () => {
+    const referenceXml = `<?xml version="1.0" encoding="UTF-8"?>
+<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+\t<top>
+\t\t<panel id="opened-panel">
+\t\t\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
+\t\t</panel>
+\t</top>
+\t<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>
+</ClientApplicationInterface>`
+    const referenceData = importMetadataItemFromXML({
+      context: mockContextFromXML({ forReference: true }),
+      rule: ClientApplicationInterfaceRules,
+      xmlString: referenceXml,
+    })
+    const dataFromYAML = importMetadataItemFromYAML({
+      context: mockContext,
+      rule: ClientApplicationInterfaceRules,
+      source: referenceData,
+      yaml: {
+        Верх: [{ Панель: "ПанельОткрытых" }, { Панель: "ПанельРазделов" }],
+      },
+    })
+    const xml = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: dataFromYAML,
+      rule: ClientApplicationInterfaceRules,
+      referenceData,
     })
     const result = normalizeXML(xmlExport(xml!).trimEnd())
 

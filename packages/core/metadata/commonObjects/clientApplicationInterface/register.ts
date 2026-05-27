@@ -44,6 +44,9 @@ const standardPanelUuidByName = Object.fromEntries(
 ) as Record<string, string>
 
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
+const XML_METADATA = Symbol.for("metadata")
+const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
+const XML_SECTION_LENGTHS = Symbol("clientApplicationInterfaceSectionLengths")
 
 interface ClientApplicationInterfaceContext extends ConfigurationContext {
   clientApplicationInterfacePanelDefsById?: Map<string, ClientApplicationInterfacePanelDef>
@@ -93,6 +96,65 @@ const getReferenceRawXML = (referenceMetadata: unknown): Record<string, unknown>
 
 const getXMLId = (xml: { _id?: string; id?: string } | undefined): string | undefined => xml?._id ?? xml?.id
 
+const getXMLChildOrder = (xml: unknown): Array<{ key: string; index: number }> | undefined => {
+  if (!isRecord(xml)) return undefined
+  const metadata = (xml as Record<PropertyKey, unknown>)[XML_METADATA]
+  if (!isRecord(metadata)) return undefined
+  const childOrder = metadata.childOrder
+  if (!Array.isArray(childOrder)) return undefined
+  return childOrder.filter(
+    (entry): entry is { key: string; index: number } =>
+      isRecord(entry) && typeof entry.key === "string" && typeof entry.index === "number"
+  )
+}
+
+const getOrderedXMLChildren = <
+  T extends {
+    panel?: ClientApplicationInterfacePanelXML | ClientApplicationInterfacePanelXML[]
+    group?: ClientApplicationInterfaceGroupXML | ClientApplicationInterfaceGroupXML[]
+  },
+>(
+  xml: T
+): Array<
+  | { key: "panel"; value: ClientApplicationInterfacePanelXML }
+  | { key: "group"; value: ClientApplicationInterfaceGroupXML }
+> => {
+  const panels = toArray(xml.panel)
+  const groups = toArray(xml.group)
+  const childOrder = getXMLChildOrder(xml)?.filter((entry) => entry.key === "panel" || entry.key === "group")
+
+  if (childOrder === undefined || childOrder.length === 0) {
+    return [
+      ...panels.map((value) => ({ key: "panel" as const, value })),
+      ...groups.map((value) => ({ key: "group" as const, value })),
+    ]
+  }
+
+  return childOrder
+    .map((entry) => {
+      if (entry.key === "panel") {
+        const value = panels[entry.index]
+        return value === undefined ? undefined : { key: "panel" as const, value }
+      }
+      const value = groups[entry.index]
+      return value === undefined ? undefined : { key: "group" as const, value }
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined)
+}
+
+const defineSectionLengths = (items: ClientApplicationInterfaceItems, sectionLengths: number[]): void => {
+  Object.defineProperty(items, XML_SECTION_LENGTHS, {
+    value: sectionLengths,
+    enumerable: false,
+  })
+}
+
+const getSectionLengths = (items: ClientApplicationInterfaceItems | undefined): number[] | undefined => {
+  if (items === undefined) return undefined
+  const value = (items as unknown as Record<PropertyKey, unknown>)[XML_SECTION_LENGTHS]
+  return Array.isArray(value) && value.every((item) => typeof item === "number") ? value : undefined
+}
+
 const importPanelFromXML = (
   context: ConfigurationContextFromXML,
   xml: ClientApplicationInterfacePanelXML
@@ -139,19 +201,24 @@ const importItemsFromSectionXML = (
     panel?: ClientApplicationInterfacePanelXML | ClientApplicationInterfacePanelXML[]
     group?: ClientApplicationInterfaceGroupXML | ClientApplicationInterfaceGroupXML[]
   }
-): ClientApplicationInterfaceItems => [
-  ...toArray(xml.panel).map((panel) => importPanelFromXML(context, panel)),
-  ...toArray(xml.group).map((group) => importGroupFromXML(context, group)),
-]
+): ClientApplicationInterfaceItems =>
+  getOrderedXMLChildren(xml).map((child) =>
+    child.key === "panel" ? importPanelFromXML(context, child.value) : importGroupFromXML(context, child.value)
+  )
 
 const importItemsFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule,
   xml: unknown
 ): ClientApplicationInterfaceItems | undefined => {
-  const items = toArray(xml)
-    .filter(isRecord)
-    .flatMap((section) => importItemsFromSectionXML(context, section))
+  const items: ClientApplicationInterfaceItems = []
+  const sectionLengths: number[] = []
+  for (const section of toArray(xml).filter(isRecord)) {
+    const sectionItems = importItemsFromSectionXML(context, section)
+    sectionLengths.push(sectionItems.length)
+    items.push(...sectionItems)
+  }
+  if (items.length > 0) defineSectionLengths(items, sectionLengths)
   return items.length > 0 ? items : undefined
 }
 
@@ -269,7 +336,8 @@ const importPanelFromYAML = (
     return result
   }
 
-  const uuid = yaml.UUID ?? (yaml.Имя !== undefined ? standardPanelUuidByName[yaml.Имя] : undefined)
+  const uuid =
+    yaml.UUID ?? (yaml.Имя !== undefined ? standardPanelUuidByName[yaml.Имя] : undefined) ?? sourcePanel?.uuid
   if (uuid !== undefined) result.uuid = uuid
   if (yaml.Имя !== undefined && standardPanelUuidByName[yaml.Имя] === undefined) result.name = yaml.Имя
   if (yaml.Высота !== undefined) result.height = yaml.Высота
@@ -302,6 +370,8 @@ const importItemsYAMLValue = (
         : importGroupFromYAML(item.Группа, source?.[index])
     )
     .filter((item): item is ClientApplicationInterfaceItem => item !== undefined)
+  const sectionLengths = getSectionLengths(source)
+  if (sectionLengths !== undefined) defineSectionLengths(items, sectionLengths)
   return items.length > 0 ? items : []
 }
 
@@ -349,32 +419,67 @@ const exportItemsToSectionXML = (params: {
 }): Record<string, unknown> => {
   const panels: Record<string, unknown>[] = []
   const groups: Record<string, unknown>[] = []
+  const orderedChildren: Array<{ key: string; value: unknown }> = []
 
   params.items.forEach((item, index) => {
     const referenceItem = params.referenceItems?.[index]
     if (item.kind === "panel") {
-      panels.push(mergePanelWithReference(item, referenceItem, params.context))
+      const panel = mergePanelWithReference(item, referenceItem, params.context)
+      panels.push(panel)
+      orderedChildren.push({ key: "panel", value: panel })
     } else {
-      groups.push(mergeGroupWithReference(item, referenceItem, params.context))
+      const group = mergeGroupWithReference(item, referenceItem, params.context)
+      groups.push(group)
+      orderedChildren.push({ key: "group", value: group })
     }
   })
 
-  return {
+  const section = {
     ...(panels.length > 0 ? { panel: panels } : {}),
     ...(groups.length > 0 ? { group: groups } : {}),
   }
+  if (orderedChildren.length > 0) {
+    Object.defineProperty(section, XML_ORDERED_CHILDREN, {
+      value: orderedChildren,
+      enumerable: false,
+    })
+  }
+  return section
+}
+
+const splitItemsByReferenceSections = (
+  items: ClientApplicationInterfaceItems,
+  referenceItems: ClientApplicationInterfaceItems | undefined
+): ClientApplicationInterfaceItems[] => {
+  const sectionLengths = getSectionLengths(referenceItems) ?? getSectionLengths(items)
+  if (sectionLengths === undefined) return items.map((item) => [item])
+
+  const sections: ClientApplicationInterfaceItems[] = []
+  let start = 0
+  for (const length of sectionLengths) {
+    sections.push(items.slice(start, start + length))
+    start += length
+  }
+  for (const item of items.slice(start)) {
+    sections.push([item])
+  }
+  return sections.filter((section) => section.length > 0)
 }
 
 const exportItemsToXML: ExportToXMLFunctionNew = ({ context, value, referenceMetadata }) => {
   if (value === undefined) return undefined
   const items = value as ClientApplicationInterfaceItems
-  return items.map((item, index) =>
-    exportItemsToSectionXML({
+  const referenceItems = referenceMetadata as ClientApplicationInterfaceItems | undefined
+  let offset = 0
+  return splitItemsByReferenceSections(items, referenceItems).map((sectionItems) => {
+    const sectionReferenceItems = referenceItems?.slice(offset, offset + sectionItems.length)
+    offset += sectionItems.length
+    return exportItemsToSectionXML({
       context,
-      items: [item],
-      referenceItems: referenceMetadata ? [referenceMetadata[index]] : undefined,
+      items: sectionItems,
+      referenceItems: sectionReferenceItems,
     })
-  )
+  })
 }
 
 const collectPanels = (items: ClientApplicationInterfaceItems | undefined): ClientApplicationInterfacePanel[] =>
@@ -384,6 +489,8 @@ const collectAllPanels = (metadataItem: Record<string, unknown> | undefined): Cl
   ["top", "left", "right", "bottom"].flatMap((key) =>
     collectPanels(metadataItem?.[key] as ClientApplicationInterfaceItems | undefined)
   )
+
+const isStandardPanelUuid = (uuid: string): boolean => uuid in standardPanelsByUuid
 
 const mergePanelDefWithReference = (params: {
   id: string
@@ -422,12 +529,9 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({ value, metadataItem, ref
     )
   }
 
-  if (referencePanelDefs.length > 0) {
-    return result.length > 0 ? result : undefined
-  }
-
   for (const panel of panels) {
-    if (panel.uuid === undefined || emittedIds.has(panel.uuid)) continue
+    if (panel.uuid === undefined || emittedIds.has(panel.uuid) || !isStandardPanelUuid(panel.uuid)) continue
+    if (panel.id !== undefined && !byId.has(panel.uuid)) continue
     emittedIds.add(panel.uuid)
     result.push(
       mergePanelDefWithReference({
