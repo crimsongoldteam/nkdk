@@ -602,6 +602,9 @@ const collectAllPanels = (metadataItem: Record<string, unknown> | undefined): Cl
 
 const isStandardPanelUuid = (uuid: string): boolean => uuid in standardPanelsByUuid
 
+const needsDefaultPanelDef = (uuid: string): boolean =>
+  isStandardPanelUuid(uuid) && uuid !== "00000000-0000-0000-0000-000000000000"
+
 const mergePanelDefWithReference = (params: {
   id: string
   spr?: SectionsPanelRepresentation
@@ -641,9 +644,8 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({ value, metadataItem, ref
 
   for (const panel of panels) {
     if (panel.uuid === undefined || emittedIds.has(panel.uuid)) continue
-    const shouldCreatePanelDef = isStandardPanelUuid(panel.uuid) || panel.spr !== undefined || byId.has(panel.uuid)
+    const shouldCreatePanelDef = needsDefaultPanelDef(panel.uuid) || panel.spr !== undefined || byId.has(panel.uuid)
     if (!shouldCreatePanelDef) continue
-    if (panel.id !== undefined && !byId.has(panel.uuid) && panel.spr === undefined) continue
     emittedIds.add(panel.uuid)
     result.push(
       mergePanelDefWithReference({

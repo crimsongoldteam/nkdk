@@ -196,6 +196,25 @@ describe("export ClientApplicationInterface to XML", () => {
     expect(result).toContain('<panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>')
   })
 
+  it("creates default panel definition for used standard panel restored from reference without panel definition", () => {
+    const referenceXml = `<?xml version="1.0" encoding="UTF-8"?>
+<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+\t<top>
+\t\t<panel id="sections-panel">
+\t\t\t<uuid>13322b22-3960-4d68-93a6-fe2dd7f28ca3</uuid>
+\t\t</panel>
+\t</top>
+</ClientApplicationInterface>`
+    const result = exportClientApplicationInterfaceYAMLWithReference(referenceXml, {
+      Верх: [{ Панель: "ПанельРазделов" }],
+    })
+
+    expect(result).toContain(`<panel id="sections-panel">
+\t\t\t<uuid>13322b22-3960-4d68-93a6-fe2dd7f28ca3</uuid>
+\t\t</panel>`)
+    expect(result).toContain('<panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>')
+  })
+
   it("does not move existing panel id to a new panel inserted before it", () => {
     const referenceXml = `<?xml version="1.0" encoding="UTF-8"?>
 <ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
