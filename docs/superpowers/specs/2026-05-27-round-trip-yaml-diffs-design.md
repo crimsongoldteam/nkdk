@@ -152,6 +152,7 @@ Triage `--start-index 6 --batch-size 5` показал, что diff'ы `6-10` н
 - модуль команды включен для XML round-trip: `Ext/CommandModule.bsl` <-> `Модуль.bsl`;
 - `IncludeHelpInContents` добавлен только для корневой общей команды, с порядком XML, соответствующим root `CommonCommand`;
 - `MetadataCommonCommandRules` добавлен в `TopLevelMetadataItemRules`, а тип зарегистрирован через `appliedObjects/index.ts`.
+- `ОбщаяКоманда` добавлена в список top-level путей миграций, иначе `sync` падал на `Неподдерживаемый путь миграции "ОбщаяКоманда.<Имя>"`.
 
 Проверка:
 
@@ -164,7 +165,8 @@ Triage `--start-index 6 --batch-size 5` показал, что diff'ы `6-10` н
 - `metadata/appliedObjects/metadataCommonCommand/fromXML.test.ts` — импорт и XML round-trip корневой `CommonCommand`;
 - `metadata/appliedObjects/metadataCommonCommand/fromYAML.test.ts` — YAML import и канонический YAML export;
 - `metadata/appliedObjects/metadataCommonCommand/syncToXML.test.ts` — запись `CommonCommands/<Имя>.xml` и `CommonCommands/<Имя>/Ext/CommandModule.bsl`;
-- общий точечный запуск вместе с тестом `metadataRegisterField/fromYAML.test.ts` — пройдено, `7` тестов.
+- `metadata/appliedObjects/configuration/migrations/paths.test.ts` — поддержка пути `ОбщаяКоманда.<Имя>`;
+- общий точечный запуск вместе с тестом `metadataRegisterField/fromYAML.test.ts` — пройдено, `25` тестов.
 
 Статус: реализовано, точечные тесты пройдены.
 
