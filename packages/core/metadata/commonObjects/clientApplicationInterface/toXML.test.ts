@@ -83,6 +83,32 @@ const roundTripClientApplicationInterfaceThroughYAML = (
   return normalizeXML(xmlExport(xml!).trimEnd())
 }
 
+const exportClientApplicationInterfaceYAMLWithReference = (
+  referenceXml: string,
+  yaml: NonNullable<ClientApplicationInterfaceYAML>
+): string => {
+  const referenceData = importMetadataItemFromXML({
+    context: mockContextFromXML({ forReference: true }),
+    rule: ClientApplicationInterfaceRules,
+    xmlString: referenceXml,
+  })
+  const dataFromYAML = importMetadataItemFromYAML({
+    context: mockContext,
+    rule: ClientApplicationInterfaceRules,
+    source: referenceData,
+    yaml,
+  })
+  const xml = exportMetadataItemToXML({
+    context: mockContextToXML(),
+    data: dataFromYAML,
+    rule: ClientApplicationInterfaceRules,
+    referenceData,
+  })
+  expect(xml).toBeDefined()
+
+  return normalizeXML(xmlExport(xml!).trimEnd())
+}
+
 describe("export ClientApplicationInterface to XML", () => {
   it("round-trips ClientApplicationInterface.xml", () => {
     expect(roundTripClientApplicationInterface(clientInterfaceXmlPath)).toBe(
@@ -168,5 +194,79 @@ describe("export ClientApplicationInterface to XML", () => {
 
     expect(result).toContain('<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>')
     expect(result).toContain('<panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>')
+  })
+
+  it("does not move existing panel id to a new panel inserted before it", () => {
+    const referenceXml = `<?xml version="1.0" encoding="UTF-8"?>
+<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+\t<top>
+\t\t<panel id="opened-panel">
+\t\t\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
+\t\t</panel>
+\t</top>
+\t<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>
+</ClientApplicationInterface>`
+    const result = exportClientApplicationInterfaceYAMLWithReference(referenceXml, {
+      Верх: [{ Панель: { UUID: "11111111-1111-1111-1111-111111111111" } }, { Панель: "ПанельОткрытых" }],
+    })
+
+    expect(result).toContain(`<panel id="opened-panel">
+\t\t\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
+\t\t</panel>`)
+    expect(result).not.toContain(`<panel id="opened-panel">
+\t\t\t<uuid>11111111-1111-1111-1111-111111111111</uuid>
+\t\t</panel>`)
+  })
+
+  it("keeps panel ids with matching panels when panels are reordered", () => {
+    const referenceXml = `<?xml version="1.0" encoding="UTF-8"?>
+<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+\t<top>
+\t\t<panel id="opened-panel">
+\t\t\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
+\t\t</panel>
+\t\t<panel id="sections-panel">
+\t\t\t<uuid>13322b22-3960-4d68-93a6-fe2dd7f28ca3</uuid>
+\t\t</panel>
+\t</top>
+\t<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>
+\t<panelDef id="13322b22-3960-4d68-93a6-fe2dd7f28ca3"/>
+</ClientApplicationInterface>`
+    const result = exportClientApplicationInterfaceYAMLWithReference(referenceXml, {
+      Верх: [{ Панель: "ПанельРазделов" }, { Панель: "ПанельОткрытых" }],
+    })
+
+    expect(result).toContain(`<panel id="sections-panel">
+\t\t\t<uuid>13322b22-3960-4d68-93a6-fe2dd7f28ca3</uuid>
+\t\t</panel>`)
+    expect(result).toContain(`<panel id="opened-panel">
+\t\t\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
+\t\t</panel>`)
+  })
+
+  it("creates panel definition for a new non-standard panel with presentation", () => {
+    const data = importMetadataItemFromYAML({
+      context: mockContext,
+      rule: ClientApplicationInterfaceRules,
+      yaml: {
+        Верх: [
+          {
+            Панель: {
+              UUID: "11111111-1111-1111-1111-111111111111",
+              Представление: "КартинкаСлеваИТекст",
+            },
+          },
+        ],
+      },
+    })
+    const xml = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data,
+      rule: ClientApplicationInterfaceRules,
+    })
+    const result = normalizeXML(xmlExport(xml!).trimEnd())
+
+    expect(result).toContain('<panelDef id="11111111-1111-1111-1111-111111111111">')
+    expect(result).toContain("<spr>PictureOnLeftAndText</spr>")
   })
 })

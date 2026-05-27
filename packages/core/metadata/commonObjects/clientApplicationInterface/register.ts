@@ -155,6 +155,89 @@ const getSectionLengths = (items: ClientApplicationInterfaceItems | undefined): 
   return Array.isArray(value) && value.every((item) => typeof item === "number") ? value : undefined
 }
 
+const getPanelUUIDFromYAML = (yaml: string | ClientApplicationInterfacePanelYAML | undefined): string | undefined => {
+  if (yaml === undefined) return undefined
+  if (typeof yaml === "string") return standardPanelUuidByName[yaml] ?? yaml
+  return yaml.UUID ?? (yaml.Имя !== undefined ? standardPanelUuidByName[yaml.Имя] : undefined)
+}
+
+const getPanelNameFromYAML = (yaml: string | ClientApplicationInterfacePanelYAML | undefined): string | undefined => {
+  if (yaml === undefined || typeof yaml === "string") return undefined
+  return yaml.Имя !== undefined && standardPanelUuidByName[yaml.Имя] === undefined ? yaml.Имя : undefined
+}
+
+const getItemSignature = (item: ClientApplicationInterfaceItem): string[] => {
+  if (item.kind === "panel") {
+    return [
+      ...(item.uuid !== undefined ? [`panel:uuid:${item.uuid}`] : []),
+      ...(item.name !== undefined ? [`panel:name:${item.name}`] : []),
+    ]
+  }
+  const childSignature = (item.items ?? []).map((child) => getItemSignature(child)[0] ?? `kind:${child.kind}`).join("|")
+  return [`group:${childSignature}`]
+}
+
+const getYAMLItemSignature = (item: ClientApplicationInterfaceItemsYAML[number]): string[] => {
+  if ("Панель" in item) {
+    const uuid = getPanelUUIDFromYAML(item.Панель)
+    const name = getPanelNameFromYAML(item.Панель)
+    return [
+      ...(uuid !== undefined ? [`panel:uuid:${uuid}`] : []),
+      ...(name !== undefined ? [`panel:name:${name}`] : []),
+    ]
+  }
+  const childSignature = (item.Группа.Элементы ?? [])
+    .map((child) => getYAMLItemSignature(child)[0] ?? ("Панель" in child ? "kind:panel" : "kind:group"))
+    .join("|")
+  return [`group:${childSignature}`]
+}
+
+const hasStableYAMLSignature = (item: ClientApplicationInterfaceItemsYAML[number]): boolean =>
+  getYAMLItemSignature(item).some(
+    (signature) => signature.startsWith("panel:uuid:") || signature.startsWith("panel:name:")
+  )
+
+const hasStableItemSignature = (item: ClientApplicationInterfaceItem): boolean =>
+  getItemSignature(item).some((signature) => signature.startsWith("panel:uuid:") || signature.startsWith("panel:name:"))
+
+const isSameKind = (item: ClientApplicationInterfaceItem, referenceItem: ClientApplicationInterfaceItem): boolean =>
+  item.kind === referenceItem.kind
+
+const isSameYAMLKind = (
+  item: ClientApplicationInterfaceItemsYAML[number],
+  referenceItem: ClientApplicationInterfaceItem
+): boolean => ("Панель" in item ? referenceItem.kind === "panel" : referenceItem.kind === "group")
+
+const findReferenceItemIndex = (params: {
+  signatures: string[]
+  fallbackIndex: number
+  referenceItems: ClientApplicationInterfaceItems | undefined
+  usedReferenceIndexes: Set<number>
+  canUseIndexFallback: boolean
+  isCompatibleByIndex: (referenceItem: ClientApplicationInterfaceItem) => boolean
+}): number | undefined => {
+  if (params.referenceItems === undefined) return undefined
+  for (const signature of params.signatures) {
+    const index = params.referenceItems.findIndex(
+      (referenceItem, referenceIndex) =>
+        !params.usedReferenceIndexes.has(referenceIndex) && getItemSignature(referenceItem).includes(signature)
+    )
+    if (index !== -1) return index
+  }
+
+  const referenceItem = params.referenceItems[params.fallbackIndex]
+  if (
+    params.canUseIndexFallback &&
+    referenceItem !== undefined &&
+    !params.usedReferenceIndexes.has(params.fallbackIndex) &&
+    params.isCompatibleByIndex(referenceItem)
+  ) {
+    return params.fallbackIndex
+  }
+
+  return undefined
+}
+
 const importPanelFromXML = (
   context: ConfigurationContextFromXML,
   xml: ClientApplicationInterfacePanelXML
@@ -363,12 +446,23 @@ const importItemsYAMLValue = (
   source: ClientApplicationInterfaceItems | undefined
 ): ClientApplicationInterfaceItems | undefined => {
   if (yaml === undefined) return undefined
+  const usedReferenceIndexes = new Set<number>()
   const items = yaml
-    .map((item, index) =>
-      "Панель" in item
-        ? importPanelFromYAML(item.Панель, source?.[index])
-        : importGroupFromYAML(item.Группа, source?.[index])
-    )
+    .map((item, index) => {
+      const referenceIndex = findReferenceItemIndex({
+        signatures: getYAMLItemSignature(item),
+        fallbackIndex: index,
+        referenceItems: source,
+        usedReferenceIndexes,
+        canUseIndexFallback: !hasStableYAMLSignature(item),
+        isCompatibleByIndex: (referenceItem) => isSameYAMLKind(item, referenceItem),
+      })
+      if (referenceIndex !== undefined) usedReferenceIndexes.add(referenceIndex)
+      const sourceItem = referenceIndex !== undefined ? source?.[referenceIndex] : undefined
+      return "Панель" in item
+        ? importPanelFromYAML(item.Панель, sourceItem)
+        : importGroupFromYAML(item.Группа, sourceItem)
+    })
     .filter((item): item is ClientApplicationInterfaceItem => item !== undefined)
   const sectionLengths = getSectionLengths(source)
   if (sectionLengths !== undefined) defineSectionLengths(items, sectionLengths)
@@ -416,13 +510,26 @@ const exportItemsToSectionXML = (params: {
   context: ConfigurationContext
   items: ClientApplicationInterfaceItems
   referenceItems?: ClientApplicationInterfaceItems
+  usedReferenceIndexes?: Set<number>
+  fallbackIndexOffset?: number
 }): Record<string, unknown> => {
   const panels: Record<string, unknown>[] = []
   const groups: Record<string, unknown>[] = []
   const orderedChildren: Array<{ key: string; value: unknown }> = []
+  const usedReferenceIndexes = params.usedReferenceIndexes ?? new Set<number>()
 
   params.items.forEach((item, index) => {
-    const referenceItem = params.referenceItems?.[index]
+    const fallbackIndex = (params.fallbackIndexOffset ?? 0) + index
+    const referenceIndex = findReferenceItemIndex({
+      signatures: getItemSignature(item),
+      fallbackIndex,
+      referenceItems: params.referenceItems,
+      usedReferenceIndexes,
+      canUseIndexFallback: !hasStableItemSignature(item),
+      isCompatibleByIndex: (referenceItem) => isSameKind(item, referenceItem),
+    })
+    if (referenceIndex !== undefined) usedReferenceIndexes.add(referenceIndex)
+    const referenceItem = referenceIndex !== undefined ? params.referenceItems?.[referenceIndex] : undefined
     if (item.kind === "panel") {
       const panel = mergePanelWithReference(item, referenceItem, params.context)
       panels.push(panel)
@@ -470,14 +577,17 @@ const exportItemsToXML: ExportToXMLFunctionNew = ({ context, value, referenceMet
   if (value === undefined) return undefined
   const items = value as ClientApplicationInterfaceItems
   const referenceItems = referenceMetadata as ClientApplicationInterfaceItems | undefined
+  const usedReferenceIndexes = new Set<number>()
   let offset = 0
   return splitItemsByReferenceSections(items, referenceItems).map((sectionItems) => {
-    const sectionReferenceItems = referenceItems?.slice(offset, offset + sectionItems.length)
+    const fallbackIndexOffset = offset
     offset += sectionItems.length
     return exportItemsToSectionXML({
       context,
       items: sectionItems,
-      referenceItems: sectionReferenceItems,
+      referenceItems,
+      usedReferenceIndexes,
+      fallbackIndexOffset,
     })
   })
 }
@@ -530,8 +640,10 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({ value, metadataItem, ref
   }
 
   for (const panel of panels) {
-    if (panel.uuid === undefined || emittedIds.has(panel.uuid) || !isStandardPanelUuid(panel.uuid)) continue
-    if (panel.id !== undefined && !byId.has(panel.uuid)) continue
+    if (panel.uuid === undefined || emittedIds.has(panel.uuid)) continue
+    const shouldCreatePanelDef = isStandardPanelUuid(panel.uuid) || panel.spr !== undefined || byId.has(panel.uuid)
+    if (!shouldCreatePanelDef) continue
+    if (panel.id !== undefined && !byId.has(panel.uuid) && panel.spr === undefined) continue
     emittedIds.add(panel.uuid)
     result.push(
       mergePanelDefWithReference({
