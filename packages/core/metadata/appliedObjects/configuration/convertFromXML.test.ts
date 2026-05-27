@@ -10,6 +10,7 @@ import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 describe("sync configuration from xml", () => {
   const inputDir = join(__dirname, "../../../tests/fixtures/sync/syncConfiguration/xml")
   const outputDir = join(__dirname, "../../../tests/fixtures/sync/syncConfiguration/out")
+  const rootCommandInterfaceFixturesDir = join(__dirname, "../../commonObjects/rootCommandInterface/__fixtures__")
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {
@@ -55,9 +56,9 @@ describe("sync configuration from xml", () => {
 
     expect(fs.existsSync(join(outputDir, "Документ", "ДокументПоУмолчанию", "Свойства.yaml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, "Нумератор", "НумераторПоУмолчанию", "Свойства.yaml"))).toBe(true)
-    expect(
-      fs.existsSync(join(outputDir, "Последовательность", "ПоследовательностьПоУмолчанию", "Свойства.yaml")),
-    ).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Последовательность", "ПоследовательностьПоУмолчанию", "Свойства.yaml"))).toBe(
+      true
+    )
   })
 
   it("не падает на дампе без некоторых корневых разделов", async () => {
@@ -102,6 +103,43 @@ describe("sync configuration from xml", () => {
     }
   })
 
+  it("импортирует корневые command interface XML в Конфигурация.yaml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-command-interface-from-xml-"))
+    const rootInput = join(tmp, "xml")
+    const rootOutput = join(tmp, "yaml")
+    try {
+      fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
+      fs.copyFileSync(
+        join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
+        join(rootInput, CONFIGURATION_XML_FILE)
+      )
+      fs.copyFileSync(
+        join(rootCommandInterfaceFixturesDir, "CommandInterface.xml"),
+        join(rootInput, "Ext", "CommandInterface.xml")
+      )
+      fs.copyFileSync(
+        join(rootCommandInterfaceFixturesDir, "MainSectionCommandInterface.xml"),
+        join(rootInput, "Ext", "MainSectionCommandInterface.xml")
+      )
+
+      await syncConfigurationFromXML({
+        context: mockContextFromXML(),
+        inputDir: rootInput,
+        outputDir: rootOutput,
+      })
+
+      const yaml = fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")
+      expect(yaml).toContain("КомандныйИнтерфейс:")
+      expect(yaml).toContain("ВидимостьПодсистем:")
+      expect(yaml).toContain("ПодсистемаПоУмолчанию:")
+      expect(yaml).toContain("КомандныйИнтерфейсОсновногоРаздела:")
+      expect(yaml).toContain("ПорядокГрупп:")
+      expect(yaml).toContain("ПанельНавигацииВажное")
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("сохраняет простые корневые внешние файлы конфигурации", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-from-xml-"))
     const rootInput = join(tmp, "xml")
@@ -116,7 +154,7 @@ describe("sync configuration from xml", () => {
       fs.mkdirSync(join(rootInput, "Ext", "Splash"), { recursive: true })
       fs.copyFileSync(
         join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
-        join(rootInput, CONFIGURATION_XML_FILE),
+        join(rootInput, CONFIGURATION_XML_FILE)
       )
       fs.writeFileSync(join(rootInput, "Ext", "ManagedApplicationModule.bsl"), managedApplicationModule, "utf-8")
       fs.writeFileSync(join(rootInput, "Ext", "SessionModule.bsl"), sessionModule, "utf-8")
@@ -140,7 +178,7 @@ describe("sync configuration from xml", () => {
       expect(fs.readFileSync(join(rootOutput, "МодульОбычногоПриложения.bsl"), "utf-8")).toBe(ordinaryApplicationModule)
       expect([...fs.readFileSync(join(rootOutput, "ПодписьМобильногоКлиента.bin"))]).toEqual([0, 1, 2, 255])
       expect(fs.readFileSync(join(rootOutput, "КартинкаОсновногоРаздела", "MainSectionPicture.xml"), "utf-8")).toBe(
-        "<MainSectionPicture/>",
+        "<MainSectionPicture/>"
       )
       expect(fs.readFileSync(join(rootOutput, "КартинкаОсновногоРаздела", "Picture.svg"), "utf-8")).toBe("<svg/>")
       expect(fs.readFileSync(join(rootOutput, "Заставка", "Splash.xml"), "utf-8")).toBe("<Splash/>")

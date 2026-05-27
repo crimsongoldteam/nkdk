@@ -1,10 +1,13 @@
 import fs from "fs"
-import { join } from "path"
+import { dirname, join } from "path"
 import { BatchTask, runBatch } from "~/helpers/runBatch"
 import type { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
+import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { xmlExport } from "~/xml/export/exporter"
 import {
   applyPendingMigrationFiles,
   collectStructuralStateFromXML,
@@ -104,6 +107,13 @@ export const syncConfigurationToXML = async (params: {
       childObjects: buildConfigurationChildObjects({ yamlDir: inputDir, referenceChildObjects }),
     })
     xmlManifest.addFile(join(outputDir, CONFIGURATION_XML_FILE))
+    await writeRootConfigurationFilePathPropertiesToXML({
+      context,
+      configuration,
+      referenceConfiguration,
+      outputDir,
+      xmlManifest,
+    })
     await syncRootConfigurationExternalFilesToXML({ context, inputDir, outputDir, xmlManifest })
   }
 
@@ -181,6 +191,44 @@ export const syncConfigurationToXML = async (params: {
       parent: f.parent,
       error: f.error,
     })),
+  }
+}
+
+async function writeRootConfigurationFilePathPropertiesToXML(params: {
+  context: ConfigurationContextWithExportToXML
+  configuration: Record<string, unknown> | undefined
+  referenceConfiguration: Record<string, unknown> | undefined
+  outputDir: string
+  xmlManifest: XmlSyncManifest
+}): Promise<void> {
+  const model = params.configuration
+  if (model === undefined) return
+
+  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties)) {
+    if (propRule.filePath === undefined) continue
+    if (!getTypeRule(propRule.type, "exportToXML")) continue
+
+    const modelHasOwnValue = Object.prototype.hasOwnProperty.call(model, key)
+    const referenceValue = params.referenceConfiguration?.[key]
+    const valueToExport = modelHasOwnValue
+      ? model[key]
+      : propRule.exportReferenceFileOnMissingValue === true
+        ? referenceValue
+        : undefined
+    if (valueToExport === undefined) continue
+
+    const xmlFileObj = exportPropertyToXML({
+      context: params.context,
+      rule: propRule as PropertyRule,
+      value: valueToExport,
+      referenceMetadata: referenceValue,
+    }) as Record<string, unknown> | undefined
+    if (xmlFileObj === undefined) continue
+
+    const outputPath = join(params.outputDir, propRule.filePath)
+    await fs.promises.mkdir(dirname(outputPath), { recursive: true })
+    await fs.promises.writeFile(outputPath, xmlExport(xmlFileObj), "utf-8")
+    params.xmlManifest.addFile(outputPath)
   }
 }
 

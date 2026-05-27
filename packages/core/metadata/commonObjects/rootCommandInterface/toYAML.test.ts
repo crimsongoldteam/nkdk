@@ -1,4 +1,5 @@
 import { readFileSync } from "fs"
+import { join } from "path"
 import { describe, expect, it } from "vitest"
 import { exportMetadataItemToYAML, importMetadataItemFromXML } from "~/metadata/orchestration"
 import { mockContext, mockContextFromXML } from "~/tests/mockContext"
@@ -6,10 +7,10 @@ import { RootCommandInterfaceRules } from "./rules"
 
 import "./register"
 
-const commandInterfaceXmlPath = "/Users/nikita/git/roundTripElements/ext/CommandInterface.xml"
-const mainSectionCommandInterfaceXmlPath = "/Users/nikita/git/roundTripElements/ext/MainSectionCommandInterface.xml"
-const subsystemCommandInterfaceXmlPath =
-  "/Users/nikita/git/roundTripElements/Subsystems/ПодсистемаВсеСвойства/Ext/CommandInterface.xml"
+const fixturesDir = join(__dirname, "__fixtures__")
+const commandInterfaceXmlPath = join(fixturesDir, "CommandInterface.xml")
+const mainSectionCommandInterfaceXmlPath = join(fixturesDir, "MainSectionCommandInterface.xml")
+const subsystemCommandInterfaceXmlPath = join(fixturesDir, "SubsystemCommandInterface.xml")
 
 const exportRootCommandInterfaceToYAML = (path: string) => {
   const data = importMetadataItemFromXML({

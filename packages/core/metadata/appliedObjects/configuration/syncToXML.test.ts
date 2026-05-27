@@ -13,6 +13,7 @@ describe("sync configuration to XML", () => {
   const referenceDir = getXMLFixturePath("sync/syncConfiguration/xml")
   const outputDir = getXMLFixturePath("sync/syncConfiguration/out-to-xml")
   const catalogName = "Контрагенты"
+  const normalizeXML = (value: string): string => value.replace(/\r\n/g, "\n").replace(/^\uFEFF/, "").trimEnd()
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {
@@ -119,6 +120,53 @@ describe("sync configuration to XML", () => {
       expect(fs.readFileSync(join(outputDir, "Ext", "MainSectionPicture", "Picture.svg"), "utf-8")).toBe("<svg/>")
       expect(fs.readFileSync(join(outputDir, "Ext", "Splash.xml"), "utf-8")).toBe("<Splash/>")
       expect([...fs.readFileSync(join(outputDir, "Ext", "Splash", "Picture.png"))]).toEqual([137, 80, 78, 71])
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("восстанавливает корневые command interface XML из Конфигурация.yaml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-command-interface-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.mkdirSync(join(outDir, "Ext"), { recursive: true })
+      fs.writeFileSync(join(outDir, "Ext", "Old.xml"), "<Old/>", "utf-8")
+      fs.writeFileSync(
+        join(yamlDir, CONFIGURATION_YAML_FILE),
+        [
+          "Имя: Конфигурация",
+          "КомандныйИнтерфейс:",
+          "  ВидимостьПодсистем:",
+          "    Subsystem.ПодсистемаПоУмолчанию:",
+          "      Общее: Ложь",
+          "      Роли:",
+          "        Администратор: Ложь",
+          "  ПорядокПодсистем:",
+          "    - Subsystem.ПодсистемаПоУмолчанию",
+          "КомандныйИнтерфейсОсновногоРаздела:",
+          "  ПорядокГрупп:",
+          "    - ПанельНавигацииОбычное",
+          "",
+        ].join("\n"),
+        "utf-8",
+      )
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      const commandInterfaceXML = fs.readFileSync(join(outDir, "Ext", "CommandInterface.xml"), "utf-8")
+      const mainSectionXML = fs.readFileSync(join(outDir, "Ext", "MainSectionCommandInterface.xml"), "utf-8")
+
+      expect(normalizeXML(commandInterfaceXML)).toContain("<SubsystemsVisibility>")
+      expect(commandInterfaceXML).toContain("<Subsystem>Subsystem.ПодсистемаПоУмолчанию</Subsystem>")
+      expect(commandInterfaceXML).toContain('<xr:Value name="Role.Администратор">false</xr:Value>')
+      expect(mainSectionXML).toContain("<Group>NavigationPanelOrdinary</Group>")
+      expect(fs.existsSync(join(outDir, "Ext", "Old.xml"))).toBe(false)
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
