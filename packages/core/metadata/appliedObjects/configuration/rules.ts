@@ -1,4 +1,5 @@
 import "./usedMobileApplicationFunctionalities"
+import "~/metadata/commonObjects/rootCommandInterface/register"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
@@ -317,6 +318,16 @@ export const MetadataConfigurationRules = {
       nkdkPath: "МодульОбычногоПриложения.bsl",
       xmlPath: "Ext/OrdinaryApplicationModule.bsl",
       syncExternalOnly: true,
+    },
+    commandInterface: {
+      yaml: "КомандныйИнтерфейс",
+      type: "RootCommandInterface",
+      filePath: "Ext/CommandInterface.xml",
+    },
+    mainSectionCommandInterface: {
+      yaml: "КомандныйИнтерфейсОсновногоРаздела",
+      type: "RootCommandInterface",
+      filePath: "Ext/MainSectionCommandInterface.xml",
     },
     mobileClientSignature: {
       type: "ExternalFile",

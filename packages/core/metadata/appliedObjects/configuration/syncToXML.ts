@@ -66,11 +66,15 @@ export const syncConfigurationToXML = async (params: {
       .join("\n")
     return {
       succeeded: 0,
-      failed: [{
-        kind: "migration",
-        name: "Миграции",
-        error: new Error(`Найдены возможные переименования:\n${details}\nЗапустите: nkdk generate-migration ${inputDir} ${referenceDir}`),
-      }],
+      failed: [
+        {
+          kind: "migration",
+          name: "Миграции",
+          error: new Error(
+            `Найдены возможные переименования:\n${details}\nЗапустите: nkdk generate-migration ${inputDir} ${referenceDir}`
+          ),
+        },
+      ],
     }
   }
   const xmlManifest = new XmlSyncManifest(outputDir)
@@ -155,7 +159,10 @@ export const syncConfigurationToXML = async (params: {
   if (batchResult.failed.length === 0) {
     await pruneXmlByManifest({
       xmlRoot: outputDir,
-      xmlDirs: [ROOT_EXTERNAL_XML_DIR, ...TopLevelMetadataItemRules.flatMap((rule) => rule.xmlDir ? [rule.xmlDir] : [])],
+      xmlDirs: [
+        ROOT_EXTERNAL_XML_DIR,
+        ...TopLevelMetadataItemRules.flatMap((rule) => (rule.xmlDir ? [rule.xmlDir] : [])),
+      ],
       expectedFiles: xmlManifest.expectedFiles(),
     })
     if (!hasRootYAML) {
@@ -194,6 +201,7 @@ async function syncRootConfigurationExternalFilesToXML(params: {
       propertyValue: undefined,
       referencePropertyValue: undefined,
       xmlManifest: params.xmlManifest,
+      name: "",
     })
   }
 }

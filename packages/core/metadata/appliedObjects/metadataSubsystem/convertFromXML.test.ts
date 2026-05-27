@@ -6,9 +6,18 @@ import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObj
 import { mockContextFromXML } from "~/tests/mockContext"
 import { MetadataSubsystemRules } from "./rules"
 
-const commandInterfaceXML = "<CommandInterface>nested</CommandInterface>"
+const commandInterfaceXML = `<?xml version="1.0" encoding="UTF-8"?>
+<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<GroupsOrder>
+		<Group>NavigationPanelOrdinary</Group>
+	</GroupsOrder>
+</CommandInterface>`
 
-const subsystemXML = (params: { name: string; synonym: string; childName?: string }): string => `<?xml version="1.0" encoding="UTF-8"?>
+const subsystemXML = (params: {
+  name: string
+  synonym: string
+  childName?: string
+}): string => `<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
 	<Subsystem uuid="00000000-0000-0000-0000-000000000001">
 		<Properties>
@@ -37,15 +46,18 @@ const writeFile = (path: string, content: string): void => {
 }
 
 describe("convertAppliedObjectFromXML — MetadataSubsystem", () => {
-  it("создаёт YAML для вложенной подсистемы и сохраняет её CommandInterface.xml", async () => {
+  it("создаёт YAML для вложенной подсистемы и её CommandInterface.xml", async () => {
     const inputDir = fs.mkdtempSync(join(os.tmpdir(), "subsystem-convert-xml-"))
     const outputDir = fs.mkdtempSync(join(os.tmpdir(), "subsystem-convert-yaml-"))
 
-    writeFile(join(inputDir, "Администрирование.xml"), subsystemXML({
-      name: "Администрирование",
-      synonym: "Администрирование",
-      childName: "НастройкиПрограммы",
-    }))
+    writeFile(
+      join(inputDir, "Администрирование.xml"),
+      subsystemXML({
+        name: "Администрирование",
+        synonym: "Администрирование",
+        childName: "НастройкиПрограммы",
+      })
+    )
     writeFile(
       join(inputDir, "Администрирование", "Subsystems", "НастройкиПрограммы.xml"),
       subsystemXML({ name: "НастройкиПрограммы", synonym: "Настройки программы" })
@@ -69,11 +81,12 @@ describe("convertAppliedObjectFromXML — MetadataSubsystem", () => {
         "utf-8"
       )
     ).toContain("Синоним: Настройки программы")
-    expect(
-      fs.readFileSync(
-        join(outputDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "CommandInterface.xml"),
-        "utf-8"
-      )
-    ).toBe(commandInterfaceXML)
+    const yaml = fs.readFileSync(
+      join(outputDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "Свойства.yaml"),
+      "utf-8"
+    )
+    expect(yaml).toContain("КомандныйИнтерфейс:")
+    expect(yaml).toContain("ПорядокГрупп:")
+    expect(yaml).toContain("- ПанельНавигацииОбычное")
   })
 })

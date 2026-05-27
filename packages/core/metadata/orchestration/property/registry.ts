@@ -464,6 +464,18 @@ import {
   TableChildItemsEnterprise,
 } from "~/metadata/forms/commonObjects/childItems/types"
 import { CommandInterface, CommandInterfaceYAML } from "~/metadata/forms/commonObjects/commandInterface/types"
+import {
+  CommandInterfaceCommandGroups,
+  CommandInterfaceCommandGroupsYAML,
+  CommandInterfaceOrder,
+  CommandInterfaceOrderYAML,
+  CommandInterfacePlacementMap,
+  CommandInterfacePlacementMapYAML,
+  CommandInterfaceVisibilityMap,
+  CommandInterfaceVisibilityMapYAML,
+  RootCommandInterface,
+  RootCommandInterfaceYAML,
+} from "~/metadata/commonObjects/rootCommandInterface/types"
 import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/commandSet/types"
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
@@ -1216,6 +1228,26 @@ export type PropertyTypeRegistry = {
     item: CommandInterface
     yaml: CommandInterfaceYAML
   }
+  RootCommandInterface: {
+    item: RootCommandInterface
+    yaml: RootCommandInterfaceYAML
+  }
+  CommandInterfaceVisibilityMap: {
+    item: CommandInterfaceVisibilityMap
+    yaml: CommandInterfaceVisibilityMapYAML
+  }
+  CommandInterfacePlacementMap: {
+    item: CommandInterfacePlacementMap
+    yaml: CommandInterfacePlacementMapYAML
+  }
+  CommandInterfaceOrder: {
+    item: CommandInterfaceOrder
+    yaml: CommandInterfaceOrderYAML
+  }
+  CommandInterfaceCommandGroups: {
+    item: CommandInterfaceCommandGroups
+    yaml: CommandInterfaceCommandGroupsYAML
+  }
   InternalInfo: {
     item: InternalInfo
   }
@@ -1702,6 +1734,11 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataSequenceDimension: "MetadataSequenceDimension",
   MetadataSequenceDimensions: "MetadataSequenceDimensions",
   CommandInterface: "CommandInterface",
+  RootCommandInterface: "RootCommandInterface",
+  CommandInterfaceVisibilityMap: "CommandInterfaceVisibilityMap",
+  CommandInterfacePlacementMap: "CommandInterfacePlacementMap",
+  CommandInterfaceOrder: "CommandInterfaceOrder",
+  CommandInterfaceCommandGroups: "CommandInterfaceCommandGroups",
   ContextMenu: "ContextMenu",
   ExtendedTooltip: "ExtendedTooltip",
   SingleSearchControlAddition: "SingleSearchControlAddition",

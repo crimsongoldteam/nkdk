@@ -28,7 +28,8 @@ export function importMetadataItemLinksFromXML(
   if (!data) return undefined
 
   const itemTag = rule?.metadataItemLinksXMLItem ?? "xr:Item"
-  const rawItems = data[itemTag] ?? data["xr:Item"] ?? data["xr:Object"]
+  const values = data as Record<string, MetadataItemLinkXML | MetadataItemLinkXML[] | undefined>
+  const rawItems = values[itemTag] ?? data["xr:Item"] ?? data["xr:Object"]
   if (rawItems === undefined) return []
 
   const items = Array.isArray(rawItems) ? rawItems : [rawItems]

@@ -100,6 +100,7 @@ async function syncRootConfigurationExternalFilesFromXML(params: {
       rule: propRule,
       xmlDir: params.inputDir,
       nkdkDir: params.outputDir,
+      name: "",
     })
   }
 }

@@ -117,10 +117,22 @@ async function syncChildCollectionsFromXML(params: {
           }) as Record<string, unknown> | undefined
           if (childModel) {
             Object.assign(item.model, childModel)
-            addReferenceNamesFromXML({ model: item.model, rule: childCollection.fileItemRule, xml: childParsed.MetaDataObject })
+            addReferenceNamesFromXML({
+              model: item.model,
+              rule: childCollection.fileItemRule,
+              xml: childParsed.MetaDataObject,
+            })
           }
         }
       }
+
+      await importFilePathPropertiesFromXML({
+        context,
+        rule: childCollection.itemRule,
+        model: item.model,
+        inputDir: childXmlDir,
+        name: item.name,
+      })
 
       for (const [, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
         const syncFn = getTypeRule(itemPropRule.type, "syncExternalFromXML")
@@ -148,6 +160,29 @@ async function syncChildCollectionsFromXML(params: {
   }
 }
 
+async function importFilePathPropertiesFromXML(params: {
+  context: ConfigurationContextFromXML
+  rule: MetadataItemRule
+  model: Record<string, unknown>
+  inputDir: string
+  name: string
+}): Promise<void> {
+  const { context, rule, model, inputDir, name } = params
+
+  for (const [key, propRule] of Object.entries(rule.properties)) {
+    if (propRule.filePath === undefined) continue
+    if (!getTypeRule(propRule.type, "importFromXML")) continue
+    const rootExtFilePath = join(inputDir, propRule.filePath)
+    const objectExtFilePath = join(inputDir, name, propRule.filePath)
+    const extFilePath = fs.existsSync(rootExtFilePath) ? rootExtFilePath : objectExtFilePath
+    if (!fs.existsSync(extFilePath)) continue
+    const extContent = await fs.promises.readFile(extFilePath, "utf-8")
+    const extParsed = importContentFromXML<Record<string, unknown>>(extContent)
+    const value = importPropertyFromXML({ context, rule: propRule as PropertyRule, value: extParsed, name: key })
+    if (value !== undefined) model[key] = value
+  }
+}
+
 function addReferenceNamesFromXML(params: {
   model: Record<string, unknown>
   rule: MetadataItemRule
@@ -160,7 +195,9 @@ function addReferenceNamesFromXML(params: {
   if (!root || typeof root !== "object") return
 
   for (const childCollection of params.rule.childCollections ?? []) {
-    const fileRootContainer = childCollection.fileItemRule ? getXMLRootContainer(childCollection.fileItemRule) : undefined
+    const fileRootContainer = childCollection.fileItemRule
+      ? getXMLRootContainer(childCollection.fileItemRule)
+      : undefined
     if (!fileRootContainer) continue
     const referenceNamesEntry = Object.entries(params.rule.properties).find(([, propertyRule]) => {
       if (propertyRule.type !== "ChildFormNames") return false
@@ -168,7 +205,10 @@ function addReferenceNamesFromXML(params: {
     })
     if (!referenceNamesEntry) continue
     const [propertyKey, propertyRule] = referenceNamesEntry
-    const xmlValue = readXMLPath(root as Record<string, unknown>, [...(propertyRule.xmlParents ?? []), fileRootContainer])
+    const xmlValue = readXMLPath(root as Record<string, unknown>, [
+      ...(propertyRule.xmlParents ?? []),
+      fileRootContainer,
+    ])
     if (xmlValue === undefined) continue
     params.model[propertyKey] = Array.isArray(xmlValue) ? xmlValue : [xmlValue]
   }
@@ -189,7 +229,9 @@ function addChildCollectionsFromReferenceNames(params: {
 }): void {
   for (const childCollection of params.rule.childCollections ?? []) {
     if (params.model[childCollection.propertyKey] !== undefined) continue
-    const fileRootContainer = childCollection.fileItemRule ? getXMLRootContainer(childCollection.fileItemRule) : undefined
+    const fileRootContainer = childCollection.fileItemRule
+      ? getXMLRootContainer(childCollection.fileItemRule)
+      : undefined
     if (!fileRootContainer) continue
     const referenceNamesEntry = Object.entries(params.rule.properties).find(([, propertyRule]) => {
       if (propertyRule.type !== "ChildFormNames") return false
