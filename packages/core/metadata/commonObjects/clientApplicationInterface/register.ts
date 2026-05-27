@@ -173,8 +173,7 @@ const getItemSignature = (item: ClientApplicationInterfaceItem): string[] => {
       ...(item.name !== undefined ? [`panel:name:${item.name}`] : []),
     ]
   }
-  const childSignature = (item.items ?? []).map((child) => getItemSignature(child)[0] ?? `kind:${child.kind}`).join("|")
-  return [`group:${childSignature}`]
+  return item.id !== undefined ? [`group:id:${item.id}`] : []
 }
 
 const getYAMLItemSignature = (item: ClientApplicationInterfaceItemsYAML[number]): string[] => {
@@ -186,10 +185,7 @@ const getYAMLItemSignature = (item: ClientApplicationInterfaceItemsYAML[number])
       ...(name !== undefined ? [`panel:name:${name}`] : []),
     ]
   }
-  const childSignature = (item.Группа.Элементы ?? [])
-    .map((child) => getYAMLItemSignature(child)[0] ?? ("Панель" in child ? "kind:panel" : "kind:group"))
-    .join("|")
-  return [`group:${childSignature}`]
+  return []
 }
 
 const hasStableYAMLSignature = (item: ClientApplicationInterfaceItemsYAML[number]): boolean =>
@@ -198,7 +194,25 @@ const hasStableYAMLSignature = (item: ClientApplicationInterfaceItemsYAML[number
   )
 
 const hasStableItemSignature = (item: ClientApplicationInterfaceItem): boolean =>
-  getItemSignature(item).some((signature) => signature.startsWith("panel:uuid:") || signature.startsWith("panel:name:"))
+  getItemSignature(item).some(
+    (signature) =>
+      signature.startsWith("panel:uuid:") || signature.startsWith("panel:name:") || signature.startsWith("group:id:")
+  )
+
+const isWeakYAMLGroup = (item: ClientApplicationInterfaceItemsYAML[number]): boolean =>
+  !("Панель" in item) && getYAMLItemSignature(item).length === 0
+
+const isWeakGroup = (item: ClientApplicationInterfaceItem): boolean =>
+  item.kind === "group" && getItemSignature(item).length === 0
+
+const countRemainingWeakYAMLGroups = (items: ClientApplicationInterfaceItemsYAML, startIndex: number): number =>
+  items.slice(startIndex).filter(isWeakYAMLGroup).length
+
+const countAvailableReferenceGroups = (
+  referenceItems: ClientApplicationInterfaceItems | undefined,
+  usedReferenceIndexes: Set<number>
+): number =>
+  referenceItems?.filter((item, index) => item.kind === "group" && !usedReferenceIndexes.has(index)).length ?? 0
 
 const isSameKind = (item: ClientApplicationInterfaceItem, referenceItem: ClientApplicationInterfaceItem): boolean =>
   item.kind === referenceItem.kind
@@ -233,6 +247,13 @@ const findReferenceItemIndex = (params: {
     params.isCompatibleByIndex(referenceItem)
   ) {
     return params.fallbackIndex
+  }
+
+  if (params.canUseIndexFallback) {
+    const index = params.referenceItems.findIndex(
+      (item, referenceIndex) => !params.usedReferenceIndexes.has(referenceIndex) && params.isCompatibleByIndex(item)
+    )
+    if (index !== -1) return index
   }
 
   return undefined
@@ -449,12 +470,16 @@ const importItemsYAMLValue = (
   const usedReferenceIndexes = new Set<number>()
   const items = yaml
     .map((item, index) => {
+      const canUseIndexFallback =
+        !hasStableYAMLSignature(item) &&
+        (!isWeakYAMLGroup(item) ||
+          countRemainingWeakYAMLGroups(yaml, index) <= countAvailableReferenceGroups(source, usedReferenceIndexes))
       const referenceIndex = findReferenceItemIndex({
         signatures: getYAMLItemSignature(item),
         fallbackIndex: index,
         referenceItems: source,
         usedReferenceIndexes,
-        canUseIndexFallback: !hasStableYAMLSignature(item),
+        canUseIndexFallback,
         isCompatibleByIndex: (referenceItem) => isSameYAMLKind(item, referenceItem),
       })
       if (referenceIndex !== undefined) usedReferenceIndexes.add(referenceIndex)
@@ -520,12 +545,13 @@ const exportItemsToSectionXML = (params: {
 
   params.items.forEach((item, index) => {
     const fallbackIndex = (params.fallbackIndexOffset ?? 0) + index
+    const canUseIndexFallback = !hasStableItemSignature(item) && !isWeakGroup(item)
     const referenceIndex = findReferenceItemIndex({
       signatures: getItemSignature(item),
       fallbackIndex,
       referenceItems: params.referenceItems,
       usedReferenceIndexes,
-      canUseIndexFallback: !hasStableItemSignature(item),
+      canUseIndexFallback,
       isCompatibleByIndex: (referenceItem) => isSameKind(item, referenceItem),
     })
     if (referenceIndex !== undefined) usedReferenceIndexes.add(referenceIndex)

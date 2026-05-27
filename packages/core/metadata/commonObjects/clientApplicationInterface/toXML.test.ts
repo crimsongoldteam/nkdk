@@ -263,6 +263,28 @@ describe("export ClientApplicationInterface to XML", () => {
 \t\t</panel>`)
   })
 
+  it("does not move existing group id to a new empty group inserted before it", () => {
+    const referenceXml = `<?xml version="1.0" encoding="UTF-8"?>
+<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+\t<top>
+\t\t<panel id="anchor-panel">
+\t\t\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
+\t\t</panel>
+\t\t<group id="existing-group"/>
+\t</top>
+\t<panelDef id="cbab57f2-a0f3-4f0a-89ea-4cb19570ab75"/>
+</ClientApplicationInterface>`
+    const result = exportClientApplicationInterfaceYAMLWithReference(referenceXml, {
+      Верх: [{ Панель: "ПанельОткрытых" }, { Группа: { Элементы: [] } }, { Группа: { Элементы: [] } }],
+    })
+
+    expect(result).not.toContain(`<panel id="anchor-panel">
+\t\t\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>
+\t\t</panel>
+\t\t<group id="existing-group"/>`)
+    expect(result).toMatch(/<group id="[^"]+"\/>[\s\S]*<group id="existing-group"\/>/)
+  })
+
   it("creates panel definition for a new non-standard panel with presentation", () => {
     const data = importMetadataItemFromYAML({
       context: mockContext,
