@@ -1,4 +1,5 @@
 import "./metadataCommand/register"
+import "./metadataCommonCommand"
 
 import "./metadataCatalog/fromYAML"
 import "./metadataCatalog/toYAML"

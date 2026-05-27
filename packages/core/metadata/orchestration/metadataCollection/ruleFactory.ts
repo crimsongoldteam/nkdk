@@ -13,15 +13,9 @@ import { exportMetadataItemToJSONSchema } from "../metadataItem/toJSONSchema"
 import { registerTypeRule } from "../formElement/factory"
 import { NamedMetadataItem } from "./types"
 import { importMetadataItemCollectionFromXML } from "./fromXML"
-import {
-  importMetadataItemCollectionFromYAMLAsArray,
-  importMetadataItemCollectionFromYAMLAsRecord,
-} from "./fromYAML"
+import { importMetadataItemCollectionFromYAMLAsArray, importMetadataItemCollectionFromYAMLAsRecord } from "./fromYAML"
 import { exportMetadataCollectionToXML } from "./toXML"
-import {
-  exportMetadataCollectionToYAMLAsArray,
-  exportMetadataCollectionToYAMLAsRecord,
-} from "./toYAML"
+import { exportMetadataCollectionToYAMLAsArray, exportMetadataCollectionToYAMLAsRecord } from "./toYAML"
 
 type CollectionRule<Rule extends MetadataItemRule, CollectionType extends PropertyRuleType, XMLKey extends string> = {
   propertyType: CollectionType
@@ -68,10 +62,7 @@ export const registerMetadataItemCollectionRule = <
       // всегда оборачивается в массив, даже если он встречается один раз.
       const isWrapped = xml.every(
         (entry) =>
-          entry !== null &&
-          typeof entry === "object" &&
-          !Array.isArray(entry) &&
-          effectiveElement in (entry as object)
+          entry !== null && typeof entry === "object" && !Array.isArray(entry) && effectiveElement in (entry as object)
       )
       const bodies = isWrapped
         ? xml.flatMap((entry: any) => {
@@ -85,12 +76,7 @@ export const registerMetadataItemCollectionRule = <
     }
     // Если parent уже вытащил содержимое по rule.xml и вернул одиночный элемент (а не контейнер),
     // оборачиваем его, чтобы коллекционная процедура могла прочитать `xml[effectiveElement]`.
-    if (
-      xml !== undefined &&
-      xml !== null &&
-      typeof xml === "object" &&
-      !(effectiveElement in (xml as object))
-    ) {
+    if (xml !== undefined && xml !== null && typeof xml === "object" && !(effectiveElement in (xml as object))) {
       return importMetadataItemCollectionFromXML(itemRule, effectiveElement)(context, rule, {
         [effectiveElement]: [xml],
       })

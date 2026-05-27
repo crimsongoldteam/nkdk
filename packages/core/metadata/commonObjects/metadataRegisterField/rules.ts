@@ -1,6 +1,7 @@
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 
 const propertiesParents = ["Properties"]
@@ -51,7 +52,20 @@ export const commonRegisterFieldProperties = {
     xml: "Synonym",
     type: "I8nText",
     excludeIfEqualNameYAML: true,
-    defaultValue: emptySynonym,
+    defaultValue: ({
+      context,
+      yaml,
+      name,
+      operation,
+    }: {
+      context: ConfigurationContext
+      yaml?: unknown
+      name?: string
+      operation?: string
+    }) =>
+      operation === "importFromYAML" && name && yaml !== null && typeof yaml === "object" && !Array.isArray(yaml)
+        ? addDefaultLanguageNameToSynonym(context, undefined, name)
+        : emptySynonym,
     defaultValueXMLEmpty: emptySynonym,
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",

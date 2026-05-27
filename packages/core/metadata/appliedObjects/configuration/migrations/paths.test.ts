@@ -151,6 +151,12 @@ describe("migration paths", () => {
       ownerPath: "ОбщийМодуль",
       levelPath: "ОбщийМодуль",
     })
+    expect(parseMigrationPath("ОбщаяКоманда.АвизоПоОСВходящее")).toMatchObject({
+      kind: "object",
+      localName: "АвизоПоОСВходящее",
+      ownerPath: "ОбщаяКоманда",
+      levelPath: "ОбщаяКоманда",
+    })
     expect(parseMigrationPath("ПакетXDTO.ПакетXDTOВсеСвойства")).toMatchObject({
       kind: "object",
       localName: "ПакетXDTOВсеСвойства",

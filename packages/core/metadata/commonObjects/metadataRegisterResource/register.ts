@@ -24,16 +24,19 @@ const dropImplicitEmptySynonym = <T extends { synonym?: { items?: Record<string,
 const importMetadataRegisterResourcesFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  data: MetadataRegisterResourcesYAML | undefined
+  data: MetadataRegisterResourcesYAML | undefined,
+  source: MetadataRegisterResources | undefined
 ): MetadataRegisterResources | undefined => {
   if (!data) return undefined
 
   const results = Object.entries(data).map(([name, value]) => {
+    const itemSource = source?.find((item) => item.name === name)
     const properties = importMetadataItemFromYAML({
       context,
       yaml: value as MetadataRegisterResourceYAML,
       rule: MetadataRegisterResourceRules,
       name,
+      source: itemSource,
     })
 
     if (properties == undefined) throw new Error("Properties are required")
