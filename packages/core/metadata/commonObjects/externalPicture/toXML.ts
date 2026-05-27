@@ -11,8 +11,6 @@ export const syncExternalPictureToXML = async (params: {
   name?: string
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
-  if (!params.name) return
-
   const rule = params.rule as ExternalPicturePropertyRule
   const descriptorName = basename(rule.xmlPath)
   const nkdkPictureDir = join(params.nkdkDir, rule.nkdkDir)
@@ -39,7 +37,8 @@ export const syncExternalPictureToXML = async (params: {
 
 registerTypeRule("ExternalPicture", "syncExternalToXML", syncExternalPictureToXML)
 
-const resolveObjectXmlDir = (params: { xmlDir: string; objectName: string }): string => {
+const resolveObjectXmlDir = (params: { xmlDir: string; objectName?: string }): string => {
   const { xmlDir, objectName } = params
+  if (!objectName) return xmlDir
   return basename(xmlDir) === objectName ? xmlDir : join(xmlDir, objectName)
 }

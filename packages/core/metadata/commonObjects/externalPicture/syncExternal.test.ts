@@ -1,6 +1,7 @@
 import fs from "fs"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
+import { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
 import { syncExternalPictureFromXML } from "./fromXML"
 import { syncExternalPictureToXML } from "./toXML"
 
@@ -17,6 +18,33 @@ afterEach(() => {
 })
 
 describe("ExternalPicture sync", () => {
+  it("copies root Picture.xml and payload without object name", async () => {
+    fs.rmSync(tmpRoot, { recursive: true, force: true })
+    const xmlDir = join(tmpRoot, "xml")
+    const nkdkDir = join(tmpRoot, "nkdk")
+    const outDir = join(tmpRoot, "out")
+    const rootRule = {
+      type: "ExternalPicture" as const,
+      nkdkDir: "Заставка",
+      xmlPath: "Ext/Splash.xml",
+      payloadXmlDir: "Ext/Splash",
+    }
+
+    fs.mkdirSync(join(xmlDir, "Ext", "Splash"), { recursive: true })
+    fs.writeFileSync(join(xmlDir, "Ext", "Splash.xml"), "<ExtPicture/>")
+    fs.writeFileSync(join(xmlDir, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
+
+    await syncExternalPictureFromXML({ rule: rootRule, xmlDir, nkdkDir })
+    expect(fs.readFileSync(join(nkdkDir, "Заставка", "Splash.xml"), "utf-8")).toBe("<ExtPicture/>")
+    expect([...fs.readFileSync(join(nkdkDir, "Заставка", "Picture.png"))]).toEqual([137, 80, 78, 71])
+
+    const xmlManifest = new XmlSyncManifest(outDir)
+    await syncExternalPictureToXML({ rule: rootRule, nkdkDir, xmlDir: outDir, xmlManifest })
+    expect(fs.readFileSync(join(outDir, "Ext", "Splash.xml"), "utf-8")).toBe("<ExtPicture/>")
+    expect([...fs.readFileSync(join(outDir, "Ext", "Splash", "Picture.png"))]).toEqual([137, 80, 78, 71])
+    expect([...xmlManifest.expectedFiles()]).toEqual(expect.arrayContaining(["Ext/Splash.xml", "Ext/Splash/Picture.png"]))
+  })
+
   it("copies Picture.xml and binary payload from XML to nkdk", async () => {
     fs.rmSync(tmpRoot, { recursive: true, force: true })
     const xmlDir = join(tmpRoot, "xml", "CommonPictures")

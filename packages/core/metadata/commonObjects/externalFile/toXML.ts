@@ -11,13 +11,15 @@ export const syncExternalFileToXML = async (params: {
   name?: string
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
-  if (!params.name) return
-
   const rule = params.rule as ExternalFilePropertyRule
   const srcPath = join(params.nkdkDir, rule.nkdkPath)
   if (!fs.existsSync(srcPath)) return
 
-  const objectXmlDir = basename(params.xmlDir) === params.name ? params.xmlDir : join(params.xmlDir, params.name)
+  const objectXmlDir = params.name
+    ? basename(params.xmlDir) === params.name
+      ? params.xmlDir
+      : join(params.xmlDir, params.name)
+    : params.xmlDir
   const dstPath = join(objectXmlDir, rule.xmlPath)
   await fs.promises.mkdir(dirname(dstPath), { recursive: true })
   await fs.promises.copyFile(srcPath, dstPath)

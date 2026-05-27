@@ -8,6 +8,28 @@ import { syncModuleFromXML } from "./fromXML"
 import { syncModuleToXML } from "./toXML"
 
 describe("syncModule external files", () => {
+  it("writes root configuration module without object name", async () => {
+    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "root-module-"))
+    const nkdkDir = join(tmpDir, "yaml")
+    const xmlDir = join(tmpDir, "out")
+    const rule = {
+      type: "Module" as const,
+      nkdkPath: "МодульСеанса.bsl",
+      xmlPath: "Ext/SessionModule.bsl",
+    }
+
+    await fs.promises.mkdir(nkdkDir, { recursive: true })
+    await fs.promises.writeFile(join(nkdkDir, "МодульСеанса.bsl"), "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n")
+
+    const xmlManifest = new XmlSyncManifest(xmlDir)
+    await syncModuleToXML({ rule, nkdkDir, xmlDir, xmlManifest })
+
+    expect(fs.readFileSync(join(xmlDir, "Ext", "SessionModule.bsl"), "utf-8")).toBe(
+      "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n",
+    )
+    expect(xmlManifest.expectedFiles()).toContain("Ext/SessionModule.bsl")
+  })
+
   it("round-trips CommonTemplate primary template file", async () => {
     const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "module-external-"))
     const xmlDir = join(tmpDir, "xml", "CommonTemplates")
