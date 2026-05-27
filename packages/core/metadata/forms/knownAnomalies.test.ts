@@ -41,6 +41,20 @@ describe("known form XML anomalies", () => {
     ).toBeUndefined()
   })
 
+  it("restores ERP duplicate AdditionalColumns for a config-prefixed known path", () => {
+    const column = { _name: "Реквизит1", _id: "" }
+
+    expect(
+      restoreKnownDuplicateErpAdditionalColumns({
+        currentXMLPath: `erp/${ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM}`,
+        table: "Список.Способы",
+        columnName: "Реквизит1",
+        columnsCount: 1,
+        column,
+      })?.map((restoredColumn) => restoredColumn._id)
+    ).toEqual(["1", "2", "3", "4", "5"])
+  })
+
   it("does not restore ERP AdditionalColumns when the known group has multiple columns", () => {
     const column = { _name: "Реквизит1", _id: "" }
 
@@ -90,5 +104,21 @@ describe("known form XML anomalies", () => {
         items,
       })
     ).toEqual(items)
+  })
+
+  it("restores duplicate CommandBarButton ids for a config-prefixed known path", () => {
+    const items = [
+      { CommandBarButton: { _name: "ЕстьКЭП", _id: "", ExtendedTooltip: { _id: "" } } },
+      { CommandBarButton: { _name: "НетКЭП", _id: "", ExtendedTooltip: { _id: "" } } },
+      { CommandBarButton: { _name: "ЕстьКЭП", _id: "", ExtendedTooltip: { _id: "" } } },
+      { CommandBarButton: { _name: "НетКЭП", _id: "", ExtendedTooltip: { _id: "" } } },
+    ]
+
+    expect(
+      restoreKnownDuplicateCommandBarButtonIds({
+        currentXMLPath: `small/${MASTER_SIMPLIFIED_CONNECTION_FORM}`,
+        items,
+      }).map((item) => item.CommandBarButton._id)
+    ).toEqual(["1823", "1824", "1314", "1316"])
   })
 })

@@ -15,7 +15,7 @@ export const restoreKnownDuplicateErpAdditionalColumns = <ColumnXML extends XMLO
 }): ColumnXML[] | undefined => {
   const { currentXMLPath, table, columnName, columnsCount, column } = params
   if (column === undefined) return undefined
-  if (currentXMLPath !== ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM) return undefined
+  if (!isKnownXMLPath(currentXMLPath, ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM)) return undefined
   if (table !== "Список.Способы") return undefined
   if (columnName !== "Реквизит1") return undefined
   if (columnsCount !== 1) return undefined
@@ -38,7 +38,7 @@ export const restoreKnownDuplicateCommandBarButtonIds = <ItemXML extends XMLObje
   items: ItemXML[]
 }): ItemXML[] => {
   const { currentXMLPath, items } = params
-  if (currentXMLPath !== MASTER_SIMPLIFIED_CONNECTION_FORM) return items
+  if (!isKnownXMLPath(currentXMLPath, MASTER_SIMPLIFIED_CONNECTION_FORM)) return items
   if (!isKnownMasterButtonSequence(items)) return items
 
   return items.map((item, index) => {
@@ -78,4 +78,11 @@ const isKnownMasterButtonSequence = (items: XMLObject[]): boolean => {
 
 const isXMLObject = (value: unknown): value is XMLObject => {
   return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+const isKnownXMLPath = (currentXMLPath: string | undefined, knownXMLPath: string): boolean => {
+  if (currentXMLPath === undefined) return false
+
+  const normalizedPath = currentXMLPath.replaceAll("\\", "/")
+  return normalizedPath === knownXMLPath || normalizedPath.endsWith(`/${knownXMLPath}`)
 }
