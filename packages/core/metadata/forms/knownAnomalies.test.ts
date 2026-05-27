@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM,
   MASTER_SIMPLIFIED_CONNECTION_FORM,
+  findKnownDuplicateCommandBarButtonReference,
   restoreKnownDuplicateCommandBarButtonIds,
   restoreKnownDuplicateErpAdditionalColumns,
 } from "./knownAnomalies"
@@ -120,5 +121,29 @@ describe("known form XML anomalies", () => {
         items,
       }).map((item) => item.CommandBarButton._id)
     ).toEqual(["1823", "1824", "1314", "1316"])
+  })
+
+  it("finds duplicate CommandBarButton reference by index for the known master form", () => {
+    const items = [
+      { itemType: "CommandBarButton", name: "ЕстьКЭП" },
+      { itemType: "CommandBarButton", name: "НетКЭП" },
+      { itemType: "CommandBarButton", name: "ЕстьКЭП" },
+      { itemType: "CommandBarButton", name: "НетКЭП" },
+    ]
+    const referenceItems = [
+      { itemType: "CommandBarButton", name: "ЕстьКЭП", id: "1823" },
+      { itemType: "CommandBarButton", name: "НетКЭП", id: "1824" },
+      { itemType: "CommandBarButton", name: "ЕстьКЭП", id: "1314" },
+      { itemType: "CommandBarButton", name: "НетКЭП", id: "1316" },
+    ]
+
+    expect(
+      findKnownDuplicateCommandBarButtonReference({
+        currentXMLPath: `small/${MASTER_SIMPLIFIED_CONNECTION_FORM}`,
+        items,
+        referenceItems,
+        index: 2,
+      })
+    ).toEqual({ itemType: "CommandBarButton", name: "ЕстьКЭП", id: "1314" })
   })
 })

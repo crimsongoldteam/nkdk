@@ -65,6 +65,21 @@ export const restoreKnownDuplicateCommandBarButtonIds = <ItemXML extends XMLObje
   }) as ItemXML[]
 }
 
+export const findKnownDuplicateCommandBarButtonReference = <Item extends { itemType?: string; name?: string }>(params: {
+  currentXMLPath: string | undefined
+  items: readonly Item[]
+  referenceItems: readonly Item[] | undefined
+  index: number
+}): Item | undefined => {
+  const { currentXMLPath, items, referenceItems, index } = params
+  if (!isKnownXMLPath(currentXMLPath, MASTER_SIMPLIFIED_CONNECTION_FORM)) return undefined
+  if (referenceItems === undefined) return undefined
+  if (!isKnownMasterButtonDataSequence(items)) return undefined
+  if (!isKnownMasterButtonDataSequence(referenceItems)) return undefined
+
+  return referenceItems[index]
+}
+
 const isKnownMasterButtonSequence = (items: XMLObject[]): boolean => {
   if (items.length !== KNOWN_MASTER_BUTTON_IDS.length) return false
 
@@ -73,6 +88,14 @@ const isKnownMasterButtonSequence = (items: XMLObject[]): boolean => {
     if (!isXMLObject(commandBarButton)) return false
     if (commandBarButton._name !== KNOWN_MASTER_BUTTON_IDS[index].name) return false
     return isXMLObject(commandBarButton.ExtendedTooltip)
+  })
+}
+
+const isKnownMasterButtonDataSequence = <Item extends { itemType?: string; name?: string }>(items: readonly Item[]): boolean => {
+  if (items.length !== KNOWN_MASTER_BUTTON_IDS.length) return false
+
+  return items.every((item, index) => {
+    return item.itemType === "CommandBarButton" && item.name === KNOWN_MASTER_BUTTON_IDS[index].name
   })
 }
 

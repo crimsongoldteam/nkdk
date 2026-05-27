@@ -1,5 +1,8 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { restoreKnownDuplicateCommandBarButtonIds } from "~/metadata/forms/knownAnomalies"
+import {
+  findKnownDuplicateCommandBarButtonReference,
+  restoreKnownDuplicateCommandBarButtonIds,
+} from "~/metadata/forms/knownAnomalies"
 import { ElementXML, exportElementToXML, PropertyRule } from "~/metadata/orchestration"
 import { getElementXMLTagName } from "~/metadata/orchestration/formElement/ruleFactory"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
@@ -13,8 +16,14 @@ export const exportChildItemsToXML = <From extends ChildItem>(
 ): Record<From["itemType"], ElementXML>[] | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result = data.map((item) => {
-    const referenceElement = findReferenceElement(item, referenceData)
+  const result = data.map((item, index) => {
+    const referenceElement =
+      findKnownDuplicateCommandBarButtonReference({
+        currentXMLPath: context.exportToXML.context?.currentXMLPath,
+        items: data,
+        referenceItems: referenceData,
+        index,
+      }) ?? findReferenceElement(item, referenceData)
     const value = exportElementToXML({
       context: context,
       element: item,

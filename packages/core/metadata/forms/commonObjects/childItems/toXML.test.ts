@@ -24,7 +24,7 @@ describe("exportChildItemsToXML", () => {
     const context = mockContextToXML()
     context.exportToXML.context!.currentXMLPath = MASTER_SIMPLIFIED_CONNECTION_FORM
 
-    const result = exportChildItemsToXML(context, mockRule, [
+    const items = [
       {
         itemType: "CommandBarButton",
         name: "ЕстьКЭП",
@@ -49,7 +49,20 @@ describe("exportChildItemsToXML", () => {
         title: { items: { ru: "Нет КЭП" } },
         extendedTooltip: { name: "НетКЭПРасширеннаяПодсказка", title: { items: { ru: "Нет КЭП" } } },
       },
-    ])
+    ] as const
+    const referenceItems: Array<
+      (typeof items)[number] & {
+        id: string
+        extendedTooltip: NonNullable<(typeof items)[number]["extendedTooltip"]> & { id: string }
+      }
+    > = [
+      { ...items[0], id: "1823", extendedTooltip: { ...items[0].extendedTooltip, id: "1825" } },
+      { ...items[1], id: "1824", extendedTooltip: { ...items[1].extendedTooltip, id: "1826" } },
+      { ...items[2], id: "1314", extendedTooltip: { ...items[2].extendedTooltip, id: "1315" } },
+      { ...items[3], id: "1316", extendedTooltip: { ...items[3].extendedTooltip, id: "1317" } },
+    ]
+
+    const result = exportChildItemsToXML(context, mockRule, [...items], referenceItems)
 
     setIdsToElements(context)
 
