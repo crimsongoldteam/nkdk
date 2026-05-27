@@ -128,6 +128,14 @@ const mergeXMLItemWithReference = (params: {
   return item
 }
 
+const findReferenceRoleVisibilityByName = (params: {
+  referenceVisibility: Record<string, unknown> | undefined
+  roleName: string
+}): Record<string, unknown> | undefined =>
+  toArray(params.referenceVisibility?.["xr:Value"])
+    .filter(isRecord)
+    .find((item) => getXMLName(item) === params.roleName)
+
 const getVisibilityXMLItemKey = (rule: PropertyRule): "Command" | "Subsystem" =>
   rule.xml === "SubsystemsVisibility" ? "Subsystem" : "Command"
 
@@ -200,10 +208,13 @@ const exportVisibilityMapToXML: ExportToXMLFunctionNew = ({ rule, value, referen
     const visibilityXML = copyUnknownXMLKeys(referenceVisibility, ["xr:Common", "xr:Value"])
     if (visibility.common !== undefined) visibilityXML["xr:Common"] = visibility.common
     if (visibility.roles !== undefined) {
-      const roles = Object.entries(visibility.roles).map(([roleName, roleVisibility]) => ({
-        _name: roleName,
-        "#text": roleVisibility,
-      }))
+      const roles = Object.entries(visibility.roles).map(([roleName, roleVisibility]) =>
+        mergeXMLItemWithReference({
+          referenceItem: findReferenceRoleVisibilityByName({ referenceVisibility, roleName }),
+          name: roleName,
+          knownValues: { "#text": roleVisibility },
+        })
+      )
       if (roles.length > 0) visibilityXML["xr:Value"] = roles
     }
     return mergeXMLItemWithReference({

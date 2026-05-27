@@ -126,6 +126,27 @@ describe("export RootCommandInterface to XML", () => {
     expect(result).toContain("<xr:Common>true</xr:Common>")
   })
 
+  it("preserves unknown role visibility XML details while updating known fields", () => {
+    const xmlString = `<?xml version="1.0" encoding="UTF-8"?>
+<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+\t<CommandsVisibility>
+\t\t<Command name="Catalog.Товары.StandardCommand.OpenList">
+\t\t\t<Visibility>
+\t\t\t\t<xr:Value name="Role.Администратор" custom="keep"><Extra>role</Extra>false</xr:Value>
+\t\t\t</Visibility>
+\t\t</Command>
+\t</CommandsVisibility>
+</CommandInterface>`
+
+    const result = roundTripRootCommandInterfaceThroughYAML(xmlString, (yaml) => {
+      yaml.ВидимостьКоманд["Catalog.Товары.StandardCommand.OpenList"].Роли!.Администратор = "Истина"
+    })
+
+    expect(result).toContain('<xr:Value custom="keep" name="Role.Администратор">')
+    expect(result).toContain("<Extra>role</Extra>")
+    expect(result).toContain("true")
+  })
+
   it("preserves unknown placement and order XML details while updating known fields", () => {
     const xmlString = `<?xml version="1.0" encoding="UTF-8"?>
 <CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
