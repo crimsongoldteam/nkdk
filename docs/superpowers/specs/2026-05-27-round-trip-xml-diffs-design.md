@@ -133,3 +133,53 @@ helper должен восстановить id только для извест
 - Не переводим `MinMaxValue` в строковый тип модели.
 - Не добавляем исключения по XML-путям документов.
 - Не меняем YAML-представление: YAML остаётся числовым и не обязан сохранять лексему `0,00`.
+
+## Решение 3: короткая XML-форма userSettingPresentation
+
+### Наблюдение
+
+В форме списка регистра сведений `ЖурналДействийКассира` XML short round-trip удаляет `dcsset:userSettingPresentation` у двух элементов `dcsset:dataParameters`:
+
+```diff
+ <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+   <dcscor:use>false</dcscor:use>
+   <dcscor:parameter>КонецПериода</dcscor:parameter>
+   <dcscor:value xsi:type="xs:dateTime">0001-01-01T00:00:00</dcscor:value>
+-  <dcsset:userSettingPresentation xsi:type="xs:string">по</dcsset:userSettingPresentation>
+ </dcscor:item>
+```
+
+Причина: `SettingsParameterValue.userSettingPresentation` сейчас импортируется через общий `I8nText`. Общий `I8nText` понимает форму с `v8:item`, но не понимает короткий XML-вариант `xsi:type="xs:string"` с текстом прямо в узле.
+
+### Принятое направление
+
+Не расширять общий `I8nText` для всех свойств. Поддержать короткую XML-форму локально в `SettingsParameterValue.userSettingPresentation`, потому что именно DCS settings допускают такой вариант в реальных XML.
+
+### Дизайн
+
+Для `SettingsParameterValue.userSettingPresentation` добавить отдельные helper'ы:
+
+- import:
+  - если XML содержит `v8:item`, использовать существующий `importI8nTextFromXML`;
+  - если XML содержит `_xsi:type: "xs:string"` и текст, импортировать в модель как `{ items: { ru: text } }`;
+  - при `forReference` сохранить скрытый признак, что исходная форма была `xs:string`.
+- export:
+  - если reference говорит, что исходная форма была `xs:string`, и текущее значение совпадает с reference, экспортировать короткую форму `xsi:type="xs:string"`;
+  - иначе использовать обычный `exportI8nTextToXML`.
+
+Модель и YAML остаются в форме `I8nText`; меняется только XML-preservation слой для конкретного DCS-поля.
+
+### Тестирование
+
+Нужны узкие тесты в `metadata/commonObjects/dataCompositionSystem/parameterValue`:
+
+- `fromXML` импортирует `userSettingPresentation xsi:type="xs:string"` в `I8nText`;
+- `toXML` сохраняет короткую `xs:string` форму из reference при неизменённом значении;
+- `toXML` использует обычную форму, если reference отсутствует или значение изменилось;
+- существующие тесты `SettingsParameterValue` и `DynamicList` остаются зелёными.
+
+### Не входит в решение
+
+- Не меняем общий контракт `I8nText`.
+- Не добавляем path-based whitelist для формы `ЖурналДействийКассира`.
+- Не меняем YAML-формат DCS-параметров.
