@@ -25,6 +25,7 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
     yaml,
     metadataRule,
     name,
+    source,
   })
 
   if (shortFormatResult) {
@@ -174,7 +175,12 @@ const getImportedValueOrSourceFallback = (params: {
 }
 
 const normalizeSourceFallbackValue = (rule: PropertyRule, sourceValue: any): any => {
-  if (rule.type === "SystemEnumeration" && sourceValue !== null && typeof sourceValue === "object" && !Array.isArray(sourceValue)) {
+  if (
+    rule.type === "SystemEnumeration" &&
+    sourceValue !== null &&
+    typeof sourceValue === "object" &&
+    !Array.isArray(sourceValue)
+  ) {
     const text = sourceValue["#text"]
     if (typeof text === "string") return text
   }
@@ -182,10 +188,7 @@ const normalizeSourceFallbackValue = (rule: PropertyRule, sourceValue: any): any
   return sourceValue
 }
 
-const shouldUseOnlyImportedMetadataDcsMetadataValue = (params: {
-  rule: PropertyRule
-  value: any
-}): boolean => {
+const shouldUseOnlyImportedMetadataDcsMetadataValue = (params: { rule: PropertyRule; value: any }): boolean => {
   const { rule, value } = params
 
   if (rule.type !== "MetadataDcsMetadataValue") return false
@@ -226,8 +229,9 @@ function handleShortFormatYAML<Type extends MetadataItemType>(params: {
   yaml: ToYAML<Type> | undefined
   metadataRule: MetadataItemRule
   name?: string
+  source?: ToMetadata<Type>
 }): ToMetadata<Type> | undefined {
-  const { context, yaml, metadataRule: metadataRule, name } = params
+  const { context, yaml, metadataRule: metadataRule, name, source } = params
 
   if (typeof yaml !== "string") {
     return undefined
@@ -253,7 +257,8 @@ function handleShortFormatYAML<Type extends MetadataItemType>(params: {
     name,
   })
 
-  const source = {
+  const shortFormatSource = {
+    ...source,
     itemType: metadataRule.itemType as Type,
     [propertyKey]: importedValue,
   } as ToMetadata<Type>
@@ -262,7 +267,7 @@ function handleShortFormatYAML<Type extends MetadataItemType>(params: {
     context,
     metadataRule: metadataRule,
     name,
-    source: source,
+    source: shortFormatSource,
     yaml: {},
   })
 }

@@ -23,4 +23,24 @@ describe("metadata register field YAML import", () => {
       type: { type: ["boolean"] },
     })
   })
+
+  it("keeps empty source synonym for short YAML register field", () => {
+    const result = importMetadataItemFromYAML({
+      context: mockContext,
+      rule: AccountingFlagRules,
+      name: "УдалитьОКТМО_КПП",
+      yaml: "Строка(21)",
+      source: {
+        itemType: AccountingFlagRules.itemType,
+        name: "УдалитьОКТМО_КПП",
+        synonym: { items: {} },
+      },
+    })
+
+    expect(result).toMatchObject({
+      itemType: AccountingFlagRules.itemType,
+      synonym: { items: {} },
+      type: { type: ["string"], stringQualifiers: { length: 21 } },
+    })
+  })
 })

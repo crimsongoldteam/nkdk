@@ -71,6 +71,7 @@
 Реализация:
 
 - в `packages/core/metadata/commonObjects/metadataRegisterField/rules.ts` для `synonym.defaultValue` добавлена ветка `operation === "importFromYAML"`, которая восстанавливает синоним из имени через `addDefaultLanguageNameToSynonym`;
+- в short YAML-формате сохранена передача `source`, чтобы поля с исходным пустым `<Synonym/>` не получали сгенерированный синоним при синхронизации с reference;
 - добавлен точечный тест `packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts`.
 
 Проверка:
@@ -80,7 +81,7 @@
 
 Фактическая проверка:
 
-- `pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/metadataRegisterField/fromYAML.test.ts metadata/appliedObjects/metadataCommonCommand/fromXML.test.ts metadata/appliedObjects/metadataCommonCommand/fromYAML.test.ts metadata/appliedObjects/metadataCommonCommand/syncToXML.test.ts` — пройдено, `7` тестов.
+- `pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/metadataRegisterField/fromYAML.test.ts metadata/appliedObjects/configuration/migrations/paths.test.ts metadata/appliedObjects/metadataCommonCommand/fromXML.test.ts metadata/appliedObjects/metadataCommonCommand/fromYAML.test.ts metadata/appliedObjects/metadataCommonCommand/syncToXML.test.ts` — пройдено, `26` тестов.
 
 Статус: реализовано, точечные тесты пройдены.
 
