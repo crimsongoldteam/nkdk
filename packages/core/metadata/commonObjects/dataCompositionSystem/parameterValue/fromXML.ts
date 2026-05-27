@@ -1,9 +1,9 @@
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
+import { importUserSettingPresentationFromXML } from "./userSettingPresentationXML"
 import type {
   ParameterValue,
   ParameterValueXML,
@@ -69,9 +69,8 @@ export const importParameterValueFromDcsXML = (
       ...(sx["dcsset:userSettingID"] !== undefined ? { userSettingID: sx["dcsset:userSettingID"] } : {}),
       ...(sx["dcsset:userSettingPresentation"] !== undefined
         ? {
-            userSettingPresentation: importI8nTextFromXML(
+            userSettingPresentation: importUserSettingPresentationFromXML(
               context,
-              { type: "I8nText" },
               sx["dcsset:userSettingPresentation"]
             ),
           }

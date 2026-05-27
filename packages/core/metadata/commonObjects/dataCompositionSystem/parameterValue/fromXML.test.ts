@@ -41,4 +41,20 @@ describe("importParameterValueFromXML", () => {
       __referenceNilValue: true,
     })
   })
+
+  it("imports userSettingPresentation xs:string as I8nText", () => {
+    expect(
+      testImportPropertyFromXML({
+        rule: { type: "SettingsParameterValue", valueType: "string", yaml: "Период" },
+        xmlRootTag: "dcscor:item",
+        xmlString: `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:parameter>Период</dcscor:parameter>
+	<dcsset:userSettingPresentation xsi:type="xs:string">Период с</dcsset:userSettingPresentation>
+</dcscor:item>`,
+      })
+    ).toEqual({
+      parameter: "Период",
+      userSettingPresentation: { items: { ru: "Период с" } },
+    })
+  })
 })

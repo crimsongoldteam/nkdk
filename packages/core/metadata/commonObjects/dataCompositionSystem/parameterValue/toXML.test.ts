@@ -93,4 +93,55 @@ describe("exportParameterValueToDcsXML", () => {
     expect(result).toContain('<dcscor:value xsi:type="xs:string"/>')
     expect(result).not.toContain('xsi:type="dcscor:Field"')
   })
+
+  it("preserves userSettingPresentation xs:string from unchanged reference", () => {
+    const reference = testImportPropertyFromXML({
+      rule: { type: "SettingsParameterValue", valueType: "string", yaml: "Период" },
+      xmlRootTag: "dcscor:item",
+      xmlString: `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:parameter>Период</dcscor:parameter>
+	<dcsset:userSettingPresentation xsi:type="xs:string">по</dcsset:userSettingPresentation>
+</dcscor:item>`,
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule: { type: "SettingsParameterValue", valueType: "string", yaml: "Период" },
+      value: {
+        parameter: "Период",
+        userSettingPresentation: { items: { ru: "по" } },
+      },
+      xmlRootTag: "dcscor:item",
+      referenceMetadata: reference,
+    })
+
+    expect(result).toContain('<dcsset:userSettingPresentation xsi:type="xs:string">по</dcsset:userSettingPresentation>')
+  })
+
+  it("exports userSettingPresentation as regular I8nText when reference value changed", () => {
+    const reference = testImportPropertyFromXML({
+      rule: { type: "SettingsParameterValue", valueType: "string", yaml: "Период" },
+      xmlRootTag: "dcscor:item",
+      xmlString: `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:parameter>Период</dcscor:parameter>
+	<dcsset:userSettingPresentation xsi:type="xs:string">по</dcsset:userSettingPresentation>
+</dcscor:item>`,
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule: { type: "SettingsParameterValue", valueType: "string", yaml: "Период" },
+      value: {
+        parameter: "Период",
+        userSettingPresentation: { items: { ru: "после" } },
+      },
+      xmlRootTag: "dcscor:item",
+      referenceMetadata: reference,
+    })
+
+    expect(result).toContain("<dcsset:userSettingPresentation>")
+    expect(result).toContain("<v8:lang>ru</v8:lang>")
+    expect(result).toContain("<v8:content>после</v8:content>")
+    expect(result).not.toContain('<dcsset:userSettingPresentation xsi:type="xs:string">')
+  })
 })
