@@ -146,4 +146,28 @@ describe("known form XML anomalies", () => {
       })
     ).toEqual({ itemType: "CommandBarButton", name: "ЕстьКЭП", id: "1314" })
   })
+
+  it("finds duplicate CommandBarButton reference by the known reference id sequence", () => {
+    const items = [
+      { itemType: "CommandBarButton", name: "ЕстьКЭП" },
+      { itemType: "CommandBarButton", name: "НетКЭП" },
+      { itemType: "CommandBarButton", name: "ЕстьКЭП" },
+      { itemType: "CommandBarButton", name: "НетКЭП" },
+    ]
+    const referenceItems = [
+      { itemType: "CommandBarButton", name: "ЕстьКЭП", id: "1823" },
+      { itemType: "CommandBarButton", name: "НетКЭП", id: "1824" },
+      { itemType: "CommandBarButton", name: "ЕстьКЭП", id: "1314" },
+      { itemType: "CommandBarButton", name: "НетКЭП", id: "1316" },
+    ]
+
+    expect(
+      findKnownDuplicateCommandBarButtonReference({
+        currentXMLPath: undefined,
+        items,
+        referenceItems,
+        index: 3,
+      })
+    ).toEqual({ itemType: "CommandBarButton", name: "НетКЭП", id: "1316" })
+  })
 })

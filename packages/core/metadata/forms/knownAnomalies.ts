@@ -72,8 +72,13 @@ export const findKnownDuplicateCommandBarButtonReference = <Item extends { itemT
   index: number
 }): Item | undefined => {
   const { currentXMLPath, items, referenceItems, index } = params
-  if (!isKnownXMLPath(currentXMLPath, MASTER_SIMPLIFIED_CONNECTION_FORM)) return undefined
   if (referenceItems === undefined) return undefined
+  if (
+    !isKnownXMLPath(currentXMLPath, MASTER_SIMPLIFIED_CONNECTION_FORM) &&
+    !isKnownMasterButtonReferenceSequence(referenceItems)
+  ) {
+    return undefined
+  }
   if (!isKnownMasterButtonDataSequence(items)) return undefined
   if (!isKnownMasterButtonDataSequence(referenceItems)) return undefined
 
@@ -96,6 +101,16 @@ const isKnownMasterButtonDataSequence = <Item extends { itemType?: string; name?
 
   return items.every((item, index) => {
     return item.itemType === "CommandBarButton" && item.name === KNOWN_MASTER_BUTTON_IDS[index].name
+  })
+}
+
+const isKnownMasterButtonReferenceSequence = <Item extends { itemType?: string; name?: string }>(
+  items: readonly Item[]
+): boolean => {
+  if (!isKnownMasterButtonDataSequence(items)) return false
+
+  return items.every((item, index) => {
+    return (item as Record<string, unknown>).id === KNOWN_MASTER_BUTTON_IDS[index].buttonId
   })
 }
 
