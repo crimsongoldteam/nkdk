@@ -50,16 +50,30 @@
 
 `AccountingFlagRules` и `ExtDimensionAccountingFlagRules` наследуют `synonym` из `commonRegisterFieldProperties`. Там включено `excludeIfEqualNameYAML: true`, поэтому YAML может не сохранять синоним, совпадающий с именем, а обратный экспорт не всегда восстанавливает исходный текст.
 
-Планируемое направление:
+Разбор:
 
-Проверить, должна ли эта экономия YAML применяться к признакам учета плана счетов. Если для `AccountingFlag` и `ExtDimensionAccountingFlag` нужно сохранять точный `Synonym`, переопределить поведение локально в `packages/core/metadata/commonObjects/accountingFlag/rules.ts`, не ломая остальные регистровые поля.
+Сам механизм `excludeIfEqualNameYAML` уже используется в других объектах. Для `metadataAttribute` и `metadataTabularSection` рядом с ним есть `defaultValue` на `importFromYAML`, который восстанавливает синоним из имени через `addDefaultLanguageNameToSynonym(context, undefined, name)`.
+
+В `commonRegisterFieldProperties.synonym` такой связки нет: правило умеет исключить равный имени синоним из YAML, но при YAML -> модель получает пустой `emptySynonym`, а не восстановленный синоним.
+
+Рассмотренные варианты:
+
+- (А) повторить существующий паттерн восстановления в `commonRegisterFieldProperties.synonym`;
+- (Б) сделать такое восстановление только в `AccountingFlagRules`;
+- (В) отключить `excludeIfEqualNameYAML`.
+
+Выбранное решение:
+
+(А) Повторить существующий паттерн в общем правиле регистровых полей. Это сохраняет компактный YAML и чинит именно нарушенную пару операций: если YAML-экспорт исключил синоним как равный имени, YAML-импорт должен восстановить его из `name`.
+
+Решение должно затронуть `packages/core/metadata/commonObjects/metadataRegisterField/rules.ts`, а не локально `accountingFlag/rules.ts`, потому что проблема находится в общем правиле, унаследованном `AccountingFlag` / `ExtDimensionAccountingFlag`.
 
 Проверка:
 
 - точечный тест на XML/YAML round-trip для признаков учета;
 - повторный `round-trip-yaml` triage для подтверждения, что diff `1` исчез или изменился ожидаемо.
 
-Статус: ожидает реализации.
+Статус: решение согласовано, реализация не начата.
 
 ## Решение 2: CommonCommand
 
@@ -116,5 +130,5 @@
 
 ## Принятые уточнения
 
-- Поведение `Synonym` меняется только для `AccountingFlag` и `ExtDimensionAccountingFlag`, потому что первый diff относится именно к этим типам. Общие регистровые поля остаются без изменений, пока отдельный diff не покажет необходимость расширить правило.
+- Для diff `1` выбран общий паттерн восстановления `Synonym` в `commonRegisterFieldProperties`, по аналогии с `metadataAttribute` и `metadataTabularSection`. Локальное отключение `excludeIfEqualNameYAML` для `AccountingFlag` отклонено как менее точное.
 - YAML-каталог корневой общей команды называется `ОбщаяКоманда`, потому что такое имя уже используется в ссылках `CommonCommand -> ОбщаяКоманда`.
