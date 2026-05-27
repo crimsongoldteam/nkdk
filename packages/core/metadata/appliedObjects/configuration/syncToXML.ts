@@ -30,6 +30,7 @@ import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 // TODO: вынести в настройки расширения
 const IO_CONCURRENCY = 16
+const ROOT_EXTERNAL_XML_DIR = "Ext"
 
 export const syncConfigurationToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -154,7 +155,7 @@ export const syncConfigurationToXML = async (params: {
   if (batchResult.failed.length === 0) {
     await pruneXmlByManifest({
       xmlRoot: outputDir,
-      xmlDirs: TopLevelMetadataItemRules.flatMap((rule) => rule.xmlDir ? [rule.xmlDir] : []),
+      xmlDirs: [ROOT_EXTERNAL_XML_DIR, ...TopLevelMetadataItemRules.flatMap((rule) => rule.xmlDir ? [rule.xmlDir] : [])],
       expectedFiles: xmlManifest.expectedFiles(),
     })
     if (!hasRootYAML) {

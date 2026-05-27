@@ -124,14 +124,51 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("удаляет старые корневые внешние файлы, которых нет в YAML", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-prune-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    const sessionModule = "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n"
+
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.mkdirSync(join(outDir, "Ext", "Splash"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(join(yamlDir, "МодульСеанса.bsl"), sessionModule, "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"), "old", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "SessionModule.bsl"), "old", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
+      fs.writeFileSync(join(outDir, "Ext", "Splash.xml"), "<OldSplash/>", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(fs.existsSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"))).toBe(false)
+      expect(fs.readFileSync(join(outDir, "Ext", "SessionModule.bsl"), "utf-8")).toBe(sessionModule)
+      expect(fs.existsSync(join(outDir, "Ext", "MobileClientSignature.bin"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "Splash.xml"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "Splash", "Picture.png"))).toBe(false)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("удаляет старый корневой Configuration.xml, если Конфигурация.yaml отсутствует", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-prune-"))
     const yamlDir = join(tmp, "yaml")
     const outDir = join(tmp, "out")
     try {
       fs.mkdirSync(yamlDir, { recursive: true })
-      fs.mkdirSync(outDir, { recursive: true })
+      fs.mkdirSync(join(outDir, "Ext", "Splash"), { recursive: true })
       fs.writeFileSync(join(outDir, CONFIGURATION_XML_FILE), "<MetaDataObject/>", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"), "old", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
+      fs.writeFileSync(join(outDir, "Ext", "Splash.xml"), "<OldSplash/>", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
 
       await syncConfigurationToXML({
         context: mockContextToXML(),
@@ -141,6 +178,10 @@ describe("sync configuration to XML", () => {
       })
 
       expect(fs.existsSync(join(outDir, CONFIGURATION_XML_FILE))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "MobileClientSignature.bin"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "Splash.xml"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "Splash", "Picture.png"))).toBe(false)
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
