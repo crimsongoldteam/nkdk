@@ -172,6 +172,70 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("восстанавливает корневой ClientApplicationInterface.xml из Конфигурация.yaml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-client-interface-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.writeFileSync(
+        join(yamlDir, CONFIGURATION_YAML_FILE),
+        [
+          "Имя: Конфигурация",
+          "ИнтерфейсКлиентскогоПриложения:",
+          "  Верх:",
+          "    - Панель: ПанельФункцийТекущегоРаздела",
+          "    - Панель: ПанельОткрытых",
+          "    - Панель: СтандартнаяПанель",
+          "  Лево:",
+          "    - Панель:",
+          "        Имя: ПанельИстории",
+          "        Высота: 1",
+          "        Представление: КартинкаСлеваИТекст",
+          "  Низ:",
+          "    - Панель: ПанельРазделов",
+          "",
+        ].join("\n"),
+        "utf-8",
+      )
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      const result = fs.readFileSync(join(outDir, "Ext", "ClientApplicationInterface.xml"), "utf-8")
+      expect(result).toContain("<ClientApplicationInterface")
+      expect(result).toContain("<top>")
+      expect(result).toContain("<uuid>c933ac92-92cd-459d-81cc-e0c8a83ced99</uuid>")
+      expect(result).toContain("<height>1</height>")
+      expect(result).toContain("<spr>PictureOnLeftAndText</spr>")
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("не создаёт ClientApplicationInterface.xml для чистой конфигурации без YAML-ключа", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-client-interface-clean-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(fs.existsSync(join(outDir, "Ext", "ClientApplicationInterface.xml"))).toBe(false)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("удаляет старые корневые внешние файлы, которых нет в YAML", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-prune-"))
     const yamlDir = join(tmp, "yaml")

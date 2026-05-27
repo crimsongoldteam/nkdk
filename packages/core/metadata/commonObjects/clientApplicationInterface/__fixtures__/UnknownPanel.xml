@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+	<right>
+		<panel id="right-custom" customAttribute="keep">
+			<uuid>aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee</uuid>
+			<name>НестандартнаяПанель</name>
+			<UnknownPanelChild>keep panel</UnknownPanelChild>
+		</panel>
+	</right>
+	<panelDef id="aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee" customDefAttribute="keep">
+		<spr>PictureOnLeftAndText</spr>
+		<UnknownPanelDefChild>keep def</UnknownPanelDefChild>
+	</panelDef>
+</ClientApplicationInterface>

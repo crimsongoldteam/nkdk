@@ -11,6 +11,10 @@ describe("sync configuration from xml", () => {
   const inputDir = join(__dirname, "../../../tests/fixtures/sync/syncConfiguration/xml")
   const outputDir = join(__dirname, "../../../tests/fixtures/sync/syncConfiguration/out")
   const rootCommandInterfaceFixturesDir = join(__dirname, "../../commonObjects/rootCommandInterface/__fixtures__")
+  const clientApplicationInterfaceFixturesDir = join(
+    __dirname,
+    "../../commonObjects/clientApplicationInterface/__fixtures__"
+  )
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {
@@ -135,6 +139,38 @@ describe("sync configuration from xml", () => {
       expect(yaml).toContain("КомандныйИнтерфейсОсновногоРаздела:")
       expect(yaml).toContain("ПорядокГрупп:")
       expect(yaml).toContain("ПанельНавигацииВажное")
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("импортирует корневой ClientApplicationInterface.xml в Конфигурация.yaml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-client-interface-from-xml-"))
+    const rootInput = join(tmp, "xml")
+    const rootOutput = join(tmp, "yaml")
+    try {
+      fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
+      fs.copyFileSync(
+        join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
+        join(rootInput, CONFIGURATION_XML_FILE)
+      )
+      fs.copyFileSync(
+        join(clientApplicationInterfaceFixturesDir, "ClientApplicationInterface.xml"),
+        join(rootInput, "Ext", "ClientApplicationInterface.xml")
+      )
+
+      await syncConfigurationFromXML({
+        context: mockContextFromXML(),
+        inputDir: rootInput,
+        outputDir: rootOutput,
+      })
+
+      const yaml = fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")
+      expect(yaml).toContain("ИнтерфейсКлиентскогоПриложения:")
+      expect(yaml).toContain("Верх:")
+      expect(yaml).toContain("ПанельФункцийТекущегоРаздела")
+      expect(yaml).toContain("Представление: КартинкаСлеваИТекст")
+      expect(yaml).not.toContain("left-history")
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }

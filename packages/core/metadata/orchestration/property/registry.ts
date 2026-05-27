@@ -476,6 +476,13 @@ import {
   RootCommandInterface,
   RootCommandInterfaceYAML,
 } from "~/metadata/commonObjects/rootCommandInterface/types"
+import {
+  ClientApplicationInterface,
+  ClientApplicationInterfaceItems,
+  ClientApplicationInterfaceItemsYAML,
+  ClientApplicationInterfacePanelDefs,
+  ClientApplicationInterfaceYAML,
+} from "~/metadata/commonObjects/clientApplicationInterface/types"
 import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/commandSet/types"
 import { DataPath } from "~/metadata/forms/commonObjects/dataPath/types"
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
@@ -1232,6 +1239,10 @@ export type PropertyTypeRegistry = {
     item: RootCommandInterface
     yaml: RootCommandInterfaceYAML
   }
+  ClientApplicationInterface: {
+    item: ClientApplicationInterface
+    yaml: ClientApplicationInterfaceYAML
+  }
   CommandInterfaceVisibilityMap: {
     item: CommandInterfaceVisibilityMap
     yaml: CommandInterfaceVisibilityMapYAML
@@ -1247,6 +1258,14 @@ export type PropertyTypeRegistry = {
   CommandInterfaceCommandGroups: {
     item: CommandInterfaceCommandGroups
     yaml: CommandInterfaceCommandGroupsYAML
+  }
+  ClientApplicationInterfaceItems: {
+    item: ClientApplicationInterfaceItems
+    yaml: ClientApplicationInterfaceItemsYAML
+  }
+  ClientApplicationInterfacePanelDefs: {
+    item: ClientApplicationInterfacePanelDefs
+    yaml: never
   }
   InternalInfo: {
     item: InternalInfo
@@ -1735,10 +1754,13 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataSequenceDimensions: "MetadataSequenceDimensions",
   CommandInterface: "CommandInterface",
   RootCommandInterface: "RootCommandInterface",
+  ClientApplicationInterface: "ClientApplicationInterface",
   CommandInterfaceVisibilityMap: "CommandInterfaceVisibilityMap",
   CommandInterfacePlacementMap: "CommandInterfacePlacementMap",
   CommandInterfaceOrder: "CommandInterfaceOrder",
   CommandInterfaceCommandGroups: "CommandInterfaceCommandGroups",
+  ClientApplicationInterfaceItems: "ClientApplicationInterfaceItems",
+  ClientApplicationInterfacePanelDefs: "ClientApplicationInterfacePanelDefs",
   ContextMenu: "ContextMenu",
   ExtendedTooltip: "ExtendedTooltip",
   SingleSearchControlAddition: "SingleSearchControlAddition",

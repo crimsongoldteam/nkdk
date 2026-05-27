@@ -1,4 +1,5 @@
 import "./usedMobileApplicationFunctionalities"
+import "~/metadata/commonObjects/clientApplicationInterface/register"
 import "~/metadata/commonObjects/rootCommandInterface/register"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
@@ -328,6 +329,11 @@ export const MetadataConfigurationRules = {
       yaml: "КомандныйИнтерфейсОсновногоРаздела",
       type: "RootCommandInterface",
       filePath: "Ext/MainSectionCommandInterface.xml",
+    },
+    clientApplicationInterface: {
+      yaml: "ИнтерфейсКлиентскогоПриложения",
+      type: "ClientApplicationInterface",
+      filePath: "Ext/ClientApplicationInterface.xml",
     },
     mobileClientSignature: {
       type: "ExternalFile",

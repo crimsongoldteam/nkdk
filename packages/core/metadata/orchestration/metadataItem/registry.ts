@@ -307,6 +307,10 @@ import {
   CommandInterfaceItemYAML,
   CommandInterfaceYAML,
 } from "../../forms/commonObjects/commandInterface/types"
+import {
+  ClientApplicationInterface,
+  ClientApplicationInterfaceYAML,
+} from "../../commonObjects/clientApplicationInterface/types"
 import { RootCommandInterface, RootCommandInterfaceYAML } from "../../commonObjects/rootCommandInterface/types"
 import {
   FormAttribute,
@@ -773,6 +777,11 @@ export type MetadataItemTypeRegistry = {
   RootCommandInterface: {
     metadata: RootCommandInterface
     yaml: RootCommandInterfaceYAML
+  }
+
+  ClientApplicationInterface: {
+    metadata: ClientApplicationInterface
+    yaml: ClientApplicationInterfaceYAML
   }
 
   MetadataAttribute: {
