@@ -17,4 +17,30 @@ describe("export MetadataRegisterResources to XML", () => {
 
     expect(result).toEqual(expectedResult)
   })
+
+  it("preserves reference empty Synonym when current synonym is generated from name", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        {
+          itemType: "MetadataRegisterResource",
+          name: "Содержание",
+          synonym: { items: { ru: "Содержание" } },
+          type: { type: ["string"], stringQualifiers: { length: 100, allowedLength: "Variable" } },
+        },
+      ],
+      xmlRootTag: "Resource",
+      referenceMetadata: [
+        {
+          itemType: "MetadataRegisterResource",
+          name: "Содержание",
+          synonym: { items: {} },
+          type: { type: ["string"], stringQualifiers: { length: 100, allowedLength: "Variable" } },
+        },
+      ],
+    })
+
+    expect(result).toContain("<Synonym/>")
+    expect(result).not.toContain("<v8:item>")
+  })
 })
