@@ -11,15 +11,14 @@ describe("import RootCommandInterface from YAML", () => {
       context: mockContext,
       rule: RootCommandInterfaceRules,
       yaml: {
-        ВидимостьПодсистем: [
-          {
-            Команда: "Subsystem.ПодсистемаПоУмолчанию",
+        ВидимостьПодсистем: {
+          "Subsystem.ПодсистемаПоУмолчанию": {
             Общее: "Ложь",
             Роли: {
               Администратор: "Ложь",
             },
           },
-        ],
+        },
         ПорядокПодсистем: ["Subsystem.ПодсистемаПоУмолчанию"],
         ВидимостьКоманд: [
           {
