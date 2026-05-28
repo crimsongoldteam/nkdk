@@ -171,22 +171,48 @@ is_known_acceptable_yaml_diff() {
     return 1
   fi
 
-  printf '%s\n' "${diff_text}" | grep -Eq '^-.*<Button name="ЕстьКЭП" id="1314">' || return 1
-  printf '%s\n' "${diff_text}" | grep -Eq '^-.*<Button name="НетКЭП" id="1316">' || return 1
-  if printf '%s\n' "${diff_text}" | awk 'substr($0, 1, 1) == "+" && substr($0, 1, 3) != "+++" { found = 1 } END { exit found ? 0 : 1 }'; then
-    return 1
-  fi
-  if printf '%s\n' "${diff_text}" | awk '
-    substr($0, 1, 1) == "-" && substr($0, 1, 3) != "---" {
-      if ($0 ~ /<Button name="ЕстьКЭП" id="1314">/) {
-        next
-      }
-      if ($0 ~ /<Button name="НетКЭП" id="1316">/) {
-        next
-      }
-      found = 1
+  if ! printf '%s\n' "${diff_text}" | awk '
+    function is_real_add(line) {
+      return substr(line, 1, 1) == "+" && substr(line, 1, 3) != "+++"
     }
-    END { exit found ? 0 : 1 }
+    function is_real_delete(line) {
+      return substr(line, 1, 1) == "-" && substr(line, 1, 3) != "---"
+    }
+    function closes_button(line) {
+      return line ~ /<\/Button>/ || line ~ /\/>[[:space:]]*$/
+    }
+    function enter_button(line) {
+      if (line ~ /<Button name="ЕстьКЭП" id="1314"/) {
+        seen_yes = 1
+        return "yes"
+      }
+      if (line ~ /<Button name="НетКЭП" id="1316"/) {
+        seen_no = 1
+        return "no"
+      }
+      return ""
+    }
+    is_real_add($0) {
+      invalid = 1
+      next
+    }
+    is_real_delete($0) {
+      text = substr($0, 2)
+      if (inside != "") {
+        if (closes_button(text)) inside = ""
+        next
+      }
+
+      inside = enter_button(text)
+      if (inside == "") {
+        invalid = 1
+        next
+      }
+      if (closes_button(text)) inside = ""
+    }
+    END {
+      exit invalid || inside != "" || !seen_yes || !seen_no ? 1 : 0
+    }
   '; then
     return 1
   fi
