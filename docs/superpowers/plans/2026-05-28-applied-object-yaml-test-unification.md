@@ -749,17 +749,7 @@ git commit -m "test: :white_check_mark: убрать дубли YAML-тесто�
 **Files:**
 - No planned source edits.
 
-- [ ] **Step 1: Generate Langium files if needed**
-
-Run from repository root:
-
-```bash
-pnpm --filter nkdk-language langium:generate
-```
-
-Expected: command succeeds. If it changes generated files, include those files only if they are expected generated outputs for the current branch.
-
-- [ ] **Step 2: Run full test suite**
+- [ ] **Step 1: Run full test suite**
 
 Run:
 
@@ -769,7 +759,7 @@ pnpm test
 
 Expected: all package tests pass.
 
-- [ ] **Step 3: Inspect final status**
+- [ ] **Step 2: Inspect final status**
 
 Run:
 
@@ -779,7 +769,7 @@ git status --short
 
 Expected: clean working tree after commits, or only expected generated files staged/committed.
 
-- [ ] **Step 4: Summarize coverage**
+- [ ] **Step 3: Summarize coverage**
 
 In the final response, list:
 
