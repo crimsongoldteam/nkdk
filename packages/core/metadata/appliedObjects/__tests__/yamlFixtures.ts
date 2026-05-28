@@ -1,0 +1,68 @@
+import type { MetadataItemRule } from "~/metadata/orchestration"
+import { MetadataAccumulationRegisterRules } from "../metadataAccumulationRegister/rules"
+import { readAccumulationRegisterYAML } from "../metadataAccumulationRegister/__fixtures__/sync/data"
+import { MetadataInformationRegisterRules } from "../metadataInformationRegister/rules"
+import { readInformationRegisterYAML } from "../metadataInformationRegister/__fixtures__/sync/data"
+
+export type AppliedObjectModelFixture = {
+  fixture: string
+  name: string
+}
+
+export type AppliedObjectSyncFixture = {
+  name: string
+  expectedYAML: string
+  externalObjectDir?: boolean
+}
+
+export type AppliedObjectYAMLFixture = {
+  group: string
+  rule: MetadataItemRule
+  importMetaUrl: string
+  modelFixtures: AppliedObjectModelFixture[]
+  sync?: AppliedObjectSyncFixture
+}
+
+export const appliedObjectYAMLFixtures = [
+  {
+    group: "metadataAccumulationRegister",
+    rule: MetadataAccumulationRegisterRules,
+    importMetaUrl: import.meta.resolve("../metadataAccumulationRegister/rules.ts"),
+    modelFixtures: [
+      { fixture: "full.xml", name: "РегистрНакопленияВсеСвойстваОбороты" },
+      { fixture: "minimal.xml", name: "РегистрНакопленияПоУмолчанию" },
+    ],
+    sync: {
+      name: "РегистрНакопленияВсеСвойстваОбороты",
+      expectedYAML: readAccumulationRegisterYAML,
+      externalObjectDir: true,
+    },
+  },
+  {
+    group: "metadataInformationRegister",
+    rule: MetadataInformationRegisterRules,
+    importMetaUrl: import.meta.resolve("../metadataInformationRegister/rules.ts"),
+    modelFixtures: [
+      { fixture: "full.xml", name: "РегистрСведенийВсеСвойстваНезависимый" },
+      { fixture: "minimal.xml", name: "РегистрСведенийПоУмолчанию" },
+      { fixture: "reg.xml", name: "РегистрСведенийПодчиненРегистратору" },
+    ],
+    sync: {
+      name: "РегистрСведенийВсеСвойстваНезависимый",
+      expectedYAML: readInformationRegisterYAML,
+      externalObjectDir: true,
+    },
+  },
+] as const satisfies AppliedObjectYAMLFixture[]
+
+export const appliedObjectModelCases = appliedObjectYAMLFixtures.flatMap((scenario) =>
+  scenario.modelFixtures.map((fixture) => ({
+    label: `${scenario.group}/${fixture.fixture}`,
+    scenario,
+    fixture,
+  }))
+)
+
+export const appliedObjectSyncCases = appliedObjectYAMLFixtures.flatMap((scenario) =>
+  scenario.sync === undefined ? [] : [{ label: scenario.group, scenario, sync: scenario.sync }]
+)
