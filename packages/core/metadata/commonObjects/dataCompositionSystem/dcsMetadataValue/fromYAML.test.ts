@@ -29,6 +29,15 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
     })
   })
 
+  it("imports beginning date string as Field value dateTime", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "Field", yaml: "value" },
+        value: "01.01.0001 00:00:00",
+      })
+    ).toEqual({ type: "dateTime", value: "0001-01-01T00:00:00" })
+  })
+
   it("preserves source empty LocalStringType when YAML value is undefined", () => {
     const sourceValue = { items: {} }
 

@@ -30,6 +30,19 @@ describe("export MetadataDcsMetadataValue to XML", () => {
     })
   })
 
+  it("exports Field value dateTime as xs:dateTime", () => {
+    expect(
+      exportDcsMetadataValueToXML(
+        mockContextToXML(),
+        { type: "MetadataDcsMetadataValue", valueType: "Field", yaml: "value" },
+        { type: "dateTime", value: "0001-01-01T00:00:00" }
+      )
+    ).toEqual({
+      "_xsi:type": "xs:dateTime",
+      "#text": "0001-01-01T00:00:00",
+    })
+  })
+
   it("exports preserved empty LocalStringType as empty typed XML", () => {
     expect(
       exportDcsMetadataValueToXML(
