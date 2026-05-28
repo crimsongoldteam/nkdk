@@ -17,6 +17,8 @@ const rootSegmentToDump = new Map(
     .filter((entry): entry is readonly [string, string] => entry[1] !== undefined),
 )
 
+const rootDumpSegments = new Set(rootSegmentToDump.values())
+
 export function configDumpInfoNameFromMigrationPath(path: string): string {
   const parts = path.split(".")
   const [rootSegment, rootName, ...tail] = parts
@@ -40,6 +42,10 @@ export function configDumpInfoNameFromMigrationPath(path: string): string {
   }
 
   return dumpParts.join(".")
+}
+
+export function isManagedConfigDumpInfoRootSegment(segment: string): boolean {
+  return rootDumpSegments.has(segment)
 }
 
 function getXMLRootContainer(rule: MetadataItemRule): string | undefined {

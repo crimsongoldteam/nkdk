@@ -76,6 +76,105 @@ describe("buildConfigDumpInfo", () => {
     })
   })
 
+  it("сохраняет порядок reference-записей и добавляет новые объекты в конец", () => {
+    const reference: ConfigDumpInfo = new Map([
+      [
+        "Catalog.Второй",
+        {
+          id: "second-id",
+          configVersion: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          children: new Map(),
+        },
+      ],
+      [
+        "Catalog.Первый",
+        {
+          id: "first-id",
+          configVersion: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          children: new Map(),
+        },
+      ],
+    ])
+
+    const result = buildConfigDumpInfo({
+      reference,
+      yamlState: state(["Справочник.Первый", "Справочник.Второй", "Справочник.Третий"]),
+      migrationState: state(["Справочник.Первый", "Справочник.Второй", "Справочник.Третий"]),
+      referencePathByCurrentPath: new Map(),
+      generators: { id: () => "new-id", configVersion: () => "cccccccccccccccccccccccccccccccccccccccc" },
+    })
+
+    expect([...result.keys()]).toEqual(["Catalog.Второй", "Catalog.Первый", "Catalog.Третий"])
+  })
+
+  it("сохраняет порядок дочерних reference-записей и добавляет новые в конец", () => {
+    const reference: ConfigDumpInfo = new Map([
+      [
+        "Catalog.Товары",
+        {
+          id: "catalog-id",
+          configVersion: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          children: new Map([
+            ["Catalog.Товары.Attribute.Второй", "second-id"],
+            ["Catalog.Товары.Attribute.Первый", "first-id"],
+          ]),
+        },
+      ],
+    ])
+
+    const result = buildConfigDumpInfo({
+      reference,
+      yamlState: state([
+        "Справочник.Товары",
+        "Справочник.Товары.Реквизит.Первый",
+        "Справочник.Товары.Реквизит.Второй",
+        "Справочник.Товары.Реквизит.Третий",
+      ]),
+      migrationState: state([
+        "Справочник.Товары",
+        "Справочник.Товары.Реквизит.Первый",
+        "Справочник.Товары.Реквизит.Второй",
+        "Справочник.Товары.Реквизит.Третий",
+      ]),
+      referencePathByCurrentPath: new Map(),
+      generators: { id: () => "new-id", configVersion: () => "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
+    })
+
+    expect([...(result.get("Catalog.Товары")?.children.keys() ?? [])]).toEqual([
+      "Catalog.Товары.Attribute.Второй",
+      "Catalog.Товары.Attribute.Первый",
+      "Catalog.Товары.Attribute.Третий",
+    ])
+  })
+
+  it("сохраняет неподдерживаемые дочерние reference-записи живого владельца", () => {
+    const reference: ConfigDumpInfo = new Map([
+      [
+        "Catalog.Товары",
+        {
+          id: "catalog-id",
+          configVersion: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          children: new Map([
+            ["Catalog.Товары.Attribute.Старый", "old-attribute-id"],
+            ["Catalog.Товары.Command.Открыть", "command-id"],
+          ]),
+        },
+      ],
+    ])
+
+    const result = buildConfigDumpInfo({
+      reference,
+      yamlState: state(["Справочник.Номенклатура"]),
+      migrationState: state(["Справочник.Номенклатура"]),
+      referencePathByCurrentPath: new Map([["Справочник.Номенклатура", "Справочник.Товары"]]),
+      generators: { id: () => "new-id", configVersion: () => "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
+    })
+
+    expect(result.get("Catalog.Номенклатура")?.children).toEqual(
+      new Map([["Catalog.Номенклатура.Command.Открыть", "command-id"]]),
+    )
+  })
+
   it("создаёт новые id/configVersion только для новых записей", () => {
     let idCounter = 0
     const result = buildConfigDumpInfo({
@@ -223,6 +322,48 @@ describe("buildConfigDumpInfo", () => {
     })
 
     expect(result.size).toBe(0)
+  })
+
+  it("сохраняет reference-only записи неуправляемого корня", () => {
+    const reference: ConfigDumpInfo = new Map([
+      [
+        "Configuration.БухгалтерияПредприятия",
+        {
+          id: "configuration-id",
+          configVersion: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          children: new Map(),
+        },
+      ],
+      [
+        "Catalog.Товары",
+        {
+          id: "catalog-id",
+          configVersion: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          children: new Map(),
+        },
+      ],
+    ])
+
+    const result = buildConfigDumpInfo({
+      reference,
+      yamlState: state([]),
+      migrationState: state([]),
+      referencePathByCurrentPath: new Map(),
+      generators: { id: () => "new-id", configVersion: () => "cccccccccccccccccccccccccccccccccccccccc" },
+    })
+
+    expect(result).toEqual(
+      new Map([
+        [
+          "Configuration.БухгалтерияПредприятия",
+          {
+            id: "configuration-id",
+            configVersion: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            children: new Map(),
+          },
+        ],
+      ]),
+    )
   })
 })
 
