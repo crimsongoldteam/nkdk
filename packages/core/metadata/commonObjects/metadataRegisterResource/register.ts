@@ -12,15 +12,6 @@ import {
   MetadataRegisterResourcesYAML,
 } from "./types"
 
-const dropImplicitEmptySynonym = <T extends { synonym?: { items?: Record<string, string> } }>(properties: T): T => {
-  if (properties.synonym && Object.keys(properties.synonym.items ?? {}).length === 0) {
-    const { synonym: _synonym, ...rest } = properties
-    return rest as T
-  }
-
-  return properties
-}
-
 const importMetadataRegisterResourcesFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
@@ -42,7 +33,7 @@ const importMetadataRegisterResourcesFromYAML = (
     if (properties == undefined) throw new Error("Properties are required")
 
     return {
-      ...dropImplicitEmptySynonym(properties),
+      ...properties,
       name,
     }
   })

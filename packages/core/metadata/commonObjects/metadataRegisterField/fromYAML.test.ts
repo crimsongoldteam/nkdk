@@ -5,6 +5,8 @@ import { mockContext } from "~/tests/mockContext"
 import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "../accountingFlag/rules"
 import { MetadataRegisterDimensionRules } from "../metadataRegisterDimension/rules"
 import "../metadataRegisterDimension/register"
+import { MetadataRegisterResourceRules } from "../metadataRegisterResource/rules"
+import "../metadataRegisterResource/register"
 
 describe("metadata register field YAML import", () => {
   it.each([
@@ -91,6 +93,64 @@ describe("metadata register field YAML import", () => {
         }),
       }),
     ])
-    expect(result[0]).not.toHaveProperty("synonym")
+    expect(result[0]).toHaveProperty("synonym", { items: {} })
+  })
+
+  it("keeps empty source synonym for full YAML register resource collection", () => {
+    const result = importPropertyFromYAML({
+      context: mockContext,
+      rule: { type: "MetadataRegisterResources" },
+      value: {
+        Содержание: {
+          Тип: "Строка(100)",
+        },
+      },
+      sourceValue: [
+        {
+          itemType: MetadataRegisterResourceRules.itemType,
+          name: "Содержание",
+          synonym: { items: {} },
+        },
+      ],
+    })
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        itemType: MetadataRegisterResourceRules.itemType,
+        name: "Содержание",
+        synonym: { items: {} },
+        type: expect.objectContaining({
+          type: ["string"],
+          stringQualifiers: expect.objectContaining({ length: 100 }),
+        }),
+      }),
+    ])
+  })
+
+  it("keeps empty source synonym for full YAML register dimension collection", () => {
+    const result = importPropertyFromYAML({
+      context: mockContext,
+      rule: { type: "MetadataRegisterDimensions" },
+      value: {
+        Организация: {
+          Тип: "СправочникСсылка.Организации",
+        },
+      },
+      sourceValue: [
+        {
+          itemType: MetadataRegisterDimensionRules.itemType,
+          name: "Организация",
+          synonym: { items: {} },
+        },
+      ],
+    })
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        itemType: MetadataRegisterDimensionRules.itemType,
+        name: "Организация",
+        synonym: { items: {} },
+      }),
+    ])
   })
 })
