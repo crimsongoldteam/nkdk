@@ -20,16 +20,14 @@ export const exportConfigDumpInfoToXML = (params: {
     rootMetadata.push({
       _name: name,
       _id: id,
-      _configVersion: configVersion,
+      ...(configVersion ? { _configVersion: configVersion } : {}),
       ...(innerMetadata.length > 0 ? { Metadata: innerMetadata } : {}),
     })
   }
 
   return {
     ...getRootAttributes(context),
-    ConfigVersions: {
-      Metadata: rootMetadata,
-    },
+    ConfigVersions: rootMetadata.length > 0 ? { Metadata: rootMetadata } : {},
   }
 }
 

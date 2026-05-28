@@ -17,4 +17,16 @@ describe("exportConfigDumpInfoToXML", () => {
 
     expect(resultString).toEqual(expectedResult)
   })
+
+  it("пишет пустой ConfigVersions без Metadata", () => {
+    const result = exportConfigDumpInfoToXML({
+      context: mockContext,
+      idMap: new Map(),
+    })
+
+    const resultString = xmlExport({ ConfigDumpInfo: result })
+
+    expect(resultString).toContain("<ConfigVersions/>")
+    expect(resultString).not.toContain("<Metadata")
+  })
 })
