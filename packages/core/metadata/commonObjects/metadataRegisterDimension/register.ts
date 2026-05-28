@@ -1,4 +1,5 @@
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
@@ -12,13 +13,22 @@ import {
   MetadataRegisterDimensionsYAML,
 } from "./types"
 
-const dropImplicitEmptySynonym = <T extends { synonym?: { items?: Record<string, string> } }>(properties: T): T => {
-  if (properties.synonym && Object.keys(properties.synonym.items ?? {}).length === 0) {
-    const { synonym: _synonym, ...rest } = properties
-    return rest as T
-  }
+const hasEmptySynonym = (value: { synonym?: { items?: Record<string, string> } } | undefined): boolean =>
+  value?.synonym !== undefined && Object.keys(value.synonym.items ?? {}).length === 0
 
-  return properties
+const normalizeImplicitEmptySynonym = <T extends { synonym?: { items?: Record<string, string> } }>(
+  context: ConfigurationContext,
+  properties: T,
+  source: T | undefined,
+  name: string
+): T => {
+  if (!hasEmptySynonym(properties)) return properties
+  if (hasEmptySynonym(source)) return properties
+
+  return {
+    ...properties,
+    synonym: addDefaultLanguageNameToSynonym(context, undefined, name),
+  }
 }
 
 const importMetadataRegisterDimensionsFromYAML = (
@@ -40,9 +50,10 @@ const importMetadataRegisterDimensionsFromYAML = (
     })
 
     if (properties == undefined) throw new Error("Properties are required")
+    const normalizedProperties = normalizeImplicitEmptySynonym(context, properties, itemSource, name)
 
     return {
-      ...dropImplicitEmptySynonym(properties),
+      ...normalizedProperties,
       name,
     }
   })

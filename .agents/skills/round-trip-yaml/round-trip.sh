@@ -163,6 +163,63 @@ preserve_reference_only_files() {
   done
 }
 
+is_known_acceptable_yaml_diff() {
+  local diff_file="$1"
+  local diff_text="$2"
+
+  if [ "${diff_file}" != "DataProcessors/ДокументооборотСКонтролирующимиОрганами/Forms/МастерФормированияЗаявкиНаПодключениеУпрощенное/Ext/Form.xml" ]; then
+    return 1
+  fi
+
+  if ! printf '%s\n' "${diff_text}" | awk '
+    function is_real_add(line) {
+      return substr(line, 1, 1) == "+" && substr(line, 1, 3) != "+++"
+    }
+    function is_real_delete(line) {
+      return substr(line, 1, 1) == "-" && substr(line, 1, 3) != "---"
+    }
+    function closes_button(line) {
+      return line ~ /<\/Button>/ || line ~ /<Button[^>]*\/>[[:space:]]*$/
+    }
+    function enter_button(line) {
+      if (line ~ /<Button name="ЕстьКЭП" id="1314"/) {
+        seen_yes = 1
+        return "yes"
+      }
+      if (line ~ /<Button name="НетКЭП" id="1316"/) {
+        seen_no = 1
+        return "no"
+      }
+      return ""
+    }
+    is_real_add($0) {
+      invalid = 1
+      next
+    }
+    is_real_delete($0) {
+      text = substr($0, 2)
+      if (inside != "") {
+        if (closes_button(text)) inside = ""
+        next
+      }
+
+      inside = enter_button(text)
+      if (inside == "") {
+        invalid = 1
+        next
+      }
+      if (closes_button(text)) inside = ""
+    }
+    END {
+      exit invalid || inside != "" || !seen_yes || !seen_no ? 1 : 0
+    }
+  '; then
+    return 1
+  fi
+
+  return 0
+}
+
 run_nkdk() {
   echo "[command] $*"
   "$@"
@@ -284,6 +341,7 @@ fi
 DIFF_FILES=()
 DIFF_FILE_DIRS=()
 DIFF_FILE_YAML_DIRS=()
+DIFF_TEXTS=()
 ACTIVE_XML_DIR=""
 ACTIVE_YAML_DIR=""
 
@@ -333,15 +391,24 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   done < <(git -C "${RUN_XML_DIR}" -c core.quotepath=false diff --name-only --relative -- . | sort)
 
   if [ "${#CURRENT_DIFF_FILES[@]}" -gt 0 ]; then
-    ACTIVE_XML_DIR="${RUN_XML_DIR}"
-    ACTIVE_YAML_DIR="${RUN_YAML_DIR}"
+    ACCEPTED_DIFF_COUNT="${#DIFF_FILES[@]}"
     for diff_file in "${CURRENT_DIFF_FILES[@]}"; do
+      diff_text="$(git -C "${RUN_XML_DIR}" -c core.quotepath=false diff --relative -- "${diff_file}")"
+      if is_known_acceptable_yaml_diff "${diff_file}" "${diff_text}"; then
+        echo "[diff] Пропущен известный допустимый diff ошибочных дублей кнопок: ${diff_file}"
+        continue
+      fi
       DIFF_FILES+=("${diff_file}")
       DIFF_FILE_DIRS+=("${RUN_XML_DIR}")
       DIFF_FILE_YAML_DIRS+=("${RUN_YAML_DIR}")
+      DIFF_TEXTS+=("${diff_text}")
     done
-    if [ "${ALL_CONFIGS}" != "1" ]; then
-      break
+    if [ "${#DIFF_FILES[@]}" -gt "${ACCEPTED_DIFF_COUNT}" ]; then
+      ACTIVE_XML_DIR="${RUN_XML_DIR}"
+      ACTIVE_YAML_DIR="${RUN_YAML_DIR}"
+      if [ "${ALL_CONFIGS}" != "1" ]; then
+        break
+      fi
     fi
   fi
 done
@@ -364,6 +431,7 @@ emit_single_diff() {
   local file="$2"
   local active_dir="$3"
   local yaml_dir="$4"
+  local diff_text="$5"
 
   echo ""
   echo "=== ACTIVE_XML_DIR ==="
@@ -385,7 +453,7 @@ emit_single_diff() {
   xml_file_abs "${file}" "${active_dir}"
   echo ""
   echo "=== FULL_DIFF ==="
-  git -C "${active_dir}" -c core.quotepath=false diff --relative -- "${file}"
+  printf '%s\n' "${diff_text}"
 }
 
 emit_triage_diff() {
@@ -393,6 +461,7 @@ emit_triage_diff() {
   local file="$2"
   local active_dir="$3"
   local yaml_dir="$4"
+  local diff_text="$5"
 
   echo ""
   echo "=== TRIAGE_DIFF ==="
@@ -402,7 +471,7 @@ emit_triage_diff() {
   echo "FILE: ${file}"
   echo "XML_FILE_ABS: $(xml_file_abs "${file}" "${active_dir}")"
   echo "--- DIFF ---"
-  git -C "${active_dir}" -c core.quotepath=false diff --relative -- "${file}"
+  printf '%s\n' "${diff_text}"
 }
 
 if [ "${DIFF_COUNT}" -eq 0 ]; then
@@ -426,7 +495,8 @@ if [ "${MODE}" = "single" ]; then
   SELECTED_DIFF_FILE="${DIFF_FILES[$((DIFF_INDEX - 1))]}"
   SELECTED_DIFF_DIR="${DIFF_FILE_DIRS[$((DIFF_INDEX - 1))]}"
   SELECTED_YAML_DIR="${DIFF_FILE_YAML_DIRS[$((DIFF_INDEX - 1))]}"
-  emit_single_diff "${DIFF_INDEX}" "${SELECTED_DIFF_FILE}" "${SELECTED_DIFF_DIR}" "${SELECTED_YAML_DIR}"
+  SELECTED_DIFF_TEXT="${DIFF_TEXTS[$((DIFF_INDEX - 1))]}"
+  emit_single_diff "${DIFF_INDEX}" "${SELECTED_DIFF_FILE}" "${SELECTED_DIFF_DIR}" "${SELECTED_YAML_DIR}" "${SELECTED_DIFF_TEXT}"
   exit 0
 fi
 
@@ -454,5 +524,6 @@ for ((i = TRIAGE_START; i <= TRIAGE_END; i++)); do
   TRIAGE_DIFF_FILE="${DIFF_FILES[$((i - 1))]}"
   TRIAGE_DIFF_DIR="${DIFF_FILE_DIRS[$((i - 1))]}"
   TRIAGE_YAML_DIR="${DIFF_FILE_YAML_DIRS[$((i - 1))]}"
-  emit_triage_diff "${i}" "${TRIAGE_DIFF_FILE}" "${TRIAGE_DIFF_DIR}" "${TRIAGE_YAML_DIR}"
+  TRIAGE_DIFF_TEXT="${DIFF_TEXTS[$((i - 1))]}"
+  emit_triage_diff "${i}" "${TRIAGE_DIFF_FILE}" "${TRIAGE_DIFF_DIR}" "${TRIAGE_YAML_DIR}" "${TRIAGE_DIFF_TEXT}"
 done

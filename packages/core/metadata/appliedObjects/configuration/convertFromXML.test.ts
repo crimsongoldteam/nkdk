@@ -237,8 +237,11 @@ describe("sync configuration from xml", () => {
     const sessionModule = "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n"
     const externalConnectionModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
     const ordinaryApplicationModule = "Процедура ПередНачаломРаботыСистемы()\nКонецПроцедуры\n"
+    const helpPage = "<html><body>Справка</body></html>"
 
     try {
+      fs.mkdirSync(join(rootInput, "Ext", "Help", "_files"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext", "Logo"), { recursive: true })
       fs.mkdirSync(join(rootInput, "Ext", "MainSectionPicture"), { recursive: true })
       fs.mkdirSync(join(rootInput, "Ext", "Splash"), { recursive: true })
       fs.copyFileSync(
@@ -250,10 +253,20 @@ describe("sync configuration from xml", () => {
       fs.writeFileSync(join(rootInput, "Ext", "ExternalConnectionModule.bsl"), externalConnectionModule, "utf-8")
       fs.writeFileSync(join(rootInput, "Ext", "OrdinaryApplicationModule.bsl"), ordinaryApplicationModule, "utf-8")
       fs.writeFileSync(join(rootInput, "Ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
+      fs.writeFileSync(
+        join(rootInput, "Ext", "Help.xml"),
+        `<?xml version="1.0" encoding="UTF-8"?>\n<Help xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">\n\t<Page>ru</Page>\n</Help>`,
+        "utf-8"
+      )
+      fs.writeFileSync(join(rootInput, "Ext", "Help", "ru.html"), helpPage, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Help", "_files", "logo.png"), Buffer.from([137, 80]))
       fs.writeFileSync(join(rootInput, "Ext", "MainSectionPicture.xml"), "<MainSectionPicture/>", "utf-8")
       fs.writeFileSync(join(rootInput, "Ext", "MainSectionPicture", "Picture.svg"), "<svg/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Logo.xml"), "<Logo/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Logo", "Picture.png"), Buffer.from([1, 2, 3]))
       fs.writeFileSync(join(rootInput, "Ext", "Splash.xml"), "<Splash/>", "utf-8")
       fs.writeFileSync(join(rootInput, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
+      fs.writeFileSync(join(rootInput, "Ext", "StandaloneConfigurationContent.bin"), Buffer.from([4, 5, 6]))
 
       await syncConfigurationFromXML({
         context: mockContextFromXML(),
@@ -266,12 +279,17 @@ describe("sync configuration from xml", () => {
       expect(fs.readFileSync(join(rootOutput, "МодульВнешнегоСоединения.bsl"), "utf-8")).toBe(externalConnectionModule)
       expect(fs.readFileSync(join(rootOutput, "МодульОбычногоПриложения.bsl"), "utf-8")).toBe(ordinaryApplicationModule)
       expect([...fs.readFileSync(join(rootOutput, "ПодписьМобильногоКлиента.bin"))]).toEqual([0, 1, 2, 255])
+      expect(fs.readFileSync(join(rootOutput, "Справка", "ru.html"), "utf-8")).toBe(helpPage)
+      expect([...fs.readFileSync(join(rootOutput, "Справка", "_files", "logo.png"))]).toEqual([137, 80])
       expect(fs.readFileSync(join(rootOutput, "КартинкаОсновногоРаздела", "MainSectionPicture.xml"), "utf-8")).toBe(
         "<MainSectionPicture/>"
       )
       expect(fs.readFileSync(join(rootOutput, "КартинкаОсновногоРаздела", "Picture.svg"), "utf-8")).toBe("<svg/>")
+      expect(fs.readFileSync(join(rootOutput, "Логотип", "Logo.xml"), "utf-8")).toBe("<Logo/>")
+      expect([...fs.readFileSync(join(rootOutput, "Логотип", "Picture.png"))]).toEqual([1, 2, 3])
       expect(fs.readFileSync(join(rootOutput, "Заставка", "Splash.xml"), "utf-8")).toBe("<Splash/>")
       expect([...fs.readFileSync(join(rootOutput, "Заставка", "Picture.png"))]).toEqual([137, 80, 78, 71])
+      expect([...fs.readFileSync(join(rootOutput, "СодержимоеАвтономнойКонфигурации.bin"))]).toEqual([4, 5, 6])
       expect(fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")).not.toContain("МодульПриложения")
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })

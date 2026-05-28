@@ -69,6 +69,7 @@ export const commonRegisterFieldProperties = {
     defaultValueXMLEmpty: emptySynonym,
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
+    emptyAsRawXML: true,
     order: 2,
   },
   comment: {

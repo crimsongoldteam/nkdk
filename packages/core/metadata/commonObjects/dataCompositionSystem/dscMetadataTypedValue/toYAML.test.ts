@@ -35,4 +35,13 @@ describe("export DcsMetadataTypedValue to YAML", () => {
       })
     ).toEqual({ value: "Справочник.Организации.ПустаяСсылка" })
   })
+
+  it("exports beginning date as YAML dateTime", () => {
+    expect(
+      testExportPropertyToYAML({
+        rule,
+        value: { type: "dateTime", value: "0001-01-01T00:00:00" },
+      })
+    ).toEqual({ value: "01.01.0001 00:00:00" })
+  })
 })

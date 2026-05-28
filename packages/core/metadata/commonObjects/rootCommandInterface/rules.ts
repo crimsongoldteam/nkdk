@@ -38,7 +38,7 @@ export const RootCommandInterfaceRules = {
     subsystemsVisibility: {
       yaml: "ВидимостьПодсистем",
       xml: "SubsystemsVisibility",
-      type: "CommandInterfaceVisibilityMap",
+      type: "CommandInterfaceSubsystemsVisibilityMap",
     },
     subsystemsOrder: {
       yaml: "ПорядокПодсистем",

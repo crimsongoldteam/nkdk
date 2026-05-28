@@ -20,17 +20,19 @@ describe("import RootCommandInterface from YAML", () => {
           },
         },
         ПорядокПодсистем: ["Subsystem.ПодсистемаПоУмолчанию"],
-        ВидимостьКоманд: {
-          "Catalog.СправочникПолный.Command.ПоУмолчанию": {
+        ВидимостьКоманд: [
+          {
+            Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
             Общее: "Истина",
           },
-        },
-        РазмещениеКоманд: {
-          "Catalog.СправочникПолный.Command.ПоУмолчанию": {
+        ],
+        РазмещениеКоманд: [
+          {
+            Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
             ГруппаКоманд: "ПанельНавигацииОбычное",
             Размещение: "Вручную",
           },
-        },
+        ],
         ПорядокКоманд: [
           {
             Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
@@ -52,17 +54,21 @@ describe("import RootCommandInterface from YAML", () => {
         },
       },
       subsystemsOrder: ["Subsystem.ПодсистемаПоУмолчанию"],
-      commandsVisibility: {
-        "Catalog.СправочникПолный.Command.ПоУмолчанию": {
-          common: true,
+      commandsVisibility: [
+        {
+          command: "Catalog.СправочникПолный.Command.ПоУмолчанию",
+          visibility: {
+            common: true,
+          },
         },
-      },
-      commandsPlacement: {
-        "Catalog.СправочникПолный.Command.ПоУмолчанию": {
+      ],
+      commandsPlacement: [
+        {
+          command: "Catalog.СправочникПолный.Command.ПоУмолчанию",
           commandGroup: "NavigationPanelOrdinary",
           placement: "Manual",
         },
-      },
+      ],
       commandsOrder: [
         {
           command: "Catalog.СправочникПолный.Command.ПоУмолчанию",
@@ -80,11 +86,12 @@ describe("import RootCommandInterface from YAML", () => {
       context: mockContext,
       rule: RootCommandInterfaceRules,
       yaml: {
-        ВидимостьКоманд: {
-          [uuidCommand]: {
+        ВидимостьКоманд: [
+          {
+            Команда: uuidCommand,
             Общее: "Истина",
           },
-        },
+        ],
         ПорядокКоманд: [
           {
             Команда: uuidCommand,
@@ -95,7 +102,7 @@ describe("import RootCommandInterface from YAML", () => {
       },
     })
 
-    expect(result?.commandsVisibility?.[uuidCommand]).toEqual({ common: true })
+    expect(result?.commandsVisibility).toEqual([{ command: uuidCommand, visibility: { common: true } }])
     expect(result?.commandsOrder?.[0]).toEqual({
       command: uuidCommand,
       commandGroup: "CommandGroup.ГруппаКомандПоУмолчанию",

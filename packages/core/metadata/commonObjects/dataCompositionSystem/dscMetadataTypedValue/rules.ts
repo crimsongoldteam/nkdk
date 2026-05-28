@@ -89,10 +89,16 @@ export const DcsMetadataTypedValueRegistry: Record<DcsMetadataTypedValue["type"]
   },
   dateTime: {
     detect: ({ yaml }) => isStringYAML(yaml) && /^\d{2}\.\d{2}\.\d{4}(\s+\d{2}:\d{2}:\d{2})?$/.test(yaml),
-    fromYAML: ({ context, yaml }) => importPrimitiveFromYAML(context, yaml),
+    fromYAML: ({ yaml }) => ({
+      type: "dateTime",
+      value: yamlDateTimeToXMLDateTime(String(yaml)),
+    }),
     fromXML: ({ context, xml }) => importPrimitiveFromXML(context, xml, "dateTime"),
-    toYAML: ({ context, item }) => exportPrimitiveToYAML(context, item),
-    toXML: ({ context, item }) => exportPrimitiveToXML(context, item, "dateTime"),
+    toYAML: ({ item }) => xmlDateTimeToYAMLDateTime(getDateTimeValue(item)),
+    toXML: ({ item }) => ({
+      "_xsi:type": "xs:dateTime",
+      "#text": getDateTimeValue(item),
+    }),
   },
   string: {
     detect: ({ yaml }) => isStringYAML(yaml) && !yaml.startsWith("."),
@@ -234,6 +240,20 @@ const isStandardBeginningDateYAML = (
 ): yaml is Static<typeof StandartBeginningDateJSONSchema> =>
   typeof yaml === "object" && yaml !== null && !Array.isArray(yaml) && "Вариант" in yaml
 
+const yamlDateTimeToXMLDateTime = (value: string): string => {
+  const match = value.match(/^(\d{2})\.(\d{2})\.(\d{4})(?:\s+(\d{2}):(\d{2}):(\d{2}))?$/)
+  if (!match) throw new Error(`DcsMetadataTypedValue YAML: invalid dateTime ${value}`)
+  const [, day, month, year, hour = "00", minute = "00", second = "00"] = match
+  return `${year}-${month}-${day}T${hour}:${minute}:${second}`
+}
+
+const xmlDateTimeToYAMLDateTime = (value: string): string => {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/)
+  if (!match) return value
+  const [, year, month, day, hour, minute, second] = match
+  return `${day}.${month}.${year} ${hour}:${minute}:${second}`
+}
+
 const getFieldValue = (item: DcsMetadataTypedValue): string => {
   if (item.type !== "Field") throw new Error(`Invalid DcsMetadataTypedValue type: expected Field, got ${item.type}`)
   return item.value
@@ -248,6 +268,12 @@ const getDesignTimeValue = (item: DcsMetadataTypedValue): string => {
 const getStandardBeginningDateValue = (item: DcsMetadataTypedValue): StandartBeginningDate => {
   if (item.type !== "StandardBeginningDate")
     throw new Error(`Invalid DcsMetadataTypedValue type: expected StandardBeginningDate, got ${item.type}`)
+  return item.value
+}
+
+const getDateTimeValue = (item: DcsMetadataTypedValue): string => {
+  if (item.type !== "dateTime")
+    throw new Error(`Invalid DcsMetadataTypedValue type: expected dateTime, got ${item.type}`)
   return item.value
 }
 

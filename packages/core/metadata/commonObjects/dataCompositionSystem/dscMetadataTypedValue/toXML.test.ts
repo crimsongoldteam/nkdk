@@ -147,4 +147,14 @@ describe("export DcsMetadataTypedValue to XML", () => {
 
     expect(result).toEqual("<value/>")
   })
+
+  it("exports beginning date as xs:dateTime", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: { type: "dateTime", value: "0001-01-01T00:00:00" },
+      xmlRootTag: "value",
+    })
+
+    expect(result).toEqual('<value xsi:type="xs:dateTime">0001-01-01T00:00:00</value>')
+  })
 })

@@ -72,6 +72,9 @@ const isExplicitPrimitiveStringValueYAML = (
   (data as Record<string, unknown>).Тип === "Строка" &&
   typeof (data as Record<string, unknown>).Значение === "string"
 
+const isDateTimeYAML = (data: unknown): data is string =>
+  typeof data === "string" && /^\d{2}\.\d{2}\.\d{4}(\s+\d{2}:\d{2}:\d{2})?$/.test(data)
+
 const importDcsSystemEnumerationValueFromYAML = (
   context: ConfigurationContext,
   data: MetadataDcsSystemEnumerationValueYAML
@@ -123,6 +126,9 @@ export const importDcsMetadataValueFromYAML = (
       }
       if (isDcsSystemEnumerationValueYAML(data)) {
         return importDcsSystemEnumerationValueFromYAML(context, data)
+      }
+      if (isDateTimeYAML(data)) {
+        return importMetadataValueFromYAML(context, undefined, data) as MetadataDcsMetadataValue
       }
       if (typeof data !== "string") {
         return importMetadataValueFromYAML(context, undefined, data as any) as MetadataDcsMetadataValue

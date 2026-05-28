@@ -17,4 +17,30 @@ describe("export MetadataRegisterDimensions to XML", () => {
 
     expect(result).toEqual(expectedResult)
   })
+
+  it("preserves reference empty Synonym when current synonym is generated from name", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        {
+          itemType: "MetadataRegisterDimension",
+          name: "Организация",
+          synonym: { items: { ru: "Организация" } },
+          type: { type: ["boolean"] },
+        },
+      ],
+      xmlRootTag: "Dimension",
+      referenceMetadata: [
+        {
+          itemType: "MetadataRegisterDimension",
+          name: "Организация",
+          synonym: { items: {} },
+          type: { type: ["boolean"] },
+        },
+      ],
+    })
+
+    expect(result).toContain("<Synonym/>")
+    expect(result).not.toContain("<v8:item>")
+  })
 })
