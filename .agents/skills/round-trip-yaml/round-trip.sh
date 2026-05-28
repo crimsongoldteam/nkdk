@@ -284,6 +284,7 @@ fi
 DIFF_FILES=()
 DIFF_FILE_DIRS=()
 DIFF_FILE_YAML_DIRS=()
+DIFF_TEXTS=()
 ACTIVE_XML_DIR=""
 ACTIVE_YAML_DIR=""
 
@@ -336,9 +337,11 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
     ACTIVE_XML_DIR="${RUN_XML_DIR}"
     ACTIVE_YAML_DIR="${RUN_YAML_DIR}"
     for diff_file in "${CURRENT_DIFF_FILES[@]}"; do
+      diff_text="$(git -C "${RUN_XML_DIR}" -c core.quotepath=false diff --relative -- "${diff_file}")"
       DIFF_FILES+=("${diff_file}")
       DIFF_FILE_DIRS+=("${RUN_XML_DIR}")
       DIFF_FILE_YAML_DIRS+=("${RUN_YAML_DIR}")
+      DIFF_TEXTS+=("${diff_text}")
     done
     if [ "${ALL_CONFIGS}" != "1" ]; then
       break
@@ -364,6 +367,7 @@ emit_single_diff() {
   local file="$2"
   local active_dir="$3"
   local yaml_dir="$4"
+  local diff_text="$5"
 
   echo ""
   echo "=== ACTIVE_XML_DIR ==="
@@ -385,7 +389,7 @@ emit_single_diff() {
   xml_file_abs "${file}" "${active_dir}"
   echo ""
   echo "=== FULL_DIFF ==="
-  git -C "${active_dir}" -c core.quotepath=false diff --relative -- "${file}"
+  printf '%s\n' "${diff_text}"
 }
 
 emit_triage_diff() {
@@ -393,6 +397,7 @@ emit_triage_diff() {
   local file="$2"
   local active_dir="$3"
   local yaml_dir="$4"
+  local diff_text="$5"
 
   echo ""
   echo "=== TRIAGE_DIFF ==="
@@ -402,7 +407,7 @@ emit_triage_diff() {
   echo "FILE: ${file}"
   echo "XML_FILE_ABS: $(xml_file_abs "${file}" "${active_dir}")"
   echo "--- DIFF ---"
-  git -C "${active_dir}" -c core.quotepath=false diff --relative -- "${file}"
+  printf '%s\n' "${diff_text}"
 }
 
 if [ "${DIFF_COUNT}" -eq 0 ]; then
@@ -426,7 +431,8 @@ if [ "${MODE}" = "single" ]; then
   SELECTED_DIFF_FILE="${DIFF_FILES[$((DIFF_INDEX - 1))]}"
   SELECTED_DIFF_DIR="${DIFF_FILE_DIRS[$((DIFF_INDEX - 1))]}"
   SELECTED_YAML_DIR="${DIFF_FILE_YAML_DIRS[$((DIFF_INDEX - 1))]}"
-  emit_single_diff "${DIFF_INDEX}" "${SELECTED_DIFF_FILE}" "${SELECTED_DIFF_DIR}" "${SELECTED_YAML_DIR}"
+  SELECTED_DIFF_TEXT="${DIFF_TEXTS[$((DIFF_INDEX - 1))]}"
+  emit_single_diff "${DIFF_INDEX}" "${SELECTED_DIFF_FILE}" "${SELECTED_DIFF_DIR}" "${SELECTED_YAML_DIR}" "${SELECTED_DIFF_TEXT}"
   exit 0
 fi
 
@@ -454,5 +460,6 @@ for ((i = TRIAGE_START; i <= TRIAGE_END; i++)); do
   TRIAGE_DIFF_FILE="${DIFF_FILES[$((i - 1))]}"
   TRIAGE_DIFF_DIR="${DIFF_FILE_DIRS[$((i - 1))]}"
   TRIAGE_YAML_DIR="${DIFF_FILE_YAML_DIRS[$((i - 1))]}"
-  emit_triage_diff "${i}" "${TRIAGE_DIFF_FILE}" "${TRIAGE_DIFF_DIR}" "${TRIAGE_YAML_DIR}"
+  TRIAGE_DIFF_TEXT="${DIFF_TEXTS[$((i - 1))]}"
+  emit_triage_diff "${i}" "${TRIAGE_DIFF_FILE}" "${TRIAGE_DIFF_DIR}" "${TRIAGE_YAML_DIR}" "${TRIAGE_DIFF_TEXT}"
 done
