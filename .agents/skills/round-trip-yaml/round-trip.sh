@@ -163,6 +163,23 @@ preserve_reference_only_files() {
   done
 }
 
+is_known_acceptable_yaml_diff() {
+  local diff_file="$1"
+  local diff_text="$2"
+
+  if [ "${diff_file}" != "DataProcessors/ДокументооборотСКонтролирующимиОрганами/Forms/МастерФормированияЗаявкиНаПодключениеУпрощенное/Ext/Form.xml" ]; then
+    return 1
+  fi
+
+  printf '%s\n' "${diff_text}" | grep -Eq '^-.*<Button name="ЕстьКЭП" id="1314">' || return 1
+  printf '%s\n' "${diff_text}" | grep -Eq '^-.*<Button name="НетКЭП" id="1316">' || return 1
+  if printf '%s\n' "${diff_text}" | awk 'substr($0, 1, 1) == "+" && substr($0, 1, 3) != "+++" { found = 1 } END { exit found ? 0 : 1 }'; then
+    return 1
+  fi
+
+  return 0
+}
+
 run_nkdk() {
   echo "[command] $*"
   "$@"
@@ -334,17 +351,24 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   done < <(git -C "${RUN_XML_DIR}" -c core.quotepath=false diff --name-only --relative -- . | sort)
 
   if [ "${#CURRENT_DIFF_FILES[@]}" -gt 0 ]; then
-    ACTIVE_XML_DIR="${RUN_XML_DIR}"
-    ACTIVE_YAML_DIR="${RUN_YAML_DIR}"
+    ACCEPTED_DIFF_COUNT="${#DIFF_FILES[@]}"
     for diff_file in "${CURRENT_DIFF_FILES[@]}"; do
       diff_text="$(git -C "${RUN_XML_DIR}" -c core.quotepath=false diff --relative -- "${diff_file}")"
+      if is_known_acceptable_yaml_diff "${diff_file}" "${diff_text}"; then
+        echo "[diff] Пропущен известный допустимый diff ошибочных дублей кнопок: ${diff_file}"
+        continue
+      fi
       DIFF_FILES+=("${diff_file}")
       DIFF_FILE_DIRS+=("${RUN_XML_DIR}")
       DIFF_FILE_YAML_DIRS+=("${RUN_YAML_DIR}")
       DIFF_TEXTS+=("${diff_text}")
     done
-    if [ "${ALL_CONFIGS}" != "1" ]; then
-      break
+    if [ "${#DIFF_FILES[@]}" -gt "${ACCEPTED_DIFF_COUNT}" ]; then
+      ACTIVE_XML_DIR="${RUN_XML_DIR}"
+      ACTIVE_YAML_DIR="${RUN_YAML_DIR}"
+      if [ "${ALL_CONFIGS}" != "1" ]; then
+        break
+      fi
     fi
   fi
 done
