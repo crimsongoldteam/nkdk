@@ -341,6 +341,11 @@ export const MetadataConfigurationRules = {
       type: "HomePageWorkArea",
       filePath: "Ext/HomePageWorkArea.xml",
     },
+    help: {
+      type: "Help",
+      filePath: "Ext/Help.xml",
+      nkdkDir: "Справка",
+    },
     mobileClientSignature: {
       type: "ExternalFile",
       nkdkPath: "ПодписьМобильногоКлиента.bin",
@@ -354,11 +359,24 @@ export const MetadataConfigurationRules = {
       payloadXmlDir: "Ext/MainSectionPicture",
       syncExternalOnly: true,
     },
+    logo: {
+      type: "ExternalPicture",
+      nkdkDir: "Логотип",
+      xmlPath: "Ext/Logo.xml",
+      payloadXmlDir: "Ext/Logo",
+      syncExternalOnly: true,
+    },
     splash: {
       type: "ExternalPicture",
       nkdkDir: "Заставка",
       xmlPath: "Ext/Splash.xml",
       payloadXmlDir: "Ext/Splash",
+      syncExternalOnly: true,
+    },
+    standaloneConfigurationContent: {
+      type: "ExternalFile",
+      nkdkPath: "СодержимоеАвтономнойКонфигурации.bin",
+      xmlPath: "Ext/StandaloneConfigurationContent.bin",
       syncExternalOnly: true,
     },
   },
