@@ -47,23 +47,29 @@ describe("export RootCommandInterface to YAML", () => {
     const result = exportRootCommandInterfaceToYAML(mainSectionCommandInterfaceXmlPath)
 
     expect(result).toMatchObject({
-      ВидимостьКоманд: {
-        "Catalog.СправочникПолный.Command.ПоУмолчанию": {
+      ПорядокГрупп: ["ПанельНавигацииВажное", "CommandGroup.ГруппаКомандПоУмолчанию", "ПанельДействийСоздать"],
+    })
+    expect(result?.ВидимостьКоманд).toEqual(
+      expect.arrayContaining([
+        {
+          Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
           Общее: "Ложь",
           Роли: {
             Администратор: "Ложь",
             РольВсеСвойства: "Истина",
           },
         },
-      },
-      РазмещениеКоманд: {
-        "Catalog.СправочникПолный.Command.ПоУмолчанию": {
+      ])
+    )
+    expect(result?.РазмещениеКоманд).toEqual(
+      expect.arrayContaining([
+        {
+          Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
           ГруппаКоманд: "ПанельНавигацииВажное",
           Размещение: "Вручную",
         },
-      },
-      ПорядокГрупп: ["ПанельНавигацииВажное", "CommandGroup.ГруппаКомандПоУмолчанию", "ПанельДействийСоздать"],
-    })
+      ])
+    )
     expect(result?.ПорядокКоманд).toEqual(
       expect.arrayContaining([
         {
@@ -78,16 +84,48 @@ describe("export RootCommandInterface to YAML", () => {
     )
   })
 
+  it("exports duplicate command names as YAML lists", () => {
+    const result = exportMetadataItemToYAML({
+      context: mockContext,
+      rule: RootCommandInterfaceRules,
+      data: {
+        itemType: "RootCommandInterface",
+        commandsVisibility: [
+          { command: "0", visibility: { common: false } },
+          { command: "0", visibility: { common: true } },
+        ],
+        commandsPlacement: [
+          { command: "0", commandGroup: "NavigationPanelImportant", placement: "Manual" },
+          { command: "0", commandGroup: "ActionsPanelTools", placement: "Auto" },
+        ],
+      },
+    })
+
+    expect(result?.ВидимостьКоманд).toEqual([
+      { Команда: "0", Общее: "Ложь" },
+      { Команда: "0", Общее: "Истина" },
+    ])
+    expect(result?.РазмещениеКоманд).toEqual([
+      { Команда: "0", ГруппаКоманд: "ПанельНавигацииВажное", Размещение: "Вручную" },
+      { Команда: "0", ГруппаКоманд: "ПанельДействийСервис", Размещение: "Авто" },
+    ])
+  })
+
   it("keeps uuid-like command names as strings", () => {
     const result = exportRootCommandInterfaceToYAML(subsystemCommandInterfaceXmlPath)
     const uuidCommand = "0:2f109eaa-d341-4592-a04f-3f199e75d879"
 
-    expect(result?.ВидимостьКоманд?.[uuidCommand]).toEqual({
-      Общее: "Истина",
-      Роли: {
-        Администратор: "Ложь",
-      },
-    })
+    expect(result?.ВидимостьКоманд).toEqual(
+      expect.arrayContaining([
+        {
+          Команда: uuidCommand,
+          Общее: "Истина",
+          Роли: {
+            Администратор: "Ложь",
+          },
+        },
+      ])
+    )
     expect(result?.ПорядокКоманд?.[0]).toEqual({
       Команда: uuidCommand,
       ГруппаКоманд: "ПанельНавигацииОбычное",

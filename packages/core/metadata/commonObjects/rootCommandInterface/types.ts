@@ -14,14 +14,20 @@ export interface CommandInterfaceVisibility {
   roles?: Record<MetadataItemLink, boolean>
 }
 
-export type CommandInterfaceVisibilityMap = Record<string, CommandInterfaceVisibility>
+export interface CommandInterfaceVisibilityItem {
+  command: string
+  visibility: CommandInterfaceVisibility
+}
+
+export type CommandInterfaceVisibilityMap = CommandInterfaceVisibilityItem[]
 
 export interface CommandInterfacePlacementItem {
+  command: string
   commandGroup?: CommandInterfaceCommandGroup
   placement?: CommandInterfacePlacement
 }
 
-export type CommandInterfacePlacementMap = Record<string, CommandInterfacePlacementItem>
+export type CommandInterfacePlacementMap = CommandInterfacePlacementItem[]
 
 export interface CommandInterfaceOrderItem {
   command: string
@@ -71,19 +77,21 @@ export interface CommandInterfaceOrderXML {
   Command?: CommandInterfaceOrderXMLItem | CommandInterfaceOrderXMLItem[]
 }
 
-export const CommandInterfaceVisibilityJSONSchema = Type.Object({
+export const CommandInterfaceVisibilityItemJSONSchema = Type.Object({
+  Команда: Type.String(),
   Общее: Type.Optional(Type.Union([Type.Literal("Истина"), Type.Literal("Ложь")])),
   Роли: Type.Optional(Type.Record(Type.String(), Type.Union([Type.Literal("Истина"), Type.Literal("Ложь")]))),
 })
 
-export const CommandInterfaceVisibilityMapJSONSchema = Type.Record(Type.String(), CommandInterfaceVisibilityJSONSchema)
+export const CommandInterfaceVisibilityMapJSONSchema = Type.Array(CommandInterfaceVisibilityItemJSONSchema)
 
-export const CommandInterfacePlacementJSONSchema = Type.Object({
+export const CommandInterfacePlacementItemJSONSchema = Type.Object({
+  Команда: Type.String(),
   ГруппаКоманд: Type.Optional(Type.String()),
   Размещение: Type.Optional(Type.String()),
 })
 
-export const CommandInterfacePlacementMapJSONSchema = Type.Record(Type.String(), CommandInterfacePlacementJSONSchema)
+export const CommandInterfacePlacementMapJSONSchema = Type.Array(CommandInterfacePlacementItemJSONSchema)
 
 export const CommandInterfaceOrderItemJSONSchema = Type.Object({
   Команда: Type.String(),
@@ -92,19 +100,17 @@ export const CommandInterfaceOrderItemJSONSchema = Type.Object({
 
 export const CommandInterfaceOrderJSONSchema = Type.Array(CommandInterfaceOrderItemJSONSchema)
 
-export interface CommandInterfaceVisibilityYAML {
+export type CommandInterfaceVisibilityMapYAML = Array<{
+  Команда: string
   Общее?: StringboolYAML
   Роли?: Record<string, StringboolYAML>
-}
+}>
 
-export type CommandInterfaceVisibilityMapYAML = Record<string, CommandInterfaceVisibilityYAML>
-
-export interface CommandInterfacePlacementItemYAML {
+export type CommandInterfacePlacementMapYAML = Array<{
+  Команда: string
   ГруппаКоманд?: string
   Размещение?: string
-}
-
-export type CommandInterfacePlacementMapYAML = Record<string, CommandInterfacePlacementItemYAML>
+}>
 
 export type CommandInterfaceOrderYAML = Static<typeof CommandInterfaceOrderJSONSchema>
 

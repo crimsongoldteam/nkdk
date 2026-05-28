@@ -19,6 +19,7 @@ import {
   CommandInterfacePlacementMapJSONSchema,
   CommandInterfacePlacementMapXML,
   CommandInterfacePlacementMapYAML,
+  CommandInterfacePlacementXML,
   CommandInterfaceVisibility,
   CommandInterfaceVisibilityMap,
   CommandInterfaceVisibilityMapJSONSchema,
@@ -27,6 +28,15 @@ import {
   CommandInterfaceVisibilityXML,
 } from "./types"
 import { RootCommandInterfaceRules } from "./rules"
+
+type CommandInterfaceVisibilityRecord = Record<string, CommandInterfaceVisibility>
+type CommandInterfaceVisibilityYAMLRecord = Record<
+  string,
+  {
+    Общее?: "Истина" | "Ложь"
+    Роли?: Record<string, "Истина" | "Ложь">
+  }
+>
 
 const placementToYAML = {
   Auto: "Авто",
@@ -115,6 +125,18 @@ const findReferenceXMLItemByName = (params: {
     .find((item) => getXMLName(item) === params.name)
 }
 
+const findReferenceXMLItemByNameAndIndex = (params: {
+  referenceMetadata: unknown
+  itemKey: "Command" | "Subsystem"
+  name: string
+  index: number
+}): Record<string, unknown> | undefined => {
+  const raw = getReferenceRawXML(params.referenceMetadata)
+  return toArray(raw?.[params.itemKey])
+    .filter(isRecord)
+    .filter((item) => getXMLName(item) === params.name)[params.index]
+}
+
 const mergeXMLItemWithReference = (params: {
   referenceItem: Record<string, unknown> | undefined
   name: string
@@ -138,6 +160,8 @@ const findReferenceRoleVisibilityByName = (params: {
 
 const getVisibilityXMLItemKey = (rule: PropertyRule): "Command" | "Subsystem" =>
   rule.xml === "SubsystemsVisibility" ? "Subsystem" : "Command"
+
+const shouldUseVisibilityList = (rule: PropertyRule): boolean => rule.xml !== "SubsystemsVisibility"
 
 const commandGroupToYAML = (value: string): string =>
   value in standardCommandGroupToYAML
@@ -186,24 +210,47 @@ const importVisibilityMapFromXML = (
   if (xml === undefined) return undefined
 
   const itemKey = getVisibilityXMLItemKey(rule)
-  const result: CommandInterfaceVisibilityMap = {}
+  if (!shouldUseVisibilityList(rule)) {
+    const result: CommandInterfaceVisibilityRecord = {}
+    for (const item of toArray(xml[itemKey])) {
+      const name = getXMLName(item)
+      const visibility = importVisibilityFromXML(context, item)
+      if (name !== undefined && visibility !== undefined) result[name] = visibility
+    }
+
+    defineReferenceRawXML({ context, target: result, xml })
+    return Object.keys(result).length > 0 ? (result as unknown as CommandInterfaceVisibilityMap) : undefined
+  }
+
+  const result: CommandInterfaceVisibilityMap = []
   for (const item of toArray(xml[itemKey])) {
     const name = getXMLName(item)
     const visibility = importVisibilityFromXML(context, item)
-    if (name !== undefined && visibility !== undefined) result[name] = visibility
+    if (name !== undefined && visibility !== undefined) result.push({ command: name, visibility })
   }
 
   defineReferenceRawXML({ context, target: result, xml })
-  return Object.keys(result).length > 0 ? result : undefined
+  return result.length > 0 ? result : undefined
 }
 
 const exportVisibilityMapToXML: ExportToXMLFunctionNew = ({ rule, value, referenceMetadata }) => {
   if (value === undefined) return undefined
 
   const itemKey = getVisibilityXMLItemKey(rule)
-  const visibilityMap = value as CommandInterfaceVisibilityMap
-  const items = Object.entries(visibilityMap).map(([name, visibility]) => {
-    const referenceItem = findReferenceXMLItemByName({ referenceMetadata, itemKey, name })
+  const visibilityMap = value as CommandInterfaceVisibilityMap | CommandInterfaceVisibilityRecord
+  const visibilityItems = Array.isArray(visibilityMap)
+    ? visibilityMap
+    : Object.entries(visibilityMap).map(([command, visibility]) => ({ command, visibility }))
+  const referenceIndexes = new Map<string, number>()
+  const items = visibilityItems.map(({ command, visibility }) => {
+    const referenceIndex = referenceIndexes.get(command) ?? 0
+    referenceIndexes.set(command, referenceIndex + 1)
+    const referenceItem = findReferenceXMLItemByNameAndIndex({
+      referenceMetadata,
+      itemKey,
+      name: command,
+      index: referenceIndex,
+    })
     const referenceVisibility = isRecord(referenceItem?.Visibility) ? referenceItem.Visibility : undefined
     const visibilityXML = copyUnknownXMLKeys(referenceVisibility, ["xr:Common", "xr:Value"])
     if (visibility.common !== undefined) visibilityXML["xr:Common"] = visibility.common
@@ -219,7 +266,7 @@ const exportVisibilityMapToXML: ExportToXMLFunctionNew = ({ rule, value, referen
     }
     return mergeXMLItemWithReference({
       referenceItem,
-      name,
+      name: command,
       knownValues: { Visibility: visibilityXML },
     }) as CommandInterfaceVisibilityXML
   })
@@ -229,20 +276,19 @@ const exportVisibilityMapToXML: ExportToXMLFunctionNew = ({ rule, value, referen
 
 const importVisibilityMapFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule,
+  rule: PropertyRule,
   yaml: CommandInterfaceVisibilityMapYAML | undefined
 ): CommandInterfaceVisibilityMap | undefined => {
   if (yaml === undefined) return undefined
 
-  const result: CommandInterfaceVisibilityMap = {}
-  for (const [name, visibility] of Object.entries(yaml)) {
+  const importEntry = (entry: CommandInterfaceVisibilityMapYAML[number]) => {
     const item: CommandInterfaceVisibility = {}
-    const common = importBooleanFromYAML(context, undefined, visibility.Общее)
+    const common = importBooleanFromYAML(context, undefined, entry.Общее)
     if (common !== undefined) item.common = common
 
-    if (visibility.Роли !== undefined) {
+    if (entry.Роли !== undefined) {
       const roles: Record<string, boolean> = {}
-      for (const [roleName, roleVisibility] of Object.entries(visibility.Роли)) {
+      for (const [roleName, roleVisibility] of Object.entries(entry.Роли)) {
         const importedRoleName = importMetadataItemLinkFromYAML(context, roleNameRule, roleName)
         const importedValue = importBooleanFromYAML(context, undefined, roleVisibility)
         if (importedRoleName !== undefined && importedValue !== undefined) roles[importedRoleName] = importedValue
@@ -250,10 +296,38 @@ const importVisibilityMapFromYAML = (
       if (Object.keys(roles).length > 0) item.roles = roles
     }
 
-    if (Object.keys(item).length > 0) result[name] = item
+    return Object.keys(item).length > 0 ? item : undefined
   }
 
-  return Object.keys(result).length > 0 ? result : undefined
+  if (!shouldUseVisibilityList(rule)) {
+    const result: CommandInterfaceVisibilityRecord = {}
+    const entries = Array.isArray(yaml)
+      ? yaml
+      : Object.entries(yaml as CommandInterfaceVisibilityYAMLRecord).map(([command, entry]) => ({
+          Команда: command,
+          ...entry,
+    }))
+    for (const entry of entries) {
+      const item = importEntry(entry)
+      if (item !== undefined) result[entry.Команда] = item
+    }
+
+    return Object.keys(result).length > 0 ? (result as unknown as CommandInterfaceVisibilityMap) : undefined
+  }
+
+  const result: CommandInterfaceVisibilityMap = []
+  const entries = Array.isArray(yaml)
+    ? yaml
+    : Object.entries(yaml as CommandInterfaceVisibilityYAMLRecord).map(([command, entry]) => ({
+        Команда: command,
+        ...entry,
+      }))
+  for (const entry of entries) {
+    const item = importEntry(entry)
+    if (item !== undefined) result.push({ command: entry.Команда, visibility: item })
+  }
+
+  return result.length > 0 ? result : undefined
 }
 
 const exportVisibilityMapToYAML = (
@@ -263,9 +337,8 @@ const exportVisibilityMapToYAML = (
 ): CommandInterfaceVisibilityMapYAML | undefined => {
   if (value === undefined) return undefined
 
-  const result: CommandInterfaceVisibilityMapYAML = {}
-  for (const [name, visibility] of Object.entries(value)) {
-    const item: CommandInterfaceVisibilityMapYAML[string] = {}
+  const exportItem = (command: string, visibility: CommandInterfaceVisibility) => {
+    const item: CommandInterfaceVisibilityMapYAML[number] = { Команда: command }
     const common = exportBooleanToYAML(context, undefined, visibility.common)
     if (common !== undefined) item.Общее = common
 
@@ -279,10 +352,29 @@ const exportVisibilityMapToYAML = (
       if (Object.keys(roles).length > 0) item.Роли = roles
     }
 
-    if (Object.keys(item).length > 0) result[name] = item
+    return item.Общее !== undefined || item.Роли !== undefined ? item : undefined
   }
 
-  return Object.keys(result).length > 0 ? result : undefined
+  if (!Array.isArray(value)) {
+    const result: CommandInterfaceVisibilityYAMLRecord = {}
+    for (const [command, visibility] of Object.entries(value as CommandInterfaceVisibilityRecord)) {
+      const item = exportItem(command, visibility)
+      if (item !== undefined) {
+        const { Команда: _command, ...rest } = item
+        result[command] = rest
+      }
+    }
+
+    return Object.keys(result).length > 0 ? (result as unknown as CommandInterfaceVisibilityMapYAML) : undefined
+  }
+
+  const result: CommandInterfaceVisibilityMapYAML = []
+  for (const { command, visibility } of value) {
+    const item = exportItem(command, visibility)
+    if (item !== undefined) result.push(item)
+  }
+
+  return result.length > 0 ? result : undefined
 }
 
 const importPlacementMapFromXML = (
@@ -292,29 +384,38 @@ const importPlacementMapFromXML = (
 ): CommandInterfacePlacementMap | undefined => {
   if (xml === undefined) return undefined
 
-  const result: CommandInterfacePlacementMap = {}
+  const result: CommandInterfacePlacementMap = []
   for (const item of toArray(xml.Command)) {
     const name = getXMLName(item)
     if (name === undefined) continue
-    result[name] = {
+    result.push({
+      command: name,
       commandGroup: item.CommandGroup,
       placement: item.Placement,
-    }
+    })
   }
 
   defineReferenceRawXML({ context, target: result, xml })
-  return Object.keys(result).length > 0 ? result : undefined
+  return result.length > 0 ? result : undefined
 }
 
 const exportPlacementMapToXML: ExportToXMLFunctionNew = ({ value, referenceMetadata }) => {
   if (value === undefined) return undefined
 
   const placementMap = value as CommandInterfacePlacementMap
-  const items = Object.entries(placementMap).map(([name, placement]) => {
-    const referenceItem = findReferenceXMLItemByName({ referenceMetadata, itemKey: "Command", name })
+  const referenceIndexes = new Map<string, number>()
+  const items = placementMap.map((placement) => {
+    const referenceIndex = referenceIndexes.get(placement.command) ?? 0
+    referenceIndexes.set(placement.command, referenceIndex + 1)
+    const referenceItem = findReferenceXMLItemByNameAndIndex({
+      referenceMetadata,
+      itemKey: "Command",
+      name: placement.command,
+      index: referenceIndex,
+    })
     return mergeXMLItemWithReference({
       referenceItem,
-      name,
+      name: placement.command,
       knownValues: {
         CommandGroup: placement.commandGroup,
         Placement: placement.placement,
@@ -332,15 +433,13 @@ const importPlacementMapFromYAML = (
 ): CommandInterfacePlacementMap | undefined => {
   if (yaml === undefined) return undefined
 
-  const result: CommandInterfacePlacementMap = {}
-  for (const [name, placement] of Object.entries(yaml)) {
-    result[name] = {
-      commandGroup: placement.ГруппаКоманд !== undefined ? commandGroupFromYAML(placement.ГруппаКоманд) : undefined,
-      placement: placement.Размещение !== undefined ? placementValueFromYAML(placement.Размещение) : undefined,
-    }
-  }
+  const result: CommandInterfacePlacementMap = yaml.map((entry) => ({
+    command: entry.Команда,
+    commandGroup: entry.ГруппаКоманд !== undefined ? commandGroupFromYAML(entry.ГруппаКоманд) : undefined,
+    placement: entry.Размещение !== undefined ? placementValueFromYAML(entry.Размещение) : undefined,
+  }))
 
-  return Object.keys(result).length > 0 ? result : undefined
+  return result.length > 0 ? result : undefined
 }
 
 const exportPlacementMapToYAML = (
@@ -350,15 +449,13 @@ const exportPlacementMapToYAML = (
 ): CommandInterfacePlacementMapYAML | undefined => {
   if (value === undefined) return undefined
 
-  const result: CommandInterfacePlacementMapYAML = {}
-  for (const [name, placement] of Object.entries(value)) {
-    result[name] = {
-      ГруппаКоманд: placement.commandGroup !== undefined ? commandGroupToYAML(placement.commandGroup) : undefined,
-      Размещение: placement.placement !== undefined ? placementValueToYAML(placement.placement) : undefined,
-    }
-  }
+  const result: CommandInterfacePlacementMapYAML = value.map((placement) => ({
+    Команда: placement.command,
+    ГруппаКоманд: placement.commandGroup !== undefined ? commandGroupToYAML(placement.commandGroup) : undefined,
+    Размещение: placement.placement !== undefined ? placementValueToYAML(placement.placement) : undefined,
+  }))
 
-  return Object.keys(result).length > 0 ? result : undefined
+  return result.length > 0 ? result : undefined
 }
 
 const importOrderFromXML = (

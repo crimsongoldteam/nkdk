@@ -139,7 +139,11 @@ describe("export RootCommandInterface to XML", () => {
 </CommandInterface>`
 
     const result = roundTripRootCommandInterfaceThroughYAML(xmlString, (yaml) => {
-      yaml.ВидимостьКоманд["Catalog.Товары.StandardCommand.OpenList"].Роли!.Администратор = "Истина"
+      const visibility = yaml.ВидимостьКоманд!.find(
+        (item) => item.Команда === "Catalog.Товары.StandardCommand.OpenList"
+      )
+      expect(visibility).toBeDefined()
+      visibility!.Роли!.Администратор = "Истина"
     })
 
     expect(result).toContain('<xr:Value custom="keep" name="Role.Администратор">')
@@ -166,8 +170,12 @@ describe("export RootCommandInterface to XML", () => {
 </CommandInterface>`
 
     const result = roundTripRootCommandInterfaceThroughYAML(xmlString, (yaml) => {
-      yaml.РазмещениеКоманд["Catalog.Товары.StandardCommand.OpenList"].Размещение = "Авто"
-      yaml.ПорядокКоманд[0].ГруппаКоманд = "ПанельДействийСоздать"
+      const placement = yaml.РазмещениеКоманд!.find(
+        (item) => item.Команда === "Catalog.Товары.StandardCommand.OpenList"
+      )
+      expect(placement).toBeDefined()
+      placement!.Размещение = "Авто"
+      yaml.ПорядокКоманд![0].ГруппаКоманд = "ПанельДействийСоздать"
     })
 
     expect(result).toContain('placementAttribute="keep"')
