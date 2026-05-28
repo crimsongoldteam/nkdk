@@ -1,4 +1,6 @@
 import { commonRegisterFieldProperties } from "~/metadata/commonObjects/metadataRegisterField/rules"
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
+import { ConfigurationContext } from "~/metadata/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 const hasExplicitProperty = (propertyKey: string) => (metadataItem: unknown): boolean =>
@@ -9,6 +11,22 @@ const hasExplicitProperty = (propertyKey: string) => (metadataItem: unknown): bo
 
 const accountingFlagProperties = {
   ...commonRegisterFieldProperties,
+  synonym: {
+    ...commonRegisterFieldProperties.synonym,
+    defaultValue: ({
+      context,
+      name,
+      operation,
+    }: {
+      context: ConfigurationContext
+      yaml?: unknown
+      name?: string
+      operation?: string
+    }) =>
+      operation === "importFromYAML" && name
+        ? addDefaultLanguageNameToSynonym(context, undefined, name)
+        : { items: {} },
+  },
   indexing: {
     ...commonRegisterFieldProperties.indexing,
     toXML: hasExplicitProperty("indexing"),
