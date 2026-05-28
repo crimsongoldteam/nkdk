@@ -29,6 +29,7 @@ import { MetadataInformationRegisterRules } from "../metadataInformationRegister
 import { readInformationRegisterYAML } from "../metadataInformationRegister/__fixtures__/sync/data"
 import { MetadataIntegrationServiceRules } from "../metadataIntegrationService/rules"
 import { readIntegrationServiceYAML } from "../metadataIntegrationService/__fixtures__/sync/data"
+import { MetadataLanguageRules } from "../metadataLanguage/rules"
 import { MetadataRoleRules } from "../metadataRole/rules"
 import { readRoleYAML } from "../metadataRole/__fixtures__/sync/data"
 import { MetadataScheduledJobRules } from "../metadataScheduledJob/rules"
@@ -349,6 +350,15 @@ export const appliedObjectYAMLFixtures = [
       expectedYAML: readWebServiceYAML,
       externalObjectDir: true,
     },
+  },
+  {
+    group: "metadataLanguage",
+    rule: MetadataLanguageRules,
+    importMetaUrl: import.meta.resolve("../metadataLanguage/rules.ts"),
+    modelFixtures: [
+      { fixture: "en.xml", name: "Английский" },
+      { fixture: "ru.xml", name: "Русский" },
+    ],
   },
 ] as const satisfies AppliedObjectYAMLFixture[]
 
