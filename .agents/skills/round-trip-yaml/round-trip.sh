@@ -41,6 +41,7 @@ is_positive_integer() {
 }
 
 KNOWN_XML_DIRS=("Catalogs" "Documents" "DocumentNumerators" "Sequences" "Enums")
+REFERENCE_ONLY_XML_FILES=("Ext/ParentConfigurations.bin")
 
 is_config_dir() {
   local candidate="$1"
@@ -140,6 +141,26 @@ move_dir_contents() {
   [ -d "${source_dir}" ] || die "каталог-источник не существует: ${source_dir}"
   mkdir -p "${target_dir}"
   find "${source_dir}" -mindepth 1 -maxdepth 1 ! -name .git -exec mv {} "${target_dir}/" \;
+}
+
+preserve_reference_only_files() {
+  local reference_dir="$1"
+  local output_dir="$2"
+  local relative_path
+  local source_path
+  local target_path
+
+  for relative_path in "${REFERENCE_ONLY_XML_FILES[@]}"; do
+    source_path="${reference_dir%/}/${relative_path}"
+    target_path="${output_dir%/}/${relative_path}"
+
+    [ -f "${source_path}" ] || continue
+    [ ! -e "${target_path}" ] || continue
+
+    mkdir -p "$(dirname "${target_path}")"
+    cp -p "${source_path}" "${target_path}"
+    echo "[xml] Сохранён reference-only файл: ${relative_path}"
+  done
 }
 
 run_nkdk() {
@@ -299,6 +320,8 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
     echo "XML_TMP_DIR: ${RUN_XML_TMP_DIR}"
     exit 1
   fi
+
+  preserve_reference_only_files "${RUN_XML_DIR}" "${RUN_XML_TMP_DIR}"
 
   echo "[xml] Замена XML-каталога результатом временного XML: ${RUN_XML_DIR}"
   clear_dir_contents "${RUN_XML_DIR}"

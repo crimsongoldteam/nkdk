@@ -53,39 +53,43 @@ export const syncAppliedObjectToXML = async (params: {
 
   const referenceName = params.referenceName ?? name
   const referenceXmlPath = join(referenceDir, `${referenceName}.xml`)
-  const loadedReferenceModel = params.referenceModel === undefined
-    ? readReferenceModel({ context: contextFromXML, xmlPath: referenceXmlPath, rule })
-    : (params.referenceModel ?? undefined)
-  const filePathReferenceValues = params.referenceModel === null
-    ? {}
-    : readFilePathReferenceValues({
-        context: contextFromXML,
-        rule,
-        externalReferenceDir,
-        referenceName,
-        hasExplicitExternalReferenceDir,
-      })
-  const sourceForYAMLImport = params.referenceModel === null
-    ? undefined
-    : filterFilePathReferenceValuesForYAMLImport({
-        rule,
-        yaml: yamlObj,
-        filePathReferenceValues,
-      })
+  const loadedReferenceModel =
+    params.referenceModel === undefined
+      ? readReferenceModel({ context: contextFromXML, xmlPath: referenceXmlPath, rule })
+      : (params.referenceModel ?? undefined)
+  const filePathReferenceValues =
+    params.referenceModel === null
+      ? {}
+      : readFilePathReferenceValues({
+          context: contextFromXML,
+          rule,
+          externalReferenceDir,
+          referenceName,
+          hasExplicitExternalReferenceDir,
+        })
+  const sourceForYAMLImport =
+    params.referenceModel === null
+      ? undefined
+      : filterFilePathReferenceValuesForYAMLImport({
+          rule,
+          yaml: yamlObj,
+          filePathReferenceValues,
+        })
   const rawModel = importMetadataItemFromYAML({ context, yaml: yamlObj, rule, name, source: sourceForYAMLImport })
 
   if (!rawModel) return
   const model = { ...rawModel, name } as typeof rawModel
 
-  const referenceModel = params.referencePathByCurrentPath?.size && params.currentObjectPath
-    ? remapReferenceModel({
-        rule,
-        currentObjectPath: params.currentObjectPath,
-        currentModel: model as Record<string, unknown>,
-        referenceModel: loadedReferenceModel as Record<string, unknown> | undefined,
-        referencePathByCurrentPath: params.referencePathByCurrentPath,
-      })
-    : loadedReferenceModel
+  const referenceModel =
+    params.referencePathByCurrentPath?.size && params.currentObjectPath
+      ? remapReferenceModel({
+          rule,
+          currentObjectPath: params.currentObjectPath,
+          currentModel: model as Record<string, unknown>,
+          referenceModel: loadedReferenceModel as Record<string, unknown> | undefined,
+          referencePathByCurrentPath: params.referencePathByCurrentPath,
+        })
+      : loadedReferenceModel
 
   const forms = await collectFolderNames(rule, "ChildFormNames", inputDir, name)
   const templates = await collectFolderNames(rule, "ChildTemplateNames", inputDir, name)
@@ -186,9 +190,10 @@ export const syncAppliedObjectToXML = async (params: {
     }) as Record<string, unknown> | undefined
     if (!xmlFileObj) continue
 
-    const extOutputPath = fs.existsSync(rootReferenceExtPath) || hasExplicitExternalOutputDir
-      ? join(externalOutputDir, propRule.filePath)
-      : join(externalOutputDir, name, propRule.filePath)
+    const extOutputPath =
+      fs.existsSync(rootReferenceExtPath) || hasExplicitExternalOutputDir
+        ? join(externalOutputDir, propRule.filePath)
+        : join(externalOutputDir, name, propRule.filePath)
     await fs.promises.mkdir(dirname(extOutputPath), { recursive: true })
     await fs.promises.writeFile(extOutputPath, xmlExport(xmlFileObj), "utf-8")
     params.xmlManifest?.addFile(extOutputPath)
@@ -317,7 +322,9 @@ function addChildCollectionReferenceNames(params: {
       : Object.keys(collectionModel)
     if (itemNames.length === 0) continue
 
-    const fileRootContainer = childCollection.fileItemRule ? getXMLRootContainer(childCollection.fileItemRule) : undefined
+    const fileRootContainer = childCollection.fileItemRule
+      ? getXMLRootContainer(childCollection.fileItemRule)
+      : undefined
     if (!fileRootContainer) continue
     const referenceNamesEntry = Object.entries(params.rule.properties).find(([, propertyRule]) => {
       if (propertyRule.type !== "ChildFormNames") return false
@@ -332,7 +339,7 @@ function addChildCollectionReferenceNames(params: {
 
 function getXMLRootContainer(rule: MetadataItemRule): string | undefined {
   const xmlRootEntry = Object.entries(rule.properties).find(([, propertyRule]) => propertyRule.type === "XMLRoot")
-  return xmlRootEntry ? ((xmlRootEntry[1] as { container?: string }).container) : undefined
+  return xmlRootEntry ? (xmlRootEntry[1] as { container?: string }).container : undefined
 }
 
 const resolveChildCollectionDir = (

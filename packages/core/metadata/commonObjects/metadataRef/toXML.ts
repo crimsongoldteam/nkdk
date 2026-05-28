@@ -8,7 +8,7 @@ export function exportMetadataItemLinkToXML(
   rule: PropertyRule | undefined,
   data: MetadataItemLink | undefined
 ): MetadataItemLinkXML | undefined {
-  if (!data) return undefined
+  if (data === undefined) return undefined
 
   const typedXML = rule?.typedXML
 

@@ -94,6 +94,8 @@ const defaultOptions = {
 function compress(arr: any[], options: any, jPath: string): any {
   let text: any
   let compressedObj: any
+  const childOrder: Array<{ key: string; index: number }> = []
+  const childCounts: Record<string, number> = {}
   if (options.preserveOrder) {
     compressedObj = []
   } else {
@@ -112,6 +114,11 @@ function compress(arr: any[], options: any, jPath: string): any {
     } else if (property === undefined) {
       continue
     } else if (property) {
+      const propertyIndex = childCounts[property] ?? 0
+      childCounts[property] = propertyIndex + 1
+      if (!options.preserveOrder) {
+        childOrder.push({ key: property, index: propertyIndex })
+      }
       // Check for attributes first - they can be in different locations depending on parser config
       // With preserveOrder: true and attributesGroupName: "@attributes", they're in tagObj[":@"]["@attributes"]
       // Otherwise they might be in tagObj["@attributes"] or tagObj[":@"]
@@ -164,7 +171,7 @@ function compress(arr: any[], options: any, jPath: string): any {
         continue
       }
 
-      if (compressedObj[property] !== undefined && compressedObj.hasOwnProperty(property)) {
+      if (compressedObj.hasOwnProperty(property)) {
         if (!isArray && !Array.isArray(compressedObj[property])) {
           compressedObj[property] = [compressedObj[property]]
         }
@@ -177,6 +184,12 @@ function compress(arr: any[], options: any, jPath: string): any {
   if (typeof text === "string") {
     if (text.length > 0) compressedObj[options.textNodeName] = text
   } else if (text !== undefined) compressedObj[options.textNodeName] = text
+  if (!options.preserveOrder && childOrder.length > 0 && compressedObj && typeof compressedObj === "object") {
+    Object.defineProperty(compressedObj, METADATA_SYMBOL, {
+      value: { childOrder },
+      enumerable: false,
+    })
+  }
   return compressedObj
 }
 

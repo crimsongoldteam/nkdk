@@ -8,8 +8,17 @@ import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
 import { mockContextToXML } from "~/tests/mockContext"
 import { MetadataSubsystemRules } from "./rules"
 
-const normalizeXML = (value: string): string => value.replace(/\r\n/g, "\n")
-const commandInterfaceXML = "<CommandInterface>nested</CommandInterface>"
+const normalizeXML = (value: string): string => value.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n")
+const commandInterfaceYAML = `КомандныйИнтерфейс:
+  ПорядокГрупп:
+    - ПанельНавигацииОбычное
+`
+const commandInterfaceXML = `<?xml version="1.0" encoding="UTF-8"?>
+<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<GroupsOrder>
+		<Group>NavigationPanelOrdinary</Group>
+	</GroupsOrder>
+</CommandInterface>`
 
 describe("syncAppliedObjectToXML — MetadataSubsystem", () => {
   it("читает YAML и записывает XML в outputDir", async () => {
@@ -30,23 +39,26 @@ describe("syncAppliedObjectToXML — MetadataSubsystem", () => {
     const outputDir = fs.mkdtempSync(join(os.tmpdir(), "subsystem-sync-xml-"))
     const xmlManifest = new XmlSyncManifest(outputDir)
 
-    writeFile(join(inputDir, "Администрирование", "Свойства.yaml"), `Синоним: Администрирование
+    writeFile(
+      join(inputDir, "Администрирование", "Свойства.yaml"),
+      `Синоним: Администрирование
 Подсистемы:
   - НастройкиПрограммы
-`)
+`
+    )
     writeFile(
       join(inputDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "Свойства.yaml"),
-      "Синоним: Настройки программы\n"
+      `Синоним: Настройки программы
+${commandInterfaceYAML}`
     )
     writeFile(
-      join(inputDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "CommandInterface.xml"),
-      commandInterfaceXML
+      join(referenceDir, "Администрирование.xml"),
+      subsystemXML({
+        name: "Администрирование",
+        synonym: "Администрирование",
+        childName: "НастройкиПрограммы",
+      })
     )
-    writeFile(join(referenceDir, "Администрирование.xml"), subsystemXML({
-      name: "Администрирование",
-      synonym: "Администрирование",
-      childName: "НастройкиПрограммы",
-    }))
     writeFile(
       join(referenceDir, "Администрирование", "Subsystems", "НастройкиПрограммы.xml"),
       subsystemXML({ name: "НастройкиПрограммы", synonym: "Настройки программы" })
@@ -64,9 +76,11 @@ describe("syncAppliedObjectToXML — MetadataSubsystem", () => {
 
     expect(fs.existsSync(join(outputDir, "Администрирование", "Subsystems", "НастройкиПрограммы.xml"))).toBe(true)
     expect(
-      fs.readFileSync(
-        join(outputDir, "Администрирование", "Subsystems", "НастройкиПрограммы", "Ext", "CommandInterface.xml"),
-        "utf-8"
+      normalizeXML(
+        fs.readFileSync(
+          join(outputDir, "Администрирование", "Subsystems", "НастройкиПрограммы", "Ext", "CommandInterface.xml"),
+          "utf-8"
+        )
       )
     ).toBe(commandInterfaceXML)
     expect(xmlManifest.expectedFiles()).toContain("Администрирование/Subsystems/НастройкиПрограммы.xml")
@@ -81,20 +95,19 @@ describe("syncAppliedObjectToXML — MetadataSubsystem", () => {
     const outputDir = fs.mkdtempSync(join(os.tmpdir(), "subsystem-sync-xml-"))
     const xmlManifest = new XmlSyncManifest(outputDir)
 
-    writeFile(join(inputDir, "Администрирование", "Свойства.yaml"), `Синоним: Администрирование
+    writeFile(
+      join(inputDir, "Администрирование", "Свойства.yaml"),
+      `Синоним: Администрирование
 Подсистемы:
   - НастройкиПрограммы
-`)
+`
+    )
     writeFile(
       join(inputDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "Свойства.yaml"),
       `Синоним: Настройки программы
 Подсистемы:
   - Интерфейс
 `
-    )
-    writeFile(
-      join(inputDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "Подсистемы", "Интерфейс", "Свойства.yaml"),
-      "Синоним: Интерфейс\n"
     )
     writeFile(
       join(
@@ -104,15 +117,19 @@ describe("syncAppliedObjectToXML — MetadataSubsystem", () => {
         "НастройкиПрограммы",
         "Подсистемы",
         "Интерфейс",
-        "CommandInterface.xml"
+        "Свойства.yaml"
       ),
-      commandInterfaceXML
+      `Синоним: Интерфейс
+${commandInterfaceYAML}`
     )
-    writeFile(join(referenceDir, "Администрирование.xml"), subsystemXML({
-      name: "Администрирование",
-      synonym: "Администрирование",
-      childName: "НастройкиПрограммы",
-    }))
+    writeFile(
+      join(referenceDir, "Администрирование.xml"),
+      subsystemXML({
+        name: "Администрирование",
+        synonym: "Администрирование",
+        childName: "НастройкиПрограммы",
+      })
+    )
     writeFile(
       join(referenceDir, "Администрирование", "Subsystems", "НастройкиПрограммы.xml"),
       subsystemXML({ name: "НастройкиПрограммы", synonym: "Настройки программы", childName: "Интерфейс" })
@@ -151,18 +168,20 @@ describe("syncAppliedObjectToXML — MetadataSubsystem", () => {
       )
     ).toBe(false)
     expect(
-      fs.readFileSync(
-        join(
-          outputDir,
-          "Администрирование",
-          "Subsystems",
-          "НастройкиПрограммы",
-          "Subsystems",
-          "Интерфейс",
-          "Ext",
-          "CommandInterface.xml"
-        ),
-        "utf-8"
+      normalizeXML(
+        fs.readFileSync(
+          join(
+            outputDir,
+            "Администрирование",
+            "Subsystems",
+            "НастройкиПрограммы",
+            "Subsystems",
+            "Интерфейс",
+            "Ext",
+            "CommandInterface.xml"
+          ),
+          "utf-8"
+        )
       )
     ).toBe(commandInterfaceXML)
     expect(xmlManifest.expectedFiles()).toContain(
@@ -179,7 +198,11 @@ const writeFile = (path: string, content: string): void => {
   fs.writeFileSync(path, content, "utf-8")
 }
 
-const subsystemXML = (params: { name: string; synonym: string; childName?: string }): string => `<?xml version="1.0" encoding="UTF-8"?>
+const subsystemXML = (params: {
+  name: string
+  synonym: string
+  childName?: string
+}): string => `<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
 	<Subsystem uuid="00000000-0000-0000-0000-000000000001">
 		<Properties>

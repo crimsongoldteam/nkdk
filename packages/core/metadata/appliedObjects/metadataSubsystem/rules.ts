@@ -1,4 +1,5 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
+import "~/metadata/commonObjects/rootCommandInterface/register"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 const properties = ["Properties"]
@@ -109,11 +110,9 @@ export const MetadataSubsystemRules = {
       runtimeOnly: true,
     },
     commandInterface: {
-      type: "Template",
-      nkdkPath: "CommandInterface.xml",
-      xmlPath: "Ext/CommandInterface.xml",
-      toXML: false,
-      fromXML: false,
+      yaml: "КомандныйИнтерфейс",
+      type: "RootCommandInterface",
+      filePath: "Ext/CommandInterface.xml",
     },
     help: {
       type: "Help",

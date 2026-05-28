@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { getTypeRule } from "~/metadata/orchestration"
 import { ExportToYAMLFunction } from "~/metadata/orchestration/property/fn"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportMetadataItemLinkToYAML } from "./toYAML"
+import { exportMetadataItemLinkToYAML, exportMetadataItemLinksToYAML } from "./toYAML"
 
 describe("exportMetadataItemLinkToYAML", () => {
   it("should export metadata item link to enterprise", () => {
@@ -23,5 +23,35 @@ describe("exportMetadataItemLinkToYAML", () => {
     const result = exportToYAML(mockContext, mockRule, "Document.Встреча")
 
     expect(result).toEqual("Документ.Встреча")
+  })
+
+  it("exports role references without Role prefix when rule asks for name form", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(exportMetadataItemLinkToYAML(mockContext, rule, "Role.Администратор")).toBe("Администратор")
+  })
+
+  it("keeps non-role references unchanged in short role mode", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(exportMetadataItemLinkToYAML(mockContext, rule, "CommonForm.НачалоРаботы")).toBe(
+      "CommonForm.НачалоРаботы"
+    )
+  })
+})
+
+describe("exportMetadataItemLinksToYAML", () => {
+  it("exports role references without Role prefix when rule asks for name form", () => {
+    const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
+
+    expect(exportMetadataItemLinksToYAML(mockContext, rule, ["Role.Администратор"])).toEqual(["Администратор"])
+  })
+
+  it("keeps non-role references unchanged in mixed short role mode list", () => {
+    const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
+
+    expect(exportMetadataItemLinksToYAML(mockContext, rule, ["Role.Администратор", "CommonForm.НачалоРаботы"])).toEqual(
+      ["Администратор", "CommonForm.НачалоРаботы"]
+    )
   })
 })

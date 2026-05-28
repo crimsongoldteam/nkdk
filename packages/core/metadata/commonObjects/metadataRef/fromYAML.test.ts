@@ -24,6 +24,29 @@ describe("importMetadataItemLinkFromYAML", () => {
 
     expect(result).toEqual("CommonCommand.ПланСчетов")
   })
+
+  it("imports short role references back to full Role reference when rule asks for name form", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(importMetadataItemLinkFromYAML(mockContext, rule, "Администратор")).toBe("Role.Администратор")
+    expect(importMetadataItemLinkFromYAML(mockContext, rule, "Role.Администратор")).toBe("Role.Администратор")
+  })
+
+  it("keeps non-role references unchanged in short role mode", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(importMetadataItemLinkFromYAML(mockContext, rule, "CommonForm.НачалоРаботы")).toBe(
+      "CommonForm.НачалоРаботы"
+    )
+  })
+
+  it("keeps uuid-like visibility keys unchanged in short role mode", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(importMetadataItemLinkFromYAML(mockContext, rule, "418deaa0-683e-4862-9348-c0086ba6909f")).toBe(
+      "418deaa0-683e-4862-9348-c0086ba6909f"
+    )
+  })
 })
 
 describe("importMetadataItemLinksFromYAML", () => {
@@ -34,5 +57,20 @@ describe("importMetadataItemLinksFromYAML", () => {
     ])
 
     expect(result).toEqual(["CommonCommand.ПланСчетов", "Document.Продажа"])
+  })
+
+  it("imports short role references back to full Role reference when rule asks for name form", () => {
+    const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
+
+    expect(importMetadataItemLinksFromYAML(mockContext, rule, ["Администратор"])).toEqual(["Role.Администратор"])
+  })
+
+  it("keeps non-role references unchanged in mixed short role mode list", () => {
+    const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
+
+    expect(importMetadataItemLinksFromYAML(mockContext, rule, ["Администратор", "CommonForm.НачалоРаботы"])).toEqual([
+      "Role.Администратор",
+      "CommonForm.НачалоРаботы",
+    ])
   })
 })

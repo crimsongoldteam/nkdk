@@ -117,7 +117,11 @@ async function syncChildCollectionsFromXML(params: {
           }) as Record<string, unknown> | undefined
           if (childModel) {
             Object.assign(item.model, childModel)
-            addReferenceNamesFromXML({ model: item.model, rule: childCollection.fileItemRule, xml: childParsed.MetaDataObject })
+            addReferenceNamesFromXML({
+              model: item.model,
+              rule: childCollection.fileItemRule,
+              xml: childParsed.MetaDataObject,
+            })
           }
         }
       }
@@ -160,7 +164,9 @@ function addReferenceNamesFromXML(params: {
   if (!root || typeof root !== "object") return
 
   for (const childCollection of params.rule.childCollections ?? []) {
-    const fileRootContainer = childCollection.fileItemRule ? getXMLRootContainer(childCollection.fileItemRule) : undefined
+    const fileRootContainer = childCollection.fileItemRule
+      ? getXMLRootContainer(childCollection.fileItemRule)
+      : undefined
     if (!fileRootContainer) continue
     const referenceNamesEntry = Object.entries(params.rule.properties).find(([, propertyRule]) => {
       if (propertyRule.type !== "ChildFormNames") return false
@@ -168,7 +174,10 @@ function addReferenceNamesFromXML(params: {
     })
     if (!referenceNamesEntry) continue
     const [propertyKey, propertyRule] = referenceNamesEntry
-    const xmlValue = readXMLPath(root as Record<string, unknown>, [...(propertyRule.xmlParents ?? []), fileRootContainer])
+    const xmlValue = readXMLPath(root as Record<string, unknown>, [
+      ...(propertyRule.xmlParents ?? []),
+      fileRootContainer,
+    ])
     if (xmlValue === undefined) continue
     params.model[propertyKey] = Array.isArray(xmlValue) ? xmlValue : [xmlValue]
   }
@@ -189,7 +198,9 @@ function addChildCollectionsFromReferenceNames(params: {
 }): void {
   for (const childCollection of params.rule.childCollections ?? []) {
     if (params.model[childCollection.propertyKey] !== undefined) continue
-    const fileRootContainer = childCollection.fileItemRule ? getXMLRootContainer(childCollection.fileItemRule) : undefined
+    const fileRootContainer = childCollection.fileItemRule
+      ? getXMLRootContainer(childCollection.fileItemRule)
+      : undefined
     if (!fileRootContainer) continue
     const referenceNamesEntry = Object.entries(params.rule.properties).find(([, propertyRule]) => {
       if (propertyRule.type !== "ChildFormNames") return false

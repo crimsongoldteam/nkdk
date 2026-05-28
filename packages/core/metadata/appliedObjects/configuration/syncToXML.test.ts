@@ -16,6 +16,7 @@ describe("sync configuration to XML", () => {
   const referenceDir = getXMLFixturePath("sync/syncConfiguration/xml")
   const outputDir = getXMLFixturePath("sync/syncConfiguration/out-to-xml")
   const catalogName = "Контрагенты"
+  const normalizeXML = (value: string): string => value.replace(/\r\n/g, "\n").replace(/^\uFEFF/, "").trimEnd()
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {
@@ -78,14 +79,278 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("сохраняет простые корневые внешние файлы конфигурации в XML", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const outputDir = join(tmp, "out")
+    const managedApplicationModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
+    const sessionModule = "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n"
+    const externalConnectionModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
+    const ordinaryApplicationModule = "Процедура ПередНачаломРаботыСистемы()\nКонецПроцедуры\n"
+
+    try {
+      fs.mkdirSync(join(yamlDir, "КартинкаОсновногоРаздела"), { recursive: true })
+      fs.mkdirSync(join(yamlDir, "Заставка"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(join(yamlDir, "МодульПриложения.bsl"), managedApplicationModule, "utf-8")
+      fs.writeFileSync(join(yamlDir, "МодульСеанса.bsl"), sessionModule, "utf-8")
+      fs.writeFileSync(join(yamlDir, "МодульВнешнегоСоединения.bsl"), externalConnectionModule, "utf-8")
+      fs.writeFileSync(join(yamlDir, "МодульОбычногоПриложения.bsl"), ordinaryApplicationModule, "utf-8")
+      fs.writeFileSync(join(yamlDir, "ПодписьМобильногоКлиента.bin"), Buffer.from([0, 1, 2, 255]))
+      fs.writeFileSync(join(yamlDir, "КартинкаОсновногоРаздела", "MainSectionPicture.xml"), "<MainSectionPicture/>", "utf-8")
+      fs.writeFileSync(join(yamlDir, "КартинкаОсновногоРаздела", "Picture.svg"), "<svg/>", "utf-8")
+      fs.writeFileSync(join(yamlDir, "Заставка", "Splash.xml"), "<Splash/>", "utf-8")
+      fs.writeFileSync(join(yamlDir, "Заставка", "Picture.png"), Buffer.from([137, 80, 78, 71]))
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir,
+      })
+
+      expect(fs.readFileSync(join(outputDir, "Ext", "ManagedApplicationModule.bsl"), "utf-8")).toBe(
+        managedApplicationModule,
+      )
+      expect(fs.readFileSync(join(outputDir, "Ext", "SessionModule.bsl"), "utf-8")).toBe(sessionModule)
+      expect(fs.readFileSync(join(outputDir, "Ext", "ExternalConnectionModule.bsl"), "utf-8")).toBe(
+        externalConnectionModule,
+      )
+      expect(fs.readFileSync(join(outputDir, "Ext", "OrdinaryApplicationModule.bsl"), "utf-8")).toBe(
+        ordinaryApplicationModule,
+      )
+      expect([...fs.readFileSync(join(outputDir, "Ext", "MobileClientSignature.bin"))]).toEqual([0, 1, 2, 255])
+      expect(fs.readFileSync(join(outputDir, "Ext", "MainSectionPicture.xml"), "utf-8")).toBe("<MainSectionPicture/>")
+      expect(fs.readFileSync(join(outputDir, "Ext", "MainSectionPicture", "Picture.svg"), "utf-8")).toBe("<svg/>")
+      expect(fs.readFileSync(join(outputDir, "Ext", "Splash.xml"), "utf-8")).toBe("<Splash/>")
+      expect([...fs.readFileSync(join(outputDir, "Ext", "Splash", "Picture.png"))]).toEqual([137, 80, 78, 71])
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("восстанавливает корневые command interface XML из Конфигурация.yaml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-command-interface-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.mkdirSync(join(outDir, "Ext"), { recursive: true })
+      fs.writeFileSync(join(outDir, "Ext", "Old.xml"), "<Old/>", "utf-8")
+      fs.writeFileSync(
+        join(yamlDir, CONFIGURATION_YAML_FILE),
+        [
+          "Имя: Конфигурация",
+          "КомандныйИнтерфейс:",
+          "  ВидимостьПодсистем:",
+          "    Subsystem.ПодсистемаПоУмолчанию:",
+          "      Общее: Ложь",
+          "      Роли:",
+          "        Администратор: Ложь",
+          "  ПорядокПодсистем:",
+          "    - Subsystem.ПодсистемаПоУмолчанию",
+          "КомандныйИнтерфейсОсновногоРаздела:",
+          "  ПорядокГрупп:",
+          "    - ПанельНавигацииОбычное",
+          "",
+        ].join("\n"),
+        "utf-8",
+      )
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      const commandInterfaceXML = fs.readFileSync(join(outDir, "Ext", "CommandInterface.xml"), "utf-8")
+      const mainSectionXML = fs.readFileSync(join(outDir, "Ext", "MainSectionCommandInterface.xml"), "utf-8")
+
+      expect(normalizeXML(commandInterfaceXML)).toContain("<SubsystemsVisibility>")
+      expect(commandInterfaceXML).toContain("<Subsystem>Subsystem.ПодсистемаПоУмолчанию</Subsystem>")
+      expect(commandInterfaceXML).toContain('<xr:Value name="Role.Администратор">false</xr:Value>')
+      expect(mainSectionXML).toContain("<Group>NavigationPanelOrdinary</Group>")
+      expect(fs.existsSync(join(outDir, "Ext", "Old.xml"))).toBe(false)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("восстанавливает корневой ClientApplicationInterface.xml из Конфигурация.yaml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-client-interface-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.writeFileSync(
+        join(yamlDir, CONFIGURATION_YAML_FILE),
+        [
+          "Имя: Конфигурация",
+          "ИнтерфейсКлиентскогоПриложения:",
+          "  Верх:",
+          "    - Панель: ПанельФункцийТекущегоРаздела",
+          "    - Панель: ПанельОткрытых",
+          "    - Панель: СтандартнаяПанель",
+          "  Лево:",
+          "    - Панель:",
+          "        Имя: ПанельИстории",
+          "        Высота: 1",
+          "        Представление: КартинкаСлеваИТекст",
+          "  Низ:",
+          "    - Панель: ПанельРазделов",
+          "",
+        ].join("\n"),
+        "utf-8",
+      )
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      const result = fs.readFileSync(join(outDir, "Ext", "ClientApplicationInterface.xml"), "utf-8")
+      expect(result).toContain("<ClientApplicationInterface")
+      expect(result).toContain("<top>")
+      expect(result).toContain("<uuid>c933ac92-92cd-459d-81cc-e0c8a83ced99</uuid>")
+      expect(result).toContain("<height>1</height>")
+      expect(result).toContain("<spr>PictureOnLeftAndText</spr>")
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("не создаёт ClientApplicationInterface.xml для чистой конфигурации без YAML-ключа", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-client-interface-clean-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(fs.existsSync(join(outDir, "Ext", "ClientApplicationInterface.xml"))).toBe(false)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("восстанавливает корневой HomePageWorkArea.xml из Конфигурация.yaml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-home-page-work-area-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.writeFileSync(
+        join(yamlDir, CONFIGURATION_YAML_FILE),
+        [
+          "Имя: Конфигурация",
+          "РабочаяОбластьНачальнойСтраницы:",
+          "  ШаблонРабочейОбласти: ДвеКолонкиПеременнойШирины",
+          "  ЛеваяКолонка:",
+          "    - Форма: CommonForm.НачалоРаботы",
+          "      Высота: 100",
+          "      Видимость:",
+          "        Общее: Истина",
+          "        Роли:",
+          "          Администратор: Ложь",
+          "  ПраваяКолонка:",
+          "    - Форма: DataProcessor.ИнформационныйЦентр.Form.ИнформационныйЦентр",
+          "      Высота: 10",
+          "      Видимость:",
+          "        Общее: Ложь",
+          "  ОтображениеКомандногоИнтерфейса: Верх",
+          "",
+        ].join("\n"),
+        "utf-8"
+      )
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      const result = fs.readFileSync(join(outDir, "Ext", "HomePageWorkArea.xml"), "utf-8")
+      expect(result).toContain("<HomePageWorkArea")
+      expect(result).toContain("<WorkingAreaTemplate>TwoColumnsVariableWidth</WorkingAreaTemplate>")
+      expect(result).toContain("<Form>CommonForm.НачалоРаботы</Form>")
+      expect(result).toContain('<xr:Value name="Role.Администратор">false</xr:Value>')
+      expect(result).toContain("<MACommandInterfaceDisplays>Top</MACommandInterfaceDisplays>")
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("не создаёт HomePageWorkArea.xml для чистой конфигурации без YAML-ключа", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-home-page-work-area-clean-to-xml-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(fs.existsSync(join(outDir, "Ext", "HomePageWorkArea.xml"))).toBe(false)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("удаляет старые корневые внешние файлы, которых нет в YAML", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-prune-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+    const sessionModule = "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n"
+
+    try {
+      fs.mkdirSync(yamlDir, { recursive: true })
+      fs.mkdirSync(join(outDir, "Ext", "Splash"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(join(yamlDir, "МодульСеанса.bsl"), sessionModule, "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"), "old", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "SessionModule.bsl"), "old", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
+      fs.writeFileSync(join(outDir, "Ext", "Splash.xml"), "<OldSplash/>", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(fs.existsSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"))).toBe(false)
+      expect(fs.readFileSync(join(outDir, "Ext", "SessionModule.bsl"), "utf-8")).toBe(sessionModule)
+      expect(fs.existsSync(join(outDir, "Ext", "MobileClientSignature.bin"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "Splash.xml"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "Splash", "Picture.png"))).toBe(false)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("удаляет старый корневой Configuration.xml, если Конфигурация.yaml отсутствует", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-prune-"))
     const yamlDir = join(tmp, "yaml")
     const outDir = join(tmp, "out")
     try {
       fs.mkdirSync(yamlDir, { recursive: true })
-      fs.mkdirSync(outDir, { recursive: true })
+      fs.mkdirSync(join(outDir, "Ext", "Splash"), { recursive: true })
       fs.writeFileSync(join(outDir, CONFIGURATION_XML_FILE), "<MetaDataObject/>", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"), "old", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
+      fs.writeFileSync(join(outDir, "Ext", "Splash.xml"), "<OldSplash/>", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
 
       await syncConfigurationToXML({
         context: mockContextToXML(),
@@ -95,6 +360,10 @@ describe("sync configuration to XML", () => {
       })
 
       expect(fs.existsSync(join(outDir, CONFIGURATION_XML_FILE))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "MobileClientSignature.bin"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "Splash.xml"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "Splash", "Picture.png"))).toBe(false)
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }

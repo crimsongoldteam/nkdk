@@ -1,9 +1,13 @@
 import fs from "fs"
-import { join } from "path"
+import { dirname, join } from "path"
 import { BatchTask, runBatch } from "~/helpers/runBatch"
 import type { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
+import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import { xmlExport } from "~/xml/export/exporter"
 import { syncConfigDumpInfoToXML } from "../configDumpInfo/sync"
 import {
   applyPendingMigrationFiles,
@@ -25,10 +29,12 @@ import {
   readConfigurationFromYAML,
   writeConfigurationToXML,
 } from "./rootIO"
+import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 // TODO: вынести в настройки расширения
 const IO_CONCURRENCY = 16
+const ROOT_EXTERNAL_XML_DIR = "Ext"
 const toError = (error: unknown): Error => error instanceof Error ? error : new Error(String(error))
 
 export const syncConfigurationToXML = async (params: {
@@ -65,11 +71,15 @@ export const syncConfigurationToXML = async (params: {
       .join("\n")
     return {
       succeeded: 0,
-      failed: [{
-        kind: "migration",
-        name: "Миграции",
-        error: new Error(`Найдены возможные переименования:\n${details}\nЗапустите: nkdk generate-migration ${inputDir} ${referenceDir}`),
-      }],
+      failed: [
+        {
+          kind: "migration",
+          name: "Миграции",
+          error: new Error(
+            `Найдены возможные переименования:\n${details}\nЗапустите: nkdk generate-migration ${inputDir} ${referenceDir}`
+          ),
+        },
+      ],
     }
   }
   const xmlManifest = new XmlSyncManifest(outputDir)
@@ -99,6 +109,14 @@ export const syncConfigurationToXML = async (params: {
       childObjects: buildConfigurationChildObjects({ yamlDir: inputDir, referenceChildObjects }),
     })
     xmlManifest.addFile(join(outputDir, CONFIGURATION_XML_FILE))
+    await writeRootConfigurationFilePathPropertiesToXML({
+      context,
+      configuration,
+      referenceConfiguration,
+      outputDir,
+      xmlManifest,
+    })
+    await syncRootConfigurationExternalFilesToXML({ context, inputDir, outputDir, xmlManifest })
   }
 
   for (const rule of TopLevelMetadataItemRules) {
@@ -170,7 +188,10 @@ export const syncConfigurationToXML = async (params: {
 
     await pruneXmlByManifest({
       xmlRoot: outputDir,
-      xmlDirs: TopLevelMetadataItemRules.flatMap((rule) => rule.xmlDir ? [rule.xmlDir] : []),
+      xmlDirs: [
+        ROOT_EXTERNAL_XML_DIR,
+        ...TopLevelMetadataItemRules.flatMap((rule) => (rule.xmlDir ? [rule.xmlDir] : [])),
+      ],
       expectedFiles: xmlManifest.expectedFiles(),
     })
     if (!hasRootYAML) {
@@ -189,5 +210,65 @@ export const syncConfigurationToXML = async (params: {
       parent: f.parent,
       error: f.error,
     })),
+  }
+}
+
+async function writeRootConfigurationFilePathPropertiesToXML(params: {
+  context: ConfigurationContextWithExportToXML
+  configuration: Record<string, unknown> | undefined
+  referenceConfiguration: Record<string, unknown> | undefined
+  outputDir: string
+  xmlManifest: XmlSyncManifest
+}): Promise<void> {
+  const model = params.configuration
+  if (model === undefined) return
+
+  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties)) {
+    if (propRule.filePath === undefined) continue
+    if (!getTypeRule(propRule.type, "exportToXML")) continue
+
+    const modelHasOwnValue = Object.prototype.hasOwnProperty.call(model, key)
+    const referenceValue = params.referenceConfiguration?.[key]
+    const valueToExport = modelHasOwnValue
+      ? model[key]
+      : propRule.exportReferenceFileOnMissingValue === true
+        ? referenceValue
+        : undefined
+    if (valueToExport === undefined) continue
+
+    const xmlFileObj = exportPropertyToXML({
+      context: params.context,
+      rule: propRule as PropertyRule,
+      value: valueToExport,
+      referenceMetadata: referenceValue,
+    }) as Record<string, unknown> | undefined
+    if (xmlFileObj === undefined) continue
+
+    const outputPath = join(params.outputDir, propRule.filePath)
+    await fs.promises.mkdir(dirname(outputPath), { recursive: true })
+    await fs.promises.writeFile(outputPath, xmlExport(xmlFileObj), "utf-8")
+    params.xmlManifest.addFile(outputPath)
+  }
+}
+
+async function syncRootConfigurationExternalFilesToXML(params: {
+  context: ConfigurationContextWithExportToXML
+  inputDir: string
+  outputDir: string
+  xmlManifest: XmlSyncManifest
+}): Promise<void> {
+  for (const [, propRule] of Object.entries(MetadataConfigurationRules.properties)) {
+    const syncFn = getTypeRule(propRule.type, "syncExternalToXML")
+    if (!syncFn) continue
+    await syncFn({
+      context: params.context,
+      rule: propRule,
+      nkdkDir: params.inputDir,
+      xmlDir: params.outputDir,
+      propertyValue: undefined,
+      referencePropertyValue: undefined,
+      xmlManifest: params.xmlManifest,
+      name: "",
+    })
   }
 }

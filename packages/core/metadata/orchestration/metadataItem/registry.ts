@@ -174,10 +174,7 @@ import {
   ViewStatusAdditionEnterprise,
   ViewStatusAdditionYAML,
 } from "~/metadata/forms/elements/viewStatusAddition/types"
-import type {
-  MetadataConfiguration,
-  MetadataConfigurationYAML,
-} from "../../appliedObjects/configuration/types"
+import type { MetadataConfiguration, MetadataConfigurationYAML } from "../../appliedObjects/configuration/types"
 import {
   CharacteristicsDescription,
   CharacteristicsDescriptionYAML,
@@ -311,6 +308,12 @@ import {
   CommandInterfaceItemYAML,
   CommandInterfaceYAML,
 } from "../../forms/commonObjects/commandInterface/types"
+import {
+  ClientApplicationInterface,
+  ClientApplicationInterfaceYAML,
+} from "../../commonObjects/clientApplicationInterface/types"
+import { HomePageWorkArea, HomePageWorkAreaYAML } from "../../commonObjects/homePageWorkArea/types"
+import { RootCommandInterface, RootCommandInterfaceYAML } from "../../commonObjects/rootCommandInterface/types"
 import {
   FormAttribute,
   FormAttributeColumn,
@@ -771,6 +774,21 @@ export type MetadataItemTypeRegistry = {
   CommandInterfaceItem: {
     metadata: CommandInterfaceItem
     yaml: CommandInterfaceItemYAML
+  }
+
+  RootCommandInterface: {
+    metadata: RootCommandInterface
+    yaml: RootCommandInterfaceYAML
+  }
+
+  ClientApplicationInterface: {
+    metadata: ClientApplicationInterface
+    yaml: ClientApplicationInterfaceYAML
+  }
+
+  HomePageWorkArea: {
+    metadata: HomePageWorkArea
+    yaml: HomePageWorkAreaYAML
   }
 
   MetadataAttribute: {

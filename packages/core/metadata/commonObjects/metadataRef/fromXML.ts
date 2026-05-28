@@ -13,7 +13,7 @@ export function importMetadataItemLinkFromXML(
   _rule: PropertyRule | undefined,
   data: MetadataItemLinkXML | undefined
 ): MetadataItemLink | undefined {
-  if (!data) return undefined
+  if (data === undefined) return undefined
 
   if (typeof data === "string") return data
 
@@ -28,11 +28,12 @@ export function importMetadataItemLinksFromXML(
   if (!data) return undefined
 
   const itemTag = rule?.metadataItemLinksXMLItem ?? "xr:Item"
-  const rawItems = data[itemTag] ?? data["xr:Item"] ?? data["xr:Object"]
+  const values = data as Record<string, MetadataItemLinkXML | MetadataItemLinkXML[] | undefined>
+  const rawItems = values[itemTag] ?? data["xr:Item"] ?? data["xr:Object"]
   if (rawItems === undefined) return []
 
   const items = Array.isArray(rawItems) ? rawItems : [rawItems]
-  return items.map((value) => importMetadataItemLinkFromXML(context, undefined, value)!)
+  return items.map((value) => (value === undefined ? "" : importMetadataItemLinkFromXML(context, undefined, value)!))
 }
 
 registerTypeRule("MetadataItemLink", "importFromXML", importMetadataItemLinkFromXML)

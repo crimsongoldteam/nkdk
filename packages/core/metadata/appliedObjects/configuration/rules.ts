@@ -1,4 +1,7 @@
 import "./usedMobileApplicationFunctionalities"
+import "~/metadata/commonObjects/clientApplicationInterface/register"
+import "~/metadata/commonObjects/homePageWorkArea/register"
+import "~/metadata/commonObjects/rootCommandInterface/register"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
@@ -293,6 +296,70 @@ export const MetadataConfigurationRules = {
       type: "string",
       xmlParents: configurationProperties,
       defaultValueXMLEmpty: "",
+    },
+    managedApplicationModule: {
+      type: "Module",
+      nkdkPath: "МодульПриложения.bsl",
+      xmlPath: "Ext/ManagedApplicationModule.bsl",
+      syncExternalOnly: true,
+    },
+    sessionModule: {
+      type: "Module",
+      nkdkPath: "МодульСеанса.bsl",
+      xmlPath: "Ext/SessionModule.bsl",
+      syncExternalOnly: true,
+    },
+    externalConnectionModule: {
+      type: "Module",
+      nkdkPath: "МодульВнешнегоСоединения.bsl",
+      xmlPath: "Ext/ExternalConnectionModule.bsl",
+      syncExternalOnly: true,
+    },
+    ordinaryApplicationModule: {
+      type: "Module",
+      nkdkPath: "МодульОбычногоПриложения.bsl",
+      xmlPath: "Ext/OrdinaryApplicationModule.bsl",
+      syncExternalOnly: true,
+    },
+    commandInterface: {
+      yaml: "КомандныйИнтерфейс",
+      type: "RootCommandInterface",
+      filePath: "Ext/CommandInterface.xml",
+    },
+    mainSectionCommandInterface: {
+      yaml: "КомандныйИнтерфейсОсновногоРаздела",
+      type: "RootCommandInterface",
+      filePath: "Ext/MainSectionCommandInterface.xml",
+    },
+    clientApplicationInterface: {
+      yaml: "ИнтерфейсКлиентскогоПриложения",
+      type: "ClientApplicationInterface",
+      filePath: "Ext/ClientApplicationInterface.xml",
+    },
+    homePageWorkArea: {
+      yaml: "РабочаяОбластьНачальнойСтраницы",
+      type: "HomePageWorkArea",
+      filePath: "Ext/HomePageWorkArea.xml",
+    },
+    mobileClientSignature: {
+      type: "ExternalFile",
+      nkdkPath: "ПодписьМобильногоКлиента.bin",
+      xmlPath: "Ext/MobileClientSignature.bin",
+      syncExternalOnly: true,
+    },
+    mainSectionPicture: {
+      type: "ExternalPicture",
+      nkdkDir: "КартинкаОсновногоРаздела",
+      xmlPath: "Ext/MainSectionPicture.xml",
+      payloadXmlDir: "Ext/MainSectionPicture",
+      syncExternalOnly: true,
+    },
+    splash: {
+      type: "ExternalPicture",
+      nkdkDir: "Заставка",
+      xmlPath: "Ext/Splash.xml",
+      payloadXmlDir: "Ext/Splash",
+      syncExternalOnly: true,
     },
   },
 } satisfies MetadataItemRule
