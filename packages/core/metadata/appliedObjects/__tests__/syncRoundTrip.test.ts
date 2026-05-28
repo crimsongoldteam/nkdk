@@ -7,7 +7,7 @@ import { appliedObjectSyncCases } from "./yamlFixtures"
 
 const normalizeText = (value: string) => value.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").trimEnd()
 
-const binaryExtensions = new Set([".bin", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".bmp", ".webp"])
+const binaryExtensions = new Set([".bin", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".bmp", ".webp", ".zip"])
 
 const isBinaryPath = (path: string) => {
   const lowerPath = path.toLowerCase()
