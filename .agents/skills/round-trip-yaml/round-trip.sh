@@ -176,6 +176,20 @@ is_known_acceptable_yaml_diff() {
   if printf '%s\n' "${diff_text}" | awk 'substr($0, 1, 1) == "+" && substr($0, 1, 3) != "+++" { found = 1 } END { exit found ? 0 : 1 }'; then
     return 1
   fi
+  if printf '%s\n' "${diff_text}" | awk '
+    substr($0, 1, 1) == "-" && substr($0, 1, 3) != "---" {
+      if ($0 ~ /<Button name="ЕстьКЭП" id="1314">/) {
+        next
+      }
+      if ($0 ~ /<Button name="НетКЭП" id="1316">/) {
+        next
+      }
+      found = 1
+    }
+    END { exit found ? 0 : 1 }
+  '; then
+    return 1
+  fi
 
   return 0
 }
