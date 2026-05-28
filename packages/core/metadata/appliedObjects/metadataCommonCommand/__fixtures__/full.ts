@@ -12,12 +12,11 @@ export const fullYAML: MetadataCommonCommandYAML = {
   Синоним: "Общая команда полная",
   Комментарий: "Комментарий",
   Группа: "NavigationPanelOrdinary",
-  Отображение: "Auto",
-  ВключатьСправкуВСодержание: "Ложь",
+  Отображение: "Авто",
 }
 
 export const fullExportedYAML: MetadataCommonCommandYAML = {
   Комментарий: "Комментарий",
   Группа: "ПанельНавигацииОбычное",
-  ВключатьСправкуВСодержание: "Ложь",
+  Отображение: "Авто",
 }

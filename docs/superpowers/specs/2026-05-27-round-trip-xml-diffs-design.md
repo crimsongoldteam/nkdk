@@ -1,0 +1,185 @@
+# Round-trip XML Diffs Design
+
+## Контекст
+
+`round-trip-xml` с `--all-configs` на 2026-05-27 показывает 4 actionable diff'а и 1 известный невалидный diff:
+
+- `small/DataProcessors/ДокументооборотСКонтролирующимиОрганами/Forms/МастерФормированияЗаявкиНаПодключениеУпрощенное/Ext/Form.xml`
+- `small/Documents/ЧекККМ.xml`
+- `small/Documents/ЧекККМВозврат.xml`
+- `small/InformationRegisters/ЖурналДействийКассира/Forms/ФормаСписка/Ext/Form.xml`
+- skipped invalid: `erp/Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml`
+
+## Решение 1: известные XML-аномалии форм
+
+### Наблюдение
+
+В форме мастера подключения есть соседние `CommandBarButton` с повторяющимися именами:
+
+- первый `ЕстьКЭП` имеет id `1823`, его `ExtendedTooltip` имеет id `1825`;
+- первый `НетКЭП` имеет id `1824`, его `ExtendedTooltip` имеет id `1826`;
+- второй `ЕстьКЭП` имеет id `1314`, его `ExtendedTooltip` имеет id `1315`;
+- второй `НетКЭП` имеет id `1316`, его `ExtendedTooltip` имеет id `1317`.
+
+Текущий XML-export сопоставляет `ChildItems` с reference через первый элемент с тем же `name`. Поэтому второй `ЕстьКЭП` и второй `НетКЭП` получают id первого вхождения.
+
+Похожий класс проблемы уже есть в ERP форме `СпособыОтраженияРасходовПоАмортизацииМСФО`: там XML содержит неканоничные дубликаты `AdditionalColumns name="Реквизит1"`. Для YAML это уже обходится точечным восстановлением, потому что YAML-словарь не может выразить несколько одинаковых ключей.
+
+### Принятое направление
+
+Не меняем общий контракт YAML и модели формы ради редких аномалий. Вместо этого оставляем точечные исключения, но выносим их из рабочих модулей в отдельный карантинный модуль.
+
+### Дизайн
+
+Создать отдельный модуль для известных аномалий форм:
+
+`packages/core/metadata/forms/knownAnomalies.ts`
+
+В этот модуль вынести:
+
+- существующую логику восстановления ERP duplicate `AdditionalColumns`;
+- новую логику восстановления id для duplicate `CommandBarButton` в форме мастера подключения.
+
+Рабочие модули должны знать только helper-API, а не конкретные XML-пути и id. Например:
+
+- `formAttribute/toXML.ts` спрашивает helper, нужно ли восстановить duplicate `AdditionalColumns`;
+- `childItems/toXML.ts` спрашивает helper, нужно ли после обычного экспорта поправить известные duplicate child items.
+
+### Поведение для первого diff
+
+Для пути:
+
+`DataProcessors/ДокументооборотСКонтролирующимиОрганами/Forms/МастерФормированияЗаявкиНаПодключениеУпрощенное/Ext/Form.xml`
+
+helper должен восстановить id только для известной пары повторяющихся кнопок внутри проблемной `CommandBar`:
+
+- первое вхождение `ЕстьКЭП`: button `1823`, tooltip `1825`;
+- первое вхождение `НетКЭП`: button `1824`, tooltip `1826`;
+- второе вхождение `ЕстьКЭП`: button `1314`, tooltip `1315`;
+- второе вхождение `НетКЭП`: button `1316`, tooltip `1317`.
+
+Для остальных форм и остальных наборов `ChildItems` поведение не меняется.
+
+### Тестирование
+
+Нужны узкие тесты:
+
+- helper восстанавливает ERP duplicate `AdditionalColumns` только для известного пути;
+- helper восстанавливает duplicate `CommandBarButton` ids только для известного пути и ожидаемого набора имён;
+- обычные duplicate child items в другом XML-пути не меняются;
+- focused XML export test воспроизводит первый diff и показывает сохранение id.
+
+### Не входит в решение
+
+- Не переводим `ChildItems` YAML из словаря в список.
+- Не добавляем id в обычную модель элементов формы.
+- Не делаем общий механизм identity для всех duplicate names.
+- Не расширяем whitelist на новые файлы без отдельного разбора.
+
+## Решение 2: сохранение XML-лексемы MinMaxValue
+
+### Наблюдение
+
+В двух документах XML short round-trip меняет:
+
+```diff
+-<MinValue xsi:type="xs:string">0,00</MinValue>
++<MinValue xsi:type="xs:string">0</MinValue>
+```
+
+Затронуты:
+
+- `small/Documents/ЧекККМ.xml`
+- `small/Documents/ЧекККМВозврат.xml`
+
+Причина общая: `fromXML(forReference)` для `MinMaxValue` сохраняет `xsi:type`, но не сохраняет исходный текст XML. Значение `0,00` превращается в число `0`; при обратном export текущий `toXML` уже не знает, что в reference была лексема `0,00`, и форматирует `0`.
+
+### Принятое направление
+
+Не делать path-based whitelist для этих документов. Это не аномалия конкретной формы, а нормальная XML round-trip задача: если значение не менялось, нужно сохранить исходную XML-лексему.
+
+### Дизайн
+
+Расширить reference-обёртку `MinMaxValueReference`:
+
+- сейчас она хранит скрытый `xsi:type`;
+- дополнительно должна хранить скрытый исходный XML-текст (`#text`) из reference XML.
+
+`fromXML(forReference)` должен сохранять оба значения:
+
+- числовое значение для обычной семантики сравнения;
+- исходную строку для точного XML export.
+
+`toXML` должен использовать исходную строку только когда текущее значение численно равно reference-значению. Если значение изменилось, export форматирует его текущими правилами.
+
+Пример:
+
+- reference `0,00`, current `0` -> export `0,00`;
+- reference `0,00`, current `1` -> export `1`;
+- reference `0,005`, current `0.005` -> export `0,005`;
+- без reference поведение остаётся прежним.
+
+### Тестирование
+
+Нужны узкие тесты в `metadata/commonObjects/minMaxValue`:
+
+- `fromXML(forReference)` сохраняет исходный XML-текст;
+- `toXML` сохраняет `0,00` из reference при неизменённом значении;
+- `toXML` не использует старую лексему, если значение изменилось;
+- существующие проверки `xs:string` и `xs:decimal` остаются зелёными.
+
+### Не входит в решение
+
+- Не переводим `MinMaxValue` в строковый тип модели.
+- Не добавляем исключения по XML-путям документов.
+- Не меняем YAML-представление: YAML остаётся числовым и не обязан сохранять лексему `0,00`.
+
+## Решение 3: короткая XML-форма userSettingPresentation
+
+### Наблюдение
+
+В форме списка регистра сведений `ЖурналДействийКассира` XML short round-trip удаляет `dcsset:userSettingPresentation` у двух элементов `dcsset:dataParameters`:
+
+```diff
+ <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+   <dcscor:use>false</dcscor:use>
+   <dcscor:parameter>КонецПериода</dcscor:parameter>
+   <dcscor:value xsi:type="xs:dateTime">0001-01-01T00:00:00</dcscor:value>
+-  <dcsset:userSettingPresentation xsi:type="xs:string">по</dcsset:userSettingPresentation>
+ </dcscor:item>
+```
+
+Причина: `SettingsParameterValue.userSettingPresentation` сейчас импортируется через общий `I8nText`. Общий `I8nText` понимает форму с `v8:item`, но не понимает короткий XML-вариант `xsi:type="xs:string"` с текстом прямо в узле.
+
+### Принятое направление
+
+Не расширять общий `I8nText` для всех свойств. Поддержать короткую XML-форму локально в `SettingsParameterValue.userSettingPresentation`, потому что именно DCS settings допускают такой вариант в реальных XML.
+
+### Дизайн
+
+Для `SettingsParameterValue.userSettingPresentation` добавить отдельные helper'ы:
+
+- import:
+  - если XML содержит `v8:item`, использовать существующий `importI8nTextFromXML`;
+  - если XML содержит `_xsi:type: "xs:string"` и текст, импортировать в модель как `{ items: { ru: text } }`;
+  - при `forReference` сохранить скрытый признак, что исходная форма была `xs:string`.
+- export:
+  - если reference говорит, что исходная форма была `xs:string`, и текущее значение совпадает с reference, экспортировать короткую форму `xsi:type="xs:string"`;
+  - иначе использовать обычный `exportI8nTextToXML`.
+
+Модель и YAML остаются в форме `I8nText`; меняется только XML-preservation слой для конкретного DCS-поля.
+
+### Тестирование
+
+Нужны узкие тесты в `metadata/commonObjects/dataCompositionSystem/parameterValue`:
+
+- `fromXML` импортирует `userSettingPresentation xsi:type="xs:string"` в `I8nText`;
+- `toXML` сохраняет короткую `xs:string` форму из reference при неизменённом значении;
+- `toXML` использует обычную форму, если reference отсутствует или значение изменилось;
+- существующие тесты `SettingsParameterValue` и `DynamicList` остаются зелёными.
+
+### Не входит в решение
+
+- Не меняем общий контракт `I8nText`.
+- Не добавляем path-based whitelist для формы `ЖурналДействийКассира`.
+- Не меняем YAML-формат DCS-параметров.

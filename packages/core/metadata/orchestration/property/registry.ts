@@ -1,4 +1,5 @@
 import { MetadataCommands, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
+import { MetadataCommonCommand, MetadataCommonCommandYAML } from "~/metadata/appliedObjects/metadataCommonCommand/types"
 import {
   MetadataCommonAttribute,
   MetadataCommonAttributeYAML,
@@ -1047,6 +1048,10 @@ export type PropertyTypeRegistry = {
     item: MetadataCommands
     yaml: MetadataCommandsYAML
   }
+  MetadataCommonCommand: {
+    item: MetadataCommonCommand
+    yaml: MetadataCommonCommandYAML
+  }
   MetadataConstant: {
     item: MetadataConstant
     yaml: MetadataConstantYAML
@@ -1728,6 +1733,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   MetadataTabularSectionAttributes: "MetadataTabularSectionAttributes",
   MetadataItemLinks: "MetadataItemLinks",
   MetadataCommands: "MetadataCommands",
+  MetadataCommonCommand: "MetadataCommonCommand",
   MetadataConstant: "MetadataConstant",
   MetadataCommonAttribute: "MetadataCommonAttribute",
   MetadataBot: "MetadataBot",

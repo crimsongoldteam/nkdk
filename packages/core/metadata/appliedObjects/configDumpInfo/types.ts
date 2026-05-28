@@ -12,7 +12,7 @@ export type ConfigDumpInfo = Map<
 export interface ConfigDumpInfoMetadataXML {
   _name: string
   _id: string
-  _configVersion: string
+  _configVersion?: string
   Metadata?: ConfigDumpInfoMetadataInnerXML | ConfigDumpInfoMetadataInnerXML[]
 }
 
@@ -29,7 +29,7 @@ export interface ConfigDumpInfoXML {
   "_xmlns:xs": "http://www.w3.org/2001/XMLSchema"
   "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance"
   ConfigVersions: {
-    Metadata: ConfigDumpInfoMetadataXML | ConfigDumpInfoMetadataXML[]
+    Metadata?: ConfigDumpInfoMetadataXML | ConfigDumpInfoMetadataXML[]
   }
 }
 

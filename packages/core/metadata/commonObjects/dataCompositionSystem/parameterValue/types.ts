@@ -50,6 +50,11 @@ export type SettingsParameterValueYAML = MetadataDcsMetadataValueYAML | Settings
 
 export type ParameterValueDcsValueFragment = NonNullable<MetadataDcsMetadataValueDcsRootXML["dcscor:value"]>
 
+export type UserSettingPresentationShortXML = {
+  "_xsi:type": "xs:string"
+  "#text"?: string
+}
+
 export type ParameterValueXML = {
   "_xsi:type"?: string
   "dcscor:use"?: string | boolean
@@ -62,5 +67,5 @@ export type SettingsParameterValueXML = ParameterValueXML & {
   "_xsi:type": "dcsset:SettingsParameterValue"
   "dcsset:viewMode"?: SE.DataCompositionSettingsItemViewMode
   "dcsset:userSettingID"?: string
-  "dcsset:userSettingPresentation"?: I8nTextXML
+  "dcsset:userSettingPresentation"?: I8nTextXML | UserSettingPresentationShortXML
 }

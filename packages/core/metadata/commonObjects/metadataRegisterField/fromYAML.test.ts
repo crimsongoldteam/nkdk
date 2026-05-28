@@ -47,6 +47,24 @@ describe("metadata register field YAML import", () => {
     })
   })
 
+  it.each([
+    ["AccountingFlag", AccountingFlagRules],
+    ["ExtDimensionAccountingFlag", ExtDimensionAccountingFlagRules],
+  ] as const)("restores omitted synonym from name for short %s", (_label, rule) => {
+    const result = importMetadataItemFromYAML({
+      context: mockContext,
+      rule,
+      name: "ПризнакУчетаПоУмолчанию",
+      yaml: "Булево",
+    })
+
+    expect(result).toMatchObject({
+      itemType: rule.itemType,
+      synonym: { items: { ru: "Признак учета по умолчанию" } },
+      type: { type: ["boolean"] },
+    })
+  })
+
   it("keeps empty source synonym for short YAML register dimension collection", () => {
     const result = importPropertyFromYAML({
       context: mockContext,

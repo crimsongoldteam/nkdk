@@ -1,6 +1,7 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { restoreKnownDuplicateErpAdditionalColumns } from "~/metadata/forms/knownAnomalies"
 import { ElementXML, exportPropertiesToXML, registerTypeRule } from "~/metadata/orchestration"
 import { XML_SOURCE_KEYS } from "~/metadata/orchestration/property/helpers"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
@@ -292,9 +293,14 @@ const exportAdditionalColumnsToXML = (
       referenceAdditionalColumn?.columns,
       numberingScope
     )
-    const columnNodes = shouldRestoreErpDuplicateAdditionalColumns(context, additionalColumn)
-      ? restoreErpDuplicateAdditionalColumns(columns?.Column?.[0])
-      : columns?.Column
+    const restoredColumnNodes = restoreKnownDuplicateErpAdditionalColumns({
+      currentXMLPath: context.exportToXML.context?.currentXMLPath,
+      table: additionalColumn.table,
+      columnName: additionalColumn.columns[0]?.name,
+      columnsCount: additionalColumn.columns.length,
+      column: columns?.Column?.[0],
+    })
+    const columnNodes = restoredColumnNodes ?? columns?.Column
 
     return {
       _table: additionalColumn.table,
@@ -305,34 +311,6 @@ const exportAdditionalColumnsToXML = (
   if (result.length === 0) return undefined
 
   return { AdditionalColumns: result }
-}
-
-// ERP 2.x содержит один известный XML-аномальный Form.xml с пятью одноимёнными
-// AdditionalColumns. YAML остаётся каноническим словарём с одной колонкой.
-const ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM =
-  "Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml"
-
-const shouldRestoreErpDuplicateAdditionalColumns = (
-  context: ConfigurationContextWithExportToXML,
-  additionalColumn: FormAttributeAdditionalColumns
-): boolean => {
-  return (
-    context.exportToXML.context?.currentXMLPath === ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM &&
-    additionalColumn.table === "Список.Способы" &&
-    additionalColumn.columns.length === 1 &&
-    additionalColumn.columns[0]?.name === "Реквизит1"
-  )
-}
-
-const restoreErpDuplicateAdditionalColumns = (
-  column: FormAttributeColumnXML | undefined
-): FormAttributeColumnXML[] | undefined => {
-  if (column === undefined) return undefined
-
-  return ["1", "2", "3", "4", "5"].map((id) => ({
-    ...column,
-    _id: id,
-  }))
 }
 
 const exportFormAttributeAdditionalColumnsToXML = (

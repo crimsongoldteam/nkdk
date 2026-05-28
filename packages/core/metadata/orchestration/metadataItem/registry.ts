@@ -188,6 +188,7 @@ import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/for
 import { MetadataBot, MetadataBotYAML } from "../../appliedObjects/metadataBot/types"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
+import { MetadataCommonCommand, MetadataCommonCommandYAML } from "../../appliedObjects/metadataCommonCommand/types"
 import {
   MetadataCommonAttribute,
   MetadataCommonAttributeYAML,
@@ -1045,6 +1046,11 @@ export type MetadataItemTypeRegistry = {
   MetadataCommand: {
     metadata: MetadataCommand
     yaml: MetadataCommandYAML
+  }
+
+  MetadataCommonCommand: {
+    metadata: MetadataCommonCommand
+    yaml: MetadataCommonCommandYAML
   }
 
   MetadataConstant: {

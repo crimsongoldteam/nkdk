@@ -1,10 +1,10 @@
-import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/toXML"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../../context/types"
 import { exportDcsMetadataValueToDcsXML } from "../dcsMetadataValue/toXML"
 import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
+import { exportUserSettingPresentationToXML } from "./userSettingPresentationXML"
 import type {
   ParameterValue,
   ParameterValueDcsValueFragment,
@@ -127,11 +127,11 @@ export const exportParameterValueToDcsXML = (params: {
       ...(sd.userSettingID !== undefined ? { "dcsset:userSettingID": sd.userSettingID } : {}),
       ...(sd.userSettingPresentation !== undefined
         ? {
-            "dcsset:userSettingPresentation": exportI8nTextToXML(
+            "dcsset:userSettingPresentation": exportUserSettingPresentationToXML({
               context,
-              { type: "I8nText" },
-              sd.userSettingPresentation
-            ),
+              data: sd.userSettingPresentation,
+              referenceData: (referenceData as SettingsParameterValue | undefined)?.userSettingPresentation,
+            }),
           }
         : {}),
     } as SettingsParameterValueXML
