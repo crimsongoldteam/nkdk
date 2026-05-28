@@ -96,7 +96,7 @@ describe("exportParameterValueToDcsXML", () => {
 
   it("preserves userSettingPresentation xs:string from unchanged reference", () => {
     const reference = testImportPropertyFromXML({
-      rule: { type: "SettingsParameterValue", valueType: "string", yaml: "Период" },
+      rule: { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Период" },
       xmlRootTag: "dcscor:item",
       xmlString: `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 	<dcscor:parameter>Период</dcscor:parameter>
@@ -106,7 +106,7 @@ describe("exportParameterValueToDcsXML", () => {
     })
 
     const { result } = testExportPropertyToXML({
-      rule: { type: "SettingsParameterValue", valueType: "string", yaml: "Период" },
+      rule: { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Период" },
       value: {
         parameter: "Период",
         userSettingPresentation: { items: { ru: "по" } },
@@ -120,7 +120,7 @@ describe("exportParameterValueToDcsXML", () => {
 
   it("exports userSettingPresentation as regular I8nText when reference value changed", () => {
     const reference = testImportPropertyFromXML({
-      rule: { type: "SettingsParameterValue", valueType: "string", yaml: "Период" },
+      rule: { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Период" },
       xmlRootTag: "dcscor:item",
       xmlString: `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 	<dcscor:parameter>Период</dcscor:parameter>
@@ -130,7 +130,7 @@ describe("exportParameterValueToDcsXML", () => {
     })
 
     const { result } = testExportPropertyToXML({
-      rule: { type: "SettingsParameterValue", valueType: "string", yaml: "Период" },
+      rule: { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Период" },
       value: {
         parameter: "Период",
         userSettingPresentation: { items: { ru: "после" } },

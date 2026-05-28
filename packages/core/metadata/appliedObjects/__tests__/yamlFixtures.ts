@@ -60,7 +60,7 @@ export type AppliedObjectYAMLFixture = {
   sync?: AppliedObjectSyncFixture
 }
 
-export const appliedObjectYAMLFixtures = [
+export const appliedObjectYAMLFixtures: AppliedObjectYAMLFixture[] = [
   {
     group: "metadataAccumulationRegister",
     rule: MetadataAccumulationRegisterRules,
@@ -360,7 +360,7 @@ export const appliedObjectYAMLFixtures = [
       { fixture: "ru.xml", name: "Русский" },
     ],
   },
-] as const satisfies AppliedObjectYAMLFixture[]
+]
 
 export const appliedObjectModelCases = appliedObjectYAMLFixtures.flatMap((scenario) =>
   scenario.modelFixtures.map((fixture) => ({

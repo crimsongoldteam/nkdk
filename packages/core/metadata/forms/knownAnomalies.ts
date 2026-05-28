@@ -121,6 +121,6 @@ const isXMLObject = (value: unknown): value is XMLObject => {
 const isKnownXMLPath = (currentXMLPath: string | undefined, knownXMLPath: string): boolean => {
   if (currentXMLPath === undefined) return false
 
-  const normalizedPath = currentXMLPath.replaceAll("\\", "/")
+  const normalizedPath = currentXMLPath.split("\\").join("/")
   return normalizedPath === knownXMLPath || normalizedPath.endsWith(`/${knownXMLPath}`)
 }

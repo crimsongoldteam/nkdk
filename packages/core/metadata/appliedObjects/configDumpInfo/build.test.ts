@@ -10,7 +10,7 @@ const state = (paths: string[], referencePaths = new Map<string, string | undefi
       {
         path,
         kind: kindFromPath(path),
-        name: path.split(".").at(-1)!,
+        name: path.split(".").slice(-1)[0]!,
         referencePath: referencePaths.has(path) ? referencePaths.get(path) : path,
       },
     ]),
@@ -370,7 +370,7 @@ describe("buildConfigDumpInfo", () => {
 function kindFromPath(path: string): StructuralKind {
   const parts = path.split(".")
   if (parts.length === 2) return "object"
-  if (parts.at(-2) === "ТабличнаяЧасть") return "tabularSection"
-  if (parts.at(-2) === "Измерение") return "dimension"
+  if (parts[parts.length - 2] === "ТабличнаяЧасть") return "tabularSection"
+  if (parts[parts.length - 2] === "Измерение") return "dimension"
   return "attribute"
 }

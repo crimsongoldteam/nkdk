@@ -145,7 +145,7 @@ function remapExternalChildren(
   return new Map(
     [...children].map(([childName, id]) => [
       childName.startsWith(referencePrefix)
-        ? `${mapping.currentDumpName}${childName.slice(mapping.referenceDumpName.length)}`
+        ? `${mapping.currentDumpName}${childName.slice(referencePrefix.length - 1)}`
         : childName,
       id,
     ]),

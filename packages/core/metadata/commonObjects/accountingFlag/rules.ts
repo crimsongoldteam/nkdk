@@ -1,6 +1,6 @@
 import { commonRegisterFieldProperties } from "~/metadata/commonObjects/metadataRegisterField/rules"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { ConfigurationContext } from "~/metadata/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 const hasExplicitProperty = (propertyKey: string) => (metadataItem: unknown): boolean =>

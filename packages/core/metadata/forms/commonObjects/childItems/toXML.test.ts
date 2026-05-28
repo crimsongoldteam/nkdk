@@ -28,26 +28,42 @@ describe("exportChildItemsToXML", () => {
       {
         itemType: "CommandBarButton",
         name: "ЕстьКЭП",
-        title: { items: { ru: "Есть КЭП" } },
-        extendedTooltip: { name: "ЕстьКЭПРасширеннаяПодсказка", title: { items: { ru: "Есть КЭП" } } },
+        title: { formatted: false, items: { ru: "Есть КЭП" } },
+        extendedTooltip: {
+          itemType: "ExtendedTooltip",
+          name: "ЕстьКЭПРасширеннаяПодсказка",
+          title: { formatted: false, items: { ru: "Есть КЭП" } },
+        },
       },
       {
         itemType: "CommandBarButton",
         name: "НетКЭП",
-        title: { items: { ru: "Нет КЭП" } },
-        extendedTooltip: { name: "НетКЭПРасширеннаяПодсказка", title: { items: { ru: "Нет КЭП" } } },
+        title: { formatted: false, items: { ru: "Нет КЭП" } },
+        extendedTooltip: {
+          itemType: "ExtendedTooltip",
+          name: "НетКЭПРасширеннаяПодсказка",
+          title: { formatted: false, items: { ru: "Нет КЭП" } },
+        },
       },
       {
         itemType: "CommandBarButton",
         name: "ЕстьКЭП",
-        title: { items: { ru: "Есть КЭП" } },
-        extendedTooltip: { name: "ЕстьКЭПРасширеннаяПодсказка", title: { items: { ru: "Есть КЭП" } } },
+        title: { formatted: false, items: { ru: "Есть КЭП" } },
+        extendedTooltip: {
+          itemType: "ExtendedTooltip",
+          name: "ЕстьКЭПРасширеннаяПодсказка",
+          title: { formatted: false, items: { ru: "Есть КЭП" } },
+        },
       },
       {
         itemType: "CommandBarButton",
         name: "НетКЭП",
-        title: { items: { ru: "Нет КЭП" } },
-        extendedTooltip: { name: "НетКЭПРасширеннаяПодсказка", title: { items: { ru: "Нет КЭП" } } },
+        title: { formatted: false, items: { ru: "Нет КЭП" } },
+        extendedTooltip: {
+          itemType: "ExtendedTooltip",
+          name: "НетКЭПРасширеннаяПодсказка",
+          title: { formatted: false, items: { ru: "Нет КЭП" } },
+        },
       },
     ] as const
     const referenceItems: Array<

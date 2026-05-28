@@ -46,8 +46,8 @@ export const MetadataCommonCommandRules = {
       ...MetadataCommandRules.properties.commandModule,
       xmlPath: "Ext/CommandModule.bsl",
       nkdkPath: "Модуль.bsl",
-      toXML: true,
-      fromXML: true,
+      toXML: false,
+      fromXML: false,
     },
   },
 } as const satisfies MetadataItemRule
