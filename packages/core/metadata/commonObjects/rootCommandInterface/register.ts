@@ -501,11 +501,15 @@ const exportOrderToXML: ExportToXMLFunctionNew = ({ value, referenceMetadata }) 
   if (value === undefined) return undefined
 
   const order = value as CommandInterfaceOrder
+  const referenceIndexes = new Map<string, number>()
   const items = order.map((item) => {
-    const referenceItem = findReferenceXMLItemByName({
+    const referenceIndex = referenceIndexes.get(item.command) ?? 0
+    referenceIndexes.set(item.command, referenceIndex + 1)
+    const referenceItem = findReferenceXMLItemByNameAndIndex({
       referenceMetadata,
       itemKey: "Command",
       name: item.command,
+      index: referenceIndex,
     })
     return mergeXMLItemWithReference({
       referenceItem,

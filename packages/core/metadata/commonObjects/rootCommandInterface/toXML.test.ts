@@ -186,6 +186,29 @@ describe("export RootCommandInterface to XML", () => {
     expect(result).toContain("<CommandGroup>ActionsPanelCreate</CommandGroup>")
   })
 
+  it("preserves reference order details for duplicate command names", () => {
+    const xmlString = `<?xml version="1.0" encoding="UTF-8"?>
+<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+\t<CommandsOrder>
+\t\t<Command name="0" orderAttribute="first">
+\t\t\t<CommandGroup>NavigationPanelImportant</CommandGroup>
+\t\t</Command>
+\t\t<Command name="Other" orderAttribute="other">
+\t\t\t<CommandGroup>ActionsPanelTools</CommandGroup>
+\t\t</Command>
+\t\t<Command name="0" orderAttribute="second">
+\t\t\t<CommandGroup>ActionsPanelCreate</CommandGroup>
+\t\t</Command>
+\t</CommandsOrder>
+</CommandInterface>`
+
+    const result = roundTripRootCommandInterfaceThroughYAML(xmlString)
+
+    expect(result).toContain('<Command orderAttribute="first" name="0">')
+    expect(result).toContain('<Command orderAttribute="other" name="Other">')
+    expect(result).toContain('<Command orderAttribute="second" name="0">')
+  })
+
   it("preserves empty subsystem order items through YAML round-trip", () => {
     const xmlString = `<?xml version="1.0" encoding="UTF-8"?>
 <CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
