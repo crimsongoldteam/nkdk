@@ -1,6 +1,10 @@
 import type { MetadataItemRule } from "~/metadata/orchestration"
+import { MetadataAccountingRegisterRules } from "../metadataAccountingRegister/rules"
+import { readAccountingRegisterYAML } from "../metadataAccountingRegister/__fixtures__/sync/data"
 import { MetadataAccumulationRegisterRules } from "../metadataAccumulationRegister/rules"
 import { readAccumulationRegisterYAML } from "../metadataAccumulationRegister/__fixtures__/sync/data"
+import { MetadataCalculationRegisterRules } from "../metadataCalculationRegister/rules"
+import { readCalculationRegisterYAML } from "../metadataCalculationRegister/__fixtures__/sync/data"
 import { MetadataInformationRegisterRules } from "../metadataInformationRegister/rules"
 import { readInformationRegisterYAML } from "../metadataInformationRegister/__fixtures__/sync/data"
 
@@ -35,6 +39,34 @@ export const appliedObjectYAMLFixtures = [
     sync: {
       name: "РегистрНакопленияВсеСвойстваОбороты",
       expectedYAML: readAccumulationRegisterYAML,
+      externalObjectDir: true,
+    },
+  },
+  {
+    group: "metadataAccountingRegister",
+    rule: MetadataAccountingRegisterRules,
+    importMetaUrl: import.meta.resolve("../metadataAccountingRegister/rules.ts"),
+    modelFixtures: [
+      { fixture: "full.xml", name: "РегистрБухгалтерииВсеСвойстваОбороты" },
+      { fixture: "minimal.xml", name: "РегистрБухгалтерииПоУмолчанию" },
+    ],
+    sync: {
+      name: "РегистрБухгалтерииВсеСвойстваОбороты",
+      expectedYAML: readAccountingRegisterYAML,
+      externalObjectDir: true,
+    },
+  },
+  {
+    group: "metadataCalculationRegister",
+    rule: MetadataCalculationRegisterRules,
+    importMetaUrl: import.meta.resolve("../metadataCalculationRegister/rules.ts"),
+    modelFixtures: [
+      { fixture: "full.xml", name: "РегистрРасчетаВсеСвойства" },
+      { fixture: "minimal.xml", name: "РегистрРасчетаПоУмолчанию" },
+    ],
+    sync: {
+      name: "РегистрРасчетаВсеСвойства",
+      expectedYAML: readCalculationRegisterYAML,
       externalObjectDir: true,
     },
   },
