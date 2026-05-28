@@ -73,4 +73,13 @@ describe("import DcsMetadataTypedValue from YAML", () => {
       })
     ).toEqual([{ type: "string", value: "x" }, undefined])
   })
+
+  it("imports beginning date string as dateTime, not Field", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule,
+        value: "01.01.0001 00:00:00",
+      })
+    ).toEqual({ type: "dateTime", value: "0001-01-01T00:00:00" })
+  })
 })
