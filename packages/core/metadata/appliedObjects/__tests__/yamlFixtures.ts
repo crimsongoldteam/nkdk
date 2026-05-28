@@ -5,6 +5,12 @@ import { MetadataAccumulationRegisterRules } from "../metadataAccumulationRegist
 import { readAccumulationRegisterYAML } from "../metadataAccumulationRegister/__fixtures__/sync/data"
 import { MetadataCalculationRegisterRules } from "../metadataCalculationRegister/rules"
 import { readCalculationRegisterYAML } from "../metadataCalculationRegister/__fixtures__/sync/data"
+import { MetadataChartOfAccountsRules } from "../metadataChartOfAccounts/rules"
+import { readChartOfAccountsYAML } from "../metadataChartOfAccounts/__fixtures__/sync/data"
+import { MetadataChartOfCalculationTypesRules } from "../metadataChartOfCalculationTypes/rules"
+import { readChartOfCalculationTypesYAML } from "../metadataChartOfCalculationTypes/__fixtures__/sync/data"
+import { MetadataChartOfCharacteristicTypesRules } from "../metadataChartOfCharacteristicTypes/rules"
+import { readChartOfCharacteristicTypesYAML } from "../metadataChartOfCharacteristicTypes/__fixtures__/sync/data"
 import { MetadataInformationRegisterRules } from "../metadataInformationRegister/rules"
 import { readInformationRegisterYAML } from "../metadataInformationRegister/__fixtures__/sync/data"
 
@@ -82,6 +88,48 @@ export const appliedObjectYAMLFixtures = [
     sync: {
       name: "РегистрСведенийВсеСвойстваНезависимый",
       expectedYAML: readInformationRegisterYAML,
+      externalObjectDir: true,
+    },
+  },
+  {
+    group: "metadataChartOfAccounts",
+    rule: MetadataChartOfAccountsRules,
+    importMetaUrl: import.meta.resolve("../metadataChartOfAccounts/rules.ts"),
+    modelFixtures: [
+      { fixture: "full.xml", name: "ПланСчетовВсеСвойства" },
+      { fixture: "minimal.xml", name: "ПланСчетовПоУмолчанию" },
+    ],
+    sync: {
+      name: "ПланСчетовВсеСвойства",
+      expectedYAML: readChartOfAccountsYAML,
+      externalObjectDir: true,
+    },
+  },
+  {
+    group: "metadataChartOfCalculationTypes",
+    rule: MetadataChartOfCalculationTypesRules,
+    importMetaUrl: import.meta.resolve("../metadataChartOfCalculationTypes/rules.ts"),
+    modelFixtures: [
+      { fixture: "full.xml", name: "ПланРасчетаВсеСвойства" },
+      { fixture: "minimal.xml", name: "ПланРасчетаПоУмолчанию" },
+    ],
+    sync: {
+      name: "ПланРасчетаВсеСвойства",
+      expectedYAML: readChartOfCalculationTypesYAML,
+      externalObjectDir: true,
+    },
+  },
+  {
+    group: "metadataChartOfCharacteristicTypes",
+    rule: MetadataChartOfCharacteristicTypesRules,
+    importMetaUrl: import.meta.resolve("../metadataChartOfCharacteristicTypes/rules.ts"),
+    modelFixtures: [
+      { fixture: "full.xml", name: "ПланВидовХарактеристикВсеСвойства" },
+      { fixture: "minimal.xml", name: "ПланВидовХарактеристикПоУмолчанию" },
+    ],
+    sync: {
+      name: "ПланВидовХарактеристикВсеСвойства",
+      expectedYAML: readChartOfCharacteristicTypesYAML,
       externalObjectDir: true,
     },
   },
