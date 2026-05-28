@@ -179,7 +179,7 @@ is_known_acceptable_yaml_diff() {
       return substr(line, 1, 1) == "-" && substr(line, 1, 3) != "---"
     }
     function closes_button(line) {
-      return line ~ /<\/Button>/ || line ~ /\/>[[:space:]]*$/
+      return line ~ /<\/Button>/ || line ~ /<Button[^>]*\/>[[:space:]]*$/
     }
     function enter_button(line) {
       if (line ~ /<Button name="ЕстьКЭП" id="1314"/) {
