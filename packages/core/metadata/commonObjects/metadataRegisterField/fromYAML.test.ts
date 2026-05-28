@@ -153,4 +153,88 @@ describe("metadata register field YAML import", () => {
       }),
     ])
   })
+
+  it("restores omitted synonym from name for short YAML register resource collection without source", () => {
+    const result = importPropertyFromYAML({
+      context: mockContext,
+      rule: { type: "MetadataRegisterResources" },
+      value: {
+        Содержание: "Строка(100)",
+      },
+    })
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        itemType: MetadataRegisterResourceRules.itemType,
+        name: "Содержание",
+        synonym: { items: { ru: "Содержание" } },
+        type: expect.objectContaining({
+          type: ["string"],
+          stringQualifiers: expect.objectContaining({ length: 100 }),
+        }),
+      }),
+    ])
+  })
+
+  it("restores omitted synonym from name for full YAML register resource collection without source", () => {
+    const result = importPropertyFromYAML({
+      context: mockContext,
+      rule: { type: "MetadataRegisterResources" },
+      value: {
+        Содержание: {
+          Тип: "Строка(100)",
+        },
+      },
+    })
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        itemType: MetadataRegisterResourceRules.itemType,
+        name: "Содержание",
+        synonym: { items: { ru: "Содержание" } },
+        type: expect.objectContaining({
+          type: ["string"],
+          stringQualifiers: expect.objectContaining({ length: 100 }),
+        }),
+      }),
+    ])
+  })
+
+  it("restores omitted synonym from name for short YAML register dimension collection without source", () => {
+    const result = importPropertyFromYAML({
+      context: mockContext,
+      rule: { type: "MetadataRegisterDimensions" },
+      value: {
+        Организация: "СправочникСсылка.Организации",
+      },
+    })
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        itemType: MetadataRegisterDimensionRules.itemType,
+        name: "Организация",
+        synonym: { items: { ru: "Организация" } },
+      }),
+    ])
+  })
+
+  it("restores omitted synonym from name for full YAML register dimension collection without source", () => {
+    const result = importPropertyFromYAML({
+      context: mockContext,
+      rule: { type: "MetadataRegisterDimensions" },
+      value: {
+        Организация: {
+          Тип: "СправочникСсылка.Организации",
+        },
+      },
+    })
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        itemType: MetadataRegisterDimensionRules.itemType,
+        name: "Организация",
+        synonym: { items: { ru: "Организация" } },
+      }),
+    ])
+  })
 })
