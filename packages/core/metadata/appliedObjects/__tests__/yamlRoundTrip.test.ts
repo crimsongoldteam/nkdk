@@ -13,15 +13,18 @@ describe("applied object YAML model round-trip", () => {
       importMetaUrl: scenario.importMetaUrl,
       fixture: fixture.fixture,
     })
+    expect(model).toBeDefined()
     const yaml = testExportAppliedObjectToYAML({
       rule: scenario.rule,
       data: model,
     })
+    expect(yaml).toBeDefined()
     const imported = testImportAppliedObjectFromYAML({
       rule: scenario.rule,
       yaml,
       name: fixture.name,
     })
+    expect(imported).toBeDefined()
 
     expect(
       testExportAppliedObjectToYAML({
