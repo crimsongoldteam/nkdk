@@ -308,6 +308,32 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("возвращает failed item для битого reference ConfigDumpInfo.xml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-config-dump-info-broken-"))
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+
+    try {
+      fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+      fs.mkdirSync(xmlDir, { recursive: true })
+      fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "", "utf-8")
+      fs.writeFileSync(join(xmlDir, "ConfigDumpInfo.xml"), "<ConfigDumpInfo><ConfigVersions>", "utf-8")
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      expect(result.failed).toHaveLength(1)
+      expect(result.failed[0]).toMatchObject({ kind: "configDumpInfo", name: "ConfigDumpInfo.xml" })
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("переносит ConfigDumpInfo при переименовании и удаляет старое имя", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-config-dump-info-rename-"))
     const yamlDir = join(tmp, "yaml")

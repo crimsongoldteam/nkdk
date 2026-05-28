@@ -132,6 +132,33 @@ describe("buildConfigDumpInfo", () => {
     })
   })
 
+  it("удалить + добавить того же пути не переносит old id/configVersion", () => {
+    const reference: ConfigDumpInfo = new Map([
+      [
+        "Catalog.Товары",
+        {
+          id: "old-catalog-id",
+          configVersion: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          children: new Map(),
+        },
+      ],
+    ])
+
+    const result = buildConfigDumpInfo({
+      reference,
+      yamlState: state(["Справочник.Товары"]),
+      migrationState: state(["Справочник.Товары"], new Map([["Справочник.Товары", undefined]])),
+      referencePathByCurrentPath: new Map(),
+      generators: { id: () => "new-catalog-id", configVersion: () => "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
+    })
+
+    expect(result.get("Catalog.Товары")).toEqual({
+      id: "new-catalog-id",
+      configVersion: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      children: new Map(),
+    })
+  })
+
   it("сохраняет внешнюю запись живого переименованного владельца", () => {
     const reference: ConfigDumpInfo = new Map([
       [
@@ -165,6 +192,37 @@ describe("buildConfigDumpInfo", () => {
       configVersion: "cccccccccccccccccccccccccccccccccccccccc",
       children: new Map([["Catalog.Номенклатура.Form.ФормаЭлемента.Attribute.Тест", "form-child-id"]]),
     })
+  })
+
+  it("удалённый owner удаляет внешние entries", () => {
+    const reference: ConfigDumpInfo = new Map([
+      [
+        "Catalog.Товары",
+        {
+          id: "catalog-id",
+          configVersion: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          children: new Map(),
+        },
+      ],
+      [
+        "Catalog.Товары.Form.ФормаЭлемента",
+        {
+          id: "form-id",
+          configVersion: "cccccccccccccccccccccccccccccccccccccccc",
+          children: new Map(),
+        },
+      ],
+    ])
+
+    const result = buildConfigDumpInfo({
+      reference,
+      yamlState: state([]),
+      migrationState: state([]),
+      referencePathByCurrentPath: new Map(),
+      generators: { id: () => "new-id", configVersion: () => "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
+    })
+
+    expect(result.size).toBe(0)
   })
 })
 

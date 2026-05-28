@@ -1,5 +1,6 @@
 import fs from "fs"
 import { join } from "path"
+import { XMLValidator } from "fast-xml-parser"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { xmlExport } from "~/xml/export/exporter"
 import { importContentFromXML } from "~/xml/import/importer"
@@ -47,6 +48,11 @@ async function readReferenceConfigDumpInfo(params: {
   if (!fs.existsSync(path)) return new Map()
 
   const source = await fs.promises.readFile(path, "utf-8")
+  const validation = XMLValidator.validate(source)
+  if (validation !== true) {
+    throw new Error(`Некорректный ConfigDumpInfo.xml: ${validation.err.msg}`)
+  }
+
   const parsed = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(source)
   return importConfigDumpInfoFromXML({ context: params.context, xml: parsed.ConfigDumpInfo })
 }
