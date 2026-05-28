@@ -10,7 +10,7 @@ export const importConfigDumpInfoFromXML = (params: {
 
   const rootList = toList(xml.ConfigVersions?.Metadata)
   for (const root of rootList) {
-    const rootInner = { children: new Map<string, string>(), id: root._id, configVersion: root._configVersion }
+    const rootInner = { children: new Map<string, string>(), id: root._id, configVersion: root._configVersion ?? "" }
 
     idMap.set(root._name, rootInner)
 

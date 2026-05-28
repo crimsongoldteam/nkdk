@@ -4,6 +4,7 @@ import { BatchTask, runBatch } from "~/helpers/runBatch"
 import type { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
+import { syncConfigDumpInfoToXML } from "../configDumpInfo/sync"
 import {
   applyPendingMigrationFiles,
   collectStructuralStateFromXML,
@@ -28,6 +29,7 @@ import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 // TODO: вынести в настройки расширения
 const IO_CONCURRENCY = 16
+const toError = (error: unknown): Error => error instanceof Error ? error : new Error(String(error))
 
 export const syncConfigurationToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -149,6 +151,23 @@ export const syncConfigurationToXML = async (params: {
   const batchResult = await runBatch(tasks, { concurrency: IO_CONCURRENCY })
 
   if (batchResult.failed.length === 0) {
+    try {
+      await syncConfigDumpInfoToXML({
+        context,
+        outputDir,
+        referenceDir,
+        yamlState,
+        migrationState: migrationResult.state,
+        referencePathByCurrentPath: migrationResult.referencePathByCurrentPath,
+        xmlManifest,
+      })
+    } catch (error) {
+      return {
+        succeeded: batchResult.succeeded,
+        failed: [{ kind: "configDumpInfo", name: "ConfigDumpInfo.xml", error: toError(error) }],
+      }
+    }
+
     await pruneXmlByManifest({
       xmlRoot: outputDir,
       xmlDirs: TopLevelMetadataItemRules.flatMap((rule) => rule.xmlDir ? [rule.xmlDir] : []),
