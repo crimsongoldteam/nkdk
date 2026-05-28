@@ -3,3 +3,33 @@
 - [ ] Проверить валидацию по схемам
 - [ ] Выяснить семантику `Font ref="0"` в 1С: встречается в общих формах `ВводДанныхДляРасчетаСреднегоЗаработкаОбщий` и `ВводДанныхДляРасчетаСреднегоЗаработкаФСС`, в `ExtendedTooltip` поля `СреднийЗаработокИтог`
 - [ ] Добавить поддержку типов конфигурации из справки: `CommonModules`, `XDTOPackages`, `ExternalDataSources`, `WebSocketClients`, `CommonCommands`
+
+## YAML-преобразование
+
+- [x] Унифицировать YAML-тесты прикладных объектов с существующим `rules.ts`
+- [ ] Довести и покрыть YAML-цикл для конфигурации (`configuration`)
+- [x] Довести и покрыть YAML-цикл для регистра бухгалтерии (`metadataAccountingRegister`)
+- [x] Довести и покрыть YAML-цикл для бизнес-процесса (`metadataBusinessProcess`)
+- [x] Довести и покрыть YAML-цикл для регистра расчета (`metadataCalculationRegister`)
+- [x] Довести и покрыть YAML-цикл для плана счетов (`metadataChartOfAccounts`)
+- [x] Довести и покрыть YAML-цикл для плана видов расчета (`metadataChartOfCalculationTypes`)
+- [x] Довести и покрыть YAML-цикл для плана видов характеристик (`metadataChartOfCharacteristicTypes`)
+- [ ] Довести и покрыть YAML-цикл для команды (`metadataCommand`)
+- [x] Довести и покрыть YAML-цикл для группы команд (`metadataCommandGroup`)
+- [x] Довести и покрыть YAML-цикл для общей команды (`metadataCommonCommand`)
+- [x] Довести и покрыть YAML-цикл для общей формы (`metadataCommonForm`)
+- [x] Довести и покрыть YAML-цикл для общей картинки (`metadataCommonPicture`)
+- [x] Довести и покрыть YAML-цикл для общего макета (`metadataCommonTemplate`)
+- [x] Довести и покрыть YAML-цикл для функциональной опции (`metadataFunctionalOption`)
+- [x] Довести и покрыть YAML-цикл для сервиса интеграции (`metadataIntegrationService`)
+- [x] Довести и покрыть YAML-цикл для языка (`metadataLanguage`)
+- [x] Довести и покрыть YAML-цикл для роли (`metadataRole`)
+- [x] Довести и покрыть YAML-цикл для регламентного задания (`metadataScheduledJob`)
+- [x] Довести и покрыть YAML-цикл для стиля (`metadataStyle`)
+- [x] Довести и покрыть модельный YAML-цикл для подсистемы (`metadataSubsystem`)
+- [ ] Довести sync YAML->XML для подсистемы (`metadataSubsystem`): вложенная подсистема сейчас ломает `Synonym` и явные флаги включения
+- [x] Довести и покрыть модельный YAML-цикл для задачи (`metadataTask`)
+- [ ] Довести sync YAML->XML для задачи (`metadataTask`): форма задачи расходится по событиям `ActivationProcessing`/`beforeExecute`
+- [x] Довести и покрыть YAML-цикл для Web-сервиса (`metadataWebService`)
+- [ ] Реализовать преобразование табличного документа в YAML
+- [ ] Реализовать преобразование СКД в YAML
