@@ -20,6 +20,38 @@ const restrictedRule = {
   ],
 } as const
 
+type SchemaBranch = Record<string, unknown>
+
+const findSchemaBranchByPattern = (schema: unknown, pattern: string): SchemaBranch | undefined => {
+  if (!schema || typeof schema !== "object") {
+    return undefined
+  }
+
+  const branch = schema as SchemaBranch
+  if (branch.pattern === pattern) {
+    return branch
+  }
+
+  for (const value of Object.values(branch)) {
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        const found = findSchemaBranchByPattern(item, pattern)
+        if (found) {
+          return found
+        }
+      }
+      continue
+    }
+
+    const found = findSchemaBranchByPattern(value, pattern)
+    if (found) {
+      return found
+    }
+  }
+
+  return undefined
+}
+
 describe("exportTypeDescriptionToJSONSchema", () => {
   it("keeps broad schema when allowedTypes is absent", () => {
     const schema = exportTypeDescriptionToJSONSchema({
@@ -55,12 +87,12 @@ describe("exportTypeDescriptionToJSONSchema", () => {
       context: mockContext,
       rule: restrictedRule,
       value: undefined,
-    }) as {
-      anyOf: Array<{ anyOf?: Array<Record<string, unknown>> }>
-    }
+    })
 
-    const single = schema.anyOf[0]!.anyOf!
-    const catalogRef = single.find((item) => item.pattern === "^Справочник\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$")
+    const catalogRef = findSchemaBranchByPattern(
+      schema,
+      "^Справочник\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$"
+    )
 
     expect(catalogRef).toMatchObject({
       "x-nkdk-graph": {
@@ -70,13 +102,15 @@ describe("exportTypeDescriptionToJSONSchema", () => {
   })
 
   it("rejects single-only types inside composite arrays", () => {
-    const schema = TypeCompiler.Compile(
-      exportTypeDescriptionToJSONSchema({
-        context: mockContext,
-        rule: restrictedRule,
-        value: undefined,
-      })
-    )
+    const jsonSchema = exportTypeDescriptionToJSONSchema({
+      context: mockContext,
+      rule: restrictedRule,
+      value: undefined,
+    })
+    if (jsonSchema === undefined) {
+      throw new Error("Expected TypeDescription JSON schema")
+    }
+    const schema = TypeCompiler.Compile(jsonSchema)
 
     expect(schema.Check(["Строка", "Справочник.Контрагенты"])).toBe(true)
     expect(schema.Check(["Строка", "ХранилищеЗначения"])).toBe(false)
@@ -84,13 +118,15 @@ describe("exportTypeDescriptionToJSONSchema", () => {
   })
 
   it("rejects type id object when allowedTypes is set", () => {
-    const schema = TypeCompiler.Compile(
-      exportTypeDescriptionToJSONSchema({
-        context: mockContext,
-        rule: restrictedRule,
-        value: undefined,
-      })
-    )
+    const jsonSchema = exportTypeDescriptionToJSONSchema({
+      context: mockContext,
+      rule: restrictedRule,
+      value: undefined,
+    })
+    if (jsonSchema === undefined) {
+      throw new Error("Expected TypeDescription JSON schema")
+    }
+    const schema = TypeCompiler.Compile(jsonSchema)
 
     expect(schema.Check({ ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] })).toBe(false)
   })

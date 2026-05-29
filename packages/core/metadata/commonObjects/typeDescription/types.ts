@@ -10,7 +10,7 @@ export interface TypeDescriptionRule {
   ignoreInEnterprise?: boolean
 }
 
-export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
+export const TypeDescriptionRules = {
   SpreadsheetDocument: {
     enterprise: "ТабличныйДокумент",
     prefix: "mxl",
@@ -646,7 +646,7 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     modifier: "alwaysType",
     ignoreInEnterprise: true,
   },
-} as const
+} as const satisfies Record<string, TypeDescriptionRule>
 
 export type TypeDescriptionRuleName = keyof typeof TypeDescriptionRules
 export type TypeDescriptionAllowedType = TypeDescriptionRuleName | `${TypeDescriptionRuleName}.*`
