@@ -262,6 +262,8 @@ import {
   MetadataAttributes,
   MetadataAttributesYAML,
   MetadataAttributeYAML,
+  MetadataCatalogAttributes,
+  MetadataCatalogAttributesYAML,
   MetadataDocumentAttributes,
   MetadataDocumentAttributesYAML,
   MetadataReportAttributes,
@@ -1026,6 +1028,10 @@ export type PropertyTypeRegistry = {
     item: MetadataAttributes
     yaml: MetadataAttributesYAML
   }
+  MetadataCatalogAttributes: {
+    item: MetadataCatalogAttributes
+    yaml: MetadataCatalogAttributesYAML
+  }
   MetadataTaskAddressingAttributes: {
     item: MetadataTaskAddressingAttributes
     yaml: MetadataTaskAddressingAttributesYAML
@@ -1733,6 +1739,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   PagesChildItems: "PagesChildItems",
   FunctionalOptionsProperty: "FunctionalOptionsProperty",
   MetadataAttributes: "MetadataAttributes",
+  MetadataCatalogAttributes: "MetadataCatalogAttributes",
   MetadataTaskAddressingAttributes: "MetadataTaskAddressingAttributes",
   MetadataDocumentAttributes: "MetadataDocumentAttributes",
   MetadataReportAttributes: "MetadataReportAttributes",

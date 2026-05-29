@@ -297,10 +297,76 @@ const binaryDataStorageLocationUseFieldProperty = {
   },
 } as const satisfies Record<string, PropertyRule>
 
+export const CATALOG_ATTRIBUTE_ALLOWED_TYPES = [
+  "string",
+  "decimal",
+  "date",
+  "boolean",
+  "ValueStorage",
+  "UUID",
+  "CatalogRef",
+  "CatalogRef.*",
+  "DocumentRef",
+  "DocumentRef.*",
+  "EnumRef",
+  "EnumRef.*",
+  "ChartOfCharacteristicTypesRef",
+  "ChartOfCharacteristicTypesRef.*",
+  "ChartOfAccountsRef",
+  "ChartOfAccountsRef.*",
+  "ChartOfCalculationTypesRef",
+  "ChartOfCalculationTypesRef.*",
+  "BusinessProcessRef",
+  "BusinessProcessRef.*",
+  "BusinessProcessRoutePointRef",
+  "BusinessProcessRoutePointRef.*",
+  "TaskRef",
+  "TaskRef.*",
+  "ExchangePlanRef",
+  "ExchangePlanRef.*",
+  "AnyIBRef",
+  "DefinedType.*",
+  "Characteristic.*",
+  "ExternalDataSourceTableRef.*",
+  "ExternalDataSourceCubeDimensionTableRef.*",
+] as const
+
 export const MetadataAttributeRules = {
   itemType: "MetadataAttribute",
   properties: {
     ...commonAttributeProperties,
+    ...fillProperties,
+    use: {
+      yaml: "Использование",
+      xml: "Use",
+      type: "SystemEnumeration",
+      typeSE: "AttributeUse",
+      defaultValueXML: "ForItem",
+      defaultValueYAML: "ForItem",
+      preserveFromReferenceXML: true,
+      xmlParents: ["Properties"],
+      order: 26,
+    },
+    binaryDataStorageLocationUse: {
+      yaml: "ИспользованиеХраненияВХранилищеДвоичныхДанных",
+      xml: "BinaryDataStorageLocationUse",
+      type: "SystemEnumeration",
+      typeSE: "BinaryDataStorageLocationUse",
+      xmlParents: ["Properties"],
+      order: 30,
+    },
+    ...binaryDataStorageLocationUseFieldProperty,
+  },
+} as const satisfies MetadataItemRule
+
+export const MetadataCatalogAttributeRules = {
+  itemType: "MetadataAttribute",
+  properties: {
+    ...commonAttributeProperties,
+    type: {
+      ...commonAttributeProperties.type,
+      allowedTypes: CATALOG_ATTRIBUTE_ALLOWED_TYPES,
+    },
     ...fillProperties,
     use: {
       yaml: "Использование",

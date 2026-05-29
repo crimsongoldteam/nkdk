@@ -1,10 +1,5 @@
 import { TSchema, Type } from "@sinclair/typebox"
-import {
-  MetadataAttributeYAML,
-  MetadataAttributes,
-  MetadataAttributesXML,
-  MetadataAttributesYAML,
-} from "./types"
+import { MetadataAttributeYAML, MetadataAttributes, MetadataAttributesXML, MetadataAttributesYAML } from "./types"
 import { importTypeDescriptionFromYAML } from "~/metadata/commonObjects/typeDescription/fromYAML"
 import "~/metadata/commonObjects/typeDescription/graphFromModel"
 import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
@@ -18,19 +13,26 @@ import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration
 import { ExportToJSONSchemaFn } from "~/metadata/orchestration/property/fn"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { MetadataAttributeRules, MetadataDocumentAttributeRules, MetadataTabularSectionAttributeRules } from "./rules"
+import {
+  MetadataAttributeRules,
+  MetadataCatalogAttributeRules,
+  MetadataDocumentAttributeRules,
+  MetadataTabularSectionAttributeRules,
+} from "./rules"
 
 const importMetadataAttributeFromYAML = (
   context: ConfigurationContext,
+  itemRule: typeof MetadataAttributeRules,
   yaml: MetadataAttributeYAML | TypeDescriptionYAML,
   name: string
 ) => {
   if (typeof yaml === "string" || Array.isArray(yaml)) {
-    const type = importTypeDescriptionFromYAML(context, undefined, yaml)
+    const typeRule = itemRule.properties.type
+    const type = importTypeDescriptionFromYAML(context, typeRule, yaml)
     if (!type) throw new Error("Type is required")
 
     return {
-      itemType: MetadataAttributeRules.itemType,
+      itemType: itemRule.itemType,
       name,
       type,
       synonym: { items: { [context.defaultLanguage]: splitPascalCase(name) } },
@@ -40,7 +42,7 @@ const importMetadataAttributeFromYAML = (
   const properties = importMetadataItemFromYAML({
     context,
     yaml: yaml as MetadataAttributeYAML,
-    rule: MetadataAttributeRules,
+    rule: itemRule,
     name,
   })
 
@@ -52,26 +54,37 @@ const importMetadataAttributeFromYAML = (
   }
 }
 
-const importMetadataAttributesFromYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataAttributesYAML | undefined
-): MetadataAttributes | undefined => {
-  if (!data) return undefined
+const createImportMetadataAttributesFromYAML =
+  (itemRule: typeof MetadataAttributeRules) =>
+  (
+    context: ConfigurationContext,
+    _rule: PropertyRule | undefined,
+    data: MetadataAttributesYAML | undefined
+  ): MetadataAttributes | undefined => {
+    if (!data) return undefined
 
-  const results = Object.entries(data).map(([name, value]) => {
-    return importMetadataAttributeFromYAML(context, value as MetadataAttributeYAML, name)
-  })
+    const results = Object.entries(data).map(([name, value]) => {
+      return importMetadataAttributeFromYAML(context, itemRule, value as MetadataAttributeYAML, name)
+    })
 
-  return results.length > 0 ? (results as MetadataAttributes) : undefined
-}
+    return results.length > 0 ? (results as MetadataAttributes) : undefined
+  }
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataCatalogAttributes",
+  itemRule: MetadataCatalogAttributeRules,
+  xmlElement: "Attribute",
+  keyField: "name",
+  fromYAML: createImportMetadataAttributesFromYAML(MetadataCatalogAttributeRules),
+  graphChild: { idFrom: "name", edgeKind: "ATTRIBUTE", edgeYaml: "Реквизит", nodeSegment: "Реквизит" },
+})
 
 registerMetadataItemCollectionRule({
   propertyType: "MetadataAttributes",
   itemRule: MetadataAttributeRules,
   xmlElement: "Attribute",
   keyField: "name",
-  fromYAML: importMetadataAttributesFromYAML,
+  fromYAML: createImportMetadataAttributesFromYAML(MetadataAttributeRules),
   graphChild: { idFrom: "name", edgeKind: "ATTRIBUTE", edgeYaml: "Реквизит", nodeSegment: "Реквизит" },
 })
 
@@ -80,7 +93,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataTabularSectionAttributeRules,
   xmlElement: "Attribute",
   keyField: "name",
-  fromYAML: importMetadataAttributesFromYAML,
+  fromYAML: createImportMetadataAttributesFromYAML(MetadataTabularSectionAttributeRules),
   graphChild: { idFrom: "name", edgeKind: "ATTRIBUTE", edgeYaml: "Реквизит", nodeSegment: "Реквизит" },
 })
 
@@ -89,7 +102,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataDocumentAttributeRules,
   xmlElement: "Attribute",
   keyField: "name",
-  fromYAML: importMetadataAttributesFromYAML,
+  fromYAML: createImportMetadataAttributesFromYAML(MetadataDocumentAttributeRules),
   graphChild: { idFrom: "name", edgeKind: "ATTRIBUTE", edgeYaml: "Реквизит", nodeSegment: "Реквизит" },
 })
 
@@ -112,7 +125,9 @@ export const importMetadataAttributesFromXML = (
   _rule: PropertyRule | undefined,
   xml: MetadataAttributesXML | undefined
 ): MetadataAttributes | undefined => {
-  return importPropertyFromXML({ context, rule: { type: "MetadataAttributes" }, value: xml }) as MetadataAttributes | undefined
+  return importPropertyFromXML({ context, rule: { type: "MetadataAttributes" }, value: xml }) as
+    | MetadataAttributes
+    | undefined
 }
 
 export const exportMetadataAttributesToYAML = (
