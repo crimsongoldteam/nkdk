@@ -119,3 +119,39 @@ describe("importTypeDescriptionFromYAML with allowedTypes", () => {
     ).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
   })
 })
+
+const externalDataSourceRule = {
+  type: "TypeDescription",
+  allowedTypes: [
+    "ExternalDataSourceTableRef.*",
+    "ExternalDataSourceCubeDimensionTableRef.*",
+  ],
+} as const
+
+describe("external data source TypeDescription YAML import", () => {
+  it("imports external data source table short form", () => {
+    expect(
+      importTypeDescriptionFromYAML(
+        mockContext,
+        externalDataSourceRule,
+        "ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства",
+      ),
+    ).toEqual({
+      type: ["ExternalDataSourceTableRef.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"],
+    })
+  })
+
+  it("imports external data source cube dimension table short form", () => {
+    expect(
+      importTypeDescriptionFromYAML(
+        mockContext,
+        externalDataSourceRule,
+        "ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
+      ),
+    ).toEqual({
+      type: [
+        "ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
+      ],
+    })
+  })
+})

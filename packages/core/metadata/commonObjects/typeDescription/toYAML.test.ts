@@ -32,3 +32,23 @@ describe("exportTypeDescriptionToYAML", () => {
     )
   })
 })
+
+describe("external data source TypeDescription YAML export", () => {
+  it("exports external data source table short form", () => {
+    expect(
+      exportTypeDescriptionToYAML(mockContext, mockRule, {
+        type: ["ExternalDataSourceTableRef.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"],
+      }),
+    ).toBe("ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства")
+  })
+
+  it("exports external data source cube dimension table short form", () => {
+    expect(
+      exportTypeDescriptionToYAML(mockContext, mockRule, {
+        type: [
+          "ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
+        ],
+      }),
+    ).toBe("ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства")
+  })
+})

@@ -102,6 +102,13 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
   const detailType = isComplex ? type.substring(dotIndex + 1) : undefined
 
   const rule = getTypeDescriptionRule(baseType)
+  if (
+    detailType !== undefined &&
+    (baseType === "ExternalDataSourceTableRef" || baseType === "ExternalDataSourceCubeDimensionTableRef")
+  ) {
+    return detailType
+  }
+
   if (!rule) {
     if (!isComplex) {
       const systemEnumerationYAMLType = getSystemEnumerationYAMLType(baseType)

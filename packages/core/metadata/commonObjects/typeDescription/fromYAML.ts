@@ -24,6 +24,24 @@ const getTypeIdsFromYAML = (typeId: unknown): string[] | undefined => {
   return typeIds.length > 0 ? typeIds : undefined
 }
 
+const metadataName = "[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*"
+const externalDataSourceTablePattern = new RegExp(`^ВнешнийИсточникДанных${metadataName}\\.Таблица${metadataName}$`)
+const externalDataSourceCubeDimensionTablePattern = new RegExp(
+  `^ВнешнийИсточникДанных${metadataName}\\.Куб${metadataName}\\.ТаблицаИзмерения${metadataName}$`
+)
+
+const getExternalDataSourceTypeFromYAML = (type: string): string | undefined => {
+  if (externalDataSourceTablePattern.test(type)) {
+    return `ExternalDataSourceTableRef.${type}`
+  }
+
+  if (externalDataSourceCubeDimensionTablePattern.test(type)) {
+    return `ExternalDataSourceCubeDimensionTableRef.${type}`
+  }
+
+  return undefined
+}
+
 export const importTypeDescriptionFromYAML = (
   _context: ConfigurationContext,
   rule: PropertyRule | undefined,
@@ -96,6 +114,12 @@ export const importTypeDescriptionFromYAML = (
     if (type === "Булево") {
       const primitiveType = PrimitiveTypeFromYAML("Булево")
       types.push(primitiveType)
+      continue
+    }
+
+    const externalDataSourceType = getExternalDataSourceTypeFromYAML(type)
+    if (externalDataSourceType !== undefined) {
+      types.push(externalDataSourceType)
       continue
     }
 
