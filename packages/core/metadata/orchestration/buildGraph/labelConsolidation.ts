@@ -82,6 +82,7 @@ const METADATA_OBJECT_TYPES = new Set([
   "MetadataEnumeration",
   "MetadataEventSubscription",
   "MetadataExchangePlan",
+  "MetadataExternalDataSource",
   "MetadataFilterCriterion",
   "MetadataFunctionalOption",
   "MetadataFunctionalOptionsParameter",

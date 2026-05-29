@@ -457,7 +457,7 @@ describe("sync configuration to XML", () => {
     fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), [
       "Реквизиты:",
       "  НовыйАртикул:",
-      "    Тип: string",
+      "    Тип: Строка",
       "",
     ].join("\n"))
     fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), [
@@ -569,7 +569,7 @@ describe("sync configuration to XML", () => {
       fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), [
         "Реквизиты:",
         "  Артикул:",
-        "    Тип: string",
+        "    Тип: Строка",
         "",
       ].join("\n"))
       fs.writeFileSync(join(xmlDir, "ConfigDumpInfo.xml"), `<?xml version="1.0" encoding="UTF-8"?>
@@ -633,7 +633,7 @@ describe("sync configuration to XML", () => {
       fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), [
         "Реквизиты:",
         "  КодАртикула:",
-        "    Тип: string",
+        "    Тип: Строка",
         "",
       ].join("\n"))
       fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), [

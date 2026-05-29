@@ -9,7 +9,7 @@ import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
 import type { ChildSubsystemNamesPropertyRule } from "~/metadata/commonObjects/childSubsystemNames/types"
 import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
-import type { CypherSet } from "./cypherPredicate"
+import type { TypeDescriptionAllowedTypes } from "~/metadata/commonObjects/typeDescription/types"
 import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
 import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
@@ -21,6 +21,7 @@ import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/met
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemType } from "../metadataItem/registry"
+import type { CypherSet } from "./cypherPredicate"
 import { PropertyRuleType } from "./registry"
 
 export type ReferenceScopeFilterName = "stringIndexedAttribute"
@@ -252,6 +253,7 @@ export interface TypeDescriptionPropertyRule extends BasePropertyRule {
   type: "TypeDescription"
   addTypeDescriptionAttributeToXML?: true
   declareTypeNamespaceXML?: boolean
+  allowedTypes?: TypeDescriptionAllowedTypes
 }
 
 export interface DataPathPropertyRule extends BasePropertyRule {

@@ -30,6 +30,9 @@ const _byKind = new Map<string, EdgeKindEntry>([
   ["CHOICE_PARAMETER_LINK", { yaml: "СвязьПараметровВыбора", owning: true }],
   ["ENUM_VALUE", { yaml: "ЗначениеПеречисления", owning: true }],
   ["DIMENSION", { yaml: "Измерение", owning: true }],
+  ["EXTERNAL_DATA_SOURCE_TABLE", { yaml: "ТаблицаВнешнегоИсточникаДанных", owning: true }],
+  ["EXTERNAL_DATA_SOURCE_CUBE", { yaml: "КубВнешнегоИсточникаДанных", owning: true }],
+  ["EXTERNAL_DATA_SOURCE_DIMENSION_TABLE", { yaml: "ТаблицаИзмеренияКубаВнешнегоИсточникаДанных", owning: true }],
   // Owning: терминальные узлы (ПустаяСсылка и подобные)
   ["EMPTY_REF", { yaml: "ПустаяСсылка", owning: true }],
   // Owning: root-рёбра от itemTypePrefix-узла к узлу объекта
@@ -42,6 +45,13 @@ const _byKind = new Map<string, EdgeKindEntry>([
   ["METADATA_INFORMATION_REGISTER", { yaml: "MetadataInformationRegister", owning: true }],
   ["METADATA_ACCUMULATION_REGISTER", { yaml: "MetadataAccumulationRegister", owning: true }],
   ["METADATA_EXCHANGE_PLAN", { yaml: "MetadataExchangePlan", owning: true }],
+  ["METADATA_DEFINED_TYPE", { yaml: "MetadataDefinedType", owning: true }],
+  ["METADATA_CHART_OF_CHARACTERISTIC_TYPES", { yaml: "MetadataChartOfCharacteristicTypes", owning: true }],
+  ["METADATA_CHART_OF_ACCOUNTS", { yaml: "MetadataChartOfAccounts", owning: true }],
+  ["METADATA_CHART_OF_CALCULATION_TYPES", { yaml: "MetadataChartOfCalculationTypes", owning: true }],
+  ["METADATA_BUSINESS_PROCESS", { yaml: "MetadataBusinessProcess", owning: true }],
+  ["METADATA_TASK", { yaml: "MetadataTask", owning: true }],
+  ["METADATA_EXTERNAL_DATA_SOURCE", { yaml: "MetadataExternalDataSource", owning: true }],
   // Owning: формы (PRD #112)
   ["FORM", { yaml: "Форма", owning: true }],
   // Owning: реквизиты формы (PRD #114)

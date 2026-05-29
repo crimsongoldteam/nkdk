@@ -16,7 +16,7 @@ describe("ExternalFile sync", () => {
       type: "ExternalFile" as const,
       nkdkPath: "ПодписьМобильногоКлиента.bin",
       xmlPath: "Ext/MobileClientSignature.bin",
-      syncExternalOnly: true,
+      syncExternalOnly: true as const,
     }
     const bytes = Buffer.from([0xff, 0x00, 0x7f, 0x42])
 

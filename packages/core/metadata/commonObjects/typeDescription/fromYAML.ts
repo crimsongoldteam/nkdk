@@ -1,7 +1,8 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
+import { assertTypeDescriptionYAMLAllowed, METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import { getSystemEnumerationTypeFromYAML, getTypeFromYAML } from "./helper"
 import {
   PrimitiveTypeFromYAML,
@@ -12,7 +13,9 @@ import {
   TypeDescriptionYAML,
 } from "./types"
 
-const isTypeDescriptionYAMLObject = (value: TypeDescriptionYAML): value is Record<string, unknown> =>
+type TypeDescriptionYAMLObject = Extract<TypeDescriptionYAML, { ИдентификаторТипа: string[] }>
+
+const isTypeDescriptionYAMLObject = (value: TypeDescriptionYAML): value is TypeDescriptionYAMLObject =>
   typeof value === "object" && value !== null && !Array.isArray(value)
 
 const getTypeIdsFromYAML = (typeId: unknown): string[] | undefined => {
@@ -23,13 +26,36 @@ const getTypeIdsFromYAML = (typeId: unknown): string[] | undefined => {
   return typeIds.length > 0 ? typeIds : undefined
 }
 
+const externalDataSourceTablePattern = new RegExp(
+  `^ВнешнийИсточникДанных${METADATA_NAME_YAML_PATTERN}\\.Таблица${METADATA_NAME_YAML_PATTERN}$`
+)
+const externalDataSourceCubeDimensionTablePattern = new RegExp(
+  `^ВнешнийИсточникДанных${METADATA_NAME_YAML_PATTERN}\\.Куб${METADATA_NAME_YAML_PATTERN}\\.ТаблицаИзмерения${METADATA_NAME_YAML_PATTERN}$`
+)
+
+const getExternalDataSourceTypeFromYAML = (type: string): string | undefined => {
+  if (externalDataSourceTablePattern.test(type)) {
+    return `ExternalDataSourceTableRef.${type}`
+  }
+
+  if (externalDataSourceCubeDimensionTablePattern.test(type)) {
+    return `ExternalDataSourceCubeDimensionTableRef.${type}`
+  }
+
+  return undefined
+}
+
 export const importTypeDescriptionFromYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   value: TypeDescriptionYAML | undefined
 ): TypeDescription | undefined => {
   if (value === undefined) {
     return undefined
+  }
+
+  if (rule?.type === "TypeDescription" && rule.allowedTypes !== undefined) {
+    assertTypeDescriptionYAMLAllowed({ value, allowedTypes: rule.allowedTypes })
   }
 
   if (isTypeDescriptionYAMLObject(value)) {
@@ -91,6 +117,12 @@ export const importTypeDescriptionFromYAML = (
     if (type === "Булево") {
       const primitiveType = PrimitiveTypeFromYAML("Булево")
       types.push(primitiveType)
+      continue
+    }
+
+    const externalDataSourceType = getExternalDataSourceTypeFromYAML(type)
+    if (externalDataSourceType !== undefined) {
+      types.push(externalDataSourceType)
       continue
     }
 

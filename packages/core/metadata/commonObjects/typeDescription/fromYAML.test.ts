@@ -7,6 +7,21 @@ import { TypeDescriptionYAML } from "./types"
 const importUnsafeTypeDescriptionFromYAML = (value: unknown) =>
   importTypeDescriptionFromYAML(mockContext, mockRule, value as TypeDescriptionYAML)
 
+const restrictedCatalogAttributeRule = {
+  type: "TypeDescription",
+  allowedTypes: [
+    "string",
+    "decimal",
+    "date",
+    "boolean",
+    "ValueStorage",
+    "UUID",
+    "CatalogRef",
+    "CatalogRef.*",
+    "DefinedType.*",
+  ],
+} as const
+
 describe("importTypeDescriptionFromYAML", () => {
   it("should parse undefined type description", () => {
     const result = importTypeDescriptionFromYAML(mockContext, mockRule, undefined)
@@ -61,5 +76,82 @@ describe("importTypeDescriptionFromYAML", () => {
     )
 
     expect(result).toEqual({ type: ["СистемноеПеречисление.ПроверкаЗаполнения.Anything"] })
+  })
+})
+
+describe("importTypeDescriptionFromYAML with allowedTypes", () => {
+  it("imports allowed primitive and catalog reference values", () => {
+    expect(
+      importTypeDescriptionFromYAML(mockContext, restrictedCatalogAttributeRule, [
+        "Строка(10)",
+        "Справочник",
+        "Справочник.Контрагенты",
+      ])
+    ).toEqual({
+      type: ["string", "CatalogRef", "CatalogRef.Контрагенты"],
+      stringQualifiers: { length: 10, allowedLength: "Variable" },
+    })
+  })
+
+  it("rejects unknown type strings", () => {
+    expect(() =>
+      importTypeDescriptionFromYAML(mockContext, restrictedCatalogAttributeRule, "НесуществующийТип")
+    ).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
+  })
+
+  it("rejects single-only values inside composite arrays", () => {
+    expect(() =>
+      importTypeDescriptionFromYAML(mockContext, restrictedCatalogAttributeRule, ["Строка", "ХранилищеЗначения"])
+    ).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
+  })
+
+  it("rejects type id object when allowedTypes is set", () => {
+    expect(() =>
+      importTypeDescriptionFromYAML(mockContext, restrictedCatalogAttributeRule, {
+        ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"],
+      })
+    ).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
+  })
+
+  it("rejects invalid primitive parameter syntax", () => {
+    expect(() =>
+      importTypeDescriptionFromYAML(mockContext, restrictedCatalogAttributeRule, "Число(abc, 2)")
+    ).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
+  })
+})
+
+const externalDataSourceRule = {
+  type: "TypeDescription",
+  allowedTypes: [
+    "ExternalDataSourceTableRef.*",
+    "ExternalDataSourceCubeDimensionTableRef.*",
+  ],
+} as const
+
+describe("external data source TypeDescription YAML import", () => {
+  it("imports external data source table short form", () => {
+    expect(
+      importTypeDescriptionFromYAML(
+        mockContext,
+        externalDataSourceRule,
+        "ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства",
+      ),
+    ).toEqual({
+      type: ["ExternalDataSourceTableRef.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"],
+    })
+  })
+
+  it("imports external data source cube dimension table short form", () => {
+    expect(
+      importTypeDescriptionFromYAML(
+        mockContext,
+        externalDataSourceRule,
+        "ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
+      ),
+    ).toEqual({
+      type: [
+        "ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
+      ],
+    })
   })
 })

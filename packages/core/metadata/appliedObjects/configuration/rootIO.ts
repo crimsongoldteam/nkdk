@@ -124,7 +124,7 @@ const readConfigurationFilePathPropertiesFromXML = (params: {
 }): void => {
   if (params.configuration === undefined) return
 
-  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties)) {
+  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties) as [string, PropertyRule][]) {
     if (propRule.filePath === undefined) continue
     if (!getTypeRule(propRule.type, "importFromXML")) continue
     const extFilePath = join(params.inputDir, propRule.filePath)
@@ -133,7 +133,7 @@ const readConfigurationFilePathPropertiesFromXML = (params: {
     const extParsed = importContentFromXML<Record<string, unknown>>(extContent)
     const value = importPropertyFromXML({
       context: params.context,
-      rule: propRule as PropertyRule,
+      rule: propRule,
       value: extParsed,
       name: key,
     })
@@ -148,7 +148,7 @@ const filterFilePathSourceForYAMLImport = (params: {
   if (params.source === undefined) return undefined
 
   const result = { ...params.source } as Record<string, unknown>
-  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties)) {
+  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties) as [string, PropertyRule][]) {
     if (propRule.filePath === undefined) continue
     const yamlKey = propRule.yaml as keyof MetadataConfigurationYAML | undefined
     const hasYAMLValue =

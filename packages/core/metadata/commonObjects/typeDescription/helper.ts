@@ -1,6 +1,8 @@
 import * as SE from "~/metadata/systemEnumerations/types"
-import { TypeDescriptionRule, TypeDescriptionRules } from "./types"
+import { TypeDescriptionRules } from "./types"
+import type { TypeDescriptionRule } from "./types"
 
+const TypeDescriptionRulesByName: Readonly<Record<string, TypeDescriptionRule | undefined>> = TypeDescriptionRules
 const systemEnumerationPrefix = "СистемноеПеречисление."
 const fromYAMLSuffix = "FromYAML"
 const toYAMLSuffix = "ToYAML"
@@ -22,7 +24,7 @@ const getSystemEnumerationToYAMLMap = (type: string): Record<string, string> | u
 }
 
 export const getTypeDescriptionRule = (type: string): TypeDescriptionRule | undefined => {
-  return TypeDescriptionRules[type]
+  return TypeDescriptionRulesByName[type]
 }
 
 export const getSystemEnumerationTypeDescriptionRule = (type: string): TypeDescriptionRule | undefined => {

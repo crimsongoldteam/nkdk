@@ -41,7 +41,7 @@ export const MetadataCatalogRules = {
     },
     attributes: {
       yaml: "Реквизиты",
-      type: "MetadataAttributes",
+      type: "MetadataCatalogAttributes",
       xmlParents: ["ChildObjects"],
       xml: "Attribute",
     },

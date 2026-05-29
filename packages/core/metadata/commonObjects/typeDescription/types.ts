@@ -10,7 +10,7 @@ export interface TypeDescriptionRule {
   ignoreInEnterprise?: boolean
 }
 
-export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
+export const TypeDescriptionRules = {
   SpreadsheetDocument: {
     enterprise: "ТабличныйДокумент",
     prefix: "mxl",
@@ -646,7 +646,11 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     modifier: "alwaysType",
     ignoreInEnterprise: true,
   },
-} as const
+} as const satisfies Record<string, TypeDescriptionRule>
+
+export type TypeDescriptionRuleName = keyof typeof TypeDescriptionRules
+export type TypeDescriptionAllowedType = TypeDescriptionRuleName | `${TypeDescriptionRuleName}.*`
+export type TypeDescriptionAllowedTypes = readonly TypeDescriptionAllowedType[]
 
 export const TypeDescriptionPrefixes = Object.fromEntries(
   Object.values(TypeDescriptionRules).map((settings) => [settings.prefix, settings.prefix])
@@ -754,7 +758,7 @@ export const TypeDescriptionJSONSchema = Type.Union([
   Type.Array(Type.String()),
   Type.Object(
     {
-      ИдентификаторТипа: Type.Optional(Type.Array(Type.String())),
+      ИдентификаторТипа: Type.Array(Type.String(), { minItems: 1 }),
     },
     { additionalProperties: false }
   ),

@@ -1,8 +1,10 @@
 import { mkdtempSync, rmSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
+import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it } from "vitest"
 import { exportJSONSchemaForProjectFile, ProjectFileSchemaError } from "./projectFileSchema"
+import { validateFile } from "./validateFile"
 
 const context = {
   defaultLanguage: "ru",
@@ -75,7 +77,7 @@ describe("exportJSONSchemaForProjectFile", () => {
       exportJSONSchemaForProjectFile({
         context,
         filePath: "Справочник/Товары/МодульМенеджера.bsl",
-      }),
+      })
     ).toThrow(new ProjectFileSchemaError("JSON Schema поддерживается только для .yaml файлов"))
   })
 
@@ -84,7 +86,7 @@ describe("exportJSONSchemaForProjectFile", () => {
       exportJSONSchemaForProjectFile({
         context,
         filePath: "Справочник/Товары/Команды/Команда.yaml",
-      }),
+      })
     ).toThrow(/Ожидались пути вида/)
   })
 
@@ -97,7 +99,117 @@ describe("exportJSONSchemaForProjectFile", () => {
         context,
         projectDir,
         filePath: outsidePath,
-      }),
+      })
     ).toThrow(new ProjectFileSchemaError("Файл находится вне указанного YAML-проекта"))
+  })
+
+  it("validates catalog attribute TypeDescription with catalog-specific restrictions", () => {
+    const schema = TypeCompiler.Compile(
+      exportJSONSchemaForProjectFile({
+        context,
+        filePath: "Справочник/Товары/Свойства.yaml",
+      })
+    )
+
+    expect(
+      validateFile({
+        filePath: "Справочник/Товары/Свойства.yaml",
+        schema,
+        text: ["Реквизиты:", "  Контрагент:", "    Тип:", "      - Справочник", "      - Справочник.Контрагенты"].join(
+          "\n"
+        ),
+      })
+    ).toEqual([])
+
+    expect(
+      validateFile({
+        filePath: "Справочник/Товары/Свойства.yaml",
+        schema,
+        text: ["Реквизиты:", "  Артикул: Строка"].join("\n"),
+      })
+    ).toEqual([])
+
+    expect(
+      validateFile({
+        filePath: "Справочник/Товары/Свойства.yaml",
+        schema,
+        text: ["Реквизиты:", "  Неверный:", "    Тип: НесуществующийТип"].join("\n"),
+      })
+    ).not.toEqual([])
+
+    expect(
+      validateFile({
+        filePath: "Справочник/Товары/Свойства.yaml",
+        schema,
+        text: ["Реквизиты:", "  Таблица:", "    Тип:", "      - Строка", "      - ХранилищеЗначения"].join("\n"),
+      })
+    ).not.toEqual([])
+
+    expect(
+      validateFile({
+        filePath: "Справочник/Товары/Свойства.yaml",
+        schema,
+        text: [
+          "Реквизиты:",
+          "  Идентификатор:",
+          "    ИдентификаторТипа:",
+          "      - 8c1e3694-da12-44d5-8b1f-d134b89a1282",
+        ].join("\n"),
+      })
+    ).not.toEqual([])
+  })
+
+  it("keeps document attribute TypeDescription broad in the first version", () => {
+    const schema = TypeCompiler.Compile(
+      exportJSONSchemaForProjectFile({
+        context,
+        filePath: "Документ/Заказ/Свойства.yaml",
+      })
+    )
+
+    expect(
+      validateFile({
+        filePath: "Документ/Заказ/Свойства.yaml",
+        schema,
+        text: ["Реквизиты:", "  ПокаШирокий:", "    Тип: НесуществующийТип"].join("\n"),
+      })
+    ).toEqual([])
+
+    expect(
+      validateFile({
+        filePath: "Документ/Заказ/Свойства.yaml",
+        schema,
+        text: ["Реквизиты:", "  ПокаШирокий: НесуществующийТип"].join("\n"),
+      })
+    ).toEqual([])
+
+    expect(
+      validateFile({
+        filePath: "Документ/Заказ/Свойства.yaml",
+        schema,
+        text: [
+          "Реквизиты:",
+          "  Идентификатор:",
+          "    ИдентификаторТипа:",
+          "      - 8c1e3694-da12-44d5-8b1f-d134b89a1282",
+        ].join("\n"),
+      })
+    ).toEqual([])
+
+    expect(
+      validateFile({
+        filePath: "Документ/Заказ/Свойства.yaml",
+        schema,
+        text: ["Реквизиты:", "  Идентификатор:", "    ИдентификаторТипа: []"].join("\n"),
+      })
+    ).not.toEqual([])
+
+    expect(
+      validateFile({
+        filePath: "Документ/Заказ/Свойства.yaml",
+        schema,
+        text: ["Реквизиты:", "  Идентификатор:", "    Тип: {}"].join("\n"),
+      })
+    ).not.toEqual([])
   })
 })

@@ -43,6 +43,10 @@ describe("labelConsolidation", () => {
       label: METADATA_OBJECT_LABEL,
       kind: "MetadataInformationRegister",
     })
+    expect(consolidateGraphLabel("MetadataExternalDataSource", true)).toEqual({
+      label: METADATA_OBJECT_LABEL,
+      kind: "MetadataExternalDataSource",
+    })
     expect(consolidateGraphLabel("MetadataStyleItem", true)).toEqual({
       label: METADATA_OBJECT_LABEL,
       kind: "MetadataStyleItem",

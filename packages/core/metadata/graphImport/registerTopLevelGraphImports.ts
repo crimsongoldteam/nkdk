@@ -1,14 +1,21 @@
 import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/metadataAccumulationRegister/rules"
+import { MetadataBusinessProcessRules } from "~/metadata/appliedObjects/metadataBusinessProcess/rules"
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
+import { MetadataChartOfAccountsRules } from "~/metadata/appliedObjects/metadataChartOfAccounts/rules"
+import { MetadataChartOfCalculationTypesRules } from "~/metadata/appliedObjects/metadataChartOfCalculationTypes/rules"
+import { MetadataChartOfCharacteristicTypesRules } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules"
 import { MetadataDataProcessorRules } from "~/metadata/appliedObjects/metadataDataProcessor/rules"
+import { MetadataDefinedTypeRules } from "~/metadata/appliedObjects/metadataDefinedType/rules"
 import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
 import { MetadataDocumentJournalRules } from "~/metadata/appliedObjects/metadataDocumentJournal/rules"
 import { importMetadataEnumerationFromYAML } from "~/metadata/appliedObjects/metadataEnumeration/fromYAML"
 import { MetadataEnumerationRules } from "~/metadata/appliedObjects/metadataEnumeration/rules"
 import { MetadataExchangePlanRules } from "~/metadata/appliedObjects/metadataExchangePlan/rules"
+import { MetadataExternalDataSourceRules } from "~/metadata/appliedObjects/metadataExternalDataSource/rules"
 import { MetadataHTTPServiceRules } from "~/metadata/appliedObjects/metadataHTTPService/rules"
 import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
+import { MetadataTaskRules } from "~/metadata/appliedObjects/metadataTask/rules"
 import {
   registerGraphImport,
   toGraphModel,
@@ -84,6 +91,13 @@ export const topLevelGraphImportSpecs: TopLevelGraphImportSpec[] = [
     dir: "ПланОбмена",
     rule: MetadataExchangePlanRules,
   },
+  { kind: "definedType", dir: "ОпределяемыйТип", rule: MetadataDefinedTypeRules },
+  { kind: "chartOfCharacteristicTypes", dir: "ПланВидовХарактеристик", rule: MetadataChartOfCharacteristicTypesRules },
+  { kind: "chartOfAccounts", dir: "ПланСчетов", rule: MetadataChartOfAccountsRules },
+  { kind: "chartOfCalculationTypes", dir: "ПланВидовРасчета", rule: MetadataChartOfCalculationTypesRules },
+  { kind: "businessProcess", dir: "БизнесПроцесс", rule: MetadataBusinessProcessRules },
+  { kind: "task", dir: "Задача", rule: MetadataTaskRules },
+  { kind: "externalDataSource", dir: "ВнешнийИсточникДанных", rule: MetadataExternalDataSourceRules },
 ]
 
 export function registerTopLevelGraphImports(): void {
