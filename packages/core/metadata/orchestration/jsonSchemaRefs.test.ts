@@ -9,6 +9,7 @@ import {
   recordOfSchemaRef,
   registerJSONSchemaPropertyRef,
 } from "./jsonSchemaRefs"
+import { exportPropertyToJSONSchema } from "./property/toJSONSchema"
 
 const baseContext = {
   defaultLanguage: "ru",
@@ -47,6 +48,26 @@ describe("jsonSchemaRefs", () => {
     })
 
     expect(attachCollectedSchemaRefs(refContext, Type.Object({}))).toMatchObject({
+      "x-nkdk-schemaRefs": ["nkdk://schema/MetadataAttribute"],
+    })
+  })
+
+  it("uses registered refs through property JSON Schema export", () => {
+    registerJSONSchemaPropertyRef("MetadataAttributes", () => recordOfSchemaRef("MetadataAttribute"))
+
+    const context = createJSONSchemaExportContext(baseContext, "externalRefs")
+    expect(
+      exportPropertyToJSONSchema({
+        context,
+        rule: { type: "MetadataAttributes" },
+        value: undefined,
+      })
+    ).toEqual({
+      type: "object",
+      additionalProperties: { $ref: "nkdk://schema/MetadataAttribute" },
+    })
+
+    expect(attachCollectedSchemaRefs(context, Type.Object({}))).toMatchObject({
       "x-nkdk-schemaRefs": ["nkdk://schema/MetadataAttribute"],
     })
   })
