@@ -2,7 +2,7 @@ import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
-import { assertTypeDescriptionYAMLAllowed } from "./allowedTypes"
+import { assertTypeDescriptionYAMLAllowed, METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import { getSystemEnumerationTypeFromYAML, getTypeFromYAML } from "./helper"
 import {
   PrimitiveTypeFromYAML,
@@ -24,10 +24,11 @@ const getTypeIdsFromYAML = (typeId: unknown): string[] | undefined => {
   return typeIds.length > 0 ? typeIds : undefined
 }
 
-const metadataName = "[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*"
-const externalDataSourceTablePattern = new RegExp(`^ВнешнийИсточникДанных${metadataName}\\.Таблица${metadataName}$`)
+const externalDataSourceTablePattern = new RegExp(
+  `^ВнешнийИсточникДанных${METADATA_NAME_YAML_PATTERN}\\.Таблица${METADATA_NAME_YAML_PATTERN}$`
+)
 const externalDataSourceCubeDimensionTablePattern = new RegExp(
-  `^ВнешнийИсточникДанных${metadataName}\\.Куб${metadataName}\\.ТаблицаИзмерения${metadataName}$`
+  `^ВнешнийИсточникДанных${METADATA_NAME_YAML_PATTERN}\\.Куб${METADATA_NAME_YAML_PATTERN}\\.ТаблицаИзмерения${METADATA_NAME_YAML_PATTERN}$`
 )
 
 const getExternalDataSourceTypeFromYAML = (type: string): string | undefined => {

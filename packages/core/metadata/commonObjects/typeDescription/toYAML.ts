@@ -1,6 +1,7 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
+import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import { getSystemEnumerationYAMLType, getTypeDescriptionRule } from "./helper"
 import { PrimitiveTypeToYAML, TypeDescription, TypeDescriptionYAML } from "./types"
 
@@ -70,6 +71,21 @@ const formatDateQualifier = (dateQualifiers: NonNullable<TypeDescription["dateQu
   }
 }
 
+const externalDataSourceTablePattern = new RegExp(
+  `^ВнешнийИсточникДанных${METADATA_NAME_YAML_PATTERN}\\.Таблица${METADATA_NAME_YAML_PATTERN}$`
+)
+const externalDataSourceCubeDimensionTablePattern = new RegExp(
+  `^ВнешнийИсточникДанных${METADATA_NAME_YAML_PATTERN}\\.Куб${METADATA_NAME_YAML_PATTERN}\\.ТаблицаИзмерения${METADATA_NAME_YAML_PATTERN}$`
+)
+
+const isExternalDataSourceTableYAMLType = (type: string): boolean => externalDataSourceTablePattern.test(type)
+
+const isExternalDataSourceCubeDimensionTableYAMLType = (type: string): boolean =>
+  externalDataSourceCubeDimensionTablePattern.test(type)
+
+const isExternalDataSourceBaseType = (type: string): boolean =>
+  type === "ExternalDataSourceTableRef" || type === "ExternalDataSourceCubeDimensionTableRef"
+
 const formatSingleType = (type: string, typeDescription: TypeDescription): string => {
   if (type === "string") {
     if (typeDescription.stringQualifiers) {
@@ -104,9 +120,22 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
   const rule = getTypeDescriptionRule(baseType)
   if (
     detailType !== undefined &&
-    (baseType === "ExternalDataSourceTableRef" || baseType === "ExternalDataSourceCubeDimensionTableRef")
+    baseType === "ExternalDataSourceTableRef" &&
+    isExternalDataSourceTableYAMLType(detailType)
   ) {
     return detailType
+  }
+
+  if (
+    detailType !== undefined &&
+    baseType === "ExternalDataSourceCubeDimensionTableRef" &&
+    isExternalDataSourceCubeDimensionTableYAMLType(detailType)
+  ) {
+    return detailType
+  }
+
+  if (isExternalDataSourceBaseType(baseType) && detailType !== undefined) {
+    throw new Error(`Type ${type} not found in TypeDescriptionRules`)
   }
 
   if (!rule) {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
+import { importTypeDescriptionFromYAML } from "./fromYAML"
 import { exportTypeDescriptionToYAML } from "./toYAML"
 
 describe("exportTypeDescriptionToYAML", () => {
@@ -21,9 +22,9 @@ describe("exportTypeDescriptionToYAML", () => {
   })
 
   it("should throw on unknown non-enumeration type during YAML export", () => {
-    expect(() =>
-      exportTypeDescriptionToYAML(mockContext, mockRule, { type: ["DefinitelyUnknownType"] })
-    ).toThrow("Type DefinitelyUnknownType not found in TypeDescriptionRules")
+    expect(() => exportTypeDescriptionToYAML(mockContext, mockRule, { type: ["DefinitelyUnknownType"] })).toThrow(
+      "Type DefinitelyUnknownType not found in TypeDescriptionRules"
+    )
   })
 
   it("should throw on system enumeration type with complex suffix during YAML export", () => {
@@ -38,7 +39,7 @@ describe("external data source TypeDescription YAML export", () => {
     expect(
       exportTypeDescriptionToYAML(mockContext, mockRule, {
         type: ["ExternalDataSourceTableRef.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"],
-      }),
+      })
     ).toBe("ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства")
   })
 
@@ -48,7 +49,33 @@ describe("external data source TypeDescription YAML export", () => {
         type: [
           "ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
         ],
-      }),
+      })
     ).toBe("ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства")
+  })
+
+  it.each([
+    "ExternalDataSourceTableRef.Справочник.Контрагенты",
+    "ExternalDataSourceTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
+    "ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства",
+  ])("throws on invalid external data source path %s", (type) => {
+    expect(() => exportTypeDescriptionToYAML(mockContext, mockRule, { type: [type] })).toThrow(
+      `Type ${type} not found in TypeDescriptionRules`
+    )
+  })
+
+  it.each([
+    {
+      yaml: "ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства",
+      type: "ExternalDataSourceTableRef.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства",
+    },
+    {
+      yaml: "ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
+      type: "ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
+    },
+  ])("round-trips external data source short form $yaml", ({ yaml, type }) => {
+    const internal = importTypeDescriptionFromYAML(mockContext, mockRule, yaml)
+
+    expect(internal).toEqual({ type: [type] })
+    expect(exportTypeDescriptionToYAML(mockContext, mockRule, internal)).toBe(yaml)
   })
 })
