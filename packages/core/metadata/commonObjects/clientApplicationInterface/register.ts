@@ -652,7 +652,6 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({ value, metadataItem, ref
   const referencePanelDefs = (referenceMetadata as ClientApplicationInterfacePanelDefs | undefined) ?? panelDefs
   const byId = new Map(panelDefs.map((panelDef) => [panelDef.id, panelDef]))
   const referenceById = new Map(referencePanelDefs.map((panelDef) => [panelDef.id, panelDef]))
-  const usedPanelIds = new Set(panels.map((panel) => panel.uuid).filter((uuid): uuid is string => uuid !== undefined))
   const emittedIds = new Set<string>()
   const result: Record<string, unknown>[] = []
 

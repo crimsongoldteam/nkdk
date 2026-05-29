@@ -223,7 +223,7 @@ async function writeRootConfigurationFilePathPropertiesToXML(params: {
   const model = params.configuration
   if (model === undefined) return
 
-  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties)) {
+  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties) as [string, PropertyRule][]) {
     if (propRule.filePath === undefined) continue
     if (!getTypeRule(propRule.type, "exportToXML")) continue
 
@@ -238,7 +238,7 @@ async function writeRootConfigurationFilePathPropertiesToXML(params: {
 
     const xmlFileObj = exportPropertyToXML({
       context: params.context,
-      rule: propRule as PropertyRule,
+      rule: propRule,
       value: valueToExport,
       referenceMetadata: referenceValue,
     }) as Record<string, unknown> | undefined
