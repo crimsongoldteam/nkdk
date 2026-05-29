@@ -275,3 +275,64 @@ describe("buildGraph (рёбра и стабы)", () => {
     }
   })
 })
+
+describe("buildGraph (TypeDescription graph hint coverage)", () => {
+  it("creates graph nodes for defined types used by x-nkdk-graph hints", async () => {
+    const result = await buildGraph(
+      new Map([
+        ["ОпределяемыйТип/ДенежнаяСумма/Свойства.yaml", "Синоним: Денежная сумма\n"],
+      ]),
+      ctx,
+    )
+
+    const nodes = result.flatMap((file) => file.nodes)
+    expect(nodes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "DefinedType.ДенежнаяСумма",
+          label: "MetadataObject",
+          props: expect.objectContaining({ kind: "MetadataDefinedType", name: "ДенежнаяСумма" }),
+        }),
+      ]),
+    )
+  })
+
+  it("creates graph nodes for external data source table type hints", async () => {
+    const result = await buildGraph(
+      new Map([
+        [
+          "ВнешнийИсточникДанных/ВсеСвойства/Свойства.yaml",
+          [
+            "Синоним: Все свойства",
+            "Таблицы:",
+            "  ВсеСвойства:",
+            "    Синоним: Все свойства",
+            "Кубы:",
+            "  Продажи:",
+            "    Синоним: Продажи",
+            "    ТаблицыИзмерений:",
+            "      Номенклатура:",
+            "        Синоним: Номенклатура",
+          ].join("\n"),
+        ],
+      ]),
+      ctx,
+    )
+
+    const edges = result.flatMap((file) => file.edges)
+    expect(edges).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          src: "ExternalDataSource.ВсеСвойства",
+          tgt: "ExternalDataSource.ВсеСвойства.Table.ВсеСвойства",
+          kind: "EXTERNAL_DATA_SOURCE_TABLE",
+        }),
+        expect.objectContaining({
+          src: "ExternalDataSource.ВсеСвойства.Cube.Продажи",
+          tgt: "ExternalDataSource.ВсеСвойства.Cube.Продажи.DimensionTable.Номенклатура",
+          kind: "EXTERNAL_DATA_SOURCE_DIMENSION_TABLE",
+        }),
+      ]),
+    )
+  })
+})

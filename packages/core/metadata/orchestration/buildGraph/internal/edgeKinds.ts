@@ -30,6 +30,9 @@ const _byKind = new Map<string, EdgeKindEntry>([
   ["CHOICE_PARAMETER_LINK", { yaml: "СвязьПараметровВыбора", owning: true }],
   ["ENUM_VALUE", { yaml: "ЗначениеПеречисления", owning: true }],
   ["DIMENSION", { yaml: "Измерение", owning: true }],
+  ["EXTERNAL_DATA_SOURCE_TABLE", { yaml: "ТаблицаВнешнегоИсточникаДанных", owning: true }],
+  ["EXTERNAL_DATA_SOURCE_CUBE", { yaml: "КубВнешнегоИсточникаДанных", owning: true }],
+  ["EXTERNAL_DATA_SOURCE_DIMENSION_TABLE", { yaml: "ТаблицаИзмеренияКубаВнешнегоИсточникаДанных", owning: true }],
   // Owning: терминальные узлы (ПустаяСсылка и подобные)
   ["EMPTY_REF", { yaml: "ПустаяСсылка", owning: true }],
   // Owning: root-рёбра от itemTypePrefix-узла к узлу объекта

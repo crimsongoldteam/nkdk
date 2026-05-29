@@ -19,4 +19,10 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataExternalDataSourceTableCollectionRules,
   xmlElement: "Table",
   keyField: "name",
+  graphChild: {
+    idFrom: "name",
+    edgeKind: "EXTERNAL_DATA_SOURCE_TABLE",
+    edgeYaml: "ТаблицаВнешнегоИсточникаДанных",
+    nodeSegment: "Table",
+  },
 })

@@ -13,6 +13,13 @@ describe("topLevelGraphImportSpecs", () => {
       "РегистрСведений",
       "РегистрНакопления",
       "ПланОбмена",
+      "ОпределяемыйТип",
+      "ПланВидовХарактеристик",
+      "ПланСчетов",
+      "ПланВидовРасчета",
+      "БизнесПроцесс",
+      "Задача",
+      "ВнешнийИсточникДанных",
     ])
   })
 
@@ -78,6 +85,48 @@ describe("topLevelGraphImportSpecs", () => {
         dir: "ПланОбмена",
         itemType: "MetadataExchangePlan",
         prefix: "ПланОбмена",
+      },
+      {
+        kind: "definedType",
+        dir: "ОпределяемыйТип",
+        itemType: "MetadataDefinedType",
+        prefix: "ОпределяемыйТип",
+      },
+      {
+        kind: "chartOfCharacteristicTypes",
+        dir: "ПланВидовХарактеристик",
+        itemType: "MetadataChartOfCharacteristicTypes",
+        prefix: "ПланВидовХарактеристик",
+      },
+      {
+        kind: "chartOfAccounts",
+        dir: "ПланСчетов",
+        itemType: "MetadataChartOfAccounts",
+        prefix: "ПланСчетов",
+      },
+      {
+        kind: "chartOfCalculationTypes",
+        dir: "ПланВидовРасчета",
+        itemType: "MetadataChartOfCalculationTypes",
+        prefix: "ПланВидовРасчета",
+      },
+      {
+        kind: "businessProcess",
+        dir: "БизнесПроцесс",
+        itemType: "MetadataBusinessProcess",
+        prefix: "БизнесПроцесс",
+      },
+      {
+        kind: "task",
+        dir: "Задача",
+        itemType: "MetadataTask",
+        prefix: "Задача",
+      },
+      {
+        kind: "externalDataSource",
+        dir: "ВнешнийИсточникДанных",
+        itemType: "MetadataExternalDataSource",
+        prefix: "ВнешнийИсточникДанных",
       },
     ])
   })
