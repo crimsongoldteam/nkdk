@@ -3,7 +3,11 @@ import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it } from "vitest"
-import { exportJSONSchemaForProjectFile, ProjectFileSchemaError } from "./projectFileSchema"
+import {
+  exportJSONSchemaForProjectFile,
+  exportJSONSchemaForSchemaName,
+  ProjectFileSchemaError,
+} from "./projectFileSchema"
 import { validateFile } from "./validateFile"
 
 const context = {
@@ -26,12 +30,34 @@ describe("exportJSONSchemaForProjectFile", () => {
     return projectDir
   }
 
-  it("exports catalog schema for absolute properties path", () => {
+  it("exports compact catalog schema for absolute properties path by default", () => {
     const projectDir = createProject()
     const filePath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
 
     const schema = exportJSONSchemaForProjectFile({ context, filePath })
 
+    expect(schema).toMatchObject({
+      type: "object",
+      properties: expect.objectContaining({
+        Реквизиты: expect.objectContaining({
+          type: "object",
+          additionalProperties: expect.objectContaining({
+            $ref: "nkdk://schema/MetadataCatalogAttribute",
+          }),
+        }),
+      }),
+      "x-nkdk-schemaRefs": expect.arrayContaining(["nkdk://schema/MetadataCatalogAttribute"]),
+    })
+  })
+
+  it("exports inline catalog schema for properties path in inline mode", () => {
+    const schema = exportJSONSchemaForProjectFile({
+      context,
+      filePath: "Справочник/Товары/Свойства.yaml",
+      mode: "inline",
+    })
+
+    expect(JSON.stringify(schema)).not.toContain("nkdk://schema/MetadataCatalogAttribute")
     expect(schema).toMatchObject({
       type: "object",
       properties: expect.objectContaining({
@@ -108,6 +134,7 @@ describe("exportJSONSchemaForProjectFile", () => {
       exportJSONSchemaForProjectFile({
         context,
         filePath: "Справочник/Товары/Свойства.yaml",
+        mode: "inline",
       })
     )
 
@@ -164,6 +191,7 @@ describe("exportJSONSchemaForProjectFile", () => {
       exportJSONSchemaForProjectFile({
         context,
         filePath: "Документ/Заказ/Свойства.yaml",
+        mode: "inline",
       })
     )
 
@@ -211,5 +239,23 @@ describe("exportJSONSchemaForProjectFile", () => {
         text: ["Реквизиты:", "  Идентификатор:", "    Тип: {}"].join("\n"),
       })
     ).not.toEqual([])
+  })
+})
+
+describe("exportJSONSchemaForSchemaName", () => {
+  it("exports schema by registered name", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "InputField" })
+
+    expect(schema).toMatchObject({
+      properties: expect.objectContaining({
+        Вид: expect.objectContaining({ const: "ПолеВвода" }),
+      }),
+    })
+  })
+
+  it("reports unknown schema names", () => {
+    expect(() => exportJSONSchemaForSchemaName({ context, name: "UnknownSchema" })).toThrow(
+      /Неизвестная JSON Schema "UnknownSchema"/
+    )
   })
 })

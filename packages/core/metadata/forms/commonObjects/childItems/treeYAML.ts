@@ -16,14 +16,14 @@ import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory
 import { exportElementToYAML, exportFormElementTypeToYAML } from "~/metadata/orchestration/formElement/toYAML"
 import { ChildItem, FormElementTreeNodeYAML, FormElementTreeYAML, TypedElement } from "./types"
 
-const childItemsTreePropertyTypes = [
+export const childItemsTreePropertyTypes = [
   "GroupChildItems",
   "CommandBarChildItems",
   "TableChildItems",
   "PagesChildItems",
 ] as const
 
-type ChildItemsTreePropertyType = (typeof childItemsTreePropertyTypes)[number]
+export type ChildItemsTreePropertyType = (typeof childItemsTreePropertyTypes)[number]
 
 const childItemTypesByPropertyType = {
   GroupChildItems: [
@@ -70,6 +70,16 @@ const childItemTypesByPropertyType = {
   TableChildItems: ["TableCheckBoxField", "ColumnGroup", "TableInputField", "TableLabelField", "TablePictureField"],
   PagesChildItems: ["Page"],
 } as const satisfies Record<ChildItemsTreePropertyType, readonly CollectableElementType[]>
+
+export const getChildItemTypesByPropertyType = (
+  propertyType: ChildItemsTreePropertyType
+): readonly CollectableElementType[] => {
+  return childItemTypesByPropertyType[propertyType]
+}
+
+export const getTreeNodeJSONSchemaPropertyAliases = (itemType: CollectableElementType): Record<string, string> => {
+  return isButtonElementType(itemType) ? { Вид: "ТипКнопки" } : {}
+}
 
 const elementTypesByYAMLKind = Object.entries(CollectableElementTypeToYAML).reduce<
   Record<string, CollectableElementType[]>

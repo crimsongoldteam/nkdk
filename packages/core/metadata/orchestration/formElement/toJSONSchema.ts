@@ -1,8 +1,50 @@
-import { TSchema, Type } from "@sinclair/typebox"
+import { TProperties, TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { exportPropertiesToJSONSchema } from "../property/toJSONSchema"
 import { getElementRule } from "./ruleFactory"
+import { ElementRule } from "./types"
+
+export const exportElementRuleToJSONSchema = (params: {
+  context: ConfigurationContext
+  rule: ElementRule
+  yamlKind: string
+  propertyAliases?: Record<string, string>
+}): TSchema => {
+  const { context, propertyAliases, rule, yamlKind } = params
+  const properties = exportPropertiesToJSONSchema({
+    context,
+    rule,
+  })
+  const aliasedProperties = applyPropertyAliases({
+    aliases: propertyAliases,
+    properties: properties as TProperties,
+  })
+
+  return Type.Object(
+    {
+      ...aliasedProperties,
+      Вид: Type.Literal(yamlKind),
+    },
+    {
+      additionalProperties: false,
+    }
+  )
+}
+
+const applyPropertyAliases = (params: { aliases?: Record<string, string>; properties: TProperties }): TProperties => {
+  const { aliases } = params
+  const result = { ...params.properties }
+  if (aliases === undefined) return result
+
+  for (const [from, to] of Object.entries(aliases)) {
+    if (result[from] !== undefined) {
+      result[to] = result[from]
+      delete result[from]
+    }
+  }
+  return result
+}
 
 export const exportElementToJSONSchema = <T extends NamedElement>(params: {
   context: ConfigurationContext

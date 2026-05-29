@@ -1,52 +1,40 @@
 import type { TSchema } from "@sinclair/typebox"
 import { isAbsolute, relative, resolve, sep } from "path"
-import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/metadataAccumulationRegister/rules"
-import { exportMetadataCatalogToJSONSchema } from "~/metadata/appliedObjects/metadataCatalog/toJSONSchema"
-import { MetadataDataProcessorRules } from "~/metadata/appliedObjects/metadataDataProcessor/rules"
-import { exportMetadataDocumentToJSONSchema } from "~/metadata/appliedObjects/metadataDocument/toJSONSchema"
-import { MetadataDocumentJournalRules } from "~/metadata/appliedObjects/metadataDocumentJournal/rules"
-import { exportMetadataEnumerationToJSONSchema } from "~/metadata/appliedObjects/metadataEnumeration/toJSONSchema"
-import { MetadataExchangePlanRules } from "~/metadata/appliedObjects/metadataExchangePlan/rules"
-import { MetadataHTTPServiceRules } from "~/metadata/appliedObjects/metadataHTTPService/rules"
-import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { createEmptyClientApplicationForm } from "~/metadata/forms/clientApplicationForm/createEmpty"
-import { exportClientApplicationFormToJSONSchema } from "~/metadata/forms/clientApplicationForm/toJSONSchema"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
+import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
+import {
+  exportJSONSchemaForSchemaName as exportRegisteredJSONSchemaForSchemaName,
+  ProjectFileSchemaError,
+} from "./schemaRegistry"
+
+export { ProjectFileSchemaError } from "./schemaRegistry"
 
 export interface ExportJSONSchemaForProjectFileParams {
   context: ConfigurationContext
   filePath: string
   projectDir?: string
+  mode?: JSONSchemaExportMode
 }
 
-export class ProjectFileSchemaError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = "ProjectFileSchemaError"
-  }
+export interface ExportJSONSchemaForSchemaNameParams {
+  context: ConfigurationContext
+  name: string
+  mode?: JSONSchemaExportMode
 }
 
 const expectedPatterns =
   "Ожидались пути вида <Вид>/<Имя>/Свойства.yaml или <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
 
-const metadataSchemaByDir = {
-  Справочник: (context: ConfigurationContext) => exportMetadataCatalogToJSONSchema({ context }),
-  Документ: (context: ConfigurationContext) => exportMetadataDocumentToJSONSchema({ context }),
-  Перечисление: (context: ConfigurationContext) => exportMetadataEnumerationToJSONSchema({ context }),
-  Обработка: (context: ConfigurationContext) =>
-    exportMetadataItemToJSONSchema({ context, rule: MetadataDataProcessorRules }),
-  ЖурналДокументов: (context: ConfigurationContext) =>
-    exportMetadataItemToJSONSchema({ context, rule: MetadataDocumentJournalRules }),
-  HTTPСервис: (context: ConfigurationContext) =>
-    exportMetadataItemToJSONSchema({ context, rule: MetadataHTTPServiceRules }),
-  РегистрСведений: (context: ConfigurationContext) =>
-    exportMetadataItemToJSONSchema({ context, rule: MetadataInformationRegisterRules }),
-  РегистрНакопления: (context: ConfigurationContext) =>
-    exportMetadataItemToJSONSchema({ context, rule: MetadataAccumulationRegisterRules }),
-  ПланОбмена: (context: ConfigurationContext) =>
-    exportMetadataItemToJSONSchema({ context, rule: MetadataExchangePlanRules }),
-} satisfies Record<string, (context: ConfigurationContext) => TSchema>
+const metadataSchemaNameByDir = {
+  Справочник: "MetadataCatalog",
+  Документ: "MetadataDocument",
+  Перечисление: "MetadataEnumeration",
+  Обработка: "MetadataDataProcessor",
+  ЖурналДокументов: "MetadataDocumentJournal",
+  HTTPСервис: "MetadataHTTPService",
+  РегистрСведений: "MetadataInformationRegister",
+  РегистрНакопления: "MetadataAccumulationRegister",
+  ПланОбмена: "MetadataExchangePlan",
+} satisfies Record<string, string>
 
 export function exportJSONSchemaForProjectFile(params: ExportJSONSchemaForProjectFileParams): TSchema {
   const { context } = params
@@ -57,19 +45,27 @@ export function exportJSONSchemaForProjectFile(params: ExportJSONSchemaForProjec
     throw new ProjectFileSchemaError("JSON Schema поддерживается только для .yaml файлов")
   }
 
+  let schemaName: string | undefined
+
   if (isFormPath(parts)) {
-    return exportClientApplicationFormToJSONSchema({
-      context,
-      value: createEmptyClientApplicationForm(),
-    })
+    schemaName = "ClientApplicationForm"
+  } else {
+    schemaName = findPropertiesPath(parts)?.schemaName
   }
 
-  const propertiesMatch = findPropertiesPath(parts)
-  if (propertiesMatch) {
-    return propertiesMatch.exportSchema(context)
+  if (!schemaName) {
+    throw new ProjectFileSchemaError(expectedPatterns)
   }
 
-  throw new ProjectFileSchemaError(expectedPatterns)
+  return exportRegisteredJSONSchemaForSchemaName({
+    context,
+    name: schemaName,
+    mode: params.mode,
+  })
+}
+
+export function exportJSONSchemaForSchemaName(params: ExportJSONSchemaForSchemaNameParams): TSchema {
+  return exportRegisteredJSONSchemaForSchemaName(params)
 }
 
 function normalizeProjectPath(params: Pick<ExportJSONSchemaForProjectFileParams, "filePath" | "projectDir">): string {
@@ -105,17 +101,17 @@ function isFormPath(parts: string[]): boolean {
   )
 }
 
-function findPropertiesPath(parts: string[]): { exportSchema: (context: ConfigurationContext) => TSchema } | undefined {
+function findPropertiesPath(parts: string[]): { schemaName: string } | undefined {
   if (parts.length < 3 || parts[parts.length - 1] !== "Свойства.yaml") return undefined
 
   const objectDir = parts[parts.length - 3]
   if (!objectDir || !hasMetadataSchema(objectDir)) return undefined
 
-  const exportSchema = metadataSchemaByDir[objectDir]
+  const schemaName = metadataSchemaNameByDir[objectDir]
 
-  return { exportSchema }
+  return { schemaName }
 }
 
-function hasMetadataSchema(dir: string): dir is keyof typeof metadataSchemaByDir {
-  return Object.prototype.hasOwnProperty.call(metadataSchemaByDir, dir)
+function hasMetadataSchema(dir: string): dir is keyof typeof metadataSchemaNameByDir {
+  return Object.prototype.hasOwnProperty.call(metadataSchemaNameByDir, dir)
 }

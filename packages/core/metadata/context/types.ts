@@ -1,14 +1,25 @@
+import type { TSchema } from "@sinclair/typebox"
 import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
 import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "../orchestration"
 import { GraphBuilder } from "../orchestration/buildGraph/internal/GraphBuilder"
+import type { PropertyRuleType } from "../orchestration/property/registry"
 
 export type ContextElementToXML = {
   name: string
   itemType: MetadataItemType
   path: string
 }
+
+export type JSONSchemaExportMode = "externalRefs" | "inline"
+
+export interface JSONSchemaExportContext {
+  mode: JSONSchemaExportMode
+  refs: Set<string>
+  propertySchemaOverrides?: Partial<Record<PropertyRuleType, TSchema>>
+}
+
 export type ContextElementToEnterprise =
   | {
       itemType: ElementType
@@ -28,6 +39,7 @@ export interface ConfigurationContext {
   exportToYAML?: FormExportToYAMLContext
   importFromYAML?: FormimportFromYAMLContext
   exportToXML?: ToXMLConfigurationContext
+  exportToJSONSchema?: JSONSchemaExportContext
   /** Экземпляр графа, передаётся снаружи (из extension/CLI). Не синглтон. */
   graph?: GraphBuilder
 }
