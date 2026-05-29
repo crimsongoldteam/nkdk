@@ -1,7 +1,8 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
+import { assertTypeDescriptionYAMLAllowed } from "./allowedTypes"
 import { getSystemEnumerationTypeFromYAML, getTypeFromYAML } from "./helper"
 import {
   PrimitiveTypeFromYAML,
@@ -25,11 +26,15 @@ const getTypeIdsFromYAML = (typeId: unknown): string[] | undefined => {
 
 export const importTypeDescriptionFromYAML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   value: TypeDescriptionYAML | undefined
 ): TypeDescription | undefined => {
   if (value === undefined) {
     return undefined
+  }
+
+  if (rule?.type === "TypeDescription" && rule.allowedTypes !== undefined) {
+    assertTypeDescriptionYAMLAllowed({ value, allowedTypes: rule.allowedTypes })
   }
 
   if (isTypeDescriptionYAMLObject(value)) {
