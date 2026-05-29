@@ -187,9 +187,14 @@ export const buildTypeDescriptionJSONSchema = (allowedTypes: TypeDescriptionAllo
   const branches = buildBranches(allowedTypes)
   const singleBranches = branches.map((branch) => branch.schema)
   const compositeBranches = branches.filter((branch) => !branch.singleOnly).map((branch) => branch.schema)
+  const singleSchema = createUnion(singleBranches, "Одиночный тип")
+
+  if (compositeBranches.length === 0) {
+    return singleSchema
+  }
 
   return Type.Union([
-    createUnion(singleBranches, "Одиночный тип"),
+    singleSchema,
     Type.Array(createUnion(compositeBranches, "Элемент составного типа"), {
       description: "Составной тип",
       minItems: 1,

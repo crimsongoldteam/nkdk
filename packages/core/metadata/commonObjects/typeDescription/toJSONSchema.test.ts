@@ -136,6 +136,35 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     })
   })
 
+  it("validates external data source references with TypeCompiler", () => {
+    const jsonSchema = exportTypeDescriptionToJSONSchema({
+      context: mockContext,
+      rule: externalRefsRule,
+      value: undefined,
+    })
+    if (jsonSchema === undefined) {
+      throw new Error("Expected TypeDescription JSON schema")
+    }
+    const schema = TypeCompiler.Compile(jsonSchema)
+
+    expect(schema.Check("ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства")).toBe(true)
+    expect(
+      schema.Check("ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства")
+    ).toBe(true)
+    expect(schema.Check(["ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"])).toBe(false)
+    expect(schema.Check("ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства")).toBe(false)
+  })
+
+  it("omits composite array branch when all allowed types are single-only", () => {
+    const jsonSchema = exportTypeDescriptionToJSONSchema({
+      context: mockContext,
+      rule: externalRefsRule,
+      value: undefined,
+    })
+
+    expect(JSON.stringify(jsonSchema)).not.toContain('"type":"array"')
+  })
+
   it("rejects single-only types inside composite arrays", () => {
     const jsonSchema = exportTypeDescriptionToJSONSchema({
       context: mockContext,
