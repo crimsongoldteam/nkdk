@@ -648,6 +648,10 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
   },
 } as const
 
+export type TypeDescriptionRuleName = keyof typeof TypeDescriptionRules
+export type TypeDescriptionAllowedType = TypeDescriptionRuleName | `${TypeDescriptionRuleName}.*`
+export type TypeDescriptionAllowedTypes = readonly TypeDescriptionAllowedType[]
+
 export const TypeDescriptionPrefixes = Object.fromEntries(
   Object.values(TypeDescriptionRules).map((settings) => [settings.prefix, settings.prefix])
 ) as Record<string, string>

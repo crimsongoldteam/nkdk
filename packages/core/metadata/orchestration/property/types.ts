@@ -10,6 +10,7 @@ import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childF
 import type { ChildSubsystemNamesPropertyRule } from "~/metadata/commonObjects/childSubsystemNames/types"
 import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
 import type { CypherSet } from "./cypherPredicate"
+import type { TypeDescriptionAllowedTypes } from "~/metadata/commonObjects/typeDescription/types"
 import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
 import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
@@ -252,6 +253,7 @@ export interface TypeDescriptionPropertyRule extends BasePropertyRule {
   type: "TypeDescription"
   addTypeDescriptionAttributeToXML?: true
   declareTypeNamespaceXML?: boolean
+  allowedTypes?: TypeDescriptionAllowedTypes
 }
 
 export interface DataPathPropertyRule extends BasePropertyRule {
