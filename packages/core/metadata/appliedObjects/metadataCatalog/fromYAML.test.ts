@@ -23,6 +23,60 @@ describe("importMetadataCatalogFromYAML", () => {
     expect(result).toEqual(minimal)
   })
 
+  it("should apply catalog attribute type restrictions to short YAML attributes", () => {
+    const result = importMetadataCatalogFromYAML(
+      mockContext,
+      {
+        Реквизиты: {
+          Артикул: "Строка",
+        },
+      },
+      "Товары"
+    )
+
+    expect(result?.attributes).toEqual([
+      expect.objectContaining({
+        name: "Артикул",
+        type: { type: ["string"] },
+      }),
+    ])
+  })
+
+  it("should apply catalog attribute type restrictions to object YAML attributes", () => {
+    const result = importMetadataCatalogFromYAML(
+      mockContext,
+      {
+        Реквизиты: {
+          Контрагент: {
+            Тип: "Справочник.Контрагенты",
+          },
+        },
+      },
+      "Товары"
+    )
+
+    expect(result?.attributes).toEqual([
+      expect.objectContaining({
+        name: "Контрагент",
+        type: { type: ["CatalogRef.Контрагенты"] },
+      }),
+    ])
+  })
+
+  it("should reject invalid catalog attribute TypeDescription", () => {
+    expect(() =>
+      importMetadataCatalogFromYAML(
+        mockContext,
+        {
+          Реквизиты: {
+            Неверный: "НесуществующийТип",
+          },
+        },
+        "Товары"
+      )
+    ).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
+  })
+
   it("should import with short format", () => {
     const result = exportMetadataCatalogToYAML(mockContext, minimal)
 
