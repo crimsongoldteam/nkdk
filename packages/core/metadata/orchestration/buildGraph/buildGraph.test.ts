@@ -286,12 +286,22 @@ describe("buildGraph (TypeDescription graph hint coverage)", () => {
     )
 
     const nodes = result.flatMap((file) => file.nodes)
+    const edges = result.flatMap((file) => file.edges)
     expect(nodes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           id: "DefinedType.ДенежнаяСумма",
           label: "MetadataObject",
           props: expect.objectContaining({ kind: "MetadataDefinedType", name: "ДенежнаяСумма" }),
+        }),
+      ]),
+    )
+    expect(edges).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          src: "DefinedType",
+          tgt: "DefinedType.ДенежнаяСумма",
+          kind: "METADATA_DEFINED_TYPE",
         }),
       ]),
     )
@@ -319,7 +329,22 @@ describe("buildGraph (TypeDescription graph hint coverage)", () => {
       ctx,
     )
 
+    const nodes = result.flatMap((file) => file.nodes)
     const edges = result.flatMap((file) => file.edges)
+    expect(nodes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "ExternalDataSource.ВсеСвойства.Table.ВсеСвойства",
+          label: "MetadataExternalDataSourceTable",
+          props: expect.objectContaining({ name: "ВсеСвойства" }),
+        }),
+        expect.objectContaining({
+          id: "ExternalDataSource.ВсеСвойства.Cube.Продажи.DimensionTable.Номенклатура",
+          label: "MetadataExternalDataSourceDimensionTable",
+          props: expect.objectContaining({ name: "Номенклатура" }),
+        }),
+      ]),
+    )
     expect(edges).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
