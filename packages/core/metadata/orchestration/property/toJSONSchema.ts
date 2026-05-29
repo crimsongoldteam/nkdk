@@ -1,7 +1,7 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getTypeRule } from "../formElement/factory"
-import { exportPropertyExternalRefSchema } from "../jsonSchemaRefs"
+import { exportPropertyExternalRefSchema, exportPropertyOverrideSchema } from "../jsonSchemaRefs"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 /**
@@ -68,6 +68,12 @@ export const exportPropertyToJSONSchema = (params: {
   value: any
 }): TSchema | undefined => {
   const { context, rule, value } = params
+
+  const overrideSchema = exportPropertyOverrideSchema({
+    context,
+    rule,
+  })
+  if (overrideSchema !== undefined) return overrideSchema
 
   const externalRefSchema = exportPropertyExternalRefSchema({
     context,

@@ -89,6 +89,26 @@ describe("JSON Schema registry", () => {
     expect(() => TypeCompiler.Compile(schema)).not.toThrow()
   })
 
+  it("accepts nested child items in inline form element schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Вид: "Группа",
+      Элементы: {
+        Группа: {
+          Вид: "Группа",
+          Элементы: {
+            Поле: {
+              Вид: "ПолеВвода",
+            },
+          },
+        },
+      },
+    }
+
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
   it("restores property refs after generic ref registry is cleared", () => {
     clearJSONSchemaRefRegistries()
     const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup" })

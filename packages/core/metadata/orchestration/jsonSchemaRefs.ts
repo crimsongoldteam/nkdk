@@ -54,6 +54,32 @@ export function createJSONSchemaExportContext(
   }
 }
 
+export function createJSONSchemaPropertyOverrideContext(
+  context: ConfigurationContext,
+  propertySchemaOverrides: Partial<Record<PropertyRuleType, TSchema>>
+): ConfigurationContext {
+  const exportToJSONSchema = context.exportToJSONSchema
+  if (exportToJSONSchema === undefined) return context
+
+  return {
+    ...context,
+    exportToJSONSchema: {
+      ...exportToJSONSchema,
+      propertySchemaOverrides: {
+        ...exportToJSONSchema.propertySchemaOverrides,
+        ...propertySchemaOverrides,
+      },
+    },
+  }
+}
+
+export function exportPropertyOverrideSchema(params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+}): TSchema | undefined {
+  return params.context.exportToJSONSchema?.propertySchemaOverrides?.[params.rule.type]
+}
+
 export function exportPropertyExternalRefSchema(params: {
   context: ConfigurationContext
   rule: PropertyRule

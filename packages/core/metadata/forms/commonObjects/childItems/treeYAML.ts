@@ -16,7 +16,7 @@ import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory
 import { exportElementToYAML, exportFormElementTypeToYAML } from "~/metadata/orchestration/formElement/toYAML"
 import { ChildItem, FormElementTreeNodeYAML, FormElementTreeYAML, TypedElement } from "./types"
 
-const childItemsTreePropertyTypes = [
+export const childItemsTreePropertyTypes = [
   "GroupChildItems",
   "CommandBarChildItems",
   "TableChildItems",
