@@ -20,6 +20,11 @@ const restrictedRule = {
   ],
 } as const
 
+const externalRefsRule = {
+  type: "TypeDescription",
+  allowedTypes: ["ExternalDataSourceTableRef.*", "ExternalDataSourceCubeDimensionTableRef.*"],
+} as const
+
 type SchemaBranch = Record<string, unknown>
 
 const findSchemaBranchByPattern = (schema: unknown, pattern: string): SchemaBranch | undefined => {
@@ -97,6 +102,36 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     expect(catalogRef).toMatchObject({
       "x-nkdk-graph": {
         query: "MATCH (n:MetadataObject {kind: 'MetadataCatalog'}) RETURN n.name ORDER BY n.name",
+      },
+    })
+  })
+
+  it("exports x-nkdk-graph path queries for external data source references", () => {
+    const schema = exportTypeDescriptionToJSONSchema({
+      context: mockContext,
+      rule: externalRefsRule,
+      value: undefined,
+    })
+
+    const externalTableRef = findSchemaBranchByPattern(
+      schema,
+      "^ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.Таблица[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$"
+    )
+    const externalCubeDimensionTableRef = findSchemaBranchByPattern(
+      schema,
+      "^ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.Куб[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.ТаблицаИзмерения[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$"
+    )
+
+    expect(externalTableRef).toMatchObject({
+      "x-nkdk-graph": {
+        query:
+          "MATCH (s:MetadataObject {kind: 'MetadataExternalDataSource'})-[:EXTERNAL_DATA_SOURCE_TABLE]->(t:MetadataExternalDataSourceTable) RETURN s.name, t.name ORDER BY s.name, t.name",
+      },
+    })
+    expect(externalCubeDimensionTableRef).toMatchObject({
+      "x-nkdk-graph": {
+        query:
+          "MATCH (s:MetadataObject {kind: 'MetadataExternalDataSource'})-[:EXTERNAL_DATA_SOURCE_CUBE]->(c:MetadataExternalDataSourceCube)-[:EXTERNAL_DATA_SOURCE_DIMENSION_TABLE]->(t:MetadataExternalDataSourceDimensionTable) RETURN s.name, c.name, t.name ORDER BY s.name, c.name, t.name",
       },
     })
   })

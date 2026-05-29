@@ -42,6 +42,20 @@ const graphQuery = (kind: string): { "x-nkdk-graph": { query: string } } => ({
   },
 })
 
+const externalDataSourceTableGraphQuery = (): { "x-nkdk-graph": { query: string } } => ({
+  "x-nkdk-graph": {
+    query:
+      "MATCH (s:MetadataObject {kind: 'MetadataExternalDataSource'})-[:EXTERNAL_DATA_SOURCE_TABLE]->(t:MetadataExternalDataSourceTable) RETURN s.name, t.name ORDER BY s.name, t.name",
+  },
+})
+
+const externalDataSourceCubeDimensionTableGraphQuery = (): { "x-nkdk-graph": { query: string } } => ({
+  "x-nkdk-graph": {
+    query:
+      "MATCH (s:MetadataObject {kind: 'MetadataExternalDataSource'})-[:EXTERNAL_DATA_SOURCE_CUBE]->(c:MetadataExternalDataSourceCube)-[:EXTERNAL_DATA_SOURCE_DIMENSION_TABLE]->(t:MetadataExternalDataSourceDimensionTable) RETURN s.name, c.name, t.name ORDER BY s.name, c.name, t.name",
+  },
+})
+
 const concreteRefBranch = (yamlName: string, kind: string): TypeDescriptionBranch => ({
   schema: createStringBranch(`^${yamlName}\\.${metadataNamePattern}$`, graphQuery(kind)),
 })
@@ -128,7 +142,7 @@ const concreteObjectBranches: Partial<Record<TypeDescriptionAllowedType, BranchF
     {
       schema: createStringBranch(
         `^ВнешнийИсточникДанных${metadataNamePattern}\\.Таблица${metadataNamePattern}$`,
-        graphQuery("MetadataExternalDataSourceTable")
+        externalDataSourceTableGraphQuery()
       ),
       singleOnly: true,
     },
@@ -137,7 +151,7 @@ const concreteObjectBranches: Partial<Record<TypeDescriptionAllowedType, BranchF
     {
       schema: createStringBranch(
         `^ВнешнийИсточникДанных${metadataNamePattern}\\.Куб${metadataNamePattern}\\.ТаблицаИзмерения${metadataNamePattern}$`,
-        graphQuery("MetadataExternalDataSourceDimensionTable")
+        externalDataSourceCubeDimensionTableGraphQuery()
       ),
       singleOnly: true,
     },
