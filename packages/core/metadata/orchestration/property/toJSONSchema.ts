@@ -1,6 +1,7 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getTypeRule } from "../formElement/factory"
+import { exportPropertyExternalRefSchema } from "../jsonSchemaRefs"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 /**
@@ -67,6 +68,12 @@ export const exportPropertyToJSONSchema = (params: {
   value: any
 }): TSchema | undefined => {
   const { context, rule, value } = params
+
+  const externalRefSchema = exportPropertyExternalRefSchema({
+    context,
+    rule,
+  })
+  if (externalRefSchema !== undefined) return externalRefSchema
 
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToJSONSchema") : undefined
 

@@ -9,6 +9,14 @@ export type ContextElementToXML = {
   itemType: MetadataItemType
   path: string
 }
+
+export type JSONSchemaExportMode = "externalRefs" | "inline"
+
+export interface JSONSchemaExportContext {
+  mode: JSONSchemaExportMode
+  refs: Set<string>
+}
+
 export type ContextElementToEnterprise =
   | {
       itemType: ElementType
@@ -28,6 +36,7 @@ export interface ConfigurationContext {
   exportToYAML?: FormExportToYAMLContext
   importFromYAML?: FormimportFromYAMLContext
   exportToXML?: ToXMLConfigurationContext
+  exportToJSONSchema?: JSONSchemaExportContext
   /** Экземпляр графа, передаётся снаружи (из extension/CLI). Не синглтон. */
   graph?: GraphBuilder
 }
