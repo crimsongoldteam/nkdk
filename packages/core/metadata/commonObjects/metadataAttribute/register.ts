@@ -26,13 +26,23 @@ type MetadataAttributeItemRule =
   | typeof MetadataDocumentAttributeRules
   | typeof MetadataTabularSectionAttributeRules
 
+const isTypeDescriptionShortYAML = (
+  yaml: MetadataAttributeYAML | TypeDescriptionYAML
+): yaml is TypeDescriptionYAML => {
+  if (typeof yaml === "string" || Array.isArray(yaml)) return true
+  if (yaml === null || typeof yaml !== "object") return false
+
+  const keys = Object.keys(yaml)
+  return keys.length === 1 && keys[0] === "ИдентификаторТипа"
+}
+
 const importMetadataAttributeFromYAML = (
   context: ConfigurationContext,
   itemRule: MetadataAttributeItemRule,
   yaml: MetadataAttributeYAML | TypeDescriptionYAML,
   name: string
 ) => {
-  if (typeof yaml === "string" || Array.isArray(yaml)) {
+  if (isTypeDescriptionShortYAML(yaml)) {
     const typeRule = itemRule.properties.type
     const type = importTypeDescriptionFromYAML(context, typeRule, yaml)
     if (!type) throw new Error("Type is required")

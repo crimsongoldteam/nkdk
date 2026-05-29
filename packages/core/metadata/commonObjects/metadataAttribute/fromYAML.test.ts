@@ -34,6 +34,27 @@ describe("import MetadataAttributes from YAML", () => {
     expect(result).toEqual(shortMetadataAttribute)
   })
 
+  it("should import short TypeDescription typeId object format", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        ТестовыйРеквизит: { ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] },
+      },
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "MetadataAttribute",
+        name: "ТестовыйРеквизит",
+        type: {
+          type: [],
+          typeId: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"],
+        },
+        synonym: { items: { ru: "Тестовый реквизит" } },
+      },
+    ])
+  })
+
   it("should import short multilanguage format", () => {
     const result = testImportPropertyFromYAML({ rule, value: shortMultilanguageMetadataAttributeYAML })
     expect(result).toEqual(shortMultilanguageMetadataAttribute)

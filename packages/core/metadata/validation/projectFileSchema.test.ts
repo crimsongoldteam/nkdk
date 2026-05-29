@@ -144,6 +144,19 @@ describe("exportJSONSchemaForProjectFile", () => {
         text: ["Реквизиты:", "  Таблица:", "    Тип:", "      - Строка", "      - ХранилищеЗначения"].join("\n"),
       })
     ).not.toEqual([])
+
+    expect(
+      validateFile({
+        filePath: "Справочник/Товары/Свойства.yaml",
+        schema,
+        text: [
+          "Реквизиты:",
+          "  Идентификатор:",
+          "    ИдентификаторТипа:",
+          "      - 8c1e3694-da12-44d5-8b1f-d134b89a1282",
+        ].join("\n"),
+      })
+    ).not.toEqual([])
   })
 
   it("keeps document attribute TypeDescription broad in the first version", () => {
@@ -167,6 +180,19 @@ describe("exportJSONSchemaForProjectFile", () => {
         filePath: "Документ/Заказ/Свойства.yaml",
         schema,
         text: ["Реквизиты:", "  ПокаШирокий: НесуществующийТип"].join("\n"),
+      })
+    ).toEqual([])
+
+    expect(
+      validateFile({
+        filePath: "Документ/Заказ/Свойства.yaml",
+        schema,
+        text: [
+          "Реквизиты:",
+          "  Идентификатор:",
+          "    ИдентификаторТипа:",
+          "      - 8c1e3694-da12-44d5-8b1f-d134b89a1282",
+        ].join("\n"),
       })
     ).toEqual([])
   })
