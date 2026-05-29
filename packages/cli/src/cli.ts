@@ -71,11 +71,12 @@ program
 
 program
   .command("schema")
-  .description("Показать JSON Schema для YAML-файла проекта")
-  .argument("<file>", "путь к YAML-файлу проекта")
+  .description("Показать JSON Schema для YAML-файла проекта или имени схемы")
+  .argument("<target>", "путь к YAML-файлу проекта или имя схемы")
   .option("--project <yamlDir>", "путь к корню YAML-проекта")
-  .action((file: string, opts: { project?: string }) => {
-    run(() => printJSONSchema(file, opts))
+  .option("--inline", "развернуть составные подсхемы в одном JSON")
+  .action((target: string, opts: { project?: string; inline?: boolean }) => {
+    run(() => printJSONSchema(target, opts))
   })
 
 program
