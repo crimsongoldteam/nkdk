@@ -13,7 +13,7 @@ describe("collectStructuralState", () => {
     fs.writeFileSync(join(dir, "Справочник", "Товары", "Свойства.yaml"), [
       "Реквизиты:",
       "  Артикул:",
-      "    Тип: string",
+      "    Тип: Строка",
       "ТабличныеЧасти:",
       "  Состав:",
       "    Реквизиты:",
@@ -37,7 +37,7 @@ describe("collectStructuralState", () => {
     fs.writeFileSync(join(dir, "Справочник", "Товары", "Свойства.yaml"), [
       "Реквизиты:",
       "  \"\":",
-      "    Тип: string",
+      "    Тип: Строка",
       "",
     ].join("\n"))
 
