@@ -75,8 +75,10 @@ export type {
 export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
 export {
   exportJSONSchemaForProjectFile,
+  exportJSONSchemaForSchemaName,
   ProjectFileSchemaError,
   type ExportJSONSchemaForProjectFileParams,
+  type ExportJSONSchemaForSchemaNameParams,
 } from "./metadata/validation/projectFileSchema"
 export { exportMetadataDocumentToJSONSchema } from "./metadata/appliedObjects/metadataDocument/toJSONSchema"
 export { exportMetadataEnumerationToJSONSchema } from "./metadata/appliedObjects/metadataEnumeration/toJSONSchema"
