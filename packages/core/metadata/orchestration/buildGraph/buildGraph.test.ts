@@ -334,6 +334,14 @@ describe("buildGraph (TypeDescription graph hint coverage)", () => {
     expect(nodes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
+          id: "ExternalDataSource.ВсеСвойства",
+          label: "MetadataObject",
+          props: expect.objectContaining({
+            kind: "MetadataExternalDataSource",
+            name: "ВсеСвойства",
+          }),
+        }),
+        expect.objectContaining({
           id: "ExternalDataSource.ВсеСвойства.Table.ВсеСвойства",
           label: "MetadataExternalDataSourceTable",
           props: expect.objectContaining({ name: "ВсеСвойства" }),
