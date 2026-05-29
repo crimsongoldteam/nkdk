@@ -77,6 +77,22 @@ describe("importMetadataCatalogFromYAML", () => {
     ).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
   })
 
+  it("should reject invalid object catalog attribute TypeDescription", () => {
+    expect(() =>
+      importMetadataCatalogFromYAML(
+        mockContext,
+        {
+          Реквизиты: {
+            Неверный: {
+              Тип: ["Строка", "ХранилищеЗначения"],
+            },
+          },
+        },
+        "Товары"
+      )
+    ).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
+  })
+
   it("should import with short format", () => {
     const result = exportMetadataCatalogToYAML(mockContext, minimal)
 
