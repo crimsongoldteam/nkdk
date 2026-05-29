@@ -72,6 +72,14 @@ describe("exportTypeDescriptionToJSONSchema", () => {
         { type: "object" },
       ],
     })
+
+    if (schema === undefined) {
+      throw new Error("Expected TypeDescription JSON schema")
+    }
+    const compiled = TypeCompiler.Compile(schema)
+    expect(compiled.Check({ ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] })).toBe(true)
+    expect(compiled.Check({ ИдентификаторТипа: [] })).toBe(false)
+    expect(compiled.Check({})).toBe(false)
   })
 
   it("exports strict primitive descriptions and examples", () => {

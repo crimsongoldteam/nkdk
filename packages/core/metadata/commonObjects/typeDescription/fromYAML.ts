@@ -13,7 +13,9 @@ import {
   TypeDescriptionYAML,
 } from "./types"
 
-const isTypeDescriptionYAMLObject = (value: TypeDescriptionYAML): value is Record<string, unknown> =>
+type TypeDescriptionYAMLObject = Extract<TypeDescriptionYAML, { ИдентификаторТипа: string[] }>
+
+const isTypeDescriptionYAMLObject = (value: TypeDescriptionYAML): value is TypeDescriptionYAMLObject =>
   typeof value === "object" && value !== null && !Array.isArray(value)
 
 const getTypeIdsFromYAML = (typeId: unknown): string[] | undefined => {

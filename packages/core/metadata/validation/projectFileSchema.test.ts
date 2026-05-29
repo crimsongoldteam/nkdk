@@ -195,5 +195,21 @@ describe("exportJSONSchemaForProjectFile", () => {
         ].join("\n"),
       })
     ).toEqual([])
+
+    expect(
+      validateFile({
+        filePath: "Документ/Заказ/Свойства.yaml",
+        schema,
+        text: ["Реквизиты:", "  Идентификатор:", "    ИдентификаторТипа: []"].join("\n"),
+      })
+    ).not.toEqual([])
+
+    expect(
+      validateFile({
+        filePath: "Документ/Заказ/Свойства.yaml",
+        schema,
+        text: ["Реквизиты:", "  Идентификатор:", "    Тип: {}"].join("\n"),
+      })
+    ).not.toEqual([])
   })
 })

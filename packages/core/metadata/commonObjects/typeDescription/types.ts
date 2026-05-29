@@ -758,7 +758,7 @@ export const TypeDescriptionJSONSchema = Type.Union([
   Type.Array(Type.String()),
   Type.Object(
     {
-      ИдентификаторТипа: Type.Optional(Type.Array(Type.String())),
+      ИдентификаторТипа: Type.Array(Type.String(), { minItems: 1 }),
     },
     { additionalProperties: false }
   ),
