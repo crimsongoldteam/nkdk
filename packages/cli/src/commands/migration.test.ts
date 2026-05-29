@@ -112,7 +112,7 @@ describe("generateMigration", () => {
     fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), [
       "Реквизиты:",
       "  НовыйАртикул:",
-      "    Тип: string",
+      "    Тип: Строка",
       "",
     ].join("\n"))
     fs.writeFileSync(join(xmlDir, "Catalogs", "Товары.xml"), catalogXMLWithAttribute("Товары", "Артикул"))
