@@ -20,9 +20,15 @@ import {
   MetadataTabularSectionAttributeRules,
 } from "./rules"
 
+type MetadataAttributeItemRule =
+  | typeof MetadataAttributeRules
+  | typeof MetadataCatalogAttributeRules
+  | typeof MetadataDocumentAttributeRules
+  | typeof MetadataTabularSectionAttributeRules
+
 const importMetadataAttributeFromYAML = (
   context: ConfigurationContext,
-  itemRule: typeof MetadataAttributeRules,
+  itemRule: MetadataAttributeItemRule,
   yaml: MetadataAttributeYAML | TypeDescriptionYAML,
   name: string
 ) => {
@@ -55,7 +61,7 @@ const importMetadataAttributeFromYAML = (
 }
 
 const createImportMetadataAttributesFromYAML =
-  (itemRule: typeof MetadataAttributeRules) =>
+  (itemRule: MetadataAttributeItemRule) =>
   (
     context: ConfigurationContext,
     _rule: PropertyRule | undefined,
