@@ -5,10 +5,7 @@ import type { PropertyRule } from "./property/types"
 
 export const JSON_SCHEMA_REF_PREFIX = "nkdk://schema/"
 
-type PropertyRefFactory = (params: {
-  context: ConfigurationContext
-  rule: PropertyRule
-}) => TSchema | undefined
+type PropertyRefFactory = (params: { context: ConfigurationContext; rule: PropertyRule }) => TSchema | undefined
 
 const propertyRefFactories = new Map<PropertyRuleType, PropertyRefFactory>()
 
@@ -21,23 +18,23 @@ export function createSchemaRef(name: string): string {
 }
 
 export function schemaRef(name: string): TSchema {
-  return { $ref: createSchemaRef(name) } as TSchema
+  return rawJSONSchema({ $ref: createSchemaRef(name) })
 }
 
 export function recordOfSchemaRef(name: string): TSchema {
-  return {
+  return rawJSONSchema({
     type: "object",
     additionalProperties: schemaRef(name),
-  } as TSchema
+  })
 }
 
 export function recordOfOneOfSchemaRefs(names: readonly string[]): TSchema {
-  return {
+  return rawJSONSchema({
     type: "object",
     additionalProperties: {
       oneOf: names.map((name) => schemaRef(name)),
     },
-  } as TSchema
+  })
 }
 
 export function registerJSONSchemaPropertyRef(type: PropertyRuleType, factory: PropertyRefFactory): void {
@@ -100,9 +97,11 @@ function findSchemaRefs(value: unknown): string[] {
 
   const record = value as Record<string, unknown>
   const ownRef =
-    typeof record["$ref"] === "string" && record["$ref"].startsWith(JSON_SCHEMA_REF_PREFIX)
-      ? [record["$ref"]]
-      : []
+    typeof record["$ref"] === "string" && record["$ref"].startsWith(JSON_SCHEMA_REF_PREFIX) ? [record["$ref"]] : []
 
   return [...ownRef, ...Object.values(record).flatMap((item) => findSchemaRefs(item))]
+}
+
+function rawJSONSchema(schema: object): TSchema {
+  return schema as unknown as TSchema
 }

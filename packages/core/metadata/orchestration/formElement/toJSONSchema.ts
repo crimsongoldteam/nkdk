@@ -1,4 +1,4 @@
-import { TSchema, Type } from "@sinclair/typebox"
+import { TProperties, TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import { exportPropertiesToJSONSchema } from "../property/toJSONSchema"
@@ -18,7 +18,7 @@ export const exportElementRuleToJSONSchema = (params: {
   })
   const aliasedProperties = applyPropertyAliases({
     aliases: propertyAliases,
-    properties,
+    properties: properties as TProperties,
   })
 
   return Type.Object(
@@ -32,9 +32,9 @@ export const exportElementRuleToJSONSchema = (params: {
   )
 }
 
-const applyPropertyAliases = (params: { aliases?: Record<string, string>; properties: TSchema }): TSchema => {
+const applyPropertyAliases = (params: { aliases?: Record<string, string>; properties: TProperties }): TProperties => {
   const { aliases } = params
-  const result = { ...params.properties } as TSchema
+  const result = { ...params.properties }
   if (aliases === undefined) return result
 
   for (const [from, to] of Object.entries(aliases)) {
