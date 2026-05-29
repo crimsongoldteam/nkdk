@@ -339,6 +339,11 @@ describe("buildGraph (TypeDescription graph hint coverage)", () => {
           props: expect.objectContaining({ name: "ВсеСвойства" }),
         }),
         expect.objectContaining({
+          id: "ExternalDataSource.ВсеСвойства.Cube.Продажи",
+          label: "MetadataExternalDataSourceCube",
+          props: expect.objectContaining({ name: "Продажи" }),
+        }),
+        expect.objectContaining({
           id: "ExternalDataSource.ВсеСвойства.Cube.Продажи.DimensionTable.Номенклатура",
           label: "MetadataExternalDataSourceDimensionTable",
           props: expect.objectContaining({ name: "Номенклатура" }),
@@ -351,6 +356,11 @@ describe("buildGraph (TypeDescription graph hint coverage)", () => {
           src: "ExternalDataSource.ВсеСвойства",
           tgt: "ExternalDataSource.ВсеСвойства.Table.ВсеСвойства",
           kind: "EXTERNAL_DATA_SOURCE_TABLE",
+        }),
+        expect.objectContaining({
+          src: "ExternalDataSource.ВсеСвойства",
+          tgt: "ExternalDataSource.ВсеСвойства.Cube.Продажи",
+          kind: "EXTERNAL_DATA_SOURCE_CUBE",
         }),
         expect.objectContaining({
           src: "ExternalDataSource.ВсеСвойства.Cube.Продажи",
