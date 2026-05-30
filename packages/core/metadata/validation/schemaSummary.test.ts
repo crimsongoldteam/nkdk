@@ -209,6 +209,76 @@ describe("schema summary", () => {
     })
   })
 
+  it("preserves conflicting allOf field constraints", () => {
+    const composedSchema = {
+      allOf: [
+        {
+          type: "object",
+          properties: {
+            Код: {
+              type: "string",
+              pattern: "^A",
+            },
+          },
+        },
+        {
+          type: "object",
+          properties: {
+            Код: {
+              pattern: "B$",
+            },
+          },
+        },
+      ],
+    }
+
+    expect(summarizeJSONSchema(composedSchema)).toEqual({
+      fields: [
+        {
+          key: "Код",
+          required: false,
+          type: ["string"],
+          allOf: [{ pattern: "^A" }, { pattern: "B$" }],
+        },
+      ],
+    })
+  })
+
+  it("preserves conflicting allOf array constraints", () => {
+    const composedSchema = {
+      allOf: [
+        {
+          type: "object",
+          properties: {
+            Настройки: {
+              type: "object",
+              required: ["А"],
+            },
+          },
+        },
+        {
+          type: "object",
+          properties: {
+            Настройки: {
+              required: ["Б"],
+            },
+          },
+        },
+      ],
+    }
+
+    expect(summarizeJSONSchema(composedSchema)).toEqual({
+      fields: [
+        {
+          key: "Настройки",
+          required: false,
+          type: ["object"],
+          allOf: [{ required: ["А"] }, { required: ["Б"] }],
+        },
+      ],
+    })
+  })
+
   it("keeps summary required flag when a field schema has its own required properties", () => {
     const schema = {
       type: "object",

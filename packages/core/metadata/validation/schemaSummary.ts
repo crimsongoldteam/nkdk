@@ -169,28 +169,79 @@ function mergeSchemaProperties(base: Record<string, unknown>, next: Record<strin
   const result: Record<string, unknown> = { ...base }
 
   for (const [key, value] of Object.entries(next)) {
-    const mergedValue = mergeSchemaPropertyValue(result[key], value)
-
-    if (mergedValue !== undefined) {
-      result[key] = mergedValue
-    }
+    mergeSchemaProperty(result, key, value)
   }
 
   return result
 }
 
-function mergeSchemaPropertyValue(base: unknown, next: unknown): unknown {
+function mergeSchemaProperty(result: Record<string, unknown>, key: string, next: unknown): void {
   const cleanNext = removeEmptyValues(next)
 
   if (cleanNext === undefined) {
-    return base
+    return
   }
 
-  if (isRecord(base) && isRecord(next)) {
-    return mergeSchemaProperties(base, next)
+  const existingAllOfSchemas = getAllOfSchemasForKey(result.allOf, key)
+  const base = result[key]
+  const cleanBase = removeEmptyValues(base)
+
+  if (existingAllOfSchemas.length === 0 && isRecord(base) && isRecord(next)) {
+    result[key] = mergeSchemaProperties(base, next)
+    return
   }
 
-  return cleanNext
+  if (existingAllOfSchemas.length === 0 && (cleanBase === undefined || areValuesEqual(cleanBase, cleanNext))) {
+    result[key] = cleanNext
+    return
+  }
+
+  const conflictSchemas =
+    existingAllOfSchemas.length > 0 ? existingAllOfSchemas : cleanBase !== undefined ? [{ [key]: cleanBase }] : []
+  const nextSchema = { [key]: cleanNext }
+  const allOf = [...removeAllOfSchemasForKey(result.allOf, key), ...conflictSchemas]
+
+  if (!conflictSchemas.some((schema) => areValuesEqual(schema, nextSchema))) {
+    allOf.push(nextSchema)
+  }
+
+  delete result[key]
+  result.allOf = allOf
+}
+
+function getAllOfSchemasForKey(allOf: unknown, key: string): Record<string, unknown>[] {
+  if (!Array.isArray(allOf)) {
+    return []
+  }
+
+  return allOf.filter((schema): schema is Record<string, unknown> => isRecord(schema) && key in schema)
+}
+
+function removeAllOfSchemasForKey(allOf: unknown, key: string): unknown[] {
+  if (!Array.isArray(allOf)) {
+    return []
+  }
+
+  return allOf.filter((schema) => !isRecord(schema) || !(key in schema))
+}
+
+function areValuesEqual(left: unknown, right: unknown): boolean {
+  if (left === right) {
+    return true
+  }
+
+  if (Array.isArray(left) && Array.isArray(right)) {
+    return left.length === right.length && left.every((item, index) => areValuesEqual(item, right[index]))
+  }
+
+  if (isRecord(left) && isRecord(right)) {
+    const leftEntries = Object.entries(left)
+    const rightKeys = Object.keys(right)
+
+    return leftEntries.length === rightKeys.length && leftEntries.every(([key, value]) => areValuesEqual(value, right[key]))
+  }
+
+  return false
 }
 
 function readRequiredKeys(required: unknown): Set<string> {
