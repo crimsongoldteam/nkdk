@@ -2,7 +2,7 @@
 import { Command } from "commander"
 import { importConfiguration } from "./commands/import"
 import { deleteMigration, generateMigration, renameMigration } from "./commands/migration"
-import { printSchema, type SchemaCommandOptions } from "./commands/schema"
+import { normalizeSchemaCommandInput, printSchema, type SchemaCommandOptions } from "./commands/schema"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
 import { syncConfiguration } from "./commands/sync"
 import { updateGraph, updateGraphFile } from "./commands/updateGraph"
@@ -72,7 +72,7 @@ program
 program
   .command("schema")
   .description("Показать YAML-сводку JSON Schema для YAML-файла проекта или имени схемы")
-  .argument("<target>", "путь к YAML-файлу проекта или имя схемы")
+  .argument("[target]", "путь к YAML-файлу проекта или имя схемы")
   .option("--project <yamlDir>", "путь к корню YAML-проекта")
   .option("--json-schema", "вывести точную JSON Schema вместо YAML-сводки")
   .option("--inline", "развернуть составные подсхемы в режиме --json-schema")
@@ -80,8 +80,11 @@ program
   .option("--required", "показать только обязательные поля")
   .option("--search <terms>", "найти поля по частям строки через |")
   .option("--exact", "точный поиск имени поля в режиме --search")
-  .action((target: string, opts: SchemaCommandOptions) => {
-    run(() => printSchema(target, opts))
+  .action((target: string | undefined, opts: SchemaCommandOptions) => {
+    run(() => {
+      const normalized = normalizeSchemaCommandInput(target, opts)
+      return printSchema(normalized.target, normalized.options)
+    })
   })
 
 program

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { printSchema } from "./schema"
+import { normalizeSchemaCommandInput, printJSONSchema, printSchema } from "./schema"
 
 describe("schema command", () => {
   afterEach(() => {
@@ -112,6 +112,16 @@ describe("schema command", () => {
     expect(JSON.parse(text).properties).toHaveProperty("Реквизиты")
   })
 
+  it("keeps printJSONSchema compatibility wrapper behavior", async () => {
+    const stdout = captureStdout()
+
+    await printJSONSchema("Справочник/Товары/Свойства.yaml", { inline: true })
+
+    const text = writtenText(stdout)
+    expect(text).not.toContain("nkdk://schema/MetadataCatalogAttribute")
+    expect(JSON.parse(text).properties).toHaveProperty("Реквизиты")
+  })
+
   it("prints external-ref JSON schema for project file", async () => {
     const stdout = captureStdout()
 
@@ -146,6 +156,20 @@ describe("schema command", () => {
     )
 
     expect(stdout).not.toHaveBeenCalled()
+  })
+
+  it("normalizes bare keys option before target", () => {
+    expect(normalizeSchemaCommandInput(undefined, { keys: "InputField" })).toEqual({
+      target: "InputField",
+      options: { keys: true },
+    })
+  })
+
+  it("keeps keys terms when target is present", () => {
+    expect(normalizeSchemaCommandInput("InputField", { keys: "путь|вид" })).toEqual({
+      target: "InputField",
+      options: { keys: "путь|вид" },
+    })
   })
 
   it.each([

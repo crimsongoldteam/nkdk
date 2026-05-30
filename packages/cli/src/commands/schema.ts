@@ -18,6 +18,29 @@ export interface SchemaCommandOptions {
   exact?: boolean
 }
 
+export interface NormalizedSchemaCommandInput {
+  target: string
+  options: SchemaCommandOptions
+}
+
+export function normalizeSchemaCommandInput(
+  target: string | undefined,
+  options: SchemaCommandOptions,
+): NormalizedSchemaCommandInput {
+  if (target !== undefined) {
+    return { target, options }
+  }
+
+  if (typeof options.keys === "string") {
+    return {
+      target: options.keys,
+      options: { ...options, keys: true },
+    }
+  }
+
+  throw new Error("Не указан target для schema")
+}
+
 export const printSchema = async (target: string, options: SchemaCommandOptions = {}): Promise<void> => {
   validateSchemaCommandOptions(options)
 
