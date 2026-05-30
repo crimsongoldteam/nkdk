@@ -75,8 +75,34 @@ nkdk schema UsualGroup --search ПутьКДанным --exact --keys
 Вывод не дублирует имя схемы, запрос и режим команды, потому что они уже есть в самой команде.
 После нормализации JSON Schema в YAML-сводку из результата рекурсивно удаляются все пустые значения: `null`, пустые массивы, пустые объекты и пустые строки.
 Набор свойств внутри элемента `fields` не фиксируется заранее: если будущая нормализация добавит новое непустое свойство, оно остаётся в выводе.
+Если после очистки результат полностью пустой, stdout остаётся пустым.
 
-Пример полной сводки:
+Сквозной пример ниже использует условную JSON Schema:
+
+```json
+{
+  "type": "object",
+  "required": ["Вид"],
+  "properties": {
+    "Вид": {
+      "type": "string",
+      "const": "ПолеВвода"
+    },
+    "ПутьКДанным": {
+      "type": "string",
+      "description": "Путь к данным формы",
+      "examples": ["Объект.Код"]
+    },
+    "Видимость": {
+      "type": "string",
+      "const": "Ложь",
+      "description": "Указывать только когда элемент нужно скрыть"
+    }
+  }
+}
+```
+
+`nkdk schema Example`:
 
 ```yaml
 fields:
@@ -89,38 +115,117 @@ fields:
     required: false
     type:
       - string
-```
-
-Пример `--search --exact`:
-
-```yaml
-fields:
-  - key: ПутьКДанным
+    description: Путь к данным формы
+    examples:
+      - Объект.Код
+  - key: Видимость
     required: false
     type:
       - string
+    const: Ложь
+    description: Указывать только когда элемент нужно скрыть
 ```
 
-Пример `--search`:
-
-```yaml
-fields:
-  - key: Вид
-    required: true
-    type:
-      - string
-    const: ПолеВвода
-  - key: ПутьКДанным
-    required: false
-    type:
-      - string
-```
-
-Пример `--search --keys`:
+`nkdk schema Example --keys`:
 
 ```text
 Вид
 ПутьКДанным
+Видимость
+```
+
+`nkdk schema Example --keys "путь|видим"`:
+
+```text
+ПутьКДанным
+Видимость
+```
+
+`nkdk schema Example --required`:
+
+```yaml
+fields:
+  - key: Вид
+    required: true
+    type:
+      - string
+    const: ПолеВвода
+```
+
+`nkdk schema Example --required --keys`:
+
+```text
+Вид
+```
+
+`nkdk schema Example --search "путь|скрыт"`:
+
+```yaml
+fields:
+  - key: ПутьКДанным
+    required: false
+    type:
+      - string
+    description: Путь к данным формы
+    examples:
+      - Объект.Код
+  - key: Видимость
+    required: false
+    type:
+      - string
+    const: Ложь
+    description: Указывать только когда элемент нужно скрыть
+```
+
+`nkdk schema Example --search "путь|скрыт" --keys`:
+
+```text
+ПутьКДанным
+Видимость
+```
+
+`nkdk schema Example --search ПутьКДанным --exact`:
+
+```yaml
+fields:
+  - key: ПутьКДанным
+    required: false
+    type:
+      - string
+    description: Путь к данным формы
+    examples:
+      - Объект.Код
+```
+
+`nkdk schema Example --search ПутьКДанным --exact --keys`:
+
+```text
+ПутьКДанным
+```
+
+`nkdk schema Example --json-schema` печатает точную JSON Schema без YAML-нормализации:
+
+```json
+{
+  "type": "object",
+  "required": ["Вид"],
+  "properties": {
+    "Вид": {
+      "type": "string",
+      "const": "ПолеВвода"
+    },
+    "ПутьКДанным": {
+      "type": "string",
+      "description": "Путь к данным формы",
+      "examples": ["Объект.Код"]
+    },
+    "Видимость": {
+      "type": "string",
+      "const": "Ложь",
+      "description": "Указывать только когда элемент нужно скрыть"
+    }
+  }
+}
 ```
 
 ## Архитектура
@@ -171,7 +276,7 @@ CLI отвечает только за:
 - `--search --exact` для отсутствующего поля.
 
 `--keys "путь|вид"` без совпадений не ошибка: команда печатает пустой stdout.
-`--search "путь|вид"` без совпадений тоже не ошибка: команда печатает пустой список совпадений.
+`--search "путь|вид"` без совпадений тоже не ошибка: после очистки пустого результата stdout остаётся пустым.
 
 ## Обновление внешнего навыка
 
