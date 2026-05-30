@@ -2,527 +2,502 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make `nkdk schema <target>` return compact YAML summaries for LLM use, keep exact JSON Schema behind `--json-schema`, and add filtering keys described in the design spec.
+**Goal:** Сделать `nkdk schema <target>` удобным выводом для LLM: по умолчанию печатать компактную YAML-сводку, добавить `--keys`, `--required`, `--search`, `--exact`, сохранить точную JSON Schema за `--json-schema`, и обновить внешний навык `.agents`.
 
-**Architecture:** Core owns schema summarization: it receives an already exported JSON Schema, turns top-level `properties` into `fields`, filters them, and recursively removes empty values. CLI stays thin: it resolves the target schema through existing core functions, validates option combinations, then prints YAML, plain key lists, or exact JSON Schema.
+**Architecture:** Нормализация JSON Schema живёт в `@nakidka/core`, CLI только выбирает режим, проверяет сочетания флагов и форматирует результат. Все YAML-режимы используют одну структуру `fields`; `--keys` всегда печатает только имена полей по одному на строку.
 
-**Tech Stack:** TypeScript, TypeBox JSON Schema, Commander, `yaml.stringify`, Vitest, pnpm workspaces.
+**Tech Stack:** TypeScript, Vitest, Commander, `yaml`, существующие JSON Schema helpers из `packages/core/metadata/validation`.
 
 ---
 
 ## File Structure
 
-- Create `packages/core/metadata/validation/schemaSummary.ts`
-  - Builds YAML summary objects from JSON Schema.
-  - Selects fields by required-only, broad search, exact search, and optional key-term filter.
-  - Recursively removes empty values from normalized output.
+Создать:
 
-- Create `packages/core/metadata/validation/schemaSummary.test.ts`
-  - Unit tests for the full example from the design spec.
-  - Unit tests for `anyOf` object branch extraction, search through refs, empty cleanup, and plain key selection.
+- `packages/core/metadata/validation/schemaSummary.ts` — нормализация JSON Schema в компактную YAML-сводку, поиск и вывод ключей.
+- `packages/core/metadata/validation/schemaSummary.test.ts` — unit-тесты на маленькой схеме из спеки и на ветках `anyOf`.
 
-- Modify `packages/core/index.ts`
-  - Export summary helpers for `@nakidka/cli`.
+Изменить:
 
-- Modify `packages/cli/src/commands/schema.ts`
-  - Rename behavior from “always print JSON Schema” to “print YAML summary unless `--json-schema` is set”.
-  - Keep exact JSON Schema behavior in `--json-schema`, with `--inline` only allowed in that mode.
-  - Print `--keys` as plain text.
+- `packages/core/index.ts` — экспортировать helpers и типы сводки.
+- `packages/cli/src/commands/schema.ts` — заменить текущий JSON-only вывод на режимы `--json-schema`, `--keys`, `--required`, `--search`, `--exact`.
+- `packages/cli/src/commands/schema.test.ts` — обновить тесты команды под новую семантику.
+- `packages/cli/src/cli.ts` — добавить CLI-флаги и обновить описания.
+- `/Users/nikita/git/new_config_add_item_test/.agents/skills/config-add-item/SKILL.md` — обновить инструкции навыка под новый `nkdk schema`.
 
-- Modify `packages/cli/src/commands/schema.test.ts`
-  - Update existing tests for the new default YAML behavior.
-  - Add tests for `--json-schema`, `--keys`, `--required`, `--search`, `--exact`, and invalid option combinations.
+Не изменять:
 
-- Modify `packages/cli/src/cli.ts`
-  - Add Commander options: `--json-schema`, `--keys [terms]`, `--required`, `--search <terms>`, `--exact`.
-  - Update command description and option help text.
-
-- Modify `/Users/nikita/git/new_config_add_item_test/.agents/skills/config-add-item/SKILL.md`
-  - Replace old “full JSON Schema first” guidance with YAML summary-first commands.
-  - Keep `--json-schema` as the fallback exact source.
-
-## Preconditions
-
-- Work inside `/Users/nikita/git/nakidka-core/.worktrees/schema-yaml-summary`.
-- Before changing `packages/core/metadata/**`, read:
-  - `.agents/knowledge/metadata/INDEX.md`
-  - `.agents/knowledge/metadata/sources-of-truth.md`
-- Do not modify XML fixtures.
-- Baseline already checked in this worktree:
-  - `pnpm install` completed.
-  - `pnpm test` passed: graph 89 tests, core 4172 tests with 5 skipped, cli 51 tests.
+- XML-фикстуры.
+- `packages/core/metadata/**/rules.ts`.
+- fromXML/toXML/fromYAML/toYAML правила.
 
 ---
 
-### Task 1: Core Schema Summary Helper
+## Step 0: Preflight Context
 
 **Files:**
-- Create: `packages/core/metadata/validation/schemaSummary.ts`
-- Create: `packages/core/metadata/validation/schemaSummary.test.ts`
-- Modify: `packages/core/index.ts`
 
-- [ ] **Step 1: Write failing tests for schema summary behavior**
+- Read `.agents/knowledge/metadata/INDEX.md`
+- Read `.agents/knowledge/metadata/sources-of-truth.md`
+- Read `docs/superpowers/specs/2026-05-29-cli-schema-llm-summary-design.md`
 
-Create `packages/core/metadata/validation/schemaSummary.test.ts`:
+**Actions:**
+
+- [ ] Прочитать metadata-инструкции перед изменениями в `packages/core/metadata/**`:
+
+```bash
+sed -n '1,220p' .agents/knowledge/metadata/INDEX.md
+sed -n '1,220p' .agents/knowledge/metadata/sources-of-truth.md
+```
+
+Expected: подтверждено, что задача не меняет XML-фикстуры, XSD-источники и правила metadata-преобразований.
+
+- [ ] Прочитать согласованную спеку:
+
+```bash
+sed -n '1,260p' docs/superpowers/specs/2026-05-29-cli-schema-llm-summary-design.md
+```
+
+Expected: подтверждены режимы `--keys`, `--required`, `--search`, `--exact`, `--json-schema`; `--template` и `--prop` остаются вне границ задачи.
+
+---
+
+## Step 1: Core YAML Summary Helper
+
+**Files:**
+
+- Create `packages/core/metadata/validation/schemaSummary.ts`
+- Create `packages/core/metadata/validation/schemaSummary.test.ts`
+- Modify `packages/core/index.ts`
+
+**Tests First:**
+
+- [ ] Создать `packages/core/metadata/validation/schemaSummary.test.ts`:
 
 ```ts
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 import {
   listSchemaSummaryKeys,
   summarizeJSONSchema,
-  type SchemaSummary,
-} from "./schemaSummary"
+} from "./schemaSummary";
 
 const exampleSchema = {
   type: "object",
   required: ["Вид"],
   properties: {
     Вид: {
-      type: "string",
       const: "ПолеВвода",
+      description: "Вид элемента формы.",
+      examples: [],
     },
     ПутьКДанным: {
       type: "string",
-      description: "Путь к данным формы",
-      examples: ["Объект.Код"],
-      enum: [],
+      description: "Путь к реквизиту формы.",
+      pattern: "^[А-Яа-яA-Za-z0-9_.]+$",
     },
     Видимость: {
-      type: "string",
-      const: "Ложь",
-      description: "Указывать только когда элемент нужно скрыть",
+      type: "boolean",
+      description: null,
       examples: [],
-    },
-    Пустое: {
-      type: "object",
-      properties: {},
-      examples: [],
-      description: "",
     },
   },
-} as const
+} satisfies Record<string, unknown>;
 
-const expectedFullSummary: SchemaSummary = {
-  fields: [
-    {
-      key: "Вид",
-      required: true,
-      type: ["string"],
-      const: "ПолеВвода",
-    },
-    {
-      key: "ПутьКДанным",
-      required: false,
-      type: ["string"],
-      description: "Путь к данным формы",
-      examples: ["Объект.Код"],
-    },
-    {
-      key: "Видимость",
-      required: false,
-      type: ["string"],
-      const: "Ложь",
-      description: "Указывать только когда элемент нужно скрыть",
-    },
-    {
-      key: "Пустое",
-      required: false,
-      type: ["object"],
-    },
-  ],
-}
+describe("schema summary", () => {
+  it("normalizes object properties into fields and removes empty values", () => {
+    expect(summarizeJSONSchema(exampleSchema)).toEqual({
+      fields: [
+        {
+          key: "Вид",
+          required: true,
+          const: "ПолеВвода",
+          description: "Вид элемента формы.",
+        },
+        {
+          key: "ПутьКДанным",
+          required: false,
+          type: ["string"],
+          description: "Путь к реквизиту формы.",
+          pattern: "^[А-Яа-яA-Za-z0-9_.]+$",
+        },
+        {
+          key: "Видимость",
+          required: false,
+          type: ["boolean"],
+        },
+      ],
+    });
+  });
 
-describe("schemaSummary", () => {
-  it("returns all top-level fields as a cleaned YAML summary", () => {
-    expect(summarizeJSONSchema(exampleSchema)).toEqual(expectedFullSummary)
-  })
+  it("returns plain keys", () => {
+    expect(listSchemaSummaryKeys(exampleSchema)).toEqual([
+      "Вид",
+      "ПутьКДанным",
+      "Видимость",
+    ]);
+  });
 
-  it("returns plain keys and filters key terms by partial case-insensitive match", () => {
-    expect(listSchemaSummaryKeys(exampleSchema)).toEqual(["Вид", "ПутьКДанным", "Видимость", "Пустое"])
+  it("filters keys by terms split with pipe", () => {
     expect(listSchemaSummaryKeys(exampleSchema, { keyTerms: "путь|видим" })).toEqual([
       "ПутьКДанным",
       "Видимость",
-    ])
-  })
+    ]);
+  });
 
-  it("returns required fields in the same field-summary shape", () => {
+  it("returns only required fields", () => {
     expect(summarizeJSONSchema(exampleSchema, { requiredOnly: true })).toEqual({
       fields: [
         {
           key: "Вид",
           required: true,
-          type: ["string"],
           const: "ПолеВвода",
+          description: "Вид элемента формы.",
         },
       ],
-    })
-    expect(listSchemaSummaryKeys(exampleSchema, { requiredOnly: true })).toEqual(["Вид"])
-  })
+    });
+  });
 
-  it("searches keys and nested string values, returning the same field-summary shape", () => {
-    expect(summarizeJSONSchema(exampleSchema, { search: "путь|скрыт" })).toEqual({
+  it("searches fields by key and textual schema values", () => {
+    expect(summarizeJSONSchema(exampleSchema, { search: "путь|boolean" })).toEqual({
       fields: [
         {
           key: "ПутьКДанным",
           required: false,
           type: ["string"],
-          description: "Путь к данным формы",
-          examples: ["Объект.Код"],
+          description: "Путь к реквизиту формы.",
+          pattern: "^[А-Яа-яA-Za-z0-9_.]+$",
         },
         {
           key: "Видимость",
           required: false,
-          type: ["string"],
-          const: "Ложь",
-          description: "Указывать только когда элемент нужно скрыть",
+          type: ["boolean"],
         },
       ],
-    })
-    expect(listSchemaSummaryKeys(exampleSchema, { search: "путь|скрыт" })).toEqual([
-      "ПутьКДанным",
-      "Видимость",
-    ])
-  })
+    });
+  });
 
-  it("returns one exact field when exact search matches a top-level key", () => {
+  it("searches exact top-level field names", () => {
     expect(summarizeJSONSchema(exampleSchema, { search: "ПутьКДанным", exact: true })).toEqual({
       fields: [
         {
           key: "ПутьКДанным",
           required: false,
           type: ["string"],
-          description: "Путь к данным формы",
-          examples: ["Объект.Код"],
+          description: "Путь к реквизиту формы.",
+          pattern: "^[А-Яа-яA-Za-z0-9_.]+$",
         },
       ],
-    })
-  })
+    });
+  });
 
-  it("returns undefined when selection becomes empty after cleanup", () => {
-    expect(summarizeJSONSchema(exampleSchema, { search: "нет совпадений" })).toBeUndefined()
-    expect(listSchemaSummaryKeys(exampleSchema, { search: "нет совпадений" })).toEqual([])
-  })
+  it("returns empty values when nothing matches", () => {
+    expect(summarizeJSONSchema(exampleSchema, { search: "НесуществующееПоле" })).toBeUndefined();
+    expect(listSchemaSummaryKeys(exampleSchema, { search: "НесуществующееПоле" })).toEqual([]);
+  });
 
-  it("extracts object fields from anyOf branches and ignores scalar branches", () => {
-    const schema = {
+  it("collects object properties from anyOf branches", () => {
+    const branchedSchema = {
       anyOf: [
-        { type: "string" },
         {
           type: "object",
-          required: ["Имя"],
+          required: ["Вид"],
           properties: {
-            Имя: { type: "string" },
+            Вид: { const: "ОбычнаяГруппа" },
+          },
+        },
+        {
+          type: "object",
+          properties: {
+            Элементы: {
+              type: "array",
+              items: { $ref: "#/$defs/FormElement" },
+            },
           },
         },
       ],
-    }
+    };
 
-    expect(summarizeJSONSchema(schema)).toEqual({
+    expect(summarizeJSONSchema(branchedSchema)).toEqual({
       fields: [
         {
-          key: "Имя",
+          key: "Вид",
           required: true,
-          type: ["string"],
+          const: "ОбычнаяГруппа",
         },
-      ],
-    })
-  })
-
-  it("searches refs without renaming the ref keyword", () => {
-    const schema = {
-      type: "object",
-      properties: {
-        Элементы: {
-          type: "object",
-          additionalProperties: {
-            oneOf: [{ $ref: "nkdk://schema/InputField" }, { $ref: "nkdk://schema/Button" }],
-          },
-        },
-      },
-    }
-
-    expect(summarizeJSONSchema(schema, { search: "InputField" })).toEqual({
-      fields: [
         {
           key: "Элементы",
           required: false,
-          type: ["object"],
-          additionalProperties: {
-            oneOf: [{ $ref: "nkdk://schema/InputField" }, { $ref: "nkdk://schema/Button" }],
-          },
+          type: ["array"],
+          items: { $ref: "#/$defs/FormElement" },
         },
       ],
-    })
-  })
-})
+    });
+  });
+});
 ```
 
-- [ ] **Step 2: Run the core summary tests and verify they fail**
-
-Run:
+- [ ] Запустить тест и убедиться, что он падает из-за отсутствующего модуля:
 
 ```bash
 pnpm --filter @nakidka/core exec vitest run metadata/validation/schemaSummary.test.ts --no-isolate
 ```
 
-Expected: FAIL with module resolution error for `./schemaSummary`.
+Expected: Vitest сообщает, что `./schemaSummary` не найден.
 
-- [ ] **Step 3: Implement `schemaSummary.ts`**
+**Implementation:**
 
-Create `packages/core/metadata/validation/schemaSummary.ts`:
+- [ ] Создать `packages/core/metadata/validation/schemaSummary.ts`:
 
 ```ts
+export interface SchemaSummaryOptions {
+  requiredOnly?: boolean;
+  search?: string;
+  exact?: boolean;
+  keyTerms?: string;
+}
+
 export interface SchemaSummary {
-  fields: SchemaFieldSummary[]
+  fields: SchemaFieldSummary[];
 }
 
 export interface SchemaFieldSummary {
-  key: string
-  required: boolean
-  [name: string]: unknown
+  key: string;
+  required: boolean;
+  [property: string]: unknown;
 }
 
-export interface SchemaSummaryOptions {
-  requiredOnly?: boolean
-  search?: string
-  exact?: boolean
-  keyTerms?: string
+type JSONRecord = Record<string, unknown>;
+
+interface ObjectSchemaView {
+  properties: Record<string, unknown>;
+  required: Set<string>;
 }
 
-type JsonObject = Record<string, unknown>
+export function summarizeJSONSchema(
+  schema: unknown,
+  options: SchemaSummaryOptions = {},
+): SchemaSummary | undefined {
+  const fields = collectFieldSummaries(schema)
+    .filter((field) => matchesOptions(field, options))
+    .map((field) => filterFieldForKeys(field, options.keyTerms))
+    .filter((field): field is SchemaFieldSummary => field !== undefined);
 
-const compositeSchemaKeys = ["anyOf", "oneOf", "allOf"] as const
-
-export function summarizeJSONSchema(schema: unknown, options: SchemaSummaryOptions = {}): SchemaSummary | undefined {
-  const fields = selectFieldSummaries(schema, options)
-  return cleanEmpty({ fields }) as SchemaSummary | undefined
+  return cleanEmpty({ fields }) as SchemaSummary | undefined;
 }
 
-export function listSchemaSummaryKeys(schema: unknown, options: SchemaSummaryOptions = {}): string[] {
-  return selectFieldSummaries(schema, options).map((field) => field.key)
+export function listSchemaSummaryKeys(
+  schema: unknown,
+  options: SchemaSummaryOptions = {},
+): string[] {
+  return collectFieldSummaries(schema)
+    .filter((field) => matchesOptions(field, options))
+    .map((field) => field.key)
+    .filter((key) => matchesTerms(key, splitSearchTerms(options.keyTerms)));
 }
 
-export function parseSchemaSearchTerms(value: string | undefined): string[] {
-  if (value === undefined) return []
-  return value
-    .split("|")
-    .map((term) => term.trim().toLocaleLowerCase("ru"))
-    .filter((term) => term.length > 0)
-}
-
-function selectFieldSummaries(schema: unknown, options: SchemaSummaryOptions): SchemaFieldSummary[] {
-  let fields = collectFieldSummaries(schema)
-
-  if (options.requiredOnly === true) {
-    fields = fields.filter((field) => field.required)
-  }
-
-  if (options.search !== undefined) {
-    fields = options.exact === true
-      ? fields.filter((field) => field.key === options.search?.trim())
-      : fields.filter((field) => matchesTerms(field, parseSchemaSearchTerms(options.search)))
-  }
-
-  const keyTerms = parseSchemaSearchTerms(options.keyTerms)
-  if (keyTerms.length > 0) {
-    fields = fields.filter((field) => matchesTextTerms(field.key, keyTerms))
-  }
-
-  return fields
+export function splitSearchTerms(terms: string | undefined): string[] {
+  return terms
+    ?.split("|")
+    .map((term) => term.trim().toLocaleLowerCase("ru-RU"))
+    .filter(Boolean) ?? [];
 }
 
 function collectFieldSummaries(schema: unknown): SchemaFieldSummary[] {
-  const fields = new Map<string, SchemaFieldSummary>()
+  const fields = new Map<string, SchemaFieldSummary>();
 
   for (const objectSchema of collectObjectSchemas(schema)) {
-    const required = readRequiredSet(objectSchema)
-    const properties = objectSchema["properties"]
-    if (!isRecord(properties)) continue
+    for (const [key, propertySchema] of Object.entries(objectSchema.properties)) {
+      if (fields.has(key)) {
+        continue;
+      }
 
-    for (const [key, propertySchema] of Object.entries(properties)) {
-      const normalized = normalizeSchemaValue(propertySchema)
-      const base: SchemaFieldSummary = { key, required: required.has(key) }
-      const next = isRecord(normalized)
-        ? ({ ...base, ...normalized } as SchemaFieldSummary)
-        : ({ ...base, schema: normalized } as SchemaFieldSummary)
-      const cleaned = cleanEmpty(next) as SchemaFieldSummary | undefined
-      if (!cleaned) continue
+      const summary = cleanEmpty({
+        key,
+        required: objectSchema.required.has(key),
+        ...normalizeSchemaNode(propertySchema),
+      }) as SchemaFieldSummary | undefined;
 
-      const previous = fields.get(key)
-      fields.set(key, previous ? mergeFieldSummaries(previous, cleaned) : cleaned)
+      if (summary !== undefined) {
+        fields.set(key, summary);
+      }
     }
   }
 
-  return [...fields.values()]
+  return [...fields.values()];
 }
 
-function collectObjectSchemas(schema: unknown, seen = new Set<unknown>()): JsonObject[] {
-  if (!isRecord(schema) || seen.has(schema)) return []
-  seen.add(schema)
+function collectObjectSchemas(schema: unknown): ObjectSchemaView[] {
+  if (!isRecord(schema)) {
+    return [];
+  }
 
-  const result: JsonObject[] = []
-  if (isRecord(schema["properties"])) result.push(schema)
+  const result: ObjectSchemaView[] = [];
+  if (isRecord(schema.properties)) {
+    result.push({
+      properties: schema.properties,
+      required: new Set(asStringArray(schema.required)),
+    });
+  }
 
-  for (const key of compositeSchemaKeys) {
-    const branches = schema[key]
-    if (!Array.isArray(branches)) continue
+  for (const keyword of ["anyOf", "oneOf", "allOf"] as const) {
+    const branches = schema[keyword];
+    if (!Array.isArray(branches)) {
+      continue;
+    }
+
     for (const branch of branches) {
-      result.push(...collectObjectSchemas(branch, seen))
+      result.push(...collectObjectSchemas(branch));
     }
   }
 
-  return result
+  return result;
 }
 
-function readRequiredSet(schema: JsonObject): Set<string> {
-  const required = schema["required"]
-  if (!Array.isArray(required)) return new Set()
-  return new Set(required.filter((item): item is string => typeof item === "string"))
-}
-
-function normalizeSchemaValue(value: unknown, key?: string): unknown {
-  if (typeof value === "string" && key === "type") return [value]
-
-  if (Array.isArray(value)) {
-    return cleanEmpty(value.map((item) => normalizeSchemaValue(item)))
+function normalizeSchemaNode(node: unknown): unknown {
+  if (Array.isArray(node)) {
+    return node
+      .map((item) => normalizeSchemaNode(item))
+      .map(cleanEmpty)
+      .filter((item) => item !== undefined);
   }
 
-  if (isRecord(value)) {
-    const normalized: JsonObject = {}
-    for (const [entryKey, entryValue] of Object.entries(value)) {
-      normalized[entryKey] = normalizeSchemaValue(entryValue, entryKey)
+  if (!isRecord(node)) {
+    return node;
+  }
+
+  const normalized: JSONRecord = {};
+  for (const [key, value] of Object.entries(node)) {
+    if (key === "type" && typeof value === "string") {
+      normalized[key] = [value];
+      continue;
     }
-    return cleanEmpty(normalized)
+
+    normalized[key] = normalizeSchemaNode(value);
   }
 
-  return value
+  return cleanEmpty(normalized);
 }
 
-function mergeFieldSummaries(left: SchemaFieldSummary, right: SchemaFieldSummary): SchemaFieldSummary {
-  const merged: JsonObject = { ...left }
-
-  for (const [key, value] of Object.entries(right)) {
-    if (key === "required") {
-      merged[key] = left.required || right.required
-      continue
-    }
-    if (!(key in merged)) {
-      merged[key] = value
-      continue
-    }
-    merged[key] = mergeSummaryValue(merged[key], value)
+function matchesOptions(field: SchemaFieldSummary, options: SchemaSummaryOptions): boolean {
+  if (options.requiredOnly === true && field.required !== true) {
+    return false;
   }
 
-  return cleanEmpty(merged) as SchemaFieldSummary
-}
-
-function mergeSummaryValue(left: unknown, right: unknown): unknown {
-  if (JSON.stringify(left) === JSON.stringify(right)) return left
-
-  if (Array.isArray(left) || Array.isArray(right)) {
-    return uniqueByJSON([...(Array.isArray(left) ? left : [left]), ...(Array.isArray(right) ? right : [right])])
+  const searchTerms = splitSearchTerms(options.search);
+  if (searchTerms.length === 0) {
+    return true;
   }
 
-  if (isRecord(left) && isRecord(right)) {
-    const merged: JsonObject = { ...left }
-    for (const [key, value] of Object.entries(right)) {
-      merged[key] = key in merged ? mergeSummaryValue(merged[key], value) : value
-    }
-    return cleanEmpty(merged)
+  if (options.exact === true) {
+    return field.key === options.search?.trim();
   }
 
-  return uniqueByJSON([left, right])
+  return matchesTerms(collectSearchText(field).join("\n"), searchTerms);
 }
 
-function uniqueByJSON(values: unknown[]): unknown[] {
-  const seen = new Set<string>()
-  const result: unknown[] = []
-
-  for (const value of values) {
-    const key = JSON.stringify(value)
-    if (seen.has(key)) continue
-    seen.add(key)
-    result.push(value)
+function filterFieldForKeys(
+  field: SchemaFieldSummary,
+  keyTerms: string | undefined,
+): SchemaFieldSummary | undefined {
+  if (!matchesTerms(field.key, splitSearchTerms(keyTerms))) {
+    return undefined;
   }
 
-  return result
+  return field;
 }
 
-function matchesTerms(field: SchemaFieldSummary, terms: string[]): boolean {
-  if (terms.length === 0) return false
-  return terms.some((term) => collectSearchText(field).some((text) => text.includes(term)))
-}
+function matchesTerms(value: string, terms: string[]): boolean {
+  if (terms.length === 0) {
+    return true;
+  }
 
-function matchesTextTerms(value: string, terms: string[]): boolean {
-  const normalized = value.toLocaleLowerCase("ru")
-  return terms.some((term) => normalized.includes(term))
+  const normalizedValue = value.toLocaleLowerCase("ru-RU");
+  return terms.some((term) => normalizedValue.includes(term));
 }
 
 function collectSearchText(value: unknown): string[] {
-  if (typeof value === "string") return [value.toLocaleLowerCase("ru")]
-  if (typeof value === "number" || typeof value === "boolean") return [String(value).toLocaleLowerCase("ru")]
-  if (Array.isArray(value)) return value.flatMap((item) => collectSearchText(item))
-  if (!isRecord(value)) return []
-
-  const result: string[] = []
-  for (const [key, entryValue] of Object.entries(value)) {
-    result.push(key.toLocaleLowerCase("ru"))
-    result.push(...collectSearchText(entryValue))
+  if (typeof value === "string") {
+    return [value];
   }
-  return result
-}
 
-function cleanEmpty(value: unknown): unknown {
-  if (value === null || value === undefined || value === "") return undefined
+  if (typeof value === "number" || typeof value === "boolean") {
+    return [String(value)];
+  }
 
   if (Array.isArray(value)) {
-    const items = value.map((item) => cleanEmpty(item)).filter((item) => item !== undefined)
-    return items.length === 0 ? undefined : items
+    return value.flatMap(collectSearchText);
   }
 
   if (isRecord(value)) {
-    const result: JsonObject = {}
-    for (const [key, entryValue] of Object.entries(value)) {
-      const cleaned = cleanEmpty(entryValue)
-      if (cleaned !== undefined) result[key] = cleaned
-    }
-    return Object.keys(result).length === 0 ? undefined : result
+    return Object.entries(value).flatMap(([key, childValue]) => [
+      key,
+      ...collectSearchText(childValue),
+    ]);
   }
 
-  return value
+  return [];
 }
 
-function isRecord(value: unknown): value is JsonObject {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
+function cleanEmpty(value: unknown): unknown {
+  if (value == null) {
+    return undefined;
+  }
+
+  if (typeof value === "string") {
+    return value.length > 0 ? value : undefined;
+  }
+
+  if (Array.isArray(value)) {
+    const items = value.map(cleanEmpty).filter((item) => item !== undefined);
+    return items.length > 0 ? items : undefined;
+  }
+
+  if (isRecord(value)) {
+    const entries = Object.entries(value)
+      .map(([key, childValue]) => [key, cleanEmpty(childValue)] as const)
+      .filter(([, childValue]) => childValue !== undefined);
+
+    return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+  }
+
+  return value;
+}
+
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+}
+
+function isRecord(value: unknown): value is JSONRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 ```
 
-- [ ] **Step 4: Export the core helper from the public entrypoint**
-
-Modify `packages/core/index.ts` near the existing validation exports:
+- [ ] Добавить экспорт в `packages/core/index.ts`:
 
 ```ts
 export {
   listSchemaSummaryKeys,
-  parseSchemaSearchTerms,
   summarizeJSONSchema,
+  splitSearchTerms,
   type SchemaFieldSummary,
   type SchemaSummary,
   type SchemaSummaryOptions,
-} from "./metadata/validation/schemaSummary"
+} from "./metadata/validation/schemaSummary";
 ```
 
-- [ ] **Step 5: Run the core summary tests and verify they pass**
+**Verify:**
 
-Run:
+- [ ] Запустить:
 
 ```bash
 pnpm --filter @nakidka/core exec vitest run metadata/validation/schemaSummary.test.ts --no-isolate
 ```
 
-Expected: PASS for `schemaSummary.test.ts`.
+Expected: все тесты в `schemaSummary.test.ts` проходят.
 
-- [ ] **Step 6: Commit core summary helper**
+- [ ] Зафиксировать изменения:
 
 ```bash
 git add packages/core/metadata/validation/schemaSummary.ts packages/core/metadata/validation/schemaSummary.test.ts packages/core/index.ts
@@ -531,352 +506,346 @@ git commit -m "feat: :sparkles: добавить YAML-сводку schema"
 
 ---
 
-### Task 2: CLI Schema Modes
+## Step 2: CLI Schema Modes
 
 **Files:**
-- Modify: `packages/cli/src/commands/schema.ts`
-- Modify: `packages/cli/src/commands/schema.test.ts`
-- Modify: `packages/cli/src/cli.ts`
 
-- [ ] **Step 1: Replace CLI schema tests with new behavior tests**
+- Modify `packages/cli/src/commands/schema.ts`
+- Modify `packages/cli/src/commands/schema.test.ts`
+- Modify `packages/cli/src/cli.ts`
 
-Replace `packages/cli/src/commands/schema.test.ts` with:
+**Tests First:**
+
+- [ ] Обновить `packages/cli/src/commands/schema.test.ts`, сохранив style существующих тестов:
 
 ```ts
-import { afterEach, describe, expect, it, vi } from "vitest"
-import { printSchema } from "./schema"
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { printSchema } from "./schema";
 
 describe("schema command", () => {
+  const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
   afterEach(() => {
-    vi.restoreAllMocks()
-  })
+    writeSpy.mockClear();
+  });
 
-  it("prints YAML summary by schema name by default", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("prints YAML summary by schema name by default", () => {
+    printSchema("InputField");
 
-    await printSchema("InputField", {})
+    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
 
-    const text = String(stdout.mock.calls[0]?.[0])
-    expect(text).toContain("fields:")
-    expect(text).toContain("key: Вид")
-    expect(text).toContain("const: ПолеВвода")
-    expect(() => JSON.parse(text)).toThrow()
-  })
+    expect(output).toContain("fields:");
+    expect(output).toContain("key: Вид");
+    expect(output).toContain("const: ПолеВвода");
+    expect(output).not.toContain("enum: []");
+    expect(output).not.toContain("description: null");
+  });
 
-  it("prints YAML summary for a project file by default", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("prints plain keys", () => {
+    printSchema("InputField", { keys: true });
 
-    await printSchema("Справочник/Товары/Свойства.yaml", {})
+    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
 
-    const text = String(stdout.mock.calls[0]?.[0])
-    expect(text).toContain("fields:")
-    expect(text).toContain("key: Реквизиты")
-    expect(text).toContain("nkdk://schema/MetadataCatalogAttribute")
-  })
+    expect(output.split("\n")).toContain("Вид");
+    expect(output).not.toContain("fields:");
+  });
 
-  it("prints exact compact JSON Schema when requested", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("filters plain keys by pipe-separated terms", () => {
+    printSchema("InputField", { keys: "путь|вид" });
 
-    await printSchema("Справочник/Товары/Свойства.yaml", { jsonSchema: true })
+    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
 
-    const text = String(stdout.mock.calls[0]?.[0])
-    const schema = JSON.parse(text)
-    expect(schema.properties.Реквизиты.additionalProperties).toEqual({ $ref: "nkdk://schema/MetadataCatalogAttribute" })
-  })
+    expect(output.split("\n")).toContain("Вид");
+    expect(output.split("\n")).toContain("ПутьКДанным");
+  });
 
-  it("prints inline JSON Schema only in json-schema mode", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("prints required fields as YAML summary", () => {
+    printSchema("InputField", { required: true });
 
-    await printSchema("Справочник/Товары/Свойства.yaml", { jsonSchema: true, inline: true })
+    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
 
-    const text = String(stdout.mock.calls[0]?.[0])
-    expect(text).not.toContain("nkdk://schema/MetadataCatalogAttribute")
-    expect(JSON.parse(text).properties).toHaveProperty("Реквизиты")
-  })
+    expect(output).toContain("fields:");
+    expect(output).toContain("key: Вид");
+    expect(output).not.toContain("schema:");
+  });
 
-  it("prints plain keys and filters key terms", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("prints required keys only", () => {
+    printSchema("InputField", { required: true, keys: true });
 
-    await printSchema("InputField", { keys: "путь|вид" })
+    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
 
-    const text = String(stdout.mock.calls[0]?.[0])
-    expect(text).toContain("Вид\n")
-    expect(text).toContain("ПутьКДанным\n")
-    expect(text).not.toContain("fields:")
-  })
+    expect(output.trim()).toBe("Вид");
+  });
 
-  it("prints required YAML summary and required keys", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("prints search results in the same YAML shape", () => {
+    printSchema("InputField", { search: "ПутьКДанным" });
 
-    await printSchema("InputField", { required: true })
-    expect(String(stdout.mock.calls[0]?.[0])).toContain("key: Вид")
+    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
 
-    stdout.mockClear()
-    await printSchema("InputField", { required: true, keys: true })
-    expect(String(stdout.mock.calls[0]?.[0])).toBe("Вид\n")
-  })
+    expect(output).toContain("fields:");
+    expect(output).toContain("key: ПутьКДанным");
+    expect(output).not.toContain("matches:");
+    expect(output).not.toContain("query:");
+  });
 
-  it("searches broadly and keeps the YAML summary shape", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("prints exact search result", () => {
+    printSchema("InputField", { search: "ПутьКДанным", exact: true });
 
-    await printSchema("InputField", { search: "путь" })
+    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
 
-    const text = String(stdout.mock.calls[0]?.[0])
-    expect(text).toContain("fields:")
-    expect(text).toContain("key: ПутьКДанным")
-    expect(text).not.toContain("matched:")
-  })
+    expect(output).toContain("key: ПутьКДанным");
+    expect(output).not.toContain("key: Вид\n");
+  });
 
-  it("prints search keys as plain text", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("prints exact search keys only", () => {
+    printSchema("InputField", { search: "ПутьКДанным", exact: true, keys: true });
 
-    await printSchema("InputField", { search: "путь", keys: true })
+    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
 
-    const text = String(stdout.mock.calls[0]?.[0])
-    expect(text).toContain("ПутьКДанным\n")
-    expect(text).not.toContain("fields:")
-  })
+    expect(output.trim()).toBe("ПутьКДанным");
+  });
 
-  it("prints exact search summary and exact search keys", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("prints JSON Schema when requested", () => {
+    printSchema("InputField", { jsonSchema: true });
 
-    await printSchema("InputField", { search: "ПутьКДанным", exact: true })
-    expect(String(stdout.mock.calls[0]?.[0])).toContain("key: ПутьКДанным")
+    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+    const schema = JSON.parse(output) as Record<string, unknown>;
 
-    stdout.mockClear()
-    await printSchema("InputField", { search: "ПутьКДанным", exact: true, keys: true })
-    expect(String(stdout.mock.calls[0]?.[0])).toBe("ПутьКДанным\n")
-  })
+    expect(schema).toHaveProperty("$schema");
+    expect(schema).toHaveProperty("definitions");
+  });
 
-  it("prints nothing when key or search selection is empty", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("prints inlined JSON Schema when requested", () => {
+    printSchema("InputField", { jsonSchema: true, inline: true });
 
-    await printSchema("InputField", { keys: "нет совпадений" })
-    await printSchema("InputField", { search: "нет совпадений" })
+    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+    const schema = JSON.parse(output) as Record<string, unknown>;
 
-    expect(stdout).not.toHaveBeenCalled()
-  })
+    expect(schema).toHaveProperty("$schema");
+    expect(output).not.toContain('"$ref"');
+  });
 
-  it("resolves relative file from explicit project", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("prints JSON Schema for project file with refs", () => {
+    printSchema("Справочник/Договоры/Формы/ФормаЭлемента/Форма.yaml", {
+      jsonSchema: true,
+      project: "examples",
+    });
 
-    await printSchema("Документ/Заказ/Свойства.yaml", { project: process.cwd() })
+    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+    const schema = JSON.parse(output) as Record<string, unknown>;
 
-    const text = String(stdout.mock.calls[0]?.[0])
-    expect(text).toContain("key: СтандартныеРеквизиты")
-  })
+    expect(schema).toHaveProperty("$schema");
+    expect(output).toContain('"$ref"');
+  });
 
-  it("does not write stdout when schema lookup fails", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("prints inlined JSON Schema for project file", () => {
+    printSchema("Справочник/Договоры/Формы/ФормаЭлемента/Форма.yaml", {
+      jsonSchema: true,
+      project: "examples",
+      inline: true,
+    });
 
-    await expect(printSchema("UnknownSchema", {})).rejects.toThrow(/Неизвестная JSON Schema/)
+    const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+    const schema = JSON.parse(output) as Record<string, unknown>;
 
-    expect(stdout).not.toHaveBeenCalled()
-  })
+    expect(schema).toHaveProperty("$schema");
+    expect(output).not.toContain('"$ref"');
+  });
 
-  it("rejects incompatible option combinations before writing stdout", async () => {
-    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+  it("does not print anything for unknown target", () => {
+    printSchema("UnknownSchema");
 
-    await expect(printSchema("InputField", { inline: true })).rejects.toThrow(/--inline можно использовать только/)
-    await expect(printSchema("InputField", { jsonSchema: true, keys: true })).rejects.toThrow(
-      /--json-schema нельзя сочетать/
-    )
-    await expect(printSchema("InputField", { required: true, search: "путь" })).rejects.toThrow(
-      /Нельзя одновременно использовать/
-    )
-    await expect(printSchema("InputField", { exact: true })).rejects.toThrow(/--exact можно использовать только/)
-    await expect(printSchema("InputField", { search: " " })).rejects.toThrow(/--search требует непустой запрос/)
-    await expect(printSchema("InputField", { search: "НетТакогоПоля", exact: true })).rejects.toThrow(
-      /Поле "НетТакогоПоля" не найдено/
-    )
+    expect(writeSpy).not.toHaveBeenCalled();
+  });
 
-    expect(stdout).not.toHaveBeenCalled()
-  })
-})
+  it("rejects incompatible JSON Schema flags", () => {
+    expect(() => printSchema("InputField", { jsonSchema: true, keys: true })).toThrow(
+      "--json-schema несовместим",
+    );
+  });
+
+  it("rejects inline without JSON Schema", () => {
+    expect(() => printSchema("InputField", { inline: true })).toThrow(
+      "--inline можно использовать только вместе с --json-schema",
+    );
+  });
+
+  it("rejects exact without search", () => {
+    expect(() => printSchema("InputField", { exact: true })).toThrow(
+      "--exact можно использовать только вместе с --search",
+    );
+  });
+
+  it("rejects required with search", () => {
+    expect(() => printSchema("InputField", { required: true, search: "путь" })).toThrow(
+      "--required и --search нельзя использовать одновременно",
+    );
+  });
+});
 ```
 
-- [ ] **Step 2: Run CLI tests and verify they fail**
-
-Run:
+- [ ] Запустить тест и убедиться, что он падает на текущем API:
 
 ```bash
 pnpm --filter @nakidka/cli exec vitest run src/commands/schema.test.ts --no-isolate
 ```
 
-Expected: FAIL because `printSchema` is not exported and new options are unsupported.
+Expected: TypeScript или тесты падают из-за отсутствующего `printSchema` и новых опций.
 
-- [ ] **Step 3: Implement CLI command behavior**
+**Implementation:**
 
-Replace `packages/cli/src/commands/schema.ts` with:
+- [ ] Заменить содержимое `packages/cli/src/commands/schema.ts`:
 
 ```ts
 import {
   exportJSONSchemaForProjectFile,
   exportJSONSchemaForSchemaName,
   listSchemaSummaryKeys,
-  parseSchemaSearchTerms,
   summarizeJSONSchema,
-} from "@nakidka/core"
-import { stringify } from "yaml"
+  type SchemaSummaryOptions,
+} from "@nakidka/core";
+import { stringify } from "yaml";
 
 export interface SchemaCommandOptions {
-  project?: string
-  inline?: boolean
-  jsonSchema?: boolean
-  keys?: boolean | string
-  required?: boolean
-  search?: string
-  exact?: boolean
+  project?: string;
+  inline?: boolean;
+  jsonSchema?: boolean;
+  keys?: boolean | string;
+  required?: boolean;
+  search?: string;
+  exact?: boolean;
 }
 
-const context = {
-  defaultLanguage: "ru",
-  version: "2.20",
-} as const
+export function printSchema(target: string, options: SchemaCommandOptions = {}): void {
+  validateSchemaOptions(options);
 
-export const printSchema = async (target: string, options: SchemaCommandOptions): Promise<void> => {
-  validateSchemaOptions(options)
-
-  const schema = resolveJSONSchema(target, options)
+  const schema = loadJSONSchema(target, options);
+  if (schema == null) {
+    return;
+  }
 
   if (options.jsonSchema === true) {
-    process.stdout.write(`${JSON.stringify(schema, null, 2)}\n`)
-    return
+    process.stdout.write(`${JSON.stringify(schema, null, 2)}\n`);
+    return;
   }
 
-  if (options.keys !== undefined) {
-    const keys = listSchemaSummaryKeys(schema, {
-      requiredOnly: options.required === true,
-      search: options.search,
-      exact: options.exact === true,
-      keyTerms: typeof options.keys === "string" ? options.keys : undefined,
-    })
-    if (keys.length > 0) process.stdout.write(`${keys.join("\n")}\n`)
-    return
-  }
-
-  const summary = summarizeJSONSchema(schema, {
+  const summaryOptions: SchemaSummaryOptions = {
     requiredOnly: options.required === true,
     search: options.search,
     exact: options.exact === true,
-  })
+    keyTerms: typeof options.keys === "string" ? options.keys : undefined,
+  };
 
-  if (options.exact === true && !summary) {
-    throw new Error(`Поле "${options.search?.trim()}" не найдено в схеме "${target}"`)
+  if (options.keys !== undefined) {
+    const keys = listSchemaSummaryKeys(schema, summaryOptions);
+    if (keys.length > 0) {
+      process.stdout.write(`${keys.join("\n")}\n`);
+    }
+    return;
   }
 
-  if (summary) process.stdout.write(stringify(summary))
+  const summary = summarizeJSONSchema(schema, summaryOptions);
+  if (summary == null) {
+    if (options.exact === true) {
+      throw new Error(`Поле "${options.search?.trim()}" не найдено в JSON Schema`);
+    }
+    return;
+  }
+
+  process.stdout.write(stringify(summary));
 }
 
-export const printJSONSchema = async (target: string, options: SchemaCommandOptions): Promise<void> => {
-  await printSchema(target, { ...options, jsonSchema: true })
+export function printJSONSchema(target: string, options: SchemaCommandOptions = {}): void {
+  printSchema(target, { ...options, jsonSchema: true });
 }
 
-function resolveJSONSchema(target: string, options: SchemaCommandOptions): unknown {
-  const mode = options.inline === true ? "inline" : "externalRefs"
-
-  return (options.project || target.toLowerCase().endsWith(".yaml"))
-    ? exportJSONSchemaForProjectFile({
-        context,
-        filePath: target,
-        projectDir: options.project,
-        mode,
+function loadJSONSchema(target: string, options: SchemaCommandOptions): unknown {
+  return options.project != null
+    ? exportJSONSchemaForProjectFile(options.project, target, {
+        inlineRefs: options.inline === true,
       })
-    : exportJSONSchemaForSchemaName({
-        context,
-        name: target,
-        mode,
-      })
+    : exportJSONSchemaForSchemaName(target, {
+        inlineRefs: options.inline === true,
+      });
 }
 
 function validateSchemaOptions(options: SchemaCommandOptions): void {
   if (options.inline === true && options.jsonSchema !== true) {
-    throw new Error("--inline можно использовать только вместе с --json-schema")
+    throw new Error("--inline можно использовать только вместе с --json-schema");
   }
 
-  if (options.jsonSchema === true && (options.keys !== undefined || options.required === true || options.search)) {
-    throw new Error("--json-schema нельзя сочетать с --keys, --required или --search")
+  if (options.jsonSchema === true) {
+    const hasSummaryFlags =
+      options.keys !== undefined ||
+      options.required === true ||
+      options.search != null ||
+      options.exact === true;
+
+    if (hasSummaryFlags) {
+      throw new Error("--json-schema несовместим с --keys, --required, --search и --exact");
+    }
+    return;
   }
 
-  if (options.required === true && options.search !== undefined) {
-    throw new Error("Нельзя одновременно использовать --required и --search")
+  if (options.required === true && options.search != null) {
+    throw new Error("--required и --search нельзя использовать одновременно");
   }
 
-  if (options.exact === true && options.search === undefined) {
-    throw new Error("--exact можно использовать только вместе с --search")
+  if (options.exact === true && options.search == null) {
+    throw new Error("--exact можно использовать только вместе с --search");
   }
 
-  if (options.search !== undefined && parseSchemaSearchTerms(options.search).length === 0) {
-    throw new Error("--search требует непустой запрос")
+  if (options.search != null && options.search.trim().length === 0) {
+    throw new Error("--search требует непустой запрос");
   }
 }
 ```
 
-- [ ] **Step 4: Update Commander wiring**
-
-Modify the schema command in `packages/cli/src/cli.ts`.
-
-Replace the existing import:
-
-```ts
-import { printJSONSchema } from "./commands/schema"
-```
-
-with:
-
-```ts
-import { printSchema } from "./commands/schema"
-```
-
-Replace the `schema` command block with:
+- [ ] Изменить `packages/cli/src/cli.ts` для команды `schema`:
 
 ```ts
 program
-  .command("schema")
-  .description("Показать YAML-сводку или JSON Schema для YAML-файла проекта или имени схемы")
-  .argument("<target>", "путь к YAML-файлу проекта или имя схемы")
-  .option("--project <yamlDir>", "путь к корню YAML-проекта")
-  .option("--json-schema", "показать точную JSON Schema вместо YAML-сводки")
-  .option("--inline", "развернуть составные подсхемы в одном JSON; используется только с --json-schema")
-  .option("--keys [terms]", "показать только имена ключей; terms фильтруются через |")
-  .option("--required", "показать только обязательные поля")
-  .option("--search <terms>", "найти поля по частям строк; terms разделяются через |")
-  .option("--exact", "для --search требовать точное имя поля")
-  .action((target: string, opts: {
-    project?: string
-    jsonSchema?: boolean
-    inline?: boolean
-    keys?: boolean | string
-    required?: boolean
-    search?: string
-    exact?: boolean
-  }) => {
-    run(() => printSchema(target, opts))
-  })
+  .command("schema <target>")
+  .description("Показать YAML-сводку JSON Schema по имени схемы или пути YAML-файла")
+  .option("--project <yamlDir>", "Корень YAML-проекта для разрешения пути файла")
+  .option("--json-schema", "Вывести точную JSON Schema вместо YAML-сводки")
+  .option("--inline", "Встроить $ref в режиме --json-schema")
+  .option("--keys [terms]", "Вывести только имена полей; terms фильтрует по частям строки через |")
+  .option("--required", "Показать только обязательные поля")
+  .option("--search <terms>", "Найти поля по частям строки через |")
+  .option("--exact", "Точный поиск имени поля в режиме --search")
+  .action((target: string, options: SchemaCommandOptions) => {
+    printSchema(target, options);
+  });
 ```
 
-- [ ] **Step 5: Run CLI tests and verify they pass**
+- [ ] Убедиться, что импорт в `packages/cli/src/cli.ts` использует `printSchema`, а не `printJSONSchema`.
 
-Run:
+**Verify:**
+
+- [ ] Запустить:
 
 ```bash
 pnpm --filter @nakidka/cli exec vitest run src/commands/schema.test.ts --no-isolate
 ```
 
-Expected: PASS for `schema.test.ts`.
+Expected: все тесты `schema.test.ts` проходят.
 
-- [ ] **Step 6: Run focused core and CLI schema tests together**
-
-Run:
+- [ ] Запустить ручные проверки:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/validation/schemaSummary.test.ts metadata/validation/projectFileSchema.test.ts metadata/validation/schemaRegistry.test.ts --no-isolate
-pnpm --filter @nakidka/cli exec vitest run src/commands/schema.test.ts --no-isolate
+pnpm --filter @nakidka/cli dev schema InputField --keys
+pnpm --filter @nakidka/cli dev schema InputField --search ПутьКДанным --exact
+pnpm --filter @nakidka/cli dev schema InputField --json-schema
 ```
 
-Expected: all listed tests PASS.
+Expected:
 
-- [ ] **Step 7: Commit CLI schema modes**
+- первая команда печатает имена полей, включая `Вид`;
+- вторая команда печатает YAML с корнем `fields` и полем `ПутьКДанным`;
+- третья команда печатает JSON, начинающийся с `{`.
+
+- [ ] Зафиксировать изменения:
 
 ```bash
 git add packages/cli/src/commands/schema.ts packages/cli/src/commands/schema.test.ts packages/cli/src/cli.ts
@@ -885,187 +854,130 @@ git commit -m "feat: :sparkles: обновить вывод schema"
 
 ---
 
-### Task 3: External Config Skill Update
+## Step 3: External Skill Update
 
 **Files:**
-- Modify: `/Users/nikita/git/new_config_add_item_test/.agents/skills/config-add-item/SKILL.md`
 
-- [ ] **Step 1: Read the current external skill**
+- Modify `/Users/nikita/git/new_config_add_item_test/.agents/skills/config-add-item/SKILL.md`
 
-Run:
+**Implementation:**
 
-```bash
-sed -n '1,260p' /Users/nikita/git/new_config_add_item_test/.agents/skills/config-add-item/SKILL.md
-```
-
-Expected: output contains the current “Получение схемы” section with old `nkdk schema` JSON Schema guidance.
-
-- [ ] **Step 2: Update the schema guidance in the external skill**
-
-Edit `/Users/nikita/git/new_config_add_item_test/.agents/skills/config-add-item/SKILL.md`.
-
-Replace the “Получение схемы” section with this text:
-
-```markdown
-## Получение схемы
-
-Построй путь будущего файла относительно корня YAML-проекта и сначала получи YAML-сводку схемы:
+- [ ] Открыть навык и найти разделы, где он просит читать полную JSON Schema через `nkdk schema`.
 
 ```bash
-pnpm --filter @nakidka/cli dev schema "<relative-yaml-file>" --project "<yaml-project-dir>"
+rg -n "nkdk schema|schema" /Users/nikita/git/new_config_add_item_test/.agents/skills/config-add-item/SKILL.md
 ```
 
-Если в окружении доступна установленная команда `nkdk`, можно использовать эквивалент:
+- [ ] Обновить инструкции навыка этим фрагментом:
+
+````md
+Для ориентации по YAML-формату сначала используй компактную сводку:
 
 ```bash
-nkdk schema "<relative-yaml-file>" --project "<yaml-project-dir>"
+nkdk schema "Справочник/Договоры/Формы/ФормаЭлемента/Форма.yaml" --project examples
 ```
 
-Если целевой YAML-каталог не является pnpm workspace и команда выше отвечает `No projects found`,
-запускай CLI из каталога workspace, где доступен `@nakidka/cli`, но `--project` всегда указывай на целевой
-YAML-проект:
+Для быстрых вопросов:
 
 ```bash
-cd /Users/nikita/git/nakidka-core
-pnpm --filter @nakidka/cli dev schema "<relative-yaml-file>" --project "<yaml-project-dir>"
+nkdk schema InputField --keys
+nkdk schema InputField --keys "путь|вид"
+nkdk schema InputField --required
+nkdk schema InputField --required --keys
+nkdk schema InputField --search "путь|тип"
+nkdk schema InputField --search ПутьКДанным --exact
 ```
 
-Такой запуск использует CLI как инструмент получения схемы; не читай исходный код `nakidka-core`, если пользователь
-этого не просил.
-
-Примеры путей, которые понимает команда:
-
-```text
-Справочник/Товары/Свойства.yaml
-Документ/Заказ/Свойства.yaml
-Документ/Заказ/Формы/ФормаДокумента/Форма.yaml
-```
-
-`nkdk schema` пока понимает не все верхнеуровневые каталоги из таблицы. Надёжно поддержаны `Справочник`,
-`Документ`, `Перечисление`, `Обработка`, `ЖурналДокументов`, `HTTPСервис`, `РегистрСведений`,
-`РегистрНакопления`, `ПланОбмена` и формы внутри поддержанных объектов.
-
-Используй быстрые срезы перед созданием YAML:
+Если сводки недостаточно и нужно увидеть исходную JSON Schema, используй:
 
 ```bash
-nkdk schema "<relative-yaml-file>" --required --keys --project "<yaml-project-dir>"
-nkdk schema "<schema-name>" --keys "путь|вид|тип"
-nkdk schema "<schema-name>" --search "путь|тип" --keys
-nkdk schema "<schema-name>" --search "<field-name>" --exact
+nkdk schema InputField --json-schema
+nkdk schema InputField --json-schema --inline
+nkdk schema "Справочник/Договоры/Формы/ФормаЭлемента/Форма.yaml" --project examples --json-schema
 ```
+````
 
-- `--required --keys` показывает обязательные ключи.
-- `--keys "термин|термин"` ищет только по именам ключей.
-- `--search "термин|термин" --keys` ищет шире: по ключам и строкам внутри описания поля.
-- `--search "<field-name>" --exact` даёт точечную YAML-сводку одного поля.
+- [ ] Если sandbox запрещает редактировать `/Users/nikita/git/new_config_add_item_test/.agents`, запросить разрешение на запись в этот путь и повторить изменение.
 
-Если YAML-сводки недостаточно, запроси точную JSON Schema:
+**Verify:**
+
+- [ ] Прочитать обновлённый фрагмент:
 
 ```bash
-nkdk schema "<relative-yaml-file>" --project "<yaml-project-dir>" --json-schema
-nkdk schema "<schema-name>" --json-schema
+sed -n '1,220p' /Users/nikita/git/new_config_add_item_test/.agents/skills/config-add-item/SKILL.md
 ```
 
-Полный разворот JSON Schema одним ответом используй только для отладки:
+Expected: навык описывает YAML-сводку по умолчанию, `--keys`, `--required`, `--search`, `--exact`, и `--json-schema` как запасной режим.
+
+- [ ] Проверить, является ли внешний каталог git-репозиторием:
 
 ```bash
-nkdk schema "<relative-yaml-file>" --project "<yaml-project-dir>" --json-schema --inline
+git -C /Users/nikita/git/new_config_add_item_test status --short
 ```
 
-Если команда отвечает ошибкой `Ожидались пути вида ...`, не правь YAML вслепую: уточни относительный путь по существующей структуре проекта или соседнему объекту.
-```
+Expected: если команда успешна, в статусе есть только ожидаемое изменение `SKILL.md` или другие пользовательские изменения, которые не трогаем.
 
-If the sandbox blocks writing to `/Users/nikita/git/new_config_add_item_test`, ask the user to approve editing that external repository path, then repeat this step.
-
-- [ ] **Step 3: Verify the external skill text**
-
-Run:
+- [ ] Если внешний каталог является git-репозиторием и пользовательские изменения не мешают, зафиксировать только файл навыка:
 
 ```bash
-rg -n "YAML-сводку|--json-schema|--required --keys|--search" /Users/nikita/git/new_config_add_item_test/.agents/skills/config-add-item/SKILL.md
+git -C /Users/nikita/git/new_config_add_item_test add .agents/skills/config-add-item/SKILL.md
+git -C /Users/nikita/git/new_config_add_item_test commit -m "docs: :memo: обновить навык schema"
 ```
-
-Expected: output includes the new YAML-summary-first guidance and `--json-schema` fallback.
-
-- [ ] **Step 4: Commit repository changes before reporting the external edit**
-
-The external skill is outside `/Users/nikita/git/nakidka-core`; do not include it in this repository commit.
-
-Run:
-
-```bash
-git status --short
-```
-
-Expected: no new repository changes from this task.
-
-Report the external skill update in the final implementation summary because it cannot be represented by a commit in `nakidka-core`.
 
 ---
 
-### Task 4: Full Verification
+## Step 4: Full Verification
 
-**Files:**
-- No new files.
+**Commands:**
 
-- [ ] **Step 1: Run package type checks for touched packages**
-
-Run:
+- [ ] Проверить core helper:
 
 ```bash
-pnpm --filter @nakidka/core exec tsc --noEmit
-pnpm --filter @nakidka/cli exec tsc --noEmit
+pnpm --filter @nakidka/core exec vitest run metadata/validation/schemaSummary.test.ts --no-isolate
 ```
 
-Expected: both commands exit with code `0`.
+Expected: тесты `schemaSummary.test.ts` проходят.
 
-- [ ] **Step 2: Run full project tests**
+- [ ] Проверить CLI command:
 
-Run:
+```bash
+pnpm --filter @nakidka/cli exec vitest run src/commands/schema.test.ts --no-isolate
+```
+
+Expected: тесты `schema.test.ts` проходят.
+
+- [ ] Проверить весь проект:
 
 ```bash
 pnpm test
 ```
 
-Expected: all package tests pass. Baseline before implementation was graph 89 tests, core 4172 tests with 5 skipped, cli 51 tests.
+Expected: все пакеты проходят; допустимы только уже существующие skipped-тесты.
 
-- [ ] **Step 3: Manually smoke-test CLI output shape**
-
-Run:
-
-```bash
-pnpm --filter @nakidka/cli dev schema InputField
-pnpm --filter @nakidka/cli dev schema InputField --keys "путь|вид"
-pnpm --filter @nakidka/cli dev schema InputField --required --keys
-pnpm --filter @nakidka/cli dev schema InputField --search ПутьКДанным --exact
-pnpm --filter @nakidka/cli dev schema InputField --json-schema
-```
-
-Expected:
-
-- first command prints YAML starting with `fields:`;
-- second command prints plain key names only;
-- third command prints `Вид`;
-- fourth command prints YAML with one field `ПутьКДанным`;
-- fifth command prints parseable JSON Schema.
-
-- [ ] **Step 4: Confirm git status before handoff**
-
-Run:
+- [ ] Проверить рабочее дерево:
 
 ```bash
 git status --short
 ```
 
-Expected: clean working tree in `/Users/nikita/git/nakidka-core/.worktrees/schema-yaml-summary`.
+Expected: нет незакоммиченных изменений в worktree `/Users/nikita/git/nakidka-core/.worktrees/schema-yaml-summary`.
 
-- [ ] **Step 5: Final commit if verification changed tracked files**
+**Manual CLI Smoke:**
 
-If formatting or documentation changed during verification, commit those changes:
+- [ ] Выполнить:
 
 ```bash
-git add <changed-files>
-git commit -m "chore: :wrench: завершить проверку schema"
+pnpm --filter @nakidka/cli dev schema InputField --keys
+pnpm --filter @nakidka/cli dev schema InputField --search "путь|вид"
+pnpm --filter @nakidka/cli dev schema InputField --search ПутьКДанным --exact
+pnpm --filter @nakidka/cli dev schema InputField --required --keys
+pnpm --filter @nakidka/cli dev schema InputField --json-schema
 ```
 
-Expected: commit created only when `git status --short` showed tracked changes.
+Expected:
+
+- `--keys` печатает plain text без YAML;
+- `--search` печатает YAML с корнем `fields`;
+- `--exact` печатает один field при точном совпадении;
+- `--required --keys` печатает только обязательные имена;
+- `--json-schema` печатает точную JSON Schema.

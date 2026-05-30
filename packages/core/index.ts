@@ -80,5 +80,13 @@ export {
   type ExportJSONSchemaForProjectFileParams,
   type ExportJSONSchemaForSchemaNameParams,
 } from "./metadata/validation/projectFileSchema"
+export {
+  listSchemaSummaryKeys,
+  summarizeJSONSchema,
+  splitSearchTerms,
+  type SchemaFieldSummary,
+  type SchemaSummary,
+  type SchemaSummaryOptions,
+} from "./metadata/validation/schemaSummary"
 export { exportMetadataDocumentToJSONSchema } from "./metadata/appliedObjects/metadataDocument/toJSONSchema"
 export { exportMetadataEnumerationToJSONSchema } from "./metadata/appliedObjects/metadataEnumeration/toJSONSchema"
