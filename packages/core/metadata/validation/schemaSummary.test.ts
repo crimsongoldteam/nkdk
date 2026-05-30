@@ -147,4 +147,37 @@ describe("schema summary", () => {
       ],
     })
   })
+
+  it("keeps summary required flag when a field schema has its own required properties", () => {
+    const schema = {
+      type: "object",
+      properties: {
+        Настройки: {
+          type: "object",
+          required: ["Имя"],
+          properties: {
+            Имя: {
+              type: "string",
+            },
+          },
+        },
+      },
+    }
+
+    expect(summarizeJSONSchema(schema)).toEqual({
+      fields: [
+        {
+          key: "Настройки",
+          required: false,
+          type: ["object"],
+          properties: {
+            Имя: {
+              type: ["string"],
+            },
+          },
+        },
+      ],
+    })
+    expect(summarizeJSONSchema(schema, { requiredOnly: true })).toBeUndefined()
+  })
 })

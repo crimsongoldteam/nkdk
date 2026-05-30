@@ -115,9 +115,9 @@ function normalizeFieldSummary(field: FieldCandidate): SchemaFieldSummary {
   const schemaProperties = isRecord(normalizedSchema) ? normalizedSchema : {}
 
   return {
+    ...schemaProperties,
     key: field.key,
     required: field.required,
-    ...schemaProperties,
   }
 }
 
