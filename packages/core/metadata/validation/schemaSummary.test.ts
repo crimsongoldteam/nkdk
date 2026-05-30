@@ -148,6 +148,67 @@ describe("schema summary", () => {
     })
   })
 
+  it("collects object properties from oneOf branches", () => {
+    const branchedSchema = {
+      oneOf: [
+        {
+          type: "object",
+          required: ["Вид"],
+          properties: {
+            Вид: { const: "Кнопка" },
+          },
+        },
+      ],
+    }
+
+    expect(summarizeJSONSchema(branchedSchema)).toEqual({
+      fields: [
+        {
+          key: "Вид",
+          required: true,
+          const: "Кнопка",
+        },
+      ],
+    })
+  })
+
+  it("merges duplicate allOf fields and preserves required constraints", () => {
+    const composedSchema = {
+      allOf: [
+        {
+          type: "object",
+          properties: {
+            Имя: {
+              type: "string",
+              description: "Имя объекта.",
+            },
+          },
+        },
+        {
+          type: "object",
+          required: ["Имя"],
+          properties: {
+            Имя: {
+              pattern: "^[А-Яа-яA-Za-z0-9_]+$",
+            },
+          },
+        },
+      ],
+    }
+
+    expect(summarizeJSONSchema(composedSchema, { requiredOnly: true })).toEqual({
+      fields: [
+        {
+          key: "Имя",
+          required: true,
+          type: ["string"],
+          description: "Имя объекта.",
+          pattern: "^[А-Яа-яA-Za-z0-9_]+$",
+        },
+      ],
+    })
+  })
+
   it("keeps summary required flag when a field schema has its own required properties", () => {
     const schema = {
       type: "object",

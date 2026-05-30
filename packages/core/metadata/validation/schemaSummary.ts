@@ -48,21 +48,21 @@ export function splitSearchTerms(terms: string | undefined): string[] {
 
 function collectFieldCandidates(schema: unknown): FieldCandidate[] {
   const fields: FieldCandidate[] = []
-  const collectedKeys = new Set<string>()
+  const fieldIndex = new Map<string, number>()
 
-  collectFieldsFromSchema(schema, fields, collectedKeys)
+  collectFieldsFromSchema(schema, fields, fieldIndex)
 
   return fields
 }
 
-function collectFieldsFromSchema(schema: unknown, fields: FieldCandidate[], collectedKeys: Set<string>): void {
+function collectFieldsFromSchema(schema: unknown, fields: FieldCandidate[], fieldIndex: Map<string, number>): void {
   if (!isRecord(schema)) {
     return
   }
 
-  collectObjectProperties(schema, fields, collectedKeys)
+  collectObjectProperties(schema, fields, fieldIndex, "first")
 
-  for (const branchKey of ["anyOf", "oneOf", "allOf"]) {
+  for (const branchKey of ["anyOf", "oneOf"]) {
     const branches = schema[branchKey]
 
     if (!Array.isArray(branches)) {
@@ -70,15 +70,60 @@ function collectFieldsFromSchema(schema: unknown, fields: FieldCandidate[], coll
     }
 
     for (const branch of branches) {
-      collectFieldsFromSchema(branch, fields, collectedKeys)
+      collectFieldsFromSchema(branch, fields, fieldIndex)
     }
+  }
+
+  const allOfBranches = schema.allOf
+
+  if (!Array.isArray(allOfBranches)) {
+    return
+  }
+
+  for (const branch of allOfBranches) {
+    collectFieldsFromAllOfBranch(branch, fields, fieldIndex)
+  }
+}
+
+function collectFieldsFromAllOfBranch(
+  schema: unknown,
+  fields: FieldCandidate[],
+  fieldIndex: Map<string, number>
+): void {
+  if (!isRecord(schema)) {
+    return
+  }
+
+  collectObjectProperties(schema, fields, fieldIndex, "merge")
+
+  for (const branchKey of ["anyOf", "oneOf"]) {
+    const branches = schema[branchKey]
+
+    if (!Array.isArray(branches)) {
+      continue
+    }
+
+    for (const branch of branches) {
+      collectFieldsFromSchema(branch, fields, fieldIndex)
+    }
+  }
+
+  const allOfBranches = schema.allOf
+
+  if (!Array.isArray(allOfBranches)) {
+    return
+  }
+
+  for (const branch of allOfBranches) {
+    collectFieldsFromAllOfBranch(branch, fields, fieldIndex)
   }
 }
 
 function collectObjectProperties(
   schema: Record<string, unknown>,
   fields: FieldCandidate[],
-  collectedKeys: Set<string>
+  fieldIndex: Map<string, number>,
+  duplicateMode: "first" | "merge"
 ): void {
   const properties = schema.properties
 
@@ -89,17 +134,63 @@ function collectObjectProperties(
   const requiredKeys = readRequiredKeys(schema.required)
 
   for (const [key, value] of Object.entries(properties)) {
-    if (collectedKeys.has(key) || !isRecord(value)) {
+    if (!isRecord(value)) {
       continue
     }
 
-    collectedKeys.add(key)
+    const existingIndex = fieldIndex.get(key)
+
+    if (existingIndex !== undefined) {
+      if (duplicateMode === "merge") {
+        const existingField = fields[existingIndex]
+
+        if (existingField !== undefined) {
+          fields[existingIndex] = {
+            ...existingField,
+            required: existingField.required || requiredKeys.has(key),
+            schema: mergeSchemaProperties(existingField.schema, value),
+          }
+        }
+      }
+
+      continue
+    }
+
+    fieldIndex.set(key, fields.length)
     fields.push({
       key,
       required: requiredKeys.has(key),
       schema: value,
     })
   }
+}
+
+function mergeSchemaProperties(base: Record<string, unknown>, next: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...base }
+
+  for (const [key, value] of Object.entries(next)) {
+    const mergedValue = mergeSchemaPropertyValue(result[key], value)
+
+    if (mergedValue !== undefined) {
+      result[key] = mergedValue
+    }
+  }
+
+  return result
+}
+
+function mergeSchemaPropertyValue(base: unknown, next: unknown): unknown {
+  const cleanNext = removeEmptyValues(next)
+
+  if (cleanNext === undefined) {
+    return base
+  }
+
+  if (isRecord(base) && isRecord(next)) {
+    return mergeSchemaProperties(base, next)
+  }
+
+  return cleanNext
 }
 
 function readRequiredKeys(required: unknown): Set<string> {
