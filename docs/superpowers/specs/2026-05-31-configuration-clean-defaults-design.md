@@ -32,7 +32,7 @@
 
 Поля `configurationExtensionCompatibilityMode` и `compatibilityMode` переводятся с `string` на `SystemEnumeration` с `typeSE: "CompatibilityMode"`. YAML должен использовать русские значения перечисления, например `Версия8_3_27`, а XML должен продолжать хранить платформенное значение `Version8_3_27`.
 
-Для этих двух полей в `rules.ts` нужен явный признак `allowUnknownValues: true`: режим совместимости может принимать значения новых платформ, которых еще нет в локальном перечислении. Этот признак должен освобождать поле от будущей проверки обязательности `defaultValueYAML` для `SystemEnumeration` и расширять YAML-схему до строки, а не только union известных значений. Для известных значений продолжаем использовать русскую карту `CompatibilityMode`; неизвестное значение сохраняется как есть.
+Для этих двух полей в `rules.ts` нужен подготовительный явный признак `implicitValueYAML: undefined`: режим совместимости не имеет невыбираемого основного значения, потому что может принимать версии новых платформ, которых еще нет в локальном перечислении. Обязательную проверку наличия `implicitValueYAML` для всех `boolean` и `SystemEnumeration` пока не включаем, но будущая проверка должна отличать “ключ явно указан как `undefined`” от “ключ забыли указать” через `hasOwnProperty`.
 
 В `CompatibilityMode` добавляется отсутствующее значение `Version8_3_27 <-> Версия8_3_27`.
 
@@ -45,9 +45,9 @@
 | XML/YAML | Default в clean XML | Модель после XML-import | YAML | Правило |
 | --- | --- | --- | --- | --- |
 | `Name` / `Имя` | `Конфигурация` | строка | писать всегда | `required`, без default |
-| `ConfigurationExtensionCompatibilityMode` / `РежимСовместимостиРасширенияКонфигурации` | `Version8_3_27` | `Version8_3_27` | `Версия8_3_27` | `required`, `SystemEnumeration`, `typeSE: "CompatibilityMode"`, `allowUnknownValues: true`, `preserveExplicitDefaultXML` |
+| `ConfigurationExtensionCompatibilityMode` / `РежимСовместимостиРасширенияКонфигурации` | `Version8_3_27` | `Version8_3_27` | `Версия8_3_27` | `required`, `SystemEnumeration`, `typeSE: "CompatibilityMode"`, `implicitValueYAML: undefined`, `preserveExplicitDefaultXML` |
 | `DefaultLanguage` / `ОсновнойЯзык` | `Language.Русский` | `Language.Русский` | писать всегда | `required`, `MetadataItemLink`, `preserveExplicitDefaultXML` |
-| `CompatibilityMode` / `РежимСовместимости` | `Version8_3_27` | `Version8_3_27` | `Версия8_3_27` | `required`, `SystemEnumeration`, `typeSE: "CompatibilityMode"`, `allowUnknownValues: true`, `preserveExplicitDefaultXML` |
+| `CompatibilityMode` / `РежимСовместимости` | `Version8_3_27` | `Version8_3_27` | `Версия8_3_27` | `required`, `SystemEnumeration`, `typeSE: "CompatibilityMode"`, `implicitValueYAML: undefined`, `preserveExplicitDefaultXML` |
 | пустые строковые теги: `NamePrefix`, `Comment`, `Vendor`, `Version`, `UpdateCatalogAddress`, `DefaultReportAppearanceTemplate`, `DefaultSearchForm`, `DefaultInterface`, `DefaultConstantsForm` | пустой тег | `undefined` | не писать | `defaultValueXMLRaw: ""`, без `defaultValueXMLEmpty: ""` |
 | пустые текстовые представления `I8nText`: `Synonym`, `BriefInformation`, `DetailedInformation`, `Copyright`, `VendorInformationAddress`, `ConfigurationInformationAddress` | пустой тег | `undefined` | не писать | `defaultValueXMLRaw: ""`, без модельного default |
 | пустые ссылки и списки ссылок: роли, хранилища, основные формы, стиль | пустой тег | `undefined` | не писать | `defaultValueXMLRaw: ""`, если нужно восстанавливать чистый XML без reference |
@@ -65,6 +65,8 @@
 | `DatabaseTablespacesUseMode` / `РежимИспользованияТабличныхПространствБазыДанных` | `DontUse` | `undefined` | не писать | `defaultValueXML: "DontUse"` |
 
 Default-поля выше не должны использовать `defaultValueYAML` для подстановки значения в модель при YAML-import. Если ключа нет в YAML, модель остается компактной; XML-default восстанавливается на этапе XML-export правилом `defaultValueXML` или `defaultValueXMLRaw`.
+
+`defaultValueYAML` в будущем нужно переименовать в `implicitValueYAML`, потому что смысл поля не “default для подстановки”, а “значение, которое подразумевается отсутствием ключа и не выбирается явно в YAML”. В этой задаче глобальное переименование и обязательность не включаются, но добавляется подготовка для особых полей режимов совместимости через `implicitValueYAML: undefined`.
 
 ## Мобильная функциональность
 
