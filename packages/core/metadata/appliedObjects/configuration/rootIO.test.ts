@@ -4,6 +4,7 @@ import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML, mockContextToXML, mockContextToYAML } from "~/tests/mockContext"
 import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { importContentFromXML } from "~/xml/import/importer"
 import {
   CONFIGURATION_XML_FILE,
   CONFIGURATION_YAML_FILE,
@@ -15,6 +16,14 @@ import {
 import { CLEAN_CONFIGURATION_XML, EXPECTED_CLEAN_CONFIGURATION_YAML } from "./cleanConfiguration.fixture"
 
 const normalizeXML = (value: string) => value.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n$/, "")
+
+const getConfigurationProperties = (xml: string) => {
+  const parsed = importContentFromXML<{
+    MetaDataObject: { Configuration: { Properties: Record<string, unknown> } }
+  }>(xml)
+
+  return parsed.MetaDataObject.Configuration.Properties
+}
 
 describe("root Configuration IO", () => {
   let tmpDir: string
@@ -93,9 +102,12 @@ describe("root Configuration IO", () => {
     })
 
     expect(configuration?.synonym).toBeUndefined()
+    expect(configuration?.defaultRoles).toBeUndefined()
+    expect(configuration?.additionalFullTextSearchDictionaries).toBeUndefined()
     expect(configuration?.defaultConstantsForm).toBeUndefined()
     expect(configuration?.defaultSearchForm).toBeUndefined()
     expect(configuration?.defaultInterface).toBeUndefined()
+    expect(configuration?.standaloneConfigurationRestrictionRoles).toBeUndefined()
     expect(configuration?.usedMobileApplicationFunctionalities).toBeUndefined()
 
     writeConfigurationToYAML({
@@ -135,14 +147,25 @@ describe("root Configuration IO", () => {
     })
 
     const actual = fs.readFileSync(join(outXmlDir, CONFIGURATION_XML_FILE), "utf-8")
-    expect(actual).toContain("<CompatibilityMode>Version8_3_27</CompatibilityMode>")
-    expect(actual).toContain(
-      "<ConfigurationExtensionCompatibilityMode>Version8_3_27</ConfigurationExtensionCompatibilityMode>"
+    const properties = getConfigurationProperties(actual)
+    const mobileFunctionalities = (
+      properties.UsedMobileApplicationFunctionalities as {
+        "app:functionality": Array<{ "app:functionality": string; "app:use": boolean | string }>
+      }
+    )["app:functionality"]
+
+    expect(properties.CompatibilityMode).toBe("Version8_3_27")
+    expect(properties.ConfigurationExtensionCompatibilityMode).toBe("Version8_3_27")
+    expect(properties).toHaveProperty("DefaultConstantsForm")
+    expect(properties).toHaveProperty("Content")
+    expect(properties).toHaveProperty("RequiredMobileApplicationPermissions")
+    expect(properties).toHaveProperty("MobileApplicationURLs")
+    expect(properties).toHaveProperty("AllowedIncomingShareRequestTypes")
+    expect(mobileFunctionalities).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ "app:functionality": "Biometrics", "app:use": "true" }),
+        expect.objectContaining({ "app:functionality": "OSBackup", "app:use": "true" }),
+      ])
     )
-    expect(actual).toContain("<DefaultConstantsForm/>")
-    expect(actual).toMatch(
-      /<app:functionality>Biometrics<\/app:functionality>\s*<app:use>true<\/app:use>/
-    )
-    expect(actual).toMatch(/<app:functionality>OSBackup<\/app:functionality>\s*<app:use>true<\/app:use>/)
   })
 })
