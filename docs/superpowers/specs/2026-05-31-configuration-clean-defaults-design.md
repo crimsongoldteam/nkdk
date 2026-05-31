@@ -32,6 +32,8 @@
 
 Поля `configurationExtensionCompatibilityMode` и `compatibilityMode` переводятся с `string` на `SystemEnumeration` с `typeSE: "CompatibilityMode"`. YAML должен использовать русские значения перечисления, например `Версия8_3_27`, а XML должен продолжать хранить платформенное значение `Version8_3_27`.
 
+Для этих двух полей в `rules.ts` нужен явный признак `allowUnknownValues: true`: режим совместимости может принимать значения новых платформ, которых еще нет в локальном перечислении. Этот признак должен освобождать поле от будущей проверки обязательности `defaultValueYAML` для `SystemEnumeration` и расширять YAML-схему до строки, а не только union известных значений. Для известных значений продолжаем использовать русскую карту `CompatibilityMode`; неизвестное значение сохраняется как есть.
+
 В `CompatibilityMode` добавляется отсутствующее значение `Version8_3_27 <-> Версия8_3_27`.
 
 Для всех остальных свойств из чистого XML задаются XML-defaults по эталонному `Configuration.xml`: `defaultValueXML` для явных значений и `defaultValueXMLRaw` для пустых тегов. Это нужно, чтобы XML-import убирал default-значения из модели, а YAML-export не писал их.
@@ -43,9 +45,9 @@
 | XML/YAML | Default в clean XML | Модель после XML-import | YAML | Правило |
 | --- | --- | --- | --- | --- |
 | `Name` / `Имя` | `Конфигурация` | строка | писать всегда | `required`, без default |
-| `ConfigurationExtensionCompatibilityMode` / `РежимСовместимостиРасширенияКонфигурации` | `Version8_3_27` | `Version8_3_27` | `Версия8_3_27` | `required`, `SystemEnumeration`, `typeSE: "CompatibilityMode"`, `preserveExplicitDefaultXML` |
+| `ConfigurationExtensionCompatibilityMode` / `РежимСовместимостиРасширенияКонфигурации` | `Version8_3_27` | `Version8_3_27` | `Версия8_3_27` | `required`, `SystemEnumeration`, `typeSE: "CompatibilityMode"`, `allowUnknownValues: true`, `preserveExplicitDefaultXML` |
 | `DefaultLanguage` / `ОсновнойЯзык` | `Language.Русский` | `Language.Русский` | писать всегда | `required`, `MetadataItemLink`, `preserveExplicitDefaultXML` |
-| `CompatibilityMode` / `РежимСовместимости` | `Version8_3_27` | `Version8_3_27` | `Версия8_3_27` | `required`, `SystemEnumeration`, `typeSE: "CompatibilityMode"`, `preserveExplicitDefaultXML` |
+| `CompatibilityMode` / `РежимСовместимости` | `Version8_3_27` | `Version8_3_27` | `Версия8_3_27` | `required`, `SystemEnumeration`, `typeSE: "CompatibilityMode"`, `allowUnknownValues: true`, `preserveExplicitDefaultXML` |
 | пустые строковые теги: `NamePrefix`, `Comment`, `Vendor`, `Version`, `UpdateCatalogAddress`, `DefaultReportAppearanceTemplate`, `DefaultSearchForm`, `DefaultInterface`, `DefaultConstantsForm` | пустой тег | `undefined` | не писать | `defaultValueXMLRaw: ""`, без `defaultValueXMLEmpty: ""` |
 | пустые текстовые представления `I8nText`: `Synonym`, `BriefInformation`, `DetailedInformation`, `Copyright`, `VendorInformationAddress`, `ConfigurationInformationAddress` | пустой тег | `undefined` | не писать | `defaultValueXMLRaw: ""`, без модельного default |
 | пустые ссылки и списки ссылок: роли, хранилища, основные формы, стиль | пустой тег | `undefined` | не писать | `defaultValueXMLRaw: ""`, если нужно восстанавливать чистый XML без reference |
@@ -74,7 +76,7 @@ Default-поля выше не должны использовать `defaultVal
 
 YAML-формат хранит только отличия от канонического списка. Если отличий нет, поле `ИспользуемаяФункциональностьМобильногоПриложения` не пишется. При YAML-import отличия накладываются на канонический список, чтобы XML-export мог восстановить полный набор `app:functionality`.
 
-Поле `Использовать` в YAML должно использовать общий формат boolean проекта: `Истина` / `Ложь`, а не нативные YAML `true` / `false`. Текущее поведение с `true` / `false` возникает из-за локального обработчика `UsedMobileApplicationFunctionalities`, который возвращает обычный `boolean` и обходит общий тип `boolean`. В реализации этот обработчик должен использовать тот же контракт, что и остальные boolean-поля.
+Поле `Использовать` в YAML должно использовать общий формат boolean проекта: `Истина` / `Ложь`, а не нативные YAML `true` / `false`. Текущее поведение с `true` / `false` возникает из-за локального обработчика `UsedMobileApplicationFunctionalities`, который возвращает обычный `boolean` и обходит общий тип `boolean`. В реализации этот обработчик должен переиспользовать готовый boolean-контракт: `importBooleanFromYAML`, `exportBooleanToYAML` и `BooleanJSONSchema`/`StringboolYAML`.
 
 ## Границы
 
