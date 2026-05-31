@@ -33,6 +33,8 @@ interface UsedMobileApplicationFunctionalitiesXML {
   "app:functionality"?: UsedMobileApplicationFunctionalityXML | UsedMobileApplicationFunctionalityXML[]
 }
 
+const usedMobileApplicationFunctionalitiesKey = "usedMobileApplicationFunctionalities"
+
 export const UsedMobileApplicationFunctionalitiesJSONSchema = Type.Array(
   Type.Object({
     Функциональность: Type.Union(
@@ -111,6 +113,11 @@ const isCleanDefaultUsedMobileApplicationFunctionalities = (
 const isReferenceXMLImport = (context: ConfigurationContext): boolean =>
   (context as { fromXML?: { forReference?: boolean } }).fromXML?.forReference === true
 
+const hasExplicitUsedMobileApplicationFunctionalities = (metadataItem: unknown): boolean =>
+  typeof metadataItem === "object" &&
+  metadataItem !== null &&
+  Object.prototype.hasOwnProperty.call(metadataItem, usedMobileApplicationFunctionalitiesKey)
+
 const exportUsedMobileApplicationFunctionalitiesItemsToXML = (
   data: UsedMobileApplicationFunctionalities
 ): UsedMobileApplicationFunctionalitiesXML =>
@@ -142,12 +149,9 @@ export const importUsedMobileApplicationFunctionalitiesFromXML = (
 export function exportUsedMobileApplicationFunctionalitiesToXML(
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  data: UsedMobileApplicationFunctionalities | undefined,
-  _referenceData?: UsedMobileApplicationFunctionalities | undefined
+  data: UsedMobileApplicationFunctionalities | undefined
 ): UsedMobileApplicationFunctionalitiesXML | "" | undefined {
   if (data === undefined) {
-    if (arguments.length >= 4) return undefined
-
     return exportUsedMobileApplicationFunctionalitiesItemsToXML(
       cloneCleanDefaultUsedMobileApplicationFunctionalities()
     )
@@ -155,6 +159,19 @@ export function exportUsedMobileApplicationFunctionalitiesToXML(
   if (data.length === 0) return ""
 
   return exportUsedMobileApplicationFunctionalitiesItemsToXML(data)
+}
+
+const exportUsedMobileApplicationFunctionalitiesToXMLFromMetadata = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  value: UsedMobileApplicationFunctionalities | undefined
+  metadataItem?: unknown
+}): UsedMobileApplicationFunctionalitiesXML | "" | undefined => {
+  if (params.value === undefined && !hasExplicitUsedMobileApplicationFunctionalities(params.metadataItem)) {
+    return undefined
+  }
+
+  return exportUsedMobileApplicationFunctionalitiesToXML(params.context, params.rule, params.value)
 }
 
 export const importUsedMobileApplicationFunctionalitiesFromYAML = (
@@ -225,7 +242,7 @@ registerTypeRule(
 registerTypeRule(
   "UsedMobileApplicationFunctionalities",
   "exportToXML",
-  exportUsedMobileApplicationFunctionalitiesToXML
+  exportUsedMobileApplicationFunctionalitiesToXMLFromMetadata
 )
 registerTypeRule(
   "UsedMobileApplicationFunctionalities",

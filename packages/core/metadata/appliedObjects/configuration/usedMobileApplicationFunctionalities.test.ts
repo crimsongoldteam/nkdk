@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { exportMetadataItemToXML } from "~/metadata/orchestration"
+import { mockContext, mockContextToXML } from "~/tests/mockContext"
+import { MetadataConfigurationRules } from "./rules"
+import type { MetadataConfiguration } from "./types"
 import {
   exportUsedMobileApplicationFunctionalitiesToXML,
   exportUsedMobileApplicationFunctionalitiesToYAML,
@@ -84,6 +87,30 @@ describe("UsedMobileApplicationFunctionalities", () => {
     const result = exportUsedMobileApplicationFunctionalitiesToXML(mockContext, undefined, undefined)
 
     expect(result).toEqual(cleanDefaultXML())
+  })
+
+  it("exports explicit undefined model value through metadataItem as full clean XML default", () => {
+    const configuration: MetadataConfiguration = {
+      itemType: "MetadataConfiguration",
+      name: "Конфигурация",
+      usedMobileApplicationFunctionalities: undefined,
+    }
+
+    const result = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: configuration,
+      rule: MetadataConfigurationRules,
+    })
+
+    expect(result).toMatchObject({
+      MetaDataObject: {
+        Configuration: {
+          Properties: {
+            UsedMobileApplicationFunctionalities: cleanDefaultXML(),
+          },
+        },
+      },
+    })
   })
 
   it("exports YAML differences with Russian boolean values", () => {
