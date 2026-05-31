@@ -34,7 +34,10 @@ export const exportSystemEnumerationToYAML = <T extends string>(
   const enumeration = (SE as Record<string, Record<string, string>>)[rule.typeSE + "ToYAML"]
 
   if (!enumeration) throw new Error(`Enumeration ${rule!.typeSE} not found`)
-  return enumeration[value] as T
+  return (enumeration[value] ?? (allowsUnknownYAMLValues(rule) ? value : undefined)) as T | undefined
 }
+
+const allowsUnknownYAMLValues = (rule: SE.SystemEnumerationPropertyRule): boolean =>
+  Object.prototype.hasOwnProperty.call(rule, "implicitValueYAML") && rule.implicitValueYAML === undefined
 
 registerTypeRule("SystemEnumeration", "exportToYAML", exportSystemEnumerationToYAML as ExportToYAMLFunction)

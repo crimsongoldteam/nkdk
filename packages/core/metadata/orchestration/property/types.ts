@@ -78,6 +78,9 @@ export interface BasePropertyRule {
   /** Значение по умолчанию в YAML (будет исключено из выбора)*/
   defaultValueYAML?: any | DefaultValueFunction
 
+  /** Подготавливаемое неявное значение в YAML. */
+  implicitValueYAML?: any | DefaultValueFunction | undefined
+
   /** Исключать YAML-default по модельному значению до преобразования типа. */
   omitDefaultValueYAMLBySource?: true
 

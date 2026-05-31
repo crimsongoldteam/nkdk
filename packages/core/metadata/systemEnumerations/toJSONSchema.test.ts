@@ -17,4 +17,20 @@ describe("exportSystemEnumerationToJSONSchema", () => {
     const expected = Object.keys(ChildFormItemsGroupFromYAML).sort()
     expect(consts).toEqual(expected)
   })
+
+  it("возвращает string-схему для CompatibilityMode с будущими значениями", () => {
+    const rule: SystemEnumerationPropertyRule<"CompatibilityMode"> = {
+      type: "SystemEnumeration",
+      typeSE: "CompatibilityMode",
+      implicitValueYAML: undefined,
+    }
+
+    const schema = exportSystemEnumerationToJSONSchema({
+      context: mockContext,
+      rule,
+      value: undefined,
+    })
+
+    expect(schema).toMatchObject({ type: "string" })
+  })
 })
