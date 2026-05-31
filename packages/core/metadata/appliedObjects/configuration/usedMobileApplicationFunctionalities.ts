@@ -1,4 +1,4 @@
-import { Static, Type } from "@sinclair/typebox"
+import { Type } from "@sinclair/typebox"
 import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { BooleanJSONSchema, StringboolYAML } from "~/metadata/commonObjects/boolean/types"
@@ -48,11 +48,9 @@ export const UsedMobileApplicationFunctionalitiesJSONSchema = Type.Array(
   })
 )
 
-export type UsedMobileApplicationFunctionalitiesYAML = Static<
-  typeof UsedMobileApplicationFunctionalitiesJSONSchema
->
+export type UsedMobileApplicationFunctionalitiesYAML = UsedMobileApplicationFunctionalityYAML[]
 
-const cleanDefaultUsedMobileApplicationFunctionalities: UsedMobileApplicationFunctionalities = [
+export const CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES: UsedMobileApplicationFunctionalities = [
   { functionality: "Biometrics", use: true },
   { functionality: "Location", use: false },
   { functionality: "BackgroundLocation", use: false },
@@ -94,7 +92,7 @@ const cleanDefaultUsedMobileApplicationFunctionalities: UsedMobileApplicationFun
 ]
 
 const cloneCleanDefaultUsedMobileApplicationFunctionalities = (): UsedMobileApplicationFunctionalities =>
-  cleanDefaultUsedMobileApplicationFunctionalities.map((item) => ({ ...item }))
+  CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES.map((item) => ({ ...item }))
 
 const normalizeArray = <T>(value: T | T[] | undefined): T[] => {
   if (value === undefined) return []
@@ -104,9 +102,9 @@ const normalizeArray = <T>(value: T | T[] | undefined): T[] => {
 const isCleanDefaultUsedMobileApplicationFunctionalities = (
   data: UsedMobileApplicationFunctionalities
 ): boolean =>
-  data.length === cleanDefaultUsedMobileApplicationFunctionalities.length &&
+  data.length === CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES.length &&
   data.every((item, index) => {
-    const defaultItem = cleanDefaultUsedMobileApplicationFunctionalities[index]
+    const defaultItem = CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES[index]
     return item.functionality === defaultItem.functionality && item.use === defaultItem.use
   })
 
@@ -211,7 +209,7 @@ export const exportUsedMobileApplicationFunctionalitiesToYAML = (
   const dataByFunctionality = new Map<MobileApplicationFunctionalities, boolean>(
     data.map((item): [MobileApplicationFunctionalities, boolean] => [item.functionality, item.use])
   )
-  const result = cleanDefaultUsedMobileApplicationFunctionalities.flatMap((defaultItem) => {
+  const result = CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES.flatMap((defaultItem) => {
     const use = dataByFunctionality.get(defaultItem.functionality)
     if (use === undefined || defaultItem.use === use) {
       return []

@@ -12,6 +12,9 @@ describe("exportSystemEnumerationToJSONSchema", () => {
       rule,
       value: undefined,
     })
+    expect(schema).toBeDefined()
+    if (schema === undefined) throw new Error("schema is undefined")
+
     const schemaObj = schema as { anyOf?: Array<{ const: string }> }
     expect(schemaObj.anyOf).toBeDefined()
     const consts = schemaObj.anyOf!.map((s) => s.const).sort()
@@ -32,6 +35,8 @@ describe("exportSystemEnumerationToJSONSchema", () => {
       rule,
       value: undefined,
     })
+    expect(schema).toBeDefined()
+    if (schema === undefined) throw new Error("schema is undefined")
 
     expect(schema).toMatchObject({ type: "string" })
     expect(Value.Check(schema, "Версия8_3_27")).toBe(true)

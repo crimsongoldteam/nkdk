@@ -1,67 +1,26 @@
 import { describe, expect, it } from "vitest"
 import { exportMetadataItemToXML } from "~/metadata/orchestration"
-import { mockContext, mockContextToXML } from "~/tests/mockContext"
+import { mockContext, mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { MetadataConfigurationRules } from "./rules"
 import type { MetadataConfiguration } from "./types"
 import {
+  CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES,
   exportUsedMobileApplicationFunctionalitiesToXML,
   exportUsedMobileApplicationFunctionalitiesToYAML,
   importUsedMobileApplicationFunctionalitiesFromXML,
   importUsedMobileApplicationFunctionalitiesFromYAML,
-  UsedMobileApplicationFunctionalities,
   UsedMobileApplicationFunctionalitiesYAML,
 } from "./usedMobileApplicationFunctionalities"
 
-const cleanDefault = [
-  { functionality: "Biometrics", use: true },
-  { functionality: "Location", use: false },
-  { functionality: "BackgroundLocation", use: false },
-  { functionality: "BluetoothPrinters", use: false },
-  { functionality: "WiFiPrinters", use: false },
-  { functionality: "Contacts", use: false },
-  { functionality: "Calendars", use: false },
-  { functionality: "PushNotifications", use: false },
-  { functionality: "LocalNotifications", use: false },
-  { functionality: "InAppPurchases", use: false },
-  { functionality: "PersonalComputerFileExchange", use: false },
-  { functionality: "Ads", use: false },
-  { functionality: "NumberDialing", use: false },
-  { functionality: "CallProcessing", use: false },
-  { functionality: "CallLog", use: false },
-  { functionality: "AutoSendSMS", use: false },
-  { functionality: "ReceiveSMS", use: false },
-  { functionality: "SMSLog", use: false },
-  { functionality: "Camera", use: false },
-  { functionality: "Microphone", use: false },
-  { functionality: "MusicLibrary", use: false },
-  { functionality: "PictureAndVideoLibraries", use: false },
-  { functionality: "AudioPlaybackAndVibration", use: false },
-  { functionality: "BackgroundAudioPlaybackAndVibration", use: false },
-  { functionality: "InstallPackages", use: false },
-  { functionality: "OSBackup", use: true },
-  { functionality: "ApplicationUsageStatistics", use: false },
-  { functionality: "BarcodeScanning", use: false },
-  { functionality: "BackgroundAudioRecording", use: false },
-  { functionality: "AllFilesAccess", use: false },
-  { functionality: "Videoconferences", use: false },
-  { functionality: "NFC", use: false },
-  { functionality: "DocumentScanning", use: false },
-  { functionality: "SpeechToText", use: false },
-  { functionality: "Geofences", use: false },
-  { functionality: "IncomingShareRequests", use: false },
-  { functionality: "AllIncomingShareRequestsTypesProcessing", use: false },
-  { functionality: "TextToSpeech", use: false },
-] satisfies UsedMobileApplicationFunctionalities
-
 const cleanDefaultXML = () => ({
-  "app:functionality": cleanDefault.map((item) => ({
+  "app:functionality": CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES.map((item) => ({
     "app:functionality": item.functionality,
     "app:use": item.use,
   })),
 })
 
-const modelWithDifferences = (): UsedMobileApplicationFunctionalities =>
-  cleanDefault.map((item) => {
+const modelWithDifferences = () =>
+  CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES.map((item) => {
     if (item.functionality === "Biometrics") return { ...item, use: false }
     if (item.functionality === "Camera") return { ...item, use: true }
     return { ...item }
@@ -81,6 +40,16 @@ describe("UsedMobileApplicationFunctionalities", () => {
     )
 
     expect(result).toBeUndefined()
+  })
+
+  it("keeps clean XML default in reference import", () => {
+    const result = importUsedMobileApplicationFunctionalitiesFromXML(
+      mockContextFromXML({ forReference: true }),
+      undefined,
+      cleanDefaultXML()
+    )
+
+    expect(result).toEqual(CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES)
   })
 
   it("exports undefined model value as full clean XML default", () => {
@@ -141,7 +110,7 @@ describe("UsedMobileApplicationFunctionalities", () => {
     const result = exportUsedMobileApplicationFunctionalitiesToYAML(
       mockContext,
       undefined,
-      cleanDefault
+      CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES
     )
 
     expect(result).toBeUndefined()
