@@ -10,6 +10,11 @@ import { exportToYAML } from "~/yaml/export"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
+type ChildCollectionItem = {
+  name: string
+  model: Record<string, unknown>
+}
+
 export const convertAppliedObjectFromXML = async (params: {
   rule: MetadataItemRule
   context: ConfigurationContextFromXML
@@ -22,9 +27,15 @@ export const convertAppliedObjectFromXML = async (params: {
   const inputPath = join(inputDir, `${name}.xml`)
   const xmlContent = await fs.promises.readFile(inputPath, "utf-8")
   const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
-  const model = importMetadataItemFromXML({ context, xml: parsed.MetaDataObject, rule })
+  const modelXML = omitStringChildCollectionReferencesFromXML(parsed.MetaDataObject, rule)
+  const model = importMetadataItemFromXML({ context, xml: modelXML, rule })
 
   if (!model) return
+  addReferenceNamesFromXML({
+    model: model as Record<string, unknown>,
+    rule,
+    xml: parsed.MetaDataObject,
+  })
 
   // Читаем внешние файлы для свойств с filePath. Под капотом importPropertyFromXML
   // диспатчит по rule.type — для типов, зарегистрированных через registerMetadataItemRule
@@ -84,16 +95,11 @@ async function syncChildCollectionsFromXML(params: {
 
   for (const childCollection of rule.childCollections ?? []) {
     const collectionModel = model[childCollection.propertyKey]
-    if (!collectionModel || typeof collectionModel !== "object") continue
-    // После XML-импорта коллекция — массив [{name, ...}, ...], после YAML — Record<name, ...>
-    const items = Array.isArray(collectionModel)
-      ? (collectionModel as Array<Record<string, unknown>>)
-          .map((item) => ({ name: String(item["name"] ?? ""), model: item }))
-          .filter((item) => item.name)
-      : Object.entries(collectionModel as Record<string, Record<string, unknown>>).map(([itemName, itemModel]) => ({
-          name: itemName,
-          model: { ...itemModel, name: itemName },
-        }))
+    const items = normalizeChildCollectionItems(collectionModel)
+    if (items.length === 0) continue
+    if (Array.isArray(collectionModel) || typeof collectionModel === "string") {
+      model[childCollection.propertyKey] = items.map((item) => item.model)
+    }
 
     for (const item of items) {
       const hasOwnDirs = childCollection.nkdkDir !== undefined || childCollection.xmlDir !== undefined
@@ -152,6 +158,30 @@ async function syncChildCollectionsFromXML(params: {
   }
 }
 
+function normalizeChildCollectionItems(collectionModel: unknown): ChildCollectionItem[] {
+  if (typeof collectionModel === "string") return [{ name: collectionModel, model: { name: collectionModel } }]
+
+  if (Array.isArray(collectionModel)) {
+    return collectionModel
+      .map((item): ChildCollectionItem | undefined => {
+        if (typeof item === "string") return { name: item, model: { name: item } }
+        if (!item || typeof item !== "object") return undefined
+
+        const model = item as Record<string, unknown>
+        const name = String(model["name"] ?? "")
+        return name ? { name, model } : undefined
+      })
+      .filter((item): item is ChildCollectionItem => item !== undefined)
+  }
+
+  if (!collectionModel || typeof collectionModel !== "object") return []
+
+  return Object.entries(collectionModel as Record<string, Record<string, unknown>>).map(([itemName, itemModel]) => ({
+    name: itemName,
+    model: { ...itemModel, name: itemName },
+  }))
+}
+
 function addReferenceNamesFromXML(params: {
   model: Record<string, unknown>
   rule: MetadataItemRule
@@ -164,6 +194,15 @@ function addReferenceNamesFromXML(params: {
   if (!root || typeof root !== "object") return
 
   for (const childCollection of params.rule.childCollections ?? []) {
+    if (childCollection.fileItemRule && childCollection.xmlDir) {
+      addStringChildCollectionReferencesFromXML({
+        model: params.model,
+        propertyKey: childCollection.propertyKey,
+        propertyRule: params.rule.properties[childCollection.propertyKey],
+        root: root as Record<string, unknown>,
+      })
+    }
+
     const fileRootContainer = childCollection.fileItemRule
       ? getXMLRootContainer(childCollection.fileItemRule)
       : undefined
@@ -183,6 +222,92 @@ function addReferenceNamesFromXML(params: {
   }
 }
 
+function omitStringChildCollectionReferencesFromXML(xml: unknown, rule: MetadataItemRule): unknown {
+  if (!xml || typeof xml !== "object") return xml
+  const container = getXMLRootContainer(rule)
+  if (!container) return xml
+  const root = (xml as Record<string, unknown>)[container]
+  if (!root || typeof root !== "object") return xml
+
+  let nextRoot: Record<string, unknown> | undefined
+  for (const childCollection of rule.childCollections ?? []) {
+    if (!childCollection.fileItemRule || !childCollection.xmlDir) continue
+    const propertyRule = rule.properties[childCollection.propertyKey]
+    if (!propertyRule) continue
+
+    const xmlKey = propertyRule.xml ?? childCollection.propertyKey
+    const xmlPath = [...(propertyRule.xmlParents ?? []), xmlKey]
+    const currentRoot = nextRoot ?? (root as Record<string, unknown>)
+    const xmlValue = readXMLPath(currentRoot, xmlPath)
+    if (
+      typeof xmlValue !== "string" &&
+      (!Array.isArray(xmlValue) || !xmlValue.some((item) => typeof item === "string"))
+    ) {
+      continue
+    }
+
+    const objectReferences = Array.isArray(xmlValue) ? xmlValue.filter((item) => typeof item !== "string") : undefined
+    nextRoot = writeXMLPath(currentRoot, xmlPath, objectReferences)
+  }
+
+  return nextRoot ? { ...(xml as Record<string, unknown>), [container]: nextRoot } : xml
+}
+
+function addStringChildCollectionReferencesFromXML(params: {
+  model: Record<string, unknown>
+  propertyKey: string
+  propertyRule: PropertyRule | undefined
+  root: Record<string, unknown>
+}): void {
+  if (params.propertyRule === undefined) return
+
+  const xmlKey = params.propertyRule.xml ?? params.propertyKey
+  const xmlValue = readXMLPath(params.root, [...(params.propertyRule.xmlParents ?? []), xmlKey])
+  if (!hasStringReference(xmlValue)) return
+
+  const collectionModel = params.model[params.propertyKey]
+  if (collectionModel === undefined) {
+    const referenceNames = getStringReferenceNames(xmlValue)
+    params.model[params.propertyKey] = referenceNames.map((name) => ({ name }))
+    return
+  }
+  if (!Array.isArray(collectionModel)) return
+
+  const importedItems = normalizeChildCollectionItems(collectionModel)
+  const importedByName = new Map(importedItems.map((item) => [item.name, item.model]))
+  const orderedModels: Record<string, unknown>[] = []
+  const usedNames = new Set<string>()
+  let nextImportedIndex = 0
+
+  for (const xmlItem of Array.isArray(xmlValue) ? xmlValue : [xmlValue]) {
+    const model = typeof xmlItem === "string" ? { name: xmlItem } : importedItems[nextImportedIndex++]?.model
+    if (!model) continue
+    const name = String(model["name"] ?? "")
+    if (!name || usedNames.has(name)) continue
+
+    orderedModels.push(importedByName.get(name) ?? model)
+    usedNames.add(name)
+  }
+
+  for (const item of importedItems) {
+    if (usedNames.has(item.name)) continue
+    orderedModels.push(item.model)
+    usedNames.add(item.name)
+  }
+
+  params.model[params.propertyKey] = orderedModels
+}
+
+function hasStringReference(xmlValue: unknown): boolean {
+  return typeof xmlValue === "string" || (Array.isArray(xmlValue) && xmlValue.some((item) => typeof item === "string"))
+}
+
+function getStringReferenceNames(xmlValue: unknown): string[] {
+  if (typeof xmlValue === "string") return [xmlValue]
+  if (!Array.isArray(xmlValue)) return []
+  return xmlValue.filter((item): item is string => typeof item === "string")
+}
+
 function readXMLPath(xml: Record<string, unknown>, path: string[]): unknown {
   let current: unknown = xml
   for (const part of path) {
@@ -190,6 +315,26 @@ function readXMLPath(xml: Record<string, unknown>, path: string[]): unknown {
     current = (current as Record<string, unknown>)[part]
   }
   return current
+}
+
+function writeXMLPath(root: Record<string, unknown>, path: string[], value: unknown): Record<string, unknown> {
+  const nextRoot = { ...root }
+  let current = nextRoot
+  for (const part of path.slice(0, -1)) {
+    const next = current[part]
+    if (!next || typeof next !== "object" || Array.isArray(next)) return nextRoot
+    const nextCopy = { ...(next as Record<string, unknown>) }
+    current[part] = nextCopy
+    current = nextCopy
+  }
+
+  const key = path[path.length - 1]
+  if (value === undefined) {
+    delete current[key]
+  } else {
+    current[key] = value
+  }
+  return nextRoot
 }
 
 function addChildCollectionsFromReferenceNames(params: {
