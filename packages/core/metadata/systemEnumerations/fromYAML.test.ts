@@ -58,4 +58,35 @@ describe("importSystemEnumerationFromYAML", () => {
 
     expect(result).toBe("Version8_3_28")
   })
+
+  it("imports empty unknown compatibility mode as is when future values are enabled", () => {
+    const rule: SystemEnumerationPropertyRule<"CompatibilityMode"> = {
+      type: "SystemEnumeration",
+      typeSE: "CompatibilityMode",
+      implicitValueYAML: undefined,
+    }
+
+    const result = importSystemEnumerationFromYAML({
+      context: mockContext,
+      rule,
+      value: "",
+    })
+
+    expect(result).toBe("")
+  })
+
+  it("does not import unknown values for closed enumerations", () => {
+    const rule: SystemEnumerationPropertyRule<"CompatibilityMode"> = {
+      type: "SystemEnumeration",
+      typeSE: "CompatibilityMode",
+    }
+
+    const result = importSystemEnumerationFromYAML({
+      context: mockContext,
+      rule,
+      value: "Version8_3_28",
+    })
+
+    expect(result).toBeUndefined()
+  })
 })

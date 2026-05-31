@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { Value } from "@sinclair/typebox/value"
 import { ChildFormItemsGroupFromYAML, SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { mockContext } from "~/tests/mockContext"
 import { exportSystemEnumerationToJSONSchema } from "./toJSONSchema"
@@ -16,6 +17,7 @@ describe("exportSystemEnumerationToJSONSchema", () => {
     const consts = schemaObj.anyOf!.map((s) => s.const).sort()
     const expected = Object.keys(ChildFormItemsGroupFromYAML).sort()
     expect(consts).toEqual(expected)
+    expect(Value.Check(schema, "Version8_3_28")).toBe(false)
   })
 
   it("возвращает string-схему для CompatibilityMode с будущими значениями", () => {
@@ -32,5 +34,8 @@ describe("exportSystemEnumerationToJSONSchema", () => {
     })
 
     expect(schema).toMatchObject({ type: "string" })
+    expect(Value.Check(schema, "Версия8_3_27")).toBe(true)
+    expect(Value.Check(schema, "Version8_3_28")).toBe(true)
+    expect(Value.Check(schema, "")).toBe(true)
   })
 })

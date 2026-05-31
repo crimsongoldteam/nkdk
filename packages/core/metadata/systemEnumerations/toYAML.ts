@@ -29,7 +29,7 @@ export const exportSystemEnumerationToYAML = <T extends string>(
   rule: SE.SystemEnumerationPropertyRule,
   value: string | undefined
 ): T | undefined => {
-  if (!value) return undefined
+  if (value === undefined) return undefined
 
   const enumeration = (SE as Record<string, Record<string, string>>)[rule.typeSE + "ToYAML"]
 

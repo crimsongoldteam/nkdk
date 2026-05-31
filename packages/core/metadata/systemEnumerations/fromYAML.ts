@@ -27,7 +27,7 @@ export const importSystemEnumerationFromYAML = <T extends string>(params: {
   const { rule, value } = params
   const systemEnumerationRule = rule as SE.SystemEnumerationPropertyRule
 
-  if (!value) return undefined
+  if (value === undefined) return undefined
 
   const enumeration = (SE as Record<string, Record<string, string>>)[systemEnumerationRule.typeSE! + "FromYAML"]
 
