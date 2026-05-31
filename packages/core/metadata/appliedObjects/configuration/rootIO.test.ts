@@ -12,6 +12,7 @@ import {
   writeConfigurationToXML,
   writeConfigurationToYAML,
 } from "./rootIO"
+import { CLEAN_CONFIGURATION_XML, EXPECTED_CLEAN_CONFIGURATION_YAML } from "./cleanConfiguration.fixture"
 
 const normalizeXML = (value: string) => value.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n$/, "")
 
@@ -81,5 +82,67 @@ describe("root Configuration IO", () => {
 
     const actual = fs.readFileSync(join(outXmlDir, CONFIGURATION_XML_FILE), "utf-8")
     expect(normalizeXML(actual)).toBe(normalizeXML(readXMLFileAsString("configuration/full.xml")))
+  })
+
+  it("импортирует clean Configuration.xml без XML-defaults в модели и YAML", () => {
+    fs.writeFileSync(join(xmlDir, CONFIGURATION_XML_FILE), CLEAN_CONFIGURATION_XML, "utf-8")
+
+    const configuration = readConfigurationFromXML({
+      context: mockContextFromXML(),
+      inputDir: xmlDir,
+    })
+
+    expect(configuration?.synonym).toBeUndefined()
+    expect(configuration?.defaultConstantsForm).toBeUndefined()
+    expect(configuration?.defaultSearchForm).toBeUndefined()
+    expect(configuration?.defaultInterface).toBeUndefined()
+    expect(configuration?.usedMobileApplicationFunctionalities).toBeUndefined()
+
+    writeConfigurationToYAML({
+      context: mockContextToYAML,
+      configuration,
+      outputDir: yamlDir,
+    })
+
+    const yaml = fs.readFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "utf-8")
+    expect(yaml).toBe(EXPECTED_CLEAN_CONFIGURATION_YAML)
+  })
+
+  it("восстанавливает clean XML defaults из sparse YAML и reference XML", () => {
+    fs.writeFileSync(join(xmlDir, CONFIGURATION_XML_FILE), CLEAN_CONFIGURATION_XML, "utf-8")
+    fs.mkdirSync(yamlDir)
+    fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), EXPECTED_CLEAN_CONFIGURATION_YAML, "utf-8")
+
+    const referenceConfiguration = readConfigurationFromXML({
+      context: mockContextFromXML({ forReference: true }),
+      inputDir: xmlDir,
+    })
+    const fromYAML = readConfigurationFromYAML({
+      context: mockContextToYAML,
+      inputDir: yamlDir,
+      source: referenceConfiguration,
+    })
+
+    expect(fromYAML?.configurationExtensionCompatibilityMode).toBe("Version8_3_27")
+    expect(fromYAML?.defaultLanguage).toBe("Language.Русский")
+    expect(fromYAML?.compatibilityMode).toBe("Version8_3_27")
+
+    writeConfigurationToXML({
+      context: mockContextToXML(),
+      configuration: fromYAML,
+      referenceConfiguration,
+      outputDir: outXmlDir,
+    })
+
+    const actual = fs.readFileSync(join(outXmlDir, CONFIGURATION_XML_FILE), "utf-8")
+    expect(actual).toContain("<CompatibilityMode>Version8_3_27</CompatibilityMode>")
+    expect(actual).toContain(
+      "<ConfigurationExtensionCompatibilityMode>Version8_3_27</ConfigurationExtensionCompatibilityMode>"
+    )
+    expect(actual).toContain("<DefaultConstantsForm/>")
+    expect(actual).toMatch(
+      /<app:functionality>Biometrics<\/app:functionality>\s*<app:use>true<\/app:use>/
+    )
+    expect(actual).toMatch(/<app:functionality>OSBackup<\/app:functionality>\s*<app:use>true<\/app:use>/)
   })
 })

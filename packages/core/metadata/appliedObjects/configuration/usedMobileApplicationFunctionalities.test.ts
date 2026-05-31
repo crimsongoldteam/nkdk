@@ -62,6 +62,9 @@ describe("UsedMobileApplicationFunctionalities", () => {
     const configuration: MetadataConfiguration = {
       itemType: "MetadataConfiguration",
       name: "Конфигурация",
+      configurationExtensionCompatibilityMode: "Version8_3_27",
+      defaultLanguage: "Language.Русский",
+      compatibilityMode: "Version8_3_27",
       usedMobileApplicationFunctionalities: undefined,
     }
 
