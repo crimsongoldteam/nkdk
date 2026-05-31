@@ -116,6 +116,13 @@ const hasExplicitUsedMobileApplicationFunctionalities = (metadataItem: unknown):
   metadataItem !== null &&
   Object.prototype.hasOwnProperty.call(metadataItem, usedMobileApplicationFunctionalitiesKey)
 
+const hasCleanConfigurationIdentityDefaults = (metadataItem: unknown): boolean =>
+  typeof metadataItem === "object" &&
+  metadataItem !== null &&
+  Object.prototype.hasOwnProperty.call(metadataItem, "configurationExtensionCompatibilityMode") &&
+  Object.prototype.hasOwnProperty.call(metadataItem, "defaultLanguage") &&
+  Object.prototype.hasOwnProperty.call(metadataItem, "compatibilityMode")
+
 const exportUsedMobileApplicationFunctionalitiesItemsToXML = (
   data: UsedMobileApplicationFunctionalities
 ): UsedMobileApplicationFunctionalitiesXML =>
@@ -165,7 +172,11 @@ const exportUsedMobileApplicationFunctionalitiesToXMLFromMetadata = (params: {
   value: UsedMobileApplicationFunctionalities | undefined
   metadataItem?: unknown
 }): UsedMobileApplicationFunctionalitiesXML | "" | undefined => {
-  if (params.value === undefined && !hasExplicitUsedMobileApplicationFunctionalities(params.metadataItem)) {
+  if (
+    params.value === undefined &&
+    !hasExplicitUsedMobileApplicationFunctionalities(params.metadataItem) &&
+    !hasCleanConfigurationIdentityDefaults(params.metadataItem)
+  ) {
     return undefined
   }
 

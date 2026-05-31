@@ -168,4 +168,25 @@ describe("root Configuration IO", () => {
       ])
     )
   })
+
+  it("восстанавливает мобильную функциональность из sparse YAML без reference XML", () => {
+    fs.mkdirSync(yamlDir)
+    fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), EXPECTED_CLEAN_CONFIGURATION_YAML, "utf-8")
+
+    const fromYAML = readConfigurationFromYAML({
+      context: mockContextToYAML,
+      inputDir: yamlDir,
+    })
+
+    writeConfigurationToXML({
+      context: mockContextToXML(),
+      configuration: fromYAML,
+      outputDir: outXmlDir,
+    })
+
+    const actual = fs.readFileSync(join(outXmlDir, CONFIGURATION_XML_FILE), "utf-8")
+    const properties = getConfigurationProperties(actual)
+
+    expect(properties.UsedMobileApplicationFunctionalities).toBeDefined()
+  })
 })
