@@ -110,7 +110,10 @@ export const syncAppliedObjectToXML = async (params: {
 
   const xmlObj = exportMetadataItemToXML({
     context: contextWithForms,
-    data: model,
+    data: addFileChildCollectionReferenceNames({
+      model: model as Record<string, unknown>,
+      rule,
+    }) as typeof model,
     referenceData: referenceModel,
     rule,
   })
@@ -259,7 +262,10 @@ async function syncChildCollectionExternalFilesToXML(params: {
           rule: childCollection.fileItemRule,
         })
         const childModelForXML = addChildCollectionReferenceNames({
-          model: item.model,
+          model: addFileChildCollectionReferenceNames({
+            model: item.model,
+            rule: childCollection.fileItemRule,
+          }),
           rule: childCollection.fileItemRule,
         })
         const childXmlObj = exportMetadataItemToXML({
@@ -333,6 +339,26 @@ function addChildCollectionReferenceNames(params: {
     if (!referenceNamesEntry) continue
 
     result[referenceNamesEntry[0]] = itemNames
+  }
+  return result
+}
+
+function addFileChildCollectionReferenceNames(params: {
+  model: Record<string, unknown>
+  rule: MetadataItemRule
+}): Record<string, unknown> {
+  const result = { ...params.model }
+  for (const childCollection of params.rule.childCollections ?? []) {
+    if (!childCollection.fileItemRule || !childCollection.xmlDir) continue
+    const collectionModel = result[childCollection.propertyKey]
+    if (!collectionModel || typeof collectionModel !== "object") continue
+
+    const itemNames = Array.isArray(collectionModel)
+      ? (collectionModel as Array<Record<string, unknown>>).map((item) => String(item["name"] ?? "")).filter(Boolean)
+      : Object.keys(collectionModel)
+    if (itemNames.length === 0) continue
+
+    result[childCollection.propertyKey] = itemNames
   }
   return result
 }
@@ -428,7 +454,68 @@ function readReferenceModel<Rule extends MetadataItemRule>(params: {
   if (!fs.existsSync(xmlPath)) return undefined
   const xmlContent = fs.readFileSync(xmlPath, "utf-8")
   const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
-  return importMetadataItemFromXML({ context, xml: parsed.MetaDataObject, rule }) ?? undefined
+  const xml = omitStringChildCollectionReferencesFromXML(parsed.MetaDataObject, rule)
+  return importMetadataItemFromXML({ context, xml, rule }) ?? undefined
+}
+
+function omitStringChildCollectionReferencesFromXML(xml: unknown, rule: MetadataItemRule): unknown {
+  if (!xml || typeof xml !== "object") return xml
+  const container = getXMLRootContainer(rule)
+  if (!container) return xml
+  const root = (xml as Record<string, unknown>)[container]
+  if (!root || typeof root !== "object") return xml
+
+  let nextRoot: Record<string, unknown> | undefined
+  for (const childCollection of rule.childCollections ?? []) {
+    if (!childCollection.fileItemRule || !childCollection.xmlDir) continue
+    const propertyRule = rule.properties[childCollection.propertyKey]
+    if (!propertyRule) continue
+
+    const xmlKey = propertyRule.xml ?? childCollection.propertyKey
+    const xmlPath = [...(propertyRule.xmlParents ?? []), xmlKey]
+    const currentRoot = nextRoot ?? (root as Record<string, unknown>)
+    const xmlValue = readXMLPath(currentRoot, xmlPath)
+    if (
+      typeof xmlValue !== "string" &&
+      (!Array.isArray(xmlValue) || !xmlValue.some((item) => typeof item === "string"))
+    ) {
+      continue
+    }
+
+    const objectReferences = Array.isArray(xmlValue) ? xmlValue.filter((item) => typeof item !== "string") : undefined
+    nextRoot = writeXMLPath(currentRoot, xmlPath, objectReferences)
+  }
+
+  return nextRoot ? { ...(xml as Record<string, unknown>), [container]: nextRoot } : xml
+}
+
+function readXMLPath(xml: Record<string, unknown>, path: string[]): unknown {
+  let current: unknown = xml
+  for (const part of path) {
+    if (!current || typeof current !== "object") return undefined
+    current = (current as Record<string, unknown>)[part]
+  }
+  return current
+}
+
+function writeXMLPath(root: Record<string, unknown>, path: string[], value: unknown): Record<string, unknown> {
+  const nextRoot = { ...root }
+  let current = nextRoot
+  for (const part of path.slice(0, -1)) {
+    const next = current[part]
+    if (!next || typeof next !== "object" || Array.isArray(next)) return nextRoot
+    const nextCopy = { ...(next as Record<string, unknown>) }
+    current[part] = nextCopy
+    current = nextCopy
+  }
+
+  const key = path[path.length - 1]
+  if (value === undefined) {
+    delete current[key]
+  } else {
+    current[key] = value
+  }
+  return nextRoot
 }
 
 const listSubdirNames = async (dir: string): Promise<string[]> => {

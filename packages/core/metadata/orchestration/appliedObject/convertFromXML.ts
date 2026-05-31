@@ -107,7 +107,12 @@ async function syncChildCollectionsFromXML(params: {
         ? join(nkdkDir, resolveChildCollectionDir(childCollection.nkdkDir, item.name, name))
         : nkdkDir
       const childXmlDir = childCollection.xmlDir
-        ? join(xmlDir, resolveChildCollectionDir(childCollection.xmlDir, item.name, name))
+        ? resolveChildCollectionXmlDir({
+            xmlDir,
+            childDir: resolveChildCollectionDir(childCollection.xmlDir, item.name, name),
+            parentName: name,
+            xmlDirContainsCurrentItem: params.xmlDirContainsCurrentItem,
+          })
         : xmlDir
       const syncName = hasOwnDirs ? item.name : params.xmlDirContainsCurrentItem ? "" : name
 
@@ -370,3 +375,20 @@ const resolveChildCollectionDir = (
   name: string,
   parentName?: string
 ): string => (typeof dir === "function" ? dir({ name, parentName }) : dir)
+
+function resolveChildCollectionXmlDir(params: {
+  xmlDir: string
+  childDir: string
+  parentName: string
+  xmlDirContainsCurrentItem: boolean
+}): string {
+  const direct = join(params.xmlDir, params.childDir)
+  if (fs.existsSync(`${direct}.xml`) || fs.existsSync(direct)) return direct
+
+  if (params.xmlDirContainsCurrentItem) return direct
+
+  const nested = join(params.xmlDir, params.parentName, params.childDir)
+  if (fs.existsSync(`${nested}.xml`) || fs.existsSync(nested)) return nested
+
+  return direct
+}
