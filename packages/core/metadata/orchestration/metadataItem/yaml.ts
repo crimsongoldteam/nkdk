@@ -30,9 +30,15 @@ type ValueTypeWithDefault<Base, P, PropertyType extends PropertyRuleType> = P ex
     : Exclude<Base, DefaultValueToYAML<PropertyType, D>>
   : Base
 
+type SystemEnumerationYAMLValueTypeByRule<P, TypeSE extends string> = P extends {
+  implicitValueYAML: undefined
+}
+  ? ValueTypeWithDefault<SETypeByName<TypeSE> | string, P, "SystemEnumeration">
+  : ValueTypeWithDefault<SETypeByName<TypeSE>, P, "SystemEnumeration">
+
 type PropertyYAMLValueType<P> = P extends { type: "SystemEnumeration"; typeSE: infer TypeSE }
   ? TypeSE extends string
-    ? ValueTypeWithDefault<SETypeByName<TypeSE>, P, "SystemEnumeration">
+    ? SystemEnumerationYAMLValueTypeByRule<P, TypeSE>
     : unknown
   : P extends { type: infer PropertyType }
     ? PropertyType extends PropertyRuleType

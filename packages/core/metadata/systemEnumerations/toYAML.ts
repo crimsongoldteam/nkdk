@@ -29,12 +29,15 @@ export const exportSystemEnumerationToYAML = <T extends string>(
   rule: SE.SystemEnumerationPropertyRule,
   value: string | undefined
 ): T | undefined => {
-  if (!value) return undefined
+  if (value === undefined) return undefined
 
   const enumeration = (SE as Record<string, Record<string, string>>)[rule.typeSE + "ToYAML"]
 
   if (!enumeration) throw new Error(`Enumeration ${rule!.typeSE} not found`)
-  return enumeration[value] as T
+  return (enumeration[value] ?? (allowsUnknownYAMLValues(rule) ? value : undefined)) as T | undefined
 }
+
+const allowsUnknownYAMLValues = (rule: SE.SystemEnumerationPropertyRule): boolean =>
+  Object.prototype.hasOwnProperty.call(rule, "implicitValueYAML") && rule.implicitValueYAML === undefined
 
 registerTypeRule("SystemEnumeration", "exportToYAML", exportSystemEnumerationToYAML as ExportToYAMLFunction)

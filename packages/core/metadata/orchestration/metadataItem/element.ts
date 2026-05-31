@@ -8,6 +8,12 @@ type SETypeByName<Name extends string> = `${Name}ToYAML` extends keyof typeof SE
   ? keyof (typeof SE)[`${Name}ToYAML`]
   : unknown
 
+type SystemEnumerationValueByRule<P, TypeSE extends string> = P extends {
+  implicitValueYAML: undefined
+}
+  ? SETypeByName<TypeSE> | string
+  : SETypeByName<TypeSE>
+
 export type EventsByRule<
   Rule extends { events?: Record<string, string> },
   Tag extends string | undefined = undefined,
@@ -31,7 +37,7 @@ type PropertyValueByRule<P extends PropertyRule> = P extends {
   typeSE: infer TypeSE
 }
   ? TypeSE extends string
-    ? SETypeByName<TypeSE>
+    ? SystemEnumerationValueByRule<P, TypeSE>
     : unknown
   : P extends { type: infer PropertyType }
     ? PropertyType extends PropertyRuleType

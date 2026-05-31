@@ -78,6 +78,9 @@ export interface BasePropertyRule {
   /** Значение по умолчанию в YAML (будет исключено из выбора)*/
   defaultValueYAML?: any | DefaultValueFunction
 
+  /** Подготавливаемое неявное значение в YAML. */
+  implicitValueYAML?: any | DefaultValueFunction | undefined
+
   /** Исключать YAML-default по модельному значению до преобразования типа. */
   omitDefaultValueYAMLBySource?: true
 
@@ -102,7 +105,8 @@ export interface BasePropertyRule {
   /**
    * Сырая XML-форма пустого значения — подставляется напрямую, без прогона через typeExportFn и wrapWithNamespace.
    * Триггер срабатывания идентичен defaultValueXML.
-   * Взаимоисключимо с defaultValueXML.
+   * Может использоваться вместе с defaultValueXML: defaultValueXML чистит модель при импорте,
+   * defaultValueXMLRaw восстанавливает точную пустую XML-форму при экспорте.
    * Примеры: "" — пустой тег, { "_xsi:nil": true } — nil-тег.
    */
   defaultValueXMLRaw?: any
