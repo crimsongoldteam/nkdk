@@ -10479,6 +10479,7 @@ export const CompatibilityModeToYAML = {
   Version8_3_24: "Версия8_3_24",
   Version8_3_25: "Версия8_3_25",
   Version8_3_26: "Версия8_3_26",
+  Version8_3_27: "Версия8_3_27",
   Version8_3_3: "Версия8_3_3",
   Version8_3_4: "Версия8_3_4",
   Version8_3_5: "Версия8_3_5",
@@ -10512,6 +10513,7 @@ export const CompatibilityModeFromYAML = {
   Версия8_3_24: "Version8_3_24",
   Версия8_3_25: "Version8_3_25",
   Версия8_3_26: "Version8_3_26",
+  Версия8_3_27: "Version8_3_27",
   Версия8_3_3: "Version8_3_3",
   Версия8_3_4: "Version8_3_4",
   Версия8_3_5: "Version8_3_5",
@@ -13677,9 +13679,10 @@ export type SystemEnumerationTypeMap = {
 
 export type SystemEnumerationPropertyRule<T extends keyof SystemEnumerationTypeMap = keyof SystemEnumerationTypeMap> =
   T extends keyof SystemEnumerationTypeMap
-    ? Omit<BasePropertyRule, "defaultValueYAML"> & {
+    ? Omit<BasePropertyRule, "defaultValueYAML" | "implicitValueYAML"> & {
         type: "SystemEnumeration"
         typeSE: T
         defaultValueYAML?: SystemEnumerationTypeMap[T] | string
+        implicitValueYAML?: SystemEnumerationTypeMap[T] | string | undefined
       }
     : never

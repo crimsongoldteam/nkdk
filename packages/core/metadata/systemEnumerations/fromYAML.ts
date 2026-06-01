@@ -27,12 +27,15 @@ export const importSystemEnumerationFromYAML = <T extends string>(params: {
   const { rule, value } = params
   const systemEnumerationRule = rule as SE.SystemEnumerationPropertyRule
 
-  if (!value) return undefined
+  if (value === undefined) return undefined
 
   const enumeration = (SE as Record<string, Record<string, string>>)[systemEnumerationRule.typeSE! + "FromYAML"]
 
   if (!enumeration) throw new Error(`Enumeration ${systemEnumerationRule.typeSE} not found`)
-  return enumeration[value] as T
+  return (enumeration[value] ?? (allowsUnknownYAMLValues(systemEnumerationRule) ? value : undefined)) as T | undefined
 }
+
+const allowsUnknownYAMLValues = (rule: SE.SystemEnumerationPropertyRule): boolean =>
+  Object.prototype.hasOwnProperty.call(rule, "implicitValueYAML") && rule.implicitValueYAML === undefined
 
 registerTypeRule("SystemEnumeration", "importFromYAML", importSystemEnumerationFromYAML)
