@@ -34,6 +34,27 @@ const formXmlWithEnglishOnlyAttributeTitle = `<?xml version="1.0" encoding="UTF-
 	</Attributes>
 </Form>`
 
+const formXmlWithPlannerNil = `<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:pl="http://v8.1c.ru/8.3/data/planner" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
+	<AutoCommandBar name="" id="-1"/>
+	<ChildItems/>
+	<Attributes>
+		<Attribute name="Канбан" id="1">
+			<Title/>
+			<Type>
+				<v8:Type>cfg:Planner</v8:Type>
+			</Type>
+			<Settings xsi:type="pl:Planner">
+				<pl:item>
+					<pl:value xsi:nil="true"/>
+					<pl:text>Встреча</pl:text>
+				</pl:item>
+			</Settings>
+		</Attribute>
+	</Attributes>
+</Form>`
+
 const createCommonFormTempFixture = async () => {
   const testDir = dirname(fileURLToPath(import.meta.url))
   const fixturesDir = join(testDir, "__fixtures__", "sync")
@@ -278,5 +299,41 @@ describe("syncAppliedObjectToXML — MetadataCommonForm", () => {
     const attributeXml = formXml.match(/<Attribute name="ОценкаОтправлена"[\s\S]*?<\/Attribute>/)?.[0]
     expect(attributeXml).toContain("<v8:lang>en</v8:lang>")
     expect(attributeXml).not.toContain("<v8:lang>ru</v8:lang>")
+  })
+
+  it("keeps filePath reference xsi:nil while exporting settings fragments", async () => {
+    const { inputDir, yamlDir, outputDir } = await createCommonFormTempFixture()
+    await fs.promises.writeFile(
+      join(yamlDir, name, "Свойства.yaml"),
+      [
+        "Форма:",
+        "  Реквизиты:",
+        "    Канбан:",
+        "      Заголовок: \"\"",
+        "      Тип: Планировщик",
+        "      Планировщик: |-",
+        "        <pl:item>",
+        "        \t<pl:value/>",
+        "        \t<pl:text>Встреча</pl:text>",
+        "        </pl:item>",
+        "",
+      ].join("\n"),
+      "utf-8"
+    )
+    await fs.promises.writeFile(join(inputDir, name, "Ext", "Form.xml"), formXmlWithPlannerNil, "utf-8")
+
+    await syncAppliedObjectToXML({
+      rule: MetadataCommonFormRules,
+      context: mockContextToXML(),
+      inputDir: yamlDir,
+      name,
+      outputDir,
+      referenceDir: inputDir,
+      externalOutputDir: join(outputDir, name),
+      externalReferenceDir: join(inputDir, name),
+    })
+
+    const formXml = fs.readFileSync(join(outputDir, name, "Ext", "Form.xml"), "utf-8")
+    expect(formXml).toContain('<pl:value xsi:nil="true"/>')
   })
 })
