@@ -72,44 +72,28 @@ description: Создание нового объекта в YAML-конфигу
 
 ## Получение схемы
 
-Построй путь будущего файла относительно корня YAML-проекта и сначала получи компактную YAML-сводку:
+Построй путь будущего файла относительно корня YAML-проекта и сначала получи дешёвый срез схемы именно
+для этого пути:
 
 ```bash
-pnpm --filter @nakidka/cli dev schema "<relative-yaml-file>" --project "<yaml-project-dir>"
+nkdk schema "<relative-yaml-file>" --project "<yaml-project-dir>" --required --keys
+nkdk schema "<relative-yaml-file>" --project "<yaml-project-dir>" --keys
 ```
 
-Если в окружении доступна установленная команда `nkdk`, можно использовать эквивалент:
+Если установленной команды `nkdk` нет, запускай CLI через workspace, где доступен `@nakidka/cli`,
+но `--project` всегда указывай на целевой YAML-проект:
 
 ```bash
-nkdk schema "<relative-yaml-file>" --project "<yaml-project-dir>"
+cd "<cli-workspace-dir>"
+pnpm --filter @nakidka/cli dev schema "<relative-yaml-file>" --project "<yaml-project-dir>" --required --keys
+pnpm --filter @nakidka/cli dev schema "<relative-yaml-file>" --project "<yaml-project-dir>" --keys
 ```
 
-Если целевой YAML-каталог не является pnpm workspace и команда выше отвечает `No projects found`,
-запускай CLI из каталога workspace, где доступен `@nakidka/cli`, но `--project` всегда указывай на целевой
-YAML-проект:
+Если при запуске `pnpm --filter ...` из YAML-каталога команда отвечает `No projects found`, перейди в
+workspace CLI и повтори команду с тем же `--project`.
 
-```bash
-cd /Users/nikita/git/nakidka-core
-pnpm --filter @nakidka/cli dev schema "<relative-yaml-file>" --project "<yaml-project-dir>"
-```
-
-Такой запуск использует CLI как инструмент получения схемы; не читай исходный код `nakidka-core`, если пользователь
+Такой запуск использует CLI как инструмент получения схемы; не читай исходный код CLI, если пользователь
 этого не просил.
-
-После первой ориентации работай срезами, чтобы не перечитывать всю схему:
-
-```bash
-nkdk schema InputField --required --keys
-nkdk schema InputField --required
-nkdk schema InputField --keys
-nkdk schema InputField --keys "путь|вид"
-nkdk schema InputField --search "путь|тип" --keys
-nkdk schema InputField --search "путь|тип"
-nkdk schema InputField --search ПутьКДанным --exact
-```
-
-Обычный порядок такой: сначала посмотри обязательные ключи, затем найди нужные поля через `--keys` или
-`--search`, затем запроси точную подсказку по одному полю через `--search <ИмяПоля> --exact`.
 
 Примеры путей, которые понимает команда:
 
@@ -123,42 +107,56 @@ nkdk schema InputField --search ПутьКДанным --exact
 `Документ`, `Перечисление`, `Обработка`, `ЖурналДокументов`, `HTTPСервис`, `РегистрСведений`,
 `РегистрНакопления`, `ПланОбмена` и формы внутри поддержанных объектов.
 
-Если YAML-сводки недостаточно или нужно увидеть исходную JSON Schema, используй явный JSON-режим:
+### Экономный порядок запросов
+
+Запускай schema-запросы последовательно, если следующий запрос должен опираться на предыдущий вывод.
+Не делай серию широких запросов "на всякий случай": большие схемы быстро съедают контекст и часто
+дублируют друг друга.
+
+Для вложенных схем и элементов формы двигайся от дешёвого среза к точному:
 
 ```bash
-nkdk schema InputField --json-schema
-nkdk schema InputField --json-schema --inline
-nkdk schema "<relative-yaml-file>" --project "<yaml-project-dir>" --json-schema
+nkdk schema InputField --required --keys
+nkdk schema InputField --search "ПутьКДанным|Вид" --keys
+nkdk schema InputField --search ПутьКДанным --exact
 ```
 
-Сводка может показывать внешние ссылки вида:
+Обычный порядок:
+
+1. `--required --keys` — узнать обязательные ключи без вывода полной схемы.
+2. `--search "<Поле1>|<Поле2>" --keys` — проверить, есть ли нужные поля.
+3. `--search <Поле> --exact` — получить точную подсказку по одному полю: тип, enum, const, pattern.
+4. Полная YAML-сводка без фильтров — только если точечные срезы не ответили на конкретный вопрос.
+5. `--json-schema` и особенно `--json-schema --inline` — только для отладки или когда YAML-сводка
+   явно недостаточна.
+
+Если вывод полной схемы оказался большим (например, длинные списки enum цветов или типов), остановись
+и вернись к `--search ... --exact`. Не продолжай расширять схему, пока нет нового конкретного вопроса.
+
+Параллелить можно независимые дешёвые чтения проекта (`rg --files`, `sed` соседних файлов), но не
+зависимые schema-запросы, где результат первого должен сузить второй.
+
+### Уточнение ссылок
+
+Сводка может показывать внешние ссылки:
 
 ```yaml
 $ref: nkdk://schema/MetadataAttribute
 ```
 
 Чтобы уточнить такую ссылку, сначала запроси YAML-сводку по короткому имени последнего сегмента URI.
-Если используешь `pnpm`, выполняй команду из workspace, где доступен `@nakidka/cli`:
 
 ```bash
-cd /Users/nikita/git/nakidka-core
-pnpm --filter @nakidka/cli dev schema "MetadataAttribute"
+nkdk schema MetadataAttribute --required --keys
+nkdk schema MetadataAttribute --search Тип --exact
 ```
 
-или используй установленную команду:
+Если используешь `pnpm`, выполняй те же команды из workspace, где доступен `@nakidka/cli`.
 
-```bash
-nkdk schema "MetadataAttribute"
-```
-
-Если сводка вложенной схемы снова содержит `$ref` или не хватает деталей, повторяй дозапрос по имени нужной схемы.
-Полный JSON-разворот одним ответом используй только для отладки:
-
-```bash
-nkdk schema "<relative-yaml-file>" --project "<yaml-project-dir>" --json-schema --inline
-```
-
-Если команда отвечает ошибкой `Ожидались пути вида ...`, не правь YAML вслепую: уточни относительный путь по существующей структуре проекта или соседнему объекту.
+Если команда отвечает ошибкой `Ожидались пути вида ...`, не правь YAML вслепую: уточни относительный
+путь по существующей структуре проекта или соседнему объекту. Если известны обязательные ключи, нужные
+поля, допустимые значения и формат ссылок, прекращай запрашивать схему и переходи к записи минимального
+YAML.
 
 ## Создание файла
 
