@@ -80,7 +80,7 @@ export const MetadataSequenceRules = {
     additionalIndexes: {
       yaml: "ДополнительныеИндексы",
       type: "AdditionalIndex",
-      xmlParents: ["Properties"],
+      filePath: "Ext/AdditionalIndexes.xml",
     },
     recordSetModule: {
       type: "Module",

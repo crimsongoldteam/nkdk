@@ -19,5 +19,10 @@ describe("convertAppliedObjectFromXML — MetadataSequence", () => {
 
     const expectedRecordSetModule = fs.readFileSync(join(inputDir, name, "Ext", "RecordSetModule.bsl"), "utf-8")
     expect(fs.readFileSync(join(outputDir, name, "МодульНабораЗаписей.bsl"), "utf-8")).toBe(expectedRecordSetModule)
+    expect(yaml.result).toContain("ДополнительныеИндексы:")
+    expect(yaml.result).toContain("Имя: Индекс1")
+    expect(yaml.result).toContain("Таблица: Sequence.ПоследовательностьВсеПоля")
+    expect(yaml.result).toContain("ИндексируемыеПоля:\n      - Recorder")
+    expect(yaml.result).toContain("ДополнительныеПоля:\n      - Period")
   })
 })
