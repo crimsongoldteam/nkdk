@@ -34,7 +34,7 @@ import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 // TODO: вынести в настройки расширения
 const IO_CONCURRENCY = 16
-const ROOT_EXTERNAL_XML_DIR = "Ext"
+const ROOT_EXTERNAL_XML_DIR = "ext"
 const toError = (error: unknown): Error => error instanceof Error ? error : new Error(String(error))
 
 export const syncConfigurationToXML = async (params: {

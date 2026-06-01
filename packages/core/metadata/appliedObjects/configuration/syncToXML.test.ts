@@ -116,32 +116,72 @@ describe("sync configuration to XML", () => {
         outputDir,
       })
 
-      expect(fs.readFileSync(join(outputDir, "Ext", "ManagedApplicationModule.bsl"), "utf-8")).toBe(
+      expect(fs.readFileSync(join(outputDir, "ext", "ManagedApplicationModule.bsl"), "utf-8")).toBe(
         managedApplicationModule,
       )
-      expect(fs.readFileSync(join(outputDir, "Ext", "SessionModule.bsl"), "utf-8")).toBe(sessionModule)
-      expect(fs.readFileSync(join(outputDir, "Ext", "ExternalConnectionModule.bsl"), "utf-8")).toBe(
+      expect(fs.readFileSync(join(outputDir, "ext", "SessionModule.bsl"), "utf-8")).toBe(sessionModule)
+      expect(fs.readFileSync(join(outputDir, "ext", "ExternalConnectionModule.bsl"), "utf-8")).toBe(
         externalConnectionModule,
       )
-      expect(fs.readFileSync(join(outputDir, "Ext", "OrdinaryApplicationModule.bsl"), "utf-8")).toBe(
+      expect(fs.readFileSync(join(outputDir, "ext", "OrdinaryApplicationModule.bsl"), "utf-8")).toBe(
         ordinaryApplicationModule,
       )
-      expect([...fs.readFileSync(join(outputDir, "Ext", "MobileClientSignature.bin"))]).toEqual([0, 1, 2, 255])
-      const helpXmlContent = fs.readFileSync(join(outputDir, "Ext", "Help.xml"), "utf-8")
+      expect([...fs.readFileSync(join(outputDir, "ext", "MobileClientSignature.bin"))]).toEqual([0, 1, 2, 255])
+      const helpXmlContent = fs.readFileSync(join(outputDir, "ext", "Help.xml"), "utf-8")
       const helpParsed = importContentFromXML<{ Help: { Page?: string | string[] } }>(helpXmlContent)
       const helpPages = helpParsed.Help.Page
       expect(Array.isArray(helpPages) ? helpPages : [helpPages]).toEqual(["ru"])
-      expect(fs.readFileSync(join(outputDir, "Ext", "Help", "ru.html"), "utf-8")).toBe(helpPage)
-      expect([...fs.readFileSync(join(outputDir, "Ext", "Help", "_files", "logo.png"))]).toEqual([137, 80])
-      expect(fs.readFileSync(join(outputDir, "Ext", "MainSectionPicture.xml"), "utf-8")).toBe("<MainSectionPicture/>")
-      expect(fs.readFileSync(join(outputDir, "Ext", "MainSectionPicture", "Picture.svg"), "utf-8")).toBe("<svg/>")
-      expect(fs.readFileSync(join(outputDir, "Ext", "Logo.xml"), "utf-8")).toBe("<Logo/>")
-      expect([...fs.readFileSync(join(outputDir, "Ext", "Logo", "Picture.png"))]).toEqual([1, 2, 3])
-      expect(fs.readFileSync(join(outputDir, "Ext", "Splash.xml"), "utf-8")).toBe("<Splash/>")
-      expect([...fs.readFileSync(join(outputDir, "Ext", "Splash", "Picture.png"))]).toEqual([137, 80, 78, 71])
-      expect([...fs.readFileSync(join(outputDir, "Ext", "StandaloneConfigurationContent.bin"))]).toEqual([4, 5, 6])
+      expect(fs.readFileSync(join(outputDir, "ext", "Help", "ru.html"), "utf-8")).toBe(helpPage)
+      expect([...fs.readFileSync(join(outputDir, "ext", "Help", "_files", "logo.png"))]).toEqual([137, 80])
+      expect(fs.readFileSync(join(outputDir, "ext", "MainSectionPicture.xml"), "utf-8")).toBe("<MainSectionPicture/>")
+      expect(fs.readFileSync(join(outputDir, "ext", "MainSectionPicture", "Picture.svg"), "utf-8")).toBe("<svg/>")
+      expect(fs.readFileSync(join(outputDir, "ext", "Logo.xml"), "utf-8")).toBe("<Logo/>")
+      expect([...fs.readFileSync(join(outputDir, "ext", "Logo", "Picture.png"))]).toEqual([1, 2, 3])
+      expect(fs.readFileSync(join(outputDir, "ext", "Splash.xml"), "utf-8")).toBe("<Splash/>")
+      expect([...fs.readFileSync(join(outputDir, "ext", "Splash", "Picture.png"))]).toEqual([137, 80, 78, 71])
+      expect([...fs.readFileSync(join(outputDir, "ext", "StandaloneConfigurationContent.bin"))]).toEqual([4, 5, 6])
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("записывает корневые внешние файлы конфигурации в lowercase ext", async () => {
+    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "configuration-yaml-"))
+    const outDir = fs.mkdtempSync(join(os.tmpdir(), "configuration-xml-"))
+    try {
+      fs.writeFileSync(
+        join(inputDir, "Конфигурация.yaml"),
+        [
+          "Имя: Конфигурация",
+          "КомандныйИнтерфейс:",
+          "  ВидимостьПодсистем:",
+          "    Subsystem.ПодсистемаПоУмолчанию:",
+          "      Общее: Ложь",
+          "",
+        ].join("\n"),
+        "utf-8"
+      )
+      fs.writeFileSync(
+        join(inputDir, "МодульПриложения.bsl"),
+        "Процедура ПриЗапускеСистемы()\nКонецПроцедуры\n",
+        "utf-8"
+      )
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir,
+        outputDir: outDir,
+      })
+
+      expect(fs.readFileSync(join(outDir, "ext", "ManagedApplicationModule.bsl"), "utf-8")).toBe(
+        "Процедура ПриЗапускеСистемы()\nКонецПроцедуры\n"
+      )
+      expect(fs.readFileSync(join(outDir, "ext", "CommandInterface.xml"), "utf-8")).toContain("<CommandInterface")
+      expect(fs.existsSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "Ext", "CommandInterface.xml"))).toBe(false)
+    } finally {
+      fs.rmSync(inputDir, { recursive: true, force: true })
+      fs.rmSync(outDir, { recursive: true, force: true })
     }
   })
 
@@ -151,8 +191,8 @@ describe("sync configuration to XML", () => {
     const outDir = join(tmp, "out")
     try {
       fs.mkdirSync(yamlDir, { recursive: true })
-      fs.mkdirSync(join(outDir, "Ext"), { recursive: true })
-      fs.writeFileSync(join(outDir, "Ext", "Old.xml"), "<Old/>", "utf-8")
+      fs.mkdirSync(join(outDir, "ext"), { recursive: true })
+      fs.writeFileSync(join(outDir, "ext", "Old.xml"), "<Old/>", "utf-8")
       fs.writeFileSync(
         join(yamlDir, CONFIGURATION_YAML_FILE),
         [
@@ -179,14 +219,14 @@ describe("sync configuration to XML", () => {
         outputDir: outDir,
       })
 
-      const commandInterfaceXML = fs.readFileSync(join(outDir, "Ext", "CommandInterface.xml"), "utf-8")
-      const mainSectionXML = fs.readFileSync(join(outDir, "Ext", "MainSectionCommandInterface.xml"), "utf-8")
+      const commandInterfaceXML = fs.readFileSync(join(outDir, "ext", "CommandInterface.xml"), "utf-8")
+      const mainSectionXML = fs.readFileSync(join(outDir, "ext", "MainSectionCommandInterface.xml"), "utf-8")
 
       expect(normalizeXML(commandInterfaceXML)).toContain("<SubsystemsVisibility>")
       expect(commandInterfaceXML).toContain("<Subsystem>Subsystem.ПодсистемаПоУмолчанию</Subsystem>")
       expect(commandInterfaceXML).toContain('<xr:Value name="Role.Администратор">false</xr:Value>')
       expect(mainSectionXML).toContain("<Group>NavigationPanelOrdinary</Group>")
-      expect(fs.existsSync(join(outDir, "Ext", "Old.xml"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "ext", "Old.xml"))).toBe(false)
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
@@ -225,7 +265,7 @@ describe("sync configuration to XML", () => {
         outputDir: outDir,
       })
 
-      const result = fs.readFileSync(join(outDir, "Ext", "ClientApplicationInterface.xml"), "utf-8")
+      const result = fs.readFileSync(join(outDir, "ext", "ClientApplicationInterface.xml"), "utf-8")
       expect(result).toContain("<ClientApplicationInterface")
       expect(result).toContain("<top>")
       expect(result).toContain("<uuid>c933ac92-92cd-459d-81cc-e0c8a83ced99</uuid>")
@@ -250,7 +290,7 @@ describe("sync configuration to XML", () => {
         outputDir: outDir,
       })
 
-      expect(fs.existsSync(join(outDir, "Ext", "ClientApplicationInterface.xml"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "ext", "ClientApplicationInterface.xml"))).toBe(false)
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
@@ -292,7 +332,7 @@ describe("sync configuration to XML", () => {
         outputDir: outDir,
       })
 
-      const result = fs.readFileSync(join(outDir, "Ext", "HomePageWorkArea.xml"), "utf-8")
+      const result = fs.readFileSync(join(outDir, "ext", "HomePageWorkArea.xml"), "utf-8")
       expect(result).toContain("<HomePageWorkArea")
       expect(result).toContain("<WorkingAreaTemplate>TwoColumnsVariableWidth</WorkingAreaTemplate>")
       expect(result).toContain("<Form>CommonForm.НачалоРаботы</Form>")
@@ -317,7 +357,7 @@ describe("sync configuration to XML", () => {
         outputDir: outDir,
       })
 
-      expect(fs.existsSync(join(outDir, "Ext", "HomePageWorkArea.xml"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "ext", "HomePageWorkArea.xml"))).toBe(false)
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
@@ -331,14 +371,14 @@ describe("sync configuration to XML", () => {
 
     try {
       fs.mkdirSync(yamlDir, { recursive: true })
-      fs.mkdirSync(join(outDir, "Ext", "Splash"), { recursive: true })
+      fs.mkdirSync(join(outDir, "ext", "Splash"), { recursive: true })
       fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
       fs.writeFileSync(join(yamlDir, "МодульСеанса.bsl"), sessionModule, "utf-8")
-      fs.writeFileSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"), "old", "utf-8")
-      fs.writeFileSync(join(outDir, "Ext", "SessionModule.bsl"), "old", "utf-8")
-      fs.writeFileSync(join(outDir, "Ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
-      fs.writeFileSync(join(outDir, "Ext", "Splash.xml"), "<OldSplash/>", "utf-8")
-      fs.writeFileSync(join(outDir, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
+      fs.writeFileSync(join(outDir, "ext", "ManagedApplicationModule.bsl"), "old", "utf-8")
+      fs.writeFileSync(join(outDir, "ext", "SessionModule.bsl"), "old", "utf-8")
+      fs.writeFileSync(join(outDir, "ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
+      fs.writeFileSync(join(outDir, "ext", "Splash.xml"), "<OldSplash/>", "utf-8")
+      fs.writeFileSync(join(outDir, "ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
 
       await syncConfigurationToXML({
         context: mockContextToXML(),
@@ -346,11 +386,11 @@ describe("sync configuration to XML", () => {
         outputDir: outDir,
       })
 
-      expect(fs.existsSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"))).toBe(false)
-      expect(fs.readFileSync(join(outDir, "Ext", "SessionModule.bsl"), "utf-8")).toBe(sessionModule)
-      expect(fs.existsSync(join(outDir, "Ext", "MobileClientSignature.bin"))).toBe(false)
-      expect(fs.existsSync(join(outDir, "Ext", "Splash.xml"))).toBe(false)
-      expect(fs.existsSync(join(outDir, "Ext", "Splash", "Picture.png"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "ext", "ManagedApplicationModule.bsl"))).toBe(false)
+      expect(fs.readFileSync(join(outDir, "ext", "SessionModule.bsl"), "utf-8")).toBe(sessionModule)
+      expect(fs.existsSync(join(outDir, "ext", "MobileClientSignature.bin"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "ext", "Splash.xml"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "ext", "Splash", "Picture.png"))).toBe(false)
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
@@ -362,12 +402,12 @@ describe("sync configuration to XML", () => {
     const outDir = join(tmp, "out")
     try {
       fs.mkdirSync(yamlDir, { recursive: true })
-      fs.mkdirSync(join(outDir, "Ext", "Splash"), { recursive: true })
+      fs.mkdirSync(join(outDir, "ext", "Splash"), { recursive: true })
       fs.writeFileSync(join(outDir, CONFIGURATION_XML_FILE), "<MetaDataObject/>", "utf-8")
-      fs.writeFileSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"), "old", "utf-8")
-      fs.writeFileSync(join(outDir, "Ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
-      fs.writeFileSync(join(outDir, "Ext", "Splash.xml"), "<OldSplash/>", "utf-8")
-      fs.writeFileSync(join(outDir, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
+      fs.writeFileSync(join(outDir, "ext", "ManagedApplicationModule.bsl"), "old", "utf-8")
+      fs.writeFileSync(join(outDir, "ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
+      fs.writeFileSync(join(outDir, "ext", "Splash.xml"), "<OldSplash/>", "utf-8")
+      fs.writeFileSync(join(outDir, "ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
 
       await syncConfigurationToXML({
         context: mockContextToXML(),
@@ -377,10 +417,10 @@ describe("sync configuration to XML", () => {
       })
 
       expect(fs.existsSync(join(outDir, CONFIGURATION_XML_FILE))).toBe(false)
-      expect(fs.existsSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"))).toBe(false)
-      expect(fs.existsSync(join(outDir, "Ext", "MobileClientSignature.bin"))).toBe(false)
-      expect(fs.existsSync(join(outDir, "Ext", "Splash.xml"))).toBe(false)
-      expect(fs.existsSync(join(outDir, "Ext", "Splash", "Picture.png"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "ext", "ManagedApplicationModule.bsl"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "ext", "MobileClientSignature.bin"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "ext", "Splash.xml"))).toBe(false)
+      expect(fs.existsSync(join(outDir, "ext", "Splash", "Picture.png"))).toBe(false)
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
