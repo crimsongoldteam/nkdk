@@ -185,6 +185,45 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("удаляет старый корневой uppercase Ext и не трогает Ext дочерних объектов", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-legacy-ext-prune-"))
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+      fs.mkdirSync(join(outDir, "Ext"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(join(yamlDir, "МодульПриложения.bsl"), "Процедура Новая()\nКонецПроцедуры\n", "utf-8")
+      fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "")
+      fs.writeFileSync(
+        join(yamlDir, "Справочник", "Товары", "МодульОбъекта.bsl"),
+        "Процедура Проверка()\nКонецПроцедуры\n",
+        "utf-8"
+      )
+      fs.writeFileSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"), "old", "utf-8")
+      fs.writeFileSync(join(outDir, "Ext", "CommandInterface.xml"), "<Old/>", "utf-8")
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      expect(result.failed).toEqual([])
+      expect(fs.existsSync(join(outDir, "Ext"))).toBe(false)
+      expect(fs.readFileSync(join(outDir, "ext", "ManagedApplicationModule.bsl"), "utf-8")).toBe(
+        "Процедура Новая()\nКонецПроцедуры\n"
+      )
+      expect(fs.readFileSync(join(outDir, "Catalogs", "Товары", "Ext", "ObjectModule.bsl"), "utf-8")).toBe(
+        "Процедура Проверка()\nКонецПроцедуры\n"
+      )
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("восстанавливает корневые command interface XML из Конфигурация.yaml", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-command-interface-to-xml-"))
     const yamlDir = join(tmp, "yaml")

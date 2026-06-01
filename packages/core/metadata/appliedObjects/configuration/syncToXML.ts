@@ -194,6 +194,7 @@ export const syncConfigurationToXML = async (params: {
       ],
       expectedFiles: xmlManifest.expectedFiles(),
     })
+    await removeLegacyRootUppercaseExternalDir(outputDir)
     if (!hasRootYAML) {
       await fs.promises.rm(join(outputDir, CONFIGURATION_XML_FILE), { force: true })
     }
@@ -211,6 +212,22 @@ export const syncConfigurationToXML = async (params: {
       error: f.error,
     })),
   }
+}
+
+async function removeLegacyRootUppercaseExternalDir(outputDir: string): Promise<void> {
+  const legacyDir = join(outputDir, "Ext")
+  if (!fs.existsSync(legacyDir)) return
+
+  const canonicalDir = join(outputDir, ROOT_EXTERNAL_XML_DIR)
+  if (fs.existsSync(canonicalDir)) {
+    const [legacyRealPath, canonicalRealPath] = await Promise.all([
+      fs.promises.realpath(legacyDir),
+      fs.promises.realpath(canonicalDir),
+    ])
+    if (legacyRealPath === canonicalRealPath) return
+  }
+
+  await fs.promises.rm(legacyDir, { recursive: true, force: true })
 }
 
 async function writeRootConfigurationFilePathPropertiesToXML(params: {
