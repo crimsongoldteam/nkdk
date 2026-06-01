@@ -126,4 +126,19 @@ describe("collectStructuralState", () => {
     })
     expect([...state.nodes.keys()]).toEqual([])
   })
+
+  it("collects external data source XML with file child references", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "nkdk-xml-"))
+    fs.mkdirSync(join(dir, "ExternalDataSources"), { recursive: true })
+    fs.copyFileSync(
+      new URL(
+        "../../metadataExternalDataSource/__fixtures__/sync/xml/ВнешнийИсточникДанныхВсеСвойства.xml",
+        import.meta.url
+      ),
+      join(dir, "ExternalDataSources", "ВнешнийИсточникДанныхВсеСвойства.xml")
+    )
+
+    const state = await collectStructuralStateFromXML({ xmlDir: dir, context: mockContextFromXML() })
+    expect([...state.nodes.keys()]).toContain("ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства")
+  })
 })

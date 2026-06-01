@@ -3,7 +3,6 @@ import { execFileSync } from "node:child_process"
 import os from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import { plannerSettingsWithNil } from "~/metadata/forms/commonObjects/formAttribute/__fixtures__/plannerSettingsWithNil"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { getXMLFixtureDir, readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { convertFormFromXML, readFormFromXML } from "./convertFromXML"
@@ -286,7 +285,50 @@ describe("import from XML string", () => {
       formName: nilFormName,
     })
 
-    expect(form.attributes).toEqual(plannerSettingsWithNil)
+    expect(form.attributes).toEqual([
+      {
+        itemType: "FormAttribute",
+        name: "Канбан",
+        type: { type: ["Planner"] },
+        title: { items: { ru: "" } },
+        columns: [],
+        planner: {
+          "pl:item": {
+            "pl:value": { "_xsi:nil": true },
+            "pl:text": "Встреча",
+          },
+        },
+      },
+    ])
+  })
+
+  it("экспортирует событие BeforeExecute в YAML как ПередВыполнением", async () => {
+    const eventFormName = "ФормаСобытияПередВыполнением"
+    const input = join(outputDir, "event-input")
+    const formExtDir = join(input, eventFormName, "Ext")
+    fs.mkdirSync(formExtDir, { recursive: true })
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <Events>
+    <Event name="OnOpen">ПриОткрытии</Event>
+    <Event name="BeforeExecute">ПередВыполнением</Event>
+  </Events>
+</Form>`
+
+    fs.writeFileSync(join(input, `${eventFormName}.xml`), managedFormMetadataXML(eventFormName))
+    fs.writeFileSync(join(formExtDir, "Form.xml"), xml)
+
+    await convertFormFromXML({
+      context: mockContextFromXML(),
+      inputDir: input,
+      formName: eventFormName,
+      outputDir,
+    })
+
+    const yaml = fs.readFileSync(join(outputDir, "Формы", eventFormName, "Форма.yaml"), "utf-8")
+
+    expect(yaml).toContain("События:\n  ПередВыполнением: ПередВыполнением")
   })
 
   it("public core entrypoint exports child items through element YAML rules", async () => {

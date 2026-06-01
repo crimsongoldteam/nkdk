@@ -12,7 +12,7 @@ export const exportMetadataCollectionToXML = <Rule extends MetadataItemRule, XML
   itemRule: Rule
   xmlElement?: XMLKey
   keyField?: keyof Rule["properties"]
-}): Record<XMLKey, NamedElementXML[]> | NamedElementXML[] | undefined => {
+}): Record<XMLKey, Array<NamedElementXML | string>> | Array<NamedElementXML | string> | undefined => {
   const { context, data, referenceData, xmlElement, keyField, itemRule } = params
   type Item = ToMetadata<Rule["itemType"]>
 
@@ -25,6 +25,8 @@ export const exportMetadataCollectionToXML = <Rule extends MetadataItemRule, XML
   if (inputData.length === 0) return undefined
 
   const result = inputData.map((item, index) => {
+    if (typeof item === "string") return item
+
     const referenceItem = keyField
       ? findReferenceByKey<Item>(item, referenceData, keyField as keyof Item)
       : referenceData?.[index]
@@ -40,8 +42,8 @@ export const exportMetadataCollectionToXML = <Rule extends MetadataItemRule, XML
     return exported ?? ({} as NamedElementXML)
   })
 
-  if (xmlElement === undefined) return result as NamedElementXML[]
-  return { [xmlElement]: result } as Record<XMLKey, NamedElementXML[]>
+  if (xmlElement === undefined) return result
+  return { [xmlElement]: result } as Record<XMLKey, Array<NamedElementXML | string>>
 }
 
 const findReferenceByKey = <T extends object>(

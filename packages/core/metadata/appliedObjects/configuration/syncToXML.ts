@@ -34,7 +34,7 @@ import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 // TODO: вынести в настройки расширения
 const IO_CONCURRENCY = 16
-const ROOT_EXTERNAL_XML_DIR = "Ext"
+const ROOT_EXTERNAL_XML_DIR = "ext"
 const toError = (error: unknown): Error => error instanceof Error ? error : new Error(String(error))
 
 export const syncConfigurationToXML = async (params: {
@@ -179,6 +179,7 @@ export const syncConfigurationToXML = async (params: {
         referencePathByCurrentPath: migrationResult.referencePathByCurrentPath,
         xmlManifest,
       })
+      await preserveUnsupportedRootExternalFilesToXML({ outputDir, referenceDir, xmlManifest })
     } catch (error) {
       return {
         succeeded: batchResult.succeeded,
@@ -194,6 +195,7 @@ export const syncConfigurationToXML = async (params: {
       ],
       expectedFiles: xmlManifest.expectedFiles(),
     })
+    await normalizeRootExternalDirCasing(outputDir)
     if (!hasRootYAML) {
       await fs.promises.rm(join(outputDir, CONFIGURATION_XML_FILE), { force: true })
     }
@@ -211,6 +213,109 @@ export const syncConfigurationToXML = async (params: {
       error: f.error,
     })),
   }
+}
+
+async function preserveUnsupportedRootExternalFilesToXML(params: {
+  outputDir: string
+  referenceDir: string
+  xmlManifest: XmlSyncManifest
+}): Promise<void> {
+  const referenceRootExtDir = join(params.referenceDir, ROOT_EXTERNAL_XML_DIR)
+  if (!fs.existsSync(referenceRootExtDir)) return
+
+  const expectedFiles = params.xmlManifest.expectedFiles()
+  await copyReferenceFilesMissingFromManifest({
+    sourceDir: referenceRootExtDir,
+    targetDir: join(params.outputDir, ROOT_EXTERNAL_XML_DIR),
+    relativeDir: ROOT_EXTERNAL_XML_DIR,
+    expectedFiles,
+    xmlManifest: params.xmlManifest,
+  })
+}
+
+async function copyReferenceFilesMissingFromManifest(params: {
+  sourceDir: string
+  targetDir: string
+  relativeDir: string
+  expectedFiles: Set<string>
+  xmlManifest: XmlSyncManifest
+}): Promise<void> {
+  const entries = await fs.promises.readdir(params.sourceDir, { withFileTypes: true })
+  for (const entry of entries) {
+    const sourcePath = join(params.sourceDir, entry.name)
+    const targetPath = join(params.targetDir, entry.name)
+    const relativePath = `${params.relativeDir}/${entry.name}`
+
+    if (entry.isDirectory()) {
+      await copyReferenceFilesMissingFromManifest({
+        sourceDir: sourcePath,
+        targetDir: targetPath,
+        relativeDir: relativePath,
+        expectedFiles: params.expectedFiles,
+        xmlManifest: params.xmlManifest,
+      })
+      continue
+    }
+
+    if (!entry.isFile() || params.expectedFiles.has(relativePath)) continue
+    if (!isUnsupportedExtensionMetadataFile(relativePath)) continue
+
+    await fs.promises.mkdir(dirname(targetPath), { recursive: true })
+    await fs.promises.copyFile(sourcePath, targetPath)
+    params.xmlManifest.addFile(targetPath)
+  }
+}
+
+function isUnsupportedExtensionMetadataFile(relativePath: string): boolean {
+  const pathInExt = relativePath.startsWith(`${ROOT_EXTERNAL_XML_DIR}/`)
+    ? relativePath.slice(ROOT_EXTERNAL_XML_DIR.length + 1)
+    : relativePath
+
+  if (pathInExt === CONFIGURATION_XML_FILE || pathInExt === "ConfigDumpInfo.xml") return true
+
+  return TopLevelMetadataItemRules.some((rule) => rule.xmlDir !== undefined && pathInExt.startsWith(`${rule.xmlDir}/`))
+}
+
+async function normalizeRootExternalDirCasing(outputDir: string): Promise<void> {
+  const entries = fs.existsSync(outputDir) ? await fs.promises.readdir(outputDir) : []
+  const hasVisibleLegacyDir = entries.includes("Ext")
+  if (!hasVisibleLegacyDir) return
+
+  const legacyDir = join(outputDir, "Ext")
+  const canonicalDir = join(outputDir, ROOT_EXTERNAL_XML_DIR)
+  const hasVisibleCanonicalDir = entries.includes(ROOT_EXTERNAL_XML_DIR)
+  if (hasVisibleCanonicalDir) {
+    await fs.promises.rm(legacyDir, { recursive: true, force: true })
+    return
+  }
+
+  if (fs.existsSync(canonicalDir)) {
+    const [legacyRealPath, canonicalRealPath] = await Promise.all([
+      fs.promises.realpath(legacyDir),
+      fs.promises.realpath(canonicalDir),
+    ])
+    if (legacyRealPath === canonicalRealPath) {
+      const tempDir = getAvailableRootExternalCaseRenameTempDir(outputDir)
+      await fs.promises.rename(legacyDir, tempDir)
+      await fs.promises.rename(tempDir, canonicalDir)
+      return
+    }
+  }
+
+  await fs.promises.rm(legacyDir, { recursive: true, force: true })
+}
+
+function getAvailableRootExternalCaseRenameTempDir(outputDir: string): string {
+  const baseName = "Ext.__nkdk_case_rename__"
+  let candidate = join(outputDir, baseName)
+  let index = 0
+
+  while (fs.existsSync(candidate)) {
+    index += 1
+    candidate = join(outputDir, `${baseName}.${index}`)
+  }
+
+  return candidate
 }
 
 async function writeRootConfigurationFilePathPropertiesToXML(params: {

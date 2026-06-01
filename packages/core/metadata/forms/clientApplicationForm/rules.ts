@@ -527,6 +527,7 @@ export const ClientApplicationFormRules = {
         fillCheckProcessingAtServer: "ОбработкаПроверкиЗаполненияНаСервере",
         addInDetachmentOnError: "ОтключениеВнешнейКомпонентыПриОшибке",
         beforeLoadDataFromSettingsAtServer: "ПередЗагрузкойДанныхИзНастроекНаСервере",
+        beforeExecute: "ПередВыполнением",
         beforeLoadUserSettingsAtServer: "ПередЗагрузкойПользовательскихНастроекНаСервере",
         beforeLoadVariantAtServer: "ПередЗагрузкойВариантаНаСервере",
         beforeClose: "ПередЗакрытием",

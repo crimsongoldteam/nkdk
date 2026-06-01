@@ -88,7 +88,7 @@ const exportFormAttributeToXML = (
 
   assignPropertiesWithColumns(result, properties, columnsXML, referenceData)
 
-  const typedSettings = exportTypedFormAttributeSettingsToXML(context, data)
+  const typedSettings = exportTypedFormAttributeSettingsToXML(context, data, referenceData)
   if (typedSettings !== undefined) {
     result.Settings = typedSettings
   }

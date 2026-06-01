@@ -26,6 +26,7 @@ export const STANDARD_CHILD_OBJECT_TYPE_ORDER = [
   "WebService",
   "HTTPService",
   "WSReference",
+  "WebSocketClient",
   "EventSubscription",
   "ScheduledJob",
   "SettingsStorage",
@@ -56,7 +57,6 @@ export const STANDARD_CHILD_OBJECT_TYPE_ORDER = [
   "Task",
   "ExternalDataSource",
   "IntegrationService",
-  "WebSocketClient",
 ] as const
 
 interface ChildObjectSpec {

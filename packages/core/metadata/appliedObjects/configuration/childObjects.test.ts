@@ -68,4 +68,13 @@ describe("Configuration ChildObjects", () => {
       expect.arrayContaining(["CommonModule", "XDTOPackage", "ExternalDataSource", "WebSocketClient"])
     )
   })
+
+  it("ставит WebSocketClient между WSReference и EventSubscription", () => {
+    expect(STANDARD_CHILD_OBJECT_TYPE_ORDER.indexOf("WSReference")).toBeLessThan(
+      STANDARD_CHILD_OBJECT_TYPE_ORDER.indexOf("WebSocketClient")
+    )
+    expect(STANDARD_CHILD_OBJECT_TYPE_ORDER.indexOf("WebSocketClient")).toBeLessThan(
+      STANDARD_CHILD_OBJECT_TYPE_ORDER.indexOf("EventSubscription")
+    )
+  })
 })

@@ -71,7 +71,6 @@
 		<Event name="BeforeWrite">ПередЗаписью</Event>
 		<Event name="OnCreateAtServer">ПриСозданииНаСервере</Event>
 		<Event name="CollaborationSystemUsersChoiceFormGetProcessing">ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия</Event>
-		<Event name="ActivationProcessing">ОбработкаАктивизации</Event>
 		<Event name="OnChangeDisplaySettings">ПриИзмененииПараметровЭкрана</Event>
 		<Event name="BeforeWriteAtServer">ПередЗаписьюНаСервере</Event>
 		<Event name="OnWriteAtServer">ПриЗаписиНаСервере</Event>

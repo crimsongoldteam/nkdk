@@ -1,14 +1,7 @@
-export const readExternalDataSourceYAML = `Синоним: Синоним
-Комментарий: Комментарий
-РежимУправленияБлокировкойДанных: АвтоматическийИУправляемый
-Таблицы:
-  ТаблицаНоменклатура:
-    ИмяВИсточникеДанных: Catalog_Items
-    Команды:
-      Команда1: ПанельНавигацииФормыПерейти
-Кубы:
-  Продажи:
-    ИмяВИсточникеДанных: Sales
-    ТаблицыИзмерений:
-      Номенклатура:
-        ИмяВИсточникеДанных: Dim_Items`
+import fs from "fs"
+import { join } from "path"
+
+export const readExternalDataSourceYAML = fs.readFileSync(
+  join(import.meta.dirname, "yaml/ВнешнийИсточникДанныхВсеСвойства/Свойства.yaml"),
+  "utf-8"
+)
