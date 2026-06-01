@@ -1,8 +1,11 @@
-<Attribute name="Планировщик" id="1">
+<Attribute name="Канбан" id="1">
 	<Type>
 		<v8:Type xmlns:pl="http://v8.1c.ru/8.3/data/planner">pl:Planner</v8:Type>
 	</Type>
 	<Settings xmlns:pl="http://v8.1c.ru/8.3/data/planner" xsi:type="pl:Planner">
-		<pl:value xsi:nil="true"/>
+		<pl:item>
+			<pl:value xsi:nil="true"/>
+			<pl:text>Встреча</pl:text>
+		</pl:item>
 	</Settings>
 </Attribute>

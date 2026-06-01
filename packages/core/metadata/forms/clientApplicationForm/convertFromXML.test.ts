@@ -288,12 +288,15 @@ describe("import from XML string", () => {
     expect(form.attributes).toEqual([
       {
         itemType: "FormAttribute",
-        name: "Планировщик",
+        name: "Канбан",
         type: { type: ["Planner"] },
         title: { items: { ru: "" } },
         columns: [],
         planner: {
-          "pl:value": { "_xsi:nil": true },
+          "pl:item": {
+            "pl:value": { "_xsi:nil": true },
+            "pl:text": "Встреча",
+          },
         },
       },
     ])

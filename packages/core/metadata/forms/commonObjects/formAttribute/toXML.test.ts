@@ -211,13 +211,16 @@ describe("exportFormAttributesToXML", () => {
     const value = [
       {
         itemType: "FormAttribute",
-        name: "Планировщик",
+        name: "Канбан",
         id: "1",
         type: { type: ["Planner"] },
         title: { items: { ru: "" } },
         columns: [],
         planner: {
-          "pl:value": {},
+          "pl:item": {
+            "pl:value": {},
+            "pl:text": "Встреча",
+          },
         },
       },
     ]
@@ -232,7 +235,9 @@ describe("exportFormAttributesToXML", () => {
       importMetaUrl: import.meta.url,
     })
 
+    expect(result).toContain("<pl:item>")
     expect(result).toContain('<pl:value xsi:nil="true"/>')
+    expect(result).toContain("<pl:text>Встреча</pl:text>")
   })
 
   it("should export without type", () => {
@@ -574,13 +579,16 @@ describe("exportFormAttributesToXML", () => {
       rule: formAttributesRule,
       value: [{
         itemType: "FormAttribute",
-        name: "Планировщик",
+        name: "Канбан",
         id: "1",
         type: { type: ["Planner"] },
         title: { items: { ru: "" } },
         columns: [],
         planner: {
-          "pl:value": { "_xsi:nil": true },
+          "pl:item": {
+            "pl:value": { "_xsi:nil": true },
+            "pl:text": "Встреча",
+          },
         },
       }],
       xmlRootTag: "Attribute",
