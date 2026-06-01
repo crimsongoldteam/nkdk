@@ -194,7 +194,7 @@ export const syncConfigurationToXML = async (params: {
       ],
       expectedFiles: xmlManifest.expectedFiles(),
     })
-    await removeLegacyRootUppercaseExternalDir(outputDir)
+    await normalizeRootExternalDirCasing(outputDir)
     if (!hasRootYAML) {
       await fs.promises.rm(join(outputDir, CONFIGURATION_XML_FILE), { force: true })
     }
@@ -214,20 +214,46 @@ export const syncConfigurationToXML = async (params: {
   }
 }
 
-async function removeLegacyRootUppercaseExternalDir(outputDir: string): Promise<void> {
-  const legacyDir = join(outputDir, "Ext")
-  if (!fs.existsSync(legacyDir)) return
+async function normalizeRootExternalDirCasing(outputDir: string): Promise<void> {
+  const entries = fs.existsSync(outputDir) ? await fs.promises.readdir(outputDir) : []
+  const hasVisibleLegacyDir = entries.includes("Ext")
+  if (!hasVisibleLegacyDir) return
 
+  const legacyDir = join(outputDir, "Ext")
   const canonicalDir = join(outputDir, ROOT_EXTERNAL_XML_DIR)
+  const hasVisibleCanonicalDir = entries.includes(ROOT_EXTERNAL_XML_DIR)
+  if (hasVisibleCanonicalDir) {
+    await fs.promises.rm(legacyDir, { recursive: true, force: true })
+    return
+  }
+
   if (fs.existsSync(canonicalDir)) {
     const [legacyRealPath, canonicalRealPath] = await Promise.all([
       fs.promises.realpath(legacyDir),
       fs.promises.realpath(canonicalDir),
     ])
-    if (legacyRealPath === canonicalRealPath) return
+    if (legacyRealPath === canonicalRealPath) {
+      const tempDir = getAvailableRootExternalCaseRenameTempDir(outputDir)
+      await fs.promises.rename(legacyDir, tempDir)
+      await fs.promises.rename(tempDir, canonicalDir)
+      return
+    }
   }
 
   await fs.promises.rm(legacyDir, { recursive: true, force: true })
+}
+
+function getAvailableRootExternalCaseRenameTempDir(outputDir: string): string {
+  const baseName = "Ext.__nkdk_case_rename__"
+  let candidate = join(outputDir, baseName)
+  let index = 0
+
+  while (fs.existsSync(candidate)) {
+    index += 1
+    candidate = join(outputDir, `${baseName}.${index}`)
+  }
+
+  return candidate
 }
 
 async function writeRootConfigurationFilePathPropertiesToXML(params: {

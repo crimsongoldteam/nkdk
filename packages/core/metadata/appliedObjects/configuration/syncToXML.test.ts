@@ -17,6 +17,11 @@ describe("sync configuration to XML", () => {
   const outputDir = getXMLFixturePath("sync/syncConfiguration/out-to-xml")
   const catalogName = "Контрагенты"
   const normalizeXML = (value: string): string => value.replace(/\r\n/g, "\n").replace(/^\uFEFF/, "").trimEnd()
+  const expectRootExternalDirLowercase = (dir: string): void => {
+    const entries = fs.readdirSync(dir)
+    expect(entries).toContain("ext")
+    expect(entries).not.toContain("Ext")
+  }
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {
@@ -177,8 +182,7 @@ describe("sync configuration to XML", () => {
         "Процедура ПриЗапускеСистемы()\nКонецПроцедуры\n"
       )
       expect(fs.readFileSync(join(outDir, "ext", "CommandInterface.xml"), "utf-8")).toContain("<CommandInterface")
-      expect(fs.existsSync(join(outDir, "Ext", "ManagedApplicationModule.bsl"))).toBe(false)
-      expect(fs.existsSync(join(outDir, "Ext", "CommandInterface.xml"))).toBe(false)
+      expectRootExternalDirLowercase(outDir)
     } finally {
       fs.rmSync(inputDir, { recursive: true, force: true })
       fs.rmSync(outDir, { recursive: true, force: true })
@@ -212,7 +216,7 @@ describe("sync configuration to XML", () => {
       })
 
       expect(result.failed).toEqual([])
-      expect(fs.existsSync(join(outDir, "Ext"))).toBe(false)
+      expectRootExternalDirLowercase(outDir)
       expect(fs.readFileSync(join(outDir, "ext", "ManagedApplicationModule.bsl"), "utf-8")).toBe(
         "Процедура Новая()\nКонецПроцедуры\n"
       )
