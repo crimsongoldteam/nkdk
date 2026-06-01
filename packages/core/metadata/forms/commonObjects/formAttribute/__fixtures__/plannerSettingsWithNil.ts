@@ -3,12 +3,15 @@ import type { FormAttributes } from "../types"
 export const plannerSettingsWithNil = [
   {
     itemType: "FormAttribute",
-    name: "Планировщик",
+    name: "Канбан",
     type: { type: ["Planner"] },
     title: { items: { ru: "" } },
     columns: [],
     planner: {
-      "pl:value": { "_xsi:nil": true },
+      "pl:item": {
+        "pl:value": { "_xsi:nil": true },
+        "pl:text": "Встреча",
+      },
     },
   },
 ] satisfies FormAttributes

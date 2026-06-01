@@ -96,12 +96,6 @@ const restoreReferenceNilMarkers = (value: unknown, reference: unknown): unknown
     result[key] = restoreReferenceNilMarkers(nestedValue, referenceObject[key])
   }
 
-  for (const [key, referenceValue] of Object.entries(referenceObject)) {
-    if (key in result) continue
-    const restored = restoreReferenceNilMarkers(undefined, referenceValue)
-    if (restored !== undefined) result[key] = restored
-  }
-
   return result
 }
 

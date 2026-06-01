@@ -3,7 +3,6 @@ import { execFileSync } from "node:child_process"
 import os from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import { plannerSettingsWithNil } from "~/metadata/forms/commonObjects/formAttribute/__fixtures__/plannerSettingsWithNil"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { getXMLFixtureDir, readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { convertFormFromXML, readFormFromXML } from "./convertFromXML"
@@ -286,7 +285,18 @@ describe("import from XML string", () => {
       formName: nilFormName,
     })
 
-    expect(form.attributes).toEqual(plannerSettingsWithNil)
+    expect(form.attributes).toEqual([
+      {
+        itemType: "FormAttribute",
+        name: "Планировщик",
+        type: { type: ["Planner"] },
+        title: { items: { ru: "" } },
+        columns: [],
+        planner: {
+          "pl:value": { "_xsi:nil": true },
+        },
+      },
+    ])
   })
 
   it("public core entrypoint exports child items through element YAML rules", async () => {
