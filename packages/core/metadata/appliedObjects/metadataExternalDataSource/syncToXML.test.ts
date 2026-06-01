@@ -29,6 +29,14 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
         "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Ext/RecordSetModule.bsl",
         "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Ext/Help.xml",
         "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Ext/Help/ru.html",
+        "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаВыбора.xml",
+        "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаВыбора/Ext/Form.xml",
+        "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаОбъекта.xml",
+        "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаОбъекта/Ext/Form.xml",
+        "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаСписка.xml",
+        "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+        "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Templates/Макет.xml",
+        "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Templates/Макет/Ext/Template.txt",
         "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
         "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml",
         "ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию/Ext/RecordSetModule.bsl",
@@ -38,6 +46,12 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
         "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Ext/RecordSetModule.bsl",
         "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Ext/Help.xml",
         "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Ext/Help/ru.html",
+        "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаЗаписи.xml",
+        "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаЗаписи/Ext/Form.xml",
+        "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаСписка.xml",
+        "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаСписка/Ext/Form.xml",
+        "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Templates/Макет.xml",
+        "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Templates/Макет/Ext/Template.txt",
         "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl",
         "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml",
         "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства/Ext/ManagerModule.bsl",
@@ -139,5 +153,42 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
     ).toBe(
       "<html>dimension table help</html>"
     )
+  })
+
+  it("не восстанавливает формы дочерних объектов из reference, если текущая папка Формы пустая", async () => {
+    const rootDir = await fs.promises.mkdtemp(join(os.tmpdir(), "eds-sync-empty-forms-"))
+    const inputDir = join(rootDir, "yaml")
+    const outputDir = join(rootDir, "out")
+    const referenceDir = join(import.meta.dirname, "__fixtures__/sync/xml")
+    const objectDir = join(inputDir, "ВнешнийИсточникДанныхВсеСвойства")
+
+    await write(
+      join(objectDir, "Свойства.yaml"),
+      `Синоним: Синоним
+Таблицы:
+  ТаблицаВсеСвойства:
+    ИмяВИсточникеДанных: ИмяВИсточнике
+Кубы:
+  КубВсеСвойства:
+    ИмяВИсточникеДанных: ИмяВИсточнике`
+    )
+    await fs.promises.mkdir(join(objectDir, "Таблицы/ТаблицаВсеСвойства/Формы"), { recursive: true })
+    await fs.promises.mkdir(join(objectDir, "Кубы/КубВсеСвойства/Формы"), { recursive: true })
+
+    await syncAppliedObjectToXML({
+      rule: MetadataExternalDataSourceRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ВнешнийИсточникДанныхВсеСвойства",
+      outputDir,
+      referenceDir,
+    })
+
+    const tableXml = fs.readFileSync(join(outputDir, "Tables/ТаблицаВсеСвойства.xml"), "utf-8")
+    const cubeXml = fs.readFileSync(join(outputDir, "Cubes/КубВсеСвойства.xml"), "utf-8")
+    expect(tableXml).not.toContain("<Form>")
+    expect(cubeXml).not.toContain("<Form>")
+    expect(fs.existsSync(join(outputDir, "Tables/ТаблицаВсеСвойства/Forms/ФормаВыбора.xml"))).toBe(false)
+    expect(fs.existsSync(join(outputDir, "Cubes/КубВсеСвойства/Forms/ФормаЗаписи.xml"))).toBe(false)
   })
 })

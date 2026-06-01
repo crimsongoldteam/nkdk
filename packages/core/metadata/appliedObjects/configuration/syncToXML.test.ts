@@ -189,6 +189,59 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("сохраняет неподдержанные файлы расширения из reference/ext", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-ext-reference-"))
+    const yamlDir = join(tmp, "yaml")
+    const referenceDir = join(tmp, "reference")
+    const outDir = join(tmp, "out")
+    try {
+      fs.mkdirSync(join(yamlDir), { recursive: true })
+      fs.mkdirSync(join(referenceDir, "ext", "CommonForms", "PeriodField", "Ext"), { recursive: true })
+      fs.mkdirSync(join(referenceDir, "ext", "Roles"), { recursive: true })
+      fs.mkdirSync(join(referenceDir, "ext", "Languages"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(join(yamlDir, "МодульПриложения.bsl"), "Процедура Новая()\nКонецПроцедуры\n", "utf-8")
+      fs.writeFileSync(join(referenceDir, "ext", "ManagedApplicationModule.bsl"), "old", "utf-8")
+      fs.writeFileSync(join(referenceDir, "ext", "Configuration.xml"), "<ExtensionConfiguration/>", "utf-8")
+      fs.writeFileSync(join(referenceDir, "ext", "ConfigDumpInfo.xml"), "<ConfigDumpInfo/>", "utf-8")
+      fs.writeFileSync(join(referenceDir, "ext", "CommonForms", "PeriodField.xml"), "<MetaDataObject/>", "utf-8")
+      fs.writeFileSync(
+        join(referenceDir, "ext", "CommonForms", "PeriodField", "Ext", "Form.xml"),
+        "<Form/>",
+        "utf-8"
+      )
+      fs.writeFileSync(join(referenceDir, "ext", "Roles", "Расш1_ОсновнаяРоль.xml"), "<MetaDataObject/>", "utf-8")
+      fs.writeFileSync(join(referenceDir, "ext", "Languages", "Русский.xml"), "<MetaDataObject/>", "utf-8")
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir,
+      })
+
+      expect(result.failed).toEqual([])
+      expect(fs.readFileSync(join(outDir, "ext", "ManagedApplicationModule.bsl"), "utf-8")).toBe(
+        "Процедура Новая()\nКонецПроцедуры\n"
+      )
+      expect(fs.readFileSync(join(outDir, "ext", "Configuration.xml"), "utf-8")).toBe("<ExtensionConfiguration/>")
+      expect(fs.readFileSync(join(outDir, "ext", "ConfigDumpInfo.xml"), "utf-8")).toBe("<ConfigDumpInfo/>")
+      expect(fs.readFileSync(join(outDir, "ext", "CommonForms", "PeriodField.xml"), "utf-8")).toBe(
+        "<MetaDataObject/>"
+      )
+      expect(fs.readFileSync(join(outDir, "ext", "CommonForms", "PeriodField", "Ext", "Form.xml"), "utf-8")).toBe(
+        "<Form/>"
+      )
+      expect(fs.readFileSync(join(outDir, "ext", "Roles", "Расш1_ОсновнаяРоль.xml"), "utf-8")).toBe(
+        "<MetaDataObject/>"
+      )
+      expect(fs.readFileSync(join(outDir, "ext", "Languages", "Русский.xml"), "utf-8")).toBe("<MetaDataObject/>")
+      expectRootExternalDirLowercase(outDir)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("удаляет старый корневой uppercase Ext и не трогает Ext дочерних объектов", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-legacy-ext-prune-"))
     const yamlDir = join(tmp, "yaml")

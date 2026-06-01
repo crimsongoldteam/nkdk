@@ -179,6 +179,7 @@ export const syncConfigurationToXML = async (params: {
         referencePathByCurrentPath: migrationResult.referencePathByCurrentPath,
         xmlManifest,
       })
+      await preserveUnsupportedRootExternalFilesToXML({ outputDir, referenceDir, xmlManifest })
     } catch (error) {
       return {
         succeeded: batchResult.succeeded,
@@ -212,6 +213,67 @@ export const syncConfigurationToXML = async (params: {
       error: f.error,
     })),
   }
+}
+
+async function preserveUnsupportedRootExternalFilesToXML(params: {
+  outputDir: string
+  referenceDir: string
+  xmlManifest: XmlSyncManifest
+}): Promise<void> {
+  const referenceRootExtDir = join(params.referenceDir, ROOT_EXTERNAL_XML_DIR)
+  if (!fs.existsSync(referenceRootExtDir)) return
+
+  const expectedFiles = params.xmlManifest.expectedFiles()
+  await copyReferenceFilesMissingFromManifest({
+    sourceDir: referenceRootExtDir,
+    targetDir: join(params.outputDir, ROOT_EXTERNAL_XML_DIR),
+    relativeDir: ROOT_EXTERNAL_XML_DIR,
+    expectedFiles,
+    xmlManifest: params.xmlManifest,
+  })
+}
+
+async function copyReferenceFilesMissingFromManifest(params: {
+  sourceDir: string
+  targetDir: string
+  relativeDir: string
+  expectedFiles: Set<string>
+  xmlManifest: XmlSyncManifest
+}): Promise<void> {
+  const entries = await fs.promises.readdir(params.sourceDir, { withFileTypes: true })
+  for (const entry of entries) {
+    const sourcePath = join(params.sourceDir, entry.name)
+    const targetPath = join(params.targetDir, entry.name)
+    const relativePath = `${params.relativeDir}/${entry.name}`
+
+    if (entry.isDirectory()) {
+      await copyReferenceFilesMissingFromManifest({
+        sourceDir: sourcePath,
+        targetDir: targetPath,
+        relativeDir: relativePath,
+        expectedFiles: params.expectedFiles,
+        xmlManifest: params.xmlManifest,
+      })
+      continue
+    }
+
+    if (!entry.isFile() || params.expectedFiles.has(relativePath)) continue
+    if (!isUnsupportedExtensionMetadataFile(relativePath)) continue
+
+    await fs.promises.mkdir(dirname(targetPath), { recursive: true })
+    await fs.promises.copyFile(sourcePath, targetPath)
+    params.xmlManifest.addFile(targetPath)
+  }
+}
+
+function isUnsupportedExtensionMetadataFile(relativePath: string): boolean {
+  const pathInExt = relativePath.startsWith(`${ROOT_EXTERNAL_XML_DIR}/`)
+    ? relativePath.slice(ROOT_EXTERNAL_XML_DIR.length + 1)
+    : relativePath
+
+  if (pathInExt === CONFIGURATION_XML_FILE || pathInExt === "ConfigDumpInfo.xml") return true
+
+  return TopLevelMetadataItemRules.some((rule) => rule.xmlDir !== undefined && pathInExt.startsWith(`${rule.xmlDir}/`))
 }
 
 async function normalizeRootExternalDirCasing(outputDir: string): Promise<void> {

@@ -263,8 +263,16 @@ async function syncChildCollectionExternalFilesToXML(params: {
           rule: childCollection.fileItemRule,
         })
         const childModelForXML = addChildCollectionReferenceNames({
-          model: addFileChildCollectionReferenceNames({
-            model: item.model,
+          model: await addChildNameProperties({
+            model: addReferenceChildNameProperties({
+              model: addFileChildCollectionReferenceNames({
+                model: item.model,
+                rule: childCollection.fileItemRule,
+              }),
+              referenceModel: childReferenceModel as Record<string, unknown> | undefined,
+              rule: childCollection.fileItemRule,
+            }),
+            nkdkDir: childNkdkDir,
             rule: childCollection.fileItemRule,
           }),
           rule: childCollection.fileItemRule,
@@ -286,16 +294,25 @@ async function syncChildCollectionExternalFilesToXML(params: {
       for (const [, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
         const syncFn = getTypeRule(itemPropRule.type, "syncExternalToXML")
         if (!syncFn) continue
+        const externalSyncName = hasOwnDirs && isFileChildNameRule(itemPropRule) ? "" : syncName
+        const externalSyncReferenceName = hasOwnDirs && isFileChildNameRule(itemPropRule) ? "" : syncReferenceName
         await syncFn({
           context,
           rule: itemPropRule,
           nkdkDir: childNkdkDir,
           xmlDir: childXmlDir,
-          name: syncName,
+          name: externalSyncName,
           referenceDir: childReferenceDir,
-          referenceName: syncReferenceName,
+          referenceName: externalSyncReferenceName,
           xmlManifest,
           itemName: hasOwnDirs ? undefined : item.name,
+        })
+        await preserveReferenceChildNameFilesToXML({
+          rule: itemPropRule,
+          nkdkDir: childNkdkDir,
+          xmlDir: childXmlDir,
+          referenceDir: childReferenceDir,
+          xmlManifest,
         })
       }
 
@@ -364,6 +381,95 @@ function addFileChildCollectionReferenceNames(params: {
   return result
 }
 
+function addReferenceChildNameProperties(params: {
+  model: Record<string, unknown>
+  referenceModel: Record<string, unknown> | undefined
+  rule: MetadataItemRule
+}): Record<string, unknown> {
+  if (!params.referenceModel) return params.model
+
+  const result = { ...params.model }
+  for (const [key, propertyRule] of Object.entries(params.rule.properties)) {
+    if (!isFileChildNameRule(propertyRule)) continue
+    if (Array.isArray(result[key])) continue
+
+    const referenceValue = params.referenceModel[key]
+    if (!Array.isArray(referenceValue) || referenceValue.length === 0) continue
+    result[key] = referenceValue
+  }
+  return result
+}
+
+async function addChildNameProperties(params: {
+  model: Record<string, unknown>
+  nkdkDir: string
+  rule: MetadataItemRule
+}): Promise<Record<string, unknown>> {
+  const result = { ...params.model }
+
+  for (const [key, propertyRule] of Object.entries(params.rule.properties)) {
+    if (!isFileChildNameRule(propertyRule)) continue
+    const folderName = getChildNameFolder(propertyRule)
+    if (folderName === undefined) continue
+
+    const childNamesDir = join(params.nkdkDir, folderName)
+    if (!fs.existsSync(childNamesDir)) continue
+    result[key] = await listSubdirNames(childNamesDir)
+  }
+
+  return result
+}
+
+function isFileChildNameRule(rule: PropertyRule): boolean {
+  return (
+    (rule.type === "ChildFormNames" && rule.xml === "Form") ||
+    (rule.type === "ChildTemplateNames" && rule.xml === "Template")
+  )
+}
+
+function getChildNameFolder(rule: PropertyRule): string | undefined {
+  const folderName = (rule as { folderName?: unknown }).folderName
+  return typeof folderName === "string" ? folderName : undefined
+}
+
+async function preserveReferenceChildNameFilesToXML(params: {
+  rule: PropertyRule
+  nkdkDir: string
+  xmlDir: string
+  referenceDir: string
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+}): Promise<void> {
+  if (!isFileChildNameRule(params.rule)) return
+
+  const nkdkFolderName = getChildNameFolder(params.rule)
+  if (nkdkFolderName && fs.existsSync(join(params.nkdkDir, nkdkFolderName))) return
+
+  const xmlFolderName = params.rule.type === "ChildFormNames" ? "Forms" : "Templates"
+  const referencePath = join(params.referenceDir, xmlFolderName)
+  if (!fs.existsSync(referencePath)) return
+
+  const outputPath = join(params.xmlDir, xmlFolderName)
+  await fs.promises.cp(referencePath, outputPath, { recursive: true })
+  await addDirectoryFilesToManifest(outputPath, params.xmlManifest)
+}
+
+async function addDirectoryFilesToManifest(
+  dir: string,
+  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+): Promise<void> {
+  if (!xmlManifest || !fs.existsSync(dir)) return
+
+  const entries = await fs.promises.readdir(dir, { withFileTypes: true })
+  for (const entry of entries) {
+    const path = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      await addDirectoryFilesToManifest(path, xmlManifest)
+    } else if (entry.isFile()) {
+      xmlManifest.addFile(path)
+    }
+  }
+}
+
 function getXMLRootContainer(rule: MetadataItemRule): string | undefined {
   const xmlRootEntry = Object.entries(rule.properties).find(([, propertyRule]) => propertyRule.type === "XMLRoot")
   return xmlRootEntry ? (xmlRootEntry[1] as { container?: string }).container : undefined
@@ -420,7 +526,7 @@ function readFilePathReferenceValues(params: {
     if (!fs.existsSync(referenceExtPath)) continue
 
     const refContent = fs.readFileSync(referenceExtPath, "utf-8")
-    const refParsed = importContentFromXML<Record<string, unknown>>(refContent)
+    const refParsed = importContentFromXML<Record<string, unknown>>(refContent, { preserveXsiNil: true })
     result[key] = importPropertyFromXML({
       context,
       rule: propRule as PropertyRule,
