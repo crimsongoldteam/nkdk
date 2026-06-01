@@ -117,12 +117,14 @@ export const importTypedFormAttributeSettingsFromXML = (
 
 export const exportTypedFormAttributeSettingsToXML = (
   context: ConfigurationContextWithExportToXML,
-  data: TypedFormAttributeSettings
+  data: TypedFormAttributeSettings,
+  referenceData?: TypedFormAttributeSettings
 ): FormAttributeXML["Settings"] | undefined => {
   const chart = exportPropertyToXML({
     context,
     rule: chartSettingsRule,
     value: data.chart,
+    referenceMetadata: referenceData?.chart,
   }) as FormAttributeXML["Settings"] | undefined
 
   if (chart !== undefined) return chart
@@ -131,6 +133,7 @@ export const exportTypedFormAttributeSettingsToXML = (
     context,
     rule: ganttChartSettingsRule,
     value: data.ganttChart,
+    referenceMetadata: referenceData?.ganttChart,
   }) as FormAttributeXML["Settings"] | undefined
 
   if (ganttChart !== undefined) return ganttChart
@@ -139,6 +142,7 @@ export const exportTypedFormAttributeSettingsToXML = (
     context,
     rule: flowchartContextSettingsRule,
     value: data.flowchartContext,
+    referenceMetadata: referenceData?.flowchartContext,
   }) as FormAttributeXML["Settings"] | undefined
 
   if (flowchartContext !== undefined) return flowchartContext
@@ -147,6 +151,7 @@ export const exportTypedFormAttributeSettingsToXML = (
     context,
     rule: spreadsheetDocumentSettingsRule,
     value: data.spreadsheetDocument,
+    referenceMetadata: referenceData?.spreadsheetDocument,
   }) as FormAttributeXML["Settings"] | undefined
 
   if (spreadsheetDocument !== undefined) return spreadsheetDocument
@@ -155,6 +160,7 @@ export const exportTypedFormAttributeSettingsToXML = (
     context,
     rule: plannerSettingsRule,
     value: data.planner,
+    referenceMetadata: referenceData?.planner,
   }) as FormAttributeXML["Settings"] | undefined
 
   if (planner !== undefined) return planner

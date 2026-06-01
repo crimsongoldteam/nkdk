@@ -15,7 +15,10 @@ import { mockContextFromXML, mockContextToXML, mockRule } from "~/tests/mockCont
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
+import { importContentFromXML } from "~/xml/import/importer"
 import { xmlExport } from "~/xml/export/exporter"
+import { importPropertyFromXML } from "~/metadata/orchestration"
 import { setIdsToElements } from "../../clientApplicationForm/toXML"
 import { attributeAnyType } from "./__fixtures__/attributeAnyType"
 import { chartSettings } from "./__fixtures__/chartSettings"
@@ -23,7 +26,6 @@ import { columnAnyType } from "./__fixtures__/columnAnyType"
 import { ganttChartSettings } from "./__fixtures__/ganttChartSettings"
 import { mixedColumns } from "./__fixtures__/mixedColumns"
 import { plannerSettings } from "./__fixtures__/plannerSettings"
-import { plannerSettingsWithNil } from "./__fixtures__/plannerSettingsWithNil"
 import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
 import { tableWithColumns } from "./__fixtures__/tableWithColumns"
 import { titleColumnsType } from "./__fixtures__/titleColumnsType"
@@ -193,6 +195,44 @@ describe("exportFormAttributesToXML", () => {
     })
 
     expect(result).toEqual(expectedResult)
+  })
+
+  it("restores nested xsi:nil in planner settings from reference", () => {
+    const referenceXML = importContentFromXML<Record<string, unknown>>(
+      readXMLFixtureAsString(import.meta.url, "plannerSettingsWithNil.xml"),
+      { preserveXsiNil: true }
+    )
+    const reference = importPropertyFromXML({
+      context: mockContextFromXML({ forReference: true }),
+      rule: formAttributesRule,
+      value: referenceXML,
+    })
+
+    const value = [
+      {
+        itemType: "FormAttribute",
+        name: "Планировщик",
+        id: "1",
+        type: { type: ["Planner"] },
+        title: { items: { ru: "" } },
+        columns: [],
+        planner: {
+          "pl:value": {},
+        },
+      },
+    ]
+
+    const { result } = testExportPropertyToXML({
+      rule: formAttributesRule,
+      value,
+      referenceMetadata: reference,
+      xmlRootTag: "Attribute",
+      exportXmlDataAsRoot: true,
+      path: "plannerSettingsWithNil.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toContain('<pl:value xsi:nil="true"/>')
   })
 
   it("should export without type", () => {
@@ -532,7 +572,17 @@ describe("exportFormAttributesToXML", () => {
   it("export plannerSettingsWithNil", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule: formAttributesRule,
-      value: plannerSettingsWithNil,
+      value: [{
+        itemType: "FormAttribute",
+        name: "Планировщик",
+        id: "1",
+        type: { type: ["Planner"] },
+        title: { items: { ru: "" } },
+        columns: [],
+        planner: {
+          "pl:value": { "_xsi:nil": true },
+        },
+      }],
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "plannerSettingsWithNil.xml",

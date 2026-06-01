@@ -61,6 +61,50 @@ const expandEmptyElements = (value: unknown): unknown => {
   return value
 }
 
+const isPlainSettingsObject = (value: unknown): value is SettingsFragment =>
+  value !== null && typeof value === "object" && !Array.isArray(value)
+
+const isNilMarker = (value: unknown): boolean => {
+  if (!isPlainSettingsObject(value)) return false
+  const nil = value["_xsi:nil"]
+  return nil === true || nil === "true"
+}
+
+const isEmptySettingsObject = (value: unknown): boolean =>
+  isPlainSettingsObject(value) &&
+  Object.entries(value).every(([key, nestedValue]) => {
+    if (key === "#text" && typeof nestedValue === "string" && nestedValue.trim().length === 0) return true
+    return nestedValue === undefined
+  })
+
+const restoreReferenceNilMarkers = (value: unknown, reference: unknown): unknown => {
+  if (isNilMarker(reference) && (value === undefined || isEmptySettingsObject(value))) {
+    return { "_xsi:nil": true }
+  }
+
+  if (Array.isArray(value)) {
+    const referenceItems = Array.isArray(reference) ? reference : []
+    return value.map((item, index) => restoreReferenceNilMarkers(item, referenceItems[index]))
+  }
+
+  if (!isPlainSettingsObject(value)) return value
+
+  const referenceObject = isPlainSettingsObject(reference) ? reference : {}
+  const result: SettingsFragment = {}
+
+  for (const [key, nestedValue] of Object.entries(value)) {
+    result[key] = restoreReferenceNilMarkers(nestedValue, referenceObject[key])
+  }
+
+  for (const [key, referenceValue] of Object.entries(referenceObject)) {
+    if (key in result) continue
+    const restored = restoreReferenceNilMarkers(undefined, referenceValue)
+    if (restored !== undefined) result[key] = restored
+  }
+
+  return result
+}
+
 export const registerSettingsFragmentType = <TModel extends SettingsFragment>({
   propertyType,
   canonicalAttributes,
@@ -75,11 +119,12 @@ export const registerSettingsFragmentType = <TModel extends SettingsFragment>({
     return omitSettingsAttributes(xml) as TModel
   })
 
-  registerTypeRule(propertyType, "exportToXML", (_context, _rule, value: TModel | undefined) => {
+  registerTypeRule(propertyType, "exportToXML", (_context, _rule, value: TModel | undefined, reference?: TModel) => {
     if (value === undefined) return undefined
+    const restoredValue = restoreReferenceNilMarkers(value, reference)
     return {
       ...canonicalAttributes,
-      ...(expandEmptyElements(value) as SettingsFragment),
+      ...(expandEmptyElements(restoredValue) as SettingsFragment),
     }
   })
 
