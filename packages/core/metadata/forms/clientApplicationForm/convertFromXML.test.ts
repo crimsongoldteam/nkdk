@@ -302,6 +302,35 @@ describe("import from XML string", () => {
     ])
   })
 
+  it("экспортирует событие BeforeExecute в YAML как ПередВыполнением", async () => {
+    const eventFormName = "ФормаСобытияПередВыполнением"
+    const input = join(outputDir, "event-input")
+    const formExtDir = join(input, eventFormName, "Ext")
+    fs.mkdirSync(formExtDir, { recursive: true })
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <Events>
+    <Event name="OnOpen">ПриОткрытии</Event>
+    <Event name="BeforeExecute">ПередВыполнением</Event>
+  </Events>
+</Form>`
+
+    fs.writeFileSync(join(input, `${eventFormName}.xml`), managedFormMetadataXML(eventFormName))
+    fs.writeFileSync(join(formExtDir, "Form.xml"), xml)
+
+    await convertFormFromXML({
+      context: mockContextFromXML(),
+      inputDir: input,
+      formName: eventFormName,
+      outputDir,
+    })
+
+    const yaml = fs.readFileSync(join(outputDir, "Формы", eventFormName, "Форма.yaml"), "utf-8")
+
+    expect(yaml).toContain("События:\n  ПередВыполнением: ПередВыполнением")
+  })
+
   it("public core entrypoint exports child items through element YAML rules", async () => {
     const script = `
       import assert from "node:assert/strict"
