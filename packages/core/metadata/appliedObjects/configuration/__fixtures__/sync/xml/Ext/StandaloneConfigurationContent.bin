@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<StandaloneContent xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<UsedItem>
+		<Metadata>Report.ОтчетВсеСвойства</Metadata>
+	</UsedItem>
+	<UsedItem>
+		<Metadata>Constant.КонстантаВсеСвойства</Metadata>
+	</UsedItem>
+	<DataExchangeSettings>
+		<ExchangePlanUUID>ExchangePlan.ПланОбменаВсеСвойства</ExchangePlanUUID>
+		<ExchangeOnChangeData>false</ExchangeOnChangeData>
+		<ExchangePeriod>360</ExchangePeriod>
+		<TransactionCount>1100</TransactionCount>
+		<InactiveNodesCleanupTimeout>1</InactiveNodesCleanupTimeout>
+	</DataExchangeSettings>
+</StandaloneContent>

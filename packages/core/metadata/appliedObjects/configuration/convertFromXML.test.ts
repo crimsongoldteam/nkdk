@@ -136,18 +136,18 @@ describe("sync configuration from xml", () => {
     const rootInput = join(tmp, "xml")
     const rootOutput = join(tmp, "yaml")
     try {
-      fs.mkdirSync(join(rootInput, "ext"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
       fs.copyFileSync(
         join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
         join(rootInput, CONFIGURATION_XML_FILE)
       )
       fs.copyFileSync(
         join(rootCommandInterfaceFixturesDir, "CommandInterface.xml"),
-        join(rootInput, "ext", "CommandInterface.xml")
+        join(rootInput, "Ext", "CommandInterface.xml")
       )
       fs.copyFileSync(
         join(rootCommandInterfaceFixturesDir, "MainSectionCommandInterface.xml"),
-        join(rootInput, "ext", "MainSectionCommandInterface.xml")
+        join(rootInput, "Ext", "MainSectionCommandInterface.xml")
       )
 
       await syncConfigurationFromXML({
@@ -173,14 +173,14 @@ describe("sync configuration from xml", () => {
     const rootInput = join(tmp, "xml")
     const rootOutput = join(tmp, "yaml")
     try {
-      fs.mkdirSync(join(rootInput, "ext"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
       fs.copyFileSync(
         join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
         join(rootInput, CONFIGURATION_XML_FILE)
       )
       fs.copyFileSync(
         join(clientApplicationInterfaceFixturesDir, "ClientApplicationInterface.xml"),
-        join(rootInput, "ext", "ClientApplicationInterface.xml")
+        join(rootInput, "Ext", "ClientApplicationInterface.xml")
       )
 
       await syncConfigurationFromXML({
@@ -205,12 +205,12 @@ describe("sync configuration from xml", () => {
     const rootInput = join(tmp, "xml")
     const rootOutput = join(tmp, "yaml")
     try {
-      fs.mkdirSync(join(rootInput, "ext"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
       fs.copyFileSync(
         join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
         join(rootInput, CONFIGURATION_XML_FILE)
       )
-      fs.writeFileSync(join(rootInput, "ext", "HomePageWorkArea.xml"), homePageWorkAreaXML, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "HomePageWorkArea.xml"), homePageWorkAreaXML, "utf-8")
 
       await syncConfigurationFromXML({
         context: mockContextFromXML(),
@@ -240,33 +240,33 @@ describe("sync configuration from xml", () => {
     const helpPage = "<html><body>Справка</body></html>"
 
     try {
-      fs.mkdirSync(join(rootInput, "ext", "Help", "_files"), { recursive: true })
-      fs.mkdirSync(join(rootInput, "ext", "Logo"), { recursive: true })
-      fs.mkdirSync(join(rootInput, "ext", "MainSectionPicture"), { recursive: true })
-      fs.mkdirSync(join(rootInput, "ext", "Splash"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext", "Help", "_files"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext", "Logo"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext", "MainSectionPicture"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext", "Splash"), { recursive: true })
       fs.copyFileSync(
         join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
         join(rootInput, CONFIGURATION_XML_FILE)
       )
-      fs.writeFileSync(join(rootInput, "ext", "ManagedApplicationModule.bsl"), managedApplicationModule, "utf-8")
-      fs.writeFileSync(join(rootInput, "ext", "SessionModule.bsl"), sessionModule, "utf-8")
-      fs.writeFileSync(join(rootInput, "ext", "ExternalConnectionModule.bsl"), externalConnectionModule, "utf-8")
-      fs.writeFileSync(join(rootInput, "ext", "OrdinaryApplicationModule.bsl"), ordinaryApplicationModule, "utf-8")
-      fs.writeFileSync(join(rootInput, "ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
+      fs.writeFileSync(join(rootInput, "Ext", "ManagedApplicationModule.bsl"), managedApplicationModule, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "SessionModule.bsl"), sessionModule, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "ExternalConnectionModule.bsl"), externalConnectionModule, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "OrdinaryApplicationModule.bsl"), ordinaryApplicationModule, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
       fs.writeFileSync(
-        join(rootInput, "ext", "Help.xml"),
+        join(rootInput, "Ext", "Help.xml"),
         `<?xml version="1.0" encoding="UTF-8"?>\n<Help xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">\n\t<Page>ru</Page>\n</Help>`,
         "utf-8"
       )
-      fs.writeFileSync(join(rootInput, "ext", "Help", "ru.html"), helpPage, "utf-8")
-      fs.writeFileSync(join(rootInput, "ext", "Help", "_files", "logo.png"), Buffer.from([137, 80]))
-      fs.writeFileSync(join(rootInput, "ext", "MainSectionPicture.xml"), "<MainSectionPicture/>", "utf-8")
-      fs.writeFileSync(join(rootInput, "ext", "MainSectionPicture", "Picture.svg"), "<svg/>", "utf-8")
-      fs.writeFileSync(join(rootInput, "ext", "Logo.xml"), "<Logo/>", "utf-8")
-      fs.writeFileSync(join(rootInput, "ext", "Logo", "Picture.png"), Buffer.from([1, 2, 3]))
-      fs.writeFileSync(join(rootInput, "ext", "Splash.xml"), "<Splash/>", "utf-8")
-      fs.writeFileSync(join(rootInput, "ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
-      fs.writeFileSync(join(rootInput, "ext", "StandaloneConfigurationContent.bin"), Buffer.from([4, 5, 6]))
+      fs.writeFileSync(join(rootInput, "Ext", "Help", "ru.html"), helpPage, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Help", "_files", "logo.png"), Buffer.from([137, 80]))
+      fs.writeFileSync(join(rootInput, "Ext", "MainSectionPicture.xml"), "<MainSectionPicture/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "MainSectionPicture", "Picture.svg"), "<svg/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Logo.xml"), "<Logo/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Logo", "Picture.png"), Buffer.from([1, 2, 3]))
+      fs.writeFileSync(join(rootInput, "Ext", "Splash.xml"), "<Splash/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
+      fs.writeFileSync(join(rootInput, "Ext", "StandaloneConfigurationContent.bin"), Buffer.from([4, 5, 6]))
 
       await syncConfigurationFromXML({
         context: mockContextFromXML(),
@@ -296,7 +296,7 @@ describe("sync configuration from xml", () => {
     }
   })
 
-  it("импортирует корневые внешние файлы конфигурации из lowercase ext", async () => {
+  it("импортирует корневые внешние файлы конфигурации из Ext", async () => {
     const rootInput = fs.mkdtempSync(join(os.tmpdir(), "configuration-xml-"))
     const outputDir = fs.mkdtempSync(join(os.tmpdir(), "configuration-yaml-"))
     try {
@@ -304,15 +304,15 @@ describe("sync configuration from xml", () => {
         new URL("../../../tests/fixtures/configuration/minimal.xml", import.meta.url),
         join(rootInput, "Configuration.xml")
       )
-      fs.mkdirSync(join(rootInput, "ext"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
       fs.writeFileSync(
-        join(rootInput, "ext", "ManagedApplicationModule.bsl"),
+        join(rootInput, "Ext", "ManagedApplicationModule.bsl"),
         "Процедура ПриЗапускеСистемы()\nКонецПроцедуры\n",
         "utf-8"
       )
       fs.copyFileSync(
         join(rootCommandInterfaceFixturesDir, "CommandInterface.xml"),
-        join(rootInput, "ext", "CommandInterface.xml")
+        join(rootInput, "Ext", "CommandInterface.xml")
       )
 
       await syncConfigurationFromXML({

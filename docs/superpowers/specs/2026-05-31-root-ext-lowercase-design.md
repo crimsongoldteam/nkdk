@@ -1,5 +1,8 @@
 # Root ext Lowercase Design
 
+> Superseded on 2026-06-02: root configuration external XML files use canonical `Ext/...`.
+> Lowercase root `ext/...` is legacy and should not be used for new import/export behavior.
+
 ## Context
 
 Full YAML round-trip for `/home/nikita/git/round-trip/all` deletes root configuration files under `all/ext/*`.
