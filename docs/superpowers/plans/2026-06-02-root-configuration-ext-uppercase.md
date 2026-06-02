@@ -29,7 +29,7 @@ Do not change regular applied-object paths such as `Catalogs/<name>/Ext/...`, fo
   - Root configuration export expectations must assert `Ext/...`.
   - Keep non-root `Ext/...` fixtures unchanged.
   - Review configuration-extension tests before changing `referenceDir/ext/...`; preserve them if they test extension metadata rather than root external files.
-- Modify: `packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/**`
+- Modify: `packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/**`
   - Add root configuration sync XML fixture files copied from `/home/nikita/git/round-trip/all/Ext`.
 - Modify: `docs/superpowers/specs/2026-05-31-root-ext-lowercase-design.md`
   - Mark the older lowercase decision as superseded.
@@ -39,16 +39,16 @@ Do not change regular applied-object paths such as `Catalogs/<name>/Ext/...`, fo
 ## Task 1: Add Root `Ext` To Sync Configuration Fixtures
 
 **Files:**
-- Create: `packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/ClientApplicationInterface.xml`
-- Create: `packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/ExternalConnectionModule.bsl`
-- Create: `packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/Logo.xml`
-- Create: `packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/Logo/Picture.png`
-- Create: `packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/MainSectionCommandInterface.xml`
-- Create: `packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/ManagedApplicationModule.bsl`
-- Create: `packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/SessionModule.bsl`
-- Create: `packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/Splash.xml`
-- Create: `packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/Splash/Picture.png`
-- Create: `packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/StandaloneConfigurationContent.bin`
+- Create: `packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/ClientApplicationInterface.xml`
+- Create: `packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/ExternalConnectionModule.bsl`
+- Create: `packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/Logo.xml`
+- Create: `packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/Logo/Picture.png`
+- Create: `packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/MainSectionCommandInterface.xml`
+- Create: `packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/ManagedApplicationModule.bsl`
+- Create: `packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/SessionModule.bsl`
+- Create: `packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/Splash.xml`
+- Create: `packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/Splash/Picture.png`
+- Create: `packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/StandaloneConfigurationContent.bin`
 - Source: `/home/nikita/git/round-trip/all/Ext/**`
 
 - [ ] **Step 1: Copy the root Ext fixture directory**
@@ -56,8 +56,8 @@ Do not change regular applied-object paths such as `Catalogs/<name>/Ext/...`, fo
 Run from repository root:
 
 ```bash
-mkdir -p packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext
-cp -R /home/nikita/git/round-trip/all/Ext/. packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/
+mkdir -p packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext
+cp -R /home/nikita/git/round-trip/all/Ext/. packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/
 ```
 
 - [ ] **Step 2: Verify copied fixture file list**
@@ -65,22 +65,22 @@ cp -R /home/nikita/git/round-trip/all/Ext/. packages/core/tests/fixtures/sync/sy
 Run:
 
 ```bash
-find packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext -maxdepth 2 -type f | sort
+find packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext -maxdepth 2 -type f | sort
 ```
 
 Expected:
 
 ```text
-packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/ClientApplicationInterface.xml
-packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/ExternalConnectionModule.bsl
-packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/Logo.xml
-packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/Logo/Picture.png
-packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/MainSectionCommandInterface.xml
-packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/ManagedApplicationModule.bsl
-packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/SessionModule.bsl
-packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/Splash.xml
-packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/Splash/Picture.png
-packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/StandaloneConfigurationContent.bin
+packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/ClientApplicationInterface.xml
+packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/ExternalConnectionModule.bsl
+packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/Logo.xml
+packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/Logo/Picture.png
+packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/MainSectionCommandInterface.xml
+packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/ManagedApplicationModule.bsl
+packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/SessionModule.bsl
+packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/Splash.xml
+packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/Splash/Picture.png
+packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext/StandaloneConfigurationContent.bin
 ```
 
 - [ ] **Step 3: Commit fixture addition**
@@ -88,7 +88,7 @@ packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext/StandaloneConfigurat
 Run:
 
 ```bash
-git add packages/core/tests/fixtures/sync/syncConfiguration/xml/Ext
+git add packages/core/metadata/appliedObjects/configuration/__fixtures__/sync/xml/Ext
 git commit -m "test: :test_tube: добавить sync fixture корневого Ext"
 ```
 
