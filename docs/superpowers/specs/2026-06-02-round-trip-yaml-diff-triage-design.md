@@ -83,6 +83,12 @@
 Файлы в `Ext/*` есть в исходном XML, но не представлены в YAML-договоре или не
 восстанавливаются при `sync`. После полного цикла они исчезают из XML.
 
+После дополнительного разбора для непрозрачных файлов и корневых картинок
+выяснилось, что часть правил уже существует, но в коде они смотрят на
+`ext/...` с маленькой буквы. Текущий XML-источник `trade` содержит `Ext/...` с
+большой буквы. Поэтому `import` не создает YAML-файлы, а `sync` не может
+восстановить исходные XML-файлы.
+
 ### Примеры
 
 - `acc/Ext/ClientApplicationInterface.xml`;
@@ -105,7 +111,13 @@
 - `docs/superpowers/specs/2026-05-27-command-interface-yaml-design.md`;
 - `docs/superpowers/specs/2026-05-27-configuration-root-modules-yaml-design.md`;
 - `docs/superpowers/specs/2026-05-27-home-page-work-area-yaml-design.md`;
-- `docs/superpowers/specs/2026-05-27-configuration-root-ext-yaml-design.md`.
+- `docs/superpowers/specs/2026-05-27-root-external-pictures-yaml-design.md`;
+- `docs/superpowers/specs/2026-05-27-mobile-client-signature-yaml-design.md`;
+- `docs/superpowers/specs/2026-05-28-round-trip-yaml-16-diffs-design.md`.
+
+Спека `docs/superpowers/specs/2026-05-31-root-ext-lowercase-design.md`
+противоречит текущему решению по этому разбору и должна считаться устаревшей:
+канонический каталог корневых внешних файлов конфигурации - `Ext`, а не `ext`.
 
 ### Предварительная классификация
 
@@ -122,10 +134,34 @@
 3. Малые XML-обертки вокруг внешних файлов:
    `MainSectionPicture.xml`, `Splash.xml`.
 
-### Первый вопрос для разбора
+### Решение по регистру каталога
 
-Начать с корневых `Ext`-файлов, которые уже имеют спеки, или сначала закрыть
-непрозрачные файлы как reference-only?
+Канонический XML-путь для корневых внешних файлов конфигурации должен быть
+`Ext/...` с большой буквы.
+
+Это касается:
+
+- корневых BSL-модулей;
+- `ClientApplicationInterface.xml`;
+- `CommandInterface.xml`;
+- `MainSectionCommandInterface.xml`;
+- `HomePageWorkArea.xml`;
+- `MobileClientSignature.bin`;
+- `StandaloneConfigurationContent.bin`;
+- `MainSectionPicture.xml` и `MainSectionPicture/*`;
+- `Splash.xml` и `Splash/*`;
+- других корневых внешних файлов конфигурации, если они будут добавлены тем же
+  механизмом.
+
+Следствие для будущей реализации: правила `MetadataConfigurationRules`, тесты и
+YAML sync внешних файлов должны использовать `Ext/...`. Если в коде остались
+пути `ext/...`, это отдельный источник текущего расхождения.
+
+### Следующий вопрос для разбора
+
+После фиксации регистра нужно выбрать следующий подтип: корневые интерфейсные
+XML-файлы с полноценной YAML-моделью или непрозрачные внешние файлы, которые
+копируются байт-в-байт через `ExternalFile`/`ExternalPicture`.
 
 ## Группа 2. Теряется содержимое `AllowedIncomingShareRequestTypes`
 
