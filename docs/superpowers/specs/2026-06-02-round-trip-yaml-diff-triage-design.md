@@ -157,6 +157,25 @@
 YAML sync внешних файлов должны использовать `Ext/...`. Если в коде остались
 пути `ext/...`, это отдельный источник текущего расхождения.
 
+### Итог разбора непрозрачных файлов
+
+`MobileClientSignature.bin`, `StandaloneConfigurationContent.bin`,
+`MainSectionPicture`, `Splash` и корневые BSL-модули уже имеют реализацию в
+`MetadataConfigurationRules`.
+
+Текущая причина их удаления не в отсутствии типа или YAML-договора, а в том,
+что правила и часть тестов используют lowercase `ext/...`, например:
+
+- `mobileClientSignature.xmlPath: "ext/MobileClientSignature.bin"`;
+- `standaloneConfigurationContent.xmlPath: "ext/StandaloneConfigurationContent.bin"`;
+- `mainSectionPicture.xmlPath: "ext/MainSectionPicture.xml"`;
+- `splash.xmlPath: "ext/Splash.xml"`;
+- корневые модули и интерфейсные XML-файлы тоже описаны через `ext/...`.
+
+После принятого решения про `Ext` минимальная будущая доработка для этого
+подтипа - выровнять регистр путей в правилах и тестах. Новый тип
+`ExternalFile` или `ExternalPicture` для этих файлов не нужен.
+
 ### Следующий вопрос для разбора
 
 После фиксации регистра нужно выбрать следующий подтип: корневые интерфейсные
