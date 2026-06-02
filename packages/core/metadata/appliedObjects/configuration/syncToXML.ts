@@ -34,7 +34,8 @@ import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 // TODO: вынести в настройки расширения
 const IO_CONCURRENCY = 16
-const ROOT_EXTERNAL_XML_DIR = "ext"
+const ROOT_EXTERNAL_XML_DIR = "Ext"
+const LEGACY_ROOT_EXTERNAL_XML_DIR = "ext"
 const toError = (error: unknown): Error => error instanceof Error ? error : new Error(String(error))
 
 export const syncConfigurationToXML = async (params: {
@@ -278,10 +279,10 @@ function isUnsupportedExtensionMetadataFile(relativePath: string): boolean {
 
 async function normalizeRootExternalDirCasing(outputDir: string): Promise<void> {
   const entries = fs.existsSync(outputDir) ? await fs.promises.readdir(outputDir) : []
-  const hasVisibleLegacyDir = entries.includes("Ext")
+  const hasVisibleLegacyDir = entries.includes(LEGACY_ROOT_EXTERNAL_XML_DIR)
   if (!hasVisibleLegacyDir) return
 
-  const legacyDir = join(outputDir, "Ext")
+  const legacyDir = join(outputDir, LEGACY_ROOT_EXTERNAL_XML_DIR)
   const canonicalDir = join(outputDir, ROOT_EXTERNAL_XML_DIR)
   const hasVisibleCanonicalDir = entries.includes(ROOT_EXTERNAL_XML_DIR)
   if (hasVisibleCanonicalDir) {
@@ -306,7 +307,7 @@ async function normalizeRootExternalDirCasing(outputDir: string): Promise<void> 
 }
 
 function getAvailableRootExternalCaseRenameTempDir(outputDir: string): string {
-  const baseName = "Ext.__nkdk_case_rename__"
+  const baseName = "ext.__nkdk_case_rename__"
   let candidate = join(outputDir, baseName)
   let index = 0
 
