@@ -157,6 +157,11 @@
 YAML sync внешних файлов должны использовать `Ext/...`. Если в коде остались
 пути `ext/...`, это отдельный источник текущего расхождения.
 
+Implementation decision: all root configuration external files are read from
+and written to `Ext/...`. Existing lowercase root `ext/...` is treated as
+legacy during XML sync cleanup. Object-local directories named `Ext` remain
+unchanged.
+
 ### Итог разбора непрозрачных файлов
 
 `MobileClientSignature.bin`, `StandaloneConfigurationContent.bin`,
