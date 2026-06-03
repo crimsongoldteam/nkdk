@@ -58,6 +58,40 @@ describe("sync configuration to XML", () => {
     expect(resultFormMetadataXML).toBe(expectedFormMetadataXML)
   })
 
+  it("без referenceDir не читает reference из outputDir и создаёт ConfigDumpInfo.xml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configuration-no-reference-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "xml")
+
+    try {
+      fs.mkdirSync(join(yamlDir, "Справочник", "Контрагенты"), { recursive: true })
+      fs.mkdirSync(join(outDir, "Catalogs"), { recursive: true })
+      fs.mkdirSync(join(outDir, "Ext"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(join(yamlDir, "Справочник", "Контрагенты", "Свойства.yaml"), "Имя: Контрагенты\n", "utf-8")
+      fs.copyFileSync(
+        getXMLFixturePath("sync/syncConfiguration/xml/Catalogs/Контрагенты.xml"),
+        join(outDir, "Catalogs", "Контрагенты.xml")
+      )
+      fs.writeFileSync(join(outDir, "Ext", "Unsupported.xml"), "<Unsupported/>", "utf-8")
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(result.failed).toEqual([])
+      const catalogXML = fs.readFileSync(join(outDir, "Catalogs", "Контрагенты.xml"), "utf-8")
+      expect(catalogXML).toContain("<Catalog")
+      expect(catalogXML).not.toContain("ФормаЭлемента")
+      expect(fs.existsSync(join(outDir, "ConfigDumpInfo.xml"))).toBe(true)
+      expect(fs.existsSync(join(outDir, "Ext", "Unsupported.xml"))).toBe(false)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("пишет корневой Configuration.xml из Конфигурация.yaml и вычисляет пустой ChildObjects", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-to-xml-"))
     const yamlDir = join(tmp, "yaml")

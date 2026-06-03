@@ -45,7 +45,7 @@ export const syncConfigurationToXML = async (params: {
   referenceDir?: string
 }): Promise<ConfigurationSyncResult> => {
   const { context, inputDir, outputDir } = params
-  const referenceDir = params.referenceDir ?? outputDir
+  const referenceDir = params.referenceDir
 
   if (!fs.existsSync(inputDir)) {
     return {
@@ -61,7 +61,9 @@ export const syncConfigurationToXML = async (params: {
     defaultLanguage: context.defaultLanguage,
     version: context.version,
   }
-  const referenceState = await collectStructuralStateFromXML({ xmlDir: referenceDir, context: contextFromXML })
+  const referenceState = referenceDir
+    ? await collectStructuralStateFromXML({ xmlDir: referenceDir, context: contextFromXML })
+    : { nodes: new Map() }
   const yamlState = await collectStructuralStateFromYAML({ yamlDir: inputDir, context })
   const migrationResult = applyPendingMigrationFiles(referenceState, pendingMigrations)
   validateAppliedMigrationTarget(migrationResult, yamlState)
@@ -77,7 +79,7 @@ export const syncConfigurationToXML = async (params: {
           kind: "migration",
           name: "Миграции",
           error: new Error(
-            `Найдены возможные переименования:\n${details}\nЗапустите: nkdk generate-migration ${inputDir} ${referenceDir}`
+            `Найдены возможные переименования:\n${details}\nЗапустите: nkdk generate-migration ${inputDir} ${referenceDir ?? outputDir}`
           ),
         },
       ],
@@ -89,13 +91,12 @@ export const syncConfigurationToXML = async (params: {
   const hasRootYAML = fs.existsSync(rootYAMLPath)
 
   if (hasRootYAML) {
-    const referenceConfigurationPath = join(referenceDir, CONFIGURATION_XML_FILE)
-    const referenceConfiguration = fs.existsSync(referenceConfigurationPath)
+    const hasReferenceConfiguration =
+      referenceDir !== undefined && fs.existsSync(join(referenceDir, CONFIGURATION_XML_FILE))
+    const referenceConfiguration = hasReferenceConfiguration
       ? readConfigurationFromXML({ context: contextFromXML, inputDir: referenceDir })
       : undefined
-    const referenceChildObjects = fs.existsSync(referenceConfigurationPath)
-      ? readConfigurationChildObjectsFromXML(referenceDir)
-      : undefined
+    const referenceChildObjects = hasReferenceConfiguration ? readConfigurationChildObjectsFromXML(referenceDir) : undefined
     const configuration = readConfigurationFromYAML({
       context,
       inputDir,
@@ -126,7 +127,7 @@ export const syncConfigurationToXML = async (params: {
 
     const yamlDirAbs = join(inputDir, rule.itemTypePrefix)
     const xmlOutputDir = join(outputDir, rule.xmlDir)
-    const xmlReferenceDir = join(referenceDir, rule.xmlDir)
+    const xmlReferenceDir = referenceDir ? join(referenceDir, rule.xmlDir) : undefined
     if (!fs.existsSync(yamlDirAbs)) continue
 
     const entries = await fs.promises.readdir(yamlDirAbs, { withFileTypes: true })
@@ -143,7 +144,7 @@ export const syncConfigurationToXML = async (params: {
       const currentNode = migrationResult.state.nodes.get(currentObjectPath)
       const referenceModel = currentNode && currentNode.referencePath === undefined ? null : undefined
       const xmlExternalOutputDir = join(xmlOutputDir, name)
-      const xmlExternalReferenceDir = join(xmlReferenceDir, referenceName)
+      const xmlExternalReferenceDir = xmlReferenceDir ? join(xmlReferenceDir, referenceName) : undefined
       tasks.push({
         kind: rule.itemType,
         name,
@@ -180,7 +181,9 @@ export const syncConfigurationToXML = async (params: {
         referencePathByCurrentPath: migrationResult.referencePathByCurrentPath,
         xmlManifest,
       })
-      await preserveUnsupportedRootExternalFilesToXML({ outputDir, referenceDir, xmlManifest })
+      if (referenceDir) {
+        await preserveUnsupportedRootExternalFilesToXML({ outputDir, referenceDir, xmlManifest })
+      }
     } catch (error) {
       return {
         succeeded: batchResult.succeeded,
