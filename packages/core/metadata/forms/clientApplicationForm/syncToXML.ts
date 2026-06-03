@@ -24,7 +24,7 @@ export const syncFormToXML = async (params: {
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
   const { context, inputDir, formName, outputDir } = params
-  const referenceDir = params.referenceDir ?? outputDir
+  const referenceDir = params.referenceDir
 
   const { yamlContent, formDir } = await readFormFiles({ inputDir, formName })
 
@@ -39,15 +39,17 @@ export const syncFormToXML = async (params: {
     defaultLanguage: context.defaultLanguage,
     version: "2.20",
   }
-  const referenceForm = readFormFromXML({
-    context: contextFromXML,
-    inputDir: referenceDir,
-    formName,
-  })
+  const referenceForm = referenceDir
+    ? readFormFromXML({
+        context: contextFromXML,
+        inputDir: referenceDir,
+        formName,
+      })
+    : undefined
 
   const form = importClientApplicationFormFromYAML(contextWithFormDir, yamlObj, referenceForm)
   const isOrdinaryForm = form.formType === "Ordinary"
-  const referenceHasFormXML = hasReferenceFormXML({ referenceDir, formName })
+  const referenceHasFormXML = referenceDir ? hasReferenceFormXML({ referenceDir, formName }) : true
 
   const formXML =
     isOrdinaryForm && !referenceHasFormXML
