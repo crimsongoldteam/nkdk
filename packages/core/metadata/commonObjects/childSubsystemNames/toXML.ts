@@ -41,7 +41,7 @@ export const syncChildSubsystemNamesToXML = async (params: {
 
   const parentReferenceName = params.referenceName ?? params.name
   const childXmlDir = childSubsystemDir(params.xmlDir, params.name)
-  const childReferenceDir = childSubsystemDir(params.referenceDir ?? params.xmlDir, parentReferenceName)
+  const childReferenceDir = params.referenceDir ? childSubsystemDir(params.referenceDir, parentReferenceName) : undefined
 
   for (const childName of childNames) {
     await syncAppliedObjectToXML({
@@ -53,7 +53,7 @@ export const syncChildSubsystemNamesToXML = async (params: {
       referenceDir: childReferenceDir,
       referenceName: childName,
       externalOutputDir: join(childXmlDir, childName),
-      externalReferenceDir: join(childReferenceDir, childName),
+      externalReferenceDir: childReferenceDir ? join(childReferenceDir, childName) : undefined,
       xmlManifest: params.xmlManifest,
     })
   }

@@ -89,6 +89,50 @@ ${commandInterfaceYAML}`
     )
   })
 
+  it("синхронизирует дочерние подсистемы без referenceDir", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-subsystem-no-reference-"))
+    const yamlDir = join(tmp, "yaml", "Подсистема")
+    const outDir = join(tmp, "xml", "Subsystems")
+
+    try {
+      writeFile(
+        join(yamlDir, "Администрирование", "Свойства.yaml"),
+        `Синоним: Администрирование
+Подсистемы:
+  - НастройкиПрограммы
+`
+      )
+      writeFile(
+        join(yamlDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "Свойства.yaml"),
+        `Синоним: Настройки программы
+`
+      )
+      writeFile(
+        join(outDir, "Администрирование", "Subsystems", "НастройкиПрограммы.xml"),
+        subsystemXML({
+          name: "НастройкиПрограммы",
+          synonym: "Настройки программы",
+          childName: "СтараяВложеннаяПодсистема",
+        })
+      )
+
+      await syncAppliedObjectToXML({
+        rule: MetadataSubsystemRules,
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        name: "Администрирование",
+        outputDir: outDir,
+      })
+
+      const childXmlPath = join(outDir, "Администрирование", "Subsystems", "НастройкиПрограммы.xml")
+      expect(fs.existsSync(join(outDir, "Администрирование.xml"))).toBe(true)
+      expect(fs.existsSync(childXmlPath)).toBe(true)
+      expect(fs.readFileSync(childXmlPath, "utf-8")).not.toContain("СтараяВложеннаяПодсистема")
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("не дублирует имя родителя для подсистем второго уровня", async () => {
     const inputDir = fs.mkdtempSync(join(os.tmpdir(), "subsystem-sync-yaml-"))
     const referenceDir = fs.mkdtempSync(join(os.tmpdir(), "subsystem-sync-ref-"))
