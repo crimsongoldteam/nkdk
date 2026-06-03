@@ -203,28 +203,28 @@ describe("syncAppliedObjectToXML — (в) формы из сканировани
   })
 })
 
-describe("syncAppliedObjectToXML — (г) fallback referenceDir на outputDir", () => {
-  it("при отсутствии referenceDir читает reference-XML из outputDir", async () => {
+describe("syncAppliedObjectToXML — (г) без referenceDir", () => {
+  it("без referenceDir не читает reference XML из outputDir", async () => {
     const inputDir = join(tmpDir, "input")
     const outputDir = join(tmpDir, "output")
+    const name = "ТестСправочник"
 
-    // reference XML лежит в outputDir (не в отдельном referenceDir)
-    fs.mkdirSync(join(inputDir, "ТестСправочник"), { recursive: true })
-    fs.writeFileSync(join(inputDir, "ТестСправочник", "Свойства.yaml"), "", "utf-8")
+    fs.mkdirSync(join(inputDir, name), { recursive: true })
+    fs.writeFileSync(join(inputDir, name, "Свойства.yaml"), "Имя: ТестСправочник\n", "utf-8")
     fs.mkdirSync(outputDir, { recursive: true })
-    fs.writeFileSync(join(outputDir, "ТестСправочник.xml"), catalogXml(["ФормаАвторства"]), "utf-8")
+    fs.writeFileSync(join(outputDir, `${name}.xml`), catalogXml(["ФормаАвторства"]), "utf-8")
 
-    // referenceDir не передаётся — должен использоваться outputDir
     await syncAppliedObjectToXML({
       rule: MetadataCatalogRules,
       context: mockContextToXML(),
       inputDir,
-      name: "ТестСправочник",
+      name,
       outputDir,
     })
 
-    const result = fs.readFileSync(join(outputDir, "ТестСправочник.xml"), "utf-8")
-    expect(result).toContain("ФормаАвторства")
+    const result = fs.readFileSync(join(outputDir, `${name}.xml`), "utf-8")
+    expect(result).toContain("<Catalog")
+    expect(result).not.toContain("ФормаАвторства")
   })
 })
 
