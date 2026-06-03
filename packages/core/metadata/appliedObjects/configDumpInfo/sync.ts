@@ -16,7 +16,7 @@ const CONFIG_DUMP_INFO_FILE = "ConfigDumpInfo.xml"
 export async function syncConfigDumpInfoToXML(params: {
   context: ConfigurationContext
   outputDir: string
-  referenceDir: string
+  referenceDir?: string
   yamlState: StructuralState
   migrationState: StructuralState
   referencePathByCurrentPath: Map<string, string>
@@ -42,8 +42,10 @@ export async function syncConfigDumpInfoToXML(params: {
 
 async function readReferenceConfigDumpInfo(params: {
   context: ConfigurationContext
-  referenceDir: string
+  referenceDir?: string
 }): Promise<ConfigDumpInfo> {
+  if (!params.referenceDir) return new Map()
+
   const path = join(params.referenceDir, CONFIG_DUMP_INFO_FILE)
   if (!fs.existsSync(path)) return new Map()
 

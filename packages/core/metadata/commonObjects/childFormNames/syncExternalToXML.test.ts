@@ -47,6 +47,24 @@ describe("syncChildFormNamesToXML (через syncAppliedObjectToXML)", () => {
     fs.rmSync(outputDir, { recursive: true })
   })
 
+  it("записывает формы каталога без referenceDir", async () => {
+    await syncAppliedObjectToXML({
+      rule: MetadataCatalogRules,
+      context: mockContextToXML(),
+      inputDir,
+      name,
+      outputDir,
+    })
+
+    const formMetadataPath = join(outputDir, name, "Forms", "ФормаЭлемента.xml")
+    const formXmlPath = join(outputDir, name, "Forms", "ФормаЭлемента", "Ext", "Form.xml")
+
+    expect(fs.existsSync(formMetadataPath), `expected ${formMetadataPath}`).toBe(true)
+    expect(fs.existsSync(formXmlPath), `expected ${formXmlPath}`).toBe(true)
+
+    fs.rmSync(outputDir, { recursive: true })
+  })
+
   it("пересобирает Forms/<form>/Ext/Help.xml по текущим страницам nkdk, не копируя stale reference", async () => {
     const tmpRoot = getXMLFixturePath("sync/syncConfiguration/_tmp_form_help_out")
     const tmpInputDir = join(tmpRoot, "nkdk", "Справочник")

@@ -35,7 +35,7 @@ export const syncAppliedObjectToXML = async (params: {
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> => {
   const { rule, context, inputDir, name, outputDir } = params
-  const referenceDir = params.referenceDir ?? outputDir
+  const referenceDir = params.referenceDir
   const externalOutputDir = params.externalOutputDir ?? outputDir
   const externalReferenceDir = params.externalReferenceDir ?? referenceDir
   const hasExplicitExternalOutputDir = params.externalOutputDir !== undefined
@@ -53,13 +53,13 @@ export const syncAppliedObjectToXML = async (params: {
   }
 
   const referenceName = params.referenceName ?? name
-  const referenceXmlPath = join(referenceDir, `${referenceName}.xml`)
+  const referenceXmlPath = referenceDir ? join(referenceDir, `${referenceName}.xml`) : undefined
   const loadedReferenceModel =
-    params.referenceModel === undefined
+    params.referenceModel === undefined && referenceXmlPath
       ? readReferenceModel({ context: contextFromXML, xmlPath: referenceXmlPath, rule })
       : (params.referenceModel ?? undefined)
   const filePathReferenceValues =
-    params.referenceModel === null
+    params.referenceModel === null || !externalReferenceDir
       ? {}
       : readFilePathReferenceValues({
           context: contextFromXML,
@@ -177,7 +177,7 @@ export const syncAppliedObjectToXML = async (params: {
     const modelValue = (model as Record<string, unknown>)[key]
 
     const referenceValue = filePathReferenceValues[key]
-    const rootReferenceExtPath = join(externalReferenceDir, propRule.filePath)
+    const rootReferenceExtPath = externalReferenceDir ? join(externalReferenceDir, propRule.filePath) : undefined
 
     const valueToExport = modelHasOwnValue
       ? modelValue
@@ -195,7 +195,7 @@ export const syncAppliedObjectToXML = async (params: {
     if (!xmlFileObj) continue
 
     const extOutputPath =
-      fs.existsSync(rootReferenceExtPath) || hasExplicitExternalOutputDir
+      (rootReferenceExtPath && fs.existsSync(rootReferenceExtPath)) || hasExplicitExternalOutputDir
         ? join(externalOutputDir, propRule.filePath)
         : join(externalOutputDir, name, propRule.filePath)
     await fs.promises.mkdir(dirname(extOutputPath), { recursive: true })
@@ -210,7 +210,7 @@ async function syncChildCollectionExternalFilesToXML(params: {
   model: Record<string, unknown>
   nkdkDir: string
   xmlDir: string
-  referenceDir: string
+  referenceDir?: string
   name: string
   referenceName?: string
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
@@ -239,9 +239,10 @@ async function syncChildCollectionExternalFilesToXML(params: {
       const childXmlDir = childCollection.xmlDir
         ? join(xmlDir, resolveChildCollectionDir(childCollection.xmlDir, item.name, name))
         : xmlDir
-      const childReferenceDir = childCollection.xmlDir
-        ? join(referenceDir, resolveChildCollectionDir(childCollection.xmlDir, item.name, referenceName ?? name))
-        : referenceDir
+      const childReferenceDir =
+        referenceDir && childCollection.xmlDir
+          ? join(referenceDir, resolveChildCollectionDir(childCollection.xmlDir, item.name, referenceName ?? name))
+          : referenceDir
       const syncName = hasOwnDirs ? item.name : params.xmlDirContainsCurrentItem ? "" : name
       const syncReferenceName = hasOwnDirs ? item.name : params.xmlDirContainsCurrentItem ? "" : referenceName
       const childContext = getChildContextToXML({
@@ -252,16 +253,17 @@ async function syncChildCollectionExternalFilesToXML(params: {
       })
 
       if (childCollection.fileItemRule && childCollection.xmlDir) {
-        const childReferencePath = `${childReferenceDir}.xml`
-        const childReferenceModel = readReferenceModel({
-          context: {
-            fromXML: { forReference: true },
-            defaultLanguage: context.defaultLanguage,
-            version: "2.20",
-          },
-          xmlPath: childReferencePath,
-          rule: childCollection.fileItemRule,
-        })
+        const childReferenceModel = childReferenceDir
+          ? readReferenceModel({
+              context: {
+                fromXML: { forReference: true },
+                defaultLanguage: context.defaultLanguage,
+                version: "2.20",
+              },
+              xmlPath: `${childReferenceDir}.xml`,
+              rule: childCollection.fileItemRule,
+            })
+          : undefined
         const childModelForXML = addChildCollectionReferenceNames({
           model: await addChildNameProperties({
             model: addReferenceChildNameProperties({
@@ -436,9 +438,10 @@ async function preserveReferenceChildNameFilesToXML(params: {
   rule: PropertyRule
   nkdkDir: string
   xmlDir: string
-  referenceDir: string
+  referenceDir?: string
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
 }): Promise<void> {
+  if (!params.referenceDir) return
   if (!isFileChildNameRule(params.rule)) return
 
   const nkdkFolderName = getChildNameFolder(params.rule)
