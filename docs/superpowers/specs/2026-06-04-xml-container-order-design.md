@@ -63,7 +63,7 @@ properties: {
 - если `required` не задан и в контейнер не попали дочерние XML-свойства, узел не создаётся;
 - физический порядок ключей в `rule.properties` задаёт порядок XML-узлов;
 - обычные свойства с `xmlParents: ["Properties"]` попадают в контейнер, заданный `XMLContainer`;
-- если контейнер не объявлен, старое поведение `xmlParents` сохраняется на переходный период.
+- если контейнер не объявлен, `xmlParents` продолжает создавать путь к XML-значению, но порядок такого пути определяется физическим положением первого свойства с этим путём.
 
 При импорте из XML:
 
@@ -77,23 +77,24 @@ properties: {
 
 ## Замена requiredXMLParents
 
-`requiredXMLParents` становится устаревающим механизмом. Его текущие случаи заменяются так:
+`requiredXMLParents` удаляется. Его текущие случаи заменяются так:
 
 - `requiredXMLParents: [["ChildObjects"]]` -> `childObjects: { type: "XMLContainer", xml: "ChildObjects", required: true }`;
 - `requiredXMLParents: [["ListSettings"]]` -> `listSettings: { type: "XMLContainer", xml: "ListSettings", required: true }`.
 
-Форма `{ path, tag }` пока не мигрируется, потому что в реальных правилах не используется. Если она понадобится позже, для `XMLContainer` можно добавить `tag`.
+Форма `{ path, tag }` удаляется вместе с `requiredXMLParents`, потому что в реальных правилах не используется. Если она понадобится позже, для `XMLContainer` можно добавить `tag`.
 
 ## Отношение к order
 
-`order` больше не должен быть основным способом описывать порядок XML. Целевая норма: порядок берётся из физического порядка ключей в `rule.properties`.
+`order` удаляется как способ описывать порядок XML. Порядок берётся из физического порядка ключей в `rule.properties`.
 
-Удалять весь `order` сразу не нужно. Сейчас он используется шире, чем `requiredXMLParents`: внутри `MetadataAttribute`, `MetadataTabularSection`, `MetadataCommand`, СКД, регистров и форм. Поэтому миграция идёт по слоям:
+Сейчас `order` используется шире, чем `requiredXMLParents`: внутри `MetadataAttribute`, `MetadataTabularSection`, `MetadataCommand`, СКД, регистров и форм. Поэтому реализация должна не оставлять переходный режим, а сразу привести правила к физическому XML-порядку и удалить `order` из контракта `PropertyRule`.
 
 1. Ввести `XMLContainer` и тесты на порядок контейнеров.
-2. Перевести правила, которые ломают загрузку в 1С без reference: сначала `MetadataTabularSection` и связанные правила планов счетов, планов видов расчёта и обработок.
-3. Для переведённых правил физически переупорядочить ключи: `internalInfo`, `properties`-контейнер, свойства `Properties`, `childObjects`-контейнер, свойства `ChildObjects`.
-4. Удалять `order` только там, где физический порядок уже полностью совпадает с XML-порядком и тест это фиксирует.
+2. Перевести все правила с `requiredXMLParents` на `XMLContainer`.
+3. Физически переупорядочить все правила, где сейчас используется `order`, чтобы порядок ключей совпадал с XML-порядком.
+4. Удалить все `order` из `rules.ts`, удалить поле `order` из `BasePropertyRule` и убрать сортировку по `order` из orchestration.
+5. Оставить reference-порядок главным для round-trip с reference, но без reference использовать порядок ключей правил и `XMLContainer`.
 
 ## Проверка
 
