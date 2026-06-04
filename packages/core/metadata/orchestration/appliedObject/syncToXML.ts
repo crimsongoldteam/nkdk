@@ -466,13 +466,8 @@ function readFileItemReferenceNamesFromXML(params: {
   const xmlRootContainer = params.childCollection.fileItemRule
     ? getFileItemXMLRootContainer(params.childCollection.fileItemRule)
     : undefined
-  const referenceNamesRule = xmlRootContainer
-    ? Object.values(params.rule.properties).find(
-        (candidate) => candidate.type === "ChildFormNames" && candidate.xml === xmlRootContainer
-      )
-    : undefined
   const xmlKey = propertyRule.xml ?? xmlRootContainer ?? params.childCollection.propertyKey
-  const xmlParents = propertyRule.xmlParents ?? referenceNamesRule?.xmlParents ?? ["ChildObjects"]
+  const xmlParents = propertyRule.xmlParents ?? ["ChildObjects"]
   const xmlValue = readXMLPath(root as Record<string, unknown>, [...xmlParents, xmlKey])
   if (xmlValue === undefined) return undefined
 
@@ -491,15 +486,12 @@ function withFileItemCollectionReferenceExportRules(rule: MetadataItemRule): Met
     const xmlRootContainer = getFileItemXMLRootContainer(childCollection.fileItemRule)
     if (!xmlRootContainer) continue
 
-    const referenceNamesRule = Object.values(rule.properties).find(
-      (candidate) => candidate.type === "ChildFormNames" && candidate.xml === xmlRootContainer
-    )
     properties ??= { ...rule.properties }
     const { toXML: _toXML, fromXML: _fromXML, ...rest } = propertyRule
     properties[childCollection.propertyKey] = {
       ...rest,
       xml: propertyRule.xml ?? xmlRootContainer,
-      xmlParents: propertyRule.xmlParents ?? referenceNamesRule?.xmlParents ?? ["ChildObjects"],
+      xmlParents: propertyRule.xmlParents ?? ["ChildObjects"],
     } as PropertyRule
   }
 

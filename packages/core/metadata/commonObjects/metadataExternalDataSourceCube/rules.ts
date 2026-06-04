@@ -160,20 +160,12 @@ const cubeProperties = {
     defaultValueXML: false,
     defaultValueYAML: false,
   },
-  dimensionTableNames: {
-    xml: "DimensionTable",
-    type: "ChildFormNames",
-    xmlParents: childObjects,
-    folderName: "ТаблицыИзмерений",
-    forReferenceOnly: true,
-    toYAML: false,
-    fromYAML: false,
-  },
   dimensionTables: {
     yaml: "ТаблицыИзмерений",
+    xml: "DimensionTable",
     type: "MetadataExternalDataSourceDimensionTables",
+    xmlParents: childObjects,
     fromXML: false,
-    toXML: false,
   },
   dimensions: {
     yaml: "Измерения",

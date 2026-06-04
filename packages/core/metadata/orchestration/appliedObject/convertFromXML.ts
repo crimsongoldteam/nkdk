@@ -92,7 +92,6 @@ async function syncChildCollectionsFromXML(params: {
   xmlDirContainsCurrentItem: boolean
 }): Promise<void> {
   const { context, rule, model, xmlDir, nkdkDir, name } = params
-  addChildCollectionsFromReferenceNames({ model, rule })
 
   for (const childCollection of rule.childCollections ?? []) {
     const collectionModel = model[childCollection.propertyKey]
@@ -197,22 +196,6 @@ function addReferenceNamesFromXML(params: {
       })
     }
 
-    const fileRootContainer = childCollection.fileItemRule
-      ? getFileItemXMLRootContainer(childCollection.fileItemRule)
-      : undefined
-    if (!fileRootContainer) continue
-    const referenceNamesEntry = Object.entries(params.rule.properties).find(([, propertyRule]) => {
-      if (propertyRule.type !== "ChildFormNames") return false
-      return propertyRule.xml === fileRootContainer
-    })
-    if (!referenceNamesEntry) continue
-    const [propertyKey, propertyRule] = referenceNamesEntry
-    const xmlValue = readXMLPath(root as Record<string, unknown>, [
-      ...(propertyRule.xmlParents ?? []),
-      fileRootContainer,
-    ])
-    if (xmlValue === undefined) continue
-    params.model[propertyKey] = Array.isArray(xmlValue) ? xmlValue : [xmlValue]
   }
 }
 
@@ -278,29 +261,6 @@ function readXMLPath(xml: Record<string, unknown>, path: string[]): unknown {
     current = (current as Record<string, unknown>)[part]
   }
   return current
-}
-
-function addChildCollectionsFromReferenceNames(params: {
-  model: Record<string, unknown>
-  rule: MetadataItemRule
-}): void {
-  for (const childCollection of params.rule.childCollections ?? []) {
-    if (params.model[childCollection.propertyKey] !== undefined) continue
-    const fileRootContainer = childCollection.fileItemRule
-      ? getFileItemXMLRootContainer(childCollection.fileItemRule)
-      : undefined
-    if (!fileRootContainer) continue
-    const referenceNamesEntry = Object.entries(params.rule.properties).find(([, propertyRule]) => {
-      if (propertyRule.type !== "ChildFormNames") return false
-      return propertyRule.xml === fileRootContainer
-    })
-    if (!referenceNamesEntry) continue
-    const names = params.model[referenceNamesEntry[0]]
-    if (!Array.isArray(names)) continue
-    params.model[childCollection.propertyKey] = names
-      .map((itemName) => (typeof itemName === "string" ? { name: itemName } : undefined))
-      .filter((item): item is { name: string } => item !== undefined)
-  }
 }
 
 function omitFileItemChildCollections(model: Record<string, unknown>, rule: MetadataItemRule): Record<string, unknown> {
