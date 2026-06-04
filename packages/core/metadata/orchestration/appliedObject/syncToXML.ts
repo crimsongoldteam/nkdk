@@ -15,6 +15,13 @@ import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/pr
 import { xmlExport } from "~/xml/export/exporter"
 import { importContentFromXML } from "~/xml/import/importer"
 import { importFromYAML } from "~/yaml/import"
+import {
+  getFileItemXMLRootContainer,
+  listYAMLFileItemNames,
+  normalizeFileItemCollectionItems,
+  orderFileItemNames,
+  resolveChildCollectionDir,
+} from "./fileItemChildCollections"
 import { omitStringChildCollectionReferencesFromXML } from "./stringChildCollectionReferences"
 
 const PROPERTIES_YAML = "Свойства.yaml"
@@ -92,6 +99,17 @@ export const syncAppliedObjectToXML = async (params: {
         })
       : loadedReferenceModel
 
+  const nkdkDir = join(inputDir, name)
+  await addFileItemChildCollectionsFromYAML({
+    context,
+    rule,
+    model: model as Record<string, unknown>,
+    nkdkDir,
+    parentName: name,
+    referenceDir: externalReferenceDir,
+    referenceName,
+  })
+
   const forms = await collectFolderNames(rule, "ChildFormNames", inputDir, name)
   const templates = await collectFolderNames(rule, "ChildTemplateNames", inputDir, name)
 
@@ -116,7 +134,7 @@ export const syncAppliedObjectToXML = async (params: {
       rule,
     }) as typeof model,
     referenceData: referenceModel,
-    rule,
+    rule: withFileItemCollectionReferenceExportRules(rule),
   })
 
   if (!xmlObj) return
@@ -127,7 +145,6 @@ export const syncAppliedObjectToXML = async (params: {
   params.xmlManifest?.addFile(outputPath)
 
   // Обработчики внешних файлов на уровне объекта (Help, Module, Template со статическими путями)
-  const nkdkDir = join(inputDir, name)
   for (const [key, propRule] of Object.entries(rule.properties)) {
     const syncFn = getTypeRule(propRule.type, "syncExternalToXML")
     if (!syncFn) continue
@@ -220,16 +237,8 @@ async function syncChildCollectionExternalFilesToXML(params: {
 
   for (const childCollection of rule.childCollections ?? []) {
     const collectionModel = model[childCollection.propertyKey]
-    if (!collectionModel || typeof collectionModel !== "object") continue
-
-    const items = Array.isArray(collectionModel)
-      ? (collectionModel as Array<Record<string, unknown>>)
-          .map((item) => ({ name: String(item["name"] ?? ""), model: item }))
-          .filter((item) => item.name)
-      : Object.entries(collectionModel as Record<string, Record<string, unknown>>).map(([itemName, itemModel]) => ({
-          name: itemName,
-          model: { ...itemModel, name: itemName },
-        }))
+    const items = normalizeFileItemCollectionItems(collectionModel)
+    if (items.length === 0) continue
 
     for (const item of items) {
       const hasOwnDirs = childCollection.nkdkDir !== undefined || childCollection.xmlDir !== undefined
@@ -283,7 +292,7 @@ async function syncChildCollectionExternalFilesToXML(params: {
           context: childContext,
           data: childModelForXML as never,
           referenceData: childReferenceModel as never,
-          rule: childCollection.fileItemRule,
+          rule: withFileItemCollectionReferenceExportRules(childCollection.fileItemRule),
         })
         if (childXmlObj) {
           const childOutputPath = `${childXmlDir}.xml`
@@ -338,29 +347,7 @@ function addChildCollectionReferenceNames(params: {
   model: Record<string, unknown>
   rule: MetadataItemRule
 }): Record<string, unknown> {
-  const result = { ...params.model }
-  for (const childCollection of params.rule.childCollections ?? []) {
-    const collectionModel = result[childCollection.propertyKey]
-    if (!collectionModel || typeof collectionModel !== "object") continue
-
-    const itemNames = Array.isArray(collectionModel)
-      ? (collectionModel as Array<Record<string, unknown>>).map((item) => String(item["name"] ?? "")).filter(Boolean)
-      : Object.keys(collectionModel)
-    if (itemNames.length === 0) continue
-
-    const fileRootContainer = childCollection.fileItemRule
-      ? getXMLRootContainer(childCollection.fileItemRule)
-      : undefined
-    if (!fileRootContainer) continue
-    const referenceNamesEntry = Object.entries(params.rule.properties).find(([, propertyRule]) => {
-      if (propertyRule.type !== "ChildFormNames") return false
-      return propertyRule.xml === fileRootContainer
-    })
-    if (!referenceNamesEntry) continue
-
-    result[referenceNamesEntry[0]] = itemNames
-  }
-  return result
+  return addFileChildCollectionReferenceNames(params)
 }
 
 function addFileChildCollectionReferenceNames(params: {
@@ -371,16 +358,148 @@ function addFileChildCollectionReferenceNames(params: {
   for (const childCollection of params.rule.childCollections ?? []) {
     if (!childCollection.fileItemRule || !childCollection.xmlDir) continue
     const collectionModel = result[childCollection.propertyKey]
-    if (!collectionModel || typeof collectionModel !== "object") continue
+    const itemNames = normalizeFileItemCollectionItems(collectionModel).map((item) => item.name)
 
-    const itemNames = Array.isArray(collectionModel)
-      ? (collectionModel as Array<Record<string, unknown>>).map((item) => String(item["name"] ?? "")).filter(Boolean)
-      : Object.keys(collectionModel)
     if (itemNames.length === 0) continue
 
     result[childCollection.propertyKey] = itemNames
   }
   return result
+}
+
+async function addFileItemChildCollectionsFromYAML(params: {
+  context: ConfigurationContextWithExportToXML
+  rule: MetadataItemRule
+  model: Record<string, unknown>
+  nkdkDir: string
+  parentName: string
+  referenceDir?: string
+  referenceName?: string
+}): Promise<void> {
+  for (const childCollection of params.rule.childCollections ?? []) {
+    if (!childCollection.fileItemRule || !childCollection.nkdkDir) continue
+
+    const folderNames = await listYAMLFileItemNames({
+      nkdkDir: params.nkdkDir,
+      childCollection,
+      parentName: params.parentName,
+    })
+    if (folderNames.length === 0) {
+      const inlineItems = normalizeFileItemCollectionItems(params.model[childCollection.propertyKey])
+      if (inlineItems.length > 0) params.model[childCollection.propertyKey] = inlineItems.map((item) => item.model)
+      continue
+    }
+
+    const referenceNames = readFileItemReferenceNamesFromXML({
+      rule: params.rule,
+      childCollection,
+      referenceDir: params.referenceDir,
+      referenceName: params.referenceName ?? params.parentName,
+    })
+    const orderedNames = orderFileItemNames({ currentNames: folderNames, referenceNames })
+    const childModels: Record<string, unknown>[] = []
+
+    for (const childName of orderedNames) {
+      const childNkdkDir = join(
+        params.nkdkDir,
+        resolveChildCollectionDir(childCollection.nkdkDir, childName, params.parentName)
+      )
+      const childYamlPath = join(childNkdkDir, PROPERTIES_YAML)
+      const childYamlContent = await fs.promises.readFile(childYamlPath, "utf-8")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const childYaml = importFromYAML<any>(childYamlContent)
+      const importedChildModel = importMetadataItemFromYAML({
+        context: params.context,
+        yaml: childYaml,
+        rule: childCollection.fileItemRule,
+        name: childName,
+      }) as Record<string, unknown> | undefined
+      if (!importedChildModel) continue
+      const childModel = { ...importedChildModel, name: childName }
+
+      const childReferenceDir =
+        params.referenceDir && childCollection.xmlDir
+          ? join(params.referenceDir, resolveChildCollectionDir(childCollection.xmlDir, childName, params.referenceName))
+          : undefined
+
+      await addFileItemChildCollectionsFromYAML({
+        context: params.context,
+        rule: childCollection.fileItemRule,
+        model: childModel,
+        nkdkDir: childNkdkDir,
+        parentName: childName,
+        referenceDir: childReferenceDir,
+        referenceName: childName,
+      })
+      childModels.push(childModel)
+    }
+
+    params.model[childCollection.propertyKey] = childModels
+  }
+}
+
+function readFileItemReferenceNamesFromXML(params: {
+  rule: MetadataItemRule
+  childCollection: NonNullable<MetadataItemRule["childCollections"]>[number]
+  referenceDir?: string
+  referenceName: string
+}): string[] | undefined {
+  if (!params.referenceDir) return undefined
+  const propertyRule = params.rule.properties[params.childCollection.propertyKey]
+  if (!propertyRule) return undefined
+
+  const referenceXmlPath = join(params.referenceDir, `${params.referenceName}.xml`)
+  if (!fs.existsSync(referenceXmlPath)) return undefined
+
+  const container = getFileItemXMLRootContainer(params.rule)
+  if (!container) return undefined
+
+  const xmlContent = fs.readFileSync(referenceXmlPath, "utf-8")
+  const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
+  const root = (parsed.MetaDataObject as Record<string, unknown> | undefined)?.[container]
+  if (!root || typeof root !== "object") return undefined
+
+  const xmlKey = propertyRule.xml ?? params.childCollection.propertyKey
+  const xmlValue = readXMLPath(root as Record<string, unknown>, [...(propertyRule.xmlParents ?? []), xmlKey])
+  if (xmlValue === undefined) return undefined
+
+  return (Array.isArray(xmlValue) ? xmlValue : [xmlValue]).filter((value): value is string => typeof value === "string")
+}
+
+function withFileItemCollectionReferenceExportRules(rule: MetadataItemRule): MetadataItemRule {
+  let properties: Record<string, PropertyRule> | undefined
+
+  for (const childCollection of rule.childCollections ?? []) {
+    if (!childCollection.fileItemRule || !childCollection.xmlDir) continue
+
+    const propertyRule = rule.properties[childCollection.propertyKey]
+    if (!propertyRule) continue
+
+    const xmlRootContainer = getFileItemXMLRootContainer(childCollection.fileItemRule)
+    if (!xmlRootContainer) continue
+
+    const referenceNamesRule = Object.values(rule.properties).find(
+      (candidate) => candidate.type === "ChildFormNames" && candidate.xml === xmlRootContainer
+    )
+    properties ??= { ...rule.properties }
+    const { toXML: _toXML, fromXML: _fromXML, ...rest } = propertyRule
+    properties[childCollection.propertyKey] = {
+      ...rest,
+      xml: propertyRule.xml ?? xmlRootContainer,
+      xmlParents: propertyRule.xmlParents ?? referenceNamesRule?.xmlParents ?? ["ChildObjects"],
+    } as PropertyRule
+  }
+
+  return properties ? ({ ...rule, properties } as MetadataItemRule) : rule
+}
+
+function readXMLPath(xml: Record<string, unknown>, path: string[]): unknown {
+  let current: unknown = xml
+  for (const part of path) {
+    if (!current || typeof current !== "object") return undefined
+    current = (current as Record<string, unknown>)[part]
+  }
+  return current
 }
 
 function addReferenceChildNameProperties(params: {
@@ -472,17 +591,6 @@ async function addDirectoryFilesToManifest(
     }
   }
 }
-
-function getXMLRootContainer(rule: MetadataItemRule): string | undefined {
-  const xmlRootEntry = Object.entries(rule.properties).find(([, propertyRule]) => propertyRule.type === "XMLRoot")
-  return xmlRootEntry ? (xmlRootEntry[1] as { container?: string }).container : undefined
-}
-
-const resolveChildCollectionDir = (
-  dir: string | ((params: { name: string; parentName?: string }) => string),
-  name: string,
-  parentName?: string
-): string => (typeof dir === "function" ? dir({ name, parentName }) : dir)
 
 function filterFilePathReferenceValuesForYAMLImport(params: {
   rule: MetadataItemRule

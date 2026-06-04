@@ -155,6 +155,89 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
     )
   })
 
+  it("без reference собирает таблицы, кубы и таблицы измерений из отдельных YAML-папок", async () => {
+    const rootDir = await fs.promises.mkdtemp(join(os.tmpdir(), "eds-sync-folder-children-"))
+    const inputDir = join(rootDir, "yaml")
+    const outputDir = join(rootDir, "out")
+    const objectDir = join(inputDir, "ВнешнийИсточник")
+
+    await write(join(objectDir, "Свойства.yaml"), "Синоним: Синоним")
+    await write(join(objectDir, "Таблицы/ЯТаблица/Свойства.yaml"), "ИмяВИсточникеДанных: ЯТаблицаSQL")
+    await write(join(objectDir, "Таблицы/АТаблица/Свойства.yaml"), "ИмяВИсточникеДанных: АТаблицаSQL")
+    await write(join(objectDir, "Кубы/ЯКуб/Свойства.yaml"), "ИмяВИсточникеДанных: ЯКубSQL")
+    await write(join(objectDir, "Кубы/АКуб/Свойства.yaml"), "ИмяВИсточникеДанных: АКубSQL")
+    await write(
+      join(objectDir, "Кубы/АКуб/ТаблицыИзмерений/ЯИзмерение/Свойства.yaml"),
+      "ИмяВИсточникеДанных: ЯИзмерениеSQL"
+    )
+    await write(
+      join(objectDir, "Кубы/АКуб/ТаблицыИзмерений/АИзмерение/Свойства.yaml"),
+      "ИмяВИсточникеДанных: АИзмерениеSQL"
+    )
+
+    await syncAppliedObjectToXML({
+      rule: MetadataExternalDataSourceRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ВнешнийИсточник",
+      outputDir,
+      referenceModel: null,
+    })
+
+    const rootXml = fs.readFileSync(join(outputDir, "ВнешнийИсточник.xml"), "utf-8")
+    expect(rootXml.indexOf("<Table>АТаблица</Table>")).toBeLessThan(rootXml.indexOf("<Table>ЯТаблица</Table>"))
+    expect(rootXml.indexOf("<Cube>АКуб</Cube>")).toBeLessThan(rootXml.indexOf("<Cube>ЯКуб</Cube>"))
+
+    const cubeXml = fs.readFileSync(join(outputDir, "Cubes/АКуб.xml"), "utf-8")
+    expect(cubeXml.indexOf("<DimensionTable>АИзмерение</DimensionTable>")).toBeLessThan(
+      cubeXml.indexOf("<DimensionTable>ЯИзмерение</DimensionTable>")
+    )
+
+    expect(fs.existsSync(join(outputDir, "Tables/АТаблица.xml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Tables/ЯТаблица.xml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Cubes/АКуб.xml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Cubes/ЯКуб.xml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Cubes/АКуб/DimensionTables/АИзмерение.xml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Cubes/АКуб/DimensionTables/ЯИзмерение.xml"))).toBe(true)
+  })
+
+  it("папки с YAML имеют приоритет над старым inline-описанием дочерних объектов", async () => {
+    const rootDir = await fs.promises.mkdtemp(join(os.tmpdir(), "eds-sync-folder-priority-"))
+    const inputDir = join(rootDir, "yaml")
+    const outputDir = join(rootDir, "out")
+    const objectDir = join(inputDir, "ВнешнийИсточник")
+
+    await write(
+      join(objectDir, "Свойства.yaml"),
+      `Синоним: Синоним
+Таблицы:
+  InlineTable:
+    ИмяВИсточникеДанных: InlineSQL
+Кубы:
+  InlineCube:
+    ИмяВИсточникеДанных: InlineCubeSQL`
+    )
+    await write(join(objectDir, "Таблицы/FolderTable/Свойства.yaml"), "ИмяВИсточникеДанных: FolderSQL")
+    await write(join(objectDir, "Кубы/FolderCube/Свойства.yaml"), "ИмяВИсточникеДанных: FolderCubeSQL")
+
+    await syncAppliedObjectToXML({
+      rule: MetadataExternalDataSourceRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ВнешнийИсточник",
+      outputDir,
+      referenceModel: null,
+    })
+
+    const rootXml = fs.readFileSync(join(outputDir, "ВнешнийИсточник.xml"), "utf-8")
+    expect(rootXml).toContain("<Table>FolderTable</Table>")
+    expect(rootXml).toContain("<Cube>FolderCube</Cube>")
+    expect(rootXml).not.toContain("InlineTable")
+    expect(rootXml).not.toContain("InlineCube")
+    expect(fs.existsSync(join(outputDir, "Tables/FolderTable.xml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Tables/InlineTable.xml"))).toBe(false)
+  })
+
   it("не восстанавливает формы дочерних объектов из reference, если текущая папка Формы пустая", async () => {
     const rootDir = await fs.promises.mkdtemp(join(os.tmpdir(), "eds-sync-empty-forms-"))
     const inputDir = join(rootDir, "yaml")
