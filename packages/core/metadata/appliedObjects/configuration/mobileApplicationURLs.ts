@@ -1,4 +1,5 @@
 import { Type } from "@sinclair/typebox"
+import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
 import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { BooleanJSONSchema, StringboolYAML, StringboolXML } from "~/metadata/commonObjects/boolean/types"
@@ -25,13 +26,14 @@ export interface MobileApplicationURLYAML {
 export type MobileApplicationURLsYAML = MobileApplicationURLYAML[]
 
 type TextXML = string | { "#text"?: string }
+type BooleanXML = StringboolXML | { "#text"?: StringboolXML; [key: string]: unknown }
 
 interface MobileApplicationURLXML {
   "_xsi:type": "app:MobileApplicationURL"
   "app:baseUrl": TextXML
-  "app:useAndroid": StringboolXML
-  "app:useIOS": StringboolXML
-  "app:useWindows": StringboolXML
+  "app:useAndroid": BooleanXML
+  "app:useIOS": BooleanXML
+  "app:useWindows": BooleanXML
 }
 
 interface MobileApplicationURLsXML {
@@ -57,10 +59,8 @@ const text = (value: TextXML | undefined): string => {
   return typeof value === "string" ? value : value["#text"] ?? ""
 }
 
-const xmlBoolean = (value: StringboolXML): boolean => value === true || value === "true"
-
 export const importMobileApplicationURLsFromXML = (
-  _context: ConfigurationContext,
+  context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   xml: MobileApplicationURLsXML | "" | undefined
 ): MobileApplicationURLs | undefined => {
@@ -69,9 +69,9 @@ export const importMobileApplicationURLsFromXML = (
 
   return normalizeArray(xml["v8:Value"]).map((item) => ({
     baseUrl: text(item["app:baseUrl"]),
-    useAndroid: xmlBoolean(item["app:useAndroid"]),
-    useIOS: xmlBoolean(item["app:useIOS"]),
-    useWindows: xmlBoolean(item["app:useWindows"]),
+    useAndroid: importBooleanFromXML(context, undefined, item["app:useAndroid"]) ?? false,
+    useIOS: importBooleanFromXML(context, undefined, item["app:useIOS"]) ?? false,
+    useWindows: importBooleanFromXML(context, undefined, item["app:useWindows"]) ?? false,
   }))
 }
 
