@@ -19,7 +19,7 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
   it("строит currentXMLPath формы вложенного file-item объекта без повторного имени объекта", () => {
     expect(
       buildChildFormCurrentXMLPath({
-        xmlDir: "Tables/ТаблицаА",
+        xmlDir: "/tmp/out/Tables/ТаблицаА",
         name: "",
         formName: "ФормаСписка",
       })

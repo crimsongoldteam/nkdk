@@ -52,7 +52,7 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
 
 export const buildChildFormCurrentXMLPath = (params: { xmlDir: string; name: string; formName: string }): string => {
   const currentXMLDir =
-    params.name === "" ? toPosixPath(params.xmlDir) : posix.join(getLastPathSegment(params.xmlDir), params.name)
+    params.name === "" ? getLastPathSegments(params.xmlDir, 2) : posix.join(getLastPathSegment(params.xmlDir), params.name)
   return posix.join(currentXMLDir, "Forms", params.formName, "Ext", "Form.xml")
 }
 
@@ -61,11 +61,10 @@ const getLastPathSegment = (value: string): string => {
   return segments.length > 0 ? segments[segments.length - 1] : value
 }
 
-const toPosixPath = (value: string): string =>
-  value
-    .split(/[\\/]+/)
-    .filter((segment) => segment.length > 0)
-    .join("/")
+const getLastPathSegments = (value: string, count: number): string => {
+  const segments = value.split(/[\\/]+/).filter((segment) => segment.length > 0)
+  return segments.slice(-count).join("/")
+}
 
 async function copyFormModuleToXML(params: {
   nkdkDir: string
