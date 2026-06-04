@@ -43,6 +43,14 @@ describe("external data source TypeDescription YAML export", () => {
     ).toBe("ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства")
   })
 
+  it("exports external data source table object explicit form", () => {
+    expect(
+      exportTypeDescriptionToYAML(mockContext, mockRule, {
+        type: ["ExternalDataSourceTableObject.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"],
+      })
+    ).toBe("ВнешнийИсточникДанныхТаблицаОбъект.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства")
+  })
+
   it("exports external data source cube dimension table short form", () => {
     expect(
       exportTypeDescriptionToYAML(mockContext, mockRule, {
@@ -51,6 +59,14 @@ describe("external data source TypeDescription YAML export", () => {
         ],
       })
     ).toBe("ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства")
+  })
+
+  it("exports external data source cube record manager explicit form", () => {
+    expect(
+      exportTypeDescriptionToYAML(mockContext, mockRule, {
+        type: ["ExternalDataSourceCubeRecordManager.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства"],
+      })
+    ).toBe("ВнешнийИсточникДанныхКубМенеджерЗаписи.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства")
   })
 
   it.each([

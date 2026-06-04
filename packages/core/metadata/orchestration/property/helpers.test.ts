@@ -1,9 +1,26 @@
 import { describe, expect, it } from "vitest"
-import { applyRequiredXMLParents, getOrderedKeysFromXML, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
+import {
+  getOrderedKeysFromXML,
+  getOrderedKeysToXML,
+  shouldProcessProperty,
+  XML_SOURCE_KEYS,
+} from "./helpers"
 import { setXMLValue } from "./toXML"
 
 const createRule = (
-  properties: Record<string, { xml?: string; xmlParents?: string[]; tag?: string; runtimeOnly?: true }>
+  properties: Record<
+    string,
+    {
+      xml?: string
+      xmlParents?: string[]
+      tag?: string
+      runtimeOnly?: true
+      syncExternalOnly?: true
+      filePath?: string
+      order?: number
+      toXML?: false
+    }
+  >
 ): any => {
   return {
     // Остальное для этих тестов не важно, используются только свойства
@@ -130,30 +147,54 @@ describe("getOrderedKeysFromXML", () => {
   })
 })
 
-describe("applyRequiredXMLParents", () => {
-  it("plain-array entries создаются независимо от тега", () => {
-    const result: any = {}
-    applyRequiredXMLParents(result, [["ChildObjects"]], ["Form"])
-    expect(result).toEqual({ ChildObjects: {} })
+describe("getOrderedKeysToXML", () => {
+  it("без reference ставит InternalInfo перед ordered Properties и ChildObjects", () => {
+    const rule = createRule({
+      name: { xml: "Name", xmlParents: ["Properties"], order: 1 },
+      internalInfo: { xml: "InternalInfo" },
+      dimensions: { xml: "Dimension", xmlParents: ["ChildObjects"] },
+    })
+
+    const result = getOrderedKeysToXML({
+      rule,
+      referenceMetadata: undefined,
+    })
+
+    expect(result).toEqual(["internalInfo", "name", "dimensions"])
   })
 
-  it("tagged entries создаются только при совпадении тега", () => {
-    const result: any = {}
-    applyRequiredXMLParents(result, [{ path: ["Attributes"], tag: "Form" }], ["Form"])
-    expect(result).toEqual({ Attributes: {} })
+  it("без reference сортирует Properties перед ChildObjects даже если ChildObjects объявлен раньше", () => {
+    const rule = createRule({
+      dimensions: { xml: "Dimension", xmlParents: ["ChildObjects"] },
+      name: { xml: "Name", xmlParents: ["Properties"] },
+    })
+
+    const result = getOrderedKeysToXML({
+      rule,
+      referenceMetadata: undefined,
+    })
+
+    expect(result).toEqual(["name", "dimensions"])
   })
 
-  it("tagged entries пропускаются при несовпадении тега", () => {
-    const result: any = {}
-    applyRequiredXMLParents(result, [{ path: ["Attributes"], tag: "Form" }], ["Metadata"])
-    expect(result).toEqual({})
-  })
+  it("с reference сохраняет порядок ключей referenceMetadata главным", () => {
+    const rule = createRule({
+      name: { xml: "Name", xmlParents: ["Properties"], order: 1 },
+      internalInfo: { xml: "InternalInfo" },
+      dimensions: { xml: "Dimension", xmlParents: ["ChildObjects"] },
+    })
 
-  it("не перезаписывает уже существующий узел", () => {
-    const existing = { Attribute: [{ _name: "foo" }] }
-    const result: any = { Attributes: existing }
-    applyRequiredXMLParents(result, [{ path: ["Attributes"], tag: "Form" }], ["Form"])
-    expect(result.Attributes).toBe(existing)
+    const result = getOrderedKeysToXML({
+      rule,
+      referenceMetadata: {
+        itemType: "Recalculation",
+        name: "Имя",
+        internalInfo: {},
+        dimensions: [],
+      },
+    })
+
+    expect(result).toEqual(["name", "internalInfo", "dimensions"])
   })
 })
 

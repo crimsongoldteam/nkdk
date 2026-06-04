@@ -109,5 +109,4 @@ export const MetadataWebServiceRules = {
       fromXML: false,
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
 } as const satisfies MetadataItemRule

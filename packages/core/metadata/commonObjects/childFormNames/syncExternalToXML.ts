@@ -16,7 +16,13 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
   const rule = rawRule as ChildFormNamesPropertyRule
 
   const formsDir = join(nkdkDir, rule.folderName)
-  if (!fs.existsSync(formsDir)) return
+  const expectedFormNames = params.currentXMLDir === undefined ? [] : normalizeFormNames(params.propertyValue)
+  const formReferenceDirs = getFormReferenceDirs({ referenceDir, name, referenceName })
+  const formReferenceDir = formReferenceDirs[0]
+  if (!fs.existsSync(formsDir)) {
+    assertNoMissingFormYAML({ formsDir, expectedFormNames, referenceFormsDirs: formReferenceDirs })
+    return
+  }
 
   const entries = await fs.promises.readdir(formsDir, { withFileTypes: true })
   const formNames = entries
@@ -26,9 +32,9 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
       return fs.existsSync(yamlPath)
     })
     .map((e) => e.name)
+  assertNoMissingFormYAML({ formsDir, expectedFormNames, actualFormNames: formNames, referenceFormsDirs: formReferenceDirs })
 
-  const formOutputDir = join(xmlDir, name)
-  const formReferenceDir = referenceDir ? join(referenceDir, referenceName ?? name, "Forms") : undefined
+  const formOutputDir = name === "" ? xmlDir : join(xmlDir, name)
 
   for (const formName of formNames) {
     await syncFormToXML({
@@ -37,7 +43,7 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
       formName,
       outputDir: formOutputDir,
       referenceDir: formReferenceDir,
-      currentXMLPath: buildChildFormCurrentXMLPath({ xmlDir, name, formName }),
+      currentXMLPath: buildChildFormCurrentXMLPath({ xmlDir, currentXMLDir: params.currentXMLDir, name, formName }),
       xmlManifest,
     })
     await copyFormModuleToXML({ nkdkDir, formOutputDir, formName, xmlManifest })
@@ -47,16 +53,61 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
 
 export const buildChildFormCurrentXMLPath = (params: {
   xmlDir: string
+  currentXMLDir?: string
   name: string
   formName: string
 }): string => {
-  const xmlDirName = getLastPathSegment(params.xmlDir)
-  return posix.join(xmlDirName, params.name, "Forms", params.formName, "Ext", "Form.xml")
+  const currentXMLDir =
+    params.currentXMLDir ??
+    (params.name === "" ? getLastPathSegments(params.xmlDir, 2) : posix.join(getLastPathSegment(params.xmlDir), params.name))
+  return posix.join(currentXMLDir, "Forms", params.formName, "Ext", "Form.xml")
+}
+
+function getFormReferenceDirs(params: {
+  referenceDir?: string
+  name: string
+  referenceName?: string
+}): string[] {
+  if (params.referenceDir === undefined) return []
+  if (params.name === "") return [join(params.referenceDir, "Forms")]
+  return [join(params.referenceDir, params.referenceName ?? params.name, "Forms"), join(params.referenceDir, "Forms")]
+}
+
+function normalizeFormNames(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is string => typeof item === "string" && item.length > 0)
+}
+
+function assertNoMissingFormYAML(params: {
+  formsDir: string
+  expectedFormNames: string[]
+  actualFormNames?: string[]
+  referenceFormsDirs?: string[]
+}): void {
+  const actualFormNames = new Set(params.actualFormNames ?? [])
+  for (const formName of params.expectedFormNames) {
+    if (actualFormNames.has(formName)) continue
+    if (params.referenceFormsDirs?.some((referenceFormsDir) => hasReferenceForm(referenceFormsDir, formName))) continue
+    const yamlPath = join(params.formsDir, formName, "Форма.yaml")
+    throw new Error(`Форма "${formName}" указана в свойствах объекта, но файл не найден: ${yamlPath}`)
+  }
+}
+
+function hasReferenceForm(referenceFormsDir: string, formName: string): boolean {
+  return (
+    fs.existsSync(join(referenceFormsDir, `${formName}.xml`)) ||
+    fs.existsSync(join(referenceFormsDir, formName, "Ext", "Form.xml"))
+  )
 }
 
 const getLastPathSegment = (value: string): string => {
   const segments = value.split(/[\\/]+/).filter((segment) => segment.length > 0)
   return segments.length > 0 ? segments[segments.length - 1] : value
+}
+
+const getLastPathSegments = (value: string, count: number): string => {
+  const segments = value.split(/[\\/]+/).filter((segment) => segment.length > 0)
+  return segments.slice(-count).join("/")
 }
 
 async function copyFormModuleToXML(params: {

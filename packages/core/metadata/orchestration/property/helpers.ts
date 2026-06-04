@@ -22,6 +22,34 @@ interface PathStructure {
 
 export const XML_SOURCE_KEYS = Symbol("xmlSourceKeys")
 
+const XML_CONTAINER_ORDER = new Map<string, number>([
+  ["InternalInfo", 0],
+  ["Properties", 1],
+  ["ChildObjects", 2],
+])
+
+const getEntryTopLevelXMLName = (entry: { path: Path; xmlKey: string }): string => entry.path[0] ?? entry.xmlKey
+
+const getKnownXMLContainerOrder = (entry: { path: Path; xmlKey: string }): number | undefined =>
+  XML_CONTAINER_ORDER.get(getEntryTopLevelXMLName(entry))
+
+const AUTO_REQUIRED_XML_PARENT_ROOTS = new Set<string>(["ChildObjects", "ListSettings"])
+
+export const collectAutoRequiredXMLParentRoot = (rule: PropertyRule, roots: Set<string>): void => {
+  const root = rule.xmlParents?.[0]
+  if (root !== undefined && AUTO_REQUIRED_XML_PARENT_ROOTS.has(root)) {
+    roots.add(root)
+  }
+}
+
+export const applyAutoRequiredXMLParents = (result: ItemXML, roots: ReadonlySet<string>): void => {
+  for (const root of roots) {
+    if (result[root] === undefined) {
+      result[root] = {}
+    }
+  }
+}
+
 type PropertyExportImportOperation =
   | "exportToXML"
   | "importFromXML"
@@ -57,8 +85,9 @@ export const shouldProcessProperty = (params: {
 
         if (metadataHasOwnKey) return true
 
-        if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object")
-          return false
+        if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object") {
+          return rule.exportWithoutReferenceXML === true
+        }
 
         const referenceSourceKeys = (referenceMetadata as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
         if (
@@ -204,14 +233,22 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
     }
   }
 
-  type FlatEntry = { key: string; order: number | undefined; pathIdx: number; withinPathIdx: number }
+  type FlatEntry = {
+    key: string
+    order: number | undefined
+    pathIdx: number
+    withinPathIdx: number
+    path: Path
+    xmlKey: string
+  }
   const entries: FlatEntry[] = []
 
   for (let pathIdx = 0; pathIdx < pathOrder.length; pathIdx++) {
-    const info = pathToInfo.get(pathKey(pathOrder[pathIdx]!))
+    const path = pathOrder[pathIdx]!
+    const info = pathToInfo.get(pathKey(path))
     if (!info) continue
     info.orderByRule.forEach((e, withinPathIdx) => {
-      entries.push({ key: e.key, order: e.order, pathIdx, withinPathIdx })
+      entries.push({ key: e.key, order: e.order, pathIdx, withinPathIdx, path, xmlKey: e.xmlKey })
     })
   }
 
@@ -223,8 +260,23 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
     return a.withinPathIdx - b.withinPathIdx
   }
 
+  const byKnownXMLContainerThenRuleOrder = (a: FlatEntry, b: FlatEntry): number => {
+    const containerOrderA = getKnownXMLContainerOrder(a)
+    const containerOrderB = getKnownXMLContainerOrder(b)
+
+    if (
+      containerOrderA !== undefined &&
+      containerOrderB !== undefined &&
+      containerOrderA !== containerOrderB
+    ) {
+      return containerOrderA - containerOrderB
+    }
+
+    return byRuleOrder(a, b)
+  }
+
   if (refKeyOrder.size === 0) {
-    entries.sort(byRuleOrder)
+    entries.sort(byKnownXMLContainerThenRuleOrder)
     return entries.map((e) => e.key)
   }
 
@@ -238,7 +290,7 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
     else free.push(e)
   }
   anchored.sort((a, b) => refKeyOrder.get(a.key)! - refKeyOrder.get(b.key)!)
-  free.sort(byRuleOrder)
+  free.sort(byKnownXMLContainerThenRuleOrder)
 
   const result: FlatEntry[] = [...anchored]
   for (const f of free) {
@@ -352,23 +404,4 @@ export const getValueOrDefault = (params: {
   }
 
   return rule.defaultValue
-}
-
-export const applyRequiredXMLParents = (
-  result: ItemXML,
-  entries: ReadonlyArray<ReadonlyArray<string> | { path: ReadonlyArray<string>; tag?: string }>,
-  tag?: string[]
-): void => {
-  for (const entry of entries) {
-    const path = "path" in entry ? entry.path : entry
-    const entryTag = "path" in entry ? entry.tag : undefined
-    if (entryTag !== undefined && (tag === undefined || !tag.includes(entryTag))) continue
-    let node = result
-    for (const key of path) {
-      if (node[key] === undefined) {
-        node[key] = {}
-      }
-      node = node[key]
-    }
-  }
 }

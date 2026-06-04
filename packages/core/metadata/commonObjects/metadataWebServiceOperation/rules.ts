@@ -163,5 +163,4 @@ export const MetadataWebServiceOperationRules = {
       runtimeOnly: true,
     },
   } satisfies Record<string, PropertyRule>,
-  requiredXMLParents: [["ChildObjects"]],
 } as const satisfies MetadataItemRule

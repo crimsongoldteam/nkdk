@@ -409,7 +409,6 @@ export const MetadataBusinessProcessRules = {
       fromXML: false,
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
   graphTerminals: ["ПустаяСсылка"],
 } as const satisfies MetadataItemRule

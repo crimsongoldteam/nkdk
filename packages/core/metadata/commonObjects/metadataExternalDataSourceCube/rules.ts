@@ -160,20 +160,12 @@ const cubeProperties = {
     defaultValueXML: false,
     defaultValueYAML: false,
   },
-  dimensionTableNames: {
-    xml: "DimensionTable",
-    type: "ChildFormNames",
-    xmlParents: childObjects,
-    folderName: "ТаблицыИзмерений",
-    forReferenceOnly: true,
-    toYAML: false,
-    fromYAML: false,
-  },
   dimensionTables: {
     yaml: "ТаблицыИзмерений",
+    xml: "DimensionTable",
     type: "MetadataExternalDataSourceDimensionTables",
+    xmlParents: childObjects,
     fromXML: false,
-    toXML: false,
   },
   dimensions: {
     yaml: "Измерения",
@@ -232,7 +224,6 @@ const { xmlRoot: _xmlRoot, ...cubeCollectionProperties } = cubeProperties
 export const MetadataExternalDataSourceCubeRules = {
   itemType: "MetadataExternalDataSourceCube",
   properties: cubeProperties,
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [
     {
       propertyKey: "dimensionTables",
@@ -248,7 +239,6 @@ export const MetadataExternalDataSourceCubeRules = {
 export const MetadataExternalDataSourceCubeCollectionRules = {
   itemType: "MetadataExternalDataSourceCube",
   properties: cubeCollectionProperties,
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [
     {
       propertyKey: "dimensionTables",

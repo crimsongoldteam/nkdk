@@ -13,7 +13,7 @@ import { MetadataExternalDataSourceRules } from "./rules"
 describe("convertAppliedObjectFromXML — MetadataExternalDataSource", () => {
   const name = "ВнешнийИсточникДанныхВсеСвойства"
 
-  it("читает ExternalDataSource из XML и записывает единый Свойства.yaml + внешние файлы дочерних объектов", async () => {
+  it("читает ExternalDataSource из XML и записывает дочерние file-item объекты в отдельные Свойства.yaml", async () => {
     const { outputDir, inputDir, yaml } = await testConvertAppliedObjectFromXML({
       rule: MetadataExternalDataSourceRules,
       name,
@@ -22,6 +22,34 @@ describe("convertAppliedObjectFromXML — MetadataExternalDataSource", () => {
     })
 
     expect(yaml.result).toBe(yaml.expected)
+    const rootModel = importFromYAML<Record<string, unknown>>(yaml.result)
+    expect(rootModel["Таблицы"]).toBeUndefined()
+    expect(rootModel["Кубы"]).toBeUndefined()
+    expect(rootModel["Функции"]).toBeDefined()
+
+    const tableYAML = fs.readFileSync(
+      join(outputDir, name, "Таблицы/ТаблицаВсеСвойства/Свойства.yaml"),
+      "utf-8"
+    )
+    const tableModel = importFromYAML<Record<string, unknown>>(tableYAML)
+    expect(tableModel["ИмяВИсточникеДанных"]).toBe("ИмяВИсточнике")
+
+    const cubeYAML = fs.readFileSync(join(outputDir, name, "Кубы/КубВсеСвойства/Свойства.yaml"), "utf-8")
+    const cubeModel = importFromYAML<Record<string, unknown>>(cubeYAML)
+    expect(cubeModel["ИмяВИсточникеДанных"]).toBe("ИмяВИсточнике")
+    expect(cubeModel["ТаблицыИзмерений"]).toBeUndefined()
+
+    const dimensionTableYAML = fs.readFileSync(
+      join(outputDir, name, "Кубы/КубВсеСвойства/ТаблицыИзмерений/ТаблицаИзмеренияВсеСвойства/Свойства.yaml"),
+      "utf-8"
+    )
+    const dimensionTableModel = importFromYAML<Record<string, unknown>>(dimensionTableYAML)
+    expect(dimensionTableModel["ИмяВИсточникеДанных"]).toBe("Имя в источнике данных")
+
+    expect(
+      fs.existsSync(join(outputDir, name, "Таблицы/ТаблицаВсеСвойства/Формы/ФормаСписка/Форма.yaml"))
+    ).toBe(true)
+    expect(fs.existsSync(join(outputDir, name, "Кубы/КубВсеСвойства/Формы/ФормаЗаписи/Форма.yaml"))).toBe(true)
     expect(fs.readFileSync(join(outputDir, name, "Таблицы/ТаблицаВсеСвойства/МодульМенеджера.bsl"), "utf-8")).toBe(
       fs.readFileSync(join(inputDir, name, "Tables/ТаблицаВсеСвойства/Ext/ManagerModule.bsl"), "utf-8")
     )
@@ -92,16 +120,19 @@ describe("convertAppliedObjectFromXML — MetadataExternalDataSource", () => {
         outputDir,
       })
 
-      const yaml = fs.readFileSync(join(outputDir, name, "Свойства.yaml"), "utf-8")
-      const parsed = importFromYAML<{ "Таблицы": Record<string, Record<string, unknown>> }>(yaml)
-      expect(Object.keys(parsed["Таблицы"])).toEqual([
-        referenceTableName,
-        "ТаблицаВсеСвойства",
-        "ТаблицаПоУмолчанию",
-        "ТаблицаМодульНабора",
-      ])
-      expect(parsed["Таблицы"][referenceTableName]["ИмяВИсточникеДанных"]).toBe("ИмяВИсточникеСтроковая")
-      expect(parsed["Таблицы"]["ТаблицаВсеСвойства"]["ИмяВИсточникеДанных"]).toBe("ИмяВИсточнике")
+      const rootYAML = fs.readFileSync(join(outputDir, name, "Свойства.yaml"), "utf-8")
+      const rootModel = importFromYAML<Record<string, unknown>>(rootYAML)
+      expect(rootModel["Таблицы"]).toBeUndefined()
+
+      const tableYAML = fs.readFileSync(join(outputDir, name, `Таблицы/${referenceTableName}/Свойства.yaml`), "utf-8")
+      const tableModel = importFromYAML<Record<string, unknown>>(tableYAML)
+      expect(tableModel["ИмяВИсточникеДанных"]).toBe("ИмяВИсточникеСтроковая")
+      const originalTableYAML = fs.readFileSync(
+        join(outputDir, name, "Таблицы/ТаблицаВсеСвойства/Свойства.yaml"),
+        "utf-8"
+      )
+      const originalTableModel = importFromYAML<Record<string, unknown>>(originalTableYAML)
+      expect(originalTableModel["ИмяВИсточникеДанных"]).toBe("ИмяВИсточнике")
       expect(fs.readFileSync(join(outputDir, name, `Таблицы/${referenceTableName}/МодульМенеджера.bsl`), "utf-8")).toBe(
         fs.readFileSync(join(inputDir, name, `Tables/${referenceTableName}/Ext/ManagerModule.bsl`), "utf-8")
       )

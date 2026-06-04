@@ -51,6 +51,42 @@ const ruleWithRawObject = {
   },
 } as const satisfies MetadataItemRule
 
+const ruleWithAutoRequiredChildObjects = {
+  itemType: "Recalculation",
+  properties: {
+    name: { xml: "Name", type: "string", xmlParents: ["Properties"] },
+    dimensions: {
+      xml: "Dimension",
+      type: "string",
+      xmlParents: ["ChildObjects"],
+    },
+  },
+} as const satisfies MetadataItemRule
+
+const ruleWithIgnoredChildObjects = {
+  itemType: "Recalculation",
+  properties: {
+    name: { xml: "Name", type: "string", xmlParents: ["Properties"] },
+    dimensions: {
+      xml: "Dimension",
+      type: "string",
+      xmlParents: ["ChildObjects"],
+      toXML: false,
+    },
+  },
+} as const satisfies MetadataItemRule
+
+const ruleWithAutoRequiredListSettings = {
+  itemType: "Recalculation",
+  properties: {
+    dataParameters: {
+      xml: "dcscor:item",
+      type: "string",
+      xmlParents: ["ListSettings", "dcsset:dataParameters"],
+    },
+  },
+} as const satisfies MetadataItemRule
+
 const withReferenceRaw = (raw: Record<string, unknown>) => {
   const reference = { itemType: "Recalculation" as const, name: "Имя" }
   Object.defineProperty(reference, XML_REFERENCE_RAW, {
@@ -59,6 +95,49 @@ const withReferenceRaw = (raw: Record<string, unknown>) => {
   })
   return reference
 }
+
+describe("exportMetadataItemToXML auto-required XML containers", () => {
+  it("создаёт пустой ChildObjects для rule с экспортируемым xmlParents[0] ChildObjects", () => {
+    const xml = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: { itemType: "Recalculation", name: "Имя" } as any,
+      rule: ruleWithAutoRequiredChildObjects,
+    })
+
+    expect(xml).toEqual({
+      Properties: {
+        Name: "Имя",
+      },
+      ChildObjects: {},
+    })
+  })
+
+  it("не создаёт ChildObjects, если единственное ChildObjects-свойство отфильтровано из XML-экспорта", () => {
+    const xml = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: { itemType: "Recalculation", name: "Имя" } as any,
+      rule: ruleWithIgnoredChildObjects,
+    })
+
+    expect(xml).toEqual({
+      Properties: {
+        Name: "Имя",
+      },
+    })
+  })
+
+  it("создаёт пустой ListSettings для rule с экспортируемым вложенным путём ListSettings", () => {
+    const xml = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: { itemType: "Recalculation" } as any,
+      rule: ruleWithAutoRequiredListSettings,
+    })
+
+    expect(xml).toEqual({
+      ListSettings: {},
+    })
+  })
+})
 
 describe("exportMetadataItemToXML reference preservation", () => {
   it("deeply preserves unknown nested reference XML while generated fields take precedence", () => {

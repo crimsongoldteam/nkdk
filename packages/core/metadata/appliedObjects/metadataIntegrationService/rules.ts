@@ -88,5 +88,4 @@ export const MetadataIntegrationServiceRules = {
       fromXML: false,
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
 } as const satisfies MetadataItemRule

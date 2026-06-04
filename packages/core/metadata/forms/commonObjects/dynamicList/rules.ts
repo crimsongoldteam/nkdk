@@ -3,7 +3,6 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 export const DynamicListRules = {
   itemType: "DynamicList",
   xsiType: "DynamicList",
-  requiredXMLParents: [["ListSettings"]],
   properties: {
     autoFillAvailableFields: {
       type: "boolean",

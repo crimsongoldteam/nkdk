@@ -141,6 +141,18 @@ describe("external data source TypeDescription YAML import", () => {
     })
   })
 
+  it("imports external data source table object explicit form", () => {
+    expect(
+      importTypeDescriptionFromYAML(
+        mockContext,
+        { type: "TypeDescription" },
+        "ВнешнийИсточникДанныхТаблицаОбъект.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства",
+      ),
+    ).toEqual({
+      type: ["ExternalDataSourceTableObject.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"],
+    })
+  })
+
   it("imports external data source cube dimension table short form", () => {
     expect(
       importTypeDescriptionFromYAML(
@@ -152,6 +164,18 @@ describe("external data source TypeDescription YAML import", () => {
       type: [
         "ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
       ],
+    })
+  })
+
+  it("imports external data source cube record manager explicit form", () => {
+    expect(
+      importTypeDescriptionFromYAML(
+        mockContext,
+        { type: "TypeDescription" },
+        "ВнешнийИсточникДанныхКубМенеджерЗаписи.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства",
+      ),
+    ).toEqual({
+      type: ["ExternalDataSourceCubeRecordManager.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства"],
     })
   })
 })

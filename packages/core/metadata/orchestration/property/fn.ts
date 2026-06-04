@@ -234,6 +234,7 @@ export type SyncExternalToXMLFunction = (params: {
   referencePropertyValue?: unknown
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
   itemName?: string
+  currentXMLDir?: string
 }) => Promise<void>
 
 export interface GraphChildRule {

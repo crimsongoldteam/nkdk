@@ -276,6 +276,5 @@ export const MetadataReportRules = {
       nkdkDir: "Справка",
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataReportCommandRules }],
 } as const satisfies MetadataItemRule

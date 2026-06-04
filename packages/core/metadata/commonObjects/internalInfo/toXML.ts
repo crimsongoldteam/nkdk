@@ -1,7 +1,13 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExportToXMLFunctionNew, InternalInfoPropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { getUUID } from "../../helpers/uuid"
-import { InternalInfo, InternalInfoItemsXML, InternalInfoParam, InternalInfoRootXML } from "./types"
+import {
+  InternalInfo,
+  InternalInfoContainedObject,
+  InternalInfoItemsXML,
+  InternalInfoParam,
+  InternalInfoRootXML,
+} from "./types"
 
 export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): InternalInfoRootXML => {
   const { context, rule, value, referenceMetadata, metadataItem } = params
@@ -13,10 +19,7 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
   const thisNode =
     internalInfoRule.thisNode === true ? (reference?.thisNode ?? metadata?.thisNode ?? getUUID(context)) : undefined
 
-  const itemsRule = (rule as any).items as { name: string; category: string }[] | undefined
-  if (!itemsRule || itemsRule.length === 0) {
-    return thisNode === undefined ? {} : { "xr:ThisNode": thisNode }
-  }
+  const itemsRule = ((rule as any).items ?? []) as { name: string; category: string }[]
 
   const nameItemPart = internalInfoRule?.getName
     ? internalInfoRule.getName({ context, metadata: metadataItem as any })
@@ -44,7 +47,18 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
   if (thisNode !== undefined) {
     result["xr:ThisNode"] = thisNode
   }
-  result["xr:GeneratedType"] = generated
+  if (generated.length > 0) {
+    result["xr:GeneratedType"] = generated
+  }
+  const containedObjects = getContainedObjectsXML({
+    context,
+    rule: internalInfoRule,
+    metadata,
+    reference,
+  })
+  if (containedObjects.length > 0) {
+    result["xr:ContainedObject"] = containedObjects
+  }
 
   return result
 }
@@ -53,6 +67,44 @@ const getInternalInfoItem = (value: InternalInfo[string]): { typeId: string; val
   if (value === undefined || value === null || typeof value !== "object") return undefined
   return value
 }
+
+const getContainedObjectsXML = (params: {
+  context: ConfigurationContext
+  rule: InternalInfoPropertyRule
+  metadata: InternalInfo | undefined
+  reference: InternalInfo | undefined
+}): NonNullable<InternalInfoRootXML["xr:ContainedObject"]>[] => {
+  const classIds = params.rule.containedObjectClassIds ?? []
+  if (classIds.length === 0) return []
+
+  const referenceObjects = params.reference?.containedObjects ?? []
+  const metadataObjects = params.metadata?.containedObjects ?? []
+  const seen = new Set<string>()
+
+  const result = classIds.map((classId) => {
+    seen.add(classId)
+    const existing = findContainedObject(referenceObjects, classId) ?? findContainedObject(metadataObjects, classId)
+    return {
+      "xr:ClassId": classId,
+      "xr:ObjectId": existing?.objectId ?? getUUID(params.context),
+    }
+  })
+
+  for (const item of referenceObjects) {
+    if (seen.has(item.classId)) continue
+    result.push({
+      "xr:ClassId": item.classId,
+      "xr:ObjectId": item.objectId,
+    })
+  }
+
+  return result
+}
+
+const findContainedObject = (
+  containedObjects: InternalInfoContainedObject[],
+  classId: string
+): InternalInfoContainedObject | undefined => containedObjects.find((item) => item.classId === classId)
 
 /** @deprecated */
 export const exportInternalInfoToXMLOld = <T extends InternalInfoParam[]>(

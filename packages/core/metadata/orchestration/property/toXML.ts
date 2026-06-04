@@ -4,7 +4,13 @@ import { canConvertToPascalCase } from "~/metadata/helpers/canConvertToPascalCas
 import { ToMetadata } from ".."
 import { getTypeRule } from "../formElement/factory"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
-import { applyRequiredXMLParents, getOrderedKeysToXML, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
+import {
+  applyAutoRequiredXMLParents,
+  collectAutoRequiredXMLParentRoot,
+  getOrderedKeysToXML,
+  shouldProcessProperty,
+  XML_SOURCE_KEYS,
+} from "./helpers"
 import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
@@ -27,6 +33,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   }
 
   const orderedKeys = getOrderedKeysToXML({ rule, tag, referenceMetadata })
+  const autoRequiredXMLParentRoots = new Set<string>()
 
   try {
     for (const key of orderedKeys) {
@@ -44,6 +51,8 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
       ) {
         continue
       }
+
+      collectAutoRequiredXMLParentRoot(ruleProp, autoRequiredXMLParentRoots)
 
       const currentContext: ConfigurationContextWithExportToXML = {
         ...context,
@@ -83,9 +92,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
     xmlContext?.propertiesItemXmlStack?.pop()
   }
 
-  if (rule.requiredXMLParents) {
-    applyRequiredXMLParents(result, rule.requiredXMLParents, tag)
-  }
+  applyAutoRequiredXMLParents(result, autoRequiredXMLParentRoots)
 
   return result
 }

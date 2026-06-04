@@ -123,5 +123,4 @@ export const MetadataSubsystemRules = {
       fromXML: false,
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
 } as const satisfies MetadataItemRule

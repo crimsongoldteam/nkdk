@@ -28,6 +28,17 @@ describe("syncChildFormNamesToXML (через syncAppliedObjectToXML)", () => {
     ).toBe("Catalogs/СпособыОтраженияРасходовПоАмортизацииМСФО/Forms/ФормаСписка/Ext/Form.xml")
   })
 
+  it("строит currentXMLPath по явному XML-каталогу текущего объекта", () => {
+    expect(
+      buildChildFormCurrentXMLPath({
+        xmlDir: "/tmp/out/Cubes/Куб/DimensionTables/ТаблицаИзмерения",
+        currentXMLDir: "Cubes/Куб/DimensionTables/ТаблицаИзмерения",
+        name: "",
+        formName: "ФормаСписка",
+      })
+    ).toBe("Cubes/Куб/DimensionTables/ТаблицаИзмерения/Forms/ФормаСписка/Ext/Form.xml")
+  })
+
   it("записывает Forms/<form>.xml и Forms/<form>/Ext/Form.xml для каталога", async () => {
     await syncAppliedObjectToXML({
       rule: MetadataCatalogRules,

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
+import { UUID_TEST } from "~/metadata/helpers/uuid"
+import { exportMetadataItemToXML } from "~/metadata/orchestration"
 import { testExportAppliedObjectToXML } from "~/tests/appliedObject"
+import { mockContextToXML } from "~/tests/mockContext"
+import { xmlExport } from "~/xml/export/exporter"
 import { full } from "./__fixtures__/full"
 import { minimal } from "./__fixtures__/minimal"
 import { MetadataDocumentNumeratorRules } from "./rules"
@@ -16,5 +20,15 @@ describe("export MetadataDocumentNumerator to XML", () => {
       data,
     })
     expect(result).toEqual(expected)
+  })
+
+  it("экспортирует корневой uuid без reference", () => {
+    const xmlData = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: minimal,
+      rule: MetadataDocumentNumeratorRules,
+    })
+
+    expect(xmlExport(xmlData!)).toContain(`<DocumentNumerator uuid="${UUID_TEST}">`)
   })
 })

@@ -128,6 +128,12 @@ export interface BasePropertyRule {
    */
   preserveFromReferenceXML?: true
 
+  /**
+   * Для preserveFromReferenceXML: разрешить экспорт, когда reference-модель отсутствует.
+   * Если reference есть, свойство всё равно экспортируется только при наличии в reference.
+   */
+  exportWithoutReferenceXML?: true
+
   /** Не экспортировать в XML. Функция получает родительский metadataItem и опциональный context, возвращает `true` если экспортировать, `false` если пропустить */
   toXML?: false | ((metadataItem: any, context?: ConfigurationContextWithExportToXML) => boolean)
 
@@ -272,7 +278,8 @@ export interface MetadataTypePropertyRule extends BasePropertyRule {
 
 export interface InternalInfoPropertyRule extends BasePropertyRule {
   type: "InternalInfo"
-  items: Array<{ name: string; category: string }>
+  items?: Array<{ name: string; category: string }>
+  containedObjectClassIds?: string[]
   forReferenceOnly: true
   getName?: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => string
   thisNode?: boolean
@@ -442,14 +449,6 @@ export interface MetadataItemRule extends MetadataItem {
    * Если не задано — правило внутреннее (Command, Predefined и т.п.).
    */
   xmlDir?: string
-
-  /**
-   * Пути к XML-тегам-контейнерам, которые должны присутствовать в результате exportPropertiesToXML
-   * всегда, даже пустыми. Каждый путь — массив ключей от корня результата, симметричный xmlParents
-   * на уровне PropertyRule. Пример: [["Catalog", "ChildObjects"]].
-   * Может содержать объект { path, tag } для создания контейнера только при экспорте с указанным тегом.
-   */
-  requiredXMLParents?: ReadonlyArray<ReadonlyArray<string> | { path: ReadonlyArray<string>; tag?: string }>
 
   /**
    * Имена терминальных узлов, которые материализуются как composition-дочки при импорте объекта.
