@@ -5,9 +5,15 @@ export type InternalInfoItem = {
   valueId: string
 }
 
+export type InternalInfoContainedObject = {
+  classId: string
+  objectId: string
+}
+
 export interface InternalInfo {
   thisNode?: string
-  [generatedTypeName: string]: InternalInfoItem | string | undefined
+  containedObjects?: InternalInfoContainedObject[]
+  [generatedTypeName: string]: InternalInfoItem | string | InternalInfoContainedObject[] | undefined
 }
 
 export interface InternalInfoParam {
@@ -26,6 +32,12 @@ export interface InternalInfoXML {
 export interface InternalInfoRootXML {
   "xr:GeneratedType"?: InternalInfoXML | InternalInfoXML[]
   "xr:ThisNode"?: string
+  "xr:ContainedObject"?: InternalInfoContainedObjectXML | InternalInfoContainedObjectXML[]
+}
+
+export interface InternalInfoContainedObjectXML {
+  "xr:ClassId": string
+  "xr:ObjectId": string
 }
 
 export type InternalInfoItemsXML<T extends InternalInfoParam[]> = {

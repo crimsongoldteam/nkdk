@@ -128,6 +128,12 @@ export interface BasePropertyRule {
    */
   preserveFromReferenceXML?: true
 
+  /**
+   * Для preserveFromReferenceXML: разрешить экспорт, когда reference-модель отсутствует.
+   * Если reference есть, свойство всё равно экспортируется только при наличии в reference.
+   */
+  exportWithoutReferenceXML?: true
+
   /** Не экспортировать в XML. Функция получает родительский metadataItem и опциональный context, возвращает `true` если экспортировать, `false` если пропустить */
   toXML?: false | ((metadataItem: any, context?: ConfigurationContextWithExportToXML) => boolean)
 
@@ -272,7 +278,8 @@ export interface MetadataTypePropertyRule extends BasePropertyRule {
 
 export interface InternalInfoPropertyRule extends BasePropertyRule {
   type: "InternalInfo"
-  items: Array<{ name: string; category: string }>
+  items?: Array<{ name: string; category: string }>
+  containedObjectClassIds?: string[]
   forReferenceOnly: true
   getName?: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => string
   thisNode?: boolean

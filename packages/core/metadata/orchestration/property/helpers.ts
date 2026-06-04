@@ -85,8 +85,9 @@ export const shouldProcessProperty = (params: {
 
         if (metadataHasOwnKey) return true
 
-        if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object")
-          return false
+        if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object") {
+          return rule.exportWithoutReferenceXML === true
+        }
 
         const referenceSourceKeys = (referenceMetadata as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
         if (
