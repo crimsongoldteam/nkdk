@@ -33,6 +33,23 @@ const getEntryTopLevelXMLName = (entry: { path: Path; xmlKey: string }): string 
 const getKnownXMLContainerOrder = (entry: { path: Path; xmlKey: string }): number | undefined =>
   XML_CONTAINER_ORDER.get(getEntryTopLevelXMLName(entry))
 
+const AUTO_REQUIRED_XML_PARENT_ROOTS = new Set<string>(["ChildObjects", "ListSettings"])
+
+export const collectAutoRequiredXMLParentRoot = (rule: PropertyRule, roots: Set<string>): void => {
+  const root = rule.xmlParents?.[0]
+  if (root !== undefined && AUTO_REQUIRED_XML_PARENT_ROOTS.has(root)) {
+    roots.add(root)
+  }
+}
+
+export const applyAutoRequiredXMLParents = (result: ItemXML, roots: ReadonlySet<string>): void => {
+  for (const root of roots) {
+    if (result[root] === undefined) {
+      result[root] = {}
+    }
+  }
+}
+
 type PropertyExportImportOperation =
   | "exportToXML"
   | "importFromXML"
