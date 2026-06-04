@@ -86,15 +86,14 @@ properties: {
 
 ## Отношение к order
 
-`order` удаляется как способ описывать порядок XML. Порядок берётся из физического порядка ключей в `rule.properties`.
+`order` остаётся способом явно описывать порядок XML-свойств внутри одного XML-пути. Это важно для общих spread-блоков вроде `commonTabularSectionProperties`, где физический порядок ключей в конкретном `MetadataItemRule` не всегда совпадает с XML-порядком.
 
-Сейчас `order` используется шире, чем `requiredXMLParents`: внутри `MetadataAttribute`, `MetadataTabularSection`, `MetadataCommand`, СКД, регистров и форм. Поэтому реализация должна не оставлять переходный режим, а сразу привести правила к физическому XML-порядку и удалить `order` из контракта `PropertyRule`.
+`XMLContainer` отвечает только за порядок и обязательность XML-контейнеров: `InternalInfo`, `Properties`, `ChildObjects`, `ListSettings`. Внутри контейнера порядок по-прежнему может задаваться `order`; если `order` не указан, используется существующий порядок ключей правила с учётом reference.
 
 1. Ввести `XMLContainer` и тесты на порядок контейнеров.
 2. Перевести все правила с `requiredXMLParents` на `XMLContainer`.
-3. Физически переупорядочить все правила, где сейчас используется `order`, чтобы порядок ключей совпадал с XML-порядком.
-4. Удалить все `order` из `rules.ts`, удалить поле `order` из `BasePropertyRule` и убрать сортировку по `order` из orchestration.
-5. Оставить reference-порядок главным для round-trip с reference, но без reference использовать порядок ключей правил и `XMLContainer`.
+3. Сохранять `order` в правилах, где он уже нужен для порядка XML-свойств внутри контейнера.
+4. Оставить reference-порядок главным для round-trip с reference, но без reference использовать порядок контейнеров из `XMLContainer` и порядок свойств из `order`/ключей правил.
 
 ## Проверка
 
