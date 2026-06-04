@@ -444,14 +444,6 @@ export interface MetadataItemRule extends MetadataItem {
   xmlDir?: string
 
   /**
-   * Пути к XML-тегам-контейнерам, которые должны присутствовать в результате exportPropertiesToXML
-   * всегда, даже пустыми. Каждый путь — массив ключей от корня результата, симметричный xmlParents
-   * на уровне PropertyRule. Пример: [["Catalog", "ChildObjects"]].
-   * Может содержать объект { path, tag } для создания контейнера только при экспорте с указанным тегом.
-   */
-  requiredXMLParents?: ReadonlyArray<ReadonlyArray<string> | { path: ReadonlyArray<string>; tag?: string }>
-
-  /**
    * Имена терминальных узлов, которые материализуются как composition-дочки при импорте объекта.
    * Пример: ["ПустаяСсылка"] — создаёт узел `<prefix>.<name>.ПустаяСсылка` с owning-ребром.
    */

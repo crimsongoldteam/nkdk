@@ -6,7 +6,6 @@ import { getTypeRule } from "../formElement/factory"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
 import {
   applyAutoRequiredXMLParents,
-  applyRequiredXMLParents,
   collectAutoRequiredXMLParentRoot,
   getOrderedKeysToXML,
   shouldProcessProperty,
@@ -94,10 +93,6 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   }
 
   applyAutoRequiredXMLParents(result, autoRequiredXMLParentRoots)
-
-  if (rule.requiredXMLParents) {
-    applyRequiredXMLParents(result, rule.requiredXMLParents, tag)
-  }
 
   return result
 }

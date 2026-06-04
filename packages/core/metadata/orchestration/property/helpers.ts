@@ -404,22 +404,3 @@ export const getValueOrDefault = (params: {
 
   return rule.defaultValue
 }
-
-export const applyRequiredXMLParents = (
-  result: ItemXML,
-  entries: ReadonlyArray<ReadonlyArray<string> | { path: ReadonlyArray<string>; tag?: string }>,
-  tag?: string[]
-): void => {
-  for (const entry of entries) {
-    const path = "path" in entry ? entry.path : entry
-    const entryTag = "path" in entry ? entry.tag : undefined
-    if (entryTag !== undefined && (tag === undefined || !tag.includes(entryTag))) continue
-    let node = result
-    for (const key of path) {
-      if (node[key] === undefined) {
-        node[key] = {}
-      }
-      node = node[key]
-    }
-  }
-}
