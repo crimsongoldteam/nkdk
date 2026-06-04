@@ -5,6 +5,7 @@ import { join } from "path"
 import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
 import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
 import { mockContextToXML } from "~/tests/mockContext"
+import { buildChildFormCurrentXMLPath } from "~/metadata/commonObjects/childFormNames/syncExternalToXML"
 import { MetadataExternalDataSourceRules } from "./rules"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
@@ -15,6 +16,16 @@ const write = async (path: string, content: string) => {
 }
 
 describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
+  it("строит currentXMLPath формы вложенного file-item объекта без повторного имени объекта", () => {
+    expect(
+      buildChildFormCurrentXMLPath({
+        xmlDir: "Tables/ТаблицаА",
+        name: "",
+        formName: "ФормаСписка",
+      })
+    ).toBe("Tables/ТаблицаА/Forms/ФормаСписка/Ext/Form.xml")
+  })
+
   it("читает ExternalDataSource из единого YAML-файла и записывает XML в outputDir", async () => {
     const { comparisons, outputDir } = await testSyncAppliedObjectToXML({
       rule: MetadataExternalDataSourceRules,
@@ -126,9 +137,9 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
     expect(fs.readFileSync(join(outputDir, "Tables/ТаблицаВсеСвойства/Ext/ManagerModule.bsl"), "utf-8")).toBe(
       "// table manager"
     )
-    expect(fs.readFileSync(join(outputDir, "Tables/ТаблицаВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl"), "utf-8")).toBe(
-      "// table command"
-    )
+    expect(
+      fs.readFileSync(join(outputDir, "Tables/ТаблицаВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl"), "utf-8")
+    ).toBe("// table command")
     expect(fs.existsSync(join(outputDir, "Tables/ТаблицаВсеСвойства/Tables/ТаблицаВсеСвойства"))).toBe(false)
     expect(fs.readFileSync(join(outputDir, "Tables/ТаблицаВсеСвойства/Ext/Help/ru.html"), "utf-8")).toBe(
       "<html>table help</html>"
@@ -150,9 +161,7 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
         join(outputDir, "Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства/Ext/Help/ru.html"),
         "utf-8"
       )
-    ).toBe(
-      "<html>dimension table help</html>"
-    )
+    ).toBe("<html>dimension table help</html>")
   })
 
   it("без reference собирает таблицы, кубы и таблицы измерений из отдельных YAML-папок", async () => {
@@ -164,6 +173,16 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
     await write(join(objectDir, "Свойства.yaml"), "Синоним: Синоним")
     await write(join(objectDir, "Таблицы/ЯТаблица/Свойства.yaml"), "ИмяВИсточникеДанных: ЯТаблицаSQL")
     await write(join(objectDir, "Таблицы/АТаблица/Свойства.yaml"), "ИмяВИсточникеДанных: АТаблицаSQL")
+    await write(
+      join(objectDir, "Таблицы/АТаблица/Формы/ФормаСписка/Форма.yaml"),
+      `Элементы:
+  ПолеВвода1:
+    Вид: ПолеВвода
+    Ширина: 10
+    ПутьКДанным: Реквизит
+Синоним: Форма списка
+НазначенияИспользования: ПлатформаИМобильноеПриложение`
+    )
     await write(join(objectDir, "Кубы/ЯКуб/Свойства.yaml"), "ИмяВИсточникеДанных: ЯКубSQL")
     await write(join(objectDir, "Кубы/АКуб/Свойства.yaml"), "ИмяВИсточникеДанных: АКубSQL")
     await write(
@@ -200,6 +219,8 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
     )
 
     expect(fs.existsSync(join(outputDir, "Tables/АТаблица.xml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Tables/АТаблица/Forms/ФормаСписка.xml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Tables/АТаблица/Forms/ФормаСписка/Ext/Form.xml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, "Tables/ЯТаблица.xml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, "Cubes/АКуб.xml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, "Cubes/ЯКуб.xml"))).toBe(true)

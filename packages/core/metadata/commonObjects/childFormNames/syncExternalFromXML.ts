@@ -7,12 +7,13 @@ import { importContentFromXML } from "~/xml/import/importer"
 
 /**
  * Сканирует `<xmlDir>/<name>/Forms/*.xml` и для каждого вызывает `convertFormFromXML`.
+ * Если `name` пустой, `xmlDir` уже указывает на текущий объект.
  * Формы обрабатываются последовательно внутри объекта.
  */
 export const syncChildFormNamesFromXML: SyncExternalFromXMLFunction = async (params) => {
   const { context, xmlDir, nkdkDir, name } = params
 
-  const formsDir = join(xmlDir, name, "Forms")
+  const formsDir = name === "" ? join(xmlDir, "Forms") : join(xmlDir, name, "Forms")
   if (!fs.existsSync(formsDir)) return
 
   const entries = await fs.promises.readdir(formsDir, { withFileTypes: true })
@@ -32,11 +33,7 @@ export const syncChildFormNamesFromXML: SyncExternalFromXMLFunction = async (par
   }
 }
 
-async function copyFormModuleFromXML(params: {
-  formsDir: string
-  nkdkDir: string
-  formName: string
-}): Promise<void> {
+async function copyFormModuleFromXML(params: { formsDir: string; nkdkDir: string; formName: string }): Promise<void> {
   const { formsDir, nkdkDir, formName } = params
   const srcPath = join(formsDir, formName, "Ext", "Form", "Module.bsl")
   if (!fs.existsSync(srcPath)) return
@@ -46,11 +43,7 @@ async function copyFormModuleFromXML(params: {
   await fs.promises.copyFile(srcPath, dstPath)
 }
 
-async function copyFormHelpFromXML(params: {
-  formsDir: string
-  nkdkDir: string
-  formName: string
-}): Promise<void> {
+async function copyFormHelpFromXML(params: { formsDir: string; nkdkDir: string; formName: string }): Promise<void> {
   const { formsDir, nkdkDir, formName } = params
   const helpXmlPath = join(formsDir, formName, "Ext", "Help.xml")
   if (!fs.existsSync(helpXmlPath)) return

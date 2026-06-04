@@ -27,8 +27,13 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
     })
     .map((e) => e.name)
 
-  const formOutputDir = join(xmlDir, name)
-  const formReferenceDir = referenceDir ? join(referenceDir, referenceName ?? name, "Forms") : undefined
+  const formOutputDir = name === "" ? xmlDir : join(xmlDir, name)
+  const formReferenceDir =
+    referenceDir === undefined
+      ? undefined
+      : name === ""
+        ? join(referenceDir, "Forms")
+        : join(referenceDir, referenceName ?? name, "Forms")
 
   for (const formName of formNames) {
     await syncFormToXML({
@@ -45,19 +50,22 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
   }
 }
 
-export const buildChildFormCurrentXMLPath = (params: {
-  xmlDir: string
-  name: string
-  formName: string
-}): string => {
-  const xmlDirName = getLastPathSegment(params.xmlDir)
-  return posix.join(xmlDirName, params.name, "Forms", params.formName, "Ext", "Form.xml")
+export const buildChildFormCurrentXMLPath = (params: { xmlDir: string; name: string; formName: string }): string => {
+  const currentXMLDir =
+    params.name === "" ? toPosixPath(params.xmlDir) : posix.join(getLastPathSegment(params.xmlDir), params.name)
+  return posix.join(currentXMLDir, "Forms", params.formName, "Ext", "Form.xml")
 }
 
 const getLastPathSegment = (value: string): string => {
   const segments = value.split(/[\\/]+/).filter((segment) => segment.length > 0)
   return segments.length > 0 ? segments[segments.length - 1] : value
 }
+
+const toPosixPath = (value: string): string =>
+  value
+    .split(/[\\/]+/)
+    .filter((segment) => segment.length > 0)
+    .join("/")
 
 async function copyFormModuleToXML(params: {
   nkdkDir: string
