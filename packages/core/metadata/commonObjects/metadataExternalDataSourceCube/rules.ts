@@ -232,7 +232,6 @@ const { xmlRoot: _xmlRoot, ...cubeCollectionProperties } = cubeProperties
 export const MetadataExternalDataSourceCubeRules = {
   itemType: "MetadataExternalDataSourceCube",
   properties: cubeProperties,
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [
     {
       propertyKey: "dimensionTables",
@@ -248,7 +247,6 @@ export const MetadataExternalDataSourceCubeRules = {
 export const MetadataExternalDataSourceCubeCollectionRules = {
   itemType: "MetadataExternalDataSourceCube",
   properties: cubeCollectionProperties,
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [
     {
       propertyKey: "dimensionTables",

@@ -213,6 +213,5 @@ export const MetadataDataProcessorRules = {
       nkdkDir: "Справка",
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataDataProcessorCommandRules }],
 } as const satisfies MetadataItemRule

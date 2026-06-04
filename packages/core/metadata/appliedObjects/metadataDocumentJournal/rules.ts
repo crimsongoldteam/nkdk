@@ -192,6 +192,5 @@ export const MetadataDocumentJournalRules = {
       nkdkDir: "Справка",
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataDocumentJournalCommandRules }],
 } as const satisfies MetadataItemRule

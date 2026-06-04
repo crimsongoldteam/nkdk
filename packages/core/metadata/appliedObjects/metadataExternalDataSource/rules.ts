@@ -104,7 +104,6 @@ export const MetadataExternalDataSourceRules = {
       runtimeOnly: true,
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [
     {
       propertyKey: "tables",

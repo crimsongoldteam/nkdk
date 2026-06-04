@@ -111,6 +111,5 @@ export const MetadataChartOfCharacteristicTypesRules = {
     additionalIndexes: { yaml: "ДополнительныеИндексы", type: "AdditionalIndex", filePath: "Ext/AdditionalIndexes.xml" },
     help: { type: "Help", filePath: "Ext/Help.xml", xmlPath: "Ext/Help.xml", nkdkDir: "Справка", toXML: false, fromXML: false },
   },
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataChartOfCharacteristicTypesCommandRules }],
 } as const satisfies MetadataItemRule

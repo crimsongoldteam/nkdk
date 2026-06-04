@@ -412,13 +412,11 @@ const { xmlRoot: _xmlRoot, ...tableCollectionProperties } = tableProperties
 export const MetadataExternalDataSourceTableRules = {
   itemType: "MetadataExternalDataSourceTable",
   properties: tableProperties,
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataExternalDataSourceTableCommandRules }],
 } as const satisfies MetadataItemRule
 
 export const MetadataExternalDataSourceTableCollectionRules = {
   itemType: "MetadataExternalDataSourceTable",
   properties: tableCollectionProperties,
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataExternalDataSourceTableCommandRules }],
 } as const satisfies MetadataItemRule

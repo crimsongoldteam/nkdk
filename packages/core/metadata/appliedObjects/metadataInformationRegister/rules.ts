@@ -319,6 +319,5 @@ export const MetadataInformationRegisterRules = {
       fromXML: false,
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataInformationRegisterCommandRules }],
 } as const satisfies MetadataItemRule

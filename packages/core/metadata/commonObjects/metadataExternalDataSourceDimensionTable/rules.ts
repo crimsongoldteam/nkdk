@@ -251,13 +251,11 @@ const { xmlRoot: _xmlRoot, ...dimensionTableCollectionProperties } = dimensionTa
 export const MetadataExternalDataSourceDimensionTableRules = {
   itemType: "MetadataExternalDataSourceDimensionTable",
   properties: dimensionTableProperties,
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataExternalDataSourceDimensionTableCommandRules }],
 } as const satisfies MetadataItemRule
 
 export const MetadataExternalDataSourceDimensionTableCollectionRules = {
   itemType: "MetadataExternalDataSourceDimensionTable",
   properties: dimensionTableCollectionProperties,
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataExternalDataSourceDimensionTableCommandRules }],
 } as const satisfies MetadataItemRule

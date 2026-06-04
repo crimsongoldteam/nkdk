@@ -110,5 +110,4 @@ export const MetadataSequenceRules = {
       xmlParents: ["ChildObjects"],
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
 } as const satisfies MetadataItemRule

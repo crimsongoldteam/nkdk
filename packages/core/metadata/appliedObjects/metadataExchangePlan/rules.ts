@@ -425,6 +425,5 @@ export const MetadataExchangePlanRules = {
       nkdkDir: "Справка",
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataExchangePlanCommandRules }],
 } as const satisfies MetadataItemRule

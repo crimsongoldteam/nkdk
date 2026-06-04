@@ -260,6 +260,5 @@ export const MetadataAccumulationRegisterRules = {
       nkdkDir: "Справка",
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataAccumulationRegisterCommandRules }],
 } as const satisfies MetadataItemRule

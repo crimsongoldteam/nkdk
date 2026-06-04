@@ -110,5 +110,4 @@ export const MetadataSettingsStorageRules = {
       xmlParents: childObjects,
     },
   },
-  requiredXMLParents: [childObjects],
 } as const satisfies MetadataItemRule

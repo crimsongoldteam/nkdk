@@ -71,5 +71,4 @@ export const RecalculationRules = {
       fromXML: false,
     },
   },
-  requiredXMLParents: [["ChildObjects"]],
 } as const satisfies MetadataItemRule
