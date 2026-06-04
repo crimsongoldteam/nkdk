@@ -390,8 +390,20 @@ export const TypeDescriptionRules = {
     modifier: "complex",
     ignoreInEnterprise: true,
   },
+  ExternalDataSourceTableObject: {
+    enterprise: "ВнешнийИсточникДанныхТаблицаОбъект",
+    prefix: "cfg",
+    modifier: "complex",
+    ignoreInEnterprise: true,
+  },
   ExternalDataSourceCubeDimensionTableRef: {
     enterprise: "ВнешнийИсточникДанныхКубТаблицаИзмерения",
+    prefix: "cfg",
+    modifier: "complex",
+    ignoreInEnterprise: true,
+  },
+  ExternalDataSourceCubeRecordManager: {
+    enterprise: "ВнешнийИсточникДанныхКубМенеджерЗаписи",
     prefix: "cfg",
     modifier: "complex",
     ignoreInEnterprise: true,
