@@ -1,5 +1,5 @@
 import fs from "fs"
-import { dirname, join } from "path"
+import { dirname, join, posix } from "path"
 import { remapReferenceModel } from "~/metadata/appliedObjects/configuration/migrations/referenceRemap"
 import { getChildContextToXML } from "~/metadata/context/helpers"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
@@ -159,10 +159,13 @@ export const syncAppliedObjectToXML = async (params: {
       name,
       referenceDir: syncReferenceDir,
       referenceName,
-      propertyValue: (model as Record<string, unknown>)[key],
       referencePropertyValue:
         referenceModel === undefined ? undefined : (referenceModel as Record<string, unknown>)[key],
       xmlManifest: params.xmlManifest,
+      propertyValue:
+        propRule.type === "ChildFormNames"
+          ? getExpectedFormNames({ rule, model: model as Record<string, unknown> })
+          : (model as Record<string, unknown>)[key],
     })
   }
 
@@ -177,6 +180,7 @@ export const syncAppliedObjectToXML = async (params: {
     referenceName,
     xmlManifest: params.xmlManifest,
     xmlDirContainsCurrentItem: false,
+    xmlRelativeDir: undefined,
   })
 
   // Записываем внешние файлы для свойств с filePath. Под капотом exportPropertyToXML
@@ -232,6 +236,7 @@ async function syncChildCollectionExternalFilesToXML(params: {
   referenceName?: string
   xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
   xmlDirContainsCurrentItem: boolean
+  xmlRelativeDir?: string
 }): Promise<void> {
   const { context, rule, model, nkdkDir, xmlDir, referenceDir, name, referenceName, xmlManifest } = params
 
@@ -248,6 +253,12 @@ async function syncChildCollectionExternalFilesToXML(params: {
       const childXmlDir = childCollection.xmlDir
         ? join(xmlDir, resolveChildCollectionDir(childCollection.xmlDir, item.name, name))
         : xmlDir
+      const childXMLRelativeDir = childCollection.xmlDir
+        ? posix.join(
+            params.xmlRelativeDir ?? "",
+            normalizeXMLPath(resolveChildCollectionDir(childCollection.xmlDir, item.name, name))
+          )
+        : params.xmlRelativeDir
       const childReferenceDir =
         referenceDir && childCollection.xmlDir
           ? join(referenceDir, resolveChildCollectionDir(childCollection.xmlDir, item.name, referenceName ?? name))
@@ -302,7 +313,7 @@ async function syncChildCollectionExternalFilesToXML(params: {
         }
       }
 
-      for (const [, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
+      for (const [itemPropKey, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
         const syncFn = getTypeRule(itemPropRule.type, "syncExternalToXML")
         if (!syncFn) continue
         const externalSyncName = hasOwnDirs && isFileChildNameRule(itemPropRule) ? "" : syncName
@@ -315,8 +326,13 @@ async function syncChildCollectionExternalFilesToXML(params: {
           name: externalSyncName,
           referenceDir: childReferenceDir,
           referenceName: externalSyncReferenceName,
+          propertyValue:
+            itemPropRule.type === "ChildFormNames"
+              ? getExpectedFormNames({ rule: childCollection.itemRule, model: item.model })
+              : item.model[itemPropKey],
           xmlManifest,
           itemName: hasOwnDirs ? undefined : item.name,
+          currentXMLDir: externalSyncName === "" ? childXMLRelativeDir : undefined,
         })
         await preserveReferenceChildNameFilesToXML({
           rule: itemPropRule,
@@ -338,9 +354,39 @@ async function syncChildCollectionExternalFilesToXML(params: {
         referenceName: item.name,
         xmlManifest,
         xmlDirContainsCurrentItem: params.xmlDirContainsCurrentItem || childCollection.xmlDir !== undefined,
+        xmlRelativeDir: childXMLRelativeDir,
       })
     }
   }
+}
+
+function normalizeXMLPath(value: string): string {
+  return value.split(/[\\/]+/).filter(Boolean).join("/")
+}
+
+function getExpectedFormNames(params: { rule: MetadataItemRule; model: Record<string, unknown> }): string[] {
+  const names = new Set<string>()
+
+  for (const [key, propRule] of Object.entries(params.rule.properties)) {
+    const value = params.model[key]
+    if (propRule.type === "ChildFormNames" && Array.isArray(value)) {
+      for (const item of value) {
+        if (typeof item === "string" && item.length > 0) names.add(item)
+      }
+      continue
+    }
+
+    if (propRule.referenceScope?.target !== "this" || propRule.referenceScope.kind !== "Form") continue
+    if (typeof value === "string" && value.length > 0) names.add(getLocalFormName(value))
+  }
+
+  return Array.from(names)
+}
+
+function getLocalFormName(value: string): string {
+  const marker = ".Form."
+  const markerIndex = value.lastIndexOf(marker)
+  return markerIndex === -1 ? value : value.slice(markerIndex + marker.length)
 }
 
 function addChildCollectionReferenceNames(params: {

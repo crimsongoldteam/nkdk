@@ -349,4 +349,29 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
     expect(fs.existsSync(join(outputDir, "Tables/ТаблицаВсеСвойства/Forms/ФормаВыбора.xml"))).toBe(false)
     expect(fs.existsSync(join(outputDir, "Cubes/КубВсеСвойства/Forms/ФормаЗаписи.xml"))).toBe(false)
   })
+
+  it("ошибается, если основная форма дочернего объекта ссылается на отсутствующий YAML-файл формы", async () => {
+    const rootDir = await fs.promises.mkdtemp(join(os.tmpdir(), "eds-sync-missing-form-"))
+    const inputDir = join(rootDir, "yaml")
+    const outputDir = join(rootDir, "out")
+    const objectDir = join(inputDir, "ВнешнийИсточник")
+
+    await write(join(objectDir, "Свойства.yaml"), "Синоним: Синоним")
+    await write(
+      join(objectDir, "Таблицы/Таблица/Свойства.yaml"),
+      `ИмяВИсточникеДанных: ТаблицаSQL
+ОсновнаяФормаСписка: ФормаСписка`
+    )
+
+    await expect(
+      syncAppliedObjectToXML({
+        rule: MetadataExternalDataSourceRules,
+        context: mockContextToXML(),
+        inputDir,
+        name: "ВнешнийИсточник",
+        outputDir,
+        referenceModel: null,
+      })
+    ).rejects.toThrow(/Формы\/ФормаСписка\/Форма\.yaml/)
+  })
 })
