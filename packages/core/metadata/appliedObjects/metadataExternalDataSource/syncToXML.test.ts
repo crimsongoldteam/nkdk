@@ -185,10 +185,16 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
     })
 
     const rootXml = fs.readFileSync(join(outputDir, "ВнешнийИсточник.xml"), "utf-8")
+    expect(rootXml).toContain("<Table>АТаблица</Table>")
+    expect(rootXml).toContain("<Table>ЯТаблица</Table>")
+    expect(rootXml).toContain("<Cube>АКуб</Cube>")
+    expect(rootXml).toContain("<Cube>ЯКуб</Cube>")
     expect(rootXml.indexOf("<Table>АТаблица</Table>")).toBeLessThan(rootXml.indexOf("<Table>ЯТаблица</Table>"))
     expect(rootXml.indexOf("<Cube>АКуб</Cube>")).toBeLessThan(rootXml.indexOf("<Cube>ЯКуб</Cube>"))
 
     const cubeXml = fs.readFileSync(join(outputDir, "Cubes/АКуб.xml"), "utf-8")
+    expect(cubeXml).toContain("<DimensionTable>АИзмерение</DimensionTable>")
+    expect(cubeXml).toContain("<DimensionTable>ЯИзмерение</DimensionTable>")
     expect(cubeXml.indexOf("<DimensionTable>АИзмерение</DimensionTable>")).toBeLessThan(
       cubeXml.indexOf("<DimensionTable>ЯИзмерение</DimensionTable>")
     )
@@ -236,6 +242,54 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
     expect(rootXml).not.toContain("InlineCube")
     expect(fs.existsSync(join(outputDir, "Tables/FolderTable.xml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, "Tables/InlineTable.xml"))).toBe(false)
+  })
+
+  it("сохраняет reference-порядок вложенных таблиц измерений из XML куба", async () => {
+    const rootDir = await fs.promises.mkdtemp(join(os.tmpdir(), "eds-sync-dimension-order-"))
+    const inputDir = join(rootDir, "yaml")
+    const outputDir = join(rootDir, "out")
+    const referenceDir = join(rootDir, "reference")
+    const objectDir = join(inputDir, "ВнешнийИсточник")
+
+    await write(join(objectDir, "Свойства.yaml"), "Синоним: Синоним")
+    await write(join(objectDir, "Кубы/Куб/Свойства.yaml"), "ИмяВИсточникеДанных: КубSQL")
+    await write(
+      join(objectDir, "Кубы/Куб/ТаблицыИзмерений/ТаблицаИзмеренияА/Свойства.yaml"),
+      "ИмяВИсточникеДанных: ТаблицаИзмеренияАSQL"
+    )
+    await write(
+      join(objectDir, "Кубы/Куб/ТаблицыИзмерений/ТаблицаИзмеренияБ/Свойства.yaml"),
+      "ИмяВИсточникеДанных: ТаблицаИзмеренияБSQL"
+    )
+    await write(
+      join(referenceDir, "Cubes/Куб.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject>
+  <Cube>
+    <ChildObjects>
+      <DimensionTable>ТаблицаИзмеренияБ</DimensionTable>
+      <DimensionTable>ТаблицаИзмеренияА</DimensionTable>
+    </ChildObjects>
+  </Cube>
+</MetaDataObject>`
+    )
+
+    await syncAppliedObjectToXML({
+      rule: MetadataExternalDataSourceRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ВнешнийИсточник",
+      outputDir,
+      referenceDir,
+      referenceModel: null,
+    })
+
+    const cubeXml = fs.readFileSync(join(outputDir, "Cubes/Куб.xml"), "utf-8")
+    expect(cubeXml).toContain("<DimensionTable>ТаблицаИзмеренияБ</DimensionTable>")
+    expect(cubeXml).toContain("<DimensionTable>ТаблицаИзмеренияА</DimensionTable>")
+    expect(cubeXml.indexOf("<DimensionTable>ТаблицаИзмеренияБ</DimensionTable>")).toBeLessThan(
+      cubeXml.indexOf("<DimensionTable>ТаблицаИзмеренияА</DimensionTable>")
+    )
   })
 
   it("не восстанавливает формы дочерних объектов из reference, если текущая папка Формы пустая", async () => {

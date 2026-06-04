@@ -375,6 +375,7 @@ async function addFileItemChildCollectionsFromYAML(params: {
   parentName: string
   referenceDir?: string
   referenceName?: string
+  referenceXmlPath?: string
 }): Promise<void> {
   for (const childCollection of params.rule.childCollections ?? []) {
     if (!childCollection.fileItemRule || !childCollection.nkdkDir) continue
@@ -395,6 +396,7 @@ async function addFileItemChildCollectionsFromYAML(params: {
       childCollection,
       referenceDir: params.referenceDir,
       referenceName: params.referenceName ?? params.parentName,
+      referenceXmlPath: params.referenceXmlPath,
     })
     const orderedNames = orderFileItemNames({ currentNames: folderNames, referenceNames })
     const childModels: Record<string, unknown>[] = []
@@ -430,6 +432,7 @@ async function addFileItemChildCollectionsFromYAML(params: {
         parentName: childName,
         referenceDir: childReferenceDir,
         referenceName: childName,
+        referenceXmlPath: childReferenceDir ? `${childReferenceDir}.xml` : undefined,
       })
       childModels.push(childModel)
     }
@@ -443,12 +446,13 @@ function readFileItemReferenceNamesFromXML(params: {
   childCollection: NonNullable<MetadataItemRule["childCollections"]>[number]
   referenceDir?: string
   referenceName: string
+  referenceXmlPath?: string
 }): string[] | undefined {
-  if (!params.referenceDir) return undefined
+  if (!params.referenceDir && !params.referenceXmlPath) return undefined
   const propertyRule = params.rule.properties[params.childCollection.propertyKey]
   if (!propertyRule) return undefined
 
-  const referenceXmlPath = join(params.referenceDir, `${params.referenceName}.xml`)
+  const referenceXmlPath = params.referenceXmlPath ?? join(params.referenceDir as string, `${params.referenceName}.xml`)
   if (!fs.existsSync(referenceXmlPath)) return undefined
 
   const container = getFileItemXMLRootContainer(params.rule)
@@ -459,8 +463,17 @@ function readFileItemReferenceNamesFromXML(params: {
   const root = (parsed.MetaDataObject as Record<string, unknown> | undefined)?.[container]
   if (!root || typeof root !== "object") return undefined
 
-  const xmlKey = propertyRule.xml ?? params.childCollection.propertyKey
-  const xmlValue = readXMLPath(root as Record<string, unknown>, [...(propertyRule.xmlParents ?? []), xmlKey])
+  const xmlRootContainer = params.childCollection.fileItemRule
+    ? getFileItemXMLRootContainer(params.childCollection.fileItemRule)
+    : undefined
+  const referenceNamesRule = xmlRootContainer
+    ? Object.values(params.rule.properties).find(
+        (candidate) => candidate.type === "ChildFormNames" && candidate.xml === xmlRootContainer
+      )
+    : undefined
+  const xmlKey = propertyRule.xml ?? xmlRootContainer ?? params.childCollection.propertyKey
+  const xmlParents = propertyRule.xmlParents ?? referenceNamesRule?.xmlParents ?? ["ChildObjects"]
+  const xmlValue = readXMLPath(root as Record<string, unknown>, [...xmlParents, xmlKey])
   if (xmlValue === undefined) return undefined
 
   return (Array.isArray(xmlValue) ? xmlValue : [xmlValue]).filter((value): value is string => typeof value === "string")
