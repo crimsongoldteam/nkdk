@@ -451,6 +451,14 @@ import type {
   UsedMobileApplicationFunctionalities,
   UsedMobileApplicationFunctionalitiesYAML,
 } from "~/metadata/appliedObjects/configuration/usedMobileApplicationFunctionalities"
+import type {
+  AllowedIncomingShareRequestTypes,
+  AllowedIncomingShareRequestTypesYAML,
+} from "~/metadata/appliedObjects/configuration/allowedIncomingShareRequestTypes"
+import type {
+  MobileApplicationURLs,
+  MobileApplicationURLsYAML,
+} from "~/metadata/appliedObjects/configuration/mobileApplicationURLs"
 import { UserSettingsID, UserSettingsIDYAML } from "~/metadata/commonObjects/userSettingsID/types"
 import { UserVisible, UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
@@ -1016,6 +1024,14 @@ export type PropertyTypeRegistry = {
   UsedMobileApplicationFunctionalities: {
     item: UsedMobileApplicationFunctionalities
     yaml: UsedMobileApplicationFunctionalitiesYAML
+  }
+  MobileApplicationURLs: {
+    item: MobileApplicationURLs
+    yaml: MobileApplicationURLsYAML
+  }
+  AllowedIncomingShareRequestTypes: {
+    item: AllowedIncomingShareRequestTypes
+    yaml: AllowedIncomingShareRequestTypesYAML
   }
 
   FunctionalOptionsProperty: {
@@ -1733,6 +1749,8 @@ export const PropertyRuleTypeKeys = Object.keys({
   TypeLink: "TypeLink",
   UsePurposes: "UsePurposes",
   UsedMobileApplicationFunctionalities: "UsedMobileApplicationFunctionalities",
+  MobileApplicationURLs: "MobileApplicationURLs",
+  AllowedIncomingShareRequestTypes: "AllowedIncomingShareRequestTypes",
   GroupChildItems: "GroupChildItems",
   CommandBarChildItems: "CommandBarChildItems",
   TableChildItems: "TableChildItems",

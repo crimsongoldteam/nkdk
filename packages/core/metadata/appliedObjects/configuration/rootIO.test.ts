@@ -93,6 +93,132 @@ describe("root Configuration IO", () => {
     expect(normalizeXML(actual)).toBe(normalizeXML(readXMLFileAsString("configuration/full.xml")))
   })
 
+  it("сохраняет мобильные ссылки и входящие запросы Поделиться в YAML round-trip", () => {
+    const sourceXML = readXMLFileAsString("configuration/full.xml")
+      .replace(
+        "<MobileApplicationURLs/>",
+        `<MobileApplicationURLs>
+      <v8:Value xsi:type="app:MobileApplicationURL">
+        <app:baseUrl>НавигационнаяСсылкаМобильногоПриложения</app:baseUrl>
+        <app:useAndroid>true</app:useAndroid>
+        <app:useIOS>true</app:useIOS>
+        <app:useWindows>true</app:useWindows>
+      </v8:Value>
+      <v8:Value xsi:type="app:MobileApplicationURL">
+        <app:baseUrl>НавигационнаяСсылкаМобильногоПриложенияПоУмолчанию</app:baseUrl>
+        <app:useAndroid>false</app:useAndroid>
+        <app:useIOS>false</app:useIOS>
+        <app:useWindows>false</app:useWindows>
+      </v8:Value>
+    </MobileApplicationURLs>`
+      )
+      .replace(
+        "<AllowedIncomingShareRequestTypes/>",
+        `<AllowedIncomingShareRequestTypes>
+      <v8:Value xsi:type="app:AllowedIncomingShareRequestType">
+        <app:mime>ТипСодержимого</app:mime>
+        <app:uti>ИдентификаторТипа</app:uti>
+        <app:ext>РасшриениеТипа</app:ext>
+        <app:processingVariant xsi:type="xs:decimal">0</app:processingVariant>
+        <app:isCustom>true</app:isCustom>
+      </v8:Value>
+    </AllowedIncomingShareRequestTypes>`
+      )
+    fs.writeFileSync(join(xmlDir, CONFIGURATION_XML_FILE), sourceXML, "utf-8")
+
+    const configuration = readConfigurationFromXML({
+      context: mockContextFromXML(),
+      inputDir: xmlDir,
+    })
+    const referenceConfiguration = readConfigurationFromXML({
+      context: mockContextFromXML({ forReference: true }),
+      inputDir: xmlDir,
+    })
+    writeConfigurationToYAML({
+      context: mockContextToYAML,
+      configuration,
+      outputDir: yamlDir,
+    })
+
+    const yaml = fs.readFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "utf-8")
+    expect(yaml).toContain("НавигационныеСсылкиМобильногоПриложения:")
+    expect(yaml).toContain("ДопустимыеТипыВходящихЗапросовПоделиться:")
+    expect(yaml).toContain("baseUrl: НавигационнаяСсылкаМобильногоПриложения")
+    expect(yaml).toContain("baseUrl: НавигационнаяСсылкаМобильногоПриложенияПоУмолчанию")
+    expect(yaml).toContain("useAndroid: Истина")
+    expect(yaml).toContain("useAndroid: Ложь")
+    expect(yaml).toContain("mime: ТипСодержимого")
+    expect(yaml).toContain("uti: ИдентификаторТипа")
+    expect(yaml).toContain("ext: РасшриениеТипа")
+    expect(yaml).toContain("processingVariant: 0")
+    expect(yaml).toContain("isCustom: Истина")
+
+    const fromYAML = readConfigurationFromYAML({
+      context: mockContextToYAML,
+      inputDir: yamlDir,
+      source: referenceConfiguration,
+    })
+    writeConfigurationToXML({
+      context: mockContextToXML(),
+      configuration: fromYAML,
+      referenceConfiguration,
+      outputDir: outXmlDir,
+    })
+
+    const actual = fs.readFileSync(join(outXmlDir, CONFIGURATION_XML_FILE), "utf-8")
+    const properties = getConfigurationProperties(actual)
+    const mobileApplicationURLs = (
+      properties.MobileApplicationURLs as {
+        "v8:Value": Array<{
+          "_xsi:type": string
+          "app:baseUrl": string
+          "app:useAndroid": boolean | string
+          "app:useIOS": boolean | string
+          "app:useWindows": boolean | string
+        }>
+      }
+    )["v8:Value"]
+    const allowedIncomingShareRequestTypes = (
+      properties.AllowedIncomingShareRequestTypes as {
+        "v8:Value": {
+          "_xsi:type": string
+          "app:mime": string
+          "app:uti": string
+          "app:ext": string
+          "app:processingVariant": { "#text": string; "_xsi:type": string }
+          "app:isCustom": boolean | string
+        }
+      }
+    )["v8:Value"]
+
+    expect(mobileApplicationURLs).toEqual([
+      expect.objectContaining({
+        "_xsi:type": "app:MobileApplicationURL",
+        "app:baseUrl": "НавигационнаяСсылкаМобильногоПриложения",
+        "app:useAndroid": "true",
+        "app:useIOS": "true",
+        "app:useWindows": "true",
+      }),
+      expect.objectContaining({
+        "_xsi:type": "app:MobileApplicationURL",
+        "app:baseUrl": "НавигационнаяСсылкаМобильногоПриложенияПоУмолчанию",
+        "app:useAndroid": "false",
+        "app:useIOS": "false",
+        "app:useWindows": "false",
+      }),
+    ])
+    expect(allowedIncomingShareRequestTypes).toEqual(
+      expect.objectContaining({
+        "_xsi:type": "app:AllowedIncomingShareRequestType",
+        "app:mime": "ТипСодержимого",
+        "app:uti": "ИдентификаторТипа",
+        "app:ext": "РасшриениеТипа",
+        "app:processingVariant": { "#text": "0", "_xsi:type": "xs:decimal" },
+        "app:isCustom": "true",
+      })
+    )
+  })
+
   it("импортирует clean Configuration.xml без XML-defaults в модели и YAML", () => {
     fs.writeFileSync(join(xmlDir, CONFIGURATION_XML_FILE), CLEAN_CONFIGURATION_XML, "utf-8")
 

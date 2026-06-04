@@ -1,3 +1,5 @@
+import "./allowedIncomingShareRequestTypes"
+import "./mobileApplicationURLs"
 import "./usedMobileApplicationFunctionalities"
 import "~/metadata/commonObjects/clientApplicationInterface/register"
 import "~/metadata/commonObjects/homePageWorkArea/register"
@@ -278,21 +280,19 @@ export const MetadataConfigurationRules = {
       defaultValueXMLRaw: "",
     },
     mobileApplicationURLs: {
+      yaml: "НавигационныеСсылкиМобильногоПриложения",
       xml: "MobileApplicationURLs",
-      type: "string",
+      type: "MobileApplicationURLs",
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-      toYAML: false,
-      fromYAML: false,
       xmlParents: configurationProperties,
     },
     allowedIncomingShareRequestTypes: {
+      yaml: "ДопустимыеТипыВходящихЗапросовПоделиться",
       xml: "AllowedIncomingShareRequestTypes",
-      type: "string",
+      type: "AllowedIncomingShareRequestTypes",
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-      toYAML: false,
-      fromYAML: false,
       xmlParents: configurationProperties,
     },
     mainClientApplicationWindowMode: {
