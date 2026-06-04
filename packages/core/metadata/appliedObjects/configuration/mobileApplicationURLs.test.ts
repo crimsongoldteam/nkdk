@@ -7,6 +7,7 @@ import {
   exportMobileApplicationURLsToYAML,
   importMobileApplicationURLsFromXML,
   importMobileApplicationURLsFromYAML,
+  MobileApplicationURLsJSONSchema,
   type MobileApplicationURLs,
   type MobileApplicationURLsYAML,
 } from "./mobileApplicationURLs"
@@ -16,16 +17,16 @@ const xmlFromAll = {
     {
       "_xsi:type": "app:MobileApplicationURL" as const,
       "app:baseUrl": "НавигационнаяСсылкаМобильногоПриложения",
-      "app:useAndroid": "true",
-      "app:useIOS": "true",
-      "app:useWindows": "true",
+      "app:useAndroid": "true" as const,
+      "app:useIOS": "true" as const,
+      "app:useWindows": "true" as const,
     },
     {
       "_xsi:type": "app:MobileApplicationURL" as const,
       "app:baseUrl": "НавигационнаяСсылкаМобильногоПриложенияПоУмолчанию",
-      "app:useAndroid": "false",
-      "app:useIOS": "false",
-      "app:useWindows": "false",
+      "app:useAndroid": "false" as const,
+      "app:useIOS": "false" as const,
+      "app:useWindows": "false" as const,
     },
   ],
 }
@@ -128,13 +129,10 @@ describe("MobileApplicationURLs", () => {
   })
 
   it("exports JSON schema with mobile application URL keys", () => {
-    const result = exportMobileApplicationURLsToJSONSchema({
-      context: mockContext,
-      rule: undefined,
-      value: undefined,
-    })
+    const result = MobileApplicationURLsJSONSchema
 
-    const properties = (result as { items: { properties: Record<string, unknown> } }).items.properties
+    const properties = (result as unknown as { items: { properties: Record<string, unknown> } }).items
+      .properties
 
     expect(result).toMatchObject({ type: "array", items: { type: "object" } })
     expect(Object.keys(properties)).toEqual(["baseUrl", "useAndroid", "useIOS", "useWindows"])

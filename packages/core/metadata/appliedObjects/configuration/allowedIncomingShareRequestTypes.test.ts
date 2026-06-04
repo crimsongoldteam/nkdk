@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { getTypeRule } from "~/metadata/orchestration"
 import { mockContext } from "~/tests/mockContext"
 import {
+  AllowedIncomingShareRequestTypesJSONSchema,
   exportAllowedIncomingShareRequestTypesToJSONSchema,
   exportAllowedIncomingShareRequestTypesToXML,
   exportAllowedIncomingShareRequestTypesToYAML,
@@ -18,7 +19,7 @@ const xmlFromAll = {
     "app:uti": "ИдентификаторТипа",
     "app:ext": "РасшриениеТипа",
     "app:processingVariant": { "_xsi:type": "xs:decimal" as const, "#text": "0" },
-    "app:isCustom": "true",
+    "app:isCustom": "true" as const,
   },
 }
 
@@ -40,7 +41,7 @@ const neutralXmlWithEmptyFields = {
       "app:uti": "",
       "app:ext": "txt",
       "app:processingVariant": { "_xsi:type": "xs:decimal" as const, "#text": "0" },
-      "app:isCustom": "false",
+      "app:isCustom": "false" as const,
     },
     {
       "_xsi:type": "app:AllowedIncomingShareRequestType" as const,
@@ -48,7 +49,7 @@ const neutralXmlWithEmptyFields = {
       "app:uti": "",
       "app:ext": "",
       "app:processingVariant": { "_xsi:type": "xs:decimal" as const, "#text": "0" },
-      "app:isCustom": "false",
+      "app:isCustom": "false" as const,
     },
   ],
 }
@@ -169,13 +170,10 @@ describe("AllowedIncomingShareRequestTypes", () => {
   })
 
   it("exports JSON schema with allowed incoming share request type keys", () => {
-    const result = exportAllowedIncomingShareRequestTypesToJSONSchema({
-      context: mockContext,
-      rule: undefined,
-      value: undefined,
-    })
+    const result = AllowedIncomingShareRequestTypesJSONSchema
 
-    const properties = (result as { items: { properties: Record<string, unknown> } }).items.properties
+    const properties = (result as unknown as { items: { properties: Record<string, unknown> } }).items
+      .properties
 
     expect(result).toMatchObject({ type: "array", items: { type: "object" } })
     expect(Object.keys(properties)).toEqual(["mime", "uti", "ext", "processingVariant", "isCustom"])
