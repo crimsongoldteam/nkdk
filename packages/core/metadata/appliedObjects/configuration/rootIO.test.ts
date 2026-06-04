@@ -144,7 +144,14 @@ describe("root Configuration IO", () => {
     expect(yaml).toContain("НавигационныеСсылкиМобильногоПриложения:")
     expect(yaml).toContain("ДопустимыеТипыВходящихЗапросовПоделиться:")
     expect(yaml).toContain("baseUrl: НавигационнаяСсылкаМобильногоПриложения")
+    expect(yaml).toContain("baseUrl: НавигационнаяСсылкаМобильногоПриложенияПоУмолчанию")
+    expect(yaml).toContain("useAndroid: Истина")
+    expect(yaml).toContain("useAndroid: Ложь")
     expect(yaml).toContain("mime: ТипСодержимого")
+    expect(yaml).toContain("uti: ИдентификаторТипа")
+    expect(yaml).toContain("ext: РасшриениеТипа")
+    expect(yaml).toContain("processingVariant: 0")
+    expect(yaml).toContain("isCustom: Истина")
 
     const fromYAML = readConfigurationFromYAML({
       context: mockContextToYAML,
@@ -163,6 +170,7 @@ describe("root Configuration IO", () => {
     const mobileApplicationURLs = (
       properties.MobileApplicationURLs as {
         "v8:Value": Array<{
+          "_xsi:type": string
           "app:baseUrl": string
           "app:useAndroid": boolean | string
           "app:useIOS": boolean | string
@@ -173,6 +181,7 @@ describe("root Configuration IO", () => {
     const allowedIncomingShareRequestTypes = (
       properties.AllowedIncomingShareRequestTypes as {
         "v8:Value": {
+          "_xsi:type": string
           "app:mime": string
           "app:uti": string
           "app:ext": string
@@ -184,12 +193,14 @@ describe("root Configuration IO", () => {
 
     expect(mobileApplicationURLs).toEqual([
       expect.objectContaining({
+        "_xsi:type": "app:MobileApplicationURL",
         "app:baseUrl": "НавигационнаяСсылкаМобильногоПриложения",
         "app:useAndroid": "true",
         "app:useIOS": "true",
         "app:useWindows": "true",
       }),
       expect.objectContaining({
+        "_xsi:type": "app:MobileApplicationURL",
         "app:baseUrl": "НавигационнаяСсылкаМобильногоПриложенияПоУмолчанию",
         "app:useAndroid": "false",
         "app:useIOS": "false",
@@ -198,6 +209,7 @@ describe("root Configuration IO", () => {
     ])
     expect(allowedIncomingShareRequestTypes).toEqual(
       expect.objectContaining({
+        "_xsi:type": "app:AllowedIncomingShareRequestType",
         "app:mime": "ТипСодержимого",
         "app:uti": "ИдентификаторТипа",
         "app:ext": "РасшриениеТипа",
