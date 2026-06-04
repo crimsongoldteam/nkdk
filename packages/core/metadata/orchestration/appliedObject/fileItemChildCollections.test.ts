@@ -13,7 +13,7 @@ import {
 } from "./fileItemChildCollections"
 
 const childRule = {
-  itemType: "Child",
+  itemType: "MetadataExternalDataSourceDimensionTable",
   properties: {
     xmlRoot: {
       type: "XMLRoot",

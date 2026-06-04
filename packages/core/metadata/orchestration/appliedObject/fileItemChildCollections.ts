@@ -4,14 +4,13 @@ import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
-type ChildCollectionDir = string | ((params: { name: string; parentName?: string }) => string)
+type MetadataItemChildCollection = NonNullable<MetadataItemRule["childCollections"]>[number]
+type ChildCollectionDir = NonNullable<MetadataItemChildCollection["nkdkDir"]>
 
-export type FileItemChildCollection = {
-  propertyKey: string
-  nkdkDir?: ChildCollectionDir
-  xmlDir?: ChildCollectionDir
-  fileItemRule?: MetadataItemRule
-}
+export type FileItemChildCollection = Pick<
+  MetadataItemChildCollection,
+  "propertyKey" | "nkdkDir" | "xmlDir" | "fileItemRule"
+>
 
 export type FileItemCollectionItem = {
   name: string
