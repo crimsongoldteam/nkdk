@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { getTypeRule } from "~/metadata/orchestration"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { mockContext } from "~/tests/mockContext"
 import {
   exportMobileApplicationURLsToJSONSchema,
@@ -7,10 +8,16 @@ import {
   exportMobileApplicationURLsToYAML,
   importMobileApplicationURLsFromXML,
   importMobileApplicationURLsFromYAML,
-  MobileApplicationURLsJSONSchema,
   type MobileApplicationURLs,
   type MobileApplicationURLsYAML,
 } from "./mobileApplicationURLs"
+
+interface ArraySchemaWithObjectProperties {
+  type: "array"
+  items: { type: "object"; properties: Record<string, unknown> }
+}
+
+const schemaRule = { type: "string" } satisfies PropertyRule
 
 const xmlFromAll = {
   "v8:Value": [
@@ -129,10 +136,13 @@ describe("MobileApplicationURLs", () => {
   })
 
   it("exports JSON schema with mobile application URL keys", () => {
-    const result = MobileApplicationURLsJSONSchema
+    const result = exportMobileApplicationURLsToJSONSchema({
+      context: mockContext,
+      rule: schemaRule,
+      value: undefined,
+    })
 
-    const properties = (result as unknown as { items: { properties: Record<string, unknown> } }).items
-      .properties
+    const properties = (result as unknown as ArraySchemaWithObjectProperties).items.properties
 
     expect(result).toMatchObject({ type: "array", items: { type: "object" } })
     expect(Object.keys(properties)).toEqual(["baseUrl", "useAndroid", "useIOS", "useWindows"])
