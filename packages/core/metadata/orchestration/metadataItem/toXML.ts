@@ -147,6 +147,9 @@ const mergeXMLValue = (params: {
   path: string[]
 }): unknown => {
   const { key, generated, reference, rule, path } = params
+  const propertyRule = findPropertyRuleForXMLPath({ rule, path, xmlKey: key })
+  if (propertyRule?.type === "XDTOTypeName") return generated
+
   if (isPlainXMLObject(generated) && isPlainXMLObject(reference)) {
     return mergeXMLObject({ generated, reference, rule, path: [...path, key] })
   }

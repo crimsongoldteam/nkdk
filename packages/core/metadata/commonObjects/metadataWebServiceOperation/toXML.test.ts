@@ -7,8 +7,8 @@ import "./register"
 const rule = { type: "MetadataWebServiceOperations", xml: "Operation" } as const
 
 describe("export MetadataWebServiceOperations to XML", () => {
-  it("round-trips XDTO type namespace declarations from reference XML", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+  it("exports XDTO type namespace declarations from expanded names", () => {
+    const { result } = testExportPropertyToXML({
       rule,
       value: operationsWithXDTOTypeNamespace,
       xmlRootTag: "Operation",
@@ -16,7 +16,12 @@ describe("export MetadataWebServiceOperations to XML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toContain(
+      '<XDTOReturningValueType xmlns:d6p1="http://example.org/schema">d6p1:CustomerResponse</XDTOReturningValueType>'
+    )
+    expect(result).toContain(
+      '<XDTOValueType xmlns:d6p1="http://example.org/schema">d6p1:Customer</XDTOValueType>'
+    )
   })
 
   it("exports changed XDTO type names without reference namespace declarations", () => {
@@ -26,10 +31,16 @@ describe("export MetadataWebServiceOperations to XML", () => {
       value: [
         {
           ...operation,
-          xdtoReturningValueType: "xs:string",
+          xdtoReturningValueType: {
+            namespace: "http://www.w3.org/2001/XMLSchema",
+            name: "string",
+          },
           parameters: parameters?.map((parameter) => ({
             ...parameter,
-            xdtoValueType: "xs:token",
+            xdtoValueType: {
+              namespace: "http://www.w3.org/2001/XMLSchema",
+              name: "token",
+            },
           })),
         },
       ],
@@ -43,17 +54,23 @@ describe("export MetadataWebServiceOperations to XML", () => {
     expect(result).not.toContain("xmlns:d4p1")
   })
 
-  it("exports XDTO type names as plain strings without reference XML", () => {
+  it("exports built-in XDTO type names as plain strings without reference XML", () => {
     const [{ parameters, ...operation }] = operationsWithXDTOTypeNamespace
     const { result } = testExportPropertyToXML({
       rule,
       value: [
         {
           ...operation,
-          xdtoReturningValueType: "xs:string",
+          xdtoReturningValueType: {
+            namespace: "http://www.w3.org/2001/XMLSchema",
+            name: "string",
+          },
           parameters: parameters?.map((parameter) => ({
             ...parameter,
-            xdtoValueType: "xs:token",
+            xdtoValueType: {
+              namespace: "http://www.w3.org/2001/XMLSchema",
+              name: "token",
+            },
           })),
         },
       ],
@@ -64,6 +81,28 @@ describe("export MetadataWebServiceOperations to XML", () => {
     expect(result).toContain("<XDTOReturningValueType>xs:string</XDTOReturningValueType>")
     expect(result).toContain("<XDTOValueType>xs:token</XDTOValueType>")
     expect(result).not.toContain("xmlns")
+  })
+
+  it("exports custom XDTO type names without reference namespace declarations", () => {
+    const [{ parameters, ...operation }] = operationsWithXDTOTypeNamespace
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        {
+          ...operation,
+          parameters,
+        },
+      ],
+      xmlRootTag: "Operation",
+      referenceMetadata: undefined,
+    })
+
+    expect(result).toContain(
+      '<XDTOReturningValueType xmlns:d6p1="http://example.org/schema">d6p1:CustomerResponse</XDTOReturningValueType>'
+    )
+    expect(result).toContain(
+      '<XDTOValueType xmlns:d6p1="http://example.org/schema">d6p1:Customer</XDTOValueType>'
+    )
   })
 
   it("does not preserve non-xmlns reference attributes on matching XDTO type names", () => {
@@ -104,7 +143,7 @@ describe("export MetadataWebServiceOperations to XML", () => {
       referenceMetadata,
     })
 
-    expect(result).toContain('xmlns:d4p1="http://example.org/schema"')
+    expect(result).toContain('xmlns:d6p1="http://example.org/schema"')
     expect(result).not.toContain("custom=")
   })
 })
