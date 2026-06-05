@@ -13,7 +13,9 @@ export interface XMLRootPropertyRule extends BasePropertyRule {
   /** Имя корневого XML-тега, например "Catalog", "PredefinedData", "AdditionalIndexes" */
   container: string
   /** Атрибуты корневого тега: xmlns-декларации и version */
-  rootAttributes: Record<string, string>
+  rootAttributes:
+    | Record<string, string>
+    | ((params: { data: unknown; referenceData: unknown; ownerMetadataItem: unknown }) => Record<string, string>)
   forReferenceOnly: true
   /** Если true, корневой тег XML — это сам container (без внешней обёртки <MetaDataObject>).
    *  Используется для внешних файлов вроде Ext/Predefined.xml. По умолчанию (false) корень = <MetaDataObject>. */

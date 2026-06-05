@@ -13,8 +13,9 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
   rule: Rule
   referenceData?: ToMetadata<Rule["itemType"]> | undefined
   tag?: string[]
+  ownerMetadataItem?: unknown
 }): ItemXML | undefined => {
-  const { context, data, rule, referenceData, tag } = params
+  const { context, data, rule, referenceData, tag, ownerMetadataItem } = params
 
   if (data === undefined || data === null) {
     return undefined
@@ -47,8 +48,9 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
     const rootAttributes = getXmlRootAttributes({
       data,
       referenceData,
+      ownerMetadataItem,
       xmlRootKey,
-      fallback: (xmlRootProp as any).rootAttributes as Record<string, string>,
+      fallback: (xmlRootProp as any).rootAttributes,
     })
     const isFileRoot = (xmlRootProp as any).isFileRoot === true
     if (isFileRoot) {
@@ -65,13 +67,24 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
 const getXmlRootAttributes = (params: {
   data: unknown
   referenceData: unknown
+  ownerMetadataItem: unknown
   xmlRootKey: string
-  fallback: Record<string, string>
+  fallback:
+    | Record<string, string>
+    | ((params: { data: unknown; referenceData: unknown; ownerMetadataItem: unknown }) => Record<string, string>)
 }): Record<string, string> => {
   const fromReference = getStoredXmlRootAttributes(params.referenceData, params.xmlRootKey)
   if (fromReference) return fromReference
   const fromData = getStoredXmlRootAttributes(params.data, params.xmlRootKey)
-  return fromData ?? params.fallback
+  if (fromData) return fromData
+  if (typeof params.fallback === "function") {
+    return params.fallback({
+      data: params.data,
+      referenceData: params.referenceData,
+      ownerMetadataItem: params.ownerMetadataItem,
+    })
+  }
+  return params.fallback
 }
 
 const getStoredXmlRootAttributes = (data: unknown, xmlRootKey: string): Record<string, string> | undefined => {

@@ -20,6 +20,7 @@ type TestExportPropertyToXMLParamsBase = {
    */
   exportXmlDataAsRoot?: boolean
   itemsTree?: ContextElementToXML[]
+  metadataItem?: unknown
   // applyNumberingIds?: boolean
   /**
    * Явный референс для `exportPropertyToXML`. Если ключ передан (в т.ч. `undefined`),
@@ -90,6 +91,7 @@ export function testExportPropertyToXML(
     rule,
     value,
     referenceMetadata: referenceProperty,
+    metadataItem: params.metadataItem,
   })
 
   setIdsToElements(exportContext)

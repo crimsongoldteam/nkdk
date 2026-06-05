@@ -3,6 +3,7 @@ import { readFileSync } from "fs"
 import { join } from "path"
 import { exportMetadataItemToXML, importMetadataItemFromXML } from "~/metadata/orchestration"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { xmlExport } from "~/xml/export/exporter"
 import { PredefinedRules } from "./rules"
@@ -62,5 +63,27 @@ describe("export Predefined to XML", () => {
 
     expect(exported).toContain('xsi:type="ChartOfAccountsPredefinedItems"')
     expect(normalizeLineEndings(exported)).toEqual(normalizeLineEndings(source.trimEnd()))
+  })
+
+  it("exports chart of characteristic types predefined root xsi:type", () => {
+    const { result } = testExportPropertyToXML({
+      rule: { type: "Predefined" },
+      value: {
+        items: [
+          {
+            itemType: "PredefinedItem",
+            name: "ПредопределенноеВсеСвойства",
+            isFolder: false,
+            code: "000000001",
+            description: "Предопределенное все свойства",
+          },
+        ],
+      },
+      metadataItem: { itemType: "MetadataChartOfCharacteristicTypes" },
+      xmlRootTag: "PredefinedData",
+      exportXmlDataAsRoot: true,
+    })
+
+    expect(result).toContain('xsi:type="PlanOfCharacteristicKindPredefinedItems"')
   })
 })

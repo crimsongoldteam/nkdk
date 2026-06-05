@@ -24,6 +24,7 @@ export const registerExportToXML = <Rule extends MetadataItemRule>(
         data: params.value as ToMetadata<Rule["itemType"]> | undefined,
         rule: itemRule,
         referenceData: params.referenceMetadata as ToMetadata<Rule["itemType"]> | undefined,
+        ownerMetadataItem: params.metadataItem,
       })
     }
   )
