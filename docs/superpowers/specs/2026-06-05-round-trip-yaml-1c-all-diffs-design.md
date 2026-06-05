@@ -86,6 +86,41 @@ xsi:type="PlanOfCharacteristicKindPredefinedItems"
 
 выводится автоматически из правила владельца `MetadataChartOfCharacteristicTypes` и не хранится в YAML.
 
+### Текущее уточнение
+
+После повторной проверки `all` YAML уже содержит `ТипЗначения` у предопределённых элементов ПВХ:
+
+```yaml
+Предопределенные:
+  СубкнтоОдно:
+    Код: "000000001"
+    Наименование: Субкнто1
+    ТипЗначения: Строка(10)
+```
+
+Но сгенерированный `Ext/Predefined.xml` теряет контекст владельца при экспорте внешнего `filePath`-свойства:
+
+```xml
+<PredefinedData ... xsi:type="CatalogPredefinedItems" ...>
+```
+
+Из-за этого экспорт считает файл предопределёнными данными каталога, не выводит `<Type>` у элементов и 1С сообщает:
+
+```text
+Type of predefined characteristic type does not match the type of chart of characteristic types
+```
+
+Решение: при экспорте внешних `filePath`-свойств передавать в контекст текущий metadata-объект как владельца. Тогда `PredefinedRules` и `PredefinedItemRules` используют тот же механизм `getParentFromContext`, что и inline-свойства:
+
+- корень ПВХ получает `xsi:type="PlanOfCharacteristicKindPredefinedItems"`;
+- негрупповые элементы ПВХ выводят `<Type>`;
+- группы ПВХ остаются без пользовательского `ТипЗначения` в YAML и получают пустой XML-контейнер по правилу.
+
+Альтернативы отклонены:
+
+- добавлять специальный признак владельца в `MetadataChartOfCharacteristicTypesRules.predefined` - частное решение вместо уже существующего контекста;
+- хранить `xsi:type` в YAML - это техническая XML-деталь, которую можно вывести из владельца.
+
 ## Решение 2: порядок MetadataEventSubscription
 
 Область решения: `MetadataEventSubscription`.
@@ -163,8 +198,12 @@ File: /home/nikita/git/round-trip/all/CommonForms/ДинамическийСпи
 
 ## Критерии готовности
 
+Границы ближайшей итерации: исправляется только критическая ошибка ПВХ. Предупреждения `Dimension/Resource` остаются отдельной следующей задачей, даже если они продолжают появляться после проверки ПВХ.
+
 - `round-trip-yaml-1c` на `all` проходит `nkdk import` и `nkdk sync`.
 - Загрузка XML без reference в 1С не содержит ошибок ПВХ `Type of predefined characteristic type...`.
+- `ChartsOfCharacteristicTypes/*/Ext/Predefined.xml` без reference получает `xsi:type` из владельца, а не дефолтный `CatalogPredefinedItems`.
+- Негрупповые предопределённые элементы ПВХ сохраняют `ТипЗначения` из YAML в XML `<Type>`.
 - Загрузка XML без reference в 1С не содержит ошибок подписок `Event name required`.
 - Предупреждения `Wrong property... Dimension/Resource`, если останутся, зафиксированы как следующая отдельная задача.
 - Загрузка XML без reference в 1С не содержит предупреждений `Standard attribute ExtDimension5...ExtDimension50 has not been loaded`.
