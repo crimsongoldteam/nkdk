@@ -133,6 +133,12 @@ export const syncAppliedObjectToXML = async (params: {
       },
     },
   }
+  const contextWithOwner = getChildContextToXML({
+    context: contextWithForms,
+    itemType: rule.itemType,
+    path: `${rule.itemType}.${name}`,
+    name,
+  })
 
   const xmlObj = exportMetadataItemToXML({
     context: contextWithForms,
@@ -215,9 +221,10 @@ export const syncAppliedObjectToXML = async (params: {
     if (valueToExport === undefined) continue
 
     const xmlFileObj = exportPropertyToXML({
-      context: contextWithForms,
+      context: contextWithOwner,
       rule: propRule as PropertyRule,
       value: valueToExport,
+      metadataItem: model,
       referenceMetadata: referenceValue,
     }) as Record<string, unknown> | undefined
     if (!xmlFileObj) continue

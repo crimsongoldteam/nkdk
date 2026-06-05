@@ -3,6 +3,7 @@ import os from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
+import { MetadataChartOfCharacteristicTypesRules } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules"
 import { MetadataDocumentNumeratorRules } from "~/metadata/appliedObjects/metadataDocumentNumerator/rules"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
@@ -358,5 +359,44 @@ describe("syncAppliedObjectToXML — (ж) source из filePath reference для 
     expect(result).toContain("<Marker>from-reference-file</Marker>")
     expect(result).not.toContain("<Marker>without-reference-file-source</Marker>")
     expect(mainResult).not.toContain("<Marker>without-reference-file-source</Marker>")
+  })
+})
+
+describe("syncAppliedObjectToXML — (з) owner context для filePath", () => {
+  it("передаёт владельца во внешний Predefined.xml ПВХ без reference", async () => {
+    const inputDir = join(tmpDir, "input")
+    const outputDir = join(tmpDir, "output")
+    const objectName = "ВидыСубконто"
+
+    fs.mkdirSync(join(inputDir, objectName), { recursive: true })
+    fs.writeFileSync(
+      join(inputDir, objectName, "Свойства.yaml"),
+      [
+        "ТипЗначения:",
+        "  - Строка(10)",
+        "Предопределенные:",
+        "  СубкнтоОдно:",
+        '    Код: "000000001"',
+        "    Наименование: Субкнто1",
+        "    ТипЗначения: Строка(10)",
+        "",
+      ].join("\n"),
+      "utf-8"
+    )
+
+    await syncAppliedObjectToXML({
+      rule: MetadataChartOfCharacteristicTypesRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: objectName,
+      outputDir,
+    })
+
+    const result = fs.readFileSync(join(outputDir, objectName, "Ext", "Predefined.xml"), "utf-8")
+    expect(result).toContain('xsi:type="PlanOfCharacteristicKindPredefinedItems"')
+    expect(result).not.toContain('xsi:type="CatalogPredefinedItems"')
+    expect(result).toContain("<Type>")
+    expect(result).toContain("<v8:Type>xs:string</v8:Type>")
+    expect(result).toContain("<v8:Length>10</v8:Length>")
   })
 })
