@@ -145,6 +145,22 @@ Dimension -> Resource -> Attribute -> Form -> Template -> Command
 
 Поэтому этот план не меняет `MetadataRegisterDimensionRules` и `MetadataRegisterResourceRules`.
 
+### CommonForm ДинамическийСписок
+
+После исправления ошибок ПВХ, подписок и лишних `ExtDimension*` первая ошибка загрузки `all` через `ibcmd`:
+
+```text
+File: /tmp/round-trip-yaml-1c-xml/all/CommonForms/ДинамическийСписок/Ext/Form.xml, invalid data path: "СОсновнойТаблицей.ЭтоГруппа".
+```
+
+Контрольная загрузка исходного XML `/home/nikita/git/round-trip/all` в отдельную файловую базу падает с тем же сообщением:
+
+```text
+File: /home/nikita/git/round-trip/all/CommonForms/ДинамическийСписок/Ext/Form.xml, invalid data path: "СОсновнойТаблицей.ЭтоГруппа".
+```
+
+Значит это не новая ошибка `XML -> YAML -> XML`, а свойство самого набора `all`. Для проверки загрузки результата без этого внешнего блокера нужна отдельная договорённость: исправить или исключить исходную форму в тестовом наборе, не меняя её как XML-фикстуру без явного решения.
+
 ## Критерии готовности
 
 - `round-trip-yaml-1c` на `all` проходит `nkdk import` и `nkdk sync`.
@@ -152,4 +168,5 @@ Dimension -> Resource -> Attribute -> Form -> Template -> Command
 - Загрузка XML без reference в 1С не содержит ошибок подписок `Event name required`.
 - Предупреждения `Wrong property... Dimension/Resource`, если останутся, зафиксированы как следующая отдельная задача.
 - Загрузка XML без reference в 1С не содержит предупреждений `Standard attribute ExtDimension5...ExtDimension50 has not been loaded`.
+- Ошибка `CommonForms/ДинамическийСписок/Ext/Form.xml` зафиксирована как внешний блокер исходного набора `all`, потому что воспроизводится на исходном XML без участия YAML.
 - Решения покрыты точечными тестами на правила, без изменения исходных XML-фикстур.
