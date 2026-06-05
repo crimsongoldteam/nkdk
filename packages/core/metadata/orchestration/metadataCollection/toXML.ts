@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { ItemXML, MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { ToMetadata } from "../metadataItem/registry"
 import { exportMetadataItemToXML } from "../metadataItem/toXML"
 import { NamedElementXML } from "./types"
@@ -12,7 +12,7 @@ export const exportMetadataCollectionToXML = <Rule extends MetadataItemRule, XML
   itemRule: Rule
   xmlElement?: XMLKey
   keyField?: keyof Rule["properties"]
-}): Record<XMLKey, Array<NamedElementXML | string>> | Array<NamedElementXML | string> | undefined => {
+}): Record<XMLKey, Array<ItemXML | NamedElementXML | string>> | Array<ItemXML | NamedElementXML | string> | undefined => {
   const { context, data, referenceData, xmlElement, keyField, itemRule } = params
   type Item = ToMetadata<Rule["itemType"]>
 

@@ -4,6 +4,7 @@ import { getUUID } from "../../helpers/uuid"
 import {
   InternalInfo,
   InternalInfoContainedObject,
+  InternalInfoContainedObjectXML,
   InternalInfoItemsXML,
   InternalInfoParam,
   InternalInfoRootXML,
@@ -64,7 +65,8 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
 }
 
 const getInternalInfoItem = (value: InternalInfo[string]): { typeId: string; valueId: string } | undefined => {
-  if (value === undefined || value === null || typeof value !== "object") return undefined
+  if (value === undefined || value === null || typeof value !== "object" || Array.isArray(value)) return undefined
+  if (!("typeId" in value) || !("valueId" in value)) return undefined
   return value
 }
 
@@ -73,7 +75,7 @@ const getContainedObjectsXML = (params: {
   rule: InternalInfoPropertyRule
   metadata: InternalInfo | undefined
   reference: InternalInfo | undefined
-}): NonNullable<InternalInfoRootXML["xr:ContainedObject"]>[] => {
+}): InternalInfoContainedObjectXML[] => {
   const classIds = params.rule.containedObjectClassIds ?? []
   if (classIds.length === 0) return []
 

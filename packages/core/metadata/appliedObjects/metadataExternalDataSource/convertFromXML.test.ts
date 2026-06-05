@@ -98,7 +98,8 @@ describe("convertAppliedObjectFromXML — MetadataExternalDataSource", () => {
         referenceTableXMLPath,
         fs
           .readFileSync(join(inputDir, name, "Tables", "ТаблицаВсеСвойства.xml"), "utf-8")
-          .replaceAll("ТаблицаВсеСвойства", referenceTableName)
+          .split("ТаблицаВсеСвойства")
+          .join(referenceTableName)
           .replace("ИмяВИсточнике", "ИмяВИсточникеСтроковая"),
         "utf-8"
       )

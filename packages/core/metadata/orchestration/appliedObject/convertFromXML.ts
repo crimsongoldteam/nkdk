@@ -16,6 +16,8 @@ import { omitStringChildCollectionReferencesFromXML } from "./stringChildCollect
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
+const toMutableMetadataRecord = (model: unknown): Record<string, unknown> => model as Record<string, unknown>
+
 export const convertAppliedObjectFromXML = async (params: {
   rule: MetadataItemRule
   context: ConfigurationContextFromXML
@@ -32,8 +34,9 @@ export const convertAppliedObjectFromXML = async (params: {
   const model = importMetadataItemFromXML({ context, xml: modelXML, rule })
 
   if (!model) return
+  const mutableModel = toMutableMetadataRecord(model)
   addReferenceNamesFromXML({
-    model: model as Record<string, unknown>,
+    model: mutableModel,
     rule,
     xml: parsed.MetaDataObject,
   })
@@ -53,7 +56,7 @@ export const convertAppliedObjectFromXML = async (params: {
     const extContent = await fs.promises.readFile(extFilePath, "utf-8")
     const extParsed = importContentFromXML<Record<string, unknown>>(extContent)
     const value = importPropertyFromXML({ context, rule: propRule as PropertyRule, value: extParsed, name: key })
-    if (value !== undefined) (model as Record<string, unknown>)[key] = value
+    if (value !== undefined) mutableModel[key] = value
   }
 
   // Обработчики внешних файлов на уровне объекта (Help, Module, Template со статическими путями)
@@ -67,7 +70,7 @@ export const convertAppliedObjectFromXML = async (params: {
   await syncChildCollectionsFromXML({
     context,
     rule,
-    model: model as Record<string, unknown>,
+    model: mutableModel,
     xmlDir: inputDir,
     nkdkDir,
     name,
@@ -78,7 +81,7 @@ export const convertAppliedObjectFromXML = async (params: {
   const contextWithExternalFiles = withExternalFilesCollector(context, externalFilesCollector)
   const yamlObj = exportMetadataItemToYAML({
     context: contextWithExternalFiles,
-    data: omitFileItemChildCollections(model, rule),
+    data: omitFileItemChildCollections(mutableModel, rule),
     rule,
   })
   const yaml = yamlObj != undefined ? exportToYAML(yamlObj) : ""

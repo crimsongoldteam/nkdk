@@ -39,6 +39,9 @@ describe("root Configuration XML", () => {
       data: {
         itemType: "MetadataConfiguration",
         name: "Конфигурация",
+        defaultLanguage: "Language.Русский",
+        configurationExtensionCompatibilityMode: "Version8_3_27",
+        compatibilityMode: "Version8_3_27",
       },
       rule: MetadataConfigurationRules,
     })
