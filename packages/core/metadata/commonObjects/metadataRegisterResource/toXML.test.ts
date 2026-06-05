@@ -43,4 +43,36 @@ describe("export MetadataRegisterResources to XML", () => {
     expect(result).toContain("<Synonym/>")
     expect(result).not.toContain("<v8:item>")
   })
+
+  it("exports accounting fields before full text search without reference", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      itemsTree: [
+        {
+          itemType: "MetadataAccountingRegister",
+          name: "РегистрБухгалтерииВсеСвойстваОбороты",
+          path: "MetadataAccountingRegister.РегистрБухгалтерииВсеСвойстваОбороты",
+        },
+      ],
+      value: [
+        {
+          itemType: "MetadataRegisterResource",
+          name: "РесурсВсеСвойства",
+          type: { type: ["decimal"], numberQualifiers: { digits: 10, fractionDigits: 0, allowedSign: "Any" } },
+          choiceHistoryOnInput: "DontUse",
+          balance: true,
+          accountingFlag: "ChartOfAccounts.ПланСчетовВсеСвойства.AccountingFlag.ПризнакУчетаВсеСвойства",
+          extDimensionAccountingFlag:
+            "ChartOfAccounts.ПланСчетовВсеСвойства.ExtDimensionAccountingFlag.ПризнакУчетаСубконтоВсеСвойства",
+          fullTextSearch: "DontUse",
+        },
+      ],
+      xmlRootTag: "Resource",
+      referenceMetadata: undefined,
+    })
+
+    expect(result).toMatch(
+      /<ChoiceHistoryOnInput>DontUse<\/ChoiceHistoryOnInput>[\s\S]*<Balance>true<\/Balance>[\s\S]*<AccountingFlag>ChartOfAccounts\.ПланСчетовВсеСвойства\.AccountingFlag\.ПризнакУчетаВсеСвойства<\/AccountingFlag>[\s\S]*<ExtDimensionAccountingFlag>ChartOfAccounts\.ПланСчетовВсеСвойства\.ExtDimensionAccountingFlag\.ПризнакУчетаСубконтоВсеСвойства<\/ExtDimensionAccountingFlag>[\s\S]*<FullTextSearch>DontUse<\/FullTextSearch>/
+    )
+  })
 })

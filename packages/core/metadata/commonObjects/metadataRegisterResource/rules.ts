@@ -15,6 +15,7 @@ export const MetadataRegisterResourceRules = {
       defaultValueXML: true,
       defaultValueYAML: true,
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
+      order: 25.1,
     },
     accountingFlag: {
       yaml: "ПризнакУчета",
@@ -23,6 +24,7 @@ export const MetadataRegisterResourceRules = {
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
+      order: 25.2,
     },
     extDimensionAccountingFlag: {
       yaml: "ПризнакУчетаСубконто",
@@ -31,6 +33,7 @@ export const MetadataRegisterResourceRules = {
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
+      order: 25.3,
     },
   },
 } as const satisfies MetadataItemRule
