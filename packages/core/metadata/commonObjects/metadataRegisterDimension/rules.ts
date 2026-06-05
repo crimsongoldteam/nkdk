@@ -70,6 +70,7 @@ export const MetadataRegisterDimensionRules = {
       defaultValueXML: true,
       defaultValueYAML: true,
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
+      order: 25.1,
     },
     accountingFlag: {
       yaml: "ПризнакУчета",
@@ -78,6 +79,7 @@ export const MetadataRegisterDimensionRules = {
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
+      order: 25.2,
     },
     useInTotals: {
       yaml: "ИспользоватьВИтогах",
