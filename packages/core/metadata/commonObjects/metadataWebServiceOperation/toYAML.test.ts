@@ -15,7 +15,13 @@ describe("export MetadataWebServiceOperations to YAML", () => {
     const operation = result.Операции.ОперацияXDTO
     const parameter = operation.Параметры.ПараметрXDTO
 
-    expect(operation.ТипВозвращаемогоЗначенияXDTO).toBe("d4p1:CustomerResponse")
-    expect(parameter.ТипЗначенияXDTO).toBe("d4p1:Customer")
+    expect(operation.ТипВозвращаемогоЗначенияXDTO).toEqual({
+      ПространствоИмен: "http://example.org/schema",
+      Имя: "CustomerResponse",
+    })
+    expect(parameter.ТипЗначенияXDTO).toEqual({
+      ПространствоИмен: "http://example.org/schema",
+      Имя: "Customer",
+    })
   })
 })

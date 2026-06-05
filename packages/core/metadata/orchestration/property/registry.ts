@@ -158,7 +158,7 @@ import {
   MobileDeviceCommandBarContentYAML,
 } from "~/metadata/commonObjects/mobileDeviceCommandBarContent/types"
 import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { XDTOTypeName } from "~/metadata/commonObjects/xdtoTypeName/types"
+import { XDTOTypeName, XDTOTypeNameYAML } from "~/metadata/commonObjects/xdtoTypeName/types"
 import { StyleItemValue, StyleItemValueYAML } from "~/metadata/commonObjects/styleItemValue/types"
 import {
   AppearanceFields,
@@ -580,7 +580,7 @@ export type PropertyTypeRegistry = {
   }
   XDTOTypeName: {
     item: XDTOTypeName
-    yaml: string
+    yaml: XDTOTypeNameYAML
   }
   boolean: {
     item: boolean

@@ -129,8 +129,10 @@ import "./xmlRoot/fromXML"
 import "./xmlRoot/toXML"
 
 import "./xdtoTypeName/fromXML"
+import "./xdtoTypeName/fromYAML"
 import "./xdtoTypeName/toJSONSchema"
 import "./xdtoTypeName/toXML"
+import "./xdtoTypeName/toYAML"
 
 import "./childFormNames/fromXML"
 import "./childFormNames/toXML"
