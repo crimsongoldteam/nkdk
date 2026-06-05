@@ -48,4 +48,21 @@ describe("export MetadataEventSubscription to XML", () => {
     expect(result).not.toContain("<v8:TypeSet>")
     expect(result).not.toContain('xsi:type="v8:TypeSet"')
   })
+
+  it("exports XML fields in 1C load order without reference", () => {
+    const xmlData = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: {
+        ...full,
+        objectBelonging: "Native",
+      },
+      rule: MetadataEventSubscriptionRules,
+    })
+
+    const result = xmlExport(xmlData!)
+    const properties = result.match(/<Properties>([\s\S]*?)<\/Properties>/)?.[1] ?? ""
+    const names = Array.from(properties.matchAll(/<([A-Za-z]+)(?:>|\/>)/g), ([, name]) => name)
+
+    expect(names).toEqual(["Name", "Synonym", "Comment", "Source", "Event", "Handler", "ObjectBelonging"])
+  })
 })

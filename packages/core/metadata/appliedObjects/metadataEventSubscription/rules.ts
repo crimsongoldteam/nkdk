@@ -26,33 +26,39 @@ export const MetadataEventSubscriptionRules = {
       type: "string",
       xmlParents: properties,
       required: true,
+      order: 1,
     },
     synonym: {
       yaml: "Синоним",
       type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      order: 2,
     },
     comment: {
       yaml: "Комментарий",
       type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      order: 3,
     },
     source: {
       yaml: "Источник",
       type: "TypeDescription",
       xmlParents: properties,
+      order: 4,
     },
     event: {
       yaml: "Событие",
       type: "string",
       xmlParents: properties,
+      order: 5,
     },
     handler: {
       yaml: "Обработчик",
       type: "string",
       xmlParents: properties,
+      order: 6,
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
@@ -62,6 +68,7 @@ export const MetadataEventSubscriptionRules = {
       toYAML: false,
       fromYAML: false,
       xmlParents: properties,
+      order: 7,
     },
     extendedConfigurationObject: {
       yaml: "ОбъектРасширяемойКонфигурации",
