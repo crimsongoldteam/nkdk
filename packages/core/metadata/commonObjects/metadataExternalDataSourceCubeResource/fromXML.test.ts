@@ -24,4 +24,27 @@ describe("MetadataExternalDataSourceCubeResource XML", () => {
 
     expect(result).toEqual(expectedResult)
   })
+
+  it("does not export non-cube resource defaults without reference", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: {
+        name: "РесурсКуба",
+        type: { type: ["decimal"], numberQualifiers: { digits: 10, fractionDigits: 0, allowedSign: "Any" } },
+        nameInDataSource: "ResourceInDataSource",
+      },
+      xmlRootTag: "Resource",
+      referenceMetadata: undefined,
+    })
+
+    expect(result).not.toContain("<Balance>")
+    expect(result).not.toContain("<ChoiceFoldersAndItems>")
+    expect(result).not.toContain("<ChoiceHistoryOnInput>")
+    expect(result).not.toContain("<CreateOnInput>")
+    expect(result).not.toContain("<DataHistory>")
+    expect(result).not.toContain("<FillChecking>")
+    expect(result).not.toContain("<FillFromFillingValue>")
+    expect(result).not.toContain("<FullTextSearch>")
+    expect(result).not.toContain("<Indexing>")
+  })
 })

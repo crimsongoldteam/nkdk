@@ -73,6 +73,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: false,
       defaultValueYAML: false,
+      toXML: hasOwnMetadataProperty("denyIncompleteValues"),
     },
     baseDimension: {
       yaml: "БазовоеИзмерение",
@@ -81,6 +82,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: false,
       defaultValueYAML: false,
+      toXML: hasOwnMetadataProperty("baseDimension"),
     },
     scheduleLink: {
       yaml: "СвязьСГрафиком",
@@ -97,6 +99,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: true,
       defaultValueYAML: true,
+      toXML: hasOwnMetadataProperty("useInTotals"),
     },
     master: {
       yaml: "Ведущее",
@@ -105,6 +108,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: false,
       defaultValueYAML: false,
+      toXML: hasOwnMetadataProperty("master"),
     },
     mainFilter: {
       yaml: "ОсновнойОтбор",
@@ -113,6 +117,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: true,
       defaultValueYAML: true,
+      toXML: hasOwnMetadataProperty("mainFilter"),
     },
     balance: {
       yaml: "Балансовый",
@@ -121,6 +126,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: true,
       defaultValueYAML: true,
+      toXML: hasOwnMetadataProperty("balance"),
     },
     accountingFlag: {
       yaml: "ПризнакУчета",
@@ -138,6 +144,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: "TransformValues",
       defaultValueYAML: "TransformValues",
+      toXML: hasOwnMetadataProperty("typeReductionMode"),
     },
     indexing: {
       yaml: "Индексирование",
@@ -147,6 +154,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: "DontIndex",
       defaultValueYAML: "DontIndex",
+      toXML: hasOwnMetadataProperty("indexing"),
     },
     fullTextSearch: {
       yaml: "ПолнотекстовыйПоиск",
@@ -156,6 +164,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
       defaultValueYAML: "Use",
+      toXML: hasOwnMetadataProperty("fullTextSearch"),
     },
     dataHistory: {
       yaml: "ИсторияДанных",
@@ -165,6 +174,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
       defaultValueYAML: "Use",
+      toXML: hasOwnMetadataProperty("dataHistory"),
     },
     ...externalDataSourceObjectServiceProperties,
   },

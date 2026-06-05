@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Fix YAML -> XML without reference so CHT predefined items keep owner context and accounting register `Dimension/Resource` fields use 1C-compatible order.
+**Goal:** Fix YAML -> XML without reference so CHT predefined items keep owner context, accounting register `Dimension/Resource` fields use 1C-compatible order, and external data source cube `Dimension/Resource` does not export fields that 1C rejects for cubes.
 
 **Architecture:** Keep the existing rule-based orchestration. Pass the current applied-object model as owner metadata when exporting external `filePath` properties, and add only local `order` values for accounting-specific register fields.
 
@@ -24,6 +24,12 @@
   - Responsibility: rules for register resources. Add local XML order for accounting-only fields.
 - Modify `packages/core/metadata/commonObjects/metadataRegisterResource/toXML.test.ts`
   - Responsibility: XML export tests for register resources. Add a no-reference order regression test with accounting parent context.
+- Modify `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension/rules.ts`
+  - Responsibility: rules for external data source cube dimensions. Keep only the cube dimension XML field set observed in source XML.
+- Modify `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts`
+  - Responsibility: rules for external data source cube resources. Keep only the cube resource XML field set observed in source XML.
+- Modify focused tests for external data source cube dimension/resource rules.
+  - Responsibility: prevent YAML -> XML without reference from adding shared register/attribute fields to cube children.
 - Do not modify `/home/nikita/git/round-trip/**`.
 
 ## Task 1: Preserve Owner Context For External `filePath` XML
@@ -374,7 +380,71 @@ git add packages/core/metadata/commonObjects/metadataRegisterResource/rules.ts p
 git commit -m "fix: :bug: упорядочить поля ресурсов регистра"
 ```
 
-## Task 4: Verify YAML -> XML -> 1C Diagnostics On `all`
+## Task 4: Remove Shared Register/Attribute Fields From External Data Source Cube Children
+
+**Confirmed root cause:**
+- Source `/home/nikita/git/round-trip/all` loads into 1C without warnings.
+- Generated YAML -> XML without reference emits extra fields in `/tmp/round-trip-yaml-1c-xml/all/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства.xml`.
+- Removing those extra fields from only that generated file makes `ibcmd infobase config import` load without `Wrong property ... Dimension/Resource` warnings.
+- Accounting register `Dimension/Resource` is not the source of the remaining warnings.
+
+**Files:**
+- Modify: `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension/rules.ts`
+- Modify: `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules.ts`
+- Modify focused tests for these two common objects.
+
+- [ ] **Step 1: Add no-reference regression tests for cube dimension/resource**
+
+Tests must prove that exporting `ExternalDataSource.Cube.Dimension` does not write:
+
+```text
+Balance
+BaseDimension
+DataHistory
+DenyIncompleteValues
+FullTextSearch
+Indexing
+MainFilter
+Master
+TypeReductionMode
+UseInTotals
+```
+
+Tests must prove that exporting `ExternalDataSource.Cube.Resource` does not write:
+
+```text
+Balance
+ChoiceFoldersAndItems
+ChoiceHistoryOnInput
+CreateOnInput
+DataHistory
+FillChecking
+FillFromFillingValue
+FullTextSearch
+Indexing
+```
+
+- [ ] **Step 2: Split cube dimension/resource rules from shared register/attribute rules**
+
+Do not blacklist fields at the final XML string level. The cube child rules must describe the actual cube XML model.
+
+Use the source XML as the field-set reference:
+
+```text
+/home/nikita/git/round-trip/all/ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства.xml
+```
+
+Allowed cube dimension fields are the fields present under source `<Cube>/<Properties>/<Dimension>/<Properties>`.
+
+Allowed cube resource fields are the fields present under source `<Cube>/<Properties>/<Resource>/<Properties>`.
+
+- [ ] **Step 3: Verify by focused tests**
+
+Run focused tests for external data source cube dimension/resource.
+
+Expected: no generated XML contains the rejected fields above for cube children.
+
+## Task 5: Verify YAML -> XML -> 1C Diagnostics On `all`
 
 **Files:**
 - No code edits in this task.
@@ -442,7 +512,7 @@ ChoiceHistoryOnInput -> Balance -> AccountingFlag -> ExtDimensionAccountingFlag 
 
 - [ ] **Step 5: Finish verification bookkeeping**
 
-If Task 4 does not require code edits, do not create an empty commit. If Task 4 reveals a new defect, stop and write down:
+If Task 5 does not require code edits, do not create an empty commit. If Task 5 reveals a new defect, stop and write down:
 
 - exact failing command;
 - generated XML path;
@@ -451,6 +521,6 @@ If Task 4 does not require code edits, do not create an empty commit. If Task 4 
 
 ## Self-Review
 
-- Spec coverage: Task 1 covers external `Predefined.xml` owner context and CHT `<Type>` export; Tasks 2-3 cover `Dimension/Resource` accounting field order; Task 4 covers focused tests, full tests, and `round-trip-yaml-1c`.
+- Spec coverage: Task 1 covers external `Predefined.xml` owner context and CHT `<Type>` export; Tasks 2-3 cover `Dimension/Resource` accounting field order; Task 4 covers external data source cube `Dimension/Resource` field sets; Task 5 covers focused tests, full tests, and `round-trip-yaml-1c`.
 - Placeholder scan: no `TBD`, no open-ended “write tests”, and every code-changing step includes exact snippets.
-- Type consistency: property names match existing rules: `balance`, `accountingFlag`, `extDimensionAccountingFlag`, `denyIncompleteValues`, `fullTextSearch`; test helper parameters match `testExportPropertyToXML`.
+- Type consistency: property names match existing register rules: `balance`, `accountingFlag`, `extDimensionAccountingFlag`, `denyIncompleteValues`, `fullTextSearch`; cube rules must keep their own XML field set instead of reusing register/attribute-only fields.

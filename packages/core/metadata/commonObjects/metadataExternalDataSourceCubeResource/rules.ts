@@ -17,6 +17,22 @@ export const MetadataExternalDataSourceCubeResourceRules = {
   itemType: "MetadataExternalDataSourceCubeResource",
   properties: {
     ...externalDataSourceFieldBaseProperties,
+    fillFromFillingValue: {
+      ...externalDataSourceFieldBaseProperties.fillFromFillingValue,
+      toXML: hasOwnMetadataProperty("fillFromFillingValue"),
+    },
+    fillChecking: {
+      ...externalDataSourceFieldBaseProperties.fillChecking,
+      toXML: hasOwnMetadataProperty("fillChecking"),
+    },
+    createOnInput: {
+      ...externalDataSourceFieldBaseProperties.createOnInput,
+      toXML: hasOwnMetadataProperty("createOnInput"),
+    },
+    choiceHistoryOnInput: {
+      ...externalDataSourceFieldBaseProperties.choiceHistoryOnInput,
+      toXML: hasOwnMetadataProperty("choiceHistoryOnInput"),
+    },
     minValue: {
       ...externalDataSourceFieldBaseProperties.minValue,
       toXML: hasOwnMetadataProperty("minValue"),
@@ -37,6 +53,7 @@ export const MetadataExternalDataSourceCubeResourceRules = {
       xmlParents: propertiesParents,
       defaultValueXML: "Items",
       defaultValueYAML: "Items",
+      toXML: hasOwnMetadataProperty("choiceFoldersAndItems"),
     },
     linkByType: {
       yaml: "СвязьПоТипу",
@@ -61,6 +78,7 @@ export const MetadataExternalDataSourceCubeResourceRules = {
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
       defaultValueYAML: "Use",
+      toXML: hasOwnMetadataProperty("fullTextSearch"),
     },
     indexing: {
       yaml: "Индексирование",
@@ -70,6 +88,7 @@ export const MetadataExternalDataSourceCubeResourceRules = {
       xmlParents: propertiesParents,
       defaultValueXML: "DontIndex",
       defaultValueYAML: "DontIndex",
+      toXML: hasOwnMetadataProperty("indexing"),
     },
     dataHistory: {
       yaml: "ИсторияДанных",
@@ -79,6 +98,7 @@ export const MetadataExternalDataSourceCubeResourceRules = {
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
       defaultValueYAML: "Use",
+      toXML: hasOwnMetadataProperty("dataHistory"),
     },
     binaryDataStorageLocationUse: {
       yaml: "ИспользованиеХраненияВХранилищеДвоичныхДанных",
@@ -102,6 +122,7 @@ export const MetadataExternalDataSourceCubeResourceRules = {
       xmlParents: propertiesParents,
       defaultValueXML: true,
       defaultValueYAML: true,
+      toXML: hasOwnMetadataProperty("balance"),
     },
     accountingFlag: {
       yaml: "ПризнакУчета",
