@@ -1,15 +1,4 @@
 <Attribute name="Объект" id="1">
-	<Edit>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
-		<xr:Value name="Role.Пользователь">false</xr:Value>
-	</Edit>
-	<FillCheck>ShowError</FillCheck>
-	<MainAttribute>true</MainAttribute>
-	<Save>
-		<Field>Объект</Field>
-	</Save>
-	<SavedData>true</SavedData>
 	<Type>
 		<v8:Type>xs:decimal</v8:Type>
 		<v8:NumberQualifiers>
@@ -18,26 +7,27 @@
 			<v8:AllowedSign>Any</v8:AllowedSign>
 		</v8:NumberQualifiers>
 	</Type>
-	<UseAlways>
-		<Field>Список.Ref</Field>
-	</UseAlways>
 	<View>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 		<xr:Value name="Role.Пользователь">false</xr:Value>
 	</View>
-</Attribute>
-<Attribute name="ТестовыйАтрибут" id="2">
 	<Edit>
-		<xr:Common>false</xr:Common>
+		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 		<xr:Value name="Role.Пользователь">false</xr:Value>
 	</Edit>
-	<FillCheck>ShowError</FillCheck>
-	<FunctionalOptions>
-		<Item>FunctionalOption.ФункциональнаяОпция1</Item>
-	</FunctionalOptions>
+	<MainAttribute>true</MainAttribute>
 	<SavedData>true</SavedData>
+	<FillCheck>ShowError</FillCheck>
+	<UseAlways>
+		<Field>Список.Ref</Field>
+	</UseAlways>
+	<Save>
+		<Field>Объект</Field>
+	</Save>
+</Attribute>
+<Attribute name="ТестовыйАтрибут" id="2">
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -51,12 +41,22 @@
 			<v8:AllowedLength>Variable</v8:AllowedLength>
 		</v8:StringQualifiers>
 	</Type>
-	<UseAlways>
-		<Field>Список.Ref</Field>
-	</UseAlways>
 	<View>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 		<xr:Value name="Role.Пользователь">false</xr:Value>
 	</View>
+	<Edit>
+		<xr:Common>false</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Пользователь">false</xr:Value>
+	</Edit>
+	<SavedData>true</SavedData>
+	<FillCheck>ShowError</FillCheck>
+	<UseAlways>
+		<Field>Список.Ref</Field>
+	</UseAlways>
+	<FunctionalOptions>
+		<Item>FunctionalOption.ФункциональнаяОпция1</Item>
+	</FunctionalOptions>
 </Attribute>
