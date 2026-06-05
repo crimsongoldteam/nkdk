@@ -170,15 +170,54 @@ Wrong property of metadata object. Property Balance is not one of metadata objec
 Wrong property of metadata object. Property ChoiceFoldersAndItems is not one of metadata object Resource
 ```
 
-на текущем этапе не исправляются. Полный текст предупреждений сохранён в журнале `/tmp/round-trip-yaml-1c-ibcmd.log`; каждый набор повторяется по двум `Dimension` и двум `Resource`.
+связаны не с лишними тегами, а с порядком тегов внутри `Properties`. Те же свойства есть в исходном XML `/home/nikita/git/round-trip/all/AccountingRegisters/РегистрБухгалтерииВсеСвойстваОбороты.xml`, но в сгенерированном XML без reference они оказываются позже.
 
-Причина ещё не утверждена. Гипотеза про порядок полей возможна, но требует отдельной проверки после удаления уже согласованных причин ошибок и предупреждений. Порядок коллекций `ChildObjects` для `MetadataAccountingRegisterRules` в rules уже соответствует исходной выгрузке:
+Для `Dimension` исходная выгрузка использует порядок:
+
+```text
+... ChoiceHistoryOnInput -> Balance -> AccountingFlag -> DenyIncompleteValues -> Indexing -> FullTextSearch
+```
+
+Без reference сейчас получается:
+
+```text
+... ChoiceHistoryOnInput -> DenyIncompleteValues -> Indexing -> FullTextSearch -> AccountingFlag -> Balance
+```
+
+Для `Resource` исходная выгрузка использует порядок:
+
+```text
+... ChoiceHistoryOnInput -> Balance -> AccountingFlag -> ExtDimensionAccountingFlag -> FullTextSearch
+```
+
+Без reference сейчас получается:
+
+```text
+... ChoiceHistoryOnInput -> FullTextSearch -> AccountingFlag -> Balance -> ExtDimensionAccountingFlag
+```
+
+Причина: бухгалтерские поля `balance`, `accountingFlag`, `extDimensionAccountingFlag` не имеют локального `order`, поэтому без reference попадают после общих полей `MetadataRegisterField`.
+
+Решение: задать локальный XML-порядок только для бухгалтерских полей в `MetadataRegisterDimensionRules` и `MetadataRegisterResourceRules`.
+
+Для `MetadataRegisterDimensionRules`:
+
+- `balance` должен идти после `choiceHistoryOnInput` и до `denyIncompleteValues`;
+- `accountingFlag` должен идти после `balance` и до `denyIncompleteValues`.
+
+Для `MetadataRegisterResourceRules`:
+
+- `balance` должен идти после `choiceHistoryOnInput` и до `fullTextSearch`;
+- `accountingFlag` должен идти после `balance` и до `fullTextSearch`;
+- `extDimensionAccountingFlag` должен идти после `accountingFlag` и до `fullTextSearch`.
+
+Общий механизм сортировки и порядок всех регистров не меняются. Порядок коллекций `ChildObjects` для `MetadataAccountingRegisterRules` уже соответствует исходной выгрузке:
 
 ```text
 Dimension -> Resource -> Attribute -> Form -> Template -> Command
 ```
 
-Поэтому этот план не меняет `MetadataRegisterDimensionRules` и `MetadataRegisterResourceRules`.
+Если после локального порядка останутся предупреждения по тем же свойствам, следующий шаг - проверять не порядок, а контекст владельца при экспорте `Dimension/Resource`.
 
 ### CommonForm ДинамическийСписок
 
@@ -198,14 +237,14 @@ File: /home/nikita/git/round-trip/all/CommonForms/ДинамическийСпи
 
 ## Критерии готовности
 
-Границы ближайшей итерации: исправляется только критическая ошибка ПВХ. Предупреждения `Dimension/Resource` остаются отдельной следующей задачей, даже если они продолжают появляться после проверки ПВХ.
+Границы ближайшей итерации: исправляется критическая ошибка ПВХ и локальный порядок бухгалтерских `Dimension/Resource`. Остальные предупреждения регистров разбираются отдельно, если останутся после повторной проверки.
 
 - `round-trip-yaml-1c` на `all` проходит `nkdk import` и `nkdk sync`.
 - Загрузка XML без reference в 1С не содержит ошибок ПВХ `Type of predefined characteristic type...`.
 - `ChartsOfCharacteristicTypes/*/Ext/Predefined.xml` без reference получает `xsi:type` из владельца, а не дефолтный `CatalogPredefinedItems`.
 - Негрупповые предопределённые элементы ПВХ сохраняют `ТипЗначения` из YAML в XML `<Type>`.
 - Загрузка XML без reference в 1С не содержит ошибок подписок `Event name required`.
-- Предупреждения `Wrong property... Dimension/Resource`, если останутся, зафиксированы как следующая отдельная задача.
+- Предупреждения `Wrong property... Dimension/Resource` устранены локальным порядком бухгалтерских полей или, если останутся, зафиксированы с новым журналом как отдельная задача.
 - Загрузка XML без reference в 1С не содержит предупреждений `Standard attribute ExtDimension5...ExtDimension50 has not been loaded`.
 - Ошибка `CommonForms/ДинамическийСписок/Ext/Form.xml` зафиксирована как внешний блокер исходного набора `all`, потому что воспроизводится на исходном XML без участия YAML.
 - Решения покрыты точечными тестами на правила, без изменения исходных XML-фикстур.
