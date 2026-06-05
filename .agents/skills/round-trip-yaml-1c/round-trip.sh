@@ -197,13 +197,6 @@ if [ -f "${REPO_DIR}/.env" ]; then
   set +a
 fi
 
-if [ -n "$(git -C "${REPO_DIR}" status --porcelain)" ]; then
-  echo "Ошибка: рабочее дерево nkdk не чистое." >&2
-  echo "Сохрани или откати изменения перед запуском round-trip-yaml-1c." >&2
-  git -C "${REPO_DIR}" status --short >&2
-  exit 1
-fi
-
 [ -n "${NKDK_XML_REPO:-}" ] || die "переменная NKDK_XML_REPO не задана"
 [ -n "${NKDK_XML_DIR:-}" ] || die "переменная NKDK_XML_DIR не задана"
 [ -n "${NKDK_1C_DATA:-}" ] || die "переменная NKDK_1C_DATA не задана"

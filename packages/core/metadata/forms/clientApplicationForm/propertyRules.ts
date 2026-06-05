@@ -35,7 +35,9 @@ const importClientApplicationFormPropertyFromYAML: ImportFromYAMLFunctionNew = (
 const exportClientApplicationFormPropertyToYAML: ExportToYAMLFunctionNew = (params) => {
   const form = asClientApplicationForm(params.value)
   if (!form) return undefined
-  return exportClientApplicationFormToYAML(params.context, form).yaml
+  const { yaml, externalFiles } = exportClientApplicationFormToYAML(params.context, form)
+  params.context.exportToYAML?.externalFilesCollector?.push(...externalFiles)
+  return yaml
 }
 
 const importClientApplicationFormPropertyFromXML: ImportFromXMLFunction = (context, _rule, xml) => {

@@ -34,23 +34,11 @@ export const ClientApplicationFormRules = {
       yaml: "КартинкиСтрок",
       syncExternalOnly: true,
     },
-    attributes: {
-      yaml: "Реквизиты",
-      type: "FormAttributes",
-      tag: FormRulesTags.Form,
-      defaultValueXMLEmpty: [],
-    },
-    attributesConditionalAppearance: {
-      yaml: "УсловноеОформлениеРеквизитов",
-      type: "ConditionalAppearance",
-      xml: "ConditionalAppearance",
-      xmlParents: ["Attributes"],
-      tag: FormRulesTags.Form,
-    },
     autoCommandBar: {
       yaml: "КоманднаяПанель",
       type: "AutoCommandBar",
       tag: FormRulesTags.Form,
+      order: 1,
     },
     autoFillCheck: {
       yaml: "ПроверятьЗаполнениеАвтоматически",
@@ -79,6 +67,21 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValue: [],
       required: true,
+      order: 2,
+    },
+    attributes: {
+      yaml: "Реквизиты",
+      type: "FormAttributes",
+      tag: FormRulesTags.Form,
+      defaultValueXMLEmpty: [],
+      order: 3,
+    },
+    attributesConditionalAppearance: {
+      yaml: "УсловноеОформлениеРеквизитов",
+      type: "ConditionalAppearance",
+      xml: "ConditionalAppearance",
+      xmlParents: ["Attributes"],
+      tag: FormRulesTags.Form,
     },
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",

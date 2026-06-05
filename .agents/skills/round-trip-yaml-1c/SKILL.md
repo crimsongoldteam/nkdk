@@ -25,7 +25,6 @@ XML -> модель -> YAML -> модель -> XML без reference -> загр�
 ## Жёсткие инварианты
 
 - **Только диагностика.** Skill не исправляет код, не создаёт тесты, фикстуры, планы исправления, коммиты и PR.
-- **Чистое рабочее дерево `nkdk`.** Если `git status` не чистый — стоп, попроси пользователя сохранить или откатить правки.
 - **Не менять XML-репо.** Активный XML-каталог не заменяется результатом генерации без reference.
 - **Временный YAML-каталог очищается перед прогоном и остаётся после него.**
 - **Временный XML-каталог без reference очищается перед прогоном и остаётся после него.**
@@ -70,18 +69,17 @@ NKDK_1C_PASSWORD=
 Скрипт:
 
 1. читает `.env`;
-2. проверяет чистоту рабочего дерева `nkdk`;
-3. проверяет `NKDK_XML_REPO`, `NKDK_XML_DIR`, `NKDK_1C_DATA`, `NKDK_1C_DB_PATH`;
-4. находит `nkdk` или запускает CLI через `pnpm -s --dir packages/cli exec tsx src/cli.ts`;
-5. проверяет доступность `ibcmd`;
-6. очищает временный YAML-каталог;
-7. очищает временный XML-каталог;
-8. запускает `nkdk import <xml-dir> <yaml-dir>`;
-9. запускает `nkdk sync <yaml-dir> <tmp-xml-dir>` без `--reference`;
-10. очищает каталог файловой базы `NKDK_1C_DB_PATH`;
-11. запускает `ibcmd infobase create --data <data> --db-path <db-path>`;
-12. запускает `ibcmd infobase config import --data <data> --db-path <db-path> <tmp-xml-dir>`;
-13. при ошибке печатает диагностический блок и останавливается.
+2. проверяет `NKDK_XML_REPO`, `NKDK_XML_DIR`, `NKDK_1C_DATA`, `NKDK_1C_DB_PATH`;
+3. находит `nkdk` или запускает CLI через `pnpm -s --dir packages/cli exec tsx src/cli.ts`;
+4. проверяет доступность `ibcmd`;
+5. очищает временный YAML-каталог;
+6. очищает временный XML-каталог;
+7. запускает `nkdk import <xml-dir> <yaml-dir>`;
+8. запускает `nkdk sync <yaml-dir> <tmp-xml-dir>` без `--reference`;
+9. очищает каталог файловой базы `NKDK_1C_DB_PATH`;
+10. запускает `ibcmd infobase create --data <data> --db-path <db-path>`;
+11. запускает `ibcmd infobase config import --data <data> --db-path <db-path> <tmp-xml-dir>`;
+12. при ошибке печатает диагностический блок и останавливается.
 
 ## Формат ответа после ошибки
 

@@ -47,6 +47,7 @@ export const syncAppliedObjectToXML = async (params: {
   const externalReferenceDir = params.externalReferenceDir ?? referenceDir
   const hasExplicitExternalOutputDir = params.externalOutputDir !== undefined
   const hasExplicitExternalReferenceDir = params.externalReferenceDir !== undefined
+  const nkdkDir = join(inputDir, name)
 
   const yamlPath = join(inputDir, name, PROPERTIES_YAML)
   const yamlContent = await fs.promises.readFile(yamlPath, "utf-8")
@@ -83,7 +84,14 @@ export const syncAppliedObjectToXML = async (params: {
           yaml: yamlObj,
           filePathReferenceValues,
         })
-  const rawModel = importMetadataItemFromYAML({ context, yaml: yamlObj, rule, name, source: sourceForYAMLImport })
+  const contextWithFormDir = withImportFormDir(context, nkdkDir)
+  const rawModel = importMetadataItemFromYAML({
+    context: contextWithFormDir,
+    yaml: yamlObj,
+    rule,
+    name,
+    source: sourceForYAMLImport,
+  })
 
   if (!rawModel) return
   const model = { ...rawModel, name } as typeof rawModel
@@ -99,9 +107,8 @@ export const syncAppliedObjectToXML = async (params: {
         })
       : loadedReferenceModel
 
-  const nkdkDir = join(inputDir, name)
   await addFileItemChildCollectionsFromYAML({
-    context,
+    context: contextWithFormDir,
     rule,
     model: model as Record<string, unknown>,
     nkdkDir,
@@ -456,8 +463,9 @@ async function addFileItemChildCollectionsFromYAML(params: {
       const childYamlContent = await fs.promises.readFile(childYamlPath, "utf-8")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const childYaml = importFromYAML<any>(childYamlContent)
+      const childContextWithFormDir = withImportFormDir(params.context, childNkdkDir)
       const importedChildModel = importMetadataItemFromYAML({
-        context: params.context,
+        context: childContextWithFormDir,
         yaml: childYaml,
         rule: childCollection.fileItemRule,
         name: childName,
@@ -471,7 +479,7 @@ async function addFileItemChildCollectionsFromYAML(params: {
           : undefined
 
       await addFileItemChildCollectionsFromYAML({
-        context: params.context,
+        context: childContextWithFormDir,
         rule: childCollection.fileItemRule,
         model: childModel,
         nkdkDir: childNkdkDir,
@@ -484,6 +492,19 @@ async function addFileItemChildCollectionsFromYAML(params: {
     }
 
     params.model[childCollection.propertyKey] = childModels
+  }
+}
+
+function withImportFormDir(
+  context: ConfigurationContextWithExportToXML,
+  formDir: string
+): ConfigurationContextWithExportToXML {
+  return {
+    ...context,
+    importFromYAML: {
+      ...(context.importFromYAML ?? {}),
+      formDir,
+    },
   }
 }
 

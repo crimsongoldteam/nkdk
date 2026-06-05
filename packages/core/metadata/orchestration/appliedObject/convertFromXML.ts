@@ -1,6 +1,6 @@
 import fs from "fs"
 import { join } from "path"
-import type { ConfigurationContextFromXML } from "~/metadata/context/types"
+import type { ConfigurationContextFromXML, ExternalFileEntry } from "~/metadata/context/types"
 import { exportMetadataItemToYAML, importMetadataItemFromXML } from "~/metadata/orchestration"
 import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
@@ -74,12 +74,19 @@ export const convertAppliedObjectFromXML = async (params: {
     xmlDirContainsCurrentItem: false,
   })
 
-  const yamlObj = exportMetadataItemToYAML({ context, data: omitFileItemChildCollections(model, rule), rule })
+  const externalFilesCollector: ExternalFileEntry[] = []
+  const contextWithExternalFiles = withExternalFilesCollector(context, externalFilesCollector)
+  const yamlObj = exportMetadataItemToYAML({
+    context: contextWithExternalFiles,
+    data: omitFileItemChildCollections(model, rule),
+    rule,
+  })
   const yaml = yamlObj != undefined ? exportToYAML(yamlObj) : ""
 
   const outputPath = join(outputDir, name)
   await fs.promises.mkdir(outputPath, { recursive: true })
   await fs.promises.writeFile(join(outputPath, PROPERTIES_YAML), yaml, "utf-8")
+  await writeExternalFiles(outputPath, externalFilesCollector)
 }
 
 async function syncChildCollectionsFromXML(params: {
@@ -162,16 +169,42 @@ async function syncChildCollectionsFromXML(params: {
       })
 
       if (childCollection.fileItemRule && childCollection.nkdkDir) {
+        const externalFilesCollector: ExternalFileEntry[] = []
+        const contextWithExternalFiles = withExternalFilesCollector(context, externalFilesCollector)
         const childYamlObj = exportMetadataItemToYAML({
-          context,
+          context: contextWithExternalFiles,
           data: omitFileItemChildCollections(item.model, childCollection.fileItemRule),
           rule: childCollection.fileItemRule,
         })
         const childYaml = childYamlObj !== undefined ? exportToYAML(childYamlObj) : ""
         await fs.promises.mkdir(childNkdkDir, { recursive: true })
         await fs.promises.writeFile(join(childNkdkDir, PROPERTIES_YAML), childYaml, "utf-8")
+        await writeExternalFiles(childNkdkDir, externalFilesCollector)
       }
     }
+  }
+}
+
+function withExternalFilesCollector(
+  context: ConfigurationContextFromXML,
+  externalFilesCollector: ExternalFileEntry[]
+): ConfigurationContextFromXML {
+  return context.exportToYAML
+    ? {
+        ...context,
+        exportToYAML: {
+          ...context.exportToYAML,
+          externalFilesCollector,
+        },
+      }
+    : context
+}
+
+async function writeExternalFiles(baseDir: string, externalFiles: ExternalFileEntry[]): Promise<void> {
+  for (const { relativePath, content } of externalFiles) {
+    const filePath = join(baseDir, relativePath)
+    await fs.promises.mkdir(join(filePath, ".."), { recursive: true })
+    await fs.promises.writeFile(filePath, content, "utf-8")
   }
 }
 

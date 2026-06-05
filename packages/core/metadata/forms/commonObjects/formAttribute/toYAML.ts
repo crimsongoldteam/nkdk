@@ -33,8 +33,19 @@ const exportFormAttributeToYAML = (
   _rule: PropertyRule | undefined,
   data: FormAttribute
 ): FormAttributeYAML | TypeDescriptionYAML => {
+  const contextWithParent =
+    data.name !== undefined && context.exportToYAML !== undefined
+      ? {
+          ...context,
+          exportToYAML: {
+            ...context.exportToYAML,
+            parent: { name: data.name },
+          },
+        }
+      : context
+
   const result = exportPropertiesToYAML({
-    context,
+    context: contextWithParent,
     data: data,
     rule: FormAttributeRules,
   })!

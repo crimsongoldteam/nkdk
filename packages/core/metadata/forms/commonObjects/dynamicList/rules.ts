@@ -7,22 +7,26 @@ export const DynamicListRules = {
     autoFillAvailableFields: {
       type: "boolean",
       yaml: "АвтоЗаполнениеДоступныхПолей",
+      order: 0,
     },
     autoSaveUserSettings: {
       type: "boolean",
       yaml: "АвтоматическоеСохранениеПользовательскихНастроек",
       defaultValueYAML: true,
+      order: 7,
     },
     calculatedFields: {
       type: "CalculatedFields",
       xml: "CalculatedField",
       yaml: "ВычисляемыеПоля",
+      order: 4,
     },
     conditionalAppearance: {
       type: "ConditionalAppearance",
       xml: "dcsset:conditionalAppearance",
       yaml: "УсловноеОформление",
       xmlParents: ["ListSettings"],
+      order: 11,
     },
     currentUserSettingsKey: {
       type: "string",
@@ -44,6 +48,7 @@ export const DynamicListRules = {
       xml: "dcscor:item",
       xmlParents: ["ListSettings", "dcsset:dataParameters"],
       yaml: "ПараметрыДанных",
+      order: 9,
       defaultItemRule: {
         type: "SettingsParameterValue",
         valueType: "Field",
@@ -59,38 +64,45 @@ export const DynamicListRules = {
       type: "DataSetFieldFields",
       xml: "Field",
       yaml: "Поля",
+      order: 4,
     },
     filter: {
       type: "Filter",
       xml: "dcsset:filter",
       yaml: "Отбор",
       xmlParents: ["ListSettings"],
+      order: 8,
     },
     getInvisibleFieldPresentations: {
       type: "boolean",
       yaml: "ПолучениеПредставленийДляНевидимыхПолей",
       defaultValueYAML: true,
+      order: 7,
     },
     group: {
       type: "StructureItemGroup",
       xml: "dcsset:item",
       yaml: "Группировка",
       xmlParents: ["ListSettings"],
+      order: 12,
     },
     mainTable: {
       type: "string",
       yaml: "ОсновнаяТаблица",
+      order: 6,
     },
     order: {
       type: "Order",
       xml: "dcsset:order",
       yaml: "Порядок",
       xmlParents: ["ListSettings"],
+      order: 10,
     },
     parameters: {
       type: "DCSParameters",
       xml: "Parameter",
       yaml: "Параметры",
+      order: 5,
     },
     queryText: {
       type: "string",
@@ -120,6 +132,7 @@ export const DynamicListRules = {
       xml: "dcsset:itemsViewMode",
       yaml: "РежимОтображенияСтруктуры",
       xmlParents: ["ListSettings"],
+      order: 13,
     },
     settingsComposer: {
       type: "string",
@@ -131,12 +144,14 @@ export const DynamicListRules = {
       xml: "dcsset:itemsUserSettingID",
       yaml: "ИдентификаторПользовательскойНастройкиСтруктуры",
       xmlParents: ["ListSettings"],
+      order: 14,
     },
     itemsUserSettingPresentation: {
       type: "DcsLocalStringType",
       xml: "dcsset:itemsUserSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройкиСтруктуры",
       xmlParents: ["ListSettings"],
+      order: 15,
     },
   },
 } as const satisfies MetadataItemRule

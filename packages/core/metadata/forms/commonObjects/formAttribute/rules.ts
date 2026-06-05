@@ -18,7 +18,7 @@ export const FormAttributeRules = {
       yaml: "ТипЗначения",
       type: "TypeDescription",
       xml: "Settings",
-      order: 0,
+      order: 10,
       addTypeDescriptionAttributeToXML: true,
     },
     title: {
@@ -38,6 +38,7 @@ export const FormAttributeRules = {
       },
 
       excludeIfEqualNameYAML: true,
+      order: 1,
     },
     type: {
       yaml: "Тип",
@@ -45,12 +46,14 @@ export const FormAttributeRules = {
       xml: "Type",
       useAsShortValueYAML: true,
       defaultValueXMLRaw: {},
+      order: 2,
     },
 
     mainAttribute: {
       yaml: "ОсновнойРеквизит",
       xml: "MainAttribute",
       type: "boolean",
+      order: 3,
     },
     storedData: {
       yaml: "СохраняемыеДанные",
@@ -61,11 +64,13 @@ export const FormAttributeRules = {
       yaml: "РазрешитьПросмотр",
       yamlDeny: "ЗапретитьПросмотр",
       type: "UserVisible",
+      order: 4,
     },
     edit: {
       yaml: "РазрешитьРедактирование",
       yamlDeny: "ЗапретитьРедактирование",
       type: "UserVisible",
+      order: 5,
     },
     fillCheck: {
       yaml: "ПроверкаЗаполнения",
@@ -98,15 +103,18 @@ export const FormAttributeRules = {
       yaml: "ИспользоватьВсегда",
       type: "FieldsList",
       xml: "UseAlways",
+      order: 6,
     },
     save: {
       yaml: "Сохранение",
       type: "FieldsList",
+      order: 7,
     },
     dynamicList: {
       type: "DynamicList",
       xml: "Settings",
       yaml: "ДинамическийСписок",
+      order: 10,
     },
     chart: {
       type: "Chart",
@@ -114,6 +122,7 @@ export const FormAttributeRules = {
       yaml: "Диаграмма",
       fromXML: false,
       toXML: false,
+      order: 10,
     },
     ganttChart: {
       type: "GanttChart",
@@ -121,6 +130,7 @@ export const FormAttributeRules = {
       yaml: "ДиаграммаГанта",
       fromXML: false,
       toXML: false,
+      order: 10,
     },
     flowchartContext: {
       type: "FlowchartContext",
@@ -128,6 +138,7 @@ export const FormAttributeRules = {
       yaml: "ГрафическаяСхема",
       fromXML: false,
       toXML: false,
+      order: 10,
     },
     spreadsheetDocument: {
       type: "SpreadsheetDocument",
@@ -135,6 +146,7 @@ export const FormAttributeRules = {
       yaml: "ТабличныйДокумент",
       fromXML: false,
       toXML: false,
+      order: 10,
     },
     planner: {
       type: "Planner",
@@ -142,6 +154,7 @@ export const FormAttributeRules = {
       yaml: "Планировщик",
       fromXML: false,
       toXML: false,
+      order: 10,
     },
   },
 } as const satisfies MetadataItemRule
