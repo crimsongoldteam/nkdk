@@ -17,6 +17,8 @@ import {
 
 type TypeDescriptionXMLWithTypeSetAttribute = TypeDescriptionXML & { "_xsi:type"?: "v8:TypeSet" }
 
+const ENTERPRISE_CURRENT_CONFIG_NAMESPACE = "http://v8.1c.ru/8.1/data/enterprise/current-config"
+
 export const exportTypeDescriptionToXML = (
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
@@ -133,11 +135,16 @@ const getSourceTypeSetMarkerXML = (
 const isSameTypes = (left: string[], right: string[]): boolean =>
   left.length === right.length && left.every((type, index) => type === right[index])
 
-const shouldExportTypeNamespace = (
+const getCanonicalTypeNamespace = (
   rule: ReturnType<typeof getTypeDescriptionRule>,
   declareTypeNamespace: boolean
-): rule is NonNullable<typeof rule> & { namespace: string } =>
-  Boolean(rule?.namespace && (declareTypeNamespace || rule.prefix !== "dcsset"))
+): string | undefined => {
+  if (!rule) return undefined
+  if (rule.namespace !== undefined) {
+    return declareTypeNamespace || rule.prefix !== "dcsset" ? rule.namespace : undefined
+  }
+  return declareTypeNamespace && rule.prefix === "cfg" ? ENTERPRISE_CURRENT_CONFIG_NAMESPACE : undefined
+}
 
 const getMatchingReferenceSourceType = (
   type: string,
@@ -147,7 +154,7 @@ const getMatchingReferenceSourceType = (
   const sourceType = referenceSourceTypes?.[type]
   if (sourceType === undefined) return undefined
   if (removeTypePrefix(sourceType.value) !== type) return undefined
-  if (sourceType.namespace !== rule.namespace) return undefined
+  if (rule.namespace !== undefined && sourceType.namespace !== rule.namespace) return undefined
 
   return sourceType
 }
@@ -172,9 +179,10 @@ const getCanonicalTypeXML = (
   declareTypeNamespace: boolean
 ): TypeDescriptionXMLType => {
   const typeXML = `${rule.prefix}:${type}`
-  return shouldExportTypeNamespace(rule, declareTypeNamespace)
+  const namespace = getCanonicalTypeNamespace(rule, declareTypeNamespace)
+  return namespace !== undefined
     ? {
-        [`_xmlns:${rule.prefix}`]: rule.namespace,
+        [`_xmlns:${rule.prefix}`]: namespace,
         "#text": typeXML,
       }
     : typeXML

@@ -45,6 +45,7 @@ export const PredefinedItemRules = {
       yaml: "ТипЗначения",
       xml: "Type",
       type: "TypeDescription",
+      declareTypeNamespaceXML: true,
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         isChartOfCharacteristicTypesPredefined(context),
       defaultValueXMLRaw: {},

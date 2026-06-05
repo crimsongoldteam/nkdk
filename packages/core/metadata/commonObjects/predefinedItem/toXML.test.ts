@@ -63,6 +63,34 @@ describe("export PredefinedItem to XML", () => {
     expect(result).toContain("<v8:Length>10</v8:Length>")
   })
 
+  it("exports local cfg namespace for chart of characteristic types predefined item reference type", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      itemsTree: [
+        {
+          itemType: "MetadataChartOfCharacteristicTypes",
+          name: "ВидыСубконто",
+          path: "MetadataChartOfCharacteristicTypes.ВидыСубконто",
+        },
+      ],
+      value: {
+        itemType: "PredefinedItem",
+        name: "ПредопределенноеВсеСвойства",
+        isFolder: false,
+        code: "000000001",
+        description: "Предопределенное все свойства",
+        type: {
+          type: ["CatalogRef.ЗначенияХарактеристик"],
+        },
+      },
+      xmlRootTag: "Item",
+    })
+
+    expect(result).toContain(
+      '<v8:Type xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config">cfg:CatalogRef.ЗначенияХарактеристик</v8:Type>'
+    )
+  })
+
   it("exports empty Type for chart of characteristic types predefined folder", () => {
     const { result } = testExportPropertyToXML({
       rule,

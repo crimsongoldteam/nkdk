@@ -61,6 +61,20 @@ describe("exportTypeDescriptionToXML", () => {
     )
   })
 
+  it("exports cfg namespace when rule requests local type namespace", () => {
+    const resultXml = exportTypeDescriptionToXML(
+      mockContext,
+      typeDescriptionRuleWithLocalNamespace,
+      { type: ["CatalogRef.ЗначенияХарактеристик"] }
+    )
+
+    const result = xmlExport({ TypeDescription: resultXml }, false)
+
+    expect(result).toEqual(
+      '<TypeDescription>\n\t<v8:Type xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config">cfg:CatalogRef.ЗначенияХарактеристик</v8:Type>\n</TypeDescription>'
+    )
+  })
+
   it("does not export local type namespace by default", () => {
     const resultXml = exportTypeDescriptionToXML(mockContext, typeDescriptionRule, { type: ["SettingsComposer"] })
 
@@ -117,6 +131,30 @@ describe("exportTypeDescriptionToXML", () => {
 
     expect(result).toEqual(
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n</Type>'
+    )
+  })
+
+  it("should preserve reference prefix spelling for cfg types with local namespace", () => {
+    const referenceXml = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+      '<Type>\n\t<v8:Type xmlns:d4p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d4p1:CatalogRef.ЗначенияХарактеристик</v8:Type>\n</Type>'
+    )
+    const referenceTypeDescription = importTypeDescriptionFromXML(
+      mockContextFromXML({ forReference: true }),
+      mockRule,
+      referenceXml.Type
+    )
+
+    const resultXml = exportTypeDescriptionToXML(
+      mockContext,
+      mockRule,
+      { type: ["CatalogRef.ЗначенияХарактеристик"] },
+      referenceTypeDescription
+    )
+
+    const result = xmlExport({ Type: resultXml }, false)
+
+    expect(result).toEqual(
+      '<Type>\n\t<v8:Type xmlns:d4p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d4p1:CatalogRef.ЗначенияХарактеристик</v8:Type>\n</Type>'
     )
   })
 
