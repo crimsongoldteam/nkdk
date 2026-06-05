@@ -6,7 +6,10 @@ import {
   multiple,
 } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
 import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
-import { MetadataAccountingRegisterStandardAttributeNames } from "~/metadata/appliedObjects/metadataAccountingRegister/rules"
+import {
+  MetadataAccountingRegisterStandardAttributeNames,
+  MetadataAccountingRegisterStandardAttributeNamesXML,
+} from "~/metadata/appliedObjects/metadataAccountingRegister/rules"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
@@ -364,5 +367,32 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     expect(result).toContain('<xr:StandardAttribute name="ExtDimensionType50"/>')
     expect(result).not.toContain('<xr:StandardAttribute name="ExtDimension1"/>')
     expect(result).not.toContain('<xr:StandardAttribute name="ExtDimensionType1"/>')
+  })
+
+  it("does not complete accounting ExtDimension standard attributes up to 50 without reference", () => {
+    const rule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,
+      standartAttributeNamesXML: MetadataAccountingRegisterStandardAttributeNamesXML,
+    } satisfies PropertyRule
+    const value = [
+      { itemType: "StandardAttributeDescription", name: "ExtDimension1", comment: "changed" },
+      { itemType: "StandardAttributeDescription", name: "ExtDimensionType1", comment: "changed" },
+      { itemType: "StandardAttributeDescription", name: "ExtDimension4", comment: "changed" },
+      { itemType: "StandardAttributeDescription", name: "ExtDimensionType4", comment: "changed" },
+    ]
+    const { result } = testExportPropertyToXML({
+      rule,
+      value,
+      metadataItem: { standardAttributes: value },
+      referenceMetadata: undefined,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    const names = Array.from(result.matchAll(/<xr:StandardAttribute name="([^"]+)"/g), ([, name]) => name)
+    expect(names).toContain("ExtDimension1")
+    expect(names).toContain("ExtDimensionType4")
+    expect(names).not.toContain("ExtDimension5")
+    expect(names).not.toContain("ExtDimensionType50")
   })
 })

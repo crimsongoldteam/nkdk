@@ -23,6 +23,26 @@ export const MetadataAccountingRegisterStandardAttributeNames: Record<string, st
   ),
 }
 
+const extDimensionStandardAttributeName = /^ExtDimension(Type)?\d+$/
+
+export const MetadataAccountingRegisterStandardAttributeNamesXML = (metadataItem: unknown): Record<string, string> => {
+  const item = metadataItem && typeof metadataItem === "object" ? (metadataItem as { standardAttributes?: unknown }) : {}
+  const standardAttributes = Array.isArray(item.standardAttributes) ? item.standardAttributes : []
+  const explicitExtDimensions = new Set(
+    standardAttributes
+      .map((attribute) =>
+        attribute && typeof attribute === "object" ? (attribute as { name?: unknown }).name : undefined
+      )
+      .filter((name): name is string => typeof name === "string" && extDimensionStandardAttributeName.test(name))
+  )
+
+  return Object.fromEntries(
+    Object.entries(MetadataAccountingRegisterStandardAttributeNames).filter(
+      ([name]) => !extDimensionStandardAttributeName.test(name) || explicitExtDimensions.has(name)
+    )
+  )
+}
+
 const MetadataAccountingRegisterCommandRules = {
   ...MetadataCommandRules,
   properties: {
@@ -112,6 +132,7 @@ export const MetadataAccountingRegisterRules = {
       yaml: "СтандартныеРеквизиты",
       type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,
+      standartAttributeNamesXML: MetadataAccountingRegisterStandardAttributeNamesXML,
       xmlParents: properties,
     },
     dataLockControlMode: {

@@ -135,49 +135,21 @@ Wrong property of metadata object. Property Balance is not one of metadata objec
 Wrong property of metadata object. Property ChoiceFoldersAndItems is not one of metadata object Resource
 ```
 
-не означают, что эти поля всегда лишние: часть таких тегов есть в исходном XML, который 1С принимает. Существенное отличие сгенерированного XML в том, что без reference меняется порядок дочерних объектов и порядок полей внутри `Dimension`/`Resource`.
+на текущем этапе не исправляются. Полный текст предупреждений сохранён в журнале `/tmp/round-trip-yaml-1c-ibcmd.log`; каждый набор повторяется по двум `Dimension` и двум `Resource`.
 
-Правило: для полей регистров, чувствительных к владельцу, нужно сохранять порядок XML, ожидаемый 1С, на уровне локальных правил `MetadataRegisterDimensionRules` и `MetadataRegisterResourceRules`. Поля бухгалтерского регистра должны идти после общих полей в том же порядке, что в исходной выгрузке:
-
-```text
-... -> ChoiceHistoryOnInput -> Balance -> AccountingFlag -> ExtDimensionAccountingFlag -> DenyIncompleteValues -> Indexing -> FullTextSearch
-```
-
-Для `Dimension` используется подмножество:
-
-```text
-Balance -> AccountingFlag -> DenyIncompleteValues -> Indexing -> FullTextSearch
-```
-
-Для `Resource` используется подмножество:
-
-```text
-Balance -> AccountingFlag -> ExtDimensionAccountingFlag -> FullTextSearch
-```
-
-Если после восстановления порядка предупреждения сохранятся, следующим шагом нужно сузить `toXML` для свойств, которые действительно не поддерживаются конкретным владельцем. Но первым решением считается порядок, потому что исходный XML доказывает допустимость части предупреждающих тегов.
-
-### Порядок ChildObjects бухгалтерского регистра
-
-Исходный XML бухгалтерского регистра хранит дочерние объекты так:
+Причина ещё не утверждена. Гипотеза про порядок полей возможна, но требует отдельной проверки после удаления уже согласованных причин ошибок и предупреждений. Порядок коллекций `ChildObjects` для `MetadataAccountingRegisterRules` в rules уже соответствует исходной выгрузке:
 
 ```text
 Dimension -> Resource -> Attribute -> Form -> Template -> Command
 ```
 
-Сгенерированный XML без reference меняет порядок на:
-
-```text
-Attribute -> Command -> Dimension -> Form -> Resource -> Template
-```
-
-Для бухгалтерского регистра нужно явно закрепить порядок коллекций `ChildObjects`, если естественный порядок YAML не совпадает с порядком выгрузки 1С. Это локальное правило для объекта, а не возврат к глобальному `order` везде.
+Поэтому этот план не меняет `MetadataRegisterDimensionRules` и `MetadataRegisterResourceRules`.
 
 ## Критерии готовности
 
 - `round-trip-yaml-1c` на `all` проходит `nkdk import` и `nkdk sync`.
 - Загрузка XML без reference в 1С не содержит ошибок ПВХ `Type of predefined characteristic type...`.
 - Загрузка XML без reference в 1С не содержит ошибок подписок `Event name required`.
-- Загрузка XML без reference в 1С не содержит предупреждений `Wrong property... Dimension/Resource`.
+- Предупреждения `Wrong property... Dimension/Resource`, если останутся, зафиксированы как следующая отдельная задача.
 - Загрузка XML без reference в 1С не содержит предупреждений `Standard attribute ExtDimension5...ExtDimension50 has not been loaded`.
 - Решения покрыты точечными тестами на правила, без изменения исходных XML-фикстур.
