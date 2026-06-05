@@ -134,6 +134,30 @@ describe("export HomePageWorkArea to XML", () => {
     expect(xmlExport(xml!)).toContain('<xr:Value name="Role.Администратор">false</xr:Value>')
   })
 
+  it("exports working area template before columns without reference XML", () => {
+    const data = importMetadataItemFromYAML({
+      context: mockContext,
+      rule: HomePageWorkAreaRules,
+      yaml: {
+        ШаблонРабочейОбласти: "ДвеКолонкиПеременнойШирины",
+        ЛеваяКолонка: [
+          {
+            Форма: "CommonForm.НачалоРаботы",
+            Высота: 100,
+          },
+        ],
+      },
+    })
+    const xml = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data,
+      rule: HomePageWorkAreaRules,
+    })
+
+    const result = xmlExport(xml!)
+    expect(result.indexOf("<WorkingAreaTemplate>")).toBeLessThan(result.indexOf("<LeftColumn>"))
+  })
+
   it("preserves unknown item and visibility XML details through YAML round-trip", () => {
     const xmlString = `<?xml version="1.0" encoding="UTF-8"?>
 <HomePageWorkArea xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">

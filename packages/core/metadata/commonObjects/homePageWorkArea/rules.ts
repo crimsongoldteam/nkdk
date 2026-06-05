@@ -24,26 +24,31 @@ export const HomePageWorkAreaRules = {
       yaml: "ШаблонРабочейОбласти",
       xml: "WorkingAreaTemplate",
       type: "HomePageWorkAreaTemplate",
+      order: 10,
     },
     column: {
       yaml: "Колонка",
       xml: "Column",
       type: "HomePageWorkAreaColumnItems",
+      order: 20,
     },
     leftColumn: {
       yaml: "ЛеваяКолонка",
       xml: "LeftColumn",
       type: "HomePageWorkAreaColumnItems",
+      order: 30,
     },
     rightColumn: {
       yaml: "ПраваяКолонка",
       xml: "RightColumn",
       type: "HomePageWorkAreaColumnItems",
+      order: 40,
     },
     maCommandInterfaceDisplays: {
       yaml: "ОтображениеКомандногоИнтерфейса",
       xml: "MACommandInterfaceDisplays",
       type: "HomePageWorkAreaCommandInterfaceDisplay",
+      order: 50,
     },
   },
 } as const satisfies MetadataItemRule
