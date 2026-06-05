@@ -22,4 +22,48 @@ describe("export PredefinedItemCollection to YAML", () => {
     const result = testExportPropertyToYAML({ rule, value: model })
     expect(result).toEqual({ Элементы: yaml })
   })
+
+  it("exports ТипЗначения for non-folder items and hides it for folders", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: [
+        {
+          itemType: "PredefinedItem",
+          name: "ПредопределенноеВсеСвойства",
+          isFolder: false,
+          code: "000000001",
+          description: "Предопределенное все свойства",
+          type: {
+            type: ["string"],
+            stringQualifiers: {
+              length: 10,
+              allowedLength: "Variable",
+            },
+          },
+        },
+        {
+          itemType: "PredefinedItem",
+          name: "Группа",
+          isFolder: true,
+          code: "000000002",
+          description: "Группа",
+          type: {
+            type: [],
+          },
+        },
+      ],
+    })
+
+    expect(result).toMatchObject({
+      Элементы: {
+        ПредопределенноеВсеСвойства: {
+          ТипЗначения: "Строка(10)",
+        },
+        Группа: {},
+      },
+    })
+    expect((result as { Элементы: { Группа: Record<string, unknown> } }).Элементы.Группа).not.toHaveProperty(
+      "ТипЗначения"
+    )
+  })
 })

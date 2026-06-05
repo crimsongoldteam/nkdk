@@ -30,4 +30,60 @@ describe("export PredefinedItem to XML", () => {
     })
     expect(result).toEqual(source)
   })
+
+  it("exports Type for chart of characteristic types predefined item", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      itemsTree: [
+        {
+          itemType: "MetadataChartOfCharacteristicTypes",
+          name: "ВидыСубконто",
+          path: "MetadataChartOfCharacteristicTypes.ВидыСубконто",
+        },
+      ],
+      value: {
+        itemType: "PredefinedItem",
+        name: "ПредопределенноеВсеСвойства",
+        isFolder: false,
+        code: "000000001",
+        description: "Предопределенное все свойства",
+        type: {
+          type: ["string"],
+          stringQualifiers: {
+            length: 10,
+            allowedLength: "Variable",
+          },
+        },
+      },
+      xmlRootTag: "Item",
+    })
+
+    expect(result).toContain("<Type>")
+    expect(result).toContain("<v8:Type>xs:string</v8:Type>")
+    expect(result).toContain("<v8:Length>10</v8:Length>")
+  })
+
+  it("exports empty Type for chart of characteristic types predefined folder", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      itemsTree: [
+        {
+          itemType: "MetadataChartOfCharacteristicTypes",
+          name: "ВидыСубконто",
+          path: "MetadataChartOfCharacteristicTypes.ВидыСубконто",
+        },
+      ],
+      value: {
+        itemType: "PredefinedItem",
+        name: "Группа",
+        isFolder: true,
+        code: "000000002",
+        description: "Группа",
+      },
+      xmlRootTag: "Item",
+    })
+
+    expect(result).toContain("<IsFolder>true</IsFolder>")
+    expect(result).toContain("<Type/>")
+  })
 })

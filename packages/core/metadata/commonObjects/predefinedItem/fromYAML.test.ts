@@ -25,6 +25,33 @@ describe("import PredefinedItemCollection from YAML", () => {
     expect(result).toEqual(model)
   })
 
+  it("imports ТипЗначения from YAML", () => {
+    const result = testImportPropertyFromYAML({
+      rule: importRule,
+      value: {
+        ПредопределенноеВсеСвойства: {
+          Код: "000000001",
+          Наименование: "Предопределенное все свойства",
+          ТипЗначения: "Строка(10)",
+        },
+      },
+    })
+
+    expect(result).toMatchObject([
+      {
+        itemType: "PredefinedItem",
+        name: "ПредопределенноеВсеСвойства",
+        type: {
+          type: ["string"],
+          stringQualifiers: {
+            length: 10,
+            allowedLength: "Variable",
+          },
+        },
+      },
+    ])
+  })
+
   it.each(cases)("round-trip $name: import → export совпадает с исходным YAML", ({ yaml }) => {
     const imported = testImportPropertyFromYAML({ rule: importRule, value: yaml })
     const exported = testExportPropertyToYAML({ rule: exportRule, value: imported })

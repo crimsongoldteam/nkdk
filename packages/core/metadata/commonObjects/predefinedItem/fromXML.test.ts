@@ -44,6 +44,41 @@ describe("import PredefinedItem from XML", () => {
     expect(result).toEqual(typedCode)
   })
 
+  it("imports Type for chart of characteristic types predefined item", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <Item>
+          <Name>ПредопределенноеВсеСвойства</Name>
+          <IsFolder>false</IsFolder>
+          <Code>000000001</Code>
+          <Description>Предопределенное все свойства</Description>
+          <Type>
+            <v8:Type>xs:string</v8:Type>
+            <v8:StringQualifiers>
+              <v8:Length>10</v8:Length>
+              <v8:AllowedLength>Variable</v8:AllowedLength>
+            </v8:StringQualifiers>
+          </Type>
+        </Item>
+      `,
+      xmlRootTag: "Item",
+    })
+
+    expect(result).toMatchObject({
+      itemType: "PredefinedItem",
+      name: "ПредопределенноеВсеСвойства",
+      isFolder: false,
+      type: {
+        type: ["string"],
+        stringQualifiers: {
+          length: 10,
+          allowedLength: "Variable",
+        },
+      },
+    })
+  })
+
   it.each(fixtures)("round-trip: %s", (fixtureName) => {
     const source = readFileSync(join(__dirname, "__fixtures__", fixtureName), "utf-8")
       .replace(/^﻿/, "")
