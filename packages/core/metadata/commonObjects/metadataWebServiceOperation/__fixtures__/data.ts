@@ -5,7 +5,10 @@ export const operationsWithXDTOTypeNamespace: MetadataWebServiceOperations = [
     itemType: "MetadataWebServiceOperation",
     name: "ОперацияXDTO",
     comment: "",
-    xdtoReturningValueType: "d4p1:CustomerResponse",
+    xdtoReturningValueType: {
+      namespace: "http://example.org/schema",
+      name: "CustomerResponse",
+    },
     nillable: false,
     transactioned: false,
     procedureName: "ОперацияXDTO",
@@ -15,7 +18,10 @@ export const operationsWithXDTOTypeNamespace: MetadataWebServiceOperations = [
         itemType: "MetadataWebServiceParameter",
         name: "ПараметрXDTO",
         comment: "",
-        xdtoValueType: "d4p1:Customer",
+        xdtoValueType: {
+          namespace: "http://example.org/schema",
+          name: "Customer",
+        },
         nillable: false,
         transferDirection: "In",
       },

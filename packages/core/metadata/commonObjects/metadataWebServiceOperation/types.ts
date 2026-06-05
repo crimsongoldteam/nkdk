@@ -1,6 +1,6 @@
 import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataNameYAML } from "~/metadata/commonObjects/metadataName/types"
-import { XDTOTypeNameXML } from "~/metadata/commonObjects/xdtoTypeName/types"
+import { XDTOTypeName, XDTOTypeNameXML } from "~/metadata/commonObjects/xdtoTypeName/types"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -18,7 +18,7 @@ export interface MetadataWebServiceParameterXML {
     ObjectBelonging?: SE.ObjectBelonging
     Synonym?: I8nTextXML
     TransferDirection?: SE.TransferDirection
-    XDTOValueType?: string | XDTOTypeNameXML
+    XDTOValueType?: XDTOTypeName | XDTOTypeNameXML
   }
 }
 
@@ -42,7 +42,7 @@ export interface MetadataWebServiceOperationXML {
     ProcedureName?: string
     Synonym?: I8nTextXML
     Transactioned?: boolean
-    XDTOReturningValueType?: string | XDTOTypeNameXML
+    XDTOReturningValueType?: XDTOTypeName | XDTOTypeNameXML
   }
   ChildObjects?: {
     Parameter?: MetadataWebServiceParametersXML
