@@ -18,7 +18,10 @@ describe("import MetadataWebService from XML", () => {
         name: "ПараметрВсеСвойства",
         synonym: { items: { ru: "Синоним" } },
         comment: "Комментарий",
-        xdtoValueType: "xs:time",
+        xdtoValueType: {
+          namespace: "http://www.w3.org/2001/XMLSchema",
+          name: "time",
+        },
         nillable: true,
         transferDirection: "InOut",
       },
@@ -27,7 +30,10 @@ describe("import MetadataWebService from XML", () => {
         name: "ПараметрПоУмолчанию",
         synonym: { items: { ru: "Параметр по умолчанию" } },
         comment: "",
-        xdtoValueType: "xs:string",
+        xdtoValueType: {
+          namespace: "http://www.w3.org/2001/XMLSchema",
+          name: "string",
+        },
         nillable: false,
         transferDirection: "In",
       },

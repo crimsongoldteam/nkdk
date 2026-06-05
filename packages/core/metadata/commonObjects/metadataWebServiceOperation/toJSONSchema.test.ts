@@ -5,7 +5,7 @@ import { MetadataWebServiceOperationRules, MetadataWebServiceParameterRules } fr
 import "~/metadata/commonObjects/xdtoTypeName/toJSONSchema"
 
 describe("MetadataWebServiceOperation JSON Schema", () => {
-  it("exports XDTO type name fields as strings", () => {
+  it("exports XDTO type name fields as expanded name objects", () => {
     const returningTypeSchema = exportPropertyToJSONSchema({
       context: mockContext,
       rule: MetadataWebServiceOperationRules.properties.xdtoReturningValueType,
@@ -17,7 +17,21 @@ describe("MetadataWebServiceOperation JSON Schema", () => {
       value: undefined,
     })
 
-    expect(returningTypeSchema).toMatchObject({ type: "string" })
-    expect(parameterTypeSchema).toMatchObject({ type: "string" })
+    expect(returningTypeSchema).toMatchObject({
+      type: "object",
+      required: ["ПространствоИмен", "Имя"],
+      properties: {
+        ПространствоИмен: { type: "string" },
+        Имя: { type: "string" },
+      },
+    })
+    expect(parameterTypeSchema).toMatchObject({
+      type: "object",
+      required: ["ПространствоИмен", "Имя"],
+      properties: {
+        ПространствоИмен: { type: "string" },
+        Имя: { type: "string" },
+      },
+    })
   })
 })
