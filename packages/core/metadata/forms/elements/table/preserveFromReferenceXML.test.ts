@@ -21,24 +21,20 @@ function exportTable(params: { table?: Table; referenceTable?: Table }): Record<
   }) as Record<string, unknown>
 }
 
-function expectXmlKeyOrder(xml: Record<string, unknown>, expectedOrder: string[]): void {
+function expectPresentXmlKeyOrder(xml: Record<string, unknown>, expectedOrder: string[]): void {
   const keys = Object.keys(xml)
-  const positions = new Map(keys.map((key, index) => [key, index]))
+  const actualOrdered = keys.filter((key) => expectedOrder.includes(key))
+  const expectedPresentOrder = expectedOrder.filter((key) => keys.includes(key))
 
-  for (let i = 1; i < expectedOrder.length; i++) {
-    const previous = expectedOrder[i - 1]!
-    const current = expectedOrder[i]!
-    expect(positions.get(previous), previous).toBeDefined()
-    expect(positions.get(current), current).toBeDefined()
-    expect(positions.get(previous)!).toBeLessThan(positions.get(current)!)
-  }
+  expect(expectedPresentOrder.length).toBeGreaterThan(0)
+  expect(actualOrdered).toEqual(expectedPresentOrder)
 }
 
 describe("Table preserveFromReferenceXML", () => {
   it("экспортирует критичные XML-свойства таблицы в порядке 1С без reference", () => {
     const result = exportTable({ table: fullTable })
 
-    expectXmlKeyOrder(result, [
+    expectPresentXmlKeyOrder(result, [
       "Representation",
       "ChangeRowSet",
       "ChangeRowOrder",

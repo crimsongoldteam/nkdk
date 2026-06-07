@@ -4,7 +4,7 @@
 
 **Goal:** Исправить порядок XML-свойств таблиц формы, чтобы YAML→XML без reference проходил загрузку 1С для `acc`.
 
-**Architecture:** Экспорт без reference уже использует порядок ключей в `TableRules.properties`; поэтому фикс ограничен физической перестановкой ключей в `TableRules`. Поведение типов `CommandSet`, `TableAutoCommandBar`, `TableChildItems` и orchestration не меняется.
+**Architecture:** Экспорт без reference сортирует свойства без `referenceMetadata` и без `order` по XML-имени. Фикс ограничен точечным `order` на критичных свойствах `TableRules`; поведение типов `CommandSet`, `TableAutoCommandBar`, `TableChildItems` и orchestration не меняется.
 
 **Tech Stack:** TypeScript, Vitest, `pnpm`, `ibcmd`, существующий metadata orchestration.
 
@@ -15,7 +15,7 @@
 - Modify: `packages/core/metadata/forms/elements/table/preserveFromReferenceXML.test.ts`
   - Добавить regression-test на относительный порядок XML-тегов, экспортируемых из `TableRules` без reference.
 - Modify: `packages/core/metadata/forms/elements/table/rules.ts`
-  - Переставить ключи `properties` у `TableRules` так, чтобы критичные свойства таблицы экспортировались в порядке XML 1С.
+  - Добавить `order` на критичные свойства таблицы, чтобы они экспортировались в порядке XML 1С.
 - No changes: XML-фикстуры и `/home/nikita/git/round-trip/acc`
   - Они остаются источником истины.
 
@@ -103,14 +103,38 @@ git commit -m "test: :white_check_mark: зафиксировать порядо�
 
 ---
 
-### Task 2: Reorder TableRules Properties
+### Task 2: Order TableRules Properties
 
 **Files:**
 - Modify: `packages/core/metadata/forms/elements/table/rules.ts`
 
-- [ ] **Step 1: Move existing property entries, do not change property bodies**
+- [ ] **Step 1: Add explicit order to critical table properties**
 
-In `TableRules.properties`, move the existing entries for these keys into this relative order:
+In `TableRules.properties`, add `order` to the critical keys in this relative order. Keep all other existing table properties present exactly once and do not add `order` to unrelated properties.
+
+```text
+name: 0
+representation: 10
+changeRowSet: 20
+changeRowOrder: 30
+autoInsertNewRow: 40
+enableStartDrag: 50
+enableDrag: 60
+dataPath: 70
+rowPictureDataPath: 80
+rowsPicture: 90
+commandSet: 100
+contextMenu: 110
+autoCommandBar: 120
+extendedTooltip: 130
+searchStringRepresentation: 140
+viewStatusRepresentation: 150
+searchControl: 160
+events: 170
+childItems: 180
+```
+
+The XML order must be:
 
 ```ts
     representation: {
@@ -188,7 +212,7 @@ In `TableRules.properties`, move the existing entries for these keys into this r
     childItems: { yaml: "Элементы", type: "TableChildItems", defaultValue: [] },
 ```
 
-Keep all other existing table properties present exactly once. Do not add `order`.
+Keep all other existing table properties present exactly once.
 
 - [ ] **Step 2: Run the focused test and verify it passes**
 
@@ -233,37 +257,14 @@ git commit -m "fix: :bug: исправить порядок XML таблиц ф�
 
 **Files:**
 - No source edits.
-- Temporarily modify and restore: `.env`
 
-- [ ] **Step 1: Temporarily point `.env` to acc**
+- [ ] **Step 1: Run the YAML -> XML -> 1C cycle for acc**
 
-Change only this line in `.env`:
-
-```env
-NKDK_XML_DIR=/home/nikita/git/round-trip/acc
-```
-
-Keep the original value available so it can be restored after the run.
-
-- [ ] **Step 2: Run round-trip-yaml-1c**
-
-Run:
-
-```bash
-./.agents/skills/round-trip-yaml-1c/round-trip.sh
-```
+Run the same steps as `round-trip-yaml-1c`, but point the XML source to `/home/nikita/git/round-trip/acc` and use fresh temporary YAML/XML directories.
 
 Expected: generated XML loads into 1C without `Invalid name of form item command`. Help-link warnings are acceptable.
 
-- [ ] **Step 3: Restore `.env`**
-
-Restore:
-
-```env
-NKDK_XML_DIR=/home/nikita/git/round-trip/all
-```
-
-- [ ] **Step 4: Check worktree**
+- [ ] **Step 2: Check worktree**
 
 Run:
 
@@ -273,7 +274,7 @@ git status --short
 
 Expected: `.env` is not modified. Temporary directories under `/tmp` and `/home/nikita/git/temp-yaml` are not part of git status.
 
-- [ ] **Step 5: Commit verification note only if source changed after Task 2**
+- [ ] **Step 3: Commit verification note only if source changed after Task 2**
 
 If no source files changed during verification, do not create a commit. If a small source fix was needed, commit it:
 
@@ -325,6 +326,6 @@ pnpm test: PASS
 
 ## Self-Review
 
-- Spec coverage: covered the chosen physical `TableRules` reorder, no YAML format changes, no XML fixture changes, no new orchestration ordering mechanism.
+- Spec coverage: covered the chosen `order` fix in `TableRules`, no YAML format changes, no XML fixture changes, no new orchestration ordering mechanism.
 - Placeholder scan: no placeholder markers.
 - Type consistency: property names match `TableRules` keys and generated XML tags.
