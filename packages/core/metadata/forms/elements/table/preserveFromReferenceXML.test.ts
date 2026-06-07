@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContextToXML } from "~/tests/mockContext"
 import { exportPropertiesToXML } from "~/metadata/orchestration/property/toXML"
+import { fullTable } from "./__fixtures__/data"
 import { TableRules } from "./rules"
 import type { Table } from "./types"
 
@@ -20,7 +21,45 @@ function exportTable(params: { table?: Table; referenceTable?: Table }): Record<
   }) as Record<string, unknown>
 }
 
+function expectXmlKeyOrder(xml: Record<string, unknown>, expectedOrder: string[]): void {
+  const keys = Object.keys(xml)
+  const positions = new Map(keys.map((key, index) => [key, index]))
+
+  for (let i = 1; i < expectedOrder.length; i++) {
+    const previous = expectedOrder[i - 1]!
+    const current = expectedOrder[i]!
+    expect(positions.get(previous), previous).toBeDefined()
+    expect(positions.get(current), current).toBeDefined()
+    expect(positions.get(previous)!).toBeLessThan(positions.get(current)!)
+  }
+}
+
 describe("Table preserveFromReferenceXML", () => {
+  it("экспортирует критичные XML-свойства таблицы в порядке 1С без reference", () => {
+    const result = exportTable({ table: fullTable })
+
+    expectXmlKeyOrder(result, [
+      "Representation",
+      "ChangeRowSet",
+      "ChangeRowOrder",
+      "AutoInsertNewRow",
+      "EnableStartDrag",
+      "EnableDrag",
+      "DataPath",
+      "RowPictureDataPath",
+      "RowsPicture",
+      "CommandSet",
+      "ContextMenu",
+      "AutoCommandBar",
+      "ExtendedTooltip",
+      "SearchStringAddition",
+      "ViewStatusAddition",
+      "SearchControlAddition",
+      "Events",
+      "ChildItems",
+    ])
+  })
+
   it("сохраняет RowFilter, когда ключ есть в referenceMetadata со значением undefined", () => {
     const result = exportTable({
       table: baseTable,
