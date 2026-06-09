@@ -10,6 +10,15 @@ import { MetadataExternalDataSourceRules } from "./rules"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
 
+const expectOrderedXMLTags = (xml: string, tags: string[]) => {
+  let previousIndex = -1
+  for (const tag of tags) {
+    const index = xml.indexOf(tag)
+    expect(index, tag).toBeGreaterThan(previousIndex)
+    previousIndex = index
+  }
+}
+
 const write = async (path: string, content: string) => {
   await fs.promises.mkdir(join(path, ".."), { recursive: true })
   await fs.promises.writeFile(path, content, "utf-8")
@@ -311,6 +320,162 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
     expect(cubeXml.indexOf("<DimensionTable>ТаблицаИзмеренияБ</DimensionTable>")).toBeLessThan(
       cubeXml.indexOf("<DimensionTable>ТаблицаИзмеренияА</DimensionTable>")
     )
+  })
+
+  it("сохраняет reference-порядок таблиц из корневого XML при external reference-папке", async () => {
+    const rootDir = await fs.promises.mkdtemp(join(os.tmpdir(), "eds-sync-root-order-"))
+    const inputDir = join(rootDir, "yaml")
+    const outputDir = join(rootDir, "out")
+    const referenceDir = join(rootDir, "reference")
+    const externalReferenceDir = join(referenceDir, "ВнешнийИсточник")
+    const objectDir = join(inputDir, "ВнешнийИсточник")
+
+    await write(join(objectDir, "Свойства.yaml"), "Синоним: Синоним")
+    await write(join(objectDir, "Таблицы/ТаблицаВсеСвойства/Свойства.yaml"), "ИмяВИсточникеДанных: ВсеСвойстваSQL")
+    await write(join(objectDir, "Таблицы/ТаблицаПоУмолчанию/Свойства.yaml"), "ИмяВИсточникеДанных: ПоУмолчаниюSQL")
+    await write(join(objectDir, "Таблицы/ТаблицаМодульНабора/Свойства.yaml"), "ИмяВИсточникеДанных: МодульНабораSQL")
+    await write(
+      join(referenceDir, "ВнешнийИсточник.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject>
+  <ExternalDataSource>
+    <ChildObjects>
+      <Table>ТаблицаВсеСвойства</Table>
+      <Table>ТаблицаПоУмолчанию</Table>
+      <Table>ТаблицаМодульНабора</Table>
+    </ChildObjects>
+  </ExternalDataSource>
+</MetaDataObject>`
+    )
+    await fs.promises.mkdir(externalReferenceDir, { recursive: true })
+
+    await syncAppliedObjectToXML({
+      rule: MetadataExternalDataSourceRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ВнешнийИсточник",
+      outputDir,
+      referenceDir,
+      externalReferenceDir,
+    })
+
+    expectOrderedXMLTags(fs.readFileSync(join(outputDir, "ВнешнийИсточник.xml"), "utf-8"), [
+      "<Table>ТаблицаВсеСвойства</Table>",
+      "<Table>ТаблицаПоУмолчанию</Table>",
+      "<Table>ТаблицаМодульНабора</Table>",
+    ])
+  })
+
+  it("сохраняет reference-порядок форм таблиц из XML дочерних объектов", async () => {
+    const rootDir = await fs.promises.mkdtemp(join(os.tmpdir(), "eds-sync-table-form-order-"))
+    const inputDir = join(rootDir, "yaml")
+    const outputDir = join(rootDir, "out")
+    const referenceDir = join(rootDir, "reference")
+    const externalReferenceDir = join(referenceDir, "ВнешнийИсточник")
+    const objectDir = join(inputDir, "ВнешнийИсточник")
+    const formYaml = `Элементы:
+  ПолеВвода1:
+    Вид: ПолеВвода
+    Ширина: 10
+    ПутьКДанным: Реквизит
+Синоним: Форма
+НазначенияИспользования: ПлатформаИМобильноеПриложение`
+
+    await write(join(objectDir, "Свойства.yaml"), "Синоним: Синоним")
+    await write(join(objectDir, "Таблицы/ТаблицаВсеСвойства/Свойства.yaml"), "ИмяВИсточникеДанных: ТаблицаSQL")
+    await write(join(objectDir, "Таблицы/ТаблицаВсеСвойства/Формы/ФормаВыбора/Форма.yaml"), formYaml)
+    await write(join(objectDir, "Таблицы/ТаблицаВсеСвойства/Формы/ФормаОбъекта/Форма.yaml"), formYaml)
+    await write(join(objectDir, "Таблицы/ТаблицаВсеСвойства/Формы/ФормаСписка/Форма.yaml"), formYaml)
+    await write(
+      join(externalReferenceDir, "Tables/ТаблицаВсеСвойства.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject>
+  <Table>
+    <ChildObjects>
+      <Form>ФормаОбъекта</Form>
+      <Form>ФормаСписка</Form>
+      <Form>ФормаВыбора</Form>
+    </ChildObjects>
+  </Table>
+</MetaDataObject>`
+    )
+    await fs.promises.cp(
+      join(
+        import.meta.dirname,
+        "__fixtures__/sync/xml/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms"
+      ),
+      join(externalReferenceDir, "Tables/ТаблицаВсеСвойства/Forms"),
+      { recursive: true }
+    )
+
+    await syncAppliedObjectToXML({
+      rule: MetadataExternalDataSourceRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ВнешнийИсточник",
+      outputDir,
+      referenceDir,
+      externalReferenceDir,
+    })
+
+    expectOrderedXMLTags(fs.readFileSync(join(outputDir, "Tables/ТаблицаВсеСвойства.xml"), "utf-8"), [
+      "<Form>ФормаОбъекта</Form>",
+      "<Form>ФормаСписка</Form>",
+      "<Form>ФормаВыбора</Form>",
+    ])
+  })
+
+  it("сохраняет reference-порядок форм кубов из XML дочерних объектов", async () => {
+    const rootDir = await fs.promises.mkdtemp(join(os.tmpdir(), "eds-sync-cube-form-order-"))
+    const inputDir = join(rootDir, "yaml")
+    const outputDir = join(rootDir, "out")
+    const referenceDir = join(rootDir, "reference")
+    const externalReferenceDir = join(referenceDir, "ВнешнийИсточник")
+    const objectDir = join(inputDir, "ВнешнийИсточник")
+    const formYaml = `Элементы:
+  ПолеВвода1:
+    Вид: ПолеВвода
+    Ширина: 10
+    ПутьКДанным: Реквизит
+Синоним: Форма
+НазначенияИспользования: ПлатформаИМобильноеПриложение`
+
+    await write(join(objectDir, "Свойства.yaml"), "Синоним: Синоним")
+    await write(join(objectDir, "Кубы/КубВсеСвойства/Свойства.yaml"), "ИмяВИсточникеДанных: КубSQL")
+    await write(join(objectDir, "Кубы/КубВсеСвойства/Формы/ФормаЗаписи/Форма.yaml"), formYaml)
+    await write(join(objectDir, "Кубы/КубВсеСвойства/Формы/ФормаСписка/Форма.yaml"), formYaml)
+    await write(
+      join(externalReferenceDir, "Cubes/КубВсеСвойства.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject>
+  <Cube>
+    <ChildObjects>
+      <Form>ФормаСписка</Form>
+      <Form>ФормаЗаписи</Form>
+    </ChildObjects>
+  </Cube>
+</MetaDataObject>`
+    )
+    await fs.promises.cp(
+      join(import.meta.dirname, "__fixtures__/sync/xml/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms"),
+      join(externalReferenceDir, "Cubes/КубВсеСвойства/Forms"),
+      { recursive: true }
+    )
+
+    await syncAppliedObjectToXML({
+      rule: MetadataExternalDataSourceRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ВнешнийИсточник",
+      outputDir,
+      referenceDir,
+      externalReferenceDir,
+    })
+
+    expectOrderedXMLTags(fs.readFileSync(join(outputDir, "Cubes/КубВсеСвойства.xml"), "utf-8"), [
+      "<Form>ФормаСписка</Form>",
+      "<Form>ФормаЗаписи</Form>",
+    ])
   })
 
   it("не восстанавливает формы дочерних объектов из reference, если текущая папка Формы пустая", async () => {
