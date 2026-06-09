@@ -19,6 +19,8 @@ const commandInterfaceXML = `<?xml version="1.0" encoding="UTF-8"?>
 		<Group>NavigationPanelOrdinary</Group>
 	</GroupsOrder>
 </CommandInterface>`
+const emptyCommandInterfaceXML = `<?xml version="1.0" encoding="UTF-8"?>
+<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20"/>`
 
 describe("syncAppliedObjectToXML — MetadataSubsystem", () => {
   it("читает YAML и записывает XML в outputDir", async () => {
@@ -131,6 +133,63 @@ ${commandInterfaceYAML}`
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
+  })
+
+  it("сохраняет пустой CommandInterface.xml дочерней подсистемы из reference", async () => {
+    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "subsystem-sync-empty-command-interface-yaml-"))
+    const referenceDir = fs.mkdtempSync(join(os.tmpdir(), "subsystem-sync-empty-command-interface-ref-"))
+    const outputDir = fs.mkdtempSync(join(os.tmpdir(), "subsystem-sync-empty-command-interface-xml-"))
+    const xmlManifest = new XmlSyncManifest(outputDir)
+
+    writeFile(
+      join(inputDir, "Отчеты", "Свойства.yaml"),
+      `Синоним: Отчеты
+Подсистемы:
+  - БухгалтерскийУчет
+`
+    )
+    writeFile(
+      join(inputDir, "Отчеты", "Подсистемы", "БухгалтерскийУчет", "Свойства.yaml"),
+      `Синоним: Бухгалтерский учет
+`
+    )
+    writeFile(
+      join(referenceDir, "Отчеты.xml"),
+      subsystemXML({
+        name: "Отчеты",
+        synonym: "Отчеты",
+        childName: "БухгалтерскийУчет",
+      })
+    )
+    writeFile(
+      join(referenceDir, "Отчеты", "Subsystems", "БухгалтерскийУчет.xml"),
+      subsystemXML({ name: "БухгалтерскийУчет", synonym: "Бухгалтерский учет" })
+    )
+    writeFile(
+      join(referenceDir, "Отчеты", "Subsystems", "БухгалтерскийУчет", "Ext", "CommandInterface.xml"),
+      emptyCommandInterfaceXML
+    )
+
+    await syncAppliedObjectToXML({
+      rule: MetadataSubsystemRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "Отчеты",
+      outputDir,
+      referenceDir,
+      xmlManifest,
+    })
+
+    const commandInterfacePath = join(
+      outputDir,
+      "Отчеты",
+      "Subsystems",
+      "БухгалтерскийУчет",
+      "Ext",
+      "CommandInterface.xml"
+    )
+    expect(normalizeXML(fs.readFileSync(commandInterfacePath, "utf-8"))).toBe(emptyCommandInterfaceXML)
+    expect(xmlManifest.expectedFiles()).toContain("Отчеты/Subsystems/БухгалтерскийУчет/Ext/CommandInterface.xml")
   })
 
   it("не дублирует имя родителя для подсистем второго уровня", async () => {
