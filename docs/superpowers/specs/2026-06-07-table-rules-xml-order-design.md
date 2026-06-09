@@ -69,6 +69,25 @@ ChildItems
 3. `round-trip-yaml-1c` для `acc`: ошибка `Invalid name of form item command` должна исчезнуть.
 4. Если изменение затрагивает общий экспорт форм шире ожидаемого, дополнительно запустить релевантные form tests или `pnpm test`.
 
+## Предупреждения по HTML-справке
+
+После исправления XML-порядка таблиц загрузка generated XML в 1С проходит успешно, но `ibcmd` может выводить предупреждения вида:
+
+```text
+the help page possibly contains an invalid link: true
+the help page possibly contains an invalid link: ПутьККартинке
+```
+
+Это не ошибка round-trip. Контрольная проверка прямой загрузки эталонного `/home/nikita/git/round-trip/acc` в 1С показывает те же предупреждения. Проблемные значения уже находятся в исходных HTML-файлах справки, например:
+
+```html
+<a href="true">...</a>
+<img src="true">
+<img src="ПутьККартинке">
+```
+
+Generated XML сохраняет эти HTML-файлы байт-в-байт. Поэтому критерий успешности этой задачи — отсутствие ошибки `Invalid name of form item command`; help-warning'и считаются эталонным фоном и не требуют исправления в `TableRules`.
+
 ## Риски
 
 `order` на критичных свойствах `TableRules` меняет порядок XML у всех таблиц в режиме без reference. Это ожидаемое изменение, но нужно проверить, что оно не ломает существующие round-trip тесты с reference.
