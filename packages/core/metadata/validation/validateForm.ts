@@ -22,6 +22,7 @@ export interface ValidateFormParams {
   cache: ProjectYamlCache
   context?: ConfigurationContext
   ownerCache?: OwnerMetadataCache
+  suppressFormImportDiagnostics?: boolean
 }
 
 export function validateForm(params: ValidateFormParams): Diagnostic[] {
@@ -56,7 +57,7 @@ export function validateForm(params: ValidateFormParams): Diagnostic[] {
 
   const context = params.context ?? defaultValidationContext()
   const form = importForm({ context, yaml: entry.parsed.data, filePath: entry.filePath })
-  if ("diagnostics" in form) return form.diagnostics
+  if ("diagnostics" in form) return params.suppressFormImportDiagnostics === true ? [] : form.diagnostics
 
   const index = buildFormDataPathIndex({
     filePath: entry.filePath,

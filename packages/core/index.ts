@@ -74,6 +74,13 @@ export type {
 } from "./metadata/orchestration/buildGraph"
 export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
 export {
+  validateProject,
+  type ValidateProjectParams,
+  type ValidateProjectResult,
+} from "./metadata/validation/validateProject"
+export { validateParsedFile } from "./metadata/validation/validateFile"
+export { validateForm, type ValidateFormParams } from "./metadata/validation/validateForm"
+export {
   exportJSONSchemaForProjectFile,
   exportJSONSchemaForSchemaName,
   ProjectFileSchemaError,
