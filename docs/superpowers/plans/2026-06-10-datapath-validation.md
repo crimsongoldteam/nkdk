@@ -510,7 +510,7 @@ git commit -m "feat: :sparkles: реализовать резолвер DataPath
 
 ## Task 8 - Rule Policies And Form Traversal
 
-- [ ] Extend `DataPathPropertyRule` in `packages/core/metadata/orchestration/property/types.ts`.
+- [x] Extend `DataPathPropertyRule` in `packages/core/metadata/orchestration/property/types.ts`.
   - Replace required `defaultType: string` with:
 
     ```ts
@@ -521,7 +521,7 @@ git commit -m "feat: :sparkles: реализовать резолвер DataPath
 
   - Keep compile compatibility for existing rules by allowing optional `defaultType`.
 
-- [ ] Update agreed rules:
+- [x] Update agreed rules:
   - `packages/core/metadata/forms/elements/table/rules.ts`
     - `dataPath`: `allowedKinds: ["tableSource"]`, `allowComposite: false`
     - `rowPictureDataPath`: `allowedKinds: ["Picture"]`, `allowComposite: false`
@@ -533,7 +533,7 @@ git commit -m "feat: :sparkles: реализовать резолвер DataPath
     - `dataPath`: `allowedKinds: ["dateTime"]`, `allowComposite: false`
   - Do not add policies to `InputField`, `LabelField`, `TableInputField`, `TableLabelField`, `ColumnGroup.headerDataPath`, or multiple value DataPath fields.
 
-- [ ] Add `packages/core/metadata/validation/dataPath/policies.ts`.
+- [x] Add `packages/core/metadata/validation/dataPath/policies.ts`.
   - Export:
 
     ```ts
@@ -555,7 +555,7 @@ git commit -m "feat: :sparkles: реализовать резолвер DataPath
     - at least one terminal kind must match `allowedKinds`;
     - `platformSource` warning from resolver suppresses `tableSource` error for this first version.
 
-- [ ] Add `packages/core/metadata/validation/dataPath/formTraversal.ts`.
+- [x] Add `packages/core/metadata/validation/dataPath/formTraversal.ts`.
   - Collect every `DataPath` property from `ClientApplicationFormRules` and element rules.
   - Traverse `childItems` recursively using `getElementRule`.
   - Preserve table context for children of `Table`.
@@ -565,7 +565,7 @@ git commit -m "feat: :sparkles: реализовать резолвер DataPath
     - nested table children `Элементы.<Table>.Элементы.<Child>.<YAMLKey>`
   - Return occurrences with `PropertyRule`, value, YAML path, element type, and table context.
 
-- [ ] Replace `packages/core/metadata/validation/validateForm.ts`.
+- [x] Replace `packages/core/metadata/validation/validateForm.ts`.
   - New signature:
 
     ```ts
@@ -588,12 +588,12 @@ git commit -m "feat: :sparkles: реализовать резолвер DataPath
   - Append owner diagnostics from lazy resolution.
   - Keep no-argument legacy test behavior only by changing tests; do not keep the old local-only API.
 
-- [ ] Tests:
+- [x] Tests:
   - Replace `packages/core/metadata/validation/validateForm.test.ts` with focused fixtures built under temp YAML projects.
   - Cover every case listed in `docs/superpowers/specs/2026-06-10-datapath-validation-design.md` testing section.
   - Do not modify XML fixtures.
 
-- [ ] Run:
+- [x] Run:
 
   ```bash
   pnpm --filter @nakidka/core test -- metadata/validation/validateForm.test.ts metadata/validation/dataPath

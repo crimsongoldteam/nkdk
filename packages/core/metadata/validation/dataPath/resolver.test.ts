@@ -296,6 +296,40 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("returns a warning for unsupported tilde variant paths", () => {
+    const result = resolve("~Список.Period~Список.Период", {
+      index: indexWithAttributes([]),
+    })
+
+    expect(result).toMatchObject({
+      status: "warning",
+      diagnostics: [
+        expect.objectContaining({
+          severity: "warning",
+          source: "structure",
+          message: 'ПутьКДанным "~Список.Period~Список.Период": вариантный путь пока не проверяется',
+        }),
+      ],
+    })
+  })
+
+  it("returns a warning for unsupported tilde variant paths before table context validation", () => {
+    const result = resolve("~Список.Period~Список.Период", {
+      index: indexWithAttributes([]),
+      tableContext: { dataPath: "Список" },
+    })
+
+    expect(result).toMatchObject({
+      status: "warning",
+      diagnostics: [
+        expect.objectContaining({
+          severity: "warning",
+          message: 'ПутьКДанным "~Список.Period~Список.Период": вариантный путь пока не проверяется',
+        }),
+      ],
+    })
+  })
+
   it("reports Ref instead of YAML Ссылка as an error", () => {
     const result = resolve("Объект.Ref", {
       index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Номенклатура"] })]),

@@ -59,7 +59,14 @@ export const TableRules = {
       type: "SystemEnumeration",
       typeSE: "TableCurrentRowUse",
     },
-    dataPath: { yaml: "ПутьКДанным", type: "DataPath", defaultType: "ValueTable", order: 70 },
+    dataPath: {
+      yaml: "ПутьКДанным",
+      type: "DataPath",
+      defaultType: "ValueTable",
+      allowedKinds: ["tableSource"],
+      allowComposite: false,
+      order: 70,
+    },
     defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
@@ -152,6 +159,8 @@ export const TableRules = {
       yaml: "ПутьКДаннымКартинкиСтроки",
       type: "DataPath",
       defaultType: "Picture",
+      allowedKinds: ["Picture"],
+      allowComposite: false,
       order: 80,
     },
     rowSelectionMode: {

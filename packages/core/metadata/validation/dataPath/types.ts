@@ -1,4 +1,4 @@
-export type DataPathAllowedKind = "boolean" | "dateTime" | "Picture" | "tableSource"
+export type { DataPathAllowedKind } from "~/metadata/orchestration/property/types"
 
 export type DataPathValueKind =
   | "unknown"

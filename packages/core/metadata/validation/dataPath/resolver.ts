@@ -55,17 +55,21 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
 
   const segments = value.split(".")
 
-  const tableContextError = validateTableContext(params)
-  if (tableContextError !== undefined) return { status: "error", diagnostics: [tableContextError] }
-
   if (isCurrentDataPath(segments)) {
     return warning(params, `ПутьКДанным "${value}": CurrentData пока не проверяется`)
+  }
+
+  if (isTildeVariantPath(value)) {
+    return warning(params, `ПутьКДанным "${value}": вариантный путь пока не проверяется`)
   }
 
   const platformSource = getKnownPlatformFormSource(value)
   if (platformSource !== undefined) {
     return warning(params, `ПутьКДанным "${value}": платформенный источник пока не проверяется`)
   }
+
+  const tableContextError = validateTableContext(params)
+  if (tableContextError !== undefined) return { status: "error", diagnostics: [tableContextError] }
 
   const rootName = segments[0] ?? ""
   const root = params.index.getRoot(rootName)
@@ -133,6 +137,10 @@ function validateTableContext(params: ResolveDataPathParams): Diagnostic | undef
 
 function isCurrentDataPath(segments: readonly string[]): boolean {
   return segments.length >= 4 && segments[0] === "Items" && segments[2] === "CurrentData"
+}
+
+function isTildeVariantPath(value: string): boolean {
+  return value.includes("~")
 }
 
 function stateFromRoot(root: FormDataPathSource): TraversalState {

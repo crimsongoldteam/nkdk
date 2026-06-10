@@ -56,6 +56,8 @@ export const PictureFieldRules = {
       yaml: "ПутьКДанным",
       type: "DataPath",
       defaultType: "Picture",
+      allowedKinds: ["Picture"],
+      allowComposite: false,
     },
     ...formFieldCommonProperties,
   },
