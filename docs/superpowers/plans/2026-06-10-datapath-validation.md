@@ -147,7 +147,7 @@ git commit -m "refactor: :recycle: переиспользовать распар
 
 ## Task 3 - Rule-Driven Unique Name Scopes
 
-- [ ] Extend `packages/core/metadata/orchestration/property/types.ts`.
+- [x] Extend `packages/core/metadata/orchestration/property/types.ts`.
   - Add:
 
     ```ts
@@ -159,7 +159,7 @@ git commit -m "refactor: :recycle: переиспользовать распар
 
   - Add `uniqueNameScopes?: readonly UniqueNameScope[]` to `MetadataItemRule`.
 
-- [ ] Add `packages/core/metadata/validation/uniqueNameScopes.ts`.
+- [x] Add `packages/core/metadata/validation/uniqueNameScopes.ts`.
   - Export:
 
     ```ts
@@ -177,7 +177,7 @@ git commit -m "refactor: :recycle: переиспользовать распар
   - Report the second duplicate with source `"structure"` and severity `"error"`.
   - Resolve coordinates through YAML keys using the rule collection `yaml` name and item name.
 
-- [ ] Add `uniqueNameScopes` to rules needed by `DataPathResolver`.
+- [x] Add `uniqueNameScopes` to rules needed by `DataPathResolver`.
   - `packages/core/metadata/appliedObjects/metadataCatalog/rules.ts`: `attributes`, `tabularSections`.
   - `packages/core/metadata/appliedObjects/metadataDocument/rules.ts`: `attributes`, `tabularSections`.
   - `packages/core/metadata/appliedObjects/metadataDataProcessor/rules.ts`: `attributes`, `tabularSections`.
@@ -195,18 +195,19 @@ git commit -m "refactor: :recycle: переиспользовать распар
 
 - [ ] Integrate `validateUniqueNameScopes` into the project validation pipeline from Task 9 and into `OwnerMetadataCache` from Task 6.
   - If a duplicate exists in an owner used by `DataPath`, the resolver must stop that owner transition as ambiguous.
+  - Deferred by the explicit Task 3 boundary on 2026-06-10: do not change the common project validation pipeline, CLI, or DataPath resolver in this step.
 
-- [ ] Tests:
+- [x] Tests:
   - Add `packages/core/metadata/validation/uniqueNameScopes.test.ts`.
   - Cover catalog duplicate between `Реквизиты` and `ТабличныеЧасти`.
   - Cover register duplicate between `Реквизиты`, `Измерения`, and `Ресурсы`.
   - Cover case-sensitive names `Имя` and `имя` as distinct.
   - Cover diagnostic position on the second duplicate.
 
-- [ ] Run:
+- [x] Run:
 
   ```bash
-  pnpm --filter @nakidka/core test -- metadata/validation/uniqueNameScopes.test.ts
+  pnpm --dir packages/core exec vitest run --no-isolate --sequence.shuffle metadata/validation/uniqueNameScopes.test.ts
   ```
 
 Expected result: duplicates are reported through rules, not through DataPath-specific code.

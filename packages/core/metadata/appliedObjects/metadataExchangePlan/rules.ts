@@ -32,6 +32,7 @@ export const MetadataExchangePlanRules = {
   itemType: "MetadataExchangePlan",
   itemTypePrefix: "ПланОбмена",
   xmlDir: "ExchangePlans",
+  uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
     xmlRoot: {
       type: "XMLRoot",

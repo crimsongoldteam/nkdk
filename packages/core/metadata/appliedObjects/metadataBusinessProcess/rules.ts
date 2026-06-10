@@ -19,6 +19,7 @@ export const MetadataBusinessProcessRules = {
   itemType: "MetadataBusinessProcess",
   itemTypePrefix: "БизнесПроцесс",
   xmlDir: "BusinessProcesses",
+  uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
     xmlRoot: {
       type: "XMLRoot",

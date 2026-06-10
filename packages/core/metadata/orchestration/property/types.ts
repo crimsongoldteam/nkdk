@@ -418,6 +418,11 @@ export interface ItemXML {
   [key: string]: any
 }
 
+export interface UniqueNameScope {
+  collections: readonly string[]
+  message?: string
+}
+
 export interface MetadataItemRule extends MetadataItem {
   /**
    * Тип объекта метаданных
@@ -428,6 +433,11 @@ export interface MetadataItemRule extends MetadataItem {
    * Свойства объекта метаданных
    */
   properties: PropertiesType
+
+  /**
+   * Коллекции, внутри которых имена дочерних элементов должны быть уникальны.
+   */
+  uniqueNameScopes?: readonly UniqueNameScope[]
 
   /** @deprecated */
   eventsTag?: string

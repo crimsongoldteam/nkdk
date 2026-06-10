@@ -32,6 +32,7 @@ export const MetadataChartOfCharacteristicTypesRules = {
   itemType: "MetadataChartOfCharacteristicTypes",
   itemTypePrefix: "ПланВидовХарактеристик",
   xmlDir: "ChartsOfCharacteristicTypes",
+  uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
     xmlRoot: { type: "XMLRoot", container: "ChartOfCharacteristicTypes", rootAttributes: V8_MDCLASSES_ROOT, forReferenceOnly: true, toYAML: false, fromYAML: false },
     internalInfo: {

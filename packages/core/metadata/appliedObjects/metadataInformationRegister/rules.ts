@@ -27,6 +27,7 @@ export const MetadataInformationRegisterRules = {
   itemType: "MetadataInformationRegister",
   itemTypePrefix: "РегистрСведений",
   xmlDir: "InformationRegisters",
+  uniqueNameScopes: [{ collections: ["attributes", "dimensions", "resources"] }],
   properties: {
     xmlRoot: {
       type: "XMLRoot",
