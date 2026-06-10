@@ -304,7 +304,7 @@ git commit -m "feat: :sparkles: описать типы DataPath для вали
 
 ## Task 5 - FormDataPathIndex
 
-- [ ] Add `packages/core/metadata/validation/dataPath/formIndex.ts`.
+- [x] Add `packages/core/metadata/validation/dataPath/formIndex.ts`.
   - Export:
 
     ```ts
@@ -327,7 +327,7 @@ git commit -m "feat: :sparkles: описать типы DataPath для вали
   - Treat `attribute.dynamicList` as a `DynamicList` table source.
   - Collect duplicate root names in one search area as diagnostics.
 
-- [ ] Platform source warnings.
+- [x] Platform source warnings.
   - Add a narrow first-version list inside `formIndex.ts`, built from observed YAML cases in `/home/nikita/git/round-trip` and current fixtures:
 
     ```ts
@@ -341,11 +341,11 @@ git commit -m "feat: :sparkles: описать типы DataPath для вали
   - Match exact source and prefixes with continuation.
   - Return a `platformSource` result that leads to warning, not error.
 
-- [ ] Tests:
+- [x] Tests:
   - Add `packages/core/metadata/validation/dataPath/formIndex.test.ts`.
   - Cover normal attributes, `ValueTable` columns, `ValueTree` columns, missing columns, `DynamicList`, duplicate roots, and known platform source detection.
 
-- [ ] Run:
+- [x] Run:
 
   ```bash
   pnpm --filter @nakidka/core test -- metadata/validation/dataPath/formIndex.test.ts

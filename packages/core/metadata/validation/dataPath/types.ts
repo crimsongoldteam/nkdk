@@ -54,3 +54,21 @@ export interface DataPathTypeInfo {
   table?: DataPathTableInfo
   sourceText?: string
 }
+
+export interface FormDataPathColumnSource {
+  name: string
+  typeInfo: DataPathTypeInfo
+}
+
+export interface FormDataPathTableSource {
+  table: DataPathTableInfo
+  columns: Map<string, FormDataPathColumnSource>
+  hasColumns: boolean
+}
+
+export interface FormDataPathSource {
+  kind: "formAttribute"
+  name: string
+  typeInfo: DataPathTypeInfo
+  tableSource?: FormDataPathTableSource
+}
