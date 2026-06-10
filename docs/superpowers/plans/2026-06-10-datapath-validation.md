@@ -429,7 +429,7 @@ git commit -m "feat: :sparkles: добавить ленивое чтение в�
 
 ## Task 7 - DataPathResolver
 
-- [ ] Add `packages/core/metadata/validation/dataPath/resolver.ts`.
+- [x] Add `packages/core/metadata/validation/dataPath/resolver.ts`.
   - Export:
 
     ```ts
@@ -464,7 +464,7 @@ git commit -m "feat: :sparkles: добавить ленивое чтение в�
   - For platform sources, return warning and skip tail.
   - For table context, require child path to start with `${table.dataPath}.`.
 
-- [ ] Error message style.
+- [x] Error message style.
   - Use short Russian messages.
   - Include the `DataPath` value and key segment in the message:
 
@@ -475,7 +475,7 @@ git commit -m "feat: :sparkles: добавить ленивое чтение в�
   - Use `source: "cross-file"` when an owner file is missing or cannot be imported.
   - Use `source: "structure"` for local model/rules conflicts.
 
-- [ ] Tests:
+- [x] Tests:
   - Add `packages/core/metadata/validation/dataPath/resolver.test.ts`.
   - Cover:
     - valid form attribute
@@ -493,7 +493,7 @@ git commit -m "feat: :sparkles: добавить ленивое чтение в�
     - `Items.*.CurrentData.*` warning
     - `Ref` instead of `Ссылка` error
 
-- [ ] Run:
+- [x] Run:
 
   ```bash
   pnpm --filter @nakidka/core test -- metadata/validation/dataPath/resolver.test.ts

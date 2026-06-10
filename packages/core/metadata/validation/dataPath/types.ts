@@ -52,6 +52,7 @@ export interface DataPathTypeInfo {
   kinds: readonly DataPathValueKind[]
   nextTypes: readonly OwnerTypeRef[]
   table?: DataPathTableInfo
+  isComposite?: boolean
   sourceText?: string
 }
 

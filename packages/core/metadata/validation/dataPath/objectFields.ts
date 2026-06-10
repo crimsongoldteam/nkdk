@@ -36,6 +36,7 @@ export interface ObjectFieldIndex {
 export interface ValidateObjectFieldSegmentParams {
   owner: OwnerMetadata
   segment: string
+  dataPathValue?: string
   filePath: string
   parsed: Parameters<typeof diagnosticAtYamlPath>[0]["parsed"]
   yamlPath: YamlPath
@@ -75,11 +76,14 @@ export function buildObjectFieldIndex(owner: OwnerMetadata): ObjectFieldIndex {
 export function validateObjectFieldSegment({
   owner,
   segment,
+  dataPathValue,
   filePath,
   parsed,
   yamlPath,
 }: ValidateObjectFieldSegmentParams): Diagnostic[] {
   if (!platformFieldNames.has(segment)) return []
+  const subject =
+    dataPathValue === undefined ? `DataPath для ${formatOwnerRef(owner.ref)}` : `ПутьКДанным "${dataPathValue}"`
 
   return [
     diagnosticAtYamlPath({
@@ -88,7 +92,7 @@ export function validateObjectFieldSegment({
       path: yamlPath,
       severity: "error",
       source: "structure",
-      message: `В DataPath для ${formatOwnerRef(owner.ref)} используйте YAML-имя реквизита вместо платформенного "${segment}"`,
+      message: `${subject}: используйте YAML-имя реквизита вместо платформенного "${segment}"`,
     }),
   ]
 }

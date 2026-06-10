@@ -69,6 +69,7 @@ export function typeDescriptionToDataPathTypeInfo(
     kinds,
     nextTypes,
     ...(table !== undefined ? { table } : {}),
+    ...(types.length > 1 ? { isComposite: true } : {}),
     sourceText: types.join(" | "),
   }
 }

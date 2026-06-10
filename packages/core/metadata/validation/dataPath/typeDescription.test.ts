@@ -25,6 +25,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
     expect(typeDescriptionToDataPathTypeInfo({ type: ["boolean", "dateTime", "string"] })).toEqual({
       kinds: ["boolean", "dateTime", "scalar"],
       nextTypes: [],
+      isComposite: true,
       sourceText: "boolean | dateTime | string",
     })
   })
@@ -40,6 +41,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
         { kind: "Справочник", name: "Контрагенты" },
         { kind: "ДокументОбъект", name: "ЗаказПокупателя" },
       ],
+      isComposite: true,
       sourceText: "CatalogRef.Контрагенты | DocumentObject.ЗаказПокупателя",
     })
   })
