@@ -25,6 +25,7 @@ import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataIte
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import { ensureJSONSchemaRegistry } from "./schemaRegistry"
 
 export interface ValidationProjectSpec {
   kind: string
@@ -114,6 +115,8 @@ function createMetadataItemSchemaExporter(rule: MetadataItemRule): ValidationPro
 
 function createSchemaExporter(exporter: SchemaExporter): ValidationProjectSpec["exportSchema"] {
   return ({ context, mode = "externalRefs" }) => {
+    ensureJSONSchemaRegistry()
+
     const schemaContext = createJSONSchemaExportContext(context, mode)
     const schema = exporter({ context: schemaContext })
 

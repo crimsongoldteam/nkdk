@@ -109,27 +109,27 @@ git commit -m "feat: :sparkles: добавить кэш YAML для валида
 
 ## Task 2 - Reuse Parsed YAML In Schema Validation
 
-- [ ] Update `packages/core/metadata/validation/validateFile.ts`.
+- [x] Update `packages/core/metadata/validation/validateFile.ts`.
   - Keep current public `validateFile({ filePath, text, schema })`.
   - Add `validateParsedFile({ filePath, parsed, schema })`.
   - Move syntax and TypeBox logic into `validateParsedFile`.
   - `validateFile` becomes a thin wrapper around `parseMetadataYaml(text)` plus `validateParsedFile`.
 
-- [ ] Update `packages/core/metadata/validation/projectFileSchema.ts`.
+- [x] Update `packages/core/metadata/validation/projectFileSchema.ts`.
   - Replace hardcoded `metadataSchemaNameByDir` lookup with `projectSpecs.ts`.
   - Keep current exported functions and error messages.
   - Use `spec.exportSchema({ context, mode })` for `Свойства.yaml`.
   - Keep form schema as `ClientApplicationForm`.
 
-- [ ] Update `packages/core/metadata/validation/schemaRegistry.ts` and `schemaCache.ts` only where needed to keep existing schema command tests passing.
+- [x] Update `packages/core/metadata/validation/schemaRegistry.ts` and `schemaCache.ts` only where needed to keep existing schema command tests passing.
   - Do not register validation-only fields in JSON Schema.
   - Keep existing named schema behavior for `schema` CLI.
 
-- [ ] Tests:
+- [x] Tests:
   - Extend `packages/core/metadata/validation/validateFile.test.ts` with a `validateParsedFile` case proving no second parse is needed.
   - Keep `packages/core/metadata/validation/projectFileSchema.test.ts` passing.
 
-- [ ] Run:
+- [x] Run:
 
   ```bash
   pnpm --filter @nakidka/core test -- metadata/validation/validateFile.test.ts metadata/validation/projectFileSchema.test.ts
