@@ -221,7 +221,7 @@ git commit -m "feat: :sparkles: добавить области уникальн
 
 ## Task 4 - DataPath Domain Model And YAML Locations
 
-- [ ] Add `packages/core/metadata/validation/dataPath/types.ts`.
+- [x] Add `packages/core/metadata/validation/dataPath/types.ts`.
   - Define internal kinds:
 
     ```ts
@@ -251,7 +251,7 @@ git commit -m "feat: :sparkles: добавить области уникальн
   - `OwnerTypeRef` supports at least `Справочник`, `СправочникОбъект`, `Документ`, `ДокументОбъект`, `РегистрСведений`, `РегистрНакопления`, `РегистрБухгалтерии`, `РегистрРасчета`, and chart/data processor/report object names already present in rules.
   - `DataPathTableInfo` distinguishes `ValueTable`, `ValueTree`, `DynamicList`, and applied object tabular sections.
 
-- [ ] Add `packages/core/metadata/validation/dataPath/typeDescription.ts`.
+- [x] Add `packages/core/metadata/validation/dataPath/typeDescription.ts`.
   - Convert existing `TypeDescription` to `DataPathTypeInfo`.
   - Map:
     - `boolean` -> `boolean`
@@ -264,7 +264,7 @@ git commit -m "feat: :sparkles: добавить области уникальн
     - unsupported arbitrary/special types -> `unsupportedIntermediate` for continuation, valid terminal when no policy is present.
   - Do not infer validation policy from `defaultType`.
 
-- [ ] Add `packages/core/metadata/validation/yamlLocations.ts`.
+- [x] Add `packages/core/metadata/validation/yamlLocations.ts`.
   - Export:
 
     ```ts
@@ -282,12 +282,12 @@ git commit -m "feat: :sparkles: добавить области уникальн
   - Traverse `yaml` AST with `isMap`, `isSeq`, and node ranges.
   - If no node is found, use `line: 1`, `col: 1`.
 
-- [ ] Tests:
+- [x] Tests:
   - Add `packages/core/metadata/validation/dataPath/typeDescription.test.ts`.
   - Add `packages/core/metadata/validation/yamlLocations.test.ts`.
   - Cover primitive, composite, reference, `ValueTable`, `ValueTree`, `DynamicList`, missing type, and unsupported intermediate cases.
 
-- [ ] Run:
+- [x] Run:
 
   ```bash
   pnpm --filter @nakidka/core test -- metadata/validation/dataPath/typeDescription.test.ts metadata/validation/yamlLocations.test.ts
