@@ -55,6 +55,11 @@ export interface DataPathTypeInfo {
   sourceText?: string
 }
 
+export const unknownDataPathTypeInfo: DataPathTypeInfo = {
+  kinds: ["unknown"],
+  nextTypes: [],
+}
+
 export interface FormDataPathColumnSource {
   name: string
   typeInfo: DataPathTypeInfo

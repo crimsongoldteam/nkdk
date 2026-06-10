@@ -362,7 +362,7 @@ git commit -m "feat: :sparkles: построить индекс DataPath фор�
 
 ## Task 6 - OwnerMetadataCache And Object Field Extraction
 
-- [ ] Add `packages/core/metadata/validation/dataPath/ownerCache.ts`.
+- [x] Add `packages/core/metadata/validation/dataPath/ownerCache.ts`.
   - Export:
 
     ```ts
@@ -384,7 +384,7 @@ git commit -m "feat: :sparkles: построить индекс DataPath фор�
   - Add `validateUniqueNameScopes`; if it finds duplicate data names, return `ambiguous` for resolver transitions.
   - Cache all statuses by canonical owner key.
 
-- [ ] Add `packages/core/metadata/validation/dataPath/objectFields.ts`.
+- [x] Add `packages/core/metadata/validation/dataPath/objectFields.ts`.
   - Export:
 
     ```ts
@@ -407,12 +407,12 @@ git commit -m "feat: :sparkles: построить индекс DataPath фор�
   - Reject platform names `Ref`, `Description`, `Number`, `Date` in ordinary YAML paths with a DataPath diagnostic.
   - For tabular sections, build table columns from tabular section `attributes` plus standard row attributes from `MetadataTabularSectionRules.properties.standardAttributes`.
 
-- [ ] Tests:
+- [x] Tests:
   - Add `packages/core/metadata/validation/dataPath/ownerCache.test.ts`.
   - Add `packages/core/metadata/validation/dataPath/objectFields.test.ts`.
   - Cover lazy read caching, owner not found, owner import error, schema errors with successful import, catalog fields, document standard attributes, register dimensions/resources/attributes, tabular section columns, `Ссылка.Ссылка.Номер`, and platform name rejection.
 
-- [ ] Run:
+- [x] Run:
 
   ```bash
   pnpm --filter @nakidka/core test -- metadata/validation/dataPath/ownerCache.test.ts metadata/validation/dataPath/objectFields.test.ts
