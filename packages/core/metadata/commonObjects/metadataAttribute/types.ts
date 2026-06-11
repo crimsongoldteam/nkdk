@@ -96,7 +96,19 @@ export type MetadataAttributes = MetadataAttribute[]
 
 export type MetadataAttributesXML = MetadataAttributeXML | MetadataAttributeXML[]
 
-export const MetadataAttributesJSONSchema = Type.Record(Type.String(), Type.Any())
+export const MetadataAttributesJSONSchema = Type.Record(
+  Type.String(),
+  Type.Object(
+    {
+      Тип: Type.Union([
+        Type.String(),
+        Type.Array(Type.String()),
+        Type.Object({}, { additionalProperties: true }),
+      ]),
+    },
+    { additionalProperties: true }
+  )
+)
 export type MetadataAttributesYAML = Record<MetadataNameYAML, MetadataAttributeYAML>
 
 export type MetadataTabularSectionAttributes = MetadataAttributes

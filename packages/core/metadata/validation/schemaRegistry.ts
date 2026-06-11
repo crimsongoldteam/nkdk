@@ -1,7 +1,7 @@
 import "~/metadata/appliedObjects"
 import "~/metadata/commonObjects"
 import "~/metadata/forms"
-import { Type, type TSchema } from "@sinclair/typebox"
+import type { TSchema } from "@sinclair/typebox"
 import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/metadataAccumulationRegister/rules"
 import { exportMetadataCatalogToJSONSchema } from "~/metadata/appliedObjects/metadataCatalog/toJSONSchema"
 import { MetadataDataProcessorRules } from "~/metadata/appliedObjects/metadataDataProcessor/rules"
@@ -43,7 +43,6 @@ import {
 } from "~/metadata/orchestration/jsonSchemaRefs"
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
 
 export class ProjectFileSchemaError extends Error {
   constructor(message: string) {
@@ -104,10 +103,10 @@ function registerNamedSchemas(): void {
   registerMetadataItemSchema("MetadataExchangePlan", MetadataExchangePlanRules)
   registerMetadataItemSchema("ClientApplicationForm", ClientApplicationFormRules)
 
-  registerMetadataAttributeSchema("MetadataAttribute", MetadataAttributeRules)
-  registerMetadataAttributeSchema("MetadataCatalogAttribute", MetadataCatalogAttributeRules)
-  registerMetadataAttributeSchema("MetadataDocumentAttribute", MetadataDocumentAttributeRules)
-  registerMetadataAttributeSchema("MetadataTabularSectionAttribute", MetadataTabularSectionAttributeRules)
+  registerMetadataItemSchema("MetadataAttribute", MetadataAttributeRules)
+  registerMetadataItemSchema("MetadataCatalogAttribute", MetadataCatalogAttributeRules)
+  registerMetadataItemSchema("MetadataDocumentAttribute", MetadataDocumentAttributeRules)
+  registerMetadataItemSchema("MetadataTabularSectionAttribute", MetadataTabularSectionAttributeRules)
   registerMetadataItemSchema("MetadataRegisterAttribute", MetadataRegisterAttributeRules)
   registerMetadataItemSchema("MetadataTaskAddressingAttribute", MetadataTaskAddressingAttributeRules)
   registerMetadataItemSchema("MetadataTabularSection", MetadataTabularSectionRules)
@@ -132,31 +131,6 @@ function registerNamedSchemas(): void {
 
 function registerMetadataItemSchema(name: string, rule: Parameters<typeof exportMetadataItemToJSONSchema>[0]["rule"]) {
   registerSchema(name, ({ context }) => exportMetadataItemToJSONSchema({ context, rule }))
-}
-
-type MetadataAttributeItemRule =
-  | typeof MetadataAttributeRules
-  | typeof MetadataCatalogAttributeRules
-  | typeof MetadataDocumentAttributeRules
-  | typeof MetadataTabularSectionAttributeRules
-
-function registerMetadataAttributeSchema(name: string, rule: MetadataAttributeItemRule) {
-  registerSchema(name, ({ context }) => exportMetadataAttributeValueSchema({ context, rule }))
-}
-
-function exportMetadataAttributeValueSchema(params: {
-  context: ConfigurationContext
-  rule: MetadataAttributeItemRule
-}): TSchema {
-  const { context, rule } = params
-  const attributeSchema = exportMetadataItemToJSONSchema({ context, rule })
-  const shortTypeSchema = exportPropertyToJSONSchema({
-    context,
-    rule: rule.properties.type,
-    value: undefined,
-  })
-
-  return shortTypeSchema ? Type.Union([shortTypeSchema, attributeSchema]) : attributeSchema
 }
 
 function registerSchema(name: string, exporter: SchemaExporter): void {
