@@ -1,5 +1,5 @@
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { ConfigurationContext } from "../../context/types"
 import { UserSettingsID, UserSettingsIDYAML } from "./types"

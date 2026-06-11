@@ -1,4 +1,4 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import { UsePurposes, UsePurposesXML } from "./types"

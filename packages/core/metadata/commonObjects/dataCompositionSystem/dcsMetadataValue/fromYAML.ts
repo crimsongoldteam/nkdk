@@ -10,7 +10,7 @@ import { importTypeLinkFromYAML } from "~/metadata/commonObjects/typeLink/fromYA
 import { importChoiceParameterLinksFromYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/fromYAML"
 import { importChoiceParametersFromYAML } from "~/metadata/commonObjects/сhoiceParameters/fromYAML"
 import { ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnumerations/fromYAML"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"

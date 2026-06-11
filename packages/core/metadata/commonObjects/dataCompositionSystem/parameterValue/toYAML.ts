@@ -1,5 +1,5 @@
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"

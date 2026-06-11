@@ -12,7 +12,7 @@ import { exportChoiceParameterLinksToDcsXML } from "~/metadata/commonObjects/сh
 import { ChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { exportChoiceParameterToDcsXML } from "~/metadata/commonObjects/сhoiceParameters/toDcsXML"
 import { ChoiceParameter } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { exportSystemEnumerationToDcsXML } from "~/metadata/systemEnumerations/toDcsXML"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"

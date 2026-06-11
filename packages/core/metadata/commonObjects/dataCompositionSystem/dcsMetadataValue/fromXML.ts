@@ -11,7 +11,7 @@ import { importChoiceParameterLinksFromDcsXML } from "~/metadata/commonObjects/�
 import { ChoiceParameterLinkDcsValueRootXML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { importChoiceParameterFromDcsXML } from "~/metadata/commonObjects/сhoiceParameters/fromDcsXML"
 import { ChoiceParameterDcsValueRootXML } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { SystemEnumerationDcsValueRootXML } from "~/metadata/systemEnumerations/dcsTypes"
 import { importSystemEnumerationFromDcsXML } from "~/metadata/systemEnumerations/fromDcsXML"

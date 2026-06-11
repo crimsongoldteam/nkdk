@@ -1,4 +1,4 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importI8nTextFromXML } from "../i8nText/fromXML"

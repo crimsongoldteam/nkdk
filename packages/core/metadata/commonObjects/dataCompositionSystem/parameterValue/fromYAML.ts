@@ -1,4 +1,4 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ConfigurationContext } from "../../../context/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"

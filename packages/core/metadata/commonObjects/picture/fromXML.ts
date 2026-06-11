@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { isRawPictureRefValue, Picture, PictureXML } from "./types"
