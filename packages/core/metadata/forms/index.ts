@@ -10,3 +10,10 @@ export type { ElementRule } from "./elements/orchestration/types"
 
 import "./elements"
 import "./commonObjects/index"
+
+let formsRegistered = false
+
+export function registerForms(): void {
+  if (formsRegistered) return
+  formsRegistered = true
+}
