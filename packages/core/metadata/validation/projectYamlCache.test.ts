@@ -55,4 +55,40 @@ describe("ProjectYamlCache", () => {
     expect(first).toMatchObject({ filePath, error: expect.any(Error) })
     expect(readFileSync).toHaveBeenCalledTimes(1)
   })
+
+  it("releases successful entries so large parsed YAML can be collected", () => {
+    const projectDir = createProject()
+    const filePath = join(projectDir, "Свойства.yaml")
+    writeFileSync(filePath, "Имя: Товары\n")
+    const readFileSync = vi.spyOn(fs, "readFileSync")
+    const cache = createProjectYamlCache()
+
+    const first = cache.get(filePath)
+    cache.release(filePath)
+    const second = cache.get(filePath)
+
+    expect(second).not.toBe(first)
+    expect(second).toMatchObject({
+      filePath,
+      parsed: {
+        data: { Имя: "Товары" },
+      },
+    })
+    expect(readFileSync).toHaveBeenCalledTimes(2)
+  })
+
+  it("keeps read errors cached when released", () => {
+    const projectDir = createProject()
+    const filePath = join(projectDir, "missing.yaml")
+    const readFileSync = vi.spyOn(fs, "readFileSync")
+    const cache = createProjectYamlCache()
+
+    const first = cache.get(filePath)
+    cache.release(filePath)
+    const second = cache.get(filePath)
+
+    expect(second).toBe(first)
+    expect(second).toMatchObject({ filePath, error: expect.any(Error) })
+    expect(readFileSync).toHaveBeenCalledTimes(1)
+  })
 })
