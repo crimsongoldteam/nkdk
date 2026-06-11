@@ -84,7 +84,6 @@ export const commonRegisterFieldProperties = {
     yaml: "Тип",
     type: "TypeDescription",
     xml: "Type",
-    useAsShortValueYAML: true,
     xmlParents: propertiesParents,
     order: 4,
   },

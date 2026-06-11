@@ -29,12 +29,14 @@ describe("metadata register field YAML import", () => {
     })
   })
 
-  it("keeps empty source synonym for short YAML register field", () => {
+  it("keeps empty source synonym for object YAML register field", () => {
     const result = importMetadataItemFromYAML({
       context: mockContext,
       rule: AccountingFlagRules,
       name: "УдалитьОКТМО_КПП",
-      yaml: "Строка(21)",
+      yaml: {
+        Тип: "Строка(21)",
+      },
       source: {
         itemType: AccountingFlagRules.itemType,
         name: "УдалитьОКТМО_КПП",
@@ -52,12 +54,14 @@ describe("metadata register field YAML import", () => {
   it.each([
     ["AccountingFlag", AccountingFlagRules],
     ["ExtDimensionAccountingFlag", ExtDimensionAccountingFlagRules],
-  ] as const)("restores omitted synonym from name for short %s", (_label, rule) => {
+  ] as const)("restores omitted synonym from name for object %s", (_label, rule) => {
     const result = importMetadataItemFromYAML({
       context: mockContext,
       rule,
       name: "ПризнакУчетаПоУмолчанию",
-      yaml: "Булево",
+      yaml: {
+        Тип: "Булево",
+      },
     })
 
     expect(result).toMatchObject({
@@ -67,12 +71,25 @@ describe("metadata register field YAML import", () => {
     })
   })
 
-  it("keeps empty source synonym for short YAML register dimension collection", () => {
+  it("rejects scalar YAML register field", () => {
+    expect(() =>
+      importMetadataItemFromYAML({
+        context: mockContext,
+        rule: AccountingFlagRules,
+        name: "ПризнакУчетаПоУмолчанию",
+        yaml: "Булево" as never,
+      })
+    ).toThrow("AccountingFlag: ожидался YAML-объект")
+  })
+
+  it("keeps empty source synonym for object YAML register dimension collection", () => {
     const result = importPropertyFromYAML({
       context: mockContext,
       rule: { type: "MetadataRegisterDimensions" },
       value: {
-        УдалитьОКТМО_КПП: "Строка(21)",
+        УдалитьОКТМО_КПП: {
+          Тип: "Строка(21)",
+        },
       },
       sourceValue: [
         {
@@ -154,12 +171,14 @@ describe("metadata register field YAML import", () => {
     ])
   })
 
-  it("restores omitted synonym from name for short YAML register resource collection without source", () => {
+  it("restores omitted synonym from name for object YAML register resource collection without source", () => {
     const result = importPropertyFromYAML({
       context: mockContext,
       rule: { type: "MetadataRegisterResources" },
       value: {
-        Содержание: "Строка(100)",
+        Содержание: {
+          Тип: "Строка(100)",
+        },
       },
     })
 
@@ -200,12 +219,14 @@ describe("metadata register field YAML import", () => {
     ])
   })
 
-  it("restores omitted synonym from name for short YAML register dimension collection without source", () => {
+  it("restores omitted synonym from name for object YAML register dimension collection without source", () => {
     const result = importPropertyFromYAML({
       context: mockContext,
       rule: { type: "MetadataRegisterDimensions" },
       value: {
-        Организация: "СправочникСсылка.Организации",
+        Организация: {
+          Тип: "СправочникСсылка.Организации",
+        },
       },
     })
 
