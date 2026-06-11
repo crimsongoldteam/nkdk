@@ -57,18 +57,100 @@
 
 Глубокий импорт допустим внутри одной области. Между областями предпочтителен импорт через публичный вход или через узкий контрактный файл с говорящим именем.
 
+## Почему текущие связи появились
+
+Перед запретами нужно разделить существующие связи по причине, иначе allowlist станет способом замаскировать проблему.
+
+### Случайные обходные импорты
+
+`commonObjects/*` импортируют `PropertyRule` из `~/metadata/forms/elements/calendarField/rules`. Этот файл не владеет типом, а только переэкспортирует его. Настоящий владелец — `~/metadata/orchestration/property/types`.
+
+Это механическая ошибка направления зависимости: common object начинает тянуть конкретный элемент формы только ради общего типа. Такие связи нужно убрать сразу и запретить тестом.
+
+### Прикладная логика миграций внутри orchestration
+
+`orchestration/appliedObject/syncToXML.ts` импортирует `remapReferenceModel` и `XmlSyncManifest` из `appliedObjects/configuration/migrations`. Причина понятна: sync прикладного объекта должен учитывать миграции configuration при сохранении `_uuid` и reference-данных.
+
+Но направление зависимости неправильное: универсальный sync-слой знает о конкретной configuration-миграции. Целевой разрез — инвертировать зависимость. `syncAppliedObjectToXML` должен принимать необязательный переходник миграций через параметры или через узкий контракт, а `configuration/syncToXML.ts` подключает `remapReferenceModel` снаружи.
+
+### Формовые типы внутри formElement-ядра
+
+`orchestration/formElement/*` импортирует `BaseElement`, `NamedElement` и часть form-specific преобразований из `forms`. Причина в том, что исторически formElement-оркестратор развивался вместе с моделью управляемых форм, а не как полностью универсальное ядро.
+
+Есть два допустимых исхода:
+
+1. признать `formElement` частью области `forms` и перенести его из `orchestration`;
+2. оставить его в `orchestration`, но вынести минимальные контракты элемента в ядро, чтобы оно не зависело от конкретных form models.
+
+Выбор нужно делать отдельным срезом после удаления более простых связей.
+
+### Глобальные registry-типы
+
+`orchestration/property/registry.ts` и `orchestration/metadataItem/registry.ts` импортируют типы почти всех applied/common/form-объектов. Причина — TypeScript union-ы используются как центральный словарь всех известных property/item типов.
+
+Это главный источник токенов и связанности, но его нельзя чинить первой механической правкой. Целевой разрез: базовый registry-контракт остаётся в `orchestration`, а расширения типов живут рядом с владельцами через локальные registry-модули или declaration merging. До этого нужно убрать очевидные случайные зависимости и развязать sync-миграции.
+
+## Порядок срезов
+
+### Срез 1. Убрать `commonObjects -> forms/elements`
+
+Это первый безопасный срез без изменения поведения:
+
+1. добавить общий `metadata/importBoundaries.test.ts`;
+2. запретить в нём импорты из `packages/core/metadata/commonObjects/**` в `~/metadata/forms/elements/*`;
+3. механически заменить импорты `PropertyRule` из `forms/elements/calendarField/rules` на `orchestration/property/types`;
+4. проверить `pnpm --filter @nakidka/core test` и полный `pnpm test`.
+
+Ожидаемый результат: `commonObjects` перестаёт тянуть конкретные элементы формы ради общего типа, а новый тест не даёт вернуть эту связь.
+
+### Срез 2. Развязать `syncAppliedObjectToXML` и миграции configuration
+
+Цель — убрать импорт `appliedObjects/configuration/migrations/*` из `orchestration/appliedObject/syncToXML.ts`.
+
+Предлагаемый контракт:
+
+- `syncAppliedObjectToXML` принимает необязательный параметр `referenceModelRemapper` или близкий по смыслу переходник;
+- тип переходника живёт в `orchestration/appliedObject`, потому что это часть универсального sync-контракта;
+- `configuration/syncToXML.ts` передаёт туда `remapReferenceModel`;
+- `XmlSyncManifest` также уходит за контракт orchestration или переезжает в нейтральный модуль, если manifest нужен не только configuration.
+
+Этот срез должен быть покрыт существующими migration/sync-тестами configuration и узким тестом, что `orchestration/appliedObject` больше не импортирует `appliedObjects/configuration`.
+
+### Срез 3. Определить место `formElement`
+
+После первых двух срезов нужно принять решение по `orchestration/formElement`:
+
+- если `formElement` остаётся универсальным ядром, вынести минимальные типы элемента из `forms/elements/baseElement/types` в `orchestration/formElement/types` или другой нейтральный контракт;
+- если `formElement` является частью форм, перенести его к `forms` и оставить в `orchestration` только общие metadataItem/property-механизмы.
+
+Критерий выбора: где проще объяснить модуль новому агенту. Если для понимания `formElement` всегда нужна модель формы, значит он не должен называться универсальным orchestration-ядром.
+
+### Срез 4. Разделить глобальные registry-типы
+
+Это самый крупный срез и его не стоит делать до первых трёх.
+
+Целевая форма:
+
+- `orchestration/property/registry.ts` хранит базовый механизм регистрации и минимальный контракт;
+- конкретные property-типы расширяют registry рядом со своими владельцами;
+- `orchestration/metadataItem/registry.ts` перестаёт импортировать все applied/form/common-типы напрямую;
+- новые metadata-типы добавляются через локальный registration entrypoint, а не через правку огромного глобального файла.
+
+На время миграции допустим `legacyRegistryTypes.ts`, но новые типы туда не добавляются.
+
 ## План первой очереди
 
 ### 1. Зафиксировать правила импортов
 
 Добавить vitest-проверки для запрещённых направлений:
 
-- `orchestration` не добавляет новые импорты `appliedObjects/*`, `forms/*` и конкретных `commonObjects/*` сверх зафиксированного списка исторических нарушений;
 - `commonObjects` не импортирует `forms/elements/*`;
+- `orchestration/appliedObject` не импортирует `appliedObjects/configuration/*` после среза 2;
+- `orchestration` не добавляет новые импорты `appliedObjects/*`, `forms/*` и конкретных `commonObjects/*` сверх зафиксированного списка исторических нарушений;
 - `validation` не импортирует конкретный applied object, если существует общий registry-вход;
 - новые cross-area импорты должны идти через публичные входы или контрактные файлы.
 
-Проверка должна быть простой и локальной: по примеру существующего `metadata/orchestration/graphImport/noConcreteMetadataImports.test.ts`. Для старых нарушений используется allowlist с точным путём файла, импортом, причиной и целевым способом удаления; новые нарушения без записи в allowlist падают.
+Проверка должна быть простой и локальной: по примеру существующего `metadata/orchestration/graphImport/noConcreteMetadataImports.test.ts`. Для старых нарушений используется allowlist с точным путём файла, импортом, причиной и целевым способом удаления. Allowlist — временный диагностический список, а не разрешение оставить связь навсегда.
 
 ### 2. Убрать очевидные случайные связи
 
@@ -153,6 +235,6 @@
 
 1. Добавить тест границ импортов для `commonObjects -> forms/elements/*`.
 2. Заменить импорты `PropertyRule` из `forms/elements/calendarField/rules` на `orchestration/property/types`.
-3. Добавить проверку новых concrete-импортов в `orchestration` с allowlist текущих нарушений.
-4. Проверить `pnpm test`.
-5. После зелёной проверки выбрать следующий разрез: registry-типы или явный registration entrypoint.
+3. Проверить `pnpm --filter @nakidka/core test`.
+4. Проверить полный `pnpm test`.
+5. Следующим отдельным изменением спроектировать и выполнить срез 2: инвертировать зависимость `syncAppliedObjectToXML` от миграций configuration.
