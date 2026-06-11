@@ -13,6 +13,7 @@ import { importFromYAML } from "~/yaml/import"
 import { readFormFromXML } from "./convertFromXML"
 import { copyFormItemExternalFilesToXML } from "./externalItemFiles"
 import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 
 export const syncFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -21,7 +22,7 @@ export const syncFormToXML = async (params: {
   outputDir: string
   referenceDir?: string
   currentXMLPath?: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const { context, inputDir, formName, outputDir } = params
   const referenceDir = params.referenceDir
@@ -134,7 +135,7 @@ const writeFormToXML = async (params: {
   metadataXML: FormMetadataXML
   formName: string
   outputDir: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const { formXML, metadataXML, formName, outputDir } = params
 
@@ -158,7 +159,7 @@ const copyFormBinToXML = async (params: {
   formDir: string
   formName: string
   outputDir: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const sourcePath = join(params.formDir, "Form.bin")
   const targetPath = join(params.outputDir, "Forms", params.formName, "Ext", "Form.bin")
@@ -169,7 +170,7 @@ const copyFormHelpFilesToXML = async (params: {
   formDir: string
   formName: string
   outputDir: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   await copyRawDirectoryFiles({
     sourceDir: join(params.formDir, "Справка", "_files"),

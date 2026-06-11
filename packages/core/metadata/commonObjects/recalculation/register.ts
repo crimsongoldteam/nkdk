@@ -7,6 +7,7 @@ import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration
 import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
 import { ExportToXMLFunctionNew, SyncExternalFromXMLFunction, SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import { RecalculationRules } from "./rules"
 import { Recalculation, RecalculationYAML, Recalculations, RecalculationsYAML } from "./types"
 
@@ -119,7 +120,7 @@ async function copyIfExists(params: {
   src: string
   fallbackSrc?: string
   dst: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> {
   const { src, fallbackSrc, dst, xmlManifest } = params
   const existingSrc = fs.existsSync(src)

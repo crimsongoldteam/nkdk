@@ -1,6 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import type { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
 import type { ChildTemplateNamesPropertyRule } from "./types"
@@ -43,7 +43,7 @@ export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (par
 async function copyIfExists(params: {
   src: string
   dst: string
-  xmlManifest?: XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> {
   const { src, dst, xmlManifest } = params
   if (!fs.existsSync(src)) return
@@ -55,7 +55,7 @@ async function copyIfExists(params: {
 async function copyTemplateDirectoryToXML(params: {
   srcDir: string
   dstDir: string
-  xmlManifest?: XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> {
   const { srcDir, dstDir, xmlManifest } = params
   if (!fs.existsSync(srcDir)) return
@@ -77,7 +77,7 @@ async function copyTemplateEntryToXML(params: {
   src: string
   dst: string
   entry: fs.Dirent
-  xmlManifest?: XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> {
   const { src, dst, entry, xmlManifest } = params
   if (entry.isDirectory()) {

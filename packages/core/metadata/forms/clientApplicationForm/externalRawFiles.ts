@@ -1,11 +1,11 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import type { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 
 export async function copyExistingRawFile(params: {
   sourcePath: string
   targetPath: string
-  xmlManifest?: XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> {
   if (!fs.existsSync(params.sourcePath)) return
 
@@ -17,7 +17,7 @@ export async function copyExistingRawFile(params: {
 export async function copyRawDirectoryFiles(params: {
   sourceDir: string
   targetDir: string
-  xmlManifest?: XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> {
   if (!fs.existsSync(params.sourceDir)) return
 
