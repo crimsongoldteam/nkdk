@@ -90,7 +90,7 @@ export interface MetadataAttributeFullYAML {
   ФорматРедактирования?: I8nTextYAML
 }
 
-export type MetadataAttributeYAML = MetadataAttributeFullYAML | TypeDescriptionYAML
+export type MetadataAttributeYAML = MetadataAttributeFullYAML
 
 export type MetadataAttributes = MetadataAttribute[]
 

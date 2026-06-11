@@ -23,7 +23,7 @@ describe("export MetadataAttributes to YAML", () => {
     expect(result).toEqual(fullMetadataAttributesYAML)
   })
 
-  it("should export with short format", () => {
+  it("should export object format", () => {
     const result = exportMetadataAttributesToYAML(mockContext, undefined, shortMetadataAttribute)
     expect(result).toEqual(shortMetadataAttributeYAML)
   })
@@ -33,7 +33,7 @@ describe("export MetadataAttributes to YAML", () => {
     expect(result).toEqual(skipSynonymFromMetadataAttributeYAML)
   })
 
-  it("should export with short multilanguage format", () => {
+  it("should export multilanguage object format", () => {
     const result = exportMetadataAttributesToYAML(mockContext, undefined, shortMultilanguageMetadataAttribute)
     expect(result).toEqual(shortMultilanguageMetadataAttributeYAML)
   })

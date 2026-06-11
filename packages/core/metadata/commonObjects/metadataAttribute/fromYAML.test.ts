@@ -1,3 +1,4 @@
+import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
 import {
   fullMetadataAttributes,
@@ -10,6 +11,8 @@ import {
   shortMultilanguageMetadataAttributeYAML,
 } from "./__fixtures__/data"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { mockContext } from "~/tests/mockContext"
+import { exportMetadataAttributesToJSONSchema } from "./register"
 
 const rule = { type: "MetadataAttributes" } as const
 
@@ -29,16 +32,27 @@ describe("import MetadataAttributes from YAML", () => {
     expect(result).toEqual(minimalMetadataAttributes)
   })
 
-  it("should import with short format", () => {
+  it("should import object format", () => {
     const result = testImportPropertyFromYAML({ rule, value: shortMetadataAttributeYAML })
     expect(result).toEqual(shortMetadataAttribute)
   })
 
-  it("should import short TypeDescription typeId object format", () => {
+  it("should reject scalar short format", () => {
+    expect(() =>
+      testImportPropertyFromYAML({
+        rule,
+        value: {
+          ТестовыйРеквизит: "Строка",
+        },
+      })
+    ).toThrow("MetadataAttribute: ожидался YAML-объект")
+  })
+
+  it("should import TypeDescription typeId object format", () => {
     const result = testImportPropertyFromYAML({
       rule,
       value: {
-        ТестовыйРеквизит: { ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] },
+        ТестовыйРеквизит: { Тип: { ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] } },
       },
     })
 
@@ -55,8 +69,16 @@ describe("import MetadataAttributes from YAML", () => {
     ])
   })
 
-  it("should import short multilanguage format", () => {
+  it("should import multilanguage object format", () => {
     const result = testImportPropertyFromYAML({ rule, value: shortMultilanguageMetadataAttributeYAML })
     expect(result).toEqual(shortMultilanguageMetadataAttribute)
+  })
+
+  it("should reject scalar values in JSON Schema", () => {
+    const schema = exportMetadataAttributesToJSONSchema({ context: mockContext, rule, value: undefined })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(compiled.Check({ Организация: "Справочник.Организации" })).toBe(false)
+    expect(compiled.Check({ Организация: { Тип: "Справочник.Организации" } })).toBe(true)
   })
 })
