@@ -115,4 +115,20 @@ describe("importPropertiesFromYAML", () => {
 
     expect(result.synonym).toEqual({ items: { ru: "Явный синоним" } })
   })
+
+  it("rejects scalar YAML for metadata items without yamlInline", () => {
+    expect(() =>
+      importPropertiesFromYAML({
+        context: mockContext,
+        metadataRule: {
+          itemType: "MetadataAttribute",
+          properties: {
+            type: { yaml: "Тип", type: "TypeDescription", required: true },
+          },
+        },
+        name: "Организация",
+        yaml: "Справочник.Организации" as never,
+      })
+    ).toThrow("MetadataAttribute: ожидался YAML-объект")
+  })
 })

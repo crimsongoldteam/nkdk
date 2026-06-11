@@ -1,17 +1,12 @@
-import { Type } from "@sinclair/typebox"
+import { Type, type TSchema } from "@sinclair/typebox"
 import { MetadataAttributeYAML, MetadataAttributes, MetadataAttributesXML, MetadataAttributesYAML } from "./types"
-import { importTypeDescriptionFromYAML } from "~/metadata/commonObjects/typeDescription/fromYAML"
 import "~/metadata/commonObjects/typeDescription/graphFromModel"
-import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
-import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
-import { ExportToJSONSchemaFn } from "~/metadata/orchestration/property/fn"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
   MetadataAttributeRules,
@@ -26,38 +21,21 @@ type MetadataAttributeItemRule =
   | typeof MetadataDocumentAttributeRules
   | typeof MetadataTabularSectionAttributeRules
 
-const isTypeDescriptionShortYAML = (
-  yaml: MetadataAttributeYAML | TypeDescriptionYAML
-): yaml is TypeDescriptionYAML => {
-  if (typeof yaml === "string" || Array.isArray(yaml)) return true
-  if (yaml === null || typeof yaml !== "object") return false
-
-  const keys = Object.keys(yaml)
-  return keys.length === 1 && keys[0] === "ИдентификаторТипа"
-}
+type ExportMetadataAttributesToJSONSchemaFn = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  value: any | undefined
+}) => TSchema
 
 const importMetadataAttributeFromYAML = (
   context: ConfigurationContext,
   itemRule: MetadataAttributeItemRule,
-  yaml: MetadataAttributeYAML | TypeDescriptionYAML,
+  yaml: MetadataAttributeYAML,
   name: string
 ) => {
-  if (isTypeDescriptionShortYAML(yaml)) {
-    const typeRule = itemRule.properties.type
-    const type = importTypeDescriptionFromYAML(context, typeRule, yaml)
-    if (!type) throw new Error("Type is required")
-
-    return {
-      itemType: itemRule.itemType,
-      name,
-      type,
-      synonym: { items: { [context.defaultLanguage]: splitPascalCase(name) } },
-    }
-  }
-
   const properties = importMetadataItemFromYAML({
     context,
-    yaml: yaml as MetadataAttributeYAML,
+    yaml,
     rule: itemRule,
     name,
   })
@@ -87,21 +65,18 @@ const createImportMetadataAttributesFromYAML =
   }
 
 const createExportMetadataAttributesToJSONSchema =
-  (itemRule: MetadataAttributeItemRule): ExportToJSONSchemaFn =>
+  (itemRule: MetadataAttributeItemRule): ExportMetadataAttributesToJSONSchemaFn =>
   ({ context }) => {
     const attributeSchema = exportMetadataItemToJSONSchema({
       context,
       rule: itemRule,
     })
-    const shortTypeSchema = exportPropertyToJSONSchema({
-      context,
-      rule: itemRule.properties.type,
-      value: undefined,
-    })
 
-    const itemSchema = shortTypeSchema ? Type.Union([shortTypeSchema, attributeSchema]) : attributeSchema
-    return Type.Record(Type.String(), itemSchema)
+    return Type.Record(Type.String(), attributeSchema)
   }
+
+export const exportMetadataAttributesToJSONSchema =
+  createExportMetadataAttributesToJSONSchema(MetadataAttributeRules)
 
 registerMetadataItemCollectionRule({
   propertyType: "MetadataCatalogAttributes",
@@ -119,7 +94,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataAttributeRules),
-  toJSONSchema: createExportMetadataAttributesToJSONSchema(MetadataAttributeRules),
+  toJSONSchema: exportMetadataAttributesToJSONSchema,
   graphChild: { idFrom: "name", edgeKind: "ATTRIBUTE", edgeYaml: "Реквизит", nodeSegment: "Реквизит" },
 })
 

@@ -198,19 +198,23 @@ function owner(params: {
   rule?: MetadataItemRule
   model?: MetadataItem & Record<string, unknown>
 }): OwnerMetadata {
-  return {
+  const rule = params.rule ?? MetadataCatalogRules
+  const ownerWithoutIndex = {
     ref: params.ref ?? { kind: "Справочник", name: "Номенклатура" },
     filePath: "/tmp/Свойства.yaml",
-    parsed: parseMetadataYaml("{}\n"),
-    model: params.model ?? { itemType: params.rule?.itemType ?? "MetadataCatalog" },
-    rule: params.rule ?? MetadataCatalogRules,
+    model: params.model ?? { itemType: rule.itemType },
+    rule,
     spec: {
       kind: "catalog",
       dir: "Справочник",
-      rule: params.rule ?? MetadataCatalogRules,
+      rule,
       exportSchema: () => ({ type: "object" }) as never,
       importModel: () => undefined,
     },
-    schemaDiagnostics: [],
+  }
+
+  return {
+    ...ownerWithoutIndex,
+    fieldIndex: buildObjectFieldIndex(ownerWithoutIndex),
   }
 }

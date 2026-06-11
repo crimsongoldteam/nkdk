@@ -1,4 +1,3 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { join, resolve } from "path"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
@@ -6,8 +5,8 @@ import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { getValidationProjectSpecByDir, type ValidationProjectSpec } from "../projectSpecs"
 import type { ProjectYamlCache } from "../projectYamlCache"
 import type { Diagnostic } from "../types"
-import { validateParsedFile } from "../validateFile"
 import { validateUniqueNameScopes } from "../uniqueNameScopes"
+import { buildObjectFieldIndex, type ObjectFieldIndex } from "./objectFields"
 import type { KnownOwnerTypeKind, OwnerTypeRef } from "./types"
 
 export interface OwnerMetadataCache {
@@ -23,11 +22,10 @@ export type OwnerMetadataResult =
 export interface OwnerMetadata {
   ref: OwnerTypeRef
   filePath: string
-  parsed: ParsedYaml
   model: MetadataItem
   rule: MetadataItemRule
   spec: ValidationProjectSpec
-  schemaDiagnostics: Diagnostic[]
+  fieldIndex: ObjectFieldIndex
 }
 
 export interface CreateOwnerMetadataCacheParams {
@@ -114,36 +112,35 @@ function loadOwner(params: {
     }
   }
 
-  const schemaDiagnostics = validateParsedFile({
-    filePath,
-    parsed: entry.parsed,
-    schema: TypeCompiler.Compile(spec.exportSchema({ context, mode: "inline" })),
-  })
+  try {
+    const imported = importOwnerModel({ spec, context, parsed: entry.parsed, name: ref.name, filePath, ref })
+    if (imported.status === "import-error") return imported
 
-  const imported = importOwnerModel({ spec, context, parsed: entry.parsed, name: ref.name, filePath, ref })
-  if (imported.status === "import-error") return imported
-
-  const uniqueNameDiagnostics = validateUniqueNameScopes({
-    filePath,
-    parsed: entry.parsed,
-    model: imported.model,
-    rule: spec.rule,
-  })
-  if (uniqueNameDiagnostics.length > 0) {
-    return { status: "ambiguous", diagnostics: uniqueNameDiagnostics }
-  }
-
-  return {
-    status: "ok",
-    owner: {
-      ref,
+    const uniqueNameDiagnostics = validateUniqueNameScopes({
       filePath,
       parsed: entry.parsed,
       model: imported.model,
       rule: spec.rule,
+    })
+    if (uniqueNameDiagnostics.length > 0) {
+      return { status: "ambiguous", diagnostics: uniqueNameDiagnostics }
+    }
+
+    const ownerWithoutIndex = {
+      ref,
+      filePath,
+      model: imported.model,
+      rule: spec.rule,
       spec,
-      schemaDiagnostics,
-    },
+    }
+    const owner: OwnerMetadata = {
+      ...ownerWithoutIndex,
+      fieldIndex: buildObjectFieldIndex(ownerWithoutIndex),
+    }
+
+    return { status: "ok", owner }
+  } finally {
+    yamlCache.release(filePath)
   }
 }
 

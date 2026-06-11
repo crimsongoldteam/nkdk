@@ -5,10 +5,7 @@ import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientAppl
 import type { ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
 import { buildFormDataPathIndex } from "./dataPath/formIndex"
 import { collectFormDataPathOccurrences } from "./dataPath/formTraversal"
-import {
-  createOwnerMetadataCache,
-  type OwnerMetadataCache,
-} from "./dataPath/ownerCache"
+import { createOwnerMetadataCache, type OwnerMetadataCache } from "./dataPath/ownerCache"
 import { resolveDataPath } from "./dataPath/resolver"
 import { validateResolvedDataPathPolicy } from "./dataPath/policies"
 import type { ProjectYamlCache } from "./projectYamlCache"
@@ -65,17 +62,13 @@ export function validateForm(params: ValidateFormParams): Diagnostic[] {
     form: form.value,
   })
   const diagnostics = [...index.duplicateDiagnostics]
-  const ownerDiagnostics: Diagnostic[] = []
-  const ownerCache = recordOwnerSchemaDiagnostics({
-    cache:
-      params.ownerCache ??
-      createOwnerMetadataCache({
-        projectDir: params.projectDir,
-        yamlCache: params.cache,
-        context,
-      }),
-    diagnostics: ownerDiagnostics,
-  })
+  const ownerCache =
+    params.ownerCache ??
+    createOwnerMetadataCache({
+      projectDir: params.projectDir,
+      yamlCache: params.cache,
+      context,
+    })
 
   for (const occurrence of collectFormDataPathOccurrences(form.value)) {
     const result = resolveDataPath({
@@ -103,7 +96,6 @@ export function validateForm(params: ValidateFormParams): Diagnostic[] {
     )
   }
 
-  diagnostics.push(...ownerDiagnostics)
   return dedupeDiagnostics(diagnostics)
 }
 
@@ -130,28 +122,6 @@ function importForm(params: {
         },
       ],
     }
-  }
-}
-
-function recordOwnerSchemaDiagnostics(params: {
-  cache: OwnerMetadataCache
-  diagnostics: Diagnostic[]
-}): OwnerMetadataCache {
-  const seen = new Set<string>()
-
-  return {
-    get(ref) {
-      const result = params.cache.get(ref)
-      if (result.status === "ok") {
-        for (const diagnostic of result.owner.schemaDiagnostics) {
-          const key = diagnosticKey(diagnostic)
-          if (seen.has(key)) continue
-          seen.add(key)
-          params.diagnostics.push(diagnostic)
-        }
-      }
-      return result
-    },
   }
 }
 

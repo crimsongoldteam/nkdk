@@ -137,7 +137,7 @@ export const shortMetadataAttribute: MetadataAttributes = [
 ]
 
 export const shortMetadataAttributeYAML: MetadataAttributesYAML = {
-  ТестовыйРеквизит: "Строка",
+  ТестовыйРеквизит: { Тип: "Строка" },
 }
 //#endregion
 

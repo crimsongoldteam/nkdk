@@ -12,7 +12,6 @@ export const FormParameterRules = {
       yaml: "Тип",
       type: "TypeDescription",
       xml: "Type",
-      useAsShortValueYAML: true,
       defaultValueXMLRaw: {},
     },
     keyParameter: {

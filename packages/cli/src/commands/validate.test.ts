@@ -75,6 +75,30 @@ describe("validate command", () => {
     expect(text).not.toContain("Форма.yaml")
   })
 
+  it("accepts SystemEnumeration properties through the public core entrypoint", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Файлы/Свойства.yaml", [
+      "Реквизиты:",
+      "  Автор:",
+      "    Тип: Справочник.Пользователи",
+      "    ПроверкаЗаполнения: ВыдаватьОшибку",
+      "    Индексирование: Индексировать",
+      "    ПолнотекстовыйПоиск: НеИспользовать",
+      "СтандартныеРеквизиты:",
+      "  Владелец:",
+      "    ПроверкаЗаполнения: ВыдаватьОшибку",
+      "    РежимСокращенияТипа: Запрещать",
+      "  Наименование:",
+      "    ПроверкаЗаполнения: ВыдаватьОшибку",
+    ])
+    const stdout = captureStdout()
+
+    await validateYamlProject(projectDir, { file: "Справочник/Файлы/Свойства.yaml" })
+
+    expect(writtenText(stdout)).toBe("summary: 0 error, 0 warning\n")
+    expect(process.exitCode).toBeUndefined()
+  })
+
   it("rejects missing or invalid project directories as command usage errors", async () => {
     const missingDir = join(tmpdir(), "nakidka-missing-yaml-dir")
     const filePath = join(createProject(), "not-a-directory.yaml")

@@ -26,7 +26,9 @@ export const dimensionsFromXML: MetadataRegisterDimensions = [
 ]
 
 export const dimensionsYAML: MetadataRegisterDimensionsYAML = {
-  ИзмерениеПоУмолчанию: "Булево",
+  ИзмерениеПоУмолчанию: {
+    Тип: "Булево",
+  },
   ИзмерениеБезИтогов: {
     Тип: "Булево",
     ИспользоватьВИтогах: "Ложь",

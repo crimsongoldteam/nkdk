@@ -120,4 +120,4 @@ export type FormAttributes = FormAttribute[]
 
 export type FormAttributesXML = (FormAttributeXML | ConditionalAppearanceXML)[]
 
-export type FormAttributesYAML = Record<string, FormAttributeYAML | TypeDescriptionYAML>
+export type FormAttributesYAML = Record<string, FormAttributeYAML>

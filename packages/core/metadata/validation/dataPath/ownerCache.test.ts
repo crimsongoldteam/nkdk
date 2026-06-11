@@ -1,6 +1,7 @@
 import fs, { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
+import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContext } from "~/tests/mockContext"
 import { createProjectYamlCache } from "../projectYamlCache"
@@ -20,7 +21,7 @@ describe("OwnerMetadataCache", () => {
 
   it("reads owner YAML lazily and caches the final status", () => {
     const projectDir = createProject()
-    writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Артикул: Строка"].join("\n"))
+    writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n"))
     const readFileSync = vi.spyOn(fs, "readFileSync")
     const cache = createOwnerMetadataCache({
       projectDir,
@@ -135,7 +136,7 @@ describe("OwnerMetadataCache", () => {
 
   it("returns import-error when model import throws", () => {
     const projectDir = createProject()
-    writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Неверный: НесуществующийТип"].join("\n"))
+    writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Неверный:", "    Тип: НесуществующийТип"].join("\n"))
     const cache = createOwnerMetadataCache({
       projectDir,
       yamlCache: createProjectYamlCache(),
@@ -150,14 +151,10 @@ describe("OwnerMetadataCache", () => {
     })
   })
 
-  it("keeps schema diagnostics on successfully imported owners", () => {
+  it("does not run schema validation while loading owners for DataPath checks", () => {
     const projectDir = createProject()
-    writeProperties(
-      projectDir,
-      "Справочник",
-      "Товары",
-      ["Реквизиты:", "  Артикул:", "    Тип: Строка", "    НеизвестныйКлюч: Истина"].join("\n"),
-    )
+    writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n"))
+    const compile = vi.spyOn(TypeCompiler, "Compile")
     const cache = createOwnerMetadataCache({
       projectDir,
       yamlCache: createProjectYamlCache(),
@@ -167,9 +164,7 @@ describe("OwnerMetadataCache", () => {
     const result = cache.get({ kind: "Справочник", name: "Товары" })
 
     expect(result.status).toBe("ok")
-    expect(result.status === "ok" ? result.owner.schemaDiagnostics : []).toEqual([
-      expect.objectContaining({ source: "structure", severity: "error" }),
-    ])
+    expect(compile).not.toHaveBeenCalled()
   })
 
   it("returns ambiguous when owner data fields have duplicate names", () => {
@@ -178,7 +173,7 @@ describe("OwnerMetadataCache", () => {
       projectDir,
       "Справочник",
       "Товары",
-      ["Реквизиты:", "  ОбщееИмя: Строка", "ТабличныеЧасти:", "  ОбщееИмя:", "    Реквизиты: {}"].join("\n"),
+      ["Реквизиты:", "  ОбщееИмя:", "    Тип: Строка", "ТабличныеЧасти:", "  ОбщееИмя:", "    Реквизиты: {}"].join("\n"),
     )
     const cache = createOwnerMetadataCache({
       projectDir,
