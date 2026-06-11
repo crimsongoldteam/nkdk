@@ -109,6 +109,41 @@ describe("JSON Schema registry", () => {
     expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
   })
 
+  it("accepts table auto command bar in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Элементы: {
+        Таблица: {
+          Вид: "ТаблицаФормы",
+          КоманднаяПанель: {
+            Автозаполнение: "Ложь",
+            ГоризонтальноеПоложение: "Лево",
+          },
+          Элементы: {
+            Колонка: {
+              Вид: "ПолеВвода",
+            },
+          },
+        },
+      },
+    }
+
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
+  it("accepts command names in command bar button schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "CommandBarButton", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Вид: "КнопкаКоманднойПанели",
+      ИмяКоманды: "Form.Command.ВыбратьСтроки",
+      ТипКнопки: "КнопкаКоманднойПанели",
+    }
+
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
   it("restores property refs after generic ref registry is cleared", () => {
     clearJSONSchemaRefRegistries()
     const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup" })

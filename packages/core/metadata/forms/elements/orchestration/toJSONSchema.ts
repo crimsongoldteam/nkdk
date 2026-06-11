@@ -32,6 +32,39 @@ export const exportElementRuleToJSONSchema = (params: {
   )
 }
 
+export const exportSingleElementRuleToJSONSchema = (params: {
+  context: ConfigurationContext
+  rule: ElementRule
+}): TSchema => {
+  const { context, rule } = params
+  const properties = exportPropertiesToJSONSchema({
+    context,
+    rule: shouldOmitNestedChildItems(context) ? omitNestedChildItemsRule(rule) : rule,
+  })
+
+  return Type.Object(
+    {
+      ...(properties as TProperties),
+    },
+    {
+      additionalProperties: false,
+    }
+  )
+}
+
+function shouldOmitNestedChildItems(context: ConfigurationContext): boolean {
+  return context.exportToJSONSchema?.mode !== "inline"
+}
+
+function omitNestedChildItemsRule(rule: ElementRule): ElementRule {
+  return {
+    ...rule,
+    properties: Object.fromEntries(
+      Object.entries(rule.properties).filter(([_key, propertyRule]) => propertyRule.yaml !== "Элементы")
+    ),
+  }
+}
+
 const applyPropertyAliases = (params: { aliases?: Record<string, string>; properties: TProperties }): TProperties => {
   const { aliases } = params
   const result = { ...params.properties }

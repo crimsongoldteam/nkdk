@@ -48,6 +48,7 @@ import "./dataPath/toEnterprise"
 
 import "./commandName/graphFromModel"
 import "./commandName/toEnterprise"
+import "./commandName/toJSONSchema"
 
 import "./event/fromXML"
 import "./event/fromYAML"
