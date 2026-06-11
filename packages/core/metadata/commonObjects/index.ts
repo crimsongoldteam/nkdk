@@ -1,6 +1,8 @@
 import "./uuid/fromXML"
 import "./uuid/toXML"
 
+import "../systemEnumerations"
+
 import "./additionalIndex"
 import "./accumulationRegisterAggregates/register"
 
