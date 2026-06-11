@@ -30,11 +30,19 @@ export interface ValidateProjectResult {
 const expectedPatterns =
   "Ожидались пути вида <Вид>/<Имя>/Свойства.yaml или <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
 
+type CompiledSchema = ReturnType<(typeof TypeCompiler)["Compile"]>
+
+interface ValidationSchemaCache {
+  form: () => CompiledSchema
+  properties: (spec: ValidationProjectSpec) => CompiledSchema
+}
+
 export function validateProject(params: ValidateProjectParams): ValidateProjectResult {
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
   const cache = createProjectYamlCache()
   const ownerCache = createOwnerMetadataCache({ projectDir, yamlCache: cache, context })
+  const schemaCache = createValidationSchemaCache(context)
   const files =
     params.filePath === undefined
       ? discoverValidationProjectFiles(projectDir)
@@ -42,10 +50,32 @@ export function validateProject(params: ValidateProjectParams): ValidateProjectR
 
   const diagnostics: Diagnostic[] = []
   for (const file of files) {
-    diagnostics.push(...validateProjectFile({ projectDir, file, cache, context, ownerCache }))
+    diagnostics.push(...validateProjectFile({ projectDir, file, cache, context, ownerCache, schemaCache }))
   }
 
   return { diagnostics: sortDiagnostics(dedupeDiagnostics(diagnostics)) }
+}
+
+function createValidationSchemaCache(context: ConfigurationContext): ValidationSchemaCache {
+  const propertiesSchemas = new Map<string, CompiledSchema>()
+  let formSchema: CompiledSchema | undefined
+
+  return {
+    form() {
+      formSchema ??= TypeCompiler.Compile(exportFormSchema(context))
+
+      return formSchema
+    },
+    properties(spec) {
+      const existing = propertiesSchemas.get(spec.dir)
+      if (existing) return existing
+
+      const compiled = TypeCompiler.Compile(spec.exportSchema({ context, mode: "inline" }))
+      propertiesSchemas.set(spec.dir, compiled)
+
+      return compiled
+    },
+  }
 }
 
 function resolveSingleProjectFile(projectDir: string, filePath: string): ValidationProjectFile {
@@ -61,6 +91,7 @@ function validateProjectFile(params: {
   cache: ProjectYamlCache
   context: ConfigurationContext
   ownerCache: ReturnType<typeof createOwnerMetadataCache>
+  schemaCache: ValidationSchemaCache
 }): Diagnostic[] {
   if (params.file.kind === "form") {
     return validateProjectForm(params)
@@ -75,11 +106,12 @@ function validateProjectForm(params: {
   cache: ProjectYamlCache
   context: ConfigurationContext
   ownerCache: ReturnType<typeof createOwnerMetadataCache>
+  schemaCache: ValidationSchemaCache
 }): Diagnostic[] {
   const schemaDiagnostics = validateProjectFileSchema({
     filePath: params.file.absolutePath,
     cache: params.cache,
-    schema: TypeCompiler.Compile(exportFormSchema(params.context)),
+    schema: params.schemaCache.form(),
   })
   if (schemaDiagnostics.some((diagnostic) => diagnostic.source === "syntax")) return schemaDiagnostics
 
@@ -108,11 +140,12 @@ function validateProjectProperties(params: {
   file: ValidationProjectFile
   cache: ProjectYamlCache
   context: ConfigurationContext
+  schemaCache: ValidationSchemaCache
 }): Diagnostic[] {
   const diagnostics = validateProjectFileSchema({
     filePath: params.file.absolutePath,
     cache: params.cache,
-    schema: TypeCompiler.Compile(params.file.owner.spec.exportSchema({ context: params.context, mode: "inline" })),
+    schema: params.schemaCache.properties(params.file.owner.spec),
   })
   const entry = params.cache.get(params.file.absolutePath)
   if ("error" in entry || entry.parsed.doc.errors.length > 0) return diagnostics
@@ -140,7 +173,7 @@ function validateProjectProperties(params: {
 function validateProjectFileSchema(params: {
   filePath: string
   cache: ProjectYamlCache
-  schema: ReturnType<(typeof TypeCompiler)["Compile"]>
+  schema: CompiledSchema
 }): Diagnostic[] {
   const entry = params.cache.get(params.filePath)
   if ("error" in entry) {
