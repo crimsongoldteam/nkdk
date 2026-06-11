@@ -6,6 +6,7 @@ import { getValidationProjectSpecByDir, type ValidationProjectSpec } from "../pr
 import type { ProjectYamlCache } from "../projectYamlCache"
 import type { Diagnostic } from "../types"
 import { validateUniqueNameScopes } from "../uniqueNameScopes"
+import { buildObjectFieldIndex, type ObjectFieldIndex } from "./objectFields"
 import type { KnownOwnerTypeKind, OwnerTypeRef } from "./types"
 
 export interface OwnerMetadataCache {
@@ -24,6 +25,7 @@ export interface OwnerMetadata {
   model: MetadataItem
   rule: MetadataItemRule
   spec: ValidationProjectSpec
+  fieldIndex: ObjectFieldIndex
 }
 
 export interface CreateOwnerMetadataCacheParams {
@@ -124,16 +126,19 @@ function loadOwner(params: {
       return { status: "ambiguous", diagnostics: uniqueNameDiagnostics }
     }
 
-    return {
-      status: "ok",
-      owner: {
-        ref,
-        filePath,
-        model: imported.model,
-        rule: spec.rule,
-        spec,
-      },
+    const ownerWithoutIndex = {
+      ref,
+      filePath,
+      model: imported.model,
+      rule: spec.rule,
+      spec,
     }
+    const owner: OwnerMetadata = {
+      ...ownerWithoutIndex,
+      fieldIndex: buildObjectFieldIndex(ownerWithoutIndex),
+    }
+
+    return { status: "ok", owner }
   } finally {
     yamlCache.release(filePath)
   }
