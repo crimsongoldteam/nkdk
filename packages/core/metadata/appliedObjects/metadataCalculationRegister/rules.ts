@@ -35,6 +35,7 @@ export const MetadataCalculationRegisterRules = {
   itemType: "MetadataCalculationRegister",
   itemTypePrefix: "РегистрРасчета",
   xmlDir: "CalculationRegisters",
+  uniqueNameScopes: [{ collections: ["attributes", "dimensions", "resources"] }],
   properties: {
     xmlRoot: {
       type: "XMLRoot",

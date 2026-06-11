@@ -5,8 +5,8 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
-import type { GraphPrimitive } from "~/metadata/orchestration/buildGraph/types"
 import type { RuntimeChildKind } from "~/metadata/commonObjects/metadataPath/graphPath"
+import type { GraphPrimitive } from "~/metadata/orchestration/buildGraph/types"
 import { PropertyRuleType } from "./registry"
 import { SourcePosition } from "./position"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
@@ -137,7 +137,7 @@ export interface GraphOpsReference {
 }
 
 export interface GraphOpsFormLocalReference {
-  /** Form-local путь, например "Объект.Договор.Владелец". */
+  /** Form-local путь, например "Объект.Товары". */
   formLocalPath: string
   /** Корневой узел формы — стартовая точка резолвинга. */
   formNodeId: string
@@ -148,8 +148,6 @@ export interface GraphOpsFormLocalReference {
   edgeProps?: GraphOpsEdgeProps
   /** Тип дочернего runtime-сегмента для fallback-цели, когда владелец ещё не материализован в графе. */
   fallbackChildKind?: RuntimeChildKind
-  /** Если задано — applyGraphOps создаёт dependency-рёбра от источника к узлам, участвовавшим в разрешении form-local пути. */
-  dependsOnEdgeKind?: string
 }
 
 export interface GraphOpsRecurse {
@@ -170,7 +168,7 @@ export interface GraphOpsRecurse {
 export interface GraphOps {
   children?: GraphOpsChild[]
   references?: GraphOpsReference[]
-  /** Reference-рёбра, цель которых нужно резолвить через resolveFormLocalPath. */
+  /** Reference-рёбра, цель которых нужно резолвить через локальные источники формы. */
   formLocalReferences?: GraphOpsFormLocalReference[]
   /** Преобразователи item перед flattenItem props текущего parent-узла. */
   itemFlattenTransforms?: Array<(item: unknown) => unknown>

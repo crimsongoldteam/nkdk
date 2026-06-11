@@ -85,9 +85,6 @@ const _byKind = new Map<string, EdgeKindEntry>([
   ["ASSOCIATED_TABLE", { yaml: "СвязаннаяТаблица", owning: false }],
   // Reference: имя команды
   ["COMMAND_NAME", { yaml: "ИмяКоманды", owning: false }],
-  // Reference: dataPath-рёбра (PRD #118)
-  ["DATA_PATH", { yaml: "ПутьКДанным", owning: false }],
-  ["DATA_PATH_DEPENDS_ON", { yaml: "ЗависимостьПутиКДанным", owning: false }],
 ])
 
 const _byYaml = new Map<string, string>()

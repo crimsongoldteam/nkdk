@@ -20,6 +20,7 @@ export const MetadataTaskRules = {
   itemType: "MetadataTask",
   itemTypePrefix: "Задача",
   xmlDir: "Tasks",
+  uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
     xmlRoot: {
       type: "XMLRoot",

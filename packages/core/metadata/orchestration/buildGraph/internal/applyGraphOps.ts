@@ -24,9 +24,7 @@ export interface ApplyGraphOpsContext {
  *   Источник ребра = child.edgeFrom ?? child.parentOverride ?? ctx.parentNodeId.
  *   При повторном child.item на уже заполненном узле бросает конфликт itemType.
  * - references → stub-узлы (если ещё нет), reference-рёбра kind=edgeKind с positionFrom.
- * - formLocalReferences → reference-рёбра, цель которых резолвится через resolveFormLocalPath
- *   (form-local путь типа "Объект.Договор.Владелец" → NodeId через обход рёбер формы);
- *   при undefined резолв ребро не создаётся; при local.parentOverride ребро идёт оттуда.
+ * - formLocalReferences → reference-рёбра, цель которых резолвится через локальные источники формы.
  *
  * edgeKind должен быть зарегистрирован в edgeKinds: для children — owning,
  * для references/formLocalReferences — reference.
@@ -81,28 +79,18 @@ export function applyGraphOps(ops: GraphOps, ctx: ApplyGraphOpsContext): void {
   }
 
   for (const local of ops.formLocalReferences ?? []) {
-    const effectiveParent = canonicalizeGraphNodeId(local.parentOverride ?? parentNodeId)
-    const resolution = resolveFormLocalPath(
+    const sourceNodeId = canonicalizeGraphNodeId(local.parentOverride ?? parentNodeId)
+    const targetNodeId = resolveFormLocalPath(
       graph,
       canonicalizeGraphNodeId(local.formNodeId),
       local.formLocalPath,
       local.fallbackChildKind,
     )
-    if (resolution === undefined) continue
+    if (targetNodeId === undefined) continue
+
     const edgeAttrs: Record<string, unknown> = { ...sanitizeEdgeProps(local.edgeProps), yaml: edgeYaml }
     if (local.positionFrom !== undefined) edgeAttrs.positionFrom = local.positionFrom
-    graph.ensureEdge(effectiveParent, resolution.targetId, edgeKind, edgeAttrs)
-
-    if (local.dependsOnEdgeKind !== undefined) {
-      const dependencyEdgeAttrs: Record<string, unknown> = {
-        ...sanitizeEdgeProps(local.edgeProps),
-        yaml: "ЗависимостьПутиКДанным",
-      }
-      for (const dependencyId of resolution.dependencyIds) {
-        if (dependencyId === resolution.targetId) continue
-        graph.ensureEdge(effectiveParent, dependencyId, local.dependsOnEdgeKind, dependencyEdgeAttrs)
-      }
-    }
+    graph.ensureEdge(sourceNodeId, targetNodeId, edgeKind, edgeAttrs)
   }
 }
 
@@ -118,21 +106,7 @@ function sanitizeEdgeProps(edgeProps?: Record<string, unknown>): Record<string, 
   return result
 }
 
-// Form-local resolver inline: первый сегмент — обход рёбер формы по kind,
-// дальше — обход через TYPE-ребро с попыткой найти дочерний узел по name
-// и fallback-конкатенацией. Существование промежуточных узлов обязательно;
-// конечный отсутствующий узел создаётся как stub.
 const FORM_CHILD_KINDS = new Set(["FORM_ATTRIBUTE", "FORM_COMMAND", "FORM_PARAMETER", "FORM_ELEMENT"])
-
-interface FormLocalPathResolution {
-  targetId: string
-  dependencyIds: string[]
-}
-
-function uniquePush(target: string[], value: string | undefined): void {
-  if (value === undefined) return
-  if (!target.includes(value)) target.push(value)
-}
 
 function findChildByName(
   graph: GraphBuilder,
@@ -150,13 +124,11 @@ function resolveFormLocalPath(
   formNodeId: string,
   path: string,
   fallbackChildKind?: RuntimeChildKind,
-): FormLocalPathResolution | undefined {
+): string | undefined {
   if (!path) return undefined
   if (!graph.hasNode(formNodeId)) return undefined
 
   const segments = path.split(".")
-  const dependencyIds: string[] = []
-
   let currentNodeId: string | undefined
   for (const { attributes, target } of graph.outEdgeEntries(formNodeId)) {
     if (
@@ -165,7 +137,6 @@ function resolveFormLocalPath(
       graph.getNodeAttributes(target).name === segments[0]
     ) {
       currentNodeId = target
-      uniquePush(dependencyIds, target)
       break
     }
   }
@@ -173,12 +144,10 @@ function resolveFormLocalPath(
 
   for (let i = 1; i < segments.length; i++) {
     const segment = segments[i]!
-
     let typeTargetId: string | undefined
     for (const { attributes, target } of graph.outEdgeEntries(currentNodeId)) {
       if (attributes.kind === "TYPE") {
         typeTargetId = target
-        uniquePush(dependencyIds, target)
         break
       }
     }
@@ -191,10 +160,7 @@ function resolveFormLocalPath(
         defaultChildKind: fallbackChildKind,
       })
 
-    if (childByEdge !== undefined) uniquePush(dependencyIds, childByEdge)
-
     if (i < segments.length - 1 && !graph.hasNode(nextNodeId)) return undefined
-
     currentNodeId = nextNodeId
   }
 
@@ -203,5 +169,5 @@ function resolveFormLocalPath(
     graph.ensureNode(currentNodeId, { name })
   }
 
-  return { targetId: currentNodeId, dependencyIds }
+  return currentNodeId
 }

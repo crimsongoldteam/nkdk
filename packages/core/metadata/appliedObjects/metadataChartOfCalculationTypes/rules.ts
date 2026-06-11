@@ -30,6 +30,7 @@ export const MetadataChartOfCalculationTypesRules = {
   itemType: "MetadataChartOfCalculationTypes",
   itemTypePrefix: "ПланВидовРасчета",
   xmlDir: "ChartsOfCalculationTypes",
+  uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
     xmlRoot: { type: "XMLRoot", container: "ChartOfCalculationTypes", rootAttributes: V8_MDCLASSES_ROOT, forReferenceOnly: true, toYAML: false, fromYAML: false },
     internalInfo: {

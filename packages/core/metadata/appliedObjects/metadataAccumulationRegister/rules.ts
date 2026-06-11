@@ -41,6 +41,7 @@ export const MetadataAccumulationRegisterRules = {
   itemType: "MetadataAccumulationRegister",
   itemTypePrefix: "РегистрНакопления",
   xmlDir: "AccumulationRegisters",
+  uniqueNameScopes: [{ collections: ["attributes", "dimensions", "resources"] }],
   properties: {
     xmlRoot: {
       type: "XMLRoot",

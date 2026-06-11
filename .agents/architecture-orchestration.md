@@ -195,7 +195,7 @@ applied:
 `buildGraphFromModel` (`orchestration/buildGraphFromModel.ts`) обходит модель параллельно с YAML AST и для каждого свойства смотрит зарегистрированные на его типе обработчики:
 
 - `extractGraph` — одиночные reference-свойства (`MetadataField`, `MetadataItemLink`, `TypeDescription`); возвращает `GraphOps` с `references`.
-- `buildGraphFromModel` — типы с кастомной логикой (`MetadataValue`, `FormAttributeColumns`, `DataPath`, `CommandName`, …); это **чистая функция** `BuildGraphFromModelFunction → GraphOps | GraphOps[] | undefined | void`. Обработчик не имеет доступа к графу, не делает побочных эффектов.
+- `buildGraphFromModel` — типы с кастомной логикой (`MetadataValue`, `FormAttributeColumns`, `CommandName`, …); это **чистая функция** `BuildGraphFromModelFunction → GraphOps | GraphOps[] | undefined | void`. Обработчик не имеет доступа к графу, не делает побочных эффектов.
 - `graphChild` — декларативное создание дочерних узлов из коллекций (`FormAttributes`, `FormCommands`, `FormParameters`).
 
 `GraphOps`-секции имеют поля: `children` (owned-узлы с filePath), `references` (stub-узлы), `formLocalReferences` (рёбра, цель которых резолвится через `resolveFormLocalPath`), `recurse` (рекурсивные обходы подмодели по правилу), плюс `edgeKind`/`edgeYaml`. Для `children`, `references` и `formLocalReferences` опционально `parentOverride` — источник ребра ≠ `ctx.parentNodeId`. Для `formLocalReferences` также допустим `fallbackChildKind`: он задаёт тип runtime-дочернего сегмента (`Attribute`, `TabularSection`) при создании canonical stub до импорта владельца.
@@ -241,7 +241,7 @@ Stub-узел — это обычный узел без владельца-фа�
 - нужно удалить вместе с файлом-источником при инкрементальном обновлении;
 - должно нести координаты YAML или дополнительные атрибуты самой связи.
 
-`kind` ребра — ASCII-тип отношения в FalkorDB (`TYPE`, `ATTRIBUTE`, `DATA_PATH`). `yaml` в props ребра — русское имя свойства или коллекции для round-trip и диагностики. Все виды рёбер регистрируются в `edgeKinds.ts`; неизвестный kind считается ошибкой.
+`kind` ребра — ASCII-тип отношения в FalkorDB (`TYPE`, `ATTRIBUTE`, `TABLE`). `yaml` в props ребра — русское имя свойства или коллекции для round-trip и диагностики. Все виды рёбер регистрируются в `edgeKinds.ts`; неизвестный kind считается ошибкой.
 
 Owning-рёбра (`owning: true`) выражают состав: владелец создаёт дочерний узел и управляет его жизненным циклом. Reference-рёбра (`owning: false`) выражают навигационную ссылку: цель может быть полной сущностью или stub-узлом.
 
@@ -249,7 +249,7 @@ Owning-рёбра (`owning: true`) выражают состав: владеле
 
 - `(:MetadataCatalog)-[:ATTRIBUTE]->(:MetadataAttribute)` — owning, потому что реквизит является частью справочника.
 - `(:MetadataAttribute)-[:TYPE]->(:Type)` — reference, потому что тип является отдельной целью ссылки.
-- `(:FormElement)-[:DATA_PATH {property, sourcePath}]->(:MetadataAttribute)` — reference, потому что путь данных связывает владельца свойства с разрешённой целью.
+- `(:AdditionalColumnsProxy)-[:TABLE {property, sourcePath}]->(:MetadataTabularSection)` — reference, потому что дополнительная колонка формы ссылается на таблицу данных.
 
 Если одно JS-свойство может создать несколько целей, делай несколько рёбер с одинаковыми атрибутами свойства. Не вводи промежуточный узел только для группировки, пока эту группировку не нужно запрашивать как самостоятельную сущность.
 
@@ -269,7 +269,7 @@ Owning-рёбра (`owning: true`) выражают состав: владеле
 - вложенные коллекции объектов — для них нужны дочерние узлы или явное решение не графить;
 - свойства, для которых `buildGraphFromModel` или `graphChild` уже создаёт графовые операции. Оркестратор добавляет такие ключи в `flattenSkipKeys`, чтобы не было дубля `p_*`.
 
-Пример: `ChoiceParameterLink.valueChange` остаётся `p_valueChange`, потому что это характеристика самой связи параметров выбора. `ChoiceParameterLink.dataPath` после перехода к общей модели не должен оставаться `p_dataPath`, потому что он становится `DATA_PATH`-ребром с `sourcePath`.
+Пример: `ChoiceParameterLink.valueChange` остаётся `p_valueChange`, потому что это характеристика самой связи параметров выбора. `ChoiceParameterLink.dataPath` после удаления graph-based DataPath также остаётся обычным скалярным props; проверка корректности DataPath выполняется YAML-валидатором, а не графом.
 
 #### Props ребра
 
@@ -296,25 +296,13 @@ Owning-рёбра (`owning: true`) выражают состав: владеле
 
 Выбирай узел только тогда, когда появляется самостоятельная адресуемая сущность. Выбирай ребро, когда главное знание — «A связано с B». Выбирай props, когда знание не создаёт новой навигации.
 
-### DataPath как пример границы
+### DataPath как пример внешней границы
 
-`DataPath` не должен создавать отдельный узел только ради хранения исходной строки. Предметный факт — владелец свойства связан с конечной целью пути:
+`DataPath` больше не моделируется графом. Путь хранится как обычное скалярное свойство модели/YAML, а его корректность проверяет YAML-валидатор по `rules.ts`: он строит индекс формы, лениво читает владельцев прикладных объектов и резолвит путь без graph layer.
 
-```text
-(owner)-[:DATA_PATH { property, yaml, sourcePath, pathMode }]->(target)
-```
+Не добавляй для `DataPath` новые `edgeKind`, synthetic props вроде `dataPathReference` или специальные `buildGraphFromModel`-обработчики. Если свойство нужно проверить как путь к данным, описывай контракт в rules и подключай его к общему валидатору YAML.
 
-`property` различает `dataPath`, `footerDataPath`, `rowPictureDataPath` и похожие свойства. `sourcePath` нужен для восстановления модели и диагностики stub-целей. Ограничения допустимой цели описываются в `rules.ts` через Cypher-контракт, а не кодируются отдельным типом узла.
-
-Не вводи отдельные kind под имя свойства (`FOOTER_DATA_PATH`, `TITLE_DATA_PATH`, `ROW_PICTURE_DATA_PATH`). Имя свойства всегда хранится в `property` на `DATA_PATH`. Синтетические поля вроде `dataPathReference` не используются: если свойство представлено ребром, оно не должно дублироваться как `p_<property>` на узле.
-
-Техническая память для инкрементального пересчёта выражается отдельными reference-рёбрами:
-
-```text
-(owner)-[:DATA_PATH_DEPENDS_ON { property, sourcePath }]->(dependency)
-```
-
-Так граф остаётся навигационным: Cypher из `rules.ts` может идти напрямую от владельца к цели, а watcher может найти владельцев путей, зависящих от изменённого узла.
+Графовая часть может по-прежнему создавать другие form-local reference-рёбра, например `TABLE` для дополнительных колонок формы. Это отдельная навигационная связь, не универсальная поддержка `DataPath`.
 
 ### Владение графовыми узлами файлами
 

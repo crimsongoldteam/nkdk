@@ -266,9 +266,13 @@ export interface TypeDescriptionPropertyRule extends BasePropertyRule {
   allowedTypes?: TypeDescriptionAllowedTypes
 }
 
+export type DataPathAllowedKind = "boolean" | "dateTime" | "Picture" | "tableSource"
+
 export interface DataPathPropertyRule extends BasePropertyRule {
   type: "DataPath"
-  defaultType: string
+  defaultType?: string
+  allowedKinds?: readonly DataPathAllowedKind[]
+  allowComposite?: boolean
 }
 
 export interface MetadataTypePropertyRule extends BasePropertyRule {
@@ -418,6 +422,11 @@ export interface ItemXML {
   [key: string]: any
 }
 
+export interface UniqueNameScope {
+  collections: readonly string[]
+  message?: string
+}
+
 export interface MetadataItemRule extends MetadataItem {
   /**
    * Тип объекта метаданных
@@ -428,6 +437,11 @@ export interface MetadataItemRule extends MetadataItem {
    * Свойства объекта метаданных
    */
   properties: PropertiesType
+
+  /**
+   * Коллекции, внутри которых имена дочерних элементов должны быть уникальны.
+   */
+  uniqueNameScopes?: readonly UniqueNameScope[]
 
   /** @deprecated */
   eventsTag?: string

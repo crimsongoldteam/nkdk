@@ -1,7 +1,8 @@
 import { Type } from "@sinclair/typebox"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { describe, expect, it } from "vitest"
-import { validateFile } from "./validateFile"
+import { validateFile, validateParsedFile } from "./validateFile"
 
 // Простая схема для юнит-тестов — не зависит от доменных правил каталогов
 const simpleSchema = TypeCompiler.Compile(
@@ -147,5 +148,18 @@ describe("validateFile", () => {
     })
     // Координата должна быть в разумных пределах (строка 3 или около)
     expect(deepError!.line).toBeGreaterThanOrEqual(1)
+  })
+})
+
+describe("validateParsedFile", () => {
+  it("использует уже разобранный YAML без повторного парсинга текста", () => {
+    const parsed = {
+      ...parseMetadataYaml(`Имя: Тестовое наименование\nКоличество: 42\n`),
+      text: `Имя: [незакрытая скобка\n`,
+    }
+
+    const result = validateParsedFile({ filePath: "test.yaml", parsed, schema: simpleSchema })
+
+    expect(result).toEqual([])
   })
 })

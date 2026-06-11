@@ -58,6 +58,7 @@ export const MetadataDataProcessorRules = {
   itemType: "MetadataDataProcessor",
   itemTypePrefix: "Обработка",
   xmlDir: "DataProcessors",
+  uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
     xmlRoot: {
       type: "XMLRoot",

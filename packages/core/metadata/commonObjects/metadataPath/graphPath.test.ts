@@ -4,6 +4,8 @@ import {
   canonicalizeMetadataTypeGraphPath,
   canonicalizeMetadataValueGraphPath,
   canonicalizeRuntimeObjectPath,
+  isKnownMetadataGraphRootSegment,
+  isRuntimeRootSegment,
 } from "./graphPath"
 
 describe("metadata graph path canonicalization", () => {
@@ -45,6 +47,27 @@ describe("metadata graph path canonicalization", () => {
         defaultChildKind: "TabularSection",
       }),
     ).toBe("Document.Заказ.TabularSection.Товары")
+  })
+
+  it.each([
+    ["DocumentObject", true],
+    ["ДокументОбъект", true],
+    ["Catalog", false],
+    ["Object", false],
+    ["MyTable", false],
+  ])("detects runtime root segment %s", (segment, expected) => {
+    expect(isRuntimeRootSegment(segment)).toBe(expected)
+  })
+
+  it.each([
+    ["Document", true],
+    ["Документ", true],
+    ["DocumentObject", true],
+    ["ДокументОбъект", true],
+    ["Object", false],
+    ["MyTable", false],
+  ])("detects known metadata graph root segment %s", (segment, expected) => {
+    expect(isKnownMetadataGraphRootSegment(segment)).toBe(expected)
   })
 
   it.each([

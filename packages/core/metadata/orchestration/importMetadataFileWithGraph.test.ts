@@ -941,7 +941,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
   const OWNER_NODE_ID = "Catalog.Товары"
   const FORM_NODE_ID = `${OWNER_NODE_ID}.Form.ФормаСписка`
 
-  it("дополнительные колонки → прокси-узел + ДополнениеТаблицы + Таблица + ДополнительнаяКолонка", async () => {
+  it("дополнительные колонки с глобальной таблицей → прокси-узел + ДополнениеТаблицы + Таблица + ДополнительнаяКолонка", async () => {
     const graph = new GraphBuilder()
     // Импортируем справочник Товары с ТЧ «Состав»
     await importMetadataFileWithGraph({
@@ -971,7 +971,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     Тип: Справочник.Товары
   ДопКолонки:
     ДополнительныеКолонки:
-      "Объект.Состав":
+      "Catalog.Товары.TabularSection.Состав":
         ДопКолонка:
           Тип: Строка(50)
 `,
@@ -991,7 +991,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     expect(graph.hasNode(proxyNodeId)).toBe(true)
     const item = graph.getNodeAttributes(proxyNodeId).item as Record<string, unknown>
     expect(item.itemType).toBe("AdditionalColumnsProxy")
-    expect(item.table).toBe("Объект.Состав")
+    expect(item.table).toBe("Catalog.Товары.TabularSection.Состав")
 
     // Owning-ребро ДополнениеТаблицы: реквизит → прокси
     const additionEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
@@ -1000,7 +1000,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     expect(additionEdges).toHaveLength(1)
     expect(additionEdges[0].target).toBe(proxyNodeId)
 
-    // Reference-ребро Таблица: прокси → реальная ТЧ (resolveFormLocalPath находит через edge-traversal)
+    // Reference-ребро Таблица: прокси → реальная ТЧ
     const tableEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
       (e) => e.attributes.kind === "TABLE",
     )
@@ -1027,7 +1027,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     Тип: Справочник.Товары
   ДопКолонки:
     ДополнительныеКолонки:
-      "Объект.Состав":
+      "Catalog.Товары.TabularSection.Состав":
         Контрагент:
           Тип: Справочник.Контрагенты
 `,
@@ -1052,7 +1052,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     expect(typeEdges[0].target).toBe("Catalog.Контрагенты")
   })
 
-  it("форма импортируется до владельца → Таблица-ребро ведёт на заглушку ТЧ", async () => {
+  it("форма с глобальной таблицей импортируется до владельца → Таблица-ребро ведёт на заглушку ТЧ", async () => {
     const graph = new GraphBuilder()
 
     // Форма импортируется ПЕРВОЙ — владелец ещё не импортирован
@@ -1065,7 +1065,7 @@ describe("importMetadataFileWithGraph — form, FormAttributeAdditionalColumns (
     Тип: Справочник.Товары
   ДопКолонки:
     ДополнительныеКолонки:
-      "Объект.Состав":
+      "Catalog.Товары.TabularSection.Состав":
         ДопКолонка: {}
 `,
       },

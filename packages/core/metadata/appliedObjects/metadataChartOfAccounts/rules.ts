@@ -33,6 +33,7 @@ export const MetadataChartOfAccountsRules = {
   itemType: "MetadataChartOfAccounts",
   itemTypePrefix: "ПланСчетов",
   xmlDir: "ChartsOfAccounts",
+  uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
     xmlRoot: { type: "XMLRoot", container: "ChartOfAccounts", rootAttributes: V8_MDCLASSES_ROOT, forReferenceOnly: true, toYAML: false, fromYAML: false },
     internalInfo: {

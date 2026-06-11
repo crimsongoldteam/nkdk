@@ -43,6 +43,7 @@ export const MetadataReportRules = {
   itemType: "MetadataReport",
   itemTypePrefix: "Отчет",
   xmlDir: "Reports",
+  uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
     xmlRoot: {
       type: "XMLRoot",

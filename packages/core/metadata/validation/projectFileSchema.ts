@@ -1,6 +1,7 @@
 import type { TSchema } from "@sinclair/typebox"
 import { isAbsolute, relative, resolve, sep } from "path"
 import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
+import { getValidationProjectSpecByDir, type ValidationProjectSpec } from "./projectSpecs"
 import {
   exportJSONSchemaForSchemaName as exportRegisteredJSONSchemaForSchemaName,
   ProjectFileSchemaError,
@@ -24,18 +25,6 @@ export interface ExportJSONSchemaForSchemaNameParams {
 const expectedPatterns =
   "Ожидались пути вида <Вид>/<Имя>/Свойства.yaml или <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
 
-const metadataSchemaNameByDir = {
-  Справочник: "MetadataCatalog",
-  Документ: "MetadataDocument",
-  Перечисление: "MetadataEnumeration",
-  Обработка: "MetadataDataProcessor",
-  ЖурналДокументов: "MetadataDocumentJournal",
-  HTTPСервис: "MetadataHTTPService",
-  РегистрСведений: "MetadataInformationRegister",
-  РегистрНакопления: "MetadataAccumulationRegister",
-  ПланОбмена: "MetadataExchangePlan",
-} satisfies Record<string, string>
-
 export function exportJSONSchemaForProjectFile(params: ExportJSONSchemaForProjectFileParams): TSchema {
   const { context } = params
   const normalized = normalizeProjectPath(params)
@@ -45,23 +34,23 @@ export function exportJSONSchemaForProjectFile(params: ExportJSONSchemaForProjec
     throw new ProjectFileSchemaError("JSON Schema поддерживается только для .yaml файлов")
   }
 
-  let schemaName: string | undefined
-
   if (isFormPath(parts)) {
-    schemaName = "ClientApplicationForm"
-  } else {
-    schemaName = findPropertiesPath(parts)?.schemaName
+    return exportRegisteredJSONSchemaForSchemaName({
+      context,
+      name: "ClientApplicationForm",
+      mode: params.mode,
+    })
   }
 
-  if (!schemaName) {
-    throw new ProjectFileSchemaError(expectedPatterns)
+  const spec = findPropertiesPath(parts)?.spec
+  if (spec) {
+    return spec.exportSchema({
+      context,
+      mode: params.mode,
+    })
   }
 
-  return exportRegisteredJSONSchemaForSchemaName({
-    context,
-    name: schemaName,
-    mode: params.mode,
-  })
+  throw new ProjectFileSchemaError(expectedPatterns)
 }
 
 export function exportJSONSchemaForSchemaName(params: ExportJSONSchemaForSchemaNameParams): TSchema {
@@ -97,21 +86,22 @@ function isFormPath(parts: string[]): boolean {
     parts[parts.length - 2] !== "" &&
     parts[parts.length - 1] === "Форма.yaml" &&
     ownerDir !== undefined &&
-    hasMetadataSchema(ownerDir)
+    hasValidationProjectSpec(ownerDir)
   )
 }
 
-function findPropertiesPath(parts: string[]): { schemaName: string } | undefined {
+function findPropertiesPath(parts: string[]): { spec: ValidationProjectSpec } | undefined {
   if (parts.length < 3 || parts[parts.length - 1] !== "Свойства.yaml") return undefined
 
   const objectDir = parts[parts.length - 3]
-  if (!objectDir || !hasMetadataSchema(objectDir)) return undefined
+  if (!objectDir) return undefined
 
-  const schemaName = metadataSchemaNameByDir[objectDir]
+  const spec = getValidationProjectSpecByDir(objectDir)
+  if (!spec) return undefined
 
-  return { schemaName }
+  return { spec }
 }
 
-function hasMetadataSchema(dir: string): dir is keyof typeof metadataSchemaNameByDir {
-  return Object.prototype.hasOwnProperty.call(metadataSchemaNameByDir, dir)
+function hasValidationProjectSpec(dir: string): boolean {
+  return getValidationProjectSpecByDir(dir) !== undefined
 }

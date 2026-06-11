@@ -7,6 +7,7 @@ export const MetadataCatalogRules = {
   itemType: "MetadataCatalog",
   itemTypePrefix: "Справочник",
   xmlDir: "Catalogs",
+  uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
     xmlRoot: {
       type: "XMLRoot",

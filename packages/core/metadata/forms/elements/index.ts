@@ -110,5 +110,4 @@ import "./viewStatusAddition/rules"
 import "./viewStatusAddition/types"
 
 import "./graphFromModel"
-import "../commonObjects/dataPath/graphFromModel"
 import "../commonObjects/associatedTable/graphFromModel"

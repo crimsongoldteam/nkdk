@@ -55,6 +55,8 @@ export const CalendarFieldRules = {
       toYAML: false,
       fromYAML: false,
       defaultType: "dateTime",
+      allowedKinds: ["dateTime"],
+      allowComposite: false,
     },
     ...formFieldDisabledTableRelatedProperties,
     ...formFieldCommonProperties,

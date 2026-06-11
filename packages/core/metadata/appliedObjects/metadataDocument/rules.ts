@@ -28,6 +28,7 @@ export const MetadataDocumentRules = {
   itemType: "MetadataDocument",
   itemTypePrefix: "Документ",
   xmlDir: "Documents",
+  uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
     xmlRoot: {
       type: "XMLRoot",

@@ -58,6 +58,7 @@ export const MetadataAccountingRegisterRules = {
   itemType: "MetadataAccountingRegister",
   itemTypePrefix: "РегистрБухгалтерии",
   xmlDir: "AccountingRegisters",
+  uniqueNameScopes: [{ collections: ["attributes", "dimensions", "resources"] }],
   properties: {
     xmlRoot: {
       type: "XMLRoot",

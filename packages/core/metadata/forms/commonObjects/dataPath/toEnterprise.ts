@@ -28,7 +28,7 @@ export const exportDataPathToEnterprise = (params: {
   const attribute: EnterpriseAttributeMapItem = {
     name: attributeName,
     title: title,
-    type: { Type: [dataPathRule.defaultType] },
+    type: { Type: [dataPathRule.defaultType ?? "string"] },
     ...(parentTable ? { path: parentTable.dataPathEnterprise } : {}),
   }
 

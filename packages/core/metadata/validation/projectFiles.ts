@@ -1,0 +1,133 @@
+import { existsSync, readdirSync, statSync } from "fs"
+import { isAbsolute, join, relative, resolve, sep } from "path"
+import {
+  getValidationProjectSpecByDir,
+  validationProjectSpecs,
+  type ValidationProjectSpec,
+} from "./projectSpecs"
+
+export interface ValidationProjectFile {
+  absolutePath: string
+  projectPath: string
+  kind: "properties" | "form"
+  owner: { dir: string; name: string; spec: ValidationProjectSpec }
+  formName?: string
+}
+
+export function discoverValidationProjectFiles(projectDir: string): ValidationProjectFile[] {
+  const projectRoot = resolve(projectDir)
+  const files: ValidationProjectFile[] = []
+
+  for (const spec of validationProjectSpecs) {
+    const kindDir = join(projectRoot, spec.dir)
+    if (!isExistingDirectory(kindDir)) continue
+
+    for (const ownerEntry of readdirSync(kindDir, { withFileTypes: true })) {
+      if (!ownerEntry.isDirectory()) continue
+
+      const propertiesPath = join(kindDir, ownerEntry.name, "Свойства.yaml")
+      const propertiesFile = collectExistingProjectFile(projectRoot, propertiesPath)
+      if (propertiesFile) files.push(propertiesFile)
+
+      const formsDir = join(kindDir, ownerEntry.name, "Формы")
+      if (!isExistingDirectory(formsDir)) continue
+
+      for (const formEntry of readdirSync(formsDir, { withFileTypes: true })) {
+        if (!formEntry.isDirectory()) continue
+
+        const formPath = join(formsDir, formEntry.name, "Форма.yaml")
+        const formFile = collectExistingProjectFile(projectRoot, formPath)
+        if (formFile) files.push(formFile)
+      }
+    }
+  }
+
+  return files.sort((left, right) => left.projectPath.localeCompare(right.projectPath))
+}
+
+export function resolveValidationProjectFile(projectDir: string, filePath: string): ValidationProjectFile | undefined {
+  const projectRoot = resolve(projectDir)
+  const absolutePath = isAbsolute(filePath) ? resolve(filePath) : resolve(projectRoot, filePath)
+  const projectPath = assertProjectFileInside(projectRoot, absolutePath)
+  const parts = projectPath.split("/")
+
+  const propertiesOwner = matchPropertiesPath(parts)
+  if (propertiesOwner) {
+    return {
+      absolutePath,
+      projectPath,
+      kind: "properties",
+      owner: propertiesOwner,
+    }
+  }
+
+  const formOwner = matchFormPath(parts)
+  if (formOwner) {
+    return {
+      absolutePath,
+      projectPath,
+      kind: "form",
+      owner: formOwner.owner,
+      formName: formOwner.formName,
+    }
+  }
+
+  return undefined
+}
+
+export function assertProjectFileInside(projectDir: string, filePath: string): string {
+  const projectRoot = resolve(projectDir)
+  const absolutePath = isAbsolute(filePath) ? resolve(filePath) : resolve(projectRoot, filePath)
+  const projectPath = relative(projectRoot, absolutePath)
+
+  if (projectPath === "" || projectPath.startsWith("..") || isAbsolute(projectPath)) {
+    throw new Error("Файл находится вне указанного YAML-проекта")
+  }
+
+  return toProjectSeparators(projectPath)
+}
+
+function collectExistingProjectFile(projectRoot: string, filePath: string): ValidationProjectFile | undefined {
+  if (!isExistingFile(filePath)) return undefined
+
+  return resolveValidationProjectFile(projectRoot, filePath)
+}
+
+function matchPropertiesPath(parts: string[]): ValidationProjectFile["owner"] | undefined {
+  if (parts.length !== 3 || parts[2] !== "Свойства.yaml") return undefined
+
+  return createOwner(parts[0], parts[1])
+}
+
+function matchFormPath(
+  parts: string[],
+): { owner: ValidationProjectFile["owner"]; formName: string } | undefined {
+  if (parts.length !== 5 || parts[2] !== "Формы" || parts[4] !== "Форма.yaml") return undefined
+
+  const owner = createOwner(parts[0], parts[1])
+  const formName = parts[3]
+  if (!owner || !formName) return undefined
+
+  return { owner, formName }
+}
+
+function createOwner(dir: string | undefined, name: string | undefined): ValidationProjectFile["owner"] | undefined {
+  if (!dir || !name) return undefined
+
+  const spec = getValidationProjectSpecByDir(dir)
+  if (!spec) return undefined
+
+  return { dir, name, spec }
+}
+
+function toProjectSeparators(filePath: string): string {
+  return filePath.split(sep).join("/")
+}
+
+function isExistingDirectory(path: string): boolean {
+  return existsSync(path) && statSync(path).isDirectory()
+}
+
+function isExistingFile(path: string): boolean {
+  return existsSync(path) && statSync(path).isFile()
+}
