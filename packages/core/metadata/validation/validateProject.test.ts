@@ -122,6 +122,32 @@ describe("validateProject", () => {
     })
   })
 
+  it("accepts SystemEnumeration properties in catalog attributes and standard attributes", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Файлы/Свойства.yaml", [
+      "Реквизиты:",
+      "  Автор:",
+      "    Тип: Справочник.Пользователи",
+      "    ПроверкаЗаполнения: ВыдаватьОшибку",
+      "    Индексирование: Индексировать",
+      "    ПолнотекстовыйПоиск: НеИспользовать",
+      "СтандартныеРеквизиты:",
+      "  Владелец:",
+      "    ПроверкаЗаполнения: ВыдаватьОшибку",
+      "    РежимСокращенияТипа: Запрещать",
+      "  Наименование:",
+      "    ПроверкаЗаполнения: ВыдаватьОшибку",
+    ])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Справочник/Файлы/Свойства.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual([])
+  })
+
   it("throws ProjectFileSchemaError for an unsupported single file inside the project", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Команды/Команда.yaml", "Имя: Тест\n")
