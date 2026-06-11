@@ -20,7 +20,7 @@ describe("OwnerMetadataCache", () => {
 
   it("reads owner YAML lazily and caches the final status", () => {
     const projectDir = createProject()
-    writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Артикул: Строка"].join("\n"))
+    writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n"))
     const readFileSync = vi.spyOn(fs, "readFileSync")
     const cache = createOwnerMetadataCache({
       projectDir,
@@ -135,7 +135,7 @@ describe("OwnerMetadataCache", () => {
 
   it("returns import-error when model import throws", () => {
     const projectDir = createProject()
-    writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Неверный: НесуществующийТип"].join("\n"))
+    writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Неверный:", "    Тип: НесуществующийТип"].join("\n"))
     const cache = createOwnerMetadataCache({
       projectDir,
       yamlCache: createProjectYamlCache(),
@@ -178,7 +178,7 @@ describe("OwnerMetadataCache", () => {
       projectDir,
       "Справочник",
       "Товары",
-      ["Реквизиты:", "  ОбщееИмя: Строка", "ТабличныеЧасти:", "  ОбщееИмя:", "    Реквизиты: {}"].join("\n"),
+      ["Реквизиты:", "  ОбщееИмя:", "    Тип: Строка", "ТабличныеЧасти:", "  ОбщееИмя:", "    Реквизиты: {}"].join("\n"),
     )
     const cache = createOwnerMetadataCache({
       projectDir,

@@ -185,7 +185,8 @@ describe("importMetadataFileWithGraph — document", () => {
       sources: {
         yaml: [
           "Реквизиты:",
-          "  Total: Строка",
+          "  Total:",
+          "    Тип: Строка",
           "  VAT:",
           "    Тип: Булево",
         ].join("\n"),
@@ -212,9 +213,12 @@ describe("importMetadataFileWithGraph — document", () => {
       sources: {
         yaml: [
           "Реквизиты:",
-          "  First: Строка",
-          "  Second: Булево",
-          "  Third: Число(10)",
+          "  First:",
+          "    Тип: Строка",
+          "  Second:",
+          "    Тип: Булево",
+          "  Third:",
+          "    Тип: Число(10)",
         ].join("\n"),
       },
       kind: "document",

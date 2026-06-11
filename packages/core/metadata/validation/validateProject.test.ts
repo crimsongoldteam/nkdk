@@ -95,7 +95,8 @@ describe("validateProject", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "Реквизиты:",
-      "  ОбщееИмя: Строка",
+      "  ОбщееИмя:",
+      "    Тип: Строка",
       "ТабличныеЧасти:",
       "  ОбщееИмя:",
       "    Реквизиты: {}",
