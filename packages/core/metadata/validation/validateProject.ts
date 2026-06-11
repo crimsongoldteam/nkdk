@@ -50,7 +50,11 @@ export function validateProject(params: ValidateProjectParams): ValidateProjectR
 
   const diagnostics: Diagnostic[] = []
   for (const file of files) {
-    diagnostics.push(...validateProjectFile({ projectDir, file, cache, context, ownerCache, schemaCache }))
+    try {
+      diagnostics.push(...validateProjectFile({ projectDir, file, cache, context, ownerCache, schemaCache }))
+    } finally {
+      cache.release(file.absolutePath)
+    }
   }
 
   return { diagnostics: sortDiagnostics(dedupeDiagnostics(diagnostics)) }
