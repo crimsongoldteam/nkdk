@@ -55,6 +55,16 @@ describe("metadata import boundaries", () => {
 
     expect(offenders).toEqual([])
   })
+
+  it("I8nText registry entry живёт рядом с владельцем", () => {
+    const globalRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
+    const localRegistry = readFileSync(join(METADATA_DIR, "commonObjects", "i8nText", "registry.types.ts"), "utf-8")
+
+    expect(globalRegistry).not.toMatch(/^\s+I8nText: \{/m)
+    expect(globalRegistry).not.toMatch(/^\s+I8nText: "I8nText",/m)
+    expect(localRegistry).toContain("interface PropertyTypeRegistry")
+    expect(localRegistry).toContain("I8nText: {")
+  })
 })
 
 function findImportOffenders(dir: string, forbiddenImports: readonly string[]) {
