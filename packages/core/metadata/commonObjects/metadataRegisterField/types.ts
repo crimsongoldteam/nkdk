@@ -84,4 +84,4 @@ export interface MetadataRegisterFieldFullYAML {
   ФорматРедактирования?: I8nTextYAML
 }
 
-export type MetadataRegisterFieldYAML = MetadataRegisterFieldFullYAML | TypeDescriptionYAML
+export type MetadataRegisterFieldYAML = MetadataRegisterFieldFullYAML

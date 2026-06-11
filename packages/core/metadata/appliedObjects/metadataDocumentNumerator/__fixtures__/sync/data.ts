@@ -1,1 +1,1 @@
-export const readNumeratorYAML = ""
+export const readNumeratorYAML = "{}"

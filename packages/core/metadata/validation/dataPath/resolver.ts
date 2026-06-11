@@ -2,7 +2,7 @@ import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import type { Diagnostic } from "../types"
 import { diagnosticAtYamlPath, type YamlPath } from "../yamlLocations"
 import { getKnownPlatformFormSource, type FormDataPathIndex } from "./formIndex"
-import { buildObjectFieldIndex, validateObjectFieldSegment, type ObjectFieldTableSource } from "./objectFields"
+import { validateObjectFieldSegment, type ObjectFieldTableSource } from "./objectFields"
 import type { OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
 import type {
   DataPathTypeInfo,
@@ -107,8 +107,7 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
     })
     if (segmentDiagnostics.length > 0) return { status: "error", diagnostics: segmentDiagnostics }
 
-    const fieldIndex = buildObjectFieldIndex(ownerResult.owner)
-    const field = fieldIndex.fields.get(segment)
+    const field = ownerResult.owner.fieldIndex.fields.get(segment)
     if (field === undefined) {
       return error(params, `ПутьКДанным "${value}": неизвестный реквизит "${segment}"`)
     }

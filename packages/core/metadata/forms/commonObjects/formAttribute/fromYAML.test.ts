@@ -1,3 +1,4 @@
+import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
 import {
   choiceListFormAttribute,
@@ -28,6 +29,7 @@ import { chartSettings } from "./__fixtures__/chartSettings"
 import { plannerSettings } from "./__fixtures__/plannerSettings"
 import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
 import { importFormAttributesFromYAML } from "./fromYAML"
+import { exportFormAttributesToJSONSchema } from "./toJSONSchema"
 
 const chartSettingsYAML = {
   Диаграмма: {
@@ -99,10 +101,19 @@ describe("importFormAttributesFromYAML", () => {
     expect(result).toEqual(minimalFormAttributes)
   })
 
-  it("should import with short format", () => {
+  it("should import object format", () => {
     const result = importFormAttributesFromYAML(mockContext, mockRule, shortFormAttributeYAML)
 
     expect(result).toEqual(shortFormAttribute)
+  })
+
+  it("rejects scalar form attribute YAML in JSON Schema", () => {
+    const schema = TypeCompiler.Compile(
+      exportFormAttributesToJSONSchema({ context: mockContext, rule: { type: "FormAttributes" } })
+    )
+
+    expect(schema.Check({ Организация: "Справочник.Организации" })).toBe(false)
+    expect(schema.Check({ Организация: { Тип: "Справочник.Организации" } })).toBe(true)
   })
 
   it("should import title when mainAttribute=true and title equals name", () => {

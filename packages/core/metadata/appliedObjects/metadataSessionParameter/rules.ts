@@ -43,7 +43,6 @@ export const MetadataSessionParameterRules = {
       yaml: "Тип",
       type: "TypeDescription",
       xmlParents: properties,
-      useAsShortValueYAML: true,
       defaultValueXMLRaw: "",
     },
     objectBelonging: {

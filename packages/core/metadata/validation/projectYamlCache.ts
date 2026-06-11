@@ -10,6 +10,7 @@ export interface ProjectYamlEntry {
 
 export interface ProjectYamlCache {
   get(filePath: string): ProjectYamlEntry | { filePath: string; error: Error }
+  release(filePath: string): void
 }
 
 type ProjectYamlCacheValue = ProjectYamlEntry | { filePath: string; error: Error }
@@ -27,6 +28,13 @@ export function createProjectYamlCache(): ProjectYamlCache {
       entries.set(absolutePath, entry)
 
       return entry
+    },
+    release(filePath) {
+      const absolutePath = resolve(filePath)
+      const cached = entries.get(absolutePath)
+      if (cached === undefined || "error" in cached) return
+
+      entries.delete(absolutePath)
     },
   }
 }

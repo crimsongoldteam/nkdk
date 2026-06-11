@@ -25,22 +25,22 @@ describe("JSON Schema registry", () => {
     expect(JSON.stringify(schema)).toContain("nkdk://schema/MetadataCatalogAttribute")
   })
 
-  it("exports catalog attribute schema with short-form type branch", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataCatalogAttribute" })
-    const json = JSON.stringify(schema)
+  it("exports object-only metadata attribute schemas", () => {
+    const schemaNames = [
+      "MetadataAttribute",
+      "MetadataCatalogAttribute",
+      "MetadataDocumentAttribute",
+      "MetadataTabularSectionAttribute",
+    ]
 
-    expect(schema).toMatchObject({
-      anyOf: [
-        expect.any(Object),
-        expect.objectContaining({
-          properties: expect.objectContaining({
-            Тип: expect.any(Object),
-          }),
-        }),
-      ],
-    })
-    expect(json).toContain("Справочник")
-    expect(json).toContain('"Тип"')
+    for (const name of schemaNames) {
+      const schema = exportJSONSchemaForSchemaName({ context, name })
+      const compiled = TypeCompiler.Compile(schema)
+
+      expect(compiled.Check("Строка")).toBe(false)
+      expect(compiled.Check({ Тип: "Строка" })).toBe(true)
+      expect(JSON.stringify(schema)).toContain('"Тип"')
+    }
   })
 
   it("exports form element schemas with Вид discriminator", () => {

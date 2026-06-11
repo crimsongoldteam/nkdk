@@ -49,7 +49,6 @@ export const MetadataDefinedTypeRules = {
       yaml: "Тип",
       type: "TypeDescription",
       xmlParents: properties,
-      useAsShortValueYAML: true,
       defaultValueXMLRaw: "",
     },
     objectBelonging: {
