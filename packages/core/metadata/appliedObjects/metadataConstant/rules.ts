@@ -53,7 +53,6 @@ export const MetadataConstantRules = {
       yaml: "Тип",
       type: "TypeDescription",
       xmlParents: constantProperties,
-      useAsShortValueYAML: true,
     },
     useStandardCommands: {
       yaml: "ИспользоватьСтандартныеКоманды",
