@@ -1,6 +1,7 @@
 import fs, { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
+import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContext } from "~/tests/mockContext"
 import { createProjectYamlCache } from "../projectYamlCache"
@@ -150,14 +151,10 @@ describe("OwnerMetadataCache", () => {
     })
   })
 
-  it("keeps schema diagnostics on successfully imported owners", () => {
+  it("does not run schema validation while loading owners for DataPath checks", () => {
     const projectDir = createProject()
-    writeProperties(
-      projectDir,
-      "Справочник",
-      "Товары",
-      ["Реквизиты:", "  Артикул:", "    Тип: Строка", "    НеизвестныйКлюч: Истина"].join("\n"),
-    )
+    writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n"))
+    const compile = vi.spyOn(TypeCompiler, "Compile")
     const cache = createOwnerMetadataCache({
       projectDir,
       yamlCache: createProjectYamlCache(),
@@ -167,9 +164,7 @@ describe("OwnerMetadataCache", () => {
     const result = cache.get({ kind: "Справочник", name: "Товары" })
 
     expect(result.status).toBe("ok")
-    expect(result.status === "ok" ? result.owner.schemaDiagnostics : []).toEqual([
-      expect.objectContaining({ source: "structure", severity: "error" }),
-    ])
+    expect(compile).not.toHaveBeenCalled()
   })
 
   it("returns ambiguous when owner data fields have duplicate names", () => {
