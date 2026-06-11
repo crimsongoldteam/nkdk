@@ -100,7 +100,7 @@ describe("exportFormAttributesToYAML", () => {
     expect(result).toEqual(fullFormAttributesYAML)
   })
 
-  it("should export with short format", () => {
+  it("should export object format", () => {
     const result = exportFormAttributesToYAML(context, mockRule, shortFormAttribute)
 
     expect(result).toEqual(shortFormAttributeYAML)

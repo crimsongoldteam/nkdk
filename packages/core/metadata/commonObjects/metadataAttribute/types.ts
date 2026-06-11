@@ -6,7 +6,11 @@ import {
   MetadataValueXML,
   MetadataValueYAML,
 } from "~/metadata/commonObjects/metadataValue/types"
-import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import {
+  TypeDescriptionJSONSchema,
+  TypeDescriptionXML,
+  TypeDescriptionYAML,
+} from "~/metadata/commonObjects/typeDescription/types"
 import { TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { ChoiceParameterLinksXML, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
@@ -90,13 +94,21 @@ export interface MetadataAttributeFullYAML {
   ФорматРедактирования?: I8nTextYAML
 }
 
-export type MetadataAttributeYAML = MetadataAttributeFullYAML | TypeDescriptionYAML
+export type MetadataAttributeYAML = MetadataAttributeFullYAML
 
 export type MetadataAttributes = MetadataAttribute[]
 
 export type MetadataAttributesXML = MetadataAttributeXML | MetadataAttributeXML[]
 
-export const MetadataAttributesJSONSchema = Type.Record(Type.String(), Type.Any())
+export const MetadataAttributesJSONSchema = Type.Record(
+  Type.String(),
+  Type.Object(
+    {
+      Тип: TypeDescriptionJSONSchema,
+    },
+    { additionalProperties: true }
+  )
+)
 export type MetadataAttributesYAML = Record<MetadataNameYAML, MetadataAttributeYAML>
 
 export type MetadataTabularSectionAttributes = MetadataAttributes

@@ -1,4 +1,3 @@
-import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportPropertiesToYAML, registerTypeRule } from "~/metadata/orchestration"
@@ -32,7 +31,7 @@ const exportFormAttributeToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: FormAttribute
-): FormAttributeYAML | TypeDescriptionYAML => {
+): FormAttributeYAML => {
   const contextWithParent =
     data.name !== undefined && context.exportToYAML !== undefined
       ? {

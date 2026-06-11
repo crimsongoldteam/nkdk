@@ -1,6 +1,7 @@
 import fs, { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
+import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContext } from "~/tests/mockContext"
 import { ProjectFileSchemaError } from "./projectFileSchema"
@@ -95,7 +96,8 @@ describe("validateProject", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "Реквизиты:",
-      "  ОбщееИмя: Строка",
+      "  ОбщееИмя:",
+      "    Тип: Строка",
       "ТабличныеЧасти:",
       "  ОбщееИмя:",
       "    Реквизиты: {}",
@@ -181,6 +183,26 @@ describe("validateProject", () => {
 
     const ownerPath = join(projectDir, "Справочник", "Номенклатура", "Свойства.yaml")
     expect(readFileSync.mock.calls.filter(([filePath]) => filePath === ownerPath)).toHaveLength(1)
+  })
+
+  it("compiles each validation schema once per project validation run", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Номенклатура/Свойства.yaml", ["Реквизиты:", "  Артикул: Строка"])
+    writeProjectFile(projectDir, "Справочник/Контрагенты/Свойства.yaml", ["Комментарий: справочник"])
+    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", ["Комментарий: документ"])
+    writeProjectFile(projectDir, "Справочник/Номенклатура/Формы/ФормаЭлемента/Форма.yaml", [
+      "Реквизиты:",
+      "  Объект: Справочник.Номенклатура",
+    ])
+    writeProjectFile(projectDir, "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml", [
+      "Реквизиты:",
+      "  Объект: Справочник.Контрагенты",
+    ])
+    const compile = vi.spyOn(TypeCompiler, "Compile")
+
+    validateProject({ projectDir, context: mockContext })
+
+    expect(compile).toHaveBeenCalledTimes(3)
   })
 
   function createProject(): string {

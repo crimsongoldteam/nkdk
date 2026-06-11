@@ -43,7 +43,6 @@ export const MetadataCommonAttributeRules = {
       yaml: "Тип",
       type: "TypeDescription",
       xmlParents: properties,
-      useAsShortValueYAML: true,
     },
     passwordMode: {
       yaml: "РежимПароля",

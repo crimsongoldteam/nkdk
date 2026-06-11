@@ -48,7 +48,6 @@ const commonAttributeProperties = {
     yaml: "Тип",
     type: "TypeDescription",
     xml: "Type",
-    useAsShortValueYAML: true,
     xmlParents: ["Properties"],
     order: 4,
     defaultValueXMLRaw: "",

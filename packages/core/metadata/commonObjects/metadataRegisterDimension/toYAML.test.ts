@@ -8,7 +8,7 @@ describe("export MetadataRegisterDimensions to YAML", () => {
     const result = exportMetadataRegisterDimensionsToYAML(mockContext, undefined, dimensionsFromXML)
 
     expect(result).toEqual(dimensionsYAML)
-    expect(result?.ИзмерениеПоУмолчанию).toBe("Булево")
+    expect(result?.ИзмерениеПоУмолчанию).toEqual({ Тип: "Булево" })
     expect(result?.ИзмерениеБезИтогов).toHaveProperty("ИспользоватьВИтогах", "Ложь")
   })
 })

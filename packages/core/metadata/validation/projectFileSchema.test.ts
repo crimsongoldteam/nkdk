@@ -152,7 +152,7 @@ describe("exportJSONSchemaForProjectFile", () => {
       validateFile({
         filePath: "Справочник/Товары/Свойства.yaml",
         schema,
-        text: ["Реквизиты:", "  Артикул: Строка"].join("\n"),
+        text: ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n"),
       })
     ).toEqual([])
 
@@ -207,7 +207,7 @@ describe("exportJSONSchemaForProjectFile", () => {
       validateFile({
         filePath: "Документ/Заказ/Свойства.yaml",
         schema,
-        text: ["Реквизиты:", "  ПокаШирокий: НесуществующийТип"].join("\n"),
+        text: ["Реквизиты:", "  ПокаШирокий:", "    Тип: НесуществующийТип"].join("\n"),
       })
     ).toEqual([])
 
@@ -218,8 +218,9 @@ describe("exportJSONSchemaForProjectFile", () => {
         text: [
           "Реквизиты:",
           "  Идентификатор:",
-          "    ИдентификаторТипа:",
-          "      - 8c1e3694-da12-44d5-8b1f-d134b89a1282",
+          "    Тип:",
+          "      ИдентификаторТипа:",
+          "        - 8c1e3694-da12-44d5-8b1f-d134b89a1282",
         ].join("\n"),
       })
     ).toEqual([])

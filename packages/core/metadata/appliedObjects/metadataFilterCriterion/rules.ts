@@ -69,7 +69,6 @@ export const MetadataFilterCriterionRules = {
       type: "TypeDescription",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-      useAsShortValueYAML: true,
     },
     useStandardCommands: {
       yaml: "ИспользоватьСтандартныеКоманды",

@@ -60,7 +60,9 @@ describe("export MetadataAccumulationRegister to YAML", () => {
 
     expect(result).toMatchObject({
       Ресурсы: {
-        Ресурс1: "Число(10, 0)",
+        Ресурс1: {
+          Тип: "Число(10, 0)",
+        },
       },
     })
     expect(result).not.toHaveProperty("ВидРегистра")

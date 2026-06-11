@@ -42,6 +42,8 @@ export interface ValidateObjectFieldSegmentParams {
   yamlPath: YamlPath
 }
 
+type ObjectFieldIndexOwner = Pick<OwnerMetadata, "ref" | "model" | "rule">
+
 interface NamedTypedItem {
   name?: unknown
   type?: TypeDescription
@@ -58,7 +60,7 @@ const dataCollectionKinds = {
 
 const platformFieldNames = new Set(["Ref", "Description", "Number", "Date"])
 
-export function buildObjectFieldIndex(owner: OwnerMetadata): ObjectFieldIndex {
+export function buildObjectFieldIndex(owner: ObjectFieldIndexOwner): ObjectFieldIndex {
   const fields = new Map<string, ObjectField>()
   const diagnostics: Diagnostic[] = []
 
@@ -97,7 +99,7 @@ export function validateObjectFieldSegment({
   ]
 }
 
-function addDataCollectionFields(params: { owner: OwnerMetadata; fields: Map<string, ObjectField> }): void {
+function addDataCollectionFields(params: { owner: ObjectFieldIndexOwner; fields: Map<string, ObjectField> }): void {
   const { owner, fields } = params
   const model = metadataRecord(owner.model)
 
@@ -124,7 +126,7 @@ function addDataCollectionFields(params: { owner: OwnerMetadata; fields: Map<str
 }
 
 function addStandardAttributeFields(params: {
-  owner: OwnerMetadata
+  owner: ObjectFieldIndexOwner
   fields: Map<string, ObjectField>
   propertyRule: PropertyRule | undefined
   sourceCollection: string
@@ -147,7 +149,11 @@ function addStandardAttributeFields(params: {
   }
 }
 
-function buildTabularSectionField(owner: OwnerMetadata, tabularSection: NamedTypedItem, sourceCollection: string): ObjectField {
+function buildTabularSectionField(
+  owner: ObjectFieldIndexOwner,
+  tabularSection: NamedTypedItem,
+  sourceCollection: string,
+): ObjectField {
   const table: DataPathTableInfo = {
     kind: "TabularSection",
     owner: owner.ref,
@@ -195,7 +201,7 @@ function buildTabularSectionField(owner: OwnerMetadata, tabularSection: NamedTyp
 }
 
 function standardAttributeTypeInfo(params: {
-  owner: OwnerMetadata
+  owner: ObjectFieldIndexOwner
   internalName: string
   yamlName: string
   explicit: NamedTypedItem | undefined

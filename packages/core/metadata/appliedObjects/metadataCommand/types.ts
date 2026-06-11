@@ -45,7 +45,7 @@ export interface MetadataCommandFullYAML {
   ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorYAML
 }
 
-export type MetadataCommandYAML = MetadataCommandFullYAML | MetadataCommandGroupYAML
+export type MetadataCommandYAML = MetadataCommandFullYAML
 
 export type MetadataCommands = MetadataCommand[]
 

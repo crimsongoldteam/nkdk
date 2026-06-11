@@ -7,6 +7,7 @@ import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocumen
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { buildFormDataPathIndex, type FormDataPathIndex } from "./formIndex"
+import { buildObjectFieldIndex } from "./objectFields"
 import type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
 import { resolveDataPath } from "./resolver"
 
@@ -429,11 +430,9 @@ function owner(params: {
   model?: MetadataItem & Record<string, unknown>
 }): OwnerMetadata {
   const rule = params.rule ?? MetadataCatalogRules
-
-  return {
+  const ownerWithoutIndex = {
     ref: params.ref ?? { kind: "Справочник", name: "Номенклатура" },
     filePath: "/tmp/Свойства.yaml",
-    parsed: parseMetadataYaml("{}\n"),
     model: params.model ?? { itemType: rule.itemType },
     rule,
     spec: {
@@ -443,7 +442,11 @@ function owner(params: {
       exportSchema: () => ({ type: "object" }) as never,
       importModel: () => undefined,
     },
-    schemaDiagnostics: [],
+  }
+
+  return {
+    ...ownerWithoutIndex,
+    fieldIndex: buildObjectFieldIndex(ownerWithoutIndex),
   }
 }
 
