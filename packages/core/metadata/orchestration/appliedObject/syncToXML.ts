@@ -1,6 +1,5 @@
 import fs from "fs"
 import { dirname, join, posix } from "path"
-import { remapReferenceModel } from "~/metadata/appliedObjects/configuration/migrations/referenceRemap"
 import { getChildContextToXML } from "~/metadata/context/helpers"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import {
@@ -8,10 +7,11 @@ import {
   importMetadataItemFromXML,
   importMetadataItemFromYAML,
 } from "~/metadata/orchestration"
-import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
 import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import { xmlExport } from "~/xml/export/exporter"
 import { importContentFromXML } from "~/xml/import/importer"
 import { importFromYAML } from "~/yaml/import"
@@ -26,6 +26,12 @@ import { omitStringChildCollectionReferencesFromXML } from "./stringChildCollect
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
+export type ReferenceModelRemapper = (params: {
+  rule: MetadataItemRule
+  currentModel: Record<string, unknown>
+  referenceModel: Record<string, unknown> | undefined
+}) => Record<string, unknown> | undefined
+
 export const syncAppliedObjectToXML = async (params: {
   rule: MetadataItemRule
   context: ConfigurationContextWithExportToXML
@@ -37,9 +43,8 @@ export const syncAppliedObjectToXML = async (params: {
   externalReferenceDir?: string
   referenceName?: string
   referenceModel?: Record<string, unknown> | null
-  referencePathByCurrentPath?: Map<string, string>
-  currentObjectPath?: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  referenceModelRemapper?: ReferenceModelRemapper
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const { rule, context, inputDir, name, outputDir } = params
   const referenceDir = params.referenceDir
@@ -96,16 +101,13 @@ export const syncAppliedObjectToXML = async (params: {
   if (!rawModel) return
   const model = { ...rawModel, name } as typeof rawModel
 
-  const referenceModel =
-    params.referencePathByCurrentPath?.size && params.currentObjectPath
-      ? remapReferenceModel({
-          rule,
-          currentObjectPath: params.currentObjectPath,
-          currentModel: model as Record<string, unknown>,
-          referenceModel: loadedReferenceModel as Record<string, unknown> | undefined,
-          referencePathByCurrentPath: params.referencePathByCurrentPath,
-        })
-      : loadedReferenceModel
+  const referenceModel = params.referenceModelRemapper
+    ? params.referenceModelRemapper({
+        rule,
+        currentModel: model as Record<string, unknown>,
+        referenceModel: loadedReferenceModel as Record<string, unknown> | undefined,
+      })
+    : loadedReferenceModel
 
   await addFileItemChildCollectionsFromYAML({
     context: contextWithFormDir,
@@ -248,7 +250,7 @@ async function syncChildCollectionExternalFilesToXML(params: {
   referenceDir?: string
   name: string
   referenceName?: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
   xmlDirContainsCurrentItem: boolean
   xmlRelativeDir?: string
 }): Promise<void> {
@@ -637,7 +639,7 @@ async function preserveReferenceChildNameFilesToXML(params: {
   nkdkDir: string
   xmlDir: string
   referenceDir?: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> {
   if (!params.referenceDir) return
   if (!isFileChildNameRule(params.rule)) return
@@ -656,7 +658,7 @@ async function preserveReferenceChildNameFilesToXML(params: {
 
 async function addDirectoryFilesToManifest(
   dir: string,
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 ): Promise<void> {
   if (!xmlManifest || !fs.existsSync(dir)) return
 

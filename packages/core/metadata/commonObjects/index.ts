@@ -309,3 +309,10 @@ import "./help/toXML"
 
 import "./module/fromXML"
 import "./module/toXML"
+
+let commonObjectsRegistered = false
+
+export function registerCommonObjects(): void {
+  if (commonObjectsRegistered) return
+  commonObjectsRegistered = true
+}

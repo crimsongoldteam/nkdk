@@ -1,5 +1,5 @@
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { PropertyRule, UserVisiblePropertyRule } from "~/metadata/orchestration/property/types"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisibleYAML, type UserVisible } from "./types"

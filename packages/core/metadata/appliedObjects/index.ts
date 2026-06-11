@@ -53,3 +53,10 @@ import "./metadataCommonForm"
 import "./metadataIntegrationService"
 import "./metadataTask"
 import "./metadataWebService"
+
+let appliedObjectsRegistered = false
+
+export function registerAppliedObjects(): void {
+  if (appliedObjectsRegistered) return
+  appliedObjectsRegistered = true
+}

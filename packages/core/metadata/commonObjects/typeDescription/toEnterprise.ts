@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { getTypeDescriptionRule } from "./helper"
 import { TypeDescription, TypeDescriptionEnterprise } from "./types"
 

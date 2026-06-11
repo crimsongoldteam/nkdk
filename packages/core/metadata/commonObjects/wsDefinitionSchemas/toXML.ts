@@ -2,13 +2,14 @@ import fs from "fs"
 import { dirname, join } from "path"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 
 export const syncWSDefinitionSchemasToXML = async (params: {
   rule: PropertyRule
   nkdkDir: string
   xmlDir: string
   name?: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const srcDir = join(params.nkdkDir, "XSD")
   if (!fs.existsSync(srcDir)) return

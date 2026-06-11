@@ -1,5 +1,5 @@
 import { TSchema } from "@sinclair/typebox"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ExportToJSONSchemaFn } from "~/metadata/orchestration/property/fn"
 import { WebSocketClientHeadersJSONSchema } from "./types"
 

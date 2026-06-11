@@ -5,7 +5,7 @@ import {
 } from "~/metadata/forms/knownAnomalies"
 import { ElementXML, exportElementToXML, PropertyRule } from "~/metadata/orchestration"
 import { getElementXMLTagName } from "~/metadata/orchestration/formElement/ruleFactory"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ChildItem } from "./types"
 
 export const exportChildItemsToXML = <From extends ChildItem>(

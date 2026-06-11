@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { Font, FontEnterprise, isRawPrefixedFontRef } from "./types"
 
 export const exportFontToEnterprise = (params: { value: Font | undefined }): FontEnterprise | undefined => {

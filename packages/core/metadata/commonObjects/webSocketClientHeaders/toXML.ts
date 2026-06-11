@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type { ExportToXMLFunction } from "~/metadata/orchestration/property/fn"
 import type { WebSocketClientHeaders, WebSocketClientHeadersXML } from "./types"
 

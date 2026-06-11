@@ -1,6 +1,7 @@
 import fs from "fs"
 import { join } from "path"
 import { registerTypeRule } from "~/metadata/orchestration"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import type {
   ChildSubsystemNames,
   ChildSubsystemNamesPropertyRule,
@@ -27,7 +28,7 @@ export const syncChildSubsystemNamesToXML = async (params: {
   referenceDir?: string
   referenceName?: string
   propertyValue?: unknown
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const childNames = normalizeChildNames(params.propertyValue).filter(isSafeName)
   if (!childNames.length) return

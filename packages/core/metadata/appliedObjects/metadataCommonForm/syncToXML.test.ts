@@ -90,7 +90,7 @@ describe("syncAppliedObjectToXML — MetadataCommonForm", () => {
   it("enables ClientApplicationForm export after direct MetadataCommonFormRules import", async () => {
     vi.resetModules()
 
-    const { clearTypeRulesRegistry, getTypeRule } = await import("~/metadata/orchestration/formElement/factory")
+    const { clearTypeRulesRegistry, getTypeRule } = await import("~/metadata/orchestration/property/typeRuleRegistry")
     clearTypeRulesRegistry()
     expect(getTypeRule("ClientApplicationForm", "exportToXML")).toBeUndefined()
 

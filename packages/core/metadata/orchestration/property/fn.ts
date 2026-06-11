@@ -7,6 +7,7 @@ import {
 } from "../../context/types"
 import type { RuntimeChildKind } from "~/metadata/commonObjects/metadataPath/graphPath"
 import type { GraphPrimitive } from "~/metadata/orchestration/buildGraph/types"
+import type { XmlWriteManifest } from "../xmlWriteManifest"
 import { PropertyRuleType } from "./registry"
 import { SourcePosition } from "./position"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
@@ -230,7 +231,7 @@ export type SyncExternalToXMLFunction = (params: {
   referenceName?: string
   propertyValue?: unknown
   referencePropertyValue?: unknown
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
   itemName?: string
   currentXMLDir?: string
 }) => Promise<void>

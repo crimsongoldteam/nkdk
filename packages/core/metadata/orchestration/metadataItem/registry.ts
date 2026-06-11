@@ -487,7 +487,7 @@ import {
 import { UsualGroup, UsualGroupEnterprise, UsualGroupPartialYAML } from "../../forms/elements/usualGroup/types"
 import { TypedFormElementType } from "../formElement/types"
 
-export type MetadataItemTypeRegistry = {
+export interface MetadataItemTypeRegistry {
   //#region Elements
 
   Button: {

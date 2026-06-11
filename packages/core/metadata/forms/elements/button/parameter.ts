@@ -7,7 +7,7 @@ import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescr
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/toXML"
 import type { TypeDescription, TypeDescriptionXMLWithAttribute } from "~/metadata/commonObjects/typeDescription/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { extractReferenceFromPath } from "~/metadata/orchestration/property/extractReferenceFromPath"
 import type { ExtractGraphFromModelFunction, GraphOps } from "~/metadata/orchestration/property/fn"
 import type { SourcePosition } from "~/metadata/orchestration/property/position"

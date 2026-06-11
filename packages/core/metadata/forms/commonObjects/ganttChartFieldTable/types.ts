@@ -17,7 +17,7 @@ import {
   attachReferenceNameMode,
   type SingletonNameStyle,
 } from "~/metadata/orchestration/formElement/singletonName"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type { ElementXML, ElementXMLWithoutId } from "~/metadata/orchestration/formElement/types"
 import { XML_SOURCE_KEYS } from "~/metadata/orchestration/property/helpers"
 import type {

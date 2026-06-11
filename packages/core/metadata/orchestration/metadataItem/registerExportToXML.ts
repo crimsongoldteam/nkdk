@@ -1,7 +1,7 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "../formElement/factory"
+import { registerTypeRule } from "../property/typeRuleRegistry"
 import { ToMetadata } from "./registry"
 import { exportMetadataItemToXML } from "./toXML"
 

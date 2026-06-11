@@ -1,5 +1,5 @@
 import type { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
   DataCompositionGroupTypeToYAML,

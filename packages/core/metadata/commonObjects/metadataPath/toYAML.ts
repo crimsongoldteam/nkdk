@@ -1,5 +1,5 @@
 import { Context } from "vm"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { convertPath } from "./helper"
 import { MetadataFieldsRules, MetadataFieldsRulesToYAML, MetadataValuesRulesToYAML } from "./types"
 

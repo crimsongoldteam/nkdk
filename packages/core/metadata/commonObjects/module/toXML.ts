@@ -1,6 +1,7 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
 import { registerTypeRule } from "~/metadata/orchestration"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import type { ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "~/metadata/orchestration/property/types"
 
 /**
@@ -14,7 +15,7 @@ export const syncModuleToXML = async (params: {
   xmlDir: string
   name?: string
   itemName?: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const { nkdkDir, xmlDir, itemName } = params
   const rule = params.rule as ModulePropertyRule | TemplatePropertyRule
@@ -84,7 +85,7 @@ const syncTemplateCompanionsToXML = async (params: {
   nkdkPath: string
   xmlPath: string
   objectName?: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const nkdkBasePath = stripXmlExtension(params.nkdkPath)
   const xmlBasePath = stripXmlExtension(params.xmlPath)
@@ -119,7 +120,7 @@ const syncTemplateCompanionsToXML = async (params: {
 const copyDirectoryRecursive = async (params: {
   srcDir: string
   dstDir: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const entries = await fs.promises.readdir(params.srcDir, { withFileTypes: true })
   for (const entry of entries) {

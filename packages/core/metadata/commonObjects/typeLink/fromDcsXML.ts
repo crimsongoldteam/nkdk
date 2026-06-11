@@ -1,4 +1,4 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ConfigurationContextFromXML } from "../../context/types"
 import { MetadataField } from "../metadataField/types"
 import { TypeLink, TypeLinkDcsValueRootXML } from "./types"

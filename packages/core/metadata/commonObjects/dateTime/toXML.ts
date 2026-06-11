@@ -1,6 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { DateTimePropertyRule } from "./types"
 
 export const exportDateTimeToXML = (

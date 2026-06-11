@@ -547,7 +547,7 @@ import {
 } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { ScrollBarUseYAML, SystemEnumerationEnterprise } from "~/metadata/systemEnumerations/types"
 
-export type PropertyTypeRegistry = {
+export interface PropertyTypeRegistry {
   //#region Primitive types
 
   uuid: {
@@ -618,11 +618,6 @@ export type PropertyTypeRegistry = {
     item: DataPath
     enterprise: string
     yaml: DataPathYAML
-  }
-  I8nText: {
-    item: I8nText
-    enterprise: string
-    yaml: I8nTextYAML
   }
   FormattedI8nText: {
     item: FormattedI8nText
@@ -1653,7 +1648,6 @@ export const PropertyRuleTypeKeys = Object.keys({
   TypeDescription: "TypeDescription",
   ButtonParameter: "ButtonParameter",
   DataPath: "DataPath",
-  I8nText: "I8nText",
   FormattedI8nText: "FormattedI8nText",
   Font: "Font",
   StyleItemValue: "StyleItemValue",
@@ -1890,7 +1884,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   DCSParameters: "DCSParameters",
   ElementId: "ElementId",
   StructureItemGroupCollection: "StructureItemGroupCollection",
-} as const satisfies Record<PropertyRuleType, PropertyRuleType>) as readonly PropertyRuleType[]
+} as const) as readonly PropertyRuleType[]
 
 export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends PropertyRuleType
   ? "item" extends keyof PropertyTypeRegistry[Key]

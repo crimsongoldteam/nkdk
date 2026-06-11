@@ -1,6 +1,6 @@
 import type { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importStringFromXML } from "~/metadata/commonObjects/string/fromXML"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
 
 const exportDcsBooleanToXML = (

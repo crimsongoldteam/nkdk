@@ -1,5 +1,8 @@
-import "./metadata/appliedObjects"
+import { registerCoreMetadata } from "./metadata/register"
 
+registerCoreMetadata()
+
+export { registerCoreMetadata } from "./metadata/register"
 export { syncConfigurationFromXML } from "./metadata/appliedObjects/configuration/convertFromXML"
 export type { ConfigurationSyncResult } from "./metadata/appliedObjects/configuration/convertFromXML"
 export { syncConfigurationToXML } from "./metadata/appliedObjects/configuration/syncToXML"

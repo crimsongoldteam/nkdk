@@ -15,6 +15,8 @@ export * from "./property/toEnterprise"
 export * from "./property/toXML"
 export * from "./property/toYAML"
 export * from "./property/types"
+export * from "./property/typeRuleRegistry"
+export * from "./property/propertyTypeKeys"
 
 export * from "./formElement/factory"
 export * from "./formElement/fromXML"

@@ -1,6 +1,6 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ExportToXMLFunctionNew } from "~/metadata/orchestration/property/fn"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import "~/metadata/commonObjects/metadataAttribute/register"

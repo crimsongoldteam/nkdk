@@ -1,7 +1,7 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { MetadataItemRule, PropertyRule, ToMetadata } from ".."
-import { getTypeRule } from "../formElement/factory"
+import { getTypeRule } from "./typeRuleRegistry"
 import { importContentFromXML } from "~/xml/import/importer"
 import { getOrderedKeysFromXML, getValueOrDefault, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
 

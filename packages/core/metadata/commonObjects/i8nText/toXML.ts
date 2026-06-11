@@ -1,7 +1,9 @@
+import "./registry.types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { isEmptyI8nText } from "./helper"
+import "./registerPropertyType"
 import { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./types"
 
 /** @deprecated */

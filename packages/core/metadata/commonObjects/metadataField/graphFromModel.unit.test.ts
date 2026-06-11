@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/commonObjects" // регистрация type rules
-import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type { BuildGraphFromModelFunction, GraphOps } from "~/metadata/orchestration/property/fn"
 
 const buildMetadataFieldsGraph = getTypeRule(

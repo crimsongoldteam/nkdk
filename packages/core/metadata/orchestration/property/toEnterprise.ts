@@ -1,8 +1,8 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { EnterpriseExportableMetadataType, ToEnterprise, ToMetadata } from ".."
-import { getTypeRule } from "../formElement/factory"
-import { PropertyRuleTypeKeys } from "./registry"
+import { getTypeRule } from "./typeRuleRegistry"
+import { isRegisteredPropertyRuleType } from "./propertyTypeKeys"
 import { MetadataItemRule, PropertyRule } from "./types"
 import { shouldProcessProperty } from "./helpers"
 
@@ -19,7 +19,7 @@ export const exportPropertiesToEnterprise = <Type extends EnterpriseExportableMe
     if (key == "dataPath") continue
     if (!shouldProcessProperty({ rule: ruleProp, operation: "exportToEnterprise" })) continue
 
-    if (!PropertyRuleTypeKeys.includes(ruleProp.type)) continue
+    if (!isRegisteredPropertyRuleType(ruleProp.type)) continue
     const value = metadataItem[key]
 
     const exportedValue = exportPropertyToEnterprise({

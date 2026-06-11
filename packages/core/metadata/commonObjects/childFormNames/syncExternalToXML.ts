@@ -1,8 +1,9 @@
 import fs from "fs"
 import { dirname, join, posix } from "path"
 import { syncFormToXML } from "~/metadata/forms/clientApplicationForm/syncToXML"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import { xmlExport } from "~/xml/export/exporter"
 import type { ChildFormNamesPropertyRule } from "./types"
 
@@ -114,7 +115,7 @@ async function copyFormModuleToXML(params: {
   nkdkDir: string
   formOutputDir: string
   formName: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> {
   const { nkdkDir, formOutputDir, formName, xmlManifest } = params
   const srcPath = join(nkdkDir, "Формы", formName, "Модуль.bsl")
@@ -130,7 +131,7 @@ async function copyFormHelpToXML(params: {
   nkdkDir: string
   formOutputDir: string
   formName: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> {
   const { nkdkDir, formOutputDir, formName, xmlManifest } = params
   const srcDir = join(nkdkDir, "Формы", formName, "Справка")
