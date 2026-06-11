@@ -2,7 +2,7 @@ import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ImportFromYAMLFunctionNew, UserVisiblePropertyRule } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisibleYAML, type UserVisible } from "./types"
 

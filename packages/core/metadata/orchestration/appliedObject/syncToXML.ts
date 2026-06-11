@@ -7,7 +7,7 @@ import {
   importMetadataItemFromXML,
   importMetadataItemFromYAML,
 } from "~/metadata/orchestration"
-import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
 import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"

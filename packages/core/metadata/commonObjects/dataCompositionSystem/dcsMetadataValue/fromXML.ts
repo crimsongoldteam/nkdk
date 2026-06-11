@@ -12,7 +12,7 @@ import { ChoiceParameterLinkDcsValueRootXML } from "~/metadata/commonObjects/сh
 import { importChoiceParameterFromDcsXML } from "~/metadata/commonObjects/сhoiceParameters/fromDcsXML"
 import { ChoiceParameterDcsValueRootXML } from "~/metadata/commonObjects/сhoiceParameters/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { SystemEnumerationDcsValueRootXML } from "~/metadata/systemEnumerations/dcsTypes"
 import { importSystemEnumerationFromDcsXML } from "~/metadata/systemEnumerations/fromDcsXML"
 import * as SystemEnumerations from "~/metadata/systemEnumerations/types"

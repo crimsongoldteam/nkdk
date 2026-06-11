@@ -13,7 +13,7 @@ import { ChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterL
 import { exportChoiceParameterToDcsXML } from "~/metadata/commonObjects/сhoiceParameters/toDcsXML"
 import { ChoiceParameter } from "~/metadata/commonObjects/сhoiceParameters/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { exportSystemEnumerationToDcsXML } from "~/metadata/systemEnumerations/toDcsXML"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"

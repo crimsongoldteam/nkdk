@@ -1,6 +1,6 @@
 import { importNumberFromXML } from "~/metadata/commonObjects/number/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { getTypePrefix, removeTypePrefix } from "./helper"
 import {

@@ -11,7 +11,7 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "~/metadata/context/types"
-import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { importContentFromXML } from "~/xml/import/importer"

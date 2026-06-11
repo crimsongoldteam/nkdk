@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { isRawPictureRef, Picture, PictureEnterprise } from "./types"
 
 export const exportPictureToEnterprise = (params: { value: Picture | undefined }): PictureEnterprise | undefined => {

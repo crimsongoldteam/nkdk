@@ -1,7 +1,7 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { EnterpriseExportableMetadataType, ToEnterprise, ToMetadata } from ".."
-import { getTypeRule } from "../formElement/factory"
+import { getTypeRule } from "./typeRuleRegistry"
 import { PropertyRuleTypeKeys } from "./registry"
 import { MetadataItemRule, PropertyRule } from "./types"
 import { shouldProcessProperty } from "./helpers"

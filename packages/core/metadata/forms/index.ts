@@ -5,8 +5,8 @@ export {
   clearElementRulesRegistry,
   getElementRule,
   registerElementRule,
-} from "../orchestration/formElement/ruleFactory"
-export type { ElementRule } from "../orchestration/formElement/types"
+} from "./elements/orchestration/ruleFactory"
+export type { ElementRule } from "./elements/orchestration/types"
 
 import "./elements"
 import "./commonObjects/index"

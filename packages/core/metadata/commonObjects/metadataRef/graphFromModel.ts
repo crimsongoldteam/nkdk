@@ -1,5 +1,5 @@
 import { isPair, isScalar, isSeq, YAMLSeq } from "yaml"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import {
   BuildGraphFromModelFunction,
   ExtractGraphFromModelFunction,

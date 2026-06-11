@@ -6,7 +6,7 @@
  * PRD #121.
  */
 
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { registerEdgeKind } from "~/metadata/orchestration/buildGraph/internal/edgeKinds"
 import { FormCommandRules } from "./rules"
 

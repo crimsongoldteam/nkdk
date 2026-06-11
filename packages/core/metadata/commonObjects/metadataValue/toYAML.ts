@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { exportFixedArrayToYAML } from "./fixedArray/toYAML"
 import { exportFormChoiceListToYAML } from "./formChoiceList/toYAML"
 import { primitiveValueHandlers } from "./handlers"

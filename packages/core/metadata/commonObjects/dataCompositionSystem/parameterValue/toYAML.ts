@@ -1,6 +1,6 @@
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
 import { exportDcsMetadataValueToYAML } from "../dcsMetadataValue/toYAML"

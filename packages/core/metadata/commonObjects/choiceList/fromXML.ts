@@ -1,5 +1,5 @@
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importFormChoiceListValueFromXML } from "../metadataValue/fromXML"
 import { ChoiceList, ChoiceListXML } from "./types"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"

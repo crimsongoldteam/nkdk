@@ -1,6 +1,6 @@
 import { exportUserVisibleToYAMLDeprecated } from "~/metadata/commonObjects/userVisible/toYAML"
 import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { StandardCommandsGroupToYAML } from "~/metadata/systemEnumerations/types"
 import type { StandardCommandsGroup } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"

@@ -1,5 +1,5 @@
 import { dirname, join } from "path"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type {
   ExportToXMLFunctionNew,
   ExportToYAMLFunctionNew,

@@ -10,7 +10,7 @@ import { exportChoiceParameterLinksToYAML } from "~/metadata/commonObjects/сhoi
 import { exportChoiceParametersToYAML } from "~/metadata/commonObjects/сhoiceParameters/toYAML"
 import { ChoiceParameter } from "~/metadata/commonObjects/сhoiceParameters/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"

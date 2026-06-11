@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { importGroupItemAutoFromXML } from "./fromXML"
 import { importGroupItemAutoFromYAML } from "./fromYAML"

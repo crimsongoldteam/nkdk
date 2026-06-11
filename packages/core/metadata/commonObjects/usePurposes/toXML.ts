@@ -1,5 +1,5 @@
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 import { UsePurposes, UsePurposesXML } from "./types"

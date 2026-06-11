@@ -1,6 +1,6 @@
 import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { UserSettingsID, UserSettingsIDYAML } from "./types"
 

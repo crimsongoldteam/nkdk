@@ -1,6 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
 import { importMetadataItemCollectionFromYAMLAsArray } from "~/metadata/orchestration/metadataCollection/fromYAML"
 import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"

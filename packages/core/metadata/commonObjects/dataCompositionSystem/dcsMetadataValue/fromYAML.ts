@@ -11,7 +11,7 @@ import { importChoiceParameterLinksFromYAML } from "~/metadata/commonObjects/сh
 import { importChoiceParametersFromYAML } from "~/metadata/commonObjects/сhoiceParameters/fromYAML"
 import { ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnumerations/fromYAML"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"

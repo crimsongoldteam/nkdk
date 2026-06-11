@@ -11,7 +11,7 @@ import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration
 import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { isEmptyMetadataItem } from "~/metadata/orchestration/formElement/helper"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ItemXML, PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
 import { computeKeyPosition, findSubmap } from "~/metadata/orchestration/property/position"
 import { StandardAttributeDescriptionRules } from "./rules"

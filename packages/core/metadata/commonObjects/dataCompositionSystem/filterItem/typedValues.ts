@@ -1,5 +1,5 @@
 import type { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"

@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { findSubmap } from "~/metadata/orchestration/property/position"
 import {
   canonicalizeRuntimeObjectPath,

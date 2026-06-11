@@ -1,5 +1,5 @@
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ImportFromXMLFunction } from "~/metadata/orchestration/property/fn"
 import { ConfigurationContextFromXML } from "../../context/types"
 import { importFixedArrayFromXML } from "./fixedArray/fromXML"

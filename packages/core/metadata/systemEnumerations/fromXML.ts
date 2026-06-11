@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../context/types"
 import { PropertyRule } from "../forms/elements/calendarField/rules"
-import { registerTypeRule } from "../orchestration/formElement/factory"
+import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
 
 export const importSystemEnumerationFromXML = <T extends string>(
   _context: ConfigurationContext,
