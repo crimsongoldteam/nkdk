@@ -154,7 +154,9 @@ export const shortFormAttribute: FormAttributes = [
 ]
 
 export const shortFormAttributeYAML: FormAttributesYAML = {
-  ТестовыйАтрибут: "Строка",
+  ТестовыйАтрибут: {
+    Тип: "Строка",
+  },
 }
 
 //#endregion
@@ -262,7 +264,9 @@ export const withEmptySettingsFormAttribute: FormAttributes = [
 ]
 
 export const withEmptySettingsFormAttributeYAML: FormAttributesYAML = {
-  ВыбранныеЗначения: "СписокЗначений",
+  ВыбранныеЗначения: {
+    Тип: "СписокЗначений",
+  },
 }
 //#endregion
 

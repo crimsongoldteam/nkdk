@@ -44,7 +44,6 @@ export const FormAttributeRules = {
       yaml: "Тип",
       type: "TypeDescription",
       xml: "Type",
-      useAsShortValueYAML: true,
       defaultValueXMLRaw: {},
       order: 2,
     },
