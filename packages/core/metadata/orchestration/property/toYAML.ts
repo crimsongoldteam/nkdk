@@ -16,9 +16,6 @@ export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
 
   const result = {}
 
-  let shortValue = undefined
-  let canUseShortFormat: boolean = true
-
   for (const [key, propertyRule] of Object.entries(rule.properties)) {
     // Свойство с externalFile: значение идёт во внешний файл, не в YAML
     if ("externalFile" in propertyRule && propertyRule.externalFile && propertyRule.toYAML !== false) {
@@ -53,20 +50,7 @@ export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
     if (exportedValues == undefined) continue
 
     Object.assign(result, exportedValues)
-
-    if (propertyRule.useAsShortValueYAML) {
-      const keys = Object.keys(exportedValues)
-      if (keys.length === 1 && typeof exportedValues[keys[0]] === "string") {
-        shortValue = exportedValues[keys[0]]
-      } else {
-        canUseShortFormat = false
-      }
-    } else {
-      canUseShortFormat = false
-    }
   }
-
-  if (canUseShortFormat) return shortValue
 
   return result
 }

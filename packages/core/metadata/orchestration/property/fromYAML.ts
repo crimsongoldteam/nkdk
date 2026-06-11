@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { readExternalFile } from "~/metadata/forms/commonObjects/dynamicList/externalFile"
-import { MetadataItemType, ToMetadata, ToYAML } from "~/metadata/orchestration/metadataItem/registry"
+import { ToMetadata, ToYAML } from "~/metadata/orchestration/metadataItem/registry"
 import { getTypeRule } from "../formElement/factory"
 import { importFromYAMLFunction, ImportFromYAMLFunctionNew } from "./fn"
 import { getValueOrDefault, shouldProcessProperty } from "./helpers"
@@ -20,17 +20,7 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
     itemType: metadataType,
   } as ToMetadata<Rule["itemType"]>
 
-  const shortFormatResult = handleShortFormatYAML({
-    context,
-    yaml,
-    metadataRule,
-    name,
-    source,
-  })
-
-  if (shortFormatResult) {
-    return shortFormatResult
-  }
+  assertMetadataItemYAMLObject({ itemType: metadataType, yaml })
 
   // Предварительный проход: читаем внешние файлы для свойств с опцией externalFile
   const externalFileValues: Record<string, string | undefined> = {}
@@ -95,6 +85,14 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
   }
 
   return result
+}
+
+function assertMetadataItemYAMLObject(params: { itemType: string; yaml: unknown }): void {
+  const { itemType, yaml } = params
+  if (yaml === undefined) return
+  if (yaml !== null && typeof yaml === "object" && !Array.isArray(yaml)) return
+
+  throw new Error(`${itemType}: ожидался YAML-объект`)
 }
 
 export const importPropertyFromYAML = (params: {
@@ -225,52 +223,4 @@ const shouldApplyDefaultValueYAMLOnImport = (rule: PropertyRule, yaml: any): boo
   if (yaml === null || typeof yaml !== "object") return false
 
   return option.whenAnyYAMLKeyPresent.some((key) => Object.prototype.hasOwnProperty.call(yaml, key))
-}
-
-function handleShortFormatYAML<Type extends MetadataItemType>(params: {
-  context: ConfigurationContext
-  yaml: ToYAML<Type> | undefined
-  metadataRule: MetadataItemRule
-  name?: string
-  source?: ToMetadata<Type>
-}): ToMetadata<Type> | undefined {
-  const { context, yaml, metadataRule: metadataRule, name, source } = params
-
-  if (typeof yaml !== "string") {
-    return undefined
-  }
-
-  const shortFormatEntry = Object.entries(metadataRule.properties).find(([, rule]) => rule.useAsShortValueYAML === true)
-
-  if (!shortFormatEntry) {
-    return undefined
-  }
-
-  const [propertyKey, shortFormatRule] = shortFormatEntry
-
-  if (!shortFormatRule) {
-    return undefined
-  }
-
-  const importedValue = importPropertyFromYAML({
-    context,
-    rule: shortFormatRule,
-    value: yaml,
-    yaml: yaml,
-    name,
-  })
-
-  const shortFormatSource = {
-    ...source,
-    itemType: metadataRule.itemType as Type,
-    [propertyKey]: importedValue,
-  } as ToMetadata<Type>
-
-  return importPropertiesFromYAML({
-    context,
-    metadataRule: metadataRule,
-    name,
-    source: shortFormatSource,
-    yaml: undefined,
-  })
 }

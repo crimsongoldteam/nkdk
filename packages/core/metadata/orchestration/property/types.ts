@@ -164,9 +164,6 @@ export interface BasePropertyRule {
   /** Режим YAML-представления ссылок на роли. По умолчанию сохраняется полная ссылка. */
   roleReferenceYAML?: "full" | "name"
 
-  /** Если все поля пустые - это поле будет выгружено как значение */
-  useAsShortValueYAML?: true
-
   /** Свойство используется только для построения референса */
   forReferenceOnly?: true
 
