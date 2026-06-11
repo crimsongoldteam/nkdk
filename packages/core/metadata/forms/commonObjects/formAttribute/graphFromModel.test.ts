@@ -221,6 +221,41 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
     ).toHaveLength(1)
   })
 
+  it("TABLE global путь создаёт ребро от proxy-узла", () => {
+    const graph = makeGraph()
+    const attrNodeId = `${FORM_NODE_ID}.Attribute.ДопКолонки`
+    graph.ensureNode(attrNodeId, { name: "ДопКолонки" })
+
+    buildGraphFromModel({
+      model: {
+        name: "ДопКолонки",
+        additionalColumns: [
+          {
+            table: "Document.Заказ.TabularSection.Товары",
+            columns: [{ name: "Количество", itemType: "FormAttributeColumn" }],
+          },
+        ],
+        itemType: "FormAttribute",
+      },
+      yamlMap: undefined,
+      rule: FormAttributeRules,
+      graph,
+      parentNodeId: attrNodeId,
+      filePath: FILE_PATH,
+    })
+
+    const proxyNodeId = `${attrNodeId}.Товары`
+    const attrTableEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
+      (e) => e.attributes.kind === "TABLE",
+    )
+    const proxyTableEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
+      (e) => e.attributes.kind === "TABLE",
+    )
+    expect(attrTableEdges).toHaveLength(0)
+    expect(proxyTableEdges).toHaveLength(1)
+    expect(proxyTableEdges[0].target).toBe("Document.Заказ.TabularSection.Товары")
+  })
+
   it("TABLE form-local путь ведёт к TabularSection", () => {
     const graph = makeGraph()
     const objectAttrId = `${FORM_NODE_ID}.Attribute.Объект`
@@ -262,8 +297,14 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
     expect(tableEdges[0].target).toBe("Document.Заказ.TabularSection.Товары")
   })
 
-  it("TABLE global путь создаёт ребро от proxy-узла", () => {
+  it("TABLE form-local путь с латинским корнем ведёт к TabularSection", () => {
     const graph = makeGraph()
+    const objectAttrId = `${FORM_NODE_ID}.Attribute.Object`
+    graph.ensureNode(objectAttrId, { name: "Object" })
+    graph.ensureEdge(FORM_NODE_ID, objectAttrId, "FORM_ATTRIBUTE", { yaml: "РеквизитФормы" })
+    graph.ensureNode("Document.Заказ", { name: "Заказ" })
+    graph.ensureEdge(objectAttrId, "Document.Заказ", "TYPE", { yaml: "Тип" })
+
     const attrNodeId = `${FORM_NODE_ID}.Attribute.ДопКолонки`
     graph.ensureNode(attrNodeId, { name: "ДопКолонки" })
 
@@ -272,7 +313,7 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
         name: "ДопКолонки",
         additionalColumns: [
           {
-            table: "Document.Заказ.TabularSection.Товары",
+            table: "Object.Состав",
             columns: [{ name: "Количество", itemType: "FormAttributeColumn" }],
           },
         ],
@@ -285,16 +326,12 @@ describe("FormAttributeColumns buildGraphFromModel", () => {
       filePath: FILE_PATH,
     })
 
-    const proxyNodeId = `${attrNodeId}.Товары`
-    const attrTableEdges = [...graph.outEdgeEntries(attrNodeId)].filter(
+    const proxyNodeId = `${attrNodeId}.Состав`
+    const tableEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
       (e) => e.attributes.kind === "TABLE",
     )
-    const proxyTableEdges = [...graph.outEdgeEntries(proxyNodeId)].filter(
-      (e) => e.attributes.kind === "TABLE",
-    )
-    expect(attrTableEdges).toHaveLength(0)
-    expect(proxyTableEdges).toHaveLength(1)
-    expect(proxyTableEdges[0].target).toBe("Document.Заказ.TabularSection.Товары")
+    expect(tableEdges).toHaveLength(1)
+    expect(tableEdges[0].target).toBe("Document.Заказ.TabularSection.Состав")
   })
 
   it("узел колонки несёт item и filePaths", () => {

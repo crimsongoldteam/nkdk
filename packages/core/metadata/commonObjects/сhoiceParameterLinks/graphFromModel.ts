@@ -1,5 +1,4 @@
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import "~/metadata/forms/commonObjects/dataPath/graphFromModel"
 import type {
   BuildGraphFromModelFunction,
   GraphOps,

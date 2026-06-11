@@ -71,22 +71,12 @@ describe("yaml ↔ kind перевод", () => {
     ["Реквизит", "ATTRIBUTE"],
     ["Тип", "TYPE"],
     ["ДополнительнаяКолонка", "ADDITIONAL_COLUMN"],
-    ["ПутьКДанным", "DATA_PATH"],
   ])("getKindByYaml(%s) = %s", (yaml, kind) => {
     expect(getKindByYaml(yaml)).toBe(kind)
   })
 
   it("getKindByYaml для неизвестного yaml → undefined", () => {
     expect(getKindByYaml("Несуществующее")).toBeUndefined()
-  })
-
-  it("не регистрирует legacy dataPath kind по имени свойства", () => {
-    expect(getKnownKinds()).not.toContain("FOOTER_DATA_PATH")
-    expect(getKnownKinds()).not.toContain("TITLE_DATA_PATH")
-    expect(getKnownKinds()).not.toContain("ROW_PICTURE_DATA_PATH")
-    expect(getKindByYaml("ПутьКДаннымПодвала")).toBeUndefined()
-    expect(getKindByYaml("ПутьКДаннымЗаголовка")).toBeUndefined()
-    expect(getKindByYaml("ПутьКДаннымКартинкиСтроки")).toBeUndefined()
   })
 
   it("переводит owning-виды параметров выбора", () => {

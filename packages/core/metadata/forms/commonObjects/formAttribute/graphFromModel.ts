@@ -1,6 +1,9 @@
 import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
 import { findSubmap } from "~/metadata/orchestration/property/position"
-import { buildDataPathGraphOps } from "~/metadata/forms/commonObjects/dataPath/graphOps"
+import {
+  canonicalizeRuntimeObjectPath,
+  isKnownMetadataGraphRootSegment,
+} from "~/metadata/commonObjects/metadataPath/graphPath"
 import {
   BuildGraphFromModelFunction,
   GraphOps,
@@ -18,6 +21,58 @@ const TABLE_EDGE_KIND = "TABLE"
 const TABLE_EDGE_YAML = "Таблица"
 const ADDITIONAL_COLUMN_EDGE_KIND = "ADDITIONAL_COLUMN"
 const ADDITIONAL_COLUMN_EDGE_YAML = "ДополнительнаяКолонка"
+
+function buildTableReferenceOps(params: {
+  sourcePath: string
+  parentOverride: string
+  formNodeId: string
+}): GraphOps | undefined {
+  const { sourcePath, parentOverride, formNodeId } = params
+  if (!sourcePath.includes(".")) return undefined
+
+  const targetId = canonicalizeRuntimeObjectPath(sourcePath, {
+    defaultChildKind: "TabularSection",
+  })
+  const sourceRoot = sourcePath.split(".")[0] ?? ""
+  if (!isKnownMetadataGraphRootSegment(sourceRoot)) {
+    return {
+      formLocalReferences: [
+        {
+          formLocalPath: sourcePath,
+          formNodeId,
+          parentOverride,
+          fallbackChildKind: "TabularSection",
+          edgeProps: {
+            property: "table",
+            sourcePath,
+            pathMode: "formLocal",
+          },
+        },
+      ],
+      edgeKind: TABLE_EDGE_KIND,
+      edgeYaml: TABLE_EDGE_YAML,
+    }
+  }
+
+  const name = targetId.split(".").pop() ?? targetId
+
+  return {
+    references: [
+      {
+        id: targetId,
+        name,
+        parentOverride,
+        edgeProps: {
+          property: "table",
+          sourcePath,
+          pathMode: "global",
+        },
+      },
+    ],
+    edgeKind: TABLE_EDGE_KIND,
+    edgeYaml: TABLE_EDGE_YAML,
+  }
+}
 
 /**
  * graphChild для коллекции FormAttributes — оркестратор сам создаёт дочерние узлы.
@@ -79,7 +134,6 @@ const buildFormAttributeAdditionalColumnsGraph: BuildGraphFromModelFunction = ({
 }): GraphOps[] | undefined => {
   if (!Array.isArray(model) || model.length === 0) return undefined
 
-  // parentNodeId = <formNodeId>.Attribute.<attrName>; формируем formNodeId обратным путём.
   const formNodeId = parentNodeId.split(".").slice(0, -2).join(".")
   const sections: GraphOps[] = []
 
@@ -103,32 +157,13 @@ const buildFormAttributeAdditionalColumnsGraph: BuildGraphFromModelFunction = ({
       edgeYaml: ADDITION_EDGE_YAML,
     })
 
-    const tableOps = buildDataPathGraphOps({
+    const tableOps = buildTableReferenceOps({
       sourcePath: tablePath,
-      propertyName: "table",
-      edgeYaml: TABLE_EDGE_YAML,
+      parentOverride: proxyNodeId,
       formNodeId,
-      fallbackChildKind: "TabularSection",
     })
     if (tableOps) {
-      sections.push({
-        ...tableOps,
-        edgeKind: TABLE_EDGE_KIND,
-        edgeYaml: TABLE_EDGE_YAML,
-        formLocalReferences: tableOps.formLocalReferences?.map((reference) => ({
-          ...reference,
-          parentOverride: proxyNodeId,
-        })),
-        references: tableOps.references?.map((reference) => ({
-          ...reference,
-          parentOverride: proxyNodeId,
-          edgeProps: {
-            ...reference.edgeProps,
-            property: "table",
-            sourcePath: tablePath,
-          },
-        })),
-      })
+      sections.push(tableOps)
     }
 
     const columnChildren: GraphOpsChild[] = []

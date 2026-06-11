@@ -82,7 +82,7 @@ function normalizeTypeRoot(root: string): string | undefined {
   return modelType ? normalizeRuntimeRoot(modelType) : undefined
 }
 
-function isRuntimeRootSegment(segment: string): boolean {
+export function isRuntimeRootSegment(segment: string): boolean {
   const modelType =
     segment in MetadataTypeToYAML ? segment : MetadataTypeFromYAML[segment as keyof typeof MetadataTypeFromYAML]
   return Boolean(modelType && (modelType.endsWith("Object") || modelType.endsWith("Ref")))
@@ -113,6 +113,11 @@ export function canonicalizeGraphTechnicalSegment(segment: string): string {
 
 function isCanonicalMetadataRoot(root: string): boolean {
   return root in MetadataFieldsRulesToYAML || root in MetadataTypeToYAML
+}
+
+export function isKnownMetadataGraphRootSegment(segment: string): boolean {
+  const root = normalizeRootSegment(segment, MetadataFieldsRulesToYAML)
+  return isCanonicalMetadataRoot(root) || isRuntimeRootSegment(segment)
 }
 
 function isMetadataTechnicalSegmentPosition(index: number, length: number): boolean {
