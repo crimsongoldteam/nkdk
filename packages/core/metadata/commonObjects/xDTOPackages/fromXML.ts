@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ImportFromXMLFunction } from "~/metadata/orchestration/property/fn"
 import { XDTOPackages, XDTOPackagesXML } from "./types"
 

@@ -6,7 +6,7 @@ import {
 import { applyGraphOps } from "./buildGraph/internal/applyGraphOps"
 import { getKindByYaml } from "./buildGraph/internal/edgeKinds"
 import { GraphBuilder } from "./buildGraph/internal/GraphBuilder"
-import { getTypeRule } from "./formElement/factory"
+import { getTypeRule } from "./property/typeRuleRegistry"
 import { findSubmap, computeValuePosition } from "./property/position"
 import { PropertyRule } from "./property/types"
 import { MetadataItemRule } from "./property/types"

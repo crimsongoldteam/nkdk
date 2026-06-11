@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { Border, BorderEnterprise } from "./types"
 
 export const exportBorderToEnterprise = (params: { value: Border | undefined }): BorderEnterprise | undefined => {

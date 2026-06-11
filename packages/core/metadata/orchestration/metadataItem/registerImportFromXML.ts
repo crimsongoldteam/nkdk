@@ -1,7 +1,7 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "../formElement/factory"
+import { registerTypeRule } from "../property/typeRuleRegistry"
 import { importMetadataItemFromXML } from "./fromXML"
 import { ToMetadata } from "./registry"
 

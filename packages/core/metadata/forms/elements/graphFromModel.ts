@@ -7,7 +7,7 @@
  * контейнера к ребёнку. Синглеты висят плоско под формой, ребро от формы.
  */
 
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"

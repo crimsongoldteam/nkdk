@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportMedatataRefToYAML } from "../metadataValue/toYAML"
 import { MetadataValueCollection, MetadataValueCollectionYAML } from "./types"

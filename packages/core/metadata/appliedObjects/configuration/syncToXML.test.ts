@@ -614,6 +614,111 @@ describe("sync configuration to XML", () => {
     fs.rmSync(tmpXmlDir, { recursive: true })
   })
 
+  it("без миграций сохраняет reference-данные коллекций по обычному имени", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-config-no-migration-reference-"))
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+
+    try {
+      fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+      fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), [
+        "Реквизиты:",
+        "  Артикул:",
+        "    Тип: Строка",
+        "",
+      ].join("\n"))
+      fs.writeFileSync(join(xmlDir, "Catalogs", "Товары.xml"), `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
+	<Catalog uuid="00000000-0000-0000-0000-000000000001">
+		<Properties>
+			<Name>Товары</Name>
+			<Synonym/>
+			<Comment/>
+			<UseStandardCommands>true</UseStandardCommands>
+			<CodeLength>9</CodeLength>
+			<DescriptionLength>25</DescriptionLength>
+			<Hierarchical>false</Hierarchical>
+			<FoldersOnTop>true</FoldersOnTop>
+			<Owners/>
+			<SubordinationUse>ToItems</SubordinationUse>
+			<PredefinedDataUpdate>Auto</PredefinedDataUpdate>
+			<FullTextSearch>Use</FullTextSearch>
+			<ChoiceMode>BothWays</ChoiceMode>
+			<DefaultPresentation>AsDescription</DefaultPresentation>
+			<EditType>InDialog</EditType>
+			<QuickChoice>true</QuickChoice>
+			<IncludeHelpInContents>true</IncludeHelpInContents>
+			<InputByString/>
+			<SearchStringModeOnInputByString>Begin</SearchStringModeOnInputByString>
+			<CreateOnInput>Use</CreateOnInput>
+			<DataLockControlMode>Managed</DataLockControlMode>
+			<ModalChoiceMode>Both</ModalChoiceMode>
+			<DefaultObjectForm/>
+			<DefaultFolderForm/>
+			<DefaultListForm/>
+			<DefaultChoiceForm/>
+			<DefaultFolderChoiceForm/>
+			<AuxiliaryObjectForm/>
+			<AuxiliaryFolderForm/>
+			<AuxiliaryListForm/>
+			<AuxiliaryChoiceForm/>
+			<AuxiliaryFolderChoiceForm/>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="00000000-0000-0000-0000-000000000101">
+				<Properties>
+					<Name>Артикул</Name>
+					<Synonym/>
+					<Comment/>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+					<PasswordMode>false</PasswordMode>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
+					<MarkNegatives>false</MarkNegatives>
+					<Mask/>
+					<MultiLine>false</MultiLine>
+					<ExtendedEdit>false</ExtendedEdit>
+					<MinValue xsi:nil="true"/>
+					<MaxValue xsi:nil="true"/>
+					<FillChecking>DontCheck</FillChecking>
+					<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+					<ChoiceParameterLinks/>
+					<ChoiceParameters/>
+					<QuickChoice>Auto</QuickChoice>
+					<CreateOnInput>Use</CreateOnInput>
+					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+					<FullTextSearch>Use</FullTextSearch>
+					<Use>ForItem</Use>
+				</Properties>
+			</Attribute>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>`, "utf-8")
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      expect(result.failed).toEqual([])
+      const xml = fs.readFileSync(join(outDir, "Catalogs", "Товары.xml"), "utf-8")
+      expect(xml).toContain('<Attribute uuid="00000000-0000-0000-0000-000000000101">')
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("сохраняет uuid при переименовании справочника и реквизита через remap reference", async () => {
     const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_migration_rename")
     const yamlDir = join(tmp, "yaml")

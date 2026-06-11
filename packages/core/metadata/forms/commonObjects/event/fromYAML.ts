@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { EventsPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
 
 const isNonEmptyObject = (value: unknown): value is Record<string, unknown> => {

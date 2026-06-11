@@ -4,7 +4,8 @@ import { BatchTask, runBatch } from "~/helpers/runBatch"
 import type { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { getTypeRule } from "~/metadata/orchestration/formElement/factory"
+import type { ReferenceModelRemapper } from "~/metadata/orchestration/appliedObject/syncToXML"
+import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { xmlExport } from "~/xml/export/exporter"
@@ -19,6 +20,7 @@ import {
   validateAppliedMigrationTarget,
   writeAppliedMigrationsState,
 } from "./migrations"
+import { remapReferenceModel } from "./migrations/referenceRemap"
 import { pruneXmlByManifest, XmlSyncManifest } from "./migrations/xmlManifest"
 import { ConfigurationSyncResult } from "./convertFromXML"
 import { buildConfigurationChildObjects, readConfigurationChildObjectsFromXML } from "./childObjects"
@@ -143,6 +145,17 @@ export const syncConfigurationToXML = async (params: {
       const referenceName = referencePathSegments[referencePathSegments.length - 1]!
       const currentNode = migrationResult.state.nodes.get(currentObjectPath)
       const referenceModel = currentNode && currentNode.referencePath === undefined ? null : undefined
+      const referenceModelRemapper: ReferenceModelRemapper | undefined =
+        migrationResult.referencePathByCurrentPath.size > 0
+          ? ({ rule, currentModel, referenceModel }) =>
+              remapReferenceModel({
+                rule,
+                currentObjectPath,
+                currentModel,
+                referenceModel,
+                referencePathByCurrentPath: migrationResult.referencePathByCurrentPath,
+              })
+          : undefined
       const xmlExternalOutputDir = join(xmlOutputDir, name)
       const xmlExternalReferenceDir = xmlReferenceDir ? join(xmlReferenceDir, referenceName) : undefined
       tasks.push({
@@ -159,9 +172,8 @@ export const syncConfigurationToXML = async (params: {
             referenceDir: xmlReferenceDir,
             externalReferenceDir: xmlExternalReferenceDir,
             referenceName,
-            currentObjectPath,
-            referencePathByCurrentPath: migrationResult.referencePathByCurrentPath,
             referenceModel,
+            referenceModelRemapper,
             xmlManifest,
           }),
       })

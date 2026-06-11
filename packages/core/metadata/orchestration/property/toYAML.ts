@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { buildExternalFileEntry } from "~/metadata/forms/commonObjects/dynamicList/externalFile"
 import { ToMetadata, ToYAML } from ".."
-import { getTypeRule } from "../formElement/factory"
+import { getTypeRule } from "./typeRuleRegistry"
 import { ExportToYAMLFunction, ExportToYAMLFunctionNew } from "./fn"
 import { shouldProcessProperty } from "./helpers"
 import { MetadataItemRule, PropertyRule } from "./types"

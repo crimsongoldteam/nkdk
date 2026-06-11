@@ -9,7 +9,7 @@
  * formNodeId пробрасывается через extra от forms/elements.
  */
 
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { registerEdgeKind } from "~/metadata/orchestration/buildGraph/internal/edgeKinds"
 import {
   BuildGraphFromModelFunction,

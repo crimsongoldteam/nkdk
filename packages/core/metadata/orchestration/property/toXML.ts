@@ -2,7 +2,7 @@ import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { canConvertToPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { ToMetadata } from ".."
-import { getTypeRule } from "../formElement/factory"
+import { getTypeRule } from "./typeRuleRegistry"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
 import {
   applyAutoRequiredXMLParents,

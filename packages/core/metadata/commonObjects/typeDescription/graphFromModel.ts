@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { canonicalizeMetadataTypeGraphPath } from "~/metadata/commonObjects/metadataPath/graphPath"
 import { GraphOps, GraphOpsReference } from "~/metadata/orchestration/property/fn"
 import { SourcePosition } from "~/metadata/orchestration/property/position"

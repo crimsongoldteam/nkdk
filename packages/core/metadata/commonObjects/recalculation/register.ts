@@ -2,11 +2,12 @@ import fs from "fs"
 import { basename, dirname, join } from "path"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
 import { ExportToXMLFunctionNew, SyncExternalFromXMLFunction, SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import { RecalculationRules } from "./rules"
 import { Recalculation, RecalculationYAML, Recalculations, RecalculationsYAML } from "./types"
 
@@ -119,7 +120,7 @@ async function copyIfExists(params: {
   src: string
   fallbackSrc?: string
   dst: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> {
   const { src, fallbackSrc, dst, xmlManifest } = params
   const existingSrc = fs.existsSync(src)

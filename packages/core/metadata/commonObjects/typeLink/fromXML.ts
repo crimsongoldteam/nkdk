@@ -1,6 +1,6 @@
 import { importNumberFromXML } from "~/metadata/commonObjects/number/fromXML"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataField } from "../metadataField/types"
 import { TypeLink, TypeLinkXML } from "./types"

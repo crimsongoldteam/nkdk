@@ -1,6 +1,6 @@
 import fs from "fs"
 import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from "path"
-import type { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import type { PropertyRule } from "~/metadata/orchestration"
 import { ClientApplicationFormRules } from "./rules"
 
@@ -51,7 +51,7 @@ export async function copyFormItemExternalFilesFromXML(params: {
 export async function copyFormItemExternalFilesToXML(params: {
   formNkdkDir: string
   formXmlDir: string
-  xmlManifest?: XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> {
   for (const spec of externalItemFileSpecs) {
     const srcDir = join(params.formNkdkDir, spec.nkdkDir)

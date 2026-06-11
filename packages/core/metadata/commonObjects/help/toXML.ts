@@ -2,7 +2,7 @@ import fs from "fs"
 import { basename, dirname, join } from "path"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type { HelpPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import type { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import { xmlExport } from "~/xml/export/exporter"
 
 /**
@@ -14,7 +14,7 @@ export const syncHelpToXML = async (params: {
   nkdkDir: string
   xmlDir: string
   name?: string
-  xmlManifest?: XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const { nkdkDir, xmlDir } = params
   const rule = params.rule as HelpPropertyRule
@@ -60,7 +60,7 @@ registerTypeRule("Help", "syncExternalToXML", syncHelpToXML)
 const copyDirectoryFilesOnly = async (
   srcDir: string,
   dstDir: string,
-  xmlManifest?: XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 ): Promise<void> => {
   if (!fs.existsSync(srcDir)) return
   const srcStat = await fs.promises.lstat(srcDir)

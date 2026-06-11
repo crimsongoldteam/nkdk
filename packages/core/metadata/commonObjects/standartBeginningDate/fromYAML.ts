@@ -1,6 +1,6 @@
 import { format, parse } from "date-fns"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/fromYAML"
 import type { StandardBeginningDateVariant } from "~/metadata/systemEnumerations/types"
 import type { StandartBeginningDate, StandartBeginningDateYAML } from "./types"

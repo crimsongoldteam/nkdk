@@ -2,6 +2,7 @@ import fs from "fs"
 import { basename, dirname, join } from "path"
 import { registerTypeRule } from "~/metadata/orchestration"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import type { ExternalPicturePropertyRule } from "./types"
 
 export const syncExternalPictureToXML = async (params: {
@@ -9,7 +10,7 @@ export const syncExternalPictureToXML = async (params: {
   nkdkDir: string
   xmlDir: string
   name?: string
-  xmlManifest?: import("~/metadata/appliedObjects/configuration/migrations/xmlManifest").XmlSyncManifest
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const rule = params.rule as ExternalPicturePropertyRule
   const descriptorName = basename(rule.xmlPath)
