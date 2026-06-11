@@ -6,7 +6,11 @@ import {
   MetadataValueXML,
   MetadataValueYAML,
 } from "~/metadata/commonObjects/metadataValue/types"
-import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import {
+  TypeDescriptionJSONSchema,
+  TypeDescriptionXML,
+  TypeDescriptionYAML,
+} from "~/metadata/commonObjects/typeDescription/types"
 import { TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { ChoiceParameterLinksXML, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
@@ -100,11 +104,7 @@ export const MetadataAttributesJSONSchema = Type.Record(
   Type.String(),
   Type.Object(
     {
-      Тип: Type.Union([
-        Type.String(),
-        Type.Array(Type.String()),
-        Type.Object({}, { additionalProperties: true }),
-      ]),
+      Тип: TypeDescriptionJSONSchema,
     },
     { additionalProperties: true }
   )

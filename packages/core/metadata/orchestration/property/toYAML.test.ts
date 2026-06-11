@@ -21,6 +21,7 @@ describe("exportPropertiesToYAML", () => {
       rule: singleTypeRule,
       data: {
         itemType: "MetadataAttribute",
+        name: "Организация",
         type: { type: ["CatalogRef.Организации"] },
       },
     })

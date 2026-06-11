@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox"
+import { Type, type TSchema } from "@sinclair/typebox"
 import { MetadataAttributeYAML, MetadataAttributes, MetadataAttributesXML, MetadataAttributesYAML } from "./types"
 import "~/metadata/commonObjects/typeDescription/graphFromModel"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
@@ -6,7 +6,6 @@ import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataIte
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
-import { ExportToJSONSchemaFn } from "~/metadata/orchestration/property/fn"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
@@ -21,6 +20,12 @@ type MetadataAttributeItemRule =
   | typeof MetadataCatalogAttributeRules
   | typeof MetadataDocumentAttributeRules
   | typeof MetadataTabularSectionAttributeRules
+
+type ExportMetadataAttributesToJSONSchemaFn = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  value: any | undefined
+}) => TSchema
 
 const importMetadataAttributeFromYAML = (
   context: ConfigurationContext,
@@ -60,7 +65,7 @@ const createImportMetadataAttributesFromYAML =
   }
 
 const createExportMetadataAttributesToJSONSchema =
-  (itemRule: MetadataAttributeItemRule): ExportToJSONSchemaFn =>
+  (itemRule: MetadataAttributeItemRule): ExportMetadataAttributesToJSONSchemaFn =>
   ({ context }) => {
     const attributeSchema = exportMetadataItemToJSONSchema({
       context,
