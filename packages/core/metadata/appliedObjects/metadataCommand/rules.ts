@@ -33,7 +33,6 @@ export const MetadataCommandRules = {
       yaml: "Группа",
       xml: "Group",
       type: "MetadataCommandGroup",
-      useAsShortValueYAML: true,
       xmlParents: ["Properties"],
       order: 4,
     },
