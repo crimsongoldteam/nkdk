@@ -107,12 +107,27 @@
 
 Цель — убрать импорт `appliedObjects/configuration/migrations/*` из `orchestration/appliedObject/syncToXML.ts`.
 
-Предлагаемый контракт:
+В этом срезе есть две разные зависимости.
 
-- `syncAppliedObjectToXML` принимает необязательный параметр `referenceModelRemapper` или близкий по смыслу переходник;
+Первая зависимость — `remapReferenceModel`. Это именно configuration/migrations-логика: она знает, как путь текущего YAML-объекта связан со старым XML reference-путём после применения миграций. Её нельзя переносить в `orchestration`, иначе универсальный sync-слой начнёт знать о миграциях configuration.
+
+Целевой контракт:
+
+- `syncAppliedObjectToXML` принимает необязательный параметр `referenceModelRemapper`;
 - тип переходника живёт в `orchestration/appliedObject`, потому что это часть универсального sync-контракта;
-- `configuration/syncToXML.ts` передаёт туда `remapReferenceModel`;
-- `XmlSyncManifest` также уходит за контракт orchestration или переезжает в нейтральный модуль, если manifest нужен не только configuration.
+- переходник получает `rule`, `currentModel` и загруженный `referenceModel`, возвращает remapped reference model;
+- `syncAppliedObjectToXML` больше не принимает `currentObjectPath` и `referencePathByCurrentPath`;
+- `configuration/syncToXML.ts` замыкает `currentObjectPath` и `migrationResult.referencePathByCurrentPath` внутри функции и передаёт её в `referenceModelRemapper`;
+- `remapReferenceModel` остаётся в `appliedObjects/configuration/migrations/referenceRemap.ts`.
+
+Вторая зависимость — `XmlSyncManifest`. Название и текущий путь выглядят как часть миграций configuration, но большинство потребителей используют только метод `addFile(absPath)`: `commonObjects`, `forms`, `orchestration` и external sync-обработчики просто сообщают, какие XML-файлы были записаны.
+
+Целевой контракт:
+
+- в нейтральном модуле, например `metadata/orchestration/xmlWriteManifest.ts`, появляется маленький интерфейс `XmlWriteManifest` с методом `addFile(absPath: string): void`;
+- параметры `xmlManifest` в `orchestration`, `commonObjects` и `forms` типизируются через `XmlWriteManifest`;
+- класс `XmlSyncManifest` и `pruneXmlByManifest` могут остаться в `appliedObjects/configuration/migrations/xmlManifest.ts`, потому что configuration-синхронизация создаёт manifest, читает `expectedFiles()` и выполняет очистку;
+- `XmlSyncManifest` структурно совместим с `XmlWriteManifest`, поэтому его можно передавать в общий sync-контракт без знания о configuration-модуле.
 
 Этот срез должен быть покрыт существующими migration/sync-тестами configuration и узким тестом, что `orchestration/appliedObject` больше не импортирует `appliedObjects/configuration`.
 
