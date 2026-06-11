@@ -77,12 +77,12 @@
 
 `orchestration/formElement/*` импортирует `BaseElement`, `NamedElement` и часть form-specific преобразований из `forms`. Причина в том, что исторически formElement-оркестратор развивался вместе с моделью управляемых форм, а не как полностью универсальное ядро.
 
-Есть два допустимых исхода:
+Выбранный исход — разделить этот модуль на две части:
 
-1. признать `formElement` частью области `forms` и перенести его из `orchestration`;
-2. оставить его в `orchestration`, но вынести минимальные контракты элемента в ядро, чтобы оно не зависело от конкретных form models.
+1. нейтральный реестр операций property-типов, который нужен `property/*`, `metadataItem/*`, `metadataCollection/*` и `appliedObject/*`;
+2. формовый слой элементов, который знает про `BaseElement`, `NamedElement`, XML/YAML/Enterprise/JSONSchema элементов формы и регистрацию конкретных `forms/elements/*`.
 
-Выбор нужно делать отдельным срезом после удаления более простых связей.
+Так `orchestration` сохраняет универсальный механизм регистрации обработчиков, но перестаёт выглядеть владельцем модели элементов формы.
 
 ### Глобальные registry-типы
 
@@ -131,14 +131,23 @@
 
 Этот срез должен быть покрыт существующими migration/sync-тестами configuration и узким тестом, что `orchestration/appliedObject` больше не импортирует `appliedObjects/configuration`.
 
-### Срез 3. Определить место `formElement`
+### Срез 3. Разделить `formElement` на реестр property-типов и слой форм
 
-После первых двух срезов нужно принять решение по `orchestration/formElement`:
+`orchestration/formElement/factory.ts` сейчас хранит `registerTypeRule`, `getTypeRule` и `clearTypeRulesRegistry`. По факту это не реестр элементов формы, а общий реестр обработчиков property-типа: import/export XML, import/export YAML, Enterprise, JSON Schema, graph и external sync.
 
-- если `formElement` остаётся универсальным ядром, вынести минимальные типы элемента из `forms/elements/baseElement/types` в `orchestration/formElement/types` или другой нейтральный контракт;
-- если `formElement` является частью форм, перенести его к `forms` и оставить в `orchestration` только общие metadataItem/property-механизмы.
+Целевой разрез:
 
-Критерий выбора: где проще объяснить модуль новому агенту. Если для понимания `formElement` всегда нужна модель формы, значит он не должен называться универсальным orchestration-ядром.
+- создать нейтральный модуль `metadata/orchestration/property/typeRuleRegistry.ts`;
+- перенести туда `registerTypeRule`, `getTypeRule`, `clearTypeRulesRegistry` и типизацию операций из текущего `formElement/factory.ts`;
+- перевести `orchestration/property/*`, `metadataItem/*`, `metadataCollection/*`, `appliedObject/*`, `commonObjects/*`, `forms/*` и `appliedObjects/*` на новый импорт;
+- оставить временный переэкспорт из `orchestration/formElement/factory.ts`, если это сильно уменьшает размер одного изменения, но запретить новые импорты оттуда тестом границ;
+- оставить `ElementRule`, `registerElementRule`, `registerElementAsType`, XML/YAML/Enterprise/JSONSchema helpers и `singletonName` в формовом слое;
+- после миграции перенести формовый слой из `metadata/orchestration/formElement/*` в `metadata/forms/elements/orchestration/*` или близкий по смыслу путь;
+- дать `metadata/forms/index.ts` публичный вход для регистрации элементов формы.
+
+Почему не переносить весь `formElement` сразу: `property/*` и `metadataItem/*` сейчас используют только type-rule registry, а не модель формы. Сначала нужно дать им нейтральный источник, и только после этого переносить оставшуюся формовую часть без большого каскада правок.
+
+Критерий завершения среза: в универсальном `orchestration` нет импортов из `forms/elements/baseElement/types`, а новые обработчики property-типов регистрируются через `orchestration/property/typeRuleRegistry`, не через `formElement/factory`.
 
 ### Срез 4. Разделить глобальные registry-типы
 
@@ -173,7 +182,18 @@
 
 Это должно уменьшить ложную зависимость `commonObjects -> forms` без изменения поведения.
 
-### 3. Разделить глобальные реестры на контракт и наполнение
+### 3. Разделить `formElement` на нейтральный registry и формовый слой
+
+Сначала нужно вынести `registerTypeRule/getTypeRule` из `orchestration/formElement/factory.ts` в `orchestration/property/typeRuleRegistry.ts`.
+
+После этого:
+
+- универсальные property-операции импортируют type-rule registry из `property`;
+- формовые elements продолжают регистрировать свои правила, но делают это через нейтральный registry;
+- оставшаяся часть `formElement` становится кандидатом на перенос в `forms/elements/orchestration`;
+- тест границ запрещает новые импорты `orchestration/formElement/factory` вне временного списка.
+
+### 4. Разделить глобальные реестры на контракт и наполнение
 
 Текущие `orchestration/property/registry.ts` и `orchestration/metadataItem/registry.ts` одновременно:
 
@@ -189,7 +209,7 @@
 
 Первый шаг не обязан полностью удалить старые реестры. Допустим переходный модуль `legacyRegistryTypes.ts`, если он явно помечает долг и не расширяется новыми типами.
 
-### 4. Сузить побочные регистрации
+### 5. Сузить побочные регистрации
 
 `packages/core/index.ts` сейчас импортирует `./metadata/appliedObjects`, что запускает широкий набор регистраций. Нужно выделить явный entrypoint регистрации metadata, чтобы публичный API показывал намерение:
 
