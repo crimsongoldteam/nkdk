@@ -28,6 +28,7 @@ import "./minMaxValue/toXML"
 
 import "./userSettingsID/fromXML"
 import "./userSettingsID/fromYAML"
+import "./userSettingsID/toJSONSchema"
 import "./userSettingsID/toXML"
 import "./userSettingsID/toYAML"
 

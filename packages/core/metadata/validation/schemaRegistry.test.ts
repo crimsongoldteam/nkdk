@@ -144,6 +144,43 @@ describe("JSON Schema registry", () => {
     expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
   })
 
+  it("exports dynamic list conditional appearance in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+
+    expect(JSON.stringify(schema)).toContain('"УсловноеОформление"')
+  })
+
+  it("accepts dynamic list conditional appearance in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Реквизиты: {
+        Список: {
+          Тип: "ДинамическийСписок",
+          ОсновнойРеквизит: "Истина",
+          ДинамическийСписок: {
+            УсловноеОформление: {
+              РежимОтображения: "Обычный",
+              ИспользоватьПользовательскуюНастройку: "Истина",
+              ПредставлениеПользовательскойНастройки: {
+                ru: "Условное оформление",
+              },
+            },
+            ДинамическоеСчитываниеДанных: "Истина",
+          },
+        },
+      },
+      Элементы: {
+        Список: {
+          Вид: "ТаблицаФормы",
+          ПутьКДанным: "Список",
+        },
+      },
+    }
+
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
   it("restores property refs after generic ref registry is cleared", () => {
     clearJSONSchemaRefRegistries()
     const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup" })

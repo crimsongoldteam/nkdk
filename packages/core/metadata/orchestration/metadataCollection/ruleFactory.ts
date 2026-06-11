@@ -138,7 +138,21 @@ export const registerMetadataItemCollectionRule = <
   registerTypeRule(propertyType, "exportToXML", toXML)
 
   const toJSONSchemaDefault: ExportToJSONSchemaFn = ({ context }) => {
-    const itemSchema = exportMetadataItemToJSONSchema({ context, rule: itemRule })
+    const schemaStack = context.exportToJSONSchema?.schemaStack ?? []
+    if (schemaStack.includes(propertyType)) return Type.Record(Type.String(), Type.Unknown())
+
+    const itemSchema = exportMetadataItemToJSONSchema({
+      context: {
+        ...context,
+        exportToJSONSchema: {
+          mode: context.exportToJSONSchema?.mode ?? "inline",
+          refs: context.exportToJSONSchema?.refs ?? new Set(),
+          propertySchemaOverrides: context.exportToJSONSchema?.propertySchemaOverrides,
+          schemaStack: [...schemaStack, propertyType],
+        },
+      },
+      rule: itemRule,
+    })
     return Type.Record(Type.String(), itemSchema)
   }
 
