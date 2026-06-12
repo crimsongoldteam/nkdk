@@ -4,6 +4,8 @@ import { exportPropertiesToJSONSchema, exportPropertyToJSONSchema } from "../pro
 import { MetadataItem, MetadataItemRule } from "../property/types"
 import { findInlineProperty } from "./yamlInline"
 
+const exportingRules = new Set<MetadataItemRule>()
+
 export const exportMetadataItemToJSONSchema = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   rule: MetadataItemRule
@@ -11,24 +13,31 @@ export const exportMetadataItemToJSONSchema = <T extends MetadataItem>(params: {
 }): TSchema => {
   const { context, rule, value } = params
 
-  const properties = exportPropertiesToJSONSchema({
-    context,
-    metadataItem: value,
-    rule,
-  })
+  if (exportingRules.has(rule)) return Type.Any()
 
-  const objectSchema = Type.Object(
-    {
-      ...properties,
-    },
-    { additionalProperties: false }
-  )
+  exportingRules.add(rule)
+  try {
+    const properties = exportPropertiesToJSONSchema({
+      context,
+      metadataItem: value,
+      rule,
+    })
 
-  const inline = findInlineProperty(rule)
-  if (inline) {
-    const inlineSchema = exportPropertyToJSONSchema({ context, rule: inline.prop, value: undefined })
-    if (inlineSchema !== undefined) return inlineSchema
+    const objectSchema = Type.Object(
+      {
+        ...properties,
+      },
+      { additionalProperties: false }
+    )
+
+    const inline = findInlineProperty(rule)
+    if (inline) {
+      const inlineSchema = exportPropertyToJSONSchema({ context, rule: inline.prop, value: undefined })
+      if (inlineSchema !== undefined) return inlineSchema
+    }
+
+    return objectSchema
+  } finally {
+    exportingRules.delete(rule)
   }
-
-  return objectSchema
 }
