@@ -200,6 +200,7 @@ import "./metadataSequenceDimension/register"
 
 import "./metadataCommandGroup/fromXML"
 import "./metadataCommandGroup/fromYAML"
+import "./metadataCommandGroup/toJSONSchema"
 import "./metadataCommandGroup/toXML"
 import "./metadataCommandGroup/toYAML"
 
