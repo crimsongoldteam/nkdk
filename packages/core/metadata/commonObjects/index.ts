@@ -56,6 +56,7 @@ import "./mobileDeviceCommandBarContent/toYAML"
 
 import "./commonAttributeContent/fromXML"
 import "./commonAttributeContent/fromYAML"
+import "./commonAttributeContent/toJSONSchema"
 import "./commonAttributeContent/toXML"
 import "./commonAttributeContent/toYAML"
 
@@ -149,6 +150,7 @@ import "./childTemplateNames/syncExternalFromXML"
 import "./childSubsystemNames/fromXML"
 import "./childSubsystemNames/toXML"
 import "./childSubsystemNames/fromYAML"
+import "./childSubsystemNames/toJSONSchema"
 import "./childSubsystemNames/toYAML"
 
 import "./externalPicture/fromXML"
@@ -177,6 +179,8 @@ import "./webSocketClientHeaders/fromYAML"
 import "./webSocketClientHeaders/toJSONSchema"
 import "./webSocketClientHeaders/toXML"
 import "./webSocketClientHeaders/toYAML"
+
+import "./metadataValue/associatedTableToJSONSchema"
 
 import "./metadataRegisterAttribute/register"
 import "./metadataRegisterDimension/register"
