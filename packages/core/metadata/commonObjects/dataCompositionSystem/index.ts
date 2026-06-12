@@ -11,6 +11,7 @@ import "./appearanceFields/types"
 
 import "./availableFields/fromXML"
 import "./availableFields/fromYAML"
+import "./availableFields/toJSONSchema"
 import "./availableFields/toXML"
 import "./availableFields/toYAML"
 import "./availableFields/types"

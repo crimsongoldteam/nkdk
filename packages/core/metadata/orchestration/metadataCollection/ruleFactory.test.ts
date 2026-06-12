@@ -1,5 +1,7 @@
+import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
+import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
@@ -15,11 +17,27 @@ const TestCollectionItemRules = {
     name: {
       type: "string",
       xml: "Name",
+      yaml: "name",
       required: true,
     },
     value: {
       type: "string",
       xml: "Value",
+      yaml: "value",
+    },
+  },
+} as unknown as MetadataItemRule
+
+const TestRecursiveArrayItemRules = {
+  itemType: "TestRecursiveArrayItem",
+  properties: {
+    name: {
+      type: "string",
+      yaml: "name",
+    },
+    children: {
+      type: "TestRecursiveArrayCollection" as any,
+      yaml: "children",
     },
   },
 } as unknown as MetadataItemRule
@@ -34,7 +52,23 @@ registerMetadataItemCollectionRule({
   keyField: "name",
 })
 
+registerMetadataItemCollectionRule({
+  propertyType: "TestArrayCollection" as any,
+  itemRule: TestCollectionItemRules,
+  xmlElement: "Item",
+  yamlAsArray: true,
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: "TestRecursiveArrayCollection" as any,
+  itemRule: TestRecursiveArrayItemRules,
+  xmlElement: "Item",
+  yamlAsArray: true,
+})
+
 const rule: PropertyRule = { type: "TestCollection" as any }
+const arrayRule: PropertyRule = { type: "TestArrayCollection" as any }
+const recursiveArrayRule: PropertyRule = { type: "TestRecursiveArrayCollection" as any }
 
 describe("registerMetadataItemCollectionRule default fromXML", () => {
   it("импортирует обычный объект-контейнер {Item: body}", () => {
@@ -100,5 +134,36 @@ describe("registerMetadataItemCollectionRule default fromXML", () => {
   it("возвращает undefined для undefined", () => {
     const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: undefined })
     expect(result).toBeUndefined()
+  })
+})
+
+describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
+  const context = {
+    defaultLanguage: "ru",
+    version: "2.20",
+  } as const
+
+  it("exports record schema for record YAML collections", () => {
+    const schema = exportPropertyToJSONSchema({ context, rule, value: undefined })
+    const compiled = TypeCompiler.Compile(schema!)
+
+    expect(compiled.Check({ A: { name: "A" } })).toBe(true)
+    expect(compiled.Check([{ name: "A" }])).toBe(false)
+  })
+
+  it("exports array schema for yamlAsArray collections", () => {
+    const schema = exportPropertyToJSONSchema({ context, rule: arrayRule, value: undefined })
+    const compiled = TypeCompiler.Compile(schema!)
+
+    expect(compiled.Check([{ name: "A" }])).toBe(true)
+    expect(compiled.Check({ A: { name: "A" } })).toBe(false)
+  })
+
+  it("exports array schema inside recursive yamlAsArray collections", () => {
+    const schema = exportPropertyToJSONSchema({ context, rule: recursiveArrayRule, value: undefined })
+    const compiled = TypeCompiler.Compile(schema!)
+
+    expect(compiled.Check([{ name: "A", children: [] }])).toBe(true)
+    expect(compiled.Check([{ name: "A", children: { B: {} } }])).toBe(false)
   })
 })

@@ -4,6 +4,7 @@ import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { importFilterItemFromXML } from "./fromXML"
 import { importFilterItemFromYAML } from "./fromYAML"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
+import { exportFilterItemToJSONSchema } from "./toJSONSchema"
 import { exportFilterItemToXML } from "./toXML"
 import { exportFilterItemToYAML } from "./toYAML"
 
@@ -24,5 +25,6 @@ registerMetadataItemCollectionRule({
   fromYAML: importFilterItemFromYAML,
   toYAML: exportFilterItemToYAML,
   toXML: exportFilterItemToXML,
+  toJSONSchema: exportFilterItemToJSONSchema,
   yamlAsArray: true,
 })

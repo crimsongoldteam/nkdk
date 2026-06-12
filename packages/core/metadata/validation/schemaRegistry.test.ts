@@ -181,6 +181,38 @@ describe("JSON Schema registry", () => {
     expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
   })
 
+  it("accepts dynamic list DCS arrays in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Реквизиты: {
+        Список: {
+          Тип: "ДинамическийСписок",
+          ОсновнойРеквизит: "Истина",
+          ДинамическийСписок: {
+            ПроизвольныйЗапрос: "Истина",
+            ДинамическоеСчитываниеДанных: "Истина",
+            Поля: [
+              {
+                Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+                ПутьКДанным: "КоличествоДокументов",
+                Поле: "КоличествоДокументов",
+              },
+            ],
+            Порядок: {
+              Элементы: [{ Поле: "ДатаВходящегоДокумента" }],
+            },
+            Отбор: {
+              Элементы: [{ ЛевоеЗначение: ".ХозяйственнаяОперация", Использование: "Ложь" }],
+            },
+          },
+        },
+      },
+    }
+
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
   it("rejects ManualQuery false in inline client form schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
     const compiled = TypeCompiler.Compile(schema)

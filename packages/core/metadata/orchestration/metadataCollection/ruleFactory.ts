@@ -139,7 +139,9 @@ export const registerMetadataItemCollectionRule = <
 
   const toJSONSchemaDefault: ExportToJSONSchemaFn = ({ context }) => {
     const schemaStack = context.exportToJSONSchema?.schemaStack ?? []
-    if (schemaStack.includes(propertyType)) return Type.Record(Type.String(), Type.Unknown())
+    if (schemaStack.includes(propertyType)) {
+      return params.yamlAsArray ? Type.Array(Type.Unknown()) : Type.Record(Type.String(), Type.Unknown())
+    }
 
     const itemSchema = exportMetadataItemToJSONSchema({
       context: {
@@ -153,6 +155,7 @@ export const registerMetadataItemCollectionRule = <
       },
       rule: itemRule,
     })
+    if (params.yamlAsArray) return Type.Array(itemSchema)
     return Type.Record(Type.String(), itemSchema)
   }
 
