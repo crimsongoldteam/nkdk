@@ -12,6 +12,7 @@ export const exportUserVisibleToYAMLDeprecated = <AllowKey extends string, DenyK
   keys: { allow: AllowKey; deny: DenyKey }
 ): Partial<Record<AllowKey | DenyKey, UserVisibleYAML>> | undefined => {
   if (!userVisible) return undefined
+  if (userVisible.values.length === 0) return undefined
 
   const values: UserVisibleYAML = {}
   userVisible.values.forEach((item) => {
@@ -30,6 +31,7 @@ export const exportUserVisibleToYAML = (
   userVisible: UserVisible | undefined
 ): Partial<Record<string, UserVisibleYAML>> | undefined => {
   if (!userVisible) return undefined
+  if (userVisible.values.length === 0) return undefined
   if (!rule.yaml) throw new Error("UserVisiblePropertyRule must have yaml property")
 
   const values: UserVisibleYAML = {}

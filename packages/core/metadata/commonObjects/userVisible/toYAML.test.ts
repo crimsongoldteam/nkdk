@@ -11,6 +11,42 @@ const userVisibleRule: UserVisiblePropertyRule = {
 }
 
 describe("exportUserVisibleToYAML", () => {
+  it("does not export empty deny usage", () => {
+    const use: UserVisible = {
+      common: false,
+      values: [],
+    }
+
+    const result = exportUserVisibleToYAML(mockContext, userVisibleRule, use)
+
+    expect(result).toBeUndefined()
+  })
+
+  it("does not export empty allow usage", () => {
+    const use: UserVisible = {
+      common: true,
+      values: [],
+    }
+
+    const result = exportUserVisibleToYAML(mockContext, userVisibleRule, use)
+
+    expect(result).toBeUndefined()
+  })
+
+  it("deprecated exporter does not export empty deny usage", () => {
+    const use: UserVisible = {
+      common: false,
+      values: [],
+    }
+
+    const result = exportUserVisibleToYAMLDeprecated(mockContext, mockRule, use, {
+      allow: UserVisibleKeysYAML.Allow,
+      deny: UserVisibleKeysYAML.Deny,
+    })
+
+    expect(result).toBeUndefined()
+  })
+
   it("should format allow `use`", () => {
     const use: UserVisible = {
       common: true,
