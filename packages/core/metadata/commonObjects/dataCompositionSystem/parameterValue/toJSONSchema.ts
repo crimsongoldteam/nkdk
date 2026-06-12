@@ -164,9 +164,12 @@ const valueOrArrayJSONSchema = (valueSchema: TSchema, settingsRule: SettingsPara
   return Type.Union([valueSchema, Type.Array(valueSchema)])
 }
 
-export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
-  const settingsRule = rule as SettingsParameterValuePropertyRule
-  const rawValueSchema = requiredDcsMetadataValueJSONSchema(context, toDcsMetadataValueRule(settingsRule))
+export const createSettingsParameterValueJSONSchema = (params: {
+  context: ConfigurationContext
+  rawValueSchema: TSchema
+  rule: SettingsParameterValuePropertyRule
+}): TSchema => {
+  const { context, rawValueSchema, rule: settingsRule } = params
   const compactValueSchema = rejectCompactObjectShapes(rawValueSchema, settingsRule)
   const wrapperValueSchema = rejectEmptyObject(rawValueSchema)
   const valueOrArraySchema = valueOrArrayJSONSchema(wrapperValueSchema, settingsRule)
@@ -188,6 +191,17 @@ export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({
       ),
     ])
   )
+}
+
+export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
+  const settingsRule = rule as SettingsParameterValuePropertyRule
+  const rawValueSchema = requiredDcsMetadataValueJSONSchema(context, toDcsMetadataValueRule(settingsRule))
+
+  return createSettingsParameterValueJSONSchema({
+    context,
+    rawValueSchema,
+    rule: settingsRule,
+  })
 }
 
 registerTypeRule("SettingsParameterValue", "exportToJSONSchema", exportSettingsParameterValueToJSONSchema)

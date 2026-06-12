@@ -28,6 +28,10 @@
   - Подключает `dcsMetadataValue/toJSONSchema` и `parameterValue/toJSONSchema` рядом с существующими YAML/XML обработчиками.
 - Modify: `packages/core/metadata/commonObjects/dataCompositionSystem/index.ts`
   - Подключает `parameterValue/toJSONSchema` для сценариев, где импортируется только DCS entrypoint.
+- Create: `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/toJSONSchema.ts`
+  - Экспортирует schema `AppearanceFields` явным набором полей и не размножает полный DCS primitive schema внутри inline-форм.
+- Create: `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/toJSONSchema.test.ts`
+  - Фиксирует компактные значения оформления и отказы для YAML-форм, которые импорт оформления не поддерживает.
 - Modify: `packages/core/metadata/validation/schemaRegistry.test.ts`
   - Добавляет интеграционный тест inline `ClientApplicationForm` с `Оформление`.
 
@@ -37,7 +41,7 @@
 - Modify: `packages/core/metadata/commonObjects/color/types.ts`
 - Create: `packages/core/metadata/commonObjects/color/toJSONSchema.test.ts`
 
-- [ ] **Step 1: Write failing Color schema tests**
+- [x] **Step 1: Write failing Color schema tests**
 
 Create `packages/core/metadata/commonObjects/color/toJSONSchema.test.ts`:
 
@@ -72,7 +76,7 @@ describe("ColorJSONSchema", () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -82,7 +86,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/color/toJSONS
 
 Expected: fails for `ЦветФонаПодсказки` and `ЭлементСтиля.ТекстЗапрещеннойЯчейкиЦвет`.
 
-- [ ] **Step 3: Expand ColorJSONSchema**
+- [x] **Step 3: Expand ColorJSONSchema**
 
 Modify `packages/core/metadata/commonObjects/color/types.ts`:
 
@@ -119,7 +123,7 @@ export const ColorJSONSchema = Type.Union(
 )
 ```
 
-- [ ] **Step 4: Run focused Color test**
+- [x] **Step 4: Run focused Color test**
 
 Run:
 
@@ -129,7 +133,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/color/toJSONS
 
 Expected: all tests in `toJSONSchema.test.ts` pass.
 
-- [ ] **Step 5: Commit Task 1**
+- [x] **Step 5: Commit Task 1**
 
 ```bash
 git add packages/core/metadata/commonObjects/color/types.ts packages/core/metadata/commonObjects/color/toJSONSchema.test.ts
@@ -142,7 +146,7 @@ git commit -m "fix: :bug: расширить schema YAML-цветов"
 - Create: `packages/core/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/toJSONSchema.ts`
 - Create: `packages/core/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/toJSONSchema.test.ts`
 
-- [ ] **Step 1: Write failing DCS value schema tests**
+- [x] **Step 1: Write failing DCS value schema tests**
 
 Create `packages/core/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/toJSONSchema.test.ts`:
 
@@ -221,7 +225,7 @@ describe("MetadataDcsMetadataValue exportToJSONSchema", () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -231,7 +235,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/dataCompositi
 
 Expected: fails because `MetadataDcsMetadataValue` has no `exportToJSONSchema` handler.
 
-- [ ] **Step 3: Add DCS value schema exporter**
+- [x] **Step 3: Add DCS value schema exporter**
 
 Create `packages/core/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/toJSONSchema.ts`:
 
@@ -329,7 +333,7 @@ export const exportDcsMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ conte
 registerTypeRule("MetadataDcsMetadataValue", "exportToJSONSchema", exportDcsMetadataValueToJSONSchema)
 ```
 
-- [ ] **Step 4: Run focused DCS value tests**
+- [x] **Step 4: Run focused DCS value tests**
 
 Run:
 
@@ -339,7 +343,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/dataCompositi
 
 Expected: all tests in `toJSONSchema.test.ts` pass.
 
-- [ ] **Step 5: Commit Task 2**
+- [x] **Step 5: Commit Task 2**
 
 ```bash
 git add packages/core/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/toJSONSchema.ts packages/core/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/toJSONSchema.test.ts
@@ -352,7 +356,7 @@ git commit -m "feat: :sparkles: добавить schema DCS-значений"
 - Create: `packages/core/metadata/commonObjects/dataCompositionSystem/parameterValue/toJSONSchema.ts`
 - Create: `packages/core/metadata/commonObjects/dataCompositionSystem/parameterValue/toJSONSchema.test.ts`
 
-- [ ] **Step 1: Write failing SettingsParameterValue schema tests**
+- [x] **Step 1: Write failing SettingsParameterValue schema tests**
 
 Create `packages/core/metadata/commonObjects/dataCompositionSystem/parameterValue/toJSONSchema.test.ts`:
 
@@ -437,7 +441,7 @@ describe("SettingsParameterValue exportToJSONSchema", () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -447,7 +451,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/dataCompositi
 
 Expected: fails because `SettingsParameterValue` has no `exportToJSONSchema` handler.
 
-- [ ] **Step 3: Add SettingsParameterValue schema exporter**
+- [x] **Step 3: Add SettingsParameterValue schema exporter**
 
 Create `packages/core/metadata/commonObjects/dataCompositionSystem/parameterValue/toJSONSchema.ts`:
 
@@ -510,7 +514,7 @@ export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({
 registerTypeRule("SettingsParameterValue", "exportToJSONSchema", exportSettingsParameterValueToJSONSchema)
 ```
 
-- [ ] **Step 4: Run focused SettingsParameterValue tests**
+- [x] **Step 4: Run focused SettingsParameterValue tests**
 
 Run:
 
@@ -520,7 +524,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/dataCompositi
 
 Expected: all tests in `toJSONSchema.test.ts` pass.
 
-- [ ] **Step 5: Commit Task 3**
+- [x] **Step 5: Commit Task 3**
 
 ```bash
 git add packages/core/metadata/commonObjects/dataCompositionSystem/parameterValue/toJSONSchema.ts packages/core/metadata/commonObjects/dataCompositionSystem/parameterValue/toJSONSchema.test.ts
@@ -532,9 +536,11 @@ git commit -m "feat: :sparkles: добавить schema SettingsParameterValue"
 **Files:**
 - Modify: `packages/core/metadata/commonObjects/index.ts`
 - Modify: `packages/core/metadata/commonObjects/dataCompositionSystem/index.ts`
+- Create: `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/toJSONSchema.ts`
+- Create: `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/toJSONSchema.test.ts`
 - Modify: `packages/core/metadata/validation/schemaRegistry.test.ts`
 
-- [ ] **Step 1: Write failing validation integration test**
+- [x] **Step 1: Write failing validation integration test**
 
 In `packages/core/metadata/validation/schemaRegistry.test.ts`, add this test after `"accepts dynamic list conditional appearance in inline client form schemas"`:
 
@@ -565,7 +571,7 @@ In `packages/core/metadata/validation/schemaRegistry.test.ts`, add this test aft
   })
 ```
 
-- [ ] **Step 2: Run integration test to verify failure**
+- [x] **Step 2: Run integration test to verify failure**
 
 Run:
 
@@ -575,7 +581,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/validation/schemaRegistry.t
 
 Expected: new test fails before registration because `SettingsParameterValue` schema is not available through normal entrypoints.
 
-- [ ] **Step 3: Register new schema exporters**
+- [x] **Step 3: Register new schema exporters**
 
 In `packages/core/metadata/commonObjects/index.ts`, add:
 
@@ -599,7 +605,7 @@ import "./parameterValue/toJSONSchema"
 
 near `import "./parameterValue/types"`.
 
-- [ ] **Step 4: Run integration test**
+- [x] **Step 4: Run integration test**
 
 Run:
 
@@ -609,7 +615,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/validation/schemaRegistry.t
 
 Expected: all tests in `schemaRegistry.test.ts` pass.
 
-- [ ] **Step 5: Commit Task 4**
+- [x] **Step 5: Commit Task 4**
 
 ```bash
 git add packages/core/metadata/commonObjects/index.ts packages/core/metadata/commonObjects/dataCompositionSystem/index.ts packages/core/metadata/validation/schemaRegistry.test.ts

@@ -181,6 +181,31 @@ describe("JSON Schema registry", () => {
     expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
   })
 
+  it("accepts appearance SettingsParameterValue fields in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      УсловноеОформлениеРеквизитов: {
+        Элементы: [
+          {
+            Оформление: {
+              ЦветТекста: "ЭлементСтиля.ТекстЗапрещеннойЯчейкиЦвет",
+              ЦветФона: "ЦветФонаПодсказки",
+              Шрифт: {
+                Вид: "ШрифтТекста",
+              },
+              ГоризонтальноеПоложение: "Лево",
+              Формат: '"ЧДЦ=1"',
+              Видимость: "Ложь",
+            },
+          },
+        ],
+      },
+    }
+
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
   it("accepts dynamic list DCS arrays in inline client form schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
     const compiled = TypeCompiler.Compile(schema)

@@ -271,11 +271,15 @@ import "./typeLink/toYAML"
 
 import "./dataCompositionSystem/dcsMetadataValue/fromXML"
 import "./dataCompositionSystem/dcsMetadataValue/fromYAML"
+import "./dataCompositionSystem/dcsMetadataValue/toJSONSchema"
 import "./dataCompositionSystem/dcsMetadataValue/toXML"
 import "./dataCompositionSystem/dcsMetadataValue/toYAML"
 
+import "./dataCompositionSystem/appearanceFields/toJSONSchema"
+
 import "./dataCompositionSystem/parameterValue/fromXML"
 import "./dataCompositionSystem/parameterValue/fromYAML"
+import "./dataCompositionSystem/parameterValue/toJSONSchema"
 import "./dataCompositionSystem/parameterValue/toXML"
 import "./dataCompositionSystem/parameterValue/toYAML"
 
