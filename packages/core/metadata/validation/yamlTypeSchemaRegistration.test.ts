@@ -22,4 +22,30 @@ describe("YAML type JSON Schema registrations", () => {
       ])
     ).toBe(true)
   })
+
+  it("rejects invalid simple hand-written YAML types", () => {
+    expect(schemaFor("AssociatedTable").Check(["Товары"])).toBe(false)
+    expect(schemaFor("AssociatedTable").Check({ Таблица: "Товары" })).toBe(false)
+
+    expect(schemaFor("ChildSubsystemNames").Check("Подсистема1")).toBe(false)
+    expect(schemaFor("ChildSubsystemNames").Check(["Подсистема1", 1])).toBe(false)
+
+    const commonAttributeContentSchema = schemaFor("CommonAttributeContent")
+    expect(
+      commonAttributeContentSchema.Check([
+        { Объект: "Документ.ЗаказКлиента", Использование: "НеизвестноеИспользование" },
+      ])
+    ).toBe(false)
+    expect(commonAttributeContentSchema.Check([{ Объект: "Документ.ЗаказКлиента" }])).toBe(false)
+    expect(commonAttributeContentSchema.Check([{ Использование: "Использовать" }])).toBe(false)
+    expect(
+      commonAttributeContentSchema.Check([
+        {
+          Объект: "Документ.ЗаказКлиента",
+          Использование: "Использовать",
+          ЛишнееСвойство: "значение",
+        },
+      ])
+    ).toBe(false)
+  })
 })
