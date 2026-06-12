@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { fullCommandInterface, fullCommandInterfaceYAML } from "./__fixtures__/full"
+import { fullCommandInterfaceFromYAML, fullCommandInterfaceYAML } from "./__fixtures__/full"
 import { importCommandInterfaceFromYAML } from "./fromYAML"
 
 describe("importCommandInterfaceFromYAML", () => {
@@ -13,7 +13,7 @@ describe("importCommandInterfaceFromYAML", () => {
   it("should import full command interface", () => {
     const result = importCommandInterfaceFromYAML(mockContext, mockRule, fullCommandInterfaceYAML)
 
-    expect(result).toEqual(fullCommandInterface)
+    expect(result).toEqual(fullCommandInterfaceFromYAML)
   })
 
   it("imports unknown command group as raw XML identifier", () => {

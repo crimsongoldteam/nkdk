@@ -218,5 +218,4 @@ export const fullFormFieldTableRelatedPartialYAMLCommonFixture = {
   ГоризонтальноеПоложениеВШапке: "Лево",
   ОграничениеТипа: "Строка",
   Таблица: "Таблица",
-  ФиксацияВТаблице: "Нет",
 } as const

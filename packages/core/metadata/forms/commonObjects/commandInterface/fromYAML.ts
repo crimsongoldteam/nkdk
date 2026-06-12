@@ -47,8 +47,11 @@ const importCommandInterfaceItemFromYAML = (
   const result: CommandInterfaceItem = {
     command: item.Команда,
     type: item.Тип,
-    attribute: item.Реквизит,
     itemType: "CommandInterfaceItem",
+  }
+
+  if (item.Реквизит !== undefined) {
+    result.attribute = item.Реквизит
   }
 
   if (item.Автовидимость === "Ложь") {

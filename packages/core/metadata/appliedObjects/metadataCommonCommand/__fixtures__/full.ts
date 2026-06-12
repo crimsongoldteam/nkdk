@@ -18,5 +18,4 @@ export const fullYAML: MetadataCommonCommandYAML = {
 export const fullExportedYAML: MetadataCommonCommandYAML = {
   Комментарий: "Комментарий",
   Группа: "ПанельНавигацииОбычное",
-  Отображение: "Авто",
 }

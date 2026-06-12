@@ -8,14 +8,14 @@ import { groupedFixtures, groupedTypedFixtures } from "./fixtures"
 describe("importElementFromPartialYAML", () => {
   describe.each(Object.entries(groupedFixtures))("%s", (_group, fixtures) => {
     it.each(fixtures)("$name", (fixture) => {
-      const model = fixture.model as CollectableElement
+      const model = (fixture.yamlModel ?? fixture.model) as CollectableElement
       const source = (fixture.source ?? fixture.model) as CollectableElement
       const context = fixture.context ?? mockContext
 
       const result = importElementFromPartialYAML({
         context,
         itemType: model.itemType,
-        yaml: fixture.yaml ?? {},
+        yaml: fixture.yamlForImport ?? fixture.yaml ?? {},
         source,
       })
 
@@ -35,14 +35,17 @@ describe("importElementFromPartialYAML preserve", () => {
       source: commandButtonWithTypeDescriptionParameter,
     })
 
-    expect(result).toEqual(commandButtonWithTypeDescriptionParameter)
+    expect(result).toEqual({
+      ...commandButtonWithTypeDescriptionParameter,
+      type: "UsualButton",
+    })
   })
 })
 
 describe("importElementFromTypedYAML", () => {
   describe.each(Object.entries(groupedTypedFixtures))("%s", (_group, fixtures) => {
     it.each(fixtures)("$name", (fixture) => {
-      const model = fixture.model as { name: string }
+      const model = (fixture.typedYAMLModel ?? fixture.yamlModel ?? fixture.model) as { name: string }
       const context = fixture.context ?? mockContext
 
       const result = importElementFromTypedYAML({
@@ -51,7 +54,7 @@ describe("importElementFromTypedYAML", () => {
         name: model.name,
       })
 
-      expect(result).toEqual(fixture.model)
+      expect(result).toEqual(fixture.typedYAMLModel ?? fixture.yamlModel ?? fixture.model)
     })
   })
 })

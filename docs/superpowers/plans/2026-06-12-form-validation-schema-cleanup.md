@@ -70,7 +70,7 @@
 - Modify: `packages/core/metadata/commonObjects/userVisible/toYAML.test.ts`
 - Modify: `packages/core/metadata/commonObjects/userVisible/toYAML.ts`
 
-- [ ] **Step 1: Write failing tests for empty UserVisible**
+- [x] **Step 1: Write failing tests for empty UserVisible**
 
 Add these tests inside `describe("exportUserVisibleToYAML", ...)` in `packages/core/metadata/commonObjects/userVisible/toYAML.test.ts`:
 
@@ -112,7 +112,7 @@ Add these tests inside `describe("exportUserVisibleToYAML", ...)` in `packages/c
   })
 ```
 
-- [ ] **Step 2: Run tests to verify failure**
+- [x] **Step 2: Run tests to verify failure**
 
 Run:
 
@@ -122,7 +122,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/userVisible/t
 
 Expected: tests for empty usage fail because current exporters return `{ ЗапретитьИспользование: {} }` or `{ РазрешитьИспользование: {} }`.
 
-- [ ] **Step 3: Implement minimal UserVisible export guard**
+- [x] **Step 3: Implement minimal UserVisible export guard**
 
 Modify both exporters in `packages/core/metadata/commonObjects/userVisible/toYAML.ts` after the `if (!userVisible) return undefined` check:
 
@@ -160,7 +160,7 @@ export const exportUserVisibleToYAML = (
   const values: UserVisibleYAML = {}
 ```
 
-- [ ] **Step 4: Run focused tests**
+- [x] **Step 4: Run focused tests**
 
 Run:
 
@@ -170,7 +170,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/userVisible/t
 
 Expected: all tests in `toYAML.test.ts` pass.
 
-- [ ] **Step 5: Commit Task 1**
+- [x] **Step 5: Commit Task 1**
 
 ```bash
 git add packages/core/metadata/commonObjects/userVisible/toYAML.ts packages/core/metadata/commonObjects/userVisible/toYAML.test.ts
@@ -185,7 +185,7 @@ git commit -m "fix: :bug: не выгружать пустой UserVisible"
 - Modify: `packages/core/metadata/forms/commonObjects/dynamicList/fromYAML.test.ts`
 - Modify: `packages/core/metadata/validation/schemaRegistry.test.ts`
 
-- [ ] **Step 1: Write failing DynamicList export tests**
+- [x] **Step 1: Write failing DynamicList export tests**
 
 In `packages/core/metadata/forms/commonObjects/dynamicList/toYAML.test.ts`, replace the existing test named `"exports explicit ManualQuery false when queryText is absent"` with:
 
@@ -251,7 +251,7 @@ Also add this test after it:
   })
 ```
 
-- [ ] **Step 2: Write failing import test for no `.query` coupling**
+- [x] **Step 2: Write failing import test for no `.query` coupling**
 
 In `packages/core/metadata/forms/commonObjects/dynamicList/fromYAML.test.ts`, add an import if needed:
 
@@ -296,7 +296,7 @@ Add this test inside the existing DynamicList YAML import `describe`:
   })
 ```
 
-- [ ] **Step 3: Write validation schema regression**
+- [x] **Step 3: Write validation schema regression**
 
 In `packages/core/metadata/validation/schemaRegistry.test.ts`, add this test near existing DynamicList schema tests:
 
@@ -322,7 +322,7 @@ In `packages/core/metadata/validation/schemaRegistry.test.ts`, add this test nea
   })
 ```
 
-- [ ] **Step 4: Run tests to verify failures**
+- [x] **Step 4: Run tests to verify failures**
 
 Run:
 
@@ -332,7 +332,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/forms/commonObjects/dynamic
 
 Expected: export tests fail because `ПроизвольныйЗапрос: "Ложь"` is still emitted. Import test may also fail if `customQuery` is derived from the external query file.
 
-- [ ] **Step 5: Fix default filtering before YAML conversion**
+- [x] **Step 5: Fix default filtering before YAML conversion**
 
 Modify `packages/core/metadata/orchestration/property/toYAML.ts`.
 
@@ -360,7 +360,7 @@ Keep this existing source-based guard in `getExportToYAMLResult`:
   }
 ```
 
-- [ ] **Step 6: Remove `.query` coupling for derived fields**
+- [x] **Step 6: Remove `.query` coupling for derived fields**
 
 In `packages/core/metadata/orchestration/property/fromYAML.ts`, remove only the block that computes a `derivedFrom.externalFile` property from `externalFileValues`:
 
@@ -397,7 +397,7 @@ In `packages/core/metadata/orchestration/property/toXML.ts`, remove only this bl
 
 This keeps `ПроизвольныйЗапрос` independent from `.query` for both YAML import and XML export.
 
-- [ ] **Step 7: Run focused tests**
+- [x] **Step 7: Run focused tests**
 
 Run:
 
@@ -407,7 +407,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/forms/commonObjects/dynamic
 
 Expected: all selected tests pass.
 
-- [ ] **Step 8: Commit Task 2**
+- [x] **Step 8: Commit Task 2**
 
 ```bash
 git add packages/core/metadata/orchestration/property/toYAML.ts packages/core/metadata/orchestration/property/fromYAML.ts packages/core/metadata/orchestration/property/toXML.ts packages/core/metadata/forms/commonObjects/dynamicList/toYAML.test.ts packages/core/metadata/forms/commonObjects/dynamicList/fromYAML.test.ts packages/core/metadata/validation/schemaRegistry.test.ts
@@ -430,7 +430,7 @@ git commit -m "fix: :bug: не выгружать ManualQuery false"
 - Modify: `packages/core/metadata/commonObjects/dataCompositionSystem/orderItemFields/types.ts`
 - Modify: `packages/core/metadata/validation/schemaRegistry.test.ts`
 
-- [ ] **Step 1: Add failing collection factory schema tests**
+- [x] **Step 1: Add failing collection factory schema tests**
 
 Modify imports in `packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts`:
 
@@ -479,7 +479,7 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
 })
 ```
 
-- [ ] **Step 2: Run factory test to verify failure**
+- [x] **Step 2: Run factory test to verify failure**
 
 Run:
 
@@ -489,7 +489,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/orchestration/metadataColle
 
 Expected: `exports array schema for yamlAsArray collections` fails because schema is currently a record.
 
-- [ ] **Step 3: Implement yamlAsArray schema in collection factory**
+- [x] **Step 3: Implement yamlAsArray schema in collection factory**
 
 Modify `toJSONSchemaDefault` in `packages/core/metadata/orchestration/metadataCollection/ruleFactory.ts`.
 
@@ -506,7 +506,7 @@ with:
     return Type.Record(Type.String(), itemSchema)
 ```
 
-- [ ] **Step 4: Run factory tests**
+- [x] **Step 4: Run factory tests**
 
 Run:
 
@@ -516,7 +516,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/orchestration/metadataColle
 
 Expected: all rule factory tests pass.
 
-- [ ] **Step 5: Add AvailableFields schema**
+- [x] **Step 5: Add AvailableFields schema**
 
 Create `packages/core/metadata/commonObjects/dataCompositionSystem/availableFields/toJSONSchema.ts`:
 
@@ -560,7 +560,7 @@ Modify `packages/core/metadata/commonObjects/dataCompositionSystem/index.ts` to 
 import "./availableFields/toJSONSchema"
 ```
 
-- [ ] **Step 6: Add AvailableFields schema tests**
+- [x] **Step 6: Add AvailableFields schema tests**
 
 Create `packages/core/metadata/commonObjects/dataCompositionSystem/availableFields/toJSONSchema.test.ts`:
 
@@ -600,7 +600,7 @@ describe("AvailableFields JSON Schema", () => {
 })
 ```
 
-- [ ] **Step 7: Add OrderItemFields schema**
+- [x] **Step 7: Add OrderItemFields schema**
 
 Create `packages/core/metadata/commonObjects/dataCompositionSystem/orderItemFields/toJSONSchema.ts`:
 
@@ -634,7 +634,7 @@ Then add the option to the existing registration:
   toJSONSchema: exportOrderItemFieldsToJSONSchema,
 ```
 
-- [ ] **Step 8: Add OrderItemFields schema tests**
+- [x] **Step 8: Add OrderItemFields schema tests**
 
 Create `packages/core/metadata/commonObjects/dataCompositionSystem/orderItemFields/toJSONSchema.test.ts`:
 
@@ -674,7 +674,7 @@ describe("OrderItemFields JSON Schema", () => {
 })
 ```
 
-- [ ] **Step 9: Add FilterItem schema**
+- [x] **Step 9: Add FilterItem schema**
 
 Create `packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/toJSONSchema.ts`:
 
@@ -725,7 +725,7 @@ Then add the option to the existing registration:
   toJSONSchema: exportFilterItemToJSONSchema,
 ```
 
-- [ ] **Step 10: Add FilterItem schema tests**
+- [x] **Step 10: Add FilterItem schema tests**
 
 Create `packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/toJSONSchema.test.ts`:
 
@@ -783,7 +783,7 @@ describe("FilterItem JSON Schema", () => {
 })
 ```
 
-- [ ] **Step 11: Add integration schema test for DynamicList DCS arrays**
+- [x] **Step 11: Add integration schema test for DynamicList DCS arrays**
 
 In `packages/core/metadata/validation/schemaRegistry.test.ts`, add:
 
@@ -820,7 +820,7 @@ In `packages/core/metadata/validation/schemaRegistry.test.ts`, add:
   })
 ```
 
-- [ ] **Step 12: Run DCS schema tests**
+- [x] **Step 12: Run DCS schema tests**
 
 Run:
 
@@ -830,7 +830,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/orchestration/metadataColle
 
 Expected: all selected tests pass.
 
-- [ ] **Step 13: Commit Task 3**
+- [x] **Step 13: Commit Task 3**
 
 ```bash
 git add packages/core/metadata/orchestration/metadataCollection/ruleFactory.ts packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts packages/core/metadata/commonObjects/dataCompositionSystem/availableFields/toJSONSchema.ts packages/core/metadata/commonObjects/dataCompositionSystem/availableFields/toJSONSchema.test.ts packages/core/metadata/commonObjects/dataCompositionSystem/index.ts packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/toJSONSchema.ts packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/toJSONSchema.test.ts packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/types.ts packages/core/metadata/commonObjects/dataCompositionSystem/orderItemFields/toJSONSchema.ts packages/core/metadata/commonObjects/dataCompositionSystem/orderItemFields/toJSONSchema.test.ts packages/core/metadata/commonObjects/dataCompositionSystem/orderItemFields/types.ts packages/core/metadata/validation/schemaRegistry.test.ts
@@ -843,7 +843,7 @@ git commit -m "fix: :bug: валидировать DCS-массивы как м�
 - No planned code files.
 - Read generated validation output under `/tmp`.
 
-- [ ] **Step 1: Run focused validation and form tests**
+- [x] **Step 1: Run focused validation and form tests**
 
 Run:
 
@@ -853,7 +853,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/validation metadata/forms/c
 
 Expected: all selected tests pass.
 
-- [ ] **Step 2: Run full core metadata tests**
+- [x] **Step 2: Run full core metadata tests**
 
 Run:
 
@@ -863,7 +863,7 @@ pnpm --filter @nakidka/core exec vitest run metadata
 
 Expected: all metadata tests pass.
 
-- [ ] **Step 3: Run full project tests**
+- [x] **Step 3: Run full project tests**
 
 Run:
 
@@ -873,7 +873,7 @@ pnpm test
 
 Expected: all package test suites pass.
 
-- [ ] **Step 4: Run project validation against temp-yaml**
+- [x] **Step 4: Run project validation against temp-yaml**
 
 Run validation on:
 
@@ -883,7 +883,7 @@ pnpm --filter @nakidka/cli exec tsx src/cli.ts validate /home/nikita/git/temp-ya
 
 Expected: command may exit with code `1` because unrelated validation errors remain. This is acceptable if the targeted groups drop.
 
-- [ ] **Step 5: Count targeted groups**
+- [x] **Step 5: Count targeted groups**
 
 Run:
 
@@ -901,7 +901,7 @@ Expected:
 - `Expected union value` is lower than `6574` or has shifted to more specific remaining causes.
 - After regenerating YAML from XML, `ЗапретитьИспользование: {}` should be absent from generated forms.
 
-- [ ] **Step 6: Commit verification note only if files changed**
+- [x] **Step 6: Commit verification note only if files changed**
 
 If no files changed, do not commit. If test snapshots or docs were intentionally updated, inspect the exact paths and commit only those files:
 
@@ -916,3 +916,12 @@ git commit -m "test: :white_check_mark: обновить проверки valida
 - Spec coverage: Task 1 covers empty `UserVisible`; Task 2 covers `ПроизвольныйЗапрос: Ложь` and removal of `.query` coupling; Task 3 covers `yamlAsArray` and manual DCS schemas; Task 4 covers focused tests, full tests, and validation recount.
 - Placeholder scan: служебных заглушек и отложенных шагов нет.
 - Type consistency: all planned hooks use existing `registerTypeRule`, `registerMetadataItemCollectionRule`, `exportPropertyToJSONSchema`, `exportMetadataItemToJSONSchema`, and TypeBox `TypeCompiler` patterns already present in the repository.
+
+## Verification Results
+
+- `pnpm --filter @nakidka/core exec vitest run metadata/validation metadata/forms/commonObjects/dynamicList metadata/commonObjects/userVisible metadata/commonObjects/dataCompositionSystem`: 673 passed, 4 skipped.
+- `pnpm --filter @nakidka/core exec vitest run metadata`: 4390 passed, 5 skipped. In sandbox the same command failed only on `spawnSync node EPERM`, then passed outside sandbox.
+- `pnpm test`: graph 89 passed, core 4426 passed / 5 skipped, cli 81 passed.
+- `/home/nikita/git/temp-yaml` regenerated from `/home/nikita/git/round-trip/erp`: 25372 succeeded, 0 failed.
+- Validation after regeneration: `summary: 23479 error, 36173 warning`.
+- Targeted groups after regeneration: `Expected object` 24, `Expected 'Истина'` 0, `Expected union value` 4353, `ЗапретитьИспользование: {}` 0.
