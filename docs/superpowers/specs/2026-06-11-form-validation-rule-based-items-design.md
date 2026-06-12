@@ -151,3 +151,52 @@ exportMetadataItemToJSONSchema({ context, rule: itemRule })
 - наличие `queryText` / внешнего `.query` не приводит к появлению `ПроизвольныйЗапрос: Ложь`;
 - импорт YAML не вычисляет `customQuery` из наличия `.query`-файла;
 - validation schema не принимает `ПроизвольныйЗапрос: Ложь` и принимает `ПроизвольныйЗапрос: Истина`.
+
+## Дополнение: DCS-Массивы В JSON Schema
+
+Ещё один крупный пласт validation — `2799 Expected object`. Основные строки ошибок:
+
+- `972` на `- Вид`;
+- `725` на `- Поля`;
+- `621` на `- Поле`;
+- `191` на `- ЛевоеЗначение`;
+- `129` на `- Использование`.
+
+Пример корректного YAML:
+
+```yaml
+ДинамическийСписок:
+  Поля:
+    - Вид: ПолеНабораДанныхСхемыКомпоновкиДанных
+      ПутьКДанным: НомерВходящегоДокумента
+      Поле: НомерВходящегоДокумента
+```
+
+Здесь YAML использует массив DCS-элементов, но JSON Schema ждёт объект. Причина в общем `registerMetadataItemCollectionRule`: импорт и экспорт учитывают `yamlAsArray: true`, а `toJSONSchemaDefault` всегда возвращает `Type.Record(Type.String(), itemSchema)`. Из-за этого коллекции вроде `DataSetFieldFields`, `CalculatedFields`, `ConditionalAppearanceItems`, `FilterItem`, `OrderItemFields` в validation выглядят как объектные словари, хотя их YAML-форма — массив.
+
+### Решение
+
+Исправить schema export на двух уровнях:
+
+- в `registerMetadataItemCollectionRule` возвращать `Type.Array(itemSchema)`, если коллекция зарегистрирована с `yamlAsArray: true`;
+- сохранить `Type.Record(Type.String(), itemSchema)` для коллекций без `yamlAsArray`;
+- добавить отдельные `exportToJSONSchema` для ручных DCS-коллекций, где item schema не равна простому `itemRule`.
+
+Ручные DCS-коллекции:
+
+- `FilterItem`: массив union из `FilterItemComparison` и `FilterItemGroup`, включая рекурсивные вложенные `Элементы`;
+- `OrderItemFields`: массив union из `OrderItemField` и literal `"[Авто]"`;
+- `AvailableFields`: массив union из строки и объекта `{ Поле, Использование?, Заголовок?, МногоязычныйЗаголовок?, РежимОтображения? }`.
+
+Это решение не ослабляет validation до `unknown[]`. YAML-массивы здесь являются правильной публичной формой, поэтому schema должна описывать их точно.
+
+### Проверка
+
+Добавить focused-тесты:
+
+- schema для `DataSetFieldFields` принимает массив элементов с `Вид`, `ПутьКДанным`, `Поле`;
+- schema для `FilterItem` принимает массив сравнений и групп с вложенными `Элементы`;
+- schema для `OrderItemFields` принимает `[{ Поле: "Дата" }]` и `["[Авто]"]`;
+- schema для `AvailableFields` принимает `["Документ", { Поле: "Документ", Использование: "Ложь" }]`;
+- schema для record-коллекций без `yamlAsArray` продолжает ждать объект;
+- полный validation на `/home/nikita/git/temp-yaml` снижает группу `Expected object`, не превращая её в `Unexpected property`.
