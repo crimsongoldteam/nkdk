@@ -219,6 +219,8 @@ import "./metadataPath/fromYAML"
 import "./metadataPath/toJSONSchema"
 import "./metadataPath/toYAML"
 
+import "./dataCompositionSystem/structureItemGroup/toJSONSchema"
+
 import "./metadataRef/fromXML"
 import "./metadataRef/fromYAML"
 import "./metadataRef/graphFromModel"

@@ -23,6 +23,12 @@ describe("YAML type JSON Schema registrations", () => {
     ).toBe(true)
   })
 
+  it("accepts rule-backed DCS grouping YAML", () => {
+    expect(schemaFor("GroupItemAuto").Check({ Использование: "Истина" })).toBe(true)
+    expect(schemaFor("GroupItemField").Check({ Поле: "Номенклатура", ТипГруппировки: "Элементы" })).toBe(true)
+    expect(schemaFor("StructureItemGroup").Check({ ПоляГруппировки: [{ Поле: "Номенклатура" }] })).toBe(true)
+  })
+
   it("rejects invalid simple hand-written YAML types", () => {
     expect(schemaFor("AssociatedTable").Check(["Товары"])).toBe(false)
     expect(schemaFor("AssociatedTable").Check({ Таблица: "Товары" })).toBe(false)
