@@ -241,22 +241,24 @@ git add packages/core/metadata/commonObjects/metadataValue/associatedTableToJSON
 git commit -m "fix: :bug: добавить schema простых YAML типов"
 ```
 
-## Task 3: Rule-Backed DCS Grouping Schemas
+## Task 3: Compact DCS Grouping Schemas
 
 **Files:**
 - Create: `packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/toJSONSchema.ts`
 - Modify: `packages/core/metadata/commonObjects/index.ts`
 - Modify: `packages/core/metadata/validation/yamlTypeSchemaRegistration.test.ts`
 
-- [ ] **Step 1: Add failing tests for rule-backed DCS group types**
+- [ ] **Step 1: Add failing tests for compact DCS group types**
 
 Extend `packages/core/metadata/validation/yamlTypeSchemaRegistration.test.ts`:
 
 ```ts
-it("accepts rule-backed DCS grouping YAML", () => {
-  expect(schemaFor("GroupItemAuto").Check({ Использование: "Истина" })).toBe(true)
+it("accepts compact DCS grouping YAML", () => {
+  expect(schemaFor("GroupItemAuto").Check("[Авто]")).toBe(true)
+  expect(schemaFor("GroupItemAuto").Check("([Авто])")).toBe(true)
+  expect(schemaFor("GroupItemField").Check("Номенклатура")).toBe(true)
   expect(schemaFor("GroupItemField").Check({ Поле: "Номенклатура", ТипГруппировки: "Элементы" })).toBe(true)
-  expect(schemaFor("StructureItemGroup").Check({ ПоляГруппировки: [{ Поле: "Номенклатура" }] })).toBe(true)
+  expect(schemaFor("StructureItemGroup").Check(["Наименование", "[Авто]", { Поле: "ПометкаУдаления" }])).toBe(true)
 })
 ```
 
@@ -270,29 +272,71 @@ pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/ya
 
 Expected before implementation: FAIL for missing exporters.
 
-- [ ] **Step 3: Implement rule-backed exporters**
+- [ ] **Step 3: Implement compact exporters**
 
 Create `packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/toJSONSchema.ts`:
 
 ```ts
 import { Type } from "@sinclair/typebox"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import { GroupItemAutoRules } from "./items/groupItemAuto/rules"
+import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
 import { GroupItemFieldRules } from "./items/groupItemField/rules"
-import { StructureItemGroupRules } from "./rules"
 
-export const exportGroupItemAutoToJSONSchema: ExportToJSONSchemaFn = ({ context }) =>
-  exportMetadataItemToJSONSchema({ context, rule: GroupItemAutoRules })
+export const exportGroupItemAutoToJSONSchema: ExportToJSONSchemaFn = () =>
+  Type.Union([Type.Literal("[Авто]"), Type.Literal("([Авто])")])
+
+const GroupItemFieldShortJSONSchema = Type.String({ pattern: "^(?!\\(\\)$).+$" })
 
 export const exportGroupItemFieldToJSONSchema: ExportToJSONSchemaFn = ({ context }) =>
-  exportMetadataItemToJSONSchema({ context, rule: GroupItemFieldRules })
-
-export const exportStructureItemGroupToJSONSchema: ExportToJSONSchemaFn = ({ context }) =>
-  exportMetadataItemToJSONSchema({ context, rule: StructureItemGroupRules })
+  Type.Union([
+    GroupItemFieldShortJSONSchema,
+    Type.Object(
+      {
+        Поле: Type.String({ minLength: 1 }),
+        Использование: Type.Optional(Type.Literal("Ложь")),
+        ТипГруппировки: Type.Optional(
+          exportPropertyToJSONSchema({
+            context,
+            rule: GroupItemFieldRules.properties.groupType,
+            value: undefined,
+          }) ?? Type.Never()
+        ),
+        ТипДополнения: Type.Optional(
+          exportPropertyToJSONSchema({
+            context,
+            rule: GroupItemFieldRules.properties.periodAdditionType,
+            value: undefined,
+          }) ?? Type.Never()
+        ),
+        НачалоПериода: Type.Optional(
+          exportPropertyToJSONSchema({
+            context,
+            rule: GroupItemFieldRules.properties.periodAdditionBegin,
+            value: undefined,
+          }) ?? Type.Never()
+        ),
+        КонецПериода: Type.Optional(
+          exportPropertyToJSONSchema({
+            context,
+            rule: GroupItemFieldRules.properties.periodAdditionEnd,
+            value: undefined,
+          }) ?? Type.Never()
+        ),
+      },
+      { additionalProperties: false }
+    ),
+  ])
 
 export const exportStructureItemGroupCollectionToJSONSchema: ExportToJSONSchemaFn = ({ context }) =>
-  Type.Array(exportStructureItemGroupToJSONSchema({ context, rule: { type: "StructureItemGroup" } as never, value: undefined }))
+  Type.Array(
+    Type.Union([
+      exportGroupItemAutoToJSONSchema({ context, rule: { type: "GroupItemAuto" } as never, value: undefined }),
+      exportGroupItemFieldToJSONSchema({ context, rule: { type: "GroupItemField" } as never, value: undefined }),
+    ]),
+    { minItems: 1 }
+  )
+
+export const exportStructureItemGroupToJSONSchema: ExportToJSONSchemaFn = exportStructureItemGroupCollectionToJSONSchema
 
 registerTypeRule("GroupItemAuto", "exportToJSONSchema", exportGroupItemAutoToJSONSchema)
 registerTypeRule("GroupItemField", "exportToJSONSchema", exportGroupItemFieldToJSONSchema)

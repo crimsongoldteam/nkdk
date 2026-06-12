@@ -24,9 +24,16 @@ describe("YAML type JSON Schema registrations", () => {
   })
 
   it("accepts rule-backed DCS grouping YAML", () => {
-    expect(schemaFor("GroupItemAuto").Check({ Использование: "Истина" })).toBe(true)
+    expect(schemaFor("GroupItemAuto").Check("[Авто]")).toBe(true)
+    expect(schemaFor("GroupItemAuto").Check("([Авто])")).toBe(true)
+    expect(schemaFor("GroupItemField").Check("Номенклатура")).toBe(true)
+    expect(schemaFor("GroupItemField").Check("(Номенклатура)")).toBe(true)
     expect(schemaFor("GroupItemField").Check({ Поле: "Номенклатура", ТипГруппировки: "Элементы" })).toBe(true)
-    expect(schemaFor("StructureItemGroup").Check({ ПоляГруппировки: [{ Поле: "Номенклатура" }] })).toBe(true)
+    expect(schemaFor("GroupItemField").Check({ Поле: "Номенклатура", НачалоПериода: "01.01.2026 12:30" })).toBe(true)
+    expect(schemaFor("StructureItemGroupCollection").Check(["Наименование", "[Авто]", { Поле: "ПометкаУдаления" }])).toBe(
+      true
+    )
+    expect(schemaFor("StructureItemGroup").Check(["Наименование", "[Авто]", { Поле: "ПометкаУдаления" }])).toBe(true)
   })
 
   it("rejects invalid simple hand-written YAML types", () => {
@@ -53,5 +60,17 @@ describe("YAML type JSON Schema registrations", () => {
         },
       ])
     ).toBe(false)
+  })
+
+  it("rejects invalid DCS grouping YAML", () => {
+    expect(schemaFor("GroupItemAuto").Check({ Использование: "Истина" })).toBe(false)
+    expect(schemaFor("GroupItemField").Check("")).toBe(false)
+    expect(schemaFor("GroupItemField").Check("()")).toBe(false)
+    expect(schemaFor("GroupItemField").Check({ Поле: "" })).toBe(false)
+    expect(schemaFor("GroupItemField").Check({ ТипГруппировки: "Элементы" })).toBe(false)
+    expect(schemaFor("GroupItemField").Check({ Поле: "Номенклатура", НачалоПериода: "abc" })).toBe(false)
+    expect(schemaFor("StructureItemGroup").Check([])).toBe(false)
+    expect(schemaFor("StructureItemGroup").Check({ ПоляГруппировки: [{ Поле: "Номенклатура" }] })).toBe(false)
+    expect(schemaFor("StructureItemGroupCollection").Check(["Наименование", 1])).toBe(false)
   })
 })
