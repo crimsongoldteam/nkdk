@@ -627,7 +627,7 @@ git commit -m "test: :white_check_mark: покрыть schema оформлени
 **Files:**
 - No source files expected.
 
-- [ ] **Step 1: Run focused test group**
+- [x] **Step 1: Run focused test group**
 
 Run:
 
@@ -637,7 +637,7 @@ pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/color/toJSONS
 
 Expected: all listed tests pass.
 
-- [ ] **Step 2: Run project validation on ERP YAML**
+- [x] **Step 2: Run project validation on ERP YAML**
 
 Run from repository root:
 
@@ -647,7 +647,7 @@ pnpm --filter @nakidka/cli exec tsx src/cli.ts validate /home/nikita/git/temp-ya
 
 Expected: command can exit with code `1` while other validation errors remain. In the output, the `Оформление / SettingsParameterValue schema` subgroup is gone or materially reduced. Remaining errors should be from other documented groups: `Команды`, `ДополнительныеКолонки`, `Значение` реквизита формы, or smaller dynamic-list tails.
 
-- [ ] **Step 3: Run package tests**
+- [x] **Step 3: Run package tests**
 
 Run:
 
@@ -657,7 +657,7 @@ pnpm --filter @nakidka/core test
 
 Expected: package tests pass.
 
-- [ ] **Step 4: Run full project tests before closing**
+- [x] **Step 4: Run full project tests before closing**
 
 Run from repository root:
 
@@ -667,7 +667,7 @@ pnpm test
 
 Expected: full project test suite passes.
 
-- [ ] **Step 5: Commit validation notes only if files changed**
+- [x] **Step 5: Commit validation notes only if files changed**
 
 If implementation changed no files after Task 4, do not create a commit. If a validation report or plan checkbox update was intentionally saved, commit only those files:
 
@@ -675,6 +675,12 @@ If implementation changed no files after Task 4, do not create a commit. If a va
 git add docs/superpowers/plans/2026-06-12-settings-parameter-value-json-schema.md
 git commit -m "docs: :memo: отметить проверку schema SettingsParameterValue"
 ```
+
+**Actual results:**
+- Focused schema tests: 5 files, 58 tests passed.
+- `validate /home/nikita/git/temp-yaml`: expected exit code `1`, summary `17911 error, 36173 warning`; `SettingsParameterValue` no longer appears in diagnostics.
+- `pnpm --filter @nakidka/core test`: passed outside sandbox, 697 files passed, 4466 tests passed, 5 skipped.
+- `pnpm test`: passed outside sandbox; graph 89 tests, core 4466 tests, cli 81 tests.
 
 ## Self-Review Checklist
 
