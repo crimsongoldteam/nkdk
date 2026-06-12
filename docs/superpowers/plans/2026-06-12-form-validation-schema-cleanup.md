@@ -4,7 +4,8 @@
 
 **Goal:** Убрать три подтверждённых источника шума validation YAML-форм: пустые `ЗапретитьИспользование: {}`, `ПроизвольныйЗапрос: Ложь`, и DCS-массивы, которые JSON Schema ошибочно ждёт как объекты.
 
-**Architecture:** Уже реализованный слой rule-based `exportToJSONSchema` не трогаем. Исправления остаются в существующих границах: YAML-экспорт `UserVisible`, общий фильтр `defaultValueYAML` в orchestration, и schema export коллекций/ручных DCS-массивов. Validation остаётся строгой: не добавляем `unknown`, не принимаем мусорный YAML, не меняем XML-фикстуры.
+**Architecture:** Уже реализованный слой rule-based `exportToJSONSchema` не трогаем. Исправления остаются в существующих границах: YAML-экспорт `UserVisible`, общий фильтр `defaultValueYAML` в orchestration, и schema export коллекций/ручных DCS-массивов. Validation остаётся строгой: не добавляем `unknown`, не принимаем мусорный YAML, не меняем XML-фикстуры. `defaultValueYAML` работает только на стороне YAML-export/schema и не подставляется при `YAML -> модель`: отсутствующий YAML-ключ должен оставаться отсутствующим свойством модели.
+Если правило использовало общий `defaultValue` только ради восстановления XML-default, это значение нужно перенести на `defaultValueXML`, чтобы сокращённый YAML не достраивал модель.
 
 **Tech Stack:** TypeScript, Vitest, TypeBox `TypeCompiler`, metadata orchestration registries, pnpm.
 
@@ -18,6 +19,18 @@
   - Проверяет новый контракт для обычного и deprecated экспортёров.
 - Modify: `packages/core/metadata/orchestration/property/toYAML.ts`
   - Отсекает `defaultValueYAML` до преобразования значения в YAML или сравнивает с YAML-представлением default.
+- Modify: `packages/core/metadata/orchestration/property/fromYAML.ts`
+  - Не подставляет `defaultValueYAML` при импорте отсутствующего YAML-ключа.
+- Modify: `packages/core/metadata/orchestration/property/types.ts`
+  - Не содержит отдельного флага восстановления `defaultValueYAML` при YAML-import.
+- Modify: `packages/core/metadata/orchestration/property/fromYAML.test.ts`
+  - Фиксирует, что `defaultValueYAML` не создаёт модельное значение при YAML-import.
+- Modify: `packages/core/metadata/forms/clientApplicationForm/rules.ts`
+  - Убирает восстановление report-form `Auto` default из отсутствующих YAML-ключей.
+- Modify: `packages/core/metadata/forms/clientApplicationForm/fromYAML.test.ts`
+  - Проверяет, что отсутствующие report-form `Auto` ключи не создают поля модели.
+- Modify: `packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/rules.ts`
+  - Хранит XML-default `QuickAccess` как `defaultValueXML`, а не как модельный `defaultValue`.
 - Modify: `packages/core/metadata/forms/commonObjects/dynamicList/toYAML.test.ts`
   - Фиксирует, что `customQuery: false` не даёт `ПроизвольныйЗапрос: Ложь`, даже при `queryText`.
 - Modify: `packages/core/metadata/forms/commonObjects/dynamicList/fromYAML.test.ts`
@@ -46,6 +59,10 @@
   - Проверяет поле и literal `"[Авто]"`.
 - Modify: `packages/core/metadata/validation/schemaRegistry.test.ts`
   - Интеграционно проверяет inline `ClientApplicationForm` для DynamicList с DCS-массивами и запретом `ПроизвольныйЗапрос: Ложь`.
+- Modify: `packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/fromYAML.test.ts`
+  - Ожидает отсутствие `viewMode`, если `РежимОтображения` не задан в YAML.
+- Modify: `packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/fromYAML.test.ts`
+  - Ожидает отсутствие `comparisonType`, если `ВидСравнения` не задан в YAML.
 
 ## Task 1: Empty UserVisible YAML
 

@@ -334,7 +334,7 @@ describe("importClientApplicationFormFromYAML", () => {
     )
   })
 
-  it("applies report form Auto defaults when importing YAML", () => {
+  it("does not apply report form Auto defaults when importing YAML", () => {
     expect(reportFormClientApplicationFormYAML).not.toHaveProperty("АвтоОтображениеСостояния")
     expect(reportFormClientApplicationFormYAML).not.toHaveProperty("РежимОтображенияРезультатаОтчета")
     expect(reportFormClientApplicationFormYAML).not.toHaveProperty(
@@ -354,6 +354,6 @@ describe("importClientApplicationFormFromYAML", () => {
       baseFormWithoutAutoDefaults
     )
 
-    expect(result).toEqual(reportFormClientApplicationForm)
+    expect(result).toEqual(baseFormWithoutAutoDefaults)
   })
 })
