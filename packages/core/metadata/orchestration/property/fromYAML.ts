@@ -23,14 +23,12 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
   assertMetadataItemYAMLObject({ itemType: metadataType, yaml })
 
   // Предварительный проход: читаем внешние файлы для свойств с опцией externalFile
-  const externalFileValues: Record<string, string | undefined> = {}
   const formDir = context.importFromYAML?.formDir
   const parentName = context.importFromYAML?.parent?.name
   if (formDir !== undefined && parentName !== undefined) {
     for (const [key, propertyRule] of Object.entries(metadataRule.properties)) {
       if (!("externalFile" in propertyRule) || !propertyRule.externalFile) continue
       const content = readExternalFile(propertyRule.externalFile, parentName, formDir)
-      externalFileValues[key] = content
       if (content !== undefined) {
         result[key as keyof ToMetadata<Rule["itemType"]>] = content as any
       }
@@ -45,22 +43,6 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
 
     // Свойства с externalFile уже обработаны в предварительном проходе
     if ("externalFile" in curRule && curRule.externalFile) continue
-
-    // Свойства с derivedFrom: вычисляем значение из наличия внешнего файла, если YAML не задал значение явно
-    if ("derivedFrom" in curRule && (curRule as any).derivedFrom?.externalFile) {
-      const yamlKey = curRule.yaml as keyof ToYAML<Rule["itemType"]>
-      const hasExplicitYAMLValue =
-        yaml !== undefined && yamlKey !== undefined && Object.prototype.hasOwnProperty.call(yaml, yamlKey)
-
-      if (!hasExplicitYAMLValue) {
-        const referencedKey = (curRule as any).derivedFrom.externalFile as string
-        if (referencedKey in externalFileValues) {
-          result[key] = (externalFileValues[referencedKey] !== undefined) as any
-          continue
-        }
-      }
-      // Если externalFileValues не заполнен или YAML содержит явное значение — fallthrough к обычной обработке
-    }
 
     const yamlKey = curRule.yaml as keyof ToYAML<Rule["itemType"]>
     // if (yamlKey === undefined) continue

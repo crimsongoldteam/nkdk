@@ -181,6 +181,29 @@ describe("JSON Schema registry", () => {
     expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
   })
 
+  it("rejects ManualQuery false in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Реквизиты: {
+        Список: {
+          Тип: "ДинамическийСписок",
+          ОсновнойРеквизит: "Истина",
+          ДинамическийСписок: {
+            ПроизвольныйЗапрос: "Ложь",
+            ДинамическоеСчитываниеДанных: "Истина",
+            ОсновнаяТаблица: "Catalog.РеестрПартийЗЕРНО",
+          },
+        },
+      },
+    }
+
+    expect(compiled.Check(value)).toBe(false)
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toContain(
+      "/Реквизиты/Список/ДинамическийСписок/ПроизвольныйЗапрос: Expected 'Истина'"
+    )
+  })
+
   it("restores property refs after generic ref registry is cleared", () => {
     clearJSONSchemaRefRegistries()
     const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup" })

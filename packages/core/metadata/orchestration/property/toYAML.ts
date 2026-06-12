@@ -77,6 +77,8 @@ export const exportPropertyToYAML = (params: {
     return undefined
   }
 
+  if ("defaultValueYAML" in rule && value === (rule as any).defaultValueYAML) return undefined
+
   const typeExportFn = getTypeRule(rule.type, "exportToYAML")
 
   if (!typeExportFn) return getExportToYAMLResult(rule, yamlKey, value)
