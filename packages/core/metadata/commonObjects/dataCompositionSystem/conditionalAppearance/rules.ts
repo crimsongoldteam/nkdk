@@ -14,6 +14,7 @@ export const ConditionalAppearanceRules = {
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
       defaultValueYAML: "Normal",
+      applyModelDefaultValueYAMLOnImport: true,
       defaultValue: "QuickAccess",
     },
     userSettingID: {

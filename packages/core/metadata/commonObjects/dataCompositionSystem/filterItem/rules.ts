@@ -22,6 +22,9 @@ export const FilterItemComparisonRules = {
       xml: "dcsset:comparisonType",
       yaml: "ВидСравнения",
       defaultValueYAML: "Equal",
+      applyModelDefaultValueYAMLOnImport: {
+        whenAnyYAMLKeyPresent: ["ЛевоеЗначение", "ПравоеЗначение"],
+      },
       order: 3,
     },
     rightValue: {
