@@ -1,6 +1,8 @@
 import { ValueError, ValueErrorType } from "@sinclair/typebox/compiler"
 import { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import { expandDiscriminatedUnionErrors } from "./discriminatedUnionErrors"
 import { Diagnostic } from "./types"
+import { diagnosticAtYamlPath } from "./yamlLocations"
 
 function parseJsonPointer(pointer: string): (string | number)[] {
   if (!pointer || pointer === "/") return []
@@ -13,6 +15,10 @@ function parseJsonPointer(pointer: string): (string | number)[] {
     })
 }
 
+function isDiagnosticAtKey(error: ValueError): boolean {
+  return error.schema.diagnosticLocation === "key"
+}
+
 export function typeboxErrorsToDiagnostics(
   errors: ValueError[],
   parsed: ParsedYaml,
@@ -20,9 +26,23 @@ export function typeboxErrorsToDiagnostics(
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = []
 
-  for (const error of errors) {
+  for (const error of expandDiscriminatedUnionErrors(errors)) {
     const pointer = error.path
     const keys = parseJsonPointer(pointer)
+
+    if (isDiagnosticAtKey(error)) {
+      diagnostics.push(
+        diagnosticAtYamlPath({
+          filePath,
+          parsed,
+          path: keys,
+          message: error.message,
+          severity: "error",
+          source: "structure",
+        }),
+      )
+      continue
+    }
 
     // Для отсутствующего обязательного поля берём координаты родительского узла
     const isRequired = error.type === ValueErrorType.ObjectRequiredProperty

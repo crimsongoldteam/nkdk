@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox"
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { TypeCompiler, ValueErrorType } from "@sinclair/typebox/compiler"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { describe, expect, it } from "vitest"
 import { validateFile, validateParsedFile } from "./validateFile"
@@ -48,6 +48,23 @@ const requiredSchema = TypeCompiler.Compile(
       НеобязательноеПоле: Type.Optional(Type.String()),
     },
     { additionalProperties: false },
+  ),
+)
+
+const plainUnionSchema = TypeCompiler.Compile(
+  Type.Union([
+    Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
+    Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
+  ]),
+)
+
+const discriminatedUnionSchema = TypeCompiler.Compile(
+  Type.Union(
+    [
+      Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
+      Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
+    ],
+    { discriminantKey: "Вид" },
   ),
 )
 
@@ -148,6 +165,69 @@ describe("validateFile", () => {
     })
     // Координата должна быть в разумных пределах (строка 3 или около)
     expect(deepError!.line).toBeGreaterThanOrEqual(1)
+  })
+
+  it("раскрывает discriminantKey union по Вид и возвращает ошибку выбранной ветки", () => {
+    const text = `Вид: Второй\nЧисло: не-число\nЛишнее: значение\n`
+
+    const result = validateFile({ filePath: "test.yaml", text, schema: discriminatedUnionSchema })
+
+    expect(result.some((diagnostic) => diagnostic.message === "Expected union value")).toBe(false)
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filePath: "test.yaml",
+          line: 2,
+          col: 8,
+          path: "/Число",
+          source: "structure",
+          severity: "error",
+        }),
+        expect.objectContaining({
+          filePath: "test.yaml",
+          line: 3,
+          col: 1,
+          path: "/Лишнее",
+          source: "structure",
+          severity: "error",
+        }),
+      ]),
+    )
+  })
+
+  it("для неизвестного Вид возвращает targeted discriminator diagnostic", () => {
+    const text = `Вид: Третий\n`
+
+    const result = validateFile({ filePath: "test.yaml", text, schema: discriminatedUnionSchema })
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        filePath: "test.yaml",
+        line: 1,
+        col: 6,
+        path: "/Вид",
+        source: "structure",
+        severity: "error",
+        message: 'Неизвестное значение дискриминатора "Вид": "Третий". Ожидается одно из: Первый, Второй',
+      }),
+    ])
+  })
+
+  it("оставляет обычный union без discriminantKey как TypeBox Union error", () => {
+    const text = `Вид: Второй\nЧисло: не-число\n`
+
+    const result = validateFile({ filePath: "test.yaml", text, schema: plainUnionSchema })
+
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: "Expected union value",
+          source: "structure",
+          severity: "error",
+        }),
+      ]),
+    )
+    expect([...plainUnionSchema.Errors({ Вид: "Второй", Число: "не-число" })][0]?.type).toBe(ValueErrorType.Union)
   })
 })
 
