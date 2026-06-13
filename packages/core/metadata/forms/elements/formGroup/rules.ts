@@ -4,12 +4,12 @@ export const formGroupCommonProperties = {
   enableContentChange: {
     yaml: "РазрешитьИзменениеСостава",
     type: "boolean",
-    defaultValueYAML: true,
+    implicitValueYAML: true,
   },
   enabled: {
     yaml: "Доступность",
     type: "boolean",
-    defaultValueYAML: true,
+    implicitValueYAML: true,
   },
   extendedTooltip: {
     yaml: "РасширеннаяПодсказка",
@@ -25,7 +25,7 @@ export const formGroupCommonProperties = {
     xml: "GroupHorizontalAlign",
     type: "SystemEnumeration",
     typeSE: "ItemHorizontalLocation",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   horizontalStretch: {
     yaml: "РастягиватьПоГоризонтали",
@@ -38,7 +38,7 @@ export const formGroupCommonProperties = {
   readOnly: {
     yaml: "ТолькоПросмотр",
     type: "boolean",
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   shortcut: {
     yaml: "СочетаниеКлавиш",
@@ -65,7 +65,7 @@ export const formGroupCommonProperties = {
     yaml: "ОтображениеПодсказки",
     type: "SystemEnumeration",
     typeSE: "ToolTipRepresentation",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   userVisible: {
     yaml: "Использование",
@@ -77,12 +77,12 @@ export const formGroupCommonProperties = {
     xml: "GroupVerticalAlign",
     type: "SystemEnumeration",
     typeSE: "ItemVerticalAlign",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   verticalStretch: {
     yaml: "РастягиватьПоВертикали",
     type: "boolean",
-    defaultValueYAML: true,
+    implicitValueYAML: true,
   },
   visible: {
     yaml: "Видимость",

@@ -36,7 +36,7 @@ export const MetadataExternalDataSourceFunctionRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
     },
     type: {
       yaml: "Тип",

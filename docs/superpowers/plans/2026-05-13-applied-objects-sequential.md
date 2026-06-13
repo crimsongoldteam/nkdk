@@ -4,7 +4,7 @@
 
 **Goal:** Add `MetadataDataProcessor`, `MetadataDocumentJournal`, `MetadataHTTPService`, `MetadataInformationRegister`, `MetadataAccumulationRegister`, and `MetadataExchangePlan` with XML/YAML/sync coverage.
 
-**Architecture:** Implement the objects through declarative `rules.ts` and keep all new nested/external metadata structures under `packages/core/metadata/commonObjects`. Build shared low-level pieces first, then add applied objects one by one with standard fixture tests. External files are content, scalar platform defaults get `defaultValueXML` and `defaultValueYAML`, and `MetadataFields` does not get YAML defaults in this series.
+**Architecture:** Implement the objects through declarative `rules.ts` and keep all new nested/external metadata structures under `packages/core/metadata/commonObjects`. Build shared low-level pieces first, then add applied objects one by one with standard fixture tests. External files are content, scalar platform defaults get `defaultValueXML` and `implicitValueYAML`, and `MetadataFields` does not get YAML defaults in this series.
 
 **Tech Stack:** TypeScript, Vitest, Langium-generated files, existing metadata orchestration registries.
 
@@ -315,7 +315,7 @@ Expected: PASS.
 
 - [x] **Step 1: Add failing tests for `DocumentJournalColumn`**
 
-Use fixture data that covers `Name`, `Synonym`, `Comment`, `Type`, `References`, and `Indexing`. Assert that `indexing: "DontIndex"` is omitted from YAML because it has `defaultValueYAML: "DontIndex"`.
+Use fixture data that covers `Name`, `Synonym`, `Comment`, `Type`, `References`, and `Indexing`. Assert that `indexing: "DontIndex"` is omitted from YAML because it has `implicitValueYAML: "DontIndex"`.
 
 - [x] **Step 2: Add rules**
 
@@ -336,7 +336,7 @@ Create `MetadataDocumentJournalColumnRules` with properties:
     typeSE: "Indexing",
     xmlParents: ["Properties"],
     defaultValueXML: "DontIndex",
-    defaultValueYAML: "DontIndex",
+    implicitValueYAML: "DontIndex",
   },
   objectBelonging: {
     yaml: "ПринадлежностьОбъекта",
@@ -346,7 +346,7 @@ Create `MetadataDocumentJournalColumnRules` with properties:
     xmlParents: ["Properties"],
     toYAML: false,
     fromYAML: false,
-    defaultValueYAML: "Native",
+    implicitValueYAML: "Native",
   },
 }
 ```
@@ -405,7 +405,7 @@ and:
 }
 ```
 
-Expected: `HTTPMethod=GET` has `defaultValueXML: "GET"` but remains explicit in YAML because there is no `defaultValueYAML`.
+Expected: `HTTPMethod=GET` has `defaultValueXML: "GET"` but remains explicit in YAML because there is no `implicitValueYAML`.
 
 - [x] **Step 2: Implement `metadataHTTPServiceMethod`**
 
@@ -508,7 +508,7 @@ useInTotals: {
   type: "boolean",
   xmlParents: ["Properties"],
   defaultValueXML: true,
-  defaultValueYAML: true,
+  implicitValueYAML: true,
 }
 ```
 
@@ -695,7 +695,7 @@ Use properties and defaults from the spec, including:
 ```ts
 useStandardCommands: true / true
 includeHelpInContents: false / false
-objectBelonging: hidden, defaultValueYAML "Native"
+objectBelonging: hidden, implicitValueYAML "Native"
 tabularSections: type "MetadataDataProcessorTabularSections"
 help: type "Help", filePath "Ext/Help.xml", nkdkDir "Справка"
 objectModule: type "Module", filePath "Ext/ObjectModule.bsl"
@@ -771,7 +771,7 @@ export const MetadataDocumentJournalStandardAttributeNames: Record<string, strin
 
 - [x] **Step 3: Keep `RegisteredDocuments` explicit**
 
-Do not add `defaultValueYAML` for `RegisteredDocuments`. It is fixture content.
+Do not add `implicitValueYAML` for `RegisteredDocuments`. It is fixture content.
 
 - [x] **Step 4: Run focused tests**
 
@@ -805,8 +805,8 @@ itemTypePrefix: "HTTPСервис"
 xmlDir: "HTTPServices"
 urlTemplates: type "MetadataHTTPServiceURLTemplates"
 module: type "Module", filePath "Ext/Module.bsl"
-reuseSessions: defaultValueXML "AutoUse", defaultValueYAML "AutoUse"
-sessionMaxAge: defaultValueXML 20, defaultValueYAML 20
+reuseSessions: defaultValueXML "AutoUse", implicitValueYAML "AutoUse"
+sessionMaxAge: defaultValueXML 20, implicitValueYAML 20
 ```
 
 Preserve Cyrillic `С` in `HTTPСервис`.
@@ -844,7 +844,7 @@ xmlDir: "InformationRegisters"
 resources: type "MetadataRegisterResources"
 dimensions: type "MetadataRegisterDimensions"
 attributes: type "MetadataRegisterAttributes"
-writeMode: defaultValueXML "Independent", defaultValueYAML "Independent"
+writeMode: defaultValueXML "Independent", implicitValueYAML "Independent"
 ```
 
 Do not treat resource from `minimal.xml` or dimension from `reg.xml` as defaults.
@@ -879,8 +879,8 @@ Use:
 itemType: "MetadataAccumulationRegister"
 itemTypePrefix: "РегистрНакопления"
 xmlDir: "AccumulationRegisters"
-registerType: defaultValueXML "Balance", defaultValueYAML "Balance"
-enableTotalsSplitting: defaultValueXML true, defaultValueYAML true
+registerType: defaultValueXML "Balance", implicitValueYAML "Balance"
+enableTotalsSplitting: defaultValueXML true, implicitValueYAML true
 resources: type "MetadataRegisterResources"
 dimensions: type "MetadataRegisterDimensions"
 attributes: type "MetadataRegisterAttributes"
@@ -942,7 +942,7 @@ export const MetadataExchangePlanStandardAttributeNames: Record<string, string> 
 }
 ```
 
-Do not add `defaultValueYAML` for `InputByString`, `BasedOn`, `Characteristics`, or `DataLockFields`.
+Do not add `implicitValueYAML` for `InputByString`, `BasedOn`, `Characteristics`, or `DataLockFields`.
 
 - [x] **Step 3: Run focused tests**
 

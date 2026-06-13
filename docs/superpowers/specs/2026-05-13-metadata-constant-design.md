@@ -94,7 +94,7 @@ Use `type` as the short YAML value, following `MetadataAttribute`.
 
 ## Defaults
 
-For `boolean` and `SystemEnumeration` properties, set both `defaultValueXML` and `defaultValueYAML` from `minimal.xml`:
+For `boolean` and `SystemEnumeration` properties, set both `defaultValueXML` and `implicitValueYAML` from `minimal.xml`:
 
 | TS key | Default |
 |---|---|
@@ -114,13 +114,13 @@ For `boolean` and `SystemEnumeration` properties, set both `defaultValueXML` and
 
 For empty XML text nodes and local strings, use `defaultValueXMLRaw: ""` where `minimal.xml` emits an empty element, for example `Comment`, `DefaultForm`, `ExtendedPresentation`, `Explanation`, `Format`, `EditFormat`, `ToolTip`, `Mask`, and `ChoiceForm`.
 
-For `minValue` and `maxValue`, use `defaultValueXMLRaw: { "_xsi:nil": true }` and do not set `defaultValueYAML`. This is the documented exception because the XML default is `xsi:nil`, not a number.
+For `minValue` and `maxValue`, use `defaultValueXMLRaw: { "_xsi:nil": true }` and do not set `implicitValueYAML`. This is the documented exception because the XML default is `xsi:nil`, not a number.
 
 ## Properties Outside Fixtures
 
 `ConstantProperties` also declares fields that are not present in the current XML fixtures:
 
-- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, `xmlParents: ["Properties"]`, `defaultValueYAML: "Native"`, `toYAML: false`, `fromYAML: false`.
+- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, `xmlParents: ["Properties"]`, `implicitValueYAML: "Native"`, `toYAML: false`, `fromYAML: false`.
 - `extendedConfigurationObject`: `string`, `runtimeOnly: true`.
 
 This follows `MetadataSequence` and keeps extension-only data out of normal YAML.
@@ -158,7 +158,7 @@ This is the first object in a larger batch of about 30 applied metadata objects.
 
 - `sources-of-truth.md`: use the 1C help catalog instead of MCP `bsl-platform`.
 - `object-research.md`: require Deep Scan to capture `xmlDir`, `itemTypePrefix`, `InternalInfo`, `Properties`, `ChildObjects`, external files, registry delta, and tests.
-- `yaml-contract.md`: document that `defaultValueYAML` for `boolean`, `number`, and `SystemEnumeration` normally comes from `minimal.xml`, then XSD/XDTO `default`, then direct neighbors.
+- `yaml-contract.md`: document that `implicitValueYAML` for `boolean`, `number`, and `SystemEnumeration` normally comes from `minimal.xml`, then XSD/XDTO `default`, then direct neighbors.
 - `new-applied-object` skill local resources: point to `/Users/nikita/git/1c_res/hlp/1/FileStorage/objects` as a directory.
 
 A new `applied-object-implementation.md` knowledge document captures the reusable applied-object implementation reference. It maps common XML properties to existing rule types: `Synonym -> I8nText`, `Type -> TypeDescription`, `ChoiceParameterLinks`, `ChoiceParameters`, `LinkByType`, `MinValue/MaxValue`, `Module`, `ObjectBelonging`, and `ExtendedConfigurationObject`.
@@ -169,10 +169,10 @@ A new `applied-object-implementation.md` knowledge document captures the reusabl
 - Do not introduce child objects for constants.
 - Do include both manager modules through `Module`.
 - Use existing infrastructure only; do not refactor shared orchestration in this task.
-- Use `minimal.xml` as the source for `defaultValueYAML` values.
+- Use `minimal.xml` as the source for `implicitValueYAML` values.
 
 ## Risks
 
 - `LinkByType`, `ChoiceParameterLinks`, and `ChoiceParameters` already exist but are less frequently used at the top-level applied-object property level. Tests must cover full XML and sync XML.
-- `MinValue` and `MaxValue` need the explicit `xsi:nil` default. Treat them as the documented exception to the `defaultValueYAML` rule.
+- `MinValue` and `MaxValue` need the explicit `xsi:nil` default. Treat them as the documented exception to the `implicitValueYAML` rule.
 - External module sync should be verified in both directions because `ValueManagerModule` is new for this object even though `Module` itself already exists.

@@ -100,7 +100,7 @@ const dimensionTableProperties = {
     type: "number",
     xmlParents: properties,
     defaultValueXML: 0,
-    defaultValueYAML: 0,
+    implicitValueYAML: 0,
   },
   hierarchical: {
     yaml: "Иерархический",
@@ -108,7 +108,7 @@ const dimensionTableProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   unfilledParentValue: {
     yaml: "НезаполненноеЗначениеРодителя",
@@ -123,7 +123,7 @@ const dimensionTableProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   quickChoice: {
     yaml: "БыстрыйВыбор",
@@ -131,7 +131,7 @@ const dimensionTableProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   defaultObjectForm: {
     yaml: "ОсновнаяФормаОбъекта",
@@ -198,7 +198,7 @@ const dimensionTableProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   fields: {
     yaml: "Поля",

@@ -46,7 +46,7 @@ export const MetadataCommonTemplateRules = {
       typeSE: "TemplateType",
       xmlParents: properties,
       defaultValueXML: "SpreadsheetDocument",
-      defaultValueYAML: "SpreadsheetDocument",
+      implicitValueYAML: "SpreadsheetDocument",
     },
     template: {
       type: "Template",
@@ -63,7 +63,7 @@ export const MetadataCommonTemplateRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       xml: "ExtendedConfigurationObject",

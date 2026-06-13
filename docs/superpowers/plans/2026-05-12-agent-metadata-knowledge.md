@@ -204,7 +204,7 @@ XML-цикл всегда идёт раньше YAML-цикла.
 
 - добавлять YAML-фикстуры;
 - добавлять `fromYAML.test.ts` и `toYAML.test.ts`;
-- добавлять YAML-поведенческие аннотации в `rules.ts`: `defaultValueYAML`, `toYAML: false`, `fromYAML: false`, `excludeIfEqualNameYAML`, `useAsShortValueYAML`.
+- добавлять YAML-поведенческие аннотации в `rules.ts`: `implicitValueYAML`, `toYAML: false`, `fromYAML: false`, `excludeIfEqualNameYAML`, `useAsShortValueYAML`.
 
 Разрешено сразу:
 
@@ -263,7 +263,7 @@ Create `.agents/knowledge/metadata/yaml-contract.md` with:
 
 - `defaultValueXML` применяется для явно присутствующего XML-дефолта.
 - `defaultValueXMLRaw` применяется для пустых XML-тегов вроде `<Synonym/>`, `<Comment/>`, `<ToolTip/>`.
-- `defaultValueYAML` применяется только после XML-барьера.
+- `implicitValueYAML` применяется только после XML-барьера.
 - `defaultValue` применяй только для значения, которое должно жить в модели всегда.
 
 ## Исключения

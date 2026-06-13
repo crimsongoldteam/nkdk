@@ -108,7 +108,7 @@ In `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       toXML: hasOwnMetadataProperty("denyIncompleteValues"),
     },
     baseDimension: {
@@ -117,7 +117,7 @@ In `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       toXML: hasOwnMetadataProperty("baseDimension"),
     },
     useInTotals: {
@@ -126,7 +126,7 @@ In `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       toXML: hasOwnMetadataProperty("useInTotals"),
     },
     master: {
@@ -135,7 +135,7 @@ In `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       toXML: hasOwnMetadataProperty("master"),
     },
     mainFilter: {
@@ -144,7 +144,7 @@ In `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       toXML: hasOwnMetadataProperty("mainFilter"),
     },
     balance: {
@@ -153,7 +153,7 @@ In `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       toXML: hasOwnMetadataProperty("balance"),
     },
     typeReductionMode: {
@@ -163,7 +163,7 @@ In `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension
       typeSE: "TypeReductionMode",
       xmlParents: propertiesParents,
       defaultValueXML: "TransformValues",
-      defaultValueYAML: "TransformValues",
+      implicitValueYAML: "TransformValues",
       toXML: hasOwnMetadataProperty("typeReductionMode"),
     },
     indexing: {
@@ -173,7 +173,7 @@ In `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension
       typeSE: "Indexing",
       xmlParents: propertiesParents,
       defaultValueXML: "DontIndex",
-      defaultValueYAML: "DontIndex",
+      implicitValueYAML: "DontIndex",
       toXML: hasOwnMetadataProperty("indexing"),
     },
     fullTextSearch: {
@@ -183,7 +183,7 @@ In `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension
       typeSE: "UseFullTextSearch",
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
-      defaultValueYAML: "Use",
+      implicitValueYAML: "Use",
       toXML: hasOwnMetadataProperty("fullTextSearch"),
     },
     dataHistory: {
@@ -193,7 +193,7 @@ In `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension
       typeSE: "DataHistoryUse",
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
-      defaultValueYAML: "Use",
+      implicitValueYAML: "Use",
       toXML: hasOwnMetadataProperty("dataHistory"),
     },
 ```
@@ -304,7 +304,7 @@ In the same file, update these existing property rules:
       typeSE: "FoldersAndItemsUse",
       xmlParents: propertiesParents,
       defaultValueXML: "Items",
-      defaultValueYAML: "Items",
+      implicitValueYAML: "Items",
       toXML: hasOwnMetadataProperty("choiceFoldersAndItems"),
     },
     fullTextSearch: {
@@ -314,7 +314,7 @@ In the same file, update these existing property rules:
       typeSE: "UseFullTextSearch",
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
-      defaultValueYAML: "Use",
+      implicitValueYAML: "Use",
       toXML: hasOwnMetadataProperty("fullTextSearch"),
     },
     indexing: {
@@ -324,7 +324,7 @@ In the same file, update these existing property rules:
       typeSE: "Indexing",
       xmlParents: propertiesParents,
       defaultValueXML: "DontIndex",
-      defaultValueYAML: "DontIndex",
+      implicitValueYAML: "DontIndex",
       toXML: hasOwnMetadataProperty("indexing"),
     },
     dataHistory: {
@@ -334,7 +334,7 @@ In the same file, update these existing property rules:
       typeSE: "DataHistoryUse",
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
-      defaultValueYAML: "Use",
+      implicitValueYAML: "Use",
       toXML: hasOwnMetadataProperty("dataHistory"),
     },
     balance: {
@@ -343,7 +343,7 @@ In the same file, update these existing property rules:
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       toXML: hasOwnMetadataProperty("balance"),
     },
 ```

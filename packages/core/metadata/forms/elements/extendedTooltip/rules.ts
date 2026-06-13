@@ -46,7 +46,7 @@ export const ExtendedTooltipRules = {
       yaml: "Вид",
       type: "SystemEnumeration",
       typeSE: "FormDecorationType",
-      defaultValueYAML: "Label",
+      implicitValueYAML: "Label",
     },
     ...extendedTooltipCommonProperties,
     backColor: { yaml: "ЦветФона", type: "Color" },

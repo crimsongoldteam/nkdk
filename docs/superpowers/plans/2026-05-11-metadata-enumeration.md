@@ -4,7 +4,7 @@
 
 **Goal:** Довести `packages/core/metadata/appliedObjects/metadataEnumeration` до полноценного XML metadataItem для объекта 1С `Enum`, не начиная YAML-цикл до зелёного XML-цикла.
 
-**Architecture:** Перечисление строится по образцу `metadataCatalog`/`metadataDocument`: верхний `MetadataEnumerationRules` описывает `MetaDataObject > Enum`, дочерние значения оформляются отдельным `MetadataEnumerationValueRules` и коллекционным типом `MetadataEnumerationValues`, а команды/формы/макеты используют существующие коллекционные типы. YAML-имена фиксируются в `rules.ts` сразу, но YAML-поведенческие аннотации (`defaultValueYAML`, `toYAML: false`, `fromYAML: false`, `excludeIfEqualNameYAML`, `useAsShortValueYAML`) добавляются только после полного XML-цикла.
+**Architecture:** Перечисление строится по образцу `metadataCatalog`/`metadataDocument`: верхний `MetadataEnumerationRules` описывает `MetaDataObject > Enum`, дочерние значения оформляются отдельным `MetadataEnumerationValueRules` и коллекционным типом `MetadataEnumerationValues`, а команды/формы/макеты используют существующие коллекционные типы. YAML-имена фиксируются в `rules.ts` сразу, но YAML-поведенческие аннотации (`implicitValueYAML`, `toYAML: false`, `fromYAML: false`, `excludeIfEqualNameYAML`, `useAsShortValueYAML`) добавляются только после полного XML-цикла.
 
 **Tech Stack:** TypeScript, Vitest, `fast-xml-parser`, orchestration metadata rules, `pnpm --filter @nakidka/core exec vitest`.
 
@@ -31,7 +31,7 @@
 - Do not edit `/Users/nikita/git/roundTripElements/Enums/*.xml`; copy from them into repo fixtures.
 - Ignore `/Users/nikita/git/roundTripElements/Enums/Перечисление1.xml`.
 - Do not add `<fixtureName>YAML` exports during this plan.
-- Do not add `defaultValueYAML`, `toYAML: false`, `fromYAML: false`, `excludeIfEqualNameYAML`, or `useAsShortValueYAML` except where already present in untouched legacy code. YAML behavior is a later cycle.
+- Do not add `implicitValueYAML`, `toYAML: false`, `fromYAML: false`, `excludeIfEqualNameYAML`, or `useAsShortValueYAML` except where already present in untouched legacy code. YAML behavior is a later cycle.
 - Prefer `rules.ts`; do not write manual `fromXML`/`toXML`.
 - If XML round-trip diff belongs to `StandardAttributeDescriptions`, `CharacteristicsDescriptions`, `MetadataCommands`, `ChildFormNames`, or `ChildTemplateNames`, stop and report the fragment instead of changing those other objects.
 
@@ -941,4 +941,4 @@ If implementation rules intentionally omit a schema property, list it separately
 
 - [ ] **Step 4: Do not start YAML implementation**
 
-Stop after XML-cycle verification. The next phase is YAML barrier discussion: generate a YAML draft from TS fixtures and ask the user to confirm key names, nesting, omitted defaults, and `defaultValueYAML` before adding YAML behavior.
+Stop after XML-cycle verification. The next phase is YAML barrier discussion: generate a YAML draft from TS fixtures and ask the user to confirm key names, nesting, omitted defaults, and `implicitValueYAML` before adding YAML behavior.

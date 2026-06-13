@@ -48,7 +48,7 @@ export const MetadataSubsystemRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
     },
     includeInCommandInterface: {
       yaml: "ВключатьВКомандныйИнтерфейс",
@@ -56,7 +56,7 @@ export const MetadataSubsystemRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
     },
     useOneCommand: {
       yaml: "ИспользоватьОднуКоманду",
@@ -64,7 +64,7 @@ export const MetadataSubsystemRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     explanation: {
       yaml: "Пояснение",
@@ -101,7 +101,7 @@ export const MetadataSubsystemRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       xml: "ExtendedConfigurationObject",

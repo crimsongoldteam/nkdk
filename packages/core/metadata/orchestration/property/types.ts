@@ -81,14 +81,11 @@ export interface BasePropertyRule {
   /** Не экспортировать в корневой YAML */
   toPartialYAML?: false
 
-  /** Значение по умолчанию в YAML (будет исключено из выбора)*/
-  defaultValueYAML?: any | DefaultValueFunction
+  /** Значение, подразумеваемое отсутствием YAML-ключа; при выгрузке не пишется явно. */
+  implicitValueYAML?: any | DefaultValueFunction
 
-  /** Подготавливаемое неявное значение в YAML. */
-  implicitValueYAML?: any | DefaultValueFunction | undefined
-
-  /** Исключать YAML-default по модельному значению до преобразования типа. */
-  omitDefaultValueYAMLBySource?: true
+  /** Исключать неявное YAML-значение по модельному значению до преобразования типа. */
+  omitImplicitValueYAMLBySource?: true
 
   /** Название в XML, если не заполнено - будет использован ключ*/
   xml?: string

@@ -54,11 +54,11 @@ The implementation policy is common for all objects below:
 - XML container: `FunctionalOption`
 - `.res` properties: `Name`, `Synonym`, `Comment`, `ObjectBelonging`, `ExtendedConfigurationObject`, `Location`,
   `PrivilegedGetMode`, `Content`
-- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `defaultValueYAML: "Native"`
+- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: runtime-only `string`
 - `location`: use the property type already used by neighboring metadata where applicable
 - `privilegedGetMode`: `boolean`, YAML `ПривилегированныйРежимПриПолучении`, `defaultValueXML: true`,
-  `defaultValueYAML: true`
+  `implicitValueYAML: true`
 - `content`: existing `MetadataItemLinks`, YAML `СоставФункциональнойОпции`
 
 Implementation should use `rules.ts`. `Content` is the `.res` `FuncOptionContentType` with repeated `Object` /
@@ -76,7 +76,7 @@ Testing:
 - `itemTypePrefix`: `Роль`
 - XML container: `Role`
 - main object through `rules.ts`
-- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `defaultValueYAML: "Native"`
+- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: runtime-only `string`
 - external rights file is copied opaquely:
   - property: `rights`
@@ -102,12 +102,12 @@ Testing:
 - `methodName`: YAML `ИмяМетода`
 - `description`: YAML `Описание`
 - `key`: YAML `Ключ`
-- `use`: `boolean`, YAML `Использование`, `defaultValueXML: true`, `defaultValueYAML: true`
-- `predefined`: `boolean`, YAML `Предопределенное`, `defaultValueXML: false`, `defaultValueYAML: false`
+- `use`: `boolean`, YAML `Использование`, `defaultValueXML: true`, `implicitValueYAML: true`
+- `predefined`: `boolean`, YAML `Предопределенное`, `defaultValueXML: false`, `implicitValueYAML: false`
 - `restartCountOnFailure`: `number`, YAML `КоличествоПовторовПриАварийномЗавершении`,
-  `defaultValueXML: 3`, `defaultValueYAML: 3`
+  `defaultValueXML: 3`, `implicitValueYAML: 3`
 - `restartIntervalOnFailure`: `number`, YAML `ИнтервалПовтораПриАварийномЗавершении`,
-  `defaultValueXML: 10`, `defaultValueYAML: 10`
+  `defaultValueXML: 10`, `implicitValueYAML: 10`
 - `schedule`: opaque external file:
   - type: `Template`
   - `nkdkPath: "Schedule.xml"`
@@ -130,7 +130,7 @@ Testing:
 - XML container: `Language`
 - properties: `name`, `synonym`, `comment`, `languageCode`
 - `languageCode`: YAML `КодЯзыка`
-- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `defaultValueYAML: "Native"`
+- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: runtime-only `string`
 - no external files
 
@@ -153,7 +153,7 @@ Testing:
 - XML directory: `CommonTemplates`
 - XML container: `CommonTemplate`
 - `templateType`: `SystemEnumeration: TemplateType`, YAML `ВидМакета`, default `SpreadsheetDocument`
-- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `defaultValueYAML: "Native"`
+- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: runtime-only `string`
 - external template file:
   - property: `template`
@@ -216,9 +216,9 @@ Implementation notes:
 
 Default policy from `minimal.xml`:
 
-- `availabilityForChoice`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `availabilityForAppearance`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+- `availabilityForChoice`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `availabilityForAppearance`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `objectBelonging`: hidden, `implicitValueYAML: "Native"`
 
 Testing:
 
@@ -234,7 +234,7 @@ Testing:
 - `itemTypePrefix`: `Стиль`
 - XML container: `Style`
 - main object through `rules.ts`
-- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `defaultValueYAML: "Native"`
+- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: runtime-only `string`
 - external style file:
   - property: `style`
@@ -261,7 +261,7 @@ Testing:
 - `toolTip`: `I8nText`, YAML `Подсказка`
 - `picture`: `Picture`, YAML `Картинка`
 - `category`: `SystemEnumeration: CommandGroupCategory`, YAML `Категория`, default `NavigationPanel`
-- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `defaultValueYAML: "Native"`
+- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: runtime-only `string`
 
 Do not merge this top-level object with `packages/core/metadata/commonObjects/metadataCommandGroup`. The common object is
@@ -310,10 +310,10 @@ External files:
 
 Default policy from `minimal.xml`:
 
-- `includeHelpInContents`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `includeInCommandInterface`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `useOneCommand`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+- `includeHelpInContents`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `includeInCommandInterface`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `useOneCommand`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `objectBelonging`: hidden, `implicitValueYAML: "Native"`
 
 Do not set YAML defaults for empty string, empty `I8nText`, empty `Picture`, empty `Content`, or external files.
 
@@ -426,14 +426,14 @@ External files:
 
 Default policy from `minimal.xml`:
 
-- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `correspondence`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `periodAdjustmentLength`: `defaultValueXML: 0`, `defaultValueYAML: 0`
-- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
-- `enableTotalsSplitting`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `fullTextSearch`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+- `useStandardCommands`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `includeHelpInContents`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `correspondence`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `periodAdjustmentLength`: `defaultValueXML: 0`, `implicitValueYAML: 0`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `implicitValueYAML: "Managed"`
+- `enableTotalsSplitting`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `fullTextSearch`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `objectBelonging`: hidden, `implicitValueYAML: "Native"`
 
 Keep `chartOfAccounts`, resource rows, and dimension rows as explicit content, not YAML defaults. Empty strings,
 presentations, empty form references, and empty standard-attribute values are XML defaults only.
@@ -542,27 +542,27 @@ External files:
 
 Default policy from `minimal.xml`:
 
-- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `editType`: `defaultValueXML: "InDialog"`, `defaultValueYAML: "InDialog"`
-- `createOnInput`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `defaultValueYAML: "Begin"`
-- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `defaultValueYAML: "Directly"`
-- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
-- `numberType`: `defaultValueXML: "String"`, `defaultValueYAML: "String"`
-- `numberLength`: `defaultValueXML: 9`, `defaultValueYAML: 9`
-- `numberAllowedLength`: `defaultValueXML: "Variable"`, `defaultValueYAML: "Variable"`
-- `checkUnique`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `autonumbering`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `numberPeriodicity`: `defaultValueXML: "Nonperiodical"`, `defaultValueYAML: "Nonperiodical"`
-- `createTaskInPrivilegedMode`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
-- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `fullTextSearch`: `defaultValueXML: "Use"`, `defaultValueYAML: "Use"`
-- `dataHistory`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+- `useStandardCommands`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `editType`: `defaultValueXML: "InDialog"`, `implicitValueYAML: "InDialog"`
+- `createOnInput`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `implicitValueYAML: "Begin"`
+- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `implicitValueYAML: "Directly"`
+- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `implicitValueYAML: "Auto"`
+- `numberType`: `defaultValueXML: "String"`, `implicitValueYAML: "String"`
+- `numberLength`: `defaultValueXML: 9`, `implicitValueYAML: 9`
+- `numberAllowedLength`: `defaultValueXML: "Variable"`, `implicitValueYAML: "Variable"`
+- `checkUnique`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `autonumbering`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `numberPeriodicity`: `defaultValueXML: "Nonperiodical"`, `implicitValueYAML: "Nonperiodical"`
+- `createTaskInPrivilegedMode`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `implicitValueYAML: "Managed"`
+- `includeHelpInContents`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `fullTextSearch`: `defaultValueXML: "Use"`, `implicitValueYAML: "Use"`
+- `dataHistory`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `objectBelonging`: hidden, `implicitValueYAML: "Native"`
 
 Keep `InputByString`, `Task`, `BasedOn`, `Characteristics`, child attributes, tabular sections, and forms as explicit
 content, not YAML defaults. The `Task.ЗадачаВсеСвойства` reference does not require `metadataTask` to be implemented
@@ -662,7 +662,7 @@ New common object: `metadataRecalculation`
 - properties: `name`, `synonym`, `comment`, `dataLockControlMode`
 - `dataLockControlMode`: `SystemEnumeration: DefaultDataLockControlMode`, YAML
   `РежимУправленияБлокировкойДанных`, default from the default recalculation fixture is `Managed`
-- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `defaultValueYAML: "Native"`
+- `objectBelonging`: hidden `SystemEnumeration: ObjectBelonging`, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: runtime-only `string`
 - external file:
   - `recordSetModule`: existing `Module`
@@ -685,14 +685,14 @@ External files:
 
 Default policy from `minimal.xml`:
 
-- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `periodicity`: `defaultValueXML: "Month"`, `defaultValueYAML: "Month"`
-- `actionPeriod`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `basePeriod`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
-- `fullTextSearch`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+- `useStandardCommands`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `periodicity`: `defaultValueXML: "Month"`, `implicitValueYAML: "Month"`
+- `actionPeriod`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `basePeriod`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `includeHelpInContents`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `implicitValueYAML: "Managed"`
+- `fullTextSearch`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `objectBelonging`: hidden, `implicitValueYAML: "Native"`
 
 Keep `chartOfCalculationTypes`, `schedule`, `scheduleValue`, `scheduleDate`, resources, dimensions, attributes, and
 recalculations as explicit content, not YAML defaults. References to `ChartOfCalculationTypes.*` and
@@ -814,7 +814,7 @@ New common objects: accounting flags
 - `type`: `TypeDescription`
 - `fillValue`: `MetadataValue`
 - `linkByType`: existing `TypeLink`
-- hidden `objectBelonging`, `defaultValueYAML: "Native"`
+- hidden `objectBelonging`, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: runtime-only `string`
 
 These common objects are real nested metadata structures referenced by accounting registers through
@@ -836,31 +836,31 @@ implementation preserves it opaquely; parsing predefined accounts is deferred.
 
 Default policy from `minimal.xml`:
 
-- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `maxExtDimensionCount`: `defaultValueXML: 0`, `defaultValueYAML: 0`
-- `codeLength`: `defaultValueXML: 9`, `defaultValueYAML: 9`
-- `descriptionLength`: `defaultValueXML: 25`, `defaultValueYAML: 25`
-- `codeSeries`: `defaultValueXML: "WholeChartOfAccounts"`, `defaultValueYAML: "WholeChartOfAccounts"`
-- `checkUnique`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `defaultPresentation`: `defaultValueXML: "AsCode"`, `defaultValueYAML: "AsCode"`
-- `predefinedDataUpdate`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
-- `editType`: `defaultValueXML: "InDialog"`, `defaultValueYAML: "InDialog"`
-- `quickChoice`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `choiceMode`: `defaultValueXML: "BothWays"`, `defaultValueYAML: "BothWays"`
-- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `defaultValueYAML: "Begin"`
-- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `defaultValueYAML: "Directly"`
-- `createOnInput`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
-- `autoOrderByCode`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `orderLength`: `defaultValueXML: 0`, `defaultValueYAML: 0`
-- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
-- `fullTextSearch`: `defaultValueXML: "Use"`, `defaultValueYAML: "Use"`
-- `dataHistory`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+- `useStandardCommands`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `includeHelpInContents`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `maxExtDimensionCount`: `defaultValueXML: 0`, `implicitValueYAML: 0`
+- `codeLength`: `defaultValueXML: 9`, `implicitValueYAML: 9`
+- `descriptionLength`: `defaultValueXML: 25`, `implicitValueYAML: 25`
+- `codeSeries`: `defaultValueXML: "WholeChartOfAccounts"`, `implicitValueYAML: "WholeChartOfAccounts"`
+- `checkUnique`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `defaultPresentation`: `defaultValueXML: "AsCode"`, `implicitValueYAML: "AsCode"`
+- `predefinedDataUpdate`: `defaultValueXML: "Auto"`, `implicitValueYAML: "Auto"`
+- `editType`: `defaultValueXML: "InDialog"`, `implicitValueYAML: "InDialog"`
+- `quickChoice`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `choiceMode`: `defaultValueXML: "BothWays"`, `implicitValueYAML: "BothWays"`
+- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `implicitValueYAML: "Begin"`
+- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `implicitValueYAML: "Directly"`
+- `createOnInput`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `implicitValueYAML: "Auto"`
+- `autoOrderByCode`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `orderLength`: `defaultValueXML: 0`, `implicitValueYAML: 0`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `implicitValueYAML: "Managed"`
+- `fullTextSearch`: `defaultValueXML: "Use"`, `implicitValueYAML: "Use"`
+- `dataHistory`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `objectBelonging`: hidden, `implicitValueYAML: "Native"`
 
 Keep `basedOn`, `extDimensionTypes`, `inputByString`, `dataLockFields`, `characteristics`, standard tabular sections,
 child attributes, tabular sections, accounting flags, and predefined data as explicit content, not YAML defaults.
@@ -986,30 +986,30 @@ predefined calculation types is deferred.
 
 Default policy from `minimal.xml`:
 
-- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `codeLength`: `defaultValueXML: 9`, `defaultValueYAML: 9`
-- `descriptionLength`: `defaultValueXML: 40`, `defaultValueYAML: 40`
-- `codeType`: `defaultValueXML: "String"`, `defaultValueYAML: "String"`
-- `codeAllowedLength`: `defaultValueXML: "Variable"`, `defaultValueYAML: "Variable"`
-- `defaultPresentation`: `defaultValueXML: "AsDescription"`, `defaultValueYAML: "AsDescription"`
-- `editType`: `defaultValueXML: "InDialog"`, `defaultValueYAML: "InDialog"`
-- `quickChoice`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `choiceMode`: `defaultValueXML: "BothWays"`, `defaultValueYAML: "BothWays"`
-- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `defaultValueYAML: "Begin"`
-- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `defaultValueYAML: "Directly"`
-- `createOnInput`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
-- `dependenceOnCalculationTypes`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `actionPeriodUse`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `predefinedDataUpdate`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
-- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
-- `fullTextSearch`: `defaultValueXML: "Use"`, `defaultValueYAML: "Use"`
-- `dataHistory`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+- `useStandardCommands`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `codeLength`: `defaultValueXML: 9`, `implicitValueYAML: 9`
+- `descriptionLength`: `defaultValueXML: 40`, `implicitValueYAML: 40`
+- `codeType`: `defaultValueXML: "String"`, `implicitValueYAML: "String"`
+- `codeAllowedLength`: `defaultValueXML: "Variable"`, `implicitValueYAML: "Variable"`
+- `defaultPresentation`: `defaultValueXML: "AsDescription"`, `implicitValueYAML: "AsDescription"`
+- `editType`: `defaultValueXML: "InDialog"`, `implicitValueYAML: "InDialog"`
+- `quickChoice`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `choiceMode`: `defaultValueXML: "BothWays"`, `implicitValueYAML: "BothWays"`
+- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `implicitValueYAML: "Begin"`
+- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `implicitValueYAML: "Directly"`
+- `createOnInput`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `implicitValueYAML: "Auto"`
+- `dependenceOnCalculationTypes`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `actionPeriodUse`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `predefinedDataUpdate`: `defaultValueXML: "Auto"`, `implicitValueYAML: "Auto"`
+- `includeHelpInContents`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `implicitValueYAML: "Managed"`
+- `fullTextSearch`: `defaultValueXML: "Use"`, `implicitValueYAML: "Use"`
+- `dataHistory`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `objectBelonging`: hidden, `implicitValueYAML: "Native"`
 
 Keep `inputByString`, `basedOn`, `baseCalculationTypes`, `characteristics`, standard tabular sections, child
 attributes, tabular sections, and predefined data as explicit content, not YAML defaults.
@@ -1135,32 +1135,32 @@ predefined characteristic values is deferred.
 
 Default policy from `minimal.xml`:
 
-- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `hierarchical`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `foldersOnTop`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `codeLength`: `defaultValueXML: 9`, `defaultValueYAML: 9`
-- `codeAllowedLength`: `defaultValueXML: "Variable"`, `defaultValueYAML: "Variable"`
-- `descriptionLength`: `defaultValueXML: 25`, `defaultValueYAML: 25`
-- `codeSeries`: `defaultValueXML: "WholeCharacteristicKind"`, `defaultValueYAML: "WholeCharacteristicKind"`
-- `checkUnique`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `autonumbering`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `defaultPresentation`: `defaultValueXML: "AsDescription"`, `defaultValueYAML: "AsDescription"`
-- `predefinedDataUpdate`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
-- `editType`: `defaultValueXML: "InDialog"`, `defaultValueYAML: "InDialog"`
-- `quickChoice`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `choiceMode`: `defaultValueXML: "BothWays"`, `defaultValueYAML: "BothWays"`
-- `createOnInput`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `defaultValueYAML: "Begin"`
-- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `defaultValueYAML: "Directly"`
-- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
-- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
-- `fullTextSearch`: `defaultValueXML: "Use"`, `defaultValueYAML: "Use"`
-- `dataHistory`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+- `useStandardCommands`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `includeHelpInContents`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `hierarchical`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `foldersOnTop`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `codeLength`: `defaultValueXML: 9`, `implicitValueYAML: 9`
+- `codeAllowedLength`: `defaultValueXML: "Variable"`, `implicitValueYAML: "Variable"`
+- `descriptionLength`: `defaultValueXML: 25`, `implicitValueYAML: 25`
+- `codeSeries`: `defaultValueXML: "WholeCharacteristicKind"`, `implicitValueYAML: "WholeCharacteristicKind"`
+- `checkUnique`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `autonumbering`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `defaultPresentation`: `defaultValueXML: "AsDescription"`, `implicitValueYAML: "AsDescription"`
+- `predefinedDataUpdate`: `defaultValueXML: "Auto"`, `implicitValueYAML: "Auto"`
+- `editType`: `defaultValueXML: "InDialog"`, `implicitValueYAML: "InDialog"`
+- `quickChoice`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `choiceMode`: `defaultValueXML: "BothWays"`, `implicitValueYAML: "BothWays"`
+- `createOnInput`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `implicitValueYAML: "Begin"`
+- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `implicitValueYAML: "Directly"`
+- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `implicitValueYAML: "Auto"`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `implicitValueYAML: "Managed"`
+- `fullTextSearch`: `defaultValueXML: "Use"`, `implicitValueYAML: "Use"`
+- `dataHistory`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `objectBelonging`: hidden, `implicitValueYAML: "Native"`
 
 Keep `characteristicExtValues`, `type`, `inputByString`, `basedOn`, `characteristics`, `dataLockFields`, child
 attributes, tabular sections, and predefined data as explicit content, not YAML defaults.
@@ -1224,11 +1224,11 @@ External files:
 
 Default policy:
 
-- `formType`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
-- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
+- `formType`: `defaultValueXML: "Managed"`, `implicitValueYAML: "Managed"`
+- `includeHelpInContents`: `defaultValueXML: false`, `implicitValueYAML: false`
 - `useStandardCommands`: fixture default is `true`; set YAML default to `true` only after confirming it from
   `minimal.xml` or another default fixture during implementation
-- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+- `objectBelonging`: hidden, `implicitValueYAML: "Native"`
 
 Implementation notes:
 
@@ -1298,7 +1298,7 @@ Default policy from `minimal.xml` copied from
   default;
 - do not set YAML defaults for `messageDirection` or `transactioned` from the full fixture: it contains both
   `Receive/false` and `Send/true`, so those values are meaningful channel content;
-- `objectBelonging`: hidden, `defaultValueYAML: "Native"`.
+- `objectBelonging`: hidden, `implicitValueYAML: "Native"`.
 
 Implementation notes:
 
@@ -1410,28 +1410,28 @@ External files:
 
 Default policy from `minimal.xml`:
 
-- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `numberType`: `defaultValueXML: "String"`, `defaultValueYAML: "String"`
-- `numberLength`: `defaultValueXML: 9`, `defaultValueYAML: 9`
-- `numberAllowedLength`: `defaultValueXML: "Variable"`, `defaultValueYAML: "Variable"`
-- `checkUnique`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `autonumbering`: `defaultValueXML: true`, `defaultValueYAML: true`
-- `taskNumberAutoPrefix`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `descriptionLength`: `defaultValueXML: 25`, `defaultValueYAML: 25`
-- `defaultPresentation`: `defaultValueXML: "AsDescription"`, `defaultValueYAML: "AsDescription"`
-- `editType`: `defaultValueXML: "InDialog"`, `defaultValueYAML: "InDialog"`
-- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `defaultValueYAML: "Begin"`
-- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `defaultValueYAML: "Directly"`
-- `createOnInput`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `defaultValueYAML: "Auto"`
-- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
-- `fullTextSearch`: `defaultValueXML: "Use"`, `defaultValueYAML: "Use"`
-- `dataHistory`: `defaultValueXML: "DontUse"`, `defaultValueYAML: "DontUse"`
-- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `defaultValueYAML: false`
-- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+- `useStandardCommands`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `numberType`: `defaultValueXML: "String"`, `implicitValueYAML: "String"`
+- `numberLength`: `defaultValueXML: 9`, `implicitValueYAML: 9`
+- `numberAllowedLength`: `defaultValueXML: "Variable"`, `implicitValueYAML: "Variable"`
+- `checkUnique`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `autonumbering`: `defaultValueXML: true`, `implicitValueYAML: true`
+- `taskNumberAutoPrefix`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `descriptionLength`: `defaultValueXML: 25`, `implicitValueYAML: 25`
+- `defaultPresentation`: `defaultValueXML: "AsDescription"`, `implicitValueYAML: "AsDescription"`
+- `editType`: `defaultValueXML: "InDialog"`, `implicitValueYAML: "InDialog"`
+- `searchStringModeOnInputByString`: `defaultValueXML: "Begin"`, `implicitValueYAML: "Begin"`
+- `fullTextSearchOnInputByString`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `choiceDataGetModeOnInputByString`: `defaultValueXML: "Directly"`, `implicitValueYAML: "Directly"`
+- `createOnInput`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `choiceHistoryOnInput`: `defaultValueXML: "Auto"`, `implicitValueYAML: "Auto"`
+- `includeHelpInContents`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `dataLockControlMode`: `defaultValueXML: "Managed"`, `implicitValueYAML: "Managed"`
+- `fullTextSearch`: `defaultValueXML: "Use"`, `implicitValueYAML: "Use"`
+- `dataHistory`: `defaultValueXML: "DontUse"`, `implicitValueYAML: "DontUse"`
+- `updateDataHistoryImmediatelyAfterWrite`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `executeAfterWriteDataHistoryVersionProcessing`: `defaultValueXML: false`, `implicitValueYAML: false`
+- `objectBelonging`: hidden, `implicitValueYAML: "Native"`
 
 Keep `addressing`, `mainAddressingAttribute`, `currentPerformer`, `basedOn`, `standardAttributes`, `characteristics`,
 `inputByString`, `dataLockFields`, child attributes, tabular sections, addressing attributes, forms, templates, commands,
@@ -1528,18 +1528,18 @@ External files:
 
 Default policy from `minimal.xml`:
 
-- `reuseSessions`: `defaultValueXML: "AutoUse"`, `defaultValueYAML: "AutoUse"`
-- `sessionMaxAge`: `defaultValueXML: 20`, `defaultValueYAML: 20`
+- `reuseSessions`: `defaultValueXML: "AutoUse"`, `implicitValueYAML: "AutoUse"`
+- `sessionMaxAge`: `defaultValueXML: 20`, `implicitValueYAML: 20`
 - the minimal object has empty `XDTOPackages` and no operations;
 - `namespace` and `descriptorFileName` remain explicit content, not YAML defaults;
 - operation defaults from the full fixture:
-  - `nillable`: `defaultValueXML: false`, `defaultValueYAML: false`
-  - `transactioned`: `defaultValueXML: false`, `defaultValueYAML: false`
-  - `dataLockControlMode`: `defaultValueXML: "Managed"`, `defaultValueYAML: "Managed"`
+  - `nillable`: `defaultValueXML: false`, `implicitValueYAML: false`
+  - `transactioned`: `defaultValueXML: false`, `implicitValueYAML: false`
+  - `dataLockControlMode`: `defaultValueXML: "Managed"`, `implicitValueYAML: "Managed"`
 - parameter defaults from the updated fixture copied from `/Users/nikita/git/roundTripElements/WebServices`:
-  - `nillable`: `defaultValueXML: false`, `defaultValueYAML: false`
-  - `transferDirection`: `defaultValueXML: "In"`, `defaultValueYAML: "In"`
-- `objectBelonging`: hidden, `defaultValueYAML: "Native"`
+  - `nillable`: `defaultValueXML: false`, `implicitValueYAML: false`
+  - `transferDirection`: `defaultValueXML: "In"`, `implicitValueYAML: "In"`
+- `objectBelonging`: hidden, `implicitValueYAML: "Native"`
 
 Implementation notes:
 

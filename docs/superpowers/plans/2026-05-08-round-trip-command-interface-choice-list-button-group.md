@@ -655,7 +655,7 @@ In `packages/core/metadata/forms/elements/buttonGroup/rules.ts`, add `displayImp
       xml: "_DisplayImportance",
       type: "SystemEnumeration",
       typeSE: "DisplayImportance",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
 ```
 
@@ -673,7 +673,7 @@ The start of `properties` should become:
       xml: "_DisplayImportance",
       type: "SystemEnumeration",
       typeSE: "DisplayImportance",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
     childItems: {
       yaml: "Элементы",

@@ -28,7 +28,7 @@ export const RecalculationRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
     },
     dataLockControlMode: {
       yaml: "РежимУправленияБлокировкойДанных",
@@ -37,7 +37,7 @@ export const RecalculationRules = {
       typeSE: "DefaultDataLockControlMode",
       xmlParents: properties,
       defaultValueXML: "Managed",
-      defaultValueYAML: "Managed",
+      implicitValueYAML: "Managed",
     },
     dimensions: {
       yaml: "Измерения",
@@ -55,7 +55,7 @@ export const RecalculationRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       xml: "ExtendedConfigurationObject",

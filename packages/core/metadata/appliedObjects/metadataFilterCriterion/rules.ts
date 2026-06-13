@@ -54,7 +54,7 @@ export const MetadataFilterCriterionRules = {
       yaml: "ПринадлежностьОбъекта",
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: properties,
@@ -74,7 +74,7 @@ export const MetadataFilterCriterionRules = {
       yaml: "ИспользоватьСтандартныеКоманды",
       type: "boolean",
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       xmlParents: properties,
     },
     content: {

@@ -78,7 +78,6 @@ export const MetadataConfigurationRules = {
       required: true,
       defaultValueXML: "Version8_3_27",
       preserveExplicitDefaultXML: true,
-      implicitValueYAML: undefined,
       xmlParents: configurationProperties,
     },
     defaultRunMode: {
@@ -426,7 +425,6 @@ export const MetadataConfigurationRules = {
       required: true,
       defaultValueXML: "Version8_3_27",
       preserveExplicitDefaultXML: true,
-      implicitValueYAML: undefined,
       xmlParents: configurationProperties,
     },
     defaultConstantsForm: {

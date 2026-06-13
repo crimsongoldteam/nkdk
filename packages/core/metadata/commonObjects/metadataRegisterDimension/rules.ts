@@ -20,7 +20,7 @@ export const MetadataRegisterDimensionRules = {
       type: "boolean",
       xmlParents: ["Properties"],
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       toXML: (metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         exportDimensionDefaultForXML("master", metadataItem, context, "MetadataInformationRegister"),
       order: 26,
@@ -31,7 +31,7 @@ export const MetadataRegisterDimensionRules = {
       type: "boolean",
       xmlParents: ["Properties"],
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       toXML: (metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         exportDimensionDefaultForXML("mainFilter", metadataItem, context, "MetadataInformationRegister"),
       order: 26,
@@ -42,7 +42,7 @@ export const MetadataRegisterDimensionRules = {
       type: "boolean",
       xmlParents: ["Properties"],
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       order: 26,
     },
     baseDimension: {
@@ -51,7 +51,7 @@ export const MetadataRegisterDimensionRules = {
       type: "boolean",
       xmlParents: ["Properties"],
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isCalculationRegisterField(context),
     },
     scheduleLink: {
@@ -68,7 +68,7 @@ export const MetadataRegisterDimensionRules = {
       type: "boolean",
       xmlParents: ["Properties"],
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
       order: 25.1,
     },
@@ -87,7 +87,7 @@ export const MetadataRegisterDimensionRules = {
       type: "boolean",
       xmlParents: ["Properties"],
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       toXML: (metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         exportDimensionDefaultForXML("useInTotals", metadataItem, context, "MetadataAccumulationRegister"),
       order: 30,
@@ -99,7 +99,7 @@ export const MetadataRegisterDimensionRules = {
       typeSE: "TypeReductionMode",
       xmlParents: ["Properties"],
       defaultValueXML: "TransformValues",
-      defaultValueYAML: "TransformValues",
+      implicitValueYAML: "TransformValues",
       toXML: (metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         exportDimensionDefaultForXML("typeReductionMode", metadataItem, context, "MetadataInformationRegister"),
       order: 31,

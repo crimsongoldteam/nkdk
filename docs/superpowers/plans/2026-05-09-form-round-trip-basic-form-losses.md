@@ -273,7 +273,7 @@ slaveItemsWidth: {
   type: "SystemEnumeration",
   typeSE: "ChildFormItemsWidth",
   tag: FormRulesTags.Form,
-  defaultValueYAML: "Auto",
+  implicitValueYAML: "Auto",
 },
 ```
 

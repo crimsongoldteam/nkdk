@@ -7,7 +7,7 @@ import type { MetadataItemRule, PropertyRule } from "./types"
 const defaultRule = {
   yaml: "Поле",
   type: "string",
-  defaultValueYAML: "model-default",
+  implicitValueYAML: "model-default",
 } as const satisfies PropertyRule
 
 const synonymRule = {
@@ -17,13 +17,13 @@ const synonymRule = {
     synonym: {
       type: "I8nText",
       yaml: "Синоним",
-      defaultValueYAML: ({ name }: { name?: string }) => ({ items: { ru: name } }),
+      implicitValueYAML: ({ name }: { name?: string }) => ({ items: { ru: name } }),
     },
   },
 } as const satisfies MetadataItemRule
 
 describe("importPropertyFromYAML", () => {
-  it("does not apply defaultValueYAML to missing YAML", () => {
+  it("does not apply implicitValueYAML to missing YAML", () => {
     expect(
       importPropertyFromYAML({
         context: mockContext,

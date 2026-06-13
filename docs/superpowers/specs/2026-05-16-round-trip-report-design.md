@@ -99,7 +99,7 @@ Defaults should match the XML fixtures:
 
 - `useStandardCommands`: `true`
 - `includeHelpInContents`: `false`
-- define matching `defaultValueYAML` for every report property that has a platform default in the minimal XML fixture;
+- define matching `implicitValueYAML` for every report property that has a platform default in the minimal XML fixture;
   at minimum this includes `useStandardCommands: true` and `includeHelpInContents: false`
 - empty MDObjectRef fields export as empty XML elements when present in reference XML
 - `synonym`, `comment`, `extendedPresentation`, and `explanation` follow the same defaults as `metadataDataProcessor`
@@ -149,8 +149,8 @@ only evidence for the Russian property meaning, not the XML tag to emit for MDCl
 Report form defaults should also be explicit in YAML rules where the platform default is known from fixtures or
 neighboring form behavior. For the current report fixtures:
 
-- `reportResultViewMode`: `defaultValueYAML: "Auto"`
-- `viewModeApplicationOnSetReportResult`: `defaultValueYAML: "Auto"`
+- `reportResultViewMode`: `implicitValueYAML: "Auto"`
+- `viewModeApplicationOnSetReportResult`: `implicitValueYAML: "Auto"`
 - `reportFormType` should not have one universal YAML default because the fixture uses different values for main,
   settings, and variant report forms.
 - `customSettingsFolder`, `reportResult`, `detailsData`, and `variantAppearance` stay absent from YAML when absent in

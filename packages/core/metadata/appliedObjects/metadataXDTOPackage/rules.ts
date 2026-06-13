@@ -60,7 +60,7 @@ export const MetadataXDTOPackageRules = {
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
     },

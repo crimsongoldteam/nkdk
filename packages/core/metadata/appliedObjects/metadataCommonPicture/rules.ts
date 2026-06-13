@@ -53,7 +53,7 @@ export const MetadataCommonPictureRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     availabilityForAppearance: {
       yaml: "ДоступностьДляОформления",
@@ -61,7 +61,7 @@ export const MetadataCommonPictureRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
@@ -71,7 +71,7 @@ export const MetadataCommonPictureRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       xml: "ExtendedConfigurationObject",

@@ -56,7 +56,7 @@ defaultVisible: item.DefaultVisible ?? true
 defaultVisible?: false
 ```
 
-Для YAML-поведения нужен эквивалент правила `defaultValueYAML: true`: дефолтное значение `Истина` не должно выводиться и не должно быть допустимым явным YAML-значением. Так как `CommandInterface` сейчас реализован ручными `types.ts`, `fromYAML.ts`, `toYAML.ts`, `toJSONSchema.ts`, реализация должна локально повторить это поведение:
+Для YAML-поведения нужен эквивалент правила `implicitValueYAML: true`: дефолтное значение `Истина` не должно выводиться и не должно быть допустимым явным YAML-значением. Так как `CommandInterface` сейчас реализован ручными `types.ts`, `fromYAML.ts`, `toYAML.ts`, `toJSONSchema.ts`, реализация должна локально повторить это поведение:
 
 - в TypeScript-типе YAML оставить для `Автовидимость` только `"Ложь"`;
 - в JSON Schema оставить для `Автовидимость` только literal `"Ложь"`;
@@ -165,7 +165,7 @@ Round-trip теряет root-атрибут:
 +<ButtonGroup name="ФормаГруппаИмпорт" id="1818">
 ```
 
-У соседних form-элементов `DisplayImportance` уже описан через root-атрибут `_DisplayImportance`, YAML `ВажностьПриОтображении`, системное перечисление `DisplayImportance` и `defaultValueYAML: "Auto"`. В `ButtonGroupRules` такого свойства нет.
+У соседних form-элементов `DisplayImportance` уже описан через root-атрибут `_DisplayImportance`, YAML `ВажностьПриОтображении`, системное перечисление `DisplayImportance` и `implicitValueYAML: "Auto"`. В `ButtonGroupRules` такого свойства нет.
 
 Пользователь обновил `packages/core/metadata/forms/elements/buttonGroup/__fixtures__/full.xml`; новая XML-фикстура считается источником истины целиком.
 
@@ -179,7 +179,7 @@ displayImportance: {
   xml: "_DisplayImportance",
   type: "SystemEnumeration",
   typeSE: "DisplayImportance",
-  defaultValueYAML: "Auto",
+  implicitValueYAML: "Auto",
 }
 ```
 
@@ -224,7 +224,7 @@ displayImportance: {
 ## Риски
 
 - Отключение глобального `parseTagValue` может проявить места, где правила неявно ждали `number` или `boolean` от XML-парсера.
-- `CommandInterface` реализован ручными commonObject-функциями, поэтому `defaultValueYAML: true` не применится автоматически без локального кода или небольшого перевода на rule-механику.
+- `CommandInterface` реализован ручными commonObject-функциями, поэтому `implicitValueYAML: true` не применится автоматически без локального кода или небольшого перевода на rule-механику.
 - Обновленная `ButtonGroup` XML-фикстура меняет много значений сразу; падения тестов могут быть связаны не с `DisplayImportance`, а с несинхронизированными TS/YAML/enterprise-ожиданиями.
 
 ## Не входит в эту спеку

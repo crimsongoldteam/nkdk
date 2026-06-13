@@ -9,9 +9,6 @@ export const exportSystemEnumerationToJSONSchema: ExportToJSONSchemaFn = (params
   if (!enumeration) {
     throw new Error(`Enumeration ${rule.typeSE} not found`)
   }
-  if (allowsUnknownYAMLValues(rule)) {
-    return Type.String()
-  }
   const values = Object.keys(enumeration)
   if (values.length === 1) {
     return Type.Literal(values[0])
@@ -19,8 +16,5 @@ export const exportSystemEnumerationToJSONSchema: ExportToJSONSchemaFn = (params
   const literals = values.map((v) => Type.Literal(v)) as TSchema[]
   return Type.Union(literals as [TSchema, TSchema, ...TSchema[]])
 }
-
-const allowsUnknownYAMLValues = (rule: SystemEnumerationPropertyRule): boolean =>
-  Object.prototype.hasOwnProperty.call(rule, "implicitValueYAML") && rule.implicitValueYAML === undefined
 
 registerTypeRule("SystemEnumeration", "exportToJSONSchema", exportSystemEnumerationToJSONSchema)

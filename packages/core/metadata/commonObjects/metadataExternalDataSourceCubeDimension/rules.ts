@@ -24,7 +24,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       typeSE: "FoldersAndItemsUse",
       xmlParents: propertiesParents,
       defaultValueXML: "Items",
-      defaultValueYAML: "Items",
+      implicitValueYAML: "Items",
     },
     linkByType: {
       yaml: "СвязьПоТипу",
@@ -72,7 +72,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       toXML: hasOwnMetadataProperty("denyIncompleteValues"),
     },
     baseDimension: {
@@ -81,7 +81,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       toXML: hasOwnMetadataProperty("baseDimension"),
     },
     scheduleLink: {
@@ -98,7 +98,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       toXML: hasOwnMetadataProperty("useInTotals"),
     },
     master: {
@@ -107,7 +107,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       toXML: hasOwnMetadataProperty("master"),
     },
     mainFilter: {
@@ -116,7 +116,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       toXML: hasOwnMetadataProperty("mainFilter"),
     },
     balance: {
@@ -125,7 +125,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       toXML: hasOwnMetadataProperty("balance"),
     },
     accountingFlag: {
@@ -143,7 +143,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       typeSE: "TypeReductionMode",
       xmlParents: propertiesParents,
       defaultValueXML: "TransformValues",
-      defaultValueYAML: "TransformValues",
+      implicitValueYAML: "TransformValues",
       toXML: hasOwnMetadataProperty("typeReductionMode"),
     },
     indexing: {
@@ -153,7 +153,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       typeSE: "Indexing",
       xmlParents: propertiesParents,
       defaultValueXML: "DontIndex",
-      defaultValueYAML: "DontIndex",
+      implicitValueYAML: "DontIndex",
       toXML: hasOwnMetadataProperty("indexing"),
     },
     fullTextSearch: {
@@ -163,7 +163,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       typeSE: "UseFullTextSearch",
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
-      defaultValueYAML: "Use",
+      implicitValueYAML: "Use",
       toXML: hasOwnMetadataProperty("fullTextSearch"),
     },
     dataHistory: {
@@ -173,7 +173,7 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       typeSE: "DataHistoryUse",
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
-      defaultValueYAML: "Use",
+      implicitValueYAML: "Use",
       toXML: hasOwnMetadataProperty("dataHistory"),
     },
     ...externalDataSourceObjectServiceProperties,

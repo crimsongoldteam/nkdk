@@ -23,11 +23,10 @@ describe("exportSystemEnumerationToJSONSchema", () => {
     expect(Value.Check(schema, "Version8_3_28")).toBe(false)
   })
 
-  it("возвращает string-схему для CompatibilityMode с будущими значениями", () => {
+  it("возвращает литералы для CompatibilityMode", () => {
     const rule: SystemEnumerationPropertyRule<"CompatibilityMode"> = {
       type: "SystemEnumeration",
       typeSE: "CompatibilityMode",
-      implicitValueYAML: undefined,
     }
 
     const schema = exportSystemEnumerationToJSONSchema({
@@ -38,9 +37,8 @@ describe("exportSystemEnumerationToJSONSchema", () => {
     expect(schema).toBeDefined()
     if (schema === undefined) throw new Error("schema is undefined")
 
-    expect(schema).toMatchObject({ type: "string" })
     expect(Value.Check(schema, "Версия8_3_27")).toBe(true)
-    expect(Value.Check(schema, "Version8_3_28")).toBe(true)
-    expect(Value.Check(schema, "")).toBe(true)
+    expect(Value.Check(schema, "Version8_3_28")).toBe(false)
+    expect(Value.Check(schema, "")).toBe(false)
   })
 })

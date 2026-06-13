@@ -67,7 +67,7 @@ export const MetadataWebServiceRules = {
       typeSE: "SessionReuseMode",
       xmlParents: properties,
       defaultValueXML: "AutoUse",
-      defaultValueYAML: "AutoUse",
+      implicitValueYAML: "AutoUse",
     },
     sessionMaxAge: {
       yaml: "ВремяЖизниСеанса",
@@ -75,7 +75,7 @@ export const MetadataWebServiceRules = {
       type: "number",
       xmlParents: properties,
       defaultValueXML: 20,
-      defaultValueYAML: 20,
+      implicitValueYAML: 20,
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
@@ -85,7 +85,7 @@ export const MetadataWebServiceRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       xml: "ExtendedConfigurationObject",

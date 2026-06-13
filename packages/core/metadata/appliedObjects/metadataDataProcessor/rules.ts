@@ -106,7 +106,7 @@ export const MetadataDataProcessorRules = {
       yaml: "ИспользоватьСтандартныеКоманды",
       type: "boolean",
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       xmlParents: properties,
     },
     defaultForm: {
@@ -127,7 +127,7 @@ export const MetadataDataProcessorRules = {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       xmlParents: properties,
     },
     extendedPresentation: {
@@ -149,7 +149,7 @@ export const MetadataDataProcessorRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       yaml: "ОбъектРасширяемойКонфигурации",

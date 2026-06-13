@@ -798,7 +798,7 @@ export const MetadataDefinedTypeRules = {
     synonym: { yaml: "Синоним", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
     comment: { yaml: "Комментарий", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
     type: { yaml: "Тип", type: "TypeDescription", xmlParents: properties, useAsShortValueYAML: true, defaultValueXMLRaw: "" },
-    objectBelonging: { yaml: "ПринадлежностьОбъекта", type: "SystemEnumeration", typeSE: "ObjectBelonging", defaultValueYAML: "Native", toYAML: false, fromYAML: false, xmlParents: properties },
+    objectBelonging: { yaml: "ПринадлежностьОбъекта", type: "SystemEnumeration", typeSE: "ObjectBelonging", implicitValueYAML: "Native", toYAML: false, fromYAML: false, xmlParents: properties },
     extendedConfigurationObject: { yaml: "ОбъектРасширяемойКонфигурации", type: "string", runtimeOnly: true },
   },
 } as const satisfies MetadataItemRule
@@ -1040,7 +1040,7 @@ type: { yaml: "Тип", type: "SystemEnumeration", typeSE: "StyleElementType", x
 value: { yaml: "Значение", type: "StyleItemValue", xml: "Value", xmlParents: properties }
 ```
 
-Do not set `defaultValueYAML` for `type`.
+Do not set `implicitValueYAML` for `type`.
 
 - [ ] **Step 3: Add sync tests**
 
@@ -1123,7 +1123,7 @@ Use the same rule types and defaults as the spec:
 ```ts
 fillValue: { yaml: "ЗначениеЗаполнения", type: "MetadataValue", xmlParents: properties, defaultValueXMLRaw: { "_xsi:type": "xs:string" } }
 content: { yaml: "Состав", type: "CommonAttributeContent", xml: "Content", xmlParents: properties, defaultValueXMLRaw: "" }
-fullTextSearch: { yaml: "ПолнотекстовыйПоиск", type: "SystemEnumeration", typeSE: "UseFullTextSearch", defaultValueXML: "Use", defaultValueYAML: "Use", xmlParents: properties }
+fullTextSearch: { yaml: "ПолнотекстовыйПоиск", type: "SystemEnumeration", typeSE: "UseFullTextSearch", defaultValueXML: "Use", implicitValueYAML: "Use", xmlParents: properties }
 ```
 
 For `minValue` and `maxValue`, use:
@@ -1172,7 +1172,7 @@ git commit -m "feat: :sparkles: добавить общий реквизит"
 Use:
 
 ```ts
-predefined: { yaml: "Предопределенный", type: "boolean", defaultValueXML: true, defaultValueYAML: true, xmlParents: properties }
+predefined: { yaml: "Предопределенный", type: "boolean", defaultValueXML: true, implicitValueYAML: true, xmlParents: properties }
 picture: { yaml: "Картинка", type: "Picture", xmlParents: properties, defaultValueXMLRaw: "" }
 module: { type: "Module", nkdkPath: "Модуль.bsl", xmlPath: "Ext/Module.bsl" }
 ```
@@ -1239,7 +1239,7 @@ Use:
 
 ```ts
 type: { yaml: "Тип", type: "TypeDescription", xmlParents: properties, defaultValueXMLRaw: "" }
-useStandardCommands: { yaml: "ИспользоватьСтандартныеКоманды", type: "boolean", defaultValueXML: true, defaultValueYAML: true, xmlParents: properties }
+useStandardCommands: { yaml: "ИспользоватьСтандартныеКоманды", type: "boolean", defaultValueXML: true, implicitValueYAML: true, xmlParents: properties }
 content: { yaml: "Состав", type: "MetadataItemLinks", xml: "Content", xmlParents: properties, defaultValueXMLRaw: "" }
 defaultForm: { yaml: "ОсновнаяФорма", type: "string", xmlParents: properties, referenceScope: { target: "this", kind: "Form" }, defaultValueXMLRaw: "" }
 auxiliaryForm: { yaml: "ВспомогательнаяФорма", type: "string", xmlParents: properties, referenceScope: { target: "this", kind: "Form" }, defaultValueXMLRaw: "" }

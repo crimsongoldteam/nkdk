@@ -1,5 +1,10 @@
 # Configuration Clean Defaults Implementation Plan
 
+> Historical note from 2026-06-13: the temporary `implicitValueYAML: undefined`
+> marker for unknown `CompatibilityMode` values was removed. `CompatibilityMode`
+> now behaves as a closed `SystemEnumeration` until a separate explicit feature
+> reintroduces future platform values.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** После загрузки чистой `Configuration.xml` в YAML должны попадать только обязательные поля `Имя`, `РежимСовместимостиРасширенияКонфигурации`, `ОсновнойЯзык`, `РежимСовместимости`; пустые XML-поля не должны становиться пустыми строками в модели; `UsedMobileApplicationFunctionalities` должен хранить только отличия от канонического clean-default и использовать русские boolean-значения `Истина`/`Ложь`.
@@ -141,7 +146,7 @@ describe("CompatibilityMode open enum JSON schema", () => {
 ```ts
 export interface BasePropertyRule {
   // existing fields
-  defaultValueYAML?: any | DefaultValueFunction;
+  implicitValueYAML?: any | DefaultValueFunction;
   /**
    * Value implied by an absent YAML key. Explicit `undefined` means the rule has
    * an implicit YAML value conceptually, but the value itself is not selectable
@@ -203,11 +208,11 @@ export const CompatibilityModeToYAML = {
 ```ts
 export type SystemEnumerationPropertyRule<T extends SystemEnumeration> = Omit<
   BasePropertyRule,
-  "defaultValueYAML" | "implicitValueYAML"
+  "implicitValueYAML" | "implicitValueYAML"
 > & {
   type: "SystemEnumeration";
   typeSE: T;
-  defaultValueYAML?: SystemEnumerationTypeMap[T] | string;
+  implicitValueYAML?: SystemEnumerationTypeMap[T] | string;
   implicitValueYAML?: SystemEnumerationTypeMap[T] | string | undefined;
 };
 ```

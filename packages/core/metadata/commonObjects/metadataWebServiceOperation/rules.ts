@@ -41,7 +41,7 @@ export const MetadataWebServiceParameterRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       preserveExplicitDefaultXML: true,
     },
     transferDirection: {
@@ -51,7 +51,7 @@ export const MetadataWebServiceParameterRules = {
       typeSE: "TransferDirection",
       xmlParents: propertiesParents,
       defaultValueXML: "In",
-      defaultValueYAML: "In",
+      implicitValueYAML: "In",
       preserveExplicitDefaultXML: true,
     },
     objectBelonging: {
@@ -62,7 +62,7 @@ export const MetadataWebServiceParameterRules = {
       xmlParents: propertiesParents,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       xml: "ExtendedConfigurationObject",
@@ -110,7 +110,7 @@ export const MetadataWebServiceOperationRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       preserveExplicitDefaultXML: true,
     },
     transactioned: {
@@ -119,7 +119,7 @@ export const MetadataWebServiceOperationRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       preserveExplicitDefaultXML: true,
     },
     procedureName: {
@@ -135,7 +135,7 @@ export const MetadataWebServiceOperationRules = {
       typeSE: "DataLockControlMode",
       xmlParents: propertiesParents,
       defaultValueXML: "Managed",
-      defaultValueYAML: "Managed",
+      implicitValueYAML: "Managed",
       preserveExplicitDefaultXML: true,
     },
     parameters: {
@@ -154,7 +154,7 @@ export const MetadataWebServiceOperationRules = {
       xmlParents: propertiesParents,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       xml: "ExtendedConfigurationObject",

@@ -11,7 +11,7 @@ const CheckBoxFieldCommonRulesProperties = {
     yaml: "ВидФлажка",
     type: "SystemEnumeration",
     typeSE: "CheckBoxType",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   editFormat: { yaml: "ФорматРедактирования", type: "I8nText" },
   equalItemsWidth: { yaml: "ОдинаковаяШиринаЭлементов", type: "boolean" },

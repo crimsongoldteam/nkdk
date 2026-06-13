@@ -12,7 +12,7 @@ export const DynamicListRules = {
     autoSaveUserSettings: {
       type: "boolean",
       yaml: "АвтоматическоеСохранениеПользовательскихНастроек",
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       order: 7,
     },
     calculatedFields: {
@@ -41,7 +41,7 @@ export const DynamicListRules = {
       order: 1,
       defaultValue: false,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     dataParameters: {
       type: "SettingsParameterValueCollection",
@@ -58,7 +58,7 @@ export const DynamicListRules = {
       type: "boolean",
       yaml: "ДинамическоеСчитываниеДанных",
       order: 2,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
     },
     fields: {
       type: "DataSetFieldFields",
@@ -76,7 +76,7 @@ export const DynamicListRules = {
     getInvisibleFieldPresentations: {
       type: "boolean",
       yaml: "ПолучениеПредставленийДляНевидимыхПолей",
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       order: 7,
     },
     group: {
@@ -117,7 +117,7 @@ export const DynamicListRules = {
       xml: "KeyType",
       yaml: "ВидКлюча",
       order: 4,
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
     keyFields: {
       type: "DynamicListKeyFields",
