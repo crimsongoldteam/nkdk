@@ -43,7 +43,7 @@ export const MetadataBotRules = {
       yaml: "ПринадлежностьОбъекта",
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: properties,
@@ -57,7 +57,7 @@ export const MetadataBotRules = {
       yaml: "Предопределенный",
       type: "boolean",
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       xmlParents: properties,
     },
     picture: {

@@ -99,7 +99,7 @@ const cubeProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   defaultRecordForm: {
     yaml: "ОсновнаяФормаЗаписи",
@@ -158,7 +158,7 @@ const cubeProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   dimensionTables: {
     yaml: "ТаблицыИзмерений",

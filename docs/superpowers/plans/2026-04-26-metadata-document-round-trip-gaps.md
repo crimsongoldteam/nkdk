@@ -575,7 +575,7 @@ objectBelonging: {
   yaml: "ПринадлежностьОбъекта",
   type: "SystemEnumeration",
   typeSE: "ObjectBelonging",
-  defaultValueYAML: "Native",
+  implicitValueYAML: "Native",
   toYAML: false,
   fromYAML: false,
   xmlParents: documentProperties,
@@ -595,7 +595,7 @@ git add packages/core/metadata/appliedObjects/metadataDocument/rules.ts
 git commit -m "refactor: :recycle: additionalIndexes через filePath, objectBelonging как у Sequence
 
 - additionalIndexes: filePath=Ext/AdditionalIndexes.xml (по образцу Catalog)
-- objectBelonging: toYAML/fromYAML=false, defaultValueYAML=Native"
+- objectBelonging: toYAML/fromYAML=false, implicitValueYAML=Native"
 ```
 
 ---

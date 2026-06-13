@@ -1,5 +1,11 @@
 # Configuration Clean Defaults
 
+> Историческое примечание от 2026-06-13: временный маркер
+> `implicitValueYAML: undefined` для неизвестных значений `CompatibilityMode`
+> удалён. `CompatibilityMode` теперь ведёт себя как закрытый
+> `SystemEnumeration`, пока отдельная задача явно не вернёт поддержку будущих
+> значений платформы.
+
 ## Цель
 
 При импорте чистой конфигурации из XML в YAML корневой `Конфигурация.yaml` должен содержать только четыре обязательных поля:
@@ -38,7 +44,7 @@
 
 Для всех остальных свойств из чистого XML задаются XML-defaults по эталонному `Configuration.xml`: `defaultValueXML` для явных значений и `defaultValueXMLRaw` для пустых тегов. Это нужно, чтобы XML-import убирал default-значения из модели, а YAML-export не писал их.
 
-Для clean-defaults не нужно подставлять пустые строки в модель. Пустой XML-тег вроде `<DefaultConstantsForm/>` должен импортироваться как `undefined`, отсутствовать в YAML и восстанавливаться при XML-export через `defaultValueXMLRaw: ""`. Поэтому для таких полей не используем связку `defaultValueXMLEmpty: ""` + `defaultValue: ""` + `defaultValueYAML: ""`: она делает пустую строку частью модели, что здесь неверно.
+Для clean-defaults не нужно подставлять пустые строки в модель. Пустой XML-тег вроде `<DefaultConstantsForm/>` должен импортироваться как `undefined`, отсутствовать в YAML и восстанавливаться при XML-export через `defaultValueXMLRaw: ""`. Поэтому для таких полей не используем связку `defaultValueXMLEmpty: ""` + `defaultValue: ""` + `implicitValueYAML: ""`: она делает пустую строку частью модели, что здесь неверно.
 
 ## Решение по полям
 
@@ -64,9 +70,9 @@
 | `InterfaceCompatibilityMode` / `РежимСовместимостиИнтерфейса` | `Taxi` | `undefined` | не писать | `defaultValueXML: "Taxi"` |
 | `DatabaseTablespacesUseMode` / `РежимИспользованияТабличныхПространствБазыДанных` | `DontUse` | `undefined` | не писать | `defaultValueXML: "DontUse"` |
 
-Default-поля выше не должны использовать `defaultValueYAML` для подстановки значения в модель при YAML-import. Если ключа нет в YAML, модель остается компактной; XML-default восстанавливается на этапе XML-export правилом `defaultValueXML` или `defaultValueXMLRaw`.
+Default-поля выше не должны использовать `implicitValueYAML` для подстановки значения в модель при YAML-import. Если ключа нет в YAML, модель остается компактной; XML-default восстанавливается на этапе XML-export правилом `defaultValueXML` или `defaultValueXMLRaw`.
 
-`defaultValueYAML` в будущем нужно переименовать в `implicitValueYAML`, потому что смысл поля не “default для подстановки”, а “значение, которое подразумевается отсутствием ключа и не выбирается явно в YAML”. В этой задаче глобальное переименование и обязательность не включаются, но добавляется подготовка для особых полей режимов совместимости через `implicitValueYAML: undefined`.
+`implicitValueYAML` в будущем нужно переименовать в `implicitValueYAML`, потому что смысл поля не “default для подстановки”, а “значение, которое подразумевается отсутствием ключа и не выбирается явно в YAML”. В этой задаче глобальное переименование и обязательность не включаются, но добавляется подготовка для особых полей режимов совместимости через `implicitValueYAML: undefined`.
 
 ## Мобильная функциональность
 

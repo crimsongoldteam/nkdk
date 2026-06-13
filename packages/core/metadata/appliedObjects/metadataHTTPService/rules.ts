@@ -54,7 +54,7 @@ export const MetadataHTTPServiceRules = {
       typeSE: "SessionReuseMode",
       xmlParents: properties,
       defaultValueXML: "AutoUse",
-      defaultValueYAML: "AutoUse",
+      implicitValueYAML: "AutoUse",
     },
     sessionMaxAge: {
       yaml: "ВремяЖизниСеанса",
@@ -62,7 +62,7 @@ export const MetadataHTTPServiceRules = {
       type: "number",
       xmlParents: properties,
       defaultValueXML: 20,
-      defaultValueYAML: 20,
+      implicitValueYAML: 20,
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
@@ -72,7 +72,7 @@ export const MetadataHTTPServiceRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       xml: "ExtendedConfigurationObject",

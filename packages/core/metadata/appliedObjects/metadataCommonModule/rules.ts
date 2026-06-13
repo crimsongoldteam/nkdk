@@ -45,7 +45,7 @@ export const MetadataCommonModuleRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     clientManagedApplication: {
       yaml: "Клиент",
@@ -53,7 +53,7 @@ export const MetadataCommonModuleRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     server: {
       yaml: "Сервер",
@@ -61,7 +61,7 @@ export const MetadataCommonModuleRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
     },
     externalConnection: {
       yaml: "ВнешнееСоединение",
@@ -69,7 +69,7 @@ export const MetadataCommonModuleRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     clientOrdinaryApplication: {
       yaml: "КлиентОбычноеПриложение",
@@ -77,7 +77,7 @@ export const MetadataCommonModuleRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     serverCall: {
       yaml: "ВызовСервера",
@@ -85,7 +85,7 @@ export const MetadataCommonModuleRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     privileged: {
       yaml: "Привилегированный",
@@ -93,7 +93,7 @@ export const MetadataCommonModuleRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     returnValuesReuse: {
       yaml: "ПовторноеИспользованиеВозвращаемыхЗначений",
@@ -102,7 +102,7 @@ export const MetadataCommonModuleRules = {
       typeSE: "ReturnValuesReuse",
       xmlParents: properties,
       defaultValueXML: "DontUse",
-      defaultValueYAML: "DontUse",
+      implicitValueYAML: "DontUse",
     },
     module: {
       type: "Module",
@@ -115,7 +115,7 @@ export const MetadataCommonModuleRules = {
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
     },

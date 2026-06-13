@@ -23,7 +23,7 @@ export const StandardAttributeDescriptionRules = {
       typeSE: "ChoiceHistoryOnInput",
       order: 13,
       defaultValueXML: "Auto",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
     choiceParameterLinks: {
       yaml: "СвязиПараметровВыбора",
@@ -53,7 +53,7 @@ export const StandardAttributeDescriptionRules = {
       typeSE: "CreateOnInput",
       order: 5,
       defaultValueXML: "Auto",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
     dataHistory: {
       yaml: "ИсторияДанных",
@@ -62,7 +62,7 @@ export const StandardAttributeDescriptionRules = {
       typeSE: "DataHistoryUse",
       order: 16,
       defaultValueXML: "Use",
-      defaultValueYAML: "Use",
+      implicitValueYAML: "Use",
     },
     editFormat: {
       yaml: "ФорматРедактирования",
@@ -85,7 +85,7 @@ export const StandardAttributeDescriptionRules = {
       typeSE: "FillChecking",
       order: 2,
       defaultValueXML: "DontCheck",
-      defaultValueYAML: "DontCheck",
+      implicitValueYAML: "DontCheck",
     },
     fillFromFillingValue: {
       yaml: "ЗаполнятьИзДанныхЗаполнения",
@@ -115,7 +115,7 @@ export const StandardAttributeDescriptionRules = {
       typeSE: "UseFullTextSearch",
       order: 21,
       defaultValueXML: "Use",
-      defaultValueYAML: "Use",
+      implicitValueYAML: "Use",
     },
     linkByType: {
       yaml: "СвязьПоТипу",
@@ -173,7 +173,7 @@ export const StandardAttributeDescriptionRules = {
       typeSE: "UseQuickChoice",
       order: 12,
       defaultValueXML: "Auto",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
     synonym: {
       yaml: "Синоним",
@@ -201,7 +201,7 @@ export const StandardAttributeDescriptionRules = {
       typeSE: "TypeReductionMode",
       order: 6,
       defaultValueXML: "TransformValues",
-      defaultValueYAML: "TransformValues",
+      implicitValueYAML: "TransformValues",
     },
   },
 } as const satisfies MetadataItemRule

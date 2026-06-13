@@ -32,7 +32,7 @@ export const StandardTabularSectionDescriptionRules = {
       type: "SystemEnumeration",
       typeSE: "FillChecking",
       defaultValueXML: "DontCheck",
-      defaultValueYAML: "DontCheck",
+      implicitValueYAML: "DontCheck",
     },
     standardAttributes: {
       yaml: "СтандартныеРеквизиты",

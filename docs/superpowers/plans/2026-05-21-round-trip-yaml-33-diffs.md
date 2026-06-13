@@ -620,7 +620,7 @@ const rule = {
     synonym: {
       type: "I8nText",
       yaml: "Синоним",
-      defaultValueYAML: ({ name }: { name?: string }) => ({ items: { ru: name } }),
+      implicitValueYAML: ({ name }: { name?: string }) => ({ items: { ru: name } }),
       applyModelDefaultValueYAMLOnImport: { whenAnyYAMLKeyPresent: ["Имя"] },
     },
   },
@@ -670,7 +670,7 @@ Then ensure `importPropertyFromYAML` still passes `sourceValue` into `getValueOr
 ```ts
 YAML key present -> YAML value wins
 YAML key omitted and source value present -> source value wins
-YAML key omitted and no source value -> defaultValueYAML may apply
+YAML key omitted and no source value -> implicitValueYAML may apply
 ```
 
 - [ ] **Step 4: Verify orchestration and synonym-related tests**

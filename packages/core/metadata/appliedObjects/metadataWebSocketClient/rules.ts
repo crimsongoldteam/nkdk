@@ -45,7 +45,7 @@ export const MetadataWebSocketClientRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     autoConnect: {
       yaml: "АвтоПодключение",
@@ -53,7 +53,7 @@ export const MetadataWebSocketClientRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     serverURL: {
       yaml: "АдресСервера",
@@ -82,7 +82,7 @@ export const MetadataWebSocketClientRules = {
       type: "WebSocketClientHeaders",
       xmlParents: properties,
       defaultValueXML: [],
-      defaultValueYAML: [],
+      implicitValueYAML: [],
     },
     useOSProxy: {
       yaml: "ИспользоватьПроксиОС",
@@ -90,7 +90,7 @@ export const MetadataWebSocketClientRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     useOSAuthentication: {
       yaml: "ИспользоватьАутентификациюОС",
@@ -98,7 +98,7 @@ export const MetadataWebSocketClientRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     timeout: {
       yaml: "Таймаут",
@@ -106,7 +106,7 @@ export const MetadataWebSocketClientRules = {
       type: "number",
       xmlParents: properties,
       defaultValueXML: 30,
-      defaultValueYAML: 30,
+      implicitValueYAML: 30,
     },
     module: {
       type: "Module",
@@ -119,7 +119,7 @@ export const MetadataWebSocketClientRules = {
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
     },

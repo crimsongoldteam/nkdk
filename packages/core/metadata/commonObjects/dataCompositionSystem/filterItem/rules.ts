@@ -7,7 +7,7 @@ export const FilterItemComparisonRules = {
       type: "boolean",
       xml: "dcsset:use",
       yaml: "Использование",
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       order: 1,
     },
     leftValue: {
@@ -21,7 +21,7 @@ export const FilterItemComparisonRules = {
       typeSE: "DataCompositionComparisonType",
       xml: "dcsset:comparisonType",
       yaml: "ВидСравнения",
-      defaultValueYAML: "Equal",
+      implicitValueYAML: "Equal",
       order: 3,
     },
     rightValue: {
@@ -42,21 +42,21 @@ export const FilterItemComparisonRules = {
       xml: "dcsset:application",
       yaml: "Применение",
       order: 9,
-      //   defaultValueYAML: "Items",
+      //   implicitValueYAML: "Items",
     },
     viewMode: {
       type: "SystemEnumeration",
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
       order: 6,
     },
     userSettingID: {
       type: "UserSettingsID",
       xml: "dcsset:userSettingID",
       yaml: "ИспользоватьПользовательскуюНастройку",
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       order: 7,
     },
     userSettingPresentation: {
@@ -114,7 +114,7 @@ export const FilterItemGroupRules = {
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
       order: 3,
     },
     userSettingID: {

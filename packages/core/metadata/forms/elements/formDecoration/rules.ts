@@ -27,7 +27,7 @@ export const formDecorationCommonProperties = {
     yaml: "ПоведениеПриНедоступностиОсновногоСервера",
     type: "SystemEnumeration",
     typeSE: "OnMainServerUnavalableBehavior",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
   skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },

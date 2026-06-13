@@ -515,7 +515,7 @@ In `packages/core/metadata/forms/commonObjects/dynamicList/rules.ts`, change `cu
       derivedFrom: { externalFile: "queryText" },
       defaultValue: false,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
 ```
 
@@ -583,7 +583,7 @@ In `packages/core/metadata/orchestration/property/toYAML.ts`, insert after `cons
     if (
       "derivedFrom" in propertyRule &&
       (propertyRule as any).derivedFrom?.externalFile &&
-      value === propertyRule.defaultValueYAML
+      value === propertyRule.implicitValueYAML
     ) {
       const referencedKey = (propertyRule as any).derivedFrom.externalFile as keyof ToMetadata<Rule["itemType"]>
       const referencedValue = data[referencedKey]

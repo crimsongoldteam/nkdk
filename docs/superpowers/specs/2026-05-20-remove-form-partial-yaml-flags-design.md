@@ -35,7 +35,7 @@
 - Не менять XML-фикстуры.
 - Не менять `toYAML: false` и `fromYAML: false`: это отдельная семантика
   полного исключения свойства из YAML.
-- Не менять правила `defaultValueYAML`, кроме случаев, когда тест покажет
+- Не менять правила `implicitValueYAML`, кроме случаев, когда тест покажет
   прямую несовместимость после удаления `toPartialYAML: false`.
 - Не решать здесь отдельную проблему `ChoiceParameters` и
   `FormChoiceListDesTimeValue`.

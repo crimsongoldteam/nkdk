@@ -55,7 +55,7 @@ export const MetadataDefinedTypeRules = {
       yaml: "ПринадлежностьОбъекта",
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: properties,

@@ -483,7 +483,7 @@ export const MetadataLanguageRules = {
     synonym: { yaml: "Синоним", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
     comment: { yaml: "Комментарий", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
     languageCode: { yaml: "КодЯзыка", xml: "LanguageCode", type: "string", xmlParents: properties },
-    objectBelonging: { yaml: "ПринадлежностьОбъекта", xml: "ObjectBelonging", type: "SystemEnumeration", typeSE: "ObjectBelonging", xmlParents: properties, toYAML: false, fromYAML: false, defaultValueYAML: "Native" },
+    objectBelonging: { yaml: "ПринадлежностьОбъекта", xml: "ObjectBelonging", type: "SystemEnumeration", typeSE: "ObjectBelonging", xmlParents: properties, toYAML: false, fromYAML: false, implicitValueYAML: "Native" },
     extendedConfigurationObject: { xml: "ExtendedConfigurationObject", type: "string", xmlParents: properties, runtimeOnly: true },
   },
 } as const satisfies MetadataItemRule
@@ -513,16 +513,16 @@ Use the same `xmlRoot`, `uuid`, `name`, `synonym`, `comment`, `objectBelonging`,
 ```ts
 // MetadataFunctionalOption
 location: { yaml: "Размещение", xml: "Location", type: "string", xmlParents: properties },
-privilegedGetMode: { yaml: "ПривилегированныйРежимПриПолучении", xml: "PrivilegedGetMode", type: "boolean", xmlParents: properties, defaultValueXML: true, defaultValueYAML: true },
+privilegedGetMode: { yaml: "ПривилегированныйРежимПриПолучении", xml: "PrivilegedGetMode", type: "boolean", xmlParents: properties, defaultValueXML: true, implicitValueYAML: true },
 content: { yaml: "СоставФункциональнойОпции", xml: "Content", type: "MetadataItemLinks", xmlParents: properties, defaultValueXMLRaw: {} },
 
 // MetadataCommonTemplate
-templateType: { yaml: "ВидМакета", xml: "TemplateType", type: "SystemEnumeration", typeSE: "TemplateType", xmlParents: properties, defaultValueXML: "SpreadsheetDocument", defaultValueYAML: "SpreadsheetDocument" },
+templateType: { yaml: "ВидМакета", xml: "TemplateType", type: "SystemEnumeration", typeSE: "TemplateType", xmlParents: properties, defaultValueXML: "SpreadsheetDocument", implicitValueYAML: "SpreadsheetDocument" },
 template: { type: "Template", nkdkPath: "Template.xml", xmlPath: "Ext/Template.xml", toXML: false, fromXML: false },
 
 // MetadataCommonPicture
-availabilityForChoice: { yaml: "ДоступностьДляВыбора", xml: "AvailabilityForChoice", type: "boolean", xmlParents: properties, defaultValueXML: false, defaultValueYAML: false },
-availabilityForAppearance: { yaml: "ДоступностьДляОформления", xml: "AvailabilityForAppearance", type: "boolean", xmlParents: properties, defaultValueXML: false, defaultValueYAML: false },
+availabilityForChoice: { yaml: "ДоступностьДляВыбора", xml: "AvailabilityForChoice", type: "boolean", xmlParents: properties, defaultValueXML: false, implicitValueYAML: false },
+availabilityForAppearance: { yaml: "ДоступностьДляОформления", xml: "AvailabilityForAppearance", type: "boolean", xmlParents: properties, defaultValueXML: false, implicitValueYAML: false },
 picture: { type: "ExternalPicture", nkdkDir: "Картинка", xmlPath: "Ext/Picture.xml", payloadXmlDir: "Ext/Picture", toXML: false, fromXML: false },
 
 // MetadataStyle
@@ -535,17 +535,17 @@ rights: { type: "Template", nkdkPath: "Rights.xml", xmlPath: "Ext/Rights.xml", t
 methodName: { yaml: "ИмяМетода", xml: "MethodName", type: "string", xmlParents: properties },
 description: { yaml: "Описание", xml: "Description", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
 key: { yaml: "Ключ", xml: "Key", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
-use: { yaml: "Использование", xml: "Use", type: "boolean", xmlParents: properties, defaultValueXML: true, defaultValueYAML: true },
-predefined: { yaml: "Предопределенное", xml: "Predefined", type: "boolean", xmlParents: properties, defaultValueXML: false, defaultValueYAML: false },
-restartCountOnFailure: { yaml: "КоличествоПовторовПриАварийномЗавершении", xml: "RestartCountOnFailure", type: "number", xmlParents: properties, defaultValueXML: 3, defaultValueYAML: 3 },
-restartIntervalOnFailure: { yaml: "ИнтервалПовтораПриАварийномЗавершении", xml: "RestartIntervalOnFailure", type: "number", xmlParents: properties, defaultValueXML: 10, defaultValueYAML: 10 },
+use: { yaml: "Использование", xml: "Use", type: "boolean", xmlParents: properties, defaultValueXML: true, implicitValueYAML: true },
+predefined: { yaml: "Предопределенное", xml: "Predefined", type: "boolean", xmlParents: properties, defaultValueXML: false, implicitValueYAML: false },
+restartCountOnFailure: { yaml: "КоличествоПовторовПриАварийномЗавершении", xml: "RestartCountOnFailure", type: "number", xmlParents: properties, defaultValueXML: 3, implicitValueYAML: 3 },
+restartIntervalOnFailure: { yaml: "ИнтервалПовтораПриАварийномЗавершении", xml: "RestartIntervalOnFailure", type: "number", xmlParents: properties, defaultValueXML: 10, implicitValueYAML: 10 },
 schedule: { type: "Template", nkdkPath: "Schedule.xml", xmlPath: "Ext/Schedule.xml", toXML: false, fromXML: false },
 
 // MetadataCommandGroup
-representation: { yaml: "Представление", xml: "Representation", type: "SystemEnumeration", typeSE: "ButtonRepresentation", xmlParents: properties, defaultValueXML: "Auto", defaultValueYAML: "Auto" },
+representation: { yaml: "Представление", xml: "Representation", type: "SystemEnumeration", typeSE: "ButtonRepresentation", xmlParents: properties, defaultValueXML: "Auto", implicitValueYAML: "Auto" },
 toolTip: { yaml: "Подсказка", xml: "ToolTip", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
 picture: { yaml: "Картинка", xml: "Picture", type: "Picture", xmlParents: properties, defaultValueXMLRaw: "" },
-category: { yaml: "Категория", xml: "Category", type: "SystemEnumeration", typeSE: "CommandGroupCategory", xmlParents: properties, defaultValueXML: "NavigationPanel", defaultValueYAML: "NavigationPanel" },
+category: { yaml: "Категория", xml: "Category", type: "SystemEnumeration", typeSE: "CommandGroupCategory", xmlParents: properties, defaultValueXML: "NavigationPanel", implicitValueYAML: "NavigationPanel" },
 ```
 
 - [ ] **Step 5: Run small object test files**
@@ -669,14 +669,14 @@ export const MetadataSubsystemRules = {
     name: { type: "string", xmlParents: properties, required: true, defaultValue: ({ name }: { name?: string }) => name },
     synonym: { yaml: "Синоним", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
     comment: { yaml: "Комментарий", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
-    includeHelpInContents: { yaml: "ВключатьСправкуВСодержание", xml: "IncludeHelpInContents", type: "boolean", xmlParents: properties, defaultValueXML: true, defaultValueYAML: true },
-    includeInCommandInterface: { yaml: "ВключатьВКомандныйИнтерфейс", xml: "IncludeInCommandInterface", type: "boolean", xmlParents: properties, defaultValueXML: true, defaultValueYAML: true },
-    useOneCommand: { yaml: "ИспользоватьОднуКоманду", xml: "UseOneCommand", type: "boolean", xmlParents: properties, defaultValueXML: false, defaultValueYAML: false },
+    includeHelpInContents: { yaml: "ВключатьСправкуВСодержание", xml: "IncludeHelpInContents", type: "boolean", xmlParents: properties, defaultValueXML: true, implicitValueYAML: true },
+    includeInCommandInterface: { yaml: "ВключатьВКомандныйИнтерфейс", xml: "IncludeInCommandInterface", type: "boolean", xmlParents: properties, defaultValueXML: true, implicitValueYAML: true },
+    useOneCommand: { yaml: "ИспользоватьОднуКоманду", xml: "UseOneCommand", type: "boolean", xmlParents: properties, defaultValueXML: false, implicitValueYAML: false },
     explanation: { yaml: "Пояснение", xml: "Explanation", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
     picture: { yaml: "Картинка", xml: "Picture", type: "Picture", xmlParents: properties, defaultValueXMLRaw: "" },
     content: { yaml: "Состав", xml: "Content", type: "MetadataItemLinks", xmlParents: properties, defaultValueXMLRaw: {} },
     subsystems: { yaml: "Подсистемы", xml: "Subsystem", type: "ChildSubsystemNames", xmlParents: childObjects },
-    objectBelonging: { yaml: "ПринадлежностьОбъекта", xml: "ObjectBelonging", type: "SystemEnumeration", typeSE: "ObjectBelonging", xmlParents: properties, toYAML: false, fromYAML: false, defaultValueYAML: "Native" },
+    objectBelonging: { yaml: "ПринадлежностьОбъекта", xml: "ObjectBelonging", type: "SystemEnumeration", typeSE: "ObjectBelonging", xmlParents: properties, toYAML: false, fromYAML: false, implicitValueYAML: "Native" },
     extendedConfigurationObject: { xml: "ExtendedConfigurationObject", type: "string", xmlParents: properties, runtimeOnly: true },
     commandInterface: { type: "Template", nkdkPath: "CommandInterface.xml", xmlPath: "Ext/CommandInterface.xml", toXML: false, fromXML: false },
     help: { type: "Help", filePath: "Ext/Help.xml", xmlPath: "Ext/Help.xml", nkdkDir: "Справка", toXML: false, fromXML: false },
@@ -762,7 +762,7 @@ export const MetadataIntegrationServiceChannelRules = {
     messageDirection: { yaml: "НаправлениеСообщения", xml: "MessageDirection", type: "SystemEnumeration", typeSE: "IntegrationServiceChannelMessageDirection", xmlParents: ["Properties"] },
     receiveMessageProcessing: { yaml: "ОбработкаПолученияСообщения", xml: "ReceiveMessageProcessing", type: "string", xmlParents: ["Properties"], defaultValueXMLRaw: "" },
     transactioned: { yaml: "Транзакционный", xml: "Transactioned", type: "boolean", xmlParents: ["Properties"] },
-    objectBelonging: { yaml: "ПринадлежностьОбъекта", xml: "ObjectBelonging", type: "SystemEnumeration", typeSE: "ObjectBelonging", xmlParents: ["Properties"], toYAML: false, fromYAML: false, defaultValueYAML: "Native" },
+    objectBelonging: { yaml: "ПринадлежностьОбъекта", xml: "ObjectBelonging", type: "SystemEnumeration", typeSE: "ObjectBelonging", xmlParents: ["Properties"], toYAML: false, fromYAML: false, implicitValueYAML: "Native" },
     extendedConfigurationObject: { xml: "ExtendedConfigurationObject", type: "string", xmlParents: ["Properties"], runtimeOnly: true },
   },
 } as const
@@ -777,9 +777,9 @@ export const MetadataWebServiceParameterRules = {
     synonym: { yaml: "Синоним", xml: "Synonym", type: "I8nText", xmlParents: ["Properties"], defaultValueXMLRaw: "" },
     comment: { yaml: "Комментарий", xml: "Comment", type: "string", xmlParents: ["Properties"], defaultValueXMLRaw: "" },
     xdtoValueType: { yaml: "ТипЗначенияXDTO", xml: "XDTOValueType", type: "string", xmlParents: ["Properties"] },
-    nillable: { yaml: "МожетБытьНеопределено", xml: "Nillable", type: "boolean", xmlParents: ["Properties"], defaultValueXML: false, defaultValueYAML: false },
-    transferDirection: { yaml: "НаправлениеПередачи", xml: "TransferDirection", type: "SystemEnumeration", typeSE: "TransferDirection", xmlParents: ["Properties"], defaultValueXML: "In", defaultValueYAML: "In" },
-    objectBelonging: { yaml: "ПринадлежностьОбъекта", xml: "ObjectBelonging", type: "SystemEnumeration", typeSE: "ObjectBelonging", xmlParents: ["Properties"], toYAML: false, fromYAML: false, defaultValueYAML: "Native" },
+    nillable: { yaml: "МожетБытьНеопределено", xml: "Nillable", type: "boolean", xmlParents: ["Properties"], defaultValueXML: false, implicitValueYAML: false },
+    transferDirection: { yaml: "НаправлениеПередачи", xml: "TransferDirection", type: "SystemEnumeration", typeSE: "TransferDirection", xmlParents: ["Properties"], defaultValueXML: "In", implicitValueYAML: "In" },
+    objectBelonging: { yaml: "ПринадлежностьОбъекта", xml: "ObjectBelonging", type: "SystemEnumeration", typeSE: "ObjectBelonging", xmlParents: ["Properties"], toYAML: false, fromYAML: false, implicitValueYAML: "Native" },
     extendedConfigurationObject: { xml: "ExtendedConfigurationObject", type: "string", xmlParents: ["Properties"], runtimeOnly: true },
   },
 } as const
@@ -801,8 +801,8 @@ For `MetadataWebServiceRules`, use `xmlDir: "WebServices"`, `container: "WebServ
 namespace: { yaml: "ПространствоИмен", xml: "Namespace", type: "string", xmlParents: properties },
 xdtoPackages: { yaml: "ПакетыXDTO", xml: "XDTOPackages", type: "XDTOPackages", xmlParents: properties, defaultValueXMLRaw: {} },
 descriptorFileName: { yaml: "ИмяФайлаДескриптора", xml: "DescriptorFileName", type: "string", xmlParents: properties },
-reuseSessions: { yaml: "ПовторноеИспользованиеСеансов", xml: "ReuseSessions", type: "SystemEnumeration", typeSE: "SessionReuseMode", xmlParents: properties, defaultValueXML: "AutoUse", defaultValueYAML: "AutoUse" },
-sessionMaxAge: { yaml: "ВремяЖизниСеанса", xml: "SessionMaxAge", type: "number", xmlParents: properties, defaultValueXML: 20, defaultValueYAML: 20 },
+reuseSessions: { yaml: "ПовторноеИспользованиеСеансов", xml: "ReuseSessions", type: "SystemEnumeration", typeSE: "SessionReuseMode", xmlParents: properties, defaultValueXML: "AutoUse", implicitValueYAML: "AutoUse" },
+sessionMaxAge: { yaml: "ВремяЖизниСеанса", xml: "SessionMaxAge", type: "number", xmlParents: properties, defaultValueXML: 20, implicitValueYAML: 20 },
 operations: { yaml: "Операции", xml: "Operation", type: "MetadataWebServiceOperations", xmlParents: childObjects, defaultValue: [], defaultValueXMLRaw: {} },
 module: { type: "Module", nkdkPath: "Модуль.bsl", xmlPath: "Ext/Module.bsl", toXML: false, fromXML: false },
 ```
@@ -866,11 +866,11 @@ Use `ClientApplicationFormRules` fields for metadata-level defaults and add exte
 
 ```ts
 form: { yaml: "Форма", type: "ClientApplicationForm", filePath: "Ext/Form.xml" },
-formType: { yaml: "ТипФормы", xml: "FormType", type: "SystemEnumeration", typeSE: "FormType", xmlParents: properties, defaultValueXML: "Managed", defaultValueYAML: "Managed" },
-includeHelpInContents: { yaml: "ВключатьСправкуВСодержание", xml: "IncludeHelpInContents", type: "boolean", xmlParents: properties, defaultValueXML: false, defaultValueYAML: false },
+formType: { yaml: "ТипФормы", xml: "FormType", type: "SystemEnumeration", typeSE: "FormType", xmlParents: properties, defaultValueXML: "Managed", implicitValueYAML: "Managed" },
+includeHelpInContents: { yaml: "ВключатьСправкуВСодержание", xml: "IncludeHelpInContents", type: "boolean", xmlParents: properties, defaultValueXML: false, implicitValueYAML: false },
 help: { type: "Help", filePath: "Ext/Help.xml", xmlPath: "Ext/Help.xml", nkdkDir: "Справка", toXML: false, fromXML: false },
 usePurposes: { yaml: "НазначенияИспользования", xml: "UsePurposes", type: "UsePurposes", xmlParents: properties },
-useStandardCommands: { yaml: "ИспользоватьСтандартныеКоманды", xml: "UseStandardCommands", type: "boolean", xmlParents: properties, defaultValueXML: true, defaultValueYAML: true },
+useStandardCommands: { yaml: "ИспользоватьСтандартныеКоманды", xml: "UseStandardCommands", type: "boolean", xmlParents: properties, defaultValueXML: true, implicitValueYAML: true },
 extendedPresentation: { yaml: "РасширенноеПредставление", xml: "ExtendedPresentation", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
 explanation: { yaml: "Пояснение", xml: "Explanation", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
 ```
@@ -917,9 +917,9 @@ export const RecalculationRules = {
     name: { xml: "Name", type: "string", required: true, xmlParents: properties },
     synonym: { yaml: "Синоним", xml: "Synonym", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
     comment: { yaml: "Комментарий", xml: "Comment", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
-    use: { yaml: "Использование", xml: "Use", type: "boolean", xmlParents: properties, defaultValueXML: true, defaultValueYAML: true },
+    use: { yaml: "Использование", xml: "Use", type: "boolean", xmlParents: properties, defaultValueXML: true, implicitValueYAML: true },
     dimensions: { yaml: "Измерения", xml: "Dimension", type: "MetadataRegisterDimensions", xmlParents: childObjects, defaultValue: [], defaultValueXMLRaw: {} },
-    objectBelonging: { yaml: "ПринадлежностьОбъекта", xml: "ObjectBelonging", type: "SystemEnumeration", typeSE: "ObjectBelonging", xmlParents: properties, toYAML: false, fromYAML: false, defaultValueYAML: "Native" },
+    objectBelonging: { yaml: "ПринадлежностьОбъекта", xml: "ObjectBelonging", type: "SystemEnumeration", typeSE: "ObjectBelonging", xmlParents: properties, toYAML: false, fromYAML: false, implicitValueYAML: "Native" },
     extendedConfigurationObject: { xml: "ExtendedConfigurationObject", type: "string", xmlParents: properties, runtimeOnly: true },
   },
 } as const satisfies MetadataItemRule

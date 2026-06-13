@@ -1010,7 +1010,7 @@ export const MetadataCatalogAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "AttributeUse",
       defaultValueXML: "ForItem",
-      defaultValueYAML: "ForItem",
+      implicitValueYAML: "ForItem",
       preserveFromReferenceXML: true,
       xmlParents: ["Properties"],
       order: 26,

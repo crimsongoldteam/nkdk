@@ -7,7 +7,7 @@ export const GroupItemFieldRules = {
       type: "boolean",
       xml: "dcsset:use",
       yaml: "Использование",
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       order: 1,
     },
     field: {
@@ -22,7 +22,7 @@ export const GroupItemFieldRules = {
       xml: "dcsset:groupType",
       yaml: "ТипГруппировки",
       defaultValueXML: "Items",
-      defaultValueYAML: "Items",
+      implicitValueYAML: "Items",
       order: 3,
     },
     periodAdditionType: {
@@ -31,7 +31,7 @@ export const GroupItemFieldRules = {
       xml: "dcsset:periodAdditionType",
       yaml: "ТипДополнения",
       defaultValueXML: "None",
-      defaultValueYAML: "None",
+      implicitValueYAML: "None",
       order: 4,
     },
     periodAdditionBegin: {

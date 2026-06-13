@@ -38,7 +38,7 @@ In `packages/core/metadata/forms/elements/inputField/rules.ts`, add `typeDomainE
     typeDomainEnabled: {
       yaml: "РазрешитьСоставнойТип",
       type: "boolean",
-      defaultValueYAML: true,
+      implicitValueYAML: true,
     },
 ```
 

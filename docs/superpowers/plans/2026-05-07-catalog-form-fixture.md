@@ -569,7 +569,7 @@ Change `childItemsHorizontalAlign`:
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
       tag: FormRulesTags.Form,
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
 ```
 
@@ -582,7 +582,7 @@ Change `childItemsVerticalAlign`:
       type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
       tag: FormRulesTags.Form,
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
 ```
 
@@ -595,7 +595,7 @@ Change `collapseItemsByImportance`:
       type: "SystemEnumeration",
       typeSE: "CollapseFormItemsByImportance",
       tag: FormRulesTags.Form,
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
 ```
 
@@ -608,7 +608,7 @@ Change `itemsAndTitlesAlign`:
       type: "SystemEnumeration",
       typeSE: "ItemsAndTitlesAlignVariant",
       tag: FormRulesTags.Form,
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
 ```
 
@@ -631,7 +631,7 @@ Add after `scale`:
       type: "SystemEnumeration",
       typeSE: "ClientApplicationFormScaleVariant",
       tag: FormRulesTags.Form,
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
 ```
 
@@ -1097,7 +1097,7 @@ Run:
 pnpm --filter @nakidka/core exec vitest run metadata/forms/clientApplicationForm/toYAML.test.ts -t "exports catalog full YAML"
 ```
 
-Expected: PASS. If expected data includes values that are intentionally omitted by `defaultValueYAML`, update the YAML fixture. Do not remove the agreed keys from the fixture unless exporter omits them because the value equals a documented default.
+Expected: PASS. If expected data includes values that are intentionally omitted by `implicitValueYAML`, update the YAML fixture. Do not remove the agreed keys from the fixture unless exporter omits them because the value equals a documented default.
 
 - [ ] **Step 6: Run client form YAML tests**
 

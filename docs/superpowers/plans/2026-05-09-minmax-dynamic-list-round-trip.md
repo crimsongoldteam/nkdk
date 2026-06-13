@@ -572,7 +572,7 @@ keyType: {
   typeSE: "DynamicListKeyType",
   xml: "KeyType",
   yaml: "ВидКлюча",
-  defaultValueYAML: "Auto",
+  implicitValueYAML: "Auto",
 },
 keyFields: {
   type: "string",

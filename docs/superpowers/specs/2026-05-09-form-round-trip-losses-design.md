@@ -179,7 +179,7 @@ slaveItemsWidth: {
   type: "SystemEnumeration",
   typeSE: "ChildFormItemsWidth",
   tag: FormRulesTags.Form,
-  defaultValueYAML: "Auto",
+  implicitValueYAML: "Auto",
 }
 ```
 
@@ -209,7 +209,7 @@ slaveItemsWidth: {
   type: "SystemEnumeration",
   typeSE: "ChildFormItemsWidth",
   tag: FormRulesTags.Form,
-  defaultValueYAML: "Auto",
+  implicitValueYAML: "Auto",
 }
 ```
 
@@ -619,7 +619,7 @@ keyType: {
   typeSE: "DynamicListKeyType",
   xml: "KeyType",
   yaml: "ВидКлюча",
-  defaultValueYAML: "Авто",
+  implicitValueYAML: "Авто",
 }
 ```
 

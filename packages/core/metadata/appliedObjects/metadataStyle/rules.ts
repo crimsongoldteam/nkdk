@@ -54,7 +54,7 @@ export const MetadataStyleRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       xml: "ExtendedConfigurationObject",

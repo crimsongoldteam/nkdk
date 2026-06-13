@@ -18,7 +18,7 @@ export const FilterRules = {
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
     userSettingID: {
       type: "UserSettingsID",

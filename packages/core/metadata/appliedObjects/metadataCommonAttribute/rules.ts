@@ -48,7 +48,7 @@ export const MetadataCommonAttributeRules = {
       yaml: "РежимПароля",
       type: "boolean",
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       xmlParents: properties,
     },
     format: {
@@ -73,7 +73,7 @@ export const MetadataCommonAttributeRules = {
       yaml: "ВыделятьОтрицательные",
       type: "boolean",
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       xmlParents: properties,
     },
     mask: {
@@ -86,14 +86,14 @@ export const MetadataCommonAttributeRules = {
       yaml: "МногострочныйРежим",
       type: "boolean",
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       xmlParents: properties,
     },
     extendedEdit: {
       yaml: "РасширенноеРедактирование",
       type: "boolean",
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       xmlParents: properties,
     },
     minValue: {
@@ -114,7 +114,7 @@ export const MetadataCommonAttributeRules = {
       yaml: "ЗаполнятьИзДанныхЗаполнения",
       type: "boolean",
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       xmlParents: properties,
     },
     fillValue: {
@@ -129,7 +129,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "FillChecking",
       defaultValueXML: "DontCheck",
-      defaultValueYAML: "DontCheck",
+      implicitValueYAML: "DontCheck",
       xmlParents: properties,
     },
     choiceFoldersAndItems: {
@@ -137,7 +137,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "FoldersAndItemsUse",
       defaultValueXML: "Items",
-      defaultValueYAML: "Items",
+      implicitValueYAML: "Items",
       xmlParents: properties,
     },
     choiceParameterLinks: {
@@ -157,7 +157,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "UseQuickChoice",
       defaultValueXML: "Auto",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
       xmlParents: properties,
     },
     createOnInput: {
@@ -165,7 +165,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "CreateOnInput",
       defaultValueXML: "Auto",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
       xmlParents: properties,
     },
     choiceForm: {
@@ -185,7 +185,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "ChoiceHistoryOnInput",
       defaultValueXML: "Auto",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
       xmlParents: properties,
     },
     content: {
@@ -200,7 +200,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "CommonAttributeAutoUse",
       defaultValueXML: "DontUse",
-      defaultValueYAML: "DontUse",
+      implicitValueYAML: "DontUse",
       xmlParents: properties,
     },
     dataSeparation: {
@@ -208,7 +208,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "CommonAttributeDataSeparation",
       defaultValueXML: "DontUse",
-      defaultValueYAML: "DontUse",
+      implicitValueYAML: "DontUse",
       xmlParents: properties,
     },
     separatedDataUse: {
@@ -216,7 +216,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "CommonAttributeSeparatedDataUse",
       defaultValueXML: "Independently",
-      defaultValueYAML: "Independently",
+      implicitValueYAML: "Independently",
       xmlParents: properties,
     },
     dataSeparationValue: {
@@ -242,7 +242,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "CommonAttributeUsersSeparation",
       defaultValueXML: "DontUse",
-      defaultValueYAML: "DontUse",
+      implicitValueYAML: "DontUse",
       xmlParents: properties,
     },
     authenticationSeparation: {
@@ -250,7 +250,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "CommonAttributeAuthenticationSeparation",
       defaultValueXML: "DontUse",
-      defaultValueYAML: "DontUse",
+      implicitValueYAML: "DontUse",
       xmlParents: properties,
     },
     configurationExtensionsSeparation: {
@@ -258,7 +258,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "CommonAttributeConfigurationExtensionsSeparation",
       defaultValueXML: "DontUse",
-      defaultValueYAML: "DontUse",
+      implicitValueYAML: "DontUse",
       xmlParents: properties,
     },
     indexing: {
@@ -266,7 +266,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "Indexing",
       defaultValueXML: "DontIndex",
-      defaultValueYAML: "DontIndex",
+      implicitValueYAML: "DontIndex",
       xmlParents: properties,
     },
     fullTextSearch: {
@@ -274,7 +274,7 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "UseFullTextSearch",
       defaultValueXML: "Use",
-      defaultValueYAML: "Use",
+      implicitValueYAML: "Use",
       xmlParents: properties,
     },
     dataHistory: {
@@ -282,14 +282,14 @@ export const MetadataCommonAttributeRules = {
       type: "SystemEnumeration",
       typeSE: "DataHistoryUse",
       defaultValueXML: "Use",
-      defaultValueYAML: "Use",
+      implicitValueYAML: "Use",
       xmlParents: properties,
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: properties,

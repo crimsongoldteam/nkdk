@@ -120,7 +120,7 @@ In `packages/core/metadata/forms/commonObjects/dynamicList/rules.ts`, replace th
       order: 1,
       defaultValue: false,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
 ```
 

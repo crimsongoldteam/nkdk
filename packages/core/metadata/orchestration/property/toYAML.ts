@@ -37,7 +37,7 @@ export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
 
       const referencedKey = propertyRule.derivedFrom.externalFile as keyof ToMetadata<Rule["itemType"]>
       const referencedValue = data[referencedKey]
-      if (value === propertyRule.defaultValueYAML && referencedValue === undefined) continue
+      if (value === propertyRule.implicitValueYAML && referencedValue === undefined) continue
     }
 
     const exportedValues = exportPropertyToYAML({
@@ -77,7 +77,7 @@ export const exportPropertyToYAML = (params: {
     return undefined
   }
 
-  if ("defaultValueYAML" in rule && value === (rule as any).defaultValueYAML) return undefined
+  if ("implicitValueYAML" in rule && value === (rule as any).implicitValueYAML) return undefined
 
   const typeExportFn = getTypeRule(rule.type, "exportToYAML")
 
@@ -109,13 +109,13 @@ const getExportToYAMLResult = (
   }
 
   if (
-    rule.omitDefaultValueYAMLBySource === true &&
-    "defaultValueYAML" in rule &&
-    sourceValue === (rule as any).defaultValueYAML
+    rule.omitImplicitValueYAMLBySource === true &&
+    "implicitValueYAML" in rule &&
+    sourceValue === (rule as any).implicitValueYAML
   ) {
     return undefined
   }
-  if ("defaultValueYAML" in rule && value === (rule as any).defaultValueYAML) return undefined
+  if ("implicitValueYAML" in rule && value === (rule as any).implicitValueYAML) return undefined
 
   if (Array.isArray(value) && value.length === 0) return undefined
 

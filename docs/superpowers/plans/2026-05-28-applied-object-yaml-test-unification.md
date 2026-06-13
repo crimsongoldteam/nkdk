@@ -363,7 +363,7 @@ Expected: either PASS, or FAIL showing missing YAML defaults/annotations in the 
 
 - [ ] **Step 3: Fix only obvious YAML rule gaps**
 
-If failure is a scalar default mismatch, update the matching property in the register `rules.ts` with `defaultValueYAML` equal to the existing `defaultValueXML`.
+If failure is a scalar default mismatch, update the matching property in the register `rules.ts` with `implicitValueYAML` equal to the existing `defaultValueXML`.
 
 Example patch shape:
 
@@ -372,7 +372,7 @@ someBooleanProperty: {
   yaml: "РусскийКлюч",
   type: "boolean",
   defaultValueXML: false,
-  defaultValueYAML: false,
+  implicitValueYAML: false,
   xmlParents: properties,
 },
 ```

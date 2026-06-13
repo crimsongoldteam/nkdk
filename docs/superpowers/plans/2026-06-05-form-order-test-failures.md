@@ -127,7 +127,7 @@ fillCheck: {
   yaml: "ПроверкаЗаполнения",
   type: "SystemEnumeration",
   typeSE: "FillChecking",
-  defaultValueYAML: "DontCheck",
+  implicitValueYAML: "DontCheck",
   order: 7,
 },
 ```

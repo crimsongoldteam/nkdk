@@ -52,7 +52,7 @@ Deep Scan свойств родителя (см. чат-сессию 2026-04-26)
 |---|---|
 | `actionsWritingOnPost` | добавить `xml: "RegisterRecordsWritingOnPost"` (фикстура — этот тег) |
 | `privilegedPostingMode` | добавить `xml: "PostInPrivilegedMode"` |
-| `objectBelonging` | добавить `toYAML: false, fromYAML: false, defaultValueYAML: "Native"` (по Sequence) |
+| `objectBelonging` | добавить `toYAML: false, fromYAML: false, implicitValueYAML: "Native"` (по Sequence) |
 | `additionalIndexes` | заменить `xmlParents: documentProperties` на `filePath: "Ext/AdditionalIndexes.xml"` (по Catalog) |
 | `synonym`, `comment`, `auxiliaryObjectForm`, `auxiliaryListForm`, `auxiliaryChoiceForm`, `defaultObjectForm`, `defaultListForm`, `defaultChoiceForm`, `objectPresentation`, `extendedObjectPresentation`, `listPresentation`, `extendedListPresentation`, `explanation` | добавить `defaultValueXMLRaw: ""` |
 | `basedOn`, `registerRecords`, `characteristics`, `dataLockFields`, `inputByString` | добавить `defaultValueXMLRaw: {}` |

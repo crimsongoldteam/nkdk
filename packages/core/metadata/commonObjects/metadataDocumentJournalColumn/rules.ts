@@ -45,7 +45,7 @@ export const MetadataDocumentJournalColumnRules = {
       typeSE: "Indexing",
       xmlParents: ["Properties"],
       defaultValueXML: "DontIndex",
-      defaultValueYAML: "DontIndex",
+      implicitValueYAML: "DontIndex",
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
@@ -55,7 +55,7 @@ export const MetadataDocumentJournalColumnRules = {
       xmlParents: ["Properties"],
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
   },
 } as const satisfies MetadataItemRule

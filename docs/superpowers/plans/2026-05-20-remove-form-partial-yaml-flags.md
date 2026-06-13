@@ -29,7 +29,7 @@ Modify:
 - `packages/core/metadata/forms/elements/__tests__/toYAML.test.ts`  
   Adds a repository guard against active `toPartialYAML: false` in form element rules.
 - `packages/core/metadata/forms/elements/autoCommandBar/rules.ts`  
-  Removes `toPartialYAML: false` from `autofill`; adds `defaultValueYAML: true` so `Истина` stays implicit and `Ложь` is explicit.
+  Removes `toPartialYAML: false` from `autofill`; adds `implicitValueYAML: true` so `Истина` stays implicit and `Ложь` is explicit.
 - `packages/core/metadata/forms/elements/columnGroup/rules.ts`  
   Removes `toPartialYAML: false` from `group`.
 - `packages/core/metadata/forms/elements/inputField/rules.ts`  
@@ -41,7 +41,7 @@ Modify:
 - `packages/core/metadata/forms/elements/pictureField/rules.ts`  
   Removes `toPartialYAML: false` from `dataPath` and stale commented YAML exclusions nearby.
 - `packages/core/metadata/forms/elements/usualGroup/rules.ts`  
-  Removes `toPartialYAML: false` from `group` and `showTitle`; adds `defaultValueYAML: true` to `showTitle`.
+  Removes `toPartialYAML: false` from `group` and `showTitle`; adds `implicitValueYAML: true` to `showTitle`.
 - Fixture data files under `packages/core/metadata/forms/elements/*/__fixtures__/data.ts`  
   Update expected partial YAML objects where newly visible fields now appear.
 - Fixture data files under `packages/core/metadata/forms/clientApplicationForm/__fixtures__/*.ts`  
@@ -200,7 +200,7 @@ with:
       yaml: "Автозаполнение",
       type: "boolean",
       defaultValue: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       required: true,
     },
 ```
@@ -217,7 +217,7 @@ In `packages/core/metadata/forms/elements/columnGroup/rules.ts`, replace:
       defaultValue: "Vertical",
       toPartialYAML: false,
       required: true,
-      defaultValueYAML: "Horizontal",
+      implicitValueYAML: "Horizontal",
     },
 ```
 
@@ -230,7 +230,7 @@ with:
       typeSE: "ColumnsGroup",
       defaultValue: "Vertical",
       required: true,
-      defaultValueYAML: "Horizontal",
+      implicitValueYAML: "Horizontal",
     },
 ```
 
@@ -282,7 +282,7 @@ In `packages/core/metadata/forms/elements/usualGroup/rules.ts`, replace the `gro
       typeSE: "ChildFormItemsGroup",
       defaultValue: "HorizontalIfPossible",
       required: true,
-      defaultValueYAML: "HorizontalIfPossible",
+      implicitValueYAML: "HorizontalIfPossible",
     },
 ```
 
@@ -293,7 +293,7 @@ Replace the `showTitle` property with:
       yaml: "ОтображатьЗаголовок",
       type: "boolean",
       defaultValue: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
     },
 ```
 
@@ -375,7 +375,7 @@ If a failure shows a different exact path, use the path from the model, not a gu
 
 - [ ] **Step 4: Update group expectations**
 
-In `packages/core/metadata/forms/elements/usualGroup/__fixtures__/data.ts`, add `Группировка` or `ОтображатьЗаголовок` only where the test diff shows a non-default exported value. Do not add `ОтображатьЗаголовок: "Истина"` because `defaultValueYAML: true` should omit it.
+In `packages/core/metadata/forms/elements/usualGroup/__fixtures__/data.ts`, add `Группировка` or `ОтображатьЗаголовок` only where the test diff shows a non-default exported value. Do not add `ОтображатьЗаголовок: "Истина"` because `implicitValueYAML: true` should omit it.
 
 In `packages/core/metadata/forms/elements/columnGroup/__fixtures__/data.ts`, add `Группировка` only where the test diff shows the model value is not the YAML default.
 
@@ -392,7 +392,7 @@ If `metadata/forms/clientApplicationForm/toYAML.test.ts` fails after the focused
 }
 ```
 
-For `autofill=true`, do not add `Автозаполнение: "Истина"`; `defaultValueYAML: true` should keep it implicit.
+For `autofill=true`, do not add `Автозаполнение: "Истина"`; `implicitValueYAML: true` should keep it implicit.
 
 - [ ] **Step 6: Run YAML tests and verify they pass**
 

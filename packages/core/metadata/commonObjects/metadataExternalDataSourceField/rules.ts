@@ -38,7 +38,7 @@ export const externalDataSourceFieldBaseProperties = {
     type: "boolean",
     xmlParents: propertiesParents,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   format: {
     yaml: "Формат",
@@ -67,7 +67,7 @@ export const externalDataSourceFieldBaseProperties = {
     type: "boolean",
     xmlParents: propertiesParents,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   mask: {
     yaml: "Маска",
@@ -82,7 +82,7 @@ export const externalDataSourceFieldBaseProperties = {
     type: "boolean",
     xmlParents: propertiesParents,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   extendedEdit: {
     yaml: "РасширенноеРедактирование",
@@ -90,7 +90,7 @@ export const externalDataSourceFieldBaseProperties = {
     type: "boolean",
     xmlParents: propertiesParents,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   minValue: {
     yaml: "МинимальноеЗначение",
@@ -114,7 +114,7 @@ export const externalDataSourceFieldBaseProperties = {
     type: "boolean",
     xmlParents: propertiesParents,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   fillValue: {
     yaml: "ЗначениеЗаполнения",
@@ -130,7 +130,7 @@ export const externalDataSourceFieldBaseProperties = {
     typeSE: "FillChecking",
     xmlParents: propertiesParents,
     defaultValueXML: "DontCheck",
-    defaultValueYAML: "DontCheck",
+    implicitValueYAML: "DontCheck",
   },
   choiceParameterLinks: {
     yaml: "СвязиПараметровВыбора",
@@ -153,7 +153,7 @@ export const externalDataSourceFieldBaseProperties = {
     typeSE: "UseQuickChoice",
     xmlParents: propertiesParents,
     defaultValueXML: "Auto",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   createOnInput: {
     yaml: "СозданиеПриВводе",
@@ -162,7 +162,7 @@ export const externalDataSourceFieldBaseProperties = {
     typeSE: "CreateOnInput",
     xmlParents: propertiesParents,
     defaultValueXML: "Auto",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   choiceHistoryOnInput: {
     yaml: "ИсторияВыбораПриВводе",
@@ -171,7 +171,7 @@ export const externalDataSourceFieldBaseProperties = {
     typeSE: "ChoiceHistoryOnInput",
     xmlParents: propertiesParents,
     defaultValueXML: "Auto",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   choiceForm: {
     yaml: "ФормаВыбора",
@@ -189,7 +189,7 @@ const externalDataSourceServiceProperties = {
     type: "SystemEnumeration",
     typeSE: "ObjectBelonging",
     xmlParents: propertiesParents,
-    defaultValueYAML: "Native",
+    implicitValueYAML: "Native",
     toYAML: false,
     fromYAML: false,
   },
@@ -219,7 +219,7 @@ export const MetadataExternalDataSourceFieldRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     allowNull: {
       yaml: "РазрешитьNull",
@@ -227,7 +227,7 @@ export const MetadataExternalDataSourceFieldRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
     },
     ...externalDataSourceServiceProperties,
   },

@@ -13,7 +13,7 @@ export const ConditionalAppearanceRules = {
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
-      defaultValueYAML: "Normal",
+      implicitValueYAML: "Normal",
       defaultValueXML: "QuickAccess",
       defaultValue: ({ operation }) => (operation === "importFromYAML" ? undefined : "QuickAccess"),
     },
@@ -21,7 +21,7 @@ export const ConditionalAppearanceRules = {
       type: "UserSettingsID",
       xml: "dcsset:userSettingID",
       yaml: "ИспользоватьПользовательскуюНастройку",
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     userSettingPresentation: {
       type: "DcsLocalStringType",

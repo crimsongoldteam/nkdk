@@ -39,7 +39,7 @@ export const PredefinedItemRules = {
       yaml: "ЭтоГруппа",
       defaultValue: false,
       defaultValueXML: false,
-      defaultValueYAML: "Ложь",
+      implicitValueYAML: "Ложь",
     },
     type: {
       yaml: "ТипЗначения",

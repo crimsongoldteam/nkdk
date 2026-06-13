@@ -6,7 +6,7 @@ import { MetadataReportRules } from "./rules"
 import type { MetadataReport } from "./types"
 
 describe("import MetadataReport from YAML", () => {
-  it("applies defaultValueYAML for minimal report", () => {
+  it("applies implicitValueYAML for minimal report", () => {
     expect(
       testImportAppliedObjectFromYAML<MetadataReport>({
         rule: MetadataReportRules,
