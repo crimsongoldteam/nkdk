@@ -1,5 +1,2 @@
 packages:
   - packages/*
-
-patchedDependencies:
-  fast-xml-parser@5.3.3: patches/fast-xml-parser@5.3.3.patch
