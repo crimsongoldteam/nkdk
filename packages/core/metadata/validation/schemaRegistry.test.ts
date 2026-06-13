@@ -83,6 +83,33 @@ describe("JSON Schema registry", () => {
     expect(json).toContain('"ПутьКДанным"')
   })
 
+  it("exports form child item unions with Вид discriminantKey", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" }) as {
+      properties?: {
+        Элементы?: {
+          $defs?: {
+            GroupChildItems?: {
+              patternProperties?: {
+                "^(.*)$"?: {
+                  anyOf?: Array<{ properties?: { Вид?: { const?: string } } }>
+                  discriminantKey?: string
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const childItemSchema = schema.properties?.Элементы?.$defs?.GroupChildItems?.patternProperties?.["^(.*)$"]
+
+    expect(childItemSchema).toMatchObject({
+      discriminantKey: "Вид",
+    })
+    expect(childItemSchema?.anyOf?.some((branch) => branch.properties?.Вид?.const === "Группа")).toBe(true)
+    expect(childItemSchema?.anyOf?.some((branch) => branch.properties?.Вид?.const === "ПолеВвода")).toBe(true)
+  })
+
   it("compiles inline child item schemas with TypeBox compiler", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
 

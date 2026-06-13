@@ -123,7 +123,7 @@ function exportGenericChildItemsDefinitionToJSONSchema(params: {
   const itemSchema =
     childSchemas.length === 1
       ? childSchemas[0]
-      : Type.Union(childSchemas as [TSchema, TSchema, ...TSchema[]])
+      : Type.Union(childSchemas as [TSchema, TSchema, ...TSchema[]], { discriminantKey: "Вид" })
   return Type.Record(Type.String(), itemSchema)
 }
 
