@@ -31,6 +31,6 @@ export interface FormattedI8nTextXML extends I8nTextXML {
 export interface FormattedI8nTextPropertyRule extends BasePropertyRule {
   type: "FormattedI8nText"
   /** Legacy bridge for Task 2-3; removed after YAML import/export migration. */
-  yamlFormatted: string
+  yamlFormatted?: string
   xmlWithDefaultLanguage?: true
 }
