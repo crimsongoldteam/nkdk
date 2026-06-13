@@ -15,7 +15,6 @@ export type SearchStringAddition = FormTypeByRule<typeof SearchStringAdditionRul
 export type SingleSearchStringAddition = FormTypeByRule<typeof SingleSearchStringAdditionRules>
 
 export interface SearchStringAdditionYAML {
-  Источник?: string
   РастягиватьПоГоризонтали?: StringboolYAML
   АвтоМаксимальнаяШирина?: StringboolYAML
   МаксимальнаяШирина?: number
@@ -37,7 +36,7 @@ export interface SearchStringAdditionYAML {
   РасширеннаяПодсказка?: ExtendedTooltipYAML
 }
 
-export interface SingleSearchStringAdditionYAML extends Omit<SearchStringAdditionYAML, "Источник"> {}
+export interface SingleSearchStringAdditionYAML extends SearchStringAdditionYAML {}
 
 export type SearchStringAdditionEnterprise = EnterpriseType<typeof SearchStringAdditionRules>
 

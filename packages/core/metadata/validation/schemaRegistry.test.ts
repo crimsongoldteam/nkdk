@@ -83,6 +83,33 @@ describe("JSON Schema registry", () => {
     expect(json).toContain('"ПутьКДанным"')
   })
 
+  it("exports form child item unions with Вид discriminantKey", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" }) as {
+      properties?: {
+        Элементы?: {
+          $defs?: {
+            GroupChildItems?: {
+              patternProperties?: {
+                "^(.*)$"?: {
+                  anyOf?: Array<{ properties?: { Вид?: { const?: string } } }>
+                  discriminantKey?: string
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const childItemSchema = schema.properties?.Элементы?.$defs?.GroupChildItems?.patternProperties?.["^(.*)$"]
+
+    expect(childItemSchema).toMatchObject({
+      discriminantKey: "Вид",
+    })
+    expect(childItemSchema?.anyOf?.some((branch) => branch.properties?.Вид?.const === "Группа")).toBe(true)
+    expect(childItemSchema?.anyOf?.some((branch) => branch.properties?.Вид?.const === "ПолеВвода")).toBe(true)
+  })
+
   it("compiles inline child item schemas with TypeBox compiler", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
 
@@ -160,6 +187,84 @@ describe("JSON Schema registry", () => {
     }
 
     expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
+  it("reports selected branch errors for command bar search string additions", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Элементы: {
+        Таблица: {
+          Вид: "ТаблицаФормы",
+          КоманднаяПанель: {
+            Элементы: {
+              СтрокаПоиска: {
+                Вид: "ОтображениеСтрокиПоиска",
+                Источник: "Таблица",
+                Заголовок: {
+                  ru: "Строка поиска",
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    expect(compiled.Check(value)).toBe(false)
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toContain(
+      "/Элементы/Таблица: Expected union value"
+    )
+  })
+
+  it("rejects source in command bar search string additions", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Элементы: {
+        Таблица: {
+          Вид: "ТаблицаФормы",
+          КоманднаяПанель: {
+            Элементы: {
+              СтрокаПоиска: {
+                Вид: "ОтображениеСтрокиПоиска",
+                Источник: "Таблица",
+              },
+            },
+          },
+        },
+      },
+    }
+
+    expect(compiled.Check(value)).toBe(false)
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toContain(
+      "/Элементы/Таблица: Expected union value"
+    )
+  })
+
+  it("rejects source in command bar search control additions", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Элементы: {
+        Таблица: {
+          Вид: "ТаблицаФормы",
+          КоманднаяПанель: {
+            Элементы: {
+              УправлениеПоиском: {
+                Вид: "УправлениеПоиском",
+                Источник: "Таблица",
+              },
+            },
+          },
+        },
+      },
+    }
+
+    expect(compiled.Check(value)).toBe(false)
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toContain(
+      "/Элементы/Таблица: Expected union value"
+    )
   })
 
   it("accepts command names in command bar button schemas", () => {

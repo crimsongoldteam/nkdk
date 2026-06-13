@@ -19,6 +19,33 @@ describe("exportElementToPartialYAML", () => {
       expect(result).toEqual(fixture.yaml)
     })
   })
+
+  it("omits search string addition source from partial YAML", () => {
+    const result = exportElementToPartialYAML({
+      context: mockContext,
+      element: {
+        itemType: "SearchStringAddition",
+        name: "ТаблицаСтрокаПоиска",
+        additionSource: "Таблица",
+      },
+    })
+
+    expect(result).toBeUndefined()
+  })
+
+  it("omits search control addition source from partial YAML", () => {
+    const result = exportElementToPartialYAML({
+      context: mockContext,
+      element: {
+        itemType: "SearchControlAddition",
+        name: "ТаблицаУправлениеПоиском",
+        additionSource: "Таблица",
+        childItems: [],
+      },
+    })
+
+    expect(result).toBeUndefined()
+  })
 })
 
 describe("exportElementToTypedYAML", () => {
@@ -60,6 +87,37 @@ function collectRuleFiles(dir: string): string[] {
 }
 
 describe("exportChildItemToTreeNodeYAML", () => {
+  it("exports search string addition kind without source", () => {
+    const result = exportChildItemToTreeNodeYAML({
+      context: mockContext,
+      item: {
+        itemType: "SearchStringAddition",
+        name: "ТаблицаСтрокаПоиска",
+        additionSource: "Таблица",
+      },
+    })
+
+    expect(result).toEqual({
+      Вид: "ОтображениеСтрокиПоиска",
+    })
+  })
+
+  it("exports search control addition kind without source", () => {
+    const result = exportChildItemToTreeNodeYAML({
+      context: mockContext,
+      item: {
+        itemType: "SearchControlAddition",
+        name: "ТаблицаУправлениеПоиском",
+        additionSource: "Таблица",
+        childItems: [],
+      },
+    })
+
+    expect(result).toEqual({
+      Вид: "УправлениеПоиском",
+    })
+  })
+
   it("exports group kind, group mode and nested child items", () => {
     const result = exportChildItemToTreeNodeYAML({
       context: mockContext,
