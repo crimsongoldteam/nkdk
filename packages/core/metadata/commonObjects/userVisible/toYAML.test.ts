@@ -1,13 +1,12 @@
 import { describe, expect, it } from "vitest"
 import type { UserVisiblePropertyRule } from "~/metadata/orchestration/property/types"
-import { mockContext, mockRule } from "../../../tests/mockContext"
-import { exportUserVisibleToYAML, exportUserVisibleToYAMLDeprecated } from "./toYAML"
+import { mockContext } from "../../../tests/mockContext"
+import { exportUserVisibleToYAML } from "./toYAML"
 import { UserVisible, UserVisibleKeysYAML } from "./types"
 
 const userVisibleRule: UserVisiblePropertyRule = {
   type: "UserVisible",
-  yaml: UserVisibleKeysYAML.Allow,
-  yamlDeny: UserVisibleKeysYAML.Deny,
+  yaml: UserVisibleKeysYAML.Value,
 }
 
 describe("exportUserVisibleToYAML", () => {
@@ -33,20 +32,6 @@ describe("exportUserVisibleToYAML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("deprecated exporter does not export empty deny usage", () => {
-    const use: UserVisible = {
-      common: false,
-      values: [],
-    }
-
-    const result = exportUserVisibleToYAMLDeprecated(mockContext, mockRule, use, {
-      allow: UserVisibleKeysYAML.Allow,
-      deny: UserVisibleKeysYAML.Deny,
-    })
-
-    expect(result).toBeUndefined()
-  })
-
   it("should format allow `use`", () => {
     const use: UserVisible = {
       common: true,
@@ -57,16 +42,15 @@ describe("exportUserVisibleToYAML", () => {
     }
 
     const expectedResult = {
-      РазрешитьИспользование: {
-        "Role.Администратор": "Истина",
-        "Role.Пользователь": "Ложь",
+      Использование: {
+        Роли: {
+          "Role.Администратор": "Истина",
+          "Role.Пользователь": "Ложь",
+        },
       },
     }
 
-    const result = exportUserVisibleToYAMLDeprecated(mockContext, mockRule, use, {
-      allow: UserVisibleKeysYAML.Allow,
-      deny: UserVisibleKeysYAML.Deny,
-    })
+    const result = exportUserVisibleToYAML(mockContext, userVisibleRule, use)
 
     expect(result).toEqual(expectedResult)
   })
@@ -81,16 +65,16 @@ describe("exportUserVisibleToYAML", () => {
     }
 
     const expectedResult = {
-      ЗапретитьИспользование: {
-        "Role.Администратор": "Истина",
-        "Role.Пользователь": "Ложь",
+      Использование: {
+        Разрешить: "Ложь",
+        Роли: {
+          "Role.Администратор": "Истина",
+          "Role.Пользователь": "Ложь",
+        },
       },
     }
 
-    const result = exportUserVisibleToYAMLDeprecated(mockContext, mockRule, use, {
-      allow: UserVisibleKeysYAML.Allow,
-      deny: UserVisibleKeysYAML.Deny,
-    })
+    const result = exportUserVisibleToYAML(mockContext, userVisibleRule, use)
 
     expect(result).toEqual(expectedResult)
   })
@@ -102,15 +86,14 @@ describe("exportUserVisibleToYAML", () => {
     }
 
     const expectedResult = {
-      РазрешитьИспользование: {
-        "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Истина",
+      Использование: {
+        Роли: {
+          "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Истина",
+        },
       },
     }
 
-    const result = exportUserVisibleToYAMLDeprecated(mockContext, mockRule, use, {
-      allow: UserVisibleKeysYAML.Allow,
-      deny: UserVisibleKeysYAML.Deny,
-    })
+    const result = exportUserVisibleToYAML(mockContext, userVisibleRule, use)
 
     expect(result).toEqual(expectedResult)
   })
@@ -127,9 +110,11 @@ describe("exportUserVisibleToYAML", () => {
     const result = exportUserVisibleToYAML(mockContext, userVisibleRule, use)
 
     expect(result).toEqual({
-      РазрешитьИспользование: {
-        "Role.Администратор": "Истина",
-        "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Ложь",
+      Использование: {
+        Роли: {
+          "Role.Администратор": "Истина",
+          "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Ложь",
+        },
       },
     })
   })
@@ -146,9 +131,12 @@ describe("exportUserVisibleToYAML", () => {
     const result = exportUserVisibleToYAML(mockContext, userVisibleRule, use)
 
     expect(result).toEqual({
-      ЗапретитьИспользование: {
-        "Role.Администратор": "Истина",
-        "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Ложь",
+      Использование: {
+        Разрешить: "Ложь",
+        Роли: {
+          "Role.Администратор": "Истина",
+          "b1d9c8b4-d05c-45c7-8db2-abc84e597700": "Ложь",
+        },
       },
     })
   })
