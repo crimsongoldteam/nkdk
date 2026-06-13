@@ -1,5 +1,5 @@
 import type { ConfigurationContext } from "~/metadata/context/types"
-import { fullCommandBarChildItemsAllYAML } from "~/tests/fixtures/commandBarChildItems/data"
+import { fullCommandBarChildItemsAllYAML } from "~/metadata/forms/elements/__fixtures__/commandBarChildItems/data"
 import { mockContext } from "~/tests/mockContext"
 
 const Button = undefined

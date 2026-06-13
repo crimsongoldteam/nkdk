@@ -15,7 +15,7 @@ import {
   fullFormFieldPartialYAMLCommonFixture,
   fullFormFieldTableRelatedFixture,
   fullFormFieldTableRelatedPartialYAMLCommonFixture,
-} from "~/tests/fixtures/forms/base/formField/rules"
+} from "~/metadata/forms/elements/__fixtures__/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
 export const fullPictureField: RequiredFieldsElement<PictureField> = {

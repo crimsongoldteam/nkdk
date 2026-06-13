@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { multiple, single } from "~/tests/fixtures/metadataValueCollection/data"
+import { multiple, single } from "~/metadata/commonObjects/metadataValueCollection/__fixtures__/data"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importContentFromXML } from "~/xml/import/importer"

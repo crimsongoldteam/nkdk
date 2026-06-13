@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fullFieldsList, fullFieldsListYAML } from "~/tests/fixtures/fieldsList/data"
+import { fullFieldsList, fullFieldsListYAML } from "~/metadata/commonObjects/fieldsList/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportFieldsListToYAML } from "./toYAML"
 

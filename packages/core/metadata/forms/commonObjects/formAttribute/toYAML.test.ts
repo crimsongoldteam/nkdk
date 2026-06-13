@@ -19,7 +19,7 @@ import {
   withEmptySettingsFormAttributeYAML,
   withFunctionalOptionsFormAttribute,
   withFunctionalOptionsFormAttributeYAML,
-} from "~/tests/fixtures/formAttributes/data"
+} from "~/metadata/forms/commonObjects/formAttribute/__fixtures__/legacy/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { chartSettings } from "./__fixtures__/chartSettings"
 import { plannerSettings } from "./__fixtures__/plannerSettings"

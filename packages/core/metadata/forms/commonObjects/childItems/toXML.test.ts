@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { MASTER_SIMPLIFIED_CONNECTION_FORM } from "~/metadata/forms/knownAnomalies"
-import { childItemsFixturesTable } from "~/tests/fixtures/childItems/data"
+import { childItemsFixturesTable } from "~/metadata/forms/commonObjects/childItems/__fixtures__/data"
 import { mockContextToXML, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"

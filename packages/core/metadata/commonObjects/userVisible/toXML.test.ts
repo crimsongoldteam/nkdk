@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { withMultipleValuesUserVisible } from "~/tests/fixtures/userVisible/withMultipleValues"
-import { withSingleValueUserVisible } from "~/tests/fixtures/userVisible/withSingleValue"
+import { withMultipleValuesUserVisible } from "~/metadata/commonObjects/userVisible/__fixtures__/withMultipleValues"
+import { withSingleValueUserVisible } from "~/metadata/commonObjects/userVisible/__fixtures__/withSingleValue"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"

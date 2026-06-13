@@ -8,8 +8,8 @@ import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 
 describe("sync configuration from xml", () => {
-  const inputDir = join(__dirname, "../../../tests/fixtures/sync/syncConfiguration/xml")
-  const outputDir = join(__dirname, "../../../tests/fixtures/sync/syncConfiguration/out")
+  const inputDir = join(__dirname, "__fixtures__/syncConfiguration/xml")
+  const outputDir = join(__dirname, "__fixtures__/syncConfiguration/out")
   const rootCommandInterfaceFixturesDir = join(__dirname, "../../commonObjects/rootCommandInterface/__fixtures__")
   const clientApplicationInterfaceFixturesDir = join(
     __dirname,
@@ -90,7 +90,7 @@ describe("sync configuration from xml", () => {
   })
 
   it("не падает на дампе без некоторых корневых разделов", async () => {
-    const partialInput = join(__dirname, "../../../tests/fixtures/sync/_partial_xml_tmp")
+    const partialInput = join(__dirname, "__fixtures__/_partial_xml_tmp")
     if (fs.existsSync(partialInput)) fs.rmSync(partialInput, { recursive: true })
     fs.mkdirSync(join(partialInput, "Catalogs"), { recursive: true })
     fs.mkdirSync(outputDir, { recursive: true })
@@ -113,7 +113,7 @@ describe("sync configuration from xml", () => {
     try {
       fs.mkdirSync(rootInput, { recursive: true })
       fs.copyFileSync(
-        join(__dirname, "../../../tests/fixtures/configuration/full.xml"),
+        join(__dirname, "__fixtures__/full.xml"),
         join(rootInput, CONFIGURATION_XML_FILE)
       )
 
@@ -138,7 +138,7 @@ describe("sync configuration from xml", () => {
     try {
       fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
       fs.copyFileSync(
-        join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
+        join(__dirname, "__fixtures__/minimal.xml"),
         join(rootInput, CONFIGURATION_XML_FILE)
       )
       fs.copyFileSync(
@@ -175,7 +175,7 @@ describe("sync configuration from xml", () => {
     try {
       fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
       fs.copyFileSync(
-        join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
+        join(__dirname, "__fixtures__/minimal.xml"),
         join(rootInput, CONFIGURATION_XML_FILE)
       )
       fs.copyFileSync(
@@ -207,7 +207,7 @@ describe("sync configuration from xml", () => {
     try {
       fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
       fs.copyFileSync(
-        join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
+        join(__dirname, "__fixtures__/minimal.xml"),
         join(rootInput, CONFIGURATION_XML_FILE)
       )
       fs.writeFileSync(join(rootInput, "Ext", "HomePageWorkArea.xml"), homePageWorkAreaXML, "utf-8")
@@ -245,7 +245,7 @@ describe("sync configuration from xml", () => {
       fs.mkdirSync(join(rootInput, "Ext", "MainSectionPicture"), { recursive: true })
       fs.mkdirSync(join(rootInput, "Ext", "Splash"), { recursive: true })
       fs.copyFileSync(
-        join(__dirname, "../../../tests/fixtures/configuration/minimal.xml"),
+        join(__dirname, "__fixtures__/minimal.xml"),
         join(rootInput, CONFIGURATION_XML_FILE)
       )
       fs.writeFileSync(join(rootInput, "Ext", "ManagedApplicationModule.bsl"), managedApplicationModule, "utf-8")
@@ -301,7 +301,7 @@ describe("sync configuration from xml", () => {
     const outputDir = fs.mkdtempSync(join(os.tmpdir(), "configuration-yaml-"))
     try {
       fs.copyFileSync(
-        new URL("../../../tests/fixtures/configuration/minimal.xml", import.meta.url),
+        new URL("__fixtures__/minimal.xml", import.meta.url),
         join(rootInput, "Configuration.xml")
       )
       fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })

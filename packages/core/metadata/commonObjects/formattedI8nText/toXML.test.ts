@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data"
+import { formattedI8nTextFixtures } from "~/metadata/commonObjects/formattedI8nText/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportFormattedI8nTextToXML } from "./toXML"

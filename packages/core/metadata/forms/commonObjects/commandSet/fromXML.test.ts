@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { multipleCommandSet, singleCommandSet } from "~/tests/fixtures/forms/commandSet/data"
+import { multipleCommandSet, singleCommandSet } from "~/metadata/forms/commonObjects/commandSet/__fixtures__/data"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importCommandSetFromXML } from "./fromXML"

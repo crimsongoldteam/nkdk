@@ -9,7 +9,7 @@ import {
   withAdditionalColumnFormAttribute,
   withEmptySettingsFormAttribute,
   withoutTypeFormAttribute,
-} from "~/tests/fixtures/formAttributes/data"
+} from "~/metadata/forms/commonObjects/formAttribute/__fixtures__/legacy/data"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"

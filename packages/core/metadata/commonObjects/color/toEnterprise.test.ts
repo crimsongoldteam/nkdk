@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { colorEnterpriseTestCases } from "~/tests/fixtures/color/data"
+import { colorEnterpriseTestCases } from "~/metadata/commonObjects/color/__fixtures__/data"
 import { exportColorToEnterprise } from "./toEnterprise"
 
 describe("exportColorToEnterprise", () => {

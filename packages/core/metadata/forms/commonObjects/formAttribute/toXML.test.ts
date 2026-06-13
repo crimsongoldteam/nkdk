@@ -9,7 +9,7 @@ import {
   withAdditionalColumnFormAttribute,
   withEmptySettingsFormAttribute,
   withoutTypeFormAttribute,
-} from "~/tests/fixtures/formAttributes/data"
+} from "~/metadata/forms/commonObjects/formAttribute/__fixtures__/legacy/data"
 import { ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM } from "~/metadata/forms/knownAnomalies"
 import { mockContextFromXML, mockContextToXML, mockRule } from "~/tests/mockContext"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"

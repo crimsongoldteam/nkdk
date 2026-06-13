@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { multiple, multipleYAML, single, singleYAML } from "~/tests/fixtures/metadataValueCollection/data"
+import { multiple, multipleYAML, single, singleYAML } from "~/metadata/commonObjects/metadataValueCollection/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportMetadataValueCollectionToYAML } from "./toYAML"
 

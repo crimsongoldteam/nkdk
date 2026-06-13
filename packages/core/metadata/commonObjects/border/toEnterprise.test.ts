@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { borderTestCases } from "~/tests/fixtures/border/data"
+import { borderTestCases } from "~/metadata/commonObjects/border/__fixtures__/data"
 import { exportBorderToEnterprise } from "./toEnterprise"
 
 describe("exportBorderToEnterprise", () => {

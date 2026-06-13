@@ -5,7 +5,7 @@ import {
   fullCommandBarChildItemsAllYAML,
   fullCommandBarChildItemsStructure,
   fullCommandBarChildItemsTyped,
-} from "~/tests/fixtures/commandBarChildItems/data"
+} from "~/metadata/forms/elements/__fixtures__/commandBarChildItems/data"
 
 export const parentElement: NamedElement = {
   name: "КакойТоЭлемент",

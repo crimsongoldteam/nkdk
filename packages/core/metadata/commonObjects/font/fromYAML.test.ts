@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fontYAMLFixtures } from "~/tests/fixtures/font/data"
+import { fontYAMLFixtures } from "~/metadata/commonObjects/font/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { importFontFromYAML } from "./fromYAML"
 

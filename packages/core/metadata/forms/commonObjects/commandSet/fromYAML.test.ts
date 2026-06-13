@@ -4,7 +4,7 @@ import {
   multipleCommandSetYAML,
   singleCommandSet,
   singleCommandSetYAML,
-} from "~/tests/fixtures/forms/commandSet/data"
+} from "~/metadata/forms/commonObjects/commandSet/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { importCommandSetFromYAML } from "./fromYAML"
 

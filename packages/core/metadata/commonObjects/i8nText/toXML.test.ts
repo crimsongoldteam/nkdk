@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { i8nTextFixtures } from "~/tests/fixtures/i8nText/data"
+import { i8nTextFixtures } from "~/metadata/commonObjects/i8nText/__fixtures__/legacy/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { typedI8nTextRule, typedI8nTextValue } from "./__fixtures__/data"

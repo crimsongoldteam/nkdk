@@ -6,7 +6,7 @@ import {
   oneItemChoiceListYAML,
   twoItemsChoiceList,
   twoItemsChoiceListYAML,
-} from "~/tests/fixtures/choiceList/data"
+} from "~/metadata/commonObjects/choiceList/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { importChoiceListFromYAML } from "./fromYAML"
 

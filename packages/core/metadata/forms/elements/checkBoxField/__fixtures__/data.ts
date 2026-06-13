@@ -16,7 +16,7 @@ import {
   fullFormFieldPartialYAMLCommonFixture,
   fullFormFieldTableRelatedFixture,
   fullFormFieldTableRelatedPartialYAMLCommonFixture,
-} from "~/tests/fixtures/forms/base/formField/rules"
+} from "~/metadata/forms/elements/__fixtures__/formField/rules"
 import { RequiredFieldsElement } from "~/tests/types"
 
 const fullCheckBoxFieldCommon: Omit<RequiredFieldsElement<CheckBoxField>, "itemType"> = {
