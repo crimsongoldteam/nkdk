@@ -66,7 +66,7 @@ const normalizeChildItemsForExport = (value: unknown): unknown => {
 
   if (!isRecord(value)) return value
 
-  return Object.fromEntries(
+  const normalizedValue: Record<PropertyKey, unknown> = Object.fromEntries(
     Object.entries(value).map(([key, childValue]) => [
       key,
       key === CHILD_ITEMS_XML_TAG && Array.isArray(childValue)
@@ -74,6 +74,16 @@ const normalizeChildItemsForExport = (value: unknown): unknown => {
         : normalizeChildItemsForExport(childValue),
     ])
   )
+
+  const orderedChildren = getOrderedChildren(value)
+  if (orderedChildren !== undefined) {
+    normalizedValue[XML_ORDERED_CHILDREN] = orderedChildren.map(({ key, value: childValue }) => ({
+      key,
+      value: normalizeChildItemsForExport(childValue),
+    }))
+  }
+
+  return normalizedValue
 }
 
 const getAttributeEntries = (value: Record<string, unknown>): Record<string, unknown> => {
