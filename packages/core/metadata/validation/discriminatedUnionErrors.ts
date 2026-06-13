@@ -14,16 +14,22 @@ interface DiagnosticLocationSchema extends TSchema {
   diagnosticLocation?: "key"
 }
 
+interface BranchEntry {
+  schema: TSchema
+  compiled?: TypeCheck<TSchema>
+}
+
 interface BranchCache {
-  branches: Map<string, TypeCheck<TSchema>>
+  branches: Map<string, BranchEntry>
   expectedValues: string[]
 }
 
 interface ExpansionContext {
   references: TSchema[]
+  referenceKey: string
 }
 
-const unionSchemaCache = new WeakMap<TSchema, BranchCache>()
+const unionSchemaCache = new WeakMap<TSchema, Map<string, BranchCache>>()
 
 function isDiscriminatedUnionSchema(schema: TSchema): schema is DiscriminatedUnionSchema {
   return typeof schema.discriminantKey === "string" && Array.isArray(schema.anyOf)
@@ -45,10 +51,11 @@ function getObjectProperty(value: unknown, key: string): unknown {
 }
 
 function getBranchCache(schema: DiscriminatedUnionSchema, context: ExpansionContext): BranchCache {
-  const cached = unionSchemaCache.get(schema)
-  if (cached) return cached
+  const cachedByReferences = unionSchemaCache.get(schema)
+  const cached = cachedByReferences?.get(context.referenceKey)
+  if (cached !== undefined) return cached
 
-  const branches = new Map<string, TypeCheck<TSchema>>()
+  const branches = new Map<string, BranchEntry>()
   const expectedValues: string[] = []
 
   for (const branch of schema.anyOf) {
@@ -56,13 +63,29 @@ function getBranchCache(schema: DiscriminatedUnionSchema, context: ExpansionCont
     const discriminatorValue = branchSchema.properties?.[schema.discriminantKey]?.const
     if (typeof discriminatorValue !== "string") continue
 
-    branches.set(discriminatorValue, TypeCompiler.Compile(branch, context.references))
+    branches.set(discriminatorValue, { schema: branch })
     expectedValues.push(discriminatorValue)
   }
 
   const cache = { branches, expectedValues }
-  unionSchemaCache.set(schema, cache)
+  if (cachedByReferences === undefined) {
+    unionSchemaCache.set(schema, new Map([[context.referenceKey, cache]]))
+  } else {
+    cachedByReferences.set(context.referenceKey, cache)
+  }
+
   return cache
+}
+
+function getCompiledBranch(entry: BranchEntry, context: ExpansionContext): TypeCheck<TSchema> | undefined {
+  if (entry.compiled !== undefined) return entry.compiled
+
+  try {
+    entry.compiled = TypeCompiler.Compile(entry.schema, context.references)
+    return entry.compiled
+  } catch {
+    return undefined
+  }
 }
 
 function formatDiscriminatorValue(value: unknown): string {
@@ -105,13 +128,16 @@ function expandDiscriminatedUnionError(error: ValueError, context: ExpansionCont
 
   const discriminantValue = getObjectProperty(error.value, error.schema.discriminantKey)
   const cache = getBranchCache(error.schema, context)
-  const branch = typeof discriminantValue === "string" ? cache.branches.get(discriminantValue) : undefined
+  const branchEntry = typeof discriminantValue === "string" ? cache.branches.get(discriminantValue) : undefined
 
-  if (!branch) {
+  if (branchEntry === undefined) {
     return [
       createUnknownDiscriminatorError(error, error.schema.discriminantKey, cache.expectedValues, discriminantValue),
     ]
   }
+
+  const branch = getCompiledBranch(branchEntry, context)
+  if (branch === undefined) return [error]
 
   return expandDiscriminatedUnionErrorsWithContext([...branch.Errors(error.value)], context).map((branchError) =>
     markAdditionalPropertyAtKey({
@@ -156,8 +182,10 @@ function isSchema(value: object): value is TSchema {
 }
 
 export function expandDiscriminatedUnionErrors(errors: ValueError[], schema?: TypeCheck<TSchema>): ValueError[] {
+  const references = schema === undefined ? [] : collectSchemaReferences(schema.Schema(), schema.References())
   const context = {
-    references: schema === undefined ? [] : collectSchemaReferences(schema.Schema(), schema.References()),
+    references,
+    referenceKey: references.map((reference) => reference.$id).filter((id): id is string => typeof id === "string").join("\u0000"),
   }
 
   return expandDiscriminatedUnionErrorsWithContext(errors, context)

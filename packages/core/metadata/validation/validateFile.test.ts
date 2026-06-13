@@ -2,6 +2,7 @@ import { Type } from "@sinclair/typebox"
 import { TypeCompiler, ValueErrorType } from "@sinclair/typebox/compiler"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { describe, expect, it } from "vitest"
+import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { validateFile, validateParsedFile } from "./validateFile"
 
 // Простая схема для юнит-тестов — не зависит от доменных правил каталогов
@@ -306,6 +307,27 @@ describe("validateFile", () => {
           source: "structure",
           severity: "error",
           message: "Expected string",
+        }),
+      ]),
+    )
+  })
+
+  it("оставляет Type.Ref union без падения при прямом вызове diagnostics без root schema", () => {
+    const parsed = parseMetadataYaml(
+      `Элементы:\n  Группа1:\n    Вид: Группа\n    Элементы:\n      Надпись1:\n        Вид: Надпись\n        Заголовок: 123\n`,
+    )
+    const errors = [...referencedNestedDiscriminatedUnionSchema.Errors(parsed.data)]
+
+    const result = typeboxErrorsToDiagnostics(errors, parsed, "test.yaml")
+
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filePath: "test.yaml",
+          message: "Expected union value",
+          path: "/Элементы/Группа1",
+          source: "structure",
+          severity: "error",
         }),
       ]),
     )
