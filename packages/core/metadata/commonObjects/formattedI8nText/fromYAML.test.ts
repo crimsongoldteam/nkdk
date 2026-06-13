@@ -59,5 +59,19 @@ describe("importFormattedI8nTextFromYAML", () => {
 
       expect(result).toBeUndefined()
     })
+
+    it("should ignore FormattedTitle when value-based YAML is present", () => {
+      const result = importFormattedI8nTextFromYAML({
+        context: mockContext,
+        rule: formattedI8nTextRule,
+        value: { Текст: "Поле" },
+        yaml: { FormattedTitle: "<b>Поле</>" },
+      })
+
+      expect(result).toEqual({
+        formatted: false,
+        items: { ru: "Поле" },
+      })
+    })
   })
 })
