@@ -90,6 +90,40 @@ const nestedDiscriminatedUnionSchema = TypeCompiler.Compile(
   ),
 )
 
+const childItemsModule = Type.Module({
+  ChildItems: Type.Record(
+    Type.String(),
+    Type.Union(
+      [
+        Type.Object(
+          {
+            Вид: Type.Literal("Группа"),
+            Элементы: Type.Optional(Type.Ref("ChildItems")),
+          },
+          { additionalProperties: false },
+        ),
+        Type.Object(
+          {
+            Вид: Type.Literal("Надпись"),
+            Заголовок: Type.String(),
+          },
+          { additionalProperties: false },
+        ),
+      ],
+      { discriminantKey: "Вид" },
+    ),
+  ),
+})
+
+const referencedNestedDiscriminatedUnionSchema = TypeCompiler.Compile(
+  Type.Object(
+    {
+      Элементы: childItemsModule.Import("ChildItems"),
+    },
+    { additionalProperties: false },
+  ),
+)
+
 describe("validateFile", () => {
   it("возвращает пустой массив для валидного YAML", () => {
     const text = `Имя: Тестовое наименование\nКоличество: 42\n`
@@ -251,6 +285,27 @@ describe("validateFile", () => {
           source: "structure",
           severity: "error",
           message: "Expected number",
+        }),
+      ]),
+    )
+  })
+
+  it("раскрывает discriminantKey union с Type.Ref из корневой схемы", () => {
+    const text = `Элементы:\n  Группа1:\n    Вид: Группа\n    Элементы:\n      Надпись1:\n        Вид: Надпись\n        Заголовок: 123\n`
+
+    const result = validateFile({ filePath: "test.yaml", text, schema: referencedNestedDiscriminatedUnionSchema })
+
+    expect(result.some((diagnostic) => diagnostic.message === "Expected union value")).toBe(false)
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filePath: "test.yaml",
+          line: 7,
+          col: 20,
+          path: "/Элементы/Группа1/Элементы/Надпись1/Заголовок",
+          source: "structure",
+          severity: "error",
+          message: "Expected string",
         }),
       ]),
     )

@@ -19,6 +19,10 @@ interface BranchCache {
   expectedValues: string[]
 }
 
+interface ExpansionContext {
+  references: TSchema[]
+}
+
 const unionSchemaCache = new WeakMap<TSchema, BranchCache>()
 
 function isDiscriminatedUnionSchema(schema: TSchema): schema is DiscriminatedUnionSchema {
@@ -40,7 +44,7 @@ function getObjectProperty(value: unknown, key: string): unknown {
   return (value as Record<string, unknown>)[key]
 }
 
-function getBranchCache(schema: DiscriminatedUnionSchema): BranchCache {
+function getBranchCache(schema: DiscriminatedUnionSchema, context: ExpansionContext): BranchCache {
   const cached = unionSchemaCache.get(schema)
   if (cached) return cached
 
@@ -52,7 +56,7 @@ function getBranchCache(schema: DiscriminatedUnionSchema): BranchCache {
     const discriminatorValue = branchSchema.properties?.[schema.discriminantKey]?.const
     if (typeof discriminatorValue !== "string") continue
 
-    branches.set(discriminatorValue, TypeCompiler.Compile(branch))
+    branches.set(discriminatorValue, TypeCompiler.Compile(branch, context.references))
     expectedValues.push(discriminatorValue)
   }
 
@@ -94,13 +98,13 @@ function markAdditionalPropertyAtKey(error: ValueError): ValueError {
   return { ...error, schema }
 }
 
-function expandDiscriminatedUnionError(error: ValueError): ValueError[] {
+function expandDiscriminatedUnionError(error: ValueError, context: ExpansionContext): ValueError[] {
   if (error.type !== ValueErrorType.Union || !isDiscriminatedUnionSchema(error.schema)) {
     return [error]
   }
 
   const discriminantValue = getObjectProperty(error.value, error.schema.discriminantKey)
-  const cache = getBranchCache(error.schema)
+  const cache = getBranchCache(error.schema, context)
   const branch = typeof discriminantValue === "string" ? cache.branches.get(discriminantValue) : undefined
 
   if (!branch) {
@@ -109,7 +113,7 @@ function expandDiscriminatedUnionError(error: ValueError): ValueError[] {
     ]
   }
 
-  return expandDiscriminatedUnionErrors([...branch.Errors(error.value)]).map((branchError) =>
+  return expandDiscriminatedUnionErrorsWithContext([...branch.Errors(error.value)], context).map((branchError) =>
     markAdditionalPropertyAtKey({
       ...branchError,
       path: prefixJsonPointer(error.path, branchError.path),
@@ -117,6 +121,48 @@ function expandDiscriminatedUnionError(error: ValueError): ValueError[] {
   )
 }
 
-export function expandDiscriminatedUnionErrors(errors: ValueError[]): ValueError[] {
-  return errors.flatMap(expandDiscriminatedUnionError)
+function collectSchemaReferences(schema: TSchema, references: TSchema[]): TSchema[] {
+  const result = [...references]
+  const seen = new WeakSet<object>()
+  const knownIds = new Set(result.map((reference) => reference.$id).filter((id): id is string => typeof id === "string"))
+
+  function visit(value: unknown): void {
+    if (typeof value !== "object" || value === null || seen.has(value)) return
+    seen.add(value)
+
+    if (isSchema(value)) {
+      const id = value.$id
+      if (typeof id === "string" && !knownIds.has(id)) {
+        result.push(value)
+        knownIds.add(id)
+      }
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach(visit)
+      return
+    }
+
+    Object.values(value).forEach(visit)
+  }
+
+  visit(schema)
+
+  return result
+}
+
+function isSchema(value: object): value is TSchema {
+  return "$id" in value || "type" in value || "anyOf" in value || "$ref" in value
+}
+
+export function expandDiscriminatedUnionErrors(errors: ValueError[], schema?: TypeCheck<TSchema>): ValueError[] {
+  const context = {
+    references: schema === undefined ? [] : collectSchemaReferences(schema.Schema(), schema.References()),
+  }
+
+  return expandDiscriminatedUnionErrorsWithContext(errors, context)
+}
+
+function expandDiscriminatedUnionErrorsWithContext(errors: ValueError[], context: ExpansionContext): ValueError[] {
+  return errors.flatMap((error) => expandDiscriminatedUnionError(error, context))
 }

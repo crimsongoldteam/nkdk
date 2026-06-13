@@ -1,4 +1,5 @@
-import { ValueError, ValueErrorType } from "@sinclair/typebox/compiler"
+import { TSchema } from "@sinclair/typebox"
+import { TypeCheck, ValueError, ValueErrorType } from "@sinclair/typebox/compiler"
 import { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { expandDiscriminatedUnionErrors } from "./discriminatedUnionErrors"
 import { Diagnostic } from "./types"
@@ -23,10 +24,11 @@ export function typeboxErrorsToDiagnostics(
   errors: ValueError[],
   parsed: ParsedYaml,
   filePath: string,
+  schema?: TypeCheck<TSchema>,
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = []
 
-  for (const error of expandDiscriminatedUnionErrors(errors)) {
+  for (const error of expandDiscriminatedUnionErrors(errors, schema)) {
     const pointer = error.path
     const keys = parseJsonPointer(pointer)
 
