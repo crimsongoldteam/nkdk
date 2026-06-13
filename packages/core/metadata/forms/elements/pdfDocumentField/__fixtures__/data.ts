@@ -152,7 +152,7 @@ export const fullPDFDocumentFieldPartialYAML = {
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<PDFDocumentFieldPartialYAML>,
-  "ЗапретитьИспользование" | "РазрешитьИспользование"
+  "Использование"
 >
 
 export const minimalPDFDocumentField: PDFDocumentField = {

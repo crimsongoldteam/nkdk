@@ -71,7 +71,7 @@ export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<DendrogramFieldPartialYAML>,
-  "ЗапретитьИспользование" | "РазрешитьИспользование"
+  "Использование"
 >
 
 export const minimalDendrogramField: DendrogramField = {

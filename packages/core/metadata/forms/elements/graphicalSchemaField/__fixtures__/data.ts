@@ -90,7 +90,7 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<GraphicalSchemaFieldPartialYAML>,
-  "ЗапретитьИспользование" | "РазрешитьИспользование"
+  "Использование"
 >
 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {

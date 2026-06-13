@@ -434,7 +434,7 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
     УдалениеМножественныхЗначений: "ПроцедураУдаленияМножественныхЗначений",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<InputFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
+} satisfies Omit<Required<InputFieldPartialYAML>, "Использование">
 
 const {
   КартинкаМножественныхЗначений: _tableInputFieldMultipleValuesPicture,

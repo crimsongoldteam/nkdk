@@ -12,8 +12,7 @@ export const commonButtonProperties = {
   },
   visible: { yaml: "Видимость", type: "boolean" },
   userVisible: {
-    yaml: "РазрешитьИспользование",
-    yamlDeny: "ЗапретитьИспользование",
+    yaml: "Использование",
     type: "UserVisible",
     toEnterprise: false,
   },

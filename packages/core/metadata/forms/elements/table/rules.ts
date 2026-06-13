@@ -226,8 +226,7 @@ export const TableRules = {
     },
     useAlternationRowColor: { yaml: "ЧередованиеЦветовСтрок", type: "boolean" },
     userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
+      yaml: "Использование",
       type: "UserVisible",
       toEnterprise: false,
     },

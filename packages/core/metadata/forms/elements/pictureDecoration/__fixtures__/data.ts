@@ -60,7 +60,7 @@ export const fullPictureDecorationEnterprise = {
 export const fullPictureDecorationPartialYAML: Required<
   Omit<
     PictureDecorationPartialYAML,
-    "Заголовок" | "ЗапретитьИспользование" | "Картинка" | "Рамка" | "ЦветРамки" | "РазмерКартинки"
+    "Заголовок" | "Использование" | "Картинка" | "Рамка" | "ЦветРамки" | "РазмерКартинки"
   >
 > = {
   ...fullFormDecorationPartialYAMLCommonFixture,

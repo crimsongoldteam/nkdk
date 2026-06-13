@@ -133,7 +133,7 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<PlannerFieldPartialYAMLWithoutDrag>,
-  "ЗапретитьИспользование" | "РазрешитьИспользование"
+  "Использование"
 >
 
 export const dragPlannerField: PlannerField = {

@@ -224,10 +224,7 @@ export interface ChildItemsPropertyRule extends BasePropertyRule {
 
 export interface UserVisiblePropertyRule extends BasePropertyRule {
   type: "UserVisible"
-  /** Ключ в YAML в случае разрешения использования */
   yaml: string
-  /** Ключ в YAML в случае запрета использования */
-  yamlDeny: string
 }
 
 export interface StandardAttributeDescriptionPropertyRule extends BasePropertyRule {

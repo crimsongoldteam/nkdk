@@ -81,7 +81,7 @@ export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPart
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<GeographicalSchemaFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
+} satisfies Omit<Required<GeographicalSchemaFieldPartialYAML>, "Использование">
 
 export const minimalGeographicalSchemaField: GeographicalSchemaField = {
   itemType: "GeographicalSchemaField",

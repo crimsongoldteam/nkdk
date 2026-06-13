@@ -127,7 +127,7 @@ export const fullCalendarFieldPartialYAML = {
     ПриВыводеПериода: "ПроцедураВыводаПериода",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<CalendarFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
+} satisfies Omit<Required<CalendarFieldPartialYAML>, "Использование">
 
 export const minimalCalendarField: CalendarField = {
   itemType: "CalendarField",

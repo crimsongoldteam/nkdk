@@ -61,14 +61,12 @@ export const FormAttributeRules = {
       order: 6,
     },
     view: {
-      yaml: "РазрешитьПросмотр",
-      yamlDeny: "ЗапретитьПросмотр",
+      yaml: "Просмотр",
       type: "UserVisible",
       order: 3,
     },
     edit: {
-      yaml: "РазрешитьРедактирование",
-      yamlDeny: "ЗапретитьРедактирование",
+      yaml: "Редактирование",
       type: "UserVisible",
       order: 4,
     },
@@ -193,14 +191,12 @@ export const FormAttributeColumnRules = {
       defaultValueXMLRaw: {},
     },
     view: {
-      yaml: "РазрешитьПросмотр",
-      yamlDeny: "ЗапретитьПросмотр",
+      yaml: "Просмотр",
       type: "UserVisible",
       order: 4,
     },
     edit: {
-      yaml: "РазрешитьРедактирование",
-      yamlDeny: "ЗапретитьРедактирование",
+      yaml: "Редактирование",
       type: "UserVisible",
       order: 0,
     },

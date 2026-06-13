@@ -90,7 +90,7 @@ export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<HTMLDocumentFieldPartialYAML>,
-  "ЗапретитьИспользование" | "РазрешитьИспользование"
+  "Использование"
 >
 
 export const minimalHtmlDocumentField: HTMLDocumentField = {

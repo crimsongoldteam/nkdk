@@ -68,8 +68,8 @@ const importCommandInterfaceItemFromYAML = (
 
   const visible = importUserVisibleFromYAML({
     context,
-    rule: { type: "UserVisible", yaml: UserVisibleKeysYAML.Allow, yamlDeny: UserVisibleKeysYAML.Deny },
-    value: item[UserVisibleKeysYAML.Allow],
+    rule: { type: "UserVisible", yaml: UserVisibleKeysYAML.Value },
+    value: item[UserVisibleKeysYAML.Value],
     yaml: item,
   })
   if (visible) {

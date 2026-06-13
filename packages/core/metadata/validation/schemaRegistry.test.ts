@@ -89,6 +89,36 @@ describe("JSON Schema registry", () => {
     expect(() => TypeCompiler.Compile(schema)).not.toThrow()
   })
 
+  it("accepts only value-based UserVisible in form element schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const legacyAllow = "Разрешить" + "Использование"
+    const legacyDeny = "Запретить" + "Использование"
+
+    expect(
+      compiled.Check({
+        Вид: "Группа",
+        Использование: {
+          Роли: { "Role.Администратор": "Ложь" },
+        },
+      })
+    ).toBe(true)
+
+    expect(
+      compiled.Check({
+        Вид: "Группа",
+        [legacyAllow]: { "Role.Администратор": "Ложь" },
+      })
+    ).toBe(false)
+
+    expect(
+      compiled.Check({
+        Вид: "Группа",
+        [legacyDeny]: { "Role.Администратор": "Истина" },
+      })
+    ).toBe(false)
+  })
+
   it("accepts nested child items in inline form element schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
     const compiled = TypeCompiler.Compile(schema)

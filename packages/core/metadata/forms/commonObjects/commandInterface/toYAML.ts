@@ -1,4 +1,4 @@
-import { exportUserVisibleToYAMLDeprecated } from "~/metadata/commonObjects/userVisible/toYAML"
+import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/toYAML"
 import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { StandardCommandsGroupToYAML } from "~/metadata/systemEnumerations/types"
@@ -64,10 +64,7 @@ const exportCommandInterfaceItemToYAML = (
   }
 
   if (item.visible) {
-    const visibleYAML = exportUserVisibleToYAMLDeprecated(context, undefined, item.visible, {
-      allow: UserVisibleKeysYAML.Allow,
-      deny: UserVisibleKeysYAML.Deny,
-    })
+    const visibleYAML = exportUserVisibleToYAML(context, { type: "UserVisible", yaml: UserVisibleKeysYAML.Value }, item.visible)
     if (visibleYAML) {
       Object.assign(result, visibleYAML)
     }

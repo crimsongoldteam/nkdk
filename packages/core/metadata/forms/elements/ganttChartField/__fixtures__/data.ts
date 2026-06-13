@@ -144,7 +144,7 @@ export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
     ПриОкончанииРедактированияИнтервала: "ПроцедураПриОкончанииРедактированияИнтервала",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<GanttChartFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
+} satisfies Omit<Required<GanttChartFieldPartialYAML>, "Использование">
 
 export const minimalGanttChartField: GanttChartField = {
   itemType: "GanttChartField",

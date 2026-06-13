@@ -104,7 +104,7 @@ export const fullFormattedDocumentFieldPartialYAML: FormattedDocumentFieldPartia
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<FormattedDocumentFieldPartialYAML>,
-  "ЗапретитьИспользование" | "РазрешитьИспользование"
+  "Использование"
 >
 
 export const minimalFormattedDocumentField: FormattedDocumentField = {

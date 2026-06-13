@@ -34,8 +34,7 @@ export const FormCommandRules = {
       type: "I8nText",
     },
     use: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
+      yaml: "Использование",
       type: "UserVisible",
     },
     shortcut: {

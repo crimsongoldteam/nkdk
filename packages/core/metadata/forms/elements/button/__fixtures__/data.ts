@@ -56,7 +56,7 @@ const commonButtonModel = {
 
 const commonButtonPartialYAML = {
   Видимость: "Ложь" as const,
-  РазрешитьИспользование: { "Role.Администратор": "Ложь" as const },
+  Использование: { Роли: { "Role.Администратор": "Ложь" as const } },
   ВысотаЗаголовка: 30,
   Отображение: "КартинкаИТекст" as const,
   КнопкаПоУмолчанию: "Истина" as const,

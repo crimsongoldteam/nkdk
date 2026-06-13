@@ -68,8 +68,7 @@ export const formGroupCommonProperties = {
     defaultValueYAML: "Auto",
   },
   userVisible: {
-    yaml: "РазрешитьИспользование",
-    yamlDeny: "ЗапретитьИспользование",
+    yaml: "Использование",
     type: "UserVisible",
     toEnterprise: false,
   },

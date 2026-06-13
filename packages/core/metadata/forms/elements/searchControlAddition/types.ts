@@ -35,8 +35,7 @@ export interface SearchControlAdditionYAML {
   КонтекстноеМеню?: ContextMenuYAML
   ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
   Подсказка?: I8nTextYAML
-  РазрешитьИспользование?: UserVisibleYAML
-  ЗапретитьИспользование?: UserVisibleYAML
+  Использование?: UserVisibleYAML
   РасширеннаяПодсказка?: ExtendedTooltipYAML
   Элементы?: FormElementTreeYAML
 }

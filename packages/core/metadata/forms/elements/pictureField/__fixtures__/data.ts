@@ -141,7 +141,7 @@ export const fullPictureFieldPartialYAML: PictureFieldPartialYAML = {
   ПутьКДанным: "Реквизит",
   Заголовок: "Поле картинки",
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<PictureFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
+} satisfies Omit<Required<PictureFieldPartialYAML>, "Использование">
 
 export const fullTablePictureFieldPartialYAML: TablePictureFieldPartialYAML = {
   ...fullPictureFieldPartialYAML,

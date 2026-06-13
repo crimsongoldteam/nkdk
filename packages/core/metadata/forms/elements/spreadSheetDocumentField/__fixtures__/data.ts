@@ -172,7 +172,7 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<SpreadSheetDocumentFieldPartialYAML>,
-  "ЗапретитьИспользование" | "РазрешитьИспользование"
+  "Использование"
 >
 
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
