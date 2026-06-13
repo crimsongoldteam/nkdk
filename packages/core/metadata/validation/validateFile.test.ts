@@ -68,6 +68,28 @@ const discriminatedUnionSchema = TypeCompiler.Compile(
   ),
 )
 
+const nestedDiscriminatedUnionSchema = TypeCompiler.Compile(
+  Type.Union(
+    [
+      Type.Object(
+        {
+          Вид: Type.Literal("Контейнер"),
+          Child: Type.Union(
+            [
+              Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
+              Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
+            ],
+            { discriminantKey: "Вид" },
+          ),
+        },
+        { additionalProperties: false },
+      ),
+      Type.Object({ Вид: Type.Literal("Пустой"), Поле: Type.String() }, { additionalProperties: false }),
+    ],
+    { discriminantKey: "Вид" },
+  ),
+)
+
 describe("validateFile", () => {
   it("возвращает пустой массив для валидного YAML", () => {
     const text = `Имя: Тестовое наименование\nКоличество: 42\n`
@@ -209,6 +231,63 @@ describe("validateFile", () => {
         source: "structure",
         severity: "error",
         message: 'Неизвестное значение дискриминатора "Вид": "Третий". Ожидается одно из: Первый, Второй',
+      }),
+    ])
+  })
+
+  it("рекурсивно раскрывает вложенный discriminantKey union и сохраняет полный path", () => {
+    const text = `Вид: Контейнер\nChild:\n  Вид: Второй\n  Число: не-число\n`
+
+    const result = validateFile({ filePath: "test.yaml", text, schema: nestedDiscriminatedUnionSchema })
+
+    expect(result.some((diagnostic) => diagnostic.message === "Expected union value")).toBe(false)
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filePath: "test.yaml",
+          line: 4,
+          col: 10,
+          path: "/Child/Число",
+          source: "structure",
+          severity: "error",
+          message: "Expected number",
+        }),
+      ]),
+    )
+  })
+
+  it("для отсутствующего Вид возвращает targeted discriminator diagnostic с не задано", () => {
+    const text = `Поле: значение\n`
+
+    const result = validateFile({ filePath: "test.yaml", text, schema: discriminatedUnionSchema })
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        filePath: "test.yaml",
+        line: 1,
+        col: 1,
+        path: "/Вид",
+        source: "structure",
+        severity: "error",
+        message: 'Неизвестное значение дискриминатора "Вид": не задано. Ожидается одно из: Первый, Второй',
+      }),
+    ])
+  })
+
+  it("для нестрокового Вид возвращает targeted discriminator diagnostic с не задано", () => {
+    const text = `Вид: 123\n`
+
+    const result = validateFile({ filePath: "test.yaml", text, schema: discriminatedUnionSchema })
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        filePath: "test.yaml",
+        line: 1,
+        col: 6,
+        path: "/Вид",
+        source: "structure",
+        severity: "error",
+        message: 'Неизвестное значение дискриминатора "Вид": не задано. Ожидается одно из: Первый, Второй',
       }),
     ])
   })

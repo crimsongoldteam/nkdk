@@ -109,7 +109,7 @@ function expandDiscriminatedUnionError(error: ValueError): ValueError[] {
     ]
   }
 
-  return [...branch.Errors(error.value)].map((branchError) =>
+  return expandDiscriminatedUnionErrors([...branch.Errors(error.value)]).map((branchError) =>
     markAdditionalPropertyAtKey({
       ...branchError,
       path: prefixJsonPointer(error.path, branchError.path),

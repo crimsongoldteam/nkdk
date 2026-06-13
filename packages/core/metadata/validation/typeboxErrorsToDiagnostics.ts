@@ -16,7 +16,7 @@ function parseJsonPointer(pointer: string): (string | number)[] {
 }
 
 function isDiagnosticAtKey(error: ValueError): boolean {
-  return error.schema.diagnosticLocation === "key"
+  return error.type === ValueErrorType.ObjectAdditionalProperties && error.schema.diagnosticLocation === "key"
 }
 
 export function typeboxErrorsToDiagnostics(
