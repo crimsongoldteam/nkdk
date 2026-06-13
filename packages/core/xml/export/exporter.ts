@@ -28,10 +28,6 @@ builder.options.attributesGroupName = "@attributes"
 // @ts-ignore
 preserveOrderBuilder.options.attributesGroupName = "@attributes"
 
-// ВАЖНО: Изменения в библиотеке fast-xml-parser теперь применяются через patch
-// См. patches/fast-xml-parser+5.3.3.patch
-// При обновлении библиотеки проверьте, что patch применяется корректно
-
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value)
 
@@ -49,6 +45,35 @@ const hasOrderedChildren = (value: unknown): boolean => {
   if (!isRecord(value)) return false
   if (getOrderedChildren(value) !== undefined) return true
   return Object.values(value).some(hasOrderedChildren)
+}
+
+const CHILD_ITEMS_XML_TAG = "ChildItems"
+
+const toOrderedChildItemsNode = (items: unknown[]): Record<PropertyKey, unknown> => {
+  const orderedChildren = items.flatMap((item): Array<{ key: string; value: unknown }> => {
+    const normalizedItem = normalizeChildItemsForExport(item)
+    if (!isRecord(normalizedItem)) return []
+    return Object.entries(normalizedItem).map(([key, value]) => ({ key, value }))
+  })
+
+  return { [XML_ORDERED_CHILDREN]: orderedChildren }
+}
+
+const normalizeChildItemsForExport = (value: unknown): unknown => {
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeChildItemsForExport(item))
+  }
+
+  if (!isRecord(value)) return value
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, childValue]) => [
+      key,
+      key === CHILD_ITEMS_XML_TAG && Array.isArray(childValue)
+        ? toOrderedChildItemsNode(childValue)
+        : normalizeChildItemsForExport(childValue),
+    ])
+  )
 }
 
 const getAttributeEntries = (value: Record<string, unknown>): Record<string, unknown> => {
@@ -101,8 +126,11 @@ const toPreserveOrder = (data: Record<string, unknown>): unknown[] =>
   }))
 
 export const xmlExport = (data: Record<string, any>, addDeclaration: boolean = true): string => {
+  const normalizedData = normalizeChildItemsForExport(data) as Record<string, any>
   const xml = (
-    hasOrderedChildren(data) ? preserveOrderBuilder.build(toPreserveOrder(data)) : builder.build(data)
+    hasOrderedChildren(normalizedData)
+      ? preserveOrderBuilder.build(toPreserveOrder(normalizedData))
+      : builder.build(normalizedData)
   ).replace(/^\n/, "")
   const declaration = addDeclaration ? '\uFEFF<?xml version="1.0" encoding="UTF-8"?>\n' : ""
   const result = declaration + xml

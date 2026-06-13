@@ -29,6 +29,7 @@
 ## Task 1: Expose the Missing `ChildItems` Behavior
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `pnpm-workspace.yaml`
 - Modify: `pnpm-lock.yaml`
@@ -137,7 +138,7 @@ describe("xmlExport", () => {
 Run:
 
 ```bash
-pnpm --filter @nakidka/core test -- xml/export
+pnpm --filter @nakidka/core exec vitest run xml/export/exporter.test.ts
 ```
 
 Expected: FAIL. The output should show multiple sibling `<ChildItems>` nodes or otherwise differ from the single-wrapper expectation.
@@ -156,6 +157,7 @@ Expected: commit is optional and only acceptable if the team wants to preserve t
 ## Task 2: Move `ChildItems` Grouping Into XML Export
 
 **Files:**
+
 - Modify: `packages/core/xml/export/exporter.ts`
 - Test: `packages/core/xml/export/exporter.test.ts`
 
@@ -217,7 +219,7 @@ export const xmlExport = (data: Record<string, any>, addDeclaration: boolean = t
 Run:
 
 ```bash
-pnpm --filter @nakidka/core test -- xml/export
+pnpm --filter @nakidka/core exec vitest run xml/export/exporter.test.ts
 ```
 
 Expected: PASS for `packages/core/xml/export/exporter.test.ts`.
@@ -227,7 +229,7 @@ Expected: PASS for `packages/core/xml/export/exporter.test.ts`.
 Run:
 
 ```bash
-pnpm --filter @nakidka/core test -- metadata/forms/commonObjects/childItems/toXML.test.ts
+pnpm --filter @nakidka/core exec vitest run metadata/forms/commonObjects/childItems/toXML.test.ts
 ```
 
 Expected: PASS. This proves the metadata-level exporter still emits the same `ChildItems` XML shape.
@@ -246,6 +248,7 @@ Expected: one commit containing the exporter helper and focused test.
 ## Task 3: Finish Dependency Cleanup
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `pnpm-workspace.yaml`
 - Modify: `pnpm-lock.yaml`
@@ -324,6 +327,7 @@ Expected: one commit containing package metadata, lockfile, and patch file delet
 ## Task 4: Final Verification
 
 **Files:**
+
 - No code changes expected.
 
 - [ ] **Step 1: Run focused XML tests**
