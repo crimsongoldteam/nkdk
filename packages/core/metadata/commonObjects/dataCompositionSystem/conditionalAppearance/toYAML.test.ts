@@ -24,7 +24,7 @@ describe("export ConditionalAppearance to YAML", () => {
 
   it("exports minimal", () => {
     const result = testExportPropertyToYAML({ rule, value: minimalConditionalAppearance })
-    expect(result).toEqual({ УсловноеОформление: minimalConditionalAppearanceYAML })
+    expect(result).toBeUndefined()
   })
 
   it("exports minimalUserSettings", () => {

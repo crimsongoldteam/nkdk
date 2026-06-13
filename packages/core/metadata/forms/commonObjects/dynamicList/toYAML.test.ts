@@ -33,21 +33,22 @@ describe("export DynamicList to YAML", () => {
       value: fullDynamicList,
     })
     expect(result).toEqual({
-      ДинамическийСписок: {
-        ...fullDynamicListYAML,
-        ПроизвольныйЗапрос: "Ложь",
-      },
+      ДинамическийСписок: fullDynamicListYAML,
     })
   })
 
-  it("exports explicit ManualQuery false when queryText is present", () => {
+  it("omits ManualQuery false when queryText is present", () => {
     const result = exportPropertyToYAML({
       context: mockContextToTypedYAML,
       rule,
       value: queryTextWithManualQueryFalseDynamicList,
     })
 
-    expect(result).toEqual({ ДинамическийСписок: queryTextWithManualQueryFalseDynamicListYAML })
+    const { ДинамическоеСчитываниеДанных, ПроизвольныйЗапрос, ...expectedYAML } =
+      queryTextWithManualQueryFalseDynamicListYAML
+    expect(ДинамическоеСчитываниеДанных).toBe("Истина")
+    expect(ПроизвольныйЗапрос).toBe("Ложь")
+    expect(result).toEqual({ ДинамическийСписок: expectedYAML })
   })
 
   it("exports explicit ManualQuery true when queryText is present", () => {
@@ -66,7 +67,6 @@ describe("export DynamicList to YAML", () => {
     expect(result).toEqual({
       ДинамическийСписок: {
         ПроизвольныйЗапрос: "Истина",
-        ДинамическоеСчитываниеДанных: "Истина",
         ОсновнаяТаблица: "Catalog.РеестрПартийЗЕРНО",
       },
     })
@@ -106,7 +106,6 @@ describe("export DynamicList to YAML", () => {
     expect(result).toEqual({
       ДинамическийСписок: {
         ПроизвольныйЗапрос: "Истина",
-        ДинамическоеСчитываниеДанных: "Истина",
         ВидКлюча: "ЗначениеПоля",
         ПоляКлюча: "Ссылка",
       },
@@ -158,7 +157,6 @@ describe("export DynamicList to YAML", () => {
     expect(result).toEqual({
       ДинамическийСписок: {
         ПроизвольныйЗапрос: "Истина",
-        ДинамическоеСчитываниеДанных: "Истина",
         ОсновнаяТаблица: "Catalog.Справочник1",
       },
     })
@@ -170,7 +168,7 @@ describe("export DynamicList to YAML", () => {
     ])
   })
 
-  it("exports explicit ManualQuery false when queryText is absent", () => {
+  it("omits ManualQuery false because it is YAML default", () => {
     const result = exportPropertyToYAML({
       context: mockContextToTypedYAML,
       rule,
@@ -184,10 +182,39 @@ describe("export DynamicList to YAML", () => {
 
     expect(result).toEqual({
       ДинамическийСписок: {
-        ПроизвольныйЗапрос: "Ложь",
-        ДинамическоеСчитываниеДанных: "Истина",
         ОсновнаяТаблица: "Catalog.РеестрПартийЗЕРНО",
       },
     })
+  })
+
+  it("does not emit ManualQuery false when queryText is present", () => {
+    const externalFilesCollector: { relativePath: string; content: string }[] = []
+    const queryText = "ВЫБРАТЬ 1"
+
+    const result = exportPropertyToYAML({
+      context: {
+        ...mockContextToTypedYAML,
+        exportToYAML: {
+          ...mockContextToTypedYAML.exportToYAML!,
+          externalFilesCollector,
+          parent: { name: "Список" },
+        },
+      },
+      rule,
+      value: {
+        customQuery: false,
+        itemType: "DynamicList",
+        queryText,
+      },
+      name: "Список",
+    })
+
+    expect(result).toBeUndefined()
+    expect(externalFilesCollector).toEqual([
+      {
+        relativePath: "ДинамическийСписок/Список.query",
+        content: queryText,
+      },
+    ])
   })
 })

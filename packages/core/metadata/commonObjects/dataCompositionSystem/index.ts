@@ -5,12 +5,14 @@ import "./settingsParameterValueCollection"
 
 import "./appearanceFields/fromXML"
 import "./appearanceFields/fromYAML"
+import "./appearanceFields/toJSONSchema"
 import "./appearanceFields/toXML"
 import "./appearanceFields/toYAML"
 import "./appearanceFields/types"
 
 import "./availableFields/fromXML"
 import "./availableFields/fromYAML"
+import "./availableFields/toJSONSchema"
 import "./availableFields/toXML"
 import "./availableFields/toYAML"
 import "./availableFields/types"
@@ -35,6 +37,7 @@ import "./dcsParameter"
 
 
 import "./parameterValue/types"
+import "./parameterValue/toJSONSchema"
 
 import "./dscMetadataTypedValue/fromXML"
 import "./dscMetadataTypedValue/fromYAML"

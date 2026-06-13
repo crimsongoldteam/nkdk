@@ -44,7 +44,7 @@ export function importElementFromTypedYAML<T extends TypedFormElement>(params: {
     name: name,
   }
 
-  return result as T
+  return applyStructuralDiscriminators(result as T) as T
 }
 
 export const importSingleElementFromYAML = <Type extends SingleElementType>(params: {
@@ -105,6 +105,34 @@ function importElementFromYAML<Rule extends ElementRule>(params: {
     ...properties,
     itemType: itemType,
   } as ToMetadata<Rule["itemType"]>
+
+  return applyStructuralDiscriminators(result)
+}
+
+const applyStructuralDiscriminators = <Type extends ElementType>(element: ToMetadata<Type>): ToMetadata<Type> => {
+  const result = { ...element } as ToMetadata<Type> & {
+    type?: string
+    extendedTooltip?: Record<string, unknown>
+  }
+
+  if (result.itemType === "Button" && result.type === undefined) {
+    result.type = "UsualButton"
+  }
+
+  if (result.itemType === "CommandBarButton" && result.type === undefined) {
+    result.type = "CommandBarButton"
+  }
+
+  if (
+    (result.itemType === "SearchControlAddition" || result.itemType === "SingleSearchControlAddition") &&
+    result.extendedTooltip !== undefined &&
+    result.extendedTooltip.type === undefined
+  ) {
+    result.extendedTooltip = {
+      ...result.extendedTooltip,
+      type: "Label",
+    }
+  }
 
   return result
 }

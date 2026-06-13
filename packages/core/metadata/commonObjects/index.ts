@@ -28,6 +28,7 @@ import "./minMaxValue/toXML"
 
 import "./userSettingsID/fromXML"
 import "./userSettingsID/fromYAML"
+import "./userSettingsID/toJSONSchema"
 import "./userSettingsID/toXML"
 import "./userSettingsID/toYAML"
 
@@ -55,6 +56,7 @@ import "./mobileDeviceCommandBarContent/toYAML"
 
 import "./commonAttributeContent/fromXML"
 import "./commonAttributeContent/fromYAML"
+import "./commonAttributeContent/toJSONSchema"
 import "./commonAttributeContent/toXML"
 import "./commonAttributeContent/toYAML"
 
@@ -148,6 +150,7 @@ import "./childTemplateNames/syncExternalFromXML"
 import "./childSubsystemNames/fromXML"
 import "./childSubsystemNames/toXML"
 import "./childSubsystemNames/fromYAML"
+import "./childSubsystemNames/toJSONSchema"
 import "./childSubsystemNames/toYAML"
 
 import "./externalPicture/fromXML"
@@ -177,6 +180,8 @@ import "./webSocketClientHeaders/toJSONSchema"
 import "./webSocketClientHeaders/toXML"
 import "./webSocketClientHeaders/toYAML"
 
+import "./metadataValue/associatedTableToJSONSchema"
+
 import "./metadataRegisterAttribute/register"
 import "./metadataRegisterDimension/register"
 import "./metadataRegisterResource/register"
@@ -199,6 +204,7 @@ import "./metadataSequenceDimension/register"
 
 import "./metadataCommandGroup/fromXML"
 import "./metadataCommandGroup/fromYAML"
+import "./metadataCommandGroup/toJSONSchema"
 import "./metadataCommandGroup/toXML"
 import "./metadataCommandGroup/toYAML"
 
@@ -212,6 +218,8 @@ import "./metadataField/toYAML"
 import "./metadataPath/fromYAML"
 import "./metadataPath/toJSONSchema"
 import "./metadataPath/toYAML"
+
+import "./dataCompositionSystem/structureItemGroup/toJSONSchema"
 
 import "./metadataRef/fromXML"
 import "./metadataRef/fromYAML"
@@ -270,11 +278,15 @@ import "./typeLink/toYAML"
 
 import "./dataCompositionSystem/dcsMetadataValue/fromXML"
 import "./dataCompositionSystem/dcsMetadataValue/fromYAML"
+import "./dataCompositionSystem/dcsMetadataValue/toJSONSchema"
 import "./dataCompositionSystem/dcsMetadataValue/toXML"
 import "./dataCompositionSystem/dcsMetadataValue/toYAML"
 
+import "./dataCompositionSystem/appearanceFields/toJSONSchema"
+
 import "./dataCompositionSystem/parameterValue/fromXML"
 import "./dataCompositionSystem/parameterValue/fromYAML"
+import "./dataCompositionSystem/parameterValue/toJSONSchema"
 import "./dataCompositionSystem/parameterValue/toXML"
 import "./dataCompositionSystem/parameterValue/toYAML"
 

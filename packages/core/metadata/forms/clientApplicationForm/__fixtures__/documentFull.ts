@@ -170,4 +170,22 @@ export const documentFullClientApplicationFormFromYAML: ClientApplicationForm = 
     childItems: [],
   },
   childItems: [numberInputFieldFromYAML, commandButton],
+  attributesConditionalAppearance: {
+    ...documentFullClientApplicationFormData.attributesConditionalAppearance,
+    conditionalAppearanceItems: [
+      {
+        ...documentFullClientApplicationFormData.attributesConditionalAppearance.conditionalAppearanceItems[0],
+        filter: {
+          ...documentFullClientApplicationFormData.attributesConditionalAppearance.conditionalAppearanceItems[0].filter,
+          items: [
+            {
+              itemType: "FilterItemComparison",
+              leftValue: { type: "Field", value: "Объект.Номер" },
+              rightValue: { type: "decimal", value: 34567 },
+            },
+          ],
+        },
+      },
+    ],
+  },
 }

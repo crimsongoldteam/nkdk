@@ -88,7 +88,7 @@ export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<ProgressBarFieldPartialYAML>,
-  "ЗапретитьИспользование" | "РазрешитьИспользование"
+  "Использование"
 >
 
 export const minimalProgressBarField: ProgressBarField = {

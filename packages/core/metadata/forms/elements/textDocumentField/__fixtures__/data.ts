@@ -83,7 +83,7 @@ export const fullTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {
   ...fullFormFieldPartialYAMLCommonFixture,
 } satisfies Omit<
   Required<TextDocumentFieldPartialYAML>,
-  "ЗапретитьИспользование" | "РазрешитьИспользование"
+  "Использование"
 >
 
 export const minimalTextDocumentField: TextDocumentField = {

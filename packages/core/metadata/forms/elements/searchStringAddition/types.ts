@@ -33,8 +33,7 @@ export interface SearchStringAdditionYAML {
   КонтекстноеМеню?: ContextMenuYAML
   ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
   Подсказка?: I8nTextYAML
-  РазрешитьИспользование?: UserVisibleYAML
-  ЗапретитьИспользование?: UserVisibleYAML
+  Использование?: UserVisibleYAML
   РасширеннаяПодсказка?: ExtendedTooltipYAML
 }
 

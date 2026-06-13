@@ -74,7 +74,7 @@ export const fullUsualGroupPartialYAML: Required<
   Omit<
     UsualGroupPartialYAML,
     | "Заголовок"
-    | "ЗапретитьИспользование"
+    | "Использование"
     | "РазрешитьИзменениеСостава"
     | "РастягиватьПоВертикали"
   >

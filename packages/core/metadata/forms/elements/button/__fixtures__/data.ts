@@ -55,9 +55,8 @@ const commonButtonModel = {
 }
 
 const commonButtonPartialYAML = {
-  Вид: "ОбычнаяКнопка" as const,
   Видимость: "Ложь" as const,
-  РазрешитьИспользование: { "Role.Администратор": "Ложь" as const },
+  Использование: { Роли: { "Role.Администратор": "Ложь" as const } },
   ВысотаЗаголовка: 30,
   Отображение: "КартинкаИТекст" as const,
   КнопкаПоУмолчанию: "Истина" as const,
@@ -147,7 +146,6 @@ export const fullUsualButton = {
 
 export const fullUsualButtonPartialYAML = {
   ...commonButtonPartialYAML,
-  Вид: "ОбычнаяКнопка",
 } satisfies ButtonPartialYAML
 
 export const fullUsualButtonTypedYAML: ButtonTypedYAML = {

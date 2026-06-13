@@ -91,8 +91,10 @@ type SETypeByName<Name extends string> = `${Name}FromYAML` extends keyof typeof 
 
 type UserVisibleByRule<Rule extends { properties: Record<string, PropertyRule> }> = {
   [K in Rule["properties"][keyof Rule["properties"]] extends infer P
-    ? P extends { type: "UserVisible"; yaml?: infer Y; yamlDeny?: infer YD }
-      ? (Y extends string ? Y : never) | (YD extends string ? YD : never)
+    ? P extends { type: "UserVisible"; yaml?: infer Y }
+      ? Y extends string
+        ? Y
+        : never
       : never
     : never]?: UserVisibleYAML
 }

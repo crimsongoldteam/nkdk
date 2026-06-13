@@ -5,9 +5,8 @@ import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import {
   UserEditKeysYAML,
-  UserEditYAML,
+  UserVisibleYAML,
   UserViewKeysYAML,
-  UserViewYAML,
 } from "~/metadata/commonObjects/userVisible/types"
 import { ChartXML, ChartYAML } from "~/metadata/forms/commonObjects/chart/types"
 import { DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
@@ -78,10 +77,8 @@ export interface FormAttributeColumnYAML {
   Заголовок?: I8nTextYAML
   Тип?: TypeDescriptionYAML
   ПроверкаЗаполнения?: FillCheckingYAML
-  [UserViewKeysYAML.Allow]?: UserViewYAML
-  [UserViewKeysYAML.Deny]?: UserViewYAML
-  [UserEditKeysYAML.Allow]?: UserEditYAML
-  [UserEditKeysYAML.Deny]?: UserEditYAML
+  [UserViewKeysYAML.Value]?: UserVisibleYAML
+  [UserEditKeysYAML.Value]?: UserVisibleYAML
   Колонки?: Record<string, FormAttributeColumnYAML>
   ФункциональныеОпции?: FunctionalOptionsYAML
 }
@@ -104,10 +101,8 @@ export interface FormAttributeYAML {
   ГрафическаяСхема?: FlowchartContextYAML
   ТабличныйДокумент?: SpreadsheetDocumentYAML
   Планировщик?: PlannerYAML
-  [UserViewKeysYAML.Allow]?: UserViewYAML
-  [UserViewKeysYAML.Deny]?: UserViewYAML
-  [UserEditKeysYAML.Allow]?: UserEditYAML
-  [UserEditKeysYAML.Deny]?: UserEditYAML
+  [UserViewKeysYAML.Value]?: UserVisibleYAML
+  [UserEditKeysYAML.Value]?: UserVisibleYAML
   Колонки?: FormAttributeColumnsYAML
   ДополнительныеКолонки?: FormAttributeAdditionalColumnYAML
   ФункциональныеОпции?: FunctionalOptionsYAML

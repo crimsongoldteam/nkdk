@@ -4,6 +4,7 @@ import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { importOrderItemFieldsFromXML } from "./fromXML"
 import { importOrderItemFieldsFromYAML } from "./fromYAML"
 import { OrderItemFieldRules } from "./rules"
+import { exportOrderItemFieldsToJSONSchema } from "./toJSONSchema"
 import { exportOrderItemFieldsToXML } from "./toXML"
 import { exportOrderItemFieldsToYAML } from "./toYAML"
 
@@ -24,5 +25,6 @@ registerMetadataItemCollectionRule({
   fromYAML: importOrderItemFieldsFromYAML,
   toXML: exportOrderItemFieldsToXML,
   toYAML: exportOrderItemFieldsToYAML,
+  toJSONSchema: exportOrderItemFieldsToJSONSchema,
   yamlAsArray: true,
 })

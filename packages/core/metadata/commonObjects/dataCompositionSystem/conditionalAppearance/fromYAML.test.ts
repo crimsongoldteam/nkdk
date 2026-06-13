@@ -4,9 +4,7 @@ import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromY
 import {
   fullConditionalAppearance,
   fullConditionalAppearanceYAML,
-  minimalConditionalAppearance,
   minimalConditionalAppearanceYAML,
-  minimalUserSettingsConditionalAppearance,
   minimalUserSettingsConditionalAppearanceYAML,
 } from "./__fixtures__/data"
 import "./types"
@@ -23,11 +21,16 @@ describe("import ConditionalAppearance from YAML", () => {
 
   it("imports minimal", () => {
     const result = testImportPropertyFromYAML({ rule, value: minimalConditionalAppearanceYAML })
-    expect(result).toEqual(minimalConditionalAppearance)
+    expect(result).toEqual({
+      itemType: "ConditionalAppearance",
+    })
   })
 
   it("imports minimalUserSettings", () => {
     const result = testImportPropertyFromYAML({ rule, value: minimalUserSettingsConditionalAppearanceYAML })
-    expect(result).toEqual(minimalUserSettingsConditionalAppearance)
+    expect(result).toEqual({
+      itemType: "ConditionalAppearance",
+      userSettingID: true,
+    })
   })
 })

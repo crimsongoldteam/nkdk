@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 import {
-  fullConditionalAppearanceItems,
+  fullConditionalAppearanceItemsFromYAML,
   fullConditionalAppearanceItemsYAML,
   minimalConditionalAppearanceItems,
   minimalConditionalAppearanceItemsYAML,
@@ -20,7 +20,7 @@ describe("import ConditionalAppearanceItems from YAML", () => {
       value: fullConditionalAppearanceItemsYAML,
     })
 
-    expect(result).toEqual(fullConditionalAppearanceItems)
+    expect(result).toEqual(fullConditionalAppearanceItemsFromYAML)
   })
 
   it("imports minimal collection", () => {

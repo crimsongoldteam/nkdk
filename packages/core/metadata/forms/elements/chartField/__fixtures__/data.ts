@@ -63,7 +63,7 @@ export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {
     ПриАктивизации: "ПроцедураПриАктивизации",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<ChartFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
+} satisfies Omit<Required<ChartFieldPartialYAML>, "Использование">
 
 export const minimalChartField: ChartField = {
   itemType: "ChartField",

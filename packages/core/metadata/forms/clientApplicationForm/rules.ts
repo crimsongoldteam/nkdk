@@ -170,9 +170,6 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValueYAML: "Auto",
       omitDefaultValueYAMLBySource: true,
-      applyModelDefaultValueYAMLOnImport: {
-        whenAnyYAMLKeyPresent: reportFormYAMLKeys,
-      },
     },
     customSettingsFolder: {
       yaml: "ГруппаПользовательскихНастроек",
@@ -188,9 +185,6 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValueYAML: "Auto",
       omitDefaultValueYAMLBySource: true,
-      applyModelDefaultValueYAMLOnImport: {
-        whenAnyYAMLKeyPresent: reportFormYAMLKeys,
-      },
     },
     viewModeApplicationOnSetReportResult: {
       yaml: "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета",
@@ -200,9 +194,6 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValueYAML: "Auto",
       omitDefaultValueYAMLBySource: true,
-      applyModelDefaultValueYAMLOnImport: {
-        whenAnyYAMLKeyPresent: reportFormYAMLKeys,
-      },
     },
     mobileDeviceCommandBarContent: {
       yaml: "СоставКоманднойПанелиНаМобильномУстройстве",

@@ -8,6 +8,7 @@ import { ToMetadata, ToYAML } from "~/metadata/orchestration/metadataItem/regist
 import { ExportToXMLFunctionNew } from "~/metadata/orchestration/property/fn"
 import { exportSingleElementToXML } from "~/metadata/forms/elements/orchestration/toXML"
 import { exportElementToPartialYAML } from "~/metadata/forms/elements/orchestration/toYAML"
+import { exportSingleElementRuleToJSONSchema } from "./toJSONSchema"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { MetadataItem, PropertyRule } from "~/metadata/orchestration/property/types"
@@ -57,6 +58,7 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
   registerExportToYAML(propertyType)
   registerimportFromYAML(propertyType, itemType)
   registerExportToXML({ propertyType, toXML, elementRule, nameStyle })
+  registerExportToJSONSchema({ propertyType, elementRule })
 }
 
 const registerImportFromXML = <Rule extends ElementRule>(params: {
@@ -161,6 +163,20 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
   }
 
   registerTypeRule(propertyType, "exportToXML", fn)
+}
+
+const registerExportToJSONSchema = <Rule extends ElementRule>(params: {
+  propertyType: PropertyRuleType
+  elementRule: Rule
+}): void => {
+  const { propertyType, elementRule } = params
+
+  registerTypeRule(propertyType, "exportToJSONSchema", ({ context }) =>
+    exportSingleElementRuleToJSONSchema({
+      context,
+      rule: elementRule,
+    })
+  )
 }
 
 const omitReferenceName = <T extends object | undefined>(referenceElement: T): T => {

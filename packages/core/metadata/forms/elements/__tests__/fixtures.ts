@@ -307,11 +307,82 @@ export type ElementFixture = {
   xml: string
   xmlFolder: string | undefined
   model: object
+  yamlModel?: object
+  typedYAMLModel?: object
   source?: object
+  yamlForImport?: object
   yaml: object | undefined
   typedYAML?: object
   enterprise?: object
   context?: ConfigurationContext
+}
+
+const { enableContentChange: _buttonGroupEnableContentChange, ...fullButtonGroupFromYAML } = fullButtonGroup
+const { enableContentChange: _columnGroupEnableContentChange, ...fullColumnGroupFromYAML } = fullColumnGroup
+const { enableContentChange: _popupEnableContentChange, ...fullPopupFromYAML } = fullPopup
+const { fixingInTable: _tableInputFieldFixingInTable, ...fullTableInputFieldFromYAML } = fullTableInputField
+const { fixingInTable: _tableCheckBoxFieldFixingInTable, ...fullTableCheckBoxFieldFromYAML } = fullTableCheckBoxField
+const { fixingInTable: _tableLabelFieldFixingInTable, ...fullTableLabelFieldFromYAML } = fullTableLabelField
+const { fixingInTable: _tablePictureFieldFixingInTable, ...fullTablePictureFieldFromYAML } = fullTablePictureField
+const {
+  picture: { transparentPixel: _usualButtonTransparentPixel, ...fullUsualButtonPictureFromYAML },
+  ...fullUsualButtonFromYAMLRest
+} = fullUsualButton
+const fullUsualButtonFromYAML = {
+  ...fullUsualButtonFromYAMLRest,
+  picture: fullUsualButtonPictureFromYAML,
+}
+const commandButtonWithTypeDescriptionParameterFromYAML = {
+  ...commandButtonWithTypeDescriptionParameter,
+  type: "UsualButton" as const,
+}
+const withoutCheckBoxTypeInChildItems = <T extends { childItems: readonly Record<string, unknown>[] }>(
+  table: T,
+  names: string[]
+): T => ({
+  ...table,
+  childItems: table.childItems.map((childItem) => {
+    if (typeof childItem.name !== "string" || !names.includes(childItem.name)) return childItem
+
+    const { checkBoxType: _checkBoxType, ...childItemWithoutCheckBoxType } = childItem
+    return childItemWithoutCheckBoxType
+  }),
+}) as T
+const fullTableFromYAML = withoutCheckBoxTypeInChildItems(fullTable, ["ТаблицаФлажок123"])
+const fullTreeFromYAML = withoutCheckBoxTypeInChildItems(fullTree, ["ДеревоФлажок"])
+const dynamicListFromYAML = withoutCheckBoxTypeInChildItems(dynamicList, ["ДинамическийСписокФлажок"])
+const dcsComposerFilterFromYAML = withoutCheckBoxTypeInChildItems(dcsComposerFilter, [
+  "КомпоновщикНастроекКомпоновкиДанныхНастройкиОтборИспользование",
+])
+const dcsComposerSettingsFromYAML = withoutCheckBoxTypeInChildItems(dcsComposerSettings, [
+  "КомпоновщикНастроекКомпоновкиДанныхНастройкиИспользование",
+])
+const fullCommandBarFromYAML = {
+  ...fullCommandBar,
+  childItems: [
+    {
+      ...fullCommandBar.childItems[0],
+      type: "UsualButton" as const,
+    },
+    {
+      ...fullCommandBar.childItems[1],
+      childItems: [
+        {
+          ...fullCommandBar.childItems[1].childItems[0],
+          type: "UsualButton" as const,
+        },
+      ],
+    },
+    {
+      ...fullCommandBar.childItems[2],
+      childItems: [
+        {
+          ...fullCommandBar.childItems[2].childItems[0],
+          type: "UsualButton" as const,
+        },
+      ],
+    },
+  ],
 }
 
 export const ElementFixtures: ElementFixture[] = [
@@ -343,7 +414,14 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "autoCellHeight.xml",
     xmlFolder: undefined,
     model: autoCellHeightInputField,
-    yaml: { АвтоВысотаЯчейки: "Истина" },
+    source: {
+      itemType: "InputField",
+      name: "ПолеАвтоВысотаЯчейки",
+    },
+    yamlForImport: {
+      АвтоВысотаЯчейки: "Истина",
+    },
+    yaml: undefined,
     enterprise: undefined,
   },
   {
@@ -370,6 +448,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: "inputField",
     model: fullTableInputField,
     yaml: fullTableInputFieldPartialYAML,
+    typedYAMLModel: fullTableInputFieldFromYAML,
     typedYAML: fullTableInputFieldTypedYAML,
     enterprise: fullTableInputFieldEnterprise,
   },
@@ -394,6 +473,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: fullUsualButton,
     yaml: fullUsualButtonPartialYAML,
+    typedYAMLModel: fullUsualButtonFromYAML,
     typedYAML: fullUsualButtonTypedYAML,
     enterprise: fullUsualButtonEnterprise,
   },
@@ -450,6 +530,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "parameterTypeDescription.xml",
     xmlFolder: "button",
     model: commandButtonWithTypeDescriptionParameter,
+    yamlModel: commandButtonWithTypeDescriptionParameterFromYAML,
     yaml: {
       ИмяКоманды: "Form.Item.Список.StandardCommand.CreateByParameter",
     },
@@ -476,6 +557,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "full.xml",
     xmlFolder: undefined,
     model: fullButtonGroup,
+    yamlModel: fullButtonGroupFromYAML,
     source: fullButtonGroupSource,
     yaml: fullButtonGroupPartialYAML,
     typedYAML: fullButtonGroupTypedYAML,
@@ -555,6 +637,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "minimal.xml",
     xmlFolder: undefined,
     model: minimalCheckBoxField,
+    yamlModel: minimalCheckBoxField,
     yaml: undefined,
     enterprise: undefined,
   },
@@ -568,6 +651,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: "checkBoxField",
     model: fullTableCheckBoxField,
     yaml: fullTableCheckBoxFieldPartialYAML,
+    typedYAMLModel: fullTableCheckBoxFieldFromYAML,
     typedYAML: fullTableCheckBoxFieldTypedYAML,
     enterprise: fullTableCheckBoxFieldEnterprise,
   },
@@ -578,6 +662,8 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "minimalTable.xml",
     xmlFolder: "checkBoxField",
     model: minimalTableCheckBoxField,
+    yamlModel: minimalTableCheckBoxField,
+    typedYAMLModel: minimalTableCheckBoxField,
     yaml: undefined,
     typedYAML: minimalTableCheckBoxFieldTypedYAML,
     enterprise: undefined,
@@ -592,6 +678,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: undefined,
     model: fullColumnGroup,
     yaml: fullColumnGroupPartialYAML,
+    typedYAMLModel: fullColumnGroupFromYAML,
     typedYAML: fullColumnGroupTypedYAML,
     enterprise: fullColumnGroupEnterprise,
   },
@@ -615,6 +702,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "full.xml",
     xmlFolder: undefined,
     model: fullCommandBar,
+    yamlModel: fullCommandBarFromYAML,
     source: fullCommandBarSource,
     yaml: fullCommandBarPartialYAML,
     enterprise: fullCommandBarEnterprise,
@@ -814,7 +902,14 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "autoCellHeight.xml",
     xmlFolder: undefined,
     model: autoCellHeightLabelField,
-    yaml: { АвтоВысотаЯчейки: "Истина" },
+    source: {
+      itemType: "LabelField",
+      name: "НадписьАвтоВысотаЯчейки",
+    },
+    yamlForImport: {
+      АвтоВысотаЯчейки: "Истина",
+    },
+    yaml: undefined,
     enterprise: undefined,
   },
   //#endregion
@@ -827,6 +922,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: "labelField",
     model: fullTableLabelField,
     yaml: fullTableLabelFieldPartialYAML,
+    typedYAMLModel: fullTableLabelFieldFromYAML,
     typedYAML: fullTableLabelFieldTypedYAML,
     enterprise: fullTableLabelFieldEnterprise,
   },
@@ -985,6 +1081,7 @@ export const ElementFixtures: ElementFixture[] = [
     xmlFolder: "pictureField",
     model: fullTablePictureField,
     yaml: fullTablePictureFieldPartialYAML,
+    typedYAMLModel: fullTablePictureFieldFromYAML,
     typedYAML: fullTablePictureFieldTypedYAML,
     enterprise: fullTablePictureFieldEnterprise,
   },
@@ -1040,6 +1137,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "full.xml",
     xmlFolder: undefined,
     model: fullPopup,
+    yamlModel: fullPopupFromYAML,
     source: sourcePopup,
     yaml: fullPopupPartialYAML,
     typedYAML: fullPopupTypedYAML,
@@ -1211,6 +1309,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "full.xml",
     xmlFolder: undefined,
     model: fullTable,
+    yamlModel: fullTableFromYAML,
     yaml: fullTableYAML,
     enterprise: fullTableEnterprise,
   },
@@ -1231,6 +1330,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "dynamicList.xml",
     xmlFolder: undefined,
     model: dynamicList,
+    yamlModel: dynamicListFromYAML,
     yaml: dynamicListYAML,
     enterprise: undefined,
   },
@@ -1241,6 +1341,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "fullTree.xml",
     xmlFolder: undefined,
     model: fullTree,
+    yamlModel: fullTreeFromYAML,
     yaml: fullTreeYAML,
     enterprise: undefined,
   },
@@ -1251,6 +1352,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "dcsComposerFilter.xml",
     xmlFolder: undefined,
     model: dcsComposerFilter,
+    yamlModel: dcsComposerFilterFromYAML,
     yaml: dcsComposerFilterYAML,
     enterprise: undefined,
   },
@@ -1261,6 +1363,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "dcsComposerSettings.xml",
     xmlFolder: undefined,
     model: dcsComposerSettings,
+    yamlModel: dcsComposerSettingsFromYAML,
     yaml: dcsComposerSettingsYAML,
     enterprise: undefined,
   },

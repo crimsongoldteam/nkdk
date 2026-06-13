@@ -47,8 +47,7 @@ const commonProperties = {
     typeSE: "ToolTipRepresentation",
   },
   userVisible: {
-    yaml: "РазрешитьИспользование",
-    yamlDeny: "ЗапретитьИспользование",
+    yaml: "Использование",
     type: "UserVisible",
   },
   verticalAlignInGroup: {

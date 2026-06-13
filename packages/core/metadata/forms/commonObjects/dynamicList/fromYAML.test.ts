@@ -1,3 +1,6 @@
+import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
 import { describe, expect, it } from "vitest"
 import {
   fullDynamicList,
@@ -5,7 +8,8 @@ import {
   keyFieldDynamicListYAML,
   queryTextWithManualQueryFalseDynamicListYAML,
 } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
-import { PropertyRule } from "~/metadata/orchestration"
+import { importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
+import { mockContext } from "~/tests/mockContext"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 
@@ -40,12 +44,7 @@ describe("import DynamicList from YAML", () => {
       rule,
       value: imported,
     })
-    expect(exported).toEqual({
-      ДинамическийСписок: {
-        ...fullDynamicListYAML,
-        ПроизвольныйЗапрос: "Ложь",
-      },
-    })
+    expect(exported).toEqual({ ДинамическийСписок: fullDynamicListYAML })
   })
 
   it("imports explicit ManualQuery false from YAML even when queryText exists in model fixture", () => {
@@ -77,6 +76,33 @@ describe("import DynamicList from YAML", () => {
       dynamicDataRead: true,
       itemType: "DynamicList",
       mainTable: "Catalog.РеестрПартийЗЕРНО",
+    })
+  })
+
+  it("does not derive ManualQuery from external query file", () => {
+    const formDir = mkdtempSync(join(tmpdir(), "nkdk-dynamic-list-"))
+    mkdirSync(join(formDir, "ДинамическийСписок"))
+    writeFileSync(join(formDir, "ДинамическийСписок", "Список.query"), "ВЫБРАТЬ 1")
+
+    const result = importPropertyFromYAML({
+      context: {
+        ...mockContext,
+        importFromYAML: { formDir, parent: { name: "Список" } },
+      },
+      rule,
+      value: {
+        ДинамическоеСчитываниеДанных: "Истина",
+        ОсновнаяТаблица: "Catalog.РеестрПартийЗЕРНО",
+      },
+      name: "Список",
+    })
+
+    expect(result).toEqual({
+      customQuery: false,
+      dynamicDataRead: true,
+      itemType: "DynamicList",
+      mainTable: "Catalog.РеестрПартийЗЕРНО",
+      queryText: "ВЫБРАТЬ 1",
     })
   })
 

@@ -16,6 +16,7 @@ import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
 import { PredefinedCodePropertyRule } from "~/metadata/commonObjects/predefinedCode/types"
 import { StringOrNumberPropertyRule } from "~/metadata/commonObjects/stringOrNumber/types"
 import type { WSDefinitionSchemasPropertyRule } from "~/metadata/commonObjects/wsDefinitionSchemas/types"
+import type { TypeRulesOperations } from "./fn"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
@@ -45,7 +46,12 @@ export interface MetadataItem {
   itemType: MetadataItemType
 }
 
-type DefaultValueFunction = (params: { context: ConfigurationContext; name?: string }) => any
+type DefaultValueFunction = (params: {
+  context: ConfigurationContext
+  name?: string
+  operation: TypeRulesOperations
+  yaml?: any
+}) => any
 
 export interface BasePropertyRule {
   /** Тип свойства */
@@ -83,12 +89,6 @@ export interface BasePropertyRule {
 
   /** Исключать YAML-default по модельному значению до преобразования типа. */
   omitDefaultValueYAMLBySource?: true
-
-  /**
-   * Подставлять defaultValueYAML при импорте, если значения нет ни в YAML, ни в source.
-   * Используй только когда defaultValueYAML уже совместим с модельным значением.
-   */
-  applyModelDefaultValueYAMLOnImport?: true | { whenAnyYAMLKeyPresent: string[] }
 
   /** Название в XML, если не заполнено - будет использован ключ*/
   xml?: string
@@ -224,10 +224,7 @@ export interface ChildItemsPropertyRule extends BasePropertyRule {
 
 export interface UserVisiblePropertyRule extends BasePropertyRule {
   type: "UserVisible"
-  /** Ключ в YAML в случае разрешения использования */
   yaml: string
-  /** Ключ в YAML в случае запрета использования */
-  yamlDeny: string
 }
 
 export interface StandardAttributeDescriptionPropertyRule extends BasePropertyRule {

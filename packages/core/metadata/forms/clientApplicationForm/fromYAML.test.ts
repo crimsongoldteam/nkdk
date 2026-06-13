@@ -22,6 +22,170 @@ type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
   customSettingsFolder?: string
 }
 
+const fullClientApplicationFormFromYAML = {
+  parameters: fullClientApplicationForm.parameters,
+  commands: fullClientApplicationForm.commands,
+  autoCommandBar: fullClientApplicationForm.autoCommandBar,
+  commandInterface: fullClientApplicationForm.commandInterface,
+  attributes: fullClientApplicationForm.attributes,
+  autoTitle: fullClientApplicationForm.autoTitle,
+  autoSaveDataInSettings: fullClientApplicationForm.autoSaveDataInSettings,
+  autoURL: fullClientApplicationForm.autoURL,
+  customizable: fullClientApplicationForm.customizable,
+  verticalScroll: fullClientApplicationForm.verticalScroll,
+  childItemsVerticalAlign: fullClientApplicationForm.childItemsVerticalAlign,
+  verticalSpacing: fullClientApplicationForm.verticalSpacing,
+  itemsAndTitlesAlign: fullClientApplicationForm.itemsAndTitlesAlign,
+  height: fullClientApplicationForm.height,
+  childItemsHorizontalAlign: fullClientApplicationForm.childItemsHorizontalAlign,
+  horizontalSpacing: fullClientApplicationForm.horizontalSpacing,
+  groupList: fullClientApplicationForm.groupList,
+  enabled: fullClientApplicationForm.enabled,
+  title: fullClientApplicationForm.title,
+  closeOnChoice: fullClientApplicationForm.closeOnChoice,
+  closeOnOwnerClose: fullClientApplicationForm.closeOnOwnerClose,
+  purposeUseKey: fullClientApplicationForm.purposeUseKey,
+  windowOptionsKey: fullClientApplicationForm.windowOptionsKey,
+  scale: fullClientApplicationForm.scale,
+  modalMode: fullClientApplicationForm.modalMode,
+  modified: fullClientApplicationForm.modified,
+  showTitle: fullClientApplicationForm.showTitle,
+  showCloseButton: fullClientApplicationForm.showCloseButton,
+  conversationsRepresentation: fullClientApplicationForm.conversationsRepresentation,
+  commandBarLocation: fullClientApplicationForm.commandBarLocation,
+  commandSet: fullClientApplicationForm.commandSet,
+  autoFillCheck: fullClientApplicationForm.autoFillCheck,
+  formWindowOpeningMode: fullClientApplicationForm.formWindowOpeningMode,
+  collapseItemsByImportance: fullClientApplicationForm.collapseItemsByImportance,
+  saveDataInSettings: fullClientApplicationForm.saveDataInSettings,
+  savedInSettingsDataModified: fullClientApplicationForm.savedInSettingsDataModified,
+  readOnly: fullClientApplicationForm.readOnly,
+  width: fullClientApplicationForm.width,
+  saveWindowSettings: fullClientApplicationForm.saveWindowSettings,
+  childItems: fullClientApplicationForm.childItems,
+  choiceAvailable: fullClientApplicationForm.choiceAvailable,
+  useForFoldersAndItems: fullClientApplicationForm.useForFoldersAndItems,
+  choiceParameters: fullClientApplicationForm.choiceParameters,
+  choiceMode: fullClientApplicationForm.choiceMode,
+  events: fullClientApplicationForm.events,
+  synonym: fullClientApplicationForm.synonym,
+  comment: fullClientApplicationForm.comment,
+  includeHelpInContents: fullClientApplicationForm.includeHelpInContents,
+  usePurposes: fullClientApplicationForm.usePurposes,
+  itemType: fullClientApplicationForm.itemType,
+} satisfies Omit<ClientApplicationForm, "enterKeyBehavior" | "group" | "slaveItemsWidth" | "usedFormServer">
+
+const catalogFullClientApplicationFormFromYAML = {
+  itemType: catalogFullClientApplicationForm.itemType,
+  synonym: catalogFullClientApplicationForm.synonym,
+  comment: catalogFullClientApplicationForm.comment,
+  includeHelpInContents: catalogFullClientApplicationForm.includeHelpInContents,
+  usePurposes: catalogFullClientApplicationForm.usePurposes,
+  title: catalogFullClientApplicationForm.title,
+  width: catalogFullClientApplicationForm.width,
+  height: catalogFullClientApplicationForm.height,
+  formWindowOpeningMode: catalogFullClientApplicationForm.formWindowOpeningMode,
+  autoSaveDataInSettings: catalogFullClientApplicationForm.autoSaveDataInSettings,
+  saveDataInSettings: catalogFullClientApplicationForm.saveDataInSettings,
+  saveWindowSettings: catalogFullClientApplicationForm.saveWindowSettings,
+  settingsStorage: catalogFullClientApplicationForm.settingsStorage,
+  autoTitle: catalogFullClientApplicationForm.autoTitle,
+  autoURL: catalogFullClientApplicationForm.autoURL,
+  group: catalogFullClientApplicationForm.group,
+  groupList: catalogFullClientApplicationForm.groupList,
+  itemsAndTitlesAlign: catalogFullClientApplicationForm.itemsAndTitlesAlign,
+  horizontalSpacing: catalogFullClientApplicationForm.horizontalSpacing,
+  verticalSpacing: catalogFullClientApplicationForm.verticalSpacing,
+  childItemsHorizontalAlign: catalogFullClientApplicationForm.childItemsHorizontalAlign,
+  childItemsVerticalAlign: catalogFullClientApplicationForm.childItemsVerticalAlign,
+  autoFillCheck: catalogFullClientApplicationForm.autoFillCheck,
+  customizable: catalogFullClientApplicationForm.customizable,
+  enabled: catalogFullClientApplicationForm.enabled,
+  commandBarLocation: catalogFullClientApplicationForm.commandBarLocation,
+  verticalScroll: catalogFullClientApplicationForm.verticalScroll,
+  scalingMode: catalogFullClientApplicationForm.scalingMode,
+  scale: catalogFullClientApplicationForm.scale,
+  conversationsRepresentation: catalogFullClientApplicationForm.conversationsRepresentation,
+  mobileDeviceCommandBarContent: catalogFullClientApplicationForm.mobileDeviceCommandBarContent,
+  commandSet: catalogFullClientApplicationForm.commandSet,
+  showTitle: catalogFullClientApplicationForm.showTitle,
+  showCloseButton: catalogFullClientApplicationForm.showCloseButton,
+  collapseItemsByImportance: catalogFullClientApplicationForm.collapseItemsByImportance,
+  useForFoldersAndItems: catalogFullClientApplicationForm.useForFoldersAndItems,
+  autoCommandBar: catalogFullClientApplicationForm.autoCommandBar,
+  childItems: catalogFullClientApplicationForm.childItems,
+  attributes: catalogFullClientApplicationForm.attributes,
+  attributesConditionalAppearance: catalogFullClientApplicationForm.attributesConditionalAppearance,
+  commands: catalogFullClientApplicationForm.commands,
+  events: catalogFullClientApplicationForm.events,
+} satisfies Omit<ClientApplicationForm, "enterKeyBehavior">
+
+const documentFullClientApplicationFormExpectedFromYAML = {
+  itemType: documentFullClientApplicationFormFromYAML.itemType,
+  synonym: documentFullClientApplicationFormFromYAML.synonym,
+  comment: documentFullClientApplicationFormFromYAML.comment,
+  includeHelpInContents: documentFullClientApplicationFormFromYAML.includeHelpInContents,
+  usePurposes: documentFullClientApplicationFormFromYAML.usePurposes,
+  title: documentFullClientApplicationFormFromYAML.title,
+  width: documentFullClientApplicationFormFromYAML.width,
+  height: documentFullClientApplicationFormFromYAML.height,
+  formWindowOpeningMode: documentFullClientApplicationFormFromYAML.formWindowOpeningMode,
+  autoSaveDataInSettings: documentFullClientApplicationFormFromYAML.autoSaveDataInSettings,
+  saveDataInSettings: documentFullClientApplicationFormFromYAML.saveDataInSettings,
+  saveWindowSettings: documentFullClientApplicationFormFromYAML.saveWindowSettings,
+  settingsStorage: documentFullClientApplicationFormFromYAML.settingsStorage,
+  autoTitle: documentFullClientApplicationFormFromYAML.autoTitle,
+  autoURL: documentFullClientApplicationFormFromYAML.autoURL,
+  group: documentFullClientApplicationFormFromYAML.group,
+  groupList: documentFullClientApplicationFormFromYAML.groupList,
+  itemsAndTitlesAlign: documentFullClientApplicationFormFromYAML.itemsAndTitlesAlign,
+  horizontalSpacing: documentFullClientApplicationFormFromYAML.horizontalSpacing,
+  verticalSpacing: documentFullClientApplicationFormFromYAML.verticalSpacing,
+  childItemsHorizontalAlign: documentFullClientApplicationFormFromYAML.childItemsHorizontalAlign,
+  childItemsVerticalAlign: documentFullClientApplicationFormFromYAML.childItemsVerticalAlign,
+  autoFillCheck: documentFullClientApplicationFormFromYAML.autoFillCheck,
+  customizable: documentFullClientApplicationFormFromYAML.customizable,
+  enabled: documentFullClientApplicationFormFromYAML.enabled,
+  commandBarLocation: documentFullClientApplicationFormFromYAML.commandBarLocation,
+  verticalScroll: documentFullClientApplicationFormFromYAML.verticalScroll,
+  scalingMode: documentFullClientApplicationFormFromYAML.scalingMode,
+  scale: documentFullClientApplicationFormFromYAML.scale,
+  conversationsRepresentation: documentFullClientApplicationFormFromYAML.conversationsRepresentation,
+  mobileDeviceCommandBarContent: documentFullClientApplicationFormFromYAML.mobileDeviceCommandBarContent,
+  commandSet: documentFullClientApplicationFormFromYAML.commandSet,
+  showTitle: documentFullClientApplicationFormFromYAML.showTitle,
+  showCloseButton: documentFullClientApplicationFormFromYAML.showCloseButton,
+  collapseItemsByImportance: documentFullClientApplicationFormFromYAML.collapseItemsByImportance,
+  autoTime: documentFullClientApplicationFormFromYAML.autoTime,
+  usePostingMode: documentFullClientApplicationFormFromYAML.usePostingMode,
+  repostOnWrite: documentFullClientApplicationFormFromYAML.repostOnWrite,
+  events: documentFullClientApplicationFormFromYAML.events,
+  childItems: documentFullClientApplicationFormFromYAML.childItems,
+  attributes: documentFullClientApplicationFormFromYAML.attributes,
+  attributesConditionalAppearance: documentFullClientApplicationFormFromYAML.attributesConditionalAppearance,
+  commands: documentFullClientApplicationFormFromYAML.commands,
+  autoCommandBar: documentFullClientApplicationFormFromYAML.autoCommandBar,
+} satisfies Omit<ClientApplicationForm, "enterKeyBehavior">
+
+const reportFormClientApplicationFormFromYAML = {
+  itemType: reportFormClientApplicationForm.itemType,
+  synonym: reportFormClientApplicationForm.synonym,
+  comment: reportFormClientApplicationForm.comment,
+  includeHelpInContents: reportFormClientApplicationForm.includeHelpInContents,
+  autoCommandBar: reportFormClientApplicationForm.autoCommandBar,
+  childItems: reportFormClientApplicationForm.childItems,
+  attributes: reportFormClientApplicationForm.attributes,
+  commands: reportFormClientApplicationForm.commands,
+  reportResult: reportFormClientApplicationForm.reportResult,
+  detailsData: reportFormClientApplicationForm.detailsData,
+  reportFormType: reportFormClientApplicationForm.reportFormType,
+  variantAppearance: reportFormClientApplicationForm.variantAppearance,
+  customSettingsFolder: reportFormClientApplicationForm.customSettingsFolder,
+} satisfies Omit<
+  typeof reportFormClientApplicationForm,
+  "autoShowState" | "reportResultViewMode" | "viewModeApplicationOnSetReportResult"
+>
+
 describe("importClientApplicationFormFromYAML", () => {
   it("imports complete form from one YAML source without source", () => {
     const data: ClientApplicationFormYAML = {
@@ -53,6 +217,7 @@ describe("importClientApplicationFormFromYAML", () => {
           {
             itemType: "Button",
             name: "Записать",
+            type: "UsualButton",
             commandName: "Записать",
           },
         ],
@@ -95,7 +260,7 @@ describe("importClientApplicationFormFromYAML", () => {
       },
     })
 
-    expect(result).toEqual(fullClientApplicationForm)
+    expect(result).toEqual(fullClientApplicationFormFromYAML)
   })
 
   it("imports catalog full YAML", () => {
@@ -127,7 +292,7 @@ describe("importClientApplicationFormFromYAML", () => {
       },
     })
 
-    expect(result).toEqual(catalogFullClientApplicationForm)
+    expect(result).toEqual(catalogFullClientApplicationFormFromYAML)
   })
 
   it("imports document full YAML", () => {
@@ -165,7 +330,7 @@ describe("importClientApplicationFormFromYAML", () => {
       },
     })
 
-    expect(result).toEqual(documentFullClientApplicationFormFromYAML)
+    expect(result).toEqual(documentFullClientApplicationFormExpectedFromYAML)
   })
 
   it("should import from form command bar", () => {
@@ -223,6 +388,7 @@ describe("importClientApplicationFormFromYAML", () => {
               {
                 name: "Кнопка1",
                 itemType: "Button",
+                type: "UsualButton",
                 commandName: "Команда1",
               },
             ],
@@ -307,6 +473,7 @@ describe("importClientApplicationFormFromYAML", () => {
                   {
                     name: "Кнопка1",
                     itemType: "Button",
+                    type: "UsualButton",
                     commandName: "Команда1",
                   },
                 ],
@@ -334,26 +501,19 @@ describe("importClientApplicationFormFromYAML", () => {
     )
   })
 
-  it("applies report form Auto defaults when importing YAML", () => {
+  it("does not apply report form Auto defaults when importing YAML", () => {
     expect(reportFormClientApplicationFormYAML).not.toHaveProperty("АвтоОтображениеСостояния")
     expect(reportFormClientApplicationFormYAML).not.toHaveProperty("РежимОтображенияРезультатаОтчета")
     expect(reportFormClientApplicationFormYAML).not.toHaveProperty(
       "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета"
     )
 
-    const {
-      autoShowState: _autoShowState,
-      reportResultViewMode: _reportResultViewMode,
-      viewModeApplicationOnSetReportResult: _viewModeApplicationOnSetReportResult,
-      ...baseFormWithoutAutoDefaults
-    } = reportFormClientApplicationForm
-
     const result = importClientApplicationFormFromYAML(
       mockContext,
       reportFormClientApplicationFormYAML,
-      baseFormWithoutAutoDefaults
+      reportFormClientApplicationFormFromYAML
     )
 
-    expect(result).toEqual(reportFormClientApplicationForm)
+    expect(result).toEqual(reportFormClientApplicationFormFromYAML)
   })
 })

@@ -39,8 +39,7 @@ export const formDecorationCommonProperties = {
     typeSE: "ToolTipRepresentation",
   },
   userVisible: {
-    yaml: "РазрешитьИспользование",
-    yamlDeny: "ЗапретитьИспользование",
+    yaml: "Использование",
     type: "UserVisible",
     toEnterprise: false,
   },

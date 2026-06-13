@@ -18,49 +18,16 @@ const synonymRule = {
       type: "I8nText",
       yaml: "Синоним",
       defaultValueYAML: ({ name }: { name?: string }) => ({ items: { ru: name } }),
-      applyModelDefaultValueYAMLOnImport: { whenAnyYAMLKeyPresent: ["Имя"] },
     },
   },
 } as const satisfies MetadataItemRule
 
 describe("importPropertyFromYAML", () => {
-  it("does not apply defaultValueYAML to missing YAML without opt-in", () => {
+  it("does not apply defaultValueYAML to missing YAML", () => {
     expect(
       importPropertyFromYAML({
         context: mockContext,
         rule: defaultRule,
-        value: undefined,
-        yaml: {},
-      })
-    ).toBeUndefined()
-  })
-
-  it("applies model-compatible YAML default when opt-in condition matches", () => {
-    expect(
-      importPropertyFromYAML({
-        context: mockContext,
-        rule: {
-          ...defaultRule,
-          applyModelDefaultValueYAMLOnImport: {
-            whenAnyYAMLKeyPresent: ["Маркер"],
-          },
-        },
-        value: undefined,
-        yaml: { Маркер: "есть" },
-      })
-    ).toBe("model-default")
-  })
-
-  it("does not apply model-compatible YAML default when opt-in condition is absent", () => {
-    expect(
-      importPropertyFromYAML({
-        context: mockContext,
-        rule: {
-          ...defaultRule,
-          applyModelDefaultValueYAMLOnImport: {
-            whenAnyYAMLKeyPresent: ["Маркер"],
-          },
-        },
         value: undefined,
         yaml: {},
       })
@@ -85,7 +52,7 @@ describe("importPropertiesFromYAML", () => {
     expect(result.synonym).toEqual({ items: {} })
   })
 
-  it("applies default synonym when YAML omits synonym and source has no synonym", () => {
+  it("does not apply default synonym when YAML omits synonym and source has no synonym", () => {
     const result = importPropertiesFromYAML({
       context: mockContext,
       metadataRule: synonymRule,
@@ -94,7 +61,7 @@ describe("importPropertiesFromYAML", () => {
       source: { itemType: "MetadataCatalog", name: "ПравилаОтправкиДокументов" },
     })
 
-    expect(result.synonym).toEqual({ items: { ru: "ПравилаОтправкиДокументов" } })
+    expect(result.synonym).toBeUndefined()
   })
 
   it("uses explicit YAML synonym over empty synonym from source", () => {

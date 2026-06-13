@@ -167,8 +167,7 @@ export const formFieldCommonProperties = {
   titleFont: { yaml: "ШрифтЗаголовка", type: "Font" },
   footerFont: { yaml: "ШрифтПодвала", type: "Font" },
   userVisible: {
-    yaml: "РазрешитьИспользование",
-    yamlDeny: "ЗапретитьИспользование",
+    yaml: "Использование",
     type: "UserVisible",
     toEnterprise: false,
   },

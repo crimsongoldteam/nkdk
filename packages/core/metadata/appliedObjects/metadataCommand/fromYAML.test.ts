@@ -4,6 +4,7 @@ import { importMetadataItemFromYAML } from "~/metadata/orchestration"
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { mockContext } from "~/tests/mockContext"
 import "~/metadata/commonObjects/metadataCommandGroup/fromYAML"
+import "~/metadata/commonObjects/metadataCommandGroup/toJSONSchema"
 import { MetadataCommandRules } from "./rules"
 
 describe("MetadataCommand YAML", () => {
@@ -13,6 +14,15 @@ describe("MetadataCommand YAML", () => {
     )
 
     expect(schema.Check("ПанельНавигацииВажное")).toBe(false)
+  })
+
+  it("accepts command group property in JSON Schema", () => {
+    const schema = TypeCompiler.Compile(
+      exportMetadataItemToJSONSchema({ context: mockContext, rule: MetadataCommandRules })
+    )
+
+    expect(schema.Check({ Группа: "ПанельНавигацииВажное" })).toBe(true)
+    expect(schema.Check({ Группа: "CommandGroup.ГруппаКомандПоУмолчанию" })).toBe(true)
   })
 
   it("imports object command group YAML and rejects scalar command YAML", () => {

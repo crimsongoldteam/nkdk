@@ -1,9 +1,12 @@
+import { Type } from "@sinclair/typebox"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "../property/typeRuleRegistry"
 import { registerExportToXML } from "./registerExportToXML"
 import { registerExportToYAML } from "./registerExportToYAML"
 import { registerImportFromXML } from "./registerImportFromXML"
 import { registerImportFromYAML } from "./registerImportFromYAML"
+import { exportMetadataItemToJSONSchema } from "./toJSONSchema"
 
 type MetadataItemRuleParams<Rule extends MetadataItemRule, PropertyType extends PropertyRuleType> = {
   propertyType: PropertyType
@@ -22,4 +25,21 @@ export const registerMetadataItemRule = <
   registerImportFromYAML(propertyType, itemRule)
   registerExportToYAML(propertyType, itemRule)
   registerExportToXML(propertyType, itemRule)
+  registerTypeRule(propertyType, "exportToJSONSchema", ({ context }) => {
+    const schemaStack = context.exportToJSONSchema?.schemaStack ?? []
+    if (schemaStack.includes(propertyType)) return Type.Unknown()
+
+    return exportMetadataItemToJSONSchema({
+      context: {
+        ...context,
+        exportToJSONSchema: {
+          mode: context.exportToJSONSchema?.mode ?? "inline",
+          refs: context.exportToJSONSchema?.refs ?? new Set(),
+          propertySchemaOverrides: context.exportToJSONSchema?.propertySchemaOverrides,
+          schemaStack: [...schemaStack, propertyType],
+        },
+      },
+      rule: itemRule,
+    })
+  })
 }

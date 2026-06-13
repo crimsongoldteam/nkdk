@@ -1,5 +1,5 @@
 import { Static, Type } from "@sinclair/typebox"
-import { BooleanJSONSchema, StringboolXML, StringboolYAML } from "../boolean/types"
+import { BooleanJSONSchema, StringboolXML } from "../boolean/types"
 
 export interface UserVisibleItemXML {
   _name: string
@@ -22,21 +22,24 @@ export interface UserVisible {
 }
 
 export const UserVisibleKeysYAML = {
-  Allow: "РазрешитьИспользование",
-  Deny: "ЗапретитьИспользование",
+  Value: "Использование",
 } as const
 
 export const UserViewKeysYAML = {
-  Allow: "РазрешитьПросмотр",
-  Deny: "ЗапретитьПросмотр",
+  Value: "Просмотр",
 } as const
 
 export const UserEditKeysYAML = {
-  Allow: "РазрешитьРедактирование",
-  Deny: "ЗапретитьРедактирование",
+  Value: "Редактирование",
 } as const
 
-export const UserVisibleJSONSchema = Type.Record(Type.String(), BooleanJSONSchema)
+export const UserVisibleJSONSchema = Type.Object(
+  {
+    Разрешить: Type.Optional(Type.Literal("Ложь")),
+    Роли: Type.Record(Type.String(), BooleanJSONSchema, { minProperties: 1 }),
+  },
+  { additionalProperties: false }
+)
 
 export type UserVisibleYAML = Static<typeof UserVisibleJSONSchema>
 
@@ -44,5 +47,5 @@ export type UserVisibleKeysYAML = (typeof UserVisibleKeysYAML)[keyof typeof User
 
 export type UserViewKeysYAML = (typeof UserViewKeysYAML)[keyof typeof UserViewKeysYAML]
 export type UserEditKeysYAML = (typeof UserEditKeysYAML)[keyof typeof UserEditKeysYAML]
-export type UserViewYAML = Record<string, StringboolYAML>
-export type UserEditYAML = Record<string, StringboolYAML>
+export type UserViewYAML = UserVisibleYAML
+export type UserEditYAML = UserVisibleYAML

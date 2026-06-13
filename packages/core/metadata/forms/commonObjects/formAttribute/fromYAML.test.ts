@@ -31,6 +31,25 @@ import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentS
 import { importFormAttributesFromYAML } from "./fromYAML"
 import { exportFormAttributesToJSONSchema } from "./toJSONSchema"
 
+const treeWithColumnFormAttributeFromYAML = [
+  {
+    name: "Дерево",
+    title: { items: { ru: "" } },
+    type: { type: ["ValueTree"] },
+    columns: [
+      {
+        name: "Колонка1",
+        title: { items: { ru: "abc" } },
+        type: { type: ["string"] },
+        fillCheck: "ShowError",
+        itemType: "FormAttributeColumn",
+      },
+    ],
+    fieldsList: ["Дерево.Колонка1"],
+    itemType: "FormAttribute",
+  },
+]
+
 const chartSettingsYAML = {
   Диаграмма: {
     Тип: "Диаграмма",
@@ -149,7 +168,7 @@ describe("importFormAttributesFromYAML", () => {
   it("should import tree with column", () => {
     const result = importFormAttributesFromYAML(mockContext, mockRule, treeWithColumnFormAttributeYAML)
 
-    expect(result).toEqual(treeWithColumnFormAttribute)
+    expect(result).toEqual(treeWithColumnFormAttributeFromYAML)
   })
 
   it("should import with functional options", () => {

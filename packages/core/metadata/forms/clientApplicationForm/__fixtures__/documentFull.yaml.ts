@@ -18,7 +18,6 @@ const numberInputFieldYAML: FormElementTreeNodeYAML = {
 const commandButtonYAML: FormElementTreeNodeYAML = {
   Вид: "Кнопка",
   ИмяКоманды: "Form.Command.Команда1",
-  ТипКнопки: "ОбычнаяКнопка",
 }
 
 const documentFullClientApplicationFormYAMLData: DocumentClientApplicationFormYAML = {
@@ -48,7 +47,6 @@ const documentFullClientApplicationFormYAMLData: DocumentClientApplicationFormYA
   ОтображатьЗаголовок: "Ложь",
   ОтображатьКнопкуЗакрытия: "Ложь",
   ОтображениеОбсуждений: "Отображать",
-  ПоведениеКлавишиEnter: "КнопкаПоУмолчанию",
   ПоложениеКоманднойПанели: "Нет",
   ПроверятьЗаполнениеАвтоматически: "Ложь",
   РежимОткрытияОкнаФормы: "БлокироватьОкноВладельца",
@@ -118,7 +116,6 @@ const documentFullClientApplicationFormYAMLData: DocumentClientApplicationFormYA
           Элементы: [
             {
               ЛевоеЗначение: ".Объект.Номер",
-              ВидСравнения: "Равно",
               ПравоеЗначение: 34567,
             },
           ],

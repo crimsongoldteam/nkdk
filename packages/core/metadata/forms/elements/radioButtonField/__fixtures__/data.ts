@@ -83,7 +83,7 @@ export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
     ПриИзменении: "ПроцедураПриИзменении",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<RadioButtonFieldPartialYAML>, "ЗапретитьИспользование" | "РазрешитьИспользование">
+} satisfies Omit<Required<RadioButtonFieldPartialYAML>, "Использование">
 
 export const minimalRadioButtonField: RadioButtonField = {
   itemType: "RadioButtonField",

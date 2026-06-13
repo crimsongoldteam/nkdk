@@ -62,8 +62,7 @@ export const CommandInterfaceItemJSONSchema = Type.Object({
   Индекс: Type.Optional(Type.Number()),
   ГруппаКоманд: Type.Optional(Type.String()),
   Автовидимость: Type.Optional(Type.Literal("Ложь")),
-  РазрешитьИспользование: Type.Optional(UserVisibleJSONSchema),
-  ЗапретитьИспользование: Type.Optional(UserVisibleJSONSchema),
+  Использование: Type.Optional(UserVisibleJSONSchema),
 })
 
 export const CommandInterfaceJSONSchema = Type.Object({

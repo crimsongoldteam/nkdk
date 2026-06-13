@@ -45,8 +45,7 @@ const commonProperties = {
     defaultValueYAML: "Auto",
   },
   userVisible: {
-    yaml: "РазрешитьИспользование",
-    yamlDeny: "ЗапретитьИспользование",
+    yaml: "Использование",
     type: "UserVisible",
   },
   verticalAlignInGroup: {

@@ -89,6 +89,36 @@ describe("JSON Schema registry", () => {
     expect(() => TypeCompiler.Compile(schema)).not.toThrow()
   })
 
+  it("accepts only value-based UserVisible in form element schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const legacyAllow = "Разрешить" + "Использование"
+    const legacyDeny = "Запретить" + "Использование"
+
+    expect(
+      compiled.Check({
+        Вид: "Группа",
+        Использование: {
+          Роли: { "Role.Администратор": "Ложь" },
+        },
+      })
+    ).toBe(true)
+
+    expect(
+      compiled.Check({
+        Вид: "Группа",
+        [legacyAllow]: { "Role.Администратор": "Ложь" },
+      })
+    ).toBe(false)
+
+    expect(
+      compiled.Check({
+        Вид: "Группа",
+        [legacyDeny]: { "Role.Администратор": "Истина" },
+      })
+    ).toBe(false)
+  })
+
   it("accepts nested child items in inline form element schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
     const compiled = TypeCompiler.Compile(schema)
@@ -107,6 +137,158 @@ describe("JSON Schema registry", () => {
     }
 
     expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
+  it("accepts table auto command bar in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Элементы: {
+        Таблица: {
+          Вид: "ТаблицаФормы",
+          КоманднаяПанель: {
+            Автозаполнение: "Ложь",
+            ГоризонтальноеПоложение: "Лево",
+          },
+          Элементы: {
+            Колонка: {
+              Вид: "ПолеВвода",
+            },
+          },
+        },
+      },
+    }
+
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
+  it("accepts command names in command bar button schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "CommandBarButton", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Вид: "КнопкаКоманднойПанели",
+      ИмяКоманды: "Form.Command.ВыбратьСтроки",
+      ТипКнопки: "КнопкаКоманднойПанели",
+    }
+
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
+  it("exports dynamic list conditional appearance in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+
+    expect(JSON.stringify(schema)).toContain('"УсловноеОформление"')
+  })
+
+  it("accepts dynamic list conditional appearance in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Реквизиты: {
+        Список: {
+          Тип: "ДинамическийСписок",
+          ОсновнойРеквизит: "Истина",
+          ДинамическийСписок: {
+            УсловноеОформление: {
+              РежимОтображения: "Обычный",
+              ИспользоватьПользовательскуюНастройку: "Истина",
+              ПредставлениеПользовательскойНастройки: {
+                ru: "Условное оформление",
+              },
+            },
+            ДинамическоеСчитываниеДанных: "Истина",
+          },
+        },
+      },
+      Элементы: {
+        Список: {
+          Вид: "ТаблицаФормы",
+          ПутьКДанным: "Список",
+        },
+      },
+    }
+
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
+  it("accepts appearance SettingsParameterValue fields in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      УсловноеОформлениеРеквизитов: {
+        Элементы: [
+          {
+            Оформление: {
+              ЦветТекста: "ЭлементСтиля.ТекстЗапрещеннойЯчейкиЦвет",
+              ЦветФона: "ЦветФонаПодсказки",
+              Шрифт: {
+                Вид: "ШрифтТекста",
+              },
+              ГоризонтальноеПоложение: "Лево",
+              Формат: '"ЧДЦ=1"',
+              Видимость: "Ложь",
+            },
+          },
+        ],
+      },
+    }
+
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
+  it("accepts dynamic list DCS arrays in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Реквизиты: {
+        Список: {
+          Тип: "ДинамическийСписок",
+          ОсновнойРеквизит: "Истина",
+          ДинамическийСписок: {
+            ПроизвольныйЗапрос: "Истина",
+            ДинамическоеСчитываниеДанных: "Истина",
+            Поля: [
+              {
+                Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+                ПутьКДанным: "КоличествоДокументов",
+                Поле: "КоличествоДокументов",
+              },
+            ],
+            Порядок: {
+              Элементы: [{ Поле: "ДатаВходящегоДокумента" }],
+            },
+            Отбор: {
+              Элементы: [{ ЛевоеЗначение: ".ХозяйственнаяОперация", Использование: "Ложь" }],
+            },
+          },
+        },
+      },
+    }
+
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
+  it("rejects ManualQuery false in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Реквизиты: {
+        Список: {
+          Тип: "ДинамическийСписок",
+          ОсновнойРеквизит: "Истина",
+          ДинамическийСписок: {
+            ПроизвольныйЗапрос: "Ложь",
+            ДинамическоеСчитываниеДанных: "Истина",
+            ОсновнаяТаблица: "Catalog.РеестрПартийЗЕРНО",
+          },
+        },
+      },
+    }
+
+    expect(compiled.Check(value)).toBe(false)
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toContain(
+      "/Реквизиты/Список/ДинамическийСписок/ПроизвольныйЗапрос: Expected 'Истина'"
+    )
   })
 
   it("restores property refs after generic ref registry is cleared", () => {
