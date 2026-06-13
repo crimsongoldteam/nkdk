@@ -310,7 +310,7 @@ synonym: { items: { ru: "Номенклатура", en: "Goods" } }
 
 ### Свойства с `toYAML: false` / `fromYAML: false`
 
-Например, `objectBelonging: { type: "SystemEnumeration", toYAML: false, fromYAML: false, defaultValueYAML: "Native" }`. Они есть в JS-модели после `fromXML`/`fromYAML` (за счёт `defaultValueYAML` или `ImportContext`), и обрабатываются общим механизмом `p_*`. Источник значения для них — `defaultValueYAML` или контекст, не сам YAML. Никакого отдельного канала не требуется.
+Например, `objectBelonging: { type: "SystemEnumeration", toYAML: false, fromYAML: false, implicitValueYAML: "Native" }`. Они есть в JS-модели после `fromXML`/`fromYAML` (за счёт `implicitValueYAML` или `ImportContext`), и обрабатываются общим механизмом `p_*`. Источник значения для них — `implicitValueYAML` или контекст, не сам YAML. Никакого отдельного канала не требуется.
 
 ### Type-specific обработчики vs общий алгоритм
 

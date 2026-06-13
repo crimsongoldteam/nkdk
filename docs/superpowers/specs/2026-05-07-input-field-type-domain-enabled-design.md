@@ -16,7 +16,7 @@ Add `typeDomainEnabled` as a normal `InputFieldRules` property:
 
 - `yaml: "РазрешитьСоставнойТип"`
 - `type: "boolean"`
-- `defaultValueYAML: true`
+- `implicitValueYAML: true`
 
 `TableInputFieldRules` already spreads `InputFieldRules.properties`, so the same property should be available for table input fields without a separate rule entry.
 

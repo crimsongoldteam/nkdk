@@ -5,36 +5,36 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { PropertyRule } from "../property/types"
 
 /**
- * YAML-представление значения по умолчанию (с учётом преобразований).
- * Используется для исключения defaultValue из типа YAML — в YAML допускается только отсутствие ключа или значение, отличное от default.
+ * YAML-представление неявного значения (с учётом преобразований).
+ * Используется для исключения implicitValueYAML из типа YAML — допускается отсутствие ключа или значение, отличное от неявного.
  */
-type DefaultValueToYAML<PropertyType extends PropertyRuleType, DefaultValue> = PropertyType extends "boolean"
-  ? DefaultValue extends true
+type ImplicitValueToYAML<PropertyType extends PropertyRuleType, ImplicitValue> = PropertyType extends "boolean"
+  ? ImplicitValue extends true
     ? "Истина"
-    : DefaultValue extends false
+    : ImplicitValue extends false
       ? "Ложь"
       : never
   : PropertyType extends "number" | "string"
-    ? DefaultValue
+    ? ImplicitValue
     : PropertyType extends "SystemEnumeration"
-      ? DefaultValue extends string
-        ? DefaultValue
+      ? ImplicitValue extends string
+        ? ImplicitValue
         : never
       : never
 
-type ValueTypeWithDefault<Base, P, PropertyType extends PropertyRuleType> = P extends {
-  defaultValueYAML: infer D
+type ValueTypeWithImplicit<Base, P, PropertyType extends PropertyRuleType> = P extends {
+  implicitValueYAML: infer D
 }
   ? D extends (...args: any[]) => any
     ? Base
-    : Exclude<Base, DefaultValueToYAML<PropertyType, D>>
+    : Exclude<Base, ImplicitValueToYAML<PropertyType, D>>
   : Base
 
-type SystemEnumerationYAMLValueTypeByRule<P, TypeSE extends string> = P extends {
-  implicitValueYAML: undefined
-}
-  ? ValueTypeWithDefault<SETypeByName<TypeSE> | string, P, "SystemEnumeration">
-  : ValueTypeWithDefault<SETypeByName<TypeSE>, P, "SystemEnumeration">
+type SystemEnumerationYAMLValueTypeByRule<P, TypeSE extends string> = ValueTypeWithImplicit<
+  SETypeByName<TypeSE>,
+  P,
+  "SystemEnumeration"
+>
 
 type PropertyYAMLValueType<P> = P extends { type: "SystemEnumeration"; typeSE: infer TypeSE }
   ? TypeSE extends string
@@ -42,7 +42,7 @@ type PropertyYAMLValueType<P> = P extends { type: "SystemEnumeration"; typeSE: i
     : unknown
   : P extends { type: infer PropertyType }
     ? PropertyType extends PropertyRuleType
-      ? ValueTypeWithDefault<PropertyToYAML<PropertyType>, P, PropertyType>
+      ? ValueTypeWithImplicit<PropertyToYAML<PropertyType>, P, PropertyType>
       : unknown
     : unknown
 

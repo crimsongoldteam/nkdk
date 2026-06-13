@@ -106,7 +106,7 @@ export const TableRules = {
       yaml: "ГоризонтальнаяПолосаПрокрутки",
       type: "SystemEnumeration",
       typeSE: "ScrollBarUse",
-      defaultValueYAML: "AutoUse",
+      implicitValueYAML: "AutoUse",
     },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     initialListView: {
@@ -235,14 +235,14 @@ export const TableRules = {
       xml: "GroupVerticalAlign",
       type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
     verticalLines: { yaml: "ВертикальныеЛинии", type: "boolean" },
     verticalScrollBar: {
       yaml: "ВертикальнаяПолосаПрокрутки",
       type: "SystemEnumeration",
       typeSE: "ScrollBarUse",
-      defaultValueYAML: "AutoUse",
+      implicitValueYAML: "AutoUse",
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     viewStatusLocation: {
@@ -259,7 +259,7 @@ export const TableRules = {
     },
     visible: { yaml: "Видимость", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
-    autoRefresh: { yaml: "АвтоОбновление", type: "boolean", defaultValueYAML: false },
+    autoRefresh: { yaml: "АвтоОбновление", type: "boolean", implicitValueYAML: false },
     restoreCurrentRow: { yaml: "ВосстанавливатьТекущуюСтроку", type: "boolean" },
     choiceFoldersAndItems: {
       yaml: "ВыборГруппИЭлементов",

@@ -13,7 +13,7 @@ export const MetadataRegisterResourceRules = {
       type: "boolean",
       xmlParents: ["Properties"],
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
       order: 25.1,
     },

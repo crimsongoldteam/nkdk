@@ -7,7 +7,7 @@ This batch uses one shared design and one later implementation plan, but each ob
 `types.ts`, fixtures-based tests, and registry entries.
 
 The implementation must not change existing XML fixtures. XML fixtures are the first source of truth; `minimal.xml`
-is the source for `defaultValueYAML` only for boolean, number, and `SystemEnumeration` values. Empty strings, empty
+is the source for `implicitValueYAML` only for boolean, number, and `SystemEnumeration` values. Empty strings, empty
 lists, and `xsi:nil` values are XML defaults, not YAML defaults.
 
 ## Approach
@@ -57,14 +57,14 @@ Risk is low.
 - `InternalInfo`: one generated type, category `DefinedType`
 - properties: `name`, `synonym`, `comment`, `type`
 - `type`: `TypeDescription`; short YAML form is allowed
-- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `defaultValueYAML: "Native"`
+- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: `string`, `runtimeOnly: true`
 - child objects: none
 - external files: none
 
 Default policy:
 
-- no normal `defaultValueYAML` values;
+- no normal `implicitValueYAML` values;
 - empty `Comment` and empty `Type` from `minimal.xml` are XML defaults, not YAML defaults.
 
 Testing:
@@ -85,14 +85,14 @@ Risk is low.
 - `source`: `TypeDescription`
 - `event`: `string`
 - `handler`: `string`
-- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `defaultValueYAML: "Native"`
+- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: `string`, `runtimeOnly: true`
 - child objects: none
 - external files: none
 
 Default policy:
 
-- no normal `defaultValueYAML` values;
+- no normal `implicitValueYAML` values;
 - `Event` and `Handler` values from `minimal.xml` are fixture content, not platform defaults;
 - empty `Comment` is an XML default, not a YAML default.
 
@@ -112,14 +112,14 @@ Risk is low.
 - `InternalInfo`: absent in current fixtures
 - properties: `name`, `synonym`, `comment`, `type`
 - `type`: `TypeDescription`; short YAML form is allowed
-- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `defaultValueYAML: "Native"`
+- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: `string`, `runtimeOnly: true`
 - child objects: none
 - external files: none
 
 Default policy:
 
-- no normal `defaultValueYAML` values;
+- no normal `implicitValueYAML` values;
 - empty `Comment` from `minimal.xml` is an XML default, not a YAML default.
 
 Testing:
@@ -138,7 +138,7 @@ Risk is low to medium.
 - `InternalInfo`: absent in current fixtures
 - properties: `name`, `synonym`, `comment`, `use`
 - `use`: `MetadataItemLinks`
-- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `defaultValueYAML: "Native"`
+- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: `string`, `runtimeOnly: true`
 - child objects: none
 - external files: none
@@ -151,7 +151,7 @@ Risk and decision:
 
 Default policy:
 
-- no normal `defaultValueYAML` values;
+- no normal `implicitValueYAML` values;
 - empty `Comment` and empty `Use` from `minimal.xml` are XML defaults, not YAML defaults.
 
 Testing:
@@ -172,7 +172,7 @@ Risk is medium.
 - properties: `name`, `synonym`, `comment`, `type`, `value`
 - `type`: `SystemEnumeration: StyleElementType`
 - `value`: local `StyleItemValue` adapter over existing `Font`, `Color`, and `Border` common types
-- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `defaultValueYAML: "Native"`
+- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: `string`, `runtimeOnly: true`
 - child objects: none
 - external files: none
@@ -185,8 +185,8 @@ Risk and decision:
 
 Default policy:
 
-- do not set `defaultValueYAML` for `type`; `Type=Font` from the font fixture is not a general platform default;
-- no normal `defaultValueYAML` values;
+- do not set `implicitValueYAML` for `type`; `Type=Font` from the font fixture is not a general platform default;
+- no normal `implicitValueYAML` values;
 - empty `Comment` from color/border fixtures is an XML default, not a YAML default.
 
 Testing:
@@ -214,7 +214,7 @@ booleans, and system enumerations.
 XDTO-confirmed special properties:
 
 - `fillValue`: `MetadataValue`. Current fixtures use `xsi:type="xs:string"`, including an empty string value in
-  `minimal.xml`. Use `defaultValueXMLRaw: { "_xsi:type": "xs:string" }`; do not set `defaultValueYAML`.
+  `minimal.xml`. Use `defaultValueXMLRaw: { "_xsi:type": "xs:string" }`; do not set `implicitValueYAML`.
 - `content`: new small common type `CommonAttributeContent`, matching XDTO `CommonAttributeContent`.
 - `content.item[]`: XDTO `CommonAttributeContentItem` with:
   - `metadata`: `string` / `MDObjectRef`;
@@ -253,11 +253,11 @@ Boolean defaults from `minimal.xml`:
 
 Default policy:
 
-- set `defaultValueYAML` only for the boolean and system enumeration properties listed above;
+- set `implicitValueYAML` only for the boolean and system enumeration properties listed above;
 - `minValue` and `maxValue` use XML raw `xsi:nil` defaults;
 - empty `Comment`, formats, mask, choice links, choice parameters, choice form, link-by-type, `Content`, and separation
   references are XML defaults, not YAML defaults;
-- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `defaultValueYAML: "Native"`;
+- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `implicitValueYAML: "Native"`;
 - `extendedConfigurationObject`: `string`, `runtimeOnly: true`.
 
 Testing:
@@ -283,13 +283,13 @@ XDTO confirms `BotProperties` contains only `Name`, `Synonym`, `Comment`, `Objec
 - `predefined`: `boolean`
 - `picture`: existing `Picture`
 - `module`: existing `Module`, `nkdkPath: "Модуль.bsl"`, `xmlPath: "Ext/Module.bsl"`
-- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `defaultValueYAML: "Native"`
+- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: `string`, `runtimeOnly: true`
 - child objects: none
 
 Default policy:
 
-- `predefined`: `defaultValueXML: true`, `defaultValueYAML: true` from `minimal.xml`;
+- `predefined`: `defaultValueXML: true`, `implicitValueYAML: true` from `minimal.xml`;
 - empty `Comment` and empty `Picture` are XML defaults, not YAML defaults.
 
 Testing:
@@ -312,7 +312,7 @@ XDTO confirms `WSReferenceProperties` contains only `Name`, `Synonym`, `Comment`
 - properties: `name`, `synonym`, `comment`, `locationURL`, `wsDefinition`
 - `locationURL`: `string`
 - `wsDefinition`: external XML file copied as-is, without parsing
-- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `defaultValueYAML: "Native"`
+- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: `string`, `runtimeOnly: true`
 - child objects: none
 
@@ -325,7 +325,7 @@ Risk and decision:
 
 Default policy:
 
-- no normal `defaultValueYAML` values;
+- no normal `implicitValueYAML` values;
 - empty `Comment` is an XML default, not a YAML default;
 - `LocationURL` from `minimal.xml` is fixture content, not a platform default.
 
@@ -357,12 +357,12 @@ and `Command[]`.
 - `listPresentation`, `extendedListPresentation`, `explanation`: `I8nText`
 - `commands`: existing `MetadataCommands` under `ChildObjects/Command`
 - `forms`: existing `ChildFormNames` under `ChildObjects/Form`
-- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `defaultValueYAML: "Native"`
+- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: `string`, `runtimeOnly: true`
 
 Default policy:
 
-- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true` from `minimal.xml`;
+- `useStandardCommands`: `defaultValueXML: true`, `implicitValueYAML: true` from `minimal.xml`;
 - empty `Comment`, `Type`, `Content`, form references, presentations, and `Explanation` are XML defaults, not YAML
   defaults.
 
@@ -390,7 +390,7 @@ XDTO confirms `SettingsStorageProperties` contains `Name`, `Synonym`, `Comment`,
 - `managerModule`: existing `Module`, `nkdkPath: "МодульМенеджера.bsl"`, `xmlPath: "Ext/ManagerModule.bsl"`
 - `forms`: existing `ChildFormNames` under `ChildObjects/Form`
 - `templates`: existing `ChildTemplateNames` under `ChildObjects/Template`
-- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `defaultValueYAML: "Native"`
+- `objectBelonging`: `SystemEnumeration: ObjectBelonging`, hidden from YAML, `implicitValueYAML: "Native"`
 - `extendedConfigurationObject`: `string`, `runtimeOnly: true`
 
 Risk and decision:
@@ -401,7 +401,7 @@ Risk and decision:
 
 Default policy:
 
-- no normal `defaultValueYAML` values;
+- no normal `implicitValueYAML` values;
 - empty `Comment` and form references are XML defaults, not YAML defaults.
 
 Testing:

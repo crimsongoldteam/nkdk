@@ -67,7 +67,7 @@ export const MetadataExternalDataSourceRules = {
       typeSE: "DefaultDataLockControlMode",
       xmlParents: properties,
       defaultValueXML: "Automatic",
-      defaultValueYAML: "Automatic",
+      implicitValueYAML: "Automatic",
     },
     tables: {
       yaml: "Таблицы",
@@ -93,7 +93,7 @@ export const MetadataExternalDataSourceRules = {
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
     },

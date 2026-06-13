@@ -21,7 +21,7 @@ export const AutoCommandBarRules = {
       yaml: "Автозаполнение",
       type: "boolean",
       defaultValue: true,
-      defaultValueYAML: "Истина",
+      implicitValueYAML: "Истина",
       required: true,
     },
     displayImportance: {

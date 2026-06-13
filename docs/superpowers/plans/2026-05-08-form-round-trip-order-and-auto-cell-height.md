@@ -373,7 +373,7 @@ In `packages/core/metadata/forms/elements/formField/rules.ts`, remove this prope
   autoCellHeight: {
     yaml: "АвтоВысотаЯчейки",
     type: "boolean",
-    defaultValueYAML: true,
+    implicitValueYAML: true,
   },
 ```
 
@@ -382,11 +382,11 @@ In `packages/core/metadata/forms/elements/formField/rules.ts`, remove this prope
 In the same file, add the property to `formFieldCommonProperties` near `cellHyperlink`:
 
 ```typescript
-  cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean", defaultValueYAML: false },
+  cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean", implicitValueYAML: false },
   autoCellHeight: {
     yaml: "АвтоВысотаЯчейки",
     type: "boolean",
-    defaultValueYAML: true,
+    implicitValueYAML: true,
   },
   horizontalAlign: {
 ```

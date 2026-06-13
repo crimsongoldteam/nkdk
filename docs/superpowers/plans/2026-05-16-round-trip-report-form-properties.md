@@ -22,7 +22,7 @@
 - Modify `packages/core/metadata/appliedObjects/configuration/topLevelRules.test.ts`: assert `MetadataReport` maps to `Reports`.
 - Modify `packages/core/metadata/orchestration/metadataItem/registry.ts`: add `MetadataReport`/`MetadataReportYAML` to type registries.
 - Modify `packages/core/metadata/orchestration/property/registry.ts`: add the `MetadataReport` property type.
-- Modify `packages/core/metadata/forms/clientApplicationForm/rules.ts`: add report-form extension fields and defaultValueYAML where specified.
+- Modify `packages/core/metadata/forms/clientApplicationForm/rules.ts`: add report-form extension fields and implicitValueYAML where specified.
 - Modify `packages/core/metadata/forms/clientApplicationForm/{fromXML,toXML,fromYAML,toYAML}.test.ts`: cover report-form properties.
 - Modify `packages/core/metadata/forms/clientApplicationForm/__fixtures__/{reportForm.xml,reportFormMetadata.xml,data.ts}`: add the form fixture and expected model/YAML.
 - Modify system enumeration registry files only if `ReportFormType`, `ReportResultViewMode`, or `ViewModeApplicationOnSetReportResult` are missing.
@@ -210,7 +210,7 @@ import { full, fullYAML } from "./__fixtures__/full"
 const rule: PropertyRule = { type: "MetadataReport", yaml: "Отчет" }
 
 describe("import MetadataReport from YAML", () => {
-  it("applies defaultValueYAML for minimal report", () => {
+  it("applies implicitValueYAML for minimal report", () => {
     expect(testImportPropertyFromYAML({ rule, value: minimalYAML })).toEqual({ ...minimal, name: undefined })
   })
 
@@ -232,7 +232,7 @@ import { full, fullYAML } from "./__fixtures__/full"
 const rule: PropertyRule = { type: "MetadataReport", yaml: "Отчет" }
 
 describe("export MetadataReport to YAML", () => {
-  it("omits defaultValueYAML fields from minimal report", () => {
+  it("omits implicitValueYAML fields from minimal report", () => {
     expect(testExportPropertyToYAML({ rule, value: minimal })).toEqual({ Отчет: minimalYAML })
   })
 
@@ -356,7 +356,7 @@ export const MetadataReportRules = {
       yaml: "ИспользоватьСтандартныеКоманды",
       type: "boolean",
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       xmlParents: properties,
     },
     defaultForm: {
@@ -417,7 +417,7 @@ export const MetadataReportRules = {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       xmlParents: properties,
     },
     extendedPresentation: {
@@ -434,7 +434,7 @@ export const MetadataReportRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       yaml: "ОбъектРасширяемойКонфигурации",
@@ -967,7 +967,7 @@ autoShowState: {
   type: "SystemEnumeration",
   typeSE: "AutoShowStateMode",
   tag: FormRulesTags.Form,
-  defaultValueYAML: "Auto",
+  implicitValueYAML: "Auto",
 },
 reportResultViewMode: {
   yaml: "РежимОтображенияРезультатаОтчета",
@@ -975,7 +975,7 @@ reportResultViewMode: {
   type: "SystemEnumeration",
   typeSE: "ReportResultViewMode",
   tag: FormRulesTags.Form,
-  defaultValueYAML: "Auto",
+  implicitValueYAML: "Auto",
 },
 viewModeApplicationOnSetReportResult: {
   yaml: "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета",
@@ -983,7 +983,7 @@ viewModeApplicationOnSetReportResult: {
   type: "SystemEnumeration",
   typeSE: "ViewModeApplicationOnSetReportResult",
   tag: FormRulesTags.Form,
-  defaultValueYAML: "Auto",
+  implicitValueYAML: "Auto",
 },
 ```
 
@@ -1095,6 +1095,6 @@ If no files changed after the previous commits, do not create an empty commit.
 
 ## Self-Review
 
-- Spec coverage: tasks cover `metadataReport`, report properties, external files, registries, report-form extension fields, `defaultValueYAML`, sync tests, and full verification.
+- Spec coverage: tasks cover `metadataReport`, report properties, external files, registries, report-form extension fields, `implicitValueYAML`, sync tests, and full verification.
 - Placeholder scan: no placeholder tokens or unspecified edge-case instructions remain.
 - Type consistency: XML tags match the spec: `DetailsData`, `VariantAppearance`, `CustomSettingsFolder`, `ReportResultViewMode`, and `ViewModeApplicationOnSetReportResult`. Report-form fields are added to `ClientApplicationFormRules`, not `metadataReport`.

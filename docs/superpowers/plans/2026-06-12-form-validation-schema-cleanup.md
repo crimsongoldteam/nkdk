@@ -4,7 +4,7 @@
 
 **Goal:** Убрать три подтверждённых источника шума validation YAML-форм: пустые `ЗапретитьИспользование: {}`, `ПроизвольныйЗапрос: Ложь`, и DCS-массивы, которые JSON Schema ошибочно ждёт как объекты.
 
-**Architecture:** Уже реализованный слой rule-based `exportToJSONSchema` не трогаем. Исправления остаются в существующих границах: YAML-экспорт `UserVisible`, общий фильтр `defaultValueYAML` в orchestration, и schema export коллекций/ручных DCS-массивов. Validation остаётся строгой: не добавляем `unknown`, не принимаем мусорный YAML, не меняем XML-фикстуры. `defaultValueYAML` работает только на стороне YAML-export/schema и не подставляется при `YAML -> модель`: отсутствующий YAML-ключ должен оставаться отсутствующим свойством модели.
+**Architecture:** Уже реализованный слой rule-based `exportToJSONSchema` не трогаем. Исправления остаются в существующих границах: YAML-экспорт `UserVisible`, общий фильтр `implicitValueYAML` в orchestration, и schema export коллекций/ручных DCS-массивов. Validation остаётся строгой: не добавляем `unknown`, не принимаем мусорный YAML, не меняем XML-фикстуры. `implicitValueYAML` работает только на стороне YAML-export/schema и не подставляется при `YAML -> модель`: отсутствующий YAML-ключ должен оставаться отсутствующим свойством модели.
 Если правило использовало общий `defaultValue` только ради восстановления XML-default, это значение нужно перенести на `defaultValueXML`, чтобы сокращённый YAML не достраивал модель.
 
 **Tech Stack:** TypeScript, Vitest, TypeBox `TypeCompiler`, metadata orchestration registries, pnpm.
@@ -18,13 +18,13 @@
 - Modify: `packages/core/metadata/commonObjects/userVisible/toYAML.test.ts`
   - Проверяет новый контракт для обычного и deprecated экспортёров.
 - Modify: `packages/core/metadata/orchestration/property/toYAML.ts`
-  - Отсекает `defaultValueYAML` до преобразования значения в YAML или сравнивает с YAML-представлением default.
+  - Отсекает `implicitValueYAML` до преобразования значения в YAML или сравнивает с YAML-представлением default.
 - Modify: `packages/core/metadata/orchestration/property/fromYAML.ts`
-  - Не подставляет `defaultValueYAML` при импорте отсутствующего YAML-ключа.
+  - Не подставляет `implicitValueYAML` при импорте отсутствующего YAML-ключа.
 - Modify: `packages/core/metadata/orchestration/property/types.ts`
-  - Не содержит отдельного флага восстановления `defaultValueYAML` при YAML-import.
+  - Не содержит отдельного флага восстановления `implicitValueYAML` при YAML-import.
 - Modify: `packages/core/metadata/orchestration/property/fromYAML.test.ts`
-  - Фиксирует, что `defaultValueYAML` не создаёт модельное значение при YAML-import.
+  - Фиксирует, что `implicitValueYAML` не создаёт модельное значение при YAML-import.
 - Modify: `packages/core/metadata/forms/clientApplicationForm/rules.ts`
   - Убирает восстановление report-form `Auto` default из отсутствующих YAML-ключей.
 - Modify: `packages/core/metadata/forms/clientApplicationForm/fromYAML.test.ts`
@@ -339,22 +339,22 @@ Modify `packages/core/metadata/orchestration/property/toYAML.ts`.
 In `exportPropertyToYAML`, before the `const typeExportFn = getTypeRule(...)` line, add:
 
 ```ts
-  if ("defaultValueYAML" in rule && value === (rule as any).defaultValueYAML) return undefined
+  if ("implicitValueYAML" in rule && value === (rule as any).implicitValueYAML) return undefined
 ```
 
 Then remove the same model-default comparison from `getExportToYAMLResult`:
 
 ```ts
-  if ("defaultValueYAML" in rule && value === (rule as any).defaultValueYAML) return undefined
+  if ("implicitValueYAML" in rule && value === (rule as any).implicitValueYAML) return undefined
 ```
 
 Keep this existing source-based guard in `getExportToYAMLResult`:
 
 ```ts
   if (
-    rule.omitDefaultValueYAMLBySource === true &&
-    "defaultValueYAML" in rule &&
-    sourceValue === (rule as any).defaultValueYAML
+    rule.omitImplicitValueYAMLBySource === true &&
+    "implicitValueYAML" in rule &&
+    sourceValue === (rule as any).implicitValueYAML
   ) {
     return undefined
   }

@@ -85,7 +85,7 @@ real auto command items.
 autoCellHeight: {
   yaml: "АвтоВысотаЯчейки",
   type: "boolean",
-  defaultValueYAML: true,
+  implicitValueYAML: true,
 }
 ```
 

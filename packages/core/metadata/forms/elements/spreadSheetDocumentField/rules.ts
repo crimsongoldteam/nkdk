@@ -26,7 +26,7 @@ export const SpreadSheetDocumentFieldRules = {
     horizontalScrollBar: {
       yaml: "ГоризонтальнаяПолосаПрокрутки",
       type: "ScrollBarUseBoolean",
-      defaultValueYAML: "AutoUse",
+      implicitValueYAML: "AutoUse",
     },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
@@ -66,7 +66,7 @@ export const SpreadSheetDocumentFieldRules = {
     verticalScrollBar: {
       yaml: "ВертикальнаяПолосаПрокрутки",
       type: "ScrollBarUseBoolean",
-      defaultValueYAML: "AutoUse",
+      implicitValueYAML: "AutoUse",
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     viewScalingMode: {

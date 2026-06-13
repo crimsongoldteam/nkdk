@@ -19,22 +19,22 @@ XML-цикл остаётся первым барьером: сначала `fro
 
 ### Общие служебные свойства
 
-- `ObjectBelonging` для новых root/child/common rules реализуется аналогично соседним объектам: `yaml: "ПринадлежностьОбъекта"`, `type: "SystemEnumeration"`, `typeSE: "ObjectBelonging"`, `toYAML: false`, `fromYAML: false`, `defaultValueYAML: "Native"`.
+- `ObjectBelonging` для новых root/child/common rules реализуется аналогично соседним объектам: `yaml: "ПринадлежностьОбъекта"`, `type: "SystemEnumeration"`, `typeSE: "ObjectBelonging"`, `toYAML: false`, `fromYAML: false`, `implicitValueYAML: "Native"`.
 - `ExtendedConfigurationObject` реализуется аналогично соседним объектам как `runtimeOnly` поле с XML-тегом `ExtendedConfigurationObject`; в YAML не выводится.
 - `InternalInfo` для объектов, где он присутствует в XML (`ExternalDataSource`, `Table`, `Cube`, `DimensionTable`), хранится как служебное XML-only поле аналогично соседним объектам и не выводится в YAML.
 
-### Политика defaultValueYAML
+### Политика implicitValueYAML
 
 - YAML должен быть минимальным: не выводить пустые и default-значения, если они могут быть однозначно восстановлены при экспорте в XML.
-- Для явных scalar-defaults из минимальных XML-фикстур (`boolean`, `number`, `SystemEnumeration`) указывать и `defaultValueXML`, и `defaultValueYAML`, чтобы YAML-экспорт скрывал значения, равные default; XML-экспорт восстанавливает их через XML-default правила.
+- Для явных scalar-defaults из минимальных XML-фикстур (`boolean`, `number`, `SystemEnumeration`) указывать и `defaultValueXML`, и `implicitValueYAML`, чтобы YAML-экспорт скрывал значения, равные default; XML-экспорт восстанавливает их через XML-default правила.
 - Пустые коллекции не выводить в YAML как явные `[]`; для XML они должны восстанавливаться правилами коллекций и обязательных родителей.
-- Для пустых XML-строк (`<Comment/>`, `<ExpressionInDataSource/>`, `<Explanation/>`, пустые представления) использовать `defaultValueXMLRaw: ""`; отдельный `defaultValueYAML` не задавать, если соседние rules не задают его для такого типа поля.
+- Для пустых XML-строк (`<Comment/>`, `<ExpressionInDataSource/>`, `<Explanation/>`, пустые представления) использовать `defaultValueXMLRaw: ""`; отдельный `implicitValueYAML` не задавать, если соседние rules не задают его для такого типа поля.
 - Пустые `Синоним` и `Комментарий` не выводить в YAML; в XML сохранять через `defaultValueXMLRaw: ""` или эквивалентное правило `I8nText`.
 - Пустые представления и пояснения (`ObjectPresentation`, `ExtendedObjectPresentation`, `RecordPresentation`, `ExtendedRecordPresentation`, `ListPresentation`, `ExtendedListPresentation`, `Explanation` и аналоги) не выводить в YAML, аналогично другим объектам.
 - Пустые ссылки на формы и выбор (`DefaultObjectForm`, `DefaultRecordForm`, `DefaultListForm`, `DefaultChoiceForm`, `ChoiceForm` и аналоги) не выводить в YAML.
-- Для обязательных пользовательских значений (`Name`, `Namespace`, `Type`, `NameInDataSource`, где оно требуется XML-фикстурой) не задавать `defaultValueYAML`.
-- `NameInDataSource` для `Table`, `Cube`, `DimensionTable`, `Field` и `Resource` считается пользовательским значением без `defaultValueYAML`; значения из fixtures `ПоУмолчанию` не являются автоподстановками.
-- Для nullable/typed value-полей (`MinValue`, `MaxValue`, `FillValue`, `UnfilledParentValue`) не задавать отдельный `defaultValueYAML`; сохранять пустоту через существующие правила значений и `defaultValueXMLRaw`.
+- Для обязательных пользовательских значений (`Name`, `Namespace`, `Type`, `NameInDataSource`, где оно требуется XML-фикстурой) не задавать `implicitValueYAML`.
+- `NameInDataSource` для `Table`, `Cube`, `DimensionTable`, `Field` и `Resource` считается пользовательским значением без `implicitValueYAML`; значения из fixtures `ПоУмолчанию` не являются автоподстановками.
+- Для nullable/typed value-полей (`MinValue`, `MaxValue`, `FillValue`, `UnfilledParentValue`) не задавать отдельный `implicitValueYAML`; сохранять пустоту через существующие правила значений и `defaultValueXMLRaw`.
 - Для служебных и внешних свойств (`ObjectBelonging`, `ExtendedConfigurationObject`, `InternalInfo`, `Module`, `Help`, `ExternalFile`) не выводить пользовательский default в YAML, кроме служебного `ObjectBelonging: Native` с `toYAML:false/fromYAML:false`.
 
 ### Task 7: реализованный YAML-cycle
@@ -160,7 +160,7 @@ XML-цикл остаётся первым барьером: сначала `fro
 | `name` | `Name` | - | `string` | required | XML |
 | `synonym` | `Synonym` | `Синоним` | `I8nText` | raw empty XML | XML |
 | `comment` | `Comment` | `Комментарий` | `string` | raw empty XML | XML |
-| `namespace` | `Namespace` | `ПространствоИмен` | `string` | required, no defaultValueYAML | XML, XDTO |
+| `namespace` | `Namespace` | `ПространствоИмен` | `string` | required, no implicitValueYAML | XML, XDTO |
 | `package` | `Ext/Package.bin` | - | внешний файл | absent in default fixture | XML fixture, external sync |
 
 ### Свойства XDTO вне выбранных XML-фикстур
@@ -197,7 +197,7 @@ XML-цикл остаётся первым барьером: сначала `fro
 - В проекте уже есть common object `XDTOPackages` для ссылок из WebService; новый `MetadataXDTOPackage` не должен конфликтовать с этим типом.
 - `ru-en-map` переводит `Package` как `Приложение`, что для XDTO неверно по смыслу; YAML-ключ для внешнего файла не нужен, поэтому этот перевод не использовать.
 - `ExternalFile` должен быть минимальным общим типом только для sync external; он не должен парсить `Package.bin` и не должен влиять на YAML.
-- `Namespace`/`ПространствоИмен` обязательное metadata-свойство без `defaultValueYAML`; при отсутствии в YAML это ошибка, а не подстановка из фикстуры.
+- `Namespace`/`ПространствоИмен` обязательное metadata-свойство без `implicitValueYAML`; при отсутствии в YAML это ошибка, а не подстановка из фикстуры.
 
 ## Следующие объекты
 
@@ -358,9 +358,9 @@ Sync обязан выполнять обратимое преобразован
    - Хранится внутри `ChildObjects` владельца, без отдельного XML-файла и без внешних файлов.
    - Свойства близки к `MetadataAttribute`: `Type`, `PasswordMode`, `Format`, `EditFormat`, `ToolTip`, `MinValue`, `MaxValue`, `FillValue`, `FillChecking`, `ChoiceParameterLinks`, `ChoiceParameters`, `QuickChoice`, `CreateOnInput`, `ChoiceHistoryOnInput`, `ChoiceForm`.
    - Дополнительные поля: `NameInDataSource`, `ReadOnly`, `AllowNull`.
-   - `Type` обязательный, без `defaultValueYAML`.
+   - `Type` обязательный, без `implicitValueYAML`.
    - Defaults из `ПолеПоУмолчанию`/`Поле1`: `PasswordMode=false`, `MarkNegatives=false`, `MultiLine=false`, `ExtendedEdit=false`, `FillFromFillingValue=false`, `FillChecking=DontCheck`, `QuickChoice=Auto`, `CreateOnInput=Auto`, `ChoiceHistoryOnInput=Auto`, `ReadOnly=false`, `AllowNull=true`.
-   - `MinValue`, `MaxValue`, `FillValue` не получают отдельный `defaultValueYAML`; использовать существующее поведение типов значений, чтобы сохранить `xsi:nil`, `v8:Null` и конкретный `xsi:type`.
+   - `MinValue`, `MaxValue`, `FillValue` не получают отдельный `implicitValueYAML`; использовать существующее поведение типов значений, чтобы сохранить `xsi:nil`, `v8:Null` и конкретный `xsi:type`.
    - XDTO-служебные вне XML-фикстур: `ObjectBelonging`, `ExtendedConfigurationObject`.
 
 2. `MetadataExternalDataSourceFunction`
@@ -371,8 +371,8 @@ Sync обязан выполнять обратимое преобразован
    - Хранится внутри `ExternalDataSource.ChildObjects`, а не отдельным файлом. В YAML это вложенный список `Функции`; отдельного `Functions/<name>.xml` и внешних файлов нет.
    - Defaults из `ФункцияПоУмолчанию` внутри `ВнешнийИсточникДанныхВсеСвойства.xml`: `ReturnValue=true`, `ExpressionInDataSource` как пустой XML-тег.
    - `ReturnValue=true` — обычный default; в YAML выводится только отличающееся значение `false`.
-   - `Type` не получает `defaultValueYAML`: значение есть в fixture, но является типом функции, а не универсальным default для всех функций.
-   - `ExpressionInDataSource` не получает отдельный `defaultValueYAML`; для XML использовать `defaultValueXMLRaw: ""`.
+   - `Type` не получает `implicitValueYAML`: значение есть в fixture, но является типом функции, а не универсальным default для всех функций.
+   - `ExpressionInDataSource` не получает отдельный `implicitValueYAML`; для XML использовать `defaultValueXMLRaw: ""`.
 
 3. `MetadataExternalDataSourceDimensionTable`
    - XML-контейнер: `DimensionTable`
@@ -385,7 +385,7 @@ Sync обязан выполнять обратимое преобразован
    - Внешний файл из фикстуры: `Ext/ManagerModule.bsl`.
    - XDTO-внешние свойства: `ObjectModule`, `ManagerModule`, `Help`; `ManagerModule` реализуется как `Module`, `Help` при наличии фикстуры реализуется через общий тип `Help`.
    - Defaults из `ТаблицаИзмеренияПоУмолчанию.xml`: `LevelNumber=0`, `Hierarchical=false`, `UseStandardCommands=false`, `QuickChoice=false`, `IncludeHelpInContents=false`.
-   - Пустые формы, представления, `PresentationField`, `HierarchyNameInDataSource` и `UnfilledParentValue` не получают отдельный `defaultValueYAML`; сохраняются пустыми через правила соответствующих типов.
+   - Пустые формы, представления, `PresentationField`, `HierarchyNameInDataSource` и `UnfilledParentValue` не получают отдельный `implicitValueYAML`; сохраняются пустыми через правила соответствующих типов.
    - Пустой `<ChildObjects/>` не выводит в YAML явные `Поля: []`, `Формы: []`, `Команды: []`, `Макеты: []`; обязательность полей на первом этапе не валидируется.
 
 4. `MetadataExternalDataSourceTable`
@@ -398,8 +398,8 @@ Sync обязан выполнять обратимое преобразован
    - Внешние файлы из фикстур: `Ext/ManagerModule.bsl`, `Ext/ObjectModule.bsl`, `Ext/RecordSetModule.bsl`, `Ext/Help.xml`.
    - XDTO-внешние свойства: `ObjectModule`, `RecordSetModule`, `ManagerModule`, `Help`; `Help` реализуется через общий тип `Help` с `filePath/xmlPath: "Ext/Help.xml"` и `nkdkDir: "Справка"`.
    - Defaults из `ТаблицаПоУмолчанию.xml`: `TableType=Table`, `TableDataType=NonobjectData`, `UseStandardCommands=true`, `QuickChoice=false`, `CreateOnInput=Auto`, `SearchStringModeOnInputByString=Begin`, `ChoiceDataGetModeOnInputByString=Directly`, `ChoiceHistoryOnInput=Auto`, `IncludeHelpInContents=false`, `ReadOnly=false`, `TransactionsIsolationLevel=Auto`, `EditType=InDialog`, `DataLockControlMode=Automatic`.
-   - Пустые ссылочные и списковые поля (`KeyFields`, `PresentationField`, `ParentField`, `InputByString`, `Default*Form`, `DataVersionField`, `BasedOn`, `DataLockFields`) не получают отдельный `defaultValueYAML`; они сохраняются пустыми через правила соответствующих типов.
-   - `UnfilledParentValue` сохраняется через существующий тип значения с поддержкой `xsi:nil="true"`; отдельный `defaultValueYAML` не задаётся.
+   - Пустые ссылочные и списковые поля (`KeyFields`, `PresentationField`, `ParentField`, `InputByString`, `Default*Form`, `DataVersionField`, `BasedOn`, `DataLockFields`) не получают отдельный `implicitValueYAML`; они сохраняются пустыми через правила соответствующих типов.
+   - `UnfilledParentValue` сохраняется через существующий тип значения с поддержкой `xsi:nil="true"`; отдельный `implicitValueYAML` не задаётся.
 
 5. `MetadataExternalDataSourceCube`
    - XML-контейнер: `Cube`
@@ -413,7 +413,7 @@ Sync обязан выполнять обратимое преобразован
    - XDTO-внешние свойства: `RecordSetModule`, `ManagerModule`, `Help`; `Help` реализуется через общий тип `Help` с `filePath/xmlPath: "Ext/Help.xml"` и `nkdkDir: "Справка"`.
    - Defaults из `КубПоУмолчанию.xml`: `UseStandardCommands=false`, `IncludeHelpInContents=false`.
    - Пустой `<ChildObjects/>` не выводит в YAML явные `ТаблицыИзмерений: []`, `Измерения: []`, `Ресурсы: []`, `Формы: []`, `Команды: []`, `Макеты: []`.
-   - Пустые формы, представления и `Characteristics` не получают отдельный `defaultValueYAML`; сохраняются пустыми через правила соответствующих типов.
+   - Пустые формы, представления и `Characteristics` не получают отдельный `implicitValueYAML`; сохраняются пустыми через правила соответствующих типов.
 
 6. `MetadataExternalDataSourceCubeDimension`
    - XML-контейнер: `Dimension`
@@ -421,7 +421,7 @@ Sync обязан выполнять обратимое преобразован
    - Путь: `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension`
    - Хранится внутри XML-файла куба в `Cube.ChildObjects`, без отдельного XML-файла; фикстуры считаются реальной выгрузкой из конфигурации.
    - Свойства из фикстуры: `Type`, `PasswordMode`, `Format`, `EditFormat`, `ToolTip`, `MarkNegatives`, `Mask`, `MultiLine`, `ExtendedEdit`, `MinValue`, `MaxValue`, `FillFromFillingValue`, `FillValue`, `FillChecking`, `ChoiceFoldersAndItems`, `ChoiceParameterLinks`, `ChoiceParameters`, `QuickChoice`, `CreateOnInput`, `ChoiceForm`, `LinkByType`, `ChoiceHistoryOnInput`.
-   - `Type` обязательный, без `defaultValueYAML`.
+   - `Type` обязательный, без `implicitValueYAML`.
    - Defaults из `ИзмерениеПоУмолчанию`: `PasswordMode=false`, `MarkNegatives=false`, `MultiLine=false`, `ExtendedEdit=false`, `FillFromFillingValue=false`, `FillChecking=DontCheck`, `ChoiceFoldersAndItems=Items`, `QuickChoice=Auto`, `CreateOnInput=Auto`, `ChoiceHistoryOnInput=Auto`.
    - XDTO-свойства вне фикстуры реализовать в MVP по существующим паттернам: `DocumentMap`/`RegisterRecordsMap` как в `metadataSequenceDimension`; `DenyIncompleteValues`, `BaseDimension`, `ScheduleLink`, `UseInTotals`, `Master`, `MainFilter`, `Balance`, `AccountingFlag`, `TypeReductionMode` как в `metadataRegisterDimension`; `Indexing`, `FullTextSearch`, `DataHistory` как в `commonRegisterFieldProperties`.
    - Для XDTO-свойств вне фикстур defaults брать из существующих rules-паттернов.
@@ -436,7 +436,7 @@ Sync обязан выполнять обратимое преобразован
    - Путь: `packages/core/metadata/commonObjects/metadataExternalDataSourceCubeResource`
    - Хранится внутри XML-файла куба в `Cube.ChildObjects`, без отдельного XML-файла; фикстуры считаются реальной выгрузкой из конфигурации.
    - Свойства из фикстуры: `Type`, `PasswordMode`, `Format`, `EditFormat`, `ToolTip`, `MarkNegatives`, `Mask`, `MultiLine`, `ChoiceParameterLinks`, `ChoiceParameters`, `QuickChoice`, `ChoiceForm`, `ExtendedEdit`, `NameInDataSource`.
-   - `Type` обязательный, без `defaultValueYAML`; `NameInDataSource` обязательный по XML-фикстуре, без `defaultValueYAML`.
+   - `Type` обязательный, без `implicitValueYAML`; `NameInDataSource` обязательный по XML-фикстуре, без `implicitValueYAML`.
    - Defaults из `РесурсПоУмолчанию`: `PasswordMode=false`, `MarkNegatives=false`, `MultiLine=false`, `ExtendedEdit=false`, `QuickChoice=Auto`.
    - XDTO-свойства вне фикстуры реализовать в MVP по существующим паттернам: `MinValue`, `MaxValue`, `FillChecking`, `ChoiceFoldersAndItems`, `CreateOnInput`, `LinkByType`, `ChoiceHistoryOnInput`, `FullTextSearch`, `FillFromFillingValue`, `FillValue`, `Indexing`, `DataHistory`, `BinaryDataStorageLocationUse`, `BinaryDataStorageLocationUseField` как в `commonRegisterFieldProperties`; `Balance`, `AccountingFlag`, `ExtDimensionAccountingFlag` как в `metadataRegisterResource`.
    - Для XDTO-свойств вне фикстур defaults брать из существующих rules-паттернов.

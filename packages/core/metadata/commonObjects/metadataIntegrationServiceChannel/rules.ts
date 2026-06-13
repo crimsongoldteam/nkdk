@@ -75,7 +75,7 @@ export const MetadataIntegrationServiceChannelRules = {
       xmlParents: propertiesParents,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       xml: "ExtendedConfigurationObject",

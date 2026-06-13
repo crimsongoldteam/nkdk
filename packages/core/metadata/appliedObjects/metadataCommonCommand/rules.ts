@@ -23,7 +23,7 @@ export const MetadataCommonCommandRules = {
       type: "boolean",
       xmlParents: ["Properties"],
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       order: 12,
     },
     commandParameterType: {

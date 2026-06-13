@@ -20,7 +20,7 @@ export const GeographicalSchemaFieldRules = {
       yaml: "Вывод",
       type: "SystemEnumeration",
       typeSE: "UseOutput",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },

@@ -6,7 +6,7 @@ import { MetadataReportRules } from "./rules"
 import type { MetadataReport } from "./types"
 
 describe("export MetadataReport to YAML", () => {
-  it("omits defaultValueYAML fields from minimal report", () => {
+  it("omits implicitValueYAML fields from minimal report", () => {
     expect(
       testExportAppliedObjectToYAML<MetadataReport>({
         rule: MetadataReportRules,

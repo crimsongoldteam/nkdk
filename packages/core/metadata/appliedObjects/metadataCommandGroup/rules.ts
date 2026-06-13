@@ -46,7 +46,7 @@ export const MetadataCommandGroupRules = {
       typeSE: "ButtonRepresentation",
       xmlParents: properties,
       defaultValueXML: "Auto",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
     toolTip: {
       yaml: "Подсказка",
@@ -69,7 +69,7 @@ export const MetadataCommandGroupRules = {
       typeSE: "CommandGroupCategory",
       xmlParents: properties,
       defaultValueXML: "NavigationPanel",
-      defaultValueYAML: "NavigationPanel",
+      implicitValueYAML: "NavigationPanel",
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",
@@ -79,7 +79,7 @@ export const MetadataCommandGroupRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       xml: "ExtendedConfigurationObject",

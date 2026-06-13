@@ -20,7 +20,7 @@ export const HTMLDocumentFieldRules = {
       yaml: "Вывод",
       type: "SystemEnumeration",
       typeSE: "UseOutput",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
     userAgentInformation: {
       yaml: "ИнформацияПрограммыПросмотра",

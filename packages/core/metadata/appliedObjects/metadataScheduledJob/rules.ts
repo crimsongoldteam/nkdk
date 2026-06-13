@@ -65,7 +65,7 @@ export const MetadataScheduledJobRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
     },
     predefined: {
       yaml: "Предопределенное",
@@ -73,7 +73,7 @@ export const MetadataScheduledJobRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     restartCountOnFailure: {
       yaml: "КоличествоПовторовПриАварийномЗавершении",
@@ -81,7 +81,7 @@ export const MetadataScheduledJobRules = {
       type: "number",
       xmlParents: properties,
       defaultValueXML: 3,
-      defaultValueYAML: 3,
+      implicitValueYAML: 3,
     },
     restartIntervalOnFailure: {
       yaml: "ИнтервалПовтораПриАварийномЗавершении",
@@ -89,7 +89,7 @@ export const MetadataScheduledJobRules = {
       type: "number",
       xmlParents: properties,
       defaultValueXML: 10,
-      defaultValueYAML: 10,
+      implicitValueYAML: 10,
     },
     schedule: {
       type: "Template",
@@ -106,7 +106,7 @@ export const MetadataScheduledJobRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       xml: "ExtendedConfigurationObject",

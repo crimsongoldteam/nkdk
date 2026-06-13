@@ -65,7 +65,7 @@
 ## Guardrails
 
 - Do not edit source XML fixtures in `/Users/nikita/git/roundTripElements`; copy them into repo fixtures.
-- Do not add YAML behavioral flags (`defaultValueYAML`, `toYAML:false`, `fromYAML:false`, `excludeIfEqualNameYAML`, `useAsShortValueYAML`) until the XML barrier for the affected object is green.
+- Do not add YAML behavioral flags (`implicitValueYAML`, `toYAML:false`, `fromYAML:false`, `excludeIfEqualNameYAML`, `useAsShortValueYAML`) until the XML barrier for the affected object is green.
 - Do not add `order` unless an XML round-trip diff proves it is necessary.
 - Prefer existing common rules: `Module`, `Help`, `Template`, `TypeDescription`, `I8nText`, `MetadataItemLink`, `MetadataItemLinks`, `FieldsList`, `ChoiceParameterLinks`, `ChoiceParameters`, `TypeLink`, `CharacteristicsDescription`, `MinMaxValue`, `MetadataValue`.
 - YAML must be minimal: omit empty/default values that can be restored to XML.
@@ -588,7 +588,7 @@ Expected: FAIL because rules are missing.
 
 - [ ] **Step 3: Implement field and function rules**
 
-Use `MetadataItemRule` for each leaf. Include XML annotations and `defaultValueXML/defaultValueXMLRaw` only. Do not add `defaultValueYAML` yet.
+Use `MetadataItemRule` for each leaf. Include XML annotations and `defaultValueXML/defaultValueXMLRaw` only. Do not add `implicitValueYAML` yet.
 
 Field must include:
 
@@ -775,21 +775,21 @@ objectBelonging: {
   yaml: "ПринадлежностьОбъекта",
   type: "SystemEnumeration",
   typeSE: "ObjectBelonging",
-  defaultValueYAML: "Native",
+  implicitValueYAML: "Native",
   toYAML: false,
   fromYAML: false,
 }
 ```
 
-For scalar defaults, add `defaultValueYAML` equal to the XML default, for example:
+For scalar defaults, add `implicitValueYAML` equal to the XML default, for example:
 
 ```typescript
-server: { yaml: "Сервер", type: "boolean", defaultValueXML: true, defaultValueYAML: true }
-timeout: { yaml: "Таймаут", type: "number", defaultValueXML: 30, defaultValueYAML: 30 }
-returnValue: { yaml: "ВозвращаемоеЗначение", type: "boolean", defaultValueXML: true, defaultValueYAML: true }
+server: { yaml: "Сервер", type: "boolean", defaultValueXML: true, implicitValueYAML: true }
+timeout: { yaml: "Таймаут", type: "number", defaultValueXML: 30, implicitValueYAML: 30 }
+returnValue: { yaml: "ВозвращаемоеЗначение", type: "boolean", defaultValueXML: true, implicitValueYAML: true }
 ```
 
-Do not add `defaultValueYAML` for:
+Do not add `implicitValueYAML` for:
 
 ```typescript
 name, namespace, type, nameInDataSource,

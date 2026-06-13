@@ -52,7 +52,7 @@ export const MetadataExternalDataSourceCubeResourceRules = {
       typeSE: "FoldersAndItemsUse",
       xmlParents: propertiesParents,
       defaultValueXML: "Items",
-      defaultValueYAML: "Items",
+      implicitValueYAML: "Items",
       toXML: hasOwnMetadataProperty("choiceFoldersAndItems"),
     },
     linkByType: {
@@ -77,7 +77,7 @@ export const MetadataExternalDataSourceCubeResourceRules = {
       typeSE: "UseFullTextSearch",
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
-      defaultValueYAML: "Use",
+      implicitValueYAML: "Use",
       toXML: hasOwnMetadataProperty("fullTextSearch"),
     },
     indexing: {
@@ -87,7 +87,7 @@ export const MetadataExternalDataSourceCubeResourceRules = {
       typeSE: "Indexing",
       xmlParents: propertiesParents,
       defaultValueXML: "DontIndex",
-      defaultValueYAML: "DontIndex",
+      implicitValueYAML: "DontIndex",
       toXML: hasOwnMetadataProperty("indexing"),
     },
     dataHistory: {
@@ -97,7 +97,7 @@ export const MetadataExternalDataSourceCubeResourceRules = {
       typeSE: "DataHistoryUse",
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
-      defaultValueYAML: "Use",
+      implicitValueYAML: "Use",
       toXML: hasOwnMetadataProperty("dataHistory"),
     },
     binaryDataStorageLocationUse: {
@@ -121,7 +121,7 @@ export const MetadataExternalDataSourceCubeResourceRules = {
       type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       toXML: hasOwnMetadataProperty("balance"),
     },
     accountingFlag: {

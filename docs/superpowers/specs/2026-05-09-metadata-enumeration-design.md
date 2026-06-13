@@ -76,7 +76,7 @@
 - `ChoiceHistoryOnInput`: `Auto`;
 - `ObjectBelonging`: `Native`, но свойство исключено из YAML.
 
-Окончательные `defaultValueYAML` применяются только после завершения XML-цикла и обсуждения черновика YAML.
+Окончательные `implicitValueYAML` применяются только после завершения XML-цикла и обсуждения черновика YAML.
 
 ## Проверка
 

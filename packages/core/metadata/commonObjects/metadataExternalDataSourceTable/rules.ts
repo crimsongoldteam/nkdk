@@ -85,7 +85,7 @@ const tableProperties = {
     typeSE: "ExternalDataSourceTableType",
     xmlParents: properties,
     defaultValueXML: "Table",
-    defaultValueYAML: "Table",
+    implicitValueYAML: "Table",
   },
   nameInDataSource: {
     yaml: "ИмяВИсточникеДанных",
@@ -108,7 +108,7 @@ const tableProperties = {
     typeSE: "ExternalDataSourceTableDataType",
     xmlParents: properties,
     defaultValueXML: "NonobjectData",
-    defaultValueYAML: "NonobjectData",
+    implicitValueYAML: "NonobjectData",
   },
   keyFields: {
     yaml: "КлючевыеПоля",
@@ -152,7 +152,7 @@ const tableProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: true,
-    defaultValueYAML: true,
+    implicitValueYAML: true,
   },
   quickChoice: {
     yaml: "БыстрыйВыбор",
@@ -160,7 +160,7 @@ const tableProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   inputByString: {
     yaml: "ВводПоСтроке",
@@ -177,7 +177,7 @@ const tableProperties = {
     typeSE: "CreateOnInput",
     xmlParents: properties,
     defaultValueXML: "Auto",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   searchStringModeOnInputByString: {
     yaml: "РежимСтрокиПоискаПриВводеПоСтроке",
@@ -186,7 +186,7 @@ const tableProperties = {
     typeSE: "SearchStringModeOnInputByString",
     xmlParents: properties,
     defaultValueXML: "Begin",
-    defaultValueYAML: "Begin",
+    implicitValueYAML: "Begin",
   },
   choiceDataGetModeOnInputByString: {
     yaml: "РежимПолученияДанныхВыбораПриВводеПоСтроке",
@@ -195,7 +195,7 @@ const tableProperties = {
     typeSE: "ChoiceDataGetModeOnInputByString",
     xmlParents: properties,
     defaultValueXML: "Directly",
-    defaultValueYAML: "Directly",
+    implicitValueYAML: "Directly",
   },
   choiceHistoryOnInput: {
     yaml: "ИсторияВыбораПриВводе",
@@ -204,7 +204,7 @@ const tableProperties = {
     typeSE: "ChoiceHistoryOnInput",
     xmlParents: properties,
     defaultValueXML: "Auto",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   defaultObjectForm: {
     yaml: "ОсновнаяФормаОбъекта",
@@ -293,7 +293,7 @@ const tableProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: false,
-    defaultValueYAML: false,
+    implicitValueYAML: false,
   },
   readOnly: {
     yaml: "ТолькоЧтение",
@@ -309,7 +309,7 @@ const tableProperties = {
     typeSE: "TransactionsIsolationLevel",
     xmlParents: properties,
     defaultValueXML: "Auto",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   dataVersionField: {
     yaml: "ПолеВерсииДанных",
@@ -325,7 +325,7 @@ const tableProperties = {
     typeSE: "EditType",
     xmlParents: properties,
     defaultValueXML: "InDialog",
-    defaultValueYAML: "InDialog",
+    implicitValueYAML: "InDialog",
   },
   basedOn: {
     yaml: "ВводитсяНаОсновании",
@@ -349,7 +349,7 @@ const tableProperties = {
     typeSE: "DefaultDataLockControlMode",
     xmlParents: properties,
     defaultValueXML: "Automatic",
-    defaultValueYAML: "Automatic",
+    implicitValueYAML: "Automatic",
   },
   fields: {
     yaml: "Поля",

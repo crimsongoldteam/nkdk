@@ -22,7 +22,7 @@ const commonProperties = {
     xml: "_DisplayImportance",
     type: "SystemEnumeration",
     typeSE: "DisplayImportance",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   enabled: { yaml: "Доступность", type: "boolean" },
   extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
@@ -31,7 +31,7 @@ const commonProperties = {
     xml: "GroupHorizontalAlign",
     type: "SystemEnumeration",
     typeSE: "ItemHorizontalLocation",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   title: {
     yaml: "Заголовок",
@@ -42,7 +42,7 @@ const commonProperties = {
     yaml: "ОтображениеПодсказки",
     type: "SystemEnumeration",
     typeSE: "ToolTipRepresentation",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   userVisible: {
     yaml: "Использование",
@@ -53,7 +53,7 @@ const commonProperties = {
     xml: "GroupVerticalAlign",
     type: "SystemEnumeration",
     typeSE: "ItemVerticalAlign",
-    defaultValueYAML: "Auto",
+    implicitValueYAML: "Auto",
   },
   visible: { yaml: "Видимость", type: "boolean" },
 } as const satisfies MetadataItemRule["properties"]

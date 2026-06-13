@@ -52,7 +52,7 @@ export const MetadataSequenceRules = {
       type: "SystemEnumeration",
       typeSE: "MoveBoundaryOnPosting",
       defaultValueXML: "Move",
-      defaultValueYAML: "Move",
+      implicitValueYAML: "Move",
       xmlParents: ["Properties"],
     },
     documents: {
@@ -74,7 +74,7 @@ export const MetadataSequenceRules = {
       type: "SystemEnumeration",
       typeSE: "DefaultDataLockControlMode",
       defaultValueXML: "Managed",
-      defaultValueYAML: "Managed",
+      implicitValueYAML: "Managed",
       xmlParents: ["Properties"],
     },
     additionalIndexes: {
@@ -93,7 +93,7 @@ export const MetadataSequenceRules = {
       yaml: "ПринадлежностьОбъекта",
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: ["Properties"],

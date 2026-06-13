@@ -16,8 +16,8 @@ export const ProgressBarFieldRules = {
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
     maxValue: { yaml: "МаксимальноеЗначение", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", defaultValueYAML: 100 },
-    minValue: { yaml: "МинимальноеЗначение", type: "number", defaultValueYAML: 0 },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 100 },
+    minValue: { yaml: "МинимальноеЗначение", type: "number", implicitValueYAML: 0 },
     orientation: {
       yaml: "Ориентация",
       type: "SystemEnumeration",

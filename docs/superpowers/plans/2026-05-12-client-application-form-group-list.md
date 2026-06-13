@@ -118,7 +118,7 @@ In `packages/core/metadata/forms/clientApplicationForm/rules.ts`, add `groupList
       type: "SystemEnumeration",
       typeSE: "ChildFormItemsGroup",
       tag: FormRulesTags.Form,
-      defaultValueYAML: "Horizontal",
+      implicitValueYAML: "Horizontal",
     },
     groupList: {
       yaml: "СписокГрупп",

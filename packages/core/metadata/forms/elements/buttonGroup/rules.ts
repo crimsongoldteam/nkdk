@@ -19,7 +19,7 @@ export const ButtonGroupRules = {
       xml: "_DisplayImportance",
       type: "SystemEnumeration",
       typeSE: "DisplayImportance",
-      defaultValueYAML: "Auto",
+      implicitValueYAML: "Auto",
     },
     childItems: {
       yaml: "Элементы",

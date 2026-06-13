@@ -302,7 +302,7 @@ export const MetadataDocumentRules = {
       typeSE: "AllowedLength",
       defaultValueXML: "Variable",
       xmlParents: documentProperties,
-      defaultValueYAML: "Variable",
+      implicitValueYAML: "Variable",
     },
     numberLength: {
       yaml: "ДлинаНомера",
@@ -335,7 +335,7 @@ export const MetadataDocumentRules = {
       yaml: "ПринадлежностьОбъекта",
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: documentProperties,

@@ -92,7 +92,7 @@ export const MetadataAccumulationRegisterRules = {
       yaml: "ИспользоватьСтандартныеКоманды",
       type: "boolean",
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       xmlParents: properties,
     },
     defaultListForm: {
@@ -114,14 +114,14 @@ export const MetadataAccumulationRegisterRules = {
       type: "SystemEnumeration",
       typeSE: "AccumulationRegisterType",
       defaultValueXML: "Balance",
-      defaultValueYAML: "Balance",
+      implicitValueYAML: "Balance",
       xmlParents: properties,
     },
     includeHelpInContents: {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       xmlParents: properties,
     },
     standardAttributes: {
@@ -139,7 +139,7 @@ export const MetadataAccumulationRegisterRules = {
       type: "SystemEnumeration",
       typeSE: "DefaultDataLockControlMode",
       defaultValueXML: "Managed",
-      defaultValueYAML: "Managed",
+      implicitValueYAML: "Managed",
       xmlParents: properties,
     },
     fullTextSearch: {
@@ -147,14 +147,14 @@ export const MetadataAccumulationRegisterRules = {
       type: "SystemEnumeration",
       typeSE: "UseFullTextSearch",
       defaultValueXML: "DontUse",
-      defaultValueYAML: "DontUse",
+      implicitValueYAML: "DontUse",
       xmlParents: properties,
     },
     enableTotalsSplitting: {
       yaml: "РазделениеИтогов",
       type: "boolean",
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       xmlParents: properties,
     },
     listPresentation: {
@@ -182,7 +182,7 @@ export const MetadataAccumulationRegisterRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       yaml: "ОбъектРасширяемойКонфигурации",

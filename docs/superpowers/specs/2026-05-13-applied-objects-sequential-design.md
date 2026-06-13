@@ -43,10 +43,10 @@ Placement policy for new nested metadata structures:
 Default-value policy for new objects:
 
 - when a scalar platform default is confirmed by `minimal.xml`, XDTO/help, or a dedicated default fixture, define both
-  `defaultValueXML` and `defaultValueYAML`, including boolean, number, and system-enumeration fields;
-- do not use existing implemented objects as proof that a missing `defaultValueYAML` is intentional, because some older
+  `defaultValueXML` and `implicitValueYAML`, including boolean, number, and system-enumeration fields;
+- do not use existing implemented objects as proof that a missing `implicitValueYAML` is intentional, because some older
   rules may be incomplete or inconsistent;
-- do not add `defaultValueYAML` for fixture-specific values, values inferred only from object names, or child rows that
+- do not add `implicitValueYAML` for fixture-specific values, values inferred only from object names, or child rows that
   are real content rather than platform defaults;
 - do not describe YAML defaults for `MetadataFields` in this series, even when the XML default is non-empty; keep such
   values explicit in YAML when they matter.
@@ -100,13 +100,13 @@ Parent properties:
 
 Default policy:
 
-- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`;
-- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`;
+- `useStandardCommands`: `defaultValueXML: true`, `implicitValueYAML: true`;
+- `includeHelpInContents`: `defaultValueXML: false`, `implicitValueYAML: false`;
 - `comment`, `defaultForm`, `auxiliaryForm`, `extendedPresentation`, and `explanation` use XML raw empty defaults
   from `minimal.xml`;
-- `objectBelonging`: hidden from YAML, `defaultValueYAML: "Native"`;
+- `objectBelonging`: hidden from YAML, `implicitValueYAML: "Native"`;
 - `extendedConfigurationObject`: `runtimeOnly: true`;
-- no other normal `defaultValueYAML` values.
+- no other normal `implicitValueYAML` values.
 
 Implementation notes:
 
@@ -230,12 +230,12 @@ New child object: `Column`.
 
 Default policy:
 
-- `useStandardCommands`: `defaultValueXML: true`, `defaultValueYAML: true`;
-- `includeHelpInContents`: `defaultValueXML: false`, `defaultValueYAML: false`;
+- `useStandardCommands`: `defaultValueXML: true`, `implicitValueYAML: true`;
+- `includeHelpInContents`: `defaultValueXML: false`, `implicitValueYAML: false`;
 - parent `comment`, forms, list presentations, and `explanation` use XML raw empty defaults from `minimal.xml`;
 - column `comment` and `synonym` use XML raw empty defaults;
-- column `indexing`: `defaultValueXML: "DontIndex"`, `defaultValueYAML: "DontIndex"`;
-- `objectBelonging`: hidden from YAML, `defaultValueYAML: "Native"`;
+- column `indexing`: `defaultValueXML: "DontIndex"`, `implicitValueYAML: "DontIndex"`;
+- `objectBelonging`: hidden from YAML, `implicitValueYAML: "Native"`;
 - `extendedConfigurationObject`: `runtimeOnly: true`;
 - `RegisteredDocuments` from `minimal.xml` is fixture content, not a default; keep it explicit in YAML.
 
@@ -339,12 +339,12 @@ New nested child object: `Method`.
 
 Default policy:
 
-- `reuseSessions`: `defaultValueXML: "AutoUse"`, `defaultValueYAML: "AutoUse"`;
-- `sessionMaxAge`: `defaultValueXML: 20`, `defaultValueYAML: 20`;
+- `reuseSessions`: `defaultValueXML: "AutoUse"`, `implicitValueYAML: "AutoUse"`;
+- `sessionMaxAge`: `defaultValueXML: 20`, `implicitValueYAML: 20`;
 - parent and child `comment` use XML raw empty defaults;
-- method `httpMethod`: `defaultValueXML: "GET"`; no `defaultValueYAML` for now, so keep `HTTPMethod=GET` explicit in YAML
+- method `httpMethod`: `defaultValueXML: "GET"`; no `implicitValueYAML` for now, so keep `HTTPMethod=GET` explicit in YAML
   until the platform default is confirmed by a dedicated minimal-method fixture;
-- `objectBelonging`: hidden from YAML, `defaultValueYAML: "Native"`;
+- `objectBelonging`: hidden from YAML, `implicitValueYAML: "Native"`;
 - `extendedConfigurationObject`: `runtimeOnly: true`;
 - do not treat `RootURL`, `Template`, or `Handler` from fixtures as YAML defaults.
 
@@ -363,9 +363,9 @@ Problems and questions:
 2. The XML directory and item prefix must preserve the exact mixed spelling from fixtures: `HTTPServices` and
    `HTTPСервис`, where the `С` in `Сервис` is Cyrillic.
 3. `Method.HTTPMethod=GET` appears in the default-named method in `full.xml`, but `minimal.xml` has no method.
-   Use `defaultValueXML: "GET"` for XML restoration, but do not set `defaultValueYAML` until the platform default is
+   Use `defaultValueXML: "GET"` for XML restoration, but do not set `implicitValueYAML` until the platform default is
    confirmed during test generation; keep it explicit in generated YAML for the default method.
-4. User decision: `SessionMaxAge` is an integer-valued number with `defaultValueXML: 20` and `defaultValueYAML: 20`;
+4. User decision: `SessionMaxAge` is an integer-valued number with `defaultValueXML: 20` and `implicitValueYAML: 20`;
    no custom decimal handling is needed.
 5. External sync is only object-level `Ext/Module.bsl`; there are no forms, templates, help, commands, or additional
    indexes for this object.
@@ -488,11 +488,11 @@ Properties outside current InformationRegister fixtures:
 Default policy:
 
 - parent defaults from `minimal.xml`; all scalar platform defaults should get both `defaultValueXML` and
-  `defaultValueYAML`:
+  `implicitValueYAML`:
   - `useStandardCommands: true`;
   - `editType: "InDialog"`;
   - `informationRegisterPeriodicity: "Nonperiodical"`;
-  - `writeMode: "Independent"` (`defaultValueXML: "Independent"`, `defaultValueYAML: "Independent"`);
+  - `writeMode: "Independent"` (`defaultValueXML: "Independent"`, `implicitValueYAML: "Independent"`);
   - `mainFilterOnPeriod: false`;
   - `includeHelpInContents: false`;
   - `dataLockControlMode: "Managed"`;
@@ -505,16 +505,16 @@ Default policy:
 - parent empty strings and presentations use XML raw empty defaults;
 - child field defaults follow the existing `MetadataAttribute` defaults where the XML shape is identical; enum-like field
   defaults such as `fillChecking`, `choiceFoldersAndItems`, `quickChoice`, `createOnInput`, `choiceHistoryOnInput`,
-  `indexing`, `fullTextSearch`, and `dataHistory` keep the same `defaultValueYAML` policy;
+  `indexing`, `fullTextSearch`, and `dataHistory` keep the same `implicitValueYAML` policy;
 - dimension-specific defaults from `reg.xml`/default dimension fixture; confirmed scalar defaults should get both
-  `defaultValueXML` and `defaultValueYAML`:
+  `defaultValueXML` and `implicitValueYAML`:
   - `master: false`;
   - `mainFilter: true`;
   - `denyIncompleteValues: false`;
   - `typeReductionMode: "TransformValues"`;
 - resource from `minimal.xml` is fixture content, not a default; keep it explicit in YAML;
 - dimension from `reg.xml` is fixture content, not a default; keep it explicit in YAML;
-- `objectBelonging`: hidden from YAML, `defaultValueYAML: "Native"`;
+- `objectBelonging`: hidden from YAML, `implicitValueYAML: "Native"`;
 - `extendedConfigurationObject`: `runtimeOnly: true`.
 
 Implementation notes:
@@ -651,18 +651,18 @@ Shared register child objects:
 Default policy:
 
 - parent defaults from `minimal.xml`; all scalar platform defaults should get both `defaultValueXML` and
-  `defaultValueYAML`:
+  `implicitValueYAML`:
   - `useStandardCommands: true`;
-  - `registerType: "Balance"` (`defaultValueXML: "Balance"`, `defaultValueYAML: "Balance"`);
+  - `registerType: "Balance"` (`defaultValueXML: "Balance"`, `implicitValueYAML: "Balance"`);
   - `includeHelpInContents: false`;
   - `dataLockControlMode: "Managed"`;
   - `fullTextSearch: "DontUse"`;
   - `enableTotalsSplitting: true`;
 - parent empty strings and presentations use XML raw empty defaults;
 - register-field defaults follow the shared register field policy from `MetadataInformationRegister`;
-- accumulation dimension `useInTotals`: `defaultValueXML: true`, `defaultValueYAML: true`;
+- accumulation dimension `useInTotals`: `defaultValueXML: true`, `implicitValueYAML: true`;
 - resource from `minimal.xml` is fixture content, not a default; keep it explicit in YAML;
-- `objectBelonging`: hidden from YAML, `defaultValueYAML: "Native"`;
+- `objectBelonging`: hidden from YAML, `implicitValueYAML: "Native"`;
 - `extendedConfigurationObject`: `runtimeOnly: true`.
 
 Implementation notes:
@@ -698,7 +698,7 @@ Problems and questions:
 8. User decision: aggregate dimensions use a YAML map keyed by current-register dimension name, for example
    `ИзмерениеВсеСвойства: Истина`. Full XML refs are restored from the current accumulation register context.
 9. User decision: accumulation-register dimension `UseInTotals=true` is a scalar default and should be hidden from YAML
-   with `defaultValueYAML: true`.
+   with `implicitValueYAML: true`.
 10. User decision: the resource present in accumulation-register `minimal.xml` is fixture content, not a YAML default.
 11. User decision: accumulation-register `RegisterType=Balance` is the XML/YAML default; `Turnovers` remains explicit.
 12. User decision: put `AccumulationRegisterAggregates` in `commonObjects`, not under the applied object.
@@ -829,7 +829,7 @@ Parse this property rather than preserving it as opaque XML, because the XDTO sh
 Default policy:
 
 - parent defaults from `minimal.xml`; all scalar platform defaults should get both `defaultValueXML` and
-  `defaultValueYAML`, even where older `MetadataCatalog` rules do not:
+  `implicitValueYAML`, even where older `MetadataCatalog` rules do not:
   - `useStandardCommands: true`;
   - `codeLength: 9`;
   - `codeAllowedLength: "Variable"`;
@@ -856,7 +856,7 @@ Default policy:
 - `Content` is external fixture content, not a default; keep it explicit when `Ext/Content.xml` exists;
 - `Characteristics`, `BasedOn`, `DataLockFields`, form refs, presentations, and `explanation` are empty raw XML defaults,
   not YAML defaults;
-- `objectBelonging`: hidden from YAML, `defaultValueYAML: "Native"`;
+- `objectBelonging`: hidden from YAML, `implicitValueYAML: "Native"`;
 - `extendedConfigurationObject`: `runtimeOnly: true`.
 
 Implementation notes:
@@ -900,7 +900,7 @@ Problems and questions:
 8. User decision: `ExchangePlan.Content` is external content, not a YAML default; export it when `Ext/Content.xml`
    exists.
 9. User decision: `BasedOn`, `Characteristics`, and `DataLockFields` stay empty XML defaults and should not get
-   `defaultValueYAML`.
+   `implicitValueYAML`.
 10. User decision: exchange-plan tabular sections should use an object-specific wrapper rule/type with generated type
     names `ExchangePlanTabularSection` and `ExchangePlanTabularSectionRow`.
 11. User decision: put `ExchangePlanContent` in `commonObjects`, not under the applied object.

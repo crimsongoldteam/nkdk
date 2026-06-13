@@ -90,7 +90,7 @@ export const MetadataDocumentJournalRules = {
       yaml: "ИспользоватьСтандартныеКоманды",
       type: "boolean",
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
       xmlParents: properties,
     },
     registeredDocuments: {
@@ -103,7 +103,7 @@ export const MetadataDocumentJournalRules = {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
       xmlParents: properties,
     },
     standardAttributes: {
@@ -137,7 +137,7 @@ export const MetadataDocumentJournalRules = {
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-      defaultValueYAML: "Native",
+      implicitValueYAML: "Native",
     },
     extendedConfigurationObject: {
       yaml: "ОбъектРасширяемойКонфигурации",

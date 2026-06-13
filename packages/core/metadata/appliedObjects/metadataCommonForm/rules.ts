@@ -60,7 +60,7 @@ export const MetadataCommonFormRules = {
       typeSE: "FormType",
       xmlParents: properties,
       defaultValueXML: "Managed",
-      defaultValueYAML: "Managed",
+      implicitValueYAML: "Managed",
     },
     includeHelpInContents: {
       yaml: "ВключатьСправкуВСодержание",
@@ -68,7 +68,7 @@ export const MetadataCommonFormRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
-      defaultValueYAML: false,
+      implicitValueYAML: false,
     },
     help: {
       type: "Help",
@@ -90,7 +90,7 @@ export const MetadataCommonFormRules = {
       type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
-      defaultValueYAML: true,
+      implicitValueYAML: true,
     },
     extendedPresentation: {
       yaml: "РасширенноеПредставление",
