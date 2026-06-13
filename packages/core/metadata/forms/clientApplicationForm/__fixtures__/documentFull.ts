@@ -23,6 +23,11 @@ const commandButton = {
   commandName: "Form.Command.Команда1",
 } satisfies Button
 
+const requiredFixtureValue = <T>(value: T | undefined, name: string): T => {
+  if (value === undefined) throw new Error(`${name} fixture is missing`)
+  return value
+}
+
 const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
   itemType: "ClientApplicationForm",
   synonym: { items: {} },
@@ -100,10 +105,7 @@ const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
     beforeLoadDataFromSettingsAtServer: "ПередЗагрузкойДанныхИзНастроекНаСервере",
     addInDetachmentOnError: "ОтключениеВнешнейКомпонентыПриОшибке",
   },
-  childItems: [
-    numberInputField,
-    commandButton,
-  ],
+  childItems: [numberInputField, commandButton],
   attributes: [
     {
       itemType: "FormAttribute",
@@ -162,6 +164,19 @@ const numberInputFieldFromYAML = {
 
 export const documentFullClientApplicationForm: ClientApplicationForm = documentFullClientApplicationFormData
 
+const documentFullAttributesConditionalAppearance = requiredFixtureValue(
+  documentFullClientApplicationFormData.attributesConditionalAppearance,
+  "attributesConditionalAppearance"
+)
+const documentFullConditionalAppearanceItems = requiredFixtureValue(
+  documentFullAttributesConditionalAppearance.conditionalAppearanceItems,
+  "attributesConditionalAppearance.conditionalAppearanceItems"
+)
+const documentFullFirstConditionalAppearanceItem = requiredFixtureValue(
+  documentFullConditionalAppearanceItems[0],
+  "attributesConditionalAppearance.conditionalAppearanceItems[0]"
+)
+
 export const documentFullClientApplicationFormFromYAML: ClientApplicationForm = {
   ...documentFullClientApplicationFormData,
   autoCommandBar: {
@@ -171,12 +186,13 @@ export const documentFullClientApplicationFormFromYAML: ClientApplicationForm = 
   },
   childItems: [numberInputFieldFromYAML, commandButton],
   attributesConditionalAppearance: {
-    ...documentFullClientApplicationFormData.attributesConditionalAppearance,
+    ...documentFullAttributesConditionalAppearance,
     conditionalAppearanceItems: [
       {
-        ...documentFullClientApplicationFormData.attributesConditionalAppearance.conditionalAppearanceItems[0],
+        ...documentFullFirstConditionalAppearanceItem,
         filter: {
-          ...documentFullClientApplicationFormData.attributesConditionalAppearance.conditionalAppearanceItems[0].filter,
+          ...documentFullFirstConditionalAppearanceItem.filter,
+          itemType: "Filter",
           items: [
             {
               itemType: "FilterItemComparison",

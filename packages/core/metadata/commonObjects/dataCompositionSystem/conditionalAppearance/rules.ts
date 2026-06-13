@@ -1,4 +1,8 @@
 import { MetadataItemRule } from "~/metadata/orchestration"
+import type { TypeRulesOperations } from "~/metadata/orchestration/property/fn"
+
+const conditionalAppearanceViewModeDefaultValue = ({ operation }: { operation: TypeRulesOperations }) =>
+  operation === "importFromYAML" ? undefined : "QuickAccess"
 
 export const ConditionalAppearanceRules = {
   itemType: "ConditionalAppearance",
@@ -15,7 +19,7 @@ export const ConditionalAppearanceRules = {
       yaml: "РежимОтображения",
       implicitValueYAML: "Normal",
       defaultValueXML: "QuickAccess",
-      defaultValue: ({ operation }) => (operation === "importFromYAML" ? undefined : "QuickAccess"),
+      defaultValue: conditionalAppearanceViewModeDefaultValue,
     },
     userSettingID: {
       type: "UserSettingsID",

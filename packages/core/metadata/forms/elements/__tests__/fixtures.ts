@@ -1,4 +1,5 @@
 import type { ConfigurationContext } from "~/metadata/context/types"
+import type { CommandBarChildItem } from "~/metadata/forms/commonObjects/childItems/types"
 import { fullCommandBarChildItemsAllYAML } from "~/metadata/forms/elements/__fixtures__/commandBarChildItems/data"
 import { mockContext } from "~/tests/mockContext"
 
@@ -336,18 +337,34 @@ const commandButtonWithTypeDescriptionParameterFromYAML = {
   ...commandButtonWithTypeDescriptionParameter,
   type: "UsualButton" as const,
 }
-const withoutCheckBoxTypeInChildItems = <T extends { childItems: readonly Record<string, unknown>[] }>(
-  table: T,
-  names: string[]
-): T => ({
-  ...table,
-  childItems: table.childItems.map((childItem) => {
-    if (typeof childItem.name !== "string" || !names.includes(childItem.name)) return childItem
+type WithOptionalChildItems = { childItems?: readonly Record<string, unknown>[] }
 
-    const { checkBoxType: _checkBoxType, ...childItemWithoutCheckBoxType } = childItem
-    return childItemWithoutCheckBoxType
-  }),
-}) as T
+const requiredChildItems = <T extends WithOptionalChildItems>(
+  item: T,
+  name: string
+): readonly Record<string, unknown>[] => {
+  if (item.childItems === undefined) throw new Error(`${name} childItems fixture is missing`)
+  return item.childItems
+}
+
+const commandBarNestedChildItems = (item: CommandBarChildItem, name: string): readonly Record<string, unknown>[] => {
+  if (!("childItems" in item) || item.childItems === undefined) throw new Error(`${name} childItems fixture is missing`)
+  return item.childItems
+}
+
+const withoutCheckBoxTypeInChildItems = <T extends WithOptionalChildItems>(table: T, names: string[]): T => {
+  const childItems = requiredChildItems(table, "form element")
+
+  return {
+    ...table,
+    childItems: childItems.map((childItem) => {
+      if (typeof childItem.name !== "string" || !names.includes(childItem.name)) return childItem
+
+      const { checkBoxType: _checkBoxType, ...childItemWithoutCheckBoxType } = childItem
+      return childItemWithoutCheckBoxType
+    }),
+  } as T
+}
 const fullTableFromYAML = withoutCheckBoxTypeInChildItems(fullTable, ["ТаблицаФлажок123"])
 const fullTreeFromYAML = withoutCheckBoxTypeInChildItems(fullTree, ["ДеревоФлажок"])
 const dynamicListFromYAML = withoutCheckBoxTypeInChildItems(dynamicList, ["ДинамическийСписокФлажок"])
@@ -368,7 +385,7 @@ const fullCommandBarFromYAML = {
       ...fullCommandBar.childItems[1],
       childItems: [
         {
-          ...fullCommandBar.childItems[1].childItems[0],
+          ...commandBarNestedChildItems(fullCommandBar.childItems[1], "fullCommandBar.childItems[1]")[0],
           type: "UsualButton" as const,
         },
       ],
@@ -377,7 +394,7 @@ const fullCommandBarFromYAML = {
       ...fullCommandBar.childItems[2],
       childItems: [
         {
-          ...fullCommandBar.childItems[2].childItems[0],
+          ...commandBarNestedChildItems(fullCommandBar.childItems[2], "fullCommandBar.childItems[2]")[0],
           type: "UsualButton" as const,
         },
       ],

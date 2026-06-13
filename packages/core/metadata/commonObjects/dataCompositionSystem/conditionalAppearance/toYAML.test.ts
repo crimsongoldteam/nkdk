@@ -5,7 +5,6 @@ import {
   fullConditionalAppearance,
   fullConditionalAppearanceYAML,
   minimalConditionalAppearance,
-  minimalConditionalAppearanceYAML,
   minimalUserSettingsConditionalAppearance,
   minimalUserSettingsConditionalAppearanceYAML,
 } from "./__fixtures__/data"

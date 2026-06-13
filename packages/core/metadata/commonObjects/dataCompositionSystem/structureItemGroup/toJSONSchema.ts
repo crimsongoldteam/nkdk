@@ -1,7 +1,15 @@
-import { Type } from "@sinclair/typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
+import { TSchema, Type } from "@sinclair/typebox"
+import { ExportToJSONSchemaFn, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
 import { GroupItemFieldRules } from "./items/groupItemField/rules"
+
+const requiredSchema = (schema: TSchema | undefined, name: string): TSchema => {
+  if (schema === undefined) throw new Error(`${name} JSON schema is not registered`)
+  return schema
+}
+
+const groupItemAutoRule = { type: "GroupItemAuto" } as const satisfies PropertyRule
+const groupItemFieldRule = { type: "GroupItemField" } as const satisfies PropertyRule
 
 export const exportGroupItemAutoToJSONSchema: ExportToJSONSchemaFn = () =>
   Type.Union([Type.Literal("[Авто]"), Type.Literal("([Авто])")])
@@ -51,8 +59,14 @@ export const exportGroupItemFieldToJSONSchema: ExportToJSONSchemaFn = ({ context
 export const exportStructureItemGroupCollectionToJSONSchema: ExportToJSONSchemaFn = ({ context }) =>
   Type.Array(
     Type.Union([
-      exportGroupItemAutoToJSONSchema({ context, rule: { type: "GroupItemAuto" } as never }),
-      exportGroupItemFieldToJSONSchema({ context, rule: { type: "GroupItemField" } as never }),
+      requiredSchema(
+        exportGroupItemAutoToJSONSchema({ context, rule: groupItemAutoRule, value: undefined }),
+        "GroupItemAuto"
+      ),
+      requiredSchema(
+        exportGroupItemFieldToJSONSchema({ context, rule: groupItemFieldRule, value: undefined }),
+        "GroupItemField"
+      ),
     ]),
     { minItems: 1 }
   )

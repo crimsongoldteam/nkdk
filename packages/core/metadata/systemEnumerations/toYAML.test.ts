@@ -36,7 +36,7 @@ describe("exportSystemEnumerationToYAML", () => {
       typeSE: "CompatibilityMode",
     }
 
-    const result = exportSystemEnumerationToYAML(mockContext, rule, "Version8_3_28")
+    const result = exportSystemEnumerationToYAML(mockContext, rule, "UnknownCompatibilityMode")
 
     expect(result).toBeUndefined()
   })

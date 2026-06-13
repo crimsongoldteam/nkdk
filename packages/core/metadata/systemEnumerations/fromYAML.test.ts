@@ -51,7 +51,7 @@ describe("importSystemEnumerationFromYAML", () => {
     const result = importSystemEnumerationFromYAML({
       context: mockContext,
       rule,
-      value: "Version8_3_28",
+      value: "UnknownCompatibilityMode",
     })
 
     expect(result).toBeUndefined()

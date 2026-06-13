@@ -20,7 +20,7 @@ describe("exportSystemEnumerationToJSONSchema", () => {
     const consts = schemaObj.anyOf!.map((s) => s.const).sort()
     const expected = Object.keys(ChildFormItemsGroupFromYAML).sort()
     expect(consts).toEqual(expected)
-    expect(Value.Check(schema, "Version8_3_28")).toBe(false)
+    expect(Value.Check(schema, "UnknownCompatibilityMode")).toBe(false)
   })
 
   it("возвращает литералы для CompatibilityMode", () => {
@@ -38,7 +38,7 @@ describe("exportSystemEnumerationToJSONSchema", () => {
     if (schema === undefined) throw new Error("schema is undefined")
 
     expect(Value.Check(schema, "Версия8_3_27")).toBe(true)
-    expect(Value.Check(schema, "Version8_3_28")).toBe(false)
+    expect(Value.Check(schema, "UnknownCompatibilityMode")).toBe(false)
     expect(Value.Check(schema, "")).toBe(false)
   })
 })

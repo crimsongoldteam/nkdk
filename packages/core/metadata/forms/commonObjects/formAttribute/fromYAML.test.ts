@@ -15,7 +15,6 @@ import {
   shortFormAttributeYAML,
   tableWithColumnsFormAttribute,
   tableWithColumnsFormAttributeYAML,
-  treeWithColumnFormAttribute,
   treeWithColumnFormAttributeYAML,
   withAdditionalColumnFormAttribute,
   withAdditionalColumnFormAttributeYAML,
@@ -127,9 +126,15 @@ describe("importFormAttributesFromYAML", () => {
   })
 
   it("rejects scalar form attribute YAML in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(
-      exportFormAttributesToJSONSchema({ context: mockContext, rule: { type: "FormAttributes" } })
-    )
+    const formAttributesSchema = exportFormAttributesToJSONSchema({
+      context: mockContext,
+      rule: { type: "FormAttributes" },
+      value: undefined,
+    })
+    expect(formAttributesSchema).toBeDefined()
+    if (formAttributesSchema === undefined) throw new Error("FormAttributes JSON schema is not registered")
+
+    const schema = TypeCompiler.Compile(formAttributesSchema)
 
     expect(schema.Check({ Организация: "Справочник.Организации" })).toBe(false)
     expect(schema.Check({ Организация: { Тип: "Справочник.Организации" } })).toBe(true)

@@ -3,8 +3,6 @@ import { ElementRule } from "../../orchestration/formElement/types"
 import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
 
-const reportFormYAMLKeys = ["РезультатОтчета", "ДанныеРасшифровки", "ТипФормыОтчета", "ПредставлениеВарианта"]
-
 export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
   properties: {

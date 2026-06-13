@@ -1,11 +1,14 @@
-import { execFileSync } from "child_process"
+import { execFile } from "node:child_process"
+import { promisify } from "node:util"
 import { describe, expect, it } from "vitest"
 import { i8nTextFixtures } from "~/metadata/commonObjects/i8nText/__fixtures__/legacy/data"
 import { mockContext } from "~/tests/mockContext"
 import { exportI8nTextToEnterprise } from "./toEnterprise"
 
+const execFileAsync = promisify(execFile)
+
 describe("exportI8nTextToEnterprise", () => {
-  it("registers I8nText property type for enterprise-only imports", () => {
+  it("registers I8nText property type for enterprise-only imports", async () => {
     const script = `
       import "~/metadata/commonObjects/i8nText/toEnterprise"
       import { getRegisteredPropertyRuleTypes } from "~/metadata/orchestration/property/propertyTypeKeys"
@@ -15,7 +18,7 @@ describe("exportI8nTextToEnterprise", () => {
       }
     `
 
-    expect(() => execFileSync("node", ["--import", "tsx", "-e", script], { cwd: process.cwd() })).not.toThrow()
+    await execFileAsync(process.execPath, ["--import", "tsx", "-e", script], { cwd: process.cwd() })
   })
 
   it.each(i8nTextFixtures)("should export for enterprise: $name", (fixture) => {

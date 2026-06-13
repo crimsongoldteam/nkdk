@@ -1,11 +1,14 @@
 import fs from "fs"
-import { execFileSync } from "node:child_process"
+import { execFile } from "node:child_process"
 import os from "os"
 import { join } from "path"
+import { promisify } from "util"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { getXMLFixtureDir, readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { convertFormFromXML, readFormFromXML } from "./convertFromXML"
+
+const execFileAsync = promisify(execFile)
 
 describe("import from XML string", () => {
   const inputDir = getXMLFixtureDir(import.meta.url, "sync/xml/Forms")
@@ -410,9 +413,10 @@ describe("import from XML string", () => {
       }
     `
 
-    expect(() =>
-      execFileSync("node", ["--import", "tsx", "-e", script], { cwd: process.cwd(), encoding: "utf-8" })
-    ).not.toThrow()
+    await execFileAsync(process.execPath, ["--import", "tsx", "-e", script], {
+      cwd: process.cwd(),
+      encoding: "utf-8",
+    })
   }, 30000)
 
   it("public core entrypoint exports form common objects through YAML rules", async () => {
@@ -532,9 +536,10 @@ describe("import from XML string", () => {
       }
     `
 
-    expect(() =>
-      execFileSync("node", ["--import", "tsx", "-e", script], { cwd: process.cwd(), encoding: "utf-8" })
-    ).not.toThrow()
+    await execFileAsync(process.execPath, ["--import", "tsx", "-e", script], {
+      cwd: process.cwd(),
+      encoding: "utf-8",
+    })
   }, 30000)
 })
 

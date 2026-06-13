@@ -328,35 +328,7 @@ export const catalogFullClientApplicationForm: ClientApplicationForm = {
   },
 }
 
-export const fullClientApplicationFormYAML: Omit<
-  Required<ClientApplicationFormYAML>,
-  | "УсловноеОформлениеРеквизитов"
-  | "СоставКоманднойПанелиНаМобильномУстройстве"
-  | "ХранилищеНастроек"
-  | "ВариантМасштаба"
-  | "ГруппаПользовательскихНастроек"
-  | "АвтоВремя"
-  | "РежимПроведения"
-  | "ПерепроводитьПриЗаписи"
-  | "autoTime"
-  | "usePostingMode"
-  | "repostOnWrite"
-  | "РасширенноеПредставление"
-  | "reportResult"
-  | "detailsData"
-  | "reportFormType"
-  | "variantAppearance"
-  | "autoShowState"
-  | "reportResultViewMode"
-  | "viewModeApplicationOnSetReportResult"
-  | "РезультатОтчета"
-  | "ДанныеРасшифровки"
-  | "ТипФормыОтчета"
-  | "ПредставлениеВарианта"
-  | "АвтоОтображениеСостояния"
-  | "РежимОтображенияРезультатаОтчета"
-  | "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета"
-> = {
+export const fullClientApplicationFormYAML: ClientApplicationFormYAML = {
   Синоним: "Синоним формы",
   Комментарий: "Комментарий к форме",
   ВключатьСправкуВСодержание: "Истина",
@@ -479,35 +451,7 @@ export const fullClientApplicationFormYAML: Omit<
   },
   РежимВыбора: "БыстрыйВыбор",
   // #endregion
-} satisfies Omit<
-  Required<ClientApplicationFormYAML>,
-  | "УсловноеОформлениеРеквизитов"
-  | "СоставКоманднойПанелиНаМобильномУстройстве"
-  | "ХранилищеНастроек"
-  | "ВариантМасштаба"
-  | "ГруппаПользовательскихНастроек"
-  | "АвтоВремя"
-  | "РежимПроведения"
-  | "ПерепроводитьПриЗаписи"
-  | "autoTime"
-  | "usePostingMode"
-  | "repostOnWrite"
-  | "РасширенноеПредставление"
-  | "reportResult"
-  | "detailsData"
-  | "reportFormType"
-  | "variantAppearance"
-  | "autoShowState"
-  | "reportResultViewMode"
-  | "viewModeApplicationOnSetReportResult"
-  | "РезультатОтчета"
-  | "ДанныеРасшифровки"
-  | "ТипФормыОтчета"
-  | "ПредставлениеВарианта"
-  | "АвтоОтображениеСостояния"
-  | "РежимОтображенияРезультатаОтчета"
-  | "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета"
->
+} satisfies ClientApplicationFormYAML
 
 export const catalogFullClientApplicationFormYAML: ClientApplicationFormYAML = {
   НазначенияИспользования: "ПлатформаИМобильноеПриложение",
