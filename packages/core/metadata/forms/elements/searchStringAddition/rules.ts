@@ -87,6 +87,8 @@ export const SearchStringAdditionRules = {
       yaml: "Источник",
       type: "TableAdditionalSource",
       additionalSourceType: "SearchStringRepresentation",
+      toYAML: false,
+      fromYAML: false,
     },
     ...commonProperties,
   },

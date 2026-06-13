@@ -17,7 +17,6 @@ export type SearchControlAddition = FormTypeByRule<typeof SearchControlAdditionR
 export type SingleSearchControlAddition = FormTypeByRule<typeof SingleSearchControlAdditionRules>
 
 export interface SearchControlAdditionYAML {
-  Источник?: string
   АвтоМаксимальнаяШирина?: StringboolYAML
   МаксимальнаяШирина?: number
   РастягиватьПоГоризонтали?: StringboolYAML
@@ -40,7 +39,7 @@ export interface SearchControlAdditionYAML {
   Элементы?: FormElementTreeYAML
 }
 
-export interface SingleSearchControlAdditionYAML extends Omit<SearchControlAdditionYAML, "Источник"> {}
+export interface SingleSearchControlAdditionYAML extends SearchControlAdditionYAML {}
 
 export type SearchControlAdditionEnterprise = EnterpriseType<typeof SearchControlAdditionRules>
 

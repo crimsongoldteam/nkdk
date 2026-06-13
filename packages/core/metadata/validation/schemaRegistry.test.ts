@@ -217,6 +217,56 @@ describe("JSON Schema registry", () => {
     )
   })
 
+  it("rejects source in command bar search string additions", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Элементы: {
+        Таблица: {
+          Вид: "ТаблицаФормы",
+          КоманднаяПанель: {
+            Элементы: {
+              СтрокаПоиска: {
+                Вид: "ОтображениеСтрокиПоиска",
+                Источник: "Таблица",
+              },
+            },
+          },
+        },
+      },
+    }
+
+    expect(compiled.Check(value)).toBe(false)
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toContain(
+      "/Элементы/Таблица: Expected union value"
+    )
+  })
+
+  it("rejects source in command bar search control additions", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+    const value = {
+      Элементы: {
+        Таблица: {
+          Вид: "ТаблицаФормы",
+          КоманднаяПанель: {
+            Элементы: {
+              УправлениеПоиском: {
+                Вид: "УправлениеПоиском",
+                Источник: "Таблица",
+              },
+            },
+          },
+        },
+      },
+    }
+
+    expect(compiled.Check(value)).toBe(false)
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toContain(
+      "/Элементы/Таблица: Expected union value"
+    )
+  })
+
   it("accepts command names in command bar button schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "CommandBarButton", mode: "inline" })
     const compiled = TypeCompiler.Compile(schema)
