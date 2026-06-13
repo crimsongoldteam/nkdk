@@ -18,7 +18,10 @@ export const FormattedI8nTextJSONSchema = Type.Object(
 
 export type FormattedI8nTextValueYAML = Static<typeof FormattedI8nTextJSONSchema>
 
-/** Temporary legacy runtime type; switch to `FormattedI8nTextValueYAML` during YAML migration. */
+/**
+ * Temporary legacy YAML type for `PropertyToYAML` and typed form fixtures.
+ * Keep it until Task 3 import migration and Task 5 form YAML migration are done.
+ */
 export type FormattedI8nTextYAML = I8nTextYAML
 
 export interface FormattedI8nTextXML extends I8nTextXML {
