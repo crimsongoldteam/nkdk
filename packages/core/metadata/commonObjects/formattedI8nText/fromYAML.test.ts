@@ -11,28 +11,53 @@ const formattedI8nTextRule: FormattedI8nTextPropertyRule = {
 } as unknown as FormattedI8nTextPropertyRule
 
 describe("importFormattedI8nTextFromYAML", () => {
-  describe("importFormattedI8nTextFromYAML", () => {
+  describe("value-based YAML", () => {
     it.each(formattedI8nTextFixtures)("should import: %s", (fixture) => {
       const result = importFormattedI8nTextFromYAML({
         context: mockContext,
         rule: formattedI8nTextRule,
-        value: fixture.textYAML,
-        yaml: fixture.formattedTextYAML ? { FormattedTitle: fixture.formattedTextYAML } : undefined,
+        value: fixture.valueYAML,
       })
       expect(result).toEqual(fixture.text)
     })
   })
 
-  describe("importFormattedI8nTextCombinedFromYAML", () => {
+  describe("merge with source", () => {
     it.each(formattedI8nTextFixtures)("should import: %s", (fixture) => {
       const result = importFormattedI8nTextFromYAML({
         context: mockContext,
         rule: formattedI8nTextRule,
-        value: fixture.textYAML,
-        yaml: fixture.formattedTextYAML ? { FormattedTitle: fixture.formattedTextYAML } : undefined,
+        value: fixture.valueYAML,
         source: fixture.textFromStructure,
       })
       expect(result).toEqual(fixture.text)
+    })
+
+    it("should keep source default language and take formatted from YAML value", () => {
+      const result = importFormattedI8nTextFromYAML({
+        context: mockContext,
+        rule: formattedI8nTextRule,
+        value: { Форматированный: "Истина", Текст: { en: "Field" } },
+        source: { items: { ru: "Поле" } },
+      })
+
+      expect(result).toEqual({
+        formatted: true,
+        items: { ru: "Поле", en: "Field" },
+      })
+    })
+  })
+
+  describe("legacy sibling-key", () => {
+    it("should ignore FormattedTitle without value", () => {
+      const result = importFormattedI8nTextFromYAML({
+        context: mockContext,
+        rule: formattedI8nTextRule,
+        value: undefined,
+        yaml: { FormattedTitle: "Поле" },
+      })
+
+      expect(result).toBeUndefined()
     })
   })
 })
