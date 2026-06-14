@@ -45,6 +45,4 @@ export const exportFormattedI8nTextDefaultToYAML = (
   return exportI8nTextDefaultToYAML(context, title)
 }
 
-// Temporary mismatch: export already writes value-based YAML, but PropertyToYAML
-// remains legacy until typed YAML import/forms are migrated in later tasks.
-registerTypeRule("FormattedI8nText", "exportToYAML", exportFormattedI8nTextToYAML as any)
+registerTypeRule("FormattedI8nText", "exportToYAML", exportFormattedI8nTextToYAML)

@@ -7,8 +7,7 @@ import { FormattedI8nTextPropertyRule } from "./types"
 const formattedI8nTextRule: FormattedI8nTextPropertyRule = {
   type: "FormattedI8nText",
   yaml: "Title",
-  yamlFormatted: "FormattedTitle",
-} as unknown as FormattedI8nTextPropertyRule
+}
 
 describe("importFormattedI8nTextFromYAML", () => {
   describe("value-based YAML", () => {
@@ -44,33 +43,6 @@ describe("importFormattedI8nTextFromYAML", () => {
       expect(result).toEqual({
         formatted: true,
         items: { ru: "Поле", en: "Field" },
-      })
-    })
-  })
-
-  describe("legacy sibling-key", () => {
-    it("should ignore FormattedTitle without value", () => {
-      const result = importFormattedI8nTextFromYAML({
-        context: mockContext,
-        rule: formattedI8nTextRule,
-        value: undefined,
-        yaml: { FormattedTitle: "Поле" },
-      })
-
-      expect(result).toBeUndefined()
-    })
-
-    it("should ignore FormattedTitle when value-based YAML is present", () => {
-      const result = importFormattedI8nTextFromYAML({
-        context: mockContext,
-        rule: formattedI8nTextRule,
-        value: { Текст: "Поле" },
-        yaml: { FormattedTitle: "<b>Поле</>" },
-      })
-
-      expect(result).toEqual({
-        formatted: false,
-        items: { ru: "Поле" },
       })
     })
   })

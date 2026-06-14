@@ -1,20 +1,19 @@
 import {
   FormattedI8nText,
   FormattedI8nTextValueYAML,
-  FormattedI8nTextYAML,
 } from "~/metadata/commonObjects/formattedI8nText/types"
-import { I8nText } from "~/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 
 export interface FormattedI8nTextFixture {
   name: string
   text: FormattedI8nText | undefined
   textFromStructure?: I8nText | undefined
   valueYAML?: FormattedI8nTextValueYAML | undefined
-  textYAML?: FormattedI8nTextYAML | undefined
-  formattedTextYAML?: FormattedI8nTextYAML | undefined
+  textYAML?: I8nTextYAML | undefined
+  formattedTextYAML?: I8nTextYAML | undefined
   defaultLanguageYAML?: string | undefined
-  otherLanguagesTextYAML?: FormattedI8nTextYAML | undefined
-  otherLanguagesFormattedTextYAML?: FormattedI8nTextYAML | undefined
+  otherLanguagesTextYAML?: I8nTextYAML | undefined
+  otherLanguagesFormattedTextYAML?: I8nTextYAML | undefined
   xml?: string
 }
 

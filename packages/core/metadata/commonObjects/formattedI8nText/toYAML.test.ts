@@ -7,7 +7,6 @@ import { FormattedI8nTextPropertyRule } from "./types"
 const formattedI8nTextRule: FormattedI8nTextPropertyRule = {
   type: "FormattedI8nText",
   yaml: "Title",
-  yamlFormatted: "FormattedTitle",
 }
 
 describe("exportFormattedI8nTextToYAML", () => {
