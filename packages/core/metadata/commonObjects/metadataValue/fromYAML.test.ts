@@ -34,6 +34,53 @@ describe("importMetadataValueFromYAML", () => {
     expect(result).toEqual({ type: "AccountType", value: "ActivePassive" })
   })
 
+  it("imports metadata target value references from YAML", () => {
+    expect(
+      importMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        "Справочник.СтавкиНДС.ПустаяСсылка"
+      )
+    ).toEqual({
+      type: "ref",
+      value: "Catalog.СтавкиНДС.EmptyRef",
+    })
+
+    expect(
+      importMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        "Перечисление.ВидыДоговоров.СПоставщиком"
+      )
+    ).toEqual({
+      type: "ref",
+      value: "Enum.ВидыДоговоров.EnumValue.СПоставщиком",
+    })
+  })
+
+  it("rejects legacy model-root value references in YAML", () => {
+    expect(() =>
+      importMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        "Catalog.СтавкиНДС.PredefinedData.БезНДС"
+      )
+    ).toThrow('Неизвестный корень "Catalog"')
+  })
+
+  it("keeps uuid design-time references as ref values", () => {
+    expect(
+      importMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231"
+      )
+    ).toEqual({
+      type: "ref",
+      value: "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231",
+    })
+  })
+
   describe("строгая валидация valueType", () => {
     it("должен бросить при valueType: [string] и фактическом boolean (Истина)", () => {
       expect(() =>
