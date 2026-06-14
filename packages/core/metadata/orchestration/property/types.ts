@@ -9,6 +9,7 @@ import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
 import type { ChildSubsystemNamesPropertyRule } from "~/metadata/commonObjects/childSubsystemNames/types"
 import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import type { MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
 import type { TypeDescriptionAllowedTypes } from "~/metadata/commonObjects/typeDescription/types"
 import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
@@ -166,6 +167,12 @@ export interface BasePropertyRule {
 
   /** Описание допустимых целей ссылки (используется для валидации и автодополнения). */
   referenceScope?: ReferenceScope
+
+  /**
+   * Описание допустимой цели metadata-значения. Используется schema и validate.
+   * `referenceScope` считается устаревшим и новые правила не должны его расширять.
+   */
+  metadataTarget?: MetadataTargetConstraint
 
   /** Множество допустимых значений из Cypher-запроса к FalkorDB. Используется для валидации и автодополнения. */
   allowedValues?: CypherSet
