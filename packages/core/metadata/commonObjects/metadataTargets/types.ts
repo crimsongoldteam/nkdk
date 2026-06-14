@@ -52,7 +52,9 @@ export type MetadataTargetConstraint =
 export type ParsedMetadataTarget =
   | { kind: "object"; root: MetadataRootName; objectName: string }
   | { kind: "field"; root: MetadataRootName; objectName: string; segments: MetadataFieldSegment[] }
-  | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: MetadataValueKind; valueName?: string }
+  | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "predefinedValue"; valueName: string }
+  | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "enumValue"; valueName: string }
+  | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "emptyRef" }
   | { kind: "styleItem"; name: string }
   | { kind: "commonPicture"; name: string }
 

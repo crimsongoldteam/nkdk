@@ -192,7 +192,7 @@ function parseYAMLValueTarget(
   constraint: Extract<MetadataTargetConstraint, { kind: "value" }>
 ): MetadataTargetParseResult {
   if (tail.length !== 1) {
-    return tail.length > 1 ? unknownSegment(tail[0]) : invalidShape()
+    return tail.length > 1 ? unknownSegment(tail[1]) : invalidShape()
   }
 
   const valueToken = tail[0]
@@ -227,8 +227,12 @@ function parseModelValueTarget(
   }
 
   if (root === "Enum") {
-    if (tail.length !== 2 || tail[0] !== enumValueModel) {
+    if (tail[0] !== enumValueModel) {
       return tail.length > 0 ? unknownSegment(tail[0]) : invalidShape()
+    }
+
+    if (tail.length !== 2) {
+      return tail.length > 2 ? unknownSegment(tail[2]) : invalidShape()
     }
 
     const valueName = tail[1]
@@ -250,7 +254,11 @@ function parseModelValueTarget(
   }
 
   if (tail.length !== 1) {
-    return tail.length > 0 ? unknownSegment(tail[0]) : invalidShape()
+    if (tail.length === 0) {
+      return invalidShape()
+    }
+
+    return unknownSegment(tail[0] === "PredefinedData" ? tail[0] : tail[1])
   }
 
   const valueName = tail[0]

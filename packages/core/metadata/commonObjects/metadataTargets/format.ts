@@ -42,5 +42,5 @@ function formatValueTargetToYAML(target: Extract<ParsedMetadataTarget, { kind: "
     return `${rootToYAML[target.root]}.${target.objectName}.${emptyRefYAML}`
   }
 
-  return `${rootToYAML[target.root]}.${target.objectName}.${target.valueName ?? ""}`
+  return `${rootToYAML[target.root]}.${target.objectName}.${target.valueName}`
 }

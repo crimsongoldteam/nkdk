@@ -25,7 +25,7 @@ export const rootToYAML = {
 
 export const rootFromYAML = Object.fromEntries(
   Object.entries(rootToYAML).map(([model, yaml]) => [yaml, model])
-) as Record<string, MetadataRootName>
+) as Partial<Record<string, MetadataRootName>>
 
 export const fieldKindToYAML = {
   Attribute: "Реквизит",
@@ -37,7 +37,7 @@ export const fieldKindToYAML = {
 
 export const fieldKindFromYAML = Object.fromEntries(
   Object.entries(fieldKindToYAML).map(([model, yaml]) => [yaml, model])
-) as Record<string, MetadataFieldKind>
+) as Partial<Record<string, MetadataFieldKind>>
 
 export function isMetadataRootName(value: string): value is MetadataRootName {
   return Object.prototype.hasOwnProperty.call(rootToYAML, value)

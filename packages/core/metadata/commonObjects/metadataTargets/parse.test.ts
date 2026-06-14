@@ -115,6 +115,154 @@ describe("metadataTargets parser", () => {
     ).toBe("Перечисление.ВидыДоговоров.СПоставщиком")
   })
 
+  it("parses canonical model strings", () => {
+    expect(
+      parseMetadataTargetFromModel({
+        canonical: "Catalog.Контрагенты",
+        constraint: { kind: "object", roots: ["Catalog"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "Catalog.Контрагенты",
+      target: { kind: "object", root: "Catalog", objectName: "Контрагенты" },
+    })
+
+    expect(
+      parseMetadataTargetFromModel({
+        canonical: "Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество",
+        constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество",
+      target: {
+        kind: "field",
+        root: "Catalog",
+        objectName: "Номенклатура",
+        segments: [
+          { kind: "TabularSection", name: "Товары" },
+          { kind: "Attribute", name: "Количество" },
+        ],
+      },
+    })
+
+    expect(
+      parseMetadataTargetFromModel({
+        canonical: "Catalog.СтавкиНДС.БезНДС",
+        constraint: { kind: "value", roots: ["Catalog"], valueKinds: ["predefinedValue"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "Catalog.СтавкиНДС.БезНДС",
+      target: {
+        kind: "value",
+        root: "Catalog",
+        objectName: "СтавкиНДС",
+        valueKind: "predefinedValue",
+        valueName: "БезНДС",
+      },
+    })
+
+    expect(
+      parseMetadataTargetFromModel({
+        canonical: "Enum.ВидыДоговоров.EnumValue.СПоставщиком",
+        constraint: { kind: "value", roots: ["Enum"], valueKinds: ["enumValue"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "Enum.ВидыДоговоров.EnumValue.СПоставщиком",
+      target: {
+        kind: "value",
+        root: "Enum",
+        objectName: "ВидыДоговоров",
+        valueKind: "enumValue",
+        valueName: "СПоставщиком",
+      },
+    })
+
+    expect(
+      parseMetadataTargetFromModel({
+        canonical: "Catalog.СтавкиНДС.EmptyRef",
+        constraint: { kind: "value", roots: ["Catalog"], valueKinds: ["emptyRef"], allowEmptyRef: true },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "Catalog.СтавкиНДС.EmptyRef",
+      target: { kind: "value", root: "Catalog", objectName: "СтавкиНДС", valueKind: "emptyRef" },
+    })
+  })
+
+  it("formats EmptyRef model strings back to Russian YAML", () => {
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "Catalog.СтавкиНДС.EmptyRef",
+        constraint: { kind: "value", roots: ["Catalog"], valueKinds: ["emptyRef"], allowEmptyRef: true },
+      })
+    ).toBe("Справочник.СтавкиНДС.ПустаяСсылка")
+  })
+
+  it("parses and formats style items", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ЭлементСтиля.ОсновнойЦвет",
+        constraint: { kind: "styleItem", styleItemTypes: ["Color"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "StyleItem.ОсновнойЦвет",
+      target: { kind: "styleItem", name: "ОсновнойЦвет" },
+    })
+
+    expect(
+      parseMetadataTargetFromModel({
+        canonical: "StyleItem.ОсновнойЦвет",
+        constraint: { kind: "styleItem", styleItemTypes: ["Color"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "StyleItem.ОсновнойЦвет",
+      target: { kind: "styleItem", name: "ОсновнойЦвет" },
+    })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "StyleItem.ОсновнойЦвет",
+        constraint: { kind: "styleItem", styleItemTypes: ["Color"] },
+      })
+    ).toBe("ЭлементСтиля.ОсновнойЦвет")
+  })
+
+  it("parses and formats common pictures", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ОбщаяКартинка.Логотип",
+        constraint: { kind: "commonPicture" },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "CommonPicture.Логотип",
+      target: { kind: "commonPicture", name: "Логотип" },
+    })
+
+    expect(
+      parseMetadataTargetFromModel({
+        canonical: "CommonPicture.Логотип",
+        constraint: { kind: "commonPicture" },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "CommonPicture.Логотип",
+      target: { kind: "commonPicture", name: "Логотип" },
+    })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "CommonPicture.Логотип",
+        constraint: { kind: "commonPicture" },
+      })
+    ).toBe("ОбщаяКартинка.Логотип")
+  })
+
   it("rejects English roots in YAML as unknown roots", () => {
     expect(
       parseMetadataTargetFromYAML({
@@ -142,5 +290,29 @@ describe("metadataTargets parser", () => {
         constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
       })
     ).toMatchObject({ ok: false, code: "unknown-segment" })
+  })
+
+  it("reports extra value path segments instead of valid earlier value segments", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Справочник.СтавкиНДС.БезНДС.Лишнее",
+        constraint: { kind: "value", roots: ["Catalog"], valueKinds: ["predefinedValue"] },
+      })
+    ).toEqual({
+      ok: false,
+      code: "unknown-segment",
+      message: 'Неизвестный сегмент "Лишнее"',
+    })
+
+    expect(
+      parseMetadataTargetFromModel({
+        canonical: "Enum.ВидыДоговоров.EnumValue.СПоставщиком.Extra",
+        constraint: { kind: "value", roots: ["Enum"], valueKinds: ["enumValue"] },
+      })
+    ).toEqual({
+      ok: false,
+      code: "unknown-segment",
+      message: 'Неизвестный сегмент "Extra"',
+    })
   })
 })
