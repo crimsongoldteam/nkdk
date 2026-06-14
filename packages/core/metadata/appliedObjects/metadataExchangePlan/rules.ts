@@ -148,6 +148,7 @@ export const MetadataExchangePlanRules = {
     inputByString: {
       yaml: "ВводПоСтроке",
       type: "MetadataFields",
+      metadataTarget: { kind: "field", owner: "this", fieldKinds: ["Attribute", "StandardAttribute"], filters: ["stringIndexedAttribute"] },
       xmlParents: properties,
     },
     searchStringModeOnInputByString: {
@@ -178,42 +179,42 @@ export const MetadataExchangePlanRules = {
       yaml: "ОсновнаяФормаОбъекта",
       type: "string",
       xmlParents: properties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     defaultListForm: {
       yaml: "ОсновнаяФормаСписка",
       type: "string",
       xmlParents: properties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     defaultChoiceForm: {
       yaml: "ОсновнаяФормаВыбора",
       type: "string",
       xmlParents: properties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     auxiliaryObjectForm: {
       yaml: "ДополнительнаяФормаОбъекта",
       type: "string",
       xmlParents: properties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     auxiliaryListForm: {
       yaml: "ДополнительнаяФормаСписка",
       type: "string",
       xmlParents: properties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     auxiliaryChoiceForm: {
       yaml: "ДополнительнаяФормаВыбора",
       type: "string",
       xmlParents: properties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     standardAttributes: {
@@ -233,6 +234,7 @@ export const MetadataExchangePlanRules = {
     basedOn: {
       yaml: "ОснованНа",
       type: "MetadataItemLinks",
+      metadataTarget: { kind: "object" },
       xmlParents: properties,
       defaultValue: emptyCollection,
       defaultValueXMLEmpty: emptyCollection,
@@ -278,6 +280,7 @@ export const MetadataExchangePlanRules = {
     dataLockFields: {
       yaml: "ПоляБлокировкиДанных",
       type: "MetadataFields",
+      metadataTarget: { kind: "field", owner: "this" },
       xmlParents: properties,
       defaultValue: emptyCollection,
       defaultValueXMLEmpty: emptyCollection,

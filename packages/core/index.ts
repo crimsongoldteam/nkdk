@@ -54,10 +54,6 @@ export { importFromYAML } from "./yaml/import"
 export { parseMetadataYaml } from "./yaml/parseMetadataYaml"
 export type { ParsedYaml } from "./yaml/parseMetadataYaml"
 export { importMetadataEnumerationFromYAML } from "./metadata/appliedObjects/metadataEnumeration/fromYAML"
-export { getCatalogPropertyReferenceScope } from "./metadata/appliedObjects/metadataCatalog/rules"
-export { getDocumentPropertyReferenceScope } from "./metadata/appliedObjects/metadataDocument/rules"
-export { getEnumerationPropertyReferenceScope } from "./metadata/appliedObjects/metadataEnumeration/rules"
-export type { ReferenceScope } from "./metadata/orchestration/property/types"
 export {
   importMetadataFileWithGraph,
   type ImportMetadataFileResult,

@@ -14,7 +14,7 @@ export const UsualGroupRules = {
       xml: "_name",
       required: true,
     },
-    backColor: { yaml: "ЦветФона", type: "Color" },
+    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
     behavior: {
       yaml: "Поведение",
       type: "SystemEnumeration",
@@ -77,7 +77,7 @@ export const UsualGroupRules = {
     },
     hiddenRepresentationTitleBackColor: {
       yaml: "ЦветФонаЗаголовкаСкрытогоОтображения",
-      type: "Color",
+      type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] },
       xml: "HiddenStateTitleBackColor",
     },
     horizontalSpacing: {

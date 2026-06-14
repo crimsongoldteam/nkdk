@@ -276,8 +276,8 @@ describe("buildGraph (рёбра и стабы)", () => {
   })
 })
 
-describe("buildGraph (TypeDescription graph hint coverage)", () => {
-  it("creates graph nodes for defined types used by x-nkdk-graph hints", async () => {
+describe("buildGraph (TypeDescription node coverage)", () => {
+  it("creates graph nodes for defined types used by type descriptions", async () => {
     const result = await buildGraph(
       new Map([
         ["ОпределяемыйТип/ДенежнаяСумма/Свойства.yaml", "Синоним: Денежная сумма\n"],

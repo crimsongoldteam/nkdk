@@ -210,12 +210,17 @@ function parseFieldTarget(
   for (let index = 0; index < tail.length; index += 2) {
     const kindToken = tail[index]
     const segmentKind = source === "yaml" ? parseFieldKindFromYAML(kindToken) : parseFieldKindFromModel(kindToken)
+    const isTerminalSegment = index + 2 >= tail.length
 
     if (!segmentKind) {
       return unknownSegment(kindToken)
     }
 
-    if (allowedFieldKinds && !allowedFieldKinds.includes(segmentKind)) {
+    if (!isTerminalSegment && segmentKind !== "TabularSection") {
+      return disallowedKind(segmentKind)
+    }
+
+    if (isTerminalSegment && allowedFieldKinds && !allowedFieldKinds.includes(segmentKind)) {
       return disallowedKind(segmentKind)
     }
 

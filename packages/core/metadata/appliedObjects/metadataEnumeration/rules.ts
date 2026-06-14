@@ -1,5 +1,5 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule, type ReferenceScope } from "~/metadata/orchestration/property/types"
+import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 
 const enumProperties = ["Properties"]
@@ -145,28 +145,28 @@ export const MetadataEnumerationRules = {
       yaml: "ОсновнаяФормаСписка",
       type: "string",
       xmlParents: enumProperties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     defaultChoiceForm: {
       yaml: "ОсновнаяФормаДляВыбора",
       type: "string",
       xmlParents: enumProperties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     auxiliaryListForm: {
       yaml: "ДополнительнаяФормаСписка",
       type: "string",
       xmlParents: enumProperties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     auxiliaryChoiceForm: {
       yaml: "ДополнительнаяФормаДляВыбора",
       type: "string",
       xmlParents: enumProperties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     managerModule: {
@@ -229,17 +229,3 @@ export const MetadataEnumerationRules = {
   graphTerminals: ["ПустаяСсылка"],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
 } as const satisfies MetadataItemRule
-
-/**
- * Возвращает referenceScope для свойства перечисления по его YAML-ключу.
- * Используется VSCode-провайдерами для фильтрации автодополнения.
- */
-export function getEnumerationPropertyReferenceScope(yamlKey: string): ReferenceScope | undefined {
-  for (const rule of Object.values(MetadataEnumerationRules.properties)) {
-    const r = rule as { yaml?: string; referenceScope?: ReferenceScope }
-    if (r.yaml === yamlKey && r.referenceScope != null) {
-      return r.referenceScope
-    }
-  }
-  return undefined
-}

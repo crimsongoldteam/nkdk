@@ -392,11 +392,16 @@ function getExpectedFormNames(params: { rule: MetadataItemRule; model: Record<st
       continue
     }
 
-    if (propRule.referenceScope?.target !== "this" || propRule.referenceScope.kind !== "Form") continue
+    if (!isLocalFormReferenceRule(propRule)) continue
     if (typeof value === "string" && value.length > 0) names.add(getLocalFormName(value))
   }
 
   return Array.from(names)
+}
+
+function isLocalFormReferenceRule(propRule: PropertyRule): boolean {
+  if (propRule.metadataTarget?.kind === "localChild" && propRule.metadataTarget.childKind === "Form") return true
+  return propRule.referenceScope?.target === "this" && propRule.referenceScope.kind === "Form"
 }
 
 function getLocalFormName(value: string): string {

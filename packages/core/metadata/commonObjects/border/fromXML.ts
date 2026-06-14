@@ -24,7 +24,7 @@ export const importBorderFromXML = (
   const result: Border = {}
 
   if (node._ref !== undefined) {
-    result.ref = node._ref
+    result.ref = node._ref.startsWith("style:") ? node._ref.slice("style:".length) : node._ref
   }
   if (node._width !== undefined) {
     result.width = Number(node._width)

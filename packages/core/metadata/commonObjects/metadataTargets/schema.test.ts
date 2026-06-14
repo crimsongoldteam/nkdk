@@ -44,7 +44,7 @@ describe("buildMetadataTargetSchema", () => {
         "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита",
       ],
     })
-    expect(String(schema.description)).toContain("служебные сегменты")
+    expect(String(schema.description)).toContain("конечный сегмент")
   })
 
   it("does not accept field paths when roots are empty", () => {
@@ -64,16 +64,20 @@ describe("buildMetadataTargetSchema", () => {
       kind: "field",
       owner: "explicit",
       roots: ["Catalog"],
-      fieldKinds: ["Attribute"],
+      fieldKinds: ["Attribute", "StandardAttribute"],
     })
 
-    expect(schema.examples).toEqual(["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"])
+    expect(schema.examples).toEqual([
+      "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита",
+      "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита",
+    ])
     expectMatches(schema, "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")
-    expectNotMatches(
+    expectMatches(
       schema,
       "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита"
     )
-    expect(String(schema.description)).not.toContain("ТабличнаяЧасть")
+    expectNotMatches(schema, "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти")
+    expect(String(schema.description)).toContain("ТабличнаяЧасть")
   })
 
   it("describes predefined values and EmptyRef without project names", () => {

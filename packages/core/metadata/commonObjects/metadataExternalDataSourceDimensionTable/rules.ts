@@ -138,7 +138,7 @@ const dimensionTableProperties = {
     xml: "DefaultObjectForm",
     type: "string",
     xmlParents: properties,
-    referenceScope: { target: "this", kind: "Form" },
+    metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
     defaultValueXMLRaw: "",
   },
   defaultListForm: {
@@ -146,7 +146,7 @@ const dimensionTableProperties = {
     xml: "DefaultListForm",
     type: "string",
     xmlParents: properties,
-    referenceScope: { target: "this", kind: "Form" },
+    metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
     defaultValueXMLRaw: "",
   },
   defaultChoiceForm: {
@@ -154,7 +154,7 @@ const dimensionTableProperties = {
     xml: "DefaultChoiceForm",
     type: "string",
     xmlParents: properties,
-    referenceScope: { target: "this", kind: "Form" },
+    metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
     defaultValueXMLRaw: "",
   },
   objectPresentation: {

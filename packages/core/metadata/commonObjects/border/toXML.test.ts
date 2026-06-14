@@ -9,7 +9,7 @@ import { Border, BorderXML } from "./types"
 describe("exportBorderToXML", () => {
   it("should export border by ref", () => {
     const mockBorder: Border = {
-      ref: "style:ControlBorder",
+      ref: "ControlBorder",
     }
 
     const expectedResult = `<Border ref="style:ControlBorder"/>`

@@ -40,6 +40,35 @@ describe("metadataTargets parser", () => {
     })
   })
 
+  it("applies fieldKinds to the terminal field segment", () => {
+    const result = parseMetadataTargetFromYAML({
+      value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество",
+      constraint: {
+        kind: "field",
+        owner: "explicit",
+        roots: ["Catalog"],
+        fieldKinds: ["Attribute", "StandardAttribute"],
+      },
+    })
+
+    expect(result).toMatchObject({
+      ok: true,
+      canonical: "Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество",
+    })
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары",
+        constraint: {
+          kind: "field",
+          owner: "explicit",
+          roots: ["Catalog"],
+          fieldKinds: ["Attribute", "StandardAttribute"],
+        },
+      })
+    ).toMatchObject({ ok: false, code: "disallowed-kind" })
+  })
+
   it("parses predefined values and EmptyRef values", () => {
     expect(
       parseMetadataTargetFromYAML({

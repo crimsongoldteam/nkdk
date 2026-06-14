@@ -36,28 +36,8 @@ const createUnion = (branches: TSchema[], description: string): TSchema => {
   return Type.Union(branches, { description })
 }
 
-const graphQuery = (kind: string): { "x-nkdk-graph": { query: string } } => ({
-  "x-nkdk-graph": {
-    query: `MATCH (n:MetadataObject {kind: '${kind}'}) RETURN n.name ORDER BY n.name`,
-  },
-})
-
-const externalDataSourceTableGraphQuery = (): { "x-nkdk-graph": { query: string } } => ({
-  "x-nkdk-graph": {
-    query:
-      "MATCH (s:MetadataObject {kind: 'MetadataExternalDataSource'})-[:EXTERNAL_DATA_SOURCE_TABLE]->(t:MetadataExternalDataSourceTable) RETURN s.name, t.name ORDER BY s.name, t.name",
-  },
-})
-
-const externalDataSourceCubeDimensionTableGraphQuery = (): { "x-nkdk-graph": { query: string } } => ({
-  "x-nkdk-graph": {
-    query:
-      "MATCH (s:MetadataObject {kind: 'MetadataExternalDataSource'})-[:EXTERNAL_DATA_SOURCE_CUBE]->(c:MetadataExternalDataSourceCube)-[:EXTERNAL_DATA_SOURCE_DIMENSION_TABLE]->(t:MetadataExternalDataSourceDimensionTable) RETURN s.name, c.name, t.name ORDER BY s.name, c.name, t.name",
-  },
-})
-
-const concreteRefBranch = (yamlName: string, kind: string): TypeDescriptionBranch => ({
-  schema: createStringBranch(`^${yamlName}\\.${metadataNamePattern}$`, graphQuery(kind)),
+const concreteRefBranch = (yamlName: string): TypeDescriptionBranch => ({
+  schema: createStringBranch(`^${yamlName}\\.${metadataNamePattern}$`),
 })
 
 const primitiveBranches: Partial<Record<TypeDescriptionAllowedType, BranchFactory>> = {
@@ -112,46 +92,38 @@ const exactObjectBranches: Partial<Record<TypeDescriptionAllowedType, string>> =
 }
 
 const concreteObjectBranches: Partial<Record<TypeDescriptionAllowedType, BranchFactory>> = {
-  "CatalogRef.*": () => [concreteRefBranch("Справочник", "MetadataCatalog")],
-  "DocumentRef.*": () => [concreteRefBranch("Документ", "MetadataDocument")],
-  "EnumRef.*": () => [concreteRefBranch("Перечисление", "MetadataEnumeration")],
-  "ChartOfCharacteristicTypesRef.*": () => [
-    concreteRefBranch("ПланВидовХарактеристик", "MetadataChartOfCharacteristicTypes"),
-  ],
-  "ChartOfAccountsRef.*": () => [concreteRefBranch("ПланСчетов", "MetadataChartOfAccounts")],
-  "ChartOfCalculationTypesRef.*": () => [concreteRefBranch("ПланВидовРасчета", "MetadataChartOfCalculationTypes")],
-  "BusinessProcessRef.*": () => [concreteRefBranch("БизнесПроцесс", "MetadataBusinessProcess")],
-  "BusinessProcessRoutePointRef.*": () => [
-    concreteRefBranch("ТочкаМаршрутаБизнесПроцесса", "MetadataBusinessProcess"),
-  ],
-  "TaskRef.*": () => [concreteRefBranch("Задача", "MetadataTask")],
-  "ExchangePlanRef.*": () => [concreteRefBranch("ПланОбмена", "MetadataExchangePlan")],
+  "CatalogRef.*": () => [concreteRefBranch("Справочник")],
+  "DocumentRef.*": () => [concreteRefBranch("Документ")],
+  "EnumRef.*": () => [concreteRefBranch("Перечисление")],
+  "ChartOfCharacteristicTypesRef.*": () => [concreteRefBranch("ПланВидовХарактеристик")],
+  "ChartOfAccountsRef.*": () => [concreteRefBranch("ПланСчетов")],
+  "ChartOfCalculationTypesRef.*": () => [concreteRefBranch("ПланВидовРасчета")],
+  "BusinessProcessRef.*": () => [concreteRefBranch("БизнесПроцесс")],
+  "BusinessProcessRoutePointRef.*": () => [concreteRefBranch("ТочкаМаршрутаБизнесПроцесса")],
+  "TaskRef.*": () => [concreteRefBranch("Задача")],
+  "ExchangePlanRef.*": () => [concreteRefBranch("ПланОбмена")],
   "DefinedType.*": () => [
     {
-      ...concreteRefBranch("ОпределяемыйТип", "MetadataDefinedType"),
+      ...concreteRefBranch("ОпределяемыйТип"),
       singleOnly: true,
     },
   ],
   "Characteristic.*": () => [
     {
-      ...concreteRefBranch("Характеристика", "MetadataChartOfCharacteristicTypes"),
+      ...concreteRefBranch("Характеристика"),
       singleOnly: true,
     },
   ],
   "ExternalDataSourceTableRef.*": () => [
     {
-      schema: createStringBranch(
-        `^ВнешнийИсточникДанных${metadataNamePattern}\\.Таблица${metadataNamePattern}$`,
-        externalDataSourceTableGraphQuery()
-      ),
+      schema: createStringBranch(`^ВнешнийИсточникДанных${metadataNamePattern}\\.Таблица${metadataNamePattern}$`),
       singleOnly: true,
     },
   ],
   "ExternalDataSourceCubeDimensionTableRef.*": () => [
     {
       schema: createStringBranch(
-        `^ВнешнийИсточникДанных${metadataNamePattern}\\.Куб${metadataNamePattern}\\.ТаблицаИзмерения${metadataNamePattern}$`,
-        externalDataSourceCubeDimensionTableGraphQuery()
+        `^ВнешнийИсточникДанных${metadataNamePattern}\\.Куб${metadataNamePattern}\\.ТаблицаИзмерения${metadataNamePattern}$`
       ),
       singleOnly: true,
     },

@@ -11,8 +11,8 @@ export const PictureFieldRules = {
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-    border: { yaml: "Рамка", type: "Border" },
-    borderColor: { yaml: "ЦветРамки", type: "Color" },
+    border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "styleItem", styleItemTypes: ["Border"] } },
+    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
     enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
     enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
     fileDragMode: {
@@ -33,12 +33,12 @@ export const PictureFieldRules = {
       implicitValueYAML: "RealSize",
     },
     scale: { yaml: "Масштаб", type: "number", xml: "ImageScale" },
-    textColor: { yaml: "ЦветТекста", type: "Color" },
-    valuesPicture: { yaml: "КартинкаЗначений", type: "Picture" },
+    textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+    valuesPicture: { yaml: "КартинкаЗначений", type: "Picture", metadataTarget: { kind: "commonPicture" } },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     zoomable: { yaml: "Масштабировать", type: "boolean" },
-    font: { yaml: "Шрифт", type: "Font" },
+    font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "styleItem", styleItemTypes: ["Font"] } },
     events: {
       type: "Events",
       yaml: "События",

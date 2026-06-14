@@ -72,7 +72,8 @@ export const importColorFromYAML = (
 }
 
 function parseProjectStyleRefFromYAML(value: string): string | undefined {
-  if (!value.startsWith("ЭлементСтиля.") && !isRawPrefixedColorRef(value)) return undefined
+  if (isRawPrefixedColorRef(value)) throw new Error(`Неизвестный корень "${value}"`)
+  if (!value.startsWith("ЭлементСтиля.")) return undefined
 
   const parsed = parseMetadataTargetFromYAML({
     value,

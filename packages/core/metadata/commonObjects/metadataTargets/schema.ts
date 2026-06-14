@@ -136,26 +136,27 @@ function objectSchema(constraint: Extract<MetadataTargetConstraint, { kind: "obj
 
 function fieldSchema(constraint: Extract<MetadataTargetConstraint, { kind: "field" }>): TSchema {
   const selectedRoots = selectRoots(constraint.roots)
-  const selectedFieldKinds = constraint.fieldKinds ?? allFieldKinds
+  const terminalFieldKinds = constraint.fieldKinds ?? allFieldKinds
   const yamlRoots = yamlRootGroup(constraint.roots)
-  const serviceSegments = selectedFieldKinds.map((kind) => fieldKindToYAML[kind]).join("|")
-  const serviceSegmentDescription = selectedFieldKinds.map((kind) => fieldKindToYAML[kind]).join(", ")
+  const terminalSegments = terminalFieldKinds.map((kind) => fieldKindToYAML[kind]).join("|")
+  const terminalSegmentDescription = terminalFieldKinds.map((kind) => fieldKindToYAML[kind]).join(", ")
+  const tabularSectionSegment = fieldKindToYAML.TabularSection
   const branches: string[] = []
   if (constraint.allowObject === true && selectedRoots.length > 0) {
     branches.push(`(${yamlRoots})\\.${METADATA_NAME_PATTERN}`)
   }
-  if (selectedRoots.length > 0 && serviceSegments.length > 0) {
+  if (selectedRoots.length > 0 && terminalSegments.length > 0) {
     branches.push(
-      `(${yamlRoots})\\.${METADATA_NAME_PATTERN}\\.(?:${serviceSegments})\\.${METADATA_NAME_PATTERN}(?:\\.(?:${serviceSegments})\\.${METADATA_NAME_PATTERN})*`
+      `(${yamlRoots})\\.${METADATA_NAME_PATTERN}(?:\\.${tabularSectionSegment}\\.${METADATA_NAME_PATTERN})*\\.(?:${terminalSegments})\\.${METADATA_NAME_PATTERN}`
     )
   }
   return Type.String({
     pattern: branches.length === 0 ? noMatchPattern : `^(?:${branches.join("|")})$`,
     examples: fieldExamples(constraint),
     description:
-      serviceSegmentDescription.length === 0
-        ? "Полный путь поля метаданных. Ограничение не разрешает служебные сегменты; подробная проверка выполняется validate."
-        : `Полный путь поля метаданных: служебные сегменты ${serviceSegmentDescription} обязательны; реальные имена проверяются validate.${constraint.allowObject === true ? " Также разрешена ссылка на объект метаданных без поля." : ""}`,
+      terminalSegmentDescription.length === 0
+        ? "Полный путь поля метаданных. Ограничение не разрешает конечные сегменты; подробная проверка выполняется validate."
+        : `Полный путь поля метаданных: конечный сегмент ${terminalSegmentDescription} обязателен; перед ним может быть ТабличнаяЧасть.<ИмяТабличнойЧасти>; реальные имена проверяются validate.${constraint.allowObject === true ? " Также разрешена ссылка на объект метаданных без поля." : ""}`,
   })
 }
 
@@ -232,7 +233,7 @@ function fieldObjectName(root: MetadataRootName): string {
 
 function fieldExamples(constraint: Extract<MetadataTargetConstraint, { kind: "field" }>): string[] {
   const selectedRoots = selectRoots(constraint.roots)
-  const selectedFieldKinds = constraint.fieldKinds ?? allFieldKinds
+  const terminalFieldKinds = constraint.fieldKinds ?? allFieldKinds
   const root = preferredRoot(selectedRoots, "Catalog")
   if (!root) return []
 
@@ -244,19 +245,18 @@ function fieldExamples(constraint: Extract<MetadataTargetConstraint, { kind: "fi
     examples.push(objectExample(root))
   }
 
-  if (selectedFieldKinds.includes("Attribute")) {
+  if (terminalFieldKinds.includes("Attribute")) {
     examples.push(`${rootPrefix}.${objectName}.Реквизит.ИмяРеквизита`)
+    examples.push(`${rootPrefix}.${objectName}.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита`)
   }
 
-  if (selectedFieldKinds.includes("TabularSection") && selectedFieldKinds.includes("Attribute")) {
-    examples.push(`${rootPrefix}.${objectName}.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита`)
-  } else if (examples.length === 0 && selectedFieldKinds.includes("TabularSection")) {
+  if (examples.length === 0 && terminalFieldKinds.includes("TabularSection")) {
     examples.push(`${rootPrefix}.${objectName}.ТабличнаяЧасть.ИмяТабличнойЧасти`)
-  } else if (examples.length === 0 && selectedFieldKinds.includes("StandardAttribute")) {
+  } else if (examples.length === 0 && terminalFieldKinds.includes("StandardAttribute")) {
     examples.push(`${rootPrefix}.${objectName}.СтандартныйРеквизит.ИмяСтандартногоРеквизита`)
-  } else if (examples.length === 0 && selectedFieldKinds.includes("Dimension")) {
+  } else if (examples.length === 0 && terminalFieldKinds.includes("Dimension")) {
     examples.push(`${rootPrefix}.${objectName}.Измерение.ИмяИзмерения`)
-  } else if (examples.length === 0 && selectedFieldKinds.includes("Resource")) {
+  } else if (examples.length === 0 && terminalFieldKinds.includes("Resource")) {
     examples.push(`${rootPrefix}.${objectName}.Ресурс.ИмяРесурса`)
   }
 

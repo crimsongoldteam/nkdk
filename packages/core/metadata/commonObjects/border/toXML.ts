@@ -13,7 +13,7 @@ export const exportBorderToXML = (
   const result: BorderXML = {}
 
   if (border.ref !== undefined) {
-    result._ref = border.ref
+    result._ref = `style:${border.ref}`
   }
 
   if (border.width !== undefined) {

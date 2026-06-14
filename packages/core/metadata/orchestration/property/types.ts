@@ -166,14 +166,13 @@ export interface BasePropertyRule {
   forReferenceOnly?: true
 
   /**
-   * Описание допустимых целей ссылки (используется для валидации и автодополнения).
-   * @deprecated Используй metadataTarget для новых правил.
+   * @deprecated Используется только старым sync форм и шаблонов до переноса на metadataTarget.
+   * Новые правила должны использовать metadataTarget.
    */
   referenceScope?: ReferenceScope
 
   /**
    * Описание допустимой цели metadata-значения. Используется schema и validate.
-   * `referenceScope` считается устаревшим и новые правила не должны его расширять.
    */
   metadataTarget?: MetadataTargetConstraint
 

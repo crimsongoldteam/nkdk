@@ -10,21 +10,24 @@ describe("exportMetadataFieldToJSONSchema", () => {
       rule: {
         ...mockRule,
         type: "MetadataField",
-        metadataTarget: { kind: "field", owner: "explicit", roots: ["Catalog"], fieldKinds: ["Attribute"] },
+        metadataTarget: { kind: "field", owner: "explicit", roots: ["Catalog"], fieldKinds: ["Attribute", "StandardAttribute"] },
       },
       value: undefined,
     })
 
     expect(result).toMatchObject({
       type: "string",
-      examples: ["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"],
+      examples: [
+        "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита",
+        "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита",
+      ],
     })
     expect(new RegExp(String(result?.pattern)).test("Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")).toBe(true)
     expect(
       new RegExp(String(result?.pattern)).test(
         "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита"
       )
-    ).toBe(false)
+    ).toBe(true)
     expect(new RegExp(String(result?.pattern)).test("Документ.ИмяДокумента.Реквизит.ИмяРеквизита")).toBe(false)
   })
 
@@ -36,7 +39,7 @@ describe("exportMetadataFieldToJSONSchema", () => {
       rule: {
         ...mockRule,
         type: "MetadataFields",
-        metadataTarget: { kind: "field", owner: "explicit", roots: ["Document"], fieldKinds: ["Attribute"] },
+        metadataTarget: { kind: "field", owner: "explicit", roots: ["Document"], fieldKinds: ["Attribute", "StandardAttribute"] },
       },
       value: undefined,
     })
@@ -45,7 +48,10 @@ describe("exportMetadataFieldToJSONSchema", () => {
       type: "array",
       items: {
         type: "string",
-        examples: ["Документ.ИмяДокумента.Реквизит.ИмяРеквизита"],
+        examples: [
+          "Документ.ИмяДокумента.Реквизит.ИмяРеквизита",
+          "Документ.ИмяДокумента.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита",
+        ],
       },
     })
     const itemPattern = String((result as { items?: { pattern?: string } })?.items?.pattern)
