@@ -11,7 +11,7 @@ const allFieldKinds = Object.keys(fieldKindToYAML) as MetadataFieldKind[]
 const allRoots = Object.keys(rootToYAML) as MetadataRootName[]
 const allPrimitiveTypes: readonly MetadataPrimitiveType[] = ["string", "decimal", "dateTime", "boolean", "ValueStorage"]
 
-const objectExampleByRoot = {
+const objectExampleByRoot: Partial<Record<MetadataRootName, string>> = {
   Catalog: "Справочник.ИмяСправочника",
   Document: "Документ.ИмяДокумента",
   Enum: "Перечисление.ИмяПеречисления",
@@ -30,9 +30,9 @@ const objectExampleByRoot = {
   Report: "Отчет.ИмяОтчета",
   CommonPicture: "ОбщаяКартинка.ИмяОбщейКартинки",
   StyleItem: "ЭлементСтиля.ИмяЭлементаСтиля",
-} as const satisfies Record<MetadataRootName, string>
+}
 
-const typeRefExampleByRoot = {
+const typeRefExampleByRoot: Partial<Record<MetadataRootName, string>> = {
   Catalog: "Справочник.ИмяСправочника",
   Document: "Документ.ИмяДокумента",
   Enum: "Перечисление.ИмяПеречисления",
@@ -51,9 +51,9 @@ const typeRefExampleByRoot = {
   Report: "Отчет.ИмяОтчета",
   CommonPicture: "ОбщаяКартинка.ИмяОбщейКартинки",
   StyleItem: "ЭлементСтиля.ИмяЭлементаСтиля",
-} as const satisfies Record<MetadataRootName, string>
+}
 
-const fieldObjectNameByRoot = {
+const fieldObjectNameByRoot: Partial<Record<MetadataRootName, string>> = {
   Catalog: "ИмяСправочника",
   Document: "ИмяДокумента",
   Enum: "ИмяПеречисления",
@@ -72,7 +72,7 @@ const fieldObjectNameByRoot = {
   Report: "ИмяОтчета",
   CommonPicture: "ИмяОбщейКартинки",
   StyleItem: "ИмяЭлементаСтиля",
-} as const satisfies Record<MetadataRootName, string>
+}
 
 const primitiveTypePatterns = {
   string: "Строка(?:\\([1-9][0-9]*\\))?|ФиксированнаяСтрока\\([1-9][0-9]*\\)",
@@ -91,7 +91,7 @@ const primitiveTypeExamples = {
 } as const satisfies Record<MetadataPrimitiveType, string>
 
 export function buildMetadataTargetSchema(constraint: MetadataTargetConstraint): TSchema {
-  if (constraint.kind === "object") return objectSchema(constraint.roots)
+  if (constraint.kind === "object") return objectSchema(constraint)
   if (constraint.kind === "field") return fieldSchema(constraint)
   if (constraint.kind === "value") return valueSchema(constraint)
   if (constraint.kind === "type") return typeSchema(constraint)
@@ -117,12 +117,16 @@ export function buildMetadataTargetSchema(constraint: MetadataTargetConstraint):
   })
 }
 
-function objectSchema(roots: readonly MetadataRootName[] | undefined): TSchema {
+function objectSchema(constraint: Extract<MetadataTargetConstraint, { kind: "object" }>): TSchema {
+  const roots = constraint.roots
   const selectedRoots = selectRoots(roots)
   const yamlRoots = yamlRootGroup(roots)
+  const tailPattern =
+    constraint.allowNested === true ? `(?:\\.(?:${yamlRoots})\\.${METADATA_NAME_PATTERN})*` : ""
   return Type.String({
-    pattern: selectedRoots.length === 0 ? noMatchPattern : `^((${yamlRoots})\\.${METADATA_NAME_PATTERN})$`,
-    examples: selectedRoots.slice(0, 2).map((root) => objectExampleByRoot[root]),
+    pattern:
+      selectedRoots.length === 0 ? noMatchPattern : `^((${yamlRoots})\\.${METADATA_NAME_PATTERN}${tailPattern})$`,
+    examples: objectExamples(selectedRoots, constraint.allowNested === true),
     description:
       selectedRoots.length === 0
         ? "Ссылка на объект метаданных. Ограничение не разрешает корневые типы; подробная проверка выполняется validate."
@@ -136,16 +140,22 @@ function fieldSchema(constraint: Extract<MetadataTargetConstraint, { kind: "fiel
   const yamlRoots = yamlRootGroup(constraint.roots)
   const serviceSegments = selectedFieldKinds.map((kind) => fieldKindToYAML[kind]).join("|")
   const serviceSegmentDescription = selectedFieldKinds.map((kind) => fieldKindToYAML[kind]).join(", ")
+  const branches: string[] = []
+  if (constraint.allowObject === true && selectedRoots.length > 0) {
+    branches.push(`(${yamlRoots})\\.${METADATA_NAME_PATTERN}`)
+  }
+  if (selectedRoots.length > 0 && serviceSegments.length > 0) {
+    branches.push(
+      `(${yamlRoots})\\.${METADATA_NAME_PATTERN}\\.(?:${serviceSegments})\\.${METADATA_NAME_PATTERN}(?:\\.(?:${serviceSegments})\\.${METADATA_NAME_PATTERN})*`
+    )
+  }
   return Type.String({
-    pattern:
-      selectedRoots.length === 0 || serviceSegments.length === 0
-        ? noMatchPattern
-        : `^(${yamlRoots})\\.${METADATA_NAME_PATTERN}\\.(?:${serviceSegments})\\.${METADATA_NAME_PATTERN}(?:\\.(?:${serviceSegments})\\.${METADATA_NAME_PATTERN})*$`,
-    examples: fieldExamples(constraint.roots, selectedFieldKinds),
+    pattern: branches.length === 0 ? noMatchPattern : `^(?:${branches.join("|")})$`,
+    examples: fieldExamples(constraint),
     description:
       serviceSegmentDescription.length === 0
         ? "Полный путь поля метаданных. Ограничение не разрешает служебные сегменты; подробная проверка выполняется validate."
-        : `Полный путь поля метаданных: служебные сегменты ${serviceSegmentDescription} обязательны; реальные имена проверяются validate.`,
+        : `Полный путь поля метаданных: служебные сегменты ${serviceSegmentDescription} обязательны; реальные имена проверяются validate.${constraint.allowObject === true ? " Также разрешена ссылка на объект метаданных без поля." : ""}`,
   })
 }
 
@@ -198,16 +208,41 @@ function selectRoots(roots: readonly MetadataRootName[] | undefined): readonly M
   return roots ?? allRoots
 }
 
-function fieldExamples(
-  roots: readonly MetadataRootName[] | undefined,
-  selectedFieldKinds: readonly MetadataFieldKind[]
-): string[] {
-  const root = preferredRoot(selectRoots(roots), "Catalog")
+function objectExample(root: MetadataRootName): string {
+  return objectExampleByRoot[root] ?? `${rootToYAML[root]}.ИмяОбъекта`
+}
+
+function objectExamples(roots: readonly MetadataRootName[], allowNested: boolean): string[] {
+  const examples = roots.slice(0, 2).map(objectExample)
+  if (allowNested && roots.length > 0) {
+    const root = roots[0]
+    examples.push(`${objectExample(root)}.${rootToYAML[root]}.ИмяПодчиненногоОбъекта`)
+  }
+
+  return examples
+}
+
+function typeRefExample(root: MetadataRootName): string {
+  return typeRefExampleByRoot[root] ?? `${rootToYAML[root]}.ИмяОбъекта`
+}
+
+function fieldObjectName(root: MetadataRootName): string {
+  return fieldObjectNameByRoot[root] ?? "ИмяОбъекта"
+}
+
+function fieldExamples(constraint: Extract<MetadataTargetConstraint, { kind: "field" }>): string[] {
+  const selectedRoots = selectRoots(constraint.roots)
+  const selectedFieldKinds = constraint.fieldKinds ?? allFieldKinds
+  const root = preferredRoot(selectedRoots, "Catalog")
   if (!root) return []
 
   const rootPrefix = rootToYAML[root]
-  const objectName = fieldObjectNameByRoot[root]
+  const objectName = fieldObjectName(root)
   const examples: string[] = []
+
+  if (constraint.allowObject === true) {
+    examples.push(objectExample(root))
+  }
 
   if (selectedFieldKinds.includes("Attribute")) {
     examples.push(`${rootPrefix}.${objectName}.Реквизит.ИмяРеквизита`)
@@ -351,7 +386,7 @@ function typeExamples(constraint: Extract<MetadataTargetConstraint, { kind: "typ
   const root = preferredRoot(selectedRoots, "Catalog")
 
   if (typeKinds.includes("ref") && root) {
-    examples.push(typeRefExampleByRoot[root])
+    examples.push(typeRefExample(root))
   }
 
   if (typeKinds.includes("object") && root) {

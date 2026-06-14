@@ -1,7 +1,12 @@
 export type MetadataRootName =
+  | "Constant"
   | "Catalog"
   | "Document"
   | "Enum"
+  | "DefinedType"
+  | "Characteristic"
+  | "CommandGroup"
+  | "Role"
   | "InformationRegister"
   | "AccumulationRegister"
   | "AccountingRegister"
@@ -15,8 +20,30 @@ export type MetadataRootName =
   | "Task"
   | "DataProcessor"
   | "Report"
+  | "DocumentNumerator"
+  | "CommonCommand"
   | "CommonPicture"
+  | "CommonTemplate"
+  | "CommonModule"
+  | "CommonAttribute"
+  | "CommonForm"
+  | "FilterCriterion"
+  | "ScheduledJob"
+  | "IntegrationService"
+  | "Language"
+  | "Style"
   | "StyleItem"
+  | "FunctionalOption"
+  | "FunctionalOptionParameter"
+  | "DocumentJournal"
+  | "HTTPService"
+  | "WebSocketClient"
+  | "WebService"
+  | "Bot"
+  | "ExternalDataSource"
+  | "SessionParameter"
+  | "SettingsStorage"
+  | "Subsystem"
 
 export type MetadataFieldKind = "Attribute" | "StandardAttribute" | "TabularSection" | "Dimension" | "Resource"
 export type MetadataValueKind = "predefinedValue" | "enumValue" | "emptyRef"
@@ -24,13 +51,14 @@ export type MetadataTargetFilterName = "stringIndexedAttribute"
 export type StyleItemTargetType = "Color" | "Font" | "Border"
 
 export type MetadataTargetConstraint =
-  | { kind: "object"; roots?: readonly MetadataRootName[]; scope?: "project" | "owner" }
+  | { kind: "object"; roots?: readonly MetadataRootName[]; scope?: "project" | "owner"; allowNested?: boolean }
   | {
       kind: "field"
       owner: "this" | "explicit"
       roots?: readonly MetadataRootName[]
       fieldKinds?: readonly MetadataFieldKind[]
       filters?: readonly MetadataTargetFilterName[]
+      allowObject?: boolean
     }
   | {
       kind: "value"
@@ -50,7 +78,7 @@ export type MetadataTargetConstraint =
   | { kind: "commonPicture" }
 
 export type ParsedMetadataTarget =
-  | { kind: "object"; root: MetadataRootName; objectName: string }
+  | { kind: "object"; root: MetadataRootName; objectName: string; segments?: MetadataObjectSegment[] }
   | { kind: "field"; root: MetadataRootName; objectName: string; segments: MetadataFieldSegment[] }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "predefinedValue"; valueName: string }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "enumValue"; valueName: string }
@@ -61,6 +89,11 @@ export type ParsedMetadataTarget =
 export interface MetadataFieldSegment {
   kind: MetadataFieldKind
   name: string
+}
+
+export interface MetadataObjectSegment {
+  root: MetadataRootName
+  objectName: string
 }
 
 export type MetadataTargetParseErrorCode =

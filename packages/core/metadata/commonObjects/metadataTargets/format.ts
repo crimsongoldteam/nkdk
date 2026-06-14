@@ -1,6 +1,6 @@
-import { fieldKindToYAML, rootToYAML } from "./roots"
+import { fieldKindToYAML, rootToYAML, standardAttributeToYAML } from "./roots"
 import { parseMetadataTargetFromModel } from "./parse"
-import type { MetadataTargetConstraint, ParsedMetadataTarget } from "./types"
+import type { MetadataFieldSegment, MetadataTargetConstraint, ParsedMetadataTarget } from "./types"
 
 export interface FormatMetadataTargetToYAMLInput {
   canonical: string
@@ -21,12 +21,16 @@ export function formatMetadataTargetToYAML(input: FormatMetadataTargetToYAMLInpu
 function formatParsedMetadataTargetToYAML(target: ParsedMetadataTarget): string {
   switch (target.kind) {
     case "object":
-      return `${rootToYAML[target.root]}.${target.objectName}`
+      return [
+        rootToYAML[target.root],
+        target.objectName,
+        ...(target.segments ?? []).flatMap((segment) => [rootToYAML[segment.root], segment.objectName]),
+      ].join(".")
     case "field":
       return [
         rootToYAML[target.root],
         target.objectName,
-        ...target.segments.flatMap((segment) => [fieldKindToYAML[segment.kind], segment.name]),
+        ...target.segments.flatMap((segment) => [fieldKindToYAML[segment.kind], formatFieldSegmentName(segment)]),
       ].join(".")
     case "value":
       return formatValueTargetToYAML(target)
@@ -35,6 +39,11 @@ function formatParsedMetadataTargetToYAML(target: ParsedMetadataTarget): string 
     case "commonPicture":
       return `${rootToYAML.CommonPicture}.${target.name}`
   }
+}
+
+function formatFieldSegmentName(segment: MetadataFieldSegment): string {
+  if (segment.kind !== "StandardAttribute") return segment.name
+  return standardAttributeToYAML[segment.name] ?? segment.name
 }
 
 function formatValueTargetToYAML(target: Extract<ParsedMetadataTarget, { kind: "value" }>): string {

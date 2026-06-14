@@ -115,6 +115,32 @@ describe("metadataTargets parser", () => {
     ).toBe("Перечисление.ВидыДоговоров.СПоставщиком")
   })
 
+  it("parses and formats standard attribute aliases", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "РегистрНакопления.Продажи.СтандартныйРеквизит.Период",
+        constraint: { kind: "field", owner: "explicit", roots: ["AccumulationRegister"] },
+      })
+    ).toMatchObject({
+      ok: true,
+      canonical: "AccumulationRegister.Продажи.StandardAttribute.Period",
+    })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "AccumulationRegister.Продажи.StandardAttribute.Period",
+        constraint: { kind: "field", owner: "explicit", roots: ["AccumulationRegister"] },
+      })
+    ).toBe("РегистрНакопления.Продажи.СтандартныйРеквизит.Период")
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "Catalog.Номенклатура.TabularSection.Товары.StandardAttribute.LineNumber",
+        constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
+      })
+    ).toBe("Справочник.Номенклатура.ТабличнаяЧасть.Товары.СтандартныйРеквизит.НомерСтроки")
+  })
+
   it("parses canonical model strings", () => {
     expect(
       parseMetadataTargetFromModel({

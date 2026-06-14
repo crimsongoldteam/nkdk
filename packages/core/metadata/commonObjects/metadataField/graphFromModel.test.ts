@@ -19,7 +19,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Catalog.X.Attribute.Y
+  - Справочник.X.Реквизит.Y
 ` },
       kind: "catalog",
       name: "Товары",
@@ -38,7 +38,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Catalog.Контрагенты.TabularSection.Контакты.Attribute.Email
+  - Справочник.Контрагенты.ТабличнаяЧасть.Контакты.Реквизит.Email
 ` },
       kind: "catalog",
       name: "Товары",
@@ -57,7 +57,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Catalog.X.StandardAttribute.Description
+  - Справочник.X.СтандартныйРеквизит.Наименование
 ` },
       kind: "catalog",
       name: "Товары",
@@ -76,9 +76,9 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Catalog.A.Attribute.П1
-  - Catalog.B.Attribute.П2
-  - Catalog.C.Attribute.П3
+  - Справочник.A.Реквизит.П1
+  - Справочник.B.Реквизит.П2
+  - Справочник.C.Реквизит.П3
 ` },
       kind: "catalog",
       name: "Товары",
@@ -102,8 +102,8 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Catalog.A.Attribute.П1
-  - Catalog.B.Attribute.П2
+  - Справочник.A.Реквизит.П1
+  - Справочник.B.Реквизит.П2
 ` },
       kind: "catalog",
       name: "Товары",

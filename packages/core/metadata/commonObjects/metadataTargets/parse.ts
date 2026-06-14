@@ -1,7 +1,15 @@
-import { fieldKindFromYAML, fieldKindToYAML, isMetadataRootName, METADATA_NAME_PATTERN, rootFromYAML } from "./roots"
+import {
+  fieldKindFromYAML,
+  fieldKindToYAML,
+  isMetadataRootName,
+  METADATA_NAME_PATTERN,
+  rootFromYAML,
+  standardAttributeFromYAML,
+} from "./roots"
 import type {
   MetadataFieldKind,
   MetadataFieldSegment,
+  MetadataObjectSegment,
   MetadataRootName,
   MetadataTargetConstraint,
   MetadataTargetParseErrorCode,
@@ -29,12 +37,16 @@ export function parseMetadataTargetFromYAML(input: ParseMetadataTargetFromYAMLIn
   const parts = splitTarget(input.value)
 
   switch (input.constraint.kind) {
-    case "object":
-      return parseRootedTargetFromYAML(parts, input.constraint, parseObjectTarget)
+    case "object": {
+      const constraint = input.constraint
+      return parseRootedTargetFromYAML(parts, constraint, (root, objectName, tail) =>
+        parseObjectTarget(root, objectName, tail, constraint.allowNested === true, "yaml")
+      )
+    }
     case "field": {
       const constraint = input.constraint
       return parseRootedTargetFromYAML(parts, constraint, (root, objectName, tail) =>
-        parseFieldTarget(root, objectName, tail, constraint.fieldKinds, "yaml")
+        parseFieldTarget(root, objectName, tail, constraint.fieldKinds, constraint.allowObject === true, "yaml")
       )
     }
     case "value": {
@@ -58,12 +70,16 @@ export function parseMetadataTargetFromModel(input: ParseMetadataTargetFromModel
   const parts = splitTarget(input.canonical)
 
   switch (input.constraint.kind) {
-    case "object":
-      return parseRootedTargetFromModel(parts, input.constraint, parseObjectTarget)
+    case "object": {
+      const constraint = input.constraint
+      return parseRootedTargetFromModel(parts, constraint, (root, objectName, tail) =>
+        parseObjectTarget(root, objectName, tail, constraint.allowNested === true, "model")
+      )
+    }
     case "field": {
       const constraint = input.constraint
       return parseRootedTargetFromModel(parts, constraint, (root, objectName, tail) =>
-        parseFieldTarget(root, objectName, tail, constraint.fieldKinds, "model")
+        parseFieldTarget(root, objectName, tail, constraint.fieldKinds, constraint.allowObject === true, "model")
       )
     }
     case "value": {
@@ -139,13 +155,41 @@ function parseRootedTarget(
 function parseObjectTarget(
   root: MetadataRootName,
   objectName: string,
-  tail: readonly string[]
+  tail: readonly string[],
+  allowNested: boolean,
+  source: "yaml" | "model"
 ): MetadataTargetParseResult {
-  if (tail.length > 0) {
+  if (tail.length === 0) {
+    return success(`${root}.${objectName}`, { kind: "object", root, objectName })
+  }
+
+  if (!allowNested || tail.length % 2 !== 0) {
     return unknownSegment(tail[0])
   }
 
-  return success(`${root}.${objectName}`, { kind: "object", root, objectName })
+  const segments: MetadataObjectSegment[] = []
+  for (let index = 0; index < tail.length; index += 2) {
+    const rootToken = tail[index]
+    const segmentRoot = source === "yaml" ? parseObjectRootFromYAML(rootToken) : parseObjectRootFromModel(rootToken)
+    if (!segmentRoot) {
+      return unknownSegment(rootToken)
+    }
+
+    const nestedObjectName = tail[index + 1]
+    if (!isValidMetadataName(nestedObjectName)) {
+      return invalidShape()
+    }
+
+    segments.push({ root: segmentRoot, objectName: nestedObjectName })
+  }
+
+  const canonicalSegments = segments.flatMap((segment) => [segment.root, segment.objectName])
+  return success([root, objectName, ...canonicalSegments].join("."), {
+    kind: "object",
+    root,
+    objectName,
+    segments,
+  })
 }
 
 function parseFieldTarget(
@@ -153,9 +197,11 @@ function parseFieldTarget(
   objectName: string,
   tail: readonly string[],
   allowedFieldKinds: readonly MetadataFieldKind[] | undefined,
+  allowObject: boolean,
   source: "yaml" | "model"
 ): MetadataTargetParseResult {
   if (tail.length === 0) {
+    if (allowObject) return success(`${root}.${objectName}`, { kind: "object", root, objectName })
     return invalidShape()
   }
 
@@ -178,11 +224,20 @@ function parseFieldTarget(
       return invalidShape()
     }
 
-    segments.push({ kind: segmentKind, name })
+    segments.push({ kind: segmentKind, name: normalizeFieldSegmentName(segmentKind, name, source) })
   }
 
   const canonicalSegments = segments.flatMap((segment) => [segment.kind, segment.name])
   return success([root, objectName, ...canonicalSegments].join("."), { kind: "field", root, objectName, segments })
+}
+
+function normalizeFieldSegmentName(
+  kind: MetadataFieldKind,
+  name: string,
+  source: "yaml" | "model"
+): string {
+  if (kind !== "StandardAttribute" || source !== "yaml") return name
+  return standardAttributeFromYAML[name] ?? name
 }
 
 function parseYAMLValueTarget(
@@ -354,6 +409,14 @@ function parseFieldKindFromModel(value: string | undefined): MetadataFieldKind |
   return value !== undefined && Object.prototype.hasOwnProperty.call(fieldKindToYAML, value)
     ? (value as MetadataFieldKind)
     : undefined
+}
+
+function parseObjectRootFromYAML(value: string | undefined): MetadataRootName | undefined {
+  return value === undefined ? undefined : rootFromYAML[value]
+}
+
+function parseObjectRootFromModel(value: string | undefined): MetadataRootName | undefined {
+  return value !== undefined && isMetadataRootName(value) ? value : undefined
 }
 
 function isValueKindAllowed(

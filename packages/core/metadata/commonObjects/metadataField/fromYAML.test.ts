@@ -26,7 +26,7 @@ describe("importMetadataFieldFromYAML", () => {
   it("should import with standard attribute", () => {
     const enterprise = "Справочник.ЗоныТарифыДоставки.СтандартныйРеквизит.Владелец"
     const result = importMetadataFieldFromYAML(mockContext, mockRule, enterprise)
-    expect(result).toEqual("Catalog.ЗоныТарифыДоставки.StandardAttribute.Владелец")
+    expect(result).toEqual("Catalog.ЗоныТарифыДоставки.StandardAttribute.Owner")
   })
 
   it("skips form-local data paths", () => {

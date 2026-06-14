@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { exportMedatataRefToYAML } from "../metadataValue/toYAML"
+import { exportMetadataObjectStringToYAML } from "../metadataPath/toYAML"
 import { MetadataValueCollection, MetadataValueCollectionYAML } from "./types"
 
 export const exportMetadataValueCollectionToYAML = (
@@ -11,7 +11,7 @@ export const exportMetadataValueCollectionToYAML = (
 ): MetadataValueCollectionYAML | undefined => {
   if (!data || data.length === 0) return undefined
 
-  return data.map((item) => exportMedatataRefToYAML(context, item))
+  return data.map((item) => exportMetadataObjectStringToYAML(context, _rule, item)!)
 }
 
 registerTypeRule("MetadataValueCollection", "exportToYAML", exportMetadataValueCollectionToYAML)

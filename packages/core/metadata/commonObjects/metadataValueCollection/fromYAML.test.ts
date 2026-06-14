@@ -25,4 +25,10 @@ describe("importMetadataValueCollectionFromYAML", () => {
 
     expect(result).toEqual(multiple)
   })
+
+  it("rejects english YAML roots", () => {
+    expect(() => importMetadataValueCollectionFromYAML(mockContext, mockRule, ["Catalog.Контрагенты"])).toThrow(
+      'Неизвестный корень "Catalog"'
+    )
+  })
 })

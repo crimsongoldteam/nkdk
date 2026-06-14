@@ -42,6 +42,7 @@ export const MetadataFunctionalOptionsParameterRules = {
     use: {
       yaml: "Использование",
       type: "MetadataItemLinks",
+      metadataTarget: { kind: "field", owner: "explicit", allowObject: true },
       xml: "Use",
       xmlParents: properties,
       defaultValueXMLRaw: "",

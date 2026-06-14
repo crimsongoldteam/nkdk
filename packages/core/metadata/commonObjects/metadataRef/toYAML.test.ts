@@ -50,8 +50,8 @@ describe("exportMetadataItemLinkToYAML", () => {
   it("does not suppress metadata formatter errors in short role mode", () => {
     const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
 
-    expect(() => exportMetadataItemLinkToYAML(mockContext, rule, "CommonForm.НачалоРаботы")).toThrow(
-      'Неизвестный корень "CommonForm"'
+    expect(() => exportMetadataItemLinkToYAML(mockContext, rule, "Catalog.НачалоРаботы.Attribute.Имя")).toThrow(
+      'Неизвестный сегмент "Attribute"'
     )
     expect(() => exportMetadataItemLinkToYAML(mockContext, rule, "Справочник.Контрагенты")).toThrow(
       'Неизвестный корень "Справочник"'
@@ -79,7 +79,7 @@ describe("exportMetadataItemLinksToYAML", () => {
     const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
 
     expect(() =>
-      exportMetadataItemLinksToYAML(mockContext, rule, ["Role.Администратор", "CommonForm.НачалоРаботы"])
-    ).toThrow('Неизвестный корень "CommonForm"')
+      exportMetadataItemLinksToYAML(mockContext, rule, ["Role.Администратор", "Catalog.НачалоРаботы.Attribute.Имя"])
+    ).toThrow('Неизвестный сегмент "Attribute"')
   })
 })

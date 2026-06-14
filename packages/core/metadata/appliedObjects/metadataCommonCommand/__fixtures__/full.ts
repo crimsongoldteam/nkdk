@@ -11,7 +11,7 @@ export const full: MetadataCommonCommand = {
 export const fullYAML: MetadataCommonCommandYAML = {
   Синоним: "Общая команда полная",
   Комментарий: "Комментарий",
-  Группа: "NavigationPanelOrdinary",
+  Группа: "ПанельНавигацииОбычное",
   Отображение: "Авто",
 }
 

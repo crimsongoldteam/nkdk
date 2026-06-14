@@ -80,6 +80,7 @@ export const MetadataFilterCriterionRules = {
     content: {
       yaml: "Состав",
       type: "MetadataItemLinks",
+      metadataTarget: { kind: "field", owner: "explicit" },
       xml: "Content",
       xmlParents: properties,
       defaultValueXMLRaw: "",

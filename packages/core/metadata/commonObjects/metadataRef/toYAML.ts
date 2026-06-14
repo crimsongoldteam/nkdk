@@ -17,6 +17,7 @@ export const exportMetadataItemLinkToYAML = (
   data: MetadataItemLink | undefined
 ): MetadataItemLinkYAML | undefined => {
   if (data === undefined) return undefined
+  if (data === "") return ""
 
   const roleAwareValue = toRoleYAML(rule, data)
   if (roleAwareValue !== data) return roleAwareValue
