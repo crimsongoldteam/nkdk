@@ -136,7 +136,6 @@ export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAM
 
 export const fullSearchControlAdditionYAML: SearchControlAdditionYAML = {
   ...fullSingleSearchControlAdditionYAML,
-  Источник: "РодительскийЭлемент",
 }
 
 export const fullSearchControlAddition: SearchControlAddition = {

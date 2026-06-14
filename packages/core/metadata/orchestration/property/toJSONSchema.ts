@@ -2,6 +2,7 @@ import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getTypeRule } from "./typeRuleRegistry"
 import { exportPropertyExternalRefSchema, exportPropertyOverrideSchema } from "../jsonSchemaRefs"
+import { shouldProcessProperty } from "./helpers"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 /**
@@ -43,6 +44,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
     PropertyRule,
   ][]) {
     // if (ruleProp.fromEnterprise === false) continue
+    if (!shouldProcessProperty({ rule: ruleProp, operation: "importFromYAML" })) continue
 
     const yamlKey = ruleProp.yaml
     if (!yamlKey) continue
