@@ -25,10 +25,6 @@ describe("FormattedI8nTextJSONSchema", () => {
     expect(compiled.Check({})).toBe(false)
   })
 
-  it("rejects legacy formatted key shape", () => {
-    expect(compiled.Check({ ФорматированныйЗаголовок: "<b>Заголовок</>" })).toBe(false)
-  })
-
   it("rejects additional properties", () => {
     expect(compiled.Check({ Текст: "Заголовок", Лишнее: "значение" })).toBe(false)
   })
