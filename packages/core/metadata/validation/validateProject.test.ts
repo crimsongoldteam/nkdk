@@ -205,6 +205,40 @@ describe("validateProject", () => {
     expect(compile).toHaveBeenCalledTimes(3)
   })
 
+  it("validates MetadataObjectRefCollection targets from rules metadataTarget", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Источник/Свойства.yaml", [
+      "ВводитсяНаОсновании:",
+      "  - Справочник.НетТакого",
+    ])
+
+    const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: "reference",
+          severity: "error",
+          message: 'Не найден объект "Справочник.НетТакого"',
+        }),
+      ]),
+    )
+  })
+
+  it("reports English YAML roots as ordinary structure errors", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Источник/Свойства.yaml", [
+      "ВводитсяНаОсновании:",
+      "  - Catalog.Контрагенты",
+    ])
+
+    const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
+    const messages = diagnostics.map((diagnostic) => diagnostic.message).join("\n")
+
+    expect(messages).toContain('Неизвестный корень "Catalog"')
+    expect(messages).not.toContain("Справочник.Контрагенты")
+  })
+
   function createProject(): string {
     const projectDir = mkdtempSync(join(tmpdir(), "nakidka-validate-project-"))
     tempDirs.push(projectDir)
