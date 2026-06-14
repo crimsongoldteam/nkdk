@@ -75,6 +75,10 @@ export function buildObjectFieldIndex(owner: ObjectFieldIndexOwner): ObjectField
   return { fields, diagnostics }
 }
 
+export function getObjectField(params: { index: ObjectFieldIndex; name: string }): ObjectField | undefined {
+  return params.index.fields.get(params.name)
+}
+
 export function validateObjectFieldSegment({
   owner,
   segment,
