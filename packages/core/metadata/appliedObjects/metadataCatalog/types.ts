@@ -20,9 +20,9 @@ import {
 import * as SE from "~/metadata/systemEnumerations/types"
 
 import {
-  MetadataValueCollectionXML,
-  MetadataValueCollectionYAML,
-} from "~/metadata/commonObjects/metadataValueCollection/types"
+  MetadataObjectRefCollectionXML,
+  MetadataObjectRefCollectionYAML,
+} from "~/metadata/commonObjects/metadataObjectRefCollection/types"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 import { MetadataCatalogRules } from "./rules"
@@ -82,7 +82,7 @@ export interface MetadataCatalogXML {
       AuxiliaryFolderForm?: string
       AuxiliaryListForm?: string
       AuxiliaryObjectForm?: string
-      BasedOn?: MetadataValueCollectionXML
+      BasedOn?: MetadataObjectRefCollectionXML
       Characteristics?: CharacteristicsDescriptionsXML
       CheckUnique?: boolean
       ChoiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString
@@ -122,7 +122,7 @@ export interface MetadataCatalogXML {
       Name: string
       ObjectBelonging?: SE.ObjectBelonging
       ObjectPresentation?: I8nTextXML
-      Owners?: MetadataValueCollectionXML
+      Owners?: MetadataObjectRefCollectionXML
       Predefined?: Predefined
       PredefinedDataUpdate?: SE.PredefinedDataUpdate
       QuickChoice?: boolean
@@ -151,11 +151,11 @@ export const defaults: Partial<MetadataCatalog> = {
 export interface MetadataCatalogYAML {
   Автонумерация?: StringboolYAML
   БыстрыйВыбор?: StringboolYAML
-  ВводитсяНаОсновании?: MetadataValueCollectionYAML
+  ВводитсяНаОсновании?: MetadataObjectRefCollectionYAML
   ВводПоСтроке?: MetadataFieldsYAML
   ВидИерархии?: SE.HierarchyTypeYAML
   ВключатьСправкуВСодержание?: StringboolYAML
-  Владельцы?: MetadataValueCollectionYAML
+  Владельцы?: MetadataObjectRefCollectionYAML
   ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: StringboolYAML
   ГруппыСверху?: StringboolYAML
   ДлинаКода?: number

@@ -89,9 +89,10 @@ export const MetadataCatalogRules = {
     },
     basedOn: {
       yaml: "ВводитсяНаОсновании",
-      type: "MetadataValueCollection",
+      type: "MetadataObjectRefCollection",
       xmlParents: ["Properties"],
       referenceScope: { target: "topLevel", allowedTypes: ["Справочник", "Документ"] },
+      metadataTarget: { kind: "object" },
       defaultValueXMLRaw: {},
     },
     characteristics: {
@@ -367,9 +368,10 @@ export const MetadataCatalogRules = {
     },
     owners: {
       yaml: "Владельцы",
-      type: "MetadataValueCollection",
+      type: "MetadataObjectRefCollection",
       xmlParents: ["Properties"],
       referenceScope: { target: "topLevel", allowedTypes: ["Справочник", "Документ"] },
+      metadataTarget: { kind: "object" },
       defaultValueXMLRaw: {},
     },
     objectModule: {

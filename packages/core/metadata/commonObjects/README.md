@@ -75,8 +75,8 @@
     </Value>
     ```
 
-- **Коллекция значений метаданных (MetadataValueCollection)**
-  - Тип: `MetadataValueCollection` (массив строк), `MetadataValueCollectionItem` (string).
+- **Коллекция ссылок на объекты метаданных (MetadataObjectRefCollection)**
+  - Тип: `MetadataObjectRefCollection` (массив строк), `MetadataObjectRefCollectionItem` (string).
   - Пример XML:
 
     ```xml

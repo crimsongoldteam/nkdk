@@ -18,7 +18,7 @@ const movedFixtures = [
   ["internalInfo", "../metadata/commonObjects/internalInfo/__fixtures__"],
   ["metadataAttribute", "../metadata/commonObjects/metadataAttribute/__fixtures__/legacy"],
   ["metadataTabularSection", "../metadata/commonObjects/metadataTabularSection/__fixtures__/legacy"],
-  ["metadataValueCollection", "../metadata/commonObjects/metadataValueCollection/__fixtures__"],
+  ["metadataObjectRefCollection", "../metadata/commonObjects/metadataObjectRefCollection/__fixtures__"],
   ["picture", "../metadata/commonObjects/picture/__fixtures__"],
   ["userVisible", "../metadata/commonObjects/userVisible/__fixtures__"],
 ] as const
