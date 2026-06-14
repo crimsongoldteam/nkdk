@@ -4,6 +4,8 @@ import type { ConfigurationContext } from "~/metadata/context/types"
 import type { MetadataItem } from "~/metadata/orchestration/property/types"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { createOwnerMetadataCache } from "./dataPath/ownerCache"
+import { validateMetadataTargetsInModel } from "./metadataTargetTraversal"
+import { createProjectMetadataResolver, type ProjectMetadataResolver } from "./projectMetadataResolver"
 import { exportJSONSchemaForSchemaName, ProjectFileSchemaError } from "./projectFileSchema"
 import {
   discoverValidationProjectFiles,
@@ -42,6 +44,7 @@ export function validateProject(params: ValidateProjectParams): ValidateProjectR
   const context = params.context ?? defaultValidationContext()
   const cache = createProjectYamlCache()
   const ownerCache = createOwnerMetadataCache({ projectDir, yamlCache: cache, context })
+  const metadataResolver = createProjectMetadataResolver({ projectDir, yamlCache: cache, context, ownerCache })
   const schemaCache = createValidationSchemaCache(context)
   const files =
     params.filePath === undefined
@@ -51,7 +54,7 @@ export function validateProject(params: ValidateProjectParams): ValidateProjectR
   const diagnostics: Diagnostic[] = []
   for (const file of files) {
     try {
-      diagnostics.push(...validateProjectFile({ projectDir, file, cache, context, ownerCache, schemaCache }))
+      diagnostics.push(...validateProjectFile({ projectDir, file, cache, context, ownerCache, metadataResolver, schemaCache }))
     } finally {
       cache.release(file.absolutePath)
     }
@@ -95,6 +98,7 @@ function validateProjectFile(params: {
   cache: ProjectYamlCache
   context: ConfigurationContext
   ownerCache: ReturnType<typeof createOwnerMetadataCache>
+  metadataResolver: ProjectMetadataResolver
   schemaCache: ValidationSchemaCache
 }): Diagnostic[] {
   if (params.file.kind === "form") {
@@ -110,6 +114,7 @@ function validateProjectForm(params: {
   cache: ProjectYamlCache
   context: ConfigurationContext
   ownerCache: ReturnType<typeof createOwnerMetadataCache>
+  metadataResolver: ProjectMetadataResolver
   schemaCache: ValidationSchemaCache
 }): Diagnostic[] {
   const schemaDiagnostics = validateProjectFileSchema({
@@ -144,6 +149,7 @@ function validateProjectProperties(params: {
   file: ValidationProjectFile
   cache: ProjectYamlCache
   context: ConfigurationContext
+  metadataResolver: ProjectMetadataResolver
   schemaCache: ValidationSchemaCache
 }): Diagnostic[] {
   const diagnostics = validateProjectFileSchema({
@@ -170,6 +176,13 @@ function validateProjectProperties(params: {
       parsed: entry.parsed,
       model: imported.model,
       rule: params.file.owner.spec.rule,
+    }),
+    ...validateMetadataTargetsInModel({
+      filePath: params.file.absolutePath,
+      parsed: entry.parsed,
+      model: imported.model,
+      rule: params.file.owner.spec.rule,
+      resolver: params.metadataResolver,
     }),
   ]
 }
