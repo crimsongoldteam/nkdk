@@ -52,7 +52,7 @@ export interface Font {
 }
 
 export interface FontFullYAML {
-  Вид?: SE.StyleFontsYAML | SE.WindowsFontsYAML | SE.FontTypeYAML | RawPrefixedFontRef
+  Вид?: SE.StyleFontsYAML | SE.WindowsFontsYAML | SE.FontTypeYAML | string
   ВидXML?: SE.FontType
   Значение?: string
   Имя?: string
@@ -65,7 +65,12 @@ export interface FontFullYAML {
 }
 
 export const FontJSONSchema = Type.Object({
-  Вид: Type.Optional(Type.String()),
+  Вид: Type.Optional(
+    Type.String({
+      examples: ["ОбычныйШрифтТекста", "СистемныйШрифт", "ЭлементСтиля.ОсновнойШрифт"],
+      description: "Встроенный шрифт или ссылка на элемент стиля проекта: ЭлементСтиля.<ИмяЭлементаСтиля>.",
+    })
+  ),
   ВидXML: Type.Optional(Type.String()),
   Значение: Type.Optional(Type.String()),
   Имя: Type.Optional(Type.String()),

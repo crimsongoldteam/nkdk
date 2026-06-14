@@ -17,7 +17,7 @@ describe("exportBorderToYAML", () => {
     }
 
     const expectedResult: BorderYAML = {
-      Имя: "Solid",
+      Имя: "ЭлементСтиля.Solid",
       Ширина: 1,
       ТипРамки: "Двойная",
     }

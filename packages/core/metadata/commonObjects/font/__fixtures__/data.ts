@@ -73,12 +73,12 @@ export const styleMinimalFontYAML: FontObjectYAML = {
 // #region unknownStyleMinimalFont
 
 export const unknownStyleMinimalFont: Font = {
-  ref: "style:TooltipTitleFont",
+  ref: "TooltipTitleFont",
   kind: "StyleItem",
 }
 
 export const unknownStyleMinimalFontYAML: FontObjectYAML = {
-  Вид: "style:TooltipTitleFont",
+  Вид: "ЭлементСтиля.TooltipTitleFont",
 }
 
 // #endregion
@@ -86,14 +86,14 @@ export const unknownStyleMinimalFontYAML: FontObjectYAML = {
 // #region unknownStyleWithFaceNameFont
 
 export const unknownStyleWithFaceNameFont: Font = {
-  ref: "style:TooltipTitleFont",
+  ref: "TooltipTitleFont",
   kind: "StyleItem",
   faceName: "Arial",
 }
 
 export const unknownStyleWithFaceNameFontYAML: FontObjectYAML = {
   Имя: "Arial",
-  Вид: "style:TooltipTitleFont",
+  Вид: "ЭлементСтиля.TooltipTitleFont",
 }
 
 // #endregion

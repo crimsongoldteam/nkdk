@@ -4,6 +4,7 @@ import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
+import { parseMetadataTargetFromYAML } from "../metadataTargets"
 import { isRawPictureRefValue, Picture, PictureYAML, PictureYAMLExtended } from "./types"
 
 export const importPictureCombinedFromYAML = (
@@ -65,16 +66,12 @@ export const importPictureFromYAML = (
     return createPicture(standardPicture, "StandardPicture", loadTransparent, transparentPixel)
   }
 
-  // Determine if it's absolute or common picture
-  // Absolute pictures typically have file extensions
-  const isAbsolute = typeof ref === "string" && /\.\w+$/.test(ref)
+  const commonPicture = typeof ref === "string" ? tryImportCommonPicture(ref) : undefined
+  if (commonPicture) {
+    return createPicture(commonPicture, "CommonPicture", loadTransparent, transparentPixel)
+  }
 
-  return createPicture(
-    ref as string,
-    isAbsolute ? "AbsolutePicture" : "CommonPicture",
-    loadTransparent,
-    transparentPixel
-  )
+  return createPicture(ref as string, "AbsolutePicture", loadTransparent, transparentPixel)
 }
 
 function isPictureYAMLExtended(data: PictureYAML): data is PictureYAMLExtended {
@@ -90,6 +87,17 @@ function tryimportStandardPicture(context: ConfigurationContext, ref: string): S
     )
   }
   return undefined
+}
+
+function tryImportCommonPicture(ref: string): string | undefined {
+  if (!ref.startsWith("ОбщаяКартинка.")) return undefined
+
+  const parsed = parseMetadataTargetFromYAML({
+    value: ref,
+    constraint: { kind: "commonPicture" },
+  })
+  if (!parsed.ok) throw new Error(parsed.message)
+  return parsed.target.kind === "commonPicture" ? parsed.target.name : undefined
 }
 
 function createPicture(

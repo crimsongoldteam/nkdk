@@ -72,4 +72,14 @@ describe("exportPictureToYAML", () => {
       exportPictureToYAML(mockContext, mockRule, invalidStandardPicture)
     }).toThrowError()
   })
+
+  it("exports common picture refs with Russian metadata root", () => {
+    const result = exportPictureToYAML(mockContext, mockRule, {
+      ref: "Логотип",
+      type: "CommonPicture",
+      loadTransparent: false,
+    })
+
+    expect(result).toBe("ОбщаяКартинка.Логотип")
+  })
 })

@@ -7,8 +7,10 @@ import {
   type MetadataFieldKind,
   type MetadataRootName,
   type ParsedMetadataTarget,
+  type StyleItemTargetType,
 } from "~/metadata/commonObjects/metadataTargets"
 import type { ConfigurationContext } from "~/metadata/context/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 import { createOwnerMetadataCache, type OwnerMetadataCache } from "./dataPath/ownerCache"
 import { getObjectField, type ObjectField, type ObjectFieldKind } from "./dataPath/objectFields"
 import type { ProjectYamlCache } from "./projectYamlCache"
@@ -29,7 +31,7 @@ export interface ProjectMetadataResolver {
   resolveObject(params: { target: Extract<ParsedMetadataTarget, { kind: "object" }> }): MetadataResolveResult
   resolveField(params: { target: Extract<ParsedMetadataTarget, { kind: "field" }> }): MetadataResolveResult
   resolveValue(params: { target: Extract<ParsedMetadataTarget, { kind: "value" }> }): MetadataResolveResult
-  resolveStyleItem(params: { name: string; expectedTypes: readonly ("Color" | "Font" | "Border")[] }): MetadataResolveResult
+  resolveStyleItem(params: { name: string; expectedTypes: readonly StyleItemTargetType[] }): MetadataResolveResult
   resolveCommonPicture(params: { name: string }): MetadataResolveResult
 }
 
@@ -95,9 +97,19 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
       return referenceError(owner.owner.filePath, `Не найдено значение "${formatValueTarget(target)}"`)
     },
 
-    resolveStyleItem({ name }) {
+    resolveStyleItem({ name, expectedTypes }) {
       const filePath = join(projectDir, rootToYAML.StyleItem, name, "Свойства.yaml")
-      return existsSync(filePath) ? { ok: true, filePath } : referenceError(filePath, `Не найден элемент стиля "ЭлементСтиля.${name}"`)
+      if (!existsSync(filePath)) return referenceError(filePath, `Не найден элемент стиля "ЭлементСтиля.${name}"`)
+
+      const styleItemType = readStyleItemType({ filePath, yamlCache: params.yamlCache })
+      if (styleItemType && expectedTypes.length > 0 && !expectedTypes.includes(styleItemType)) {
+        return referenceError(
+          filePath,
+          `Элемент стиля "ЭлементСтиля.${name}" имеет тип "${styleItemType}", ожидался: ${expectedTypes.join(", ")}`,
+        )
+      }
+
+      return { ok: true, filePath }
     },
 
     resolveCommonPicture({ name }) {
@@ -105,6 +117,24 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
       return existsSync(filePath) ? { ok: true, filePath } : referenceError(filePath, `Не найдена общая картинка "ОбщаяКартинка.${name}"`)
     },
   }
+}
+
+function readStyleItemType(params: { filePath: string; yamlCache: ProjectYamlCache }): StyleItemTargetType | undefined {
+  const entry = params.yamlCache.get(params.filePath)
+  if ("error" in entry || entry.parsed.doc.errors.length > 0) return undefined
+
+  const typeValue = styleItemTypeValue(entry.parsed.data)
+  if (typeof typeValue !== "string") return undefined
+
+  return SE.StyleElementTypeFromYAML[typeValue as SE.StyleElementTypeYAML] ?? styleItemTypeFromModelValue(typeValue)
+}
+
+function styleItemTypeValue(data: unknown): unknown {
+  return typeof data === "object" && data !== null ? (data as Record<string, unknown>).Тип : undefined
+}
+
+function styleItemTypeFromModelValue(value: string): StyleItemTargetType | undefined {
+  return Object.prototype.hasOwnProperty.call(SE.StyleElementTypeToYAML, value) ? (value as StyleItemTargetType) : undefined
 }
 
 function resolveFieldSegments(

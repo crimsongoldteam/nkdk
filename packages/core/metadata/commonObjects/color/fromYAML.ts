@@ -3,6 +3,7 @@ import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegi
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
+import { parseMetadataTargetFromYAML } from "../metadataTargets"
 import { Color, ColorYAML, isRawColorRefValue } from "./types"
 
 export const importColorFromYAML = (
@@ -16,12 +17,11 @@ export const importColorFromYAML = (
     return { rawRef: data }
   }
 
-  // Проверяем, является ли это custom style color (начинается с "ЭлементСтиля.")
-  if (data.startsWith("ЭлементСтиля.")) {
-    const customValue = data.substring("ЭлементСтиля.".length)
+  const projectStyleRef = parseProjectStyleRefFromYAML(data)
+  if (projectStyleRef) {
     return {
       type: "StyleItem",
-      value: customValue,
+      value: projectStyleRef,
     }
   }
 
@@ -69,6 +69,21 @@ export const importColorFromYAML = (
     type: "Absolute",
     value: data,
   }
+}
+
+function parseProjectStyleRefFromYAML(value: string): string | undefined {
+  if (!value.startsWith("ЭлементСтиля.") && !isRawPrefixedColorRef(value)) return undefined
+
+  const parsed = parseMetadataTargetFromYAML({
+    value,
+    constraint: { kind: "styleItem", styleItemTypes: ["Color"] },
+  })
+  if (!parsed.ok) throw new Error(parsed.message)
+  return parsed.target.kind === "styleItem" ? parsed.target.name : undefined
+}
+
+function isRawPrefixedColorRef(value: string): boolean {
+  return value.startsWith("style:") || value.startsWith("win:") || value.startsWith("web:")
 }
 
 registerTypeRule("Color", "importFromYAML", importColorFromYAML)

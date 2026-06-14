@@ -30,4 +30,10 @@ describe("importColorFromYAML", () => {
 
     expect(result).toEqual({ type: "Absolute", value: "0:not-a-uuid" })
   })
+
+  it("rejects raw XML style refs from YAML", () => {
+    expect(() => importColorFromYAML(mockContext, mockRule, "style:SpecialTextColor" as never)).toThrow(
+      'Неизвестный корень "style:SpecialTextColor"'
+    )
+  })
 })

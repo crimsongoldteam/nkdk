@@ -4,6 +4,7 @@ import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
 import { exportBooleanToYAML } from "../boolean/toYAML"
+import { formatMetadataTargetToYAML } from "../metadataTargets"
 import { isRawPictureRef, type Picture, type PictureYAML, type PictureYAMLExtended } from "./types"
 
 export function exportPictureToYAML(
@@ -46,6 +47,11 @@ export function exportPictureToYAML(
     if (!result) throw new Error(`Picture ref ${picture.ref} not found in PictureLibToYAML`)
 
     ref = result
+  } else if (picture.type === "CommonPicture") {
+    ref = formatMetadataTargetToYAML({
+      canonical: `CommonPicture.${picture.ref}`,
+      constraint: { kind: "commonPicture" },
+    })
   } else {
     ref = picture.ref
   }

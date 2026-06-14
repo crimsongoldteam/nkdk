@@ -75,6 +75,16 @@ describe("importPictureFromYAML", () => {
         expect(result).not.toEqual({ rawRef: ref })
       }
     )
+
+    it("imports common picture refs with Russian metadata root", () => {
+      const result = importPictureFromYAML(mockContext, mockRule, "ОбщаяКартинка.Логотип")
+
+      expect(result).toEqual({
+        ref: "Логотип",
+        type: "CommonPicture",
+        loadTransparent: false,
+      })
+    })
   })
   // describe("importPictureCombinedFromYAML", () => {
   //   it("should return undefined for undefined input", () => {

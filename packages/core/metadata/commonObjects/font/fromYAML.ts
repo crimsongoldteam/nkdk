@@ -4,6 +4,7 @@ import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnum
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
+import { parseMetadataTargetFromYAML } from "../metadataTargets"
 import { Font, FontFullYAML, FontYAML, isRawPrefixedFontRef } from "./types"
 
 export const importFontFromYAML = (
@@ -53,12 +54,8 @@ export const importFontFromYAML = (
 }
 
 const importRefFromYAML = (context: ConfigurationContext, value: string): Pick<Font, "ref" | "kind"> | undefined => {
-  if (isRawPrefixedFontRef(value)) {
-    return {
-      ref: value,
-      kind: value.startsWith("style:") ? "StyleItem" : "WindowsFont",
-    }
-  }
+  const projectStyleRef = parseProjectStyleRefFromYAML(value)
+  if (projectStyleRef) return { ref: projectStyleRef, kind: "StyleItem" }
 
   const styleFontRef = importSystemEnumerationFromYAMLDeprecated<SE.StyleFonts>(
     context,
@@ -85,6 +82,17 @@ const importRefFromYAML = (context: ConfigurationContext, value: string): Pick<F
   }
 
   return undefined
+}
+
+function parseProjectStyleRefFromYAML(value: string): string | undefined {
+  if (!value.includes(".") && !isRawPrefixedFontRef(value)) return undefined
+
+  const parsed = parseMetadataTargetFromYAML({
+    value,
+    constraint: { kind: "styleItem", styleItemTypes: ["Font"] },
+  })
+  if (!parsed.ok) throw new Error(parsed.message)
+  return parsed.target.kind === "styleItem" ? parsed.target.name : undefined
 }
 
 registerTypeRule("Font", "importFromYAML", importFontFromYAML)

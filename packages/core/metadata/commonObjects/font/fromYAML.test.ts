@@ -35,4 +35,23 @@ describe("importFontFromYAML", () => {
       "Font: ожидался объект YAML"
     )
   })
+
+  it("imports project style item refs with Russian metadata root", () => {
+    const result = importFontFromYAML(mockContext, mockRule, {
+      Вид: "ЭлементСтиля.TooltipTitleFont",
+    })
+
+    expect(result).toEqual({
+      ref: "TooltipTitleFont",
+      kind: "StyleItem",
+    })
+  })
+
+  it("rejects raw XML style refs from YAML", () => {
+    expect(() =>
+      importFontFromYAML(mockContext, mockRule, {
+        Вид: "style:TooltipTitleFont",
+      } as never)
+    ).toThrow('Неизвестный корень "style:TooltipTitleFont"')
+  })
 })

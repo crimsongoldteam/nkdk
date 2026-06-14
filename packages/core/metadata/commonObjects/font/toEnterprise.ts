@@ -1,4 +1,5 @@
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import * as SE from "~/metadata/systemEnumerations/types"
 import { Font, FontEnterprise, isRawPrefixedFontRef } from "./types"
 
 export const exportFontToEnterprise = (params: { value: Font | undefined }): FontEnterprise | undefined => {
@@ -14,7 +15,7 @@ export const exportFontToEnterprise = (params: { value: Font | undefined }): Fon
   } else if (font.kind === "WindowsFont" && font.ref) {
     result.Value = `WindowsFonts.${font.ref}`
   } else if (font.kind === "StyleItem" && font.ref) {
-    result.Value = `StyleFonts.${font.ref}`
+    result.Value = isKnownStyleFont(font.ref) ? `StyleFonts.${font.ref}` : `style:${font.ref}`
   }
 
   if (font.faceName !== undefined) result.Name = font.faceName
@@ -26,6 +27,10 @@ export const exportFontToEnterprise = (params: { value: Font | undefined }): Fon
   if (font.strikeout !== undefined) result.Strikeout = font.strikeout
 
   return result
+}
+
+function isKnownStyleFont(ref: string): ref is SE.StyleFonts {
+  return Object.prototype.hasOwnProperty.call(SE.StyleFontsToYAML, ref)
 }
 
 registerTypeRule("Font", "exportToEnterprise", exportFontToEnterprise)

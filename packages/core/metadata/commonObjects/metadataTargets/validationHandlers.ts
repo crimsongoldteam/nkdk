@@ -1,7 +1,9 @@
 import type { ValidateMetadataTargetFunction } from "~/metadata/orchestration/property/fn"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import * as SE from "~/metadata/systemEnumerations/types"
 import { diagnosticAtYamlPath } from "~/metadata/validation/yamlLocations"
 import { parseMetadataTargetFromModel } from "./parse"
+import type { StyleItemTargetType } from "./types"
 import type { MetadataTargetConstraint, ParsedMetadataTarget } from "./types"
 
 const validateStringTarget: ValidateMetadataTargetFunction = (params) => {
@@ -26,6 +28,33 @@ const validateMetadataValueTarget: ValidateMetadataTargetFunction = (params) => 
   if (params.value.value === "" || isDesignTimeRefUuid(params.value.value)) return []
 
   return validateCanonicalTarget(params, params.value.value)
+}
+
+const validateColorTarget: ValidateMetadataTargetFunction = (params) => {
+  if (!isRecord(params.value) || params.value.type !== "StyleItem" || typeof params.value.value !== "string") return []
+  if (isKnownStyleColor(params.value.value)) return []
+
+  return resolveStyleItem(params, params.value.value, ["Color"])
+}
+
+const validateFontTarget: ValidateMetadataTargetFunction = (params) => {
+  if (!isRecord(params.value) || params.value.kind !== "StyleItem" || typeof params.value.ref !== "string") return []
+  if (isKnownStyleFont(params.value.ref)) return []
+
+  return resolveStyleItem(params, params.value.ref, ["Font"])
+}
+
+const validateBorderTarget: ValidateMetadataTargetFunction = (params) => {
+  if (!isRecord(params.value) || typeof params.value.ref !== "string") return []
+
+  return resolveStyleItem(params, params.value.ref, ["Border"])
+}
+
+const validatePictureTarget: ValidateMetadataTargetFunction = (params) => {
+  if (!isRecord(params.value) || params.value.type !== "CommonPicture" || typeof params.value.ref !== "string") return []
+
+  const result = params.resolver.resolveCommonPicture({ name: params.value.ref })
+  return result.ok ? [] : result.diagnostics
 }
 
 function validateCanonicalTarget(
@@ -88,6 +117,15 @@ function resolveParsedTarget(params: {
   return []
 }
 
+function resolveStyleItem(
+  params: Parameters<ValidateMetadataTargetFunction>[0],
+  name: string,
+  expectedTypes: readonly StyleItemTargetType[],
+): ReturnType<ValidateMetadataTargetFunction> {
+  const result = params.resolver.resolveStyleItem({ name, expectedTypes })
+  return result.ok ? [] : result.diagnostics
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
 }
@@ -98,9 +136,21 @@ function isDesignTimeRefUuid(value: string): boolean {
   )
 }
 
+function isKnownStyleColor(value: string): value is SE.StyleColors {
+  return Object.prototype.hasOwnProperty.call(SE.StyleColorsToYAML, value)
+}
+
+function isKnownStyleFont(value: string): value is SE.StyleFonts {
+  return Object.prototype.hasOwnProperty.call(SE.StyleFontsToYAML, value)
+}
+
 registerTypeRule("MetadataItemLink", "validateMetadataTarget", validateStringTarget)
 registerTypeRule("MetadataItemLinks", "validateMetadataTarget", validateStringTargetList)
 registerTypeRule("MetadataField", "validateMetadataTarget", validateStringTarget)
 registerTypeRule("MetadataFields", "validateMetadataTarget", validateStringTargetList)
 registerTypeRule("MetadataObjectRefCollection", "validateMetadataTarget", validateStringTargetList)
 registerTypeRule("MetadataValue", "validateMetadataTarget", validateMetadataValueTarget)
+registerTypeRule("Color", "validateMetadataTarget", validateColorTarget)
+registerTypeRule("Font", "validateMetadataTarget", validateFontTarget)
+registerTypeRule("Border", "validateMetadataTarget", validateBorderTarget)
+registerTypeRule("Picture", "validateMetadataTarget", validatePictureTarget)
