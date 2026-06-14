@@ -252,7 +252,10 @@ import {
 import { DateTimeYAML } from "~/metadata/commonObjects/dateTime/types"
 import { FieldsList, FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
 import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
-import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"
+import {
+  FormattedI8nText,
+  FormattedI8nTextValueYAML,
+} from "~/metadata/commonObjects/formattedI8nText/types"
 import { FunctionalOptions, FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { IndexField, IndexFieldYAML } from "~/metadata/commonObjects/indexField/types"
@@ -622,7 +625,7 @@ export interface PropertyTypeRegistry {
   FormattedI8nText: {
     item: FormattedI8nText
     enterprise: string
-    yaml: FormattedI8nTextYAML
+    yaml: FormattedI8nTextValueYAML
   }
   Font: {
     item: Font

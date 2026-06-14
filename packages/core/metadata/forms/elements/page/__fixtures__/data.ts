@@ -46,7 +46,7 @@ export const fullPage: RequiredFieldsElement<
 export const fullPagePartialYAML: PagePartialYAML = {
   ...fullFormGroupPartialYAMLCommonFixture,
   СочетаниеКлавиш: "S",
-  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
+  РасширеннаяПодсказка: { Заголовок: { Текст: "Расширенная подсказка" } },
   ВажностьПриОтображении: "ОченьВысокая",
   ВертикальноеПоложение: "Низ",
   ВертикальныйИнтервал: "Двойной",

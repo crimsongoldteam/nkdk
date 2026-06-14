@@ -70,7 +70,7 @@ export const fullSingleSearchStringAdditionYAML: SingleSearchStringAdditionYAML 
   Ширина: 300,
   Шрифт: { Вид: "ОбычныйШрифтТекста" },
   КонтекстноеМеню: { Автозаполнение: "Ложь" },
-  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
+  РасширеннаяПодсказка: { Заголовок: { Текст: "Расширенная подсказка" } },
 }
 
 export const fullSearchStringAdditionYAML: SearchStringAdditionYAML = {

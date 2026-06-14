@@ -66,6 +66,21 @@ describe("JSON Schema registry", () => {
     })
   })
 
+  it("accepts value-based formatted title in label decoration schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "LabelDecoration" })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(
+      compiled.Check({
+        Вид: "Надпись",
+        Заголовок: {
+          Форматированный: "Истина",
+          Текст: "<b>Заголовок</>",
+        },
+      })
+    ).toBe(true)
+  })
+
   it("exports nested child items as refs by default", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup" })
     const json = JSON.stringify(schema)

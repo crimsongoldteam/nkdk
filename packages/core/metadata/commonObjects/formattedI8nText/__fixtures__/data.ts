@@ -1,15 +1,19 @@
-import { FormattedI8nText, FormattedI8nTextYAML } from "~/metadata/commonObjects/formattedI8nText/types"
-import { I8nText } from "~/metadata/commonObjects/i8nText/types"
+import {
+  FormattedI8nText,
+  FormattedI8nTextValueYAML,
+} from "~/metadata/commonObjects/formattedI8nText/types"
+import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 
 export interface FormattedI8nTextFixture {
   name: string
   text: FormattedI8nText | undefined
   textFromStructure?: I8nText | undefined
-  textYAML?: FormattedI8nTextYAML | undefined
-  formattedTextYAML?: FormattedI8nTextYAML | undefined
+  valueYAML?: FormattedI8nTextValueYAML | undefined
+  textYAML?: I8nTextYAML | undefined
+  formattedTextYAML?: I8nTextYAML | undefined
   defaultLanguageYAML?: string | undefined
-  otherLanguagesTextYAML?: FormattedI8nTextYAML | undefined
-  otherLanguagesFormattedTextYAML?: FormattedI8nTextYAML | undefined
+  otherLanguagesTextYAML?: I8nTextYAML | undefined
+  otherLanguagesFormattedTextYAML?: I8nTextYAML | undefined
   xml?: string
 }
 
@@ -17,6 +21,7 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   {
     name: "undefined",
     text: undefined,
+    valueYAML: undefined,
     textYAML: undefined,
     formattedTextYAML: undefined,
     defaultLanguageYAML: undefined,
@@ -27,6 +32,7 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
     name: "only default language with formatted false",
     text: { formatted: false, items: { ru: "Поле" } },
     textFromStructure: { items: { ru: "Поле" } },
+    valueYAML: { Текст: "Поле" },
     textYAML: "Поле",
     formattedTextYAML: undefined,
     defaultLanguageYAML: "Поле",
@@ -43,6 +49,7 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
     name: "only default language with formatted true",
     text: { formatted: true, items: { ru: "Поле" } },
     textFromStructure: { items: { ru: "Поле" } },
+    valueYAML: { Форматированный: "Истина", Текст: "Поле" },
     textYAML: undefined,
     formattedTextYAML: "Поле",
     defaultLanguageYAML: "Поле",
@@ -58,6 +65,7 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   {
     name: "only other languages (single language) with formatted false",
     text: { formatted: false, items: { en: "Field" } },
+    valueYAML: { Текст: { en: "Field" } },
     textYAML: { en: "Field" },
     formattedTextYAML: undefined,
     defaultLanguageYAML: undefined,
@@ -73,6 +81,7 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   {
     name: "only other languages (single language) with formatted true",
     text: { formatted: true, items: { en: "Field" } },
+    valueYAML: { Форматированный: "Истина", Текст: { en: "Field" } },
     textYAML: undefined,
     formattedTextYAML: { en: "Field" },
     defaultLanguageYAML: undefined,
@@ -88,6 +97,7 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   {
     name: "only other languages (multiple languages) with formatted false",
     text: { formatted: false, items: { en: "Field" } },
+    valueYAML: { Текст: { en: "Field" } },
     textYAML: { en: "Field" },
     formattedTextYAML: undefined,
     defaultLanguageYAML: undefined,
@@ -103,6 +113,7 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   {
     name: "only other languages (multiple languages) with formatted true",
     text: { formatted: true, items: { en: "Field" } },
+    valueYAML: { Форматированный: "Истина", Текст: { en: "Field" } },
     textYAML: undefined,
     formattedTextYAML: { en: "Field" },
     defaultLanguageYAML: undefined,
@@ -119,6 +130,7 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
     name: "both default and other languages with formatted false",
     text: { formatted: false, items: { ru: "Поле", en: "Field" } },
     textFromStructure: { items: { ru: "Поле" } },
+    valueYAML: { Текст: { ru: "Поле", en: "Field" } },
     textYAML: { ru: "Поле", en: "Field" },
     formattedTextYAML: undefined,
     defaultLanguageYAML: "Поле",
@@ -139,6 +151,7 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
     name: "both default and other languages with formatted true",
     text: { formatted: true, items: { ru: "Поле", en: "Field" } },
     textFromStructure: { items: { ru: "Поле" } },
+    valueYAML: { Форматированный: "Истина", Текст: { ru: "Поле", en: "Field" } },
     textYAML: undefined,
     formattedTextYAML: { ru: "Поле", en: "Field" },
     defaultLanguageYAML: "Поле",
@@ -159,6 +172,7 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
     name: "with escaped content and formatted false",
     text: { formatted: false, items: { ru: "<Текст с экранированным символом>" } },
     textFromStructure: { items: { ru: "<Текст с экранированным символом>" } },
+    valueYAML: { Текст: "<Текст с экранированным символом>" },
     textYAML: "<Текст с экранированным символом>",
     formattedTextYAML: undefined,
     defaultLanguageYAML: "<Текст с экранированным символом>",
@@ -175,6 +189,7 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
     name: "with escaped content and formatted true",
     text: { formatted: true, items: { ru: 'Тест экранирования: & < > " \' ]]>' } },
     textFromStructure: { items: { ru: 'Тест экранирования: & < > " \' ]]>' } },
+    valueYAML: { Форматированный: "Истина", Текст: 'Тест экранирования: & < > " \' ]]>' },
     textYAML: undefined,
     formattedTextYAML: 'Тест экранирования: & < > " \' ]]>',
     defaultLanguageYAML: 'Тест экранирования: & < > " \' ]]>',
