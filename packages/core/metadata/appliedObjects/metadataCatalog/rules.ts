@@ -91,8 +91,8 @@ export const MetadataCatalogRules = {
       yaml: "ВводитсяНаОсновании",
       type: "MetadataObjectRefCollection",
       xmlParents: ["Properties"],
-      referenceScope: { target: "topLevel", allowedTypes: ["Справочник", "Документ"] },
-      metadataTarget: { kind: "object" },
+      referenceScope: { target: "topLevel", allowedTypes: ["Справочник", "Документ", "ПланСчетов"] },
+      metadataTarget: { kind: "object", roots: ["Catalog", "Document", "ChartOfAccounts"] },
       defaultValueXMLRaw: {},
     },
     characteristics: {
@@ -371,7 +371,7 @@ export const MetadataCatalogRules = {
       type: "MetadataObjectRefCollection",
       xmlParents: ["Properties"],
       referenceScope: { target: "topLevel", allowedTypes: ["Справочник", "Документ"] },
-      metadataTarget: { kind: "object" },
+      metadataTarget: { kind: "object", roots: ["Catalog", "Document"] },
       defaultValueXMLRaw: {},
     },
     objectModule: {

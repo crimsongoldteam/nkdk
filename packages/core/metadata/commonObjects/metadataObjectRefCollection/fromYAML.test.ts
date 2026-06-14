@@ -40,4 +40,22 @@ describe("importMetadataObjectRefCollectionFromYAML", () => {
       'Неизвестный корень "Catalog"'
     )
   })
+
+  it("honors metadataTarget roots", () => {
+    const rule = {
+      type: "MetadataObjectRefCollection",
+      metadataTarget: { kind: "object", roots: ["Catalog", "Document"] },
+    } as const
+
+    expect(
+      importMetadataObjectRefCollectionFromYAML(mockContext, rule, [
+        "Справочник.Контрагенты",
+        "Документ.ЗаказПокупателя",
+      ])
+    ).toEqual(["Catalog.Контрагенты", "Document.ЗаказПокупателя"])
+
+    expect(() => importMetadataObjectRefCollectionFromYAML(mockContext, rule, ["Перечисление.Статусы"])).toThrow(
+      'Корень "Enum" не разрешён для цели метаданных'
+    )
+  })
 })
