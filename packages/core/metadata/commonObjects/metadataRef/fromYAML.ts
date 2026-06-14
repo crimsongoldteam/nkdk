@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration"
 import { ConfigurationContext } from "../../context/types"
-import { importMetadataFieldStringFromYAML } from "../metadataPath/fromYAML"
+import { importMetadataObjectStringFromYAML } from "../metadataPath/fromYAML"
 import { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -21,7 +21,16 @@ export const importMetadataItemLinkFromYAML = (
 ): MetadataItemLink | undefined => {
   if (data === undefined) return undefined
 
-  return importMetadataFieldStringFromYAML(context, undefined, fromRoleYAML(rule, data))
+  const roleAwareValue = fromRoleYAML(rule, data)
+  if (roleAwareValue !== data) return roleAwareValue
+  if (rule?.roleReferenceYAML === "name" && UUID_PATTERN.test(data)) return data
+
+  try {
+    return importMetadataObjectStringFromYAML(context, rule, roleAwareValue)
+  } catch (error) {
+    if (rule?.roleReferenceYAML === "name") return roleAwareValue
+    throw error
+  }
 }
 
 export const importMetadataItemLinksFromYAML = (

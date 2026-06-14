@@ -1,7 +1,7 @@
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { exportMetadataFieldStringToYAML } from "../metadataPath/toYAML"
+import { exportMetadataObjectStringToYAML } from "../metadataPath/toYAML"
 import { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
 
 const toRoleYAML = (rule: { roleReferenceYAML?: "full" | "name" } | undefined, value: string): string => {
@@ -16,7 +16,15 @@ export const exportMetadataItemLinkToYAML = (
 ): MetadataItemLinkYAML | undefined => {
   if (data === undefined) return undefined
 
-  return exportMetadataFieldStringToYAML(context, rule, toRoleYAML(rule, data))
+  const roleAwareValue = toRoleYAML(rule, data)
+  if (roleAwareValue !== data) return roleAwareValue
+
+  try {
+    return exportMetadataObjectStringToYAML(context, rule, roleAwareValue)
+  } catch (error) {
+    if (rule?.roleReferenceYAML === "name") return roleAwareValue
+    throw error
+  }
 }
 
 export const exportMetadataItemLinksToYAML = (

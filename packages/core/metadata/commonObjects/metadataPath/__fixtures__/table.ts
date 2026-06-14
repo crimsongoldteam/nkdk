@@ -34,18 +34,21 @@ export const tableMetadataFields = [
     "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
     "Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит",
   ],
-  ["Catalog.КакойТоСправочник.StandardAttribute.Owner", "Справочник.КакойТоСправочник.СтандартныйРеквизит.Владелец"],
+  [
+    "Catalog.КакойТоСправочник.StandardAttribute.Владелец",
+    "Справочник.КакойТоСправочник.СтандартныйРеквизит.Владелец",
+  ],
 
   [
-    "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.StandardAttribute.LineNumber",
+    "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.StandardAttribute.НомерСтроки",
     "Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.СтандартныйРеквизит.НомерСтроки",
   ],
   [
-    "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ref",
+    "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ссылка",
     "Справочник.Номенклатура.ТабличнаяЧасть.ДополнительныеРеквизиты.СтандартныйРеквизит.Ссылка",
   ],
   [
-    "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ref",
+    "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ссылка",
     "Справочник.Номенклатура.ТабличнаяЧасть.ДополнительныеРеквизиты.СтандартныйРеквизит.Ссылка",
   ],
 
@@ -66,19 +69,19 @@ export const tableMetadataFields = [
     "РегистрСведений.ДополнительныеСведения.Реквизит.Информация",
   ],
   [
-    "InformationRegister.КакойТоРегистрСведений.StandardAttribute.Active",
+    "InformationRegister.КакойТоРегистрСведений.StandardAttribute.Активность",
     "РегистрСведений.КакойТоРегистрСведений.СтандартныйРеквизит.Активность",
   ],
   [
-    "InformationRegister.КакойТоРегистрСведений.StandardAttribute.LineNumber",
+    "InformationRegister.КакойТоРегистрСведений.StandardAttribute.НомерСтроки",
     "РегистрСведений.КакойТоРегистрСведений.СтандартныйРеквизит.НомерСтроки",
   ],
   [
-    "InformationRegister.КакойТоРегистрСведений.StandardAttribute.Recorder",
+    "InformationRegister.КакойТоРегистрСведений.StandardAttribute.Регистратор",
     "РегистрСведений.КакойТоРегистрСведений.СтандартныйРеквизит.Регистратор",
   ],
   [
-    "InformationRegister.КакойТоРегистрСведений.StandardAttribute.Period",
+    "InformationRegister.КакойТоРегистрСведений.StandardAttribute.Период",
     "РегистрСведений.КакойТоРегистрСведений.СтандартныйРеквизит.Период",
   ],
 ]

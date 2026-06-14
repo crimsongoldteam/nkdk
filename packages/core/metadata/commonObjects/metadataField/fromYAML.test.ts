@@ -24,12 +24,11 @@ describe("importMetadataFieldFromYAML", () => {
   it("should import with standard attribute", () => {
     const enterprise = "Справочник.ЗоныТарифыДоставки.СтандартныйРеквизит.Владелец"
     const result = importMetadataFieldFromYAML(mockContext, mockRule, enterprise)
-    expect(result).toEqual("Catalog.ЗоныТарифыДоставки.StandardAttribute.Owner")
+    expect(result).toEqual("Catalog.ЗоныТарифыДоставки.StandardAttribute.Владелец")
   })
 
-  it("should import with form object", () => {
+  it("rejects form-local data paths", () => {
     const enterprise = "Объект.Организация"
-    const result = importMetadataFieldFromYAML(mockContext, mockRule, enterprise)
-    expect(result).toEqual("Объект.Организация")
+    expect(() => importMetadataFieldFromYAML(mockContext, mockRule, enterprise)).toThrow('Неизвестный корень "Объект"')
   })
 })

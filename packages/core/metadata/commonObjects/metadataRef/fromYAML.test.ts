@@ -12,17 +12,17 @@ describe("importMetadataItemLinkFromYAML", () => {
   })
 
   it("should keep user-defined item name that matches metadata type alias literal", () => {
-    const result = importMetadataItemLinkFromYAML(mockContext, mockRule, "ОбщаяКоманда.ПланСчетов")
+    const result = importMetadataItemLinkFromYAML(mockContext, mockRule, "Справочник.ПланСчетов")
 
-    expect(result).toEqual("CommonCommand.ПланСчетов")
+    expect(result).toEqual("Catalog.ПланСчетов")
   })
 
   it("should register metadata item link YAML importer", () => {
     const importFromYAML = getTypeRule("MetadataItemLink", "importFromYAML") as importFromYAMLFunction
 
-    const result = importFromYAML(mockContext, mockRule, "ОбщаяКоманда.ПланСчетов")
+    const result = importFromYAML(mockContext, { ...mockRule, type: "MetadataItemLink" }, "Справочник.ПланСчетов")
 
-    expect(result).toEqual("CommonCommand.ПланСчетов")
+    expect(result).toEqual("Catalog.ПланСчетов")
   })
 
   it("imports short role references back to full Role reference when rule asks for name form", () => {
@@ -52,11 +52,11 @@ describe("importMetadataItemLinkFromYAML", () => {
 describe("importMetadataItemLinksFromYAML", () => {
   it("should keep user-defined item names that match metadata type aliases literal", () => {
     const result = importMetadataItemLinksFromYAML(mockContext, mockRule, [
-      "ОбщаяКоманда.ПланСчетов",
+      "Справочник.ПланСчетов",
       "Документ.Продажа",
     ])
 
-    expect(result).toEqual(["CommonCommand.ПланСчетов", "Document.Продажа"])
+    expect(result).toEqual(["Catalog.ПланСчетов", "Document.Продажа"])
   })
 
   it("imports short role references back to full Role reference when rule asks for name form", () => {

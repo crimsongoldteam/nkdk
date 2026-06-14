@@ -12,9 +12,9 @@ describe("exportMetadataItemLinkToYAML", () => {
   })
 
   it("should keep user-defined item name that matches metadata type alias literal", () => {
-    const result = exportMetadataItemLinkToYAML(mockContext, mockRule, "CommonCommand.ПланСчетов")
+    const result = exportMetadataItemLinkToYAML(mockContext, mockRule, "Catalog.ПланСчетов")
 
-    expect(result).toEqual("ОбщаяКоманда.ПланСчетов")
+    expect(result).toEqual("Справочник.ПланСчетов")
   })
 
   it("should register metadata item link YAML exporter", () => {

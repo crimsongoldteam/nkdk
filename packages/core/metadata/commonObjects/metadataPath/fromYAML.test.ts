@@ -8,6 +8,28 @@ describe("importMetadataFieldFromYAML", () => {
     const result = importMetadataFieldStringFromYAML(mockContext, mockRule, enterpriseValue)
     expect(result).toEqual(expected)
   })
+
+  test("imports full field path with service segments", () => {
+    expect(
+      importMetadataFieldStringFromYAML(
+        mockContext,
+        mockRule,
+        "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество"
+      )
+    ).toBe("Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество")
+  })
+
+  test("rejects short field path without service segments", () => {
+    expect(() =>
+      importMetadataFieldStringFromYAML(mockContext, mockRule, "Справочник.Номенклатура.Количество")
+    ).toThrow('Неизвестный сегмент "Количество"')
+  })
+
+  test("rejects English YAML root", () => {
+    expect(() => importMetadataFieldStringFromYAML(mockContext, mockRule, "Catalog.Контрагенты")).toThrow(
+      'Неизвестный корень "Catalog"'
+    )
+  })
 })
 
 describe("importMetadataValueStringFromYAML", () => {
@@ -17,8 +39,8 @@ describe("importMetadataValueStringFromYAML", () => {
   })
 
   test("keeps user-defined value path segment that matches metadata type alias literal", () => {
-    expect(importMetadataValueStringFromYAML(mockContext, mockRule, "ОбщаяКоманда.ПланСчетов")).toBe(
-      "CommonCommand.ПланСчетов"
+    expect(importMetadataValueStringFromYAML(mockContext, mockRule, "Справочник.ИмяСправочника.ПланСчетов")).toBe(
+      "Catalog.ИмяСправочника.ПланСчетов"
     )
   })
 
