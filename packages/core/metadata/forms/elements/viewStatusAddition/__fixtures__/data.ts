@@ -76,7 +76,7 @@ export const fullViewStatusAdditionYAML: ViewStatusAdditionYAML = {
   ОтображениеПодсказки: "Нет",
   Подсказка: "Подсказка",
   КонтекстноеМеню: { Автозаполнение: "Ложь" },
-  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
+  РасширеннаяПодсказка: { Заголовок: { Текст: "Расширенная подсказка" } },
 }
 
 export const visibleFalseViewStatusAdditionYAML: ViewStatusAdditionYAML = {

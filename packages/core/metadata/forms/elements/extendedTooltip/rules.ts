@@ -40,7 +40,6 @@ export const ExtendedTooltipRules = {
     title: {
       type: "FormattedI8nText",
       yaml: "Заголовок",
-      yamlFormatted: "ФорматированныйЗаголовок",
     },
     type: {
       yaml: "Вид",

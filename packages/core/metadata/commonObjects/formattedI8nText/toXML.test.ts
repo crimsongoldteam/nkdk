@@ -22,7 +22,6 @@ describe("exportFormattedI8nTextToXML", () => {
       it(`should export: ${fixture.name}`, () => {
         const rule: FormattedI8nTextPropertyRule = {
           type: "FormattedI8nText",
-          yamlFormatted: "ФорматированныйЗаголовок",
           xmlWithDefaultLanguage: true,
         }
         const result = exportFormattedI8nTextToXML(mockContext, rule, fixture.text)

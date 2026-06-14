@@ -4,27 +4,22 @@ import { mockContextToYAML, mockRule } from "~/tests/mockContext"
 import { exportFormattedI8nTextDefaultToYAML, exportFormattedI8nTextToYAML } from "./toYAML"
 import { FormattedI8nTextPropertyRule } from "./types"
 
-describe("exportFormattedI8nTextToYAML", () => {
-  describe("exportFormattedI8nTextToYAML", () => {
-    formattedI8nTextFixtures.forEach((fixture) => {
-      it(`should export: ${fixture.name}`, () => {
-        const result = exportFormattedI8nTextToYAML({
-          context: mockContextToYAML,
-          rule: {
-            type: "FormattedI8nText",
-            yaml: "Title",
-            yamlFormatted: "FormattedTitle",
-          } as unknown as FormattedI8nTextPropertyRule,
-          value: fixture.text,
-        })
+const formattedI8nTextRule: FormattedI8nTextPropertyRule = {
+  type: "FormattedI8nText",
+  yaml: "Title",
+}
 
-        if (fixture.text?.formatted) {
-          expect(result).toEqual({ FormattedTitle: fixture.formattedTextYAML })
-        } else {
-          const expected = fixture.textYAML ? { Title: fixture.textYAML } : {}
-          expect(result).toEqual(expected)
-        }
+describe("exportFormattedI8nTextToYAML", () => {
+  formattedI8nTextFixtures.forEach((fixture) => {
+    it(`should export: ${fixture.name}`, () => {
+      const result = exportFormattedI8nTextToYAML({
+        context: mockContextToYAML,
+        rule: formattedI8nTextRule,
+        value: fixture.text,
       })
+
+      const expected = fixture.valueYAML ? { Title: fixture.valueYAML } : {}
+      expect(result).toEqual(expected)
     })
   })
 

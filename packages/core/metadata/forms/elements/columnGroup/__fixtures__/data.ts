@@ -80,7 +80,7 @@ export const fullColumnGroupEnterprise = {
 
 export const fullColumnGroupPartialYAML: ColumnGroupPartialYAML = {
   ...fullFormGroupPartialYAMLCommonFixtureForColumnGroup,
-  РасширеннаяПодсказка: { Заголовок: "Расширенная подсказка" },
+  РасширеннаяПодсказка: { Заголовок: { Текст: "Расширенная подсказка" } },
   ВажностьПриОтображении: "ОченьВысокая",
   ГоризонтальноеПоложениеВШапке: "Лево",
   Группировка: "ВЯчейке",
