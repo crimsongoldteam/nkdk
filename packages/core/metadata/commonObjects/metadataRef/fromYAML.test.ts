@@ -25,6 +25,22 @@ describe("importMetadataItemLinkFromYAML", () => {
     expect(result).toEqual("Catalog.ПланСчетов")
   })
 
+  it("rejects english roots in registered metadata item link importer", () => {
+    const importFromYAML = getTypeRule("MetadataItemLink", "importFromYAML") as importFromYAMLFunction
+
+    expect(() => importFromYAML(mockContext, { ...mockRule, type: "MetadataItemLink" }, "Catalog.Контрагенты")).toThrow(
+      'Неизвестный корень "Catalog"'
+    )
+  })
+
+  it("imports russian roots in registered metadata item link importer", () => {
+    const importFromYAML = getTypeRule("MetadataItemLink", "importFromYAML") as importFromYAMLFunction
+
+    const result = importFromYAML(mockContext, { ...mockRule, type: "MetadataItemLink" }, "Справочник.Контрагенты")
+
+    expect(result).toEqual("Catalog.Контрагенты")
+  })
+
   it("imports short role references back to full Role reference when rule asks for name form", () => {
     const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
 
@@ -57,6 +73,14 @@ describe("importMetadataItemLinksFromYAML", () => {
     ])
 
     expect(result).toEqual(["Catalog.ПланСчетов", "Document.Продажа"])
+  })
+
+  it("rejects english roots in registered metadata item links importer", () => {
+    const importFromYAML = getTypeRule("MetadataItemLinks", "importFromYAML") as importFromYAMLFunction
+
+    expect(() =>
+      importFromYAML(mockContext, { ...mockRule, type: "MetadataItemLinks" }, ["Catalog.Контрагенты"])
+    ).toThrow('Неизвестный корень "Catalog"')
   })
 
   it("imports short role references back to full Role reference when rule asks for name form", () => {

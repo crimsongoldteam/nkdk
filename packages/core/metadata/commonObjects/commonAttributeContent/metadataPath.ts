@@ -1,10 +1,10 @@
-import { importMetadataFieldStringFromYAML } from "~/metadata/commonObjects/metadataPath/fromYAML"
-import { exportMetadataFieldStringToYAML } from "~/metadata/commonObjects/metadataPath/toYAML"
+import { importMetadataObjectStringFromYAML } from "~/metadata/commonObjects/metadataPath/fromYAML"
+import { exportMetadataObjectStringToYAML } from "~/metadata/commonObjects/metadataPath/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 
 const importPrefixOverrides: Record<string, string> = {
-  "Справочники.": "Catalog.",
-  "ПланыВидовРасчета.": "ChartOfCalculationTypes.",
+  "Справочники.": "Справочник.",
+  "ПланыВидовРасчета.": "ПланВидовРасчета.",
 }
 
 const exportPrefixOverrides: Record<string, string> = {
@@ -22,10 +22,10 @@ const replacePrefix = (value: string, replacements: Record<string, string>): str
 
 export const importCommonAttributeContentPathFromYAML = (context: ConfigurationContext, value: string): string => {
   const normalizedValue = replacePrefix(value, importPrefixOverrides)
-  return importMetadataFieldStringFromYAML(context, undefined, normalizedValue)!
+  return importMetadataObjectStringFromYAML(context, undefined, normalizedValue) ?? normalizedValue
 }
 
 export const exportCommonAttributeContentPathToYAML = (context: ConfigurationContext, value: string): string => {
-  const yamlValue = exportMetadataFieldStringToYAML(context, undefined, value)!
+  const yamlValue = exportMetadataObjectStringToYAML(context, undefined, value) ?? value
   return replacePrefix(yamlValue, exportPrefixOverrides)
 }

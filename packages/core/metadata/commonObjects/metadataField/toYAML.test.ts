@@ -27,8 +27,8 @@ describe("exportMetadataFieldToYAML", () => {
     expect(result).toEqual("Справочник.ЗоныТарифыДоставки.СтандартныйРеквизит.Владелец")
   })
 
-  it("rejects form-local data paths", () => {
+  it("skips form-local data paths", () => {
     const metadataField = "Объект.Организация"
-    expect(() => exportMetadataFieldToYAML(mockContext, mockRule, metadataField)).toThrow('Неизвестный корень "Объект"')
+    expect(exportMetadataFieldToYAML(mockContext, mockRule, metadataField)).toBeUndefined()
   })
 })

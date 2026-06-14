@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
+import { getTypeRule } from "~/metadata/orchestration"
+import { importFromYAMLFunction } from "~/metadata/orchestration/property/fn"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importMetadataFieldFromYAML } from "./fromYAML"
+import { importMetadataFieldFromYAML, importMetadataFieldsFromYAML } from "./fromYAML"
 
 describe("importMetadataFieldFromYAML", () => {
   it("should import metadata field from enterprise", () => {
@@ -27,8 +29,36 @@ describe("importMetadataFieldFromYAML", () => {
     expect(result).toEqual("Catalog.ЗоныТарифыДоставки.StandardAttribute.Владелец")
   })
 
-  it("rejects form-local data paths", () => {
+  it("skips form-local data paths", () => {
     const enterprise = "Объект.Организация"
-    expect(() => importMetadataFieldFromYAML(mockContext, mockRule, enterprise)).toThrow('Неизвестный корень "Объект"')
+    expect(importMetadataFieldFromYAML(mockContext, mockRule, enterprise)).toBeUndefined()
+  })
+
+  it("rejects short field paths in registered metadata field importer", () => {
+    const importFromYAML = getTypeRule("MetadataField", "importFromYAML") as importFromYAMLFunction
+
+    expect(() =>
+      importFromYAML(mockContext, { ...mockRule, type: "MetadataField" }, "Справочник.Номенклатура.Количество")
+    ).toThrow('Неизвестный сегмент "Количество"')
+  })
+
+  it("imports full field paths in registered metadata field importer", () => {
+    const importFromYAML = getTypeRule("MetadataField", "importFromYAML") as importFromYAMLFunction
+
+    const result = importFromYAML(
+      mockContext,
+      { ...mockRule, type: "MetadataField" },
+      "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество"
+    )
+
+    expect(result).toEqual("Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество")
+  })
+
+  it("imports full field paths in collections", () => {
+    const result = importMetadataFieldsFromYAML(mockContext, { ...mockRule, type: "MetadataFields" }, [
+      "Справочник.Номенклатура.Реквизит.Артикул",
+    ])
+
+    expect(result).toEqual(["Catalog.Номенклатура.Attribute.Артикул"])
   })
 })

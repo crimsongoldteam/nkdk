@@ -20,7 +20,10 @@ export const exportMetadataItemLinkToYAML = (
   if (roleAwareValue !== data) return roleAwareValue
 
   try {
-    return exportMetadataObjectStringToYAML(context, rule, roleAwareValue)
+    const exported = exportMetadataObjectStringToYAML(context, rule, roleAwareValue)
+    if (exported === undefined && rule?.roleReferenceYAML === "name") return roleAwareValue
+
+    return exported
   } catch (error) {
     if (rule?.roleReferenceYAML === "name") return roleAwareValue
     throw error

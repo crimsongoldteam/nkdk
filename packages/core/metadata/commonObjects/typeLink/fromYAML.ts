@@ -28,8 +28,7 @@ export const importTypeLinkFromYAML = (
   }
 
   // Преобразуем dataPath из формата YAML в формат XML
-  const dataPath = importMetadataFieldFromYAML(context, undefined, dataPathYAML)
-  if (!dataPath) return undefined
+  const dataPath = importMetadataFieldFromYAML(context, undefined, dataPathYAML) ?? dataPathYAML
 
   return {
     dataPath,

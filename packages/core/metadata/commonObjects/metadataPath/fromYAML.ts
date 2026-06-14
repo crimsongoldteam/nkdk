@@ -1,13 +1,8 @@
 import { Context } from "vm"
 import { parseMetadataTargetFromYAML } from "~/metadata/commonObjects/metadataTargets"
+import { isMetadataRootName, rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import type { MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { convertPath } from "./helper"
-import { MetadataFieldsRules, MetadataFieldsRulesFromYAML, MetadataValuesRulesFromYAML } from "./types"
-
-// export const importMetadataTypeStringFromYAML = (_context: Context, name: string): string | undefined => {
-//   return convertPath(MetadataTypesRulesFromYAML, name)
-// }
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
 const metadataFieldTargetFallback = { kind: "field", owner: "explicit" } as const satisfies MetadataTargetConstraint
@@ -17,27 +12,12 @@ const metadataValueTargetFallback = {
   allowEmptyRef: true,
 } as const satisfies MetadataTargetConstraint
 
-const MetadataRootFieldsRulesFromYAML: MetadataFieldsRules = {
-  ОбщаяКоманда: { name: "CommonCommand" },
-  ...MetadataFieldsRulesFromYAML,
-}
-
-const MetadataRootValuesRulesFromYAML: MetadataFieldsRules = {
-  ...MetadataRootFieldsRulesFromYAML,
-  ...MetadataValuesRulesFromYAML,
-}
-
 export const importMetadataFieldStringFromYAML = (
   _context: Context,
   rule: PropertyRule | undefined,
   name: string
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML({
-    name,
-    constraint: metadataTargetForRule(rule, metadataFieldTargetFallback),
-    legacy: () => convertPath(MetadataRootFieldsRulesFromYAML, name),
-    rule,
-  })
+  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataFieldTargetFallback))
 }
 
 export const importMetadataObjectStringFromYAML = (
@@ -45,12 +25,7 @@ export const importMetadataObjectStringFromYAML = (
   rule: PropertyRule | undefined,
   name: string
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML({
-    name,
-    constraint: metadataTargetForRule(rule, metadataObjectTargetFallback),
-    legacy: () => convertPath(MetadataRootFieldsRulesFromYAML, name),
-    rule,
-  })
+  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataObjectTargetFallback))
 }
 
 export const importMetadataValueStringFromYAML = (
@@ -58,28 +33,7 @@ export const importMetadataValueStringFromYAML = (
   rule: PropertyRule | undefined,
   name: string
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML({
-    name,
-    constraint: metadataTargetForRule(rule, metadataValueTargetFallback),
-    legacy: () => {
-      const convertedPath = convertPath(MetadataRootValuesRulesFromYAML, name)
-
-      if (convertedPath && convertedPath.startsWith("Enum.")) {
-        const parts = convertedPath.split(".")
-        if (!parts.includes("EnumValue") && parts.length >= 3) {
-          const lastPart = parts[parts.length - 1]
-          if (lastPart !== "EmptyRef") {
-            parts.pop()
-            parts.push("EnumValue", lastPart)
-            return parts.join(".")
-          }
-        }
-      }
-
-      return convertedPath
-    },
-    rule,
-  })
+  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataValueTargetFallback))
 }
 
 function metadataTargetForRule(
@@ -93,30 +47,15 @@ function metadataTargetForRule(
   return fallback
 }
 
-function parseMetadataTargetStringFromYAML(params: {
-  name: string
-  constraint: MetadataTargetConstraint
-  legacy: () => string
-  rule: PropertyRule | undefined
-}): string | undefined {
-  const { name, constraint, legacy, rule } = params
-  if (rule === undefined) return legacy()
-  if (isCompatibilityRule(rule)) return legacy()
-
+function parseMetadataTargetStringFromYAML(name: string, constraint: MetadataTargetConstraint): string | undefined {
   const result = parseMetadataTargetFromYAML({ value: name, constraint })
   if (result.ok) return result.canonical
-  if (!name.includes(".")) return undefined
+  if (!isMetadataTargetLikeYAML(name)) return undefined
 
   throw new Error(result.message)
 }
 
-function isCompatibilityRule(rule: PropertyRule): boolean {
-  if (rule.metadataTarget !== undefined) return false
-
-  return (
-    rule.type === "MetadataItemLink" ||
-    rule.type === "MetadataItemLinks" ||
-    rule.type === "MetadataField" ||
-    rule.type === "MetadataFields"
-  )
+function isMetadataTargetLikeYAML(value: string): boolean {
+  const root = value.split(".")[0]
+  return rootFromYAML[root] !== undefined || isMetadataRootName(root)
 }

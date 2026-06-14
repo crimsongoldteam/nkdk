@@ -11,8 +11,7 @@ export const exportTypeLinkToYAML = (
 ): TypeLinkYAML | undefined => {
   if (!data) return undefined
 
-  const dataPathYAML = exportMetadataFieldToYAML(context, undefined, data.dataPath)
-  if (!dataPathYAML) return undefined
+  const dataPathYAML = exportMetadataFieldToYAML(context, undefined, data.dataPath) ?? data.dataPath
 
   // Добавляем linkItem в скобках, если он не равен 0
   if (data.linkItem !== 0) {

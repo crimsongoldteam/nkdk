@@ -26,7 +26,10 @@ export const importMetadataItemLinkFromYAML = (
   if (rule?.roleReferenceYAML === "name" && UUID_PATTERN.test(data)) return data
 
   try {
-    return importMetadataObjectStringFromYAML(context, rule, roleAwareValue)
+    const imported = importMetadataObjectStringFromYAML(context, rule, roleAwareValue)
+    if (imported === undefined && rule?.roleReferenceYAML === "name") return roleAwareValue
+
+    return imported
   } catch (error) {
     if (rule?.roleReferenceYAML === "name") return roleAwareValue
     throw error
