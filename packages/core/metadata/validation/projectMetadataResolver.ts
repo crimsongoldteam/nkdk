@@ -54,12 +54,24 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
   return {
     resolveObject({ target }) {
       const filePath = objectFilePath(projectDir, target.root, target.objectName)
-      if (existsSync(filePath)) return { ok: true, filePath }
+      if (!existsSync(filePath)) {
+        return referenceError(filePath, `Не найден объект "${formatObjectTarget(target)}"`)
+      }
 
-      return referenceError(filePath, `Не найден объект "${rootToYAML[target.root]}.${target.objectName}"`)
+      if (target.segments && target.segments.length > 0) {
+        const nestedFilePath = nestedObjectFilePath(projectDir, target)
+        if (existsSync(nestedFilePath)) return { ok: true, filePath: nestedFilePath }
+
+        return referenceError(nestedFilePath, `Не найден объект "${formatObjectTarget(target)}"`)
+      }
+
+      return { ok: true, filePath }
     },
 
     resolveField({ target }) {
+      const object = this.resolveObject({ target: { kind: "object", root: target.root, objectName: target.objectName } })
+      if (!object.ok) return object
+
       const owner = ownerCache.get({ kind: rootToYAML[target.root], name: target.objectName })
       if (owner.status !== "ok") return { ok: false, diagnostics: owner.diagnostics }
 
@@ -122,6 +134,23 @@ function objectFilePath(projectDir: string, root: MetadataRootName, name: string
   return join(projectDir, rootToYAML[root], name, "Свойства.yaml")
 }
 
+function nestedObjectFilePath(
+  projectDir: string,
+  target: Extract<ParsedMetadataTarget, { kind: "object" }>,
+): string {
+  const parts = [projectDir, rootToYAML[target.root], target.objectName]
+  for (const segment of target.segments ?? []) {
+    parts.push(nestedObjectFolderName(segment.root), segment.objectName)
+  }
+
+  return join(...parts, "Свойства.yaml")
+}
+
+function nestedObjectFolderName(root: MetadataRootName): string {
+  if (root === "Subsystem") return "Подсистемы"
+  return rootToYAML[root]
+}
+
 function fieldLookupName(segment: Extract<ParsedMetadataTarget, { kind: "field" }>["segments"][number]): string {
   return segment.kind === "StandardAttribute" ? (standardAttributeToYAML[segment.name] ?? segment.name) : segment.name
 }
@@ -146,6 +175,14 @@ function formatFieldTarget(target: Extract<ParsedMetadataTarget, { kind: "field"
     rootToYAML[target.root],
     target.objectName,
     ...target.segments.flatMap((segment) => [fieldKindToYAML[segment.kind], fieldLookupName(segment)]),
+  ].join(".")
+}
+
+function formatObjectTarget(target: Extract<ParsedMetadataTarget, { kind: "object" }>): string {
+  return [
+    rootToYAML[target.root],
+    target.objectName,
+    ...(target.segments ?? []).flatMap((segment) => [rootToYAML[segment.root], segment.objectName]),
   ].join(".")
 }
 

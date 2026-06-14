@@ -42,6 +42,33 @@ describe("ProjectMetadataResolver", () => {
     })
   })
 
+  it("checks nested object paths instead of only the top-level object", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Подсистема/Администрирование/Свойства.yaml", "Синоним: Администрирование")
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveObject({ target: objectTarget("Подсистема.Администрирование.Подсистема.Настройки", true) })).toMatchObject({
+      ok: false,
+      diagnostics: [
+        expect.objectContaining({
+          source: "reference",
+          message: 'Не найден объект "Подсистема.Администрирование.Подсистема.Настройки"',
+        }),
+      ],
+    })
+
+    writeProjectFile(
+      projectDir,
+      "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml",
+      "Синоним: Настройки",
+    )
+
+    expect(resolver.resolveObject({ target: objectTarget("Подсистема.Администрирование.Подсистема.Настройки", true) })).toMatchObject({
+      ok: true,
+      filePath: join(projectDir, "Подсистема", "Администрирование", "Подсистемы", "Настройки", "Свойства.yaml"),
+    })
+  })
+
   it("resolves fields including standard attributes and tabular-section attributes", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Номенклатура/Свойства.yaml", [
@@ -65,6 +92,21 @@ describe("ProjectMetadataResolver", () => {
         target: fieldTarget("Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество"),
       }),
     ).toMatchObject({ ok: true })
+  })
+
+  it("reports missing field owners as reference diagnostics", () => {
+    const projectDir = createProject()
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveField({ target: fieldTarget("Справочник.НетТакого.Реквизит.Код") })).toMatchObject({
+      ok: false,
+      diagnostics: [
+        expect.objectContaining({
+          source: "reference",
+          message: 'Не найден объект "Справочник.НетТакого"',
+        }),
+      ],
+    })
   })
 
   it("resolves predefined values, enum values and EmptyRef", () => {
@@ -111,8 +153,8 @@ function createResolver(projectDir: string) {
   })
 }
 
-function objectTarget(value: string): Extract<ParsedMetadataTarget, { kind: "object" }> {
-  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "object" } })
+function objectTarget(value: string, allowNested = false): Extract<ParsedMetadataTarget, { kind: "object" }> {
+  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "object", allowNested } })
   if (!parsed.ok) throw new Error(parsed.message)
   return parsed.target as Extract<ParsedMetadataTarget, { kind: "object" }>
 }
