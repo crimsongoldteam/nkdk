@@ -11,4 +11,13 @@ describe("export MetadataDcsMetadataValue to YAML", () => {
       })
     ).toEqual({ value: fixture.yaml })
   })
+
+  it("keeps local DCS field paths as strings", () => {
+    expect(
+      testExportPropertyToYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "Field", yaml: "value" },
+        value: "Реквизит1",
+      })
+    ).toEqual({ value: "Реквизит1" })
+  })
 })

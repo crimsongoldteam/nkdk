@@ -48,11 +48,22 @@ describe("importMetadataItemLinkFromYAML", () => {
     expect(importMetadataItemLinkFromYAML(mockContext, rule, "Role.Администратор")).toBe("Role.Администратор")
   })
 
-  it("keeps non-role references unchanged in short role mode", () => {
+  it("keeps non-metadata dotted references unchanged in short role mode", () => {
     const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
 
-    expect(importMetadataItemLinkFromYAML(mockContext, rule, "CommonForm.НачалоРаботы")).toBe(
-      "CommonForm.НачалоРаботы"
+    expect(importMetadataItemLinkFromYAML(mockContext, rule, "ЛокальныйПуть.НачалоРаботы")).toBe(
+      "ЛокальныйПуть.НачалоРаботы"
+    )
+  })
+
+  it("does not suppress metadata parser errors in short role mode", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(() => importMetadataItemLinkFromYAML(mockContext, rule, "Catalog.Контрагенты")).toThrow(
+      'Неизвестный корень "Catalog"'
+    )
+    expect(() => importMetadataItemLinkFromYAML(mockContext, rule, "CommonForm.НачалоРаботы")).toThrow(
+      'Неизвестный корень "CommonForm"'
     )
   })
 
@@ -89,12 +100,20 @@ describe("importMetadataItemLinksFromYAML", () => {
     expect(importMetadataItemLinksFromYAML(mockContext, rule, ["Администратор"])).toEqual(["Role.Администратор"])
   })
 
-  it("keeps non-role references unchanged in mixed short role mode list", () => {
+  it("keeps non-metadata dotted references unchanged in mixed short role mode list", () => {
     const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
 
-    expect(importMetadataItemLinksFromYAML(mockContext, rule, ["Администратор", "CommonForm.НачалоРаботы"])).toEqual([
+    expect(importMetadataItemLinksFromYAML(mockContext, rule, ["Администратор", "ЛокальныйПуть.НачалоРаботы"])).toEqual([
       "Role.Администратор",
-      "CommonForm.НачалоРаботы",
+      "ЛокальныйПуть.НачалоРаботы",
     ])
+  })
+
+  it("does not suppress metadata parser errors in mixed short role mode list", () => {
+    const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
+
+    expect(() => importMetadataItemLinksFromYAML(mockContext, rule, ["Администратор", "CommonForm.НачалоРаботы"])).toThrow(
+      'Неизвестный корень "CommonForm"'
+    )
   })
 })

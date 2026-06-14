@@ -38,6 +38,15 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
     ).toEqual({ type: "dateTime", value: "0001-01-01T00:00:00" })
   })
 
+  it("keeps local DCS field paths as strings", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "Field", yaml: "value" },
+        value: "Реквизит1",
+      })
+    ).toEqual("Реквизит1")
+  })
+
   it("preserves source empty LocalStringType when YAML value is undefined", () => {
     const sourceValue = { items: {} }
 

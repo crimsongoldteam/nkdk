@@ -31,11 +31,30 @@ describe("exportMetadataItemLinkToYAML", () => {
     expect(exportMetadataItemLinkToYAML(mockContext, rule, "Role.Администратор")).toBe("Администратор")
   })
 
-  it("keeps non-role references unchanged in short role mode", () => {
+  it("keeps uuid-like visibility keys unchanged in short role mode", () => {
     const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
 
-    expect(exportMetadataItemLinkToYAML(mockContext, rule, "CommonForm.НачалоРаботы")).toBe(
-      "CommonForm.НачалоРаботы"
+    expect(exportMetadataItemLinkToYAML(mockContext, rule, "418deaa0-683e-4862-9348-c0086ba6909f")).toBe(
+      "418deaa0-683e-4862-9348-c0086ba6909f"
+    )
+  })
+
+  it("keeps non-metadata dotted references unchanged in short role mode", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(exportMetadataItemLinkToYAML(mockContext, rule, "ЛокальныйПуть.НачалоРаботы")).toBe(
+      "ЛокальныйПуть.НачалоРаботы"
+    )
+  })
+
+  it("does not suppress metadata formatter errors in short role mode", () => {
+    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+
+    expect(() => exportMetadataItemLinkToYAML(mockContext, rule, "CommonForm.НачалоРаботы")).toThrow(
+      'Неизвестный корень "CommonForm"'
+    )
+    expect(() => exportMetadataItemLinkToYAML(mockContext, rule, "Справочник.Контрагенты")).toThrow(
+      'Неизвестный корень "Справочник"'
     )
   })
 })
@@ -47,11 +66,20 @@ describe("exportMetadataItemLinksToYAML", () => {
     expect(exportMetadataItemLinksToYAML(mockContext, rule, ["Role.Администратор"])).toEqual(["Администратор"])
   })
 
-  it("keeps non-role references unchanged in mixed short role mode list", () => {
+  it("keeps non-metadata dotted references unchanged in mixed short role mode list", () => {
     const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
 
-    expect(exportMetadataItemLinksToYAML(mockContext, rule, ["Role.Администратор", "CommonForm.НачалоРаботы"])).toEqual(
-      ["Администратор", "CommonForm.НачалоРаботы"]
-    )
+    expect(exportMetadataItemLinksToYAML(mockContext, rule, ["Role.Администратор", "ЛокальныйПуть.НачалоРаботы"])).toEqual([
+      "Администратор",
+      "ЛокальныйПуть.НачалоРаботы",
+    ])
+  })
+
+  it("does not suppress metadata formatter errors in mixed short role mode list", () => {
+    const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
+
+    expect(() =>
+      exportMetadataItemLinksToYAML(mockContext, rule, ["Role.Администратор", "CommonForm.НачалоРаботы"])
+    ).toThrow('Неизвестный корень "CommonForm"')
   })
 })
