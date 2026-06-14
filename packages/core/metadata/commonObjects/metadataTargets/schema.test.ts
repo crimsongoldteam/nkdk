@@ -9,9 +9,21 @@ describe("buildMetadataTargetSchema", () => {
     expect(schema).toMatchObject({
       type: "string",
       pattern: "^((Справочник|Документ)\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
-      examples: ["Справочник.Контрагенты", "Документ.ЗаказПокупателя"],
+      examples: ["Справочник.ИмяСправочника", "Документ.ИмяДокумента"],
     })
     expect(JSON.stringify(schema)).not.toContain("x-nkdk")
+  })
+
+  it("does not accept object references when roots are empty", () => {
+    const schema = buildMetadataTargetSchema({ kind: "object", roots: [] })
+
+    expect(schema).toMatchObject({
+      type: "string",
+      pattern: "^(?!)$",
+      examples: [],
+    })
+    expectNotMatches(schema, ".ИмяОбъекта")
+    expectNotMatches(schema, "Справочник.ИмяСправочника")
   })
 
   it("keeps object examples inside allowed roots", () => {
@@ -28,11 +40,23 @@ describe("buildMetadataTargetSchema", () => {
     expect(schema).toMatchObject({
       type: "string",
       examples: [
-        "Справочник.Номенклатура.Реквизит.Артикул",
-        "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество",
+        "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита",
+        "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита",
       ],
     })
     expect(String(schema.description)).toContain("служебные сегменты")
+  })
+
+  it("does not accept field paths when roots are empty", () => {
+    const schema = buildMetadataTargetSchema({ kind: "field", owner: "explicit", roots: [] })
+
+    expect(schema).toMatchObject({
+      type: "string",
+      pattern: "^(?!)$",
+      examples: [],
+    })
+    expectNotMatches(schema, ".ИмяОбъекта.Реквизит.ИмяРеквизита")
+    expectNotMatches(schema, "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")
   })
 
   it("restricts field service segments by fieldKinds", () => {
@@ -43,9 +67,12 @@ describe("buildMetadataTargetSchema", () => {
       fieldKinds: ["Attribute"],
     })
 
-    expect(schema.examples).toEqual(["Справочник.Номенклатура.Реквизит.Артикул"])
-    expectMatches(schema, "Справочник.Номенклатура.Реквизит.Артикул")
-    expectNotMatches(schema, "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество")
+    expect(schema.examples).toEqual(["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"])
+    expectMatches(schema, "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")
+    expectNotMatches(
+      schema,
+      "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита"
+    )
     expect(String(schema.description)).not.toContain("ТабличнаяЧасть")
   })
 
@@ -59,7 +86,10 @@ describe("buildMetadataTargetSchema", () => {
 
     expect(schema).toMatchObject({
       type: "string",
-      examples: ["Справочник.СтавкиНДС.БезНДС", "Справочник.СтавкиНДС.ПустаяСсылка"],
+      examples: [
+        "Справочник.ИмяСправочника.ИмяПредопределенногоЗначения",
+        "Справочник.ИмяСправочника.ПустаяСсылка",
+      ],
     })
     expect(String(schema.description)).toContain("<ИмяСправочника>")
   })
@@ -72,9 +102,9 @@ describe("buildMetadataTargetSchema", () => {
       allowEmptyRef: false,
     })
 
-    expect(schema.examples).toEqual(["Справочник.СтавкиНДС.БезНДС"])
-    expectMatches(schema, "Справочник.СтавкиНДС.БезНДС")
-    expectNotMatches(schema, "Справочник.СтавкиНДС.ПустаяСсылка")
+    expect(schema.examples).toEqual(["Справочник.ИмяСправочника.ИмяПредопределенногоЗначения"])
+    expectMatches(schema, "Справочник.ИмяСправочника.ИмяПредопределенногоЗначения")
+    expectNotMatches(schema, "Справочник.ИмяСправочника.ПустаяСсылка")
   })
 
   it("describes enum values without predefined examples", () => {
@@ -86,7 +116,7 @@ describe("buildMetadataTargetSchema", () => {
 
     expect(schema.examples).toEqual(["Перечисление.ИмяПеречисления.ИмяЗначения"])
     expectMatches(schema, "Перечисление.ИмяПеречисления.ИмяЗначения")
-    expectNotMatches(schema, "Справочник.СтавкиНДС.БезНДС")
+    expectNotMatches(schema, "Справочник.ИмяСправочника.ИмяПредопределенногоЗначения")
     expectNotMatches(schema, "Перечисление.ИмяПеречисления.ПустаяСсылка")
   })
 
@@ -112,7 +142,7 @@ describe("buildMetadataTargetSchema", () => {
 
     expect(schema.examples).toEqual(["Документ.ИмяОбъекта.ИмяПредопределенногоЗначения"])
     expectMatches(schema, "Документ.ИмяОбъекта.ИмяПредопределенногоЗначения")
-    expectNotMatches(schema, "Справочник.СтавкиНДС.БезНДС")
+    expectNotMatches(schema, "Справочник.ИмяСправочника.ИмяПредопределенногоЗначения")
     expect(String(schema.description)).toContain("Документ.<ИмяОбъекта>.<ИмяПредопределенногоЗначения>")
     expect(String(schema.description)).not.toContain("Справочник")
   })
@@ -136,6 +166,21 @@ describe("buildMetadataTargetSchema", () => {
     expectNotMatches(schema, "Число")
     expect(String(schema.description)).not.toContain("широкие типы")
     expect(JSON.stringify(schema)).not.toContain("x-nkdk")
+  })
+
+  it("keeps primitive type schemas usable when roots are empty", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "type",
+      roots: [],
+      typeKinds: ["ref", "object", "primitive"],
+      primitives: ["string"],
+    })
+
+    expect(schema.examples).toEqual(["Строка"])
+    expectMatches(schema, "Строка")
+    expectMatches(schema, "Строка(10)")
+    expectNotMatches(schema, "Справочник.ИмяСправочника")
+    expectNotMatches(schema, "Справочник")
   })
 
   it("returns constrained schema for form data paths", () => {
@@ -168,6 +213,28 @@ describe("buildMetadataTargetSchema", () => {
       pattern: "^[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
       examples: ["ИмяМакета"],
     })
+  })
+
+  it("returns ordinary JSON Schema for style items", () => {
+    const schema = buildMetadataTargetSchema({ kind: "styleItem", styleItemTypes: ["Font"] })
+
+    expect(schema).toMatchObject({
+      type: "string",
+      pattern: "^ЭлементСтиля\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
+      examples: ["ЭлементСтиля.ИмяЭлементаСтиля"],
+    })
+    expect(JSON.stringify(schema)).not.toContain("x-nkdk")
+  })
+
+  it("returns ordinary JSON Schema for common pictures", () => {
+    const schema = buildMetadataTargetSchema({ kind: "commonPicture" })
+
+    expect(schema).toMatchObject({
+      type: "string",
+      pattern: "^ОбщаяКартинка\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
+      examples: ["ОбщаяКартинка.ИмяОбщейКартинки"],
+    })
+    expect(JSON.stringify(schema)).not.toContain("x-nkdk")
   })
 })
 

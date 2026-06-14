@@ -12,8 +12,8 @@ const allRoots = Object.keys(rootToYAML) as MetadataRootName[]
 const allPrimitiveTypes: readonly MetadataPrimitiveType[] = ["string", "decimal", "dateTime", "boolean", "ValueStorage"]
 
 const objectExampleByRoot = {
-  Catalog: "Справочник.Контрагенты",
-  Document: "Документ.ЗаказПокупателя",
+  Catalog: "Справочник.ИмяСправочника",
+  Document: "Документ.ИмяДокумента",
   Enum: "Перечисление.ИмяПеречисления",
   InformationRegister: "РегистрСведений.ИмяРегистраСведений",
   AccumulationRegister: "РегистрНакопления.ИмяРегистраНакопления",
@@ -54,8 +54,8 @@ const typeRefExampleByRoot = {
 } as const satisfies Record<MetadataRootName, string>
 
 const fieldObjectNameByRoot = {
-  Catalog: "Номенклатура",
-  Document: "ЗаказПокупателя",
+  Catalog: "ИмяСправочника",
+  Document: "ИмяДокумента",
   Enum: "ИмяПеречисления",
   InformationRegister: "ИмяРегистраСведений",
   AccumulationRegister: "ИмяРегистраНакопления",
@@ -100,14 +100,14 @@ export function buildMetadataTargetSchema(constraint: MetadataTargetConstraint):
   if (constraint.kind === "styleItem") {
     return Type.String({
       pattern: `^ЭлементСтиля\\.${METADATA_NAME_PATTERN}$`,
-      examples: ["ЭлементСтиля.ОсновнойШрифт"],
+      examples: ["ЭлементСтиля.ИмяЭлементаСтиля"],
       description: "Ссылка на элемент стиля проекта: ЭлементСтиля.<ИмяЭлементаСтиля>.",
     })
   }
   if (constraint.kind === "commonPicture") {
     return Type.String({
       pattern: `^ОбщаяКартинка\\.${METADATA_NAME_PATTERN}$`,
-      examples: ["ОбщаяКартинка.Логотип"],
+      examples: ["ОбщаяКартинка.ИмяОбщейКартинки"],
       description: "Ссылка на общую картинку проекта: ОбщаяКартинка.<ИмяОбщейКартинки>.",
     })
   }
@@ -121,20 +121,24 @@ function objectSchema(roots: readonly MetadataRootName[] | undefined): TSchema {
   const selectedRoots = selectRoots(roots)
   const yamlRoots = yamlRootGroup(roots)
   return Type.String({
-    pattern: `^((${yamlRoots})\\.${METADATA_NAME_PATTERN})$`,
+    pattern: selectedRoots.length === 0 ? noMatchPattern : `^((${yamlRoots})\\.${METADATA_NAME_PATTERN})$`,
     examples: selectedRoots.slice(0, 2).map((root) => objectExampleByRoot[root]),
-    description: `Ссылка на объект метаданных: ${yamlRoots}.<ИмяОбъекта>. Реальные имена объектов берутся из YAML-проекта и проверяются validate.`,
+    description:
+      selectedRoots.length === 0
+        ? "Ссылка на объект метаданных. Ограничение не разрешает корневые типы; подробная проверка выполняется validate."
+        : `Ссылка на объект метаданных: ${yamlRoots}.<ИмяОбъекта>. Реальные имена объектов берутся из YAML-проекта и проверяются validate.`,
   })
 }
 
 function fieldSchema(constraint: Extract<MetadataTargetConstraint, { kind: "field" }>): TSchema {
+  const selectedRoots = selectRoots(constraint.roots)
   const selectedFieldKinds = constraint.fieldKinds ?? allFieldKinds
   const yamlRoots = yamlRootGroup(constraint.roots)
   const serviceSegments = selectedFieldKinds.map((kind) => fieldKindToYAML[kind]).join("|")
   const serviceSegmentDescription = selectedFieldKinds.map((kind) => fieldKindToYAML[kind]).join(", ")
   return Type.String({
     pattern:
-      serviceSegments.length === 0
+      selectedRoots.length === 0 || serviceSegments.length === 0
         ? noMatchPattern
         : `^(${yamlRoots})\\.${METADATA_NAME_PATTERN}\\.(?:${serviceSegments})\\.${METADATA_NAME_PATTERN}(?:\\.(?:${serviceSegments})\\.${METADATA_NAME_PATTERN})*$`,
     examples: fieldExamples(constraint.roots, selectedFieldKinds),
@@ -206,15 +210,15 @@ function fieldExamples(
   const examples: string[] = []
 
   if (selectedFieldKinds.includes("Attribute")) {
-    examples.push(`${rootPrefix}.${objectName}.Реквизит.Артикул`)
+    examples.push(`${rootPrefix}.${objectName}.Реквизит.ИмяРеквизита`)
   }
 
   if (selectedFieldKinds.includes("TabularSection") && selectedFieldKinds.includes("Attribute")) {
-    examples.push(`${rootPrefix}.${objectName}.ТабличнаяЧасть.Товары.Реквизит.Количество`)
+    examples.push(`${rootPrefix}.${objectName}.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита`)
   } else if (examples.length === 0 && selectedFieldKinds.includes("TabularSection")) {
-    examples.push(`${rootPrefix}.${objectName}.ТабличнаяЧасть.Товары`)
+    examples.push(`${rootPrefix}.${objectName}.ТабличнаяЧасть.ИмяТабличнойЧасти`)
   } else if (examples.length === 0 && selectedFieldKinds.includes("StandardAttribute")) {
-    examples.push(`${rootPrefix}.${objectName}.СтандартныйРеквизит.Наименование`)
+    examples.push(`${rootPrefix}.${objectName}.СтандартныйРеквизит.ИмяСтандартногоРеквизита`)
   } else if (examples.length === 0 && selectedFieldKinds.includes("Dimension")) {
     examples.push(`${rootPrefix}.${objectName}.Измерение.ИмяИзмерения`)
   } else if (examples.length === 0 && selectedFieldKinds.includes("Resource")) {
@@ -257,7 +261,7 @@ function valueExamples(constraint: Extract<MetadataTargetConstraint, { kind: "va
   if (valueKindAllowed(constraint, "predefinedValue") && selectedRoots.some((root) => root !== "Enum")) {
     const root = preferredRoot(selectedRoots.filter((item) => item !== "Enum"), "Catalog")
     if (root === "Catalog") {
-      examples.push("Справочник.СтавкиНДС.БезНДС")
+      examples.push("Справочник.ИмяСправочника.ИмяПредопределенногоЗначения")
     } else if (root) {
       examples.push(`${rootToYAML[root]}.ИмяОбъекта.ИмяПредопределенногоЗначения`)
     }
@@ -270,7 +274,7 @@ function valueExamples(constraint: Extract<MetadataTargetConstraint, { kind: "va
   if (emptyRefAllowed(constraint)) {
     const root = preferredRoot(selectedRoots, "Catalog")
     if (root === "Catalog") {
-      examples.push("Справочник.СтавкиНДС.ПустаяСсылка")
+      examples.push("Справочник.ИмяСправочника.ПустаяСсылка")
     } else if (root) {
       examples.push(`${rootToYAML[root]}.ИмяОбъекта.ПустаяСсылка`)
     }
