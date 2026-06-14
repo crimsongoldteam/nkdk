@@ -107,6 +107,25 @@ describe("buildMetadataTargetSchema", () => {
     expectNotMatches(schema, "Справочник.ИмяСправочника.ПустаяСсылка")
   })
 
+  it("does not accept values when roots are empty even with EmptyRef allowed", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "value",
+      roots: [],
+      valueKinds: ["predefinedValue", "enumValue", "emptyRef"],
+      allowEmptyRef: true,
+    })
+
+    expect(schema).toMatchObject({
+      type: "string",
+      pattern: "^(?!)$",
+      examples: [],
+    })
+    expectNotMatches(schema, ".ИмяОбъекта.ПустаяСсылка")
+    expectNotMatches(schema, "Справочник.ИмяСправочника.ПустаяСсылка")
+    expect(String(schema.description)).toContain("ограничение не разрешает значения")
+    expect(String(schema.description)).not.toContain("ПустаяСсылка")
+  })
+
   it("describes enum values without predefined examples", () => {
     const schema = buildMetadataTargetSchema({
       kind: "value",

@@ -230,6 +230,8 @@ function fieldExamples(
 
 function valuePatternBranches(constraint: Extract<MetadataTargetConstraint, { kind: "value" }>): string[] {
   const selectedRoots = selectRoots(constraint.roots)
+  if (selectedRoots.length === 0) return []
+
   const allowPredefined = valueKindAllowed(constraint, "predefinedValue")
   const allowEnum = valueKindAllowed(constraint, "enumValue")
   const allowEmptyRef = emptyRefAllowed(constraint)
@@ -293,7 +295,7 @@ function valueDescription(constraint: Extract<MetadataTargetConstraint, { kind: 
   if (valueKindAllowed(constraint, "enumValue") && selectedRoots.includes("Enum")) {
     parts.push("значение перечисления: Перечисление.<ИмяПеречисления>.<ИмяЗначения>")
   }
-  if (emptyRefAllowed(constraint)) {
+  if (emptyRefAllowed(constraint) && selectedRoots.length > 0) {
     parts.push("пустая ссылка: <Корень>.<ИмяОбъекта>.ПустаяСсылка")
   }
 
