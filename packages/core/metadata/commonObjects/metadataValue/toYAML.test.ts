@@ -29,6 +29,36 @@ describe("exportMetadataValueToYAML", () => {
     expect(result).toEqual({ Тип: "ВидСчета", Значение: "АктивноПассивный" })
   })
 
+  it("exports metadata target value references to YAML", () => {
+    expect(
+      exportMetadataValueToYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        { type: "ref", value: "Enum.ВидыДоговоров.EnumValue.СПоставщиком" } as any
+      )
+    ).toEqual("Перечисление.ВидыДоговоров.СПоставщиком")
+
+    expect(
+      exportMetadataValueToYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        { type: "ref", value: "Catalog.СтавкиНДС.EmptyRef" } as any
+      )
+    ).toEqual("Справочник.СтавкиНДС.ПустаяСсылка")
+  })
+
+  it("keeps uuid design-time references as YAML ref values", () => {
+    const value = "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231"
+
+    expect(
+      exportMetadataValueToYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        { type: "ref", value } as any
+      )
+    ).toEqual(value)
+  })
+
   describe("строгая валидация valueType", () => {
     it("должен бросить при valueType: [string] и фактическом boolean", () => {
       expect(() =>

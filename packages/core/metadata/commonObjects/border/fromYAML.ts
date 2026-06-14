@@ -3,6 +3,7 @@ import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegi
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
+import { parseMetadataTargetFromYAML } from "../metadataTargets"
 import { Border, BorderYAML } from "./types"
 
 export const importBorderFromYAML = (
@@ -15,7 +16,8 @@ export const importBorderFromYAML = (
   const result: Border = {}
 
   if (data.Имя !== undefined) {
-    result.ref = data.Имя
+    if (typeof data.Имя !== "string") throw new Error("Border: поле Имя должно быть строкой")
+    result.ref = importStyleItemRefFromYAML(data.Имя)
   }
 
   if (data.Ширина !== undefined) {
@@ -32,6 +34,15 @@ export const importBorderFromYAML = (
   }
 
   return Object.keys(result).length > 0 ? result : undefined
+}
+
+function importStyleItemRefFromYAML(value: string): string {
+  const parsed = parseMetadataTargetFromYAML({
+    value,
+    constraint: { kind: "styleItem", styleItemTypes: ["Border"] },
+  })
+  if (!parsed.ok) throw new Error(parsed.message)
+  return parsed.target.kind === "styleItem" ? parsed.target.name : value
 }
 
 registerTypeRule("Border", "importFromYAML", importBorderFromYAML)

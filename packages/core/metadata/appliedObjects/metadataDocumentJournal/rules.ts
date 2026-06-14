@@ -76,14 +76,14 @@ export const MetadataDocumentJournalRules = {
       yaml: "ОсновнаяФорма",
       type: "string",
       xmlParents: properties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     auxiliaryForm: {
       yaml: "ДополнительнаяФорма",
       type: "string",
       xmlParents: properties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     useStandardCommands: {
@@ -96,6 +96,7 @@ export const MetadataDocumentJournalRules = {
     registeredDocuments: {
       yaml: "РегистрируемыеДокументы",
       type: "MetadataItemLinks",
+      metadataTarget: { kind: "object", roots: ["Document"] },
       xml: "RegisteredDocuments",
       xmlParents: properties,
     },

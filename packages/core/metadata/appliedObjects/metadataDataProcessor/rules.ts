@@ -113,14 +113,14 @@ export const MetadataDataProcessorRules = {
       yaml: "ОсновнаяФорма",
       type: "string",
       xmlParents: properties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     auxiliaryForm: {
       yaml: "ДополнительнаяФорма",
       type: "string",
       xmlParents: properties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     includeHelpInContents: {

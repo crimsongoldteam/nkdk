@@ -21,6 +21,7 @@ import {
   MetadataStringValue,
   MetadataTypedValue,
   MetadataValueTypeToXML,
+  MetadataValuePropertyRule,
   MetadataValueYAML,
 } from "./types"
 
@@ -53,6 +54,24 @@ const parseDateTime = (dateTime: string): string => {
 const formatDateTime = (dateTime: string): string => {
   const date = new Date(dateTime)
   return format(date, "dd.MM.yyyy HH:mm:ss")
+}
+
+const referenceValueConstraint = {
+  kind: "value" as const,
+  valueKinds: ["predefinedValue", "enumValue", "emptyRef"] as const,
+  allowEmptyRef: true,
+}
+
+const referenceValueRule = {
+  type: "MetadataValue",
+  metadataTarget: referenceValueConstraint,
+} as const satisfies MetadataValuePropertyRule
+
+const uuidPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+const designTimeRefUuidPattern = new RegExp(`^${uuidPattern}\\.${uuidPattern}$`, "i")
+
+function isDesignTimeRefUuid(value: string): boolean {
+  return designTimeRefUuidPattern.test(value)
 }
 
 /**
@@ -146,13 +165,15 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
     fromYAML: (ctx, data) => {
       if (typeof data !== "string") return undefined
       if (data === ".") return { type: "ref", value: "" } satisfies MetadataRefValue
-      const converted = importMetadataValueStringFromYAML(ctx, undefined, data)
-      if (!converted || !converted.includes(".")) return undefined
-      return { type: "ref", value: converted } satisfies MetadataRefValue
+      if (isDesignTimeRefUuid(data)) return { type: "ref", value: data } satisfies MetadataRefValue
+      const converted = importMetadataValueStringFromYAML(ctx, referenceValueRule, data)
+      if (converted?.includes(".")) return { type: "ref", value: converted } satisfies MetadataRefValue
+      return undefined
     },
     toYAML: (ctx, v) => {
       if ((v as MetadataRefValue).value === "") return "."
-      const result = exportMetadataValueStringToYAML(ctx, undefined, (v as MetadataRefValue).value)
+      if (isDesignTimeRefUuid((v as MetadataRefValue).value)) return (v as MetadataRefValue).value
+      const result = exportMetadataValueStringToYAML(ctx, referenceValueRule, (v as MetadataRefValue).value)
       if (!result) throw new Error(`MetadataValue: не удалось экспортировать ref: ${(v as MetadataRefValue).value}`)
       return result
     },

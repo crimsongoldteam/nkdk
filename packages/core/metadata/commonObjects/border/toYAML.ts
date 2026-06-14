@@ -3,6 +3,7 @@ import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegi
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
+import { formatMetadataTargetToYAML } from "../metadataTargets"
 import { Border, BorderYAML } from "./types"
 
 export const exportBorderToYAML = (
@@ -13,7 +14,7 @@ export const exportBorderToYAML = (
   if (!data) return undefined
 
   const result: BorderYAML = {
-    Имя: data.ref,
+    Имя: data.ref === undefined ? undefined : exportStyleItemRefToYAML(data.ref),
     Ширина: data.width,
   }
 
@@ -27,6 +28,13 @@ export const exportBorderToYAML = (
   }
 
   return result
+}
+
+function exportStyleItemRefToYAML(ref: string): string {
+  return formatMetadataTargetToYAML({
+    canonical: `StyleItem.${ref}`,
+    constraint: { kind: "styleItem", styleItemTypes: ["Border"] },
+  })
 }
 
 registerTypeRule("Border", "exportToYAML", exportBorderToYAML)

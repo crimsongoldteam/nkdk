@@ -1,5 +1,5 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule, type ReferenceScope } from "~/metadata/orchestration/property/types"
+import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 
 const documentProperties = ["Properties"]
@@ -85,26 +85,27 @@ export const MetadataDocumentRules = {
       yaml: "ДополнительнаяФормаДляВыбора",
       type: "string",
       xmlParents: documentProperties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     auxiliaryListForm: {
       yaml: "ДополнительнаяФормаСписка",
       type: "string",
       xmlParents: documentProperties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     auxiliaryObjectForm: {
       yaml: "ДополнительнаяФормаОбъекта",
       type: "string",
       xmlParents: documentProperties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     basedOn: {
       yaml: "ВводитсяНаОсновании",
       type: "MetadataItemLinks",
+      metadataTarget: { kind: "object" },
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
     },
@@ -209,6 +210,7 @@ export const MetadataDocumentRules = {
     dataLockFields: {
       yaml: "ПоляБлокировкиДанных",
       type: "MetadataFields",
+      metadataTarget: { kind: "field", owner: "this" },
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
     },
@@ -216,21 +218,21 @@ export const MetadataDocumentRules = {
       yaml: "ОсновнаяФормаДляВыбора",
       type: "string",
       xmlParents: documentProperties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     defaultListForm: {
       yaml: "ОсновнаяФормаСписка",
       type: "string",
       xmlParents: documentProperties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     defaultObjectForm: {
       yaml: "ОсновнаяФормаОбъекта",
       type: "string",
       xmlParents: documentProperties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     executeAfterWriteDataHistoryVersionProcessing: {
@@ -280,8 +282,8 @@ export const MetadataDocumentRules = {
     inputByString: {
       yaml: "ВводПоСтроке",
       type: "MetadataFields",
+      metadataTarget: { kind: "field", owner: "this", fieldKinds: ["Attribute", "StandardAttribute"], filters: ["stringIndexedAttribute"] },
       xmlParents: documentProperties,
-      referenceScope: { target: "this", kind: "Attribute", filter: "stringIndexedAttribute" },
       defaultValueXMLRaw: {},
     },
     listPresentation: {
@@ -328,7 +330,7 @@ export const MetadataDocumentRules = {
       yaml: "Нумератор",
       type: "string",
       xmlParents: documentProperties,
-      referenceScope: { target: "topLevel", allowedTypes: ["Нумератор"] },
+      metadataTarget: { kind: "object", roots: ["DocumentNumerator"] },
       defaultValueXMLRaw: "",
     },
     objectBelonging: {
@@ -377,6 +379,10 @@ export const MetadataDocumentRules = {
     registerRecords: {
       yaml: "Движения",
       type: "MetadataItemLinks",
+      metadataTarget: {
+        kind: "object",
+        roots: ["InformationRegister", "AccumulationRegister", "AccountingRegister", "CalculationRegister"],
+      },
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
     },
@@ -435,17 +441,3 @@ export const MetadataDocumentRules = {
   childCollections: [{ propertyKey: "commands", itemRule: MetadataDocumentCommandRules }],
   graphTerminals: ["ПустаяСсылка"],
 } as const satisfies MetadataItemRule
-
-/**
- * Возвращает referenceScope для свойства документа по его YAML-ключу.
- * Используется VSCode-провайдерами для фильтрации автодополнения.
- */
-export function getDocumentPropertyReferenceScope(yamlKey: string): ReferenceScope | undefined {
-  for (const rule of Object.values(MetadataDocumentRules.properties)) {
-    const r = rule as { yaml?: string; referenceScope?: ReferenceScope }
-    if (r.yaml === yamlKey && r.referenceScope != null) {
-      return r.referenceScope
-    }
-  }
-  return undefined
-}

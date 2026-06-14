@@ -133,7 +133,7 @@ export const importDcsMetadataValueFromYAML = (
       if (typeof data !== "string") {
         return importMetadataValueFromYAML(context, undefined, data as any) as MetadataDcsMetadataValue
       }
-      return importMetadataFieldFromYAML(context, undefined, data as any)!
+      return importMetadataFieldFromYAML(context, undefined, data as any) ?? data
     }
     case "Parameter": {
       const list = importChoiceParametersFromYAML(context, undefined, data as ChoiceParametersYAML)

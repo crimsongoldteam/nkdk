@@ -13,8 +13,7 @@ export const exportFontToXML = (
   const result: any = {}
 
   if (font.ref !== undefined) {
-    const prefixedRef = PrefixedFontsToXML[font.ref as keyof typeof PrefixedFontsToXML] ?? font.ref
-    result._ref = prefixedRef
+    result._ref = exportFontRefToXML(font)
   }
 
   if (font.faceName !== undefined) result._faceName = font.faceName
@@ -27,6 +26,16 @@ export const exportFontToXML = (
   if (font.scale !== undefined) result._scale = font.scale
 
   return result as FontXML
+}
+
+function exportFontRefToXML(font: Font): string {
+  const ref = font.ref
+  if (ref === undefined) return ""
+  const prefixedRef = PrefixedFontsToXML[ref as keyof typeof PrefixedFontsToXML]
+  if (prefixedRef !== undefined) return prefixedRef
+  if (font.kind === "StyleItem") return `style:${ref}`
+  if (font.kind === "WindowsFont") return `sys:${ref}`
+  return ref
 }
 
 registerTypeRule("Font", "exportToXML", exportFontToXML)

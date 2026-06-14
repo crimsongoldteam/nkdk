@@ -126,7 +126,7 @@ const documentFullClientApplicationFormYAMLData: DocumentClientApplicationFormYA
       },
     ],
   },
-  ХранилищеНастроек: "SettingsStorage.ХранилищеНастроек",
+  ХранилищеНастроек: "ХранилищеНастроек.ХранилищеНастроек",
   ВариантМасштаба: "Компактный",
   СоставКоманднойПанелиНаМобильномУстройстве: ["Команда1"],
 }

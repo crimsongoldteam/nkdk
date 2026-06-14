@@ -4,6 +4,11 @@ import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldFromYAML } from "../metadataField/fromYAML"
 import { TypeLink, TypeLinkYAML } from "./types"
 
+const typeLinkMetadataTargetRule = {
+  type: "MetadataField",
+  metadataTarget: { kind: "field", owner: "explicit", allowObject: true },
+} as const satisfies PropertyRule
+
 export const importTypeLinkFromYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
@@ -28,8 +33,7 @@ export const importTypeLinkFromYAML = (
   }
 
   // Преобразуем dataPath из формата YAML в формат XML
-  const dataPath = importMetadataFieldFromYAML(context, undefined, dataPathYAML)
-  if (!dataPath) return undefined
+  const dataPath = importMetadataFieldFromYAML(context, typeLinkMetadataTargetRule, dataPathYAML) ?? dataPathYAML
 
   return {
     dataPath,

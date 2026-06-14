@@ -4,7 +4,8 @@ import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumer
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { exportBooleanToYAML } from "../boolean/toYAML"
-import { Font, FontFullYAML, FontRef, FontYAML, RawPrefixedFontRef, isRawPrefixedFontRef } from "./types"
+import { formatMetadataTargetToYAML } from "../metadataTargets"
+import { Font, FontFullYAML, FontRef, FontYAML } from "./types"
 
 export const exportFontToYAML = (
   _context: ConfigurationContext,
@@ -48,16 +49,29 @@ const convertRefToYAML = (
   context: ConfigurationContext,
   ref: FontRef | undefined,
   kind: SE.FontType
-): SE.StyleFontsYAML | SE.WindowsFontsYAML | RawPrefixedFontRef | undefined => {
+): string | undefined => {
   if (ref === undefined) return undefined
 
-  if (isRawPrefixedFontRef(ref)) return ref
-
   if (kind === "StyleItem") {
-    return exportSystemEnumerationToYAMLDeprecated(context, { type: "SystemEnumeration", typeSE: "StyleFonts" }, ref)
+    return (
+      exportSystemEnumerationToYAMLDeprecated(context, { type: "SystemEnumeration", typeSE: "StyleFonts" }, ref) ??
+      tryFormatProjectStyleRefToYAML(ref)
+    )
   }
 
   return exportSystemEnumerationToYAMLDeprecated(context, { type: "SystemEnumeration", typeSE: "WindowsFonts" }, ref)
+}
+
+function tryFormatProjectStyleRefToYAML(ref: string): string | undefined {
+  try {
+    return formatMetadataTargetToYAML({
+      canonical: `StyleItem.${ref}`,
+      constraint: { kind: "styleItem", styleItemTypes: ["Font"] },
+    })
+  } catch (caught) {
+    if (caught instanceof Error && caught.message === "Некорректный формат цели метаданных") return undefined
+    throw caught
+  }
 }
 
 registerTypeRule("Font", "exportToYAML", exportFontToYAML)

@@ -1,48 +1,61 @@
 import { Context } from "vm"
+import { parseMetadataTargetFromYAML } from "~/metadata/commonObjects/metadataTargets"
+import { isMetadataRootName, rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
+import type { MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { convertPath } from "./helper"
-import { MetadataFieldsRules, MetadataFieldsRulesFromYAML, MetadataValuesRulesFromYAML } from "./types"
 
-const MetadataRootFieldsRulesFromYAML: MetadataFieldsRules = {
-  ОбщаяКоманда: { name: "CommonCommand" },
-  ...MetadataFieldsRulesFromYAML,
-}
-
-const MetadataRootValuesRulesFromYAML: MetadataFieldsRules = {
-  ...MetadataRootFieldsRulesFromYAML,
-  ...MetadataValuesRulesFromYAML,
-}
-
-// export const importMetadataTypeStringFromYAML = (_context: Context, name: string): string | undefined => {
-//   return convertPath(MetadataTypesRulesFromYAML, name)
-// }
+const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
+const metadataFieldTargetFallback = { kind: "field", owner: "explicit" } as const satisfies MetadataTargetConstraint
+const metadataValueTargetFallback = {
+  kind: "value",
+  valueKinds: ["predefinedValue", "enumValue", "emptyRef"],
+  allowEmptyRef: true,
+} as const satisfies MetadataTargetConstraint
 
 export const importMetadataFieldStringFromYAML = (
   _context: Context,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   name: string
 ): string | undefined => {
-  return convertPath(MetadataRootFieldsRulesFromYAML, name)
+  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataFieldTargetFallback))
+}
+
+export const importMetadataObjectStringFromYAML = (
+  _context: Context,
+  rule: PropertyRule | undefined,
+  name: string
+): string | undefined => {
+  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataObjectTargetFallback))
 }
 
 export const importMetadataValueStringFromYAML = (
   _context: Context,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   name: string
 ): string | undefined => {
-  const convertedPath = convertPath(MetadataRootValuesRulesFromYAML, name)
+  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataValueTargetFallback))
+}
 
-  if (convertedPath && convertedPath.startsWith("Enum.")) {
-    const parts = convertedPath.split(".")
-    if (!parts.includes("EnumValue") && parts.length >= 3) {
-      const lastPart = parts[parts.length - 1]
-      if (lastPart !== "EmptyRef") {
-        parts.pop()
-        parts.push("EnumValue", lastPart)
-        return parts.join(".")
-      }
-    }
-  }
+function metadataTargetForRule(
+  rule: PropertyRule | undefined,
+  fallback: MetadataTargetConstraint
+): MetadataTargetConstraint {
+  if (rule?.metadataTarget) return rule.metadataTarget
+  if (rule?.type === "MetadataItemLink" || rule?.type === "MetadataItemLinks") return metadataObjectTargetFallback
+  if (rule?.type === "MetadataField" || rule?.type === "MetadataFields") return metadataFieldTargetFallback
 
-  return convertedPath
+  return fallback
+}
+
+function parseMetadataTargetStringFromYAML(name: string, constraint: MetadataTargetConstraint): string | undefined {
+  const result = parseMetadataTargetFromYAML({ value: name, constraint })
+  if (result.ok) return result.canonical
+  if (!isMetadataTargetLikeYAML(name)) return undefined
+
+  throw new Error(result.message)
+}
+
+function isMetadataTargetLikeYAML(value: string): boolean {
+  const root = value.split(".")[0]
+  return rootFromYAML[root] !== undefined || isMetadataRootName(root)
 }

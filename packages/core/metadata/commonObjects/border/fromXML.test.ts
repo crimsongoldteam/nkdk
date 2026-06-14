@@ -9,7 +9,7 @@ describe("importBorderFromXML", () => {
     const mockXml = `<Border ref="style:ControlBorder"/>`
 
     const expected: Border = {
-      ref: "style:ControlBorder",
+      ref: "ControlBorder",
     }
 
     const xml = importContentFromXML<{ Border: BorderXML }>(mockXml)

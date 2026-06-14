@@ -44,7 +44,7 @@ export const FormCommandRules = {
     },
     picture: {
       yaml: "Картинка",
-      type: "Picture",
+      type: "Picture", metadataTarget: { kind: "commonPicture" },
     },
     action: {
       yaml: "Действие",

@@ -1,0 +1,156 @@
+import type { ValidateMetadataTargetFunction } from "~/metadata/orchestration/property/fn"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { diagnosticAtYamlPath } from "~/metadata/validation/yamlLocations"
+import { parseMetadataTargetFromModel } from "./parse"
+import type { StyleItemTargetType } from "./types"
+import type { MetadataTargetConstraint, ParsedMetadataTarget } from "./types"
+
+const validateStringTarget: ValidateMetadataTargetFunction = (params) => {
+  if (typeof params.value !== "string" || params.value === "") return []
+  return validateCanonicalTarget(params, params.value)
+}
+
+const validateStringTargetList: ValidateMetadataTargetFunction = (params) => {
+  if (!Array.isArray(params.value)) return []
+
+  return params.value.flatMap((value, index) =>
+    validateStringTarget({
+      ...params,
+      value,
+      yamlPath: [...params.yamlPath, index],
+    }),
+  )
+}
+
+const validateMetadataValueTarget: ValidateMetadataTargetFunction = (params) => {
+  if (!isRecord(params.value) || params.value.type !== "ref" || typeof params.value.value !== "string") return []
+  if (params.value.value === "" || isDesignTimeRefUuid(params.value.value)) return []
+
+  return validateCanonicalTarget(params, params.value.value)
+}
+
+const validateColorTarget: ValidateMetadataTargetFunction = (params) => {
+  if (!isRecord(params.value) || params.value.type !== "StyleItem" || typeof params.value.value !== "string") return []
+  if (isKnownStyleColor(params.value.value)) return []
+
+  return resolveStyleItem(params, params.value.value, ["Color"])
+}
+
+const validateFontTarget: ValidateMetadataTargetFunction = (params) => {
+  if (!isRecord(params.value) || params.value.kind !== "StyleItem" || typeof params.value.ref !== "string") return []
+  if (isKnownStyleFont(params.value.ref)) return []
+
+  return resolveStyleItem(params, params.value.ref, ["Font"])
+}
+
+const validateBorderTarget: ValidateMetadataTargetFunction = (params) => {
+  if (!isRecord(params.value) || typeof params.value.ref !== "string") return []
+
+  return resolveStyleItem(params, params.value.ref, ["Border"])
+}
+
+const validatePictureTarget: ValidateMetadataTargetFunction = (params) => {
+  if (!isRecord(params.value) || params.value.type !== "CommonPicture" || typeof params.value.ref !== "string") return []
+
+  const result = params.resolver.resolveCommonPicture({ name: params.value.ref })
+  return result.ok ? [] : result.diagnostics
+}
+
+function validateCanonicalTarget(
+  params: Parameters<ValidateMetadataTargetFunction>[0],
+  value: string,
+): ReturnType<ValidateMetadataTargetFunction> {
+  const constraint = params.propRule.metadataTarget
+  if (!constraint) return []
+
+  const parsed = parseMetadataTargetFromModel({ canonical: value, constraint })
+  if (!parsed.ok) {
+    return [
+      diagnosticAtYamlPath({
+        filePath: params.filePath,
+        parsed: params.parsed,
+        path: params.yamlPath,
+        source: "structure",
+        severity: "error",
+        message: parsed.message,
+      }),
+    ]
+  }
+
+  return resolveParsedTarget({ constraint, parsed: parsed.target, resolver: params.resolver })
+}
+
+function resolveParsedTarget(params: {
+  constraint: MetadataTargetConstraint
+  parsed: ParsedMetadataTarget
+  resolver: Parameters<ValidateMetadataTargetFunction>[0]["resolver"]
+}): ReturnType<ValidateMetadataTargetFunction> {
+  if (params.parsed.kind === "object") {
+    const result = params.resolver.resolveObject({ target: params.parsed })
+    return result.ok ? [] : result.diagnostics
+  }
+
+  if (params.parsed.kind === "field") {
+    const result = params.resolver.resolveField({ target: params.parsed })
+    return result.ok ? [] : result.diagnostics
+  }
+
+  if (params.parsed.kind === "value") {
+    const result = params.resolver.resolveValue({ target: params.parsed })
+    return result.ok ? [] : result.diagnostics
+  }
+
+  if (params.parsed.kind === "commonPicture") {
+    const result = params.resolver.resolveCommonPicture({ name: params.parsed.name })
+    return result.ok ? [] : result.diagnostics
+  }
+
+  if (params.parsed.kind === "styleItem" && params.constraint.kind === "styleItem") {
+    const result = params.resolver.resolveStyleItem({
+      name: params.parsed.name,
+      expectedTypes: params.constraint.styleItemTypes,
+    })
+    return result.ok ? [] : result.diagnostics
+  }
+
+  return []
+}
+
+function resolveStyleItem(
+  params: Parameters<ValidateMetadataTargetFunction>[0],
+  name: string,
+  expectedTypes: readonly StyleItemTargetType[],
+): ReturnType<ValidateMetadataTargetFunction> {
+  const result = params.resolver.resolveStyleItem({ name, expectedTypes })
+  return result.ok ? [] : result.diagnostics
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null
+}
+
+function isDesignTimeRefUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    value,
+  )
+}
+
+function isKnownStyleColor(value: string): value is SE.StyleColors {
+  return Object.prototype.hasOwnProperty.call(SE.StyleColorsToYAML, value)
+}
+
+function isKnownStyleFont(value: string): value is SE.StyleFonts {
+  return Object.prototype.hasOwnProperty.call(SE.StyleFontsToYAML, value)
+}
+
+registerTypeRule("MetadataItemLink", "validateMetadataTarget", validateStringTarget)
+registerTypeRule("MetadataItemLinks", "validateMetadataTarget", validateStringTargetList)
+registerTypeRule("MetadataField", "validateMetadataTarget", validateStringTarget)
+registerTypeRule("MetadataFields", "validateMetadataTarget", validateStringTargetList)
+registerTypeRule("MetadataObjectRefCollection", "validateMetadataTarget", validateStringTargetList)
+registerTypeRule("MetadataValue", "validateMetadataTarget", validateMetadataValueTarget)
+registerTypeRule("Color", "validateMetadataTarget", validateColorTarget)
+registerTypeRule("Font", "validateMetadataTarget", validateFontTarget)
+registerTypeRule("Border", "validateMetadataTarget", validateBorderTarget)
+registerTypeRule("Picture", "validateMetadataTarget", validatePictureTarget)

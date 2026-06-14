@@ -11,10 +11,10 @@ export const LabelFieldRules = {
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-    backColor: { yaml: "ЦветФона", type: "Color" },
-    border: { yaml: "Рамка", type: "Border" },
-    borderColor: { yaml: "ЦветРамки", type: "Color" },
-    font: { yaml: "Шрифт", type: "Font" },
+    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+    border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "styleItem", styleItemTypes: ["Border"] } },
+    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+    font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "styleItem", styleItemTypes: ["Font"] } },
     format: { yaml: "Формат", type: "I8nText" },
     height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
@@ -23,7 +23,7 @@ export const LabelFieldRules = {
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
     passwordMode: { yaml: "РежимПароля", type: "boolean" },
-    textColor: { yaml: "ЦветТекста", type: "Color" },
+    textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     events: {

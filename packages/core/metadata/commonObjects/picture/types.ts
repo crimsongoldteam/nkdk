@@ -51,10 +51,15 @@ export interface PictureYAMLExtended {
   ПрозрачныйПиксель?: { x: number; y: number }
 }
 
+const PictureRefJSONSchema = Type.String({
+  examples: ["БизнесПроцесс", "ОбщаяКартинка.Логотип", "Picture.png"],
+  description: "Стандартная картинка, ссылка на общую картинку вида ОбщаяКартинка.<ИмяОбщейКартинки> или путь к файлу.",
+})
+
 export const PictureJSONSchema = Type.Union([
-  Type.String(),
+  PictureRefJSONSchema,
   Type.Object({
-    Ссылка: Type.Union([Type.String()]),
+    Ссылка: PictureRefJSONSchema,
     ПрозрачныйФон: Type.Optional(BooleanJSONSchema),
     ПрозрачныйПиксель: Type.Optional(Type.Object({ x: Type.Number(), y: Type.Number() })),
   }),

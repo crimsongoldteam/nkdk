@@ -9,8 +9,8 @@ export const RadioButtonFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.RadioButtonField",
   properties: {
-    backColor: { yaml: "ЦветФона", type: "Color" },
-    borderColor: { yaml: "ЦветРамки", type: "Color" },
+    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
     choiceList: {
       yaml: "СписокВыбора",
       type: "ChoiceList",
@@ -18,7 +18,7 @@ export const RadioButtonFieldRules = {
     },
     columnsCount: { yaml: "КоличествоКолонок", type: "number" },
     equalColumnsWidth: { yaml: "ОдинаковаяШиринаКолонок", type: "boolean" },
-    font: { yaml: "Шрифт", type: "Font" },
+    font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "styleItem", styleItemTypes: ["Font"] } },
     itemHeight: { yaml: "ВысотаЭлемента", type: "number" },
     itemTitleHeight: { yaml: "ВысотаЗаголовкаЭлемента", type: "number" },
     itemWidth: { yaml: "ШиринаЭлемента", type: "number" },
@@ -27,7 +27,7 @@ export const RadioButtonFieldRules = {
       type: "SystemEnumeration",
       typeSE: "RadioButtonType",
     },
-    textColor: { yaml: "ЦветТекста", type: "Color" },
+    textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
     events: {
       type: "Events",
       yaml: "События",

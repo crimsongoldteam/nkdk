@@ -106,7 +106,7 @@ const cubeProperties = {
     xml: "DefaultRecordForm",
     type: "string",
     xmlParents: properties,
-    referenceScope: { target: "this", kind: "Form" },
+    metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
     defaultValueXMLRaw: "",
   },
   defaultListForm: {
@@ -114,7 +114,7 @@ const cubeProperties = {
     xml: "DefaultListForm",
     type: "string",
     xmlParents: properties,
-    referenceScope: { target: "this", kind: "Form" },
+    metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
     defaultValueXMLRaw: "",
   },
   recordPresentation: {

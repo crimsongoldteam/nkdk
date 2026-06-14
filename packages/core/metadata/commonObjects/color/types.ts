@@ -5,6 +5,7 @@ import {
   WebColorsFromYAML,
   WindowsColorsFromYAML,
 } from "~/metadata/systemEnumerations/types"
+import { buildMetadataTargetSchema } from "../metadataTargets"
 
 export interface TypedColor {
   type: ColorType
@@ -37,7 +38,7 @@ const colorNameSchemas = literalSchemas([
 
 export const AbsoluteColorJSONSchema = Type.String({ pattern: "^#[0-9A-Fa-f]{6}$" })
 export const RawColorRefJSONSchema = Type.String({ pattern: rawColorRefPattern.source })
-export const CustomStyleColorJSONSchema = Type.String({ pattern: "^ЭлементСтиля\\..+$" })
+export const CustomStyleColorJSONSchema = buildMetadataTargetSchema({ kind: "styleItem", styleItemTypes: ["Color"] })
 export const ColorJSONSchema = Type.Union(
   [CustomStyleColorJSONSchema, AbsoluteColorJSONSchema, RawColorRefJSONSchema, ...colorNameSchemas]
 )

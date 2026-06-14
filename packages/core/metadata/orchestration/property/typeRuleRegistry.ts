@@ -18,6 +18,7 @@ import {
   SyncExternalFromXMLFunction,
   SyncExternalToXMLFunction,
   TypeRulesOperations,
+  ValidateMetadataTargetFunction,
 } from "./fn"
 
 const typeRulesRegistry = new Map<
@@ -37,6 +38,7 @@ const typeRulesRegistry = new Map<
   | GraphChildRule
   | SyncExternalFromXMLFunction
   | SyncExternalToXMLFunction
+  | ValidateMetadataTargetFunction
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -75,7 +77,9 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                       ? SyncExternalFromXMLFunction | undefined
                       : O extends "syncExternalToXML"
                         ? SyncExternalToXMLFunction | undefined
-                        : never => {
+                        : O extends "validateMetadataTarget"
+                          ? ValidateMetadataTargetFunction | undefined
+                          : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

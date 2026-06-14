@@ -132,12 +132,8 @@ const heuristicFromYAML = (
   }
 
   // Ref: строка с точками
-  try {
-    const refResult = primitiveValueHandlers.ref.fromYAML(context, data)
-    if (refResult) return refResult
-  } catch {
-    // Не ref
-  }
+  const refResult = primitiveValueHandlers.ref.fromYAML(context, data)
+  if (refResult) return refResult
 
   // Fallback: строка
   return { type: "string", value: data } satisfies MetadataStringValue

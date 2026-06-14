@@ -82,7 +82,7 @@ export const MetadataCommandRules = {
     picture: {
       yaml: "Картинка",
       xml: "Picture",
-      type: "Picture",
+      type: "Picture", metadataTarget: { kind: "commonPicture" },
       xmlParents: ["Properties"],
       order: 10,
       defaultValueXMLRaw: "",

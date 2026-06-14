@@ -95,7 +95,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     expect(text).toContain("ПоложительноеЧисло(10, 2)")
   })
 
-  it("exports x-nkdk-graph query for concrete catalog references", () => {
+  it("exports concrete catalog reference pattern without graph hints", () => {
     const schema = exportTypeDescriptionToJSONSchema({
       context: mockContext,
       rule: restrictedRule,
@@ -108,13 +108,13 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     )
 
     expect(catalogRef).toMatchObject({
-      "x-nkdk-graph": {
-        query: "MATCH (n:MetadataObject {kind: 'MetadataCatalog'}) RETURN n.name ORDER BY n.name",
-      },
+      type: "string",
+      pattern: "^Справочник\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
     })
+    expect(JSON.stringify(catalogRef)).not.toContain("x-nkdk-graph")
   })
 
-  it("exports x-nkdk-graph path queries for external data source references", () => {
+  it("exports external data source reference patterns without graph hints", () => {
     const schema = exportTypeDescriptionToJSONSchema({
       context: mockContext,
       rule: externalRefsRule,
@@ -131,17 +131,15 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     )
 
     expect(externalTableRef).toMatchObject({
-      "x-nkdk-graph": {
-        query:
-          "MATCH (s:MetadataObject {kind: 'MetadataExternalDataSource'})-[:EXTERNAL_DATA_SOURCE_TABLE]->(t:MetadataExternalDataSourceTable) RETURN s.name, t.name ORDER BY s.name, t.name",
-      },
+      type: "string",
+      pattern: "^ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.Таблица[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
     })
     expect(externalCubeDimensionTableRef).toMatchObject({
-      "x-nkdk-graph": {
-        query:
-          "MATCH (s:MetadataObject {kind: 'MetadataExternalDataSource'})-[:EXTERNAL_DATA_SOURCE_CUBE]->(c:MetadataExternalDataSourceCube)-[:EXTERNAL_DATA_SOURCE_DIMENSION_TABLE]->(t:MetadataExternalDataSourceDimensionTable) RETURN s.name, c.name, t.name ORDER BY s.name, c.name, t.name",
-      },
+      type: "string",
+      pattern:
+        "^ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.Куб[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.ТаблицаИзмерения[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
     })
+    expect(JSON.stringify(schema)).not.toContain("x-nkdk-graph")
   })
 
   it("validates external data source references with TypeCompiler", () => {

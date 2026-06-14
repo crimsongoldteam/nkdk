@@ -7,6 +7,10 @@ import {
 } from "../../context/types"
 import type { RuntimeChildKind } from "~/metadata/commonObjects/metadataPath/graphPath"
 import type { GraphPrimitive } from "~/metadata/orchestration/buildGraph/types"
+import type { ProjectMetadataResolver } from "~/metadata/validation/projectMetadataResolver"
+import type { Diagnostic } from "~/metadata/validation/types"
+import type { YamlPath } from "~/metadata/validation/yamlLocations"
+import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import type { XmlWriteManifest } from "../xmlWriteManifest"
 import { PropertyRuleType } from "./registry"
 import { SourcePosition } from "./position"
@@ -74,6 +78,16 @@ export type ExportToJSONSchemaFn = (params: {
   rule: PropertyRule
   value: any | undefined
 }) => TSchema | undefined
+
+export type ValidateMetadataTargetFunction = (params: {
+  filePath: string
+  parsed: ParsedYaml
+  yamlPath: YamlPath
+  propRule: PropertyRule
+  propertyName: string
+  value: unknown
+  resolver: ProjectMetadataResolver
+}) => Diagnostic[]
 
 export type BuildGraphFromModelFunction = (params: {
   model: unknown
@@ -260,6 +274,7 @@ export interface TypeRule {
   graphChild?: GraphChildRule
   syncExternalFromXML?: SyncExternalFromXMLFunction
   syncExternalToXML?: SyncExternalToXMLFunction
+  validateMetadataTarget?: ValidateMetadataTargetFunction
 }
 
 export type TypeRulesOperations =
@@ -275,6 +290,7 @@ export type TypeRulesOperations =
   | "graphChild"
   | "syncExternalFromXML"
   | "syncExternalToXML"
+  | "validateMetadataTarget"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -305,4 +321,6 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                       ? SyncExternalFromXMLFunction | undefined
                       : O extends "syncExternalToXML"
                         ? SyncExternalToXMLFunction | undefined
-                        : never
+                        : O extends "validateMetadataTarget"
+                          ? ValidateMetadataTargetFunction | undefined
+                          : never

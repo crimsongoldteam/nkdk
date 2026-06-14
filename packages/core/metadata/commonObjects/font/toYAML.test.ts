@@ -29,4 +29,15 @@ describe("exportFontToYAML", () => {
       Размер: 10,
     })
   })
+
+  it("exports project style item refs with Russian metadata root", () => {
+    const result = exportFontToYAML(mockContext, mockRule, {
+      ref: "TooltipTitleFont",
+      kind: "StyleItem",
+    })
+
+    expect(result).toEqual({
+      Вид: "ЭлементСтиля.TooltipTitleFont",
+    })
+  })
 })

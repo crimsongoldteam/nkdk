@@ -80,6 +80,7 @@ export const MetadataFilterCriterionRules = {
     content: {
       yaml: "Состав",
       type: "MetadataItemLinks",
+      metadataTarget: { kind: "field", owner: "explicit" },
       xml: "Content",
       xmlParents: properties,
       defaultValueXMLRaw: "",
@@ -88,14 +89,14 @@ export const MetadataFilterCriterionRules = {
       yaml: "ОсновнаяФорма",
       type: "string",
       xmlParents: properties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     auxiliaryForm: {
       yaml: "ВспомогательнаяФорма",
       type: "string",
       xmlParents: properties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     managerModule: {

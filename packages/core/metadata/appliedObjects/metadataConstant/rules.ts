@@ -65,7 +65,7 @@ export const MetadataConstantRules = {
       yaml: "ОсновнаяФорма",
       type: "string",
       xmlParents: constantProperties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     extendedPresentation: {
@@ -186,7 +186,7 @@ export const MetadataConstantRules = {
       yaml: "ФормаВыбора",
       type: "string",
       xmlParents: constantProperties,
-      referenceScope: { target: "this", kind: "Form" },
+      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
       defaultValueXMLRaw: "",
     },
     linkByType: {

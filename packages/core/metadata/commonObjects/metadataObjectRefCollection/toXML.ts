@@ -2,18 +2,18 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToXML } from "../metadataValue/toXML"
-import { MetadataPrimitiveValueXML } from "../metadataValue/types"
-import { MetadataValueCollection, MetadataValueCollectionXML } from "./types"
+import { MetadataObjectRefValue, MetadataPrimitiveValueXML } from "../metadataValue/types"
+import { MetadataObjectRefCollection, MetadataObjectRefCollectionXML } from "./types"
 
-export const exportMetadataValueCollectionToXML = (
+export const exportMetadataObjectRefCollectionToXML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  data: MetadataValueCollection | undefined
-): MetadataValueCollectionXML | undefined => {
+  data: MetadataObjectRefCollection | undefined
+): MetadataObjectRefCollectionXML | undefined => {
   if (!data || data.length === 0) return undefined
 
   const items = data.map((item) => {
-    const metadataValue: any = {
+    const metadataValue: MetadataObjectRefValue = {
       type: "objectRef",
       value: item,
     }
@@ -29,4 +29,4 @@ export const exportMetadataValueCollectionToXML = (
   }
 }
 
-registerTypeRule("MetadataValueCollection", "exportToXML", exportMetadataValueCollectionToXML)
+registerTypeRule("MetadataObjectRefCollection", "exportToXML", exportMetadataObjectRefCollectionToXML)

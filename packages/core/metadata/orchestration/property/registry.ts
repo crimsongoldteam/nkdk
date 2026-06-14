@@ -421,9 +421,9 @@ import {
   MetadataValueYAML,
 } from "~/metadata/commonObjects/metadataValue/types"
 import {
-  MetadataValueCollection,
-  MetadataValueCollectionYAML,
-} from "~/metadata/commonObjects/metadataValueCollection/types"
+  MetadataObjectRefCollection,
+  MetadataObjectRefCollectionYAML,
+} from "~/metadata/commonObjects/metadataObjectRefCollection/types"
 import type { ExternalFile, ExternalFileYAML } from "~/metadata/commonObjects/externalFile/types"
 import type { ExternalPicture, ExternalPictureYAML } from "~/metadata/commonObjects/externalPicture/types"
 import type { ChildSubsystemNames, ChildSubsystemNamesYAML } from "~/metadata/commonObjects/childSubsystemNames/types"
@@ -977,10 +977,10 @@ export interface PropertyTypeRegistry {
 
     yaml: MetadataValueYAML
   }
-  MetadataValueCollection: {
-    item: MetadataValueCollection
+  MetadataObjectRefCollection: {
+    item: MetadataObjectRefCollection
     enterprise: string[]
-    yaml: MetadataValueCollectionYAML
+    yaml: MetadataObjectRefCollectionYAML
   }
   Predefined: {
     item: Predefined
@@ -1734,7 +1734,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   StandardTabularSectionDescriptions: "StandardTabularSectionDescriptions",
   StandardTabularSectionAttributeDescriptions: "StandardTabularSectionAttributeDescriptions",
   MetadataValue: "MetadataValue",
-  MetadataValueCollection: "MetadataValueCollection",
+  MetadataObjectRefCollection: "MetadataObjectRefCollection",
   Predefined: "Predefined",
   PredefinedCode: "PredefinedCode",
   PredefinedItem: "PredefinedItem",

@@ -118,6 +118,7 @@ export const exportDcsMetadataValueToYAML = (
     case "Field": {
       const typedValue = exportTypedValueToYAML(context, data)
       if (typedValue !== undefined) return typedValue
+      if (typeof data === "string") return exportMetadataFieldToYAML(context, undefined, data) ?? data
       return exportMetadataFieldToYAML(context, undefined, data as any)
     }
     case "Parameter":

@@ -6,23 +6,23 @@ import { MetadataField, MetadataFieldYAML, MetadataFields, MetadataFieldsYAML } 
 
 export const importMetadataFieldsFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: MetadataFieldsYAML | undefined
 ): MetadataFields | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => importMetadataFieldFromYAML(context, undefined, item)!)
+  return data.map((item) => importMetadataFieldFromYAML(context, rule, item)!)
 }
 
 export const importMetadataFieldFromYAML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: MetadataFieldYAML | undefined
 ): MetadataField | undefined => {
   if (!data) return undefined
 
-  return importMetadataFieldFromYAMLPath(context, undefined, data)
+  return importMetadataFieldFromYAMLPath(context, rule, data)
 }
 
-registerTypeRule("MetadataField", "importFromYAML", importMetadataFieldsFromYAML)
+registerTypeRule("MetadataField", "importFromYAML", importMetadataFieldFromYAML)
 registerTypeRule("MetadataFields", "importFromYAML", importMetadataFieldsFromYAML)

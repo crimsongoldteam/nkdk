@@ -93,6 +93,28 @@ describe("importMetadataCatalogFromYAML", () => {
     ).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
   })
 
+  it("should reject enum object refs in object ref collections", () => {
+    expect(() =>
+      importMetadataCatalogFromYAML(
+        mockContext,
+        {
+          ВводитсяНаОсновании: ["Перечисление.Статусы"],
+        },
+        "Товары"
+      )
+    ).toThrow('Корень "Enum" не разрешён для цели метаданных')
+
+    expect(() =>
+      importMetadataCatalogFromYAML(
+        mockContext,
+        {
+          Владельцы: ["Перечисление.Статусы"],
+        },
+        "Товары"
+      )
+    ).toThrow('Корень "Enum" не разрешён для цели метаданных')
+  })
+
   it("should import with short format", () => {
     const result = exportMetadataCatalogToYAML(mockContext, minimal)
 
