@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
 import { importPropertiesFromYAML } from "./fromYAML"
-import { exportPropertiesToYAML } from "./toYAML"
+import { exportPropertiesToYAML, exportPropertyToYAML } from "./toYAML"
 import type { MetadataItemRule } from "./types"
 
 const documentRule = {
@@ -75,6 +75,30 @@ describe("string metadataTarget YAML", () => {
       })
     ).toMatchObject({
       comment: "ФормаДокумента",
+    })
+  })
+
+  it("keeps local member strings unchanged when owner context is unavailable on import", () => {
+    expect(
+      importPropertiesFromYAML({
+        context: mockContext,
+        metadataRule: documentRule,
+        yaml: { ОсновнаяФормаОбъекта: "ФормаДокумента" },
+      })
+    ).toMatchObject({
+      defaultObjectForm: "ФормаДокумента",
+    })
+  })
+
+  it("keeps local member strings unchanged when owner context is unavailable on export", () => {
+    expect(
+      exportPropertyToYAML({
+        context: mockContext,
+        rule: documentRule.properties.defaultObjectForm,
+        value: "ФормаДокумента",
+      })
+    ).toEqual({
+      ОсновнаяФормаОбъекта: "ФормаДокумента",
     })
   })
 

@@ -23,7 +23,6 @@ import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/met
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemType } from "../metadataItem/registry"
-import type { CypherSet } from "./cypherPredicate"
 import { PropertyRuleType } from "./registry"
 
 export type ReferenceScopeFilterName = "stringIndexedAttribute"
@@ -175,9 +174,6 @@ export interface BasePropertyRule {
    * Описание допустимой цели metadata-значения. Используется schema и validate.
    */
   metadataTarget?: MetadataTargetConstraint
-
-  /** Множество допустимых значений из Cypher-запроса к FalkorDB. Используется для валидации и автодополнения. */
-  allowedValues?: CypherSet
 
   /**
    * Значение свойства хранится во внешнем файле, а не в YAML.

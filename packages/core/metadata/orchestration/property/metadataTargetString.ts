@@ -31,6 +31,7 @@ export function exportStringMetadataTargetToYAML(params: {
   const value = params.value
   const constraint = params.rule.metadataTarget
   if (typeof value !== "string" || value === "" || !isSupportedStringMetadataTarget(constraint)) return value
+  if (requiresCurrentOwner(constraint) && !params.owner) return value
 
   return formatMetadataTargetToYAML({
     canonical: value,
@@ -47,6 +48,7 @@ export function importStringMetadataTargetFromYAML(params: {
   const value = params.value
   const constraint = params.rule.metadataTarget
   if (typeof value !== "string" || value === "" || !isSupportedStringMetadataTarget(constraint)) return value
+  if (requiresCurrentOwner(constraint) && !params.owner) return value
 
   const result = parseMetadataTargetFromYAML({
     value,
@@ -117,4 +119,8 @@ function isSupportedStringMetadataTarget(
 ): constraint is Extract<MetadataTargetConstraint, { kind: "member" }> {
   if (!constraint) return false
   return constraint.kind === "member"
+}
+
+function requiresCurrentOwner(constraint: Extract<MetadataTargetConstraint, { kind: "member" }>): boolean {
+  return constraint.owner === "this"
 }
