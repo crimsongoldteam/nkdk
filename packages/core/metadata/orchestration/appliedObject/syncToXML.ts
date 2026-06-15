@@ -452,6 +452,8 @@ async function addFileItemChildCollectionsFromYAML(params: {
   referenceName?: string
   referenceXmlPath?: string
 }): Promise<void> {
+  const contextWithCurrentOwner = withImportMetadataTargetOwner(params.context, params.rule.itemType, params.parentName)
+
   for (const childCollection of params.rule.childCollections ?? []) {
     if (!childCollection.fileItemRule || !childCollection.nkdkDir) continue
 
@@ -485,7 +487,7 @@ async function addFileItemChildCollectionsFromYAML(params: {
       const childYamlContent = await fs.promises.readFile(childYamlPath, "utf-8")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const childYaml = importFromYAML<any>(childYamlContent)
-      const childContextWithFormDir = withImportFormDir(params.context, childNkdkDir, params.parentName)
+      const childContextWithFormDir = withImportFormDir(contextWithCurrentOwner, childNkdkDir, params.parentName)
       const importedChildModel = importMetadataItemFromYAML({
         context: childContextWithFormDir,
         yaml: childYaml,
@@ -527,7 +529,21 @@ function withImportFormDir(
     importFromYAML: {
       ...(context.importFromYAML ?? {}),
       formDir,
-      parent: context.importFromYAML?.parent ?? (parentName ? { name: parentName } : undefined),
+      parent: parentName ? { name: parentName } : context.importFromYAML?.parent,
+    },
+  }
+}
+
+function withImportMetadataTargetOwner(
+  context: ConfigurationContextWithExportToXML,
+  itemType: MetadataItemRule["itemType"],
+  name: string
+): ConfigurationContextWithExportToXML {
+  return {
+    ...context,
+    importFromYAML: {
+      ...context.importFromYAML,
+      metadataTargetOwners: [...(context.importFromYAML?.metadataTargetOwners ?? []), { itemType, name }],
     },
   }
 }

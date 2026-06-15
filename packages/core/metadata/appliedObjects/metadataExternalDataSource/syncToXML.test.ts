@@ -15,6 +15,14 @@ const write = async (path: string, content: string) => {
   await fs.promises.writeFile(path, content, "utf-8")
 }
 
+const minimalFormYAML = `Элементы:
+  ПолеВвода1:
+    Вид: ПолеВвода
+    Ширина: 10
+    ПутьКДанным: Реквизит
+Синоним: Форма списка
+НазначенияИспользования: ПлатформаИМобильноеПриложение`
+
 describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
   it("строит currentXMLPath формы вложенного file-item объекта без повторного имени объекта", () => {
     expect(
@@ -165,6 +173,44 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
     ).toBe("<html>dimension table help</html>")
   })
 
+  it("пишет локальную форму inline таблицы измерений как member текущего владельца", async () => {
+    const rootDir = await fs.promises.mkdtemp(join(os.tmpdir(), "eds-sync-inline-dimension-form-"))
+    const inputDir = join(rootDir, "yaml")
+    const outputDir = join(rootDir, "out")
+    const objectDir = join(inputDir, "ВнешнийИсточник")
+
+    await write(
+      join(objectDir, "Свойства.yaml"),
+      `Синоним: Синоним
+Кубы:
+  Куб:
+    ИмяВИсточникеДанных: КубSQL
+    ТаблицыИзмерений:
+      Измерение:
+        ИмяВИсточникеДанных: ИзмерениеSQL
+        ОсновнаяФормаСписка: ФормаСписка`
+    )
+    await write(
+      join(objectDir, "Кубы/Куб/ТаблицыИзмерений/Измерение/Формы/ФормаСписка/Форма.yaml"),
+      minimalFormYAML
+    )
+
+    await syncAppliedObjectToXML({
+      rule: MetadataExternalDataSourceRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ВнешнийИсточник",
+      outputDir,
+      referenceModel: null,
+    })
+
+    const dimensionTableXml = fs.readFileSync(join(outputDir, "Cubes/Куб/DimensionTables/Измерение.xml"), "utf-8")
+    expect(dimensionTableXml).toContain(
+      "<DefaultListForm>ExternalDataSource.ВнешнийИсточник.Cube.Куб.DimensionTable.Измерение.Form.ФормаСписка</DefaultListForm>"
+    )
+    expect(fs.existsSync(join(outputDir, "Cubes/Куб/DimensionTables/Измерение/Forms/ФормаСписка.xml"))).toBe(true)
+  })
+
   it("без reference собирает таблицы, кубы и таблицы измерений из отдельных YAML-папок", async () => {
     const rootDir = await fs.promises.mkdtemp(join(os.tmpdir(), "eds-sync-folder-children-"))
     const inputDir = join(rootDir, "yaml")
@@ -192,7 +238,12 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
     )
     await write(
       join(objectDir, "Кубы/АКуб/ТаблицыИзмерений/АИзмерение/Свойства.yaml"),
-      "ИмяВИсточникеДанных: АИзмерениеSQL"
+      `ИмяВИсточникеДанных: АИзмерениеSQL
+ОсновнаяФормаСписка: ФормаСписка`
+    )
+    await write(
+      join(objectDir, "Кубы/АКуб/ТаблицыИзмерений/АИзмерение/Формы/ФормаСписка/Форма.yaml"),
+      minimalFormYAML
     )
 
     await syncAppliedObjectToXML({
@@ -227,6 +278,11 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
     expect(fs.existsSync(join(outputDir, "Cubes/ЯКуб.xml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, "Cubes/АКуб/DimensionTables/АИзмерение.xml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, "Cubes/АКуб/DimensionTables/ЯИзмерение.xml"))).toBe(true)
+    const dimensionTableXml = fs.readFileSync(join(outputDir, "Cubes/АКуб/DimensionTables/АИзмерение.xml"), "utf-8")
+    expect(dimensionTableXml).toContain(
+      "<DefaultListForm>ExternalDataSource.ВнешнийИсточник.Cube.АКуб.DimensionTable.АИзмерение.Form.ФормаСписка</DefaultListForm>"
+    )
+    expect(fs.existsSync(join(outputDir, "Cubes/АКуб/DimensionTables/АИзмерение/Forms/ФормаСписка.xml"))).toBe(true)
   })
 
   it("папки с YAML имеют приоритет над старым inline-описанием дочерних объектов", async () => {

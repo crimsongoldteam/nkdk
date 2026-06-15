@@ -66,15 +66,29 @@ function metadataTargetNestedOwnerFromRule(params: {
   name: string | undefined
   context?: ConfigurationContext
 }): MetadataTargetOwner | undefined {
-  if (!params.name) return undefined
+  const owners =
+    params.context?.importFromYAML?.metadataTargetOwners ?? params.context?.exportToYAML?.metadataTargetOwners ?? []
+  const current = findLastOwner(owners, params.itemRule.itemType)
+  const currentName = current?.name ?? params.name
+  if (!currentName) return undefined
 
-  const parentName = params.context?.importFromYAML?.parent?.name ?? params.context?.exportToYAML?.parent?.name
-  if (!parentName) return undefined
+  const externalDataSource = findLastOwner(owners, "MetadataExternalDataSource")
+  if (!externalDataSource) return undefined
+
+  if (params.itemRule.itemType === "MetadataExternalDataSourceDimensionTable") {
+    const cube = findLastOwner(owners, "MetadataExternalDataSourceCube")
+    if (!cube) return undefined
+
+    return {
+      root: "ExternalDataSource",
+      objectName: `${externalDataSource.name}.Cube.${cube.name}.DimensionTable.${currentName}`,
+    }
+  }
 
   if (params.itemRule.itemType === "MetadataExternalDataSourceCube") {
     return {
       root: "ExternalDataSource",
-      objectName: `${parentName}.Cube.${params.name}`,
+      objectName: `${externalDataSource.name}.Cube.${currentName}`,
     }
   }
 
@@ -82,8 +96,20 @@ function metadataTargetNestedOwnerFromRule(params: {
 
   return {
     root: "ExternalDataSource",
-    objectName: `${parentName}.Table.${params.name}`,
+    objectName: `${externalDataSource.name}.Table.${currentName}`,
   }
+}
+
+function findLastOwner(
+  owners: readonly { itemType: string; name: string }[],
+  itemType: string
+): { itemType: string; name: string } | undefined {
+  for (let index = owners.length - 1; index >= 0; index--) {
+    const owner = owners[index]
+    if (owner.itemType === itemType) return owner
+  }
+
+  return undefined
 }
 
 function isSupportedStringMetadataTarget(

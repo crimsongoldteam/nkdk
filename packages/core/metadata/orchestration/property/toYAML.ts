@@ -17,18 +17,20 @@ export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
   if (data === undefined) return undefined
 
   const result = {}
+  const name = "name" in data ? (data["name"] as string) : undefined
+  const itemContext = contextWithMetadataTargetOwner(context, rule.itemType, name)
   const owner = metadataTargetOwnerFromRule({
     itemRule: rule,
-    name: "name" in data ? (data["name"] as string) : undefined,
-    context,
+    name,
+    context: itemContext,
   })
 
   for (const [key, propertyRule] of Object.entries(rule.properties)) {
     // Свойство с externalFile: значение идёт во внешний файл, не в YAML
     if ("externalFile" in propertyRule && propertyRule.externalFile && propertyRule.toYAML !== false) {
       const value = data[key as keyof ToMetadata<Rule["itemType"]>]
-      const collector = context.exportToYAML?.externalFilesCollector
-      const parentName = context.exportToYAML?.parent?.name
+      const collector = itemContext.exportToYAML?.externalFilesCollector
+      const parentName = itemContext.exportToYAML?.parent?.name
       if (collector !== undefined && parentName !== undefined && value !== undefined) {
         const entry = buildExternalFileEntry(propertyRule.externalFile, parentName, value as string)
         if (entry !== null) collector.push(entry)
@@ -48,10 +50,10 @@ export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
     }
 
     const exportedValues = exportPropertyToYAML({
-      context,
+      context: itemContext,
       rule: propertyRule,
       value,
-      name: "name" in data ? (data["name"] as string) : undefined,
+      name,
       owner,
     })
 
@@ -127,6 +129,24 @@ function contextWithPropertyParentName(context: ConfigurationContext, name: stri
       ? {
           ...context.exportToYAML,
           parent: context.exportToYAML.parent ?? { name },
+        }
+      : context.exportToYAML,
+  }
+}
+
+function contextWithMetadataTargetOwner(
+  context: ConfigurationContext,
+  itemType: MetadataItemRule["itemType"],
+  name: string | undefined
+): ConfigurationContext {
+  if (!name) return context
+
+  return {
+    ...context,
+    exportToYAML: context.exportToYAML
+      ? {
+          ...context.exportToYAML,
+          metadataTargetOwners: [...(context.exportToYAML.metadataTargetOwners ?? []), { itemType, name }],
         }
       : context.exportToYAML,
   }

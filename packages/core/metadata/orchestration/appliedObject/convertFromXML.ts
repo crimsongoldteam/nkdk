@@ -102,7 +102,8 @@ async function syncChildCollectionsFromXML(params: {
   name: string
   xmlDirContainsCurrentItem: boolean
 }): Promise<void> {
-  const { context, rule, model, xmlDir, nkdkDir, name } = params
+  const { rule, model, xmlDir, nkdkDir, name } = params
+  const context = withExportMetadataTargetOwner(params.context, rule.itemType, name)
 
   for (const childCollection of rule.childCollections ?? []) {
     const collectionModel = model[childCollection.propertyKey]
@@ -196,7 +197,23 @@ function withExportParentName(context: ConfigurationContextFromXML, name: string
         ...context,
         exportToYAML: {
           ...context.exportToYAML,
-          parent: context.exportToYAML.parent ?? { name },
+          parent: { name },
+        },
+      }
+    : context
+}
+
+function withExportMetadataTargetOwner(
+  context: ConfigurationContextFromXML,
+  itemType: MetadataItemRule["itemType"],
+  name: string
+): ConfigurationContextFromXML {
+  return context.exportToYAML
+    ? {
+        ...context,
+        exportToYAML: {
+          ...context.exportToYAML,
+          metadataTargetOwners: [...(context.exportToYAML.metadataTargetOwners ?? []), { itemType, name }],
         },
       }
     : context
