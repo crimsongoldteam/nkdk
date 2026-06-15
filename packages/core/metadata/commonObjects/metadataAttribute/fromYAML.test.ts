@@ -13,8 +13,16 @@ import {
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 import { mockContext } from "~/tests/mockContext"
 import { exportMetadataAttributesToJSONSchema } from "./register"
+import { importPropertyFromYAML } from "~/metadata/orchestration/property/fromYAML"
+import type { ConfigurationContext } from "~/metadata/context/types"
 
 const rule = { type: "MetadataAttributes" } as const
+const metadataAttributeOwnerContext: ConfigurationContext = {
+  ...mockContext,
+  importFromYAML: {
+    metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Справочник" }],
+  },
+}
 
 describe("import MetadataAttributes from YAML", () => {
   it("should return undefined when data is undefined", () => {
@@ -23,7 +31,11 @@ describe("import MetadataAttributes from YAML", () => {
   })
 
   it("should import full", () => {
-    const result = testImportPropertyFromYAML({ rule, value: fullMetadataAttributesYAML })
+    const result = importPropertyFromYAML({
+      context: metadataAttributeOwnerContext,
+      rule,
+      value: fullMetadataAttributesYAML,
+    })
     expect(result).toEqual(fullMetadataAttributes)
   })
 

@@ -31,7 +31,6 @@ export function exportStringMetadataTargetToYAML(params: {
   const value = params.value
   const constraint = params.rule.metadataTarget
   if (typeof value !== "string" || value === "" || !isSupportedStringMetadataTarget(constraint)) return value
-  if (requiresCurrentOwner(constraint) && !params.owner) return value
 
   return formatMetadataTargetToYAML({
     canonical: value,
@@ -48,7 +47,6 @@ export function importStringMetadataTargetFromYAML(params: {
   const value = params.value
   const constraint = params.rule.metadataTarget
   if (typeof value !== "string" || value === "" || !isSupportedStringMetadataTarget(constraint)) return value
-  if (requiresCurrentOwner(constraint) && !params.owner) return value
 
   const result = parseMetadataTargetFromYAML({
     value,
@@ -73,6 +71,10 @@ function metadataTargetNestedOwnerFromRule(params: {
   const current = findLastOwner(owners, params.itemRule.itemType)
   const currentName = current?.name ?? params.name
   if (!currentName) return undefined
+
+  if (params.itemRule.itemType === "MetadataAttribute") {
+    return metadataAttributeOwnerFromContext(owners)
+  }
 
   const externalDataSource = findLastOwner(owners, "MetadataExternalDataSource")
   if (!externalDataSource) return undefined
@@ -102,6 +104,40 @@ function metadataTargetNestedOwnerFromRule(params: {
   }
 }
 
+const rootByOwnerItemType: Partial<Record<string, MetadataRootName>> = {
+  MetadataAccountingRegister: "AccountingRegister",
+  MetadataAccumulationRegister: "AccumulationRegister",
+  MetadataBusinessProcess: "BusinessProcess",
+  MetadataCalculationRegister: "CalculationRegister",
+  MetadataCatalog: "Catalog",
+  MetadataChartOfAccounts: "ChartOfAccounts",
+  MetadataChartOfCalculationTypes: "ChartOfCalculationTypes",
+  MetadataChartOfCharacteristicTypes: "ChartOfCharacteristicTypes",
+  MetadataConstant: "Constant",
+  MetadataDataProcessor: "DataProcessor",
+  MetadataDocument: "Document",
+  MetadataEnumeration: "Enum",
+  MetadataExchangePlan: "ExchangePlan",
+  MetadataExternalDataSource: "ExternalDataSource",
+  MetadataInformationRegister: "InformationRegister",
+  MetadataReport: "Report",
+  MetadataTask: "Task",
+}
+
+function metadataAttributeOwnerFromContext(
+  owners: readonly { itemType: string; name: string }[]
+): MetadataTargetOwner | undefined {
+  for (let index = owners.length - 1; index >= 0; index--) {
+    const owner = owners[index]
+    if (owner.itemType === "MetadataAttribute") continue
+
+    const root = rootByOwnerItemType[owner.itemType]
+    if (root) return { root, objectName: owner.name }
+  }
+
+  return undefined
+}
+
 function findLastOwner(
   owners: readonly { itemType: string; name: string }[],
   itemType: string
@@ -119,8 +155,4 @@ function isSupportedStringMetadataTarget(
 ): constraint is Extract<MetadataTargetConstraint, { kind: "member" }> {
   if (!constraint) return false
   return constraint.kind === "member"
-}
-
-function requiresCurrentOwner(constraint: Extract<MetadataTargetConstraint, { kind: "member" }>): boolean {
-  return constraint.owner === "this"
 }

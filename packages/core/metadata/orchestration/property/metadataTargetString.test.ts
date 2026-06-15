@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
 import { importPropertiesFromYAML } from "./fromYAML"
-import { exportPropertiesToYAML, exportPropertyToYAML } from "./toYAML"
+import { exportPropertiesToYAML } from "./toYAML"
 import type { MetadataItemRule } from "./types"
 
 const documentRule = {
@@ -78,28 +78,28 @@ describe("string metadataTarget YAML", () => {
     })
   })
 
-  it("keeps local member strings unchanged when owner context is unavailable on import", () => {
-    expect(
+  it("rejects local member strings when owner context is unavailable on import", () => {
+    expect(() =>
       importPropertiesFromYAML({
         context: mockContext,
         metadataRule: documentRule,
         yaml: { ОсновнаяФормаОбъекта: "ФормаДокумента" },
       })
-    ).toMatchObject({
-      defaultObjectForm: "ФормаДокумента",
-    })
+    ).toThrow('Для metadataTarget kind "member" owner "this" требуется контекст текущего объекта')
   })
 
-  it("keeps local member strings unchanged when owner context is unavailable on export", () => {
-    expect(
-      exportPropertyToYAML({
+  it("rejects local member strings when owner context is unavailable on export", () => {
+    expect(() =>
+      exportPropertiesToYAML({
         context: mockContext,
-        rule: documentRule.properties.defaultObjectForm,
-        value: "ФормаДокумента",
+        rule: documentRule,
+        data: {
+          itemType: "MetadataDocument",
+          name: "",
+          defaultObjectForm: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+        },
       })
-    ).toEqual({
-      ОсновнаяФормаОбъекта: "ФормаДокумента",
-    })
+    ).toThrow('Для metadataTarget kind "member" owner "this" требуется контекст текущего объекта')
   })
 
   it("rejects YAML strings that do not match a member target", () => {

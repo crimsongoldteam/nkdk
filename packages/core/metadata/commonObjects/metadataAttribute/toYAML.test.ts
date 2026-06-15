@@ -11,6 +11,15 @@ import {
 } from "./__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
 import { exportMetadataAttributesToYAML } from "./register"
+import type { ConfigurationContext } from "~/metadata/context/types"
+
+const metadataAttributeOwnerContext: ConfigurationContext = {
+  ...mockContext,
+  exportToYAML: {
+    toTyped: false,
+    metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Справочник" }],
+  },
+}
 
 describe("export MetadataAttributes to YAML", () => {
   it("should export undefined when data is undefined", () => {
@@ -19,7 +28,7 @@ describe("export MetadataAttributes to YAML", () => {
   })
 
   it("should export full", () => {
-    const result = exportMetadataAttributesToYAML(mockContext, undefined, fullMetadataAttributes)
+    const result = exportMetadataAttributesToYAML(metadataAttributeOwnerContext, undefined, fullMetadataAttributes)
     expect(result).toEqual(fullMetadataAttributesYAML)
   })
 
