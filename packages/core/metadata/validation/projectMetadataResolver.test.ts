@@ -94,6 +94,57 @@ describe("ProjectMetadataResolver", () => {
     ).toMatchObject({ ok: true })
   })
 
+  it("resolves current object members and returns field details", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [
+      "Реквизиты:",
+      "  Провести:",
+      "    Тип: Булево",
+      "Формы:",
+      "  ФормаДокумента",
+    ])
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Форма.ФормаДокумента") })).toMatchObject({
+      ok: true,
+    })
+    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Провести") })).toMatchObject({
+      ok: true,
+      details: expect.objectContaining({
+        typeInfo: expect.objectContaining({ kinds: expect.arrayContaining(["boolean"]) }),
+      }),
+    })
+  })
+
+  it("applies hasType filter to member fields", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [
+      "Реквизиты:",
+      "  Провести:",
+      "    Тип: Булево",
+      "  Комментарий:",
+      "    Тип: Строка",
+    ])
+    const resolver = createResolver(projectDir)
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Провести"),
+        filters: [{ kind: "hasType", type: "boolean" }],
+      }),
+    ).toMatchObject({ ok: true })
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Комментарий"),
+        filters: [{ kind: "hasType", type: "boolean" }],
+      }),
+    ).toMatchObject({
+      ok: false,
+      diagnostics: [expect.objectContaining({ message: expect.stringContaining("тип которых содержит Булево") })],
+    })
+  })
+
   it("reports missing field owners as reference diagnostics", () => {
     const projectDir = createProject()
     const resolver = createResolver(projectDir)
@@ -180,6 +231,12 @@ function fieldTarget(value: string): Extract<ParsedMetadataTarget, { kind: "fiel
   const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "field", owner: "explicit" } })
   if (!parsed.ok) throw new Error(parsed.message)
   return parsed.target as Extract<ParsedMetadataTarget, { kind: "field" }>
+}
+
+function memberTarget(value: string): Extract<ParsedMetadataTarget, { kind: "member" }> {
+  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "member", owner: "explicit" } })
+  if (!parsed.ok) throw new Error(parsed.message)
+  return parsed.target as Extract<ParsedMetadataTarget, { kind: "member" }>
 }
 
 function valueTarget(value: string): Extract<ParsedMetadataTarget, { kind: "value" }> {

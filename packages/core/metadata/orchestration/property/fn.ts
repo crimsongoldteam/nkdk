@@ -6,6 +6,7 @@ import {
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
 import type { RuntimeChildKind } from "~/metadata/commonObjects/metadataPath/graphPath"
+import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
 import type { GraphPrimitive } from "~/metadata/orchestration/buildGraph/types"
 import type { ProjectMetadataResolver } from "~/metadata/validation/projectMetadataResolver"
 import type { Diagnostic } from "~/metadata/validation/types"
@@ -87,6 +88,7 @@ export type ValidateMetadataTargetFunction = (params: {
   propertyName: string
   value: unknown
   resolver: ProjectMetadataResolver
+  owner?: MetadataTargetOwner
 }) => Diagnostic[]
 
 export type BuildGraphFromModelFunction = (params: {

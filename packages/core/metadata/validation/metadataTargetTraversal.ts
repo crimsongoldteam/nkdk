@@ -1,4 +1,5 @@
 import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import type { ProjectMetadataResolver } from "./projectMetadataResolver"
@@ -11,6 +12,7 @@ export interface ValidateMetadataTargetsInModelParams {
   model: MetadataItem
   rule: MetadataItemRule
   resolver: ProjectMetadataResolver
+  owner?: MetadataTargetOwner
 }
 
 export function validateMetadataTargetsInModel(params: ValidateMetadataTargetsInModelParams): Diagnostic[] {
@@ -47,6 +49,7 @@ function validateObject(
         propertyName,
         value,
         resolver: params.resolver,
+        owner: params.owner,
       }),
     )
   }

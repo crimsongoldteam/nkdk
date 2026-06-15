@@ -64,7 +64,7 @@ function validateCanonicalTarget(
   const constraint = params.propRule.metadataTarget
   if (!constraint) return []
 
-  const parsed = parseMetadataTargetFromModel({ canonical: value, constraint })
+  const parsed = parseMetadataTargetFromModel({ canonical: value, constraint, owner: params.owner })
   if (!parsed.ok) {
     return [
       diagnosticAtYamlPath({
@@ -88,6 +88,14 @@ function resolveParsedTarget(params: {
 }): ReturnType<ValidateMetadataTargetFunction> {
   if (params.parsed.kind === "object") {
     const result = params.resolver.resolveObject({ target: params.parsed })
+    return result.ok ? [] : result.diagnostics
+  }
+
+  if (params.parsed.kind === "member" && params.constraint.kind === "member") {
+    const result = params.resolver.resolveMember({
+      target: params.parsed,
+      filters: params.constraint.filters,
+    })
     return result.ok ? [] : result.diagnostics
   }
 
@@ -145,6 +153,7 @@ function isKnownStyleFont(value: string): value is SE.StyleFonts {
 }
 
 registerTypeRule("MetadataItemLink", "validateMetadataTarget", validateStringTarget)
+registerTypeRule("string", "validateMetadataTarget", validateStringTarget)
 registerTypeRule("MetadataItemLinks", "validateMetadataTarget", validateStringTargetList)
 registerTypeRule("MetadataField", "validateMetadataTarget", validateStringTarget)
 registerTypeRule("MetadataFields", "validateMetadataTarget", validateStringTargetList)
