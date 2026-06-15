@@ -69,8 +69,17 @@ export const memberKindFromYAML = Object.fromEntries(
   Object.entries(memberKindToYAML).map(([model, yaml]) => [yaml, model])
 ) as Partial<Record<string, MetadataMemberKind>>
 
-export const fieldKindToYAML = memberKindToYAML
-export const fieldKindFromYAML = memberKindFromYAML as Partial<Record<string, MetadataFieldKind>>
+export const fieldKindToYAML = {
+  Attribute: "Реквизит",
+  StandardAttribute: "СтандартныйРеквизит",
+  TabularSection: "ТабличнаяЧасть",
+  Dimension: "Измерение",
+  Resource: "Ресурс",
+} as const satisfies Record<MetadataFieldKind, string>
+
+export const fieldKindFromYAML = Object.fromEntries(
+  Object.entries(fieldKindToYAML).map(([model, yaml]) => [yaml, model])
+) as Partial<Record<string, MetadataFieldKind>>
 
 export const standardAttributeToYAML: Readonly<Record<string, string>> = {
   Ref: "Ссылка",
