@@ -78,43 +78,28 @@ describe("string metadataTarget YAML", () => {
     })
   })
 
-  it("keeps unsupported metadataTarget kinds unchanged", () => {
-    const localChildRule = {
-      itemType: "MetadataDocument",
-      itemTypePrefix: "Документ",
-      properties: {
-        name: { type: "string", defaultValue: ({ name }: { name?: string }) => name },
-        defaultObjectForm: {
-          yaml: "ОсновнаяФормаОбъекта",
-          type: "string",
-          metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
-        },
-      },
-    } as const satisfies MetadataItemRule
+  it("rejects YAML strings that do not match a member target", () => {
+    expect(() =>
+      importPropertiesFromYAML({
+        context: mockContext,
+        metadataRule: documentRule,
+        name: "АвансовыйОтчет",
+        yaml: { ОсновнаяФормаОбъекта: "ОбщаяФорма.ФормаДокумента" },
+      })
+    ).toThrow()
+  })
 
-    expect(
+  it("rejects model strings that do not match a member target", () => {
+    expect(() =>
       exportPropertiesToYAML({
         context: mockContext,
-        rule: localChildRule,
+        rule: documentRule,
         data: {
           itemType: "MetadataDocument",
           name: "АвансовыйОтчет",
-          defaultObjectForm: "ФормаДокумента",
+          defaultObjectForm: "CommonForm.ФормаДокумента",
         },
       })
-    ).toEqual({
-      ОсновнаяФормаОбъекта: "ФормаДокумента",
-    })
-
-    expect(
-      importPropertiesFromYAML({
-        context: mockContext,
-        metadataRule: localChildRule,
-        name: "АвансовыйОтчет",
-        yaml: { ОсновнаяФормаОбъекта: "ФормаДокумента" },
-      })
-    ).toMatchObject({
-      defaultObjectForm: "ФормаДокумента",
-    })
+    ).toThrow()
   })
 })

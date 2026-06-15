@@ -77,14 +77,14 @@ describe("validateMetadataTargetsInModel", () => {
     ])
   })
 
-  it("skips unsupported legacy string metadata targets", () => {
+  it("reports diagnostics for string values that do not match member targets", () => {
     const rule: MetadataItemRule = {
       itemType: "MetadataDocument",
       properties: {
         mainForm: {
           type: "string",
           yaml: "ОсновнаяФорма",
-          metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
+          metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
         },
       },
     } as never
@@ -92,13 +92,18 @@ describe("validateMetadataTargetsInModel", () => {
     const diagnostics = validateMetadataTargetsInModel({
       filePath: "/tmp/Документ/АвансовыйОтчет/Свойства.yaml",
       parsed: { doc: { contents: undefined }, lineCounter: { linePos: () => ({ line: 1, col: 1 }) } } as never,
-      model: { itemType: "MetadataDocument", mainForm: "ФормаДокумента" } as never,
+      model: { itemType: "MetadataDocument", mainForm: "CommonForm.ФормаДокумента" } as never,
       rule,
       resolver: {} as never,
       owner: { root: "Document", objectName: "АвансовыйОтчет" },
     })
 
-    expect(diagnostics).toEqual([])
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        source: "structure",
+      }),
+    ])
   })
 
   it("validates metadata targets in nested collection items", () => {

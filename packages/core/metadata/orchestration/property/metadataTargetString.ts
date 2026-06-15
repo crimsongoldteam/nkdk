@@ -1,4 +1,5 @@
 import { formatMetadataTargetToYAML, parseMetadataTargetFromYAML } from "~/metadata/commonObjects/metadataTargets"
+import type { ConfigurationContext } from "~/metadata/context/types"
 import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import type {
   MetadataRootName,
@@ -10,7 +11,11 @@ import type { MetadataItemRule, PropertyRule } from "./types"
 export function metadataTargetOwnerFromRule(params: {
   itemRule: MetadataItemRule
   name: string | undefined
+  context?: ConfigurationContext
 }): MetadataTargetOwner | undefined {
+  const nestedOwner = metadataTargetNestedOwnerFromRule(params)
+  if (nestedOwner) return nestedOwner
+
   const prefix = params.itemRule.itemTypePrefix
   if (!prefix || !params.name) return undefined
 
@@ -27,15 +32,11 @@ export function exportStringMetadataTargetToYAML(params: {
   const constraint = params.rule.metadataTarget
   if (typeof value !== "string" || value === "" || !isSupportedStringMetadataTarget(constraint)) return value
 
-  try {
-    return formatMetadataTargetToYAML({
-      canonical: value,
-      constraint,
-      owner: params.owner,
-    })
-  } catch {
-    return value
-  }
+  return formatMetadataTargetToYAML({
+    canonical: value,
+    constraint,
+    owner: params.owner,
+  })
 }
 
 export function importStringMetadataTargetFromYAML(params: {
@@ -52,12 +53,37 @@ export function importStringMetadataTargetFromYAML(params: {
     constraint,
     owner: params.owner,
   })
-  if (!result.ok) return value
+  if (!result.ok) throw new Error(result.message)
   return result.canonical
 }
 
 const itemTypePrefixRootFallback: Partial<Record<string, MetadataRootName>> = {
   Нумератор: "DocumentNumerator",
+}
+
+function metadataTargetNestedOwnerFromRule(params: {
+  itemRule: MetadataItemRule
+  name: string | undefined
+  context?: ConfigurationContext
+}): MetadataTargetOwner | undefined {
+  if (!params.name) return undefined
+
+  const parentName = params.context?.importFromYAML?.parent?.name ?? params.context?.exportToYAML?.parent?.name
+  if (!parentName) return undefined
+
+  if (params.itemRule.itemType === "MetadataExternalDataSourceCube") {
+    return {
+      root: "ExternalDataSource",
+      objectName: `${parentName}.Cube.${params.name}`,
+    }
+  }
+
+  if (params.itemRule.itemType !== "MetadataExternalDataSourceTable") return undefined
+
+  return {
+    root: "ExternalDataSource",
+    objectName: `${parentName}.Table.${params.name}`,
+  }
 }
 
 function isSupportedStringMetadataTarget(

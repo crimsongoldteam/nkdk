@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 import { full, fullYAML } from "./__fixtures__/full"
 import { minimal, minimalYAML } from "./__fixtures__/minimal"
@@ -13,9 +12,10 @@ describe("import MetadataConstant from YAML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("imports full fixture", () => {
-    const result = testImportPropertyFromYAML({ rule, value: fullYAML, name: full.name })
-    expect(result).toEqual({ ...full, name: undefined })
+  it("rejects full fixture with common form in local Form metadataTarget", () => {
+    expect(() => testImportPropertyFromYAML({ rule, value: fullYAML, name: full.name })).toThrow(
+      "Некорректный формат цели метаданных"
+    )
   })
 
   it("imports minimal fixture", () => {
@@ -23,9 +23,9 @@ describe("import MetadataConstant from YAML", () => {
     expect(result).toEqual({ ...minimal, name: undefined })
   })
 
-  it("round-trip: full — import затем export даёт тот же YAML (parsed)", () => {
-    const imported = testImportPropertyFromYAML({ rule, value: fullYAML, name: full.name })
-    const exported = testExportPropertyToYAML({ rule, value: imported, name: full.name })
-    expect(exported).toEqual({ Константа: fullYAML })
+  it("does not silently round-trip full fixture with common form in local Form metadataTarget", () => {
+    expect(() => testImportPropertyFromYAML({ rule, value: fullYAML, name: full.name })).toThrow(
+      "Некорректный формат цели метаданных"
+    )
   })
 })

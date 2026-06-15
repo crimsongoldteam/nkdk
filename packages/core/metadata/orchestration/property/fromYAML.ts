@@ -23,7 +23,7 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
   } as ToMetadata<Rule["itemType"]>
 
   assertMetadataItemYAMLObject({ itemType: metadataType, yaml })
-  const owner = metadataTargetOwnerFromRule({ itemRule: metadataRule, name })
+  const owner = metadataTargetOwnerFromRule({ itemRule: metadataRule, name, context })
 
   // Предварительный проход: читаем внешние файлы для свойств с опцией externalFile
   const formDir = context.importFromYAML?.formDir
@@ -109,9 +109,11 @@ export const importPropertyFromYAML = (params: {
     })
   }
 
+  const nestedContext = contextWithPropertyParentName(context, name)
+
   if (typeimportFn.length === 1) {
     const importedValue = (typeimportFn as ImportFromYAMLFunctionNew)({
-      context,
+      context: nestedContext,
       rule,
       value,
       source: sourceValue,
@@ -134,7 +136,7 @@ export const importPropertyFromYAML = (params: {
     })
   }
 
-  const result = (typeimportFn as importFromYAMLFunction)(context, rule, value, sourceValue)
+  const result = (typeimportFn as importFromYAMLFunction)(nestedContext, rule, value, sourceValue)
 
   return getValueOrDefault({
     context,
@@ -149,6 +151,18 @@ export const importPropertyFromYAML = (params: {
     name,
     operation: "importFromYAML",
   })
+}
+
+function contextWithPropertyParentName(context: ConfigurationContext, name: string | undefined): ConfigurationContext {
+  if (!name) return context
+
+  return {
+    ...context,
+    importFromYAML: {
+      ...context.importFromYAML,
+      parent: context.importFromYAML?.parent ?? { name },
+    },
+  }
 }
 
 const getImportedValueOrSourceFallback = (params: {

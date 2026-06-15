@@ -175,8 +175,9 @@ async function syncChildCollectionsFromXML(params: {
       if (childCollection.fileItemRule && childCollection.nkdkDir) {
         const externalFilesCollector: ExternalFileEntry[] = []
         const contextWithExternalFiles = withExternalFilesCollector(context, externalFilesCollector)
+        const contextWithChildParent = withExportParentName(contextWithExternalFiles, params.name)
         const childYamlObj = exportMetadataItemToYAML({
-          context: contextWithExternalFiles,
+          context: contextWithChildParent,
           data: omitFileItemChildCollections(item.model, childCollection.fileItemRule),
           rule: childCollection.fileItemRule,
         })
@@ -187,6 +188,18 @@ async function syncChildCollectionsFromXML(params: {
       }
     }
   }
+}
+
+function withExportParentName(context: ConfigurationContextFromXML, name: string): ConfigurationContextFromXML {
+  return context.exportToYAML
+    ? {
+        ...context,
+        exportToYAML: {
+          ...context.exportToYAML,
+          parent: context.exportToYAML.parent ?? { name },
+        },
+      }
+    : context
 }
 
 function withExternalFilesCollector(

@@ -282,6 +282,11 @@ function parseMemberTargetFromModel(
   constraint: Extract<MetadataTargetConstraint, { kind: "member" }>,
   owner: MetadataTargetOwner | undefined
 ): MetadataTargetParseResult {
+  if (constraint.owner === "this" && owner) {
+    const ownerPrefixed = parseOwnerPrefixedModelMember(parts, constraint, owner)
+    if (ownerPrefixed.ok) return ownerPrefixed
+  }
+
   const parsed = parseRootedTargetFromModel(parts, constraint, (root, objectName, tail) =>
     parseMemberOrOwnerTarget(root, objectName, tail, constraint, "model")
   )
@@ -296,6 +301,21 @@ function parseFullModelMemberCompatibility(
   return parseRootedTargetFromModel(parts, constraint, (root, objectName, tail) =>
     parseMemberOrOwnerTarget(root, objectName, tail, constraint, "model")
   )
+}
+
+function parseOwnerPrefixedModelMember(
+  parts: readonly string[],
+  constraint: Extract<MetadataTargetConstraint, { kind: "member" }>,
+  owner: MetadataTargetOwner
+): MetadataTargetParseResult {
+  const ownerParts = [owner.root, ...owner.objectName.split(".")]
+  if (!hasPrefix(parts, ownerParts)) return invalidShape()
+
+  return parseMemberSegments(owner.root, owner.objectName, parts.slice(ownerParts.length), constraint, "model")
+}
+
+function hasPrefix(parts: readonly string[], prefix: readonly string[]): boolean {
+  return prefix.every((part, index) => parts[index] === part)
 }
 
 function parseMemberOrOwnerTarget(

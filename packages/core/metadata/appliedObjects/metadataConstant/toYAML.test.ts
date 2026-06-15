@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import { full, fullYAML } from "./__fixtures__/full"
+import { full } from "./__fixtures__/full"
 import { minimal, minimalYAML } from "./__fixtures__/minimal"
 
 const rule: PropertyRule = { type: "MetadataConstant", yaml: "Константа" }
@@ -12,13 +12,14 @@ describe("export MetadataConstant to YAML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("exports full fixture", () => {
-    const result = testExportPropertyToYAML({ rule, value: full })
-    expect(result).toEqual({ Константа: fullYAML })
+  it("rejects full fixture with common form in local Form metadataTarget", () => {
+    expect(() => testExportPropertyToYAML({ rule, value: full, name: full.name })).toThrow(
+      "Некорректный формат цели метаданных"
+    )
   })
 
   it("exports minimal fixture", () => {
-    const result = testExportPropertyToYAML({ rule, value: minimal })
+    const result = testExportPropertyToYAML({ rule, value: minimal, name: minimal.name })
     expect(result).toEqual({ Константа: minimalYAML })
   })
 })

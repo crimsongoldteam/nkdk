@@ -485,7 +485,7 @@ async function addFileItemChildCollectionsFromYAML(params: {
       const childYamlContent = await fs.promises.readFile(childYamlPath, "utf-8")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const childYaml = importFromYAML<any>(childYamlContent)
-      const childContextWithFormDir = withImportFormDir(params.context, childNkdkDir)
+      const childContextWithFormDir = withImportFormDir(params.context, childNkdkDir, params.parentName)
       const importedChildModel = importMetadataItemFromYAML({
         context: childContextWithFormDir,
         yaml: childYaml,
@@ -519,13 +519,15 @@ async function addFileItemChildCollectionsFromYAML(params: {
 
 function withImportFormDir(
   context: ConfigurationContextWithExportToXML,
-  formDir: string
+  formDir: string,
+  parentName?: string
 ): ConfigurationContextWithExportToXML {
   return {
     ...context,
     importFromYAML: {
       ...(context.importFromYAML ?? {}),
       formDir,
+      parent: context.importFromYAML?.parent ?? (parentName ? { name: parentName } : undefined),
     },
   }
 }
