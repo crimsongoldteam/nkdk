@@ -1,6 +1,7 @@
 export interface XDTOTypeName {
   namespace: string
   name: string
+  xmlPrefix?: string
 }
 
 export interface XDTOTypeNameYAML {

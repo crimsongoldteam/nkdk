@@ -118,7 +118,7 @@ describe("exportParameterValueToDcsXML", () => {
     expect(result).toContain('<dcsset:userSettingPresentation xsi:type="xs:string">по</dcsset:userSettingPresentation>')
   })
 
-  it("exports userSettingPresentation as regular I8nText when reference value changed", () => {
+  it("exports changed single-language userSettingPresentation as xs:string", () => {
     const reference = testImportPropertyFromXML({
       rule: { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Период" },
       xmlRootTag: "dcscor:item",
@@ -139,9 +139,7 @@ describe("exportParameterValueToDcsXML", () => {
       referenceMetadata: reference,
     })
 
-    expect(result).toContain("<dcsset:userSettingPresentation>")
-    expect(result).toContain("<v8:lang>ru</v8:lang>")
-    expect(result).toContain("<v8:content>после</v8:content>")
-    expect(result).not.toContain('<dcsset:userSettingPresentation xsi:type="xs:string">')
+    expect(result).toContain('<dcsset:userSettingPresentation xsi:type="xs:string">после</dcsset:userSettingPresentation>')
+    expect(result).not.toContain("<v8:item>")
   })
 })

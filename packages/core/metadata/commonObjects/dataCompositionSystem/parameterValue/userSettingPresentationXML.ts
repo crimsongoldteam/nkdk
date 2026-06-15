@@ -32,6 +32,12 @@ const itemsEqual = (left: I8nText["items"], right: I8nText["items"]): boolean =>
   return leftEntries.length === rightEntries.length && leftEntries.every(([lang, text]) => right[lang] === text)
 }
 
+const getSingleLanguageText = (items: I8nText["items"]): string | undefined => {
+  const entries = Object.entries(items)
+  if (entries.length !== 1) return undefined
+  return entries[0]?.[1]
+}
+
 export const importUserSettingPresentationFromXML = (
   context: ConfigurationContextFromXML,
   xml: I8nTextXML | UserSettingPresentationShortXML | string | undefined
@@ -58,6 +64,11 @@ export const exportUserSettingPresentationToXML = (params: {
   const reference = referenceData as UserSettingPresentationReference | undefined
   if (reference?.[shortFormMarker] === "xs:string" && itemsEqual(data.items, reference.items)) {
     return { "_xsi:type": "xs:string", "#text": reference[shortFormOriginalText] ?? "" }
+  }
+
+  const singleLanguageText = getSingleLanguageText(data.items)
+  if (singleLanguageText !== undefined) {
+    return { "_xsi:type": "xs:string", "#text": singleLanguageText }
   }
 
   const xml = exportI8nTextToXML(context, { type: "I8nText" }, data)

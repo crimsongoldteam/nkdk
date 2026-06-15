@@ -41,6 +41,7 @@ export const CharacteristicsDescriptionRules = {
       xmlParents: ["xr:CharacteristicTypes"],
       type: "string",
       defaultValueXML: "-1",
+      preserveFromReferenceXML: true,
       order: 5,
     },
     multipleValuesUseField: {
@@ -49,6 +50,7 @@ export const CharacteristicsDescriptionRules = {
       xmlParents: ["xr:CharacteristicTypes"],
       type: "string",
       defaultValueXML: "-1",
+      preserveFromReferenceXML: true,
       order: 6,
     },
     characteristicValues: {
@@ -88,6 +90,7 @@ export const CharacteristicsDescriptionRules = {
       xmlParents: ["xr:CharacteristicValues"],
       type: "string",
       defaultValueXML: "-1",
+      preserveFromReferenceXML: true,
       order: 11,
     },
     multipleValuesOrderField: {
@@ -96,6 +99,7 @@ export const CharacteristicsDescriptionRules = {
       xmlParents: ["xr:CharacteristicValues"],
       type: "string",
       defaultValueXML: "-1",
+      preserveFromReferenceXML: true,
       order: 12,
     },
   },

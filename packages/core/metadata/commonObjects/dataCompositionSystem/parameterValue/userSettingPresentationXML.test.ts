@@ -33,7 +33,16 @@ describe("userSettingPresentation XML helpers", () => {
     ).toEqual({ "_xsi:type": "xs:string", "#text": "по" })
   })
 
-  it("uses regular I8nText XML when value changed", () => {
+  it("exports single-language value as xs:string without reference", () => {
+    expect(
+      exportUserSettingPresentationToXML({
+        context: mockContextToXML(),
+        data: { items: { ru: "Период с" } },
+      })
+    ).toEqual({ "_xsi:type": "xs:string", "#text": "Период с" })
+  })
+
+  it("exports changed single-language value as xs:string", () => {
     const reference = importUserSettingPresentationFromXML(
       mockContextFromXML({ forReference: true }),
       {
@@ -48,6 +57,6 @@ describe("userSettingPresentation XML helpers", () => {
         data: { items: { ru: "после" } },
         referenceData: reference,
       })
-    ).toEqual({ "v8:item": { "v8:lang": "ru", "v8:content": "после" } })
+    ).toEqual({ "_xsi:type": "xs:string", "#text": "после" })
   })
 })

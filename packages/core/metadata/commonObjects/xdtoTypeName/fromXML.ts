@@ -33,6 +33,14 @@ const namespaceFromXMLObject = (value: XDTOTypeNameXMLObject, prefix: string): s
   return namespace === undefined ? undefined : namespace.toString()
 }
 
+const withXMLPrefix = (value: XDTOTypeName, prefix: string): XDTOTypeName => {
+  Object.defineProperty(value, "xmlPrefix", {
+    value: prefix,
+    enumerable: false,
+  })
+  return value
+}
+
 const fromQName = (text: string, namespace: string | undefined): XDTOTypeName => {
   const { prefix, name } = splitQName(text)
   const resolvedNamespace = namespace ?? KNOWN_PREFIX_NAMESPACES[prefix]
@@ -41,10 +49,13 @@ const fromQName = (text: string, namespace: string | undefined): XDTOTypeName =>
     throw new Error(`Unknown XDTO type namespace prefix: ${prefix}`)
   }
 
-  return {
-    namespace: resolvedNamespace,
-    name,
-  }
+  return withXMLPrefix(
+    {
+      namespace: resolvedNamespace,
+      name,
+    },
+    prefix
+  )
 }
 
 export const importXDTOTypeNameFromXML = (
