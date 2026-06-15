@@ -266,6 +266,22 @@ describe("buildMetadataTargetSchema", () => {
     expect(compiled.Check("ФормаДокумента")).toBe(false)
   })
 
+  it("accepts current-owner members through tabular sections", () => {
+    const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", memberKinds: ["Attribute"] })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(compiled.Check("ТабличнаяЧасть.Товары.Реквизит.Номенклатура")).toBe(true)
+    expect(compiled.Check("Document.АвансовыйОтчет.TabularSection.Товары.Attribute.Номенклатура")).toBe(true)
+  })
+
+  it("keeps root constraints for current-owner compatible model member paths", () => {
+    const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", roots: ["Document"], memberKinds: ["Form"] })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(compiled.Check("Document.АвансовыйОтчет.Form.ФормаДокумента")).toBe(true)
+    expect(compiled.Check("Catalog.АвансовыйОтчет.Form.ФормаДокумента")).toBe(false)
+  })
+
   it("describes hasType filters without narrowing the string pattern", () => {
     const schema = buildMetadataTargetSchema({
       kind: "member",
@@ -275,6 +291,29 @@ describe("buildMetadataTargetSchema", () => {
     })
 
     expect(schema.description).toContain("тип которых содержит Булево")
+  })
+
+  it("describes styleItemType filters", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "this",
+      memberKinds: ["Attribute"],
+      filters: [{ kind: "styleItemType", values: ["Color", "Font"] }],
+    })
+
+    expect(schema.description).toContain("Цвет")
+    expect(schema.description).toContain("Шрифт")
+  })
+
+  it("describes stringIndexedAttribute filters", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "this",
+      memberKinds: ["Attribute"],
+      filters: [{ kind: "stringIndexedAttribute" }],
+    })
+
+    expect(schema.description).toContain("пригодные для ввода по строке")
   })
 
   it("returns ordinary JSON Schema for style items", () => {

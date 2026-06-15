@@ -173,39 +173,45 @@ function fieldSchema(constraint: Extract<MetadataTargetConstraint, { kind: "fiel
 function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "member" }>): TSchema {
   const memberKinds = constraint.memberKinds ?? allMemberKinds
   const memberGroup = memberKinds.map((kind) => memberKindToYAML[kind]).join("|")
-  const modelMemberGroup = memberKinds.join("|")
+  const selectedRoots = selectRoots(constraint.roots)
+  const yamlMemberPath = memberPathPattern(memberKinds, "yaml")
+  const modelMemberPath = memberPathPattern(memberKinds, "model")
   const fullModelCompatibility =
-    memberKinds.length === 0
-      ? noMatchPattern
-      : `[A-Za-z]+\\.${METADATA_NAME_PATTERN}\\.(?:${modelMemberGroup})\\.${METADATA_NAME_PATTERN}`
+    selectedRoots.length === 0 || !modelMemberPath
+      ? undefined
+      : `(?:${modelRootGroup(selectedRoots)})\\.${METADATA_NAME_PATTERN}\\.${modelMemberPath}`
 
   if (constraint.owner === "this" && memberKinds.length === 1) {
     const kind = memberKinds[0]
+    const branches = [METADATA_NAME_PATTERN]
+    branches.push(nestedLocalMemberPathPattern(kind, "yaml"))
+    if (fullModelCompatibility) branches.push(fullModelCompatibility)
+
     return Type.String({
-      pattern: `^(?:${METADATA_NAME_PATTERN}|${fullModelCompatibility})$`,
+      pattern: `^(?:${branches.join("|")})$`,
       examples: [kind === "Form" ? "ФормаДокумента" : "ИмяЧлена"],
       description: `${singleLocalMemberDescription(kind)}${filterDescriptionSuffix(constraint.filters)} Совместимый полный модельный путь принимается при импорте, export нормализует его в локальное имя.`,
     })
   }
 
   if (constraint.owner === "this") {
+    const branches = []
+    if (yamlMemberPath) branches.push(yamlMemberPath)
+    if (fullModelCompatibility) branches.push(fullModelCompatibility)
+
     return Type.String({
-      pattern:
-        memberKinds.length === 0
-          ? noMatchPattern
-          : `^(?:(?:${memberGroup})\\.${METADATA_NAME_PATTERN}|${fullModelCompatibility})$`,
+      pattern: branches.length === 0 ? noMatchPattern : `^(?:${branches.join("|")})$`,
       examples: memberKinds.slice(0, 2).map((kind) => `${memberKindToYAML[kind]}.ИмяЧлена`),
       description: `Ссылка на член текущего объекта: ${memberGroup}.<ИмяЧлена>.${filterDescriptionSuffix(constraint.filters)}`,
     })
   }
 
-  const selectedRoots = selectRoots(constraint.roots)
   const yamlRoots = yamlRootGroup(constraint.roots)
   return Type.String({
     pattern:
-      selectedRoots.length === 0 || memberKinds.length === 0
+      selectedRoots.length === 0 || !yamlMemberPath
         ? noMatchPattern
-        : `^(?:(?:${yamlRoots})\\.${METADATA_NAME_PATTERN}\\.(?:${memberGroup})\\.${METADATA_NAME_PATTERN})$`,
+        : `^(?:(?:${yamlRoots})\\.${METADATA_NAME_PATTERN}\\.${yamlMemberPath})$`,
     examples:
       selectedRoots.length === 0 || memberKinds.length === 0
         ? []
@@ -214,6 +220,20 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
           : [`${rootToYAML[selectedRoots[0]]}.ИмяОбъекта.${memberKindToYAML[memberKinds[0]]}.ИмяЧлена`],
     description: `Полный путь члена объекта: ${yamlRoots}.<ИмяОбъекта>.${memberGroup}.<ИмяЧлена>.${filterDescriptionSuffix(constraint.filters)}`,
   })
+}
+
+function memberPathPattern(memberKinds: readonly MetadataMemberKind[], source: "yaml" | "model"): string | undefined {
+  if (memberKinds.length === 0) return undefined
+
+  const tabularSection = source === "yaml" ? memberKindToYAML.TabularSection : "TabularSection"
+  const terminalGroup = source === "yaml" ? memberKinds.map((kind) => memberKindToYAML[kind]).join("|") : memberKinds.join("|")
+  return `(?:${tabularSection}\\.${METADATA_NAME_PATTERN}\\.)*(?:${terminalGroup})\\.${METADATA_NAME_PATTERN}`
+}
+
+function nestedLocalMemberPathPattern(kind: MetadataMemberKind, source: "yaml" | "model"): string {
+  const tabularSection = source === "yaml" ? memberKindToYAML.TabularSection : "TabularSection"
+  const terminalKind = source === "yaml" ? memberKindToYAML[kind] : kind
+  return `(?:${tabularSection}\\.${METADATA_NAME_PATTERN}\\.)+(?:${terminalKind})\\.${METADATA_NAME_PATTERN}`
 }
 
 function valueSchema(constraint: Extract<MetadataTargetConstraint, { kind: "value" }>): TSchema {
@@ -296,6 +316,10 @@ const styleItemTypeToYAML = {
 function yamlRootGroup(roots: readonly MetadataRootName[] | undefined): string {
   const selected = selectRoots(roots)
   return selected.map((root) => rootToYAML[root]).join("|")
+}
+
+function modelRootGroup(roots: readonly MetadataRootName[]): string {
+  return roots.join("|")
 }
 
 function selectRoots(roots: readonly MetadataRootName[] | undefined): readonly MetadataRootName[] {
