@@ -3,15 +3,20 @@ import {
   fieldKindToYAML,
   isMetadataRootName,
   METADATA_NAME_PATTERN,
+  memberKindFromYAML,
+  memberKindToYAML,
   rootFromYAML,
   standardAttributeFromYAML,
 } from "./roots"
 import type {
   MetadataFieldKind,
   MetadataFieldSegment,
+  MetadataMemberKind,
+  MetadataMemberSegment,
   MetadataObjectSegment,
   MetadataRootName,
   MetadataTargetConstraint,
+  MetadataTargetOwner,
   MetadataTargetParseErrorCode,
   MetadataTargetParseResult,
   MetadataValueKind,
@@ -21,11 +26,13 @@ import type {
 export interface ParseMetadataTargetFromYAMLInput {
   value: string
   constraint: MetadataTargetConstraint
+  owner?: MetadataTargetOwner
 }
 
 export interface ParseMetadataTargetFromModelInput {
   canonical: string
   constraint: MetadataTargetConstraint
+  owner?: MetadataTargetOwner
 }
 
 const metadataNameRegExp = new RegExp(`^${METADATA_NAME_PATTERN}$`)
@@ -48,6 +55,10 @@ export function parseMetadataTargetFromYAML(input: ParseMetadataTargetFromYAMLIn
       return parseRootedTargetFromYAML(parts, constraint, (root, objectName, tail) =>
         parseFieldTarget(root, objectName, tail, constraint.fieldKinds, constraint.allowObject === true, "yaml")
       )
+    }
+    case "member": {
+      const constraint = input.constraint
+      return parseMemberTargetFromYAML(parts, constraint, input.owner)
     }
     case "value": {
       const constraint = input.constraint
@@ -82,6 +93,10 @@ export function parseMetadataTargetFromModel(input: ParseMetadataTargetFromModel
         parseFieldTarget(root, objectName, tail, constraint.fieldKinds, constraint.allowObject === true, "model")
       )
     }
+    case "member": {
+      const constraint = input.constraint
+      return parseMemberTargetFromModel(parts, constraint, input.owner)
+    }
     case "value": {
       const constraint = input.constraint
       return parseRootedTargetFromModel(parts, constraint, (root, objectName, tail) =>
@@ -101,7 +116,7 @@ export function parseMetadataTargetFromModel(input: ParseMetadataTargetFromModel
 
 function parseRootedTargetFromYAML(
   parts: readonly string[],
-  constraint: Extract<MetadataTargetConstraint, { kind: "object" | "field" | "value" }>,
+  constraint: Extract<MetadataTargetConstraint, { kind: "object" | "field" | "member" | "value" }>,
   parseTarget: (root: MetadataRootName, objectName: string, tail: readonly string[]) => MetadataTargetParseResult
 ): MetadataTargetParseResult {
   const rootToken = parts[0]
@@ -119,7 +134,7 @@ function parseRootedTargetFromYAML(
 
 function parseRootedTargetFromModel(
   parts: readonly string[],
-  constraint: Extract<MetadataTargetConstraint, { kind: "object" | "field" | "value" }>,
+  constraint: Extract<MetadataTargetConstraint, { kind: "object" | "field" | "member" | "value" }>,
   parseTarget: (root: MetadataRootName, objectName: string, tail: readonly string[]) => MetadataTargetParseResult
 ): MetadataTargetParseResult {
   const rootToken = parts[0]
@@ -234,6 +249,158 @@ function parseFieldTarget(
 
   const canonicalSegments = segments.flatMap((segment) => [segment.kind, segment.name])
   return success([root, objectName, ...canonicalSegments].join("."), { kind: "field", root, objectName, segments })
+}
+
+function parseMemberTargetFromYAML(
+  parts: readonly string[],
+  constraint: Extract<MetadataTargetConstraint, { kind: "member" }>,
+  owner: MetadataTargetOwner | undefined
+): MetadataTargetParseResult {
+  if (constraint.owner === "this") {
+    const fullModel = parseFullModelMemberCompatibility(parts, constraint)
+    if (fullModel.ok) return ensureCurrentOwner(fullModel.target, owner)
+
+    const fullYaml = parseRootedTargetFromYAML(parts, constraint, (root, objectName, tail) =>
+      parseMemberSegments(root, objectName, tail, constraint, "yaml")
+    )
+    if (fullYaml.ok) return ensureCurrentOwner(fullYaml.target, owner)
+
+    if (!owner) return missingOwnerContext()
+    return parseLocalOwnerMember(parts, constraint, owner)
+  }
+
+  return parseRootedTargetFromYAML(parts, constraint, (root, objectName, tail) =>
+    parseMemberSegments(root, objectName, tail, constraint, "yaml")
+  )
+}
+
+function parseMemberTargetFromModel(
+  parts: readonly string[],
+  constraint: Extract<MetadataTargetConstraint, { kind: "member" }>,
+  owner: MetadataTargetOwner | undefined
+): MetadataTargetParseResult {
+  const parsed = parseRootedTargetFromModel(parts, constraint, (root, objectName, tail) =>
+    parseMemberSegments(root, objectName, tail, constraint, "model")
+  )
+  if (!parsed.ok || constraint.owner !== "this") return parsed
+  return ensureCurrentOwner(parsed.target, owner)
+}
+
+function parseFullModelMemberCompatibility(
+  parts: readonly string[],
+  constraint: Extract<MetadataTargetConstraint, { kind: "member" }>
+): MetadataTargetParseResult {
+  return parseRootedTargetFromModel(parts, constraint, (root, objectName, tail) =>
+    parseMemberSegments(root, objectName, tail, constraint, "model")
+  )
+}
+
+function parseLocalOwnerMember(
+  parts: readonly string[],
+  constraint: Extract<MetadataTargetConstraint, { kind: "member" }>,
+  owner: MetadataTargetOwner
+): MetadataTargetParseResult {
+  const memberKinds = constraint.memberKinds ?? allMemberKinds()
+  const canOmitKind = memberKinds.length === 1
+  const localParts = canOmitKind ? [memberKinds[0], parts[0]] : [parts[0], parts[1]]
+  const source = canOmitKind ? "model" : "yaml"
+
+  if (parts.length !== 1 && parts.length !== 2) return invalidShape()
+  return parseMemberSegments(owner.root, owner.objectName, localParts, constraint, source)
+}
+
+function parseMemberSegments(
+  root: MetadataRootName,
+  objectName: string,
+  tail: readonly string[],
+  constraint: Extract<MetadataTargetConstraint, { kind: "member" }>,
+  source: "yaml" | "model"
+): MetadataTargetParseResult {
+  if (tail.length === 0 || tail.length % 2 !== 0) {
+    return invalidShape()
+  }
+
+  const segments: MetadataMemberSegment[] = []
+  const allowedMemberKinds = constraint.memberKinds ?? allMemberKinds()
+
+  for (let index = 0; index < tail.length; index += 2) {
+    const kindToken = tail[index]
+    const segmentKind = source === "yaml" ? parseMemberKindFromYAML(kindToken) : parseMemberKindFromModel(kindToken)
+    const isTerminalSegment = index + 2 >= tail.length
+
+    if (!segmentKind) {
+      return unknownSegment(kindToken)
+    }
+
+    if (!isTerminalSegment && segmentKind !== "TabularSection") {
+      return disallowedKind(segmentKind)
+    }
+
+    if (isTerminalSegment && !allowedMemberKinds.includes(segmentKind)) {
+      return disallowedKind(segmentKind)
+    }
+
+    const name = tail[index + 1]
+    if (!isValidMetadataName(name)) {
+      return invalidShape()
+    }
+
+    segments.push({ kind: segmentKind, name: normalizeMemberSegmentName(segmentKind, name, source) })
+  }
+
+  const canonicalSegments = segments.flatMap((segment) => [segment.kind, segment.name])
+  return success([root, objectName, ...canonicalSegments].join("."), { kind: "member", root, objectName, segments })
+}
+
+function ensureCurrentOwner(
+  target: ParsedMetadataTarget,
+  owner: MetadataTargetOwner | undefined
+): MetadataTargetParseResult {
+  if (target.kind !== "member") return success(formatCanonicalTarget(target), target)
+  if (!owner) return missingOwnerContext()
+  if (target.root !== owner.root || target.objectName !== owner.objectName) {
+    return error("disallowed-root", `Цель "${formatCanonicalTarget(target)}" не принадлежит текущему объекту`)
+  }
+  return success(formatCanonicalTarget(target), target)
+}
+
+function missingOwnerContext(): MetadataTargetParseResult {
+  return invalidShape('Для metadataTarget kind "member" owner "this" требуется контекст текущего объекта')
+}
+
+function formatCanonicalTarget(target: ParsedMetadataTarget): string {
+  switch (target.kind) {
+    case "object":
+      return [
+        target.root,
+        target.objectName,
+        ...(target.segments ?? []).flatMap((segment) => [segment.root, segment.objectName]),
+      ].join(".")
+    case "member":
+    case "field":
+      return [
+        target.root,
+        target.objectName,
+        ...target.segments.flatMap((segment) => [segment.kind, segment.name]),
+      ].join(".")
+    case "value":
+      if (target.valueKind === "enumValue") return `${target.root}.${target.objectName}.${enumValueModel}.${target.valueName}`
+      if (target.valueKind === "emptyRef") return `${target.root}.${target.objectName}.${emptyRefModel}`
+      return `${target.root}.${target.objectName}.${target.valueName}`
+    case "styleItem":
+      return `StyleItem.${target.name}`
+    case "commonPicture":
+      return `CommonPicture.${target.name}`
+  }
+}
+
+function normalizeMemberSegmentName(
+  kind: MetadataMemberKind,
+  name: string,
+  source: "yaml" | "model"
+): string {
+  if (kind !== "StandardAttribute" || source !== "yaml") return name
+  return standardAttributeFromYAML[name] ?? name
 }
 
 function normalizeFieldSegmentName(
@@ -414,6 +581,20 @@ function parseFieldKindFromModel(value: string | undefined): MetadataFieldKind |
   return value !== undefined && Object.prototype.hasOwnProperty.call(fieldKindToYAML, value)
     ? (value as MetadataFieldKind)
     : undefined
+}
+
+function parseMemberKindFromYAML(value: string | undefined): MetadataMemberKind | undefined {
+  return value === undefined ? undefined : memberKindFromYAML[value]
+}
+
+function parseMemberKindFromModel(value: string | undefined): MetadataMemberKind | undefined {
+  return value !== undefined && Object.prototype.hasOwnProperty.call(memberKindToYAML, value)
+    ? (value as MetadataMemberKind)
+    : undefined
+}
+
+function allMemberKinds(): readonly MetadataMemberKind[] {
+  return Object.keys(memberKindToYAML) as MetadataMemberKind[]
 }
 
 function parseObjectRootFromYAML(value: string | undefined): MetadataRootName | undefined {
