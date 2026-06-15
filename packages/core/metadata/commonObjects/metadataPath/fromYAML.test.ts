@@ -1,7 +1,11 @@
 import { describe, expect, test } from "vitest"
 import { tableMetadataFields, tableMetadataValues } from "~/metadata/commonObjects/metadataPath/__fixtures__/table"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { importMetadataFieldStringFromYAML, importMetadataValueStringFromYAML } from "./fromYAML"
+import {
+  importMetadataFieldStringFromYAML,
+  importMetadataObjectStringFromYAML,
+  importMetadataValueStringFromYAML,
+} from "./fromYAML"
 
 describe("importMetadataFieldFromYAML", () => {
   test.each(tableMetadataFields)("import %s from %s", (expected: string, enterpriseValue: string) => {
@@ -48,5 +52,20 @@ describe("importMetadataValueStringFromYAML", () => {
     expect(importMetadataValueStringFromYAML(mockContext, mockRule, "ПланСчетов.Хозрасчетный.ПустаяСсылка")).toBe(
       "ChartOfAccounts.Хозрасчетный.EmptyRef"
     )
+  })
+})
+
+describe("metadataTarget diagnostics switch", () => {
+  test("keeps canonical metadata object path when metadata target validation is disabled for YAML import", () => {
+    const context = {
+      ...mockContext,
+      importFromYAML: {
+        validateMetadataTargets: false,
+      },
+    }
+    const reference = "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства"
+
+    expect(() => importMetadataObjectStringFromYAML(mockContext, mockRule, reference)).toThrow()
+    expect(importMetadataObjectStringFromYAML(context, mockRule, reference)).toBe(reference)
   })
 })

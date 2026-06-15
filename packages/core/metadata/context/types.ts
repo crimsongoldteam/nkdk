@@ -87,6 +87,8 @@ export interface ExternalFileEntry {
 
 export interface FormExportToYAMLContext {
   toTyped: boolean
+  /** Отключает строгую проверку metadataTarget для диагностических round-trip прогонов. */
+  validateMetadataTargets?: boolean
   /** Имя родительского объекта (например, имя реквизита формы) для externalFile. */
   parent?: { name: string }
   /** Сборник внешних файлов, формируемых при экспорте. */
@@ -94,6 +96,8 @@ export interface FormExportToYAMLContext {
 }
 
 export interface FormimportFromYAMLContext {
+  /** Отключает строгую проверку metadataTarget для диагностических round-trip прогонов. */
+  validateMetadataTargets?: boolean
   allElements?: FormChildItemsPartialYAML
   /** Путь к каталогу формы для чтения внешних файлов (externalFile). */
   formDir?: string

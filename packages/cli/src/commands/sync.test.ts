@@ -34,4 +34,19 @@ describe("sync command", () => {
       referenceDir: "reference-xml",
     }))
   })
+
+  it("передает отключение проверки metadataTarget в контекст импорта YAML", async () => {
+    vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+
+    await syncConfiguration("yaml", "xml", { validateMetadataTargets: false })
+
+    expect(syncConfigurationToXML).toHaveBeenCalledWith(expect.objectContaining({
+      context: expect.objectContaining({
+        importFromYAML: expect.objectContaining({
+          validateMetadataTargets: false,
+        }),
+      }),
+    }))
+  })
 })

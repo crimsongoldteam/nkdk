@@ -35,8 +35,9 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .description("Импорт конфигурации из XML в YAML (XML → YAML)")
     .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
     .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
-    .action((xmlDir: string, yamlDir: string) => {
-      run(() => importConfiguration(xmlDir, yamlDir), options)
+    .option("--no-validate-metadata-targets", "не проверять metadataTarget при экспорте YAML")
+    .action((xmlDir: string, yamlDir: string, opts: { validateMetadataTargets?: boolean }) => {
+      run(() => importConfiguration(xmlDir, yamlDir, { validateMetadataTargets: opts.validateMetadataTargets }), options)
     })
 
   program
@@ -45,8 +46,13 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
     .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
     .option("--reference <xml-dir>", "путь к XML-каталогу для чтения reference-данных")
-    .action((yamlDir: string, xmlDir: string, opts: { reference?: string }) => {
-      run(() => syncConfiguration(yamlDir, xmlDir, { referenceDir: opts.reference }), options)
+    .option("--no-validate-metadata-targets", "не проверять metadataTarget при чтении YAML")
+    .action((yamlDir: string, xmlDir: string, opts: { reference?: string; validateMetadataTargets?: boolean }) => {
+      run(() =>
+        syncConfiguration(yamlDir, xmlDir, {
+          referenceDir: opts.reference,
+          validateMetadataTargets: opts.validateMetadataTargets,
+        }), options)
     })
 
   program

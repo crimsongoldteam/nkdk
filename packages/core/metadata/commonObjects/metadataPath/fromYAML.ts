@@ -1,7 +1,7 @@
-import { Context } from "vm"
 import { parseMetadataTargetFromYAML } from "~/metadata/commonObjects/metadataTargets"
 import { isMetadataRootName, rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import type { MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
+import type { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
@@ -13,27 +13,27 @@ const metadataValueTargetFallback = {
 } as const satisfies MetadataTargetConstraint
 
 export const importMetadataFieldStringFromYAML = (
-  _context: Context,
+  context: ConfigurationContext,
   rule: PropertyRule | undefined,
   name: string
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataFieldTargetFallback))
+  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataFieldTargetFallback))
 }
 
 export const importMetadataObjectStringFromYAML = (
-  _context: Context,
+  context: ConfigurationContext,
   rule: PropertyRule | undefined,
   name: string
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataObjectTargetFallback))
+  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataObjectTargetFallback))
 }
 
 export const importMetadataValueStringFromYAML = (
-  _context: Context,
+  context: ConfigurationContext,
   rule: PropertyRule | undefined,
   name: string
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataValueTargetFallback))
+  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataValueTargetFallback))
 }
 
 function metadataTargetForRule(
@@ -47,10 +47,15 @@ function metadataTargetForRule(
   return fallback
 }
 
-function parseMetadataTargetStringFromYAML(name: string, constraint: MetadataTargetConstraint): string | undefined {
+function parseMetadataTargetStringFromYAML(
+  context: ConfigurationContext,
+  name: string,
+  constraint: MetadataTargetConstraint
+): string | undefined {
   const result = parseMetadataTargetFromYAML({ value: name, constraint })
   if (result.ok) return result.canonical
   if (!isMetadataTargetLikeYAML(name)) return undefined
+  if (context.importFromYAML?.validateMetadataTargets === false) return name
 
   throw new Error(result.message)
 }

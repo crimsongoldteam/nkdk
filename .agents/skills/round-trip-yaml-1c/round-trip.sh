@@ -10,8 +10,8 @@ usage() {
   ./.agents/skills/round-trip-yaml-1c/round-trip.sh
 
 Что делает:
-  1. nkdk import <xml-dir> <yaml-dir>
-  2. nkdk sync <yaml-dir> <tmp-xml-dir> без --reference
+  1. nkdk import <xml-dir> <yaml-dir> --no-validate-metadata-targets
+  2. nkdk sync <yaml-dir> <tmp-xml-dir> --no-validate-metadata-targets без --reference
   3. очистка и создание свежей файловой базы через ibcmd infobase create
   4. ibcmd infobase config import --data <data> --db-path <db-path> <tmp-xml-dir>
 
@@ -250,6 +250,7 @@ echo "ACTIVE_XML_DIR: ${ACTIVE_XML_DIR}"
 echo "YAML_DIR: ${YAML_DIR}"
 echo "TMP_XML_DIR: ${TMP_XML_DIR}"
 echo "IBCMD_COMMAND: $(ibcmd_command_text)"
+echo "metadataTarget validation: disabled"
 echo ""
 
 echo "[yaml] Очистка временного YAML-каталога: ${YAML_DIR}"
@@ -259,13 +260,13 @@ mkdir -p "${YAML_DIR}"
 echo "[xml] Очистка временного XML-каталога без reference: ${TMP_XML_DIR}"
 clear_dir_contents "${TMP_XML_DIR}"
 
-IMPORT_COMMAND="${NKDK[*]} import ${ACTIVE_XML_DIR} ${YAML_DIR}"
-if ! run_logged "import" "${IMPORT_COMMAND}" "${IMPORT_LOG}" "${NKDK[@]}" import "${ACTIVE_XML_DIR}" "${YAML_DIR}"; then
+IMPORT_COMMAND="${NKDK[*]} import ${ACTIVE_XML_DIR} ${YAML_DIR} --no-validate-metadata-targets"
+if ! run_logged "import" "${IMPORT_COMMAND}" "${IMPORT_LOG}" "${NKDK[@]}" import "${ACTIVE_XML_DIR}" "${YAML_DIR}" --no-validate-metadata-targets; then
   exit 1
 fi
 
-SYNC_COMMAND="${NKDK[*]} sync ${YAML_DIR} ${TMP_XML_DIR}"
-if ! run_logged "sync" "${SYNC_COMMAND}" "${SYNC_LOG}" "${NKDK[@]}" sync "${YAML_DIR}" "${TMP_XML_DIR}"; then
+SYNC_COMMAND="${NKDK[*]} sync ${YAML_DIR} ${TMP_XML_DIR} --no-validate-metadata-targets"
+if ! run_logged "sync" "${SYNC_COMMAND}" "${SYNC_LOG}" "${NKDK[@]}" sync "${YAML_DIR}" "${TMP_XML_DIR}" --no-validate-metadata-targets; then
   exit 1
 fi
 

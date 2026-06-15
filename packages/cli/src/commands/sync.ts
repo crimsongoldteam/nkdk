@@ -2,6 +2,7 @@ import { syncConfigurationToXML } from "@nakidka/core"
 
 export interface SyncConfigurationOptions {
   referenceDir?: string
+  validateMetadataTargets?: boolean
 }
 
 export const syncConfiguration = async (
@@ -13,6 +14,9 @@ export const syncConfiguration = async (
     defaultLanguage: "ru",
     version: "2.20",
     exportToYAML: { toTyped: false },
+    importFromYAML: {
+      validateMetadataTargets: options.validateMetadataTargets,
+    },
     exportToXML: {
       itemsTree: [],
       configDumpInfo: new Map(),

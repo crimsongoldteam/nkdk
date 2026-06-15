@@ -324,6 +324,7 @@ echo "XML каталог: ${NKDK_XML_DIR}"
 echo "nkdk:        ${NKDK[*]}"
 echo "mode:        ${MODE}"
 echo "all configs: ${ALL_CONFIGS}"
+echo "metadataTarget validation: disabled"
 if [ "${MODE}" = "single" ]; then
   echo "diff index:  ${DIFF_INDEX}"
 else
@@ -363,7 +364,7 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   clear_dir_contents "${RUN_XML_TMP_DIR}"
 
   echo "[round-trip] XML -> YAML: ${RUN_XML_DIR}"
-  if ! run_nkdk "${NKDK[@]}" import "${RUN_XML_DIR}" "${RUN_YAML_DIR}"; then
+  if ! run_nkdk "${NKDK[@]}" import "${RUN_XML_DIR}" "${RUN_YAML_DIR}" --no-validate-metadata-targets; then
     echo "=== ROUND_TRIP_ERROR ==="
     echo "STAGE: import"
     echo "ACTIVE_XML_DIR: ${RUN_XML_DIR}"
@@ -373,7 +374,7 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   fi
 
   echo "[round-trip] YAML -> временный XML: ${RUN_YAML_DIR}"
-  if ! run_nkdk "${NKDK[@]}" sync "${RUN_YAML_DIR}" "${RUN_XML_TMP_DIR}" --reference "${RUN_XML_DIR}"; then
+  if ! run_nkdk "${NKDK[@]}" sync "${RUN_YAML_DIR}" "${RUN_XML_TMP_DIR}" --no-validate-metadata-targets --reference "${RUN_XML_DIR}"; then
     echo "=== ROUND_TRIP_ERROR ==="
     echo "STAGE: sync"
     echo "ACTIVE_XML_DIR: ${RUN_XML_DIR}"

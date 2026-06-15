@@ -1,10 +1,18 @@
 import { syncConfigurationFromXML } from "@nakidka/core"
 
-export const importConfiguration = async (xmlDir: string, yamlDir: string): Promise<void> => {
+export interface ImportConfigurationOptions {
+  validateMetadataTargets?: boolean
+}
+
+export const importConfiguration = async (
+  xmlDir: string,
+  yamlDir: string,
+  options: ImportConfigurationOptions = {},
+): Promise<void> => {
   const context = {
     defaultLanguage: "ru",
     version: "2.20",
-    exportToYAML: { toTyped: false },
+    exportToYAML: { toTyped: false, validateMetadataTargets: options.validateMetadataTargets },
     fromXML: { forReference: false },
   }
   const result = await syncConfigurationFromXML({ context, inputDir: xmlDir, outputDir: yamlDir })
