@@ -33,10 +33,7 @@ export type MetadataResolveResult =
   | { ok: false; diagnostics: Diagnostic[] }
 
 export interface ProjectMetadataResolver {
-  resolveObject(params: {
-    target: Extract<ParsedMetadataTarget, { kind: "object" }>
-    filters?: readonly MetadataTargetFilter[]
-  }): MetadataResolveResult
+  resolveObject(params: { target: Extract<ParsedMetadataTarget, { kind: "object" }> }): MetadataResolveResult
   resolveField(params: { target: Extract<ParsedMetadataTarget, { kind: "field" }> }): MetadataResolveResult
   resolveMember(params: {
     target: Extract<ParsedMetadataTarget, { kind: "member" }>

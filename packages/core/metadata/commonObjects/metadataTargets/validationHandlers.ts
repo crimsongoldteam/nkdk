@@ -8,6 +8,7 @@ import type { MetadataTargetConstraint, ParsedMetadataTarget } from "./types"
 
 const validateStringTarget: ValidateMetadataTargetFunction = (params) => {
   if (typeof params.value !== "string" || params.value === "") return []
+  if (params.propRule.type === "string" && params.propRule.metadataTarget?.kind !== "member") return []
   return validateCanonicalTarget(params, params.value)
 }
 

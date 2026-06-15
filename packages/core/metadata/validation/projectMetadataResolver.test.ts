@@ -145,6 +145,67 @@ describe("ProjectMetadataResolver", () => {
     })
   })
 
+  it("resolves templates, commands and tabular-section attributes as members", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [
+      "Команды:",
+      "  Печать:",
+      "    Синоним: Печать",
+      "Макеты:",
+      "  ПечатнаяФорма",
+      "ТабличныеЧасти:",
+      "  Товары:",
+      "    Реквизиты:",
+      "      Количество:",
+      "        Тип: Число",
+    ])
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Макет.ПечатнаяФорма") })).toMatchObject({
+      ok: true,
+    })
+    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Команда.Печать") })).toMatchObject({
+      ok: true,
+    })
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.ТабличнаяЧасть.Товары.Реквизит.Количество"),
+      }),
+    ).toMatchObject({ ok: true })
+  })
+
+  it("applies stringIndexedAttribute filter to member fields", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [
+      "Реквизиты:",
+      "  Комментарий:",
+      "    Тип: Строка",
+      "ТабличныеЧасти:",
+      "  Товары:",
+      "    Реквизиты:",
+      "      Количество:",
+      "        Тип: Число",
+    ])
+    const resolver = createResolver(projectDir)
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Комментарий"),
+        filters: [{ kind: "stringIndexedAttribute" }],
+      }),
+    ).toMatchObject({ ok: true })
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.ТабличнаяЧасть.Товары"),
+        filters: [{ kind: "stringIndexedAttribute" }],
+      }),
+    ).toMatchObject({
+      ok: false,
+      diagnostics: [expect.objectContaining({ message: expect.stringContaining("пригодные для ввода по строке") })],
+    })
+  })
+
   it("reports missing field owners as reference diagnostics", () => {
     const projectDir = createProject()
     const resolver = createResolver(projectDir)

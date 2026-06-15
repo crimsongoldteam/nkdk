@@ -76,4 +76,97 @@ describe("validateMetadataTargetsInModel", () => {
       }),
     ])
   })
+
+  it("skips unsupported legacy string metadata targets", () => {
+    const rule: MetadataItemRule = {
+      itemType: "MetadataDocument",
+      properties: {
+        mainForm: {
+          type: "string",
+          yaml: "ОсновнаяФорма",
+          metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
+        },
+      },
+    } as never
+
+    const diagnostics = validateMetadataTargetsInModel({
+      filePath: "/tmp/Документ/АвансовыйОтчет/Свойства.yaml",
+      parsed: { doc: { contents: undefined }, lineCounter: { linePos: () => ({ line: 1, col: 1 }) } } as never,
+      model: { itemType: "MetadataDocument", mainForm: "ФормаДокумента" } as never,
+      rule,
+      resolver: {} as never,
+      owner: { root: "Document", objectName: "АвансовыйОтчет" },
+    })
+
+    expect(diagnostics).toEqual([])
+  })
+
+  it("validates metadata targets in nested collection items", () => {
+    const calls: unknown[] = []
+    const testCollectionType = "__MetadataTargetTraversalNestedCollectionUnit" as never
+    const tabularSectionRule: MetadataItemRule = {
+      itemType: "MetadataTabularSection",
+      properties: {
+        name: { type: "string" },
+        defaultForm: {
+          type: "string",
+          yaml: "ФормаПоУмолчанию",
+          metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+        },
+      },
+    } as never
+
+    registerTypeRule(testCollectionType, "graphChild", {
+      idFrom: "name",
+      edgeKind: "TABULAR_SECTION",
+      edgeYaml: "ТабличнаяЧасть",
+      nodeSegment: "ТабличнаяЧасть",
+      itemRule: tabularSectionRule,
+    })
+
+    const rule: MetadataItemRule = {
+      itemType: "MetadataDocument",
+      properties: {
+        tabularSections: {
+          type: testCollectionType,
+          yaml: "ТабличныеЧасти",
+        },
+      },
+    } as never
+
+    const diagnostics = validateMetadataTargetsInModel({
+      filePath: "/tmp/Документ/АвансовыйОтчет/Свойства.yaml",
+      parsed: { doc: { contents: undefined }, lineCounter: { linePos: () => ({ line: 1, col: 1 }) } } as never,
+      model: {
+        itemType: "MetadataDocument",
+        tabularSections: [
+          {
+            itemType: "MetadataTabularSection",
+            name: "Товары",
+            defaultForm: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+          },
+        ],
+      } as never,
+      rule,
+      resolver: {
+        resolveMember(params: unknown) {
+          calls.push(params)
+          return { ok: true }
+        },
+      } as never,
+      owner: { root: "Document", objectName: "АвансовыйОтчет" },
+    })
+
+    expect(diagnostics).toEqual([])
+    expect(calls).toEqual([
+      expect.objectContaining({
+        target: expect.objectContaining({
+          kind: "member",
+          root: "Document",
+          objectName: "АвансовыйОтчет",
+          segments: [{ kind: "Form", name: "ФормаДокумента" }],
+        }),
+      }),
+    ])
+  })
 })

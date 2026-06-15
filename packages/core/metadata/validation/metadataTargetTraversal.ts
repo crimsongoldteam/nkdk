@@ -32,29 +32,89 @@ function validateObject(
   const diagnostics: Diagnostic[] = []
   for (const [propertyName, propRule] of Object.entries(params.rule.properties)) {
     if (typeof propRule.yaml !== "string") continue
-    if (!propRule.metadataTarget) continue
 
     const value = record[propertyName]
     if (value === undefined) continue
 
-    const handler = getTypeRule(propRule.type, "validateMetadataTarget")
-    if (!handler) continue
+    if (propRule.metadataTarget) {
+      const handler = getTypeRule(propRule.type, "validateMetadataTarget")
+      if (handler) {
+        diagnostics.push(
+          ...handler({
+            filePath: params.filePath,
+            parsed: params.parsed,
+            yamlPath: [...params.yamlPath, propRule.yaml],
+            propRule,
+            propertyName,
+            value,
+            resolver: params.resolver,
+            owner: params.owner,
+          }),
+        )
+      }
+    }
+
+    const itemRule = nestedItemRule(propRule)
+    if (!itemRule) continue
 
     diagnostics.push(
-      ...handler({
-        filePath: params.filePath,
-        parsed: params.parsed,
-        yamlPath: [...params.yamlPath, propRule.yaml],
-        propRule,
-        propertyName,
+      ...validateNestedItems({
+        ...params,
         value,
-        resolver: params.resolver,
-        owner: params.owner,
+        itemRule,
+        yamlPath: [...params.yamlPath, propRule.yaml],
       }),
     )
   }
 
   return diagnostics
+}
+
+function validateNestedItems(
+  params: ValidateMetadataTargetsInModelParams & {
+    value: unknown
+    itemRule: MetadataItemRule
+    yamlPath: YamlPath
+  },
+): Diagnostic[] {
+  if (Array.isArray(params.value)) {
+    return params.value.flatMap((item, index) =>
+      validateObject({
+        ...params,
+        value: item,
+        rule: params.itemRule,
+        yamlPath: [...params.yamlPath, nestedItemPathSegment(item, index)],
+      }),
+    )
+  }
+
+  const record = asRecord(params.value)
+  if (!record) return []
+
+  return Object.entries(record).flatMap(([key, item]) =>
+    validateObject({
+      ...params,
+      value: item,
+      rule: params.itemRule,
+      yamlPath: [...params.yamlPath, key],
+    }),
+  )
+}
+
+function nestedItemRule(propRule: MetadataItemRule["properties"][string]): MetadataItemRule | undefined {
+  const graphChild = getTypeRule(propRule.type, "graphChild")
+  if (graphChild?.itemRule) return graphChild.itemRule
+
+  if ("itemRule" in propRule && propRule.itemRule !== undefined) {
+    return propRule.itemRule as MetadataItemRule
+  }
+
+  return undefined
+}
+
+function nestedItemPathSegment(item: unknown, index: number): string | number {
+  const record = asRecord(item)
+  return typeof record?.name === "string" ? record.name : index
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
