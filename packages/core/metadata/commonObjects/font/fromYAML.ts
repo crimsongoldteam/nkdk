@@ -25,6 +25,7 @@ export const importFontFromYAML = (
     if (kind !== undefined) {
       result.kind = kind
       result.ref = fullData.Значение
+      result.rawRef = true
     }
   }
 

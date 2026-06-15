@@ -21,6 +21,7 @@ describe("exportFontToYAML", () => {
       ref: "0" as never,
       kind: "StyleItem",
       height: 10,
+      rawRef: true,
     })
 
     expect(result).toEqual({

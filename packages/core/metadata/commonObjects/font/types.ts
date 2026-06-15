@@ -28,7 +28,7 @@ export const isRawPrefixedFontRef = (value: unknown): value is RawPrefixedFontRe
   typeof value === "string" && (value.startsWith("style:") || value.startsWith("sys:"))
 
 export interface FontXML {
-  _ref?: PrefixedFontsXML | RawPrefixedFontRef
+  _ref?: PrefixedFontsXML | RawFontRef
   _faceName?: string
   _scale?: number
   _height?: number
@@ -42,6 +42,7 @@ export interface FontXML {
 export interface Font {
   kind: SE.FontType
   ref?: FontRef
+  rawRef?: boolean
   faceName?: string
   scale?: number
   height?: number

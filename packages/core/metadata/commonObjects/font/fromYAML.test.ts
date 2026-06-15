@@ -27,6 +27,7 @@ describe("importFontFromYAML", () => {
       ref: "0",
       kind: "StyleItem",
       height: 10,
+      rawRef: true,
     })
   })
 

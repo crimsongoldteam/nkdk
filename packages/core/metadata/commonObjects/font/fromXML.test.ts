@@ -18,4 +18,18 @@ describe("importFontFromXML", () => {
 
     expect(result).toEqual(font)
   })
+
+  it("imports raw non-prefixed style item ref", () => {
+    const xmlData = importContentFromXML<{ Font: FontXML }>(
+      '<Font ref="0" height="10" kind="StyleItem"/>'
+    )
+    const result = importFontFromXML(mockContextFromXML(), mockRule, xmlData.Font)
+
+    expect(result).toEqual({
+      ref: "0",
+      kind: "StyleItem",
+      height: 10,
+      rawRef: true,
+    })
+  })
 })

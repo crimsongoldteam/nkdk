@@ -31,6 +31,7 @@ export const exportFontToXML = (
 function exportFontRefToXML(font: Font): string {
   const ref = font.ref
   if (ref === undefined) return ""
+  if (font.rawRef === true) return ref
   const prefixedRef = PrefixedFontsToXML[ref as keyof typeof PrefixedFontsToXML]
   if (prefixedRef !== undefined) return prefixedRef
   if (font.kind === "StyleItem") return `style:${ref}`

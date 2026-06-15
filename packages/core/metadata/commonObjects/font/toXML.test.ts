@@ -17,4 +17,18 @@ describe("exportFontToXML", () => {
 
     expect(result).toBeUndefined()
   })
+
+  it("exports raw non-prefixed style item ref", () => {
+    const result = {
+      Font: exportFontToXML(mockContext, mockRule, {
+        ref: "0" as never,
+        kind: "StyleItem",
+        height: 10,
+        rawRef: true,
+      }),
+    }
+    const xmlString = xmlExport(result, false)
+
+    expect(xmlString).toEqual('<Font ref="0" height="10" kind="StyleItem"/>')
+  })
 })

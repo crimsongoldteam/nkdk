@@ -16,7 +16,9 @@ export const importFontFromXML = (
   result.kind = xml._kind as SE.FontType
 
   if (xml._ref !== undefined) {
-    result.ref = normalizeFontRefFromXML(result.kind, PrefixedFontsFromXML[xml._ref as PrefixedFontsXML] ?? xml._ref)
+    const xmlRef = xml._ref
+    result.ref = normalizeFontRefFromXML(result.kind, PrefixedFontsFromXML[xmlRef as PrefixedFontsXML] ?? xmlRef)
+    if (isRawFontRefFromXML(result.kind, xmlRef)) result.rawRef = true
   }
 
   if (xml._faceName !== undefined) result.faceName = xml._faceName
@@ -34,6 +36,12 @@ function normalizeFontRefFromXML(kind: SE.FontType, ref: string): string {
   if (kind === "StyleItem" && ref.startsWith("style:")) return ref.slice("style:".length)
   if (kind === "WindowsFont" && ref.startsWith("sys:")) return ref.slice("sys:".length)
   return ref
+}
+
+function isRawFontRefFromXML(kind: SE.FontType, ref: string): boolean {
+  if (kind === "StyleItem") return !ref.startsWith("style:")
+  if (kind === "WindowsFont") return !ref.startsWith("sys:")
+  return false
 }
 
 registerTypeRule("Font", "importFromXML", importFontFromXML)

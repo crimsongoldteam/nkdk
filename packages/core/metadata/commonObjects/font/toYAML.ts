@@ -14,10 +14,13 @@ export const exportFontToYAML = (
 ): FontYAML | undefined => {
   if (!font) return undefined
 
-  const ref = convertRefToYAML(_context, font.ref, font.kind)
+  const ref = font.rawRef === true ? undefined : convertRefToYAML(_context, font.ref, font.kind)
   const result: FontFullYAML = {}
 
-  if (ref !== undefined) {
+  if (font.rawRef === true && font.ref !== undefined) {
+    result.Вид = SE.FontTypeToYAML[font.kind]
+    result.Значение = font.ref
+  } else if (ref !== undefined) {
     result.Вид = ref
   } else if (font.ref !== undefined) {
     result.Вид = SE.FontTypeToYAML[font.kind]
