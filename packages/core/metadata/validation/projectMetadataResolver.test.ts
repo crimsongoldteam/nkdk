@@ -83,13 +83,13 @@ describe("ProjectMetadataResolver", () => {
     ])
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveField({ target: fieldTarget("Справочник.Номенклатура.СтандартныйРеквизит.Наименование") })).toMatchObject({
+    expect(resolver.resolveMember({ target: memberTarget("Справочник.Номенклатура.СтандартныйРеквизит.Наименование") })).toMatchObject({
       ok: true,
     })
 
     expect(
-      resolver.resolveField({
-        target: fieldTarget("Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество"),
+      resolver.resolveMember({
+        target: memberTarget("Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество"),
       }),
     ).toMatchObject({ ok: true })
   })
@@ -246,7 +246,7 @@ describe("ProjectMetadataResolver", () => {
     const projectDir = createProject()
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveField({ target: fieldTarget("Справочник.НетТакого.Реквизит.Код") })).toMatchObject({
+    expect(resolver.resolveMember({ target: memberTarget("Справочник.НетТакого.Реквизит.Код") })).toMatchObject({
       ok: false,
       diagnostics: [
         expect.objectContaining({
@@ -342,12 +342,6 @@ function objectTarget(value: string, allowNested = false): Extract<ParsedMetadat
   const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "object", allowNested } })
   if (!parsed.ok) throw new Error(parsed.message)
   return parsed.target as Extract<ParsedMetadataTarget, { kind: "object" }>
-}
-
-function fieldTarget(value: string): Extract<ParsedMetadataTarget, { kind: "field" }> {
-  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "field", owner: "explicit" } })
-  if (!parsed.ok) throw new Error(parsed.message)
-  return parsed.target as Extract<ParsedMetadataTarget, { kind: "field" }>
 }
 
 function memberTarget(value: string): Extract<ParsedMetadataTarget, { kind: "member" }> {

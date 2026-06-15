@@ -1,7 +1,6 @@
 import { existsSync } from "fs"
 import { join, resolve } from "path"
 import {
-  fieldKindToYAML,
   memberKindToYAML,
   rootToYAML,
   standardAttributeToYAML,
@@ -37,7 +36,6 @@ export interface ProjectMetadataResolver {
     target: Extract<ParsedMetadataTarget, { kind: "object" }>
     filters?: readonly MetadataTargetFilter[]
   }): MetadataResolveResult
-  resolveField(params: { target: Extract<ParsedMetadataTarget, { kind: "field" }> }): MetadataResolveResult
   resolveMember(params: {
     target: Extract<ParsedMetadataTarget, { kind: "member" }>
     filters?: readonly MetadataTargetFilter[]
@@ -87,19 +85,6 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
       }
 
       return { ok: true, filePath }
-    },
-
-    resolveField({ target }) {
-      const object = this.resolveObject({ target: { kind: "object", root: target.root, objectName: target.objectName } })
-      if (!object.ok) return object
-
-      const owner = ownerCache.get({ kind: rootToYAML[target.root], name: target.objectName })
-      if (owner.status !== "ok") return { ok: false, diagnostics: owner.diagnostics }
-
-      const resolved = resolveFieldSegments(owner.owner.fieldIndex.fields, target.segments)
-      if (resolved.ok) return { ok: true, filePath: owner.owner.filePath, details: resolved.field }
-
-      return referenceError(owner.owner.filePath, `Не найдено поле "${formatFieldTarget(target)}": ${resolved.message}`)
     },
 
     resolveMember({ target, filters }) {
@@ -204,29 +189,6 @@ function resolveObjectFilters(params: {
   }
 
   return { ok: true }
-}
-
-function resolveFieldSegments(
-  fields: Map<string, ObjectField>,
-  segments: Extract<ParsedMetadataTarget, { kind: "field" }>["segments"],
-): { ok: true; field: ObjectField } | { ok: false; message: string } {
-  let currentFields = fields
-  let currentField: ObjectField | undefined
-
-  for (const [index, segment] of segments.entries()) {
-    currentField = getObjectField({ index: { fields: currentFields, diagnostics: [] }, name: fieldLookupName(segment) })
-    if (!currentField) return { ok: false, message: `нет сегмента "${segment.name}"` }
-    if (currentField.kind !== objectFieldKindByTargetKind[segment.kind]) {
-      return { ok: false, message: `"${segment.name}" имеет другой вид` }
-    }
-
-    if (index < segments.length - 1) {
-      if (!currentField.tableSource) return { ok: false, message: `"${segment.name}" не содержит вложенных полей` }
-      currentFields = currentField.tableSource.columns
-    }
-  }
-
-  return currentField ? { ok: true, field: currentField } : { ok: false, message: "пустой путь" }
 }
 
 function resolveMemberSegments(params: {
@@ -420,10 +382,6 @@ function nestedObjectFolderName(root: MetadataRootName): string {
   return rootToYAML[root]
 }
 
-function fieldLookupName(segment: Extract<ParsedMetadataTarget, { kind: "field" }>["segments"][number]): string {
-  return segment.kind === "StandardAttribute" ? (standardAttributeToYAML[segment.name] ?? segment.name) : segment.name
-}
-
 function memberLookupName(segment: Extract<ParsedMetadataTarget, { kind: "member" }>["segments"][number]): string {
   return segment.kind === "StandardAttribute" ? (standardAttributeToYAML[segment.name] ?? segment.name) : segment.name
 }
@@ -441,14 +399,6 @@ function hasNamedItem(value: unknown, name: string): boolean {
 
 function metadataRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
-}
-
-function formatFieldTarget(target: Extract<ParsedMetadataTarget, { kind: "field" }>): string {
-  return [
-    rootToYAML[target.root],
-    target.objectName,
-    ...target.segments.flatMap((segment) => [fieldKindToYAML[segment.kind], fieldLookupName(segment)]),
-  ].join(".")
 }
 
 function formatMemberTarget(target: Extract<ParsedMetadataTarget, { kind: "member" }>): string {

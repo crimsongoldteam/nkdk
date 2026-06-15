@@ -36,20 +36,19 @@ describe("buildMetadataTargetSchema", () => {
   })
 
   it("describes full field paths with service segments", () => {
-    const schema = buildMetadataTargetSchema({ kind: "field", owner: "explicit", roots: ["Catalog"] })
+    const schema = buildMetadataTargetSchema({ kind: "member", owner: "explicit", roots: ["Catalog"] })
 
     expect(schema).toMatchObject({
       type: "string",
       examples: [
         "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита",
-        "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита",
       ],
     })
-    expect(String(schema.description)).toContain("конечный сегмент")
+    expect(String(schema.description)).toContain("Полный путь члена объекта")
   })
 
   it("does not accept field paths when roots are empty", () => {
-    const schema = buildMetadataTargetSchema({ kind: "field", owner: "explicit", roots: [] })
+    const schema = buildMetadataTargetSchema({ kind: "member", owner: "explicit", roots: [] })
 
     expect(schema).toMatchObject({
       type: "string",
@@ -60,17 +59,16 @@ describe("buildMetadataTargetSchema", () => {
     expectNotMatches(schema, "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")
   })
 
-  it("restricts field service segments by fieldKinds", () => {
+  it("restricts field-like member service segments by memberKinds", () => {
     const schema = buildMetadataTargetSchema({
-      kind: "field",
+      kind: "member",
       owner: "explicit",
       roots: ["Catalog"],
-      fieldKinds: ["Attribute", "StandardAttribute"],
+      memberKinds: ["Attribute", "StandardAttribute"],
     })
 
     expect(schema.examples).toEqual([
       "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита",
-      "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита",
     ])
     expectMatches(schema, "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")
     expectMatches(
@@ -78,7 +76,6 @@ describe("buildMetadataTargetSchema", () => {
       "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита"
     )
     expectNotMatches(schema, "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти")
-    expect(String(schema.description)).toContain("ТабличнаяЧасть")
   })
 
   it("describes predefined values and EmptyRef without project names", () => {
@@ -221,30 +218,6 @@ describe("buildMetadataTargetSchema", () => {
       examples: ["ИмяРеквизита", "ИмяТаблицы.ИмяКолонки"],
     })
     expect(String(schema.description)).toContain("string")
-  })
-
-  it("returns constrained schema for local child names", () => {
-    const formSchema = buildMetadataTargetSchema({ kind: "localChild", owner: "this", childKind: "Form" })
-    const templateSchema = buildMetadataTargetSchema({ kind: "localChild", owner: "this", childKind: "Template" })
-
-    expect(formSchema).toMatchObject({
-      type: "string",
-      pattern: "^[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
-      examples: ["ИмяФормы"],
-    })
-    expect(templateSchema).toMatchObject({
-      type: "string",
-      pattern: "^[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
-      examples: ["ИмяМакета"],
-    })
-  })
-
-  it("keeps legacy local child schema for current-owner forms", () => {
-    const schema = buildMetadataTargetSchema({ kind: "localChild", owner: "this", childKind: "Form" })
-    const compiled = TypeCompiler.Compile(schema)
-
-    expect(compiled.Check("ИмяФормы")).toBe(true)
-    expect(compiled.Check("Форма.ИмяФормы")).toBe(false)
   })
 
   it("builds local member schema for single current-owner member kind", () => {

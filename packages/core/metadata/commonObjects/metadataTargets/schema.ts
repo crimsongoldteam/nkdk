@@ -1,7 +1,6 @@
 import { Type, type TSchema } from "@sinclair/typebox"
-import { fieldKindToYAML, memberKindToYAML, METADATA_NAME_PATTERN, rootToYAML } from "./roots"
+import { memberKindToYAML, METADATA_NAME_PATTERN, rootToYAML } from "./roots"
 import type {
-  MetadataFieldKind,
   MetadataMemberKind,
   MetadataRootName,
   MetadataTargetConstraint,
@@ -15,7 +14,6 @@ type MetadataPrimitiveType = NonNullable<Extract<MetadataTargetConstraint, { kin
 const noMatchPattern = "^(?!)$"
 const emptyRefYAML = "ПустаяСсылка"
 
-const allFieldKinds = Object.keys(fieldKindToYAML) as MetadataFieldKind[]
 const allMemberKinds = Object.keys(memberKindToYAML) as MetadataMemberKind[]
 const allRoots = Object.keys(rootToYAML) as MetadataRootName[]
 const allPrimitiveTypes: readonly MetadataPrimitiveType[] = ["string", "decimal", "dateTime", "boolean", "ValueStorage"]
@@ -101,26 +99,10 @@ const primitiveTypeExamples = {
 
 export function buildMetadataTargetSchema(constraint: MetadataTargetConstraint): TSchema {
   if (constraint.kind === "object") return objectSchema(constraint)
-  if (constraint.kind === "field") return fieldSchema(constraint)
   if (constraint.kind === "member") return memberSchema(constraint)
   if (constraint.kind === "value") return valueSchema(constraint)
   if (constraint.kind === "type") return typeSchema(constraint)
   if (constraint.kind === "dataPath") return dataPathSchema(constraint)
-  if (constraint.kind === "localChild") return localChildSchema(constraint)
-  if (constraint.kind === "styleItem") {
-    return Type.String({
-      pattern: `^ЭлементСтиля\\.${METADATA_NAME_PATTERN}$`,
-      examples: ["ЭлементСтиля.ИмяЭлементаСтиля"],
-      description: "Ссылка на элемент стиля проекта: ЭлементСтиля.<ИмяЭлементаСтиля>.",
-    })
-  }
-  if (constraint.kind === "commonPicture") {
-    return Type.String({
-      pattern: `^ОбщаяКартинка\\.${METADATA_NAME_PATTERN}$`,
-      examples: ["ОбщаяКартинка.ИмяОбщейКартинки"],
-      description: "Ссылка на общую картинку проекта: ОбщаяКартинка.<ИмяОбщейКартинки>.",
-    })
-  }
 
   return Type.String({
     description: "Строковое metadata-значение. Подробная проверка выполняется командой validate.",
@@ -141,32 +123,6 @@ function objectSchema(constraint: Extract<MetadataTargetConstraint, { kind: "obj
       selectedRoots.length === 0
         ? "Ссылка на объект метаданных. Ограничение не разрешает корневые типы; подробная проверка выполняется validate."
         : `Ссылка на объект метаданных: ${yamlRoots}.<ИмяОбъекта>. Реальные имена объектов берутся из YAML-проекта и проверяются validate.`,
-  })
-}
-
-function fieldSchema(constraint: Extract<MetadataTargetConstraint, { kind: "field" }>): TSchema {
-  const selectedRoots = selectRoots(constraint.roots)
-  const terminalFieldKinds = constraint.fieldKinds ?? allFieldKinds
-  const yamlRoots = yamlRootGroup(constraint.roots)
-  const terminalSegments = terminalFieldKinds.map((kind) => fieldKindToYAML[kind]).join("|")
-  const terminalSegmentDescription = terminalFieldKinds.map((kind) => fieldKindToYAML[kind]).join(", ")
-  const tabularSectionSegment = fieldKindToYAML.TabularSection
-  const branches: string[] = []
-  if (constraint.allowObject === true && selectedRoots.length > 0) {
-    branches.push(`(${yamlRoots})\\.${METADATA_NAME_PATTERN}`)
-  }
-  if (selectedRoots.length > 0 && terminalSegments.length > 0) {
-    branches.push(
-      `(${yamlRoots})\\.${METADATA_NAME_PATTERN}(?:\\.${tabularSectionSegment}\\.${METADATA_NAME_PATTERN})*\\.(?:${terminalSegments})\\.${METADATA_NAME_PATTERN}`
-    )
-  }
-  return Type.String({
-    pattern: branches.length === 0 ? noMatchPattern : `^(?:${branches.join("|")})$`,
-    examples: fieldExamples(constraint),
-    description:
-      terminalSegmentDescription.length === 0
-        ? "Полный путь поля метаданных. Ограничение не разрешает конечные сегменты; подробная проверка выполняется validate."
-        : `Полный путь поля метаданных: конечный сегмент ${terminalSegmentDescription} обязателен; перед ним может быть ТабличнаяЧасть.<ИмяТабличнойЧасти>; реальные имена проверяются validate.${constraint.allowObject === true ? " Также разрешена ссылка на объект метаданных без поля." : ""}`,
   })
 }
 
@@ -284,15 +240,6 @@ function dataPathSchema(constraint: Extract<MetadataTargetConstraint, { kind: "d
   })
 }
 
-function localChildSchema(constraint: Extract<MetadataTargetConstraint, { kind: "localChild" }>): TSchema {
-  const childName = constraint.childKind === "Form" ? "формы" : "макета"
-  return Type.String({
-    pattern: `^${METADATA_NAME_PATTERN}$`,
-    examples: [constraint.childKind === "Form" ? "ИмяФормы" : "ИмяМакета"],
-    description: `Имя дочерней ${childName} текущего объекта. Наличие дочернего объекта проверяется validate.`,
-  })
-}
-
 function singleLocalMemberDescription(kind: MetadataMemberKind): string {
   if (kind === "Form") return "Имя дочерней формы текущего объекта."
   if (kind === "Template") return "Имя дочернего макета текущего объекта."
@@ -365,38 +312,6 @@ function typeRefExample(root: MetadataRootName): string {
 
 function fieldObjectName(root: MetadataRootName): string {
   return fieldObjectNameByRoot[root] ?? "ИмяОбъекта"
-}
-
-function fieldExamples(constraint: Extract<MetadataTargetConstraint, { kind: "field" }>): string[] {
-  const selectedRoots = selectRoots(constraint.roots)
-  const terminalFieldKinds = constraint.fieldKinds ?? allFieldKinds
-  const root = preferredRoot(selectedRoots, "Catalog")
-  if (!root) return []
-
-  const rootPrefix = rootToYAML[root]
-  const objectName = fieldObjectName(root)
-  const examples: string[] = []
-
-  if (constraint.allowObject === true) {
-    examples.push(objectExample(root))
-  }
-
-  if (terminalFieldKinds.includes("Attribute")) {
-    examples.push(`${rootPrefix}.${objectName}.Реквизит.ИмяРеквизита`)
-    examples.push(`${rootPrefix}.${objectName}.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита`)
-  }
-
-  if (examples.length === 0 && terminalFieldKinds.includes("TabularSection")) {
-    examples.push(`${rootPrefix}.${objectName}.ТабличнаяЧасть.ИмяТабличнойЧасти`)
-  } else if (examples.length === 0 && terminalFieldKinds.includes("StandardAttribute")) {
-    examples.push(`${rootPrefix}.${objectName}.СтандартныйРеквизит.ИмяСтандартногоРеквизита`)
-  } else if (examples.length === 0 && terminalFieldKinds.includes("Dimension")) {
-    examples.push(`${rootPrefix}.${objectName}.Измерение.ИмяИзмерения`)
-  } else if (examples.length === 0 && terminalFieldKinds.includes("Resource")) {
-    examples.push(`${rootPrefix}.${objectName}.Ресурс.ИмяРесурса`)
-  }
-
-  return examples
 }
 
 function valuePatternBranches(constraint: Extract<MetadataTargetConstraint, { kind: "value" }>): string[] {

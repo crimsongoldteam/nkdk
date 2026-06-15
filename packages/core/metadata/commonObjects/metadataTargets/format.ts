@@ -1,7 +1,6 @@
-import { fieldKindToYAML, memberKindToYAML, rootToYAML, standardAttributeToYAML } from "./roots"
+import { memberKindToYAML, rootToYAML, standardAttributeToYAML } from "./roots"
 import { parseMetadataTargetFromModel } from "./parse"
 import type {
-  MetadataFieldSegment,
   MetadataMemberKind,
   MetadataMemberSegment,
   MetadataTargetConstraint,
@@ -38,26 +37,11 @@ function formatParsedMetadataTargetToYAML(
         target.objectName,
         ...(target.segments ?? []).flatMap((segment) => [rootToYAML[segment.root], segment.objectName]),
       ].join(".")
-    case "field":
-      return [
-        rootToYAML[target.root],
-        target.objectName,
-        ...target.segments.flatMap((segment) => [fieldKindToYAML[segment.kind], formatFieldSegmentName(segment)]),
-      ].join(".")
     case "member":
       return formatMemberTargetToYAML(target, constraint, owner)
     case "value":
       return formatValueTargetToYAML(target)
-    case "styleItem":
-      return `${rootToYAML.StyleItem}.${target.name}`
-    case "commonPicture":
-      return `${rootToYAML.CommonPicture}.${target.name}`
   }
-}
-
-function formatFieldSegmentName(segment: MetadataFieldSegment): string {
-  if (segment.kind !== "StandardAttribute") return segment.name
-  return standardAttributeToYAML[segment.name] ?? segment.name
 }
 
 function formatMemberTargetToYAML(

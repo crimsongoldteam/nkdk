@@ -126,7 +126,7 @@ export const MetadataReportRules = {
       yaml: "ОсновнаяСхемаКомпоновкиДанных",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "localChild", owner: "this", childKind: "Template" },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Template"] },
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: "",
       defaultValue: "",

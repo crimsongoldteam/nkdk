@@ -103,26 +103,8 @@ function resolveParsedTarget(params: {
     return result.ok ? [] : result.diagnostics
   }
 
-  if (params.parsed.kind === "field") {
-    const result = params.resolver.resolveField({ target: params.parsed })
-    return result.ok ? [] : result.diagnostics
-  }
-
   if (params.parsed.kind === "value") {
     const result = params.resolver.resolveValue({ target: params.parsed })
-    return result.ok ? [] : result.diagnostics
-  }
-
-  if (params.parsed.kind === "commonPicture") {
-    const result = params.resolver.resolveCommonPicture({ name: params.parsed.name })
-    return result.ok ? [] : result.diagnostics
-  }
-
-  if (params.parsed.kind === "styleItem" && params.constraint.kind === "styleItem") {
-    const result = params.resolver.resolveStyleItem({
-      name: params.parsed.name,
-      expectedTypes: params.constraint.styleItemTypes,
-    })
     return result.ok ? [] : result.diagnostics
   }
 

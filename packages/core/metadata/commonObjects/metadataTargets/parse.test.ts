@@ -22,14 +22,14 @@ describe("metadataTargets parser", () => {
   it("parses full field paths with required service segments", () => {
     const result = parseMetadataTargetFromYAML({
       value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество",
-      constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
+      constraint: { kind: "member", owner: "explicit", roots: ["Catalog"] },
     })
 
     expect(result).toEqual({
       ok: true,
       canonical: "Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество",
       target: {
-        kind: "field",
+        kind: "member",
         root: "Catalog",
         objectName: "Номенклатура",
         segments: [
@@ -40,14 +40,14 @@ describe("metadataTargets parser", () => {
     })
   })
 
-  it("applies fieldKinds to the terminal field segment", () => {
+  it("applies memberKinds to the terminal field-like member segment", () => {
     const result = parseMetadataTargetFromYAML({
       value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество",
       constraint: {
-        kind: "field",
+        kind: "member",
         owner: "explicit",
         roots: ["Catalog"],
-        fieldKinds: ["Attribute", "StandardAttribute"],
+        memberKinds: ["Attribute", "StandardAttribute"],
       },
     })
 
@@ -60,10 +60,10 @@ describe("metadataTargets parser", () => {
       parseMetadataTargetFromYAML({
         value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары",
         constraint: {
-          kind: "field",
+          kind: "member",
           owner: "explicit",
           roots: ["Catalog"],
-          fieldKinds: ["Attribute", "StandardAttribute"],
+          memberKinds: ["Attribute", "StandardAttribute"],
         },
       })
     ).toMatchObject({ ok: false, code: "disallowed-kind" })
@@ -132,7 +132,7 @@ describe("metadataTargets parser", () => {
     expect(
       formatMetadataTargetToYAML({
         canonical: "Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество",
-        constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
+        constraint: { kind: "member", owner: "explicit", roots: ["Catalog"] },
       })
     ).toBe("Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество")
 
@@ -148,7 +148,7 @@ describe("metadataTargets parser", () => {
     expect(
       parseMetadataTargetFromYAML({
         value: "РегистрНакопления.Продажи.СтандартныйРеквизит.Период",
-        constraint: { kind: "field", owner: "explicit", roots: ["AccumulationRegister"] },
+        constraint: { kind: "member", owner: "explicit", roots: ["AccumulationRegister"] },
       })
     ).toMatchObject({
       ok: true,
@@ -158,14 +158,14 @@ describe("metadataTargets parser", () => {
     expect(
       formatMetadataTargetToYAML({
         canonical: "AccumulationRegister.Продажи.StandardAttribute.Period",
-        constraint: { kind: "field", owner: "explicit", roots: ["AccumulationRegister"] },
+        constraint: { kind: "member", owner: "explicit", roots: ["AccumulationRegister"] },
       })
     ).toBe("РегистрНакопления.Продажи.СтандартныйРеквизит.Период")
 
     expect(
       formatMetadataTargetToYAML({
         canonical: "Catalog.Номенклатура.TabularSection.Товары.StandardAttribute.LineNumber",
-        constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
+        constraint: { kind: "member", owner: "explicit", roots: ["Catalog"] },
       })
     ).toBe("Справочник.Номенклатура.ТабличнаяЧасть.Товары.СтандартныйРеквизит.НомерСтроки")
   })
@@ -185,13 +185,13 @@ describe("metadataTargets parser", () => {
     expect(
       parseMetadataTargetFromModel({
         canonical: "Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество",
-        constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
+        constraint: { kind: "member", owner: "explicit", roots: ["Catalog"] },
       })
     ).toEqual({
       ok: true,
       canonical: "Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество",
       target: {
-        kind: "field",
+        kind: "member",
         root: "Catalog",
         objectName: "Номенклатура",
         segments: [
@@ -350,9 +350,9 @@ describe("metadataTargets parser", () => {
     expect(
       parseMetadataTargetFromYAML({
         value: "Справочник.Номенклатура.Количество",
-        constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
+        constraint: { kind: "member", owner: "explicit", roots: ["Catalog"] },
       })
-    ).toMatchObject({ ok: false, code: "unknown-segment" })
+    ).toMatchObject({ ok: false, code: "invalid-shape" })
   })
 
   it("reports extra value path segments instead of valid earlier value segments", () => {
