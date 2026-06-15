@@ -207,11 +207,14 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
   }
 
   const yamlRoots = yamlRootGroup(constraint.roots)
+  const explicitBranches: string[] = []
+  if (selectedRoots.length > 0 && yamlMemberPath) {
+    explicitBranches.push(`(?:${yamlRoots})\\.${METADATA_NAME_PATTERN}\\.${yamlMemberPath}`)
+  }
+  if (fullModelCompatibility) explicitBranches.push(fullModelCompatibility)
+
   return Type.String({
-    pattern:
-      selectedRoots.length === 0 || !yamlMemberPath
-        ? noMatchPattern
-        : `^(?:(?:${yamlRoots})\\.${METADATA_NAME_PATTERN}\\.${yamlMemberPath})$`,
+    pattern: explicitBranches.length === 0 ? noMatchPattern : `^(?:${explicitBranches.join("|")})$`,
     examples:
       selectedRoots.length === 0 || memberKinds.length === 0
         ? []

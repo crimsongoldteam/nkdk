@@ -282,6 +282,19 @@ describe("buildMetadataTargetSchema", () => {
     expect(compiled.Check("Catalog.АвансовыйОтчет.Form.ФормаДокумента")).toBe(false)
   })
 
+  it("keeps root constraints for explicit-owner compatible model member paths", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "explicit",
+      roots: ["Document"],
+      memberKinds: ["Attribute"],
+    })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(compiled.Check("Document.АвансовыйОтчет.Attribute.Организация")).toBe(true)
+    expect(compiled.Check("Catalog.АвансовыйОтчет.Attribute.Организация")).toBe(false)
+  })
+
   it("describes hasType filters without narrowing the string pattern", () => {
     const schema = buildMetadataTargetSchema({
       kind: "member",
