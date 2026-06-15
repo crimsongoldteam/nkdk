@@ -44,10 +44,10 @@ export const ColumnGroupRules = {
       typeSE: "ItemHorizontalLocation",
       implicitValueYAML: "Auto",
     },
-    headerPicture: { yaml: "КартинкаШапки", type: "Picture", metadataTarget: { kind: "commonPicture" } },
+    headerPicture: { yaml: "КартинкаШапки", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
     showInHeader: { yaml: "ОтображатьВШапке", type: "boolean" },
     showTitle: { yaml: "ОтображатьЗаголовок", type: "boolean" },
-    titleBackColor: { yaml: "ЦветФонаЗаголовка", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+    titleBackColor: { yaml: "ЦветФонаЗаголовка", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
     ...formGroupCommonProperties,
     shortcut: {
       ...formGroupCommonProperties.shortcut,

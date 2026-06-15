@@ -33,7 +33,10 @@ export type MetadataResolveResult =
   | { ok: false; diagnostics: Diagnostic[] }
 
 export interface ProjectMetadataResolver {
-  resolveObject(params: { target: Extract<ParsedMetadataTarget, { kind: "object" }> }): MetadataResolveResult
+  resolveObject(params: {
+    target: Extract<ParsedMetadataTarget, { kind: "object" }>
+    filters?: readonly MetadataTargetFilter[]
+  }): MetadataResolveResult
   resolveField(params: { target: Extract<ParsedMetadataTarget, { kind: "field" }> }): MetadataResolveResult
   resolveMember(params: {
     target: Extract<ParsedMetadataTarget, { kind: "member" }>
@@ -63,11 +66,18 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
     })
 
   return {
-    resolveObject({ target }) {
+    resolveObject({ target, filters }) {
       const filePath = objectFilePath(projectDir, target.root, target.objectName)
       if (!existsSync(filePath)) {
         return referenceError(filePath, `Не найден объект "${formatObjectTarget(target)}"`)
       }
+
+      const filterResult = resolveObjectFilters({
+        target,
+        filters,
+        resolveStyleItemByName: (name, expectedTypes) => this.resolveStyleItem({ name, expectedTypes }),
+      })
+      if (!filterResult.ok) return filterResult
 
       if (target.segments && target.segments.length > 0) {
         const nestedFilePath = nestedObjectFilePath(projectDir, target)
@@ -179,6 +189,20 @@ function styleItemTypeValue(data: unknown): unknown {
 
 function styleItemTypeFromModelValue(value: string): StyleItemTargetType | undefined {
   return Object.prototype.hasOwnProperty.call(SE.StyleElementTypeToYAML, value) ? (value as StyleItemTargetType) : undefined
+}
+
+function resolveObjectFilters(params: {
+  target: Extract<ParsedMetadataTarget, { kind: "object" }>
+  filters: readonly MetadataTargetFilter[] | undefined
+  resolveStyleItemByName: (name: string, expectedTypes: readonly StyleItemTargetType[]) => MetadataResolveResult
+}): MetadataResolveResult {
+  for (const filter of params.filters ?? []) {
+    if (filter.kind === "styleItemType" && params.target.root === "StyleItem") {
+      return params.resolveStyleItemByName(params.target.objectName, filter.values)
+    }
+  }
+
+  return { ok: true }
 }
 
 function resolveFieldSegments(

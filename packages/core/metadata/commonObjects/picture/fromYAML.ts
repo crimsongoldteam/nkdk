@@ -4,8 +4,13 @@ import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
-import { parseMetadataTargetFromYAML } from "../metadataTargets"
+import { parseMetadataTargetFromYAML, type MetadataTargetConstraint } from "../metadataTargets"
 import { isRawPictureRefValue, Picture, PictureYAML, PictureYAMLExtended } from "./types"
+
+const commonPictureTarget = {
+  kind: "object",
+  roots: ["CommonPicture"],
+} as const satisfies MetadataTargetConstraint
 
 export const importPictureCombinedFromYAML = (
   context: ConfigurationContext,
@@ -94,10 +99,10 @@ function tryImportCommonPicture(ref: string): string | undefined {
 
   const parsed = parseMetadataTargetFromYAML({
     value: ref,
-    constraint: { kind: "commonPicture" },
+    constraint: commonPictureTarget,
   })
   if (!parsed.ok) throw new Error(parsed.message)
-  return parsed.target.kind === "commonPicture" ? parsed.target.name : undefined
+  return parsed.target.kind === "object" && parsed.target.root === "CommonPicture" ? parsed.target.objectName : undefined
 }
 
 function createPicture(

@@ -4,8 +4,14 @@ import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumer
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { exportBooleanToYAML } from "../boolean/toYAML"
-import { formatMetadataTargetToYAML } from "../metadataTargets"
+import { formatMetadataTargetToYAML, type MetadataTargetConstraint } from "../metadataTargets"
 import { Font, FontFullYAML, FontRef, FontYAML } from "./types"
+
+const fontStyleItemTarget = {
+  kind: "object",
+  roots: ["StyleItem"],
+  filters: [{ kind: "styleItemType", values: ["Font"] }],
+} as const satisfies MetadataTargetConstraint
 
 export const exportFontToYAML = (
   _context: ConfigurationContext,
@@ -66,7 +72,7 @@ function tryFormatProjectStyleRefToYAML(ref: string): string | undefined {
   try {
     return formatMetadataTargetToYAML({
       canonical: `StyleItem.${ref}`,
-      constraint: { kind: "styleItem", styleItemTypes: ["Font"] },
+      constraint: fontStyleItemTarget,
     })
   } catch (caught) {
     if (caught instanceof Error && caught.message === "Некорректный формат цели метаданных") return undefined

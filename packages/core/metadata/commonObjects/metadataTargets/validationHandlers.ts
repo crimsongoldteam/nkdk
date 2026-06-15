@@ -87,8 +87,11 @@ function resolveParsedTarget(params: {
   parsed: ParsedMetadataTarget
   resolver: Parameters<ValidateMetadataTargetFunction>[0]["resolver"]
 }): ReturnType<ValidateMetadataTargetFunction> {
-  if (params.parsed.kind === "object") {
-    const result = params.resolver.resolveObject({ target: params.parsed })
+  if (params.parsed.kind === "object" && params.constraint.kind === "object") {
+    const result = params.resolver.resolveObject({
+      target: params.parsed,
+      filters: params.constraint.filters,
+    })
     return result.ok ? [] : result.diagnostics
   }
 

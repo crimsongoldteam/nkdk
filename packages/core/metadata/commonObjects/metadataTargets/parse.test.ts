@@ -256,64 +256,72 @@ describe("metadataTargets parser", () => {
     ).toBe("Справочник.СтавкиНДС.ПустаяСсылка")
   })
 
-  it("parses and formats style items", () => {
+  it("parses and formats style items through object targets with style filters", () => {
+    const constraint = {
+      kind: "object",
+      roots: ["StyleItem"],
+      filters: [{ kind: "styleItemType", values: ["Color"] }],
+    } as const
+
     expect(
       parseMetadataTargetFromYAML({
         value: "ЭлементСтиля.ОсновнойЦвет",
-        constraint: { kind: "styleItem", styleItemTypes: ["Color"] },
+        constraint,
       })
-    ).toEqual({
+    ).toMatchObject({
       ok: true,
       canonical: "StyleItem.ОсновнойЦвет",
-      target: { kind: "styleItem", name: "ОсновнойЦвет" },
+      target: { kind: "object", root: "StyleItem", objectName: "ОсновнойЦвет" },
     })
 
     expect(
       parseMetadataTargetFromModel({
         canonical: "StyleItem.ОсновнойЦвет",
-        constraint: { kind: "styleItem", styleItemTypes: ["Color"] },
+        constraint,
       })
-    ).toEqual({
+    ).toMatchObject({
       ok: true,
       canonical: "StyleItem.ОсновнойЦвет",
-      target: { kind: "styleItem", name: "ОсновнойЦвет" },
+      target: { kind: "object", root: "StyleItem", objectName: "ОсновнойЦвет" },
     })
 
     expect(
       formatMetadataTargetToYAML({
         canonical: "StyleItem.ОсновнойЦвет",
-        constraint: { kind: "styleItem", styleItemTypes: ["Color"] },
+        constraint,
       })
     ).toBe("ЭлементСтиля.ОсновнойЦвет")
   })
 
-  it("parses and formats common pictures", () => {
+  it("parses and formats common pictures through object targets", () => {
+    const constraint = { kind: "object", roots: ["CommonPicture"] } as const
+
     expect(
       parseMetadataTargetFromYAML({
         value: "ОбщаяКартинка.Логотип",
-        constraint: { kind: "commonPicture" },
+        constraint,
       })
-    ).toEqual({
+    ).toMatchObject({
       ok: true,
       canonical: "CommonPicture.Логотип",
-      target: { kind: "commonPicture", name: "Логотип" },
+      target: { kind: "object", root: "CommonPicture", objectName: "Логотип" },
     })
 
     expect(
       parseMetadataTargetFromModel({
         canonical: "CommonPicture.Логотип",
-        constraint: { kind: "commonPicture" },
+        constraint,
       })
-    ).toEqual({
+    ).toMatchObject({
       ok: true,
       canonical: "CommonPicture.Логотип",
-      target: { kind: "commonPicture", name: "Логотип" },
+      target: { kind: "object", root: "CommonPicture", objectName: "Логотип" },
     })
 
     expect(
       formatMetadataTargetToYAML({
         canonical: "CommonPicture.Логотип",
-        constraint: { kind: "commonPicture" },
+        constraint,
       })
     ).toBe("ОбщаяКартинка.Логотип")
   })

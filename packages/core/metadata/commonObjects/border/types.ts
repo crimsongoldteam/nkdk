@@ -1,6 +1,6 @@
 import { Static, Type } from "@sinclair/typebox"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { buildMetadataTargetSchema } from "../metadataTargets"
+import { buildMetadataTargetSchema, type MetadataTargetConstraint } from "../metadataTargets"
 
 export interface Border {
   ref?: string
@@ -19,8 +19,14 @@ export interface BorderXML {
   "v8ui:style"?: string | BorderStyleObject
 }
 
+export const borderStyleItemTarget = {
+  kind: "object",
+  roots: ["StyleItem"],
+  filters: [{ kind: "styleItemType", values: ["Border"] }],
+} as const satisfies MetadataTargetConstraint
+
 export const BorderJSONSchema = Type.Object({
-  Имя: Type.Optional(buildMetadataTargetSchema({ kind: "styleItem", styleItemTypes: ["Border"] })),
+  Имя: Type.Optional(buildMetadataTargetSchema(borderStyleItemTarget)),
   Ширина: Type.Optional(Type.Number()),
   ТипРамки: Type.Optional(Type.String()),
 })

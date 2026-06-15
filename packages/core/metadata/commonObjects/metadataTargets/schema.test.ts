@@ -342,23 +342,27 @@ describe("buildMetadataTargetSchema", () => {
     expect(schema.description).toContain("пригодные для ввода по строке")
   })
 
-  it("returns ordinary JSON Schema for style items", () => {
-    const schema = buildMetadataTargetSchema({ kind: "styleItem", styleItemTypes: ["Font"] })
+  it("returns ordinary JSON Schema for style items through object targets", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "object",
+      roots: ["StyleItem"],
+      filters: [{ kind: "styleItemType", values: ["Font"] }],
+    })
 
     expect(schema).toMatchObject({
       type: "string",
-      pattern: "^ЭлементСтиля\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
+      pattern: "^((ЭлементСтиля)\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
       examples: ["ЭлементСтиля.ИмяЭлементаСтиля"],
     })
     expect(JSON.stringify(schema)).not.toContain("x-nkdk")
   })
 
-  it("returns ordinary JSON Schema for common pictures", () => {
-    const schema = buildMetadataTargetSchema({ kind: "commonPicture" })
+  it("returns ordinary JSON Schema for common pictures through object targets", () => {
+    const schema = buildMetadataTargetSchema({ kind: "object", roots: ["CommonPicture"] })
 
     expect(schema).toMatchObject({
       type: "string",
-      pattern: "^ОбщаяКартинка\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
+      pattern: "^((ОбщаяКартинка)\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
       examples: ["ОбщаяКартинка.ИмяОбщейКартинки"],
     })
     expect(JSON.stringify(schema)).not.toContain("x-nkdk")

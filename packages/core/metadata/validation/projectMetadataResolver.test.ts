@@ -260,6 +260,26 @@ describe("ProjectMetadataResolver", () => {
     })
   })
 
+  it("checks style item type when object target filters are provided", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ЭлементСтиля/ОсновнойЦвет/Свойства.yaml", ["Тип: Цвет", "Значение:", "  Вид: Цвет", "  Значение: '#112233'"])
+    const resolver = createResolver(projectDir)
+    const target = { kind: "object", root: "StyleItem", objectName: "ОсновнойЦвет" } as const
+
+    expect(resolver.resolveObject({ target, filters: [{ kind: "styleItemType", values: ["Color"] }] })).toMatchObject({
+      ok: true,
+    })
+    expect(resolver.resolveObject({ target, filters: [{ kind: "styleItemType", values: ["Font"] }] })).toMatchObject({
+      ok: false,
+      diagnostics: [
+        expect.objectContaining({
+          source: "reference",
+          message: 'Элемент стиля "ЭлементСтиля.ОсновнойЦвет" имеет тип "Color", ожидался: Font',
+        }),
+      ],
+    })
+  })
+
   function createProject(): string {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-project-resolver-"))
     tempDirs.push(projectDir)

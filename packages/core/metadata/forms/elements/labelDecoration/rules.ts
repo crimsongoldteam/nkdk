@@ -24,9 +24,9 @@ export const LabelDecorationRules = {
       runtimeOnly: true,
     },
     ...formDecorationCommonProperties,
-    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
-    border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "styleItem", styleItemTypes: ["Border"] } },
-    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Border"] }] } },
+    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
     horizontalAlign: {
       yaml: "ГоризонтальноеПоложение",
       type: "SystemEnumeration",

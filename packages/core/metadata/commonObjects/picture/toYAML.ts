@@ -4,8 +4,13 @@ import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
 import { exportBooleanToYAML } from "../boolean/toYAML"
-import { formatMetadataTargetToYAML } from "../metadataTargets"
+import { formatMetadataTargetToYAML, type MetadataTargetConstraint } from "../metadataTargets"
 import { isRawPictureRef, type Picture, type PictureYAML, type PictureYAMLExtended } from "./types"
+
+const commonPictureTarget = {
+  kind: "object",
+  roots: ["CommonPicture"],
+} as const satisfies MetadataTargetConstraint
 
 export function exportPictureToYAML(
   context: ConfigurationContext,
@@ -50,7 +55,7 @@ export function exportPictureToYAML(
   } else if (picture.type === "CommonPicture") {
     ref = formatMetadataTargetToYAML({
       canonical: `CommonPicture.${picture.ref}`,
-      constraint: { kind: "commonPicture" },
+      constraint: commonPictureTarget,
     })
   } else {
     ref = picture.ref
