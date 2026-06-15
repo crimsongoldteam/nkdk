@@ -370,4 +370,109 @@ describe("metadataTargets parser", () => {
       message: 'Неизвестный сегмент "Extra"',
     })
   })
+
+  it("parses local member names for the current owner", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ФормаДокумента",
+        owner,
+        constraint: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+      target: {
+        kind: "member",
+        root: "Document",
+        objectName: "АвансовыйОтчет",
+        segments: [{ kind: "Form", name: "ФормаДокумента" }],
+      },
+    })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+        owner,
+        constraint: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      })
+    ).toBe("ФормаДокумента")
+  })
+
+  it("keeps member kind in YAML when several local member kinds are allowed", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+    const constraint = { kind: "member", owner: "this", memberKinds: ["Form", "Template"] } as const
+
+    expect(parseMetadataTargetFromYAML({ value: "Форма.ФормаДокумента", owner, constraint })).toMatchObject({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+    })
+    expect(parseMetadataTargetFromYAML({ value: "Макет.ПечатнаяФорма", owner, constraint })).toMatchObject({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.Template.ПечатнаяФорма",
+    })
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "Document.АвансовыйОтчет.Template.ПечатнаяФорма",
+        owner,
+        constraint,
+      })
+    ).toBe("Макет.ПечатнаяФорма")
+  })
+
+  it("parses explicit owner member paths", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Документ.АвансовыйОтчет.Реквизит.Организация",
+        constraint: { kind: "member", owner: "explicit", roots: ["Document"], memberKinds: ["Attribute"] },
+      })
+    ).toMatchObject({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.Attribute.Организация",
+      target: {
+        kind: "member",
+        root: "Document",
+        objectName: "АвансовыйОтчет",
+        segments: [{ kind: "Attribute", name: "Организация" }],
+      },
+    })
+  })
+
+  it("accepts old canonical full member paths on import and normalizes them on export", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+    const constraint = { kind: "member", owner: "this", memberKinds: ["Form"] } as const
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+        owner,
+        constraint,
+      })
+    ).toMatchObject({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+    })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+        owner,
+        constraint,
+      })
+    ).toBe("ФормаДокумента")
+  })
+
+  it("requires owner context for local member targets", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ФормаДокумента",
+        constraint: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      })
+    ).toEqual({
+      ok: false,
+      code: "invalid-shape",
+      message: 'Для metadataTarget kind "member" owner "this" требуется контекст текущего объекта',
+    })
+  })
 })
