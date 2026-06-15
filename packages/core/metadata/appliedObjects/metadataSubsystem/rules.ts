@@ -84,6 +84,7 @@ export const MetadataSubsystemRules = {
       yaml: "Состав",
       xml: "Content",
       type: "MetadataItemLinks",
+      metadataTarget: { kind: "object", allowNested: true },
       xmlParents: properties,
       defaultValueXMLRaw: {},
     },

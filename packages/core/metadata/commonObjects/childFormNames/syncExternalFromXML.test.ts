@@ -31,6 +31,39 @@ describe("syncChildFormNamesFromXML (через convertAppliedObjectFromXML)", (
     fs.rmSync(outputDir, { recursive: true })
   })
 
+  it("экспортирует ссылку на текущую форму в настройках формы локальным именем", async () => {
+    const tmpRoot = getXMLFixturePath("sync/syncConfiguration/_tmp_form_owner_in")
+    const tmpInputDir = join(tmpRoot, "xml", "Catalogs")
+    const tmpOutputDir = join(tmpRoot, "yaml")
+    const sourceDir = getXMLFixturePath("sync/syncConfiguration/xml/Catalogs")
+    if (fs.existsSync(tmpRoot)) fs.rmSync(tmpRoot, { recursive: true })
+    fs.cpSync(sourceDir, tmpInputDir, { recursive: true })
+
+    const formPath = join(tmpInputDir, name, "Forms", "ФормаЭлемента", "Ext", "Form.xml")
+    const formXml = fs.readFileSync(formPath, "utf-8")
+    fs.writeFileSync(
+      formPath,
+      formXml.replace(
+        /(<Form\b[^>]*>\s*)/,
+        `$1\n\t<SettingsStorage>Catalog.${name}.Form.ФормаЭлемента</SettingsStorage>`
+      ),
+      "utf-8"
+    )
+
+    await convertAppliedObjectFromXML({
+      rule: MetadataCatalogRules,
+      context: mockContextFromXML(),
+      inputDir: tmpInputDir,
+      name,
+      outputDir: tmpOutputDir,
+    })
+
+    const yaml = fs.readFileSync(join(tmpOutputDir, name, "Формы", "ФормаЭлемента", "Форма.yaml"), "utf-8")
+    expect(yaml).toContain("ХранилищеНастроек: ФормаЭлемента")
+
+    fs.rmSync(tmpRoot, { recursive: true })
+  })
+
   it("импортирует только страницы справки формы, перечисленные в Forms/<form>/Ext/Help.xml", async () => {
     const tmpRoot = getXMLFixturePath("sync/syncConfiguration/_tmp_form_help_in")
     const tmpInputDir = join(tmpRoot, "xml", "Catalogs")

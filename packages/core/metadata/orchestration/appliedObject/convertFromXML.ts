@@ -62,10 +62,11 @@ export const convertAppliedObjectFromXML = async (params: {
 
   // Обработчики внешних файлов на уровне объекта (Help, Module, Template со статическими путями)
   const nkdkDir = join(outputDir, name)
+  const contextWithCurrentOwner = withExportMetadataTargetOwner(context, rule.itemType, name)
   for (const [, propRule] of Object.entries(rule.properties)) {
     const syncFn = getTypeRule(propRule.type, "syncExternalFromXML")
     if (!syncFn) continue
-    await syncFn({ context, rule: propRule, xmlDir: inputDir, nkdkDir, name })
+    await syncFn({ context: contextWithCurrentOwner, rule: propRule, xmlDir: inputDir, nkdkDir, name })
   }
 
   await syncChildCollectionsFromXML({

@@ -68,12 +68,16 @@ function metadataTargetNestedOwnerFromRule(params: {
 }): MetadataTargetOwner | undefined {
   const owners =
     params.context?.importFromYAML?.metadataTargetOwners ?? params.context?.exportToYAML?.metadataTargetOwners ?? []
+  if (params.itemRule.itemType === "ClientApplicationForm") {
+    return metadataOwnerFromContext(owners)
+  }
+
   const current = findLastOwner(owners, params.itemRule.itemType)
   const currentName = current?.name ?? params.name
   if (!currentName) return undefined
 
   if (params.itemRule.itemType === "MetadataAttribute") {
-    return metadataAttributeOwnerFromContext(owners)
+    return metadataOwnerFromContext(owners)
   }
 
   const externalDataSource = findLastOwner(owners, "MetadataExternalDataSource")
@@ -124,12 +128,10 @@ const rootByOwnerItemType: Partial<Record<string, MetadataRootName>> = {
   MetadataTask: "Task",
 }
 
-function metadataAttributeOwnerFromContext(
-  owners: readonly { itemType: string; name: string }[]
-): MetadataTargetOwner | undefined {
+function metadataOwnerFromContext(owners: readonly { itemType: string; name: string }[]): MetadataTargetOwner | undefined {
   for (let index = owners.length - 1; index >= 0; index--) {
     const owner = owners[index]
-    if (owner.itemType === "MetadataAttribute") continue
+    if (owner.itemType === "MetadataAttribute" || owner.itemType === "ClientApplicationForm") continue
 
     const root = rootByOwnerItemType[owner.itemType]
     if (root) return { root, objectName: owner.name }
