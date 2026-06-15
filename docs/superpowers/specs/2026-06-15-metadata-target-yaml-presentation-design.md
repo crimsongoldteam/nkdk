@@ -220,7 +220,7 @@ YAML пишет:
 
 ```ts
 type MetadataTargetFilter =
-  | { kind: "type"; values: readonly MetadataTypeFilterValue[] }
+  | { kind: "hasType"; type: MetadataTypeFilterValue }
   | { kind: "styleItemType"; values: readonly ("Color" | "Font" | "Border")[] }
   | { kind: "stringIndexedAttribute" }
 ```
@@ -241,11 +241,30 @@ metadataTarget: {
   kind: "member",
   owner: "this",
   memberKinds: ["Attribute"],
-  filters: [{ kind: "type", values: ["boolean"] }]
+  filters: [{ kind: "hasType", type: "boolean" }]
 }
 ```
 
 Фильтр описывает предметное ограничение, а не способ получения значений. Validate и автодополнение могут реализовать его через граф, индекс YAML или другой resolver, но `rules.ts` не должен знать Cypher.
+
+У каждого фильтра есть два потребителя:
+
+- `validate` / автодополнение применяют фильтр к найденным кандидатам. Для `hasType` это означает: получить модель владельца, перебрать его членов, прочитать `TypeDescription` у кандидата и проверить, содержит ли тип указанное значение.
+- JSON Schema / ИИ получают текстовое описание фильтра. Для `hasType("boolean")`: «допустимы только реквизиты, тип которых содержит Булево». Это описание добавляется в `description`; сама JSON Schema продолжает проверять только форму строки.
+
+Фильтр можно записывать через фабрику для удобства:
+
+```ts
+filters: [hasType("boolean")]
+```
+
+но фабрика должна возвращать данные:
+
+```ts
+{ kind: "hasType", type: "boolean" }
+```
+
+Исполняемая логика фильтра живёт в централизованном registry/resolver-слое metadata validation, а не в `rules.ts` и не в orchestration.
 
 ## YAML-форма
 
