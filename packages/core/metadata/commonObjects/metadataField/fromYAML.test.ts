@@ -39,7 +39,7 @@ describe("importMetadataFieldFromYAML", () => {
 
     expect(() =>
       importFromYAML(mockContext, { ...mockRule, type: "MetadataField" }, "Справочник.Номенклатура.Количество")
-    ).toThrow('Неизвестный сегмент "Количество"')
+    ).toThrow("Некорректный формат цели метаданных")
   })
 
   it("imports full field paths in registered metadata field importer", () => {

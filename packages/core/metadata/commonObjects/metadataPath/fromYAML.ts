@@ -5,7 +5,7 @@ import type { MetadataTargetConstraint } from "~/metadata/commonObjects/metadata
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
-const metadataFieldTargetFallback = { kind: "field", owner: "explicit" } as const satisfies MetadataTargetConstraint
+const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint
 const metadataValueTargetFallback = {
   kind: "value",
   valueKinds: ["predefinedValue", "enumValue", "emptyRef"],
