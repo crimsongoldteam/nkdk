@@ -215,14 +215,25 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
 
   return Type.String({
     pattern: explicitBranches.length === 0 ? noMatchPattern : `^(?:${explicitBranches.join("|")})$`,
-    examples:
-      selectedRoots.length === 0 || memberKinds.length === 0
-        ? []
-        : memberKinds.includes("Attribute")
-          ? ["Документ.АвансовыйОтчет.Реквизит.Организация"]
-          : [`${rootToYAML[selectedRoots[0]]}.ИмяОбъекта.${memberKindToYAML[memberKinds[0]]}.ИмяЧлена`],
+    examples: explicitMemberExamples(selectedRoots, memberKinds),
     description: `Полный путь члена объекта: ${yamlRoots}.<ИмяОбъекта>.${memberGroup}.<ИмяЧлена>.${filterDescriptionSuffix(constraint.filters)}`,
   })
+}
+
+function explicitMemberExamples(
+  selectedRoots: readonly MetadataRootName[],
+  memberKinds: readonly MetadataMemberKind[]
+): string[] {
+  if (selectedRoots.length === 0 || memberKinds.length === 0) return []
+
+  const root = preferredRoot(selectedRoots, "Catalog")
+  if (!root) return []
+
+  const rootPrefix = rootToYAML[root]
+  const objectName = fieldObjectName(root)
+  if (memberKinds.includes("Attribute")) return [`${rootPrefix}.${objectName}.Реквизит.ИмяРеквизита`]
+
+  return [`${rootPrefix}.${objectName}.${memberKindToYAML[memberKinds[0]]}.ИмяЧлена`]
 }
 
 function memberPathPattern(memberKinds: readonly MetadataMemberKind[], source: "yaml" | "model"): string | undefined {

@@ -17,15 +17,19 @@ describe("exportMetadataFieldToJSONSchema", () => {
 
     expect(result).toMatchObject({
       type: "string",
-      examples: ["Документ.АвансовыйОтчет.Реквизит.Организация"],
+      examples: ["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"],
     })
-    expect(new RegExp(String(result?.pattern)).test("Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")).toBe(true)
+    const pattern = new RegExp(String(result?.pattern))
+    const examples = Array.isArray(result?.examples) ? result.examples : []
+
+    expect(pattern.test("Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")).toBe(true)
+    for (const example of examples) expect(pattern.test(String(example))).toBe(true)
     expect(
-      new RegExp(String(result?.pattern)).test(
+      pattern.test(
         "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита"
       )
     ).toBe(true)
-    expect(new RegExp(String(result?.pattern)).test("Документ.ИмяДокумента.Реквизит.ИмяРеквизита")).toBe(false)
+    expect(pattern.test("Документ.ИмяДокумента.Реквизит.ИмяРеквизита")).toBe(false)
   })
 
   it("wraps metadata field schemas into array items", () => {
@@ -45,12 +49,50 @@ describe("exportMetadataFieldToJSONSchema", () => {
       type: "array",
       items: {
         type: "string",
-        examples: ["Документ.АвансовыйОтчет.Реквизит.Организация"],
+        examples: ["Документ.ИмяДокумента.Реквизит.ИмяРеквизита"],
       },
     })
     const itemPattern = String((result as { items?: { pattern?: string } })?.items?.pattern)
 
     expect(new RegExp(itemPattern).test("Документ.ИмяДокумента.Реквизит.ИмяРеквизита")).toBe(true)
     expect(new RegExp(itemPattern).test("Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")).toBe(false)
+  })
+
+  it("uses member fallback for registered metadata field schemas", () => {
+    const exportToJSONSchema = getTypeRule("MetadataField", "exportToJSONSchema")
+
+    const result = exportToJSONSchema?.({
+      context: mockContext,
+      rule: { ...mockRule, type: "MetadataField" },
+      value: undefined,
+    })
+
+    expect(result).toMatchObject({
+      type: "string",
+      examples: ["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"],
+    })
+    expect(new RegExp(String(result?.pattern)).test("Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")).toBe(true)
+    expect(new RegExp(String(result?.pattern)).test("Справочник.ИмяСправочника")).toBe(false)
+  })
+
+  it("uses member fallback for registered metadata fields array schemas", () => {
+    const exportToJSONSchema = getTypeRule("MetadataFields", "exportToJSONSchema")
+
+    const result = exportToJSONSchema?.({
+      context: mockContext,
+      rule: { ...mockRule, type: "MetadataFields" },
+      value: undefined,
+    })
+    const itemPattern = String((result as { items?: { pattern?: string } })?.items?.pattern)
+
+    expect(result).toMatchObject({
+      type: "array",
+      items: {
+        type: "string",
+        examples: ["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"],
+      },
+    })
+    expect(new RegExp(itemPattern).test("Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")).toBe(true)
+    expect(new RegExp(itemPattern).test("Справочник.ИмяСправочника")).toBe(false)
   })
 })

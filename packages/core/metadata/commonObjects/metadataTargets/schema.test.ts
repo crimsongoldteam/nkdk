@@ -295,6 +295,19 @@ describe("buildMetadataTargetSchema", () => {
     expect(compiled.Check("Catalog.АвансовыйОтчет.Attribute.Организация")).toBe(false)
   })
 
+  it("keeps explicit-owner member examples inside allowed roots", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "explicit",
+      roots: ["Catalog"],
+      memberKinds: ["Attribute"],
+    })
+
+    expect(schema.examples).toEqual(["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"])
+    expectMatches(schema, "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")
+    expectNotMatches(schema, "Документ.АвансовыйОтчет.Реквизит.Организация")
+  })
+
   it("describes hasType filters without narrowing the string pattern", () => {
     const schema = buildMetadataTargetSchema({
       kind: "member",
