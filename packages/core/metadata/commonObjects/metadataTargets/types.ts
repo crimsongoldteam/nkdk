@@ -90,6 +90,14 @@ export type MetadataTargetConstraint =
       allowOwner?: boolean
     }
   | {
+      kind: "field"
+      owner: "this" | "explicit"
+      roots?: readonly MetadataRootName[]
+      fieldKinds?: readonly MetadataFieldKind[]
+      filters?: readonly "stringIndexedAttribute"[]
+      allowObject?: boolean
+    }
+  | {
       kind: "value"
       roots?: readonly MetadataRootName[]
       valueKinds?: readonly MetadataValueKind[]
@@ -102,13 +110,19 @@ export type MetadataTargetConstraint =
       primitives?: readonly ("string" | "decimal" | "dateTime" | "boolean" | "ValueStorage")[]
     }
   | { kind: "dataPath"; context: "form"; allowedKinds?: readonly string[]; allowComposite?: boolean }
+  | { kind: "localChild"; owner: "this"; childKind: "Form" | "Template" }
+  | { kind: "styleItem"; styleItemTypes: readonly StyleItemTargetType[] }
+  | { kind: "commonPicture" }
 
 export type ParsedMetadataTarget =
   | { kind: "object"; root: MetadataRootName; objectName: string; segments?: MetadataObjectSegment[] }
   | { kind: "member"; root: MetadataRootName; objectName: string; segments: MetadataMemberSegment[] }
+  | { kind: "field"; root: MetadataRootName; objectName: string; segments: MetadataFieldSegment[] }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "predefinedValue"; valueName: string }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "enumValue"; valueName: string }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "emptyRef" }
+  | { kind: "styleItem"; name: string }
+  | { kind: "commonPicture"; name: string }
 
 export interface MetadataMemberSegment {
   kind: MetadataMemberKind
