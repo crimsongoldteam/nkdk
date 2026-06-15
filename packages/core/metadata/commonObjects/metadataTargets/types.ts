@@ -64,6 +64,7 @@ export type MetadataTypeFilterValue = "string" | "decimal" | "dateTime" | "boole
 export type StyleItemTargetType = "Color" | "Font" | "Border"
 
 export type MetadataTargetFilter =
+  | { kind: "directMember" }
   | { kind: "hasType"; type: MetadataTypeFilterValue }
   | { kind: "styleItemType"; values: readonly StyleItemTargetType[] }
   | { kind: "stringIndexedAttribute" }

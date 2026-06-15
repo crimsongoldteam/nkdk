@@ -145,6 +145,42 @@ describe("ProjectMetadataResolver", () => {
     })
   })
 
+  it("applies directMember filter before hasType to member fields", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [
+      "Реквизиты:",
+      "  Провести:",
+      "    Тип: Булево",
+      "ТабличныеЧасти:",
+      "  Товары:",
+      "    Реквизиты:",
+      "      Использовать:",
+      "        Тип: Булево",
+    ])
+    const resolver = createResolver(projectDir)
+    const filters = [
+      { kind: "directMember" },
+      { kind: "hasType", type: "boolean" },
+    ] as const
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Провести"),
+        filters,
+      }),
+    ).toMatchObject({ ok: true })
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.ТабличнаяЧасть.Товары.Реквизит.Использовать"),
+        filters,
+      }),
+    ).toMatchObject({
+      ok: false,
+      diagnostics: [expect.objectContaining({ message: expect.stringContaining("прямые члены текущего объекта") })],
+    })
+  })
+
   it("resolves templates, commands and tabular-section attributes as members", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [

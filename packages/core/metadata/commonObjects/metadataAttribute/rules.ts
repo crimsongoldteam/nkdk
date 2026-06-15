@@ -292,7 +292,7 @@ const binaryDataStorageLocationUseFieldProperty = {
       kind: "member",
       owner: "this",
       memberKinds: ["Attribute"],
-      filters: [{ kind: "hasType", type: "boolean" }],
+      filters: [{ kind: "directMember" }, { kind: "hasType", type: "boolean" }],
     },
   },
 } as const satisfies Record<string, PropertyRule>

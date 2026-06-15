@@ -121,6 +121,7 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
       const filterResult = applyMetadataTargetFilters({
         filePath: owner.owner.filePath,
         displayName: formatMemberTarget(target),
+        target,
         details: resolved.details,
         filters,
       })
@@ -266,11 +267,20 @@ function ownerRawYaml(params: { filePath: string; yamlCache: ProjectYamlCache })
 function applyMetadataTargetFilters(params: {
   filePath: string
   displayName: string
+  target: Extract<ParsedMetadataTarget, { kind: "member" }>
   details: ResolvedMemberDetails
   filters: readonly MetadataTargetFilter[] | undefined
 }): MetadataResolveResult {
   for (const filter of params.filters ?? []) {
     switch (filter.kind) {
+      case "directMember":
+        if (params.target.segments.length !== 1) {
+          return referenceError(
+            params.filePath,
+            `Член "${params.displayName}" не подходит: ожидаются прямые члены текущего объекта`,
+          )
+        }
+        break
       case "hasType":
         if (!matchesHasTypeFilter(params.details, filter.type)) {
           return referenceError(

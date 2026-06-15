@@ -306,6 +306,8 @@ function filterDescriptionSuffix(filters: readonly MetadataTargetFilter[] | unde
 
 function filterDescription(filter: MetadataTargetFilter): string {
   switch (filter.kind) {
+    case "directMember":
+      return "Допустимы только прямые члены текущего объекта без перехода через вложенных владельцев."
     case "hasType":
       return `Допустимы только члены, тип которых содержит ${typeFilterToYAML[filter.type]}.`
     case "styleItemType":

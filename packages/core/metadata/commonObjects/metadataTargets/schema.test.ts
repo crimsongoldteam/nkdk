@@ -313,9 +313,10 @@ describe("buildMetadataTargetSchema", () => {
       kind: "member",
       owner: "this",
       memberKinds: ["Attribute"],
-      filters: [{ kind: "hasType", type: "boolean" }],
+      filters: [{ kind: "directMember" }, { kind: "hasType", type: "boolean" }],
     })
 
+    expect(schema.description).toContain("прямые члены текущего объекта")
     expect(schema.description).toContain("тип которых содержит Булево")
   })
 
