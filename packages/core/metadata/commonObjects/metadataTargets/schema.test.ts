@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { TypeCompiler } from "@sinclair/typebox/compiler"
 import type { TSchema } from "@sinclair/typebox"
 import { buildMetadataTargetSchema } from "./index"
 
@@ -236,6 +237,44 @@ describe("buildMetadataTargetSchema", () => {
       pattern: "^[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
       examples: ["ИмяМакета"],
     })
+  })
+
+  it("keeps legacy local child schema for current-owner forms", () => {
+    const schema = buildMetadataTargetSchema({ kind: "localChild", owner: "this", childKind: "Form" })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(compiled.Check("ИмяФормы")).toBe(true)
+    expect(compiled.Check("Форма.ИмяФормы")).toBe(false)
+  })
+
+  it("builds local member schema for single current-owner member kind", () => {
+    const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", memberKinds: ["Form"] })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(compiled.Check("ФормаДокумента")).toBe(true)
+    expect(compiled.Check("Document.АвансовыйОтчет.Form.ФормаДокумента")).toBe(true)
+    expect(compiled.Check("Форма.ФормаДокумента")).toBe(false)
+    expect(schema.description).toContain("Имя дочерней формы текущего объекта")
+  })
+
+  it("keeps member kind in schema when several current-owner member kinds are allowed", () => {
+    const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", memberKinds: ["Form", "Template"] })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(compiled.Check("Форма.ФормаДокумента")).toBe(true)
+    expect(compiled.Check("Макет.ПечатнаяФорма")).toBe(true)
+    expect(compiled.Check("ФормаДокумента")).toBe(false)
+  })
+
+  it("describes hasType filters without narrowing the string pattern", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "this",
+      memberKinds: ["Attribute"],
+      filters: [{ kind: "hasType", type: "boolean" }],
+    })
+
+    expect(schema.description).toContain("тип которых содержит Булево")
   })
 
   it("returns ordinary JSON Schema for style items", () => {
