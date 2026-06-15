@@ -400,6 +400,42 @@ describe("metadataTargets parser", () => {
     ).toBe("ФормаДокумента")
   })
 
+  it("parses local member paths through tabular sections for the current owner", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ТабличнаяЧасть.Товары.Реквизит.Количество",
+        owner,
+        constraint: { kind: "member", owner: "this", memberKinds: ["Attribute"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.TabularSection.Товары.Attribute.Количество",
+      target: {
+        kind: "member",
+        root: "Document",
+        objectName: "АвансовыйОтчет",
+        segments: [
+          { kind: "TabularSection", name: "Товары" },
+          { kind: "Attribute", name: "Количество" },
+        ],
+      },
+    })
+  })
+
+  it("rejects local member kind segments when only one member kind is allowed", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+
+    const result = parseMetadataTargetFromYAML({
+      value: "Форма.ФормаДокумента",
+      owner,
+      constraint: { kind: "member", owner: "this", memberKinds: ["Form"] },
+    })
+
+    expect(result).toMatchObject({ ok: false, code: "invalid-shape" })
+  })
+
   it("keeps member kind in YAML when several local member kinds are allowed", () => {
     const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
     const constraint = { kind: "member", owner: "this", memberKinds: ["Form", "Template"] } as const

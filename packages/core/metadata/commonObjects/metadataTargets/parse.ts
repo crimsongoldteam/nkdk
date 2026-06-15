@@ -302,11 +302,16 @@ function parseLocalOwnerMember(
 ): MetadataTargetParseResult {
   const memberKinds = constraint.memberKinds ?? allMemberKinds()
   const canOmitKind = memberKinds.length === 1
-  const localParts = canOmitKind ? [memberKinds[0], parts[0]] : [parts[0], parts[1]]
-  const source = canOmitKind ? "model" : "yaml"
 
-  if (parts.length !== 1 && parts.length !== 2) return invalidShape()
-  return parseMemberSegments(owner.root, owner.objectName, localParts, constraint, source)
+  if (canOmitKind && parts.length === 1) {
+    return parseMemberSegments(owner.root, owner.objectName, [memberKinds[0], parts[0]], constraint, "model")
+  }
+
+  if (canOmitKind && parts.length === 2) {
+    return invalidShape()
+  }
+
+  return parseMemberSegments(owner.root, owner.objectName, parts, constraint, "yaml")
 }
 
 function parseMemberSegments(
