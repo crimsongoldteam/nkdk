@@ -106,6 +106,94 @@ describe("validateMetadataTargetsInModel", () => {
     ])
   })
 
+  it("validates owner object references accepted by member targets with allowOwner", () => {
+    const rule: MetadataItemRule = {
+      itemType: "MetadataFunctionalOption",
+      properties: {
+        content: {
+          type: "string",
+          yaml: "Состав",
+          metadataTarget: { kind: "member", owner: "explicit", allowOwner: true },
+        },
+      },
+    } as never
+
+    const diagnostics = validateMetadataTargetsInModel({
+      filePath: "/tmp/ФункциональнаяОпция/Опция/Свойства.yaml",
+      parsed: { doc: { contents: undefined }, lineCounter: { linePos: () => ({ line: 1, col: 1 }) } } as never,
+      model: { itemType: "MetadataFunctionalOption", content: "Catalog.НетТакого" } as never,
+      rule,
+      resolver: {
+        resolveObject() {
+          return {
+            ok: false,
+            diagnostics: [
+              {
+                filePath: "/tmp/Справочник/НетТакого/Свойства.yaml",
+                line: 1,
+                col: 1,
+                source: "reference",
+                severity: "error",
+                message: 'Не найден объект "Справочник.НетТакого"',
+              },
+            ],
+          }
+        },
+      } as never,
+    })
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        source: "reference",
+        severity: "error",
+        message: 'Не найден объект "Справочник.НетТакого"',
+      }),
+    ])
+  })
+
+  it("passes object target filters from validation handlers to resolver", () => {
+    const calls: unknown[] = []
+    const rule: MetadataItemRule = {
+      itemType: "MetadataCatalog",
+      properties: {
+        styleColor: {
+          type: "MetadataItemLink",
+          yaml: "Цвет",
+          metadataTarget: {
+            kind: "object",
+            roots: ["StyleItem"],
+            filters: [{ kind: "styleItemType", values: ["Color"] }],
+          },
+        },
+      },
+    } as never
+
+    const diagnostics = validateMetadataTargetsInModel({
+      filePath: "/tmp/Справочник/Товары/Свойства.yaml",
+      parsed: { doc: { contents: undefined }, lineCounter: { linePos: () => ({ line: 1, col: 1 }) } } as never,
+      model: { itemType: "MetadataCatalog", styleColor: "StyleItem.ОсновнойЦвет" } as never,
+      rule,
+      resolver: {
+        resolveObject(params: unknown) {
+          calls.push(params)
+          return { ok: true }
+        },
+      } as never,
+    })
+
+    expect(diagnostics).toEqual([])
+    expect(calls).toEqual([
+      expect.objectContaining({
+        filters: [{ kind: "styleItemType", values: ["Color"] }],
+        target: expect.objectContaining({
+          kind: "object",
+          root: "StyleItem",
+          objectName: "ОсновнойЦвет",
+        }),
+      }),
+    ])
+  })
+
   it("validates metadata targets in nested collection items", () => {
     const calls: unknown[] = []
     const testCollectionType = "__MetadataTargetTraversalNestedCollectionUnit" as never
