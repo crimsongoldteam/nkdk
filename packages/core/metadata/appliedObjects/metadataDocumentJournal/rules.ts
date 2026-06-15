@@ -76,14 +76,14 @@ export const MetadataDocumentJournalRules = {
       yaml: "ОсновнаяФорма",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
       defaultValueXMLRaw: "",
     },
     auxiliaryForm: {
       yaml: "ДополнительнаяФорма",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
       defaultValueXMLRaw: "",
     },
     useStandardCommands: {

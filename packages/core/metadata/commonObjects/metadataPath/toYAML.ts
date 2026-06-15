@@ -1,7 +1,7 @@
 import { Context } from "vm"
 import { formatMetadataTargetToYAML } from "~/metadata/commonObjects/metadataTargets"
 import { isMetadataRootName } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
+import type { MetadataTargetConstraint, MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
@@ -15,17 +15,19 @@ const metadataValueTargetFallback = {
 export const exportMetadataFieldStringToYAML = (
   _context: Context,
   rule: PropertyRule | undefined,
-  name: string
+  name: string,
+  owner?: MetadataTargetOwner
 ): string | undefined => {
-  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataFieldTargetFallback))
+  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataFieldTargetFallback), owner)
 }
 
 export const exportMetadataObjectStringToYAML = (
   _context: Context,
   rule: PropertyRule | undefined,
-  name: string
+  name: string,
+  owner?: MetadataTargetOwner
 ): string | undefined => {
-  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataObjectTargetFallback))
+  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataObjectTargetFallback), owner)
 }
 
 export const exportMetadataValueStringToYAML = (
@@ -49,9 +51,13 @@ function metadataTargetForRule(
   return fallback
 }
 
-function formatMetadataTargetStringToYAML(name: string, constraint: MetadataTargetConstraint): string | undefined {
+function formatMetadataTargetStringToYAML(
+  name: string,
+  constraint: MetadataTargetConstraint,
+  owner?: MetadataTargetOwner
+): string | undefined {
   try {
-    return formatMetadataTargetToYAML({ canonical: name, constraint })
+    return formatMetadataTargetToYAML({ canonical: name, constraint, owner })
   } catch (error) {
     if (isMetadataTargetLikeModel(name)) throw error
     return undefined

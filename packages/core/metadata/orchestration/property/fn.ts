@@ -46,6 +46,7 @@ export type ImportFromYAMLFunctionNew = (params: {
   source?: any
   value: any
   name?: string
+  owner?: MetadataTargetOwner
 }) => any | undefined
 
 export type importFromYAMLFunction = (
@@ -66,6 +67,7 @@ export type ExportToYAMLFunctionNew = (params: {
   rule: PropertyRule
   value: any
   name?: string
+  owner?: MetadataTargetOwner
 }) => any | undefined
 
 export type ExportToEnterpriseFunction = (params: {

@@ -117,6 +117,7 @@ export const importPropertyFromYAML = (params: {
       source: sourceValue,
       yaml,
       name,
+      owner: params.owner,
     })
     return getValueOrDefault({
       context,

@@ -101,6 +101,7 @@ export const exportPropertyToYAML = (params: {
       rule,
       value,
       name: name,
+      owner: params.owner,
     })
     const exportedValue =
       rule.type === "string" ? exportStringMetadataTargetToYAML({ rule, value: typedValue, owner: params.owner }) : typedValue

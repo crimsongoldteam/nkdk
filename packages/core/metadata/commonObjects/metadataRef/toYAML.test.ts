@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { getTypeRule } from "~/metadata/orchestration"
-import { ExportToYAMLFunction } from "~/metadata/orchestration/property/fn"
+import { ExportToYAMLFunctionNew } from "~/metadata/orchestration/property/fn"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportMetadataItemLinkToYAML, exportMetadataItemLinksToYAML } from "./toYAML"
 
@@ -18,9 +18,9 @@ describe("exportMetadataItemLinkToYAML", () => {
   })
 
   it("should register metadata item link YAML exporter", () => {
-    const exportToYAML = getTypeRule("MetadataItemLink", "exportToYAML") as ExportToYAMLFunction
+    const exportToYAML = getTypeRule("MetadataItemLink", "exportToYAML") as ExportToYAMLFunctionNew
 
-    const result = exportToYAML(mockContext, mockRule, "Document.Встреча")
+    const result = exportToYAML({ context: mockContext, rule: mockRule, value: "Document.Встреча" })
 
     expect(result).toEqual("Документ.Встреча")
   })

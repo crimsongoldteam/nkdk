@@ -1,7 +1,7 @@
 import { Context } from "vm"
 import { parseMetadataTargetFromYAML } from "~/metadata/commonObjects/metadataTargets"
 import { isMetadataRootName, rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
+import type { MetadataTargetConstraint, MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
@@ -15,17 +15,19 @@ const metadataValueTargetFallback = {
 export const importMetadataFieldStringFromYAML = (
   _context: Context,
   rule: PropertyRule | undefined,
-  name: string
+  name: string,
+  owner?: MetadataTargetOwner
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataFieldTargetFallback))
+  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataFieldTargetFallback), owner)
 }
 
 export const importMetadataObjectStringFromYAML = (
   _context: Context,
   rule: PropertyRule | undefined,
-  name: string
+  name: string,
+  owner?: MetadataTargetOwner
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataObjectTargetFallback))
+  return parseMetadataTargetStringFromYAML(name, metadataTargetForRule(rule, metadataObjectTargetFallback), owner)
 }
 
 export const importMetadataValueStringFromYAML = (
@@ -47,8 +49,12 @@ function metadataTargetForRule(
   return fallback
 }
 
-function parseMetadataTargetStringFromYAML(name: string, constraint: MetadataTargetConstraint): string | undefined {
-  const result = parseMetadataTargetFromYAML({ value: name, constraint })
+function parseMetadataTargetStringFromYAML(
+  name: string,
+  constraint: MetadataTargetConstraint,
+  owner?: MetadataTargetOwner
+): string | undefined {
+  const result = parseMetadataTargetFromYAML({ value: name, constraint, owner })
   if (result.ok) return result.canonical
   if (!isMetadataTargetLikeYAML(name)) return undefined
 

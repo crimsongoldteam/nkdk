@@ -74,14 +74,14 @@ export const MetadataCalculationRegisterRules = {
       yaml: "ОсновнаяФормаСписка",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
       defaultValueXMLRaw: "",
     },
     auxiliaryListForm: {
       yaml: "ДополнительнаяФормаСписка",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
       defaultValueXMLRaw: "",
     },
     periodicity: {

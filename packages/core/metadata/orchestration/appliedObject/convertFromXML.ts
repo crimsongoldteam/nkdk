@@ -35,6 +35,7 @@ export const convertAppliedObjectFromXML = async (params: {
 
   if (!model) return
   const mutableModel = toMutableMetadataRecord(model)
+  mutableModel.name = name
   addReferenceNamesFromXML({
     model: mutableModel,
     rule,

@@ -261,7 +261,7 @@ function parseMemberTargetFromYAML(
     if (fullModel.ok) return ensureCurrentOwner(fullModel.target, owner)
 
     const fullYaml = parseRootedTargetFromYAML(parts, constraint, (root, objectName, tail) =>
-      parseMemberSegments(root, objectName, tail, constraint, "yaml")
+      parseMemberOrOwnerTarget(root, objectName, tail, constraint, "yaml")
     )
     if (fullYaml.ok) return ensureCurrentOwner(fullYaml.target, owner)
 
@@ -273,7 +273,7 @@ function parseMemberTargetFromYAML(
   if (fullModel.ok) return fullModel
 
   return parseRootedTargetFromYAML(parts, constraint, (root, objectName, tail) =>
-    parseMemberSegments(root, objectName, tail, constraint, "yaml")
+    parseMemberOrOwnerTarget(root, objectName, tail, constraint, "yaml")
   )
 }
 
@@ -283,7 +283,7 @@ function parseMemberTargetFromModel(
   owner: MetadataTargetOwner | undefined
 ): MetadataTargetParseResult {
   const parsed = parseRootedTargetFromModel(parts, constraint, (root, objectName, tail) =>
-    parseMemberSegments(root, objectName, tail, constraint, "model")
+    parseMemberOrOwnerTarget(root, objectName, tail, constraint, "model")
   )
   if (!parsed.ok || constraint.owner !== "this") return parsed
   return ensureCurrentOwner(parsed.target, owner)
@@ -294,8 +294,22 @@ function parseFullModelMemberCompatibility(
   constraint: Extract<MetadataTargetConstraint, { kind: "member" }>
 ): MetadataTargetParseResult {
   return parseRootedTargetFromModel(parts, constraint, (root, objectName, tail) =>
-    parseMemberSegments(root, objectName, tail, constraint, "model")
+    parseMemberOrOwnerTarget(root, objectName, tail, constraint, "model")
   )
+}
+
+function parseMemberOrOwnerTarget(
+  root: MetadataRootName,
+  objectName: string,
+  tail: readonly string[],
+  constraint: Extract<MetadataTargetConstraint, { kind: "member" }>,
+  source: "yaml" | "model"
+): MetadataTargetParseResult {
+  if (tail.length === 0 && constraint.allowOwner === true) {
+    return success(`${root}.${objectName}`, { kind: "object", root, objectName })
+  }
+
+  return parseMemberSegments(root, objectName, tail, constraint, source)
 }
 
 function parseLocalOwnerMember(
@@ -368,7 +382,7 @@ function ensureCurrentOwner(
   target: ParsedMetadataTarget,
   owner: MetadataTargetOwner | undefined
 ): MetadataTargetParseResult {
-  if (target.kind !== "member") return success(formatCanonicalTarget(target), target)
+  if (target.kind !== "member" && target.kind !== "object") return success(formatCanonicalTarget(target), target)
   if (!owner) return missingOwnerContext()
   if (target.root !== owner.root || target.objectName !== owner.objectName) {
     return error("disallowed-root", `Цель "${formatCanonicalTarget(target)}" не принадлежит текущему объекту`)

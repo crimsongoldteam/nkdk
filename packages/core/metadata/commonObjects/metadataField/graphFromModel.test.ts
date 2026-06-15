@@ -19,7 +19,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Справочник.X.Реквизит.Y
+  - Справочник.Товары.Реквизит.Y
 ` },
       kind: "catalog",
       name: "Товары",
@@ -29,7 +29,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
 
     const edges = fieldEdges(graph, "Catalog.Товары")
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Catalog.X.Attribute.Y")
+    expect(edges[0].target).toBe("Catalog.Товары.Attribute.Y")
   })
 
   it("реквизит табличной части → полный node ID с ТабличнаяЧасть и Реквизит", () => {
@@ -38,7 +38,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Справочник.Контрагенты.ТабличнаяЧасть.Контакты.Реквизит.Email
+  - Справочник.Товары.ТабличнаяЧасть.Контакты.Реквизит.Email
 ` },
       kind: "catalog",
       name: "Товары",
@@ -48,7 +48,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
 
     const edges = fieldEdges(graph, "Catalog.Товары")
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Catalog.Контрагенты.TabularSection.Контакты.Attribute.Email")
+    expect(edges[0].target).toBe("Catalog.Товары.TabularSection.Контакты.Attribute.Email")
   })
 
   it("стандартный реквизит → полный node ID с СтандартныйРеквизит", () => {
@@ -57,7 +57,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Справочник.X.СтандартныйРеквизит.Наименование
+  - Справочник.Товары.СтандартныйРеквизит.Наименование
 ` },
       kind: "catalog",
       name: "Товары",
@@ -67,7 +67,7 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
 
     const edges = fieldEdges(graph, "Catalog.Товары")
     expect(edges).toHaveLength(1)
-    expect(edges[0].target).toBe("Catalog.X.StandardAttribute.Description")
+    expect(edges[0].target).toBe("Catalog.Товары.StandardAttribute.Description")
   })
 
   it("несколько ссылок → несколько рёбер Поле", () => {
@@ -76,9 +76,9 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Справочник.A.Реквизит.П1
-  - Справочник.B.Реквизит.П2
-  - Справочник.C.Реквизит.П3
+  - Справочник.Товары.Реквизит.П1
+  - Справочник.Товары.Реквизит.П2
+  - Справочник.Товары.Реквизит.П3
 ` },
       kind: "catalog",
       name: "Товары",
@@ -90,9 +90,9 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
     expect(edges).toHaveLength(3)
     const targets = edges.map((e) => e.target).sort()
     expect(targets).toEqual([
-      "Catalog.A.Attribute.П1",
-      "Catalog.B.Attribute.П2",
-      "Catalog.C.Attribute.П3",
+      "Catalog.Товары.Attribute.П1",
+      "Catalog.Товары.Attribute.П2",
+      "Catalog.Товары.Attribute.П3",
     ])
   })
 
@@ -102,8 +102,8 @@ describe("MetadataFields graph extraction (ВводПоСтроке)", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Справочник.A.Реквизит.П1
-  - Справочник.B.Реквизит.П2
+  - Справочник.Товары.Реквизит.П1
+  - Справочник.Товары.Реквизит.П2
 ` },
       kind: "catalog",
       name: "Товары",

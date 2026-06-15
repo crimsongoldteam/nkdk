@@ -27,11 +27,15 @@ export function exportStringMetadataTargetToYAML(params: {
   const constraint = params.rule.metadataTarget
   if (typeof value !== "string" || value === "" || !isSupportedStringMetadataTarget(constraint)) return value
 
-  return formatMetadataTargetToYAML({
-    canonical: value,
-    constraint,
-    owner: params.owner,
-  })
+  try {
+    return formatMetadataTargetToYAML({
+      canonical: value,
+      constraint,
+      owner: params.owner,
+    })
+  } catch {
+    return value
+  }
 }
 
 export function importStringMetadataTargetFromYAML(params: {
@@ -48,7 +52,7 @@ export function importStringMetadataTargetFromYAML(params: {
     constraint,
     owner: params.owner,
   })
-  if (!result.ok) throw new Error(result.message)
+  if (!result.ok) return value
   return result.canonical
 }
 

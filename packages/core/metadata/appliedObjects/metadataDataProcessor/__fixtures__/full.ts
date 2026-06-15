@@ -132,7 +132,7 @@ export const full: MetadataDataProcessor = {
 export const fullYAML: MetadataDataProcessorYAML = {
   Синоним: "Синоним",
   Комментарий: "Комментарий",
-  ОсновнаяФорма: "DataProcessor.ОбработкаВсеСвойства.Form.Форма",
+  ОсновнаяФорма: "Форма",
   РасширенноеПредставление: "Расширенное представление",
   Пояснение: "Пояснение\n",
   Реквизиты: {

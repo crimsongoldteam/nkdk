@@ -57,7 +57,7 @@ export const MetadataFunctionalOptionRules = {
       yaml: "СоставФункциональнойОпции",
       xml: "Content",
       type: "MetadataItemLinks",
-      metadataTarget: { kind: "field", owner: "explicit", allowObject: true },
+      metadataTarget: { kind: "member", owner: "explicit", allowOwner: true },
       xmlParents: properties,
       metadataItemLinksXMLItem: "xr:Object",
       defaultValueXMLRaw: "",

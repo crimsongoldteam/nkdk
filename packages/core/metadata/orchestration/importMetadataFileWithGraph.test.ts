@@ -112,8 +112,8 @@ describe("importMetadataFileWithGraph — catalog", () => {
       filePath: FILE_PATH,
       sources: { yaml: `
 ВводПоСтроке:
-  - Справочник.A.Реквизит.П1
-  - Справочник.B.Реквизит.П2
+  - Справочник.Товары.Реквизит.П1
+  - Справочник.Товары.Реквизит.П2
 ` },
       kind: "catalog",
       name: "Товары",
@@ -131,12 +131,12 @@ describe("importMetadataFileWithGraph — catalog", () => {
       })),
     ).toEqual([
       {
-        target: "Catalog.A.Attribute.П1",
+        target: "Catalog.Товары.Attribute.П1",
         positionFrom: { offset: 19, line: 3, column: 5 },
       },
       {
-        target: "Catalog.B.Attribute.П2",
-        positionFrom: { offset: 48, line: 4, column: 5 },
+        target: "Catalog.Товары.Attribute.П2",
+        positionFrom: { offset: 53, line: 4, column: 5 },
       },
     ])
   })

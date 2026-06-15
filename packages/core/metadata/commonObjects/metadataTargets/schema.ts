@@ -208,6 +208,9 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
 
   const yamlRoots = yamlRootGroup(constraint.roots)
   const explicitBranches: string[] = []
+  if (constraint.allowOwner === true && selectedRoots.length > 0) {
+    explicitBranches.push(`(?:${yamlRoots})\\.${METADATA_NAME_PATTERN}`)
+  }
   if (selectedRoots.length > 0 && yamlMemberPath) {
     explicitBranches.push(`(?:${yamlRoots})\\.${METADATA_NAME_PATTERN}\\.${yamlMemberPath}`)
   }
@@ -216,7 +219,7 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
   return Type.String({
     pattern: explicitBranches.length === 0 ? noMatchPattern : `^(?:${explicitBranches.join("|")})$`,
     examples: explicitMemberExamples(selectedRoots, memberKinds),
-    description: `Полный путь члена объекта: ${yamlRoots}.<ИмяОбъекта>.${memberGroup}.<ИмяЧлена>.${filterDescriptionSuffix(constraint.filters)}`,
+    description: `Полный путь члена объекта: ${yamlRoots}.<ИмяОбъекта>.${memberGroup}.<ИмяЧлена>.${filterDescriptionSuffix(constraint.filters)}${constraint.allowOwner === true ? " Также разрешена ссылка на объект-владелец без члена." : ""}`,
   })
 }
 
