@@ -269,6 +269,9 @@ function parseMemberTargetFromYAML(
     return parseLocalOwnerMember(parts, constraint, owner)
   }
 
+  const fullModel = parseFullModelMemberCompatibility(parts, constraint)
+  if (fullModel.ok) return fullModel
+
   return parseRootedTargetFromYAML(parts, constraint, (root, objectName, tail) =>
     parseMemberSegments(root, objectName, tail, constraint, "yaml")
   )

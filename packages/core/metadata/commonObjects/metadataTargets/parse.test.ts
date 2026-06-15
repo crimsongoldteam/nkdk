@@ -505,6 +505,24 @@ describe("metadataTargets parser", () => {
     })
   })
 
+  it("accepts canonical model member paths for explicit owner constraints in YAML", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Document.АвансовыйОтчет.Attribute.Организация",
+        constraint: { kind: "member", owner: "explicit", roots: ["Document"], memberKinds: ["Attribute"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.Attribute.Организация",
+      target: {
+        kind: "member",
+        root: "Document",
+        objectName: "АвансовыйОтчет",
+        segments: [{ kind: "Attribute", name: "Организация" }],
+      },
+    })
+  })
+
   it("accepts old canonical full member paths on import and normalizes them on export", () => {
     const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
     const constraint = { kind: "member", owner: "this", memberKinds: ["Form"] } as const
