@@ -210,6 +210,22 @@ describe("ProjectMetadataResolver", () => {
     ).toMatchObject({ ok: true })
   })
 
+  it("resolves chart of accounts accounting flags as members", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ПланСчетов/Хозрасчетный/Свойства.yaml", [
+      "ПризнакиУчета:",
+      "  УчетПоНаправлениямДеятельности:",
+      "    Синоним: Учет по направлениям деятельности",
+      "    Тип: Булево",
+    ])
+    const resolver = createResolver(projectDir)
+
+    const result = resolver.resolveMember({
+      target: memberTarget("ПланСчетов.Хозрасчетный.ПризнакУчета.УчетПоНаправлениямДеятельности"),
+    })
+    expect(result).toMatchObject({ ok: true })
+  })
+
   it("applies stringIndexedAttribute filter to member fields", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [

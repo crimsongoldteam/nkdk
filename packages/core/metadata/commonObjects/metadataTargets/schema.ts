@@ -132,6 +132,8 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
   const selectedRoots = selectRoots(constraint.roots)
   const yamlMemberPath = memberPathPattern(memberKinds, "yaml")
   const modelMemberPath = memberPathPattern(memberKinds, "model")
+  const objectBranches = memberObjectPathPatterns(constraint, "yaml")
+  const modelObjectBranches = memberObjectPathPatterns(constraint, "model")
   const fullModelCompatibility =
     selectedRoots.length === 0 || !modelMemberPath
       ? undefined
@@ -142,6 +144,7 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
     const branches = [METADATA_NAME_PATTERN]
     branches.push(nestedLocalMemberPathPattern(kind, "yaml"))
     if (fullModelCompatibility) branches.push(fullModelCompatibility)
+    branches.push(...objectBranches, ...modelObjectBranches)
 
     return Type.String({
       pattern: `^(?:${branches.join("|")})$`,
@@ -154,6 +157,7 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
     const branches = []
     if (yamlMemberPath) branches.push(yamlMemberPath)
     if (fullModelCompatibility) branches.push(fullModelCompatibility)
+    branches.push(...objectBranches, ...modelObjectBranches)
 
     return Type.String({
       pattern: branches.length === 0 ? noMatchPattern : `^(?:${branches.join("|")})$`,
@@ -171,6 +175,7 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
     explicitBranches.push(`(?:${yamlRoots})\\.${METADATA_NAME_PATTERN}\\.${yamlMemberPath}`)
   }
   if (fullModelCompatibility) explicitBranches.push(fullModelCompatibility)
+  explicitBranches.push(...objectBranches, ...modelObjectBranches)
 
   return Type.String({
     pattern: explicitBranches.length === 0 ? noMatchPattern : `^(?:${explicitBranches.join("|")})$`,
@@ -201,6 +206,35 @@ function memberPathPattern(memberKinds: readonly MetadataMemberKind[], source: "
   const tabularSection = source === "yaml" ? memberKindToYAML.TabularSection : "TabularSection"
   const terminalGroup = source === "yaml" ? memberKinds.map((kind) => memberKindToYAML[kind]).join("|") : memberKinds.join("|")
   return `(?:${tabularSection}\\.${METADATA_NAME_PATTERN}\\.)*(?:${terminalGroup})\\.${METADATA_NAME_PATTERN}`
+}
+
+function memberObjectPathPatterns(
+  constraint: Extract<MetadataTargetConstraint, { kind: "member" }>,
+  source: "yaml" | "model"
+): string[] {
+  const simpleRoots = uniqueRoots([...(constraint.objectRoots ?? []), ...(constraint.nestedObjectRoots ?? [])])
+  const nestedRoots = uniqueRoots(constraint.nestedObjectRoots ?? [])
+  const branches: string[] = []
+
+  if (simpleRoots.length > 0) {
+    branches.push(`(?:${rootGroup(simpleRoots, source)})\\.${METADATA_NAME_PATTERN}`)
+  }
+
+  if (nestedRoots.length > 0) {
+    branches.push(
+      `(?:${rootGroup(nestedRoots, source)})\\.${METADATA_NAME_PATTERN}(?:\\.(?:${rootGroup(nestedRoots, source)})\\.${METADATA_NAME_PATTERN})+`
+    )
+  }
+
+  return branches
+}
+
+function rootGroup(roots: readonly MetadataRootName[], source: "yaml" | "model"): string {
+  return source === "yaml" ? yamlRootGroup(roots) : modelRootGroup(roots)
+}
+
+function uniqueRoots(roots: readonly MetadataRootName[]): MetadataRootName[] {
+  return [...new Set(roots)]
 }
 
 function nestedLocalMemberPathPattern(kind: MetadataMemberKind, source: "yaml" | "model"): string {

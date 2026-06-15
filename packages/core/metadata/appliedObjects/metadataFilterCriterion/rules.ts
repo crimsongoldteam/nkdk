@@ -89,14 +89,14 @@ export const MetadataFilterCriterionRules = {
       yaml: "ОсновнаяФорма",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     },
     auxiliaryForm: {
       yaml: "ВспомогательнаяФорма",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     },
     managerModule: {

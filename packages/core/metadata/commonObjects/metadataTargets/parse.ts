@@ -187,8 +187,14 @@ function parseMemberTargetFromYAML(
   owner: MetadataTargetOwner | undefined
 ): MetadataTargetParseResult {
   if (constraint.owner === "this") {
+    const objectModel = parseMemberObjectTargetFromModel(parts, constraint)
+    if (objectModel.ok) return objectModel
+
     const fullModel = parseFullModelMemberCompatibility(parts, constraint)
     if (fullModel.ok) return ensureCurrentOwner(fullModel.target, owner)
+
+    const objectYaml = parseMemberObjectTargetFromYAML(parts, constraint)
+    if (objectYaml.ok) return objectYaml
 
     const fullYaml = parseRootedTargetFromYAML(parts, constraint, (root, objectName, tail) =>
       parseMemberOrOwnerTarget(root, objectName, tail, constraint, "yaml")
@@ -199,8 +205,14 @@ function parseMemberTargetFromYAML(
     return parseLocalOwnerMember(parts, constraint, owner)
   }
 
+  const objectModel = parseMemberObjectTargetFromModel(parts, constraint)
+  if (objectModel.ok) return objectModel
+
   const fullModel = parseFullModelMemberCompatibility(parts, constraint)
   if (fullModel.ok) return fullModel
+
+  const objectYaml = parseMemberObjectTargetFromYAML(parts, constraint)
+  if (objectYaml.ok) return objectYaml
 
   return parseRootedTargetFromYAML(parts, constraint, (root, objectName, tail) =>
     parseMemberOrOwnerTarget(root, objectName, tail, constraint, "yaml")
@@ -212,6 +224,9 @@ function parseMemberTargetFromModel(
   constraint: Extract<MetadataTargetConstraint, { kind: "member" }>,
   owner: MetadataTargetOwner | undefined
 ): MetadataTargetParseResult {
+  const objectTarget = parseMemberObjectTargetFromModel(parts, constraint)
+  if (objectTarget.ok) return objectTarget
+
   if (constraint.owner === "this" && owner) {
     const ownerPrefixed = parseOwnerPrefixedModelMember(parts, constraint, owner)
     if (ownerPrefixed.ok) return ownerPrefixed
@@ -222,6 +237,51 @@ function parseMemberTargetFromModel(
   )
   if (!parsed.ok || constraint.owner !== "this") return parsed
   return ensureCurrentOwner(parsed.target, owner)
+}
+
+function parseMemberObjectTargetFromYAML(
+  parts: readonly string[],
+  constraint: Extract<MetadataTargetConstraint, { kind: "member" }>
+): MetadataTargetParseResult {
+  const rootToken = parts[0]
+  const root = rootToken === undefined ? undefined : rootFromYAML[rootToken]
+  if (!root) return invalidShape()
+
+  return parseMemberObjectTarget(root, parts, constraint, "yaml")
+}
+
+function parseMemberObjectTargetFromModel(
+  parts: readonly string[],
+  constraint: Extract<MetadataTargetConstraint, { kind: "member" }>
+): MetadataTargetParseResult {
+  const rootToken = parts[0]
+  if (rootToken === undefined || !isMetadataRootName(rootToken)) return invalidShape()
+
+  return parseMemberObjectTarget(rootToken, parts, constraint, "model")
+}
+
+function parseMemberObjectTarget(
+  root: MetadataRootName,
+  parts: readonly string[],
+  constraint: Extract<MetadataTargetConstraint, { kind: "member" }>,
+  source: "yaml" | "model"
+): MetadataTargetParseResult {
+  const objectRoots = constraint.objectRoots ?? []
+  const nestedObjectRoots = constraint.nestedObjectRoots ?? []
+  const tail = parts.slice(2)
+
+  if (tail.length === 0) {
+    if (!objectRoots.includes(root) && !nestedObjectRoots.includes(root)) return invalidShape()
+    const objectName = parts[1]
+    if (!isValidMetadataName(objectName)) return invalidShape()
+    return parseObjectTarget(root, objectName, tail, false, source)
+  }
+
+  if (!nestedObjectRoots.includes(root)) return invalidShape()
+
+  const objectName = parts[1]
+  if (!isValidMetadataName(objectName)) return invalidShape()
+  return parseObjectTarget(root, objectName, tail, true, source)
 }
 
 function parseFullModelMemberCompatibility(

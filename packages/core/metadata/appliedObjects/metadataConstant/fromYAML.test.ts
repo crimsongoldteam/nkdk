@@ -12,10 +12,9 @@ describe("import MetadataConstant from YAML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("rejects full fixture with common form in local Form metadataTarget", () => {
-    expect(() => testImportPropertyFromYAML({ rule, value: fullYAML, name: full.name })).toThrow(
-      "Некорректный формат цели метаданных"
-    )
+  it("imports full fixture with common form", () => {
+    const result = testImportPropertyFromYAML({ rule, value: fullYAML, name: full.name })
+    expect(result).toEqual({ ...full, name: undefined })
   })
 
   it("imports minimal fixture", () => {
@@ -23,9 +22,4 @@ describe("import MetadataConstant from YAML", () => {
     expect(result).toEqual({ ...minimal, name: undefined })
   })
 
-  it("does not silently round-trip full fixture with common form in local Form metadataTarget", () => {
-    expect(() => testImportPropertyFromYAML({ rule, value: fullYAML, name: full.name })).toThrow(
-      "Некорректный формат цели метаданных"
-    )
-  })
 })

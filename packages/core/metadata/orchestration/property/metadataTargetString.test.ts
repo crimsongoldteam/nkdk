@@ -21,6 +21,17 @@ const documentRule = {
   },
 } as const satisfies MetadataItemRule
 
+const documentRuleWithCommonForms = {
+  ...documentRule,
+  properties: {
+    ...documentRule.properties,
+    defaultObjectForm: {
+      ...documentRule.properties.defaultObjectForm,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+    },
+  },
+} as const satisfies MetadataItemRule
+
 describe("string metadataTarget YAML", () => {
   it("exports canonical local member strings to short YAML", () => {
     expect(
@@ -48,6 +59,33 @@ describe("string metadataTarget YAML", () => {
       })
     ).toMatchObject({
       defaultObjectForm: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+    })
+  })
+
+  it("imports and exports common forms when objectRoots allows them", () => {
+    expect(
+      importPropertiesFromYAML({
+        context: mockContext,
+        metadataRule: documentRuleWithCommonForms,
+        name: "АвансовыйОтчет",
+        yaml: { ОсновнаяФормаОбъекта: "ОбщаяФорма.ФормаДокумента" },
+      })
+    ).toMatchObject({
+      defaultObjectForm: "CommonForm.ФормаДокумента",
+    })
+
+    expect(
+      exportPropertiesToYAML({
+        context: mockContext,
+        rule: documentRuleWithCommonForms,
+        data: {
+          itemType: "MetadataDocument",
+          name: "АвансовыйОтчет",
+          defaultObjectForm: "CommonForm.ФормаДокумента",
+        },
+      })
+    ).toEqual({
+      ОсновнаяФормаОбъекта: "ОбщаяФорма.ФормаДокумента",
     })
   })
 

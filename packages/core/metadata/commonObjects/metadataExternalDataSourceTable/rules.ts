@@ -211,7 +211,7 @@ const tableProperties = {
     xml: "DefaultObjectForm",
     type: "string",
     xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
     defaultValueXMLRaw: "",
   },
   defaultRecordForm: {
@@ -219,7 +219,7 @@ const tableProperties = {
     xml: "DefaultRecordForm",
     type: "string",
     xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
     defaultValueXMLRaw: "",
   },
   defaultListForm: {
@@ -227,7 +227,7 @@ const tableProperties = {
     xml: "DefaultListForm",
     type: "string",
     xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
     defaultValueXMLRaw: "",
   },
   defaultChoiceForm: {
@@ -235,7 +235,7 @@ const tableProperties = {
     xml: "DefaultChoiceForm",
     type: "string",
     xmlParents: properties,
-    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+    metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
     defaultValueXMLRaw: "",
   },
   objectPresentation: {

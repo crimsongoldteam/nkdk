@@ -99,14 +99,14 @@ export const MetadataAccumulationRegisterRules = {
       yaml: "ОсновнаяФормаСписка",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     },
     auxiliaryListForm: {
       yaml: "ДополнительнаяФормаСписка",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     },
     registerType: {

@@ -113,14 +113,14 @@ export const MetadataDataProcessorRules = {
       yaml: "ОсновнаяФорма",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     },
     auxiliaryForm: {
       yaml: "ДополнительнаяФорма",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     },
     includeHelpInContents: {

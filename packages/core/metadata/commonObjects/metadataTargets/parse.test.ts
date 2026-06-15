@@ -555,6 +555,44 @@ describe("metadataTargets parser", () => {
     ).toBe("ФормаДокумента")
   })
 
+  it("accepts explicit object roots in current-owner member constraints", () => {
+    const owner = { root: "Report", objectName: "Продажи" } as const
+    const constraint = {
+      kind: "member",
+      owner: "this",
+      memberKinds: ["Form"],
+      objectRoots: ["CommonForm"],
+    } as const
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ОбщаяФорма.ФормаОтчета",
+        owner,
+        constraint,
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "CommonForm.ФормаОтчета",
+      target: { kind: "object", root: "CommonForm", objectName: "ФормаОтчета" },
+    })
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "CommonForm.ФормаОтчета",
+        owner,
+        constraint,
+      })
+    ).toMatchObject({ ok: true, canonical: "CommonForm.ФормаОтчета" })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "CommonForm.ФормаОтчета",
+        owner,
+        constraint,
+      })
+    ).toBe("ОбщаяФорма.ФормаОтчета")
+  })
+
   it("requires owner context for local member targets", () => {
     expect(
       parseMetadataTargetFromYAML({

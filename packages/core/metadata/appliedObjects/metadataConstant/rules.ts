@@ -65,7 +65,7 @@ export const MetadataConstantRules = {
       yaml: "ОсновнаяФорма",
       type: "string",
       xmlParents: constantProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     },
     extendedPresentation: {
@@ -186,7 +186,7 @@ export const MetadataConstantRules = {
       yaml: "ФормаВыбора",
       type: "string",
       xmlParents: constantProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     },
     linkByType: {

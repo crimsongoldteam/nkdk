@@ -63,6 +63,7 @@ export const memberKindToYAML = {
   Form: "Форма",
   Template: "Макет",
   Command: "Команда",
+  AccountingFlag: "ПризнакУчета",
 } as const satisfies Record<MetadataMemberKind, string>
 
 export const memberKindFromYAML = Object.fromEntries(

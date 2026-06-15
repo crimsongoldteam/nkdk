@@ -154,7 +154,7 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
 type ResolvedMemberDetails =
   | ObjectField
   | {
-      kind: Extract<MetadataMemberKind, "Form" | "Template" | "Command">
+      kind: NamedMemberKind
       name: string
       item: unknown
     }
@@ -325,7 +325,9 @@ function isFieldMemberKind(kind: MetadataMemberKind): kind is MetadataFieldKind 
   return Object.prototype.hasOwnProperty.call(objectFieldKindByTargetKind, kind)
 }
 
-function memberCollectionName(kind: Extract<MetadataMemberKind, "Form" | "Template" | "Command">): string {
+type NamedMemberKind = Extract<MetadataMemberKind, "Form" | "Template" | "Command" | "AccountingFlag">
+
+function memberCollectionName(kind: NamedMemberKind): string {
   switch (kind) {
     case "Form":
       return "forms"
@@ -333,10 +335,12 @@ function memberCollectionName(kind: Extract<MetadataMemberKind, "Form" | "Templa
       return "templates"
     case "Command":
       return "commands"
+    case "AccountingFlag":
+      return "accountingFlags"
   }
 }
 
-function memberCollectionYamlName(kind: Extract<MetadataMemberKind, "Form" | "Template" | "Command">): string {
+function memberCollectionYamlName(kind: NamedMemberKind): string {
   switch (kind) {
     case "Form":
       return "Формы"
@@ -344,6 +348,8 @@ function memberCollectionYamlName(kind: Extract<MetadataMemberKind, "Form" | "Te
       return "Макеты"
     case "Command":
       return "Команды"
+    case "AccountingFlag":
+      return "ПризнакиУчета"
   }
 }
 

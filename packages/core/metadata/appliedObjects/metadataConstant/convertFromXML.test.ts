@@ -1,18 +1,19 @@
 import { describe, expect, it } from "vitest"
 import { testConvertAppliedObjectFromXML } from "~/tests/appliedObject"
+import { readConstantYAML } from "./__fixtures__/sync/data"
 import { MetadataConstantRules } from "./rules"
 
 describe("convertAppliedObjectFromXML — MetadataConstant", () => {
   const name = "КонстантаВсеСвойства"
 
-  it("ошибается на XML с common form в локальном Form metadataTarget", async () => {
-    await expect(
-      testConvertAppliedObjectFromXML({
-        rule: MetadataConstantRules,
-        name,
-        importMetaUrl: import.meta.url,
-        expectedYAML: "",
-      })
-    ).rejects.toThrow("Некорректный формат цели метаданных")
+  it("читает XML с common form и записывает Свойства.yaml", async () => {
+    const { yaml } = await testConvertAppliedObjectFromXML({
+      rule: MetadataConstantRules,
+      name,
+      importMetaUrl: import.meta.url,
+      expectedYAML: readConstantYAML,
+    })
+
+    expect(yaml.result).toBe(yaml.expected)
   })
 })

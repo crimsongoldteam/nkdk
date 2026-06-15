@@ -54,6 +54,7 @@ export type MetadataMemberKind =
   | "Form"
   | "Template"
   | "Command"
+  | "AccountingFlag"
 
 export type MetadataFieldKind = Extract<
   MetadataMemberKind,
@@ -86,6 +87,8 @@ export interface MemberTargetConstraint {
   kind: "member"
   owner: "this" | "explicit"
   roots?: readonly MetadataRootName[]
+  objectRoots?: readonly MetadataRootName[]
+  nestedObjectRoots?: readonly MetadataRootName[]
   memberKinds?: readonly MetadataMemberKind[]
   filters?: readonly MetadataTargetFilter[]
   allowOwner?: boolean
