@@ -400,6 +400,36 @@ describe("metadataTargets parser", () => {
     ).toBe("ФормаДокумента")
   })
 
+  it("applies root constraints to local member targets", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ФормаДокумента",
+        owner,
+        constraint: { kind: "member", owner: "this", roots: ["Catalog"], memberKinds: ["Form"] },
+      })
+    ).toMatchObject({ ok: false, code: "disallowed-root" })
+  })
+
+  it("normalizes standard attribute aliases in local member targets", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+    const constraint = { kind: "member", owner: "this", memberKinds: ["StandardAttribute"] } as const
+
+    expect(parseMetadataTargetFromYAML({ value: "Дата", owner, constraint })).toMatchObject({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.StandardAttribute.Date",
+    })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "Document.АвансовыйОтчет.StandardAttribute.Date",
+        owner,
+        constraint,
+      })
+    ).toBe("Дата")
+  })
+
   it("parses local member paths through tabular sections for the current owner", () => {
     const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
 

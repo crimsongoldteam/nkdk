@@ -300,11 +300,15 @@ function parseLocalOwnerMember(
   constraint: Extract<MetadataTargetConstraint, { kind: "member" }>,
   owner: MetadataTargetOwner
 ): MetadataTargetParseResult {
+  if (constraint.roots && !constraint.roots.includes(owner.root)) {
+    return error("disallowed-root", `Корень "${owner.root}" не разрешён для цели метаданных`)
+  }
+
   const memberKinds = constraint.memberKinds ?? allMemberKinds()
   const canOmitKind = memberKinds.length === 1
 
   if (canOmitKind && parts.length === 1) {
-    return parseMemberSegments(owner.root, owner.objectName, [memberKinds[0], parts[0]], constraint, "model")
+    return parseMemberSegments(owner.root, owner.objectName, [memberKindToYAML[memberKinds[0]], parts[0]], constraint, "yaml")
   }
 
   if (canOmitKind && parts.length === 2) {
