@@ -211,6 +211,58 @@ describe("importFormAttributesFromYAML", () => {
     ).toBe(false)
   })
 
+  it("accepts spreadsheet document settings in JSON Schema", () => {
+    const schema = TypeCompiler.Compile(exportFormAttributesToJSONSchema({ context: mockContext }))
+
+    expect(
+      schema.Check({
+        Макет: {
+          Тип: "ТабличныйДокумент",
+          ТабличныйДокумент: "<mxl:columns><mxl:size>0</mxl:size></mxl:columns>",
+        },
+      })
+    ).toBe(true)
+  })
+
+  it("accepts chart settings in JSON Schema", () => {
+    const schema = TypeCompiler.Compile(exportFormAttributesToJSONSchema({ context: mockContext }))
+
+    expect(
+      schema.Check({
+        ДиаграммаПродаж: {
+          Тип: "Диаграмма",
+          Диаграмма: "<d4p1:chart><d4p1:seriesCurId>1</d4p1:seriesCurId></d4p1:chart>",
+        },
+      })
+    ).toBe(true)
+  })
+
+  it("accepts gantt chart settings in JSON Schema", () => {
+    const schema = TypeCompiler.Compile(exportFormAttributesToJSONSchema({ context: mockContext }))
+
+    expect(
+      schema.Check({
+        ДиаграммаГанта: {
+          Тип: "ДиаграммаГанта",
+          ДиаграммаГанта: "<d4p1:chart><d4p1:pointsCurId>0</d4p1:pointsCurId></d4p1:chart>",
+        },
+      })
+    ).toBe(true)
+  })
+
+  it("rejects non-string spreadsheet document settings in JSON Schema", () => {
+    const schema = TypeCompiler.Compile(exportFormAttributesToJSONSchema({ context: mockContext }))
+
+    expect(
+      schema.Check({
+        Макет: {
+          Тип: "ТабличныйДокумент",
+          ТабличныйДокумент: { mxl: "columns" },
+        },
+      })
+    ).toBe(false)
+  })
+
   it("should import title when mainAttribute=true and title equals name", () => {
     const result = importFormAttributesFromYAML(mockContext, mockRule, mainAttributeTitleEqualsNameYAML)
 
