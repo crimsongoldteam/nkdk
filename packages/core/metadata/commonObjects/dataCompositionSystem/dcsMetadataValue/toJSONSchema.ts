@@ -91,6 +91,12 @@ const DcsMetadataSingleValueJSONSchema = Type.Recursive((ThisType) =>
       },
       { additionalProperties: false }
     ),
+    Type.Object(
+      {
+        Значение: ThisType,
+      },
+      { additionalProperties: false }
+    ),
   ])
 )
 

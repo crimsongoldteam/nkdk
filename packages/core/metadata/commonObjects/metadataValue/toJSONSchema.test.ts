@@ -21,6 +21,13 @@ describe("exportMetadataValueToJSONSchema", () => {
     expect(compiled.Check({ Значение: "Истина" })).toBe(true)
   })
 
+  it("rejects empty and unknown objects in common MetadataValue schema", () => {
+    const compiled = TypeCompiler.Compile(MetadataValueJSONSchema)
+
+    expect(compiled.Check({})).toBe(false)
+    expect(compiled.Check({ Лишнее: "x" })).toBe(false)
+  })
+
   it("uses metadataTarget value schema when rule defines it", () => {
     const schema = exportMetadataValueToJSONSchema({
       context: mockContext,
