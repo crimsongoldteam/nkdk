@@ -1,6 +1,7 @@
 import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
+import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
 import {
   fullDynamicList,
@@ -9,9 +10,11 @@ import {
   queryTextWithManualQueryFalseDynamicListYAML,
 } from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
 import { importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
+import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { mockContext } from "~/tests/mockContext"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { DynamicListRules } from "./rules"
 
 const rule: PropertyRule = {
   type: "DynamicList",
@@ -156,6 +159,39 @@ describe("import DynamicList from YAML", () => {
       keyType: "RowKey",
       keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
     })
+  })
+
+  it("accepts scalar key fields in JSON Schema", () => {
+    const schema = TypeCompiler.Compile(
+      exportMetadataItemToJSONSchema({
+        context: mockContext,
+        rule: DynamicListRules,
+      })
+    )
+
+    expect(schema.Check({ ПоляКлюча: "Ссылка" })).toBe(true)
+  })
+
+  it("accepts list key fields in JSON Schema", () => {
+    const schema = TypeCompiler.Compile(
+      exportMetadataItemToJSONSchema({
+        context: mockContext,
+        rule: DynamicListRules,
+      })
+    )
+
+    expect(schema.Check({ ПоляКлюча: ["Ссылка", "Организация"] })).toBe(true)
+  })
+
+  it("rejects non-string key fields in JSON Schema", () => {
+    const schema = TypeCompiler.Compile(
+      exportMetadataItemToJSONSchema({
+        context: mockContext,
+        rule: DynamicListRules,
+      })
+    )
+
+    expect(schema.Check({ ПоляКлюча: ["Ссылка", 1] })).toBe(false)
   })
 
   it("preserves calculated field Asc from raw XML source", () => {

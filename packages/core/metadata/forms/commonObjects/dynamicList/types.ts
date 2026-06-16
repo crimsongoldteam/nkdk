@@ -1,3 +1,4 @@
+import { Type } from "@sinclair/typebox"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import {
   importMetadataItemFromXML,
@@ -43,6 +44,9 @@ const normalizeKeyField = (value: unknown): string | undefined => {
 }
 
 registerTypeRule("DynamicListKeyFields", "importFromXML", importDynamicListKeyFieldsFromXML)
+registerTypeRule("DynamicListKeyFields", "exportToJSONSchema", () =>
+  Type.Union([Type.String(), Type.Array(Type.String())])
+)
 
 registerMetadataItemRule({
   propertyType: "DynamicList",
