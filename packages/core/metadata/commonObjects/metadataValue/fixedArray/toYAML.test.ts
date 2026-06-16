@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
 import {
+  formChoiceRefsFixedArray,
+  formChoiceRefsFixedArrayYAML,
   refsWithNilFixedArray,
   refsWithNilFixedArrayYAML,
   singleStringFixedArray,
@@ -24,5 +26,10 @@ describe("exportFixedArrayToYAML", () => {
   it("should export fixed array with undefined element to YAML", () => {
     const result = exportFixedArrayToYAML(mockContext, refsWithNilFixedArray)
     expect(result).toEqual(refsWithNilFixedArrayYAML)
+  })
+
+  it("exports formChoiceList elements without presentation as simple values", () => {
+    const result = exportFixedArrayToYAML(mockContext, formChoiceRefsFixedArray)
+    expect(result).toEqual(formChoiceRefsFixedArrayYAML)
   })
 })

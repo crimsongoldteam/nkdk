@@ -24,6 +24,29 @@ describe("importFormChoiceListFromYAML", () => {
     expect(result).toEqual(withoutPresentation)
   })
 
+  it("imports formChoiceList without presentation field", () => {
+    const yaml: MetadataFormChoiceListValueYAML = {
+      Значение: "Истина",
+    }
+
+    const result = importFormChoiceListFromYAML(mockContext, yaml)
+
+    expect(result).toEqual(withoutPresentation)
+    expect(Object.prototype.hasOwnProperty.call(result, "presentation")).toBe(false)
+  })
+
+  it("imports legacy empty presentation string as missing presentation", () => {
+    const yaml: MetadataFormChoiceListValueYAML = {
+      Представление: "",
+      Значение: "Истина",
+    }
+
+    const result = importFormChoiceListFromYAML(mockContext, yaml)
+
+    expect(result).toEqual(withoutPresentation)
+    expect(Object.prototype.hasOwnProperty.call(result, "presentation")).toBe(false)
+  })
+
   it("imports formChoiceList with numeric presentation from YAML object", () => {
     const result = importFormChoiceListFromYAML(mockContext, withNumericPresentationYAML)
     expect(result).toEqual(withNumericPresentation)

@@ -8,6 +8,8 @@ import {
   withNumericPresentationXML,
   withStringValue,
   withStringValueXML,
+  withoutPresentation,
+  withoutPresentationXML,
 } from "./__fixtures__/data"
 import { importFormChoiceListFromXML } from "./fromXML"
 
@@ -31,5 +33,11 @@ describe("importFormChoiceListFromXML", () => {
   it("preserves numeric-looking presentation content", () => {
     const result = importFormChoiceListFromXML(mockContextFromXML(), parseXML(withNumericPresentationXML))
     expect(result).toEqual(withNumericPresentation)
+  })
+
+  it("imports empty presentation as missing presentation property", () => {
+    const result = importFormChoiceListFromXML(mockContextFromXML(), parseXML(withoutPresentationXML))
+    expect(result).toEqual(withoutPresentation)
+    expect(Object.prototype.hasOwnProperty.call(result, "presentation")).toBe(false)
   })
 })

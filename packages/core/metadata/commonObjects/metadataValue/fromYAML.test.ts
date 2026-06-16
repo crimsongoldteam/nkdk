@@ -34,6 +34,17 @@ describe("importMetadataValueFromYAML", () => {
     expect(result).toEqual({ type: "AccountType", value: "ActivePassive" })
   })
 
+  it("imports compact form choice list object unless it is an explicit typed value", () => {
+    const result = importMetadataValueFromYAML(mockContext, { type: "MetadataValue" } as any, {
+      Значение: "Истина",
+    })
+
+    expect(result).toEqual({
+      type: "formChoiceListDesTimeValue",
+      value: { type: "boolean", value: true },
+    })
+  })
+
   it("imports metadata target value references from YAML", () => {
     expect(
       importMetadataValueFromYAML(

@@ -32,7 +32,6 @@ export const withoutPresentationXML = `<Value xsi:type="FormChoiceListDesTimeVal
 </Value>`
 
 export const withoutPresentationYAML: MetadataFormChoiceListValueYAML = {
-  Представление: "",
   Значение: "Истина",
 }
 

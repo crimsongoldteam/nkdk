@@ -19,7 +19,7 @@ describe("exportFormChoiceListToYAML", () => {
     expect(result).toEqual(withStringValueYAML)
   })
 
-  it("exports formChoiceList without presentation to YAML object with empty presentation", () => {
+  it("exports formChoiceList without presentation to YAML object without presentation field", () => {
     const result = exportFormChoiceListToYAML(mockContext, withoutPresentation)
     expect(result).toEqual(withoutPresentationYAML)
   })
