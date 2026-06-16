@@ -213,7 +213,7 @@ git commit -m "fix: :bug: убрать пустое представление f
 - Modify: `packages/core/metadata/commonObjects/metadataValue/fixedArray/fromYAML.test.ts`
 - Modify: `packages/core/metadata/commonObjects/metadataValue/fixedArray/toYAML.ts`
 
-- [ ] **Step 1: Add fixedArray fixture with form choice values**
+- [x] **Step 1: Add fixedArray fixture with form choice values**
 
 In `packages/core/metadata/commonObjects/metadataValue/fixedArray/__fixtures__/data.ts`, add these exports after existing ref fixtures:
 
@@ -244,7 +244,7 @@ export const formChoiceRefsFixedArrayYAML: MetadataFixedArrayValueYAML = [
 ]
 ```
 
-- [ ] **Step 2: Add failing export test**
+- [x] **Step 2: Add failing export test**
 
 In `packages/core/metadata/commonObjects/metadataValue/fixedArray/toYAML.test.ts`, import the two new fixtures and add:
 
@@ -255,7 +255,7 @@ it("exports formChoiceList elements without presentation as simple values", () =
 })
 ```
 
-- [ ] **Step 3: Add import contract test for compact array**
+- [x] **Step 3: Add import contract test for compact array**
 
 In `packages/core/metadata/commonObjects/metadataValue/fixedArray/fromYAML.test.ts`, import `formChoiceRefsFixedArrayYAML` and add:
 
@@ -279,7 +279,7 @@ it("imports compact formChoiceList YAML elements as ordinary refs", () => {
 })
 ```
 
-- [ ] **Step 4: Run tests and verify export fails**
+- [x] **Step 4: Run tests and verify export fails**
 
 Run:
 
@@ -289,7 +289,7 @@ pnpm --filter @nakidka/core test -- metadata/commonObjects/metadataValue/fixedAr
 
 Expected: export test fails because items are still objects with `Значение`.
 
-- [ ] **Step 5: Add local unwrapping helper**
+- [x] **Step 5: Add local unwrapping helper**
 
 In `packages/core/metadata/commonObjects/metadataValue/fixedArray/toYAML.ts`, replace the file with:
 
@@ -317,7 +317,7 @@ export const exportFixedArrayToYAML = (
 ): MetadataFixedArrayValueYAML => data.value.map((v) => exportFixedArrayElementToYAML(context, v)) as MetadataFixedArrayValueYAML
 ```
 
-- [ ] **Step 6: Run focused tests and verify they pass**
+- [x] **Step 6: Run focused tests and verify they pass**
 
 Run:
 
@@ -327,7 +327,7 @@ pnpm --filter @nakidka/core test -- metadata/commonObjects/metadataValue/fixedAr
 
 Expected: all selected tests pass.
 
-- [ ] **Step 7: Commit Task 2**
+- [x] **Step 7: Commit Task 2**
 
 Run:
 

@@ -18,6 +18,31 @@ export const twoRefsFixedArrayYAML: MetadataFixedArrayValueYAML = [
   "Перечисление.ТипыСчетов.Расходы",
 ]
 
+export const formChoiceRefsFixedArray = {
+  type: "fixedArray",
+  value: [
+    {
+      type: "formChoiceListDesTimeValue",
+      value: {
+        type: "ref",
+        value: "Enum.ТипыДоговоров.EnumValue.СПоставщиком",
+      },
+    },
+    {
+      type: "formChoiceListDesTimeValue",
+      value: {
+        type: "ref",
+        value: "Enum.ТипыДоговоров.EnumValue.СКомитентом",
+      },
+    },
+  ],
+} satisfies MetadataFixedArrayValue
+
+export const formChoiceRefsFixedArrayYAML: MetadataFixedArrayValueYAML = [
+  "Перечисление.ТипыДоговоров.СПоставщиком",
+  "Перечисление.ТипыДоговоров.СКомитентом",
+]
+
 export const singleStringFixedArray: MetadataFixedArrayValue = {
   type: "fixedArray",
   value: [{ type: "string", value: "Тест" }],
