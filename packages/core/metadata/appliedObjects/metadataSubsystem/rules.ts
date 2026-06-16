@@ -114,6 +114,7 @@ export const MetadataSubsystemRules = {
       yaml: "КомандныйИнтерфейс",
       type: "RootCommandInterface",
       filePath: "Ext/CommandInterface.xml",
+      exportReferenceFileOnMissingValue: true,
     },
     help: {
       type: "Help",

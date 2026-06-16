@@ -13,15 +13,35 @@ const prefixForNamespace = (namespace: string): string => {
 
 const isBuiltInPrefix = (prefix: string): boolean => prefix === "xs" || prefix === "v8"
 
+const isXDTOTypeName = (value: XDTOTypeName | XDTOTypeNameXML | undefined): value is XDTOTypeName => {
+  return value !== undefined && "namespace" in value && "name" in value
+}
+
+const matchingReferencePrefix = (
+  value: XDTOTypeName,
+  referenceValue: XDTOTypeName | XDTOTypeNameXML | undefined
+): string | undefined => {
+  if (
+    !isXDTOTypeName(referenceValue) ||
+    referenceValue.namespace !== value.namespace ||
+    referenceValue.name !== value.name ||
+    typeof referenceValue.xmlPrefix !== "string"
+  ) {
+    return undefined
+  }
+
+  return referenceValue.xmlPrefix
+}
+
 export const exportXDTOTypeNameToXML = (
   _context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule | undefined,
   value: XDTOTypeName | undefined,
-  _referenceValue?: XDTOTypeName | XDTOTypeNameXML
+  referenceValue?: XDTOTypeName | XDTOTypeNameXML
 ): string | XDTOTypeNameXML | undefined => {
   if (value === undefined) return undefined
 
-  const prefix = prefixForNamespace(value.namespace)
+  const prefix = matchingReferencePrefix(value, referenceValue) ?? prefixForNamespace(value.namespace)
   const text = `${prefix}:${value.name}`
 
   if (isBuiltInPrefix(prefix)) return text

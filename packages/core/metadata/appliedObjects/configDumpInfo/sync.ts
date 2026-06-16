@@ -27,27 +27,28 @@ export async function syncConfigDumpInfoToXML(params: {
     referenceDir: params.referenceDir,
   })
   const idMap = buildConfigDumpInfo({
-    reference,
+    reference: reference.idMap,
     yamlState: params.yamlState,
     migrationState: params.migrationState,
     referencePathByCurrentPath: params.referencePathByCurrentPath,
   })
   const xml = exportConfigDumpInfoToXML({ context: params.context, idMap })
   const outputPath = join(params.outputDir, CONFIG_DUMP_INFO_FILE)
+  const content = preserveReferenceLineEndings(xmlExport({ ConfigDumpInfo: xml }), reference.source)
 
   await fs.promises.mkdir(params.outputDir, { recursive: true })
-  await fs.promises.writeFile(outputPath, xmlExport({ ConfigDumpInfo: xml }), "utf-8")
+  await fs.promises.writeFile(outputPath, content, "utf-8")
   params.xmlManifest?.addFile(outputPath)
 }
 
 async function readReferenceConfigDumpInfo(params: {
   context: ConfigurationContext
   referenceDir?: string
-}): Promise<ConfigDumpInfo> {
-  if (!params.referenceDir) return new Map()
+}): Promise<{ idMap: ConfigDumpInfo; source?: string }> {
+  if (!params.referenceDir) return { idMap: new Map() }
 
   const path = join(params.referenceDir, CONFIG_DUMP_INFO_FILE)
-  if (!fs.existsSync(path)) return new Map()
+  if (!fs.existsSync(path)) return { idMap: new Map() }
 
   const source = await fs.promises.readFile(path, "utf-8")
   const validation = XMLValidator.validate(source)
@@ -56,5 +57,10 @@ async function readReferenceConfigDumpInfo(params: {
   }
 
   const parsed = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(source)
-  return importConfigDumpInfoFromXML({ context: params.context, xml: parsed.ConfigDumpInfo })
+  return { idMap: importConfigDumpInfoFromXML({ context: params.context, xml: parsed.ConfigDumpInfo }), source }
+}
+
+function preserveReferenceLineEndings(xml: string, referenceSource: string | undefined): string {
+  if (!referenceSource?.includes("\r\n")) return xml
+  return xml.replace(/\n/g, "\r\n")
 }

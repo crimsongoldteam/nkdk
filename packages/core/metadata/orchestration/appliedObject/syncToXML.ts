@@ -117,6 +117,7 @@ export const syncAppliedObjectToXML = async (params: {
     parentName: name,
     referenceDir: externalReferenceDir,
     referenceName,
+    referenceXmlPath,
   })
 
   const forms = await collectFolderNames(rule, "ChildFormNames", inputDir, name)
@@ -647,10 +648,19 @@ async function addChildNameProperties(params: {
 
     const childNamesDir = join(params.nkdkDir, folderName)
     if (!fs.existsSync(childNamesDir)) continue
-    result[key] = await listSubdirNames(childNamesDir)
+    result[key] = orderFileItemNames({
+      currentNames: await listSubdirNames(childNamesDir),
+      referenceNames: toStringArray(result[key]),
+    })
   }
 
   return result
+}
+
+function toStringArray(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined
+  const strings = value.filter((item): item is string => typeof item === "string" && item.length > 0)
+  return strings.length > 0 ? strings : undefined
 }
 
 function isFileChildNameRule(rule: PropertyRule): boolean {

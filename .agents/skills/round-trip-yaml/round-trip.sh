@@ -41,7 +41,7 @@ is_positive_integer() {
 }
 
 KNOWN_XML_DIRS=("Catalogs" "Documents" "DocumentNumerators" "Sequences" "Enums")
-REFERENCE_ONLY_XML_FILES=("Ext/ParentConfigurations.bin")
+REFERENCE_ONLY_XML_FILES=("Ext/ParentConfigurations.bin" "Ext/ParentConfigurations/*.cf")
 
 is_config_dir() {
   local candidate="$1"
@@ -146,20 +146,23 @@ move_dir_contents() {
 preserve_reference_only_files() {
   local reference_dir="$1"
   local output_dir="$2"
+  local relative_pattern
   local relative_path
   local source_path
   local target_path
 
-  for relative_path in "${REFERENCE_ONLY_XML_FILES[@]}"; do
-    source_path="${reference_dir%/}/${relative_path}"
-    target_path="${output_dir%/}/${relative_path}"
+  for relative_pattern in "${REFERENCE_ONLY_XML_FILES[@]}"; do
+    for source_path in "${reference_dir%/}"/${relative_pattern}; do
+      [ -f "${source_path}" ] || continue
 
-    [ -f "${source_path}" ] || continue
-    [ ! -e "${target_path}" ] || continue
+      relative_path="${source_path#"${reference_dir%/}/"}"
+      target_path="${output_dir%/}/${relative_path}"
+      [ ! -e "${target_path}" ] || continue
 
-    mkdir -p "$(dirname "${target_path}")"
-    cp -p "${source_path}" "${target_path}"
-    echo "[xml] Сохранён reference-only файл: ${relative_path}"
+      mkdir -p "$(dirname "${target_path}")"
+      cp -p "${source_path}" "${target_path}"
+      echo "[xml] Сохранён reference-only файл: ${relative_path}"
+    done
   done
 }
 

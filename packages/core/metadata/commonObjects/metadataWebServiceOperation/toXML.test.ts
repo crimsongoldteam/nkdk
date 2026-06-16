@@ -17,11 +17,9 @@ describe("export MetadataWebServiceOperations to XML", () => {
     })
 
     expect(result).toContain(
-      '<XDTOReturningValueType xmlns:d6p1="http://example.org/schema">d6p1:CustomerResponse</XDTOReturningValueType>'
+      '<XDTOReturningValueType xmlns:d4p1="http://example.org/schema">d4p1:CustomerResponse</XDTOReturningValueType>'
     )
-    expect(result).toContain(
-      '<XDTOValueType xmlns:d6p1="http://example.org/schema">d6p1:Customer</XDTOValueType>'
-    )
+    expect(result).toContain('<XDTOValueType xmlns:d4p1="http://example.org/schema">d4p1:Customer</XDTOValueType>')
   })
 
   it("exports changed XDTO type names without reference namespace declarations", () => {
@@ -100,9 +98,7 @@ describe("export MetadataWebServiceOperations to XML", () => {
     expect(result).toContain(
       '<XDTOReturningValueType xmlns:d6p1="http://example.org/schema">d6p1:CustomerResponse</XDTOReturningValueType>'
     )
-    expect(result).toContain(
-      '<XDTOValueType xmlns:d6p1="http://example.org/schema">d6p1:Customer</XDTOValueType>'
-    )
+    expect(result).toContain('<XDTOValueType xmlns:d6p1="http://example.org/schema">d6p1:Customer</XDTOValueType>')
   })
 
   it("does not preserve non-xmlns reference attributes on matching XDTO type names", () => {
@@ -143,7 +139,51 @@ describe("export MetadataWebServiceOperations to XML", () => {
       referenceMetadata,
     })
 
-    expect(result).toContain('xmlns:d6p1="http://example.org/schema"')
+    expect(result).toContain('xmlns:d4p1="http://example.org/schema"')
     expect(result).not.toContain("custom=")
+  })
+
+  it("preserves reference namespace prefix on matching XDTO type names", () => {
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlRootTag: "Operation",
+      forReference: true,
+      xmlString: `<Operation uuid="11111111-1111-4111-8111-111111111111">
+        <Properties>
+          <Name>ОперацияXDTO</Name>
+          <XDTOReturningValueType xmlns:d8p1="http://example.org/schema">d8p1:CustomerResponse</XDTOReturningValueType>
+          <Nillable>false</Nillable>
+          <Transactioned>false</Transactioned>
+          <ProcedureName>ОперацияXDTO</ProcedureName>
+          <DataLockControlMode>Managed</DataLockControlMode>
+          <Synonym/>
+          <Comment/>
+        </Properties>
+        <ChildObjects>
+          <Parameter uuid="11111111-1111-4111-8111-111111111111">
+            <Properties>
+              <Name>ПараметрXDTO</Name>
+              <XDTOValueType xmlns:d8p1="http://example.org/schema">d8p1:Customer</XDTOValueType>
+              <Nillable>false</Nillable>
+              <TransferDirection>In</TransferDirection>
+              <Synonym/>
+              <Comment/>
+            </Properties>
+          </Parameter>
+        </ChildObjects>
+      </Operation>`,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: operationsWithXDTOTypeNamespace,
+      xmlRootTag: "Operation",
+      referenceMetadata,
+    })
+
+    expect(result).toContain(
+      '<XDTOReturningValueType xmlns:d8p1="http://example.org/schema">d8p1:CustomerResponse</XDTOReturningValueType>'
+    )
+    expect(result).toContain('<XDTOValueType xmlns:d8p1="http://example.org/schema">d8p1:Customer</XDTOValueType>')
   })
 })

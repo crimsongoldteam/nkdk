@@ -869,6 +869,43 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("сохраняет CRLF из reference ConfigDumpInfo.xml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-config-dump-info-line-endings-"))
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+
+    try {
+      fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
+      fs.mkdirSync(xmlDir, { recursive: true })
+      fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), "", "utf-8")
+      fs.writeFileSync(
+        join(xmlDir, "ConfigDumpInfo.xml"),
+        [
+          "\uFEFF<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+          '<ConfigDumpInfo xmlns="http://v8.1c.ru/8.3/xcf/dumpinfo" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" format="Hierarchical" version="2.20">',
+          "\t<ConfigVersions/>",
+          "</ConfigDumpInfo>",
+        ].join("\r\n"),
+        "utf-8"
+      )
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      expect(result.failed).toEqual([])
+      const xml = fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8")
+      expect(xml).toContain("?>\r\n<ConfigDumpInfo")
+      expect(xml).not.toContain("?>\n<ConfigDumpInfo")
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("возвращает failed item для битого reference ConfigDumpInfo.xml", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-config-dump-info-broken-"))
     const yamlDir = join(tmp, "yaml")
