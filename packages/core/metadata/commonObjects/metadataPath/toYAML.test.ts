@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest"
+import { describe, expect, it, test } from "vitest"
 import { tableMetadataFields, tableMetadataValues } from "~/metadata/commonObjects/metadataPath/__fixtures__/table"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportMetadataFieldStringToYAML, exportMetadataObjectStringToYAML, exportMetadataValueStringToYAML } from "./toYAML"
