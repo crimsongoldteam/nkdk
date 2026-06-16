@@ -32,6 +32,18 @@ const documentRuleWithCommonForms = {
   },
 } as const satisfies MetadataItemRule
 
+const documentRuleWithNumerator = {
+  ...documentRule,
+  properties: {
+    ...documentRule.properties,
+    numerator: {
+      yaml: "Нумератор",
+      type: "string",
+      metadataTarget: { kind: "object", roots: ["DocumentNumerator"] },
+    },
+  },
+} as const satisfies MetadataItemRule
+
 describe("string metadataTarget YAML", () => {
   it("exports canonical local member strings to short YAML", () => {
     expect(
@@ -87,6 +99,57 @@ describe("string metadataTarget YAML", () => {
     ).toEqual({
       ОсновнаяФормаОбъекта: "ОбщаяФорма.ФормаДокумента",
     })
+  })
+
+  it("exports canonical object strings to YAML roots", () => {
+    expect(
+      exportPropertiesToYAML({
+        context: mockContext,
+        rule: documentRuleWithNumerator,
+        data: {
+          itemType: "MetadataDocument",
+          name: "СчетФактура",
+          numerator: "DocumentNumerator.СчетаФактуры",
+        },
+      })
+    ).toEqual({
+      Нумератор: "НумераторДокументов.СчетаФактуры",
+    })
+  })
+
+  it("imports YAML object strings to canonical model roots", () => {
+    expect(
+      importPropertiesFromYAML({
+        context: mockContext,
+        metadataRule: documentRuleWithNumerator,
+        name: "СчетФактура",
+        yaml: { Нумератор: "НумераторДокументов.СчетаФактуры" },
+      })
+    ).toMatchObject({
+      numerator: "DocumentNumerator.СчетаФактуры",
+    })
+  })
+
+  it("rejects YAML object strings with unknown YAML roots", () => {
+    expect(() =>
+      importPropertiesFromYAML({
+        context: mockContext,
+        metadataRule: documentRuleWithNumerator,
+        name: "СчетФактура",
+        yaml: { Нумератор: "DocumentNumerator.СчетаФактуры" },
+      })
+    ).toThrow('Неизвестный корень "DocumentNumerator"')
+  })
+
+  it("rejects YAML object strings outside allowed roots", () => {
+    expect(() =>
+      importPropertiesFromYAML({
+        context: mockContext,
+        metadataRule: documentRuleWithNumerator,
+        name: "СчетФактура",
+        yaml: { Нумератор: "Документ.СчетФактура" },
+      })
+    ).toThrow('Корень "Document" не разрешён для цели метаданных')
   })
 
   it("keeps ordinary string properties unchanged", () => {

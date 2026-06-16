@@ -154,7 +154,7 @@ function findLastOwner(
 
 function isSupportedStringMetadataTarget(
   constraint: MetadataTargetConstraint | undefined
-): constraint is Extract<MetadataTargetConstraint, { kind: "member" }> {
+): constraint is Extract<MetadataTargetConstraint, { kind: "member" | "object" }> {
   if (!constraint) return false
-  return constraint.kind === "member"
+  return constraint.kind === "member" || constraint.kind === "object"
 }
