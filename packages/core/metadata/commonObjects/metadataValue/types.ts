@@ -183,7 +183,7 @@ export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
     MetadataExplicitAccountTypeYAMLJSONSchema,
     StandardPeriodYAMLJSONSchema,
     Type.Object({
-      Представление: I8nTextJSONSchema,
+      Представление: Type.Optional(I8nTextJSONSchema),
       Значение: Type.Optional(ThisType),
     }),
   ])
