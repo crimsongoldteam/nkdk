@@ -116,6 +116,52 @@ describe("ProjectMetadataResolver", () => {
     })
   })
 
+  it("resolves local forms from child form files when owner YAML does not contain reference-only form names", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", "Реквизиты: {}")
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Формы/ФормаДокумента/Форма.yaml", "Реквизиты: {}")
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Форма.ФормаДокумента") })).toMatchObject({
+      ok: true,
+      filePath: join(projectDir, "Документ", "АвансовыйОтчет", "Формы", "ФормаДокумента", "Форма.yaml"),
+      details: { kind: "Form", name: "ФормаДокумента", item: "ФормаДокумента" },
+    })
+  })
+
+  it("keeps missing local forms as reference diagnostics when the child form file is absent", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", "Реквизиты: {}")
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Форма.НетТакойФормы") })).toMatchObject({
+      ok: false,
+      diagnostics: [
+        expect.objectContaining({
+          source: "reference",
+          message: 'Не найден член "Документ.АвансовыйОтчет.Форма.НетТакойФормы": нет сегмента "НетТакойФормы"',
+        }),
+      ],
+    })
+  })
+
+  it("does not resolve other member kinds from child form files", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", "Реквизиты: {}")
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Формы/ПечатнаяФорма/Форма.yaml", "Реквизиты: {}")
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Макет.ПечатнаяФорма") })).toMatchObject({
+      ok: false,
+      diagnostics: [
+        expect.objectContaining({
+          source: "reference",
+          message: 'Не найден член "Документ.АвансовыйОтчет.Макет.ПечатнаяФорма": нет сегмента "ПечатнаяФорма"',
+        }),
+      ],
+    })
+  })
+
   it("applies hasType filter to member fields", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [

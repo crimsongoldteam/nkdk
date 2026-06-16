@@ -1,5 +1,5 @@
 import { existsSync } from "fs"
-import { join, resolve } from "path"
+import { dirname, join, resolve } from "path"
 import {
   memberKindToYAML,
   rootToYAML,
@@ -100,6 +100,9 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
         segments: target.segments,
       })
       if (!resolved.ok) {
+        const childForm = resolveChildFormFile({ ownerFilePath: owner.owner.filePath, target, message: resolved.message })
+        if (childForm) return childForm
+
         return referenceError(owner.owner.filePath, `Не найден член "${formatMemberTarget(target)}": ${resolved.message}`)
       }
 
@@ -149,6 +152,21 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
       return existsSync(filePath) ? { ok: true, filePath } : referenceError(filePath, `Не найдена общая картинка "ОбщаяКартинка.${name}"`)
     },
   }
+}
+
+function resolveChildFormFile(params: {
+  ownerFilePath: string
+  target: Extract<ParsedMetadataTarget, { kind: "member" }>
+  message: string
+}): MetadataResolveResult | undefined {
+  const [segment] = params.target.segments
+  if (params.target.segments.length !== 1 || segment.kind !== "Form") return undefined
+  if (params.message !== `нет сегмента "${segment.name}"`) return undefined
+
+  const filePath = join(dirname(params.ownerFilePath), "Формы", segment.name, "Форма.yaml")
+  if (!existsSync(filePath)) return undefined
+
+  return { ok: true, filePath, details: { kind: "Form", name: segment.name, item: segment.name } }
 }
 
 type ResolvedMemberDetails =
