@@ -198,16 +198,27 @@ export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
   ])
 )
 
-export const MetadataFormChoiceListComplexValueJSONSchema = Type.Object({
-  Представление: Type.Optional(I8nTextJSONSchema),
-  Значение: Type.Optional(
-    Type.Union([
-      MetadataValueJSONSchema,
-      MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
-      MetadataExplicitAccountTypeYAMLJSONSchema,
-    ])
+const MetadataFormChoiceListValueValueJSONSchema = Type.Union([
+  MetadataValueJSONSchema,
+  MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
+  MetadataExplicitAccountTypeYAMLJSONSchema,
+])
+
+export const MetadataFormChoiceListComplexValueJSONSchema = Type.Union([
+  Type.Object(
+    {
+      Представление: I8nTextJSONSchema,
+      Значение: Type.Optional(MetadataFormChoiceListValueValueJSONSchema),
+    },
+    { additionalProperties: false }
   ),
-})
+  Type.Object(
+    {
+      Значение: MetadataFormChoiceListValueValueJSONSchema,
+    },
+    { additionalProperties: false }
+  ),
+])
 export type MetadataFormChoiceListComplexValueYAML = Static<typeof MetadataFormChoiceListComplexValueJSONSchema>
 
 export const MetadataFormChoiceListValueJSONSchema = MetadataFormChoiceListComplexValueJSONSchema
