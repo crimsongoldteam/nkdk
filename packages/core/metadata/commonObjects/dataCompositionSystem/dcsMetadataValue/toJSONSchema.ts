@@ -87,13 +87,13 @@ const DcsMetadataSingleValueJSONSchema = Type.Recursive((ThisType) =>
     Type.Object(
       {
         Представление: I8nTextJSONSchema,
-        Значение: Type.Optional(ThisType),
+        Значение: Type.Optional(Type.Union([ThisType, Type.Array(Type.Union([ThisType, Type.Undefined(), Type.Null()]))])),
       },
       { additionalProperties: false }
     ),
     Type.Object(
       {
-        Значение: ThisType,
+        Значение: Type.Union([ThisType, Type.Array(Type.Union([ThisType, Type.Undefined(), Type.Null()]))]),
       },
       { additionalProperties: false }
     ),

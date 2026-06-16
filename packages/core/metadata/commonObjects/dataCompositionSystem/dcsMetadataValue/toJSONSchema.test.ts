@@ -45,6 +45,7 @@ describe("MetadataDcsMetadataValue exportToJSONSchema", () => {
     expect(errorsFor(rule, "Ложь")).toEqual([])
     expect(errorsFor(rule, 123)).toEqual([])
     expect(errorsFor(rule, { Значение: "Истина" })).toEqual([])
+    expect(errorsFor(rule, { Значение: ["Перечисление.ТипыДоговоров.СПоставщиком"] })).toEqual([])
     expect(
       errorsFor(rule, {
         Тип: "СистемноеПеречисление",
