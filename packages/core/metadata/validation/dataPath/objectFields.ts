@@ -1,8 +1,8 @@
 import { MetadataTabularSectionRules } from "~/metadata/commonObjects/metadataTabularSection/rules"
+import { StandartAttributeNameToYAML } from "~/metadata/commonObjects/standardAttributeDescription/standartAttributeNames"
 import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
 import type { MetadataItem, PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
 import type { Diagnostic } from "../types"
-import { diagnosticAtYamlPath, type YamlPath } from "../yamlLocations"
 import type { OwnerMetadata } from "./ownerCache"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import {
@@ -33,15 +33,6 @@ export interface ObjectFieldIndex {
   diagnostics: Diagnostic[]
 }
 
-export interface ValidateObjectFieldSegmentParams {
-  owner: OwnerMetadata
-  segment: string
-  dataPathValue?: string
-  filePath: string
-  parsed: Parameters<typeof diagnosticAtYamlPath>[0]["parsed"]
-  yamlPath: YamlPath
-}
-
 type ObjectFieldIndexOwner = Pick<OwnerMetadata, "ref" | "model" | "rule">
 
 interface NamedTypedItem {
@@ -57,8 +48,6 @@ const dataCollectionKinds = {
   dimensions: "dimension",
   resources: "resource",
 } as const satisfies Record<string, ObjectFieldKind>
-
-const platformFieldNames = new Set(["Ref", "Description", "Number", "Date"])
 
 export function buildObjectFieldIndex(owner: ObjectFieldIndexOwner): ObjectFieldIndex {
   const fields = new Map<string, ObjectField>()
@@ -80,33 +69,13 @@ export function getObjectField(params: { index: ObjectFieldIndex; name: string }
 }
 
 export function resolveObjectFieldSegment(params: { index: ObjectFieldIndex; segment: string }): ObjectField | undefined {
-  if (params.segment === "Date") return params.index.fields.get("Дата") ?? params.index.fields.get(params.segment)
+  const alias = standardAttributeAliasToYAML(params.segment)
+  if (alias !== undefined) return params.index.fields.get(alias) ?? params.index.fields.get(params.segment)
   return params.index.fields.get(params.segment)
 }
 
-export function validateObjectFieldSegment({
-  owner,
-  segment,
-  dataPathValue,
-  filePath,
-  parsed,
-  yamlPath,
-}: ValidateObjectFieldSegmentParams): Diagnostic[] {
-  if (segment === "Date") return []
-  if (!platformFieldNames.has(segment)) return []
-  const subject =
-    dataPathValue === undefined ? `DataPath для ${formatOwnerRef(owner.ref)}` : `ПутьКДанным "${dataPathValue}"`
-
-  return [
-    diagnosticAtYamlPath({
-      filePath,
-      parsed,
-      path: yamlPath,
-      severity: "error",
-      source: "structure",
-      message: `${subject}: используйте YAML-имя реквизита вместо платформенного "${segment}"`,
-    }),
-  ]
+export function standardAttributeAliasToYAML(segment: string): string | undefined {
+  return StandartAttributeNameToYAML[segment as keyof typeof StandartAttributeNameToYAML]
 }
 
 function addDataCollectionFields(params: { owner: ObjectFieldIndexOwner; fields: Map<string, ObjectField> }): void {
@@ -250,8 +219,4 @@ function sameOwnerRef(ref: OwnerTypeRef): OwnerTypeRef {
     kind: ref.kind,
     ...(ref.name !== undefined ? { name: ref.name } : {}),
   }
-}
-
-function formatOwnerRef(ref: OwnerTypeRef): string {
-  return ref.name ? `${ref.kind}.${ref.name}` : ref.kind
 }

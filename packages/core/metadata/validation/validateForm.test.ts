@@ -314,21 +314,55 @@ describe("validateForm", () => {
     expect(messages(runValidateForm(project))).toContain('ПутьКДанным "Количество": путь колонки должен начинаться с "Таблица."')
   })
 
-  it("reports platform Ref segment and suggests YAML name", () => {
+  it("accepts Number as an alias for the document YAML standard attribute name", () => {
     const project = createProject({
-      owner: ["Реквизиты:", "  Артикул:", "    Тип: Строка"],
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: ["{}"],
       form: [
         "Реквизиты:",
         "  Объект:",
-        "    Тип: Справочник.Номенклатура",
+        "    Тип: Документ.Заказ",
         "Элементы:",
-        "  Ссылка:",
+        "  Номер:",
         "    Вид: ПолеВвода",
-        "    ПутьКДанным: Объект.Ref",
+        "    ПутьКДанным: Объект.Number",
       ],
     })
 
-    expect(messages(runValidateForm(project))).toContain('ПутьКДанным "Объект.Ref": используйте YAML-имя реквизита вместо платформенного "Ref"')
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts standard platform aliases after traversing a reference", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: [
+        "ТабличныеЧасти:",
+        "  Товары:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: Справочник.Номенклатура",
+      ],
+      extraOwners: [
+        {
+          dir: "Справочник",
+          name: "Номенклатура",
+          yaml: ["{}"],
+        },
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Заказ",
+        "Элементы:",
+        "  КодНоменклатуры:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.Товары.Номенклатура.Code",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
   })
 
   it("accepts Date as an alias for the document YAML standard attribute name", () => {
@@ -478,6 +512,7 @@ describe("validateForm", () => {
     owner?: string[]
     ownerDir?: string
     ownerName?: string
+    extraOwners?: Array<{ dir: string; name: string; yaml: string[] }>
   }): TestProject {
     const projectDir = mkdtempSync(join(tmpdir(), "nakidka-validate-form-"))
     tempDirs.push(projectDir)
@@ -491,6 +526,12 @@ describe("validateForm", () => {
 
     if (params.owner !== undefined) {
       writeFileSync(join(ownerDir, "Свойства.yaml"), `${params.owner.join("\n")}\n`)
+    }
+
+    for (const extraOwner of params.extraOwners ?? []) {
+      const extraOwnerDir = join(projectDir, extraOwner.dir, extraOwner.name)
+      mkdirSync(extraOwnerDir, { recursive: true })
+      writeFileSync(join(extraOwnerDir, "Свойства.yaml"), `${extraOwner.yaml.join("\n")}\n`)
     }
 
     return { projectDir, formDir, ownerDir: ownerDirName, ownerName, formName: "ФормаЭлемента" }

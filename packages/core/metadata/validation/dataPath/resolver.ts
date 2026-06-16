@@ -2,7 +2,11 @@ import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import type { Diagnostic } from "../types"
 import { diagnosticAtYamlPath, type YamlPath } from "../yamlLocations"
 import { getKnownPlatformFormSource, type FormDataPathIndex } from "./formIndex"
-import { resolveObjectFieldSegment, validateObjectFieldSegment, type ObjectFieldTableSource } from "./objectFields"
+import {
+  resolveObjectFieldSegment,
+  standardAttributeAliasToYAML,
+  type ObjectFieldTableSource,
+} from "./objectFields"
 import type { OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
 import type {
   DataPathTypeInfo,
@@ -101,16 +105,6 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
     const ownerResult = params.ownerCache.get(state.typeInfo.nextTypes[0] as OwnerTypeRef)
     if (ownerResult.status !== "ok") return ownerError(ownerResult)
 
-    const segmentDiagnostics = validateObjectFieldSegment({
-      owner: ownerResult.owner,
-      segment,
-      dataPathValue: value,
-      filePath: params.filePath,
-      parsed: params.parsed,
-      yamlPath: params.yamlPath,
-    })
-    if (segmentDiagnostics.length > 0) return { status: "error", diagnostics: segmentDiagnostics }
-
     const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment })
     if (field === undefined) {
       return error(params, `ПутьКДанным "${value}": неизвестный реквизит "${segment}"`)
@@ -200,7 +194,8 @@ function resolveTableColumnSource(params: {
   columns: FormDataPathTableSource["columns"] | ObjectFieldTableSource["columns"]
   segment: string
 }): TableColumnSource | undefined {
-  if (params.segment === "LineNumber") return params.columns.get("НомерСтроки") ?? params.columns.get(params.segment)
+  const alias = standardAttributeAliasToYAML(params.segment)
+  if (alias !== undefined) return params.columns.get(alias) ?? params.columns.get(params.segment)
   return params.columns.get(params.segment)
 }
 
