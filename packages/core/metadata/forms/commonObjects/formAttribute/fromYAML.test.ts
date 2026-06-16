@@ -140,6 +140,77 @@ describe("importFormAttributesFromYAML", () => {
     expect(schema.Check({ Организация: { Тип: "Справочник.Организации" } })).toBe(true)
   })
 
+  it("accepts table columns in JSON Schema", () => {
+    const formAttributesSchema = exportFormAttributesToJSONSchema({
+      context: mockContext,
+      rule: { type: "FormAttributes" },
+      value: undefined,
+    })
+    const schema = TypeCompiler.Compile(formAttributesSchema)
+
+    expect(
+      schema.Check({
+        Таблица: {
+          Тип: "ТаблицаЗначений",
+          Колонки: {
+            Колонка: {
+              Заголовок: "Колонка",
+              Тип: "Строка",
+            },
+          },
+        },
+      })
+    ).toBe(true)
+  })
+
+  it("accepts additional table columns in JSON Schema", () => {
+    const formAttributesSchema = exportFormAttributesToJSONSchema({
+      context: mockContext,
+      rule: { type: "FormAttributes" },
+      value: undefined,
+    })
+    const schema = TypeCompiler.Compile(formAttributesSchema)
+
+    expect(
+      schema.Check({
+        Объект: {
+          Тип: "ДокументОбъект.АвансовыйОтчет",
+          ДополнительныеКолонки: {
+            "Объект.Товары": {
+              Колонка: {
+                Заголовок: "Колонка",
+                Тип: "Строка",
+              },
+            },
+          },
+        },
+      })
+    ).toBe(true)
+  })
+
+  it("rejects unsupported table column properties in JSON Schema", () => {
+    const formAttributesSchema = exportFormAttributesToJSONSchema({
+      context: mockContext,
+      rule: { type: "FormAttributes" },
+      value: undefined,
+    })
+    const schema = TypeCompiler.Compile(formAttributesSchema)
+
+    expect(
+      schema.Check({
+        Таблица: {
+          Тип: "ТаблицаЗначений",
+          Колонки: {
+            Колонка: {
+              Тип: "Строка",
+              НеизвестноеПоле: "значение",
+            },
+          },
+        },
+      })
+    ).toBe(false)
+  })
+
   it("should import title when mainAttribute=true and title equals name", () => {
     const result = importFormAttributesFromYAML(mockContext, mockRule, mainAttributeTitleEqualsNameYAML)
 
