@@ -1,11 +1,11 @@
 import { parseMetadataTargetFromYAML } from "~/metadata/commonObjects/metadataTargets"
 import { isMetadataRootName, rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
+import type { MetadataTargetConstraint, MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
-const metadataFieldTargetFallback = { kind: "field", owner: "explicit" } as const satisfies MetadataTargetConstraint
+const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint
 const metadataValueTargetFallback = {
   kind: "value",
   valueKinds: ["predefinedValue", "enumValue", "emptyRef"],
@@ -15,17 +15,19 @@ const metadataValueTargetFallback = {
 export const importMetadataFieldStringFromYAML = (
   context: ConfigurationContext,
   rule: PropertyRule | undefined,
-  name: string
+  name: string,
+  owner?: MetadataTargetOwner
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataFieldTargetFallback))
+  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataFieldTargetFallback), owner)
 }
 
 export const importMetadataObjectStringFromYAML = (
   context: ConfigurationContext,
   rule: PropertyRule | undefined,
-  name: string
+  name: string,
+  owner?: MetadataTargetOwner
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataObjectTargetFallback))
+  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataObjectTargetFallback), owner)
 }
 
 export const importMetadataValueStringFromYAML = (
@@ -50,9 +52,10 @@ function metadataTargetForRule(
 function parseMetadataTargetStringFromYAML(
   context: ConfigurationContext,
   name: string,
-  constraint: MetadataTargetConstraint
+  constraint: MetadataTargetConstraint,
+  owner?: MetadataTargetOwner
 ): string | undefined {
-  const result = parseMetadataTargetFromYAML({ value: name, constraint })
+  const result = parseMetadataTargetFromYAML({ value: name, constraint, owner })
   if (result.ok) return result.canonical
   if (!isMetadataTargetLikeYAML(name)) return undefined
   if (context.importFromYAML?.validateMetadataTargets === false) return name

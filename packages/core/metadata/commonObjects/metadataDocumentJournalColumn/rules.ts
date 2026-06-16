@@ -35,7 +35,7 @@ export const MetadataDocumentJournalColumnRules = {
       yaml: "Ссылки",
       xml: "References",
       type: "MetadataItemLinks",
-      metadataTarget: { kind: "field", owner: "explicit" },
+      metadataTarget: { kind: "member", owner: "explicit" },
       xmlParents: ["Properties"],
       defaultValueXMLRaw: {},
     },

@@ -401,7 +401,15 @@ function getExpectedFormNames(params: { rule: MetadataItemRule; model: Record<st
 }
 
 function isLocalFormReferenceRule(propRule: PropertyRule): boolean {
-  if (propRule.metadataTarget?.kind === "localChild" && propRule.metadataTarget.childKind === "Form") return true
+  const target = propRule.metadataTarget
+  if (
+    target?.kind === "member" &&
+    target.owner === "this" &&
+    (target.memberKinds === undefined || target.memberKinds.includes("Form"))
+  ) {
+    return true
+  }
+
   return propRule.referenceScope?.target === "this" && propRule.referenceScope.kind === "Form"
 }
 
@@ -445,6 +453,8 @@ async function addFileItemChildCollectionsFromYAML(params: {
   referenceName?: string
   referenceXmlPath?: string
 }): Promise<void> {
+  const contextWithCurrentOwner = withImportMetadataTargetOwner(params.context, params.rule.itemType, params.parentName)
+
   for (const childCollection of params.rule.childCollections ?? []) {
     if (!childCollection.fileItemRule || !childCollection.nkdkDir) continue
 
@@ -478,7 +488,7 @@ async function addFileItemChildCollectionsFromYAML(params: {
       const childYamlContent = await fs.promises.readFile(childYamlPath, "utf-8")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const childYaml = importFromYAML<any>(childYamlContent)
-      const childContextWithFormDir = withImportFormDir(params.context, childNkdkDir)
+      const childContextWithFormDir = withImportFormDir(contextWithCurrentOwner, childNkdkDir, params.parentName)
       const importedChildModel = importMetadataItemFromYAML({
         context: childContextWithFormDir,
         yaml: childYaml,
@@ -512,13 +522,29 @@ async function addFileItemChildCollectionsFromYAML(params: {
 
 function withImportFormDir(
   context: ConfigurationContextWithExportToXML,
-  formDir: string
+  formDir: string,
+  parentName?: string
 ): ConfigurationContextWithExportToXML {
   return {
     ...context,
     importFromYAML: {
       ...(context.importFromYAML ?? {}),
       formDir,
+      parent: parentName ? { name: parentName } : context.importFromYAML?.parent,
+    },
+  }
+}
+
+function withImportMetadataTargetOwner(
+  context: ConfigurationContextWithExportToXML,
+  itemType: MetadataItemRule["itemType"],
+  name: string
+): ConfigurationContextWithExportToXML {
+  return {
+    ...context,
+    importFromYAML: {
+      ...context.importFromYAML,
+      metadataTargetOwners: [...(context.importFromYAML?.metadataTargetOwners ?? []), { itemType, name }],
     },
   }
 }

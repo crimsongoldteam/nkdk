@@ -51,11 +51,11 @@ export const formGroupCommonProperties = {
   },
   titleFont: {
     yaml: "ШрифтЗаголовка",
-    type: "Font", metadataTarget: { kind: "styleItem", styleItemTypes: ["Font"] },
+    type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
   },
   titleTextColor: {
     yaml: "ЦветТекстаЗаголовка",
-    type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] },
+    type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
   },
   toolTip: {
     yaml: "Подсказка",

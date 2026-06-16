@@ -14,8 +14,8 @@ export const PopupRules = {
       xml: "_name",
       required: true,
     },
-    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
-    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
     commandSource: { yaml: "ИсточникКоманд", type: "string" },
     childItems: {
       yaml: "Элементы",
@@ -29,7 +29,7 @@ export const PopupRules = {
       type: "SystemEnumeration",
       typeSE: "DisplayImportance",
     },
-    picture: { yaml: "Картинка", type: "Picture", metadataTarget: { kind: "commonPicture" } },
+    picture: { yaml: "Картинка", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
     representation: {
       yaml: "Отображение",
       type: "SystemEnumeration",

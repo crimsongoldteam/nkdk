@@ -12,7 +12,7 @@ export const SpreadSheetDocumentFieldRules = {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
     blackAndWhiteView: { yaml: "ЧерноБелыйПросмотр", type: "boolean" },
-    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
     commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
     drawingSelectionShowMode: {
       yaml: "РежимОтображенияВыделенияРисунков",

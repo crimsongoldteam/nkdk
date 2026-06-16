@@ -14,7 +14,7 @@ export const PageRules = {
       xml: "_name",
       required: true,
     },
-    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
     childItems: {
       yaml: "Элементы",
       type: "GroupChildItems",
@@ -55,7 +55,7 @@ export const PageRules = {
       type: "SystemEnumeration",
       typeSE: "ItemsAndTitlesAlignVariant",
     },
-    picture: { yaml: "Картинка", type: "Picture", metadataTarget: { kind: "commonPicture" } },
+    picture: { yaml: "Картинка", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
     scrollOnCompress: { yaml: "СкроллПриСжатии", type: "boolean" },
     showTitle: { yaml: "ОтображатьЗаголовок", type: "boolean" },
     slaveItemsWidth: {

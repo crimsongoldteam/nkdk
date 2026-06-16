@@ -4,8 +4,14 @@ import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnum
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
-import { parseMetadataTargetFromYAML } from "../metadataTargets"
+import { parseMetadataTargetFromYAML, type MetadataTargetConstraint } from "../metadataTargets"
 import { Font, FontFullYAML, FontYAML, isRawPrefixedFontRef } from "./types"
+
+const fontStyleItemTarget = {
+  kind: "object",
+  roots: ["StyleItem"],
+  filters: [{ kind: "styleItemType", values: ["Font"] }],
+} as const satisfies MetadataTargetConstraint
 
 export const importFontFromYAML = (
   context: ConfigurationContext,
@@ -90,10 +96,10 @@ function parseProjectStyleRefFromYAML(value: string): string | undefined {
 
   const parsed = parseMetadataTargetFromYAML({
     value,
-    constraint: { kind: "styleItem", styleItemTypes: ["Font"] },
+    constraint: fontStyleItemTarget,
   })
   if (!parsed.ok) throw new Error(parsed.message)
-  return parsed.target.kind === "styleItem" ? parsed.target.name : undefined
+  return parsed.target.kind === "object" && parsed.target.root === "StyleItem" ? parsed.target.objectName : undefined
 }
 
 registerTypeRule("Font", "importFromYAML", importFontFromYAML)

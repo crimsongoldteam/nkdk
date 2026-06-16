@@ -9,7 +9,7 @@ describe("exportStringToJSONSchema", () => {
       context: mockContext,
       rule: {
         type: "string",
-        metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
+        metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
       },
       value: undefined,
     })

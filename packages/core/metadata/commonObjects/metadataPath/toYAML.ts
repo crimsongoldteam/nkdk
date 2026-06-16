@@ -1,11 +1,11 @@
 import { formatMetadataTargetToYAML } from "~/metadata/commonObjects/metadataTargets"
 import { isMetadataRootName } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
+import type { MetadataTargetConstraint, MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
-const metadataFieldTargetFallback = { kind: "field", owner: "explicit" } as const satisfies MetadataTargetConstraint
+const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint
 const metadataValueTargetFallback = {
   kind: "value",
   valueKinds: ["predefinedValue", "enumValue", "emptyRef"],
@@ -15,17 +15,19 @@ const metadataValueTargetFallback = {
 export const exportMetadataFieldStringToYAML = (
   context: ConfigurationContext,
   rule: PropertyRule | undefined,
-  name: string
+  name: string,
+  owner?: MetadataTargetOwner
 ): string | undefined => {
-  return formatMetadataTargetStringToYAML(context, name, metadataTargetForRule(rule, metadataFieldTargetFallback))
+  return formatMetadataTargetStringToYAML(context, name, metadataTargetForRule(rule, metadataFieldTargetFallback), owner)
 }
 
 export const exportMetadataObjectStringToYAML = (
   context: ConfigurationContext,
   rule: PropertyRule | undefined,
-  name: string
+  name: string,
+  owner?: MetadataTargetOwner
 ): string | undefined => {
-  return formatMetadataTargetStringToYAML(context, name, metadataTargetForRule(rule, metadataObjectTargetFallback))
+  return formatMetadataTargetStringToYAML(context, name, metadataTargetForRule(rule, metadataObjectTargetFallback), owner)
 }
 
 export const exportMetadataValueStringToYAML = (
@@ -52,10 +54,11 @@ function metadataTargetForRule(
 function formatMetadataTargetStringToYAML(
   context: ConfigurationContext,
   name: string,
-  constraint: MetadataTargetConstraint
+  constraint: MetadataTargetConstraint,
+  owner?: MetadataTargetOwner
 ): string | undefined {
   try {
-    return formatMetadataTargetToYAML({ canonical: name, constraint })
+    return formatMetadataTargetToYAML({ canonical: name, constraint, owner })
   } catch (error) {
     if (context.exportToYAML?.validateMetadataTargets === false && isMetadataTargetLikeModel(name)) return name
     if (isMetadataTargetLikeModel(name)) throw error

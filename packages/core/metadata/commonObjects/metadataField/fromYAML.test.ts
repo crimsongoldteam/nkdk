@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { getTypeRule } from "~/metadata/orchestration"
-import { importFromYAMLFunction } from "~/metadata/orchestration/property/fn"
+import { importPropertyFromYAML } from "~/metadata/orchestration"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { importMetadataFieldFromYAML, importMetadataFieldsFromYAML } from "./fromYAML"
 
@@ -35,21 +34,21 @@ describe("importMetadataFieldFromYAML", () => {
   })
 
   it("rejects short field paths in registered metadata field importer", () => {
-    const importFromYAML = getTypeRule("MetadataField", "importFromYAML") as importFromYAMLFunction
-
     expect(() =>
-      importFromYAML(mockContext, { ...mockRule, type: "MetadataField" }, "Справочник.Номенклатура.Количество")
-    ).toThrow('Неизвестный сегмент "Количество"')
+      importPropertyFromYAML({
+        context: mockContext,
+        rule: { ...mockRule, type: "MetadataField" },
+        value: "Справочник.Номенклатура.Количество",
+      })
+    ).toThrow("Некорректный формат цели метаданных")
   })
 
   it("imports full field paths in registered metadata field importer", () => {
-    const importFromYAML = getTypeRule("MetadataField", "importFromYAML") as importFromYAMLFunction
-
-    const result = importFromYAML(
-      mockContext,
-      { ...mockRule, type: "MetadataField" },
-      "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество"
-    )
+    const result = importPropertyFromYAML({
+      context: mockContext,
+      rule: { ...mockRule, type: "MetadataField" },
+      value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество",
+    })
 
     expect(result).toEqual("Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество")
   })

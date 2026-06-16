@@ -76,7 +76,7 @@ export const MetadataSubsystemRules = {
     picture: {
       yaml: "Картинка",
       xml: "Picture",
-      type: "Picture", metadataTarget: { kind: "commonPicture" },
+      type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: properties,
       defaultValueXMLRaw: "",
     },
@@ -84,6 +84,7 @@ export const MetadataSubsystemRules = {
       yaml: "Состав",
       xml: "Content",
       type: "MetadataItemLinks",
+      metadataTarget: { kind: "object", allowNested: true },
       xmlParents: properties,
       defaultValueXMLRaw: {},
     },

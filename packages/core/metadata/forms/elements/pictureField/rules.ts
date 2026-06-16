@@ -11,8 +11,8 @@ export const PictureFieldRules = {
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-    border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "styleItem", styleItemTypes: ["Border"] } },
-    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+    border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Border"] }] } },
+    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
     enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
     enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
     fileDragMode: {
@@ -33,12 +33,12 @@ export const PictureFieldRules = {
       implicitValueYAML: "RealSize",
     },
     scale: { yaml: "Масштаб", type: "number", xml: "ImageScale" },
-    textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
-    valuesPicture: { yaml: "КартинкаЗначений", type: "Picture", metadataTarget: { kind: "commonPicture" } },
+    textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    valuesPicture: { yaml: "КартинкаЗначений", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
     width: { yaml: "Ширина", type: "number" },
     zoomable: { yaml: "Масштабировать", type: "boolean" },
-    font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "styleItem", styleItemTypes: ["Font"] } },
+    font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
     events: {
       type: "Events",
       yaml: "События",

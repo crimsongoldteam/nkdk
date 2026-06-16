@@ -5,7 +5,7 @@ import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
-const metadataFieldTargetFallback = { kind: "field", owner: "explicit" } as const satisfies MetadataTargetConstraint
+const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint
 
 export const exportDataPathToJSONSchema: ExportToJSONSchemaFn = ({ rule }): TSchema => {
   return buildMetadataTargetSchema(rule.metadataTarget ?? dataPathTargetFallback(rule))

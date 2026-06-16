@@ -16,6 +16,7 @@ import { documentFullClientApplicationFormYAML } from "./__fixtures__/documentFu
 import { mockContextToYAML } from "~/tests/mockContext"
 import { exportClientApplicationFormToYAML } from "./toYAML"
 import { ClientApplicationForm } from "./types"
+import type { ConfigurationContext } from "~/metadata/context/types"
 
 describe("exportClientApplicationFormToYAML", () => {
   // it("should return undefined when data is undefined", () => {
@@ -106,6 +107,28 @@ describe("exportClientApplicationFormToYAML", () => {
     const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, documentFullClientApplicationForm)
 
     expect(yaml).toEqual(documentFullClientApplicationFormYAML)
+  })
+
+  it("exports report form settings storage as a local form reference", () => {
+    const context: ConfigurationContext = {
+      ...mockContextToYAML,
+      exportToYAML: {
+        ...mockContextToYAML.exportToYAML!,
+        metadataTargetOwners: [{ itemType: "MetadataReport", name: "РасшифровкаСтатистики" }],
+      },
+    }
+    const form: ClientApplicationForm = {
+      itemType: "ClientApplicationForm",
+      commands: [],
+      childItems: [],
+      settingsStorage: "Report.РасшифровкаСтатистики.Form.ФормаОтчета",
+    }
+
+    const { yaml } = exportClientApplicationFormToYAML(context, form)
+
+    expect(yaml).toEqual({
+      ХранилищеНастроек: "ФормаОтчета",
+    })
   })
 
   it("should export minimal", () => {

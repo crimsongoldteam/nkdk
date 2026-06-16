@@ -1,5 +1,6 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { join, resolve } from "path"
+import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import type { MetadataItem } from "~/metadata/orchestration/property/types"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
@@ -169,6 +170,9 @@ function validateProjectProperties(params: {
   })
   if ("diagnostic" in imported) return [...diagnostics, imported.diagnostic]
 
+  const ownerRoot = rootFromYAML[params.file.owner.dir]
+  const owner = ownerRoot ? { root: ownerRoot, objectName: params.file.owner.name } : undefined
+
   return [
     ...diagnostics,
     ...validateUniqueNameScopes({
@@ -183,6 +187,7 @@ function validateProjectProperties(params: {
       model: imported.model,
       rule: params.file.owner.spec.rule,
       resolver: params.metadataResolver,
+      owner,
     }),
   ]
 }

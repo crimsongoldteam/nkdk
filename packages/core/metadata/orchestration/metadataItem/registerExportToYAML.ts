@@ -31,9 +31,14 @@ export const registerExportToYAML = <Rule extends MetadataItemRule>(
             }
           : params.context
 
+      const value =
+        params.name && params.value !== undefined && params.value !== null && typeof params.value === "object"
+          ? { ...(params.value as Record<string, unknown>), name: params.name }
+          : params.value
+
       return exportMetadataItemToYAML({
         context,
-        data: params.value as ToMetadata<Rule["itemType"]> | undefined,
+        data: value as ToMetadata<Rule["itemType"]> | undefined,
         rule: itemRule,
       })
     }

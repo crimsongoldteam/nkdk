@@ -147,7 +147,7 @@ export const fullMetadataAttributes: MetadataAttributes = [
   {
     itemType: "MetadataAttribute",
     binaryDataStorageLocationUse: "Use",
-    binaryDataStorageLocationUseField: "АтрибутХраненияДвоичныхДанных",
+    binaryDataStorageLocationUseField: "Catalog.Справочник.Attribute.АтрибутХраненияДвоичныхДанных",
     choiceFoldersAndItems: "Folders",
     choiceForm: "Catalog.Справочник.Form.ФормаВыбора",
     choiceHistoryOnInput: "DontUse",

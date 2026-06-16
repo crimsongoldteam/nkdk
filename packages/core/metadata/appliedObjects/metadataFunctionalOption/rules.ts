@@ -3,6 +3,48 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 const properties = ["Properties"]
 
+const contentObjectRoots = [
+  "InformationRegister",
+  "Document",
+  "Catalog",
+  "Report",
+  "Enum",
+  "CommonCommand",
+  "DataProcessor",
+  "AccumulationRegister",
+  "Constant",
+  "CommonForm",
+  "Subsystem",
+  "DocumentJournal",
+  "ChartOfCharacteristicTypes",
+  "BusinessProcess",
+  "CommonAttribute",
+  "ExchangePlan",
+  "Task",
+  "AccountingRegister",
+  "FilterCriterion",
+  "ChartOfCalculationTypes",
+  "ChartOfAccounts",
+  "CalculationRegister",
+] as const
+
+const contentMemberRoots = [
+  "Document",
+  "Catalog",
+  "InformationRegister",
+  "AccumulationRegister",
+  "DataProcessor",
+  "Report",
+  "ChartOfCharacteristicTypes",
+  "AccountingRegister",
+  "ChartOfCalculationTypes",
+  "BusinessProcess",
+  "ChartOfAccounts",
+  "ExchangePlan",
+  "Task",
+  "DocumentJournal",
+] as const
+
 export const MetadataFunctionalOptionRules = {
   itemType: "MetadataFunctionalOption",
   itemTypePrefix: "ФункциональнаяОпция",
@@ -57,7 +99,14 @@ export const MetadataFunctionalOptionRules = {
       yaml: "СоставФункциональнойОпции",
       xml: "Content",
       type: "MetadataItemLinks",
-      metadataTarget: { kind: "field", owner: "explicit", allowObject: true },
+      metadataTarget: {
+        kind: "member",
+        owner: "explicit",
+        roots: contentMemberRoots,
+        objectRoots: contentObjectRoots,
+        nestedObjectRoots: ["Subsystem"],
+        memberKinds: ["Attribute", "TabularSection", "Resource", "Dimension", "Command", "AccountingFlag"],
+      },
       xmlParents: properties,
       metadataItemLinksXMLItem: "xr:Object",
       defaultValueXMLRaw: "",

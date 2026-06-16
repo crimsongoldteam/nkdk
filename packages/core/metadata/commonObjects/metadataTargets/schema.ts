@@ -1,13 +1,20 @@
 import { Type, type TSchema } from "@sinclair/typebox"
-import { fieldKindToYAML, METADATA_NAME_PATTERN, rootToYAML } from "./roots"
-import type { MetadataFieldKind, MetadataRootName, MetadataTargetConstraint } from "./types"
+import { memberKindToYAML, METADATA_NAME_PATTERN, rootToYAML } from "./roots"
+import type {
+  MetadataMemberKind,
+  MetadataRootName,
+  MetadataTargetConstraint,
+  MetadataTargetFilter,
+  MetadataTypeFilterValue,
+  StyleItemTargetType,
+} from "./types"
 
 type MetadataPrimitiveType = NonNullable<Extract<MetadataTargetConstraint, { kind: "type" }>["primitives"]>[number]
 
 const noMatchPattern = "^(?!)$"
 const emptyRefYAML = "ПустаяСсылка"
 
-const allFieldKinds = Object.keys(fieldKindToYAML) as MetadataFieldKind[]
+const allMemberKinds = Object.keys(memberKindToYAML) as MetadataMemberKind[]
 const allRoots = Object.keys(rootToYAML) as MetadataRootName[]
 const allPrimitiveTypes: readonly MetadataPrimitiveType[] = ["string", "decimal", "dateTime", "boolean", "ValueStorage"]
 
@@ -92,25 +99,10 @@ const primitiveTypeExamples = {
 
 export function buildMetadataTargetSchema(constraint: MetadataTargetConstraint): TSchema {
   if (constraint.kind === "object") return objectSchema(constraint)
-  if (constraint.kind === "field") return fieldSchema(constraint)
+  if (constraint.kind === "member") return memberSchema(constraint)
   if (constraint.kind === "value") return valueSchema(constraint)
   if (constraint.kind === "type") return typeSchema(constraint)
   if (constraint.kind === "dataPath") return dataPathSchema(constraint)
-  if (constraint.kind === "localChild") return localChildSchema(constraint)
-  if (constraint.kind === "styleItem") {
-    return Type.String({
-      pattern: `^ЭлементСтиля\\.${METADATA_NAME_PATTERN}$`,
-      examples: ["ЭлементСтиля.ИмяЭлементаСтиля"],
-      description: "Ссылка на элемент стиля проекта: ЭлементСтиля.<ИмяЭлементаСтиля>.",
-    })
-  }
-  if (constraint.kind === "commonPicture") {
-    return Type.String({
-      pattern: `^ОбщаяКартинка\\.${METADATA_NAME_PATTERN}$`,
-      examples: ["ОбщаяКартинка.ИмяОбщейКартинки"],
-      description: "Ссылка на общую картинку проекта: ОбщаяКартинка.<ИмяОбщейКартинки>.",
-    })
-  }
 
   return Type.String({
     description: "Строковое metadata-значение. Подробная проверка выполняется командой validate.",
@@ -134,30 +126,121 @@ function objectSchema(constraint: Extract<MetadataTargetConstraint, { kind: "obj
   })
 }
 
-function fieldSchema(constraint: Extract<MetadataTargetConstraint, { kind: "field" }>): TSchema {
+function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "member" }>): TSchema {
+  const memberKinds = constraint.memberKinds ?? allMemberKinds
+  const memberGroup = memberKinds.map((kind) => memberKindToYAML[kind]).join("|")
   const selectedRoots = selectRoots(constraint.roots)
-  const terminalFieldKinds = constraint.fieldKinds ?? allFieldKinds
-  const yamlRoots = yamlRootGroup(constraint.roots)
-  const terminalSegments = terminalFieldKinds.map((kind) => fieldKindToYAML[kind]).join("|")
-  const terminalSegmentDescription = terminalFieldKinds.map((kind) => fieldKindToYAML[kind]).join(", ")
-  const tabularSectionSegment = fieldKindToYAML.TabularSection
-  const branches: string[] = []
-  if (constraint.allowObject === true && selectedRoots.length > 0) {
-    branches.push(`(${yamlRoots})\\.${METADATA_NAME_PATTERN}`)
+  const yamlMemberPath = memberPathPattern(memberKinds, "yaml")
+  const modelMemberPath = memberPathPattern(memberKinds, "model")
+  const objectBranches = memberObjectPathPatterns(constraint, "yaml")
+  const modelObjectBranches = memberObjectPathPatterns(constraint, "model")
+  const fullModelCompatibility =
+    selectedRoots.length === 0 || !modelMemberPath
+      ? undefined
+      : `(?:${modelRootGroup(selectedRoots)})\\.${METADATA_NAME_PATTERN}\\.${modelMemberPath}`
+
+  if (constraint.owner === "this" && memberKinds.length === 1) {
+    const kind = memberKinds[0]
+    const branches = [METADATA_NAME_PATTERN]
+    branches.push(nestedLocalMemberPathPattern(kind, "yaml"))
+    if (fullModelCompatibility) branches.push(fullModelCompatibility)
+    branches.push(...objectBranches, ...modelObjectBranches)
+
+    return Type.String({
+      pattern: `^(?:${branches.join("|")})$`,
+      examples: [kind === "Form" ? "ФормаДокумента" : "ИмяЧлена"],
+      description: `${singleLocalMemberDescription(kind)}${filterDescriptionSuffix(constraint.filters)} Совместимый полный модельный путь принимается при импорте, export нормализует его в локальное имя.`,
+    })
   }
-  if (selectedRoots.length > 0 && terminalSegments.length > 0) {
+
+  if (constraint.owner === "this") {
+    const branches = []
+    if (yamlMemberPath) branches.push(yamlMemberPath)
+    if (fullModelCompatibility) branches.push(fullModelCompatibility)
+    branches.push(...objectBranches, ...modelObjectBranches)
+
+    return Type.String({
+      pattern: branches.length === 0 ? noMatchPattern : `^(?:${branches.join("|")})$`,
+      examples: memberKinds.slice(0, 2).map((kind) => `${memberKindToYAML[kind]}.ИмяЧлена`),
+      description: `Ссылка на член текущего объекта: ${memberGroup}.<ИмяЧлена>.${filterDescriptionSuffix(constraint.filters)}`,
+    })
+  }
+
+  const yamlRoots = yamlRootGroup(constraint.roots)
+  const explicitBranches: string[] = []
+  if (constraint.allowOwner === true && selectedRoots.length > 0) {
+    explicitBranches.push(`(?:${yamlRoots})\\.${METADATA_NAME_PATTERN}`)
+  }
+  if (selectedRoots.length > 0 && yamlMemberPath) {
+    explicitBranches.push(`(?:${yamlRoots})\\.${METADATA_NAME_PATTERN}\\.${yamlMemberPath}`)
+  }
+  if (fullModelCompatibility) explicitBranches.push(fullModelCompatibility)
+  explicitBranches.push(...objectBranches, ...modelObjectBranches)
+
+  return Type.String({
+    pattern: explicitBranches.length === 0 ? noMatchPattern : `^(?:${explicitBranches.join("|")})$`,
+    examples: explicitMemberExamples(selectedRoots, memberKinds),
+    description: `Полный путь члена объекта: ${yamlRoots}.<ИмяОбъекта>.${memberGroup}.<ИмяЧлена>.${filterDescriptionSuffix(constraint.filters)}${constraint.allowOwner === true ? " Также разрешена ссылка на объект-владелец без члена." : ""}`,
+  })
+}
+
+function explicitMemberExamples(
+  selectedRoots: readonly MetadataRootName[],
+  memberKinds: readonly MetadataMemberKind[]
+): string[] {
+  if (selectedRoots.length === 0 || memberKinds.length === 0) return []
+
+  const root = preferredRoot(selectedRoots, "Catalog")
+  if (!root) return []
+
+  const rootPrefix = rootToYAML[root]
+  const objectName = fieldObjectName(root)
+  if (memberKinds.includes("Attribute")) return [`${rootPrefix}.${objectName}.Реквизит.ИмяРеквизита`]
+
+  return [`${rootPrefix}.${objectName}.${memberKindToYAML[memberKinds[0]]}.ИмяЧлена`]
+}
+
+function memberPathPattern(memberKinds: readonly MetadataMemberKind[], source: "yaml" | "model"): string | undefined {
+  if (memberKinds.length === 0) return undefined
+
+  const tabularSection = source === "yaml" ? memberKindToYAML.TabularSection : "TabularSection"
+  const terminalGroup = source === "yaml" ? memberKinds.map((kind) => memberKindToYAML[kind]).join("|") : memberKinds.join("|")
+  return `(?:${tabularSection}\\.${METADATA_NAME_PATTERN}\\.)*(?:${terminalGroup})\\.${METADATA_NAME_PATTERN}`
+}
+
+function memberObjectPathPatterns(
+  constraint: Extract<MetadataTargetConstraint, { kind: "member" }>,
+  source: "yaml" | "model"
+): string[] {
+  const simpleRoots = uniqueRoots([...(constraint.objectRoots ?? []), ...(constraint.nestedObjectRoots ?? [])])
+  const nestedRoots = uniqueRoots(constraint.nestedObjectRoots ?? [])
+  const branches: string[] = []
+
+  if (simpleRoots.length > 0) {
+    branches.push(`(?:${rootGroup(simpleRoots, source)})\\.${METADATA_NAME_PATTERN}`)
+  }
+
+  if (nestedRoots.length > 0) {
     branches.push(
-      `(${yamlRoots})\\.${METADATA_NAME_PATTERN}(?:\\.${tabularSectionSegment}\\.${METADATA_NAME_PATTERN})*\\.(?:${terminalSegments})\\.${METADATA_NAME_PATTERN}`
+      `(?:${rootGroup(nestedRoots, source)})\\.${METADATA_NAME_PATTERN}(?:\\.(?:${rootGroup(nestedRoots, source)})\\.${METADATA_NAME_PATTERN})+`
     )
   }
-  return Type.String({
-    pattern: branches.length === 0 ? noMatchPattern : `^(?:${branches.join("|")})$`,
-    examples: fieldExamples(constraint),
-    description:
-      terminalSegmentDescription.length === 0
-        ? "Полный путь поля метаданных. Ограничение не разрешает конечные сегменты; подробная проверка выполняется validate."
-        : `Полный путь поля метаданных: конечный сегмент ${terminalSegmentDescription} обязателен; перед ним может быть ТабличнаяЧасть.<ИмяТабличнойЧасти>; реальные имена проверяются validate.${constraint.allowObject === true ? " Также разрешена ссылка на объект метаданных без поля." : ""}`,
-  })
+
+  return branches
+}
+
+function rootGroup(roots: readonly MetadataRootName[], source: "yaml" | "model"): string {
+  return source === "yaml" ? yamlRootGroup(roots) : modelRootGroup(roots)
+}
+
+function uniqueRoots(roots: readonly MetadataRootName[]): MetadataRootName[] {
+  return [...new Set(roots)]
+}
+
+function nestedLocalMemberPathPattern(kind: MetadataMemberKind, source: "yaml" | "model"): string {
+  const tabularSection = source === "yaml" ? memberKindToYAML.TabularSection : "TabularSection"
+  const terminalKind = source === "yaml" ? memberKindToYAML[kind] : kind
+  return `(?:${tabularSection}\\.${METADATA_NAME_PATTERN}\\.)+(?:${terminalKind})\\.${METADATA_NAME_PATTERN}`
 }
 
 function valueSchema(constraint: Extract<MetadataTargetConstraint, { kind: "value" }>): TSchema {
@@ -191,18 +274,52 @@ function dataPathSchema(constraint: Extract<MetadataTargetConstraint, { kind: "d
   })
 }
 
-function localChildSchema(constraint: Extract<MetadataTargetConstraint, { kind: "localChild" }>): TSchema {
-  const childName = constraint.childKind === "Form" ? "формы" : "макета"
-  return Type.String({
-    pattern: `^${METADATA_NAME_PATTERN}$`,
-    examples: [constraint.childKind === "Form" ? "ИмяФормы" : "ИмяМакета"],
-    description: `Имя дочерней ${childName} текущего объекта. Наличие дочернего объекта проверяется validate.`,
-  })
+function singleLocalMemberDescription(kind: MetadataMemberKind): string {
+  if (kind === "Form") return "Имя дочерней формы текущего объекта."
+  if (kind === "Template") return "Имя дочернего макета текущего объекта."
+  return `Имя члена текущего объекта вида ${memberKindToYAML[kind]}.`
 }
+
+function filterDescriptionSuffix(filters: readonly MetadataTargetFilter[] | undefined): string {
+  if (!filters || filters.length === 0) return ""
+  return ` ${filters.map(filterDescription).join(" ")}`
+}
+
+function filterDescription(filter: MetadataTargetFilter): string {
+  switch (filter.kind) {
+    case "directMember":
+      return "Допустимы только прямые члены текущего объекта без перехода через вложенных владельцев."
+    case "hasType":
+      return `Допустимы только члены, тип которых содержит ${typeFilterToYAML[filter.type]}.`
+    case "styleItemType":
+      return `Допустимы только элементы стиля типов: ${filter.values.map((value) => styleItemTypeToYAML[value]).join(", ")}.`
+    case "stringIndexedAttribute":
+      return "Допустимы только реквизиты, пригодные для ввода по строке."
+  }
+}
+
+const typeFilterToYAML = {
+  string: "Строка",
+  decimal: "Число",
+  dateTime: "ДатаВремя",
+  boolean: "Булево",
+  ValueStorage: "ХранилищеЗначения",
+  UUID: "UUID",
+} as const satisfies Record<MetadataTypeFilterValue, string>
+
+const styleItemTypeToYAML = {
+  Color: "Цвет",
+  Font: "Шрифт",
+  Border: "Рамка",
+} as const satisfies Record<StyleItemTargetType, string>
 
 function yamlRootGroup(roots: readonly MetadataRootName[] | undefined): string {
   const selected = selectRoots(roots)
   return selected.map((root) => rootToYAML[root]).join("|")
+}
+
+function modelRootGroup(roots: readonly MetadataRootName[]): string {
+  return roots.join("|")
 }
 
 function selectRoots(roots: readonly MetadataRootName[] | undefined): readonly MetadataRootName[] {
@@ -229,38 +346,6 @@ function typeRefExample(root: MetadataRootName): string {
 
 function fieldObjectName(root: MetadataRootName): string {
   return fieldObjectNameByRoot[root] ?? "ИмяОбъекта"
-}
-
-function fieldExamples(constraint: Extract<MetadataTargetConstraint, { kind: "field" }>): string[] {
-  const selectedRoots = selectRoots(constraint.roots)
-  const terminalFieldKinds = constraint.fieldKinds ?? allFieldKinds
-  const root = preferredRoot(selectedRoots, "Catalog")
-  if (!root) return []
-
-  const rootPrefix = rootToYAML[root]
-  const objectName = fieldObjectName(root)
-  const examples: string[] = []
-
-  if (constraint.allowObject === true) {
-    examples.push(objectExample(root))
-  }
-
-  if (terminalFieldKinds.includes("Attribute")) {
-    examples.push(`${rootPrefix}.${objectName}.Реквизит.ИмяРеквизита`)
-    examples.push(`${rootPrefix}.${objectName}.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита`)
-  }
-
-  if (examples.length === 0 && terminalFieldKinds.includes("TabularSection")) {
-    examples.push(`${rootPrefix}.${objectName}.ТабличнаяЧасть.ИмяТабличнойЧасти`)
-  } else if (examples.length === 0 && terminalFieldKinds.includes("StandardAttribute")) {
-    examples.push(`${rootPrefix}.${objectName}.СтандартныйРеквизит.ИмяСтандартногоРеквизита`)
-  } else if (examples.length === 0 && terminalFieldKinds.includes("Dimension")) {
-    examples.push(`${rootPrefix}.${objectName}.Измерение.ИмяИзмерения`)
-  } else if (examples.length === 0 && terminalFieldKinds.includes("Resource")) {
-    examples.push(`${rootPrefix}.${objectName}.Ресурс.ИмяРесурса`)
-  }
-
-  return examples
 }
 
 function valuePatternBranches(constraint: Extract<MetadataTargetConstraint, { kind: "value" }>): string[] {

@@ -4,7 +4,7 @@ import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
 import { formatMetadataTargetToYAML } from "../metadataTargets"
-import { Border, BorderYAML } from "./types"
+import { Border, BorderYAML, borderStyleItemTarget } from "./types"
 
 export const exportBorderToYAML = (
   context: ConfigurationContext,
@@ -33,7 +33,7 @@ export const exportBorderToYAML = (
 function exportStyleItemRefToYAML(ref: string): string {
   return formatMetadataTargetToYAML({
     canonical: `StyleItem.${ref}`,
-    constraint: { kind: "styleItem", styleItemTypes: ["Border"] },
+    constraint: borderStyleItemTarget,
   })
 }
 

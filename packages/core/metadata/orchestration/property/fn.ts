@@ -6,6 +6,7 @@ import {
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
 import type { RuntimeChildKind } from "~/metadata/commonObjects/metadataPath/graphPath"
+import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
 import type { GraphPrimitive } from "~/metadata/orchestration/buildGraph/types"
 import type { ProjectMetadataResolver } from "~/metadata/validation/projectMetadataResolver"
 import type { Diagnostic } from "~/metadata/validation/types"
@@ -45,6 +46,7 @@ export type ImportFromYAMLFunctionNew = (params: {
   source?: any
   value: any
   name?: string
+  owner?: MetadataTargetOwner
 }) => any | undefined
 
 export type importFromYAMLFunction = (
@@ -65,6 +67,7 @@ export type ExportToYAMLFunctionNew = (params: {
   rule: PropertyRule
   value: any
   name?: string
+  owner?: MetadataTargetOwner
 }) => any | undefined
 
 export type ExportToEnterpriseFunction = (params: {
@@ -87,6 +90,7 @@ export type ValidateMetadataTargetFunction = (params: {
   propertyName: string
   value: unknown
   resolver: ProjectMetadataResolver
+  owner?: MetadataTargetOwner
 }) => Diagnostic[]
 
 export type BuildGraphFromModelFunction = (params: {

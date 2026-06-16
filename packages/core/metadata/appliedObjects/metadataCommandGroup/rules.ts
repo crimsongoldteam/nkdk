@@ -58,7 +58,7 @@ export const MetadataCommandGroupRules = {
     picture: {
       yaml: "Картинка",
       xml: "Picture",
-      type: "Picture", metadataTarget: { kind: "commonPicture" },
+      type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: properties,
       defaultValueXMLRaw: "",
     },

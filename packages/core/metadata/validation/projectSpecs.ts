@@ -6,6 +6,7 @@ import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/met
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { exportMetadataCatalogToJSONSchema } from "~/metadata/appliedObjects/metadataCatalog/toJSONSchema"
+import { MetadataChartOfAccountsRules } from "~/metadata/appliedObjects/metadataChartOfAccounts/rules"
 import { MetadataDataProcessorRules } from "~/metadata/appliedObjects/metadataDataProcessor/rules"
 import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
 import { exportMetadataDocumentToJSONSchema } from "~/metadata/appliedObjects/metadataDocument/toJSONSchema"
@@ -100,6 +101,13 @@ export const validationProjectSpecs: readonly ValidationProjectSpec[] = [
     rule: MetadataExchangePlanRules,
     exportSchema: createMetadataItemSchemaExporter(MetadataExchangePlanRules),
     importModel: genericImportModel(MetadataExchangePlanRules),
+  },
+  {
+    kind: "chartOfAccounts",
+    dir: "ПланСчетов",
+    rule: MetadataChartOfAccountsRules,
+    exportSchema: createMetadataItemSchemaExporter(MetadataChartOfAccountsRules),
+    importModel: genericImportModel(MetadataChartOfAccountsRules),
   },
 ]
 

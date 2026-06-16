@@ -45,49 +45,92 @@ export type MetadataRootName =
   | "SettingsStorage"
   | "Subsystem"
 
-export type MetadataFieldKind = "Attribute" | "StandardAttribute" | "TabularSection" | "Dimension" | "Resource"
+export type MetadataMemberKind =
+  | "Attribute"
+  | "StandardAttribute"
+  | "TabularSection"
+  | "Dimension"
+  | "Resource"
+  | "Form"
+  | "Template"
+  | "Command"
+  | "AccountingFlag"
+
+export type MetadataFieldKind = Extract<
+  MetadataMemberKind,
+  "Attribute" | "StandardAttribute" | "TabularSection" | "Dimension" | "Resource"
+>
 export type MetadataValueKind = "predefinedValue" | "enumValue" | "emptyRef"
-export type MetadataTargetFilterName = "stringIndexedAttribute"
+export type MetadataTypeFilterValue = "string" | "decimal" | "dateTime" | "boolean" | "ValueStorage" | "UUID"
 export type StyleItemTargetType = "Color" | "Font" | "Border"
 
+export type MetadataTargetFilter =
+  | { kind: "directMember" }
+  | { kind: "hasType"; type: MetadataTypeFilterValue }
+  | { kind: "styleItemType"; values: readonly StyleItemTargetType[] }
+  | { kind: "stringIndexedAttribute" }
+
+export interface MetadataTargetOwner {
+  root: MetadataRootName
+  objectName: string
+}
+
+export interface ObjectTargetConstraint {
+  kind: "object"
+  roots?: readonly MetadataRootName[]
+  scope?: "project" | "owner"
+  allowNested?: boolean
+  filters?: readonly MetadataTargetFilter[]
+}
+
+export interface MemberTargetConstraint {
+  kind: "member"
+  owner: "this" | "explicit"
+  roots?: readonly MetadataRootName[]
+  objectRoots?: readonly MetadataRootName[]
+  nestedObjectRoots?: readonly MetadataRootName[]
+  memberKinds?: readonly MetadataMemberKind[]
+  filters?: readonly MetadataTargetFilter[]
+  allowOwner?: boolean
+}
+
+export interface ValueTargetConstraint {
+  kind: "value"
+  roots?: readonly MetadataRootName[]
+  valueKinds?: readonly MetadataValueKind[]
+  allowEmptyRef?: boolean
+}
+
+export interface TypeTargetConstraint {
+  kind: "type"
+  roots?: readonly MetadataRootName[]
+  typeKinds?: readonly ("ref" | "object" | "primitive")[]
+  primitives?: readonly ("string" | "decimal" | "dateTime" | "boolean" | "ValueStorage")[]
+}
+
+export interface DataPathTargetConstraint {
+  kind: "dataPath"
+  context: "form"
+  allowedKinds?: readonly string[]
+  allowComposite?: boolean
+}
+
 export type MetadataTargetConstraint =
-  | { kind: "object"; roots?: readonly MetadataRootName[]; scope?: "project" | "owner"; allowNested?: boolean }
-  | {
-      kind: "field"
-      owner: "this" | "explicit"
-      roots?: readonly MetadataRootName[]
-      fieldKinds?: readonly MetadataFieldKind[]
-      filters?: readonly MetadataTargetFilterName[]
-      allowObject?: boolean
-    }
-  | {
-      kind: "value"
-      roots?: readonly MetadataRootName[]
-      valueKinds?: readonly MetadataValueKind[]
-      allowEmptyRef?: boolean
-    }
-  | {
-      kind: "type"
-      roots?: readonly MetadataRootName[]
-      typeKinds?: readonly ("ref" | "object" | "primitive")[]
-      primitives?: readonly ("string" | "decimal" | "dateTime" | "boolean" | "ValueStorage")[]
-    }
-  | { kind: "dataPath"; context: "form"; allowedKinds?: readonly string[]; allowComposite?: boolean }
-  | { kind: "localChild"; owner: "this"; childKind: "Form" | "Template" }
-  | { kind: "styleItem"; styleItemTypes: readonly StyleItemTargetType[] }
-  | { kind: "commonPicture" }
+  | ObjectTargetConstraint
+  | MemberTargetConstraint
+  | ValueTargetConstraint
+  | TypeTargetConstraint
+  | DataPathTargetConstraint
 
 export type ParsedMetadataTarget =
   | { kind: "object"; root: MetadataRootName; objectName: string; segments?: MetadataObjectSegment[] }
-  | { kind: "field"; root: MetadataRootName; objectName: string; segments: MetadataFieldSegment[] }
+  | { kind: "member"; root: MetadataRootName; objectName: string; segments: MetadataMemberSegment[] }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "predefinedValue"; valueName: string }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "enumValue"; valueName: string }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "emptyRef" }
-  | { kind: "styleItem"; name: string }
-  | { kind: "commonPicture"; name: string }
 
-export interface MetadataFieldSegment {
-  kind: MetadataFieldKind
+export interface MetadataMemberSegment {
+  kind: MetadataMemberKind
   name: string
 }
 

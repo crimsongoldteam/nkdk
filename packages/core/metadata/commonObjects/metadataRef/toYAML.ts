@@ -1,8 +1,10 @@
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { ExportToYAMLFunctionNew } from "~/metadata/orchestration/property/fn"
 import { isMetadataRootName, rootFromYAML } from "../metadataTargets/roots"
 import { MetadataFieldTypeFromYAML, MetadataFieldTypeToYAML } from "../metadataPath/types"
 import { ConfigurationContext } from "../../context/types"
+import type { MetadataTargetOwner } from "../metadataTargets/types"
 import { exportMetadataObjectStringToYAML } from "../metadataPath/toYAML"
 import { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
 
@@ -14,7 +16,8 @@ const toRoleYAML = (rule: { roleReferenceYAML?: "full" | "name" } | undefined, v
 export const exportMetadataItemLinkToYAML = (
   context: ConfigurationContext,
   rule: PropertyRule | undefined,
-  data: MetadataItemLink | undefined
+  data: MetadataItemLink | undefined,
+  owner?: MetadataTargetOwner
 ): MetadataItemLinkYAML | undefined => {
   if (data === undefined) return undefined
   if (data === "") return ""
@@ -23,7 +26,7 @@ export const exportMetadataItemLinkToYAML = (
   if (roleAwareValue !== data) return roleAwareValue
 
   try {
-    const exported = exportMetadataObjectStringToYAML(context, rule, roleAwareValue)
+    const exported = exportMetadataObjectStringToYAML(context, rule, roleAwareValue, owner)
     if (exported === undefined && rule?.roleReferenceYAML === "name") {
       if (canPassThroughShortRoleValue(roleAwareValue)) return roleAwareValue
       throwUnknownRoot(roleAwareValue)
@@ -39,15 +42,22 @@ export const exportMetadataItemLinkToYAML = (
 export const exportMetadataItemLinksToYAML = (
   _context: ConfigurationContext,
   rule: PropertyRule | undefined,
-  data: MetadataItemLinks | undefined
+  data: MetadataItemLinks | undefined,
+  owner?: MetadataTargetOwner
 ): MetadataItemLinksYAML | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportMetadataItemLinkToYAML(_context, rule, item)!)
+  return data.map((item) => exportMetadataItemLinkToYAML(_context, rule, item, owner)!)
 }
 
-registerTypeRule("MetadataItemLink", "exportToYAML", exportMetadataItemLinkToYAML)
-registerTypeRule("MetadataItemLinks", "exportToYAML", exportMetadataItemLinksToYAML)
+const exportMetadataItemLinkToYAMLProperty: ExportToYAMLFunctionNew = (params) =>
+  exportMetadataItemLinkToYAML(params.context, params.rule, params.value, params.owner)
+
+const exportMetadataItemLinksToYAMLProperty: ExportToYAMLFunctionNew = (params) =>
+  exportMetadataItemLinksToYAML(params.context, params.rule, params.value, params.owner)
+
+registerTypeRule("MetadataItemLink", "exportToYAML", exportMetadataItemLinkToYAMLProperty)
+registerTypeRule("MetadataItemLinks", "exportToYAML", exportMetadataItemLinksToYAMLProperty)
 
 function canPassThroughShortRoleValue(value: string): boolean {
   const root = value.split(".")[0]

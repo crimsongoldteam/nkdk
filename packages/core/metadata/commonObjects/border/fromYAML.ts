@@ -4,7 +4,7 @@ import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
 import { parseMetadataTargetFromYAML } from "../metadataTargets"
-import { Border, BorderYAML } from "./types"
+import { Border, BorderYAML, borderStyleItemTarget } from "./types"
 
 export const importBorderFromYAML = (
   context: ConfigurationContext,
@@ -39,10 +39,10 @@ export const importBorderFromYAML = (
 function importStyleItemRefFromYAML(value: string): string {
   const parsed = parseMetadataTargetFromYAML({
     value,
-    constraint: { kind: "styleItem", styleItemTypes: ["Border"] },
+    constraint: borderStyleItemTarget,
   })
   if (!parsed.ok) throw new Error(parsed.message)
-  return parsed.target.kind === "styleItem" ? parsed.target.name : value
+  return parsed.target.kind === "object" && parsed.target.root === "StyleItem" ? parsed.target.objectName : value
 }
 
 registerTypeRule("Border", "importFromYAML", importBorderFromYAML)

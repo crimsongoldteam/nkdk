@@ -1,7 +1,6 @@
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import { cypherSet } from "~/metadata/orchestration/property/cypherPredicate"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 
 const commonAttributeProperties = {
@@ -289,10 +288,12 @@ const binaryDataStorageLocationUseFieldProperty = {
     type: "string",
     xmlParents: ["Properties"],
     order: 31,
-    allowedValues: cypherSet({
-      query:
-        "MATCH (s {id: $scope})-[:ATTRIBUTE]->(a:MetadataAttribute)-[:TYPE]->(:Type {name: 'Boolean'}) RETURN a.name AS name",
-    }),
+    metadataTarget: {
+      kind: "member",
+      owner: "this",
+      memberKinds: ["Attribute"],
+      filters: [{ kind: "directMember" }, { kind: "hasType", type: "boolean" }],
+    },
   },
 } as const satisfies Record<string, PropertyRule>
 
