@@ -641,6 +641,56 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("returns a warning for a SettingsComposer form attribute data path", () => {
+    const result = resolve("КомпоновщикНастроек.Settings.Filter", {
+      index: indexWithAttributes([attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })]),
+    })
+
+    expect(result).toMatchObject({
+      status: "warning",
+      diagnostics: [
+        expect.objectContaining({
+          severity: "warning",
+          source: "structure",
+          message: 'ПутьКДанным "КомпоновщикНастроек.Settings.Filter": платформенный источник пока не проверяется',
+        }),
+      ],
+    })
+  })
+
+  it("returns a warning for indexed SettingsComposer user settings data paths", () => {
+    const result = resolve("КомпоновщикНастроек.UserSettings[0].Filter", {
+      index: indexWithAttributes([attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })]),
+    })
+
+    expect(result).toMatchObject({
+      status: "warning",
+      diagnostics: [
+        expect.objectContaining({
+          severity: "warning",
+          source: "structure",
+          message:
+            'ПутьКДанным "КомпоновщикНастроек.UserSettings[0].Filter": платформенный источник пока не проверяется',
+        }),
+      ],
+    })
+  })
+
+  it("keeps unsupported intermediate types as errors when the name looks like platform settings", () => {
+    const result = resolve("Хранилище.Settings.Filter", {
+      index: indexWithAttributes([attribute("Хранилище", { type: ["ValueStorage"] })]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Хранилище.Settings.Filter": промежуточный реквизит "Хранилище" имеет неподдерживаемый тип',
+        }),
+      ],
+    })
+  })
+
   it("returns a warning for Items.*.CurrentData.* paths", () => {
     const result = resolve("Items.Таблица.CurrentData.Номенклатура", {
       index: indexWithAttributes([]),

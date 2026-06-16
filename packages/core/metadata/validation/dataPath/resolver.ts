@@ -117,6 +117,10 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
       continue
     }
 
+    if (state.typeInfo.kinds.includes("platformSource")) {
+      return warning(params, `ПутьКДанным "${value}": платформенный источник пока не проверяется`)
+    }
+
     const ownerResult = params.ownerCache.get(state.typeInfo.nextTypes[0] as OwnerTypeRef)
     if (ownerResult.status !== "ok") return ownerError(ownerResult)
 
@@ -287,6 +291,7 @@ function validateIntermediateType(params: {
 
   if (params.state.tableSource !== undefined) return undefined
   if (typeInfo.kinds.includes("constantSet")) return undefined
+  if (typeInfo.kinds.includes("platformSource")) return undefined
 
   if (typeInfo.kinds.includes("unknown") || typeInfo.kinds.includes("any") || typeInfo.nextTypes.length === 0) {
     if (typeInfo.kinds.includes("unsupportedIntermediate")) {

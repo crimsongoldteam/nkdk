@@ -99,6 +99,19 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
     })
   })
 
+  it("maps SettingsComposer as an opaque platform source", () => {
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["SettingsComposer"] })).toEqual({
+      kinds: ["platformSource"],
+      nextTypes: [],
+      sourceText: "SettingsComposer",
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["КомпоновщикНастроекКомпоновкиДанных"] })).toEqual({
+      kinds: ["platformSource"],
+      nextTypes: [],
+      sourceText: "КомпоновщикНастроекКомпоновкиДанных",
+    })
+  })
+
   it("maps missing type descriptions to unknown without using defaultType", () => {
     expect(typeDescriptionToDataPathTypeInfo(undefined, { defaultType: "boolean" })).toEqual({
       kinds: ["unknown"],

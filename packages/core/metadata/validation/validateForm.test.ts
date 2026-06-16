@@ -516,6 +516,27 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("warns for SettingsComposer data paths without validating platform internals", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  КомпоновщикНастроек:",
+        "    Тип: КомпоновщикНастроекКомпоновкиДанных",
+        "Элементы:",
+        "  Отбор:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: КомпоновщикНастроек.Settings.Filter",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([
+      expect.objectContaining({
+        severity: "warning",
+        message: 'ПутьКДанным "КомпоновщикНастроек.Settings.Filter": платформенный источник пока не проверяется',
+      }),
+    ])
+  })
+
   it("warns for Items.*.CurrentData.* paths", () => {
     const project = createProject({
       form: ["Элементы:", "  Кнопка:", "    Вид: Кнопка", "    Данные: Items.Таблица.CurrentData.Номенклатура"],

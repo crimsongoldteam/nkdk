@@ -101,6 +101,9 @@ function mapType(type: string): { kind: DataPathValueKind; nextType?: OwnerTypeR
     case "ConstantsSet":
     case "КонстантыНабор":
       return { kind: "constantSet" }
+    case "SettingsComposer":
+    case "КомпоновщикНастроекКомпоновкиДанных":
+      return { kind: "platformSource" }
   }
 
   if (baseTypeOf(type) === "DefinedType") return { kind: "object" }
