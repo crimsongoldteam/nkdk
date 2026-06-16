@@ -1,19 +1,15 @@
-import { LineCounter, YAMLMap } from "yaml"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "~/metadata/context/types"
-import { GraphOps, GraphOpsChild } from "~/metadata/orchestration/property/fn"
 import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
 import { importMetadataItemCollectionFromYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/fromYAML"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { isEmptyMetadataItem } from "~/metadata/orchestration/formElement/helper"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ItemXML, PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
-import { computeKeyPosition, findSubmap } from "~/metadata/orchestration/property/position"
 import { StandardAttributeDescriptionRules } from "./rules"
 import {
   StandartAttributeNameFromYAML,
@@ -22,9 +18,6 @@ import {
 } from "./standartAttributeNames"
 import type { StandardAttributeDescription } from "./types"
 
-const NODE_SEGMENT = "СтандартныйРеквизит"
-const EDGE_KIND = "STANDARD_ATTRIBUTE"
-const EDGE_YAML = "СтандартныйРеквизит"
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 
 function filterNonEmpty(
@@ -48,55 +41,6 @@ function filterNonEmpty(
     })
   })
   return filtered.length > 0 ? filtered : undefined
-}
-
-function buildStandardAttributesGraph(params: {
-  model: unknown
-  parentNodeId: string
-  filePath: string
-  yamlMap: YAMLMap | undefined
-  lineCounter: LineCounter | undefined
-  propRule: PropertyRule
-}): GraphOps | undefined {
-  const { model, parentNodeId, yamlMap, lineCounter, propRule } = params
-  const stdAttrRule = propRule as StandardAttributeDescriptionsPropertyRule
-  if (!stdAttrRule.standartAttributeNames) return undefined
-
-  const stdAttrsYamlMap = propRule.yaml ? findSubmap(yamlMap, propRule.yaml) : undefined
-  const result = model as readonly StandardAttributeDescription[] | undefined
-
-  // Build map of explicitly defined items (russianName → item)
-  const explicitItems = new Map<string, StandardAttributeDescription>()
-  const nameToYAML = buildNameToYAML(propRule)
-  if (result) {
-    for (const item of result) {
-      const russianName = nameToYAML(item)
-      if (russianName) explicitItems.set(russianName, item)
-    }
-  }
-
-  const children: GraphOpsChild[] = []
-  for (const [index, [internalName, russianName]] of Object.entries(stdAttrRule.standartAttributeNames).entries()) {
-    const absoluteId = `${parentNodeId}.${NODE_SEGMENT}.${russianName}`
-
-    // US 13: standard attributes always have item so they are never treated as stubs
-    const item = explicitItems.get(russianName) ?? {
-      itemType: "StandardAttributeDescription" as const,
-      name: internalName,
-    }
-    children.push({
-      idSuffix: russianName,
-      absoluteId,
-      name: russianName,
-      positionFrom:
-        stdAttrsYamlMap && lineCounter ? computeKeyPosition(stdAttrsYamlMap, russianName, lineCounter) : undefined,
-      index,
-      item: item as unknown as Record<string, unknown>,
-    })
-  }
-
-  if (children.length === 0) return undefined
-  return { children, edgeKind: EDGE_KIND, edgeYaml: EDGE_YAML }
 }
 
 function importStandardAttributeDescriptionsFromYAML(
@@ -345,5 +289,3 @@ registerMetadataItemCollectionRule({
   toYAML: exportStandardAttributeDescriptionsToYAML,
   toXML: exportStandardAttributeDescriptionsToXML,
 })
-
-registerTypeRule("StandardAttributeDescriptions", "buildGraphFromModel", buildStandardAttributesGraph)

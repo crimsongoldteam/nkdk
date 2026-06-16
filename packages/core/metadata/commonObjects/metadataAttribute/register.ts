@@ -1,6 +1,5 @@
 import { Type, type TSchema } from "@sinclair/typebox"
 import { MetadataAttributeYAML, MetadataAttributes, MetadataAttributesXML, MetadataAttributesYAML } from "./types"
-import "~/metadata/commonObjects/typeDescription/graphFromModel"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"

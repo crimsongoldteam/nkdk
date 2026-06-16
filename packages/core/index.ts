@@ -54,23 +54,6 @@ export { importFromYAML } from "./yaml/import"
 export { parseMetadataYaml } from "./yaml/parseMetadataYaml"
 export type { ParsedYaml } from "./yaml/parseMetadataYaml"
 export { importMetadataEnumerationFromYAML } from "./metadata/appliedObjects/metadataEnumeration/fromYAML"
-export {
-  importMetadataFileWithGraph,
-  type ImportMetadataFileResult,
-} from "./metadata/orchestration/importMetadataFileWithGraph"
-export { buildGraph, buildGraphForChangedFile } from "./metadata/graphImport/buildGraph"
-export {
-  discoverProjectGraphFiles,
-  isSupportedProjectGraphFile,
-} from "./metadata/graphImport/projectFiles"
-export type {
-  BuildGraphForChangedFileParams,
-  FileGraphData,
-  FileStats,
-  ImportContext,
-  ProjectGraphInput,
-  ProjectGraphSource,
-} from "./metadata/orchestration/buildGraph"
 export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
 export {
   validateProject,

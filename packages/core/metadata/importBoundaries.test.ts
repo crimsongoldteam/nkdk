@@ -40,7 +40,6 @@ const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
   "metadata/validation/schemaRegistry.test.ts",
   "metadata/validation/validateForm.test.ts",
   "metadata/validation/dataPath/formTraversal.test.ts",
-  "metadata/commonObjects/metadataField/graphFromModel.unit.test.ts",
   "metadata/appliedObjects/metadataWebSocketClient/fromYAML.test.ts",
   "metadata/appliedObjects/metadataWebSocketClient/toYAML.test.ts",
   "metadata/appliedObjects/metadataXDTOPackage/fromYAML.test.ts",

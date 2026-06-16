@@ -32,7 +32,7 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   fromYAML?: importFromYAMLFunction
   toYAML?: ExportToYAMLFunction
   toJSONSchema?: ExportToJSONSchemaFn
-  /** Декларативное создание owning-дочерних узлов в buildGraphFromModel */
+  /** Декларативное описание дочерних item-правил для обхода коллекции. */
   graphChild?: {
     idFrom: keyof Rule["properties"] & string
     /** ASCII-метка kind'а ребра. SCREAMING_SNAKE_CASE. */

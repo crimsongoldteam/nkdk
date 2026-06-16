@@ -19,20 +19,17 @@ import "./commandInterface/toJSONSchema"
 import "./commandInterface/toXML"
 import "./commandInterface/toYAML"
 
-import "./formCommand/graphFromModel"
 import "./formCommand/toJSONSchema"
 import "./formCommand/types"
 
 import "./formParameter/fromXML"
 import "./formParameter/fromYAML"
-import "./formParameter/graphFromModel"
 import "./formParameter/toJSONSchema"
 import "./formParameter/toXML"
 import "./formParameter/toYAML"
 
 import "./formAttribute/fromXML"
 import "./formAttribute/fromYAML"
-import "./formAttribute/graphFromModel"
 import "./formAttribute/toJSONSchema"
 import "./formAttribute/toXML"
 import "./formAttribute/toYAML"
@@ -46,7 +43,6 @@ import "./childItems/toYAML"
 
 import "./dataPath/toEnterprise"
 
-import "./commandName/graphFromModel"
 import "./commandName/toEnterprise"
 import "./commandName/toJSONSchema"
 

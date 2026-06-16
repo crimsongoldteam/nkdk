@@ -7,7 +7,6 @@ import {
 } from "../../context/types"
 import type { RuntimeChildKind } from "~/metadata/commonObjects/metadataPath/graphPath"
 import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
-import type { GraphPrimitive } from "~/metadata/orchestration/buildGraph/types"
 import type { ProjectMetadataResolver } from "~/metadata/validation/projectMetadataResolver"
 import type { Diagnostic } from "~/metadata/validation/types"
 import type { YamlPath } from "~/metadata/validation/yamlLocations"
@@ -93,20 +92,9 @@ export type ValidateMetadataTargetFunction = (params: {
   owner?: MetadataTargetOwner
 }) => Diagnostic[]
 
-export type BuildGraphFromModelFunction = (params: {
-  model: unknown
-  parentNodeId: string
-  filePath: string
-  yamlMap: YAMLMap | undefined
-  lineCounter: LineCounter | undefined
-  propRule: PropertyRule
-  /** JS-ключ свойства из MetadataItemRule.properties. */
-  propertyName: string
-  /** Дополнительный контекст, пробрасываемый в кастомные обработчики (например, formNodeId). */
-  extra?: Record<string, unknown>
-}) => GraphOps | GraphOps[] | undefined | void
+type GraphOpsPrimitive = string | number | boolean
 
-export type GraphOpsEdgeProps = Record<string, GraphPrimitive>
+export type GraphOpsEdgeProps = Record<string, GraphOpsPrimitive>
 
 export interface GraphOpsChild {
   /**
@@ -199,24 +187,6 @@ export interface GraphOps {
   edgeYaml?: string
 }
 
-export type ExtractGraphFromModelFunction<TModel = unknown> = (
-  model: TModel,
-  position?: SourcePosition
-) => GraphOps | undefined
-
-export type GraphEdgeFromParent = {
-  /**
-   * ASCII-метка kind'а для reference-ребра — используется как fallback,
-   * если у PropertyRule не задан graphEdgeKind. SCREAMING_SNAKE_CASE.
-   */
-  kind?: string
-  /**
-   * Русский YAML-ключ для ребра — используется как fallback для поля yaml,
-   * если у PropertyRule не задан yaml.
-   */
-  yaml?: string
-}
-
 /**
  * Хендлер для свойств, хранящих значение во внешних файлах (Help.xml, .bsl, формы).
  * Вызывается оркестратором в сторону nkdk — читает XML-сторону и пишет nkdk-сторону.
@@ -272,9 +242,6 @@ export interface TypeRule {
   exportToYAML?: ExportToYAMLFunction | ExportToYAMLFunctionNew
   exportToEnterprise?: ExportToEnterpriseFunction
   exportToJSONSchema?: ExportToJSONSchemaFn
-  buildGraphFromModel?: BuildGraphFromModelFunction
-  extractGraph?: ExtractGraphFromModelFunction
-  graphEdgeFromParent?: GraphEdgeFromParent
   graphChild?: GraphChildRule
   syncExternalFromXML?: SyncExternalFromXMLFunction
   syncExternalToXML?: SyncExternalToXMLFunction
@@ -288,9 +255,6 @@ export type TypeRulesOperations =
   | "exportToYAML"
   | "exportToEnterprise"
   | "exportToJSONSchema"
-  | "buildGraphFromModel"
-  | "extractGraph"
-  | "graphEdgeFromParent"
   | "graphChild"
   | "syncExternalFromXML"
   | "syncExternalToXML"
@@ -310,21 +274,15 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
       : O extends "importFromXML"
         ? ImportFromXMLFunction | undefined
         : O extends "exportToEnterprise"
-          ? ExportToEnterpriseFunction | undefined
-          : O extends "exportToJSONSchema"
-            ? ExportToJSONSchemaFn | undefined
-            : O extends "buildGraphFromModel"
-              ? BuildGraphFromModelFunction | undefined
-              : O extends "extractGraph"
-                ? ExtractGraphFromModelFunction | undefined
-                : O extends "graphEdgeFromParent"
-                  ? GraphEdgeFromParent | undefined
-                  : O extends "graphChild"
-                    ? GraphChildRule | undefined
-                    : O extends "syncExternalFromXML"
-                      ? SyncExternalFromXMLFunction | undefined
-                      : O extends "syncExternalToXML"
-                        ? SyncExternalToXMLFunction | undefined
-                        : O extends "validateMetadataTarget"
-                          ? ValidateMetadataTargetFunction | undefined
-                          : never
+        ? ExportToEnterpriseFunction | undefined
+        : O extends "exportToJSONSchema"
+          ? ExportToJSONSchemaFn | undefined
+          : O extends "graphChild"
+            ? GraphChildRule | undefined
+            : O extends "syncExternalFromXML"
+              ? SyncExternalFromXMLFunction | undefined
+              : O extends "syncExternalToXML"
+                ? SyncExternalToXMLFunction | undefined
+                : O extends "validateMetadataTarget"
+                  ? ValidateMetadataTargetFunction | undefined
+                  : never

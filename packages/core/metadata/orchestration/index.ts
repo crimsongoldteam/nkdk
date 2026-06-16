@@ -25,5 +25,3 @@ export * from "./formElement/ruleFactory"
 export * from "./formElement/toXML"
 export * from "./formElement/toYAML"
 export * from "./formElement/types"
-
-export * from "./buildGraph"
