@@ -83,6 +83,29 @@ describe("validateResolvedDataPathPolicy", () => {
   it("accepts a matching terminal kind", () => {
     expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture"] }), kinds: ["Picture"] })).toEqual([])
   })
+
+  it("accepts scalar terminal kind when the rule explicitly allows it", () => {
+    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "scalar"] }), kinds: ["scalar"] })).toEqual([])
+  })
+
+  it("accepts boolean terminal kind when the rule explicitly allows it", () => {
+    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "boolean"] }), kinds: ["boolean"] })).toEqual([])
+  })
+
+  it("accepts object terminal kind when the rule explicitly allows it", () => {
+    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "object"] }), kinds: ["object"] })).toEqual([])
+  })
+
+  it("still rejects scalar terminal kind when only Picture is allowed", () => {
+    const diagnostics = validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture"] }), kinds: ["scalar"] })
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        message: expect.stringContaining("ожидается Picture"),
+      }),
+    ])
+  })
 })
 
 function validatePolicy(params: {

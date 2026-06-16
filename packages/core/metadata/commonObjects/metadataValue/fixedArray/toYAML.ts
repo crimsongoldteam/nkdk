@@ -1,11 +1,22 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportMetadataValueToYAML } from "../toYAML"
-import { MetadataFixedArrayValue, MetadataFixedArrayValueYAML } from "../types"
+import { MetadataFixedArrayValue, MetadataFixedArrayValueYAML, MetadataTypedValue } from "../types"
+
+const exportFixedArrayElementToYAML = (
+  context: ConfigurationContext,
+  value: MetadataTypedValue | undefined
+): MetadataFixedArrayValueYAML[number] => {
+  if (value === undefined) return undefined
+
+  if (value.type === "formChoiceListDesTimeValue" && value.presentation === undefined) {
+    return exportMetadataValueToYAML(context, undefined, value.value) as MetadataFixedArrayValueYAML[number]
+  }
+
+  return exportMetadataValueToYAML(context, undefined, value) as MetadataFixedArrayValueYAML[number]
+}
 
 export const exportFixedArrayToYAML = (
   context: ConfigurationContext,
   data: MetadataFixedArrayValue
 ): MetadataFixedArrayValueYAML =>
-  data.value.map(
-    (v) => (v === undefined ? undefined : exportMetadataValueToYAML(context, undefined, v)!)
-  ) as MetadataFixedArrayValueYAML
+  data.value.map((v) => exportFixedArrayElementToYAML(context, v)) as MetadataFixedArrayValueYAML

@@ -2,11 +2,14 @@ import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import type { Diagnostic } from "../types"
 import { diagnosticAtYamlPath, type YamlPath } from "../yamlLocations"
 import { getKnownPlatformFormSource, type FormDataPathIndex } from "./formIndex"
-import { validateObjectFieldSegment, type ObjectFieldTableSource } from "./objectFields"
+import {
+  resolveObjectFieldSegment,
+  standardAttributeAliasToYAML,
+  type ObjectFieldTableSource,
+} from "./objectFields"
 import type { OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
 import type {
   DataPathTypeInfo,
-  FormDataPathColumnSource,
   FormDataPathSource,
   FormDataPathTableSource,
   OwnerTypeRef,
@@ -47,6 +50,11 @@ interface TraversalState {
   typeInfo: DataPathTypeInfo
   source: ResolvedDataPathTargetSource
   tableSource?: FormDataPathTableSource | ObjectFieldTableSource
+}
+
+interface TableColumnSource {
+  name: string
+  typeInfo: DataPathTypeInfo
 }
 
 export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathResult {
@@ -97,17 +105,7 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
     const ownerResult = params.ownerCache.get(state.typeInfo.nextTypes[0] as OwnerTypeRef)
     if (ownerResult.status !== "ok") return ownerError(ownerResult)
 
-    const segmentDiagnostics = validateObjectFieldSegment({
-      owner: ownerResult.owner,
-      segment,
-      dataPathValue: value,
-      filePath: params.filePath,
-      parsed: params.parsed,
-      yamlPath: params.yamlPath,
-    })
-    if (segmentDiagnostics.length > 0) return { status: "error", diagnostics: segmentDiagnostics }
-
-    const field = ownerResult.owner.fieldIndex.fields.get(segment)
+    const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment })
     if (field === undefined) {
       return error(params, `ПутьКДанным "${value}": неизвестный реквизит "${segment}"`)
     }
@@ -170,7 +168,7 @@ function resolveTableColumn(params: {
     }
   }
 
-  const column = tableSource.columns.get(params.segment)
+  const column = resolveTableColumnSource({ columns: tableSource.columns, segment: params.segment })
   if (column === undefined) {
     if (tableSource.hasColumns) {
       return {
@@ -192,7 +190,16 @@ function resolveTableColumn(params: {
   return { status: "continue", state }
 }
 
-function stateFromTableColumn(params: { tableName: string; column: FormDataPathColumnSource }): TraversalState {
+function resolveTableColumnSource(params: {
+  columns: FormDataPathTableSource["columns"] | ObjectFieldTableSource["columns"]
+  segment: string
+}): TableColumnSource | undefined {
+  const alias = standardAttributeAliasToYAML(params.segment)
+  if (alias !== undefined) return params.columns.get(alias) ?? params.columns.get(params.segment)
+  return params.columns.get(params.segment)
+}
+
+function stateFromTableColumn(params: { tableName: string; column: TableColumnSource }): TraversalState {
   return {
     typeInfo: params.column.typeInfo,
     source: { kind: "tableColumn", table: params.tableName, name: params.column.name },

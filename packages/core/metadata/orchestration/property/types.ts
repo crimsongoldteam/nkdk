@@ -254,7 +254,7 @@ export interface TypeDescriptionPropertyRule extends BasePropertyRule {
   allowedTypes?: TypeDescriptionAllowedTypes
 }
 
-export type DataPathAllowedKind = "boolean" | "dateTime" | "Picture" | "tableSource"
+export type DataPathAllowedKind = "boolean" | "dateTime" | "Picture" | "scalar" | "object" | "tableSource"
 
 export interface DataPathPropertyRule extends BasePropertyRule {
   type: "DataPath"

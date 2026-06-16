@@ -159,7 +159,7 @@ export const TableRules = {
       yaml: "ПутьКДаннымКартинкиСтроки",
       type: "DataPath",
       defaultType: "Picture",
-      allowedKinds: ["Picture"],
+      allowedKinds: ["Picture", "scalar", "boolean", "object"],
       allowComposite: false,
       order: 80,
     },

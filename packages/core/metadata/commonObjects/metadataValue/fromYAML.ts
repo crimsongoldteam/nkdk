@@ -67,7 +67,11 @@ export const importMetadataValueFromYAML = (
     return result
   }
 
-  if (typeof data === "object" && !Array.isArray(data) && "Представление" in data) {
+  if (
+    typeof data === "object" &&
+    !Array.isArray(data) &&
+    ("Представление" in data || ("Значение" in data && !("Тип" in data)))
+  ) {
     const result = importFormChoiceListFromYAML(context, data as MetadataFormChoiceListValueYAML)
     assertValueType(ruleTyped?.valueType, result.type, "fromYAML")
     return result

@@ -44,6 +44,8 @@ describe("MetadataDcsMetadataValue exportToJSONSchema", () => {
     expect(errorsFor(rule, null)).toEqual([])
     expect(errorsFor(rule, "Ложь")).toEqual([])
     expect(errorsFor(rule, 123)).toEqual([])
+    expect(errorsFor(rule, { Значение: "Истина" })).toEqual([])
+    expect(errorsFor(rule, { Значение: ["Перечисление.ТипыДоговоров.СПоставщиком"] })).toEqual([])
     expect(
       errorsFor(rule, {
         Тип: "СистемноеПеречисление",
@@ -124,6 +126,13 @@ describe("MetadataDcsMetadataValue exportToJSONSchema", () => {
     ).toBe(false)
     expect(schemaFor(primitiveRule).Check([[1]])).toBe(false)
     expect(schemaFor(primitiveRule).Check({ Вариант: "Вчера", Лишнее: "значение" })).toBe(false)
+  })
+
+  it("rejects empty and unknown objects in Primitive metadata values", () => {
+    const rule = { type: "MetadataDcsMetadataValue", valueType: "Primitive", yaml: "Видимость" } as const
+
+    expect(schemaFor(rule).Check({})).toBe(false)
+    expect(schemaFor(rule).Check({ Лишнее: "x" })).toBe(false)
   })
 
   it("rejects unsupported DesignTimeValue metadata values", () => {

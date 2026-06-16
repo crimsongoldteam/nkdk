@@ -27,12 +27,11 @@ export const exportFormChoiceListToYAML = (
     context,
     rule: { type: "I8nText" },
     value: data.presentation,
-  }) ?? ""
+  })
 
-  const result: MetadataFormChoiceListValueYAML = {
-    Представление: presentation,
-  }
+  const result: MetadataFormChoiceListValueYAML = {}
 
+  if (presentation !== undefined) result.Представление = presentation
   if (valueResult !== undefined) result.Значение = valueResult
 
   return result

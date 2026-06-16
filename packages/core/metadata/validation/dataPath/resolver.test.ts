@@ -225,6 +225,140 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("resolves LineNumber as an alias for the YAML row number column", () => {
+    const result = resolve("Объект.Товары.LineNumber", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Документ", name: "Заказ" },
+          rule: MetadataDocumentRules,
+          model: {
+            itemType: "MetadataDocument",
+            tabularSections: [
+              {
+                itemType: "MetadataTabularSection",
+                name: "Товары",
+                attributes: [{ name: "Номенклатура", type: { type: ["CatalogRef.Номенклатура"] } }],
+              },
+            ],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Объект.Товары.LineNumber",
+        segments: ["Объект", "Товары", "LineNumber"],
+        source: { kind: "tableColumn", table: "Товары", name: "НомерСтроки" },
+      },
+    })
+  })
+
+  it("resolves Date as an alias for the YAML standard attribute name", () => {
+    const result = resolve("Объект.Date", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Документ", name: "Заказ" },
+          rule: MetadataDocumentRules,
+          model: { itemType: "MetadataDocument" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Объект.Date",
+        segments: ["Объект", "Date"],
+        source: { kind: "objectField", owner: { kind: "Документ", name: "Заказ" }, name: "Дата" },
+      },
+    })
+  })
+
+  it("resolves platform standard attribute aliases through owner metadata", () => {
+    const result = resolve("Объект.Number", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Документ", name: "Заказ" },
+          rule: MetadataDocumentRules,
+          model: { itemType: "MetadataDocument" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Объект.Number",
+        segments: ["Объект", "Number"],
+        source: { kind: "objectField", owner: { kind: "Документ", name: "Заказ" }, name: "Номер" },
+      },
+    })
+  })
+
+  it("resolves catalog platform standard aliases through owner metadata", () => {
+    const owners = ownerCache([owner({ ref: { kind: "Справочник", name: "Номенклатура" } })])
+
+    for (const [path, yamlName] of [
+      ["Объект.Description", "Наименование"],
+      ["Объект.Code", "Код"],
+      ["Объект.Ref", "Ссылка"],
+    ] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Номенклатура"] })]),
+          ownerCache: owners,
+        }),
+      ).toMatchObject({
+        status: "ok",
+        diagnostics: [],
+        target: {
+          value: path,
+          source: { kind: "objectField", owner: { kind: "Справочник", name: "Номенклатура" }, name: yamlName },
+        },
+      })
+    }
+  })
+
+  it("resolves platform aliases after traversing a reference column", () => {
+    const result = resolve("Объект.Товары.Номенклатура.Code", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Документ", name: "Заказ" },
+          rule: MetadataDocumentRules,
+          model: {
+            itemType: "MetadataDocument",
+            tabularSections: [
+              {
+                itemType: "MetadataTabularSection",
+                name: "Товары",
+                attributes: [{ name: "Номенклатура", type: { type: ["CatalogRef.Номенклатура"] } }],
+              },
+            ],
+          },
+        }),
+        owner({ ref: { kind: "Справочник", name: "Номенклатура" } }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Объект.Товары.Номенклатура.Code",
+        source: { kind: "objectField", owner: { kind: "Справочник", name: "Номенклатура" }, name: "Код" },
+      },
+    })
+  })
+
   it("requires a child table DataPath to start with the parent table path", () => {
     const result = resolve("Номенклатура", {
       index: indexWithAttributes([
@@ -331,10 +465,16 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("reports Ref instead of YAML Ссылка as an error", () => {
-    const result = resolve("Объект.Ref", {
-      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Номенклатура"] })]),
-      ownerCache: ownerCache([owner({ ref: { kind: "Справочник", name: "Номенклатура" } })]),
+  it("reports platform alias as unknown when the owner does not have the standard attribute", () => {
+    const result = resolve("Объект.Parent", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Документ", name: "Заказ" },
+          rule: MetadataDocumentRules,
+          model: { itemType: "MetadataDocument" },
+        }),
+      ]),
     })
 
     expect(result).toMatchObject({
@@ -343,8 +483,7 @@ describe("resolveDataPath", () => {
         expect.objectContaining({
           source: "structure",
           severity: "error",
-          message:
-            'ПутьКДанным "Объект.Ref": используйте YAML-имя реквизита вместо платформенного "Ref"',
+          message: 'ПутьКДанным "Объект.Parent": неизвестный реквизит "Parent"',
         }),
       ],
     })
