@@ -1,9 +1,11 @@
-import { Border, BorderEnterprise } from "~/metadata/commonObjects/border/types"
+import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
 
 export interface BorderTestCase {
   name: string
   border: Border
   preview: BorderEnterprise
+  xml?: string
+  yaml?: BorderYAML
 }
 
 export const borderTestCases: readonly BorderTestCase[] = [
@@ -11,6 +13,13 @@ export const borderTestCases: readonly BorderTestCase[] = [
     name: "empty border",
     border: {},
     preview: { Type: "Border" },
+  },
+  {
+    name: "border by style ref",
+    border: { ref: "TestBorder" },
+    preview: { Type: "Border" },
+    xml: `<Border ref="style:TestBorder"/>`,
+    yaml: { Имя: "ЭлементСтиля.TestBorder" },
   },
   {
     name: "border with width only",
