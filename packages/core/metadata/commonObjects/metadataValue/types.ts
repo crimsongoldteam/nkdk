@@ -190,7 +190,7 @@ export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
 )
 
 export const MetadataFormChoiceListComplexValueJSONSchema = Type.Object({
-  Представление: I8nTextJSONSchema,
+  Представление: Type.Optional(I8nTextJSONSchema),
   Значение: Type.Optional(
     Type.Union([
       MetadataValueJSONSchema,

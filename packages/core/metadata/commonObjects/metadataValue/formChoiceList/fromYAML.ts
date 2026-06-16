@@ -31,15 +31,19 @@ export const importFormChoiceListFromYAML = (
   context: ConfigurationContext,
   data: MetadataFormChoiceListValueYAML
 ): MetadataFormChoiceListValue => {
+  const presentation = importPresentationFromYAML(context, data.Представление)
   const value =
     data.Значение === undefined
       ? undefined
       : (importExplicitChoiceListValueFromYAML(data.Значение) ??
         importMetadataValueFromYAML(context, undefined, data.Значение))
 
-  return {
+  const result: MetadataFormChoiceListValue = {
     type: "formChoiceListDesTimeValue",
-    presentation: importPresentationFromYAML(context, data.Представление),
-    value,
   }
+
+  if (presentation !== undefined) result.presentation = presentation
+  if (value !== undefined) result.value = value
+
+  return result
 }
