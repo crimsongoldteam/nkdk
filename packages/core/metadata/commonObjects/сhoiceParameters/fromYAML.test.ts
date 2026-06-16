@@ -26,6 +26,7 @@ import {
 } from "~/metadata/commonObjects/сhoiceParameters/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { importChoiceParametersFromYAML } from "./fromYAML"
+import type { ChoiceParametersYAML } from "./types"
 
 describe("importChoiceParametersFromYAML", () => {
   it("should return undefined for undefined input", () => {
@@ -86,6 +87,19 @@ describe("importChoiceParametersFromYAML", () => {
     const result = importChoiceParametersFromYAML(mockContext, mockRule, nilChoiceParametersYAML)
 
     expect(result).toStrictEqual(nilChoiceParameters)
+    expect(Object.prototype.hasOwnProperty.call(result?.[0], "value")).toBe(false)
+  })
+
+  it("imports YAML null choice parameter as parameter without value", () => {
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, {
+      ВыборСчетовГоловнойОрганизации: null,
+    } as ChoiceParametersYAML)
+
+    expect(result).toStrictEqual([
+      {
+        name: "ВыборСчетовГоловнойОрганизации",
+      },
+    ])
     expect(Object.prototype.hasOwnProperty.call(result?.[0], "value")).toBe(false)
   })
 

@@ -183,6 +183,43 @@ export const formEnumChoiceParametersYAML: ChoiceParametersYAML = {
     Значение: "Перечисление.ТипыСчетов.НераспределеннаяПрибыль",
   },
 }
+
+export const formChoiceFixedArrayChoiceParameter: ChoiceParameters = [
+  {
+    name: "Отбор.ТипДоговора",
+    value: {
+      type: "formChoiceListDesTimeValue",
+      value: {
+        type: "fixedArray",
+        value: [
+          {
+            type: "formChoiceListDesTimeValue",
+            value: {
+              type: "ref",
+              value: "Enum.ТипыДоговоров.EnumValue.СПоставщиком",
+            },
+          },
+          {
+            type: "formChoiceListDesTimeValue",
+            value: {
+              type: "ref",
+              value: "Enum.ТипыДоговоров.EnumValue.СКомитентом",
+            },
+          },
+        ],
+      },
+    },
+  },
+]
+
+export const formChoiceFixedArrayChoiceParametersYAML: ChoiceParametersYAML = {
+  "Отбор.ТипДоговора": {
+    Значение: [
+      "Перечисление.ТипыДоговоров.СПоставщиком",
+      "Перечисление.ТипыДоговоров.СКомитентом",
+    ],
+  },
+}
 //#endregion
 
 //#region Without Value

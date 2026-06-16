@@ -345,7 +345,7 @@ git commit -m "fix: :bug: упростить YAML элементов formChoiceL
 - Create: `packages/core/metadata/commonObjects/сhoiceParameters/toJSONSchema.test.ts`
 - Modify: `packages/core/metadata/commonObjects/сhoiceParameters/types.ts`
 
-- [ ] **Step 1: Update expected YAML for existing form choice fixtures**
+- [x] **Step 1: Update expected YAML for existing form choice fixtures**
 
 In `packages/core/metadata/commonObjects/сhoiceParameters/__fixtures__/data.ts`, replace `formBooleanChoiceParametersYAML` with:
 
@@ -367,7 +367,7 @@ export const formEnumChoiceParametersYAML: ChoiceParametersYAML = {
 }
 ```
 
-- [ ] **Step 2: Add ERP-like fixture**
+- [x] **Step 2: Add ERP-like fixture**
 
 In the same file, add after `formEnumChoiceParametersYAML`:
 
@@ -410,7 +410,7 @@ export const formChoiceFixedArrayChoiceParametersYAML: ChoiceParametersYAML = {
 }
 ```
 
-- [ ] **Step 3: Add export test for ERP-like fixture**
+- [x] **Step 3: Add export test for ERP-like fixture**
 
 In `packages/core/metadata/commonObjects/сhoiceParameters/toYAML.test.ts`, import `formChoiceFixedArrayChoiceParameter` and `formChoiceFixedArrayChoiceParametersYAML`, then add:
 
@@ -422,7 +422,7 @@ it("exports choice parameters with nested form choice fixedArray without empty p
 })
 ```
 
-- [ ] **Step 4: Add import test for YAML parser null**
+- [x] **Step 4: Add import test for YAML parser null**
 
 In `packages/core/metadata/commonObjects/сhoiceParameters/fromYAML.test.ts`, add:
 
@@ -447,7 +447,7 @@ Also add this import at the top if it is missing:
 import type { ChoiceParametersYAML } from "./types"
 ```
 
-- [ ] **Step 5: Create JSON Schema tests**
+- [x] **Step 5: Create JSON Schema tests**
 
 Create `packages/core/metadata/commonObjects/сhoiceParameters/toJSONSchema.test.ts`:
 
@@ -482,7 +482,7 @@ describe("ChoiceParametersJSONSchema", () => {
 })
 ```
 
-- [ ] **Step 6: Run tests and verify schema test fails**
+- [x] **Step 6: Run tests and verify schema test fails**
 
 Run:
 
@@ -492,7 +492,7 @@ pnpm --filter @nakidka/core test -- metadata/commonObjects/сhoiceParameters/toY
 
 Expected: schema test for `null` fails until `ChoiceParametersJSONSchema` includes `Type.Null()`.
 
-- [ ] **Step 7: Update ChoiceParameters JSON Schema**
+- [x] **Step 7: Update ChoiceParameters JSON Schema**
 
 In `packages/core/metadata/commonObjects/сhoiceParameters/types.ts`, replace `ChoiceParametersJSONSchema` with:
 
@@ -503,7 +503,7 @@ export const ChoiceParametersJSONSchema = Type.Record(
 )
 ```
 
-- [ ] **Step 8: Run focused tests and verify they pass**
+- [x] **Step 8: Run focused tests and verify they pass**
 
 Run:
 
@@ -513,7 +513,7 @@ pnpm --filter @nakidka/core test -- metadata/commonObjects/сhoiceParameters/toY
 
 Expected: all selected tests pass.
 
-- [ ] **Step 9: Commit Task 3**
+- [x] **Step 9: Commit Task 3**
 
 Run:
 
