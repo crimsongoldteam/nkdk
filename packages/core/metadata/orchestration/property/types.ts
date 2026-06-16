@@ -440,8 +440,7 @@ export interface MetadataItemRule extends MetadataItem {
   xsiType?: string
 
   /**
-   * Префикс типа объекта в NodeId графа (например "Справочник" для MetadataCatalog).
-   * Используется вместо хардкода в graph.ts.
+   * Префикс типа объекта в предметном пути метаданных (например "Справочник" для MetadataCatalog).
    */
   itemTypePrefix?: string
 
