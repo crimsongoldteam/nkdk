@@ -5,9 +5,8 @@ import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/
 import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
 import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
 import type { MetadataItem } from "~/metadata/orchestration/property/types"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import type { OwnerMetadata } from "./ownerCache"
-import { buildObjectFieldIndex, validateObjectFieldSegment } from "./objectFields"
+import { buildObjectFieldIndex, resolveObjectFieldSegment } from "./objectFields"
 
 describe("buildObjectFieldIndex", () => {
   it("indexes catalog attributes and standard attributes", () => {
@@ -156,40 +155,27 @@ describe("buildObjectFieldIndex", () => {
     expect(secondRef?.typeInfo.nextTypes).toEqual([{ kind: "Документ", name: "Заказ" }])
     expect(index.fields.get("Номер")).toMatchObject({ name: "Номер" })
   })
-})
 
-describe("validateObjectFieldSegment", () => {
-  it("rejects platform names in ordinary YAML paths and accepts YAML names", () => {
-    const parsed = parseMetadataYaml("ПутьКДанным: Объект.Ref\n")
+  it("resolves platform standard attribute aliases only when YAML field exists", () => {
+    const documentIndex = buildObjectFieldIndex(
+      owner({
+        ref: { kind: "Документ", name: "Заказ" },
+        rule: MetadataDocumentRules,
+        model: { itemType: "MetadataDocument" },
+      }),
+    )
+    const catalogIndex = buildObjectFieldIndex(
+      owner({
+        ref: { kind: "Справочник", name: "Номенклатура" },
+        rule: MetadataCatalogRules,
+        model: { itemType: "MetadataCatalog" },
+      }),
+    )
 
-    expect(
-      validateObjectFieldSegment({
-        owner: owner({ ref: { kind: "Справочник", name: "Номенклатура" } }),
-        segment: "Ref",
-        filePath: "/tmp/form.yaml",
-        parsed,
-        yamlPath: ["ПутьКДанным"],
-      }),
-    ).toEqual([
-      expect.objectContaining({
-        filePath: "/tmp/form.yaml",
-        line: 1,
-        col: 1,
-        source: "structure",
-        severity: "error",
-        path: "/ПутьКДанным",
-      }),
-    ])
-
-    expect(
-      validateObjectFieldSegment({
-        owner: owner({ ref: { kind: "Справочник", name: "Номенклатура" } }),
-        segment: "Ссылка",
-        filePath: "/tmp/form.yaml",
-        parsed,
-        yamlPath: ["ПутьКДанным"],
-      }),
-    ).toEqual([])
+    expect(resolveObjectFieldSegment({ index: documentIndex, segment: "Number" })).toMatchObject({ name: "Номер" })
+    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Description" })).toMatchObject({ name: "Наименование" })
+    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Code" })).toMatchObject({ name: "Код" })
+    expect(resolveObjectFieldSegment({ index: documentIndex, segment: "Parent" })).toBeUndefined()
   })
 })
 
