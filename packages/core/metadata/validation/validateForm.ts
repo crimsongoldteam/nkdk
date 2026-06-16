@@ -1,8 +1,10 @@
 import { join } from "path"
+import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import "~/metadata/forms"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import type { ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
+import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { buildFormDataPathIndex } from "./dataPath/formIndex"
 import { collectFormDataPathOccurrences } from "./dataPath/formTraversal"
 import { createOwnerMetadataCache, type OwnerMetadataCache } from "./dataPath/ownerCache"
@@ -10,6 +12,7 @@ import { resolveDataPath } from "./dataPath/resolver"
 import { validateResolvedDataPathPolicy } from "./dataPath/policies"
 import type { ProjectYamlCache } from "./projectYamlCache"
 import type { Diagnostic } from "./types"
+import { diagnosticAtYamlPath, type YamlPath } from "./yamlLocations"
 
 export interface ValidateFormParams {
   projectDir: string
@@ -62,6 +65,12 @@ export function validateForm(params: ValidateFormParams): Diagnostic[] {
     form: form.value,
   })
   const diagnostics = [...index.duplicateDiagnostics]
+  diagnostics.push(
+    ...collectDynamicListTypeValueWarnings({
+      filePath: entry.filePath,
+      parsed: entry.parsed,
+    }),
+  )
   const ownerCache =
     params.ownerCache ??
     createOwnerMetadataCache({
@@ -97,6 +106,114 @@ export function validateForm(params: ValidateFormParams): Diagnostic[] {
   }
 
   return dedupeDiagnostics(diagnostics)
+}
+
+function collectDynamicListTypeValueWarnings(params: {
+  filePath: string
+  parsed: ParsedYaml
+}): Diagnostic[] {
+  const data = params.parsed.data
+  if (!isRecord(data)) return []
+
+  const attributes = data["Реквизиты"]
+  if (!isRecord(attributes)) return []
+
+  const diagnostics: Diagnostic[] = []
+  for (const [attributeName, attributeValue] of Object.entries(attributes)) {
+    if (!isRecord(attributeValue)) continue
+
+    const dynamicList = attributeValue["ДинамическийСписок"]
+    if (!isRecord(dynamicList)) continue
+
+    const conditionalAppearance = dynamicList["УсловноеОформление"]
+    if (!isRecord(conditionalAppearance)) continue
+
+    diagnostics.push(
+      ...collectConditionalAppearanceTypeValueWarnings({
+        filePath: params.filePath,
+        parsed: params.parsed,
+        rootPath: ["Реквизиты", attributeName, "ДинамическийСписок", "УсловноеОформление"],
+        value: conditionalAppearance,
+      }),
+    )
+  }
+
+  return diagnostics
+}
+
+function collectConditionalAppearanceTypeValueWarnings(params: {
+  filePath: string
+  parsed: ParsedYaml
+  rootPath: YamlPath
+  value: unknown
+}): Diagnostic[] {
+  const diagnostics: Diagnostic[] = []
+  visitConditionalAppearanceNode({
+    filePath: params.filePath,
+    parsed: params.parsed,
+    path: params.rootPath,
+    value: params.value,
+    diagnostics,
+  })
+  return diagnostics
+}
+
+function visitConditionalAppearanceNode(params: {
+  filePath: string
+  parsed: ParsedYaml
+  path: YamlPath
+  value: unknown
+  diagnostics: Diagnostic[]
+}): void {
+  if (Array.isArray(params.value)) {
+    params.value.forEach((item, index) => {
+      visitConditionalAppearanceNode({
+        ...params,
+        path: [...params.path, index],
+        value: item,
+      })
+    })
+    return
+  }
+
+  if (!isRecord(params.value)) return
+
+  const rightValue = params.value["ПравоеЗначение"]
+  if (isMetadataObjectTargetYAML(rightValue)) {
+    params.diagnostics.push(
+      diagnosticAtYamlPath({
+        filePath: params.filePath,
+        parsed: params.parsed,
+        path: [...params.path, "ПравоеЗначение"],
+        severity: "warning",
+        source: "structure",
+        message: `Проверка значения типа "${rightValue}" в условном оформлении динамического списка пока не реализована и будет добавлена в будущих версиях`,
+      }),
+    )
+  }
+
+  for (const [key, value] of Object.entries(params.value)) {
+    if (key === "ПравоеЗначение") continue
+    visitConditionalAppearanceNode({
+      ...params,
+      path: [...params.path, key],
+      value,
+    })
+  }
+}
+
+function isMetadataObjectTargetYAML(value: unknown): value is string {
+  if (typeof value !== "string") return false
+
+  const parts = value.split(".")
+  if (parts.length !== 2) return false
+
+  const [root, name] = parts
+  return rootFromYAML[root] !== undefined && /^[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$/.test(name)
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
 function importForm(params: {

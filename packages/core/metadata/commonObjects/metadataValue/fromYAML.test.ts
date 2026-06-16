@@ -58,6 +58,19 @@ describe("importMetadataValueFromYAML", () => {
     })
   })
 
+  it("imports metadata object references from YAML as ref values", () => {
+    expect(
+      importMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        "Документ.ПоступлениеБезналичныхДенежныхСредств"
+      )
+    ).toEqual({
+      type: "ref",
+      value: "Document.ПоступлениеБезналичныхДенежныхСредств",
+    })
+  })
+
   it("rejects legacy model-root value references in YAML", () => {
     expect(() =>
       importMetadataValueFromYAML(

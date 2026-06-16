@@ -69,6 +69,53 @@ describe("validateProject", () => {
     )
   })
 
+  it("warns about unimplemented dynamic list type-value checks instead of failing form import", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаСписка/Форма.yaml", [
+      "Реквизиты:",
+      "  Список:",
+      "    Тип: ДинамическийСписок",
+      "    ОсновнойРеквизит: Истина",
+      "    ДинамическийСписок:",
+      "      УсловноеОформление:",
+      "        Элементы:",
+      "          - Поля:",
+      "              - Тип",
+      "            Отбор:",
+      "              Элементы:",
+      "                - ЛевоеЗначение: .Тип",
+      "                  ПравоеЗначение: Документ.ПоступлениеБезналичныхДенежныхСредств",
+      "            Оформление:",
+      "              Текст: '\"Поступление\"'",
+      "Элементы:",
+      "  Список:",
+      "    Вид: ТаблицаФормы",
+      "    ПутьКДанным: Список",
+    ])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Справочник/Товары/Формы/ФормаСписка/Форма.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: "structure",
+          severity: "warning",
+          path: "/Реквизиты/Список/ДинамическийСписок/УсловноеОформление/Элементы/0/Отбор/Элементы/0/ПравоеЗначение",
+          message:
+            'Проверка значения типа "Документ.ПоступлениеБезналичныхДенежныхСредств" в условном оформлении динамического списка пока не реализована и будет добавлена в будущих версиях',
+        }),
+      ]),
+    )
+    expect(diagnostics.map((diagnostic) => diagnostic.message)).not.toEqual(
+      expect.arrayContaining([expect.stringContaining("Не удалось импортировать форму")]),
+    )
+  })
+
   it("does not add a form import diagnostic when schema errors already explain the invalid form shape", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
