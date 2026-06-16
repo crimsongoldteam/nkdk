@@ -101,6 +101,16 @@ const plannerSettingsYAML = {
   },
 }
 
+const compileFormAttributesJSONSchema = () => {
+  const formAttributesSchema = exportFormAttributesToJSONSchema({
+    context: mockContext,
+    rule: { type: "FormAttributes" },
+    value: undefined,
+  })
+  if (formAttributesSchema === undefined) throw new Error("FormAttributes JSON schema is not registered")
+  return TypeCompiler.Compile(formAttributesSchema)
+}
+
 describe("importFormAttributesFromYAML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importFormAttributesFromYAML(mockContext, mockRule, undefined)
@@ -126,27 +136,14 @@ describe("importFormAttributesFromYAML", () => {
   })
 
   it("rejects scalar form attribute YAML in JSON Schema", () => {
-    const formAttributesSchema = exportFormAttributesToJSONSchema({
-      context: mockContext,
-      rule: { type: "FormAttributes" },
-      value: undefined,
-    })
-    expect(formAttributesSchema).toBeDefined()
-    if (formAttributesSchema === undefined) throw new Error("FormAttributes JSON schema is not registered")
-
-    const schema = TypeCompiler.Compile(formAttributesSchema)
+    const schema = compileFormAttributesJSONSchema()
 
     expect(schema.Check({ Организация: "Справочник.Организации" })).toBe(false)
     expect(schema.Check({ Организация: { Тип: "Справочник.Организации" } })).toBe(true)
   })
 
   it("accepts table columns in JSON Schema", () => {
-    const formAttributesSchema = exportFormAttributesToJSONSchema({
-      context: mockContext,
-      rule: { type: "FormAttributes" },
-      value: undefined,
-    })
-    const schema = TypeCompiler.Compile(formAttributesSchema)
+    const schema = compileFormAttributesJSONSchema()
 
     expect(
       schema.Check({
@@ -164,12 +161,7 @@ describe("importFormAttributesFromYAML", () => {
   })
 
   it("accepts additional table columns in JSON Schema", () => {
-    const formAttributesSchema = exportFormAttributesToJSONSchema({
-      context: mockContext,
-      rule: { type: "FormAttributes" },
-      value: undefined,
-    })
-    const schema = TypeCompiler.Compile(formAttributesSchema)
+    const schema = compileFormAttributesJSONSchema()
 
     expect(
       schema.Check({
@@ -189,12 +181,7 @@ describe("importFormAttributesFromYAML", () => {
   })
 
   it("rejects unsupported table column properties in JSON Schema", () => {
-    const formAttributesSchema = exportFormAttributesToJSONSchema({
-      context: mockContext,
-      rule: { type: "FormAttributes" },
-      value: undefined,
-    })
-    const schema = TypeCompiler.Compile(formAttributesSchema)
+    const schema = compileFormAttributesJSONSchema()
 
     expect(
       schema.Check({
@@ -212,7 +199,7 @@ describe("importFormAttributesFromYAML", () => {
   })
 
   it("accepts spreadsheet document settings in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(exportFormAttributesToJSONSchema({ context: mockContext }))
+    const schema = compileFormAttributesJSONSchema()
 
     expect(
       schema.Check({
@@ -225,7 +212,7 @@ describe("importFormAttributesFromYAML", () => {
   })
 
   it("accepts chart settings in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(exportFormAttributesToJSONSchema({ context: mockContext }))
+    const schema = compileFormAttributesJSONSchema()
 
     expect(
       schema.Check({
@@ -238,7 +225,7 @@ describe("importFormAttributesFromYAML", () => {
   })
 
   it("accepts gantt chart settings in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(exportFormAttributesToJSONSchema({ context: mockContext }))
+    const schema = compileFormAttributesJSONSchema()
 
     expect(
       schema.Check({
@@ -251,7 +238,7 @@ describe("importFormAttributesFromYAML", () => {
   })
 
   it("rejects non-string spreadsheet document settings in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(exportFormAttributesToJSONSchema({ context: mockContext }))
+    const schema = compileFormAttributesJSONSchema()
 
     expect(
       schema.Check({

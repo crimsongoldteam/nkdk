@@ -4,35 +4,24 @@ import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 
-export const exportFormAttributesToJSONSchema: ExportToJSONSchemaFn = (params: {
-  context: ConfigurationContext
-}): TSchema => {
+export const exportFormAttributesToJSONSchema: ExportToJSONSchemaFn = (params): TSchema => {
   const { context } = params
   const attributeSchema = extendFormAttributeColumnsSchema(
-    exportMetadataItemToJSONSchema({
-      context,
-      rule: FormAttributeRules,
-    }),
+    requiredFormAttributeSchema(context),
     context
   )
   return Type.Record(Type.String(), attributeSchema)
 }
 
-export const exportFormColumnAttributesToJSONSchema: ExportToJSONSchemaFn = (params: {
-  context: ConfigurationContext
-}): TSchema => {
+export const exportFormColumnAttributesToJSONSchema: ExportToJSONSchemaFn = (params): TSchema => {
   const { context } = params
-  const attributeSchema = exportMetadataItemToJSONSchema({
-    context,
-    rule: FormAttributeColumnRules,
-  })
-  return Type.Record(Type.String(), attributeSchema)
+  return buildFormColumnAttributesJSONSchema(context)
 }
 
 function extendFormAttributeColumnsSchema(schema: TSchema, context: ConfigurationContext): TSchema {
   if (!isObjectSchema(schema)) return schema
 
-  const columnsSchema = exportFormColumnAttributesToJSONSchema({ context, rule: undefined, value: undefined })
+  const columnsSchema = buildFormColumnAttributesJSONSchema(context)
 
   return Type.Object(
     {
@@ -49,6 +38,24 @@ function extendFormAttributeColumnsSchema(schema: TSchema, context: Configuratio
 
 function isObjectSchema(schema: TSchema): schema is TObject<TProperties> {
   return schema.type === "object" && "properties" in schema
+}
+
+function requiredFormAttributeSchema(context: ConfigurationContext): TSchema {
+  const schema = exportMetadataItemToJSONSchema({
+    context,
+    rule: FormAttributeRules,
+  })
+  if (schema === undefined) throw new Error("FormAttribute JSON Schema is not registered")
+  return schema
+}
+
+function buildFormColumnAttributesJSONSchema(context: ConfigurationContext): TSchema {
+  const attributeSchema = exportMetadataItemToJSONSchema({
+    context,
+    rule: FormAttributeColumnRules,
+  })
+  if (attributeSchema === undefined) throw new Error("FormAttributeColumn JSON Schema is not registered")
+  return Type.Record(Type.String(), attributeSchema)
 }
 
 registerTypeRule("FormAttributes", "exportToJSONSchema", exportFormAttributesToJSONSchema)

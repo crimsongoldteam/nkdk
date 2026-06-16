@@ -19,6 +19,7 @@ import "./availableFields/types"
 
 import "./availableValues/fromXML"
 import "./availableValues/fromYAML"
+import "./availableValues/toJSONSchema"
 import "./availableValues/toXML"
 import "./availableValues/toYAML"
 import "./availableValues/types"
@@ -38,6 +39,8 @@ import "./dcsParameter"
 
 import "./parameterValue/types"
 import "./parameterValue/toJSONSchema"
+
+import "./settingsParameterValueCollection/toJSONSchema"
 
 import "./dscMetadataTypedValue/fromXML"
 import "./dscMetadataTypedValue/fromYAML"
