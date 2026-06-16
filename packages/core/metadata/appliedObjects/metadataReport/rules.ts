@@ -36,7 +36,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataReportAttributeRules,
   xmlElement: "Attribute",
   keyField: "name",
-  graphChild: { idFrom: "name", edgeKind: "ATTRIBUTE", edgeYaml: "Реквизит", nodeSegment: "Реквизит" },
+  collectionItemRule: true,
 })
 
 export const MetadataReportRules = {

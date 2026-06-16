@@ -64,7 +64,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "TabularSection",
   keyField: "name",
   fromYAML: importMetadataTabularSectionsFromYAML,
-  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+  collectionItemRule: true,
 })
 
 const importMetadataDocumentTabularSectionFromYAML = (
@@ -107,7 +107,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "TabularSection",
   keyField: "name",
   fromYAML: importMetadataDocumentTabularSectionsFromYAML,
-  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+  collectionItemRule: true,
 })
 
 registerMetadataItemCollectionRule({
@@ -115,7 +115,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataTaskTabularSectionRules,
   xmlElement: "TabularSection",
   keyField: "name",
-  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+  collectionItemRule: true,
 })
 
 registerMetadataItemCollectionRule({
@@ -123,7 +123,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataBusinessProcessTabularSectionRules,
   xmlElement: "TabularSection",
   keyField: "name",
-  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+  collectionItemRule: true,
 })
 
 const importMetadataDataProcessorTabularSectionFromYAML = (
@@ -166,7 +166,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "TabularSection",
   keyField: "name",
   fromYAML: importMetadataDataProcessorTabularSectionsFromYAML,
-  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+  collectionItemRule: true,
 })
 
 const importMetadataReportTabularSectionFromYAML = (
@@ -209,7 +209,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "TabularSection",
   keyField: "name",
   fromYAML: importMetadataReportTabularSectionsFromYAML,
-  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+  collectionItemRule: true,
 })
 
 const importMetadataExchangePlanTabularSectionFromYAML = (
@@ -252,7 +252,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "TabularSection",
   keyField: "name",
   fromYAML: importMetadataExchangePlanTabularSectionsFromYAML,
-  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+  collectionItemRule: true,
 })
 
 registerMetadataItemCollectionRule({
@@ -260,7 +260,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataChartOfAccountsTabularSectionRules,
   xmlElement: "TabularSection",
   keyField: "name",
-  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+  collectionItemRule: true,
 })
 
 registerMetadataItemCollectionRule({
@@ -268,7 +268,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataChartOfCalculationTypesTabularSectionRules,
   xmlElement: "TabularSection",
   keyField: "name",
-  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+  collectionItemRule: true,
 })
 
 registerMetadataItemCollectionRule({
@@ -276,7 +276,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataChartOfCharacteristicTypesTabularSectionRules,
   xmlElement: "TabularSection",
   keyField: "name",
-  graphChild: { idFrom: "name", edgeKind: "TABULAR_SECTION", edgeYaml: "ТабличнаяЧасть", nodeSegment: "ТабличнаяЧасть" },
+  collectionItemRule: true,
 })
 
 // Compat exports for consumers that call these functions directly

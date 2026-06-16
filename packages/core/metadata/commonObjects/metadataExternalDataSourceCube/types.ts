@@ -19,10 +19,5 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataExternalDataSourceCubeCollectionRules,
   xmlElement: "Cube",
   keyField: "name",
-  graphChild: {
-    idFrom: "name",
-    edgeKind: "EXTERNAL_DATA_SOURCE_CUBE",
-    edgeYaml: "КубВнешнегоИсточникаДанных",
-    nodeSegment: "Cube",
-  },
+  collectionItemRule: true,
 })

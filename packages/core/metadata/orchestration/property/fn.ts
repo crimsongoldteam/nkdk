@@ -1,20 +1,16 @@
 import { TSchema } from "@sinclair/typebox"
-import { LineCounter, YAMLMap } from "yaml"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
-import type { RuntimeChildKind } from "~/metadata/commonObjects/metadataPath/graphPath"
 import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
-import type { GraphPrimitive } from "~/metadata/orchestration/buildGraph/types"
 import type { ProjectMetadataResolver } from "~/metadata/validation/projectMetadataResolver"
 import type { Diagnostic } from "~/metadata/validation/types"
 import type { YamlPath } from "~/metadata/validation/yamlLocations"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import type { XmlWriteManifest } from "../xmlWriteManifest"
 import { PropertyRuleType } from "./registry"
-import { SourcePosition } from "./position"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export type ExportToXMLFunction = (
@@ -93,130 +89,6 @@ export type ValidateMetadataTargetFunction = (params: {
   owner?: MetadataTargetOwner
 }) => Diagnostic[]
 
-export type BuildGraphFromModelFunction = (params: {
-  model: unknown
-  parentNodeId: string
-  filePath: string
-  yamlMap: YAMLMap | undefined
-  lineCounter: LineCounter | undefined
-  propRule: PropertyRule
-  /** JS-ключ свойства из MetadataItemRule.properties. */
-  propertyName: string
-  /** Дополнительный контекст, пробрасываемый в кастомные обработчики (например, formNodeId). */
-  extra?: Record<string, unknown>
-}) => GraphOps | GraphOps[] | undefined | void
-
-export type GraphOpsEdgeProps = Record<string, GraphPrimitive>
-
-export interface GraphOpsChild {
-  /**
-   * Суффикс относительного id ребёнка. Используется, если не задан absoluteId.
-   * При наличии parentOverride: childNodeId = `${parentOverride}.${idSuffix}`.
-   * Иначе: childNodeId = `${ctx.parentNodeId}.${idSuffix}`.
-   */
-  idSuffix: string
-  name: string
-  positionFrom?: SourcePosition
-  /** Порядок owning-ребра внутри коллекции. Если не задан, applyGraphOps ставит индекс по порядку children. */
-  index?: number
-  /** Запись в node.item при promoteNode. */
-  item?: Record<string, unknown>
-  /**
-   * Если задано — childNodeId = `${parentOverride}.${idSuffix}` вместо
-   * `${ctx.parentNodeId}.${idSuffix}`. Источник ребра тоже становится
-   * parentOverride, если не задан edgeFrom.
-   */
-  parentOverride?: string
-  /**
-   * Если задано — childNodeId = absoluteId полностью (idSuffix/parentOverride
-   * для построения id игнорируются; idSuffix остаётся как обязательное поле,
-   * и ничто не запрещает absoluteId === `${ctx.parentNodeId}.${idSuffix}` —
-   * это просто другая форма записи того же).
-   * Используется для плоских узлов в forms/elements:
-   * `${formNodeId}.Элемент.<name>`.
-   */
-  absoluteId?: string
-  /**
-   * Если задано — источник ребра = edgeFrom. Имеет приоритет над
-   * parentOverride и ctx.parentNodeId. Используется для синглетов
-   * формы (ContextMenu, AutoCommandBar, ...), где ребро ЭлементФормы
-   * идёт от корня формы, а не от визуального родителя.
-   */
-  edgeFrom?: string
-}
-
-export interface GraphOpsReference {
-  id: string
-  name: string
-  positionFrom?: SourcePosition
-  /** Если задано — reference-ребро идёт от этого узла вместо ctx.parentNodeId. */
-  parentOverride?: string
-  /** Дополнительные primitive props конкретного reference-ребра. */
-  edgeProps?: GraphOpsEdgeProps
-}
-
-export interface GraphOpsFormLocalReference {
-  /** Form-local путь, например "Объект.Товары". */
-  formLocalPath: string
-  /** Корневой узел формы — стартовая точка резолвинга. */
-  formNodeId: string
-  positionFrom?: SourcePosition
-  /** Если задано — ребро идёт от этого узла к резолвимой цели вместо ctx.parentNodeId. */
-  parentOverride?: string
-  /** Дополнительные primitive props конкретного reference-ребра. */
-  edgeProps?: GraphOpsEdgeProps
-  /** Тип дочернего runtime-сегмента для fallback-цели, когда владелец ещё не материализован в графе. */
-  fallbackChildKind?: RuntimeChildKind
-}
-
-export interface GraphOpsRecurse {
-  /** Подмодель, для которой нужно повторно вызвать обход правила. */
-  model: Record<string, unknown>
-  /** YAML-фрагмент подмодели для координат. Опционально. */
-  yamlMap?: YAMLMap
-  /** Счётчик строк исходного YAML для координат. Опционально. */
-  lineCounter?: LineCounter
-  /** Правило обхода подмодели. */
-  rule: MetadataItemRule
-  /** Узел, относительно которого пойдёт обход — становится parentNodeId внутри. */
-  parentNodeId: string
-  /** Дополнительный контекст, пробрасываемый в обработчики. По умолчанию наследуется от вызывающего. */
-  extra?: Record<string, unknown>
-}
-
-export interface GraphOps {
-  children?: GraphOpsChild[]
-  references?: GraphOpsReference[]
-  /** Reference-рёбра, цель которых нужно резолвить через локальные источники формы. */
-  formLocalReferences?: GraphOpsFormLocalReference[]
-  /** Преобразователи item перед flattenItem props текущего parent-узла. */
-  itemFlattenTransforms?: Array<(item: unknown) => unknown>
-  /** Рекурсивные задачи: оркестратор пройдёт по правилу для каждой подмодели после применения локальных ops. */
-  recurse?: GraphOpsRecurse[]
-  /** ASCII-метка ребра. Передаётся в applyGraphOps оркестратором, когда BuildGraphFromModelFunction возвращает GraphOps вместо мутации graph. */
-  edgeKind?: string
-  /** Русский YAML-ключ ребра. Передаётся в applyGraphOps. */
-  edgeYaml?: string
-}
-
-export type ExtractGraphFromModelFunction<TModel = unknown> = (
-  model: TModel,
-  position?: SourcePosition
-) => GraphOps | undefined
-
-export type GraphEdgeFromParent = {
-  /**
-   * ASCII-метка kind'а для reference-ребра — используется как fallback,
-   * если у PropertyRule не задан graphEdgeKind. SCREAMING_SNAKE_CASE.
-   */
-  kind?: string
-  /**
-   * Русский YAML-ключ для ребра — используется как fallback для поля yaml,
-   * если у PropertyRule не задан yaml.
-   */
-  yaml?: string
-}
-
 /**
  * Хендлер для свойств, хранящих значение во внешних файлах (Help.xml, .bsl, формы).
  * Вызывается оркестратором в сторону nkdk — читает XML-сторону и пишет nkdk-сторону.
@@ -254,14 +126,7 @@ export type SyncExternalToXMLFunction = (params: {
   currentXMLDir?: string
 }) => Promise<void>
 
-export interface GraphChildRule {
-  idFrom: string
-  /** ASCII-метка kind'а ребра (тип отношения в Cypher). SCREAMING_SNAKE_CASE. */
-  edgeKind: string
-  /** Русский YAML-ключ ребра (для round-trip). */
-  edgeYaml: string
-  /** Необязательный сегмент-дискриминатор типа коллекции, вставляемый в childNodeId. */
-  nodeSegment?: string
+export interface CollectionItemRule {
   itemRule: MetadataItemRule
 }
 
@@ -272,10 +137,7 @@ export interface TypeRule {
   exportToYAML?: ExportToYAMLFunction | ExportToYAMLFunctionNew
   exportToEnterprise?: ExportToEnterpriseFunction
   exportToJSONSchema?: ExportToJSONSchemaFn
-  buildGraphFromModel?: BuildGraphFromModelFunction
-  extractGraph?: ExtractGraphFromModelFunction
-  graphEdgeFromParent?: GraphEdgeFromParent
-  graphChild?: GraphChildRule
+  collectionItemRule?: CollectionItemRule
   syncExternalFromXML?: SyncExternalFromXMLFunction
   syncExternalToXML?: SyncExternalToXMLFunction
   validateMetadataTarget?: ValidateMetadataTargetFunction
@@ -288,10 +150,7 @@ export type TypeRulesOperations =
   | "exportToYAML"
   | "exportToEnterprise"
   | "exportToJSONSchema"
-  | "buildGraphFromModel"
-  | "extractGraph"
-  | "graphEdgeFromParent"
-  | "graphChild"
+  | "collectionItemRule"
   | "syncExternalFromXML"
   | "syncExternalToXML"
   | "validateMetadataTarget"
@@ -310,21 +169,15 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
       : O extends "importFromXML"
         ? ImportFromXMLFunction | undefined
         : O extends "exportToEnterprise"
-          ? ExportToEnterpriseFunction | undefined
-          : O extends "exportToJSONSchema"
-            ? ExportToJSONSchemaFn | undefined
-            : O extends "buildGraphFromModel"
-              ? BuildGraphFromModelFunction | undefined
-              : O extends "extractGraph"
-                ? ExtractGraphFromModelFunction | undefined
-                : O extends "graphEdgeFromParent"
-                  ? GraphEdgeFromParent | undefined
-                  : O extends "graphChild"
-                    ? GraphChildRule | undefined
-                    : O extends "syncExternalFromXML"
-                      ? SyncExternalFromXMLFunction | undefined
-                      : O extends "syncExternalToXML"
-                        ? SyncExternalToXMLFunction | undefined
-                        : O extends "validateMetadataTarget"
-                          ? ValidateMetadataTargetFunction | undefined
-                          : never
+      ? ExportToEnterpriseFunction | undefined
+      : O extends "exportToJSONSchema"
+        ? ExportToJSONSchemaFn | undefined
+          : O extends "collectionItemRule"
+            ? CollectionItemRule | undefined
+            : O extends "syncExternalFromXML"
+              ? SyncExternalFromXMLFunction | undefined
+              : O extends "syncExternalToXML"
+                ? SyncExternalToXMLFunction | undefined
+                : O extends "validateMetadataTarget"
+                  ? ValidateMetadataTargetFunction | undefined
+                  : never

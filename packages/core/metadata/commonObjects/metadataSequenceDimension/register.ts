@@ -44,7 +44,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "Dimension",
   keyField: "name",
   fromYAML: importMetadataSequenceDimensionsFromYAML,
-  graphChild: { idFrom: "name", edgeKind: "DIMENSION", edgeYaml: "Измерение", nodeSegment: "Измерение" },
+  collectionItemRule: true,
 })
 
 export const importMetadataSequenceDimensionsFromXML = (

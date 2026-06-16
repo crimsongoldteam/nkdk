@@ -411,5 +411,4 @@ export const MetadataBusinessProcessRules = {
     },
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
-  graphTerminals: ["ПустаяСсылка"],
 } as const satisfies MetadataItemRule

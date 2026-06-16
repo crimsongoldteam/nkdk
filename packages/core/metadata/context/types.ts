@@ -3,7 +3,6 @@ import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
 import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "../orchestration"
-import { GraphBuilder } from "../orchestration/buildGraph/internal/GraphBuilder"
 import type { PropertyRuleType } from "../orchestration/property/registry"
 
 export type ContextElementToXML = {
@@ -41,8 +40,6 @@ export interface ConfigurationContext {
   importFromYAML?: FormimportFromYAMLContext
   exportToXML?: ToXMLConfigurationContext
   exportToJSONSchema?: JSONSchemaExportContext
-  /** Экземпляр графа, передаётся снаружи (из extension/CLI). Не синглтон. */
-  graph?: GraphBuilder
 }
 
 export interface ConfigurationContextFromXML extends ConfigurationContext {

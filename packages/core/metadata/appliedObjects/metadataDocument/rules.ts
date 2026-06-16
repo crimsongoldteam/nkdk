@@ -444,5 +444,4 @@ export const MetadataDocumentRules = {
     },
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataDocumentCommandRules }],
-  graphTerminals: ["ПустаяСсылка"],
 } as const satisfies MetadataItemRule

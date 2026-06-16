@@ -32,16 +32,8 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   fromYAML?: importFromYAMLFunction
   toYAML?: ExportToYAMLFunction
   toJSONSchema?: ExportToJSONSchemaFn
-  /** Декларативное создание owning-дочерних узлов в buildGraphFromModel */
-  graphChild?: {
-    idFrom: keyof Rule["properties"] & string
-    /** ASCII-метка kind'а ребра. SCREAMING_SNAKE_CASE. */
-    edgeKind: string
-    /** Русский YAML-ключ ребра. */
-    edgeYaml: string
-    /** Необязательный сегмент-дискриминатор типа коллекции, вставляемый в childNodeId. */
-    nodeSegment?: string
-  }
+  /** Регистрирует item-правило коллекции для обхода вложенных metadata target. */
+  collectionItemRule?: true
 }
 
 export const registerMetadataItemCollectionRule = <
@@ -162,12 +154,8 @@ export const registerMetadataItemCollectionRule = <
   const toJSONSchema = params.toJSONSchema ?? toJSONSchemaDefault
   registerTypeRule(propertyType, "exportToJSONSchema", toJSONSchema)
 
-  if (params.graphChild) {
-    registerTypeRule(propertyType, "graphChild", {
-      idFrom: params.graphChild.idFrom as string,
-      edgeKind: params.graphChild.edgeKind,
-      edgeYaml: params.graphChild.edgeYaml,
-      nodeSegment: params.graphChild.nodeSegment,
+  if (params.collectionItemRule) {
+    registerTypeRule(propertyType, "collectionItemRule", {
       itemRule: itemRule as unknown as MetadataItemRule,
     })
   }

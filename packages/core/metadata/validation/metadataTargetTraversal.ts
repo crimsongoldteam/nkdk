@@ -102,8 +102,8 @@ function validateNestedItems(
 }
 
 function nestedItemRule(propRule: MetadataItemRule["properties"][string]): MetadataItemRule | undefined {
-  const graphChild = getTypeRule(propRule.type, "graphChild")
-  if (graphChild?.itemRule) return graphChild.itemRule
+  const collectionItemRule = getTypeRule(propRule.type, "collectionItemRule")
+  if (collectionItemRule?.itemRule) return collectionItemRule.itemRule
 
   if ("itemRule" in propRule && propRule.itemRule !== undefined) {
     return propRule.itemRule as MetadataItemRule

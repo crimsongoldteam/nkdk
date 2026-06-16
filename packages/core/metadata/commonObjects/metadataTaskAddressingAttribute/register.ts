@@ -6,10 +6,5 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataTaskAddressingAttributeRules,
   xmlElement: "AddressingAttribute",
   keyField: "name",
-  graphChild: {
-    idFrom: "name",
-    edgeKind: "ADDRESSING_ATTRIBUTE",
-    edgeYaml: "РеквизитАдресации",
-    nodeSegment: "РеквизитАдресации",
-  },
+  collectionItemRule: true,
 })

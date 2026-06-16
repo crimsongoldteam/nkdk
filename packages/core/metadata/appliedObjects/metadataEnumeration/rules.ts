@@ -226,6 +226,5 @@ export const MetadataEnumerationRules = {
       xmlParents: enumChildObjects,
     },
   },
-  graphTerminals: ["ПустаяСсылка"],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
 } as const satisfies MetadataItemRule
