@@ -13,9 +13,14 @@ export const exportBorderToYAML = (
 ): BorderYAML | undefined => {
   if (!data) return undefined
 
-  const result: BorderYAML = {
-    Имя: data.ref === undefined ? undefined : exportStyleItemRefToYAML(data.ref),
-    Ширина: data.width,
+  const result: BorderYAML = {}
+
+  if (data.ref !== undefined) {
+    result.Имя = exportStyleItemRefToYAML(data.ref)
+  }
+
+  if (data.width !== undefined) {
+    result.Ширина = data.width
   }
 
   const borderType = exportSystemEnumerationToYAMLDeprecated<SE.ControlBorderTypeYAML>(

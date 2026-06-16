@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { borderTestCases } from "~/metadata/commonObjects/border/__fixtures__/data"
 import { mockContext, mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { importContentFromXML } from "~/xml/import/importer"
@@ -8,16 +9,13 @@ import { Border, BorderXML } from "./types"
 
 describe("exportBorderToXML", () => {
   it("should export border by ref", () => {
-    const mockBorder: Border = {
-      ref: "ControlBorder",
-    }
+    const fixture = borderTestCases.find((testCase) => testCase.name === "border by style ref")
+    expect(fixture?.xml).toBeDefined()
 
-    const expectedResult = `<Border ref="style:ControlBorder"/>`
-
-    const result = { Border: exportBorderToXML(mockContext, mockRule, mockBorder) }
+    const result = { Border: exportBorderToXML(mockContext, mockRule, fixture!.border) }
     const xmlString = xmlExport(result, false)
 
-    expect(xmlString).toEqual(expectedResult)
+    expect(xmlString).toEqual(fixture!.xml)
   })
 
   it("should export border with width and style", () => {
@@ -43,14 +41,15 @@ describe("exportBorderToXML", () => {
   })
 
   it("should export and import border by ref correctly (round-trip)", () => {
-    const originalXml = `<Border ref="style:ControlBorder"/>`
+    const fixture = borderTestCases.find((testCase) => testCase.name === "border by style ref")
+    expect(fixture?.xml).toBeDefined()
 
-    const xml = importContentFromXML<{ Border: BorderXML }>(originalXml)
+    const xml = importContentFromXML<{ Border: BorderXML }>(fixture!.xml!)
     const imported = importBorderFromXML(mockContextFromXML(), mockRule, xml.Border)
     const exported = exportBorderToXML(mockContext, mockRule, imported)
     const resultXml = xmlExport({ Border: exported }, false)
 
-    expect(resultXml).toEqual(originalXml)
+    expect(resultXml).toEqual(fixture!.xml)
   })
 
   it("should export and import border with width and style correctly (round-trip)", () => {
