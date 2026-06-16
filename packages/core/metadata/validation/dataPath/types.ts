@@ -10,6 +10,7 @@ export type DataPathValueKind =
   | "object"
   | "tableSource"
   | "dynamicList"
+  | "constantSet"
   | "platformSource"
   | "unsupportedIntermediate"
 
@@ -37,6 +38,7 @@ export type KnownOwnerTypeKind =
   | "БизнесПроцессОбъект"
   | "Задача"
   | "ЗадачаОбъект"
+  | "Константа"
 
 export interface OwnerTypeRef {
   kind: KnownOwnerTypeKind | (string & {})
@@ -72,6 +74,8 @@ export interface FormDataPathTableSource {
   columns: Map<string, FormDataPathColumnSource>
   hasColumns: boolean
 }
+
+export type FormDataPathAdditionalColumnsByTablePath = Map<string, Map<string, FormDataPathColumnSource>>
 
 export interface FormDataPathSource {
   kind: "formAttribute"

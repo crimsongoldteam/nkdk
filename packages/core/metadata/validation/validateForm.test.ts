@@ -409,6 +409,113 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts owner tabular section fields from form additional columns", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: [
+        "ТабличныеЧасти:",
+        "  Товары:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: Справочник.Номенклатура",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Заказ",
+        "    ДополнительныеКолонки:",
+        "      Объект.Товары:",
+        "        Артикул:",
+        "          Тип: Строка",
+        "Элементы:",
+        "  Артикул:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.Товары.Артикул",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts RowsCount in title data paths", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: [
+        "ТабличныеЧасти:",
+        "  Товары:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: Справочник.Номенклатура",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Заказ",
+        "Элементы:",
+        "  Группа:",
+        "    Вид: Группа",
+        "    ПутьКДаннымЗаголовка: Объект.Товары.RowsCount",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts Total columns in footer data paths", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: [
+        "ТабличныеЧасти:",
+        "  Товары:",
+        "    Реквизиты:",
+        "      Сумма:",
+        "        Тип: Число",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Заказ",
+        "Элементы:",
+        "  Товары:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Объект.Товары",
+        "    Элементы:",
+        "      Сумма:",
+        "        Вид: ПолеВвода",
+        "        ПутьКДанным: Объект.Товары.Сумма",
+        "        ПутьКДаннымПодвала: Объект.Товары.TotalСумма",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts constants set data paths through constant metadata files", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  НаборКонстант:",
+        "    Тип: КонстантыНабор",
+        "Элементы:",
+        "  ИспользоватьСинхронизациюДанных:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: НаборКонстант.КонстантаБулево",
+      ],
+      extraOwners: [
+        {
+          dir: "Константа",
+          name: "КонстантаБулево",
+          yaml: ["Тип: Булево"],
+        },
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("warns for Items.*.CurrentData.* paths", () => {
     const project = createProject({
       form: ["Элементы:", "  Кнопка:", "    Вид: Кнопка", "    Данные: Items.Таблица.CurrentData.Номенклатура"],

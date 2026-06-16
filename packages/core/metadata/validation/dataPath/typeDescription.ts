@@ -98,6 +98,9 @@ function mapType(type: string): { kind: DataPathValueKind; nextType?: OwnerTypeR
       return { kind: "tableSource", table: { kind: "ValueTree" } }
     case "DynamicList":
       return { kind: "dynamicList", table: { kind: "DynamicList" } }
+    case "ConstantsSet":
+    case "КонстантыНабор":
+      return { kind: "constantSet" }
   }
 
   if (baseTypeOf(type) === "DefinedType") return { kind: "object" }

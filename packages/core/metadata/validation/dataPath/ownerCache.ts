@@ -1,5 +1,8 @@
 import { join, resolve } from "path"
+import { Type } from "@sinclair/typebox"
+import { MetadataConstantRules } from "~/metadata/appliedObjects/metadataConstant/rules"
 import type { ConfigurationContext } from "~/metadata/context/types"
+import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { getValidationProjectSpecByDir, type ValidationProjectSpec } from "../projectSpecs"
@@ -58,7 +61,20 @@ const ownerDirByRefKind = {
   БизнесПроцессОбъект: "БизнесПроцесс",
   Задача: "Задача",
   ЗадачаОбъект: "Задача",
+  Константа: "Константа",
 } satisfies Readonly<Record<KnownOwnerTypeKind, string>>
+
+const constantOwnerSpec: ValidationProjectSpec = {
+  kind: "constant",
+  dir: "Константа",
+  rule: MetadataConstantRules,
+  exportSchema: () => Type.Object({}),
+  importModel: ({ context, parsed, name }) => {
+    const model: unknown = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: MetadataConstantRules, name })
+
+    return isMetadataItem(model) ? model : undefined
+  },
+}
 
 export function createOwnerMetadataCache({
   projectDir,
@@ -96,7 +112,7 @@ function loadOwner(params: {
     }
   }
 
-  const spec = getValidationProjectSpecByDir(dir)
+  const spec = getOwnerProjectSpecByDir(dir)
   const filePath = ownerFilePath(projectDir, dir, ref.name)
   if (!spec) {
     return {
@@ -143,6 +159,11 @@ function loadOwner(params: {
   } finally {
     yamlCache.release(filePath)
   }
+}
+
+function getOwnerProjectSpecByDir(dir: string): ValidationProjectSpec | undefined {
+  if (dir === constantOwnerSpec.dir) return constantOwnerSpec
+  return getValidationProjectSpecByDir(dir)
 }
 
 function ownerDirForRefKind(kind: OwnerTypeRef["kind"]): string | undefined {
@@ -207,4 +228,8 @@ function crossFileDiagnostic(filePath: string, message: string): Diagnostic {
     severity: "error",
     source: "cross-file",
   }
+}
+
+function isMetadataItem(value: unknown): value is MetadataItem {
+  return typeof value === "object" && value !== null && "itemType" in value
 }

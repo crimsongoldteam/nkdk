@@ -86,6 +86,19 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
     })
   })
 
+  it("maps ConstantsSet as a constant set source", () => {
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["ConstantsSet"] })).toEqual({
+      kinds: ["constantSet"],
+      nextTypes: [],
+      sourceText: "ConstantsSet",
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["КонстантыНабор"] })).toEqual({
+      kinds: ["constantSet"],
+      nextTypes: [],
+      sourceText: "КонстантыНабор",
+    })
+  })
+
   it("maps missing type descriptions to unknown without using defaultType", () => {
     expect(typeDescriptionToDataPathTypeInfo(undefined, { defaultType: "boolean" })).toEqual({
       kinds: ["unknown"],
