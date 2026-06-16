@@ -67,7 +67,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "Resource",
   keyField: "name",
   fromYAML: importMetadataRegisterResourcesFromYAML,
-  graphChild: { idFrom: "name", edgeKind: "ATTRIBUTE", edgeYaml: "Ресурс", nodeSegment: "Ресурс" },
+  collectionItemRule: true,
 })
 
 export const importMetadataRegisterResourcesFromXML = (

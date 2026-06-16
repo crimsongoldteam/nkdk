@@ -84,7 +84,7 @@ registerMetadataItemCollectionRule({
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataCatalogAttributeRules),
   toJSONSchema: createExportMetadataAttributesToJSONSchema(MetadataCatalogAttributeRules),
-  graphChild: { idFrom: "name", edgeKind: "ATTRIBUTE", edgeYaml: "Реквизит", nodeSegment: "Реквизит" },
+  collectionItemRule: true,
 })
 
 registerMetadataItemCollectionRule({
@@ -94,7 +94,7 @@ registerMetadataItemCollectionRule({
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataAttributeRules),
   toJSONSchema: exportMetadataAttributesToJSONSchema,
-  graphChild: { idFrom: "name", edgeKind: "ATTRIBUTE", edgeYaml: "Реквизит", nodeSegment: "Реквизит" },
+  collectionItemRule: true,
 })
 
 registerMetadataItemCollectionRule({
@@ -104,7 +104,7 @@ registerMetadataItemCollectionRule({
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataTabularSectionAttributeRules),
   toJSONSchema: createExportMetadataAttributesToJSONSchema(MetadataTabularSectionAttributeRules),
-  graphChild: { idFrom: "name", edgeKind: "ATTRIBUTE", edgeYaml: "Реквизит", nodeSegment: "Реквизит" },
+  collectionItemRule: true,
 })
 
 registerMetadataItemCollectionRule({
@@ -114,7 +114,7 @@ registerMetadataItemCollectionRule({
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataDocumentAttributeRules),
   toJSONSchema: createExportMetadataAttributesToJSONSchema(MetadataDocumentAttributeRules),
-  graphChild: { idFrom: "name", edgeKind: "ATTRIBUTE", edgeYaml: "Реквизит", nodeSegment: "Реквизит" },
+  collectionItemRule: true,
 })
 
 // Compat exports for consumers that call these functions directly

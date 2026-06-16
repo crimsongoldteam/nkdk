@@ -209,11 +209,7 @@ describe("validateMetadataTargetsInModel", () => {
       },
     } as never
 
-    registerTypeRule(testCollectionType, "graphChild", {
-      idFrom: "name",
-      edgeKind: "TABULAR_SECTION",
-      edgeYaml: "ТабличнаяЧасть",
-      nodeSegment: "ТабличнаяЧасть",
+    registerTypeRule(testCollectionType, "collectionItemRule", {
       itemRule: tabularSectionRule,
     })
 

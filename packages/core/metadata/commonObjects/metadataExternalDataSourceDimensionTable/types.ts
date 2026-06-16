@@ -29,10 +29,5 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataExternalDataSourceDimensionTableCollectionRules,
   xmlElement: "DimensionTable",
   keyField: "name",
-  graphChild: {
-    idFrom: "name",
-    edgeKind: "EXTERNAL_DATA_SOURCE_DIMENSION_TABLE",
-    edgeYaml: "ТаблицаИзмеренияКубаВнешнегоИсточникаДанных",
-    nodeSegment: "DimensionTable",
-  },
+  collectionItemRule: true,
 })

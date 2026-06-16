@@ -1,5 +1,6 @@
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import {
+  CollectionItemRule,
   createRegistryKey,
   ExportToEnterpriseFunction,
   ExportToJSONSchemaFn,
@@ -7,7 +8,6 @@ import {
   ExportToXMLFunctionNew,
   ExportToYAMLFunction,
   ExportToYAMLFunctionNew,
-  GraphChildRule,
   importExportFunction,
   ImportFromXMLFunction,
   importFromYAMLFunction as ImportFromYAMLFunction,
@@ -29,7 +29,7 @@ const typeRulesRegistry = new Map<
   | ExportToXMLFunctionNew
   | ImportFromYAMLFunctionNew
   | ExportToYAMLFunctionNew
-  | GraphChildRule
+  | CollectionItemRule
   | SyncExternalFromXMLFunction
   | SyncExternalToXMLFunction
   | ValidateMetadataTargetFunction
@@ -59,8 +59,8 @@ export const getTypeRule = <O extends TypeRulesOperations>(
       ? ExportToEnterpriseFunction | undefined
       : O extends "exportToJSONSchema"
         ? ExportToJSONSchemaFn | undefined
-        : O extends "graphChild"
-          ? GraphChildRule | undefined
+        : O extends "collectionItemRule"
+          ? CollectionItemRule | undefined
           : O extends "syncExternalFromXML"
             ? SyncExternalFromXMLFunction | undefined
             : O extends "syncExternalToXML"

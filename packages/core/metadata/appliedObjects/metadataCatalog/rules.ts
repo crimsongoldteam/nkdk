@@ -487,6 +487,5 @@ export const MetadataCatalogRules = {
       xmlParents: ["Properties"],
     },
   },
-  graphTerminals: ["ПустаяСсылка"],
   childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
 } as const satisfies MetadataItemRule

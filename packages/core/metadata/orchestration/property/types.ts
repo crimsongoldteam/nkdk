@@ -188,14 +188,6 @@ export interface BasePropertyRule {
   derivedFrom?: { externalFile: string }
 
   /**
-   * Явная ASCII-метка kind'а для reference-ребра, порождаемого этим свойством
-   * (SCREAMING_SNAKE_CASE). Перекрывает правило по умолчанию (перевод yaml-имени
-   * через edgeKinds). Используется, когда yaml-имя коллидирует или неточно
-   * отражает семантику ребра.
-   */
-  graphEdgeKind?: string
-
-  /**
    * Путь к внешнему XML-файлу относительно директории объекта метаданных.
    * Свойство с этим полем не участвует в основном XML-файле объекта —
    * читается/пишется отдельно оркестратором.
@@ -459,12 +451,6 @@ export interface MetadataItemRule extends MetadataItem {
    * Если не задано — правило внутреннее (Command, Predefined и т.п.).
    */
   xmlDir?: string
-
-  /**
-   * Имена терминальных узлов, которые материализуются как composition-дочки при импорте объекта.
-   * Пример: ["ПустаяСсылка"] — создаёт узел `<prefix>.<name>.ПустаяСсылка` с owning-ребром.
-   */
-  graphTerminals?: ReadonlyArray<string>
 
   /**
    * Дочерние коллекции, которые оркестратор должен обойти для обработки Module/Template-свойств.
