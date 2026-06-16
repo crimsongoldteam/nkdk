@@ -115,6 +115,18 @@ describe("importMetadataCatalogFromYAML", () => {
     ).toThrow('Корень "Enum" не разрешён для цели метаданных')
   })
 
+  it("should accept chart of characteristic types as catalog owner", () => {
+    const result = importMetadataCatalogFromYAML(
+      mockContext,
+      {
+        Владельцы: ["ПланВидовХарактеристик.ВопросыДляАнкетирования"],
+      },
+      "ВариантыОтветовАнкет"
+    )
+
+    expect(result?.owners).toEqual(["ChartOfCharacteristicTypes.ВопросыДляАнкетирования"])
+  })
+
   it("should import with short format", () => {
     const result = exportMetadataCatalogToYAML(mockContext, minimal)
 

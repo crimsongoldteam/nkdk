@@ -9,11 +9,11 @@ export type { ElementRule, PropertyRule }
 
 const commonProperties = {
   autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-  backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
-  border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "styleItem", styleItemTypes: ["Border"] } },
-  borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
-  buttonsBackColor: { yaml: "ЦветФонаКнопок", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] }, xml: "ButtonColor" },
-  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "styleItem", styleItemTypes: ["Font"] } },
+  backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+  border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Border"] }] } },
+  borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+  buttonsBackColor: { yaml: "ЦветФонаКнопок", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] }, xml: "ButtonColor" },
+  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
   horizontalAlign: {
     yaml: "ГоризонтальноеПоложение",
     xml: "HorizontalLocation",
@@ -22,9 +22,9 @@ const commonProperties = {
   },
   horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
   maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
-  titleFont: { yaml: "ШрифтЗаголовка", type: "Font", metadataTarget: { kind: "styleItem", styleItemTypes: ["Font"] } },
-  titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+  titleFont: { yaml: "ШрифтЗаголовка", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
+  titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
   width: { yaml: "Ширина", type: "number" },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {

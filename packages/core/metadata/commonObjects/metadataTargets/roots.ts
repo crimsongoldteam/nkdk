@@ -1,4 +1,4 @@
-import type { MetadataFieldKind, MetadataRootName } from "./types"
+import type { MetadataFieldKind, MetadataMemberKind, MetadataRootName } from "./types"
 
 export const METADATA_NAME_PATTERN = "[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*"
 
@@ -53,6 +53,22 @@ export const rootToYAML = {
 export const rootFromYAML = Object.fromEntries(
   Object.entries(rootToYAML).map(([model, yaml]) => [yaml, model])
 ) as Partial<Record<string, MetadataRootName>>
+
+export const memberKindToYAML = {
+  Attribute: "Реквизит",
+  StandardAttribute: "СтандартныйРеквизит",
+  TabularSection: "ТабличнаяЧасть",
+  Dimension: "Измерение",
+  Resource: "Ресурс",
+  Form: "Форма",
+  Template: "Макет",
+  Command: "Команда",
+  AccountingFlag: "ПризнакУчета",
+} as const satisfies Record<MetadataMemberKind, string>
+
+export const memberKindFromYAML = Object.fromEntries(
+  Object.entries(memberKindToYAML).map(([model, yaml]) => [yaml, model])
+) as Partial<Record<string, MetadataMemberKind>>
 
 export const fieldKindToYAML = {
   Attribute: "Реквизит",

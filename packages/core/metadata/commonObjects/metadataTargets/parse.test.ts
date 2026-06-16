@@ -22,14 +22,14 @@ describe("metadataTargets parser", () => {
   it("parses full field paths with required service segments", () => {
     const result = parseMetadataTargetFromYAML({
       value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество",
-      constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
+      constraint: { kind: "member", owner: "explicit", roots: ["Catalog"] },
     })
 
     expect(result).toEqual({
       ok: true,
       canonical: "Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество",
       target: {
-        kind: "field",
+        kind: "member",
         root: "Catalog",
         objectName: "Номенклатура",
         segments: [
@@ -40,14 +40,14 @@ describe("metadataTargets parser", () => {
     })
   })
 
-  it("applies fieldKinds to the terminal field segment", () => {
+  it("applies memberKinds to the terminal field-like member segment", () => {
     const result = parseMetadataTargetFromYAML({
       value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество",
       constraint: {
-        kind: "field",
+        kind: "member",
         owner: "explicit",
         roots: ["Catalog"],
-        fieldKinds: ["Attribute", "StandardAttribute"],
+        memberKinds: ["Attribute", "StandardAttribute"],
       },
     })
 
@@ -60,10 +60,10 @@ describe("metadataTargets parser", () => {
       parseMetadataTargetFromYAML({
         value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары",
         constraint: {
-          kind: "field",
+          kind: "member",
           owner: "explicit",
           roots: ["Catalog"],
-          fieldKinds: ["Attribute", "StandardAttribute"],
+          memberKinds: ["Attribute", "StandardAttribute"],
         },
       })
     ).toMatchObject({ ok: false, code: "disallowed-kind" })
@@ -132,7 +132,7 @@ describe("metadataTargets parser", () => {
     expect(
       formatMetadataTargetToYAML({
         canonical: "Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество",
-        constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
+        constraint: { kind: "member", owner: "explicit", roots: ["Catalog"] },
       })
     ).toBe("Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество")
 
@@ -148,7 +148,7 @@ describe("metadataTargets parser", () => {
     expect(
       parseMetadataTargetFromYAML({
         value: "РегистрНакопления.Продажи.СтандартныйРеквизит.Период",
-        constraint: { kind: "field", owner: "explicit", roots: ["AccumulationRegister"] },
+        constraint: { kind: "member", owner: "explicit", roots: ["AccumulationRegister"] },
       })
     ).toMatchObject({
       ok: true,
@@ -158,14 +158,14 @@ describe("metadataTargets parser", () => {
     expect(
       formatMetadataTargetToYAML({
         canonical: "AccumulationRegister.Продажи.StandardAttribute.Period",
-        constraint: { kind: "field", owner: "explicit", roots: ["AccumulationRegister"] },
+        constraint: { kind: "member", owner: "explicit", roots: ["AccumulationRegister"] },
       })
     ).toBe("РегистрНакопления.Продажи.СтандартныйРеквизит.Период")
 
     expect(
       formatMetadataTargetToYAML({
         canonical: "Catalog.Номенклатура.TabularSection.Товары.StandardAttribute.LineNumber",
-        constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
+        constraint: { kind: "member", owner: "explicit", roots: ["Catalog"] },
       })
     ).toBe("Справочник.Номенклатура.ТабличнаяЧасть.Товары.СтандартныйРеквизит.НомерСтроки")
   })
@@ -185,13 +185,13 @@ describe("metadataTargets parser", () => {
     expect(
       parseMetadataTargetFromModel({
         canonical: "Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество",
-        constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
+        constraint: { kind: "member", owner: "explicit", roots: ["Catalog"] },
       })
     ).toEqual({
       ok: true,
       canonical: "Catalog.Номенклатура.TabularSection.Товары.Attribute.Количество",
       target: {
-        kind: "field",
+        kind: "member",
         root: "Catalog",
         objectName: "Номенклатура",
         segments: [
@@ -256,64 +256,72 @@ describe("metadataTargets parser", () => {
     ).toBe("Справочник.СтавкиНДС.ПустаяСсылка")
   })
 
-  it("parses and formats style items", () => {
+  it("parses and formats style items through object targets with style filters", () => {
+    const constraint = {
+      kind: "object",
+      roots: ["StyleItem"],
+      filters: [{ kind: "styleItemType", values: ["Color"] }],
+    } as const
+
     expect(
       parseMetadataTargetFromYAML({
         value: "ЭлементСтиля.ОсновнойЦвет",
-        constraint: { kind: "styleItem", styleItemTypes: ["Color"] },
+        constraint,
       })
-    ).toEqual({
+    ).toMatchObject({
       ok: true,
       canonical: "StyleItem.ОсновнойЦвет",
-      target: { kind: "styleItem", name: "ОсновнойЦвет" },
+      target: { kind: "object", root: "StyleItem", objectName: "ОсновнойЦвет" },
     })
 
     expect(
       parseMetadataTargetFromModel({
         canonical: "StyleItem.ОсновнойЦвет",
-        constraint: { kind: "styleItem", styleItemTypes: ["Color"] },
+        constraint,
       })
-    ).toEqual({
+    ).toMatchObject({
       ok: true,
       canonical: "StyleItem.ОсновнойЦвет",
-      target: { kind: "styleItem", name: "ОсновнойЦвет" },
+      target: { kind: "object", root: "StyleItem", objectName: "ОсновнойЦвет" },
     })
 
     expect(
       formatMetadataTargetToYAML({
         canonical: "StyleItem.ОсновнойЦвет",
-        constraint: { kind: "styleItem", styleItemTypes: ["Color"] },
+        constraint,
       })
     ).toBe("ЭлементСтиля.ОсновнойЦвет")
   })
 
-  it("parses and formats common pictures", () => {
+  it("parses and formats common pictures through object targets", () => {
+    const constraint = { kind: "object", roots: ["CommonPicture"] } as const
+
     expect(
       parseMetadataTargetFromYAML({
         value: "ОбщаяКартинка.Логотип",
-        constraint: { kind: "commonPicture" },
+        constraint,
       })
-    ).toEqual({
+    ).toMatchObject({
       ok: true,
       canonical: "CommonPicture.Логотип",
-      target: { kind: "commonPicture", name: "Логотип" },
+      target: { kind: "object", root: "CommonPicture", objectName: "Логотип" },
     })
 
     expect(
       parseMetadataTargetFromModel({
         canonical: "CommonPicture.Логотип",
-        constraint: { kind: "commonPicture" },
+        constraint,
       })
-    ).toEqual({
+    ).toMatchObject({
       ok: true,
       canonical: "CommonPicture.Логотип",
-      target: { kind: "commonPicture", name: "Логотип" },
+      target: { kind: "object", root: "CommonPicture", objectName: "Логотип" },
     })
 
     expect(
       formatMetadataTargetToYAML({
         canonical: "CommonPicture.Логотип",
-        constraint: { kind: "commonPicture" },
+        constraint,
       })
     ).toBe("ОбщаяКартинка.Логотип")
   })
@@ -342,9 +350,9 @@ describe("metadataTargets parser", () => {
     expect(
       parseMetadataTargetFromYAML({
         value: "Справочник.Номенклатура.Количество",
-        constraint: { kind: "field", owner: "explicit", roots: ["Catalog"] },
+        constraint: { kind: "member", owner: "explicit", roots: ["Catalog"] },
       })
-    ).toMatchObject({ ok: false, code: "unknown-segment" })
+    ).toMatchObject({ ok: false, code: "invalid-shape" })
   })
 
   it("reports extra value path segments instead of valid earlier value segments", () => {
@@ -368,6 +376,233 @@ describe("metadataTargets parser", () => {
       ok: false,
       code: "unknown-segment",
       message: 'Неизвестный сегмент "Extra"',
+    })
+  })
+
+  it("parses local member names for the current owner", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ФормаДокумента",
+        owner,
+        constraint: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+      target: {
+        kind: "member",
+        root: "Document",
+        objectName: "АвансовыйОтчет",
+        segments: [{ kind: "Form", name: "ФормаДокумента" }],
+      },
+    })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+        owner,
+        constraint: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      })
+    ).toBe("ФормаДокумента")
+  })
+
+  it("applies root constraints to local member targets", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ФормаДокумента",
+        owner,
+        constraint: { kind: "member", owner: "this", roots: ["Catalog"], memberKinds: ["Form"] },
+      })
+    ).toMatchObject({ ok: false, code: "disallowed-root" })
+  })
+
+  it("normalizes standard attribute aliases in local member targets", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+    const constraint = { kind: "member", owner: "this", memberKinds: ["StandardAttribute"] } as const
+
+    expect(parseMetadataTargetFromYAML({ value: "Дата", owner, constraint })).toMatchObject({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.StandardAttribute.Date",
+    })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "Document.АвансовыйОтчет.StandardAttribute.Date",
+        owner,
+        constraint,
+      })
+    ).toBe("Дата")
+  })
+
+  it("parses local member paths through tabular sections for the current owner", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ТабличнаяЧасть.Товары.Реквизит.Количество",
+        owner,
+        constraint: { kind: "member", owner: "this", memberKinds: ["Attribute"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.TabularSection.Товары.Attribute.Количество",
+      target: {
+        kind: "member",
+        root: "Document",
+        objectName: "АвансовыйОтчет",
+        segments: [
+          { kind: "TabularSection", name: "Товары" },
+          { kind: "Attribute", name: "Количество" },
+        ],
+      },
+    })
+  })
+
+  it("rejects local member kind segments when only one member kind is allowed", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+
+    const result = parseMetadataTargetFromYAML({
+      value: "Форма.ФормаДокумента",
+      owner,
+      constraint: { kind: "member", owner: "this", memberKinds: ["Form"] },
+    })
+
+    expect(result).toMatchObject({ ok: false, code: "invalid-shape" })
+  })
+
+  it("keeps member kind in YAML when several local member kinds are allowed", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+    const constraint = { kind: "member", owner: "this", memberKinds: ["Form", "Template"] } as const
+
+    expect(parseMetadataTargetFromYAML({ value: "Форма.ФормаДокумента", owner, constraint })).toMatchObject({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+    })
+    expect(parseMetadataTargetFromYAML({ value: "Макет.ПечатнаяФорма", owner, constraint })).toMatchObject({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.Template.ПечатнаяФорма",
+    })
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "Document.АвансовыйОтчет.Template.ПечатнаяФорма",
+        owner,
+        constraint,
+      })
+    ).toBe("Макет.ПечатнаяФорма")
+  })
+
+  it("parses explicit owner member paths", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Документ.АвансовыйОтчет.Реквизит.Организация",
+        constraint: { kind: "member", owner: "explicit", roots: ["Document"], memberKinds: ["Attribute"] },
+      })
+    ).toMatchObject({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.Attribute.Организация",
+      target: {
+        kind: "member",
+        root: "Document",
+        objectName: "АвансовыйОтчет",
+        segments: [{ kind: "Attribute", name: "Организация" }],
+      },
+    })
+  })
+
+  it("accepts canonical model member paths for explicit owner constraints in YAML", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Document.АвансовыйОтчет.Attribute.Организация",
+        constraint: { kind: "member", owner: "explicit", roots: ["Document"], memberKinds: ["Attribute"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.Attribute.Организация",
+      target: {
+        kind: "member",
+        root: "Document",
+        objectName: "АвансовыйОтчет",
+        segments: [{ kind: "Attribute", name: "Организация" }],
+      },
+    })
+  })
+
+  it("accepts old canonical full member paths on import and normalizes them on export", () => {
+    const owner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+    const constraint = { kind: "member", owner: "this", memberKinds: ["Form"] } as const
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+        owner,
+        constraint,
+      })
+    ).toMatchObject({
+      ok: true,
+      canonical: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+    })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+        owner,
+        constraint,
+      })
+    ).toBe("ФормаДокумента")
+  })
+
+  it("accepts explicit object roots in current-owner member constraints", () => {
+    const owner = { root: "Report", objectName: "Продажи" } as const
+    const constraint = {
+      kind: "member",
+      owner: "this",
+      memberKinds: ["Form"],
+      objectRoots: ["CommonForm"],
+    } as const
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ОбщаяФорма.ФормаОтчета",
+        owner,
+        constraint,
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "CommonForm.ФормаОтчета",
+      target: { kind: "object", root: "CommonForm", objectName: "ФормаОтчета" },
+    })
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "CommonForm.ФормаОтчета",
+        owner,
+        constraint,
+      })
+    ).toMatchObject({ ok: true, canonical: "CommonForm.ФормаОтчета" })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "CommonForm.ФормаОтчета",
+        owner,
+        constraint,
+      })
+    ).toBe("ОбщаяФорма.ФормаОтчета")
+  })
+
+  it("requires owner context for local member targets", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ФормаДокумента",
+        constraint: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      })
+    ).toEqual({
+      ok: false,
+      code: "invalid-shape",
+      message: 'Для metadataTarget kind "member" owner "this" требуется контекст текущего объекта',
     })
   })
 })

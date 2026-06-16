@@ -83,22 +83,186 @@ describe("ProjectMetadataResolver", () => {
     ])
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveField({ target: fieldTarget("Справочник.Номенклатура.СтандартныйРеквизит.Наименование") })).toMatchObject({
+    expect(resolver.resolveMember({ target: memberTarget("Справочник.Номенклатура.СтандартныйРеквизит.Наименование") })).toMatchObject({
       ok: true,
     })
 
     expect(
-      resolver.resolveField({
-        target: fieldTarget("Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество"),
+      resolver.resolveMember({
+        target: memberTarget("Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество"),
       }),
     ).toMatchObject({ ok: true })
+  })
+
+  it("resolves current object members and returns field details", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [
+      "Реквизиты:",
+      "  Провести:",
+      "    Тип: Булево",
+      "Формы:",
+      "  ФормаДокумента",
+    ])
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Форма.ФормаДокумента") })).toMatchObject({
+      ok: true,
+    })
+    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Провести") })).toMatchObject({
+      ok: true,
+      details: expect.objectContaining({
+        typeInfo: expect.objectContaining({ kinds: expect.arrayContaining(["boolean"]) }),
+      }),
+    })
+  })
+
+  it("applies hasType filter to member fields", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [
+      "Реквизиты:",
+      "  Провести:",
+      "    Тип: Булево",
+      "  Комментарий:",
+      "    Тип: Строка",
+    ])
+    const resolver = createResolver(projectDir)
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Провести"),
+        filters: [{ kind: "hasType", type: "boolean" }],
+      }),
+    ).toMatchObject({ ok: true })
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Комментарий"),
+        filters: [{ kind: "hasType", type: "boolean" }],
+      }),
+    ).toMatchObject({
+      ok: false,
+      diagnostics: [expect.objectContaining({ message: expect.stringContaining("тип которых содержит Булево") })],
+    })
+  })
+
+  it("applies directMember filter before hasType to member fields", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [
+      "Реквизиты:",
+      "  Провести:",
+      "    Тип: Булево",
+      "ТабличныеЧасти:",
+      "  Товары:",
+      "    Реквизиты:",
+      "      Использовать:",
+      "        Тип: Булево",
+    ])
+    const resolver = createResolver(projectDir)
+    const filters = [
+      { kind: "directMember" },
+      { kind: "hasType", type: "boolean" },
+    ] as const
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Провести"),
+        filters,
+      }),
+    ).toMatchObject({ ok: true })
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.ТабличнаяЧасть.Товары.Реквизит.Использовать"),
+        filters,
+      }),
+    ).toMatchObject({
+      ok: false,
+      diagnostics: [expect.objectContaining({ message: expect.stringContaining("прямые члены текущего объекта") })],
+    })
+  })
+
+  it("resolves templates, commands and tabular-section attributes as members", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [
+      "Команды:",
+      "  Печать:",
+      "    Синоним: Печать",
+      "Макеты:",
+      "  ПечатнаяФорма",
+      "ТабличныеЧасти:",
+      "  Товары:",
+      "    Реквизиты:",
+      "      Количество:",
+      "        Тип: Число",
+    ])
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Макет.ПечатнаяФорма") })).toMatchObject({
+      ok: true,
+    })
+    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Команда.Печать") })).toMatchObject({
+      ok: true,
+    })
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.ТабличнаяЧасть.Товары.Реквизит.Количество"),
+      }),
+    ).toMatchObject({ ok: true })
+  })
+
+  it("resolves chart of accounts accounting flags as members", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ПланСчетов/Хозрасчетный/Свойства.yaml", [
+      "ПризнакиУчета:",
+      "  УчетПоНаправлениямДеятельности:",
+      "    Синоним: Учет по направлениям деятельности",
+      "    Тип: Булево",
+    ])
+    const resolver = createResolver(projectDir)
+
+    const result = resolver.resolveMember({
+      target: memberTarget("ПланСчетов.Хозрасчетный.ПризнакУчета.УчетПоНаправлениямДеятельности"),
+    })
+    expect(result).toMatchObject({ ok: true })
+  })
+
+  it("applies stringIndexedAttribute filter to member fields", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", [
+      "Реквизиты:",
+      "  Комментарий:",
+      "    Тип: Строка",
+      "ТабличныеЧасти:",
+      "  Товары:",
+      "    Реквизиты:",
+      "      Количество:",
+      "        Тип: Число",
+    ])
+    const resolver = createResolver(projectDir)
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Комментарий"),
+        filters: [{ kind: "stringIndexedAttribute" }],
+      }),
+    ).toMatchObject({ ok: true })
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Документ.АвансовыйОтчет.ТабличнаяЧасть.Товары"),
+        filters: [{ kind: "stringIndexedAttribute" }],
+      }),
+    ).toMatchObject({
+      ok: false,
+      diagnostics: [expect.objectContaining({ message: expect.stringContaining("пригодные для ввода по строке") })],
+    })
   })
 
   it("reports missing field owners as reference diagnostics", () => {
     const projectDir = createProject()
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveField({ target: fieldTarget("Справочник.НетТакого.Реквизит.Код") })).toMatchObject({
+    expect(resolver.resolveMember({ target: memberTarget("Справочник.НетТакого.Реквизит.Код") })).toMatchObject({
       ok: false,
       diagnostics: [
         expect.objectContaining({
@@ -148,6 +312,26 @@ describe("ProjectMetadataResolver", () => {
     })
   })
 
+  it("checks style item type when object target filters are provided", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ЭлементСтиля/ОсновнойЦвет/Свойства.yaml", ["Тип: Цвет", "Значение:", "  Вид: Цвет", "  Значение: '#112233'"])
+    const resolver = createResolver(projectDir)
+    const target = { kind: "object", root: "StyleItem", objectName: "ОсновнойЦвет" } as const
+
+    expect(resolver.resolveObject({ target, filters: [{ kind: "styleItemType", values: ["Color"] }] })).toMatchObject({
+      ok: true,
+    })
+    expect(resolver.resolveObject({ target, filters: [{ kind: "styleItemType", values: ["Font"] }] })).toMatchObject({
+      ok: false,
+      diagnostics: [
+        expect.objectContaining({
+          source: "reference",
+          message: 'Элемент стиля "ЭлементСтиля.ОсновнойЦвет" имеет тип "Color", ожидался: Font',
+        }),
+      ],
+    })
+  })
+
   function createProject(): string {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-project-resolver-"))
     tempDirs.push(projectDir)
@@ -176,10 +360,10 @@ function objectTarget(value: string, allowNested = false): Extract<ParsedMetadat
   return parsed.target as Extract<ParsedMetadataTarget, { kind: "object" }>
 }
 
-function fieldTarget(value: string): Extract<ParsedMetadataTarget, { kind: "field" }> {
-  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "field", owner: "explicit" } })
+function memberTarget(value: string): Extract<ParsedMetadataTarget, { kind: "member" }> {
+  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "member", owner: "explicit" } })
   if (!parsed.ok) throw new Error(parsed.message)
-  return parsed.target as Extract<ParsedMetadataTarget, { kind: "field" }>
+  return parsed.target as Extract<ParsedMetadataTarget, { kind: "member" }>
 }
 
 function valueTarget(value: string): Extract<ParsedMetadataTarget, { kind: "value" }> {

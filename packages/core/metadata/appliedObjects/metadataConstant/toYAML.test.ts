@@ -12,13 +12,13 @@ describe("export MetadataConstant to YAML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("exports full fixture", () => {
-    const result = testExportPropertyToYAML({ rule, value: full })
+  it("exports full fixture with common form", () => {
+    const result = testExportPropertyToYAML({ rule, value: full, name: full.name })
     expect(result).toEqual({ Константа: fullYAML })
   })
 
   it("exports minimal fixture", () => {
-    const result = testExportPropertyToYAML({ rule, value: minimal })
+    const result = testExportPropertyToYAML({ rule, value: minimal, name: minimal.name })
     expect(result).toEqual({ Константа: minimalYAML })
   })
 })

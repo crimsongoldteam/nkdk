@@ -17,6 +17,7 @@ import { ButtonGroup } from "../elements/buttonGroup/types"
 import { Table } from "../elements/table/types"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
+import type { ConfigurationContext } from "~/metadata/context/types"
 
 type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
   customSettingsFolder?: string
@@ -186,7 +187,24 @@ const reportFormClientApplicationFormFromYAML = {
   "autoShowState" | "reportResultViewMode" | "viewModeApplicationOnSetReportResult"
 >
 
+const reportOwnerContext: ConfigurationContext = {
+  ...mockContext,
+  importFromYAML: {
+    metadataTargetOwners: [{ itemType: "MetadataReport", name: "РасшифровкаСтатистики" }],
+  },
+}
+
 describe("importClientApplicationFormFromYAML", () => {
+  it("imports report form settings storage from a local form reference", () => {
+    expect(
+      importClientApplicationFormFromYAML(reportOwnerContext, {
+        ХранилищеНастроек: "ФормаОтчета",
+      })
+    ).toMatchObject({
+      settingsStorage: "Report.РасшифровкаСтатистики.Form.ФормаОтчета",
+    })
+  })
+
   it("imports complete form from one YAML source without source", () => {
     const data: ClientApplicationFormYAML = {
       КоманднаяПанель: {

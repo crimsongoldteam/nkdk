@@ -21,4 +21,16 @@ describe("exportMetadataCatalogToYAML", () => {
 
     expect(result).toEqual(minimalYAML)
   })
+
+  it("should export chart of characteristic types catalog owner", () => {
+    const result = exportMetadataCatalogToYAML(mockContextToYAML, {
+      itemType: "MetadataCatalog",
+      name: "ВариантыОтветовАнкет",
+      owners: ["ChartOfCharacteristicTypes.ВопросыДляАнкетирования"],
+    })
+
+    expect(result).toEqual({
+      Владельцы: ["ПланВидовХарактеристик.ВопросыДляАнкетирования"],
+    })
+  })
 })

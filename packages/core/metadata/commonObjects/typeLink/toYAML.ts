@@ -6,7 +6,7 @@ import { TypeLink, TypeLinkYAML } from "./types"
 
 const typeLinkMetadataTargetRule = {
   type: "MetadataField",
-  metadataTarget: { kind: "field", owner: "explicit", allowObject: true },
+  metadataTarget: { kind: "member", owner: "explicit", allowOwner: true },
 } as const satisfies PropertyRule
 
 export const exportTypeLinkToYAML = (

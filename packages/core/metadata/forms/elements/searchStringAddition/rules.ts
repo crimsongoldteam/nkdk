@@ -9,12 +9,12 @@ export type { ElementRule, PropertyRule }
 
 const commonProperties = {
   autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-  backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
-  borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
-  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "styleItem", styleItemTypes: ["Font"] } },
+  backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+  borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
   horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
   maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
   width: { yaml: "Ширина", type: "number" },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {

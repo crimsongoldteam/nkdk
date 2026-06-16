@@ -8,6 +8,7 @@ import type { MetadataTargetConstraint, ParsedMetadataTarget } from "./types"
 
 const validateStringTarget: ValidateMetadataTargetFunction = (params) => {
   if (typeof params.value !== "string" || params.value === "") return []
+  if (params.propRule.type === "string" && params.propRule.metadataTarget?.kind !== "member") return []
   return validateCanonicalTarget(params, params.value)
 }
 
@@ -64,7 +65,7 @@ function validateCanonicalTarget(
   const constraint = params.propRule.metadataTarget
   if (!constraint) return []
 
-  const parsed = parseMetadataTargetFromModel({ canonical: value, constraint })
+  const parsed = parseMetadataTargetFromModel({ canonical: value, constraint, owner: params.owner })
   if (!parsed.ok) {
     return [
       diagnosticAtYamlPath({
@@ -87,30 +88,23 @@ function resolveParsedTarget(params: {
   resolver: Parameters<ValidateMetadataTargetFunction>[0]["resolver"]
 }): ReturnType<ValidateMetadataTargetFunction> {
   if (params.parsed.kind === "object") {
-    const result = params.resolver.resolveObject({ target: params.parsed })
+    const result = params.resolver.resolveObject({
+      target: params.parsed,
+      filters: params.constraint.kind === "object" ? params.constraint.filters : undefined,
+    })
     return result.ok ? [] : result.diagnostics
   }
 
-  if (params.parsed.kind === "field") {
-    const result = params.resolver.resolveField({ target: params.parsed })
+  if (params.parsed.kind === "member" && params.constraint.kind === "member") {
+    const result = params.resolver.resolveMember({
+      target: params.parsed,
+      filters: params.constraint.filters,
+    })
     return result.ok ? [] : result.diagnostics
   }
 
   if (params.parsed.kind === "value") {
     const result = params.resolver.resolveValue({ target: params.parsed })
-    return result.ok ? [] : result.diagnostics
-  }
-
-  if (params.parsed.kind === "commonPicture") {
-    const result = params.resolver.resolveCommonPicture({ name: params.parsed.name })
-    return result.ok ? [] : result.diagnostics
-  }
-
-  if (params.parsed.kind === "styleItem" && params.constraint.kind === "styleItem") {
-    const result = params.resolver.resolveStyleItem({
-      name: params.parsed.name,
-      expectedTypes: params.constraint.styleItemTypes,
-    })
     return result.ok ? [] : result.diagnostics
   }
 
@@ -145,6 +139,7 @@ function isKnownStyleFont(value: string): value is SE.StyleFonts {
 }
 
 registerTypeRule("MetadataItemLink", "validateMetadataTarget", validateStringTarget)
+registerTypeRule("string", "validateMetadataTarget", validateStringTarget)
 registerTypeRule("MetadataItemLinks", "validateMetadataTarget", validateStringTargetList)
 registerTypeRule("MetadataField", "validateMetadataTarget", validateStringTarget)
 registerTypeRule("MetadataFields", "validateMetadataTarget", validateStringTargetList)

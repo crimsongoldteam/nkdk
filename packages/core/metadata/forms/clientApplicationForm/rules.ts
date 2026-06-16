@@ -321,6 +321,7 @@ export const ClientApplicationFormRules = {
     settingsStorage: {
       yaml: "ХранилищеНастроек",
       type: "MetadataItemLink",
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["SettingsStorage"] },
       tag: FormRulesTags.Form,
     },
     showCloseButton: {

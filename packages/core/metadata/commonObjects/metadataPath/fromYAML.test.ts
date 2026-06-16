@@ -22,7 +22,7 @@ describe("importMetadataFieldFromYAML", () => {
   test("rejects short field path without service segments", () => {
     expect(() =>
       importMetadataFieldStringFromYAML(mockContext, mockRule, "Справочник.Номенклатура.Количество")
-    ).toThrow('Неизвестный сегмент "Количество"')
+    ).toThrow("Некорректный формат цели метаданных")
   })
 
   test("rejects English YAML root", () => {

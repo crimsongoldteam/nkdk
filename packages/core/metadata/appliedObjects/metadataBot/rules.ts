@@ -62,7 +62,7 @@ export const MetadataBotRules = {
     },
     picture: {
       yaml: "Картинка",
-      type: "Picture", metadataTarget: { kind: "commonPicture" },
+      type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: properties,
       defaultValueXMLRaw: "",
     },

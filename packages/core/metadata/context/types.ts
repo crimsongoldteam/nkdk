@@ -85,12 +85,19 @@ export interface ExternalFileEntry {
   content: string
 }
 
+export interface MetadataTargetOwnerContext {
+  itemType: MetadataItemType
+  name: string
+}
+
 export interface FormExportToYAMLContext {
   toTyped: boolean
   /** Имя родительского объекта (например, имя реквизита формы) для externalFile. */
   parent?: { name: string }
   /** Сборник внешних файлов, формируемых при экспорте. */
   externalFilesCollector?: ExternalFileEntry[]
+  /** Стек текущих metadata item владельцев для owner: "this" metadataTarget. */
+  metadataTargetOwners?: MetadataTargetOwnerContext[]
 }
 
 export interface FormimportFromYAMLContext {
@@ -99,6 +106,8 @@ export interface FormimportFromYAMLContext {
   formDir?: string
   /** Имя родительского объекта для externalFile (например, имя реквизита формы). */
   parent?: { name: string }
+  /** Стек текущих metadata item владельцев для owner: "this" metadataTarget. */
+  metadataTargetOwners?: MetadataTargetOwnerContext[]
 }
 
 export interface EnterpriseContext {

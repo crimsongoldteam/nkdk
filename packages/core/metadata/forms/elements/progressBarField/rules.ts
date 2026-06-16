@@ -11,7 +11,7 @@ export const ProgressBarFieldRules = {
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
     height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },

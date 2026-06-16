@@ -24,8 +24,8 @@ export const PictureDecorationRules = {
       runtimeOnly: true,
     },
     ...formDecorationCommonProperties,
-    border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "styleItem", styleItemTypes: ["Border"] } },
-    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+    border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Border"] }] } },
+    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
     enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
     enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
     fileDragMode: {
@@ -35,7 +35,7 @@ export const PictureDecorationRules = {
     },
     hyperlink: { yaml: "Гиперссылка", type: "boolean" },
     nonselectedPictureText: { yaml: "ТекстНевыбраннойКартинки", type: "I8nText" },
-    picture: { yaml: "Картинка", type: "Picture", metadataTarget: { kind: "commonPicture" } },
+    picture: { yaml: "Картинка", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
     pictureSize: {
       yaml: "РазмерКартинки",
       type: "SystemEnumeration",

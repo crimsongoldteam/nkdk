@@ -4,7 +4,7 @@ import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
 import { parseMetadataTargetFromYAML } from "../metadataTargets"
-import { Color, ColorYAML, isRawColorRefValue } from "./types"
+import { Color, ColorYAML, colorStyleItemTarget, isRawColorRefValue } from "./types"
 
 export const importColorFromYAML = (
   _context: ConfigurationContext,
@@ -77,10 +77,10 @@ function parseProjectStyleRefFromYAML(value: string): string | undefined {
 
   const parsed = parseMetadataTargetFromYAML({
     value,
-    constraint: { kind: "styleItem", styleItemTypes: ["Color"] },
+    constraint: colorStyleItemTarget,
   })
   if (!parsed.ok) throw new Error(parsed.message)
-  return parsed.target.kind === "styleItem" ? parsed.target.name : undefined
+  return parsed.target.kind === "object" && parsed.target.root === "StyleItem" ? parsed.target.objectName : undefined
 }
 
 function isRawPrefixedColorRef(value: string): boolean {

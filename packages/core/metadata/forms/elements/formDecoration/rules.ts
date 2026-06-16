@@ -12,7 +12,7 @@ export const formDecorationCommonProperties = {
   },
   enabled: { yaml: "Доступность", type: "boolean" },
   extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
-  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "styleItem", styleItemTypes: ["Font"] } },
+  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
   height: { yaml: "Высота", type: "number" },
   horizontalAlignInGroup: {
     yaml: "ГоризонтальноеПоложениеВГруппе",
@@ -31,7 +31,7 @@ export const formDecorationCommonProperties = {
   },
   shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
   skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },
-  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "styleItem", styleItemTypes: ["Color"] } },
+  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
   toolTip: { yaml: "Подсказка", type: "I8nText" },
   toolTipRepresentation: {
     yaml: "ОтображениеПодсказки",

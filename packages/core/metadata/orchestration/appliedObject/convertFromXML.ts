@@ -35,6 +35,7 @@ export const convertAppliedObjectFromXML = async (params: {
 
   if (!model) return
   const mutableModel = toMutableMetadataRecord(model)
+  mutableModel.name = name
   addReferenceNamesFromXML({
     model: mutableModel,
     rule,
@@ -61,10 +62,11 @@ export const convertAppliedObjectFromXML = async (params: {
 
   // Обработчики внешних файлов на уровне объекта (Help, Module, Template со статическими путями)
   const nkdkDir = join(outputDir, name)
+  const contextWithCurrentOwner = withExportMetadataTargetOwner(context, rule.itemType, name)
   for (const [, propRule] of Object.entries(rule.properties)) {
     const syncFn = getTypeRule(propRule.type, "syncExternalFromXML")
     if (!syncFn) continue
-    await syncFn({ context, rule: propRule, xmlDir: inputDir, nkdkDir, name })
+    await syncFn({ context: contextWithCurrentOwner, rule: propRule, xmlDir: inputDir, nkdkDir, name })
   }
 
   await syncChildCollectionsFromXML({
@@ -101,7 +103,8 @@ async function syncChildCollectionsFromXML(params: {
   name: string
   xmlDirContainsCurrentItem: boolean
 }): Promise<void> {
-  const { context, rule, model, xmlDir, nkdkDir, name } = params
+  const { rule, model, xmlDir, nkdkDir, name } = params
+  const context = withExportMetadataTargetOwner(params.context, rule.itemType, name)
 
   for (const childCollection of rule.childCollections ?? []) {
     const collectionModel = model[childCollection.propertyKey]
@@ -174,8 +177,9 @@ async function syncChildCollectionsFromXML(params: {
       if (childCollection.fileItemRule && childCollection.nkdkDir) {
         const externalFilesCollector: ExternalFileEntry[] = []
         const contextWithExternalFiles = withExternalFilesCollector(context, externalFilesCollector)
+        const contextWithChildParent = withExportParentName(contextWithExternalFiles, params.name)
         const childYamlObj = exportMetadataItemToYAML({
-          context: contextWithExternalFiles,
+          context: contextWithChildParent,
           data: omitFileItemChildCollections(item.model, childCollection.fileItemRule),
           rule: childCollection.fileItemRule,
         })
@@ -186,6 +190,34 @@ async function syncChildCollectionsFromXML(params: {
       }
     }
   }
+}
+
+function withExportParentName(context: ConfigurationContextFromXML, name: string): ConfigurationContextFromXML {
+  return context.exportToYAML
+    ? {
+        ...context,
+        exportToYAML: {
+          ...context.exportToYAML,
+          parent: { name },
+        },
+      }
+    : context
+}
+
+function withExportMetadataTargetOwner(
+  context: ConfigurationContextFromXML,
+  itemType: MetadataItemRule["itemType"],
+  name: string
+): ConfigurationContextFromXML {
+  return context.exportToYAML
+    ? {
+        ...context,
+        exportToYAML: {
+          ...context.exportToYAML,
+          metadataTargetOwners: [...(context.exportToYAML.metadataTargetOwners ?? []), { itemType, name }],
+        },
+      }
+    : context
 }
 
 function withExternalFilesCollector(

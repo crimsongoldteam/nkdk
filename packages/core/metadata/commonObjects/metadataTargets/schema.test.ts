@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { TypeCompiler } from "@sinclair/typebox/compiler"
 import type { TSchema } from "@sinclair/typebox"
 import { buildMetadataTargetSchema } from "./index"
 
@@ -35,20 +36,19 @@ describe("buildMetadataTargetSchema", () => {
   })
 
   it("describes full field paths with service segments", () => {
-    const schema = buildMetadataTargetSchema({ kind: "field", owner: "explicit", roots: ["Catalog"] })
+    const schema = buildMetadataTargetSchema({ kind: "member", owner: "explicit", roots: ["Catalog"] })
 
     expect(schema).toMatchObject({
       type: "string",
       examples: [
         "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита",
-        "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита",
       ],
     })
-    expect(String(schema.description)).toContain("конечный сегмент")
+    expect(String(schema.description)).toContain("Полный путь члена объекта")
   })
 
   it("does not accept field paths when roots are empty", () => {
-    const schema = buildMetadataTargetSchema({ kind: "field", owner: "explicit", roots: [] })
+    const schema = buildMetadataTargetSchema({ kind: "member", owner: "explicit", roots: [] })
 
     expect(schema).toMatchObject({
       type: "string",
@@ -59,17 +59,16 @@ describe("buildMetadataTargetSchema", () => {
     expectNotMatches(schema, "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")
   })
 
-  it("restricts field service segments by fieldKinds", () => {
+  it("restricts field-like member service segments by memberKinds", () => {
     const schema = buildMetadataTargetSchema({
-      kind: "field",
+      kind: "member",
       owner: "explicit",
       roots: ["Catalog"],
-      fieldKinds: ["Attribute", "StandardAttribute"],
+      memberKinds: ["Attribute", "StandardAttribute"],
     })
 
     expect(schema.examples).toEqual([
       "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита",
-      "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита",
     ])
     expectMatches(schema, "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")
     expectMatches(
@@ -77,7 +76,6 @@ describe("buildMetadataTargetSchema", () => {
       "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита"
     )
     expectNotMatches(schema, "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти")
-    expect(String(schema.description)).toContain("ТабличнаяЧасть")
   })
 
   it("describes predefined values and EmptyRef without project names", () => {
@@ -222,39 +220,123 @@ describe("buildMetadataTargetSchema", () => {
     expect(String(schema.description)).toContain("string")
   })
 
-  it("returns constrained schema for local child names", () => {
-    const formSchema = buildMetadataTargetSchema({ kind: "localChild", owner: "this", childKind: "Form" })
-    const templateSchema = buildMetadataTargetSchema({ kind: "localChild", owner: "this", childKind: "Template" })
+  it("builds local member schema for single current-owner member kind", () => {
+    const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", memberKinds: ["Form"] })
+    const compiled = TypeCompiler.Compile(schema)
 
-    expect(formSchema).toMatchObject({
-      type: "string",
-      pattern: "^[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
-      examples: ["ИмяФормы"],
-    })
-    expect(templateSchema).toMatchObject({
-      type: "string",
-      pattern: "^[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
-      examples: ["ИмяМакета"],
-    })
+    expect(compiled.Check("ФормаДокумента")).toBe(true)
+    expect(compiled.Check("Document.АвансовыйОтчет.Form.ФормаДокумента")).toBe(true)
+    expect(compiled.Check("Форма.ФормаДокумента")).toBe(false)
+    expect(schema.description).toContain("Имя дочерней формы текущего объекта")
   })
 
-  it("returns ordinary JSON Schema for style items", () => {
-    const schema = buildMetadataTargetSchema({ kind: "styleItem", styleItemTypes: ["Font"] })
+  it("keeps member kind in schema when several current-owner member kinds are allowed", () => {
+    const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", memberKinds: ["Form", "Template"] })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(compiled.Check("Форма.ФормаДокумента")).toBe(true)
+    expect(compiled.Check("Макет.ПечатнаяФорма")).toBe(true)
+    expect(compiled.Check("ФормаДокумента")).toBe(false)
+  })
+
+  it("accepts current-owner members through tabular sections", () => {
+    const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", memberKinds: ["Attribute"] })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(compiled.Check("ТабличнаяЧасть.Товары.Реквизит.Номенклатура")).toBe(true)
+    expect(compiled.Check("Document.АвансовыйОтчет.TabularSection.Товары.Attribute.Номенклатура")).toBe(true)
+  })
+
+  it("keeps root constraints for current-owner compatible model member paths", () => {
+    const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", roots: ["Document"], memberKinds: ["Form"] })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(compiled.Check("Document.АвансовыйОтчет.Form.ФормаДокумента")).toBe(true)
+    expect(compiled.Check("Catalog.АвансовыйОтчет.Form.ФормаДокумента")).toBe(false)
+  })
+
+  it("keeps root constraints for explicit-owner compatible model member paths", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "explicit",
+      roots: ["Document"],
+      memberKinds: ["Attribute"],
+    })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(compiled.Check("Document.АвансовыйОтчет.Attribute.Организация")).toBe(true)
+    expect(compiled.Check("Catalog.АвансовыйОтчет.Attribute.Организация")).toBe(false)
+  })
+
+  it("keeps explicit-owner member examples inside allowed roots", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "explicit",
+      roots: ["Catalog"],
+      memberKinds: ["Attribute"],
+    })
+
+    expect(schema.examples).toEqual(["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"])
+    expectMatches(schema, "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")
+    expectNotMatches(schema, "Документ.АвансовыйОтчет.Реквизит.Организация")
+  })
+
+  it("describes hasType filters without narrowing the string pattern", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "this",
+      memberKinds: ["Attribute"],
+      filters: [{ kind: "directMember" }, { kind: "hasType", type: "boolean" }],
+    })
+
+    expect(schema.description).toContain("прямые члены текущего объекта")
+    expect(schema.description).toContain("тип которых содержит Булево")
+  })
+
+  it("describes styleItemType filters", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "this",
+      memberKinds: ["Attribute"],
+      filters: [{ kind: "styleItemType", values: ["Color", "Font"] }],
+    })
+
+    expect(schema.description).toContain("Цвет")
+    expect(schema.description).toContain("Шрифт")
+  })
+
+  it("describes stringIndexedAttribute filters", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "this",
+      memberKinds: ["Attribute"],
+      filters: [{ kind: "stringIndexedAttribute" }],
+    })
+
+    expect(schema.description).toContain("пригодные для ввода по строке")
+  })
+
+  it("returns ordinary JSON Schema for style items through object targets", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "object",
+      roots: ["StyleItem"],
+      filters: [{ kind: "styleItemType", values: ["Font"] }],
+    })
 
     expect(schema).toMatchObject({
       type: "string",
-      pattern: "^ЭлементСтиля\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
+      pattern: "^((ЭлементСтиля)\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
       examples: ["ЭлементСтиля.ИмяЭлементаСтиля"],
     })
     expect(JSON.stringify(schema)).not.toContain("x-nkdk")
   })
 
-  it("returns ordinary JSON Schema for common pictures", () => {
-    const schema = buildMetadataTargetSchema({ kind: "commonPicture" })
+  it("returns ordinary JSON Schema for common pictures through object targets", () => {
+    const schema = buildMetadataTargetSchema({ kind: "object", roots: ["CommonPicture"] })
 
     expect(schema).toMatchObject({
       type: "string",
-      pattern: "^ОбщаяКартинка\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
+      pattern: "^((ОбщаяКартинка)\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
       examples: ["ОбщаяКартинка.ИмяОбщейКартинки"],
     })
     expect(JSON.stringify(schema)).not.toContain("x-nkdk")

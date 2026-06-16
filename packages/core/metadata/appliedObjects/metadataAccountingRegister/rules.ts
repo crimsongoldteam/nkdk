@@ -119,14 +119,14 @@ export const MetadataAccountingRegisterRules = {
       yaml: "ОсновнаяФормаСписка",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     },
     auxiliaryListForm: {
       yaml: "ДополнительнаяФормаСписка",
       type: "string",
       xmlParents: properties,
-      metadataTarget: { kind: "localChild", owner: "this", childKind: "Form" },
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     },
     standardAttributes: {
