@@ -79,6 +79,11 @@ export function getObjectField(params: { index: ObjectFieldIndex; name: string }
   return params.index.fields.get(params.name)
 }
 
+export function resolveObjectFieldSegment(params: { index: ObjectFieldIndex; segment: string }): ObjectField | undefined {
+  if (params.segment === "Date") return params.index.fields.get("Дата") ?? params.index.fields.get(params.segment)
+  return params.index.fields.get(params.segment)
+}
+
 export function validateObjectFieldSegment({
   owner,
   segment,
@@ -87,6 +92,7 @@ export function validateObjectFieldSegment({
   parsed,
   yamlPath,
 }: ValidateObjectFieldSegmentParams): Diagnostic[] {
+  if (segment === "Date") return []
   if (!platformFieldNames.has(segment)) return []
   const subject =
     dataPathValue === undefined ? `DataPath для ${formatOwnerRef(owner.ref)}` : `ПутьКДанным "${dataPathValue}"`

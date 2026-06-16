@@ -216,6 +216,81 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts scalar PictureField data path when values picture is configured", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  ИндексКартинки:",
+        "    Тип: Число",
+        "Элементы:",
+        "  Картинка:",
+        "    Вид: ПолеРисунка",
+        "    КартинкаЗначений: ОбщаяКартинка.Состояния",
+        "    ПутьКДанным: ИндексКартинки",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts boolean PictureField data path when values picture is configured", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  ЕстьОшибки:",
+        "    Тип: Булево",
+        "Элементы:",
+        "  Картинка:",
+        "    Вид: ПолеРисунка",
+        "    КартинкаЗначений: ОбщаяКартинка.Состояния",
+        "    ПутьКДанным: ЕстьОшибки",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts scalar table row picture data path", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Таблица:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      ИндексКартинки:",
+        "        Тип: Число",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Таблица",
+        "    ПутьКДаннымКартинкиСтроки: Таблица.ИндексКартинки",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts object table row picture data path", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Таблица:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      Состояние:",
+        "        Тип: Перечисление.Состояния",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Таблица",
+        "    КартинкаСтрок: ОбщаяКартинка.Состояния",
+        "    ПутьКДаннымКартинкиСтроки: Таблица.Состояние",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("reports table child DataPath that does not start with parent table dataPath", () => {
     const project = createProject({
       form: [
@@ -254,6 +329,50 @@ describe("validateForm", () => {
     })
 
     expect(messages(runValidateForm(project))).toContain('ПутьКДанным "Объект.Ref": используйте YAML-имя реквизита вместо платформенного "Ref"')
+  })
+
+  it("accepts Date as an alias for the document YAML standard attribute name", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: ["{}"],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Заказ",
+        "Элементы:",
+        "  Дата:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.Date",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts LineNumber as an alias for the tabular section YAML row number column", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: [
+        "ТабличныеЧасти:",
+        "  Товары:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: Справочник.Номенклатура",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Заказ",
+        "Элементы:",
+        "  НомерСтроки:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.Товары.LineNumber",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
   })
 
   it("warns for Items.*.CurrentData.* paths", () => {
@@ -354,11 +473,18 @@ describe("validateForm", () => {
     ])
   })
 
-  function createProject(params: { form: string[]; owner?: string[] }): TestProject {
+  function createProject(params: {
+    form: string[]
+    owner?: string[]
+    ownerDir?: string
+    ownerName?: string
+  }): TestProject {
     const projectDir = mkdtempSync(join(tmpdir(), "nakidka-validate-form-"))
     tempDirs.push(projectDir)
 
-    const ownerDir = join(projectDir, "Справочник", "Номенклатура")
+    const ownerDirName = params.ownerDir ?? "Справочник"
+    const ownerName = params.ownerName ?? "Номенклатура"
+    const ownerDir = join(projectDir, ownerDirName, ownerName)
     const formDir = join(ownerDir, "Формы", "ФормаЭлемента")
     mkdirSync(formDir, { recursive: true })
     writeFileSync(join(formDir, "Форма.yaml"), `${params.form.join("\n")}\n`)
@@ -367,7 +493,7 @@ describe("validateForm", () => {
       writeFileSync(join(ownerDir, "Свойства.yaml"), `${params.owner.join("\n")}\n`)
     }
 
-    return { projectDir, formDir, ownerDir: "Справочник", ownerName: "Номенклатура", formName: "ФормаЭлемента" }
+    return { projectDir, formDir, ownerDir: ownerDirName, ownerName, formName: "ФормаЭлемента" }
   }
 })
 

@@ -225,6 +225,61 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("resolves LineNumber as an alias for the YAML row number column", () => {
+    const result = resolve("Объект.Товары.LineNumber", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Документ", name: "Заказ" },
+          rule: MetadataDocumentRules,
+          model: {
+            itemType: "MetadataDocument",
+            tabularSections: [
+              {
+                itemType: "MetadataTabularSection",
+                name: "Товары",
+                attributes: [{ name: "Номенклатура", type: { type: ["CatalogRef.Номенклатура"] } }],
+              },
+            ],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Объект.Товары.LineNumber",
+        segments: ["Объект", "Товары", "LineNumber"],
+        source: { kind: "tableColumn", table: "Товары", name: "НомерСтроки" },
+      },
+    })
+  })
+
+  it("resolves Date as an alias for the YAML standard attribute name", () => {
+    const result = resolve("Объект.Date", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Документ", name: "Заказ" },
+          rule: MetadataDocumentRules,
+          model: { itemType: "MetadataDocument" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Объект.Date",
+        segments: ["Объект", "Date"],
+        source: { kind: "objectField", owner: { kind: "Документ", name: "Заказ" }, name: "Дата" },
+      },
+    })
+  })
+
   it("requires a child table DataPath to start with the parent table path", () => {
     const result = resolve("Номенклатура", {
       index: indexWithAttributes([

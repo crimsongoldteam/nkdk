@@ -20,6 +20,7 @@ const ownerKindsByBaseType: Readonly<Record<string, OwnerTypeRef["kind"] | undef
   CatalogObject: "СправочникОбъект",
   DocumentRef: "Документ",
   DocumentObject: "ДокументОбъект",
+  EnumRef: "Перечисление",
   InformationRegisterRecordSet: "РегистрСведений",
   InformationRegisterRecordManager: "РегистрСведений",
   AccumulationRegisterRecordSet: "РегистрНакопления",
@@ -99,6 +100,8 @@ function mapType(type: string): { kind: DataPathValueKind; nextType?: OwnerTypeR
       return { kind: "dynamicList", table: { kind: "DynamicList" } }
   }
 
+  if (baseTypeOf(type) === "DefinedType") return { kind: "object" }
+
   const ownerRef = ownerTypeRefFromType(type)
   if (ownerRef !== undefined) return { kind: "object", nextType: ownerRef }
   if (scalarTypes.has(type)) return { kind: "scalar" }
@@ -120,6 +123,10 @@ function splitType(type: string): [baseType: string, name?: string] {
   const dotIndex = type.indexOf(".")
   if (dotIndex === -1) return [type]
   return [type.substring(0, dotIndex), type.substring(dotIndex + 1)]
+}
+
+function baseTypeOf(type: string): string {
+  return splitType(type)[0]
 }
 
 function addUnique(items: DataPathValueKind[], item: DataPathValueKind): void {

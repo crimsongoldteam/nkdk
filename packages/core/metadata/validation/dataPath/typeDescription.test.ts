@@ -46,6 +46,19 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
     })
   })
 
+  it("maps enumeration and defined type references as object terminals", () => {
+    expect(
+      typeDescriptionToDataPathTypeInfo({
+        type: ["EnumRef.Состояния", "DefinedType.Организация"],
+      }),
+    ).toEqual({
+      kinds: ["object"],
+      nextTypes: [{ kind: "Перечисление", name: "Состояния" }],
+      isComposite: true,
+      sourceText: "EnumRef.Состояния | DefinedType.Организация",
+    })
+  })
+
   it("maps ValueTable to a table source", () => {
     expect(typeDescriptionToDataPathTypeInfo({ type: ["ValueTable"] })).toEqual({
       kinds: ["tableSource"],
