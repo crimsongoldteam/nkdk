@@ -7,9 +7,7 @@ import { deleteMigration, generateMigration, renameMigration } from "./commands/
 import { normalizeSchemaCommandInput, printSchema, type SchemaCommandOptions } from "./commands/schema"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
 import { syncConfiguration } from "./commands/sync"
-import { updateGraph, updateGraphFile } from "./commands/updateGraph"
 import { validateYamlProject, type ValidateCommandOptions } from "./commands/validate"
-import { watch } from "./commands/watch"
 
 interface CreateProgramOptions {
   exitOnUnhandledError?: boolean
@@ -61,27 +59,6 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
     .action((xmlDir: string) => {
       run(() => shortRoundTrip(xmlDir), options)
-    })
-
-  program
-    .command("update-graph")
-    .description("Обновить граф метаданных в FalkorDB по YAML-проекту")
-    .argument("<path>", "путь к корню YAML-проекта")
-    .option("--file <filePath>", "обновить только один файл проекта")
-    .option("--replace", "полностью заменить граф быстрым CREATE-путём")
-    .option("--bulk", "использовать экспериментальный GRAPH.BULK replace-путь; требует --replace")
-    .action((projectPath: string, opts: { file?: string; replace?: boolean; bulk?: boolean }) => {
-      run(() => opts.file
-        ? updateGraphFile(projectPath, opts.file)
-        : updateGraph(projectPath, { replace: opts.replace === true, bulk: opts.bulk === true }), options)
-    })
-
-  program
-    .command("watch")
-    .description("Следить за YAML-проектом и инкрементально обновлять граф")
-    .argument("<path>", "путь к корню YAML-проекта")
-    .action((projectPath: string) => {
-      run(() => watch(projectPath), options)
     })
 
   program

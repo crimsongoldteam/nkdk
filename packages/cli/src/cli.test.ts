@@ -1,5 +1,3 @@
-import { join } from "path"
-import { tmpdir } from "os"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { createProgram, runCli } from "./cli"
 
@@ -24,10 +22,10 @@ describe("cli", () => {
     const stderr = captureStderr()
     const exit = vi.spyOn(process, "exit").mockImplementation((() => undefined) as never)
 
-    runCli(["node", "nkdk", "watch", join(tmpdir(), "nakidka-missing-watch-dir")])
+    runCli(["node", "nkdk", "schema", "MetadataCatalog", "--inline"])
     await waitForAsyncCatch()
 
-    expect(writtenText(stderr)).toContain("Директория не найдена")
+    expect(writtenText(stderr)).toContain("--inline можно использовать только вместе с --json-schema")
     expect(exit).toHaveBeenCalledWith(1)
   })
 })

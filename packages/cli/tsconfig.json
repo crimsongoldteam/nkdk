@@ -16,7 +16,6 @@
     "typeRoots": ["./node_modules/@types", "../node_modules/@types"],
     "paths": {
       "@nakidka/core": ["../core/index.ts"],
-      "@nakidka/graph": ["../graph/src/index.ts"],
       "~/*": ["../core/*"]
     },
     "allowImportingTsExtensions": true,
