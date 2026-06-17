@@ -11,7 +11,9 @@ export type DataPathValueKind =
   | "tableSource"
   | "dynamicList"
   | "constantSet"
+  | "registerRecords"
   | "platformSource"
+  | "standardPeriod"
   | "unsupportedIntermediate"
 
 export type KnownOwnerTypeKind =
@@ -51,7 +53,9 @@ export interface OwnerTypeRef {
 export type DataPathTableInfo =
   | { kind: "ValueTable" }
   | { kind: "ValueTree" }
+  | { kind: "ValueList" }
   | { kind: "DynamicList" }
+  | { kind: "RegisterRecordSet"; owner: OwnerTypeRef }
   | { kind: "TabularSection"; owner: OwnerTypeRef; name: string }
 
 export interface DataPathTypeInfo {

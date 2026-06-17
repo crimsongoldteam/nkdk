@@ -77,6 +77,42 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
     })
   })
 
+  it("maps ValueList as a table source", () => {
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["ValueListType"] })).toEqual({
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table: { kind: "ValueList" },
+      sourceText: "ValueListType",
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["СписокЗначений"] })).toEqual({
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table: { kind: "ValueList" },
+      sourceText: "СписокЗначений",
+    })
+  })
+
+  it("maps register record set types as table sources", () => {
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["InformationRegisterRecordSet.Остатки"] })).toEqual({
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table: { kind: "RegisterRecordSet", owner: { kind: "РегистрСведений", name: "Остатки" } },
+      sourceText: "InformationRegisterRecordSet.Остатки",
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["AccumulationRegisterRecordSet.Продажи"] })).toMatchObject({
+      kinds: ["tableSource"],
+      table: { kind: "RegisterRecordSet", owner: { kind: "РегистрНакопления", name: "Продажи" } },
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["AccountingRegisterRecordSet.Хозрасчетный"] })).toMatchObject({
+      kinds: ["tableSource"],
+      table: { kind: "RegisterRecordSet", owner: { kind: "РегистрБухгалтерии", name: "Хозрасчетный" } },
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["CalculationRegisterRecordSet.Начисления"] })).toMatchObject({
+      kinds: ["tableSource"],
+      table: { kind: "RegisterRecordSet", owner: { kind: "РегистрРасчета", name: "Начисления" } },
+    })
+  })
+
   it("maps DynamicList as both dynamic list and table source", () => {
     expect(typeDescriptionToDataPathTypeInfo({ type: ["DynamicList"] })).toEqual({
       kinds: ["dynamicList", "tableSource"],
@@ -109,6 +145,19 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
       kinds: ["platformSource"],
       nextTypes: [],
       sourceText: "КомпоновщикНастроекКомпоновкиДанных",
+    })
+  })
+
+  it("maps StandardPeriod as a standard period source", () => {
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["StandardPeriod"] })).toEqual({
+      kinds: ["standardPeriod"],
+      nextTypes: [],
+      sourceText: "StandardPeriod",
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["СтандартныйПериод"] })).toEqual({
+      kinds: ["standardPeriod"],
+      nextTypes: [],
+      sourceText: "СтандартныйПериод",
     })
   })
 

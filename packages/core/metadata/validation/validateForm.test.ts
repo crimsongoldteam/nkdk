@@ -438,6 +438,31 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts indexed row paths for owner tabular sections", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: [
+        "ТабличныеЧасти:",
+        "  Товары:",
+        "    Реквизиты:",
+        "      Сумма:",
+        "        Тип: Число",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Заказ",
+        "Элементы:",
+        "  Сумма:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.Товары[0].Сумма",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("accepts RowsCount in title data paths", () => {
     const project = createProject({
       ownerDir: "Документ",
@@ -493,6 +518,61 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts virtual table columns in regular data paths", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: [
+        "ТабличныеЧасти:",
+        "  Товары:",
+        "    Реквизиты:",
+        "      Сумма:",
+        "        Тип: Число",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Заказ",
+        "Элементы:",
+        "  КоличествоСтрок:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.Товары.RowsCount",
+        "  Итого:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.Товары.TotalСумма",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts ValueList as a table data source", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Список:",
+        "    Тип: СписокЗначений",
+        "Элементы:",
+        "  Список:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Список",
+        "    ПутьКДаннымКартинкиСтроки: Список.Picture",
+        "    Элементы:",
+        "      Значение:",
+        "        Вид: ПолеВвода",
+        "        ПутьКДанным: Список.Value",
+        "      Представление:",
+        "        Вид: ПолеВвода",
+        "        ПутьКДанным: Список.Presentation",
+        "      Пометка:",
+        "        Вид: ПолеФлажок",
+        "        ПутьКДанным: Список.Check",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("accepts constants set data paths through constant metadata files", () => {
     const project = createProject({
       form: [
@@ -535,6 +615,73 @@ describe("validateForm", () => {
         message: 'ПутьКДанным "КомпоновщикНастроек.Settings.Filter": платформенный источник пока не проверяется',
       }),
     ])
+  })
+
+  it("accepts StandardPeriod platform fields", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Период:",
+        "    Тип: СтандартныйПериод",
+        "Элементы:",
+        "  Вариант:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Период.Variant",
+        "  ДатаНачала:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Период.StartDate",
+        "  ДатаОкончания:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Период.EndDate",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts document RegisterRecords data paths through document movements", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: [
+        "Движения:",
+        "  - РегистрНакопления.Продажи",
+      ],
+      extraOwners: [
+        {
+          dir: "РегистрНакопления",
+          name: "Продажи",
+          yaml: [
+            "Измерения:",
+            "  Номенклатура:",
+            "    Тип: Справочник.Номенклатура",
+            "Ресурсы:",
+            "  Количество:",
+            "    Тип: Число",
+          ],
+        },
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Заказ",
+        "Элементы:",
+        "  НомерСтроки:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.RegisterRecords.Продажи.LineNumber",
+        "  Период:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.RegisterRecords.Продажи.Period",
+        "  Активность:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: Объект.RegisterRecords.Продажи.Active",
+        "  Количество:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.RegisterRecords.Продажи.Количество",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
   })
 
   it("warns for Items.*.CurrentData.* paths", () => {

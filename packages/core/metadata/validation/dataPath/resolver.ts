@@ -7,7 +7,7 @@ import {
   standardAttributeAliasToYAML,
   type ObjectFieldTableSource,
 } from "./objectFields"
-import type { OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
+import type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import type {
   DataPathTypeInfo,
@@ -42,6 +42,9 @@ export type ResolvedDataPathTargetSource =
   | { kind: "tableColumn"; table: string; name: string }
   | { kind: "objectField"; owner: OwnerTypeRef; name: string }
   | { kind: "constant"; name: string }
+  | { kind: "registerRecords"; owner: OwnerTypeRef; name: string }
+  | { kind: "registerRecordSet"; owner: OwnerTypeRef; name: string }
+  | { kind: "standardPeriodField"; name: string }
 
 export type ResolveDataPathResult =
   | { status: "ok"; target?: ResolvedDataPathTarget; diagnostics: Diagnostic[] }
@@ -52,6 +55,7 @@ interface TraversalState {
   typeInfo: DataPathTypeInfo
   source: ResolvedDataPathTargetSource
   tableSource?: FormDataPathTableSource | ObjectFieldTableSource
+  registerRecordsOwner?: OwnerMetadata
 }
 
 interface TableColumnSource {
@@ -81,10 +85,10 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
   const tableContextError = validateTableContext(params)
   if (tableContextError !== undefined) return { status: "error", diagnostics: [tableContextError] }
 
-  const rootName = segments[0] ?? ""
+  const rootName = segmentLookupName(segments[0] ?? "")
   const root = params.index.getRoot(rootName)
   if (root === undefined) {
-    return error(params, `ПутьКДанным "${value}": неизвестный корень "${rootName}"`)
+    return error(params, `ПутьКДанным "${value}": неизвестный корень "${segments[0] ?? ""}"`)
   }
 
   let state: TraversalState = stateFromRoot(root)
@@ -92,6 +96,7 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
 
   for (let index = 1; index < segments.length; index += 1) {
     const segment = segments[index] ?? ""
+    const lookupSegment = segmentLookupName(segment)
     const isLast = index === segments.length - 1
 
     const intermediateError = validateIntermediateType({ params, value, segment: segments[index - 1] ?? "", state })
@@ -105,14 +110,33 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
     }
 
     if (state.typeInfo.kinds.includes("constantSet")) {
-      const constantResult = resolveConstantSetItem({ params, segment })
+      const constantResult = resolveConstantSetItem({ params, segment: lookupSegment })
       if (constantResult.status !== "ok") return ownerError(constantResult)
 
       state = {
         typeInfo: constantResult.typeInfo,
-        source: { kind: "constant", name: segment },
+        source: { kind: "constant", name: lookupSegment },
       }
 
+      if (isLast) return okTarget({ value, segments, state })
+      continue
+    }
+
+    if (state.typeInfo.kinds.includes("registerRecords")) {
+      const registerRecordsOwner = state.registerRecordsOwner
+      if (registerRecordsOwner === undefined) {
+        return error(params, `ПутьКДанным "${value}": неизвестный регистр движений "${segment}"`)
+      }
+
+      const registerResult = resolveRegisterRecordsItem({
+        params,
+        value,
+        owner: registerRecordsOwner,
+        segment: lookupSegment,
+      })
+      if (registerResult.status !== "ok") return registerResult.result
+
+      state = registerResult.state
       if (isLast) return okTarget({ value, segments, state })
       continue
     }
@@ -121,10 +145,36 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
       return warning(params, `ПутьКДанным "${value}": платформенный источник пока не проверяется`)
     }
 
+    if (state.typeInfo.kinds.includes("standardPeriod")) {
+      const field = standardPeriodField(lookupSegment)
+      if (field === undefined) {
+        return error(params, `ПутьКДанным "${value}": неизвестный реквизит "${segment}"`)
+      }
+
+      state = {
+        typeInfo: field.typeInfo,
+        source: { kind: "standardPeriodField", name: lookupSegment },
+      }
+
+      if (isLast) return okTarget({ value, segments, state })
+      continue
+    }
+
     const ownerResult = params.ownerCache.get(state.typeInfo.nextTypes[0] as OwnerTypeRef)
     if (ownerResult.status !== "ok") return ownerError(ownerResult)
 
-    const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment })
+    if (isRegisterRecordsSegment(lookupSegment) && isDocumentOwner(ownerResult.owner.ref)) {
+      state = {
+        typeInfo: { kinds: ["registerRecords"], nextTypes: [], sourceText: lookupSegment },
+        source: { kind: "registerRecords", owner: ownerResult.owner.ref, name: lookupSegment },
+        registerRecordsOwner: ownerResult.owner,
+      }
+
+      if (isLast) return okTarget({ value, segments, state })
+      continue
+    }
+
+    const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: lookupSegment })
     if (field === undefined) {
       return error(params, `ПутьКДанным "${value}": неизвестный реквизит "${segment}"`)
     }
@@ -139,6 +189,16 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
   }
 
   return okTarget({ value, segments, state })
+}
+
+function standardPeriodField(segment: string): { typeInfo: DataPathTypeInfo } | undefined {
+  if (segment === "Variant") {
+    return { typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "StandardPeriod.Variant" } }
+  }
+  if (segment === "StartDate" || segment === "EndDate") {
+    return { typeInfo: { kinds: ["dateTime"], nextTypes: [], sourceText: `StandardPeriod.${segment}` } }
+  }
+  return undefined
 }
 
 function resolveConstantSetItem(params: {
@@ -157,6 +217,76 @@ function resolveConstantSetItem(params: {
   }
 }
 
+function resolveRegisterRecordsItem(params: {
+  params: ResolveDataPathParams
+  value: string
+  owner: OwnerMetadata
+  segment: string
+}): { status: "ok"; state: TraversalState } | { status: "error"; result: ResolveDataPathResult } {
+  const registerRef = documentRegisterRecordRefs(params.owner).find((ref) => ref.name === params.segment)
+  if (registerRef === undefined) {
+    return {
+      status: "error",
+      result: error(params.params, `ПутьКДанным "${params.value}": неизвестный регистр движений "${params.segment}"`),
+    }
+  }
+
+  const table = { kind: "RegisterRecordSet" as const, owner: registerRef }
+  return {
+    status: "ok",
+    state: {
+      typeInfo: {
+        kinds: ["tableSource"],
+        nextTypes: [],
+        table,
+        sourceText: `RegisterRecords.${params.segment}`,
+      },
+      source: { kind: "registerRecordSet", owner: registerRef, name: params.segment },
+      tableSource: {
+        table,
+        columns: new Map(),
+        hasColumns: true,
+      },
+    },
+  }
+}
+
+function documentRegisterRecordRefs(owner: OwnerMetadata): OwnerTypeRef[] {
+  const model = owner.model as Record<string, unknown>
+  const value = model.registerRecords
+  if (!Array.isArray(value)) return []
+
+  return value
+    .map(registerRecordRefFromLink)
+    .filter((ref): ref is OwnerTypeRef => ref !== undefined)
+}
+
+function registerRecordRefFromLink(value: unknown): OwnerTypeRef | undefined {
+  if (typeof value !== "string") return undefined
+
+  const dotIndex = value.indexOf(".")
+  if (dotIndex === -1) return undefined
+
+  const kind = registerKindByLinkPrefix[value.substring(0, dotIndex)]
+  if (kind === undefined) return undefined
+
+  const name = value.substring(dotIndex + 1)
+  if (name.length === 0) return undefined
+
+  return { kind, name }
+}
+
+const registerKindByLinkPrefix: Readonly<Record<string, OwnerTypeRef["kind"] | undefined>> = {
+  InformationRegister: "РегистрСведений",
+  AccumulationRegister: "РегистрНакопления",
+  AccountingRegister: "РегистрБухгалтерии",
+  CalculationRegister: "РегистрРасчета",
+  РегистрСведений: "РегистрСведений",
+  РегистрНакопления: "РегистрНакопления",
+  РегистрБухгалтерии: "РегистрБухгалтерии",
+  РегистрРасчета: "РегистрРасчета",
+}
+
 function constantType(model: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
   if (typeof model !== "object" || model === null || !("type" in model)) return undefined
   return model.type as Parameters<typeof typeDescriptionToDataPathTypeInfo>[0]
@@ -166,8 +296,10 @@ function validateTableContext(params: ResolveDataPathParams): Diagnostic | undef
   const dataPath = params.tableContext?.dataPath
   if (dataPath === undefined) return undefined
 
-  const prefix = `${dataPath}.`
-  if (params.value.startsWith(prefix)) return undefined
+  const normalizedValue = normalizeIndexedPath(params.value)
+  const normalizedDataPath = normalizeIndexedPath(dataPath)
+  const prefix = `${normalizedDataPath}.`
+  if (normalizedValue.startsWith(prefix)) return undefined
 
   return diagnostic(params, "error", `ПутьКДанным "${params.value}": путь колонки должен начинаться с "${prefix}"`)
 }
@@ -209,13 +341,24 @@ function resolveTableColumn(params: {
   }
 
   const tablePath = params.segments.slice(0, -1).join(".")
+  const normalizedTablePath = normalizeIndexedPath(tablePath)
+  const registerRecordSetColumnResult = resolveRegisterRecordSetColumn({
+    params: params.params,
+    tableSource,
+    segment: params.segment,
+  })
+  if (registerRecordSetColumnResult.status === "error") {
+    return { status: "done", result: registerRecordSetColumnResult.result }
+  }
+
   const column =
     resolveTableColumnSource({ columns: tableSource.columns, segment: params.segment }) ??
     resolveTableColumnSource({
-      columns: params.params.index.additionalColumnsByTablePath.get(tablePath),
+      columns: params.params.index.additionalColumnsByTablePath.get(normalizedTablePath),
       segment: params.segment,
     }) ??
-    virtualTableColumn({ yamlPath: params.params.yamlPath, segment: params.segment })
+    registerRecordSetColumnResult.column ??
+    virtualTableColumn({ tableSource, segment: params.segment })
   if (column === undefined) {
     if (tableSource.hasColumns) {
       return {
@@ -230,11 +373,94 @@ function resolveTableColumn(params: {
     }
   }
 
-  const tableName = tableSource.table.kind === "TabularSection" ? tableSource.table.name : params.segments[0] ?? ""
+  const tableName = tableNameForTableSource({ state: params.state, segments: params.segments })
   const state: TraversalState = stateFromTableColumn({ tableName, column })
   if (params.isLast) return { status: "done", result: okTarget({ value: params.value, segments: params.segments, state }) }
 
   return { status: "continue", state }
+}
+
+function resolveRegisterRecordSetColumn(params: {
+  params: ResolveDataPathParams
+  tableSource: FormDataPathTableSource | ObjectFieldTableSource
+  segment: string
+}): { status: "ok"; column?: TableColumnSource } | { status: "error"; result: ResolveDataPathResult } {
+  if (params.tableSource.table.kind !== "RegisterRecordSet") return { status: "ok" }
+
+  const ownerResult = params.params.ownerCache.get(params.tableSource.table.owner)
+  if (ownerResult.status !== "ok") return { status: "error", result: ownerError(ownerResult) }
+
+  const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: params.segment })
+  const virtualStandardColumn = registerRecordSetStandardColumn(params.segment, field?.name)
+  if (field === undefined) {
+    if (virtualStandardColumn !== undefined) return { status: "ok", column: virtualStandardColumn }
+    return { status: "ok" }
+  }
+
+  return {
+    status: "ok",
+    column: {
+      name: field.name,
+      typeInfo: isUnknownTypeInfo(field.typeInfo) && virtualStandardColumn !== undefined
+        ? virtualStandardColumn.typeInfo
+        : field.typeInfo,
+    },
+  }
+}
+
+function registerRecordSetStandardColumn(segment: string, fieldName: string | undefined): TableColumnSource | undefined {
+  const yamlName = fieldName ?? standardAttributeAliasToYAML(segment) ?? segment
+  switch (segment) {
+    case "Active":
+    case "Активность":
+      return {
+        name: yamlName,
+        typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "RegisterRecordSet.Active" },
+      }
+    case "Period":
+    case "Период":
+      return {
+        name: yamlName,
+        typeInfo: { kinds: ["dateTime"], nextTypes: [], sourceText: "RegisterRecordSet.Period" },
+      }
+    case "LineNumber":
+    case "НомерСтроки":
+      return {
+        name: yamlName,
+        typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "RegisterRecordSet.LineNumber" },
+      }
+    case "RecordType":
+    case "ВидДвижения":
+      return {
+        name: yamlName,
+        typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "RegisterRecordSet.RecordType" },
+      }
+  }
+
+  return undefined
+}
+
+function isUnknownTypeInfo(typeInfo: DataPathTypeInfo): boolean {
+  return typeInfo.kinds.length === 1 && typeInfo.kinds[0] === "unknown"
+}
+
+function tableNameForTableSource(params: {
+  state: TraversalState
+  segments: readonly string[]
+}): string {
+  const table = params.state.tableSource?.table
+  if (table?.kind === "TabularSection") return table.name
+  if (table?.kind === "RegisterRecordSet" && params.state.source.kind === "registerRecordSet") return params.state.source.name
+  return segmentLookupName(params.segments[0] ?? "")
+}
+
+function normalizeIndexedPath(path: string): string {
+  return path.split(".").map(segmentLookupName).join(".")
+}
+
+function segmentLookupName(segment: string): string {
+  const match = /^(?<name>.+)\[(?<index>\d+)\]$/.exec(segment)
+  return match?.groups?.name ?? segment
 }
 
 function resolveTableColumnSource(params: {
@@ -248,20 +474,53 @@ function resolveTableColumnSource(params: {
   return params.columns.get(params.segment)
 }
 
-function virtualTableColumn(params: { yamlPath: YamlPath; segment: string }): TableColumnSource | undefined {
-  const propertyName = params.yamlPath[params.yamlPath.length - 1]
-  if (propertyName === "ПутьКДаннымЗаголовка" && params.segment === "RowsCount") {
+function virtualTableColumn(params: {
+  tableSource: FormDataPathTableSource | ObjectFieldTableSource
+  segment: string
+}): TableColumnSource | undefined {
+  if (params.tableSource.table.kind === "ValueList") {
+    return valueListColumn(params.segment)
+  }
+
+  if (params.segment === "RowsCount") {
     return {
       name: params.segment,
       typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "RowsCount" },
     }
   }
 
-  if (propertyName === "ПутьКДаннымПодвала" && params.segment.startsWith("Total")) {
+  if (params.segment.startsWith("Total")) {
     return {
       name: params.segment,
       typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "Total" },
     }
+  }
+
+  return undefined
+}
+
+function valueListColumn(segment: string): TableColumnSource | undefined {
+  switch (segment) {
+    case "Value":
+      return {
+        name: segment,
+        typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "ValueList.Value" },
+      }
+    case "Presentation":
+      return {
+        name: segment,
+        typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "ValueList.Presentation" },
+      }
+    case "Check":
+      return {
+        name: segment,
+        typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "ValueList.Check" },
+      }
+    case "Picture":
+      return {
+        name: segment,
+        typeInfo: { kinds: ["Picture"], nextTypes: [], sourceText: "ValueList.Picture" },
+      }
   }
 
   return undefined
@@ -291,7 +550,9 @@ function validateIntermediateType(params: {
 
   if (params.state.tableSource !== undefined) return undefined
   if (typeInfo.kinds.includes("constantSet")) return undefined
+  if (typeInfo.kinds.includes("registerRecords")) return undefined
   if (typeInfo.kinds.includes("platformSource")) return undefined
+  if (typeInfo.kinds.includes("standardPeriod")) return undefined
 
   if (typeInfo.kinds.includes("unknown") || typeInfo.kinds.includes("any") || typeInfo.nextTypes.length === 0) {
     if (typeInfo.kinds.includes("unsupportedIntermediate")) {
@@ -330,6 +591,14 @@ function validateIntermediateType(params: {
 
 function isScalarTerminalKind(kind: string): boolean {
   return kind === "boolean" || kind === "dateTime" || kind === "Picture" || kind === "scalar"
+}
+
+function isRegisterRecordsSegment(segment: string): boolean {
+  return segment === "RegisterRecords" || segment === "НаборЗаписей"
+}
+
+function isDocumentOwner(ref: OwnerTypeRef): boolean {
+  return ref.kind === "Документ" || ref.kind === "ДокументОбъект"
 }
 
 function ownerError(result: Exclude<OwnerMetadataResult, { status: "ok" }>): ResolveDataPathResult {
