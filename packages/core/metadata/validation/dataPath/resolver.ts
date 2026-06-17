@@ -218,10 +218,11 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
       return error(params, `ПутьКДанным "${value}": неизвестный реквизит "${segment}"`)
     }
 
+    const tableSource = tableSourceFromObjectField(field)
     state = {
       typeInfo: field.typeInfo,
       source: { kind: "objectField", owner: ownerResult.owner.ref, name: field.name },
-      ...(field.tableSource !== undefined ? { tableSource: field.tableSource } : {}),
+      ...(tableSource !== undefined ? { tableSource } : {}),
     }
 
     if (isLast) return okTarget({ value, segments, state })
@@ -258,6 +259,24 @@ function formOnlyTableFromAdditionalColumns(params: {
       columns,
       hasColumns: true,
     },
+  }
+}
+
+function tableSourceFromObjectField(field: {
+  typeInfo: DataPathTypeInfo
+  tableSource?: ObjectFieldTableSource
+}): ObjectFieldTableSource | undefined {
+  if (field.tableSource !== undefined) return field.tableSource
+  const table = field.typeInfo.table
+  if (table === undefined) return undefined
+
+  return {
+    table,
+    columns: new Map(),
+    hasColumns:
+      table.kind === "ValueList" ||
+      table.kind === "GanttChart" ||
+      table.kind === "RegisterRecordSet",
   }
 }
 

@@ -93,6 +93,32 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts owner ValueList virtual columns", () => {
+    const project = createProject({
+      ownerDir: "Отчет",
+      ownerName: "АнализСубконто",
+      owner: [
+        "Реквизиты:",
+        "  СписокВидовСубконто:",
+        "    Тип: СписокЗначений",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Отчет:",
+        "    Тип: ОтчетОбъект.АнализСубконто",
+        "Элементы:",
+        "  ВидСубконто:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Отчет.СписокВидовСубконто.Value",
+        "  Картинка:",
+        "    Вид: ПолеРисунка",
+        "    ПутьКДанным: Отчет.СписокВидовСубконто.Picture",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("resolves owner tabular section fields lazily through owner cache", () => {
     const project = createProject({
       owner: [

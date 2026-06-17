@@ -632,6 +632,68 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("resolves owner ValueList virtual columns", () => {
+    const owners = ownerCache([
+      owner({
+        ref: { kind: "ОтчетОбъект", name: "АнализСубконто" },
+        rule: MetadataReportRules,
+        model: {
+          itemType: "MetadataReport",
+          attributes: [
+            { name: "СписокВидовСубконто", type: { type: ["ValueListType"] } },
+            { name: "СписокВидовКорСубконто", type: { type: ["СписокЗначений"] } },
+          ],
+        },
+      }),
+    ])
+
+    for (const [path, columnName, sourceText] of [
+      ["Отчет.СписокВидовСубконто.Value", "Value", "ValueList.Value"],
+      ["Отчет.СписокВидовСубконто.Picture", "Picture", "ValueList.Picture"],
+      ["Отчет.СписокВидовКорСубконто[0].Value", "Value", "ValueList.Value"],
+    ] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Отчет", { type: ["ReportObject.АнализСубконто"] })]),
+          ownerCache: owners,
+        }),
+      ).toMatchObject({
+        status: "ok",
+        diagnostics: [],
+        target: {
+          value: path,
+          source: { kind: "tableColumn", name: columnName },
+          typeInfo: { sourceText },
+        },
+      })
+    }
+  })
+
+  it("keeps unknown owner ValueList columns as errors", () => {
+    const result = resolve("Отчет.СписокВидовСубконто.Unknown", {
+      index: indexWithAttributes([attribute("Отчет", { type: ["ReportObject.АнализСубконто"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ОтчетОбъект", name: "АнализСубконто" },
+          rule: MetadataReportRules,
+          model: {
+            itemType: "MetadataReport",
+            attributes: [{ name: "СписокВидовСубконто", type: { type: ["ValueListType"] } }],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Отчет.СписокВидовСубконто.Unknown": неизвестная колонка "Unknown"',
+        }),
+      ],
+    })
+  })
+
   it("resolves document RegisterRecords fields through document movements", () => {
     const result = resolve("Объект.RegisterRecords.Продажи.Period", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
