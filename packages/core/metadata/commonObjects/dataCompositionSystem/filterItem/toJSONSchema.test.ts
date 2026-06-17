@@ -56,6 +56,38 @@ describe("FilterItem JSON Schema", () => {
     ).toBe(true)
   })
 
+  it("accepts InList comparison items with nil object in right value array", () => {
+    const compiled = compileFilterItemSchema()
+
+    expect(
+      compiled.Check([
+        {
+          ЛевоеЗначение: ".Объект.Корректировки.Документ",
+          ВидСравнения: "ВСписке",
+          ПравоеЗначение: [
+            "Документ.ВыбытиеИнвестиций.ПустаяСсылка",
+            "Документ.ПоступлениеИнвестиций.ПустаяСсылка",
+            {},
+          ],
+        },
+      ])
+    ).toBe(true)
+  })
+
+  it("accepts InList comparison items with only nil objects in right value array", () => {
+    const compiled = compileFilterItemSchema()
+
+    expect(
+      compiled.Check([
+        {
+          ЛевоеЗначение: ".Тип",
+          ВидСравнения: "ВСписке",
+          ПравоеЗначение: [{}, {}],
+        },
+      ])
+    ).toBe(true)
+  })
+
   it("keeps accepting scalar comparison right value", () => {
     const compiled = compileFilterItemSchema()
 
@@ -78,6 +110,33 @@ describe("FilterItem JSON Schema", () => {
           ЛевоеЗначение: [".Состояние"],
           ВидСравнения: "ВСписке",
           ПравоеЗначение: ["'Согласовано'", "'Не согласовано'"],
+        },
+      ])
+    ).toBe(false)
+  })
+
+  it("does not accept nil object as scalar right value", () => {
+    const compiled = compileFilterItemSchema()
+
+    expect(
+      compiled.Check([
+        {
+          ЛевоеЗначение: ".Тип",
+          ПравоеЗначение: {},
+        },
+      ])
+    ).toBe(false)
+  })
+
+  it("does not accept nil object as left value", () => {
+    const compiled = compileFilterItemSchema()
+
+    expect(
+      compiled.Check([
+        {
+          ЛевоеЗначение: {},
+          ВидСравнения: "ВСписке",
+          ПравоеЗначение: [{}, {}],
         },
       ])
     ).toBe(false)

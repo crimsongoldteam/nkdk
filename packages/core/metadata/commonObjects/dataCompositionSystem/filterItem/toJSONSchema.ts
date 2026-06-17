@@ -7,9 +7,16 @@ import { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 import { DcsMetadataTypedValueJSONSchema } from "../dscMetadataTypedValue/types"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 
+const DcsMetadataTypedValueNilArrayItemJSONSchema = Type.Object({}, { additionalProperties: false })
+
+const FilterItemRightValueArrayItemJSONSchema = Type.Union([
+  DcsMetadataTypedValueJSONSchema,
+  DcsMetadataTypedValueNilArrayItemJSONSchema,
+])
+
 const FilterItemRightValueJSONSchema = Type.Union([
   DcsMetadataTypedValueJSONSchema,
-  Type.Array(DcsMetadataTypedValueJSONSchema),
+  Type.Array(FilterItemRightValueArrayItemJSONSchema),
 ])
 
 const FilterItemPresentationValueRule = {
