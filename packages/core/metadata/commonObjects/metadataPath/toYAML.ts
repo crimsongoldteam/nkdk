@@ -13,31 +13,31 @@ const metadataValueTargetFallback = {
 } as const satisfies MetadataTargetConstraint
 
 export const exportMetadataFieldStringToYAML = (
-  context: ConfigurationContext,
+  _context: ConfigurationContext,
   rule: PropertyRule | undefined,
   name: string,
   owner?: MetadataTargetOwner
 ): string | undefined => {
-  return formatMetadataTargetStringToYAML(context, name, metadataTargetForRule(rule, metadataFieldTargetFallback), owner)
+  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataFieldTargetFallback), owner)
 }
 
 export const exportMetadataObjectStringToYAML = (
-  context: ConfigurationContext,
+  _context: ConfigurationContext,
   rule: PropertyRule | undefined,
   name: string,
   owner?: MetadataTargetOwner
 ): string | undefined => {
-  return formatMetadataTargetStringToYAML(context, name, metadataTargetForRule(rule, metadataObjectTargetFallback), owner)
+  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataObjectTargetFallback), owner)
 }
 
 export const exportMetadataValueStringToYAML = (
-  context: ConfigurationContext,
+  _context: ConfigurationContext,
   rule: PropertyRule | undefined,
   name: string | undefined
 ): string | undefined => {
   if (!name) return undefined
 
-  return formatMetadataTargetStringToYAML(context, name, metadataTargetForRule(rule, metadataValueTargetFallback))
+  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataValueTargetFallback))
 }
 
 function metadataTargetForRule(
@@ -52,7 +52,6 @@ function metadataTargetForRule(
 }
 
 function formatMetadataTargetStringToYAML(
-  context: ConfigurationContext,
   name: string,
   constraint: MetadataTargetConstraint,
   owner?: MetadataTargetOwner
@@ -60,7 +59,6 @@ function formatMetadataTargetStringToYAML(
   try {
     return formatMetadataTargetToYAML({ canonical: name, constraint, owner })
   } catch (error) {
-    if (context.exportToYAML?.validateMetadataTargets === false && isMetadataTargetLikeModel(name)) return name
     if (isMetadataTargetLikeModel(name)) throw error
     return undefined
   }

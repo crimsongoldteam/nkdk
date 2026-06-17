@@ -31,7 +31,7 @@ export const importMetadataObjectStringFromYAML = (
 }
 
 export const importMetadataValueStringFromYAML = (
-  context: ConfigurationContext,
+  _context: ConfigurationContext,
   rule: PropertyRule | undefined,
   name: string
 ): string | undefined => {
@@ -49,7 +49,6 @@ export const importMetadataValueStringFromYAML = (
   if (objectResult?.ok) return objectResult.canonical
 
   return parseMetadataTargetStringResultFromYAML({
-    context,
     name,
     result: valueResult,
   })
@@ -67,26 +66,23 @@ function metadataTargetForRule(
 }
 
 function parseMetadataTargetStringFromYAML(
-  context: ConfigurationContext,
+  _context: ConfigurationContext,
   name: string,
   constraint: MetadataTargetConstraint,
   owner?: MetadataTargetOwner
 ): string | undefined {
   return parseMetadataTargetStringResultFromYAML({
-    context,
     name,
     result: parseMetadataTargetFromYAML({ value: name, constraint, owner }),
   })
 }
 
 function parseMetadataTargetStringResultFromYAML(params: {
-  context: ConfigurationContext
   name: string
   result: ReturnType<typeof parseMetadataTargetFromYAML>
 }): string | undefined {
   if (params.result.ok) return params.result.canonical
   if (!isMetadataTargetLikeYAML(params.name)) return undefined
-  if (params.context.importFromYAML?.validateMetadataTargets === false) return params.name
 
   throw new Error(params.result.message)
 }

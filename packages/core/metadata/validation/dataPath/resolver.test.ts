@@ -3,6 +3,7 @@ import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/t
 import type { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
 import type { FormAttribute } from "~/metadata/forms/commonObjects/formAttribute/types"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
+import { MetadataConstantRules } from "~/metadata/appliedObjects/metadataConstant/rules"
 import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
@@ -225,6 +226,232 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("resolves an owner tabular section column through form additional columns", () => {
+    const result = resolve("Объект.Товары.Артикул", {
+      index: indexWithAttributes([
+        {
+          ...attribute("Объект", { type: ["DocumentRef.Заказ"] }),
+          additionalColumns: [
+            {
+              table: "Объект.Товары",
+              columns: [column("Артикул", { type: ["string"] })],
+            },
+          ],
+        } as FormAttribute,
+      ]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Документ", name: "Заказ" },
+          rule: MetadataDocumentRules,
+          model: {
+            itemType: "MetadataDocument",
+            tabularSections: [
+              {
+                itemType: "MetadataTabularSection",
+                name: "Товары",
+                attributes: [{ name: "Номенклатура", type: { type: ["CatalogRef.Номенклатура"] } }],
+              },
+            ],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Объект.Товары.Артикул",
+        segments: ["Объект", "Товары", "Артикул"],
+        source: { kind: "tableColumn", table: "Товары", name: "Артикул" },
+        typeInfo: { kinds: ["scalar"], sourceText: "string" },
+      },
+    })
+  })
+
+  it("keeps unknown tabular section columns as errors when no additional column exists", () => {
+    const result = resolve("Объект.Товары.Артикул", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Документ", name: "Заказ" },
+          rule: MetadataDocumentRules,
+          model: {
+            itemType: "MetadataDocument",
+            tabularSections: [
+              {
+                itemType: "MetadataTabularSection",
+                name: "Товары",
+                attributes: [{ name: "Номенклатура", type: { type: ["CatalogRef.Номенклатура"] } }],
+              },
+            ],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.Товары.Артикул": неизвестная колонка "Артикул"',
+        }),
+      ],
+    })
+  })
+
+  it("resolves RowsCount only for title data paths", () => {
+    const ok = resolve("Объект.Товары.RowsCount", {
+      yamlPath: ["Элементы", "Страница", "ПутьКДаннымЗаголовка"],
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: documentWithGoods(),
+    })
+    const error = resolve("Объект.Товары.RowsCount", {
+      yamlPath: ["Элементы", "Поле", "ПутьКДанным"],
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: documentWithGoods(),
+    })
+
+    expect(ok).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: { kind: "tableColumn", table: "Товары", name: "RowsCount" },
+        typeInfo: { kinds: ["scalar"], sourceText: "RowsCount" },
+      },
+    })
+    expect(error).toMatchObject({
+      status: "error",
+      diagnostics: [expect.objectContaining({ message: 'ПутьКДанным "Объект.Товары.RowsCount": неизвестная колонка "RowsCount"' })],
+    })
+  })
+
+  it("resolves Total columns only for footer data paths", () => {
+    const ok = resolve("Объект.Товары.TotalСумма", {
+      yamlPath: ["Элементы", "Товары", "Элементы", "Сумма", "ПутьКДаннымПодвала"],
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: documentWithGoods(),
+    })
+    const error = resolve("Объект.Товары.TotalСумма", {
+      yamlPath: ["Элементы", "Поле", "ПутьКДанным"],
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: documentWithGoods(),
+    })
+
+    expect(ok).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: { kind: "tableColumn", table: "Товары", name: "TotalСумма" },
+        typeInfo: { kinds: ["scalar"], sourceText: "Total" },
+      },
+    })
+    expect(error).toMatchObject({
+      status: "error",
+      diagnostics: [expect.objectContaining({ message: 'ПутьКДанным "Объект.Товары.TotalСумма": неизвестная колонка "TotalСумма"' })],
+    })
+  })
+
+  it("resolves a constant from a constants set as a boolean terminal", () => {
+    const result = resolve("НаборКонстант.ИспользоватьСинхронизациюДанных", {
+      index: indexWithAttributes([attribute("НаборКонстант", { type: ["ConstantsSet"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Константа", name: "ИспользоватьСинхронизациюДанных" },
+          rule: MetadataConstantRules,
+          model: {
+            itemType: "MetadataConstant",
+            type: { type: ["boolean"] },
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "НаборКонстант.ИспользоватьСинхронизациюДанных",
+        segments: ["НаборКонстант", "ИспользоватьСинхронизациюДанных"],
+        source: { kind: "constant", name: "ИспользоватьСинхронизациюДанных" },
+        typeInfo: { kinds: ["boolean"], sourceText: "boolean" },
+      },
+    })
+  })
+
+  it("resolves a constant from a constants set as an object terminal", () => {
+    const result = resolve("Константы.ВалютаУправленческогоУчета", {
+      index: indexWithAttributes([attribute("Константы", { type: ["ConstantsSet"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Константа", name: "ВалютаУправленческогоУчета" },
+          rule: MetadataConstantRules,
+          model: {
+            itemType: "MetadataConstant",
+            type: { type: ["CatalogRef.Валюты"] },
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Константы.ВалютаУправленческогоУчета",
+        source: { kind: "constant", name: "ВалютаУправленческогоУчета" },
+        typeInfo: {
+          kinds: ["object"],
+          nextTypes: [{ kind: "Справочник", name: "Валюты" }],
+          sourceText: "CatalogRef.Валюты",
+        },
+      },
+    })
+  })
+
+  it("reports a missing constant owner from a constants set", () => {
+    const result = resolve("НаборКонстант.НетТакойКонстанты", {
+      index: indexWithAttributes([attribute("НаборКонстант", { type: ["ConstantsSet"] })]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          source: "cross-file",
+          severity: "error",
+          message: "Не найден владелец",
+        }),
+      ],
+    })
+  })
+
+  it("does not allow traversing through a scalar constant", () => {
+    const result = resolve("НаборКонстант.ИспользоватьСинхронизациюДанных.Code", {
+      index: indexWithAttributes([attribute("НаборКонстант", { type: ["ConstantsSet"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Константа", name: "ИспользоватьСинхронизациюДанных" },
+          rule: MetadataConstantRules,
+          model: {
+            itemType: "MetadataConstant",
+            type: { type: ["boolean"] },
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message:
+            'ПутьКДанным "НаборКонстант.ИспользоватьСинхронизациюДанных.Code": промежуточный реквизит "ИспользоватьСинхронизациюДанных" не является объектом',
+        }),
+      ],
+    })
+  })
+
   it("resolves LineNumber as an alias for the YAML row number column", () => {
     const result = resolve("Объект.Товары.LineNumber", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
@@ -414,6 +641,56 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("returns a warning for a SettingsComposer form attribute data path", () => {
+    const result = resolve("КомпоновщикНастроек.Settings.Filter", {
+      index: indexWithAttributes([attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })]),
+    })
+
+    expect(result).toMatchObject({
+      status: "warning",
+      diagnostics: [
+        expect.objectContaining({
+          severity: "warning",
+          source: "structure",
+          message: 'ПутьКДанным "КомпоновщикНастроек.Settings.Filter": платформенный источник пока не проверяется',
+        }),
+      ],
+    })
+  })
+
+  it("returns a warning for indexed SettingsComposer user settings data paths", () => {
+    const result = resolve("КомпоновщикНастроек.UserSettings[0].Filter", {
+      index: indexWithAttributes([attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })]),
+    })
+
+    expect(result).toMatchObject({
+      status: "warning",
+      diagnostics: [
+        expect.objectContaining({
+          severity: "warning",
+          source: "structure",
+          message:
+            'ПутьКДанным "КомпоновщикНастроек.UserSettings[0].Filter": платформенный источник пока не проверяется',
+        }),
+      ],
+    })
+  })
+
+  it("keeps unsupported intermediate types as errors when the name looks like platform settings", () => {
+    const result = resolve("Хранилище.Settings.Filter", {
+      index: indexWithAttributes([attribute("Хранилище", { type: ["ValueStorage"] })]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Хранилище.Settings.Filter": промежуточный реквизит "Хранилище" имеет неподдерживаемый тип',
+        }),
+      ],
+    })
+  })
+
   it("returns a warning for Items.*.CurrentData.* paths", () => {
     const result = resolve("Items.Таблица.CurrentData.Номенклатура", {
       index: indexWithAttributes([]),
@@ -496,6 +773,7 @@ function resolve(
     index: FormDataPathIndex
     ownerCache?: OwnerMetadataCache
     tableContext?: { dataPath: string }
+    yamlPath?: string[]
   },
 ) {
   const parsed = parseMetadataYaml(`ПутьКДанным: ${JSON.stringify(value)}\n`)
@@ -503,12 +781,34 @@ function resolve(
   return resolveDataPath({
     filePath: "/tmp/form.yaml",
     parsed,
-    yamlPath: ["ПутьКДанным"],
+    yamlPath: params.yamlPath ?? ["ПутьКДанным"],
     value,
     index: params.index,
     ownerCache: params.ownerCache ?? ownerCache([]),
     ...(params.tableContext ? { tableContext: params.tableContext } : {}),
   })
+}
+
+function documentWithGoods(): OwnerMetadataCache {
+  return ownerCache([
+    owner({
+      ref: { kind: "Документ", name: "Заказ" },
+      rule: MetadataDocumentRules,
+      model: {
+        itemType: "MetadataDocument",
+        tabularSections: [
+          {
+            itemType: "MetadataTabularSection",
+            name: "Товары",
+            attributes: [
+              { name: "Номенклатура", type: { type: ["CatalogRef.Номенклатура"] } },
+              { name: "Сумма", type: { type: ["decimal"] } },
+            ],
+          },
+        ],
+      },
+    }),
+  ])
 }
 
 function indexWithAttributes(attributes: FormAttribute[]): FormDataPathIndex {

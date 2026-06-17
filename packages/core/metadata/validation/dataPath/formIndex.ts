@@ -6,6 +6,7 @@ import type { Diagnostic } from "../types"
 import { diagnosticAtYamlPath } from "../yamlLocations"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import type {
+  FormDataPathAdditionalColumnsByTablePath,
   DataPathTableInfo,
   DataPathTypeInfo,
   FormDataPathColumnSource,
@@ -20,6 +21,7 @@ const knownPlatformFormSources = [
 
 export interface FormDataPathIndex {
   roots: Map<string, FormDataPathSource>
+  additionalColumnsByTablePath: FormDataPathAdditionalColumnsByTablePath
   duplicateDiagnostics: Diagnostic[]
   getRoot(name: string): FormDataPathSource | undefined
 }
@@ -39,6 +41,7 @@ export interface KnownPlatformFormSource {
 
 export function buildFormDataPathIndex({ filePath, parsed, form }: BuildFormDataPathIndexParams): FormDataPathIndex {
   const roots = new Map<string, FormDataPathSource>()
+  const additionalColumnsByTablePath: FormDataPathAdditionalColumnsByTablePath = new Map()
   const duplicateDiagnostics: Diagnostic[] = []
   const seenNames = new Map<string, number>()
 
@@ -53,10 +56,12 @@ export function buildFormDataPathIndex({ filePath, parsed, form }: BuildFormData
     }
 
     roots.set(name, formAttributeToSource(attribute))
+    addAdditionalColumns({ additionalColumnsByTablePath, attribute })
   }
 
   return {
     roots,
+    additionalColumnsByTablePath,
     duplicateDiagnostics,
     getRoot(name: string): FormDataPathSource | undefined {
       return roots.get(name)
@@ -121,6 +126,18 @@ function columnsToMap(columns: readonly FormAttributeColumn[]): Map<string, Form
     })
   }
   return result
+}
+
+function addAdditionalColumns(params: {
+  additionalColumnsByTablePath: FormDataPathAdditionalColumnsByTablePath
+  attribute: FormAttribute
+}): void {
+  for (const additionalColumnGroup of params.attribute.additionalColumns ?? []) {
+    params.additionalColumnsByTablePath.set(
+      additionalColumnGroup.table,
+      columnsToMap(additionalColumnGroup.columns),
+    )
+  }
 }
 
 function dynamicListTypeInfo(): DataPathTypeInfo {

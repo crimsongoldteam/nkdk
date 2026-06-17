@@ -8,6 +8,7 @@ import {
   type ObjectFieldTableSource,
 } from "./objectFields"
 import type { OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
+import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import type {
   DataPathTypeInfo,
   FormDataPathSource,
@@ -40,6 +41,7 @@ export type ResolvedDataPathTargetSource =
   | { kind: "formAttribute"; name: string }
   | { kind: "tableColumn"; table: string; name: string }
   | { kind: "objectField"; owner: OwnerTypeRef; name: string }
+  | { kind: "constant"; name: string }
 
 export type ResolveDataPathResult =
   | { status: "ok"; target?: ResolvedDataPathTarget; diagnostics: Diagnostic[] }
@@ -102,6 +104,23 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
       continue
     }
 
+    if (state.typeInfo.kinds.includes("constantSet")) {
+      const constantResult = resolveConstantSetItem({ params, segment })
+      if (constantResult.status !== "ok") return ownerError(constantResult)
+
+      state = {
+        typeInfo: constantResult.typeInfo,
+        source: { kind: "constant", name: segment },
+      }
+
+      if (isLast) return okTarget({ value, segments, state })
+      continue
+    }
+
+    if (state.typeInfo.kinds.includes("platformSource")) {
+      return warning(params, `ПутьКДанным "${value}": платформенный источник пока не проверяется`)
+    }
+
     const ownerResult = params.ownerCache.get(state.typeInfo.nextTypes[0] as OwnerTypeRef)
     if (ownerResult.status !== "ok") return ownerError(ownerResult)
 
@@ -120,6 +139,27 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
   }
 
   return okTarget({ value, segments, state })
+}
+
+function resolveConstantSetItem(params: {
+  params: ResolveDataPathParams
+  segment: string
+}):
+  | { status: "ok"; typeInfo: DataPathTypeInfo }
+  | Exclude<OwnerMetadataResult, { status: "ok" }> {
+  const ownerResult = params.params.ownerCache.get({ kind: "Константа", name: params.segment })
+  if (ownerResult.status !== "ok") return ownerResult
+
+  const type = constantType(ownerResult.owner.model)
+  return {
+    status: "ok",
+    typeInfo: typeDescriptionToDataPathTypeInfo(type),
+  }
+}
+
+function constantType(model: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
+  if (typeof model !== "object" || model === null || !("type" in model)) return undefined
+  return model.type as Parameters<typeof typeDescriptionToDataPathTypeInfo>[0]
 }
 
 function validateTableContext(params: ResolveDataPathParams): Diagnostic | undefined {
@@ -168,7 +208,14 @@ function resolveTableColumn(params: {
     }
   }
 
-  const column = resolveTableColumnSource({ columns: tableSource.columns, segment: params.segment })
+  const tablePath = params.segments.slice(0, -1).join(".")
+  const column =
+    resolveTableColumnSource({ columns: tableSource.columns, segment: params.segment }) ??
+    resolveTableColumnSource({
+      columns: params.params.index.additionalColumnsByTablePath.get(tablePath),
+      segment: params.segment,
+    }) ??
+    virtualTableColumn({ yamlPath: params.params.yamlPath, segment: params.segment })
   if (column === undefined) {
     if (tableSource.hasColumns) {
       return {
@@ -191,12 +238,33 @@ function resolveTableColumn(params: {
 }
 
 function resolveTableColumnSource(params: {
-  columns: FormDataPathTableSource["columns"] | ObjectFieldTableSource["columns"]
+  columns: FormDataPathTableSource["columns"] | ObjectFieldTableSource["columns"] | undefined
   segment: string
 }): TableColumnSource | undefined {
+  if (params.columns === undefined) return undefined
+
   const alias = standardAttributeAliasToYAML(params.segment)
   if (alias !== undefined) return params.columns.get(alias) ?? params.columns.get(params.segment)
   return params.columns.get(params.segment)
+}
+
+function virtualTableColumn(params: { yamlPath: YamlPath; segment: string }): TableColumnSource | undefined {
+  const propertyName = params.yamlPath[params.yamlPath.length - 1]
+  if (propertyName === "ПутьКДаннымЗаголовка" && params.segment === "RowsCount") {
+    return {
+      name: params.segment,
+      typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "RowsCount" },
+    }
+  }
+
+  if (propertyName === "ПутьКДаннымПодвала" && params.segment.startsWith("Total")) {
+    return {
+      name: params.segment,
+      typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "Total" },
+    }
+  }
+
+  return undefined
 }
 
 function stateFromTableColumn(params: { tableName: string; column: TableColumnSource }): TraversalState {
@@ -222,6 +290,8 @@ function validateIntermediateType(params: {
   }
 
   if (params.state.tableSource !== undefined) return undefined
+  if (typeInfo.kinds.includes("constantSet")) return undefined
+  if (typeInfo.kinds.includes("platformSource")) return undefined
 
   if (typeInfo.kinds.includes("unknown") || typeInfo.kinds.includes("any") || typeInfo.nextTypes.length === 0) {
     if (typeInfo.kinds.includes("unsupportedIntermediate")) {
