@@ -117,7 +117,7 @@ function tableSourceFromAttribute(
 }
 
 function tableColumns(attribute: FormAttribute, table: DataPathTableInfo): FormAttributeColumn[] {
-  if (table.kind !== "ValueTable" && table.kind !== "ValueTree") return []
+  if (table.kind !== "ValueTable" && table.kind !== "ValueTree" && table.kind !== "RegisterRecordSet") return []
   return attribute.columns ?? []
 }
 

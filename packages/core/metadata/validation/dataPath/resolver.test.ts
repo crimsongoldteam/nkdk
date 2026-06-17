@@ -778,6 +778,67 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("resolves form-only RegisterRecordSet columns from form attribute columns", () => {
+    const result = resolve("НаборЗаписей.ПериодГод", {
+      index: indexWithAttributes([
+        attribute("НаборЗаписей", { type: ["InformationRegisterRecordSet.Продажи"] }, [
+          column("ПериодГод", { type: ["decimal"] }),
+        ]),
+      ]),
+      ownerCache: documentWithRegisterRecords(),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "НаборЗаписей.ПериодГод",
+        source: { kind: "tableColumn", table: "НаборЗаписей", name: "ПериодГод" },
+        typeInfo: { kinds: ["scalar"], sourceText: "decimal" },
+      },
+    })
+  })
+
+  it("keeps RegisterRecordSet standard columns available with form-only columns", () => {
+    const result = resolve("НаборЗаписей.Period", {
+      index: indexWithAttributes([
+        attribute("НаборЗаписей", { type: ["InformationRegisterRecordSet.Продажи"] }, [
+          column("ПериодГод", { type: ["decimal"] }),
+        ]),
+      ]),
+      ownerCache: documentWithRegisterRecords(),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: { kind: "tableColumn", table: "НаборЗаписей", name: "Период" },
+        typeInfo: { kinds: ["dateTime"], sourceText: "RegisterRecordSet.Period" },
+      },
+    })
+  })
+
+  it("keeps unknown RegisterRecordSet columns strict without form-only columns", () => {
+    const result = resolve("НаборЗаписей.НетТакойКолонки", {
+      index: indexWithAttributes([
+        attribute("НаборЗаписей", { type: ["InformationRegisterRecordSet.Продажи"] }, [
+          column("ПериодГод", { type: ["decimal"] }),
+        ]),
+      ]),
+      ownerCache: documentWithRegisterRecords(),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "НаборЗаписей.НетТакойКолонки": неизвестная колонка "НетТакойКолонки"',
+        }),
+      ],
+    })
+  })
+
   it("resolves accounting RegisterRecords account columns from chart of accounts", () => {
     const owners = documentWithAccountingRegisterRecords()
 

@@ -1052,6 +1052,32 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts form-only RegisterRecordSet columns from form requisites", () => {
+    const project = createProject({
+      ownerDir: "РегистрСведений",
+      ownerName: "Настройки",
+      owner: ["{}"],
+      form: [
+        "Реквизиты:",
+        "  НаборЗаписей:",
+        "    Тип: РегистрСведенийНаборЗаписей.Настройки",
+        "    Колонки:",
+        "      ПериодГод:",
+        "        Тип: Число",
+        "Элементы:",
+        "  НаборЗаписей:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: НаборЗаписей",
+        "    Элементы:",
+        "      ПериодГод:",
+        "        Вид: ПолеВвода",
+        "        ПутьКДанным: НаборЗаписей.ПериодГод",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("accepts ChartOfAccounts ExtDimensionTypes virtual table paths", () => {
     const project = createProject({
       ownerDir: "ПланСчетов",
