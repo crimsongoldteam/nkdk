@@ -708,37 +708,26 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("returns a warning for unsupported tilde variant paths", () => {
+  it("skips tilde variant paths without diagnostics", () => {
     const result = resolve("~Список.Period~Список.Период", {
       index: indexWithAttributes([]),
     })
 
     expect(result).toMatchObject({
-      status: "warning",
-      diagnostics: [
-        expect.objectContaining({
-          severity: "warning",
-          source: "structure",
-          message: 'ПутьКДанным "~Список.Period~Список.Период": вариантный путь пока не проверяется',
-        }),
-      ],
+      status: "ok",
+      diagnostics: [],
     })
   })
 
-  it("returns a warning for unsupported tilde variant paths before table context validation", () => {
+  it("skips tilde variant paths before table context validation", () => {
     const result = resolve("~Список.Period~Список.Период", {
       index: indexWithAttributes([]),
       tableContext: { dataPath: "Список" },
     })
 
     expect(result).toMatchObject({
-      status: "warning",
-      diagnostics: [
-        expect.objectContaining({
-          severity: "warning",
-          message: 'ПутьКДанным "~Список.Period~Список.Период": вариантный путь пока не проверяется',
-        }),
-      ],
+      status: "ok",
+      diagnostics: [],
     })
   })
 
