@@ -45,6 +45,7 @@ export type KnownOwnerTypeKind =
   | "Задача"
   | "ЗадачаОбъект"
   | "Константа"
+  | "ОпределяемыйТип"
 
 export interface OwnerTypeRef {
   kind: KnownOwnerTypeKind | (string & {})
@@ -63,6 +64,7 @@ export type DataPathTableInfo =
 export interface DataPathTypeInfo {
   kinds: readonly DataPathValueKind[]
   nextTypes: readonly OwnerTypeRef[]
+  definedTypes?: readonly string[]
   table?: DataPathTableInfo
   isComposite?: boolean
   sourceText?: string

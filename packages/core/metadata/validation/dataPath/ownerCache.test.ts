@@ -96,6 +96,7 @@ describe("OwnerMetadataCache", () => {
     ["БизнесПроцессОбъект", "БизнесПроцесс"],
     ["Задача", "Задача"],
     ["ЗадачаОбъект", "Задача"],
+    ["ОпределяемыйТип", "ОпределяемыйТип"],
   ] satisfies Array<[kind: KnownOwnerTypeKind, dir: string]>)("maps %s owner refs to %s directory", (kind, dir) => {
     const projectDir = createProject()
     const cache = createOwnerMetadataCache({
@@ -114,6 +115,29 @@ describe("OwnerMetadataCache", () => {
           source: "cross-file",
         }),
       ],
+    })
+  })
+
+  it("reads defined type YAML lazily", () => {
+    const projectDir = createProject()
+    writeProperties(projectDir, "ОпределяемыйТип", "ДоговорКонтрагента", "Тип: Справочник.ДоговорыКонтрагентов")
+    const cache = createOwnerMetadataCache({
+      projectDir,
+      yamlCache: createProjectYamlCache(),
+      context: mockContext,
+    })
+
+    const result = cache.get({ kind: "ОпределяемыйТип", name: "ДоговорКонтрагента" })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      owner: {
+        ref: { kind: "ОпределяемыйТип", name: "ДоговорКонтрагента" },
+        model: {
+          itemType: "MetadataDefinedType",
+          type: { type: ["CatalogRef.ДоговорыКонтрагентов"] },
+        },
+      },
     })
   })
 

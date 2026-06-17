@@ -160,7 +160,19 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
       continue
     }
 
-    const ownerResult = params.ownerCache.get(state.typeInfo.nextTypes[0] as OwnerTypeRef)
+    const definedTypeResult = resolveDefinedTypeInfo({ params, typeInfo: state.typeInfo })
+    if (definedTypeResult.status !== "ok") return ownerError(definedTypeResult)
+
+    const resolvedTypeInfo = definedTypeResult.typeInfo
+    const intermediateErrorAfterDefinedType = validateIntermediateType({
+      params,
+      value,
+      segment: segments[index - 1] ?? "",
+      state: { ...state, typeInfo: resolvedTypeInfo },
+    })
+    if (intermediateErrorAfterDefinedType !== undefined) return { status: "error", diagnostics: [intermediateErrorAfterDefinedType] }
+
+    const ownerResult = params.ownerCache.get(resolvedTypeInfo.nextTypes[0] as OwnerTypeRef)
     if (ownerResult.status !== "ok") return ownerError(ownerResult)
 
     if (isRegisterRecordsSegment(lookupSegment) && isDocumentOwner(ownerResult.owner.ref)) {
@@ -306,6 +318,61 @@ function resolveConstantSetItem(params: {
   }
 }
 
+function resolveDefinedTypeInfo(params: {
+  params: ResolveDataPathParams
+  typeInfo: DataPathTypeInfo
+}): { status: "ok"; typeInfo: DataPathTypeInfo } | Exclude<OwnerMetadataResult, { status: "ok" }> {
+  const definedTypes = params.typeInfo.definedTypes ?? []
+  if (definedTypes.length === 0) return { status: "ok", typeInfo: params.typeInfo }
+
+  const typeInfos: DataPathTypeInfo[] = []
+  for (const definedType of definedTypes) {
+    const ownerResult = params.params.ownerCache.get({ kind: "ОпределяемыйТип", name: definedType })
+    if (ownerResult.status !== "ok") return ownerResult
+
+    typeInfos.push(typeDescriptionToDataPathTypeInfo(definedTypeType(ownerResult.owner.model)))
+  }
+
+  return { status: "ok", typeInfo: mergeResolvedDefinedTypeInfo(params.typeInfo, typeInfos) }
+}
+
+function mergeResolvedDefinedTypeInfo(source: DataPathTypeInfo, resolvedItems: readonly DataPathTypeInfo[]): DataPathTypeInfo {
+  const kinds = [...source.kinds]
+  const nextTypes = [...source.nextTypes]
+  const sourceTexts = source.sourceText !== undefined ? [source.sourceText] : []
+  let table = source.table
+  let isComposite = source.isComposite === true
+
+  for (const item of resolvedItems) {
+    for (const kind of item.kinds) {
+      if (!kinds.includes(kind)) kinds.push(kind)
+    }
+    for (const nextType of item.nextTypes) {
+      if (!nextTypes.some((existing) => ownerRefEquals(existing, nextType))) nextTypes.push(nextType)
+    }
+    if (table === undefined && item.table !== undefined) table = item.table
+    if (item.isComposite === true) isComposite = true
+    if (item.sourceText !== undefined) sourceTexts.push(item.sourceText)
+  }
+
+  return {
+    kinds,
+    nextTypes,
+    ...(table !== undefined ? { table } : {}),
+    ...(isComposite || nextTypes.length > 1 ? { isComposite: true } : {}),
+    ...(sourceTexts.length > 0 ? { sourceText: sourceTexts.join(" -> ") } : {}),
+  }
+}
+
+function definedTypeType(model: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
+  if (typeof model !== "object" || model === null || !("type" in model)) return undefined
+  return model.type as Parameters<typeof typeDescriptionToDataPathTypeInfo>[0]
+}
+
+function ownerRefEquals(left: OwnerTypeRef, right: OwnerTypeRef): boolean {
+  return left.kind === right.kind && left.name === right.name
+}
+
 function resolveRegisterRecordsItem(params: {
   params: ResolveDataPathParams
   value: string
@@ -341,8 +408,7 @@ function resolveRegisterRecordsItem(params: {
 }
 
 function documentRegisterRecordRefs(owner: OwnerMetadata): OwnerTypeRef[] {
-  const model = owner.model as Record<string, unknown>
-  const value = model.registerRecords
+  const value = modelObjectValue(owner.model, "registerRecords")
   if (!Array.isArray(value)) return []
 
   return value
@@ -958,6 +1024,7 @@ function validateIntermediateType(params: {
   if (typeInfo.kinds.includes("registerRecords")) return undefined
   if (typeInfo.kinds.includes("platformSource")) return undefined
   if (typeInfo.kinds.includes("standardPeriod")) return undefined
+  if ((typeInfo.definedTypes?.length ?? 0) > 0) return undefined
 
   if (typeInfo.kinds.includes("unknown") || typeInfo.kinds.includes("any") || typeInfo.nextTypes.length === 0) {
     if (typeInfo.kinds.includes("unsupportedIntermediate")) {

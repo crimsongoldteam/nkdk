@@ -59,18 +59,21 @@ export function typeDescriptionToDataPathTypeInfo(
 
   const kinds: DataPathValueKind[] = []
   const nextTypes: OwnerTypeRef[] = []
+  const definedTypes: string[] = []
   let table: DataPathTableInfo | undefined
 
   for (const type of types) {
     const mapped = mapType(type)
     addUnique(kinds, mapped.kind)
     if (mapped.nextType !== undefined) nextTypes.push(mapped.nextType)
+    if (mapped.definedType !== undefined) definedTypes.push(mapped.definedType)
     if (table === undefined && mapped.table !== undefined) table = mapped.table
   }
 
   return {
     kinds,
     nextTypes,
+    ...(definedTypes.length > 0 ? { definedTypes } : {}),
     ...(table !== undefined ? { table } : {}),
     ...(types.length > 1 ? { isComposite: true } : {}),
     sourceText: types.join(" | "),
@@ -86,7 +89,12 @@ function hasOnlyTypeId(typeDescription: TypeDescription | undefined): boolean {
   )
 }
 
-function mapType(type: string): { kind: DataPathValueKind; nextType?: OwnerTypeRef; table?: DataPathTableInfo } {
+function mapType(type: string): {
+  kind: DataPathValueKind
+  nextType?: OwnerTypeRef
+  definedType?: string
+  table?: DataPathTableInfo
+} {
   switch (type) {
     case "boolean":
       return { kind: "boolean" }
@@ -117,7 +125,8 @@ function mapType(type: string): { kind: DataPathValueKind; nextType?: OwnerTypeR
       return { kind: "standardPeriod" }
   }
 
-  if (baseTypeOf(type) === "DefinedType") return { kind: "object" }
+  const definedTypeName = definedTypeNameFromType(type)
+  if (definedTypeName !== undefined) return { kind: "object", definedType: definedTypeName }
 
   const registerRecordSetOwnerRef = registerRecordSetOwnerTypeRefFromType(type)
   if (registerRecordSetOwnerRef !== undefined) {
@@ -160,8 +169,10 @@ function splitType(type: string): [baseType: string, name?: string] {
   return [type.substring(0, dotIndex), type.substring(dotIndex + 1)]
 }
 
-function baseTypeOf(type: string): string {
-  return splitType(type)[0]
+function definedTypeNameFromType(type: string): string | undefined {
+  const [baseType, name] = splitType(type)
+  if (baseType !== "DefinedType") return undefined
+  return name && name.length > 0 ? name : undefined
 }
 
 function addUnique(items: DataPathValueKind[], item: DataPathValueKind): void {

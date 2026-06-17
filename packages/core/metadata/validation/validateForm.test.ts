@@ -119,6 +119,34 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts paths through DefinedType metadata", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  ВключитьВДоговор:",
+        "    Тип: ОпределяемыйТип.ДоговорКонтрагента",
+        "Элементы:",
+        "  Номер:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: ВключитьВДоговор.Номер",
+      ],
+      extraOwners: [
+        {
+          dir: "ОпределяемыйТип",
+          name: "ДоговорКонтрагента",
+          yaml: ["Тип: Справочник.ДоговорыКонтрагентов"],
+        },
+        {
+          dir: "Справочник",
+          name: "ДоговорыКонтрагентов",
+          yaml: ["Реквизиты:", "  Номер:", "    Тип: Строка"],
+        },
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("resolves owner tabular section fields lazily through owner cache", () => {
     const project = createProject({
       owner: [

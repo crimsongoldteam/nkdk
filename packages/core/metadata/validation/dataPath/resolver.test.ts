@@ -9,6 +9,7 @@ import { MetadataChartOfAccountsRules } from "~/metadata/appliedObjects/metadata
 import { MetadataChartOfCalculationTypesRules } from "~/metadata/appliedObjects/metadataChartOfCalculationTypes/rules"
 import { MetadataChartOfCharacteristicTypesRules } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules"
 import { MetadataConstantRules } from "~/metadata/appliedObjects/metadataConstant/rules"
+import { MetadataDefinedTypeRules } from "~/metadata/appliedObjects/metadataDefinedType/rules"
 import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
 import { MetadataExchangePlanRules } from "~/metadata/appliedObjects/metadataExchangePlan/rules"
 import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
@@ -392,6 +393,74 @@ describe("resolveDataPath", () => {
         source: { kind: "objectField", owner: { kind: "Справочник", name: "Номенклатура" }, name: "Артикул" },
         typeInfo: { kinds: ["scalar"], sourceText: "string" },
       },
+    })
+  })
+
+  it("resolves object fields through DefinedType metadata", () => {
+    const result = resolve("ВключитьВДоговор.Номер", {
+      index: indexWithAttributes([attribute("ВключитьВДоговор", { type: ["DefinedType.ДоговорКонтрагента"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ОпределяемыйТип", name: "ДоговорКонтрагента" },
+          rule: MetadataDefinedTypeRules,
+          model: {
+            itemType: "MetadataDefinedType",
+            type: { type: ["CatalogRef.ДоговорыКонтрагентов"] },
+          },
+        }),
+        owner({
+          ref: { kind: "Справочник", name: "ДоговорыКонтрагентов" },
+          rule: MetadataCatalogRules,
+          model: {
+            itemType: "MetadataCatalog",
+            attributes: [{ name: "Номер", type: { type: ["string"] } }],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "ВключитьВДоговор.Номер",
+        segments: ["ВключитьВДоговор", "Номер"],
+        source: { kind: "objectField", owner: { kind: "Справочник", name: "ДоговорыКонтрагентов" }, name: "Номер" },
+        typeInfo: { kinds: ["scalar"] },
+      },
+    })
+  })
+
+  it("keeps field errors after resolving DefinedType metadata", () => {
+    const result = resolve("ВключитьВДоговор.НетТакогоРеквизита", {
+      index: indexWithAttributes([attribute("ВключитьВДоговор", { type: ["DefinedType.ДоговорКонтрагента"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ОпределяемыйТип", name: "ДоговорКонтрагента" },
+          rule: MetadataDefinedTypeRules,
+          model: {
+            itemType: "MetadataDefinedType",
+            type: { type: ["CatalogRef.ДоговорыКонтрагентов"] },
+          },
+        }),
+        owner({
+          ref: { kind: "Справочник", name: "ДоговорыКонтрагентов" },
+          rule: MetadataCatalogRules,
+          model: {
+            itemType: "MetadataCatalog",
+            attributes: [{ name: "Номер", type: { type: ["string"] } }],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "ВключитьВДоговор.НетТакогоРеквизита": неизвестный реквизит "НетТакогоРеквизита"',
+        }),
+      ],
     })
   })
 

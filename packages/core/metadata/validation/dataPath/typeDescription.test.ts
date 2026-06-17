@@ -54,8 +54,18 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
     ).toEqual({
       kinds: ["object"],
       nextTypes: [{ kind: "Перечисление", name: "Состояния" }],
+      definedTypes: ["Организация"],
       isComposite: true,
       sourceText: "EnumRef.Состояния | DefinedType.Организация",
+    })
+  })
+
+  it("keeps DefinedType references for lazy project resolution", () => {
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["DefinedType.ДоговорКонтрагента"] })).toEqual({
+      kinds: ["object"],
+      nextTypes: [],
+      definedTypes: ["ДоговорКонтрагента"],
+      sourceText: "DefinedType.ДоговорКонтрагента",
     })
   })
 

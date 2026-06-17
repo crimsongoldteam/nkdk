@@ -1,6 +1,7 @@
 import { join, resolve } from "path"
 import { Type } from "@sinclair/typebox"
 import { MetadataConstantRules } from "~/metadata/appliedObjects/metadataConstant/rules"
+import { MetadataDefinedTypeRules } from "~/metadata/appliedObjects/metadataDefinedType/rules"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
@@ -65,6 +66,7 @@ const ownerDirByRefKind = {
   Задача: "Задача",
   ЗадачаОбъект: "Задача",
   Константа: "Константа",
+  ОпределяемыйТип: "ОпределяемыйТип",
 } satisfies Readonly<Record<KnownOwnerTypeKind, string>>
 
 const constantOwnerSpec: ValidationProjectSpec = {
@@ -74,6 +76,18 @@ const constantOwnerSpec: ValidationProjectSpec = {
   exportSchema: () => Type.Object({}),
   importModel: ({ context, parsed, name }) => {
     const model: unknown = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: MetadataConstantRules, name })
+
+    return isMetadataItem(model) ? model : undefined
+  },
+}
+
+const definedTypeOwnerSpec: ValidationProjectSpec = {
+  kind: "definedType",
+  dir: "ОпределяемыйТип",
+  rule: MetadataDefinedTypeRules,
+  exportSchema: () => Type.Object({}),
+  importModel: ({ context, parsed, name }) => {
+    const model: unknown = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: MetadataDefinedTypeRules, name })
 
     return isMetadataItem(model) ? model : undefined
   },
@@ -166,6 +180,7 @@ function loadOwner(params: {
 
 function getOwnerProjectSpecByDir(dir: string): ValidationProjectSpec | undefined {
   if (dir === constantOwnerSpec.dir) return constantOwnerSpec
+  if (dir === definedTypeOwnerSpec.dir) return definedTypeOwnerSpec
   return getValidationProjectSpecByDir(dir)
 }
 
