@@ -198,6 +198,22 @@ function standardAttributeTypeInfo(params: {
     return ownerStandardAttributeTypeInfo(params.owner) ?? unknownDataPathTypeInfo
   }
 
+  if (params.internalName === "ValueType" || params.yamlName === "ТипЗначения") {
+    return {
+      kinds: ["typeDescription"],
+      nextTypes: [],
+      sourceText: `${params.owner.ref.kind}.ValueType`,
+    }
+  }
+
+  if (params.internalName === "SentNo" || params.internalName === "ReceivedNo") {
+    return {
+      kinds: ["scalar"],
+      nextTypes: [],
+      sourceText: `${params.owner.ref.kind}.SentReceivedNo`,
+    }
+  }
+
   return unknownDataPathTypeInfo
 }
 

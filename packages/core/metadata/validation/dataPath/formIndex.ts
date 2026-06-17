@@ -108,7 +108,11 @@ function tableSourceFromAttribute(
   return {
     table: typeInfo.table,
     columns: columnsToMap(columns),
-    hasColumns: columns.length > 0 || typeInfo.table.kind === "ValueList" || typeInfo.table.kind === "RegisterRecordSet",
+    hasColumns:
+      columns.length > 0 ||
+      typeInfo.table.kind === "ValueList" ||
+      typeInfo.table.kind === "GanttChart" ||
+      typeInfo.table.kind === "RegisterRecordSet",
   }
 }
 

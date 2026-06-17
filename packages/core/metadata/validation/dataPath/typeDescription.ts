@@ -101,6 +101,9 @@ function mapType(type: string): { kind: DataPathValueKind; nextType?: OwnerTypeR
     case "ValueListType":
     case "СписокЗначений":
       return { kind: "tableSource", table: { kind: "ValueList" } }
+    case "GanttChart":
+    case "ДиаграммаГанта":
+      return { kind: "tableSource", table: { kind: "GanttChart" } }
     case "DynamicList":
       return { kind: "dynamicList", table: { kind: "DynamicList" } }
     case "ConstantsSet":

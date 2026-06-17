@@ -57,7 +57,7 @@ export const PictureFieldRules = {
       type: "DataPath",
       defaultType: "Picture",
       allowedKinds: ["Picture", "scalar", "boolean", "object"],
-      allowComposite: false,
+      allowComposite: true,
     },
     ...formFieldCommonProperties,
   },

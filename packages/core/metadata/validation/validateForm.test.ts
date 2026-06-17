@@ -61,6 +61,38 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts owner form-only table paths described by additional columns", () => {
+    const project = createProject({
+      ownerDir: "Отчет",
+      ownerName: "АнализТрансляцииПроводок",
+      owner: ["{}"],
+      form: [
+        "Реквизиты:",
+        "  Отчет:",
+        "    Тип: ОтчетОбъект.АнализТрансляцииПроводок",
+        "    ДополнительныеКолонки:",
+        "      Отчет.ТабПравилаВычисленияПараметров:",
+        "        ПолеБД:",
+        "          Тип: Строка",
+        "        СпособВычисленияПараметра:",
+        "          Тип: Перечисление.СпособыВычисленияПараметровОперандов",
+        "Элементы:",
+        "  ТабПравилаВычисленияПараметров:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Отчет.ТабПравилаВычисленияПараметров",
+        "    Элементы:",
+        "      ПолеБД:",
+        "        Вид: ПолеВвода",
+        "        ПутьКДанным: Отчет.ТабПравилаВычисленияПараметров.ПолеБД",
+        "      СпособВычисленияПараметра:",
+        "        Вид: ПолеВвода",
+        "        ПутьКДанным: Отчет.ТабПравилаВычисленияПараметров.СпособВычисленияПараметра",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("resolves owner tabular section fields lazily through owner cache", () => {
     const project = createProject({
       owner: [
@@ -250,6 +282,25 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts composite PictureField data path when one terminal kind is compatible", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Картинка:",
+        "    Тип:",
+        "      - Картинка",
+        "      - Число",
+        "Элементы:",
+        "  Картинка:",
+        "    Вид: ПолеРисунка",
+        "    КартинкаЗначений: ОбщаяКартинка.Состояния",
+        "    ПутьКДанным: Картинка",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("accepts scalar CheckBoxField data path", () => {
     const project = createProject({
       form: [
@@ -305,6 +356,31 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts composite TableCheckBoxField data path when one terminal kind is compatible", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Настройки:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      Пометка:",
+        "        Тип:",
+        "          - Булево",
+        "          - Число(1, 0)",
+        "Элементы:",
+        "  Настройки:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Настройки",
+        "    Элементы:",
+        "      Пометка:",
+        "        Вид: ПолеФлажок",
+        "        ПутьКДанным: Настройки.Пометка",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("accepts scalar table row picture data path", () => {
     const project = createProject({
       form: [
@@ -314,6 +390,28 @@ describe("validateForm", () => {
         "    Колонки:",
         "      ИндексКартинки:",
         "        Тип: Число",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Таблица",
+        "    ПутьКДаннымКартинкиСтроки: Таблица.ИндексКартинки",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts composite table row picture data path when one terminal kind is compatible", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Таблица:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      ИндексКартинки:",
+        "        Тип:",
+        "          - Число",
+        "          - Перечисление.Состояния",
         "Элементы:",
         "  Таблица:",
         "    Вид: ТаблицаФормы",
@@ -747,6 +845,30 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts GanttChart as a table data source for GanttChartField table", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  ДиаграммаГанта:",
+        "    Тип: ДиаграммаГанта",
+        "Элементы:",
+        "  ДиаграммаГанта:",
+        "    Вид: ПолеДиаграммыГанта",
+        "    Таблица:",
+        "      ПутьКДанным: ДиаграммаГанта",
+        "      Элементы:",
+        "        Точка:",
+        "          Вид: ПолеНадписи",
+        "          ПутьКДанным: ДиаграммаГанта.Point",
+        "        Текст:",
+        "          Вид: ПолеВвода",
+        "          ПутьКДанным: ДиаграммаГанта.Text",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("accepts constants set data paths through constant metadata files", () => {
     const project = createProject({
       form: [
@@ -852,6 +974,127 @@ describe("validateForm", () => {
         "  Количество:",
         "    Вид: ПолеВвода",
         "    ПутьКДанным: Объект.RegisterRecords.Продажи.Количество",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts accounting RegisterRecords virtual columns", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Операция",
+      owner: [
+        "Движения:",
+        "  - РегистрБухгалтерии.Хозрасчетный",
+      ],
+      extraOwners: [
+        {
+          dir: "РегистрБухгалтерии",
+          name: "Хозрасчетный",
+          yaml: [
+            "ПланСчетов: ChartOfAccounts.Хозрасчетный",
+            "Измерения:",
+            "  Валюта:",
+            "    Тип: Справочник.Валюты",
+            "Ресурсы:",
+            "  Количество:",
+            "    Тип: Число",
+          ],
+        },
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Операция",
+        "Элементы:",
+        "  СчетДт:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.RegisterRecords.Хозрасчетный.AccountDr",
+        "  СубконтоДт1:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.RegisterRecords.Хозрасчетный.ExtDimensionDr1",
+        "  ВалютаДт:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.RegisterRecords.Хозрасчетный.ВалютаDr",
+        "  КоличествоКт:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.RegisterRecords.Хозрасчетный.КоличествоCr",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts ChartOfAccounts ExtDimensionTypes virtual table paths", () => {
+    const project = createProject({
+      ownerDir: "ПланСчетов",
+      ownerName: "Хозрасчетный",
+      owner: [
+        "ВидыСубконто: ChartOfCharacteristicTypes.ВидыСубконтоХозрасчетные",
+        "ПризнакиУчетаСубконто:",
+        "  Валютный:",
+        "    Тип: Булево",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: ПланСчетов.Хозрасчетный",
+        "Элементы:",
+        "  ВидыСубконто:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Объект.ExtDimensionTypes",
+        "    Элементы:",
+        "      ВидСубконто:",
+        "        Вид: ПолеВвода",
+        "        ПутьКДанным: Объект.ExtDimensionTypes.ExtDimensionType",
+        "      ТолькоОбороты:",
+        "        Вид: ПолеФлажок",
+        "        ПутьКДанным: Объект.ExtDimensionTypes.TurnoversOnly",
+        "      Валютный:",
+        "        Вид: ПолеФлажок",
+        "        ПутьКДанным: Объект.ExtDimensionTypes.Валютный",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts ChartOfCharacteristicTypes ValueType data path", () => {
+    const project = createProject({
+      ownerDir: "ПланВидовХарактеристик",
+      ownerName: "ВидыСубконто",
+      owner: ["ТипЗначения: Справочник.ЗначенияСвойств"],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: ПланВидовХарактеристик.ВидыСубконто",
+        "Элементы:",
+        "  ТипЗначения:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.ValueType",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts ExchangePlan sent and received number data paths", () => {
+    const project = createProject({
+      ownerDir: "ПланОбмена",
+      ownerName: "Синхронизация",
+      owner: ["{}"],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: ПланОбмена.Синхронизация",
+        "Элементы:",
+        "  НомерОтправленного:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.SentNo",
+        "  НомерПринятого:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.ReceivedNo",
       ],
     })
 

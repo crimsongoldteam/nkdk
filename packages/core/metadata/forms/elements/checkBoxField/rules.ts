@@ -34,7 +34,7 @@ const CheckBoxFieldCommonRulesProperties = {
     type: "DataPath",
     defaultType: "boolean",
     allowedKinds: ["boolean", "scalar", "dateTime"],
-    allowComposite: false,
+    allowComposite: true,
   },
   ...formFieldCommonProperties,
 } as const satisfies MetadataItemRule["properties"]

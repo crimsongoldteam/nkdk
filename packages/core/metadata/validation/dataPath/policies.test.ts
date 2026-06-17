@@ -58,6 +58,16 @@ describe("validateResolvedDataPathPolicy", () => {
     ).toEqual([])
   })
 
+  it("allows composite terminal type when one of its kinds is allowed", () => {
+    expect(
+      validatePolicy({
+        rule: dataPathRule({ allowedKinds: ["Picture", "scalar"], allowComposite: true }),
+        kinds: ["object", "scalar"],
+        isComposite: true,
+      }),
+    ).toEqual([])
+  })
+
   it("reports terminal kind mismatch", () => {
     const diagnostics = validatePolicy({ rule: dataPathRule({ allowedKinds: ["tableSource"] }), kinds: ["boolean"] })
 

@@ -7,6 +7,7 @@ export type DataPathValueKind =
   | "dateTime"
   | "Picture"
   | "scalar"
+  | "typeDescription"
   | "object"
   | "tableSource"
   | "dynamicList"
@@ -54,6 +55,7 @@ export type DataPathTableInfo =
   | { kind: "ValueTable" }
   | { kind: "ValueTree" }
   | { kind: "ValueList" }
+  | { kind: "GanttChart" }
   | { kind: "DynamicList" }
   | { kind: "RegisterRecordSet"; owner: OwnerTypeRef }
   | { kind: "TabularSection"; owner: OwnerTypeRef; name: string }

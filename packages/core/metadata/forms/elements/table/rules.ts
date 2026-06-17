@@ -160,7 +160,7 @@ export const TableRules = {
       type: "DataPath",
       defaultType: "Picture",
       allowedKinds: ["Picture", "scalar", "boolean", "object"],
-      allowComposite: false,
+      allowComposite: true,
       order: 80,
     },
     rowSelectionMode: {

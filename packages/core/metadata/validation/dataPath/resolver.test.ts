@@ -2,9 +2,14 @@ import { describe, expect, it } from "vitest"
 import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
 import type { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
 import type { FormAttribute } from "~/metadata/forms/commonObjects/formAttribute/types"
+import { MetadataAccountingRegisterRules } from "~/metadata/appliedObjects/metadataAccountingRegister/rules"
+import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/metadataAccumulationRegister/rules"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
+import { MetadataChartOfAccountsRules } from "~/metadata/appliedObjects/metadataChartOfAccounts/rules"
+import { MetadataChartOfCharacteristicTypesRules } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules"
 import { MetadataConstantRules } from "~/metadata/appliedObjects/metadataConstant/rules"
 import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
+import { MetadataExchangePlanRules } from "~/metadata/appliedObjects/metadataExchangePlan/rules"
 import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
 import { MetadataReportRules } from "~/metadata/appliedObjects/metadataReport/rules"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
@@ -86,6 +91,61 @@ describe("resolveDataPath", () => {
       diagnostics: [
         expect.objectContaining({
           message: 'ПутьКДанным "Список.Unknown": неизвестная колонка "Unknown"',
+        }),
+      ],
+    })
+  })
+
+  it("resolves GanttChart as a table source", () => {
+    const result = resolve("ДиаграммаГанта", {
+      index: indexWithAttributes([attribute("ДиаграммаГанта", { type: ["GanttChart"] })]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "ДиаграммаГанта",
+        segments: ["ДиаграммаГанта"],
+        source: { kind: "formAttribute", name: "ДиаграммаГанта" },
+        typeInfo: { kinds: ["tableSource"], table: { kind: "GanttChart" }, sourceText: "GanttChart" },
+      },
+    })
+  })
+
+  it("resolves GanttChart virtual columns", () => {
+    const cases = [
+      ["ДиаграммаГанта.Point", "Point"],
+      ["ДиаграммаГанта.Text", "Text"],
+    ] as const
+
+    for (const [path, columnName] of cases) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("ДиаграммаГанта", { type: ["ДиаграммаГанта"] })]),
+        }),
+      ).toMatchObject({
+        status: "ok",
+        diagnostics: [],
+        target: {
+          value: path,
+          source: { kind: "tableColumn", table: "ДиаграммаГанта", name: columnName },
+          typeInfo: { kinds: ["scalar"], sourceText: `GanttChart.${columnName}` },
+        },
+      })
+    }
+  })
+
+  it("reports unknown GanttChart virtual columns as errors", () => {
+    const result = resolve("ДиаграммаГанта.Unknown", {
+      index: indexWithAttributes([attribute("ДиаграммаГанта", { type: ["GanttChart"] })]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "ДиаграммаГанта.Unknown": неизвестная колонка "Unknown"',
         }),
       ],
     })
@@ -474,6 +534,104 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("resolves owner form-only table paths through form additional columns", () => {
+    const result = resolve("Отчет.ТабПравилаВычисленияПараметров", {
+      index: indexWithAttributes([reportWithFormOnlyTable()]),
+      ownerCache: reportOwnerCache(),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Отчет.ТабПравилаВычисленияПараметров",
+        segments: ["Отчет", "ТабПравилаВычисленияПараметров"],
+        source: {
+          kind: "objectField",
+          owner: { kind: "ОтчетОбъект", name: "АнализТрансляцииПроводок" },
+          name: "ТабПравилаВычисленияПараметров",
+        },
+        typeInfo: { kinds: ["tableSource"], table: { kind: "ValueTable" } },
+      },
+    })
+  })
+
+  it("resolves owner form-only table columns through form additional columns", () => {
+    const result = resolve("Отчет.ТабПравилаВычисленияПараметров.ПолеБД", {
+      index: indexWithAttributes([reportWithFormOnlyTable()]),
+      ownerCache: reportOwnerCache(),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Отчет.ТабПравилаВычисленияПараметров.ПолеБД",
+        segments: ["Отчет", "ТабПравилаВычисленияПараметров", "ПолеБД"],
+        source: { kind: "tableColumn", table: "ТабПравилаВычисленияПараметров", name: "ПолеБД" },
+        typeInfo: { kinds: ["scalar"], sourceText: "string" },
+      },
+    })
+  })
+
+  it("resolves indexed owner form-only table columns through normalized additional columns paths", () => {
+    const result = resolve("Отчет.СписокВидовСубконто[0].Value", {
+      index: indexWithAttributes([reportWithFormOnlyTable()]),
+      ownerCache: reportOwnerCache(),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Отчет.СписокВидовСубконто[0].Value",
+        segments: ["Отчет", "СписокВидовСубконто[0]", "Value"],
+        source: { kind: "tableColumn", table: "СписокВидовСубконто", name: "Value" },
+        typeInfo: { kinds: ["scalar"], sourceText: "string" },
+      },
+    })
+  })
+
+  it("keeps unknown owner form-only table columns as errors", () => {
+    const result = resolve("Отчет.ТабПравилаВычисленияПараметров.НетТакойКолонки", {
+      index: indexWithAttributes([reportWithFormOnlyTable()]),
+      ownerCache: reportOwnerCache(),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message:
+            'ПутьКДанным "Отчет.ТабПравилаВычисленияПараметров.НетТакойКолонки": неизвестная колонка "НетТакойКолонки"',
+        }),
+      ],
+    })
+  })
+
+  it("keeps missing owner form-only table paths without additional columns as unknown attributes", () => {
+    const result = resolve("Отчет.ТабПравилаВычисленияПараметров.ПолеБД", {
+      index: indexWithAttributes([attribute("Отчет", { type: ["ReportObject.АнализТрансляцииПроводок"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ОтчетОбъект", name: "АнализТрансляцииПроводок" },
+          rule: MetadataReportRules,
+          model: { itemType: "MetadataReport" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message:
+            'ПутьКДанным "Отчет.ТабПравилаВычисленияПараметров.ПолеБД": неизвестный реквизит "ТабПравилаВычисленияПараметров"',
+        }),
+      ],
+    })
+  })
+
   it("resolves document RegisterRecords fields through document movements", () => {
     const result = resolve("Объект.RegisterRecords.Продажи.Period", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
@@ -554,6 +712,245 @@ describe("resolveDataPath", () => {
         source: { kind: "tableColumn", table: "НаборЗаписей", name: "Количество" },
         typeInfo: { kinds: ["scalar"], sourceText: "decimal" },
       },
+    })
+  })
+
+  it("resolves accounting RegisterRecords account columns from chart of accounts", () => {
+    const owners = documentWithAccountingRegisterRecords()
+
+    for (const path of [
+      "Объект.RegisterRecords.Хозрасчетный.Account",
+      "Объект.RegisterRecords.Хозрасчетный.AccountDr",
+      "Объект.RegisterRecords.Хозрасчетный.AccountCr",
+    ] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
+          ownerCache: owners,
+        }),
+      ).toMatchObject({
+        status: "ok",
+        diagnostics: [],
+        target: {
+          value: path,
+          source: { kind: "tableColumn", table: "Хозрасчетный" },
+          typeInfo: {
+            kinds: ["object"],
+            nextTypes: [{ kind: "ПланСчетов", name: "Хозрасчетный" }],
+            sourceText: "ChartOfAccounts.Хозрасчетный",
+          },
+        },
+      })
+    }
+  })
+
+  it("resolves accounting RegisterRecords ext dimensions as any columns", () => {
+    const owners = documentWithAccountingRegisterRecords()
+
+    for (const path of [
+      "Объект.RegisterRecords.Хозрасчетный.ExtDimension1",
+      "Объект.RegisterRecords.Хозрасчетный.ExtDimensionDr1",
+      "Объект.RegisterRecords.Хозрасчетный.ExtDimensionCr1",
+    ] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
+          ownerCache: owners,
+        }),
+      ).toMatchObject({
+        status: "ok",
+        diagnostics: [],
+        target: {
+          value: path,
+          source: { kind: "tableColumn", table: "Хозрасчетный" },
+          typeInfo: { kinds: ["any"], sourceText: "AccountingRegisterRecordSet.ExtDimension" },
+        },
+      })
+    }
+  })
+
+  it("resolves accounting RegisterRecords debit and credit fields from base register fields", () => {
+    const owners = documentWithAccountingRegisterRecords()
+
+    expect(
+      resolve("Объект.RegisterRecords.Хозрасчетный.ВалютаDr", {
+        index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
+        ownerCache: owners,
+      }),
+    ).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: { kind: "tableColumn", table: "Хозрасчетный", name: "ВалютаDr" },
+        typeInfo: {
+          kinds: ["object"],
+          nextTypes: [{ kind: "Справочник", name: "Валюты" }],
+          sourceText: "CatalogRef.Валюты",
+        },
+      },
+    })
+
+    expect(
+      resolve("Объект.RegisterRecords.Хозрасчетный.КоличествоCr", {
+        index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
+        ownerCache: owners,
+      }),
+    ).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: { kind: "tableColumn", table: "Хозрасчетный", name: "КоличествоCr" },
+        typeInfo: { kinds: ["scalar"], sourceText: "decimal" },
+      },
+    })
+  })
+
+  it("keeps unknown accounting RegisterRecords columns as errors", () => {
+    const result = resolve("Объект.RegisterRecords.Хозрасчетный.UnknownAccountingColumn", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
+      ownerCache: documentWithAccountingRegisterRecords(),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message:
+            'ПутьКДанным "Объект.RegisterRecords.Хозрасчетный.UnknownAccountingColumn": неизвестная колонка "UnknownAccountingColumn"',
+        }),
+      ],
+    })
+  })
+
+  it("does not resolve accounting virtual columns for accumulation RegisterRecords", () => {
+    const owners = ownerCache([
+      owner({
+        ref: { kind: "Документ", name: "Операция" },
+        rule: MetadataDocumentRules,
+        model: {
+          itemType: "MetadataDocument",
+          registerRecords: ["AccumulationRegister.Остатки"],
+        },
+      }),
+      owner({
+        ref: { kind: "РегистрНакопления", name: "Остатки" },
+        rule: MetadataAccumulationRegisterRules,
+        model: {
+          itemType: "MetadataAccumulationRegister",
+          resources: [{ name: "Количество", type: { type: ["decimal"] } }],
+        },
+      }),
+    ])
+
+    for (const path of [
+      "Объект.RegisterRecords.Остатки.AccountDr",
+      "Объект.RegisterRecords.Остатки.ExtDimensionDr1",
+    ] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
+          ownerCache: owners,
+        }),
+      ).toMatchObject({
+        status: "error",
+        diagnostics: [
+          expect.objectContaining({
+            message: `ПутьКДанным "${path}": неизвестная колонка "${path.split(".").at(-1)}"`,
+          }),
+        ],
+      })
+    }
+  })
+
+  it("resolves ChartOfAccounts ExtDimensionTypes as a virtual table", () => {
+    const result = resolve("Объект.ExtDimensionTypes", {
+      index: indexWithAttributes([attribute("Объект", { type: ["ChartOfAccountsRef.Хозрасчетный"] })]),
+      ownerCache: chartOfAccountsOwners(),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Объект.ExtDimensionTypes",
+        segments: ["Объект", "ExtDimensionTypes"],
+        source: { kind: "objectField", owner: { kind: "ПланСчетов", name: "Хозрасчетный" }, name: "ExtDimensionTypes" },
+        typeInfo: { kinds: ["tableSource"], table: { kind: "ValueTable" } },
+      },
+    })
+  })
+
+  it("resolves ChartOfAccounts ExtDimensionTypes virtual columns", () => {
+    const owners = chartOfAccountsOwners()
+
+    expect(
+      resolve("Объект.ExtDimensionTypes.ExtDimensionType", {
+        index: indexWithAttributes([attribute("Объект", { type: ["ChartOfAccountsRef.Хозрасчетный"] })]),
+        ownerCache: owners,
+      }),
+    ).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: { kind: "tableColumn", table: "ExtDimensionTypes", name: "ExtDimensionType" },
+        typeInfo: {
+          kinds: ["object"],
+          nextTypes: [{ kind: "ПланВидовХарактеристик", name: "ВидыСубконтоХозрасчетные" }],
+          sourceText: "ChartOfCharacteristicTypes.ВидыСубконтоХозрасчетные",
+        },
+      },
+    })
+
+    for (const path of [
+      "Объект.ExtDimensionTypes.TurnoversOnly",
+      "Объект.ExtDimensionTypes.ТолькоСальдо",
+      "Объект.ExtDimensionTypes.Валютный",
+    ] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Объект", { type: ["ChartOfAccountsRef.Хозрасчетный"] })]),
+          ownerCache: owners,
+        }),
+      ).toMatchObject({
+        status: "ok",
+        diagnostics: [],
+        target: {
+          value: path,
+          typeInfo: { kinds: ["boolean"] },
+        },
+      })
+    }
+  })
+
+  it("keeps unknown ChartOfAccounts ExtDimensionTypes columns as errors", () => {
+    const result = resolve("Объект.ExtDimensionTypes.Unknown", {
+      index: indexWithAttributes([attribute("Объект", { type: ["ChartOfAccountsRef.Хозрасчетный"] })]),
+      ownerCache: chartOfAccountsOwners(),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.ExtDimensionTypes.Unknown": неизвестная колонка "Unknown"',
+        }),
+      ],
+    })
+  })
+
+  it("keeps ExtDimensionTypes scoped to ChartOfAccounts owners", () => {
+    const result = resolve("Объект.ExtDimensionTypes", {
+      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Номенклатура"] })]),
+      ownerCache: ownerCache([owner({ ref: { kind: "Справочник", name: "Номенклатура" } })]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.ExtDimensionTypes": неизвестный реквизит "ExtDimensionTypes"',
+        }),
+      ],
     })
   })
 
@@ -857,6 +1254,138 @@ describe("resolveDataPath", () => {
         source: { kind: "objectField", owner: { kind: "Справочник", name: "Номенклатура" }, name: "Код" },
       },
     })
+  })
+
+  it("resolves ValueType as a terminal type description standard attribute", () => {
+    const result = resolve("Объект.ValueType", {
+      index: indexWithAttributes([attribute("Объект", { type: ["ChartOfCharacteristicTypesRef.ВидыСубконто"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ПланВидовХарактеристик", name: "ВидыСубконто" },
+          rule: MetadataChartOfCharacteristicTypesRules,
+          model: { itemType: "MetadataChartOfCharacteristicTypes" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Объект.ValueType",
+        segments: ["Объект", "ValueType"],
+        source: { kind: "objectField", owner: { kind: "ПланВидовХарактеристик", name: "ВидыСубконто" }, name: "ТипЗначения" },
+        typeInfo: { kinds: ["typeDescription"], sourceText: "ПланВидовХарактеристик.ValueType" },
+      },
+    })
+  })
+
+  it("does not allow traversing through ValueType", () => {
+    const result = resolve("Объект.ValueType.Code", {
+      index: indexWithAttributes([attribute("Объект", { type: ["ChartOfCharacteristicTypesRef.ВидыСубконто"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ПланВидовХарактеристик", name: "ВидыСубконто" },
+          rule: MetadataChartOfCharacteristicTypesRules,
+          model: { itemType: "MetadataChartOfCharacteristicTypes" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.ValueType.Code": промежуточный реквизит "ValueType" не является объектом',
+        }),
+      ],
+    })
+  })
+
+  it("keeps ValueType scoped to owners with the standard attribute", () => {
+    const result = resolve("Объект.ValueType", {
+      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Номенклатура"] })]),
+      ownerCache: ownerCache([owner({ ref: { kind: "Справочник", name: "Номенклатура" } })]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.ValueType": неизвестный реквизит "ValueType"',
+        }),
+      ],
+    })
+  })
+
+  it("resolves ExchangePlan sent and received numbers as scalar standard attributes", () => {
+    const owners = ownerCache([
+      owner({
+        ref: { kind: "ПланОбмена", name: "Синхронизация" },
+        rule: MetadataExchangePlanRules,
+        model: { itemType: "MetadataExchangePlan" },
+      }),
+    ])
+
+    for (const [path, yamlName] of [
+      ["Объект.SentNo", "НомерОтправленного"],
+      ["Объект.ReceivedNo", "НомерПринятого"],
+    ] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Объект", { type: ["ExchangePlanRef.Синхронизация"] })]),
+          ownerCache: owners,
+        }),
+      ).toMatchObject({
+        status: "ok",
+        diagnostics: [],
+        target: {
+          value: path,
+          source: { kind: "objectField", owner: { kind: "ПланОбмена", name: "Синхронизация" }, name: yamlName },
+          typeInfo: { kinds: ["scalar"], sourceText: "ПланОбмена.SentReceivedNo" },
+        },
+      })
+    }
+  })
+
+  it("does not allow traversing through ExchangePlan sent number", () => {
+    const result = resolve("Объект.SentNo.Code", {
+      index: indexWithAttributes([attribute("Объект", { type: ["ExchangePlanRef.Синхронизация"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ПланОбмена", name: "Синхронизация" },
+          rule: MetadataExchangePlanRules,
+          model: { itemType: "MetadataExchangePlan" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.SentNo.Code": промежуточный реквизит "SentNo" не является объектом',
+        }),
+      ],
+    })
+  })
+
+  it("keeps ExchangePlan sent and received numbers scoped to owners with the standard attributes", () => {
+    for (const path of ["Объект.SentNo", "Объект.ReceivedNo"] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Номенклатура"] })]),
+          ownerCache: ownerCache([owner({ ref: { kind: "Справочник", name: "Номенклатура" } })]),
+        }),
+      ).toMatchObject({
+        status: "error",
+        diagnostics: [
+          expect.objectContaining({
+            message: `ПутьКДанным "${path}": неизвестный реквизит "${path.split(".").at(-1)}"`,
+          }),
+        ],
+      })
+    }
   })
 
   it("requires a child table DataPath to start with the parent table path", () => {
@@ -1179,6 +1708,84 @@ function documentWithRegisterRecords(): OwnerMetadataCache {
         itemType: "MetadataInformationRegister",
         dimensions: [{ name: "Склад", type: { type: ["CatalogRef.Склады"] } }],
         resources: [{ name: "Количество", type: { type: ["decimal"] } }],
+      },
+    }),
+  ])
+}
+
+function reportWithFormOnlyTable(): FormAttribute {
+  return {
+    ...attribute("Отчет", { type: ["ReportObject.АнализТрансляцииПроводок"] }),
+    additionalColumns: [
+      {
+        table: "Отчет.ТабПравилаВычисленияПараметров",
+        columns: [
+          column("ПолеБД", { type: ["string"] }),
+          column("СпособВычисленияПараметра", { type: ["EnumRef.СпособыВычисленияПараметровОперандов"] }),
+        ],
+      },
+      {
+        table: "Отчет.СписокВидовСубконто",
+        columns: [
+          column("Value", { type: ["string"] }),
+          column("Picture", { type: ["Picture"] }),
+        ],
+      },
+    ],
+  } as FormAttribute
+}
+
+function reportOwnerCache(): OwnerMetadataCache {
+  return ownerCache([
+    owner({
+      ref: { kind: "ОтчетОбъект", name: "АнализТрансляцииПроводок" },
+      rule: MetadataReportRules,
+      model: {
+        itemType: "MetadataReport",
+        attributes: [
+          { name: "ТабПравилаВычисленияПараметров", type: { type: ["ValueTable"] } },
+          { name: "СписокВидовСубконто", type: { type: ["ValueListType"] } },
+        ],
+      },
+    }),
+  ])
+}
+
+function documentWithAccountingRegisterRecords(): OwnerMetadataCache {
+  return ownerCache([
+    owner({
+      ref: { kind: "Документ", name: "Операция" },
+      rule: MetadataDocumentRules,
+      model: {
+        itemType: "MetadataDocument",
+        registerRecords: ["AccountingRegister.Хозрасчетный"],
+      },
+    }),
+    owner({
+      ref: { kind: "РегистрБухгалтерии", name: "Хозрасчетный" },
+      rule: MetadataAccountingRegisterRules,
+      model: {
+        itemType: "MetadataAccountingRegister",
+        chartOfAccounts: "ChartOfAccounts.Хозрасчетный",
+        dimensions: [{ name: "Валюта", type: { type: ["CatalogRef.Валюты"] } }],
+        resources: [{ name: "Количество", type: { type: ["decimal"] } }],
+      },
+    }),
+  ])
+}
+
+function chartOfAccountsOwners(): OwnerMetadataCache {
+  return ownerCache([
+    owner({
+      ref: { kind: "ПланСчетов", name: "Хозрасчетный" },
+      rule: MetadataChartOfAccountsRules,
+      model: {
+        itemType: "MetadataChartOfAccounts",
+        extDimensionTypes: "ChartOfCharacteristicTypes.ВидыСубконтоХозрасчетные",
+        extDimensionAccountingFlags: [
+          { name: "Суммовой", type: { type: ["boolean"] } },
+          { name: "Валютный", type: { type: ["boolean"] } },
+        ],
       },
     }),
   ])

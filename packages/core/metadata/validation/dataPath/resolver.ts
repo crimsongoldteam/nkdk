@@ -179,6 +179,41 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
     }
 
     const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: lookupSegment })
+    const virtualField = chartOfAccountsExtDimensionTypesField({
+      owner: ownerResult.owner,
+      segment: lookupSegment,
+    })
+    if (virtualField !== undefined) {
+      state = {
+        typeInfo: virtualField.typeInfo,
+        source: { kind: "objectField", owner: ownerResult.owner.ref, name: virtualField.name },
+        tableSource: virtualField.tableSource,
+      }
+
+      if (isLast) return okTarget({ value, segments, state })
+      continue
+    }
+
+    const formOnlyTable = formOnlyTableFromAdditionalColumns({
+      index: params.index,
+      segments,
+      segmentIndex: index,
+      segment: lookupSegment,
+    })
+    if (
+      formOnlyTable !== undefined &&
+      (field === undefined || (field.tableSource === undefined && canUseFormOnlyTableForField(field.typeInfo)))
+    ) {
+      state = {
+        typeInfo: formOnlyTable.typeInfo,
+        source: { kind: "objectField", owner: ownerResult.owner.ref, name: formOnlyTable.name },
+        tableSource: formOnlyTable.tableSource,
+      }
+
+      if (isLast) return okTarget({ value, segments, state })
+      continue
+    }
+
     if (field === undefined) {
       return error(params, `ПутьКДанным "${value}": неизвестный реквизит "${segment}"`)
     }
@@ -193,6 +228,37 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
   }
 
   return okTarget({ value, segments, state })
+}
+
+function canUseFormOnlyTableForField(typeInfo: DataPathTypeInfo): boolean {
+  return isUnknownTypeInfo(typeInfo) || typeInfo.kinds.includes("tableSource")
+}
+
+function formOnlyTableFromAdditionalColumns(params: {
+  index: FormDataPathIndex
+  segments: readonly string[]
+  segmentIndex: number
+  segment: string
+}): { name: string; typeInfo: DataPathTypeInfo; tableSource: FormDataPathTableSource } | undefined {
+  const tablePath = normalizeIndexedPath(params.segments.slice(0, params.segmentIndex + 1).join("."))
+  const columns = params.index.additionalColumnsByTablePath.get(tablePath)
+  if (columns === undefined) return undefined
+
+  const table = { kind: "ValueTable" as const }
+  return {
+    name: params.segment,
+    typeInfo: {
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table,
+      sourceText: `AdditionalColumns.${tablePath}`,
+    },
+    tableSource: {
+      table,
+      columns,
+      hasColumns: true,
+    },
+  }
 }
 
 function standardPeriodField(segment: string): { typeInfo: DataPathTypeInfo } | undefined {
@@ -407,8 +473,87 @@ function tableSourceFromColumn(params: {
   return {
     table,
     columns,
-    hasColumns: columns.size > 0 || table.kind === "ValueList" || table.kind === "RegisterRecordSet",
+    hasColumns: columns.size > 0 || table.kind === "ValueList" || table.kind === "GanttChart" || table.kind === "RegisterRecordSet",
   }
+}
+
+function chartOfAccountsExtDimensionTypesField(params: {
+  owner: OwnerMetadata
+  segment: string
+}): { name: string; typeInfo: DataPathTypeInfo; tableSource: FormDataPathTableSource } | undefined {
+  if (params.segment !== "ExtDimensionTypes") return undefined
+  if (!isChartOfAccountsOwner(params.owner.ref)) return undefined
+
+  const table = { kind: "ValueTable" as const }
+  return {
+    name: params.segment,
+    typeInfo: {
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table,
+      sourceText: "ChartOfAccounts.ExtDimensionTypes",
+    },
+    tableSource: {
+      table,
+      columns: chartOfAccountsExtDimensionTypesColumns(params.owner),
+      hasColumns: true,
+    },
+  }
+}
+
+function chartOfAccountsExtDimensionTypesColumns(owner: OwnerMetadata): FormDataPathTableSource["columns"] {
+  const columns = new Map<string, TableColumnSource>()
+  columns.set("ExtDimensionType", {
+    name: "ExtDimensionType",
+    typeInfo: chartOfAccountsExtDimensionTypeInfo(owner.model),
+  })
+
+  for (const name of ["TurnoversOnly", "ТолькоСальдо"]) {
+    columns.set(name, {
+      name,
+      typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: `ChartOfAccounts.ExtDimensionTypes.${name}` },
+    })
+  }
+
+  for (const name of chartOfAccountsExtDimensionAccountingFlagNames(owner.model)) {
+    columns.set(name, {
+      name,
+      typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "ChartOfAccounts.ExtDimensionAccountingFlag" },
+    })
+  }
+
+  return columns
+}
+
+function chartOfAccountsExtDimensionTypeInfo(model: unknown): DataPathTypeInfo {
+  const value = modelObjectValue(model, "extDimensionTypes")
+  if (typeof value !== "string") return { kinds: ["unknown"], nextTypes: [], sourceText: "ChartOfAccounts.ExtDimensionTypes.ExtDimensionType" }
+
+  const prefix = "ChartOfCharacteristicTypes."
+  if (!value.startsWith(prefix)) return { kinds: ["unknown"], nextTypes: [], sourceText: value }
+
+  const name = value.substring(prefix.length)
+  if (name.length === 0) return { kinds: ["unknown"], nextTypes: [], sourceText: value }
+
+  return {
+    kinds: ["object"],
+    nextTypes: [{ kind: "ПланВидовХарактеристик", name }],
+    sourceText: value,
+  }
+}
+
+function chartOfAccountsExtDimensionAccountingFlagNames(model: unknown): string[] {
+  const flags = modelObjectValue(model, "extDimensionAccountingFlags")
+  if (!Array.isArray(flags)) return []
+
+  return flags
+    .map((flag) => modelObjectValue(flag, "name"))
+    .filter((name): name is string => typeof name === "string" && name.length > 0)
+}
+
+function modelObjectValue(model: unknown, key: string): unknown {
+  if (typeof model !== "object" || model === null) return undefined
+  return (model as Record<string, unknown>)[key]
 }
 
 function resolveRegisterRecordSetColumn(params: {
@@ -423,8 +568,13 @@ function resolveRegisterRecordSetColumn(params: {
 
   const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: params.segment })
   const virtualStandardColumn = registerRecordSetStandardColumn(params.segment, field?.name)
+  const accountingVirtualColumn = accountingRegisterRecordSetColumn({
+    owner: ownerResult.owner,
+    segment: params.segment,
+  })
   if (field === undefined) {
     if (virtualStandardColumn !== undefined) return { status: "ok", column: virtualStandardColumn }
+    if (accountingVirtualColumn !== undefined) return { status: "ok", column: accountingVirtualColumn }
     return { status: "ok" }
   }
 
@@ -436,6 +586,81 @@ function resolveRegisterRecordSetColumn(params: {
         ? virtualStandardColumn.typeInfo
         : field.typeInfo,
     },
+  }
+}
+
+function accountingRegisterRecordSetColumn(params: {
+  owner: OwnerMetadata
+  segment: string
+}): TableColumnSource | undefined {
+  if (params.owner.ref.kind !== "РегистрБухгалтерии") return undefined
+
+  const accountColumn = accountingRegisterAccountColumn(params.owner, params.segment)
+  if (accountColumn !== undefined) return accountColumn
+
+  const extDimensionColumn = accountingRegisterExtDimensionColumn(params.segment)
+  if (extDimensionColumn !== undefined) return extDimensionColumn
+
+  return accountingRegisterDebitCreditFieldColumn(params.owner, params.segment)
+}
+
+function accountingRegisterAccountColumn(owner: OwnerMetadata, segment: string): TableColumnSource | undefined {
+  if (segment !== "Account" && segment !== "AccountDr" && segment !== "AccountCr") return undefined
+
+  const chartOfAccounts = accountingRegisterChartOfAccounts(owner.model)
+  if (chartOfAccounts === undefined) return undefined
+
+  return {
+    name: segment,
+    typeInfo: {
+      kinds: ["object"],
+      nextTypes: [chartOfAccounts],
+      sourceText: `ChartOfAccounts.${chartOfAccounts.name ?? ""}`,
+    },
+  }
+}
+
+function accountingRegisterChartOfAccounts(model: unknown): OwnerTypeRef | undefined {
+  if (typeof model !== "object" || model === null) return undefined
+
+  const value = (model as Record<string, unknown>).chartOfAccounts
+  if (typeof value !== "string") return undefined
+
+  const prefix = "ChartOfAccounts."
+  if (!value.startsWith(prefix)) return undefined
+
+  const name = value.substring(prefix.length)
+  if (name.length === 0) return undefined
+
+  return { kind: "ПланСчетов", name }
+}
+
+function accountingRegisterExtDimensionColumn(segment: string): TableColumnSource | undefined {
+  const match = /^ExtDimension(?:Dr|Cr)?(?<number>[1-9]\d?)$/.exec(segment)
+  const number = match?.groups?.number
+  if (number === undefined || Number(number) > 50) return undefined
+
+  return {
+    name: segment,
+    typeInfo: {
+      kinds: ["any"],
+      nextTypes: [],
+      sourceText: "AccountingRegisterRecordSet.ExtDimension",
+    },
+  }
+}
+
+function accountingRegisterDebitCreditFieldColumn(owner: OwnerMetadata, segment: string): TableColumnSource | undefined {
+  const match = /^(?<name>.+)(?:Dr|Cr)$/.exec(segment)
+  const name = match?.groups?.name
+  if (name === undefined) return undefined
+
+  const field = resolveObjectFieldSegment({ index: owner.fieldIndex, segment: name })
+  if (field === undefined) return undefined
+
+  return {
+    name: segment,
+    typeInfo: field.typeInfo,
   }
 }
 
@@ -483,6 +708,7 @@ function tableNameForTableSource(params: {
   if (table?.kind === "TabularSection") return table.name
   if (table?.kind === "RegisterRecordSet" && params.state.source.kind === "registerRecordSet") return params.state.source.name
   if (params.state.source.kind === "tableColumn") return params.state.source.name
+  if (params.state.source.kind === "objectField") return params.state.source.name
   return segmentLookupName(params.segments[0] ?? "")
 }
 
@@ -514,6 +740,10 @@ function virtualTableColumn(params: {
     return valueListColumn(params.segment)
   }
 
+  if (params.tableSource.table.kind === "GanttChart") {
+    return ganttChartColumn(params.segment)
+  }
+
   if (params.segment === "RowsCount") {
     return {
       name: params.segment,
@@ -526,6 +756,19 @@ function virtualTableColumn(params: {
       name: params.segment,
       typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "Total" },
     }
+  }
+
+  return undefined
+}
+
+function ganttChartColumn(segment: string): TableColumnSource | undefined {
+  switch (segment) {
+    case "Point":
+    case "Text":
+      return {
+        name: segment,
+        typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: `GanttChart.${segment}` },
+      }
   }
 
   return undefined
@@ -627,7 +870,7 @@ function validateIntermediateType(params: {
 }
 
 function isScalarTerminalKind(kind: string): boolean {
-  return kind === "boolean" || kind === "dateTime" || kind === "Picture" || kind === "scalar"
+  return kind === "boolean" || kind === "dateTime" || kind === "Picture" || kind === "scalar" || kind === "typeDescription"
 }
 
 function isRegisterRecordsSegment(segment: string): boolean {
@@ -636,6 +879,10 @@ function isRegisterRecordsSegment(segment: string): boolean {
 
 function isDocumentOwner(ref: OwnerTypeRef): boolean {
   return ref.kind === "Документ" || ref.kind === "ДокументОбъект"
+}
+
+function isChartOfAccountsOwner(ref: OwnerTypeRef): boolean {
+  return ref.kind === "ПланСчетов" || ref.kind === "ПланСчетовОбъект"
 }
 
 function isSettingsComposerSegment(segment: string): boolean {

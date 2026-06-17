@@ -92,6 +92,21 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
     })
   })
 
+  it("maps GanttChart as a table source", () => {
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["GanttChart"] })).toEqual({
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table: { kind: "GanttChart" },
+      sourceText: "GanttChart",
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["ДиаграммаГанта"] })).toEqual({
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table: { kind: "GanttChart" },
+      sourceText: "ДиаграммаГанта",
+    })
+  })
+
   it("maps register record set types as table sources", () => {
     expect(typeDescriptionToDataPathTypeInfo({ type: ["InformationRegisterRecordSet.Остатки"] })).toEqual({
       kinds: ["tableSource"],
