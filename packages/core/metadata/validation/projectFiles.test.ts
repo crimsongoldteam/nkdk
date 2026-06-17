@@ -36,7 +36,7 @@ describe("validation project files", () => {
     touchProjectFile(projectDir, "Документ/Заказ/Свойства.yaml")
     touchProjectFile(projectDir, "Документ/Заказ/Формы/ФормаДокумента/Форма.yaml")
     touchProjectFile(projectDir, "Справочник/Товары/Команды/Команда.yaml")
-    touchProjectFile(projectDir, "Отчет/Продажи/Свойства.yaml")
+    touchProjectFile(projectDir, "Подсистема/Продажи/Свойства.yaml")
 
     const files = discoverValidationProjectFiles(projectDir)
 
@@ -47,7 +47,33 @@ describe("validation project files", () => {
       "Справочник/Товары/Формы/ФормаСписка/Форма.yaml",
     ])
     expect(files.find((file) => file.projectPath.includes("Команды"))).toBeUndefined()
-    expect(files.find((file) => file.projectPath.startsWith("Отчет/"))).toBeUndefined()
+    expect(files.find((file) => file.projectPath.startsWith("Подсистема/"))).toBeUndefined()
+  })
+
+  it("discovers properties for owner kinds with existing metadata rules", () => {
+    const projectDir = createProject()
+
+    for (const dir of [
+      "Отчет",
+      "РегистрБухгалтерии",
+      "РегистрРасчета",
+      "ПланВидовРасчета",
+      "ПланВидовХарактеристик",
+      "БизнесПроцесс",
+      "Задача",
+    ]) {
+      touchProjectFile(projectDir, `${dir}/Тест/Свойства.yaml`)
+    }
+
+    expect(discoverValidationProjectFiles(projectDir).map((file) => file.projectPath)).toEqual([
+      "БизнесПроцесс/Тест/Свойства.yaml",
+      "Задача/Тест/Свойства.yaml",
+      "Отчет/Тест/Свойства.yaml",
+      "ПланВидовРасчета/Тест/Свойства.yaml",
+      "ПланВидовХарактеристик/Тест/Свойства.yaml",
+      "РегистрБухгалтерии/Тест/Свойства.yaml",
+      "РегистрРасчета/Тест/Свойства.yaml",
+    ])
   })
 
   it("resolves a single relative properties file", () => {
@@ -101,10 +127,10 @@ describe("validation project files", () => {
   it("returns undefined for unsupported YAML files inside the project", () => {
     const projectDir = createProject()
     touchProjectFile(projectDir, "Справочник/Товары/Команды/Команда.yaml")
-    touchProjectFile(projectDir, "Отчет/Продажи/Свойства.yaml")
+    touchProjectFile(projectDir, "Подсистема/Продажи/Свойства.yaml")
 
     expect(resolveValidationProjectFile(projectDir, "Справочник/Товары/Команды/Команда.yaml")).toBeUndefined()
-    expect(resolveValidationProjectFile(projectDir, "Отчет/Продажи/Свойства.yaml")).toBeUndefined()
+    expect(resolveValidationProjectFile(projectDir, "Подсистема/Продажи/Свойства.yaml")).toBeUndefined()
     expect(discoverValidationProjectFiles(projectDir)).toEqual([])
   })
 })
