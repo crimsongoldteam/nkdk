@@ -142,6 +142,58 @@ describe("ProjectMetadataResolver", () => {
     ).toMatchObject({ ok: true })
   })
 
+  it("resolves members for owner kinds backed by validation project specs", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Отчет/ОтчетыПоСотрудникам/Свойства.yaml", [
+      "Реквизиты:",
+      "  Организация:",
+      "    Тип: Строка",
+    ])
+    writeProjectFile(projectDir, "РегистрБухгалтерии/Хозрасчетный/Свойства.yaml", [
+      "Ресурсы:",
+      "  Сумма:",
+      "    Тип: Число",
+    ])
+    writeProjectFile(projectDir, "РегистрРасчета/Начисления/Свойства.yaml", [
+      "Ресурсы:",
+      "  Результат:",
+      "    Тип: Число",
+    ])
+    writeProjectFile(projectDir, "ПланВидовРасчета/ОсновныеНачисления/Свойства.yaml", [
+      "Реквизиты:",
+      "  КодРасчета:",
+      "    Тип: Строка",
+    ])
+    writeProjectFile(projectDir, "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml", [
+      "Реквизиты:",
+      "  Использовать:",
+      "    Тип: Булево",
+    ])
+    writeProjectFile(projectDir, "БизнесПроцесс/Согласование/Свойства.yaml", [
+      "Реквизиты:",
+      "  Автор:",
+      "    Тип: Строка",
+    ])
+    writeProjectFile(projectDir, "Задача/ЗадачаИсполнителя/Свойства.yaml", [
+      "Реквизиты:",
+      "  Важность:",
+      "    Тип: Число",
+    ])
+    const resolver = createResolver(projectDir)
+
+    for (const target of [
+      "Отчет.ОтчетыПоСотрудникам.Реквизит.Организация",
+      "РегистрБухгалтерии.Хозрасчетный.Ресурс.Сумма",
+      "РегистрРасчета.Начисления.Ресурс.Результат",
+      "ПланВидовРасчета.ОсновныеНачисления.Реквизит.КодРасчета",
+      "ПланВидовХарактеристик.ВидыСубконто.Реквизит.Использовать",
+      "БизнесПроцесс.Согласование.Реквизит.Автор",
+      "Задача.ЗадачаИсполнителя.Реквизит.Важность",
+    ]) {
+      expect(resolver.resolveMember({ target: memberTarget(target) }), target).toMatchObject({ ok: true })
+    }
+  })
+
   it("resolves local forms from child form files when owner YAML does not contain reference-only form names", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", "Реквизиты: {}")

@@ -2,11 +2,16 @@ import "~/metadata/appliedObjects"
 import "~/metadata/commonObjects"
 import "~/metadata/forms"
 import type { TSchema } from "@sinclair/typebox"
+import { MetadataAccountingRegisterRules } from "~/metadata/appliedObjects/metadataAccountingRegister/rules"
 import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/metadataAccumulationRegister/rules"
+import { MetadataBusinessProcessRules } from "~/metadata/appliedObjects/metadataBusinessProcess/rules"
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { exportMetadataCatalogToJSONSchema } from "~/metadata/appliedObjects/metadataCatalog/toJSONSchema"
 import { MetadataChartOfAccountsRules } from "~/metadata/appliedObjects/metadataChartOfAccounts/rules"
+import { MetadataChartOfCalculationTypesRules } from "~/metadata/appliedObjects/metadataChartOfCalculationTypes/rules"
+import { MetadataChartOfCharacteristicTypesRules } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules"
+import { MetadataCalculationRegisterRules } from "~/metadata/appliedObjects/metadataCalculationRegister/rules"
 import { MetadataDataProcessorRules } from "~/metadata/appliedObjects/metadataDataProcessor/rules"
 import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
 import { exportMetadataDocumentToJSONSchema } from "~/metadata/appliedObjects/metadataDocument/toJSONSchema"
@@ -17,6 +22,8 @@ import { exportMetadataEnumerationToJSONSchema } from "~/metadata/appliedObjects
 import { MetadataExchangePlanRules } from "~/metadata/appliedObjects/metadataExchangePlan/rules"
 import { MetadataHTTPServiceRules } from "~/metadata/appliedObjects/metadataHTTPService/rules"
 import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
+import { MetadataReportRules } from "~/metadata/appliedObjects/metadataReport/rules"
+import { MetadataTaskRules } from "~/metadata/appliedObjects/metadataTask/rules"
 import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
 import {
   attachCollectedSchemaRefs,
@@ -68,6 +75,13 @@ export const validationProjectSpecs: readonly ValidationProjectSpec[] = [
     importModel: genericImportModel(MetadataDataProcessorRules),
   },
   {
+    kind: "report",
+    dir: "Отчет",
+    rule: MetadataReportRules,
+    exportSchema: createMetadataItemSchemaExporter(MetadataReportRules),
+    importModel: genericImportModel(MetadataReportRules),
+  },
+  {
     kind: "documentJournal",
     dir: "ЖурналДокументов",
     rule: MetadataDocumentJournalRules,
@@ -96,6 +110,20 @@ export const validationProjectSpecs: readonly ValidationProjectSpec[] = [
     importModel: genericImportModel(MetadataAccumulationRegisterRules),
   },
   {
+    kind: "accountingRegister",
+    dir: "РегистрБухгалтерии",
+    rule: MetadataAccountingRegisterRules,
+    exportSchema: createMetadataItemSchemaExporter(MetadataAccountingRegisterRules),
+    importModel: genericImportModel(MetadataAccountingRegisterRules),
+  },
+  {
+    kind: "calculationRegister",
+    dir: "РегистрРасчета",
+    rule: MetadataCalculationRegisterRules,
+    exportSchema: createMetadataItemSchemaExporter(MetadataCalculationRegisterRules),
+    importModel: genericImportModel(MetadataCalculationRegisterRules),
+  },
+  {
     kind: "exchangePlan",
     dir: "ПланОбмена",
     rule: MetadataExchangePlanRules,
@@ -108,6 +136,34 @@ export const validationProjectSpecs: readonly ValidationProjectSpec[] = [
     rule: MetadataChartOfAccountsRules,
     exportSchema: createMetadataItemSchemaExporter(MetadataChartOfAccountsRules),
     importModel: genericImportModel(MetadataChartOfAccountsRules),
+  },
+  {
+    kind: "chartOfCalculationTypes",
+    dir: "ПланВидовРасчета",
+    rule: MetadataChartOfCalculationTypesRules,
+    exportSchema: createMetadataItemSchemaExporter(MetadataChartOfCalculationTypesRules),
+    importModel: genericImportModel(MetadataChartOfCalculationTypesRules),
+  },
+  {
+    kind: "chartOfCharacteristicTypes",
+    dir: "ПланВидовХарактеристик",
+    rule: MetadataChartOfCharacteristicTypesRules,
+    exportSchema: createMetadataItemSchemaExporter(MetadataChartOfCharacteristicTypesRules),
+    importModel: genericImportModel(MetadataChartOfCharacteristicTypesRules),
+  },
+  {
+    kind: "businessProcess",
+    dir: "БизнесПроцесс",
+    rule: MetadataBusinessProcessRules,
+    exportSchema: createMetadataItemSchemaExporter(MetadataBusinessProcessRules),
+    importModel: genericImportModel(MetadataBusinessProcessRules),
+  },
+  {
+    kind: "task",
+    dir: "Задача",
+    rule: MetadataTaskRules,
+    exportSchema: createMetadataItemSchemaExporter(MetadataTaskRules),
+    importModel: genericImportModel(MetadataTaskRules),
   },
 ]
 
