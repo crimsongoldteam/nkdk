@@ -1,4 +1,5 @@
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
+import type { Color } from "~/metadata/commonObjects/color/types"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -35,6 +36,20 @@ const hasSettingsExtension = (data: ParameterValue | SettingsParameterValue): da
   (data as SettingsParameterValue).userSettingID !== undefined ||
   (data as SettingsParameterValue).userSettingPresentation !== undefined
 
+const isDcsAutoColorValue = (value: unknown): value is Color =>
+  typeof value === "object" &&
+  value !== null &&
+  !Array.isArray(value) &&
+  "type" in value &&
+  "value" in value &&
+  value.type === "Absolute" &&
+  value.value === "auto"
+
+const shouldHideDcsAutoColorValue = (
+  rule: SettingsParameterValuePropertyRule,
+  values: MetadataDcsMetadataValue[]
+): boolean => rule.valueType === "Color" && values.length === 1 && isDcsAutoColorValue(values[0])
+
 export const exportParameterValueToYAML = (params: {
   context: ConfigurationContext
   rule: SettingsParameterValuePropertyRule
@@ -44,7 +59,9 @@ export const exportParameterValueToYAML = (params: {
   const dcsRule = toDcsMetadataValueRule(rule)
 
   const values = normalizeValues(data.value)
-  const exportedValues = values.map((v) => exportDcsMetadataValueToYAML(context, dcsRule, v))
+  const hideAutoColorValue = shouldHideDcsAutoColorValue(rule, values)
+  const valuesForYAML = hideAutoColorValue ? [] : values
+  const exportedValues = valuesForYAML.map((v) => exportDcsMetadataValueToYAML(context, dcsRule, v))
   let значение: unknown
   if (exportedValues.length === 0) {
     значение = undefined
@@ -88,6 +105,10 @@ export const exportParameterValueToYAML = (params: {
           }
         : {}),
     } as SettingsParameterValueYAML
+  }
+
+  if (rule.valueType === "Color" && !hasUse && !hasValue && !hasElements) {
+    return null
   }
 
   return base as ParameterValueYAML

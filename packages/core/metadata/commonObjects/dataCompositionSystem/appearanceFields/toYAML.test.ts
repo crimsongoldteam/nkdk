@@ -20,4 +20,43 @@ describe("export Appearance to YAML", () => {
       Оформление: fixtureAppearanceFieldsYAML,
     })
   })
+
+  it("exports enabled DCS auto color as empty YAML value", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: {
+        itemType: "AppearanceFields",
+        ЦветТекста: {
+          parameter: "ЦветТекста",
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      Оформление: {
+        ЦветТекста: null,
+      },
+    })
+  })
+
+  it("exports disabled DCS auto color without YAML value", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: {
+        itemType: "AppearanceFields",
+        ЦветФона: {
+          parameter: "ЦветФона",
+          use: false,
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      Оформление: {
+        ЦветФона: {
+          Использовать: "Ложь",
+        },
+      },
+    })
+  })
 })

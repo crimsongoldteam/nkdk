@@ -46,6 +46,11 @@ const hasSettingsExtension = (data: ParameterValue | SettingsParameterValue): da
   (data as SettingsParameterValue).userSettingID !== undefined ||
   (data as SettingsParameterValue).userSettingPresentation !== undefined
 
+const shouldRestoreDcsAutoColorValue = (
+  rule: SettingsParameterValuePropertyRule,
+  data: ParameterValue | SettingsParameterValue
+): boolean => rule.valueType === "Color" && data.value === undefined
+
 const findReferenceParameterValue = (
   data: ParameterValue | SettingsParameterValue,
   referenceItems: ParameterValue[] | undefined,
@@ -71,8 +76,11 @@ export const exportParameterValueToDcsXML = (params: {
   const dcsRule = toDcsMetadataValueRule(rule)
 
   const values = normalizeValues(data.value)
+  const valuesForXML: MetadataDcsMetadataValue[] = shouldRestoreDcsAutoColorValue(rule, data)
+    ? [{ type: "Absolute", value: "auto" }]
+    : values
   const valueNodes: ParameterValueDcsValueFragment[] = []
-  for (const v of values) {
+  for (const v of valuesForXML) {
     const fragment = exportDcsMetadataValueToDcsXML({ context, rule: dcsRule, data: v })
     valueNodes.push(fragment["dcscor:value"] as ParameterValueDcsValueFragment)
   }
