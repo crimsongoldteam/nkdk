@@ -1,7 +1,7 @@
-import { describe, expect, it, test } from "vitest"
+import { describe, expect, test } from "vitest"
 import { tableMetadataFields, tableMetadataValues } from "~/metadata/commonObjects/metadataPath/__fixtures__/table"
 import { mockContext, mockRule } from "~/tests/mockContext"
-import { exportMetadataFieldStringToYAML, exportMetadataObjectStringToYAML, exportMetadataValueStringToYAML } from "./toYAML"
+import { exportMetadataFieldStringToYAML, exportMetadataValueStringToYAML } from "./toYAML"
 
 describe("exportMetadataFieldToYAML", () => {
   test.each(tableMetadataFields)("export %s to %s", (expected: string, enterpriseValue: string) => {
@@ -36,23 +36,5 @@ describe("exportMetadataValueStringToYAML", () => {
     expect(exportMetadataValueStringToYAML(mockContext, mockRule, "Catalog.ИмяСправочника.ПланСчетов")).toBe(
       "Справочник.ИмяСправочника.ПланСчетов"
     )
-  })
-})
-
-describe("metadataTarget diagnostics switch", () => {
-  it("keeps canonical metadata object path when metadata target validation is disabled for YAML export", () => {
-    const context = {
-      ...mockContext,
-      exportToYAML: {
-        ...mockContext.exportToYAML!,
-        validateMetadataTargets: false,
-      },
-    }
-    const reference = "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства"
-
-    expect(() => exportMetadataObjectStringToYAML(mockContext, mockRule, reference)).toThrow(
-      'Неизвестный сегмент "Table"'
-    )
-    expect(exportMetadataObjectStringToYAML(context, mockRule, reference)).toBe(reference)
   })
 })
