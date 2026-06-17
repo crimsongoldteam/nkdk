@@ -70,7 +70,7 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
   }
 
   if (isTildeVariantPath(value)) {
-    return warning(params, `ПутьКДанным "${value}": вариантный путь пока не проверяется`)
+    return { status: "ok", diagnostics: [] }
   }
 
   const platformSource = getKnownPlatformFormSource(value)

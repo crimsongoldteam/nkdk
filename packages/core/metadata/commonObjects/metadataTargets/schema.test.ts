@@ -214,9 +214,13 @@ describe("buildMetadataTargetSchema", () => {
 
     expect(schema).toMatchObject({
       type: "string",
-      pattern: "^[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*(?:\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)*$",
       examples: ["ИмяРеквизита", "ИмяТаблицы.ИмяКолонки"],
     })
+    expectMatches(schema, "ИмяРеквизита")
+    expectMatches(schema, "ИмяТаблицы.ИмяКолонки")
+    expectMatches(schema, "~Список.DefaultPicture")
+    expectMatches(schema, "~Список.Period~Список.Период")
+    expectNotMatches(schema, "Список[0].Поле")
     expect(String(schema.description)).toContain("string")
   })
 

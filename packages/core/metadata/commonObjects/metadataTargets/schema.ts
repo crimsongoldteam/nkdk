@@ -267,10 +267,12 @@ function dataPathSchema(constraint: Extract<MetadataTargetConstraint, { kind: "d
       ? ""
       : ` Допустимые виды значения: ${constraint.allowedKinds.join(", ")}.`
   const composite = constraint.allowComposite === true ? " Составные значения разрешены." : " Составные значения запрещены."
+  const simplePathPattern = `${METADATA_NAME_PATTERN}(?:\\.${METADATA_NAME_PATTERN})*`
+  const tildeVariantPathPattern = `~${simplePathPattern}(?:~${simplePathPattern})*`
   return Type.String({
-    pattern: `^${METADATA_NAME_PATTERN}(?:\\.${METADATA_NAME_PATTERN})*$`,
+    pattern: `^(?:${simplePathPattern}|${tildeVariantPathPattern})$`,
     examples: ["ИмяРеквизита", "ИмяТаблицы.ИмяКолонки"],
-    description: `Путь к данным формы: ИмяРеквизита или ИмяТаблицы.ИмяКолонки.${allowedKinds}${composite} Реальные поля проверяются validate.`,
+    description: `Путь к данным формы: ИмяРеквизита или ИмяТаблицы.ИмяКолонки.${allowedKinds}${composite} Вариантные пути с "~" сохраняются как есть и не проверяются. Реальные поля проверяются validate.`,
   })
 }
 

@@ -550,7 +550,7 @@ describe("validateForm", () => {
     ])
   })
 
-  it("warns for unsupported tilde variant paths", () => {
+  it("skips tilde variant paths without diagnostics", () => {
     const project = createProject({
       form: [
         "Элементы:",
@@ -560,12 +560,7 @@ describe("validateForm", () => {
       ],
     })
 
-    expect(runValidateForm(project)).toEqual([
-      expect.objectContaining({
-        severity: "warning",
-        message: 'ПутьКДанным "~Список.Period~Список.Период": вариантный путь пока не проверяется',
-      }),
-    ])
+    expect(runValidateForm(project)).toEqual([])
   })
 
   it("validates DataPath values inside singleton element child items", () => {
