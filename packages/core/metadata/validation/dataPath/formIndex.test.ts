@@ -81,6 +81,32 @@ describe("buildFormDataPathIndex", () => {
     })
   })
 
+  it("normalizes indexed additional table column paths", () => {
+    const index = buildIndex({
+      attributes: [
+        {
+          ...attribute("Доверенность", { type: ["ValueTable"] }),
+          additionalColumns: [
+            {
+              table: "Доверенность[0].Документ[0]",
+              columns: [column("Довер", { type: ["ValueTable"] })],
+            },
+          ],
+        } as FormAttribute,
+      ],
+    })
+
+    expect(index.additionalColumnsByTablePath.get("Доверенность.Документ")?.get("Довер")).toEqual({
+      name: "Довер",
+      typeInfo: {
+        kinds: ["tableSource"],
+        nextTypes: [],
+        table: { kind: "ValueTable" },
+        sourceText: "ValueTable",
+      },
+    })
+  })
+
   it("indexes ValueTree columns from the attribute columns", () => {
     const index = buildIndex({
       attributes: [

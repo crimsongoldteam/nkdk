@@ -6,6 +6,7 @@ import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/
 import { MetadataConstantRules } from "~/metadata/appliedObjects/metadataConstant/rules"
 import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
 import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
+import { MetadataReportRules } from "~/metadata/appliedObjects/metadataReport/rules"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { buildFormDataPathIndex, type FormDataPathIndex } from "./formIndex"
@@ -106,6 +107,86 @@ describe("resolveDataPath", () => {
         source: { kind: "tableColumn", table: "Товары", name: "Количество" },
         typeInfo: { kinds: ["scalar"], sourceText: "decimal" },
       },
+    })
+  })
+
+  it("resolves indexed ValueTable column names as row column paths", () => {
+    const result = resolve("Товары[0].Количество[0]", {
+      index: indexWithAttributes([
+        attribute("Товары", { type: ["ValueTable"] }, [column("Количество", { type: ["decimal"] })]),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Товары[0].Количество[0]",
+        segments: ["Товары[0]", "Количество[0]"],
+        source: { kind: "tableColumn", table: "Товары", name: "Количество" },
+        typeInfo: { kinds: ["scalar"], sourceText: "decimal" },
+      },
+    })
+  })
+
+  it("resolves nested indexed ValueTable columns through additional columns", () => {
+    const result = resolve("Доверенность[0].Документ[0].Довер[0].НомДовер", {
+      index: indexWithAttributes([
+        {
+          ...attribute("Доверенность", { type: ["ValueTable"] }, [
+            column("Документ", { type: ["ValueTable"] }),
+          ]),
+          additionalColumns: [
+            {
+              table: "Доверенность.Документ",
+              columns: [column("Довер", { type: ["ValueTable"] })],
+            },
+            {
+              table: "Доверенность.Документ.Довер",
+              columns: [column("НомДовер", { type: ["string"] })],
+            },
+          ],
+        } as FormAttribute,
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Доверенность[0].Документ[0].Довер[0].НомДовер",
+        segments: ["Доверенность[0]", "Документ[0]", "Довер[0]", "НомДовер"],
+        source: { kind: "tableColumn", table: "Довер", name: "НомДовер" },
+        typeInfo: { kinds: ["scalar"], sourceText: "string" },
+      },
+    })
+  })
+
+  it("keeps unknown nested indexed ValueTable columns as errors", () => {
+    const result = resolve("Доверенность[0].Документ[0].НетТакойКолонки", {
+      index: indexWithAttributes([
+        {
+          ...attribute("Доверенность", { type: ["ValueTable"] }, [
+            column("Документ", { type: ["ValueTable"] }),
+          ]),
+          additionalColumns: [
+            {
+              table: "Доверенность.Документ",
+              columns: [column("Довер", { type: ["ValueTable"] })],
+            },
+          ],
+        } as FormAttribute,
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message:
+            'ПутьКДанным "Доверенность[0].Документ[0].НетТакойКолонки": неизвестная колонка "НетТакойКолонки"',
+        }),
+      ],
     })
   })
 
@@ -845,6 +926,31 @@ describe("resolveDataPath", () => {
           severity: "warning",
           source: "structure",
           message: 'ПутьКДанным "КомпоновщикНастроек.Settings.Filter": платформенный источник пока не проверяется',
+        }),
+      ],
+    })
+  })
+
+  it("returns a warning for a report SettingsComposer object data path", () => {
+    const result = resolve("Отчет.SettingsComposer.Settings.Filter.Use", {
+      index: indexWithAttributes([attribute("Отчет", { type: ["ReportObject.Анализ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ОтчетОбъект", name: "Анализ" },
+          rule: MetadataReportRules,
+          model: { itemType: "MetadataReport" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "warning",
+      diagnostics: [
+        expect.objectContaining({
+          severity: "warning",
+          source: "structure",
+          message:
+            'ПутьКДанным "Отчет.SettingsComposer.Settings.Filter.Use": платформенный источник пока не проверяется',
         }),
       ],
     })

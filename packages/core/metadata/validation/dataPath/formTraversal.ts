@@ -110,11 +110,15 @@ function collectDataPathProperties(params: {
       value,
       yamlPath: [...params.yamlPath, rule.yaml],
       ...(params.elementType !== undefined ? { elementType: params.elementType } : {}),
-      ...(params.tableContext !== undefined ? { tableContext: params.tableContext } : {}),
+      ...tableContextForDataPathRule(rule, params.tableContext),
     })
   }
 
   return occurrences
+}
+
+function tableContextForDataPathRule(rule: DataPathPropertyRule, tableContext: TableContext | undefined): { tableContext: TableContext } | {} {
+  return tableContext !== undefined && rule.yaml === "ПутьКДанным" ? { tableContext } : {}
 }
 
 function collectSingletonElementProperties(params: {

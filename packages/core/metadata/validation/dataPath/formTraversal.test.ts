@@ -63,7 +63,7 @@ describe("collectFormDataPathOccurrences", () => {
         value: "Товары.Группа",
         yamlPath: ["Элементы", "Таблица", "Элементы", "ГруппаКолонок", "ПутьКДаннымШапки"],
         elementType: "ColumnGroup",
-        tableContext: { dataPath: "Товары" },
+        tableContext: undefined,
         yaml: "ПутьКДаннымШапки",
       },
       {

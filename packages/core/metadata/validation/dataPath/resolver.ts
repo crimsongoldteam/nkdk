@@ -103,7 +103,7 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
     if (intermediateError !== undefined) return { status: "error", diagnostics: [intermediateError] }
 
     if (state.tableSource !== undefined) {
-      const tableResult = resolveTableColumn({ params, value, segments, state, segment, isLast })
+      const tableResult = resolveTableColumn({ params, value, segments, segmentIndex: index, state, segment, isLast })
       if (tableResult.status !== "continue") return tableResult.result
       state = tableResult.state
       continue
@@ -172,6 +172,10 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
 
       if (isLast) return okTarget({ value, segments, state })
       continue
+    }
+
+    if (isSettingsComposerSegment(lookupSegment) && isReportOwner(ownerResult.owner.ref)) {
+      return warning(params, `ПутьКДанным "${value}": платформенный источник пока не проверяется`)
     }
 
     const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: lookupSegment })
@@ -324,6 +328,7 @@ function resolveTableColumn(params: {
   params: ResolveDataPathParams
   value: string
   segments: readonly string[]
+  segmentIndex: number
   state: TraversalState
   segment: string
   isLast: boolean
@@ -340,25 +345,26 @@ function resolveTableColumn(params: {
     }
   }
 
-  const tablePath = params.segments.slice(0, -1).join(".")
+  const tablePath = params.segments.slice(0, params.segmentIndex).join(".")
   const normalizedTablePath = normalizeIndexedPath(tablePath)
+  const lookupSegment = segmentLookupName(params.segment)
   const registerRecordSetColumnResult = resolveRegisterRecordSetColumn({
     params: params.params,
     tableSource,
-    segment: params.segment,
+    segment: lookupSegment,
   })
   if (registerRecordSetColumnResult.status === "error") {
     return { status: "done", result: registerRecordSetColumnResult.result }
   }
 
   const column =
-    resolveTableColumnSource({ columns: tableSource.columns, segment: params.segment }) ??
+    resolveTableColumnSource({ columns: tableSource.columns, segment: lookupSegment }) ??
     resolveTableColumnSource({
       columns: params.params.index.additionalColumnsByTablePath.get(normalizedTablePath),
-      segment: params.segment,
+      segment: lookupSegment,
     }) ??
     registerRecordSetColumnResult.column ??
-    virtualTableColumn({ tableSource, segment: params.segment })
+    virtualTableColumn({ tableSource, segment: lookupSegment })
   if (column === undefined) {
     if (tableSource.hasColumns) {
       return {
@@ -374,10 +380,35 @@ function resolveTableColumn(params: {
   }
 
   const tableName = tableNameForTableSource({ state: params.state, segments: params.segments })
-  const state: TraversalState = stateFromTableColumn({ tableName, column })
+  const nestedTablePath = `${normalizedTablePath}.${column.name}`
+  const state: TraversalState = stateFromTableColumn({
+    tableName,
+    column,
+    tableSource: tableSourceFromColumn({
+      index: params.params.index,
+      column,
+      tablePath: nestedTablePath,
+    }),
+  })
   if (params.isLast) return { status: "done", result: okTarget({ value: params.value, segments: params.segments, state }) }
 
   return { status: "continue", state }
+}
+
+function tableSourceFromColumn(params: {
+  index: FormDataPathIndex
+  column: TableColumnSource
+  tablePath: string
+}): FormDataPathTableSource | undefined {
+  const table = params.column.typeInfo.table
+  if (table === undefined) return undefined
+
+  const columns = params.index.additionalColumnsByTablePath.get(params.tablePath) ?? new Map()
+  return {
+    table,
+    columns,
+    hasColumns: columns.size > 0 || table.kind === "ValueList" || table.kind === "RegisterRecordSet",
+  }
 }
 
 function resolveRegisterRecordSetColumn(params: {
@@ -451,6 +482,7 @@ function tableNameForTableSource(params: {
   const table = params.state.tableSource?.table
   if (table?.kind === "TabularSection") return table.name
   if (table?.kind === "RegisterRecordSet" && params.state.source.kind === "registerRecordSet") return params.state.source.name
+  if (params.state.source.kind === "tableColumn") return params.state.source.name
   return segmentLookupName(params.segments[0] ?? "")
 }
 
@@ -526,10 +558,15 @@ function valueListColumn(segment: string): TableColumnSource | undefined {
   return undefined
 }
 
-function stateFromTableColumn(params: { tableName: string; column: TableColumnSource }): TraversalState {
+function stateFromTableColumn(params: {
+  tableName: string
+  column: TableColumnSource
+  tableSource?: FormDataPathTableSource
+}): TraversalState {
   return {
     typeInfo: params.column.typeInfo,
     source: { kind: "tableColumn", table: params.tableName, name: params.column.name },
+    ...(params.tableSource !== undefined ? { tableSource: params.tableSource } : {}),
   }
 }
 
@@ -599,6 +636,14 @@ function isRegisterRecordsSegment(segment: string): boolean {
 
 function isDocumentOwner(ref: OwnerTypeRef): boolean {
   return ref.kind === "Документ" || ref.kind === "ДокументОбъект"
+}
+
+function isSettingsComposerSegment(segment: string): boolean {
+  return segment === "SettingsComposer" || segment === "КомпоновщикНастроек"
+}
+
+function isReportOwner(ref: OwnerTypeRef): boolean {
+  return ref.kind === "ОтчетОбъект"
 }
 
 function ownerError(result: Exclude<OwnerMetadataResult, { status: "ok" }>): ResolveDataPathResult {

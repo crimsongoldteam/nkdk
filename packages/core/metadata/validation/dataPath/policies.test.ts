@@ -92,6 +92,14 @@ describe("validateResolvedDataPathPolicy", () => {
     expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "boolean"] }), kinds: ["boolean"] })).toEqual([])
   })
 
+  it("accepts scalar and date terminal kinds when the rule explicitly allows checkbox-compatible values", () => {
+    const rule = dataPathRule({ allowedKinds: ["boolean", "scalar", "dateTime"] })
+
+    expect(validatePolicy({ rule, kinds: ["boolean"] })).toEqual([])
+    expect(validatePolicy({ rule, kinds: ["scalar"] })).toEqual([])
+    expect(validatePolicy({ rule, kinds: ["dateTime"] })).toEqual([])
+  })
+
   it("accepts object terminal kind when the rule explicitly allows it", () => {
     expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "object"] }), kinds: ["object"] })).toEqual([])
   })

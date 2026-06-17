@@ -250,6 +250,61 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts scalar CheckBoxField data path", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  ИндексВыбора:",
+        "    Тип: Число(1, 0)",
+        "Элементы:",
+        "  Использовать:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: ИндексВыбора",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts date CheckBoxField data path", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  СрокПринятия:",
+        "    Тип: Дата",
+        "Элементы:",
+        "  ПринятоВСрок:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: СрокПринятия",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts scalar TableCheckBoxField data path", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Настройки:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      Пометка:",
+        "        Тип: ПоложительноеЧисло(1, 0)",
+        "Элементы:",
+        "  Настройки:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Настройки",
+        "    Элементы:",
+        "      Пометка:",
+        "        Вид: ПолеФлажок",
+        "        ПутьКДанным: Настройки.Пометка",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("accepts scalar table row picture data path", () => {
     const project = createProject({
       form: [
@@ -314,6 +369,70 @@ describe("validateForm", () => {
     expect(messages(runValidateForm(project))).toContain('ПутьКДанным "Количество": путь колонки должен начинаться с "Таблица."')
   })
 
+  it("accepts table child footer data path outside parent table data path", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: [
+        "ТабличныеЧасти:",
+        "  Начисления:",
+        "    Реквизиты:",
+        "      НДФЛ:",
+        "        Тип: Число",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Заказ",
+        "  ИтогНДФЛ:",
+        "    Тип: Число",
+        "Элементы:",
+        "  Начисления:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Объект.Начисления",
+        "    Элементы:",
+        "      НДФЛ:",
+        "        Вид: ПолеВвода",
+        "        ПутьКДанным: Объект.Начисления.НДФЛ",
+        "        ПутьКДаннымПодвала: ИтогНДФЛ",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("reports unknown table child footer data path without parent table prefix error", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: [
+        "ТабличныеЧасти:",
+        "  Начисления:",
+        "    Реквизиты:",
+        "      НДФЛ:",
+        "        Тип: Число",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Заказ",
+        "Элементы:",
+        "  Начисления:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Объект.Начисления",
+        "    Элементы:",
+        "      НДФЛ:",
+        "        Вид: ПолеВвода",
+        "        ПутьКДанным: Объект.Начисления.НДФЛ",
+        "        ПутьКДаннымПодвала: НетТакогоИтога",
+      ],
+    })
+
+    expect(messages(runValidateForm(project))).toEqual([
+      'ПутьКДанным "НетТакогоИтога": неизвестный корень "НетТакогоИтога"',
+    ])
+  })
+
   it("accepts Number as an alias for the document YAML standard attribute name", () => {
     const project = createProject({
       ownerDir: "Документ",
@@ -359,6 +478,32 @@ describe("validateForm", () => {
         "  КодНоменклатуры:",
         "    Вид: ПолеВвода",
         "    ПутьКДанным: Объект.Товары.Номенклатура.Code",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts Owner as an alias with type inferred from catalog owners", () => {
+    const project = createProject({
+      ownerDir: "Справочник",
+      ownerName: "ПодарочныеСертификаты",
+      owner: ["Владельцы:", "  - Справочник.ВидыПодарочныхСертификатов"],
+      extraOwners: [
+        {
+          dir: "Справочник",
+          name: "ВидыПодарочныхСертификатов",
+          yaml: ["Реквизиты:", "  Валюта:", "    Тип: Справочник.Валюты"],
+        },
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Справочник.ПодарочныеСертификаты",
+        "Элементы:",
+        "  Валюта:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.Owner.Валюта",
       ],
     })
 
@@ -457,6 +602,35 @@ describe("validateForm", () => {
         "  Сумма:",
         "    Вид: ПолеВвода",
         "    ПутьКДанным: Объект.Товары[0].Сумма",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts indexed nested ValueTable paths from form additional columns", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Доверенность:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      Документ:",
+        "        Тип: ТаблицаЗначений",
+        "    ДополнительныеКолонки:",
+        "      Доверенность.Документ:",
+        "        Довер:",
+        "          Тип: ТаблицаЗначений",
+        "      Доверенность.Документ.Довер:",
+        "        СвДов:",
+        "          Тип: ТаблицаЗначений",
+        "      Доверенность.Документ.Довер.СвДов:",
+        "        НомДовер:",
+        "          Тип: Строка",
+        "Элементы:",
+        "  Номер:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Доверенность[0].Документ[0].Довер[0].СвДов[0].НомДовер",
       ],
     })
 
