@@ -96,6 +96,58 @@ describe("FilterItem JSON Schema", () => {
     ).toBe(true)
   })
 
+  it("accepts group presentation as design-time string", () => {
+    const compiled = compileFilterItemSchema()
+
+    expect(
+      compiled.Check([
+        {
+          ТипГруппы: "ГруппаИли",
+          Представление: '"ГруппаОрганизацияПредприятие"',
+        },
+      ])
+    ).toBe(true)
+  })
+
+  it("accepts disabled group with nested elements and design-time presentation", () => {
+    const compiled = compileFilterItemSchema()
+
+    expect(
+      compiled.Check([
+        {
+          Использование: "Ложь",
+          ТипГруппы: "ГруппаИли",
+          Элементы: [
+            {
+              Использование: "Ложь",
+              ЛевоеЗначение: ".ИсполняетсяТекущимПользователем",
+              ПравоеЗначение: "Истина",
+            },
+            {
+              Использование: "Ложь",
+              ЛевоеЗначение: ".СогласуетсяТекущимПользователем",
+              ПравоеЗначение: "Истина",
+            },
+          ],
+          Представление: '"Мои отчеты"',
+        },
+      ])
+    ).toBe(true)
+  })
+
+  it("accepts group user setting presentation as design-time string", () => {
+    const compiled = compileFilterItemSchema()
+
+    expect(
+      compiled.Check([
+        {
+          ТипГруппы: "ГруппаИ",
+          ПредставлениеПользовательскойНастройки: '"Ожидают обеспечения"',
+        },
+      ])
+    ).toBe(true)
+  })
+
   it("accepts nested groups with comparison items", () => {
     const compiled = compileFilterItemSchema()
 

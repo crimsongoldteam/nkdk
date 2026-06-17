@@ -2,6 +2,8 @@ import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { ExportToJSONSchemaFn } from "~/metadata/orchestration/property/fn"
+import { exportDcsMetadataValueToJSONSchema } from "../dcsMetadataValue/toJSONSchema"
+import { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 import { DcsMetadataTypedValueJSONSchema } from "../dscMetadataTypedValue/types"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 
@@ -9,6 +11,18 @@ const FilterItemRightValueJSONSchema = Type.Union([
   DcsMetadataTypedValueJSONSchema,
   Type.Array(DcsMetadataTypedValueJSONSchema),
 ])
+
+const FilterItemPresentationValueRule = {
+  type: "MetadataDcsMetadataValue",
+  valueType: "DesignTimeValue",
+} as const satisfies DcsMetadataValuePropertyRule
+
+const createFilterItemPresentationValueJSONSchema = (context: ConfigurationContext): TSchema =>
+  exportDcsMetadataValueToJSONSchema({
+    context,
+    rule: FilterItemPresentationValueRule,
+    value: undefined,
+  })
 
 const createFilterItemSchemaContext = (
   context: ConfigurationContext,
@@ -53,7 +67,10 @@ export const exportFilterItemToJSONSchema: ExportToJSONSchemaFn = ({ context }) 
     Type.Union([
       createFilterItemComparisonSchema(context),
       exportMetadataItemToJSONSchema({
-        context: createFilterItemSchemaContext(context, { FilterItem: Type.Array(This) }),
+        context: createFilterItemSchemaContext(context, {
+          FilterItem: Type.Array(This),
+          FilterItemPresentationValue: createFilterItemPresentationValueJSONSchema(context),
+        }),
         rule: FilterItemGroupRules,
       }),
     ])
