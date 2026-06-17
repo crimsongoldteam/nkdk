@@ -179,7 +179,7 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
     }
 
     const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: lookupSegment })
-    const virtualField = chartOfAccountsExtDimensionTypesField({
+    const virtualField = virtualOwnerField({
       owner: ownerResult.owner,
       segment: lookupSegment,
     })
@@ -496,13 +496,34 @@ function tableSourceFromColumn(params: {
   }
 }
 
+function virtualOwnerField(params: {
+  owner: OwnerMetadata
+  segment: string
+}): { name: string; typeInfo: DataPathTypeInfo; tableSource?: FormDataPathTableSource } | undefined {
+  return chartOfAccountsVirtualOwnerField(params) ?? chartOfCalculationTypesVirtualOwnerField(params)
+}
+
+function chartOfAccountsVirtualOwnerField(params: {
+  owner: OwnerMetadata
+  segment: string
+}): { name: string; typeInfo: DataPathTypeInfo; tableSource?: FormDataPathTableSource } | undefined {
+  if (!isChartOfAccountsOwner(params.owner.ref)) return undefined
+
+  if (params.segment === "ExtDimensionTypes") return chartOfAccountsExtDimensionTypesField(params)
+
+  const field = chartOfAccountsTerminalVirtualField(params.owner, params.segment)
+  if (field === undefined) return undefined
+
+  return {
+    name: params.segment,
+    typeInfo: field.typeInfo,
+  }
+}
+
 function chartOfAccountsExtDimensionTypesField(params: {
   owner: OwnerMetadata
   segment: string
-}): { name: string; typeInfo: DataPathTypeInfo; tableSource: FormDataPathTableSource } | undefined {
-  if (params.segment !== "ExtDimensionTypes") return undefined
-  if (!isChartOfAccountsOwner(params.owner.ref)) return undefined
-
+}): { name: string; typeInfo: DataPathTypeInfo; tableSource: FormDataPathTableSource } {
   const table = { kind: "ValueTable" as const }
   return {
     name: params.segment,
@@ -518,6 +539,31 @@ function chartOfAccountsExtDimensionTypesField(params: {
       hasColumns: true,
     },
   }
+}
+
+function chartOfAccountsTerminalVirtualField(owner: OwnerMetadata, segment: string): TableColumnSource | undefined {
+  if (segment === "Order" || segment === "Type") {
+    return {
+      name: segment,
+      typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: `ChartOfAccounts.${segment}` },
+    }
+  }
+
+  if (segment === "OffBalance") {
+    return {
+      name: segment,
+      typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "ChartOfAccounts.OffBalance" },
+    }
+  }
+
+  if (chartOfAccountsAccountingFlagNames(owner.model).includes(segment)) {
+    return {
+      name: segment,
+      typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "ChartOfAccounts.AccountingFlag" },
+    }
+  }
+
+  return undefined
 }
 
 function chartOfAccountsExtDimensionTypesColumns(owner: OwnerMetadata): FormDataPathTableSource["columns"] {
@@ -568,6 +614,66 @@ function chartOfAccountsExtDimensionAccountingFlagNames(model: unknown): string[
   return flags
     .map((flag) => modelObjectValue(flag, "name"))
     .filter((name): name is string => typeof name === "string" && name.length > 0)
+}
+
+function chartOfAccountsAccountingFlagNames(model: unknown): string[] {
+  const flags = modelObjectValue(model, "accountingFlags")
+  if (!Array.isArray(flags)) return []
+
+  return flags
+    .map((flag) => modelObjectValue(flag, "name"))
+    .filter((name): name is string => typeof name === "string" && name.length > 0)
+}
+
+function chartOfCalculationTypesVirtualOwnerField(params: {
+  owner: OwnerMetadata
+  segment: string
+}): { name: string; typeInfo: DataPathTypeInfo; tableSource?: FormDataPathTableSource } | undefined {
+  if (!isChartOfCalculationTypesOwner(params.owner.ref)) return undefined
+
+  if (params.segment === "ActionPeriodIsBasic") {
+    return {
+      name: params.segment,
+      typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "ChartOfCalculationTypes.ActionPeriodIsBasic" },
+    }
+  }
+
+  if (!isCalculationTypesVirtualTableName(params.segment)) return undefined
+
+  const table = { kind: "ValueTable" as const }
+  return {
+    name: params.segment,
+    typeInfo: {
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table,
+      sourceText: `ChartOfCalculationTypes.${params.segment}`,
+    },
+    tableSource: {
+      table,
+      columns: chartOfCalculationTypesVirtualTableColumns(params.owner),
+      hasColumns: true,
+    },
+  }
+}
+
+function chartOfCalculationTypesVirtualTableColumns(owner: OwnerMetadata): FormDataPathTableSource["columns"] {
+  const columns = new Map<string, TableColumnSource>()
+  columns.set("CalculationType", {
+    name: "CalculationType",
+    typeInfo: {
+      kinds: ["object"],
+      nextTypes: [owner.ref],
+      sourceText: `ChartOfCalculationTypes.${owner.ref.name}`,
+    },
+  })
+  return columns
+}
+
+function isCalculationTypesVirtualTableName(segment: string): boolean {
+  return segment === "BaseCalculationTypes" ||
+    segment === "LeadingCalculationTypes" ||
+    segment === "DisplacingCalculationTypes"
 }
 
 function modelObjectValue(model: unknown, key: string): unknown {
@@ -902,6 +1008,10 @@ function isDocumentOwner(ref: OwnerTypeRef): boolean {
 
 function isChartOfAccountsOwner(ref: OwnerTypeRef): boolean {
   return ref.kind === "ПланСчетов" || ref.kind === "ПланСчетовОбъект"
+}
+
+function isChartOfCalculationTypesOwner(ref: OwnerTypeRef): boolean {
+  return ref.kind === "ПланВидовРасчета" || ref.kind === "ПланВидовРасчетаОбъект"
 }
 
 function isSettingsComposerSegment(segment: string): boolean {

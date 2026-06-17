@@ -6,6 +6,7 @@ import { MetadataAccountingRegisterRules } from "~/metadata/appliedObjects/metad
 import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/metadataAccumulationRegister/rules"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { MetadataChartOfAccountsRules } from "~/metadata/appliedObjects/metadataChartOfAccounts/rules"
+import { MetadataChartOfCalculationTypesRules } from "~/metadata/appliedObjects/metadataChartOfCalculationTypes/rules"
 import { MetadataChartOfCharacteristicTypesRules } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules"
 import { MetadataConstantRules } from "~/metadata/appliedObjects/metadataConstant/rules"
 import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
@@ -1016,6 +1017,135 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("resolves ChartOfAccounts virtual owner fields", () => {
+    const owners = chartOfAccountsOwners()
+
+    for (const [path, kinds, sourceText] of [
+      ["Объект.Order", ["scalar"], "ChartOfAccounts.Order"],
+      ["Объект.Type", ["scalar"], "ChartOfAccounts.Type"],
+      ["Объект.OffBalance", ["boolean"], "ChartOfAccounts.OffBalance"],
+      ["Объект.Валютный", ["boolean"], "ChartOfAccounts.AccountingFlag"],
+    ] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Объект", { type: ["ChartOfAccountsRef.Хозрасчетный"] })]),
+          ownerCache: owners,
+        }),
+      ).toMatchObject({
+        status: "ok",
+        diagnostics: [],
+        target: {
+          value: path,
+          source: { kind: "objectField", owner: { kind: "ПланСчетов", name: "Хозрасчетный" } },
+          typeInfo: { kinds, sourceText },
+        },
+      })
+    }
+  })
+
+  it("keeps ChartOfAccounts virtual owner fields strict", () => {
+    const missingAccountingFlag = resolve("Объект.НалоговыйУчет", {
+      index: indexWithAttributes([attribute("Объект", { type: ["ChartOfAccountsRef.Хозрасчетный"] })]),
+      ownerCache: chartOfAccountsOwners(),
+    })
+
+    expect(missingAccountingFlag).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.НалоговыйУчет": неизвестный реквизит "НалоговыйУчет"',
+        }),
+      ],
+    })
+
+    const wrongOwner = resolve("Объект.OffBalance", {
+      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Номенклатура"] })]),
+      ownerCache: ownerCache([owner({ ref: { kind: "Справочник", name: "Номенклатура" } })]),
+    })
+
+    expect(wrongOwner).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.OffBalance": неизвестный реквизит "OffBalance"',
+        }),
+      ],
+    })
+  })
+
+  it("resolves ChartOfCalculationTypes virtual owner tables", () => {
+    const owners = chartOfCalculationTypesOwners()
+
+    for (const path of [
+      "Объект.BaseCalculationTypes",
+      "Объект.LeadingCalculationTypes",
+      "Объект.DisplacingCalculationTypes",
+    ] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Объект", { type: ["ChartOfCalculationTypesRef.Начисления"] })]),
+          ownerCache: owners,
+        }),
+      ).toMatchObject({
+        status: "ok",
+        diagnostics: [],
+        target: {
+          value: path,
+          source: { kind: "objectField", owner: { kind: "ПланВидовРасчета", name: "Начисления" } },
+          typeInfo: { kinds: ["tableSource"], table: { kind: "ValueTable" } },
+        },
+      })
+    }
+
+    expect(
+      resolve("Объект.BaseCalculationTypes.CalculationType", {
+        index: indexWithAttributes([attribute("Объект", { type: ["ChartOfCalculationTypesRef.Начисления"] })]),
+        ownerCache: owners,
+      }),
+    ).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: { kind: "tableColumn", table: "BaseCalculationTypes", name: "CalculationType" },
+        typeInfo: {
+          kinds: ["object"],
+          nextTypes: [{ kind: "ПланВидовРасчета", name: "Начисления" }],
+          sourceText: "ChartOfCalculationTypes.Начисления",
+        },
+      },
+    })
+  })
+
+  it("keeps ChartOfCalculationTypes virtual tables strict", () => {
+    const unknownColumn = resolve("Объект.BaseCalculationTypes.Unknown", {
+      index: indexWithAttributes([attribute("Объект", { type: ["ChartOfCalculationTypesRef.Начисления"] })]),
+      ownerCache: chartOfCalculationTypesOwners(),
+    })
+
+    expect(unknownColumn).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.BaseCalculationTypes.Unknown": неизвестная колонка "Unknown"',
+        }),
+      ],
+    })
+
+    const wrongOwner = resolve("Объект.BaseCalculationTypes", {
+      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Номенклатура"] })]),
+      ownerCache: ownerCache([owner({ ref: { kind: "Справочник", name: "Номенклатура" } })]),
+    })
+
+    expect(wrongOwner).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.BaseCalculationTypes": неизвестный реквизит "BaseCalculationTypes"',
+        }),
+      ],
+    })
+  })
+
   it("resolves RowsCount as a virtual table column", () => {
     const title = resolve("Объект.Товары.RowsCount", {
       yamlPath: ["Элементы", "Страница", "ПутьКДаннымЗаголовка"],
@@ -1848,6 +1978,21 @@ function chartOfAccountsOwners(): OwnerMetadataCache {
           { name: "Суммовой", type: { type: ["boolean"] } },
           { name: "Валютный", type: { type: ["boolean"] } },
         ],
+        accountingFlags: [
+          { name: "Валютный", type: { type: ["boolean"] } },
+        ],
+      },
+    }),
+  ])
+}
+
+function chartOfCalculationTypesOwners(): OwnerMetadataCache {
+  return ownerCache([
+    owner({
+      ref: { kind: "ПланВидовРасчета", name: "Начисления" },
+      rule: MetadataChartOfCalculationTypesRules,
+      model: {
+        itemType: "MetadataChartOfCalculationTypes",
       },
     }),
   ])

@@ -1086,6 +1086,61 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts ChartOfAccounts virtual owner fields", () => {
+    const project = createProject({
+      ownerDir: "ПланСчетов",
+      ownerName: "Хозрасчетный",
+      owner: [
+        "ПризнакиУчета:",
+        "  Валютный:",
+        "    Тип: Булево",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: ПланСчетов.Хозрасчетный",
+        "Элементы:",
+        "  Порядок:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.Order",
+        "  Забалансовый:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: Объект.OffBalance",
+        "  Валютный:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: Объект.Валютный",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts ChartOfCalculationTypes virtual owner tables", () => {
+    const project = createProject({
+      ownerDir: "ПланВидовРасчета",
+      ownerName: "Начисления",
+      owner: ["{}"],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: ПланВидовРасчета.Начисления",
+        "Элементы:",
+        "  БазовыеВидыРасчета:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Объект.BaseCalculationTypes",
+        "    Элементы:",
+        "      ВидРасчета:",
+        "        Вид: ПолеВвода",
+        "        ПутьКДанным: Объект.BaseCalculationTypes.CalculationType",
+        "  ПериодДействияБазовый:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: Объект.ActionPeriodIsBasic",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("accepts ChartOfCharacteristicTypes ValueType data path", () => {
     const project = createProject({
       ownerDir: "ПланВидовХарактеристик",
