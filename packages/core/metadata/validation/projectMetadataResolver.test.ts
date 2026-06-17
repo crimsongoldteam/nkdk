@@ -116,6 +116,32 @@ describe("ProjectMetadataResolver", () => {
     })
   })
 
+  it("resolves members for direct YAML owner kinds", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Обработка/ПодборПлановЛимитов/Свойства.yaml", [
+      "Реквизиты:",
+      "  ВидБюджета:",
+      "    Тип: Строка",
+    ])
+    writeProjectFile(projectDir, "ЖурналДокументов/РегламентныеДокументы/Свойства.yaml", [
+      "Формы:",
+      "  ФормаСписка",
+    ])
+    const resolver = createResolver(projectDir)
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Обработка.ПодборПлановЛимитов.Реквизит.ВидБюджета"),
+      }),
+    ).toMatchObject({ ok: true })
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("ЖурналДокументов.РегламентныеДокументы.Форма.ФормаСписка"),
+      }),
+    ).toMatchObject({ ok: true })
+  })
+
   it("resolves local forms from child form files when owner YAML does not contain reference-only form names", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", "Реквизиты: {}")
