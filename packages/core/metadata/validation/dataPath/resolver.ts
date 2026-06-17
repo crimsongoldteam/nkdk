@@ -226,6 +226,19 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
       continue
     }
 
+    const commonAttribute = field === undefined
+      ? resolveCommonAttributeField({ params, owner: ownerResult.owner, segment: lookupSegment })
+      : undefined
+    if (commonAttribute !== undefined) {
+      state = {
+        typeInfo: commonAttribute.typeInfo,
+        source: { kind: "objectField", owner: ownerResult.owner.ref, name: commonAttribute.name },
+      }
+
+      if (isLast) return okTarget({ value, segments, state })
+      continue
+    }
+
     if (field === undefined) {
       return error(params, `ПутьКДанным "${value}": неизвестный реквизит "${segment}"`)
     }
@@ -367,6 +380,93 @@ function mergeResolvedDefinedTypeInfo(source: DataPathTypeInfo, resolvedItems: r
 function definedTypeType(model: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
   if (typeof model !== "object" || model === null || !("type" in model)) return undefined
   return model.type as Parameters<typeof typeDescriptionToDataPathTypeInfo>[0]
+}
+
+function resolveCommonAttributeField(params: {
+  params: ResolveDataPathParams
+  owner: OwnerMetadata
+  segment: string
+}): TableColumnSource | undefined {
+  const ownerResult = params.params.ownerCache.get({ kind: "ОбщийРеквизит", name: params.segment })
+  if (ownerResult.status !== "ok") return undefined
+  if (!commonAttributeAppliesToOwner(ownerResult.owner.model, params.owner.ref)) return undefined
+
+  return {
+    name: params.segment,
+    typeInfo: typeDescriptionToDataPathTypeInfo(commonAttributeType(ownerResult.owner.model)),
+  }
+}
+
+function commonAttributeType(model: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
+  return modelObjectValue(model, "type") as Parameters<typeof typeDescriptionToDataPathTypeInfo>[0]
+}
+
+function commonAttributeAppliesToOwner(model: unknown, ownerRef: OwnerTypeRef): boolean {
+  const content = modelObjectValue(model, "content")
+  if (!Array.isArray(content)) return false
+
+  const ownerLinks = ownerMetadataLinks(ownerRef)
+  if (ownerLinks.length === 0) return false
+
+  return content.some((item) => {
+    const metadata = modelObjectValue(item, "metadata")
+    const use = modelObjectValue(item, "use")
+    return typeof metadata === "string" && use === "Use" && ownerLinks.includes(metadata)
+  })
+}
+
+function ownerMetadataLinks(ref: OwnerTypeRef): string[] {
+  if (!ref.name) return []
+
+  const prefix = metadataLinkPrefixByOwnerKind(ref.kind)
+  return prefix === undefined ? [] : [`${prefix}.${ref.name}`]
+}
+
+function metadataLinkPrefixByOwnerKind(kind: OwnerTypeRef["kind"]): string | undefined {
+  switch (kind) {
+    case "Справочник":
+    case "СправочникОбъект":
+      return "Catalog"
+    case "Документ":
+    case "ДокументОбъект":
+      return "Document"
+    case "Перечисление":
+      return "Enum"
+    case "РегистрСведений":
+      return "InformationRegister"
+    case "РегистрНакопления":
+      return "AccumulationRegister"
+    case "РегистрБухгалтерии":
+      return "AccountingRegister"
+    case "РегистрРасчета":
+      return "CalculationRegister"
+    case "ПланОбмена":
+    case "ПланОбменаОбъект":
+      return "ExchangePlan"
+    case "ПланВидовРасчета":
+    case "ПланВидовРасчетаОбъект":
+      return "ChartOfCalculationTypes"
+    case "ПланВидовХарактеристик":
+    case "ПланВидовХарактеристикОбъект":
+      return "ChartOfCharacteristicTypes"
+    case "ПланСчетов":
+    case "ПланСчетовОбъект":
+      return "ChartOfAccounts"
+    case "Обработка":
+    case "ОбработкаОбъект":
+      return "DataProcessor"
+    case "Отчет":
+    case "ОтчетОбъект":
+      return "Report"
+    case "БизнесПроцесс":
+    case "БизнесПроцессОбъект":
+      return "BusinessProcess"
+    case "Задача":
+    case "ЗадачаОбъект":
+      return "Task"
+    default:
+      return undefined
+  }
 }
 
 function ownerRefEquals(left: OwnerTypeRef, right: OwnerTypeRef): boolean {
@@ -566,7 +666,46 @@ function virtualOwnerField(params: {
   owner: OwnerMetadata
   segment: string
 }): { name: string; typeInfo: DataPathTypeInfo; tableSource?: FormDataPathTableSource } | undefined {
-  return chartOfAccountsVirtualOwnerField(params) ?? chartOfCalculationTypesVirtualOwnerField(params)
+  return exchangePlanVirtualOwnerField(params) ??
+    informationRegisterVirtualOwnerField(params) ??
+    chartOfAccountsVirtualOwnerField(params) ??
+    chartOfCalculationTypesVirtualOwnerField(params)
+}
+
+function exchangePlanVirtualOwnerField(params: {
+  owner: OwnerMetadata
+  segment: string
+}): { name: string; typeInfo: DataPathTypeInfo } | undefined {
+  if (!isExchangePlanOwner(params.owner.ref)) return undefined
+
+  if (params.segment === "ThisNode") {
+    return {
+      name: params.segment,
+      typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "ExchangePlan.ThisNode" },
+    }
+  }
+
+  if (params.segment === "ОбластьДанныхОсновныеДанные") {
+    return {
+      name: params.segment,
+      typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "ExchangePlan.DataArea" },
+    }
+  }
+
+  return undefined
+}
+
+function informationRegisterVirtualOwnerField(params: {
+  owner: OwnerMetadata
+  segment: string
+}): { name: string; typeInfo: DataPathTypeInfo } | undefined {
+  if (!isInformationRegisterOwner(params.owner.ref)) return undefined
+  if (params.segment !== "ОбластьДанныхВспомогательныеДанные") return undefined
+
+  return {
+    name: params.segment,
+    typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "InformationRegister.DataArea" },
+  }
 }
 
 function chartOfAccountsVirtualOwnerField(params: {
@@ -876,6 +1015,11 @@ function registerRecordSetStandardColumn(segment: string, fieldName: string | un
         name: yamlName,
         typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "RegisterRecordSet.LineNumber" },
       }
+    case "PeriodAdjustment":
+      return {
+        name: yamlName,
+        typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "RegisterRecordSet.PeriodAdjustment" },
+      }
     case "RecordType":
     case "ВидДвижения":
       return {
@@ -927,19 +1071,19 @@ function virtualTableColumn(params: {
   tableSource: FormDataPathTableSource | ObjectFieldTableSource
   segment: string
 }): TableColumnSource | undefined {
+  if (params.segment === "RowsCount") {
+    return {
+      name: params.segment,
+      typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "RowsCount" },
+    }
+  }
+
   if (params.tableSource.table.kind === "ValueList") {
     return valueListColumn(params.segment)
   }
 
   if (params.tableSource.table.kind === "GanttChart") {
     return ganttChartColumn(params.segment)
-  }
-
-  if (params.segment === "RowsCount") {
-    return {
-      name: params.segment,
-      typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "RowsCount" },
-    }
   }
 
   if (params.segment.startsWith("Total")) {
@@ -1071,6 +1215,14 @@ function isRegisterRecordsSegment(segment: string): boolean {
 
 function isDocumentOwner(ref: OwnerTypeRef): boolean {
   return ref.kind === "Документ" || ref.kind === "ДокументОбъект"
+}
+
+function isExchangePlanOwner(ref: OwnerTypeRef): boolean {
+  return ref.kind === "ПланОбмена" || ref.kind === "ПланОбменаОбъект"
+}
+
+function isInformationRegisterOwner(ref: OwnerTypeRef): boolean {
+  return ref.kind === "РегистрСведений"
 }
 
 function isChartOfAccountsOwner(ref: OwnerTypeRef): boolean {

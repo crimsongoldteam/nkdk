@@ -2,6 +2,7 @@ import { join, resolve } from "path"
 import { Type } from "@sinclair/typebox"
 import { MetadataConstantRules } from "~/metadata/appliedObjects/metadataConstant/rules"
 import { MetadataDefinedTypeRules } from "~/metadata/appliedObjects/metadataDefinedType/rules"
+import { MetadataCommonAttributeRules } from "~/metadata/appliedObjects/metadataCommonAttribute/rules"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
@@ -65,6 +66,7 @@ const ownerDirByRefKind = {
   БизнесПроцессОбъект: "БизнесПроцесс",
   Задача: "Задача",
   ЗадачаОбъект: "Задача",
+  ОбщийРеквизит: "ОбщийРеквизит",
   Константа: "Константа",
   ОпределяемыйТип: "ОпределяемыйТип",
 } satisfies Readonly<Record<KnownOwnerTypeKind, string>>
@@ -88,6 +90,18 @@ const definedTypeOwnerSpec: ValidationProjectSpec = {
   exportSchema: () => Type.Object({}),
   importModel: ({ context, parsed, name }) => {
     const model: unknown = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: MetadataDefinedTypeRules, name })
+
+    return isMetadataItem(model) ? model : undefined
+  },
+}
+
+const commonAttributeOwnerSpec: ValidationProjectSpec = {
+  kind: "commonAttribute",
+  dir: "ОбщийРеквизит",
+  rule: MetadataCommonAttributeRules,
+  exportSchema: () => Type.Object({}),
+  importModel: ({ context, parsed, name }) => {
+    const model: unknown = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: MetadataCommonAttributeRules, name })
 
     return isMetadataItem(model) ? model : undefined
   },
@@ -181,6 +195,7 @@ function loadOwner(params: {
 function getOwnerProjectSpecByDir(dir: string): ValidationProjectSpec | undefined {
   if (dir === constantOwnerSpec.dir) return constantOwnerSpec
   if (dir === definedTypeOwnerSpec.dir) return definedTypeOwnerSpec
+  if (dir === commonAttributeOwnerSpec.dir) return commonAttributeOwnerSpec
   return getValidationProjectSpecByDir(dir)
 }
 

@@ -147,6 +147,36 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts owner paths through applicable common attributes", () => {
+    const project = createProject({
+      ownerName: "НематериальныеАктивы",
+      owner: ["{}"],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: СправочникОбъект.НематериальныеАктивы",
+        "Элементы:",
+        "  КлассВНА:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.КлассВНА",
+      ],
+      extraOwners: [
+        {
+          dir: "ОбщийРеквизит",
+          name: "КлассВНА",
+          yaml: [
+            "Тип: Справочник.КлассыВНА",
+            "Состав:",
+            "  - Объект: Справочники.НематериальныеАктивы",
+            "    Использование: Использовать",
+          ],
+        },
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("resolves owner tabular section fields lazily through owner cache", () => {
     const project = createProject({
       owner: [
@@ -681,6 +711,25 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts Predefined as a boolean standard attribute", () => {
+    const project = createProject({
+      ownerDir: "Справочник",
+      ownerName: "ГруппыАналитик",
+      owner: ["{}"],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Справочник.ГруппыАналитик",
+        "Элементы:",
+        "  Предопределенный:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: Объект.Predefined",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("accepts LineNumber as an alias for the tabular section YAML row number column", () => {
     const project = createProject({
       ownerDir: "Документ",
@@ -808,6 +857,22 @@ describe("validateForm", () => {
         "  Группа:",
         "    Вид: Группа",
         "    ПутьКДаннымЗаголовка: Объект.Товары.RowsCount",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts RowsCount for ValueList title data paths", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  СкидкиНаценки:",
+        "    Тип: СписокЗначений",
+        "Элементы:",
+        "  Группа:",
+        "    Вид: Группа",
+        "    ПутьКДаннымЗаголовка: СкидкиНаценки.RowsCount",
       ],
     })
 
@@ -1022,12 +1087,40 @@ describe("validateForm", () => {
         "  Период:",
         "    Вид: ПолеВвода",
         "    ПутьКДанным: Объект.RegisterRecords.Продажи.Period",
+        "  УточнениеПериода:",
+        "    Вид: ПолеНадписи",
+        "    ПутьКДанным: Объект.RegisterRecords.Продажи.PeriodAdjustment",
         "  Активность:",
         "    Вид: ПолеФлажок",
         "    ПутьКДанным: Объект.RegisterRecords.Продажи.Active",
         "  Количество:",
         "    Вид: ПолеВвода",
         "    ПутьКДанным: Объект.RegisterRecords.Продажи.Количество",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts CheckBoxField data path bound to enum object values", () => {
+    const project = createProject({
+      ownerDir: "Справочник",
+      ownerName: "ПравилаСогласования",
+      owner: [
+        "ТабличныеЧасти:",
+        "  Шаги:",
+        "    Реквизиты:",
+        "      ТребуемаяПодпись:",
+        "        Тип: Перечисление.ВидыТребуемойПодписи",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Справочник.ПравилаСогласования",
+        "Элементы:",
+        "  ТребуемаяПодпись:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: Объект.Шаги.ТребуемаяПодпись",
       ],
     })
 
@@ -1230,6 +1323,47 @@ describe("validateForm", () => {
         "  НомерПринятого:",
         "    Вид: ПолеВвода",
         "    ПутьКДанным: Объект.ReceivedNo",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts ExchangePlan data separation and current node data paths", () => {
+    const project = createProject({
+      ownerDir: "ПланОбмена",
+      ownerName: "Синхронизация",
+      owner: ["{}"],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: ПланОбменаОбъект.Синхронизация",
+        "Элементы:",
+        "  ОбластьДанныхОсновныеДанные:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.ОбластьДанныхОсновныеДанные",
+        "  ЭтотУзел:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: Объект.ThisNode",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts InformationRegister record data separation data paths", () => {
+    const project = createProject({
+      ownerDir: "РегистрСведений",
+      ownerName: "ВидыПриложений",
+      owner: ["{}"],
+      form: [
+        "Реквизиты:",
+        "  Запись:",
+        "    Тип: РегистрСведенийМенеджерЗаписи.ВидыПриложений",
+        "Элементы:",
+        "  ОбластьДанныхВспомогательныеДанные:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Запись.ОбластьДанныхВспомогательныеДанные",
       ],
     })
 

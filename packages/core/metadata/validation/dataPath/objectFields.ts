@@ -214,6 +214,14 @@ function standardAttributeTypeInfo(params: {
     }
   }
 
+  if (params.internalName === "Predefined" || params.yamlName === "Предопределенный") {
+    return {
+      kinds: ["boolean"],
+      nextTypes: [],
+      sourceText: `${params.owner.ref.kind}.Predefined`,
+    }
+  }
+
   return unknownDataPathTypeInfo
 }
 

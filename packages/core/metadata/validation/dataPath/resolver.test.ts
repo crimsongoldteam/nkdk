@@ -8,6 +8,7 @@ import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/
 import { MetadataChartOfAccountsRules } from "~/metadata/appliedObjects/metadataChartOfAccounts/rules"
 import { MetadataChartOfCalculationTypesRules } from "~/metadata/appliedObjects/metadataChartOfCalculationTypes/rules"
 import { MetadataChartOfCharacteristicTypesRules } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules"
+import { MetadataCommonAttributeRules } from "~/metadata/appliedObjects/metadataCommonAttribute/rules"
 import { MetadataConstantRules } from "~/metadata/appliedObjects/metadataConstant/rules"
 import { MetadataDefinedTypeRules } from "~/metadata/appliedObjects/metadataDefinedType/rules"
 import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
@@ -464,6 +465,101 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("resolves common attributes applicable to the current owner", () => {
+    const result = resolve("Объект.КлассВНА", {
+      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.НематериальныеАктивы"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Справочник", name: "НематериальныеАктивы" },
+          rule: MetadataCatalogRules,
+          model: { itemType: "MetadataCatalog" },
+        }),
+        owner({
+          ref: { kind: "ОбщийРеквизит", name: "КлассВНА" },
+          rule: MetadataCommonAttributeRules,
+          model: {
+            itemType: "MetadataCommonAttribute",
+            type: { type: ["CatalogRef.КлассыВНА"] },
+            content: [{ metadata: "Catalog.НематериальныеАктивы", use: "Use" }],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Объект.КлассВНА",
+        segments: ["Объект", "КлассВНА"],
+        source: { kind: "objectField", owner: { kind: "Справочник", name: "НематериальныеАктивы" }, name: "КлассВНА" },
+        typeInfo: { kinds: ["object"], nextTypes: [{ kind: "Справочник", name: "КлассыВНА" }] },
+      },
+    })
+  })
+
+  it("keeps common attributes scoped by content", () => {
+    const result = resolve("Объект.КлассВНА", {
+      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.НематериальныеАктивы"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Справочник", name: "НематериальныеАктивы" },
+          rule: MetadataCatalogRules,
+          model: { itemType: "MetadataCatalog" },
+        }),
+        owner({
+          ref: { kind: "ОбщийРеквизит", name: "КлассВНА" },
+          rule: MetadataCommonAttributeRules,
+          model: {
+            itemType: "MetadataCommonAttribute",
+            type: { type: ["CatalogRef.КлассыВНА"] },
+            content: [{ metadata: "Catalog.Другой", use: "Use" }],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.КлассВНА": неизвестный реквизит "КлассВНА"',
+        }),
+      ],
+    })
+  })
+
+  it("ignores common attributes disabled for the current owner", () => {
+    const result = resolve("Объект.КлассВНА", {
+      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.НематериальныеАктивы"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Справочник", name: "НематериальныеАктивы" },
+          rule: MetadataCatalogRules,
+          model: { itemType: "MetadataCatalog" },
+        }),
+        owner({
+          ref: { kind: "ОбщийРеквизит", name: "КлассВНА" },
+          rule: MetadataCommonAttributeRules,
+          model: {
+            itemType: "MetadataCommonAttribute",
+            type: { type: ["CatalogRef.КлассыВНА"] },
+            content: [{ metadata: "Catalog.НематериальныеАктивы", use: "DontUse" }],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.КлассВНА": неизвестный реквизит "КлассВНА"',
+        }),
+      ],
+    })
+  })
+
   it("resolves a tabular section column through owner metadata", () => {
     const result = resolve("Объект.Товары.Номенклатура", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
@@ -888,6 +984,22 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("resolves PeriodAdjustment as a RegisterRecordSet virtual column", () => {
+    const result = resolve("НаборЗаписей.PeriodAdjustment", {
+      index: indexWithAttributes([attribute("НаборЗаписей", { type: ["AccountingRegisterRecordSet.Хозрасчетный"] })]),
+      ownerCache: documentWithAccountingRegisterRecords(),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: { kind: "tableColumn", table: "НаборЗаписей", name: "PeriodAdjustment" },
+        typeInfo: { kinds: ["scalar"], sourceText: "RegisterRecordSet.PeriodAdjustment" },
+      },
+    })
+  })
+
   it("keeps unknown RegisterRecordSet columns strict without form-only columns", () => {
     const result = resolve("НаборЗаписей.НетТакойКолонки", {
       index: indexWithAttributes([
@@ -1300,6 +1412,22 @@ describe("resolveDataPath", () => {
     }
   })
 
+  it("resolves RowsCount for ValueList table sources", () => {
+    const result = resolve("СкидкиНаценки.RowsCount", {
+      yamlPath: ["Элементы", "Группа", "ПутьКДаннымЗаголовка"],
+      index: indexWithAttributes([attribute("СкидкиНаценки", { type: ["ValueListType"] })]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: { kind: "tableColumn", table: "СкидкиНаценки", name: "RowsCount" },
+        typeInfo: { kinds: ["scalar"], sourceText: "RowsCount" },
+      },
+    })
+  })
+
   it("resolves Total columns as virtual table columns", () => {
     const footer = resolve("Объект.Товары.TotalСумма", {
       yamlPath: ["Элементы", "Товары", "Элементы", "Сумма", "ПутьКДаннымПодвала"],
@@ -1666,6 +1794,117 @@ describe("resolveDataPath", () => {
           source: { kind: "objectField", owner: { kind: "ПланОбмена", name: "Синхронизация" }, name: yamlName },
           typeInfo: { kinds: ["scalar"], sourceText: "ПланОбмена.SentReceivedNo" },
         },
+      })
+    }
+  })
+
+  it("resolves Predefined as a boolean standard attribute", () => {
+    const result = resolve("Объект.Predefined", {
+      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.ГруппыАналитик"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Справочник", name: "ГруппыАналитик" },
+          rule: MetadataCatalogRules,
+          model: { itemType: "MetadataCatalog" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: { kind: "objectField", owner: { kind: "Справочник", name: "ГруппыАналитик" }, name: "Предопределенный" },
+        typeInfo: { kinds: ["boolean"], sourceText: "Справочник.Predefined" },
+      },
+    })
+  })
+
+  it("resolves ExchangePlan data separation and current node virtual fields", () => {
+    const owners = ownerCache([
+      owner({
+        ref: { kind: "ПланОбменаОбъект", name: "Синхронизация" },
+        rule: MetadataExchangePlanRules,
+        model: { itemType: "MetadataExchangePlan" },
+      }),
+    ])
+
+    expect(
+      resolve("Объект.ОбластьДанныхОсновныеДанные", {
+        index: indexWithAttributes([attribute("Объект", { type: ["ExchangePlanObject.Синхронизация"] })]),
+        ownerCache: owners,
+      }),
+    ).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: {
+          kind: "objectField",
+          owner: { kind: "ПланОбменаОбъект", name: "Синхронизация" },
+          name: "ОбластьДанныхОсновныеДанные",
+        },
+        typeInfo: { kinds: ["scalar"], sourceText: "ExchangePlan.DataArea" },
+      },
+    })
+
+    expect(
+      resolve("Объект.ThisNode", {
+        index: indexWithAttributes([attribute("Объект", { type: ["ExchangePlanObject.Синхронизация"] })]),
+        ownerCache: owners,
+      }),
+    ).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: {
+          kind: "objectField",
+          owner: { kind: "ПланОбменаОбъект", name: "Синхронизация" },
+          name: "ThisNode",
+        },
+        typeInfo: { kinds: ["boolean"], sourceText: "ExchangePlan.ThisNode" },
+      },
+    })
+  })
+
+  it("resolves InformationRegister record data separation virtual fields", () => {
+    const result = resolve("Запись.ОбластьДанныхВспомогательныеДанные", {
+      index: indexWithAttributes([attribute("Запись", { type: ["InformationRegisterRecordManager.ВидыПриложений"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "РегистрСведений", name: "ВидыПриложений" },
+          rule: MetadataInformationRegisterRules,
+          model: { itemType: "MetadataInformationRegister" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        source: {
+          kind: "objectField",
+          owner: { kind: "РегистрСведений", name: "ВидыПриложений" },
+          name: "ОбластьДанныхВспомогательныеДанные",
+        },
+        typeInfo: { kinds: ["scalar"], sourceText: "InformationRegister.DataArea" },
+      },
+    })
+  })
+
+  it("keeps data separation virtual fields scoped to platform owners", () => {
+    for (const path of [
+      "Объект.ОбластьДанныхОсновныеДанные",
+      "Объект.ОбластьДанныхВспомогательныеДанные",
+      "Объект.ThisNode",
+    ] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Номенклатура"] })]),
+          ownerCache: ownerCache([owner({ ref: { kind: "Справочник", name: "Номенклатура" } })]),
+        }),
+      ).toMatchObject({
+        status: "error",
       })
     }
   })
