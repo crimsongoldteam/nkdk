@@ -3,6 +3,7 @@ import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { MetadataCommandRules } from "~/metadata/appliedObjects/metadataCommand/rules"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
 import {
   externalDataSourceObjectServiceProperties,
 } from "../metadataExternalDataSourceField/rules"
@@ -331,6 +332,7 @@ const tableProperties = {
     yaml: "ВводитсяНаОсновании",
     xml: "BasedOn",
     type: "MetadataItemLinks",
+    metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
     xmlParents: properties,
     defaultValueXMLRaw: "",
   },

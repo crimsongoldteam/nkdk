@@ -1,5 +1,6 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 
 const properties = ["Properties"]
@@ -56,7 +57,7 @@ export const MetadataChartOfAccountsRules = {
     comment: { yaml: "Комментарий", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
     useStandardCommands: { yaml: "ИспользоватьСтандартныеКоманды", type: "boolean", defaultValueXML: true, implicitValueYAML: true, xmlParents: properties },
     includeHelpInContents: { yaml: "ВключатьСправкуВСодержание", type: "boolean", defaultValueXML: false, implicitValueYAML: false, xmlParents: properties },
-    basedOn: { yaml: "ВводитсяНаОсновании", type: "MetadataItemLinks", xmlParents: properties, defaultValueXMLRaw: {} },
+    basedOn: { yaml: "ВводитсяНаОсновании", type: "MetadataItemLinks", metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths }, xmlParents: properties, defaultValueXMLRaw: {} },
     extDimensionTypes: { yaml: "ВидыСубконто", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
     maxExtDimensionCount: { yaml: "МаксКоличествоСубконто", type: "number", defaultValueXML: 0, implicitValueYAML: 0, xmlParents: properties },
     codeMask: { yaml: "МаскаКода", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
