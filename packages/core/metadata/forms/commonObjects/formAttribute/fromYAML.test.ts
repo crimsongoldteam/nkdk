@@ -237,6 +237,19 @@ describe("importFormAttributesFromYAML", () => {
     ).toBe(true)
   })
 
+  it("accepts planner settings in JSON Schema", () => {
+    const schema = compileFormAttributesJSONSchema()
+
+    expect(
+      schema.Check({
+        Планировщик: {
+          Тип: "Планировщик",
+          Планировщик: "<pl:item><pl:text>Встреча</pl:text></pl:item>",
+        },
+      })
+    ).toBe(true)
+  })
+
   it("rejects non-string spreadsheet document settings in JSON Schema", () => {
     const schema = compileFormAttributesJSONSchema()
 

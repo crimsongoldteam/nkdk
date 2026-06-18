@@ -167,7 +167,7 @@ function parseObjectTarget(
   const segments: MetadataObjectSegment[] = []
   for (let index = 0; index < tail.length; index += 2) {
     const rootToken = tail[index]
-    const segmentRoot = source === "yaml" ? parseObjectRootFromYAML(rootToken) : parseObjectRootFromModel(rootToken)
+    const segmentRoot = parseObjectSegmentKind(rootToken, source)
     if (!segmentRoot) {
       return unknownSegment(rootToken)
     }
@@ -723,6 +723,15 @@ function parseObjectPathKind(value: string | undefined, source: MetadataTargetSo
   if (value === undefined) return undefined
   if (source === "yaml") return objectPathKindFromYAML[value]
   return Object.prototype.hasOwnProperty.call(objectPathKindToYAML, value) ? (value as MetadataObjectPathKind) : undefined
+}
+
+function parseObjectSegmentKind(
+  value: string | undefined,
+  source: MetadataTargetSource
+): MetadataRootName | MetadataObjectPathKind | undefined {
+  return source === "yaml"
+    ? parseObjectRootFromYAML(value) ?? parseObjectPathKind(value, source)
+    : parseObjectRootFromModel(value) ?? parseObjectPathKind(value, source)
 }
 
 function isMetadataObjectPathKind(value: string): value is MetadataObjectPathKind {

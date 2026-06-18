@@ -129,6 +129,7 @@ export interface DataPathTargetConstraint {
   context: "form"
   allowedKinds?: readonly string[]
   allowComposite?: boolean
+  allowOpaqueMultipleValue?: boolean
 }
 
 export type MetadataTargetConstraint =

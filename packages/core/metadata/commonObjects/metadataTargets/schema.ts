@@ -1,7 +1,8 @@
 import { Type, type TSchema } from "@sinclair/typebox"
-import { memberKindToYAML, METADATA_NAME_PATTERN, rootToYAML } from "./roots"
+import { memberKindToYAML, METADATA_NAME_PATTERN, objectPathKindToYAML, rootToYAML } from "./roots"
 import type {
   MetadataMemberKind,
+  MetadataObjectPathKind,
   MetadataRootName,
   MetadataTargetConstraint,
   MetadataTargetFilter,
@@ -16,6 +17,7 @@ const emptyRefYAML = "ПустаяСсылка"
 
 const allMemberKinds = Object.keys(memberKindToYAML) as MetadataMemberKind[]
 const allRoots = Object.keys(rootToYAML) as MetadataRootName[]
+const allObjectPathKinds = Object.keys(objectPathKindToYAML) as MetadataObjectPathKind[]
 const allPrimitiveTypes: readonly MetadataPrimitiveType[] = ["string", "decimal", "dateTime", "boolean", "ValueStorage"]
 
 const objectExampleByRoot: Partial<Record<MetadataRootName, string>> = {
@@ -110,11 +112,23 @@ export function buildMetadataTargetSchema(constraint: MetadataTargetConstraint):
 }
 
 function objectSchema(constraint: Extract<MetadataTargetConstraint, { kind: "object" }>): TSchema {
+  if (constraint.allowedObjectPaths) {
+    const branches = exactObjectPathPatterns(constraint.allowedObjectPaths, "yaml")
+    const modelBranches = exactObjectPathPatterns(constraint.allowedObjectPaths, "model")
+    return Type.String({
+      pattern: branches.length === 0 ? noMatchPattern : `^(?:${[...branches, ...modelBranches].join("|")})$`,
+      examples: exactObjectPathExamples(constraint.allowedObjectPaths),
+      description:
+        "Ссылка на объект метаданных из разрешённого списка путей. Реальные имена объектов берутся из YAML-проекта и проверяются validate.",
+    })
+  }
+
   const roots = constraint.roots
   const selectedRoots = selectRoots(roots)
   const yamlRoots = yamlRootGroup(roots)
+  const yamlNestedObjectKinds = `(?:${[yamlRootGroup(undefined), yamlObjectPathKindGroup(allObjectPathKinds)].join("|")})`
   const tailPattern =
-    constraint.allowNested === true ? `(?:\\.(?:${yamlRoots})\\.${METADATA_NAME_PATTERN})*` : ""
+    constraint.allowNested === true ? `(?:\\.${yamlNestedObjectKinds}\\.${METADATA_NAME_PATTERN})*` : ""
   return Type.String({
     pattern:
       selectedRoots.length === 0 ? noMatchPattern : `^((${yamlRoots})\\.${METADATA_NAME_PATTERN}${tailPattern})$`,
@@ -130,8 +144,14 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
   const memberKinds = constraint.memberKinds ?? allMemberKinds
   const memberGroup = memberKinds.map((kind) => memberKindToYAML[kind]).join("|")
   const selectedRoots = selectRoots(constraint.roots)
-  const yamlMemberPath = memberPathPattern(memberKinds, "yaml")
-  const modelMemberPath = memberPathPattern(memberKinds, "model")
+  const yamlMemberPath = constraint.allowedMemberPaths
+    ? undefined
+    : memberPathPattern(memberKinds, "yaml")
+  const modelMemberPath = constraint.allowedMemberPaths
+    ? undefined
+    : memberPathPattern(memberKinds, "model")
+  const exactMemberBranches = exactMemberPathPatterns(constraint.allowedMemberPaths, "yaml")
+  const exactModelMemberBranches = exactMemberPathPatterns(constraint.allowedMemberPaths, "model")
   const objectBranches = memberObjectPathPatterns(constraint, "yaml")
   const modelObjectBranches = memberObjectPathPatterns(constraint, "model")
   const fullModelCompatibility =
@@ -157,7 +177,7 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
     const branches = []
     if (yamlMemberPath) branches.push(yamlMemberPath)
     if (fullModelCompatibility) branches.push(fullModelCompatibility)
-    branches.push(...objectBranches, ...modelObjectBranches)
+    branches.push(...exactMemberBranches, ...exactModelMemberBranches, ...objectBranches, ...modelObjectBranches)
 
     return Type.String({
       pattern: branches.length === 0 ? noMatchPattern : `^(?:${branches.join("|")})$`,
@@ -175,7 +195,7 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
     explicitBranches.push(`(?:${yamlRoots})\\.${METADATA_NAME_PATTERN}\\.${yamlMemberPath}`)
   }
   if (fullModelCompatibility) explicitBranches.push(fullModelCompatibility)
-  explicitBranches.push(...objectBranches, ...modelObjectBranches)
+  explicitBranches.push(...exactMemberBranches, ...exactModelMemberBranches, ...objectBranches, ...modelObjectBranches)
 
   return Type.String({
     pattern: explicitBranches.length === 0 ? noMatchPattern : `^(?:${explicitBranches.join("|")})$`,
@@ -214,7 +234,7 @@ function memberObjectPathPatterns(
 ): string[] {
   const simpleRoots = uniqueRoots([...(constraint.objectRoots ?? []), ...(constraint.nestedObjectRoots ?? [])])
   const nestedRoots = uniqueRoots(constraint.nestedObjectRoots ?? [])
-  const branches: string[] = []
+  const branches: string[] = exactObjectPathPatterns(constraint.allowedObjectPaths, source)
 
   if (simpleRoots.length > 0) {
     branches.push(`(?:${rootGroup(simpleRoots, source)})\\.${METADATA_NAME_PATTERN}`)
@@ -227,6 +247,54 @@ function memberObjectPathPatterns(
   }
 
   return branches
+}
+
+function exactObjectPathPatterns(
+  paths: readonly (readonly [MetadataRootName, ...MetadataObjectPathKind[]])[] | undefined,
+  source: "yaml" | "model"
+): string[] {
+  return (paths ?? []).map((path) => exactPathPattern(path, source))
+}
+
+function exactObjectPathExamples(paths: readonly (readonly [MetadataRootName, ...MetadataObjectPathKind[]])[]): string[] {
+  return paths.slice(0, 2).map((path) => {
+    const [root, ...segments] = path
+    const segmentParts = segments.flatMap((kind) => [objectPathKindToYAML[kind], objectSegmentName(kind)])
+    return [rootToYAML[root], fieldObjectName(root), ...segmentParts].join(".")
+  })
+}
+
+function objectSegmentName(kind: MetadataObjectPathKind): string {
+  if (kind === "Table") return "ИмяТаблицы"
+  if (kind === "Cube") return "ИмяКуба"
+  if (kind === "DimensionTable") return "ИмяТаблицыИзмерения"
+  if (kind === "Function") return "ИмяФункции"
+}
+
+function exactMemberPathPatterns(
+  paths: readonly (readonly [MetadataRootName, ...(MetadataObjectPathKind | MetadataMemberKind)[]])[] | undefined,
+  source: "yaml" | "model"
+): string[] {
+  return (paths ?? []).map((path) => exactPathPattern(path, source))
+}
+
+function exactPathPattern(
+  path: readonly [MetadataRootName, ...(MetadataObjectPathKind | MetadataMemberKind)[]],
+  source: "yaml" | "model"
+): string {
+  const [root, ...segments] = path
+  const rootPattern = source === "yaml" ? rootToYAML[root] : root
+  const segmentPatterns = segments.map((kind) => `\\.${exactPathKindName(kind, source)}\\.${METADATA_NAME_PATTERN}`)
+  return `${rootPattern}\\.${METADATA_NAME_PATTERN}${segmentPatterns.join("")}`
+}
+
+function exactPathKindName(kind: MetadataObjectPathKind | MetadataMemberKind, source: "yaml" | "model"): string {
+  if (isObjectPathKind(kind)) return source === "yaml" ? objectPathKindToYAML[kind] : kind
+  return source === "yaml" ? memberKindToYAML[kind] : kind
+}
+
+function isObjectPathKind(kind: MetadataObjectPathKind | MetadataMemberKind): kind is MetadataObjectPathKind {
+  return Object.prototype.hasOwnProperty.call(objectPathKindToYAML, kind)
 }
 
 function rootGroup(roots: readonly MetadataRootName[], source: "yaml" | "model"): string {
@@ -270,8 +338,11 @@ function dataPathSchema(constraint: Extract<MetadataTargetConstraint, { kind: "d
   const indexedSegmentPattern = `${METADATA_NAME_PATTERN}(?:\\[[0-9]+\\])?`
   const simplePathPattern = `${indexedSegmentPattern}(?:\\.${indexedSegmentPattern})*`
   const tildeVariantPathPattern = `~${simplePathPattern}(?:~${simplePathPattern})*`
+  const opaqueMultipleValuePattern = `[0-9]+/[0-9]+:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`
+  const branches = [simplePathPattern, tildeVariantPathPattern]
+  if (constraint.allowOpaqueMultipleValue === true) branches.push(opaqueMultipleValuePattern)
   return Type.String({
-    pattern: `^(?:${simplePathPattern}|${tildeVariantPathPattern})$`,
+    pattern: `^(?:${branches.join("|")})$`,
     examples: ["ИмяРеквизита", "ИмяТаблицы.ИмяКолонки"],
     description: `Путь к данным формы: ИмяРеквизита или ИмяТаблицы.ИмяКолонки.${allowedKinds}${composite} Вариантные пути с "~" сохраняются как есть и не проверяются. Реальные поля проверяются validate.`,
   })
@@ -319,6 +390,10 @@ const styleItemTypeToYAML = {
 function yamlRootGroup(roots: readonly MetadataRootName[] | undefined): string {
   const selected = selectRoots(roots)
   return selected.map((root) => rootToYAML[root]).join("|")
+}
+
+function yamlObjectPathKindGroup(kinds: readonly MetadataObjectPathKind[]): string {
+  return kinds.map((kind) => objectPathKindToYAML[kind]).join("|")
 }
 
 function modelRootGroup(roots: readonly MetadataRootName[]): string {

@@ -55,4 +55,44 @@ describe("import SettingsParameterValueCollection from YAML", () => {
 
     expect(compiled.Check({ Год: { Использовать: "Ложь", НеизвестноеПоле: 0 } })).toBe(false)
   })
+
+  it("uses explicit parameter rules before default item rule in JSON Schema", () => {
+    const schema = exportPropertyToJSONSchema({
+      context: mockContext,
+      rule: {
+        type: "SettingsParameterValueCollection",
+        defaultItemRule: {
+          type: "SettingsParameterValue",
+          valueType: "Primitive",
+        },
+        parameterRules: {
+          СвязиПараметровВыбора: {
+            type: "SettingsParameterValue",
+            valueType: "ChoiceParameterLinks",
+          },
+          ПараметрыВыбора: {
+            type: "SettingsParameterValue",
+            valueType: "Parameter",
+          },
+        },
+      },
+      value: undefined,
+    })
+    if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(
+      compiled.Check({
+        СвязиПараметровВыбора: [
+          {
+            Имя: "ПараметрВыбора",
+            ПутьКДанным: "Поле1",
+            РежимИзменения: "НеИзменять",
+          },
+        ],
+        ПараметрыВыбора: { Параметр: 123 },
+        ФорматРедактирования: "ЧЦ=15; ЧДЦ=2",
+      })
+    ).toBe(true)
+  })
 })

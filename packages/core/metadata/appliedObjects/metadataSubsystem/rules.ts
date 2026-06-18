@@ -21,6 +21,7 @@ const contentObjectPaths = [
   ["ScheduledJob"],
   ["Bot"],
   ["FunctionalOption"],
+  ["FunctionalOptionsParameter"],
   ["FunctionalOptionParameter"],
   ["DefinedType"],
   ["SettingsStorage"],

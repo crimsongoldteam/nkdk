@@ -31,6 +31,7 @@ function extendFormAttributeColumnsSchema(schema: TSchema, context: Configuratio
       Диаграмма: Type.Optional(Type.String()),
       ДиаграммаГанта: Type.Optional(Type.String()),
       ТабличныйДокумент: Type.Optional(Type.String()),
+      Планировщик: Type.Optional(Type.String()),
     },
     { additionalProperties: false }
   )

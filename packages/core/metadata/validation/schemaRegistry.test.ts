@@ -92,6 +92,15 @@ describe("JSON Schema registry", () => {
     })
   })
 
+  it("allows opaque multiple-value DataPath only in InputField schema", () => {
+    const inputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "InputField" })
+    const tableInputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "TableInputField" })
+    const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
+
+    expect(TypeCompiler.Compile(inputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(true)
+    expect(TypeCompiler.Compile(tableInputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(false)
+  })
+
   it("keeps tree YAML button type alias away from Вид discriminator", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "Button" })
 

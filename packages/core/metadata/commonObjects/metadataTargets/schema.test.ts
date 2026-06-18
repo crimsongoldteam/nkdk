@@ -45,6 +45,30 @@ describe("buildMetadataTargetSchema", () => {
     expectMatches(schema, "Последовательность.ПартииТоваров")
   })
 
+  it("accepts object path segments in nested object schemas", () => {
+    const schema = buildMetadataTargetSchema({ kind: "object", roots: ["ExternalDataSource"], allowNested: true })
+
+    expectMatches(schema, "ВнешнийИсточникДанных.Источник.Функция.Функция1")
+    expectMatches(schema, "ВнешнийИсточникДанных.Источник.Таблица.Таблица1")
+    expectNotMatches(schema, "Справочник.Товары.Функция.Функция1")
+  })
+
+  it("accepts exact object paths in object schemas", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "object",
+      allowedObjectPaths: [
+        ["ExternalDataSource", "Table"],
+        ["ExternalDataSource", "Cube"],
+      ],
+    })
+
+    expectMatches(schema, "ВнешнийИсточникДанных.Источник.Таблица.Таблица1")
+    expectMatches(schema, "ВнешнийИсточникДанных.Источник.Куб.Куб1")
+    expectMatches(schema, "ExternalDataSource.Source.Table.Table1")
+    expectNotMatches(schema, "ВнешнийИсточникДанных.Источник.Куб.Куб1.ТаблицаИзмерения.Таблица1")
+    expectNotMatches(schema, "Справочник.Товары")
+  })
+
   it("describes full field paths with service segments", () => {
     const schema = buildMetadataTargetSchema({ kind: "member", owner: "explicit", roots: ["Catalog"] })
 
@@ -240,6 +264,15 @@ describe("buildMetadataTargetSchema", () => {
     expect(String(schema.description)).toContain("string")
   })
 
+  it("accepts opaque multiple-value form data paths only when explicitly allowed", () => {
+    const strictSchema = buildMetadataTargetSchema({ kind: "dataPath", context: "form" })
+    const opaqueSchema = buildMetadataTargetSchema({ kind: "dataPath", context: "form", allowOpaqueMultipleValue: true })
+    const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
+
+    expectNotMatches(strictSchema, opaquePath)
+    expectMatches(opaqueSchema, opaquePath)
+  })
+
   it("builds local member schema for single current-owner member kind", () => {
     const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", memberKinds: ["Form"] })
     const compiled = TypeCompiler.Compile(schema)
@@ -299,6 +332,26 @@ describe("buildMetadataTargetSchema", () => {
     expect(schema.examples).toEqual(["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"])
     expectMatches(schema, "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")
     expectNotMatches(schema, "Документ.АвансовыйОтчет.Реквизит.Организация")
+  })
+
+  it("accepts allowed object paths in explicit-owner member schemas", () => {
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "explicit",
+      allowedObjectPaths: [
+        ["ExternalDataSource", "Table"],
+        ["ExternalDataSource", "Cube", "DimensionTable"],
+      ],
+      allowedMemberPaths: [["Catalog", "Attribute"]],
+    })
+
+    expectMatches(schema, "ВнешнийИсточникДанных.Источник.Таблица.Таблица1")
+    expectMatches(schema, "ВнешнийИсточникДанных.Источник.Куб.Куб1.ТаблицаИзмерения.Таблица1")
+    expectMatches(schema, "ExternalDataSource.Source.Table.Table1")
+    expectMatches(schema, "Справочник.Товары.Реквизит.Артикул")
+    expectNotMatches(schema, "ВнешнийИсточникДанных.Источник.Куб.Куб1")
+    expectNotMatches(schema, "Документ.Заказ")
+    expectNotMatches(schema, "Документ.Заказ.Реквизит.Номер")
   })
 
   it("describes hasType filters without narrowing the string pattern", () => {

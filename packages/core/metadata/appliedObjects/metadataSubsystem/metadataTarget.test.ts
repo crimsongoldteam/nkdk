@@ -35,6 +35,22 @@ describe("MetadataSubsystem metadataTarget", () => {
     })
   })
 
+  it("exports functional options parameter links from XML model content", () => {
+    expect(
+      exportMetadataItemToYAML({
+        context: mockContext,
+        rule: MetadataSubsystemRules,
+        data: {
+          itemType: "MetadataSubsystem",
+          name: "СтандартныеПодсистемы",
+          content: ["FunctionalOptionsParameter.ПараметрФункциональныхОпцийВсеСвойства"],
+        },
+      })
+    ).toMatchObject({
+      Состав: ["ПараметрФункциональныхОпций.ПараметрФункциональныхОпцийВсеСвойства"],
+    })
+  })
+
   it("rejects member links in content", () => {
     expect(() =>
       importMetadataItemFromYAML({

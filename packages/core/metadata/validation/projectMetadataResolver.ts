@@ -85,6 +85,13 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
         const nestedFilePath = nestedObjectFilePath(projectDir, target)
         if (existsSync(nestedFilePath)) return { ok: true, filePath: nestedFilePath }
 
+        const inlineObject = resolveInlineNestedObject({
+          target,
+          yamlCache: params.yamlCache,
+          ownerCache,
+        })
+        if (inlineObject) return inlineObject
+
         return referenceError(nestedFilePath, `Не найден объект "${formatObjectTarget(target)}"`)
       }
 
@@ -94,6 +101,13 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
     resolveMember({ target, filters }) {
       const object = this.resolveObject({ target: { kind: "object", root: target.root, objectName: target.objectName } })
       if (!object.ok) return object
+
+      const nestedMember = resolveNestedExternalDataSourceMember({
+        projectDir,
+        target,
+        yamlCache: params.yamlCache,
+      })
+      if (nestedMember) return nestedMember
 
       const owner = ownerCache.get({ kind: rootToYAML[target.root], name: target.objectName })
       if (owner.status !== "ok") return { ok: false, diagnostics: owner.diagnostics }
@@ -192,6 +206,75 @@ function resolveChildTemplateFile(params: {
   }
 
   return undefined
+}
+
+function resolveInlineNestedObject(params: {
+  target: Extract<ParsedMetadataTarget, { kind: "object" }>
+  yamlCache: ProjectYamlCache
+  ownerCache: OwnerMetadataCache
+}): MetadataResolveResult | undefined {
+  const [segment] = params.target.segments ?? []
+  if (params.target.root !== "ExternalDataSource" || params.target.segments?.length !== 1 || segment?.kind !== "Function") {
+    return undefined
+  }
+
+  const owner = params.ownerCache.get({ kind: rootToYAML[params.target.root], name: params.target.objectName })
+  if (owner.status !== "ok") return { ok: false, diagnostics: owner.diagnostics }
+
+  const rawYaml = ownerRawYaml({ filePath: owner.owner.filePath, yamlCache: params.yamlCache })
+  const functions = metadataRecord(owner.owner.model).functions ?? metadataRecord(rawYaml).Функции
+  if (!hasNamedItem(functions, segment.objectName)) return undefined
+
+  return { ok: true, filePath: owner.owner.filePath, details: { kind: "Function", name: segment.objectName, item: segment.objectName } }
+}
+
+function resolveNestedExternalDataSourceMember(params: {
+  projectDir: string
+  target: Extract<ParsedMetadataTarget, { kind: "member" }>
+  yamlCache: ProjectYamlCache
+}): MetadataResolveResult | undefined {
+  if (params.target.root !== "ExternalDataSource" || !params.target.objectSegments || params.target.segments.length !== 1) {
+    return undefined
+  }
+
+  const nestedObjectTarget: Extract<ParsedMetadataTarget, { kind: "object" }> = {
+    kind: "object",
+    root: params.target.root,
+    objectName: params.target.objectName,
+    segments: params.target.objectSegments,
+  }
+  const filePath = nestedObjectFilePath(params.projectDir, nestedObjectTarget)
+  if (!existsSync(filePath)) return referenceError(filePath, `Не найден объект "${formatObjectTarget(nestedObjectTarget)}"`)
+
+  const [segment] = params.target.segments
+  if (!isExternalDataSourceNestedMemberKind(segment.kind)) return undefined
+
+  const rawYaml = ownerRawYaml({ filePath, yamlCache: params.yamlCache })
+  const item = memberCollectionItem(metadataRecord(rawYaml)[externalDataSourceNestedMemberCollectionYamlName(segment.kind)], segment.name)
+  if (item === undefined) return undefined
+
+  return { ok: true, filePath, details: { kind: segment.kind, name: segment.name, item } }
+}
+
+function isExternalDataSourceNestedMemberKind(
+  kind: MetadataMemberKind,
+): kind is "Field" | "Command" | "Dimension" | "Resource" {
+  return kind === "Field" || kind === "Command" || kind === "Dimension" || kind === "Resource"
+}
+
+function externalDataSourceNestedMemberCollectionYamlName(
+  kind: "Field" | "Command" | "Dimension" | "Resource",
+): string {
+  switch (kind) {
+    case "Field":
+      return "Поля"
+    case "Command":
+      return "Команды"
+    case "Dimension":
+      return "Измерения"
+    case "Resource":
+      return "Ресурсы"
+  }
 }
 
 type ResolvedMemberDetails =
@@ -514,6 +597,7 @@ function formatMemberTarget(target: Extract<ParsedMetadataTarget, { kind: "membe
   return [
     rootToYAML[target.root],
     target.objectName,
+    ...(target.objectSegments ?? []).flatMap((segment) => [objectSegmentKindToYAML(segment.kind), segment.objectName]),
     ...target.segments.flatMap((segment) => [memberKindToYAML[segment.kind], memberLookupName(segment)]),
   ].join(".")
 }
