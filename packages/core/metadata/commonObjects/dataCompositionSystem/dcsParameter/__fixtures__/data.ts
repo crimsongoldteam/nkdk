@@ -1,4 +1,5 @@
 import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 import type { DCSParameters, DCSParametersYAML } from "../types"
 
 const compositeValueType = {
@@ -125,7 +126,7 @@ export const fullDCSParametersYAML = {
     ПараметрыРедактирования: {
       БыстрыйВыбор: "Истина",
       ВыборГруппИЭлементов: "Элементы",
-      Маска: '"123"',
+      Маска: explicitYAMLString("123"),
       ПараметрыВыбора: {
         Параметр: 123,
       },
@@ -137,8 +138,8 @@ export const fullDCSParametersYAML = {
         },
       ],
       СвязьПоТипу: "Поле1(2)",
-      ФормаВыбора: '"ФормаВыбора"',
-      ФорматРедактирования: '"ЧЦ=15; ЧДЦ=2"',
+      ФормаВыбора: explicitYAMLString("ФормаВыбора"),
+      ФорматРедактирования: explicitYAMLString("ЧЦ=15; ЧДЦ=2"),
     },
   },
   СоставнойДоступенСписок: {
