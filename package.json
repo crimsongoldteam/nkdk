@@ -16,19 +16,18 @@
     "prepare": "ts-patch install"
   },
   "devDependencies": {
-    "@types/node": "^24.12.0",
-    "prettier": "^3.8.1",
+    "@types/node": "^25.9.3",
+    "prettier": "^3.8.4",
     "ts-patch": "^3.3.0",
-    "tsc-alias": "^1.8.16",
+    "tsc-alias": "^1.8.17",
     "typescript": "~5.9.3",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.9"
   },
-  "dependencies": {
-    "change-case": "^5.4.4",
-    "chevrotain": "^11.2.0",
-    "date-fns": "^4.1.0",
-    "fast-xml-parser": "^5.4.2",
-    "uuid": "^13.0.0",
-    "yaml": "^2.8.3"
+  "pnpm": {
+    "overrides": {
+      "esbuild": "^0.28.1",
+      "picomatch@<2.3.2": "2.3.2",
+      "vite": "^8.0.16"
+    }
   }
 }
