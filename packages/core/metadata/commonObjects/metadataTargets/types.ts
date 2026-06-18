@@ -41,9 +41,14 @@ export type MetadataRootName =
   | "WebService"
   | "Bot"
   | "ExternalDataSource"
+  | "EventSubscription"
+  | "XDTOPackage"
+  | "WSReference"
   | "SessionParameter"
   | "SettingsStorage"
   | "Subsystem"
+
+export type MetadataObjectPathKind = "Table" | "Cube" | "DimensionTable" | "Function"
 
 export type MetadataMemberKind =
   | "Attribute"
@@ -55,6 +60,9 @@ export type MetadataMemberKind =
   | "Template"
   | "Command"
   | "AccountingFlag"
+  | "ExtDimensionAccountingFlag"
+  | "AddressingAttribute"
+  | "Field"
 
 export type MetadataFieldKind = Extract<
   MetadataMemberKind,
@@ -78,6 +86,7 @@ export interface MetadataTargetOwner {
 export interface ObjectTargetConstraint {
   kind: "object"
   roots?: readonly MetadataRootName[]
+  allowedObjectPaths?: readonly (readonly [MetadataRootName, ...MetadataObjectPathKind[]])[]
   scope?: "project" | "owner"
   allowNested?: boolean
   filters?: readonly MetadataTargetFilter[]
@@ -89,6 +98,8 @@ export interface MemberTargetConstraint {
   roots?: readonly MetadataRootName[]
   objectRoots?: readonly MetadataRootName[]
   nestedObjectRoots?: readonly MetadataRootName[]
+  allowedObjectPaths?: readonly (readonly [MetadataRootName, ...MetadataObjectPathKind[]])[]
+  allowedMemberPaths?: readonly (readonly [MetadataRootName, ...(MetadataObjectPathKind | MetadataMemberKind)[]])[]
   memberKinds?: readonly MetadataMemberKind[]
   filters?: readonly MetadataTargetFilter[]
   allowOwner?: boolean
@@ -124,7 +135,13 @@ export type MetadataTargetConstraint =
 
 export type ParsedMetadataTarget =
   | { kind: "object"; root: MetadataRootName; objectName: string; segments?: MetadataObjectSegment[] }
-  | { kind: "member"; root: MetadataRootName; objectName: string; segments: MetadataMemberSegment[] }
+  | {
+      kind: "member"
+      root: MetadataRootName
+      objectName: string
+      objectSegments?: MetadataObjectSegment[]
+      segments: MetadataMemberSegment[]
+    }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "predefinedValue"; valueName: string }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "enumValue"; valueName: string }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "emptyRef" }
@@ -135,7 +152,7 @@ export interface MetadataMemberSegment {
 }
 
 export interface MetadataObjectSegment {
-  root: MetadataRootName
+  kind: MetadataObjectPathKind | MetadataRootName
   objectName: string
 }
 

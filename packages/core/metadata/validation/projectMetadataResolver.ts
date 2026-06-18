@@ -2,9 +2,11 @@ import { existsSync } from "fs"
 import { dirname, join, resolve } from "path"
 import {
   memberKindToYAML,
+  objectPathKindToYAML,
   rootToYAML,
   standardAttributeToYAML,
   type MetadataMemberKind,
+  type MetadataObjectPathKind,
   type MetadataFieldKind,
   type MetadataTargetFilter,
   type MetadataTypeFilterValue,
@@ -445,15 +447,23 @@ function nestedObjectFilePath(
 ): string {
   const parts = [projectDir, rootToYAML[target.root], target.objectName]
   for (const segment of target.segments ?? []) {
-    parts.push(nestedObjectFolderName(segment.root), segment.objectName)
+    parts.push(nestedObjectFolderName(segment.kind), segment.objectName)
   }
 
   return join(...parts, "Свойства.yaml")
 }
 
-function nestedObjectFolderName(root: MetadataRootName): string {
-  if (root === "Subsystem") return "Подсистемы"
-  return rootToYAML[root]
+function nestedObjectFolderName(kind: MetadataRootName | MetadataObjectPathKind): string {
+  if (kind === "Subsystem") return "Подсистемы"
+  if (kind === "Table") return "Таблицы"
+  if (kind === "Cube") return "Кубы"
+  if (kind === "DimensionTable") return "ТаблицыИзмерений"
+  if (kind === "Function") return "Функции"
+  return rootToYAML[kind] ?? objectPathKindToYAML[kind]
+}
+
+function objectSegmentKindToYAML(kind: MetadataRootName | MetadataObjectPathKind): string {
+  return rootToYAML[kind as MetadataRootName] ?? objectPathKindToYAML[kind as MetadataObjectPathKind]
 }
 
 function memberLookupName(segment: Extract<ParsedMetadataTarget, { kind: "member" }>["segments"][number]): string {
@@ -487,7 +497,7 @@ function formatObjectTarget(target: Extract<ParsedMetadataTarget, { kind: "objec
   return [
     rootToYAML[target.root],
     target.objectName,
-    ...(target.segments ?? []).flatMap((segment) => [rootToYAML[segment.root], segment.objectName]),
+    ...(target.segments ?? []).flatMap((segment) => [objectSegmentKindToYAML(segment.kind), segment.objectName]),
   ].join(".")
 }
 

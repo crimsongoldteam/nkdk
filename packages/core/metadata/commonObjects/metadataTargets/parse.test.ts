@@ -326,6 +326,141 @@ describe("metadataTargets parser", () => {
     ).toBe("ОбщаяКартинка.Логотип")
   })
 
+  it("parses and formats additional top-level roots used by subsystem content", () => {
+    const cases = [
+      ["ПодпискаНаСобытие.ПодпискаНаСобытиеВсеСвойства", "EventSubscription.ПодпискаНаСобытиеВсеСвойства", "EventSubscription"],
+      ["ПакетXDTO.ПакетXDTOВсеСвойства", "XDTOPackage.ПакетXDTOВсеСвойства", "XDTOPackage"],
+      ["WSСсылка.WSСсылкаВсеСвойства", "WSReference.WSСсылкаВсеСвойства", "WSReference"],
+      [
+        "ПараметрФункциональныхОпций.ПараметрФункциональныхОпцийВсеСвойства",
+        "FunctionalOptionParameter.ПараметрФункциональныхОпцийВсеСвойства",
+        "FunctionalOptionParameter",
+      ],
+    ] as const
+
+    for (const [yaml, canonical, root] of cases) {
+      const constraint = { kind: "object", allowedObjectPaths: [[root]] } as const
+      expect(parseMetadataTargetFromYAML({ value: yaml, constraint })).toMatchObject({ ok: true, canonical })
+      expect(formatMetadataTargetToYAML({ canonical, constraint })).toBe(yaml)
+    }
+  })
+
+  it("parses and formats external data source object paths", () => {
+    const constraint = {
+      kind: "object",
+      allowedObjectPaths: [
+        ["ExternalDataSource", "Table"],
+        ["ExternalDataSource", "Cube"],
+        ["ExternalDataSource", "Cube", "DimensionTable"],
+        ["ExternalDataSource", "Function"],
+      ],
+    } as const
+
+    const cases = [
+      [
+        "ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Таблица.ТаблицаВсеСвойства",
+        "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства",
+      ],
+      [
+        "ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Куб.КубВсеСвойства",
+        "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства",
+      ],
+      [
+        "ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Куб.КубВсеСвойства.ТаблицаИзмерения.ТаблицаИзмеренияВсеСвойства",
+        "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства.DimensionTable.ТаблицаИзмеренияВсеСвойства",
+      ],
+      [
+        "ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Функция.ФункцияВсеСвойства",
+        "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Function.ФункцияВсеСвойства",
+      ],
+    ] as const
+
+    for (const [yaml, canonical] of cases) {
+      expect(parseMetadataTargetFromYAML({ value: yaml, constraint })).toMatchObject({ ok: true, canonical })
+      expect(parseMetadataTargetFromModel({ canonical, constraint })).toMatchObject({ ok: true, canonical })
+      expect(formatMetadataTargetToYAML({ canonical, constraint })).toBe(yaml)
+    }
+  })
+
+  it("parses and formats exact external data source member paths", () => {
+    const constraint = {
+      kind: "member",
+      owner: "explicit",
+      allowedObjectPaths: [
+        ["ExternalDataSource", "Table"],
+        ["ExternalDataSource", "Cube", "DimensionTable"],
+      ],
+      allowedMemberPaths: [
+        ["ExternalDataSource", "Table", "Field"],
+        ["ExternalDataSource", "Table", "Command"],
+        ["ExternalDataSource", "Cube", "DimensionTable", "Field"],
+        ["ExternalDataSource", "Cube", "Dimension"],
+        ["ExternalDataSource", "Cube", "Resource"],
+        ["ExternalDataSource", "Cube", "Command"],
+      ],
+    } as const
+
+    const cases = [
+      [
+        "ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Таблица.ТаблицаВсеСвойства.Поле.ПолеВсеСвойства",
+        "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Field.ПолеВсеСвойства",
+      ],
+      [
+        "ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Таблица.ТаблицаВсеСвойства.Команда.Команда1",
+        "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства.Command.Команда1",
+      ],
+      [
+        "ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Куб.КубВсеСвойства.ТаблицаИзмерения.ТаблицаИзмеренияВсеСвойства.Поле.ПолеВсеСвойства",
+        "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства.DimensionTable.ТаблицаИзмеренияВсеСвойства.Field.ПолеВсеСвойства",
+      ],
+      [
+        "ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Куб.КубВсеСвойства.Измерение.ИзмерениеВсеСвойства",
+        "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства.Dimension.ИзмерениеВсеСвойства",
+      ],
+      [
+        "ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Куб.КубВсеСвойства.Ресурс.РесурсВсеСвойства",
+        "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства.Resource.РесурсВсеСвойства",
+      ],
+      [
+        "ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Куб.КубВсеСвойства.Команда.Команда1",
+        "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства.Command.Команда1",
+      ],
+    ] as const
+
+    for (const [yaml, canonical] of cases) {
+      expect(parseMetadataTargetFromYAML({ value: yaml, constraint })).toMatchObject({ ok: true, canonical })
+      expect(parseMetadataTargetFromModel({ canonical, constraint })).toMatchObject({ ok: true, canonical })
+      expect(formatMetadataTargetToYAML({ canonical, constraint })).toBe(yaml)
+    }
+  })
+
+  it("rejects exact target paths outside the configured allow list", () => {
+    expect(
+      parseMetadataTargetFromModel({
+        canonical: "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства",
+        constraint: { kind: "object", allowedObjectPaths: [["ExternalDataSource", "Table"]] },
+      })
+    ).toMatchObject({ ok: false, code: "disallowed-kind" })
+
+    expect(
+      parseMetadataTargetFromModel({
+        canonical: "AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты",
+        constraint: {
+          kind: "member",
+          owner: "explicit",
+          allowedMemberPaths: [["AccumulationRegister", "Dimension"]],
+        },
+      })
+    ).toMatchObject({ ok: false, code: "invalid-shape" })
+
+    expect(
+      parseMetadataTargetFromModel({
+        canonical: "Catalog.СправочникПолный.Attribute.СтроковыйРеквизитСИндексом",
+        constraint: { kind: "object", allowedObjectPaths: [["Catalog"]] },
+      })
+    ).toMatchObject({ ok: false, code: "unknown-segment" })
+  })
+
   it("rejects English roots in YAML as unknown roots", () => {
     expect(
       parseMetadataTargetFromYAML({
