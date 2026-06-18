@@ -120,6 +120,53 @@ describe("validation project files", () => {
     })
   })
 
+  it("discovers and resolves nested subsystem properties", () => {
+    const projectDir = createProject()
+    touchProjectFile(projectDir, "Подсистема/Администрирование/Свойства.yaml")
+    touchProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml")
+    touchProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Подсистемы/Интерфейс/Свойства.yaml")
+
+    const files = discoverValidationProjectFiles(projectDir)
+
+    expect(files.map((file) => file.projectPath).sort()).toEqual([
+      "Подсистема/Администрирование/Подсистемы/Настройки/Подсистемы/Интерфейс/Свойства.yaml",
+      "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml",
+      "Подсистема/Администрирование/Свойства.yaml",
+    ])
+
+    expect(
+      resolveValidationProjectFile(
+        projectDir,
+        "Подсистема/Администрирование/Подсистемы/Настройки/Подсистемы/Интерфейс/Свойства.yaml",
+      ),
+    ).toMatchObject({
+      projectPath: "Подсистема/Администрирование/Подсистемы/Настройки/Подсистемы/Интерфейс/Свойства.yaml",
+      kind: "properties",
+      owner: {
+        dir: "Подсистема",
+        name: "Интерфейс",
+        spec: expect.objectContaining({ dir: "Подсистема" }),
+      },
+    })
+  })
+
+  it("does not resolve malformed nested subsystem paths or nested subsystem forms", () => {
+    const projectDir = createProject()
+    touchProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Свойства.yaml")
+    touchProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Формы/Форма/Форма.yaml")
+
+    expect(
+      resolveValidationProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Свойства.yaml"),
+    ).toBeUndefined()
+    expect(
+      resolveValidationProjectFile(
+        projectDir,
+        "Подсистема/Администрирование/Подсистемы/Настройки/Формы/Форма/Форма.yaml",
+      ),
+    ).toBeUndefined()
+    expect(discoverValidationProjectFiles(projectDir)).toEqual([])
+  })
+
   it("rejects files outside the project", () => {
     const projectDir = createProject()
     const outsidePath = resolve(projectDir, "..", "outside", "Справочник", "Товары", "Свойства.yaml")
