@@ -54,6 +54,7 @@ const objectFieldKindByTargetKind = {
   TabularSection: "tabularSection",
   Dimension: "dimension",
   Resource: "resource",
+  AddressingAttribute: "addressingAttribute",
 } as const satisfies Record<MetadataFieldKind, ObjectFieldKind>
 
 export function createProjectMetadataResolver(params: CreateProjectMetadataResolverParams): ProjectMetadataResolver {
@@ -347,7 +348,10 @@ function resolveMemberFieldSegments(
   for (const [index, segment] of segments.entries()) {
     if (!isFieldMemberKind(segment.kind)) return { ok: false, message: `"${segment.name}" имеет другой вид` }
 
-    currentField = getObjectField({ index: { fields: currentFields, diagnostics: [] }, name: memberLookupName(segment) })
+    currentField = getObjectField({
+      index: { fields: currentFields, standardAttributeAliases: new Map(), diagnostics: [] },
+      name: memberLookupName(segment),
+    })
     if (!currentField) return { ok: false, message: `нет сегмента "${segment.name}"` }
     if (currentField.kind !== objectFieldKindByTargetKind[segment.kind]) {
       return { ok: false, message: `"${segment.name}" имеет другой вид` }
@@ -395,7 +399,10 @@ function isFieldMemberKind(kind: MetadataMemberKind): kind is MetadataFieldKind 
   return Object.prototype.hasOwnProperty.call(objectFieldKindByTargetKind, kind)
 }
 
-type NamedMemberKind = Extract<MetadataMemberKind, "Form" | "Template" | "Command" | "AccountingFlag">
+type NamedMemberKind = Extract<
+  MetadataMemberKind,
+  "Form" | "Template" | "Command" | "AccountingFlag" | "ExtDimensionAccountingFlag" | "Field"
+>
 
 function memberCollectionName(kind: NamedMemberKind): string {
   switch (kind) {
@@ -407,6 +414,10 @@ function memberCollectionName(kind: NamedMemberKind): string {
       return "commands"
     case "AccountingFlag":
       return "accountingFlags"
+    case "ExtDimensionAccountingFlag":
+      return "extDimensionAccountingFlags"
+    case "Field":
+      return "fields"
   }
 }
 
@@ -420,6 +431,10 @@ function memberCollectionYamlName(kind: NamedMemberKind): string {
       return "Команды"
     case "AccountingFlag":
       return "ПризнакиУчета"
+    case "ExtDimensionAccountingFlag":
+      return "ПризнакиУчетаСубконто"
+    case "Field":
+      return "Поля"
   }
 }
 
@@ -459,11 +474,16 @@ function nestedObjectFolderName(kind: MetadataRootName | MetadataObjectPathKind)
   if (kind === "Cube") return "Кубы"
   if (kind === "DimensionTable") return "ТаблицыИзмерений"
   if (kind === "Function") return "Функции"
-  return rootToYAML[kind] ?? objectPathKindToYAML[kind]
+  return objectSegmentKindToYAML(kind)
 }
 
 function objectSegmentKindToYAML(kind: MetadataRootName | MetadataObjectPathKind): string {
-  return rootToYAML[kind as MetadataRootName] ?? objectPathKindToYAML[kind as MetadataObjectPathKind]
+  if (isMetadataRootName(kind)) return rootToYAML[kind]
+  return objectPathKindToYAML[kind]
+}
+
+function isMetadataRootName(kind: MetadataRootName | MetadataObjectPathKind): kind is MetadataRootName {
+  return Object.prototype.hasOwnProperty.call(rootToYAML, kind)
 }
 
 function memberLookupName(segment: Extract<ParsedMetadataTarget, { kind: "member" }>["segments"][number]): string {

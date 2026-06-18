@@ -13,7 +13,7 @@ export const importFixedArrayFromYAML = (
     return importMetadataValueFromYAML(
       context,
       undefined,
-      asExplicitYAMLStringIfMarked(data, index, v) as MetadataFixedArrayValueYAMLInput[number]
+      asExplicitYAMLStringIfMarked(data, index, v) as Exclude<MetadataFixedArrayValueYAMLInput[number], null>
     )!
   }),
 })

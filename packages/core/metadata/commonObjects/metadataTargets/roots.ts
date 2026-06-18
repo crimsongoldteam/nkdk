@@ -82,6 +82,7 @@ export const fieldKindToYAML = {
   TabularSection: "ТабличнаяЧасть",
   Dimension: "Измерение",
   Resource: "Ресурс",
+  AddressingAttribute: "РеквизитАдресации",
 } as const satisfies Record<MetadataFieldKind, string>
 
 export const fieldKindFromYAML = Object.fromEntries(

@@ -27,7 +27,14 @@ export function validateResolvedDataPathPolicy(params: {
     return [policyDiagnostic(params, `ПутьКДанным "${params.value}": конечный реквизит имеет составной тип`)]
   }
 
-  if (isPictureFieldValuesPictureTableSource(params)) return []
+  if (
+    isPictureFieldValuesPictureTableSource({
+      rule: params.rule,
+      target,
+      elementType: params.elementType,
+      hasValuesPicture: params.hasValuesPicture,
+    })
+  ) return []
 
   if (target.typeInfo.kinds.some((kind) => allowedKinds.some((allowedKind) => allowedKind === kind))) return []
 

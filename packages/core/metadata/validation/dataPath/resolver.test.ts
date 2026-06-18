@@ -1161,7 +1161,7 @@ describe("resolveDataPath", () => {
         status: "error",
         diagnostics: [
           expect.objectContaining({
-            message: `ПутьКДанным "${path}": неизвестная колонка "${path.split(".").at(-1)}"`,
+            message: `ПутьКДанным "${path}": неизвестная колонка "${path.split(".")[path.split(".").length - 1]}"`,
           }),
         ],
       })
@@ -2003,7 +2003,7 @@ describe("resolveDataPath", () => {
         status: "error",
         diagnostics: [
           expect.objectContaining({
-            message: `ПутьКДанным "${path}": неизвестный реквизит "${path.split(".").at(-1)}"`,
+            message: `ПутьКДанным "${path}": неизвестный реквизит "${path.split(".")[path.split(".").length - 1]}"`,
           }),
         ],
       })

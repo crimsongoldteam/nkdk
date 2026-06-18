@@ -29,7 +29,7 @@ const createFilterItemPresentationValueJSONSchema = (context: ConfigurationConte
     context,
     rule: FilterItemPresentationValueRule,
     value: undefined,
-  })
+  }) ?? Type.Unknown()
 
 const createFilterItemSchemaContext = (
   context: ConfigurationContext,

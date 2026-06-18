@@ -66,7 +66,7 @@ export type MetadataMemberKind =
 
 export type MetadataFieldKind = Extract<
   MetadataMemberKind,
-  "Attribute" | "StandardAttribute" | "TabularSection" | "Dimension" | "Resource"
+  "Attribute" | "StandardAttribute" | "TabularSection" | "Dimension" | "Resource" | "AddressingAttribute"
 >
 export type MetadataValueKind = "predefinedValue" | "enumValue" | "emptyRef"
 export type MetadataTypeFilterValue = "string" | "decimal" | "dateTime" | "boolean" | "ValueStorage" | "UUID"

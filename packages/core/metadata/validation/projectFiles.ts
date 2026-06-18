@@ -167,14 +167,15 @@ function matchPropertiesPath(parts: string[]): ValidationProjectFile["owner"] | 
 }
 
 function matchNestedSubsystemPropertiesPath(parts: string[]): ValidationProjectFile["owner"] | undefined {
-  if (parts.length < 5 || parts[0] !== SUBSYSTEM_DIR || parts.at(-1) !== PROPERTIES_FILE) return undefined
+  const lastPart = parts[parts.length - 1]
+  if (parts.length < 5 || parts[0] !== SUBSYSTEM_DIR || lastPart !== PROPERTIES_FILE) return undefined
   if ((parts.length - 3) % 2 !== 0) return undefined
 
   for (let index = 2; index < parts.length - 2; index += 2) {
     if (parts[index] !== CHILD_SUBSYSTEMS_DIR || !parts[index + 1]) return undefined
   }
 
-  return createOwner(SUBSYSTEM_DIR, parts.at(-2))
+  return createOwner(SUBSYSTEM_DIR, parts[parts.length - 2])
 }
 
 function matchFormPath(

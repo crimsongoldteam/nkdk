@@ -1,8 +1,8 @@
 import { Static, Type } from "@sinclair/typebox"
 import { BasePropertyRule } from "~/metadata/orchestration"
 import type { ExplicitYAMLString } from "~/yaml/explicitString"
-import { I8nText, I8nTextJSONSchema, I8nTextXML } from "../i8nText/types"
-import { StandardPeriod, StandardPeriodXML, StandardPeriodYAMLJSONSchema } from "../standardPeriod/types"
+import { I8nText, I8nTextJSONSchema, I8nTextXML, I8nTextYAML } from "../i8nText/types"
+import { StandardPeriod, StandardPeriodXML, StandardPeriodYAML, StandardPeriodYAMLJSONSchema } from "../standardPeriod/types"
 
 //#region MetadataValue
 
@@ -159,8 +159,8 @@ export type MetadataSingleValueYAML = Static<typeof MetadataSingleValueJSONSchem
 export const MetadataFixedArrayValueJSONSchema = Type.Array(
   Type.Union([MetadataSingleValueJSONSchema, Type.Undefined(), Type.Null()])
 )
-export type MetadataFixedArrayValueYAML = Array<MetadataSingleValueYAML | undefined>
-export type MetadataFixedArrayValueYAMLInput = Static<typeof MetadataFixedArrayValueJSONSchema>
+export type MetadataFixedArrayValueYAML = Array<MetadataSingleValueYAML | null | undefined>
+export type MetadataFixedArrayValueYAMLInput = MetadataFixedArrayValueYAML
 
 export const MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema = Type.Object({
   Тип: Type.Literal("ВидСравненияКомпоновкиДанных"),
@@ -220,12 +220,33 @@ export const MetadataFormChoiceListComplexValueJSONSchema = Type.Union([
     { additionalProperties: false }
   ),
 ])
-export type MetadataFormChoiceListComplexValueYAML = Static<typeof MetadataFormChoiceListComplexValueJSONSchema>
+export type MetadataFormChoiceListValueValueYAML =
+  | MetadataValueYAML
+  | MetadataExplicitDataCompositionComparisonTypeYAML
+  | MetadataExplicitAccountTypeYAML
+
+export type MetadataFormChoiceListComplexValueYAML = {
+  Представление?: I8nTextYAML
+  Значение?: MetadataFormChoiceListValueValueYAML
+}
 
 export const MetadataFormChoiceListValueJSONSchema = MetadataFormChoiceListComplexValueJSONSchema
 export type MetadataFormChoiceListValueYAML = MetadataFormChoiceListComplexValueYAML
 
-export type MetadataValueYAML = Static<typeof MetadataValueJSONSchema> | ExplicitYAMLString
+export type MetadataValueYAML =
+  | MetadataSingleValueYAML
+  | MetadataFixedArrayValueYAML
+  | MetadataExplicitDataCompositionComparisonTypeYAML
+  | MetadataExplicitAccountTypeYAML
+  | StandardPeriodYAML
+  | MetadataFormChoiceListComplexValueYAML
+  | {
+      Представление: I8nTextYAML
+      Значение?: MetadataValueYAML
+    }
+  | {
+      Значение: MetadataValueYAML
+    }
 
 //#endregion
 
