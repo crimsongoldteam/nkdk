@@ -1,4 +1,4 @@
-import { memberKindToYAML, rootToYAML, standardAttributeToYAML } from "./roots"
+import { memberKindToYAML, objectPathKindToYAML, rootToYAML, standardAttributeToYAML } from "./roots"
 import { parseMetadataTargetFromModel } from "./parse"
 import type {
   MetadataMemberKind,
@@ -35,7 +35,7 @@ function formatParsedMetadataTargetToYAML(
       return [
         rootToYAML[target.root],
         target.objectName,
-        ...(target.segments ?? []).flatMap((segment) => [rootToYAML[segment.root], segment.objectName]),
+        ...(target.segments ?? []).flatMap((segment) => [formatObjectSegmentKind(segment.kind), segment.objectName]),
       ].join(".")
     case "member":
       return formatMemberTargetToYAML(target, constraint, owner)
@@ -52,6 +52,7 @@ function formatMemberTargetToYAML(
   const full = [
     rootToYAML[target.root],
     target.objectName,
+    ...(target.objectSegments ?? []).flatMap((segment) => [formatObjectSegmentKind(segment.kind), segment.objectName]),
     ...target.segments.flatMap((segment) => [memberKindToYAML[segment.kind], formatMemberSegmentName(segment)]),
   ].join(".")
 
@@ -72,6 +73,10 @@ function formatMemberTargetToYAML(
 function formatMemberSegmentName(segment: MetadataMemberSegment): string {
   if (segment.kind !== "StandardAttribute") return segment.name
   return standardAttributeToYAML[segment.name] ?? segment.name
+}
+
+function formatObjectSegmentKind(kind: keyof typeof rootToYAML | keyof typeof objectPathKindToYAML): string {
+  return objectPathKindToYAML[kind as keyof typeof objectPathKindToYAML] ?? rootToYAML[kind as keyof typeof rootToYAML]
 }
 
 function formatValueTargetToYAML(target: Extract<ParsedMetadataTarget, { kind: "value" }>): string {

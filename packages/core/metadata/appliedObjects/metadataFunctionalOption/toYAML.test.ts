@@ -7,12 +7,12 @@ import type { MetadataFunctionalOption } from "./types"
 import "./types"
 
 describe("export MetadataFunctionalOption to YAML", () => {
-  it("exports subsystem and accounting flag content targets", () => {
+  it("exports object and accounting flag content targets", () => {
     const data: MetadataFunctionalOption = {
       itemType: "MetadataFunctionalOption",
       name: "ИспользоватьФинансовыеИнструменты",
       content: [
-        "Subsystem.Казначейство.Subsystem.ФинансовыеИнструменты",
+        "Subsystem.ФинансовыеИнструменты",
         "ChartOfAccounts.Хозрасчетный.AccountingFlag.УчетПоНаправлениямДеятельности",
       ],
     }
@@ -25,7 +25,7 @@ describe("export MetadataFunctionalOption to YAML", () => {
 
     expect(result).toEqual({
       СоставФункциональнойОпции: [
-        "Подсистема.Казначейство.Подсистема.ФинансовыеИнструменты",
+        "Подсистема.ФинансовыеИнструменты",
         "ПланСчетов.Хозрасчетный.ПризнакУчета.УчетПоНаправлениямДеятельности",
       ],
     })

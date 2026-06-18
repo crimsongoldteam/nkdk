@@ -6,21 +6,21 @@ import { MetadataFunctionalOptionRules } from "./rules"
 import "./types"
 
 describe("import MetadataFunctionalOption from YAML", () => {
-  it("imports subsystem and accounting flag content targets", () => {
+  it("imports object and accounting flag content targets", () => {
     const result = importMetadataItemFromYAML({
       context: mockContext,
       rule: MetadataFunctionalOptionRules,
       name: "ИспользоватьФинансовыеИнструменты",
       yaml: {
         СоставФункциональнойОпции: [
-          "Подсистема.Казначейство.Подсистема.ФинансовыеИнструменты",
+          "Подсистема.ФинансовыеИнструменты",
           "ПланСчетов.Хозрасчетный.ПризнакУчета.УчетПоНаправлениямДеятельности",
         ],
       },
     })
 
     expect(result?.content).toEqual([
-      "Subsystem.Казначейство.Subsystem.ФинансовыеИнструменты",
+      "Subsystem.ФинансовыеИнструменты",
       "ChartOfAccounts.Хозрасчетный.AccountingFlag.УчетПоНаправлениямДеятельности",
     ])
   })

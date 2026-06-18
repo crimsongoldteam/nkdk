@@ -4,22 +4,22 @@ import { mockContext } from "~/tests/mockContext"
 import { MetadataSubsystemRules } from "./rules"
 
 describe("MetadataSubsystem metadataTarget", () => {
-  it("imports nested subsystem links in content", () => {
+  it("imports exact object links in content", () => {
     expect(
       importMetadataItemFromYAML({
         context: mockContext,
         rule: MetadataSubsystemRules,
         name: "СтандартныеПодсистемы",
         yaml: {
-          Состав: ["Подсистема.СтандартныеПодсистемы.Подсистема.КалендарныеГрафики"],
+          Состав: ["ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Таблица.ТаблицаВсеСвойства"],
         },
       })
     ).toMatchObject({
-      content: ["Subsystem.СтандартныеПодсистемы.Subsystem.КалендарныеГрафики"],
+      content: ["ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Table.ТаблицаВсеСвойства"],
     })
   })
 
-  it("exports nested subsystem links in content", () => {
+  it("exports exact object links in content", () => {
     expect(
       exportMetadataItemToYAML({
         context: mockContext,
@@ -27,11 +27,24 @@ describe("MetadataSubsystem metadataTarget", () => {
         data: {
           itemType: "MetadataSubsystem",
           name: "СтандартныеПодсистемы",
-          content: ["Subsystem.СтандартныеПодсистемы.Subsystem.КалендарныеГрафики"],
+          content: ["ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства"],
         },
       })
     ).toMatchObject({
-      Состав: ["Подсистема.СтандартныеПодсистемы.Подсистема.КалендарныеГрафики"],
+      Состав: ["ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Куб.КубВсеСвойства"],
     })
+  })
+
+  it("rejects member links in content", () => {
+    expect(() =>
+      importMetadataItemFromYAML({
+        context: mockContext,
+        rule: MetadataSubsystemRules,
+        name: "СтандартныеПодсистемы",
+        yaml: {
+          Состав: ["Документ.АвансовыйОтчет.Реквизит.Организация"],
+        },
+      })
+    ).toThrow('Неизвестный сегмент "Реквизит"')
   })
 })

@@ -3,6 +3,18 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 import { MetadataCatalogStandardAttributeNames } from "./types"
 
+const basedOnObjectPaths = [
+  ["ChartOfAccounts"],
+  ["ExternalDataSource", "Table"],
+  ["ExchangePlan"],
+  ["Catalog"],
+  ["Document"],
+  ["ChartOfCharacteristicTypes"],
+  ["BusinessProcess"],
+  ["ChartOfCalculationTypes"],
+  ["Task"],
+] as const
+
 export const MetadataCatalogRules = {
   itemType: "MetadataCatalog",
   itemTypePrefix: "Справочник",
@@ -91,7 +103,7 @@ export const MetadataCatalogRules = {
       yaml: "ВводитсяНаОсновании",
       type: "MetadataObjectRefCollection",
       xmlParents: ["Properties"],
-      metadataTarget: { kind: "object", roots: ["Catalog", "Document", "ChartOfAccounts"] },
+      metadataTarget: { kind: "object", allowedObjectPaths: basedOnObjectPaths },
       defaultValueXMLRaw: {},
     },
     characteristics: {
