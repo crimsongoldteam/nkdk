@@ -2,28 +2,13 @@ import "~/metadata/appliedObjects"
 import "~/metadata/commonObjects"
 import "~/metadata/forms"
 import type { TSchema } from "@sinclair/typebox"
-import { MetadataAccountingRegisterRules } from "~/metadata/appliedObjects/metadataAccountingRegister/rules"
-import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/metadataAccumulationRegister/rules"
-import { MetadataBusinessProcessRules } from "~/metadata/appliedObjects/metadataBusinessProcess/rules"
+import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
+import { TopLevelMetadataItemRules } from "~/metadata/appliedObjects/configuration/topLevelRules"
 import { importMetadataCatalogFromYAML } from "~/metadata/appliedObjects/metadataCatalog/fromYAML"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { exportMetadataCatalogToJSONSchema } from "~/metadata/appliedObjects/metadataCatalog/toJSONSchema"
-import { MetadataChartOfAccountsRules } from "~/metadata/appliedObjects/metadataChartOfAccounts/rules"
-import { MetadataChartOfCalculationTypesRules } from "~/metadata/appliedObjects/metadataChartOfCalculationTypes/rules"
-import { MetadataChartOfCharacteristicTypesRules } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules"
-import { MetadataCalculationRegisterRules } from "~/metadata/appliedObjects/metadataCalculationRegister/rules"
-import { MetadataDataProcessorRules } from "~/metadata/appliedObjects/metadataDataProcessor/rules"
-import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
 import { exportMetadataDocumentToJSONSchema } from "~/metadata/appliedObjects/metadataDocument/toJSONSchema"
-import { MetadataDocumentJournalRules } from "~/metadata/appliedObjects/metadataDocumentJournal/rules"
 import { importMetadataEnumerationFromYAML } from "~/metadata/appliedObjects/metadataEnumeration/fromYAML"
-import { MetadataEnumerationRules } from "~/metadata/appliedObjects/metadataEnumeration/rules"
 import { exportMetadataEnumerationToJSONSchema } from "~/metadata/appliedObjects/metadataEnumeration/toJSONSchema"
-import { MetadataExchangePlanRules } from "~/metadata/appliedObjects/metadataExchangePlan/rules"
-import { MetadataHTTPServiceRules } from "~/metadata/appliedObjects/metadataHTTPService/rules"
-import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
-import { MetadataReportRules } from "~/metadata/appliedObjects/metadataReport/rules"
-import { MetadataTaskRules } from "~/metadata/appliedObjects/metadataTask/rules"
 import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
 import {
   attachCollectedSchemaRefs,
@@ -45,127 +30,58 @@ export interface ValidationProjectSpec {
 
 type SchemaExporter = (params: { context: ConfigurationContext }) => TSchema
 
-export const validationProjectSpecs: readonly ValidationProjectSpec[] = [
-  {
-    kind: "catalog",
-    dir: "Справочник",
-    rule: MetadataCatalogRules,
-    exportSchema: createSchemaExporter(exportMetadataCatalogToJSONSchema),
-    importModel: ({ context, parsed, name }) => importMetadataCatalogFromYAML(context, parsed.data, name),
-  },
-  {
-    kind: "document",
-    dir: "Документ",
-    rule: MetadataDocumentRules,
-    exportSchema: createSchemaExporter(exportMetadataDocumentToJSONSchema),
-    importModel: genericImportModel(MetadataDocumentRules),
-  },
-  {
-    kind: "enumeration",
-    dir: "Перечисление",
-    rule: MetadataEnumerationRules,
-    exportSchema: createSchemaExporter(exportMetadataEnumerationToJSONSchema),
-    importModel: ({ context, parsed, name }) => importMetadataEnumerationFromYAML(context, parsed.data, name),
-  },
-  {
-    kind: "dataProcessor",
-    dir: "Обработка",
-    rule: MetadataDataProcessorRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataDataProcessorRules),
-    importModel: genericImportModel(MetadataDataProcessorRules),
-  },
-  {
-    kind: "report",
-    dir: "Отчет",
-    rule: MetadataReportRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataReportRules),
-    importModel: genericImportModel(MetadataReportRules),
-  },
-  {
-    kind: "documentJournal",
-    dir: "ЖурналДокументов",
-    rule: MetadataDocumentJournalRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataDocumentJournalRules),
-    importModel: genericImportModel(MetadataDocumentJournalRules),
-  },
-  {
-    kind: "httpService",
-    dir: "HTTPСервис",
-    rule: MetadataHTTPServiceRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataHTTPServiceRules),
-    importModel: genericImportModel(MetadataHTTPServiceRules),
-  },
-  {
-    kind: "informationRegister",
-    dir: "РегистрСведений",
-    rule: MetadataInformationRegisterRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataInformationRegisterRules),
-    importModel: genericImportModel(MetadataInformationRegisterRules),
-  },
-  {
-    kind: "accumulationRegister",
-    dir: "РегистрНакопления",
-    rule: MetadataAccumulationRegisterRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataAccumulationRegisterRules),
-    importModel: genericImportModel(MetadataAccumulationRegisterRules),
-  },
-  {
-    kind: "accountingRegister",
-    dir: "РегистрБухгалтерии",
-    rule: MetadataAccountingRegisterRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataAccountingRegisterRules),
-    importModel: genericImportModel(MetadataAccountingRegisterRules),
-  },
-  {
-    kind: "calculationRegister",
-    dir: "РегистрРасчета",
-    rule: MetadataCalculationRegisterRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataCalculationRegisterRules),
-    importModel: genericImportModel(MetadataCalculationRegisterRules),
-  },
-  {
-    kind: "exchangePlan",
-    dir: "ПланОбмена",
-    rule: MetadataExchangePlanRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataExchangePlanRules),
-    importModel: genericImportModel(MetadataExchangePlanRules),
-  },
-  {
-    kind: "chartOfAccounts",
-    dir: "ПланСчетов",
-    rule: MetadataChartOfAccountsRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataChartOfAccountsRules),
-    importModel: genericImportModel(MetadataChartOfAccountsRules),
-  },
-  {
-    kind: "chartOfCalculationTypes",
-    dir: "ПланВидовРасчета",
-    rule: MetadataChartOfCalculationTypesRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataChartOfCalculationTypesRules),
-    importModel: genericImportModel(MetadataChartOfCalculationTypesRules),
-  },
-  {
-    kind: "chartOfCharacteristicTypes",
-    dir: "ПланВидовХарактеристик",
-    rule: MetadataChartOfCharacteristicTypesRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataChartOfCharacteristicTypesRules),
-    importModel: genericImportModel(MetadataChartOfCharacteristicTypesRules),
-  },
-  {
-    kind: "businessProcess",
-    dir: "БизнесПроцесс",
-    rule: MetadataBusinessProcessRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataBusinessProcessRules),
-    importModel: genericImportModel(MetadataBusinessProcessRules),
-  },
-  {
-    kind: "task",
-    dir: "Задача",
-    rule: MetadataTaskRules,
-    exportSchema: createMetadataItemSchemaExporter(MetadataTaskRules),
-    importModel: genericImportModel(MetadataTaskRules),
-  },
-]
+type ValidationProjectSpecOverride = Partial<Pick<ValidationProjectSpec, "kind" | "exportSchema" | "importModel">>
+
+const validationProjectSpecOverrides = new Map<string, ValidationProjectSpecOverride>([
+  [
+    "Справочник",
+    {
+      kind: "catalog",
+      exportSchema: createSchemaExporter(exportMetadataCatalogToJSONSchema),
+      importModel: ({ context, parsed, name }) => importMetadataCatalogFromYAML(context, parsed.data, name),
+    },
+  ],
+  [
+    "Документ",
+    {
+      kind: "document",
+      exportSchema: createSchemaExporter(exportMetadataDocumentToJSONSchema),
+    },
+  ],
+  [
+    "Перечисление",
+    {
+      kind: "enumeration",
+      exportSchema: createSchemaExporter(exportMetadataEnumerationToJSONSchema),
+      importModel: ({ context, parsed, name }) => importMetadataEnumerationFromYAML(context, parsed.data, name),
+    },
+  ],
+])
+
+export const validationProjectSpecs: readonly ValidationProjectSpec[] = TopLevelMetadataItemRules.flatMap((rule) => {
+  const dir = rule.itemTypePrefix
+  if (typeof dir !== "string") return []
+
+  const override = validationProjectSpecOverrides.get(dir)
+
+  return [
+    {
+      kind: override?.kind ?? rule.itemType,
+      dir,
+      rule,
+      exportSchema: override?.exportSchema ?? createMetadataItemSchemaExporter(rule),
+      importModel: override?.importModel ?? genericImportModel(rule),
+    },
+  ]
+})
+
+export const configurationValidationProjectSpec: ValidationProjectSpec = {
+  kind: "configuration",
+  dir: "",
+  rule: MetadataConfigurationRules,
+  exportSchema: createMetadataItemSchemaExporter(MetadataConfigurationRules),
+  importModel: genericImportModel(MetadataConfigurationRules),
+}
 
 export const validationProjectSpecByDir = new Map(validationProjectSpecs.map((spec) => [spec.dir, spec]))
 

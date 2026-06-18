@@ -31,7 +31,7 @@ export interface ValidateProjectResult {
 }
 
 const expectedPatterns =
-  "Ожидались пути вида <Вид>/<Имя>/Свойства.yaml или <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
+  "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
 
 type CompiledSchema = ReturnType<(typeof TypeCompiler)["Compile"]>
 

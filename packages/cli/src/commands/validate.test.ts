@@ -75,6 +75,24 @@ describe("validate command", () => {
     expect(text).not.toContain("Форма.yaml")
   })
 
+  it("validates a single root configuration file from --file", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Конфигурация.yaml", [
+      "Имя: Конфигурация",
+      "ОсновнойЯзык: Язык.НеСуществует",
+    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
+    const stdout = captureStdout()
+
+    await validateYamlProject(projectDir, { file: "Конфигурация.yaml" })
+
+    const text = writtenText(stdout)
+    expect(text).toContain("Язык/НеСуществует/Свойства.yaml")
+    expect(text).toContain('Не найден объект "Язык.НеСуществует"')
+    expect(text).not.toContain("Справочник/Товары/Свойства.yaml")
+    expect(process.exitCode).toBe(1)
+  })
+
   it("accepts SystemEnumeration properties through the public core entrypoint", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Файлы/Свойства.yaml", [
@@ -137,7 +155,7 @@ describe("validate command", () => {
     stderr.mockClear()
     await validateYamlProject(projectDir, { file: "Справочник/Товары/Команды/Команда.yaml" })
     expect(process.exitCode).toBe(2)
-    expect(writtenText(stderr)).toContain("Ожидались пути вида")
+    expect(writtenText(stderr)).toContain("Ожидались Конфигурация.yaml")
   })
 
   it("formats diagnostics with project-relative POSIX paths", () => {
