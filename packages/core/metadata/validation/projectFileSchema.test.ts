@@ -30,11 +30,76 @@ describe("exportJSONSchemaForProjectFile", () => {
     return projectDir
   }
 
-  it("exports compact catalog schema for absolute properties path by default", () => {
+  it("exports configuration schema for virtual root configuration path", () => {
+    const schema = exportJSONSchemaForProjectFile({
+      context,
+      filePath: "Конфигурация.yaml",
+    })
+
+    expect(schema).toMatchObject({
+      type: "object",
+      properties: expect.objectContaining({
+        Имя: expect.any(Object),
+      }),
+    })
+  })
+
+  it("exports nested subsystem schema from virtual nested subsystem path", () => {
+    const schema = exportJSONSchemaForProjectFile({
+      context,
+      filePath: "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml",
+    })
+
+    expect(schema).toMatchObject({
+      type: "object",
+      properties: expect.objectContaining({
+        Синоним: expect.any(Object),
+      }),
+    })
+  })
+
+  it("exports schema for a new properties file that does not exist on disk", () => {
+    const projectDir = createProject()
+
+    const schema = exportJSONSchemaForProjectFile({
+      context,
+      projectDir,
+      filePath: "Справочник/НовыйСправочник/Свойства.yaml",
+    })
+
+    expect(schema).toMatchObject({
+      type: "object",
+      properties: expect.objectContaining({
+        Реквизиты: expect.any(Object),
+      }),
+    })
+  })
+
+  it("exports compact catalog schema for project-relative properties path by default", () => {
+    const projectDir = createProject()
+    const filePath = "Справочник/Товары/Свойства.yaml"
+
+    const schema = exportJSONSchemaForProjectFile({ context, projectDir, filePath })
+
+    expect(schema).toMatchObject({
+      type: "object",
+      properties: expect.objectContaining({
+        Реквизиты: expect.objectContaining({
+          type: "object",
+          additionalProperties: expect.objectContaining({
+            $ref: "nkdk://schema/MetadataCatalogAttribute",
+          }),
+        }),
+      }),
+      "x-nkdk-schemaRefs": expect.arrayContaining(["nkdk://schema/MetadataCatalogAttribute"]),
+    })
+  })
+
+  it("exports compact catalog schema for absolute properties path inside explicit project", () => {
     const projectDir = createProject()
     const filePath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
 
-    const schema = exportJSONSchemaForProjectFile({ context, filePath })
+    const schema = exportJSONSchemaForProjectFile({ context, projectDir, filePath })
 
     expect(schema).toMatchObject({
       type: "object",
@@ -113,7 +178,18 @@ describe("exportJSONSchemaForProjectFile", () => {
         context,
         filePath: "Справочник/Товары/Команды/Команда.yaml",
       })
-    ).toThrow(/Ожидались пути вида/)
+    ).toThrow(/Ожидались Конфигурация\.yaml/)
+  })
+
+  it("rejects prefixed configuration YAML paths as unclassified", () => {
+    const exportSchema = () =>
+      exportJSONSchemaForProjectFile({
+        context,
+        filePath: "Архив/Конфигурация.yaml",
+      })
+
+    expect(exportSchema).toThrow(ProjectFileSchemaError)
+    expect(exportSchema).toThrow(/Ожидались Конфигурация\.yaml/)
   })
 
   it("rejects a file outside explicit project directory", () => {

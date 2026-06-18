@@ -49,12 +49,13 @@ export const printSchema = async (target: string, options: SchemaCommandOptions 
     version: "2.20",
   } as const
   const mode = options.inline === true ? "inline" : "externalRefs"
+  const isProjectFileTarget = target.toLowerCase().endsWith(".yaml")
 
-  const schema = (options.project || target.toLowerCase().endsWith(".yaml"))
+  const schema = isProjectFileTarget
     ? exportJSONSchemaForProjectFile({
         context,
         filePath: target,
-        projectDir: options.project,
+        projectDir: options.project ?? process.cwd(),
         mode,
       })
     : exportJSONSchemaForSchemaName({

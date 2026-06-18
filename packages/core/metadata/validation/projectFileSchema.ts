@@ -1,7 +1,7 @@
 import type { TSchema } from "@sinclair/typebox"
 import { isAbsolute, relative, resolve, sep } from "path"
 import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
-import { getValidationProjectSpecByDir, type ValidationProjectSpec } from "./projectSpecs"
+import { classifyMetadataProjectPath } from "~/metadata/project"
 import {
   exportJSONSchemaForSchemaName as exportRegisteredJSONSchemaForSchemaName,
   ProjectFileSchemaError,
@@ -23,34 +23,40 @@ export interface ExportJSONSchemaForSchemaNameParams {
 }
 
 const expectedPatterns =
-  "Ожидались пути вида <Вид>/<Имя>/Свойства.yaml или <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
+  "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
 
 export function exportJSONSchemaForProjectFile(params: ExportJSONSchemaForProjectFileParams): TSchema {
-  const { context } = params
   const normalized = normalizeProjectPath(params)
-  const parts = normalized.split("/")
 
   if (!normalized.toLowerCase().endsWith(".yaml")) {
     throw new ProjectFileSchemaError("JSON Schema поддерживается только для .yaml файлов")
   }
 
-  if (isFormPath(parts)) {
+  const resource = classifyMetadataProjectPath(normalized)
+  if (!resource) {
+    throw new ProjectFileSchemaError(expectedPatterns)
+  }
+
+  if (resource.kind !== "yaml") {
+    throw new ProjectFileSchemaError("JSON Schema для этого вида metadata-ресурса не поддерживается")
+  }
+
+  if (resource.role === "form") {
     return exportRegisteredJSONSchemaForSchemaName({
-      context,
+      context: params.context,
       name: "ClientApplicationForm",
       mode: params.mode,
     })
   }
 
-  const spec = findPropertiesPath(parts)?.spec
-  if (spec) {
-    return spec.exportSchema({
-      context,
+  if (resource.role === "configuration" || resource.role === "properties") {
+    return resource.owner.spec.exportSchema({
+      context: params.context,
       mode: params.mode,
     })
   }
 
-  throw new ProjectFileSchemaError(expectedPatterns)
+  throw new ProjectFileSchemaError("JSON Schema для этого вида metadata-ресурса не поддерживается")
 }
 
 export function exportJSONSchemaForSchemaName(params: ExportJSONSchemaForSchemaNameParams): TSchema {
@@ -75,33 +81,4 @@ function normalizeProjectPath(params: Pick<ExportJSONSchemaForProjectFileParams,
 
 function toProjectSeparators(filePath: string): string {
   return filePath.split(sep).join("/")
-}
-
-function isFormPath(parts: string[]): boolean {
-  const ownerDir = parts[parts.length - 5]
-
-  return (
-    parts.length >= 5 &&
-    parts[parts.length - 3] === "Формы" &&
-    parts[parts.length - 2] !== "" &&
-    parts[parts.length - 1] === "Форма.yaml" &&
-    ownerDir !== undefined &&
-    hasValidationProjectSpec(ownerDir)
-  )
-}
-
-function findPropertiesPath(parts: string[]): { spec: ValidationProjectSpec } | undefined {
-  if (parts.length < 3 || parts[parts.length - 1] !== "Свойства.yaml") return undefined
-
-  const objectDir = parts[parts.length - 3]
-  if (!objectDir) return undefined
-
-  const spec = getValidationProjectSpecByDir(objectDir)
-  if (!spec) return undefined
-
-  return { spec }
-}
-
-function hasValidationProjectSpec(dir: string): boolean {
-  return getValidationProjectSpecByDir(dir) !== undefined
 }

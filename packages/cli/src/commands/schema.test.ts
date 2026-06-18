@@ -112,6 +112,55 @@ describe("schema command", () => {
     expect(JSON.parse(text).properties).toHaveProperty("Реквизиты")
   })
 
+  it("prints YAML summary for dot-relative project file", async () => {
+    const stdout = captureStdout()
+
+    await printSchema("./Справочник/Товары/Свойства.yaml", {})
+
+    const text = writtenText(stdout)
+    expect(text).toContain("fields:")
+    expect(text).toContain("key: Реквизиты")
+  })
+
+  it("prints YAML summary for root configuration project file", async () => {
+    const stdout = captureStdout()
+
+    await printSchema("Конфигурация.yaml", {})
+
+    const text = writtenText(stdout)
+    expect(text).toContain("fields:")
+    expect(text).toContain("key: Имя")
+    expect(text).toContain("key: ОсновнойЯзык")
+  })
+
+  it("prints keys for root configuration project file", async () => {
+    const stdout = captureStdout()
+
+    await printSchema("Конфигурация.yaml", { keys: true })
+
+    expect(writtenText(stdout)).toContain("Имя\n")
+  })
+
+  it("prints JSON schema for root configuration project file", async () => {
+    const stdout = captureStdout()
+
+    await printSchema("Конфигурация.yaml", { jsonSchema: true })
+
+    const schema = JSON.parse(writtenText(stdout))
+    expect(schema.properties).toHaveProperty("Имя")
+  })
+
+  it("prints YAML summary for nested subsystem project file", async () => {
+    const stdout = captureStdout()
+
+    await printSchema("Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml", {})
+
+    const text = writtenText(stdout)
+    expect(text).toContain("fields:")
+    expect(text).toContain("key: Синоним")
+    expect(text).toContain("key: ВключатьВКомандныйИнтерфейс")
+  })
+
   it("keeps printJSONSchema compatibility wrapper behavior", async () => {
     const stdout = captureStdout()
 
