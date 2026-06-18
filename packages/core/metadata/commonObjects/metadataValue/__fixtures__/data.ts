@@ -3,6 +3,7 @@ import {
   MetadataValuePropertyRule,
   MetadataValueYAML,
 } from "~/metadata/commonObjects/metadataValue/types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 type MetadataValueFixture = {
   name: string
@@ -17,14 +18,14 @@ export const metadataValueFixtures: MetadataValueFixture[] = [
     name: "string",
     rule: { type: "MetadataValue" },
     internal: { type: "string", value: "Текстовое значение" },
-    YAML: '"Текстовое значение"',
+    YAML: explicitYAMLString("Текстовое значение"),
     XML: '<Value xsi:type="xs:string">Текстовое значение</Value>',
   },
   {
     name: "numberAsString",
     rule: { type: "MetadataValue", valueType: ["string"] },
     internal: { type: "string", value: "11" },
-    YAML: '"11"',
+    YAML: explicitYAMLString("11"),
     XML: '<Value xsi:type="xs:string">11</Value>',
   },
   {
@@ -102,7 +103,7 @@ export const metadataValueFixtures: MetadataValueFixture[] = [
     },
     YAML: {
       Представление: "Физическое лицо",
-      Значение: '"ФЛ"',
+      Значение: explicitYAMLString("ФЛ"),
     },
     XML: `<Value xsi:type="FormChoiceListDesTimeValue">
 	<Presentation>
@@ -124,7 +125,7 @@ export const metadataValueFixtures: MetadataValueFixture[] = [
     },
     YAML: {
       Представление: { ru: "Физическое лицо", en: "Physical person" },
-      Значение: '"ФЛ"',
+      Значение: explicitYAMLString("ФЛ"),
     },
     XML: `<Value xsi:type="FormChoiceListDesTimeValue">
 	<Presentation>
@@ -151,7 +152,7 @@ export const metadataValueFixtures: MetadataValueFixture[] = [
     name: "emptyString",
     rule: { type: "MetadataValue", valueType: ["string"] },
     internal: { type: "string", value: "" },
-    YAML: '""',
+    YAML: explicitYAMLString(""),
     XML: '<Value xsi:type="xs:string"/>',
   },
   {

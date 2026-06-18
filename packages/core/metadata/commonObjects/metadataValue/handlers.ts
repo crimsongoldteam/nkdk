@@ -1,5 +1,6 @@
 import { format, parse } from "date-fns"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
+import { explicitYAMLString, isExplicitYAMLString } from "~/yaml/explicitString"
 import {
   AccountTypeFromYAML,
   AccountTypeToYAML,
@@ -88,16 +89,18 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
       "#text": String((v as MetadataStringValue).value),
     }),
     fromYAML: (_ctx, data) => {
+      if (isExplicitYAMLString(data)) {
+        return { type: "string", value: data.value } satisfies MetadataStringValue
+      }
       if (typeof data === "string") {
-        const unquoted = data.startsWith('"') && data.endsWith('"') ? data.slice(1, -1) : data
-        return { type: "string", value: unquoted } satisfies MetadataStringValue
+        return { type: "string", value: data } satisfies MetadataStringValue
       }
       if (typeof data === "number") {
         return { type: "string", value: String(data) } satisfies MetadataStringValue
       }
       return undefined
     },
-    toYAML: (_ctx, v) => `"${(v as MetadataStringValue).value}"`,
+    toYAML: (_ctx, v) => explicitYAMLString((v as MetadataStringValue).value),
   },
 
   decimal: {
