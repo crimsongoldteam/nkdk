@@ -184,6 +184,32 @@ describe("validateProject", () => {
     expect(diagnostics).toEqual([])
   })
 
+  it("validates nested subsystem properties with schema rules", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Подсистема/Администрирование/Свойства.yaml", "{}\n")
+    writeProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml", [
+      "ЛишнееПоле: true",
+    ])
+
+    const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: join(
+          projectDir,
+          "Подсистема",
+          "Администрирование",
+          "Подсистемы",
+          "Настройки",
+          "Свойства.yaml",
+        ),
+        source: "structure",
+        severity: "error",
+        path: "/ЛишнееПоле",
+      }),
+    ])
+  })
+
   it("validates the root configuration YAML file", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Конфигурация.yaml", [
