@@ -48,7 +48,7 @@ export interface ChoiceParameterDcsValueRootXML {
 
 export const ChoiceParametersJSONSchema = Type.Record(
   Type.String(),
-  Type.Union([MetadataValueJSONSchema, Type.Undefined(), Type.Null()])
+  Type.Union([MetadataValueJSONSchema, Type.Object({}, { additionalProperties: false }), Type.Undefined(), Type.Null()])
 )
 
 export type ChoiceParametersYAML = Static<typeof ChoiceParametersJSONSchema>

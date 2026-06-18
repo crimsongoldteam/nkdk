@@ -33,4 +33,38 @@ describe("importChoiceListFromYAML", () => {
 
     expect(result).toEqual(emptyValueChoiceList)
   })
+
+  it("imports root-like string values as string literals", () => {
+    const result = importChoiceListFromYAML(mockContext, mockRule, [
+      { Представление: "Справочник", Значение: "Справочник" },
+      { Представление: "Постоянное значение", Значение: "Constant" },
+    ])
+
+    expect(result).toEqual([
+      {
+        type: "formChoiceListDesTimeValue",
+        presentation: { items: { ru: "Справочник" } },
+        value: { type: "string", value: "Справочник" },
+      },
+      {
+        type: "formChoiceListDesTimeValue",
+        presentation: { items: { ru: "Постоянное значение" } },
+        value: { type: "string", value: "Constant" },
+      },
+    ])
+  })
+
+  it("keeps importing full metadata references as ref values", () => {
+    const result = importChoiceListFromYAML(mockContext, mockRule, [
+      { Представление: "Без НДС", Значение: "Справочник.СтавкиНДС.ПустаяСсылка" },
+    ])
+
+    expect(result).toEqual([
+      {
+        type: "formChoiceListDesTimeValue",
+        presentation: { items: { ru: "Без НДС" } },
+        value: { type: "ref", value: "Catalog.СтавкиНДС.EmptyRef" },
+      },
+    ])
+  })
 })

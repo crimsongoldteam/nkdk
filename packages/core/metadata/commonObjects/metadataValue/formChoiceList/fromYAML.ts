@@ -1,9 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets"
 import { DataCompositionComparisonTypeFromYAML } from "~/metadata/systemEnumerations/types"
 import { I8nText } from "../../i8nText/types"
 import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
 import { importMetadataValueFromYAML } from "../fromYAML"
-import { MetadataFormChoiceListValue, MetadataFormChoiceListValueYAML } from "../types"
+import { MetadataFormChoiceListValue, MetadataFormChoiceListValueYAML, MetadataStringValue } from "../types"
 
 const importPresentationFromYAML = (
   context: ConfigurationContext,
@@ -36,7 +37,7 @@ export const importFormChoiceListFromYAML = (
     data.Значение === undefined
       ? undefined
       : (importExplicitChoiceListValueFromYAML(data.Значение) ??
-        importMetadataValueFromYAML(context, undefined, data.Значение))
+        importChoiceListValueFromYAML(context, data.Значение))
 
   const result: MetadataFormChoiceListValue = {
     type: "formChoiceListDesTimeValue",
@@ -46,4 +47,22 @@ export const importFormChoiceListFromYAML = (
   if (value !== undefined) result.value = value
 
   return result
+}
+
+const importChoiceListValueFromYAML = (
+  context: ConfigurationContext,
+  value: MetadataFormChoiceListValueYAML["Значение"]
+): MetadataFormChoiceListValue["value"] | undefined => {
+  try {
+    return importMetadataValueFromYAML(context, undefined, value)
+  } catch (caught) {
+    if (typeof value !== "string" || isFullYAMLMetadataTarget(value)) throw caught
+
+    return { type: "string", value } satisfies MetadataStringValue
+  }
+}
+
+function isFullYAMLMetadataTarget(value: string): boolean {
+  const parts = value.split(".")
+  return parts.length > 1 && rootFromYAML[parts[0]] !== undefined
 }

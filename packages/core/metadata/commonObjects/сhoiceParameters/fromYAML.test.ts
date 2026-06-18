@@ -116,6 +116,19 @@ describe("importChoiceParametersFromYAML", () => {
     expect(Object.prototype.hasOwnProperty.call(result?.[0], "value")).toBe(false)
   })
 
+  it("imports empty object choice parameter as parameter without value", () => {
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, {
+      ВыборДействующихМаршрутныхКарт: {},
+    } as ChoiceParametersYAML)
+
+    expect(result).toStrictEqual([
+      {
+        name: "ВыборДействующихМаршрутныхКарт",
+      },
+    ])
+    expect(Object.prototype.hasOwnProperty.call(result?.[0], "value")).toBe(false)
+  })
+
   it("should import choice parameters without value from yaml", () => {
     const result = importChoiceParametersFromYAML(mockContext, mockRule, withoutValueChoiceParametersYAML)
 

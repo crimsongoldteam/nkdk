@@ -9,6 +9,10 @@ describe("ChoiceParametersJSONSchema", () => {
     expect(compiled.Check({ ВыборСчетовГоловнойОрганизации: null })).toBe(true)
   })
 
+  it("accepts empty object as an empty choice parameter value", () => {
+    expect(compiled.Check({ ВыборДействующихМаршрутныхКарт: {} })).toBe(true)
+  })
+
   it("accepts compact ERP form choice parameter YAML", () => {
     expect(
       compiled.Check({
