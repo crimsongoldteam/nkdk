@@ -2,11 +2,13 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
+import { TopLevelMetadataItemRules } from "~/metadata/appliedObjects/configuration/topLevelRules"
 import {
   assertProjectFileInside,
   discoverValidationProjectFiles,
   resolveValidationProjectFile,
 } from "./projectFiles"
+import { validationProjectSpecs } from "./projectSpecs"
 
 describe("validation project files", () => {
   const tempDirs: string[] = []
@@ -28,6 +30,18 @@ describe("validation project files", () => {
     mkdirSync(resolve(filePath, ".."), { recursive: true })
     writeFileSync(filePath, "")
   }
+
+  it("has validation specs for every top-level metadata object with YAML directory", () => {
+    const topLevelDirs = TopLevelMetadataItemRules.flatMap((rule) =>
+      typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : [],
+    ).sort((left, right) => left.localeCompare(right, "ru"))
+
+    const validationDirs = validationProjectSpecs
+      .map((spec) => spec.dir)
+      .sort((left, right) => left.localeCompare(right, "ru"))
+
+    expect(validationDirs).toEqual(topLevelDirs)
+  })
 
   it("discovers supported properties and form YAML files", () => {
     const projectDir = createProject()
