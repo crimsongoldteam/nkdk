@@ -267,7 +267,8 @@ function dataPathSchema(constraint: Extract<MetadataTargetConstraint, { kind: "d
       ? ""
       : ` Допустимые виды значения: ${constraint.allowedKinds.join(", ")}.`
   const composite = constraint.allowComposite === true ? " Составные значения разрешены." : " Составные значения запрещены."
-  const simplePathPattern = `${METADATA_NAME_PATTERN}(?:\\.${METADATA_NAME_PATTERN})*`
+  const indexedSegmentPattern = `${METADATA_NAME_PATTERN}(?:\\[[0-9]+\\])?`
+  const simplePathPattern = `${indexedSegmentPattern}(?:\\.${indexedSegmentPattern})*`
   const tildeVariantPathPattern = `~${simplePathPattern}(?:~${simplePathPattern})*`
   return Type.String({
     pattern: `^(?:${simplePathPattern}|${tildeVariantPathPattern})$`,
