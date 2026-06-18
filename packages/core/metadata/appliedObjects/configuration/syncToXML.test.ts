@@ -92,6 +92,40 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("не планирует вложенные подсистемы как отдельные top-level задачи", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-sync-nested-subsystem-plan-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "xml")
+
+    try {
+      fs.mkdirSync(join(yamlDir, "Подсистема", "Администрирование", "Подсистемы", "Настройки"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(
+        join(yamlDir, "Подсистема", "Администрирование", "Свойства.yaml"),
+        ["Имя: Администрирование", "Подсистемы:", "  - Настройки", ""].join("\n"),
+        "utf-8",
+      )
+      fs.writeFileSync(
+        join(yamlDir, "Подсистема", "Администрирование", "Подсистемы", "Настройки", "Свойства.yaml"),
+        "Имя: Настройки\n",
+        "utf-8",
+      )
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(result.failed).toEqual([])
+      expect(fs.existsSync(join(outDir, "Subsystems", "Администрирование.xml"))).toBe(true)
+      expect(fs.existsSync(join(outDir, "Subsystems", "Администрирование", "Subsystems", "Настройки.xml"))).toBe(true)
+      expect(fs.existsSync(join(outDir, "Subsystems", "Настройки.xml"))).toBe(false)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("пишет корневой Configuration.xml из Конфигурация.yaml и вычисляет пустой ChildObjects", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-to-xml-"))
     const yamlDir = join(tmp, "yaml")
