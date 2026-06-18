@@ -1,4 +1,5 @@
 import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 export const oneItemChoiceList: ChoiceList = [
   {
@@ -14,7 +15,7 @@ export const oneItemChoiceList: ChoiceList = [
 export const oneItemChoiceListYAML: ChoiceListYAML = [
   {
     Представление: "Значение 1",
-    Значение: '"Значение1"',
+    Значение: explicitYAMLString("Значение1"),
   },
 ]
 
@@ -40,7 +41,7 @@ export const twoItemsChoiceList: ChoiceList = [
 export const twoItemsChoiceListYAML: ChoiceListYAML = [
   {
     Представление: "Значение 1",
-    Значение: '"Значение1"',
+    Значение: explicitYAMLString("Значение1"),
   },
   {
     Представление: "Значение 2",

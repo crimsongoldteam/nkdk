@@ -1,4 +1,5 @@
 import { MetadataDocument, MetadataDocumentYAML } from "../types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 export const full: MetadataDocument = {
   actionsWritingOnPost: "WriteSelected",
@@ -225,11 +226,11 @@ export const fullYAML: MetadataDocumentYAML = {
   РежимПолученияДанныхВыбораПриВводеПоСтроке: "Фоновый",
   Реквизиты: {
     СтроковыйРеквизит: {
-      ЗначениеЗаполнения: '""',
+      ЗначениеЗаполнения: explicitYAMLString(""),
       Тип: "Строка(10)",
     },
     ИндексированноеПоле: {
-      ЗначениеЗаполнения: '""',
+      ЗначениеЗаполнения: explicitYAMLString(""),
       Индексирование: "Индексировать",
       Тип: "Строка(10)",
     },

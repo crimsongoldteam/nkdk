@@ -1,4 +1,5 @@
 import { MetadataCommonAttribute, MetadataCommonAttributeYAML } from "../types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 export const full: MetadataCommonAttribute = {
   itemType: "MetadataCommonAttribute",
@@ -46,7 +47,7 @@ export const fullYAML: MetadataCommonAttributeYAML = {
   РасширенноеРедактирование: "Истина",
   МинимальноеЗначение: 4,
   МаксимальноеЗначение: 96,
-  ЗначениеЗаполнения: '"Значение"',
+  ЗначениеЗаполнения: explicitYAMLString("Значение"),
   ПроверкаЗаполнения: "ВыдаватьОшибку",
   СозданиеПриВводе: "НеИспользовать",
   СвязьПоТипу: "-2(1)",

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { metadataValueFixtures } from "~/metadata/commonObjects/metadataValue/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
+import { explicitYAMLString } from "~/yaml/explicitString"
 import { importMetadataValueFromYAML } from "./fromYAML"
 import { MetadataFormChoiceListValueYAML, MetadataValueYAML } from "./types"
 
@@ -103,6 +104,16 @@ describe("importMetadataValueFromYAML", () => {
       type: "ref",
       value: "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231",
     })
+  })
+
+  it("imports explicit YAML string marker as string MetadataValue without valueType", () => {
+    const result = importMetadataValueFromYAML(
+      mockContext,
+      { type: "MetadataValue" } as any,
+      explicitYAMLString("456") as any
+    )
+
+    expect(result).toEqual({ type: "string", value: "456" })
   })
 
   describe("строгая валидация valueType", () => {

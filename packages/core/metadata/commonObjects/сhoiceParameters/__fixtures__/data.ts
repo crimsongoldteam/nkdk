@@ -1,4 +1,5 @@
 import { ChoiceParameter, ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 import {
   refsWithNilFixedArray,
   refsWithNilFixedArrayYAML,
@@ -83,7 +84,7 @@ export const stringChoiceParameter: ChoiceParameters = [
 ]
 
 export const stringChoiceParametersYAML: ChoiceParametersYAML = {
-  "Дополнительно.ТипВладельца": '"ЗаказПокупателя"',
+  "Дополнительно.ТипВладельца": explicitYAMLString("ЗаказПокупателя"),
 }
 
 //#endregion

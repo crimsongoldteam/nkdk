@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { metadataValueFixtures } from "~/metadata/commonObjects/metadataValue/__fixtures__/data"
 import { mockContext } from "~/tests/mockContext"
+import { exportToYAML } from "~/yaml/export"
+import { isExplicitYAMLString } from "~/yaml/explicitString"
 import { exportMetadataValueToYAML } from "./toYAML"
 
 describe("exportMetadataValueToYAML", () => {
@@ -57,6 +59,17 @@ describe("exportMetadataValueToYAML", () => {
         { type: "ref", value } as any
       )
     ).toEqual(value)
+  })
+
+  it("exports string MetadataValue as an explicit YAML string marker", () => {
+    const result = exportMetadataValueToYAML(
+      mockContext,
+      { type: "MetadataValue" } as any,
+      { type: "string", value: "456" } as any
+    )
+
+    expect(isExplicitYAMLString(result)).toBe(true)
+    expect(exportToYAML({ "Отбор.Код": result })).toBe('Отбор.Код: "456"')
   })
 
   describe("строгая валидация valueType", () => {

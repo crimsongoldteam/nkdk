@@ -3,6 +3,7 @@ import {
   RadioButtonFieldEnterprise,
   RadioButtonFieldPartialYAML,
 } from "~/metadata/forms/elements/radioButtonField/types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 import {
   fullFormFieldCommonFixture,
@@ -76,7 +77,7 @@ export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
   СписокВыбора: [
     {
       Представление: "Пункт 1",
-      Значение: '"Пункт 1"',
+      Значение: explicitYAMLString("Пункт 1"),
     },
   ],
   События: {

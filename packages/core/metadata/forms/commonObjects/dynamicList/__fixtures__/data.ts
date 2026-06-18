@@ -1,4 +1,5 @@
 import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 export const queryText = "ВЫБРАТЬ\nСправочник1.Реквизит1 КАК Реквизит1\nИЗ\nСправочник.Справочник1 КАК Справочник1"
 
@@ -289,7 +290,7 @@ export const fullDynamicListYAML = {
           ],
         },
         Оформление: {
-          Текст: '"Текстовый параметр"',
+          Текст: explicitYAMLString("Текстовый параметр"),
         },
       },
     ],
@@ -328,7 +329,7 @@ export const fullDynamicListYAML = {
       Заголовок: "Параметр1",
       ОграничениеИспользования: "Истина",
       ПараметрыРедактирования: {
-        Маска: '"123"',
+        Маска: explicitYAMLString("123"),
         СвязиПараметровВыбора: [
           {
             Имя: "ПараметрВыбора",
@@ -338,8 +339,8 @@ export const fullDynamicListYAML = {
         ],
         ПараметрыВыбора: { Параметр: 123 },
         СвязьПоТипу: "Поле1(2)",
-        ФормаВыбора: '"ФормаВыбора"',
-        ФорматРедактирования: '"ЧЦ=15; ЧДЦ=2"',
+        ФормаВыбора: explicitYAMLString("ФормаВыбора"),
+        ФорматРедактирования: explicitYAMLString("ЧЦ=15; ЧДЦ=2"),
         БыстрыйВыбор: "Истина",
         ВыборГруппИЭлементов: "Элементы",
       },

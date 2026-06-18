@@ -1,5 +1,6 @@
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { ExplicitYAMLString, isExplicitYAMLString } from "~/yaml/explicitString"
 import { ConfigurationContext } from "../../context/types"
 import { importFixedArrayFromYAML } from "./fixedArray/fromYAML"
 import { importFormChoiceListFromYAML } from "./formChoiceList/fromYAML"
@@ -16,7 +17,7 @@ import {
   assertValueType,
 } from "./types"
 
-type MetadataSingleYAML = string | number
+type MetadataSingleYAML = string | number | ExplicitYAMLString
 type ExplicitMetadataValueYAML = {
   Тип?: unknown
   Значение?: unknown
@@ -101,22 +102,21 @@ export const importMetadataValueFromYAML = (
 
 /**
  * Детерминистская диспетчеризация по синтаксису YAML-значения.
- * Порядок: число → строка в кавычках → boolean → dateTime → ref → string.
+ * Порядок: явная YAML-строка → число → boolean → dateTime → ref → string.
  */
 const heuristicFromYAML = (
   context: ConfigurationContext,
   data: MetadataSingleYAML
 ): MetadataTypedValue | undefined => {
+  if (isExplicitYAMLString(data)) {
+    return { type: "string", value: data.value } satisfies MetadataStringValue
+  }
+
   if (typeof data === "number") {
     return { type: "decimal", value: data }
   }
 
   if (typeof data !== "string") return undefined
-
-  // Строка в кавычках
-  if (data.startsWith('"') && data.endsWith('"')) {
-    return { type: "string", value: data.slice(1, -1) } satisfies MetadataStringValue
-  }
 
   // Boolean
   if (data === "Истина" || data === "Ложь") {

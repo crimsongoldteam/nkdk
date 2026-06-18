@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { explicitYAMLString } from "./explicitString"
 import { exportToYAML } from "./export"
 import { importFromYAML } from "./import"
 
@@ -29,5 +30,23 @@ describe("exportToYAML", () => {
 
   it("does not add a service newline for ordinary YAML documents", () => {
     expect(exportToYAML({ Имя: "Тест" }).endsWith("\n")).toBe(false)
+  })
+
+  it("prints explicit YAML strings as double-quoted scalars", () => {
+    const yaml = exportToYAML({ "Отбор.Код": explicitYAMLString("456") })
+
+    expect(yaml).toBe('Отбор.Код: "456"')
+  })
+
+  it("escapes explicit YAML string content through double-quoted scalar rules", () => {
+    const yaml = exportToYAML({ Значение: explicitYAMLString('a"b') })
+
+    expect(yaml).toBe('Значение: "a\\"b"')
+  })
+
+  it("does not force ordinary strings into double quotes", () => {
+    const yaml = exportToYAML({ Имя: "Тест" })
+
+    expect(yaml).toBe("Имя: Тест")
   })
 })

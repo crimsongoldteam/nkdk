@@ -2,6 +2,7 @@ import {
   MetadataRegisterResources,
   MetadataRegisterResourcesYAML,
 } from "~/metadata/commonObjects/metadataRegisterResource/types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 export const resourcesFromXML: MetadataRegisterResources = [
   {
@@ -69,7 +70,7 @@ export const resourcesYAML: MetadataRegisterResourcesYAML = {
     МинимальноеЗначение: 10,
     МаксимальноеЗначение: 100,
     ЗаполнятьИзДанныхЗаполнения: "Истина",
-    ЗначениеЗаполнения: '"Значение заполнения"',
+    ЗначениеЗаполнения: explicitYAMLString("Значение заполнения"),
     ПроверкаЗаполнения: "ВыдаватьОшибку",
     СвязиПараметровВыбора: [
       {
@@ -77,7 +78,7 @@ export const resourcesYAML: MetadataRegisterResourcesYAML = {
         ПутьКДанным: "Catalog.Справочник.Attribute.Реквизит",
       },
     ],
-    ПараметрыВыбора: { "Отбор.Параметр": '"Значение"' },
+    ПараметрыВыбора: { "Отбор.Параметр": explicitYAMLString("Значение") },
     СозданиеПриВводе: "НеИспользовать",
     ФормаВыбора: "Catalog.Справочник.Form.ФормаВыбора",
     СвязьПоТипу: "Справочник.Справочник.Реквизит.Реквизит(1)",

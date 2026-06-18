@@ -3,6 +3,7 @@ import { ConfigurationContext } from "../../../context/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { isExplicitYAMLString } from "~/yaml/explicitString"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
 import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
@@ -15,7 +16,7 @@ import type {
 } from "./types"
 
 const isYamlObject = (x: unknown): x is Record<string, unknown> =>
-  typeof x === "object" && x !== null && !Array.isArray(x)
+  typeof x === "object" && x !== null && !Array.isArray(x) && !isExplicitYAMLString(x)
 
 const isExplicitDcsValueYAML = (x: unknown): x is Record<string, unknown> =>
   isYamlObject(x) && typeof x["Тип"] === "string" && "Значение" in x

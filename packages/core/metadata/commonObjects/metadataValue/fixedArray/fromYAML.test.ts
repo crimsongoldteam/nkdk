@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
+import { importFromYAML } from "~/yaml/import"
 import {
   formChoiceRefsFixedArrayYAML,
   refsWithNilFixedArray,
@@ -21,6 +22,16 @@ describe("importFixedArrayFromYAML", () => {
   it("should import fixed array with single string from YAML", () => {
     const result = importFixedArrayFromYAML(mockContext, singleStringFixedArrayYAML)
     expect(result).toEqual(singleStringFixedArray)
+  })
+
+  it("imports double-quoted numeric-looking YAML sequence item as string value", () => {
+    const yaml = importFromYAML<{ Значения: unknown[] }>('Значения:\n  - "456"\n').Значения
+    const result = importFixedArrayFromYAML(mockContext, yaml as any)
+
+    expect(result).toEqual({
+      type: "fixedArray",
+      value: [{ type: "string", value: "456" }],
+    })
   })
 
   it("should import fixed array with undefined YAML element", () => {

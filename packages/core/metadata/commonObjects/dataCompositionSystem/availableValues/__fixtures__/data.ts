@@ -1,4 +1,5 @@
 import type { DcsAvailableValues, DcsAvailableValuesYAML } from "../types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 export const stringAvailableValues = [
   {
@@ -14,8 +15,8 @@ export const stringAvailableValues = [
 ] satisfies DcsAvailableValues
 
 export const stringAvailableValuesYAML = [
-  { Значение: '"Выставлен"', Представление: "Выставлен" },
-  { Значение: '"Аннулирован"', Представление: "Аннулирован" },
+  { Значение: explicitYAMLString("Выставлен"), Представление: "Выставлен" },
+  { Значение: explicitYAMLString("Аннулирован"), Представление: "Аннулирован" },
 ] satisfies DcsAvailableValuesYAML
 
 export const nilAndBooleanAvailableValues = [

@@ -1,4 +1,5 @@
 import { MetadataDataProcessor, MetadataDataProcessorYAML } from "../types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 export const full: MetadataDataProcessor = {
   itemType: "MetadataDataProcessor",
@@ -209,7 +210,7 @@ export const fullYAML: MetadataDataProcessorYAML = {
           СвязьПоТипу: "Обработка.ОбработкаВсеСвойства.Реквизит.РеквизитБулево",
           ИсторияВыбораПриВводе: "НеИспользовать",
           ЗаполнятьИзДанныхЗаполнения: "Истина",
-          ЗначениеЗаполнения: "\"Строка\"",
+          ЗначениеЗаполнения: explicitYAMLString("Строка"),
         },
       },
     },

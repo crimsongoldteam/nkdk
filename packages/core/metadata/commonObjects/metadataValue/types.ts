@@ -1,5 +1,6 @@
 import { Static, Type } from "@sinclair/typebox"
 import { BasePropertyRule } from "~/metadata/orchestration"
+import type { ExplicitYAMLString } from "~/yaml/explicitString"
 import { I8nText, I8nTextJSONSchema, I8nTextXML } from "../i8nText/types"
 import { StandardPeriod, StandardPeriodXML, StandardPeriodYAMLJSONSchema } from "../standardPeriod/types"
 
@@ -153,7 +154,7 @@ export type MetadataSimpleValueXML = {
 //#region MetadataValueYAML
 
 export const MetadataSingleValueJSONSchema = Type.Union([Type.String(), Type.Number()])
-export type MetadataSingleValueYAML = Static<typeof MetadataSingleValueJSONSchema>
+export type MetadataSingleValueYAML = Static<typeof MetadataSingleValueJSONSchema> | ExplicitYAMLString
 
 export const MetadataFixedArrayValueJSONSchema = Type.Array(
   Type.Union([MetadataSingleValueJSONSchema, Type.Undefined(), Type.Null()])
@@ -224,7 +225,7 @@ export type MetadataFormChoiceListComplexValueYAML = Static<typeof MetadataFormC
 export const MetadataFormChoiceListValueJSONSchema = MetadataFormChoiceListComplexValueJSONSchema
 export type MetadataFormChoiceListValueYAML = MetadataFormChoiceListComplexValueYAML
 
-export type MetadataValueYAML = Static<typeof MetadataValueJSONSchema>
+export type MetadataValueYAML = Static<typeof MetadataValueJSONSchema> | ExplicitYAMLString
 
 //#endregion
 

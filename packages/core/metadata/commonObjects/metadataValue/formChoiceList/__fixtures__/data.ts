@@ -1,4 +1,5 @@
 import { MetadataFormChoiceListValue, MetadataFormChoiceListValueYAML } from "~/metadata/commonObjects/metadataValue/types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 export const withStringValue: MetadataFormChoiceListValue = {
   type: "formChoiceListDesTimeValue",
@@ -18,7 +19,7 @@ export const withStringValueXML = `<Value xsi:type="FormChoiceListDesTimeValue">
 
 export const withStringValueYAML: MetadataFormChoiceListValueYAML = {
   Представление: "Физическое лицо",
-  Значение: '"ФЛ"',
+  Значение: explicitYAMLString("ФЛ"),
 }
 
 export const withoutPresentation: MetadataFormChoiceListValue = {
@@ -57,7 +58,7 @@ export const withMultiLangPresentationXML = `<Value xsi:type="FormChoiceListDesT
 
 export const withMultiLangPresentationYAML: MetadataFormChoiceListValueYAML = {
   Представление: { ru: "Физическое лицо", en: "Physical person" },
-  Значение: '"ФЛ"',
+  Значение: explicitYAMLString("ФЛ"),
 }
 
 export const withNumericPresentation: MetadataFormChoiceListValue = {
