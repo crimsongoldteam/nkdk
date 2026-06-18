@@ -8,7 +8,7 @@ export const importColorFromXML = (
   _rule: PropertyRule | undefined,
   xml: ColorXML | undefined
 ): Color | undefined => {
-  if (!xml) return undefined
+  if (!xml || xml === "auto") return undefined
 
   if (isRawColorRefValue(xml)) return { rawRef: xml }
 
