@@ -386,6 +386,49 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts table source PictureField data path when values picture is configured", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  ТаблицаОбъектыЗалога:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      ОбъектЗалога:",
+        "        Тип: Строка",
+        "Элементы:",
+        "  СостояниеДокумента:",
+        "    Вид: ПолеРисунка",
+        "    КартинкаЗначений: ОбщаяКартинка.СостоянияДокумента",
+        "    ПутьКДанным: ТаблицаОбъектыЗалога",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("keeps table source PictureField data path invalid without values picture", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  ТаблицаОбъектыЗалога:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      ОбъектЗалога:",
+        "        Тип: Строка",
+        "Элементы:",
+        "  СостояниеДокумента:",
+        "    Вид: ПолеРисунка",
+        "    ПутьКДанным: ТаблицаОбъектыЗалога",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([
+      expect.objectContaining({
+        message: expect.stringContaining("конечный тип не подходит"),
+      }),
+    ])
+  })
+
   it("accepts composite PictureField data path when one terminal kind is compatible", () => {
     const project = createProject({
       form: [

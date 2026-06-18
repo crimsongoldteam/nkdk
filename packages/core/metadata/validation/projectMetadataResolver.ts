@@ -17,6 +17,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import type { DataPathTypeInfo } from "./dataPath/types"
 import { createOwnerMetadataCache, type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
 import { getObjectField, type ObjectField, type ObjectFieldKind } from "./dataPath/objectFields"
+import { typeDescriptionToDataPathTypeInfo } from "./dataPath/typeDescription"
 import type { ProjectYamlCache } from "./projectYamlCache"
 import type { Diagnostic } from "./types"
 
@@ -102,6 +103,8 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
       if (!resolved.ok) {
         const childForm = resolveChildFormFile({ ownerFilePath: owner.owner.filePath, target, message: resolved.message })
         if (childForm) return childForm
+        const childTemplate = resolveChildTemplateFile({ ownerFilePath: owner.owner.filePath, target, message: resolved.message })
+        if (childTemplate) return childTemplate
 
         return referenceError(owner.owner.filePath, `Не найден член "${formatMemberTarget(target)}": ${resolved.message}`)
       }
@@ -112,6 +115,7 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
         target,
         details: resolved.details,
         filters,
+        ownerCache,
       })
       if (!filterResult.ok) return filterResult
 
@@ -167,6 +171,24 @@ function resolveChildFormFile(params: {
   if (!existsSync(filePath)) return undefined
 
   return { ok: true, filePath, details: { kind: "Form", name: segment.name, item: segment.name } }
+}
+
+function resolveChildTemplateFile(params: {
+  ownerFilePath: string
+  target: Extract<ParsedMetadataTarget, { kind: "member" }>
+  message: string
+}): MetadataResolveResult | undefined {
+  const [segment] = params.target.segments
+  if (params.target.segments.length !== 1 || segment.kind !== "Template") return undefined
+  if (params.message !== `нет сегмента "${segment.name}"`) return undefined
+
+  const templateDir = join(dirname(params.ownerFilePath), "Шаблоны", segment.name)
+  for (const fileName of ["Template.xml", "Template.txt", "Template.bin"]) {
+    const filePath = join(templateDir, fileName)
+    if (existsSync(filePath)) return { ok: true, filePath, details: { kind: "Template", name: segment.name, item: segment.name } }
+  }
+
+  return undefined
 }
 
 type ResolvedMemberDetails =
@@ -250,6 +272,7 @@ function applyMetadataTargetFilters(params: {
   target: Extract<ParsedMetadataTarget, { kind: "member" }>
   details: ResolvedMemberDetails
   filters: readonly MetadataTargetFilter[] | undefined
+  ownerCache: OwnerMetadataCache
 }): MetadataResolveResult {
   for (const filter of params.filters ?? []) {
     switch (filter.kind) {
@@ -270,19 +293,46 @@ function applyMetadataTargetFilters(params: {
         }
         break
       case "stringIndexedAttribute":
-        if (!matchesStringIndexedAttributeFilter(params.details)) {
-          return referenceError(
-            params.filePath,
-            `Член "${params.displayName}" не подходит: ожидаются реквизиты, пригодные для ввода по строке`,
-          )
+        {
+          const filterResult = resolveStringIndexedAttributeFilter(params.details, params.ownerCache)
+          if (!filterResult.ok) return filterResult
+          if (filterResult.matches) break
         }
-        break
+        return referenceError(
+          params.filePath,
+          `Член "${params.displayName}" не подходит: ожидаются реквизиты, пригодные для ввода по строке`,
+        )
       case "styleItemType":
         break
     }
   }
 
   return { ok: true, filePath: params.filePath, details: params.details }
+}
+
+function resolveStringIndexedAttributeFilter(
+  details: ResolvedMemberDetails,
+  ownerCache: OwnerMetadataCache,
+): { ok: true; matches: boolean } | { ok: false; diagnostics: Diagnostic[] } {
+  if (matchesStringIndexedAttributeFilter(details)) return { ok: true, matches: true }
+  if (!isObjectField(details)) return { ok: true, matches: false }
+
+  const definedTypes = details.typeInfo.definedTypes ?? []
+  if (definedTypes.length === 0) return { ok: true, matches: false }
+
+  for (const definedType of definedTypes) {
+    const ownerResult = ownerCache.get({ kind: "ОпределяемыйТип", name: definedType })
+    if (ownerResult.status !== "ok") return { ok: false, diagnostics: ownerResult.diagnostics }
+
+    const typeInfo = typeDescriptionToDataPathTypeInfo(definedTypeType(ownerResult.owner.model))
+    if (matchesStringIndexedAttributeFilter({ ...details, typeInfo })) return { ok: true, matches: true }
+  }
+
+  return { ok: true, matches: false }
+}
+
+function definedTypeType(model: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
+  return metadataRecord(model).type as Parameters<typeof typeDescriptionToDataPathTypeInfo>[0]
 }
 
 function resolveMemberFieldSegments(

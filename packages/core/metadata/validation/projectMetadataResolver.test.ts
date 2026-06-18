@@ -223,6 +223,69 @@ describe("ProjectMetadataResolver", () => {
     })
   })
 
+  it("resolves local templates from child template files when owner YAML does not contain reference-only template names", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Отчет/Продажи/Свойства.yaml", "Реквизиты: {}")
+    writeProjectFile(projectDir, "Отчет/Продажи/Шаблоны/ОсновнаяСхемаКомпоновкиДанных/Template.xml", "<DataCompositionSchema/>")
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveMember({ target: memberTarget("Отчет.Продажи.Макет.ОсновнаяСхемаКомпоновкиДанных") })).toMatchObject({
+      ok: true,
+      filePath: join(projectDir, "Отчет", "Продажи", "Шаблоны", "ОсновнаяСхемаКомпоновкиДанных", "Template.xml"),
+      details: {
+        kind: "Template",
+        name: "ОсновнаяСхемаКомпоновкиДанных",
+        item: "ОсновнаяСхемаКомпоновкиДанных",
+      },
+    })
+  })
+
+  it("keeps missing local templates as reference diagnostics when the child template file is absent", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Отчет/Продажи/Свойства.yaml", "Реквизиты: {}")
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveMember({ target: memberTarget("Отчет.Продажи.Макет.НетТакогоМакета") })).toMatchObject({
+      ok: false,
+      diagnostics: [
+        expect.objectContaining({
+          source: "reference",
+          message: 'Не найден член "Отчет.Продажи.Макет.НетТакогоМакета": нет сегмента "НетТакогоМакета"',
+        }),
+      ],
+    })
+  })
+
+  it("does not resolve nested template targets from child template files", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Отчет/Продажи/Свойства.yaml", "Реквизиты: {}")
+    writeProjectFile(projectDir, "Отчет/Продажи/Шаблоны/ОсновнаяСхемаКомпоновкиДанных/Template.xml", "<DataCompositionSchema/>")
+    const resolver = createResolver(projectDir)
+
+    expect(
+      resolver.resolveMember({
+        target: {
+          kind: "member",
+          root: "Report",
+          objectName: "Продажи",
+          segments: [
+            { kind: "Template", name: "ОсновнаяСхемаКомпоновкиДанных" },
+            { kind: "Attribute", name: "Поле" },
+          ],
+        },
+      }),
+    ).toMatchObject({
+      ok: false,
+      diagnostics: [
+        expect.objectContaining({
+          source: "reference",
+          message:
+            'Не найден член "Отчет.Продажи.Макет.ОсновнаяСхемаКомпоновкиДанных.Реквизит.Поле": "ОсновнаяСхемаКомпоновкиДанных" не содержит вложенных членов',
+        }),
+      ],
+    })
+  })
+
   it("does not resolve other member kinds from child form files", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", "Реквизиты: {}")
@@ -379,6 +442,70 @@ describe("ProjectMetadataResolver", () => {
     ).toMatchObject({
       ok: false,
       diagnostics: [expect.objectContaining({ message: expect.stringContaining("пригодные для ввода по строке") })],
+    })
+  })
+
+  it("applies stringIndexedAttribute filter after resolving string DefinedType metadata", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Контрагенты/Свойства.yaml", [
+      "Реквизиты:",
+      "  ИНН:",
+      "    Тип: ОпределяемыйТип.ИНН",
+    ])
+    writeProjectFile(projectDir, "ОпределяемыйТип/ИНН/Свойства.yaml", "Тип: Строка(12)")
+    const resolver = createResolver(projectDir)
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Справочник.Контрагенты.Реквизит.ИНН"),
+        filters: [{ kind: "stringIndexedAttribute" }],
+      }),
+    ).toMatchObject({ ok: true })
+  })
+
+  it("keeps stringIndexedAttribute filter errors for object DefinedType metadata", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Контрагенты/Свойства.yaml", [
+      "Реквизиты:",
+      "  Организация:",
+      "    Тип: ОпределяемыйТип.Организация",
+    ])
+    writeProjectFile(projectDir, "ОпределяемыйТип/Организация/Свойства.yaml", "Тип: Справочник.Организации")
+    const resolver = createResolver(projectDir)
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Справочник.Контрагенты.Реквизит.Организация"),
+        filters: [{ kind: "stringIndexedAttribute" }],
+      }),
+    ).toMatchObject({
+      ok: false,
+      diagnostics: [expect.objectContaining({ message: expect.stringContaining("пригодные для ввода по строке") })],
+    })
+  })
+
+  it("reports missing DefinedType metadata while applying stringIndexedAttribute filter", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Контрагенты/Свойства.yaml", [
+      "Реквизиты:",
+      "  ИНН:",
+      "    Тип: ОпределяемыйТип.ИНН",
+    ])
+    const resolver = createResolver(projectDir)
+
+    expect(
+      resolver.resolveMember({
+        target: memberTarget("Справочник.Контрагенты.Реквизит.ИНН"),
+        filters: [{ kind: "stringIndexedAttribute" }],
+      }),
+    ).toMatchObject({
+      ok: false,
+      diagnostics: [
+        expect.objectContaining({
+          source: "cross-file",
+          message: expect.stringContaining("Не найден файл владельца ОпределяемыйТип.ИНН"),
+        }),
+      ],
     })
   })
 

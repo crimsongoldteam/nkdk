@@ -911,10 +911,16 @@ function resolveRegisterRecordSetColumn(params: {
   return {
     status: "ok",
     column: {
-      name: field.name,
-      typeInfo: isUnknownTypeInfo(field.typeInfo) && virtualStandardColumn !== undefined
-        ? virtualStandardColumn.typeInfo
-        : field.typeInfo,
+      name: isUnknownTypeInfo(field.typeInfo) && accountingVirtualColumn !== undefined
+        ? accountingVirtualColumn.name
+        : isUnknownTypeInfo(field.typeInfo) && virtualStandardColumn !== undefined
+          ? virtualStandardColumn.name
+          : field.name,
+      typeInfo: isUnknownTypeInfo(field.typeInfo) && accountingVirtualColumn !== undefined
+        ? accountingVirtualColumn.typeInfo
+        : isUnknownTypeInfo(field.typeInfo) && virtualStandardColumn !== undefined
+          ? virtualStandardColumn.typeInfo
+          : field.typeInfo,
     },
   }
 }
@@ -995,7 +1001,7 @@ function accountingRegisterDebitCreditFieldColumn(owner: OwnerMetadata, segment:
 }
 
 function registerRecordSetStandardColumn(segment: string, fieldName: string | undefined): TableColumnSource | undefined {
-  const yamlName = fieldName ?? standardAttributeAliasToYAML(segment) ?? segment
+  const yamlName = segment === "PeriodAdjustment" ? segment : fieldName ?? standardAttributeAliasToYAML(segment) ?? segment
   switch (segment) {
     case "Active":
     case "Активность":

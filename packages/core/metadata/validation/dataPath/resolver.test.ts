@@ -15,6 +15,7 @@ import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocumen
 import { MetadataExchangePlanRules } from "~/metadata/appliedObjects/metadataExchangePlan/rules"
 import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
 import { MetadataReportRules } from "~/metadata/appliedObjects/metadataReport/rules"
+import { MetadataTaskRules } from "~/metadata/appliedObjects/metadataTask/rules"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { buildFormDataPathIndex, type FormDataPathIndex } from "./formIndex"
@@ -1672,6 +1673,66 @@ describe("resolveDataPath", () => {
         },
       })
     }
+  })
+
+  it("resolves task platform aliases and addressing attributes through owner metadata", () => {
+    const owners = ownerCache([
+      owner({
+        ref: { kind: "ЗадачаОбъект", name: "ЗадачаИсполнителя" },
+        rule: MetadataTaskRules,
+        model: {
+          itemType: "MetadataTask",
+          addressingAttributes: [
+            { itemType: "MetadataAttribute", name: "Исполнитель", type: { type: ["CatalogRef.Пользователи"] } },
+          ],
+        },
+      }),
+    ])
+
+    for (const [path, yamlName] of [
+      ["Объект.Description", "Описание"],
+      ["Объект.Executed", "Выполнена"],
+      ["Объект.BusinessProcess", "БизнесПроцесс"],
+      ["Объект.RoutePoint", "ТочкаМаршрута"],
+      ["Объект.Исполнитель", "Исполнитель"],
+    ] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Объект", { type: ["TaskObject.ЗадачаИсполнителя"] })]),
+          ownerCache: owners,
+        }),
+      ).toMatchObject({
+        status: "ok",
+        diagnostics: [],
+        target: {
+          value: path,
+          source: { kind: "objectField", owner: { kind: "ЗадачаОбъект", name: "ЗадачаИсполнителя" }, name: yamlName },
+        },
+      })
+    }
+  })
+
+  it("resolves boolean document Posted standard attribute", () => {
+    const result = resolve("Объект.Posted", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentObject.Заказ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ДокументОбъект", name: "Заказ" },
+          rule: MetadataDocumentRules,
+          model: { itemType: "MetadataDocument" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Объект.Posted",
+        source: { kind: "objectField", owner: { kind: "ДокументОбъект", name: "Заказ" }, name: "Проведен" },
+        typeInfo: { kinds: ["boolean"] },
+      },
+    })
   })
 
   it("resolves platform aliases after traversing a reference column", () => {

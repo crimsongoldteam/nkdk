@@ -101,6 +101,8 @@ export function validateForm(params: ValidateFormParams): Diagnostic[] {
         value: occurrence.value,
         rule: occurrence.rule,
         target: result.target,
+        ...(occurrence.elementType !== undefined ? { elementType: occurrence.elementType } : {}),
+        ...(occurrence.hasValuesPicture !== undefined ? { hasValuesPicture: occurrence.hasValuesPicture } : {}),
       }),
     )
   }

@@ -4,6 +4,7 @@ import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/met
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
 import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
+import { MetadataTaskRules } from "~/metadata/appliedObjects/metadataTask/rules"
 import type { MetadataItem } from "~/metadata/orchestration/property/types"
 import type { OwnerMetadata } from "./ownerCache"
 import { buildObjectFieldIndex, resolveObjectFieldSegment } from "./objectFields"
@@ -176,6 +177,53 @@ describe("buildObjectFieldIndex", () => {
     expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Description" })).toMatchObject({ name: "Наименование" })
     expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Code" })).toMatchObject({ name: "Код" })
     expect(resolveObjectFieldSegment({ index: documentIndex, segment: "Parent" })).toBeUndefined()
+  })
+
+  it("resolves task-specific platform standard attribute aliases through task rules", () => {
+    const index = buildObjectFieldIndex(
+      owner({
+        ref: { kind: "Задача", name: "ЗадачаИсполнителя" },
+        rule: MetadataTaskRules,
+        model: { itemType: "MetadataTask" },
+      }),
+    )
+
+    expect(resolveObjectFieldSegment({ index, segment: "Description" })).toMatchObject({
+      name: "Описание",
+      kind: "standardAttribute",
+    })
+    expect(resolveObjectFieldSegment({ index, segment: "Executed" })).toMatchObject({
+      name: "Выполнена",
+      kind: "standardAttribute",
+      typeInfo: { kinds: ["boolean"] },
+    })
+    expect(index.fields.get("Наименование")).toBeUndefined()
+  })
+
+  it("indexes task addressing attributes as DataPath fields", () => {
+    const index = buildObjectFieldIndex(
+      owner({
+        ref: { kind: "Задача", name: "ЗадачаИсполнителя" },
+        rule: MetadataTaskRules,
+        model: {
+          itemType: "MetadataTask",
+          addressingAttributes: [
+            {
+              itemType: "MetadataAttribute",
+              name: "Исполнитель",
+              type: { type: ["CatalogRef.Пользователи"] },
+            },
+          ],
+        },
+      }),
+    )
+
+    expect(index.fields.get("Исполнитель")).toMatchObject({
+      name: "Исполнитель",
+      kind: "addressingAttribute",
+      sourceCollection: "addressingAttributes",
+      typeInfo: { kinds: ["object"], nextTypes: [{ kind: "Справочник", name: "Пользователи" }] },
+    })
   })
 
   it("infers catalog owner standard attribute type from catalog owners", () => {

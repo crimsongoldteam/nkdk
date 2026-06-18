@@ -12,7 +12,13 @@ import {
   unknownDataPathTypeInfo,
 } from "./types"
 
-export type ObjectFieldKind = "attribute" | "standardAttribute" | "tabularSection" | "dimension" | "resource"
+export type ObjectFieldKind =
+  | "attribute"
+  | "standardAttribute"
+  | "tabularSection"
+  | "dimension"
+  | "resource"
+  | "addressingAttribute"
 
 export interface ObjectField {
   name: string
@@ -30,6 +36,7 @@ export interface ObjectFieldTableSource {
 
 export interface ObjectFieldIndex {
   fields: Map<string, ObjectField>
+  standardAttributeAliases: Map<string, string>
   diagnostics: Diagnostic[]
 }
 
@@ -47,21 +54,24 @@ const dataCollectionKinds = {
   tabularSections: "tabularSection",
   dimensions: "dimension",
   resources: "resource",
+  addressingAttributes: "addressingAttribute",
 } as const satisfies Record<string, ObjectFieldKind>
 
 export function buildObjectFieldIndex(owner: ObjectFieldIndexOwner): ObjectFieldIndex {
   const fields = new Map<string, ObjectField>()
+  const standardAttributeAliases = new Map<string, string>()
   const diagnostics: Diagnostic[] = []
 
   addDataCollectionFields({ owner, fields })
   addStandardAttributeFields({
     owner,
     fields,
+    standardAttributeAliases,
     propertyRule: owner.rule.properties.standardAttributes,
     sourceCollection: "standardAttributes",
   })
 
-  return { fields, diagnostics }
+  return { fields, standardAttributeAliases, diagnostics }
 }
 
 export function getObjectField(params: { index: ObjectFieldIndex; name: string }): ObjectField | undefined {
@@ -69,7 +79,7 @@ export function getObjectField(params: { index: ObjectFieldIndex; name: string }
 }
 
 export function resolveObjectFieldSegment(params: { index: ObjectFieldIndex; segment: string }): ObjectField | undefined {
-  const alias = standardAttributeAliasToYAML(params.segment)
+  const alias = params.index.standardAttributeAliases.get(params.segment) ?? standardAttributeAliasToYAML(params.segment)
   if (alias !== undefined) return params.index.fields.get(alias) ?? params.index.fields.get(params.segment)
   return params.index.fields.get(params.segment)
 }
@@ -107,10 +117,11 @@ function addDataCollectionFields(params: { owner: ObjectFieldIndexOwner; fields:
 function addStandardAttributeFields(params: {
   owner: ObjectFieldIndexOwner
   fields: Map<string, ObjectField>
+  standardAttributeAliases: Map<string, string>
   propertyRule: PropertyRule | undefined
   sourceCollection: string
 }): void {
-  const { owner, fields, propertyRule, sourceCollection } = params
+  const { owner, fields, standardAttributeAliases, propertyRule, sourceCollection } = params
   if (propertyRule?.type !== "StandardAttributeDescriptions") return
 
   const rule = propertyRule as StandardAttributeDescriptionsPropertyRule
@@ -119,6 +130,7 @@ function addStandardAttributeFields(params: {
 
   for (const [internalName, yamlName] of Object.entries(standardAttributeNames)) {
     const explicit = explicitItems.get(internalName)
+    standardAttributeAliases.set(internalName, yamlName)
     fields.set(yamlName, {
       name: yamlName,
       kind: "standardAttribute",
@@ -158,6 +170,7 @@ function buildTabularSectionField(
       rule: MetadataTabularSectionRules,
     },
     fields: columns,
+    standardAttributeAliases: new Map(),
     propertyRule: MetadataTabularSectionRules.properties.standardAttributes,
     sourceCollection: "standardAttributes",
   })
@@ -211,6 +224,30 @@ function standardAttributeTypeInfo(params: {
       kinds: ["scalar"],
       nextTypes: [],
       sourceText: `${params.owner.ref.kind}.SentReceivedNo`,
+    }
+  }
+
+  if (["Posted", "Executed", "Completed", "Started"].includes(params.internalName)) {
+    return {
+      kinds: ["boolean"],
+      nextTypes: [],
+      sourceText: `${params.owner.ref.kind}.${params.internalName}`,
+    }
+  }
+
+  if (params.internalName === "BusinessProcess") {
+    return {
+      kinds: ["object"],
+      nextTypes: [{ kind: "БизнесПроцесс" }],
+      sourceText: `${params.owner.ref.kind}.BusinessProcess`,
+    }
+  }
+
+  if (params.internalName === "RoutePoint") {
+    return {
+      kinds: ["object"],
+      nextTypes: [{ kind: "БизнесПроцесс" }],
+      sourceText: `${params.owner.ref.kind}.RoutePoint`,
     }
   }
 
