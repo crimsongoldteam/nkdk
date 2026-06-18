@@ -134,7 +134,7 @@ export const MetadataSubsystemRules = {
       yaml: "Состав",
       xml: "Content",
       type: "MetadataItemLinks",
-      metadataTarget: { kind: "object", allowedObjectPaths: contentObjectPaths },
+      metadataTarget: { kind: "object", allowedObjectPaths: contentObjectPaths, nestedObjectRoots: ["Subsystem"] },
       xmlParents: properties,
       defaultValueXMLRaw: {},
     },

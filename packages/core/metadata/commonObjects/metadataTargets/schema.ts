@@ -115,6 +115,8 @@ function objectSchema(constraint: Extract<MetadataTargetConstraint, { kind: "obj
   if (constraint.allowedObjectPaths) {
     const branches = exactObjectPathPatterns(constraint.allowedObjectPaths, "yaml")
     const modelBranches = exactObjectPathPatterns(constraint.allowedObjectPaths, "model")
+    branches.push(...nestedRootObjectPathPatterns(constraint.nestedObjectRoots, "yaml"))
+    modelBranches.push(...nestedRootObjectPathPatterns(constraint.nestedObjectRoots, "model"))
     return Type.String({
       pattern: branches.length === 0 ? noMatchPattern : `^(?:${[...branches, ...modelBranches].join("|")})$`,
       examples: exactObjectPathExamples(constraint.allowedObjectPaths),
@@ -247,6 +249,13 @@ function memberObjectPathPatterns(
   }
 
   return branches
+}
+
+function nestedRootObjectPathPatterns(roots: readonly MetadataRootName[] | undefined, source: "yaml" | "model"): string[] {
+  return (roots ?? []).map((root) => {
+    const rootName = source === "yaml" ? rootToYAML[root] : root
+    return `${rootName}\\.${METADATA_NAME_PATTERN}(?:\\.${rootName}\\.${METADATA_NAME_PATTERN})+`
+  })
 }
 
 function exactObjectPathPatterns(

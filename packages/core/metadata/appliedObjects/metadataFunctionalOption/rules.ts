@@ -4,6 +4,7 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 const properties = ["Properties"]
 
 const contentObjectPaths = [
+  ["Constant"],
   ["Catalog"],
   ["Subsystem"],
   ["CommonAttribute"],
@@ -11,6 +12,7 @@ const contentObjectPaths = [
   ["FilterCriterion"],
   ["CommonForm"],
   ["CommonCommand"],
+  ["Document"],
   ["DocumentJournal"],
   ["Enum"],
   ["DataProcessor"],
@@ -41,6 +43,7 @@ const contentMemberPaths = [
   ["ExchangePlan", "TabularSection", "Attribute"],
   ["FilterCriterion", "Command"],
   ["Document", "Attribute"],
+  ["Document", "TabularSection"],
   ["Document", "TabularSection", "Attribute"],
   ["Document", "Command"],
   ["DocumentJournal", "Command"],
@@ -49,6 +52,7 @@ const contentMemberPaths = [
   ["DataProcessor", "TabularSection"],
   ["DataProcessor", "TabularSection", "Attribute"],
   ["DataProcessor", "Command"],
+  ["ChartOfCharacteristicTypes", "Attribute"],
   ["ChartOfCharacteristicTypes", "TabularSection"],
   ["ChartOfCharacteristicTypes", "TabularSection", "Attribute"],
   ["ChartOfCharacteristicTypes", "Command"],
@@ -154,6 +158,7 @@ export const MetadataFunctionalOptionRules = {
         owner: "explicit",
         allowedObjectPaths: contentObjectPaths,
         allowedMemberPaths: contentMemberPaths,
+        nestedObjectRoots: ["Subsystem"],
       },
       xmlParents: properties,
       metadataItemLinksXMLItem: "xr:Object",

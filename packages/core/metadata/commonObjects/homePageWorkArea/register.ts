@@ -2,7 +2,7 @@ import { Type } from "@sinclair/typebox"
 import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
 import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { buildMetadataTargetSchema } from "~/metadata/commonObjects/metadataTargets"
+import { buildMetadataTargetSchema, METADATA_NAME_PATTERN } from "~/metadata/commonObjects/metadataTargets"
 import { importMetadataItemLinkFromYAML } from "~/metadata/commonObjects/metadataRef/fromYAML"
 import { exportMetadataItemLinkToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
 import {
@@ -59,11 +59,14 @@ const homePageWorkAreaVisibilitySchema = Type.Object(
 const homePageWorkAreaColumnItemSchema = Type.Object(
   {
     Форма: Type.Optional(
-      buildMetadataTargetSchema({
-        kind: "member",
-        owner: "explicit",
-        memberKinds: ["Form"],
-      })
+      Type.Union([
+        Type.String({ pattern: `^(?:ОбщаяФорма|CommonForm)\\.${METADATA_NAME_PATTERN}$` }),
+        buildMetadataTargetSchema({
+          kind: "member",
+          owner: "explicit",
+          memberKinds: ["Form"],
+        }),
+      ])
     ),
     Высота: Type.Optional(Type.Number()),
     Видимость: Type.Optional(homePageWorkAreaVisibilitySchema),

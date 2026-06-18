@@ -35,6 +35,22 @@ describe("MetadataSubsystem metadataTarget", () => {
     })
   })
 
+  it("exports nested subsystem links in content", () => {
+    expect(
+      exportMetadataItemToYAML({
+        context: mockContext,
+        rule: MetadataSubsystemRules,
+        data: {
+          itemType: "MetadataSubsystem",
+          name: "СтандартныеПодсистемы",
+          content: ["Subsystem.СтандартныеПодсистемы.Subsystem.АдресныйКлассификатор"],
+        },
+      })
+    ).toMatchObject({
+      Состав: ["Подсистема.СтандартныеПодсистемы.Подсистема.АдресныйКлассификатор"],
+    })
+  })
+
   it("exports functional options parameter links from XML model content", () => {
     expect(
       exportMetadataItemToYAML({

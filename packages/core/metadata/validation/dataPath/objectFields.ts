@@ -227,7 +227,15 @@ function standardAttributeTypeInfo(params: {
     }
   }
 
-  if (["Posted", "Executed", "Completed", "Started"].includes(params.internalName)) {
+  if (params.internalName === "Parent" || params.yamlName === "Родитель") {
+    return {
+      kinds: ["object"],
+      nextTypes: [sameOwnerRef(params.owner.ref)],
+      sourceText: `${params.owner.ref.kind}.Parent`,
+    }
+  }
+
+  if (["DeletionMark", "Posted", "Executed", "Completed", "Started"].includes(params.internalName)) {
     return {
       kinds: ["boolean"],
       nextTypes: [],

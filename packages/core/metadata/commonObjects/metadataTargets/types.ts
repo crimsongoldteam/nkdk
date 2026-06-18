@@ -94,6 +94,7 @@ export interface ObjectTargetConstraint {
   allowedObjectPaths?: readonly (readonly [MetadataRootName, ...MetadataObjectPathKind[]])[]
   scope?: "project" | "owner"
   allowNested?: boolean
+  nestedObjectRoots?: readonly MetadataRootName[]
   filters?: readonly MetadataTargetFilter[]
 }
 

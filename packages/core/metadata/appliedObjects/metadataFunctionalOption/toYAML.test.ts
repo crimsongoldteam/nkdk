@@ -13,6 +13,11 @@ describe("export MetadataFunctionalOption to YAML", () => {
       name: "ИспользоватьФинансовыеИнструменты",
       content: [
         "Subsystem.ФинансовыеИнструменты",
+        "Constant.ВариантВставкиШтампа",
+        "Document.ЕжедневныйОтчет",
+        "Document.Корреспонденция.TabularSection.ВопросыОбращения",
+        "Subsystem.СтандартныеПодсистемы.Subsystem.НапоминанияПользователя",
+        "ChartOfCharacteristicTypes.ДополнительныеРеквизитыИСведения.Attribute.ЗаголовокЯзык1",
         "ChartOfAccounts.Хозрасчетный.AccountingFlag.УчетПоНаправлениямДеятельности",
       ],
     }
@@ -26,8 +31,29 @@ describe("export MetadataFunctionalOption to YAML", () => {
     expect(result).toEqual({
       СоставФункциональнойОпции: [
         "Подсистема.ФинансовыеИнструменты",
+        "Константа.ВариантВставкиШтампа",
+        "Документ.ЕжедневныйОтчет",
+        "Документ.Корреспонденция.ТабличнаяЧасть.ВопросыОбращения",
+        "Подсистема.СтандартныеПодсистемы.Подсистема.НапоминанияПользователя",
+        "ПланВидовХарактеристик.ДополнительныеРеквизитыИСведения.Реквизит.ЗаголовокЯзык1",
         "ПланСчетов.Хозрасчетный.ПризнакУчета.УчетПоНаправлениямДеятельности",
       ],
     })
+  })
+
+  it("rejects unsupported content targets", () => {
+    const data: MetadataFunctionalOption = {
+      itemType: "MetadataFunctionalOption",
+      name: "ИспользоватьМакет",
+      content: ["CommonTemplate.ПечатнаяФорма"],
+    }
+
+    expect(() =>
+      exportMetadataItemToYAML({
+        context: mockContext,
+        rule: MetadataFunctionalOptionRules,
+        data,
+      })
+    ).toThrow()
   })
 })

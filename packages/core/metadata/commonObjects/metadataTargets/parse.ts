@@ -149,11 +149,15 @@ function parseObjectTarget(
   root: MetadataRootName,
   objectName: string,
   tail: readonly string[],
-  constraint: Extract<MetadataTargetConstraint, { kind: "object" }> | { allowNested?: boolean; allowedObjectPaths?: undefined },
+  constraint:
+    | Extract<MetadataTargetConstraint, { kind: "object" }>
+    | { allowNested?: boolean; allowedObjectPaths?: undefined; nestedObjectRoots?: readonly MetadataRootName[] },
   source: MetadataTargetSource
 ): MetadataTargetParseResult {
   if (constraint.allowedObjectPaths) {
-    return parseExactObjectTarget(root, objectName, tail, constraint.allowedObjectPaths, source)
+    const exact = parseExactObjectTarget(root, objectName, tail, constraint.allowedObjectPaths, source)
+    if (exact.ok || !constraint.nestedObjectRoots) return exact
+    return parseNestedRootObjectTarget(root, objectName, tail, constraint.nestedObjectRoots, source)
   }
 
   if (tail.length === 0) {
@@ -302,7 +306,9 @@ function parseMemberObjectTarget(
   if (constraint.allowedObjectPaths) {
     const objectName = parts[1]
     if (!isValidMetadataName(objectName)) return invalidShape()
-    return parseExactObjectTarget(root, objectName, tail, constraint.allowedObjectPaths, source)
+    const exact = parseExactObjectTarget(root, objectName, tail, constraint.allowedObjectPaths, source)
+    if (exact.ok || !constraint.nestedObjectRoots) return exact
+    return parseNestedRootObjectTarget(root, objectName, tail, constraint.nestedObjectRoots, source)
   }
 
   if (tail.length === 0) {
@@ -395,6 +401,37 @@ function parseExactObjectTarget(
     root,
     objectName,
     ...(segments.length > 0 ? { segments } : {}),
+  })
+}
+
+function parseNestedRootObjectTarget(
+  root: MetadataRootName,
+  objectName: string,
+  tail: readonly string[],
+  nestedObjectRoots: readonly MetadataRootName[],
+  source: MetadataTargetSource
+): MetadataTargetParseResult {
+  if (!nestedObjectRoots.includes(root)) return unknownSegment(tail[0])
+  if (tail.length === 0 || tail.length % 2 !== 0) return unknownSegment(tail[0])
+
+  const segments: MetadataObjectSegment[] = []
+  for (let index = 0; index < tail.length; index += 2) {
+    const kindToken = tail[index]
+    const segmentRoot = source === "yaml" ? parseObjectRootFromYAML(kindToken) : parseObjectRootFromModel(kindToken)
+    if (!segmentRoot || !nestedObjectRoots.includes(segmentRoot)) return unknownSegment(kindToken)
+
+    const nestedObjectName = tail[index + 1]
+    if (!isValidMetadataName(nestedObjectName)) return invalidShape()
+
+    segments.push({ kind: segmentRoot, objectName: nestedObjectName })
+  }
+
+  const canonicalSegments = segments.flatMap((segment) => [segment.kind, segment.objectName])
+  return success([root, objectName, ...canonicalSegments].join("."), {
+    kind: "object",
+    root,
+    objectName,
+    segments,
   })
 }
 

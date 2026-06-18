@@ -51,10 +51,16 @@ describe("JSON Schema registry", () => {
 
     expect(
       compiled.Check({
-        Имя: "Конфигурация",
         РабочаяОбластьНачальнойСтраницы: {
           ШаблонРабочейОбласти: "ДвеКолонкиПеременнойШирины",
           ЛеваяКолонка: [
+            {
+              Форма: "CommonForm.РабочийСтол",
+              Высота: 10,
+              Видимость: {
+                Общее: "Истина",
+              },
+            },
             {
               Форма: "Task.ЗадачаИсполнителя.Form.МоиЗадачиДляРабочегоСтола",
               Высота: 10,
@@ -338,6 +344,22 @@ describe("JSON Schema registry", () => {
     }
 
     expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
+  it("accepts view status source in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(
+      compiled.Check({
+        Элементы: {
+          ДополнениеСостояниеОтбора: {
+            Вид: "ОтображениеСостоянияПросмотра",
+            Источник: "Список",
+          },
+        },
+      })
+    ).toBe(true)
   })
 
   it("exports dynamic list conditional appearance in inline client form schemas", () => {

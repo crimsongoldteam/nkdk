@@ -2267,6 +2267,71 @@ describe("resolveDataPath", () => {
       ],
     })
   })
+
+  it("resolves DeletionMark as boolean through standard attributes", () => {
+    const result = resolve("Объект.Обращения.Обращение.DeletionMark", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.ВыгрузкаВССТУ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Документ", name: "ВыгрузкаВССТУ" },
+          rule: MetadataDocumentRules,
+          model: {
+            itemType: "MetadataDocument",
+            tabularSections: [
+              {
+                itemType: "MetadataTabularSection",
+                name: "Обращения",
+                attributes: [
+                  {
+                    itemType: "MetadataAttribute",
+                    name: "Обращение",
+                    type: { type: ["CatalogRef.Обращения"] },
+                  },
+                ],
+              },
+            ],
+          },
+        }),
+        owner({
+          ref: { kind: "Справочник", name: "Обращения" },
+          rule: MetadataCatalogRules,
+          model: { itemType: "MetadataCatalog" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      target: { typeInfo: { kinds: ["boolean"] } },
+    })
+  })
+
+  it("resolves Parent as the same owner through standard attributes", () => {
+    const result = resolve("Объект.Parent.ТекстСообщения", {
+      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.СообщенияОбсуждений"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Справочник", name: "СообщенияОбсуждений" },
+          rule: MetadataCatalogRules,
+          model: {
+            itemType: "MetadataCatalog",
+            attributes: [
+              {
+                itemType: "MetadataAttribute",
+                name: "ТекстСообщения",
+                type: { type: ["string"] },
+              },
+            ],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      target: { typeInfo: { kinds: ["scalar"] } },
+    })
+  })
 })
 
 function resolve(

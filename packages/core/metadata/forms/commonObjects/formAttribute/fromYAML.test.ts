@@ -237,6 +237,19 @@ describe("importFormAttributesFromYAML", () => {
     ).toBe(true)
   })
 
+  it("accepts flowchart context settings in JSON Schema", () => {
+    const schema = compileFormAttributesJSONSchema()
+
+    expect(
+      schema.Check({
+        Схема: {
+          Тип: "ГрафическаяСхема",
+          ГрафическаяСхема: "<d4p1:backColor>style:FieldBackColor</d4p1:backColor>",
+        },
+      })
+    ).toBe(true)
+  })
+
   it("accepts planner settings in JSON Schema", () => {
     const schema = compileFormAttributesJSONSchema()
 

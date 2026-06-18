@@ -30,6 +30,7 @@ function extendFormAttributeColumnsSchema(schema: TSchema, context: Configuratio
       ДополнительныеКолонки: Type.Optional(Type.Record(Type.String(), columnsSchema)),
       Диаграмма: Type.Optional(Type.String()),
       ДиаграммаГанта: Type.Optional(Type.String()),
+      ГрафическаяСхема: Type.Optional(Type.String()),
       ТабличныйДокумент: Type.Optional(Type.String()),
       Планировщик: Type.Optional(Type.String()),
     },
