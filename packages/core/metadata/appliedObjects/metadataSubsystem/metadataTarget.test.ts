@@ -67,6 +67,35 @@ describe("MetadataSubsystem metadataTarget", () => {
     })
   })
 
+  it("imports and exports sequence links in content", () => {
+    expect(
+      exportMetadataItemToYAML({
+        context: mockContext,
+        rule: MetadataSubsystemRules,
+        data: {
+          itemType: "MetadataSubsystem",
+          name: "СтруктураГруппы",
+          content: ["Sequence.ДокументыДвиженияИнвестиций"],
+        },
+      })
+    ).toMatchObject({
+      Состав: ["Последовательность.ДокументыДвиженияИнвестиций"],
+    })
+
+    expect(
+      importMetadataItemFromYAML({
+        context: mockContext,
+        rule: MetadataSubsystemRules,
+        name: "СтруктураГруппы",
+        yaml: {
+          Состав: ["Последовательность.ДокументыДвиженияИнвестиций"],
+        },
+      })
+    ).toMatchObject({
+      content: ["Sequence.ДокументыДвиженияИнвестиций"],
+    })
+  })
+
   it("rejects member links in content", () => {
     expect(() =>
       importMetadataItemFromYAML({

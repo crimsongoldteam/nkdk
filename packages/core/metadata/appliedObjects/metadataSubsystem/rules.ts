@@ -50,6 +50,7 @@ const contentObjectPaths = [
   ["CalculationRegister"],
   ["BusinessProcess"],
   ["Task"],
+  ["Sequence"],
   ["ExternalDataSource", "Table"],
   ["ExternalDataSource", "Cube", "DimensionTable"],
   ["ExternalDataSource", "Cube"],
