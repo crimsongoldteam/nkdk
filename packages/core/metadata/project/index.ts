@@ -1,22 +1,11 @@
 export {
-  configurationMetadataProjectSpec,
-  getMetadataProjectSpecByDir,
-  metadataProjectSpecByDir,
-  metadataProjectSpecs,
-  type MetadataProjectSpec,
-} from "./specs"
-
-export {
-  assertMetadataProjectPathInside,
-  classifyMetadataProjectPath,
-  discoverMetadataProjectResources,
-  resolveMetadataProjectResource,
-  type MetadataProjectConfigurationYamlRef,
-  type MetadataProjectFormYamlRef,
-  type MetadataProjectNestingSegment,
-  type MetadataProjectPropertiesYamlRef,
-  type MetadataProjectResourceKind,
-  type MetadataProjectResourceOwner,
-  type MetadataProjectResourceRef,
-  type MetadataProjectYamlRole,
-} from "./resources"
+  describeMetadataRuleResources,
+  type MetadataProjectAssetDescriptor,
+  type MetadataProjectDynamicDescriptor,
+  type MetadataProjectExternalXmlBaseDescriptor,
+  type MetadataProjectExternalXmlDescriptor,
+  type MetadataProjectExternalXmlPathDescriptor,
+  type MetadataProjectResourceDescriptor,
+  type MetadataProjectXmlDescriptor,
+  type MetadataProjectYamlDescriptor,
+} from "./ruleResources"

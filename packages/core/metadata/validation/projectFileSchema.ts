@@ -1,7 +1,7 @@
 import type { TSchema } from "@sinclair/typebox"
 import { isAbsolute, relative, resolve, sep } from "path"
 import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
-import { classifyMetadataProjectPath } from "~/metadata/project"
+import { classifyMetadataProjectPath } from "~/metadata/project/resources"
 import {
   exportJSONSchemaForSchemaName as exportRegisteredJSONSchemaForSchemaName,
   ProjectFileSchemaError,

@@ -8,7 +8,10 @@ import type { ReferenceModelRemapper } from "~/metadata/orchestration/appliedObj
 import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { discoverMetadataProjectResources, type MetadataProjectPropertiesYamlRef } from "~/metadata/project"
+import {
+  discoverMetadataProjectResources,
+  type MetadataProjectPropertiesYamlRef,
+} from "~/metadata/project/resources"
 import { xmlExport } from "~/xml/export/exporter"
 import { syncConfigDumpInfoToXML } from "../configDumpInfo/sync"
 import {

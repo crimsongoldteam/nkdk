@@ -13,7 +13,6 @@ import {
   metadataProjectSpecByDir,
   metadataProjectSpecs,
 } from "./specs"
-import { metadataProjectSpecByDir as indexMetadataProjectSpecByDir } from "./index"
 
 describe("metadata project specs", () => {
   it("builds specs for every top-level metadata item with YAML directory", () => {
@@ -43,10 +42,6 @@ describe("metadata project specs", () => {
       kind: "catalog",
     })
     expect(getMetadataProjectSpecByDir("НетТакогоВида")).toBeUndefined()
-  })
-
-  it("exports spec registry from project index", () => {
-    expect(indexMetadataProjectSpecByDir.get("Справочник")).toBe(getMetadataProjectSpecByDir("Справочник"))
   })
 
   it("keeps validation compatibility aliases pointing to project specs", () => {

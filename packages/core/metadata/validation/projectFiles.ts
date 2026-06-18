@@ -4,7 +4,7 @@ import {
   discoverMetadataProjectResources,
   resolveMetadataProjectResource,
   type MetadataProjectResourceRef,
-} from "~/metadata/project"
+} from "~/metadata/project/resources"
 import type { ValidationProjectSpec } from "./projectSpecs"
 
 export interface ValidationProjectFile {
