@@ -1,5 +1,6 @@
 import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
 import { CommandInterface } from "~/metadata/forms/commonObjects/commandInterface/types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
   customSettingsFolder: string
@@ -447,7 +448,7 @@ export const fullClientApplicationFormYAML: ClientApplicationFormYAML = {
   ВыборДоступен: "Истина",
   ИспользованиеДляГруппИЭлементов: "Группы",
   ПараметрыВыбора: {
-    "Отбор.Параметр": '"Значение"',
+    "Отбор.Параметр": explicitYAMLString("Значение"),
   },
   РежимВыбора: "БыстрыйВыбор",
   // #endregion

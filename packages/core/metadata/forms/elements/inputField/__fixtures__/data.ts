@@ -8,6 +8,7 @@ import {
   TableInputFieldTypedYAML,
 } from "~/metadata/forms/elements/inputField/types"
 import { StructureResult } from "~/tests/types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
@@ -365,7 +366,7 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
   ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений: "Истина",
   ОтображениеКнопкиВыбора: "ОтображатьВПолеВвода",
   ПараметрыВыбора: {
-    "Отбор.Параметр": '"Значение"',
+    "Отбор.Параметр": explicitYAMLString("Значение"),
   },
   ПодсказкаАвтозаполнения: "ПолноеИмя",
   ПодсказкаВвода: "Подсказка ввода",
@@ -397,7 +398,7 @@ export const fullInputFieldPartialYAML: InputFieldPartialYAML = {
   СписокВыбора: [
     {
       Представление: "Значение 1",
-      Значение: '"Значение1"',
+      Значение: explicitYAMLString("Значение1"),
     },
   ],
   ТекстКнопкиВводаЭкраннойКлавиатуры: "Готово",

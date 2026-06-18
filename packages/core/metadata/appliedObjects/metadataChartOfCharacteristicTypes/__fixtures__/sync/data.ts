@@ -28,7 +28,7 @@ export const readChartOfCharacteristicTypesYAML = `Синоним: Синони�
   - ВидыХарактеристик: ChartOfCharacteristicTypes.ХарактеристикиОбъектов
     ПолеКлюча: ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Ref
     ПолеОтбораВидов: ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Description
-    ЗначениеОтбораВидов: '"Текст"'
+    ЗначениеОтбораВидов: "Текст"
     ПолеПутиКДанным: ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Ref
     ПолеИспользованияМножественныхЗначений: ChartOfCharacteristicTypes.ХарактеристикиОбъектов.Attribute.МножественнаяХарактеристика
     ЗначенияХарактеристик: InformationRegister.ЗначенияХарактеристикОбъектов

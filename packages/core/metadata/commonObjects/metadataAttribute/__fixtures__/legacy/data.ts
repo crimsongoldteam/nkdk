@@ -1,4 +1,5 @@
 import { MetadataAttributes, MetadataAttributesYAML } from "~/metadata/commonObjects/metadataAttribute/types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 //#region FullMetadataAttributes
 export const fullMetadataAttributes: MetadataAttributes = [
@@ -66,7 +67,7 @@ export const fullMetadataAttributesYAML: MetadataAttributesYAML = {
     ВыборГруппИЭлементов: "Группы",
     ВыделятьОтрицательные: "Истина",
     ЗаполнятьИзДанныхЗаполнения: "Истина",
-    ЗначениеЗаполнения: '"Значение заполнения"',
+    ЗначениеЗаполнения: explicitYAMLString("Значение заполнения"),
     Индексирование: "Индексировать",
     Использование: "ДляГруппыИЭлемента",
     ИспользованиеХраненияВХранилищеДвоичныхДанных: "Использовать",
@@ -77,7 +78,7 @@ export const fullMetadataAttributesYAML: MetadataAttributesYAML = {
     Маска: "999",
     МинимальноеЗначение: 10,
     МногострочныйРежим: "Истина",
-    ПараметрыВыбора: { "Отбор.Параметр": '"Значение"' },
+    ПараметрыВыбора: { "Отбор.Параметр": explicitYAMLString("Значение") },
     Подсказка: "Подсказка для реквизита",
     ПолеИспользованияХраненияВХранилищеДвоичныхДанных: "АтрибутХраненияДвоичныхДанных",
     ПолнотекстовыйПоиск: "НеИспользовать",

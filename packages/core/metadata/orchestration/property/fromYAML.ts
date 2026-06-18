@@ -56,7 +56,10 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
     const sourceValue = source ? source[key] : undefined
 
     const yamlValue = yaml && yamlKey ? yaml[yamlKey] : undefined
-    const valueForImport = yamlKey ? asExplicitYAMLStringIfMarked(yaml, yamlKey as string, yamlValue) : yamlValue
+    const valueForImport =
+      yamlKey && curRule.type === "MetadataValue"
+        ? asExplicitYAMLStringIfMarked(yaml, yamlKey as string, yamlValue)
+        : yamlValue
 
     const importedValue = importPropertyFromYAML({
       context: itemContext,

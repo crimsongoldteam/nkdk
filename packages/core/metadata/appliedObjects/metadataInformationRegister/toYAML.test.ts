@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { testExportAppliedObjectToYAML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import { explicitYAMLString } from "~/yaml/explicitString"
 import { MetadataInformationRegisterRules } from "./rules"
 import { MetadataInformationRegister } from "./types"
 
@@ -27,7 +28,7 @@ describe("export MetadataInformationRegister to YAML", () => {
         Ресурсы: {
           Ресурс1: {
             Тип: "Строка(10)",
-            ЗначениеЗаполнения: "\"\"",
+            ЗначениеЗаполнения: explicitYAMLString(""),
           },
         },
       },
@@ -39,7 +40,7 @@ describe("export MetadataInformationRegister to YAML", () => {
         Измерения: {
           Измерение1: {
             Тип: "Строка(10)",
-            ЗначениеЗаполнения: "\"\"",
+            ЗначениеЗаполнения: explicitYAMLString(""),
           },
         },
       },

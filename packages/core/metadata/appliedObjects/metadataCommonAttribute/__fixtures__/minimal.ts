@@ -1,4 +1,5 @@
 import { MetadataCommonAttribute, MetadataCommonAttributeYAML } from "../types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 export const minimal: MetadataCommonAttribute = {
   itemType: "MetadataCommonAttribute",
@@ -11,5 +12,5 @@ export const minimal: MetadataCommonAttribute = {
 export const minimalYAML: MetadataCommonAttributeYAML = {
   Синоним: "Общий реквизит по умолчанию",
   Тип: "Строка(10)",
-  ЗначениеЗаполнения: '""',
+  ЗначениеЗаполнения: explicitYAMLString(""),
 }

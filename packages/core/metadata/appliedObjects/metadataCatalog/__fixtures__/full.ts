@@ -1,4 +1,5 @@
 import { MetadataCatalog, MetadataCatalogYAML } from "../types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 export const full = {
   attributes: [
@@ -250,7 +251,7 @@ export const fullYAML: MetadataCatalogYAML = {
       Тип: "Дата",
     },
     СтроковыйРеквизитСИндексом: {
-      ЗначениеЗаполнения: '""',
+      ЗначениеЗаполнения: explicitYAMLString(""),
       Индексирование: "Индексировать",
       Синоним: "Строковый реквизит с индексом",
       Тип: "Строка(10)",
