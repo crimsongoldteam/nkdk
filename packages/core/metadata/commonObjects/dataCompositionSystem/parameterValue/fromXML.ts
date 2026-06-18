@@ -1,6 +1,5 @@
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { Color } from "~/metadata/commonObjects/color/types"
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
 import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
@@ -35,19 +34,13 @@ const isNilValueFragment = (fragment: unknown): boolean =>
   ((fragment as Record<string, unknown>)["_xsi:nil"] === true ||
     (fragment as Record<string, unknown>)["_xsi:nil"] === "true")
 
-const isDcsAutoColorValue = (value: unknown): value is Color =>
-  typeof value === "object" &&
-  value !== null &&
-  !Array.isArray(value) &&
-  "type" in value &&
-  "value" in value &&
-  value.type === "Absolute" &&
-  value.value === "auto"
-
-const shouldHideDcsAutoColorValue = (
-  rule: SettingsParameterValuePropertyRule,
-  values: MetadataDcsMetadataValue[]
-): boolean => rule.valueType === "Color" && values.length === 1 && isDcsAutoColorValue(values[0])
+const isDcsAutoColorValueFragment = (rule: SettingsParameterValuePropertyRule, fragment: unknown): boolean =>
+  rule.valueType === "Color" &&
+  typeof fragment === "object" &&
+  fragment !== null &&
+  !Array.isArray(fragment) &&
+  (fragment as Record<string, unknown>)["_xsi:type"] === "v8ui:Color" &&
+  (fragment as Record<string, unknown>)["#text"] === "auto"
 
 export const importParameterValueFromDcsXML = (
   context: ConfigurationContextFromXML,
@@ -60,14 +53,14 @@ export const importParameterValueFromDcsXML = (
   const nilValuePresent = valueFragments.some(isNilValueFragment) || (valueNodePresent && valueFragments.length === 0)
   const valueParts = valueFragments
     .filter((fragment) => !isNilValueFragment(fragment))
+    .filter((fragment) => !isDcsAutoColorValueFragment(rule, fragment))
     .map((fragment) => importDcsMetadataValueFromDcsXML(context, dcsRule, { "dcscor:value": fragment }))
-  const visibleValueParts = shouldHideDcsAutoColorValue(rule, valueParts) ? [] : valueParts
   const value: ParameterValue["value"] =
-    visibleValueParts.length === 0
+    valueParts.length === 0
       ? undefined
-      : visibleValueParts.length === 1
-        ? visibleValueParts[0]
-        : visibleValueParts
+      : valueParts.length === 1
+        ? valueParts[0]
+        : valueParts
 
   const itemsXml = asArray(xml["dcscor:item"])
   const item =
