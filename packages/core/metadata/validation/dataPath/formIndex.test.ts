@@ -81,6 +81,32 @@ describe("buildFormDataPathIndex", () => {
     })
   })
 
+  it("normalizes indexed additional table column paths", () => {
+    const index = buildIndex({
+      attributes: [
+        {
+          ...attribute("Доверенность", { type: ["ValueTable"] }),
+          additionalColumns: [
+            {
+              table: "Доверенность[0].Документ[0]",
+              columns: [column("Довер", { type: ["ValueTable"] })],
+            },
+          ],
+        } as FormAttribute,
+      ],
+    })
+
+    expect(index.additionalColumnsByTablePath.get("Доверенность.Документ")?.get("Довер")).toEqual({
+      name: "Довер",
+      typeInfo: {
+        kinds: ["tableSource"],
+        nextTypes: [],
+        table: { kind: "ValueTable" },
+        sourceText: "ValueTable",
+      },
+    })
+  })
+
   it("indexes ValueTree columns from the attribute columns", () => {
     const index = buildIndex({
       attributes: [
@@ -100,6 +126,46 @@ describe("buildFormDataPathIndex", () => {
       nextTypes: [],
       sourceText: "boolean",
     })
+  })
+
+  it("indexes RegisterRecordSet columns from the attribute columns", () => {
+    const index = buildIndex({
+      attributes: [
+        attribute("НаборЗаписей", { type: ["InformationRegisterRecordSet.Настройки"] }, [
+          column("ПериодГод", { type: ["decimal"] }),
+        ]),
+      ],
+    })
+
+    const source = index.getRoot("НаборЗаписей")
+    expect(source?.typeInfo).toMatchObject({
+      kinds: ["tableSource"],
+      table: { kind: "RegisterRecordSet", owner: { kind: "РегистрСведений", name: "Настройки" } },
+    })
+    expect(source?.tableSource?.columns.get("ПериодГод")).toEqual({
+      name: "ПериодГод",
+      typeInfo: {
+        kinds: ["scalar"],
+        nextTypes: [],
+        sourceText: "decimal",
+      },
+    })
+  })
+
+  it("does not index arbitrary columns for ValueList or GanttChart", () => {
+    const index = buildIndex({
+      attributes: [
+        attribute("Список", { type: ["ValueListType"] }, [
+          column("ПроизвольнаяКолонка", { type: ["string"] }),
+        ]),
+        attribute("Диаграмма", { type: ["GanttChart"] }, [
+          column("ПроизвольнаяКолонка", { type: ["string"] }),
+        ]),
+      ],
+    })
+
+    expect(index.getRoot("Список")?.tableSource?.columns.size).toBe(0)
+    expect(index.getRoot("Диаграмма")?.tableSource?.columns.size).toBe(0)
   })
 
   it("keeps table roots when columns are empty", () => {

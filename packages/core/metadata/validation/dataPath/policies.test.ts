@@ -58,6 +58,16 @@ describe("validateResolvedDataPathPolicy", () => {
     ).toEqual([])
   })
 
+  it("allows composite terminal type when one of its kinds is allowed", () => {
+    expect(
+      validatePolicy({
+        rule: dataPathRule({ allowedKinds: ["Picture", "scalar"], allowComposite: true }),
+        kinds: ["object", "scalar"],
+        isComposite: true,
+      }),
+    ).toEqual([])
+  })
+
   it("reports terminal kind mismatch", () => {
     const diagnostics = validatePolicy({ rule: dataPathRule({ allowedKinds: ["tableSource"] }), kinds: ["boolean"] })
 
@@ -90,6 +100,14 @@ describe("validateResolvedDataPathPolicy", () => {
 
   it("accepts boolean terminal kind when the rule explicitly allows it", () => {
     expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "boolean"] }), kinds: ["boolean"] })).toEqual([])
+  })
+
+  it("accepts scalar and date terminal kinds when the rule explicitly allows checkbox-compatible values", () => {
+    const rule = dataPathRule({ allowedKinds: ["boolean", "scalar", "dateTime"] })
+
+    expect(validatePolicy({ rule, kinds: ["boolean"] })).toEqual([])
+    expect(validatePolicy({ rule, kinds: ["scalar"] })).toEqual([])
+    expect(validatePolicy({ rule, kinds: ["dateTime"] })).toEqual([])
   })
 
   it("accepts object terminal kind when the rule explicitly allows it", () => {

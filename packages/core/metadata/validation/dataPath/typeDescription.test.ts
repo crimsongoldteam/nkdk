@@ -54,8 +54,18 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
     ).toEqual({
       kinds: ["object"],
       nextTypes: [{ kind: "Перечисление", name: "Состояния" }],
+      definedTypes: ["Организация"],
       isComposite: true,
       sourceText: "EnumRef.Состояния | DefinedType.Организация",
+    })
+  })
+
+  it("keeps DefinedType references for lazy project resolution", () => {
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["DefinedType.ДоговорКонтрагента"] })).toEqual({
+      kinds: ["object"],
+      nextTypes: [],
+      definedTypes: ["ДоговорКонтрагента"],
+      sourceText: "DefinedType.ДоговорКонтрагента",
     })
   })
 
@@ -74,6 +84,57 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
       nextTypes: [],
       table: { kind: "ValueTree" },
       sourceText: "ValueTree",
+    })
+  })
+
+  it("maps ValueList as a table source", () => {
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["ValueListType"] })).toEqual({
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table: { kind: "ValueList" },
+      sourceText: "ValueListType",
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["СписокЗначений"] })).toEqual({
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table: { kind: "ValueList" },
+      sourceText: "СписокЗначений",
+    })
+  })
+
+  it("maps GanttChart as a table source", () => {
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["GanttChart"] })).toEqual({
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table: { kind: "GanttChart" },
+      sourceText: "GanttChart",
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["ДиаграммаГанта"] })).toEqual({
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table: { kind: "GanttChart" },
+      sourceText: "ДиаграммаГанта",
+    })
+  })
+
+  it("maps register record set types as table sources", () => {
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["InformationRegisterRecordSet.Остатки"] })).toEqual({
+      kinds: ["tableSource"],
+      nextTypes: [],
+      table: { kind: "RegisterRecordSet", owner: { kind: "РегистрСведений", name: "Остатки" } },
+      sourceText: "InformationRegisterRecordSet.Остатки",
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["AccumulationRegisterRecordSet.Продажи"] })).toMatchObject({
+      kinds: ["tableSource"],
+      table: { kind: "RegisterRecordSet", owner: { kind: "РегистрНакопления", name: "Продажи" } },
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["AccountingRegisterRecordSet.Хозрасчетный"] })).toMatchObject({
+      kinds: ["tableSource"],
+      table: { kind: "RegisterRecordSet", owner: { kind: "РегистрБухгалтерии", name: "Хозрасчетный" } },
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["CalculationRegisterRecordSet.Начисления"] })).toMatchObject({
+      kinds: ["tableSource"],
+      table: { kind: "RegisterRecordSet", owner: { kind: "РегистрРасчета", name: "Начисления" } },
     })
   })
 
@@ -109,6 +170,19 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
       kinds: ["platformSource"],
       nextTypes: [],
       sourceText: "КомпоновщикНастроекКомпоновкиДанных",
+    })
+  })
+
+  it("maps StandardPeriod as a standard period source", () => {
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["StandardPeriod"] })).toEqual({
+      kinds: ["standardPeriod"],
+      nextTypes: [],
+      sourceText: "StandardPeriod",
+    })
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["СтандартныйПериод"] })).toEqual({
+      kinds: ["standardPeriod"],
+      nextTypes: [],
+      sourceText: "СтандартныйПериод",
     })
   })
 

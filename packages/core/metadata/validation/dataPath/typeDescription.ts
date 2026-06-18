@@ -12,7 +12,6 @@ const scalarTypes = new Set([
   "date",
   "Null",
   "UUID",
-  "ValueListType",
 ])
 
 const ownerKindsByBaseType: Readonly<Record<string, OwnerTypeRef["kind"] | undefined>> = {
@@ -21,13 +20,9 @@ const ownerKindsByBaseType: Readonly<Record<string, OwnerTypeRef["kind"] | undef
   DocumentRef: "Документ",
   DocumentObject: "ДокументОбъект",
   EnumRef: "Перечисление",
-  InformationRegisterRecordSet: "РегистрСведений",
   InformationRegisterRecordManager: "РегистрСведений",
-  AccumulationRegisterRecordSet: "РегистрНакопления",
   AccumulationRegisterRecordManager: "РегистрНакопления",
-  AccountingRegisterRecordSet: "РегистрБухгалтерии",
   AccountingRegisterRecordManager: "РегистрБухгалтерии",
-  CalculationRegisterRecordSet: "РегистрРасчета",
   CalculationRegisterRecordManager: "РегистрРасчета",
   ExchangePlanRef: "ПланОбмена",
   ExchangePlanObject: "ПланОбменаОбъект",
@@ -46,6 +41,13 @@ const ownerKindsByBaseType: Readonly<Record<string, OwnerTypeRef["kind"] | undef
   TaskObject: "ЗадачаОбъект",
 }
 
+const registerRecordSetOwnerKindsByBaseType: Readonly<Record<string, OwnerTypeRef["kind"] | undefined>> = {
+  InformationRegisterRecordSet: "РегистрСведений",
+  AccumulationRegisterRecordSet: "РегистрНакопления",
+  AccountingRegisterRecordSet: "РегистрБухгалтерии",
+  CalculationRegisterRecordSet: "РегистрРасчета",
+}
+
 export function typeDescriptionToDataPathTypeInfo(
   typeDescription: TypeDescription | undefined,
   _options: TypeDescriptionToDataPathTypeInfoOptions = {},
@@ -57,18 +59,21 @@ export function typeDescriptionToDataPathTypeInfo(
 
   const kinds: DataPathValueKind[] = []
   const nextTypes: OwnerTypeRef[] = []
+  const definedTypes: string[] = []
   let table: DataPathTableInfo | undefined
 
   for (const type of types) {
     const mapped = mapType(type)
     addUnique(kinds, mapped.kind)
     if (mapped.nextType !== undefined) nextTypes.push(mapped.nextType)
+    if (mapped.definedType !== undefined) definedTypes.push(mapped.definedType)
     if (table === undefined && mapped.table !== undefined) table = mapped.table
   }
 
   return {
     kinds,
     nextTypes,
+    ...(definedTypes.length > 0 ? { definedTypes } : {}),
     ...(table !== undefined ? { table } : {}),
     ...(types.length > 1 ? { isComposite: true } : {}),
     sourceText: types.join(" | "),
@@ -84,7 +89,12 @@ function hasOnlyTypeId(typeDescription: TypeDescription | undefined): boolean {
   )
 }
 
-function mapType(type: string): { kind: DataPathValueKind; nextType?: OwnerTypeRef; table?: DataPathTableInfo } {
+function mapType(type: string): {
+  kind: DataPathValueKind
+  nextType?: OwnerTypeRef
+  definedType?: string
+  table?: DataPathTableInfo
+} {
   switch (type) {
     case "boolean":
       return { kind: "boolean" }
@@ -96,6 +106,12 @@ function mapType(type: string): { kind: DataPathValueKind; nextType?: OwnerTypeR
       return { kind: "tableSource", table: { kind: "ValueTable" } }
     case "ValueTree":
       return { kind: "tableSource", table: { kind: "ValueTree" } }
+    case "ValueListType":
+    case "СписокЗначений":
+      return { kind: "tableSource", table: { kind: "ValueList" } }
+    case "GanttChart":
+    case "ДиаграммаГанта":
+      return { kind: "tableSource", table: { kind: "GanttChart" } }
     case "DynamicList":
       return { kind: "dynamicList", table: { kind: "DynamicList" } }
     case "ConstantsSet":
@@ -104,15 +120,37 @@ function mapType(type: string): { kind: DataPathValueKind; nextType?: OwnerTypeR
     case "SettingsComposer":
     case "КомпоновщикНастроекКомпоновкиДанных":
       return { kind: "platformSource" }
+    case "StandardPeriod":
+    case "СтандартныйПериод":
+      return { kind: "standardPeriod" }
   }
 
-  if (baseTypeOf(type) === "DefinedType") return { kind: "object" }
+  const definedTypeName = definedTypeNameFromType(type)
+  if (definedTypeName !== undefined) return { kind: "object", definedType: definedTypeName }
+
+  const registerRecordSetOwnerRef = registerRecordSetOwnerTypeRefFromType(type)
+  if (registerRecordSetOwnerRef !== undefined) {
+    return {
+      kind: "tableSource",
+      table: { kind: "RegisterRecordSet", owner: registerRecordSetOwnerRef },
+    }
+  }
 
   const ownerRef = ownerTypeRefFromType(type)
   if (ownerRef !== undefined) return { kind: "object", nextType: ownerRef }
   if (scalarTypes.has(type)) return { kind: "scalar" }
 
   return { kind: "unsupportedIntermediate" }
+}
+
+function registerRecordSetOwnerTypeRefFromType(type: string): OwnerTypeRef | undefined {
+  const [baseType, name] = splitType(type)
+  const kind = registerRecordSetOwnerKindsByBaseType[baseType]
+  if (kind === undefined) return undefined
+  return {
+    kind,
+    ...(name !== undefined && name !== "" ? { name } : {}),
+  }
 }
 
 function ownerTypeRefFromType(type: string): OwnerTypeRef | undefined {
@@ -131,8 +169,10 @@ function splitType(type: string): [baseType: string, name?: string] {
   return [type.substring(0, dotIndex), type.substring(dotIndex + 1)]
 }
 
-function baseTypeOf(type: string): string {
-  return splitType(type)[0]
+function definedTypeNameFromType(type: string): string | undefined {
+  const [baseType, name] = splitType(type)
+  if (baseType !== "DefinedType") return undefined
+  return name && name.length > 0 ? name : undefined
 }
 
 function addUnique(items: DataPathValueKind[], item: DataPathValueKind): void {

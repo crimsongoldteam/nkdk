@@ -1,6 +1,9 @@
 export const StandartAttributeNameToYAML = {
   Owner: "Владелец",
   PredefinedDataName: "ИмяПредопределенныхДанных",
+  ValueType: "ТипЗначения",
+  ReceivedNo: "НомерПринятого",
+  SentNo: "НомерОтправленного",
   Code: "Код",
   Description: "Наименование",
   DeletionMark: "ПометкаУдаления",

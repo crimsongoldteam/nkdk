@@ -177,6 +177,76 @@ describe("buildObjectFieldIndex", () => {
     expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Code" })).toMatchObject({ name: "Код" })
     expect(resolveObjectFieldSegment({ index: documentIndex, segment: "Parent" })).toBeUndefined()
   })
+
+  it("infers catalog owner standard attribute type from catalog owners", () => {
+    const index = buildObjectFieldIndex(
+      owner({
+        ref: { kind: "Справочник", name: "ПодарочныеСертификаты" },
+        rule: MetadataCatalogRules,
+        model: {
+          itemType: "MetadataCatalog",
+          owners: ["Catalog.ВидыПодарочныхСертификатов"],
+        },
+      }),
+    )
+
+    expect(index.fields.get("Владелец")?.typeInfo).toMatchObject({
+      kinds: ["object"],
+      nextTypes: [{ kind: "Справочник", name: "ВидыПодарочныхСертификатов" }],
+      sourceText: "Catalog.ВидыПодарочныхСертификатов",
+    })
+    expect(resolveObjectFieldSegment({ index, segment: "Owner" })?.typeInfo.nextTypes).toEqual([
+      { kind: "Справочник", name: "ВидыПодарочныхСертификатов" },
+    ])
+  })
+
+  it("infers composite owner standard attribute type from multiple catalog owners", () => {
+    const index = buildObjectFieldIndex(
+      owner({
+        ref: { kind: "Справочник", name: "ЗначенияСвойств" },
+        rule: MetadataCatalogRules,
+        model: {
+          itemType: "MetadataCatalog",
+          owners: ["Catalog.Номенклатура", "ChartOfCharacteristicTypes.Свойства"],
+        },
+      }),
+    )
+
+    expect(index.fields.get("Владелец")?.typeInfo).toMatchObject({
+      kinds: ["object"],
+      isComposite: true,
+      nextTypes: [
+        { kind: "Справочник", name: "Номенклатура" },
+        { kind: "ПланВидовХарактеристик", name: "Свойства" },
+      ],
+      sourceText: "Catalog.Номенклатура | ChartOfCharacteristicTypes.Свойства",
+    })
+  })
+
+  it("uses explicit owner standard attribute type before catalog owners", () => {
+    const index = buildObjectFieldIndex(
+      owner({
+        ref: { kind: "Справочник", name: "ПодарочныеСертификаты" },
+        rule: MetadataCatalogRules,
+        model: {
+          itemType: "MetadataCatalog",
+          owners: ["Catalog.ВидыПодарочныхСертификатов"],
+          standardAttributes: [
+            {
+              name: "Owner",
+              type: { type: ["CatalogRef.ЯвныйВладелец"] },
+            },
+          ],
+        },
+      }),
+    )
+
+    expect(index.fields.get("Владелец")?.typeInfo).toMatchObject({
+      kinds: ["object"],
+      nextTypes: [{ kind: "Справочник", name: "ЯвныйВладелец" }],
+      sourceText: "CatalogRef.ЯвныйВладелец",
+    })
+  })
 })
 
 function owner(params: {

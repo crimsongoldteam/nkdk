@@ -33,8 +33,8 @@ const CheckBoxFieldCommonRulesProperties = {
     yaml: "ПутьКДанным",
     type: "DataPath",
     defaultType: "boolean",
-    allowedKinds: ["boolean"],
-    allowComposite: false,
+    allowedKinds: ["boolean", "scalar", "dateTime", "object"],
+    allowComposite: true,
   },
   ...formFieldCommonProperties,
 } as const satisfies MetadataItemRule["properties"]

@@ -7,11 +7,14 @@ export type DataPathValueKind =
   | "dateTime"
   | "Picture"
   | "scalar"
+  | "typeDescription"
   | "object"
   | "tableSource"
   | "dynamicList"
   | "constantSet"
+  | "registerRecords"
   | "platformSource"
+  | "standardPeriod"
   | "unsupportedIntermediate"
 
 export type KnownOwnerTypeKind =
@@ -41,7 +44,9 @@ export type KnownOwnerTypeKind =
   | "БизнесПроцессОбъект"
   | "Задача"
   | "ЗадачаОбъект"
+  | "ОбщийРеквизит"
   | "Константа"
+  | "ОпределяемыйТип"
 
 export interface OwnerTypeRef {
   kind: KnownOwnerTypeKind | (string & {})
@@ -51,12 +56,16 @@ export interface OwnerTypeRef {
 export type DataPathTableInfo =
   | { kind: "ValueTable" }
   | { kind: "ValueTree" }
+  | { kind: "ValueList" }
+  | { kind: "GanttChart" }
   | { kind: "DynamicList" }
+  | { kind: "RegisterRecordSet"; owner: OwnerTypeRef }
   | { kind: "TabularSection"; owner: OwnerTypeRef; name: string }
 
 export interface DataPathTypeInfo {
   kinds: readonly DataPathValueKind[]
   nextTypes: readonly OwnerTypeRef[]
+  definedTypes?: readonly string[]
   table?: DataPathTableInfo
   isComposite?: boolean
   sourceText?: string

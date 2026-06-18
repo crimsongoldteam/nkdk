@@ -194,7 +194,97 @@ function standardAttributeTypeInfo(params: {
     }
   }
 
+  if (params.internalName === "Owner" || params.yamlName === "Владелец") {
+    return ownerStandardAttributeTypeInfo(params.owner) ?? unknownDataPathTypeInfo
+  }
+
+  if (params.internalName === "ValueType" || params.yamlName === "ТипЗначения") {
+    return {
+      kinds: ["typeDescription"],
+      nextTypes: [],
+      sourceText: `${params.owner.ref.kind}.ValueType`,
+    }
+  }
+
+  if (params.internalName === "SentNo" || params.internalName === "ReceivedNo") {
+    return {
+      kinds: ["scalar"],
+      nextTypes: [],
+      sourceText: `${params.owner.ref.kind}.SentReceivedNo`,
+    }
+  }
+
+  if (params.internalName === "Predefined" || params.yamlName === "Предопределенный") {
+    return {
+      kinds: ["boolean"],
+      nextTypes: [],
+      sourceText: `${params.owner.ref.kind}.Predefined`,
+    }
+  }
+
   return unknownDataPathTypeInfo
+}
+
+const ownerKindsByMetadataLinkPrefix: Readonly<Record<string, OwnerTypeRef["kind"] | undefined>> = {
+  Catalog: "Справочник",
+  ChartOfCharacteristicTypes: "ПланВидовХарактеристик",
+  ChartOfCalculationTypes: "ПланВидовРасчета",
+  ChartOfAccounts: "ПланСчетов",
+  Document: "Документ",
+  Enum: "Перечисление",
+  ExchangePlan: "ПланОбмена",
+  BusinessProcess: "БизнесПроцесс",
+  Task: "Задача",
+  DataProcessor: "Обработка",
+  Report: "Отчет",
+}
+
+function ownerStandardAttributeTypeInfo(owner: ObjectFieldIndexOwner): DataPathTypeInfo | undefined {
+  const ownerLinks = metadataRecord(owner.model).owners
+  if (!Array.isArray(ownerLinks)) return undefined
+
+  const nextTypes: OwnerTypeRef[] = []
+  const sourceTypes: string[] = []
+  for (const link of ownerLinks) {
+    if (typeof link !== "string") continue
+
+    const nextType = ownerTypeRefFromMetadataLink(link)
+    if (nextType === undefined) continue
+
+    addUniqueOwnerRef(nextTypes, nextType)
+    sourceTypes.push(link)
+  }
+
+  if (nextTypes.length === 0) return undefined
+
+  return {
+    kinds: ["object"],
+    nextTypes,
+    ...(nextTypes.length > 1 ? { isComposite: true } : {}),
+    sourceText: sourceTypes.join(" | "),
+  }
+}
+
+function ownerTypeRefFromMetadataLink(link: string): OwnerTypeRef | undefined {
+  const [prefix, name] = splitMetadataLink(link)
+  const kind = ownerKindsByMetadataLinkPrefix[prefix]
+  if (kind === undefined) return undefined
+
+  return {
+    kind,
+    ...(name !== undefined && name !== "" ? { name } : {}),
+  }
+}
+
+function splitMetadataLink(link: string): [prefix: string, name?: string] {
+  const dotIndex = link.indexOf(".")
+  if (dotIndex === -1) return [link]
+  return [link.substring(0, dotIndex), link.substring(dotIndex + 1)]
+}
+
+function addUniqueOwnerRef(items: OwnerTypeRef[], item: OwnerTypeRef): void {
+  if (items.some((existing) => existing.kind === item.kind && existing.name === item.name)) return
+  items.push(item)
 }
 
 function standardAttributesByInternalName(value: unknown): Map<string, NamedTypedItem> {

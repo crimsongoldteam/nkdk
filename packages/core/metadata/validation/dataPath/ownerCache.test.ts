@@ -96,6 +96,8 @@ describe("OwnerMetadataCache", () => {
     ["БизнесПроцессОбъект", "БизнесПроцесс"],
     ["Задача", "Задача"],
     ["ЗадачаОбъект", "Задача"],
+    ["ОбщийРеквизит", "ОбщийРеквизит"],
+    ["ОпределяемыйТип", "ОпределяемыйТип"],
   ] satisfies Array<[kind: KnownOwnerTypeKind, dir: string]>)("maps %s owner refs to %s directory", (kind, dir) => {
     const projectDir = createProject()
     const cache = createOwnerMetadataCache({
@@ -114,6 +116,63 @@ describe("OwnerMetadataCache", () => {
           source: "cross-file",
         }),
       ],
+    })
+  })
+
+  it("reads defined type YAML lazily", () => {
+    const projectDir = createProject()
+    writeProperties(projectDir, "ОпределяемыйТип", "ДоговорКонтрагента", "Тип: Справочник.ДоговорыКонтрагентов")
+    const cache = createOwnerMetadataCache({
+      projectDir,
+      yamlCache: createProjectYamlCache(),
+      context: mockContext,
+    })
+
+    const result = cache.get({ kind: "ОпределяемыйТип", name: "ДоговорКонтрагента" })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      owner: {
+        ref: { kind: "ОпределяемыйТип", name: "ДоговорКонтрагента" },
+        model: {
+          itemType: "MetadataDefinedType",
+          type: { type: ["CatalogRef.ДоговорыКонтрагентов"] },
+        },
+      },
+    })
+  })
+
+  it("reads common attribute YAML lazily", () => {
+    const projectDir = createProject()
+    writeProperties(
+      projectDir,
+      "ОбщийРеквизит",
+      "КлассВНА",
+      [
+        "Тип: Справочник.КлассыВНА",
+        "Состав:",
+        "  - Объект: Справочники.НематериальныеАктивы",
+        "    Использование: Использовать",
+      ].join("\n"),
+    )
+    const cache = createOwnerMetadataCache({
+      projectDir,
+      yamlCache: createProjectYamlCache(),
+      context: mockContext,
+    })
+
+    const result = cache.get({ kind: "ОбщийРеквизит", name: "КлассВНА" })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      owner: {
+        ref: { kind: "ОбщийРеквизит", name: "КлассВНА" },
+        model: {
+          itemType: "MetadataCommonAttribute",
+          type: { type: ["CatalogRef.КлассыВНА"] },
+          content: [{ metadata: "Catalog.НематериальныеАктивы", use: "Use" }],
+        },
+      },
     })
   })
 

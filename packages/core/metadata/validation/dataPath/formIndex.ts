@@ -108,12 +108,16 @@ function tableSourceFromAttribute(
   return {
     table: typeInfo.table,
     columns: columnsToMap(columns),
-    hasColumns: columns.length > 0,
+    hasColumns:
+      columns.length > 0 ||
+      typeInfo.table.kind === "ValueList" ||
+      typeInfo.table.kind === "GanttChart" ||
+      typeInfo.table.kind === "RegisterRecordSet",
   }
 }
 
 function tableColumns(attribute: FormAttribute, table: DataPathTableInfo): FormAttributeColumn[] {
-  if (table.kind !== "ValueTable" && table.kind !== "ValueTree") return []
+  if (table.kind !== "ValueTable" && table.kind !== "ValueTree" && table.kind !== "RegisterRecordSet") return []
   return attribute.columns ?? []
 }
 
@@ -134,10 +138,19 @@ function addAdditionalColumns(params: {
 }): void {
   for (const additionalColumnGroup of params.attribute.additionalColumns ?? []) {
     params.additionalColumnsByTablePath.set(
-      additionalColumnGroup.table,
+      normalizeIndexedPath(additionalColumnGroup.table),
       columnsToMap(additionalColumnGroup.columns),
     )
   }
+}
+
+function normalizeIndexedPath(path: string): string {
+  return path.split(".").map(segmentLookupName).join(".")
+}
+
+function segmentLookupName(segment: string): string {
+  const match = /^(?<name>.+)\[(?<index>\d+)\]$/.exec(segment)
+  return match?.groups?.name ?? segment
 }
 
 function dynamicListTypeInfo(): DataPathTypeInfo {
