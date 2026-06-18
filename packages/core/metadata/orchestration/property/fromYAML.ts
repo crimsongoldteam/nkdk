@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { readExternalFile } from "~/metadata/forms/commonObjects/dynamicList/externalFile"
 import { ToMetadata, ToYAML } from "~/metadata/orchestration/metadataItem/registry"
+import { asExplicitYAMLStringIfMarked } from "~/yaml/explicitString"
 import { getTypeRule } from "./typeRuleRegistry"
 import { importFromYAMLFunction, ImportFromYAMLFunctionNew } from "./fn"
 import { getValueOrDefault, shouldProcessProperty } from "./helpers"
@@ -55,11 +56,12 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
     const sourceValue = source ? source[key] : undefined
 
     const yamlValue = yaml && yamlKey ? yaml[yamlKey] : undefined
+    const valueForImport = yamlKey ? asExplicitYAMLStringIfMarked(yaml, yamlKey as string, yamlValue) : yamlValue
 
     const importedValue = importPropertyFromYAML({
       context: itemContext,
       rule: curRule,
-      value: yamlValue,
+      value: valueForImport,
       yaml: yaml,
       sourceValue,
       name,

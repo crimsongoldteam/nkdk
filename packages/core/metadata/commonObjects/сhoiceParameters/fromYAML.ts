@@ -1,5 +1,6 @@
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { asExplicitYAMLStringIfMarked } from "~/yaml/explicitString"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataValueFromYAML } from "../metadataValue/fromYAML"
 import { ChoiceParameter, ChoiceParameters, ChoiceParametersYAML } from "./types"
@@ -12,7 +13,11 @@ export const importChoiceParametersFromYAML = (
   if (!data) return undefined
 
   return Object.entries(data).map(([name, yamlValue]) => {
-    const value = importMetadataValueFromYAML(context, undefined, yamlValue)
+    const value = importMetadataValueFromYAML(
+      context,
+      undefined,
+      asExplicitYAMLStringIfMarked(data, name, yamlValue) as ChoiceParametersYAML[string]
+    )
     const result: ChoiceParameter = { name }
 
     if (value !== undefined) result.value = value

@@ -1,4 +1,5 @@
 import { MetadataFixedArrayValue, MetadataFixedArrayValueYAML } from "~/metadata/commonObjects/metadataValue/types"
+import { explicitYAMLString } from "~/yaml/explicitString"
 
 export const twoRefsFixedArray: MetadataFixedArrayValue = {
   type: "fixedArray",
@@ -52,7 +53,7 @@ export const singleStringFixedArrayXML = `<Value xsi:type="v8:FixedArray">
 	<v8:Value xsi:type="xs:string">Тест</v8:Value>
 </Value>`
 
-export const singleStringFixedArrayYAML: MetadataFixedArrayValueYAML = ['"Тест"']
+export const singleStringFixedArrayYAML: MetadataFixedArrayValueYAML = [explicitYAMLString("Тест")]
 
 export const refsWithNilFixedArray: MetadataFixedArrayValue = {
   type: "fixedArray",

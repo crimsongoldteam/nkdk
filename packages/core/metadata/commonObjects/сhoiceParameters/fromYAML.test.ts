@@ -25,6 +25,7 @@ import {
   withoutValueChoiceParametersYAML,
 } from "~/metadata/commonObjects/сhoiceParameters/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
+import { importFromYAML } from "~/yaml/import"
 import { importChoiceParametersFromYAML } from "./fromYAML"
 import type { ChoiceParametersYAML } from "./types"
 
@@ -57,6 +58,18 @@ describe("importChoiceParametersFromYAML", () => {
     const result = importChoiceParametersFromYAML(mockContext, mockRule, stringChoiceParametersYAML)
 
     expect(result).toEqual(stringChoiceParameter)
+  })
+
+  it("imports double-quoted numeric-looking YAML scalar as string value", () => {
+    const yaml = importFromYAML<ChoiceParametersYAML>('Отбор.Код: "456"')
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, yaml)
+
+    expect(result).toEqual([
+      {
+        name: "Отбор.Код",
+        value: { type: "string", value: "456" },
+      },
+    ])
   })
 
   it("should import choice parameters with fixedArray value from yaml", () => {
