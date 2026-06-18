@@ -38,4 +38,17 @@ describe("AppearanceFields exportToJSONSchema", () => {
     expect(compiled.Check({ Видимость: { Тип: "ВидСравненияКомпоновкиДанных", Значение: "Равно" } })).toBe(false)
     expect(compiled.Check({ Шрифт: { Вид: "ШрифтТекста", Лишнее: "x" } })).toBe(false)
   })
+
+  it("accepts omitted value for color SettingsParameterValue", () => {
+    const compiled = schemaFor()
+
+    expect(compiled.Check({ ЦветТекста: null })).toBe(true)
+    expect(compiled.Check({ ЦветФона: { Использовать: "Ложь" } })).toBe(true)
+  })
+
+  it("does not accept auto as a normal color value", () => {
+    const compiled = schemaFor()
+
+    expect(compiled.Check({ ЦветТекста: "auto" })).toBe(false)
+  })
 })

@@ -89,7 +89,11 @@ export const importParameterValueFromYAML = (
   yaml: ParameterValueYAML | SettingsParameterValueYAML,
   sourceValue?: ParameterValue | SettingsParameterValue
 ): ParameterValue | SettingsParameterValue | undefined => {
-  if (yaml === undefined || yaml === null) {
+  if (yaml === undefined) {
+    return undefined
+  }
+
+  if (yaml === null && rule.valueType !== "Color") {
     return undefined
   }
 
@@ -113,13 +117,16 @@ export const importParameterValueFromYAML = (
     isExpandedSpvShape && typeof y?.["Параметр"] === "string" ? String(y["Параметр"]) : undefined
   const parameter = String(parameterFromWrapper ?? parameterFromExpandedField ?? parameterFromRule ?? "")
   const hasExplicitValue = y !== undefined && "Значение" in y
-  const rawValue = isExplicitDcsValueYAML(yamlToParse)
-    ? yamlToParse
-    : hasExplicitValue
-      ? y["Значение"]
-      : isExpandedSpvShape
-        ? undefined
-        : yamlToParse
+  const rawValue =
+    rule.valueType === "Color" && yamlToParse === null
+      ? undefined
+      : isExplicitDcsValueYAML(yamlToParse)
+        ? yamlToParse
+        : hasExplicitValue
+          ? y["Значение"]
+          : isExpandedSpvShape
+            ? undefined
+            : yamlToParse
   const rawList = normalizeRawValues(dcsRule.valueType, rawValue)
   const sourceValues = normalizeSourceValues(sourceValue?.value)
   const valueParts: MetadataDcsMetadataValue[] = []

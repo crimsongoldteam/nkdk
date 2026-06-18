@@ -68,4 +68,33 @@ describe("import Appearance from YAML", () => {
       },
     })
   })
+
+  it("imports empty color parameter as enabled DCS auto color", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        ЦветТекста: null,
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "AppearanceFields",
+      ЦветТекста: {
+        parameter: "ЦветТекста",
+      },
+    })
+  })
+
+  it("keeps non-color empty SettingsParameterValue unchanged", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        Текст: null,
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "AppearanceFields",
+    })
+  })
 })

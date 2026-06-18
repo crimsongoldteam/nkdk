@@ -2,6 +2,7 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
+import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
 import { importUserSettingPresentationFromXML } from "./userSettingPresentationXML"
 import type {
@@ -33,6 +34,14 @@ const isNilValueFragment = (fragment: unknown): boolean =>
   ((fragment as Record<string, unknown>)["_xsi:nil"] === true ||
     (fragment as Record<string, unknown>)["_xsi:nil"] === "true")
 
+const isDcsAutoColorValueFragment = (rule: SettingsParameterValuePropertyRule, fragment: unknown): boolean =>
+  rule.valueType === "Color" &&
+  typeof fragment === "object" &&
+  fragment !== null &&
+  !Array.isArray(fragment) &&
+  (fragment as Record<string, unknown>)["_xsi:type"] === "v8ui:Color" &&
+  (fragment as Record<string, unknown>)["#text"] === "auto"
+
 export const importParameterValueFromDcsXML = (
   context: ConfigurationContextFromXML,
   rule: SettingsParameterValuePropertyRule,
@@ -44,9 +53,14 @@ export const importParameterValueFromDcsXML = (
   const nilValuePresent = valueFragments.some(isNilValueFragment) || (valueNodePresent && valueFragments.length === 0)
   const valueParts = valueFragments
     .filter((fragment) => !isNilValueFragment(fragment))
+    .filter((fragment) => !isDcsAutoColorValueFragment(rule, fragment))
     .map((fragment) => importDcsMetadataValueFromDcsXML(context, dcsRule, { "dcscor:value": fragment }))
   const value: ParameterValue["value"] =
-    valueParts.length === 0 ? undefined : valueParts.length === 1 ? valueParts[0] : valueParts
+    valueParts.length === 0
+      ? undefined
+      : valueParts.length === 1
+        ? valueParts[0]
+        : valueParts
 
   const itemsXml = asArray(xml["dcscor:item"])
   const item =
