@@ -119,6 +119,26 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts picture field border with empty style name", () => {
+    const project = createProject({
+      form: [
+        "Элементы:",
+        "  Статус:",
+        "    Вид: ПолеРисунка",
+        "    Рамка:",
+        "      Имя:",
+        "      Ширина: 1",
+        "      ТипРамки: БезРамки",
+        "    ПутьКДанным: Статус",
+        "Реквизиты:",
+        "  Статус:",
+        "    Тип: Число",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("accepts paths through DefinedType metadata", () => {
     const project = createProject({
       form: [

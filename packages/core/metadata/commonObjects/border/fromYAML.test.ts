@@ -33,6 +33,19 @@ describe("importBorderFromYAML", () => {
     })
   })
 
+  it("ignores empty style name", () => {
+    const result = importBorderFromYAML(mockContext, mockRule, {
+      Имя: null,
+      Ширина: 1,
+      ТипРамки: "БезРамки",
+    } as never)
+
+    expect(result).toEqual({
+      width: 1,
+      controlBorderType: "WithoutBorder",
+    })
+  })
+
   it("rejects raw XML style refs from YAML", () => {
     expect(() =>
       importBorderFromYAML(mockContext, mockRule, {

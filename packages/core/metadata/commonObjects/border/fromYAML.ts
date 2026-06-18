@@ -15,7 +15,7 @@ export const importBorderFromYAML = (
 
   const result: Border = {}
 
-  if (data.Имя !== undefined) {
+  if (data.Имя != null) {
     if (typeof data.Имя !== "string") throw new Error("Border: поле Имя должно быть строкой")
     result.ref = importStyleItemRefFromYAML(data.Имя)
   }
