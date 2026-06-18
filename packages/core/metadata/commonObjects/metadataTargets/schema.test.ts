@@ -35,6 +35,16 @@ describe("buildMetadataTargetSchema", () => {
     expectNotMatches(schema, "Справочник.ИмяСправочника")
   })
 
+  it("accepts top-level roots used by subsystem content", () => {
+    const schema = buildMetadataTargetSchema({ kind: "object" })
+
+    expectMatches(schema, "ПодпискаНаСобытие.ОтветственныеЛицаДокументаОбработкаЗаполнения")
+    expectMatches(schema, "ПакетXDTO.egais_ActCancelOnlineOrder")
+    expectMatches(schema, "ПараметрФункциональныхОпций.ИспользоватьНоменклатуруПоставщика")
+    expectMatches(schema, "WSСсылка.Калькулятор")
+    expectMatches(schema, "Последовательность.ПартииТоваров")
+  })
+
   it("describes full field paths with service segments", () => {
     const schema = buildMetadataTargetSchema({ kind: "member", owner: "explicit", roots: ["Catalog"] })
 

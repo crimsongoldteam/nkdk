@@ -1,6 +1,8 @@
+import { Type } from "@sinclair/typebox"
 import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
 import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
+import { buildMetadataTargetSchema } from "~/metadata/commonObjects/metadataTargets"
 import { importMetadataItemLinkFromYAML } from "~/metadata/commonObjects/metadataRef/fromYAML"
 import { exportMetadataItemLinkToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
 import {
@@ -45,6 +47,30 @@ const maCommandInterfaceDisplaysFromYAML = {
   Низ: "Bottom",
   Нет: "None",
 } as const
+
+const stringboolYAMLSchema = Type.Union([Type.Literal("Истина"), Type.Literal("Ложь")])
+const homePageWorkAreaVisibilitySchema = Type.Object(
+  {
+    Общее: Type.Optional(stringboolYAMLSchema),
+    Роли: Type.Optional(Type.Record(Type.String(), stringboolYAMLSchema)),
+  },
+  { additionalProperties: false }
+)
+const homePageWorkAreaColumnItemSchema = Type.Object(
+  {
+    Форма: Type.Optional(
+      buildMetadataTargetSchema({
+        kind: "member",
+        owner: "explicit",
+        memberKinds: ["Form"],
+      })
+    ),
+    Высота: Type.Optional(Type.Number()),
+    Видимость: Type.Optional(homePageWorkAreaVisibilitySchema),
+  },
+  { additionalProperties: false }
+)
+const homePageWorkAreaColumnItemsSchema = Type.Array(homePageWorkAreaColumnItemSchema)
 
 const roleNameRule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const satisfies PropertyRule
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
@@ -327,13 +353,16 @@ registerTypeRule("HomePageWorkAreaTemplate", "importFromXML", importEnumFromXML)
 registerTypeRule("HomePageWorkAreaTemplate", "exportToXML", exportEnumToXML)
 registerTypeRule("HomePageWorkAreaTemplate", "importFromYAML", importWorkingAreaTemplateFromYAML)
 registerTypeRule("HomePageWorkAreaTemplate", "exportToYAML", exportWorkingAreaTemplateToYAML)
+registerTypeRule("HomePageWorkAreaTemplate", "exportToJSONSchema", () => Type.String())
 
 registerTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "importFromXML", importEnumFromXML)
 registerTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "exportToXML", exportEnumToXML)
 registerTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "importFromYAML", importCommandInterfaceDisplayFromYAML)
 registerTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "exportToYAML", exportCommandInterfaceDisplayToYAML)
+registerTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "exportToJSONSchema", () => Type.String())
 
 registerTypeRule("HomePageWorkAreaColumnItems", "importFromXML", importColumnItemsFromXML)
 registerTypeRule("HomePageWorkAreaColumnItems", "exportToXML", exportColumnItemsToXML)
 registerTypeRule("HomePageWorkAreaColumnItems", "importFromYAML", importColumnItemsFromYAML)
 registerTypeRule("HomePageWorkAreaColumnItems", "exportToYAML", exportColumnItemsToYAML)
+registerTypeRule("HomePageWorkAreaColumnItems", "exportToJSONSchema", () => homePageWorkAreaColumnItemsSchema)

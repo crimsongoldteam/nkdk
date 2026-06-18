@@ -3,6 +3,9 @@ import { Type } from "@sinclair/typebox"
 import { MetadataConstantRules } from "~/metadata/appliedObjects/metadataConstant/rules"
 import { MetadataDefinedTypeRules } from "~/metadata/appliedObjects/metadataDefinedType/rules"
 import { MetadataCommonAttributeRules } from "~/metadata/appliedObjects/metadataCommonAttribute/rules"
+import { MetadataDocumentNumeratorRules } from "~/metadata/appliedObjects/metadataDocumentNumerator/rules"
+import { MetadataFilterCriterionRules } from "~/metadata/appliedObjects/metadataFilterCriterion/rules"
+import { MetadataSettingsStorageRules } from "~/metadata/appliedObjects/metadataSettingsStorage/rules"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
@@ -67,44 +70,65 @@ const ownerDirByRefKind = {
   Задача: "Задача",
   ЗадачаОбъект: "Задача",
   ОбщийРеквизит: "ОбщийРеквизит",
+  КритерийОтбора: "КритерийОтбора",
+  ХранилищеНастроек: "ХранилищеНастроек",
+  НумераторДокументов: "Нумератор",
   Константа: "Константа",
   ОпределяемыйТип: "ОпределяемыйТип",
 } satisfies Readonly<Record<KnownOwnerTypeKind, string>>
 
-const constantOwnerSpec: ValidationProjectSpec = {
+const constantOwnerSpec = createLocalOwnerSpec({
   kind: "constant",
   dir: "Константа",
   rule: MetadataConstantRules,
-  exportSchema: () => Type.Object({}),
-  importModel: ({ context, parsed, name }) => {
-    const model: unknown = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: MetadataConstantRules, name })
+})
 
-    return isMetadataItem(model) ? model : undefined
-  },
-}
-
-const definedTypeOwnerSpec: ValidationProjectSpec = {
+const definedTypeOwnerSpec = createLocalOwnerSpec({
   kind: "definedType",
   dir: "ОпределяемыйТип",
   rule: MetadataDefinedTypeRules,
-  exportSchema: () => Type.Object({}),
-  importModel: ({ context, parsed, name }) => {
-    const model: unknown = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: MetadataDefinedTypeRules, name })
+})
 
-    return isMetadataItem(model) ? model : undefined
-  },
-}
-
-const commonAttributeOwnerSpec: ValidationProjectSpec = {
+const commonAttributeOwnerSpec = createLocalOwnerSpec({
   kind: "commonAttribute",
   dir: "ОбщийРеквизит",
   rule: MetadataCommonAttributeRules,
-  exportSchema: () => Type.Object({}),
-  importModel: ({ context, parsed, name }) => {
-    const model: unknown = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: MetadataCommonAttributeRules, name })
+})
 
-    return isMetadataItem(model) ? model : undefined
-  },
+const filterCriterionOwnerSpec = createLocalOwnerSpec({
+  kind: "filterCriterion",
+  dir: "КритерийОтбора",
+  rule: MetadataFilterCriterionRules,
+})
+
+const settingsStorageOwnerSpec = createLocalOwnerSpec({
+  kind: "settingsStorage",
+  dir: "ХранилищеНастроек",
+  rule: MetadataSettingsStorageRules,
+})
+
+const documentNumeratorOwnerSpec = createLocalOwnerSpec({
+  kind: "documentNumerator",
+  dir: "Нумератор",
+  rule: MetadataDocumentNumeratorRules,
+})
+
+function createLocalOwnerSpec(params: {
+  kind: string
+  dir: string
+  rule: MetadataItemRule
+}): ValidationProjectSpec {
+  return {
+    kind: params.kind,
+    dir: params.dir,
+    rule: params.rule,
+    exportSchema: () => Type.Object({}),
+    importModel: ({ context, parsed, name }) => {
+      const model: unknown = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: params.rule, name })
+
+      return isMetadataItem(model) ? model : undefined
+    },
+  }
 }
 
 export function createOwnerMetadataCache({
@@ -196,6 +220,9 @@ function getOwnerProjectSpecByDir(dir: string): ValidationProjectSpec | undefine
   if (dir === constantOwnerSpec.dir) return constantOwnerSpec
   if (dir === definedTypeOwnerSpec.dir) return definedTypeOwnerSpec
   if (dir === commonAttributeOwnerSpec.dir) return commonAttributeOwnerSpec
+  if (dir === filterCriterionOwnerSpec.dir) return filterCriterionOwnerSpec
+  if (dir === settingsStorageOwnerSpec.dir) return settingsStorageOwnerSpec
+  if (dir === documentNumeratorOwnerSpec.dir) return documentNumeratorOwnerSpec
   return getValidationProjectSpecByDir(dir)
 }
 

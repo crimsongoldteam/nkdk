@@ -38,6 +38,7 @@ export const rootToYAML = {
   Style: "Стиль",
   StyleItem: "ЭлементСтиля",
   FunctionalOption: "ФункциональнаяОпция",
+  FunctionalOptionsParameter: "ПараметрФункциональныхОпций",
   FunctionalOptionParameter: "ПараметрФункциональныхОпций",
   DocumentJournal: "ЖурналДокументов",
   HTTPService: "HTTPСервис",
@@ -51,6 +52,7 @@ export const rootToYAML = {
   SessionParameter: "ПараметрСеанса",
   SettingsStorage: "ХранилищеНастроек",
   Subsystem: "Подсистема",
+  Sequence: "Последовательность",
 } as const satisfies Record<MetadataRootName, string>
 
 export const rootFromYAML = Object.fromEntries(

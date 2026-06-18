@@ -34,6 +34,7 @@ export type MetadataRootName =
   | "Style"
   | "StyleItem"
   | "FunctionalOption"
+  | "FunctionalOptionsParameter"
   | "FunctionalOptionParameter"
   | "DocumentJournal"
   | "HTTPService"
@@ -47,6 +48,10 @@ export type MetadataRootName =
   | "SessionParameter"
   | "SettingsStorage"
   | "Subsystem"
+  | "EventSubscription"
+  | "XDTOPackage"
+  | "WSReference"
+  | "Sequence"
 
 export type MetadataObjectPathKind = "Table" | "Cube" | "DimensionTable" | "Function"
 

@@ -26,6 +26,17 @@ describe("ProjectMetadataResolver", () => {
     })
   })
 
+  it("resolves document numerators from their physical YAML directory", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Нумератор/ДенежныеДокументы/Свойства.yaml", "Синоним: Денежные документы")
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveObject({ target: objectTarget("НумераторДокументов.ДенежныеДокументы") })).toMatchObject({
+      ok: true,
+      filePath: join(projectDir, "Нумератор", "ДенежныеДокументы", "Свойства.yaml"),
+    })
+  })
+
   it("reports unknown objects through reference diagnostics", () => {
     const projectDir = createProject()
     const resolver = createResolver(projectDir)

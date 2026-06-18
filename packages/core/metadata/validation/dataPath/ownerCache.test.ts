@@ -98,6 +98,9 @@ describe("OwnerMetadataCache", () => {
     ["ЗадачаОбъект", "Задача"],
     ["ОбщийРеквизит", "ОбщийРеквизит"],
     ["ОпределяемыйТип", "ОпределяемыйТип"],
+    ["КритерийОтбора", "КритерийОтбора"],
+    ["ХранилищеНастроек", "ХранилищеНастроек"],
+    ["НумераторДокументов", "Нумератор"],
   ] satisfies Array<[kind: KnownOwnerTypeKind, dir: string]>)("maps %s owner refs to %s directory", (kind, dir) => {
     const projectDir = createProject()
     const cache = createOwnerMetadataCache({
@@ -116,6 +119,31 @@ describe("OwnerMetadataCache", () => {
           source: "cross-file",
         }),
       ],
+    })
+  })
+
+  it("loads filter criterion, settings storage and document numerator owners", () => {
+    const projectDir = createProject()
+    writeProperties(projectDir, "КритерийОтбора", "ДокументыВНАПоОснованию", "Тип: Документ.ВводСобытийВНАМСФО")
+    writeProperties(projectDir, "ХранилищеНастроек", "Общие", "Синоним: Общие")
+    writeProperties(projectDir, "Нумератор", "ДенежныеДокументы", "ДлинаНомера: 11")
+    const cache = createOwnerMetadataCache({
+      projectDir,
+      yamlCache: createProjectYamlCache(),
+      context: mockContext,
+    })
+
+    expect(cache.get({ kind: "КритерийОтбора", name: "ДокументыВНАПоОснованию" })).toMatchObject({
+      status: "ok",
+      owner: { model: { itemType: "MetadataFilterCriterion" } },
+    })
+    expect(cache.get({ kind: "ХранилищеНастроек", name: "Общие" })).toMatchObject({
+      status: "ok",
+      owner: { model: { itemType: "MetadataSettingsStorage" } },
+    })
+    expect(cache.get({ kind: "НумераторДокументов", name: "ДенежныеДокументы" })).toMatchObject({
+      status: "ok",
+      owner: { model: { itemType: "MetadataDocumentNumerator" } },
     })
   })
 

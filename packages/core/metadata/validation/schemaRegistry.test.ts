@@ -2,6 +2,8 @@ import "~/metadata/appliedObjects"
 import "~/metadata/forms"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
+import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
+import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { clearJSONSchemaRefRegistries } from "~/metadata/orchestration/jsonSchemaRefs"
 import { exportJSONSchemaForSchemaName, listJSONSchemaNames } from "~/metadata/validation/schemaRegistry"
 
@@ -41,6 +43,41 @@ describe("JSON Schema registry", () => {
       expect(compiled.Check({ Тип: "Строка" })).toBe(true)
       expect(JSON.stringify(schema)).toContain('"Тип"')
     }
+  })
+
+  it("accepts home page work area in configuration schemas", () => {
+    const schema = exportMetadataItemToJSONSchema({ context, rule: MetadataConfigurationRules })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(
+      compiled.Check({
+        Имя: "Конфигурация",
+        РабочаяОбластьНачальнойСтраницы: {
+          ШаблонРабочейОбласти: "ДвеКолонкиПеременнойШирины",
+          ЛеваяКолонка: [
+            {
+              Форма: "Task.ЗадачаИсполнителя.Form.МоиЗадачиДляРабочегоСтола",
+              Высота: 10,
+              Видимость: {
+                Общее: "Ложь",
+                Роли: {
+                  НалоговыйМониторинг: "Истина",
+                },
+              },
+            },
+          ],
+          ПраваяКолонка: [
+            {
+              Форма: "DataProcessor.ИнформационныйЦентр.Form.ИнформационныйЦентр",
+              Высота: 10,
+              Видимость: {
+                Общее: "Ложь",
+              },
+            },
+          ],
+        },
+      })
+    ).toBe(true)
   })
 
   it("exports form element schemas with Вид discriminator", () => {

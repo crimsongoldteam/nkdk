@@ -453,14 +453,14 @@ function memberCollectionItem(collection: unknown, name: string): unknown {
 }
 
 function objectFilePath(projectDir: string, root: MetadataRootName, name: string): string {
-  return join(projectDir, rootToYAML[root], name, "Свойства.yaml")
+  return join(projectDir, objectRootDir(root), name, "Свойства.yaml")
 }
 
 function nestedObjectFilePath(
   projectDir: string,
   target: Extract<ParsedMetadataTarget, { kind: "object" }>,
 ): string {
-  const parts = [projectDir, rootToYAML[target.root], target.objectName]
+  const parts = [projectDir, objectRootDir(target.root), target.objectName]
   for (const segment of target.segments ?? []) {
     parts.push(nestedObjectFolderName(segment.kind), segment.objectName)
   }
@@ -484,6 +484,11 @@ function objectSegmentKindToYAML(kind: MetadataRootName | MetadataObjectPathKind
 
 function isMetadataRootName(kind: MetadataRootName | MetadataObjectPathKind): kind is MetadataRootName {
   return Object.prototype.hasOwnProperty.call(rootToYAML, kind)
+}
+
+function objectRootDir(root: MetadataRootName): string {
+  if (root === "DocumentNumerator") return "Нумератор"
+  return rootToYAML[root]
 }
 
 function memberLookupName(segment: Extract<ParsedMetadataTarget, { kind: "member" }>["segments"][number]): string {
