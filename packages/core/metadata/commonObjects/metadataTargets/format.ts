@@ -59,6 +59,9 @@ function formatMemberTargetToYAML(
   if (constraint.kind !== "member" || constraint.owner !== "this") return full
   if (!owner) throw new Error('Для metadataTarget kind "member" owner "this" требуется контекст текущего объекта')
   if (target.root !== owner.root || target.objectName !== owner.objectName) {
+    if (constraint.allowedMemberPaths?.some((allowedPath) => memberTargetMatchesAllowedPath(target, allowedPath))) {
+      return full
+    }
     throw new Error(
       `Цель "${target.root}.${target.objectName}" не принадлежит текущему объекту "${owner.root}.${owner.objectName}"`
     )
@@ -68,6 +71,19 @@ function formatMemberTargetToYAML(
   const localSegments = target.segments.flatMap((segment) => [memberKindToYAML[segment.kind], formatMemberSegmentName(segment)])
   if (target.segments.length === 1 && memberKinds.length === 1) return formatMemberSegmentName(target.segments[0])
   return localSegments.join(".")
+}
+
+function memberTargetMatchesAllowedPath(
+  target: Extract<ParsedMetadataTarget, { kind: "member" }>,
+  allowedPath: readonly [string, ...string[]]
+): boolean {
+  const targetPath = [
+    target.root,
+    ...(target.objectSegments ?? []).map((segment) => segment.kind),
+    ...target.segments.map((segment) => segment.kind),
+  ]
+
+  return targetPath.length === allowedPath.length && targetPath.every((part, index) => part === allowedPath[index])
 }
 
 function formatMemberSegmentName(segment: MetadataMemberSegment): string {

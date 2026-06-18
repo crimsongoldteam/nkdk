@@ -52,6 +52,8 @@ const contentMemberPaths = [
   ["DataProcessor", "TabularSection"],
   ["DataProcessor", "TabularSection", "Attribute"],
   ["DataProcessor", "Command"],
+  ["Report", "Attribute"],
+  ["Report", "Command"],
   ["ChartOfCharacteristicTypes", "Attribute"],
   ["ChartOfCharacteristicTypes", "TabularSection"],
   ["ChartOfCharacteristicTypes", "TabularSection", "Attribute"],

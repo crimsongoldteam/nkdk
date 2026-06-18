@@ -376,7 +376,7 @@ export const MetadataCatalogRules = {
       yaml: "Владельцы",
       type: "MetadataObjectRefCollection",
       xmlParents: ["Properties"],
-      metadataTarget: { kind: "object", roots: ["Catalog", "Document", "ChartOfCharacteristicTypes"] },
+      metadataTarget: { kind: "object", roots: ["Catalog", "Document", "ChartOfCharacteristicTypes", "ExchangePlan"] },
       defaultValueXMLRaw: {},
     },
     objectModule: {

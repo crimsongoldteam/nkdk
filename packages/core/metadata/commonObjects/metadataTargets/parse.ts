@@ -203,7 +203,10 @@ function parseMemberTargetFromYAML(
     if (objectModel.ok) return objectModel
 
     const exactModel = parseExactMemberTarget(parts, constraint, "model")
-    if (exactModel.ok) return ensureCurrentOwner(exactModel.target, owner)
+    if (exactModel.ok) {
+      const currentOwner = ensureCurrentOwner(exactModel.target, owner)
+      return currentOwner.ok ? currentOwner : exactModel
+    }
 
     const fullModel = parseFullModelMemberCompatibility(parts, constraint)
     if (fullModel.ok) return ensureCurrentOwner(fullModel.target, owner)
@@ -212,9 +215,10 @@ function parseMemberTargetFromYAML(
     if (objectYaml.ok) return objectYaml
 
     const exactYaml = parseExactMemberTarget(parts, constraint, "yaml")
-    if (exactYaml.ok) return ensureCurrentOwner(exactYaml.target, owner)
-
-    if (constraint.allowedMemberPaths) return exactYaml
+    if (exactYaml.ok) {
+      const currentOwner = ensureCurrentOwner(exactYaml.target, owner)
+      return currentOwner.ok ? currentOwner : exactYaml
+    }
 
     const fullYaml = parseRootedTargetFromYAML(parts, constraint, (root, objectName, tail) =>
       parseMemberOrOwnerTarget(root, objectName, tail, constraint, "yaml")
@@ -258,7 +262,7 @@ function parseMemberTargetFromModel(
   const exactMember = parseExactMemberTarget(parts, constraint, "model")
   if (exactMember.ok) return exactMember
 
-  if (constraint.allowedMemberPaths) return exactMember
+  if (constraint.allowedMemberPaths && constraint.owner !== "this") return exactMember
 
   if (constraint.owner === "this" && owner) {
     const ownerPrefixed = parseOwnerPrefixedModelMember(parts, constraint, owner)

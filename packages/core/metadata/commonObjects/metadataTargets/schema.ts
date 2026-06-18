@@ -166,7 +166,7 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
     const branches = [METADATA_NAME_PATTERN]
     branches.push(nestedLocalMemberPathPattern(kind, "yaml"))
     if (fullModelCompatibility) branches.push(fullModelCompatibility)
-    branches.push(...objectBranches, ...modelObjectBranches)
+    branches.push(...exactMemberBranches, ...exactModelMemberBranches, ...objectBranches, ...modelObjectBranches)
 
     return Type.String({
       pattern: `^(?:${branches.join("|")})$`,
