@@ -36,4 +36,26 @@ describe("import MetadataDocument from YAML", () => {
     })
     expect(result).toEqual(withNumerator)
   })
+
+  it("should apply common basedOn object restrictions", () => {
+    const result = testImportAppliedObjectFromYAML<MetadataDocument>({
+      rule: MetadataDocumentRules,
+      yaml: {
+        ВводитсяНаОсновании: ["Справочник.Номенклатура"],
+      },
+      name: "ЗаказПокупателя",
+    })
+
+    expect(result?.basedOn).toEqual(["Catalog.Номенклатура"])
+
+    expect(() =>
+      testImportAppliedObjectFromYAML<MetadataDocument>({
+        rule: MetadataDocumentRules,
+        yaml: {
+          ВводитсяНаОсновании: ["Перечисление.Статусы"],
+        },
+        name: "ЗаказПокупателя",
+      }),
+    ).toThrow('Вид цели "Enum" не разрешён')
+  })
 })
