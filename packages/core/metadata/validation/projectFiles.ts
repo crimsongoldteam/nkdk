@@ -1,6 +1,8 @@
 import { existsSync, readdirSync, statSync } from "fs"
 import { isAbsolute, join, relative, resolve, sep } from "path"
+import { CONFIGURATION_YAML_FILE } from "~/metadata/appliedObjects/configuration/rootIO"
 import {
+  configurationValidationProjectSpec,
   getValidationProjectSpecByDir,
   validationProjectSpecs,
   type ValidationProjectSpec,
@@ -9,7 +11,7 @@ import {
 export interface ValidationProjectFile {
   absolutePath: string
   projectPath: string
-  kind: "properties" | "form"
+  kind: "configuration" | "properties" | "form"
   owner: { dir: string; name: string; spec: ValidationProjectSpec }
   formName?: string
 }
@@ -17,6 +19,10 @@ export interface ValidationProjectFile {
 export function discoverValidationProjectFiles(projectDir: string): ValidationProjectFile[] {
   const projectRoot = resolve(projectDir)
   const files: ValidationProjectFile[] = []
+
+  const configurationPath = join(projectRoot, CONFIGURATION_YAML_FILE)
+  const configurationFile = collectExistingProjectFile(projectRoot, configurationPath)
+  if (configurationFile) files.push(configurationFile)
 
   for (const spec of validationProjectSpecs) {
     const kindDir = join(projectRoot, spec.dir)
@@ -42,13 +48,27 @@ export function discoverValidationProjectFiles(projectDir: string): ValidationPr
     }
   }
 
-  return files.sort((left, right) => left.projectPath.localeCompare(right.projectPath))
+  return files.sort((left, right) => left.projectPath.localeCompare(right.projectPath, "ru"))
 }
 
 export function resolveValidationProjectFile(projectDir: string, filePath: string): ValidationProjectFile | undefined {
   const projectRoot = resolve(projectDir)
   const absolutePath = isAbsolute(filePath) ? resolve(filePath) : resolve(projectRoot, filePath)
   const projectPath = assertProjectFileInside(projectRoot, absolutePath)
+
+  if (projectPath === CONFIGURATION_YAML_FILE) {
+    return {
+      absolutePath,
+      projectPath,
+      kind: "configuration",
+      owner: {
+        dir: "",
+        name: "Конфигурация",
+        spec: configurationValidationProjectSpec,
+      },
+    }
+  }
+
   const parts = projectPath.split("/")
 
   const propertiesOwner = matchPropertiesPath(parts)
