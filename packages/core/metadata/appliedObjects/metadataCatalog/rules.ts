@@ -1,19 +1,8 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 import { MetadataCatalogStandardAttributeNames } from "./types"
-
-const basedOnObjectPaths = [
-  ["ChartOfAccounts"],
-  ["ExternalDataSource", "Table"],
-  ["ExchangePlan"],
-  ["Catalog"],
-  ["Document"],
-  ["ChartOfCharacteristicTypes"],
-  ["BusinessProcess"],
-  ["ChartOfCalculationTypes"],
-  ["Task"],
-] as const
 
 export const MetadataCatalogRules = {
   itemType: "MetadataCatalog",
@@ -103,7 +92,7 @@ export const MetadataCatalogRules = {
       yaml: "ВводитсяНаОсновании",
       type: "MetadataObjectRefCollection",
       xmlParents: ["Properties"],
-      metadataTarget: { kind: "object", allowedObjectPaths: basedOnObjectPaths },
+      metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
       defaultValueXMLRaw: {},
     },
     characteristics: {

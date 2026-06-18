@@ -1,5 +1,6 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 
 const properties = ["Properties"]
@@ -239,7 +240,7 @@ export const MetadataExchangePlanRules = {
     basedOn: {
       yaml: "ОснованНа",
       type: "MetadataItemLinks",
-      metadataTarget: { kind: "object" },
+      metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
       xmlParents: properties,
       defaultValue: emptyCollection,
       defaultValueXMLEmpty: emptyCollection,

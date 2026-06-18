@@ -1,5 +1,6 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 
 const properties = ["Properties"]
@@ -87,7 +88,7 @@ export const MetadataChartOfCharacteristicTypesRules = {
     auxiliaryListForm: { yaml: "ДополнительнаяФормаСписка", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
     auxiliaryChoiceForm: { yaml: "ДополнительнаяФормаВыбора", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
     auxiliaryFolderChoiceForm: { yaml: "ДополнительнаяФормаВыбораГруппы", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
-    basedOn: { yaml: "ВводитсяНаОсновании", type: "MetadataItemLinks", xmlParents: properties, defaultValueXMLRaw: {} },
+    basedOn: { yaml: "ВводитсяНаОсновании", type: "MetadataItemLinks", metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths }, xmlParents: properties, defaultValueXMLRaw: {} },
     dataLockFields: { yaml: "ПоляБлокировкиДанных", type: "MetadataFields", xmlParents: properties, defaultValueXMLRaw: {} },
     dataLockControlMode: { yaml: "РежимУправленияБлокировкойДанных", type: "SystemEnumeration", typeSE: "DefaultDataLockControlMode", defaultValueXML: "Managed", implicitValueYAML: "Managed", xmlParents: properties },
     fullTextSearch: { yaml: "ПолнотекстовыйПоиск", type: "SystemEnumeration", typeSE: "UseFullTextSearch", defaultValueXML: "Use", implicitValueYAML: "Use", xmlParents: properties },
