@@ -275,4 +275,46 @@ describe("roundTripYAMLFast", () => {
       fs.rmSync(xmlDir, { recursive: true, force: true })
     }
   })
+
+  it("keeps external data source file-item InternalInfo owner names", async () => {
+    const xmlDir = makeExternalDataSourceFixtureProject()
+    try {
+      const result = await roundTripYAMLFast({ inputDir: xmlDir })
+      const files = [...result.diffs.map((diff) => diff.file), ...result.errors.map((error) => error.file)]
+
+      expect(files).not.toContain(
+        "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml"
+      )
+      expect(files).not.toContain(
+        "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубПоУмолчанию.xml"
+      )
+      expect(files).not.toContain(
+        "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml"
+      )
+    } finally {
+      fs.rmSync(xmlDir, { recursive: true, force: true })
+    }
+  })
+
+  it("uses nested owner context for external data source default form targets", async () => {
+    const xmlDir = makeExternalDataSourceFixtureProject()
+    try {
+      const result = await roundTripYAMLFast({ inputDir: xmlDir })
+
+      expect(result.errors.map((error) => ({ file: error.file, message: error.message }))).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            file: "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства.xml",
+            message: expect.stringContaining('Неизвестный сегмент "Table"'),
+          }),
+          expect.objectContaining({
+            file: "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства.xml",
+            message: expect.stringContaining('Неизвестный сегмент "Cube"'),
+          }),
+        ])
+      )
+    } finally {
+      fs.rmSync(xmlDir, { recursive: true, force: true })
+    }
+  })
 })
