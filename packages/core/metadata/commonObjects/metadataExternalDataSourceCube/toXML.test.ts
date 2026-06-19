@@ -5,7 +5,6 @@ import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
 import { importContentFromXML } from "~/xml/import/importer"
-import { MetadataExternalDataSourceCubeRules } from "./rules"
 import "./register"
 
 const rule = { type: "MetadataExternalDataSourceCube" } as const
