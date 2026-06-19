@@ -22,7 +22,9 @@ export const exportSettingsParameterValueCollectionToJSONSchema: ExportToJSONSch
   const collectionRule = rule as SettingsParameterValueCollectionPropertyRule
 
   if (collectionRule.defaultItemRule !== undefined) {
-    return Type.Record(Type.String(), requiredSettingsParameterValueSchema(context, collectionRule.defaultItemRule))
+    const defaultSchema = requiredSettingsParameterValueSchema(context, collectionRule.defaultItemRule)
+    const parameterRules = schemaForParameterRule(context, collectionRule)
+    return Type.Object(parameterRules.properties, { additionalProperties: defaultSchema })
   }
 
   return schemaForParameterRule(context, collectionRule)

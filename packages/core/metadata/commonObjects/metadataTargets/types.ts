@@ -34,6 +34,7 @@ export type MetadataRootName =
   | "Style"
   | "StyleItem"
   | "FunctionalOption"
+  | "FunctionalOptionsParameter"
   | "FunctionalOptionParameter"
   | "DocumentJournal"
   | "HTTPService"
@@ -47,6 +48,10 @@ export type MetadataRootName =
   | "SessionParameter"
   | "SettingsStorage"
   | "Subsystem"
+  | "EventSubscription"
+  | "XDTOPackage"
+  | "WSReference"
+  | "Sequence"
 
 export type MetadataObjectPathKind = "Table" | "Cube" | "DimensionTable" | "Function"
 
@@ -89,6 +94,7 @@ export interface ObjectTargetConstraint {
   allowedObjectPaths?: readonly (readonly [MetadataRootName, ...MetadataObjectPathKind[]])[]
   scope?: "project" | "owner"
   allowNested?: boolean
+  nestedObjectRoots?: readonly MetadataRootName[]
   filters?: readonly MetadataTargetFilter[]
 }
 
@@ -124,6 +130,7 @@ export interface DataPathTargetConstraint {
   context: "form"
   allowedKinds?: readonly string[]
   allowComposite?: boolean
+  allowOpaqueMultipleValue?: boolean
 }
 
 export type MetadataTargetConstraint =

@@ -485,6 +485,8 @@ import {
   CommandInterfaceOrderYAML,
   CommandInterfacePlacementMap,
   CommandInterfacePlacementMapYAML,
+  CommandInterfaceSubsystemsOrder,
+  CommandInterfaceSubsystemsOrderYAML,
   CommandInterfaceSubsystemsVisibilityMap,
   CommandInterfaceSubsystemsVisibilityMapYAML,
   CommandInterfaceVisibilityMap,
@@ -1310,6 +1312,10 @@ export interface PropertyTypeRegistry {
     item: CommandInterfaceOrder
     yaml: CommandInterfaceOrderYAML
   }
+  CommandInterfaceSubsystemsOrder: {
+    item: CommandInterfaceSubsystemsOrder
+    yaml: CommandInterfaceSubsystemsOrderYAML
+  }
   CommandInterfaceCommandGroups: {
     item: CommandInterfaceCommandGroups
     yaml: CommandInterfaceCommandGroupsYAML
@@ -1821,6 +1827,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   CommandInterfaceSubsystemsVisibilityMap: "CommandInterfaceSubsystemsVisibilityMap",
   CommandInterfacePlacementMap: "CommandInterfacePlacementMap",
   CommandInterfaceOrder: "CommandInterfaceOrder",
+  CommandInterfaceSubsystemsOrder: "CommandInterfaceSubsystemsOrder",
   CommandInterfaceCommandGroups: "CommandInterfaceCommandGroups",
   ClientApplicationInterfaceItems: "ClientApplicationInterfaceItems",
   ClientApplicationInterfacePanelDefs: "ClientApplicationInterfacePanelDefs",

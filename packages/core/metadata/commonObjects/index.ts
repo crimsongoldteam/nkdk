@@ -96,6 +96,7 @@ import "./font/toYAML"
 
 import "./styleItemValue/fromXML"
 import "./styleItemValue/fromYAML"
+import "./styleItemValue/toJSONSchema"
 import "./styleItemValue/toXML"
 import "./styleItemValue/toYAML"
 

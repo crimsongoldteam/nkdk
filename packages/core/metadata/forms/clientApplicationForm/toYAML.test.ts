@@ -131,6 +131,30 @@ describe("exportClientApplicationFormToYAML", () => {
     })
   })
 
+  it("exports report form settings storage as an external report form reference", () => {
+    const context: ConfigurationContext = {
+      ...mockContextToYAML,
+      exportToYAML: {
+        ...mockContextToYAML.exportToYAML!,
+        metadataTargetOwners: [
+          { itemType: "MetadataReport", name: "РегистрНалоговогоУчетаФедеральногоИнвестиционногоВычета" },
+        ],
+      },
+    }
+    const form: ClientApplicationForm = {
+      itemType: "ClientApplicationForm",
+      commands: [],
+      childItems: [],
+      settingsStorage: "Report.РегистрыНалоговогоУчета.Form.ФормаОтчета",
+    }
+
+    const { yaml } = exportClientApplicationFormToYAML(context, form)
+
+    expect(yaml).toEqual({
+      ХранилищеНастроек: "Отчет.РегистрыНалоговогоУчета.Форма.ФормаОтчета",
+    })
+  })
+
   it("should export minimal", () => {
     const { yaml } = exportClientApplicationFormToYAML(mockContextToYAML, minimalClientApplicationForm)
 

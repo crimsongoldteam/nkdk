@@ -1,10 +1,13 @@
 import { Static, Type } from "@sinclair/typebox"
 
 export const WebSocketClientHeadersJSONSchema = Type.Array(
-  Type.Object({
-    key: Type.String(),
-    value: Type.String(),
-  })
+  Type.Object(
+    {
+      Ключ: Type.String(),
+      Значение: Type.String(),
+    },
+    { additionalProperties: false }
+  )
 )
 
 export type WebSocketClientHeaders = Static<typeof WebSocketClientHeadersJSONSchema>

@@ -261,6 +261,7 @@ export interface DataPathPropertyRule extends BasePropertyRule {
   defaultType?: string
   allowedKinds?: readonly DataPathAllowedKind[]
   allowComposite?: boolean
+  allowOpaqueMultipleValue?: boolean
 }
 
 export interface MetadataTypePropertyRule extends BasePropertyRule {

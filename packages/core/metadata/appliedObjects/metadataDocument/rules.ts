@@ -219,7 +219,13 @@ export const MetadataDocumentRules = {
       yaml: "ОсновнаяФормаДляВыбора",
       type: "string",
       xmlParents: documentProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      metadataTarget: {
+        kind: "member",
+        owner: "this",
+        memberKinds: ["Form"],
+        objectRoots: ["CommonForm"],
+        allowedMemberPaths: [["DocumentJournal", "Form"]],
+      },
       defaultValueXMLRaw: "",
     },
     defaultListForm: {

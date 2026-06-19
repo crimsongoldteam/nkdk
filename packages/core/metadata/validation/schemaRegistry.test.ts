@@ -2,6 +2,8 @@ import "~/metadata/appliedObjects"
 import "~/metadata/forms"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
+import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
+import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { clearJSONSchemaRefRegistries } from "~/metadata/orchestration/jsonSchemaRefs"
 import { exportJSONSchemaForSchemaName, listJSONSchemaNames } from "~/metadata/validation/schemaRegistry"
 
@@ -43,6 +45,47 @@ describe("JSON Schema registry", () => {
     }
   })
 
+  it("accepts home page work area in configuration schemas", () => {
+    const schema = exportMetadataItemToJSONSchema({ context, rule: MetadataConfigurationRules })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(
+      compiled.Check({
+        РабочаяОбластьНачальнойСтраницы: {
+          ШаблонРабочейОбласти: "ДвеКолонкиПеременнойШирины",
+          ЛеваяКолонка: [
+            {
+              Форма: "CommonForm.РабочийСтол",
+              Высота: 10,
+              Видимость: {
+                Общее: "Истина",
+              },
+            },
+            {
+              Форма: "Task.ЗадачаИсполнителя.Form.МоиЗадачиДляРабочегоСтола",
+              Высота: 10,
+              Видимость: {
+                Общее: "Ложь",
+                Роли: {
+                  НалоговыйМониторинг: "Истина",
+                },
+              },
+            },
+          ],
+          ПраваяКолонка: [
+            {
+              Форма: "DataProcessor.ИнформационныйЦентр.Form.ИнформационныйЦентр",
+              Высота: 10,
+              Видимость: {
+                Общее: "Ложь",
+              },
+            },
+          ],
+        },
+      })
+    ).toBe(true)
+  })
+
   it("exports form element schemas with Вид discriminator", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "InputField" })
 
@@ -53,6 +96,15 @@ describe("JSON Schema registry", () => {
       }),
       required: expect.arrayContaining(["Вид"]),
     })
+  })
+
+  it("allows opaque multiple-value DataPath only in InputField schema", () => {
+    const inputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "InputField" })
+    const tableInputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "TableInputField" })
+    const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
+
+    expect(TypeCompiler.Compile(inputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(true)
+    expect(TypeCompiler.Compile(tableInputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(false)
   })
 
   it("keeps tree YAML button type alias away from Вид discriminator", () => {
@@ -292,6 +344,22 @@ describe("JSON Schema registry", () => {
     }
 
     expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+  })
+
+  it("accepts view status source in inline client form schemas", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(
+      compiled.Check({
+        Элементы: {
+          ДополнениеСостояниеОтбора: {
+            Вид: "ОтображениеСостоянияПросмотра",
+            Источник: "Список",
+          },
+        },
+      })
+    ).toBe(true)
   })
 
   it("exports dynamic list conditional appearance in inline client form schemas", () => {

@@ -25,4 +25,22 @@ describe("exportMetadataObjectRefCollectionToYAML", () => {
 
     expect(result).toEqual(multipleYAML)
   })
+
+  it("honors metadataTarget allowed object paths", () => {
+    const rule = {
+      type: "MetadataObjectRefCollection",
+      metadataTarget: {
+        kind: "object",
+        allowedObjectPaths: [["ExchangePlan"]],
+      },
+    } as const
+
+    expect(exportMetadataObjectRefCollectionToYAML(mockContext, rule, ["ExchangePlan.ИнтеграцияСМагазинамиСоцСетей"])).toEqual([
+      "ПланОбмена.ИнтеграцияСМагазинамиСоцСетей",
+    ])
+
+    expect(() => exportMetadataObjectRefCollectionToYAML(mockContext, rule, ["Catalog.Номенклатура"])).toThrow(
+      'Вид цели "Catalog" не разрешён'
+    )
+  })
 })

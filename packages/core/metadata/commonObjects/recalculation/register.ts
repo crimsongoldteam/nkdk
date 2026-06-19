@@ -4,8 +4,15 @@ import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/co
 import { importMetadataItemFromYAML } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
+import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
-import { ExportToXMLFunctionNew, SyncExternalFromXMLFunction, SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
+import {
+  ExportToJSONSchemaFn,
+  ExportToXMLFunctionNew,
+  SyncExternalFromXMLFunction,
+  SyncExternalToXMLFunction,
+} from "~/metadata/orchestration/property/fn"
+import { Type } from "@sinclair/typebox"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import { RecalculationRules } from "./rules"
@@ -66,6 +73,17 @@ registerTypeRule(
       keyField: "name",
     }) as RecalculationsYAML | undefined
 )
+
+const exportRecalculationsToJSONSchema: ExportToJSONSchemaFn = ({ context }) =>
+  Type.Record(
+    Type.String(),
+    exportMetadataItemToJSONSchema({
+      context,
+      rule: RecalculationRules,
+    })
+  )
+
+registerTypeRule("Recalculations", "exportToJSONSchema", exportRecalculationsToJSONSchema)
 
 export const syncRecalculationsFromXML: SyncExternalFromXMLFunction = async ({ xmlDir, nkdkDir, name }) => {
   const recalculationsDir = join(resolveXmlObjectDir({ xmlDir, name }), RECALCULATIONS_XML_DIR)

@@ -13,6 +13,10 @@ describe("ChoiceParametersJSONSchema", () => {
     expect(compiled.Check({ ВыборДействующихМаршрутныхКарт: {} })).toBe(true)
   })
 
+  it("accepts numeric choice parameter values", () => {
+    expect(compiled.Check({ Параметр: 123 })).toBe(true)
+  })
+
   it("accepts compact ERP form choice parameter YAML", () => {
     expect(
       compiled.Check({

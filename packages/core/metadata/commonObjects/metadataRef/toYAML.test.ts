@@ -60,6 +60,24 @@ describe("exportMetadataItemLinkToYAML", () => {
 })
 
 describe("exportMetadataItemLinksToYAML", () => {
+  it("exports all top-level metadata roots used in subsystem content", () => {
+    expect(
+      exportMetadataItemLinksToYAML(mockContext, { type: "MetadataItemLinks" }, [
+        "EventSubscription.ОтветственныеЛицаДокументаОбработкаЗаполнения",
+        "XDTOPackage.egais_ActCancelOnlineOrder",
+        "FunctionalOptionsParameter.ИспользоватьНоменклатуруПоставщика",
+        "WSReference.Калькулятор",
+        "Sequence.ПартииТоваров",
+      ])
+    ).toEqual([
+      "ПодпискаНаСобытие.ОтветственныеЛицаДокументаОбработкаЗаполнения",
+      "ПакетXDTO.egais_ActCancelOnlineOrder",
+      "ПараметрФункциональныхОпций.ИспользоватьНоменклатуруПоставщика",
+      "WSСсылка.Калькулятор",
+      "Последовательность.ПартииТоваров",
+    ])
+  })
+
   it("exports role references without Role prefix when rule asks for name form", () => {
     const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
 

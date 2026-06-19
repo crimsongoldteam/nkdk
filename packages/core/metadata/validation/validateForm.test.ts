@@ -1459,6 +1459,35 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts opaque multiple-value data path for extended input fields", () => {
+    const project = createProject({
+      form: [
+        "Элементы:",
+        "  Реквизит1:",
+        "    Вид: ПолеВвода",
+        "    РасширенноеРедактированиеМножественныхЗначений: Истина",
+        "    ПутьКДанным: 1/0:796f500f-c364-45d1-bce6-9e7e8e15b664",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("keeps opaque data path invalid without extended multiple-value editing", () => {
+    const project = createProject({
+      form: [
+        "Элементы:",
+        "  Реквизит1:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: 1/0:796f500f-c364-45d1-bce6-9e7e8e15b664",
+      ],
+    })
+
+    expect(messages(runValidateForm(project))).toContain(
+      'ПутьКДанным "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664": неизвестный корень "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"',
+    )
+  })
+
   it("validates DataPath values inside singleton element child items", () => {
     const project = createProject({
       form: [

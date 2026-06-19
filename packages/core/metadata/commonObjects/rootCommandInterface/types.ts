@@ -134,6 +134,8 @@ export type CommandInterfaceOrderYAML = Static<typeof CommandInterfaceOrderJSONS
 
 export type CommandInterfaceMetadataItemLinks = MetadataItemLinks
 export type CommandInterfaceMetadataItemLinksYAML = MetadataItemLinksYAML
+export type CommandInterfaceSubsystemsOrder = MetadataItemLinks
+export type CommandInterfaceSubsystemsOrderYAML = MetadataItemLinksYAML
 export type CommandInterfaceCommandGroups = string[]
 export type CommandInterfaceCommandGroupsYAML = string[]
 

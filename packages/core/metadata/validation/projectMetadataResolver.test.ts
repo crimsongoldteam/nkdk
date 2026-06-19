@@ -26,6 +26,17 @@ describe("ProjectMetadataResolver", () => {
     })
   })
 
+  it("resolves document numerators from their physical YAML directory", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Нумератор/ДенежныеДокументы/Свойства.yaml", "Синоним: Денежные документы")
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveObject({ target: objectTarget("НумераторДокументов.ДенежныеДокументы") })).toMatchObject({
+      ok: true,
+      filePath: join(projectDir, "Нумератор", "ДенежныеДокументы", "Свойства.yaml"),
+    })
+  })
+
   it("reports unknown objects through reference diagnostics", () => {
     const projectDir = createProject()
     const resolver = createResolver(projectDir)
@@ -251,6 +262,134 @@ describe("ProjectMetadataResolver", () => {
         expect.objectContaining({
           source: "reference",
           message: 'Не найден член "Отчет.Продажи.Макет.НетТакогоМакета": нет сегмента "НетТакогоМакета"',
+        }),
+      ],
+    })
+  })
+
+  it("resolves external data source functions from inline owner YAML", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ВнешнийИсточникДанных/Продажи/Свойства.yaml", [
+      "Синоним: Продажи",
+      "Функции:",
+      "  Получить:",
+      "    Тип: Строка",
+    ])
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveObject({ target: objectTarget("ВнешнийИсточникДанных.Продажи.Функция.Получить", true) })).toMatchObject({
+      ok: true,
+      filePath: join(projectDir, "ВнешнийИсточникДанных", "Продажи", "Свойства.yaml"),
+      details: { kind: "Function", name: "Получить", item: "Получить" },
+    })
+  })
+
+  it("keeps missing external data source functions as reference diagnostics when inline item is absent", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ВнешнийИсточникДанных/Продажи/Свойства.yaml", "Синоним: Продажи")
+    const resolver = createResolver(projectDir)
+
+    expect(resolver.resolveObject({ target: objectTarget("ВнешнийИсточникДанных.Продажи.Функция.НетТакой", true) })).toMatchObject({
+      ok: false,
+      diagnostics: [
+        expect.objectContaining({
+          source: "reference",
+          message: 'Не найден объект "ВнешнийИсточникДанных.Продажи.Функция.НетТакой"',
+        }),
+      ],
+    })
+  })
+
+  it("does not resolve nested external data source function targets from inline owner YAML", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ВнешнийИсточникДанных/Продажи/Свойства.yaml", [
+      "Синоним: Продажи",
+      "Функции:",
+      "  Получить:",
+      "    Тип: Строка",
+    ])
+    const resolver = createResolver(projectDir)
+
+    expect(
+      resolver.resolveObject({ target: objectTarget("ВнешнийИсточникДанных.Продажи.Функция.Получить.Таблица.Таблица1", true) }),
+    ).toMatchObject({
+      ok: false,
+      diagnostics: [
+        expect.objectContaining({
+          source: "reference",
+          message: 'Не найден объект "ВнешнийИсточникДанных.Продажи.Функция.Получить.Таблица.Таблица1"',
+        }),
+      ],
+    })
+  })
+
+  it("resolves external data source nested object members from nested YAML files", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ВнешнийИсточникДанных/Продажи/Свойства.yaml", "Синоним: Продажи")
+    writeProjectFile(projectDir, "ВнешнийИсточникДанных/Продажи/Таблицы/Заказы/Свойства.yaml", [
+      "Поля:",
+      "  Номер:",
+      "    Тип: Строка",
+      "Команды:",
+      "  Открыть:",
+      "    Синоним: Открыть",
+    ])
+    writeProjectFile(projectDir, "ВнешнийИсточникДанных/Продажи/Кубы/Продажи/Свойства.yaml", [
+      "Измерения:",
+      "  Номенклатура:",
+      "    Тип: Строка",
+      "Ресурсы:",
+      "  Количество:",
+      "    Тип: Число",
+    ])
+    const resolver = createResolver(projectDir)
+
+    for (const target of [
+      externalDataSourceMemberTarget("ВнешнийИсточникДанных.Продажи.Таблица.Заказы.Поле.Номер", [
+        "ExternalDataSource",
+        "Table",
+        "Field",
+      ]),
+      externalDataSourceMemberTarget("ВнешнийИсточникДанных.Продажи.Таблица.Заказы.Команда.Открыть", [
+        "ExternalDataSource",
+        "Table",
+        "Command",
+      ]),
+      externalDataSourceMemberTarget("ВнешнийИсточникДанных.Продажи.Куб.Продажи.Измерение.Номенклатура", [
+        "ExternalDataSource",
+        "Cube",
+        "Dimension",
+      ]),
+      externalDataSourceMemberTarget("ВнешнийИсточникДанных.Продажи.Куб.Продажи.Ресурс.Количество", [
+        "ExternalDataSource",
+        "Cube",
+        "Resource",
+      ]),
+    ]) {
+      expect(resolver.resolveMember({ target })).toMatchObject({ ok: true })
+    }
+  })
+
+  it("keeps missing external data source nested object members as reference diagnostics", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ВнешнийИсточникДанных/Продажи/Свойства.yaml", "Синоним: Продажи")
+    writeProjectFile(projectDir, "ВнешнийИсточникДанных/Продажи/Таблицы/Заказы/Свойства.yaml", "Поля: {}")
+    const resolver = createResolver(projectDir)
+
+    expect(
+      resolver.resolveMember({
+        target: externalDataSourceMemberTarget("ВнешнийИсточникДанных.Продажи.Таблица.Заказы.Поле.НетТакого", [
+          "ExternalDataSource",
+          "Table",
+          "Field",
+        ]),
+      }),
+    ).toMatchObject({
+      ok: false,
+      diagnostics: [
+        expect.objectContaining({
+          source: "reference",
+          message: 'Не найден член "ВнешнийИсточникДанных.Продажи.Таблица.Заказы.Поле.НетТакого": нет сегмента "НетТакого"',
         }),
       ],
     })
@@ -613,6 +752,18 @@ function objectTarget(value: string, allowNested = false): Extract<ParsedMetadat
 
 function memberTarget(value: string): Extract<ParsedMetadataTarget, { kind: "member" }> {
   const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "member", owner: "explicit" } })
+  if (!parsed.ok) throw new Error(parsed.message)
+  return parsed.target as Extract<ParsedMetadataTarget, { kind: "member" }>
+}
+
+function externalDataSourceMemberTarget(
+  value: string,
+  allowedPath: readonly ["ExternalDataSource", ...Array<"Table" | "Cube" | "DimensionTable" | "Field" | "Command" | "Dimension" | "Resource">],
+): Extract<ParsedMetadataTarget, { kind: "member" }> {
+  const parsed = parseMetadataTargetFromYAML({
+    value,
+    constraint: { kind: "member", owner: "explicit", allowedMemberPaths: [allowedPath] },
+  })
   if (!parsed.ok) throw new Error(parsed.message)
   return parsed.target as Extract<ParsedMetadataTarget, { kind: "member" }>
 }

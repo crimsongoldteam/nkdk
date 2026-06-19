@@ -5,6 +5,7 @@ import "./scrollBarUse/toJSONSchema"
 import "./scrollBarUse/toXML"
 import "./scrollBarUse/toYAML"
 import "./tableAdditionalSource/fromXML"
+import "./tableAdditionalSource/toJSONSchema"
 import "./tableAdditionalSource/toXML"
 
 import "./commandSet/fromXML"

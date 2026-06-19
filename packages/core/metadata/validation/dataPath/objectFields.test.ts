@@ -176,6 +176,14 @@ describe("buildObjectFieldIndex", () => {
     expect(resolveObjectFieldSegment({ index: documentIndex, segment: "Number" })).toMatchObject({ name: "Номер" })
     expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Description" })).toMatchObject({ name: "Наименование" })
     expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Code" })).toMatchObject({ name: "Код" })
+    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "DeletionMark" })).toMatchObject({
+      name: "ПометкаУдаления",
+      typeInfo: { kinds: ["boolean"] },
+    })
+    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Parent" })).toMatchObject({
+      name: "Родитель",
+      typeInfo: { kinds: ["object"], nextTypes: [{ kind: "Справочник", name: "Номенклатура" }] },
+    })
     expect(resolveObjectFieldSegment({ index: documentIndex, segment: "Parent" })).toBeUndefined()
   })
 

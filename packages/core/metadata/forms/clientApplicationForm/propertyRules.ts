@@ -13,6 +13,7 @@ import { copyFormItemExternalFilesFromXML, copyFormItemExternalFilesToXML } from
 import { copyExistingRawFile } from "./externalRawFiles"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
+import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
 import { exportClientApplicationFormToXML } from "./toXML"
 import { exportClientApplicationFormToYAML } from "./toYAML"
 import type {
@@ -101,6 +102,7 @@ registerTypeRule("ClientApplicationForm", "importFromYAML", importClientApplicat
 registerTypeRule("ClientApplicationForm", "exportToYAML", exportClientApplicationFormPropertyToYAML)
 registerTypeRule("ClientApplicationForm", "importFromXML", importClientApplicationFormPropertyFromXML)
 registerTypeRule("ClientApplicationForm", "exportToXML", exportClientApplicationFormPropertyToXML)
+registerTypeRule("ClientApplicationForm", "exportToJSONSchema", exportClientApplicationFormToJSONSchema)
 registerTypeRule("ClientApplicationForm", "syncExternalFromXML", syncClientApplicationFormExternalFromXML)
 registerTypeRule("ClientApplicationForm", "syncExternalToXML", syncClientApplicationFormExternalToXML)
 

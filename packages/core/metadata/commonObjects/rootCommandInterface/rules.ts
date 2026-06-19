@@ -43,7 +43,7 @@ export const RootCommandInterfaceRules = {
     subsystemsOrder: {
       yaml: "ПорядокПодсистем",
       xml: "SubsystemsOrder",
-      type: "MetadataItemLinks",
+      type: "CommandInterfaceSubsystemsOrder",
       metadataTarget: { kind: "object", roots: ["Subsystem"], allowNested: true },
       metadataItemLinksXMLItem: "Subsystem",
     },
