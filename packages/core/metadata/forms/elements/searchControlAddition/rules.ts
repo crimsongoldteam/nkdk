@@ -9,13 +9,20 @@ export type { ElementRule, PropertyRule }
 
 const commonProperties = {
   autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-  backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+  backColor: {
+    yaml: "ЦветФона",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  borderColor: {
+    yaml: "ЦветРамки",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
   childItems: {
     yaml: "Элементы",
     type: "CommandBarChildItems",
     defaultValue: [],
-    required: true,
   },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {
@@ -26,7 +33,11 @@ const commonProperties = {
   },
   enabled: { yaml: "Доступность", type: "boolean" },
   extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
-  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
+  font: {
+    yaml: "Шрифт",
+    type: "Font",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+  },
   horizontalAlignInGroup: {
     yaml: "ГоризонтальноеПоложениеВГруппе",
     xml: "GroupHorizontalAlign",
@@ -35,7 +46,11 @@ const commonProperties = {
   },
   horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
   maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+  textColor: {
+    yaml: "ЦветТекста",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
   title: {
     yaml: "Заголовок",
     type: "I8nText",

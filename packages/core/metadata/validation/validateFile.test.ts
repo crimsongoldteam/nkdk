@@ -18,9 +18,9 @@ const simpleSchema = TypeCompiler.Compile(
               Тип: Type.Optional(Type.String()),
               Синоним: Type.Optional(Type.String()),
             },
-            { additionalProperties: false },
-          ),
-        ),
+            { additionalProperties: false }
+          )
+        )
       ),
       ВложенныйОбъект: Type.Optional(
         Type.Object(
@@ -30,16 +30,16 @@ const simpleSchema = TypeCompiler.Compile(
                 {
                   Значение: Type.Optional(Type.String()),
                 },
-                { additionalProperties: false },
-              ),
+                { additionalProperties: false }
+              )
             ),
           },
-          { additionalProperties: false },
-        ),
+          { additionalProperties: false }
+        )
       ),
     },
-    { additionalProperties: false },
-  ),
+    { additionalProperties: false }
+  )
 )
 
 const requiredSchema = TypeCompiler.Compile(
@@ -48,15 +48,15 @@ const requiredSchema = TypeCompiler.Compile(
       ОбязательноеПоле: Type.String(),
       НеобязательноеПоле: Type.Optional(Type.String()),
     },
-    { additionalProperties: false },
-  ),
+    { additionalProperties: false }
+  )
 )
 
 const plainUnionSchema = TypeCompiler.Compile(
   Type.Union([
     Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
     Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
-  ]),
+  ])
 )
 
 const discriminatedUnionSchema = TypeCompiler.Compile(
@@ -65,8 +65,8 @@ const discriminatedUnionSchema = TypeCompiler.Compile(
       Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
       Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
     ],
-    { discriminantKey: "Вид" },
-  ),
+    { discriminantKey: "Вид" }
+  )
 )
 
 const nestedDiscriminatedUnionSchema = TypeCompiler.Compile(
@@ -80,15 +80,15 @@ const nestedDiscriminatedUnionSchema = TypeCompiler.Compile(
               Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
               Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
             ],
-            { discriminantKey: "Вид" },
+            { discriminantKey: "Вид" }
           ),
         },
-        { additionalProperties: false },
+        { additionalProperties: false }
       ),
       Type.Object({ Вид: Type.Literal("Пустой"), Поле: Type.String() }, { additionalProperties: false }),
     ],
-    { discriminantKey: "Вид" },
-  ),
+    { discriminantKey: "Вид" }
+  )
 )
 
 const childItemsModule = Type.Module({
@@ -101,18 +101,18 @@ const childItemsModule = Type.Module({
             Вид: Type.Literal("Группа"),
             Элементы: Type.Optional(Type.Ref("ChildItems")),
           },
-          { additionalProperties: false },
+          { additionalProperties: false }
         ),
         Type.Object(
           {
             Вид: Type.Literal("Надпись"),
             Заголовок: Type.String(),
           },
-          { additionalProperties: false },
+          { additionalProperties: false }
         ),
       ],
-      { discriminantKey: "Вид" },
-    ),
+      { discriminantKey: "Вид" }
+    )
   ),
 })
 
@@ -121,8 +121,8 @@ const referencedNestedDiscriminatedUnionSchema = TypeCompiler.Compile(
     {
       Элементы: childItemsModule.Import("ChildItems"),
     },
-    { additionalProperties: false },
-  ),
+    { additionalProperties: false }
+  )
 )
 
 describe("validateFile", () => {
@@ -183,7 +183,9 @@ describe("validateFile", () => {
     expect(required).toMatchObject({
       source: "structure",
       severity: "error",
+      message: 'Отсутствует обязательное свойство "ОбязательноеПоле"',
     })
+    expect(result.filter((d) => d.path === "/ОбязательноеПоле")).toHaveLength(1)
     // Координаты должны быть на родительском (корневом) узле — line 1, col 1
     expect(required!.line).toBe(1)
     expect(required!.col).toBe(1)
@@ -248,7 +250,7 @@ describe("validateFile", () => {
           source: "structure",
           severity: "error",
         }),
-      ]),
+      ])
     )
   })
 
@@ -287,7 +289,7 @@ describe("validateFile", () => {
           severity: "error",
           message: "Expected number",
         }),
-      ]),
+      ])
     )
   })
 
@@ -308,13 +310,13 @@ describe("validateFile", () => {
           severity: "error",
           message: "Expected string",
         }),
-      ]),
+      ])
     )
   })
 
   it("оставляет Type.Ref union без падения при прямом вызове diagnostics без root schema", () => {
     const parsed = parseMetadataYaml(
-      `Элементы:\n  Группа1:\n    Вид: Группа\n    Элементы:\n      Надпись1:\n        Вид: Надпись\n        Заголовок: 123\n`,
+      `Элементы:\n  Группа1:\n    Вид: Группа\n    Элементы:\n      Надпись1:\n        Вид: Надпись\n        Заголовок: 123\n`
     )
     const errors = [...referencedNestedDiscriminatedUnionSchema.Errors(parsed.data)]
 
@@ -329,7 +331,7 @@ describe("validateFile", () => {
           source: "structure",
           severity: "error",
         }),
-      ]),
+      ])
     )
   })
 
@@ -381,7 +383,7 @@ describe("validateFile", () => {
           source: "structure",
           severity: "error",
         }),
-      ]),
+      ])
     )
     expect([...plainUnionSchema.Errors({ Вид: "Второй", Число: "не-число" })][0]?.type).toBe(ValueErrorType.Union)
   })

@@ -64,7 +64,6 @@ export const ClientApplicationFormRules = {
       type: "GroupChildItems",
       tag: FormRulesTags.Form,
       defaultValue: [],
-      required: true,
       order: 2,
     },
     attributes: {
@@ -203,7 +202,6 @@ export const ClientApplicationFormRules = {
       type: "FormCommands",
       tag: FormRulesTags.Form,
       defaultValue: [],
-      required: true,
     },
     conversationsRepresentation: {
       yaml: "ОтображениеОбсуждений",

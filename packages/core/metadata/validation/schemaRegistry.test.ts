@@ -1,11 +1,16 @@
 import "~/metadata/appliedObjects"
 import "~/metadata/forms"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
+import { MetadataLanguageRules } from "~/metadata/appliedObjects/metadataLanguage/rules"
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { clearJSONSchemaRefRegistries } from "~/metadata/orchestration/jsonSchemaRefs"
-import { exportJSONSchemaForSchemaName, listJSONSchemaNames } from "~/metadata/validation/schemaRegistry"
+import {
+  ensureJSONSchemaRegistry,
+  exportJSONSchemaForSchemaName,
+  listJSONSchemaNames,
+} from "~/metadata/validation/schemaRegistry"
 
 const context = {
   defaultLanguage: "ru",
@@ -13,6 +18,10 @@ const context = {
 } as const
 
 describe("JSON Schema registry", () => {
+  beforeEach(() => {
+    ensureJSONSchemaRegistry()
+  })
+
   it("exports compact named schemas by schema name", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataAttribute" })
     const json = JSON.stringify(schema)
@@ -50,40 +59,56 @@ describe("JSON Schema registry", () => {
     const compiled = TypeCompiler.Compile(schema)
 
     expect(
-      compiled.Check({
-        РабочаяОбластьНачальнойСтраницы: {
-          ШаблонРабочейОбласти: "ДвеКолонкиПеременнойШирины",
-          ЛеваяКолонка: [
-            {
-              Форма: "CommonForm.РабочийСтол",
-              Высота: 10,
-              Видимость: {
-                Общее: "Истина",
-              },
-            },
-            {
-              Форма: "Task.ЗадачаИсполнителя.Form.МоиЗадачиДляРабочегоСтола",
-              Высота: 10,
-              Видимость: {
-                Общее: "Ложь",
-                Роли: {
-                  НалоговыйМониторинг: "Истина",
+      [
+        ...compiled.Errors({
+          Имя: "ТестоваяКонфигурация",
+          ОсновнойЯзык: "Русский",
+          РабочаяОбластьНачальнойСтраницы: {
+            ШаблонРабочейОбласти: "ДвеКолонкиПеременнойШирины",
+            ЛеваяКолонка: [
+              {
+                Форма: "CommonForm.РабочийСтол",
+                Высота: 10,
+                Видимость: {
+                  Общее: "Истина",
                 },
               },
-            },
-          ],
-          ПраваяКолонка: [
-            {
-              Форма: "DataProcessor.ИнформационныйЦентр.Form.ИнформационныйЦентр",
-              Высота: 10,
-              Видимость: {
-                Общее: "Ложь",
+              {
+                Форма: "Task.ЗадачаИсполнителя.Form.МоиЗадачиДляРабочегоСтола",
+                Высота: 10,
+                Видимость: {
+                  Общее: "Ложь",
+                  Роли: {
+                    НалоговыйМониторинг: "Истина",
+                  },
+                },
               },
-            },
-          ],
-        },
-      })
-    ).toBe(true)
+            ],
+            ПраваяКолонка: [
+              {
+                Форма: "DataProcessor.ИнформационныйЦентр.Form.ИнформационныйЦентр",
+                Высота: 10,
+                Видимость: {
+                  Общее: "Ложь",
+                },
+              },
+            ],
+          },
+        }),
+      ].map((error) => `${error.path}: ${error.message}`)
+    ).toEqual([])
+  })
+
+  it("marks required YAML properties as JSON Schema required", () => {
+    const schema = exportMetadataItemToJSONSchema({ context, rule: MetadataLanguageRules })
+
+    expect(schema).toMatchObject({
+      type: "object",
+      properties: expect.objectContaining({
+        КодЯзыка: expect.objectContaining({ type: "string" }),
+      }),
+      required: expect.arrayContaining(["КодЯзыка"]),
+    })
   })
 
   it("exports form element schemas with Вид discriminator", () => {

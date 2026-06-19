@@ -18,7 +18,6 @@ export const PagesRules = {
       yaml: "Элементы",
       type: "PagesChildItems",
       defaultValue: [],
-      required: true,
     },
     displayImportance: {
       yaml: "ВажностьПриОтображении",

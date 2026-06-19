@@ -14,12 +14,15 @@ export const PageRules = {
       xml: "_name",
       required: true,
     },
-    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    backColor: {
+      yaml: "ЦветФона",
+      type: "Color",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    },
     childItems: {
       yaml: "Элементы",
       type: "GroupChildItems",
       defaultValue: [],
-      required: true,
     },
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",

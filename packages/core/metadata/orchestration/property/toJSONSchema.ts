@@ -57,7 +57,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
       value,
     })
     if (exportedValue !== undefined) {
-      result[yamlKey] = Type.Optional(exportedValue)
+      result[yamlKey] = ruleProp.required === true ? exportedValue : Type.Optional(exportedValue)
     }
   }
 

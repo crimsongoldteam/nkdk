@@ -14,7 +14,11 @@ export const UsualGroupRules = {
       xml: "_name",
       required: true,
     },
-    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    backColor: {
+      yaml: "ЦветФона",
+      type: "Color",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    },
     behavior: {
       yaml: "Поведение",
       type: "SystemEnumeration",
@@ -25,7 +29,6 @@ export const UsualGroupRules = {
       yaml: "Элементы",
       type: "GroupChildItems",
       defaultValue: [],
-      required: true,
     },
     childItemsHorizontalAlign: {
       yaml: "ГоризонтальноеПоложениеПодчиненных",
@@ -72,12 +75,12 @@ export const UsualGroupRules = {
       typeSE: "ChildFormItemsGroup",
       defaultValue: "HorizontalIfPossible",
       // defaultValueXML: "HorizontalIfPossible",
-      required: true,
       implicitValueYAML: "ГоризонтальнаяЕслиВозможно",
     },
     hiddenRepresentationTitleBackColor: {
       yaml: "ЦветФонаЗаголовкаСкрытогоОтображения",
-      type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+      type: "Color",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
       xml: "HiddenStateTitleBackColor",
     },
     horizontalSpacing: {

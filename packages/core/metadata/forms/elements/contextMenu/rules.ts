@@ -28,7 +28,6 @@ export const ContextMenuRules = {
       xml: "ChildItems",
       type: "CommandBarChildItems",
       defaultValue: [],
-      required: true,
     },
   },
 } as const satisfies ElementRule

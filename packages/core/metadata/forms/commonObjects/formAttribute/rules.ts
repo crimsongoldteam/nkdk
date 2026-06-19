@@ -84,7 +84,6 @@ export const FormAttributeRules = {
       toXML: false,
       fromYAML: false,
       defaultValue: [],
-      required: true,
     },
     additionalColumns: {
       yaml: "ДополнительныеКолонки",

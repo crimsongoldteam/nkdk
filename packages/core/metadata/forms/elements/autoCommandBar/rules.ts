@@ -22,7 +22,6 @@ export const AutoCommandBarRules = {
       type: "boolean",
       defaultValue: true,
       implicitValueYAML: "Истина",
-      required: true,
     },
     displayImportance: {
       yaml: "ВажностьПриОтображении",
@@ -38,7 +37,6 @@ export const AutoCommandBarRules = {
     childItems: {
       yaml: "Элементы",
       type: "CommandBarChildItems",
-      required: true,
       defaultValue: [],
     },
   },
