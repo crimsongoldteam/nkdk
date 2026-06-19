@@ -22,7 +22,6 @@ const contentObjectPaths = [
   ["Bot"],
   ["FunctionalOption"],
   ["FunctionalOptionsParameter"],
-  ["FunctionalOptionParameter"],
   ["DefinedType"],
   ["SettingsStorage"],
   ["CommonCommand"],

@@ -39,7 +39,6 @@ export const rootToYAML = {
   StyleItem: "ЭлементСтиля",
   FunctionalOption: "ФункциональнаяОпция",
   FunctionalOptionsParameter: "ПараметрФункциональныхОпций",
-  FunctionalOptionParameter: "ПараметрФункциональныхОпций",
   DocumentJournal: "ЖурналДокументов",
   HTTPService: "HTTPСервис",
   WebSocketClient: "WebSocketКлиент",
