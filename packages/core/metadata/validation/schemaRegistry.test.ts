@@ -36,6 +36,21 @@ describe("JSON Schema registry", () => {
     expect(JSON.stringify(schema)).toContain("nkdk://schema/MetadataCatalogAttribute")
   })
 
+  it("accepts keyed predefined catalog items without explicit code", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataCatalog", mode: "inline" })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(
+      compiled.Check({
+        Предопределенные: {
+          ПредопределенноеЗначение: {
+            Наименование: "Предопределенное значение",
+          },
+        },
+      })
+    ).toBe(true)
+  })
+
   it("exports object-only metadata attribute schemas", () => {
     const schemaNames = [
       "MetadataAttribute",

@@ -1,7 +1,10 @@
+import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { mockContext } from "~/tests/mockContext"
+import { exportPredefinedItemCollectionToJSONSchema } from "./toJSONSchema"
 import { group, groupYAML } from "./__fixtures__/group"
 import { item, itemYAML } from "./__fixtures__/item"
 import "./types"
@@ -56,5 +59,25 @@ describe("import PredefinedItemCollection from YAML", () => {
     const imported = testImportPropertyFromYAML({ rule: importRule, value: yaml })
     const exported = testExportPropertyToYAML({ rule: exportRule, value: imported })
     expect(exported).toEqual({ Элементы: yaml })
+  })
+})
+
+describe("PredefinedItemCollection JSON Schema", () => {
+  const check = TypeCompiler.Compile(exportPredefinedItemCollectionToJSONSchema(mockContext))
+
+  it("принимает keyed-запись без Кода и Наименования", () => {
+    expect(check.Check({ ПредопределенноеЗначение: {} })).toBe(true)
+  })
+
+  it("принимает keyed-запись только с Наименованием", () => {
+    expect(check.Check({ ПредопределенноеЗначение: { Наименование: "Тест" } })).toBe(true)
+  })
+
+  it("проверяет тип явного Кода", () => {
+    expect(check.Check({ ПредопределенноеЗначение: { Код: {} } })).toBe(false)
+  })
+
+  it("отклоняет неизвестные свойства", () => {
+    expect(check.Check({ ПредопределенноеЗначение: { Лишнее: "значение" } })).toBe(false)
   })
 })
