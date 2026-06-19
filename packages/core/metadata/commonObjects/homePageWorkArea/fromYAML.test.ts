@@ -6,7 +6,7 @@ import { HomePageWorkAreaRules } from "./rules"
 import "./register"
 
 describe("import HomePageWorkArea from YAML", () => {
-  it("accepts short and full role names in item visibility", () => {
+  it("accepts short role names in item visibility", () => {
     const result = importMetadataItemFromYAML({
       context: mockContext,
       rule: HomePageWorkAreaRules,
@@ -20,7 +20,7 @@ describe("import HomePageWorkArea from YAML", () => {
               Общее: "Истина",
               Роли: {
                 Администратор: "Ложь",
-                "Role.ПолныеПрава": "Истина",
+                ПолныеПрава: "Истина",
               },
             },
           },
@@ -54,6 +54,28 @@ describe("import HomePageWorkArea from YAML", () => {
       ],
       maCommandInterfaceDisplays: "Top",
     })
+  })
+
+  it("rejects prefixed role names in item visibility", () => {
+    expect(() =>
+      importMetadataItemFromYAML({
+        context: mockContext,
+        rule: HomePageWorkAreaRules,
+        yaml: {
+          ШаблонРабочейОбласти: "ДвеКолонкиПеременнойШирины",
+          ЛеваяКолонка: [
+            {
+              Форма: "CommonForm.НачалоРаботы",
+              Видимость: {
+                Роли: {
+                  "Role.Администратор": "Ложь",
+                },
+              },
+            },
+          ],
+        },
+      })
+    ).toThrow('Неизвестный корень "Role"')
   })
 
   it("passes unknown enum values through unchanged", () => {

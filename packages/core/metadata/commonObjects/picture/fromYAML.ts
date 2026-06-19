@@ -9,7 +9,7 @@ import { isRawPictureRefValue, Picture, PictureYAML, PictureYAMLExtended } from 
 
 const commonPictureTarget = {
   kind: "object",
-  roots: ["CommonPicture"],
+  allowedObjectPaths: [["CommonPicture"]],
 } as const satisfies MetadataTargetConstraint
 
 export const importPictureCombinedFromYAML = (

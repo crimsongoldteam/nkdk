@@ -327,8 +327,6 @@ export const MetadataConfigurationRules = {
       type: "MetadataItemLink",
       metadataTarget: { kind: "object", roots: ["Language"] },
       required: true,
-      defaultValueXML: "Language.Русский",
-      preserveExplicitDefaultXML: true,
       xmlParents: configurationProperties,
     },
     briefInformation: {

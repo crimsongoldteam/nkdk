@@ -34,9 +34,10 @@ describe("exportMetadataItemLinkToJSONSchema", () => {
 
     expect(result).toMatchObject({
       type: "string",
-      examples: ["Справочник.ИмяСправочника"],
+      examples: ["ИмяСправочника"],
     })
-    expect(new RegExp(String(result?.pattern)).test("Справочник.ИмяСправочника")).toBe(true)
+    expect(new RegExp(String(result?.pattern)).test("ИмяСправочника")).toBe(true)
+    expect(new RegExp(String(result?.pattern)).test("Справочник.ИмяСправочника")).toBe(false)
     expect(new RegExp(String(result?.pattern)).test("Документ.ИмяДокумента")).toBe(false)
   })
 
@@ -57,12 +58,13 @@ describe("exportMetadataItemLinkToJSONSchema", () => {
       type: "array",
       items: {
         type: "string",
-        examples: ["Документ.ИмяДокумента"],
+        examples: ["ИмяДокумента"],
       },
     })
     const itemPattern = String((result as { items?: { pattern?: string } })?.items?.pattern)
 
-    expect(new RegExp(itemPattern).test("Документ.ИмяДокумента")).toBe(true)
+    expect(new RegExp(itemPattern).test("ИмяДокумента")).toBe(true)
+    expect(new RegExp(itemPattern).test("Документ.ИмяДокумента")).toBe(false)
     expect(new RegExp(itemPattern).test("Справочник.ИмяСправочника")).toBe(false)
   })
 })

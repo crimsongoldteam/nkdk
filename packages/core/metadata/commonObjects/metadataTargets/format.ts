@@ -32,6 +32,7 @@ function formatParsedMetadataTargetToYAML(
 ): string {
   switch (target.kind) {
     case "object":
+      if (shouldUseShortObjectYAML(target, constraint)) return target.objectName
       return [
         rootToYAML[target.root],
         target.objectName,
@@ -42,6 +43,17 @@ function formatParsedMetadataTargetToYAML(
     case "value":
       return formatValueTargetToYAML(target)
   }
+}
+
+function shouldUseShortObjectYAML(target: ParsedMetadataTarget, constraint: MetadataTargetConstraint): boolean {
+  if (target.kind !== "object") return false
+  if (constraint.kind !== "object") return false
+  if (constraint.allowedObjectPaths !== undefined) return false
+  if (constraint.allowNested === true) return false
+  if (constraint.nestedObjectRoots !== undefined) return false
+  if ((constraint.filters?.length ?? 0) > 0) return false
+  if (target.segments !== undefined && target.segments.length > 0) return false
+  return constraint.roots?.length === 1 && constraint.roots[0] === target.root
 }
 
 function formatMemberTargetToYAML(

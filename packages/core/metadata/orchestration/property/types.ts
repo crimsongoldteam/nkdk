@@ -158,9 +158,6 @@ export interface BasePropertyRule {
   /** Имя элемента внутри коллекции MetadataItemLinks, если используется не xr:Item. */
   metadataItemLinksXMLItem?: string
 
-  /** Режим YAML-представления ссылок на роли. По умолчанию сохраняется полная ссылка. */
-  roleReferenceYAML?: "full" | "name"
-
   /** Свойство используется только для построения референса */
   forReferenceOnly?: true
 
