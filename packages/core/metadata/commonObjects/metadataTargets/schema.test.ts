@@ -35,6 +35,14 @@ describe("buildMetadataTargetSchema", () => {
     expectNotMatches(schema, "Справочник.ИмяСправочника")
   })
 
+  it("requires short object references when exactly one root is allowed", () => {
+    const schema = buildMetadataTargetSchema({ kind: "object", roots: ["Language"] })
+
+    expectMatches(schema, "Русский")
+    expectNotMatches(schema, "Язык.Русский")
+    expectNotMatches(schema, "Language.Русский")
+  })
+
   it("accepts top-level roots used by subsystem content", () => {
     const schema = buildMetadataTargetSchema({ kind: "object" })
 

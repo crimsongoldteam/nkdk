@@ -19,6 +19,72 @@ describe("metadataTargets parser", () => {
     })
   })
 
+  it("parses short object references when exactly one root is allowed", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Русский",
+        constraint: { kind: "object", roots: ["Language"] },
+      })
+    ).toEqual({
+      ok: true,
+      canonical: "Language.Русский",
+      target: { kind: "object", root: "Language", objectName: "Русский" },
+    })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "Language.Русский",
+        constraint: { kind: "object", roots: ["Language"] },
+      })
+    ).toBe("Русский")
+  })
+
+  it("rejects full object references when exactly one root is allowed", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Язык.Русский",
+        constraint: { kind: "object", roots: ["Language"] },
+      })
+    ).toEqual({
+      ok: false,
+      code: "invalid-shape",
+      message: "Ожидалось имя объекта без корня, потому что корень задан правилом",
+    })
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Language.Русский",
+        constraint: { kind: "object", roots: ["Language"] },
+      })
+    ).toEqual({
+      ok: false,
+      code: "unknown-root",
+      message: 'Неизвестный корень "Language"',
+    })
+  })
+
+  it("keeps full object references when roots are ambiguous", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Справочник.Товары",
+        constraint: { kind: "object", roots: ["Catalog", "Document"] },
+      })
+    ).toMatchObject({
+      ok: true,
+      canonical: "Catalog.Товары",
+    })
+
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "Товары",
+        constraint: { kind: "object", roots: ["Catalog", "Document"] },
+      })
+    ).toMatchObject({
+      ok: false,
+      code: "unknown-root",
+    })
+  })
+
   it("parses full field paths with required service segments", () => {
     const result = parseMetadataTargetFromYAML({
       value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество",
