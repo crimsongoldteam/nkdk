@@ -153,6 +153,20 @@ const formMetadataXml = (name: string): string => `<?xml version="1.0" encoding=
 	</Form>
 </MetaDataObject>`
 
+const commonFormMetadataXml = (name: string): string => `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<CommonForm uuid="33333333-3333-3333-3333-333333333333">
+		<Properties>
+			<Name>${name}</Name>
+			<Synonym/>
+			<Comment/>
+			<UsePurposes>
+				<v8:Value>PersonalComputer</v8:Value>
+			</UsePurposes>
+		</Properties>
+	</CommonForm>
+</MetaDataObject>`
+
 const makeCatalogWithFormXmlProject = (): string => {
   const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-round-trip-yaml-fast-form-"))
   const catalogName = "СправочникФорма"
@@ -166,6 +180,15 @@ const makeCatalogWithFormXmlProject = (): string => {
     '<?xml version="1.0" encoding="UTF-8"?>\n<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20"/>',
     "utf-8"
   )
+  return dir
+}
+
+const makeCommonFormFilePathXmlProject = (): string => {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-round-trip-yaml-fast-common-form-"))
+  const formName = "ДинамическийСписок"
+  fs.mkdirSync(join(dir, "CommonForms", formName, "Ext"), { recursive: true })
+  fs.writeFileSync(join(dir, "CommonForms", `${formName}.xml`), commonFormMetadataXml(formName), "utf-8")
+  fs.writeFileSync(join(dir, "CommonForms", formName, "Ext", "Form.xml"), "<broken>", "utf-8")
   return dir
 }
 
@@ -233,6 +256,18 @@ describe("roundTripYAMLFast", () => {
       const result = await roundTripYAMLFast({ inputDir: xmlDir })
 
       expect(result.checked).toBe(2)
+    } finally {
+      fs.rmSync(xmlDir, { recursive: true, force: true })
+    }
+  })
+
+  it("checks direct filePath XML for common forms", async () => {
+    const xmlDir = makeCommonFormFilePathXmlProject()
+    try {
+      const result = await roundTripYAMLFast({ inputDir: xmlDir })
+
+      expect(result.checked).toBeGreaterThan(1)
+      expect(result.errors.map((error) => error.file)).toContain("CommonForms/ДинамическийСписок/Ext/Form.xml")
     } finally {
       fs.rmSync(xmlDir, { recursive: true, force: true })
     }
