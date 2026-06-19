@@ -1,11 +1,16 @@
 import fs from "fs"
 import { XMLValidator } from "fast-xml-parser"
-import { basename, join, relative } from "path"
+import { basename, dirname, join, relative } from "path"
 import type {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "~/metadata/context/types"
+import { readFormFromXML } from "~/metadata/forms/clientApplicationForm/convertFromXML"
+import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
+import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
+import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/toYAML"
+import type { ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
 import {
   exportMetadataItemToXML,
   exportMetadataItemToYAML,
@@ -14,6 +19,10 @@ import {
   type MetadataItemRule,
   type ToYAML,
 } from "~/metadata/orchestration"
+import {
+  normalizeFileItemCollectionItems,
+  resolveChildCollectionDir,
+} from "~/metadata/orchestration/appliedObject/fileItemChildCollections"
 import { importContentFromXML } from "~/xml/import/importer"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportToYAML } from "~/yaml/export"
@@ -44,7 +53,32 @@ export interface RoundTripYAMLFastResult {
   errors: RoundTripYAMLFastError[]
 }
 
+type RoundTripEntry =
+  | { kind: "metadata"; file: string; xmlFileAbs: string; rule: MetadataItemRule; parentName: string }
+  | {
+      kind: "form"
+      file: string
+      xmlFileAbs: string
+      metadataFile: string
+      formXmlFile: string
+      formsDir: string
+      formName: string
+      parentName: string
+    }
+
 type MetadataXMLRoot = { MetaDataObject: unknown }
+
+type MetadataModelRecord = Record<string, unknown>
+
+type MetadataEntryParams = {
+  inputDir: string
+  file: string
+  xmlFileAbs: string
+  rule: MetadataItemRule
+  parentName: string
+  xmlDirAbs: string
+  itemName: string
+}
 
 const makeContextFromXML = (forReference: boolean): ConfigurationContextFromXML => ({
   defaultLanguage: "ru",
@@ -131,6 +165,27 @@ function createUnifiedDiff(params: { file: string; original: string; generated: 
 const importMetadataYAMLText = <Rule extends MetadataItemRule>(yamlText: string): ToYAML<Rule["itemType"]> | undefined =>
   importFromYAML<ToYAML<Rule["itemType"]> | undefined>(yamlText)
 
+const createDiffIfChanged = (params: {
+  file: string
+  xmlFileAbs: string
+  generatedXml: string
+}): RoundTripYAMLFastDiff | undefined => {
+  const originalXml = fs.readFileSync(params.xmlFileAbs, "utf-8")
+  const originalComparable = normalizeXMLForCompare(originalXml)
+  const generatedComparable = normalizeXMLForCompare(params.generatedXml)
+  if (originalComparable === generatedComparable) return undefined
+
+  return {
+    file: params.file,
+    xmlFileAbs: params.xmlFileAbs,
+    diffText: createUnifiedDiff({
+      file: params.file,
+      original: originalComparable,
+      generated: generatedComparable,
+    }),
+  }
+}
+
 const roundTripOne = <Rule extends MetadataItemRule>(params: {
   inputDir: string
   file: string
@@ -177,31 +232,166 @@ const roundTripOne = <Rule extends MetadataItemRule>(params: {
   })
   const generatedXml = xmlObject === undefined ? "" : xmlExport(xmlObject)
 
-  const originalComparable = normalizeXMLForCompare(originalXml)
-  const generatedComparable = normalizeXMLForCompare(generatedXml)
-  if (originalComparable === generatedComparable) return undefined
-
-  return {
+  return createDiffIfChanged({
     file: params.file,
     xmlFileAbs: params.xmlFileAbs,
-    diffText: createUnifiedDiff({
-      file: params.file,
-      original: originalComparable,
-      generated: generatedComparable,
+    generatedXml,
+  })
+}
+
+const roundTripFormOne = (params: {
+  inputDir: string
+  metadataFile: string
+  formXmlFile: string
+  formsDir: string
+  formName: string
+  parentName: string
+}): RoundTripYAMLFastDiff[] => {
+  const form = readFormFromXML({
+    context: makeContextFromXML(false),
+    inputDir: params.formsDir,
+    formName: params.formName,
+  })
+  const referenceForm = readFormFromXML({
+    context: makeContextFromXML(true),
+    inputDir: params.formsDir,
+    formName: params.formName,
+  })
+
+  const { yaml: yamlObject } = exportClientApplicationFormToYAML(makeContextToYAML(), form)
+  const yamlText = yamlObject === undefined ? "" : exportToYAML(yamlObject)
+  const yamlObjectFromText = importFromYAML<ClientApplicationFormYAML | undefined>(yamlText)
+  const formFromYAML = importClientApplicationFormFromYAML(
+    makeContextFromYAML(),
+    (yamlObjectFromText ?? {}) as ClientApplicationFormYAML,
+    referenceForm
+  )
+  const contextToXML = makeContextToXML(params.parentName)
+
+  const generatedFormXml = xmlExport({
+    Form: exportClientApplicationFormToXML({
+      context: contextToXML,
+      form: formFromYAML,
+      referenceForm,
     }),
+  })
+  const generatedMetadataXml = xmlExport({
+    MetaDataObject: exportFormMetadataToXML({
+      context: contextToXML,
+      form: formFromYAML,
+      referenceForm,
+      name: params.formName,
+    }),
+  })
+
+  return [
+    createDiffIfChanged({
+      file: params.metadataFile,
+      xmlFileAbs: join(params.inputDir, params.metadataFile),
+      generatedXml: generatedMetadataXml,
+    }),
+    createDiffIfChanged({
+      file: params.formXmlFile,
+      xmlFileAbs: join(params.inputDir, params.formXmlFile),
+      generatedXml: generatedFormXml,
+    }),
+  ].filter((diff): diff is RoundTripYAMLFastDiff => diff !== undefined)
+}
+
+const importMetadataModelForDiscovery = (params: {
+  xmlFileAbs: string
+  rule: MetadataItemRule
+}): MetadataModelRecord | undefined => {
+  const originalXml = fs.readFileSync(params.xmlFileAbs, "utf-8")
+  const validationResult = XMLValidator.validate(originalXml)
+  if (validationResult !== true) return undefined
+  const parsed = importContentFromXML<MetadataXMLRoot>(originalXml)
+  const model = importMetadataItemFromXML({
+    context: makeContextFromXML(true),
+    xml: parsed.MetaDataObject,
+    rule: params.rule,
+  })
+  if (!model || typeof model !== "object") return undefined
+  return model as MetadataModelRecord
+}
+
+const addFormEntries = (params: {
+  entries: RoundTripEntry[]
+  inputDir: string
+  ownerDirAbs: string
+  parentName: string
+}): void => {
+  const formsDir = join(params.ownerDirAbs, "Forms")
+  if (!fs.existsSync(formsDir)) return
+
+  for (const formEntry of fs.readdirSync(formsDir, { withFileTypes: true })) {
+    if (!formEntry.isFile() || !formEntry.name.toLowerCase().endsWith(".xml")) continue
+    const formName = basename(formEntry.name, ".xml")
+    const metadataFileAbs = join(formsDir, formEntry.name)
+    const formXmlFileAbs = join(formsDir, formName, "Ext", "Form.xml")
+    if (!fs.existsSync(formXmlFileAbs)) continue
+
+    params.entries.push({
+      kind: "form",
+      file: toPosixPath(relative(params.inputDir, formXmlFileAbs)),
+      xmlFileAbs: formXmlFileAbs,
+      metadataFile: toPosixPath(relative(params.inputDir, metadataFileAbs)),
+      formXmlFile: toPosixPath(relative(params.inputDir, formXmlFileAbs)),
+      formsDir,
+      formName,
+      parentName: params.parentName,
+    })
   }
 }
 
-const listRoundTripEntries = (inputDir: string): Array<{
-  file: string
-  xmlFileAbs: string
-  rule: MetadataItemRule
-  parentName: string
-}> => {
-  const entries: Array<{ file: string; xmlFileAbs: string; rule: MetadataItemRule; parentName: string }> = []
+const addMetadataEntryWithChildren = (params: MetadataEntryParams & { entries: RoundTripEntry[] }): void => {
+  params.entries.push({
+    kind: "metadata",
+    file: params.file,
+    xmlFileAbs: params.xmlFileAbs,
+    rule: params.rule,
+    parentName: params.parentName,
+  })
+
+  addFormEntries({
+    entries: params.entries,
+    inputDir: params.inputDir,
+    ownerDirAbs: join(params.xmlDirAbs, params.itemName),
+    parentName: params.itemName,
+  })
+
+  const model = importMetadataModelForDiscovery({ xmlFileAbs: params.xmlFileAbs, rule: params.rule })
+  if (model === undefined) return
+
+  for (const childCollection of params.rule.childCollections ?? []) {
+    if (!childCollection.fileItemRule || !childCollection.xmlDir) continue
+    const childItems = normalizeFileItemCollectionItems(model[childCollection.propertyKey])
+    for (const childItem of childItems) {
+      const childDir = resolveChildCollectionDir(childCollection.xmlDir, childItem.name, params.itemName)
+      const childXmlBaseAbs = join(params.xmlDirAbs, params.itemName, childDir)
+      const childXmlFileAbs = `${childXmlBaseAbs}.xml`
+      if (!fs.existsSync(childXmlFileAbs)) continue
+
+      addMetadataEntryWithChildren({
+        entries: params.entries,
+        inputDir: params.inputDir,
+        file: toPosixPath(relative(params.inputDir, childXmlFileAbs)),
+        xmlFileAbs: childXmlFileAbs,
+        rule: childCollection.fileItemRule,
+        parentName: params.itemName,
+        xmlDirAbs: dirname(childXmlBaseAbs),
+        itemName: childItem.name,
+      })
+    }
+  }
+}
+
+const listRoundTripEntries = (inputDir: string): RoundTripEntry[] => {
+  const entries: RoundTripEntry[] = []
   const configurationPath = join(inputDir, CONFIGURATION_XML_FILE)
   if (fs.existsSync(configurationPath)) {
     entries.push({
+      kind: "metadata",
       file: CONFIGURATION_XML_FILE,
       xmlFileAbs: configurationPath,
       rule: MetadataConfigurationRules,
@@ -213,14 +403,21 @@ const listRoundTripEntries = (inputDir: string): Array<{
     if (rule.xmlDir === undefined) continue
     const dir = join(inputDir, rule.xmlDir)
     if (!fs.existsSync(dir)) continue
+
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       if (!entry.isFile() || !entry.name.toLowerCase().endsWith(".xml")) continue
       const xmlFileAbs = join(dir, entry.name)
-      entries.push({
+      const itemName = basename(entry.name, ".xml")
+
+      addMetadataEntryWithChildren({
+        entries,
+        inputDir,
         file: toPosixPath(relative(inputDir, xmlFileAbs)),
         xmlFileAbs,
         rule,
-        parentName: basename(entry.name, ".xml"),
+        parentName: itemName,
+        xmlDirAbs: dir,
+        itemName,
       })
     }
   }
@@ -239,8 +436,13 @@ export const roundTripYAMLFast = async (params: RoundTripYAMLFastParams): Promis
   for (const entry of listRoundTripEntries(params.inputDir)) {
     result.checked += 1
     try {
-      const diff = roundTripOne({ inputDir: params.inputDir, ...entry })
-      if (diff !== undefined) result.diffs.push(diff)
+      const diffs =
+        entry.kind === "metadata"
+          ? [roundTripOne({ inputDir: params.inputDir, ...entry })].filter(
+              (diff): diff is RoundTripYAMLFastDiff => diff !== undefined
+            )
+          : roundTripFormOne({ inputDir: params.inputDir, ...entry })
+      result.diffs.push(...diffs)
     } catch (err) {
       result.errors.push({
         file: entry.file,
