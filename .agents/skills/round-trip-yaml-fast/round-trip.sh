@@ -111,6 +111,10 @@ fi
 NKDK_XML_DIR="$(cd "${NKDK_XML_DIR}" && pwd)"
 NKDK_XML_REPO="$(cd "${NKDK_XML_REPO}" && pwd)"
 
+if ! git -C "${NKDK_XML_REPO}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  die "NKDK_XML_REPO ('${NKDK_XML_REPO}') не является git-репозиторием"
+fi
+
 if command -v nkdk &>/dev/null; then
   NKDK=(nkdk)
 elif [ -f "${REPO_DIR}/packages/cli/src/cli.ts" ]; then
@@ -134,6 +138,10 @@ else
   echo "batch size:  ${BATCH_SIZE}"
   echo "start index: ${START_INDEX}"
 fi
+echo ""
+
+echo "[reset] Сброс XML-репо к HEAD..."
+git -C "${NKDK_XML_REPO}" reset --hard HEAD >/dev/null
 echo ""
 
 RUN_DIRS=()
