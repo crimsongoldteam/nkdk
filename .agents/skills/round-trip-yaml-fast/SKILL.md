@@ -34,9 +34,11 @@ XML text -> parsed XML -> модель -> YAML-текст -> модель -> XML
 ./.agents/skills/round-trip-yaml-fast/round-trip.sh
 ./.agents/skills/round-trip-yaml-fast/round-trip.sh --diff-index 3
 ./.agents/skills/round-trip-yaml-fast/round-trip.sh --triage --batch-size 5 --start-index 6
+./.agents/skills/round-trip-yaml-fast/round-trip.sh --triage --all-configs --batch-size 20
 ```
 
 Скрипт читает `.env`: `NKDK_XML_REPO` обязателен, `NKDK_XML_DIR` опционален. Если `NKDK_XML_DIR` не задан, проверяется `NKDK_XML_REPO`.
+Если `NKDK_XML_DIR` указывает на корень с несколькими конфигурациями, скрипт выбирает конфигурационные каталоги так же, как `round-trip-yaml` и `round-trip-xml`; `--all-configs` проходит все найденные каталоги.
 
 ## Ответ после запуска
 
