@@ -18,7 +18,7 @@ export const importMetadataFieldStringFromYAML = (
   name: string,
   owner?: MetadataTargetOwner
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataFieldTargetFallback), owner)
+  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataFieldTargetFallback), owner, rule?.metadataTarget !== undefined)
 }
 
 export const importMetadataObjectStringFromYAML = (
@@ -27,7 +27,7 @@ export const importMetadataObjectStringFromYAML = (
   name: string,
   owner?: MetadataTargetOwner
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataObjectTargetFallback), owner)
+  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataObjectTargetFallback), owner, rule?.metadataTarget !== undefined)
 }
 
 export const importMetadataValueStringFromYAML = (
@@ -69,19 +69,23 @@ function parseMetadataTargetStringFromYAML(
   _context: ConfigurationContext,
   name: string,
   constraint: MetadataTargetConstraint,
-  owner?: MetadataTargetOwner
+  owner?: MetadataTargetOwner,
+  strict = false
 ): string | undefined {
   return parseMetadataTargetStringResultFromYAML({
     name,
     result: parseMetadataTargetFromYAML({ value: name, constraint, owner }),
+    strict,
   })
 }
 
 function parseMetadataTargetStringResultFromYAML(params: {
   name: string
   result: ReturnType<typeof parseMetadataTargetFromYAML>
+  strict?: boolean
 }): string | undefined {
   if (params.result.ok) return params.result.canonical
+  if (params.strict === true) throw new Error(params.result.message)
   if (!isMetadataTargetLikeYAML(params.name)) return undefined
 
   throw new Error(params.result.message)

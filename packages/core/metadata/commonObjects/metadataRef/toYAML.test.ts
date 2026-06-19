@@ -25,33 +25,28 @@ describe("exportMetadataItemLinkToYAML", () => {
     expect(result).toEqual("Документ.Встреча")
   })
 
-  it("exports role references without Role prefix when rule asks for name form", () => {
-    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+  it("exports role references through single-root metadataTarget", () => {
+    const rule = { type: "MetadataItemLink", metadataTarget: { kind: "object", roots: ["Role"] } } as const
 
     expect(exportMetadataItemLinkToYAML(mockContext, rule, "Role.Администратор")).toBe("Администратор")
   })
 
-  it("keeps uuid-like visibility keys unchanged in short role mode", () => {
-    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+  it("rejects opaque values in role metadataTarget mode", () => {
+    const rule = { type: "MetadataItemLink", metadataTarget: { kind: "object", roots: ["Role"] } } as const
 
-    expect(exportMetadataItemLinkToYAML(mockContext, rule, "418deaa0-683e-4862-9348-c0086ba6909f")).toBe(
-      "418deaa0-683e-4862-9348-c0086ba6909f"
+    expect(() => exportMetadataItemLinkToYAML(mockContext, rule, "418deaa0-683e-4862-9348-c0086ba6909f")).toThrow(
+      'Неизвестный корень "418deaa0-683e-4862-9348-c0086ba6909f"'
+    )
+    expect(() => exportMetadataItemLinkToYAML(mockContext, rule, "ЛокальныйПуть.НачалоРаботы")).toThrow(
+      'Неизвестный корень "ЛокальныйПуть"'
     )
   })
 
-  it("keeps non-metadata dotted references unchanged in short role mode", () => {
-    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
-
-    expect(exportMetadataItemLinkToYAML(mockContext, rule, "ЛокальныйПуть.НачалоРаботы")).toBe(
-      "ЛокальныйПуть.НачалоРаботы"
-    )
-  })
-
-  it("does not suppress metadata formatter errors in short role mode", () => {
-    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+  it("does not suppress metadata formatter errors in role metadataTarget mode", () => {
+    const rule = { type: "MetadataItemLink", metadataTarget: { kind: "object", roots: ["Role"] } } as const
 
     expect(() => exportMetadataItemLinkToYAML(mockContext, rule, "Catalog.НачалоРаботы.Attribute.Имя")).toThrow(
-      'Неизвестный сегмент "Attribute"'
+      'Корень "Catalog" не разрешён для цели метаданных'
     )
     expect(() => exportMetadataItemLinkToYAML(mockContext, rule, "Справочник.Контрагенты")).toThrow(
       'Неизвестный корень "Справочник"'
@@ -78,26 +73,25 @@ describe("exportMetadataItemLinksToYAML", () => {
     ])
   })
 
-  it("exports role references without Role prefix when rule asks for name form", () => {
-    const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
+  it("exports role reference lists through single-root metadataTarget", () => {
+    const rule = { type: "MetadataItemLinks", metadataTarget: { kind: "object", roots: ["Role"] } } as const
 
     expect(exportMetadataItemLinksToYAML(mockContext, rule, ["Role.Администратор"])).toEqual(["Администратор"])
   })
 
-  it("keeps non-metadata dotted references unchanged in mixed short role mode list", () => {
-    const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
+  it("rejects opaque values in role metadataTarget lists", () => {
+    const rule = { type: "MetadataItemLinks", metadataTarget: { kind: "object", roots: ["Role"] } } as const
 
-    expect(exportMetadataItemLinksToYAML(mockContext, rule, ["Role.Администратор", "ЛокальныйПуть.НачалоРаботы"])).toEqual([
-      "Администратор",
-      "ЛокальныйПуть.НачалоРаботы",
-    ])
+    expect(() =>
+      exportMetadataItemLinksToYAML(mockContext, rule, ["Role.Администратор", "ЛокальныйПуть.НачалоРаботы"])
+    ).toThrow('Неизвестный корень "ЛокальныйПуть"')
   })
 
-  it("does not suppress metadata formatter errors in mixed short role mode list", () => {
-    const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
+  it("does not suppress metadata formatter errors in role metadataTarget lists", () => {
+    const rule = { type: "MetadataItemLinks", metadataTarget: { kind: "object", roots: ["Role"] } } as const
 
     expect(() =>
       exportMetadataItemLinksToYAML(mockContext, rule, ["Role.Администратор", "Catalog.НачалоРаботы.Attribute.Имя"])
-    ).toThrow('Неизвестный сегмент "Attribute"')
+    ).toThrow('Корень "Catalog" не разрешён для цели метаданных')
   })
 })

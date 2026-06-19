@@ -65,7 +65,10 @@ const standardCommandGroupFromYAML = {
   ПанельДействийСервис: "ActionsPanelTools",
 } as const
 
-const roleNameRule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const satisfies PropertyRule
+const roleNameRule = {
+  type: "MetadataItemLink",
+  metadataTarget: { kind: "object", roots: ["Role"] },
+} as const satisfies PropertyRule
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 
 const getXMLName = (value: { _name?: string; name?: string }): string | undefined => value._name ?? value.name
