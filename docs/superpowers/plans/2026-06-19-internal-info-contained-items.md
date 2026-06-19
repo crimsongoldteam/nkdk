@@ -54,7 +54,18 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 ```
 
-- [ ] **Step 3: Add fixture helper**
+- [ ] **Step 3: Add ContainedObject-only rule**
+
+In `packages/core/metadata/commonObjects/internalInfo/fromXML.test.ts`, after `rule`, add:
+
+```ts
+const containedObjectsRule: PropertyRule = {
+  type: "InternalInfo",
+  forReferenceOnly: true,
+}
+```
+
+- [ ] **Step 4: Add fixture helper**
 
 In `packages/core/metadata/commonObjects/internalInfo/fromXML.test.ts`, after `importFixture`, add:
 
@@ -64,11 +75,11 @@ const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__"
 const importContainedObjectsFixture = () => {
   const source = readFileSync(join(fixturesDir, "containedObjects.xml"), "utf8")
   const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(source)
-  return importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, parsed.InternalInfo)
+  return importInternalInfoFromXML(mockContextFromXML({ forReference: true }), containedObjectsRule, parsed.InternalInfo)
 }
 ```
 
-- [ ] **Step 4: Add import test**
+- [ ] **Step 5: Add import test**
 
 In `describe("importInternalInfoFromXML", () => { ... })`, add:
 
@@ -89,7 +100,7 @@ In `describe("importInternalInfoFromXML", () => { ... })`, add:
   })
 ```
 
-- [ ] **Step 5: Add round-trip test**
+- [ ] **Step 6: Add round-trip test**
 
 In the same `describe`, add:
 
@@ -98,7 +109,7 @@ In the same `describe`, add:
     const imported = importContainedObjectsFixture()
     const exported = exportInternalInfoToXML({
       context: mockContextToXML(),
-      rule,
+      rule: containedObjectsRule,
       value: imported,
       referenceMetadata: undefined,
       metadataItem: { itemType: "MetadataConfiguration" as never },
@@ -106,18 +117,19 @@ In the same `describe`, add:
     const exportedXML = xmlExport({ InternalInfo: exported }, false)
     const reparsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(exportedXML)
 
-    expect(importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, reparsed.InternalInfo)).toEqual(
-      imported
-    )
+    expect(
+      importInternalInfoFromXML(mockContextFromXML({ forReference: true }), containedObjectsRule, reparsed.InternalInfo)
+    ).toEqual(imported)
   })
 ```
 
-- [ ] **Step 6: Run focused test and confirm failure**
+- [ ] **Step 7: Run focused test and confirm failure**
 
 Run:
 
 ```bash
-pnpm --filter @nakidka/core test -- commonObjects/internalInfo/fromXML.test.ts
+cd packages/core
+pnpm exec vitest run metadata/commonObjects/internalInfo/fromXML.test.ts
 ```
 
 Expected before implementation:
@@ -128,7 +140,7 @@ FAIL packages/core/metadata/commonObjects/internalInfo/fromXML.test.ts
 
 The `round-trips ContainedObject items from model data` test should fail because `exportInternalInfoToXML` currently returns no `xr:ContainedObject` unless `containedObjectClassIds` is present in the rule.
 
-- [ ] **Step 7: Commit failing test**
+- [ ] **Step 8: Commit failing test**
 
 ```bash
 git add packages/core/metadata/commonObjects/internalInfo/__fixtures__/containedObjects.xml packages/core/metadata/commonObjects/internalInfo/fromXML.test.ts
@@ -163,6 +175,7 @@ import {
 with:
 
 ```ts
+import type { ConfigurationContext } from "~/metadata/context/types"
 import { ExportToXMLFunctionNew, InternalInfoPropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { getUUID } from "../../helpers/uuid"
 import { InternalInfo, InternalInfoContainedObjectXML, InternalInfoItemsXML, InternalInfoParam, InternalInfoRootXML } from "./types"
@@ -255,7 +268,8 @@ with:
 Run:
 
 ```bash
-pnpm --filter @nakidka/core test -- commonObjects/internalInfo/fromXML.test.ts
+cd packages/core
+pnpm exec vitest run metadata/commonObjects/internalInfo/fromXML.test.ts
 ```
 
 Expected:
@@ -410,7 +424,8 @@ No matches.
 Run:
 
 ```bash
-pnpm --filter @nakidka/core test -- appliedObjects/configuration/rootXML.test.ts
+cd packages/core
+pnpm exec vitest run metadata/appliedObjects/configuration/rootXML.test.ts
 ```
 
 Expected:
@@ -438,7 +453,8 @@ git commit -m "fix: :bug: убрать частные UUID из InternalInfo к�
 Run:
 
 ```bash
-pnpm --filter @nakidka/core test -- commonObjects/internalInfo/fromXML.test.ts appliedObjects/configuration/rootXML.test.ts
+cd packages/core
+pnpm exec vitest run metadata/commonObjects/internalInfo/fromXML.test.ts metadata/appliedObjects/configuration/rootXML.test.ts
 ```
 
 Expected:

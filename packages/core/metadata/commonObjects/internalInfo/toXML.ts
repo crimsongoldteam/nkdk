@@ -1,3 +1,4 @@
+import type { ConfigurationContext } from "~/metadata/context/types"
 import { ExportToXMLFunctionNew, InternalInfoPropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { getUUID } from "../../helpers/uuid"
 import {
