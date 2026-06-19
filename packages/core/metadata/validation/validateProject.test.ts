@@ -214,7 +214,7 @@ describe("validateProject", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Конфигурация.yaml", [
       "Имя: Конфигурация",
-      "ОсновнойЯзык: Язык.НеСуществует",
+      "ОсновнойЯзык: НеСуществует",
     ])
 
     const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
@@ -231,11 +231,91 @@ describe("validateProject", () => {
     )
   })
 
+  it("requires the root configuration default language in YAML", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация"])
+
+    const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filePath: join(projectDir, "Конфигурация.yaml"),
+          source: "structure",
+          severity: "error",
+          path: "/ОсновнойЯзык",
+        }),
+      ])
+    )
+  })
+
+  it("accepts a short root configuration default language reference", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Конфигурация.yaml", [
+      "Имя: Конфигурация",
+      "ОсновнойЯзык: Русский",
+    ])
+    writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", [
+      "Комментарий: язык конфигурации",
+      "КодЯзыка: ru",
+    ])
+
+    const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
+
+    expect(diagnostics).toEqual([])
+  })
+
+  it("rejects a full root configuration default language reference", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Конфигурация.yaml", [
+      "Имя: Конфигурация",
+      "ОсновнойЯзык: Язык.Русский",
+    ])
+    writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", [
+      "Комментарий: язык конфигурации",
+      "КодЯзыка: ru",
+    ])
+
+    const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filePath: join(projectDir, "Конфигурация.yaml"),
+          source: "structure",
+          severity: "error",
+          path: "/ОсновнойЯзык",
+        }),
+      ])
+    )
+  })
+
+  it("reports a missing short root configuration default language target", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Конфигурация.yaml", [
+      "Имя: Конфигурация",
+      "ОсновнойЯзык: Русский",
+    ])
+
+    const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filePath: join(projectDir, "Язык", "Русский", "Свойства.yaml"),
+          source: "reference",
+          severity: "error",
+          message: 'Не найден объект "Язык.Русский"',
+        }),
+      ])
+    )
+  })
+
   it("validates a single root configuration file", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Конфигурация.yaml", [
       "Имя: Конфигурация",
-      "ОсновнойЯзык: Язык.НеСуществует",
+      "ОсновнойЯзык: НеСуществует",
     ])
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее поле"'])
 
