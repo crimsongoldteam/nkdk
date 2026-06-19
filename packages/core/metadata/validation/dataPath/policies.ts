@@ -1,4 +1,5 @@
 import type { DataPathPropertyRule } from "~/metadata/orchestration/property/types"
+import type { ElementType } from "~/metadata/orchestration"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import type { Diagnostic } from "../types"
 import { diagnosticAtYamlPath, type YamlPath } from "../yamlLocations"
@@ -11,6 +12,8 @@ export function validateResolvedDataPathPolicy(params: {
   value: string
   rule: DataPathPropertyRule
   target: ResolvedDataPathTarget | undefined
+  elementType?: ElementType
+  hasValuesPicture?: boolean
 }): Diagnostic[] {
   const allowedKinds = params.rule.allowedKinds
   if (allowedKinds === undefined) return []
@@ -24,6 +27,15 @@ export function validateResolvedDataPathPolicy(params: {
     return [policyDiagnostic(params, `ПутьКДанным "${params.value}": конечный реквизит имеет составной тип`)]
   }
 
+  if (
+    isPictureFieldValuesPictureTableSource({
+      rule: params.rule,
+      target,
+      elementType: params.elementType,
+      hasValuesPicture: params.hasValuesPicture,
+    })
+  ) return []
+
   if (target.typeInfo.kinds.some((kind) => allowedKinds.some((allowedKind) => allowedKind === kind))) return []
 
   return [
@@ -32,6 +44,20 @@ export function validateResolvedDataPathPolicy(params: {
       `ПутьКДанным "${params.value}": конечный тип не подходит, ожидается ${allowedKinds.join(" или ")}`,
     ),
   ]
+}
+
+function isPictureFieldValuesPictureTableSource(params: {
+  rule: DataPathPropertyRule
+  target: ResolvedDataPathTarget
+  elementType?: ElementType
+  hasValuesPicture?: boolean
+}): boolean {
+  return (
+    params.rule.yaml === "ПутьКДанным" &&
+    params.hasValuesPicture === true &&
+    (params.elementType === "PictureField" || params.elementType === "TablePictureField") &&
+    params.target.typeInfo.kinds.includes("tableSource")
+  )
 }
 
 function isCompositeTerminal(target: ResolvedDataPathTarget): boolean {

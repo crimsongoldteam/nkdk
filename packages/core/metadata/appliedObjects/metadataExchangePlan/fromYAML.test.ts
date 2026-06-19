@@ -33,4 +33,26 @@ describe("import MetadataExchangePlan from YAML", () => {
       })
     ).toEqual(yaml)
   })
+
+  it("should apply common basedOn object restrictions", () => {
+    const result = testImportAppliedObjectFromYAML<MetadataExchangePlan>({
+      rule: MetadataExchangePlanRules,
+      yaml: {
+        ОснованНа: ["Документ.ЗаказПокупателя"],
+      },
+      name: "ПланОбмена1",
+    })
+
+    expect(result?.basedOn).toEqual(["Document.ЗаказПокупателя"])
+
+    expect(() =>
+      testImportAppliedObjectFromYAML<MetadataExchangePlan>({
+        rule: MetadataExchangePlanRules,
+        yaml: {
+          ОснованНа: ["ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Куб.КубВсеСвойства"],
+        },
+        name: "ПланОбмена1",
+      }),
+    ).toThrow("не разрешён")
+  })
 })

@@ -2,10 +2,14 @@ import { Type } from "@sinclair/typebox"
 import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
 import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { importMetadataItemLinkFromYAML } from "~/metadata/commonObjects/metadataRef/fromYAML"
-import { exportMetadataItemLinkToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
+import { buildMetadataTargetSchema } from "~/metadata/commonObjects/metadataTargets"
+import { importMetadataItemLinksFromXML } from "~/metadata/commonObjects/metadataRef/fromXML"
+import { importMetadataItemLinkFromYAML, importMetadataItemLinksFromYAML } from "~/metadata/commonObjects/metadataRef/fromYAML"
+import { exportMetadataItemLinksToXML } from "~/metadata/commonObjects/metadataRef/toXML"
+import { exportMetadataItemLinkToYAML, exportMetadataItemLinksToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
 import {
   ExportToXMLFunctionNew,
+  type ExportToJSONSchemaFn,
   registerMetadataItemRule,
   registerTypeRule,
   type PropertyRule,
@@ -561,6 +565,13 @@ const importMetadataItemLinksFromYAMLWithCommandGroups = (
   value: string[] | undefined
 ): string[] | undefined => value?.map(commandGroupFromYAML)
 
+const exportCommandInterfaceSubsystemsOrderToJSONSchema: ExportToJSONSchemaFn = ({ rule }) => {
+  const subsystemSchema = buildMetadataTargetSchema(
+    rule.metadataTarget ?? { kind: "object", roots: ["Subsystem"], allowNested: true }
+  )
+  return Type.Array(Type.Union([subsystemSchema, Type.Literal("")]))
+}
+
 const importCommandGroupsFromXML = (
   _context: ConfigurationContextFromXML,
   rule: PropertyRule,
@@ -611,6 +622,16 @@ registerTypeRule("CommandInterfaceOrder", "exportToXML", exportOrderToXML)
 registerTypeRule("CommandInterfaceOrder", "importFromYAML", importOrderFromYAML)
 registerTypeRule("CommandInterfaceOrder", "exportToYAML", exportOrderToYAML)
 registerTypeRule("CommandInterfaceOrder", "exportToJSONSchema", () => CommandInterfaceOrderJSONSchema)
+
+registerTypeRule("CommandInterfaceSubsystemsOrder", "importFromXML", importMetadataItemLinksFromXML)
+registerTypeRule("CommandInterfaceSubsystemsOrder", "exportToXML", exportMetadataItemLinksToXML)
+registerTypeRule("CommandInterfaceSubsystemsOrder", "importFromYAML", importMetadataItemLinksFromYAML)
+registerTypeRule("CommandInterfaceSubsystemsOrder", "exportToYAML", exportMetadataItemLinksToYAML)
+registerTypeRule(
+  "CommandInterfaceSubsystemsOrder",
+  "exportToJSONSchema",
+  exportCommandInterfaceSubsystemsOrderToJSONSchema
+)
 
 registerTypeRule("CommandInterfaceCommandGroups", "importFromYAML", importMetadataItemLinksFromYAMLWithCommandGroups)
 registerTypeRule("CommandInterfaceCommandGroups", "exportToYAML", exportMetadataItemLinksToYAMLWithCommandGroups)

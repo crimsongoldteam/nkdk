@@ -13,6 +13,8 @@ export interface FormDataPathOccurrence {
   value: string
   yamlPath: YamlPath
   elementType?: ElementType
+  hasValuesPicture?: boolean
+  hasMultipleValuesExtendedEdit?: boolean
   tableContext?: TableContext
 }
 
@@ -110,6 +112,8 @@ function collectDataPathProperties(params: {
       value,
       yamlPath: [...params.yamlPath, rule.yaml],
       ...(params.elementType !== undefined ? { elementType: params.elementType } : {}),
+      ...(owner["valuesPicture"] !== undefined ? { hasValuesPicture: true } : {}),
+      ...(owner["multipleValuesExtendedEdit"] === true ? { hasMultipleValuesExtendedEdit: true } : {}),
       ...tableContextForDataPathRule(rule, params.tableContext),
     })
   }

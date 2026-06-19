@@ -1,4 +1,4 @@
-import type { MetadataFieldKind, MetadataMemberKind, MetadataRootName } from "./types"
+import type { MetadataFieldKind, MetadataMemberKind, MetadataObjectPathKind, MetadataRootName } from "./types"
 
 export const METADATA_NAME_PATTERN = "[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*"
 
@@ -38,6 +38,7 @@ export const rootToYAML = {
   Style: "Стиль",
   StyleItem: "ЭлементСтиля",
   FunctionalOption: "ФункциональнаяОпция",
+  FunctionalOptionsParameter: "ПараметрФункциональныхОпций",
   FunctionalOptionParameter: "ПараметрФункциональныхОпций",
   DocumentJournal: "ЖурналДокументов",
   HTTPService: "HTTPСервис",
@@ -45,9 +46,13 @@ export const rootToYAML = {
   WebService: "WebСервис",
   Bot: "Бот",
   ExternalDataSource: "ВнешнийИсточникДанных",
+  EventSubscription: "ПодпискаНаСобытие",
+  XDTOPackage: "ПакетXDTO",
+  WSReference: "WSСсылка",
   SessionParameter: "ПараметрСеанса",
   SettingsStorage: "ХранилищеНастроек",
   Subsystem: "Подсистема",
+  Sequence: "Последовательность",
 } as const satisfies Record<MetadataRootName, string>
 
 export const rootFromYAML = Object.fromEntries(
@@ -64,6 +69,9 @@ export const memberKindToYAML = {
   Template: "Макет",
   Command: "Команда",
   AccountingFlag: "ПризнакУчета",
+  ExtDimensionAccountingFlag: "ПризнакУчетаСубконто",
+  AddressingAttribute: "РеквизитАдресации",
+  Field: "Поле",
 } as const satisfies Record<MetadataMemberKind, string>
 
 export const memberKindFromYAML = Object.fromEntries(
@@ -76,6 +84,7 @@ export const fieldKindToYAML = {
   TabularSection: "ТабличнаяЧасть",
   Dimension: "Измерение",
   Resource: "Ресурс",
+  AddressingAttribute: "РеквизитАдресации",
 } as const satisfies Record<MetadataFieldKind, string>
 
 export const fieldKindFromYAML = Object.fromEntries(
@@ -108,4 +117,19 @@ export const standardAttributeFromYAML = Object.fromEntries(
 
 export function isMetadataRootName(value: string): value is MetadataRootName {
   return Object.prototype.hasOwnProperty.call(rootToYAML, value)
+}
+
+export const objectPathKindToYAML = {
+  Table: "Таблица",
+  Cube: "Куб",
+  DimensionTable: "ТаблицаИзмерения",
+  Function: "Функция",
+} as const satisfies Record<MetadataObjectPathKind, string>
+
+export const objectPathKindFromYAML = Object.fromEntries(
+  Object.entries(objectPathKindToYAML).map(([model, yaml]) => [yaml, model])
+) as Partial<Record<string, MetadataObjectPathKind>>
+
+export function isMetadataObjectPathKind(value: string): value is MetadataObjectPathKind {
+  return Object.prototype.hasOwnProperty.call(objectPathKindToYAML, value)
 }

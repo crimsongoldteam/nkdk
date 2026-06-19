@@ -7,13 +7,20 @@ import type { MetadataFunctionalOption } from "./types"
 import "./types"
 
 describe("export MetadataFunctionalOption to YAML", () => {
-  it("exports subsystem and accounting flag content targets", () => {
+  it("exports object and accounting flag content targets", () => {
     const data: MetadataFunctionalOption = {
       itemType: "MetadataFunctionalOption",
       name: "ИспользоватьФинансовыеИнструменты",
       content: [
-        "Subsystem.Казначейство.Subsystem.ФинансовыеИнструменты",
+        "Subsystem.ФинансовыеИнструменты",
+        "Constant.ВариантВставкиШтампа",
+        "Document.ЕжедневныйОтчет",
+        "Document.Корреспонденция.TabularSection.ВопросыОбращения",
+        "Subsystem.СтандартныеПодсистемы.Subsystem.НапоминанияПользователя",
+        "ChartOfCharacteristicTypes.ДополнительныеРеквизитыИСведения.Attribute.ЗаголовокЯзык1",
         "ChartOfAccounts.Хозрасчетный.AccountingFlag.УчетПоНаправлениямДеятельности",
+        "Report.НормативныйСоставИзделия.Attribute.Характеристика",
+        "Report.СводныйОтчетЕГАИС.Command.СформироватьСводныйОтчет",
       ],
     }
 
@@ -25,9 +32,32 @@ describe("export MetadataFunctionalOption to YAML", () => {
 
     expect(result).toEqual({
       СоставФункциональнойОпции: [
-        "Подсистема.Казначейство.Подсистема.ФинансовыеИнструменты",
+        "Подсистема.ФинансовыеИнструменты",
+        "Константа.ВариантВставкиШтампа",
+        "Документ.ЕжедневныйОтчет",
+        "Документ.Корреспонденция.ТабличнаяЧасть.ВопросыОбращения",
+        "Подсистема.СтандартныеПодсистемы.Подсистема.НапоминанияПользователя",
+        "ПланВидовХарактеристик.ДополнительныеРеквизитыИСведения.Реквизит.ЗаголовокЯзык1",
         "ПланСчетов.Хозрасчетный.ПризнакУчета.УчетПоНаправлениямДеятельности",
+        "Отчет.НормативныйСоставИзделия.Реквизит.Характеристика",
+        "Отчет.СводныйОтчетЕГАИС.Команда.СформироватьСводныйОтчет",
       ],
     })
+  })
+
+  it("rejects unsupported content targets", () => {
+    const data: MetadataFunctionalOption = {
+      itemType: "MetadataFunctionalOption",
+      name: "ИспользоватьМакет",
+      content: ["CommonTemplate.ПечатнаяФорма"],
+    }
+
+    expect(() =>
+      exportMetadataItemToYAML({
+        context: mockContext,
+        rule: MetadataFunctionalOptionRules,
+        data,
+      })
+    ).toThrow()
   })
 })

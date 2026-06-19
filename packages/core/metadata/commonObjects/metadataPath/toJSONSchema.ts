@@ -33,6 +33,7 @@ function dataPathTargetFallback(rule: PropertyRule): MetadataTargetConstraint {
     context: "form",
     ...(rule.type === "DataPath" && rule.allowedKinds ? { allowedKinds: rule.allowedKinds } : {}),
     ...(rule.type === "DataPath" && rule.allowComposite !== undefined ? { allowComposite: rule.allowComposite } : {}),
+    ...(rule.type === "DataPath" && rule.allowOpaqueMultipleValue === true ? { allowOpaqueMultipleValue: true } : {}),
   }
 }
 

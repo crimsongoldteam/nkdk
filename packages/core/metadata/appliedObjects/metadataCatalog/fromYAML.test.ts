@@ -102,7 +102,7 @@ describe("importMetadataCatalogFromYAML", () => {
         },
         "Товары"
       )
-    ).toThrow('Корень "Enum" не разрешён для цели метаданных')
+    ).toThrow('Вид цели "Enum" не разрешён')
 
     expect(() =>
       importMetadataCatalogFromYAML(

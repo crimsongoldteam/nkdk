@@ -26,7 +26,7 @@ export const borderStyleItemTarget = {
 } as const satisfies MetadataTargetConstraint
 
 export const BorderJSONSchema = Type.Object({
-  Имя: Type.Optional(buildMetadataTargetSchema(borderStyleItemTarget)),
+  Имя: Type.Optional(Type.Union([buildMetadataTargetSchema(borderStyleItemTarget), Type.Null()])),
   Ширина: Type.Optional(Type.Number()),
   ТипРамки: Type.Optional(Type.String()),
 })

@@ -38,4 +38,24 @@ describe("importMobileDeviceCommandBarContentFromYAML", () => {
 
     expect(result).toEqual(twoItemsMobileDeviceCommandBarContent)
   })
+
+  it("imports form element names as plain strings", () => {
+    const result = importMobileDeviceCommandBarContentFromYAML(mockContext, mockRule, ["КоманднаяПанельЕще"])
+
+    expect(result).toEqual([{ type: "string", value: "КоманднаяПанельЕще" }])
+  })
+
+  it("does not parse metadata-like strings as metadata targets", () => {
+    const result = importMobileDeviceCommandBarContentFromYAML(mockContext, mockRule, ["ОбщаяФорма.ПечатьДокументов"])
+
+    expect(result).toEqual([{ type: "string", value: "ОбщаяФорма.ПечатьДокументов" }])
+  })
+
+  it("keeps object items delegated to MetadataValue import", () => {
+    const result = importMobileDeviceCommandBarContentFromYAML(mockContext, mockRule, [
+      { Тип: "ВидСчета", Значение: "АктивноПассивный" },
+    ])
+
+    expect(result).toEqual([{ type: "AccountType", value: "ActivePassive" }])
+  })
 })

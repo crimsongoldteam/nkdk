@@ -243,6 +243,7 @@ export const InputFieldRules = {
       type: "DataPath",
       // fromYAML: false,
       defaultType: "string",
+      allowOpaqueMultipleValue: true,
     },
     ...formFieldCommonProperties,
   },
@@ -256,6 +257,11 @@ export const TableInputFieldRules = {
   properties: {
     ...InputFieldRules.properties,
     ...formFieldTableRelatedProperties,
+    dataPath: {
+      yaml: "ПутьКДанным",
+      type: "DataPath",
+      defaultType: "string",
+    },
     minValue: { yaml: "МинимальноеЗначение", type: "MinMaxValue", xml: "MinValue" },
     maxValue: { yaml: "МаксимальноеЗначение", type: "MinMaxValue", xml: "MaxValue" },
   },

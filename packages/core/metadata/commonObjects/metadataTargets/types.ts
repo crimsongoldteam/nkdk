@@ -34,6 +34,7 @@ export type MetadataRootName =
   | "Style"
   | "StyleItem"
   | "FunctionalOption"
+  | "FunctionalOptionsParameter"
   | "FunctionalOptionParameter"
   | "DocumentJournal"
   | "HTTPService"
@@ -41,9 +42,18 @@ export type MetadataRootName =
   | "WebService"
   | "Bot"
   | "ExternalDataSource"
+  | "EventSubscription"
+  | "XDTOPackage"
+  | "WSReference"
   | "SessionParameter"
   | "SettingsStorage"
   | "Subsystem"
+  | "EventSubscription"
+  | "XDTOPackage"
+  | "WSReference"
+  | "Sequence"
+
+export type MetadataObjectPathKind = "Table" | "Cube" | "DimensionTable" | "Function"
 
 export type MetadataMemberKind =
   | "Attribute"
@@ -55,10 +65,13 @@ export type MetadataMemberKind =
   | "Template"
   | "Command"
   | "AccountingFlag"
+  | "ExtDimensionAccountingFlag"
+  | "AddressingAttribute"
+  | "Field"
 
 export type MetadataFieldKind = Extract<
   MetadataMemberKind,
-  "Attribute" | "StandardAttribute" | "TabularSection" | "Dimension" | "Resource"
+  "Attribute" | "StandardAttribute" | "TabularSection" | "Dimension" | "Resource" | "AddressingAttribute"
 >
 export type MetadataValueKind = "predefinedValue" | "enumValue" | "emptyRef"
 export type MetadataTypeFilterValue = "string" | "decimal" | "dateTime" | "boolean" | "ValueStorage" | "UUID"
@@ -78,8 +91,10 @@ export interface MetadataTargetOwner {
 export interface ObjectTargetConstraint {
   kind: "object"
   roots?: readonly MetadataRootName[]
+  allowedObjectPaths?: readonly (readonly [MetadataRootName, ...MetadataObjectPathKind[]])[]
   scope?: "project" | "owner"
   allowNested?: boolean
+  nestedObjectRoots?: readonly MetadataRootName[]
   filters?: readonly MetadataTargetFilter[]
 }
 
@@ -89,6 +104,8 @@ export interface MemberTargetConstraint {
   roots?: readonly MetadataRootName[]
   objectRoots?: readonly MetadataRootName[]
   nestedObjectRoots?: readonly MetadataRootName[]
+  allowedObjectPaths?: readonly (readonly [MetadataRootName, ...MetadataObjectPathKind[]])[]
+  allowedMemberPaths?: readonly (readonly [MetadataRootName, ...(MetadataObjectPathKind | MetadataMemberKind)[]])[]
   memberKinds?: readonly MetadataMemberKind[]
   filters?: readonly MetadataTargetFilter[]
   allowOwner?: boolean
@@ -113,6 +130,7 @@ export interface DataPathTargetConstraint {
   context: "form"
   allowedKinds?: readonly string[]
   allowComposite?: boolean
+  allowOpaqueMultipleValue?: boolean
 }
 
 export type MetadataTargetConstraint =
@@ -124,7 +142,13 @@ export type MetadataTargetConstraint =
 
 export type ParsedMetadataTarget =
   | { kind: "object"; root: MetadataRootName; objectName: string; segments?: MetadataObjectSegment[] }
-  | { kind: "member"; root: MetadataRootName; objectName: string; segments: MetadataMemberSegment[] }
+  | {
+      kind: "member"
+      root: MetadataRootName
+      objectName: string
+      objectSegments?: MetadataObjectSegment[]
+      segments: MetadataMemberSegment[]
+    }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "predefinedValue"; valueName: string }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "enumValue"; valueName: string }
   | { kind: "value"; root: MetadataRootName; objectName: string; valueKind: "emptyRef" }
@@ -135,7 +159,7 @@ export interface MetadataMemberSegment {
 }
 
 export interface MetadataObjectSegment {
-  root: MetadataRootName
+  kind: MetadataObjectPathKind | MetadataRootName
   objectName: string
 }
 

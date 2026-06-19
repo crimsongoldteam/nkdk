@@ -15,6 +15,7 @@ import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocumen
 import { MetadataExchangePlanRules } from "~/metadata/appliedObjects/metadataExchangePlan/rules"
 import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
 import { MetadataReportRules } from "~/metadata/appliedObjects/metadataReport/rules"
+import { MetadataTaskRules } from "~/metadata/appliedObjects/metadataTask/rules"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { buildFormDataPathIndex, type FormDataPathIndex } from "./formIndex"
@@ -1160,7 +1161,7 @@ describe("resolveDataPath", () => {
         status: "error",
         diagnostics: [
           expect.objectContaining({
-            message: `ПутьКДанным "${path}": неизвестная колонка "${path.split(".").at(-1)}"`,
+            message: `ПутьКДанным "${path}": неизвестная колонка "${path.split(".")[path.split(".").length - 1]}"`,
           }),
         ],
       })
@@ -1674,6 +1675,66 @@ describe("resolveDataPath", () => {
     }
   })
 
+  it("resolves task platform aliases and addressing attributes through owner metadata", () => {
+    const owners = ownerCache([
+      owner({
+        ref: { kind: "ЗадачаОбъект", name: "ЗадачаИсполнителя" },
+        rule: MetadataTaskRules,
+        model: {
+          itemType: "MetadataTask",
+          addressingAttributes: [
+            { itemType: "MetadataAttribute", name: "Исполнитель", type: { type: ["CatalogRef.Пользователи"] } },
+          ],
+        },
+      }),
+    ])
+
+    for (const [path, yamlName] of [
+      ["Объект.Description", "Описание"],
+      ["Объект.Executed", "Выполнена"],
+      ["Объект.BusinessProcess", "БизнесПроцесс"],
+      ["Объект.RoutePoint", "ТочкаМаршрута"],
+      ["Объект.Исполнитель", "Исполнитель"],
+    ] as const) {
+      expect(
+        resolve(path, {
+          index: indexWithAttributes([attribute("Объект", { type: ["TaskObject.ЗадачаИсполнителя"] })]),
+          ownerCache: owners,
+        }),
+      ).toMatchObject({
+        status: "ok",
+        diagnostics: [],
+        target: {
+          value: path,
+          source: { kind: "objectField", owner: { kind: "ЗадачаОбъект", name: "ЗадачаИсполнителя" }, name: yamlName },
+        },
+      })
+    }
+  })
+
+  it("resolves boolean document Posted standard attribute", () => {
+    const result = resolve("Объект.Posted", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentObject.Заказ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ДокументОбъект", name: "Заказ" },
+          rule: MetadataDocumentRules,
+          model: { itemType: "MetadataDocument" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      diagnostics: [],
+      target: {
+        value: "Объект.Posted",
+        source: { kind: "objectField", owner: { kind: "ДокументОбъект", name: "Заказ" }, name: "Проведен" },
+        typeInfo: { kinds: ["boolean"] },
+      },
+    })
+  })
+
   it("resolves platform aliases after traversing a reference column", () => {
     const result = resolve("Объект.Товары.Номенклатура.Code", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
@@ -1942,7 +2003,7 @@ describe("resolveDataPath", () => {
         status: "error",
         diagnostics: [
           expect.objectContaining({
-            message: `ПутьКДанным "${path}": неизвестный реквизит "${path.split(".").at(-1)}"`,
+            message: `ПутьКДанным "${path}": неизвестный реквизит "${path.split(".")[path.split(".").length - 1]}"`,
           }),
         ],
       })
@@ -2204,6 +2265,71 @@ describe("resolveDataPath", () => {
           message: 'ПутьКДанным "Объект.Parent": неизвестный реквизит "Parent"',
         }),
       ],
+    })
+  })
+
+  it("resolves DeletionMark as boolean through standard attributes", () => {
+    const result = resolve("Объект.Обращения.Обращение.DeletionMark", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.ВыгрузкаВССТУ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Документ", name: "ВыгрузкаВССТУ" },
+          rule: MetadataDocumentRules,
+          model: {
+            itemType: "MetadataDocument",
+            tabularSections: [
+              {
+                itemType: "MetadataTabularSection",
+                name: "Обращения",
+                attributes: [
+                  {
+                    itemType: "MetadataAttribute",
+                    name: "Обращение",
+                    type: { type: ["CatalogRef.Обращения"] },
+                  },
+                ],
+              },
+            ],
+          },
+        }),
+        owner({
+          ref: { kind: "Справочник", name: "Обращения" },
+          rule: MetadataCatalogRules,
+          model: { itemType: "MetadataCatalog" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      target: { typeInfo: { kinds: ["boolean"] } },
+    })
+  })
+
+  it("resolves Parent as the same owner through standard attributes", () => {
+    const result = resolve("Объект.Parent.ТекстСообщения", {
+      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.СообщенияОбсуждений"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Справочник", name: "СообщенияОбсуждений" },
+          rule: MetadataCatalogRules,
+          model: {
+            itemType: "MetadataCatalog",
+            attributes: [
+              {
+                itemType: "MetadataAttribute",
+                name: "ТекстСообщения",
+                type: { type: ["string"] },
+              },
+            ],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      target: { typeInfo: { kinds: ["scalar"] } },
     })
   })
 })

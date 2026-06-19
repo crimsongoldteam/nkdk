@@ -13,10 +13,14 @@ export const importChoiceParametersFromYAML = (
   if (!data) return undefined
 
   return Object.entries(data).map(([name, yamlValue]) => {
+    const markedValue =
+      yamlValue === null || isEmptyObject(yamlValue)
+        ? undefined
+        : asExplicitYAMLStringIfMarked(data, name, yamlValue)
     const value = importMetadataValueFromYAML(
       context,
       undefined,
-      asExplicitYAMLStringIfMarked(data, name, yamlValue) as ChoiceParametersYAML[string]
+      markedValue as Exclude<ChoiceParametersYAML[string], null>
     )
     const result: ChoiceParameter = { name }
 
@@ -24,6 +28,10 @@ export const importChoiceParametersFromYAML = (
 
     return result
   })
+}
+
+function isEmptyObject(value: unknown): value is Record<string, never> {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 0
 }
 
 registerTypeRule("ChoiceParameters", "importFromYAML", importChoiceParametersFromYAML)

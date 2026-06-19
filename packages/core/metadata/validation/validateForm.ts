@@ -80,6 +80,8 @@ export function validateForm(params: ValidateFormParams): Diagnostic[] {
     })
 
   for (const occurrence of collectFormDataPathOccurrences(form.value)) {
+    if (isAcceptedOpaqueMultipleValueDataPath(occurrence)) continue
+
     const result = resolveDataPath({
       filePath: entry.filePath,
       parsed: entry.parsed,
@@ -101,11 +103,24 @@ export function validateForm(params: ValidateFormParams): Diagnostic[] {
         value: occurrence.value,
         rule: occurrence.rule,
         target: result.target,
+        ...(occurrence.elementType !== undefined ? { elementType: occurrence.elementType } : {}),
+        ...(occurrence.hasValuesPicture !== undefined ? { hasValuesPicture: occurrence.hasValuesPicture } : {}),
       }),
     )
   }
 
   return dedupeDiagnostics(diagnostics)
+}
+
+function isAcceptedOpaqueMultipleValueDataPath(
+  occurrence: ReturnType<typeof collectFormDataPathOccurrences>[number],
+): boolean {
+  return (
+    occurrence.elementType === "InputField" &&
+    occurrence.rule.yaml === "ПутьКДанным" &&
+    occurrence.hasMultipleValuesExtendedEdit === true &&
+    /^[0-9]+\/[0-9]+:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(occurrence.value)
+  )
 }
 
 function collectDynamicListTypeValueWarnings(params: {

@@ -119,6 +119,26 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts picture field border with empty style name", () => {
+    const project = createProject({
+      form: [
+        "Элементы:",
+        "  Статус:",
+        "    Вид: ПолеРисунка",
+        "    Рамка:",
+        "      Имя:",
+        "      Ширина: 1",
+        "      ТипРамки: БезРамки",
+        "    ПутьКДанным: Статус",
+        "Реквизиты:",
+        "  Статус:",
+        "    Тип: Число",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("accepts paths through DefinedType metadata", () => {
     const project = createProject({
       form: [
@@ -364,6 +384,49 @@ describe("validateForm", () => {
     })
 
     expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts table source PictureField data path when values picture is configured", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  ТаблицаОбъектыЗалога:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      ОбъектЗалога:",
+        "        Тип: Строка",
+        "Элементы:",
+        "  СостояниеДокумента:",
+        "    Вид: ПолеРисунка",
+        "    КартинкаЗначений: ОбщаяКартинка.СостоянияДокумента",
+        "    ПутьКДанным: ТаблицаОбъектыЗалога",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("keeps table source PictureField data path invalid without values picture", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  ТаблицаОбъектыЗалога:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      ОбъектЗалога:",
+        "        Тип: Строка",
+        "Элементы:",
+        "  СостояниеДокумента:",
+        "    Вид: ПолеРисунка",
+        "    ПутьКДанным: ТаблицаОбъектыЗалога",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([
+      expect.objectContaining({
+        message: expect.stringContaining("конечный тип не подходит"),
+      }),
+    ])
   })
 
   it("accepts composite PictureField data path when one terminal kind is compatible", () => {
@@ -1394,6 +1457,35 @@ describe("validateForm", () => {
     })
 
     expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("accepts opaque multiple-value data path for extended input fields", () => {
+    const project = createProject({
+      form: [
+        "Элементы:",
+        "  Реквизит1:",
+        "    Вид: ПолеВвода",
+        "    РасширенноеРедактированиеМножественныхЗначений: Истина",
+        "    ПутьКДанным: 1/0:796f500f-c364-45d1-bce6-9e7e8e15b664",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("keeps opaque data path invalid without extended multiple-value editing", () => {
+    const project = createProject({
+      form: [
+        "Элементы:",
+        "  Реквизит1:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: 1/0:796f500f-c364-45d1-bce6-9e7e8e15b664",
+      ],
+    })
+
+    expect(messages(runValidateForm(project))).toContain(
+      'ПутьКДанным "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664": неизвестный корень "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"',
+    )
   })
 
   it("validates DataPath values inside singleton element child items", () => {

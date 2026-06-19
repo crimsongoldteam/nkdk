@@ -336,6 +336,7 @@ export const MetadataConfigurationRules = {
     defaultLanguage: {
       yaml: "ОсновнойЯзык",
       type: "MetadataItemLink",
+      metadataTarget: { kind: "object", roots: ["Language"] },
       required: true,
       defaultValueXML: "Language.Русский",
       preserveExplicitDefaultXML: true,

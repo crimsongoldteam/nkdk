@@ -1,4 +1,4 @@
-import { Static, Type } from "@sinclair/typebox"
+import { Type } from "@sinclair/typebox"
 import { MetadataField, MetadataFieldJSONSchema, MetadataFieldYAML } from "~/metadata/commonObjects/metadataField/types"
 import { MetadataItemLink, MetadataItemLinkYAML } from "~/metadata/commonObjects/metadataRef/types"
 import {
@@ -78,4 +78,4 @@ export const CharacteristicsDescriptionJSONSchema = Type.Object({
   ПолеПутиКДанным: Type.Optional(MetadataFieldJSONSchema),
 })
 export const CharacteristicsDescriptionsJSONSchema = Type.Array(CharacteristicsDescriptionJSONSchema)
-export type CharacteristicsDescriptionsYAML = Static<typeof CharacteristicsDescriptionsJSONSchema>
+export type CharacteristicsDescriptionsYAML = CharacteristicsDescriptionYAML[]

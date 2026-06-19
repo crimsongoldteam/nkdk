@@ -26,4 +26,19 @@ describe("export MetadataDocument to YAML", () => {
     })
     expect(result).toEqual(expected)
   })
+
+  it("exports document journal choice form as external form reference", () => {
+    const result = testExportAppliedObjectToYAML<MetadataDocument>({
+      rule: MetadataDocumentRules,
+      data: {
+        itemType: "MetadataDocument",
+        name: "ВосстановлениеНДСПоОбъектамНедвижимости",
+        defaultChoiceForm: "DocumentJournal.РегламентныеОперацииНДС.Form.ФормаСписка",
+      },
+    })
+
+    expect(result).toMatchObject({
+      ОсновнаяФормаДляВыбора: "ЖурналДокументов.РегламентныеОперацииНДС.Форма.ФормаСписка",
+    })
+  })
 })

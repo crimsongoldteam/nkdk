@@ -7,6 +7,7 @@ const normalizeXML = (value: string): string => value.replace(/\r\n/g, "\n")
 
 const cases = [
   { fixture: "full.xml", name: "ПодсистемаВсеСвойства" },
+  { fixture: "all-targets.xml", name: "ПодсистемаВсеСвойства" },
   { fixture: "minimal.xml", name: "ПодсистемаПоУмолчанию" },
 ]
 

@@ -11,7 +11,9 @@ export const importMobileDeviceCommandBarContentFromYAML = (
   if (!yaml || yaml.length === 0) return undefined
 
   const items = yaml
-    .map((item) => importMetadataValueFromYAML(context, { type: "MetadataValue" }, item))
+    .map((item) =>
+      typeof item === "string" ? { type: "string" as const, value: item } : importMetadataValueFromYAML(context, { type: "MetadataValue" }, item)
+    )
     .filter((item): item is MobileDeviceCommandBarContent[number] => item !== undefined)
 
   return items.length === 0 ? undefined : items

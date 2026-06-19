@@ -1,5 +1,6 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 
 const documentProperties = ["Properties"]
@@ -105,7 +106,7 @@ export const MetadataDocumentRules = {
     basedOn: {
       yaml: "ВводитсяНаОсновании",
       type: "MetadataItemLinks",
-      metadataTarget: { kind: "object" },
+      metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
     },
@@ -218,7 +219,13 @@ export const MetadataDocumentRules = {
       yaml: "ОсновнаяФормаДляВыбора",
       type: "string",
       xmlParents: documentProperties,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      metadataTarget: {
+        kind: "member",
+        owner: "this",
+        memberKinds: ["Form"],
+        objectRoots: ["CommonForm"],
+        allowedMemberPaths: [["DocumentJournal", "Form"]],
+      },
       defaultValueXMLRaw: "",
     },
     defaultListForm: {

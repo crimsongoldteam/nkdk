@@ -3,6 +3,7 @@ import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it, vi } from "vitest"
+import { TopLevelMetadataItemRules } from "~/metadata/appliedObjects/configuration/topLevelRules"
 import { mockContext } from "~/tests/mockContext"
 import { ProjectFileSchemaError } from "./projectFileSchema"
 import { validateProject } from "./validateProject"
@@ -171,6 +172,86 @@ describe("validateProject", () => {
     })
   })
 
+  it("validates every top-level metadata object with YAML directory", () => {
+    const projectDir = createProject()
+
+    for (const dir of topLevelYamlDirs()) {
+      writeProjectFile(projectDir, `${dir}/Тест/Свойства.yaml`, "{}\n")
+    }
+
+    const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
+
+    expect(diagnostics).toEqual([])
+  })
+
+  it("validates nested subsystem properties with schema rules", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Подсистема/Администрирование/Свойства.yaml", "{}\n")
+    writeProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml", [
+      "ЛишнееПоле: true",
+    ])
+
+    const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: join(
+          projectDir,
+          "Подсистема",
+          "Администрирование",
+          "Подсистемы",
+          "Настройки",
+          "Свойства.yaml",
+        ),
+        source: "structure",
+        severity: "error",
+        path: "/ЛишнееПоле",
+      }),
+    ])
+  })
+
+  it("validates the root configuration YAML file", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Конфигурация.yaml", [
+      "Имя: Конфигурация",
+      "ОсновнойЯзык: Язык.НеСуществует",
+    ])
+
+    const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filePath: join(projectDir, "Язык", "НеСуществует", "Свойства.yaml"),
+          source: "reference",
+          severity: "error",
+          message: 'Не найден объект "Язык.НеСуществует"',
+        }),
+      ]),
+    )
+  })
+
+  it("validates a single root configuration file", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Конфигурация.yaml", [
+      "Имя: Конфигурация",
+      "ОсновнойЯзык: Язык.НеСуществует",
+    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее поле"'])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Конфигурация.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toHaveLength(1)
+    expect(diagnostics[0]).toMatchObject({
+      filePath: join(projectDir, "Язык", "НеСуществует", "Свойства.yaml"),
+      message: 'Не найден объект "Язык.НеСуществует"',
+    })
+  })
+
   it("accepts SystemEnumeration properties in catalog attributes and standard attributes", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Файлы/Свойства.yaml", [
@@ -292,6 +373,12 @@ describe("validateProject", () => {
     return projectDir
   }
 })
+
+function topLevelYamlDirs(): string[] {
+  return TopLevelMetadataItemRules.flatMap((rule) =>
+    typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : [],
+  )
+}
 
 function writeProjectFile(projectDir: string, projectPath: string, lines: string[] | string): void {
   const filePath = join(projectDir, ...projectPath.split("/"))

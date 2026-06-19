@@ -7,6 +7,7 @@ import type { MetadataFunctionalOption } from "./types"
 
 const cases = [
   { fixture: "full.xml", name: "ФункциональнаяОпцияВсеСвойства" },
+  { fixture: "all-targets.xml", name: "ФункциональнаяОпцияВсеСвойства" },
   { fixture: "minimal.xml", name: "ФункциональнаяОпцияПоУмолчанию" },
 ]
 

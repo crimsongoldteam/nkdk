@@ -1,4 +1,4 @@
-import { memberKindToYAML, rootToYAML, standardAttributeToYAML } from "./roots"
+import { memberKindToYAML, objectPathKindToYAML, rootToYAML, standardAttributeToYAML } from "./roots"
 import { parseMetadataTargetFromModel } from "./parse"
 import type {
   MetadataMemberKind,
@@ -35,7 +35,7 @@ function formatParsedMetadataTargetToYAML(
       return [
         rootToYAML[target.root],
         target.objectName,
-        ...(target.segments ?? []).flatMap((segment) => [rootToYAML[segment.root], segment.objectName]),
+        ...(target.segments ?? []).flatMap((segment) => [formatObjectSegmentKind(segment.kind), segment.objectName]),
       ].join(".")
     case "member":
       return formatMemberTargetToYAML(target, constraint, owner)
@@ -52,12 +52,16 @@ function formatMemberTargetToYAML(
   const full = [
     rootToYAML[target.root],
     target.objectName,
+    ...(target.objectSegments ?? []).flatMap((segment) => [formatObjectSegmentKind(segment.kind), segment.objectName]),
     ...target.segments.flatMap((segment) => [memberKindToYAML[segment.kind], formatMemberSegmentName(segment)]),
   ].join(".")
 
   if (constraint.kind !== "member" || constraint.owner !== "this") return full
   if (!owner) throw new Error('Для metadataTarget kind "member" owner "this" требуется контекст текущего объекта')
   if (target.root !== owner.root || target.objectName !== owner.objectName) {
+    if (constraint.allowedMemberPaths?.some((allowedPath) => memberTargetMatchesAllowedPath(target, allowedPath))) {
+      return full
+    }
     throw new Error(
       `Цель "${target.root}.${target.objectName}" не принадлежит текущему объекту "${owner.root}.${owner.objectName}"`
     )
@@ -69,9 +73,26 @@ function formatMemberTargetToYAML(
   return localSegments.join(".")
 }
 
+function memberTargetMatchesAllowedPath(
+  target: Extract<ParsedMetadataTarget, { kind: "member" }>,
+  allowedPath: readonly [string, ...string[]]
+): boolean {
+  const targetPath = [
+    target.root,
+    ...(target.objectSegments ?? []).map((segment) => segment.kind),
+    ...target.segments.map((segment) => segment.kind),
+  ]
+
+  return targetPath.length === allowedPath.length && targetPath.every((part, index) => part === allowedPath[index])
+}
+
 function formatMemberSegmentName(segment: MetadataMemberSegment): string {
   if (segment.kind !== "StandardAttribute") return segment.name
   return standardAttributeToYAML[segment.name] ?? segment.name
+}
+
+function formatObjectSegmentKind(kind: keyof typeof rootToYAML | keyof typeof objectPathKindToYAML): string {
+  return objectPathKindToYAML[kind as keyof typeof objectPathKindToYAML] ?? rootToYAML[kind as keyof typeof rootToYAML]
 }
 
 function formatValueTargetToYAML(target: Extract<ParsedMetadataTarget, { kind: "value" }>): string {

@@ -1,5 +1,6 @@
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 import { MetadataCatalogStandardAttributeNames } from "./types"
 
@@ -91,7 +92,7 @@ export const MetadataCatalogRules = {
       yaml: "ВводитсяНаОсновании",
       type: "MetadataObjectRefCollection",
       xmlParents: ["Properties"],
-      metadataTarget: { kind: "object", roots: ["Catalog", "Document", "ChartOfAccounts"] },
+      metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
       defaultValueXMLRaw: {},
     },
     characteristics: {
@@ -375,7 +376,7 @@ export const MetadataCatalogRules = {
       yaml: "Владельцы",
       type: "MetadataObjectRefCollection",
       xmlParents: ["Properties"],
-      metadataTarget: { kind: "object", roots: ["Catalog", "Document", "ChartOfCharacteristicTypes"] },
+      metadataTarget: { kind: "object", roots: ["Catalog", "Document", "ChartOfCharacteristicTypes", "ExchangePlan"] },
       defaultValueXMLRaw: {},
     },
     objectModule: {

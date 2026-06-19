@@ -33,4 +33,16 @@ describe("exportMetadataCatalogToYAML", () => {
       Владельцы: ["ПланВидовХарактеристик.ВопросыДляАнкетирования"],
     })
   })
+
+  it("exports exchange plan owner references", () => {
+    const result = exportMetadataCatalogToYAML(mockContextToYAML, {
+      itemType: "MetadataCatalog",
+      name: "ВиртуальныеКаталогиТоваровМагазиновСоцСетей",
+      owners: ["ExchangePlan.ИнтеграцияСМагазинамиСоцСетей"],
+    })
+
+    expect(result).toEqual({
+      Владельцы: ["ПланОбмена.ИнтеграцияСМагазинамиСоцСетей"],
+    })
+  })
 })
