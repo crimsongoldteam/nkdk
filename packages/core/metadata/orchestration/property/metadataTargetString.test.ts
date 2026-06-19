@@ -113,7 +113,7 @@ describe("string metadataTarget YAML", () => {
         },
       })
     ).toEqual({
-      Нумератор: "НумераторДокументов.СчетаФактуры",
+      Нумератор: "СчетаФактуры",
     })
   })
 
@@ -123,7 +123,7 @@ describe("string metadataTarget YAML", () => {
         context: mockContext,
         metadataRule: documentRuleWithNumerator,
         name: "СчетФактура",
-        yaml: { Нумератор: "НумераторДокументов.СчетаФактуры" },
+        yaml: { Нумератор: "СчетаФактуры" },
       })
     ).toMatchObject({
       numerator: "DocumentNumerator.СчетаФактуры",

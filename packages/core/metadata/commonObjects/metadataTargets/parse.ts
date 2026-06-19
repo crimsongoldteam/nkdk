@@ -129,6 +129,7 @@ function singleObjectRoot(
   if (constraint.allowedObjectPaths !== undefined) return undefined
   if (constraint.allowNested === true) return undefined
   if (constraint.nestedObjectRoots !== undefined) return undefined
+  if ((constraint.filters?.length ?? 0) > 0) return undefined
   return constraint.roots?.length === 1 ? constraint.roots[0] : undefined
 }
 

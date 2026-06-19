@@ -407,8 +407,8 @@ describe("buildMetadataTargetSchema", () => {
 
     expect(schema).toMatchObject({
       type: "string",
-      pattern: "^([a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
-      examples: ["ИмяЭлементаСтиля"],
+      pattern: "^((ЭлементСтиля)\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
+      examples: ["ЭлементСтиля.ИмяЭлементаСтиля"],
     })
     expect(JSON.stringify(schema)).not.toContain("x-nkdk")
   })

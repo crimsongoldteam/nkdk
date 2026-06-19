@@ -135,7 +135,8 @@ function objectSchema(constraint: Extract<MetadataTargetConstraint, { kind: "obj
     selectedRoots.length === 1 &&
     constraint.allowedObjectPaths === undefined &&
     constraint.allowNested !== true &&
-    constraint.nestedObjectRoots === undefined
+    constraint.nestedObjectRoots === undefined &&
+    (constraint.filters?.length ?? 0) === 0
 
   return Type.String({
     pattern:

@@ -51,6 +51,7 @@ function shouldUseShortObjectYAML(target: ParsedMetadataTarget, constraint: Meta
   if (constraint.allowedObjectPaths !== undefined) return false
   if (constraint.allowNested === true) return false
   if (constraint.nestedObjectRoots !== undefined) return false
+  if ((constraint.filters?.length ?? 0) > 0) return false
   if (target.segments !== undefined && target.segments.length > 0) return false
   return constraint.roots?.length === 1 && constraint.roots[0] === target.root
 }

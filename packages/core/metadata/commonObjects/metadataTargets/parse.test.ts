@@ -331,7 +331,7 @@ describe("metadataTargets parser", () => {
 
     expect(
       parseMetadataTargetFromYAML({
-        value: "ОсновнойЦвет",
+        value: "ЭлементСтиля.ОсновнойЦвет",
         constraint,
       })
     ).toMatchObject({
@@ -356,7 +356,7 @@ describe("metadataTargets parser", () => {
         canonical: "StyleItem.ОсновнойЦвет",
         constraint,
       })
-    ).toBe("ОсновнойЦвет")
+    ).toBe("ЭлементСтиля.ОсновнойЦвет")
   })
 
   it("parses and formats common pictures through object targets", () => {
