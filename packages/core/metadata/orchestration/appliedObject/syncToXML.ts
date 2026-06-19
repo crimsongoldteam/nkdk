@@ -22,7 +22,6 @@ import {
   orderFileItemNames,
   resolveChildCollectionDir,
 } from "./fileItemChildCollections"
-import { omitStringChildCollectionReferencesFromXML } from "./stringChildCollectionReferences"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
@@ -829,8 +828,7 @@ function readReferenceModel<Rule extends MetadataItemRule>(params: {
   if (!fs.existsSync(xmlPath)) return undefined
   const xmlContent = fs.readFileSync(xmlPath, "utf-8")
   const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
-  const xml = omitStringChildCollectionReferencesFromXML(parsed.MetaDataObject, rule)
-  return importMetadataItemFromXML({ context, xml, rule }) ?? undefined
+  return importMetadataItemFromXML({ context, xml: parsed.MetaDataObject, rule }) ?? undefined
 }
 
 const listSubdirNames = async (dir: string): Promise<string[]> => {

@@ -12,7 +12,6 @@ import {
   normalizeFileItemCollectionItems,
   resolveChildCollectionDir,
 } from "./fileItemChildCollections"
-import { omitStringChildCollectionReferencesFromXML } from "./stringChildCollectionReferences"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
@@ -30,8 +29,7 @@ export const convertAppliedObjectFromXML = async (params: {
   const inputPath = join(inputDir, `${name}.xml`)
   const xmlContent = await fs.promises.readFile(inputPath, "utf-8")
   const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
-  const modelXML = omitStringChildCollectionReferencesFromXML(parsed.MetaDataObject, rule)
-  const model = importMetadataItemFromXML({ context, xml: modelXML, rule })
+  const model = importMetadataItemFromXML({ context, xml: parsed.MetaDataObject, rule })
 
   if (!model) return
   const mutableModel = toMutableMetadataRecord(model)

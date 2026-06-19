@@ -2,7 +2,6 @@ import fs from "fs"
 import { basename, join } from "path"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importMetadataItemFromXML, importMetadataItemFromYAML } from "~/metadata/orchestration"
-import { omitStringChildCollectionReferencesFromXML } from "~/metadata/orchestration/appliedObject/stringChildCollectionReferences"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { importContentFromXML } from "~/xml/import/importer"
 import { importFromYAML } from "~/yaml/import"
@@ -49,8 +48,7 @@ export async function collectStructuralStateFromXML(params: {
       const name = basename(entry.name, ".xml")
       const content = await fs.promises.readFile(join(dir, entry.name), "utf-8")
       const parsed = importContentFromXML<{ MetaDataObject: unknown }>(content)
-      const xml = omitStringChildCollectionReferencesFromXML(parsed.MetaDataObject, rule)
-      const model = importMetadataItemFromXML({ context: params.context, xml, rule })
+      const model = importMetadataItemFromXML({ context: params.context, xml: parsed.MetaDataObject, rule })
       if (model) addModel(nodes, rule, name, model as Record<string, unknown>)
     }
   }
