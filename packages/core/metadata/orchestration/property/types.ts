@@ -6,6 +6,7 @@ import type { ExternalPicturePropertyRule } from "~/metadata/commonObjects/exter
 import type { FieldsListPropertyRule } from "~/metadata/commonObjects/fieldsList/types"
 import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
+import type { ChildFileItemNamesPropertyRule } from "~/metadata/commonObjects/childFileItemNames/types"
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
 import type { ChildSubsystemNamesPropertyRule } from "~/metadata/commonObjects/childSubsystemNames/types"
 import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
@@ -326,6 +327,7 @@ export interface CleanPropertyRule extends BasePropertyRule {
     | "MetadataTypeCollection"
     | "InternalInfo"
     | "XMLRoot"
+    | "ChildFileItemNames"
     | "ChildFormNames"
     | "ChildTemplateNames"
     | "ChildSubsystemNames"
@@ -389,6 +391,7 @@ export type PropertyRule =
   | StringOrNumberPropertyRule
   | DateTimePropertyRule
   | XMLRootPropertyRule
+  | ChildFileItemNamesPropertyRule
   | ChildFormNamesPropertyRule
   | ChildTemplateNamesPropertyRule
   | ChildSubsystemNamesPropertyRule

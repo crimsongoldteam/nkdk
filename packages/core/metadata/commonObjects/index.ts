@@ -142,6 +142,9 @@ import "./childFormNames/toXML"
 import "./childFormNames/syncExternalToXML"
 import "./childFormNames/syncExternalFromXML"
 
+import "./childFileItemNames/fromXML"
+import "./childFileItemNames/toXML"
+
 import "./childTemplateNames/fromXML"
 import "./childTemplateNames/toXML"
 import "./childTemplateNames/syncExternalToXML"
