@@ -22,7 +22,6 @@ import {
   orderFileItemNames,
   resolveChildCollectionDir,
 } from "./fileItemChildCollections"
-import { omitStringChildCollectionReferencesFromXML } from "./stringChildCollectionReferences"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
@@ -330,7 +329,8 @@ async function syncChildCollectionExternalFilesToXML(params: {
         }
       }
 
-      for (const [itemPropKey, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
+      const childRule = childCollection.fileItemRule ?? childCollection.itemRule
+      for (const [itemPropKey, itemPropRule] of Object.entries(childRule.properties)) {
         const syncFn = getTypeRule(itemPropRule.type, "syncExternalToXML")
         if (!syncFn) continue
         const externalSyncName = hasOwnDirs && isFileChildNameRule(itemPropRule) ? "" : syncName
@@ -345,7 +345,7 @@ async function syncChildCollectionExternalFilesToXML(params: {
           referenceName: externalSyncReferenceName,
           propertyValue:
             itemPropRule.type === "ChildFormNames"
-              ? getExpectedFormNames({ rule: childCollection.itemRule, model: item.model })
+              ? getExpectedFormNames({ rule: childRule, model: item.model })
               : item.model[itemPropKey],
           xmlManifest,
           itemName: hasOwnDirs ? undefined : item.name,
@@ -362,7 +362,7 @@ async function syncChildCollectionExternalFilesToXML(params: {
 
       await syncChildCollectionExternalFilesToXML({
         context: childContext,
-        rule: childCollection.itemRule,
+        rule: childRule,
         model: item.model,
         nkdkDir: childNkdkDir,
         xmlDir: childXmlDir,
@@ -465,7 +465,41 @@ async function addFileItemChildCollectionsFromYAML(params: {
     })
     if (folderNames.length === 0) {
       const inlineItems = normalizeFileItemCollectionItems(params.model[childCollection.propertyKey])
-      if (inlineItems.length > 0) params.model[childCollection.propertyKey] = inlineItems.map((item) => item.model)
+      if (inlineItems.length > 0) {
+        const childRule = childCollection.fileItemRule ?? childCollection.itemRule
+        const childModels: Record<string, unknown>[] = []
+        for (const item of inlineItems) {
+          const childNkdkDir = childCollection.nkdkDir
+            ? join(params.nkdkDir, resolveChildCollectionDir(childCollection.nkdkDir, item.name, params.parentName))
+            : params.nkdkDir
+          const childContextWithFormDir = withImportFormDir(contextWithCurrentOwner, childNkdkDir, item.name)
+          const importedChildModel = importMetadataItemFromYAML({
+            context: childContextWithFormDir,
+            yaml: item.model as never,
+            rule: childRule,
+            name: item.name,
+          }) as Record<string, unknown> | undefined
+          if (!importedChildModel) continue
+          const childModel = { ...importedChildModel, name: item.name }
+          await addFileItemChildCollectionsFromYAML({
+            context: childContextWithFormDir,
+            rule: childRule,
+            model: childModel,
+            nkdkDir: childNkdkDir,
+            parentName: item.name,
+            referenceDir:
+              params.referenceDir && childCollection.xmlDir
+                ? join(
+                    params.referenceDir,
+                    resolveChildCollectionDir(childCollection.xmlDir, item.name, params.referenceName)
+                  )
+                : params.referenceDir,
+            referenceName: item.name,
+          })
+          childModels.push(childModel)
+        }
+        params.model[childCollection.propertyKey] = childModels
+      }
       continue
     }
 
@@ -794,8 +828,7 @@ function readReferenceModel<Rule extends MetadataItemRule>(params: {
   if (!fs.existsSync(xmlPath)) return undefined
   const xmlContent = fs.readFileSync(xmlPath, "utf-8")
   const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
-  const xml = omitStringChildCollectionReferencesFromXML(parsed.MetaDataObject, rule)
-  return importMetadataItemFromXML({ context, xml, rule }) ?? undefined
+  return importMetadataItemFromXML({ context, xml: parsed.MetaDataObject, rule }) ?? undefined
 }
 
 const listSubdirNames = async (dir: string): Promise<string[]> => {

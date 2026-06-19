@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { omitStringChildCollectionReferencesFromXML } from "~/metadata/orchestration/appliedObject/stringChildCollectionReferences"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
@@ -19,7 +18,7 @@ const importReferenceMetadata = (path: string): unknown => {
   return importPropertyFromXML({
     context: mockContextFromXML({ forReference: true }),
     rule,
-    value: omitStringChildCollectionReferencesFromXML(parsed.MetaDataObject, MetadataExternalDataSourceCubeRules),
+    value: parsed.MetaDataObject,
   })
 }
 

@@ -72,14 +72,16 @@ export const MetadataExternalDataSourceRules = {
     tables: {
       yaml: "Таблицы",
       xml: "Table",
-      type: "MetadataExternalDataSourceTables",
+      type: "ChildFileItemNames",
       xmlParents: childObjects,
+      forReferenceOnly: true,
     },
     cubes: {
       yaml: "Кубы",
       xml: "Cube",
-      type: "MetadataExternalDataSourceCubes",
+      type: "ChildFileItemNames",
       xmlParents: childObjects,
+      forReferenceOnly: true,
     },
     functions: {
       yaml: "Функции",

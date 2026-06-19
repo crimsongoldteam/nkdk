@@ -1334,6 +1334,9 @@ export interface PropertyTypeRegistry {
   XMLRoot: {
     item: undefined
   }
+  ChildFileItemNames: {
+    item: string[]
+  }
   ChildFormNames: {
     item: string[]
   }
@@ -1855,6 +1858,7 @@ export const PropertyRuleTypeKeys = Object.keys({
   FormParameters: "FormParameters",
   InternalInfo: "InternalInfo",
   XMLRoot: "XMLRoot",
+  ChildFileItemNames: "ChildFileItemNames",
   ChildFormNames: "ChildFormNames",
   ChildTemplateNames: "ChildTemplateNames",
   ChildSubsystemNames: "ChildSubsystemNames",
