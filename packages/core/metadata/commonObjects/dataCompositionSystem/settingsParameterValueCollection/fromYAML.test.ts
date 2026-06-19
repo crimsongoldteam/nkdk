@@ -4,6 +4,8 @@ import { PropertyRule } from "~/metadata/orchestration"
 import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
 import { mockContext } from "~/tests/mockContext"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { exportToYAML } from "~/yaml/export"
+import { importFromYAML } from "~/yaml/import"
 import {
   settingsParameterValueCollectionFixture,
   settingsParameterValueCollectionFixtureYAML,
@@ -18,6 +20,8 @@ const rule: PropertyRule = {
 }
 
 describe("import SettingsParameterValueCollection from YAML", () => {
+  const parseViaYamlText = <T>(value: T): T => importFromYAML<T>(exportToYAML(value))
+
   it("imports undefined", () => {
     const result = testImportPropertyFromYAML({ rule, value: undefined })
     expect(result).toBeUndefined()
@@ -94,5 +98,32 @@ describe("import SettingsParameterValueCollection from YAML", () => {
         ФорматРедактирования: "ЧЦ=15; ЧДЦ=2",
       })
     ).toBe(true)
+  })
+
+  it("preserves double-quoted numeric-looking parameter value as string", () => {
+    const yaml = parseViaYamlText({
+      Маска: "123",
+    })
+
+    const result = testImportPropertyFromYAML({
+      rule: {
+        type: "SettingsParameterValueCollection",
+        defaultItemRule: {
+          type: "SettingsParameterValue",
+          valueType: "Primitive",
+        },
+      } as PropertyRule,
+      value: yaml,
+    })
+
+    expect(result).toEqual({
+      itemType: "SettingsParameterValueCollection",
+      parameters: {
+        Маска: {
+          parameter: "Маска",
+          value: { type: "string", value: "123" },
+        },
+      },
+    })
   })
 })
