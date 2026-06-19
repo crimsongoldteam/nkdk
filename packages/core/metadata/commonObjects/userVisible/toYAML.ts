@@ -2,7 +2,7 @@ import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { UserVisiblePropertyRule } from "~/metadata/orchestration/property/types"
 import { ConfigurationContext } from "../../context/types"
-import { UserVisibleYAML, type UserVisible } from "./types"
+import { UserVisibleYAML, type UserVisible, type UserVisibleRolesYAML } from "./types"
 
 export const exportUserVisibleToYAML = (
   context: ConfigurationContext,
@@ -10,10 +10,18 @@ export const exportUserVisibleToYAML = (
   userVisible: UserVisible | undefined
 ): Partial<Record<string, UserVisibleYAML>> | undefined => {
   if (!userVisible) return undefined
-  if (userVisible.values.length === 0) return undefined
   if (!rule.yaml) throw new Error("UserVisiblePropertyRule must have yaml property")
+  if (userVisible.values.length === 0) {
+    if (userVisible.common) return undefined
 
-  const roles: UserVisibleYAML["Роли"] = {}
+    return {
+      [rule.yaml]: {
+        Разрешить: "Ложь" as const,
+      },
+    }
+  }
+
+  const roles: UserVisibleRolesYAML = {}
   userVisible.values.forEach((item) => {
     roles[item.name] = exportBooleanToYAML(context, undefined, item.value)!
   })

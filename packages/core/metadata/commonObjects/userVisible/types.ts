@@ -33,15 +33,29 @@ export const UserEditKeysYAML = {
   Value: "Редактирование",
 } as const
 
-export const UserVisibleJSONSchema = Type.Object(
-  {
-    Разрешить: Type.Optional(Type.Literal("Ложь")),
-    Роли: Type.Record(Type.String(), BooleanJSONSchema, { minProperties: 1 }),
-  },
+const UserVisibleRolesJSONSchema = Type.Record(Type.String(), BooleanJSONSchema, { minProperties: 1 })
+
+export const UserVisibleJSONSchema = Type.Union(
+  [
+    Type.Object(
+      {
+        Разрешить: Type.Optional(Type.Literal("Ложь")),
+        Роли: UserVisibleRolesJSONSchema,
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        Разрешить: Type.Literal("Ложь"),
+      },
+      { additionalProperties: false }
+    ),
+  ],
   { additionalProperties: false }
 )
 
 export type UserVisibleYAML = Static<typeof UserVisibleJSONSchema>
+export type UserVisibleRolesYAML = Static<typeof UserVisibleRolesJSONSchema>
 
 export type UserVisibleKeysYAML = (typeof UserVisibleKeysYAML)[keyof typeof UserVisibleKeysYAML]
 

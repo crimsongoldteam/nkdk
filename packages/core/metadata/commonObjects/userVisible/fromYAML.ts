@@ -3,7 +3,7 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ImportFromYAMLFunctionNew } from "~/metadata/orchestration"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { UserVisibleYAML, type UserVisible } from "./types"
+import { UserVisibleYAML, type UserVisible, type UserVisibleRolesYAML } from "./types"
 
 export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
@@ -15,7 +15,8 @@ export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   const { context, value } = params
   if (value === undefined) return undefined
 
-  const values = Object.entries(value.Роли).map(([key, val]) => {
+  const roles: UserVisibleRolesYAML = "Роли" in value ? value.Роли : {}
+  const values = Object.entries(roles).map(([key, val]) => {
     const parsedValue = importBooleanFromYAML(context, undefined, val)
     return {
       name: key,
