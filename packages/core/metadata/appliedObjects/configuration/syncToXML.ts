@@ -8,6 +8,10 @@ import type { ReferenceModelRemapper } from "~/metadata/orchestration/appliedObj
 import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import {
+  discoverMetadataProjectResources,
+  type MetadataProjectPropertiesYamlRef,
+} from "~/metadata/project/resources"
 import { xmlExport } from "~/xml/export/exporter"
 import { syncConfigDumpInfoToXML } from "../configDumpInfo/sync"
 import {
@@ -39,6 +43,17 @@ const IO_CONCURRENCY = 16
 const ROOT_EXTERNAL_XML_DIR = "Ext"
 const LEGACY_ROOT_EXTERNAL_XML_DIR = "ext"
 const toError = (error: unknown): Error => error instanceof Error ? error : new Error(String(error))
+
+function discoverTopLevelPropertiesResources(inputDir: string): MetadataProjectPropertiesYamlRef[] {
+  return discoverMetadataProjectResources(inputDir).filter(
+    (resource): resource is MetadataProjectPropertiesYamlRef =>
+      resource.kind === "yaml" &&
+      resource.role === "properties" &&
+      resource.nesting.length === 0 &&
+      resource.owner.spec.rule.xmlDir !== undefined &&
+      resource.owner.spec.rule.itemTypePrefix !== undefined,
+  )
+}
 
 export const syncConfigurationToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -123,61 +138,54 @@ export const syncConfigurationToXML = async (params: {
     await syncRootConfigurationExternalFilesToXML({ context, inputDir, outputDir, xmlManifest })
   }
 
-  for (const rule of TopLevelMetadataItemRules) {
-    if (rule.xmlDir === undefined) continue
-    if (rule.itemTypePrefix === undefined) continue
+  for (const resource of discoverTopLevelPropertiesResources(inputDir)) {
+    const rule = resource.owner.spec.rule
+    const xmlDir = rule.xmlDir
+    const itemTypePrefix = rule.itemTypePrefix
+    if (xmlDir === undefined || itemTypePrefix === undefined) continue
 
-    const yamlDirAbs = join(inputDir, rule.itemTypePrefix)
-    const xmlOutputDir = join(outputDir, rule.xmlDir)
-    const xmlReferenceDir = referenceDir ? join(referenceDir, rule.xmlDir) : undefined
-    if (!fs.existsSync(yamlDirAbs)) continue
-
-    const entries = await fs.promises.readdir(yamlDirAbs, { withFileTypes: true })
-    const itemDirs = entries.filter((e) => e.isDirectory())
-
-    for (const entry of itemDirs) {
-      const name = entry.name
-      const propertiesPath = join(yamlDirAbs, name, "Свойства.yaml")
-      if (!fs.existsSync(propertiesPath)) continue
-      const currentObjectPath = `${rule.itemTypePrefix}.${name}`
-      const referencePath = migrationResult.referencePathByCurrentPath.get(currentObjectPath) ?? currentObjectPath
-      const referencePathSegments = referencePath.split(".")
-      const referenceName = referencePathSegments[referencePathSegments.length - 1]!
-      const currentNode = migrationResult.state.nodes.get(currentObjectPath)
-      const referenceModel = currentNode && currentNode.referencePath === undefined ? null : undefined
-      const referenceModelRemapper: ReferenceModelRemapper | undefined =
-        migrationResult.referencePathByCurrentPath.size > 0
-          ? ({ rule, currentModel, referenceModel }) =>
-              remapReferenceModel({
-                rule,
-                currentObjectPath,
-                currentModel,
-                referenceModel,
-                referencePathByCurrentPath: migrationResult.referencePathByCurrentPath,
-              })
-          : undefined
-      const xmlExternalOutputDir = join(xmlOutputDir, name)
-      const xmlExternalReferenceDir = xmlReferenceDir ? join(xmlReferenceDir, referenceName) : undefined
-      tasks.push({
-        kind: rule.itemType,
-        name,
-        run: () =>
-          syncAppliedObjectToXML({
-            rule,
-            context: { ...context, exportToXML: { ...context.exportToXML } },
-            inputDir: yamlDirAbs,
-            name,
-            outputDir: xmlOutputDir,
-            externalOutputDir: xmlExternalOutputDir,
-            referenceDir: xmlReferenceDir,
-            externalReferenceDir: xmlExternalReferenceDir,
-            referenceName,
-            referenceModel,
-            referenceModelRemapper,
-            xmlManifest,
-          }),
-      })
-    }
+    const name = resource.owner.name
+    const yamlDirAbs = join(inputDir, itemTypePrefix)
+    const xmlOutputDir = join(outputDir, xmlDir)
+    const xmlReferenceDir = referenceDir ? join(referenceDir, xmlDir) : undefined
+    const currentObjectPath = `${itemTypePrefix}.${name}`
+    const referencePath = migrationResult.referencePathByCurrentPath.get(currentObjectPath) ?? currentObjectPath
+    const referencePathSegments = referencePath.split(".")
+    const referenceName = referencePathSegments[referencePathSegments.length - 1]!
+    const currentNode = migrationResult.state.nodes.get(currentObjectPath)
+    const referenceModel = currentNode && currentNode.referencePath === undefined ? null : undefined
+    const referenceModelRemapper: ReferenceModelRemapper | undefined =
+      migrationResult.referencePathByCurrentPath.size > 0
+        ? ({ rule, currentModel, referenceModel }) =>
+            remapReferenceModel({
+              rule,
+              currentObjectPath,
+              currentModel,
+              referenceModel,
+              referencePathByCurrentPath: migrationResult.referencePathByCurrentPath,
+            })
+        : undefined
+    const xmlExternalOutputDir = join(xmlOutputDir, name)
+    const xmlExternalReferenceDir = xmlReferenceDir ? join(xmlReferenceDir, referenceName) : undefined
+    tasks.push({
+      kind: rule.itemType,
+      name,
+      run: () =>
+        syncAppliedObjectToXML({
+          rule,
+          context: { ...context, exportToXML: { ...context.exportToXML } },
+          inputDir: yamlDirAbs,
+          name,
+          outputDir: xmlOutputDir,
+          externalOutputDir: xmlExternalOutputDir,
+          referenceDir: xmlReferenceDir,
+          externalReferenceDir: xmlExternalReferenceDir,
+          referenceName,
+          referenceModel,
+          referenceModelRemapper,
+          xmlManifest,
+        }),
+    })
   }
 
   const batchResult = await runBatch(tasks, { concurrency: IO_CONCURRENCY })

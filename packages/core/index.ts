@@ -70,6 +70,41 @@ export {
   type ExportJSONSchemaForSchemaNameParams,
 } from "./metadata/validation/projectFileSchema"
 export {
+  describeMetadataRuleResources,
+  type MetadataProjectAssetDescriptor,
+  type MetadataProjectConfigurationYamlDescriptor,
+  type MetadataProjectDynamicDescriptor,
+  type MetadataProjectExternalXmlBaseDescriptor,
+  type MetadataProjectExternalXmlDescriptor,
+  type MetadataProjectExternalXmlPathDescriptor,
+  type MetadataProjectObjectXmlDescriptor,
+  type MetadataProjectPropertiesYamlDescriptor,
+  type MetadataProjectResourceDescriptor,
+  type MetadataProjectXmlDescriptor,
+  type MetadataProjectYamlDescriptor,
+} from "./metadata/project"
+export {
+  configurationMetadataProjectSpec,
+  getMetadataProjectSpecByDir,
+  metadataProjectSpecByDir,
+  metadataProjectSpecs,
+  type MetadataProjectSpec,
+} from "./metadata/project/specs"
+export {
+  assertMetadataProjectPathInside,
+  classifyMetadataProjectPath,
+  discoverMetadataProjectResources,
+  resolveMetadataProjectResource,
+  type MetadataProjectConfigurationYamlRef,
+  type MetadataProjectFormYamlRef,
+  type MetadataProjectNestingSegment,
+  type MetadataProjectPropertiesYamlRef,
+  type MetadataProjectResourceKind,
+  type MetadataProjectResourceOwner,
+  type MetadataProjectResourceRef,
+  type MetadataProjectYamlRole,
+} from "./metadata/project/resources"
+export {
   listSchemaSummaryKeys,
   summarizeJSONSchema,
   splitSearchTerms,
