@@ -107,7 +107,6 @@ const commonTabularSectionProperties = {
     defaultValue: emptyAttributes,
     defaultValueXMLEmpty: emptyAttributes,
     defaultValueXMLRaw: {},
-    required: true,
     xmlParents: childObjectsParents,
     xml: "Attribute",
   },

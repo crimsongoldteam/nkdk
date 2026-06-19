@@ -1,10 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { Type, type TSchema } from "@sinclair/typebox"
 import {
   exportMetadataItemToYAML,
   importMetadataItemFromYAML,
   PropertyRule,
   registerTypeRule,
 } from "~/metadata/orchestration"
+import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { MetadataEnumerationValueRules } from "./rules"
 import {
   MetadataEnumerationValue,
@@ -55,5 +57,20 @@ const exportMetadataEnumerationValuesToYAML = (
   )
 }
 
+const exportMetadataEnumerationValuesToJSONSchema = (context: ConfigurationContext): TSchema => {
+  const itemSchema = exportMetadataItemToJSONSchema({
+    context,
+    rule: MetadataEnumerationValueRules,
+  }) as TSchema & { required?: string[] }
+
+  itemSchema.required = itemSchema.required?.filter((key) => key !== "Имя")
+  if (itemSchema.required?.length === 0) delete itemSchema.required
+
+  return Type.Record(Type.String(), itemSchema)
+}
+
 registerTypeRule("MetadataEnumerationValues", "importFromYAML", importMetadataEnumerationValuesFromYAML)
 registerTypeRule("MetadataEnumerationValues", "exportToYAML", exportMetadataEnumerationValuesToYAML)
+registerTypeRule("MetadataEnumerationValues", "exportToJSONSchema", ({ context }) =>
+  exportMetadataEnumerationValuesToJSONSchema(context)
+)

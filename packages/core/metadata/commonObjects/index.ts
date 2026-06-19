@@ -248,9 +248,8 @@ import "./picture/toXML"
 import "./picture/toYAML"
 
 import "./predefinedCode"
-import "./predefined"
-
 import "./predefinedItem"
+import "./predefined"
 
 import "./standardAttributeDescription/rules"
 import "./standardAttributeDescription/toJSONSchema"
