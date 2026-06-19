@@ -57,6 +57,7 @@ NKDK_1C_PASSWORD=
 ```
 
 Если `NKDK_1C_USER` и `NKDK_1C_PASSWORD` пустые, параметры `--user` и `--password` не добавляются.
+Если `NKDK_XML_DIR` указывает на корень с несколькими конфигурациями, без `--all-configs` проверяется первый найденный конфигурационный каталог по алфавиту; с `--all-configs` проверяются все найденные каталоги до первой ошибки или полного успеха.
 
 ## Запуск
 
@@ -64,6 +65,7 @@ NKDK_1C_PASSWORD=
 
 ```bash
 ./.agents/skills/round-trip-yaml-1c/round-trip.sh
+./.agents/skills/round-trip-yaml-1c/round-trip.sh --all-configs
 ```
 
 Скрипт:

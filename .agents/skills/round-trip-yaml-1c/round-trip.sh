@@ -4,10 +4,16 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
+# shellcheck source=../_shared/round-trip-config-dirs.sh
+. "${REPO_DIR}/.agents/skills/_shared/round-trip-config-dirs.sh"
+
+ALL_CONFIGS="0"
+
 usage() {
   cat <<'USAGE'
 Использование:
   ./.agents/skills/round-trip-yaml-1c/round-trip.sh
+  ./.agents/skills/round-trip-yaml-1c/round-trip.sh --all-configs
 
 Что делает:
   1. nkdk import <xml-dir> <yaml-dir>
@@ -27,6 +33,10 @@ usage() {
   NKDK_1C_USER              Пользователь ИБ. Если пустой, не передаётся.
   NKDK_1C_PASSWORD          Пароль ИБ. Если пустой, не передаётся.
 
+Параметры:
+  --all-configs    Проверить все конфигурационные каталоги, не останавливаться после первого успешного.
+  -h, --help       Показать эту справку.
+
 Ограничения:
   Скрипт не меняет активный XML-каталог и не использует --reference.
   Поддерживается только файловая база 1С.
@@ -39,51 +49,12 @@ die() {
   exit 1
 }
 
-KNOWN_XML_DIRS=("Catalogs" "Documents" "DocumentNumerators" "Sequences" "Enums")
-
-is_config_dir() {
-  local candidate="$1"
-  local xml_dir
-
-  for xml_dir in "${KNOWN_XML_DIRS[@]}"; do
-    if [ -d "${candidate}/${xml_dir}" ]; then
-      return 0
-    fi
-  done
-
-  return 1
-}
-
-collect_run_dirs() {
-  local root="$1"
-  local child
-
-  if is_config_dir "${root}"; then
-    printf '%s\n' "${root}"
-    return 0
-  fi
-
-  while IFS= read -r child; do
-    if is_config_dir "${child}"; then
-      printf '%s\n' "${child}"
-    fi
-  done < <(find "${root}" -mindepth 1 -maxdepth 1 -type d | sort)
-}
-
 sanitize_path_segment() {
-  printf '%s' "$1" | sed 's#[^A-Za-z0-9._-]#_#g'
+  round_trip_sanitize_path_segment "$1"
 }
 
 config_rel_path() {
-  local dir="$1"
-  local repo="${NKDK_XML_REPO%/}"
-
-  if [ "${dir}" = "${repo}" ]; then
-    printf '.'
-    return 0
-  fi
-
-  printf '%s' "${dir#${repo}/}"
+  round_trip_config_rel_path "$1" "${NKDK_XML_REPO}"
 }
 
 yaml_dir_for() {
@@ -180,6 +151,10 @@ ibcmd_command_text() {
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
+    --all-configs)
+      ALL_CONFIGS="1"
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
@@ -231,67 +206,83 @@ fi
 RUN_DIRS=()
 while IFS= read -r run_dir; do
   RUN_DIRS+=("${run_dir}")
-done < <(collect_run_dirs "${NKDK_XML_DIR}")
+done < <(round_trip_collect_run_dirs "${NKDK_XML_DIR}")
 
 if [ "${#RUN_DIRS[@]}" -eq 0 ]; then
   die "в NKDK_XML_DIR ('${NKDK_XML_DIR}') не найдено конфигурационных каталогов"
 fi
 
-ACTIVE_XML_DIR="${RUN_DIRS[0]}"
-YAML_DIR="$(yaml_dir_for "${ACTIVE_XML_DIR}")"
-TMP_XML_DIR="$(xml_tmp_dir_for "${ACTIVE_XML_DIR}")"
-IMPORT_LOG="${TMPDIR:-/tmp}/round-trip-yaml-1c-import.log"
-SYNC_LOG="${TMPDIR:-/tmp}/round-trip-yaml-1c-sync.log"
-CREATE_INFOBASE_LOG="${TMPDIR:-/tmp}/round-trip-yaml-1c-create-infobase.log"
-IBCMD_LOG="${TMPDIR:-/tmp}/round-trip-yaml-1c-ibcmd.log"
+run_one_config() {
+  ACTIVE_XML_DIR="$1"
+  YAML_DIR="$(yaml_dir_for "${ACTIVE_XML_DIR}")"
+  TMP_XML_DIR="$(xml_tmp_dir_for "${ACTIVE_XML_DIR}")"
+  IMPORT_LOG="${TMPDIR:-/tmp}/round-trip-yaml-1c-import.log"
+  SYNC_LOG="${TMPDIR:-/tmp}/round-trip-yaml-1c-sync.log"
+  CREATE_INFOBASE_LOG="${TMPDIR:-/tmp}/round-trip-yaml-1c-create-infobase.log"
+  IBCMD_LOG="${TMPDIR:-/tmp}/round-trip-yaml-1c-ibcmd.log"
 
-echo "=== round-trip-yaml-1c.sh ==="
-echo "ACTIVE_XML_DIR: ${ACTIVE_XML_DIR}"
-echo "YAML_DIR: ${YAML_DIR}"
-echo "TMP_XML_DIR: ${TMP_XML_DIR}"
-echo "IBCMD_COMMAND: $(ibcmd_command_text)"
-echo ""
+  echo "=== round-trip-yaml-1c.sh ==="
+  echo "ACTIVE_XML_DIR: ${ACTIVE_XML_DIR}"
+  echo "YAML_DIR: ${YAML_DIR}"
+  echo "TMP_XML_DIR: ${TMP_XML_DIR}"
+  echo "IBCMD_COMMAND: $(ibcmd_command_text)"
+  echo ""
 
-echo "[yaml] Очистка временного YAML-каталога: ${YAML_DIR}"
-rm -rf "${YAML_DIR}"
-mkdir -p "${YAML_DIR}"
+  echo "[yaml] Очистка временного YAML-каталога: ${YAML_DIR}"
+  rm -rf "${YAML_DIR}"
+  mkdir -p "${YAML_DIR}"
 
-echo "[xml] Очистка временного XML-каталога без reference: ${TMP_XML_DIR}"
-clear_dir_contents "${TMP_XML_DIR}"
+  echo "[xml] Очистка временного XML-каталога без reference: ${TMP_XML_DIR}"
+  clear_dir_contents "${TMP_XML_DIR}"
 
-IMPORT_COMMAND="${NKDK[*]} import ${ACTIVE_XML_DIR} ${YAML_DIR}"
-if ! run_logged "import" "${IMPORT_COMMAND}" "${IMPORT_LOG}" "${NKDK[@]}" import "${ACTIVE_XML_DIR}" "${YAML_DIR}"; then
-  exit 1
+  IMPORT_COMMAND="${NKDK[*]} import ${ACTIVE_XML_DIR} ${YAML_DIR}"
+  if ! run_logged "import" "${IMPORT_COMMAND}" "${IMPORT_LOG}" "${NKDK[@]}" import "${ACTIVE_XML_DIR}" "${YAML_DIR}"; then
+    exit 1
+  fi
+
+  SYNC_COMMAND="${NKDK[*]} sync ${YAML_DIR} ${TMP_XML_DIR}"
+  if ! run_logged "sync" "${SYNC_COMMAND}" "${SYNC_LOG}" "${NKDK[@]}" sync "${YAML_DIR}" "${TMP_XML_DIR}"; then
+    exit 1
+  fi
+
+  echo "[1c] Очистка файловой базы: ${NKDK_1C_DB_PATH}"
+  clear_dir_contents "${NKDK_1C_DB_PATH}"
+
+  CREATE_INFOBASE_ARGS=("${IBCMD_BIN}" infobase create --data="${NKDK_1C_DATA}" --db-path="${NKDK_1C_DB_PATH}")
+  if ! run_logged "create-infobase" "$(ibcmd_create_command_text)" "${CREATE_INFOBASE_LOG}" "${CREATE_INFOBASE_ARGS[@]}"; then
+    exit 1
+  fi
+
+  IBCMD_ARGS=("${IBCMD_BIN}" infobase config import --data="${NKDK_1C_DATA}" --db-path="${NKDK_1C_DB_PATH}")
+  if [ -n "${NKDK_1C_USER:-}" ]; then
+    IBCMD_ARGS+=(--user="${NKDK_1C_USER}")
+  fi
+  if [ -n "${NKDK_1C_PASSWORD:-}" ]; then
+    IBCMD_ARGS+=(--password="${NKDK_1C_PASSWORD}")
+  fi
+  IBCMD_ARGS+=("${TMP_XML_DIR}")
+
+  if ! run_logged "ibcmd" "$(ibcmd_command_text)" "${IBCMD_LOG}" "${IBCMD_ARGS[@]}"; then
+    exit 1
+  fi
+
+  echo ""
+  echo "=== Загрузка в 1С прошла успешно ==="
+  echo "ACTIVE_XML_DIR: ${ACTIVE_XML_DIR}"
+  echo "YAML_DIR: ${YAML_DIR}"
+  echo "TMP_XML_DIR: ${TMP_XML_DIR}"
+}
+
+if [ "${ALL_CONFIGS}" = "1" ]; then
+  CHECKED_CONFIGS="0"
+  for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
+    run_one_config "${RUN_XML_DIR}"
+    CHECKED_CONFIGS="$((CHECKED_CONFIGS + 1))"
+  done
+  echo ""
+  echo "=== Проверка всех конфигураций в 1С прошла успешно ==="
+  echo "Проверено каталогов: ${CHECKED_CONFIGS}"
+  exit 0
 fi
 
-SYNC_COMMAND="${NKDK[*]} sync ${YAML_DIR} ${TMP_XML_DIR}"
-if ! run_logged "sync" "${SYNC_COMMAND}" "${SYNC_LOG}" "${NKDK[@]}" sync "${YAML_DIR}" "${TMP_XML_DIR}"; then
-  exit 1
-fi
-
-echo "[1c] Очистка файловой базы: ${NKDK_1C_DB_PATH}"
-clear_dir_contents "${NKDK_1C_DB_PATH}"
-
-CREATE_INFOBASE_ARGS=("${IBCMD_BIN}" infobase create --data="${NKDK_1C_DATA}" --db-path="${NKDK_1C_DB_PATH}")
-if ! run_logged "create-infobase" "$(ibcmd_create_command_text)" "${CREATE_INFOBASE_LOG}" "${CREATE_INFOBASE_ARGS[@]}"; then
-  exit 1
-fi
-
-IBCMD_ARGS=("${IBCMD_BIN}" infobase config import --data="${NKDK_1C_DATA}" --db-path="${NKDK_1C_DB_PATH}")
-if [ -n "${NKDK_1C_USER:-}" ]; then
-  IBCMD_ARGS+=(--user="${NKDK_1C_USER}")
-fi
-if [ -n "${NKDK_1C_PASSWORD:-}" ]; then
-  IBCMD_ARGS+=(--password="${NKDK_1C_PASSWORD}")
-fi
-IBCMD_ARGS+=("${TMP_XML_DIR}")
-
-if ! run_logged "ibcmd" "$(ibcmd_command_text)" "${IBCMD_LOG}" "${IBCMD_ARGS[@]}"; then
-  exit 1
-fi
-
-echo ""
-echo "=== Загрузка в 1С прошла успешно ==="
-echo "ACTIVE_XML_DIR: ${ACTIVE_XML_DIR}"
-echo "YAML_DIR: ${YAML_DIR}"
-echo "TMP_XML_DIR: ${TMP_XML_DIR}"
+run_one_config "${RUN_DIRS[0]}"
