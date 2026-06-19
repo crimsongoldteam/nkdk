@@ -166,10 +166,16 @@ while [ "$#" -gt 0 ]; do
 done
 
 if [ -f "${REPO_DIR}/.env" ]; then
-  set -a
-  # shellcheck disable=SC1091
-  . "${REPO_DIR}/.env"
-  set +a
+  round_trip_load_dotenv_preserving_env \
+    "${REPO_DIR}/.env" \
+    NKDK_XML_REPO \
+    NKDK_XML_DIR \
+    NKDK_ROUND_TRIP_YAML_DIR \
+    NKDK_1C_DATA \
+    NKDK_1C_DB_PATH \
+    NKDK_1C_IBCMD \
+    NKDK_1C_USER \
+    NKDK_1C_PASSWORD
 fi
 
 [ -n "${NKDK_XML_REPO:-}" ] || die "переменная NKDK_XML_REPO не задана"

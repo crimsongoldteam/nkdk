@@ -28,7 +28,7 @@ round_trip_collect_run_dirs() {
     if round_trip_is_config_dir "${child}"; then
       printf '%s\n' "${child}"
     fi
-  done < <(find "${root}" -mindepth 1 -maxdepth 1 -type d | sort)
+  done < <(find "${root}" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) | sort)
 }
 
 round_trip_sanitize_path_segment() {
@@ -46,4 +46,41 @@ round_trip_config_rel_path() {
   fi
 
   printf '%s' "${dir#${repo}/}"
+}
+
+round_trip_load_dotenv_preserving_env() {
+  local dotenv_file="$1"
+  local name
+  local had_var
+  local saved_var
+
+  shift
+  [ -f "${dotenv_file}" ] || return 0
+
+  for name in "$@"; do
+    had_var="__round_trip_had_${name}"
+    saved_var="__round_trip_saved_${name}"
+    if [ "${!name+x}" ]; then
+      printf -v "${had_var}" '%s' "1"
+      printf -v "${saved_var}" '%s' "${!name}"
+    else
+      printf -v "${had_var}" '%s' "0"
+    fi
+  done
+
+  set -a
+  # shellcheck disable=SC1090
+  . "${dotenv_file}"
+  set +a
+
+  for name in "$@"; do
+    had_var="__round_trip_had_${name}"
+    saved_var="__round_trip_saved_${name}"
+    if [ "${!had_var}" = "1" ]; then
+      printf -v "${name}" '%s' "${!saved_var}"
+      export "${name}"
+      unset "${saved_var}"
+    fi
+    unset "${had_var}"
+  done
 }

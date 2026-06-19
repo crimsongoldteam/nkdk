@@ -247,10 +247,7 @@ if [ "${MODE}" = "single" ] && [ "${START_INDEX_SET}" = "1" ]; then
 fi
 
 if [ -f "${REPO_DIR}/.env" ]; then
-  set -a
-  # shellcheck disable=SC1091
-  . "${REPO_DIR}/.env"
-  set +a
+  round_trip_load_dotenv_preserving_env "${REPO_DIR}/.env" NKDK_XML_REPO NKDK_XML_DIR NKDK_ROUND_TRIP_YAML_DIR
 fi
 
 if [ -z "${NKDK_XML_REPO:-}" ]; then

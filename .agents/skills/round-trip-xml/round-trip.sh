@@ -174,10 +174,7 @@ fi
 # ── Загрузка .env ────────────────────────────────────────────────────────────
 
 if [ -f "${REPO_DIR}/.env" ]; then
-  # shellcheck disable=SC1091
-  set -a
-  . "${REPO_DIR}/.env"
-  set +a
+  round_trip_load_dotenv_preserving_env "${REPO_DIR}/.env" NKDK_XML_REPO NKDK_XML_DIR
 fi
 
 # ── Проверка переменных окружения ────────────────────────────────────────────
