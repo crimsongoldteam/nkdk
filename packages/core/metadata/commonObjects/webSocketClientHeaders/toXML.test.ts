@@ -13,8 +13,8 @@ describe("exportWebSocketClientHeadersToXML", () => {
 
   it("preserves duplicate header keys", () => {
     const result = exportWebSocketClientHeadersToXML(mockContextToXML(), mockRule, [
-      { key: "Authorization", value: "first" },
-      { key: "Authorization", value: "second" },
+      { Ключ: "Authorization", Значение: "first" },
+      { Ключ: "Authorization", Значение: "second" },
     ])
 
     expect(result).toEqual({

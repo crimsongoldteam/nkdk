@@ -42,8 +42,8 @@ describe("importWebSocketClientHeadersFromXML", () => {
     const result = importWebSocketClientHeadersFromXML(mockContextFromXML(), mockRule, xml)
 
     expect(result).toEqual([
-      { key: "Authorization", value: "first" },
-      { key: "Authorization", value: "second" },
+      { Ключ: "Authorization", Значение: "first" },
+      { Ключ: "Authorization", Значение: "second" },
     ])
   })
 })

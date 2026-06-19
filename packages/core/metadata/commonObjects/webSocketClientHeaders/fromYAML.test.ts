@@ -12,8 +12,8 @@ describe("importWebSocketClientHeadersFromYAML", () => {
     ])
 
     expect(result).toEqual([
-      { key: "X-Test", value: "1" },
-      { key: "X-Test", value: "2" },
+      { Ключ: "X-Test", Значение: "1" },
+      { Ключ: "X-Test", Значение: "2" },
     ])
   })
 })

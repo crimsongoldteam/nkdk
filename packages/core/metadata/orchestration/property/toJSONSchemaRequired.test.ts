@@ -10,7 +10,7 @@ import type { MetadataItemRule, PropertyRule } from "./types"
 describe("exportPropertiesToJSONSchema required YAML properties", () => {
   it("keeps required YAML properties non-optional", () => {
     const rule = {
-      itemType: "RequiredYamlFixture",
+      itemType: "Button",
       properties: {
         name: { yaml: "Имя", type: "string", required: true },
         comment: { yaml: "Комментарий", type: "string" },

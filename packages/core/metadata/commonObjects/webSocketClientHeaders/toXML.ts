@@ -18,8 +18,8 @@ export const exportWebSocketClientHeadersToXML: ExportToXMLFunction = (
             "xr:CheckState": 0,
             "xr:Value": {
               "_xsi:type": "v8:KeyAndValue",
-              "v8:Key": { "_xsi:type": "xs:string", "#text": item.key },
-              "v8:Value": { "_xsi:type": "xs:string", "#text": item.value },
+              "v8:Key": { "_xsi:type": "xs:string", "#text": item.Ключ },
+              "v8:Value": { "_xsi:type": "xs:string", "#text": item.Значение },
             },
           })),
         }

@@ -81,7 +81,7 @@ export function typeboxErrorsToDiagnostics(
       col,
       message:
         error.type === ValueErrorType.ObjectRequiredProperty && keys.length > 0
-          ? `Отсутствует обязательное свойство "${String(keys.at(-1))}"`
+          ? `Отсутствует обязательное свойство "${String(keys[keys.length - 1])}"`
           : error.message,
       severity: "error",
       source: "structure",
