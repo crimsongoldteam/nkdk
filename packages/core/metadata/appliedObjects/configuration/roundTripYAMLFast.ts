@@ -23,6 +23,13 @@ import {
   normalizeFileItemCollectionItems,
   resolveChildCollectionDir,
 } from "~/metadata/orchestration/appliedObject/fileItemChildCollections"
+import {
+  appendMetadataItemOwner,
+  withExportMetadataTargetOwners,
+  withExportToXMLItemsTree,
+  withImportMetadataTargetOwners,
+  type MetadataItemOwnerContextEntry,
+} from "~/metadata/orchestration/appliedObject/metadataItemOwnerContext"
 import { importContentFromXML } from "~/xml/import/importer"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportToYAML } from "~/yaml/export"
@@ -53,18 +60,23 @@ export interface RoundTripYAMLFastResult {
   errors: RoundTripYAMLFastError[]
 }
 
+type RoundTripEntryBase = {
+  file: string
+  xmlFileAbs: string
+  itemName: string
+  parentName: string
+  ownerStack: readonly MetadataItemOwnerContextEntry[]
+}
+
 type RoundTripEntry =
-  | { kind: "metadata"; file: string; xmlFileAbs: string; rule: MetadataItemRule; parentName: string }
-  | {
+  | (RoundTripEntryBase & { kind: "metadata"; rule: MetadataItemRule })
+  | (RoundTripEntryBase & {
       kind: "form"
-      file: string
-      xmlFileAbs: string
       metadataFile: string
       formXmlFile: string
       formsDir: string
       formName: string
-      parentName: string
-    }
+    })
 
 type MetadataXMLRoot = { MetaDataObject: unknown }
 
@@ -78,6 +90,7 @@ type MetadataEntryParams = {
   parentName: string
   xmlDirAbs: string
   itemName: string
+  ownerStack: readonly MetadataItemOwnerContextEntry[]
 }
 
 const makeContextFromXML = (forReference: boolean): ConfigurationContextFromXML => ({
@@ -86,32 +99,47 @@ const makeContextFromXML = (forReference: boolean): ConfigurationContextFromXML 
   fromXML: { forReference },
 })
 
-const makeContextToYAML = (): ConfigurationContext => ({
-  defaultLanguage: "ru",
-  version: "2.20",
-  exportToYAML: { toTyped: false },
-})
-
-const makeContextFromYAML = (): ConfigurationContext => ({
-  defaultLanguage: "ru",
-  version: "2.20",
-})
-
-const makeContextToXML = (parentName: string): ConfigurationContextWithExportToXML => ({
-  defaultLanguage: "ru",
-  version: "2.20",
-  exportToXML: {
-    itemsTree: [],
-    configDumpInfo: new Map(),
-    version: "2.20",
-    context: {
-      forms: [],
-      templates: [],
-      parentName,
-      metadataForNumbering: [],
+const makeContextToYAML = (ownerStack: readonly MetadataItemOwnerContextEntry[]): ConfigurationContext =>
+  withExportMetadataTargetOwners(
+    {
+      defaultLanguage: "ru",
+      version: "2.20",
+      exportToYAML: { toTyped: false },
     },
-  },
-})
+    ownerStack
+  )
+
+const makeContextFromYAML = (ownerStack: readonly MetadataItemOwnerContextEntry[]): ConfigurationContext =>
+  withImportMetadataTargetOwners(
+    {
+      defaultLanguage: "ru",
+      version: "2.20",
+    },
+    ownerStack
+  )
+
+const makeContextToXML = (
+  parentName: string,
+  ownerStack: readonly MetadataItemOwnerContextEntry[]
+): ConfigurationContextWithExportToXML =>
+  withExportToXMLItemsTree(
+    {
+      defaultLanguage: "ru",
+      version: "2.20",
+      exportToXML: {
+        itemsTree: [],
+        configDumpInfo: new Map(),
+        version: "2.20",
+        context: {
+          forms: [],
+          templates: [],
+          parentName,
+          metadataForNumbering: [],
+        },
+      },
+    },
+    ownerStack
+  )
 
 const formatUnknownError = (err: unknown): string => {
   if (err instanceof Error) return err.stack ?? err.message
@@ -191,7 +219,9 @@ const roundTripOne = <Rule extends MetadataItemRule>(params: {
   file: string
   xmlFileAbs: string
   rule: Rule
+  itemName: string
   parentName: string
+  ownerStack: readonly MetadataItemOwnerContextEntry[]
 }): RoundTripYAMLFastDiff | undefined => {
   const originalXml = fs.readFileSync(params.xmlFileAbs, "utf-8")
   const validationResult = XMLValidator.validate(originalXml)
@@ -211,21 +241,21 @@ const roundTripOne = <Rule extends MetadataItemRule>(params: {
   })
 
   const yamlObject = exportMetadataItemToYAML({
-    context: makeContextToYAML(),
+    context: makeContextToYAML(params.ownerStack),
     data: model,
     rule: params.rule,
   })
   const yamlText = yamlObject === undefined ? "" : exportToYAML(yamlObject)
   const yamlObjectFromText = importMetadataYAMLText<typeof params.rule>(yamlText)
   const modelFromYAML = importMetadataItemFromYAML({
-    context: makeContextFromYAML(),
+    context: makeContextFromYAML(params.ownerStack),
     yaml: yamlObjectFromText,
     rule: params.rule,
-    name: params.parentName,
+    name: params.itemName,
     source: referenceModel,
   })
   const xmlObject = exportMetadataItemToXML({
-    context: makeContextToXML(params.parentName),
+    context: makeContextToXML(params.parentName, params.ownerStack),
     data: modelFromYAML,
     referenceData: referenceModel,
     rule: params.rule,
@@ -245,7 +275,9 @@ const roundTripFormOne = (params: {
   formXmlFile: string
   formsDir: string
   formName: string
+  itemName: string
   parentName: string
+  ownerStack: readonly MetadataItemOwnerContextEntry[]
 }): RoundTripYAMLFastDiff[] => {
   const form = readFormFromXML({
     context: makeContextFromXML(false),
@@ -258,15 +290,15 @@ const roundTripFormOne = (params: {
     formName: params.formName,
   })
 
-  const { yaml: yamlObject } = exportClientApplicationFormToYAML(makeContextToYAML(), form)
+  const { yaml: yamlObject } = exportClientApplicationFormToYAML(makeContextToYAML(params.ownerStack), form)
   const yamlText = yamlObject === undefined ? "" : exportToYAML(yamlObject)
   const yamlObjectFromText = importFromYAML<ClientApplicationFormYAML | undefined>(yamlText)
   const formFromYAML = importClientApplicationFormFromYAML(
-    makeContextFromYAML(),
+    makeContextFromYAML(params.ownerStack),
     (yamlObjectFromText ?? {}) as ClientApplicationFormYAML,
     referenceForm
   )
-  const contextToXML = makeContextToXML(params.parentName)
+  const contextToXML = makeContextToXML(params.parentName, params.ownerStack)
 
   const generatedFormXml = xmlExport({
     Form: exportClientApplicationFormToXML({
@@ -320,6 +352,7 @@ const addFormEntries = (params: {
   inputDir: string
   ownerDirAbs: string
   parentName: string
+  ownerStack: readonly MetadataItemOwnerContextEntry[]
 }): void => {
   const formsDir = join(params.ownerDirAbs, "Forms")
   if (!fs.existsSync(formsDir)) return
@@ -335,11 +368,13 @@ const addFormEntries = (params: {
       kind: "form",
       file: toPosixPath(relative(params.inputDir, formXmlFileAbs)),
       xmlFileAbs: formXmlFileAbs,
+      itemName: params.parentName,
       metadataFile: toPosixPath(relative(params.inputDir, metadataFileAbs)),
       formXmlFile: toPosixPath(relative(params.inputDir, formXmlFileAbs)),
       formsDir,
       formName,
       parentName: params.parentName,
+      ownerStack: params.ownerStack,
     })
   }
 }
@@ -350,14 +385,19 @@ const addMetadataEntryWithChildren = (params: MetadataEntryParams & { entries: R
     file: params.file,
     xmlFileAbs: params.xmlFileAbs,
     rule: params.rule,
+    itemName: params.itemName,
     parentName: params.parentName,
+    ownerStack: params.ownerStack,
   })
+
+  const childOwnerStack = appendMetadataItemOwner(params.ownerStack, params.rule.itemType, params.itemName)
 
   addFormEntries({
     entries: params.entries,
     inputDir: params.inputDir,
     ownerDirAbs: join(params.xmlDirAbs, params.itemName),
     parentName: params.itemName,
+    ownerStack: childOwnerStack,
   })
 
   const model = importMetadataModelForDiscovery({ xmlFileAbs: params.xmlFileAbs, rule: params.rule })
@@ -381,6 +421,7 @@ const addMetadataEntryWithChildren = (params: MetadataEntryParams & { entries: R
         parentName: params.itemName,
         xmlDirAbs: dirname(childXmlBaseAbs),
         itemName: childItem.name,
+        ownerStack: childOwnerStack,
       })
     }
   }
@@ -395,7 +436,9 @@ const listRoundTripEntries = (inputDir: string): RoundTripEntry[] => {
       file: CONFIGURATION_XML_FILE,
       xmlFileAbs: configurationPath,
       rule: MetadataConfigurationRules,
+      itemName: "",
       parentName: "",
+      ownerStack: [],
     })
   }
 
@@ -418,6 +461,7 @@ const listRoundTripEntries = (inputDir: string): RoundTripEntry[] => {
         parentName: itemName,
         xmlDirAbs: dir,
         itemName,
+        ownerStack: [],
       })
     }
   }
