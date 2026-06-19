@@ -44,6 +44,7 @@ export const MetadataLanguageRules = {
       yaml: "КодЯзыка",
       xml: "LanguageCode",
       type: "string",
+      required: true,
       xmlParents: properties,
     },
     objectBelonging: {

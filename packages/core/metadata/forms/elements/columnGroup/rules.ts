@@ -33,7 +33,6 @@ export const ColumnGroupRules = {
       type: "SystemEnumeration",
       typeSE: "ColumnsGroup",
       defaultValue: "Vertical",
-      required: true,
       implicitValueYAML: "Вертикальная",
     },
     headerDataPath: { yaml: "ПутьКДаннымШапки", type: "DataPath", defaultType: "string" },
@@ -44,10 +43,18 @@ export const ColumnGroupRules = {
       typeSE: "ItemHorizontalLocation",
       implicitValueYAML: "Auto",
     },
-    headerPicture: { yaml: "КартинкаШапки", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
+    headerPicture: {
+      yaml: "КартинкаШапки",
+      type: "Picture",
+      metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+    },
     showInHeader: { yaml: "ОтображатьВШапке", type: "boolean" },
     showTitle: { yaml: "ОтображатьЗаголовок", type: "boolean" },
-    titleBackColor: { yaml: "ЦветФонаЗаголовка", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    titleBackColor: {
+      yaml: "ЦветФонаЗаголовка",
+      type: "Color",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    },
     ...formGroupCommonProperties,
     shortcut: {
       ...formGroupCommonProperties.shortcut,

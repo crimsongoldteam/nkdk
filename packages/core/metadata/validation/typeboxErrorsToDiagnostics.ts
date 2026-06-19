@@ -24,11 +24,17 @@ export function typeboxErrorsToDiagnostics(
   errors: ValueError[],
   parsed: ParsedYaml,
   filePath: string,
-  schema?: TypeCheck<TSchema>,
+  schema?: TypeCheck<TSchema>
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = []
+  const expandedErrors = expandDiscriminatedUnionErrors(errors, schema)
+  const missingRequiredPaths = new Set(
+    expandedErrors.filter((error) => error.type === ValueErrorType.ObjectRequiredProperty).map((error) => error.path)
+  )
 
-  for (const error of expandDiscriminatedUnionErrors(errors, schema)) {
+  for (const error of expandedErrors) {
+    if (error.type !== ValueErrorType.ObjectRequiredProperty && missingRequiredPaths.has(error.path)) continue
+
     const pointer = error.path
     const keys = parseJsonPointer(pointer)
 
@@ -41,7 +47,7 @@ export function typeboxErrorsToDiagnostics(
           message: error.message,
           severity: "error",
           source: "structure",
-        }),
+        })
       )
       continue
     }
@@ -73,7 +79,10 @@ export function typeboxErrorsToDiagnostics(
       filePath,
       line,
       col,
-      message: error.message,
+      message:
+        error.type === ValueErrorType.ObjectRequiredProperty && keys.length > 0
+          ? `Отсутствует обязательное свойство "${String(keys.at(-1))}"`
+          : error.message,
       severity: "error",
       source: "structure",
       path: pointer || undefined,

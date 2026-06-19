@@ -19,7 +19,6 @@ export const CommandBarRules = {
       yaml: "Элементы",
       type: "CommandBarChildItems",
       defaultValue: [],
-      required: true,
     },
     displayImportance: {
       yaml: "ВажностьПриОтображении",

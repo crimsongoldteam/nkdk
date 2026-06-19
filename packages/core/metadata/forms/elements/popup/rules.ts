@@ -14,14 +14,21 @@ export const PopupRules = {
       xml: "_name",
       required: true,
     },
-    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    backColor: {
+      yaml: "ЦветФона",
+      type: "Color",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    },
+    borderColor: {
+      yaml: "ЦветРамки",
+      type: "Color",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    },
     commandSource: { yaml: "ИсточникКоманд", type: "string" },
     childItems: {
       yaml: "Элементы",
       type: "CommandBarChildItems",
       defaultValue: [],
-      required: true,
     },
     displayImportance: {
       yaml: "ВажностьПриОтображении",

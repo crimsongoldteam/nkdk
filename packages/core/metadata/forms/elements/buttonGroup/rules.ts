@@ -25,7 +25,6 @@ export const ButtonGroupRules = {
       yaml: "Элементы",
       type: "CommandBarChildItems",
       defaultValue: [],
-      required: true,
     },
     // В XML CommandSource идёт сразу после ChildItems
     commandSource: { yaml: "ИсточникКоманд", type: "string" },

@@ -20,9 +20,7 @@ describe("validateProject", () => {
 
   it("validates all supported project files and sorts diagnostics", () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/АОшибочный/Свойства.yaml", [
-      'НесуществующееПоле: "лишнее поле"',
-    ])
+    writeProjectFile(projectDir, "Справочник/АОшибочный/Свойства.yaml", ['НесуществующееПоле: "лишнее поле"'])
     writeProjectFile(projectDir, "Справочник/ЯФорма/Свойства.yaml", ["Комментарий: владелец формы"])
     writeProjectFile(projectDir, "Справочник/ЯФорма/Формы/ФормаЭлемента/Форма.yaml", [
       "Элементы:",
@@ -66,7 +64,7 @@ describe("validateProject", () => {
           severity: "error",
           message: expect.stringContaining('ПутьКДанным "Неизвестный"'),
         }),
-      ]),
+      ])
     )
   })
 
@@ -110,19 +108,17 @@ describe("validateProject", () => {
           message:
             'Проверка значения типа "Документ.ПоступлениеБезналичныхДенежныхСредств" в условном оформлении динамического списка пока не реализована и будет добавлена в будущих версиях',
         }),
-      ]),
+      ])
     )
     expect(diagnostics.map((diagnostic) => diagnostic.message)).not.toEqual(
-      expect.arrayContaining([expect.stringContaining("Не удалось импортировать форму")]),
+      expect.arrayContaining([expect.stringContaining("Не удалось импортировать форму")])
     )
   })
 
   it("does not add a form import diagnostic when schema errors already explain the invalid form shape", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "Элементы: []",
-    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: []"])
 
     const diagnostics = validateProject({
       projectDir,
@@ -131,12 +127,10 @@ describe("validateProject", () => {
     }).diagnostics
 
     expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ source: "structure", severity: "error", path: "/Элементы" }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ source: "structure", severity: "error", path: "/Элементы" })])
     )
     expect(diagnostics.map((diagnostic) => diagnostic.message)).not.toEqual(
-      expect.arrayContaining([expect.stringContaining("Не удалось импортировать форму")]),
+      expect.arrayContaining([expect.stringContaining("Не удалось импортировать форму")])
     )
   })
 
@@ -176,7 +170,8 @@ describe("validateProject", () => {
     const projectDir = createProject()
 
     for (const dir of topLevelYamlDirs()) {
-      writeProjectFile(projectDir, `${dir}/Тест/Свойства.yaml`, "{}\n")
+      const content = minimalTopLevelPropertiesYAML(dir)
+      writeProjectFile(projectDir, `${dir}/Тест/Свойства.yaml`, content)
     }
 
     const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
@@ -195,14 +190,7 @@ describe("validateProject", () => {
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: join(
-          projectDir,
-          "Подсистема",
-          "Администрирование",
-          "Подсистемы",
-          "Настройки",
-          "Свойства.yaml",
-        ),
+        filePath: join(projectDir, "Подсистема", "Администрирование", "Подсистемы", "Настройки", "Свойства.yaml"),
         source: "structure",
         severity: "error",
         path: "/ЛишнееПоле",
@@ -212,10 +200,7 @@ describe("validateProject", () => {
 
   it("validates the root configuration YAML file", () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", [
-      "Имя: Конфигурация",
-      "ОсновнойЯзык: НеСуществует",
-    ])
+    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: НеСуществует"])
 
     const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
 
@@ -227,7 +212,7 @@ describe("validateProject", () => {
           severity: "error",
           message: 'Не найден объект "Язык.НеСуществует"',
         }),
-      ]),
+      ])
     )
   })
 
@@ -252,30 +237,38 @@ describe("validateProject", () => {
 
   it("accepts a short root configuration default language reference", () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", [
-      "Имя: Конфигурация",
-      "ОсновнойЯзык: Русский",
-    ])
-    writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", [
-      "Комментарий: язык конфигурации",
-      "КодЯзыка: ru",
-    ])
+    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
+    writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", ["Комментарий: язык конфигурации", "КодЯзыка: ru"])
 
     const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
 
     expect(diagnostics).toEqual([])
   })
 
+  it("requires language code in language YAML", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
+    writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", ["Синоним: Русский"])
+
+    const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filePath: join(projectDir, "Язык", "Русский", "Свойства.yaml"),
+          source: "structure",
+          severity: "error",
+          path: "/КодЯзыка",
+          message: 'Отсутствует обязательное свойство "КодЯзыка"',
+        }),
+      ])
+    )
+  })
+
   it("rejects a full root configuration default language reference", () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", [
-      "Имя: Конфигурация",
-      "ОсновнойЯзык: Язык.Русский",
-    ])
-    writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", [
-      "Комментарий: язык конфигурации",
-      "КодЯзыка: ru",
-    ])
+    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Язык.Русский"])
+    writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", ["Комментарий: язык конфигурации", "КодЯзыка: ru"])
 
     const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
 
@@ -293,10 +286,7 @@ describe("validateProject", () => {
 
   it("reports a missing short root configuration default language target", () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", [
-      "Имя: Конфигурация",
-      "ОсновнойЯзык: Русский",
-    ])
+    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
 
     const diagnostics = validateProject({ projectDir, context: mockContext }).diagnostics
 
@@ -314,10 +304,7 @@ describe("validateProject", () => {
 
   it("validates a single root configuration file", () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", [
-      "Имя: Конфигурация",
-      "ОсновнойЯзык: НеСуществует",
-    ])
+    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: НеСуществует"])
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее поле"'])
 
     const diagnostics = validateProject({
@@ -368,7 +355,7 @@ describe("validateProject", () => {
         projectDir,
         filePath: "Справочник/Товары/Команды/Команда.yaml",
         context: mockContext,
-      }),
+      })
     ).toThrow(ProjectFileSchemaError)
   })
 
@@ -430,7 +417,7 @@ describe("validateProject", () => {
           severity: "error",
           message: 'Не найден объект "Справочник.НетТакого"',
         }),
-      ]),
+      ])
     )
   })
 
@@ -457,8 +444,14 @@ describe("validateProject", () => {
 
 function topLevelYamlDirs(): string[] {
   return TopLevelMetadataItemRules.flatMap((rule) =>
-    typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : [],
+    typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : []
   )
+}
+
+function minimalTopLevelPropertiesYAML(dir: string): string {
+  if (dir === "ПакетXDTO") return "ПространствоИмен: http://example.org/test\n"
+  if (dir === "Язык") return "КодЯзыка: ru\n"
+  return "{}\n"
 }
 
 function writeProjectFile(projectDir: string, projectPath: string, lines: string[] | string): void {
