@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs"
+import { dirname, join } from "node:path"
+import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
@@ -29,6 +32,14 @@ const importFixture = () => {
   return importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, parsed.InternalInfo)
 }
 
+const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
+
+const importContainedObjectsFixture = () => {
+  const source = readFileSync(join(fixturesDir, "containedObjects.xml"), "utf8")
+  const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(source)
+  return importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, parsed.InternalInfo)
+}
+
 describe("importInternalInfoFromXML", () => {
   it("imports GeneratedType and ThisNode", () => {
     expect(importFixture()).toEqual({
@@ -48,6 +59,38 @@ describe("importInternalInfoFromXML", () => {
       value: imported,
       referenceMetadata: imported,
       metadataItem: { itemType: "MetadataExchangePlan" as never },
+    })
+    const exportedXML = xmlExport({ InternalInfo: exported }, false)
+    const reparsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(exportedXML)
+
+    expect(importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, reparsed.InternalInfo)).toEqual(
+      imported
+    )
+  })
+
+  it("imports ContainedObject items", () => {
+    expect(importContainedObjectsFixture()).toEqual({
+      containedObjects: [
+        {
+          classId: "00000000-0000-0000-0000-000000000101",
+          objectId: "00000000-0000-0000-0000-000000000201",
+        },
+        {
+          classId: "00000000-0000-0000-0000-000000000102",
+          objectId: "00000000-0000-0000-0000-000000000202",
+        },
+      ],
+    })
+  })
+
+  it("round-trips ContainedObject items from model data", () => {
+    const imported = importContainedObjectsFixture()
+    const exported = exportInternalInfoToXML({
+      context: mockContextToXML(),
+      rule,
+      value: imported,
+      referenceMetadata: undefined,
+      metadataItem: { itemType: "MetadataConfiguration" as never },
     })
     const exportedXML = xmlExport({ InternalInfo: exported }, false)
     const reparsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(exportedXML)
