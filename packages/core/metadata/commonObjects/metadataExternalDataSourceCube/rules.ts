@@ -163,9 +163,9 @@ const cubeProperties = {
   dimensionTables: {
     yaml: "ТаблицыИзмерений",
     xml: "DimensionTable",
-    type: "MetadataExternalDataSourceDimensionTables",
+    type: "ChildFileItemNames",
     xmlParents: childObjects,
-    fromXML: false,
+    forReferenceOnly: true,
   },
   dimensions: {
     yaml: "Измерения",
