@@ -131,14 +131,26 @@ function objectSchema(constraint: Extract<MetadataTargetConstraint, { kind: "obj
   const yamlNestedObjectKinds = `(?:${[yamlRootGroup(undefined), yamlObjectPathKindGroup(allObjectPathKinds)].join("|")})`
   const tailPattern =
     constraint.allowNested === true ? `(?:\\.${yamlNestedObjectKinds}\\.${METADATA_NAME_PATTERN})*` : ""
+  const singleRootShort =
+    selectedRoots.length === 1 &&
+    constraint.allowedObjectPaths === undefined &&
+    constraint.allowNested !== true &&
+    constraint.nestedObjectRoots === undefined
+
   return Type.String({
     pattern:
-      selectedRoots.length === 0 ? noMatchPattern : `^((${yamlRoots})\\.${METADATA_NAME_PATTERN}${tailPattern})$`,
-    examples: objectExamples(selectedRoots, constraint.allowNested === true),
+      selectedRoots.length === 0
+        ? noMatchPattern
+        : singleRootShort
+          ? `^(${METADATA_NAME_PATTERN})$`
+          : `^((${yamlRoots})\\.${METADATA_NAME_PATTERN}${tailPattern})$`,
+    examples: singleRootShort ? [fieldObjectName(selectedRoots[0])] : objectExamples(selectedRoots, constraint.allowNested === true),
     description:
       selectedRoots.length === 0
         ? "Ссылка на объект метаданных. Ограничение не разрешает корневые типы; подробная проверка выполняется validate."
-        : `Ссылка на объект метаданных: ${yamlRoots}.<ИмяОбъекта>. Реальные имена объектов берутся из YAML-проекта и проверяются validate.`,
+        : singleRootShort
+          ? `Ссылка на объект метаданных с корнем ${yamlRoots}: <ИмяОбъекта>. Реальные имена объектов берутся из YAML-проекта и проверяются validate.`
+          : `Ссылка на объект метаданных: ${yamlRoots}.<ИмяОбъекта>. Реальные имена объектов берутся из YAML-проекта и проверяются validate.`,
   })
 }
 

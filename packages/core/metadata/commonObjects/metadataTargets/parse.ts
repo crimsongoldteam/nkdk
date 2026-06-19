@@ -102,12 +102,34 @@ function parseRootedTargetFromYAML(
     return invalidShape()
   }
 
+  const shortRoot = singleObjectRoot(constraint)
+  if (shortRoot !== undefined) {
+    if (parts.length === 1 && isValidMetadataName(rootToken)) {
+      return parseTarget(shortRoot, rootToken, [])
+    }
+
+    const yamlRoot = rootFromYAML[rootToken]
+    if (yamlRoot === shortRoot) {
+      return invalidShape("Ожидалось имя объекта без корня, потому что корень задан правилом")
+    }
+  }
+
   const root = rootFromYAML[rootToken]
   if (!root) {
     return error("unknown-root", `Неизвестный корень "${rootToken}"`)
   }
 
   return parseRootedTarget(root, parts, constraint.roots, parseTarget)
+}
+
+function singleObjectRoot(
+  constraint: Extract<MetadataTargetConstraint, { kind: "object" | "member" | "value" }>
+): MetadataRootName | undefined {
+  if (constraint.kind !== "object") return undefined
+  if (constraint.allowedObjectPaths !== undefined) return undefined
+  if (constraint.allowNested === true) return undefined
+  if (constraint.nestedObjectRoots !== undefined) return undefined
+  return constraint.roots?.length === 1 ? constraint.roots[0] : undefined
 }
 
 function parseRootedTargetFromModel(

@@ -30,8 +30,9 @@ describe("buildMetadataTargetSchema", () => {
   it("keeps object examples inside allowed roots", () => {
     const schema = buildMetadataTargetSchema({ kind: "object", roots: ["Enum"] })
 
-    expect(schema.examples).toEqual(["Перечисление.ИмяПеречисления"])
-    expectMatches(schema, "Перечисление.ИмяПеречисления")
+    expect(schema.examples).toEqual(["ИмяПеречисления"])
+    expectMatches(schema, "ИмяПеречисления")
+    expectNotMatches(schema, "Перечисление.ИмяПеречисления")
     expectNotMatches(schema, "Справочник.ИмяСправочника")
   })
 
@@ -406,8 +407,8 @@ describe("buildMetadataTargetSchema", () => {
 
     expect(schema).toMatchObject({
       type: "string",
-      pattern: "^((ЭлементСтиля)\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
-      examples: ["ЭлементСтиля.ИмяЭлементаСтиля"],
+      pattern: "^([a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
+      examples: ["ИмяЭлементаСтиля"],
     })
     expect(JSON.stringify(schema)).not.toContain("x-nkdk")
   })
@@ -417,8 +418,8 @@ describe("buildMetadataTargetSchema", () => {
 
     expect(schema).toMatchObject({
       type: "string",
-      pattern: "^((ОбщаяКартинка)\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
-      examples: ["ОбщаяКартинка.ИмяОбщейКартинки"],
+      pattern: "^([a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
+      examples: ["ИмяОбщейКартинки"],
     })
     expect(JSON.stringify(schema)).not.toContain("x-nkdk")
   })

@@ -8,7 +8,7 @@ import {
 describe("metadataTargets parser", () => {
   it("parses object references from Russian YAML to canonical model strings", () => {
     const result = parseMetadataTargetFromYAML({
-      value: "Справочник.Контрагенты",
+      value: "Контрагенты",
       constraint: { kind: "object", roots: ["Catalog"] },
     })
 
@@ -331,7 +331,7 @@ describe("metadataTargets parser", () => {
 
     expect(
       parseMetadataTargetFromYAML({
-        value: "ЭлементСтиля.ОсновнойЦвет",
+        value: "ОсновнойЦвет",
         constraint,
       })
     ).toMatchObject({
@@ -356,7 +356,7 @@ describe("metadataTargets parser", () => {
         canonical: "StyleItem.ОсновнойЦвет",
         constraint,
       })
-    ).toBe("ЭлементСтиля.ОсновнойЦвет")
+    ).toBe("ОсновнойЦвет")
   })
 
   it("parses and formats common pictures through object targets", () => {
@@ -364,7 +364,7 @@ describe("metadataTargets parser", () => {
 
     expect(
       parseMetadataTargetFromYAML({
-        value: "ОбщаяКартинка.Логотип",
+        value: "Логотип",
         constraint,
       })
     ).toMatchObject({
@@ -389,7 +389,7 @@ describe("metadataTargets parser", () => {
         canonical: "CommonPicture.Логотип",
         constraint,
       })
-    ).toBe("ОбщаяКартинка.Логотип")
+    ).toBe("Логотип")
   })
 
   it("parses and formats additional top-level roots used by subsystem content", () => {
