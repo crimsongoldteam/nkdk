@@ -161,6 +161,12 @@ function validateProjectProperties(params: {
   const entry = params.cache.get(params.file.absolutePath)
   if ("error" in entry || entry.parsed.doc.errors.length > 0) return diagnostics
 
+  const requiredDiagnostics = validateRequiredConfigurationYAMLKeys({
+    file: params.file,
+    parsed: entry.parsed,
+  })
+  if (requiredDiagnostics.length > 0) return [...diagnostics, ...requiredDiagnostics]
+
   const imported = importPropertiesModel({
     spec: params.file.owner.spec,
     context: params.context,
@@ -189,6 +195,31 @@ function validateProjectProperties(params: {
       resolver: params.metadataResolver,
       owner,
     }),
+  ]
+}
+
+function validateRequiredConfigurationYAMLKeys(params: {
+  file: ValidationProjectFile
+  parsed: ParsedYaml
+}): Diagnostic[] {
+  if (params.file.owner.spec.rule.itemType !== "MetadataConfiguration") return []
+  if (params.parsed.data === null || typeof params.parsed.data !== "object" || Array.isArray(params.parsed.data)) {
+    return []
+  }
+
+  const data = params.parsed.data as Record<string, unknown>
+  if (Object.prototype.hasOwnProperty.call(data, "ОсновнойЯзык")) return []
+
+  return [
+    {
+      filePath: params.file.absolutePath,
+      line: 1,
+      col: 1,
+      severity: "error",
+      source: "structure",
+      path: "/ОсновнойЯзык",
+      message: 'Отсутствует обязательное свойство "ОсновнойЯзык"',
+    },
   ]
 }
 

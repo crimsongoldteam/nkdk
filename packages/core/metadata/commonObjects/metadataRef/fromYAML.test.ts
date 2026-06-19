@@ -46,37 +46,26 @@ describe("importMetadataItemLinkFromYAML", () => {
     expect(result).toEqual("Catalog.Контрагенты")
   })
 
-  it("imports short role references back to full Role reference when rule asks for name form", () => {
-    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+  it("imports short role references through single-root metadataTarget", () => {
+    const rule = { type: "MetadataItemLink", metadataTarget: { kind: "object", roots: ["Role"] } } as const
 
     expect(importMetadataItemLinkFromYAML(mockContext, rule, "Администратор")).toBe("Role.Администратор")
-    expect(importMetadataItemLinkFromYAML(mockContext, rule, "Role.Администратор")).toBe("Role.Администратор")
   })
 
-  it("keeps non-metadata dotted references unchanged in short role mode", () => {
-    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
+  it("rejects prefixed and opaque role references through single-root metadataTarget", () => {
+    const rule = { type: "MetadataItemLink", metadataTarget: { kind: "object", roots: ["Role"] } } as const
 
-    expect(importMetadataItemLinkFromYAML(mockContext, rule, "ЛокальныйПуть.НачалоРаботы")).toBe(
-      "ЛокальныйПуть.НачалоРаботы"
+    expect(() => importMetadataItemLinkFromYAML(mockContext, rule, "Role.Администратор")).toThrow(
+      'Неизвестный корень "Role"'
     )
-  })
-
-  it("does not suppress metadata parser errors in short role mode", () => {
-    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
-
-    expect(() => importMetadataItemLinkFromYAML(mockContext, rule, "Catalog.Контрагенты")).toThrow(
-      'Неизвестный корень "Catalog"'
+    expect(() => importMetadataItemLinkFromYAML(mockContext, rule, "Роль.Администратор")).toThrow(
+      "Ожидалось имя объекта без корня, потому что корень задан правилом"
     )
-    expect(() => importMetadataItemLinkFromYAML(mockContext, rule, "CommonForm.НачалоРаботы")).toThrow(
-      'Неизвестный корень "CommonForm"'
+    expect(() => importMetadataItemLinkFromYAML(mockContext, rule, "418deaa0-683e-4862-9348-c0086ba6909f")).toThrow(
+      'Неизвестный корень "418deaa0-683e-4862-9348-c0086ba6909f"'
     )
-  })
-
-  it("keeps uuid-like visibility keys unchanged in short role mode", () => {
-    const rule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const
-
-    expect(importMetadataItemLinkFromYAML(mockContext, rule, "418deaa0-683e-4862-9348-c0086ba6909f")).toBe(
-      "418deaa0-683e-4862-9348-c0086ba6909f"
+    expect(() => importMetadataItemLinkFromYAML(mockContext, rule, "ЛокальныйПуть.НачалоРаботы")).toThrow(
+      'Неизвестный корень "ЛокальныйПуть"'
     )
   })
 })
@@ -101,26 +90,19 @@ describe("importMetadataItemLinksFromYAML", () => {
     ).toThrow('Неизвестный корень "Catalog"')
   })
 
-  it("imports short role references back to full Role reference when rule asks for name form", () => {
-    const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
+  it("imports short role reference lists through single-root metadataTarget", () => {
+    const rule = { type: "MetadataItemLinks", metadataTarget: { kind: "object", roots: ["Role"] } } as const
 
     expect(importMetadataItemLinksFromYAML(mockContext, rule, ["Администратор"])).toEqual(["Role.Администратор"])
   })
 
-  it("keeps non-metadata dotted references unchanged in mixed short role mode list", () => {
-    const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
+  it("rejects opaque role list entries through single-root metadataTarget", () => {
+    const rule = { type: "MetadataItemLinks", metadataTarget: { kind: "object", roots: ["Role"] } } as const
 
-    expect(importMetadataItemLinksFromYAML(mockContext, rule, ["Администратор", "ЛокальныйПуть.НачалоРаботы"])).toEqual([
-      "Role.Администратор",
-      "ЛокальныйПуть.НачалоРаботы",
-    ])
-  })
-
-  it("does not suppress metadata parser errors in mixed short role mode list", () => {
-    const rule = { type: "MetadataItemLinks", roleReferenceYAML: "name" } as const
-
-    expect(() => importMetadataItemLinksFromYAML(mockContext, rule, ["Администратор", "CommonForm.НачалоРаботы"])).toThrow(
-      'Неизвестный корень "CommonForm"'
+    expect(() =>
+      importMetadataItemLinksFromYAML(mockContext, rule, ["Администратор", "ЛокальныйПуть.НачалоРаботы"])
+    ).toThrow(
+      'Неизвестный корень "ЛокальныйПуть"'
     )
   })
 })

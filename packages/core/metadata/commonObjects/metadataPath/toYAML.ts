@@ -18,7 +18,7 @@ export const exportMetadataFieldStringToYAML = (
   name: string,
   owner?: MetadataTargetOwner
 ): string | undefined => {
-  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataFieldTargetFallback), owner)
+  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataFieldTargetFallback), owner, isStrictObjectTargetRule(rule))
 }
 
 export const exportMetadataObjectStringToYAML = (
@@ -27,7 +27,7 @@ export const exportMetadataObjectStringToYAML = (
   name: string,
   owner?: MetadataTargetOwner
 ): string | undefined => {
-  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataObjectTargetFallback), owner)
+  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataObjectTargetFallback), owner, isStrictObjectTargetRule(rule))
 }
 
 export const exportMetadataValueStringToYAML = (
@@ -51,14 +51,20 @@ function metadataTargetForRule(
   return fallback
 }
 
+function isStrictObjectTargetRule(rule: PropertyRule | undefined): boolean {
+  return rule?.metadataTarget?.kind === "object"
+}
+
 function formatMetadataTargetStringToYAML(
   name: string,
   constraint: MetadataTargetConstraint,
-  owner?: MetadataTargetOwner
+  owner?: MetadataTargetOwner,
+  strict = false
 ): string | undefined {
   try {
     return formatMetadataTargetToYAML({ canonical: name, constraint, owner })
   } catch (error) {
+    if (strict) throw error
     if (isMetadataTargetLikeModel(name)) throw error
     return undefined
   }

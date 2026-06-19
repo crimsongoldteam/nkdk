@@ -30,9 +30,18 @@ describe("buildMetadataTargetSchema", () => {
   it("keeps object examples inside allowed roots", () => {
     const schema = buildMetadataTargetSchema({ kind: "object", roots: ["Enum"] })
 
-    expect(schema.examples).toEqual(["Перечисление.ИмяПеречисления"])
-    expectMatches(schema, "Перечисление.ИмяПеречисления")
+    expect(schema.examples).toEqual(["ИмяПеречисления"])
+    expectMatches(schema, "ИмяПеречисления")
+    expectNotMatches(schema, "Перечисление.ИмяПеречисления")
     expectNotMatches(schema, "Справочник.ИмяСправочника")
+  })
+
+  it("requires short object references when exactly one root is allowed", () => {
+    const schema = buildMetadataTargetSchema({ kind: "object", roots: ["Language"] })
+
+    expectMatches(schema, "Русский")
+    expectNotMatches(schema, "Язык.Русский")
+    expectNotMatches(schema, "Language.Русский")
   })
 
   it("accepts top-level roots used by subsystem content", () => {
@@ -409,8 +418,8 @@ describe("buildMetadataTargetSchema", () => {
 
     expect(schema).toMatchObject({
       type: "string",
-      pattern: "^((ОбщаяКартинка)\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
-      examples: ["ОбщаяКартинка.ИмяОбщейКартинки"],
+      pattern: "^([a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*)$",
+      examples: ["ИмяОбщейКартинки"],
     })
     expect(JSON.stringify(schema)).not.toContain("x-nkdk")
   })

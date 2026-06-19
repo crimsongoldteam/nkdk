@@ -75,7 +75,10 @@ const homePageWorkAreaColumnItemSchema = Type.Object(
 )
 const homePageWorkAreaColumnItemsSchema = Type.Array(homePageWorkAreaColumnItemSchema)
 
-const roleNameRule = { type: "MetadataItemLink", roleReferenceYAML: "name" } as const satisfies PropertyRule
+const roleNameRule = {
+  type: "MetadataItemLink",
+  metadataTarget: { kind: "object", roots: ["Role"] },
+} as const satisfies PropertyRule
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 
 const toArray = <T>(value: T | T[] | undefined): T[] =>

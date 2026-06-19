@@ -79,7 +79,7 @@ describe("validate command", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Конфигурация.yaml", [
       "Имя: Конфигурация",
-      "ОсновнойЯзык: Язык.НеСуществует",
+      "ОсновнойЯзык: НеСуществует",
     ])
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
     const stdout = captureStdout()
