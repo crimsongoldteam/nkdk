@@ -65,6 +65,7 @@ export const fullCommandInterfaceFromYAML: CommandInterface = {
       type: "Added",
       commandGroup: "FormNavigationPanelImportant",
       defaultVisible: false,
+      visible: { common: false, values: [] },
       itemType: "CommandInterfaceItem",
     },
     {
@@ -88,6 +89,7 @@ export const fullCommandInterfaceFromYAML: CommandInterface = {
       type: "Added",
       commandGroup: "FormCommandBarImportant",
       defaultVisible: false,
+      visible: { common: false, values: [] },
       itemType: "CommandInterfaceItem",
     },
     {
@@ -112,6 +114,9 @@ export const fullCommandInterfaceYAML: CommandInterfaceYAML = {
       Тип: "Added",
       ГруппаКоманд: "ПанельНавигацииФормыВажное",
       Автовидимость: "Ложь",
+      Использование: {
+        Разрешить: "Ложь",
+      },
     },
     {
       Команда: "Catalog.СправочникCоВсемиОбъектами.Command.КомандаОбъекта",
@@ -132,6 +137,9 @@ export const fullCommandInterfaceYAML: CommandInterfaceYAML = {
       Тип: "Added",
       ГруппаКоманд: "КоманднаяПанельФормыВажное",
       Автовидимость: "Ложь",
+      Использование: {
+        Разрешить: "Ложь",
+      },
     },
     {
       Команда: "Catalog.СправочникCоВсемиОбъектами.Command.КомандаОбъекта",
