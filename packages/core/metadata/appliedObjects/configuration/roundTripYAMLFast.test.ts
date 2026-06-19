@@ -114,7 +114,10 @@ const corruptFixtureFile = (xmlDir: string, relativePath: string): void => {
   fs.writeFileSync(join(xmlDir, relativePath), "<broken>", "utf-8")
 }
 
-const catalogWithFormXml = (params: { name: string; formName: string }): string => `<?xml version="1.0" encoding="UTF-8"?>
+const catalogWithFormXml = (params: {
+  name: string
+  formName: string
+}): string => `<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
 	<Catalog uuid="11111111-1111-1111-1111-111111111111">
 		<Properties>
@@ -173,7 +176,11 @@ const makeCatalogWithFormXmlProject = (): string => {
   const formName = "ФормаСписка"
   const formsDir = join(dir, "Catalogs", catalogName, "Forms")
   fs.mkdirSync(join(formsDir, formName, "Ext"), { recursive: true })
-  fs.writeFileSync(join(dir, "Catalogs", `${catalogName}.xml`), catalogWithFormXml({ name: catalogName, formName }), "utf-8")
+  fs.writeFileSync(
+    join(dir, "Catalogs", `${catalogName}.xml`),
+    catalogWithFormXml({ name: catalogName, formName }),
+    "utf-8"
+  )
   fs.writeFileSync(join(formsDir, `${formName}.xml`), formMetadataXml(formName), "utf-8")
   fs.writeFileSync(
     join(formsDir, formName, "Ext", "Form.xml"),
@@ -317,12 +324,8 @@ describe("roundTripYAMLFast", () => {
       const result = await roundTripYAMLFast({ inputDir: xmlDir })
       const files = [...result.diffs.map((diff) => diff.file), ...result.errors.map((error) => error.file)]
 
-      expect(files).not.toContain(
-        "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml"
-      )
-      expect(files).not.toContain(
-        "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубПоУмолчанию.xml"
-      )
+      expect(files).not.toContain("ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml")
+      expect(files).not.toContain("ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубПоУмолчанию.xml")
       expect(files).not.toContain(
         "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml"
       )
