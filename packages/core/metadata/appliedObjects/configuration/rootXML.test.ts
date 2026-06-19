@@ -33,7 +33,7 @@ const roundTripConfigurationXML = (source: string): string => {
 }
 
 describe("root Configuration XML", () => {
-  it("экспортирует InternalInfo без reference XML", () => {
+  it("не генерирует ContainedObject без reference XML", () => {
     const exported = exportMetadataItemToXML({
       context: mockContextToXML(),
       data: {
@@ -48,11 +48,19 @@ describe("root Configuration XML", () => {
 
     const xml = xmlExport(exported!)
 
+    expect(xml).not.toContain("<xr:ContainedObject>")
+    expect(xml).not.toContain("9cd510cd-abfc-11d4-9434-004095e12fc7")
+  })
+
+  it("сохраняет ContainedObject из reference XML", () => {
+    const source = readXMLFileAsString("configuration/full.xml")
+    const xml = roundTripConfigurationXML(source)
+
     expect(xml).toContain("<InternalInfo>")
     expect(xml).toContain("<xr:ContainedObject>")
     expect(xml).toContain("<xr:ClassId>9cd510cd-abfc-11d4-9434-004095e12fc7</xr:ClassId>")
-    expect(xml).toContain("<xr:ObjectId>11111111-1111-4111-8111-111111111111</xr:ObjectId>")
     expect(xml.indexOf("<InternalInfo>")).toBeLessThan(xml.indexOf("<Properties>"))
+    expect(normalizeXML(xml)).toBe(normalizeXML(source))
   })
 
   it("round-trip минимальной fixture через metadataItem", () => {

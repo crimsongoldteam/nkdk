@@ -1,9 +1,8 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import type { ConfigurationContext } from "~/metadata/context/types"
 import { ExportToXMLFunctionNew, InternalInfoPropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { getUUID } from "../../helpers/uuid"
 import {
   InternalInfo,
-  InternalInfoContainedObject,
   InternalInfoContainedObjectXML,
   InternalInfoItemsXML,
   InternalInfoParam,
@@ -52,8 +51,6 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
     result["xr:GeneratedType"] = generated
   }
   const containedObjects = getContainedObjectsXML({
-    context,
-    rule: internalInfoRule,
     metadata,
     reference,
   })
@@ -71,42 +68,16 @@ const getInternalInfoItem = (value: InternalInfo[string]): { typeId: string; val
 }
 
 const getContainedObjectsXML = (params: {
-  context: ConfigurationContext
-  rule: InternalInfoPropertyRule
   metadata: InternalInfo | undefined
   reference: InternalInfo | undefined
 }): InternalInfoContainedObjectXML[] => {
-  const classIds = params.rule.containedObjectClassIds ?? []
-  if (classIds.length === 0) return []
+  const containedObjects = params.reference?.containedObjects ?? params.metadata?.containedObjects ?? []
 
-  const referenceObjects = params.reference?.containedObjects ?? []
-  const metadataObjects = params.metadata?.containedObjects ?? []
-  const seen = new Set<string>()
-
-  const result = classIds.map((classId) => {
-    seen.add(classId)
-    const existing = findContainedObject(referenceObjects, classId) ?? findContainedObject(metadataObjects, classId)
-    return {
-      "xr:ClassId": classId,
-      "xr:ObjectId": existing?.objectId ?? getUUID(params.context),
-    }
-  })
-
-  for (const item of referenceObjects) {
-    if (seen.has(item.classId)) continue
-    result.push({
-      "xr:ClassId": item.classId,
-      "xr:ObjectId": item.objectId,
-    })
-  }
-
-  return result
+  return containedObjects.map((item) => ({
+    "xr:ClassId": item.classId,
+    "xr:ObjectId": item.objectId,
+  }))
 }
-
-const findContainedObject = (
-  containedObjects: InternalInfoContainedObject[],
-  classId: string
-): InternalInfoContainedObject | undefined => containedObjects.find((item) => item.classId === classId)
 
 /** @deprecated */
 export const exportInternalInfoToXMLOld = <T extends InternalInfoParam[]>(

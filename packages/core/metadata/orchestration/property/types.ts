@@ -269,7 +269,6 @@ export interface MetadataTypePropertyRule extends BasePropertyRule {
 export interface InternalInfoPropertyRule extends BasePropertyRule {
   type: "InternalInfo"
   items?: Array<{ name: string; category: string }>
-  containedObjectClassIds?: string[]
   forReferenceOnly: true
   getName?: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => string
   thisNode?: boolean
