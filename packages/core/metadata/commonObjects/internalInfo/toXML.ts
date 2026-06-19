@@ -51,6 +51,8 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
     result["xr:GeneratedType"] = generated
   }
   const containedObjects = getContainedObjectsXML({
+    context,
+    classIds: internalInfoRule.containedObjectClassIds ?? [],
     metadata,
     reference,
   })
@@ -68,15 +70,48 @@ const getInternalInfoItem = (value: InternalInfo[string]): { typeId: string; val
 }
 
 const getContainedObjectsXML = (params: {
+  context: ConfigurationContext
+  classIds: string[]
   metadata: InternalInfo | undefined
   reference: InternalInfo | undefined
 }): InternalInfoContainedObjectXML[] => {
-  const containedObjects = params.reference?.containedObjects ?? params.metadata?.containedObjects ?? []
+  const referenceObjects = params.reference?.containedObjects ?? []
+  const metadataObjects = params.metadata?.containedObjects ?? []
 
-  return containedObjects.map((item) => ({
-    "xr:ClassId": item.classId,
-    "xr:ObjectId": item.objectId,
-  }))
+  if (params.classIds.length === 0) {
+    const containedObjects = referenceObjects.length > 0 ? referenceObjects : metadataObjects
+
+    return containedObjects.map((item) => ({
+      "xr:ClassId": item.classId,
+      "xr:ObjectId": item.objectId,
+    }))
+  }
+
+  const usedClassIds = new Set<string>()
+  const findContainedObject = (classId: string) =>
+    referenceObjects.find((item) => item.classId === classId) ?? metadataObjects.find((item) => item.classId === classId)
+
+  const declared = params.classIds.map((classId) => {
+    usedClassIds.add(classId)
+    const item = findContainedObject(classId)
+    return {
+      "xr:ClassId": classId,
+      "xr:ObjectId": item?.objectId ?? getUUID(params.context),
+    }
+  })
+
+  const extras = [...referenceObjects, ...metadataObjects]
+    .filter((item) => {
+      if (usedClassIds.has(item.classId)) return false
+      usedClassIds.add(item.classId)
+      return true
+    })
+    .map((item) => ({
+      "xr:ClassId": item.classId,
+      "xr:ObjectId": item.objectId,
+    }))
+
+  return [...declared, ...extras]
 }
 
 /** @deprecated */

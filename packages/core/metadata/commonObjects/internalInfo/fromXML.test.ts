@@ -21,6 +21,15 @@ const containedObjectsRule: PropertyRule = {
   forReferenceOnly: true,
 }
 
+const generatedContainedObjectsRule: PropertyRule = {
+  type: "InternalInfo",
+  forReferenceOnly: true,
+  containedObjectClassIds: [
+    "00000000-0000-0000-0000-000000000101",
+    "00000000-0000-0000-0000-000000000102",
+  ],
+}
+
 const ruleWithThisNode: PropertyRule = { ...rule, thisNode: true }
 
 const xml = `
@@ -103,6 +112,49 @@ describe("importInternalInfoFromXML", () => {
     expect(
       importInternalInfoFromXML(mockContextFromXML({ forReference: true }), containedObjectsRule, reparsed.InternalInfo)
     ).toEqual(imported)
+  })
+
+  it("generates declared ContainedObject items without model or reference data", () => {
+    const exported = exportInternalInfoToXML({
+      context: mockContextToXML(),
+      rule: generatedContainedObjectsRule,
+      value: undefined,
+      referenceMetadata: undefined,
+      metadataItem: { itemType: "MetadataConfiguration" as never },
+    })
+
+    expect(exported["xr:ContainedObject"]).toEqual([
+      {
+        "xr:ClassId": "00000000-0000-0000-0000-000000000101",
+        "xr:ObjectId": "11111111-1111-4111-8111-111111111111",
+      },
+      {
+        "xr:ClassId": "00000000-0000-0000-0000-000000000102",
+        "xr:ObjectId": "11111111-1111-4111-8111-111111111111",
+      },
+    ])
+  })
+
+  it("uses existing ContainedObject ObjectId for declared ClassId", () => {
+    const imported = importContainedObjectsFixture()
+    const exported = exportInternalInfoToXML({
+      context: mockContextToXML(),
+      rule: generatedContainedObjectsRule,
+      value: undefined,
+      referenceMetadata: imported,
+      metadataItem: { itemType: "MetadataConfiguration" as never },
+    })
+
+    expect(exported["xr:ContainedObject"]).toEqual([
+      {
+        "xr:ClassId": "00000000-0000-0000-0000-000000000101",
+        "xr:ObjectId": "00000000-0000-0000-0000-000000000201",
+      },
+      {
+        "xr:ClassId": "00000000-0000-0000-0000-000000000102",
+        "xr:ObjectId": "00000000-0000-0000-0000-000000000202",
+      },
+    ])
   })
 
   it("prefers reference ThisNode when exporting", () => {

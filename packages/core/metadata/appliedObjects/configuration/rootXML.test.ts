@@ -33,7 +33,7 @@ const roundTripConfigurationXML = (source: string): string => {
 }
 
 describe("root Configuration XML", () => {
-  it("не генерирует ContainedObject без reference XML", () => {
+  it("генерирует ContainedObject без reference XML", () => {
     const exported = exportMetadataItemToXML({
       context: mockContextToXML(),
       data: {
@@ -48,8 +48,9 @@ describe("root Configuration XML", () => {
 
     const xml = xmlExport(exported!)
 
-    expect(xml).not.toContain("<xr:ContainedObject>")
-    expect(xml).not.toContain("9cd510cd-abfc-11d4-9434-004095e12fc7")
+    expect(xml).toContain("<xr:ContainedObject>")
+    expect(xml).toContain("<xr:ClassId>9cd510cd-abfc-11d4-9434-004095e12fc7</xr:ClassId>")
+    expect(xml).toContain("<xr:ObjectId>11111111-1111-4111-8111-111111111111</xr:ObjectId>")
   })
 
   it("сохраняет ContainedObject из reference XML", () => {
