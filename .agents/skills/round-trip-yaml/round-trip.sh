@@ -4,6 +4,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
+# shellcheck source=../_shared/round-trip-config-dirs.sh
+. "${REPO_DIR}/.agents/skills/_shared/round-trip-config-dirs.sh"
+
 MODE="single"
 DIFF_INDEX="1"
 BATCH_SIZE="5"
@@ -40,52 +43,14 @@ is_positive_integer() {
   [[ "${1:-}" =~ ^[1-9][0-9]*$ ]]
 }
 
-KNOWN_XML_DIRS=("Catalogs" "Documents" "DocumentNumerators" "Sequences" "Enums")
 REFERENCE_ONLY_XML_FILES=("Ext/ParentConfigurations.bin" "Ext/ParentConfigurations/*.cf")
 
-is_config_dir() {
-  local candidate="$1"
-  local xml_dir
-
-  for xml_dir in "${KNOWN_XML_DIRS[@]}"; do
-    if [ -d "${candidate}/${xml_dir}" ]; then
-      return 0
-    fi
-  done
-
-  return 1
-}
-
-collect_run_dirs() {
-  local root="$1"
-  local child
-
-  if is_config_dir "${root}"; then
-    printf '%s\n' "${root}"
-    return 0
-  fi
-
-  while IFS= read -r child; do
-    if is_config_dir "${child}"; then
-      printf '%s\n' "${child}"
-    fi
-  done < <(find "${root}" -mindepth 1 -maxdepth 1 -type d | sort)
-}
-
 sanitize_path_segment() {
-  printf '%s' "$1" | sed 's#[^A-Za-z0-9._-]#_#g'
+  round_trip_sanitize_path_segment "$1"
 }
 
 config_rel_path() {
-  local dir="$1"
-  local repo="${NKDK_XML_REPO%/}"
-
-  if [ "${dir}" = "${repo}" ]; then
-    printf '.'
-    return 0
-  fi
-
-  printf '%s' "${dir#${repo}/}"
+  round_trip_config_rel_path "$1" "${NKDK_XML_REPO}"
 }
 
 yaml_dir_for() {
@@ -335,7 +300,7 @@ echo ""
 RUN_DIRS=()
 while IFS= read -r run_dir; do
   RUN_DIRS+=("${run_dir}")
-done < <(collect_run_dirs "${NKDK_XML_DIR}")
+done < <(round_trip_collect_run_dirs "${NKDK_XML_DIR}")
 
 if [ "${#RUN_DIRS[@]}" -eq 0 ]; then
   die "в NKDK_XML_DIR ('${NKDK_XML_DIR}') не найдено конфигурационных каталогов"

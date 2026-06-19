@@ -28,6 +28,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
+# shellcheck source=../_shared/round-trip-config-dirs.sh
+. "${REPO_DIR}/.agents/skills/_shared/round-trip-config-dirs.sh"
+
 MODE="single"
 DIFF_INDEX="1"
 BATCH_SIZE="5"
@@ -62,37 +65,6 @@ die() {
 
 is_positive_integer() {
   [[ "${1:-}" =~ ^[1-9][0-9]*$ ]]
-}
-
-KNOWN_XML_DIRS=("Catalogs" "Documents" "DocumentNumerators" "Sequences" "Enums")
-
-is_config_dir() {
-  local candidate="$1"
-  local xml_dir
-
-  for xml_dir in "${KNOWN_XML_DIRS[@]}"; do
-    if [ -d "${candidate}/${xml_dir}" ]; then
-      return 0
-    fi
-  done
-
-  return 1
-}
-
-collect_run_dirs() {
-  local root="$1"
-  local child
-
-  if is_config_dir "${root}"; then
-    printf '%s\n' "${root}"
-    return 0
-  fi
-
-  while IFS= read -r child; do
-    if is_config_dir "${child}"; then
-      printf '%s\n' "${child}"
-    fi
-  done < <(find "${root}" -mindepth 1 -maxdepth 1 -type d | sort)
 }
 
 KNOWN_INVALID_DIFF_FILE="${SCRIPT_DIR}/known-invalid-diffs.tsv"
@@ -268,7 +240,7 @@ echo ""
 RUN_DIRS=()
 while IFS= read -r run_dir; do
   RUN_DIRS+=("${run_dir}")
-done < <(collect_run_dirs "${NKDK_XML_DIR}")
+done < <(round_trip_collect_run_dirs "${NKDK_XML_DIR}")
 
 if [ "${#RUN_DIRS[@]}" -eq 0 ]; then
   die "в NKDK_XML_DIR ('${NKDK_XML_DIR}') не найдено конфигурационных каталогов"
