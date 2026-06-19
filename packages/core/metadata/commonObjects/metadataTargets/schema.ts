@@ -291,6 +291,7 @@ function objectSegmentName(kind: MetadataObjectPathKind): string {
   if (kind === "Cube") return "ИмяКуба"
   if (kind === "DimensionTable") return "ИмяТаблицыИзмерения"
   if (kind === "Function") return "ИмяФункции"
+  throw new Error(`Unsupported metadata object path kind: ${kind}`)
 }
 
 function exactMemberPathPatterns(

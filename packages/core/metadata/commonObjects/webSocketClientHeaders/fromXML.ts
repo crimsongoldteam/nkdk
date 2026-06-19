@@ -13,8 +13,8 @@ export const importWebSocketClientHeadersFromXML: ImportFromXMLFunction = (
   const items = Array.isArray(xml["xr:Item"]) ? xml["xr:Item"] : [xml["xr:Item"]]
 
   return items.map((item) => ({
-    key: item["xr:Value"]["v8:Key"]["#text"] ?? "",
-    value: item["xr:Value"]["v8:Value"]["#text"] ?? "",
+    Ключ: item["xr:Value"]["v8:Key"]["#text"] ?? "",
+    Значение: item["xr:Value"]["v8:Value"]["#text"] ?? "",
   }))
 }
 

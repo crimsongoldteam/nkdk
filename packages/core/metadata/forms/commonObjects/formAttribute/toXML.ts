@@ -70,7 +70,7 @@ const exportFormAttributeToXML = (
     rule: FormAttributeRules,
   })
 
-  const columns = exportColumnsToXML(context, data.columns, referenceData?.columns, data)
+  const columns = exportColumnsToXML(context, data.columns ?? [], referenceData?.columns, data)
   const additionalColumns = exportAdditionalColumnsToXML(
     context,
     (data as FormAttributeWithAdditionalColumns).additionalColumns ?? [],

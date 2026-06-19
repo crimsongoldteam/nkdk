@@ -276,10 +276,10 @@ function attribute(name: string, type: TypeDescription, columns: FormAttribute["
   } as FormAttribute
 }
 
-function column(name: string, type: TypeDescription): FormAttribute["columns"][number] {
+function column(name: string, type: TypeDescription): NonNullable<FormAttribute["columns"]>[number] {
   return {
     itemType: "FormAttributeColumn",
     name,
     type,
-  } as FormAttribute["columns"][number]
+  } as NonNullable<FormAttribute["columns"]>[number]
 }

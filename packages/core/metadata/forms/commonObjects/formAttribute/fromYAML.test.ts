@@ -410,7 +410,7 @@ describe("importFormAttributesFromYAML", () => {
       ]
     )
 
-    expect(result?.[0]?.columns[0]?.title).toEqual({
+    expect(result?.[0]?.columns?.[0]?.title).toEqual({
       items: {
         en: "Column sent",
       },

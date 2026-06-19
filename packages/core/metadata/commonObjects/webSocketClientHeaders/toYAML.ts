@@ -8,7 +8,7 @@ export const exportWebSocketClientHeadersToYAML: ExportToYAMLFunction = (
   value: WebSocketClientHeaders | undefined
 ): WebSocketClientHeadersYAML | undefined => {
   if (value === undefined) return undefined
-  return value.map((item) => ({ Ключ: item.key, Значение: item.value }))
+  return value.map((item) => ({ Ключ: item.Ключ, Значение: item.Значение }))
 }
 
 registerTypeRule("WebSocketClientHeaders", "exportToYAML", exportWebSocketClientHeadersToYAML)

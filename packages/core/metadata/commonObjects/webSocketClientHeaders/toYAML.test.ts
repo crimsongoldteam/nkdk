@@ -7,8 +7,8 @@ const rule = { type: "WebSocketClientHeaders", yaml: "Заголовки" } as c
 describe("exportWebSocketClientHeadersToYAML", () => {
   it("preserves order and duplicate keys", () => {
     const result = exportWebSocketClientHeadersToYAML(mockContextToYAML, rule, [
-      { key: "X-Test", value: "1" },
-      { key: "X-Test", value: "2" },
+      { Ключ: "X-Test", Значение: "1" },
+      { Ключ: "X-Test", Значение: "2" },
     ])
 
     expect(result).toEqual([

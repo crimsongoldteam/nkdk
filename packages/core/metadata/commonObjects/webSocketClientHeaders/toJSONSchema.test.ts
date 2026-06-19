@@ -7,7 +7,9 @@ const schema = TypeCompiler.Compile(
     context: {} as never,
     rule: { type: "WebSocketClientHeaders" },
     value: undefined,
-  })
+  }) ?? (() => {
+    throw new Error("WebSocketClientHeaders JSON schema export returned undefined")
+  })()
 )
 
 describe("exportWebSocketClientHeadersToJSONSchema", () => {
