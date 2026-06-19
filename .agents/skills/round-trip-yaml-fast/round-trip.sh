@@ -128,9 +128,14 @@ else
 fi
 echo ""
 
+NKDK_EXIT="0"
 if ! "${NKDK[@]}" round-trip-yaml-fast "${NKDK_XML_DIR}" >"${OUTPUT_FILE}"; then
+  NKDK_EXIT="$?"
+fi
+
+if [ "${NKDK_EXIT}" -ne 0 ] && ! grep -q '^=== ROUND_TRIP_YAML_FAST ===$' "${OUTPUT_FILE}"; then
   cat "${OUTPUT_FILE}"
-  exit 1
+  exit "${NKDK_EXIT}"
 fi
 
 DIFF_COUNT="$(
@@ -141,16 +146,46 @@ DIFF_COUNT="$(
 DIFF_COUNT="${DIFF_COUNT:-0}"
 is_positive_integer "${DIFF_COUNT}" || [ "${DIFF_COUNT}" = "0" ] || die "не удалось прочитать DIFF_COUNT"
 
+CHECKED_COUNT="$(
+  awk '
+    /^checked: / { sub(/^checked: /, ""); print; exit }
+  ' "${OUTPUT_FILE}"
+)"
+CHECKED_COUNT="${CHECKED_COUNT:-0}"
+is_positive_integer "${CHECKED_COUNT}" || [ "${CHECKED_COUNT}" = "0" ] || die "не удалось прочитать checked"
+
+ERROR_COUNT="$(
+  awk '
+    /^errors: / { sub(/^errors: /, ""); print; exit }
+  ' "${OUTPUT_FILE}"
+)"
+ERROR_COUNT="${ERROR_COUNT:-0}"
+is_positive_integer "${ERROR_COUNT}" || [ "${ERROR_COUNT}" = "0" ] || die "не удалось прочитать errors"
+
 echo "=== ACTIVE_XML_DIR ==="
 echo "${NKDK_XML_DIR}"
 echo ""
+echo "=== CHECKED ==="
+echo "${CHECKED_COUNT}"
+echo ""
 echo "=== DIFF_COUNT ==="
 echo "${DIFF_COUNT}"
+echo ""
+echo "=== ERROR_COUNT ==="
+echo "${ERROR_COUNT}"
 
-if [ "${DIFF_COUNT}" -eq 0 ]; then
+if [ "${DIFF_COUNT}" -eq 0 ] && [ "${ERROR_COUNT}" -eq 0 ]; then
   echo ""
   echo "=== Round-trip YAML fast чистый: диффов нет ==="
   exit 0
+fi
+
+if [ "${DIFF_COUNT}" -eq 0 ]; then
+  awk '
+    $0 == "=== ERRORS ===" { selected = 1 }
+    selected { print }
+  ' "${OUTPUT_FILE}"
+  exit "${NKDK_EXIT}"
 fi
 
 emit_single_diff() {
