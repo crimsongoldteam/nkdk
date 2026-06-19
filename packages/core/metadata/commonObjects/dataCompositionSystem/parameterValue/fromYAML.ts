@@ -3,7 +3,7 @@ import { ConfigurationContext } from "../../../context/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { isExplicitYAMLString } from "~/yaml/explicitString"
+import { asExplicitYAMLStringIfMarked, isExplicitYAMLString } from "~/yaml/explicitString"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
 import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
@@ -42,6 +42,9 @@ const normalizeRawValues = (
   if (valueType === "ChoiceParameterLinks") return [rawValue]
   return Array.isArray(rawValue) ? rawValue : [rawValue]
 }
+
+const restoreExplicitRawValue = (parent: unknown, key: string | number, value: unknown): unknown =>
+  asExplicitYAMLStringIfMarked(parent, key, value)
 
 /** Поля развёрнутого SPV — не имя параметра снаружи. */
 const PARAMETER_VALUE_YAML_INTERNAL_KEYS = new Set([
@@ -118,23 +121,26 @@ export const importParameterValueFromYAML = (
     isExpandedSpvShape && typeof y?.["Параметр"] === "string" ? String(y["Параметр"]) : undefined
   const parameter = String(parameterFromWrapper ?? parameterFromExpandedField ?? parameterFromRule ?? "")
   const hasExplicitValue = y !== undefined && "Значение" in y
-  const rawValue =
+  const rawValueBase =
     rule.valueType === "Color" && yamlToParse === null
       ? undefined
       : isExplicitDcsValueYAML(yamlToParse)
         ? yamlToParse
         : hasExplicitValue
-          ? y["Значение"]
+          ? restoreExplicitRawValue(y, "Значение", y["Значение"])
           : isExpandedSpvShape
             ? undefined
             : yamlToParse
+  const rawValue =
+    unwrapped !== undefined ? restoreExplicitRawValue(yaml, parameterFromWrapper, rawValueBase) : rawValueBase
   const rawList = normalizeRawValues(dcsRule.valueType, rawValue)
   const sourceValues = normalizeSourceValues(sourceValue?.value)
   const valueParts: MetadataDcsMetadataValue[] = []
   rawList.forEach((v, index) => {
+    const valueToImport = Array.isArray(rawValue) ? restoreExplicitRawValue(rawValue, index, v) : v
     appendImportedValue(
       valueParts,
-      importDcsMetadataValueFromYAML(context, dcsRule, v as never, sourceValues[index] ?? undefined)
+      importDcsMetadataValueFromYAML(context, dcsRule, valueToImport as never, sourceValues[index] ?? undefined)
     )
   })
   if (rawList.length === 0 && sourceValue?.value !== undefined) {

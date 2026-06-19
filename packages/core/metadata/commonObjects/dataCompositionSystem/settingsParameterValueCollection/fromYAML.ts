@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import type { SettingsParameterValueCollectionPropertyRule } from "~/metadata/orchestration/property/types"
+import { asExplicitYAMLStringIfMarked } from "~/yaml/explicitString"
 import { importParameterValueFromYAML } from "../parameterValue/fromYAML"
 import type { SettingsParameterValueYAML } from "../parameterValue/types"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
@@ -35,7 +36,8 @@ const importSettingsParameterValueCollectionFromYAML = (
     const itemRule = getSettingsParameterValueRuleForParameter(collRule, paramName)
     if (itemRule === undefined) continue
 
-    const wrapped = wrapYamlFragment(paramName, yamlFragment)
+    const valueFragment = asExplicitYAMLStringIfMarked(value, paramName, yamlFragment)
+    const wrapped = wrapYamlFragment(paramName, valueFragment)
     const imported = importParameterValueFromYAML(context, itemRule, wrapped)
     if (imported !== undefined) {
       parameters[paramName] = { ...imported, parameter: paramName }
