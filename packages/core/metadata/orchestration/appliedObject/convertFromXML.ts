@@ -12,6 +12,11 @@ import {
   normalizeFileItemCollectionItems,
   resolveChildCollectionDir,
 } from "./fileItemChildCollections"
+import {
+  appendMetadataItemOwner,
+  withExportMetadataTargetOwners,
+  type MetadataItemOwnerContextEntry,
+} from "./metadataItemOwnerContext"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
@@ -60,7 +65,7 @@ export const convertAppliedObjectFromXML = async (params: {
 
   // Обработчики внешних файлов на уровне объекта (Help, Module, Template со статическими путями)
   const nkdkDir = join(outputDir, name)
-  const contextWithCurrentOwner = withExportMetadataTargetOwner(context, rule.itemType, name)
+  const contextWithCurrentOwner = withExportMetadataTargetOwners(context, [{ itemType: rule.itemType, name, path: "" }])
   for (const [, propRule] of Object.entries(rule.properties)) {
     const syncFn = getTypeRule(propRule.type, "syncExternalFromXML")
     if (!syncFn) continue
@@ -75,6 +80,7 @@ export const convertAppliedObjectFromXML = async (params: {
     nkdkDir,
     name,
     xmlDirContainsCurrentItem: false,
+    ownerStack: [],
   })
 
   const externalFilesCollector: ExternalFileEntry[] = []
@@ -100,9 +106,11 @@ async function syncChildCollectionsFromXML(params: {
   nkdkDir: string
   name: string
   xmlDirContainsCurrentItem: boolean
+  ownerStack: readonly MetadataItemOwnerContextEntry[]
 }): Promise<void> {
   const { rule, model, xmlDir, nkdkDir, name } = params
-  const context = withExportMetadataTargetOwner(params.context, rule.itemType, name)
+  const ownerStack = appendMetadataItemOwner(params.ownerStack, rule.itemType, name)
+  const context = withExportMetadataTargetOwners(params.context, [{ itemType: rule.itemType, name, path: "" }])
 
   for (const childCollection of rule.childCollections ?? []) {
     const collectionModel = model[childCollection.propertyKey]
@@ -170,6 +178,7 @@ async function syncChildCollectionsFromXML(params: {
         nkdkDir: childNkdkDir,
         name: item.name,
         xmlDirContainsCurrentItem: params.xmlDirContainsCurrentItem || childCollection.xmlDir !== undefined,
+        ownerStack,
       })
 
       if (childCollection.fileItemRule && childCollection.nkdkDir) {
@@ -197,22 +206,6 @@ function withExportParentName(context: ConfigurationContextFromXML, name: string
         exportToYAML: {
           ...context.exportToYAML,
           parent: { name },
-        },
-      }
-    : context
-}
-
-function withExportMetadataTargetOwner(
-  context: ConfigurationContextFromXML,
-  itemType: MetadataItemRule["itemType"],
-  name: string
-): ConfigurationContextFromXML {
-  return context.exportToYAML
-    ? {
-        ...context,
-        exportToYAML: {
-          ...context.exportToYAML,
-          metadataTargetOwners: [...(context.exportToYAML.metadataTargetOwners ?? []), { itemType, name }],
         },
       }
     : context
