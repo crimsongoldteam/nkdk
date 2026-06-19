@@ -35,7 +35,6 @@ export type MetadataRootName =
   | "StyleItem"
   | "FunctionalOption"
   | "FunctionalOptionsParameter"
-  | "FunctionalOptionParameter"
   | "DocumentJournal"
   | "HTTPService"
   | "WebSocketClient"

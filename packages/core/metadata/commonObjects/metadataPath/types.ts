@@ -40,7 +40,6 @@ const OtherTypeToYAML = {
   Bot: "Бот",
   ExternalDataSource: "ВнешнийИсточникДанных",
   SessionParameter: "ПараметрСеанса",
-  FunctionalOptionParameter: "ПараметрФункциональныхОпций",
 } as const
 
 export const MetadataTypeToYAML = {

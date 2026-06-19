@@ -399,8 +399,8 @@ describe("metadataTargets parser", () => {
       ["WSСсылка.WSСсылкаВсеСвойства", "WSReference.WSСсылкаВсеСвойства", "WSReference"],
       [
         "ПараметрФункциональныхОпций.ПараметрФункциональныхОпцийВсеСвойства",
-        "FunctionalOptionParameter.ПараметрФункциональныхОпцийВсеСвойства",
-        "FunctionalOptionParameter",
+        "FunctionalOptionsParameter.ПараметрФункциональныхОпцийВсеСвойства",
+        "FunctionalOptionsParameter",
       ],
     ] as const
 

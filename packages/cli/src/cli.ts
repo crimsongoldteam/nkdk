@@ -4,6 +4,7 @@ import { resolve } from "path"
 import { pathToFileURL } from "url"
 import { importConfiguration } from "./commands/import"
 import { deleteMigration, generateMigration, renameMigration } from "./commands/migration"
+import { roundTripYAMLFastCommand } from "./commands/roundTripYAMLFast"
 import { normalizeSchemaCommandInput, printSchema, type SchemaCommandOptions } from "./commands/schema"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
 import { syncConfiguration } from "./commands/sync"
@@ -56,6 +57,14 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
     .action((xmlDir: string) => {
       run(() => shortRoundTrip(xmlDir), options)
+    })
+
+  program
+    .command("round-trip-yaml-fast")
+    .description("Быстрая диагностика round-trip XML → YAML-текст → XML без записи деревьев")
+    .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
+    .action((xmlDir: string) => {
+      run(() => roundTripYAMLFastCommand(xmlDir), options)
     })
 
   program
