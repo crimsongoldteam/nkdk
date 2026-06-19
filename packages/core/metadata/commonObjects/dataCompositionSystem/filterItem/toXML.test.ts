@@ -27,6 +27,22 @@ describe("export FilterItem to XML", () => {
     expect(result).toEqual(expectedResult)
   })
 
+  it("restores implicit Equal comparisonType to XML", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        {
+          itemType: "FilterItemComparison",
+          leftValue: { type: "Field", value: "Список.Порядок" },
+          rightValue: { type: "Order" },
+        },
+      ],
+      xmlRootTag: "dcsset:item",
+    })
+
+    expect(result).toContain("<dcsset:comparisonType>Equal</dcsset:comparisonType>")
+  })
+
   it("exports FilterItemComparison InList (массив rightValue) to XML", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule,

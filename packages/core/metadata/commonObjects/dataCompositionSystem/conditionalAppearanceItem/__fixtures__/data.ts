@@ -6,7 +6,6 @@ import { ConditionalAppearanceItem, ConditionalAppearanceItemsYAML } from "../ty
 const filterItemComparison1 = {
   itemType: "FilterItemComparison",
   leftValue: { type: "Field", value: "Реквизит1" },
-  comparisonType: "Equal",
   rightValue: { type: "boolean", value: true },
 } satisfies FilterItemComparison
 

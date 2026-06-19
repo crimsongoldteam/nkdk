@@ -130,7 +130,6 @@ const documentFullClientApplicationFormData: DocumentClientApplicationForm = {
             {
               itemType: "FilterItemComparison",
               leftValue: { type: "Field", value: "Объект.Номер" },
-              comparisonType: "Equal",
               rightValue: { type: "decimal", value: 34567 },
             },
           ],

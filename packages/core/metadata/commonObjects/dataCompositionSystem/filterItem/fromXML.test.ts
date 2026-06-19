@@ -15,6 +15,7 @@ const rule: PropertyRule = {
 
 describe("import FilterItem from XML", () => {
   it("imports FilterItemComparison from XML", () => {
+    const { comparisonType: _xmlDefault, ...expected } = fullFilterItemComparison
     const result = testImportPropertyFromXML({
       rule,
       path: "full.xml",
@@ -22,7 +23,7 @@ describe("import FilterItem from XML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual([fullFilterItemComparison])
+    expect(result).toEqual([expected])
   })
 
   it("imports FilterItemComparison InList (массив rightValue) from XML", () => {

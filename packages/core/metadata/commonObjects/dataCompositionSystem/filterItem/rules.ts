@@ -21,6 +21,7 @@ export const FilterItemComparisonRules = {
       typeSE: "DataCompositionComparisonType",
       xml: "dcsset:comparisonType",
       yaml: "ВидСравнения",
+      defaultValueXML: "Equal",
       implicitValueYAML: "Equal",
       order: 3,
     },
