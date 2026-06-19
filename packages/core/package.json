@@ -18,20 +18,18 @@
     "prepare": "ts-patch install"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.34.48",
+    "@sinclair/typebox": "^0.34.49",
+    "date-fns": "^4.4.0",
+    "fast-xml-parser": "^5.9.2",
     "p-limit": "^6.2.0",
-    "change-case": "^5.4.4",
-    "chevrotain": "^11.0.3",
-    "date-fns": "^4.1.0",
-    "fast-xml-parser": "^5.4.2",
-    "uuid": "^13.0.0",
-    "yaml": "^2.8.3"
+    "uuid": "^14.0.0",
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
-    "tsx": "^4.19.2",
+    "@types/node": "^25.9.3",
     "ts-patch": "^3.3.0",
+    "tsx": "^4.22.4",
     "typescript": "~5.9.3",
-    "vitest": "^4.0.15"
+    "vitest": "^4.1.9"
   }
 }
