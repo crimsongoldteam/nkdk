@@ -47,10 +47,49 @@ const enumXml = (params: { name: string; choiceMode?: string }): string => `<?xm
 	</Enum>
 </MetaDataObject>`
 
+const externalDataSourceXml = (params: { name: string }): string => `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ExternalDataSource uuid="aa0a162f-bf96-4951-9c81-f6a8014ab7e8">
+		<InternalInfo>
+			<xr:GeneratedType name="ExternalDataSourceManager.${params.name}" category="Manager">
+				<xr:TypeId>a4ef7100-9959-4442-baf4-787c10c5e21d</xr:TypeId>
+				<xr:ValueId>89d407e9-dd88-4734-896d-807c3768ba23</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTablesManager.${params.name}" category="TablesManager">
+				<xr:TypeId>9845972e-4d29-4fda-ab72-c7a6b981c440</xr:TypeId>
+				<xr:ValueId>7010ece1-b27d-4e92-a012-b9ba45db751f</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubesManager.${params.name}" category="CubesManager">
+				<xr:TypeId>0ca57e3a-b717-4edc-be5e-e333ac1cf78c</xr:TypeId>
+				<xr:ValueId>74742986-68bc-418c-8396-8dc92ffa6da5</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<Name>${params.name}</Name>
+			<Synonym/>
+			<Comment/>
+			<DataLockControlMode>Automatic</DataLockControlMode>
+		</Properties>
+		<ChildObjects>
+			<Table>ТаблицаВсеСвойства</Table>
+			<Table>ТаблицаПоУмолчанию</Table>
+			<Cube>КубВсеСвойства</Cube>
+			<Cube>КубПоУмолчанию</Cube>
+		</ChildObjects>
+	</ExternalDataSource>
+</MetaDataObject>`
+
 const makeXmlProject = (xml: string): string => {
   const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-round-trip-yaml-fast-"))
   fs.mkdirSync(join(dir, "Enums"), { recursive: true })
   fs.writeFileSync(join(dir, "Enums", "ВидыСервисовЭДО.xml"), xml, "utf-8")
+  return dir
+}
+
+const makeExternalDataSourceXmlProject = (xml: string): string => {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-round-trip-yaml-fast-"))
+  fs.mkdirSync(join(dir, "ExternalDataSources"), { recursive: true })
+  fs.writeFileSync(join(dir, "ExternalDataSources", "ВнешнийИсточникДанныхВсеСвойства.xml"), xml, "utf-8")
   return dir
 }
 
@@ -94,6 +133,19 @@ describe("roundTripYAMLFast", () => {
       expect(result.errors).toHaveLength(1)
       expect(result.errors[0]?.file).toBe("Enums/ВидыСервисовЭДО.xml")
       expect(result.errors[0]?.message.length).toBeGreaterThan(0)
+    } finally {
+      fs.rmSync(xmlDir, { recursive: true, force: true })
+    }
+  })
+
+  it("round-trips external data source file item child references without reading child files", async () => {
+    const xmlDir = makeExternalDataSourceXmlProject(externalDataSourceXml({ name: "ВнешнийИсточникДанныхВсеСвойства" }))
+    try {
+      const result = await roundTripYAMLFast({ inputDir: xmlDir })
+
+      expect(result.errors).toEqual([])
+      expect(result.diffs).toEqual([])
+      expect(result.checked).toBe(1)
     } finally {
       fs.rmSync(xmlDir, { recursive: true, force: true })
     }
