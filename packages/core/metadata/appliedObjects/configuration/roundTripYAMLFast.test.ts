@@ -1,6 +1,6 @@
 import fs from "fs"
 import os from "os"
-import { join } from "path"
+import { dirname, join } from "path"
 import { describe, expect, it } from "vitest"
 import { roundTripYAMLFast } from "./roundTripYAMLFast"
 
@@ -93,6 +93,82 @@ const makeExternalDataSourceXmlProject = (xml: string): string => {
   return dir
 }
 
+const externalDataSourceFixtureRoot = join(
+  import.meta.dirname,
+  "../metadataExternalDataSource/__fixtures__/sync/xml/ВнешнийИсточникДанныхВсеСвойства"
+)
+
+const makeExternalDataSourceFixtureProject = (): string => {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-round-trip-yaml-fast-eds-"))
+  const sourceRootXml = `${externalDataSourceFixtureRoot}.xml`
+  const targetRootXml = join(dir, "ExternalDataSources", "ВнешнийИсточникДанныхВсеСвойства.xml")
+  fs.mkdirSync(dirname(targetRootXml), { recursive: true })
+  fs.copyFileSync(sourceRootXml, targetRootXml)
+  fs.cpSync(externalDataSourceFixtureRoot, join(dir, "ExternalDataSources", "ВнешнийИсточникДанныхВсеСвойства"), {
+    recursive: true,
+  })
+  return dir
+}
+
+const corruptFixtureFile = (xmlDir: string, relativePath: string): void => {
+  fs.writeFileSync(join(xmlDir, relativePath), "<broken>", "utf-8")
+}
+
+const catalogWithFormXml = (params: { name: string; formName: string }): string => `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="11111111-1111-1111-1111-111111111111">
+		<Properties>
+			<Name>${params.name}</Name>
+			<Synonym/>
+			<Comment/>
+			<UseStandardCommands>true</UseStandardCommands>
+			<DefaultPresentation>AsDescription</DefaultPresentation>
+			<EditType>InDialog</EditType>
+			<QuickChoice>false</QuickChoice>
+			<ChoiceMode>BothWays</ChoiceMode>
+			<CodeLength>9</CodeLength>
+			<DescriptionLength>25</DescriptionLength>
+			<CodeType>String</CodeType>
+			<CodeAllowedLength>Variable</CodeAllowedLength>
+			<CheckUnique>true</CheckUnique>
+			<Autonumbering>true</Autonumbering>
+			<Characteristics/>
+		</Properties>
+		<ChildObjects>
+			<Form>${params.formName}</Form>
+		</ChildObjects>
+		<InternalInfo/>
+	</Catalog>
+</MetaDataObject>`
+
+const formMetadataXml = (name: string): string => `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Form uuid="22222222-2222-2222-2222-222222222222">
+		<Properties>
+			<Name>${name}</Name>
+			<Synonym/>
+			<Comment/>
+			<FormType>Managed</FormType>
+		</Properties>
+	</Form>
+</MetaDataObject>`
+
+const makeCatalogWithFormXmlProject = (): string => {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-round-trip-yaml-fast-form-"))
+  const catalogName = "СправочникФорма"
+  const formName = "ФормаСписка"
+  const formsDir = join(dir, "Catalogs", catalogName, "Forms")
+  fs.mkdirSync(join(formsDir, formName, "Ext"), { recursive: true })
+  fs.writeFileSync(join(dir, "Catalogs", `${catalogName}.xml`), catalogWithFormXml({ name: catalogName, formName }), "utf-8")
+  fs.writeFileSync(join(formsDir, `${formName}.xml`), formMetadataXml(formName), "utf-8")
+  fs.writeFileSync(
+    join(formsDir, formName, "Ext", "Form.xml"),
+    '<?xml version="1.0" encoding="UTF-8"?>\n<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20"/>',
+    "utf-8"
+  )
+  return dir
+}
+
 describe("roundTripYAMLFast", () => {
   it("returns no diffs for stable metadata xml", async () => {
     const xmlDir = makeXmlProject(enumXml({ name: "ВидыСервисовЭДО", choiceMode: "BothWays" }))
@@ -146,6 +222,55 @@ describe("roundTripYAMLFast", () => {
       expect(result.errors).toEqual([])
       expect(result.diffs).toEqual([])
       expect(result.checked).toBe(1)
+    } finally {
+      fs.rmSync(xmlDir, { recursive: true, force: true })
+    }
+  })
+
+  it("checks form XML files discovered through import form files", async () => {
+    const xmlDir = makeCatalogWithFormXmlProject()
+    try {
+      const result = await roundTripYAMLFast({ inputDir: xmlDir })
+
+      expect(result.checked).toBe(2)
+    } finally {
+      fs.rmSync(xmlDir, { recursive: true, force: true })
+    }
+  })
+
+  it("checks external data source file-item XML and nested form XML through childCollections", async () => {
+    const xmlDir = makeExternalDataSourceFixtureProject()
+    try {
+      corruptFixtureFile(xmlDir, "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml")
+      corruptFixtureFile(xmlDir, "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубПоУмолчанию.xml")
+      corruptFixtureFile(
+        xmlDir,
+        "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml"
+      )
+      corruptFixtureFile(
+        xmlDir,
+        "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml"
+      )
+      corruptFixtureFile(
+        xmlDir,
+        "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаСписка/Ext/Form.xml"
+      )
+
+      const result = await roundTripYAMLFast({ inputDir: xmlDir })
+      const files = [...result.diffs.map((diff) => diff.file), ...result.errors.map((error) => error.file)]
+
+      expect(result.checked).toBeGreaterThan(1)
+      expect(files).toContain("ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаПоУмолчанию.xml")
+      expect(files).toContain("ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубПоУмолчанию.xml")
+      expect(files).toContain(
+        "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/DimensionTables/ТаблицаИзмеренияВсеСвойства.xml"
+      )
+      expect(files).toContain(
+        "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Tables/ТаблицаВсеСвойства/Forms/ФормаСписка/Ext/Form.xml"
+      )
+      expect(files).toContain(
+        "ExternalDataSources/ВнешнийИсточникДанныхВсеСвойства/Cubes/КубВсеСвойства/Forms/ФормаСписка/Ext/Form.xml"
+      )
     } finally {
       fs.rmSync(xmlDir, { recursive: true, force: true })
     }
