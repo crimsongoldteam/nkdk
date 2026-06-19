@@ -53,6 +53,21 @@ describe("importUserVisibleFromYAML", () => {
     })
   })
 
+  it("imports empty deny mode from current YAML", () => {
+    const result = importUserVisibleFromYAML({
+      context: mockContext,
+      rule: userVisibleRule,
+      value: {
+        Разрешить: "Ложь",
+      },
+    })
+
+    expect(result).toEqual({
+      common: false,
+      values: [],
+    })
+  })
+
   it("does not read legacy allow or deny YAML keys", () => {
     expect(
       importUserVisibleFromYAML({

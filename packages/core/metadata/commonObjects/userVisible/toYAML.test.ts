@@ -10,7 +10,7 @@ const userVisibleRule: UserVisiblePropertyRule = {
 }
 
 describe("exportUserVisibleToYAML", () => {
-  it("does not export empty deny usage", () => {
+  it("exports empty deny usage", () => {
     const use: UserVisible = {
       common: false,
       values: [],
@@ -18,7 +18,11 @@ describe("exportUserVisibleToYAML", () => {
 
     const result = exportUserVisibleToYAML(mockContext, userVisibleRule, use)
 
-    expect(result).toBeUndefined()
+    expect(result).toEqual({
+      Использование: {
+        Разрешить: "Ложь",
+      },
+    })
   })
 
   it("does not export empty allow usage", () => {

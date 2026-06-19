@@ -13,6 +13,10 @@ describe("UserVisibleJSONSchema", () => {
     expect(compiled.Check({ Разрешить: "Ложь", Роли: { "Role.Администратор": "Истина" } })).toBe(true)
   })
 
+  it("accepts empty deny mode without roles", () => {
+    expect(compiled.Check({ Разрешить: "Ложь" })).toBe(true)
+  })
+
   it("rejects explicit Разрешить Истина", () => {
     expect(compiled.Check({ Разрешить: "Истина", Роли: { "Role.Администратор": "Истина" } })).toBe(false)
   })
