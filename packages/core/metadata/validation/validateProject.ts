@@ -218,7 +218,7 @@ function validateRequiredConfigurationYAMLKeys(params: {
       severity: "error",
       source: "structure",
       path: "/ОсновнойЯзык",
-      message: "Expected required property",
+      message: 'Отсутствует обязательное свойство "ОсновнойЯзык"',
     },
   ]
 }

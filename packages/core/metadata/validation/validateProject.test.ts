@@ -244,6 +244,7 @@ describe("validateProject", () => {
           source: "structure",
           severity: "error",
           path: "/ОсновнойЯзык",
+          message: 'Отсутствует обязательное свойство "ОсновнойЯзык"',
         }),
       ])
     )
