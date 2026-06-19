@@ -16,6 +16,11 @@ const rule: PropertyRule = {
   items: [{ name: "ExchangePlanRef", category: "Ref" }],
 }
 
+const containedObjectsRule: PropertyRule = {
+  type: "InternalInfo",
+  forReferenceOnly: true,
+}
+
 const ruleWithThisNode: PropertyRule = { ...rule, thisNode: true }
 
 const xml = `
@@ -37,7 +42,7 @@ const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__"
 const importContainedObjectsFixture = () => {
   const source = readFileSync(join(fixturesDir, "containedObjects.xml"), "utf8")
   const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(source)
-  return importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, parsed.InternalInfo)
+  return importInternalInfoFromXML(mockContextFromXML({ forReference: true }), containedObjectsRule, parsed.InternalInfo)
 }
 
 describe("importInternalInfoFromXML", () => {
@@ -87,7 +92,7 @@ describe("importInternalInfoFromXML", () => {
     const imported = importContainedObjectsFixture()
     const exported = exportInternalInfoToXML({
       context: mockContextToXML(),
-      rule,
+      rule: containedObjectsRule,
       value: imported,
       referenceMetadata: undefined,
       metadataItem: { itemType: "MetadataConfiguration" as never },
@@ -95,9 +100,9 @@ describe("importInternalInfoFromXML", () => {
     const exportedXML = xmlExport({ InternalInfo: exported }, false)
     const reparsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(exportedXML)
 
-    expect(importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, reparsed.InternalInfo)).toEqual(
-      imported
-    )
+    expect(
+      importInternalInfoFromXML(mockContextFromXML({ forReference: true }), containedObjectsRule, reparsed.InternalInfo)
+    ).toEqual(imported)
   })
 
   it("prefers reference ThisNode when exporting", () => {
