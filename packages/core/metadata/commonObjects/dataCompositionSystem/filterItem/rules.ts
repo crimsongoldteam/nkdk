@@ -32,7 +32,7 @@ export const FilterItemComparisonRules = {
       order: 4,
     },
     presentation: {
-      type: "DcsLocalStringType",
+      type: "FilterItemPresentationValue",
       xml: "dcsset:presentation",
       yaml: "Представление",
       order: 5,
