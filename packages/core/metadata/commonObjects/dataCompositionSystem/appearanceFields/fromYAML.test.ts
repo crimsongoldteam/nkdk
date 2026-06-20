@@ -65,6 +65,24 @@ describe("import Appearance from YAML", () => {
     })
   })
 
+  it("imports double-quoted absolute color as color value", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: importFromYAML<{ ЦветФона: string }>('ЦветФона: "#000000"'),
+    })
+
+    expect(result).toEqual({
+      itemType: "AppearanceFields",
+      ЦветФона: {
+        parameter: "ЦветФона",
+        value: {
+          type: "Absolute",
+          value: "#000000",
+        },
+      },
+    })
+  })
+
   it("preserves source empty LocalStringType for text appearance when YAML omits value", () => {
     const result = testImportPropertyFromYAML({
       rule,
