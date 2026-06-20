@@ -3,7 +3,7 @@ import { ConfigurationContext } from "../../../context/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { asExplicitYAMLStringIfMarked, isExplicitYAMLString } from "~/yaml/explicitString"
+import { asExplicitYAMLStringIfMarked, isExplicitYAMLString, unwrapExplicitYAMLString } from "~/yaml/explicitString"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
 import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
@@ -57,6 +57,19 @@ const normalizeRawValues = (
 
 const restoreExplicitRawValue = (parent: unknown, key: string | number, value: unknown): unknown =>
   asExplicitYAMLStringIfMarked(parent, key, value)
+
+const shouldPreserveExplicitYAMLString = (valueType: SettingsParameterValuePropertyRule["valueType"]): boolean =>
+  valueType === "Primitive" || valueType === "DesignTimeValue" || valueType === "Field"
+
+const normalizeExplicitRawValue = (
+  valueType: SettingsParameterValuePropertyRule["valueType"],
+  parent: unknown,
+  key: string | number,
+  value: unknown
+): unknown =>
+  shouldPreserveExplicitYAMLString(valueType)
+    ? restoreExplicitRawValue(parent, key, value)
+    : unwrapExplicitYAMLString(value)
 
 /** Поля развёрнутого SPV — не имя параметра снаружи. */
 const PARAMETER_VALUE_YAML_INTERNAL_KEYS = new Set([
@@ -130,12 +143,14 @@ export const importParameterValueFromYAML = (
     rule.valueType === "Color" && yamlToParse === null
       ? undefined
       : hasExplicitValue
-        ? restoreExplicitRawValue(y, "Значение", y["Значение"])
+        ? normalizeExplicitRawValue(rule.valueType, y, "Значение", y["Значение"])
         : isExpandedSpvShape
           ? undefined
-            : yamlToParse
+          : yamlToParse
   const rawValue =
-    unwrapped !== undefined ? restoreExplicitRawValue(yaml, parameterFromWrapper, rawValueBase) : rawValueBase
+    unwrapped !== undefined
+      ? normalizeExplicitRawValue(rule.valueType, yaml, parameterFromWrapper, rawValueBase)
+      : rawValueBase
   const rawList = normalizeRawValues(dcsRule.valueType, rawValue)
   const sourceValues = normalizeSourceValues(sourceValue?.value)
   const valueParts: MetadataDcsMetadataValue[] = []

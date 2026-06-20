@@ -105,6 +105,24 @@ describe("import Appearance from YAML", () => {
     })
   })
 
+  it("imports double-quoted full color appearance value as color value", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: importFromYAML<{ ЦветТекста: { Значение: string } }>('ЦветТекста:\n  Значение: "#C0C0C0"'),
+    })
+
+    expect(result).toEqual({
+      itemType: "AppearanceFields",
+      ЦветТекста: {
+        parameter: "ЦветТекста",
+        value: {
+          type: "Absolute",
+          value: "#C0C0C0",
+        },
+      },
+    })
+  })
+
   it("keeps legacy compact color appearance readable", () => {
     const result = testImportPropertyFromYAML({
       rule,
