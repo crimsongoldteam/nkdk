@@ -8,13 +8,6 @@ export type { ConfigurationSyncResult } from "./metadata/appliedObjects/configur
 export { syncConfigurationToXML } from "./metadata/appliedObjects/configuration/syncToXML"
 export { shortRoundTripXML } from "./metadata/appliedObjects/configuration/shortRoundTripXML"
 export {
-  roundTripYAMLFast,
-  type RoundTripYAMLFastDiff,
-  type RoundTripYAMLFastError,
-  type RoundTripYAMLFastParams,
-  type RoundTripYAMLFastResult,
-} from "./metadata/appliedObjects/configuration/roundTripYAMLFast"
-export {
   ADD_ACTION,
   DELETE_ACTION,
   applyPendingMigrationFiles,
