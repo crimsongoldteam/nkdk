@@ -21,6 +21,16 @@ const isYamlObject = (x: unknown): x is Record<string, unknown> =>
 const isExplicitDcsValueYAML = (x: unknown): x is Record<string, unknown> =>
   isYamlObject(x) && typeof x["Тип"] === "string" && "Значение" in x
 
+const hasSettingsParameterValueWrapperKey = (x: Record<string, unknown>): boolean =>
+  "Использовать" in x ||
+  "Элементы" in x ||
+  x["РежимОтображения"] !== undefined ||
+  x["ИдентификаторПользовательскойНастройки"] !== undefined ||
+  x["ПредставлениеПользовательскойНастройки"] !== undefined
+
+const isExpandedSettingsParameterValueShape = (x: unknown): x is Record<string, unknown> =>
+  isYamlObject(x) && (hasSettingsParameterValueWrapperKey(x) || ("Значение" in x && !isExplicitDcsValueYAML(x)))
+
 const normalizeSourceValues = (value: ParameterValue["value"] | undefined): MetadataDcsMetadataValue[] => {
   if (value === undefined) return []
   return Array.isArray(value) ? (value as MetadataDcsMetadataValue[]) : [value]
@@ -107,16 +117,9 @@ export const importParameterValueFromYAML = (
   const yamlToParse = unwrapped !== undefined ? unwrapped.inner : yaml
   const parameterFromWrapper = unwrapped?.parameter
 
-  const y = isYamlObject(yamlToParse) ? (yamlToParse as Record<string, unknown>) : undefined
+  const y = isExpandedSettingsParameterValueShape(yamlToParse) ? yamlToParse : undefined
   const parameterFromRule = typeof rule.yaml === "string" ? rule.yaml : undefined
-  const isExpandedSpvShape =
-    y !== undefined &&
-    ("Значение" in y ||
-      "Использовать" in y ||
-      "Элементы" in y ||
-      y["РежимОтображения"] !== undefined ||
-      y["ИдентификаторПользовательскойНастройки"] !== undefined ||
-      y["ПредставлениеПользовательскойНастройки"] !== undefined)
+  const isExpandedSpvShape = y !== undefined
   const parameterFromExpandedField =
     isExpandedSpvShape && typeof y?.["Параметр"] === "string" ? String(y["Параметр"]) : undefined
   const parameter = String(parameterFromWrapper ?? parameterFromExpandedField ?? parameterFromRule ?? "")
@@ -124,12 +127,10 @@ export const importParameterValueFromYAML = (
   const rawValueBase =
     rule.valueType === "Color" && yamlToParse === null
       ? undefined
-      : isExplicitDcsValueYAML(yamlToParse)
-        ? yamlToParse
-        : hasExplicitValue
-          ? restoreExplicitRawValue(y, "Значение", y["Значение"])
-          : isExpandedSpvShape
-            ? undefined
+      : hasExplicitValue
+        ? restoreExplicitRawValue(y, "Значение", y["Значение"])
+        : isExpandedSpvShape
+          ? undefined
             : yamlToParse
   const rawValue =
     unwrapped !== undefined ? restoreExplicitRawValue(yaml, parameterFromWrapper, rawValueBase) : rawValueBase
