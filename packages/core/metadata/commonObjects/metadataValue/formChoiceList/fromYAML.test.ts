@@ -83,4 +83,28 @@ describe("importFormChoiceListFromYAML", () => {
       value: "Equal",
     })
   })
+
+  it("imports metadata object-looking string as ordinary string", () => {
+    const result = importFormChoiceListFromYAML(mockContext, {
+      Представление: "Задачу",
+      Значение: "Документ.ЗадачаСотрудника",
+    })
+
+    expect(result.value).toEqual({
+      type: "string",
+      value: "Документ.ЗадачаСотрудника",
+    })
+  })
+
+  it("imports metadata predefined value as ref", () => {
+    const result = importFormChoiceListFromYAML(mockContext, {
+      Представление: "С поставщиком",
+      Значение: "Перечисление.ВидыДоговоров.СПоставщиком",
+    })
+
+    expect(result.value).toEqual({
+      type: "ref",
+      value: "Enum.ВидыДоговоров.EnumValue.СПоставщиком",
+    })
+  })
 })
