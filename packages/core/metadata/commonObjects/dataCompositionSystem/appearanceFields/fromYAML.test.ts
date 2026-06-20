@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { exportToYAML } from "~/yaml/export"
+import { importFromYAML } from "~/yaml/import"
 import { fixtureAppearanceFields, fixtureAppearanceFieldsYAML } from "./__fixtures__/data"
 import "./types"
 
@@ -9,6 +11,8 @@ const rule: PropertyRule = {
 }
 
 describe("import Appearance from YAML", () => {
+  const parseViaYamlText = <T>(value: T): T => importFromYAML<T>(exportToYAML(value))
+
   it("should import YAML to metadata", () => {
     const result = testImportPropertyFromYAML({
       rule,
@@ -36,6 +40,26 @@ describe("import Appearance from YAML", () => {
         value: {
           type: "Field",
           value: "СписокФайлов.ФормаРСВ_Представление",
+        },
+      },
+    })
+  })
+
+  it("imports double-quoted numeric-looking text appearance as string value", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: parseViaYamlText({
+        Текст: "6678",
+      }),
+    })
+
+    expect(result).toEqual({
+      itemType: "AppearanceFields",
+      Текст: {
+        parameter: "Текст",
+        value: {
+          type: "string",
+          value: "6678",
         },
       },
     })
