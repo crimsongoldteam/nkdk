@@ -59,4 +59,28 @@ describe("export Appearance to YAML", () => {
       },
     })
   })
+
+  it("exports non-auto color in full SettingsParameterValue form", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: {
+        itemType: "AppearanceFields",
+        ЦветТекста: {
+          parameter: "ЦветТекста",
+          value: {
+            type: "Absolute",
+            value: "#FF0000",
+          },
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      Оформление: {
+        ЦветТекста: {
+          Значение: "#FF0000",
+        },
+      },
+    })
+  })
 })

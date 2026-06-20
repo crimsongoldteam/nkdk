@@ -90,6 +90,12 @@ describe("SettingsParameterValue exportToJSONSchema", () => {
     ).toEqual([])
   })
 
+  it("accepts full value-only form as canonical SettingsParameterValue YAML", () => {
+    const rule = { type: "SettingsParameterValue", valueType: "Color", yaml: "Цвет" } as const
+
+    expect(errorsFor(rule, { Значение: "#FF0000" })).toEqual([])
+  })
+
   it("accepts full object with array value for DesignTimeValue", () => {
     const rule = { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Формат" } as const
 

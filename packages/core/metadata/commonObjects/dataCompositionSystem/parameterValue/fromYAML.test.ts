@@ -45,6 +45,80 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
     })
   })
 
+  it("imports full color value form without passing wrapper to Color importer", () => {
+    const result = testImportPropertyFromYAML({
+      rule: { type: "SettingsParameterValue", valueType: "Color", yaml: "ЦветТекста" } as PropertyRule,
+      value: {
+        Значение: "#FF0000",
+      },
+    })
+
+    expect(result).toEqual({
+      parameter: "ЦветТекста",
+      value: {
+        type: "Absolute",
+        value: "#FF0000",
+      },
+    })
+  })
+
+  it("imports disabled full color value form", () => {
+    const result = testImportPropertyFromYAML({
+      rule: { type: "SettingsParameterValue", valueType: "Color", yaml: "ЦветТекста" } as PropertyRule,
+      value: {
+        Использовать: "Ложь",
+        Значение: "#FF0000",
+      },
+    })
+
+    expect(result).toEqual({
+      parameter: "ЦветТекста",
+      use: false,
+      value: {
+        type: "Absolute",
+        value: "#FF0000",
+      },
+    })
+  })
+
+  it("keeps legacy explicit DCS object value readable as compact value", () => {
+    const result = testImportPropertyFromYAML({
+      rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Текст" } as PropertyRule,
+      value: {
+        Тип: "Поле",
+        Значение: "Сертификаты.СертификатПредставление",
+      },
+    })
+
+    expect(result).toEqual({
+      parameter: "Текст",
+      value: {
+        type: "Field",
+        value: "Сертификаты.СертификатПредставление",
+      },
+    })
+  })
+
+  it("imports object DCS value from full wrapper without flattening inner object", () => {
+    const result = testImportPropertyFromYAML({
+      rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Текст" } as PropertyRule,
+      value: {
+        Значение: {
+          Тип: "Поле",
+          Значение: "Сертификаты.СертификатПредставление",
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      parameter: "Текст",
+      value: {
+        type: "Field",
+        value: "Сертификаты.СертификатПредставление",
+      },
+    })
+  })
+
   it("imports explicit empty string value in field context", () => {
     const result = testImportPropertyFromYAML({
       rule: { type: "SettingsParameterValue", valueType: "Field", yaml: "НоменклатураВключение" } as PropertyRule,

@@ -566,7 +566,9 @@ export const catalogFullClientApplicationFormYAML: ClientApplicationFormYAML = {
           ],
         },
         Оформление: {
-          Текст: "абв",
+          Текст: {
+            Значение: "абв",
+          },
         },
       },
     ],

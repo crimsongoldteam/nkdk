@@ -83,10 +83,6 @@ export const exportParameterValueToYAML = (params: {
     ...(hasElements ? { Элементы: elements } : {}),
   }
 
-  if (!hasSettingsExtension(data) && !hasUse && hasValue && !hasElements) {
-    return значение as ParameterValueYAML
-  }
-
   if (hasSettingsExtension(data)) {
     const sd = data as SettingsParameterValue
     return {

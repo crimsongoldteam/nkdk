@@ -46,4 +46,44 @@ describe("exportParameterValueToYAML (через exportPropertyToYAML)", () => {
       },
     })
   })
+
+  it("exports value-only SettingsParameterValue in full form", () => {
+    const result = testExportPropertyToYAML({
+      rule: { type: "SettingsParameterValue", valueType: "Color", yaml: "ЦветТекста" } as PropertyRule,
+      value: {
+        parameter: "ЦветТекста",
+        value: {
+          type: "Absolute",
+          value: "#FF0000",
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      ЦветТекста: {
+        Значение: "#FF0000",
+      },
+    })
+  })
+
+  it("exports disabled SettingsParameterValue in full form", () => {
+    const result = testExportPropertyToYAML({
+      rule: { type: "SettingsParameterValue", valueType: "Color", yaml: "ЦветТекста" } as PropertyRule,
+      value: {
+        parameter: "ЦветТекста",
+        use: false,
+        value: {
+          type: "Absolute",
+          value: "#FF0000",
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      ЦветТекста: {
+        Использовать: "Ложь",
+        Значение: "#FF0000",
+      },
+    })
+  })
 })

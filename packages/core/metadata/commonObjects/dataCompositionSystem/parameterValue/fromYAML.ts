@@ -3,11 +3,13 @@ import { ConfigurationContext } from "../../../context/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { asExplicitYAMLStringIfMarked, isExplicitYAMLString } from "~/yaml/explicitString"
+import { asExplicitYAMLStringIfMarked, isExplicitYAMLString, unwrapExplicitYAMLString } from "~/yaml/explicitString"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
 import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
 import type {
+  LegacyParameterValueYAML,
+  LegacySettingsParameterValueYAML,
   ParameterValue,
   ParameterValueYAML,
   SettingsParameterValue,
@@ -20,6 +22,16 @@ const isYamlObject = (x: unknown): x is Record<string, unknown> =>
 
 const isExplicitDcsValueYAML = (x: unknown): x is Record<string, unknown> =>
   isYamlObject(x) && typeof x["Тип"] === "string" && "Значение" in x
+
+const hasSettingsParameterValueWrapperKey = (x: Record<string, unknown>): boolean =>
+  "Использовать" in x ||
+  "Элементы" in x ||
+  x["РежимОтображения"] !== undefined ||
+  x["ИдентификаторПользовательскойНастройки"] !== undefined ||
+  x["ПредставлениеПользовательскойНастройки"] !== undefined
+
+const isExpandedSettingsParameterValueShape = (x: unknown): x is Record<string, unknown> =>
+  isYamlObject(x) && (hasSettingsParameterValueWrapperKey(x) || ("Значение" in x && !isExplicitDcsValueYAML(x)))
 
 const normalizeSourceValues = (value: ParameterValue["value"] | undefined): MetadataDcsMetadataValue[] => {
   if (value === undefined) return []
@@ -45,6 +57,19 @@ const normalizeRawValues = (
 
 const restoreExplicitRawValue = (parent: unknown, key: string | number, value: unknown): unknown =>
   asExplicitYAMLStringIfMarked(parent, key, value)
+
+const shouldPreserveExplicitYAMLString = (valueType: SettingsParameterValuePropertyRule["valueType"]): boolean =>
+  valueType === "Primitive" || valueType === "DesignTimeValue" || valueType === "Field"
+
+const normalizeExplicitRawValue = (
+  valueType: SettingsParameterValuePropertyRule["valueType"],
+  parent: unknown,
+  key: string | number,
+  value: unknown
+): unknown =>
+  shouldPreserveExplicitYAMLString(valueType)
+    ? restoreExplicitRawValue(parent, key, value)
+    : unwrapExplicitYAMLString(value)
 
 /** Поля развёрнутого SPV — не имя параметра снаружи. */
 const PARAMETER_VALUE_YAML_INTERNAL_KEYS = new Set([
@@ -90,7 +115,7 @@ const tryUnwrapParameterValueWrapper = (
 export const importParameterValueFromYAML = (
   context: ConfigurationContext,
   rule: SettingsParameterValuePropertyRule,
-  yaml: ParameterValueYAML | SettingsParameterValueYAML,
+  yaml: ParameterValueYAML | SettingsParameterValueYAML | LegacyParameterValueYAML | LegacySettingsParameterValueYAML,
   sourceValue?: ParameterValue | SettingsParameterValue
 ): ParameterValue | SettingsParameterValue | undefined => {
   if (yaml === undefined) {
@@ -107,16 +132,9 @@ export const importParameterValueFromYAML = (
   const yamlToParse = unwrapped !== undefined ? unwrapped.inner : yaml
   const parameterFromWrapper = unwrapped?.parameter
 
-  const y = isYamlObject(yamlToParse) ? (yamlToParse as Record<string, unknown>) : undefined
+  const y = isExpandedSettingsParameterValueShape(yamlToParse) ? yamlToParse : undefined
   const parameterFromRule = typeof rule.yaml === "string" ? rule.yaml : undefined
-  const isExpandedSpvShape =
-    y !== undefined &&
-    ("Значение" in y ||
-      "Использовать" in y ||
-      "Элементы" in y ||
-      y["РежимОтображения"] !== undefined ||
-      y["ИдентификаторПользовательскойНастройки"] !== undefined ||
-      y["ПредставлениеПользовательскойНастройки"] !== undefined)
+  const isExpandedSpvShape = y !== undefined
   const parameterFromExpandedField =
     isExpandedSpvShape && typeof y?.["Параметр"] === "string" ? String(y["Параметр"]) : undefined
   const parameter = String(parameterFromWrapper ?? parameterFromExpandedField ?? parameterFromRule ?? "")
@@ -124,15 +142,15 @@ export const importParameterValueFromYAML = (
   const rawValueBase =
     rule.valueType === "Color" && yamlToParse === null
       ? undefined
-      : isExplicitDcsValueYAML(yamlToParse)
-        ? yamlToParse
-        : hasExplicitValue
-          ? restoreExplicitRawValue(y, "Значение", y["Значение"])
-          : isExpandedSpvShape
-            ? undefined
-            : yamlToParse
+      : hasExplicitValue
+        ? normalizeExplicitRawValue(rule.valueType, y, "Значение", y["Значение"])
+        : isExpandedSpvShape
+          ? undefined
+          : yamlToParse
   const rawValue =
-    unwrapped !== undefined ? restoreExplicitRawValue(yaml, parameterFromWrapper, rawValueBase) : rawValueBase
+    unwrapped !== undefined
+      ? normalizeExplicitRawValue(rule.valueType, yaml, parameterFromWrapper, rawValueBase)
+      : rawValueBase
   const rawList = normalizeRawValues(dcsRule.valueType, rawValue)
   const sourceValues = normalizeSourceValues(sourceValue?.value)
   const valueParts: MetadataDcsMetadataValue[] = []

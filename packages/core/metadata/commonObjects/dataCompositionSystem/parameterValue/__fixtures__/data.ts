@@ -159,7 +159,9 @@ export const parameterValueFixtures: ParameterValueFixture[] = [
       parameter: "Формат",
       value: fixtureFormatLocalString,
     },
-    yaml: fixtureFormatLocalStringYAML,
+    yaml: {
+      Значение: fixtureFormatLocalStringYAML,
+    },
     xml: xmlFull,
   },
   {
@@ -185,7 +187,9 @@ export const parameterValueFixtures: ParameterValueFixture[] = [
       parameter: "СвязьПоТипу",
       value: fixtureTypeLink,
     },
-    yaml: "Поле1(2)",
+    yaml: {
+      Значение: "Поле1(2)",
+    },
     xml: xmlTypeLink,
   },
   {
@@ -196,7 +200,9 @@ export const parameterValueFixtures: ParameterValueFixture[] = [
       parameter: "ПараметрыВыбора",
       value: fixtureChoiceParameterDecimal,
     },
-    yaml: fixtureChoiceParameterDecimalYAML,
+    yaml: {
+      Значение: fixtureChoiceParameterDecimalYAML,
+    },
     xml: xmlChoiceParameters,
   },
   {
@@ -211,7 +217,9 @@ export const parameterValueFixtures: ParameterValueFixture[] = [
       parameter: "СвязиПараметровВыбора",
       value: fixtureChoiceParameterLinks,
     },
-    yaml: fixtureChoiceParameterLinksYAML,
+    yaml: {
+      Значение: fixtureChoiceParameterLinksYAML,
+    },
     xml: xmlChoiceParameterLinks,
   },
   {
@@ -227,7 +235,9 @@ export const parameterValueFixtures: ParameterValueFixture[] = [
       parameter: "ВыборГруппИЭлементов",
       value: "Items",
     },
-    yaml: "Элементы",
+    yaml: {
+      Значение: "Элементы",
+    },
     xml: xmlSystemEnumeration,
   },
   {
@@ -259,7 +269,9 @@ export const parameterValueFixtures: ParameterValueFixture[] = [
         value: "Blue",
       },
     },
-    yaml: "Синий",
+    yaml: {
+      Значение: "Синий",
+    },
     xml: `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 	<dcscor:parameter>ЦветТекста</dcscor:parameter>
 	<dcscor:value xsi:type="v8ui:Color">web:Blue</dcscor:value>

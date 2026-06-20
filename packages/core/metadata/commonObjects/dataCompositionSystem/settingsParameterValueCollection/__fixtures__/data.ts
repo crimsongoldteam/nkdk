@@ -14,5 +14,7 @@ export const settingsParameterValueCollectionFixture = {
 } as const satisfies SettingsParameterValueCollection
 
 export const settingsParameterValueCollectionFixtureYAML = {
-  Параметр1: "ПараметрыДанных.Параметр1",
+  Параметр1: {
+    Значение: "ПараметрыДанных.Параметр1",
+  },
 } as const satisfies SettingsParameterValueCollectionYAML

@@ -36,6 +36,27 @@ describe("import SettingsParameterValueCollection from YAML", () => {
     expect(result).toEqual(settingsParameterValueCollectionFixture)
   })
 
+  it("imports full SettingsParameterValue entries while keeping outer parameter name", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        Параметр1: {
+          Значение: "ПараметрыДанных.Параметр1",
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "SettingsParameterValueCollection",
+      parameters: {
+        Параметр1: {
+          parameter: "Параметр1",
+          value: "ПараметрыДанных.Параметр1",
+        },
+      },
+    })
+  })
+
   it("accepts arbitrary parameter names with default item rule in JSON Schema", () => {
     const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
     if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")

@@ -121,7 +121,9 @@ const documentFullClientApplicationFormYAMLData: DocumentClientApplicationFormYA
           ],
         },
         Оформление: {
-          Отображать: "Ложь",
+          Отображать: {
+            Значение: "Ложь",
+          },
         },
       },
     ],
