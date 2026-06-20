@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets"
+import { isMetadataRootName, rootFromYAML } from "~/metadata/commonObjects/metadataTargets"
 import { DataCompositionComparisonTypeFromYAML } from "~/metadata/systemEnumerations/types"
 import { I8nText } from "../../i8nText/types"
 import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
@@ -53,6 +53,10 @@ const importChoiceListValueFromYAML = (
   context: ConfigurationContext,
   value: MetadataFormChoiceListValueYAML["Значение"]
 ): MetadataFormChoiceListValue["value"] | undefined => {
+  if (typeof value === "string" && isMetadataObjectTargetOnly(value)) {
+    return { type: "string", value } satisfies MetadataStringValue
+  }
+
   try {
     return importMetadataValueFromYAML(context, undefined, value)
   } catch (caught) {
@@ -62,7 +66,15 @@ const importChoiceListValueFromYAML = (
   }
 }
 
+function isMetadataObjectTargetOnly(value: string): boolean {
+  const parts = value.split(".")
+  if (parts.length !== 2) return false
+  const [root] = parts
+  return rootFromYAML[root] !== undefined || isMetadataRootName(root)
+}
+
 function isFullYAMLMetadataTarget(value: string): boolean {
   const parts = value.split(".")
-  return parts.length > 1 && rootFromYAML[parts[0]] !== undefined
+  const [root] = parts
+  return parts.length > 1 && (rootFromYAML[root] !== undefined || isMetadataRootName(root))
 }
