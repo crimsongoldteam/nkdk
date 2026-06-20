@@ -61,7 +61,9 @@ export const appearanceCalculatedFieldYAML = {
   Выражение: "",
   Заголовок: "Настройки",
   Оформление: {
-    ЦветТекста: "#1C55AE",
+    ЦветТекста: {
+      Значение: "#1C55AE",
+    },
   },
 } as const satisfies CalculatedFieldYAML
 

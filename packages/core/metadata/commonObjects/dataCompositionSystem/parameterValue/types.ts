@@ -37,7 +37,8 @@ export type ParameterValueYAMLObject = {
   Элементы?: ParameterValueYAML[]
 }
 
-export type ParameterValueYAML = MetadataDcsMetadataValueYAML | ParameterValueYAMLObject
+export type ParameterValueYAML = ParameterValueYAMLObject
+export type LegacyParameterValueYAML = MetadataDcsMetadataValueYAML
 
 export type SettingsParameterValueYAMLObject = Omit<ParameterValueYAMLObject, "Элементы"> & {
   РежимОтображения?: SE.DataCompositionSettingsItemViewModeYAML
@@ -46,7 +47,8 @@ export type SettingsParameterValueYAMLObject = Omit<ParameterValueYAMLObject, "�
   Элементы?: SettingsParameterValueYAML[]
 }
 
-export type SettingsParameterValueYAML = MetadataDcsMetadataValueYAML | SettingsParameterValueYAMLObject
+export type SettingsParameterValueYAML = SettingsParameterValueYAMLObject
+export type LegacySettingsParameterValueYAML = MetadataDcsMetadataValueYAML
 
 export type ParameterValueDcsValueFragment = NonNullable<MetadataDcsMetadataValueDcsRootXML["dcscor:value"]>
 

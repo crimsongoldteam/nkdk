@@ -8,6 +8,8 @@ import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
 import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
 import type {
+  LegacyParameterValueYAML,
+  LegacySettingsParameterValueYAML,
   ParameterValue,
   ParameterValueYAML,
   SettingsParameterValue,
@@ -100,7 +102,7 @@ const tryUnwrapParameterValueWrapper = (
 export const importParameterValueFromYAML = (
   context: ConfigurationContext,
   rule: SettingsParameterValuePropertyRule,
-  yaml: ParameterValueYAML | SettingsParameterValueYAML,
+  yaml: ParameterValueYAML | SettingsParameterValueYAML | LegacyParameterValueYAML | LegacySettingsParameterValueYAML,
   sourceValue?: ParameterValue | SettingsParameterValue
 ): ParameterValue | SettingsParameterValue | undefined => {
   if (yaml === undefined) {
