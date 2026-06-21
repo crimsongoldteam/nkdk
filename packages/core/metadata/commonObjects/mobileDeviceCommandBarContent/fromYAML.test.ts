@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "~/tests/mockContext"
+import { importFromYAML } from "~/yaml/import"
 import {
   fullMobileDeviceCommandBarContent,
   fullMobileDeviceCommandBarContentYAML,
@@ -43,6 +44,22 @@ describe("importMobileDeviceCommandBarContentFromYAML", () => {
     const result = importMobileDeviceCommandBarContentFromYAML(mockContext, mockRule, ["КоманднаяПанельЕще"])
 
     expect(result).toEqual([{ type: "string", value: "КоманднаяПанельЕще" }])
+  })
+
+  it("keeps quoted numeric command bar item as plain string", () => {
+    const yaml = importFromYAML<unknown[]>('- "2"')
+
+    const result = importMobileDeviceCommandBarContentFromYAML(mockContext, mockRule, yaml)
+
+    expect(result).toEqual([{ type: "string", value: "2" }])
+  })
+
+  it("keeps plain numeric command bar item delegated to MetadataValue", () => {
+    const yaml = importFromYAML<unknown[]>("- 2")
+
+    const result = importMobileDeviceCommandBarContentFromYAML(mockContext, mockRule, yaml)
+
+    expect(result).toEqual([{ type: "decimal", value: 2 }])
   })
 
   it("does not parse metadata-like strings as metadata targets", () => {
