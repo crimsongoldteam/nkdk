@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
+import { importFromYAML } from "~/yaml/import"
 import {
   withMultiLangPresentation,
   withMultiLangPresentationYAML,
@@ -17,6 +18,22 @@ describe("importFormChoiceListFromYAML", () => {
   it("imports formChoiceList with string value from YAML object", () => {
     const result = importFormChoiceListFromYAML(mockContext, withStringValueYAML)
     expect(result).toEqual(withStringValue)
+  })
+
+  it("imports double-quoted numeric string value from parsed YAML as string", () => {
+    const yaml = importFromYAML<MetadataFormChoiceListValueYAML>(
+      [
+        "Представление: 2 знака",
+        'Значение: "2"',
+      ].join("\n")
+    )
+
+    const result = importFormChoiceListFromYAML(mockContext, yaml)
+
+    expect(result.value).toEqual({
+      type: "string",
+      value: "2",
+    })
   })
 
   it("imports formChoiceList without presentation from YAML object", () => {
