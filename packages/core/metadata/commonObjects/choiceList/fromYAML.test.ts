@@ -8,6 +8,7 @@ import {
   twoItemsChoiceListYAML,
 } from "~/metadata/commonObjects/choiceList/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
+import { importFromYAML } from "~/yaml/import"
 import { importChoiceListFromYAML } from "./fromYAML"
 
 describe("importChoiceListFromYAML", () => {
@@ -32,6 +33,30 @@ describe("importChoiceListFromYAML", () => {
     const result = importChoiceListFromYAML(mockContext, mockRule, emptyValueChoiceListYAML)
 
     expect(result).toEqual(emptyValueChoiceList)
+  })
+
+  it("preserves quoted numeric strings and plain numbers from parsed YAML", () => {
+    const yaml = importFromYAML([
+      "- Представление: 2 знака",
+      '  Значение: "2"',
+      "- Представление: 3 знака",
+      "  Значение: 3",
+    ].join("\n"))
+
+    const result = importChoiceListFromYAML(mockContext, mockRule, yaml)
+
+    expect(result).toEqual([
+      {
+        type: "formChoiceListDesTimeValue",
+        presentation: { items: { ru: "2 знака" } },
+        value: { type: "string", value: "2" },
+      },
+      {
+        type: "formChoiceListDesTimeValue",
+        presentation: { items: { ru: "3 знака" } },
+        value: { type: "decimal", value: 3 },
+      },
+    ])
   })
 
   it("imports root-like string values as string literals", () => {
