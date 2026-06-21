@@ -104,8 +104,6 @@ export const SearchControlAdditionRules = {
       yaml: "Источник",
       type: "TableAdditionalSource",
       additionalSourceType: "SearchControl",
-      toYAML: false,
-      fromYAML: false,
     },
     ...commonProperties,
   },

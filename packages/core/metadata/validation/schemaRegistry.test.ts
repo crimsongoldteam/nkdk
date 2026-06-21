@@ -296,7 +296,7 @@ describe("JSON Schema registry", () => {
     expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
   })
 
-  it("reports selected branch errors for command bar search string additions", () => {
+  it("reports selected branch errors for invalid command bar search string additions", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
     const compiled = TypeCompiler.Compile(schema)
     const value = {
@@ -307,10 +307,7 @@ describe("JSON Schema registry", () => {
             Элементы: {
               СтрокаПоиска: {
                 Вид: "ОтображениеСтрокиПоиска",
-                Источник: "Таблица",
-                Заголовок: {
-                  ru: "Строка поиска",
-                },
+                НесуществующееПоле: "Строка поиска",
               },
             },
           },
@@ -324,7 +321,7 @@ describe("JSON Schema registry", () => {
     )
   })
 
-  it("rejects source in command bar search string additions", () => {
+  it("accepts source in command bar search string additions", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
     const compiled = TypeCompiler.Compile(schema)
     const value = {
@@ -343,13 +340,10 @@ describe("JSON Schema registry", () => {
       },
     }
 
-    expect(compiled.Check(value)).toBe(false)
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toContain(
-      "/Элементы/Таблица: Expected union value"
-    )
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
   })
 
-  it("rejects source in command bar search control additions", () => {
+  it("accepts source in command bar search control additions", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
     const compiled = TypeCompiler.Compile(schema)
     const value = {
@@ -368,10 +362,7 @@ describe("JSON Schema registry", () => {
       },
     }
 
-    expect(compiled.Check(value)).toBe(false)
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toContain(
-      "/Элементы/Таблица: Expected union value"
-    )
+    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
   })
 
   it("accepts command names in command bar button schemas", () => {

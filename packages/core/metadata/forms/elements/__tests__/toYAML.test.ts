@@ -20,7 +20,7 @@ describe("exportElementToPartialYAML", () => {
     })
   })
 
-  it("omits search string addition source from partial YAML", () => {
+  it("exports search string addition source to partial YAML", () => {
     const result = exportElementToPartialYAML({
       context: mockContext,
       element: {
@@ -30,10 +30,12 @@ describe("exportElementToPartialYAML", () => {
       },
     })
 
-    expect(result).toBeUndefined()
+    expect(result).toEqual({
+      Источник: "Таблица",
+    })
   })
 
-  it("omits search control addition source from partial YAML", () => {
+  it("exports search control addition source to partial YAML", () => {
     const result = exportElementToPartialYAML({
       context: mockContext,
       element: {
@@ -44,7 +46,9 @@ describe("exportElementToPartialYAML", () => {
       },
     })
 
-    expect(result).toBeUndefined()
+    expect(result).toEqual({
+      Источник: "Таблица",
+    })
   })
 })
 
@@ -87,7 +91,7 @@ function collectRuleFiles(dir: string): string[] {
 }
 
 describe("exportChildItemToTreeNodeYAML", () => {
-  it("exports search string addition kind without source", () => {
+  it("exports search string addition kind with source", () => {
     const result = exportChildItemToTreeNodeYAML({
       context: mockContext,
       item: {
@@ -99,10 +103,11 @@ describe("exportChildItemToTreeNodeYAML", () => {
 
     expect(result).toEqual({
       Вид: "ОтображениеСтрокиПоиска",
+      Источник: "Таблица",
     })
   })
 
-  it("exports search control addition kind without source", () => {
+  it("exports search control addition kind with source", () => {
     const result = exportChildItemToTreeNodeYAML({
       context: mockContext,
       item: {
@@ -115,6 +120,7 @@ describe("exportChildItemToTreeNodeYAML", () => {
 
     expect(result).toEqual({
       Вид: "УправлениеПоиском",
+      Источник: "Таблица",
     })
   })
 

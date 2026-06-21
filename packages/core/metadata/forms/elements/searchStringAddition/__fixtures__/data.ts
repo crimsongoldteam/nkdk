@@ -75,6 +75,7 @@ export const fullSingleSearchStringAdditionYAML: SingleSearchStringAdditionYAML 
 
 export const fullSearchStringAdditionYAML: SearchStringAdditionYAML = {
   ...fullSingleSearchStringAdditionYAML,
+  Источник: "КакойТоЭлемент",
 }
 
 export const fullSearchStringAddition: SearchStringAddition = {
