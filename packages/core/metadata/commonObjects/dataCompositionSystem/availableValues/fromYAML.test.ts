@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import { importPropertyFromYAML } from "~/metadata/orchestration"
 import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
 import { mockContext } from "~/tests/mockContext"
+import { importFromYAML } from "~/yaml/import"
 import {
   nilAndBooleanAvailableValues,
   nilAndBooleanAvailableValuesYAML,
@@ -21,6 +22,27 @@ describe("import DcsAvailableValues from YAML", () => {
     })
 
     expect(result).toEqual(stringAvailableValues)
+  })
+
+  it("imports double-quoted numeric string value from parsed YAML as string", () => {
+    const yaml = importFromYAML([
+      '- Значение: "2"',
+      "  Представление: 2 знака",
+    ].join("\n"))
+
+    const result = importPropertyFromYAML({
+      context: mockContext,
+      rule,
+      value: yaml,
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "DcsAvailableValue",
+        value: { type: "string", value: "2" },
+        presentation: { items: { ru: "2 знака" } },
+      },
+    ])
   })
 
   it("imports absent value as undefined", () => {
