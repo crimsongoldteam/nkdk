@@ -3,6 +3,7 @@ import { isMetadataRootName, rootFromYAML } from "~/metadata/commonObjects/metad
 import { DataCompositionComparisonTypeFromYAML } from "~/metadata/systemEnumerations/types"
 import { I8nText } from "../../i8nText/types"
 import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
+import { restoreExplicitMetadataValueYAMLString } from "../explicitYAMLString"
 import { importMetadataValueFromYAML } from "../fromYAML"
 import { MetadataFormChoiceListValue, MetadataFormChoiceListValueYAML, MetadataStringValue } from "../types"
 
@@ -37,7 +38,14 @@ export const importFormChoiceListFromYAML = (
     data.Значение === undefined
       ? undefined
       : (importExplicitChoiceListValueFromYAML(data.Значение) ??
-        importChoiceListValueFromYAML(context, data.Значение))
+        importChoiceListValueFromYAML(
+          context,
+          restoreExplicitMetadataValueYAMLString(
+            data,
+            "Значение",
+            data.Значение
+          ) as MetadataFormChoiceListValueYAML["Значение"]
+        ))
 
   const result: MetadataFormChoiceListValue = {
     type: "formChoiceListDesTimeValue",
