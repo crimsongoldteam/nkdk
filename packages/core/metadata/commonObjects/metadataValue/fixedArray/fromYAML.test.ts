@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
 import { importFromYAML } from "~/yaml/import"
 import {
+  formChoiceRefsFixedArray,
   formChoiceRefsFixedArrayYAML,
+  formChoiceWithPresentationFixedArray,
+  formChoiceWithPresentationFixedArrayYAML,
   refsWithNilFixedArray,
   refsWithNilFixedArrayYAML,
   singleStringFixedArray,
@@ -50,8 +53,25 @@ describe("importFixedArrayFromYAML", () => {
     expect(result).toEqual(refsWithNilFixedArray)
   })
 
-  it("imports compact formChoiceList YAML elements as ordinary refs", () => {
+  it("imports explicit formChoiceList YAML elements", () => {
     const result = importFixedArrayFromYAML(mockContext, formChoiceRefsFixedArrayYAML)
+
+    expect(result).toEqual(formChoiceRefsFixedArray)
+  })
+
+  it("imports explicit formChoiceList YAML elements with presentation", () => {
+    const result = importFixedArrayFromYAML(mockContext, formChoiceWithPresentationFixedArrayYAML)
+
+    expect(result).toEqual(formChoiceWithPresentationFixedArray)
+  })
+
+  it("imports compact refs as ordinary refs", () => {
+    const yaml: MetadataFixedArrayValueYAMLInput = [
+      "Перечисление.ТипыДоговоров.СПоставщиком",
+      "Перечисление.ТипыДоговоров.СКомитентом",
+    ]
+
+    const result = importFixedArrayFromYAML(mockContext, yaml)
 
     expect(result).toEqual({
       type: "fixedArray",

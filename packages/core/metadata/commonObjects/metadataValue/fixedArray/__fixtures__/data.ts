@@ -40,8 +40,36 @@ export const formChoiceRefsFixedArray = {
 } satisfies MetadataFixedArrayValue
 
 export const formChoiceRefsFixedArrayYAML: MetadataFixedArrayValueYAML = [
-  "Перечисление.ТипыДоговоров.СПоставщиком",
-  "Перечисление.ТипыДоговоров.СКомитентом",
+  {
+    Тип: "ЗначениеСпискаВыбора",
+    Значение: "Перечисление.ТипыДоговоров.СПоставщиком",
+  },
+  {
+    Тип: "ЗначениеСпискаВыбора",
+    Значение: "Перечисление.ТипыДоговоров.СКомитентом",
+  },
+]
+
+export const formChoiceWithPresentationFixedArray = {
+  type: "fixedArray",
+  value: [
+    {
+      type: "formChoiceListDesTimeValue",
+      presentation: { items: { ru: "С поставщиком" } },
+      value: {
+        type: "ref",
+        value: "Enum.ТипыДоговоров.EnumValue.СПоставщиком",
+      },
+    },
+  ],
+} satisfies MetadataFixedArrayValue
+
+export const formChoiceWithPresentationFixedArrayYAML: MetadataFixedArrayValueYAML = [
+  {
+    Тип: "ЗначениеСпискаВыбора",
+    Представление: "С поставщиком",
+    Значение: "Перечисление.ТипыДоговоров.СПоставщиком",
+  },
 ]
 
 export const singleStringFixedArray: MetadataFixedArrayValue = {
