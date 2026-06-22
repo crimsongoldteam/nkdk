@@ -16,7 +16,11 @@ const wrapYamlFragment = (paramName: string, yamlFragment: unknown): SettingsPar
   }
   if (typeof yamlFragment === "object" && !Array.isArray(yamlFragment)) {
     const o = yamlFragment as Record<string, unknown>
-    return { ...o, Параметр: o["Параметр"] ?? paramName } as SettingsParameterValueYAML
+    return {
+      ...o,
+      ...("Значение" in o ? { Значение: asExplicitYAMLStringIfMarked(o, "Значение", o["Значение"]) } : {}),
+      Параметр: o["Параметр"] ?? paramName,
+    } as SettingsParameterValueYAML
   }
   return { Значение: yamlFragment as never, Параметр: paramName }
 }

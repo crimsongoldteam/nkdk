@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToXML, PropertyRule } from "~/metadata/orchestration"
+import { exportPropertyToXML, exportPropertyToYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
+import { mockContext } from "~/tests/mockContext"
 import { mockContextToXML } from "~/tests/mockContext"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { exportToYAML } from "~/yaml/export"
+import { importFromYAML } from "~/yaml/import"
 import { xmlExport } from "~/xml/export/exporter"
 import { fullDCSParameters, minimalDCSParameters } from "./__fixtures__/data"
 import "./types"
 
 const rule: PropertyRule = { type: "DCSParameters" }
+const yamlRule: PropertyRule = { type: "DCSParameters", yaml: "Параметры" }
 
 const xmlWithStringTitle = `<Settings>
 	<Parameter>
@@ -204,5 +208,68 @@ describe("import DCSParameter from XML", () => {
     expect(exportDCSParameters(result)).toContain(
       '<dcssch:value xsi:type="ent:AccumulationRecordType">Expense</dcssch:value>',
     )
+  })
+
+  it("preserves numeric-looking edit parameter mask as xs:string through YAML", () => {
+    const xml = `<Settings>
+	<Parameter>
+		<dcssch:name>Параметр1</dcssch:name>
+		<dcssch:inputParameters>
+			<dcscor:item>
+				<dcscor:parameter>Маска</dcscor:parameter>
+				<dcscor:value xsi:type="xs:string">123</dcscor:value>
+			</dcscor:item>
+		</dcssch:inputParameters>
+	</Parameter>
+</Settings>`
+
+    const value = testImportPropertyFromXML({
+      rule,
+      xmlString: xml,
+      xmlRootTag: "Settings",
+    })
+
+    expect(value).toEqual([
+      {
+        itemType: "DCSParameter",
+        name: "Параметр1",
+        editParameters: {
+          itemType: "SettingsParameterValueCollection",
+          parameters: {
+            Маска: {
+              parameter: "Маска",
+              value: { type: "string", value: "123" },
+            },
+          },
+        },
+      },
+    ])
+
+    const exported = exportDCSParameters(value)
+
+    expect(exported).toContain('<dcscor:value xsi:type="xs:string">123</dcscor:value>')
+    expect(exported).not.toContain('<dcscor:value xsi:type="xs:decimal">123</dcscor:value>')
+
+    const yaml = exportPropertyToYAML({
+      context: mockContext,
+      rule: yamlRule,
+      value,
+    })
+
+    const yamlText = exportToYAML(yaml)
+    expect(yamlText).toContain('Значение: "123"')
+
+    const parsedYaml = importFromYAML<{ Параметры?: unknown }>(yamlText)
+
+    const valueFromYaml = importPropertyFromYAML({
+      context: mockContext,
+      rule,
+      value: parsedYaml.Параметры,
+    })
+
+    const exportedAfterYaml = exportDCSParameters(valueFromYaml)
+
+    expect(exportedAfterYaml).toContain('<dcscor:value xsi:type="xs:string">123</dcscor:value>')
+    expect(exportedAfterYaml).not.toContain('<dcscor:value xsi:type="xs:decimal">123</dcscor:value>')
   })
 })

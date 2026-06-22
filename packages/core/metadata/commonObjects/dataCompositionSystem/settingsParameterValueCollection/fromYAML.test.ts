@@ -178,4 +178,33 @@ describe("import SettingsParameterValueCollection from YAML", () => {
       },
     })
   })
+
+  it("preserves double-quoted numeric-looking full parameter value as string", () => {
+    const yaml = parseViaYamlText({
+      Маска: {
+        Значение: "123",
+      },
+    })
+
+    const result = testImportPropertyFromYAML({
+      rule: {
+        type: "SettingsParameterValueCollection",
+        defaultItemRule: {
+          type: "SettingsParameterValue",
+          valueType: "Primitive",
+        },
+      } as PropertyRule,
+      value: yaml,
+    })
+
+    expect(result).toEqual({
+      itemType: "SettingsParameterValueCollection",
+      parameters: {
+        Маска: {
+          parameter: "Маска",
+          value: { type: "string", value: "123" },
+        },
+      },
+    })
+  })
 })
