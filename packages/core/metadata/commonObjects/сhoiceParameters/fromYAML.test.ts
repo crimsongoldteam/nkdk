@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 
 import {
+  emptyFormChoiceParameter,
+  emptyFormChoiceParametersYAML,
   enumChoiceParameter,
   enumChoiceParametersYAML,
   fixedArrayChoiceParameter,
@@ -94,6 +96,12 @@ describe("importChoiceParametersFromYAML", () => {
     const result = importChoiceParametersFromYAML(mockContext, mockRule, formEnumChoiceParametersYAML)
 
     expect(result).toEqual(formEnumChoiceParameter)
+  })
+
+  it("imports empty explicit top-level form choice value", () => {
+    const result = importChoiceParametersFromYAML(mockContext, mockRule, emptyFormChoiceParametersYAML)
+
+    expect(result).toEqual(emptyFormChoiceParameter)
   })
 
   it("should import choice parameters with nil value from yaml", () => {
