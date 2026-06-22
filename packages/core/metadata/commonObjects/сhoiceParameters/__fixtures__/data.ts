@@ -216,8 +216,12 @@ export const formChoiceFixedArrayChoiceParameter: ChoiceParameters = [
 export const formChoiceFixedArrayChoiceParametersYAML: ChoiceParametersYAML = {
   "Отбор.ТипДоговора": {
     Значение: [
-      "Перечисление.ТипыДоговоров.СПоставщиком",
-      "Перечисление.ТипыДоговоров.СКомитентом",
+      {
+        Значение: "Перечисление.ТипыДоговоров.СПоставщиком",
+      },
+      {
+        Значение: "Перечисление.ТипыДоговоров.СКомитентом",
+      },
     ],
   },
 }
