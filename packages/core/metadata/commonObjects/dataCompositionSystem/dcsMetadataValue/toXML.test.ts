@@ -30,6 +30,33 @@ describe("export MetadataDcsMetadataValue to XML", () => {
     })
   })
 
+  it("exports LocalFormattedStringType DesignTimeValue", () => {
+    expect(
+      exportDcsMetadataValueToXML(
+        mockContextToXML(),
+        { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        {
+          type: "LocalFormattedStringType",
+          value: {
+            formatted: true,
+            items: { ru: "Многоязычная форматированная строка" },
+          },
+        }
+      )
+    ).toEqual({
+      "_xsi:type": "v8:LocalFormattedStringType",
+      "v8:lws": {
+        "v8:item": [
+          {
+            "v8:lang": "ru",
+            "v8:content": "Многоязычная форматированная строка",
+          },
+        ],
+      },
+      "v8:formatted": true,
+    })
+  })
+
   it("exports Field value dateTime as xs:dateTime", () => {
     expect(
       exportDcsMetadataValueToXML(

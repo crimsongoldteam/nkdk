@@ -3,6 +3,8 @@ import { mockContext } from "~/tests/mockContext"
 import {
   formChoiceRefsFixedArray,
   formChoiceRefsFixedArrayYAML,
+  formChoiceWithPresentationFixedArray,
+  formChoiceWithPresentationFixedArrayYAML,
   refsWithNilFixedArray,
   refsWithNilFixedArrayYAML,
   singleStringFixedArray,
@@ -28,8 +30,13 @@ describe("exportFixedArrayToYAML", () => {
     expect(result).toEqual(refsWithNilFixedArrayYAML)
   })
 
-  it("exports formChoiceList elements without presentation as explicit value objects", () => {
+  it("exports formChoiceList elements as explicit values", () => {
     const result = exportFixedArrayToYAML(mockContext, formChoiceRefsFixedArray)
     expect(result).toEqual(formChoiceRefsFixedArrayYAML)
+  })
+
+  it("exports formChoiceList elements with presentation as explicit values", () => {
+    const result = exportFixedArrayToYAML(mockContext, formChoiceWithPresentationFixedArray)
+    expect(result).toEqual(formChoiceWithPresentationFixedArrayYAML)
   })
 })

@@ -1,5 +1,5 @@
 import type { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
-import type { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import type {
   ChoiceParameterLinks,
   ChoiceParameterLinksYAML,
@@ -27,7 +27,7 @@ export const fixtureFormatLocalString: I8nText = {
   },
 }
 
-export const fixtureFormatLocalStringYAML: I8nTextYAML = "ЧЦ=3; ЧДЦ=2"
+export const fixtureFormatLocalStringYAML = "ЧЦ=3; ЧДЦ=2"
 
 export const fixtureChoiceParameterDecimal: ChoiceParameter = {
   name: "Параметр",
@@ -160,6 +160,7 @@ export const parameterValueFixtures: ParameterValueFixture[] = [
       value: fixtureFormatLocalString,
     },
     yaml: {
+      Тип: "МногоязычнаяСтрока",
       Значение: fixtureFormatLocalStringYAML,
     },
     xml: xmlFull,
@@ -254,7 +255,16 @@ export const parameterValueFixtures: ParameterValueFixture[] = [
     },
     yaml: {
       Использовать: "Ложь",
-      Значение: ["Перечисление.ИмяПеречисления.Значение1", "Перечисление.ИмяПеречисления.Значение2"],
+      Значение: [
+        {
+          Тип: "МногоязычнаяСтрока",
+          Значение: "Перечисление.ИмяПеречисления.Значение1",
+        },
+        {
+          Тип: "МногоязычнаяСтрока",
+          Значение: "Перечисление.ИмяПеречисления.Значение2",
+        },
+      ],
     },
     xml: xmlFewValues,
   },

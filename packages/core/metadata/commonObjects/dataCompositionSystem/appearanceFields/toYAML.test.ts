@@ -21,6 +21,62 @@ describe("export Appearance to YAML", () => {
     })
   })
 
+  it("exports explicit Field value for text appearance", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: {
+        itemType: "AppearanceFields",
+        Текст: {
+          parameter: "Текст",
+          value: {
+            type: "Field",
+            value: "Реквизит1",
+          },
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      Оформление: {
+        Текст: {
+          Тип: "Поле",
+          Значение: "Реквизит1",
+        },
+      },
+    })
+  })
+
+  it("exports explicit LocalFormattedStringType value for text appearance", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: {
+        itemType: "AppearanceFields",
+        Текст: {
+          parameter: "Текст",
+          value: {
+            type: "LocalFormattedStringType",
+            value: {
+              formatted: true,
+              items: { ru: "Многоязычная форматированная строка" },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      Оформление: {
+        Текст: {
+          Тип: "МногоязычнаяФорматированнаяСтрока",
+          Значение: {
+            Форматированный: "Истина",
+            Текст: "Многоязычная форматированная строка",
+          },
+        },
+      },
+    })
+  })
+
   it("exports enabled DCS auto color as empty YAML value", () => {
     const result = testExportPropertyToYAML({
       rule,

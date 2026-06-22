@@ -1,84 +1,109 @@
-# FormChoiceListDesTimeValue в FixedArray YAML
+# Явная YAML-форма ЗначениеСпискаВыбора в FixedArray
 
 ## Контекст
 
-Полный round-trip `XML -> YAML -> XML` для `/Users/nikita/git/round-trip/acc` оставляет 42 diff. Первая triage-пачка показывает один повторяющийся тип расхождения: внутри `v8:FixedArray` элементы `FormChoiceListDesTimeValue` с пустым `Presentation` превращаются в простые `v8:Value`.
+В полном round-trip `XML -> YAML -> XML` для `acc` осталось 43 расхождения одного класса:
+элементы `<v8:Value xsi:type="FormChoiceListDesTimeValue">` внутри
+`<Value xsi:type="v8:FixedArray">` экспортируются в YAML как обычные значения.
+При обратном импорте YAML уже не содержит признака обертки `FormChoiceListDesTimeValue`,
+поэтому XML восстанавливается как прямые `xr:DesignTimeRef` или `xs:string`.
 
-Пример XML-diff:
+Проблема находится в YAML-договоре `FixedArray`: краткая форма удобна, но необратима
+для элементов списка выбора формы.
 
-```diff
-- <v8:Value xsi:type="FormChoiceListDesTimeValue">
--   <Presentation/>
--   <Value xsi:type="xr:DesignTimeRef">Enum.ВидыПродукцииСАТУРН.EnumValue.Агрохимикат</Value>
-- </v8:Value>
-+ <v8:Value xsi:type="xr:DesignTimeRef">Enum.ВидыПродукцииСАТУРН.EnumValue.Агрохимикат</v8:Value>
-```
+## Цель
 
-Причина в `packages/core/metadata/commonObjects/metadataValue/fixedArray/toYAML.ts`: текущий YAML-экспорт специально сокращает `formChoiceListDesTimeValue` без `presentation` до вложенного значения. При обратном импорте YAML это значение распознается как обычный `ref`, `string` или другой примитив, и модель теряет тип `formChoiceListDesTimeValue`.
+Сделать YAML для `FormChoiceListDesTimeValue` внутри `FixedArray` обратимым,
+не переводя все обычные элементы массива на полную форму.
 
-## Решение
+## Договор YAML
 
-YAML-договор для `formChoiceListDesTimeValue` должен быть обратимым: значение всегда экспортируется объектом через ключ `Значение`, даже если `Представление` отсутствует.
-
-Было:
+Обычные элементы `FixedArray` остаются в текущей краткой форме:
 
 ```yaml
-- Перечисление.ВидыПродукцииСАТУРН.Агрохимикат
-- Перечисление.ВидыПродукцииСАТУРН.Пестицид
+- Перечисление.ТипыДоговоров.СПоставщиком
 ```
 
-Станет:
+Если элемент массива в модели имеет тип `formChoiceListDesTimeValue`, он экспортируется
+явно:
 
 ```yaml
-- Значение: Перечисление.ВидыПродукцииСАТУРН.Агрохимикат
-- Значение: Перечисление.ВидыПродукцииСАТУРН.Пестицид
+- Тип: ЗначениеСпискаВыбора
+  Значение: Перечисление.ТипыДоговоров.СПоставщиком
 ```
 
-Если у элемента есть представление, оно остается рядом:
+Если у элемента есть представление, оно сохраняется тем же YAML-полем, что и для
+обычного `FormChoiceListDesTimeValue`:
 
 ```yaml
-- Представление: Агрохимикат
-  Значение: Перечисление.ВидыПродукцииСАТУРН.Агрохимикат
+- Тип: ЗначениеСпискаВыбора
+  Представление: Поставщик
+  Значение: Перечисление.ТипыДоговоров.СПоставщиком
 ```
 
-Новый YAML-синтаксис не вводится. Для вложенного `Значение` сохраняется существующее поведение `exportMetadataValueToYAML`, включая текущую обработку неоднозначных строк.
+Поле `Тип: ЗначениеСпискаВыбора` применяется только к явной форме элемента массива.
+Оно не меняет краткий YAML для обычных ссылок, строк, чисел, булевых значений и `nil`.
 
-## Границы
+## Импорт
 
-В границы входит:
+`fromYAML` для `FixedArray` должен распознавать объект с
+`Тип: ЗначениеСпискаВыбора` и собирать из него модель:
 
-- убрать специальное сокращение `formChoiceListDesTimeValue` из `fixedArray/toYAML.ts`;
-- оставить `formChoiceList/toYAML.ts` ответственным за объектную форму `{ Значение, Представление? }`;
-- обновить существующие YAML-ожидания для `formChoiceRefsFixedArray`;
-- добавить или расширить тест, который проверяет обратимость `fixedArray` с элементами `formChoiceListDesTimeValue` через YAML и XML.
+```ts
+{
+  type: "formChoiceListDesTimeValue",
+  presentation?: I8nText,
+  value?: MetadataTypedValue
+}
+```
 
-В границы не входит:
+`Представление` импортируется по текущим правилам `I8nText`.
+`Значение` импортируется через существующий импорт значения списка выбора, чтобы сохранить
+особые случаи вроде строк, ссылок и явных перечислений.
 
-- изменение XML-фикстур;
-- добавление новых правил `rules.ts`;
-- изменение формата обычных `fixedArray` из примитивов и ссылок;
-- reference-восстановление по XML для этой ошибки.
+Если `Значение` отсутствует, модель должна оставаться валидным
+`formChoiceListDesTimeValue` без внутреннего значения.
 
-## Поток данных
+## Экспорт
 
-1. XML импортирует вложенный `FormChoiceListDesTimeValue` как модель:
-   `{ type: "formChoiceListDesTimeValue", value: ... }`.
-2. YAML экспортирует этот элемент как объект:
-   `{ Значение: ... }`.
-3. YAML импорт распознает объект с `Значение` как `formChoiceListDesTimeValue`.
-4. XML экспорт восстанавливает обертку:
-   `<v8:Value xsi:type="FormChoiceListDesTimeValue">...`.
+`toYAML` для `FixedArray` больше не должен разворачивать
+`formChoiceListDesTimeValue` без `Представление` до внутреннего значения.
+Вместо этого он всегда пишет явный объект с `Тип: ЗначениеСпискаВыбора`.
 
-## Обработка ошибок
+Для обычных элементов массива текущий экспорт не меняется.
 
-Новых режимов ошибок не требуется. Если вложенное `Значение` не поддерживается существующим `MetadataValue` YAML-импортом, поведение остается прежним: ошибка должна возникать в текущих импортерах значений.
+## XML-эффект
 
-## Проверка
+После обратного YAML-импорта `toXML` должен восстановить исходную обертку:
 
-Минимальная проверка:
+```xml
+<v8:Value xsi:type="FormChoiceListDesTimeValue">
+  <Presentation/>
+  <Value xsi:type="xr:DesignTimeRef">...</Value>
+</v8:Value>
+```
 
-- точечные тесты `metadata/commonObjects/metadataValue/fixedArray`;
-- при необходимости точечные тесты `metadata/commonObjects/metadataValue/formChoiceList`;
-- диагностический `round-trip-yaml` для `/Users/nikita/git/round-trip/acc`, чтобы подтвердить исчезновение diff'ов с потерей `FormChoiceListDesTimeValue`.
+Это устраняет текущую потерю `xsi:type="FormChoiceListDesTimeValue"` внутри
+`v8:FixedArray`.
 
-Полный `pnpm test` нужен перед закрытием реализации, но не на этапе диагностики или написания spec.
+## Тестирование
+
+Нужно покрыть:
+
+- `fixedArray/toYAML`: элементы `formChoiceListDesTimeValue` экспортируются с
+  `Тип: ЗначениеСпискаВыбора`.
+- `fixedArray/fromYAML`: явная форма импортируется обратно в
+  `formChoiceListDesTimeValue`.
+- `choiceParameters` или соседний сценарий: вложенная структура
+  `FormChoiceListDesTimeValue -> FixedArray -> FormChoiceListDesTimeValue[]`
+  сохраняет обертки.
+- Полный `pnpm test` перед закрытием работы.
+- Диагностический `round-trip-yaml` на `/Users/nikita/git/round-trip/acc`:
+  первая пачка с потерей `FormChoiceListDesTimeValue` внутри `FixedArray` должна исчезнуть.
+
+## Не входит в задачу
+
+- Не переводить все элементы `FixedArray` на полную форму.
+- Не менять XML-фикстуры.
+- Не менять общий XML-договор `FormChoiceListDesTimeValue`.
+- Не чинить другие классы оставшихся round-trip diff в этой задаче.

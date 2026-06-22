@@ -39,10 +39,8 @@ describe("exportParameterValueToYAML (через exportPropertyToYAML)", () => {
     expect(result).toEqual({
       НоменклатураВключение: {
         Использовать: "Ложь",
-        Значение: {
-          Тип: "Строка",
-          Значение: "",
-        },
+        Тип: "Строка",
+        Значение: "",
       },
     })
   })

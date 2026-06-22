@@ -45,6 +45,57 @@ describe("import Appearance from YAML", () => {
     })
   })
 
+  it("imports explicit LocalStringType value for text appearance", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        Текст: {
+          Тип: "МногоязычнаяСтрока",
+          Значение: "Многоязычная строка",
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "AppearanceFields",
+      Текст: {
+        parameter: "Текст",
+        value: {
+          items: { ru: "Многоязычная строка" },
+        },
+      },
+    })
+  })
+
+  it("imports explicit LocalFormattedStringType value for text appearance", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        Текст: {
+          Тип: "МногоязычнаяФорматированнаяСтрока",
+          Значение: {
+            Форматированный: "Истина",
+            Текст: "Многоязычная форматированная строка",
+          },
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "AppearanceFields",
+      Текст: {
+        parameter: "Текст",
+        value: {
+          type: "LocalFormattedStringType",
+          value: {
+            formatted: true,
+            items: { ru: "Многоязычная форматированная строка" },
+          },
+        },
+      },
+    })
+  })
+
   it("imports double-quoted numeric-looking text appearance as string value", () => {
     const result = testImportPropertyFromYAML({
       rule,

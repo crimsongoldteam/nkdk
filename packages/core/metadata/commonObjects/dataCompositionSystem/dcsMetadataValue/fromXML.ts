@@ -1,6 +1,8 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/fromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/fromXML"
 import { FontXML } from "~/metadata/commonObjects/font/types"
+import { importFormattedI8nTextFromXML } from "~/metadata/commonObjects/formattedI8nText/fromXML"
+import { FormattedI8nTextXML } from "~/metadata/commonObjects/formattedI8nText/types"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
 import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/fromXML"
@@ -189,6 +191,29 @@ const importDcsMetadataValueFromDcsXMLInternal = (
 
   if (xsi === "v8:LocalStringType") {
     return importI8nTextFromXML(context, { type: "I8nText" }, root as I8nTextXML) ?? { items: {} }
+  }
+
+  if (xsi === "v8:LocalFormattedStringType") {
+    const formatted = importFormattedI8nTextFromXML(
+      context,
+      { type: "FormattedI8nText" },
+      {
+        _formatted: (root as Record<string, unknown>)["v8:formatted"] as never,
+        "v8:item":
+          (root as Record<string, unknown>)["v8:lws"] !== undefined
+            ? ((root as Record<string, unknown>)["v8:lws"] as Record<string, unknown>)["v8:item"]
+            : undefined,
+      } as FormattedI8nTextXML
+    )
+
+    if (formatted === undefined) {
+      throw new Error("DCS MetadataValue: invalid LocalFormattedStringType")
+    }
+
+    return {
+      type: "LocalFormattedStringType",
+      value: formatted,
+    }
   }
 
   if (xsi === "v8ui:Color") {

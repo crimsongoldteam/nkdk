@@ -50,6 +50,13 @@ const shouldHideDcsAutoColorValue = (
   values: MetadataDcsMetadataValue[]
 ): boolean => rule.valueType === "Color" && values.length === 1 && isDcsAutoColorValue(values[0])
 
+const isExplicitDcsValueYAML = (value: unknown): value is { Тип: string; Значение: unknown } =>
+  typeof value === "object" &&
+  value !== null &&
+  !Array.isArray(value) &&
+  typeof (value as Record<string, unknown>).Тип === "string" &&
+  "Значение" in value
+
 export const exportParameterValueToYAML = (params: {
   context: ConfigurationContext
   rule: SettingsParameterValuePropertyRule
@@ -62,11 +69,13 @@ export const exportParameterValueToYAML = (params: {
   const hideAutoColorValue = shouldHideDcsAutoColorValue(rule, values)
   const valuesForYAML = hideAutoColorValue ? [] : values
   const exportedValues = valuesForYAML.map((v) => exportDcsMetadataValueToYAML(context, dcsRule, v))
+  const liftedValue = exportedValues.length === 1 ? exportedValues[0] : undefined
+  const liftedType = isExplicitDcsValueYAML(liftedValue) ? liftedValue.Тип : undefined
   let значение: unknown
   if (exportedValues.length === 0) {
     значение = undefined
   } else if (exportedValues.length === 1) {
-    значение = exportedValues[0]
+    значение = isExplicitDcsValueYAML(liftedValue) ? liftedValue.Значение : liftedValue
   } else {
     значение = exportedValues
   }
@@ -79,6 +88,7 @@ export const exportParameterValueToYAML = (params: {
 
   const base: Record<string, unknown> = {
     ...(hasUse ? { Использовать: "Ложь" as const } : {}),
+    ...(liftedType !== undefined ? { Тип: liftedType } : {}),
     ...(hasValue ? { Значение: значение } : {}),
     ...(hasElements ? { Элементы: elements } : {}),
   }
