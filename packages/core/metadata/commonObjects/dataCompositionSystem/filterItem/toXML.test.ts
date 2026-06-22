@@ -84,6 +84,9 @@ describe("export FilterItem to XML", () => {
     const guidA = "aaaaaaaa-0000-0000-0000-000000000001"
     const guidB = "bbbbbbbb-0000-0000-0000-000000000002"
 
+    const asReferenceUserSettingID = (value: string): FilterItemComparison["userSettingID"] =>
+      value as FilterItemComparison["userSettingID"]
+
     const itemA: FilterItemComparison = {
       itemType: "FilterItemComparison",
       leftValue: { type: "Field", value: "Ссылка" },
@@ -97,8 +100,8 @@ describe("export FilterItem to XML", () => {
       userSettingID: true,
     }
 
-    const refA: FilterItemComparison = { ...itemA, userSettingID: guidA as any }
-    const refB: FilterItemComparison = { ...itemB, userSettingID: guidB as any }
+    const refA: FilterItemComparison = { ...itemA, userSettingID: asReferenceUserSettingID(guidA) }
+    const refB: FilterItemComparison = { ...itemB, userSettingID: asReferenceUserSettingID(guidB) }
 
     it("FilterItemComparison: сопоставляет по leftValue+comparisonType, а не по индексу", () => {
       // current: [A, B], reference: [B, A] — порядок обратный
@@ -148,6 +151,132 @@ describe("export FilterItem to XML", () => {
       expect(result).toContain(guidOrGroup)
       expect(result).toContain(guidAndGroup)
       expect(result.indexOf(guidOrGroup)).toBeLessThan(result.indexOf(guidAndGroup))
+    })
+
+    it("FilterItemComparison: не подставляет GUID при неоднозначном совпадении", () => {
+      const current: FilterItemComparison = {
+        itemType: "FilterItemComparison",
+        leftValue: { type: "Field", value: "ТипОплаты" },
+        comparisonType: "Equal",
+        userSettingID: true,
+      }
+
+      const firstReference: FilterItemComparison = {
+        ...current,
+        rightValue: { type: "string", value: "Наличные" },
+        userSettingID: asReferenceUserSettingID(guidA),
+      }
+      const secondReference: FilterItemComparison = {
+        ...current,
+        rightValue: { type: "string", value: "Безналичные" },
+        userSettingID: asReferenceUserSettingID(guidB),
+      }
+
+      const { result } = testExportPropertyToXML({
+        rule,
+        value: [current],
+        xmlRootTag: "dcsset:item",
+        referenceMetadata: [firstReference, secondReference],
+      })
+
+      expect(result).not.toContain(guidA)
+      expect(result).not.toContain(guidB)
+    })
+
+    it("FilterItemComparison: сохраняет xs:string userSettingPresentation из reference", () => {
+      const guid = "eeeeeeee-0000-0000-0000-000000000005"
+      const current: FilterItemComparison = {
+        itemType: "FilterItemComparison",
+        leftValue: { type: "Field", value: "ТипОплаты" },
+        comparisonType: "Equal",
+        userSettingID: true,
+        userSettingPresentation: { items: { ru: "Способ оплаты" } },
+      }
+      const reference: FilterItemComparison = {
+        ...current,
+        userSettingID: asReferenceUserSettingID(guid),
+        userSettingPresentation: "Способ оплаты",
+      }
+
+      const { result } = testExportPropertyToXML({
+        rule,
+        value: [current],
+        xmlRootTag: "dcsset:item",
+        referenceMetadata: [reference],
+      })
+
+      expect(result).toContain(`<dcsset:userSettingID>${guid}</dcsset:userSettingID>`)
+      expect(result).toContain(
+        `<dcsset:userSettingPresentation xsi:type="xs:string">Способ оплаты</dcsset:userSettingPresentation>`
+      )
+      expect(result).not.toContain(`xsi:type="v8:LocalStringType"`)
+    })
+
+    it("FilterItemComparison: сопоставляет implicit Equal и поле с точкой из YAML", () => {
+      const guid = "eeeeeeee-0000-0000-0000-000000000007"
+      const current: FilterItemComparison = {
+        itemType: "FilterItemComparison",
+        leftValue: { type: "Field", value: ".ТипОплаты" },
+        userSettingID: true,
+        userSettingPresentation: { items: { ru: "Способ оплаты" } },
+      }
+      const reference: FilterItemComparison = {
+        ...current,
+        leftValue: { type: "Field", value: "ТипОплаты" },
+        comparisonType: "Equal",
+        userSettingID: asReferenceUserSettingID(guid),
+        userSettingPresentation: "Способ оплаты",
+      }
+
+      const { result } = testExportPropertyToXML({
+        rule,
+        value: [current],
+        xmlRootTag: "dcsset:item",
+        referenceMetadata: [reference],
+      })
+
+      expect(result).toContain(`<dcsset:userSettingID>${guid}</dcsset:userSettingID>`)
+      expect(result).toContain(
+        `<dcsset:userSettingPresentation xsi:type="xs:string">Способ оплаты</dcsset:userSettingPresentation>`
+      )
+    })
+
+    it("FilterItemGroup: передает reference во вложенный FilterItemComparison", () => {
+      const guid = "ffffffff-0000-0000-0000-000000000006"
+      const currentNested: FilterItemComparison = {
+        itemType: "FilterItemComparison",
+        leftValue: { type: "Field", value: "Контрагент" },
+        comparisonType: "Equal",
+        userSettingID: true,
+        userSettingPresentation: { items: { ru: "Контрагент" } },
+      }
+      const referenceNested: FilterItemComparison = {
+        ...currentNested,
+        userSettingID: asReferenceUserSettingID(guid),
+        userSettingPresentation: "Контрагент",
+      }
+      const currentGroup: FilterItemGroup = {
+        itemType: "FilterItemGroup",
+        groupType: "AndGroup",
+        items: [currentNested],
+      }
+      const referenceGroup: FilterItemGroup = {
+        itemType: "FilterItemGroup",
+        groupType: "AndGroup",
+        items: [referenceNested],
+      }
+
+      const { result } = testExportPropertyToXML({
+        rule,
+        value: [currentGroup],
+        xmlRootTag: "dcsset:item",
+        referenceMetadata: [referenceGroup],
+      })
+
+      expect(result).toContain(`<dcsset:userSettingID>${guid}</dcsset:userSettingID>`)
+      expect(result).toContain(
+        `<dcsset:userSettingPresentation xsi:type="xs:string">Контрагент</dcsset:userSettingPresentation>`
+      )
     })
   })
 })
