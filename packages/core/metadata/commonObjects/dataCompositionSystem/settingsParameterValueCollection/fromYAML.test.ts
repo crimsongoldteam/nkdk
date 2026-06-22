@@ -57,6 +57,37 @@ describe("import SettingsParameterValueCollection from YAML", () => {
     })
   })
 
+  it("imports nested ent system enumeration values", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        ВидДвижения: {
+          Использовать: "Ложь",
+          Значение: {
+            Тип: "СистемноеПеречисление",
+            Имя: "AccumulationRecordType",
+            Значение: "Приход",
+          },
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "SettingsParameterValueCollection",
+      parameters: {
+        ВидДвижения: {
+          parameter: "ВидДвижения",
+          use: false,
+          value: {
+            type: "SystemEnumeration",
+            typeSE: "AccumulationRecordType",
+            value: "Receipt",
+          },
+        },
+      },
+    })
+  })
+
   it("accepts arbitrary parameter names with default item rule in JSON Schema", () => {
     const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
     if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")

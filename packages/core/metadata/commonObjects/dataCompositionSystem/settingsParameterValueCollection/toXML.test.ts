@@ -23,4 +23,31 @@ describe("export SettingsParameterValueCollection to XML", () => {
 
     expect(result).toEqual(expectedResult)
   })
+
+  it("exports ent system enumeration values under generic Field rule", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: {
+        itemType: "SettingsParameterValueCollection",
+        parameters: {
+          ВидДвижения: {
+            parameter: "ВидДвижения",
+            use: false,
+            value: {
+              type: "SystemEnumeration",
+              typeSE: "AccumulationRecordType",
+              value: "Receipt",
+            },
+          },
+        },
+      },
+      xmlRootTag: "dcsset:dataParameters",
+      referenceMetadata: undefined,
+    })
+
+    expect(result).toContain('<dcscor:item xsi:type="dcsset:SettingsParameterValue">')
+    expect(result).toContain("<dcscor:use>false</dcscor:use>")
+    expect(result).toContain("<dcscor:parameter>ВидДвижения</dcscor:parameter>")
+    expect(result).toContain('<dcscor:value xsi:type="ent:AccumulationRecordType">Receipt</dcscor:value>')
+  })
 })
