@@ -42,10 +42,9 @@ export const ExtendedTooltipRules = {
       yaml: "Заголовок",
     },
     type: {
-      yaml: "Вид",
       type: "SystemEnumeration",
       typeSE: "FormDecorationType",
-      implicitValueYAML: "Label",
+      runtimeOnly: true,
     },
     ...extendedTooltipCommonProperties,
     backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },

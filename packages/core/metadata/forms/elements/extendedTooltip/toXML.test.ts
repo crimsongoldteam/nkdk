@@ -54,4 +54,10 @@ describe("export ExtendedTooltip to XML", () => {
 
     expect(result).toEqual(expected)
   })
+
+  it("does not export runtime Type", () => {
+    const result = exportTooltip("КакойТоЭлемент", { ...minimalExtendedTooltip, type: "Label" })
+
+    expect(result).not.toContain("<Type>")
+  })
 })

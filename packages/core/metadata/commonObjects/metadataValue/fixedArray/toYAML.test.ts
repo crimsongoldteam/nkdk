@@ -28,7 +28,7 @@ describe("exportFixedArrayToYAML", () => {
     expect(result).toEqual(refsWithNilFixedArrayYAML)
   })
 
-  it("exports formChoiceList elements without presentation as simple values", () => {
+  it("exports formChoiceList elements without presentation as explicit value objects", () => {
     const result = exportFixedArrayToYAML(mockContext, formChoiceRefsFixedArray)
     expect(result).toEqual(formChoiceRefsFixedArrayYAML)
   })
