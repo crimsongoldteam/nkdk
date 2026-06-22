@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
+import { importPropertiesFromXML } from "~/metadata/orchestration/property/fromXML"
 import { exportPropertiesToXML } from "~/metadata/orchestration/property/toXML"
-import { mockContextToXML } from "~/tests/mockContext"
+import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { ButtonRules } from "./rules"
 import type { Button } from "./types"
 
@@ -13,6 +14,19 @@ const baseButton = {
   commandName: "Form.Command.Сформировать",
 } satisfies Button
 
+function importReferenceButton(xml: Record<string, unknown>): Button {
+  const imported = importPropertiesFromXML({
+    context: mockContextFromXML({ forReference: true }),
+    rule: ButtonRules,
+    xml,
+  })
+
+  return {
+    itemType: "Button",
+    ...(imported === undefined ? {} : imported),
+  } as Button
+}
+
 function exportButton(params: { button: Button; referenceButton?: Button }): Record<string, unknown> {
   return exportPropertiesToXML({
     context: mockContextToXML(),
@@ -23,16 +37,13 @@ function exportButton(params: { button: Button; referenceButton?: Button }): Rec
 }
 
 describe("Button auto color preservation from reference XML", () => {
-  it("restores BackColor auto when model omits backColor and reference has auto", () => {
+  it("restores BackColor auto when model omits backColor and reference XML has auto", () => {
     const result = exportButton({
       button: baseButton,
-      referenceButton: {
-        ...baseButton,
-        backColor: {
-          type: "Absolute",
-          value: "auto",
-        },
-      },
+      referenceButton: importReferenceButton({
+        _name: "КнопкаСформировать",
+        BackColor: "auto",
+      }),
     })
 
     expect(result.BackColor).toBe("auto")
@@ -55,13 +66,10 @@ describe("Button auto color preservation from reference XML", () => {
           value: "Red",
         },
       },
-      referenceButton: {
-        ...baseButton,
-        backColor: {
-          type: "Absolute",
-          value: "auto",
-        },
-      },
+      referenceButton: importReferenceButton({
+        _name: "КнопкаСформировать",
+        BackColor: "auto",
+      }),
     })
 
     expect(result.BackColor).toBe("web:Red")

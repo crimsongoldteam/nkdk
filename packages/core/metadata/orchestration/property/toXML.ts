@@ -71,13 +71,21 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
         ruleProp.preserveFromReferenceXML === true && value === undefined && (ruleProp as any).exportNilValue !== true
       let valueToExport = metadataHasOwnKey && !shouldUseReferenceForUndefined ? value : referenceValue
 
-      const exportedValue = exportPropertyToXML({
-        context: currentContext,
+      const exportedValue = shouldRestoreReferenceAutoColor({
         rule: ruleProp,
-        value: valueToExport,
-        referenceMetadata: referenceValue,
-        metadataItem: metadata,
+        metadataHasOwnKey,
+        referenceMetadata,
+        referenceValue,
+        propertyKey: key,
       })
+        ? "auto"
+        : exportPropertyToXML({
+            context: currentContext,
+            rule: ruleProp,
+            value: valueToExport,
+            referenceMetadata: referenceValue,
+            metadataItem: metadata,
+          })
 
       setXMLValue(key, result, ruleProp, exportedValue, referenceMetadata)
     }
@@ -88,6 +96,26 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   applyAutoRequiredXMLParents(result, autoRequiredXMLParentRoots)
 
   return result
+}
+
+const shouldRestoreReferenceAutoColor = (params: {
+  rule: PropertyRule
+  metadataHasOwnKey: boolean
+  referenceMetadata: unknown
+  referenceValue: unknown
+  propertyKey: string
+}): boolean => {
+  const { rule, metadataHasOwnKey, referenceMetadata, referenceValue, propertyKey } = params
+
+  if (rule.type !== "Color") return false
+  if (metadataHasOwnKey) return false
+  if (referenceValue !== undefined) return false
+  if (referenceMetadata === undefined || referenceMetadata === null || typeof referenceMetadata !== "object") return false
+
+  const sourceKeys = (referenceMetadata as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
+  if (sourceKeys === undefined || sourceKeys === null || typeof sourceKeys !== "object") return false
+
+  return Object.prototype.hasOwnProperty.call(sourceKeys, propertyKey)
 }
 
 export const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: any, referenceMetadata?: any): void => {

@@ -58,7 +58,6 @@ export const fullSingleSearchControlAddition: SingleSearchControlAddition = {
       items: { ru: "Подсказка" },
     },
     toolTipRepresentation: "None",
-    type: "Label",
     userVisible: {
       common: true,
       values: [{ name: "Role.Администратор", value: true }],

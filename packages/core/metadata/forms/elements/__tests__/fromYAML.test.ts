@@ -40,6 +40,32 @@ describe("importElementFromPartialYAML preserve", () => {
       type: "UsualButton",
     })
   })
+
+  it("does not materialize ExtendedTooltip Type for search control addition", () => {
+    const result = importElementFromPartialYAML({
+      context: mockContext,
+      itemType: "SearchControlAddition",
+      yaml: {
+        РасширеннаяПодсказка: {
+          Видимость: "Ложь",
+        },
+      },
+      source: {
+        itemType: "SearchControlAddition",
+        name: "ПолеУправлениеПоиском",
+        extendedTooltip: {
+          itemType: "ExtendedTooltip",
+          visible: false,
+        },
+        childItems: [],
+      },
+    })
+
+    expect(result?.extendedTooltip).toEqual({
+      itemType: "ExtendedTooltip",
+      visible: false,
+    })
+  })
 })
 
 describe("importElementFromTypedYAML", () => {
