@@ -7,38 +7,88 @@ import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 import "./typedValues"
 import { FilterItem, FilterItemComparison, FilterItemGroup } from "./types"
 
-const filterItemComparisonMatchKey = (item: FilterItemComparison): string =>
-  JSON.stringify({ leftValue: item.leftValue, comparisonType: item.comparisonType })
+const normalizeFilterItemMatchValue = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(normalizeFilterItemMatchValue)
+  if (value === null || typeof value !== "object") return value
+
+  const record = value as Record<string, unknown>
+  if (record.type === "Field" && typeof record.value === "string") {
+    return { ...record, value: record.value.startsWith(".") ? record.value.slice(1) : record.value }
+  }
+
+  return Object.fromEntries(
+    Object.entries(record).map(([key, itemValue]) => [key, normalizeFilterItemMatchValue(itemValue)])
+  )
+}
+
+const filterItemComparisonBaseMatchKey = (item: FilterItemComparison): string =>
+  JSON.stringify({
+    leftValue: normalizeFilterItemMatchValue(item.leftValue),
+    comparisonType: item.comparisonType ?? "Equal",
+  })
+
+const filterItemComparisonStrictMatchKey = (item: FilterItemComparison): string =>
+  JSON.stringify({
+    leftValue: normalizeFilterItemMatchValue(item.leftValue),
+    comparisonType: item.comparisonType ?? "Equal",
+    rightValue: normalizeFilterItemMatchValue(item.rightValue),
+  })
 
 const filterItemGroupMatchKey = (item: FilterItemGroup): string => String(item.groupType ?? "")
+
+const findOnlyIndex = (indices: number[]): number | undefined => (indices.length === 1 ? indices[0] : undefined)
 
 const findReferenceFilterItem = (
   item: FilterItem[number],
   referenceItems: FilterItem,
   usedIndices: Set<number>
 ): FilterItem[number] | undefined => {
+  const candidateIndices: number[] = []
+
   for (let i = 0; i < referenceItems.length; i++) {
     if (usedIndices.has(i)) continue
     const refItem = referenceItems[i]
     if (item.itemType !== refItem.itemType) continue
+
     if (
       item.itemType === "FilterItemComparison" &&
       refItem.itemType === "FilterItemComparison" &&
-      filterItemComparisonMatchKey(item) === filterItemComparisonMatchKey(refItem)
+      filterItemComparisonBaseMatchKey(item) === filterItemComparisonBaseMatchKey(refItem)
     ) {
-      usedIndices.add(i)
-      return refItem
+      candidateIndices.push(i)
+      continue
     }
+
     if (
       item.itemType === "FilterItemGroup" &&
       refItem.itemType === "FilterItemGroup" &&
       filterItemGroupMatchKey(item) === filterItemGroupMatchKey(refItem)
     ) {
-      usedIndices.add(i)
-      return refItem
+      candidateIndices.push(i)
     }
   }
-  return undefined
+
+  const onlyCandidateIndex = findOnlyIndex(candidateIndices)
+  if (onlyCandidateIndex !== undefined) {
+    usedIndices.add(onlyCandidateIndex)
+    return referenceItems[onlyCandidateIndex]
+  }
+
+  if (item.itemType !== "FilterItemComparison") return undefined
+
+  const strictCandidateIndices = candidateIndices.filter((index) => {
+    const refItem = referenceItems[index]
+    return (
+      refItem.itemType === "FilterItemComparison" &&
+      filterItemComparisonStrictMatchKey(item) === filterItemComparisonStrictMatchKey(refItem)
+    )
+  })
+
+  const onlyStrictCandidateIndex = findOnlyIndex(strictCandidateIndices)
+  if (onlyStrictCandidateIndex === undefined) return undefined
+
+  usedIndices.add(onlyStrictCandidateIndex)
+  return referenceItems[onlyStrictCandidateIndex]
 }
 
 const exportFilterItemElementToXML = (params: {
