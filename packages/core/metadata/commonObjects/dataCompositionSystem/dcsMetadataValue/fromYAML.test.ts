@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { importFromYAML } from "~/yaml/import"
 import { importDcsMetadataValueFromYAML } from "./fromYAML"
 import { dcsMetadataValueYAMLFixtures } from "./__fixtures__/data"
 
@@ -40,6 +41,17 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
       })
     ).toEqual({
       items: { ru: "ЧЦ=3; ЧДЦ=2" },
+    })
+  })
+
+  it("imports quoted explicit DesignTimeValue LocalStringType as default language", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        value: importFromYAML('Тип: МногоязычнаяСтрока\nЗначение: "1"'),
+      })
+    ).toEqual({
+      items: { ru: "1" },
     })
   })
 

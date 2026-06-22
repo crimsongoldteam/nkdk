@@ -15,7 +15,7 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnumerations/fromYAML"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
-import { isExplicitYAMLString } from "~/yaml/explicitString"
+import { isExplicitYAMLString, unwrapExplicitYAMLString } from "~/yaml/explicitString"
 import { ConfigurationContext } from "../../../context/types"
 import {
   DcsMetadataValuePropertyRule,
@@ -61,7 +61,7 @@ const importExplicitTextValueFromYAML = (
     const value = importI8nTextFromYAML({
       context,
       rule: { type: "I8nText" },
-      value: data["Значение"] as I8nTextYAML,
+      value: unwrapExplicitYAMLString(data["Значение"]) as I8nTextYAML,
     })
     if (value !== undefined) return value
   }
