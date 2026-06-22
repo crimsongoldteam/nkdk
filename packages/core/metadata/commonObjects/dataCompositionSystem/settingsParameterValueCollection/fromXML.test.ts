@@ -22,4 +22,33 @@ describe("import SettingsParameterValueCollection from XML", () => {
 
     expect(result).toEqual(settingsParameterValueCollectionFixture)
   })
+
+  it("imports ent system enumeration values under generic Field rule", () => {
+    const result = testImportPropertyFromXML({
+      rule,
+      xmlRootTag: "dcsset:dataParameters",
+      xmlString: `<dcsset:dataParameters xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise/current-config">
+  <dcscor:item xsi:type="dcsset:SettingsParameterValue">
+    <dcscor:use>false</dcscor:use>
+    <dcscor:parameter>ВидДвижения</dcscor:parameter>
+    <dcscor:value xsi:type="ent:AccumulationRecordType">Receipt</dcscor:value>
+  </dcscor:item>
+</dcsset:dataParameters>`,
+    })
+
+    expect(result).toEqual({
+      itemType: "SettingsParameterValueCollection",
+      parameters: {
+        ВидДвижения: {
+          parameter: "ВидДвижения",
+          use: false,
+          value: {
+            type: "SystemEnumeration",
+            typeSE: "AccumulationRecordType",
+            value: "Receipt",
+          },
+        },
+      },
+    })
+  })
 })

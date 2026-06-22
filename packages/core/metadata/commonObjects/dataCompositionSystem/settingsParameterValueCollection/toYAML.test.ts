@@ -15,6 +15,21 @@ const rule: PropertyRule = {
   },
 }
 
+const accumulationRecordTypeCollection = {
+  itemType: "SettingsParameterValueCollection",
+  parameters: {
+    ВидДвижения: {
+      parameter: "ВидДвижения",
+      use: false,
+      value: {
+        type: "SystemEnumeration",
+        typeSE: "AccumulationRecordType",
+        value: "Receipt",
+      },
+    },
+  },
+} as const
+
 describe("export SettingsParameterValueCollection to YAML", () => {
   it("exports undefined", () => {
     const result = testExportPropertyToYAML({ rule, value: undefined })
@@ -28,5 +43,25 @@ describe("export SettingsParameterValueCollection to YAML", () => {
     })
 
     expect(result).toEqual({ ПараметрыДанных: settingsParameterValueCollectionFixtureYAML })
+  })
+
+  it("keeps ent system enumeration values nested under Значение", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: accumulationRecordTypeCollection,
+    })
+
+    expect(result).toEqual({
+      ПараметрыДанных: {
+        ВидДвижения: {
+          Использовать: "Ложь",
+          Значение: {
+            Тип: "СистемноеПеречисление",
+            Имя: "AccumulationRecordType",
+            Значение: "Приход",
+          },
+        },
+      },
+    })
   })
 })

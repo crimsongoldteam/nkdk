@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 
 import {
+  emptyFormChoiceParameter,
+  emptyFormChoiceParametersYAML,
   enumChoiceParameter,
   enumChoiceParametersYAML,
   fixedArrayChoiceParameter,
@@ -82,6 +84,12 @@ describe("exportChoiceParametersToYAML", () => {
     const result = exportChoiceParametersToYAML(mockContext, mockRule, formEnumChoiceParameter)
 
     expect(result).toEqual(formEnumChoiceParametersYAML)
+  })
+
+  it("exports empty top-level form choice value with explicit type", () => {
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, emptyFormChoiceParameter)
+
+    expect(result).toEqual(emptyFormChoiceParametersYAML)
   })
 
   it("exports choice parameters with nested form choice fixedArray without empty presentations", () => {

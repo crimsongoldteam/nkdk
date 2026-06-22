@@ -57,6 +57,37 @@ describe("import SettingsParameterValueCollection from YAML", () => {
     })
   })
 
+  it("imports nested ent system enumeration values", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        ВидДвижения: {
+          Использовать: "Ложь",
+          Значение: {
+            Тип: "СистемноеПеречисление",
+            Имя: "AccumulationRecordType",
+            Значение: "Приход",
+          },
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      itemType: "SettingsParameterValueCollection",
+      parameters: {
+        ВидДвижения: {
+          parameter: "ВидДвижения",
+          use: false,
+          value: {
+            type: "SystemEnumeration",
+            typeSE: "AccumulationRecordType",
+            value: "Receipt",
+          },
+        },
+      },
+    })
+  })
+
   it("accepts arbitrary parameter names with default item rule in JSON Schema", () => {
     const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
     if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")
@@ -124,6 +155,35 @@ describe("import SettingsParameterValueCollection from YAML", () => {
   it("preserves double-quoted numeric-looking parameter value as string", () => {
     const yaml = parseViaYamlText({
       Маска: "123",
+    })
+
+    const result = testImportPropertyFromYAML({
+      rule: {
+        type: "SettingsParameterValueCollection",
+        defaultItemRule: {
+          type: "SettingsParameterValue",
+          valueType: "Primitive",
+        },
+      } as PropertyRule,
+      value: yaml,
+    })
+
+    expect(result).toEqual({
+      itemType: "SettingsParameterValueCollection",
+      parameters: {
+        Маска: {
+          parameter: "Маска",
+          value: { type: "string", value: "123" },
+        },
+      },
+    })
+  })
+
+  it("preserves double-quoted numeric-looking full parameter value as string", () => {
+    const yaml = parseViaYamlText({
+      Маска: {
+        Значение: "123",
+      },
     })
 
     const result = testImportPropertyFromYAML({

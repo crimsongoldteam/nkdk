@@ -48,4 +48,27 @@ describe("export Appearance to XML", () => {
     expect(result).toContain("<dcscor:parameter>ЦветФона</dcscor:parameter>")
     expect(result).toContain('<dcscor:value xsi:type="v8ui:Color">auto</dcscor:value>')
   })
+
+  it("exports quoted LocalStringType text appearance with default language", () => {
+    const { result } = testExportPropertyToXML({
+      rule: fixtureAppearanceRule,
+      value: {
+        itemType: "AppearanceFields",
+        Текст: {
+          parameter: "Текст",
+          use: false,
+          value: {
+            items: { ru: "1" },
+          },
+        },
+      },
+      xmlRootTag: "dcsset:appearance",
+    })
+
+    expect(result).toContain("<dcscor:use>false</dcscor:use>")
+    expect(result).toContain("<dcscor:parameter>Текст</dcscor:parameter>")
+    expect(result).toContain('<dcscor:value xsi:type="v8:LocalStringType">')
+    expect(result).toContain("<v8:lang>ru</v8:lang>")
+    expect(result).toContain("<v8:content>1</v8:content>")
+  })
 })

@@ -160,6 +160,7 @@ export const formBooleanChoiceParameter: ChoiceParameters = [
 
 export const formBooleanChoiceParametersYAML: ChoiceParametersYAML = {
   БезПроизводныхЗначений: {
+    Тип: "ЗначениеСпискаВыбора",
     Значение: "Истина",
   },
 }
@@ -181,7 +182,23 @@ export const formEnumChoiceParameter: ChoiceParameters = [
 
 export const formEnumChoiceParametersYAML: ChoiceParametersYAML = {
   "Отбор.ТипСчета": {
+    Тип: "ЗначениеСпискаВыбора",
     Значение: "Перечисление.ТипыСчетов.НераспределеннаяПрибыль",
+  },
+}
+
+export const emptyFormChoiceParameter: ChoiceParameters = [
+  {
+    name: "ВыборДействующихМаршрутныхКарт",
+    value: {
+      type: "formChoiceListDesTimeValue",
+    },
+  },
+]
+
+export const emptyFormChoiceParametersYAML: ChoiceParametersYAML = {
+  ВыборДействующихМаршрутныхКарт: {
+    Тип: "ЗначениеСпискаВыбора",
   },
 }
 
@@ -215,6 +232,7 @@ export const formChoiceFixedArrayChoiceParameter: ChoiceParameters = [
 
 export const formChoiceFixedArrayChoiceParametersYAML: ChoiceParametersYAML = {
   "Отбор.ТипДоговора": {
+    Тип: "ЗначениеСпискаВыбора",
     Значение: [
       {
         Тип: "ЗначениеСпискаВыбора",

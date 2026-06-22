@@ -67,6 +67,29 @@ describe("import Appearance from YAML", () => {
     })
   })
 
+  it("imports quoted LocalStringType text appearance as default language", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: importFromYAML(`
+Текст:
+  Использовать: Ложь
+  Тип: МногоязычнаяСтрока
+  Значение: "1"
+`),
+    })
+
+    expect(result).toEqual({
+      itemType: "AppearanceFields",
+      Текст: {
+        parameter: "Текст",
+        use: false,
+        value: {
+          items: { ru: "1" },
+        },
+      },
+    })
+  })
+
   it("imports explicit LocalFormattedStringType value for text appearance", () => {
     const result = testImportPropertyFromYAML({
       rule,

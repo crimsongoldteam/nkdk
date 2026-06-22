@@ -50,12 +50,15 @@ const shouldHideDcsAutoColorValue = (
   values: MetadataDcsMetadataValue[]
 ): boolean => rule.valueType === "Color" && values.length === 1 && isDcsAutoColorValue(values[0])
 
-const isExplicitDcsValueYAML = (value: unknown): value is { Тип: string; Значение: unknown } =>
-  typeof value === "object" &&
-  value !== null &&
-  !Array.isArray(value) &&
-  typeof (value as Record<string, unknown>).Тип === "string" &&
-  "Значение" in value
+const isLosslessLiftableDcsValueYAML = (value: unknown): value is { Тип: string; Значение: unknown } => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false
+
+  const record = value as Record<string, unknown>
+  if (typeof record.Тип !== "string" || !("Значение" in record)) return false
+
+  const keys = Object.keys(record)
+  return keys.every((key) => key === "Тип" || key === "Значение")
+}
 
 export const exportParameterValueToYAML = (params: {
   context: ConfigurationContext
@@ -70,12 +73,13 @@ export const exportParameterValueToYAML = (params: {
   const valuesForYAML = hideAutoColorValue ? [] : values
   const exportedValues = valuesForYAML.map((v) => exportDcsMetadataValueToYAML(context, dcsRule, v))
   const liftedValue = exportedValues.length === 1 ? exportedValues[0] : undefined
-  const liftedType = isExplicitDcsValueYAML(liftedValue) ? liftedValue.Тип : undefined
+  const canLiftValue = isLosslessLiftableDcsValueYAML(liftedValue)
+  const liftedType = canLiftValue ? liftedValue.Тип : undefined
   let значение: unknown
   if (exportedValues.length === 0) {
     значение = undefined
   } else if (exportedValues.length === 1) {
-    значение = isExplicitDcsValueYAML(liftedValue) ? liftedValue.Значение : liftedValue
+    значение = canLiftValue ? liftedValue.Значение : liftedValue
   } else {
     значение = exportedValues
   }

@@ -4,6 +4,7 @@ import {
   fixedArrayChoiceParameter,
   fixedArrayWithNilChoiceParameters,
   formBooleanChoiceParameter,
+  emptyFormChoiceParametersYAML,
   formEnumChoiceParameter,
   multipleChoiceParameters,
   nilChoiceParameters,
@@ -11,10 +12,16 @@ import {
   stringChoiceParameter,
   withoutOneValueChoiceParameter,
 } from "~/metadata/commonObjects/сhoiceParameters/__fixtures__/data"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
+import { mockContext, mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
+import { xmlExport } from "~/xml/export/exporter"
+import { exportToYAML } from "~/yaml/export"
+import { importFromYAML } from "~/yaml/import"
+import { importChoiceParametersFromYAML } from "./fromYAML"
 import { importChoiceParametersFromXML } from "./fromXML"
-import { ChoiceParametersXML } from "./types"
+import { exportChoiceParametersToXML } from "./toXML"
+import { exportChoiceParametersToYAML } from "./toYAML"
+import { ChoiceParametersXML, ChoiceParametersYAML } from "./types"
 
 describe("importChoiceParametersFromXML", () => {
   it("should return undefined for undefined input", () => {
@@ -106,6 +113,26 @@ describe("importChoiceParametersFromXML", () => {
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
     expect(result).toEqual(formEnumChoiceParameter)
+  })
+
+  it("preserves empty FormChoiceListDesTimeValue through YAML", () => {
+    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
+      import.meta.url,
+      "form/empty.xml"
+    )
+
+    const imported = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
+    const yamlObject = exportChoiceParametersToYAML(mockContext, mockRule, imported)
+    const yamlText = exportToYAML(yamlObject)
+    const reparsedYaml = importFromYAML<ChoiceParametersYAML>(yamlText)
+    const importedFromYaml = importChoiceParametersFromYAML(mockContext, mockRule, reparsedYaml)
+    const exportedXML = exportChoiceParametersToXML(mockContext, mockRule, importedFromYaml)
+    const result = xmlExport({ ChoiceParameters: exportedXML }, false)
+
+    expect(yamlObject).toEqual(emptyFormChoiceParametersYAML)
+    expect(result).toContain('<app:value xsi:type="FormChoiceListDesTimeValue">')
+    expect(result).toContain("<Presentation/>")
+    expect(result).toContain('<Value xsi:nil="true"/>')
   })
 
   it("should import choice parameters with nil value correctly", () => {
