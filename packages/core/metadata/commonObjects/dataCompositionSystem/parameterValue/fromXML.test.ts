@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
+import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { exportToYAML } from "~/yaml/export"
+import { importFromYAML } from "~/yaml/import"
 import {
   nilSettingsParameterValue,
   nilSettingsParameterValueRule,
@@ -56,5 +61,64 @@ describe("importParameterValueFromXML", () => {
       parameter: "Период",
       userSettingPresentation: { items: { ru: "Период с" } },
     })
+  })
+
+  it("imports empty xs:string value as explicit empty string", () => {
+    const rule = { type: "SettingsParameterValue", valueType: "Field", yaml: "НоменклатураВключение" } as PropertyRule
+
+    const imported = testImportPropertyFromXML({
+      rule,
+      xmlRootTag: "dcscor:item",
+      xmlString: `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:use>false</dcscor:use>
+	<dcscor:parameter>НоменклатураВключение</dcscor:parameter>
+	<dcscor:value xsi:type="xs:string"/>
+</dcscor:item>`,
+    })
+
+    expect(imported).toEqual({
+      parameter: "НоменклатураВключение",
+      use: false,
+      value: { type: "string", value: "" },
+    })
+
+    const yamlObject = testExportPropertyToYAML({
+      rule,
+      value: imported,
+    })
+    const yamlText = exportToYAML(yamlObject)
+    const reparsedYaml = importFromYAML<typeof yamlObject>(yamlText)
+    const importedFromYaml = testImportPropertyFromYAML({
+      rule,
+      value: reparsedYaml.НоменклатураВключение,
+    })
+
+    expect(yamlObject).toEqual({
+      НоменклатураВключение: {
+        Использовать: "Ложь",
+        Тип: "Строка",
+        Значение: "",
+      },
+    })
+    expect(importedFromYaml).toEqual(imported)
+  })
+
+  it("keeps missing dcscor:value as missing value", () => {
+    const rule = { type: "SettingsParameterValue", valueType: "Field", yaml: "НоменклатураВключение" } as PropertyRule
+
+    const imported = testImportPropertyFromXML({
+      rule,
+      xmlRootTag: "dcscor:item",
+      xmlString: `<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+	<dcscor:use>false</dcscor:use>
+	<dcscor:parameter>НоменклатураВключение</dcscor:parameter>
+</dcscor:item>`,
+    })
+
+    expect(imported).toEqual({
+      parameter: "НоменклатураВключение",
+      use: false,
+    })
+    expect(Object.prototype.hasOwnProperty.call(imported, "value")).toBe(false)
   })
 })

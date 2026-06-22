@@ -15,6 +15,7 @@ import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importSystemEnumerationFromYAMLDeprecated } from "~/metadata/systemEnumerations/fromYAML"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
+import type { ExplicitYAMLString } from "~/yaml/explicitString"
 import { isExplicitYAMLString, unwrapExplicitYAMLString } from "~/yaml/explicitString"
 import { ConfigurationContext } from "../../../context/types"
 import {
@@ -86,12 +87,13 @@ const isDcsSystemEnumerationValueYAML = (data: unknown): data is MetadataDcsSyst
 
 const isExplicitPrimitiveStringValueYAML = (
   data: unknown
-): data is { Тип: "Строка"; Значение: string } =>
+): data is { Тип: "Строка"; Значение: string | ExplicitYAMLString } =>
   typeof data === "object" &&
   data !== null &&
   !Array.isArray(data) &&
   (data as Record<string, unknown>).Тип === "Строка" &&
-  typeof (data as Record<string, unknown>).Значение === "string"
+  (typeof (data as Record<string, unknown>).Значение === "string" ||
+    isExplicitYAMLString((data as Record<string, unknown>).Значение))
 
 const isDateTimeYAML = (data: unknown): data is string =>
   typeof data === "string" && /^\d{2}\.\d{2}\.\d{4}(\s+\d{2}:\d{2}:\d{2})?$/.test(data)
@@ -126,7 +128,7 @@ export const importDcsMetadataValueFromYAML = (
   if (data === undefined) return undefined
   if (data === null) return null
   if (rule.valueType === "Field" && isExplicitPrimitiveStringValueYAML(data)) {
-    return { type: "string", value: data.Значение }
+    return { type: "string", value: unwrapExplicitYAMLString(data.Значение) as string }
   }
   if (Array.isArray(data) && rule.valueType === "Primitive") {
     return data
