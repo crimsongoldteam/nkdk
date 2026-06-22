@@ -40,8 +40,12 @@ export const formChoiceRefsFixedArray = {
 } satisfies MetadataFixedArrayValue
 
 export const formChoiceRefsFixedArrayYAML: MetadataFixedArrayValueYAML = [
-  "Перечисление.ТипыДоговоров.СПоставщиком",
-  "Перечисление.ТипыДоговоров.СКомитентом",
+  {
+    Значение: "Перечисление.ТипыДоговоров.СПоставщиком",
+  },
+  {
+    Значение: "Перечисление.ТипыДоговоров.СКомитентом",
+  },
 ]
 
 export const singleStringFixedArray: MetadataFixedArrayValue = {
