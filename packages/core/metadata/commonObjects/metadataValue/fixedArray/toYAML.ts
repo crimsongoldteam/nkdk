@@ -8,10 +8,6 @@ const exportFixedArrayElementToYAML = (
 ): MetadataFixedArrayValueYAML[number] => {
   if (value === undefined) return undefined
 
-  if (value.type === "formChoiceListDesTimeValue" && value.presentation === undefined) {
-    return exportMetadataValueToYAML(context, undefined, value.value) as MetadataFixedArrayValueYAML[number]
-  }
-
   return exportMetadataValueToYAML(context, undefined, value) as MetadataFixedArrayValueYAML[number]
 }
 
