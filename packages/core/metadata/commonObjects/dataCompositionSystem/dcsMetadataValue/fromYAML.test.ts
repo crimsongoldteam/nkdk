@@ -29,6 +29,53 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
     })
   })
 
+  it("imports explicit DesignTimeValue LocalStringType", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        value: {
+          Тип: "МногоязычнаяСтрока",
+          Значение: "ЧЦ=3; ЧДЦ=2",
+        },
+      })
+    ).toEqual({
+      items: { ru: "ЧЦ=3; ЧДЦ=2" },
+    })
+  })
+
+  it("imports explicit DesignTimeValue LocalFormattedStringType", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        value: {
+          Тип: "МногоязычнаяФорматированнаяСтрока",
+          Значение: {
+            Форматированный: "Истина",
+            Текст: "Многоязычная форматированная строка",
+          },
+        },
+      })
+    ).toEqual({
+      type: "LocalFormattedStringType",
+      value: {
+        formatted: true,
+        items: { ru: "Многоязычная форматированная строка" },
+      },
+    })
+  })
+
+  it("imports DesignTimeValue without explicit type as xs:string", () => {
+    expect(
+      testImportPropertyFromYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        value: "Все полномочия",
+      })
+    ).toEqual({
+      type: "string",
+      value: "Все полномочия",
+    })
+  })
+
   it("imports beginning date string as Field value dateTime", () => {
     expect(
       testImportPropertyFromYAML({

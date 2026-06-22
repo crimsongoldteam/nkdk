@@ -1,5 +1,6 @@
 import { importColorFromYAML } from "~/metadata/commonObjects/color/fromYAML"
 import { importFontFromYAML } from "~/metadata/commonObjects/font/fromYAML"
+import { importFormattedI8nTextFromYAML } from "~/metadata/commonObjects/formattedI8nText/fromYAML"
 import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
 import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { importMetadataFieldFromYAML } from "~/metadata/commonObjects/metadataField/fromYAML"
@@ -45,13 +46,32 @@ const isExplicitEmptyLocalStringType = (value: unknown): value is I8nText => {
 const hasExplicitTextType = (data: unknown): data is Record<string, unknown> =>
   typeof data === "object" && data !== null && !Array.isArray(data) && "Тип" in data
 
-const importExplicitTextValueFromYAML = (data: unknown): MetadataDcsMetadataValue | undefined => {
+const importExplicitTextValueFromYAML = (
+  context: ConfigurationContext,
+  data: unknown
+): MetadataDcsMetadataValue | undefined => {
   if (!hasExplicitTextType(data)) return undefined
   if (data["Тип"] === "Поле" && typeof data["Значение"] === "string") {
     return { type: "Field", value: data["Значение"] }
   }
   if (data["Тип"] === "ЗначениеВремениПроектирования" && typeof data["Значение"] === "string") {
     return { type: "DesignTimeValue", value: data["Значение"] }
+  }
+  if (data["Тип"] === "МногоязычнаяСтрока") {
+    const value = importI8nTextFromYAML({
+      context,
+      rule: { type: "I8nText" },
+      value: data["Значение"] as I8nTextYAML,
+    })
+    if (value !== undefined) return value
+  }
+  if (data["Тип"] === "МногоязычнаяФорматированнаяСтрока") {
+    const value = importFormattedI8nTextFromYAML({
+      context,
+      rule: { type: "FormattedI8nText" },
+      value: data["Значение"] as never,
+    })
+    if (value !== undefined) return { type: "LocalFormattedStringType", value }
   }
   throw new Error("MetadataDcsMetadataValue YAML: invalid explicit text value")
 }
@@ -141,7 +161,7 @@ export const importDcsMetadataValueFromYAML = (
       return list?.[0]
     }
     case "DesignTimeValue": {
-      const explicitTextValue = importExplicitTextValueFromYAML(data)
+      const explicitTextValue = importExplicitTextValueFromYAML(context, data)
       if (explicitTextValue !== undefined) {
         return explicitTextValue
       }
@@ -150,6 +170,9 @@ export const importDcsMetadataValueFromYAML = (
       }
       if (typeof data === "object" && data !== null && "type" in data && "value" in data) {
         return importMetadataValueFromYAML(context, undefined, data as any) as MetadataDcsMetadataValue
+      }
+      if (typeof data === "string") {
+        return { type: "string", value: data }
       }
       return importI8nTextFromYAML({
         context,

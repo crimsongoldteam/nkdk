@@ -27,7 +27,7 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
 
     expect(result).toEqual({
       parameter: "Имя",
-      value: { items: { ru: "Значение" } },
+      value: { type: "string", value: "Значение" },
     })
   })
 

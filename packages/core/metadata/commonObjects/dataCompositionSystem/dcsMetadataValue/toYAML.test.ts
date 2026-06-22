@@ -20,4 +20,41 @@ describe("export MetadataDcsMetadataValue to YAML", () => {
       })
     ).toEqual({ value: "Реквизит1" })
   })
+
+  it("exports DesignTimeValue LocalStringType with explicit YAML type", () => {
+    expect(
+      testExportPropertyToYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        value: { items: { ru: "ЧЦ=3; ЧДЦ=2" } },
+      })
+    ).toEqual({
+      value: {
+        Тип: "МногоязычнаяСтрока",
+        Значение: "ЧЦ=3; ЧДЦ=2",
+      },
+    })
+  })
+
+  it("exports DesignTimeValue LocalFormattedStringType with explicit YAML type", () => {
+    expect(
+      testExportPropertyToYAML({
+        rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
+        value: {
+          type: "LocalFormattedStringType",
+          value: {
+            formatted: true,
+            items: { ru: "Многоязычная форматированная строка" },
+          },
+        },
+      })
+    ).toEqual({
+      value: {
+        Тип: "МногоязычнаяФорматированнаяСтрока",
+        Значение: {
+          Форматированный: "Истина",
+          Текст: "Многоязычная форматированная строка",
+        },
+      },
+    })
+  })
 })

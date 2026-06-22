@@ -87,7 +87,10 @@ export const yamlDesignTimeFieldExplicit = {
   Значение: fixtureDesignTimeFieldPath,
 } as const
 export const yamlBooleanPrimitive: MetadataValueYAML = "Истина"
-export const yamlLocalStringI8n: I8nTextYAML = "ЧЦ=3; ЧДЦ=2"
+export const yamlLocalStringI8n = {
+  Тип: "МногоязычнаяСтрока",
+  Значение: "ЧЦ=3; ЧДЦ=2",
+} as const
 export const yamlHorizontalAlign = "Центр" as const
 export const yamlFontStyleExtraLarge: FontYAML = { Вид: "ОченьКрупныйШрифтТекста" }
 export const yamlTypeLink: TypeLinkYAML = "Поле1(2)"

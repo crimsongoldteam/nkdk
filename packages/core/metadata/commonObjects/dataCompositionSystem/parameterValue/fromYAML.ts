@@ -25,6 +25,7 @@ const isExplicitDcsValueYAML = (x: unknown): x is Record<string, unknown> =>
 
 const hasSettingsParameterValueWrapperKey = (x: Record<string, unknown>): boolean =>
   "Использовать" in x ||
+  "Тип" in x ||
   "Элементы" in x ||
   x["РежимОтображения"] !== undefined ||
   x["ИдентификаторПользовательскойНастройки"] !== undefined ||
@@ -74,6 +75,7 @@ const normalizeExplicitRawValue = (
 /** Поля развёрнутого SPV — не имя параметра снаружи. */
 const PARAMETER_VALUE_YAML_INTERNAL_KEYS = new Set([
   "Использовать",
+  "Тип",
   "Значение",
   "Элементы",
   "РежимОтображения",
@@ -139,10 +141,19 @@ export const importParameterValueFromYAML = (
     isExpandedSpvShape && typeof y?.["Параметр"] === "string" ? String(y["Параметр"]) : undefined
   const parameter = String(parameterFromWrapper ?? parameterFromExpandedField ?? parameterFromRule ?? "")
   const hasExplicitValue = y !== undefined && "Значение" in y
+  const hasLiftedDcsType = y !== undefined && typeof y["Тип"] === "string" && "Значение" in y
+  const liftedDcsValue = hasLiftedDcsType
+    ? {
+        Тип: y["Тип"],
+        Значение: normalizeExplicitRawValue(rule.valueType, y, "Значение", y["Значение"]),
+      }
+    : undefined
   const rawValueBase =
     rule.valueType === "Color" && yamlToParse === null
       ? undefined
-      : hasExplicitValue
+      : hasLiftedDcsType
+        ? liftedDcsValue
+        : hasExplicitValue
         ? normalizeExplicitRawValue(rule.valueType, y, "Значение", y["Значение"])
         : isExpandedSpvShape
           ? undefined

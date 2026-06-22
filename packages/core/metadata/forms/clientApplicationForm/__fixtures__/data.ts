@@ -567,6 +567,7 @@ export const catalogFullClientApplicationFormYAML: ClientApplicationFormYAML = {
         },
         Оформление: {
           Текст: {
+            Тип: "МногоязычнаяСтрока",
             Значение: "абв",
           },
         },

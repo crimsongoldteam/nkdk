@@ -1,5 +1,7 @@
 import { exportColorToYAML } from "~/metadata/commonObjects/color/toYAML"
 import { exportFontToYAML } from "~/metadata/commonObjects/font/toYAML"
+import { exportFormattedI8nTextToYAML } from "~/metadata/commonObjects/formattedI8nText/toYAML"
+import type { FormattedI8nText } from "~/metadata/commonObjects/formattedI8nText/types"
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { exportMetadataFieldToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
@@ -51,6 +53,16 @@ const isPrimitiveStringValue = (
   !Array.isArray(data) &&
   (data as Record<string, unknown>).type === "string" &&
   typeof (data as Record<string, unknown>).value === "string"
+
+const isLocalFormattedStringTypeValue = (
+  data: MetadataDcsMetadataValue
+): data is { type: "LocalFormattedStringType"; value: FormattedI8nText } =>
+  data !== null &&
+  typeof data === "object" &&
+  !Array.isArray(data) &&
+  (data as Record<string, unknown>).type === "LocalFormattedStringType" &&
+  typeof (data as Record<string, unknown>).value === "object" &&
+  (data as Record<string, unknown>).value !== null
 
 const exportTypedValueToYAML = (
   context: ConfigurationContext,
@@ -124,11 +136,25 @@ export const exportDcsMetadataValueToYAML = (
     case "Parameter":
       return exportChoiceParametersToYAML(context, undefined, [data as ChoiceParameter])
     case "DesignTimeValue":
+      if (isLocalFormattedStringTypeValue(data)) {
+        const exported = exportFormattedI8nTextToYAML({
+          context,
+          rule: { type: "FormattedI8nText", yaml: "Значение" },
+          value: data.value,
+        })
+        return {
+          Тип: "МногоязычнаяФорматированнаяСтрока",
+          Значение: exported.Значение,
+        } as MetadataDcsMetadataValueYAML
+      }
       if (data !== null && typeof data === "object" && "type" in (data as object) && "value" in (data as object)) {
         return exportMetadataValueToYAML(context, undefined, data as any)
       }
       if (typeof data === "string") return data as unknown as MetadataDcsMetadataValueYAML
-      return exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data as I8nText })
+      return {
+        Тип: "МногоязычнаяСтрока",
+        Значение: exportI8nTextToYAML({ context, rule: { type: "I8nText" }, value: data as I8nText }),
+      } as MetadataDcsMetadataValueYAML
     case "Primitive": {
       const typedValue = exportTypedValueToYAML(context, data)
       if (typedValue !== undefined) return typedValue
