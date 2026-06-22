@@ -2,6 +2,8 @@ import { exportColorToXML } from "~/metadata/commonObjects/color/toXML"
 import { Color } from "~/metadata/commonObjects/color/types"
 import { exportFontToXML } from "~/metadata/commonObjects/font/toXML"
 import { Font } from "~/metadata/commonObjects/font/types"
+import { exportFormattedI8nTextToXML } from "~/metadata/commonObjects/formattedI8nText/toXML"
+import type { FormattedI8nText } from "~/metadata/commonObjects/formattedI8nText/types"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/toXML"
 import { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/toXML"
@@ -61,6 +63,16 @@ const isI8nTextValue = (data: MetadataDcsMetadataValue): data is I8nText =>
   typeof (data as { items?: unknown }).items === "object" &&
   (data as { items?: unknown }).items !== null &&
   !Array.isArray((data as { items?: unknown }).items)
+
+const isLocalFormattedStringTypeValue = (
+  data: MetadataDcsMetadataValue
+): data is { type: "LocalFormattedStringType"; value: FormattedI8nText } =>
+  data !== null &&
+  typeof data === "object" &&
+  !Array.isArray(data) &&
+  (data as Record<string, unknown>).type === "LocalFormattedStringType" &&
+  typeof (data as Record<string, unknown>).value === "object" &&
+  (data as Record<string, unknown>).value !== null
 
 export const exportDcsMetadataValueToDcsXML = (params: {
   context: ConfigurationContext
@@ -133,6 +145,17 @@ export const exportDcsMetadataValueToDcsXML = (params: {
     case "DesignTimeValue": {
       // DesignTimeValue может быть I8nText (v8:LocalStringType) либо типизированным примитивом
       // (например xs:string/xs:decimal/xs:boolean). Различаем по форме объекта.
+      if (isLocalFormattedStringTypeValue(data)) {
+        const formattedXml = exportFormattedI8nTextToXML(context, { type: "FormattedI8nText" }, data.value)
+        const items = formattedXml?.["v8:item"]
+        return {
+          "dcscor:value": {
+            "_xsi:type": "v8:LocalFormattedStringType",
+            ...(items !== undefined ? { "v8:lws": { "v8:item": items } } : {}),
+            "v8:formatted": data.value.formatted,
+          },
+        }
+      }
       if (isExplicitEmptyLocalStringType(data)) {
         return {
           "dcscor:value": {

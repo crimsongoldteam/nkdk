@@ -1,5 +1,6 @@
 import type { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
 import type { Font, FontYAML } from "~/metadata/commonObjects/font/types"
+import type { FormattedI8nText, FormattedI8nTextValueYAML } from "~/metadata/commonObjects/formattedI8nText/types"
 import type { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import type { MetadataField, MetadataFieldYAML } from "~/metadata/commonObjects/metadataField/types"
 import type { MetadataValue, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
@@ -41,6 +42,18 @@ export type DcsMetadataValuePropertyRule = DcsMetadataValueBasePropertyRule | Sy
 export type MetadataDcsFieldValue = { type: "Field"; value: string }
 export type MetadataDcsDesignTimeValue = { type: "DesignTimeValue"; value: string }
 export type MetadataDcsExplicitTextValue = MetadataDcsFieldValue | MetadataDcsDesignTimeValue
+export type MetadataDcsLocalFormattedStringTypeValue = {
+  type: "LocalFormattedStringType"
+  value: FormattedI8nText
+}
+export type MetadataDcsLocalStringTypeValueYAML = {
+  Тип: "МногоязычнаяСтрока"
+  Значение: I8nTextYAML
+}
+export type MetadataDcsLocalFormattedStringTypeValueYAML = {
+  Тип: "МногоязычнаяФорматированнаяСтрока"
+  Значение: FormattedI8nTextValueYAML
+}
 export type MetadataDcsExplicitTextValueYAML =
   | {
       Тип: "Поле"
@@ -50,6 +63,8 @@ export type MetadataDcsExplicitTextValueYAML =
       Тип: "ЗначениеВремениПроектирования"
       Значение: string
     }
+  | MetadataDcsLocalStringTypeValueYAML
+  | MetadataDcsLocalFormattedStringTypeValueYAML
 
 export type MetadataDcsPrimitiveStringValueYAML = {
   Тип: "Строка"
@@ -73,6 +88,7 @@ export type MetadataDcsMetadataSingleValue =
   | Color
   | MetadataField
   | MetadataDcsExplicitTextValue
+  | MetadataDcsLocalFormattedStringTypeValue
   | ChoiceParameter
   | I8nText
   | MetadataValue
