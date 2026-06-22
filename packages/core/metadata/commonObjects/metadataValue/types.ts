@@ -156,10 +156,32 @@ export type MetadataSimpleValueXML = {
 export const MetadataSingleValueJSONSchema = Type.Union([Type.String(), Type.Number()])
 export type MetadataSingleValueYAML = Static<typeof MetadataSingleValueJSONSchema> | ExplicitYAMLString
 
-export const MetadataFixedArrayValueJSONSchema = Type.Array(
-  Type.Union([MetadataSingleValueJSONSchema, Type.Undefined(), Type.Null()])
+export const MetadataExplicitFormChoiceListValueYAMLJSONSchema = Type.Object(
+  {
+    Тип: Type.Literal("ЗначениеСпискаВыбора"),
+    Представление: Type.Optional(I8nTextJSONSchema),
+    Значение: Type.Optional(Type.Any()),
+  },
+  { additionalProperties: false }
 )
-export type MetadataFixedArrayValueYAML = Array<MetadataSingleValueYAML | null | undefined>
+
+export type MetadataExplicitFormChoiceListValueYAML = {
+  Тип: "ЗначениеСпискаВыбора"
+  Представление?: I8nTextYAML
+  Значение?: MetadataFormChoiceListValueValueYAML
+}
+
+export const MetadataFixedArrayValueJSONSchema = Type.Array(
+  Type.Union([
+    MetadataSingleValueJSONSchema,
+    MetadataExplicitFormChoiceListValueYAMLJSONSchema,
+    Type.Undefined(),
+    Type.Null(),
+  ])
+)
+export type MetadataFixedArrayValueYAML = Array<
+  MetadataSingleValueYAML | MetadataExplicitFormChoiceListValueYAML | null | undefined
+>
 export type MetadataFixedArrayValueYAMLInput = MetadataFixedArrayValueYAML
 
 export const MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema = Type.Object({
