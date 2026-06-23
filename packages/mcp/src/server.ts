@@ -3,12 +3,15 @@ import { resolve } from "path"
 import { pathToFileURL } from "url"
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
+import { registerNkdkCapabilities } from "./tools/registerTools"
 
 export function createNkdkMcpServer(): McpServer {
-  return new McpServer({
+  const server = new McpServer({
     name: "nkdk-mcp",
     version: "1.0.0",
   })
+  registerNkdkCapabilities(server)
+  return server
 }
 
 export async function runStdioServer(): Promise<void> {

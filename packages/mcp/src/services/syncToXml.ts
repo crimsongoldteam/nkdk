@@ -14,6 +14,15 @@ interface CoreSyncResult {
   failed: CoreFailure[]
 }
 
+type ConfigDumpInfo = Map<
+  string,
+  {
+    children: Map<string, string>
+    id: string
+    configVersion: string
+  }
+>
+
 interface SyncToXmlDeps {
   syncConfigurationToXML: (params: {
     context: {
@@ -22,7 +31,7 @@ interface SyncToXmlDeps {
       exportToYAML: { toTyped: false }
       exportToXML: {
         itemsTree: []
-        configDumpInfo: Map<string, unknown>
+        configDumpInfo: ConfigDumpInfo
         version: "2.20"
         context: {
           forms: []
