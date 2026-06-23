@@ -22,7 +22,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       inputSchema: getSchemaInputShape,
       outputSchema: getSchemaOutputShape,
     },
-    (input) => jsonToolResult(getSchema(input)),
+    async (input) => jsonToolResult(await getSchema(input)),
   )
 
   server.registerTool(
@@ -33,7 +33,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       inputSchema: validateProjectInputShape,
       outputSchema: validateProjectOutputShape,
     },
-    (input) => jsonToolResult(validateYamlProject(input)),
+    async (input) => jsonToolResult(await validateYamlProject(input)),
   )
 
   server.registerTool(

@@ -11,11 +11,11 @@ describe("validateProject service", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
-  it("returns diagnostics and summary as JSON", () => {
+  it("returns diagnostics and summary as JSON", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
 
-    const result = validateYamlProject({ projectDir })
+    const result = await validateYamlProject({ projectDir })
 
     expect(result.ok).toBe(true)
     if (!result.ok) throw new Error(result.message)
@@ -30,9 +30,9 @@ describe("validateProject service", () => {
     )
   })
 
-  it("returns not_found for a missing project directory", () => {
+  it("returns not_found for a missing project directory", async () => {
     const projectDir = join(tmpdir(), "nakidka-missing-mcp-project")
-    const result = validateYamlProject({ projectDir })
+    const result = await validateYamlProject({ projectDir })
 
     expect(result).toEqual({
       ok: false,
@@ -42,13 +42,13 @@ describe("validateProject service", () => {
     })
   })
 
-  it("returns invalid_arguments for filePath outside project", () => {
+  it("returns invalid_arguments for filePath outside project", async () => {
     const projectDir = createProject()
     const outsideDir = createProject()
     const outsideFile = join(outsideDir, "Свойства.yaml")
     writeFileSync(outsideFile, "")
 
-    const result = validateYamlProject({ projectDir, filePath: outsideFile })
+    const result = await validateYamlProject({ projectDir, filePath: outsideFile })
 
     expect(result.ok).toBe(false)
     if (result.ok) throw new Error("expected failure")

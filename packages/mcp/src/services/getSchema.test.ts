@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest"
 import { getSchema } from "./getSchema"
 
 describe("getSchema service", () => {
-  it("returns schema summary by schema name", () => {
-    const result = getSchema({ target: "InputField" })
+  it("returns schema summary by schema name", async () => {
+    const result = await getSchema({ target: "InputField" })
 
     expect(result.ok).toBe(true)
     if (!result.ok) throw new Error(result.message)
@@ -14,8 +14,8 @@ describe("getSchema service", () => {
     expect(JSON.stringify(result.result.summary)).toContain("ПолеВвода")
   })
 
-  it("returns filtered keys", () => {
-    const result = getSchema({ target: "InputField", keys: "путь|вид" })
+  it("returns filtered keys", async () => {
+    const result = await getSchema({ target: "InputField", keys: "путь|вид" })
 
     expect(result.ok).toBe(true)
     if (!result.ok) throw new Error(result.message)
@@ -25,8 +25,8 @@ describe("getSchema service", () => {
     expect(result.result.keys).not.toContain("ЦветТекста")
   })
 
-  it("returns full JSON schema with inline refs", () => {
-    const result = getSchema({
+  it("returns full JSON schema with inline refs", async () => {
+    const result = await getSchema({
       target: "Справочник/Контрагенты/Свойства.yaml",
       format: "jsonSchema",
       mode: "inline",
@@ -40,8 +40,8 @@ describe("getSchema service", () => {
     expect(JSON.stringify(result.result.schema)).not.toContain("nkdk://schema/MetadataCatalogAttribute")
   })
 
-  it("returns invalid_arguments for incompatible flags", () => {
-    const result = getSchema({ target: "InputField", format: "jsonSchema", keys: true })
+  it("returns invalid_arguments for incompatible flags", async () => {
+    const result = await getSchema({ target: "InputField", format: "jsonSchema", keys: true })
 
     expect(result).toEqual({
       ok: false,
@@ -50,8 +50,8 @@ describe("getSchema service", () => {
     })
   })
 
-  it("returns invalid_arguments when exact search finds no field", () => {
-    const result = getSchema({ target: "InputField", search: "НесуществующееПоле", exact: true })
+  it("returns invalid_arguments when exact search finds no field", async () => {
+    const result = await getSchema({ target: "InputField", search: "НесуществующееПоле", exact: true })
 
     expect(result.ok).toBe(false)
     if (result.ok) throw new Error("expected failure")

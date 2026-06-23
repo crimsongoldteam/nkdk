@@ -1,4 +1,4 @@
-import { syncConfigurationFromXML } from "@nakidka/core"
+import { loadCoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type ImportFromXmlInput } from "../contracts/importFromXml"
 
@@ -32,11 +32,9 @@ export type ImportFromXmlPayload = ToolPayload<{
   failed: Array<{ kind: string; name: string; parent?: string; message: string }>
 }>
 
-const defaultDeps: ImportFromXmlDeps = { syncConfigurationFromXML }
-
 export async function importFromXml(
   input: ImportFromXmlInput,
-  deps: ImportFromXmlDeps = defaultDeps,
+  deps?: ImportFromXmlDeps,
 ): Promise<ImportFromXmlPayload> {
   if (input.allowWrite !== true) {
     return toolError("confirmation_required", "import_from_xml пишет YAML-файлы; повторите вызов с allowWrite=true", {
@@ -46,7 +44,8 @@ export async function importFromXml(
   }
 
   try {
-    const result = await deps.syncConfigurationFromXML({
+    const core = deps ?? (await loadCoreApi())
+    const result = await core.syncConfigurationFromXML({
       context: {
         defaultLanguage: "ru",
         version: "2.20",

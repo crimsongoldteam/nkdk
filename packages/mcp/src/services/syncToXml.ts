@@ -1,4 +1,4 @@
-import { syncConfigurationToXML } from "@nakidka/core"
+import { loadCoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type SyncToXmlInput } from "../contracts/syncToXml"
 
@@ -52,9 +52,7 @@ export type SyncToXmlPayload = ToolPayload<{
   failed: Array<{ kind: string; name: string; parent?: string; message: string }>
 }>
 
-const defaultDeps: SyncToXmlDeps = { syncConfigurationToXML }
-
-export async function syncToXml(input: SyncToXmlInput, deps: SyncToXmlDeps = defaultDeps): Promise<SyncToXmlPayload> {
+export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Promise<SyncToXmlPayload> {
   if (input.allowWrite !== true) {
     return toolError("confirmation_required", "sync_to_xml пишет XML-файлы; повторите вызов с allowWrite=true", {
       yamlDir: input.yamlDir,
@@ -64,7 +62,8 @@ export async function syncToXml(input: SyncToXmlInput, deps: SyncToXmlDeps = def
   }
 
   try {
-    const result = await deps.syncConfigurationToXML({
+    const core = deps ?? (await loadCoreApi())
+    const result = await core.syncConfigurationToXML({
       context: {
         defaultLanguage: "ru",
         version: "2.20",

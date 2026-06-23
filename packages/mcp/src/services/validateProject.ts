@@ -1,6 +1,6 @@
 import { existsSync, statSync } from "fs"
 import { isAbsolute, relative, resolve, sep } from "path"
-import { ProjectFileSchemaError, validateProject } from "@nakidka/core"
+import { loadCoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type ValidateProjectInput } from "../contracts/validateProject"
 
@@ -18,7 +18,7 @@ export type ValidateProjectPayload = ToolPayload<{
   }
 }>
 
-export function validateYamlProject(input: ValidateProjectInput): ValidateProjectPayload {
+export async function validateYamlProject(input: ValidateProjectInput): Promise<ValidateProjectPayload> {
   const projectDir = resolve(input.projectDir)
 
   if (!existsSync(projectDir)) {
@@ -30,7 +30,8 @@ export function validateYamlProject(input: ValidateProjectInput): ValidateProjec
   }
 
   try {
-    const diagnostics = validateProject({
+    const core = await loadCoreApi()
+    const diagnostics = core.validateProject({
       projectDir,
       ...(input.filePath !== undefined ? { filePath: input.filePath } : {}),
     }).diagnostics
@@ -51,7 +52,8 @@ export function validateYamlProject(input: ValidateProjectInput): ValidateProjec
       },
     })
   } catch (caught) {
-    if (caught instanceof ProjectFileSchemaError) {
+    const core = await loadCoreApi()
+    if (caught instanceof core.ProjectFileSchemaError) {
       return toolError("invalid_arguments", caught.message)
     }
     if (caught instanceof Error && caught.message === "Файл находится вне указанного YAML-проекта") {
