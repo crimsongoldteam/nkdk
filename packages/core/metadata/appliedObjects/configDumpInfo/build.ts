@@ -1,5 +1,4 @@
-import { randomBytes } from "crypto"
-import { v4 } from "uuid"
+import { randomBytes, randomUUID } from "crypto"
 import type { StructuralState } from "../configuration/migrations/types"
 import { configDumpInfoNameFromMigrationPath, isManagedConfigDumpInfoRootSegment } from "./nameMapping"
 import type { ConfigDumpInfo } from "./types"
@@ -10,7 +9,7 @@ export type ConfigDumpInfoGenerators = {
 }
 
 const defaultGenerators: ConfigDumpInfoGenerators = {
-  id: () => v4(),
+  id: () => randomUUID(),
   configVersion: () => randomBytes(20).toString("hex"),
 }
 
