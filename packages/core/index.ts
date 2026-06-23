@@ -71,11 +71,14 @@ export {
 } from "./metadata/validation/projectFileSchema"
 export {
   describeMetadataProjectDirectoryStructure,
-  describeMetadataRuleResources,
   type DescribeMetadataProjectDirectoryStructureParams,
+  type MetadataProjectDirectoryStructure,
+  type MetadataProjectStructureNode,
+} from "./metadata/project/directoryStructure"
+export {
+  describeMetadataRuleResources,
   type MetadataProjectAssetDescriptor,
   type MetadataProjectConfigurationYamlDescriptor,
-  type MetadataProjectDirectoryStructure,
   type MetadataProjectDynamicDescriptor,
   type MetadataProjectExternalXmlBaseDescriptor,
   type MetadataProjectExternalXmlDescriptor,
@@ -83,7 +86,6 @@ export {
   type MetadataProjectObjectXmlDescriptor,
   type MetadataProjectPropertiesYamlDescriptor,
   type MetadataProjectResourceDescriptor,
-  type MetadataProjectStructureNode,
   type MetadataProjectXmlDescriptor,
   type MetadataProjectYamlDescriptor,
 } from "./metadata/project"
