@@ -13,7 +13,7 @@
 - пакет `packages/mcp`;
 - локальный MCP stdio-сервер;
 - tools: `nkdk.get_schema`, `nkdk.validate_project`, `nkdk.import_from_xml`, `nkdk.sync_to_xml`;
-- prompts/resources для текущих поставочных сценариев из `skills/**`;
+- prompts/resources для поставочных агентных сценариев;
 - JSON-договоры входа и выхода для всех tools;
 - запись файлов в `import_from_xml` и `sync_to_xml` только при `allowWrite: true`.
 
@@ -23,6 +23,7 @@
 - `inspect_project`;
 - `rename_item`, `delete_item`, `generate_migration`;
 - высокоуровневый write-tool для редактирования YAML;
+- поставка старого каталога `/skills/**`;
 - зависимость от `@nakidka/cli` или запуск CLI как подпроцесса.
 
 ## Архитектура
@@ -238,24 +239,22 @@ JSON-аналог текущей команды `nkdk schema`.
 
 ## Prompts и resources
 
-Текущие поставочные skills становятся MCP resources и prompts:
+Единственный источник правды для агентных инструкций первой версии — `packages/mcp/src/guides/**` и `packages/mcp/src/prompts/**`. Старый каталог `/skills/**` удаляется из поставки и не поддерживается как параллельный источник инструкций.
+
+Сценарии первой версии:
 
 ```text
-skills/config-add-item/SKILL.md
-  -> resource: nkdk://guides/config-edit-yaml
-  -> prompt: nkdk_config_edit_yaml
+resource: nkdk://guides/config-edit-yaml
+prompt: nkdk_config_edit_yaml
 
-skills/config-import-from-xml/SKILL.md
-  -> resource: nkdk://guides/config-import-from-xml
-  -> prompt: nkdk_config_import_from_xml
+resource: nkdk://guides/config-import-from-xml
+prompt: nkdk_config_import_from_xml
 
-skills/config-sync-to-xml/SKILL.md
-  -> resource: nkdk://guides/config-sync-to-xml
-  -> prompt: nkdk_config_sync_to_xml
+resource: nkdk://guides/config-sync-to-xml
+prompt: nkdk_config_sync_to_xml
 
-skills/config-validate-yaml/SKILL.md
-  -> resource: nkdk://guides/config-validate-yaml
-  -> prompt: nkdk_config_validate_yaml
+resource: nkdk://guides/config-validate-yaml
+prompt: nkdk_config_validate_yaml
 ```
 
 `nkdk_config_edit_yaml` покрывает не только добавление новых объектов, но и изменение существующих YAML-файлов по схеме. Переименование и удаление не входят в этот сценарий первой версии.
