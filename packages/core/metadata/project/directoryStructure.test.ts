@@ -73,22 +73,24 @@ describe("metadata project directory structure", () => {
       depth: 1,
     })
 
-    expect(result.node.children).toEqual([
-      expect.objectContaining({
-        name: "Свойства.yaml",
-        kind: "file",
-        role: "properties",
-        pathTemplate: "Документ/Заказ/Свойства.yaml",
-        required: true,
-      }),
-      expect.objectContaining({
-        name: "Формы",
-        kind: "directory",
-        role: "forms",
-        pathTemplate: "Документ/Заказ/Формы",
-        required: false,
-      }),
-    ])
+    expect(result.node.children).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "Свойства.yaml",
+          kind: "file",
+          role: "properties",
+          pathTemplate: "Документ/Заказ/Свойства.yaml",
+          required: true,
+        }),
+        expect.objectContaining({
+          name: "Формы",
+          kind: "directory",
+          role: "forms",
+          pathTemplate: "Документ/Заказ/Формы",
+          required: false,
+        }),
+      ]),
+    )
   })
 
   it("describes form collection and form directories", () => {

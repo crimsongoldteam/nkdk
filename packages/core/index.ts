@@ -70,9 +70,12 @@ export {
   type ExportJSONSchemaForSchemaNameParams,
 } from "./metadata/validation/projectFileSchema"
 export {
+  describeMetadataProjectDirectoryStructure,
   describeMetadataRuleResources,
+  type DescribeMetadataProjectDirectoryStructureParams,
   type MetadataProjectAssetDescriptor,
   type MetadataProjectConfigurationYamlDescriptor,
+  type MetadataProjectDirectoryStructure,
   type MetadataProjectDynamicDescriptor,
   type MetadataProjectExternalXmlBaseDescriptor,
   type MetadataProjectExternalXmlDescriptor,
@@ -80,6 +83,7 @@ export {
   type MetadataProjectObjectXmlDescriptor,
   type MetadataProjectPropertiesYamlDescriptor,
   type MetadataProjectResourceDescriptor,
+  type MetadataProjectStructureNode,
   type MetadataProjectXmlDescriptor,
   type MetadataProjectYamlDescriptor,
 } from "./metadata/project"

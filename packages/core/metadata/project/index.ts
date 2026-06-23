@@ -1,4 +1,10 @@
 export {
+  describeMetadataProjectDirectoryStructure,
+  type DescribeMetadataProjectDirectoryStructureParams,
+  type MetadataProjectDirectoryStructure,
+  type MetadataProjectStructureNode,
+} from "./directoryStructure"
+export {
   describeMetadataRuleResources,
   type MetadataProjectAssetDescriptor,
   type MetadataProjectConfigurationYamlDescriptor,
