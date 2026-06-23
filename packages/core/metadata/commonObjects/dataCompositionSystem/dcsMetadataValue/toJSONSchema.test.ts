@@ -36,6 +36,11 @@ describe("MetadataDcsMetadataValue exportToJSONSchema", () => {
     expect(errorsFor(rule, { ru: "Текст" })).toEqual([])
     expect(errorsFor(rule, { Тип: "Поле", Значение: "СписокФайлов.Представление" })).toEqual([])
     expect(errorsFor(rule, { Тип: "ЗначениеВремениПроектирования", Значение: "Перечисление.X.Y" })).toEqual([])
+    expect(errorsFor(rule, { Тип: "МногоязычнаяСтрока", Значение: "ЧЦ=3; ЧДЦ=2" })).toEqual([])
+    expect(errorsFor(rule, { Тип: "МногоязычнаяСтрока", Значение: { ru: "Текст" } })).toEqual([])
+    expect(errorsFor(rule, { Тип: "МногоязычнаяСтрока" })).toEqual([])
+    expect(errorsFor(rule, { Тип: "МногоязычнаяФорматированнаяСтрока" })).toEqual([])
+    expect(errorsFor(rule, { Тип: "МногоязычнаяСтрока", Лишнее: "x" })).not.toEqual([])
   })
 
   it("accepts Primitive values and explicit DCS system enumeration", () => {

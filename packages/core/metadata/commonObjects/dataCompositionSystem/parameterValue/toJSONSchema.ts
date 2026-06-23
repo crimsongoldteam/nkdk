@@ -82,7 +82,12 @@ const explicitDcsObjectMarkerJSONSchema = (rule: SettingsParameterValuePropertyR
       })
     case "DesignTimeValue":
       return Type.Object({
-        Тип: Type.Union([Type.Literal("Поле"), Type.Literal("ЗначениеВремениПроектирования")]),
+        Тип: Type.Union([
+          Type.Literal("Поле"),
+          Type.Literal("ЗначениеВремениПроектирования"),
+          Type.Literal("МногоязычнаяСтрока"),
+          Type.Literal("МногоязычнаяФорматированнаяСтрока"),
+        ]),
       })
     case "Primitive":
       return Type.Object({
@@ -164,6 +169,32 @@ const valueOrArrayJSONSchema = (valueSchema: TSchema, settingsRule: SettingsPara
   return Type.Union([valueSchema, Type.Array(valueSchema)])
 }
 
+const optionalValueLessExplicitTypeJSONSchema = (settingsRule: SettingsParameterValuePropertyRule): TSchema | undefined => {
+  if (settingsRule.valueType !== "DesignTimeValue") return undefined
+  return Type.Optional(Type.Union([Type.Literal("МногоязычнаяСтрока"), Type.Literal("МногоязычнаяФорматированнаяСтрока")]))
+}
+
+const explicitStringFieldWrapperJSONSchema = (
+  settingsRule: SettingsParameterValuePropertyRule,
+  valueOrArraySchema: TSchema,
+  viewModeSchema: TSchema,
+  elementSchema: TSchema
+): TSchema | undefined => {
+  if (settingsRule.valueType !== "Field") return undefined
+  return Type.Object(
+    {
+      Использовать: Type.Optional(Type.Literal("Ложь")),
+      Тип: Type.Literal("Строка"),
+      Значение: Type.String(),
+      РежимОтображения: Type.Optional(viewModeSchema),
+      ИдентификаторПользовательскойНастройки: Type.Optional(Type.String()),
+      ПредставлениеПользовательскойНастройки: Type.Optional(I8nTextJSONSchema),
+      Элементы: Type.Optional(Type.Array(elementSchema)),
+    },
+    { additionalProperties: false }
+  )
+}
+
 export const createSettingsParameterValueJSONSchema = (params: {
   context: ConfigurationContext
   rawValueSchema: TSchema
@@ -174,13 +205,15 @@ export const createSettingsParameterValueJSONSchema = (params: {
   const wrapperValueSchema = rejectEmptyObject(rawValueSchema)
   const valueOrArraySchema = valueOrArrayJSONSchema(wrapperValueSchema, settingsRule)
   const viewModeSchema = requiredSystemEnumerationJSONSchema(context, "DataCompositionSettingsItemViewMode")
+  const optionalExplicitTypeSchema = optionalValueLessExplicitTypeJSONSchema(settingsRule)
 
-  return Type.Recursive((This) =>
-    Type.Union([
+  return Type.Recursive((This) => {
+    const schemas = [
       compactValueSchema,
       Type.Object(
         {
           Использовать: Type.Optional(Type.Literal("Ложь")),
+          ...(optionalExplicitTypeSchema === undefined ? {} : { Тип: optionalExplicitTypeSchema }),
           Значение: Type.Optional(valueOrArraySchema),
           РежимОтображения: Type.Optional(viewModeSchema),
           ИдентификаторПользовательскойНастройки: Type.Optional(Type.String()),
@@ -189,8 +222,11 @@ export const createSettingsParameterValueJSONSchema = (params: {
         },
         { additionalProperties: false, minProperties: 1 }
       ),
-    ])
-  )
+      explicitStringFieldWrapperJSONSchema(settingsRule, valueOrArraySchema, viewModeSchema, This),
+    ].filter((schema): schema is TSchema => schema !== undefined)
+
+    return unionOf(schemas)
+  })
 }
 
 export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {

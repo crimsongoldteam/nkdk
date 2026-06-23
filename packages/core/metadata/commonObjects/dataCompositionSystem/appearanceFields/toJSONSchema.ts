@@ -1,6 +1,7 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { BooleanJSONSchema } from "~/metadata/commonObjects/boolean/types"
 import { ColorJSONSchema } from "~/metadata/commonObjects/color/types"
+import { FormattedI8nTextJSONSchema } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextJSONSchema } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataSingleValueJSONSchema } from "~/metadata/commonObjects/metadataValue/types"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -96,6 +97,20 @@ const ExplicitTextValueJSONSchema = Type.Union([
     {
       Тип: Type.Literal("ЗначениеВремениПроектирования"),
       Значение: Type.String(),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      Тип: Type.Literal("МногоязычнаяСтрока"),
+      Значение: Type.Optional(I8nTextJSONSchema),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      Тип: Type.Literal("МногоязычнаяФорматированнаяСтрока"),
+      Значение: Type.Optional(FormattedI8nTextJSONSchema),
     },
     { additionalProperties: false }
   ),

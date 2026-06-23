@@ -106,6 +106,15 @@ describe("SettingsParameterValue exportToJSONSchema", () => {
     ).toEqual([])
   })
 
+  it("accepts full object with explicit string marker for Field", () => {
+    const rule = { type: "SettingsParameterValue", valueType: "Field", yaml: "Параметр" } as const
+
+    expect(errorsFor(rule, { Использовать: "Ложь", Тип: "Строка", Значение: "" })).toEqual([])
+    expect(errorsFor(rule, { Использовать: "Ложь", Тип: "Строка", Значение: "abc" })).toEqual([])
+    expect(errorsFor(rule, { Использовать: "Ложь", Тип: "Строка" })).not.toEqual([])
+    expect(errorsFor(rule, { Использовать: "Ложь", Тип: "ЧтоТо", Значение: "" })).not.toEqual([])
+  })
+
   it("accepts object values inside full wrapper", () => {
     const parameterRule = { type: "SettingsParameterValue", valueType: "Parameter", yaml: "ПараметрыВыбора" } as const
     const fontRule = { type: "SettingsParameterValue", valueType: "Font", yaml: "Шрифт" } as const
