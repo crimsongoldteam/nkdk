@@ -36,7 +36,7 @@ export interface MetadataProjectStructureNode {
   children?: MetadataProjectStructureNode[]
 }
 
-export interface MetadataProjectDirectoryStructure {
+export interface MetadataProjectDirectoryStructure extends Record<string, unknown> {
   projectDir: string
   directoryPath: string
   depth: number | null

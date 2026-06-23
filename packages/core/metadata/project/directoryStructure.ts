@@ -350,7 +350,8 @@ function file(
 }
 
 function lastSegment(path: string): string {
-  return path.split("/").at(-1) ?? ""
+  const parts = path.split("/")
+  return parts[parts.length - 1] ?? ""
 }
 
 function toProjectSeparators(filePath: string): string {
