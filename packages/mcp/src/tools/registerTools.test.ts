@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 import { registerNkdkCapabilities } from "./registerTools"
 
 describe("registerNkdkCapabilities", () => {
-  it("registers four tools, four resources, and four prompts", () => {
+  it("registers five tools, four resources, and four prompts", () => {
     const calls = {
       tools: [] as string[],
       resources: [] as string[],
@@ -16,7 +16,13 @@ describe("registerNkdkCapabilities", () => {
 
     registerNkdkCapabilities(server as unknown as Parameters<typeof registerNkdkCapabilities>[0])
 
-    expect(calls.tools).toEqual(["nkdk.get_schema", "nkdk.validate_project", "nkdk.import_from_xml", "nkdk.sync_to_xml"])
+    expect(calls.tools).toEqual([
+      "nkdk.get_schema",
+      "nkdk.describe_project_structure",
+      "nkdk.validate_project",
+      "nkdk.import_from_xml",
+      "nkdk.sync_to_xml",
+    ])
     expect(calls.resources).toEqual([
       "config-edit-yaml",
       "config-import-from-xml",

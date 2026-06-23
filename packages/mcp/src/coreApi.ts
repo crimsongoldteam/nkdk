@@ -25,6 +25,24 @@ export interface ConfigurationSyncResult {
   failed: ConfigurationSyncFailure[]
 }
 
+export interface MetadataProjectStructureNode {
+  name: string
+  kind: "directory" | "file"
+  pathTemplate: string
+  role: string
+  required: boolean
+  repeatable: boolean
+  description: string
+  children?: MetadataProjectStructureNode[]
+}
+
+export interface MetadataProjectDirectoryStructure extends Record<string, unknown> {
+  projectDir: string
+  directoryPath: string
+  depth: number | null
+  node: MetadataProjectStructureNode
+}
+
 type ConfigDumpInfo = Map<
   string,
   {
@@ -56,6 +74,11 @@ export interface CoreApi {
     name: string
     mode: "externalRefs" | "inline"
   }): unknown
+  describeMetadataProjectDirectoryStructure(params: {
+    projectDir: string
+    directoryPath?: string
+    depth?: number
+  }): MetadataProjectDirectoryStructure
   validateProject(params: { projectDir: string; filePath?: string }): { diagnostics: Diagnostic[] }
   syncConfigurationFromXML(params: {
     context: {

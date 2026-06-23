@@ -1,11 +1,16 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { jsonToolResult } from "../contracts/common"
+import {
+  describeProjectStructureInputShape,
+  describeProjectStructureOutputShape,
+} from "../contracts/describeProjectStructure"
 import { getSchemaInputShape, getSchemaOutputShape } from "../contracts/getSchema"
 import { importFromXmlInputShape, importFromXmlOutputShape } from "../contracts/importFromXml"
 import { syncToXmlInputShape, syncToXmlOutputShape } from "../contracts/syncToXml"
 import { validateProjectInputShape, validateProjectOutputShape } from "../contracts/validateProject"
 import { guideDefinitions } from "../guides"
 import { promptDefinitions } from "../prompts"
+import { describeProjectStructure } from "../services/describeProjectStructure"
 import { getSchema } from "../services/getSchema"
 import { importFromXml } from "../services/importFromXml"
 import { syncToXml } from "../services/syncToXml"
@@ -23,6 +28,17 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       outputSchema: getSchemaOutputShape,
     },
     async (input) => jsonToolResult(await getSchema(input)),
+  )
+
+  server.registerTool(
+    "nkdk.describe_project_structure",
+    {
+      title: "Describe NKDK project structure",
+      description: "Возвращает допустимые файлы и подкаталоги для каталога NKDK YAML-проекта.",
+      inputSchema: describeProjectStructureInputShape,
+      outputSchema: describeProjectStructureOutputShape,
+    },
+    async (input) => jsonToolResult(await describeProjectStructure(input)),
   )
 
   server.registerTool(
