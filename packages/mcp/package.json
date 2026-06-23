@@ -1,0 +1,26 @@
+{
+  "name": "@nakidka/mcp",
+  "version": "1.0.0",
+  "description": "MCP сервер Nakidka для ИИ-агентов",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "bin": {
+    "nkdk-mcp": "./bin/nkdk-mcp"
+  },
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "test": "vitest run --passWithNoTests",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@nakidka/core": "workspace:*",
+    "tsx": "^4.22.4",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.9"
+  }
+}

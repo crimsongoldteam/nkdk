@@ -6,7 +6,7 @@
 
 ## Формат поставки
 
-Первый prerelease поставляется отдельным GitHub-репозиторием. Он содержит исходники runtime-части CLI и core, поставочные skills и минимальные файлы установки. Пакет npm пока не публикуется, но структура должна оставаться совместимой с будущим переходом к `@nakidka/core` и `@nakidka/cli`.
+Первый prerelease поставляется отдельным GitHub-репозиторием. Он содержит исходники runtime-части core, MCP-сервер для AI-агентов и минимальные файлы установки. Пакет npm пока не публикуется, но структура должна оставаться совместимой с будущим переходом к `@nakidka/core` и `@nakidka/mcp`.
 
 ## Входит в поставку
 
@@ -18,13 +18,14 @@
 - `tsconfig.json`
 - `packages/core` runtime-исходники
 - `packages/cli` runtime-исходники
-- `skills/**`
+- `packages/mcp` runtime-исходники, guides и prompts
 - `install.sh`, `doctor.sh` и runtime `tsconfig`, когда они будут добавлены
 
 ## Не входит в поставку
 
 - `.agents/**`
 - `.codex/**`
+- `skills/**`
 - `.vscode/**`
 - `docs/**`
 - `node_modules/**`
