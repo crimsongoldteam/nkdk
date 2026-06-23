@@ -15,7 +15,7 @@
     "sourceMap": true,
     "typeRoots": ["./node_modules/@types", "../node_modules/@types"],
     "paths": {
-      "@nakidka/core": ["../core/index.ts"],
+      "@nakidka/core": ["./src/types/nakidka-core.d.ts"],
       "~/*": ["../core/*"]
     },
     "allowImportingTsExtensions": true,
