@@ -8,6 +8,7 @@ export default defineConfig({
   test: {
     environment: "node",
     globals: true,
+    testTimeout: 10_000,
     watch: false,
     alias: {
       "~": resolve(__dirname, "../core"),

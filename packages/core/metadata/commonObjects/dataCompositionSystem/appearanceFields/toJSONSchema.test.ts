@@ -28,6 +28,14 @@ describe("AppearanceFields exportToJSONSchema", () => {
           Имя: "HorizontalAlign",
           Значение: "Лево",
         },
+        Формат: {
+          Тип: "МногоязычнаяСтрока",
+          Значение: "ЧЦ=3; ЧДЦ=2",
+        },
+        Текст: {
+          Тип: "МногоязычнаяСтрока",
+          Значение: "Текст",
+        },
       })
     ).toBe(true)
   })
@@ -44,6 +52,21 @@ describe("AppearanceFields exportToJSONSchema", () => {
 
     expect(compiled.Check({ ЦветТекста: null })).toBe(true)
     expect(compiled.Check({ ЦветФона: { Использовать: "Ложь" } })).toBe(true)
+  })
+
+  it("accepts explicit text type marker without value", () => {
+    const compiled = schemaFor()
+
+    expect(compiled.Check({ Текст: { Тип: "МногоязычнаяСтрока" } })).toBe(true)
+    expect(compiled.Check({ Формат: { Использовать: "Ложь", Тип: "МногоязычнаяСтрока" } })).toBe(true)
+    expect(compiled.Check({ Текст: { Тип: "МногоязычнаяФорматированнаяСтрока" } })).toBe(true)
+  })
+
+  it("keeps explicit text value validation strict when value is present", () => {
+    const compiled = schemaFor()
+
+    expect(compiled.Check({ Текст: { Тип: "МногоязычнаяСтрока", Значение: 42 } })).toBe(false)
+    expect(compiled.Check({ Текст: { Тип: "МногоязычнаяСтрока", Лишнее: "x" } })).toBe(false)
   })
 
   it("does not accept auto as a normal color value", () => {

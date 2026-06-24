@@ -2,12 +2,11 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { jsonToolResult } from "../contracts/common"
 import {
   describeProjectStructureInputShape,
-  describeProjectStructureOutputShape,
 } from "../contracts/describeProjectStructure"
-import { getSchemaInputShape, getSchemaOutputShape } from "../contracts/getSchema"
-import { importFromXmlInputShape, importFromXmlOutputShape } from "../contracts/importFromXml"
-import { syncToXmlInputShape, syncToXmlOutputShape } from "../contracts/syncToXml"
-import { validateProjectInputShape, validateProjectOutputShape } from "../contracts/validateProject"
+import { getSchemaInputShape } from "../contracts/getSchema"
+import { importFromXmlInputShape } from "../contracts/importFromXml"
+import { syncToXmlInputShape } from "../contracts/syncToXml"
+import { validateProjectInputShape } from "../contracts/validateProject"
 import { guideDefinitions } from "../guides"
 import { promptDefinitions } from "../prompts"
 import { describeProjectStructure } from "../services/describeProjectStructure"
@@ -25,7 +24,6 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Get NKDK YAML schema",
       description: "Возвращает JSON Schema или краткую JSON-сводку схемы YAML-файла NKDK.",
       inputSchema: getSchemaInputShape,
-      outputSchema: getSchemaOutputShape,
     },
     async (input) => jsonToolResult(await getSchema(input)),
   )
@@ -36,7 +34,6 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Describe NKDK project structure",
       description: "Возвращает допустимые файлы и подкаталоги для каталога NKDK YAML-проекта.",
       inputSchema: describeProjectStructureInputShape,
-      outputSchema: describeProjectStructureOutputShape,
     },
     async (input) => jsonToolResult(await describeProjectStructure(input)),
   )
@@ -47,7 +44,6 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Validate NKDK YAML project",
       description: "Проверяет YAML-проект NKDK и возвращает diagnostics в JSON.",
       inputSchema: validateProjectInputShape,
-      outputSchema: validateProjectOutputShape,
     },
     async (input) => jsonToolResult(await validateYamlProject(input)),
   )
@@ -58,7 +54,6 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Import 1C XML to NKDK YAML",
       description: "Импортирует XML-выгрузку 1С в YAML-проект. Пишет файлы только при allowWrite=true.",
       inputSchema: importFromXmlInputShape,
-      outputSchema: importFromXmlOutputShape,
     },
     async (input) => jsonToolResult(await importFromXml(input)),
   )
@@ -69,7 +64,6 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Sync NKDK YAML to 1C XML",
       description: "Синхронизирует YAML-проект в XML-выгрузку. Пишет файлы только при allowWrite=true.",
       inputSchema: syncToXmlInputShape,
-      outputSchema: syncToXmlOutputShape,
     },
     async (input) => jsonToolResult(await syncToXml(input)),
   )
