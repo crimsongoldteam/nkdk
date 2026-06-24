@@ -3,6 +3,7 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 export const MetadataSequenceDimensionRules = {
   itemType: "MetadataSequenceDimension",
+  externalMetadata: { segment: "Dimension", placement: "ownerChild" },
   properties: {
     uuid: uuidPropertyRule,
     name: {

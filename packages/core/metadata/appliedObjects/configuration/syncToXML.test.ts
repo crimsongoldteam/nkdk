@@ -111,6 +111,12 @@ describe("sync configuration to XML", () => {
         "Процедура Тест()\nКонецПроцедуры\n",
         "utf-8",
       )
+      fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура", "Формы", "ФормаЭлемента"), { recursive: true })
+      fs.writeFileSync(
+        join(yamlDir, "Справочник", "Номенклатура", "Формы", "ФормаЭлемента", "Форма.yaml"),
+        "Реквизиты: {}\n",
+        "utf-8",
+      )
 
       const result = await syncConfigurationToXML({
         context: mockContextToXML(),
@@ -144,6 +150,8 @@ describe("sync configuration to XML", () => {
         attributeUuid,
       )
       expect(idMap.get("Catalog.Номенклатура.ObjectModule")?.id).toBe(`${catalogUuid}.0`)
+      expect(idMap.get("Catalog.Номенклатура.Form.ФормаЭлемента")?.id).toBeDefined()
+      expect(idMap.get("Catalog.Номенклатура.Form.ФормаЭлемента.Form")?.id).toBeDefined()
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
@@ -174,6 +182,179 @@ describe("sync configuration to XML", () => {
       expect(result.failed).toHaveLength(1)
       expect(result.failed[0]?.kind).toBe("configDumpInfo")
       expect(result.failed[0]?.error.message).toContain('Не найден UUID ConfigDumpInfo для "Catalog.Номенклатура"')
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("для новой общей команды пишет top-level CommonCommand в ConfigDumpInfo", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-common-command-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "xml")
+
+    try {
+      fs.mkdirSync(join(yamlDir, "ОбщаяКоманда", "КомандаСДанными"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(
+        join(yamlDir, "ОбщаяКоманда", "КомандаСДанными", "Свойства.yaml"),
+        ["Синоним: Команда с данными", "ИзменяетДанные: Истина", ""].join("\n"),
+        "utf-8",
+      )
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(result.failed).toEqual([])
+      const configDumpInfoXml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
+        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
+      )
+      const idMap = importConfigDumpInfoFromXML({
+        context: mockContextFromXML(),
+        xml: configDumpInfoXml.ConfigDumpInfo,
+      })
+
+      expect(idMap.get("CommonCommand.КомандаСДанными")?.id).toBeDefined()
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("для нового реквизита регистра пишет UUID в ConfigDumpInfo", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-register-attribute-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "xml")
+
+    try {
+      fs.mkdirSync(join(yamlDir, "РегистрСведений", "ЗначенияХарактеристикОбъектов"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(
+        join(yamlDir, "РегистрСведений", "ЗначенияХарактеристикОбъектов", "Свойства.yaml"),
+        ["Реквизиты:", "  Порядок:", "    Тип: Число(10, 0)", ""].join("\n"),
+        "utf-8",
+      )
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(result.failed).toEqual([])
+      const registerXml = importContentFromXML<{
+        MetaDataObject: {
+          InformationRegister: {
+            ChildObjects: { Attribute: { _uuid: string } }
+          }
+        }
+      }>(fs.readFileSync(join(outDir, "InformationRegisters", "ЗначенияХарактеристикОбъектов.xml"), "utf-8"))
+      const configDumpInfoXml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
+        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
+      )
+      const idMap = importConfigDumpInfoFromXML({
+        context: mockContextFromXML(),
+        xml: configDumpInfoXml.ConfigDumpInfo,
+      })
+
+      expect(
+        idMap
+          .get("InformationRegister.ЗначенияХарактеристикОбъектов")
+          ?.children.get("InformationRegister.ЗначенияХарактеристикОбъектов.Attribute.Порядок"),
+      ).toBe(registerXml.MetaDataObject.InformationRegister.ChildObjects.Attribute._uuid)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("для нового измерения последовательности пишет UUID в ConfigDumpInfo", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-sequence-dimension-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "xml")
+
+    try {
+      fs.mkdirSync(join(yamlDir, "Последовательность", "ПоследовательностьВсеПоля"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(
+        join(yamlDir, "Последовательность", "ПоследовательностьВсеПоля", "Свойства.yaml"),
+        ["Измерения:", "  ИзмерениеПолное:", "    Тип: Строка(10)", ""].join("\n"),
+        "utf-8",
+      )
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(result.failed).toEqual([])
+      const sequenceXml = importContentFromXML<{
+        MetaDataObject: {
+          Sequence: {
+            ChildObjects: { Dimension: { _uuid: string } }
+          }
+        }
+      }>(fs.readFileSync(join(outDir, "Sequences", "ПоследовательностьВсеПоля.xml"), "utf-8"))
+      const configDumpInfoXml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
+        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
+      )
+      const idMap = importConfigDumpInfoFromXML({
+        context: mockContextFromXML(),
+        xml: configDumpInfoXml.ConfigDumpInfo,
+      })
+
+      expect(
+        idMap
+          .get("Sequence.ПоследовательностьВсеПоля")
+          ?.children.get("Sequence.ПоследовательностьВсеПоля.Dimension.ИзмерениеПолное"),
+      ).toBe(sequenceXml.MetaDataObject.Sequence.ChildObjects.Dimension._uuid)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("для нового реквизита адресации задачи пишет UUID в ConfigDumpInfo", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-addressing-attribute-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "xml")
+
+    try {
+      fs.mkdirSync(join(yamlDir, "Задача", "ЗадачаВсеСвойства"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(
+        join(yamlDir, "Задача", "ЗадачаВсеСвойства", "Свойства.yaml"),
+        ["РеквизитыАдресации:", "  РеквизитАдресацииВсеСвойства:", "    Тип: Строка(10)", ""].join("\n"),
+        "utf-8",
+      )
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(result.failed).toEqual([])
+      const taskXml = importContentFromXML<{
+        MetaDataObject: {
+          Task: {
+            ChildObjects: { AddressingAttribute: { _uuid: string } }
+          }
+        }
+      }>(fs.readFileSync(join(outDir, "Tasks", "ЗадачаВсеСвойства.xml"), "utf-8"))
+      const configDumpInfoXml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
+        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
+      )
+      const idMap = importConfigDumpInfoFromXML({
+        context: mockContextFromXML(),
+        xml: configDumpInfoXml.ConfigDumpInfo,
+      })
+
+      expect(
+        idMap
+          .get("Task.ЗадачаВсеСвойства")
+          ?.children.get("Task.ЗадачаВсеСвойства.AddressingAttribute.РеквизитАдресацииВсеСвойства"),
+      ).toBe(taskXml.MetaDataObject.Task.ChildObjects.AddressingAttribute._uuid)
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }

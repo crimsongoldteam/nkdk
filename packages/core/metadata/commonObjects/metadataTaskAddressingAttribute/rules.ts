@@ -3,6 +3,7 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 export const MetadataTaskAddressingAttributeRules = {
   itemType: "MetadataAttribute",
+  externalMetadata: { segment: "AddressingAttribute", placement: "ownerChild" },
   properties: {
     ...MetadataTabularSectionAttributeRules.properties,
     addressingDimension: {

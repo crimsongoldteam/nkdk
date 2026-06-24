@@ -5,6 +5,7 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 export const MetadataRegisterAttributeRules = {
   itemType: "MetadataRegisterAttribute",
+  externalMetadata: { segment: "Attribute", placement: "ownerChild" },
   properties: {
     ...commonRegisterFieldProperties,
     scheduleLink: {

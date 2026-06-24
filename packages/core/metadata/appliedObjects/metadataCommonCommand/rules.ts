@@ -7,6 +7,7 @@ export const MetadataCommonCommandRules = {
   itemType: "MetadataCommonCommand",
   itemTypePrefix: "ОбщаяКоманда",
   xmlDir: "CommonCommands",
+  externalMetadata: { segment: "CommonCommand", placement: "rootEntry" },
   properties: {
     xmlRoot: {
       type: "XMLRoot",
