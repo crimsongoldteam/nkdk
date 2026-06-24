@@ -15,6 +15,28 @@ describe("syncToXml service", () => {
     expect(syncConfigurationToXML).not.toHaveBeenCalled()
   })
 
+  it("defaults referenceDir to xmlDir when referenceDir is omitted", async () => {
+    const syncConfigurationToXML = vi.fn().mockResolvedValue({
+      succeeded: 1,
+      failed: [],
+    })
+
+    const result = await syncToXml({ yamlDir: "/yaml", xmlDir: "/xml", allowWrite: true }, { syncConfigurationToXML })
+
+    expect(syncConfigurationToXML).toHaveBeenCalledWith(
+      expect.objectContaining({
+        inputDir: "/yaml",
+        outputDir: "/xml",
+        referenceDir: "/xml",
+      }),
+    )
+    expect(result).toEqual({
+      ok: true,
+      succeeded: 1,
+      failed: [],
+    })
+  })
+
   it("passes referenceDir and maps failures", async () => {
     const syncConfigurationToXML = vi.fn().mockResolvedValue({
       succeeded: 2,
