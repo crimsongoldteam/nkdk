@@ -1,11 +1,57 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { describeProjectStructure } from "./describeProjectStructure"
+
+const core = vi.hoisted(() => ({
+  describeMetadataProjectDirectoryStructure: vi.fn(),
+}))
+
+vi.mock("../coreApi", () => ({
+  loadCoreApi: vi.fn(async () => core),
+}))
 
 describe("describeProjectStructure service", () => {
   const tempDirs: string[] = []
+
+  beforeEach(() => {
+    core.describeMetadataProjectDirectoryStructure.mockReset()
+    core.describeMetadataProjectDirectoryStructure.mockImplementation(({ projectDir, directoryPath, depth }) => ({
+      projectDir,
+      directoryPath: directoryPath ?? "",
+      depth: depth ?? null,
+      node: {
+        name: "Товары",
+        kind: "directory",
+        pathTemplate: "Справочник/{Имя}",
+        role: "metadataObject",
+        required: true,
+        repeatable: true,
+        description: "Справочник",
+        children: [
+          {
+            name: "Свойства.yaml",
+            kind: "file",
+            pathTemplate: "Справочник/{Имя}/Свойства.yaml",
+            role: "properties",
+            required: true,
+            repeatable: false,
+            description: "Свойства",
+          },
+          {
+            name: "Формы",
+            kind: "directory",
+            pathTemplate: "Справочник/{Имя}/Формы",
+            role: "forms",
+            required: false,
+            repeatable: false,
+            description: "Формы",
+          },
+        ],
+      },
+    }))
+  })
 
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
@@ -20,6 +66,11 @@ describe("describeProjectStructure service", () => {
     if (!result.ok) throw new Error(result.message)
     expect(result.directoryPath).toBe("Справочник/Товары")
     expect(result.depth).toBe(1)
+    expect(core.describeMetadataProjectDirectoryStructure).toHaveBeenCalledWith({
+      projectDir,
+      directoryPath: "Справочник/Товары",
+      depth: 1,
+    })
     expect(result.node.children).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "Свойства.yaml", kind: "file" }),
@@ -59,6 +110,10 @@ describe("describeProjectStructure service", () => {
   it("returns invalid_arguments for outside and unsupported directories", async () => {
     const projectDir = createProject()
     const outsideDir = createProject()
+    core.describeMetadataProjectDirectoryStructure.mockImplementation(({ directoryPath }) => {
+      if (directoryPath === outsideDir) throw new Error("Каталог находится вне указанного YAML-проекта")
+      throw new Error("Каталог не соответствует структуре metadata-проекта")
+    })
 
     const outside = await describeProjectStructure({ projectDir, directoryPath: outsideDir })
     expect(outside.ok).toBe(false)

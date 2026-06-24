@@ -1,11 +1,25 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { validateYamlProject } from "./validateProject"
+
+const core = vi.hoisted(() => ({
+  ProjectFileSchemaError: class ProjectFileSchemaError extends Error {},
+  validateProject: vi.fn(),
+}))
+
+vi.mock("../coreApi", () => ({
+  loadCoreApi: vi.fn(async () => core),
+}))
 
 describe("validateProject service", () => {
   const tempDirs: string[] = []
+
+  beforeEach(() => {
+    core.validateProject.mockReset()
+    core.validateProject.mockReturnValue({ diagnostics: [] })
+  })
 
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
@@ -14,6 +28,17 @@ describe("validateProject service", () => {
   it("returns diagnostics and summary as JSON", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
+    core.validateProject.mockReturnValue({
+      diagnostics: [
+        {
+          filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
+          line: 1,
+          col: 1,
+          severity: "error",
+          message: "Неизвестное поле",
+        },
+      ],
+    })
 
     const result = await validateYamlProject({ projectDir })
 
@@ -28,6 +53,7 @@ describe("validateProject service", () => {
         severity: "error",
       }),
     )
+    expect(core.validateProject).toHaveBeenCalledWith({ projectDir })
   })
 
   it("omits warning diagnostics from JSON output", async () => {
@@ -39,6 +65,17 @@ describe("validateProject service", () => {
       "    Вид: Кнопка",
       "    Данные: Items.Таблица.CurrentData.Номенклатура",
     ])
+    core.validateProject.mockReturnValue({
+      diagnostics: [
+        {
+          filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
+          line: 1,
+          col: 1,
+          severity: "warning",
+          message: "Предупреждение",
+        },
+      ],
+    })
 
     const result = await validateYamlProject({ projectDir })
 
@@ -65,6 +102,9 @@ describe("validateProject service", () => {
     const outsideDir = createProject()
     const outsideFile = join(outsideDir, "Свойства.yaml")
     writeFileSync(outsideFile, "")
+    core.validateProject.mockImplementation(() => {
+      throw new Error("Файл находится вне указанного YAML-проекта")
+    })
 
     const result = await validateYamlProject({ projectDir, filePath: outsideFile })
 
