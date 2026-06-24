@@ -7,6 +7,7 @@ import {
   twoItemsChoiceList,
   twoItemsChoiceListYAML,
 } from "~/metadata/commonObjects/choiceList/__fixtures__/data"
+import type { ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { importFromYAML } from "~/yaml/import"
 import { importChoiceListFromYAML } from "./fromYAML"
@@ -36,7 +37,7 @@ describe("importChoiceListFromYAML", () => {
   })
 
   it("preserves quoted numeric strings and plain numbers from parsed YAML", () => {
-    const yaml = importFromYAML([
+    const yaml = importFromYAML<ChoiceListYAML>([
       "- Представление: 2 знака",
       '  Значение: "2"',
       "- Представление: 3 знака",

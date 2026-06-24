@@ -176,7 +176,6 @@ const optionalValueLessExplicitTypeJSONSchema = (settingsRule: SettingsParameter
 
 const explicitStringFieldWrapperJSONSchema = (
   settingsRule: SettingsParameterValuePropertyRule,
-  valueOrArraySchema: TSchema,
   viewModeSchema: TSchema,
   elementSchema: TSchema
 ): TSchema | undefined => {
@@ -222,7 +221,7 @@ export const createSettingsParameterValueJSONSchema = (params: {
         },
         { additionalProperties: false, minProperties: 1 }
       ),
-      explicitStringFieldWrapperJSONSchema(settingsRule, valueOrArraySchema, viewModeSchema, This),
+      explicitStringFieldWrapperJSONSchema(settingsRule, viewModeSchema, This),
     ].filter((schema): schema is TSchema => schema !== undefined)
 
     return unionOf(schemas)

@@ -1,12 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "~/metadata/orchestration"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import {
-  fullFilterItemComparison,
-  fullFilterItemComparisonYAML,
-  fullFilterItemGroup,
-  fullFilterItemGroupYAML,
-} from "./__fixtures__/data"
+import { fullFilterItemComparison, fullFilterItemGroup } from "./__fixtures__/data"
 import "./types"
 
 const rule: PropertyRule = {
@@ -14,14 +9,29 @@ const rule: PropertyRule = {
   yaml: "Элементы",
 }
 
-describe.skip("export FilterItem to YAML", () => {
+describe("export FilterItem to YAML", () => {
   it("exports FilterItemComparison to YAML", () => {
     const result = testExportPropertyToYAML({
       rule,
       value: [fullFilterItemComparison],
     })
 
-    expect(result).toEqual({ Элементы: [fullFilterItemComparisonYAML] })
+    expect(result).toEqual({
+      Элементы: [
+        {
+          Использование: "Ложь",
+          ЛевоеЗначение: ".Ссылка",
+          ПравоеЗначение: "Справочник.Справочник1.ПустаяСсылка",
+          Представление: {
+            Тип: "МногоязычнаяСтрока",
+            Значение: "Представление",
+          },
+          РежимОтображения: "Обычный",
+          ИспользоватьПользовательскуюНастройку: "Истина",
+          ПредставлениеПользовательскойНастройки: "Пользовательское представление",
+        },
+      ],
+    })
   })
 
   it("exports FilterItemGroup to YAML", () => {
@@ -30,6 +40,22 @@ describe.skip("export FilterItem to YAML", () => {
       value: [fullFilterItemGroup],
     })
 
-    expect(result).toEqual({ Элементы: [fullFilterItemGroupYAML] })
+    expect(result).toEqual({
+      Элементы: [
+        {
+          ТипГруппы: "ГруппаИли",
+          Представление: {
+            Тип: "МногоязычнаяСтрока",
+            Значение: "Представление",
+          },
+          ПредставлениеПользовательскойНастройки: {
+            Тип: "МногоязычнаяСтрока",
+            Значение: "Пользовательское представление",
+          },
+          РежимОтображения: "Обычный",
+          ИспользоватьПользовательскуюНастройку: "Истина",
+        },
+      ],
+    })
   })
 })

@@ -30,14 +30,19 @@ describe("import FilterItem from YAML scalar styles", () => {
   })
 })
 
-describe.skip("import FilterItem from YAML", () => {
+describe("import FilterItem from YAML", () => {
   it("imports FilterItemComparison from YAML", () => {
     const result = testImportPropertyFromYAML({
       rule,
       value: [fullFilterItemComparisonYAML],
     })
 
-    expect(result).toEqual([fullFilterItemComparison])
+    expect(result).toEqual([
+      {
+        ...fullFilterItemComparison,
+        presentation: { type: "string", value: "Представление" },
+      },
+    ])
   })
 
   it("imports FilterItemGroup from YAML", () => {
@@ -46,6 +51,12 @@ describe.skip("import FilterItem from YAML", () => {
       value: [fullFilterItemGroupYAML],
     })
 
-    expect(result).toEqual([fullFilterItemGroup])
+    expect(result).toEqual([
+      {
+        ...fullFilterItemGroup,
+        presentation: { type: "string", value: "Представление" },
+        userSettingPresentation: { type: "string", value: "Пользовательское представление" },
+      },
+    ])
   })
 })

@@ -593,7 +593,7 @@ export interface PropertyTypeRegistry {
     yaml: StringboolYAML
   }
   UserSettingsID: {
-    item: UserSettingsID
+    item: UserSettingsID | string
     yaml: UserSettingsIDYAML
   }
   //#endregion
@@ -1525,7 +1525,7 @@ export interface PropertyTypeRegistry {
     yaml: string
   }
   DcsLocalStringType: {
-    item: I8nText
+    item: I8nText | string
     yaml: I8nTextYAML
   }
   FilterItemFieldValue: {
@@ -1533,12 +1533,12 @@ export interface PropertyTypeRegistry {
     yaml: string
   }
   FilterItemLocalStringTypeValue: {
-    item: I8nText
-    yaml: I8nTextYAML
+    item: MetadataDcsMetadataValue
+    yaml: MetadataDcsMetadataValueYAML
   }
   FilterItemPresentationValue: {
-    item: I8nText
-    yaml: I8nTextYAML
+    item: MetadataDcsMetadataValue
+    yaml: MetadataDcsMetadataValueYAML
   }
   FilterItemPrimitiveValue: {
     item: MetadataTypedPrimitiveValue

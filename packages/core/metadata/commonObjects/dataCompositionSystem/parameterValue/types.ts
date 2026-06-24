@@ -32,13 +32,14 @@ export type SettingsParameterValue = ParameterValue & {
 }
 
 export type ParameterValueYAMLObject = {
+  Параметр?: string
   Тип?: string
   Использовать?: "Ложь"
   Значение?: MetadataDcsMetadataValueYAML | MetadataDcsMetadataValueYAML[]
   Элементы?: ParameterValueYAML[]
 }
 
-export type ParameterValueYAML = ParameterValueYAMLObject
+export type ParameterValueYAML = ParameterValueYAMLObject | null
 export type LegacyParameterValueYAML = MetadataDcsMetadataValueYAML
 
 export type SettingsParameterValueYAMLObject = Omit<ParameterValueYAMLObject, "Элементы"> & {
@@ -48,7 +49,7 @@ export type SettingsParameterValueYAMLObject = Omit<ParameterValueYAMLObject, "�
   Элементы?: SettingsParameterValueYAML[]
 }
 
-export type SettingsParameterValueYAML = SettingsParameterValueYAMLObject
+export type SettingsParameterValueYAML = SettingsParameterValueYAMLObject | null
 export type LegacySettingsParameterValueYAML = MetadataDcsMetadataValueYAML
 
 export type ParameterValueDcsValueFragment = NonNullable<MetadataDcsMetadataValueDcsRootXML["dcscor:value"]>

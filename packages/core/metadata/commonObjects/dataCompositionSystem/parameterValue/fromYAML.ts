@@ -160,7 +160,7 @@ export const importParameterValueFromYAML = (
           : yamlToParse
   const rawValue =
     unwrapped !== undefined
-      ? normalizeExplicitRawValue(rule.valueType, yaml, parameterFromWrapper, rawValueBase)
+      ? normalizeExplicitRawValue(rule.valueType, yaml, parameterFromWrapper ?? "", rawValueBase)
       : rawValueBase
   const rawList = normalizeRawValues(dcsRule.valueType, rawValue)
   const sourceValues = normalizeSourceValues(sourceValue?.value)

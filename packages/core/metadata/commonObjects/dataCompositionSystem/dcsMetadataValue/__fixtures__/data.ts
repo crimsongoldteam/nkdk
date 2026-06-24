@@ -1,6 +1,6 @@
 import type { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
 import type { Font, FontYAML } from "~/metadata/commonObjects/font/types"
-import type { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import type { MetadataFieldYAML } from "~/metadata/commonObjects/metadataField/types"
 import type { MetadataTypedPrimitiveValue, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
 import type { TypeLink, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"

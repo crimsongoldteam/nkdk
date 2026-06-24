@@ -87,7 +87,7 @@ describe("importParameterValueFromXML", () => {
       value: imported,
     })
     const yamlText = exportToYAML(yamlObject)
-    const reparsedYaml = importFromYAML<typeof yamlObject>(yamlText)
+    const reparsedYaml = importFromYAML<Record<string, unknown>>(yamlText)
     const importedFromYaml = testImportPropertyFromYAML({
       rule,
       value: reparsedYaml.НоменклатураВключение,

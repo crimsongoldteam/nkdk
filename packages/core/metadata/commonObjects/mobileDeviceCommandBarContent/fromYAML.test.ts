@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import type { MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { importFromYAML } from "~/yaml/import"
 import {
@@ -47,7 +48,7 @@ describe("importMobileDeviceCommandBarContentFromYAML", () => {
   })
 
   it("keeps quoted numeric command bar item as plain string", () => {
-    const yaml = importFromYAML<unknown[]>('- "2"')
+    const yaml = importFromYAML<MetadataValueYAML[]>('- "2"')
 
     const result = importMobileDeviceCommandBarContentFromYAML(mockContext, mockRule, yaml)
 
@@ -55,7 +56,7 @@ describe("importMobileDeviceCommandBarContentFromYAML", () => {
   })
 
   it("keeps plain numeric command bar item delegated to MetadataValue", () => {
-    const yaml = importFromYAML<unknown[]>("- 2")
+    const yaml = importFromYAML<MetadataValueYAML[]>("- 2")
 
     const result = importMobileDeviceCommandBarContentFromYAML(mockContext, mockRule, yaml)
 

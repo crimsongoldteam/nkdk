@@ -3,7 +3,7 @@ import { importPropertyFromYAML, PropertyRule, registerTypeRule } from "~/metada
 import { restoreExplicitMetadataValueYAMLString } from "../../metadataValue/explicitYAMLString"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
-import type { DcsAvailableValue, DcsAvailableValues, DcsAvailableValuesYAML } from "./types"
+import type { DcsAvailableValue, DcsAvailableValueYAML, DcsAvailableValues, DcsAvailableValuesYAML } from "./types"
 
 const valueRule = { type: "MetadataDcsMetadataValue", valueType: "Primitive" } as const satisfies DcsMetadataValuePropertyRule
 const presentationRule = { type: "DcsLocalStringType" } as const
