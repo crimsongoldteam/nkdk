@@ -258,6 +258,7 @@ export const MetadataReportRules = {
     },
     objectModule: {
       type: "Module",
+      externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
       xmlPath: ({ name }: { name: string }) => `${name}/Ext/ObjectModule.bsl`,
       toXML: false,
@@ -265,6 +266,7 @@ export const MetadataReportRules = {
     },
     managerModule: {
       type: "Module",
+      externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: ({ name }: { name: string }) => `${name}/Ext/ManagerModule.bsl`,
       toXML: false,
@@ -272,6 +274,7 @@ export const MetadataReportRules = {
     },
     help: {
       type: "Help",
+      externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: ({ name }: { name: string }) => `${name}/Ext/Help.xml`,
       nkdkDir: "Справка",

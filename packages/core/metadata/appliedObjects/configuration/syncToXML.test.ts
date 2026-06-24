@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
 import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { importContentFromXML } from "~/xml/import/importer"
+import type { ExternalMetadataCollector } from "~/metadata/orchestration/externalMetadata/types"
 import { importConfigDumpInfoFromXML } from "../configDumpInfo/fromXML"
 import type { ConfigDumpInfoXML } from "../configDumpInfo/types"
 import { syncConfigurationFromXML } from "./convertFromXML"
@@ -87,6 +88,92 @@ describe("sync configuration to XML", () => {
       expect(catalogXML).not.toContain("ФормаЭлемента")
       expect(fs.existsSync(join(outDir, "ConfigDumpInfo.xml"))).toBe(true)
       expect(fs.existsSync(join(outDir, "Ext", "Unsupported.xml"))).toBe(false)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("для нового справочника и реквизита пишет одинаковые UUID в XML и ConfigDumpInfo", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-new-uuid-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "xml")
+
+    try {
+      fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(
+        join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"),
+        ["Имя: Номенклатура", "Реквизиты:", "  Артикул: {}", ""].join("\n"),
+        "utf-8",
+      )
+      fs.writeFileSync(
+        join(yamlDir, "Справочник", "Номенклатура", "МодульОбъекта.bsl"),
+        "Процедура Тест()\nКонецПроцедуры\n",
+        "utf-8",
+      )
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(result.failed).toEqual([])
+
+      const catalogXml = importContentFromXML<{
+        MetaDataObject: {
+          Catalog: {
+            _uuid: string
+            ChildObjects: { Attribute: { _uuid: string } }
+          }
+        }
+      }>(fs.readFileSync(join(outDir, "Catalogs", "Номенклатура.xml"), "utf-8"))
+      const configDumpInfoXml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
+        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
+      )
+      const idMap = importConfigDumpInfoFromXML({
+        context: mockContextFromXML(),
+        xml: configDumpInfoXml.ConfigDumpInfo,
+      })
+
+      const catalogUuid = catalogXml.MetaDataObject.Catalog._uuid
+      const attributeUuid = catalogXml.MetaDataObject.Catalog.ChildObjects.Attribute._uuid
+
+      expect(idMap.get("Catalog.Номенклатура")?.id).toBe(catalogUuid)
+      expect(idMap.get("Catalog.Номенклатура")?.children.get("Catalog.Номенклатура.Attribute.Артикул")).toBe(
+        attributeUuid,
+      )
+      expect(idMap.get("Catalog.Номенклатура.ObjectModule")?.id).toBe(`${catalogUuid}.0`)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it("возвращает ошибку configDumpInfo если новый UUID не попал в накопитель", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-missing-uuid-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "xml")
+    const context = mockContextToXML()
+    ;(context.exportToXML as typeof context.exportToXML & { externalMetadataCollector: ExternalMetadataCollector })
+      .externalMetadataCollector = {
+      recordUuid: () => undefined,
+      recordDerived: () => undefined,
+    }
+
+    try {
+      fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), "Имя: Номенклатура\n", "utf-8")
+
+      const result = await syncConfigurationToXML({
+        context,
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(result.failed).toHaveLength(1)
+      expect(result.failed[0]?.kind).toBe("configDumpInfo")
+      expect(result.failed[0]?.error.message).toContain('Не найден UUID ConfigDumpInfo для "Catalog.Номенклатура"')
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }

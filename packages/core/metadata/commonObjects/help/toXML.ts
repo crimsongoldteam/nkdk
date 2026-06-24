@@ -1,6 +1,8 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
+import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration"
+import { recordDerivedExternalMetadata } from "~/metadata/orchestration/externalMetadata/record"
 import type { HelpPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import { xmlExport } from "~/xml/export/exporter"
@@ -10,6 +12,7 @@ import { xmlExport } from "~/xml/export/exporter"
  * и копирует сами HTML-файлы в XML-сторону.
  */
 export const syncHelpToXML = async (params: {
+  context?: ConfigurationContextWithExportToXML
   rule: PropertyRule
   nkdkDir: string
   xmlDir: string
@@ -42,6 +45,7 @@ export const syncHelpToXML = async (params: {
   await fs.promises.mkdir(dirname(helpXmlPath), { recursive: true })
   await fs.promises.writeFile(helpXmlPath, xmlExport(helpXmlObj), "utf-8")
   params.xmlManifest?.addFile(helpXmlPath)
+  if (params.context) recordDerivedExternalMetadata({ context: params.context, rule, name: undefined })
 
   const helpHtmlDir = normalizedFilePath.replace(/\.xml$/, "")
   for (const lang of langs) {

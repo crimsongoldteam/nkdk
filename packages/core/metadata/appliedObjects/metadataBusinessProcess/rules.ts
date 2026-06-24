@@ -384,6 +384,7 @@ export const MetadataBusinessProcessRules = {
     },
     help: {
       type: "Help",
+      externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",
@@ -399,6 +400,7 @@ export const MetadataBusinessProcessRules = {
     },
     objectModule: {
       type: "Module",
+      externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
       xmlPath: "Ext/ObjectModule.bsl",
       toXML: false,
@@ -406,6 +408,7 @@ export const MetadataBusinessProcessRules = {
     },
     managerModule: {
       type: "Module",
+      externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
       toXML: false,

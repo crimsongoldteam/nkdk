@@ -1,6 +1,8 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
+import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration"
+import { recordDerivedExternalMetadata } from "~/metadata/orchestration/externalMetadata/record"
 import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import type { ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "~/metadata/orchestration/property/types"
 
@@ -10,6 +12,7 @@ import type { ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "~/m
  * При обходе дочерних коллекций (itemName) подставляет имя в функциональные пути.
  */
 export const syncModuleToXML = async (params: {
+  context?: ConfigurationContextWithExportToXML
   rule: PropertyRule
   nkdkDir: string
   xmlDir: string
@@ -47,6 +50,7 @@ export const syncModuleToXML = async (params: {
     await fs.promises.mkdir(dirname(dstPath), { recursive: true })
     await fs.promises.copyFile(found[0], dstPath)
     params.xmlManifest?.addFile(dstPath)
+    if (params.context) recordDerivedExternalMetadata({ context: params.context, rule, name: undefined })
   }
 
   if (rule.type === "Template") {

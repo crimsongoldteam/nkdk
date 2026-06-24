@@ -13,7 +13,7 @@ const state = (paths: string[], referencePaths = new Map<string, string | undefi
         name: path.split(".").slice(-1)[0]!,
         referencePath: referencePaths.has(path) ? referencePaths.get(path) : path,
       },
-    ]),
+    ])
   ),
 })
 
@@ -171,7 +171,7 @@ describe("buildConfigDumpInfo", () => {
     })
 
     expect(result.get("Catalog.Номенклатура")?.children).toEqual(
-      new Map([["Catalog.Номенклатура.Command.Открыть", "command-id"]]),
+      new Map([["Catalog.Номенклатура.Command.Открыть", "command-id"]])
     )
   })
 
@@ -192,6 +192,162 @@ describe("buildConfigDumpInfo", () => {
       id: "generated-id-1",
       configVersion: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
       children: new Map([["Catalog.Номенклатура.Attribute.Артикул", "generated-id-2"]]),
+    })
+  })
+
+  it("берёт id новых объектов и дочерних элементов из накопленного хранилища", () => {
+    const collected: ConfigDumpInfo = new Map([
+      [
+        "Catalog.Номенклатура",
+        {
+          id: "catalog-uuid-from-xml",
+          configVersion: "",
+          children: new Map([["Catalog.Номенклатура.Attribute.Артикул", "attribute-uuid-from-xml"]]),
+        },
+      ],
+    ])
+
+    const result = buildConfigDumpInfo({
+      reference: new Map(),
+      collected,
+      yamlState: state(["Справочник.Номенклатура", "Справочник.Номенклатура.Реквизит.Артикул"]),
+      migrationState: { nodes: new Map() },
+      referencePathByCurrentPath: new Map(),
+      generators: {
+        id: () => {
+          throw new Error("id generator must not be used for collected UUID entries")
+        },
+        configVersion: () => "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      },
+    })
+
+    expect(result.get("Catalog.Номенклатура")).toEqual({
+      id: "catalog-uuid-from-xml",
+      configVersion: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      children: new Map([["Catalog.Номенклатура.Attribute.Артикул", "attribute-uuid-from-xml"]]),
+    })
+  })
+
+  it("падает для нового управляемого узла без UUID в накопленном хранилище", () => {
+    expect(() =>
+      buildConfigDumpInfo({
+        reference: new Map(),
+        collected: new Map(),
+        yamlState: state(["Справочник.Номенклатура", "Справочник.Номенклатура.Реквизит.Артикул"]),
+        migrationState: { nodes: new Map() },
+        referencePathByCurrentPath: new Map(),
+        generators: {
+          id: () => {
+            throw new Error("id generator must not be used")
+          },
+          configVersion: () => "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        },
+      })
+    ).toThrow('Не найден UUID ConfigDumpInfo для "Catalog.Номенклатура"')
+  })
+
+  it("назначает производной записи минимальный свободный постфикс с учётом reference", () => {
+    const reference: ConfigDumpInfo = new Map([
+      [
+        "Catalog.Номенклатура",
+        {
+          id: "catalog-uuid",
+          configVersion: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          children: new Map(),
+        },
+      ],
+      [
+        "Catalog.Номенклатура.ObjectModule",
+        {
+          id: "catalog-uuid.0",
+          configVersion: "cccccccccccccccccccccccccccccccccccccccc",
+          children: new Map(),
+        },
+      ],
+    ])
+    const collected: ConfigDumpInfo = new Map([
+      [
+        "Catalog.Номенклатура.Help",
+        {
+          id: "",
+          configVersion: "",
+          derivedFrom: "Catalog.Номенклатура",
+          children: new Map(),
+        },
+      ],
+    ])
+
+    const result = buildConfigDumpInfo({
+      reference,
+      collected,
+      yamlState: state(["Справочник.Номенклатура"]),
+      migrationState: state(["Справочник.Номенклатура"]),
+      referencePathByCurrentPath: new Map(),
+      generators: {
+        id: () => {
+          throw new Error("direct id generator must not be used")
+        },
+        configVersion: () => "dddddddddddddddddddddddddddddddddddddddd",
+      },
+    })
+
+    expect(result.get("Catalog.Номенклатура.Help")).toEqual({
+      id: "catalog-uuid.1",
+      configVersion: "dddddddddddddddddddddddddddddddddddddddd",
+      derivedFrom: "Catalog.Номенклатура",
+      children: new Map(),
+    })
+  })
+
+  it("не перенумеровывает существующую производную запись из reference", () => {
+    const reference: ConfigDumpInfo = new Map([
+      [
+        "Catalog.Номенклатура",
+        {
+          id: "catalog-uuid",
+          configVersion: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          children: new Map(),
+        },
+      ],
+      [
+        "Catalog.Номенклатура.Help",
+        {
+          id: "catalog-uuid.7",
+          configVersion: "cccccccccccccccccccccccccccccccccccccccc",
+          children: new Map(),
+        },
+      ],
+    ])
+    const collected: ConfigDumpInfo = new Map([
+      [
+        "Catalog.Номенклатура.Help",
+        {
+          id: "",
+          configVersion: "",
+          derivedFrom: "Catalog.Номенклатура",
+          children: new Map(),
+        },
+      ],
+    ])
+
+    const result = buildConfigDumpInfo({
+      reference,
+      collected,
+      yamlState: state(["Справочник.Номенклатура"]),
+      migrationState: state(["Справочник.Номенклатура"]),
+      referencePathByCurrentPath: new Map(),
+      generators: {
+        id: () => {
+          throw new Error("direct id generator must not be used")
+        },
+        configVersion: () => "dddddddddddddddddddddddddddddddddddddddd",
+      },
+    })
+
+    expect(result.get("Catalog.Номенклатура.Help")).toEqual({
+      id: "catalog-uuid.7",
+      configVersion: "cccccccccccccccccccccccccccccccccccccccc",
+      children: new Map(),
     })
   })
 
@@ -362,7 +518,7 @@ describe("buildConfigDumpInfo", () => {
             children: new Map(),
           },
         ],
-      ]),
+      ])
     )
   })
 })

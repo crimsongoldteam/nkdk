@@ -212,6 +212,7 @@ const cubeProperties = {
   },
   help: {
     type: "Help",
+    externalMetadata: { segment: "Help", placement: "derivedEntry" },
     filePath: "Ext/Help.xml",
     xmlPath: "Ext/Help.xml",
     nkdkDir: "Справка",

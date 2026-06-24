@@ -3,8 +3,11 @@ import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
+const resourceExternalMetadata = { segment: "Resource", placement: "ownerChild" } as const
+
 export const MetadataRegisterResourceRules = {
   itemType: "MetadataRegisterResource",
+  externalMetadata: resourceExternalMetadata,
   properties: {
     ...commonRegisterFieldProperties,
     balance: {
@@ -14,7 +17,8 @@ export const MetadataRegisterResourceRules = {
       xmlParents: ["Properties"],
       defaultValueXML: true,
       implicitValueYAML: true,
-      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
+      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
+        isAccountingRegisterField(context),
       order: 25.1,
     },
     accountingFlag: {
@@ -23,7 +27,8 @@ export const MetadataRegisterResourceRules = {
       type: "string",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
+      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
+        isAccountingRegisterField(context),
       order: 25.2,
     },
     extDimensionAccountingFlag: {
@@ -32,7 +37,8 @@ export const MetadataRegisterResourceRules = {
       type: "string",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
+      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
+        isAccountingRegisterField(context),
       order: 25.3,
     },
   },

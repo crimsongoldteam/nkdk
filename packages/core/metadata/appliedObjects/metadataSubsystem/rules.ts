@@ -126,7 +126,8 @@ export const MetadataSubsystemRules = {
     picture: {
       yaml: "Картинка",
       xml: "Picture",
-      type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+      type: "Picture",
+      metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: properties,
       defaultValueXMLRaw: "",
     },
@@ -168,6 +169,7 @@ export const MetadataSubsystemRules = {
     },
     help: {
       type: "Help",
+      externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",

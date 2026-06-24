@@ -140,6 +140,7 @@ export const syncAppliedObjectToXML = async (params: {
     itemType: rule.itemType,
     path: `${rule.itemType}.${name}`,
     name,
+    externalMetadata: rule.externalMetadata,
   })
 
   const xmlObj = exportMetadataItemToXML({
@@ -167,7 +168,7 @@ export const syncAppliedObjectToXML = async (params: {
     const syncXmlDir = syncUsesItemDir ? outputDir : externalOutputDir
     const syncReferenceDir = syncUsesItemDir ? referenceDir : externalReferenceDir
     await syncFn({
-      context: contextWithForms,
+      context: contextWithOwner,
       rule: propRule,
       nkdkDir,
       xmlDir: syncXmlDir,
@@ -286,6 +287,7 @@ async function syncChildCollectionExternalFilesToXML(params: {
         itemType: rule.itemType,
         path: `${rule.itemType}.${name}`,
         name,
+        externalMetadata: rule.externalMetadata,
       })
 
       if (childCollection.fileItemRule && childCollection.xmlDir) {
@@ -330,13 +332,20 @@ async function syncChildCollectionExternalFilesToXML(params: {
       }
 
       const childRule = childCollection.fileItemRule ?? childCollection.itemRule
+      const childItemContext = getChildContextToXML({
+        context: childContext,
+        itemType: childRule.itemType,
+        path: `${childRule.itemType}.${item.name}`,
+        name: item.name,
+        externalMetadata: childRule.externalMetadata,
+      })
       for (const [itemPropKey, itemPropRule] of Object.entries(childRule.properties)) {
         const syncFn = getTypeRule(itemPropRule.type, "syncExternalToXML")
         if (!syncFn) continue
         const externalSyncName = hasOwnDirs && isFileChildNameRule(itemPropRule) ? "" : syncName
         const externalSyncReferenceName = hasOwnDirs && isFileChildNameRule(itemPropRule) ? "" : syncReferenceName
         await syncFn({
-          context,
+          context: childItemContext,
           rule: itemPropRule,
           nkdkDir: childNkdkDir,
           xmlDir: childXmlDir,
@@ -378,7 +387,10 @@ async function syncChildCollectionExternalFilesToXML(params: {
 }
 
 function normalizeXMLPath(value: string): string {
-  return value.split(/[\\/]+/).filter(Boolean).join("/")
+  return value
+    .split(/[\\/]+/)
+    .filter(Boolean)
+    .join("/")
 }
 
 function getExpectedFormNames(params: { rule: MetadataItemRule; model: Record<string, unknown> }): string[] {
@@ -534,7 +546,10 @@ async function addFileItemChildCollectionsFromYAML(params: {
 
       const childReferenceDir =
         params.referenceDir && childCollection.xmlDir
-          ? join(params.referenceDir, resolveChildCollectionDir(childCollection.xmlDir, childName, params.referenceName))
+          ? join(
+              params.referenceDir,
+              resolveChildCollectionDir(childCollection.xmlDir, childName, params.referenceName)
+            )
           : undefined
 
       await addFileItemChildCollectionsFromYAML({
@@ -731,10 +746,7 @@ async function preserveReferenceChildNameFilesToXML(params: {
   await addDirectoryFilesToManifest(outputPath, params.xmlManifest)
 }
 
-async function addDirectoryFilesToManifest(
-  dir: string,
-  xmlManifest?: XmlWriteManifest
-): Promise<void> {
+async function addDirectoryFilesToManifest(dir: string, xmlManifest?: XmlWriteManifest): Promise<void> {
   if (!xmlManifest || !fs.existsSync(dir)) return
 
   const entries = await fs.promises.readdir(dir, { withFileTypes: true })

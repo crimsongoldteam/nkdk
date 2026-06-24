@@ -17,6 +17,7 @@ const MANAGED_CHILD_SEGMENTS = new Set(["Attribute", "AddressingAttribute", "Tab
 
 export function buildConfigDumpInfo(params: {
   reference: ConfigDumpInfo
+  collected?: ConfigDumpInfo
   yamlState: StructuralState
   migrationState: StructuralState
   referencePathByCurrentPath: Map<string, string>
@@ -33,9 +34,15 @@ export function buildConfigDumpInfo(params: {
 
   for (const mapping of objectMappings) {
     const referenceEntry = mapping.referenceDumpName ? params.reference.get(mapping.referenceDumpName) : undefined
+    const collectedEntry = params.collected?.get(mapping.currentDumpName)
     entries.set(mapping.currentDumpName, {
-      id: referenceEntry?.id ?? generators.id(),
-      configVersion: referenceEntry?.configVersion ?? generators.configVersion(),
+      id: resolveDirectId({
+        referenceId: referenceEntry?.id,
+        collectedId: collectedEntry?.derivedFrom ? undefined : collectedEntry?.id,
+        dumpName: mapping.currentDumpName,
+        fallbackId: params.collected ? undefined : generators.id,
+      }),
+      configVersion: referenceEntry?.configVersion ?? (collectedEntry?.configVersion || generators.configVersion()),
       children: new Map(),
     })
   }
@@ -54,8 +61,17 @@ export function buildConfigDumpInfo(params: {
       ownerMapping.referenceDumpName && referenceDumpName
         ? params.reference.get(ownerMapping.referenceDumpName)?.children.get(referenceDumpName)
         : undefined
+    const collectedChildId = params.collected?.get(ownerMapping.currentDumpName)?.children.get(currentDumpName)
 
-    entries.get(ownerMapping.currentDumpName)?.children.set(currentDumpName, referenceChildId ?? generators.id())
+    entries.get(ownerMapping.currentDumpName)?.children.set(
+      currentDumpName,
+      resolveDirectId({
+        referenceId: referenceChildId,
+        collectedId: collectedChildId,
+        dumpName: currentDumpName,
+        fallbackId: params.collected ? undefined : generators.id,
+      })
+    )
     childMappings.push({
       ownerCurrentDumpName: ownerMapping.currentDumpName,
       currentDumpName,
@@ -65,6 +81,8 @@ export function buildConfigDumpInfo(params: {
 
   orderObjectChildren({ reference: params.reference, entries, objectMappings, childMappings })
   preserveExternalReferenceEntries({ ...params, entries, objectMappings })
+  addCollectedTopLevelEntries({ entries, reference: params.reference, collected: params.collected, generators })
+  addCollectedDerivedEntries({ entries, reference: params.reference, collected: params.collected, generators })
 
   return orderEntries({ reference: params.reference, entries, objectMappings })
 }
@@ -90,7 +108,7 @@ function resolveReferencePath(
     migrationState: StructuralState
     referencePathByCurrentPath: Map<string, string>
   },
-  currentPath: string,
+  currentPath: string
 ): string | undefined {
   const migratedNode = params.migrationState.nodes.get(currentPath)
   if (migratedNode && migratedNode.referencePath === undefined) return undefined
@@ -110,6 +128,18 @@ function hasReferenceEntry(reference: ConfigDumpInfo, dumpName: string): boolean
   }
 
   return false
+}
+
+function resolveDirectId(params: {
+  referenceId?: string
+  collectedId?: string
+  dumpName: string
+  fallbackId?: () => string
+}): string {
+  if (params.referenceId) return params.referenceId
+  if (params.collectedId) return params.collectedId
+  if (params.fallbackId) return params.fallbackId()
+  throw new Error(`Не найден UUID ConfigDumpInfo для "${params.dumpName}"`)
 }
 
 function preserveExternalReferenceEntries(params: {
@@ -136,7 +166,7 @@ function preserveExternalReferenceEntries(params: {
 
 function remapExternalChildren(
   children: Map<string, string>,
-  mapping: { currentDumpName: string; referenceDumpName?: string },
+  mapping: { currentDumpName: string; referenceDumpName?: string }
 ): Map<string, string> {
   if (!mapping.referenceDumpName) return new Map(children)
 
@@ -147,8 +177,94 @@ function remapExternalChildren(
         ? `${mapping.currentDumpName}${childName.slice(referencePrefix.length - 1)}`
         : childName,
       id,
-    ]),
+    ])
   )
+}
+
+function addCollectedTopLevelEntries(params: {
+  entries: ConfigDumpInfo
+  reference: ConfigDumpInfo
+  collected: ConfigDumpInfo | undefined
+  generators: ConfigDumpInfoGenerators
+}): void {
+  if (!params.collected) return
+
+  for (const [name, collectedEntry] of params.collected) {
+    if (collectedEntry.derivedFrom) continue
+    if (params.entries.has(name)) continue
+
+    const referenceEntry = params.reference.get(name)
+    params.entries.set(name, {
+      id: referenceEntry?.id ?? collectedEntry.id,
+      configVersion:
+        referenceEntry?.configVersion ?? (collectedEntry.configVersion || params.generators.configVersion()),
+      children: new Map(collectedEntry.children),
+    })
+  }
+}
+
+function addCollectedDerivedEntries(params: {
+  entries: ConfigDumpInfo
+  reference: ConfigDumpInfo
+  collected: ConfigDumpInfo | undefined
+  generators: ConfigDumpInfoGenerators
+}): void {
+  if (!params.collected) return
+
+  const occupiedByBaseId = collectOccupiedDerivedSuffixes(params.reference)
+  collectOccupiedDerivedSuffixes(params.entries, occupiedByBaseId)
+
+  for (const [name, collectedEntry] of params.collected) {
+    if (!collectedEntry.derivedFrom) continue
+    if (params.entries.has(name)) continue
+
+    const referenceEntry = params.reference.get(name)
+    if (referenceEntry) {
+      params.entries.set(name, referenceEntry)
+      continue
+    }
+
+    const baseEntry = params.entries.get(collectedEntry.derivedFrom) ?? params.reference.get(collectedEntry.derivedFrom)
+    if (!baseEntry?.id) {
+      throw new Error(`Не найден базовый UUID ConfigDumpInfo для "${name}"`)
+    }
+
+    const occupied = occupiedByBaseId.get(baseEntry.id) ?? new Set<number>()
+    const suffix = nextFreeSuffix(occupied)
+    occupied.add(suffix)
+    occupiedByBaseId.set(baseEntry.id, occupied)
+
+    params.entries.set(name, {
+      id: `${baseEntry.id}.${suffix}`,
+      configVersion: collectedEntry.configVersion || params.generators.configVersion(),
+      derivedFrom: collectedEntry.derivedFrom,
+      children: new Map(),
+    })
+  }
+}
+
+function collectOccupiedDerivedSuffixes(
+  entries: ConfigDumpInfo,
+  target = new Map<string, Set<number>>()
+): Map<string, Set<number>> {
+  for (const entry of entries.values()) {
+    const match = entry.id.match(/^(.+)\.(\d+)$/)
+    if (!match) continue
+    const [, baseId, suffixText] = match
+    const suffix = Number(suffixText)
+    if (!Number.isInteger(suffix)) continue
+
+    const occupied = target.get(baseId) ?? new Set<number>()
+    occupied.add(suffix)
+    target.set(baseId, occupied)
+  }
+  return target
+}
+
+function nextFreeSuffix(occupied: Set<number>): number {
+  let suffix = 0
+  while (occupied.has(suffix)) suffix++
+  return suffix
 }
 
 function orderObjectChildren(params: {
@@ -182,7 +298,10 @@ function orderObjectChildren(params: {
       }
 
       if (!isManagedReferenceChild(referenceChildName, mapping.referenceDumpName)) {
-        orderedChildren.set(remapReferenceChildName(referenceChildName, mapping), referenceEntry.children.get(referenceChildName)!)
+        orderedChildren.set(
+          remapReferenceChildName(referenceChildName, mapping),
+          referenceEntry.children.get(referenceChildName)!
+        )
       }
     }
     for (const [childName, id] of entry.children) {
@@ -199,7 +318,7 @@ function isManagedReferenceChild(childName: string, referenceOwnerName: string):
 
 function remapReferenceChildName(
   childName: string,
-  mapping: { currentDumpName: string; referenceDumpName?: string },
+  mapping: { currentDumpName: string; referenceDumpName?: string }
 ): string {
   if (!mapping.referenceDumpName) return childName
   return childName.startsWith(`${mapping.referenceDumpName}.`)
@@ -216,8 +335,8 @@ function orderEntries(params: {
   const emitted = new Set<string>()
   const ownerByReference = new Map(
     params.objectMappings.flatMap((mapping) =>
-      mapping.referenceDumpName ? [[mapping.referenceDumpName, mapping.currentDumpName] as const] : [],
-    ),
+      mapping.referenceDumpName ? [[mapping.referenceDumpName, mapping.currentDumpName] as const] : []
+    )
   )
 
   for (const referenceName of params.reference.keys()) {
@@ -242,10 +361,7 @@ function shouldPreserveUnmanagedReferenceEntry(referenceName: string): boolean {
   return rootSegment !== undefined && !isManagedConfigDumpInfoRootSegment(rootSegment)
 }
 
-function remapReferenceEntryName(
-  referenceName: string,
-  ownerByReference: Map<string, string>,
-): string | undefined {
+function remapReferenceEntryName(referenceName: string, ownerByReference: Map<string, string>): string | undefined {
   const referenceOwnerName = getOwnerDumpName(referenceName)
   const currentOwnerName = referenceOwnerName ? ownerByReference.get(referenceOwnerName) : undefined
   if (!referenceOwnerName || !currentOwnerName) return undefined

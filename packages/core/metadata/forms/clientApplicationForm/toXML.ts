@@ -1,6 +1,7 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
+import { recordCurrentExternalMetadataUuid } from "~/metadata/orchestration/externalMetadata/record"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 
@@ -111,6 +112,7 @@ export const exportFormMetadataToXML = (params: {
   })
 
   const uuid = referenceForm?.uuid ?? getUUID(context)
+  recordCurrentExternalMetadataUuid({ context, uuid })
 
   const result = {
     _xmlns: "http://v8.1c.ru/8.3/MDClasses",

@@ -1,11 +1,11 @@
-export type ConfigDumpInfo = Map<
-  string,
-  {
-    children: Map<string, string>
-    id: string
-    configVersion: string
-  }
->
+export interface ConfigDumpInfoEntry {
+  children: Map<string, string>
+  id: string
+  configVersion: string
+  derivedFrom?: string
+}
+
+export type ConfigDumpInfo = Map<string, ConfigDumpInfoEntry>
 
 //#region XML
 

@@ -52,7 +52,7 @@ import { MetadataWSReferenceRules } from "../metadataWSReference/rules"
  * (`syncConfigurationFromXML`/`syncConfigurationToXML`). Добавление нового
  * корневого типа = одна строка тут + поле `xmlDir` в правиле.
  */
-export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
+const RawTopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataCatalogRules,
   MetadataDocumentRules,
   MetadataDataProcessorRules,
@@ -101,3 +101,17 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = [
   MetadataWebServiceRules,
   MetadataWSReferenceRules,
 ]
+
+export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = RawTopLevelMetadataItemRules.map((rule) => ({
+  ...rule,
+  externalMetadata: rule.externalMetadata ?? { segment: getXMLRootContainer(rule), placement: "rootEntry" },
+}))
+
+function getXMLRootContainer(rule: MetadataItemRule): string {
+  const xmlRootEntry = Object.values(rule.properties).find((propertyRule) => propertyRule.type === "XMLRoot")
+  const container = xmlRootEntry && "container" in xmlRootEntry ? xmlRootEntry.container : undefined
+  if (typeof container !== "string" || container.length === 0) {
+    throw new Error(`Для top-level правила ${rule.itemType} не найден XMLRoot.container`)
+  }
+  return container
+}

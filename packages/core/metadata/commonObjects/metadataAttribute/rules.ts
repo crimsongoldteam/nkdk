@@ -331,8 +331,11 @@ export const CATALOG_ATTRIBUTE_ALLOWED_TYPES = [
   "ExternalDataSourceCubeDimensionTableRef.*",
 ] as const
 
+const attributeExternalMetadata = { segment: "Attribute", placement: "ownerChild" } as const
+
 export const MetadataAttributeRules = {
   itemType: "MetadataAttribute",
+  externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
     ...fillProperties,
@@ -361,6 +364,7 @@ export const MetadataAttributeRules = {
 
 export const MetadataCatalogAttributeRules = {
   itemType: "MetadataAttribute",
+  externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
     type: {
@@ -393,6 +397,7 @@ export const MetadataCatalogAttributeRules = {
 
 export const MetadataDocumentAttributeRules = {
   itemType: "MetadataAttribute",
+  externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
     ...fillProperties,
@@ -402,6 +407,7 @@ export const MetadataDocumentAttributeRules = {
 
 export const MetadataTabularSectionAttributeRules = {
   itemType: "MetadataAttribute",
+  externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
     ...fillProperties,

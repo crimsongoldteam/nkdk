@@ -23,6 +23,7 @@ import type { TypeRulesOperations } from "./fn"
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
+import type { ExternalMetadataItemRule, ExternalMetadataPropertyRule } from "../externalMetadata/types"
 import { MetadataItemType } from "../metadataItem/registry"
 import { PropertyRuleType } from "./registry"
 
@@ -66,6 +67,9 @@ export interface BasePropertyRule {
 
   /** Свойство участвует только во внешней синхронизации и не входит в XML/YAML/модель. */
   syncExternalOnly?: true
+
+  /** Нейтральное описание внешней metadata-записи, которую создаёт внешний файл свойства. */
+  externalMetadata?: ExternalMetadataPropertyRule
 
   /** Порядок свойства при выгрузке в XML (используй только при необходимости) */
   order?: number
@@ -421,6 +425,12 @@ export interface MetadataItemRule extends MetadataItem {
    * Тип объекта метаданных
    */
   itemType: MetadataItemType
+
+  /**
+   * Нейтральное описание внешней metadata-записи. Orchestration не знает,
+   * какой внешний реестр использует это описание.
+   */
+  externalMetadata?: ExternalMetadataItemRule
 
   /**
    * Свойства объекта метаданных

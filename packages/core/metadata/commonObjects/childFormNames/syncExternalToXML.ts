@@ -1,6 +1,8 @@
 import fs from "fs"
 import { dirname, join, posix } from "path"
+import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { syncFormToXML } from "~/metadata/forms/clientApplicationForm/syncToXML"
+import type { ExternalMetadataContextItem } from "~/metadata/orchestration/externalMetadata/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
 import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
@@ -33,7 +35,12 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
       return fs.existsSync(yamlPath)
     })
     .map((e) => e.name)
-  assertNoMissingFormYAML({ formsDir, expectedFormNames, actualFormNames: formNames, referenceFormsDirs: formReferenceDirs })
+  assertNoMissingFormYAML({
+    formsDir,
+    expectedFormNames,
+    actualFormNames: formNames,
+    referenceFormsDirs: formReferenceDirs,
+  })
 
   const formOutputDir = name === "" ? xmlDir : join(xmlDir, name)
 
@@ -48,7 +55,7 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
       xmlManifest,
     })
     await copyFormModuleToXML({ nkdkDir, formOutputDir, formName, xmlManifest })
-    await copyFormHelpToXML({ nkdkDir, formOutputDir, formName, xmlManifest })
+    await copyFormHelpToXML({ context, nkdkDir, formOutputDir, formName, xmlManifest })
   }
 }
 
@@ -60,15 +67,13 @@ export const buildChildFormCurrentXMLPath = (params: {
 }): string => {
   const currentXMLDir =
     params.currentXMLDir ??
-    (params.name === "" ? getLastPathSegments(params.xmlDir, 2) : posix.join(getLastPathSegment(params.xmlDir), params.name))
+    (params.name === ""
+      ? getLastPathSegments(params.xmlDir, 2)
+      : posix.join(getLastPathSegment(params.xmlDir), params.name))
   return posix.join(currentXMLDir, "Forms", params.formName, "Ext", "Form.xml")
 }
 
-function getFormReferenceDirs(params: {
-  referenceDir?: string
-  name: string
-  referenceName?: string
-}): string[] {
+function getFormReferenceDirs(params: { referenceDir?: string; name: string; referenceName?: string }): string[] {
   if (params.referenceDir === undefined) return []
   if (params.name === "") return [join(params.referenceDir, "Forms")]
   return [join(params.referenceDir, params.referenceName ?? params.name, "Forms"), join(params.referenceDir, "Forms")]
@@ -128,6 +133,7 @@ async function copyFormModuleToXML(params: {
 }
 
 async function copyFormHelpToXML(params: {
+  context: ConfigurationContextWithExportToXML
   nkdkDir: string
   formOutputDir: string
   formName: string
@@ -154,6 +160,14 @@ async function copyFormHelpToXML(params: {
   }
   await fs.promises.writeFile(helpXmlPath, xmlExport(helpXmlObj), "utf-8")
   xmlManifest?.addFile(helpXmlPath)
+  const formItem: ExternalMetadataContextItem = {
+    itemType: "ClientApplicationForm" as never,
+    name: formName,
+    path: `ClientApplicationForm.${formName}`,
+    externalMetadata: { segment: "Form", placement: "ownedEntry" },
+  }
+  const itemsTree = [...params.context.exportToXML.itemsTree, formItem]
+  params.context.exportToXML.externalMetadataCollector?.recordDerived({ itemsTree, segment: "Help" })
 
   for (const file of htmlFiles) {
     const dstPath = join(formOutputDir, "Forms", formName, "Ext", "Help", file)
