@@ -80,4 +80,35 @@ describe("createConfigDumpInfoExternalMetadataCollector", () => {
       children: new Map(),
     })
   })
+
+  it("records derived entries for owner child items", () => {
+    const target: ConfigDumpInfo = new Map()
+    const collector = createConfigDumpInfoExternalMetadataCollector(target)
+    const root = {
+      itemType: "MetadataFilterCriterion" as const,
+      name: "КритерийОтбораВсеСвойства",
+      path: "MetadataFilterCriterion.КритерийОтбораВсеСвойства",
+      externalMetadata: { segment: "FilterCriterion", placement: "rootEntry" as const },
+    }
+    const command = {
+      itemType: "MetadataCommand" as const,
+      name: "Команда1",
+      path: "MetadataCommand.Команда1",
+      externalMetadata: { segment: "Command", placement: "ownerChild" as const },
+    }
+
+    collector.recordUuid({ itemsTree: [root], uuid: "filter-uuid" })
+    collector.recordUuid({ itemsTree: [root, command], uuid: "command-uuid" })
+    collector.recordDerived({ itemsTree: [root, command], segment: "CommandModule" })
+
+    expect(target.get("FilterCriterion.КритерийОтбораВсеСвойства")?.children).toEqual(
+      new Map([["FilterCriterion.КритерийОтбораВсеСвойства.Command.Команда1", "command-uuid"]])
+    )
+    expect(target.get("FilterCriterion.КритерийОтбораВсеСвойства.Command.Команда1.CommandModule")).toEqual({
+      id: "",
+      configVersion: "",
+      derivedFrom: "FilterCriterion.КритерийОтбораВсеСвойства.Command.Команда1",
+      children: new Map(),
+    })
+  })
 })

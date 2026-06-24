@@ -30,7 +30,7 @@ export function createConfigDumpInfoExternalMetadataCollector(target: ConfigDump
     },
 
     recordDerived({ itemsTree, segment, name }) {
-      const baseName = findOwnerEntryName(itemsTree)
+      const baseName = findOwnerEntryName(itemsTree, { includeOwnerChild: true })
       if (!baseName) {
         throw new Error(`Не найден владелец производной внешней metadata-записи "${segment}"`)
       }
@@ -51,11 +51,15 @@ function buildExternalName(itemsTree: readonly ExternalMetadataContextItem[]): s
   return parts.length > 0 ? parts.join(".") : undefined
 }
 
-function findOwnerEntryName(itemsTree: readonly ExternalMetadataContextItem[]): string | undefined {
+function findOwnerEntryName(
+  itemsTree: readonly ExternalMetadataContextItem[],
+  options: { includeOwnerChild?: boolean } = {}
+): string | undefined {
   for (let i = itemsTree.length - 1; i >= 0; i--) {
     const ownerName = buildExternalName(itemsTree.slice(0, i + 1))
     const placement = itemsTree[i]?.externalMetadata?.placement
     if (ownerName && (placement === "rootEntry" || placement === "ownedEntry")) return ownerName
+    if (ownerName && options.includeOwnerChild === true && placement === "ownerChild") return ownerName
   }
   return undefined
 }

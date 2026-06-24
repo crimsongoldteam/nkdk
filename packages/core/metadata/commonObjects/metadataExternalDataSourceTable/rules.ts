@@ -414,6 +414,7 @@ const { xmlRoot: _xmlRoot, ...tableCollectionProperties } = tableProperties
 
 export const MetadataExternalDataSourceTableRules = {
   itemType: "MetadataExternalDataSourceTable",
+  externalMetadata: { segment: "Table", placement: "ownedEntry" },
   properties: tableProperties,
   childCollections: [{ propertyKey: "commands", itemRule: MetadataExternalDataSourceTableCommandRules }],
 } as const satisfies MetadataItemRule

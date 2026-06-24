@@ -6,6 +6,7 @@ import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/s
 import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
 import { mockContextToXML } from "~/tests/mockContext"
 import { buildChildFormCurrentXMLPath } from "~/metadata/commonObjects/childFormNames/syncExternalToXML"
+import { createConfigDumpInfoExternalMetadataCollector } from "../configDumpInfo/externalMetadataCollector"
 import { MetadataExternalDataSourceRules } from "./rules"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
@@ -292,6 +293,46 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
       "<DefaultListForm>ExternalDataSource.ВнешнийИсточник.Cube.АКуб.DimensionTable.АИзмерение.Form.ФормаСписка</DefaultListForm>"
     )
     expect(fs.existsSync(join(outputDir, "Cubes/АКуб/DimensionTables/АИзмерение/Forms/ФормаСписка.xml"))).toBe(true)
+  })
+
+  it("собирает ConfigDumpInfo-пути форм вложенных таблиц через владельца таблицы", async () => {
+    const rootDir = await fs.promises.mkdtemp(join(os.tmpdir(), "eds-sync-configdumpinfo-table-form-"))
+    const inputDir = join(rootDir, "yaml")
+    const outputDir = join(rootDir, "out")
+    const objectDir = join(inputDir, "ВнешнийИсточник")
+    const context = mockContextToXML()
+    context.exportToXML.itemsTree.push({
+      itemType: "MetadataExternalDataSource",
+      name: "ВнешнийИсточник",
+      path: "MetadataExternalDataSource.ВнешнийИсточник",
+      externalMetadata: { segment: "ExternalDataSource", placement: "rootEntry" },
+    })
+    ;(context.exportToXML as typeof context.exportToXML & {
+      externalMetadataCollector: ReturnType<typeof createConfigDumpInfoExternalMetadataCollector>
+    }).externalMetadataCollector = createConfigDumpInfoExternalMetadataCollector(context.exportToXML.configDumpInfo)
+
+    await write(join(objectDir, "Свойства.yaml"), "Синоним: Синоним")
+    await write(
+      join(objectDir, "Таблицы/АТаблица/Свойства.yaml"),
+      `ИмяВИсточникеДанных: АТаблицаSQL
+ОсновнаяФормаСписка: ФормаСписка`
+    )
+    await write(join(objectDir, "Таблицы/АТаблица/Формы/ФормаСписка/Форма.yaml"), minimalFormYAML)
+
+    await syncAppliedObjectToXML({
+      rule: MetadataExternalDataSourceRules,
+      context,
+      inputDir,
+      name: "ВнешнийИсточник",
+      outputDir,
+      referenceModel: null,
+    })
+
+    const names = [...context.exportToXML.configDumpInfo.keys()]
+    expect(names).toContain("ExternalDataSource.ВнешнийИсточник.Table.АТаблица.Form.ФормаСписка")
+    expect(names).toContain("ExternalDataSource.ВнешнийИсточник.Table.АТаблица.Form.ФормаСписка.Form")
+    expect(names).not.toContain("ExternalDataSource.ВнешнийИсточник.Form.ФормаСписка")
+    expect(names).not.toContain("ExternalDataSource.ВнешнийИсточник.Form.ФормаСписка.Form")
   })
 
   it("папки с YAML имеют приоритет над старым inline-описанием дочерних объектов", async () => {
