@@ -14,6 +14,15 @@ const rule: PropertyRule = {
   type: "FilterItem",
 }
 
+type FilterItemComparisonReference = Omit<FilterItemComparison, "userSettingPresentation"> & {
+  userSettingPresentation?: FilterItemComparison["userSettingPresentation"] | string
+}
+
+type FilterItemGroupReference = Omit<FilterItemGroup, "items" | "userSettingPresentation"> & {
+  items?: FilterItemComparisonReference[]
+  userSettingPresentation?: FilterItemGroup["userSettingPresentation"] | string
+}
+
 describe("export FilterItem to XML", () => {
   it("exports FilterItemComparison to XML", () => {
     const { result, expectedResult } = testExportPropertyToXML({
@@ -85,7 +94,9 @@ describe("export FilterItem to XML", () => {
     const guidB = "bbbbbbbb-0000-0000-0000-000000000002"
 
     const asReferenceUserSettingID = (value: string): FilterItemComparison["userSettingID"] =>
-      value as FilterItemComparison["userSettingID"]
+      value as unknown as FilterItemComparison["userSettingID"]
+    const asGroupReferenceUserSettingID = (value: string): FilterItemGroup["userSettingID"] =>
+      value as unknown as FilterItemGroup["userSettingID"]
 
     const itemA: FilterItemComparison = {
       itemType: "FilterItemComparison",
@@ -137,8 +148,8 @@ describe("export FilterItem to XML", () => {
 
       const orGroup: FilterItemGroup = { itemType: "FilterItemGroup", groupType: "OrGroup", userSettingID: true }
       const andGroup: FilterItemGroup = { itemType: "FilterItemGroup", groupType: "AndGroup", userSettingID: true }
-      const refOr: FilterItemGroup = { ...orGroup, userSettingID: guidOrGroup as any }
-      const refAnd: FilterItemGroup = { ...andGroup, userSettingID: guidAndGroup as any }
+      const refOr: FilterItemGroup = { ...orGroup, userSettingID: asGroupReferenceUserSettingID(guidOrGroup) }
+      const refAnd: FilterItemGroup = { ...andGroup, userSettingID: asGroupReferenceUserSettingID(guidAndGroup) }
 
       // current: [OrGroup, AndGroup], reference: [AndGroup, OrGroup]
       const { result } = testExportPropertyToXML({
@@ -192,7 +203,7 @@ describe("export FilterItem to XML", () => {
         userSettingID: true,
         userSettingPresentation: { items: { ru: "Способ оплаты" } },
       }
-      const reference: FilterItemComparison = {
+      const reference: FilterItemComparisonReference = {
         ...current,
         userSettingID: asReferenceUserSettingID(guid),
         userSettingPresentation: "Способ оплаты",
@@ -220,7 +231,7 @@ describe("export FilterItem to XML", () => {
         userSettingID: true,
         userSettingPresentation: { items: { ru: "Способ оплаты" } },
       }
-      const reference: FilterItemComparison = {
+      const reference: FilterItemComparisonReference = {
         ...current,
         leftValue: { type: "Field", value: "ТипОплаты" },
         comparisonType: "Equal",
@@ -250,7 +261,7 @@ describe("export FilterItem to XML", () => {
         userSettingID: true,
         userSettingPresentation: { items: { ru: "Контрагент" } },
       }
-      const referenceNested: FilterItemComparison = {
+      const referenceNested: FilterItemComparisonReference = {
         ...currentNested,
         userSettingID: asReferenceUserSettingID(guid),
         userSettingPresentation: "Контрагент",
@@ -260,7 +271,7 @@ describe("export FilterItem to XML", () => {
         groupType: "AndGroup",
         items: [currentNested],
       }
-      const referenceGroup: FilterItemGroup = {
+      const referenceGroup: FilterItemGroupReference = {
         itemType: "FilterItemGroup",
         groupType: "AndGroup",
         items: [referenceNested],

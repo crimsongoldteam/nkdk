@@ -64,7 +64,7 @@ export const exportParameterValueToYAML = (params: {
   context: ConfigurationContext
   rule: SettingsParameterValuePropertyRule
   data: ParameterValue | SettingsParameterValue
-}): ParameterValueYAML | SettingsParameterValueYAML => {
+}): ParameterValueYAML | SettingsParameterValueYAML | null => {
   const { context, rule, data } = params
   const dcsRule = toDcsMetadataValueRule(rule)
 
@@ -128,7 +128,7 @@ export const exportSettingsParameterValueToYAML = (
   context: ConfigurationContext,
   rule: PropertyRule,
   value: unknown
-): ParameterValueYAML | SettingsParameterValueYAML | undefined => {
+): ParameterValueYAML | SettingsParameterValueYAML | null | undefined => {
   if (value === undefined) return undefined
 
   return exportParameterValueToYAML({

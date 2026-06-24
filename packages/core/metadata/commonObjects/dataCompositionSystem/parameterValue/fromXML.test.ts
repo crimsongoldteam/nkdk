@@ -85,12 +85,12 @@ describe("importParameterValueFromXML", () => {
     const yamlObject = testExportPropertyToYAML({
       rule,
       value: imported,
-    })
+    }) as { НоменклатураВключение?: unknown }
     const yamlText = exportToYAML(yamlObject)
     const reparsedYaml = importFromYAML<Record<string, unknown>>(yamlText)
     const importedFromYaml = testImportPropertyFromYAML({
       rule,
-      value: reparsedYaml.НоменклатураВключение,
+      value: reparsedYaml?.НоменклатураВключение,
     })
 
     expect(yamlObject).toEqual({

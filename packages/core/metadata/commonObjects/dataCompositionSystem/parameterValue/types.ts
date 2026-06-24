@@ -32,6 +32,7 @@ export type SettingsParameterValue = ParameterValue & {
 }
 
 export type ParameterValueYAMLObject = {
+  /** Внутреннее поле импорта keyed-коллекций; в обычный YAML не экспортируется. */
   Параметр?: string
   Тип?: string
   Использовать?: "Ложь"
