@@ -71,6 +71,30 @@ describe("sync ClientApplicationForm to XML", () => {
     }
   })
 
+  it("синхронизирует managed form с пустым referenceDir как без reference", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-empty-reference-"))
+    const tmpInputDir = join(tmpRoot, "yaml")
+    const tmpReferenceDir = join(tmpRoot, "reference-forms")
+
+    try {
+      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
+      fs.mkdirSync(tmpReferenceDir, { recursive: true })
+
+      await syncFormToXML({
+        context: mockContextToXML(),
+        inputDir: tmpInputDir,
+        outputDir,
+        referenceDir: tmpReferenceDir,
+        formName,
+      })
+
+      expect(fs.existsSync(join(outputDir, "Forms", `${formName}.xml`))).toBe(true)
+      expect(fs.existsSync(join(outputDir, "Forms", formName, "Ext", "Form.xml"))).toBe(true)
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
   it("передаёт currentXMLPath в экспорт формы и восстанавливает ERP AdditionalColumns", async () => {
     const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-current-xml-path-"))
     const tmpInputDir = join(tmpRoot, "yaml")

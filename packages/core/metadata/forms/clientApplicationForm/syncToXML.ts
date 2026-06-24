@@ -40,17 +40,19 @@ export const syncFormToXML = async (params: {
     defaultLanguage: context.defaultLanguage,
     version: "2.20",
   }
-  const referenceForm = referenceDir
+  const effectiveReferenceDir =
+    referenceDir && hasReferenceFormMetadata({ referenceDir, formName }) ? referenceDir : undefined
+  const referenceForm = effectiveReferenceDir
     ? readFormFromXML({
         context: contextFromXML,
-        inputDir: referenceDir,
+        inputDir: effectiveReferenceDir,
         formName,
       })
     : undefined
 
   const form = importClientApplicationFormFromYAML(contextWithFormDir, yamlObj, referenceForm)
   const isOrdinaryForm = form.formType === "Ordinary"
-  const referenceHasFormXML = referenceDir ? hasReferenceFormXML({ referenceDir, formName }) : true
+  const referenceHasFormXML = effectiveReferenceDir ? hasReferenceFormXML({ referenceDir: effectiveReferenceDir, formName }) : true
 
   const formXML =
     isOrdinaryForm && !referenceHasFormXML
@@ -128,6 +130,9 @@ const createFormScopedContext = (params: {
 
 const hasReferenceFormXML = (params: { referenceDir: string; formName: string }): boolean =>
   fs.existsSync(join(params.referenceDir, params.formName, "Ext", "Form.xml"))
+
+const hasReferenceFormMetadata = (params: { referenceDir: string; formName: string }): boolean =>
+  fs.existsSync(join(params.referenceDir, `${params.formName}.xml`))
 
 const writeFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
