@@ -1,15 +1,92 @@
-import { TypeDescriptionRule, TypeDescriptionRules } from "./types"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { TypeDescriptionRules } from "./types"
+import type { TypeDescriptionRule } from "./types"
+
+const TypeDescriptionRulesByName: Readonly<Record<string, TypeDescriptionRule | undefined>> = TypeDescriptionRules
+const systemEnumerationPrefix = "СистемноеПеречисление."
+const fromYAMLSuffix = "FromYAML"
+const toYAMLSuffix = "ToYAML"
+const systemEnumerationYAMLNames: Record<string, string> = {
+  FillChecking: "ПроверкаЗаполнения",
+}
+
+const isRecord = (value: unknown): value is Record<string, string> =>
+  typeof value === "object" && value !== null && !Array.isArray(value)
+
+const getSystemEnumerationFromYAMLMap = (type: string): Record<string, string> | undefined => {
+  const map = (SE as Record<string, unknown>)[`${type}${fromYAMLSuffix}`]
+  return isRecord(map) ? map : undefined
+}
+
+const getSystemEnumerationToYAMLMap = (type: string): Record<string, string> | undefined => {
+  const map = (SE as Record<string, unknown>)[`${type}${toYAMLSuffix}`]
+  return isRecord(map) ? map : undefined
+}
 
 export const getTypeDescriptionRule = (type: string): TypeDescriptionRule | undefined => {
-  return TypeDescriptionRules[type]
+  return TypeDescriptionRulesByName[type]
+}
+
+export const getSystemEnumerationTypeDescriptionRule = (type: string): TypeDescriptionRule | undefined => {
+  if (!isKnownSystemEnumerationType(type)) return undefined
+
+  return {
+    enterprise: type,
+    prefix: "v8",
+  }
+}
+
+export const getTypeDescriptionRuleOrSystemEnumeration = (type: string): TypeDescriptionRule | undefined => {
+  return getTypeDescriptionRule(type) ?? getSystemEnumerationTypeDescriptionRule(type)
+}
+
+export const isKnownSystemEnumerationType = (type: string): boolean => {
+  return getSystemEnumerationFromYAMLMap(type) !== undefined && getSystemEnumerationToYAMLMap(type) !== undefined
+}
+
+export const getSystemEnumerationYAMLType = (type: string): string | undefined => {
+  if (!isKnownSystemEnumerationType(type)) return undefined
+
+  const russianName = systemEnumerationYAMLNames[type]
+  if (russianName === undefined || russianName.trim() === "") {
+    return undefined
+  }
+
+  return `${systemEnumerationPrefix}${russianName}`
+}
+
+export const getSystemEnumerationTypeFromYAML = (type: string): string | undefined => {
+  if (!type.startsWith(systemEnumerationPrefix)) return undefined
+
+  const russianName = type.substring(systemEnumerationPrefix.length)
+  if (russianName.trim() === "") return undefined
+
+  for (const [typeName, systemEnumerationYAMLName] of Object.entries(systemEnumerationYAMLNames)) {
+    if (systemEnumerationYAMLName !== russianName) continue
+    if (isKnownSystemEnumerationType(typeName)) return typeName
+  }
+
+  return undefined
 }
 
 export const getTypeFromYAML = (enterprise: string): string | undefined => {
-  // Find the key (type) that corresponds to this enterprise value
+  const systemEnumerationType = getSystemEnumerationTypeFromYAML(enterprise)
+  if (systemEnumerationType !== undefined) return systemEnumerationType
+
   for (const [type, rule] of Object.entries(TypeDescriptionRules)) {
     if (rule.enterprise === enterprise) {
       return type
     }
   }
   return undefined
+}
+
+export const getTypePrefix = (type: string): string | undefined => {
+  const colonIndex = type.indexOf(":")
+  return colonIndex === -1 ? undefined : type.substring(0, colonIndex)
+}
+
+export const removeTypePrefix = (type: string): string => {
+  const colonIndex = type.indexOf(":")
+  return colonIndex === -1 ? type : type.substring(colonIndex + 1)
 }

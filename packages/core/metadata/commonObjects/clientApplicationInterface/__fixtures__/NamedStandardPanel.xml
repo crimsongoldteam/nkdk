@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+	<left>
+		<panel id="named-standard-panel">
+			<uuid>b553047f-c9aa-4157-978d-448ecad24248</uuid>
+			<name>МояПанельИстории</name>
+		</panel>
+	</left>
+	<panelDef id="b553047f-c9aa-4157-978d-448ecad24248"/>
+</ClientApplicationInterface>

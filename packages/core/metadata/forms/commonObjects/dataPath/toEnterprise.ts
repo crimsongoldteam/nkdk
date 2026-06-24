@@ -1,7 +1,7 @@
 import { getCurrentTableFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContext, ContextElementToEnterprise } from "~/metadata/context/types"
 import { DataPathPropertyRule, PropertyRule } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { EnterpriseAttributeMapItem } from "../../clientApplicationForm/types"
 
 export const exportDataPathToEnterprise = (params: {
@@ -28,7 +28,7 @@ export const exportDataPathToEnterprise = (params: {
   const attribute: EnterpriseAttributeMapItem = {
     name: attributeName,
     title: title,
-    type: { Type: [dataPathRule.defaultType] },
+    type: { Type: [dataPathRule.defaultType ?? "string"] },
     ...(parentTable ? { path: parentTable.dataPathEnterprise } : {}),
   }
 

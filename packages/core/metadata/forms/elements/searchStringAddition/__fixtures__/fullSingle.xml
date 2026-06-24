@@ -1,0 +1,46 @@
+<SearchStringAddition name="КакойТоЭлементСтрокаПоиска" id="1" DisplayImportance="High">
+	<AdditionSource>
+		<Item>КакойТоЭлемент</Item>
+		<Type>SearchStringRepresentation</Type>
+	</AdditionSource>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<BackColor>web:White</BackColor>
+	<BorderColor>web:Black</BorderColor>
+	<ContextMenu name="КакойТоЭлементСтрокаПоискаКонтекстноеМеню" id="2">
+		<Autofill>false</Autofill>
+	</ContextMenu>
+	<Enabled>true</Enabled>
+	<ExtendedTooltip name="КакойТоЭлементСтрокаПоискаРасширеннаяПодсказка" id="3">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<HorizontalStretch>true</HorizontalStretch>
+	<MaxWidth>20</MaxWidth>
+	<TextColor>web:Black</TextColor>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Добавление элемента формы</v8:content>
+		</v8:item>
+	</Title>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<Visible>true</Visible>
+	<Width>300</Width>
+</SearchStringAddition>

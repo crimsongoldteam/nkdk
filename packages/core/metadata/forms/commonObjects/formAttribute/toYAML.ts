@@ -1,4 +1,3 @@
-import { TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { exportPropertiesToYAML, registerTypeRule } from "~/metadata/orchestration"
@@ -32,9 +31,20 @@ const exportFormAttributeToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   data: FormAttribute
-): FormAttributeYAML | TypeDescriptionYAML => {
+): FormAttributeYAML => {
+  const contextWithParent =
+    data.name !== undefined && context.exportToYAML !== undefined
+      ? {
+          ...context,
+          exportToYAML: {
+            ...context.exportToYAML,
+            parent: { name: data.name },
+          },
+        }
+      : context
+
   const result = exportPropertiesToYAML({
-    context,
+    context: contextWithParent,
     data: data,
     rule: FormAttributeRules,
   })!
@@ -56,20 +66,12 @@ const exportFormAttributeToYAML = (
   // }
 }
 
-const isAdditionalColumns = (columns: FormAttributeColumns): columns is FormAttributeAdditionalColumns[] => {
-  return columns.length > 0 && "table" in columns[0]
-}
-
 const exportFormAttributeColumnsToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
   columns: FormAttributeColumns
 ): FormAttributeColumnsYAML | undefined => {
   if (columns.length === 0) return undefined
-
-  if (isAdditionalColumns(columns)) {
-    return exportAdditionalColumnsToYAML(context, undefined, columns)
-  }
 
   return exportColumnsToYAML(context, undefined, columns)
 }
@@ -110,11 +112,13 @@ export const exportFormAttributeColumnToYAML = (
 const exportAdditionalColumnsToYAML = (
   context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  additionalColumns: FormAttributeAdditionalColumns[]
-): FormAttributeAdditionalColumnYAML => {
+  additionalColumns: FormAttributeAdditionalColumns[] | undefined
+): FormAttributeAdditionalColumnYAML | undefined => {
+  if (additionalColumns === undefined || additionalColumns.length === 0) return undefined
+
   return Object.fromEntries(
     additionalColumns.map((additionalColumn) => [
-      additionalColumn.table.split(".").pop()!,
+      additionalColumn.table,
       exportColumnsToYAML(context, undefined, additionalColumn.columns),
     ])
   )
@@ -122,3 +126,4 @@ const exportAdditionalColumnsToYAML = (
 
 registerTypeRule("FormAttributes", "exportToYAML", exportFormAttributesToYAML)
 registerTypeRule("FormAttributeColumns", "exportToYAML", exportFormAttributeColumnsToYAML)
+registerTypeRule("FormAttributeAdditionalColumns", "exportToYAML", exportAdditionalColumnsToYAML)

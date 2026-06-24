@@ -1,0 +1,10 @@
+<Attribute name="Канбан" id="1">
+	<Type>
+		<v8:Type xmlns:pl="http://v8.1c.ru/8.3/data/planner">pl:Planner</v8:Type>
+	</Type>
+	<Settings xmlns:pl="http://v8.1c.ru/8.3/data/planner" xsi:type="pl:Planner">
+		<pl:itemsCurId>1</pl:itemsCurId>
+		<pl:periodsCurId>2</pl:periodsCurId>
+		<pl:resourcesCurId>3</pl:resourcesCurId>
+	</Settings>
+</Attribute>

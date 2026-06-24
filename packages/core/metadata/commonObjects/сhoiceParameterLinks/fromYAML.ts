@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldFromYAML } from "../metadataField/fromYAML"
 import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "./types"
@@ -90,8 +90,13 @@ export const importChoiceParameterLinksFromYAML = (
   data: ChoiceParameterLinksYAML | undefined
 ): ChoiceParameterLinks | undefined => {
   if (!data) return undefined
+  if (typeof data === "string") return parseChoiceParameterLinksString(context, rule, data)
 
-  return parseChoiceParameterLinksString(context, rule, data)
+  return data.map((link) => ({
+    name: link.Имя,
+    dataPath: link.ПутьКДанным,
+    valueChange: link.РежимИзменения === "НеИзменять" ? "DontChange" : "Clear",
+  }))
 }
 
 registerTypeRule("ChoiceParameterLinks", "importFromYAML", importChoiceParameterLinksFromYAML)

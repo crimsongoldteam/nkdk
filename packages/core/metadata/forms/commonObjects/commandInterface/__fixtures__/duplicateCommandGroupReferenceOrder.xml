@@ -1,0 +1,22 @@
+<CommandInterface>
+	<CommandBar>
+		<Item>
+			<Command>Form.Command.Обновить</Command>
+			<Type>Auto</Type>
+			<CommandGroup>FormCommandBarImportant</CommandGroup>
+			<DefaultVisible>false</DefaultVisible>
+		</Item>
+		<Item>
+			<Command>Form.Command.Обновить</Command>
+			<Type>Auto</Type>
+			<CommandGroup>FormCommandBarImportant</CommandGroup>
+			<DefaultVisible>false</DefaultVisible>
+		</Item>
+		<Item>
+			<Command>Form.Command.Обновить</Command>
+			<Type>Auto</Type>
+			<CommandGroup>FormCommandBarImportant</CommandGroup>
+			<DefaultVisible>false</DefaultVisible>
+		</Item>
+	</CommandBar>
+</CommandInterface>

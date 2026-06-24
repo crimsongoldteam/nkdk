@@ -1,72 +1,398 @@
 import { describe, expect, it } from "vitest"
-import { StandardAttributeDescriptionPropertyRule } from "~/metadata/orchestration"
-import { all, minimal, multiple } from "~/tests/fixtures/standartAttributeDescription/data"
-import { mockContextToXML } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
-import { exportStandardAttributeDescriptionsToXML } from "./toXML"
+import {
+  accountingExtDimensions,
+  all,
+  minimal,
+  multiple,
+} from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
+import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
+import {
+  MetadataAccountingRegisterStandardAttributeNames,
+  MetadataAccountingRegisterStandardAttributeNamesXML,
+} from "~/metadata/appliedObjects/metadataAccountingRegister/rules"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { StandardAttributeDescriptionRules } from "./rules"
 
 describe("exportStandardAttributeDescriptionsToXML", () => {
-  it("should export with default values when data is undefined", () => {
-    const rule: StandardAttributeDescriptionPropertyRule = {
-      type: "StandardAttributeDescription",
-      standartAttributeNames: ["PredefinedDataName"],
+  it("exports all.xml fixture", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: {
+        PredefinedDataName: "ИмяПредопределенныхДанных",
+        Predefined: "Предопределенный",
+        Ref: "Ссылка",
+        DeletionMark: "ПометкаУдаления",
+        IsFolder: "ЭтоГруппа",
+        Owner: "Владелец",
+        Parent: "Родитель",
+        Description: "Наименование",
+        Code: "Код",
+      },
     }
-    const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
-
-    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, undefined)
-    const xmlString = xmlExport({ StandardAttributes: result }, false)
-    expect(xmlString).toEqual(expectedXml)
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: all,
+      xmlRootTag: "StandardAttributes",
+      path: "all.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
   })
 
-  it("should export all parameters", () => {
-    const rule: StandardAttributeDescriptionPropertyRule = {
-      type: "StandardAttributeDescription",
-      standartAttributeNames: ["PredefinedDataName"],
+  it("exports multiple.xml fixture", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных", Predefined: "Предопределенный" },
     }
-    const expectedXml = readXMLFileAsString("standartAttributeDescription/all.xml")
-
-    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, all)
-    const xmlString = xmlExport({ StandardAttributes: result }, false)
-
-    expect(xmlString).toEqual(expectedXml)
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: multiple,
+      xmlRootTag: "StandardAttributes",
+      path: "multiple.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
   })
 
-  it("should export XML with default values if only name is present", () => {
-    const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
-    const rule: StandardAttributeDescriptionPropertyRule = {
-      type: "StandardAttributeDescription",
-      standartAttributeNames: ["PredefinedDataName"],
+  it("exports minimal.xml fixture", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных" },
     }
-    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, minimal)
-
-    const xmlString = xmlExport({ StandardAttributes: result }, false)
-    expect(xmlString).toEqual(expectedXml)
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: minimal,
+      xmlRootTag: "StandardAttributes",
+      path: "default.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
   })
 
-  it("should export with multiple values", () => {
-    const expectedXml = readXMLFileAsString("standartAttributeDescription/multiple.xml")
-
-    const rule: StandardAttributeDescriptionPropertyRule = {
-      type: "StandardAttributeDescription",
-      standartAttributeNames: ["PredefinedDataName", "Predefined"],
+  it("exports RecordType when it is part of standard attribute names", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: {
+        RecordType: "ВидДвижения",
+        Active: "Активность",
+      },
     }
-    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, multiple)
-    const xmlString = xmlExport({ StandardAttributes: result }, false)
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [{ itemType: "StandardAttributeDescription", name: "Active", comment: "changed" }],
+      xmlRootTag: "StandardAttributes",
+    })
 
-    expect(xmlString).toEqual(expectedXml)
+    expect(result).toContain('<xr:StandardAttribute name="RecordType">')
+    expect(result).toContain('<xr:StandardAttribute name="Active">')
+    expect(result.indexOf('name="RecordType"')).toBeLessThan(result.indexOf('name="Active"'))
   })
 
-  it("should export with default values", () => {
-    const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
-
-    const rule: StandardAttributeDescriptionPropertyRule = {
-      type: "StandardAttributeDescription",
-      standartAttributeNames: ["PredefinedDataName"],
+  it("keeps reference order when exporting standard attributes", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: {
+        RecordType: "ВидДвижения",
+        Active: "Активность",
+        LineNumber: "НомерСтроки",
+      },
     }
-    const result = exportStandardAttributeDescriptionsToXML(mockContextToXML(), rule, undefined)
-    const xmlString = xmlExport({ StandardAttributes: result }, false)
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <StandardAttributes>
+          <xr:StandardAttribute name="Active">
+            <xr:Comment>existing active comment</xr:Comment>
+          </xr:StandardAttribute>
+          <xr:StandardAttribute name="LineNumber"/>
+          <xr:StandardAttribute name="RecordType"/>
+          <xr:StandardAttribute name="LineNumber"/>
+        </StandardAttributes>
+      `,
+      xmlRootTag: "StandardAttributes",
+      forReference: true,
+    })
 
-    expect(xmlString).toEqual(expectedXml)
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        { itemType: "StandardAttributeDescription", name: "Active", comment: "changed" },
+        { itemType: "StandardAttributeDescription", name: "RecordType" },
+        { itemType: "StandardAttributeDescription", name: "RecordType" },
+      ],
+      referenceMetadata,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    const names = Array.from(result.matchAll(/<xr:StandardAttribute name="([^"]+)"/g), ([, name]) => name)
+    expect(names).toEqual(["Active", "LineNumber", "RecordType"])
+  })
+
+  it("exports undefined", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных" },
+    }
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: undefined,
+      xmlRootTag: "StandardAttributes",
+      path: "default.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("does not export canonical standard attributes without reference", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: {
+        PredefinedDataName: "ИмяПредопределенныхДанных",
+        Predefined: "Предопределенный",
+      },
+    }
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        { itemType: "StandardAttributeDescription", name: "PredefinedDataName" },
+        { itemType: "StandardAttributeDescription", name: "Predefined" },
+      ],
+      referenceMetadata: undefined,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toBe("")
+  })
+
+  it("export fillValueEmptyRefTypeLoss", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { Ref: "Ссылка" },
+    }
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: fillValueEmptyRefTypeLoss,
+      xmlRootTag: "StandardAttributes",
+      path: "fillValueEmptyRefTypeLoss.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("preserves maxValue xsi type from reference", () => {
+    const { result } = testExportPropertyToXML({
+      rule: StandardAttributeDescriptionRules.properties.maxValue,
+      value: 99.99,
+      referenceMetadata: testImportPropertyFromXML({
+        rule: StandardAttributeDescriptionRules.properties.maxValue,
+        xmlString: '<xr:MaxValue xsi:type="xs:decimal">99.99</xr:MaxValue>',
+        xmlRootTag: "xr:MaxValue",
+        forReference: true,
+      }),
+      xmlRootTag: "xr:MaxValue",
+    })
+
+    expect(result).toBe('<xr:MaxValue xsi:type="xs:decimal">99.99</xr:MaxValue>')
+  })
+
+  it("preserves fillValue reference xsi type for missing value", () => {
+    const { result } = testExportPropertyToXML({
+      rule: StandardAttributeDescriptionRules.properties.fillValue,
+      value: undefined,
+      referenceMetadata: testImportPropertyFromXML({
+        rule: StandardAttributeDescriptionRules.properties.fillValue,
+        xmlString: '<xr:FillValue xsi:type="v8:TypeDescription"/>',
+        xmlRootTag: "xr:FillValue",
+        forReference: true,
+      }),
+      xmlRootTag: "xr:FillValue",
+    })
+
+    expect(result).toBe('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+  })
+
+  it("preserves fillValue reference xsi type through collection export", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { ValueType: "ТипЗначения" },
+    }
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <StandardAttributes>
+          <xr:StandardAttribute name="ValueType">
+            <xr:Comment>changed</xr:Comment>
+            <xr:FillValue xsi:type="v8:TypeDescription"/>
+          </xr:StandardAttribute>
+        </StandardAttributes>
+      `,
+      xmlRootTag: "StandardAttributes",
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [{ itemType: "StandardAttributeDescription", name: "ValueType", comment: "changed" }],
+      referenceMetadata,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+  })
+
+  it("preserves reference XML for an empty standard attribute item", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { ValueType: "ТипЗначения" },
+    }
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <StandardAttributes>
+          <xr:StandardAttribute name="ValueType">
+            <xr:FillValue xsi:type="v8:TypeDescription"/>
+          </xr:StandardAttribute>
+        </StandardAttributes>
+      `,
+      xmlRootTag: "StandardAttributes",
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [{ itemType: "StandardAttributeDescription", name: "ValueType" }],
+      referenceMetadata,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+    expect(result).not.toBe('<StandardAttributes><xr:StandardAttribute name="ValueType"/></StandardAttributes>')
+  })
+
+  it("preserves fillValue reference xsi type when standard attribute is missing from model", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { ValueType: "ТипЗначения" },
+    }
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <StandardAttributes>
+          <xr:StandardAttribute name="ValueType">
+            <xr:Comment>reference-only</xr:Comment>
+            <xr:FillValue xsi:type="v8:TypeDescription"/>
+          </xr:StandardAttribute>
+        </StandardAttributes>
+      `,
+      xmlRootTag: "StandardAttributes",
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: undefined,
+      referenceMetadata,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:FillValue xsi:type="v8:TypeDescription"/>')
+    expect(result).toContain("<xr:Comment>reference-only</xr:Comment>")
+  })
+
+  it("preserves nil reference XML for empty standard attribute values", () => {
+    const rule: PropertyRule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: { Value: "Значение" },
+    }
+    const referenceMetadata = testImportPropertyFromXML({
+      rule,
+      xmlString: `
+        <StandardAttributes>
+          <xr:StandardAttribute name="Value">
+            <xr:FillValue xsi:nil="true"/>
+            <xr:MaxValue xsi:nil="true"/>
+            <xr:MinValue xsi:nil="true"/>
+          </xr:StandardAttribute>
+        </StandardAttributes>
+      `,
+      xmlRootTag: "StandardAttributes",
+      forReference: true,
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [{ itemType: "StandardAttributeDescription", name: "Value" }],
+      referenceMetadata,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:FillValue xsi:nil="true"/>')
+    expect(result).toContain('<xr:MaxValue xsi:nil="true"/>')
+    expect(result).toContain('<xr:MinValue xsi:nil="true"/>')
+  })
+
+  it("exports explicit accounting ExtDimension standard attributes", () => {
+    const rule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: {},
+    } satisfies PropertyRule
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: accountingExtDimensions,
+      xmlRootTag: "StandardAttributes",
+      path: "accounting-ext-dimensions.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("exports explicit accounting ExtDimension standard attributes without reference", () => {
+    const rule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,
+    } satisfies PropertyRule
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: [
+        { itemType: "StandardAttributeDescription", name: "ExtDimension50" },
+        { itemType: "StandardAttributeDescription", name: "ExtDimensionType50" },
+      ],
+      referenceMetadata: undefined,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:StandardAttribute name="ExtDimension50"/>')
+    expect(result).toContain('<xr:StandardAttribute name="ExtDimensionType50"/>')
+    expect(result).not.toContain('<xr:StandardAttribute name="ExtDimension1"/>')
+    expect(result).not.toContain('<xr:StandardAttribute name="ExtDimensionType1"/>')
+  })
+
+  it("does not complete accounting ExtDimension standard attributes up to 50 without reference", () => {
+    const rule = {
+      type: "StandardAttributeDescriptions",
+      standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,
+      standartAttributeNamesXML: MetadataAccountingRegisterStandardAttributeNamesXML,
+    } satisfies PropertyRule
+    const value = [
+      { itemType: "StandardAttributeDescription", name: "ExtDimension1", comment: "changed" },
+      { itemType: "StandardAttributeDescription", name: "ExtDimensionType1", comment: "changed" },
+      { itemType: "StandardAttributeDescription", name: "ExtDimension4", comment: "changed" },
+      { itemType: "StandardAttributeDescription", name: "ExtDimensionType4", comment: "changed" },
+    ]
+    const { result } = testExportPropertyToXML({
+      rule,
+      value,
+      metadataItem: { standardAttributes: value },
+      referenceMetadata: undefined,
+      xmlRootTag: "StandardAttributes",
+    })
+
+    const names = Array.from(result.matchAll(/<xr:StandardAttribute name="([^"]+)"/g), ([, name]) => name)
+    expect(names).toContain("ExtDimension1")
+    expect(names).toContain("ExtDimensionType4")
+    expect(names).not.toContain("ExtDimension5")
+    expect(names).not.toContain("ExtDimensionType50")
   })
 })

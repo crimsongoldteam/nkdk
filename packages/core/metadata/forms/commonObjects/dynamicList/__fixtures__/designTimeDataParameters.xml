@@ -1,0 +1,14 @@
+<Settings xsi:type="DynamicList">
+	<ManualQuery>false</ManualQuery>
+	<DynamicDataRead>true</DynamicDataRead>
+	<ListSettings>
+		<dcsset:dataParameters>
+			<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+				<dcscor:use>false</dcscor:use>
+				<dcscor:parameter>УведомленияЕГРЮЛ</dcscor:parameter>
+				<dcscor:value xsi:type="dcscor:DesignTimeValue">Перечисление.СтраницыЖурналаОтчетность.ЕГРЮЛ</dcscor:value>
+				<dcscor:value xsi:type="dcscor:DesignTimeValue">Перечисление.СтраницыЖурналаОтчетность.Уведомления</dcscor:value>
+			</dcscor:item>
+		</dcsset:dataParameters>
+	</ListSettings>
+</Settings>

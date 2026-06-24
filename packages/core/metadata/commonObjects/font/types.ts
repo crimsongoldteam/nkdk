@@ -2,7 +2,7 @@ import { Static, Type } from "@sinclair/typebox"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
 
-export const PrefixedFontsFromXML: Record<string, SE.StyleFonts | SE.WindowsFonts> = {
+export const PrefixedFontsFromXML = {
   "style:LargeTextFont": "LargeTextFont",
   "style:SmallTextFont": "SmallTextFont",
   "style:NormalTextFont": "NormalTextFont",
@@ -13,16 +13,22 @@ export const PrefixedFontsFromXML: Record<string, SE.StyleFonts | SE.WindowsFont
   "sys:OEMFixedFont": "OEMFixedFont",
   "sys:SystemFont": "SystemFont",
   "sys:DefaultGUIFont": "DefaultGUIFont",
-} as const
+} as const satisfies Record<string, SE.StyleFonts | SE.WindowsFonts>
 
 export const PrefixedFontsToXML = Object.fromEntries(
   Object.entries(PrefixedFontsFromXML).map(([key, value]) => [value, key])
 )
 
 export type PrefixedFontsXML = keyof typeof PrefixedFontsFromXML
+export type RawPrefixedFontRef = `style:${string}` | `sys:${string}`
+export type RawFontRef = RawPrefixedFontRef | string
+export type FontRef = SE.StyleFonts | SE.WindowsFonts | RawFontRef
+
+export const isRawPrefixedFontRef = (value: unknown): value is RawPrefixedFontRef =>
+  typeof value === "string" && (value.startsWith("style:") || value.startsWith("sys:"))
 
 export interface FontXML {
-  _ref?: PrefixedFontsXML
+  _ref?: PrefixedFontsXML | RawFontRef
   _faceName?: string
   _scale?: number
   _height?: number
@@ -35,7 +41,8 @@ export interface FontXML {
 
 export interface Font {
   kind: SE.FontType
-  ref?: SE.StyleFonts | SE.WindowsFonts
+  ref?: FontRef
+  rawRef?: boolean
   faceName?: string
   scale?: number
   height?: number
@@ -46,7 +53,9 @@ export interface Font {
 }
 
 export interface FontFullYAML {
-  Вид?: SE.StyleFontsYAML | SE.WindowsFontsYAML
+  Вид?: SE.StyleFontsYAML | SE.WindowsFontsYAML | SE.FontTypeYAML | string
+  ВидXML?: SE.FontType
+  Значение?: string
   Имя?: string
   Масштаб?: number
   Размер?: number
@@ -56,21 +65,23 @@ export interface FontFullYAML {
   Зачеркивание?: StringboolYAML
 }
 
-export type FontCompactYAML = string
-
-export const FontJSONSchema = Type.Union([
-  Type.Object({
-    Вид: Type.Optional(Type.String()),
-    Имя: Type.Optional(Type.String()),
-    Масштаб: Type.Optional(Type.Number()),
-    Размер: Type.Optional(Type.Number()),
-    Наклонный: Type.Optional(BooleanJSONSchema),
-    Подчеркивание: Type.Optional(BooleanJSONSchema),
-    Полужирный: Type.Optional(BooleanJSONSchema),
-    Зачеркивание: Type.Optional(BooleanJSONSchema),
-  }),
-  Type.String(),
-])
+export const FontJSONSchema = Type.Object({
+  Вид: Type.Optional(
+    Type.String({
+      examples: ["ОбычныйШрифтТекста", "СистемныйШрифт", "ЭлементСтиля.ОсновнойШрифт"],
+      description: "Встроенный шрифт или ссылка на элемент стиля проекта: ЭлементСтиля.<ИмяЭлементаСтиля>.",
+    })
+  ),
+  ВидXML: Type.Optional(Type.String()),
+  Значение: Type.Optional(Type.String()),
+  Имя: Type.Optional(Type.String()),
+  Масштаб: Type.Optional(Type.Number()),
+  Размер: Type.Optional(Type.Number()),
+  Наклонный: Type.Optional(BooleanJSONSchema),
+  Подчеркивание: Type.Optional(BooleanJSONSchema),
+  Полужирный: Type.Optional(BooleanJSONSchema),
+  Зачеркивание: Type.Optional(BooleanJSONSchema),
+})
 
 export type FontYAML = Static<typeof FontJSONSchema>
 

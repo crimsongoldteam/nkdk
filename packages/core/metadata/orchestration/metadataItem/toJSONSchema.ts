@@ -1,7 +1,8 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertiesToJSONSchema } from "../property/toJSONSchema"
+import { exportPropertiesToJSONSchema, exportPropertyToJSONSchema } from "../property/toJSONSchema"
 import { MetadataItem, MetadataItemRule } from "../property/types"
+import { findInlineProperty } from "./yamlInline"
 
 export const exportMetadataItemToJSONSchema = <T extends MetadataItem>(params: {
   context: ConfigurationContext
@@ -16,12 +17,18 @@ export const exportMetadataItemToJSONSchema = <T extends MetadataItem>(params: {
     rule,
   })
 
-  const result = Type.Object(
+  const objectSchema = Type.Object(
     {
       ...properties,
     },
     { additionalProperties: false }
   )
 
-  return result
+  const inline = findInlineProperty(rule)
+  if (inline) {
+    const inlineSchema = exportPropertyToJSONSchema({ context, rule: inline.prop, value: undefined })
+    if (inlineSchema !== undefined) return inlineSchema
+  }
+
+  return objectSchema
 }

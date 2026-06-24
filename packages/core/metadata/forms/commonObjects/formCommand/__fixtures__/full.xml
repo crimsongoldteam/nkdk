@@ -1,0 +1,33 @@
+<Commands>
+	<Command name="СоставКомплектаПодобратьФайлы" id="1">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Заголовок</v8:content>
+			</v8:item>
+		</Title>
+		<ToolTip>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка</v8:content>
+			</v8:item>
+		</ToolTip>
+		<Use>
+			<xr:Common>true</xr:Common>
+			<xr:Value name="Role.Администратор">false</xr:Value>
+		</Use>
+		<Shortcut>S</Shortcut>
+		<Picture>
+			<xr:Ref>StdPicture.Properties</xr:Ref>
+			<xr:LoadTransparent>true</xr:LoadTransparent>
+		</Picture>
+		<Action>Действие</Action>
+		<FunctionalOptions>
+			<Item>FunctionalOption.ФункциональнаяОпцияБулево</Item>
+		</FunctionalOptions>
+		<Representation>TextPicture</Representation>
+		<ModifiesSavedData>true</ModifiesSavedData>
+		<CurrentRowUse>DontUse</CurrentRowUse>
+		<AssociatedTableElementId xsi:type="xs:string">Таблица</AssociatedTableElementId>
+	</Command>
+</Commands>

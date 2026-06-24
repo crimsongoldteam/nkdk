@@ -1,0 +1,7 @@
+<Button name="СоздатьПриемНаРаботу" id="1">
+	<CommandName>Form.Item.Список.StandardCommand.CreateByParameter</CommandName>
+	<Parameter xsi:type="v8:TypeDescription">
+		<v8:Type>cfg:DocumentRef.ПриемНаРаботу</v8:Type>
+	</Parameter>
+	<ExtendedTooltip name="СоздатьПриемНаРаботуРасширеннаяПодсказка" id="2"/>
+</Button>

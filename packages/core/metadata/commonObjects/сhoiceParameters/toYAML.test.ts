@@ -1,10 +1,20 @@
 import { describe, expect, it } from "vitest"
 
 import {
+  emptyFormChoiceParameter,
+  emptyFormChoiceParametersYAML,
   enumChoiceParameter,
   enumChoiceParametersYAML,
   fixedArrayChoiceParameter,
   fixedArrayChoiceParametersYAML,
+  fixedArrayWithNilChoiceParameterYAML,
+  fixedArrayWithNilChoiceParameters,
+  formBooleanChoiceParameter,
+  formBooleanChoiceParametersYAML,
+  formChoiceFixedArrayChoiceParameter,
+  formChoiceFixedArrayChoiceParametersYAML,
+  formEnumChoiceParameter,
+  formEnumChoiceParametersYAML,
   multipleChoiceParameters,
   multipleChoiceParametersYAML,
   nilChoiceParameters,
@@ -17,7 +27,7 @@ import {
   withoutOneValueChoiceParametersYAML,
   withoutValueChoiceParameter,
   withoutValueChoiceParametersYAML,
-} from "~/tests/fixtures/choiceParameters/data"
+} from "~/metadata/commonObjects/сhoiceParameters/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { exportChoiceParametersToYAML } from "./toYAML"
 
@@ -56,6 +66,36 @@ describe("exportChoiceParametersToYAML", () => {
     const result = exportChoiceParametersToYAML(mockContext, mockRule, fixedArrayChoiceParameter)
 
     expect(result).toEqual(fixedArrayChoiceParametersYAML)
+  })
+
+  it("exports fixedArrayWithNil YAML", () => {
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, fixedArrayWithNilChoiceParameters)
+
+    expect(result).toEqual(fixedArrayWithNilChoiceParameterYAML)
+  })
+
+  it("exports choice parameters with form boolean value to yaml object", () => {
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, formBooleanChoiceParameter)
+
+    expect(result).toEqual(formBooleanChoiceParametersYAML)
+  })
+
+  it("exports choice parameters with form enum value to yaml object", () => {
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, formEnumChoiceParameter)
+
+    expect(result).toEqual(formEnumChoiceParametersYAML)
+  })
+
+  it("exports empty top-level form choice value with explicit type", () => {
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, emptyFormChoiceParameter)
+
+    expect(result).toEqual(emptyFormChoiceParametersYAML)
+  })
+
+  it("exports choice parameters with nested form choice fixedArray without empty presentations", () => {
+    const result = exportChoiceParametersToYAML(mockContext, mockRule, formChoiceFixedArrayChoiceParameter)
+
+    expect(result).toEqual(formChoiceFixedArrayChoiceParametersYAML)
   })
 
   it("should export choice parameters with nil value to yaml", () => {

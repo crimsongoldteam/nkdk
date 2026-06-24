@@ -1,10 +1,17 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { exportBooleanToYAML } from "../boolean/toYAML"
-import { Font, FontFullYAML, FontYAML } from "./types"
+import { formatMetadataTargetToYAML, type MetadataTargetConstraint } from "../metadataTargets"
+import { Font, FontFullYAML, FontRef, FontYAML } from "./types"
+
+const fontStyleItemTarget = {
+  kind: "object",
+  roots: ["StyleItem"],
+  filters: [{ kind: "styleItemType", values: ["Font"] }],
+} as const satisfies MetadataTargetConstraint
 
 export const exportFontToYAML = (
   _context: ConfigurationContext,
@@ -13,56 +20,67 @@ export const exportFontToYAML = (
 ): FontYAML | undefined => {
   if (!font) return undefined
 
-  const hasFullFormat =
-    font.height !== undefined ||
-    font.bold !== undefined ||
-    font.italic !== undefined ||
-    font.underline !== undefined ||
-    font.strikeout !== undefined
+  const ref = font.rawRef === true ? undefined : convertRefToYAML(_context, font.ref, font.kind)
+  const result: FontFullYAML = {}
 
-  if (hasFullFormat) {
-    const kind = convertRefToYAML(_context, font.ref, font.kind)!
-
-    const result: FontFullYAML = {
-      Вид: kind,
-    }
-
-    if (font.faceName) result.Имя = font.faceName
-
-    if (font.height !== undefined) result.Размер = font.height
-
-    if (font.scale !== undefined) result.Масштаб = font.scale
-
-    const italicValue = exportBooleanToYAML(_context, undefined, font.italic)
-    if (italicValue !== undefined) result.Наклонный = italicValue
-
-    const underlineValue = exportBooleanToYAML(_context, undefined, font.underline)
-    if (underlineValue !== undefined) result.Подчеркивание = underlineValue
-
-    const boldValue = exportBooleanToYAML(_context, undefined, font.bold)
-    if (boldValue !== undefined) result.Полужирный = boldValue
-
-    const strikeoutValue = exportBooleanToYAML(_context, undefined, font.strikeout)
-    if (strikeoutValue !== undefined) result.Зачеркивание = strikeoutValue
-
-    return result
+  if (font.rawRef === true && font.ref !== undefined) {
+    result.Вид = SE.FontTypeToYAML[font.kind]
+    result.Значение = font.ref
+  } else if (ref !== undefined) {
+    result.Вид = ref
+  } else if (font.ref !== undefined) {
+    result.Вид = SE.FontTypeToYAML[font.kind]
+    result.Значение = font.ref
+  } else {
+    result.ВидXML = font.kind
   }
 
-  return font.faceName || convertRefToYAML(_context, font.ref, font.kind)
+  if (font.faceName !== undefined) result.Имя = font.faceName
+  if (font.height !== undefined) result.Размер = font.height
+  if (font.scale !== undefined) result.Масштаб = font.scale
+
+  const italicValue = exportBooleanToYAML(_context, undefined, font.italic)
+  if (italicValue !== undefined) result.Наклонный = italicValue
+
+  const underlineValue = exportBooleanToYAML(_context, undefined, font.underline)
+  if (underlineValue !== undefined) result.Подчеркивание = underlineValue
+
+  const boldValue = exportBooleanToYAML(_context, undefined, font.bold)
+  if (boldValue !== undefined) result.Полужирный = boldValue
+
+  const strikeoutValue = exportBooleanToYAML(_context, undefined, font.strikeout)
+  if (strikeoutValue !== undefined) result.Зачеркивание = strikeoutValue
+
+  return result
 }
 
 const convertRefToYAML = (
   context: ConfigurationContext,
-  ref: SE.StyleFonts | SE.WindowsFonts | undefined,
+  ref: FontRef | undefined,
   kind: SE.FontType
-): SE.StyleFontsYAML | SE.WindowsFontsYAML | undefined => {
+): string | undefined => {
   if (ref === undefined) return undefined
 
   if (kind === "StyleItem") {
-    return exportSystemEnumerationToYAMLDeprecated(context, { type: "SystemEnumeration", typeSE: "StyleFonts" }, ref)
+    return (
+      exportSystemEnumerationToYAMLDeprecated(context, { type: "SystemEnumeration", typeSE: "StyleFonts" }, ref) ??
+      tryFormatProjectStyleRefToYAML(ref)
+    )
   }
 
   return exportSystemEnumerationToYAMLDeprecated(context, { type: "SystemEnumeration", typeSE: "WindowsFonts" }, ref)
+}
+
+function tryFormatProjectStyleRefToYAML(ref: string): string | undefined {
+  try {
+    return formatMetadataTargetToYAML({
+      canonical: `StyleItem.${ref}`,
+      constraint: fontStyleItemTarget,
+    })
+  } catch (caught) {
+    if (caught instanceof Error && caught.message === "Некорректный формат цели метаданных") return undefined
+    throw caught
+  }
 }
 
 registerTypeRule("Font", "exportToYAML", exportFontToYAML)

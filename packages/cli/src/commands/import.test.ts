@@ -1,0 +1,77 @@
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
+import { tmpdir } from "os"
+import { join } from "path"
+import { afterEach, describe, expect, it, vi } from "vitest"
+import { importConfiguration } from "./import"
+
+const singleValueEnumerationXML = `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <Enum uuid="d381585b-33ee-4f3e-9362-ae06f761f29d">
+    <Properties>
+      <Name>ВидыСервисовЭДО</Name>
+      <Synonym>
+        <v8:item>
+          <v8:lang>ru</v8:lang>
+          <v8:content>Виды сервисов ЭДО</v8:content>
+        </v8:item>
+      </Synonym>
+      <Comment/>
+      <UseStandardCommands>false</UseStandardCommands>
+      <QuickChoice>true</QuickChoice>
+      <ChoiceMode>BothWays</ChoiceMode>
+      <DefaultListForm/>
+      <DefaultChoiceForm/>
+      <AuxiliaryListForm/>
+      <AuxiliaryChoiceForm/>
+      <ListPresentation/>
+      <ExtendedListPresentation/>
+      <Explanation/>
+      <ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+    </Properties>
+    <ChildObjects>
+      <EnumValue uuid="dcbdca07-2ece-431e-b8bc-536f0df4b67e">
+        <Properties>
+          <Name>ЭПД</Name>
+          <Synonym>
+            <v8:item>
+              <v8:lang>ru</v8:lang>
+              <v8:content>ЭПД</v8:content>
+            </v8:item>
+          </Synonym>
+          <Comment/>
+        </Properties>
+      </EnumValue>
+    </ChildObjects>
+  </Enum>
+</MetaDataObject>`
+
+describe("import command", () => {
+  const originalExitCode = process.exitCode
+
+  afterEach(() => {
+    process.exitCode = originalExitCode
+    vi.restoreAllMocks()
+  })
+
+  it("импортирует перечисление с одним значением через публичный вход CLI", async () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-cli-import-"))
+    const xmlDir = join(projectDir, "xml")
+    const yamlDir = join(projectDir, "yaml")
+    mkdirSync(join(xmlDir, "Enums"), { recursive: true })
+    writeFileSync(join(xmlDir, "Enums", "ВидыСервисовЭДО.xml"), singleValueEnumerationXML, "utf-8")
+
+    vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+
+    try {
+      await importConfiguration(xmlDir, yamlDir)
+
+      expect(process.exitCode).not.toBe(1)
+      const yaml = readFileSync(join(yamlDir, "Перечисление", "ВидыСервисовЭДО", "Свойства.yaml"), "utf-8")
+      expect(yaml).toContain("Значения:")
+      expect(yaml).toContain("  ЭПД:")
+    } finally {
+      rmSync(projectDir, { recursive: true, force: true })
+    }
+  })
+})

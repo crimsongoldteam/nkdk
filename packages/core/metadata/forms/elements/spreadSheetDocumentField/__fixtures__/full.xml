@@ -1,0 +1,122 @@
+<SpreadSheetDocumentField name="ПолеТабличногоДокумента" id="3" DisplayImportance="High">
+	<DataPath>Реквизит</DataPath>
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">false</xr:Value>
+	</UserVisible>
+	<DefaultItem>true</DefaultItem>
+	<Enabled>false</Enabled>
+	<ReadOnly>true</ReadOnly>
+	<SkipOnInput>true</SkipOnInput>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Поле табличного документа</v8:content>
+		</v8:item>
+	</Title>
+	<TitleTextColor>web:Black</TitleTextColor>
+	<TitleBackColor>web:Blue</TitleBackColor>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleLocation>Left</TitleLocation>
+	<TitleHeight>20</TitleHeight>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+	<WarningOnEdit>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Предупреждение</v8:content>
+		</v8:item>
+	</WarningOnEdit>
+	<Shortcut>S</Shortcut>
+	<CommandSet>
+		<ExcludedCommand>Print</ExcludedCommand>
+	</CommandSet>
+	<HorizontalAlign>Left</HorizontalAlign>
+	<VerticalAlign>Top</VerticalAlign>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<EditMode>EnterOnInput</EditMode>
+	<CellHyperlink>true</CellHyperlink>
+	<ShowInHeader>false</ShowInHeader>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
+	<ShowInFooter>false</ShowInFooter>
+	<FooterDataPath>РеквизитПодвала</FooterDataPath>
+	<FooterText>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Текст подвала</v8:content>
+		</v8:item>
+	</FooterText>
+	<FooterTextColor>web:Black</FooterTextColor>
+	<FooterBackColor>web:White</FooterBackColor>
+	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<FooterPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</FooterPicture>
+	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+	<Width>300</Width>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<MaxWidth>400</MaxWidth>
+	<Height>200</Height>
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<MaxHeight>500</MaxHeight>
+	<HorizontalStretch>false</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
+	<ShowGrid>true</ShowGrid>
+	<ShowHeaders>true</ShowHeaders>
+	<VerticalScrollBar>false</VerticalScrollBar>
+	<HorizontalScrollBar>false</HorizontalScrollBar>
+	<BlackAndWhiteView>true</BlackAndWhiteView>
+	<Protection>true</Protection>
+	<DrawingSelectionShowMode>DontShow</DrawingSelectionShowMode>
+	<PointerType>Regular</PointerType>
+	<Output>Enable</Output>
+	<Edit>true</Edit>
+	<ShowGroups>false</ShowGroups>
+	<EnableStartDrag>false</EnableStartDrag>
+	<EnableDrag>false</EnableDrag>
+	<BorderColor>web:Black</BorderColor>
+	<ShowCellNames>true</ShowCellNames>
+	<ShowRowAndColumnNames>true</ShowRowAndColumnNames>
+	<ViewScalingMode>Normal</ViewScalingMode>
+	<SelectionShowMode>DontShow</SelectionShowMode>
+	<ContextMenu name="ПолеТабличногоДокументаКонтекстноеМеню" id="4">
+		<Autofill>false</Autofill>
+	</ContextMenu>
+	<ExtendedTooltip name="ПолеТабличногоДокументаРасширеннаяПодсказка" id="5">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<Events>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="URLProcessing">ПроцедураПриОбработкеНавигационнойСсылки</Event>
+		<Event name="AdditionalDetailProcessing">ПроцедураПриОбработкеДополнительнойРасшифровки</Event>
+		<Event name="DragCheck">ПроцедураПриПроверкеПеретаскивания</Event>
+		<Event name="OnActivate">ПроцедураПриАктивизации</Event>
+		<Event name="Selection">ПроцедураПриВыборе</Event>
+		<Event name="DetailProcessing">ПроцедураПриОбработкеРасшифровки</Event>
+		<Event name="OnChangeAreaContent">ПолеТабличногоДокументаПриИзмененииСодержимогоОбласти</Event>
+		<Event name="BeforePrint">ПроцедураПриПечатке</Event>
+		<Event name="DragStart">ПроцедураПриПеретаскивании</Event>
+		<Event name="Drag">ПроцедураПриПеретаскивании</Event>
+		<Event name="AfterWrite">ПроцедураПриЗавершенииЗаписи</Event>
+		<Event name="BeforeWrite">ПроцедураПриЗаписи</Event>
+		<Event name="DragEnd">ПроцедураПриЗавершенииПеретаскивания</Event>
+	</Events>
+</SpreadSheetDocumentField>

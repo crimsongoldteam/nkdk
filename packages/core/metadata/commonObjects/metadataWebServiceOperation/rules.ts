@@ -1,0 +1,166 @@
+import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
+import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+
+const propertiesParents = ["Properties"]
+const childObjectsParents = ["ChildObjects"]
+
+export const MetadataWebServiceParameterRules = {
+  itemType: "MetadataWebServiceParameter",
+  properties: {
+    uuid: uuidPropertyRule,
+    name: {
+      xml: "Name",
+      type: "string",
+      required: true,
+      xmlParents: propertiesParents,
+    },
+    synonym: {
+      yaml: "Синоним",
+      xml: "Synonym",
+      type: "I8nText",
+      xmlParents: propertiesParents,
+      defaultValueXMLRaw: "",
+    },
+    comment: {
+      yaml: "Комментарий",
+      xml: "Comment",
+      type: "string",
+      xmlParents: propertiesParents,
+      defaultValueXMLRaw: "",
+      defaultValueXMLEmpty: "",
+    },
+    xdtoValueType: {
+      yaml: "ТипЗначенияXDTO",
+      xml: "XDTOValueType",
+      type: "XDTOTypeName",
+      xmlParents: propertiesParents,
+    },
+    nillable: {
+      yaml: "МожетБытьНеопределено",
+      xml: "Nillable",
+      type: "boolean",
+      xmlParents: propertiesParents,
+      defaultValueXML: false,
+      implicitValueYAML: false,
+      preserveExplicitDefaultXML: true,
+    },
+    transferDirection: {
+      yaml: "НаправлениеПередачи",
+      xml: "TransferDirection",
+      type: "SystemEnumeration",
+      typeSE: "TransferDirection",
+      xmlParents: propertiesParents,
+      defaultValueXML: "In",
+      implicitValueYAML: "In",
+      preserveExplicitDefaultXML: true,
+    },
+    objectBelonging: {
+      yaml: "ПринадлежностьОбъекта",
+      xml: "ObjectBelonging",
+      type: "SystemEnumeration",
+      typeSE: "ObjectBelonging",
+      xmlParents: propertiesParents,
+      toYAML: false,
+      fromYAML: false,
+      implicitValueYAML: "Native",
+    },
+    extendedConfigurationObject: {
+      xml: "ExtendedConfigurationObject",
+      type: "string",
+      xmlParents: propertiesParents,
+      runtimeOnly: true,
+    },
+  } satisfies Record<string, PropertyRule>,
+} as const satisfies MetadataItemRule
+
+export const MetadataWebServiceOperationRules = {
+  itemType: "MetadataWebServiceOperation",
+  properties: {
+    uuid: uuidPropertyRule,
+    name: {
+      xml: "Name",
+      type: "string",
+      required: true,
+      xmlParents: propertiesParents,
+    },
+    synonym: {
+      yaml: "Синоним",
+      xml: "Synonym",
+      type: "I8nText",
+      xmlParents: propertiesParents,
+      defaultValueXMLRaw: "",
+    },
+    comment: {
+      yaml: "Комментарий",
+      xml: "Comment",
+      type: "string",
+      xmlParents: propertiesParents,
+      defaultValueXMLRaw: "",
+      defaultValueXMLEmpty: "",
+    },
+    xdtoReturningValueType: {
+      yaml: "ТипВозвращаемогоЗначенияXDTO",
+      xml: "XDTOReturningValueType",
+      type: "XDTOTypeName",
+      xmlParents: propertiesParents,
+    },
+    nillable: {
+      yaml: "МожетБытьНеопределено",
+      xml: "Nillable",
+      type: "boolean",
+      xmlParents: propertiesParents,
+      defaultValueXML: false,
+      implicitValueYAML: false,
+      preserveExplicitDefaultXML: true,
+    },
+    transactioned: {
+      yaml: "Транзакционный",
+      xml: "Transactioned",
+      type: "boolean",
+      xmlParents: propertiesParents,
+      defaultValueXML: false,
+      implicitValueYAML: false,
+      preserveExplicitDefaultXML: true,
+    },
+    procedureName: {
+      yaml: "ИмяПроцедуры",
+      xml: "ProcedureName",
+      type: "string",
+      xmlParents: propertiesParents,
+    },
+    dataLockControlMode: {
+      yaml: "РежимУправленияБлокировкойДанных",
+      xml: "DataLockControlMode",
+      type: "SystemEnumeration",
+      typeSE: "DataLockControlMode",
+      xmlParents: propertiesParents,
+      defaultValueXML: "Managed",
+      implicitValueYAML: "Managed",
+      preserveExplicitDefaultXML: true,
+    },
+    parameters: {
+      yaml: "Параметры",
+      xml: "Parameter",
+      type: "MetadataWebServiceParameters",
+      xmlParents: childObjectsParents,
+      defaultValue: [],
+      defaultValueXMLRaw: {},
+    },
+    objectBelonging: {
+      yaml: "ПринадлежностьОбъекта",
+      xml: "ObjectBelonging",
+      type: "SystemEnumeration",
+      typeSE: "ObjectBelonging",
+      xmlParents: propertiesParents,
+      toYAML: false,
+      fromYAML: false,
+      implicitValueYAML: "Native",
+    },
+    extendedConfigurationObject: {
+      xml: "ExtendedConfigurationObject",
+      type: "string",
+      xmlParents: propertiesParents,
+      runtimeOnly: true,
+    },
+  } satisfies Record<string, PropertyRule>,
+} as const satisfies MetadataItemRule

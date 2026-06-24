@@ -28,7 +28,6 @@ export const ContextMenuRules = {
       xml: "ChildItems",
       type: "CommandBarChildItems",
       defaultValue: [],
-      required: true,
     },
   },
 } as const satisfies ElementRule
@@ -36,6 +35,10 @@ export const ContextMenuRules = {
 registerElementAsType({
   propertyType: "ContextMenu",
   elementRule: ContextMenuRules,
+  nameStyle: {
+    canonicalSuffix: "КонтекстноеМеню",
+    referenceSuffixes: ["КонтекстноеМеню", "ContextMenu"],
+  },
   toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
     const { context } = params
     const parent = getParentFromContext(context)

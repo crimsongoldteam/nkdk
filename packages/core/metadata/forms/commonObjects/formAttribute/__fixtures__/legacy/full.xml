@@ -1,0 +1,62 @@
+<Attribute name="Объект" id="1">
+	<Type>
+		<v8:Type>xs:decimal</v8:Type>
+		<v8:NumberQualifiers>
+			<v8:Digits>0</v8:Digits>
+			<v8:FractionDigits>0</v8:FractionDigits>
+			<v8:AllowedSign>Any</v8:AllowedSign>
+		</v8:NumberQualifiers>
+	</Type>
+	<View>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Пользователь">false</xr:Value>
+	</View>
+	<Edit>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Пользователь">false</xr:Value>
+	</Edit>
+	<MainAttribute>true</MainAttribute>
+	<SavedData>true</SavedData>
+	<FillCheck>ShowError</FillCheck>
+	<UseAlways>
+		<Field>Список.Ref</Field>
+	</UseAlways>
+	<Save>
+		<Field>Объект</Field>
+	</Save>
+</Attribute>
+<Attribute name="ТестовыйАтрибут" id="2">
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок атрибута</v8:content>
+		</v8:item>
+	</Title>
+	<Type>
+		<v8:Type>xs:string</v8:Type>
+		<v8:StringQualifiers>
+			<v8:Length>0</v8:Length>
+			<v8:AllowedLength>Variable</v8:AllowedLength>
+		</v8:StringQualifiers>
+	</Type>
+	<View>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Пользователь">false</xr:Value>
+	</View>
+	<Edit>
+		<xr:Common>false</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+		<xr:Value name="Role.Пользователь">false</xr:Value>
+	</Edit>
+	<SavedData>true</SavedData>
+	<FillCheck>ShowError</FillCheck>
+	<UseAlways>
+		<Field>Список.Ref</Field>
+	</UseAlways>
+	<FunctionalOptions>
+		<Item>FunctionalOption.ФункциональнаяОпция1</Item>
+	</FunctionalOptions>
+</Attribute>

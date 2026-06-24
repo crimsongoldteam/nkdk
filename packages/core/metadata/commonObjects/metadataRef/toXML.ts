@@ -1,29 +1,43 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
 import { registerTypeRule } from "~/metadata/orchestration"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataItemLink, MetadataItemLinks, MetadataItemLinksXML, MetadataItemLinkXML } from "./types"
 
 export function exportMetadataItemLinkToXML(
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: MetadataItemLink | undefined
 ): MetadataItemLinkXML | undefined {
-  if (!data) return undefined
+  if (data === undefined) return undefined
 
-  return {
-    "#text": data,
-    "xsi:type": "xr:MDObjectRef",
+  const typedXML = rule?.typedXML
+
+  if (typedXML === "xr:MDObjectRef") {
+    return { "#text": data, "_xsi:type": typedXML }
   }
+
+  return data
 }
 
 export function exportMetadataItemLinksToXML(
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: MetadataItemLinks | undefined
-): MetadataItemLinksXML | undefined {
+): MetadataItemLinksXML | "" | undefined {
   if (!data) return undefined
 
-  return data.map((value) => exportMetadataItemLinkToXML(context, undefined, value)!)
+  if (data.length === 0) return ""
+
+  const itemTag = rule?.metadataItemLinksXMLItem ?? "xr:Item"
+  const itemRule = {
+    type: "MetadataItemLink",
+    ...(itemTag === "xr:Item" ? { typedXML: "xr:MDObjectRef" } : {}),
+  } satisfies PropertyRule
+
+  return {
+    [itemTag]: data.map((value) => exportMetadataItemLinkToXML(context, itemRule, value)!),
+  }
 }
 
+registerTypeRule("MetadataItemLink", "exportToXML", exportMetadataItemLinkToXML)
 registerTypeRule("MetadataItemLinks", "exportToXML", exportMetadataItemLinksToXML)

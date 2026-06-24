@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { Border, BorderXML } from "./types"
 
@@ -13,7 +13,7 @@ export const exportBorderToXML = (
   const result: BorderXML = {}
 
   if (border.ref !== undefined) {
-    result._ref = border.ref
+    result._ref = `style:${border.ref}`
   }
 
   if (border.width !== undefined) {

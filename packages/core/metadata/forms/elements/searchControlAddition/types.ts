@@ -7,7 +7,7 @@ import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
 import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { CommandBarChildItemsTypedYAML } from "../../commonObjects/childItems/types"
+import { FormElementTreeYAML } from "../../commonObjects/childItems/types"
 import { ContextMenuYAML } from "../contextMenu/types"
 import { ExtendedTooltipYAML } from "../extendedTooltip/types"
 import { SearchControlAdditionRules, SingleSearchControlAdditionRules } from "./rules"
@@ -35,10 +35,9 @@ export interface SearchControlAdditionYAML {
   КонтекстноеМеню?: ContextMenuYAML
   ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
   Подсказка?: I8nTextYAML
-  РазрешитьИспользование?: UserVisibleYAML
-  ЗапретитьИспользование?: UserVisibleYAML
+  Использование?: UserVisibleYAML
   РасширеннаяПодсказка?: ExtendedTooltipYAML
-  Элементы?: CommandBarChildItemsTypedYAML
+  Элементы?: FormElementTreeYAML
 }
 
 export interface SingleSearchControlAdditionYAML extends Omit<SearchControlAdditionYAML, "Источник"> {}

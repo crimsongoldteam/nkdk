@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { IndexField, IndexFieldYAML, IndexFields, IndexFieldsYAML } from "./types"
 
@@ -25,4 +25,4 @@ export const importIndexFieldsFromYAML = (
     .filter((item): item is IndexField => item !== undefined)
 }
 
-registerTypeRule("IndexField", "importFromYAML", importIndexFieldFromYAML)
+registerTypeRule("IndexField", "importFromYAML", importIndexFieldsFromYAML)

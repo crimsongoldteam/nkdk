@@ -1,7 +1,27 @@
 import { describe, expect, it } from "vitest"
-import { getOrderedKeysFromXML } from "./helpers"
+import {
+  getOrderedKeysFromXML,
+  getOrderedKeysToXML,
+  shouldProcessProperty,
+  XML_SOURCE_KEYS,
+} from "./helpers"
+import { setXMLValue } from "./toXML"
 
-const createRule = (properties: Record<string, { xml?: string; tag?: string }>): any => {
+const createRule = (
+  properties: Record<
+    string,
+    {
+      xml?: string
+      xmlParents?: string[]
+      tag?: string
+      runtimeOnly?: true
+      syncExternalOnly?: true
+      filePath?: string
+      order?: number
+      toXML?: false
+    }
+  >
+): any => {
   return {
     // Остальное для этих тестов не важно, используются только свойства
     properties: Object.fromEntries(
@@ -85,5 +105,223 @@ describe("getOrderedKeysFromXML", () => {
     })
 
     expect(result).toEqual(["visible"])
+  })
+
+  it("исключает свойства с runtimeOnly из результатов", () => {
+    const rule = createRule({
+      visible: { xml: "Visible" },
+      hidden: { xml: "Hidden", runtimeOnly: true },
+    })
+
+    const result = getOrderedKeysFromXML({
+      rule,
+      xml: undefined,
+    })
+
+    expect(result).toEqual(["visible"])
+  })
+
+  it("ставит свойство-контейнер перед вложенными свойствами того же XML-узла", () => {
+    const rule = createRule({
+      attributes: { xml: "Attributes" },
+      attributesConditionalAppearance: {
+        xml: "ConditionalAppearance",
+        xmlParents: ["Attributes"],
+      },
+    })
+
+    const xml = {
+      Attributes: {
+        ConditionalAppearance: {
+          "dcsset:viewMode": "Normal",
+        },
+      },
+    }
+
+    const result = getOrderedKeysFromXML({
+      rule,
+      xml,
+    })
+
+    expect(result).toEqual(["attributes", "attributesConditionalAppearance"])
+  })
+})
+
+describe("getOrderedKeysToXML", () => {
+  it("без reference ставит InternalInfo перед ordered Properties и ChildObjects", () => {
+    const rule = createRule({
+      name: { xml: "Name", xmlParents: ["Properties"], order: 1 },
+      internalInfo: { xml: "InternalInfo" },
+      dimensions: { xml: "Dimension", xmlParents: ["ChildObjects"] },
+    })
+
+    const result = getOrderedKeysToXML({
+      rule,
+      referenceMetadata: undefined,
+    })
+
+    expect(result).toEqual(["internalInfo", "name", "dimensions"])
+  })
+
+  it("без reference сортирует Properties перед ChildObjects даже если ChildObjects объявлен раньше", () => {
+    const rule = createRule({
+      dimensions: { xml: "Dimension", xmlParents: ["ChildObjects"] },
+      name: { xml: "Name", xmlParents: ["Properties"] },
+    })
+
+    const result = getOrderedKeysToXML({
+      rule,
+      referenceMetadata: undefined,
+    })
+
+    expect(result).toEqual(["name", "dimensions"])
+  })
+
+  it("с reference сохраняет порядок ключей referenceMetadata главным", () => {
+    const rule = createRule({
+      name: { xml: "Name", xmlParents: ["Properties"], order: 1 },
+      internalInfo: { xml: "InternalInfo" },
+      dimensions: { xml: "Dimension", xmlParents: ["ChildObjects"] },
+    })
+
+    const result = getOrderedKeysToXML({
+      rule,
+      referenceMetadata: {
+        itemType: "Recalculation",
+        name: "Имя",
+        internalInfo: {},
+        dimensions: [],
+      },
+    })
+
+    expect(result).toEqual(["name", "internalInfo", "dimensions"])
+  })
+})
+
+describe("shouldProcessProperty preserveFromReferenceXML", () => {
+  const preserveRule = {
+    type: "boolean",
+    fromXML: false,
+    preserveFromReferenceXML: true,
+    defaultValueXMLRaw: { "_xsi:nil": "true" },
+  } as any
+
+  it("экспортирует поле, когда referenceMetadata содержит ключ со значением undefined", () => {
+    const result = shouldProcessProperty({
+      rule: preserveRule,
+      operation: "exportToXML",
+      propertyKey: "rowFilter",
+      referenceMetadata: { rowFilter: undefined },
+    })
+
+    expect(result).toBe(true)
+  })
+
+  it("экспортирует поле, когда текущая модель содержит ключ со значением undefined", () => {
+    const result = shouldProcessProperty({
+      rule: preserveRule,
+      operation: "exportToXML",
+      propertyKey: "rowFilter",
+      metadataItem: { rowFilter: undefined },
+    })
+
+    expect(result).toBe(true)
+  })
+
+  it("экспортирует поле, когда текущая модель содержит ключ со значением null", () => {
+    const result = shouldProcessProperty({
+      rule: preserveRule,
+      operation: "exportToXML",
+      propertyKey: "rowFilter",
+      metadataItem: { rowFilter: null },
+    })
+
+    expect(result).toBe(true)
+  })
+
+  it("не экспортирует поле, когда referenceMetadata не содержит ключ", () => {
+    const result = shouldProcessProperty({
+      rule: preserveRule,
+      operation: "exportToXML",
+      propertyKey: "rowFilter",
+      referenceMetadata: {},
+    })
+
+    expect(result).toBe(false)
+  })
+
+  it("не экспортирует поле, когда imported XML reference содержит только модельный ключ без XML source key", () => {
+    const referenceMetadata = { rowFilter: undefined }
+    Object.defineProperty(referenceMetadata, XML_SOURCE_KEYS, {
+      value: {},
+      enumerable: false,
+    })
+
+    const result = shouldProcessProperty({
+      rule: preserveRule,
+      operation: "exportToXML",
+      propertyKey: "rowFilter",
+      referenceMetadata,
+    })
+
+    expect(result).toBe(false)
+  })
+
+  it("не экспортирует поле без referenceMetadata", () => {
+    const result = shouldProcessProperty({
+      rule: preserveRule,
+      operation: "exportToXML",
+      propertyKey: "rowFilter",
+    })
+
+    expect(result).toBe(false)
+  })
+
+  it("не меняет поведение обычных полей без preserveFromReferenceXML", () => {
+    const result = shouldProcessProperty({
+      rule: { type: "string" } as any,
+      operation: "exportToXML",
+      propertyKey: "name",
+      referenceMetadata: {},
+    })
+
+    expect(result).toBe(true)
+  })
+})
+
+describe("setXMLValue", () => {
+  it("при пустом массиве + xmlParents + defaultValueXMLRaw создаёт пустой контейнер", () => {
+    const xml: any = {}
+    const rule: any = { xmlParents: ["ChildObjects"], defaultValueXMLRaw: {} }
+    setXMLValue("attributes", xml, rule, [])
+    expect(xml).toEqual({ ChildObjects: {} })
+  })
+
+  it("при пустом массиве + xmlParents без defaultValueXMLRaw ничего не добавляет", () => {
+    const xml: any = {}
+    const rule: any = { xmlParents: ["ChildObjects"] }
+    setXMLValue("attributes", xml, rule, [])
+    expect(xml).toEqual({})
+  })
+
+  it("при пустом массиве без xmlParents ничего не добавляет", () => {
+    const xml: any = {}
+    const rule: any = { defaultValueXMLRaw: {} }
+    setXMLValue("attributes", xml, rule, [])
+    expect(xml).toEqual({})
+  })
+
+  it("при непустом массиве помещает значение в xmlParents-контейнер", () => {
+    const xml: any = {}
+    const rule: any = { xmlParents: ["ChildObjects"], xml: "Attribute" }
+    setXMLValue("attributes", xml, rule, [{ _uuid: "abc" }])
+    expect(xml).toEqual({ ChildObjects: { Attribute: [{ _uuid: "abc" }] } })
+  })
+
+  it("при значении undefined ничего не добавляет", () => {
+    const xml: any = {}
+    const rule: any = {}
+    setXMLValue("name", xml, rule, undefined)
+    expect(xml).toEqual({})
   })
 })

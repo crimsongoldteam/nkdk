@@ -1,7 +1,9 @@
+import "./registry.types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { isEmptyI8nText } from "./helper"
+import "./registerPropertyType"
 import { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./types"
 
 /** @deprecated */
@@ -28,8 +30,13 @@ export const exportI8nTextToXML = (
 
   const narrowRule = rule as I8nTextPropertyRule
 
-  if (narrowRule.skipEmptyToXML && isEmptyI8nText(context, data)) {
-    return undefined
+  if (isEmptyI8nText(context, data)) {
+    if (narrowRule.skipEmptyToXML) {
+      return undefined
+    }
+    if (narrowRule.emptyAsRawXML) {
+      return {}
+    }
   }
 
   const v8Items: I8nTextLanguageXML[] = []
@@ -37,7 +44,11 @@ export const exportI8nTextToXML = (
     v8Items.push({ "v8:lang": lang, "v8:content": content })
   })
 
-  return { "v8:item": v8Items }
+  const base: I8nTextXML = { "v8:item": v8Items }
+  if (narrowRule.typedXML) {
+    return { "_xsi:type": "v8:LocalStringType", ...base }
+  }
+  return base
 }
 
 registerTypeRule("I8nText", "exportToXML", exportI8nTextToXML)

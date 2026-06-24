@@ -1,5 +1,6 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { importNumberFromXML } from "~/metadata/commonObjects/number/fromXML"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataField } from "../metadataField/types"
 import { TypeLink, TypeLinkXML } from "./types"
@@ -12,10 +13,11 @@ export const importTypeLinkFromXML = (
   if (!xml) return undefined
 
   const dataPath = typeof xml["xr:DataPath"] === "string" ? xml["xr:DataPath"] : xml["xr:DataPath"]["#text"]
+  const linkItem = importNumberFromXML(_context, undefined, xml["xr:LinkItem"])
 
   const result: TypeLink = {
     dataPath: dataPath as MetadataField,
-    linkItem: xml["xr:LinkItem"],
+    linkItem: linkItem ?? 0,
   }
 
   return result

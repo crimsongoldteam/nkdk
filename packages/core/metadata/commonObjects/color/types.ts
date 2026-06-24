@@ -1,19 +1,54 @@
-import { Static, Type } from "@sinclair/typebox"
-import { ColorType, WebColorsFromYAML } from "~/metadata/systemEnumerations/types"
+import { TSchema, Type } from "@sinclair/typebox"
+import {
+  ColorType,
+  StyleColorsFromYAML,
+  WebColorsFromYAML,
+  WindowsColorsFromYAML,
+} from "~/metadata/systemEnumerations/types"
+import { buildMetadataTargetSchema, type MetadataTargetConstraint } from "../metadataTargets"
 
-export interface Color {
+export interface TypedColor {
   type: ColorType
   value: string
 }
 
+export type RawColorRef = { rawRef: string }
+
+export type Color = TypedColor | RawColorRef
+
+export function isRawColorRef(color: Color): color is RawColorRef {
+  return "rawRef" in color
+}
+
+const rawColorRefPattern = /^0(?::[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})?$/
+
+export function isRawColorRefValue(value: string): boolean {
+  return rawColorRefPattern.test(value)
+}
+
 export type ColorXML = string
 
-const webColors = Object.keys(WebColorsFromYAML).map((key) => Type.Literal(key))
+const literalSchemas = (values: string[]): TSchema[] => values.map((key) => Type.Literal(key))
+
+const colorNameSchemas = literalSchemas([
+  ...Object.keys(StyleColorsFromYAML),
+  ...Object.keys(WindowsColorsFromYAML),
+  ...Object.keys(WebColorsFromYAML),
+])
 
 export const AbsoluteColorJSONSchema = Type.String({ pattern: "^#[0-9A-Fa-f]{6}$" })
-export const ColorJSONSchema = Type.Union([...webColors, AbsoluteColorJSONSchema])
+export const RawColorRefJSONSchema = Type.String({ pattern: rawColorRefPattern.source })
+export const colorStyleItemTarget = {
+  kind: "object",
+  roots: ["StyleItem"],
+  filters: [{ kind: "styleItemType", values: ["Color"] }],
+} as const satisfies MetadataTargetConstraint
+export const CustomStyleColorJSONSchema = buildMetadataTargetSchema(colorStyleItemTarget)
+export const ColorJSONSchema = Type.Union(
+  [CustomStyleColorJSONSchema, AbsoluteColorJSONSchema, RawColorRefJSONSchema, ...colorNameSchemas]
+)
 
-export type ColorYAML = Static<typeof ColorJSONSchema>
+export type ColorYAML = string
 
 export const ColorPrefixToType: Record<string, "StyleItem" | "WindowsColor" | "WebColor"> = {
   style: "StyleItem",

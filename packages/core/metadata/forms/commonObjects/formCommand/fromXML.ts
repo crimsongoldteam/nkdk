@@ -1,33 +1,28 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importPropertiesFromXML, registerTypeRule } from "~/metadata/orchestration"
+import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { ButtonRepresentation } from "~/metadata/systemEnumerations/types"
 import { FormCommandRules } from "./rules"
-import { FormCommand, FormCommands, FormCommandsXML, FormCommandXML } from "./types"
+import { FormCommand, FormCommands, FormCommandsXML } from "./types"
 
-const importCommandFromXML = (context: ConfigurationContextFromXML, xml: FormCommandXML): FormCommand => {
-  const properties = importPropertiesFromXML({
-    context,
-    xml,
-    rule: FormCommandRules,
-  })
+const importFormCommandsDefaultFromXML = importMetadataItemCollectionFromXML(FormCommandRules, "Command")
 
-  return {
-    itemType: "FormCommand",
-    name: xml._name,
-    ...properties,
-  }
-}
-
-export const importCommandsFromXML = (
+export const importFormCommandsFromXML = (
   context: ConfigurationContextFromXML,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule,
   xml: { Command: FormCommandsXML } | undefined
-): FormCommands => {
-  if (!xml || !xml.Command) return []
+): FormCommands | undefined => {
+  const result = importFormCommandsDefaultFromXML(context, rule, xml) as FormCommands | undefined
 
-  const xmlArray = Array.isArray(xml.Command) ? xml.Command : [xml.Command]
+  return result?.map((command: FormCommand) => {
+    const representation = command.representation as ButtonRepresentation | "TextPicture" | undefined
+    if (representation === undefined) {
+      return command
+    }
 
-  return xmlArray.map((commandXml) => importCommandFromXML(context, commandXml as FormCommandXML))
+    return {
+      ...command,
+      representation: representation === "TextPicture" ? "PictureAndText" : representation,
+    }
+  })
 }
-
-registerTypeRule("FormCommands", "importFromXML", importCommandsFromXML)

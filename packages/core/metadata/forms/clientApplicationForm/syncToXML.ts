@@ -1,17 +1,10 @@
 import fs from "fs"
-import { EmptyFileSystem } from "langium"
-import { parseHelper } from "langium/test"
-import { createNkdkServices, type Form as NkdkForm } from "nkdk-language"
 import { join } from "path"
-import {
-  ConfigurationContext,
-  ConfigurationContextFromXML,
-  ConfigurationContextWithExportToXML,
-} from "~/metadata/context/types"
+import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
+import type { ExternalMetadataContextItem } from "~/metadata/orchestration/externalMetadata/types"
 import type {
-  ClientApplicationForm,
   ClientApplicationFormXML,
   ClientApplicationFormYAML,
   FormMetadataXML,
@@ -19,7 +12,9 @@ import type {
 import { xmlExport } from "~/xml/export/exporter"
 import { importFromYAML } from "~/yaml/import"
 import { readFormFromXML } from "./convertFromXML"
-import { importClientApplicationFromFromNKDK } from "./fromNKDK"
+import { copyFormItemExternalFilesToXML } from "./externalItemFiles"
+import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
+import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 
 export const syncFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -27,19 +22,21 @@ export const syncFormToXML = async (params: {
   formName: string
   outputDir: string
   referenceDir?: string
+  currentXMLPath?: string
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const { context, inputDir, formName, outputDir } = params
-  const referenceDir = params.referenceDir ?? outputDir
+  const referenceDir = params.referenceDir
 
-  const { yamlContent, nkdkContent } = readFormFiles({ inputDir, formName })
+  const { yamlContent, formDir } = await readFormFiles({ inputDir, formName })
 
   const yamlObj = importFromYAML<ClientApplicationFormYAML>(yamlContent)
-  const formFromNkdk = await parseFormFromNkdKString(context, nkdkContent)
-  if (!formFromNkdk) {
-    throw new Error(`Failed to parse NKDK for form "${formName}"`)
-  }
 
-  const form = importClientApplicationFormFromYAML(context, yamlObj, formFromNkdk)
+  const contextWithFormDir = createFormScopedContext({ context, formDir, currentXMLPath: params.currentXMLPath })
+  const contextWithFormExternalMetadata = createFormExternalMetadataContext({
+    context: contextWithFormDir,
+    formName,
+  })
 
   const contextFromXML: ConfigurationContextFromXML = {
     fromXML: {
@@ -48,45 +45,135 @@ export const syncFormToXML = async (params: {
     defaultLanguage: context.defaultLanguage,
     version: "2.20",
   }
-  const referenceForm = readFormFromXML({
-    context: contextFromXML,
-    inputDir: referenceDir,
-    formName,
-  })
+  const effectiveReferenceDir =
+    referenceDir && hasReferenceFormMetadata({ referenceDir, formName }) ? referenceDir : undefined
+  const referenceForm = effectiveReferenceDir
+    ? readFormFromXML({
+        context: contextFromXML,
+        inputDir: effectiveReferenceDir,
+        formName,
+      })
+    : undefined
 
-  const formXML = exportClientApplicationFormToXML({ context, form, referenceForm })
+  const form = importClientApplicationFormFromYAML(contextWithFormExternalMetadata, yamlObj, referenceForm)
+  const isOrdinaryForm = form.formType === "Ordinary"
+  const referenceHasFormXML = effectiveReferenceDir
+    ? hasReferenceFormXML({ referenceDir: effectiveReferenceDir, formName })
+    : true
+
+  const formXML =
+    isOrdinaryForm && !referenceHasFormXML
+      ? undefined
+      : exportClientApplicationFormToXML({ context: contextWithFormExternalMetadata, form, referenceForm })
   const metadataXML = exportFormMetadataToXML({
-    context,
+    context: contextWithFormExternalMetadata,
     form,
     referenceForm: referenceForm,
     name: formName,
   })
 
-  await writeFormToXML({ context, formXML, metadataXML, formName, outputDir })
+  await writeFormToXML({
+    context: contextWithFormExternalMetadata,
+    formXML,
+    metadataXML,
+    formName,
+    outputDir,
+    xmlManifest: params.xmlManifest,
+  })
+  if (formXML !== undefined) {
+    contextWithFormExternalMetadata.exportToXML.externalMetadataCollector?.recordDerived({
+      itemsTree: contextWithFormExternalMetadata.exportToXML.itemsTree,
+      segment: "Form",
+    })
+  }
+  if (formXML !== undefined) {
+    await copyFormItemExternalFilesToXML({
+      formNkdkDir: formDir,
+      formXmlDir: join(outputDir, "Forms", formName, "Ext"),
+      xmlManifest: params.xmlManifest,
+    })
+  }
+  await copyFormHelpFilesToXML({ formDir, formName, outputDir, xmlManifest: params.xmlManifest })
+  await copyFormBinToXML({ formDir, formName, outputDir, xmlManifest: params.xmlManifest })
 }
 
-function readFormFiles(params: { inputDir: string; formName: string }): {
+function createFormExternalMetadataContext(params: {
+  context: ConfigurationContextWithExportToXML
+  formName: string
+}): ConfigurationContextWithExportToXML {
+  const formItem: ExternalMetadataContextItem = {
+    itemType: "ClientApplicationForm" as never,
+    name: params.formName,
+    path: `ClientApplicationForm.${params.formName}`,
+    externalMetadata: { segment: "Form", placement: "ownedEntry" },
+  }
+
+  return {
+    ...params.context,
+    exportToXML: {
+      ...params.context.exportToXML,
+      itemsTree: [...params.context.exportToXML.itemsTree, formItem],
+    },
+  }
+}
+
+async function readFormFiles(params: { inputDir: string; formName: string }): Promise<{
   yamlContent: string
-  nkdkContent: string
-} {
+  formDir: string
+}> {
   const { inputDir, formName } = params
   const formsDir = join(inputDir, "Формы")
   const formDir = join(formsDir, formName)
   const yamlPath = join(formDir, "Форма.yaml")
-  const nkdkPath = join(formDir, "Форма.nkdk")
 
-  const yamlContent = fs.readFileSync(yamlPath, "utf-8")
-  const nkdkContent = fs.readFileSync(nkdkPath, "utf-8")
+  const yamlContent = await fs.promises.readFile(yamlPath, "utf-8")
 
-  return { yamlContent, nkdkContent }
+  return { yamlContent, formDir }
 }
+
+const createFormScopedContext = (params: {
+  context: ConfigurationContextWithExportToXML
+  formDir: string
+  currentXMLPath?: string
+}): ConfigurationContextWithExportToXML => {
+  const { context, formDir, currentXMLPath } = params
+  const exportContext = context.exportToXML.context
+
+  if (exportContext === undefined) {
+    throw new Error("exportToXML.context обязателен для синхронизации формы в XML")
+  }
+
+  return {
+    ...context,
+    importFromYAML: {
+      ...(context.importFromYAML ?? {}),
+      formDir,
+    },
+    exportToXML: {
+      ...context.exportToXML,
+      context: {
+        ...exportContext,
+        metadataForNumbering: [],
+        currentXMLPath: currentXMLPath ?? exportContext.currentXMLPath,
+        propertiesItemXmlStack: [],
+      },
+    },
+  }
+}
+
+const hasReferenceFormXML = (params: { referenceDir: string; formName: string }): boolean =>
+  fs.existsSync(join(params.referenceDir, params.formName, "Ext", "Form.xml"))
+
+const hasReferenceFormMetadata = (params: { referenceDir: string; formName: string }): boolean =>
+  fs.existsSync(join(params.referenceDir, `${params.formName}.xml`))
 
 const writeFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
-  formXML: ClientApplicationFormXML
+  formXML: ClientApplicationFormXML | undefined
   metadataXML: FormMetadataXML
   formName: string
   outputDir: string
+  xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const { formXML, metadataXML, formName, outputDir } = params
 
@@ -95,33 +182,37 @@ const writeFormToXML = async (params: {
   const formExtDir = join(formsOutDir, formName, "Ext")
   const formXmlPath = join(formExtDir, "Form.xml")
 
-  fs.mkdirSync(formExtDir, { recursive: true })
+  await fs.promises.mkdir(formsOutDir, { recursive: true })
 
-  fs.writeFileSync(formMetadataPath, xmlExport({ MetaDataObject: metadataXML }), "utf-8")
-  fs.writeFileSync(formXmlPath, xmlExport({ Form: formXML }), "utf-8")
+  await fs.promises.writeFile(formMetadataPath, xmlExport({ MetaDataObject: metadataXML }), "utf-8")
+  params.xmlManifest?.addFile(formMetadataPath)
+  if (formXML !== undefined) {
+    await fs.promises.mkdir(formExtDir, { recursive: true })
+    await fs.promises.writeFile(formXmlPath, xmlExport({ Form: formXML }), "utf-8")
+    params.xmlManifest?.addFile(formXmlPath)
+  }
 }
 
-let parseHelperCached: ReturnType<typeof parseHelper<NkdkForm>> | null = null
-
-function getNkdKParse(): ReturnType<typeof parseHelper<NkdkForm>> {
-  if (!parseHelperCached) {
-    const services = createNkdkServices(EmptyFileSystem)
-    parseHelperCached = parseHelper<NkdkForm>(services.Nkdk)
-  }
-  return parseHelperCached
+const copyFormBinToXML = async (params: {
+  formDir: string
+  formName: string
+  outputDir: string
+  xmlManifest?: XmlWriteManifest
+}): Promise<void> => {
+  const sourcePath = join(params.formDir, "Form.bin")
+  const targetPath = join(params.outputDir, "Forms", params.formName, "Ext", "Form.bin")
+  await copyExistingRawFile({ sourcePath, targetPath, xmlManifest: params.xmlManifest })
 }
 
-const parseFormFromNkdKString = async (
-  context: ConfigurationContext,
-  nkdkString: string
-): Promise<ClientApplicationForm | undefined> => {
-  const nkdkParse = getNkdKParse()
-  const result = await nkdkParse(nkdkString)
-  if (!result || result.parseResult.parserErrors.length > 0) {
-    return undefined
-  }
-  return importClientApplicationFromFromNKDK({
-    context,
-    value: result.parseResult.value,
+const copyFormHelpFilesToXML = async (params: {
+  formDir: string
+  formName: string
+  outputDir: string
+  xmlManifest?: XmlWriteManifest
+}): Promise<void> => {
+  await copyRawDirectoryFiles({
+    sourceDir: join(params.formDir, "Справка", "_files"),
+    targetDir: join(params.outputDir, "Forms", params.formName, "Ext", "Help", "_files"),
+    xmlManifest: params.xmlManifest,
   })
 }

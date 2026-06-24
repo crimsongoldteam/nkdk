@@ -1,0 +1,41 @@
+<ButtonGroup name="ГруппаКнопок" id="7" DisplayImportance="VeryHigh">
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">false</xr:Value>
+	</UserVisible>
+	<Enabled>false</Enabled>
+	<ReadOnly>true</ReadOnly>
+	<EnableContentChange>true</EnableContentChange>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок элемента</v8:content>
+		</v8:item>
+	</Title>
+	<TitleTextColor>web:Crimson</TitleTextColor>
+	<TitleFont ref="style:LargeTextFont" kind="StyleItem"/>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+	<Width>10</Width>
+	<Height>15</Height>
+	<HorizontalStretch>true</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Center</GroupVerticalAlign>
+	<CommandSource>FormCommandPanelGlobalCommands</CommandSource>
+	<Representation>Compact</Representation>
+	<ExtendedTooltip name="ГруппаКнопокРасширеннаяПодсказка" id="8"/>
+	<ChildItems>
+		<Button name="ФормаКоманда1" id="11">
+			<Type>CommandBarButton</Type>
+			<CommandName>Form.Command.Команда1</CommandName>
+			<ExtendedTooltip name="ФормаКоманда1РасширеннаяПодсказка" id="12"/>
+		</Button>
+	</ChildItems>
+</ButtonGroup>

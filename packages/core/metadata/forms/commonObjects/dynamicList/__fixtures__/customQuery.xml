@@ -1,0 +1,307 @@
+<Settings xsi:type="DynamicList">
+	<AutoFillAvailableFields>false</AutoFillAvailableFields>
+	<ManualQuery>true</ManualQuery>
+	<DynamicDataRead>true</DynamicDataRead>
+	<QueryText>ВЫБРАТЬ
+Справочник1.Реквизит1 КАК Реквизит1
+ИЗ
+Справочник.Справочник1 КАК Справочник1</QueryText>
+	<Field xsi:type="dcssch:DataSetFieldField">
+		<dcssch:dataPath>Реквизит1</dcssch:dataPath>
+		<dcssch:field>Реквизит1</dcssch:field>
+		<dcssch:useRestriction>
+			<dcssch:condition>true</dcssch:condition>
+		</dcssch:useRestriction>
+	</Field>
+	<Field xsi:type="dcssch:DataSetFieldField">
+		<dcssch:dataPath>Наименование</dcssch:dataPath>
+		<dcssch:field>Наименование</dcssch:field>
+	</Field>
+	<Field xsi:type="dcssch:DataSetFieldField">
+		<dcssch:dataPath>ПометкаУдаления</dcssch:dataPath>
+		<dcssch:field>ПометкаУдаления</dcssch:field>
+	</Field>
+	<Field xsi:type="dcssch:DataSetFieldField">
+		<dcssch:dataPath>Ссылка</dcssch:dataPath>
+		<dcssch:field>Ссылка</dcssch:field>
+	</Field>
+	<Field xsi:type="dcssch:DataSetFieldField">
+		<dcssch:dataPath>Код</dcssch:dataPath>
+		<dcssch:field>Код</dcssch:field>
+	</Field>
+	<Field xsi:type="dcssch:DataSetFieldField">
+		<dcssch:dataPath>Предопределенный</dcssch:dataPath>
+		<dcssch:field>Предопределенный</dcssch:field>
+	</Field>
+	<Field xsi:type="dcssch:DataSetFieldField">
+		<dcssch:dataPath>ИмяПредопределенныхДанных</dcssch:dataPath>
+		<dcssch:field>ИмяПредопределенныхДанных</dcssch:field>
+	</Field>
+	<CalculatedField>
+		<dcssch:dataPath>Поле1</dcssch:dataPath>
+		<dcssch:expression>Истина</dcssch:expression>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Поле1</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:useRestriction>
+			<dcssch:field>true</dcssch:field>
+			<dcssch:group>true</dcssch:group>
+		</dcssch:useRestriction>
+		<dcssch:presentationExpression>Наименование</dcssch:presentationExpression>
+		<dcssch:orderExpression>
+			<expression xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Наименование</expression>
+			<orderType xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Asc</orderType>
+			<autoOrder xmlns="http://v8.1c.ru/8.1/data-composition-system/common">true</autoOrder>
+		</dcssch:orderExpression>
+		<dcssch:valueType>
+			<v8:Type>xs:string</v8:Type>
+			<v8:StringQualifiers>
+				<v8:Length>0</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+		</dcssch:valueType>
+	</CalculatedField>
+	<Parameter>
+		<dcssch:name>Параметр1</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Параметр1</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:value xsi:nil="true"/>
+		<dcssch:useRestriction>true</dcssch:useRestriction>
+		<dcssch:inputParameters>
+			<dcscor:item>
+				<dcscor:parameter>Маска</dcscor:parameter>
+				<dcscor:value xsi:type="xs:string">123</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>СвязиПараметровВыбора</dcscor:parameter>
+				<dcscor:value xsi:type="dcscor:ChoiceParameterLinks">
+					<dcscor:item>
+						<dcscor:choiceParameter>ПараметрВыбора</dcscor:choiceParameter>
+						<dcscor:value>Поле1</dcscor:value>
+						<dcscor:mode xsi:type="ent:LinkedValueChangeMode">DontChange</dcscor:mode>
+					</dcscor:item>
+				</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>ПараметрыВыбора</dcscor:parameter>
+				<dcscor:value xsi:type="dcscor:ChoiceParameters">
+					<dcscor:item>
+						<dcscor:choiceParameter>Параметр</dcscor:choiceParameter>
+						<dcscor:value xsi:type="xs:decimal">123</dcscor:value>
+					</dcscor:item>
+				</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>СвязьПоТипу</dcscor:parameter>
+				<dcscor:value xsi:type="dcscor:TypeLink">
+					<dcscor:field>Поле1</dcscor:field>
+					<dcscor:linkItem>2</dcscor:linkItem>
+				</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>ФормаВыбора</dcscor:parameter>
+				<dcscor:value xsi:type="xs:string">ФормаВыбора</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>ФорматРедактирования</dcscor:parameter>
+				<dcscor:value xsi:type="xs:string">ЧЦ=15; ЧДЦ=2</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>БыстрыйВыбор</dcscor:parameter>
+				<dcscor:value xsi:type="xs:boolean">true</dcscor:value>
+			</dcscor:item>
+			<dcscor:item>
+				<dcscor:parameter>ВыборГруппИЭлементов</dcscor:parameter>
+				<dcscor:value xsi:type="ent:FoldersAndItemsUse">Items</dcscor:value>
+			</dcscor:item>
+		</dcssch:inputParameters>
+		<dcssch:use>Always</dcssch:use>
+	</Parameter>
+	<Parameter>
+		<dcssch:name>Параметр2</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Параметр2</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:valueType>
+			<v8:Type>xs:boolean</v8:Type>
+			<v8:Type>xs:string</v8:Type>
+			<v8:Type>xs:dateTime</v8:Type>
+			<v8:Type>xs:decimal</v8:Type>
+			<v8:NumberQualifiers>
+				<v8:Digits>0</v8:Digits>
+				<v8:FractionDigits>0</v8:FractionDigits>
+				<v8:AllowedSign>Any</v8:AllowedSign>
+			</v8:NumberQualifiers>
+			<v8:StringQualifiers>
+				<v8:Length>0</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+			<v8:DateQualifiers>
+				<v8:DateFractions>DateTime</v8:DateFractions>
+			</v8:DateQualifiers>
+		</dcssch:valueType>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+		<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+	</Parameter>
+	<Parameter>
+		<dcssch:name>Параметр3</dcssch:name>
+		<dcssch:title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Параметр3</v8:content>
+			</v8:item>
+		</dcssch:title>
+		<dcssch:useRestriction>false</dcssch:useRestriction>
+		<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+	</Parameter>
+	<MainTable>Catalog.Справочник1</MainTable>
+	<ListSettings>
+		<dcsset:filter>
+			<dcsset:item xsi:type="dcsset:FilterItemComparison">
+				<dcsset:left xsi:type="dcscor:Field">Поле1</dcsset:left>
+				<dcsset:comparisonType>Contains</dcsset:comparisonType>
+				<dcsset:right xsi:type="xs:string"/>
+			</dcsset:item>
+			<dcsset:item xsi:type="dcsset:FilterItemComparison">
+				<dcsset:left xsi:type="dcscor:Field">Ссылка.Реквизит1</dcsset:left>
+				<dcsset:comparisonType>Equal</dcsset:comparisonType>
+				<dcsset:right xsi:type="dcscor:Field">ПараметрыДанных.Параметр1</dcsset:right>
+				<dcsset:presentation xsi:type="v8:LocalStringType">
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Английское</v8:content>
+					</v8:item>
+				</dcsset:presentation>
+			</dcsset:item>
+			<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Представление отбора</v8:content>
+				</v8:item>
+			</dcsset:userSettingPresentation>
+		</dcsset:filter>
+		<dcsset:dataParameters>
+			<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+				<dcscor:parameter>Параметр1</dcscor:parameter>
+				<dcscor:value xsi:type="dcscor:Field">ПараметрыДанных.Параметр1</dcscor:value>
+				<dcsset:userSettingID>21b52fc2-2b83-40f1-aa31-8dce4c9e7e9a</dcsset:userSettingID>
+			</dcscor:item>
+			<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+				<dcscor:parameter>Параметр2</dcscor:parameter>
+				<dcscor:value xsi:type="xs:decimal">111</dcscor:value>
+				<dcscor:value xsi:type="xs:dateTime">2026-03-27T00:00:00</dcscor:value>
+				<dcscor:value xsi:type="xs:boolean">false</dcscor:value>
+			</dcscor:item>
+			<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+				<dcscor:parameter>Параметр3</dcscor:parameter>
+			</dcscor:item>
+		</dcsset:dataParameters>
+		<dcsset:order>
+			<dcsset:item xsi:type="dcsset:OrderItemField">
+				<dcsset:field>Наименование</dcsset:field>
+				<dcsset:orderType>Asc</dcsset:orderType>
+			</dcsset:item>
+			<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Представление порядка</v8:content>
+				</v8:item>
+			</dcsset:userSettingPresentation>
+		</dcsset:order>
+		<dcsset:conditionalAppearance>
+			<dcsset:item>
+				<dcsset:selection>
+					<dcsset:item>
+						<dcsset:field>Наименование</dcsset:field>
+					</dcsset:item>
+					<dcsset:item>
+						<dcsset:field>ПометкаУдаления</dcsset:field>
+					</dcsset:item>
+				</dcsset:selection>
+				<dcsset:filter>
+					<dcsset:item xsi:type="dcsset:FilterItemComparison">
+						<dcsset:left xsi:type="dcscor:Field">Наименование</dcsset:left>
+						<dcsset:comparisonType>Contains</dcsset:comparisonType>
+						<dcsset:right xsi:type="xs:string">Текст</dcsset:right>
+					</dcsset:item>
+				</dcsset:filter>
+				<dcsset:appearance>
+					<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+						<dcscor:parameter>Текст</dcscor:parameter>
+						<dcscor:value xsi:type="v8:LocalStringType">
+							<v8:item>
+								<v8:lang>ru</v8:lang>
+								<v8:content>6678</v8:content>
+							</v8:item>
+						</dcscor:value>
+					</dcscor:item>
+				</dcsset:appearance>
+			</dcsset:item>
+			<dcsset:userSettingID>b75fecce-942b-4aed-abc9-e6a02e460fb3</dcsset:userSettingID>
+			<dcsset:userSettingPresentation xsi:type="v8:LocalStringType">
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Представление условного оформления</v8:content>
+				</v8:item>
+			</dcsset:userSettingPresentation>
+		</dcsset:conditionalAppearance>
+		<dcsset:item xsi:type="dcsset:StructureItemGroup">
+			<dcsset:groupItems>
+				<dcsset:item xsi:type="dcsset:GroupItemField">
+					<dcsset:field>Наименование</dcsset:field>
+					<dcsset:groupType>Items</dcsset:groupType>
+					<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
+					<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
+					<dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
+				</dcsset:item>
+			</dcsset:groupItems>
+			<dcsset:item xsi:type="dcsset:StructureItemGroup">
+				<dcsset:groupItems>
+					<dcsset:item xsi:type="dcsset:GroupItemAuto">
+						<dcsset:use>false</dcsset:use>
+					</dcsset:item>
+				</dcsset:groupItems>
+				<dcsset:item xsi:type="dcsset:StructureItemGroup">
+					<dcsset:groupItems>
+						<dcsset:item xsi:type="dcsset:GroupItemField">
+							<dcsset:use>false</dcsset:use>
+							<dcsset:field>ПометкаУдаления</dcsset:field>
+							<dcsset:groupType>Items</dcsset:groupType>
+							<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
+							<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
+							<dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
+						</dcsset:item>
+					</dcsset:groupItems>
+					<dcsset:item xsi:type="dcsset:StructureItemGroup">
+						<dcsset:groupItems>
+							<dcsset:item xsi:type="dcsset:GroupItemField">
+								<dcsset:field>Ссылка</dcsset:field>
+								<dcsset:groupType>Items</dcsset:groupType>
+								<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
+								<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
+								<dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
+							</dcsset:item>
+						</dcsset:groupItems>
+					</dcsset:item>
+				</dcsset:item>
+			</dcsset:item>
+		</dcsset:item>
+		<dcsset:itemsUserSettingID>911b6018-f537-43e8-a417-da56b22f9aec</dcsset:itemsUserSettingID>
+		<dcsset:itemsUserSettingPresentation xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Представление группировки</v8:content>
+			</v8:item>
+		</dcsset:itemsUserSettingPresentation>
+	</ListSettings>
+</Settings>

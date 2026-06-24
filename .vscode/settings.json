@@ -23,8 +23,5 @@
     "**/node_modules": true,
     "**/dist": true,
     "**/yarn.lock": true
-  },
-  "[bsl]": {
-    "editor.defaultFormatter": "1c-syntax.language-1c-bsl"
   }
 }

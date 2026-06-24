@@ -1,8 +1,8 @@
-import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { exportUserVisibleToYAMLDeprecated } from "~/metadata/commonObjects/userVisible/toYAML"
+import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/toYAML"
 import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { StandardCommandsGroupToYAML } from "~/metadata/systemEnumerations/types"
+import type { StandardCommandsGroup } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemYAML, CommandInterfaceYAML } from "./types"
@@ -29,6 +29,15 @@ export const exportCommandInterfaceToYAML = (
   return result
 }
 
+const isStandardCommandsGroup = (commandGroup: string): commandGroup is StandardCommandsGroup =>
+  commandGroup in StandardCommandsGroupToYAML
+
+const exportCommandGroupToYAML = (commandGroup: StandardCommandsGroup | string): string => {
+  if (isStandardCommandsGroup(commandGroup)) return StandardCommandsGroupToYAML[commandGroup]
+
+  return commandGroup
+}
+
 const exportCommandInterfaceItemToYAML = (
   context: ConfigurationContext,
   item: CommandInterfaceItem
@@ -36,18 +45,26 @@ const exportCommandInterfaceItemToYAML = (
   const result: CommandInterfaceItemYAML = {
     Команда: item.command,
     Тип: item.type,
-    Автовидимость: exportBooleanToYAML(context, undefined, item.defaultVisible)!,
+  }
+
+  if (item.attribute !== undefined) {
+    result.Реквизит = item.attribute
+  }
+
+  if (item.defaultVisible === false) {
+    result.Автовидимость = "Ложь"
+  }
+
+  if (item.index !== undefined) {
+    result.Индекс = item.index
   }
 
   if (item.commandGroup) {
-    result.ГруппаКоманд = StandardCommandsGroupToYAML[item.commandGroup]
+    result.ГруппаКоманд = exportCommandGroupToYAML(item.commandGroup)
   }
 
-  if (item.visible && item.visible.values.length > 0) {
-    const visibleYAML = exportUserVisibleToYAMLDeprecated(context, undefined, item.visible, {
-      allow: UserVisibleKeysYAML.Allow,
-      deny: UserVisibleKeysYAML.Deny,
-    })
+  if (item.visible) {
+    const visibleYAML = exportUserVisibleToYAML(context, { type: "UserVisible", yaml: UserVisibleKeysYAML.Value }, item.visible)
     if (visibleYAML) {
       Object.assign(result, visibleYAML)
     }

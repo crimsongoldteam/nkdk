@@ -1,4 +1,5 @@
 import { Static, Type } from "@sinclair/typebox"
+import { StringboolXML } from "~/metadata/commonObjects/boolean/types"
 import {
   TypeDescription,
   TypeDescriptionJSONSchema,
@@ -7,7 +8,7 @@ import {
 
 export interface FormParameter {
   name: string
-  type: TypeDescription
+  type?: TypeDescription
   keyParameter?: boolean
 }
 
@@ -15,14 +16,14 @@ export type FormParameters = FormParameter[]
 
 export interface FormParameterXML {
   _name: string
-  Type: TypeDescriptionXML
-  KeyParameter?: boolean
+  Type?: TypeDescriptionXML
+  KeyParameter?: StringboolXML
 }
 
 export type FormParametersXML = FormParameterXML | FormParameterXML[]
 
 export const FormParameterJSONSchema = Type.Object({
-  Тип: TypeDescriptionJSONSchema,
+  Тип: Type.Optional(TypeDescriptionJSONSchema),
   Ключевой: Type.Optional(Type.Boolean()),
 })
 

@@ -1,0 +1,23 @@
+<Attribute name="Макет" id="1">
+	<Type>
+		<v8:Type xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet">mxl:SpreadsheetDocument</v8:Type>
+	</Type>
+	<Settings xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet" xsi:type="mxl:SpreadsheetDocument">
+		<mxl:languageSettings>
+			<mxl:currentLanguage/>
+			<mxl:defaultLanguage/>
+		</mxl:languageSettings>
+		<mxl:columns>
+			<mxl:size>3</mxl:size>
+		</mxl:columns>
+		<mxl:rowsItem>
+			<mxl:index>0</mxl:index>
+			<mxl:row>
+				<mxl:empty>true</mxl:empty>
+			</mxl:row>
+		</mxl:rowsItem>
+		<mxl:format>
+			<mxl:width>72</mxl:width>
+		</mxl:format>
+	</Settings>
+</Attribute>

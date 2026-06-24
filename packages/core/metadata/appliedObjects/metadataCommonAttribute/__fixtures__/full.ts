@@ -1,0 +1,65 @@
+import { MetadataCommonAttribute, MetadataCommonAttributeYAML } from "../types"
+import { explicitYAMLString } from "~/yaml/explicitString"
+
+export const full: MetadataCommonAttribute = {
+  itemType: "MetadataCommonAttribute",
+  name: "ОбщийРеквизитВсеСвойства",
+  synonym: { items: { ru: "Синоним" } },
+  comment: "Комментарий",
+  type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
+  passwordMode: true,
+  format: { items: { ru: "ЧЦ=15; ЧДЦ=2" } },
+  editFormat: { items: { ru: "ЧЦ=15; ЧДЦ=2" } },
+  toolTip: { items: { ru: "Подсказка" } },
+  markNegatives: true,
+  mask: "Маска",
+  multiLine: true,
+  extendedEdit: true,
+  minValue: 4,
+  maxValue: 96,
+  fillValue: { type: "string", value: "Значение" },
+  fillChecking: "ShowError",
+  createOnInput: "DontUse",
+  linkByType: {
+    dataPath: "-2",
+    linkItem: 1,
+  },
+  choiceHistoryOnInput: "DontUse",
+  content: [
+    { metadata: "ChartOfAccounts.ПланСчетовВсеСвойства", use: "Use", conditionalSeparation: "" },
+    { metadata: "Catalog.СправочникОбщиеРеквизиты", use: "Use", conditionalSeparation: "" },
+    { metadata: "ChartOfCalculationTypes.ПланРасчетаВсеСвойства", use: "DontUse", conditionalSeparation: "" },
+  ],
+  fullTextSearch: "DontUse",
+}
+
+export const fullYAML: MetadataCommonAttributeYAML = {
+  Синоним: "Синоним",
+  Комментарий: "Комментарий",
+  Тип: "Строка(10)",
+  РежимПароля: "Истина",
+  Формат: "ЧЦ=15; ЧДЦ=2",
+  ФорматРедактирования: "ЧЦ=15; ЧДЦ=2",
+  Подсказка: "Подсказка",
+  ВыделятьОтрицательные: "Истина",
+  Маска: "Маска",
+  МногострочныйРежим: "Истина",
+  РасширенноеРедактирование: "Истина",
+  МинимальноеЗначение: 4,
+  МаксимальноеЗначение: 96,
+  ЗначениеЗаполнения: explicitYAMLString("Значение"),
+  ПроверкаЗаполнения: "ВыдаватьОшибку",
+  СозданиеПриВводе: "НеИспользовать",
+  СвязьПоТипу: "-2(1)",
+  ИсторияВыбораПриВводе: "НеИспользовать",
+  Состав: [
+    { Объект: "ПланСчетов.ПланСчетовВсеСвойства", Использование: "Использовать", УсловноеРазделение: "" },
+    { Объект: "Справочники.СправочникОбщиеРеквизиты", Использование: "Использовать", УсловноеРазделение: "" },
+    {
+      Объект: "ПланыВидовРасчета.ПланРасчетаВсеСвойства",
+      Использование: "НеИспользовать",
+      УсловноеРазделение: "",
+    },
+  ],
+  ПолнотекстовыйПоиск: "НеИспользовать",
+}

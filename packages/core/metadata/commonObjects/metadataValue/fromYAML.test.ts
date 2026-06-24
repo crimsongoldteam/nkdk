@@ -1,146 +1,150 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { metadataValueFixtures } from "~/metadata/commonObjects/metadataValue/__fixtures__/data"
+import { mockContext } from "~/tests/mockContext"
+import { explicitYAMLString } from "~/yaml/explicitString"
 import { importMetadataValueFromYAML } from "./fromYAML"
-import { MetadataFixedArrayValueYAML, MetadataFormChoiceListValueYAML, MetadataValueYAML } from "./types"
+import { MetadataFormChoiceListValueYAML, MetadataValueYAML } from "./types"
 
 describe("importMetadataValueFromYAML", () => {
-  it("should import string value from YAML", () => {
-    const data: MetadataValueYAML = '"Текстовое значение"'
+  it.each(metadataValueFixtures)("should import $name value from YAML", (fixture) => {
+    const result = importMetadataValueFromYAML(
+      mockContext,
+      fixture.rule as any,
+      fixture.YAML as MetadataValueYAML | MetadataFormChoiceListValueYAML
+    )
 
-    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
+    expect(result).toEqual(fixture.YAML === undefined ? undefined : fixture.internal)
+  })
+
+  it("imports DataCompositionComparisonType from YAML", () => {
+    const result = importMetadataValueFromYAML(
+      mockContext,
+      { type: "MetadataValue", valueType: ["DataCompositionComparisonType"] } as any,
+      "Равно"
+    )
+
+    expect(result).toEqual({ type: "DataCompositionComparisonType", value: "Equal" })
+  })
+
+  it("imports AccountType from explicit YAML", () => {
+    const result = importMetadataValueFromYAML(mockContext, { type: "MetadataValue" } as any, {
+      Тип: "ВидСчета",
+      Значение: "АктивноПассивный",
+    } as any)
+
+    expect(result).toEqual({ type: "AccountType", value: "ActivePassive" })
+  })
+
+  it("imports compact form choice list object unless it is an explicit typed value", () => {
+    const result = importMetadataValueFromYAML(mockContext, { type: "MetadataValue" } as any, {
+      Значение: "Истина",
+    })
 
     expect(result).toEqual({
-      type: "string",
-      value: "Текстовое значение",
+      type: "formChoiceListDesTimeValue",
+      value: { type: "boolean", value: true },
     })
   })
 
-  it("should import boolean value from YAML", () => {
-    const data: MetadataValueYAML = "Истина"
-
-    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual({
-      type: "boolean",
-      value: true,
+  it("imports metadata target value references from YAML", () => {
+    expect(
+      importMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        "Справочник.СтавкиНДС.ПустаяСсылка"
+      )
+    ).toEqual({
+      type: "ref",
+      value: "Catalog.СтавкиНДС.EmptyRef",
     })
-  })
 
-  it("should import decimal value from YAML", () => {
-    const data: MetadataValueYAML = "0"
-
-    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual({
-      type: "decimal",
-      value: 0,
-    })
-  })
-
-  it("should import dateTime value from YAML", () => {
-    const data: MetadataValueYAML = "24.12.2025 12:00:00"
-
-    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual({
-      type: "dateTime",
-      value: "2025-12-24T12:00:00",
-    })
-  })
-
-  it("should import enum (ref) value from YAML", () => {
-    const data: MetadataValueYAML = "Перечисление.ВидыДоговоров.СПоставщиком"
-
-    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual({
+    expect(
+      importMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        "Перечисление.ВидыДоговоров.СПоставщиком"
+      )
+    ).toEqual({
       type: "ref",
       value: "Enum.ВидыДоговоров.EnumValue.СПоставщиком",
     })
   })
 
-  it("should import catalog (ref) value from YAML", () => {
-    const data: MetadataValueYAML = "Справочник.Пользователи.ПустаяСсылка"
-
-    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual({
+  it("imports metadata object references from YAML as ref values", () => {
+    expect(
+      importMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        "Документ.ПоступлениеБезналичныхДенежныхСредств"
+      )
+    ).toEqual({
       type: "ref",
-      value: "Catalog.Пользователи.EmptyRef",
+      value: "Document.ПоступлениеБезналичныхДенежныхСредств",
     })
   })
 
-  it("should import fixedArray value from YAML", () => {
-    const data: MetadataFixedArrayValueYAML = [
-      "Перечисление.ТипыСчетов.КосвенныеЗатраты",
-      "Перечисление.ТипыСчетов.Расходы",
-    ]
+  it("rejects legacy model-root value references in YAML", () => {
+    expect(() =>
+      importMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        "Catalog.СтавкиНДС.PredefinedData.БезНДС"
+      )
+    ).toThrow('Неизвестный корень "Catalog"')
+  })
 
-    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual({
-      type: "fixedArray",
-      value: [
-        {
-          type: "ref",
-          value: "Enum.ТипыСчетов.EnumValue.КосвенныеЗатраты",
-        },
-        {
-          type: "ref",
-          value: "Enum.ТипыСчетов.EnumValue.Расходы",
-        },
-      ],
+  it("keeps uuid design-time references as ref values", () => {
+    expect(
+      importMetadataValueFromYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231"
+      )
+    ).toEqual({
+      type: "ref",
+      value: "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231",
     })
   })
 
-  it("should import FormChoiceListDesTimeValue from YAML", () => {
-    const data: MetadataValueYAML = '"ФЛ"(Физическое лицо)'
+  it("imports explicit YAML string marker as string MetadataValue without valueType", () => {
+    const result = importMetadataValueFromYAML(
+      mockContext,
+      { type: "MetadataValue" } as any,
+      explicitYAMLString("456") as any
+    )
 
-    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual({
-      type: "formChoiceListDesTimeValue",
-      presentation: {
-        items: {
-          ru: "Физическое лицо",
-        },
-      },
-      value: {
-        type: "string",
-        value: "ФЛ",
-      },
-    })
+    expect(result).toEqual({ type: "string", value: "456" })
   })
 
-  it("should import multilanguage FormChoiceListDesTimeValue from YAML", () => {
-    const data: MetadataFormChoiceListValueYAML = {
-      Представление: {
-        ru: "Физическое лицо",
-        en: "Physical person",
-      },
-      Значение: '"ФЛ"',
-    }
-
-    const result = importMetadataValueFromYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual({
-      type: "formChoiceListDesTimeValue",
-      presentation: {
-        items: {
-          ru: "Физическое лицо",
-          en: "Physical person",
-        },
-      },
-      value: {
-        type: "string",
-        value: "ФЛ",
-      },
+  describe("строгая валидация valueType", () => {
+    it("должен бросить при valueType: [string] и фактическом boolean (Истина)", () => {
+      expect(() =>
+        importMetadataValueFromYAML(mockContext, { type: "MetadataValue", valueType: ["string"] } as any, "Истина")
+      ).toThrowError("MetadataValue: ожидались [string], получен boolean в fromYAML")
     })
-  })
 
-  it("should return undefined for undefined input", () => {
-    const result = importMetadataValueFromYAML(mockContext, mockRule, undefined)
+    it("должен бросить при valueType: [string] и фактическом decimal", () => {
+      expect(() =>
+        importMetadataValueFromYAML(mockContext, { type: "MetadataValue", valueType: ["string"] } as any, 10)
+      ).toThrowError("MetadataValue: ожидались [string], получен decimal в fromYAML")
+    })
 
-    expect(result).toBeUndefined()
+    it("должен бросить при valueType: [string] и объектном FormChoiceListDesTimeValue", () => {
+      expect(() =>
+        importMetadataValueFromYAML(mockContext, { type: "MetadataValue", valueType: ["string"] } as any, {
+          Представление: "Физическое лицо",
+          Значение: '"ФЛ"',
+        })
+      ).toThrowError("MetadataValue: ожидались [string], получен formChoiceListDesTimeValue в fromYAML")
+    })
+
+    it("не перехватывает объект с неизвестным вариантом как StandardPeriod", () => {
+      const result = importMetadataValueFromYAML(mockContext, undefined, {
+        Вариант: "ПроизвольнаяДата",
+        Дата: "01.01.0001 00:00:00",
+      } as any)
+
+      expect(result).toBeUndefined()
+    })
   })
 })

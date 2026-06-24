@@ -1,3 +1,4 @@
+import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
 import {
   fullMetadataAttributes,
@@ -8,37 +9,88 @@ import {
   shortMetadataAttributeYAML,
   shortMultilanguageMetadataAttribute,
   shortMultilanguageMetadataAttributeYAML,
-} from "~/tests/fixtures/metadataAttribute/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importMetadataAttributesFromYAML } from "./fromYAML"
+} from "./__fixtures__/data"
+import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { mockContext } from "~/tests/mockContext"
+import { exportMetadataAttributesToJSONSchema } from "./register"
+import { importPropertyFromYAML } from "~/metadata/orchestration/property/fromYAML"
+import type { ConfigurationContext } from "~/metadata/context/types"
 
-describe("importMetadataAttributeFromYAML", () => {
+const rule = { type: "MetadataAttributes" } as const
+const metadataAttributeOwnerContext: ConfigurationContext = {
+  ...mockContext,
+  importFromYAML: {
+    metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Справочник" }],
+  },
+}
+
+describe("import MetadataAttributes from YAML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importMetadataAttributesFromYAML(mockContext, mockRule, undefined)
+    const result = testImportPropertyFromYAML({ rule, value: undefined })
     expect(result).toBeUndefined()
   })
 
   it("should import full", () => {
-    const result = importMetadataAttributesFromYAML(mockContext, mockRule, fullMetadataAttributesYAML)
-
+    const result = importPropertyFromYAML({
+      context: metadataAttributeOwnerContext,
+      rule,
+      value: fullMetadataAttributesYAML,
+    })
     expect(result).toEqual(fullMetadataAttributes)
   })
 
   it("should import minimal", () => {
-    const result = importMetadataAttributesFromYAML(mockContext, mockRule, minimalMetadataAttributesYAML)
-
+    const result = testImportPropertyFromYAML({ rule, value: minimalMetadataAttributesYAML })
     expect(result).toEqual(minimalMetadataAttributes)
   })
 
-  it("should import with short format", () => {
-    const result = importMetadataAttributesFromYAML(mockContext, mockRule, shortMetadataAttributeYAML)
-
+  it("should import object format", () => {
+    const result = testImportPropertyFromYAML({ rule, value: shortMetadataAttributeYAML })
     expect(result).toEqual(shortMetadataAttribute)
   })
 
-  it("should import short multilanguage format", () => {
-    const result = importMetadataAttributesFromYAML(mockContext, mockRule, shortMultilanguageMetadataAttributeYAML)
+  it("should reject scalar short format", () => {
+    expect(() =>
+      testImportPropertyFromYAML({
+        rule,
+        value: {
+          ТестовыйРеквизит: "Строка",
+        },
+      })
+    ).toThrow("MetadataAttribute: ожидался YAML-объект")
+  })
 
+  it("should import TypeDescription typeId object format", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: {
+        ТестовыйРеквизит: { Тип: { ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] } },
+      },
+    })
+
+    expect(result).toEqual([
+      {
+        itemType: "MetadataAttribute",
+        name: "ТестовыйРеквизит",
+        type: {
+          type: [],
+          typeId: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"],
+        },
+        synonym: { items: { ru: "Тестовый реквизит" } },
+      },
+    ])
+  })
+
+  it("should import multilanguage object format", () => {
+    const result = testImportPropertyFromYAML({ rule, value: shortMultilanguageMetadataAttributeYAML })
     expect(result).toEqual(shortMultilanguageMetadataAttribute)
+  })
+
+  it("should reject scalar values in JSON Schema", () => {
+    const schema = exportMetadataAttributesToJSONSchema({ context: mockContext, rule, value: undefined })
+    const compiled = TypeCompiler.Compile(schema)
+
+    expect(compiled.Check({ Организация: "Справочник.Организации" })).toBe(false)
+    expect(compiled.Check({ Организация: { Тип: "Справочник.Организации" } })).toBe(true)
   })
 })

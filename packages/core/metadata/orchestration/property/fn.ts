@@ -4,8 +4,14 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
+import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
+import type { ProjectMetadataResolver } from "~/metadata/validation/projectMetadataResolver"
+import type { Diagnostic } from "~/metadata/validation/types"
+import type { YamlPath } from "~/metadata/validation/yamlLocations"
+import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { XmlWriteManifest } from "../xmlWriteManifest"
 import { PropertyRuleType } from "./registry"
-import { MetadataItem, PropertyRule } from "./types"
+import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContextWithExportToXML,
@@ -22,19 +28,21 @@ export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
   value: any
 }) => any | undefined
 
-export type importFromXMLFunction = (
+export type ImportFromXMLFunction = (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
-  xml: any
+  xml: any,
+  ownerXmlName?: string
 ) => any | undefined
 
-export type importFromYAMLFunctionNew = (params: {
+export type ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   yaml?: any
   source?: any
   value: any
   name?: string
+  owner?: MetadataTargetOwner
 }) => any | undefined
 
 export type importFromYAMLFunction = (
@@ -55,6 +63,7 @@ export type ExportToYAMLFunctionNew = (params: {
   rule: PropertyRule
   value: any
   name?: string
+  owner?: MetadataTargetOwner
 }) => any | undefined
 
 export type ExportToEnterpriseFunction = (params: {
@@ -69,13 +78,69 @@ export type ExportToJSONSchemaFn = (params: {
   value: any | undefined
 }) => TSchema | undefined
 
+export type ValidateMetadataTargetFunction = (params: {
+  filePath: string
+  parsed: ParsedYaml
+  yamlPath: YamlPath
+  propRule: PropertyRule
+  propertyName: string
+  value: unknown
+  resolver: ProjectMetadataResolver
+  owner?: MetadataTargetOwner
+}) => Diagnostic[]
+
+/**
+ * Хендлер для свойств, хранящих значение во внешних файлах (Help.xml, .bsl, формы).
+ * Вызывается оркестратором в сторону nkdk — читает XML-сторону и пишет nkdk-сторону.
+ * xmlDir и nkdkDir — директории конкретного объекта метаданных (родитель объекта).
+ * name — имя самого объекта метаданных, нужно для построения путей к подресурсам объекта (Forms/, Templates/).
+ * itemName задаётся при обходе дочерних коллекций (например, команд с функциональными путями).
+ */
+export type SyncExternalFromXMLFunction = (params: {
+  context: ConfigurationContextFromXML
+  rule: PropertyRule
+  xmlDir: string
+  nkdkDir: string
+  name: string
+  itemName?: string
+}) => Promise<void>
+
+/**
+ * Хендлер для свойств, хранящих значение во внешних файлах (Help.xml, .bsl, формы).
+ * Вызывается оркестратором в сторону XML — читает nkdk-сторону и пишет XML-сторону.
+ * referenceDir — родитель эталонной директории объекта; используется для round-trip в свойствах,
+ * которые читают эталонный XML (например, формы). Опциональное поле.
+ */
+export type SyncExternalToXMLFunction = (params: {
+  context: ConfigurationContextWithExportToXML
+  rule: PropertyRule
+  nkdkDir: string
+  xmlDir: string
+  name: string
+  referenceDir?: string
+  referenceName?: string
+  propertyValue?: unknown
+  referencePropertyValue?: unknown
+  xmlManifest?: XmlWriteManifest
+  itemName?: string
+  currentXMLDir?: string
+}) => Promise<void>
+
+export interface CollectionItemRule {
+  itemRule: MetadataItemRule
+}
+
 export interface TypeRule {
-  importFromXML?: importFromXMLFunction
+  importFromXML?: ImportFromXMLFunction
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
-  importFromYAML?: importFromYAMLFunction | importFromYAMLFunctionNew
+  importFromYAML?: importFromYAMLFunction | ImportFromYAMLFunctionNew
   exportToYAML?: ExportToYAMLFunction | ExportToYAMLFunctionNew
   exportToEnterprise?: ExportToEnterpriseFunction
   exportToJSONSchema?: ExportToJSONSchemaFn
+  collectionItemRule?: CollectionItemRule
+  syncExternalFromXML?: SyncExternalFromXMLFunction
+  syncExternalToXML?: SyncExternalToXMLFunction
+  validateMetadataTarget?: ValidateMetadataTargetFunction
 }
 
 export type TypeRulesOperations =
@@ -85,6 +150,10 @@ export type TypeRulesOperations =
   | "exportToYAML"
   | "exportToEnterprise"
   | "exportToJSONSchema"
+  | "collectionItemRule"
+  | "syncExternalFromXML"
+  | "syncExternalToXML"
+  | "validateMetadataTarget"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -92,15 +161,23 @@ export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOp
 }
 
 export type importExportFunction<O extends TypeRulesOperations> = O extends "importFromYAML"
-  ? importFromYAMLFunctionNew | importFromYAMLFunction | undefined
+  ? ImportFromYAMLFunctionNew | importFromYAMLFunction | undefined
   : O extends "exportToYAML"
     ? ExportToYAMLFunction | ExportToYAMLFunctionNew | undefined
     : O extends "exportToXML"
       ? ExportToXMLFunction | ExportToXMLFunctionNew | undefined
       : O extends "importFromXML"
-        ? importFromXMLFunction | undefined
+        ? ImportFromXMLFunction | undefined
         : O extends "exportToEnterprise"
-          ? ExportToEnterpriseFunction | undefined
-          : O extends "exportToJSONSchema"
-            ? ExportToJSONSchemaFn | undefined
-            : never
+      ? ExportToEnterpriseFunction | undefined
+      : O extends "exportToJSONSchema"
+        ? ExportToJSONSchemaFn | undefined
+          : O extends "collectionItemRule"
+            ? CollectionItemRule | undefined
+            : O extends "syncExternalFromXML"
+              ? SyncExternalFromXMLFunction | undefined
+              : O extends "syncExternalToXML"
+                ? SyncExternalToXMLFunction | undefined
+                : O extends "validateMetadataTarget"
+                  ? ValidateMetadataTargetFunction | undefined
+                  : never

@@ -5,14 +5,23 @@ import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
 export interface PictureXML {
   "xr:Ref"?: string
   "xr:Abs"?: string
-  "xr:LoadTransparent": boolean
+  "xr:LoadTransparent"?: boolean
   "xr:TransparentPixel"?: {
     _x: string | number
     _y: string | number
   }
 }
 
-export interface Picture {
+export type RawPictureRef = {
+  rawRef: string
+  loadTransparent?: boolean
+  transparentPixel?: {
+    x: number
+    y: number
+  }
+}
+
+export interface LinkedPicture {
   ref: string | SE.PictureLib
   type: "StandardPicture" | "CommonPicture" | "AbsolutePicture"
   loadTransparent: boolean
@@ -20,6 +29,18 @@ export interface Picture {
     x: number
     y: number
   }
+}
+
+export type Picture = LinkedPicture | RawPictureRef
+
+export function isRawPictureRef(picture: Picture): picture is RawPictureRef {
+  return "rawRef" in picture
+}
+
+const rawPictureRefPattern = /^0(?::[0-9a-fA-F-]+)?$/
+
+export function isRawPictureRefValue(ref: string): boolean {
+  return rawPictureRefPattern.test(ref)
 }
 
 export type PictureYAMLRef = string | SE.PictureLibYAML
@@ -30,10 +51,15 @@ export interface PictureYAMLExtended {
   ПрозрачныйПиксель?: { x: number; y: number }
 }
 
+const PictureRefJSONSchema = Type.String({
+  examples: ["БизнесПроцесс", "ОбщаяКартинка.Логотип", "Picture.png"],
+  description: "Стандартная картинка, ссылка на общую картинку вида ОбщаяКартинка.<ИмяОбщейКартинки> или путь к файлу.",
+})
+
 export const PictureJSONSchema = Type.Union([
-  Type.String(),
+  PictureRefJSONSchema,
   Type.Object({
-    Ссылка: Type.Union([Type.String()]),
+    Ссылка: PictureRefJSONSchema,
     ПрозрачныйФон: Type.Optional(BooleanJSONSchema),
     ПрозрачныйПиксель: Type.Optional(Type.Object({ x: Type.Number(), y: Type.Number() })),
   }),

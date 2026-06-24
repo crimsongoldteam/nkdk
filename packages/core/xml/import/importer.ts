@@ -19,16 +19,23 @@ export const I8N_TEXT_FIELDS = [
   "ExtendedObjectPresentation",
 ]
 
-export const importContentFromXML = <T>(data: string): T => {
+export type ImportContentFromXMLOptions = {
+  preserveXsiNil?: true
+}
+
+export const importContentFromXML = <T>(data: string, importOptions: ImportContentFromXMLOptions = {}): T => {
   const parser = new XMLParser({
     preserveOrder: true,
     attributeNamePrefix: "_",
     attributesGroupName: "@attributes",
-    ignoreAttributes: ["xsi:nil"],
+    ignoreAttributes: false,
+    parseTagValue: false,
+    numberParseOptions: { leadingZeros: false, hex: true, eNotation: true },
+    trimValues: false,
   })
   const parsedData = parser.parse(data)
 
-  let options = { ...defaultOptions }
+  let options = { ...defaultOptions, ...importOptions }
   options.isArray = (name: string, _jPath: string, _isLeaf: boolean) => {
     return name === "ChildItems"
   }
@@ -51,7 +58,7 @@ const defaultOptions = {
   removeNSPrefix: false, // remove NS from tag name or attribute name if true
   allowBooleanAttributes: false, //a tag can have attributes without any value
   //ignoreRootElement : false,
-  parseTagValue: true,
+  parseTagValue: false,
   parseAttributeValue: false,
   trimValues: true, //Trim string values of tag and attributes
   cdataPropName: false,
@@ -87,6 +94,8 @@ const defaultOptions = {
 function compress(arr: any[], options: any, jPath: string): any {
   let text: any
   let compressedObj: any
+  const childOrder: Array<{ key: string; index: number }> = []
+  const childCounts: Record<string, number> = {}
   if (options.preserveOrder) {
     compressedObj = []
   } else {
@@ -105,6 +114,11 @@ function compress(arr: any[], options: any, jPath: string): any {
     } else if (property === undefined) {
       continue
     } else if (property) {
+      const propertyIndex = childCounts[property] ?? 0
+      childCounts[property] = propertyIndex + 1
+      if (!options.preserveOrder) {
+        childOrder.push({ key: property, index: propertyIndex })
+      }
       // Check for attributes first - they can be in different locations depending on parser config
       // With preserveOrder: true and attributesGroupName: "@attributes", they're in tagObj[":@"]["@attributes"]
       // Otherwise they might be in tagObj["@attributes"] or tagObj[":@"]
@@ -128,15 +142,16 @@ function compress(arr: any[], options: any, jPath: string): any {
         val = attrs ? {} : undefined
       }
 
+      let assignedAttributesCount = 0
       if (attrs) {
         // Ensure val is an object to assign attributes to
         if (val === undefined || (typeof val === "object" && Object.keys(val).length === 0 && !Array.isArray(val))) {
           val = {}
         }
-        assignAttributes(val, attrs, newJpath, options)
+        assignedAttributesCount = assignAttributes(val, attrs, newJpath, options)
       }
 
-      if (!attrs) {
+      if (!attrs || assignedAttributesCount === 0) {
         if (val && typeof val === "object" && !Array.isArray(val)) {
           if (
             Object.keys(val).length === 1 &&
@@ -156,7 +171,7 @@ function compress(arr: any[], options: any, jPath: string): any {
         continue
       }
 
-      if (compressedObj[property] !== undefined && compressedObj.hasOwnProperty(property)) {
+      if (compressedObj.hasOwnProperty(property)) {
         if (!isArray && !Array.isArray(compressedObj[property])) {
           compressedObj[property] = [compressedObj[property]]
         }
@@ -169,6 +184,12 @@ function compress(arr: any[], options: any, jPath: string): any {
   if (typeof text === "string") {
     if (text.length > 0) compressedObj[options.textNodeName] = text
   } else if (text !== undefined) compressedObj[options.textNodeName] = text
+  if (!options.preserveOrder && childOrder.length > 0 && compressedObj && typeof compressedObj === "object") {
+    Object.defineProperty(compressedObj, METADATA_SYMBOL, {
+      value: { childOrder },
+      enumerable: false,
+    })
+  }
   return compressedObj
 }
 
@@ -181,19 +202,36 @@ function propName(obj: any): string | undefined {
   return undefined
 }
 
-function assignAttributes(obj: any, attrMap: any, jpath: string, options: any): void {
+function assignAttributes(obj: any, attrMap: any, jpath: string, options: any): number {
+  let assignedAttributesCount = 0
+
   if (attrMap) {
     const keys = Object.keys(attrMap)
     const len = keys.length //don't make it inline
     for (let i = 0; i < len; i++) {
       const atrrName = keys[i]
+      if (isIgnoredXsiNilAttribute(atrrName, jpath, options)) continue
+
       if (options.isArray(atrrName, jpath + "." + atrrName, true, true)) {
         obj[atrrName] = [attrMap[atrrName]]
       } else {
         obj[atrrName] = attrMap[atrrName]
       }
+      assignedAttributesCount += 1
     }
   }
+
+  return assignedAttributesCount
+}
+
+const isIgnoredXsiNilAttribute = (
+  attributeName: string,
+  _jpath: string,
+  options: ImportContentFromXMLOptions
+): boolean => {
+  if (attributeName !== "_xsi:nil") return false
+  if (options.preserveXsiNil === true) return false
+  return true
 }
 
 export default importContentFromXML

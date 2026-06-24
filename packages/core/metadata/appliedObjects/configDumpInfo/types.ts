@@ -1,18 +1,18 @@
-export type ConfigDumpInfo = Map<
-  string,
-  {
-    children: Map<string, string>
-    id: string
-    configVersion: string
-  }
->
+export interface ConfigDumpInfoEntry {
+  children: Map<string, string>
+  id: string
+  configVersion: string
+  derivedFrom?: string
+}
+
+export type ConfigDumpInfo = Map<string, ConfigDumpInfoEntry>
 
 //#region XML
 
 export interface ConfigDumpInfoMetadataXML {
   _name: string
   _id: string
-  _configVersion: string
+  _configVersion?: string
   Metadata?: ConfigDumpInfoMetadataInnerXML | ConfigDumpInfoMetadataInnerXML[]
 }
 
@@ -29,7 +29,7 @@ export interface ConfigDumpInfoXML {
   "_xmlns:xs": "http://www.w3.org/2001/XMLSchema"
   "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance"
   ConfigVersions: {
-    Metadata: ConfigDumpInfoMetadataXML | ConfigDumpInfoMetadataXML[]
+    Metadata?: ConfigDumpInfoMetadataXML | ConfigDumpInfoMetadataXML[]
   }
 }
 

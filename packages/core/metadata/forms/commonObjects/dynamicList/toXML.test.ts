@@ -1,33 +1,280 @@
 import { describe, expect, it } from "vitest"
-import { fullDynamicList, minimalDynamicList } from "~/tests/fixtures/dynamicList/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
-import { exportDynamicListToXML } from "./toXML"
+import {
+  emptyListSettingsDynamicList,
+  fullDynamicList,
+  keyFieldDynamicList,
+  minimalDynamicList,
+  multipleCalculatedFieldsDynamicList,
+  queryTextWithManualQueryFalseDynamicList,
+} from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
+import { exportPropertyToXML, PropertyRule } from "~/metadata/orchestration"
+import { mockContextToXML } from "~/tests/mockContext"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 
-describe("exportDynamicListToXML", () => {
+const rule: PropertyRule = {
+  type: "DynamicList",
+}
+
+describe("export DynamicList to XML", () => {
   it("should export undefined when data is undefined", () => {
-    const result = exportDynamicListToXML(mockContext, mockRule, undefined)
+    const result = exportPropertyToXML({
+      context: mockContextToXML(),
+      rule,
+      value: undefined,
+    })
     expect(result).toBeUndefined()
   })
 
-  it("should export full", () => {
-    const expectedResult = readXMLFileAsString("dynamicList/full.xml")
+  it("should export full to XML", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: fullDynamicList,
+      xmlRootTag: "Settings",
+      path: "full.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
+  })
 
-    const xmlData = exportDynamicListToXML(mockContext, mockRule, fullDynamicList)
+  it("should export minimal to XML", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: minimalDynamicList,
+      xmlRootTag: "Settings",
+      path: "minimal.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
+  })
 
-    const result = xmlExport({ Settings: xmlData }, false)
+  it("should export empty ListSettings", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: emptyListSettingsDynamicList,
+      path: "emptyListSettings.xml",
+      xmlRootTag: "Settings",
+      importMetaUrl: import.meta.url,
+    })
 
     expect(result).toEqual(expectedResult)
   })
 
-  it("should export minimal", () => {
-    const expectedResult = readXMLFileAsString("dynamicList/minimal.xml")
-
-    const xmlData = exportDynamicListToXML(mockContext, mockRule, minimalDynamicList)
-
-    const result = xmlExport({ Settings: xmlData }, false)
+  it("exports QueryText with explicit ManualQuery false", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: queryTextWithManualQueryFalseDynamicList,
+      xmlRootTag: "Settings",
+      path: "queryTextWithManualQueryFalse.xml",
+      importMetaUrl: import.meta.url,
+    })
 
     expect(result).toEqual(expectedResult)
+  })
+
+  it("exports multiple CalculatedField nodes", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: multipleCalculatedFieldsDynamicList,
+      xmlRootTag: "Settings",
+      path: "multipleCalculatedFields.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("exports KeyType and KeyField", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: keyFieldDynamicList,
+      xmlRootTag: "Settings",
+      path: "keyField.xml",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("fresh export keeps QueryText, KeyType, KeyField, ListSettings order", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: keyFieldDynamicList,
+      xmlRootTag: "Settings",
+      referenceMetadata: undefined,
+    })
+
+    const queryTextIndex = result.indexOf("<QueryText>")
+    const keyTypeIndex = result.indexOf("<KeyType>FieldValue</KeyType>")
+    const keyFieldIndex = result.indexOf("<KeyField>Ссылка</KeyField>")
+    const listSettingsIndex = result.indexOf("<ListSettings/>")
+
+    expect(queryTextIndex).toBeGreaterThan(-1)
+    expect(keyTypeIndex).toBeGreaterThan(queryTextIndex)
+    expect(keyFieldIndex).toBeGreaterThan(keyTypeIndex)
+    expect(listSettingsIndex).toBeGreaterThan(keyFieldIndex)
+  })
+
+  it("preserves reference KeyField when current value is undefined", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: {
+        itemType: "DynamicList",
+        keyType: "RowKey",
+        keyFields: undefined,
+      },
+      referenceMetadata: {
+        itemType: "DynamicList",
+        keyType: "RowKey",
+        keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+      },
+      xmlRootTag: "Settings",
+    })
+
+    expect(result).toContain("<KeyType>RowKey</KeyType>")
+    expect(result).toContain("<KeyField>КлючПриглашения</KeyField>")
+    expect(result).toContain("<KeyField>Контрагент</KeyField>")
+    expect(result).toContain("<KeyField>ИдентификаторОрганизации</KeyField>")
+  })
+
+  it("exports keyFields array as repeated KeyField nodes", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: {
+        itemType: "DynamicList",
+        keyType: "RowKey",
+        keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+      },
+      xmlRootTag: "Settings",
+    })
+
+    expect(result.match(/<KeyField>/g)).toHaveLength(3)
+    expect(result).toContain("<KeyType>RowKey</KeyType>")
+    expect(result).toContain("<KeyField>КлючПриглашения</KeyField>")
+    expect(result).toContain("<KeyField>Контрагент</KeyField>")
+    expect(result).toContain("<KeyField>ИдентификаторОрганизации</KeyField>")
+  })
+
+  it("restores explicit Asc calculated field orderType from reference XML", () => {
+    const currentValue = {
+      itemType: "DynamicList",
+      calculatedFields: [
+        {
+          itemType: "CalculatedField",
+          dataPath: "Дата",
+          expression: "Дата",
+          orderExpressions: [
+            {
+              itemType: "CalculatedFieldOrderExpression",
+              expression: "Дата",
+              autoOrder: false,
+            },
+          ],
+        },
+      ],
+    }
+    const referenceMetadata = {
+      itemType: "DynamicList",
+      calculatedFields: [
+        {
+          itemType: "CalculatedField",
+          dataPath: "Дата",
+          expression: "Дата",
+          orderExpressions: [
+            {
+              itemType: "CalculatedFieldOrderExpression",
+              expression: "Дата",
+              orderType: "Asc",
+              autoOrder: false,
+            },
+          ],
+        },
+      ],
+    }
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: currentValue,
+      referenceMetadata,
+      xmlRootTag: "Settings",
+    })
+
+    expect(result).toContain(
+      '<orderType xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Asc</orderType>'
+    )
+  })
+
+  it("does not invent Asc calculated field orderType without reference XML", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: {
+        itemType: "DynamicList",
+        calculatedFields: [
+          {
+            itemType: "CalculatedField",
+            dataPath: "Дата",
+            expression: "Дата",
+            orderExpressions: [
+              {
+                itemType: "CalculatedFieldOrderExpression",
+                expression: "Дата",
+                autoOrder: false,
+              },
+            ],
+          },
+        ],
+      },
+      referenceMetadata: undefined,
+      xmlRootTag: "Settings",
+    })
+
+    expect(result).not.toContain("<orderType")
+  })
+
+  it("does not restore Desc calculated field orderType from reference XML when current value omits it", () => {
+    const currentValue = {
+      itemType: "DynamicList",
+      calculatedFields: [
+        {
+          itemType: "CalculatedField",
+          dataPath: "Дата",
+          expression: "Дата",
+          orderExpressions: [
+            {
+              itemType: "CalculatedFieldOrderExpression",
+              expression: "Дата",
+              autoOrder: false,
+            },
+          ],
+        },
+      ],
+    }
+    const referenceMetadata = {
+      itemType: "DynamicList",
+      calculatedFields: [
+        {
+          itemType: "CalculatedField",
+          dataPath: "Дата",
+          expression: "Дата",
+          orderExpressions: [
+            {
+              itemType: "CalculatedFieldOrderExpression",
+              expression: "Дата",
+              orderType: "Desc",
+              autoOrder: false,
+            },
+          ],
+        },
+      ],
+    }
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: currentValue,
+      referenceMetadata,
+      xmlRootTag: "Settings",
+    })
+
+    expect(result).not.toContain("<orderType")
+    expect(result).not.toContain("Desc")
   })
 })

@@ -1,7 +1,8 @@
+import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/fromXML"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } from "./types"
 
 export const importFormParametersFromXML = (
@@ -24,11 +25,18 @@ const importFormParameterFromXML = (params: {
   const { context, xml } = params
   const result: FormParameter = {
     name: xml._name,
-    type: importTypeDescriptionFromXML(context, undefined, xml.Type)!,
+  }
+
+  const type = importTypeDescriptionFromXML(context, undefined, xml.Type)
+  if (type !== undefined) {
+    result.type = type
   }
 
   if (xml.KeyParameter !== undefined) {
-    result.keyParameter = xml.KeyParameter
+    const keyParameter = importBooleanFromXML(context, undefined, xml.KeyParameter)
+    if (keyParameter !== undefined) {
+      result.keyParameter = keyParameter
+    }
   }
 
   return result

@@ -1,6 +1,12 @@
 export * from "./formElement/types"
 
 export * from "./metadataItem/registry"
+export * from "./metadataItem/ruleFactory"
+export * from "./metadataItem/fromXML"
+export * from "./metadataItem/fromYAML"
+export * from "./metadataItem/toXML"
+export * from "./metadataItem/toYAML"
+export * from "./metadataCollection"
 
 export * from "./property/fn"
 export * from "./property/fromXML"
@@ -9,6 +15,8 @@ export * from "./property/toEnterprise"
 export * from "./property/toXML"
 export * from "./property/toYAML"
 export * from "./property/types"
+export * from "./property/typeRuleRegistry"
+export * from "./property/propertyTypeKeys"
 
 export * from "./formElement/factory"
 export * from "./formElement/fromXML"
@@ -17,6 +25,3 @@ export * from "./formElement/ruleFactory"
 export * from "./formElement/toXML"
 export * from "./formElement/toYAML"
 export * from "./formElement/types"
-
-export * from "./formElement/fromNKDK/fromNKDK"
-export * from "./formElement/toNKDK/types"

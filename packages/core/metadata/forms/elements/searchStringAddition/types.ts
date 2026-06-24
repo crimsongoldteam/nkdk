@@ -17,6 +17,8 @@ export type SingleSearchStringAddition = FormTypeByRule<typeof SingleSearchStrin
 export interface SearchStringAdditionYAML {
   Источник?: string
   РастягиватьПоГоризонтали?: StringboolYAML
+  АвтоМаксимальнаяШирина?: StringboolYAML
+  МаксимальнаяШирина?: number
   ЦветРамки?: ColorYAML
   ЦветТекста?: ColorYAML
   ЦветФона?: ColorYAML
@@ -31,8 +33,7 @@ export interface SearchStringAdditionYAML {
   КонтекстноеМеню?: ContextMenuYAML
   ОтображениеПодсказки?: SE.ToolTipRepresentationYAML
   Подсказка?: I8nTextYAML
-  РазрешитьИспользование?: UserVisibleYAML
-  ЗапретитьИспользование?: UserVisibleYAML
+  Использование?: UserVisibleYAML
   РасширеннаяПодсказка?: ExtendedTooltipYAML
 }
 

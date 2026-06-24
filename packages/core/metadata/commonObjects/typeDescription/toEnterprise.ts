@@ -1,5 +1,6 @@
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { TypeDescription, TypeDescriptionEnterprise, TypeDescriptionRules } from "./types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { getTypeDescriptionRule } from "./helper"
+import { TypeDescription, TypeDescriptionEnterprise } from "./types"
 
 export const exportTypeDescriptionToEnterprise = (params: {
   value: TypeDescription | undefined
@@ -9,9 +10,7 @@ export const exportTypeDescriptionToEnterprise = (params: {
 
   if (!typeDescription) return undefined
 
-  const nonIgnoredTypes = typeDescription.type.filter(
-    (type) => !TypeDescriptionRules[type as keyof typeof TypeDescriptionRules]?.ignoreInEnterprise
-  )
+  const nonIgnoredTypes = typeDescription.type.filter((type) => !getTypeDescriptionRule(type)?.ignoreInEnterprise)
 
   if (nonIgnoredTypes.length === 0) return undefined
 

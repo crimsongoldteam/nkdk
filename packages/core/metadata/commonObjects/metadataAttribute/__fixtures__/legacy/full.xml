@@ -1,0 +1,70 @@
+<Attribute uuid="2b2ec1fd-1bdf-419d-aff9-67a25cb6d736">
+	<Properties>
+		<Name>РеквизитПолный</Name>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Синоним</v8:content>
+			</v8:item>
+		</Synonym>
+		<Comment>Комментарий</Comment>
+		<Type>
+			<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>
+		</Type>
+		<PasswordMode>true</PasswordMode>
+		<Format>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>
+			</v8:item>
+		</Format>
+		<EditFormat>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>ЧЦ=15; ЧДЦ=3</v8:content>
+			</v8:item>
+		</EditFormat>
+		<ToolTip>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка</v8:content>
+			</v8:item>
+		</ToolTip>
+		<MarkNegatives>true</MarkNegatives>
+		<Mask>Маска</Mask>
+		<MultiLine>true</MultiLine>
+		<ExtendedEdit>true</ExtendedEdit>
+		<MinValue xsi:type="xs:string">1</MinValue>
+		<MaxValue xsi:type="xs:string">100</MaxValue>
+		<FillFromFillingValue>false</FillFromFillingValue>
+		<FillValue xsi:nil="true"/>
+		<FillChecking>ShowError</FillChecking>
+		<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+		<ChoiceParameterLinks>
+			<xr:Link>
+				<xr:Name>Отбор.Наименование</xr:Name>
+				<xr:DataPath xsi:type="xs:string">Catalog.СправочникВладелец.StandardAttribute.Description</xr:DataPath>
+				<xr:ValueChange>Clear</xr:ValueChange>
+			</xr:Link>
+		</ChoiceParameterLinks>
+		<ChoiceParameters>
+			<app:item name="Отбор.ПометкаУдаления">
+				<app:value xsi:type="xs:boolean">false</app:value>
+			</app:item>
+		</ChoiceParameters>
+		<QuickChoice>Auto</QuickChoice>
+		<CreateOnInput>DontUse</CreateOnInput>
+		<ChoiceForm>Catalog.СправочникПолный.Form.ФормаВыбора</ChoiceForm>
+		<LinkByType>
+			<xr:DataPath>Catalog.СправочникВладелец.StandardAttribute.Code</xr:DataPath>
+			<xr:LinkItem>1</xr:LinkItem>
+		</LinkByType>
+		<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
+		<Use>ForFolderAndItem</Use>
+		<Indexing>DontIndex</Indexing>
+		<FullTextSearch>DontUse</FullTextSearch>
+		<DataHistory>DontUse</DataHistory>
+		<BinaryDataStorageLocationUse>DontUse</BinaryDataStorageLocationUse>
+		<BinaryDataStorageLocationUseField>Catalog.СправочникВладелец.Attribute.РеквизитБулево</BinaryDataStorageLocationUseField>
+	</Properties>
+</Attribute>

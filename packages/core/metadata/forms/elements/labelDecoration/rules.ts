@@ -1,6 +1,7 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
+import { formDecorationCommonProperties } from "../formDecoration/rules"
 export type { ElementRule, PropertyRule }
 
 export const LabelDecorationRules = {
@@ -13,66 +14,19 @@ export const LabelDecorationRules = {
       xml: "_name",
       required: true,
     },
-    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
-    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-    contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
-    displayImportance: {
-      yaml: "ВажностьПриОтображении",
-      xml: "_DisplayImportance",
-      type: "SystemEnumeration",
-      typeSE: "DisplayImportance",
-    },
-    enabled: { yaml: "Доступность", type: "boolean" },
-    extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
-    font: { yaml: "Шрифт", type: "Font" },
-    height: { yaml: "Высота", type: "number" },
-    horizontalAlignInGroup: {
-      yaml: "ГоризонтальноеПоложениеВГруппе",
-      xml: "GroupHorizontalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemHorizontalLocation",
-    },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
-    skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },
-    textColor: { yaml: "ЦветТекста", type: "Color" },
     title: {
       yaml: "Заголовок",
       type: "FormattedI8nText",
-      yamlFormatted: "ФорматированныйЗаголовок",
-      yamlPartialOthers: true,
-    },
-    toolTip: { yaml: "Подсказка", type: "I8nText" },
-    toolTipRepresentation: {
-      yaml: "ОтображениеПодсказки",
-      type: "SystemEnumeration",
-      typeSE: "ToolTipRepresentation",
     },
     type: {
-      yaml: "Вид",
       type: "SystemEnumeration",
       typeSE: "FormDecorationType",
+      runtimeOnly: true,
     },
-    userVisible: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
-      type: "UserVisible",
-      toEnterprise: false,
-    },
-    verticalAlignInGroup: {
-      yaml: "ВертикальноеПоложениеВГруппе",
-      xml: "GroupVerticalAlign",
-      type: "SystemEnumeration",
-      typeSE: "ItemVerticalAlign",
-    },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
-    visible: { yaml: "Видимость", type: "boolean" },
-    width: { yaml: "Ширина", type: "number" },
-    backColor: { yaml: "ЦветФона", type: "Color" },
-    border: { yaml: "Рамка", type: "Border" },
-    borderColor: { yaml: "ЦветРамки", type: "Color" },
+    ...formDecorationCommonProperties,
+    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Border"] }] } },
+    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
     horizontalAlign: {
       yaml: "ГоризонтальноеПоложение",
       type: "SystemEnumeration",

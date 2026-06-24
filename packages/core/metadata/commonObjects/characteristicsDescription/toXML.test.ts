@@ -1,31 +1,93 @@
 import { describe, expect, it } from "vitest"
-import { multipleCharacteristics } from "~/tests/fixtures/characteristicsDescription/multiple"
-import { singleCharacteristic } from "~/tests/fixtures/characteristicsDescription/single"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
-import { exportCharacteristicsDescriptionsToXML } from "./toXML"
+import { multipleCharacteristics, singleCharacteristic } from "./__fixtures__/data"
+import { importPropertyFromXML } from "~/metadata/orchestration"
+import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { mockContextFromXML } from "~/tests/mockContext"
 
-describe("exportCharacteristicsDescriptionToXML", () => {
-  it("should export single characteristic", () => {
-    const mockData = singleCharacteristic
+const rule = { type: "CharacteristicsDescriptions" } as const
 
-    const expectedXml = readXMLFileAsString("characteristicsDescription/simple.xml")
-
-    const result = exportCharacteristicsDescriptionsToXML(mockContext, mockRule, mockData)
-    const xmlString = xmlExport({ Characteristics: result }, false)
-
-    expect(xmlString).toEqual(expectedXml)
+describe("export CharacteristicsDescriptions to XML", () => {
+  it("should export single characteristic (round-trip)", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: singleCharacteristic,
+      xmlRootTag: "Characteristics",
+      path: "single.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
   })
 
-  it("should export multiple characteristics", () => {
-    const mockData = multipleCharacteristics
+  it("should export multiple characteristics (round-trip)", () => {
+    const { expectedResult, result } = testExportPropertyToXML({
+      rule,
+      value: multipleCharacteristics,
+      xmlRootTag: "Characteristics",
+      path: "multiple.xml",
+      importMetaUrl: import.meta.url,
+    })
+    expect(result).toEqual(expectedResult)
+  })
 
-    const expectedXml = readXMLFileAsString("characteristicsDescription/multiple.xml")
+  it("does not materialize missing XML default fields without reference tags", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: singleCharacteristic,
+      xmlRootTag: "Characteristics",
+      referenceMetadata: [
+        {
+          itemType: "CharacteristicsDescription",
+          characteristicTypes: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть",
+          keyField: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+          characteristicValues: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть",
+          objectField: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+          typeField: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+        },
+      ],
+    })
 
-    const result = exportCharacteristicsDescriptionsToXML(mockContext, mockRule, mockData)
-    const xmlString = xmlExport({ Characteristics: result }, false)
+    expect(result).not.toContain("<xr:DataPathField>-1</xr:DataPathField>")
+    expect(result).not.toContain("<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>")
+    expect(result).not.toContain("<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>")
+    expect(result).not.toContain("<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>")
+  })
 
-    expect(xmlString).toEqual(expectedXml)
+  it("preserves explicit XML default fields from reference", () => {
+    const referenceMetadata = importPropertyFromXML({
+      context: mockContextFromXML({ forReference: true }),
+      rule,
+      value: {
+        "xr:Characteristic": {
+          "xr:CharacteristicTypes": {
+            _from: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть",
+            "xr:KeyField": "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+            "xr:TypesFilterField": "-1",
+            "xr:TypesFilterValue": { "_xsi:nil": true },
+            "xr:DataPathField": "-1",
+            "xr:MultipleValuesUseField": "-1",
+          },
+          "xr:CharacteristicValues": {
+            _from: "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть",
+            "xr:ObjectField": "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+            "xr:TypeField": "Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.StandardAttribute.Ref",
+            "xr:ValueField": "-1",
+            "xr:MultipleValuesKeyField": "-1",
+            "xr:MultipleValuesOrderField": "-1",
+          },
+        },
+      },
+    })
+
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: singleCharacteristic,
+      xmlRootTag: "Characteristics",
+      referenceMetadata,
+    })
+
+    expect(result).toContain("<xr:DataPathField>-1</xr:DataPathField>")
+    expect(result).toContain("<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>")
+    expect(result).toContain("<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>")
+    expect(result).toContain("<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>")
   })
 })

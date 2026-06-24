@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<CommandsVisibility>
+		<Command name="Catalog.СправочникПолный.Command.ПоУмолчанию">
+			<Visibility>
+				<xr:Common>false</xr:Common>
+				<xr:Value name="Role.Администратор">false</xr:Value>
+				<xr:Value name="Role.РольВсеСвойства">true</xr:Value>
+			</Visibility>
+		</Command>
+		<Command name="Enum.ПеречислениеВсеСвойства.StandardCommand.OpenList">
+			<Visibility>
+				<xr:Common>false</xr:Common>
+				<xr:Value name="Role.Администратор">false</xr:Value>
+			</Visibility>
+		</Command>
+		<Command name="DocumentJournal.ЖурналДокументов1.StandardCommand.OpenList">
+			<Visibility>
+				<xr:Common>true</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="ChartOfAccounts.ПланСчетовВсеСвойства.StandardCommand.OpenList">
+			<Visibility>
+				<xr:Common>true</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="DataProcessor.ОбработкаВсеСвойства.StandardCommand.Open">
+			<Visibility>
+				<xr:Common>true</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="Report.ОтчетСКД.StandardCommand.Open">
+			<Visibility>
+				<xr:Common>true</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="CommonForm.Команды.StandardCommand.Open">
+			<Visibility>
+				<xr:Common>true</xr:Common>
+				<xr:Value name="Role.Администратор">true</xr:Value>
+			</Visibility>
+		</Command>
+	</CommandsVisibility>
+	<CommandsPlacement>
+		<Command name="Catalog.СправочникПолный.Command.ПоУмолчанию">
+			<CommandGroup>NavigationPanelImportant</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+		<Command name="Enum.ПеречислениеВсеСвойства.StandardCommand.OpenList">
+			<CommandGroup>NavigationPanelOrdinary</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+		<Command name="DocumentJournal.ЖурналДокументов1.StandardCommand.OpenList">
+			<CommandGroup>CommandGroup.ГруппаКомандПоУмолчанию</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+		<Command name="ChartOfAccounts.ПланСчетовВсеСвойства.StandardCommand.OpenList">
+			<CommandGroup>CommandGroup.ГруппаКомандПоУмолчанию</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+		<Command name="DataProcessor.ОбработкаВсеСвойства.StandardCommand.Open">
+			<CommandGroup>ActionsPanelCreate</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+		<Command name="Report.ОтчетСКД.StandardCommand.Open">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+		<Command name="CommonForm.Команды.StandardCommand.Open">
+			<CommandGroup>ActionsPanelTools</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+	</CommandsPlacement>
+	<CommandsOrder>
+		<Command name="Catalog.СправочникПолный.Command.ПоУмолчанию">
+			<CommandGroup>NavigationPanelImportant</CommandGroup>
+		</Command>
+		<Command name="DocumentJournal.ЖурналДокументов1.StandardCommand.OpenList">
+			<CommandGroup>CommandGroup.ГруппаКомандПоУмолчанию</CommandGroup>
+		</Command>
+		<Command name="ChartOfAccounts.ПланСчетовВсеСвойства.StandardCommand.OpenList">
+			<CommandGroup>CommandGroup.ГруппаКомандПоУмолчанию</CommandGroup>
+		</Command>
+		<Command name="DataProcessor.ОбработкаВсеСвойства.StandardCommand.Open">
+			<CommandGroup>ActionsPanelCreate</CommandGroup>
+		</Command>
+	</CommandsOrder>
+	<GroupsOrder>
+		<Group>NavigationPanelImportant</Group>
+		<Group>CommandGroup.ГруппаКомандПоУмолчанию</Group>
+		<Group>ActionsPanelCreate</Group>
+	</GroupsOrder>
+</CommandInterface>

@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ExternalDataSource uuid="aa0a162f-bf96-4951-9c81-f6a8014ab7e8">
+		<InternalInfo>
+			<xr:GeneratedType name="ExternalDataSourceManager.ВнешнийИсточникДанныхВсеСвойства" category="Manager">
+				<xr:TypeId>a4ef7100-9959-4442-baf4-787c10c5e21d</xr:TypeId>
+				<xr:ValueId>89d407e9-dd88-4734-896d-807c3768ba23</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTablesManager.ВнешнийИсточникДанныхВсеСвойства" category="TablesManager">
+				<xr:TypeId>9845972e-4d29-4fda-ab72-c7a6b981c440</xr:TypeId>
+				<xr:ValueId>7010ece1-b27d-4e92-a012-b9ba45db751f</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubesManager.ВнешнийИсточникДанныхВсеСвойства" category="CubesManager">
+				<xr:TypeId>0ca57e3a-b717-4edc-be5e-e333ac1cf78c</xr:TypeId>
+				<xr:ValueId>74742986-68bc-418c-8396-8dc92ffa6da5</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<Name>ВнешнийИсточникДанныхВсеСвойства</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Синоним</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment>Комментарий</Comment>
+			<DataLockControlMode>AutomaticAndManaged</DataLockControlMode>
+		</Properties>
+		<ChildObjects>
+			<Table>ТаблицаВсеСвойства</Table>
+			<Table>ТаблицаПоУмолчанию</Table>
+			<Table>ТаблицаМодульНабора</Table>
+			<Cube>КубВсеСвойства</Cube>
+			<Cube>КубПоУмолчанию</Cube>
+			<Function uuid="f3a425ae-a79d-4001-b911-e1f4ce4b0dff">
+				<Properties>
+					<Name>ФункцияВсеСвойства</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Синоним</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment>Комментарий</Comment>
+					<ReturnValue>false</ReturnValue>
+					<Type>
+						<v8:Type>cfg:ExternalDataSourceTableRef.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства</v8:Type>
+					</Type>
+					<ExpressionInDataSource>ВыражениеВИсточникеДанных</ExpressionInDataSource>
+				</Properties>
+			</Function>
+			<Function uuid="e0faf3c8-0ad3-44b3-b6ee-d1571fd37938">
+				<Properties>
+					<Name>ФункцияВнешнийИсточникДанныхКубТаблицаИзмеренияСсылка</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Синоним</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment>Комментарий</Comment>
+					<ReturnValue>true</ReturnValue>
+					<Type>
+						<v8:Type>cfg:ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства</v8:Type>
+					</Type>
+					<ExpressionInDataSource>ВыражениеВИсточникеДанных</ExpressionInDataSource>
+				</Properties>
+			</Function>
+			<Function uuid="d9efcf5d-0ff4-4cfc-99dd-165c8d8b80af">
+				<Properties>
+					<Name>ФункцияПоУмолчанию</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Функция по умолчанию</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment/>
+					<ReturnValue>true</ReturnValue>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+					<ExpressionInDataSource/>
+				</Properties>
+			</Function>
+		</ChildObjects>
+	</ExternalDataSource>
+</MetaDataObject>

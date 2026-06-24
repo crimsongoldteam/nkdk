@@ -1,0 +1,4 @@
+<LabelField name="ПолеНадписи" id="1">
+	<ContextMenu name="ПолеНадписиКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="ПолеНадписиРасширеннаяПодсказка" id="3"/>
+</LabelField>

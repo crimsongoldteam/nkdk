@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { Font, FontXML, PrefixedFontsToXML } from "./types"
 
@@ -13,11 +13,10 @@ export const exportFontToXML = (
   const result: any = {}
 
   if (font.ref !== undefined) {
-    const prefixedRef = PrefixedFontsToXML[font.ref]
-    result._ref = prefixedRef
+    result._ref = exportFontRefToXML(font)
   }
 
-  if (font.faceName) result._faceName = font.faceName
+  if (font.faceName !== undefined) result._faceName = font.faceName
   if (font.height !== undefined) result._height = font.height
   if (font.bold !== undefined) result._bold = font.bold
   if (font.italic !== undefined) result._italic = font.italic
@@ -27,6 +26,17 @@ export const exportFontToXML = (
   if (font.scale !== undefined) result._scale = font.scale
 
   return result as FontXML
+}
+
+function exportFontRefToXML(font: Font): string {
+  const ref = font.ref
+  if (ref === undefined) return ""
+  if (font.rawRef === true) return ref
+  const prefixedRef = PrefixedFontsToXML[ref as keyof typeof PrefixedFontsToXML]
+  if (prefixedRef !== undefined) return prefixedRef
+  if (font.kind === "StyleItem") return `style:${ref}`
+  if (font.kind === "WindowsFont") return `sys:${ref}`
+  return ref
 }
 
 registerTypeRule("Font", "exportToXML", exportFontToXML)

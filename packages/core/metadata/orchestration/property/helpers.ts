@@ -2,7 +2,7 @@ import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToMetadata } from ".."
 import { TypeRulesOperations } from "./fn"
-import { MetadataItemRule, PropertyRule } from "./types"
+import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
 type Path = string[]
 
@@ -20,15 +20,117 @@ interface PathStructure {
   childContainersByPath: Map<string, Set<string>>
 }
 
+export const XML_SOURCE_KEYS = Symbol("xmlSourceKeys")
+
+const XML_CONTAINER_ORDER = new Map<string, number>([
+  ["InternalInfo", 0],
+  ["Properties", 1],
+  ["ChildObjects", 2],
+])
+
+const getEntryTopLevelXMLName = (entry: { path: Path; xmlKey: string }): string => entry.path[0] ?? entry.xmlKey
+
+const getKnownXMLContainerOrder = (entry: { path: Path; xmlKey: string }): number | undefined =>
+  XML_CONTAINER_ORDER.get(getEntryTopLevelXMLName(entry))
+
+const AUTO_REQUIRED_XML_PARENT_ROOTS = new Set<string>(["ChildObjects", "ListSettings"])
+
+export const collectAutoRequiredXMLParentRoot = (rule: PropertyRule, roots: Set<string>): void => {
+  const root = rule.xmlParents?.[0]
+  if (root !== undefined && AUTO_REQUIRED_XML_PARENT_ROOTS.has(root)) {
+    roots.add(root)
+  }
+}
+
+export const applyAutoRequiredXMLParents = (result: ItemXML, roots: ReadonlySet<string>): void => {
+  for (const root of roots) {
+    if (result[root] === undefined) {
+      result[root] = {}
+    }
+  }
+}
+
+type PropertyExportImportOperation =
+  | "exportToXML"
+  | "importFromXML"
+  | "exportToYAML"
+  | "importFromYAML"
+  | "exportToEnterprise"
+
+export const shouldProcessProperty = (params: {
+  rule: PropertyRule
+  operation: PropertyExportImportOperation
+  metadataItem?: any
+  context?: import("~/metadata/context/types").ConfigurationContextWithExportToXML
+  propertyKey?: string
+  referenceMetadata?: unknown
+}): boolean => {
+  const { rule, operation, metadataItem, context, propertyKey, referenceMetadata } = params
+
+  if (rule.runtimeOnly) return false
+  if (rule.syncExternalOnly) return false
+
+  switch (operation) {
+    case "exportToXML":
+      if (rule.toXML === false) return false
+      if (rule.filePath !== undefined) return false
+      if (rule.preserveFromReferenceXML === true) {
+        if (propertyKey === undefined) return false
+
+        const metadataHasOwnKey =
+          metadataItem !== null &&
+          metadataItem !== undefined &&
+          typeof metadataItem === "object" &&
+          Object.prototype.hasOwnProperty.call(metadataItem, propertyKey)
+
+        if (metadataHasOwnKey) return true
+
+        if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object") {
+          return rule.exportWithoutReferenceXML === true
+        }
+
+        const referenceSourceKeys = (referenceMetadata as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
+        if (
+          referenceSourceKeys !== undefined &&
+          referenceSourceKeys !== null &&
+          typeof referenceSourceKeys === "object"
+        ) {
+          return Object.prototype.hasOwnProperty.call(referenceSourceKeys, propertyKey)
+        }
+
+        return Object.prototype.hasOwnProperty.call(referenceMetadata, propertyKey)
+      }
+      if (typeof rule.toXML === "function") return rule.toXML(metadataItem, context)
+      return true
+    case "importFromXML":
+      if (rule.filePath !== undefined) return false
+      return rule.fromXML !== false
+    case "exportToYAML":
+      if (rule.toYAML === false) return false
+      return true
+    case "importFromYAML":
+      return rule.fromYAML !== false
+    case "exportToEnterprise":
+      return rule.toEnterprise !== false
+    default:
+      return true
+  }
+}
+
 const buildPathStructure = <Rule extends MetadataItemRule>(
   rule: Rule,
-  tagFilter: string[] | undefined
+  tagFilter: string[] | undefined,
+  /** При экспорте в XML задаёт порядок свойств без `order` (порядок ключей как в референсе после импорта). */
+  referenceMetadata?: ToMetadata<Rule["itemType"]> | null
 ): PathStructure => {
   const pathOrder: Path[] = []
   const pathOrderSet = new Set<string>()
   const pathToInfo = new Map<string, PathInfo>()
 
   const propertyEntries = Object.entries(rule.properties).filter(([_key, ruleProp]) => {
+    if (ruleProp.runtimeOnly) return false
+    if (ruleProp.syncExternalOnly) return false
+    if (ruleProp.filePath !== undefined) return false
     return tagFilter === undefined || (ruleProp.tag !== undefined && tagFilter.includes(ruleProp.tag))
   })
 
@@ -41,17 +143,30 @@ const buildPathStructure = <Rule extends MetadataItemRule>(
     }
     const info = pathToInfo.get(pk)
     const xmlKey = ruleProp.xml ?? capitalize(key)
+    const xmlAliases = (ruleProp as any).xmlAliases ?? []
     const entry = { key, xmlKey, order: ruleProp.order }
     if (!info) {
+      const xmlKeyToKey: Record<string, string> = { [xmlKey]: key }
+      for (const xmlAlias of xmlAliases) xmlKeyToKey[xmlAlias] = key
       pathToInfo.set(pk, {
         keys: [key],
-        xmlKeyToKey: { [xmlKey]: key },
+        xmlKeyToKey,
         orderByRule: [entry],
       })
     } else {
       info.keys.push(key)
       info.xmlKeyToKey[xmlKey] = key
+      for (const xmlAlias of xmlAliases) info.xmlKeyToKey[xmlAlias] = key
       info.orderByRule.push(entry)
+    }
+  }
+
+  const refKeyOrder = new Map<string, number>()
+  if (referenceMetadata !== undefined && referenceMetadata !== null && typeof referenceMetadata === "object") {
+    let i = 0
+    for (const k of Object.keys(referenceMetadata)) {
+      if (k === "itemType") continue
+      if (!refKeyOrder.has(k)) refKeyOrder.set(k, i++)
     }
   }
 
@@ -60,19 +175,38 @@ const buildPathStructure = <Rule extends MetadataItemRule>(
       if (a.order !== undefined && b.order !== undefined) return a.order - b.order
       if (a.order !== undefined) return -1
       if (b.order !== undefined) return 1
+      if (refKeyOrder.size > 0) {
+        const ia = refKeyOrder.get(a.key)
+        const ib = refKeyOrder.get(b.key)
+        if (ia !== undefined && ib !== undefined) return ia - ib
+        if (ia !== undefined) return -1
+        if (ib !== undefined) return 1
+      }
       return a.xmlKey.localeCompare(b.xmlKey)
     })
   }
 
-  const childContainersByPath = new Map<string, Set<string>>()
+  // Compute child containers for all traversal paths, including ancestor paths not in
+  // pathOrder (e.g. the root [] path when the shallowest xmlParents is ["SomeTag"]).
+  const allTraversalPaths = new Set<string>([pathKey([])])
   for (const path of pathOrder) {
+    for (let i = 1; i <= path.length; i++) {
+      allTraversalPaths.add(pathKey(path.slice(0, i)))
+    }
+  }
+  const childContainersByPath = new Map<string, Set<string>>()
+  for (const pk of allTraversalPaths) {
+    const parsedPath = JSON.parse(pk) as Path
     const set = new Set<string>()
     for (const other of pathOrder) {
-      if (other.length === path.length + 1 && other.slice(0, path.length).every((s, i) => s === path[i])) {
-        set.add(other[path.length]!)
+      if (
+        other.length === parsedPath.length + 1 &&
+        other.slice(0, parsedPath.length).every((s, i) => s === parsedPath[i])
+      ) {
+        set.add(other[parsedPath.length]!)
       }
     }
-    childContainersByPath.set(pathKey(path), set)
+    childContainersByPath.set(pk, set)
   }
 
   return { pathOrder, pathToInfo, childContainersByPath }
@@ -84,26 +218,98 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
   tag?: string[]
 }): string[] => {
   const { rule, referenceMetadata, tag } = params
-  const { pathOrder, pathToInfo } = buildPathStructure(rule, tag)
+  const { pathOrder, pathToInfo } = buildPathStructure(rule, tag, referenceMetadata)
 
-  const result: string[] = []
-  const referenceKeys = referenceMetadata ? Object.keys(referenceMetadata as object) : []
-
-  for (const path of pathOrder) {
-    const info = pathToInfo.get(pathKey(path))
-    if (!info) continue
-    const keysAtPath = info.orderByRule.map(({ key }) => key)
-    if (referenceMetadata === undefined) {
-      result.push(...keysAtPath)
-      continue
+  // Если есть референс (например, метаданные, полученные из импорта XML), порядок ключей
+  // в нём имеет приоритет над `order` из правил — это нужно, чтобы round-trip сохранял
+  // порядок тегов, даже когда часть полей уходит во вложенный контейнер (xmlParents),
+  // или когда разные XML-источники раскладывают свойства в разном порядке.
+  const refKeyOrder = new Map<string, number>()
+  if (referenceMetadata !== undefined && referenceMetadata !== null && typeof referenceMetadata === "object") {
+    let i = 0
+    for (const k of Object.keys(referenceMetadata)) {
+      if (k === "itemType") continue
+      if (!refKeyOrder.has(k)) refKeyOrder.set(k, i++)
     }
-    const keysFromReference = referenceKeys.filter((k) => keysAtPath.includes(k))
-    const refSet = new Set(keysFromReference)
-    const remaining = keysAtPath.filter((k) => !refSet.has(k))
-    result.push(...keysFromReference, ...remaining)
   }
 
-  return result
+  type FlatEntry = {
+    key: string
+    order: number | undefined
+    pathIdx: number
+    withinPathIdx: number
+    path: Path
+    xmlKey: string
+  }
+  const entries: FlatEntry[] = []
+
+  for (let pathIdx = 0; pathIdx < pathOrder.length; pathIdx++) {
+    const path = pathOrder[pathIdx]!
+    const info = pathToInfo.get(pathKey(path))
+    if (!info) continue
+    info.orderByRule.forEach((e, withinPathIdx) => {
+      entries.push({ key: e.key, order: e.order, pathIdx, withinPathIdx, path, xmlKey: e.xmlKey })
+    })
+  }
+
+  const byRuleOrder = (a: FlatEntry, b: FlatEntry): number => {
+    if (a.order !== undefined && b.order !== undefined) return a.order - b.order
+    if (a.order !== undefined) return -1
+    if (b.order !== undefined) return 1
+    if (a.pathIdx !== b.pathIdx) return a.pathIdx - b.pathIdx
+    return a.withinPathIdx - b.withinPathIdx
+  }
+
+  const byKnownXMLContainerThenRuleOrder = (a: FlatEntry, b: FlatEntry): number => {
+    const containerOrderA = getKnownXMLContainerOrder(a)
+    const containerOrderB = getKnownXMLContainerOrder(b)
+
+    if (
+      containerOrderA !== undefined &&
+      containerOrderB !== undefined &&
+      containerOrderA !== containerOrderB
+    ) {
+      return containerOrderA - containerOrderB
+    }
+
+    return byRuleOrder(a, b)
+  }
+
+  if (refKeyOrder.size === 0) {
+    entries.sort(byKnownXMLContainerThenRuleOrder)
+    return entries.map((e) => e.key)
+  }
+
+  // Референс задаёт относительный порядок для своих ключей; ключи, которых в референсе
+  // нет (авто-эмитятся экспортом — например, `<dcssch:value xsi:nil/>`), вставляются
+  // между ними по правилу: перед первым anchored-ключом с бо́льшим `order`.
+  const anchored: FlatEntry[] = []
+  const free: FlatEntry[] = []
+  for (const e of entries) {
+    if (refKeyOrder.has(e.key)) anchored.push(e)
+    else free.push(e)
+  }
+  anchored.sort((a, b) => refKeyOrder.get(a.key)! - refKeyOrder.get(b.key)!)
+  free.sort(byKnownXMLContainerThenRuleOrder)
+
+  const result: FlatEntry[] = [...anchored]
+  for (const f of free) {
+    if (f.order === undefined) {
+      result.push(f)
+      continue
+    }
+    let insertIdx = result.length
+    for (let i = 0; i < result.length; i++) {
+      const r = result[i]!
+      if (r.order !== undefined && r.order > f.order) {
+        insertIdx = i
+        break
+      }
+    }
+    result.splice(insertIdx, 0, f)
+  }
+
+  return result.map((e) => e.key)
 }
 
 export const getOrderedKeysFromXML = <Rule extends MetadataItemRule>(params: {
@@ -136,6 +342,12 @@ export const getOrderedKeysFromXML = <Rule extends MetadataItemRule>(params: {
     const result: string[] = []
 
     for (const k of Object.keys(obj)) {
+      const directKey = propsAtPath[k]
+      if (directKey !== undefined && !added.has(directKey)) {
+        added.add(directKey)
+        result.push(directKey)
+      }
+
       if (childContainers.has(k)) {
         const nested = walkXml(obj[k], pathPrefix.concat([k]))
         for (const key of nested) {
@@ -143,12 +355,6 @@ export const getOrderedKeysFromXML = <Rule extends MetadataItemRule>(params: {
             added.add(key)
             result.push(key)
           }
-        }
-      } else if (propsAtPath[k] !== undefined) {
-        const key = propsAtPath[k]!
-        if (!added.has(key)) {
-          added.add(key)
-          result.push(key)
         }
       }
     }
@@ -183,17 +389,18 @@ export const getValueOrDefault = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: any
+  yaml?: any
   name?: string
   operation: TypeRulesOperations
 }): any => {
-  const { context, rule, value, name, operation } = params
+  const { context, rule, value, yaml, name, operation } = params
 
   if (value !== undefined) {
     return value
   }
 
   if (typeof rule.defaultValue === "function") {
-    return rule.defaultValue({ context, name, operation })
+    return rule.defaultValue({ context, yaml, name, operation })
   }
 
   return rule.defaultValue

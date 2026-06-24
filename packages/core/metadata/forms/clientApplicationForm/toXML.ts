@@ -1,6 +1,7 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { getUUID } from "~/metadata/helpers/uuid"
 import { exportPropertiesToXML } from "~/metadata/orchestration"
+import { recordCurrentExternalMetadataUuid } from "~/metadata/orchestration/externalMetadata/record"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 
@@ -46,8 +47,30 @@ export const exportClientApplicationFormToXML = (params: {
   return result
 }
 
+const globalNumberingScope = Symbol("globalNumberingScope")
+
 export const setIdsToElements = (context: ConfigurationContextWithExportToXML): void => {
   const elementsMap = context.exportToXML?.context?.metadataForNumbering ?? []
+  const groups = new Map<unknown, typeof elementsMap>()
+
+  for (const element of elementsMap) {
+    const scope = element.numberingScope ?? globalNumberingScope
+    const group = groups.get(scope)
+    if (group === undefined) {
+      groups.set(scope, [element])
+    } else {
+      group.push(element)
+    }
+  }
+
+  for (const group of groups.values()) {
+    setIdsToElementsGroup(group)
+  }
+}
+
+const setIdsToElementsGroup = (
+  elementsMap: NonNullable<ConfigurationContextWithExportToXML["exportToXML"]["context"]>["metadataForNumbering"]
+): void => {
   const occupiedIds = new Set<string>()
 
   for (const element of elementsMap) {
@@ -89,6 +112,7 @@ export const exportFormMetadataToXML = (params: {
   })
 
   const uuid = referenceForm?.uuid ?? getUUID(context)
+  recordCurrentExternalMetadataUuid({ context, uuid })
 
   const result = {
     _xmlns: "http://v8.1c.ru/8.3/MDClasses",

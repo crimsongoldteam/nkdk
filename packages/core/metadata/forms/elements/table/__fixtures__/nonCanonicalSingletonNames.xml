@@ -1,0 +1,31 @@
+<Table name="Подписи" id="1">
+	<AutoCommandBar name="ПодписиКоманднаяПанель" id="11"/>
+	<ContextMenu name="ПодписиКонтекстноеМеню" id="12"/>
+	<DataPath>Подписи</DataPath>
+	<ExtendedTooltip name="ПодписиРасширеннаяПодсказка" id="13"/>
+	<SearchStringAddition name="ТаблицаЭПСтрокаПоиска" id="2">
+		<AdditionSource>
+			<Item>Подписи</Item>
+			<Type>SearchStringRepresentation</Type>
+		</AdditionSource>
+		<ContextMenu name="ТаблицаЭПСтрокаПоискаКонтекстноеМеню" id="3"/>
+		<ExtendedTooltip name="ТаблицаЭПСтрокаПоискаРасширеннаяПодсказка" id="4"/>
+	</SearchStringAddition>
+	<ViewStatusAddition name="ТаблицаЭПСостояниеПросмотра" id="5">
+		<AdditionSource>
+			<Item>Подписи</Item>
+			<Type>ViewStatusRepresentation</Type>
+		</AdditionSource>
+		<HorizontalLocation>Left</HorizontalLocation>
+		<ContextMenu name="ТаблицаЭПСостояниеПросмотраКонтекстноеМеню" id="6"/>
+		<ExtendedTooltip name="ТаблицаЭПСостояниеПросмотраРасширеннаяПодсказка" id="7"/>
+	</ViewStatusAddition>
+	<SearchControlAddition name="ТаблицаЭПУправлениеПоиском" id="8">
+		<AdditionSource>
+			<Item>Подписи</Item>
+			<Type>SearchControl</Type>
+		</AdditionSource>
+		<ContextMenu name="ТаблицаЭПУправлениеПоискомКонтекстноеМеню" id="9"/>
+		<ExtendedTooltip name="ТаблицаЭПУправлениеПоискомРасширеннаяПодсказка" id="10"/>
+	</SearchControlAddition>
+</Table>

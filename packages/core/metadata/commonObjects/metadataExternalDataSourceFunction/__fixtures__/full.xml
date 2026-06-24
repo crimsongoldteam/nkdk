@@ -1,0 +1,17 @@
+<Function uuid="f3a425ae-a79d-4001-b911-e1f4ce4b0dff">
+	<Properties>
+		<Name>ФункцияВсеСвойства</Name>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Синоним</v8:content>
+			</v8:item>
+		</Synonym>
+		<Comment>Комментарий</Comment>
+		<ReturnValue>false</ReturnValue>
+		<Type>
+			<v8:Type>cfg:ExternalDataSourceTableRef.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства</v8:Type>
+		</Type>
+		<ExpressionInDataSource>ВыражениеВИсточникеДанных</ExpressionInDataSource>
+	</Properties>
+</Function>

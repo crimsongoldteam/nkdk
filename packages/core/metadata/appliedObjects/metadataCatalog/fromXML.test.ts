@@ -1,32 +1,46 @@
 import { describe, expect, it } from "vitest"
-import { full, minimal } from "~/tests/fixtures/metadataCatalog/data"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importMetadataCatalogFromXML } from "./fromXML"
-import { MetadataCatalogXML } from "./types"
+import { testImportAppliedObjectFromXML, testExportAppliedObjectToXML } from "~/tests/appliedObject"
+import { full } from "./__fixtures__/full"
+import { minimal } from "./__fixtures__/minimal"
+import { MetadataCatalogRules } from "./rules"
+import { MetadataCatalog } from "./types"
 
-describe("importMetadataCatalogFromXML", () => {
-  it("should import all nodes", () => {
-    const xmlData = readAndParseXMLFile<{ MetaDataObject: MetadataCatalogXML }>("metadataCatalog/full.xml")
-
-    const result = importMetadataCatalogFromXML(mockContextFromXML(), xmlData.MetaDataObject)
-
-    expect(result).toEqual(full)
+describe("import MetadataCatalog from XML", () => {
+  it("should import full", () => {
+    expect(
+      testImportAppliedObjectFromXML<MetadataCatalog>({
+        rule: MetadataCatalogRules,
+        importMetaUrl: import.meta.url,
+        fixture: "full.xml",
+      })
+    ).toEqual(full)
   })
 
-  it("should import minimal nodes", () => {
-    const xmlData = readAndParseXMLFile<{ MetaDataObject: MetadataCatalogXML }>("metadataCatalog/minimal.xml")
-
-    const result = importMetadataCatalogFromXML(mockContextFromXML(), xmlData.MetaDataObject)
-
-    expect(result).toEqual(minimal)
+  it("should import minimal", () => {
+    expect(
+      testImportAppliedObjectFromXML<MetadataCatalog>({
+        rule: MetadataCatalogRules,
+        importMetaUrl: import.meta.url,
+        fixture: "minimal.xml",
+      })
+    ).toEqual(minimal)
   })
 
-  it("should import defaults nodes", () => {
-    const xmlData = readAndParseXMLFile<{ MetaDataObject: MetadataCatalogXML }>("metadataCatalog/defaults.xml")
-
-    const result = importMetadataCatalogFromXML(mockContextFromXML(), xmlData.MetaDataObject)
-
-    expect(result).toEqual(minimal)
-  })
+  it.each(["full.xml", "minimal.xml"])(
+    "round-trip: %s — import затем export совпадает с исходным XML",
+    (fixture) => {
+      const data = testImportAppliedObjectFromXML<MetadataCatalog>({
+        rule: MetadataCatalogRules,
+        importMetaUrl: import.meta.url,
+        fixture,
+      })
+      const { result, expected } = testExportAppliedObjectToXML({
+        rule: MetadataCatalogRules,
+        importMetaUrl: import.meta.url,
+        fixture,
+        data: data!,
+      })
+      expect(result).toEqual(expected)
+    }
+  )
 })

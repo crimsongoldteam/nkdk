@@ -1,10 +1,16 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
 import { exportBooleanToYAML } from "../boolean/toYAML"
-import { type Picture, type PictureYAML, type PictureYAMLExtended } from "./types"
+import { formatMetadataTargetToYAML, type MetadataTargetConstraint } from "../metadataTargets"
+import { isRawPictureRef, type Picture, type PictureYAML, type PictureYAMLExtended } from "./types"
+
+const commonPictureTarget = {
+  kind: "object",
+  allowedObjectPaths: [["CommonPicture"]],
+} as const satisfies MetadataTargetConstraint
 
 export function exportPictureToYAML(
   context: ConfigurationContext,
@@ -12,6 +18,27 @@ export function exportPictureToYAML(
   picture: Picture | undefined
 ): PictureYAML | undefined {
   if (!picture) return undefined
+
+  if (isRawPictureRef(picture)) {
+    const hasLoadTransparent = picture.loadTransparent !== undefined
+    const hasTransparentPixel = !!picture.transparentPixel
+
+    if (!hasLoadTransparent && !hasTransparentPixel) {
+      return picture.rawRef
+    }
+
+    const result: PictureYAMLExtended = { Ссылка: picture.rawRef }
+
+    if (hasLoadTransparent) {
+      result.ПрозрачныйФон = exportBooleanToYAML(context, undefined, picture.loadTransparent)
+    }
+
+    if (hasTransparentPixel) {
+      result.ПрозрачныйПиксель = picture.transparentPixel
+    }
+
+    return result
+  }
 
   let ref: PictureYAML | undefined
 
@@ -25,6 +52,11 @@ export function exportPictureToYAML(
     if (!result) throw new Error(`Picture ref ${picture.ref} not found in PictureLibToYAML`)
 
     ref = result
+  } else if (picture.type === "CommonPicture") {
+    ref = formatMetadataTargetToYAML({
+      canonical: `CommonPicture.${picture.ref}`,
+      constraint: commonPictureTarget,
+    })
   } else {
     ref = picture.ref
   }

@@ -5,71 +5,41 @@ import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
 import {
   UserEditKeysYAML,
-  UserEditYAML,
+  UserVisibleYAML,
   UserViewKeysYAML,
-  UserViewYAML,
 } from "~/metadata/commonObjects/userVisible/types"
+import { ChartXML, ChartYAML } from "~/metadata/forms/commonObjects/chart/types"
 import { DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
+import { FlowchartContextXML, FlowchartContextYAML } from "~/metadata/forms/commonObjects/flowchartContext/types"
+import { GanttChartXML, GanttChartYAML } from "~/metadata/forms/commonObjects/ganttChart/types"
+import { PlannerXML, PlannerYAML } from "~/metadata/forms/commonObjects/planner/types"
+import {
+  SpreadsheetDocumentXML,
+  SpreadsheetDocumentYAML,
+} from "~/metadata/forms/commonObjects/spreadsheetDocument/types"
 import { ElementXML } from "~/metadata/orchestration"
 import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { FillCheckingYAML } from "~/metadata/systemEnumerations/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 
-export interface FormAttributeAdditionalColumn {
-  table: string
-  columns: FormAttributeColumn[]
-}
-
 export type FormAttribute = FormTypeByRule<typeof FormAttributeRules>
 
-// export interface FormAttribute extends MetadataItem {
-//   itemType: "FormAttribute"
-//   name: string
-//   title?: I8nText
-//   type?: TypeDescription
-//   columns: FormAttributeColumns
-//   valueType?: TypeDescription
-//   mainAttribute?: boolean
-//   storedData?: boolean
-//   view?: UserVisible
-//   edit?: UserVisible
-//   fillCheck?: FillChecking
-//   settings?: TypeDescription | DynamicList
-//   functionalOptions?: FunctionalOptions
-//   fieldsList?: FieldsList
-//   save?: FieldsList
-// }
-
 export type FormAttributeColumn = FormTypeByRule<typeof FormAttributeColumnRules>
-
-// export interface FormAttributeColumn extends MetadataItem {
-//   itemType: "FormAttributeColumn"
-//   name: string
-//   title?: I8nText
-//   type?: TypeDescription
-//   view?: UserVisible
-//   edit?: UserVisible
-//   fillCheck?: FillChecking
-//   functionalOptions?: FunctionalOptions
-// }
 
 export interface FormAttributeAdditionalColumns {
   table: string
   columns: FormAttributeColumn[]
 }
-export type FormAttributeColumns = FormAttributeColumn[] | FormAttributeAdditionalColumns[]
 
-// export interface FormAttributeAdditionalColumn extends MetadataItem {
-//   itemType: "FormAttributeAdditionalColumn"
-//   name: string
-//   // table: string
-//   title?: I8nText
-//   type?: TypeDescription
-//   view?: UserVisible
-//   edit?: UserVisible
-//   fillCheck?: FillChecking
-//   functionalOptions?: FunctionalOptions
-// }
+export type FormAttributeColumns = FormAttributeColumn[]
+
+export type FormAttributeAdditionalColumnsCollection = FormAttributeAdditionalColumns[]
+
+export type FormAttributeAdditionalColumn = FormAttributeAdditionalColumns
+
+export type FormAttributeWithAdditionalColumns = FormAttribute & {
+  additionalColumns?: FormAttributeAdditionalColumns[]
+}
 
 interface SettingsTypeDescriptionXML extends TypeDescriptionXML {
   "_xsi:type": "v8:TypeDescription"
@@ -89,7 +59,14 @@ export interface FormAttributeColumnsXML {
 
 export interface FormAttributeXML extends ElementXML {
   Columns?: FormAttributeColumnsXML
-  Settings?: SettingsTypeDescriptionXML | DynamicListXML
+  Settings?:
+    | SettingsTypeDescriptionXML
+    | DynamicListXML
+    | ChartXML
+    | GanttChartXML
+    | FlowchartContextXML
+    | SpreadsheetDocumentXML
+    | PlannerXML
 }
 
 export interface ConditionalAppearanceXML {
@@ -100,10 +77,8 @@ export interface FormAttributeColumnYAML {
   Заголовок?: I8nTextYAML
   Тип?: TypeDescriptionYAML
   ПроверкаЗаполнения?: FillCheckingYAML
-  [UserViewKeysYAML.Allow]?: UserViewYAML
-  [UserViewKeysYAML.Deny]?: UserViewYAML
-  [UserEditKeysYAML.Allow]?: UserEditYAML
-  [UserEditKeysYAML.Deny]?: UserEditYAML
+  [UserViewKeysYAML.Value]?: UserVisibleYAML
+  [UserEditKeysYAML.Value]?: UserVisibleYAML
   Колонки?: Record<string, FormAttributeColumnYAML>
   ФункциональныеОпции?: FunctionalOptionsYAML
 }
@@ -112,7 +87,7 @@ export interface FormAttributeAdditionalColumnYAML {
   [tableName: string]: Record<string, FormAttributeColumnYAML>
 }
 
-export type FormAttributeColumnsYAML = Record<string, FormAttributeColumnYAML> | FormAttributeAdditionalColumnYAML
+export type FormAttributeColumnsYAML = Record<string, FormAttributeColumnYAML>
 
 export interface FormAttributeYAML {
   Заголовок?: I8nTextYAML
@@ -121,11 +96,15 @@ export interface FormAttributeYAML {
   ОсновнойРеквизит?: StringboolYAML
   СохраняемыеДанные?: StringboolYAML
   ДинамическийСписок?: DynamicListYAML
-  [UserViewKeysYAML.Allow]?: UserViewYAML
-  [UserViewKeysYAML.Deny]?: UserViewYAML
-  [UserEditKeysYAML.Allow]?: UserEditYAML
-  [UserEditKeysYAML.Deny]?: UserEditYAML
+  Диаграмма?: ChartYAML
+  ДиаграммаГанта?: GanttChartYAML
+  ГрафическаяСхема?: FlowchartContextYAML
+  ТабличныйДокумент?: SpreadsheetDocumentYAML
+  Планировщик?: PlannerYAML
+  [UserViewKeysYAML.Value]?: UserVisibleYAML
+  [UserEditKeysYAML.Value]?: UserVisibleYAML
   Колонки?: FormAttributeColumnsYAML
+  ДополнительныеКолонки?: FormAttributeAdditionalColumnYAML
   ФункциональныеОпции?: FunctionalOptionsYAML
   ИспользоватьВсегда?: FieldsListYAML
   ПроверкаЗаполнения?: FillCheckingYAML
@@ -136,4 +115,4 @@ export type FormAttributes = FormAttribute[]
 
 export type FormAttributesXML = (FormAttributeXML | ConditionalAppearanceXML)[]
 
-export type FormAttributesYAML = Record<string, FormAttributeYAML | TypeDescriptionYAML>
+export type FormAttributesYAML = Record<string, FormAttributeYAML>

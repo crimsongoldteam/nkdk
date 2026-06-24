@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fullFieldsList } from "~/tests/fixtures/fieldsList/data"
+import { fullFieldsList } from "~/metadata/commonObjects/fieldsList/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"

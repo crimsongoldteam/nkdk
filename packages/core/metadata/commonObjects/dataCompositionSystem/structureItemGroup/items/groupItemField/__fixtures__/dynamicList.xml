@@ -1,0 +1,8 @@
+<dcsset:item xsi:type="dcsset:GroupItemField">
+	<dcsset:use>false</dcsset:use>
+	<dcsset:field>Наименование</dcsset:field>
+	<dcsset:groupType>Items</dcsset:groupType>
+	<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
+	<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
+	<dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
+</dcsset:item>

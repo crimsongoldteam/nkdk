@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { fullCommandInterface, fullCommandInterfaceYAML } from "~/tests/fixtures/commandInterface/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
+import { fullCommandInterfaceFromYAML, fullCommandInterfaceYAML } from "./__fixtures__/full"
 import { importCommandInterfaceFromYAML } from "./fromYAML"
 
 describe("importCommandInterfaceFromYAML", () => {
@@ -13,6 +13,31 @@ describe("importCommandInterfaceFromYAML", () => {
   it("should import full command interface", () => {
     const result = importCommandInterfaceFromYAML(mockContext, mockRule, fullCommandInterfaceYAML)
 
-    expect(result).toEqual(fullCommandInterface)
+    expect(result).toEqual(fullCommandInterfaceFromYAML)
+  })
+
+  it("imports unknown command group as raw XML identifier", () => {
+    const result = importCommandInterfaceFromYAML(mockContext, mockRule, {
+      КоманднаяПанель: [
+        {
+          Команда: "0",
+          Тип: "Auto",
+          ГруппаКоманд: "CommandGroup.Печать",
+        },
+      ],
+    })
+
+    expect(result).toEqual({
+      itemType: "CommandInterface",
+      NavigationPanel: [],
+      CommandBar: [
+        {
+          itemType: "CommandInterfaceItem",
+          command: "0",
+          type: "Auto",
+          commandGroup: "CommandGroup.Печать",
+        },
+      ],
+    })
   })
 })

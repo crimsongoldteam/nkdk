@@ -1,0 +1,5 @@
+<InputField name="ПолеАвтоВысотаЯчейки" id="1">
+	<AutoCellHeight>true</AutoCellHeight>
+	<ContextMenu name="ПолеАвтоВысотаЯчейкиКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="ПолеАвтоВысотаЯчейкиРасширеннаяПодсказка" id="3"/>
+</InputField>

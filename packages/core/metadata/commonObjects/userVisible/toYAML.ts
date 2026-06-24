@@ -1,28 +1,8 @@
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { PropertyRule, UserVisiblePropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { UserVisiblePropertyRule } from "~/metadata/orchestration/property/types"
 import { ConfigurationContext } from "../../context/types"
-import { UserVisibleYAML, type UserVisible } from "./types"
-
-/** @deprecated */
-export const exportUserVisibleToYAMLDeprecated = <AllowKey extends string, DenyKey extends string>(
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  userVisible: UserVisible | undefined,
-  keys: { allow: AllowKey; deny: DenyKey }
-): Partial<Record<AllowKey | DenyKey, UserVisibleYAML>> | undefined => {
-  if (!userVisible) return undefined
-
-  const values: UserVisibleYAML = {}
-  userVisible.values.forEach((item) => {
-    values[item.name] = exportBooleanToYAML(context, undefined, item.value)!
-  })
-
-  const key = userVisible.common ? keys.allow : keys.deny
-  return {
-    [key]: values,
-  } as Partial<Record<AllowKey | DenyKey, UserVisibleYAML>>
-}
+import { UserVisibleYAML, type UserVisible, type UserVisibleRolesYAML } from "./types"
 
 export const exportUserVisibleToYAML = (
   context: ConfigurationContext,
@@ -31,16 +11,26 @@ export const exportUserVisibleToYAML = (
 ): Partial<Record<string, UserVisibleYAML>> | undefined => {
   if (!userVisible) return undefined
   if (!rule.yaml) throw new Error("UserVisiblePropertyRule must have yaml property")
+  if (userVisible.values.length === 0) {
+    if (userVisible.common) return undefined
 
-  const values: UserVisibleYAML = {}
+    return {
+      [rule.yaml]: {
+        Разрешить: "Ложь" as const,
+      },
+    }
+  }
+
+  const roles: UserVisibleRolesYAML = {}
   userVisible.values.forEach((item) => {
-    values[item.name] = exportBooleanToYAML(context, undefined, item.value)!
+    roles[item.name] = exportBooleanToYAML(context, undefined, item.value)!
   })
 
-  const key = userVisible.common ? rule.yaml : rule.yamlDeny
-
   return {
-    [key]: values,
+    [rule.yaml]: {
+      ...(userVisible.common ? {} : { Разрешить: "Ложь" as const }),
+      Роли: roles,
+    },
   }
 }
 

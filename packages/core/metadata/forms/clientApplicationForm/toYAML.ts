@@ -1,27 +1,34 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext, ExternalFileEntry } from "~/metadata/context/types"
 import { exportPropertiesToYAML } from "~/metadata/orchestration"
-import { exportChildItemsToPartialYAML } from "../commonObjects/childItems/toYAML"
-import { getAllElements } from "./getAllElements"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
+
+export type FormYAMLExportResult = {
+  yaml: ClientApplicationFormYAML | undefined
+  externalFiles: ExternalFileEntry[]
+}
 
 export const exportClientApplicationFormToYAML = (
   context: ConfigurationContext,
   data: ClientApplicationForm
-): ClientApplicationFormYAML | undefined => {
-  const properties = exportPropertiesToYAML({
-    context,
+): FormYAMLExportResult => {
+  const externalFilesCollector: ExternalFileEntry[] = []
+
+  const contextWithCollector: ConfigurationContext = context.exportToYAML
+    ? {
+        ...context,
+        exportToYAML: {
+          ...context.exportToYAML,
+          externalFilesCollector,
+        },
+      }
+    : context
+
+  const yaml = exportPropertiesToYAML({
+    context: contextWithCollector,
     data: data,
     rule: ClientApplicationFormRules,
-  })
+  }) as ClientApplicationFormYAML | undefined
 
-  const allElements = getAllElements(data)
-  const childItemsPartial = exportChildItemsToPartialYAML(context, allElements)
-
-  const result: ClientApplicationFormYAML = {
-    ...properties,
-    ...(childItemsPartial ? { Элементы: childItemsPartial } : {}),
-  }
-
-  return result
+  return { yaml, externalFiles: externalFilesCollector }
 }

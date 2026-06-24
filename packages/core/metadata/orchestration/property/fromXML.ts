@@ -1,16 +1,19 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { MetadataItemRule, PropertyRule, ToMetadata } from ".."
-import { getTypeRule } from "../formElement/factory"
-import { getOrderedKeysFromXML, getValueOrDefault } from "./helpers"
+import { getTypeRule } from "./typeRuleRegistry"
+import { importContentFromXML } from "~/xml/import/importer"
+import { getOrderedKeysFromXML, getValueOrDefault, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
 
-export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
-  context: ConfigurationContextFromXML
-  xml: any
-  rule: Rule
-  tags?: string[]
-}): Omit<ToMetadata<Rule["itemType"]>, "itemType"> | undefined {
-  const { context, xml, rule, tags } = params
+export function importPropertiesFromXML<Rule extends MetadataItemRule>(
+  params: {
+    context: ConfigurationContextFromXML
+    rule: Rule
+    tags?: string[]
+  } & ({ xml: any } | { xmlString: string })
+): Omit<ToMetadata<Rule["itemType"]>, "itemType"> | undefined {
+  const { context, rule, tags } = params
+  const xml = "xmlString" in params ? importContentFromXML(params.xmlString) : params.xml
 
   const forReference = context.fromXML.forReference
 
@@ -19,27 +22,66 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
   const result = {} as Omit<ToMetadata<Rule["itemType"]>, "itemType">
 
   const orderedKeys = getOrderedKeysFromXML({ rule, xml, tags })
+  const ownerXmlName = getOwnerXmlName(xml)
 
   for (const key of orderedKeys) {
     const currentRule = rule.properties[key]
     if (!forReference && currentRule.forReferenceOnly === true) continue
 
-    const value =
-      currentRule.fromXML !== false
-        ? importPropertyFromXML({
-            context,
-            rule: currentRule,
-            value: getXMLValue(key, xml, currentRule),
-            name: key,
-          })
-        : undefined
+    const sourceXmlKey = getXMLKey(key, xml, currentRule)
+    let xmlValue = sourceXmlKey === undefined ? undefined : getXMLValueByKey(sourceXmlKey, xml, currentRule)
+    if (
+      xmlValue === undefined &&
+      currentRule.type === "MetadataDcsMetadataValue" &&
+      isXMLKeyPresent(key, xml, currentRule)
+    ) {
+      xmlValue = null
+    }
+    if (xmlValue === undefined && currentRule.type === "MetadataValue" && isXMLKeyPresent(key, xml, currentRule)) {
+      xmlValue = { "_xsi:nil": true }
+    }
+    const shouldImportForReference =
+      forReference &&
+      currentRule.fromXML === false &&
+      (xmlValue !== undefined || isXMLKeyPresent(key, xml, currentRule))
+
+    if (!shouldProcessProperty({ rule: currentRule, operation: "importFromXML" }) && !shouldImportForReference) continue
+
+    const hasExplicitXMLKeyWithEmptyDefault =
+      "defaultValueXMLEmpty" in currentRule && isXMLKeyPresent(key, xml, currentRule)
+    const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && (xmlValue === undefined || xmlValue === "")
+
+    let value
+    if (hasRawEmptyXML && (currentRule as any).emptyAsRawXML === true) {
+      value = (currentRule as any).defaultValueXMLEmpty
+    } else {
+      value =
+        shouldImportForReference || currentRule.fromXML !== false
+          ? importPropertyFromXML({
+              context,
+              rule: currentRule,
+              value: xmlValue,
+              name: key,
+              ownerXmlName,
+            })
+          : undefined
+    }
+
+    if (value === undefined && hasExplicitXMLKeyWithEmptyDefault) {
+      value = (currentRule as any).defaultValueXMLEmpty
+    }
 
     if (forReference) {
       ;(result as any)[key] = value
+      if (sourceXmlKey !== undefined) setXMLSourceKey(result, key, sourceXmlKey, true)
       continue
     }
 
-    const cleanValue = value === currentRule.defaultValueXML ? undefined : value
+    const preserveExplicitDefault =
+      currentRule.preserveExplicitDefaultXML === true &&
+      sourceXmlKey !== undefined &&
+      value === currentRule.defaultValueXML
+    const cleanValue = value === currentRule.defaultValueXML && !preserveExplicitDefault ? undefined : value
 
     const valueOrDefault = getValueOrDefault({
       context,
@@ -51,14 +93,25 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(params: {
 
     if (valueOrDefault === undefined) continue
     ;(result as any)[key] = valueOrDefault
+    if (sourceXmlKey !== undefined) setXMLSourceKey(result, key, sourceXmlKey, false)
   }
 
   return result
 }
 
-const getXMLValue = (key: string, xml: any, rule: PropertyRule): any => {
+const getXMLKeys = (key: string, rule: PropertyRule): string[] => {
   const xmlKey = rule.xml ?? capitalize(key)
+  return [xmlKey, ...((rule as any).xmlAliases ?? [])]
+}
 
+const getXMLKey = (key: string, xml: any, rule: PropertyRule): string | undefined => {
+  for (const xmlKey of getXMLKeys(key, rule)) {
+    if (isXMLKeyPresentByKey(xmlKey, xml, rule)) return xmlKey
+  }
+  return undefined
+}
+
+const getXMLValueByKey = (xmlKey: string, xml: any, rule: PropertyRule): any => {
   if (rule.xmlParents === undefined) return xml[xmlKey]
 
   let currentXml = xml
@@ -70,13 +123,46 @@ const getXMLValue = (key: string, xml: any, rule: PropertyRule): any => {
   return currentXml[xmlKey]
 }
 
+const getOwnerXmlName = (xml: unknown): string | undefined => {
+  if (xml === null || xml === undefined || typeof xml !== "object") return undefined
+  const name = (xml as { _name?: unknown })._name
+  return typeof name === "string" ? name : undefined
+}
+
+const isXMLKeyPresent = (key: string, xml: any, rule: PropertyRule): boolean => {
+  return getXMLKey(key, xml, rule) !== undefined
+}
+
+const isXMLKeyPresentByKey = (xmlKey: string, xml: any, rule: PropertyRule): boolean => {
+  if (rule.xmlParents === undefined) return xml !== undefined && xml !== null && xmlKey in xml
+  let currentXml = xml
+  for (const xmlParent of rule.xmlParents) {
+    if (currentXml === undefined || currentXml === null || !(xmlParent in currentXml)) return false
+    currentXml = currentXml[xmlParent]
+  }
+  return currentXml !== undefined && currentXml !== null && xmlKey in currentXml
+}
+
+const setXMLSourceKey = (result: object, key: string, xmlKey: string, enumerable: boolean): void => {
+  const currentMap = (result as any)[XML_SOURCE_KEYS]
+  const sourceKeys = currentMap ?? {}
+  sourceKeys[key] = xmlKey
+  if (currentMap === undefined) {
+    Object.defineProperty(result, XML_SOURCE_KEYS, {
+      value: sourceKeys,
+      enumerable,
+    })
+  }
+}
+
 export const importPropertyFromXML = (params: {
   context: ConfigurationContextFromXML
   rule: PropertyRule
   value: any
   name?: string
+  ownerXmlName?: string
 }): any => {
-  const { context, rule, value, name } = params
+  const { context, rule, value, name, ownerXmlName } = params
 
   const typeimportFn = rule.type ? getTypeRule(rule.type, "importFromXML") : undefined
 
@@ -84,7 +170,7 @@ export const importPropertyFromXML = (params: {
     return getValueOrDefault({ context, rule, value, name, operation: "importFromXML" })
   }
 
-  const result = typeimportFn(context, rule, value)
+  const result = typeimportFn(context, rule, value, ownerXmlName)
 
   return getValueOrDefault({ context, rule, value: result, name, operation: "importFromXML" })
 }

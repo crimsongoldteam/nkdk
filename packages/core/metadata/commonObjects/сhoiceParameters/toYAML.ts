@@ -1,8 +1,23 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
+import { exportFormChoiceListToYAML } from "../metadataValue/formChoiceList/toYAML"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
-import { ChoiceParameters, ChoiceParametersYAML } from "./types"
+import { ChoiceParameter, ChoiceParameters, ChoiceParametersYAML } from "./types"
+
+const exportChoiceParameterValueToYAML = (
+  context: ConfigurationContext,
+  param: ChoiceParameter
+): ChoiceParametersYAML[string] => {
+  if (param.value?.type === "formChoiceListDesTimeValue") {
+    return {
+      Тип: "ЗначениеСпискаВыбора",
+      ...exportFormChoiceListToYAML(context, param.value),
+    }
+  }
+
+  return exportMetadataValueToYAML(context, undefined, param.value)
+}
 
 export const exportChoiceParametersToYAML = (
   context: ConfigurationContext,
@@ -11,9 +26,7 @@ export const exportChoiceParametersToYAML = (
 ): ChoiceParametersYAML | undefined => {
   if (!data) return undefined
 
-  return Object.fromEntries(
-    data.map((param) => [param.name, exportMetadataValueToYAML(context, undefined, param.value)])
-  )
+  return Object.fromEntries(data.map((param) => [param.name, exportChoiceParameterValueToYAML(context, param)]))
 }
 
 registerTypeRule("ChoiceParameters", "exportToYAML", exportChoiceParametersToYAML)

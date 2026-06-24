@@ -1,9 +1,10 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
-import { Color } from "./types"
+import { formatMetadataTargetToYAML } from "../metadataTargets"
+import { Color, colorStyleItemTarget, isRawColorRef } from "./types"
 
 export const exportColorToYAML = <T extends Color | undefined>(
   context: ConfigurationContext,
@@ -11,6 +12,8 @@ export const exportColorToYAML = <T extends Color | undefined>(
   color: T
 ): string | undefined => {
   if (!color) return undefined
+
+  if (isRawColorRef(color)) return color.rawRef
 
   if (color.type === "StyleItem") {
     const standardColor = exportSystemEnumerationToYAMLDeprecated<SE.StyleColors>(
@@ -21,8 +24,10 @@ export const exportColorToYAML = <T extends Color | undefined>(
     if (standardColor) {
       return standardColor
     }
-    // Для custom style colors возвращаем с префиксом "ЭлементСтиля."
-    return `ЭлементСтиля.${color.value}`
+    return formatMetadataTargetToYAML({
+      canonical: `StyleItem.${color.value}`,
+      constraint: colorStyleItemTarget,
+    })
   }
 
   if (color.type === "WindowsColor") {

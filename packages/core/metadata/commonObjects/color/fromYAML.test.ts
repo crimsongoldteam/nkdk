@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { colorTestCases } from "~/tests/fixtures/color/data"
+import { colorTestCases } from "~/metadata/commonObjects/color/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { importColorFromYAML } from "./fromYAML"
 
@@ -18,4 +18,22 @@ describe("importColorFromYAML", () => {
       expect(result).toEqual(color)
     }
   )
+
+  it.each(["0", "0:615512b6-4378-4fce-86f1-a56725f945da"])("imports raw XML color ref %s from YAML", (rawRef) => {
+    const result = importColorFromYAML(mockContext, mockRule, rawRef)
+
+    expect(result).toEqual({ rawRef })
+  })
+
+  it("does not treat malformed 0-prefixed strings as raw XML color refs", () => {
+    const result = importColorFromYAML(mockContext, mockRule, "0:not-a-uuid")
+
+    expect(result).toEqual({ type: "Absolute", value: "0:not-a-uuid" })
+  })
+
+  it("rejects raw XML style refs from YAML", () => {
+    expect(() => importColorFromYAML(mockContext, mockRule, "style:SpecialTextColor" as never)).toThrow(
+      'Неизвестный корень "style:SpecialTextColor"'
+    )
+  })
 })

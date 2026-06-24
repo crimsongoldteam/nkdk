@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { borderTestCases } from "~/metadata/commonObjects/border/__fixtures__/data"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import importContentFromXML from "~/xml/import/importer"
 import { importBorderFromXML } from "./fromXML"
@@ -6,17 +7,13 @@ import { Border, BorderXML } from "./types"
 
 describe("importBorderFromXML", () => {
   it("should import Border by ref", () => {
-    const mockXml = `<Border ref="style:ControlBorder"/>`
+    const fixture = borderTestCases.find((testCase) => testCase.name === "border by style ref")
+    expect(fixture?.xml).toBeDefined()
 
-    const expected: Border = {
-      ref: "style:ControlBorder",
-    }
-
-    const xml = importContentFromXML<{ Border: BorderXML }>(mockXml)
-
+    const xml = importContentFromXML<{ Border: BorderXML }>(fixture!.xml!)
     const result = importBorderFromXML(mockContextFromXML(), mockRule, xml.Border)
 
-    expect(result).toEqual(expected)
+    expect(result).toEqual(fixture!.border)
   })
 
   it("should import Border with width and style", () => {

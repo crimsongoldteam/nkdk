@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fontYAMLFixtures } from "~/tests/fixtures/font/data"
+import { fontYAMLFixtures } from "~/metadata/commonObjects/font/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportFontToXML } from "./toXML"
@@ -16,5 +16,19 @@ describe("exportFontToXML", () => {
     const result = exportFontToXML(mockContext, mockRule, undefined)
 
     expect(result).toBeUndefined()
+  })
+
+  it("exports raw non-prefixed style item ref", () => {
+    const result = {
+      Font: exportFontToXML(mockContext, mockRule, {
+        ref: "0" as never,
+        kind: "StyleItem",
+        height: 10,
+        rawRef: true,
+      }),
+    }
+    const xmlString = xmlExport(result, false)
+
+    expect(xmlString).toEqual('<Font ref="0" height="10" kind="StyleItem"/>')
   })
 })

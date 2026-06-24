@@ -1,0 +1,5 @@
+<ChoiceParameters>
+	<app:item name="ВыборСчетовГоловнойОрганизации">
+		<app:value xsi:nil="true"/>
+	</app:item>
+</ChoiceParameters>

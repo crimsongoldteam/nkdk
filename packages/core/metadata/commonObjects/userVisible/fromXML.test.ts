@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { withMultipleValuesUserVisible } from "~/tests/fixtures/userVisible/withMultipleValues"
+import { withMultipleValuesUserVisible } from "~/metadata/commonObjects/userVisible/__fixtures__/withMultipleValues"
+import { withSingleValueUserVisible } from "~/metadata/commonObjects/userVisible/__fixtures__/withSingleValue"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importUserVisibleFromXML } from "./fromXML"
@@ -34,12 +35,36 @@ describe("importUserVisibleFromXML", () => {
   })
 
   it("should handle single value in Use XML", () => {
-    const xml = readAndParseXMLFile<{ UserVisible: UserVisibleXML }>("userVisible/withMultipleValues.xml")
-
-    const expectedResult = withMultipleValuesUserVisible
+    const xml = readAndParseXMLFile<{ UserVisible: UserVisibleXML }>("userVisible/withSingleValue.xml")
 
     const result = importUserVisibleFromXML(mockContextFromXML(), mockRule, xml.UserVisible)
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(withSingleValueUserVisible)
+  })
+
+  it("skips UserVisible values with unsupported boolean text", () => {
+    const result = importUserVisibleFromXML(mockContextFromXML(), mockRule, {
+      "xr:Value": { _name: "Role.Администратор", "#text": "maybe" as any },
+    })
+
+    expect(result).toEqual({ common: false, values: [] })
+  })
+
+  it("preserves Role-prefixed names and UUID names exactly", () => {
+    const result = importUserVisibleFromXML(mockContextFromXML(), mockRule, {
+      "xr:Common": "false",
+      "xr:Value": [
+        { _name: "Role.ПолныеПрава", "#text": "true" },
+        { _name: "b1d9c8b4-d05c-45c7-8db2-abc84e597700", "#text": "true" },
+      ],
+    })
+
+    expect(result).toEqual({
+      common: false,
+      values: [
+        { name: "Role.ПолныеПрава", value: true },
+        { name: "b1d9c8b4-d05c-45c7-8db2-abc84e597700", value: true },
+      ],
+    })
   })
 })

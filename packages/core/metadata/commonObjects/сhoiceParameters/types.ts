@@ -1,5 +1,12 @@
-import { Static, Type } from "@sinclair/typebox"
-import { MetadataValue, MetadataValueJSONSchema, MetadataValueXML } from "../metadataValue/types"
+import { Type } from "@sinclair/typebox"
+import {
+  MetadataExplicitFormChoiceListValueYAML,
+  MetadataExplicitFormChoiceListValueYAMLJSONSchema,
+  MetadataValue,
+  MetadataValueJSONSchema,
+  MetadataValueXML,
+  MetadataValueYAML,
+} from "../metadataValue/types"
 
 //#region ChoiceParameter
 
@@ -16,7 +23,7 @@ export type ChoiceParameters = ChoiceParameter[]
 
 export interface ChoiceParameterXML {
   _name: string
-  "app:value": MetadataValueXML
+  "app:value"?: MetadataValueXML<{ type: "MetadataValue" }, MetadataValue>
 }
 
 export interface ChoiceParametersXML {
@@ -25,14 +32,41 @@ export interface ChoiceParametersXML {
 
 //#endregion
 
-//#region ChoiceParametersYAML
+//#region ChoiceParameter DCS (dcscor)
 
-export type ChoiceParameterYAML = string
+/** Один `dcscor:item` внутри `dcscor:value xsi:type="dcscor:ChoiceParameters"`. */
+export interface ChoiceParameterDcsItemXML {
+  "dcscor:choiceParameter": string | { "#text"?: string }
+  /** Сериализованное значение метаданных (`exportMetadataValueToXML`). */
+  "dcscor:value"?: unknown
+}
+
+/** Корень фрагмента для `xmlExport`: узел `dcscor:value` с типом ChoiceParameters. */
+export interface ChoiceParameterDcsValueRootXML {
+  "dcscor:value": {
+    "_xsi:type": "dcscor:ChoiceParameters"
+    "dcscor:item": ChoiceParameterDcsItemXML | ChoiceParameterDcsItemXML[]
+  }
+}
+
+//#endregion
+
+//#region ChoiceParametersYAML
 
 export const ChoiceParametersJSONSchema = Type.Record(
   Type.String(),
-  Type.Union([MetadataValueJSONSchema, Type.Undefined()])
+  Type.Union([
+    MetadataExplicitFormChoiceListValueYAMLJSONSchema,
+    MetadataValueJSONSchema,
+    Type.Object({}, { additionalProperties: false }),
+    Type.Undefined(),
+    Type.Null(),
+  ])
 )
-export type ChoiceParametersYAML = Static<typeof ChoiceParametersJSONSchema>
+
+export type ChoiceParametersYAML = Record<
+  string,
+  MetadataExplicitFormChoiceListValueYAML | MetadataValueYAML | Record<string, never> | null | undefined
+>
 
 //#endregion

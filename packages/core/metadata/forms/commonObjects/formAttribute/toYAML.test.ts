@@ -5,6 +5,8 @@ import {
   choiceListFormAttributeYAML,
   fullFormAttributes,
   fullFormAttributesYAML,
+  mixedColumnsFormAttribute,
+  mixedColumnsFormAttributeYAML,
   shortFormAttribute,
   shortFormAttributeYAML,
   tableWithColumnsFormAttribute,
@@ -17,11 +19,66 @@ import {
   withEmptySettingsFormAttributeYAML,
   withFunctionalOptionsFormAttribute,
   withFunctionalOptionsFormAttributeYAML,
-} from "~/tests/fixtures/formAttributes/data"
+} from "~/metadata/forms/commonObjects/formAttribute/__fixtures__/legacy/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
+import { chartSettings } from "./__fixtures__/chartSettings"
+import { plannerSettings } from "./__fixtures__/plannerSettings"
+import { spreadsheetDocumentSettings } from "./__fixtures__/spreadsheetDocumentSettings"
 import { exportFormAttributesToYAML } from "./toYAML"
 
 let context: ConfigurationContext
+
+const chartSettingsYAML = {
+  Диаграмма: {
+    Тип: "Диаграмма",
+    Заголовок: "",
+    Диаграмма: `<d4p1:seriesCurId>1</d4p1:seriesCurId>
+<d4p1:pointsCurId>0</d4p1:pointsCurId>
+<d4p1:realExSeriesData>
+	<d4p1:id>1</d4p1:id>
+	<d4p1:color>auto</d4p1:color>
+	<d4p1:line width="2" gap="false">
+		<v8ui:style xsi:type="v8ui:ChartLineType">Solid</v8ui:style>
+	</d4p1:line>
+	<d4p1:text/>
+</d4p1:realExSeriesData>
+<d4p1:valuesAxis/>
+<d4p1:pointsAxis/>`,
+  },
+}
+
+const spreadsheetDocumentSettingsYAML = {
+  Макет: {
+    Тип: "ТабличныйДокумент",
+    Заголовок: "",
+    ТабличныйДокумент: `<mxl:languageSettings>
+	<mxl:currentLanguage/>
+	<mxl:defaultLanguage/>
+</mxl:languageSettings>
+<mxl:columns>
+	<mxl:size>3</mxl:size>
+</mxl:columns>
+<mxl:rowsItem>
+	<mxl:index>0</mxl:index>
+	<mxl:row>
+		<mxl:empty>true</mxl:empty>
+	</mxl:row>
+</mxl:rowsItem>
+<mxl:format>
+	<mxl:width>72</mxl:width>
+</mxl:format>`,
+  },
+}
+
+const plannerSettingsYAML = {
+  Канбан: {
+    Тип: "Планировщик",
+    Заголовок: "",
+    Планировщик: `<pl:itemsCurId>1</pl:itemsCurId>
+<pl:periodsCurId>2</pl:periodsCurId>
+<pl:resourcesCurId>3</pl:resourcesCurId>`,
+  },
+}
 
 describe("exportFormAttributesToYAML", () => {
   beforeEach(() => {
@@ -43,7 +100,7 @@ describe("exportFormAttributesToYAML", () => {
     expect(result).toEqual(fullFormAttributesYAML)
   })
 
-  it("should export with short format", () => {
+  it("should export object format", () => {
     const result = exportFormAttributesToYAML(context, mockRule, shortFormAttribute)
 
     expect(result).toEqual(shortFormAttributeYAML)
@@ -95,5 +152,29 @@ describe("exportFormAttributesToYAML", () => {
     const result = exportFormAttributesToYAML(context, mockRule, withAdditionalColumnFormAttribute)
 
     expect(result).toEqual(withAdditionalColumnFormAttributeYAML)
+  })
+
+  it("should export mixed columns", () => {
+    const result = exportFormAttributesToYAML(context, mockRule, mixedColumnsFormAttribute)
+
+    expect(result).toEqual(mixedColumnsFormAttributeYAML)
+  })
+
+  it("should export chartSettings", () => {
+    const result = exportFormAttributesToYAML(context, mockRule, chartSettings)
+
+    expect(result).toEqual(chartSettingsYAML)
+  })
+
+  it("should export spreadsheetDocumentSettings", () => {
+    const result = exportFormAttributesToYAML(context, mockRule, spreadsheetDocumentSettings)
+
+    expect(result).toEqual(spreadsheetDocumentSettingsYAML)
+  })
+
+  it("should export plannerSettings", () => {
+    const result = exportFormAttributesToYAML(context, mockRule, plannerSettings)
+
+    expect(result).toEqual(plannerSettingsYAML)
   })
 })

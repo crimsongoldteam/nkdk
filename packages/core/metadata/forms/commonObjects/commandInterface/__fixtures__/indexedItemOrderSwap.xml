@@ -1,0 +1,23 @@
+<CommandInterface>
+	<NavigationPanel>
+		<Item>
+			<Command>DataProcessor.ЗагрузкаКурсовВалютЕЦБ.Command.ЗагрузитьКурсыВалютЕЦБ</Command>
+			<Type>Added</Type>
+			<Index>1</Index>
+			<DefaultVisible>false</DefaultVisible>
+			<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
+			<Visible>
+				<xr:Common>false</xr:Common>
+			</Visible>
+		</Item>
+		<Item>
+			<Command>InformationRegister.ОтносительныеКурсыВалют.Command.ЗагрузитьКурсыИзТаблицы</Command>
+			<Type>Added</Type>
+			<DefaultVisible>false</DefaultVisible>
+			<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
+			<Visible>
+				<xr:Common>false</xr:Common>
+			</Visible>
+		</Item>
+	</NavigationPanel>
+</CommandInterface>

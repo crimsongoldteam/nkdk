@@ -1,0 +1,5 @@
+<LabelField name="НадписьАвтоВысотаЯчейки" id="1">
+	<AutoCellHeight>true</AutoCellHeight>
+	<ContextMenu name="НадписьАвтоВысотаЯчейкиКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="НадписьАвтоВысотаЯчейкиРасширеннаяПодсказка" id="3"/>
+</LabelField>

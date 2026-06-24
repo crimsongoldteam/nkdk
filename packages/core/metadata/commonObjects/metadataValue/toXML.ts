@@ -1,115 +1,132 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { exportI8nTextToXML } from "../i8nText/toXML"
+import { exportFixedArrayToXML } from "./fixedArray/toXML"
+import { exportFormChoiceListToXML } from "./formChoiceList/toXML"
+import { primitiveValueHandlers } from "./handlers"
+import { exportStandardPeriodToXML } from "../standardPeriod/toXML"
 import {
-  MetadataFixedArrayValueXML,
+  MetadataFixedArrayValue,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueXML,
   MetadataPrimitiveValueType,
-  MetadataSimpleValue,
   MetadataSimpleValueXML,
-  MetadataValue,
+  MetadataStringValue,
+  MetadataTypedValue,
+  MetadataValuePropertyRule,
   MetadataValueTypeToXML,
-  MetadataValueXML,
+  assertValueType,
 } from "./types"
 
-export const exportMetadataValueToXML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataValue | undefined
-): MetadataValueXML | undefined => {
-  if (!data) return undefined
+const PRIMITIVE_TYPES: readonly MetadataPrimitiveValueType[] = [
+  "string",
+  "decimal",
+  "dateTime",
+  "boolean",
+  "ref",
+  "objectRef",
+  "ApplicationUsePurpose",
+  "typeRef",
+  "uuid",
+  "DataCompositionComparisonType",
+  "AccountType",
+]
 
-  const xmlType = MetadataValueTypeToXML[data.type]
+const isNilMetadataValueXML = (value: unknown): value is { "_xsi:nil": true } =>
+  typeof value === "object" &&
+  value !== null &&
+  !Array.isArray(value) &&
+  (value as Record<string, unknown>)["_xsi:nil"] === true
 
-  if (data.type === "fixedArray") {
-    return exportFixedArrayValueToXML(context, undefined, data as Extract<MetadataValue, { type: "fixedArray" }>)
+const isV8NullMetadataValueXML = (value: unknown): value is { "_xsi:type": "v8:Null" } =>
+  typeof value === "object" &&
+  value !== null &&
+  !Array.isArray(value) &&
+  (value as Record<string, unknown>)["_xsi:type"] === "v8:Null"
+
+const getReferenceMetadataValueXMLType = (value: unknown): string | undefined => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined
+  const xsiType = (value as Record<string, unknown>)["_xsi:type"]
+  return typeof xsiType === "string" ? xsiType : undefined
+}
+
+/**
+ * Экспортирует MetadataValue в XML. Принимает тегированную форму {type, value}.
+ */
+export const exportMetadataValueToXML = (params: {
+  context: ConfigurationContext
+  rule: MetadataValuePropertyRule
+  value: MetadataTypedValue | { "_xsi:nil": true } | undefined
+  referenceMetadata?: unknown
+}): any => {
+  const { rule, value, referenceMetadata } = params
+
+  if (isNilMetadataValueXML(value)) return { "_xsi:nil": true }
+  if (isV8NullMetadataValueXML(value)) return { "_xsi:type": "v8:Null" }
+
+  if (value === undefined) {
+    if (isNilMetadataValueXML(referenceMetadata)) return { "_xsi:nil": true }
+    const referenceXMLType = getReferenceMetadataValueXMLType(referenceMetadata)
+    if (referenceXMLType !== undefined) return { "_xsi:type": referenceXMLType }
+    if (rule.exportNilValue) return { "_xsi:nil": true }
+    if (rule.valueType !== undefined && rule.valueType.length > 0) {
+      const firstType = rule.valueType[0]
+      const xmlType = MetadataValueTypeToXML[firstType]
+      return { "_xsi:type": xmlType }
+    }
+    return undefined
   }
 
-  if (data.type === "formChoiceListDesTimeValue") {
-    return exportFormChoiceListValueToXML(
-      context,
-      undefined,
-      data as Extract<MetadataValue, { type: "formChoiceListDesTimeValue" }>
-    )
+  assertValueType(rule.valueType, value.type, "toXML")
+
+  if (value.type === "fixedArray") {
+    return exportFixedArrayToXML(params.context, value as MetadataFixedArrayValue)
   }
 
-  return exportSimpleValue(xmlType, String(data.value))
+  if (value.type === "formChoiceListDesTimeValue") {
+    return exportFormChoiceListToXML(params.context, value as MetadataFormChoiceListValue)
+  }
+
+  if (value.type === "valueList") {
+    return { "_xsi:type": MetadataValueTypeToXML.valueList }
+  }
+
+  if (value.type === "standardPeriod") {
+    return exportStandardPeriodToXML(value.value)
+  }
+
+  if (!PRIMITIVE_TYPES.includes(value.type as MetadataPrimitiveValueType)) {
+    throw new Error(`MetadataValue: неподдерживаемый тип для экспорта в XML: ${value.type}`)
+  }
+
+  const handler = primitiveValueHandlers[value.type as MetadataPrimitiveValueType]
+  if (handler === undefined) {
+    throw new Error(`MetadataValue: отсутствует toXML-обработчик для типа ${value.type} (rule.type: ${rule.type})`)
+  }
+  return handler.toXML(value)
 }
 
-export const exportMetadataValuesToXML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataValue[] | undefined
-): MetadataValueXML[] | undefined => {
-  if (!data) return undefined
-
-  return data.map((value) => exportMetadataValueToXML(context, undefined, value)!)
-}
-
-export const exportMetadataSimpleValueToXML = (
-  _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  value: string | boolean | number | undefined,
-  type: MetadataPrimitiveValueType
-): MetadataSimpleValueXML | undefined => {
-  if (value === undefined) return undefined
-
-  const data = {
-    type,
-    value,
-  } as MetadataSimpleValue
-
-  return exportMetadataValueToXML(_context, undefined, data) as MetadataSimpleValueXML
-}
-
-const exportFixedArrayValueToXML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: Extract<MetadataValue, { type: "fixedArray" }>
-): MetadataFixedArrayValueXML => {
-  const values = data.value.map((v) => exportMetadataValueToXML(context, undefined, v)!)
-  return {
-    "_xsi:type": "v8:FixedArray",
-    "v8:Value": values.length === 1 ? values[0] : values,
-  } as MetadataFixedArrayValueXML
-}
-
+/** @deprecated Используй exportFormChoiceListToXML из submodule formChoiceList/toXML */
 export const exportFormChoiceListValueToXML = (
   context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
   data: MetadataFormChoiceListValue
-): MetadataFormChoiceListValueXML => {
-  const value = exportMetadataValueToXML(context, undefined, data.value)
+): MetadataFormChoiceListValueXML => exportFormChoiceListToXML(context, data)
 
-  // Если значение undefined, создаем объект с xsi:nil="true"
-  const valueXML: MetadataValueXML =
-    value ??
-    ({
-      "_xsi:nil": true,
-    } as any)
-
-  return {
-    "_xsi:type": "FormChoiceListDesTimeValue",
-    Presentation: exportI8nTextToXML(context, { type: "I8nText" }, data.presentation),
-    Value: valueXML,
-  } as MetadataFormChoiceListValueXML
-}
-
-const exportSimpleValue = (xsiType: MetadataSimpleValueXML["_xsi:type"], text: string): MetadataSimpleValueXML => ({
-  "_xsi:type": xsiType,
-  "#text": text,
-})
-
+/**
+ * Экспортирует AssociatedTable (MetadataStringValue) в XML.
+ */
 export const exportAssociatedTableToXML = (
-  _context: ConfigurationContext,
+  context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  value: string
+  value: MetadataStringValue | undefined
 ): MetadataSimpleValueXML | undefined => {
-  return exportMetadataSimpleValueToXML(_context, undefined, value, "string")
+  if (value === undefined) return undefined
+  return exportMetadataValueToXML({
+    context,
+    rule: { type: "MetadataValue" },
+    value,
+  }) as MetadataSimpleValueXML
 }
 
-registerTypeRule("MetadataValue", "exportToXML", exportMetadataValueToXML)
-
+registerTypeRule("MetadataValue", "exportToXML", exportMetadataValueToXML as any)
 registerTypeRule("AssociatedTable", "exportToXML", exportAssociatedTableToXML as any)

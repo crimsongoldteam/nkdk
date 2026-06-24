@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { IndexField, IndexFieldYAML, IndexFields, IndexFieldsYAML } from "./types"
 
@@ -10,7 +10,7 @@ export const exportIndexFieldToYAML = (
 ): IndexFieldYAML | undefined => {
   if (!data) return undefined
 
-  return "TODO"
+  return data
 }
 
 export const exportIndexFieldsToYAML = (
@@ -23,4 +23,4 @@ export const exportIndexFieldsToYAML = (
   return data.map((item) => exportIndexFieldToYAML(context, undefined, item)!)
 }
 
-registerTypeRule("IndexField", "exportToYAML", exportIndexFieldToYAML)
+registerTypeRule("IndexField", "exportToYAML", exportIndexFieldsToYAML)

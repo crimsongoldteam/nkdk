@@ -7,7 +7,8 @@ import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, Comman
 export const exportCommandInterfaceToXML = (
   context: ConfigurationContext,
   _rule: PropertyRule,
-  data: CommandInterface | undefined
+  data: CommandInterface | undefined,
+  referenceData?: CommandInterface | undefined
 ): CommandInterfaceXML | undefined => {
   if (!data) return undefined
 
@@ -15,13 +16,13 @@ export const exportCommandInterfaceToXML = (
 
   if (data.NavigationPanel && data.NavigationPanel.length > 0) {
     result.NavigationPanel = {
-      Item: exportCommandInterfaceItemsToXML(context, data.NavigationPanel),
+      Item: exportCommandInterfaceItemsToXML(context, data.NavigationPanel, referenceData?.NavigationPanel),
     }
   }
 
   if (data.CommandBar && data.CommandBar.length > 0) {
     result.CommandBar = {
-      Item: exportCommandInterfaceItemsToXML(context, data.CommandBar),
+      Item: exportCommandInterfaceItemsToXML(context, data.CommandBar, referenceData?.CommandBar),
     }
   }
 
@@ -32,35 +33,122 @@ export const exportCommandInterfaceToXML = (
 
 const exportCommandInterfaceItemsToXML = (
   context: ConfigurationContext,
-  items: CommandInterfaceItem[]
+  items: CommandInterfaceItem[],
+  referenceItems?: CommandInterfaceItem[] | undefined
 ): CommandInterfaceItemXML[] => {
-  return items.map((item, index) => exportCommandInterfaceItemToXML(context, item, index))
+  return items.map((item) =>
+    exportCommandInterfaceItemToXML(context, item, findReferenceCommandInterfaceItem(item, referenceItems))
+  )
 }
 
 const exportCommandInterfaceItemToXML = (
   context: ConfigurationContext,
   item: CommandInterfaceItem,
-  index: number
+  referenceItem?: CommandInterfaceItem | undefined
 ): CommandInterfaceItemXML => {
-  const result: CommandInterfaceItemXML = {
+  const values: Partial<CommandInterfaceItemXML> = {
     Command: item.command,
     Type: item.type ?? "Auto",
-    Index: index,
+    Attribute: item.attribute,
+    Index: item.index,
     DefaultVisible: item.defaultVisible,
-  }
-
-  if (item.commandGroup) {
-    result.CommandGroup = item.commandGroup
+    CommandGroup: item.commandGroup,
   }
 
   if (item.visible) {
     const visibleXML = exportUserVisibleToXML(
       context,
-      { type: "UserVisible", yaml: "РазрешитьИспользование", yamlDeny: "ЗапретитьИспользование" },
+      { type: "UserVisible", yaml: "Использование" },
       item.visible
     )
     if (visibleXML) {
-      result.Visible = visibleXML
+      values.Visible = visibleXML
+    }
+  }
+
+  const orderedKeys = getOrderedCommandInterfaceItemXMLKeys(referenceItem)
+  const result = {} as CommandInterfaceItemXML
+  for (const key of orderedKeys) {
+    const value = values[key]
+    if (value !== undefined) {
+      ;(result as unknown as Record<keyof CommandInterfaceItemXML, unknown>)[key] = value
+    }
+  }
+
+  return result
+}
+
+const commandInterfaceItemModelToXmlKeys = {
+  command: "Command",
+  type: "Type",
+  attribute: "Attribute",
+  index: "Index",
+  commandGroup: "CommandGroup",
+  defaultVisible: "DefaultVisible",
+  visible: "Visible",
+} as const
+
+const fallbackCommandInterfaceItemXMLKeys = [
+  "Command",
+  "Type",
+  "Attribute",
+  "Index",
+  "DefaultVisible",
+  "CommandGroup",
+  "Visible",
+] as const satisfies readonly (keyof CommandInterfaceItemXML)[]
+
+const commandInterfaceItemIdentityKeys = ["command", "type", "attribute", "index", "commandGroup"] as const
+
+const commandInterfaceItemValueEquals = (left: unknown, right: unknown): boolean =>
+  JSON.stringify(left) === JSON.stringify(right)
+
+const commandInterfaceItemFullIdentityMatches = (
+  item: CommandInterfaceItem,
+  referenceItem: CommandInterfaceItem
+): boolean =>
+  commandInterfaceItemIdentityKeys.every((key) => commandInterfaceItemValueEquals(item[key], referenceItem[key]))
+
+const commandInterfaceItemCoarseIdentityMatches = (
+  item: CommandInterfaceItem,
+  referenceItem: CommandInterfaceItem
+): boolean =>
+  referenceItem.command === item.command &&
+  referenceItem.commandGroup === item.commandGroup &&
+  referenceItem.index === item.index
+
+const findReferenceCommandInterfaceItem = (
+  item: CommandInterfaceItem,
+  referenceItems: CommandInterfaceItem[] | undefined
+): CommandInterfaceItem | undefined => {
+  if (!referenceItems) return undefined
+
+  return (
+    referenceItems.find((referenceItem) => commandInterfaceItemFullIdentityMatches(item, referenceItem)) ??
+    referenceItems.find((referenceItem) => commandInterfaceItemCoarseIdentityMatches(item, referenceItem))
+  )
+}
+
+const getOrderedCommandInterfaceItemXMLKeys = (
+  referenceItem: CommandInterfaceItem | undefined
+): (keyof CommandInterfaceItemXML)[] => {
+  if (!referenceItem) return [...fallbackCommandInterfaceItemXMLKeys]
+
+  const result: (keyof CommandInterfaceItemXML)[] = []
+  const added = new Set<keyof CommandInterfaceItemXML>()
+
+  for (const modelKey of Object.keys(referenceItem)) {
+    const xmlKey = commandInterfaceItemModelToXmlKeys[modelKey as keyof typeof commandInterfaceItemModelToXmlKeys]
+    if (xmlKey !== undefined && !added.has(xmlKey)) {
+      result.push(xmlKey)
+      added.add(xmlKey)
+    }
+  }
+
+  for (const xmlKey of fallbackCommandInterfaceItemXMLKeys) {
+    if (!added.has(xmlKey)) {
+      result.push(xmlKey)
+      added.add(xmlKey)
     }
   }
 

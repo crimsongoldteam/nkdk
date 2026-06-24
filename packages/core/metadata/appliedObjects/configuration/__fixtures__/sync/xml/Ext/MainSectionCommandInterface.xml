@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<CommandsVisibility>
+		<Command name="Enum.ПеречислениеВсеСвойства.Command.Команда1">
+			<Visibility>
+				<xr:Common>false</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="Document.ДокументВсеСвойства.Command.Команда1">
+			<Visibility>
+				<xr:Common>true</xr:Common>
+				<xr:Value name="Role.РольВсеСвойства">false</xr:Value>
+			</Visibility>
+		</Command>
+		<Command name="Enum.ПеречислениеВсеСвойства.StandardCommand.OpenList">
+			<Visibility>
+				<xr:Common>false</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Command.Команда1">
+			<Visibility>
+				<xr:Common>true</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты.Command.Команда1">
+			<Visibility>
+				<xr:Common>true</xr:Common>
+				<xr:Value name="Role.РольВсеСвойства">true</xr:Value>
+			</Visibility>
+		</Command>
+		<Command name="Report.ОтчетСКД.StandardCommand.Open">
+			<Visibility>
+				<xr:Common>true</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="Catalog.СправочникПолный.Command.ПоУмолчанию">
+			<Visibility>
+				<xr:Common>true</xr:Common>
+				<xr:Value name="Role.Администратор">true</xr:Value>
+			</Visibility>
+		</Command>
+	</CommandsVisibility>
+	<CommandsPlacement>
+		<Command name="Enum.ПеречислениеВсеСвойства.Command.Команда1">
+			<CommandGroup>NavigationPanelImportant</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+		<Command name="Document.ДокументВсеСвойства.Command.Команда1">
+			<CommandGroup>NavigationPanelOrdinary</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+		<Command name="Enum.ПеречислениеВсеСвойства.StandardCommand.OpenList">
+			<CommandGroup>NavigationPanelOrdinary</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+		<Command name="InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Command.Команда1">
+			<CommandGroup>CommandGroup.ГруппаКомандПоУмолчанию</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+		<Command name="AccumulationRegister.РегистрНакопленияВсеСвойстваОбороты.Command.Команда1">
+			<CommandGroup>ActionsPanelCreate</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+		<Command name="Report.ОтчетСКД.StandardCommand.Open">
+			<CommandGroup>ActionsPanelReports</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+		<Command name="Catalog.СправочникПолный.Command.ПоУмолчанию">
+			<CommandGroup>ActionsPanelTools</CommandGroup>
+			<Placement>Manual</Placement>
+		</Command>
+	</CommandsPlacement>
+	<CommandsOrder>
+		<Command name="Document.ДокументВсеСвойства.Command.Команда1">
+			<CommandGroup>NavigationPanelOrdinary</CommandGroup>
+		</Command>
+		<Command name="Enum.ПеречислениеВсеСвойства.StandardCommand.OpenList">
+			<CommandGroup>NavigationPanelOrdinary</CommandGroup>
+		</Command>
+		<Command name="InformationRegister.РегистрСведенийВсеСвойстваНезависимый.Command.Команда1">
+			<CommandGroup>CommandGroup.ГруппаКомандПоУмолчанию</CommandGroup>
+		</Command>
+		<Command name="Catalog.СправочникПолный.Command.ПоУмолчанию">
+			<CommandGroup>ActionsPanelTools</CommandGroup>
+		</Command>
+	</CommandsOrder>
+	<GroupsOrder>
+		<Group>NavigationPanelOrdinary</Group>
+		<Group>CommandGroup.ГруппаКомандПоУмолчанию</Group>
+		<Group>ActionsPanelTools</Group>
+	</GroupsOrder>
+</CommandInterface>

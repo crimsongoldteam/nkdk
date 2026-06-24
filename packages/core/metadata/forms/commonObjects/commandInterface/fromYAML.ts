@@ -1,8 +1,8 @@
-import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import { importUserVisibleFromYAML } from "~/metadata/commonObjects/userVisible/fromYAML"
 import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { StandardCommandsGroupFromYAML } from "~/metadata/systemEnumerations/types"
+import type { StandardCommandsGroupYAML } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemYAML, CommandInterfaceYAML } from "./types"
@@ -31,6 +31,15 @@ export const importCommandInterfaceFromYAML = (
   return result
 }
 
+const isStandardCommandsGroupYAML = (commandGroup: string): commandGroup is StandardCommandsGroupYAML =>
+  commandGroup in StandardCommandsGroupFromYAML
+
+const importCommandGroupFromYAML = (commandGroup: StandardCommandsGroupYAML | string): string => {
+  if (isStandardCommandsGroupYAML(commandGroup)) return StandardCommandsGroupFromYAML[commandGroup]
+
+  return commandGroup
+}
+
 const importCommandInterfaceItemFromYAML = (
   context: ConfigurationContext,
   item: CommandInterfaceItemYAML
@@ -38,18 +47,29 @@ const importCommandInterfaceItemFromYAML = (
   const result: CommandInterfaceItem = {
     command: item.Команда,
     type: item.Тип,
-    defaultVisible: importBooleanFromYAML(context, undefined, item.Автовидимость)!,
     itemType: "CommandInterfaceItem",
   }
 
+  if (item.Реквизит !== undefined) {
+    result.attribute = item.Реквизит
+  }
+
+  if (item.Автовидимость === "Ложь") {
+    result.defaultVisible = false
+  }
+
+  if (item.Индекс !== undefined) {
+    result.index = item.Индекс
+  }
+
   if (item.ГруппаКоманд) {
-    result.commandGroup = StandardCommandsGroupFromYAML[item.ГруппаКоманд]
+    result.commandGroup = importCommandGroupFromYAML(item.ГруппаКоманд)
   }
 
   const visible = importUserVisibleFromYAML({
     context,
-    rule: { type: "UserVisible", yaml: UserVisibleKeysYAML.Allow, yamlDeny: UserVisibleKeysYAML.Deny },
-    value: item[UserVisibleKeysYAML.Allow],
+    rule: { type: "UserVisible", yaml: UserVisibleKeysYAML.Value },
+    value: item[UserVisibleKeysYAML.Value],
     yaml: item,
   })
   if (visible) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { withMultipleValuesUserVisible } from "~/tests/fixtures/userVisible/withMultipleValues"
-import { withSingleValueUserVisible } from "~/tests/fixtures/userVisible/withSingleValue"
+import { withMultipleValuesUserVisible } from "~/metadata/commonObjects/userVisible/__fixtures__/withMultipleValues"
+import { withSingleValueUserVisible } from "~/metadata/commonObjects/userVisible/__fixtures__/withSingleValue"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
@@ -50,5 +50,24 @@ describe("exportUserVisibleToXML", () => {
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
+  })
+
+  it("exports Role-prefixed names and UUID names exactly", () => {
+    const mockUserVisible: UserVisible = {
+      common: false,
+      values: [
+        { name: "Role.ПолныеПрава", value: true },
+        { name: "b1d9c8b4-d05c-45c7-8db2-abc84e597700", value: true },
+      ],
+    }
+
+    const exported = exportUserVisibleToXML(mockContext, mockRule, mockUserVisible)
+    const xmlString = xmlExport({ UserVisible: exported }, false)
+
+    expect(xmlString).toEqual(`<UserVisible>
+	<xr:Common>false</xr:Common>
+	<xr:Value name="Role.ПолныеПрава">true</xr:Value>
+	<xr:Value name="b1d9c8b4-d05c-45c7-8db2-abc84e597700">true</xr:Value>
+</UserVisible>`)
   })
 })

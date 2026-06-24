@@ -1,65 +1,106 @@
 import fs from "fs"
 import { basename, join } from "path"
+import { BatchTask, runBatch } from "~/helpers/runBatch"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { convertFormFromXML } from "~/metadata/forms/clientApplicationForm/convertFromXML"
-import { convertCatalogFromXML } from "../metadataCatalog/convertFromXML"
+import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
+import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { CONFIGURATION_XML_FILE, readConfigurationFromXML, writeConfigurationToYAML } from "./rootIO"
+import { MetadataConfigurationRules } from "./rules"
+import { TopLevelMetadataItemRules } from "./topLevelRules"
+
+// TODO: вынести в настройки расширения
+const IO_CONCURRENCY = 64
+
+export type ConfigurationSyncResult = {
+  succeeded: number
+  failed: Array<{
+    kind: string
+    name: string
+    parent?: string
+    error: Error
+  }>
+}
 
 export const syncConfigurationFromXML = async (params: {
   context: ConfigurationContextFromXML
   /**
-   * Путь к каталогу Catalogs
+   * Путь к корню XML-выгрузки конфигурации
    */
   inputDir: string
   /**
-   * Путь к каталогу Справочник
+   * Путь к корню YAML-проекта
    */
   outputDir: string
-}): Promise<void> => {
+}): Promise<ConfigurationSyncResult> => {
   const { context, inputDir, outputDir } = params
 
   if (!fs.existsSync(inputDir)) {
-    return
+    return { succeeded: 0, failed: [] }
   }
 
-  const catalogsXMLDir = join(inputDir, "Catalogs")
-  const catalogsYAMLDir = join(outputDir, "Справочник")
+  if (fs.existsSync(join(inputDir, CONFIGURATION_XML_FILE))) {
+    const configuration = readConfigurationFromXML({ context, inputDir })
+    writeConfigurationToYAML({ context, configuration, outputDir })
+    await syncRootConfigurationExternalFilesFromXML({ context, inputDir, outputDir })
+  }
 
-  const entries = fs.readdirSync(catalogsXMLDir, { withFileTypes: true })
-  const xmlFiles = entries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
+  const tasks: BatchTask<void>[] = []
 
-  for (const entry of xmlFiles) {
-    const name = basename(entry.name, ".xml")
-    try {
-      await convertCatalogFromXML({
-        context,
-        inputDir: catalogsXMLDir,
+  for (const rule of TopLevelMetadataItemRules) {
+    if (rule.xmlDir === undefined) continue
+    if (rule.itemTypePrefix === undefined) continue
+
+    const xmlDirAbs = join(inputDir, rule.xmlDir)
+    const yamlDirAbs = join(outputDir, rule.itemTypePrefix)
+    if (!fs.existsSync(xmlDirAbs)) continue
+
+    const entries = await fs.promises.readdir(xmlDirAbs, { withFileTypes: true })
+    const xmlFiles = entries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
+
+    for (const entry of xmlFiles) {
+      const name = basename(entry.name, ".xml")
+      tasks.push({
+        kind: rule.itemType,
         name,
-        outputDir: catalogsYAMLDir,
+        run: () =>
+          convertAppliedObjectFromXML({
+            rule,
+            context,
+            inputDir: xmlDirAbs,
+            name,
+            outputDir: yamlDirAbs,
+          }),
       })
-    } catch (err) {
-      console.error(`Ошибка импорта каталога "${name}":`, err)
     }
+  }
 
-    const formsDir = join(catalogsXMLDir, name, "Forms")
-    if (!fs.existsSync(formsDir)) {
-      continue
-    }
+  const batchResult = await runBatch(tasks, { concurrency: IO_CONCURRENCY })
 
-    const formEntries = fs.readdirSync(formsDir, { withFileTypes: true })
-    const formXmlFiles = formEntries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".xml"))
+  return {
+    succeeded: batchResult.succeeded,
+    failed: batchResult.failed.map((f) => ({
+      kind: f.kind,
+      name: f.name,
+      parent: f.parent,
+      error: f.error,
+    })),
+  }
+}
 
-    for (const formEntry of formXmlFiles) {
-      const formName = basename(formEntry.name, ".xml")
-      try {
-        await convertFormFromXML({
-          context,
-          inputDir: formsDir,
-          formName,
-          outputDir: join(catalogsYAMLDir, name),
-        })
-      } catch (err) {
-        console.error(`Ошибка импорта формы "${name}/${formName}":`, err)
-      }
-    }
+async function syncRootConfigurationExternalFilesFromXML(params: {
+  context: ConfigurationContextFromXML
+  inputDir: string
+  outputDir: string
+}): Promise<void> {
+  for (const [, propRule] of Object.entries(MetadataConfigurationRules.properties)) {
+    const syncFn = getTypeRule(propRule.type, "syncExternalFromXML")
+    if (!syncFn) continue
+    await syncFn({
+      context: params.context,
+      rule: propRule,
+      xmlDir: params.inputDir,
+      nkdkDir: params.outputDir,
+      name: "",
+    })
   }
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { emptyValueChoiceList, oneItemChoiceList, twoItemsChoiceList } from "~/tests/fixtures/choiceList/data"
+import { emptyValueChoiceList, oneItemChoiceList, twoItemsChoiceList } from "~/metadata/commonObjects/choiceList/__fixtures__/data"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importChoiceListFromXML } from "./fromXML"

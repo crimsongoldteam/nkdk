@@ -1,8 +1,13 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldFromYAML } from "../metadataField/fromYAML"
 import { TypeLink, TypeLinkYAML } from "./types"
+
+const typeLinkMetadataTargetRule = {
+  type: "MetadataField",
+  metadataTarget: { kind: "member", owner: "explicit", allowOwner: true },
+} as const satisfies PropertyRule
 
 export const importTypeLinkFromYAML = (
   context: ConfigurationContext,
@@ -28,8 +33,7 @@ export const importTypeLinkFromYAML = (
   }
 
   // Преобразуем dataPath из формата YAML в формат XML
-  const dataPath = importMetadataFieldFromYAML(context, undefined, dataPathYAML)
-  if (!dataPath) return undefined
+  const dataPath = importMetadataFieldFromYAML(context, typeLinkMetadataTargetRule, dataPathYAML) ?? dataPathYAML
 
   return {
     dataPath,

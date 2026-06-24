@@ -1,4 +1,5 @@
 import { MetadataItemType } from "../orchestration"
+import type { ExternalMetadataItemRule } from "../orchestration/externalMetadata/types"
 import {
   ConfigurationContext,
   ConfigurationContextWithExportToXML,
@@ -11,8 +12,9 @@ export const getChildContextToXML = (params: {
   itemType: MetadataItemType
   path: string
   name: string
+  externalMetadata?: ExternalMetadataItemRule
 }): ConfigurationContextWithExportToXML => {
-  const { context, itemType, path, name } = params
+  const { context, itemType, path, name, externalMetadata } = params
   const elements = context.exportToXML.itemsTree
 
   return {
@@ -25,6 +27,7 @@ export const getChildContextToXML = (params: {
           name: name,
           itemType: itemType,
           path: path,
+          ...(externalMetadata ? { externalMetadata } : {}),
         },
       ],
     },

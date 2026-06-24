@@ -21,15 +21,14 @@ describe("exportMetadataFieldToYAML", () => {
     )
   })
 
-  it("should export with standart attribute", () => {
-    const metadataField = "Catalog.ЗоныТарифыДоставки.StandardAttribute.Owner"
+  it("should export with standard attribute", () => {
+    const metadataField = "Catalog.ЗоныТарифыДоставки.StandardAttribute.Владелец"
     const result = exportMetadataFieldToYAML(mockContext, mockRule, metadataField)
     expect(result).toEqual("Справочник.ЗоныТарифыДоставки.СтандартныйРеквизит.Владелец")
   })
 
-  it("should export with form object", () => {
+  it("skips form-local data paths", () => {
     const metadataField = "Объект.Организация"
-    const result = exportMetadataFieldToYAML(mockContext, mockRule, metadataField)
-    expect(result).toEqual("Объект.Организация")
+    expect(exportMetadataFieldToYAML(mockContext, mockRule, metadataField)).toBeUndefined()
   })
 })

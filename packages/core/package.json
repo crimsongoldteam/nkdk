@@ -2,6 +2,7 @@
   "name": "@nakidka/core",
   "version": "1.0.0",
   "description": "Ядро библиотеки Nakidka для работы с метаданными и XML",
+  "license": "AGPL-3.0-or-later",
   "type": "module",
   "main": "./index.ts",
   "exports": {
@@ -10,26 +11,25 @@
     }
   },
   "scripts": {
-    "test": "vitest run",
+    "test": "vitest run --no-isolate --sequence.shuffle",
+    "test:isolated": "vitest run",
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
     "prepare": "ts-patch install"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.34.48",
-    "change-case": "^5.4.4",
-    "chevrotain": "^11.0.3",
-    "date-fns": "^4.1.0",
-    "fast-xml-parser": "^5.4.2",
-    "uuid": "^13.0.0",
-    "yaml": "^2.8.2"
+    "@sinclair/typebox": "^0.34.49",
+    "date-fns": "^4.4.0",
+    "fast-xml-parser": "^5.9.2",
+    "p-limit": "^6.2.0",
+    "uuid": "^14.0.0",
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
-    "langium": "~4.2.0",
-    "nkdk-language": "workspace:*",
+    "@types/node": "^25.9.3",
     "ts-patch": "^3.3.0",
+    "tsx": "^4.22.4",
     "typescript": "~5.9.3",
-    "vitest": "^4.0.15"
+    "vitest": "^4.1.9"
   }
 }

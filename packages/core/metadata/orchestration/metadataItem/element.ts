@@ -39,9 +39,17 @@ type PropertyValueByRule<P extends PropertyRule> = P extends {
       : unknown
     : unknown
 
-/** Ключи свойств, отфильтрованные по Tag (все ключи при Tag === undefined) */
+/** Ключи свойств без runtimeOnly и с фильтрацией по Tag */
 type FilteredKeys<Properties, Tag extends string | undefined> = {
-  [K in keyof Properties]: [Tag] extends [undefined] ? K : Properties[K] extends { tag: Tag } ? K : never
+  [K in keyof Properties]: Properties[K] extends { runtimeOnly: true }
+    ? never
+    : Properties[K] extends { syncExternalOnly: true }
+      ? never
+      : [Tag] extends [undefined]
+        ? K
+        : Properties[K] extends { tag: Tag }
+          ? K
+          : never
 }[keyof Properties] &
   keyof Properties
 

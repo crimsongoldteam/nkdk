@@ -8,11 +8,13 @@ import { getSearchStringAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
 
 const commonProperties = {
-  backColor: { yaml: "ЦветФона", type: "Color" },
-  borderColor: { yaml: "ЦветРамки", type: "Color" },
-  font: { yaml: "Шрифт", type: "Font" },
+  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
+  backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+  borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
   horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-  textColor: { yaml: "ЦветТекста", type: "Color" },
+  maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
   width: { yaml: "Ширина", type: "number" },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {
@@ -20,6 +22,7 @@ const commonProperties = {
     xml: "_DisplayImportance",
     type: "SystemEnumeration",
     typeSE: "DisplayImportance",
+    implicitValueYAML: "Auto",
   },
   enabled: { yaml: "Доступность", type: "boolean" },
   extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
@@ -28,6 +31,7 @@ const commonProperties = {
     xml: "GroupHorizontalAlign",
     type: "SystemEnumeration",
     typeSE: "ItemHorizontalLocation",
+    implicitValueYAML: "Auto",
   },
   title: {
     yaml: "Заголовок",
@@ -38,10 +42,10 @@ const commonProperties = {
     yaml: "ОтображениеПодсказки",
     type: "SystemEnumeration",
     typeSE: "ToolTipRepresentation",
+    implicitValueYAML: "Auto",
   },
   userVisible: {
-    yaml: "РазрешитьИспользование",
-    yamlDeny: "ЗапретитьИспользование",
+    yaml: "Использование",
     type: "UserVisible",
   },
   verticalAlignInGroup: {
@@ -49,6 +53,7 @@ const commonProperties = {
     xml: "GroupVerticalAlign",
     type: "SystemEnumeration",
     typeSE: "ItemVerticalAlign",
+    implicitValueYAML: "Auto",
   },
   visible: { yaml: "Видимость", type: "boolean" },
 } as const satisfies MetadataItemRule["properties"]
@@ -90,6 +95,10 @@ export const SearchStringAdditionRules = {
 registerElementAsType({
   propertyType: "SingleSearchStringAddition",
   elementRule: SingleSearchStringAdditionRules,
+  nameStyle: {
+    canonicalSuffix: "СтрокаПоиска",
+    referenceSuffixes: ["СтрокаПоиска", "SearchString"],
+  },
   toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
     const { context } = params
     if (!context.exportToXML.itemsTree) throw new Error("elementContext is not defined")

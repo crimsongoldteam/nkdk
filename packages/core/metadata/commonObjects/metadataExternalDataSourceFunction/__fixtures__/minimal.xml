@@ -1,0 +1,21 @@
+<Function uuid="d9efcf5d-0ff4-4cfc-99dd-165c8d8b80af">
+	<Properties>
+		<Name>ФункцияПоУмолчанию</Name>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Функция по умолчанию</v8:content>
+			</v8:item>
+		</Synonym>
+		<Comment/>
+		<ReturnValue>true</ReturnValue>
+		<Type>
+			<v8:Type>xs:string</v8:Type>
+			<v8:StringQualifiers>
+				<v8:Length>10</v8:Length>
+				<v8:AllowedLength>Variable</v8:AllowedLength>
+			</v8:StringQualifiers>
+		</Type>
+		<ExpressionInDataSource/>
+	</Properties>
+</Function>

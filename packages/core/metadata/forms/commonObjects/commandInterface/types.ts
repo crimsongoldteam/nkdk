@@ -1,8 +1,11 @@
 import { Static, Type } from "@sinclair/typebox"
-import { BooleanJSONSchema } from "~/metadata/commonObjects/boolean/types"
+import { StringboolXML } from "~/metadata/commonObjects/boolean/types"
+import { DataPath, DataPathXML, DataPathYAML } from "~/metadata/forms/commonObjects/dataPath/types"
 import { UserVisible, UserVisibleJSONSchema, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { MetadataItem } from "~/metadata/orchestration"
 import * as SE from "~/metadata/systemEnumerations/types"
+
+type RawCommandGroup = string
 
 //#region inner
 
@@ -16,8 +19,10 @@ export interface CommandInterfaceItem extends MetadataItem {
   itemType: "CommandInterfaceItem"
   command: string
   type?: string
-  commandGroup?: SE.StandardCommandsGroup
-  defaultVisible: boolean
+  attribute?: DataPath
+  index?: number
+  commandGroup?: SE.StandardCommandsGroup | RawCommandGroup
+  defaultVisible?: false
   visible?: UserVisible
 }
 
@@ -39,9 +44,10 @@ export interface CommandInterfaceXML {
 export interface CommandInterfaceItemXML {
   Command: string
   Type: string
-  CommandGroup?: SE.StandardCommandsGroup
-  Index?: number
-  DefaultVisible?: boolean
+  Attribute?: DataPathXML
+  CommandGroup?: SE.StandardCommandsGroup | RawCommandGroup
+  Index?: number | string
+  DefaultVisible?: StringboolXML
   Visible?: UserVisibleXML
 }
 
@@ -49,16 +55,14 @@ export interface CommandInterfaceItemXML {
 
 //#region enterprise
 
-const standardCommandsGroupsYAML = Object.keys(SE.StandardCommandsGroupFromYAML) as SE.StandardCommandsGroupYAML[]
-const standardCommandsGroups = standardCommandsGroupsYAML.map((key) => Type.Literal(key))
-
 export const CommandInterfaceItemJSONSchema = Type.Object({
   Команда: Type.String(),
   Тип: Type.Optional(Type.String()),
-  ГруппаКоманд: Type.Optional(Type.Union(standardCommandsGroups)),
-  Автовидимость: BooleanJSONSchema,
-  РазрешитьИспользование: Type.Optional(UserVisibleJSONSchema),
-  ЗапретитьИспользование: Type.Optional(UserVisibleJSONSchema),
+  Реквизит: Type.Optional(Type.String()),
+  Индекс: Type.Optional(Type.Number()),
+  ГруппаКоманд: Type.Optional(Type.String()),
+  Автовидимость: Type.Optional(Type.Literal("Ложь")),
+  Использование: Type.Optional(UserVisibleJSONSchema),
 })
 
 export const CommandInterfaceJSONSchema = Type.Object({
@@ -68,6 +72,8 @@ export const CommandInterfaceJSONSchema = Type.Object({
 
 export type CommandInterfaceYAML = Static<typeof CommandInterfaceJSONSchema>
 
-export type CommandInterfaceItemYAML = Static<typeof CommandInterfaceItemJSONSchema>
+export type CommandInterfaceItemYAML = Static<typeof CommandInterfaceItemJSONSchema> & {
+  Реквизит?: DataPathYAML
+}
 
 //#endregion

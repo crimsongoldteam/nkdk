@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { formattedI8nTextFixtures } from "~/tests/fixtures/formattedI8nText/data"
+import { formattedI8nTextFixtures } from "~/metadata/commonObjects/formattedI8nText/__fixtures__/data"
 import { mockContext, mockRule } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportFormattedI8nTextToXML } from "./toXML"
@@ -22,7 +22,6 @@ describe("exportFormattedI8nTextToXML", () => {
       it(`should export: ${fixture.name}`, () => {
         const rule: FormattedI8nTextPropertyRule = {
           type: "FormattedI8nText",
-          yamlFormatted: "ФорматированныйЗаголовок",
           xmlWithDefaultLanguage: true,
         }
         const result = exportFormattedI8nTextToXML(mockContext, rule, fixture.text)

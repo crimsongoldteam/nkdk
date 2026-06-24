@@ -1,35 +1,42 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importTypeLinkFromYAML } from "./fromYAML"
-import { TypeLink } from "./types"
+import {
+  catalogTabularAttributeTypeLink,
+  catalogTabularAttributeTypeLinkLinkItem0,
+  typeLinkYamlCatalogWithLinkItem,
+  typeLinkYamlCatalogWithoutLinkItem,
+} from "./__fixtures__/data"
+import { PropertyRule } from "~/metadata/orchestration"
+import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 
-describe("importTypeLinkFromYAML", () => {
-  it("should import type link without link item", () => {
-    const enterpriseValue = "Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит"
-    const result = importTypeLinkFromYAML(mockContext, mockRule, enterpriseValue)
+const rule: PropertyRule = {
+  type: "TypeLink",
+}
 
-    const expected: TypeLink = {
-      dataPath: "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
-      linkItem: 0,
-    }
+describe("import TypeLink from YAML", () => {
+  it("imports string without link item", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: typeLinkYamlCatalogWithoutLinkItem,
+    })
 
-    expect(result).toEqual(expected)
+    expect(result).toEqual(catalogTabularAttributeTypeLinkLinkItem0)
   })
 
-  it("should import type link with link item", () => {
-    const enterpriseValue = "Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит(1)"
-    const result = importTypeLinkFromYAML(mockContext, mockRule, enterpriseValue)
+  it("imports string with link item", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: typeLinkYamlCatalogWithLinkItem,
+    })
 
-    const expected: TypeLink = {
-      dataPath: "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
-      linkItem: 1,
-    }
-
-    expect(result).toEqual(expected)
+    expect(result).toEqual(catalogTabularAttributeTypeLink)
   })
 
-  it("should return undefined for undefined input", () => {
-    const result = importTypeLinkFromYAML(mockContext, mockRule, undefined)
+  it("returns undefined for undefined value", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: undefined,
+    })
+
     expect(result).toBeUndefined()
   })
 })

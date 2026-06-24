@@ -2,11 +2,15 @@ import { Type } from "@sinclair/typebox"
 import { StringboolXML, StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import {
-  MetadataSimpleValueXML,
+  MetadataPrimitiveValueXML,
   MetadataValueXML,
   MetadataValueYAML,
 } from "~/metadata/commonObjects/metadataValue/types"
-import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
+import {
+  TypeDescriptionJSONSchema,
+  TypeDescriptionXML,
+  TypeDescriptionYAML,
+} from "~/metadata/commonObjects/typeDescription/types"
 import { TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
 import { ChoiceParameterLinksXML, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
@@ -21,7 +25,7 @@ export interface MetadataAttributeXML {
   _uuid: string
   Properties: {
     BinaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse
-    BinaryDataStorageLocationUseField?: StringboolXML
+    BinaryDataStorageLocationUseField?: string
     ChoiceFoldersAndItems?: SE.FoldersAndItemsUse
     ChoiceForm?: string
     ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
@@ -41,8 +45,8 @@ export interface MetadataAttributeXML {
     LinkByType?: TypeLinkXML
     MarkNegatives?: StringboolXML
     Mask?: string
-    MaxValue?: MetadataSimpleValueXML
-    MinValue?: MetadataSimpleValueXML
+    MaxValue?: MetadataPrimitiveValueXML
+    MinValue?: MetadataPrimitiveValueXML
     MultiLine?: StringboolXML
     Name: string
     ObjectBelonging?: SE.ObjectBelonging
@@ -75,7 +79,7 @@ export interface MetadataAttributeFullYAML {
   МногострочныйРежим?: StringboolYAML
   ПараметрыВыбора?: ChoiceParametersYAML
   Подсказка?: I8nTextYAML
-  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: StringboolYAML
+  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: string
   ПолнотекстовыйПоиск?: SE.UseFullTextSearchYAML
   ПринадлежностьОбъекта?: SE.ObjectBelongingYAML
   ПроверкаЗаполнения?: SE.FillCheckingYAML
@@ -90,11 +94,37 @@ export interface MetadataAttributeFullYAML {
   ФорматРедактирования?: I8nTextYAML
 }
 
-export type MetadataAttributeYAML = MetadataAttributeFullYAML | TypeDescriptionYAML
+export type MetadataAttributeYAML = MetadataAttributeFullYAML
 
 export type MetadataAttributes = MetadataAttribute[]
 
 export type MetadataAttributesXML = MetadataAttributeXML | MetadataAttributeXML[]
 
-export const MetadataAttributesJSONSchema = Type.Record(Type.String(), Type.Any())
+export const MetadataAttributesJSONSchema = Type.Record(
+  Type.String(),
+  Type.Object(
+    {
+      Тип: TypeDescriptionJSONSchema,
+    },
+    { additionalProperties: true }
+  )
+)
 export type MetadataAttributesYAML = Record<MetadataNameYAML, MetadataAttributeYAML>
+
+export type MetadataTabularSectionAttributes = MetadataAttributes
+export type MetadataTabularSectionAttributesXML = MetadataAttributesXML
+export type MetadataTabularSectionAttributesYAML = MetadataAttributesYAML
+
+export type MetadataDocumentAttribute = MetadataAttribute
+export type MetadataDocumentAttributes = MetadataAttributes
+export type MetadataDocumentAttributesXML = MetadataAttributesXML
+export type MetadataDocumentAttributesYAML = MetadataAttributesYAML
+
+export type MetadataCatalogAttribute = MetadataAttribute
+export type MetadataCatalogAttributes = MetadataAttributes
+export type MetadataCatalogAttributesXML = MetadataAttributesXML
+export type MetadataCatalogAttributesYAML = MetadataAttributesYAML
+
+export type MetadataReportAttributes = MetadataAttributes
+export type MetadataReportAttributesXML = MetadataAttributesXML
+export type MetadataReportAttributesYAML = MetadataAttributesYAML

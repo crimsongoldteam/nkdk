@@ -1,21 +1,19 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFromYAMLFunctionNew, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ImportFromYAMLFunctionNew, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
 import { importI8nTextFromYAML } from "../i8nText/fromYAML"
 import { I8nText } from "../i8nText/types"
-import { FormattedI8nText, FormattedI8nTextPropertyRule, FormattedI8nTextYAML } from "./types"
+import { FormattedI8nText, FormattedI8nTextValueYAML } from "./types"
 
-export const importFormattedI8nTextFromYAML: importFromYAMLFunctionNew = (params: {
+export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
   rule: PropertyRule
-  value: FormattedI8nTextYAML | undefined
+  value: FormattedI8nTextValueYAML | undefined
   yaml?: Record<string, any> | undefined
   source?: I8nText | undefined
 }): FormattedI8nText | undefined => {
-  const { context, rule, value: text, yaml, source } = params
-  const narrowRule = rule as FormattedI8nTextPropertyRule
-  const formattedText = yaml ? yaml[narrowRule.yamlFormatted] : undefined
+  const { context, rule, value, source } = params
 
-  if (source === undefined && text === undefined && formattedText === undefined) return undefined
+  if (source === undefined && value === undefined) return undefined
 
   const result: FormattedI8nText = {
     items: {},
@@ -24,10 +22,14 @@ export const importFormattedI8nTextFromYAML: importFromYAMLFunctionNew = (params
 
   if (source !== undefined) {
     result.items = { ...result.items, ...source.items }
+    const formattedSource = source as FormattedI8nText
+    if (formattedSource.formatted !== undefined) {
+      result.formatted = formattedSource.formatted
+    }
   }
 
-  if (text !== undefined || formattedText !== undefined) {
-    const otherLanguages = importFromYAML(context, rule, text, formattedText)!
+  if (value !== undefined) {
+    const otherLanguages = importFromYAML(context, rule, value)!
     result.items = { ...result.items, ...otherLanguages.items }
     result.formatted = otherLanguages.formatted
   }
@@ -40,16 +42,15 @@ export const importFormattedI8nTextFromYAML: importFromYAMLFunctionNew = (params
 const importFromYAML = (
   context: ConfigurationContext,
   rule: PropertyRule,
-  text: FormattedI8nTextYAML | undefined,
-  formattedText: FormattedI8nTextYAML | undefined
+  value: FormattedI8nTextValueYAML | undefined
 ): FormattedI8nText | undefined => {
-  if (text === undefined && formattedText === undefined) return undefined
+  if (value === undefined) return undefined
 
-  const textValue = formattedText ? formattedText : text
-  const textResult = importI8nTextFromYAML({ context, rule, value: textValue })!
+  const textResult = importI8nTextFromYAML({ context, rule, value: value.Текст })
+  if (textResult === undefined) return undefined
 
   const result: FormattedI8nText = {
-    formatted: formattedText !== undefined,
+    formatted: value.Форматированный === "Истина",
     items: textResult.items,
   }
 

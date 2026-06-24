@@ -1,0 +1,6 @@
+<Settings xsi:type="DynamicList">
+	<ManualQuery>false</ManualQuery>
+	<DynamicDataRead>true</DynamicDataRead>
+	<MainTable>Catalog.Справочник1</MainTable>
+	<ListSettings/>
+</Settings>

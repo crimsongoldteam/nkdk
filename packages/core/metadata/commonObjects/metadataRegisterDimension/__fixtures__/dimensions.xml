@@ -1,0 +1,90 @@
+<Dimension uuid="22222222-2222-4222-8222-222222222222">
+	<Properties>
+		<Name>ИзмерениеПоУмолчанию</Name>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Измерение по умолчанию</v8:content>
+			</v8:item>
+		</Synonym>
+		<Comment/>
+		<Type>
+			<v8:Type>xs:boolean</v8:Type>
+		</Type>
+		<PasswordMode>false</PasswordMode>
+		<Format/>
+		<EditFormat/>
+		<ToolTip/>
+		<MarkNegatives>false</MarkNegatives>
+		<Mask/>
+		<MultiLine>false</MultiLine>
+		<ExtendedEdit>false</ExtendedEdit>
+		<MinValue xsi:nil="true"/>
+		<MaxValue xsi:nil="true"/>
+		<FillFromFillingValue>false</FillFromFillingValue>
+		<FillValue xsi:nil="true"/>
+		<FillChecking>DontCheck</FillChecking>
+		<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+		<ChoiceParameterLinks/>
+		<ChoiceParameters/>
+		<QuickChoice>Auto</QuickChoice>
+		<CreateOnInput>Auto</CreateOnInput>
+		<ChoiceForm/>
+		<LinkByType/>
+		<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+		<Master>false</Master>
+		<MainFilter>true</MainFilter>
+		<DenyIncompleteValues>false</DenyIncompleteValues>
+		<Indexing>DontIndex</Indexing>
+		<FullTextSearch>Use</FullTextSearch>
+		<DataHistory>Use</DataHistory>
+		<UseInTotals>true</UseInTotals>
+		<TypeReductionMode>TransformValues</TypeReductionMode>
+		<ObjectBelonging>Native</ObjectBelonging>
+	</Properties>
+</Dimension>
+<Dimension uuid="33333333-3333-4333-8333-333333333333">
+	<Properties>
+		<Name>ИзмерениеБезИтогов</Name>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Измерение без итогов</v8:content>
+			</v8:item>
+		</Synonym>
+		<Comment/>
+		<Type>
+			<v8:Type>xs:boolean</v8:Type>
+		</Type>
+		<PasswordMode>false</PasswordMode>
+		<Format/>
+		<EditFormat/>
+		<ToolTip/>
+		<MarkNegatives>false</MarkNegatives>
+		<Mask/>
+		<MultiLine>false</MultiLine>
+		<ExtendedEdit>false</ExtendedEdit>
+		<MinValue xsi:nil="true"/>
+		<MaxValue xsi:nil="true"/>
+		<FillFromFillingValue>false</FillFromFillingValue>
+		<FillValue xsi:nil="true"/>
+		<FillChecking>DontCheck</FillChecking>
+		<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+		<ChoiceParameterLinks/>
+		<ChoiceParameters/>
+		<QuickChoice>Auto</QuickChoice>
+		<CreateOnInput>Auto</CreateOnInput>
+		<ChoiceForm/>
+		<LinkByType/>
+		<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+		<Master>true</Master>
+		<MainFilter>false</MainFilter>
+		<DenyIncompleteValues>true</DenyIncompleteValues>
+		<Indexing>DontIndex</Indexing>
+		<FullTextSearch>Use</FullTextSearch>
+		<DataHistory>Use</DataHistory>
+		<UseInTotals>false</UseInTotals>
+		<TypeReductionMode>DeleteData</TypeReductionMode>
+		<ObjectBelonging>Native</ObjectBelonging>
+	</Properties>
+</Dimension>

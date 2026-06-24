@@ -10,7 +10,7 @@ export interface TypeDescriptionRule {
   ignoreInEnterprise?: boolean
 }
 
-export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
+export const TypeDescriptionRules = {
   SpreadsheetDocument: {
     enterprise: "ТабличныйДокумент",
     prefix: "mxl",
@@ -141,6 +141,12 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     prefix: "d5p1",
     namespace: "http://v8.1c.ru/8.2/data/geo",
   },
+  // Extended Text namespace
+  ConditionalAppearance: {
+    enterprise: "ConditionalAppearance",
+    prefix: "d7p1",
+    namespace: "http://v8.1c.ru/8.3/data/entext",
+  },
   // Formatted Document namespace
   FormattedDocument: {
     enterprise: "ФорматированныйДокумент",
@@ -201,14 +207,46 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "ВидСчета",
     prefix: "ent",
   },
+  ComparisonType: {
+    enterprise: "ComparisonType",
+    prefix: "ent",
+  },
   // Settings Composer namespace (no xmlns in XML)
   SettingsComposer: {
     enterprise: "КомпоновщикНастроекКомпоновкиДанных",
     prefix: "dcsset",
+    namespace: "http://v8.1c.ru/8.1/data-composition-system/settings",
   },
   Filter: {
     enterprise: "Отбор",
     prefix: "dcsset",
+    namespace: "http://v8.1c.ru/8.1/data-composition-system/settings",
+  },
+  DataCompositionComparisonType: {
+    enterprise: "DataCompositionComparisonType",
+    prefix: "dcsset",
+    namespace: "http://v8.1c.ru/8.1/data-composition-system/settings",
+  },
+  DataCompositionFieldPlacement: {
+    enterprise: "DataCompositionFieldPlacement",
+    prefix: "dcsset",
+    namespace: "http://v8.1c.ru/8.1/data-composition-system/settings",
+  },
+  DataCompositionGroupType: {
+    enterprise: "DataCompositionGroupType",
+    prefix: "dcscor",
+  },
+  DataCompositionPeriodAdditionType: {
+    enterprise: "DataCompositionPeriodAdditionType",
+    prefix: "dcscor",
+  },
+  DataCompositionSortDirection: {
+    enterprise: "DataCompositionSortDirection",
+    prefix: "dcscor",
+  },
+  Field: {
+    enterprise: "ПолеКомпоновкиДанных",
+    prefix: "dcscor",
   },
   // Primitive types
   string: {
@@ -217,6 +255,10 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
   },
   decimal: {
     enterprise: "Число",
+    prefix: "xs",
+  },
+  base64Binary: {
+    enterprise: "ДвоичныеДанные",
     prefix: "xs",
   },
   dateTime: {
@@ -243,8 +285,24 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "УникальныйИдентификатор",
     prefix: "v8",
   },
+  Type: {
+    enterprise: "Тип",
+    prefix: "v8",
+  },
   TypeDescription: {
     enterprise: "ОписаниеТипов",
+    prefix: "v8",
+  },
+  FixedStructure: {
+    enterprise: "ФиксированнаяСтруктура",
+    prefix: "v8",
+  },
+  FixedArray: {
+    enterprise: "ФиксированныйМассив",
+    prefix: "v8",
+  },
+  FixedMap: {
+    enterprise: "ФиксированноеСоответствие",
     prefix: "v8",
   },
   StandardPeriod: {
@@ -326,6 +384,30 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     modifier: "complex",
     ignoreInEnterprise: true,
   },
+  ExternalDataSourceTableRef: {
+    enterprise: "ВнешнийИсточникДанныхТаблица",
+    prefix: "cfg",
+    modifier: "complex",
+    ignoreInEnterprise: true,
+  },
+  ExternalDataSourceTableObject: {
+    enterprise: "ВнешнийИсточникДанныхТаблицаОбъект",
+    prefix: "cfg",
+    modifier: "complex",
+    ignoreInEnterprise: true,
+  },
+  ExternalDataSourceCubeDimensionTableRef: {
+    enterprise: "ВнешнийИсточникДанныхКубТаблицаИзмерения",
+    prefix: "cfg",
+    modifier: "complex",
+    ignoreInEnterprise: true,
+  },
+  ExternalDataSourceCubeRecordManager: {
+    enterprise: "ВнешнийИсточникДанныхКубМенеджерЗаписи",
+    prefix: "cfg",
+    modifier: "complex",
+    ignoreInEnterprise: true,
+  },
   BusinessProcessRoutePointRef: {
     enterprise: "ТочкаМаршрутаБизнесПроцесса",
     prefix: "cfg",
@@ -403,8 +485,26 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     modifier: "complex",
     ignoreInEnterprise: true,
   },
+  ChartOfAccountsObject: {
+    enterprise: "ChartOfAccountsObject",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
   ReportObject: {
     enterprise: "ОтчетОбъект",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  ReportManager: {
+    enterprise: "ReportManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  ReportBuilder: {
+    enterprise: "ReportBuilder",
     prefix: "cfg",
     modifier: "alwaysType",
     ignoreInEnterprise: true,
@@ -415,9 +515,81 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     modifier: "alwaysType",
     ignoreInEnterprise: true,
   },
+  DataProcessorManager: {
+    enterprise: "DataProcessorManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
   ConstantsSet: {
     enterprise: "КонстантыНабор",
     prefix: "cfg",
+    ignoreInEnterprise: true,
+  },
+  ConstantValueManager: {
+    enterprise: "ConstantValueManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  CatalogManager: {
+    enterprise: "CatalogManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  DocumentManager: {
+    enterprise: "DocumentManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  DocumentJournalManager: {
+    enterprise: "DocumentJournalManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  BusinessProcessManager: {
+    enterprise: "BusinessProcessManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  TaskManager: {
+    enterprise: "TaskManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  ExchangePlanManager: {
+    enterprise: "ExchangePlanManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  ChartOfAccountsManager: {
+    enterprise: "ChartOfAccountsManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  ChartOfCharacteristicTypesManager: {
+    enterprise: "ChartOfCharacteristicTypesManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  ChartOfCalculationTypesManager: {
+    enterprise: "ChartOfCalculationTypesManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  InformationRegisterManager: {
+    enterprise: "InformationRegisterManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
     ignoreInEnterprise: true,
   },
   InformationRegisterRecordSet: {
@@ -444,7 +616,53 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     modifier: "alwaysType",
     ignoreInEnterprise: true,
   },
-} as const
+  AccountingRegisterManager: {
+    enterprise: "AccountingRegisterManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  AccumulationRegisterRecordSet: {
+    enterprise: "AccumulationRegisterRecordSet",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  AccumulationRegisterManager: {
+    enterprise: "AccumulationRegisterManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  CalculationRegisterRecordSet: {
+    enterprise: "CalculationRegisterRecordSet",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  SequenceRecordSet: {
+    enterprise: "SequenceRecordSet",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  CalculationRegisterManager: {
+    enterprise: "CalculationRegisterManager",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+  RecalculationRecordSet: {
+    enterprise: "RecalculationRecordSet",
+    prefix: "cfg",
+    modifier: "alwaysType",
+    ignoreInEnterprise: true,
+  },
+} as const satisfies Record<string, TypeDescriptionRule>
+
+export type TypeDescriptionRuleName = keyof typeof TypeDescriptionRules
+export type TypeDescriptionAllowedType = TypeDescriptionRuleName | `${TypeDescriptionRuleName}.*`
+export type TypeDescriptionAllowedTypes = readonly TypeDescriptionAllowedType[]
 
 export const TypeDescriptionPrefixes = Object.fromEntries(
   Object.values(TypeDescriptionRules).map((settings) => [settings.prefix, settings.prefix])
@@ -463,13 +681,13 @@ export type TypeDescriptionTypeWithNamespaceXML<TNamespace extends string = stri
 export type TypeDescriptionXMLType = string | TypeDescriptionTypeWithNamespaceXML
 
 export interface TypeDescriptionXMLStringQualifiers {
-  "v8:Length": number
+  "v8:Length": number | string
   "v8:AllowedLength": "Variable" | "Fixed"
 }
 
 export interface TypeDescriptionXMLNumberQualifiers {
-  "v8:Digits": number
-  "v8:FractionDigits": number
+  "v8:Digits": number | string
+  "v8:FractionDigits": number | string
   "v8:AllowedSign": "Any" | "Nonnegative"
 }
 
@@ -480,6 +698,7 @@ export interface TypeDescriptionXMLDateQualifiers {
 export type TypeDescriptionXML = {
   "v8:Type"?: TypeDescriptionXMLType | TypeDescriptionXMLType[]
   "v8:TypeSet"?: TypeDescriptionXMLType | TypeDescriptionXMLType[]
+  "v8:TypeId"?: string | string[]
   "v8:StringQualifiers"?: TypeDescriptionXMLStringQualifiers
   "v8:NumberQualifiers"?: TypeDescriptionXMLNumberQualifiers
   "v8:DateQualifiers"?: TypeDescriptionXMLDateQualifiers
@@ -522,15 +741,40 @@ export type PrimitiveType = keyof typeof PrimitiveTypeToYAML
 export type PrimitiveTypeYAML = (typeof PrimitiveTypeToYAML)[keyof typeof PrimitiveTypeToYAML]
 
 export type TypeDescriptionType = string
+export type TypeDescriptionXMLContainerKind = "Type" | "TypeSet" | "TypeSetAttribute"
+export type TypeDescriptionXMLContainerByType = Partial<Record<TypeDescriptionType, TypeDescriptionXMLContainerKind>>
+export const TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE = Symbol("typeDescriptionXmlContainerByType")
+export type TypeDescriptionSourceType = {
+  value: string
+  namespace?: string
+}
+export type TypeDescriptionSourceTypes = Partial<Record<TypeDescriptionType, TypeDescriptionSourceType>>
+export const TYPE_DESCRIPTION_SOURCE_TYPES = Symbol("typeDescriptionSourceTypes")
+
+export interface TypeDescriptionTypeIdYAML {
+  ИдентификаторТипа?: string[]
+}
 
 export interface TypeDescription {
   type: TypeDescriptionType[]
+  typeId?: string[]
   stringQualifiers?: TypeDescriptionStringQualifiers
   numberQualifiers?: TypeDescriptionNumberQualifiers
   dateQualifiers?: TypeDescriptionDateQualifiers
+  [TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE]?: TypeDescriptionXMLContainerByType
+  [TYPE_DESCRIPTION_SOURCE_TYPES]?: TypeDescriptionSourceTypes
 }
 
-export const TypeDescriptionJSONSchema = Type.Union([Type.String(), Type.Array(Type.String())])
+export const TypeDescriptionJSONSchema = Type.Union([
+  Type.String(),
+  Type.Array(Type.String()),
+  Type.Object(
+    {
+      ИдентификаторТипа: Type.Array(Type.String(), { minItems: 1 }),
+    },
+    { additionalProperties: false }
+  ),
+])
 export type TypeDescriptionYAML = Static<typeof TypeDescriptionJSONSchema>
 
 //#region Enterprise

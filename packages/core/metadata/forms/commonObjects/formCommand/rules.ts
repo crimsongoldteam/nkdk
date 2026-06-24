@@ -6,7 +6,7 @@ export const FormCommandRules = {
   properties: {
     id: {
       xml: "_id",
-      type: "string",
+      type: "ElementId",
       forReferenceOnly: true,
     },
     name: {
@@ -34,8 +34,7 @@ export const FormCommandRules = {
       type: "I8nText",
     },
     use: {
-      yaml: "РазрешитьИспользование",
-      yamlDeny: "ЗапретитьИспользование",
+      yaml: "Использование",
       type: "UserVisible",
     },
     shortcut: {
@@ -45,12 +44,16 @@ export const FormCommandRules = {
     },
     picture: {
       yaml: "Картинка",
-      type: "Picture",
+      type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
     },
     action: {
       yaml: "Действие",
       xml: "Action",
       type: "string",
+    },
+    functionalOptions: {
+      yaml: "ФункциональныеОпции",
+      type: "FunctionalOptionsProperty",
     },
     representation: {
       yaml: "ОтображениеКнопки",

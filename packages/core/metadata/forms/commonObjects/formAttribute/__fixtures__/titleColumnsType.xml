@@ -1,0 +1,18 @@
+<Attribute name="Таблица" id="1">
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Таблица</v8:content>
+		</v8:item>
+	</Title>
+	<Columns>
+		<Column name="Колонка" id="1">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Column>
+	</Columns>
+	<Type>
+		<v8:Type>v8:ValueTable</v8:Type>
+	</Type>
+</Attribute>

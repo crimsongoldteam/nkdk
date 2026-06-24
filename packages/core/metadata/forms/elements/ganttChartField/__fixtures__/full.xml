@@ -1,0 +1,121 @@
+<GanttChartField name="ЭлементФормы" id="3" DisplayImportance="High">
+	<DataPath>Реквизит</DataPath>
+	<Visible>false</Visible>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">false</xr:Value>
+	</UserVisible>
+	<DefaultItem>true</DefaultItem>
+	<Enabled>false</Enabled>
+	<ReadOnly>true</ReadOnly>
+	<SkipOnInput>true</SkipOnInput>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Поле диаграммы Ганта</v8:content>
+		</v8:item>
+	</Title>
+	<TitleTextColor>web:Black</TitleTextColor>
+	<TitleBackColor>web:Blue</TitleBackColor>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleLocation>Left</TitleLocation>
+	<TitleHeight>20</TitleHeight>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
+	<WarningOnEdit>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Предупреждение</v8:content>
+		</v8:item>
+	</WarningOnEdit>
+	<Shortcut>S</Shortcut>
+	<HorizontalAlign>Left</HorizontalAlign>
+	<VerticalAlign>Top</VerticalAlign>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<EditMode>EnterOnInput</EditMode>
+	<CellHyperlink>true</CellHyperlink>
+	<ShowInHeader>false</ShowInHeader>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
+	<ShowInFooter>false</ShowInFooter>
+	<FooterDataPath>РеквизитПодвала</FooterDataPath>
+	<FooterText>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Текст подвала</v8:content>
+		</v8:item>
+	</FooterText>
+	<FooterTextColor>web:Black</FooterTextColor>
+	<FooterBackColor>web:White</FooterBackColor>
+	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<FooterPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</FooterPicture>
+	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+	<OnMainServerUnavalableBehavior>DontChangeBehavior</OnMainServerUnavalableBehavior>
+	<Width>300</Width>
+	<AutoMaxWidth>false</AutoMaxWidth>
+	<MaxWidth>400</MaxWidth>
+	<Height>200</Height>
+	<AutoMaxHeight>false</AutoMaxHeight>
+	<MaxHeight>500</MaxHeight>
+	<HorizontalStretch>false</HorizontalStretch>
+	<VerticalStretch>false</VerticalStretch>
+	<TableLocation>None</TableLocation>
+	<ValuesSelectionMode>Single</ValuesSelectionMode>
+	<IntervalsSelectionMode>Single</IntervalsSelectionMode>
+	<ShowHorizontalLinesFlag>false</ShowHorizontalLinesFlag>
+	<ShowVerticalLinesFlag>false</ShowVerticalLinesFlag>
+	<ContextMenu name="ЭлементФормыКонтекстноеМеню" id="4">
+		<Autofill>false</Autofill>
+	</ContextMenu>
+	<ExtendedTooltip name="ЭлементФормыРасширеннаяПодсказка" id="5">
+		<Title formatted="false">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<Table name="ЭлементФормыТаблица" id="6">
+		<Representation>Tree</Representation>
+		<Visible>false</Visible>
+		<Height>10</Height>
+		<HeightControlVariant>UseHeightInFormRows</HeightControlVariant>
+		<VerticalScrollBar>DontUse</VerticalScrollBar>
+		<DataPath>Реквизит</DataPath>
+		<SearchStringLocation>None</SearchStringLocation>
+		<ViewStatusLocation>None</ViewStatusLocation>
+		<SearchControlLocation>None</SearchControlLocation>
+		<ContextMenu name="ЭлементФормыТаблицаКонтекстноеМеню" id="7"/>
+		<AutoCommandBar name="ЭлементФормыТаблицаКоманднаяПанель" id="8"/>
+		<ExtendedTooltip name="ЭлементФормыТаблицаРасширеннаяПодсказка" id="9"/>
+		<ChildItems>
+			<InputField name="ЭлементФормыТаблицаТочка" id="10">
+				<DataPath>Реквизит.Point</DataPath>
+				<ContextMenu name="ЭлементФормыТаблицаТочкаКонтекстноеМеню" id="11"/>
+				<ExtendedTooltip name="ЭлементФормыТаблицаТочкаРасширеннаяПодсказка" id="12"/>
+			</InputField>
+		</ChildItems>
+	</Table>
+	<Events>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="Selection">ПроцедураВыбора</Event>
+		<Event name="DetailProcessing">ПроцедураОбработкиРасшифровки</Event>
+		<Event name="BeforeCollapse">ПроцедураПередСворачиванием</Event>
+		<Event name="OnActivateInterval">ПроцедураПриАктивизацииИнтервала</Event>
+		<Event name="OnActivateValue">ПроцедураПриАктивизацииЗначения</Event>
+		<Event name="BeforeExpand">ПроцедураПередРазворачиванием</Event>
+		<Event name="OnIntervalEditEnd">ПроцедураПриОкончанииРедактированияИнтервала</Event>
+	</Events>
+</GanttChartField>

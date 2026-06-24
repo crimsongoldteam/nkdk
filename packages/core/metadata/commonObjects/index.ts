@@ -1,11 +1,36 @@
-import "./additionalIndex/fromXML"
-import "./additionalIndex/fromYAML"
-import "./additionalIndex/toJSONSchema"
-import "./additionalIndex/toXML"
-import "./additionalIndex/toYAML"
+import "./uuid/fromXML"
+import "./uuid/toXML"
+
+import "../systemEnumerations"
+
+import "./additionalIndex"
+import "./accumulationRegisterAggregates/register"
 
 import "./boolean/fromXML"
 import "./boolean/toJSONSchema"
+
+import "./dateTime/fromXML"
+import "./dateTime/fromYAML"
+import "./dateTime/toJSONSchema"
+import "./dateTime/toXML"
+import "./dateTime/toYAML"
+import "./number/fromXML"
+import "./number/toJSONSchema"
+import "./number/toXML"
+
+import "./stringOrNumber/fromXML"
+import "./stringOrNumber/toJSONSchema"
+import "./stringOrNumber/toXML"
+
+import "./minMaxValue/fromXML"
+import "./minMaxValue/toJSONSchema"
+import "./minMaxValue/toXML"
+
+import "./userSettingsID/fromXML"
+import "./userSettingsID/fromYAML"
+import "./userSettingsID/toJSONSchema"
+import "./userSettingsID/toXML"
+import "./userSettingsID/toYAML"
 
 import "./border/fromXML"
 import "./border/fromYAML"
@@ -14,17 +39,26 @@ import "./border/toJSONSchema"
 import "./border/toXML"
 import "./border/toYAML"
 
-import "./characteristicsDescription/fromXML"
-import "./characteristicsDescription/fromYAML"
+import "./characteristicsDescription/registerCollectionRule"
 import "./characteristicsDescription/toJSONSchema"
-import "./characteristicsDescription/toXML"
-import "./characteristicsDescription/toYAML"
 
 import "./choiceList/fromXML"
 import "./choiceList/fromYAML"
 import "./choiceList/toJSONSchema"
 import "./choiceList/toXML"
 import "./choiceList/toYAML"
+
+import "./mobileDeviceCommandBarContent/fromXML"
+import "./mobileDeviceCommandBarContent/fromYAML"
+import "./mobileDeviceCommandBarContent/toJSONSchema"
+import "./mobileDeviceCommandBarContent/toXML"
+import "./mobileDeviceCommandBarContent/toYAML"
+
+import "./commonAttributeContent/fromXML"
+import "./commonAttributeContent/fromYAML"
+import "./commonAttributeContent/toJSONSchema"
+import "./commonAttributeContent/toXML"
+import "./commonAttributeContent/toYAML"
 
 import "./сhoiceParameterLinks/fromXML"
 import "./сhoiceParameterLinks/fromYAML"
@@ -45,10 +79,7 @@ import "./color/toJSONSchema"
 import "./color/toXML"
 import "./color/toYAML"
 
-import "../forms/commonObjects/dynamicList/fromXML"
-import "../forms/commonObjects/dynamicList/fromYAML"
-import "../forms/commonObjects/dynamicList/toXML"
-import "../forms/commonObjects/dynamicList/toYAML"
+import "../forms/commonObjects/dynamicList/types"
 
 import "./fieldsList/fromXML"
 import "./fieldsList/fromYAML"
@@ -62,6 +93,12 @@ import "./font/toEnterprise"
 import "./font/toJSONSchema"
 import "./font/toXML"
 import "./font/toYAML"
+
+import "./styleItemValue/fromXML"
+import "./styleItemValue/fromYAML"
+import "./styleItemValue/toJSONSchema"
+import "./styleItemValue/toXML"
+import "./styleItemValue/toYAML"
 
 import "./formattedI8nText/fromXML"
 import "./formattedI8nText/fromYAML"
@@ -91,14 +128,85 @@ import "./indexField/toYAML"
 
 import "./internalInfo/toXML"
 
-import "./metadataAttribute/fromXML"
-import "./metadataAttribute/fromYAML"
-import "./metadataAttribute/toJSONSchema"
-import "./metadataAttribute/toXML"
-import "./metadataAttribute/toYAML"
+import "./xmlRoot/fromXML"
+import "./xmlRoot/toXML"
+
+import "./xdtoTypeName/fromXML"
+import "./xdtoTypeName/fromYAML"
+import "./xdtoTypeName/toJSONSchema"
+import "./xdtoTypeName/toXML"
+import "./xdtoTypeName/toYAML"
+
+import "./childFormNames/fromXML"
+import "./childFormNames/toXML"
+import "./childFormNames/syncExternalToXML"
+import "./childFormNames/syncExternalFromXML"
+
+import "./childFileItemNames/fromXML"
+import "./childFileItemNames/toXML"
+
+import "./childTemplateNames/fromXML"
+import "./childTemplateNames/toXML"
+import "./childTemplateNames/syncExternalToXML"
+import "./childTemplateNames/syncExternalFromXML"
+import "./childSubsystemNames/fromXML"
+import "./childSubsystemNames/toXML"
+import "./childSubsystemNames/fromYAML"
+import "./childSubsystemNames/toJSONSchema"
+import "./childSubsystemNames/toYAML"
+
+import "./externalPicture/fromXML"
+import "./externalPicture/toXML"
+import "./externalFile/fromXML"
+import "./externalFile/toXML"
+import "./wsDefinitionSchemas/fromXML"
+import "./wsDefinitionSchemas/toXML"
+
+import "./metadataAttribute/register"
+import "./metadataTaskAddressingAttribute/register"
+
+import "./metadataDocumentJournalColumn/register"
+
+import "./metadataHTTPServiceMethod/register"
+import "./metadataHTTPServiceURLTemplate/register"
+import "./metadataIntegrationServiceChannel/register"
+import "./metadataWebServiceOperation/register"
+import "./xDTOPackages/fromXML"
+import "./xDTOPackages/fromYAML"
+import "./xDTOPackages/toJSONSchema"
+import "./xDTOPackages/toXML"
+import "./xDTOPackages/toYAML"
+import "./webSocketClientHeaders/fromXML"
+import "./webSocketClientHeaders/fromYAML"
+import "./webSocketClientHeaders/toJSONSchema"
+import "./webSocketClientHeaders/toXML"
+import "./webSocketClientHeaders/toYAML"
+
+import "./metadataValue/associatedTableToJSONSchema"
+
+import "./metadataRegisterAttribute/register"
+import "./metadataRegisterDimension/register"
+import "./metadataRegisterResource/register"
+import "./recalculation/register"
+import "./accountingFlag/register"
+import "./standardAttributeDescription/registerCollectionRule"
+import "./standardPeriod"
+import "./standardTabularSectionDescription/register"
+import "./metadataExternalDataSourceField/register"
+import "./metadataExternalDataSourceFunction/register"
+import "./metadataExternalDataSourceTable/register"
+import "./metadataExternalDataSourceDimensionTable/register"
+import "./metadataExternalDataSourceCube/register"
+import "./metadataExternalDataSourceCubeDimension/register"
+import "./metadataExternalDataSourceCubeResource/register"
+
+import "./exchangePlanContent/register"
+
+import "./metadataSequenceDimension/register"
 
 import "./metadataCommandGroup/fromXML"
 import "./metadataCommandGroup/fromYAML"
+import "./metadataCommandGroup/toJSONSchema"
 import "./metadataCommandGroup/toXML"
 import "./metadataCommandGroup/toYAML"
 
@@ -111,6 +219,9 @@ import "./metadataField/toYAML"
 import "./metadataPath/fromYAML"
 import "./metadataPath/toJSONSchema"
 import "./metadataPath/toYAML"
+import "./metadataTargets/validationHandlers"
+
+import "./dataCompositionSystem/structureItemGroup/toJSONSchema"
 
 import "./metadataRef/fromXML"
 import "./metadataRef/fromYAML"
@@ -118,11 +229,7 @@ import "./metadataRef/toJSONSchema"
 import "./metadataRef/toXML"
 import "./metadataRef/toYAML"
 
-import "./metadataTabularSection/fromXML"
-import "./metadataTabularSection/fromYAML"
-import "./metadataTabularSection/toJSONSchema"
-import "./metadataTabularSection/toXML"
-import "./metadataTabularSection/toYAML"
+import "./metadataTabularSection/register"
 
 import "./metadataValue/fromXML"
 import "./metadataValue/fromYAML"
@@ -130,11 +237,11 @@ import "./metadataValue/toJSONSchema"
 import "./metadataValue/toXML"
 import "./metadataValue/toYAML"
 
-import "./metadataValueCollection/fromXML"
-import "./metadataValueCollection/fromYAML"
-import "./metadataValueCollection/toJSONSchema"
-import "./metadataValueCollection/toXML"
-import "./metadataValueCollection/toYAML"
+import "./metadataObjectRefCollection/fromXML"
+import "./metadataObjectRefCollection/fromYAML"
+import "./metadataObjectRefCollection/toJSONSchema"
+import "./metadataObjectRefCollection/toXML"
+import "./metadataObjectRefCollection/toYAML"
 
 import "./picture/fromXML"
 import "./picture/fromYAML"
@@ -143,17 +250,13 @@ import "./picture/toJSONSchema"
 import "./picture/toXML"
 import "./picture/toYAML"
 
-import "./predifined/fromXML"
-import "./predifined/fromYAML"
-import "./predifined/toJSONSchema"
-import "./predifined/toXML"
-import "./predifined/toYAML"
+import "./predefinedCode"
+import "./predefinedItem"
+import "./predefined"
 
-import "./standardAttributeDescription/fromXML"
-import "./standardAttributeDescription/fromYAML"
+import "./standardAttributeDescription/rules"
 import "./standardAttributeDescription/toJSONSchema"
-import "./standardAttributeDescription/toXML"
-import "./standardAttributeDescription/toYAML"
+import "./standardAttributeDescription/types"
 
 import "./string/fromXML"
 import "./string/toJSONSchema"
@@ -172,6 +275,20 @@ import "./typeLink/toJSONSchema"
 import "./typeLink/toXML"
 import "./typeLink/toYAML"
 
+import "./dataCompositionSystem/dcsMetadataValue/fromXML"
+import "./dataCompositionSystem/dcsMetadataValue/fromYAML"
+import "./dataCompositionSystem/dcsMetadataValue/toJSONSchema"
+import "./dataCompositionSystem/dcsMetadataValue/toXML"
+import "./dataCompositionSystem/dcsMetadataValue/toYAML"
+
+import "./dataCompositionSystem/appearanceFields/toJSONSchema"
+
+import "./dataCompositionSystem/parameterValue/fromXML"
+import "./dataCompositionSystem/parameterValue/fromYAML"
+import "./dataCompositionSystem/parameterValue/toJSONSchema"
+import "./dataCompositionSystem/parameterValue/toXML"
+import "./dataCompositionSystem/parameterValue/toYAML"
+
 import "./usePurposes/fromXML"
 import "./usePurposes/fromYAML"
 import "./usePurposes/toJSONSchema"
@@ -189,17 +306,26 @@ import "./metadataRef/fromYAML"
 import "./metadataRef/toXML"
 import "./metadataRef/toYAML"
 
-import "./characteristicsDescription/fromXML"
-import "./characteristicsDescription/fromYAML"
-import "./characteristicsDescription/toXML"
-import "./characteristicsDescription/toYAML"
-
-import "./characteristicsDescription/fromXML"
-import "./characteristicsDescription/fromYAML"
-import "./characteristicsDescription/toXML"
-import "./characteristicsDescription/toYAML"
+import "./number/fromXML"
 
 import "./number/toJSONSchema"
 
 import "./internalInfo/fromXML"
 import "./internalInfo/toXML"
+
+import "./dataCompositionSystem"
+
+import "./dateTime"
+
+import "./help/fromXML"
+import "./help/toXML"
+
+import "./module/fromXML"
+import "./module/toXML"
+
+let commonObjectsRegistered = false
+
+export function registerCommonObjects(): void {
+  if (commonObjectsRegistered) return
+  commonObjectsRegistered = true
+}

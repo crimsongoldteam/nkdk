@@ -1,17 +1,19 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
-import { FieldsList, FieldsListXML } from "./types"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { FieldsList, FieldsListPropertyRule, FieldsListXML } from "./types"
 
 export const exportFieldsListToXML = (
   _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  rule: PropertyRule | undefined,
   data: FieldsList | undefined
 ): FieldsListXML | undefined => {
   if (!data || data.length === 0) return undefined
 
+  const xmlItem = (rule as FieldsListPropertyRule | undefined)?.fieldsListXMLItem ?? "Field"
+
   return {
-    Field: data,
+    [xmlItem]: data,
   }
 }
 

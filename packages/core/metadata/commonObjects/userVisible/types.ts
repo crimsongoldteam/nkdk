@@ -1,14 +1,14 @@
 import { Static, Type } from "@sinclair/typebox"
-import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
+import { BooleanJSONSchema, StringboolXML } from "../boolean/types"
 
 export interface UserVisibleItemXML {
   _name: string
-  "#text": boolean
+  "#text": StringboolXML
 }
 
 export type UserVisibleXML = {
-  "xr:Common"?: boolean
-  "xr:Value"?: UserVisibleItemXML[]
+  "xr:Common"?: StringboolXML
+  "xr:Value"?: UserVisibleItemXML[] | UserVisibleItemXML
 }
 
 export interface UserVisibleValue {
@@ -22,27 +22,44 @@ export interface UserVisible {
 }
 
 export const UserVisibleKeysYAML = {
-  Allow: "РазрешитьИспользование",
-  Deny: "ЗапретитьИспользование",
+  Value: "Использование",
 } as const
 
 export const UserViewKeysYAML = {
-  Allow: "РазрешитьПросмотр",
-  Deny: "ЗапретитьПросмотр",
+  Value: "Просмотр",
 } as const
 
 export const UserEditKeysYAML = {
-  Allow: "РазрешитьРедактирование",
-  Deny: "ЗапретитьРедактирование",
+  Value: "Редактирование",
 } as const
 
-export const UserVisibleJSONSchema = Type.Record(Type.String(), BooleanJSONSchema)
+const UserVisibleRolesJSONSchema = Type.Record(Type.String(), BooleanJSONSchema, { minProperties: 1 })
+
+export const UserVisibleJSONSchema = Type.Union(
+  [
+    Type.Object(
+      {
+        Разрешить: Type.Optional(Type.Literal("Ложь")),
+        Роли: UserVisibleRolesJSONSchema,
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        Разрешить: Type.Literal("Ложь"),
+      },
+      { additionalProperties: false }
+    ),
+  ],
+  { additionalProperties: false }
+)
 
 export type UserVisibleYAML = Static<typeof UserVisibleJSONSchema>
+export type UserVisibleRolesYAML = Static<typeof UserVisibleRolesJSONSchema>
 
 export type UserVisibleKeysYAML = (typeof UserVisibleKeysYAML)[keyof typeof UserVisibleKeysYAML]
 
 export type UserViewKeysYAML = (typeof UserViewKeysYAML)[keyof typeof UserViewKeysYAML]
 export type UserEditKeysYAML = (typeof UserEditKeysYAML)[keyof typeof UserEditKeysYAML]
-export type UserViewYAML = Record<string, StringboolYAML>
-export type UserEditYAML = Record<string, StringboolYAML>
+export type UserViewYAML = UserVisibleYAML
+export type UserEditYAML = UserVisibleYAML

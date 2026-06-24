@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<HTTPService uuid="4eeded5e-ccd7-490a-bbc3-c1e12ff3711c">
+		<Properties>
+			<Name>HTTPСервисВсеСвойства</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Синоним</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment>Комментарий</Comment>
+			<RootURL>root</RootURL>
+			<ReuseSessions>DontUse</ReuseSessions>
+			<SessionMaxAge>90</SessionMaxAge>
+		</Properties>
+		<ChildObjects>
+			<URLTemplate uuid="aee983bf-4532-4484-af10-18bec3476e5f">
+				<Properties>
+					<Name>ШаблонURLВсеСвойства</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Синоним</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment>Комментарий</Comment>
+					<Template>/item</Template>
+				</Properties>
+				<ChildObjects>
+					<Method uuid="5cea292e-474f-4e14-9b79-46832cf8447b">
+						<Properties>
+							<Name>МетодВсеСвойства</Name>
+							<Synonym>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Синоним метода</v8:content>
+								</v8:item>
+							</Synonym>
+							<Comment>Комментарий метода</Comment>
+							<HTTPMethod>HEAD</HTTPMethod>
+							<Handler>ШаблонURLВсеСвойстваМетодВсеСвойства</Handler>
+						</Properties>
+					</Method>
+					<Method uuid="07a8e197-3ea2-4903-b834-a080fb590664">
+						<Properties>
+							<Name>МетодПоУмолчанию</Name>
+							<Synonym>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Метод по умолчанию</v8:content>
+								</v8:item>
+							</Synonym>
+							<Comment/>
+							<HTTPMethod>GET</HTTPMethod>
+							<Handler>ШаблонURLВсеСвойстваМетодПоУмолчанию</Handler>
+						</Properties>
+					</Method>
+				</ChildObjects>
+			</URLTemplate>
+			<URLTemplate uuid="53662790-fea7-4c2c-9b8f-5026033648f3">
+				<Properties>
+					<Name>ШаблонURLПоУмолчанию</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Шаблон URLПо умолчанию</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment/>
+					<Template>/*</Template>
+				</Properties>
+				<ChildObjects/>
+			</URLTemplate>
+		</ChildObjects>
+	</HTTPService>
+</MetaDataObject>

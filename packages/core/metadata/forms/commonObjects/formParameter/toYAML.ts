@@ -1,7 +1,7 @@
 import { exportTypeDescriptionToYAML } from "~/metadata/commonObjects/typeDescription/toYAML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { FormParameterYAML, FormParameters, FormParametersYAML } from "./types"
 
 export const exportFormParametersToYAML = (
@@ -16,8 +16,11 @@ export const exportFormParametersToYAML = (
   const result: FormParametersYAML = {}
 
   for (const parameter of parameters) {
-    const enterpriseParameter: FormParameterYAML = {
-      Тип: exportTypeDescriptionToYAML(context, undefined, parameter.type)!,
+    const enterpriseParameter: FormParameterYAML = {}
+
+    const type = exportTypeDescriptionToYAML(context, undefined, parameter.type)
+    if (type !== undefined) {
+      enterpriseParameter.Тип = type
     }
 
     if (parameter.keyParameter !== undefined) {

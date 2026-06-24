@@ -1,7 +1,34 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { getTypeRule } from "../formElement/factory"
+import { getTypeRule } from "./typeRuleRegistry"
+import { exportPropertyExternalRefSchema, exportPropertyOverrideSchema } from "../jsonSchemaRefs"
+import { shouldProcessProperty } from "./helpers"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+
+/**
+ * Возвращает YAML-представление defaultValue (для исключения из JSON Schema).
+ * Только для литеральных defaultValue, не для функций.
+ */
+function getDefaultValueYAML(rule: PropertyRule): string | number | undefined {
+  const v = rule.defaultValue
+  if (v === undefined || typeof v === "function") return undefined
+  if (rule.type === "boolean") return v ? "Истина" : "Ложь"
+  if (rule.type === "number" || rule.type === "string") return v
+  if (rule.type === "SystemEnumeration" && typeof v === "string") return v
+  return undefined
+}
+
+/**
+ * Исключает значение по умолчанию из схемы (union/anyOf): убирает вариант с const === defaultYAML.
+ */
+function excludeDefaultFromSchema(schema: TSchema, defaultYAML: string | number): TSchema {
+  const s = schema as { anyOf?: Array<{ const?: unknown }> }
+  if (!s.anyOf || !Array.isArray(s.anyOf)) return schema
+  const rest = s.anyOf.filter((opt) => opt.const !== defaultYAML)
+  if (rest.length === 0) return schema
+  if (rest.length === 1) return rest[0] as TSchema
+  return Type.Union(rest as [TSchema, TSchema, ...TSchema[]])
+}
 
 export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
   context: ConfigurationContext
@@ -17,6 +44,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
     PropertyRule,
   ][]) {
     // if (ruleProp.fromEnterprise === false) continue
+    if (!shouldProcessProperty({ rule: ruleProp, operation: "importFromYAML" })) continue
 
     const yamlKey = ruleProp.yaml
     if (!yamlKey) continue
@@ -29,7 +57,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
       value,
     })
     if (exportedValue !== undefined) {
-      result[yamlKey] = Type.Optional(exportedValue)
+      result[yamlKey] = ruleProp.required === true ? exportedValue : Type.Optional(exportedValue)
     }
   }
 
@@ -43,6 +71,18 @@ export const exportPropertyToJSONSchema = (params: {
 }): TSchema | undefined => {
   const { context, rule, value } = params
 
+  const overrideSchema = exportPropertyOverrideSchema({
+    context,
+    rule,
+  })
+  if (overrideSchema !== undefined) return overrideSchema
+
+  const externalRefSchema = exportPropertyExternalRefSchema({
+    context,
+    rule,
+  })
+  if (externalRefSchema !== undefined) return externalRefSchema
+
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToJSONSchema") : undefined
 
   if (!typeExportFn) {
@@ -54,6 +94,11 @@ export const exportPropertyToJSONSchema = (params: {
     rule,
     value,
   })
+
+  const defaultYAML = getDefaultValueYAML(rule)
+  if (defaultYAML !== undefined && exportedValue !== undefined) {
+    return excludeDefaultFromSchema(exportedValue, defaultYAML)
+  }
 
   return exportedValue
 }

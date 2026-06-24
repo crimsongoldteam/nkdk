@@ -1,23 +1,23 @@
 import { describe, expect, it } from "vitest"
-import { testExportElementToXML } from "~/tests/exportElementToXML"
-import { fullGraphicalSchemaField, minimalGraphicalSchemaField } from "~/tests/fixtures/forms/graphicalSchemaField/data"
+import { exportElementToXML } from "~/metadata/orchestration"
+import { mockContextToXML } from "~/tests/mockContext"
+import { xmlExport } from "~/xml/export/exporter"
+import { GraphicalSchemaField } from "./types"
 
-describe("exportGraphicalSchemaFieldToXML", () => {
-  it("should export all fields to XML", () => {
-    const resultData = testExportElementToXML({
-      element: fullGraphicalSchemaField,
-      path: "forms/graphicalSchemaField/full.xml",
+describe("export GraphicalSchemaField to XML", () => {
+  it("exports XML-only Edit value", () => {
+    const element: GraphicalSchemaField = {
+      itemType: "GraphicalSchemaField",
+      name: "Схема",
+      edit: false,
+    }
+
+    const xmlData = exportElementToXML({
+      context: mockContextToXML(),
+      element,
     })
+    const result = xmlExport({ GraphicalSchemaField: xmlData }, false)
 
-    expect(resultData.result).toEqual(resultData.expectedResult)
-  })
-
-  it("should export minimal", () => {
-    const resultData = testExportElementToXML({
-      element: minimalGraphicalSchemaField,
-      path: "forms/graphicalSchemaField/minimal.xml",
-    })
-
-    expect(resultData.result).toEqual(resultData.expectedResult)
+    expect(result).toContain("<Edit>false</Edit>")
   })
 })

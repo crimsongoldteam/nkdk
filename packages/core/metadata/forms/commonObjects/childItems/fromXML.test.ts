@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { ElementXML } from "~/metadata/orchestration/formElement/types"
-import { ChildItemsFixture, childItemsFixturesTable } from "~/tests/fixtures/childItems/data"
+import { ChildItemsFixture, childItemsFixturesTable } from "~/metadata/forms/commonObjects/childItems/__fixtures__/data"
 import { mockContextFromXML, mockRule } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { NamedElement } from "../../elements/baseElement/types"

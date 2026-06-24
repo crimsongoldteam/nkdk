@@ -1,0 +1,38 @@
+import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { importMetadataItemFromXML } from "~/metadata/orchestration/metadataItem/fromXML"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { FilterItem } from "./types"
+import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
+import "./inlineTypes"
+import "./typedValues"
+
+const importFilterItemElementFromXML = (
+  context: ConfigurationContextFromXML,
+  _rule: PropertyRule | undefined,
+  xml: unknown
+) => {
+  if (!xml || typeof xml !== "object") return undefined
+  const xsiType = (xml as Record<string, unknown>)["_xsi:type"]
+  if (typeof xsiType !== "string") return undefined
+  if (xsiType === "dcsset:FilterItemComparison") {
+    return importMetadataItemFromXML({ context, xml, rule: FilterItemComparisonRules })
+  }
+  if (xsiType === "dcsset:FilterItemGroup") {
+    return importMetadataItemFromXML({ context, xml, rule: FilterItemGroupRules })
+  }
+  return undefined
+}
+
+export const importFilterItemFromXML = (
+  context: ConfigurationContextFromXML,
+  rule: PropertyRule | undefined,
+  xml: unknown | unknown[] | undefined
+): FilterItem | undefined => {
+  if (!xml) return undefined
+  const items = Array.isArray(xml) ? xml : [xml]
+  const imported = items.flatMap((item) => {
+    const importedItem = importFilterItemElementFromXML(context, rule, item)
+    return importedItem ? [importedItem] : []
+  })
+  return imported.length > 0 ? imported : undefined
+}

@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { UserVisible, UserVisibleXML } from "./types"
 
@@ -13,7 +13,7 @@ export const exportUserVisibleToXML = (
   const result: UserVisibleXML = {
     "xr:Common": userVisible.common,
     "xr:Value": userVisible.values.map((item) => ({
-      _name: `Role.${item.name}`,
+      _name: item.name,
       "#text": item.value,
     })),
   }

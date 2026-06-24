@@ -1,9 +1,10 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
-import { Border, BorderYAML } from "./types"
+import { formatMetadataTargetToYAML } from "../metadataTargets"
+import { Border, BorderYAML, borderStyleItemTarget } from "./types"
 
 export const exportBorderToYAML = (
   context: ConfigurationContext,
@@ -12,9 +13,14 @@ export const exportBorderToYAML = (
 ): BorderYAML | undefined => {
   if (!data) return undefined
 
-  const result: BorderYAML = {
-    Имя: data.ref,
-    Ширина: data.width,
+  const result: BorderYAML = {}
+
+  if (data.ref !== undefined) {
+    result.Имя = exportStyleItemRefToYAML(data.ref)
+  }
+
+  if (data.width !== undefined) {
+    result.Ширина = data.width
   }
 
   const borderType = exportSystemEnumerationToYAMLDeprecated<SE.ControlBorderTypeYAML>(
@@ -27,6 +33,13 @@ export const exportBorderToYAML = (
   }
 
   return result
+}
+
+function exportStyleItemRefToYAML(ref: string): string {
+  return formatMetadataTargetToYAML({
+    canonical: `StyleItem.${ref}`,
+    constraint: borderStyleItemTarget,
+  })
 }
 
 registerTypeRule("Border", "exportToYAML", exportBorderToYAML)

@@ -1,156 +1,96 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { metadataValueFixtures } from "~/metadata/commonObjects/metadataValue/__fixtures__/data"
+import { mockContext } from "~/tests/mockContext"
+import { exportToYAML } from "~/yaml/export"
+import { isExplicitYAMLString } from "~/yaml/explicitString"
 import { exportMetadataValueToYAML } from "./toYAML"
-import { MetadataValue } from "./types"
 
 describe("exportMetadataValueToYAML", () => {
-  it("should export string value to YAML", () => {
-    const data: MetadataValue = {
-      type: "string",
-      value: "Текстовое значение",
-    }
-
-    const result = exportMetadataValueToYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual('"Текстовое значение"')
+  it.each(metadataValueFixtures)("should export $name value to YAML", (fixture) => {
+    const result = exportMetadataValueToYAML(mockContext, fixture.rule as any, fixture.internal as any)
+    expect(result).toEqual(fixture.YAML)
   })
 
-  it("should export boolean value to YAML", () => {
-    const data: MetadataValue = {
-      type: "boolean",
-      value: true,
-    }
+  it("exports DataCompositionComparisonType to YAML", () => {
+    const result = exportMetadataValueToYAML(
+      mockContext,
+      { type: "MetadataValue", valueType: ["DataCompositionComparisonType"] } as any,
+      { type: "DataCompositionComparisonType", value: "Equal" } as any
+    )
 
-    const result = exportMetadataValueToYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual("Истина")
+    expect(result).toEqual("Равно")
   })
 
-  it("should export decimal value to YAML", () => {
-    const data: MetadataValue = {
-      type: "decimal",
-      value: 10,
-    }
+  it("exports AccountType to explicit YAML", () => {
+    const result = exportMetadataValueToYAML(
+      mockContext,
+      { type: "MetadataValue" } as any,
+      { type: "AccountType", value: "ActivePassive" } as any
+    )
 
-    const result = exportMetadataValueToYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual(10)
+    expect(result).toEqual({ Тип: "ВидСчета", Значение: "АктивноПассивный" })
   })
 
-  it("should export decimal zero value to YAML", () => {
-    const data: MetadataValue = {
-      type: "decimal",
-      value: 0,
-    }
+  it("exports metadata target value references to YAML", () => {
+    expect(
+      exportMetadataValueToYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        { type: "ref", value: "Enum.ВидыДоговоров.EnumValue.СПоставщиком" } as any
+      )
+    ).toEqual("Перечисление.ВидыДоговоров.СПоставщиком")
 
-    const result = exportMetadataValueToYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual(0)
+    expect(
+      exportMetadataValueToYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        { type: "ref", value: "Catalog.СтавкиНДС.EmptyRef" } as any
+      )
+    ).toEqual("Справочник.СтавкиНДС.ПустаяСсылка")
   })
 
-  it("should export dateTime value to YAML", () => {
-    const data: MetadataValue = {
-      type: "dateTime",
-      value: "2025-12-24T12:00:00",
-    }
+  it("keeps uuid design-time references as YAML ref values", () => {
+    const value = "447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231"
 
-    const result = exportMetadataValueToYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual("24.12.2025 12:00:00")
+    expect(
+      exportMetadataValueToYAML(
+        mockContext,
+        { type: "MetadataValue", valueType: ["ref"] } as any,
+        { type: "ref", value } as any
+      )
+    ).toEqual(value)
   })
 
-  it("should export enum (ref) value to YAML", () => {
-    const data: MetadataValue = {
-      type: "ref",
-      value: "Enum.ВидыДоговоров.EnumValue.СПоставщиком",
-    }
+  it("exports string MetadataValue as an explicit YAML string marker", () => {
+    const result = exportMetadataValueToYAML(
+      mockContext,
+      { type: "MetadataValue" } as any,
+      { type: "string", value: "456" } as any
+    )
 
-    const result = exportMetadataValueToYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual("Перечисление.ВидыДоговоров.СПоставщиком")
+    expect(isExplicitYAMLString(result)).toBe(true)
+    expect(exportToYAML({ "Отбор.Код": result })).toBe('Отбор.Код: "456"')
   })
 
-  it("should export catalog (ref) value to YAML", () => {
-    const data: MetadataValue = {
-      type: "ref",
-      value: "Catalog.Пользователи.EmptyRef",
-    }
-
-    const result = exportMetadataValueToYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual("Справочник.Пользователи.ПустаяСсылка")
-  })
-
-  it("should export fixedArray value to YAML", () => {
-    const data: MetadataValue = {
-      type: "fixedArray",
-      value: [
-        {
-          type: "ref",
-          value: "Enum.ТипыСчетов.EnumValue.КосвенныеЗатраты",
-        },
-        {
-          type: "ref",
-          value: "Enum.ТипыСчетов.EnumValue.Расходы",
-        },
-      ],
-    }
-
-    const result = exportMetadataValueToYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual(["Перечисление.ТипыСчетов.КосвенныеЗатраты", "Перечисление.ТипыСчетов.Расходы"])
-  })
-
-  it("should export FormChoiceListDesTimeValue to YAML", () => {
-    const data: MetadataValue = {
-      type: "formChoiceListDesTimeValue",
-      presentation: { items: { ru: "Физическое лицо" } },
-      value: {
-        type: "string",
-        value: "ФЛ",
-      },
-    }
-
-    const result = exportMetadataValueToYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual('"ФЛ"(Физическое лицо)')
-  })
-
-  it("should export multilanguage FormChoiceListDesTimeValue to YAML", () => {
-    const data: MetadataValue = {
-      type: "formChoiceListDesTimeValue",
-      presentation: { items: { ru: "Физическое лицо", en: "Physical person" } },
-      value: {
-        type: "string",
-        value: "ФЛ",
-      },
-    }
-
-    const result = exportMetadataValueToYAML(mockContext, mockRule, data)
-
-    expect(result).toEqual({
-      Представление: { ru: "Физическое лицо", en: "Physical person" },
-      Значение: '"ФЛ"',
+  describe("строгая валидация valueType", () => {
+    it("должен бросить при valueType: [string] и фактическом boolean", () => {
+      expect(() =>
+        exportMetadataValueToYAML(
+          mockContext,
+          { type: "MetadataValue", valueType: ["string"] } as any,
+          { type: "boolean", value: true } as any
+        )
+      ).toThrowError("MetadataValue: ожидались [string], получен boolean в toYAML")
     })
-  })
 
-  //   it("should export ApplicationUsePurpose type to YAML", () => {
-  //     const data: MetadataValue = {
-  //       type: "ApplicationUsePurpose",
-  //       value: "PlatformApplication",
-  //     }
-
-  //     const result = exportMetadataValueToYAML(mockContext, mockRule, data)
-
-  //     expect(result).toEqual({
-  //       Тип: "ApplicationUsePurpose",
-  //       Значение: "PlatformApplication",
-  //     })
-  //   })
-
-  it("should return undefined for undefined input", () => {
-    const result = exportMetadataValueToYAML(mockContext, mockRule, undefined)
-
-    expect(result).toBeUndefined()
+    it("должен бросить при valueType: [string] и фактическом decimal", () => {
+      expect(() =>
+        exportMetadataValueToYAML(
+          mockContext,
+          { type: "MetadataValue", valueType: ["string"] } as any,
+          { type: "decimal", value: 10 } as any
+        )
+      ).toThrowError("MetadataValue: ожидались [string], получен decimal в toYAML")
+    })
   })
 })

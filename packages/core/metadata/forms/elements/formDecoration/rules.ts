@@ -1,0 +1,55 @@
+import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+
+export const formDecorationCommonProperties = {
+  autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
+  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
+  contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
+  displayImportance: {
+    yaml: "ВажностьПриОтображении",
+    xml: "_DisplayImportance",
+    type: "SystemEnumeration",
+    typeSE: "DisplayImportance",
+  },
+  enabled: { yaml: "Доступность", type: "boolean" },
+  extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
+  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
+  height: { yaml: "Высота", type: "number" },
+  horizontalAlignInGroup: {
+    yaml: "ГоризонтальноеПоложениеВГруппе",
+    xml: "GroupHorizontalAlign",
+    type: "SystemEnumeration",
+    typeSE: "ItemHorizontalLocation",
+  },
+  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+  maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
+  maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+  onMainServerUnavalableBehavior: {
+    yaml: "ПоведениеПриНедоступностиОсновногоСервера",
+    type: "SystemEnumeration",
+    typeSE: "OnMainServerUnavalableBehavior",
+    implicitValueYAML: "Auto",
+  },
+  shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
+  skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },
+  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+  toolTip: { yaml: "Подсказка", type: "I8nText" },
+  toolTipRepresentation: {
+    yaml: "ОтображениеПодсказки",
+    type: "SystemEnumeration",
+    typeSE: "ToolTipRepresentation",
+  },
+  userVisible: {
+    yaml: "Использование",
+    type: "UserVisible",
+    toEnterprise: false,
+  },
+  verticalAlignInGroup: {
+    yaml: "ВертикальноеПоложениеВГруппе",
+    xml: "GroupVerticalAlign",
+    type: "SystemEnumeration",
+    typeSE: "ItemVerticalAlign",
+  },
+  verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
+  visible: { yaml: "Видимость", type: "boolean" },
+  width: { yaml: "Ширина", type: "number" },
+} as const satisfies MetadataItemRule["properties"]

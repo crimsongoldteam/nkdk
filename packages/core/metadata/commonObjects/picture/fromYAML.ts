@@ -1,10 +1,16 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/formElement/factory"
+import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
-import { Picture, PictureYAML, PictureYAMLExtended } from "./types"
+import { parseMetadataTargetFromYAML, type MetadataTargetConstraint } from "../metadataTargets"
+import { isRawPictureRefValue, Picture, PictureYAML, PictureYAMLExtended } from "./types"
+
+const commonPictureTarget = {
+  kind: "object",
+  allowedObjectPaths: [["CommonPicture"]],
+} as const satisfies MetadataTargetConstraint
 
 export const importPictureCombinedFromYAML = (
   context: ConfigurationContext,
@@ -52,21 +58,25 @@ export const importPictureFromYAML = (
     loadTransparent = isStandard ? true : false
   }
 
+  if (typeof ref === "string" && isRawPictureRefValue(ref)) {
+    return {
+      rawRef: ref,
+      ...(isPictureYAMLExtended(data) && data.ПрозрачныйФон !== undefined ? { loadTransparent } : {}),
+      ...(transparentPixel ? { transparentPixel } : {}),
+    }
+  }
+
   const standardPicture = tryimportStandardPicture(context, ref as string)
   if (standardPicture) {
     return createPicture(standardPicture, "StandardPicture", loadTransparent, transparentPixel)
   }
 
-  // Determine if it's absolute or common picture
-  // Absolute pictures typically have file extensions
-  const isAbsolute = typeof ref === "string" && /\.\w+$/.test(ref)
+  const commonPicture = typeof ref === "string" ? tryImportCommonPicture(ref) : undefined
+  if (commonPicture) {
+    return createPicture(commonPicture, "CommonPicture", loadTransparent, transparentPixel)
+  }
 
-  return createPicture(
-    ref as string,
-    isAbsolute ? "AbsolutePicture" : "CommonPicture",
-    loadTransparent,
-    transparentPixel
-  )
+  return createPicture(ref as string, "AbsolutePicture", loadTransparent, transparentPixel)
 }
 
 function isPictureYAMLExtended(data: PictureYAML): data is PictureYAMLExtended {
@@ -82,6 +92,17 @@ function tryimportStandardPicture(context: ConfigurationContext, ref: string): S
     )
   }
   return undefined
+}
+
+function tryImportCommonPicture(ref: string): string | undefined {
+  if (!ref.startsWith("ОбщаяКартинка.")) return undefined
+
+  const parsed = parseMetadataTargetFromYAML({
+    value: ref,
+    constraint: commonPictureTarget,
+  })
+  if (!parsed.ok) throw new Error(parsed.message)
+  return parsed.target.kind === "object" && parsed.target.root === "CommonPicture" ? parsed.target.objectName : undefined
 }
 
 function createPicture(

@@ -1,26 +1,302 @@
 import {
-  AutoCommandBar,
-  AutoCommandBarEnterprise,
-  AutoCommandBarYAML,
-} from "~/metadata/forms/elements/autoCommandBar/types"
+  AppearanceFields,
+  AppearanceFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
 import {
-  ViewStatusAddition,
-  ViewStatusAdditionEnterprise,
-  ViewStatusAdditionYAML,
-} from "~/metadata/forms/elements/viewStatusAddition/types"
-// import { Configuration, ConfigurationYAML } from "../../appliedObjects/configuration"
+  AvailableFields,
+  AvailableFieldsYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
+import {
+  CalculatedField,
+  CalculatedFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
+import {
+  CalculatedFieldOrderExpressionItem,
+  CalculatedFieldOrderExpressionItemYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/types"
+import type {
+  CalculatedFieldUseRestriction,
+  CalculatedFieldUseRestrictionYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/types"
+import type {
+  DataCompositionSchemaDataSetField,
+  DataCompositionSchemaDataSetFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/types"
+import {
+  ConditionalAppearance,
+  ConditionalAppearanceYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/types"
+import {
+  ConditionalAppearanceItem,
+  ConditionalAppearanceItemYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types"
+import type { DCSParameter, DCSParameterYAML } from "~/metadata/commonObjects/dataCompositionSystem/dcsParameter/types"
+import { Filter, FilterYAML } from "~/metadata/commonObjects/dataCompositionSystem/filter/types"
+import {
+  FilterItemComparison,
+  FilterItemComparisonYAML,
+  FilterItemGroup,
+  FilterItemGroupYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/filterItem/types"
+import { Order, OrderYAML } from "~/metadata/commonObjects/dataCompositionSystem/order/types"
+import {
+  OrderItemField,
+  OrderItemFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/orderItemFields/types"
+import {
+  GroupItemAuto,
+  GroupItemAutoYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/types"
+import {
+  GroupItemField,
+  GroupItemFieldYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/types"
+import {
+  StructureItemGroup,
+  StructureItemGroupYAML,
+} from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
+import {
+  AdditionalIndex,
+  AdditionalIndexItem,
+  AdditionalIndexItemYAML,
+  AdditionalIndexYAML,
+} from "~/metadata/commonObjects/additionalIndex/types"
+import {
+  AccumulationRegisterAggregate,
+  AccumulationRegisterAggregateYAML,
+  AccumulationRegisterAggregates,
+  AccumulationRegisterAggregatesYAML,
+} from "~/metadata/commonObjects/accumulationRegisterAggregates/types"
+import {
+  ExchangePlanContent,
+  ExchangePlanContentItem,
+  ExchangePlanContentItemYAML,
+  ExchangePlanContentYAML,
+} from "~/metadata/commonObjects/exchangePlanContent/types"
 import { MetadataAttribute, MetadataAttributeYAML } from "~/metadata/commonObjects/metadataAttribute/types"
+import {
+  MetadataDocumentJournalColumn,
+  MetadataDocumentJournalColumnYAML,
+} from "~/metadata/commonObjects/metadataDocumentJournalColumn/types"
+import {
+  MetadataHTTPServiceMethod,
+  MetadataHTTPServiceMethodYAML,
+} from "~/metadata/commonObjects/metadataHTTPServiceMethod/types"
+import {
+  MetadataHTTPServiceURLTemplate,
+  MetadataHTTPServiceURLTemplateYAML,
+} from "~/metadata/commonObjects/metadataHTTPServiceURLTemplate/types"
+import {
+  MetadataIntegrationServiceChannel,
+  MetadataIntegrationServiceChannelYAML,
+} from "~/metadata/commonObjects/metadataIntegrationServiceChannel/types"
+import {
+  MetadataWebServiceOperation,
+  MetadataWebServiceOperationYAML,
+  MetadataWebServiceParameter,
+  MetadataWebServiceParameterYAML,
+} from "~/metadata/commonObjects/metadataWebServiceOperation/types"
+import {
+  MetadataRegisterAttribute,
+  MetadataRegisterAttributeYAML,
+} from "~/metadata/commonObjects/metadataRegisterAttribute/types"
+import {
+  MetadataRegisterDimension,
+  MetadataRegisterDimensionYAML,
+} from "~/metadata/commonObjects/metadataRegisterDimension/types"
+import {
+  MetadataRegisterResource,
+  MetadataRegisterResourceYAML,
+} from "~/metadata/commonObjects/metadataRegisterResource/types"
+import {
+  MetadataExternalDataSourceCubeDimension,
+  MetadataExternalDataSourceCubeDimensionYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceCubeDimension/types"
+import {
+  MetadataExternalDataSourceCubeResource,
+  MetadataExternalDataSourceCubeResourceYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceCubeResource/types"
+import {
+  MetadataExternalDataSourceField,
+  MetadataExternalDataSourceFieldYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceField/types"
+import {
+  MetadataExternalDataSourceFunction,
+  MetadataExternalDataSourceFunctionYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceFunction/types"
+import {
+  MetadataExternalDataSourceTable,
+  MetadataExternalDataSourceTableYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceTable/types"
+import {
+  MetadataExternalDataSourceDimensionTable,
+  MetadataExternalDataSourceDimensionTableYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceDimensionTable/types"
+import {
+  MetadataExternalDataSourceCube,
+  MetadataExternalDataSourceCubeYAML,
+} from "~/metadata/commonObjects/metadataExternalDataSourceCube/types"
+import {
+  MetadataExternalDataSource,
+  MetadataExternalDataSourceYAML,
+} from "~/metadata/appliedObjects/metadataExternalDataSource/types"
+import { Recalculation, RecalculationYAML } from "~/metadata/commonObjects/recalculation/types"
+import {
+  AccountingFlag,
+  AccountingFlagYAML,
+  ExtDimensionAccountingFlag,
+  ExtDimensionAccountingFlagYAML,
+} from "~/metadata/commonObjects/accountingFlag/types"
+import {
+  StandardTabularSectionDescription,
+  StandardTabularSectionDescriptionYAML,
+} from "~/metadata/commonObjects/standardTabularSectionDescription/types"
+import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
+import { PredefinedItem, PredefinedItemYAML } from "~/metadata/commonObjects/predefinedItem/types"
+import {
+  MetadataSequenceDimension,
+  MetadataSequenceDimensionYAML,
+} from "~/metadata/commonObjects/metadataSequenceDimension/types"
 import {
   MetadataTabularSection,
   MetadataTabularSectionYAML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import {
+  AutoCommandBar,
+  AutoCommandBarEnterprise,
+  AutoCommandBarYAML,
+} from "~/metadata/forms/elements/autoCommandBar/types"
+import {
+  SingleViewStatusAddition,
+  SingleViewStatusAdditionEnterprise,
+  SingleViewStatusAdditionYAML,
+  ViewStatusAddition,
+  ViewStatusAdditionEnterprise,
+  ViewStatusAdditionYAML,
+} from "~/metadata/forms/elements/viewStatusAddition/types"
+import type { MetadataConfiguration, MetadataConfigurationYAML } from "../../appliedObjects/configuration/types"
+import {
+  CharacteristicsDescription,
+  CharacteristicsDescriptionYAML,
+} from "~/metadata/commonObjects/characteristicsDescription/types"
+import {
   StandardAttributeDescription,
   StandardAttributeDescriptionYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { FormCommand, FormCommandYAML } from "~/metadata/forms/commonObjects/formCommand/types"
+import { MetadataBot, MetadataBotYAML } from "../../appliedObjects/metadataBot/types"
 import { MetadataCatalog, MetadataCatalogYAML } from "../../appliedObjects/metadataCatalog"
 import { MetadataCommand, MetadataCommandYAML } from "../../appliedObjects/metadataCommand/types"
+import { MetadataCommonCommand, MetadataCommonCommandYAML } from "../../appliedObjects/metadataCommonCommand/types"
+import {
+  MetadataCommonAttribute,
+  MetadataCommonAttributeYAML,
+} from "../../appliedObjects/metadataCommonAttribute/types"
+import { MetadataConstant, MetadataConstantYAML } from "../../appliedObjects/metadataConstant/types"
+import { MetadataDefinedType, MetadataDefinedTypeYAML } from "../../appliedObjects/metadataDefinedType/types"
+import { MetadataDataProcessor, MetadataDataProcessorYAML } from "../../appliedObjects/metadataDataProcessor/types"
+import { MetadataReport, MetadataReportYAML } from "../../appliedObjects/metadataReport/types"
+import { MetadataDocument, MetadataDocumentYAML } from "../../appliedObjects/metadataDocument/types"
+import {
+  MetadataDocumentJournal,
+  MetadataDocumentJournalYAML,
+} from "../../appliedObjects/metadataDocumentJournal/types"
+import { MetadataHTTPService, MetadataHTTPServiceYAML } from "../../appliedObjects/metadataHTTPService/types"
+import {
+  MetadataIntegrationService,
+  MetadataIntegrationServiceYAML,
+} from "../../appliedObjects/metadataIntegrationService/types"
+import {
+  MetadataInformationRegister,
+  MetadataInformationRegisterYAML,
+} from "../../appliedObjects/metadataInformationRegister/types"
+import {
+  MetadataAccumulationRegister,
+  MetadataAccumulationRegisterYAML,
+} from "../../appliedObjects/metadataAccumulationRegister/types"
+import {
+  MetadataBusinessProcess,
+  MetadataBusinessProcessYAML,
+} from "../../appliedObjects/metadataBusinessProcess/types"
+import {
+  MetadataAccountingRegister,
+  MetadataAccountingRegisterYAML,
+} from "../../appliedObjects/metadataAccountingRegister/types"
+import {
+  MetadataCalculationRegister,
+  MetadataCalculationRegisterYAML,
+} from "../../appliedObjects/metadataCalculationRegister/types"
+import {
+  MetadataChartOfAccounts,
+  MetadataChartOfAccountsYAML,
+} from "../../appliedObjects/metadataChartOfAccounts/types"
+import {
+  MetadataChartOfCalculationTypes,
+  MetadataChartOfCalculationTypesYAML,
+} from "../../appliedObjects/metadataChartOfCalculationTypes/types"
+import {
+  MetadataChartOfCharacteristicTypes,
+  MetadataChartOfCharacteristicTypesYAML,
+} from "../../appliedObjects/metadataChartOfCharacteristicTypes/types"
+import { MetadataExchangePlan, MetadataExchangePlanYAML } from "../../appliedObjects/metadataExchangePlan/types"
+import {
+  MetadataDocumentNumerator,
+  MetadataDocumentNumeratorYAML,
+} from "../../appliedObjects/metadataDocumentNumerator/types"
+import {
+  MetadataEnumeration,
+  MetadataEnumerationValue,
+  MetadataEnumerationValueYAML,
+  MetadataEnumerationYAML,
+} from "../../appliedObjects/metadataEnumeration/types"
+import {
+  MetadataEventSubscription,
+  MetadataEventSubscriptionYAML,
+} from "../../appliedObjects/metadataEventSubscription/types"
+import {
+  MetadataFilterCriterion,
+  MetadataFilterCriterionYAML,
+} from "../../appliedObjects/metadataFilterCriterion/types"
+import {
+  MetadataFunctionalOptionsParameter,
+  MetadataFunctionalOptionsParameterYAML,
+} from "../../appliedObjects/metadataFunctionalOptionsParameter/types"
+import {
+  MetadataFunctionalOption,
+  MetadataFunctionalOptionYAML,
+} from "../../appliedObjects/metadataFunctionalOption/types"
+import { MetadataLanguage, MetadataLanguageYAML } from "../../appliedObjects/metadataLanguage/types"
+import { MetadataRole, MetadataRoleYAML } from "../../appliedObjects/metadataRole/types"
+import { MetadataScheduledJob, MetadataScheduledJobYAML } from "../../appliedObjects/metadataScheduledJob/types"
+import { MetadataCommonForm, MetadataCommonFormYAML } from "../../appliedObjects/metadataCommonForm/types"
+import { MetadataCommonPicture, MetadataCommonPictureYAML } from "../../appliedObjects/metadataCommonPicture/types"
+import { MetadataCommonTemplate, MetadataCommonTemplateYAML } from "../../appliedObjects/metadataCommonTemplate/types"
+import { MetadataCommonModule, MetadataCommonModuleYAML } from "../../appliedObjects/metadataCommonModule/types"
+import { MetadataXDTOPackage, MetadataXDTOPackageYAML } from "../../appliedObjects/metadataXDTOPackage/types"
+import {
+  MetadataWebSocketClient,
+  MetadataWebSocketClientYAML,
+} from "../../appliedObjects/metadataWebSocketClient/types"
+import {
+  MetadataCommandGroup as MetadataAppliedCommandGroup,
+  MetadataCommandGroupYAML as MetadataAppliedCommandGroupYAML,
+} from "../../appliedObjects/metadataCommandGroup/types"
+import { MetadataStyle, MetadataStyleYAML } from "../../appliedObjects/metadataStyle/types"
+import { MetadataSubsystem, MetadataSubsystemYAML } from "../../appliedObjects/metadataSubsystem/types"
+import {
+  MetadataSettingsStorage,
+  MetadataSettingsStorageYAML,
+} from "../../appliedObjects/metadataSettingsStorage/types"
+import { MetadataSequence, MetadataSequenceYAML } from "../../appliedObjects/metadataSequence/types"
+import { MetadataTask, MetadataTaskYAML } from "../../appliedObjects/metadataTask/types"
+import {
+  MetadataSessionParameter,
+  MetadataSessionParameterYAML,
+} from "../../appliedObjects/metadataSessionParameter/types"
+import { MetadataStyleItem, MetadataStyleItemYAML } from "../../appliedObjects/metadataStyleItem/types"
+import { MetadataWebService, MetadataWebServiceYAML } from "../../appliedObjects/metadataWebService/types"
+import { MetadataWSReference, MetadataWSReferenceYAML } from "../../appliedObjects/metadataWSReference/types"
 import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
@@ -33,12 +309,28 @@ import {
   CommandInterfaceYAML,
 } from "../../forms/commonObjects/commandInterface/types"
 import {
+  ClientApplicationInterface,
+  ClientApplicationInterfaceYAML,
+} from "../../commonObjects/clientApplicationInterface/types"
+import { HomePageWorkArea, HomePageWorkAreaYAML } from "../../commonObjects/homePageWorkArea/types"
+import { RootCommandInterface, RootCommandInterfaceYAML } from "../../commonObjects/rootCommandInterface/types"
+import {
   FormAttribute,
   FormAttributeColumn,
   FormAttributeColumnYAML,
   FormAttributeYAML,
 } from "../../forms/commonObjects/formAttribute/types"
-import { Button, ButtonEnterprise, ButtonPartialYAML, ButtonTypedYAML } from "../../forms/elements/button/types"
+import { FormParameter, FormParameterYAML } from "../../forms/commonObjects/formParameter/types"
+import {
+  Button,
+  ButtonEnterprise,
+  ButtonPartialYAML,
+  ButtonTypedYAML,
+  CommandBarButton,
+  CommandBarButtonEnterprise,
+  CommandBarButtonPartialYAML,
+  CommandBarButtonTypedYAML,
+} from "../../forms/elements/button/types"
 import {
   ButtonGroup,
   ButtonGroupEnterprise,
@@ -55,7 +347,10 @@ import {
   CheckBoxField,
   CheckBoxFieldEnterprise,
   CheckBoxFieldPartialYAML,
-  CheckBoxFieldTypedYAML,
+  TableCheckBoxField,
+  TableCheckBoxFieldEnterprise,
+  TableCheckBoxFieldPartialYAML,
+  TableCheckBoxFieldTypedYAML,
 } from "../../forms/elements/checkBoxField/types"
 import {
   ColumnGroup,
@@ -104,7 +399,10 @@ import {
   InputField,
   InputFieldEnterprise,
   InputFieldPartialYAML,
-  InputFieldTypedYAML,
+  TableInputField,
+  TableInputFieldEnterprise,
+  TableInputFieldPartialYAML,
+  TableInputFieldTypedYAML,
 } from "../../forms/elements/inputField/types"
 import {
   LabelDecoration,
@@ -115,7 +413,10 @@ import {
   LabelField,
   LabelFieldEnterprise,
   LabelFieldPartialYAML,
-  LabelFieldTypedYAML,
+  TableLabelField,
+  TableLabelFieldEnterprise,
+  TableLabelFieldPartialYAML,
+  TableLabelFieldTypedYAML,
 } from "../../forms/elements/labelField/types"
 import { Page, PageEnterprise, PagePartialYAML } from "../../forms/elements/page/types"
 import { Pages, PagesEnterprise, PagesPartialYAML } from "../../forms/elements/pages/types"
@@ -134,7 +435,10 @@ import {
   PictureField,
   PictureFieldEnterprise,
   PictureFieldPartialYAML,
-  PictureFieldTypedYAML,
+  TablePictureField,
+  TablePictureFieldEnterprise,
+  TablePictureFieldPartialYAML,
+  TablePictureFieldTypedYAML,
 } from "../../forms/elements/pictureField/types"
 import { PlannerField, PlannerFieldEnterprise, PlannerFieldPartialYAML } from "../../forms/elements/plannerField/types"
 import { Popup, PopupEnterprise, PopupPartialYAML, PopupTypedYAML } from "../../forms/elements/popup/types"
@@ -183,7 +487,7 @@ import {
 import { UsualGroup, UsualGroupEnterprise, UsualGroupPartialYAML } from "../../forms/elements/usualGroup/types"
 import { TypedFormElementType } from "../formElement/types"
 
-export type MetadataItemTypeRegistry = {
+export interface MetadataItemTypeRegistry {
   //#region Elements
 
   Button: {
@@ -191,6 +495,12 @@ export type MetadataItemTypeRegistry = {
     yaml: ButtonPartialYAML
     yamlTyped: ButtonTypedYAML
     enterprise: ButtonEnterprise
+  }
+  CommandBarButton: {
+    metadata: CommandBarButton
+    yaml: CommandBarButtonPartialYAML
+    yamlTyped: CommandBarButtonTypedYAML
+    enterprise: CommandBarButtonEnterprise
   }
   ButtonGroup: {
     metadata: ButtonGroup
@@ -211,8 +521,13 @@ export type MetadataItemTypeRegistry = {
   CheckBoxField: {
     metadata: CheckBoxField
     yaml: CheckBoxFieldPartialYAML
-    yamlTyped: CheckBoxFieldTypedYAML
     enterprise: CheckBoxFieldEnterprise
+  }
+  TableCheckBoxField: {
+    metadata: TableCheckBoxField
+    yaml: TableCheckBoxFieldPartialYAML
+    yamlTyped: TableCheckBoxFieldTypedYAML
+    enterprise: TableCheckBoxFieldEnterprise
   }
   ColumnGroup: {
     metadata: ColumnGroup
@@ -258,8 +573,13 @@ export type MetadataItemTypeRegistry = {
   InputField: {
     metadata: InputField
     yaml: InputFieldPartialYAML
-    yamlTyped: InputFieldTypedYAML
     enterprise: InputFieldEnterprise
+  }
+  TableInputField: {
+    metadata: TableInputField
+    yaml: TableInputFieldPartialYAML
+    yamlTyped: TableInputFieldTypedYAML
+    enterprise: TableInputFieldEnterprise
   }
   LabelDecoration: {
     metadata: LabelDecoration
@@ -269,8 +589,13 @@ export type MetadataItemTypeRegistry = {
   LabelField: {
     metadata: LabelField
     yaml: LabelFieldPartialYAML
-    yamlTyped: LabelFieldTypedYAML
     enterprise: LabelFieldEnterprise
+  }
+  TableLabelField: {
+    metadata: TableLabelField
+    yaml: TableLabelFieldPartialYAML
+    yamlTyped: TableLabelFieldTypedYAML
+    enterprise: TableLabelFieldEnterprise
   }
   Page: {
     metadata: Page
@@ -300,8 +625,13 @@ export type MetadataItemTypeRegistry = {
   PictureField: {
     metadata: PictureField
     yaml: PictureFieldPartialYAML
-    yamlTyped: PictureFieldTypedYAML
     enterprise: PictureFieldEnterprise
+  }
+  TablePictureField: {
+    metadata: TablePictureField
+    yaml: TablePictureFieldPartialYAML
+    yamlTyped: TablePictureFieldTypedYAML
+    enterprise: TablePictureFieldEnterprise
   }
   PlannerField: {
     metadata: PlannerField
@@ -391,6 +721,11 @@ export type MetadataItemTypeRegistry = {
     yaml: ViewStatusAdditionYAML
     enterprise: ViewStatusAdditionEnterprise
   }
+  SingleViewStatusAddition: {
+    metadata: SingleViewStatusAddition
+    yaml: SingleViewStatusAdditionYAML
+    enterprise: SingleViewStatusAdditionEnterprise
+  }
   AutoCommandBar: {
     metadata: AutoCommandBar
     yaml: AutoCommandBarYAML
@@ -418,6 +753,14 @@ export type MetadataItemTypeRegistry = {
     metadata: FormCommand
     yaml: FormCommandYAML
   }
+  FormParameter: {
+    metadata: FormParameter
+    yaml: FormParameterYAML
+  }
+  DynamicList: {
+    metadata: DynamicList
+    yaml: DynamicListYAML
+  }
 
   //#endregion
 
@@ -433,9 +776,174 @@ export type MetadataItemTypeRegistry = {
     yaml: CommandInterfaceItemYAML
   }
 
+  RootCommandInterface: {
+    metadata: RootCommandInterface
+    yaml: RootCommandInterfaceYAML
+  }
+
+  ClientApplicationInterface: {
+    metadata: ClientApplicationInterface
+    yaml: ClientApplicationInterfaceYAML
+  }
+
+  HomePageWorkArea: {
+    metadata: HomePageWorkArea
+    yaml: HomePageWorkAreaYAML
+  }
+
   MetadataAttribute: {
     metadata: MetadataAttribute
     yaml: MetadataAttributeYAML
+  }
+
+  MetadataDocumentJournalColumn: {
+    metadata: MetadataDocumentJournalColumn
+    yaml: MetadataDocumentJournalColumnYAML
+  }
+
+  MetadataHTTPServiceMethod: {
+    metadata: MetadataHTTPServiceMethod
+    yaml: MetadataHTTPServiceMethodYAML
+  }
+
+  MetadataHTTPServiceURLTemplate: {
+    metadata: MetadataHTTPServiceURLTemplate
+    yaml: MetadataHTTPServiceURLTemplateYAML
+  }
+
+  MetadataIntegrationServiceChannel: {
+    metadata: MetadataIntegrationServiceChannel
+    yaml: MetadataIntegrationServiceChannelYAML
+  }
+
+  MetadataWebServiceOperation: {
+    metadata: MetadataWebServiceOperation
+    yaml: MetadataWebServiceOperationYAML
+  }
+
+  MetadataWebServiceParameter: {
+    metadata: MetadataWebServiceParameter
+    yaml: MetadataWebServiceParameterYAML
+  }
+
+  MetadataRegisterResource: {
+    metadata: MetadataRegisterResource
+    yaml: MetadataRegisterResourceYAML
+  }
+
+  MetadataRegisterDimension: {
+    metadata: MetadataRegisterDimension
+    yaml: MetadataRegisterDimensionYAML
+  }
+
+  MetadataExternalDataSourceField: {
+    metadata: MetadataExternalDataSourceField
+    yaml: MetadataExternalDataSourceFieldYAML
+  }
+
+  MetadataExternalDataSourceFunction: {
+    metadata: MetadataExternalDataSourceFunction
+    yaml: MetadataExternalDataSourceFunctionYAML
+  }
+
+  MetadataExternalDataSourceTable: {
+    metadata: MetadataExternalDataSourceTable
+    yaml: MetadataExternalDataSourceTableYAML
+  }
+
+  MetadataExternalDataSourceDimensionTable: {
+    metadata: MetadataExternalDataSourceDimensionTable
+    yaml: MetadataExternalDataSourceDimensionTableYAML
+  }
+
+  MetadataExternalDataSourceCube: {
+    metadata: MetadataExternalDataSourceCube
+    yaml: MetadataExternalDataSourceCubeYAML
+  }
+
+  MetadataExternalDataSourceCubeDimension: {
+    metadata: MetadataExternalDataSourceCubeDimension
+    yaml: MetadataExternalDataSourceCubeDimensionYAML
+  }
+
+  MetadataExternalDataSourceCubeResource: {
+    metadata: MetadataExternalDataSourceCubeResource
+    yaml: MetadataExternalDataSourceCubeResourceYAML
+  }
+
+  MetadataExternalDataSource: {
+    metadata: MetadataExternalDataSource
+    yaml: MetadataExternalDataSourceYAML
+  }
+
+  MetadataRegisterAttribute: {
+    metadata: MetadataRegisterAttribute
+    yaml: MetadataRegisterAttributeYAML
+  }
+
+  Recalculation: {
+    metadata: Recalculation
+    yaml: RecalculationYAML
+  }
+
+  AccountingFlag: {
+    metadata: AccountingFlag
+    yaml: AccountingFlagYAML
+  }
+
+  ExtDimensionAccountingFlag: {
+    metadata: ExtDimensionAccountingFlag
+    yaml: ExtDimensionAccountingFlagYAML
+  }
+
+  StandardTabularSectionDescription: {
+    metadata: StandardTabularSectionDescription
+    yaml: StandardTabularSectionDescriptionYAML
+  }
+
+  PredefinedItem: {
+    metadata: PredefinedItem
+    yaml: PredefinedItemYAML
+  }
+
+  Predefined: {
+    metadata: Predefined
+    yaml: PredefinedYAML
+  }
+
+  AdditionalIndex: {
+    metadata: AdditionalIndex
+    yaml: AdditionalIndexYAML
+  }
+
+  AdditionalIndexItem: {
+    metadata: AdditionalIndexItem
+    yaml: AdditionalIndexItemYAML
+  }
+
+  AccumulationRegisterAggregate: {
+    metadata: AccumulationRegisterAggregate
+    yaml: AccumulationRegisterAggregateYAML
+  }
+
+  AccumulationRegisterAggregates: {
+    metadata: AccumulationRegisterAggregates
+    yaml: AccumulationRegisterAggregatesYAML
+  }
+
+  ExchangePlanContent: {
+    metadata: ExchangePlanContent
+    yaml: ExchangePlanContentYAML
+  }
+
+  ExchangePlanContentItem: {
+    metadata: ExchangePlanContentItem
+    yaml: ExchangePlanContentItemYAML
+  }
+
+  MetadataSequenceDimension: {
+    metadata: MetadataSequenceDimension
+    yaml: MetadataSequenceDimensionYAML
   }
 
   MetadataTabularSection: {
@@ -443,18 +951,92 @@ export type MetadataItemTypeRegistry = {
     yaml: MetadataTabularSectionYAML
   }
 
+  CharacteristicsDescription: {
+    metadata: CharacteristicsDescription
+    yaml: CharacteristicsDescriptionYAML
+  }
+
   StandardAttributeDescription: {
     metadata: StandardAttributeDescription
     yaml: StandardAttributeDescriptionYAML
   }
 
+  AppearanceFields: {
+    metadata: AppearanceFields
+    yaml: AppearanceFieldsYAML
+  }
+  CalculatedField: {
+    metadata: CalculatedField
+    yaml: CalculatedFieldYAML
+  }
+  CalculatedFieldUseRestriction: {
+    metadata: CalculatedFieldUseRestriction
+    yaml: CalculatedFieldUseRestrictionYAML
+  }
+  CalculatedFieldOrderExpression: {
+    metadata: CalculatedFieldOrderExpressionItem
+    yaml: CalculatedFieldOrderExpressionItemYAML
+  }
+  DataCompositionSchemaDataSetField: {
+    metadata: DataCompositionSchemaDataSetField
+    yaml: DataCompositionSchemaDataSetFieldYAML
+  }
+  ConditionalAppearance: {
+    metadata: ConditionalAppearance
+    yaml: ConditionalAppearanceYAML
+  }
+  ConditionalAppearanceItem: {
+    metadata: ConditionalAppearanceItem
+    yaml: ConditionalAppearanceItemYAML
+  }
+  DCSParameter: {
+    metadata: DCSParameter
+    yaml: DCSParameterYAML
+  }
+  Filter: {
+    metadata: Filter
+    yaml: FilterYAML
+  }
+  Order: {
+    metadata: Order
+    yaml: OrderYAML
+  }
+  AvailableFields: {
+    metadata: AvailableFields
+    yaml: AvailableFieldsYAML
+  }
+  FilterItemComparison: {
+    metadata: FilterItemComparison
+    yaml: FilterItemComparisonYAML
+  }
+  FilterItemGroup: {
+    metadata: FilterItemGroup
+    yaml: FilterItemGroupYAML
+  }
+  GroupItemField: {
+    metadata: GroupItemField
+    yaml: GroupItemFieldYAML
+  }
+  OrderItemField: {
+    metadata: OrderItemField
+    yaml: OrderItemFieldYAML
+  }
+  GroupItemAuto: {
+    metadata: GroupItemAuto
+    yaml: GroupItemAutoYAML
+  }
+  StructureItemGroup: {
+    metadata: StructureItemGroup
+    yaml: StructureItemGroupYAML
+  }
+
   //#endregion
 
   //#region Applied objects
-  // Configuration: {
-  //   metadata: Configuration
-  //   yaml: ConfigurationYAML
-  // }
+  MetadataConfiguration: {
+    metadata: MetadataConfiguration
+    yaml: MetadataConfigurationYAML
+  }
 
   MetadataCatalog: {
     metadata: MetadataCatalog
@@ -464,6 +1046,236 @@ export type MetadataItemTypeRegistry = {
   MetadataCommand: {
     metadata: MetadataCommand
     yaml: MetadataCommandYAML
+  }
+
+  MetadataCommonCommand: {
+    metadata: MetadataCommonCommand
+    yaml: MetadataCommonCommandYAML
+  }
+
+  MetadataConstant: {
+    metadata: MetadataConstant
+    yaml: MetadataConstantYAML
+  }
+
+  MetadataCommonAttribute: {
+    metadata: MetadataCommonAttribute
+    yaml: MetadataCommonAttributeYAML
+  }
+
+  MetadataBot: {
+    metadata: MetadataBot
+    yaml: MetadataBotYAML
+  }
+
+  MetadataDefinedType: {
+    metadata: MetadataDefinedType
+    yaml: MetadataDefinedTypeYAML
+  }
+
+  MetadataEventSubscription: {
+    metadata: MetadataEventSubscription
+    yaml: MetadataEventSubscriptionYAML
+  }
+
+  MetadataFilterCriterion: {
+    metadata: MetadataFilterCriterion
+    yaml: MetadataFilterCriterionYAML
+  }
+
+  MetadataFunctionalOptionsParameter: {
+    metadata: MetadataFunctionalOptionsParameter
+    yaml: MetadataFunctionalOptionsParameterYAML
+  }
+
+  MetadataFunctionalOption: {
+    metadata: MetadataFunctionalOption
+    yaml: MetadataFunctionalOptionYAML
+  }
+
+  MetadataLanguage: {
+    metadata: MetadataLanguage
+    yaml: MetadataLanguageYAML
+  }
+
+  MetadataRole: {
+    metadata: MetadataRole
+    yaml: MetadataRoleYAML
+  }
+
+  MetadataScheduledJob: {
+    metadata: MetadataScheduledJob
+    yaml: MetadataScheduledJobYAML
+  }
+
+  MetadataCommonForm: {
+    metadata: MetadataCommonForm
+    yaml: MetadataCommonFormYAML
+  }
+
+  MetadataCommonPicture: {
+    metadata: MetadataCommonPicture
+    yaml: MetadataCommonPictureYAML
+  }
+
+  MetadataCommonTemplate: {
+    metadata: MetadataCommonTemplate
+    yaml: MetadataCommonTemplateYAML
+  }
+
+  MetadataCommonModule: {
+    metadata: MetadataCommonModule
+    yaml: MetadataCommonModuleYAML
+  }
+
+  MetadataXDTOPackage: {
+    metadata: MetadataXDTOPackage
+    yaml: MetadataXDTOPackageYAML
+  }
+
+  MetadataWebSocketClient: {
+    metadata: MetadataWebSocketClient
+    yaml: MetadataWebSocketClientYAML
+  }
+
+  MetadataCommandGroup: {
+    metadata: MetadataAppliedCommandGroup
+    yaml: MetadataAppliedCommandGroupYAML
+  }
+
+  MetadataStyle: {
+    metadata: MetadataStyle
+    yaml: MetadataStyleYAML
+  }
+
+  MetadataSubsystem: {
+    metadata: MetadataSubsystem
+    yaml: MetadataSubsystemYAML
+  }
+
+  MetadataSettingsStorage: {
+    metadata: MetadataSettingsStorage
+    yaml: MetadataSettingsStorageYAML
+  }
+
+  MetadataDocument: {
+    metadata: MetadataDocument
+    yaml: MetadataDocumentYAML
+  }
+
+  MetadataDataProcessor: {
+    metadata: MetadataDataProcessor
+    yaml: MetadataDataProcessorYAML
+  }
+
+  MetadataReport: {
+    metadata: MetadataReport
+    yaml: MetadataReportYAML
+  }
+
+  MetadataDocumentJournal: {
+    metadata: MetadataDocumentJournal
+    yaml: MetadataDocumentJournalYAML
+  }
+
+  MetadataHTTPService: {
+    metadata: MetadataHTTPService
+    yaml: MetadataHTTPServiceYAML
+  }
+
+  MetadataIntegrationService: {
+    metadata: MetadataIntegrationService
+    yaml: MetadataIntegrationServiceYAML
+  }
+
+  MetadataWebService: {
+    metadata: MetadataWebService
+    yaml: MetadataWebServiceYAML
+  }
+
+  MetadataInformationRegister: {
+    metadata: MetadataInformationRegister
+    yaml: MetadataInformationRegisterYAML
+  }
+
+  MetadataAccumulationRegister: {
+    metadata: MetadataAccumulationRegister
+    yaml: MetadataAccumulationRegisterYAML
+  }
+
+  MetadataBusinessProcess: {
+    metadata: MetadataBusinessProcess
+    yaml: MetadataBusinessProcessYAML
+  }
+
+  MetadataAccountingRegister: {
+    metadata: MetadataAccountingRegister
+    yaml: MetadataAccountingRegisterYAML
+  }
+
+  MetadataCalculationRegister: {
+    metadata: MetadataCalculationRegister
+    yaml: MetadataCalculationRegisterYAML
+  }
+
+  MetadataChartOfAccounts: {
+    metadata: MetadataChartOfAccounts
+    yaml: MetadataChartOfAccountsYAML
+  }
+
+  MetadataChartOfCalculationTypes: {
+    metadata: MetadataChartOfCalculationTypes
+    yaml: MetadataChartOfCalculationTypesYAML
+  }
+
+  MetadataChartOfCharacteristicTypes: {
+    metadata: MetadataChartOfCharacteristicTypes
+    yaml: MetadataChartOfCharacteristicTypesYAML
+  }
+
+  MetadataExchangePlan: {
+    metadata: MetadataExchangePlan
+    yaml: MetadataExchangePlanYAML
+  }
+
+  MetadataDocumentNumerator: {
+    metadata: MetadataDocumentNumerator
+    yaml: MetadataDocumentNumeratorYAML
+  }
+
+  MetadataEnumeration: {
+    metadata: MetadataEnumeration
+    yaml: MetadataEnumerationYAML
+  }
+
+  MetadataEnumerationValue: {
+    metadata: MetadataEnumerationValue
+    yaml: MetadataEnumerationValueYAML
+  }
+
+  MetadataSequence: {
+    metadata: MetadataSequence
+    yaml: MetadataSequenceYAML
+  }
+
+  MetadataTask: {
+    metadata: MetadataTask
+    yaml: MetadataTaskYAML
+  }
+
+  MetadataSessionParameter: {
+    metadata: MetadataSessionParameter
+    yaml: MetadataSessionParameterYAML
+  }
+
+  MetadataStyleItem: {
+    metadata: MetadataStyleItem
+    yaml: MetadataStyleItemYAML
+  }
+
+  MetadataWSReference: {
+    metadata: MetadataWSReference
+    yaml: MetadataWSReferenceYAML
   }
 
   //#endregion
