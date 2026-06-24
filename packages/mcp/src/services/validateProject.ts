@@ -36,7 +36,7 @@ export async function validateYamlProject(input: ValidateProjectInput): Promise<
       ...(input.filePath !== undefined ? { filePath: input.filePath } : {}),
     }).diagnostics
 
-    const mapped = diagnostics.map((diagnostic) => ({
+    const mapped = diagnostics.filter(isVisibleDiagnostic).map((diagnostic) => ({
       filePath: toProjectRelativePath(projectDir, diagnostic.filePath),
       line: diagnostic.line,
       col: diagnostic.col,
@@ -66,4 +66,8 @@ export async function validateYamlProject(input: ValidateProjectInput): Promise<
 function toProjectRelativePath(projectDir: string, filePath: string): string {
   const absolutePath = isAbsolute(filePath) ? resolve(filePath) : resolve(projectDir, filePath)
   return relative(resolve(projectDir), absolutePath).split(sep).join("/")
+}
+
+function isVisibleDiagnostic(diagnostic: { severity: "error" | "warning" }): boolean {
+  return diagnostic.severity !== "warning"
 }

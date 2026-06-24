@@ -37,13 +37,14 @@ export async function validateYamlProject(yamlDir: string, options: ValidateComm
     throw caught
   }
 
-  const diagnosticsText = formatDiagnostics(diagnostics, projectDir)
+  const visibleDiagnostics = diagnostics.filter(isVisibleDiagnostic)
+  const diagnosticsText = formatDiagnostics(visibleDiagnostics, projectDir)
   if (diagnosticsText.length > 0) {
     process.stdout.write(`${diagnosticsText}\n`)
   }
 
-  const errorCount = diagnostics.filter((diagnostic) => diagnostic.severity === "error").length
-  const warningCount = diagnostics.filter((diagnostic) => diagnostic.severity === "warning").length
+  const errorCount = visibleDiagnostics.filter((diagnostic) => diagnostic.severity === "error").length
+  const warningCount = visibleDiagnostics.filter((diagnostic) => diagnostic.severity === "warning").length
   process.stdout.write(`summary: ${errorCount} error, ${warningCount} warning\n`)
 
   if (errorCount > 0) process.exitCode = 1
@@ -68,6 +69,10 @@ function isCommandUsageError(caught: unknown): caught is Error {
     caught instanceof ProjectFileSchemaError ||
     (caught instanceof Error && caught.message === "Файл находится вне указанного YAML-проекта")
   )
+}
+
+function isVisibleDiagnostic(diagnostic: Diagnostic): boolean {
+  return diagnostic.severity !== "warning"
 }
 
 function toProjectRelativePath(projectDir: string, filePath: string): string {

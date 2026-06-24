@@ -30,6 +30,24 @@ describe("validateProject service", () => {
     )
   })
 
+  it("omits warning diagnostics from JSON output", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Комментарий: владелец\n")
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
+      "Элементы:",
+      "  Кнопка:",
+      "    Вид: Кнопка",
+      "    Данные: Items.Таблица.CurrentData.Номенклатура",
+    ])
+
+    const result = await validateYamlProject({ projectDir })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.message)
+    expect(result.diagnostics).toEqual([])
+    expect(result.summary).toEqual({ errors: 0, warnings: 0 })
+  })
+
   it("returns not_found for a missing project directory", async () => {
     const projectDir = join(tmpdir(), "nakidka-missing-mcp-project")
     const result = await validateYamlProject({ projectDir })

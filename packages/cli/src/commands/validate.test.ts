@@ -16,7 +16,7 @@ describe("validate command", () => {
     }
   })
 
-  it("prints errors and warnings with a summary to stdout", async () => {
+  it("prints errors without warnings with a summary to stdout", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
@@ -32,13 +32,13 @@ describe("validate command", () => {
 
     const text = writtenText(stdout)
     expect(text).toContain("Справочник/Товары/Свойства.yaml:1:21 error:")
-    expect(text).toContain("Формы/ФормаЭлемента/Форма.yaml:4:5 warning:")
-    expect(text).toContain("summary: 1 error, 1 warning")
+    expect(text).not.toContain("warning:")
+    expect(text).toContain("summary: 1 error, 0 warning")
     expect(stderr).not.toHaveBeenCalled()
     expect(process.exitCode).toBe(1)
   })
 
-  it("keeps exit code zero for warnings only", async () => {
+  it("prints a clean summary for warnings only", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Комментарий: владелец\n")
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
@@ -52,8 +52,8 @@ describe("validate command", () => {
     await validateYamlProject(projectDir)
 
     const text = writtenText(stdout)
-    expect(text).toContain("warning:")
-    expect(text).toContain("summary: 0 error, 1 warning")
+    expect(text).not.toContain("warning:")
+    expect(text).toBe("summary: 0 error, 0 warning\n")
     expect(process.exitCode).toBeUndefined()
   })
 
