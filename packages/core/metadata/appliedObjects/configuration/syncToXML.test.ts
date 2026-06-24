@@ -394,6 +394,38 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("привязывает справку вложенной подсистемы к её записи ConfigDumpInfo", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-nested-subsystem-help-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "xml")
+
+    try {
+      const childDir = join(yamlDir, "Подсистема", "Администрирование", "Подсистемы", "Настройки")
+      fs.mkdirSync(join(childDir, "Справка"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(
+        join(yamlDir, "Подсистема", "Администрирование", "Свойства.yaml"),
+        ["Имя: Администрирование", "Подсистемы:", "  - Настройки", ""].join("\n"),
+        "utf-8",
+      )
+      fs.writeFileSync(join(childDir, "Свойства.yaml"), "Имя: Настройки\n", "utf-8")
+      fs.writeFileSync(join(childDir, "Справка", "ru.html"), "<html>help</html>", "utf-8")
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(result.failed).toEqual([])
+      const xml = fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8")
+      expect(xml).toContain('name="Subsystem.Администрирование.Subsystem.Настройки.Help"')
+      expect(xml).not.toContain('name="Subsystem.Администрирование.Help"')
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("пишет корневой Configuration.xml из Конфигурация.yaml и вычисляет пустой ChildObjects", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-to-xml-"))
     const yamlDir = join(tmp, "yaml")

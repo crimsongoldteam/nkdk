@@ -35,6 +35,10 @@ export const syncChildSubsystemNamesToXML = async (params: {
 
   const { syncAppliedObjectToXML } = await import("~/metadata/orchestration/appliedObject/syncToXML")
   const { MetadataSubsystemRules } = await import("~/metadata/appliedObjects/metadataSubsystem/rules")
+  const nestedSubsystemRules = {
+    ...MetadataSubsystemRules,
+    externalMetadata: { segment: "Subsystem", placement: "ownedEntry" as const },
+  }
 
   const folderName = getFolderName(params.rule)
   const childInputDir = join(params.nkdkDir, folderName)
@@ -46,7 +50,7 @@ export const syncChildSubsystemNamesToXML = async (params: {
 
   for (const childName of childNames) {
     await syncAppliedObjectToXML({
-      rule: MetadataSubsystemRules,
+      rule: nestedSubsystemRules,
       context: params.context,
       inputDir: childInputDir,
       name: childName,
