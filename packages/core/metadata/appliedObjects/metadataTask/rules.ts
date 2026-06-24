@@ -406,6 +406,7 @@ export const MetadataTaskRules = {
     },
     objectModule: {
       type: "Module",
+      externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
       xmlPath: "Ext/ObjectModule.bsl",
       toXML: false,
@@ -413,6 +414,7 @@ export const MetadataTaskRules = {
     },
     managerModule: {
       type: "Module",
+      externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
       toXML: false,
@@ -425,6 +427,7 @@ export const MetadataTaskRules = {
     },
     help: {
       type: "Help",
+      externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",

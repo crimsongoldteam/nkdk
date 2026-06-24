@@ -4,9 +4,7 @@ import { MetadataCommandRules } from "~/metadata/appliedObjects/metadataCommand/
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
-import {
-  externalDataSourceObjectServiceProperties,
-} from "../metadataExternalDataSourceField/rules"
+import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
 
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -387,11 +385,13 @@ const tableProperties = {
   },
   managerModule: {
     type: "Module",
+    externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
     nkdkPath: "МодульМенеджера.bsl",
     xmlPath: "Ext/ManagerModule.bsl",
   },
   objectModule: {
     type: "Module",
+    externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
     nkdkPath: "МодульОбъекта.bsl",
     xmlPath: "Ext/ObjectModule.bsl",
   },
@@ -402,6 +402,7 @@ const tableProperties = {
   },
   help: {
     type: "Help",
+    externalMetadata: { segment: "Help", placement: "derivedEntry" },
     filePath: "Ext/Help.xml",
     xmlPath: "Ext/Help.xml",
     nkdkDir: "Справка",

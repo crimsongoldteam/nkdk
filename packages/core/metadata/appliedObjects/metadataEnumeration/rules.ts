@@ -12,6 +12,7 @@ export const MetadataEnumerationStandardAttributeNames: Record<string, string> =
 
 export const MetadataEnumerationValueRules = {
   itemType: "MetadataEnumerationValue",
+  externalMetadata: { segment: "EnumValue", placement: "ownerChild" },
   properties: {
     uuid: {
       type: "uuid",
@@ -171,6 +172,7 @@ export const MetadataEnumerationRules = {
     },
     managerModule: {
       type: "Module",
+      externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
     },

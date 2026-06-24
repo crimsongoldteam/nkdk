@@ -3,12 +3,14 @@ import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
 import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "../orchestration"
+import type { ExternalMetadataCollector, ExternalMetadataItemRule } from "../orchestration/externalMetadata/types"
 import type { PropertyRuleType } from "../orchestration/property/registry"
 
 export type ContextElementToXML = {
   name: string
   itemType: MetadataItemType
   path: string
+  externalMetadata?: ExternalMetadataItemRule
 }
 
 export type JSONSchemaExportMode = "externalRefs" | "inline"
@@ -55,6 +57,7 @@ type ToXMLContextElement<Type extends MetadataItemType> = {
 
 export type ToXMLConfigurationContext = {
   readonly configDumpInfo: ConfigDumpInfo
+  readonly externalMetadataCollector?: ExternalMetadataCollector
   readonly version: string
   readonly itemsTree: ContextElementToXML[]
   context?: {

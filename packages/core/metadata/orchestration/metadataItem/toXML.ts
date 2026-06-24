@@ -23,7 +23,13 @@ export const exportMetadataItemToXML = <Rule extends MetadataItemRule>(params: {
 
   const itemName = typeof (data as any).name === "string" ? ((data as any).name as string) : undefined
   const effectiveContext: ConfigurationContextWithExportToXML = itemName
-    ? getChildContextToXML({ context, itemType: rule.itemType, path: `${rule.itemType}.${itemName}`, name: itemName })
+    ? getChildContextToXML({
+        context,
+        itemType: rule.itemType,
+        path: `${rule.itemType}.${itemName}`,
+        name: itemName,
+        externalMetadata: rule.externalMetadata,
+      })
     : context
   const referenceRaw = getReferenceRawXML(referenceData)
 

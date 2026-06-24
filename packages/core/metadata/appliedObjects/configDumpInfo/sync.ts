@@ -28,6 +28,7 @@ export async function syncConfigDumpInfoToXML(params: {
   })
   const idMap = buildConfigDumpInfo({
     reference: reference.idMap,
+    collected: params.context.exportToXML?.configDumpInfo ?? new Map(),
     yamlState: params.yamlState,
     migrationState: params.migrationState,
     referencePathByCurrentPath: params.referencePathByCurrentPath,

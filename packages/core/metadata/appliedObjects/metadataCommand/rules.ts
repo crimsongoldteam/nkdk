@@ -3,6 +3,7 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 export const MetadataCommandRules = {
   itemType: "MetadataCommand",
+  externalMetadata: { segment: "Command", placement: "ownerChild" },
   properties: {
     uuid: uuidPropertyRule,
     name: {
@@ -82,7 +83,8 @@ export const MetadataCommandRules = {
     picture: {
       yaml: "Картинка",
       xml: "Picture",
-      type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+      type: "Picture",
+      metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: ["Properties"],
       order: 10,
       defaultValueXMLRaw: "",
@@ -117,6 +119,7 @@ export const MetadataCommandRules = {
     },
     commandModule: {
       type: "Module",
+      externalMetadata: { segment: "CommandModule", placement: "derivedEntry" },
       nkdkPath: ({ name }: { name: string }) => "Команды/" + name + ".bsl",
       xmlPath: ({ name }: { name: string }) => "Commands/" + name + "/Ext/CommandModule.bsl",
       toXML: false,

@@ -8,6 +8,7 @@ import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/propert
 const propertiesParents = ["Properties"]
 const childObjectsParents = ["ChildObjects"]
 const emptyAttributes: [] = []
+const tabularSectionExternalMetadata = { segment: "TabularSection", placement: "ownerChild" } as const
 
 const getParentNameByItemType = (context: ConfigurationContextWithExportToXML, parentItemType: string): string => {
   const elements = context.exportToXML.itemsTree
@@ -114,6 +115,7 @@ const commonTabularSectionProperties = {
 
 export const MetadataTabularSectionRules = {
   itemType: "MetadataTabularSection",
+  externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: {
@@ -144,6 +146,7 @@ export const MetadataTabularSectionRules = {
 
 export const MetadataDocumentTabularSectionRules = {
   itemType: "MetadataTabularSection",
+  externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: {
@@ -165,6 +168,7 @@ export const MetadataDocumentTabularSectionRules = {
 
 export const MetadataTaskTabularSectionRules = {
   itemType: "MetadataTabularSection",
+  externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: {
@@ -184,6 +188,7 @@ export const MetadataTaskTabularSectionRules = {
 
 export const MetadataBusinessProcessTabularSectionRules = {
   itemType: "MetadataTabularSection",
+  externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: {
@@ -203,6 +208,7 @@ export const MetadataBusinessProcessTabularSectionRules = {
 
 export const MetadataDataProcessorTabularSectionRules = {
   itemType: "MetadataTabularSection",
+  externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: {
@@ -223,6 +229,7 @@ export const MetadataDataProcessorTabularSectionRules = {
 
 export const MetadataReportTabularSectionRules = {
   itemType: "MetadataTabularSection",
+  externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: {
@@ -243,6 +250,7 @@ export const MetadataReportTabularSectionRules = {
 
 export const MetadataExchangePlanTabularSectionRules = {
   itemType: "MetadataTabularSection",
+  externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: {
@@ -263,6 +271,7 @@ export const MetadataExchangePlanTabularSectionRules = {
 
 export const MetadataChartOfAccountsTabularSectionRules = {
   itemType: "MetadataTabularSection",
+  externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: {
@@ -282,6 +291,7 @@ export const MetadataChartOfAccountsTabularSectionRules = {
 
 export const MetadataChartOfCalculationTypesTabularSectionRules = {
   itemType: "MetadataTabularSection",
+  externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: {
@@ -301,6 +311,7 @@ export const MetadataChartOfCalculationTypesTabularSectionRules = {
 
 export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
   itemType: "MetadataTabularSection",
+  externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: {

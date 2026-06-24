@@ -301,6 +301,7 @@ export const MetadataInformationRegisterRules = {
     },
     managerModule: {
       type: "Module",
+      externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
       toXML: false,
@@ -313,6 +314,7 @@ export const MetadataInformationRegisterRules = {
     },
     help: {
       type: "Help",
+      externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",

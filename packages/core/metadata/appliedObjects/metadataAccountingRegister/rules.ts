@@ -26,7 +26,8 @@ export const MetadataAccountingRegisterStandardAttributeNames: Record<string, st
 const extDimensionStandardAttributeName = /^ExtDimension(Type)?\d+$/
 
 export const MetadataAccountingRegisterStandardAttributeNamesXML = (metadataItem: unknown): Record<string, string> => {
-  const item = metadataItem && typeof metadataItem === "object" ? (metadataItem as { standardAttributes?: unknown }) : {}
+  const item =
+    metadataItem && typeof metadataItem === "object" ? (metadataItem as { standardAttributes?: unknown }) : {}
   const standardAttributes = Array.isArray(item.standardAttributes) ? item.standardAttributes : []
   const explicitExtDimensions = new Set(
     standardAttributes
@@ -83,7 +84,12 @@ export const MetadataAccountingRegisterRules = {
       ],
     },
     uuid: { type: "uuid", xml: "_uuid", forReferenceOnly: true, xmlParents: [] },
-    name: { type: "string", xmlParents: properties, required: true, defaultValue: ({ name }: { name?: string }) => name },
+    name: {
+      type: "string",
+      xmlParents: properties,
+      required: true,
+      defaultValue: ({ name }: { name?: string }) => name,
+    },
     synonym: { yaml: "Синоним", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
     comment: { yaml: "Комментарий", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
     useStandardCommands: {
@@ -210,13 +216,26 @@ export const MetadataAccountingRegisterRules = {
     },
     managerModule: {
       type: "Module",
+      externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
       toXML: false,
       fromXML: false,
     },
-    additionalIndexes: { yaml: "ДополнительныеИндексы", type: "AdditionalIndex", filePath: "Ext/AdditionalIndexes.xml" },
-    help: { type: "Help", filePath: "Ext/Help.xml", xmlPath: "Ext/Help.xml", nkdkDir: "Справка", toXML: false, fromXML: false },
+    additionalIndexes: {
+      yaml: "ДополнительныеИндексы",
+      type: "AdditionalIndex",
+      filePath: "Ext/AdditionalIndexes.xml",
+    },
+    help: {
+      type: "Help",
+      externalMetadata: { segment: "Help", placement: "derivedEntry" },
+      filePath: "Ext/Help.xml",
+      xmlPath: "Ext/Help.xml",
+      nkdkDir: "Справка",
+      toXML: false,
+      fromXML: false,
+    },
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataAccountingRegisterCommandRules }],
 } as const satisfies MetadataItemRule

@@ -60,7 +60,12 @@ export const MetadataCalculationRegisterRules = {
       ],
     },
     uuid: { type: "uuid", xml: "_uuid", forReferenceOnly: true, xmlParents: [] },
-    name: { type: "string", xmlParents: properties, required: true, defaultValue: ({ name }: { name?: string }) => name },
+    name: {
+      type: "string",
+      xmlParents: properties,
+      required: true,
+      defaultValue: ({ name }: { name?: string }) => name,
+    },
     synonym: { yaml: "Синоним", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
     comment: { yaml: "Комментарий", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
     useStandardCommands: {
@@ -109,7 +114,12 @@ export const MetadataCalculationRegisterRules = {
     schedule: { yaml: "График", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
     scheduleValue: { yaml: "ЗначениеГрафика", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
     scheduleDate: { yaml: "ДатаГрафика", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
-    chartOfCalculationTypes: { yaml: "ПланВидовРасчета", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
+    chartOfCalculationTypes: {
+      yaml: "ПланВидовРасчета",
+      type: "string",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+    },
     includeHelpInContents: {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
@@ -191,13 +201,26 @@ export const MetadataCalculationRegisterRules = {
     },
     managerModule: {
       type: "Module",
+      externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
       toXML: false,
       fromXML: false,
     },
-    additionalIndexes: { yaml: "ДополнительныеИндексы", type: "AdditionalIndex", filePath: "Ext/AdditionalIndexes.xml" },
-    help: { type: "Help", filePath: "Ext/Help.xml", xmlPath: "Ext/Help.xml", nkdkDir: "Справка", toXML: false, fromXML: false },
+    additionalIndexes: {
+      yaml: "ДополнительныеИндексы",
+      type: "AdditionalIndex",
+      filePath: "Ext/AdditionalIndexes.xml",
+    },
+    help: {
+      type: "Help",
+      externalMetadata: { segment: "Help", placement: "derivedEntry" },
+      filePath: "Ext/Help.xml",
+      xmlPath: "Ext/Help.xml",
+      nkdkDir: "Справка",
+      toXML: false,
+      fromXML: false,
+    },
   },
   childCollections: [
     { propertyKey: "commands", itemRule: MetadataCalculationRegisterCommandRules },

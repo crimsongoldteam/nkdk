@@ -8,11 +8,10 @@ import type { ReferenceModelRemapper } from "~/metadata/orchestration/appliedObj
 import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import {
-  discoverMetadataProjectResources,
-  type MetadataProjectPropertiesYamlRef,
-} from "~/metadata/project/resources"
+import { discoverMetadataProjectResources, type MetadataProjectPropertiesYamlRef } from "~/metadata/project/resources"
 import { xmlExport } from "~/xml/export/exporter"
+import { createConfigDumpInfoExternalMetadataCollector } from "../configDumpInfo/externalMetadataCollector"
+import type { ExternalMetadataCollector } from "~/metadata/orchestration/externalMetadata/types"
 import { syncConfigDumpInfoToXML } from "../configDumpInfo/sync"
 import {
   applyPendingMigrationFiles,
@@ -42,7 +41,7 @@ import { TopLevelMetadataItemRules } from "./topLevelRules"
 const IO_CONCURRENCY = 16
 const ROOT_EXTERNAL_XML_DIR = "Ext"
 const LEGACY_ROOT_EXTERNAL_XML_DIR = "ext"
-const toError = (error: unknown): Error => error instanceof Error ? error : new Error(String(error))
+const toError = (error: unknown): Error => (error instanceof Error ? error : new Error(String(error)))
 
 function discoverTopLevelPropertiesResources(inputDir: string): MetadataProjectPropertiesYamlRef[] {
   return discoverMetadataProjectResources(inputDir).filter(
@@ -51,7 +50,7 @@ function discoverTopLevelPropertiesResources(inputDir: string): MetadataProjectP
       resource.role === "properties" &&
       resource.nesting.length === 0 &&
       resource.owner.spec.rule.xmlDir !== undefined &&
-      resource.owner.spec.rule.itemTypePrefix !== undefined,
+      resource.owner.spec.rule.itemTypePrefix !== undefined
   )
 }
 
@@ -63,6 +62,12 @@ export const syncConfigurationToXML = async (params: {
 }): Promise<ConfigurationSyncResult> => {
   const { context, inputDir, outputDir } = params
   const referenceDir = params.referenceDir
+  const exportContext = context.exportToXML
+  if (!exportContext.externalMetadataCollector) {
+    ;(
+      exportContext as typeof exportContext & { externalMetadataCollector: ExternalMetadataCollector }
+    ).externalMetadataCollector = createConfigDumpInfoExternalMetadataCollector(exportContext.configDumpInfo)
+  }
 
   if (!fs.existsSync(inputDir)) {
     return {
@@ -113,7 +118,9 @@ export const syncConfigurationToXML = async (params: {
     const referenceConfiguration = hasReferenceConfiguration
       ? readConfigurationFromXML({ context: contextFromXML, inputDir: referenceDir })
       : undefined
-    const referenceChildObjects = hasReferenceConfiguration ? readConfigurationChildObjectsFromXML(referenceDir) : undefined
+    const referenceChildObjects = hasReferenceConfiguration
+      ? readConfigurationChildObjectsFromXML(referenceDir)
+      : undefined
     const configuration = readConfigurationFromYAML({
       context,
       inputDir,

@@ -9,9 +9,11 @@ const registerParentItemTypes = [
   "MetadataAccountingRegister",
   "MetadataCalculationRegister",
 ] as const
+const dimensionExternalMetadata = { segment: "Dimension", placement: "ownerChild" } as const
 
 export const MetadataRegisterDimensionRules = {
   itemType: "MetadataRegisterDimension",
+  externalMetadata: dimensionExternalMetadata,
   properties: {
     ...commonRegisterFieldProperties,
     master: {
@@ -52,7 +54,8 @@ export const MetadataRegisterDimensionRules = {
       xmlParents: ["Properties"],
       defaultValueXML: false,
       implicitValueYAML: false,
-      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isCalculationRegisterField(context),
+      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
+        isCalculationRegisterField(context),
     },
     scheduleLink: {
       yaml: "СвязьСГрафиком",
@@ -60,7 +63,8 @@ export const MetadataRegisterDimensionRules = {
       type: "string",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isCalculationRegisterField(context),
+      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
+        isCalculationRegisterField(context),
     },
     balance: {
       yaml: "Балансовый",
@@ -69,7 +73,8 @@ export const MetadataRegisterDimensionRules = {
       xmlParents: ["Properties"],
       defaultValueXML: true,
       implicitValueYAML: true,
-      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
+      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
+        isAccountingRegisterField(context),
       order: 25.1,
     },
     accountingFlag: {
@@ -78,7 +83,8 @@ export const MetadataRegisterDimensionRules = {
       type: "string",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) => isAccountingRegisterField(context),
+      toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
+        isAccountingRegisterField(context),
       order: 25.2,
     },
     useInTotals: {
