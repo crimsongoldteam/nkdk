@@ -299,6 +299,52 @@ describe("buildConfigDumpInfo", () => {
     })
   })
 
+  it("назначает производной записи id от UUID дочерней записи владельца", () => {
+    const collected: ConfigDumpInfo = new Map([
+      [
+        "BusinessProcess.Согласование",
+        {
+          id: "business-process-uuid",
+          configVersion: "",
+          children: new Map([["BusinessProcess.Согласование.Command.Команда1", "command-uuid"]]),
+        },
+      ],
+      [
+        "BusinessProcess.Согласование.Command.Команда1.CommandModule",
+        {
+          id: "",
+          configVersion: "",
+          derivedFrom: "BusinessProcess.Согласование.Command.Команда1",
+          children: new Map(),
+        },
+      ],
+    ])
+
+    const result = buildConfigDumpInfo({
+      reference: new Map(),
+      collected,
+      yamlState: state(["БизнесПроцесс.Согласование"]),
+      migrationState: state(["БизнесПроцесс.Согласование"]),
+      referencePathByCurrentPath: new Map(),
+      generators: {
+        id: () => {
+          throw new Error("direct id generator must not be used")
+        },
+        configVersion: () => "dddddddddddddddddddddddddddddddddddddddd",
+      },
+    })
+
+    expect(result.get("BusinessProcess.Согласование")?.children).toEqual(
+      new Map([["BusinessProcess.Согласование.Command.Команда1", "command-uuid"]])
+    )
+    expect(result.get("BusinessProcess.Согласование.Command.Команда1.CommandModule")).toEqual({
+      id: "command-uuid.0",
+      configVersion: "dddddddddddddddddddddddddddddddddddddddd",
+      derivedFrom: "BusinessProcess.Согласование.Command.Команда1",
+      children: new Map(),
+    })
+  })
+
   it("не перенумеровывает существующую производную запись из reference", () => {
     const reference: ConfigDumpInfo = new Map([
       [

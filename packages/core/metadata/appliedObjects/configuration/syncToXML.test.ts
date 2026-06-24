@@ -222,6 +222,50 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("для новой команды бизнес-процесса привязывает модуль команды к UUID команды", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-business-process-command-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "xml")
+
+    try {
+      fs.mkdirSync(join(yamlDir, "БизнесПроцесс", "СогласованиеЗаказа", "Команды"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(
+        join(yamlDir, "БизнесПроцесс", "СогласованиеЗаказа", "Свойства.yaml"),
+        ["Имя: СогласованиеЗаказа", "Команды:", "  СогласованиеПоПредмету: {}", ""].join("\n"),
+        "utf-8",
+      )
+      fs.writeFileSync(
+        join(yamlDir, "БизнесПроцесс", "СогласованиеЗаказа", "Команды", "СогласованиеПоПредмету.bsl"),
+        "Процедура ОбработкаКоманды(ПараметрКоманды, ПараметрыВыполненияКоманды)\nКонецПроцедуры\n",
+        "utf-8",
+      )
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(result.failed).toEqual([])
+
+      const configDumpInfoXml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
+        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
+      )
+      const idMap = importConfigDumpInfoFromXML({
+        context: mockContextFromXML(),
+        xml: configDumpInfoXml.ConfigDumpInfo,
+      })
+      const commandName = "BusinessProcess.СогласованиеЗаказа.Command.СогласованиеПоПредмету"
+      const commandUuid = idMap.get("BusinessProcess.СогласованиеЗаказа")?.children.get(commandName)
+
+      expect(commandUuid).toBeDefined()
+      expect(idMap.get(`${commandName}.CommandModule`)?.id).toBe(`${commandUuid}.0`)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("для нового реквизита регистра пишет UUID в ConfigDumpInfo", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-register-attribute-"))
     const yamlDir = join(tmp, "yaml")

@@ -43,7 +43,7 @@ export function buildConfigDumpInfo(params: {
         fallbackId: params.collected ? undefined : generators.id,
       }),
       configVersion: referenceEntry?.configVersion ?? (collectedEntry?.configVersion || generators.configVersion()),
-      children: new Map(),
+      children: new Map(collectedEntry?.children),
     })
   }
 
@@ -224,23 +224,37 @@ function addCollectedDerivedEntries(params: {
       continue
     }
 
-    const baseEntry = params.entries.get(collectedEntry.derivedFrom) ?? params.reference.get(collectedEntry.derivedFrom)
-    if (!baseEntry?.id) {
+    const baseId =
+      resolveEntryId(params.entries, collectedEntry.derivedFrom) ??
+      resolveEntryId(params.reference, collectedEntry.derivedFrom)
+    if (!baseId) {
       throw new Error(`Не найден базовый UUID ConfigDumpInfo для "${name}"`)
     }
 
-    const occupied = occupiedByBaseId.get(baseEntry.id) ?? new Set<number>()
+    const occupied = occupiedByBaseId.get(baseId) ?? new Set<number>()
     const suffix = nextFreeSuffix(occupied)
     occupied.add(suffix)
-    occupiedByBaseId.set(baseEntry.id, occupied)
+    occupiedByBaseId.set(baseId, occupied)
 
     params.entries.set(name, {
-      id: `${baseEntry.id}.${suffix}`,
+      id: `${baseId}.${suffix}`,
       configVersion: collectedEntry.configVersion || params.generators.configVersion(),
       derivedFrom: collectedEntry.derivedFrom,
       children: new Map(),
     })
   }
+}
+
+function resolveEntryId(entries: ConfigDumpInfo, name: string): string | undefined {
+  const entry = entries.get(name)
+  if (entry?.id) return entry.id
+
+  for (const owner of entries.values()) {
+    const childId = owner.children.get(name)
+    if (childId) return childId
+  }
+
+  return undefined
 }
 
 function collectOccupiedDerivedSuffixes(
