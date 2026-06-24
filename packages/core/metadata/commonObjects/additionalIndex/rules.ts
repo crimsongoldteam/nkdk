@@ -12,22 +12,26 @@ export const AdditionalIndexItemRules = {
       type: "IndexField",
       xml: "AdditionalFields",
       yaml: "ДополнительныеПоля",
+      order: 4,
     },
     name: {
       type: "string",
       xml: "Name",
       yaml: "Имя",
       required: true,
+      order: 1,
     },
     indexedFields: {
       type: "IndexField",
       xml: "IndexedFields",
       yaml: "ИндексируемыеПоля",
+      order: 3,
     },
     table: {
       type: "string",
       xml: "Table",
       yaml: "Таблица",
+      order: 2,
     },
   },
 } as const satisfies MetadataItemRule
