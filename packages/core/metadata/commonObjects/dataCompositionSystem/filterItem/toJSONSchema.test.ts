@@ -101,6 +101,20 @@ describe("FilterItem JSON Schema", () => {
     ).toBe(true)
   })
 
+  it("accepts field right value in comparison items", () => {
+    const compiled = compileFilterItemSchema()
+
+    expect(
+      compiled.Check([
+        {
+          ЛевоеЗначение: ".Ссылка.Реквизит1",
+          ПравоеЗначение: ".ПараметрыДанных.Параметр1",
+          Представление: '"Английское"',
+        },
+      ])
+    ).toBe(true)
+  })
+
   it("does not accept array-shaped left value", () => {
     const compiled = compileFilterItemSchema()
 
@@ -150,6 +164,25 @@ describe("FilterItem JSON Schema", () => {
         {
           ТипГруппы: "ГруппаИли",
           Элементы: [{ ЛевоеЗначение: ".ХозяйственнаяОперация" }],
+        },
+      ])
+    ).toBe(true)
+  })
+
+  it("accepts AND group items with nested comparisons", () => {
+    const compiled = compileFilterItemSchema()
+
+    expect(
+      compiled.Check([
+        {
+          ТипГруппы: "ГруппаИ",
+          Элементы: [
+            {
+              ЛевоеЗначение: ".Реквизит2",
+              ВидСравнения: "Содержит",
+              ПравоеЗначение: "'abc'",
+            },
+          ],
         },
       ])
     ).toBe(true)

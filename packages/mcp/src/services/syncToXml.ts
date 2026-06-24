@@ -63,6 +63,7 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
 
   try {
     const core = deps ?? (await loadCoreApi())
+    const referenceDir = input.referenceDir ?? input.xmlDir
     const result = await core.syncConfigurationToXML({
       context: {
         defaultLanguage: "ru",
@@ -82,7 +83,7 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
       },
       inputDir: input.yamlDir,
       outputDir: input.xmlDir,
-      ...(input.referenceDir !== undefined ? { referenceDir: input.referenceDir } : {}),
+      referenceDir,
     })
 
     return toolSuccess({

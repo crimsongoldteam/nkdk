@@ -54,7 +54,9 @@ type ObjectSchemaWithProperties = TSchema & {
 
 const createFilterItemComparisonSchema = (context: ConfigurationContext): TSchema => {
   const comparisonSchema = exportMetadataItemToJSONSchema({
-    context: createFilterItemSchemaContext(context),
+    context: createFilterItemSchemaContext(context, {
+      FilterItemPresentationValue: createFilterItemPresentationValueJSONSchema(context),
+    }),
     rule: FilterItemComparisonRules,
   }) as ObjectSchemaWithProperties
 
