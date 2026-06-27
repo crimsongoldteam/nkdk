@@ -10,16 +10,16 @@ export const PeriodFieldRules = {
   enterpriseFieldType: "FormFieldType.PeriodField",
   properties: {
     font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
-    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
-    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-    border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Border"] }] } },
+    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
+    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
+    border: { yaml: "Рамка", type: "Border", implicitValueYAML: "Single", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Border"] }] } },
     borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-    height: { yaml: "Высота", type: "number" },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+    height: { yaml: "Высота", type: "number", implicitValueYAML: 0 },
+    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", noImplicitValueYAML: true },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
-    width: { yaml: "Ширина", type: "number" },
+    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", noImplicitValueYAML: true },
+    width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
     events: {
       type: "Events",
       yaml: "События",
@@ -38,6 +38,7 @@ export const PeriodFieldRules = {
     },
     ...formFieldCommonProperties,
     ...formFieldDisabledTableRelatedProperties,
+    titleHeight: { yaml: "ВысотаЗаголовка", type: "number", implicitValueYAML: 0 },
   },
 } as const satisfies ElementRule
 

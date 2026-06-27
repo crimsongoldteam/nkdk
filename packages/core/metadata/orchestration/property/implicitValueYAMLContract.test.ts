@@ -7,6 +7,7 @@ import { DendrogramFieldRules } from "~/metadata/forms/elements/dendrogramField/
 import { GeographicalSchemaFieldRules } from "~/metadata/forms/elements/geographicalSchemaField/rules"
 import { GraphicalSchemaFieldRules } from "~/metadata/forms/elements/graphicalSchemaField/rules"
 import { HTMLDocumentFieldRules } from "~/metadata/forms/elements/htmlDocumentField/rules"
+import { PeriodFieldRules } from "~/metadata/forms/elements/periodField/rules"
 import type { MetadataItemRule, PropertyRule } from "./types"
 
 type RuleModule = Record<string, unknown>
@@ -80,6 +81,30 @@ describe("implicitValueYAML contract", () => {
       .map(([propertyKey]) => `CalendarFieldRules.${propertyKey}`)
 
     expect(unexpected).toEqual([])
+  })
+
+  it("uses configurator defaults as implicit YAML values for period field size properties", () => {
+    const expectedImplicitValues = {
+      autoMaxHeight: true,
+      autoMaxWidth: true,
+      border: "Single",
+      height: 0,
+      titleHeight: 0,
+      width: 0,
+    } as const
+
+    const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
+      .filter(([propertyKey, implicitValueYAML]) => {
+        return PeriodFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+      })
+      .map(([propertyKey]) => `PeriodFieldRules.${propertyKey}`)
+
+    const expectedNoImplicitValueYAML = ["horizontalStretch", "verticalStretch"] as const
+    const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
+      .filter((propertyKey) => PeriodFieldRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .map((propertyKey) => `PeriodFieldRules.${propertyKey}`)
+
+    expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
   })
 
   it("requires boolean and SystemEnumeration YAML properties with defaultValueXML to have implicitValueYAML", () => {
