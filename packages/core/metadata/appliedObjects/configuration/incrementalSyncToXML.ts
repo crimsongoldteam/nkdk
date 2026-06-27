@@ -2,6 +2,7 @@ import fs from "fs"
 import { join } from "path"
 import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { syncAppliedObjectAreaToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
+import { updateConfigDumpInfoVersionsToXML } from "../configDumpInfo/sync"
 import { buildConfigurationChildObjects, readConfigurationChildObjectsFromXML } from "./childObjects"
 import type { ConfigurationSyncResult } from "./convertFromXML"
 import { buildIncrementalXmlSyncPlan } from "./incrementalPlan"
@@ -44,6 +45,7 @@ export async function syncConfigurationIncrementallyToXML(params: {
   }
 
   try {
+    const dumpInfoNames = new Set<string>()
     if (plan.rebuildConfigurationXml) {
       await writeConfigurationArea(params)
     }
@@ -53,6 +55,7 @@ export async function syncConfigurationIncrementallyToXML(params: {
       if (!rule?.itemTypePrefix || !rule.xmlDir) throw new Error(`Не найдено правило для ${planned.key}`)
 
       if (planned.area.kind === "externalFile") {
+        for (const name of planned.area.dumpInfoNames) dumpInfoNames.add(name)
         await fs.promises.rm(join(params.outputDir, planned.area.xmlPath), { force: true })
         await syncAppliedObjectAreaToXML({
           area: { kind: "externalFile", xmlPath: planned.area.xmlPath },
@@ -86,6 +89,11 @@ export async function syncConfigurationIncrementallyToXML(params: {
       })
     }
 
+    await updateConfigDumpInfoVersionsToXML({
+      context: params.context,
+      outputDir: params.outputDir,
+      names: dumpInfoNames,
+    })
     await writeXmlSyncState(params.outputDir, { version: 1, files: currentFiles })
     return { succeeded: plan.areas.length, failed: [] }
   } catch (error) {

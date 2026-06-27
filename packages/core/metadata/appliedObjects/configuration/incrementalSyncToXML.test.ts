@@ -62,6 +62,18 @@ describe("syncConfigurationIncrementallyToXML", () => {
         "Справочник/Товары/МодульОбъекта.bsl": "sha256:0000",
       },
     })
+    writeFileSync(
+      join(xmlDir, "ConfigDumpInfo.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>
+<ConfigDumpInfo xmlns="http://v8.1c.ru/8.3/xcf/dumpinfo">
+  <ConfigVersions>
+    <Metadata name="Catalog.Товары" id="owner" configVersion="old-owner"/>
+    <Metadata name="Catalog.Товары.ObjectModule" id="owner.0" configVersion="old-module"/>
+    <Metadata name="Language.Русский" id="lang" configVersion="old-lang"/>
+  </ConfigVersions>
+</ConfigDumpInfo>`,
+      "utf-8",
+    )
 
     const result = await syncConfigurationIncrementallyToXML({
       context: baseContext(),
@@ -73,6 +85,10 @@ describe("syncConfigurationIncrementallyToXML", () => {
     expect(readFileSync(join(xmlDir, "Catalogs", "Товары", "Ext", "ObjectModule.bsl"), "utf-8")).toBe(
       "Процедура Новая()\nКонецПроцедуры\n",
     )
+    const dumpInfo = readFileSync(join(xmlDir, "ConfigDumpInfo.xml"), "utf-8")
+    expect(dumpInfo).not.toContain('name="Catalog.Товары" id="owner" configVersion="old-owner"')
+    expect(dumpInfo).not.toContain('name="Catalog.Товары.ObjectModule" id="owner.0" configVersion="old-module"')
+    expect(dumpInfo).toContain('name="Language.Русский" id="lang" configVersion="old-lang"')
     expect(existsSync(join(xmlDir, "Catalogs", "Товары.xml"))).toBe(false)
   })
 })
