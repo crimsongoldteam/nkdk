@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
 import type { MetadataItemRule, PropertyRule } from "./types"
 
@@ -21,6 +22,10 @@ describe("implicitValueYAML contract", () => {
 
   it("requires configuration boolean and SystemEnumeration YAML properties to document implicit value decision", () => {
     expect(collectMissingImplicitValueYAML(MetadataConfigurationRules, "MetadataConfigurationRules")).toEqual([])
+  })
+
+  it("requires catalog boolean and SystemEnumeration YAML properties to document implicit value decision", () => {
+    expect(collectMissingImplicitValueYAML(MetadataCatalogRules, "MetadataCatalogRules")).toEqual([])
   })
 
   it("requires boolean and SystemEnumeration YAML properties with defaultValueXML to have implicitValueYAML", () => {
