@@ -31,7 +31,7 @@ export type ReferenceModelRemapper = (params: {
   referenceModel: Record<string, unknown> | undefined
 }) => Record<string, unknown> | undefined
 
-export const syncAppliedObjectToXML = async (params: {
+export interface SyncAppliedObjectToXMLParams {
   rule: MetadataItemRule
   context: ConfigurationContextWithExportToXML
   inputDir: string
@@ -44,7 +44,26 @@ export const syncAppliedObjectToXML = async (params: {
   referenceModel?: Record<string, unknown> | null
   referenceModelRemapper?: ReferenceModelRemapper
   xmlManifest?: XmlWriteManifest
-}): Promise<void> => {
+}
+
+export type AppliedObjectXmlAreaRequest = { kind: "owner" } | { kind: "all" }
+
+type InternalSyncAppliedObjectToXMLParams = SyncAppliedObjectToXMLParams & {
+  onlyOwnerXML?: true
+}
+
+export const syncAppliedObjectAreaToXML = async (
+  params: SyncAppliedObjectToXMLParams & { area: AppliedObjectXmlAreaRequest }
+): Promise<void> => {
+  const { area, ...rest } = params
+  return syncAppliedObjectToXMLInternal({ ...rest, ...(area.kind === "owner" ? { onlyOwnerXML: true } : {}) })
+}
+
+export const syncAppliedObjectToXML = async (params: SyncAppliedObjectToXMLParams): Promise<void> => {
+  return syncAppliedObjectToXMLInternal(params)
+}
+
+const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectToXMLParams): Promise<void> => {
   const { rule, context, inputDir, name, outputDir } = params
   const referenceDir = params.referenceDir
   const externalOutputDir = params.externalOutputDir ?? outputDir
@@ -159,6 +178,7 @@ export const syncAppliedObjectToXML = async (params: {
   const outputPath = join(outputDir, `${name}.xml`)
   await fs.promises.writeFile(outputPath, xmlExport(xmlObj), "utf-8")
   params.xmlManifest?.addFile(outputPath)
+  if (params.onlyOwnerXML) return
 
   // Обработчики внешних файлов на уровне объекта (Help, Module, Template со статическими путями)
   for (const [key, propRule] of Object.entries(rule.properties)) {
