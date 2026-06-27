@@ -1,4 +1,4 @@
-import { syncConfigurationToXML } from "@nakidka/core"
+import { readXmlSyncState, syncConfigurationIncrementallyToXML, syncConfigurationToXML } from "@nakidka/core"
 
 export interface SyncConfigurationOptions {
   referenceDir?: string
@@ -25,7 +25,9 @@ export const syncConfiguration = async (
       },
     },
   }
-  const result = await syncConfigurationToXML({
+  const hasState = (await readXmlSyncState(xmlDir)) !== undefined
+  const sync = hasState ? syncConfigurationIncrementallyToXML : syncConfigurationToXML
+  const result = await sync({
     context,
     inputDir: yamlDir,
     outputDir: xmlDir,

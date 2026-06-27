@@ -3,6 +3,7 @@ import { Command } from "commander"
 import { resolve } from "path"
 import { pathToFileURL } from "url"
 import { importConfiguration } from "./commands/import"
+import { initSyncState } from "./commands/initSyncState"
 import { deleteMigration, generateMigration, renameMigration } from "./commands/migration"
 import { normalizeSchemaCommandInput, printSchema, type SchemaCommandOptions } from "./commands/schema"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
@@ -48,6 +49,15 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
         syncConfiguration(yamlDir, xmlDir, {
           referenceDir: opts.reference,
         }), options)
+    })
+
+  program
+    .command("init-sync-state")
+    .description("Создать файл состояния инкрементальной XML-синхронизации")
+    .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
+    .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
+    .action((yamlDir: string, xmlDir: string) => {
+      run(() => initSyncState(yamlDir, xmlDir), options)
     })
 
   program
