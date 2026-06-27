@@ -6,6 +6,17 @@ export { registerCoreMetadata } from "./metadata/register"
 export { syncConfigurationFromXML } from "./metadata/appliedObjects/configuration/convertFromXML"
 export type { ConfigurationSyncResult } from "./metadata/appliedObjects/configuration/convertFromXML"
 export { syncConfigurationToXML } from "./metadata/appliedObjects/configuration/syncToXML"
+export {
+  SYNC_STATE_FILE,
+  diffSyncState,
+  hashProjectFiles,
+  initializeXmlSyncState,
+  readXmlSyncState,
+  writeXmlSyncState,
+  type InitializeXmlSyncStateParams,
+  type XmlSyncState,
+  type XmlSyncStateDiff,
+} from "./metadata/appliedObjects/configuration/syncState"
 export { shortRoundTripXML } from "./metadata/appliedObjects/configuration/shortRoundTripXML"
 export {
   ADD_ACTION,

@@ -2,9 +2,11 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
+import type { ConfigurationContextFromXML } from "~/metadata/context/types"
 import {
   diffSyncState,
   hashProjectFiles,
+  initializeXmlSyncState,
   readXmlSyncState,
   SYNC_STATE_FILE,
   writeXmlSyncState,
@@ -78,6 +80,35 @@ describe("xml sync state", () => {
       added: ["added.yaml"],
       changed: ["a.yaml"],
       deleted: ["deleted.yaml"],
+    })
+  })
+
+  it("initializes state from XML by importing to a temporary YAML directory", async () => {
+    const xmlDir = tempDir()
+    const tempRoot = tempDir()
+    let importedOutputDir = ""
+
+    await initializeXmlSyncState({
+      context: {
+        defaultLanguage: "ru",
+        version: "2.20",
+        fromXML: { forReference: false },
+      } satisfies ConfigurationContextFromXML,
+      xmlDir,
+      createTempDir: async () => join(tempRoot, "yaml"),
+      importFromXML: async ({ outputDir }) => {
+        importedOutputDir = outputDir
+        mkdirSync(join(outputDir, "Справочник", "Товары"), { recursive: true })
+        writeFileSync(join(outputDir, "Справочник", "Товары", "Свойства.yaml"), "Наименование: Товары\n", "utf-8")
+      },
+    })
+
+    expect(importedOutputDir).toBe(join(tempRoot, "yaml"))
+    await expect(readXmlSyncState(xmlDir)).resolves.toEqual({
+      version: 1,
+      files: {
+        "Справочник/Товары/Свойства.yaml": expect.stringMatching(/^sha256:[0-9a-f]{64}$/),
+      },
     })
   })
 })

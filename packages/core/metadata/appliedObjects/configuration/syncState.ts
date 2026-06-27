@@ -1,7 +1,11 @@
 import { createHash } from "crypto"
 import fs from "fs"
+import { mkdtemp } from "fs/promises"
+import { tmpdir } from "os"
 import { join, relative, resolve, sep } from "path"
+import type { ConfigurationContextFromXML } from "~/metadata/context/types"
 import YAML from "yaml"
+import { syncConfigurationFromXML } from "./convertFromXML"
 
 export const SYNC_STATE_FILE = ".nkdk-sync.yaml"
 
@@ -14,6 +18,13 @@ export interface XmlSyncStateDiff {
   added: string[]
   changed: string[]
   deleted: string[]
+}
+
+export interface InitializeXmlSyncStateParams {
+  context: ConfigurationContextFromXML
+  xmlDir: string
+  createTempDir?: () => Promise<string>
+  importFromXML?: (params: { context: ConfigurationContextFromXML; inputDir: string; outputDir: string }) => Promise<unknown>
 }
 
 export async function readXmlSyncState(xmlDir: string): Promise<XmlSyncState | undefined> {
@@ -54,6 +65,22 @@ export function diffSyncState(previous: Record<string, string>, current: Record<
   }
 
   return { added, changed, deleted }
+}
+
+export async function initializeXmlSyncState(params: InitializeXmlSyncStateParams): Promise<XmlSyncState> {
+  const createTempDir = params.createTempDir ?? (() => mkdtemp(join(tmpdir(), "nkdk-sync-state-yaml-")))
+  const importFromXML = params.importFromXML ?? syncConfigurationFromXML
+  const yamlDir = await createTempDir()
+
+  try {
+    await importFromXML({ context: params.context, inputDir: params.xmlDir, outputDir: yamlDir })
+    const files = await hashProjectFiles(yamlDir)
+    const state: XmlSyncState = { version: 1, files }
+    await writeXmlSyncState(params.xmlDir, state)
+    return state
+  } finally {
+    await fs.promises.rm(yamlDir, { recursive: true, force: true })
+  }
 }
 
 async function collectProjectFileHashes(
