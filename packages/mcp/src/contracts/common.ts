@@ -1,7 +1,13 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js"
 import { z } from "zod/v4"
 
-export const errorCodeSchema = z.enum(["confirmation_required", "invalid_arguments", "not_found", "core_error"])
+export const errorCodeSchema = z.enum([
+  "confirmation_required",
+  "invalid_arguments",
+  "not_found",
+  "sync_state_required",
+  "core_error",
+])
 
 export const toolErrorOutputShape = {
   ok: z.literal(false),
