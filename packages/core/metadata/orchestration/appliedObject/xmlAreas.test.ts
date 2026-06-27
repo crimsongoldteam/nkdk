@@ -44,4 +44,12 @@ describe("resolveXmlSyncAreaForProjectPath", () => {
   it("returns undefined for unknown project path", () => {
     expect(resolveXmlSyncAreaForProjectPath("Неизвестно/file.txt", [MetadataCatalogRules])).toBeUndefined()
   })
+
+  it("maps object module through declarative rule", () => {
+    expect(resolveXmlSyncAreaForProjectPath("Справочник/Товары/МодульОбъекта.bsl", [MetadataCatalogRules])).toMatchObject({
+      kind: "externalFile",
+      xmlPath: "Catalogs/Товары/Ext/ObjectModule.bsl",
+      dumpInfoNames: ["Catalog.Товары", "Catalog.Товары.ObjectModule"],
+    })
+  })
 })

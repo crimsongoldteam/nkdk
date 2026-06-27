@@ -384,6 +384,7 @@ export const MetadataCatalogRules = {
       externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
       xmlPath: "Ext/ObjectModule.bsl",
+      syncArea: { kind: "objectModule", yamlFile: "МодульОбъекта.bsl", xmlPath: "Ext/ObjectModule.bsl" },
       toXML: false,
       fromXML: false,
     },

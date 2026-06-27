@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
@@ -46,6 +46,34 @@ describe("syncConfigurationIncrementallyToXML", () => {
     expect(result.succeeded).toBe(0)
     await expect(readXmlSyncState(xmlDir)).resolves.toEqual({ version: 1, files: current })
     expect(existsSync(join(xmlDir, "Catalogs"))).toBe(false)
+  })
+
+  it("writes only changed object module external file", async () => {
+    const yamlDir = tempDir()
+    const xmlDir = tempDir()
+    mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "Имя: Товары\n", "utf-8")
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "МодульОбъекта.bsl"), "Процедура Новая()\nКонецПроцедуры\n", "utf-8")
+    const current = await hashProjectFiles(yamlDir)
+    await writeXmlSyncState(xmlDir, {
+      version: 1,
+      files: {
+        ...current,
+        "Справочник/Товары/МодульОбъекта.bsl": "sha256:0000",
+      },
+    })
+
+    const result = await syncConfigurationIncrementallyToXML({
+      context: baseContext(),
+      inputDir: yamlDir,
+      outputDir: xmlDir,
+    })
+
+    expect(result.failed).toEqual([])
+    expect(readFileSync(join(xmlDir, "Catalogs", "Товары", "Ext", "ObjectModule.bsl"), "utf-8")).toBe(
+      "Процедура Новая()\nКонецПроцедуры\n",
+    )
+    expect(existsSync(join(xmlDir, "Catalogs", "Товары.xml"))).toBe(false)
   })
 })
 

@@ -1,5 +1,5 @@
 import fs from "fs"
-import { dirname, join, posix } from "path"
+import { basename, dirname, join, posix, relative, sep } from "path"
 import { getChildContextToXML } from "~/metadata/context/helpers"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import {
@@ -46,17 +46,25 @@ export interface SyncAppliedObjectToXMLParams {
   xmlManifest?: XmlWriteManifest
 }
 
-export type AppliedObjectXmlAreaRequest = { kind: "owner" } | { kind: "all" }
+export type AppliedObjectXmlAreaRequest =
+  | { kind: "owner" }
+  | { kind: "all" }
+  | { kind: "externalFile"; xmlPath: string }
 
 type InternalSyncAppliedObjectToXMLParams = SyncAppliedObjectToXMLParams & {
   onlyOwnerXML?: true
+  onlyExternalXmlPath?: string
 }
 
 export const syncAppliedObjectAreaToXML = async (
   params: SyncAppliedObjectToXMLParams & { area: AppliedObjectXmlAreaRequest }
 ): Promise<void> => {
   const { area, ...rest } = params
-  return syncAppliedObjectToXMLInternal({ ...rest, ...(area.kind === "owner" ? { onlyOwnerXML: true } : {}) })
+  return syncAppliedObjectToXMLInternal({
+    ...rest,
+    ...(area.kind === "owner" ? { onlyOwnerXML: true } : {}),
+    ...(area.kind === "externalFile" ? { onlyExternalXmlPath: area.xmlPath } : {}),
+  })
 }
 
 export const syncAppliedObjectToXML = async (params: SyncAppliedObjectToXMLParams): Promise<void> => {
@@ -172,13 +180,15 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
     rule: withFileItemCollectionReferenceExportRules(rule),
   })
 
-  if (!xmlObj) return
+  if (!xmlObj && !params.onlyExternalXmlPath) return
 
-  await fs.promises.mkdir(outputDir, { recursive: true })
-  const outputPath = join(outputDir, `${name}.xml`)
-  await fs.promises.writeFile(outputPath, xmlExport(xmlObj), "utf-8")
-  params.xmlManifest?.addFile(outputPath)
-  if (params.onlyOwnerXML) return
+  if (!params.onlyExternalXmlPath && xmlObj) {
+    await fs.promises.mkdir(outputDir, { recursive: true })
+    const outputPath = join(outputDir, `${name}.xml`)
+    await fs.promises.writeFile(outputPath, xmlExport(xmlObj), "utf-8")
+    params.xmlManifest?.addFile(outputPath)
+    if (params.onlyOwnerXML) return
+  }
 
   // Обработчики внешних файлов на уровне объекта (Help, Module, Template со статическими путями)
   for (const [key, propRule] of Object.entries(rule.properties)) {
@@ -187,6 +197,18 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
     const syncUsesItemDir = propRule.type === "ChildFormNames" || propRule.type === "ChildTemplateNames"
     const syncXmlDir = syncUsesItemDir ? outputDir : externalOutputDir
     const syncReferenceDir = syncUsesItemDir ? referenceDir : externalReferenceDir
+    if (
+      params.onlyExternalXmlPath &&
+      !matchesExternalXMLPath({
+        outputDir,
+        syncXmlDir,
+        propRule,
+        name,
+        expectedXmlPath: params.onlyExternalXmlPath,
+      })
+    ) {
+      continue
+    }
     await syncFn({
       context: contextWithOwner,
       rule: propRule,
@@ -204,6 +226,7 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
           : (model as Record<string, unknown>)[key],
     })
   }
+  if (params.onlyExternalXmlPath) return
 
   await syncChildCollectionExternalFilesToXML({
     context: contextWithForms,
@@ -260,6 +283,28 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
     await fs.promises.writeFile(extOutputPath, xmlExport(xmlFileObj), "utf-8")
     params.xmlManifest?.addFile(extOutputPath)
   }
+}
+
+function matchesExternalXMLPath(params: {
+  outputDir: string
+  syncXmlDir: string
+  propRule: PropertyRule
+  name: string
+  expectedXmlPath: string
+}): boolean {
+  const rawXmlPath = "xmlPath" in params.propRule ? params.propRule.xmlPath : undefined
+  if (typeof rawXmlPath !== "string" && typeof rawXmlPath !== "function") return false
+
+  const xmlRoot = dirname(params.outputDir)
+  const resolvedXmlPath =
+    typeof rawXmlPath === "function" ? rawXmlPath({ name: params.name, parentName: params.name }) : rawXmlPath
+  const objectPrefix = `${params.name}/`
+  const xmlPath =
+    basename(params.syncXmlDir) === params.name && resolvedXmlPath.startsWith(objectPrefix)
+      ? resolvedXmlPath.slice(objectPrefix.length)
+      : resolvedXmlPath
+  const relativePath = relative(xmlRoot, join(params.syncXmlDir, xmlPath)).split(sep).join("/")
+  return relativePath === params.expectedXmlPath
 }
 
 async function syncChildCollectionExternalFilesToXML(params: {

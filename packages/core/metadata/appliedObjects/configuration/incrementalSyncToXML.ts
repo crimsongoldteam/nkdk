@@ -49,10 +49,28 @@ export async function syncConfigurationIncrementallyToXML(params: {
     }
 
     for (const planned of plan.areas) {
-      if (planned.area.kind !== "owner") continue
       const rule = TopLevelMetadataItemRules.find((candidate) => candidate.itemType === planned.area.itemType)
       if (!rule?.itemTypePrefix || !rule.xmlDir) throw new Error(`Не найдено правило для ${planned.key}`)
 
+      if (planned.area.kind === "externalFile") {
+        await fs.promises.rm(join(params.outputDir, planned.area.xmlPath), { force: true })
+        await syncAppliedObjectAreaToXML({
+          area: { kind: "externalFile", xmlPath: planned.area.xmlPath },
+          rule,
+          context: { ...params.context, exportToXML: { ...params.context.exportToXML } },
+          inputDir: join(params.inputDir, rule.itemTypePrefix),
+          name: planned.area.itemName,
+          outputDir: join(params.outputDir, rule.xmlDir),
+          externalOutputDir: join(params.outputDir, rule.xmlDir, planned.area.itemName),
+          referenceDir: params.referenceDir ? join(params.referenceDir, rule.xmlDir) : join(params.outputDir, rule.xmlDir),
+          externalReferenceDir: params.referenceDir
+            ? join(params.referenceDir, rule.xmlDir, planned.area.itemName)
+            : join(params.outputDir, rule.xmlDir, planned.area.itemName),
+        })
+        continue
+      }
+
+      if (planned.area.kind !== "owner") continue
       await syncAppliedObjectAreaToXML({
         area: { kind: "owner" },
         rule,

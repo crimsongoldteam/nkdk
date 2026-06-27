@@ -40,4 +40,27 @@ describe("syncAppliedObjectAreaToXML", () => {
     expect(fs.existsSync(join(outputDir, "ОбработкаВсеСвойства.xml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, "ОбработкаВсеСвойства", "Ext", "ObjectModule.bsl"))).toBe(false)
   })
+
+  it("writes only matching external file area when requested", async () => {
+    const inputDir = "metadata/appliedObjects/metadataDataProcessor/__fixtures__/sync/yaml"
+    const referenceDir = "metadata/appliedObjects/metadataDataProcessor/__fixtures__/sync/xml"
+    const xmlRoot = tempDir()
+    const outputDir = join(xmlRoot, "DataProcessors")
+
+    await syncAppliedObjectAreaToXML({
+      area: { kind: "externalFile", xmlPath: "DataProcessors/ОбработкаВсеСвойства/Ext/ObjectModule.bsl" },
+      rule: MetadataDataProcessorRules,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ОбработкаВсеСвойства",
+      outputDir,
+      externalOutputDir: join(outputDir, "ОбработкаВсеСвойства"),
+      referenceDir: join(referenceDir),
+      externalReferenceDir: join(referenceDir, "ОбработкаВсеСвойства"),
+    })
+
+    expect(fs.existsSync(join(outputDir, "ОбработкаВсеСвойства.xml"))).toBe(false)
+    expect(fs.existsSync(join(outputDir, "ОбработкаВсеСвойства", "Ext", "ObjectModule.bsl"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "ОбработкаВсеСвойства", "Ext", "ManagerModule.bsl"))).toBe(false)
+  })
 })
