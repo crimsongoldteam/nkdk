@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
+import { ButtonRules, CommandBarButtonRules } from "~/metadata/forms/elements/button/rules"
 import { CalendarFieldRules } from "~/metadata/forms/elements/calendarField/rules"
 import { ChartFieldRules } from "~/metadata/forms/elements/chartField/rules"
 import { DendrogramFieldRules } from "~/metadata/forms/elements/dendrogramField/rules"
@@ -103,6 +104,47 @@ describe("implicitValueYAML contract", () => {
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
       .filter((propertyKey) => PeriodFieldRules.properties[propertyKey].noImplicitValueYAML !== true)
       .map((propertyKey) => `PeriodFieldRules.${propertyKey}`)
+
+    expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
+  })
+
+  it("uses configurator defaults as implicit YAML values for form buttons", () => {
+    const expectedImplicitValues = {
+      autoMaxHeight: true,
+      autoMaxWidth: true,
+      check: false,
+      commandUniqueness: true,
+      defaultButton: false,
+      defaultItem: false,
+      enabled: true,
+      height: 0,
+      horizontalStretch: false,
+      maxHeight: 0,
+      maxWidth: 0,
+      titleHeight: 0,
+      verticalStretch: false,
+      visible: true,
+      width: 0,
+    } as const
+    const expectedNoImplicitValueYAML = ["onlyInAllActions", "skipOnInput"] as const
+    const rules = [
+      ["ButtonRules", ButtonRules],
+      ["CommandBarButtonRules", CommandBarButtonRules],
+    ] as const
+
+    const unexpectedImplicitValues = rules.flatMap(([ruleName, rule]) =>
+      Object.entries(expectedImplicitValues)
+        .filter(([propertyKey, implicitValueYAML]) => {
+          return rule.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        })
+        .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
+    )
+
+    const unexpectedNoImplicitValueYAML = rules.flatMap(([ruleName, rule]) =>
+      expectedNoImplicitValueYAML
+        .filter((propertyKey) => rule.properties[propertyKey].noImplicitValueYAML !== true)
+        .map((propertyKey) => `${ruleName}.${propertyKey}`)
+    )
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
   })
