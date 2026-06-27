@@ -9,13 +9,13 @@ export const ChartFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.ChartField",
   properties: {
-    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
-    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
+    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
+    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
     height: { yaml: "Высота", type: "number" },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: true },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
+    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", implicitValueYAML: true },
     width: { yaml: "Ширина", type: "number" },
     events: {
       type: "Events",

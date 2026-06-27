@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
+import { CalendarFieldRules } from "~/metadata/forms/elements/calendarField/rules"
+import { ChartFieldRules } from "~/metadata/forms/elements/chartField/rules"
+import { DendrogramFieldRules } from "~/metadata/forms/elements/dendrogramField/rules"
+import { GeographicalSchemaFieldRules } from "~/metadata/forms/elements/geographicalSchemaField/rules"
+import { GraphicalSchemaFieldRules } from "~/metadata/forms/elements/graphicalSchemaField/rules"
+import { HTMLDocumentFieldRules } from "~/metadata/forms/elements/htmlDocumentField/rules"
 import type { MetadataItemRule, PropertyRule } from "./types"
 
 type RuleModule = Record<string, unknown>
@@ -26,6 +32,54 @@ describe("implicitValueYAML contract", () => {
 
   it("requires catalog boolean and SystemEnumeration YAML properties to document implicit value decision", () => {
     expect(collectMissingImplicitValueYAML(MetadataCatalogRules, "MetadataCatalogRules")).toEqual([])
+  })
+
+  it("uses enabled size flags as implicit YAML values for chart-like form fields", () => {
+    const sizeFlags = ["autoMaxHeight", "autoMaxWidth", "horizontalStretch", "verticalStretch"] as const
+    const rules = [
+      ["ChartFieldRules", ChartFieldRules],
+      ["DendrogramFieldRules", DendrogramFieldRules],
+      ["GeographicalSchemaFieldRules", GeographicalSchemaFieldRules],
+      ["GraphicalSchemaFieldRules", GraphicalSchemaFieldRules],
+      ["HTMLDocumentFieldRules", HTMLDocumentFieldRules],
+    ] as const
+
+    const unexpected = rules.flatMap(([ruleName, rule]) =>
+      sizeFlags
+        .filter((propertyKey) => rule.properties[propertyKey].implicitValueYAML !== true)
+        .map((propertyKey) => `${ruleName}.${propertyKey}`)
+    )
+
+    expect(unexpected).toEqual([])
+  })
+
+  it("uses configurator defaults as implicit YAML values for calendar field flags", () => {
+    const expected = {
+      autoMaxHeight: true,
+      autoMaxWidth: true,
+      border: "Single",
+      calendarNavigation: true,
+      enableDrag: false,
+      enableStartDrag: false,
+      height: 9,
+      heightInMonths: 1,
+      horizontalStretch: true,
+      selectionMode: "Single",
+      showCurrentDate: true,
+      showMonthsPanel: false,
+      titleHeight: 0,
+      verticalStretch: true,
+      width: 16,
+      widthInMonths: 1,
+    } as const
+
+    const unexpected = Object.entries(expected)
+      .filter(([propertyKey, implicitValueYAML]) => {
+        return CalendarFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+      })
+      .map(([propertyKey]) => `CalendarFieldRules.${propertyKey}`)
+
+    expect(unexpected).toEqual([])
   })
 
   it("requires boolean and SystemEnumeration YAML properties with defaultValueXML to have implicitValueYAML", () => {
