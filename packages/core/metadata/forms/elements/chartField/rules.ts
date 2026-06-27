@@ -11,12 +11,12 @@ export const ChartFieldRules = {
   properties: {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
-    height: { yaml: "Высота", type: "number" },
+    height: { yaml: "Высота", type: "number", implicitValueYAML: 10 },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: true },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", implicitValueYAML: true },
-    width: { yaml: "Ширина", type: "number" },
+    width: { yaml: "Ширина", type: "number", implicitValueYAML: 50 },
     events: {
       type: "Events",
       yaml: "События",
@@ -36,6 +36,7 @@ export const ChartFieldRules = {
       defaultType: "Chart",
     },
     ...formFieldCommonProperties,
+    titleHeight: { yaml: "ВысотаЗаголовка", type: "number", implicitValueYAML: 0 },
   },
 } as const satisfies ElementRule
 

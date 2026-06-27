@@ -45,6 +45,8 @@ export const CheckBoxFieldRules = {
   enterpriseFieldType: "FormFieldType.CheckBoxField",
   properties: {
     ...CheckBoxFieldCommonRulesProperties,
+    skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean", noImplicitValueYAML: true },
+    titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
   },
 } as const satisfies ElementRule
 
@@ -55,6 +57,8 @@ export const TableCheckBoxFieldRules = {
   enterpriseFieldType: "FormFieldType.CheckBoxField",
   properties: {
     ...CheckBoxFieldCommonRulesProperties,
+    skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean", noImplicitValueYAML: true },
+    titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
     ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule

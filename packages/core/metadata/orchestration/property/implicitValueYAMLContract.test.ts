@@ -1,16 +1,22 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
+import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
 import { ButtonRules, CommandBarButtonRules } from "~/metadata/forms/elements/button/rules"
 import { CalendarFieldRules } from "~/metadata/forms/elements/calendarField/rules"
+import { CheckBoxFieldRules, TableCheckBoxFieldRules } from "~/metadata/forms/elements/checkBoxField/rules"
 import { ChartFieldRules } from "~/metadata/forms/elements/chartField/rules"
 import { DendrogramFieldRules } from "~/metadata/forms/elements/dendrogramField/rules"
 import { GeographicalSchemaFieldRules } from "~/metadata/forms/elements/geographicalSchemaField/rules"
 import { GraphicalSchemaFieldRules } from "~/metadata/forms/elements/graphicalSchemaField/rules"
 import { HTMLDocumentFieldRules } from "~/metadata/forms/elements/htmlDocumentField/rules"
 import { InputFieldRules, TableInputFieldRules } from "~/metadata/forms/elements/inputField/rules"
+import { LabelFieldRules, TableLabelFieldRules } from "~/metadata/forms/elements/labelField/rules"
 import { PeriodFieldRules } from "~/metadata/forms/elements/periodField/rules"
+import { PlannerFieldRules } from "~/metadata/forms/elements/plannerField/rules"
 import { ProgressBarFieldRules } from "~/metadata/forms/elements/progressBarField/rules"
+import { SpreadSheetDocumentFieldRules } from "~/metadata/forms/elements/spreadSheetDocumentField/rules"
+import { TableRules } from "~/metadata/forms/elements/table/rules"
 import type { MetadataItemRule, PropertyRule } from "./types"
 
 type RuleModule = Record<string, unknown>
@@ -53,6 +59,22 @@ describe("implicitValueYAML contract", () => {
         .filter((propertyKey) => rule.properties[propertyKey].implicitValueYAML !== true)
         .map((propertyKey) => `${ruleName}.${propertyKey}`)
     )
+
+    expect(unexpected).toEqual([])
+  })
+
+  it("uses configurator defaults as implicit YAML values for chart field size properties", () => {
+    const expected = {
+      height: 10,
+      titleHeight: 0,
+      width: 50,
+    } as const
+
+    const unexpected = Object.entries(expected)
+      .filter(([propertyKey, implicitValueYAML]) => {
+        return ChartFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+      })
+      .map(([propertyKey]) => `ChartFieldRules.${propertyKey}`)
 
     expect(unexpected).toEqual([])
   })
@@ -220,6 +242,238 @@ describe("implicitValueYAML contract", () => {
     )
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
+  })
+
+  it("uses configurator defaults as implicit YAML values for label fields", () => {
+    const expectedImplicitValues = {
+      autoMaxHeight: true,
+      autoMaxWidth: true,
+      border: "WithoutBorder",
+      height: 0,
+      hyperlink: false,
+      titleHeight: 0,
+      width: 0,
+    } as const
+    const expectedNoImplicitValueYAML = ["horizontalStretch", "passwordMode", "verticalStretch"] as const
+    const rules = [
+      ["LabelFieldRules", LabelFieldRules],
+      ["TableLabelFieldRules", TableLabelFieldRules],
+    ] as const
+
+    const unexpectedImplicitValues = rules.flatMap(([ruleName, rule]) =>
+      Object.entries(expectedImplicitValues)
+        .filter(([propertyKey, implicitValueYAML]) => {
+          return rule.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        })
+        .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
+    )
+
+    const unexpectedNoImplicitValueYAML = rules.flatMap(([ruleName, rule]) =>
+      expectedNoImplicitValueYAML
+        .filter((propertyKey) => rule.properties[propertyKey].noImplicitValueYAML !== true)
+        .map((propertyKey) => `${ruleName}.${propertyKey}`)
+    )
+
+    expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
+  })
+
+  it("uses configurator defaults as implicit YAML values for checkbox fields", () => {
+    const expected = {
+      checkBoxType: "Auto",
+      enabled: true,
+      readOnly: false,
+      titleHeight: 0,
+      titleLocation: "Auto",
+      toolTipRepresentation: "Auto",
+      verticalAlign: "Auto",
+      verticalAlignInGroup: "Auto",
+      visible: true,
+    } as const
+    const rules = [
+      ["CheckBoxFieldRules", CheckBoxFieldRules],
+      ["TableCheckBoxFieldRules", TableCheckBoxFieldRules],
+    ] as const
+
+    const unexpectedImplicitValues = rules.flatMap(([ruleName, rule]) =>
+      Object.entries(expected)
+        .filter(([propertyKey, implicitValueYAML]) => {
+          return rule.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        })
+        .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
+    )
+    const unexpectedNoImplicitValueYAML = rules.flatMap(([ruleName, rule]) =>
+      ["skipOnInput"]
+        .filter((propertyKey) => rule.properties[propertyKey].noImplicitValueYAML !== true)
+        .map((propertyKey) => `${ruleName}.${propertyKey}`)
+    )
+
+    expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
+  })
+
+  it("uses configurator defaults as implicit YAML values for tables", () => {
+    const expectedImplicitValues = {
+      autoInsertNewRow: true,
+      autoMaxHeight: true,
+      autoMaxHeightInTableRows: true,
+      autoMaxWidth: true,
+      autofill: false,
+      behaviorOnHorizontalCompression: "Auto",
+      changeRowOrder: true,
+      changeRowSet: true,
+      choiceMode: false,
+      commandBarLocation: "Auto",
+      currentRowUse: "Auto",
+      defaultItem: false,
+      displayImportance: "Auto",
+      enabled: true,
+      enableDrag: true,
+      enableStartDrag: true,
+      fileDragMode: "AsFileRef",
+      footer: false,
+      footerHeight: 1,
+      header: true,
+      headerHeight: 1,
+      height: 0,
+      heightControlVariant: "Auto",
+      heightInTableRows: 0,
+      horizontalLines: true,
+      horizontalStretch: true,
+      initialListView: "Auto",
+      initialTreeView: "NoExpand",
+      multipleChoice: false,
+      onMainServerUnavalableBehavior: "Auto",
+      output: "Auto",
+      readOnly: false,
+      refreshRequest: "None",
+      representation: "List",
+      rowInputMode: "EndOfList",
+      rowSelectionMode: "Cell",
+      searchControlLocation: "Auto",
+      searchOnInput: "Auto",
+      searchStringLocation: "Auto",
+      selectionMode: "MultiRow",
+      titleHeight: 0,
+      titleLocation: "None",
+      toolTipRepresentation: "Auto",
+      useAlternationRowColor: false,
+      verticalLines: true,
+      verticalStretch: true,
+      viewStatusLocation: "Auto",
+      visible: true,
+      width: 0,
+    } as const
+    const expectedNoImplicitValueYAML = ["autoAddIncomplete", "autoMarkIncomplete", "skipOnInput"] as const
+
+    const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
+      .filter(([propertyKey, implicitValueYAML]) => {
+        return TableRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+      })
+      .map(([propertyKey]) => `TableRules.${propertyKey}`)
+
+    const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
+      .filter((propertyKey) => TableRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .map((propertyKey) => `TableRules.${propertyKey}`)
+
+    expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
+  })
+
+  it("uses configurator defaults as implicit YAML values for client application forms", () => {
+    const expected = {
+      autoFillCheck: true,
+      autoSaveDataInSettings: "DontUse",
+      autoTitle: true,
+      autoURL: true,
+      childItemsHorizontalAlign: "Auto",
+      childItemsVerticalAlign: "Auto",
+      collapseItemsByImportance: "Auto",
+      commandBarLocation: "Auto",
+      conversationsRepresentation: "Auto",
+      customizable: true,
+      enabled: true,
+      enterKeyBehavior: "ControlNavigation",
+      formWindowOpeningMode: "DontBlock",
+      group: "Vertical",
+      height: 0,
+      horizontalSpacing: "Auto",
+      itemsAndTitlesAlign: "Auto",
+      saveDataInSettings: "DontUse",
+      saveWindowSettings: true,
+      scale: 100,
+      scalingMode: "Auto",
+      showCloseButton: true,
+      showTitle: true,
+      verticalScroll: "auto",
+      verticalSpacing: "Auto",
+      width: 0,
+    } as const
+
+    const unexpected = Object.entries(expected)
+      .filter(([propertyKey, implicitValueYAML]) => {
+        return ClientApplicationFormRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+      })
+      .map(([propertyKey]) => `ClientApplicationFormRules.${propertyKey}`)
+
+    expect(unexpected).toEqual([])
+  })
+
+  it("uses configurator defaults as implicit YAML values for planner fields", () => {
+    const expected = {
+      autoMaxHeight: true,
+      autoMaxWidth: true,
+      dimensionItemHyperlink: false,
+      enableDrag: false,
+      enableStartDrag: false,
+      height: 10,
+      horizontalStretch: true,
+      timeScaleItemHyperlink: false,
+      titleHeight: 0,
+      verticalStretch: true,
+      width: 50,
+      wrappedTimeScaleHeaderHyperlink: false,
+    } as const
+
+    const unexpected = Object.entries(expected)
+      .filter(([propertyKey, implicitValueYAML]) => {
+        return PlannerFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+      })
+      .map(([propertyKey]) => `PlannerFieldRules.${propertyKey}`)
+
+    expect(unexpected).toEqual([])
+  })
+
+  it("uses configurator defaults as implicit YAML values for spreadsheet document fields", () => {
+    const expected = {
+      autoMaxHeight: true,
+      autoMaxWidth: true,
+      blackAndWhiteView: false,
+      drawingSelectionShowMode: "Auto",
+      edit: false,
+      enableDrag: true,
+      enableStartDrag: true,
+      height: 10,
+      horizontalStretch: true,
+      output: "Auto",
+      pointerType: "Special",
+      protection: false,
+      selectionShowMode: "Always",
+      showCellNames: false,
+      showGrid: false,
+      showGroups: true,
+      showHeaders: false,
+      showRowAndColumnNames: false,
+      titleHeight: 0,
+      verticalStretch: true,
+      viewScalingMode: "Auto",
+      width: 50,
+    } as const
+
+    const unexpected = Object.entries(expected)
+      .filter(([propertyKey, implicitValueYAML]) => {
+        return SpreadSheetDocumentFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+      })
+      .map(([propertyKey]) => `SpreadSheetDocumentFieldRules.${propertyKey}`)
+
+    expect(unexpected).toEqual([])
   })
 
   it("requires boolean and SystemEnumeration YAML properties with defaultValueXML to have implicitValueYAML", () => {

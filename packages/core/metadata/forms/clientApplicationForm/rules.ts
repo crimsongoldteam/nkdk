@@ -42,22 +42,26 @@ export const ClientApplicationFormRules = {
       yaml: "ПроверятьЗаполнениеАвтоматически",
       type: "boolean",
       tag: FormRulesTags.Form,
+      implicitValueYAML: true,
     },
     autoSaveDataInSettings: {
       yaml: "АвтоматическоеСохранениеДанныхВНастройках",
       type: "SystemEnumeration",
       typeSE: "AutoSaveFormDataInSettings",
       tag: FormRulesTags.Form,
+      implicitValueYAML: "DontUse",
     },
     autoTitle: {
       yaml: "АвтоЗаголовок",
       type: "boolean",
       tag: FormRulesTags.Form,
+      implicitValueYAML: true,
     },
     autoURL: {
       yaml: "АвтоНавигационнаяСсылка",
       type: "boolean",
       tag: FormRulesTags.Form,
+      implicitValueYAML: true,
     },
     childItems: {
       yaml: "Элементы",
@@ -214,18 +218,20 @@ export const ClientApplicationFormRules = {
       yaml: "РазрешитьИзменятьФорму",
       type: "boolean",
       tag: FormRulesTags.Form,
+      implicitValueYAML: true,
     },
     enabled: {
       yaml: "Доступность",
       type: "boolean",
       tag: FormRulesTags.Form,
+      implicitValueYAML: true,
     },
     enterKeyBehavior: {
       yaml: "ПоведениеКлавишиEnter",
       type: "SystemEnumeration",
       typeSE: "EnterKeyBehaviorType",
       tag: FormRulesTags.Form,
-      implicitValueYAML: "DefaultButton",
+      implicitValueYAML: "ControlNavigation",
     },
     formWindowOpeningMode: {
       yaml: "РежимОткрытияОкнаФормы",
@@ -240,7 +246,7 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "ChildFormItemsGroup",
       tag: FormRulesTags.Form,
-      implicitValueYAML: "Horizontal",
+      implicitValueYAML: "Vertical",
     },
     groupList: {
       yaml: "СписокГрупп",
@@ -252,6 +258,7 @@ export const ClientApplicationFormRules = {
       yaml: "Высота",
       type: "number",
       tag: FormRulesTags.Form,
+      implicitValueYAML: 0,
     },
     horizontalSpacing: {
       yaml: "ГоризонтальныйИнтервал",
@@ -310,11 +317,13 @@ export const ClientApplicationFormRules = {
       yaml: "Масштаб",
       type: "number",
       tag: FormRulesTags.Form,
+      implicitValueYAML: 100,
     },
     saveWindowSettings: {
       yaml: "СохранятьНастройкиОкна",
       type: "boolean",
       tag: FormRulesTags.Form,
+      implicitValueYAML: true,
     },
     settingsStorage: {
       yaml: "ХранилищеНастроек",
@@ -332,11 +341,13 @@ export const ClientApplicationFormRules = {
       yaml: "ОтображатьКнопкуЗакрытия",
       type: "boolean",
       tag: FormRulesTags.Form,
+      implicitValueYAML: true,
     },
     showTitle: {
       yaml: "ОтображатьЗаголовок",
       type: "boolean",
       tag: FormRulesTags.Form,
+      implicitValueYAML: true,
     },
     slaveItemsWidth: {
       yaml: "ШиринаПодчиненныхЭлементов",
@@ -385,6 +396,7 @@ export const ClientApplicationFormRules = {
       yaml: "Ширина",
       type: "number",
       tag: FormRulesTags.Form,
+      implicitValueYAML: 0,
     },
     windowOptionsKey: {
       yaml: "КлючСохраненияПоложенияОкна",
