@@ -8,6 +8,7 @@ import { DendrogramFieldRules } from "~/metadata/forms/elements/dendrogramField/
 import { GeographicalSchemaFieldRules } from "~/metadata/forms/elements/geographicalSchemaField/rules"
 import { GraphicalSchemaFieldRules } from "~/metadata/forms/elements/graphicalSchemaField/rules"
 import { HTMLDocumentFieldRules } from "~/metadata/forms/elements/htmlDocumentField/rules"
+import { InputFieldRules, TableInputFieldRules } from "~/metadata/forms/elements/inputField/rules"
 import { PeriodFieldRules } from "~/metadata/forms/elements/periodField/rules"
 import { ProgressBarFieldRules } from "~/metadata/forms/elements/progressBarField/rules"
 import type { MetadataItemRule, PropertyRule } from "./types"
@@ -165,6 +166,60 @@ describe("implicitValueYAML contract", () => {
       .map(([propertyKey]) => `ProgressBarFieldRules.${propertyKey}`)
 
     expect(unexpected).toEqual([])
+  })
+
+  it("uses configurator defaults as implicit YAML values for input fields", () => {
+    const expectedImplicitValues = {
+      autoMaxHeight: true,
+      autoMaxWidth: true,
+      choiceListHeight: 0,
+      chooseType: true,
+      dropListWidth: 0,
+      height: 0,
+      listChoiceMode: false,
+      textEdit: true,
+      titleHeight: 0,
+      width: 0,
+      wrap: true,
+    } as const
+    const expectedNoImplicitValueYAML = [
+      "autoChoiceIncomplete",
+      "autoMarkIncomplete",
+      "choiceButton",
+      "choiceListButton",
+      "clearButton",
+      "createButton",
+      "dropListButton",
+      "extendedEdit",
+      "horizontalStretch",
+      "multiLine",
+      "openButton",
+      "passwordMode",
+      "quickChoice",
+      "skipOnInput",
+      "spinButton",
+      "verticalStretch",
+    ] as const
+    const rules = [
+      ["InputFieldRules", InputFieldRules],
+      ["TableInputFieldRules", TableInputFieldRules],
+    ] as const
+
+    const unexpectedImplicitValues = rules.flatMap(([ruleName, rule]) =>
+      Object.entries(expectedImplicitValues)
+        .filter(([propertyKey, implicitValueYAML]) => {
+          return rule.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        })
+        .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
+    )
+
+    const unexpectedNoImplicitValueYAML = rules.flatMap(([ruleName, rule]) =>
+      expectedNoImplicitValueYAML
+        .filter((propertyKey) => rule.properties[propertyKey].noImplicitValueYAML !== true)
+        .map((propertyKey) => `${ruleName}.${propertyKey}`)
+    )
+
+    expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
   })
 
   it("requires boolean and SystemEnumeration YAML properties with defaultValueXML to have implicitValueYAML", () => {
