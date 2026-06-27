@@ -76,6 +76,7 @@ export const MetadataConfigurationRules = {
       type: "SystemEnumeration",
       typeSE: "CompatibilityMode",
       defaultValueXML: "Version8_3_27",
+      implicitValueYAML: "Version8_3_27",
       preserveExplicitDefaultXML: true,
       xmlParents: configurationProperties,
     },
@@ -84,6 +85,7 @@ export const MetadataConfigurationRules = {
       type: "SystemEnumeration",
       typeSE: "ClientRunMode",
       defaultValueXML: "ManagedApplication",
+      implicitValueYAML: "ManagedApplication",
       xmlParents: configurationProperties,
     },
     usePurposes: {
@@ -97,6 +99,7 @@ export const MetadataConfigurationRules = {
       type: "SystemEnumeration",
       typeSE: "ScriptVariant",
       defaultValueXML: "Russian",
+      implicitValueYAML: "Russian",
       xmlParents: configurationProperties,
     },
     defaultRoles: {
@@ -131,18 +134,21 @@ export const MetadataConfigurationRules = {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: configurationProperties,
     },
     useManagedFormInOrdinaryApplication: {
       yaml: "ИспользоватьУправляемыеФормыВОбычномПриложении",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: configurationProperties,
     },
     useOrdinaryFormInManagedApplication: {
       yaml: "ИспользоватьОбычныеФормыВУправляемомПриложении",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: configurationProperties,
     },
     additionalFullTextSearchDictionaries: {
@@ -316,6 +322,7 @@ export const MetadataConfigurationRules = {
       type: "SystemEnumeration",
       typeSE: "MainClientApplicationWindowMode",
       defaultValueXML: "Normal",
+      implicitValueYAML: "Normal",
       xmlParents: configurationProperties,
     },
     defaultInterface: {
@@ -379,6 +386,7 @@ export const MetadataConfigurationRules = {
       type: "SystemEnumeration",
       typeSE: "DataLockControlMode",
       defaultValueXML: "Managed",
+      implicitValueYAML: "Managed",
       xmlParents: configurationProperties,
     },
     objectAutonumerationMode: {
@@ -386,6 +394,7 @@ export const MetadataConfigurationRules = {
       type: "SystemEnumeration",
       typeSE: "ObjectAutonumerationMode",
       defaultValueXML: "NotAutoFree",
+      implicitValueYAML: "NotAutoFree",
       xmlParents: configurationProperties,
     },
     modalityUseMode: {
@@ -393,6 +402,7 @@ export const MetadataConfigurationRules = {
       type: "SystemEnumeration",
       typeSE: "ModalityUseMode",
       defaultValueXML: "DontUse",
+      implicitValueYAML: "DontUse",
       xmlParents: configurationProperties,
     },
     synchronousPlatformExtensionAndAddInCallUseMode: {
@@ -400,6 +410,7 @@ export const MetadataConfigurationRules = {
       type: "SystemEnumeration",
       typeSE: "SynchronousExtensionAndAddInCallUseMode",
       defaultValueXML: "DontUse",
+      implicitValueYAML: "DontUse",
       xmlParents: configurationProperties,
     },
     interfaceCompatibilityMode: {
@@ -407,6 +418,7 @@ export const MetadataConfigurationRules = {
       type: "SystemEnumeration",
       typeSE: "InterfaceCompatibilityMode",
       defaultValueXML: "Taxi",
+      implicitValueYAML: "Taxi",
       xmlParents: configurationProperties,
     },
     databaseTablespacesUseMode: {
@@ -414,6 +426,7 @@ export const MetadataConfigurationRules = {
       type: "SystemEnumeration",
       typeSE: "DatabaseTablespacesUseMode",
       defaultValueXML: "DontUse",
+      implicitValueYAML: "DontUse",
       xmlParents: configurationProperties,
     },
     compatibilityMode: {
@@ -421,6 +434,7 @@ export const MetadataConfigurationRules = {
       type: "SystemEnumeration",
       typeSE: "CompatibilityMode",
       defaultValueXML: "Version8_3_27",
+      implicitValueYAML: "Version8_3_27",
       preserveExplicitDefaultXML: true,
       xmlParents: configurationProperties,
     },

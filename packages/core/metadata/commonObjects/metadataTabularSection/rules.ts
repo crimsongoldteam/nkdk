@@ -75,6 +75,7 @@ const commonTabularSectionProperties = {
     typeSE: "FillChecking",
     xmlParents: propertiesParents,
     defaultValueXML: "DontCheck",
+    implicitValueYAML: "DontCheck",
     order: 5,
   },
   standardAttributes: {
@@ -139,6 +140,7 @@ export const MetadataTabularSectionRules = {
       typeSE: "AttributeUse",
       xmlParents: propertiesParents,
       defaultValueXML: "ForItem",
+      implicitValueYAML: "ForItem",
       order: 7,
     },
   },
@@ -333,6 +335,7 @@ export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
       typeSE: "AttributeUse",
       xmlParents: propertiesParents,
       defaultValueXML: "ForItem",
+      implicitValueYAML: "ForItem",
       order: 7,
     },
   },

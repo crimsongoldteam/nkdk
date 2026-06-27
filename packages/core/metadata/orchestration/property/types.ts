@@ -93,6 +93,9 @@ export interface BasePropertyRule {
   /** Значение, подразумеваемое отсутствием YAML-ключа; при выгрузке не пишется явно. */
   implicitValueYAML?: any | DefaultValueFunction
 
+  /** Явно фиксирует, что для YAML-свойства нет неявного значения. */
+  noImplicitValueYAML?: true
+
   /** Исключать неявное YAML-значение по модельному значению до преобразования типа. */
   omitImplicitValueYAMLBySource?: true
 

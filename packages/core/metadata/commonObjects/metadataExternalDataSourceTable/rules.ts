@@ -300,6 +300,7 @@ const tableProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: false,
+    implicitValueYAML: false,
   },
   transactionsIsolationLevel: {
     yaml: "УровеньИзоляцииТранзакций",

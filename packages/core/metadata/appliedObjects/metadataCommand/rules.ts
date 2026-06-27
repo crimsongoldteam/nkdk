@@ -53,6 +53,7 @@ export const MetadataCommandRules = {
       xmlParents: ["Properties"],
       order: 6,
       defaultValueXML: "Single",
+      implicitValueYAML: "Single",
     },
     modifiesData: {
       yaml: "ИзменяетДанные",
@@ -61,6 +62,7 @@ export const MetadataCommandRules = {
       xmlParents: ["Properties"],
       order: 7,
       defaultValueXML: false,
+      implicitValueYAML: false,
     },
     representation: {
       yaml: "Отображение",

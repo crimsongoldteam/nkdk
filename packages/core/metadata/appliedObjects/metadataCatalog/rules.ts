@@ -51,6 +51,7 @@ export const MetadataCatalogRules = {
       yaml: "Автонумерация",
       type: "boolean",
       defaultValueXML: true,
+      implicitValueYAML: true,
       xmlParents: ["Properties"],
     },
     auxiliaryChoiceForm: {
@@ -105,6 +106,7 @@ export const MetadataCatalogRules = {
       yaml: "КонтрольУникальности",
       type: "boolean",
       defaultValueXML: true,
+      implicitValueYAML: true,
       xmlParents: ["Properties"],
     },
     choiceDataGetModeOnInputByString: {
@@ -259,6 +261,7 @@ export const MetadataCatalogRules = {
       yaml: "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: ["Properties"],
     },
     explanation: {
@@ -283,6 +286,7 @@ export const MetadataCatalogRules = {
       yaml: "ГруппыСверху",
       type: "boolean",
       defaultValueXML: true,
+      implicitValueYAML: true,
       xmlParents: ["Properties"],
     },
     fullTextSearch: {
@@ -305,6 +309,7 @@ export const MetadataCatalogRules = {
       yaml: "Иерархический",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: ["Properties"],
     },
     hierarchyType: {
@@ -319,6 +324,7 @@ export const MetadataCatalogRules = {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: ["Properties"],
     },
     inputByString: {
@@ -344,6 +350,7 @@ export const MetadataCatalogRules = {
       yaml: "ОграничиватьКоличествоУровней",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: ["Properties"],
     },
     listPresentation: {
@@ -419,6 +426,7 @@ export const MetadataCatalogRules = {
       yaml: "БыстрыйВыбор",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: ["Properties"],
     },
     searchStringModeOnInputByString: {
@@ -483,12 +491,14 @@ export const MetadataCatalogRules = {
       yaml: "ОбновлятьИсториюДанныхСразуПослеЗаписи",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: ["Properties"],
     },
     useStandardCommands: {
       yaml: "ИспользоватьСтандартныеКоманды",
       type: "boolean",
       defaultValueXML: true,
+      implicitValueYAML: true,
       xmlParents: ["Properties"],
     },
   },

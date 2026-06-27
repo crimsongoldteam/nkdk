@@ -115,6 +115,7 @@ export const MetadataEnumerationRules = {
       yaml: "ИспользоватьСтандартныеКоманды",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: enumProperties,
     },
     standardAttributes: {
@@ -133,6 +134,7 @@ export const MetadataEnumerationRules = {
       yaml: "БыстрыйВыбор",
       type: "boolean",
       defaultValueXML: true,
+      implicitValueYAML: true,
       xmlParents: enumProperties,
     },
     choiceMode: {
@@ -140,6 +142,7 @@ export const MetadataEnumerationRules = {
       type: "SystemEnumeration",
       typeSE: "ChoiceMode",
       defaultValueXML: "BothWays",
+      implicitValueYAML: "BothWays",
       xmlParents: enumProperties,
     },
     defaultListForm: {
@@ -199,6 +202,7 @@ export const MetadataEnumerationRules = {
       type: "SystemEnumeration",
       typeSE: "ChoiceHistoryOnInput",
       defaultValueXML: "Auto",
+      implicitValueYAML: "Auto",
       xmlParents: enumProperties,
     },
     enumValues: {

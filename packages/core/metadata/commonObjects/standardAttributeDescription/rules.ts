@@ -77,6 +77,7 @@ export const StandardAttributeDescriptionRules = {
       type: "boolean",
       order: 9,
       defaultValueXML: false,
+      implicitValueYAML: false,
     },
     fillChecking: {
       yaml: "ПроверкаЗаполнения",
@@ -93,6 +94,7 @@ export const StandardAttributeDescriptionRules = {
       type: "boolean",
       order: 4,
       defaultValueXML: false,
+      implicitValueYAML: false,
     },
     fillValue: {
       yaml: "ЗначениеЗаполнения",
@@ -130,6 +132,7 @@ export const StandardAttributeDescriptionRules = {
       type: "boolean",
       order: 17,
       defaultValueXML: false,
+      implicitValueYAML: false,
     },
     mask: {
       yaml: "Маска",
@@ -158,6 +161,7 @@ export const StandardAttributeDescriptionRules = {
       type: "boolean",
       order: 3,
       defaultValueXML: false,
+      implicitValueYAML: false,
     },
     passwordMode: {
       yaml: "РежимПароля",
@@ -165,6 +169,7 @@ export const StandardAttributeDescriptionRules = {
       type: "boolean",
       order: 15,
       defaultValueXML: false,
+      implicitValueYAML: false,
     },
     quickChoice: {
       yaml: "БыстрыйВыбор",

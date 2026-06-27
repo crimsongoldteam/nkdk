@@ -63,6 +63,7 @@ export const MetadataDocumentRules = {
       typeSE: "RegisterRecordsWritingOnPost",
       xml: "RegisterRecordsWritingOnPost",
       defaultValueXML: "RealTime",
+      implicitValueYAML: "RealTime",
       xmlParents: documentProperties,
     },
     additionalIndexes: {
@@ -80,6 +81,7 @@ export const MetadataDocumentRules = {
       yaml: "Автонумерация",
       type: "boolean",
       defaultValueXML: true,
+      implicitValueYAML: true,
       xmlParents: documentProperties,
     },
     auxiliaryChoiceForm: {
@@ -120,6 +122,7 @@ export const MetadataDocumentRules = {
       yaml: "КонтрольУникальности",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: documentProperties,
     },
     choiceDataGetModeOnInputByString: {
@@ -127,6 +130,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "ChoiceDataGetModeOnInputByString",
       defaultValueXML: "Directly",
+      implicitValueYAML: "Directly",
       xmlParents: documentProperties,
     },
     choiceHistoryOnInput: {
@@ -134,6 +138,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "ChoiceHistoryOnInput",
       defaultValueXML: "Auto",
+      implicitValueYAML: "Auto",
       xmlParents: documentProperties,
     },
     commands: {
@@ -195,6 +200,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "CreateOnInput",
       defaultValueXML: "Use",
+      implicitValueYAML: "Use",
       xmlParents: documentProperties,
     },
     dataHistory: {
@@ -202,6 +208,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "DataHistoryUse",
       defaultValueXML: "DontUse",
+      implicitValueYAML: "DontUse",
       xmlParents: documentProperties,
     },
     dataLockControlMode: {
@@ -209,6 +216,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "DefaultDataLockControlMode",
       defaultValueXML: "Managed",
+      implicitValueYAML: "Managed",
       xmlParents: documentProperties,
     },
     dataLockFields: {
@@ -249,6 +257,7 @@ export const MetadataDocumentRules = {
       yaml: "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: documentProperties,
     },
     explanation: {
@@ -274,6 +283,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "UseFullTextSearch",
       defaultValueXML: "Use",
+      implicitValueYAML: "Use",
       xmlParents: documentProperties,
     },
     fullTextSearchOnInputByString: {
@@ -281,12 +291,14 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "FullTextSearchOnInputByString",
       defaultValueXML: "DontUse",
+      implicitValueYAML: "DontUse",
       xmlParents: documentProperties,
     },
     includeHelpInContents: {
       yaml: "ВключатьСправкуВСодержание",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: documentProperties,
     },
     inputByString: {
@@ -332,6 +344,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "BusinessProcessNumberPeriodicity",
       defaultValueXML: "Year",
+      implicitValueYAML: "Year",
       xmlParents: documentProperties,
     },
     numberType: {
@@ -339,6 +352,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "DocumentNumberType",
       defaultValueXML: "String",
+      implicitValueYAML: "String",
       xmlParents: documentProperties,
     },
     numerator: {
@@ -368,6 +382,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "Posting",
       defaultValueXML: "Deny",
+      implicitValueYAML: "Deny",
       xmlParents: documentProperties,
     },
     privilegedPostingMode: {
@@ -375,6 +390,7 @@ export const MetadataDocumentRules = {
       type: "boolean",
       xml: "PostInPrivilegedMode",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: documentProperties,
     },
     privilegedUnpostingMode: {
@@ -382,6 +398,7 @@ export const MetadataDocumentRules = {
       type: "boolean",
       xml: "UnpostInPrivilegedMode",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: documentProperties,
     },
     realTimePosting: {
@@ -389,6 +406,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "RealTimePosting",
       defaultValueXML: "Deny",
+      implicitValueYAML: "Deny",
       xmlParents: documentProperties,
     },
     registerRecords: {
@@ -406,6 +424,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "RegisterRecordsDeletion",
       defaultValueXML: "AutoDelete",
+      implicitValueYAML: "AutoDelete",
       xmlParents: documentProperties,
     },
     searchStringModeOnInputByString: {
@@ -413,6 +432,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "SearchStringModeOnInputByString",
       defaultValueXML: "Begin",
+      implicitValueYAML: "Begin",
       xmlParents: documentProperties,
     },
     sequenceFilling: {
@@ -420,6 +440,7 @@ export const MetadataDocumentRules = {
       type: "SystemEnumeration",
       typeSE: "SequenceFilling",
       defaultValueXML: "AutoFill",
+      implicitValueYAML: "AutoFill",
       xmlParents: documentProperties,
     },
     standardAttributes: {
@@ -444,12 +465,14 @@ export const MetadataDocumentRules = {
       yaml: "ОбновлятьИсториюДанныхСразуПослеЗаписи",
       type: "boolean",
       defaultValueXML: false,
+      implicitValueYAML: false,
       xmlParents: documentProperties,
     },
     useStandardCommands: {
       yaml: "ИспользоватьСтандартныеКоманды",
       type: "boolean",
       defaultValueXML: true,
+      implicitValueYAML: true,
       xmlParents: documentProperties,
     },
   },

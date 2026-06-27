@@ -79,7 +79,5 @@ ${CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES_XML}
 
 export const EXPECTED_CLEAN_CONFIGURATION_YAML = [
   "Имя: Конфигурация",
-  "РежимСовместимостиРасширенияКонфигурации: Версия8_3_27",
   "ОсновнойЯзык: Русский",
-  "РежимСовместимости: Версия8_3_27",
 ].join("\n")
