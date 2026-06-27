@@ -13,7 +13,7 @@ const commonProperties = {
   borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
   font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
   horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-  maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+  maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
   textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
   width: { yaml: "Ширина", type: "number" },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },

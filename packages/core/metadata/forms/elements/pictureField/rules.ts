@@ -23,8 +23,8 @@ export const PictureFieldRules = {
     height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
     hyperlink: { yaml: "Гиперссылка", type: "boolean" },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
     nonselectedPictureText: { yaml: "ТекстНевыбраннойКартинки", type: "I8nText" },
     pictureSize: {
       yaml: "РазмерКартинки",

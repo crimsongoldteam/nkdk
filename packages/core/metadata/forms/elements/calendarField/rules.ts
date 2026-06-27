@@ -22,8 +22,8 @@ export const CalendarFieldRules = {
     height: { yaml: "Высота", type: "number", implicitValueYAML: 9 },
     heightInMonths: { yaml: "ВысотаВМесяцах", type: "number", implicitValueYAML: 1 },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: true },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
     selectionMode: {
       yaml: "РежимВыделения",
       type: "SystemEnumeration",

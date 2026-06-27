@@ -21,7 +21,7 @@ const commonProperties = {
     typeSE: "ItemHorizontalLocation",
   },
   horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-  maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+  maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
   textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
   titleFont: { yaml: "ШрифтЗаголовка", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
   titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },

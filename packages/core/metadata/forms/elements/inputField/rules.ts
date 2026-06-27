@@ -134,9 +134,9 @@ export const InputFieldRules = {
     // markIncomplete: { yaml: "ОтметкаНезаполненного", type: "boolean" },
     markNegatives: { yaml: "ВыделятьОтрицательные", type: "boolean" },
     mask: { yaml: "Маска", type: "string" },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
+    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
     maxValue: { yaml: "МаксимальноеЗначение", type: "MinMaxValue", xml: "MaxValue" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
     minValue: { yaml: "МинимальноеЗначение", type: "MinMaxValue", xml: "MinValue" },
     multiLine: { yaml: "МногострочныйРежим", type: "boolean" },
     multipleValuePictureDataPath: {

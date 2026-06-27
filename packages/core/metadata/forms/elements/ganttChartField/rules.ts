@@ -19,8 +19,8 @@ export const GanttChartFieldRules = {
       type: "SystemEnumeration",
       typeSE: "GanttChartIntervalsSelectionMode",
     },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
     tableLocation: {
       yaml: "ПоложениеТаблицы",
       type: "SystemEnumeration",

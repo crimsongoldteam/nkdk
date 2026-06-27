@@ -9,6 +9,7 @@ import { GeographicalSchemaFieldRules } from "~/metadata/forms/elements/geograph
 import { GraphicalSchemaFieldRules } from "~/metadata/forms/elements/graphicalSchemaField/rules"
 import { HTMLDocumentFieldRules } from "~/metadata/forms/elements/htmlDocumentField/rules"
 import { PeriodFieldRules } from "~/metadata/forms/elements/periodField/rules"
+import { ProgressBarFieldRules } from "~/metadata/forms/elements/progressBarField/rules"
 import type { MetadataItemRule, PropertyRule } from "./types"
 
 type RuleModule = Record<string, unknown>
@@ -149,9 +150,34 @@ describe("implicitValueYAML contract", () => {
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
   })
 
+  it("uses configurator defaults as implicit YAML values for progress bar field limits", () => {
+    const expected = {
+      maxHeight: 0,
+      maxValue: 100,
+      maxWidth: 0,
+      minValue: 0,
+    } as const
+
+    const unexpected = Object.entries(expected)
+      .filter(([propertyKey, implicitValueYAML]) => {
+        return ProgressBarFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+      })
+      .map(([propertyKey]) => `ProgressBarFieldRules.${propertyKey}`)
+
+    expect(unexpected).toEqual([])
+  })
+
   it("requires boolean and SystemEnumeration YAML properties with defaultValueXML to have implicitValueYAML", () => {
     const missing = collectRules().flatMap(({ exportName, rule }) =>
       collectMissingImplicitValueYAMLForXMLDefault(rule, exportName)
+    )
+
+    expect(missing).toEqual([])
+  })
+
+  it("uses zero as implicit YAML value for unset max size form properties", () => {
+    const missing = collectRules().flatMap(({ exportName, rule }) =>
+      collectMissingMaxSizeImplicitValueYAML(rule, exportName)
     )
 
     expect(missing).toEqual([])
@@ -192,6 +218,19 @@ function collectMissingImplicitValueYAMLForXMLDefault(rule: MetadataItemRule, pa
   return [...propertyMissing, ...childMissing]
 }
 
+function collectMissingMaxSizeImplicitValueYAML(rule: MetadataItemRule, path: string): string[] {
+  const propertyMissing = Object.entries(rule.properties)
+    .filter(([key, propertyRule]) => needsMaxSizeImplicitValueYAML(key, propertyRule))
+    .map(([key]) => `${path}.${key}`)
+
+  const childMissing =
+    rule.childCollections?.flatMap(({ propertyKey, itemRule }) =>
+      collectMissingMaxSizeImplicitValueYAML(itemRule, `${path}.${propertyKey}`)
+    ) ?? []
+
+  return [...propertyMissing, ...childMissing]
+}
+
 function needsImplicitValueDecision(rule: PropertyRule): boolean {
   if (rule.type !== "boolean" && rule.type !== "SystemEnumeration") return false
   if (!rule.yaml) return false
@@ -206,6 +245,17 @@ function needsImplicitValueForXMLDefault(rule: PropertyRule): boolean {
   if (rule.type !== "boolean" && rule.type !== "SystemEnumeration") return false
   if (!rule.yaml) return false
   if (!("defaultValueXML" in rule)) return false
+  if ("implicitValueYAML" in rule) return false
+  if ("noImplicitValueYAML" in rule) return false
+  return true
+}
+
+function needsMaxSizeImplicitValueYAML(key: string, rule: PropertyRule): boolean {
+  if (key !== "maxHeight" && key !== "maxWidth") return false
+  if (rule.type !== "number") return false
+  if (!rule.yaml) return false
+  if (rule.runtimeOnly === true || rule.syncExternalOnly === true) return false
+  if (rule.toYAML === false && rule.fromYAML === false) return false
   if ("implicitValueYAML" in rule) return false
   if ("noImplicitValueYAML" in rule) return false
   return true

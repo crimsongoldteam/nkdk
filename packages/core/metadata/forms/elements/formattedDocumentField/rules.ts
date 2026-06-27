@@ -17,8 +17,8 @@ export const FormattedDocumentFieldRules = {
     font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
     height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
     output: {
       yaml: "Вывод",
       type: "SystemEnumeration",

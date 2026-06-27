@@ -120,13 +120,13 @@ export const TableRules = {
       typeSE: "InitialTreeView",
     },
     // markIncomplete: { yaml: "ОтметкаНезаполненного", type: "boolean" },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
+    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
     maxHeightInTableRows: {
       yaml: "МаксимальнаяВысотаВСтрокахТаблицы",
       type: "number",
       xml: "MaxRowsCount",
     },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
     multipleChoice: { yaml: "МножественныйВыбор", type: "boolean" },
     onMainServerUnavalableBehavior: {
       yaml: "ПоведениеПриНедоступностиОсновногоСервера",

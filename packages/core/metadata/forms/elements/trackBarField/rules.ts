@@ -20,9 +20,9 @@ export const TrackBarFieldRules = {
       typeSE: "TrackBarMarkingAppearance",
     },
     markingStep: { yaml: "ШагРазметки", type: "number", implicitValueYAML: 5 },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
+    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
     maxValue: { yaml: "МаксимальноеЗначение", type: "number", implicitValueYAML: 100 },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
     minValue: { yaml: "МинимальноеЗначение", type: "number", implicitValueYAML: 0 },
     orientation: {
       yaml: "Ориентация",

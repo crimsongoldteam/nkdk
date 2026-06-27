@@ -16,8 +16,8 @@ export const PeriodFieldRules = {
     borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
     height: { yaml: "Высота", type: "number", implicitValueYAML: 0 },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", noImplicitValueYAML: true },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", noImplicitValueYAML: true },
     width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
     events: {

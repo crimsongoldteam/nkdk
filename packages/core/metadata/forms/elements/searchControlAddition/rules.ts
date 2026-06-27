@@ -45,7 +45,7 @@ const commonProperties = {
     typeSE: "ItemHorizontalLocation",
   },
   horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-  maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+  maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
   textColor: {
     yaml: "ЦветТекста",
     type: "Color",

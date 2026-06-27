@@ -21,8 +21,8 @@ export const formDecorationCommonProperties = {
     typeSE: "ItemHorizontalLocation",
   },
   horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-  maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-  maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+  maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
+  maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
   onMainServerUnavalableBehavior: {
     yaml: "ПоведениеПриНедоступностиОсновногоСервера",
     type: "SystemEnumeration",

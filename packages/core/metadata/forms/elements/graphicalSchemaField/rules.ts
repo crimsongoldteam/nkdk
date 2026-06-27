@@ -16,8 +16,8 @@ export const GraphicalSchemaFieldRules = {
     edit: { yaml: "Редактирование", type: "boolean", toYAML: false, fromYAML: false, toEnterprise: false },
     height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: true },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
     output: {
       yaml: "Вывод",
       type: "SystemEnumeration",

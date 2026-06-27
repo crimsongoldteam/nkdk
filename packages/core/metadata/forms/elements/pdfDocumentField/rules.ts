@@ -15,8 +15,8 @@ export const PDFDocumentFieldRules = {
     commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
     height: { yaml: "Высота", type: "number" },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
+    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
     output: {
       yaml: "Вывод",
       type: "SystemEnumeration",
