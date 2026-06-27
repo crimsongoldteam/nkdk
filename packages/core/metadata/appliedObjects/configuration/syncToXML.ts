@@ -10,9 +10,6 @@ import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { discoverMetadataProjectResources, type MetadataProjectPropertiesYamlRef } from "~/metadata/project/resources"
 import { xmlExport } from "~/xml/export/exporter"
-import { createConfigDumpInfoExternalMetadataCollector } from "../configDumpInfo/externalMetadataCollector"
-import type { ExternalMetadataCollector } from "~/metadata/orchestration/externalMetadata/types"
-import { syncConfigDumpInfoToXML } from "../configDumpInfo/sync"
 import {
   applyPendingMigrationFiles,
   collectStructuralStateFromXML,
@@ -62,12 +59,6 @@ export const syncConfigurationToXML = async (params: {
 }): Promise<ConfigurationSyncResult> => {
   const { context, inputDir, outputDir } = params
   const referenceDir = params.referenceDir
-  const exportContext = context.exportToXML
-  if (!exportContext.externalMetadataCollector) {
-    ;(
-      exportContext as typeof exportContext & { externalMetadataCollector: ExternalMetadataCollector }
-    ).externalMetadataCollector = createConfigDumpInfoExternalMetadataCollector(exportContext.configDumpInfo)
-  }
 
   if (!fs.existsSync(inputDir)) {
     return {
@@ -199,22 +190,13 @@ export const syncConfigurationToXML = async (params: {
 
   if (batchResult.failed.length === 0) {
     try {
-      await syncConfigDumpInfoToXML({
-        context,
-        outputDir,
-        referenceDir,
-        yamlState,
-        migrationState: migrationResult.state,
-        referencePathByCurrentPath: migrationResult.referencePathByCurrentPath,
-        xmlManifest,
-      })
       if (referenceDir) {
         await preserveUnsupportedRootExternalFilesToXML({ outputDir, referenceDir, xmlManifest })
       }
     } catch (error) {
       return {
         succeeded: batchResult.succeeded,
-        failed: [{ kind: "configDumpInfo", name: "ConfigDumpInfo.xml", error: toError(error) }],
+        failed: [{ kind: "rootExternalFiles", name: "Ext", error: toError(error) }],
       }
     }
 
