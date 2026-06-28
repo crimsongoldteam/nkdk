@@ -26,17 +26,20 @@
 
 ## Область текущей спеки
 
-Эта спека планирует реализацию для трёх связанных нарушений:
+Эта спека планирует реализацию для всех найденных нарушений границ:
 
 - центральные реестры типов в `orchestration`;
 - предметная сборка структуры проекта в `metadata/project`;
 - частные условия по файловым дочерним именам в
-  `orchestration/appliedObject`.
+  `orchestration/appliedObject`;
+- metadata-target owner/root logic в общем property-слое;
+- `validation/dataPath` как applied-resolver внутри общего слоя;
+- `ProjectMetadataResolver` как предметный resolver в `validation`;
+- form validation и dynamic list warnings в общем `validation`.
 
-Случаи `metadataTarget`, `validation/dataPath`, `ProjectMetadataResolver` и
-form validation зафиксированы здесь как известные нарушения границ, но не
-решаются в рамках этой спеки. Для них будут отдельные спеки и планы после
-завершения текущей серии.
+Работа всё равно идёт последовательно: приоритет 1 разбирается первым,
+приоритеты 2 и 3 входят в эту же спеку как продолжение серии, но не должны
+смешиваться с первыми шагами в одном крупном изменении.
 
 ## Сквозной договор регистраций
 
@@ -216,7 +219,7 @@ form validation зафиксированы здесь как известные 
 
 Категория зависимости: local-substitutable.
 
-### 4. Metadata target owner/root в property-оркестрации - Приоритет 2, вне текущей спеки
+### 4. Metadata target owner/root в property-оркестрации - Приоритет 2
 
 Файлы:
 
@@ -243,15 +246,43 @@ form validation зафиксированы здесь как известные 
 
 Направление выноса:
 
-- Ввести registry/операцию для `metadataTargetOwnerFromRule`.
-- Дать rules-объектам возможность объявлять root, owner behavior и nested owner
-  mapping.
-- Для внешнего источника данных оформить построение nested object path как
-  регистрацию, а не как частные строки в property-слое.
+- Не менять смысл property-rules с `metadataTarget`. Они по-прежнему описывают
+  ограничение значения: ссылка на member текущего объекта, ссылка на top-level
+  объект, допустимые roots, memberKinds, filters.
+- Разделить два знания:
+  - property-rule говорит, куда можно ссылаться;
+  - item-rule или регистрация объекта говорит, кто такой `owner: "this"` для
+    этого объекта.
+- Для простых корневых объектов добавить декларацию владельца прямо в
+  `rules.ts`, например:
+  - `MetadataDocumentRules` -> `metadataTargetOwner: { kind: "self", root:
+    "Document" }`;
+  - `MetadataDocumentNumeratorRules` -> `metadataTargetOwner: { kind: "self",
+    root: "DocumentNumerator" }`.
+- Для объектов, которые не должны становиться владельцем metadata-target,
+  объявить наследование владельца, например `ClientApplicationFormRules` ->
+  `metadataTargetOwner: { kind: "inherit" }`. Тогда форма внутри документа
+  продолжает использовать owner документа: `Document.АвансовыйОтчет`.
+- Для сложных вложенных объектов оставить в `rules.ts` только нейтральный факт
+  участия в metadata-target, а построение пути зарегистрировать в `register.ts`
+  объекта. Примеры:
+  - `MetadataExternalDataSourceTable` строит owner как
+    `ExternalDataSource.<Источник>.Table.<Таблица>`;
+  - `MetadataExternalDataSourceCube` строит owner как
+    `ExternalDataSource.<Источник>.Cube.<Куб>`;
+  - `MetadataExternalDataSourceDimensionTable` строит owner как
+    `ExternalDataSource.<Источник>.Cube.<Куб>.DimensionTable.<Таблица>`.
+- Перевести стек владельцев из `{ itemType, name }` к нейтральному виду, где
+  общий property-слой получает готовый `MetadataTargetOwner` или resolver,
+  способный его построить.
+- После этого `metadataTargetString.ts` больше не должен содержать fallback
+  `Нумератор -> DocumentNumerator`, проверки `ClientApplicationForm`,
+  `MetadataAttribute`, `MetadataExternalDataSource*` и таблицу
+  `rootByOwnerItemType`.
 
 Категория зависимости: in-process.
 
-### 5. `validation/dataPath` как applied-resolver внутри общего слоя - Приоритет 3, вне текущей спеки
+### 5. `validation/dataPath` как applied-resolver внутри общего слоя - Приоритет 3
 
 Файлы:
 
@@ -302,7 +333,7 @@ form validation зафиксированы здесь как известные 
 
 Категория зависимости: in-process.
 
-### 6. `ProjectMetadataResolver` как предметный resolver в `validation` - Приоритет 3, вне текущей спеки
+### 6. `ProjectMetadataResolver` как предметный resolver в `validation` - Приоритет 3
 
 Файлы:
 
@@ -338,7 +369,7 @@ form validation зафиксированы здесь как известные 
 
 Категория зависимости: local-substitutable.
 
-### 7. Form validation и dynamic list warnings в общем `validation` - Приоритет 3, вне текущей спеки
+### 7. Form validation и dynamic list warnings в общем `validation` - Приоритет 3
 
 Файлы:
 
@@ -396,9 +427,20 @@ form validation зафиксированы здесь как известные 
    file item collections с собственными директориями.
 10. Перевести `convertFromXML.ts` на описатель и убрать дублирующий
     `isFileChildNameRule`.
-
-Разделы 4-7 остаются в документе только как очередь следующих архитектурных
-тем. Они не входят в план реализации этой спеки.
+11. Для metadata-target ввести нейтральный договор owner/root resolver: простые
+    owners объявить в `rules.ts`, сложные nested owner paths зарегистрировать в
+    `register.ts`, а property-rules с `metadataTarget` оставить без изменения
+    смысла.
+12. Для `validation/dataPath` выделить нейтральное validation-ядро и
+    подключаемый `DataPathResolverRegistry`; перенести owner kinds,
+    type-description mapping, стандартные реквизиты и виртуальные поля в
+    регистрации рядом с common/applied правилами.
+13. Разделить `ProjectMetadataResolver` на нейтральный resolver и набор
+    registered resolvers для member collections, value collections, child file
+    lookup и object path segments.
+14. Вынести form validation из общего validation-ядра в зарегистрированный
+    validator для `ClientApplicationForm`; dynamic list warnings и opaque
+    multiple value data path оформить как операции form/type/property rules.
 
 ## Проверка для каждого шага
 
