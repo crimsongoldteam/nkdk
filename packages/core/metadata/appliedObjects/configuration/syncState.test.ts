@@ -56,33 +56,35 @@ describe("xml sync state", () => {
     await expect(readXmlSyncState(xmlDir)).rejects.toThrow(`Некорректный ${SYNC_STATE_FILE}`)
   })
 
-  it("hashes raw file bytes and ignores directories", async () => {
+  it("hashes only rule-guided project files", async () => {
     const yamlDir = tempDir()
-    mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+    mkdirSync(join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента"), { recursive: true })
+    mkdirSync(join(yamlDir, "Миграции"), { recursive: true })
+    writeFileSync(join(yamlDir, "Конфигурация.yaml"), "Имя: Тест\n", "utf-8")
+    writeFileSync(join(yamlDir, "МодульПриложения.bsl"), "Процедура Проверка()\nКонецПроцедуры\n", "utf-8")
     writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "a\n", "utf-8")
-    writeFileSync(join(yamlDir, "Справочник", "Товары", "Модуль.bsl"), "b\r\n", "utf-8")
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "МодульОбъекта.bsl"), "b\r\n", "utf-8")
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml"), "Имя: ФормаЭлемента\n", "utf-8")
+    mkdirSync(join(yamlDir, "Справочник", "Товары", "Справка"), { recursive: true })
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "Справка", "ru.html"), "<html>help</html>\n", "utf-8")
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "unknown.tmp"), "noise\n", "utf-8")
+    writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), "ignored\n", "utf-8")
 
-    const hashes = await hashProjectFiles(yamlDir)
+    const hashes = await hashProjectFiles(yamlDir, { concurrency: 2 })
 
-    expect(Object.keys(hashes).sort()).toEqual([
-      "Справочник/Товары/Модуль.bsl",
+    expect(Object.keys(hashes)).toEqual([
+      "Конфигурация.yaml",
+      "МодульПриложения.bsl",
+      "Справочник/Товары/МодульОбъекта.bsl",
       "Справочник/Товары/Свойства.yaml",
+      "Справочник/Товары/Справка/ru.html",
+      "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
     ])
     expect(hashes["Справочник/Товары/Свойства.yaml"]).toMatch(/^xxh3-64:[0-9a-f]{16}$/)
-    expect(hashes["Справочник/Товары/Модуль.bsl"]).toMatch(/^xxh3-64:[0-9a-f]{16}$/)
   })
 
-  it("ignores service metadata files", async () => {
-    const yamlDir = tempDir()
-    mkdirSync(join(yamlDir, ".git", "objects"), { recursive: true })
-    mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
-    writeFileSync(join(yamlDir, ".DS_Store"), "finder metadata\n", "utf-8")
-    writeFileSync(join(yamlDir, ".git", "objects", "pack"), "git metadata\n", "utf-8")
-    writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "a\n", "utf-8")
-
-    await expect(hashProjectFiles(yamlDir)).resolves.toEqual({
-      "Справочник/Товары/Свойства.yaml": expect.stringMatching(/^xxh3-64:[0-9a-f]{16}$/),
-    })
+  it("rejects invalid hash concurrency", async () => {
+    await expect(hashProjectFiles(tempDir(), { concurrency: 0 })).rejects.toThrow("concurrency")
   })
 
   it("detects added changed and deleted files", () => {
@@ -120,5 +122,27 @@ describe("xml sync state", () => {
         "Справочник/Товары/Свойства.yaml": expect.stringMatching(/^xxh3-64:[0-9a-f]{16}$/),
       },
     })
+  })
+
+  it("passes hash concurrency during initialization", async () => {
+    const xmlDir = tempDir()
+    const yamlDir = tempDir()
+    mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "Наименование: Товары\n", "utf-8")
+
+    await initializeXmlSyncState({ yamlDir, xmlDir, hashConcurrency: 1 })
+
+    await expect(readXmlSyncState(xmlDir)).resolves.toEqual({
+      version: 1,
+      files: {
+        "Справочник/Товары/Свойства.yaml": expect.stringMatching(/^xxh3-64:[0-9a-f]{16}$/),
+      },
+    })
+  })
+
+  it("validates hash concurrency during initialization", async () => {
+    await expect(initializeXmlSyncState({ yamlDir: tempDir(), xmlDir: tempDir(), hashConcurrency: 0 })).rejects.toThrow(
+      "concurrency",
+    )
   })
 })

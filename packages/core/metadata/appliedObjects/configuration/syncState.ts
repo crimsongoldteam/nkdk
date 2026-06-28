@@ -1,9 +1,11 @@
 import fs from "fs"
-import { join, relative, resolve, sep } from "path"
+import { join, resolve } from "path"
 import { xxh3 } from "@node-rs/xxhash"
+import pLimit from "p-limit"
 import YAML from "yaml"
 
 export const SYNC_STATE_FILE = ".nkdk-sync.yaml"
+const DEFAULT_HASH_CONCURRENCY = 16
 
 export interface XmlSyncState {
   version: 1
@@ -19,7 +21,14 @@ export interface XmlSyncStateDiff {
 export interface InitializeXmlSyncStateParams {
   yamlDir: string
   xmlDir: string
+  hashConcurrency?: number
 }
+
+export interface HashProjectFilesOptions {
+  concurrency?: number
+}
+
+type ProjectHashEntry = readonly [string, string]
 
 export async function readXmlSyncState(xmlDir: string): Promise<XmlSyncState | undefined> {
   const path = join(xmlDir, SYNC_STATE_FILE)
@@ -37,11 +46,29 @@ export async function writeXmlSyncState(xmlDir: string, state: XmlSyncState): Pr
   await fs.promises.writeFile(join(xmlDir, SYNC_STATE_FILE), content, "utf-8")
 }
 
-export async function hashProjectFiles(projectDir: string): Promise<Record<string, string>> {
+export async function hashProjectFiles(
+  projectDir: string,
+  options: HashProjectFilesOptions = {},
+): Promise<Record<string, string>> {
   const root = resolve(projectDir)
-  const files: Record<string, string> = {}
-  await collectProjectFileHashes(root, root, files)
-  return sortRecord(files)
+  const concurrency = normalizeHashConcurrency(options.concurrency)
+  const limit = pLimit(concurrency)
+  const { collectSyncStateFilePaths } = await import("~/metadata/project/syncStateFiles")
+  const paths = await collectSyncStateFilePaths(root)
+
+  const entries = await Promise.all(
+    paths.map((projectPath) =>
+      limit(async () => {
+        const absPath = join(root, ...projectPath.split("/"))
+        if (!fs.existsSync(absPath)) return undefined
+        const hash = xxh3.xxh64(await fs.promises.readFile(absPath))
+        const hashValue: string = `xxh3-64:${hash.toString(16).padStart(16, "0")}`
+        return [projectPath, hashValue] as const
+      }),
+    ),
+  )
+
+  return sortRecord(Object.fromEntries(entries.filter((entry): entry is ProjectHashEntry => entry !== undefined)))
 }
 
 export function diffSyncState(previous: Record<string, string>, current: Record<string, string>): XmlSyncStateDiff {
@@ -62,35 +89,16 @@ export function diffSyncState(previous: Record<string, string>, current: Record<
 }
 
 export async function initializeXmlSyncState(params: InitializeXmlSyncStateParams): Promise<XmlSyncState> {
-  const files = await hashProjectFiles(params.yamlDir)
+  const files = await hashProjectFiles(params.yamlDir, { concurrency: params.hashConcurrency })
   const state: XmlSyncState = { version: 1, files }
   await writeXmlSyncState(params.xmlDir, state)
   return state
 }
 
-async function collectProjectFileHashes(
-  root: string,
-  currentDir: string,
-  result: Record<string, string>
-): Promise<void> {
-  if (!fs.existsSync(currentDir)) return
-
-  for (const entry of await fs.promises.readdir(currentDir, { withFileTypes: true })) {
-    const absPath = join(currentDir, entry.name)
-    if (entry.isDirectory()) {
-      if (entry.name === ".git") continue
-      await collectProjectFileHashes(root, absPath, result)
-      continue
-    }
-    if (!entry.isFile()) continue
-
-    const relPath = relative(root, absPath).split(sep).join("/")
-    if (entry.name === ".DS_Store") continue
-    if (relPath === SYNC_STATE_FILE) continue
-
-    const hash = xxh3.xxh64(await fs.promises.readFile(absPath))
-    result[relPath] = `xxh3-64:${hash.toString(16).padStart(16, "0")}`
-  }
+function normalizeHashConcurrency(value: number | undefined): number {
+  if (value === undefined) return DEFAULT_HASH_CONCURRENCY
+  if (!Number.isInteger(value) || value < 1) throw new Error("hash concurrency must be a positive integer")
+  return value
 }
 
 function isXmlSyncState(value: unknown): value is XmlSyncState {
