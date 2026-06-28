@@ -64,6 +64,44 @@
   входит в эту спецификацию и выполняется по мере разбора соответствующего
   объекта или группы объектов.
 
+## Сквозные связи этапов
+
+Несколько нарушений описывают одни и те же знания, проявленные в разных слоях.
+Их нельзя чинить независимыми механизмами:
+
+- Путь объекта в проекте, дочерние файловые ресурсы и lookup для
+  metadata-target должны опираться на общий project/resource descriptor.
+  `metadata/project`, `orchestration/appliedObject` и
+  `ProjectMetadataResolver` не должны заводить три разных описания папок
+  `Формы`, `Макеты`, `Template.xml`, `Форма.yaml` и похожих ресурсов.
+- Metadata-target owner/root и dataPath owner kind похожи по данным, но имеют
+  разный смысл. Metadata-target owner отвечает за построение ссылки
+  `Document.Заказ`, а dataPath owner kind отвечает за проверку сегментов
+  `ПутьКДанным`. Их можно регистрировать рядом с одним rules-объектом, но
+  договоры должны оставаться раздельными.
+- Form traversal используется и в `validation/dataPath`, и в form validation.
+  Обход формы должен быть общим нейтральным механизмом, а частные источники
+  данных формы и предупреждения должны подключаться регистрациями.
+- Схемы, структура проекта и синхронизация ресурсов должны получать данные из
+  одной декларативной модели. Если один и тот же объект требует schema export,
+  project path и external resources, эти регистрации должны жить в одном
+  `register.ts` объекта.
+
+## Слабые места, которые нужно закрыть до реализации
+
+- Явно описать жизненный цикл `register.ts`: кто импортирует entrypoint,
+  допустима ли повторная регистрация, как тестировать отдельный объект без
+  полного applied-entrypoint.
+- Центральные TypeScript registry нельзя удалять первым шагом. Их удаление
+  становится финальным шагом после миграции прямых потребителей на локальный
+  вывод типов из `rules.ts` и runtime-регистрации.
+- `DataPathResolverRegistry` слишком крупный для одного изменения. Его нужно
+  вводить по частям: owner kinds, `TypeDescription`, поля объектов, стандартные
+  реквизиты, виртуальные поля, table columns и особые переходы.
+- При добавлении нового registry сначала проверять, не является ли он частным
+  случаем уже введённого project/resource, metadata-target или dataPath
+  договора.
+
 ## Очередь разбора
 
 ### 1. Центральные реестры типов в `orchestration` - Приоритет 1
@@ -469,44 +507,56 @@
 
 ## Рекомендуемый порядок работ текущей спеки
 
+Порядок ниже построен по зависимостям, а не по номеру найденного нарушения.
+Каждый пункт должен сохранять текущий смысл правил и проходить отдельной
+небольшой серией изменений.
+
 1. Закрепить и проверить договор `register.ts`: новые регистрации не добавлять
-   в `types.ts`/`rules.ts`, а существующие переносить при касании объекта.
-2. Обкатать удаление централизованной проверки property-rule на
-   `MetadataLanguage`: добавить локальные строители для нужных property-типов,
-   перевести весь `metadataLanguage/rules.ts` на строители без изменения
-   поведения, перенести runtime-регистрацию объекта в `metadataLanguage/register.ts`.
-3. Для объектов, необходимых `metadata/project`, перенести текущие побочные
-   регистрации из `types.ts`/`rules.ts` в их `register.ts`.
-4. `metadata/project` project spec registry и развитие `ruleResources.ts`.
-5. `schemaRegistry` через registrations вместо ручного списка schemas/property
-   refs.
-6. `syncStateFiles`, `directoryStructure`, `resources` через единый описатель
-   ресурсов проекта.
-7. Удаление центральных TypeScript registry в `orchestration` после перевода
-   достаточного набора объектов на локальные строители и вывод типов из rules.
-8. Для `orchestration/appliedObject` ввести type-rule описатель
-   `fileChildNamesDescriptor` и зарегистрировать его для `ChildFormNames` и
-   `ChildTemplateNames`.
-9. Перевести `syncToXML.ts` на описатель: сбор имён из папок, выбор
-   `xmlDir`/`referenceDir`, `propertyValue`, `preserveReference...` и ветку
-   file item collections с собственными директориями.
-10. Перевести `convertFromXML.ts` на описатель и убрать дублирующий
-    `isFileChildNameRule`.
-11. Для metadata-target ввести нейтральный договор owner/root resolver: простые
-    owners объявить в `rules.ts`, сложные nested owner paths зарегистрировать в
-    `register.ts`, а property-rules с `metadataTarget` оставить без изменения
-    смысла.
-12. Для `validation/dataPath` выделить нейтральное validation-ядро и
-    подключаемый `DataPathResolverRegistry`; перенести owner kinds,
-    type-description mapping, стандартные реквизиты, виртуальные поля, table
-    columns и особые переходы обхода в регистрации рядом с common/applied
-    правилами.
-13. Разделить `ProjectMetadataResolver` на нейтральный resolver и набор
-    registered resolvers для member collections, value collections, child file
-    lookup и object path segments.
+   в `types.ts`/`rules.ts`, существующие переносить при касании объекта,
+   entrypoint-импорты сделать явными, повторную регистрацию обработать
+   предсказуемо.
+2. Обкатать локальные строители property-rule на `MetadataLanguage`: добавить
+   строители для нужных property-типов, перевести весь
+   `metadataLanguage/rules.ts` на строители без изменения поведения, перенести
+   runtime-регистрацию объекта в `metadataLanguage/register.ts`.
+3. Ввести основу project/resource descriptor поверх `ruleResources.ts`. Этот
+   договор должен стать источником для структуры проекта, внешних ресурсов,
+   child file lookup и будущих project-path resolver-ов.
+4. Для объектов, необходимых `metadata/project`, перенести текущие побочные
+   регистрации из `types.ts`/`rules.ts` в их `register.ts` и подключить их к
+   project/resource descriptor.
+5. Перевести `schemaRegistry` на регистрации вместо ручного списка schemas и
+   property refs.
+6. Перевести `syncStateFiles`, `directoryStructure` и `resources` на единый
+   project/resource descriptor, без ручных проверок конкретных папок и itemType.
+7. Для `orchestration/appliedObject` ввести type-rule описатель
+   `fileChildNamesDescriptor`, но связать его с project/resource descriptor, а
+   не заводить отдельную модель папок форм и макетов.
+8. Перевести `syncToXML.ts` на `fileChildNamesDescriptor`: сбор имён из папок,
+   выбор `xmlDir`/`referenceDir`, `propertyValue`, `preserveReference...` и
+   ветку file item collections с собственными директориями.
+9. Перевести `convertFromXML.ts` на `fileChildNamesDescriptor` и убрать
+   дублирующий `isFileChildNameRule`.
+10. Для metadata-target ввести нейтральный договор owner/root resolver:
+    простые owners объявить в `rules.ts`, сложные nested owner paths
+    зарегистрировать в `register.ts`, а property-rules с `metadataTarget`
+    оставить без изменения смысла.
+11. Разделить `ProjectMetadataResolver` на нейтральный resolver и registered
+    resolvers для member collections, value collections, child file lookup и
+    object path segments. Использовать уже введённые project/resource и
+    metadata-target регистрации.
+12. Для `validation/dataPath` ввести `DataPathResolverRegistry` по частям:
+    сначала owner kinds и `TypeDescription`, затем поля объектов и стандартные
+    реквизиты, затем виртуальные поля, table columns и особые переходы обхода.
+13. Вынести form traversal в нейтральный общий обход, который используют и
+    dataPath, и form validation; частные источники данных формы подключить
+    через регистрации.
 14. Вынести form validation из общего validation-ядра в зарегистрированный
     validator для `ClientApplicationForm`; dynamic list warnings и opaque
     multiple value data path оформить как операции form/type/property rules.
+15. После миграции прямых потребителей удалить центральные TypeScript registry
+    в `orchestration` и заменить оставшиеся типы на локальный вывод из
+    конкретных `rules.ts`.
 
 ## Проверка для каждого шага
 
