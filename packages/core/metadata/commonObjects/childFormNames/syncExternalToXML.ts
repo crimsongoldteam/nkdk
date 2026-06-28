@@ -27,14 +27,16 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
     return
   }
 
-  const entries = await fs.promises.readdir(formsDir, { withFileTypes: true })
-  const formNames = entries
-    .filter((e) => e.isDirectory())
-    .filter((e) => {
-      const yamlPath = join(formsDir, e.name, "Форма.yaml")
-      return fs.existsSync(yamlPath)
-    })
-    .map((e) => e.name)
+  const formNames =
+    params.itemName === undefined
+      ? (await fs.promises.readdir(formsDir, { withFileTypes: true }))
+          .filter((e) => e.isDirectory())
+          .filter((e) => {
+            const yamlPath = join(formsDir, e.name, "Форма.yaml")
+            return fs.existsSync(yamlPath)
+          })
+          .map((e) => e.name)
+      : [params.itemName]
   assertNoMissingFormYAML({
     formsDir,
     expectedFormNames,
@@ -54,8 +56,8 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
       currentXMLPath: buildChildFormCurrentXMLPath({ xmlDir, currentXMLDir: params.currentXMLDir, name, formName }),
       xmlManifest,
     })
-    await copyFormModuleToXML({ nkdkDir, formOutputDir, formName, xmlManifest })
-    await copyFormHelpToXML({ context, nkdkDir, formOutputDir, formName, xmlManifest })
+    await copyFormModuleToXML({ nkdkDir, formOutputDir, folderName: rule.folderName, formName, xmlManifest })
+    await copyFormHelpToXML({ context, nkdkDir, formOutputDir, folderName: rule.folderName, formName, xmlManifest })
   }
 }
 
@@ -119,11 +121,12 @@ const getLastPathSegments = (value: string, count: number): string => {
 async function copyFormModuleToXML(params: {
   nkdkDir: string
   formOutputDir: string
+  folderName: string
   formName: string
   xmlManifest?: XmlWriteManifest
 }): Promise<void> {
-  const { nkdkDir, formOutputDir, formName, xmlManifest } = params
-  const srcPath = join(nkdkDir, "Формы", formName, "Модуль.bsl")
+  const { nkdkDir, formOutputDir, folderName, formName, xmlManifest } = params
+  const srcPath = join(nkdkDir, folderName, formName, "Модуль.bsl")
   if (!fs.existsSync(srcPath)) return
 
   const dstPath = join(formOutputDir, "Forms", formName, "Ext", "Form", "Module.bsl")
@@ -136,11 +139,12 @@ async function copyFormHelpToXML(params: {
   context: ConfigurationContextWithExportToXML
   nkdkDir: string
   formOutputDir: string
+  folderName: string
   formName: string
   xmlManifest?: XmlWriteManifest
 }): Promise<void> {
-  const { nkdkDir, formOutputDir, formName, xmlManifest } = params
-  const srcDir = join(nkdkDir, "Формы", formName, "Справка")
+  const { nkdkDir, formOutputDir, folderName, formName, xmlManifest } = params
+  const srcDir = join(nkdkDir, folderName, formName, "Справка")
   if (!fs.existsSync(srcDir)) return
 
   const htmlFiles = (await fs.promises.readdir(srcDir)).filter((file) => file.endsWith(".html"))
@@ -178,3 +182,50 @@ async function copyFormHelpToXML(params: {
 }
 
 registerTypeRule("ChildFormNames", "syncExternalToXML", syncChildFormNamesToXML)
+registerTypeRule("ChildFormNames", "xmlSyncWriter", syncChildFormNamesToXML)
+registerTypeRule("ChildFormNames", "projectResources", ({ propertyRule }) => {
+  const folderName = (propertyRule as ChildFormNamesPropertyRule | undefined)?.folderName ?? "Формы"
+  return [
+    {
+      kind: "yaml",
+      role: "fileItem",
+      projectPattern: `${folderName}/{itemName}/Форма.yaml`,
+      required: true,
+      repeatable: true,
+      owner: "currentItem",
+      compositionImpact: "none",
+      source: { kind: "propertyType", type: "ChildFormNames" },
+    },
+    {
+      kind: "yaml",
+      role: "resourceOnly",
+      projectPattern: `${folderName}/{itemName}/Модуль.bsl`,
+      required: false,
+      repeatable: true,
+      owner: "currentItem",
+      compositionImpact: "none",
+      source: { kind: "propertyType", type: "ChildFormNames" },
+    },
+  ]
+})
+registerTypeRule("ChildFormNames", "xmlSyncRoutes", ({ propertyRule }) => {
+  const folderName = (propertyRule as ChildFormNamesPropertyRule | undefined)?.folderName ?? "Формы"
+  return [
+    {
+      kind: "fileItem",
+      yamlPattern: `${folderName}/{itemName}/Форма.yaml`,
+      xmlPathPattern: "Forms/{itemName}.xml",
+      writerType: "propertyType",
+      source: { kind: "propertyType", type: "ChildFormNames" },
+      dumpInfoNamePatterns: ["{dumpRoot}.{ownerName}.Form.{itemName}", "{dumpRoot}.{ownerName}.Form.{itemName}.Form"],
+    },
+    {
+      kind: "externalFile",
+      yamlPattern: `${folderName}/{itemName}/Модуль.bsl`,
+      xmlPathPattern: "Forms/{itemName}/Ext/Form/Module.bsl",
+      writerType: "propertyType",
+      source: { kind: "propertyType", type: "ChildFormNames" },
+      dumpInfoNamePatterns: ["{dumpRoot}.{ownerName}.Form.{itemName}", "{dumpRoot}.{ownerName}.Form.{itemName}.Form"],
+    },
+  ]
+})
