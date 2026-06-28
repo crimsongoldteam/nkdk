@@ -59,14 +59,30 @@ describe("xml sync state", () => {
   it("hashes only rule-guided project files", async () => {
     const yamlDir = tempDir()
     mkdirSync(join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента"), { recursive: true })
+    mkdirSync(join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Справка"), { recursive: true })
+    mkdirSync(join(yamlDir, "Справочник", "Товары", "Команды"), { recursive: true })
+    mkdirSync(join(yamlDir, "Справочник", "Товары", "Шаблоны", "ПечатнаяФорма"), { recursive: true })
     mkdirSync(join(yamlDir, "Миграции"), { recursive: true })
     writeFileSync(join(yamlDir, "Конфигурация.yaml"), "Имя: Тест\n", "utf-8")
     writeFileSync(join(yamlDir, "МодульПриложения.bsl"), "Процедура Проверка()\nКонецПроцедуры\n", "utf-8")
-    writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "a\n", "utf-8")
+    writeFileSync(
+      join(yamlDir, "Справочник", "Товары", "Свойства.yaml"),
+      ["Имя: Товары", "Команды:", "  Печать:", "    Синоним: Печать", ""].join("\n"),
+      "utf-8",
+    )
     writeFileSync(join(yamlDir, "Справочник", "Товары", "МодульОбъекта.bsl"), "b\r\n", "utf-8")
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "Команды", "Печать.bsl"), "c\n", "utf-8")
     writeFileSync(join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml"), "Имя: ФормаЭлемента\n", "utf-8")
+    writeFileSync(
+      join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Справка", "ru.html"),
+      "<html>form help</html>\n",
+      "utf-8",
+    )
+    mkdirSync(join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "ДинамическийСписок"), { recursive: true })
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "ДинамическийСписок", "Список.query"), "ВЫБРАТЬ 1\n", "utf-8")
     mkdirSync(join(yamlDir, "Справочник", "Товары", "Справка"), { recursive: true })
     writeFileSync(join(yamlDir, "Справочник", "Товары", "Справка", "ru.html"), "<html>help</html>\n", "utf-8")
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "Шаблоны", "ПечатнаяФорма", "Template.xml"), "<template/>\n", "utf-8")
     writeFileSync(join(yamlDir, "Справочник", "Товары", "unknown.tmp"), "noise\n", "utf-8")
     writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), "ignored\n", "utf-8")
 
@@ -75,10 +91,14 @@ describe("xml sync state", () => {
     expect(Object.keys(hashes)).toEqual([
       "Конфигурация.yaml",
       "МодульПриложения.bsl",
+      "Справочник/Товары/Команды/Печать.bsl",
       "Справочник/Товары/МодульОбъекта.bsl",
       "Справочник/Товары/Свойства.yaml",
       "Справочник/Товары/Справка/ru.html",
+      "Справочник/Товары/Формы/ФормаЭлемента/ДинамическийСписок/Список.query",
+      "Справочник/Товары/Формы/ФормаЭлемента/Справка/ru.html",
       "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+      "Справочник/Товары/Шаблоны/ПечатнаяФорма/Template.xml",
     ])
     expect(hashes["Справочник/Товары/Свойства.yaml"]).toMatch(/^xxh3-64:[0-9a-f]{16}$/)
   })
